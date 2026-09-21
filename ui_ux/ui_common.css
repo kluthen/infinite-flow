@@ -82,6 +82,26 @@
   --color-error-surface: #4a2421;
 }
 
+/* With no manual selection, the initial palette follows the operating system. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --color-canvas: #171816;
+    --color-surface: #23231f;
+    --color-surface-muted: #30302a;
+    --color-text: #f7f0df;
+    --color-text-muted: #d0c7b6;
+    --color-staff: #fff8e9;
+    --color-border: #756f62;
+    --color-accent: #e0a64b;
+    --color-accent-hover: #f1bc6a;
+    --color-accent-text: #211604;
+    --color-focus-ring: #70d2df;
+    --color-success: #75d5ac;
+    --color-error: #ff9c90;
+    --color-error-surface: #4a2421;
+  }
+}
+
 /* Accessibility floor: 4.5:1 normal text, 3:1 large text and controls, 44px minimum targets. */
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--color-canvas); color: var(--color-text); font-family: var(--font-ui); line-height: var(--leading-base); }

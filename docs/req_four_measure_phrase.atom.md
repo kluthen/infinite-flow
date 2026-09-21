@@ -4,18 +4,25 @@ status: DRAFT
 tags: first-release,music-generation
 dependents:
   - [[req_browser_only_first_release]]
+  - [[req_landscape_phrase_workspace]]
   - [[rule_arpeggio_chaos_respects_constraints]]
   - [[rule_complete_four_four_measures]]
   - [[rule_conservative_tenor_range]]
   - [[rule_jazz_chromatic_resolution]]
   - [[rule_leap_recovery]]
+  - [[rule_leapiness_arpeggio_run_limits]]
+  - [[rule_leapiness_interval_budget]]
   - [[rule_neutral_profile_diatonic_harmony]]
   - [[rule_neutral_profile_diatonic_pitches]]
   - [[rule_notation_display_preserves_phrase]]
   - [[rule_open_phrase_ending]]
   - [[rule_optional_midi_privacy]]
+  - [[rule_presentation_preference_preserves_phrase]]
   - [[rule_preserve_metrical_anchor]]
+  - [[rule_profile_presets_apply_defined_controls]]
   - [[rule_seeded_phrase_reproduction]]
+  - [[rule_tension_arc_level_policy]]
+  - [[rule_tension_ranking_respects_constraints]]
   - [[user_story_controlled_phrase_generation]]
 type: REQUIREMENT
 layer: BUSINESS

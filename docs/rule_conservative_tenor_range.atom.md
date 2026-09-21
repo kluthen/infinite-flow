@@ -5,7 +5,9 @@ type: RULE
 version: 0.1
 priority: 1
 tags: range,tenor-saxophone,hard-constraint
-dependents: []
+dependents:
+  - [[entity_instrument_profile]]
+  - [[module_phrase_generation_profile_policy]]
 human_name: Conservative Tenor Range
 layer: BUSINESS
 parents:

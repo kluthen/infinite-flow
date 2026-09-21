@@ -18,10 +18,10 @@ parents:
 Make a generated phrase reproducible from its complete request and seed.
 
 ## THE RULE / LOGIC
-Phrase generation is deterministic for a given complete request and seed. Explicit regeneration creates a new random seed while preserving the active controls, and the result retains that seed for internal reproduction.
+Phrase generation is deterministic for a given complete request and seed. The complete request includes the selected musical values, profile preset, tension arc, and leapiness. Explicit regeneration creates a new random seed while preserving the active controls, and the result retains that seed for internal reproduction. Applying a presentation theme or changing notation display transposition is not a generation request and cannot alter the phrase.
 
 ## TECHNICAL INTERFACE
 Generation accepts a complete request and seed and returns the seed associated with the result.
 
 ## EXPECTATION
-Supplying the same complete request and seed reproduces the same phrase. Explicit regeneration changes the seed without changing selected controls.
+Supplying the same complete request and seed reproduces the same phrase. Explicit regeneration changes the seed without changing selected controls. Changing the theme or notation display never changes the phrase.

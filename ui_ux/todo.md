@@ -9,14 +9,14 @@
 
 ## In Progress
 
-- Review the HTML/CSS phrase-workspace prototype and incorporate any hierarchy or visual feedback.
+- Resolve Q7 through Q9 from spec review, then repair the validator's implementation-discipline findings.
 
 ## Remaining
 
 - Add optional MIDI-feedback flow and states when that first-release enhancement is scheduled.
-- Validate the completed generation flow and screen with `ux-critic` after the HTML/CSS prototype is approved.
+- Re-run `ux-critic` validation after Q7 through Q9 are resolved and the flow, component vocabulary, and prototype discipline are repaired.
 - Hand the confirmed set to implementation planning.
 
 ## Next Unit
 
-Incorporate any HTML/CSS prototype feedback, then run milestone validation on the generation flow and workspace.
+Route Q7 through Q9 to product specification, then reconcile the design set with the validation findings.

@@ -40,6 +40,10 @@ app-shell
 - `notation-mode segmented control` uses `segmented-control` with `Concert`, `B-flat`, and `E-flat`. One option is always selected.
 - The primary action is `btn btn-primary btn-lg`: `Generate phrase` before a result, otherwise `Regenerate phrase`.
 - The below-score control section groups `field-group` instances: foundation (tempo, tonal center, scale or mode, profile, harmonic motion, tension); rhythm (note density, syncopation, silence density); melodic shape (contour, register, leapiness); character (arpeggio chaos).
+- The first-load tonal context is C Ionian. Every pitch class is selectable; use sharp labels unless selected-key or mode spelling requires flats. Tempo initially displays 90 BPM and moves in increments of 10 BPM within the pending product bounds.
+- The collection menu exposes major, minor, Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian, and Locrian.
+- The neutral preset selects static harmonic motion, quarter-note density, straight syncopation, sparse rests, arch contour, and middle register. The jazz preset selects eighth-note density, occasional offbeats, conversational space, wandering contour, and varying register.
+- Arpeggio chaos exposes `Predictable`, `Varied`, and `Chaotic`: orderly ascending or descending chord-tone direction; slight inversions and reordering; and the strongest permitted reordering respectively. It never bypasses profile, contour, range, or resolution constraints.
 - Discrete settings use `segmented-control`; tempo uses `input-stepper`. Every control has a `field-label`, selected-value feedback, and an accessible description.
 
 ## Notation Contract
@@ -51,7 +55,7 @@ app-shell
 
 ## Responsive Behavior
 
-- At `bp-mobile-landscape`, use one full-width score row above a stacked `control-section`. The header retains notation mode and the primary action; wordmark reduces to `brand-mark`. The score remains a single four-measure staff system.
+- At `bp-mobile-landscape`, use one full-width score row above a stacked `control-section`. The header retains notation mode and the primary action; wordmark reduces to `brand-mark`. The score remains a single four-measure staff system. First load selects B-flat display notation.
 - At `bp-tablet-landscape`, use one full-width score row above a `control-group-row` that wraps as needed. The controls scroll with the page; `staff-viewport` receives the whole inline size.
 - At `bp-desktop`, use the same vertical structure. Orient control groups horizontally across the page and give `staff-viewport` its maximum available inline space; do not add a side rail or third content column.
 - At `bp-portrait-guard`, replace the workspace with `orientation-notice` and preserve no interactive score layout.
