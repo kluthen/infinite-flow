@@ -1,0 +1,36 @@
+# Decisions
+
+Status: draft v0.1
+
+## Decision Log
+
+- **D1 - Client-side web application.** Settled from initial brief. The primary generation and playback loop runs in the browser.
+- **D2 - A monophonic live player is the core participant.** Settled from initial brief. The product responds to played notes rather than generating a detached backing track.
+- **D3 - Supportive feedback, not punitive scoring.** Settled from initial brief. Pitch and timing alignment are tracked to aid practice, not to grade the musician.
+- **D4 - Long-term adaptation is deferred.** Settled from initial brief. It is a later objective rather than an initial-release dependency.
+- **D5 - First deliverable is a finite four-measure generator.** Settled from follow-up. The controls produce one coherent four-measure proposal, and an explicit action regenerates all four measures together.
+- **D6 - Live continuation is second deliverable.** Settled from follow-up; resolves O2. The system listens to one or two player measures, seeds generation, and periodically appends measures to a rolling staff.
+- **D7 - MIDI is the sole initial input path.** Settled from follow-up; resolves O1. The second deliverable receives notes from a MIDI controller. Acoustic-microphone pitch capture is deferred.
+- **D8 - Notes are the required first-deliverable output.** Settled from follow-up; resolves O9. Generated backing is desirable but non-blocking for the first deliverable.
+- **D9 - Musical generators evolve behind decoupled contracts.** Settled from follow-up. The UI, MIDI input, notation, playback, evaluation, and individual musical planners must not depend on one another's internal logic.
+- **D10 - Style-neutral default with an optional jazz profile.** Settled from follow-up; resolves O7. The jazz profile provides an early flexibility test without defining the product's default musical language.
+- **D11 - Neutral profile grammar.** Settled from follow-up. The profile uses selected major, minor, or modal scales; mostly diatonic chord movement; chord tones and scale passing tones; and non-chord-scale, rhythmic, contour, and silence-based tension. It excludes substitutions, altered dominants, and chromatic enclosures.
+- **D12 - Initial jazz vocabulary is chromatic approach and enclosure only.** Settled from follow-up; resolves O4. Altered dominants and harmonic substitutions are deferred.
+- **D13 - First-release harmony uses generated diatonic movement.** Settled from follow-up. The player selects tonal center and scale or mode, then uses harmonic-motion and tension controls; direct chord-progression selection is deferred.
+- **D14 - Initial pitch controls are contour, register, and leapiness.** Settled from follow-up. They form an independently mapped starting vocabulary to refine from generated-phrase feedback.
+- **D15 - First-release meter is fixed 4/4.** Settled from follow-up. Pulse supplies stable BPM, while rhythm controls govern the events inside the meter; alternative meters and tempo variation are deferred.
+- **D16 - Standard staff notation is required.** Settled from follow-up. The finite proposal appears on a conventional staff, and the second deliverable extends that notation into a rolling display.
+- **D17 - Transposition is switchable presentation.** Settled from follow-up; partially resolves O11. Switching transposition changes written notation only; the generated and stored source remains concert pitch.
+- **D18 - Initial transposition choices are Concert, B-flat, and E-flat.** Settled from follow-up; resolves O11. They are shown as instrument-family choices, not raw interval values.
+- **D19 - Initial rhythm controls are subdivision, syncopation, and silence density.** Settled from follow-up. They map independently into rhythm-planner policy inside fixed 4/4 meter.
+- **D20 - First-release pulse is user-selected stable BPM.** Settled from follow-up. It has no pulse-feel control or tempo variation. Generated-lead playback is not required; BPM-aligned backing is an optional enhancement.
+- **D21 - Initial MIDI support is display-only.** Settled from follow-up. It may highlight an incoming note to prove controller integration, but does not yet evaluate or affect generation.
+- **D22 - MIDI mismatch feedback hides the played pitch.** Settled from follow-up; resolves O12. Matching proposal notes may highlight; non-matches receive a gentle hint rather than displaying the incoming note.
+- **D23 - Regeneration creates reproducible variation.** Settled from follow-up. It preserves controls and requests a new random seed; each result retains its seed for internal reproduction.
+- **D24 - Arpeggio chaos remains a first-release control.** Settled from the initial brief and subsequent control discussions. It changes chord-tone ordering and interval contrast within profile and playability constraints; it does not authorize arbitrary pitches.
+- **D25 - Initial playability policy is sax-only and independent of transposition.** Settled from follow-up; partially resolves O14. Changing written-pitch display does not regenerate the phrase or alter its active concert-pitch range.
+- **D26 - The product does not assign a performance score.** Settled from follow-up; resolves O3. Initial MIDI feedback is a gentle match or mismatch indication, and later feedback remains descriptive rather than scored.
+- **D27 - First-release sessions are ephemeral.** Settled from follow-up; resolves O8. A later feature may capture and export sessions.
+- **D28 - Initial phrases end open.** Settled from follow-up; resolves O13. The four-measure phrase supports continued playing rather than a final tonic close; closed endings are deferred as an option.
+- **D29 - The player-selected key and mode govern MIDI continuation.** Settled from follow-up; resolves O5. A MIDI seed initially contributes phrase character, not automatic tonal inference. Automatic key detection is deferred.
+- **D30 - Initial playability range targets tenor saxophone.** Settled from follow-up; resolves O14. Generation is restricted to concert MIDI 45 through 58, corresponding to written `B3` through `C5` for B-flat tenor. Display transposition remains independent, and player-selected ranges are deferred.
