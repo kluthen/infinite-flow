@@ -18,10 +18,10 @@ parents:
 Make each first-release profile preset establish its defined musical-control values.
 
 ## THE RULE / LOGIC
-The neutral preset is the default and selects static harmonic motion, quarter-note density, straight syncopation, sparse rests, arch contour, and middle register. The jazz preset selects eighth-note density, occasional offbeats, conversational space, wandering contour, and varying register.
+The neutral preset is the default and selects static harmonic motion, quarter-note density, straight syncopation, sparse rests, arch contour, and middle register. The jazz preset selects gentle diatonic harmonic motion, eighth-note density, occasional offbeats, conversational space, wandering contour, and varying register.
 
 ## TECHNICAL INTERFACE
 The player selects the neutral or jazz profile preset.
 
 ## EXPECTATION
-Selecting either profile preset applies its specified harmonic-motion, density, syncopation, silence, contour, and register values.
+Selecting either profile preset applies its specified harmonic-motion, density, syncopation, silence, contour, and register values. Selecting jazz applies gentle diatonic harmonic motion.
