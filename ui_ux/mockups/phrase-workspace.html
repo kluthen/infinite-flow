@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Infinite Flow - Phrase Workspace Review</title>
+  <link rel="stylesheet" href="../ui_common.css">
+  <style>
+    /* Review-only composition. It imports the canonical tokens and classes above. */
+    .review-shell { margin-inline: auto; max-inline-size: 100rem; }
+    .brand { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 650; line-height: var(--leading-tight); }
+    .brand-subtitle { color: var(--color-text-muted); font-size: var(--text-sm); }
+    .header-actions, .context-group, .control-options { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .context-group { justify-content: flex-end; }
+    .context-readout { color: var(--color-text-muted); font-size: var(--text-sm); white-space: nowrap; }
+    .score-caption { color: var(--color-text-muted); font-size: var(--text-sm); letter-spacing: 0.08em; margin: 0 0 var(--space-1); text-transform: uppercase; }
+    .score-title { font-family: var(--font-display); font-size: var(--text-2xl); line-height: var(--leading-tight); margin: 0; }
+    .score-subtitle { color: var(--color-text-muted); margin: var(--space-2) 0 var(--space-4); }
+    .score-art { display: block; inline-size: 100%; min-block-size: 22rem; }
+    .control-section-title { font-family: var(--font-display); font-size: var(--text-xl); margin: 0 0 var(--space-1); }
+    .control-section-copy { color: var(--color-text-muted); margin: 0 0 var(--space-4); }
+    .control-group { border-inline-start: var(--space-1) solid var(--color-accent); padding-inline-start: var(--space-3); }
+    .control-group h3 { font-size: var(--text-md); margin: 0 0 var(--space-3); }
+    .control-summary { color: var(--color-text-muted); font-size: var(--text-sm); }
+    .theme-switch { background: transparent; border: 1px solid var(--color-border); color: var(--color-text); }
+    .theme-switch:hover { border-color: var(--color-accent); }
+    .measure-number { fill: var(--color-text-muted); font-family: var(--font-ui); font-size: 15px; }
+    .score-text { fill: var(--color-staff); font-family: var(--font-display); font-size: 26px; font-weight: 600; }
+    .staff-line, .bar-line, .stem, .beam { stroke: var(--color-staff); } .staff-line { stroke-width: 2; } .bar-line { stroke-width: 3; } .stem { stroke-width: 2; } .beam { stroke-width: 6; }
+    .note-head { fill: var(--color-staff); } .rest { fill: var(--color-staff); font-family: serif; font-size: 38px; }
+    @media (max-width: 47.9375rem), (orientation: portrait) { .review-shell { display: none; } }
+  </style>
+</head>
+<body>
+  <main class="layout-app review-shell">
+    <header class="layout-header">
+      <div>
+        <div class="brand">infinite flow</div>
+        <div class="brand-subtitle">A phrase to take somewhere</div>
+      </div>
+      <div class="header-actions">
+        <div class="context-group" aria-label="Score context">
+          <div class="segmented-control" aria-label="Display notation">
+            <button class="segment" type="button">Concert</button>
+            <button class="segment is-selected" type="button">B-flat</button>
+            <button class="segment" type="button">E-flat</button>
+          </div>
+          <span class="context-readout">4/4</span>
+          <span class="context-readout">112 BPM</span>
+        </div>
+        <button class="btn theme-switch" type="button" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">Light / dark</button>
+        <button class="btn btn-primary btn-lg" type="button">Regenerate phrase</button>
+      </div>
+    </header>
+
+    <section class="layout-workspace" aria-labelledby="score-heading">
+      <div class="score-panel">
+        <p class="score-caption">Current proposal</p>
+        <h1 class="score-title" id="score-heading">Four measures. One open thought.</h1>
+        <p class="score-subtitle">B-flat tenor notation - generated from your current direction</p>
+        <div class="staff-frame staff-ready">
+          <!-- Illustration only. Production notation comes from semantic events and an engraving engine. -->
+          <svg class="score-art staff-content" viewBox="0 0 1440 430" role="img" aria-label="Illustrative four measure staff with D minor seven, G seven, C major seven, and A seven chord symbols">
+            <text class="score-text" x="82" y="56">Dm7</text><text class="score-text" x="420" y="56">G7</text><text class="score-text" x="770" y="56">Cmaj7</text><text class="score-text" x="1120" y="56">A7</text>
+            <g transform="translate(82 110)">
+              <path class="staff-line" d="M0 0H1274M0 30H1274M0 60H1274M0 90H1274M0 120H1274"/>
+              <path class="bar-line" d="M60 -15V135M380 -15V135M700 -15V135M1020 -15V135M1274 -15V135"/>
+              <text x="3" y="93" fill="currentColor" font-size="76">𝄞</text><text x="69" y="70" fill="currentColor" font-size="32">4</text><text x="69" y="104" fill="currentColor" font-size="32">4</text>
+              <g>
+                <ellipse class="note-head" cx="140" cy="90" rx="12" ry="8" transform="rotate(-20 140 90)"/><path class="stem" d="M151 88V10"/>
+                <ellipse class="note-head" cx="205" cy="60" rx="12" ry="8" transform="rotate(-20 205 60)"/><path class="stem" d="M216 58V-20"/>
+                <ellipse class="note-head" cx="270" cy="45" rx="12" ry="8" transform="rotate(-20 270 45)"/><path class="stem" d="M281 43V-35"/>
+                <ellipse class="note-head" cx="325" cy="60" rx="12" ry="8" transform="rotate(-20 325 60)"/><path class="stem" d="M336 58V-20"/><path class="beam" d="M216 -20H336"/>
+                <ellipse class="note-head" cx="440" cy="75" rx="12" ry="8" transform="rotate(-20 440 75)"/><path class="stem" d="M451 73V-5"/>
+                <ellipse class="note-head" cx="510" cy="60" rx="12" ry="8" transform="rotate(-20 510 60)"/><path class="stem" d="M521 58V-20"/>
+                <text class="rest" x="580" y="75">𝄽</text>
+                <ellipse class="note-head" cx="640" cy="45" rx="12" ry="8" transform="rotate(-20 640 45)"/><path class="stem" d="M651 43V-35"/>
+                <ellipse class="note-head" cx="760" cy="60" rx="12" ry="8" transform="rotate(-20 760 60)"/><path class="stem" d="M771 58V-20"/>
+                <ellipse class="note-head" cx="825" cy="75" rx="12" ry="8" transform="rotate(-20 825 75)"/><path class="stem" d="M836 73V-5"/>
+                <ellipse class="note-head" cx="890" cy="90" rx="12" ry="8" transform="rotate(-20 890 90)"/><path class="stem" d="M901 88V10"/>
+                <ellipse class="note-head" cx="955" cy="60" rx="12" ry="8" transform="rotate(-20 955 60)"/><path class="stem" d="M966 58V-20"/>
+                <ellipse class="note-head" cx="1080" cy="45" rx="12" ry="8" transform="rotate(-20 1080 45)"/><path class="stem" d="M1091 43V-35"/>
+                <ellipse class="note-head" cx="1140" cy="60" rx="12" ry="8" transform="rotate(-20 1140 60)"/><path class="stem" d="M1151 58V-20"/>
+                <ellipse class="note-head" cx="1200" cy="75" rx="12" ry="8" transform="rotate(-20 1200 75)"/><path class="stem" d="M1211 73V-5"/>
+              </g>
+              <text class="measure-number" x="202" y="177">1</text><text class="measure-number" x="522" y="177">2</text><text class="measure-number" x="842" y="177">3</text><text class="measure-number" x="1162" y="177">4</text>
+            </g>
+          </svg>
+          <p class="control-summary">Open ending - new seed on regeneration - no playback or score</p>
+        </div>
+      </div>
+
+      <section class="control-section" aria-labelledby="controls-heading">
+        <h2 class="control-section-title" id="controls-heading">Shape the next phrase</h2>
+        <p class="control-section-copy">Scroll here when you want a different musical direction. Your current phrase remains visible above.</p>
+        <div class="control-group-row">
+          <section class="control-group">
+            <h3>Foundation</h3>
+            <div class="field-group"><span class="field-label">Tonal center</span><button class="input-stepper" type="button">C major</button></div>
+            <div class="field-group"><span class="field-label">Profile</span><div class="control-options"><button class="segment is-selected" type="button">Neutral</button><button class="segment" type="button">Jazz</button></div></div>
+          </section>
+          <section class="control-group">
+            <h3>Rhythm</h3>
+            <div class="field-group"><span class="field-label">Note density</span><div class="control-options"><button class="segment" type="button">Eighths</button><button class="segment is-selected" type="button">Mixed</button></div></div>
+            <div class="field-group"><span class="field-label">Syncopation</span><button class="input-stepper" type="button">Occasional offbeats</button></div>
+          </section>
+          <section class="control-group">
+            <h3>Melodic shape</h3>
+            <div class="field-group"><span class="field-label">Contour</span><div class="control-options"><button class="segment" type="button">Rising</button><button class="segment is-selected" type="button">Arch</button></div></div>
+            <div class="field-group"><span class="field-label">Register</span><button class="input-stepper" type="button">Middle</button></div>
+          </section>
+          <section class="control-group">
+            <h3>Character</h3>
+            <div class="field-group"><span class="field-label">Harmonic motion</span><button class="input-stepper" type="button">Gentle diatonic</button></div>
+            <div class="field-group"><span class="field-label">Arpeggio chaos</span><button class="input-stepper" type="button">Predictable</button></div>
+          </section>
+        </div>
+      </section>
+    </section>
+  </main>
+  <section class="orientation-notice"><p>Infinite Flow is designed for landscape reading. Rotate your device to view the phrase.</p></section>
+</body>
+</html>

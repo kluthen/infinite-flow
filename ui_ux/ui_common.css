@@ -1,0 +1,148 @@
+/* Infinite Flow canonical design system. Grid: 8pt. Semantic tokens, not component overrides, carry themes. */
+
+:root {
+  /* Typography: editorial UI with a dedicated SMuFL font reserved for engraved notation. */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-ui: "Source Sans 3", "Trebuchet MS", sans-serif;
+  --font-music: "Bravura", "Noto Music", serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --leading-tight: 1.1;
+  --leading-base: 1.5;
+
+  /* 8pt spacing grid. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --shadow-panel: 0 0.5rem 1.5rem rgb(31 29 24 / 0.12);
+  --shadow-focus: 0 0 0 0.1875rem var(--color-focus-ring);
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-sheet: 20;
+  --z-alert: 30;
+
+  /* Named responsive targets. All product screens are landscape-first. */
+  --bp-portrait-guard: 47.9375rem;
+  --bp-mobile-landscape: 48rem;
+  --bp-tablet-landscape: 64rem;
+  --bp-desktop: 90rem;
+
+  /* Motion tokens. */
+  --duration-feedback: 120ms;
+  --duration-fade-fast: 160ms;
+  --duration-fade: 240ms;
+  --ease-out-fast: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out-gentle: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Light theme: text contrast meets WCAG AA at normal text sizes. */
+  --color-canvas: #f4f0e7;
+  --color-surface: #fffdf8;
+  --color-surface-muted: #e9e1d2;
+  --color-text: #22201b;
+  --color-text-muted: #645f56;
+  --color-staff: #171613;
+  --color-border: #b8ae9d;
+  --color-accent: #7b4e12;
+  --color-accent-hover: #603b09;
+  --color-accent-text: #ffffff;
+  --color-focus-ring: #176c7f;
+  --color-success: #176b50;
+  --color-error: #a52c24;
+  --color-error-surface: #fce8e5;
+}
+
+[data-theme="dark"] {
+  /* Dark palette preserves notation contrast and the same semantic roles. */
+  --color-canvas: #171816;
+  --color-surface: #23231f;
+  --color-surface-muted: #30302a;
+  --color-text: #f7f0df;
+  --color-text-muted: #d0c7b6;
+  --color-staff: #fff8e9;
+  --color-border: #756f62;
+  --color-accent: #e0a64b;
+  --color-accent-hover: #f1bc6a;
+  --color-accent-text: #211604;
+  --color-focus-ring: #70d2df;
+  --color-success: #75d5ac;
+  --color-error: #ff9c90;
+  --color-error-surface: #4a2421;
+}
+
+/* Accessibility floor: 4.5:1 normal text, 3:1 large text and controls, 44px minimum targets. */
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--color-canvas); color: var(--color-text); font-family: var(--font-ui); line-height: var(--leading-base); }
+button, input, select { font: inherit; }
+:focus-visible { box-shadow: var(--shadow-focus); outline: none; }
+
+/* Layout classes: landscape workspace keeps score larger than its supporting controls. */
+.layout-app { min-block-size: 100dvb; padding: var(--space-4); }
+.layout-header { align-items: center; border-block-end: 1px solid var(--color-border); display: flex; gap: var(--space-3); justify-content: space-between; padding-block-end: var(--space-3); }
+.layout-workspace { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); margin-block-start: var(--space-3); }
+.control-panel, .control-sheet, .control-section { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-panel); padding: var(--space-4); }
+.control-group-row { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.score-panel { min-inline-size: 0; }
+.score-toolbar { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: space-between; margin-block-end: var(--space-3); }
+
+/* States: default, loading, error. Hover/focus/active are not applicable to the static staff container. */
+.staff-frame { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); color: var(--color-staff); min-block-size: 24rem; padding: var(--space-4); }
+.staff-empty, .staff-error { align-content: center; display: grid; justify-items: center; }
+.staff-loading { cursor: progress; opacity: 0.78; }
+.staff-content { animation: staff-fade-in var(--duration-fade) var(--ease-out-gentle) both; inline-size: 100%; }
+.measure-slot { min-inline-size: 0; }
+
+/* States: default, hover, focus-visible, active, disabled, loading, error. */
+.btn { align-items: center; border: 1px solid transparent; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; justify-content: center; min-block-size: 2.75rem; padding: var(--space-2) var(--space-4); transition: background-color var(--duration-feedback) var(--ease-out-fast), color var(--duration-feedback) var(--ease-out-fast); }
+.btn-primary { background: var(--color-accent); color: var(--color-accent-text); }
+.btn-primary:hover { background: var(--color-accent-hover); }
+.btn-primary:active { transform: translateY(1px); }
+.btn:disabled, .btn.is-loading { cursor: wait; opacity: 0.55; }
+.btn-error { background: var(--color-error); color: var(--color-accent-text); }
+.btn-lg { min-block-size: 3rem; padding-inline: var(--space-5); }
+
+/* States: default, hover, focus-visible, active, disabled, loading, error. */
+.segmented-control { display: inline-flex; gap: var(--space-1); }
+.segment { background: var(--color-surface-muted); border: 1px solid var(--color-border); border-radius: var(--radius-sm); color: var(--color-text); min-block-size: 2.75rem; padding-inline: var(--space-3); }
+.segment:hover { border-color: var(--color-accent); }
+.segment:active { background: var(--color-surface); }
+.segment.is-selected { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-accent-text); }
+.segment:disabled, .segmented-control.is-loading { opacity: 0.55; }
+.segmented-control.is-error { box-shadow: 0 0 0 1px var(--color-error); }
+
+/* States: default, hover, focus-visible, active, disabled, loading, error. */
+.field-group { display: grid; gap: var(--space-2); margin-block-end: var(--space-4); }
+.field-label { color: var(--color-text-muted); font-size: var(--text-sm); font-weight: 700; }
+.input-stepper { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); color: var(--color-text); min-block-size: 2.75rem; padding-inline: var(--space-3); }
+.input-stepper:hover { border-color: var(--color-accent); }
+.input-stepper:active { background: var(--color-surface-muted); }
+.input-stepper:disabled, .field-group.is-loading { opacity: 0.55; }
+.field-group.is-error .input-stepper { border-color: var(--color-error); }
+
+/* States: default, hover, focus-visible, active, disabled, loading, error. */
+.inline-alert { border-inline-start: var(--space-1) solid; border-radius: var(--radius-sm); padding: var(--space-3); }
+.alert-error { background: var(--color-error-surface); border-color: var(--color-error); color: var(--color-error); }
+.midi-indicator { color: var(--color-text-muted); font-size: var(--text-sm); }
+.midi-indicator.is-match { color: var(--color-success); }
+.midi-indicator.is-mismatch { color: var(--color-error); }
+.midi-indicator.is-loading, .midi-indicator:disabled { opacity: 0.55; }
+.midi-indicator.is-error { text-decoration: underline; }
+
+.orientation-notice { display: none; }
+@keyframes staff-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@media (min-width: 48rem) and (orientation: landscape) { .layout-app { padding: var(--space-5); } .layout-header { min-block-size: 4rem; } .control-sheet { display: none; } }
+@media (min-width: 90rem) and (orientation: landscape) { .layout-app { padding: var(--space-6); } .staff-frame { min-block-size: 28rem; } }
+@media (orientation: portrait) { .layout-app { display: none; } .orientation-notice { align-content: center; display: grid; min-block-size: 100dvb; padding: var(--space-6); place-items: center; text-align: center; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; scroll-behavior: auto !important; transition-duration: 1ms !important; } }
