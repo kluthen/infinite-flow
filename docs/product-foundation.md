@@ -29,7 +29,7 @@ The default musical profile is style-neutral. A separate jazz-oriented profile i
 
 The style-neutral grammar uses a selected key and major, minor, or modal scale. It favors diatonic chord movement; pitches are chord tones with scale passing tones. It creates tension through non-chord scale tones, rhythmic displacement, contour, and silence rather than substitutions, altered dominants, or chromatic enclosures.
 
-The initial jazz profile may add chromatic approaches and enclosures around target tones. Altered dominants and harmonic substitutions are deferred to later profiles or profile revisions.
+The initial jazz profile uses gentle diatonic harmonic motion and may add chromatic approaches and enclosures around target tones. Altered dominants and harmonic substitutions are deferred to later profiles or profile revisions.
 
 The first deliverable does not ask the player to choose a chord progression. Instead, the user selects the tonal center and scale or mode, then controls generated harmony with two policies: harmonic motion ranges from static to gentle or active diatonic movement, and tension ranges from settled material through color and passing tones to stronger rhythmic and melodic pull.
 
@@ -45,7 +45,7 @@ Regenerating preserves the current controls and creates a new phrase variation. 
 
 The initial four-measure phrase is open-ended: its final harmonic arrival remains suitable for continuing to play rather than signaling a final stop. Closed phrase endings may be added later as an explicit option.
 
-The four-measure proposal is displayed in standard staff notation for saxophone. The initial playability policy targets a tenor saxophone using the conservative written range `B3` through `C5`; its corresponding concert-pitch range is MIDI 45 through 58 when MIDI 60 is middle C. In the second deliverable, the same notation model becomes a rolling staff as new measures are generated. The player may switch notation transposition at will between Concert, B-flat, and E-flat. This changes the written display only; generated harmony, concert pitches, and active tenor range retain their original values.
+The four-measure proposal is displayed in standard staff notation in treble G2 clef. The selected declarative instrument profile supplies a hard inclusive concert range and one whole-phrase register window: C MIDI keyboard `48-72` with Low `48-60`, Middle `54-66`, and High `60-72`; B-flat tenor saxophone `46-70` with Low `46-58`, Middle `52-64`, and High `58-70`; or E-flat alto saxophone `51-75` with Low `51-63`, Middle `57-69`, and High `63-75`. `Varying` deterministically selects one feasible window before phrase planning and never changes it within a phrase. In the second deliverable, the same notation model becomes a rolling staff as new measures are generated. The player may switch notation display independently between Concert, B-flat tenor, and E-flat alto. Concert-to-written transforms are `+0/+0`, `+14 semitones/+8 diatonic steps`, and `+9/+5`, respectively; they affect written notes, key, tonal label, chord roots, and slash bass, not chord quality or concert source events.
 
 ### Second Deliverable
 

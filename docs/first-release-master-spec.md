@@ -1,10 +1,10 @@
 # Infinite Flow: First-Release Master Specification
 
-Status: draft v1.4 - ready for implementation handoff
+Status: draft v1.6 - ready for implementation handoff
 
 ## Objective
 
-Build a client-side web application that generates one coherent, staff-notated four-measure musical proposal for a tenor saxophone player. The player selects musical controls and explicitly regenerates the entire phrase to hear and see a different variation. The product's immediate value is a musically legible proposal, not playback, accompaniment, scoring, or an endless autonomous session.
+Build a client-side web application that generates one coherent, staff-notated four-measure musical proposal for a selected first-release instrument profile. The player selects musical controls and explicitly regenerates the entire phrase to hear and see a different variation. The product's immediate value is a musically legible proposal, not playback, accompaniment, scoring, or an endless autonomous session.
 
 ## Scope
 
@@ -14,6 +14,7 @@ Build a client-side web application that generates one coherent, staff-notated f
 - Render the complete proposal in conventional staff notation with chord labels or harmonic context.
 - Support the phrase workspace on mobile and tablet devices in landscape orientation and on desktop when sufficient width is available. Portrait mobile and tablet views show a rotate-device notice instead of an interactive score.
 - Generate and retain one concert-pitch event timeline for every phrase.
+- Support declarative C MIDI keyboard, B-flat tenor saxophone, and E-flat alto saxophone instrument profiles. Each supplies an explicit inclusive active concert range and register-window policy to generation.
 - Let the player redraw the same phrase as Concert, B-flat, or E-flat notation. B-flat is the first-load display mode. Display transposition never changes generated pitches, harmony, the seed, or the active range policy.
 - Follow the operating-system light/dark preference on first load, with a manual light or dark override available to the player.
 - Offer a style-neutral default profile and an optional jazz profile, each with the defined first-release preset values.
@@ -42,11 +43,11 @@ Build a client-side web application that generates one coherent, staff-notated f
 - **Syncopation:** straight, occasional offbeat placement, or active displacement.
 - **Silence density:** sparse rests, conversational space, or breath-heavy phrasing.
 - **Contour:** rising, falling, arch, or wandering.
-- **Register:** `Low`, `Middle`, `High`, or `Varying` within the active range. `Varying` is a player-selectable value, not a separate range: for each generation request, the seeded planner selects one eligible `Low`, `Middle`, or `High` register policy for the complete phrase. An eligible policy is one that can produce a phrase within MIDI 45-58 while satisfying the selected contour, profile, leapiness, and recovery rules. If no eligible policy can produce a valid phrase, generation fails explicitly rather than relaxing a hard constraint.
+- **Register:** `Low`, `Middle`, `High`, or `Varying` within the selected instrument profile's active concert range and register-window policy. `Varying` is a player-selectable value, not a separate range: for each generation request, the seeded planner selects one eligible `Low`, `Middle`, or `High` register policy for the complete phrase. An eligible policy is one that can produce a phrase within the profile-derived active range while satisfying the selected contour, musical profile, leapiness, and recovery rules. If no eligible policy can produce a valid phrase, generation fails explicitly rather than relaxing a hard constraint.
 - **Leapiness:** `Smooth`, `Shaped`, `Leaping`, or `Angular`, defaulting to `Shaped`. It sets adjacent-interval caps, a phrase leap budget, and recovery obligations.
-- **Arpeggio chaos:** predictable nearby chord-tone order through reordered chord tones and stronger interval contrast. It never allows pitches outside the selected profile or ignores contour, range, and resolution constraints.
-- **Profile preset:** neutral by default or jazz. The neutral preset's complete bundle is static harmonic motion, quarter-note density, straight syncopation, sparse rests, arch contour, and `Middle` register. The jazz preset's complete bundle is eighth-note density, occasional offbeats, conversational space, wandering contour, and `Varying` register. Selecting either preset replaces all six preset-controlled controls with that complete bundle, regardless of their current values.
-- **Custom configuration after a preset:** A manual change to any preset-controlled control after selecting a preset creates a custom current configuration. It preserves the selected profile's musical grammar while using the manually selected control values; it does not mutate either preset definition. Selecting neutral or jazz again discards the custom values and reapplies that preset's complete bundle.
+- **Arpeggio chaos:** predictable nearby chord-tone order through reordered chord tones and stronger interval contrast. It never allows pitches outside the selected musical profile or ignores contour, range, and resolution constraints.
+- **Musical profile preset:** neutral by default or jazz. This is distinct from the selected instrument profile. The neutral preset's complete bundle is static harmonic motion, quarter-note density, straight syncopation, sparse rests, arch contour, and `Middle` register. The jazz preset's complete bundle is gentle diatonic harmonic motion, eighth-note density, occasional offbeats, conversational space, wandering contour, and `Varying` register. Selecting either preset replaces all six preset-controlled controls with that complete bundle, regardless of their current values.
+- **Custom configuration after a preset:** A manual change to any preset-controlled control after selecting a preset creates a custom current configuration. It preserves the selected musical profile's grammar while using the manually selected control values; it does not mutate either preset definition. Selecting neutral or jazz again discards the custom values and reapplies that preset's complete bundle.
 
 ## Musical Behavior
 
@@ -54,11 +55,11 @@ Build a client-side web application that generates one coherent, staff-notated f
 
 - The output is one short phrase, not four independently random measures.
 - Every measure fills exactly four beats using the selected subdivision grid.
-- All generated source pitches are concert MIDI 45 through 58. This is the conservative first-release tenor policy, corresponding to written `B3` through `C5` for B-flat tenor with middle C defined as MIDI 60.
+- All generated source pitches are inside the selected profile's inclusive active concert range. The generation boundary obtains this active range and the selected register-window policy explicitly from the validated instrument profile.
 - Phrase regeneration must be deterministic for a given complete request and seed.
-- With `Varying` register, the seed deterministically selects one eligible non-varying register policy for the whole phrase. It must not change policies between measures or individual notes, and it must not extend or otherwise relax the MIDI 45-58 range, contour, profile, leapiness, or recovery rules.
+- With `Varying` register, the seed deterministically selects one eligible non-varying register policy for the whole phrase. It must not change policies between measures or individual notes, and it must not extend or otherwise relax the profile-derived active range, contour, musical profile, leapiness, or recovery rules.
 - The four-bar phrase ends open so the player can continue playing. A closed tonic ending is a later option.
-- The request contains the selected values, including profile preset, tension arc, and leapiness. Applying a theme or changing display transposition is not a generation request and cannot alter the phrase.
+- The request contains the selected values, including musical profile preset, tension arc, and leapiness. Applying a theme or changing display transposition is not a generation request and cannot alter the phrase.
 
 ### Tension Arc
 
@@ -98,17 +99,19 @@ Build a client-side web application that generates one coherent, staff-notated f
 
 ## Architecture and Boundaries
 
-Generation uses a stable, serializable request/result boundary. The request contains the measure count, meter, BPM, tonal context, normalized controls, profile preset, active tenor range, optional future phrase context, and deterministic seed. It does not contain notation transposition, theme preference, browser state, audio state, or mutable session data.
+Generation uses a stable, serializable request/result boundary. The request contains the measure count, meter, BPM, tonal context, normalized controls, musical profile preset, selected instrument-profile identity, its explicit active concert range and register-window policy, optional future phrase context, and deterministic seed. The generation boundary consumes the profile-derived range/register policy rather than branching on an instrument identity or display convention. It does not contain notation transposition, theme preference, browser state, audio state, or mutable session data.
 
-The result is an immutable concert-pitch timeline of measures, chord events, note events, rests, and optional musical annotations. It contains no staff-rendering symbols, written pitches, audio scheduling timestamps, MIDI device messages, or scoring state. A result either satisfies the requested meter and hard range constraints or fails explicitly; it must not return an invalid phrase.
+The result is an immutable concert-pitch timeline of measures, chord events, note events, rests, and optional musical annotations. It contains no staff-rendering symbols, written pitches, audio scheduling timestamps, MIDI device messages, or scoring state. A result either satisfies the requested meter and selected-profile hard range constraints or fails explicitly; it must not return an invalid phrase.
 
-Separate components own control mapping, harmony planning, rhythm planning, pitch planning, notation rendering, optional backing arrangement, MIDI input, and later evaluation. A component consumes explicit data from another component rather than internal state. A profile supplies musical policy; it does not own user-interface widgets, browser APIs, scheduling, or persistence.
+Separate components own control mapping, harmony planning, rhythm planning, pitch planning, notation rendering, optional backing arrangement, MIDI input, and later evaluation. A component consumes explicit data from another component rather than internal state. Instrument profiles are validated declarative data: adding a valid profile supplies its identity, concert-pitch range, register-window policy, and metadata without conditional changes to melodic, harmonic, rhythm, or notation-rendering logic. The first-release profiles and inclusive windows are C MIDI keyboard `48-72` with Low `48-60`, Middle `54-66`, and High `60-72`; B-flat tenor saxophone `46-70` with Low `46-58`, Middle `52-64`, and High `58-70`; and E-flat alto saxophone `51-75` with Low `51-63`, Middle `57-69`, and High `63-75`. `Varying` deterministically selects one feasible complete-phrase window from Low, Middle, and High; it never changes window mid-phrase. Musical profiles supply musical policy; neither profile type owns user-interface widgets, browser APIs, scheduling, or persistence.
 
 ## MIDI and Notation
 
 MIDI is optional in this release and has no timing role. If enabled, a received pitch that matches a proposed staff note may highlight that proposal note. Any other received pitch produces a gentle mismatch indication without showing the received pitch. MIDI input never changes generation, advances the phrase, evaluates timing, or yields a score.
 
-Notation renders standard staff notation from the concert-pitch timeline. Concert, B-flat, and E-flat are display modes only; B-flat is selected on first load. The original phrase must remain identical after any display switch.
+Notation renders standard staff notation from the concert-pitch timeline in treble G2 clef. Concert, B-flat, and E-flat are independently selected display conventions only; B-flat is selected on first load. The original phrase must remain identical after any display switch. A display switch cannot mutate the concert timeline, the selected instrument profile, its range/register policy, or any generation control. Concert-to-written transforms are Concert `+0 chromatic/+0 diatonic`, B-flat tenor `+14 chromatic/+8 diatonic` (major ninth), and E-flat alto `+9 chromatic/+5 diatonic` (major sixth). Apply the selected transform to note spelling, key, tonal-center label, chord root, and slash bass, but preserve chord quality, alterations, extensions, additions, and omissions.
+
+Switching the selected instrument profile validates every unchanged concert event against the new profile's active range. If all events fit, retain the current phrase and redraw it using the selected display convention. If any event does not fit, retain the current controls, select a fresh seed, and regenerate the complete phrase under the new profile. Never transpose source events to fit a profile.
 
 ### Enharmonic Spelling
 
@@ -121,12 +124,13 @@ Notation renders standard staff notation from the concert-pitch timeline. Concer
 - A user can select every chromatic tonal center; major, minor, and each church mode; a 60-240 BPM tempo in 10 BPM increments; and all other first-release controls, then generate a complete four-measure 4/4 phrase. First load uses 90 BPM, C Ionian, the neutral preset, `Lift` tension, and `Shaped` leapiness.
 - Selecting neutral sets harmonic motion, note density, syncopation, silence density, contour, and register to neutral's complete bundle; selecting jazz sets each of those six controls to jazz's complete bundle. The selection replaces every one of the six values even when one or more values were manually changed beforehand.
 - After a preset selection, manually changing one or more of those six controls produces a custom current configuration without changing either preset's defined bundle or the selected profile's musical grammar. A later selection of neutral or jazz restores every value in the newly selected preset's complete bundle. Jazz applies `Varying`; for a given complete request and seed, it selects exactly one eligible `Low`, `Middle`, or `High` policy for the complete phrase while retaining all hard musical constraints. The workspace supports landscape mobile and tablet views; a portrait mobile or tablet view shows a rotate-device notice instead of interactive phrase controls.
-- Every generated measure is complete, and every generated concert pitch falls inside MIDI 45 through 58.
+- Every generated measure is complete, and every generated concert pitch falls inside the selected profile's inclusive active range: C MIDI keyboard `48-72`, B-flat tenor saxophone `46-70`, or E-flat alto saxophone `51-75`. The selected whole-phrase register window is respectively one of C Low `48-60`, Middle `54-66`, High `60-72`; B-flat Low `46-58`, Middle `52-64`, High `58-70`; or E-flat Low `51-63`, Middle `57-69`, High `63-75`.
 - Every result satisfies the selected tension-arc and leapiness caps, budgets, arpeggio-run rules, recovery rules, local-resolution requirement, and open-ending requirement.
 - The neutral profile contains no chromatic pitches outside its selected collection, substitutions, altered dominants, or chromatic enclosures.
-- The jazz profile adds only bounded chromatic approaches and enclosures that immediately resolve to chord-tone targets; its harmony remains diatonic.
+- The jazz preset sets gentle diatonic harmonic motion. The jazz profile adds only bounded chromatic approaches and enclosures that immediately resolve to chord-tone targets; its harmony remains diatonic.
 - Re-generating changes the seed while preserving controls; supplying the same full request and seed reproduces the same result.
-- For every supported tonal center, collection, and Concert, B-flat, or E-flat display mode, standard staff notation uses the enharmonic spelling requiring the fewest accidentals; equal minima use sharps. The resulting tonal-center label, key signature, note accidentals, and chord symbols use the same spelling convention. B-flat notation is selected on first load, and changing display modes changes only these written display values.
+- For every supported tonal center, collection, and Concert, B-flat, or E-flat display mode, standard staff notation uses treble G2 clef and the enharmonic spelling requiring the fewest accidentals; equal minima use sharps. The resulting tonal-center label, key signature, note accidentals, chord roots, and slash bass use the same spelling convention; chord quality remains unchanged. B-flat notation is selected on first load, and changing display modes changes only these written display values; it cannot change the concert timeline or the profile-derived generator policy.
+- Switching instrument profiles retains the unchanged concert phrase when every event fits the new active range; otherwise it retains the controls, uses a fresh seed, and regenerates all four measures under the new profile. It never transposes source events to force a fit.
 - The initial theme uses the system preference, and a manual light or dark override changes presentation without changing the phrase request or result.
 - If the optional MIDI indicator is enabled, it never exposes an unmatched incoming pitch and never calculates or displays a performance score.
 - The application operates entirely in the browser for its required first-release behavior, without server dependency.
@@ -136,4 +140,4 @@ Notation renders standard staff notation from the concert-pitch timeline. Concer
 - Optional backing has no decided role yet. If added, it must read the generated harmony and BPM without changing lead generation.
 - The exact mechanism by which a later planner may repair a previous planner's voice-leading or playability decision remains open. Any future repair must preserve the component boundaries above.
 - Step two will accept one or two MIDI measures, retain the player-selected tonal context, transform phrase character, and append measures to a rolling staff. It does not yet define automatic key detection.
-- Later work may add instrument-specific or player-selected ranges, phrase-end controls, playback, session export, and non-scoring descriptive practice feedback.
+- Later work may add additional instrument profiles or player-selected range variants through separately validated declarative range/register definitions, as well as phrase-end controls, playback, session export, and non-scoring descriptive practice feedback.

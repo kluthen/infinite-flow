@@ -15,7 +15,7 @@ A request is immutable and serializable. It contains:
 - requested measure count; the first deliverable always requests four
 - meter and tempo; the first deliverable always uses 4/4 with one user-selected BPM
 - concert-pitch tonal center and selected scale or mode
-- a tenor-sax concert-pitch range policy of MIDI 45 through 58, independent of notation transposition
+- a selected validated declarative instrument profile with its inclusive active concert range and resolved whole-phrase register window: C MIDI keyboard `48-72` (Low `48-60`, Middle `54-66`, High `60-72`), B-flat tenor saxophone `46-70` (Low `46-58`, Middle `52-64`, High `58-70`), or E-flat alto saxophone `51-75` (Low `51-63`, Middle `57-69`, High `63-75`), independent of notation display convention
 - normalized control policy for harmonic motion, tension, subdivision, syncopation, silence density, contour, register, leapiness, and arpeggio chaos
 - optional recent phrase context; absent for the first deliverable and present only when later MIDI continuation needs it
 
@@ -39,7 +39,7 @@ The result does not contain rendered staff symbols, written pitches, MIDI device
 - The rhythm planner owns event start positions, durations, ties, and rests.
 - The pitch planner owns concert pitches for note events under supplied harmonic and range constraints.
 - The optional backing arranger reads the result and creates separate accompaniment events. It cannot alter lead events.
-- The notation renderer reads the result and applies concert, B-flat, or E-flat display transposition without changing the active sax range.
+- The notation renderer reads the result and applies the independently selected Concert, B-flat tenor, or E-flat alto display convention without changing source events, the selected profile, its active range, or its resolved window.
 - The MIDI layer emits incoming events; the initial display layer may compare them with visible proposal events, but evaluation and adaptation are later consumers.
 
 ## Determinism
