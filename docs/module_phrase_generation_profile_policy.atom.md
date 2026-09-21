@@ -6,7 +6,7 @@ layer: ARCHITECTURE
 tags: phrase-generation,instrument-profile,active-range,register-policy
 parents:
   - [[entity_instrument_profile]]
-  - [[rule_conservative_tenor_range]]
+  - [[rule_instrument_profile_range]]
 dependents: []
 human_name: Phrase Generation Profile Policy
 priority: 1

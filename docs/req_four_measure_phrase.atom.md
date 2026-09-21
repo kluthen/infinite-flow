@@ -7,7 +7,7 @@ dependents:
   - [[req_landscape_phrase_workspace]]
   - [[rule_arpeggio_chaos_respects_constraints]]
   - [[rule_complete_four_four_measures]]
-  - [[rule_conservative_tenor_range]]
+  - [[rule_instrument_profile_range]]
   - [[rule_jazz_chromatic_resolution]]
   - [[rule_leap_recovery]]
   - [[rule_leapiness_arpeggio_run_limits]]
@@ -20,6 +20,7 @@ dependents:
   - [[rule_presentation_preference_preserves_phrase]]
   - [[rule_preserve_metrical_anchor]]
   - [[rule_profile_presets_apply_defined_controls]]
+  - [[rule_profile_switch_validates_phrase]]
   - [[rule_seeded_phrase_reproduction]]
   - [[rule_tension_arc_level_policy]]
   - [[rule_tension_ranking_respects_constraints]]
@@ -35,13 +36,13 @@ priority: 1
 # Four-Measure Musical Proposal
 
 ## INTENT
-Provide a tenor saxophone player with one coherent, staff-notated four-measure musical proposal they can explicitly regenerate.
+Provide a player with one coherent, staff-notated four-measure musical proposal for a selected C MIDI keyboard, B-flat tenor saxophone, or E-flat alto saxophone profile that they can explicitly regenerate.
 
 ## THE RULE / LOGIC
-The first release generates one complete four-measure 4/4 phrase from player-selected controls. The product provides a musically legible proposal rather than playback, accompaniment, scoring, or autonomous continuous generation.
+The first release generates one complete four-measure 4/4 phrase from player-selected controls and a selected supported instrument profile. The product provides a musically legible proposal rather than playback, accompaniment, scoring, or autonomous continuous generation.
 
 ## TECHNICAL INTERFACE
-The player selects controls and explicitly requests phrase generation or regeneration. The generated phrase is presented as conventional staff notation with harmonic context.
+The player selects a supported instrument profile and musical controls, then explicitly requests phrase generation or regeneration. The generated phrase is presented as conventional staff notation with harmonic context.
 
 ## EXPECTATION
-A completed generation produces one coherent four-measure 4/4 phrase for tenor saxophone. The required release does not provide lead-line playback, required accompaniment, performance scoring, or a rolling autonomous session.
+A completed generation produces one coherent four-measure 4/4 phrase for the selected supported profile. The required release does not provide lead-line playback, required accompaniment, performance scoring, or a rolling autonomous session.

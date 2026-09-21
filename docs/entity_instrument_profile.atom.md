@@ -8,7 +8,7 @@ dependents:
 type: ENTITY
 layer: ARCHITECTURE
 parents:
-  - [[rule_conservative_tenor_range]]
+  - [[rule_instrument_profile_range]]
 human_name: Instrument Profile
 priority: 1
 ---

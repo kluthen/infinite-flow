@@ -1,6 +1,6 @@
 # Infinite Flow: First-Release Master Specification
 
-Status: draft v1.6 - ready for implementation handoff
+Status: draft v1.7 - ready for implementation handoff
 
 ## Objective
 
@@ -111,7 +111,7 @@ MIDI is optional in this release and has no timing role. If enabled, a received 
 
 Notation renders standard staff notation from the concert-pitch timeline in treble G2 clef. Concert, B-flat, and E-flat are independently selected display conventions only; B-flat is selected on first load. The original phrase must remain identical after any display switch. A display switch cannot mutate the concert timeline, the selected instrument profile, its range/register policy, or any generation control. Concert-to-written transforms are Concert `+0 chromatic/+0 diatonic`, B-flat tenor `+14 chromatic/+8 diatonic` (major ninth), and E-flat alto `+9 chromatic/+5 diatonic` (major sixth). Apply the selected transform to note spelling, key, tonal-center label, chord root, and slash bass, but preserve chord quality, alterations, extensions, additions, and omissions.
 
-Switching the selected instrument profile validates every unchanged concert event against the new profile's active range. If all events fit, retain the current phrase and redraw it using the selected display convention. If any event does not fit, retain the current controls, select a fresh seed, and regenerate the complete phrase under the new profile. Never transpose source events to fit a profile.
+Switching the selected instrument profile validates every unchanged concert event against both the new profile's inclusive active concert range and the resolved whole-phrase register window required by the current `Register` selection. For `Low`, `Middle`, or `High`, use the new profile's corresponding window. For `Varying`, deterministically resolve one candidate `Low`, `Middle`, or `High` window from the existing seed before validation, using the same fixed candidate order and register-resolution stream as generation. Retain the current immutable concert phrase only when every event satisfies both constraints, then redraw it using the selected display convention. Otherwise, retain the current controls, select a fresh seed, and regenerate the complete phrase under the new profile. Never transpose source events to fit a profile.
 
 ### Enharmonic Spelling
 
@@ -130,7 +130,7 @@ Switching the selected instrument profile validates every unchanged concert even
 - The jazz preset sets gentle diatonic harmonic motion. The jazz profile adds only bounded chromatic approaches and enclosures that immediately resolve to chord-tone targets; its harmony remains diatonic.
 - Re-generating changes the seed while preserving controls; supplying the same full request and seed reproduces the same result.
 - For every supported tonal center, collection, and Concert, B-flat, or E-flat display mode, standard staff notation uses treble G2 clef and the enharmonic spelling requiring the fewest accidentals; equal minima use sharps. The resulting tonal-center label, key signature, note accidentals, chord roots, and slash bass use the same spelling convention; chord quality remains unchanged. B-flat notation is selected on first load, and changing display modes changes only these written display values; it cannot change the concert timeline or the profile-derived generator policy.
-- Switching instrument profiles retains the unchanged concert phrase when every event fits the new active range; otherwise it retains the controls, uses a fresh seed, and regenerates all four measures under the new profile. It never transposes source events to force a fit.
+- Switching instrument profiles validates every unchanged concert event against the new active range and the resolved whole-phrase register window required by the current `Register` selection. `Low`, `Middle`, and `High` use their corresponding new-profile window; `Varying` deterministically resolves a candidate window from the existing seed before validation. It retains the immutable concert phrase only when every event satisfies both constraints. Otherwise it retains the controls, uses a fresh seed, and regenerates all four measures under the new profile; it never transposes source events to force a fit. Tests cover retention and regeneration for each fixed register selection, `Varying` resolution with a fixed seed, active-range and register-window failures independently, and preservation of the original event values on retention.
 - The initial theme uses the system preference, and a manual light or dark override changes presentation without changing the phrase request or result.
 - If the optional MIDI indicator is enabled, it never exposes an unmatched incoming pitch and never calculates or displays a performance score.
 - The application operates entirely in the browser for its required first-release behavior, without server dependency.

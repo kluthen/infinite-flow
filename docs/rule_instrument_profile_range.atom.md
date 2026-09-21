@@ -1,5 +1,5 @@
 ---
-id: rule_conservative_tenor_range
+id: rule_instrument_profile_range
 status: DRAFT
 type: RULE
 version: 0.2
@@ -8,13 +8,13 @@ tags: range,instrument-profile,hard-constraint
 dependents:
   - [[entity_instrument_profile]]
   - [[module_phrase_generation_profile_policy]]
-human_name: Instrument Profile Ranges
+human_name: Instrument Profile Range
 layer: BUSINESS
 parents:
   - [[req_four_measure_phrase]]
 ---
 
-# Instrument Profile Ranges
+# Instrument Profile Range
 
 ## INTENT
 Keep every generated source pitch inside the selected first-release instrument profile's active concert range and resolved whole-phrase register window.

@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v0.6
+Status: draft v0.7
 
 ## Decision Log
 
@@ -47,6 +47,7 @@ Status: draft v0.6
 - **D41 - Jazz preset harmonic motion is gentle diatonic.** Settled from the adopted first-release preset policy. Selecting jazz replaces harmonic motion with gentle diatonic motion alongside its other complete preset values.
 - **D42 - Notation transforms are display-convention data.** Settled from saxophone-transposition research. The single-staff view uses treble G2 clef. Concert-to-written transforms are Concert `+0 chromatic/+0 diatonic`, B-flat tenor `+14/+8` (major ninth), and E-flat alto `+9/+5` (major sixth). They apply to notes, keys, tonal labels, chord roots, and slash bass, but never chord quality or concert source events.
 - **D43 - Instrument-profile switching preserves fitting phrases and regenerates non-fitting phrases.** Settled from the adopted profile-switch policy; resolves O16. Validate unchanged concert events against the new profile's active range. When all fit, retain the phrase and redraw it with the selected display convention. When any event does not fit, retain current controls, choose a fresh seed, and regenerate the complete phrase under the new profile. Never transpose source events to fit.
+- **D44 - Instrument-profile switching validates range and resolved register window.** Settled from the established first-release policy; supersedes D43's validation criterion. On a profile switch, validate every event in the immutable concert phrase against both the new profile's inclusive active range and the whole-phrase register window required by the current `Register` selection. `Low`, `Middle`, and `High` select the corresponding new-profile window. For `Varying`, resolve the new profile's candidate window deterministically from the existing seed, using the established ordered register-resolution policy, before validation. Retain the phrase only when every event satisfies both constraints; otherwise retain controls, choose a fresh seed, and regenerate the complete phrase. Source events are never transposed to fit. The switch contract is testable with fixed-seed `Varying` resolution plus independent range-window retention and regeneration cases.
 
 ## Open Decisions
 
