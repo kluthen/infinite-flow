@@ -1,6 +1,6 @@
 # Infinite Flow: First-Release Master Specification
 
-Status: draft v1.7 - ready for implementation handoff
+Status: draft v1.8 - ready for implementation handoff
 
 ## Objective
 
@@ -20,12 +20,12 @@ Build a client-side web application that generates one coherent, staff-notated f
 - Offer a style-neutral default profile and an optional jazz profile, each with the defined first-release preset values.
 - Offer controls for tonal center, scale or mode, harmonic motion, tension, note density, syncopation, silence density, contour, register, leapiness, and arpeggio chaos.
 - Regenerate all four measures from the same controls with a new random seed. Retain the seed so a result can be exactly reproduced internally.
-- Optionally accept MIDI controller input only to validate connection and provide gentle visual match or mismatch indication. Never display an unmatched played pitch.
 
 ### Explicitly Excluded
 
 - Generated lead-line playback.
 - Required backing or accompaniment. BPM-aligned backing may be added only as a non-blocking enhancement.
+- MIDI controller connection, input, match or mismatch feedback, timing evaluation, and MIDI-seeded continuation.
 - Microphone capture, audio-to-note transcription, and acoustic pitch detection.
 - Continuous generation, a rolling staff, seed-phrase capture, automatic key detection, phrase adaptation, or long-term personalization.
 - Tempo variation, meters other than 4/4, pulse-feel controls, direct chord-progression authoring, altered dominants, substitutions, modulation, and altissimo.
@@ -105,9 +105,17 @@ The result is an immutable concert-pitch timeline of measures, chord events, not
 
 Separate components own control mapping, harmony planning, rhythm planning, pitch planning, notation rendering, optional backing arrangement, MIDI input, and later evaluation. A component consumes explicit data from another component rather than internal state. Instrument profiles are validated declarative data: adding a valid profile supplies its identity, concert-pitch range, register-window policy, and metadata without conditional changes to melodic, harmonic, rhythm, or notation-rendering logic. The first-release profiles and inclusive windows are C MIDI keyboard `48-72` with Low `48-60`, Middle `54-66`, and High `60-72`; B-flat tenor saxophone `46-70` with Low `46-58`, Middle `52-64`, and High `58-70`; and E-flat alto saxophone `51-75` with Low `51-63`, Middle `57-69`, and High `63-75`. `Varying` deterministically selects one feasible complete-phrase window from Low, Middle, and High; it never changes window mid-phrase. Musical profiles supply musical policy; neither profile type owns user-interface widgets, browser APIs, scheduling, or persistence.
 
-## MIDI and Notation
+## Application State, Accessibility, and Layout
 
-MIDI is optional in this release and has no timing role. If enabled, a received pitch that matches a proposed staff note may highlight that proposal note. Any other received pitch produces a gentle mismatch indication without showing the received pitch. MIDI input never changes generation, advances the phrase, evaluates timing, or yields a score.
+The workspace has one active generation or notation operation at a time. While phrase generation is active, the phrase action is disabled and every configuration control is read-only but remains focusable. Controls retain their values and must suppress pointer and keyboard changes; the prior valid score remains visible during regeneration. A generation request is created only by the explicit Generate or Regenerate action, except when an instrument-profile switch finds the unchanged phrase invalid under its new range and resolved register-window policy. That switch automatically regenerates the complete phrase with retained controls and a fresh seed.
+
+An initial generation failure leaves the empty workspace visible and exposes a retry action. A later generation failure retains the prior valid score and exposes a retry action. A notation failure retains valid phrase data but replaces the score content with a retryable notation error; retry notation reuses that phrase data rather than generating a new seed. A display-mode switch redraws only after alternate notation has been successfully engraved. Theme changes apply immediately without a generation or notation operation. Required generation, notation, controls, and the current phrase remain available offline; unavailable optional browser capabilities must not block the phrase loop.
+
+Every discrete control is keyboard-operable as a labeled single-select radiogroup with one checked option. The checked option is the sole tab stop; arrow-key navigation selects and focuses the adjacent option. A persistent polite live-status region announces generation start, ready, and failure, but not ordinary control or presentation changes. Interactive controls provide a visible focus indicator and a minimum 44 CSS-pixel target. Reduced-motion preference suppresses nonessential transitions and phrase-replacement animation.
+
+The workspace supports landscape mobile and tablet layouts and desktop layouts at or above `90rem` in either orientation. Layout behavior changes at `48rem`, `64rem`, and `90rem`; below `90rem` in portrait, the application shows a rotate-device notice instead of interactive phrase controls. At every supported workspace layout, all four measures appear in one staff system with no horizontal score scrolling or clipping. If valid phrase data cannot be engraved under that constraint, show the retryable notation error rather than a partial, split, or substitute score.
+
+## Notation
 
 Notation renders standard staff notation from the concert-pitch timeline in treble G2 clef. Concert, B-flat, and E-flat are independently selected display conventions only; B-flat is selected on first load. The original phrase must remain identical after any display switch. A display switch cannot mutate the concert timeline, the selected instrument profile, its range/register policy, or any generation control. Concert-to-written transforms are Concert `+0 chromatic/+0 diatonic`, B-flat tenor `+14 chromatic/+8 diatonic` (major ninth), and E-flat alto `+9 chromatic/+5 diatonic` (major sixth). Apply the selected transform to note spelling, key, tonal-center label, chord root, and slash bass, but preserve chord quality, alterations, extensions, additions, and omissions.
 
@@ -132,11 +140,14 @@ Switching the selected instrument profile validates every unchanged concert even
 - For every supported tonal center, collection, and Concert, B-flat, or E-flat display mode, standard staff notation uses treble G2 clef and the enharmonic spelling requiring the fewest accidentals; equal minima use sharps. The resulting tonal-center label, key signature, note accidentals, chord roots, and slash bass use the same spelling convention; chord quality remains unchanged. B-flat notation is selected on first load, and changing display modes changes only these written display values; it cannot change the concert timeline or the profile-derived generator policy.
 - Switching instrument profiles validates every unchanged concert event against the new active range and the resolved whole-phrase register window required by the current `Register` selection. `Low`, `Middle`, and `High` use their corresponding new-profile window; `Varying` deterministically resolves a candidate window from the existing seed before validation. It retains the immutable concert phrase only when every event satisfies both constraints. Otherwise it retains the controls, uses a fresh seed, and regenerates all four measures under the new profile; it never transposes source events to force a fit. Tests cover retention and regeneration for each fixed register selection, `Varying` resolution with a fixed seed, active-range and register-window failures independently, and preservation of the original event values on retention.
 - The initial theme uses the system preference, and a manual light or dark override changes presentation without changing the phrase request or result.
-- If the optional MIDI indicator is enabled, it never exposes an unmatched incoming pitch and never calculates or displays a performance score.
 - The application operates entirely in the browser for its required first-release behavior, without server dependency.
+- The workspace permits at most one active generation or notation operation. During generation, the action is disabled; configuration controls remain focusable read-only context and cannot change values; a prior valid phrase remains visible. Initial generation failure retains the empty workspace; later failure retains the valid phrase; notation failure retains phrase data but replaces score content with a retryable error. An incompatible instrument-profile switch is the sole automatic full-phrase regeneration.
+- Every control can be operated by keyboard with the defined radiogroup, roving-tab-stop, and arrow-key behavior. A polite live-status region announces generation start, completion, and failure. Controls have visible focus indication and at least 44 CSS-pixel targets; reduced-motion preference disables nonessential animation.
+- Required phrase generation and notation function offline without a server or optional browser capability. At `48rem`, `64rem`, and `90rem` layout changes preserve all four measures in a single non-scrolling, unclipped staff system. Below `90rem` in portrait, the application shows a rotate-device notice; desktop at or above `90rem` remains interactive in either orientation. An unrenderable valid phrase shows a retryable notation error rather than partial or substitute notation.
 
 ## Deferred Work and Visible Gaps
 
+- Minimal MIDI connection and non-evaluative match/mismatch feedback are the immediate post-first-release roadmap item. They are excluded from this release; a later MIDI scope must not display an incoming unmatched pitch, evaluate timing, score the player, change generation, or advance the phrase.
 - Optional backing has no decided role yet. If added, it must read the generated harmony and BPM without changing lead generation.
 - The exact mechanism by which a later planner may repair a previous planner's voice-leading or playability decision remains open. Any future repair must preserve the component boundaries above.
 - Step two will accept one or two MIDI measures, retain the player-selected tonal context, transform phrase character, and append measures to a rolling staff. It does not yet define automatic key detection.

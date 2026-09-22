@@ -1,6 +1,6 @@
 # Infinite Flow
 
-Infinite Flow is a client-side web practice partner for a monophonic saxophone player. Its first release generates a coherent four-measure phrase in standard notation from musical controls, then lets the player re-generate a new variation without losing the selected musical context.
+Infinite Flow is a client-side web practice partner for a monophonic musician. Its first release generates a coherent four-measure phrase in standard notation from musical controls, then lets the player regenerate a new variation without losing the selected musical context.
 
 The project is currently specification-first: the musical rules, generator boundaries, theory research, and ATD traceability anchors are in place; application code has not started.
 
@@ -11,18 +11,18 @@ The project is currently specification-first: the musical rules, generator bound
 - Offer a neutral diatonic profile and a narrowly extended jazz profile with chromatic approaches and enclosures.
 - Control tonal context, harmonic motion, tension, note density, syncopation, silence, contour, register, leapiness, and arpeggio chaos.
 - Support deterministic re-generation: the same request and seed always reproduce the same phrase.
-- Target a conservative tenor saxophone range: concert MIDI 45 through 58, corresponding to written `B3` through `C5` for B-flat tenor.
+- Support declarative C MIDI keyboard `48-72`, B-flat tenor saxophone `46-70`, and E-flat alto saxophone `51-75` concert-pitch profiles, each with a whole-phrase register-window policy.
 - Redraw the same phrase in Concert, B-flat, or E-flat notation without changing generated concert pitches.
 
-Generated lead playback, persistent sessions, microphone capture, automatic key detection, and the rolling MIDI-seeded continuation flow are intentionally deferred. Optional MIDI feedback may indicate a proposed-note match or a gentle mismatch, but Infinite Flow never assigns a performance score.
+Generated lead playback, MIDI integration, persistent sessions, microphone capture, automatic key detection, and the rolling MIDI-seeded continuation flow are intentionally deferred. Minimal MIDI connection and non-evaluative match/mismatch feedback are the immediate next roadmap item; Infinite Flow never assigns a performance score.
 
 ## Documentation
 
-- [First-release master specification](docs/first-release-master-spec.md) is the implementation handoff and definition of done.
-- [Generator contract](docs/generator-contract.md) defines the implementation-neutral request/result boundary.
-- [Generator architecture](docs/generator-architecture.md) records the decoupling rules for future generator evolution.
-- [Music reference](docs/music/README.md) contains player-readable theory rules, profiles, terminology, and retained research sources.
-- [Specification index](docs/README.md) links the current drafts, decisions, and remaining open questions.
+- [First-release master specification](specs/first-release-master-spec.md) is the implementation handoff and definition of done.
+- [Roadmap](specs/roadmap.md) orders the settled delivery stages and visible gaps.
+- [Generator contract](specs/generator-contract.md) defines the implementation-neutral request/result boundary.
+- [Generator architecture](specs/generator-architecture.md) records the decoupling rules for future generator evolution.
+- [Specification index](specs/README.md) links the current drafts, decisions, and remaining open questions.
 
 ## Design Principles
 

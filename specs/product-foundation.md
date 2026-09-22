@@ -1,6 +1,6 @@
 # Product Foundation
 
-Status: draft v0.1
+Status: draft v0.2
 
 ## Product Intent
 
@@ -10,11 +10,11 @@ The experience is collaborative rather than evaluative. It does not assign a per
 
 ## Confirmed Product Constraints
 
-- The deliverable is a web application, with generation and playback primarily on the client.
-- The app accepts live performance input and works with a monophonic musical line.
+- The deliverable is a browser-based web application with required generation and notation entirely on the client.
+- The first release generates a monophonic musical line; it does not accept live performance input.
 - It presents both a chord proposal and an arpeggio proposal.
 - The user controls note density, silence density, and arpeggio chaos.
-- Generated tempo normally stays near the detected or selected BPM; controlled variation remains in scope.
+- Generation uses the player-selected stable BPM; tempo variation is deferred.
 - Longer-term adaptation to the player's habits and backing-tone adaptation are deferred.
 
 ## Delivery Stages
@@ -23,7 +23,7 @@ The experience is collaborative rather than evaluative. It does not assign a per
 
 The first deliverable generates a coherent, finite four-measure note proposal. The player adjusts controls for pulse, harmony, rhythm, pitch behavior, note density, silence density, and arpeggio chaos, then explicitly regenerates the complete four-measure set. It is intentionally a finite generator rather than a live listener or an infinite stream.
 
-The required output is the proposed notes. The first deliverable does not need to play back the generated lead line. (proposed) It may generate BPM-aligned backing or accompaniment from the generated harmony when this does not delay the core generator; backing is an optional enhancement rather than a completion condition. MIDI integration is deliberately minimal at this stage: a matching proposed note may highlight, while a non-match receives a gentle mismatch hint without displaying the incoming pitch. It is not yet a timing or pitch evaluator. It does not promise audio-to-note transcription from an acoustic microphone, automatic mode recognition in every musical style, persistent personalization, or an emulation-quality saxophone synthesizer.
+The required output is the proposed notes. The first deliverable does not need to play back the generated lead line. (proposed) It may generate BPM-aligned backing or accompaniment from the generated harmony when this does not delay the core generator; backing is an optional enhancement rather than a completion condition. MIDI integration is deferred to the immediate post-first-release roadmap item. That later item may validate connection and provide a matching-note highlight or gentle mismatch hint without displaying the incoming pitch; it is not a timing or pitch evaluator. The first release does not promise audio-to-note transcription from an acoustic microphone, automatic mode recognition in every musical style, persistent personalization, or an emulation-quality saxophone synthesizer.
 
 The default musical profile is style-neutral. A separate jazz-oriented profile is included early to exercise the generator seams with additional melodic vocabulary; it is not the default identity of the product.
 
