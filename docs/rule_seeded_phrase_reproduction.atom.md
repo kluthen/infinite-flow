@@ -4,7 +4,8 @@ status: DRAFT
 human_name: Seeded Phrase Reproduction
 type: RULE
 layer: BUSINESS
-dependents: []
+dependents:
+  - [[module_named_stream_pseudorandomness]]
 version: 0.1
 priority: 1
 tags: seed,determinism,regeneration

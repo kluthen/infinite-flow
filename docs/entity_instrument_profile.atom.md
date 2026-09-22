@@ -4,6 +4,7 @@ status: DRAFT
 tags: instrument-profile,range-policy,register-policy,declarative
 version: 1.1
 dependents:
+  - [[entity_concert_event_timeline]]
   - [[module_phrase_generation_profile_policy]]
 type: ENTITY
 layer: ARCHITECTURE

@@ -3,11 +3,15 @@ id: service_generation_orchestration
 status: DRAFT
 priority: 1
 tags: generation,orchestration,immutable-boundary
-dependents: []
+dependents:
+  - [[module_named_stream_pseudorandomness]]
 human_name: Generation Orchestration
 type: SERVICE
 version: 0.1
 parents:
+  - [[entity_concert_event_timeline]]
+  - [[entity_exact_musical_time]]
+  - [[module_named_stream_pseudorandomness]]
   - [[req_four_measure_phrase]]
   - [[rule_instrument_profile_range]]
 layer: ARCHITECTURE

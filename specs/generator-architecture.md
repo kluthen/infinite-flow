@@ -1,6 +1,6 @@
 # Generator Architecture
 
-Status: draft v0.1
+Status: v0.2 — event schema and deterministic foundations resolved and implemented (first_release_plan.md Step 2; see specs/generator-contract.md for the resolved shapes). Profile/register, control mapping, and the harmony/rhythm/pitch planner seams described below remain architectural intent, not delivered behavior.
 
 ## Architectural Intent
 
@@ -59,5 +59,5 @@ The first-deliverable MIDI integration sits outside the evaluator. A matching in
 
 ## Deferred Architecture Questions
 
-- The exact event schema and notation representation are unresolved.
+- The exact event schema is resolved (specs/first_release_plan.md Step 2): a closed `MeasureEvent` union of `NoteEvent`/`RestEvent` carrying an exact Rational duration, a wide plausible-MIDI `ConcertPitch`, tie-continuation intent, and optional free-form annotations; an exactly-tiling `Measure`; and a fixed four-measure `ConcertEventTimeline`. See specs/generator-contract.md's Event Shapes, Duration Model, and Seed Semantics sections for the full shape. The notation representation remains unresolved; it is Step 8's ("Implement written-notation transformation and VexFlow engraving").
 - The degree to which a generator may revise an earlier planner's result to repair playability or voice leading is unresolved. See O10.
