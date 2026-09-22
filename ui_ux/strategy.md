@@ -21,8 +21,8 @@ Controls are grouped by the musical decision they influence: foundation, rhythm,
 - A full-width horizontal staff is chosen over individual measure cards. It preserves phrase-level rhythm, harmonic movement, and the relationship between question and answer.
 - A scrollable, below-score control section is chosen over a desktop side rail. The score needs the entire width for readable engraved detail, especially when viewed at a distance.
 - Named segmented options are chosen over freeform knobs or continuous sliders. The generator has discrete first-release policy values, and labels make the consequences inspectable.
-- Chord symbols transpose with the selected notation mode. The underlying harmony remains concert-pitch data, but a displayed lead sheet must keep written notes and chord labels in the same reading convention.
-- Concert display uses bass clef for the defined concert range; B-flat and E-flat displays use treble clef. This keeps written notes legible without excessive ledger lines while maintaining conventional instrument reading.
+- Chord symbols transpose with the selected notation mode. The underlying harmony remains concert-pitch data, but a displayed lead sheet must keep written notes, tonal label, key, chord labels, and slash bass in the same reading convention.
+- Concert, B-flat, and E-flat display modes all use treble G2 clef. The selected display convention transforms notation only; it never changes the concert phrase or selected instrument profile.
 
 ## Engraving Policy
 
@@ -37,6 +37,7 @@ Each displayed measure has a visible chord symbol above its first harmonic event
 - **Generation failure:** Keep the previous valid phrase visible. Put a concise error message beside the regeneration action and offer retry; do not show a partial staff.
 - **Notation failure:** Preserve the generated phrase data but replace the score with an error panel that offers retry. Never render a misleading fallback of letter names as the score.
 - **Display-mode switch:** Redraw the same phrase promptly with no seed or control changes. Keep the staff frame stable; fade the contents only after correct engraving is ready.
+- **Instrument-profile switch:** Validate the unchanged concert phrase against the new active range and resolved whole-phrase register window. Retain and redraw it only when it fits; otherwise preserve controls and regenerate a complete replacement with a fresh seed. Never transpose source events to fit.
 - **Optional MIDI:** Connection and match states are quiet secondary indicators. A mismatch communicates only that the proposal did not match; it never exposes the incoming pitch or creates a score.
 - **Offline:** Required behavior remains available because generation and notation are browser-local. If a browser capability is unavailable, explain the affected optional capability without blocking phrase generation.
 

@@ -1,54 +1,33 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Infinite Flow - Phrase Workspace Review</title>
   <link rel="stylesheet" href="../ui_common.css">
-  <style>
-    /* Review-only composition. It imports the canonical tokens and classes above. */
-    .review-shell { margin-inline: auto; max-inline-size: 100rem; }
-    .brand { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 650; line-height: var(--leading-tight); }
-    .brand-subtitle { color: var(--color-text-muted); font-size: var(--text-sm); }
-    .header-actions, .context-group, .control-options { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); }
-    .context-group { justify-content: flex-end; }
-    .context-readout { color: var(--color-text-muted); font-size: var(--text-sm); white-space: nowrap; }
-    .score-caption { color: var(--color-text-muted); font-size: var(--text-sm); letter-spacing: 0.08em; margin: 0 0 var(--space-1); text-transform: uppercase; }
-    .score-title { font-family: var(--font-display); font-size: var(--text-2xl); line-height: var(--leading-tight); margin: 0; }
-    .score-subtitle { color: var(--color-text-muted); margin: var(--space-2) 0 var(--space-4); }
-    .score-art { display: block; inline-size: 100%; min-block-size: 22rem; }
-    .control-section-title { font-family: var(--font-display); font-size: var(--text-xl); margin: 0 0 var(--space-1); }
-    .control-section-copy { color: var(--color-text-muted); margin: 0 0 var(--space-4); }
-    .control-group { border-inline-start: var(--space-1) solid var(--color-accent); padding-inline-start: var(--space-3); }
-    .control-group h3 { font-size: var(--text-md); margin: 0 0 var(--space-3); }
-    .control-summary { color: var(--color-text-muted); font-size: var(--text-sm); }
-    .theme-switch { background: transparent; border: 1px solid var(--color-border); color: var(--color-text); }
-    .theme-switch:hover { border-color: var(--color-accent); }
-    .measure-number { fill: var(--color-text-muted); font-family: var(--font-ui); font-size: 15px; }
-    .score-text { fill: var(--color-staff); font-family: var(--font-display); font-size: 26px; font-weight: 600; }
-    .staff-line, .bar-line, .stem, .beam { stroke: var(--color-staff); } .staff-line { stroke-width: 2; } .bar-line { stroke-width: 3; } .stem { stroke-width: 2; } .beam { stroke-width: 6; }
-    .note-head { fill: var(--color-staff); } .rest { fill: var(--color-staff); font-family: serif; font-size: 38px; }
-    @media (max-width: 47.9375rem), (orientation: portrait) { .review-shell { display: none; } }
-  </style>
 </head>
 <body>
   <main class="layout-app review-shell">
     <header class="layout-header">
       <div>
-        <div class="brand">infinite flow</div>
+        <div class="brand-mark">infinite flow</div>
         <div class="brand-subtitle">A phrase to take somewhere</div>
       </div>
       <div class="header-actions">
         <div class="context-group" aria-label="Score context">
-          <div class="segmented-control" aria-label="Display notation">
-            <button class="segment" type="button">Concert</button>
-            <button class="segment is-selected" type="button">B-flat</button>
-            <button class="segment" type="button">E-flat</button>
+          <div class="segmented-control" role="radiogroup" aria-label="Display notation">
+            <button class="segment" role="radio" aria-checked="false" type="button">Concert</button>
+            <button class="segment is-selected" role="radio" aria-checked="true" type="button">B-flat</button>
+            <button class="segment" role="radio" aria-checked="false" type="button">E-flat</button>
           </div>
           <span class="context-readout">4/4</span>
-          <span class="context-readout">112 BPM</span>
+          <span class="context-readout">90 BPM</span>
+          <div class="segmented-control theme-control" role="radiogroup" aria-label="Presentation theme">
+            <button class="segment is-selected" role="radio" aria-checked="true" type="button" data-presentation="system">System</button>
+            <button class="segment" role="radio" aria-checked="false" type="button" data-presentation="light">Light</button>
+            <button class="segment" role="radio" aria-checked="false" type="button" data-presentation="dark">Dark</button>
+          </div>
         </div>
-        <button class="btn theme-switch" type="button" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">Light / dark</button>
         <button class="btn btn-primary btn-lg" type="button">Regenerate phrase</button>
       </div>
     </header>
@@ -96,28 +75,48 @@
         <div class="control-group-row">
           <section class="control-group">
             <h3>Foundation</h3>
-            <div class="field-group"><span class="field-label">Tonal context</span><button class="input-stepper" type="button">C Ionian</button></div>
-            <div class="field-group"><span class="field-label">Profile</span><div class="control-options"><button class="segment is-selected" type="button">Neutral</button><button class="segment" type="button">Jazz</button></div></div>
+            <div class="field-group"><span class="field-label">Tempo</span><button class="input-stepper" type="button">90 BPM</button></div>
+            <div class="field-group"><span class="field-label">Tonal context</span><div class="segmented-control" role="radiogroup" aria-label="Tonal context"><button class="segment is-selected" role="radio" aria-checked="true" type="button">C</button><button class="segment" role="radio" aria-checked="false" type="button">D</button></div></div>
+            <div class="field-group"><span class="field-label">Collection</span><div class="segmented-control" role="radiogroup" aria-label="Collection"><button class="segment is-selected" role="radio" aria-checked="true" type="button">Ionian</button><button class="segment" role="radio" aria-checked="false" type="button">Dorian</button></div></div>
+            <div class="field-group"><span class="field-label">Instrument profile</span><div class="segmented-control" role="radiogroup" aria-label="Instrument profile"><button class="segment" role="radio" aria-checked="false" type="button">C MIDI keyboard</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">B-flat tenor saxophone</button><button class="segment" role="radio" aria-checked="false" type="button">E-flat alto saxophone</button></div><p class="profile-range-summary">Active range 46-70. Whole-phrase windows: Low 46-58, Middle 52-64, High 58-70.</p></div>
+            <div class="field-group"><span class="field-label">Musical profile preset</span><div class="segmented-control" role="radiogroup" aria-label="Musical profile preset"><button class="segment" role="radio" aria-checked="false" type="button">Neutral</button><button class="segment" role="radio" aria-checked="false" type="button">Jazz</button></div><p class="preset-status is-custom">Custom configuration</p></div>
+            <div class="field-group"><span class="field-label">Harmonic motion</span><div class="segmented-control" role="radiogroup" aria-label="Harmonic motion"><button class="segment" role="radio" aria-checked="false" type="button">Static</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Gentle diatonic</button></div></div>
+            <div class="field-group"><span class="field-label">Tension</span><div class="segmented-control" role="radiogroup" aria-label="Tension"><button class="segment" role="radio" aria-checked="false" type="button">Settled</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Lift</button><button class="segment" role="radio" aria-checked="false" type="button">Build</button><button class="segment" role="radio" aria-checked="false" type="button">Edge</button></div></div>
           </section>
           <section class="control-group">
             <h3>Rhythm</h3>
-            <div class="field-group"><span class="field-label">Note density</span><div class="control-options"><button class="segment" type="button">Eighths</button><button class="segment is-selected" type="button">Mixed</button></div></div>
-            <div class="field-group"><span class="field-label">Syncopation</span><button class="input-stepper" type="button">Occasional offbeats</button></div>
+            <div class="field-group"><span class="field-label">Note density</span><div class="segmented-control" role="radiogroup" aria-label="Note density"><button class="segment" role="radio" aria-checked="false" type="button">Eighths</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Mixed</button></div></div>
+            <div class="field-group"><span class="field-label">Syncopation</span><div class="segmented-control" role="radiogroup" aria-label="Syncopation"><button class="segment" role="radio" aria-checked="false" type="button">Straight</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Occasional offbeats</button></div></div>
+            <div class="field-group"><span class="field-label">Silence density</span><div class="segmented-control" role="radiogroup" aria-label="Silence density"><button class="segment" role="radio" aria-checked="false" type="button">Sparse</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Conversational space</button></div></div>
           </section>
           <section class="control-group">
             <h3>Melodic shape</h3>
-            <div class="field-group"><span class="field-label">Contour</span><div class="control-options"><button class="segment" type="button">Rising</button><button class="segment is-selected" type="button">Arch</button></div></div>
-            <div class="field-group"><span class="field-label">Register</span><button class="input-stepper" type="button">Middle</button></div>
+            <div class="field-group"><span class="field-label">Contour</span><div class="segmented-control" role="radiogroup" aria-label="Contour"><button class="segment" role="radio" aria-checked="false" type="button">Rising</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Arch</button></div></div>
+            <div class="field-group"><span class="field-label">Register</span><div class="segmented-control" role="radiogroup" aria-label="Register"><button class="segment" role="radio" aria-checked="false" type="button">Low</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Middle</button><button class="segment" role="radio" aria-checked="false" type="button">High</button><button class="segment" role="radio" aria-checked="false" type="button">Varying</button></div></div>
+            <div class="field-group"><span class="field-label">Leapiness</span><div class="segmented-control" role="radiogroup" aria-label="Leapiness"><button class="segment" role="radio" aria-checked="false" type="button">Smooth</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Shaped</button><button class="segment" role="radio" aria-checked="false" type="button">Leaping</button><button class="segment" role="radio" aria-checked="false" type="button">Angular</button></div></div>
           </section>
           <section class="control-group">
             <h3>Character</h3>
-            <div class="field-group"><span class="field-label">Harmonic motion</span><button class="input-stepper" type="button">Gentle diatonic</button></div>
-            <div class="field-group"><span class="field-label">Arpeggio chaos</span><button class="input-stepper" type="button">Predictable</button></div>
+            <div class="character-disclosure"><div class="field-group"><span class="field-label">Arpeggio chaos</span><div class="segmented-control" role="radiogroup" aria-label="Arpeggio chaos"><button class="segment is-selected" role="radio" aria-checked="true" type="button">Predictable</button><button class="segment" role="radio" aria-checked="false" type="button">Varied</button><button class="segment" role="radio" aria-checked="false" type="button">Chaotic</button></div></div></div>
           </section>
         </div>
       </section>
     </section>
   </main>
   <section class="orientation-notice"><p>Infinite Flow is designed for landscape reading. Rotate your device to view the phrase.</p></section>
+  <script>
+    document.querySelectorAll('[data-presentation]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const { presentation } = button.dataset;
+        if (presentation === 'system') document.documentElement.removeAttribute('data-theme');
+        else document.documentElement.dataset.theme = presentation;
+        document.querySelectorAll('[data-presentation]').forEach((option) => {
+          const isSelected = option === button;
+          option.classList.toggle('is-selected', isSelected);
+          option.setAttribute('aria-checked', String(isSelected));
+        });
+      });
+    });
+  </script>
 </body>
 </html>

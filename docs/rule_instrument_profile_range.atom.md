@@ -1,6 +1,6 @@
 ---
 id: rule_instrument_profile_range
-status: DRAFT
+status: STABLE
 type: RULE
 version: 0.2
 priority: 1

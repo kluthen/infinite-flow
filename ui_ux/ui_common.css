@@ -27,6 +27,17 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 1rem;
+  --control-group-min-inline-size: 14rem;
+  --layout-review-max-inline-size: 100rem;
+  --score-illustration-min-block-size: 22rem;
+  --tracking-caption: 0.08em;
+  --score-annotation-size: 0.9375rem;
+  --score-label-size: 1.625rem;
+  --score-rest-size: 2.375rem;
+  --score-staff-line-width: 0.125rem;
+  --score-bar-line-width: 0.1875rem;
+  --score-stem-line-width: 0.125rem;
+  --score-beam-line-width: 0.375rem;
   --shadow-panel: 0 0.5rem 1.5rem rgb(31 29 24 / 0.12);
   --shadow-focus: 0 0 0 0.1875rem var(--color-focus-ring);
   --z-base: 0;
@@ -35,7 +46,7 @@
   --z-alert: 30;
 
   /* Named responsive targets. All product screens are landscape-first. */
-  --bp-portrait-guard: 47.9375rem;
+  --bp-portrait-guard: 89.9375rem;
   --bp-mobile-landscape: 48rem;
   --bp-tablet-landscape: 64rem;
   --bp-desktop: 90rem;
@@ -46,6 +57,7 @@
   --duration-fade: 240ms;
   --ease-out-fast: cubic-bezier(0.2, 0, 0, 1);
   --ease-out-gentle: cubic-bezier(0.22, 1, 0.36, 1);
+  --size-visually-hidden: 1px;
 
   /* Light theme: text contrast meets WCAG AA at normal text sizes. */
   --color-canvas: #f4f0e7;
@@ -110,18 +122,51 @@ button, input, select { font: inherit; }
 
 /* Layout classes: landscape workspace keeps score larger than its supporting controls. */
 .layout-app { min-block-size: 100dvb; padding: var(--space-4); }
-.layout-header { align-items: center; border-block-end: 1px solid var(--color-border); display: flex; gap: var(--space-3); justify-content: space-between; padding-block-end: var(--space-3); }
+.layout-header { align-items: center; border-block-end: 1px solid var(--color-border); display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: space-between; min-inline-size: 0; padding-block-end: var(--space-3); }
 .layout-workspace { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); margin-block-start: var(--space-3); }
 .control-panel, .control-sheet, .control-section { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-panel); padding: var(--space-4); }
-.control-group-row { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.control-group-row { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); }
 .score-panel { min-inline-size: 0; }
 .score-toolbar { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: space-between; margin-block-end: var(--space-3); }
+.staff-viewport { inline-size: 100%; min-inline-size: 0; }
+.score-context, .control-summary, .profile-range-summary, .tempo-readout { color: var(--color-text-muted); font-size: var(--text-sm); }
+.meter-badge { background: var(--color-surface-muted); border-radius: var(--radius-sm); color: var(--color-text); font-size: var(--text-sm); font-weight: 700; padding: var(--space-1) var(--space-2); }
+.brand-mark { color: var(--color-text); font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; line-height: var(--leading-tight); }
+.brand-subtitle { color: var(--color-text-muted); font-size: var(--text-sm); }
+.header-actions, .context-group, .control-options { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); min-inline-size: 0; }
+.header-actions { flex: 1 1 100%; justify-content: space-between; }
+.context-group { flex: 1 1 var(--control-group-min-inline-size); justify-content: space-between; }
+.context-readout { color: var(--color-text-muted); font-size: var(--text-sm); white-space: nowrap; }
+.character-disclosure { border-block-start: 1px solid var(--color-border); margin-block-start: var(--space-4); padding-block-start: var(--space-4); }
+.chord-symbol { color: var(--color-staff); font-family: var(--font-music); }
 
-/* States: default, loading, error. Hover/focus/active are not applicable to the static staff container. */
+/* Review composition uses the same canonical visual vocabulary as production screens. */
+.review-shell { margin-inline: auto; max-inline-size: var(--layout-review-max-inline-size); }
+.score-caption { color: var(--color-text-muted); font-size: var(--text-sm); letter-spacing: var(--tracking-caption); margin: 0 0 var(--space-1); text-transform: uppercase; }
+.score-title { font-family: var(--font-display); font-size: var(--text-2xl); line-height: var(--leading-tight); margin: 0; }
+.score-subtitle { color: var(--color-text-muted); margin: var(--space-2) 0 var(--space-4); }
+.score-art { display: block; inline-size: 100%; min-block-size: var(--score-illustration-min-block-size); }
+.control-section-title { font-family: var(--font-display); font-size: var(--text-xl); margin: 0 0 var(--space-1); }
+.control-section-copy { color: var(--color-text-muted); margin: 0 0 var(--space-4); }
+.control-group { border-inline-start: var(--space-1) solid var(--color-accent); padding-inline-start: var(--space-3); }
+.control-group h3 { font-size: var(--text-md); margin: 0 0 var(--space-3); }
+.measure-number { fill: var(--color-text-muted); font-family: var(--font-ui); font-size: var(--score-annotation-size); }
+.score-text { fill: var(--color-staff); font-family: var(--font-display); font-size: var(--score-label-size); font-weight: 600; }
+.staff-line, .bar-line, .stem, .beam { stroke: var(--color-staff); }
+.staff-line { stroke-width: var(--score-staff-line-width); }
+.stem { stroke-width: var(--score-stem-line-width); }
+.bar-line { stroke-width: var(--score-bar-line-width); }
+.beam { stroke-width: var(--score-beam-line-width); }
+.note-head { fill: var(--color-staff); }
+.rest { fill: var(--color-staff); font-family: serif; font-size: var(--score-rest-size); }
+
+/* States: default, loading, ready, fading-out, error. Hover/focus/active are not applicable to the static staff container. */
 .staff-frame { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); color: var(--color-staff); min-block-size: 24rem; padding: var(--space-4); }
 .staff-empty, .staff-error { align-content: center; display: grid; justify-items: center; }
 .staff-loading { cursor: progress; opacity: 0.78; }
+.staff-ready { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); color: var(--color-staff); min-block-size: 24rem; padding: var(--space-4); }
 .staff-content { animation: staff-fade-in var(--duration-fade) var(--ease-out-gentle) both; inline-size: 100%; }
+.staff-content.is-fading-out { animation: staff-fade-out var(--duration-fade-fast) var(--ease-out-gentle) both; pointer-events: none; }
 .measure-slot { min-inline-size: 0; }
 
 /* States: default, hover, focus-visible, active, disabled, loading, error. */
@@ -133,14 +178,17 @@ button, input, select { font: inherit; }
 .btn-error { background: var(--color-error); color: var(--color-accent-text); }
 .btn-lg { min-block-size: 3rem; padding-inline: var(--space-5); }
 
-/* States: default, hover, focus-visible, active, disabled, loading, error. */
+/* States: default, selected, hover, focus-visible, active, disabled, loading, error. Single-select groups use radiogroup/radio with aria-checked. */
 .segmented-control { display: inline-flex; gap: var(--space-1); }
 .segment { background: var(--color-surface-muted); border: 1px solid var(--color-border); border-radius: var(--radius-sm); color: var(--color-text); min-block-size: 2.75rem; padding-inline: var(--space-3); }
 .segment:hover { border-color: var(--color-accent); }
 .segment:active { background: var(--color-surface); }
-.segment.is-selected { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-accent-text); }
+.segment.is-selected, .segment[aria-checked="true"] { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-accent-text); }
 .segment:disabled, .segmented-control.is-loading { opacity: 0.55; }
 .segmented-control.is-error { box-shadow: 0 0 0 1px var(--color-error); }
+
+/* States: default, hover, focus-visible, active, disabled, loading, error. */
+.theme-control { flex-wrap: wrap; }
 
 /* States: default, hover, focus-visible, active, disabled, loading, error. */
 .field-group { display: grid; gap: var(--space-2); margin-block-end: var(--space-4); }
@@ -151,6 +199,13 @@ button, input, select { font: inherit; }
 .input-stepper:disabled, .field-group.is-loading { opacity: 0.55; }
 .field-group.is-error .input-stepper { border-color: var(--color-error); }
 
+/* States: default, loading, error. Custom feedback is informational, not interactive. */
+.preset-status { color: var(--color-text-muted); font-size: var(--text-sm); }
+.preset-status.is-custom { color: var(--color-text); font-weight: 700; }
+
+/* States: ready, loading, error. This semantic status is visually hidden but remains exposed to assistive technology. */
+.generation-status { block-size: var(--size-visually-hidden); clip: rect(0 0 0 0); clip-path: inset(50%); inline-size: var(--size-visually-hidden); margin: calc(var(--size-visually-hidden) * -1); overflow: hidden; position: absolute; white-space: nowrap; }
+
 /* States: default, hover, focus-visible, active, disabled, loading, error. */
 .inline-alert { border-inline-start: var(--space-1) solid; border-radius: var(--radius-sm); padding: var(--space-3); }
 .alert-error { background: var(--color-error-surface); border-color: var(--color-error); color: var(--color-error); }
@@ -159,10 +214,17 @@ button, input, select { font: inherit; }
 .midi-indicator.is-mismatch { color: var(--color-error); }
 .midi-indicator.is-loading, .midi-indicator:disabled { opacity: 0.55; }
 .midi-indicator.is-error { text-decoration: underline; }
+.midi-indicator.is-unavailable { color: var(--color-text-muted); }
 
 .orientation-notice { display: none; }
 @keyframes staff-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes staff-fade-out { from { opacity: 1; } to { opacity: 0; } }
+/* bp-mobile-landscape retains the one-column control stack. */
 @media (min-width: 48rem) and (orientation: landscape) { .layout-app { padding: var(--space-5); } .layout-header { min-block-size: 4rem; } .control-sheet { display: none; } }
-@media (min-width: 90rem) and (orientation: landscape) { .layout-app { padding: var(--space-6); } .staff-frame { min-block-size: 28rem; } }
-@media (orientation: portrait) { .layout-app { display: none; } .orientation-notice { align-content: center; display: grid; min-block-size: 100dvb; padding: var(--space-6); place-items: center; text-align: center; } }
+/* bp-tablet-landscape lets control groups wrap without changing the vertical workspace structure. */
+@media (min-width: 64rem) and (orientation: landscape) { .control-group-row { display: flex; flex-wrap: wrap; } .control-group-row > .control-group { flex: 1 1 var(--control-group-min-inline-size); } }
+/* bp-desktop keeps all control groups horizontal when the full workspace width is available. */
+@media (min-width: 90rem) and (orientation: landscape) { .layout-app { padding: var(--space-6); } .header-actions { flex: 0 1 auto; } .context-group { flex: 0 1 auto; justify-content: flex-end; } .staff-frame { min-block-size: 28rem; } .control-group-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+/* The portrait guard applies only below bp-desktop; sufficiently wide desktop portraits remain usable. */
+@media (max-width: 89.9375rem) and (orientation: portrait) { .layout-app { display: none; } .orientation-notice { align-content: center; display: grid; min-block-size: 100dvb; padding: var(--space-6); place-items: center; text-align: center; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; scroll-behavior: auto !important; transition-duration: 1ms !important; } }
