@@ -9,7 +9,9 @@ parents:
 version: 0.1
 priority: 1
 tags: meter,rhythm,hard-constraint
-dependents: []
+dependents:
+  - [[entity_concert_event_timeline]]
+  - [[entity_exact_musical_time]]
 ---
 
 # Complete Four-Four Measures

@@ -11,7 +11,8 @@ parents:
   - [[rule_instrument_profile_range]]
   - [[rule_presentation_preference_preserves_phrase]]
   - [[user_story_controlled_phrase_generation]]
-dependents: []
+dependents:
+  - [[module_named_stream_pseudorandomness]]
 ---
 
 # Generation Request Construction

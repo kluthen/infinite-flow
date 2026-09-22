@@ -3,6 +3,8 @@ id: req_four_measure_phrase
 status: DRAFT
 tags: first-release,music-generation
 dependents:
+  - [[entity_concert_event_timeline]]
+  - [[entity_exact_musical_time]]
   - [[req_browser_only_first_release]]
   - [[req_landscape_phrase_workspace]]
   - [[rule_arpeggio_chaos_respects_constraints]]

@@ -24,7 +24,6 @@ The authoritative product inputs are [the first-release master specification](fi
 ## Pre-Execution Gates
 
 - Create a dedicated git worktree from the default branch for this major greenfield feature, verify it starts from the intended clean baseline, and perform all ten implementation steps there. Do not disturb unrelated changes in the primary checkout.
-- Obtain the pending human signoff for implementing the STABLE `rule_instrument_profile_range` invariant.
 - Run documentalist Trigger E before source creation for only the settled, business-intent-bearing generator orchestration, control/request behavior, workspace state-flow, and verification boundaries. Carry the resulting atom IDs into precise implementation/test links. Do not create atoms for Vue, Tailwind, VexFlow, package configuration, file layout, or other tooling choices.
 
 ## 1. Establish the executable client and quality gates
