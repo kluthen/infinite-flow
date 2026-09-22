@@ -23,131 +23,130 @@ The authoritative product inputs are [the first-release master specification](fi
 
 ## Pre-Execution Gates
 
-Before Step 1:
+- Create a dedicated git worktree from the default branch for this major greenfield feature, verify it starts from the intended clean baseline, and perform all ten implementation steps there. Do not disturb unrelated changes in the primary checkout.
+- Obtain the pending human signoff for implementing the STABLE `rule_instrument_profile_range` invariant.
+- Run documentalist Trigger E before source creation for only the settled, business-intent-bearing generator orchestration, control/request behavior, workspace state-flow, and verification boundaries. Carry the resulting atom IDs into precise implementation/test links. Do not create atoms for Vue, Tailwind, VexFlow, package configuration, file layout, or other tooling choices.
 
-1. Create a dedicated git worktree from the default branch for this major greenfield feature, verify the intended baseline, and perform all implementation there without disturbing the primary checkout.
-2. Obtain human signoff for implementing the STABLE instrument range/register-window invariant.
-3. Capture only settled, business-intent-bearing generator orchestration, control/request behavior, workspace state-flow, and verification boundaries needed for traceability. Do not create ATD content for Vue, Tailwind, VexFlow, package configuration, file layout, or other tooling choices.
+## 1. Establish the executable client and quality gates
 
-## 1. Establish the Executable Client and Quality Gates
+**Tests:** Scaffold Vitest, Vue Test Utils, Playwright, and `@axe-core/playwright`; add smoke tests for app mount, an empty workspace route, and production startup. Define scripts for typecheck, lint, unit/component tests, E2E tests, build, and ATD checks.
 
-**Tests:** Scaffold Vitest, Vue Test Utils, Playwright, and `@axe-core/playwright`. Add smoke tests for application mount, the empty workspace, and production startup. Define scripts for formatting, lint, typecheck, unit/component tests, E2E tests, build, and traceability checks.
+**Implement:** Create the Vue 3 + strict TypeScript + Vite application, Tailwind 4 pipeline, ESLint/formatting configuration, and browser-only entry point. Establish domain, component, composable, style, test, and public-asset directories. Add `vite-plugin-pwa` only for immutable application assets; prohibit application APIs for localStorage, sessionStorage, IndexedDB, or persisted user-state caches.
 
-**Implement:** Create the Vue 3, strict TypeScript, Vite, and Tailwind 4 client. Establish domain, component, composable, style, test, and public-asset boundaries. Add PWA support for immutable assets only and prohibit browser persistence APIs for user/session state.
+**Verify:** Run typecheck, lint, smoke tests, Playwright startup test, and production build. Inspect the built client to confirm required behavior has no server runtime and no user-state persistence dependency.
 
-**Verify:** Run typecheck, lint, smoke tests, Playwright startup, and the production build. Confirm required behavior has no server runtime or persisted user-data dependency.
+**Documents:** Update the root README with prerequisites, commands, directory boundaries, browser-only constraints, and the release verification matrix.
 
-**Documents:** Update the root README with prerequisites, commands, directory boundaries, browser-only constraints, and a release verification matrix.
+**ATD stewardship:** Confirm the pre-execution business-boundary capture and range signoff are complete, then run structural ATD validation and record the governing atom IDs for later source/test links. Do not attach business atoms to generic tool configuration or create atoms for tooling.
 
-**ATD stewardship:** Confirm the pre-execution business-boundary capture and stable-contract signoff, validate the documentation structure, and retain governing atom IDs for later precise links. Do not link generic tooling configuration.
+## 2. Define the immutable musical contract and deterministic foundations
 
-## 2. Define the Immutable Musical Contract and Deterministic Foundations
+**Tests:** Add failing unit tests for request/result construction, exact four-measure/4/4 shape, immutable concert events, rational duration arithmetic, invalid boundary rejection, fixed-seed PRNG sequences, and separation of display/session fields from generation data.
 
-**Tests:** Add failing tests for request/result construction, exact four-measure 4/4 shape, immutable concert events, exact duration arithmetic, invalid input rejection, fixed PRNG sequences, and exclusion of display/session fields from generator data.
+**Implement:** Define the closed TypeScript event schema, exact duration representation, generation request/result types, hand-written boundary parsers and invariant validators, immutable constructors, seed identity, and a small documented 32-bit deterministic PRNG with named streams.
 
-**Implement:** Define the event schema, exact duration representation, request/result types, boundary parsers, invariant validators, immutable constructors, seed identity, and named deterministic random streams.
+**Verify:** Run focused contract and PRNG tests, typecheck, mutation/immutability assertions, and golden-seed reproduction checks across repeated runs.
 
-**Verify:** Run focused contract and PRNG tests, typecheck, immutability assertions, and golden-seed reproduction across repeated runs.
+**Documents:** Update the generator contract/architecture docs with the final event shapes, duration model, seed semantics, validation failures, and ownership boundaries.
 
-**Documents:** Finalize event shapes, duration semantics, validation failures, seed behavior, and ownership boundaries in the generator documents.
+**ATD stewardship:** Place precise links at behavior-bearing contract and determinism boundaries and corresponding tests, primarily for `req_four_measure_phrase`, `rule_complete_four_four_measures`, and `rule_seeded_phrase_reproduction`; audit that presentation and browser state remain outside those links.
 
-**ATD stewardship:** Place precise implementation and test links for four-measure completion and deterministic reproduction. Keep browser and presentation state outside those boundaries.
+## 3. Implement declarative instrument profiles and register policy
 
-## 3. Implement Declarative Instrument Profiles and Register Policy
+**Tests:** Add table-driven tests for all C keyboard, B-flat tenor, and E-flat alto ranges/windows; invalid profile definitions; fixed Low/Middle/High resolution; canonical `Low, Middle, High` candidate identities/indices; stable register-stream key fixtures and display-state independence; and no mid-phrase window changes. Do not assert complete-phrase Varying eligibility in this step.
 
-**Tests:** Cover all C keyboard, B-flat tenor, and E-flat alto ranges/windows; invalid profiles; fixed Low/Middle/High resolution; canonical window identities; deterministic register-stream keys; display-state independence; and no mid-phrase window changes. Do not test complete Varying feasibility before the full planner exists.
+**Implement:** Create validated declarative profile data, active-range/window value objects, an outer register-intent descriptor, deterministic canonical window-order/key primitives, and construction of core requests that always carry one resolved window. Implement profile-switch retain/regenerate validation without instrument-specific planner branches. Do not run or duplicate harmony/rhythm/pitch feasibility here; Step 7 owns complete-phrase Varying eligibility and selection.
 
-**Implement:** Create declarative profiles, range/window value objects, an outer register intent, deterministic window-order/key primitives, and core requests that always contain one resolved window. Implement profile-switch retain/regenerate validation without instrument-specific planner branches. Step 7 owns complete Varying feasibility.
+**Verify:** Run profile/property tests across boundary MIDI values, window identities, register-key seeds, and display/theme variants, plus typecheck and lint. Prove every core request has one resolved contained window and no unresolved `Varying`; require explicit human signoff that ranges/windows match the STABLE contract before closing this step.
 
-**Verify:** Test boundary MIDI values, window identities, seeds, and presentation variants. Prove that every core request has one contained resolved window and obtain stable-contract signoff.
+**Documents:** Record profile-extension instructions, outer intent versus resolved core-request boundary, canonical window identities/key derivation, and the exact validation/switch algorithm, aligned with [Register-window research](../docs/music/Saxophone%20profile%20ranges/register-windows.md#how-should-varying-choose-a-phrase-wide-policy-deterministically-from-a-seed).
 
-**Documents:** Document profile extension, outer intent versus resolved core request, canonical window identities, and profile-switch behavior. Preserve the policy in [Register-Window Research](../docs/music/Saxophone%20profile%20ranges/register-windows.md).
+**ATD stewardship:** Link profile definitions, validators, switch policy, and focused tests to `rule_instrument_profile_range`, `entity_instrument_profile`, `module_phrase_generation_profile_policy`, and `rule_profile_switch_validates_phrase`; run semantic/coverage checks for the STABLE rule.
 
-**ATD stewardship:** Link profile definitions, validators, switch policy, and tests to the governing profile/range business behavior and review coverage of the STABLE invariant.
+## 4. Implement controls, presets, and request construction
 
-## 4. Implement Controls, Presets, and Request Construction
+**Tests:** Add unit/component tests for every selectable value and default, tempo bounds/steps, complete Neutral/Jazz bundle replacement, custom-configuration behavior, retained profile grammar, fresh-seed regeneration, and exclusion of theme/notation from generation requests.
 
-**Tests:** Cover every control and default, tempo bounds/steps, complete Neutral/Jazz bundle replacement, custom configuration, retained grammar, fresh-seed regeneration, and exclusion of theme/notation from generation requests.
+**Implement:** Build typed control catalogs, normalized control mapping, preset bundles, request factory, seed renewal, and a root-created in-memory session composable exposing readonly state and explicit actions. Keep it independent of Vue components and storage APIs.
 
-**Implement:** Build typed control catalogs, normalization, preset bundles, the request factory, seed renewal, and a root-created in-memory session composable with readonly state and explicit actions.
+**Verify:** Run focused mapping/session tests, typecheck, and lint; inspect representative serialized requests for completeness and absence of presentation/browser data.
 
-**Verify:** Run focused mapping/session tests, typecheck, and lint. Inspect representative requests for completeness and absence of presentation/browser data.
+**Documents:** Document defaults, normalization, preset/custom transitions, request creation, and session-only state ownership.
 
-**Documents:** Record defaults, normalization, preset/custom transitions, request creation, and session-only state ownership.
+**ATD stewardship:** Link behavior and tests to `user_story_controlled_phrase_generation`, `rule_profile_presets_apply_defined_controls`, `rule_seeded_phrase_reproduction`, and `rule_presentation_preference_preserves_phrase`. Every source file must carry at least one precise link at the type/function/constant boundary it implements; if a passive option-label file has no honest independent business boundary, co-locate it with its owning linked module rather than adding a catch-all or phantom link.
 
-**ATD stewardship:** Link controlled generation, presets, seeded reproduction, and presentation isolation at their behavior boundaries. Ensure every source file has one honest precise link without inventing boundaries for passive labels.
+## 5. Build the harmony and tension planner
 
-## 5. Build the Harmony and Tension Planner
+**Tests:** Add failing deterministic tests from [Harmony Planner Policy](../docs/music/harmony-planner-policy.md): every collection offset/derived triad; tonal and modal static/gentle/active template; harmony-event count/boundary; Neutral/Jazz domain parity; abstract tension-requirement records with no rhythm/onset dependency; tonal, static, and modal open endpoints; complete finite-domain expansion; stable structural identities/zero-based indices; typed empty-domain failure; and seed-independent domain reproduction. Include every tonal center, Major/Minor versus each named mode, and fixed fixtures for optional split bars.
 
-**Tests:** From [Harmony Planner Policy](../docs/music/harmony-planner-policy.md), cover every collection and derived triad; tonal/modal static, gentle, and active templates; event limits; Neutral/Jazz domain parity; abstract tension requirements; open endpoints; complete domain expansion; stable identities/indices; empty-domain failure; and seed-independent reproduction.
+**Implement:** Implement the exact [collection/triad vocabulary](../docs/music/harmony-planner-policy.md#collection-and-chord-vocabulary), tonal/modal template tables, quarter-boundary harmonic events, endpoint classes, abstract tension requirements, and [candidate domain/indexing](../docs/music/harmony-planner-policy.md#candidate-domain-indexing-and-failure). Return the complete immutable canonically indexed domain, not a rhythm-bound target or one selected plan; return `no_legal_harmony_plan` only when that structural domain is empty.
 
-**Implement:** Implement the collection/triad vocabulary, tonal/modal templates, quarter-boundary harmony events, endpoint classes, abstract tension requirements, and a complete immutable `HarmonyCandidateDomain`. Do not bind rhythm onsets or return only one selected plan.
+**Verify:** Run focused fixtures plus property sweeps across all tonal centers, collections, motion levels, arcs, and profiles. Independently reconstruct every triad; assert event limits, Neutral/Jazz domain parity, abstract requirement validity, stable complete enumeration/indices independent of seed and rhythm, and the exact [open-ending endpoint class](../docs/music/harmony-planner-policy.md#open-ending) with no altered/borrowed harmony or tonic closure.
 
-**Verify:** Sweep all tonal centers, collections, motion levels, tension arcs, and profiles. Reconstruct every triad independently and verify event limits, parity, stable enumeration, modal safeguards, and open endpoints without altered/borrowed harmony.
+**Documents:** Treat [Harmony Planner Policy](../docs/music/harmony-planner-policy.md) as the Step 5 musical-policy source; keep its Authority/Evidence/Implementation-inference distinction, event schema mapping, candidate order, failure names, and calibration questions synchronized with implementation. Keep [Neutral Profile](../docs/music/neutral-profile.md) and [Jazz Profile](../docs/music/jazz-profile.md) subordinate to it.
 
-**Documents:** Keep Harmony Planner Policy synchronized with implementation, including its authority/evidence/inference distinction, event mapping, candidate order, failures, and calibration questions.
+**ATD stewardship:** Link narrow behavior-bearing planner functions/tests to the governed neutral-harmony, tension-level/ranking, and open-ending rules; use ATD only for business traceability. Do not encode template tables, candidate ordering, research evidence, calibration, or tooling choices as atom policy, and do not overload one implementation boundary with unrelated links.
 
-**ATD stewardship:** Trace governed neutral harmony, tension, and open-ending behavior. Keep template tables, candidate order, evidence, calibration, and tooling outside ATD.
+## 6. Build the rhythm and phrase-structure planner
 
-## 6. Build the Rhythm and Phrase-Structure Planner
+**Tests:** Add failing tests from [Rhythm and Phrase-Structure Policy](../docs/music/rhythm-phrase-structure.md) for 16-tick bars/64-tick phrases; exact Quarter/Eighth/Sixteenth/Mixed nominal boundaries, durations, attack bands, and Mixed-class coverage; each phrase rest budget/shape; Straight/Occasional/Active counts; signed `b'=b+delta` behavior for later/earlier `note -> note`; paired equal-delta interior `note -> rest -> note` translation; rejection of unpaired/leading/trailing rest displacement; tied-sustain splitting without reattack; positive durations; unchanged attack/rest totals; exact tiling; tick-0-or-8 anchors and Active anchor ratio; gesture/answer relation; canonical order; typed no-plan failure; and fixed-seed reproduction.
 
-**Tests:** From [Rhythm and Phrase-Structure Policy](../docs/music/rhythm-phrase-structure.md), cover 16-tick bars and 64-tick phrases; every density grid and attack band; rest budgets; Straight/Occasional/Active syncopation; signed boundary movement for note-to-note and interior-rest translation; tied sustain; unchanged attack/rest totals; exact tiling; tick-0-or-8 anchors; gesture/answer behavior; canonical order; failures; and reproduction.
+**Implement:** Build the nominal skeleton and joint density/silence allocator, apply the algebraic syncopation transforms without changing attack/rest totals, emit tie intents, enforce exact anchors, and derive bars 3-4 as the documented transformed answer to bars 1-2. Follow [Exact time model and grids](../docs/music/rhythm-phrase-structure.md#exact-time-model-and-grids) through [Four-bar gesture and answer](../docs/music/rhythm-phrase-structure.md#four-bar-gesture-and-answer); return the complete immutable, structurally identified/indexed finite rhythm domain (or equivalent finite iterator), expose phrase-position/grid provenance, inspect no harmony, and assign no pitches.
 
-**Implement:** Build the nominal skeleton and joint density/silence allocator, algebraic syncopation transformations, tie intents, exact anchors, and bars 3-4 as a transformed answer to bars 1-2. Return the complete finite rhythm domain without inspecting harmony or assigning pitches.
+**Verify:** Independently retile every generated measure and run seeded property sweeps over every density/silence/syncopation combination. Assert the complete [candidate/failure/validation checklist](../docs/music/rhythm-phrase-structure.md#candidate-order-failure-and-validation), including algebraically correct transformed boundaries, positive durations, unchanged attack count and total rest ticks, exact bar/phrase totals, legal tie continuations, anchors, answer similarity plus ending variation, and deterministic failure when constraints cannot coexist.
 
-**Verify:** Retile every generated measure and property-test every density, silence, and syncopation combination. Confirm positive durations, exact totals, legal ties, anchors, answer similarity/variation, and deterministic failure.
+**Documents:** Treat [Rhythm and Phrase-Structure Policy](../docs/music/rhythm-phrase-structure.md) as the Step 6 source for rhythm representation, exact grids/budgets, displacement/tie semantics, phrase construction, candidate order, and failures. Record listening-test results separately before changing explicitly labelled calibration bands; do not present the numeric bands as universal theory.
 
-**Documents:** Keep Rhythm and Phrase-Structure Policy synchronized with representation, grids/budgets, displacement/ties, phrase construction, ordering, failures, and listening-test calibration.
+**ATD stewardship:** Link only behavior-bearing duration/anchor/phrase code and tests to `rule_complete_four_four_measures`, `rule_preserve_metrical_anchor`, and applicable phrase requirements; run targeted traceability checks. Keep tick representation, candidate enumeration, numerical calibration, and test tooling out of ATD.
 
-**ATD stewardship:** Trace exact 4/4 completion, metrical anchors, and governed phrase behavior. Keep tick representation, candidate enumeration, calibration, and tooling outside ATD.
+## 7. Build pitch planning, orchestration, and final validation
 
-## 7. Build Pitch Planning, Orchestration, and Final Validation
+**Tests:** Add failing unit/property suites from [Pitch Planner and Validation Policy](../docs/music/pitch-planner-validation.md): seed-independent canonical enumeration; Neutral/Jazz vocabulary; contour; leap caps/budgets; recognized two-note runs with one interval and three-note runs with two same-direction intervals; rejection of two same-direction leaps without the complete three-note chord-tone run; recovery; range/window boundaries; abstract-tension binding per harmony/rhythm pair; low-chaos nearest-note rank; legal tension/chaos re-ranking; equal-rank tie cases proving the seed tie-break is reachable, seed-sensitive, and reproducible with MIDI used only after a tie-key collision; stable harmony/rhythm indices, equal-rank stream ordering, and fallback exhaustion; every typed failure; open endpoints; and full same-intent/seed reproduction.
 
-**Tests:** From [Pitch Planner and Validation Policy](../docs/music/pitch-planner-validation.md), cover canonical enumeration; Neutral/Jazz vocabulary; contours; leap budgets; recognized two- and three-note arpeggio runs; recovery; ranges/windows; abstract-tension binding; low-chaos nearest-note preference; legal ranking; reachable seeded ties; fallback exhaustion; typed failures; open endpoints; and complete intent/seed reproduction.
+**Implement:** Separate stable candidate enumeration from legal musical ranking, then implement octave expansion/hard filters, Neutral/Jazz state, contour forward checking, corrected arpeggio/recovery state, low-chaos distance ranking, tension/chaos ranking, equal-rank seed keys, and deterministic backtracking per [Canonical enumeration, ranking, and deterministic search](../docs/music/pitch-planner-validation.md#canonical-enumeration-ranking-and-deterministic-search). The outer orchestrator receives `GenerationIntent`; for each fixed or Varying window candidate it constructs a resolved core request, iterates canonically indexed harmony then rhythm candidates, binds abstract tension requirements, runs pitch/validation, and exhausts without replacement per [Orchestration, Varying resolution, and failure](../docs/music/pitch-planner-validation.md#orchestration-varying-resolution-and-failure).
 
-**Implement:** Separate stable enumeration from musical ranking. Implement octave expansion, hard filters, profile grammar, contour forward checking, leap/recovery/arpeggio state, chaos/tension ranking, seeded equal-rank ordering, and deterministic backtracking. For each fixed or Varying window, construct a resolved core request and exhaust harmony/rhythm/pitch candidates without replacement.
+**Verify:** Run broad deterministic seed matrices for every profile/register and representative control combination. Add full-pipeline Varying fixtures for all eight successful-window subsets, selected-window seed sensitivity, identical-seed reproduction, no-success, and search-limit indeterminacy; assert only validated successful windows can be selected and the retained core request is resolved. Execute [Independent whole-result validation](../docs/music/pitch-planner-validation.md#independent-whole-result-validation), prove stable harmony/rhythm/pitch fallback order and tie-key behavior, distinguish exhausted no-plan from `search_limit_exceeded`, then run the complete domain suite, typecheck, lint, and coverage report.
 
-**Verify:** Run broad seed matrices for every profile/register and representative controls. Cover all eight successful-window subsets, seed-sensitive selection, no-success, and search-limit indeterminacy. Independently validate every result and distinguish proven no-plan from `search_limit_exceeded`.
+**Documents:** Treat [Pitch Planner and Validation Policy](../docs/music/pitch-planner-validation.md) as the Step 7 source for ownership, candidate/ranking policy, state machines, orchestration, typed failures, and independent validation. Keep [Melodic Control Models](../docs/music/melodic-control-models.md), [Saxophone Profile Ranges](../docs/music/saxophone-profile-ranges.md), and profile summaries linked as rationale; document any finite search ceiling and regression-seed matrix as engineering policy, with unresolved musical weights/strictness labelled for listening tests.
 
-**Documents:** Keep Pitch Planner and Validation Policy synchronized with ownership, ranking, state machines, orchestration, failures, and validation. Version search ceilings and regression-seed fixtures as engineering policy.
+**ATD stewardship:** Apply precise behavior/test links across governed pitch, Jazz, leapiness, recovery, arpeggio, tension, range, seed, and endpoint rules; run traceability/semantic checks with explicit review and required signoff for STABLE `rule_instrument_profile_range`. Keep search strategy, candidate ordering, evidence, calibration, and tooling outside ATD.
 
-**ATD stewardship:** Trace governed pitch, Jazz, leap, recovery, arpeggio, tension, range, seed, and endpoint behavior. Keep search strategy, ordering, evidence, calibration, and tooling outside ATD.
+## 8. Implement written-notation transformation and VexFlow engraving
 
-## 8. Implement Written-Notation Transformation and VexFlow Engraving
+**Tests:** Add unit tests for Concert/B-flat/E-flat chromatic and diatonic transforms, enharmonic minimization with sharp tie-breaks, key/tonal/chord/slash-bass consistency, chord-quality preservation, and source-timeline immutability. Add browser/visual tests for clef, key/time signatures, notes, rests, beams, ties, accidentals, barlines, chord symbols, one SVG system, font readiness, resize, and explicit layout failure.
 
-**Tests:** Cover Concert/B-flat/E-flat transforms, enharmonic minimization, key/tonal/chord/slash-bass consistency, chord-quality preservation, source immutability, required notation elements, one SVG system, font readiness, resize, accessibility text, and explicit layout failure.
+**Implement:** Pin VexFlow 5 and package its required notation font assets. Build a pure display transformation followed by a narrow VexFlow adapter and layout preflight that budgets all four measures at an agreed legibility floor, redraws after fonts/container readiness, and returns a typed notation error instead of scrolling, splitting, clipping, or indefinite shrinking. Provide a semantic text representation alongside the SVG.
 
-**Implement:** Pin VexFlow 5 and package required notation fonts. Build a pure display transformation and narrow SVG adapter with layout preflight at an agreed legibility floor. Return a notation error rather than scrolling, splitting, clipping, or shrinking indefinitely; provide semantic text alongside the SVG.
+**Verify:** Run transform tests, browser integration tests, fixed-seed screenshot baselines, SVG/container bound assertions, production bundle inspection, offline asset checks, and tests proving display switches never alter source events or generation state.
 
-**Verify:** Run transform tests, browser integration, fixed-seed visual baselines, SVG/container bounds, production bundle inspection, offline assets, and assertions that display switches never mutate generation state.
+**Documents:** Record the pinned VexFlow API boundary, notation-font license/assets, mapping from domain events to engraving objects, sizing/failure policy, accessible score representation, and upgrade procedure.
 
-**Documents:** Record the VexFlow boundary, font licenses/assets, domain-to-engraving mapping, sizing/failure policy, accessibility representation, and upgrade procedure.
+**ATD stewardship:** Link transformation, engraving decisions that enforce product behavior, and tests to `module_notation_display_convention` and `rule_notation_display_preserves_phrase`; do not create atoms for VexFlow itself.
 
-**ATD stewardship:** Trace notation behavior and source-phrase preservation. Do not create tooling atoms for VexFlow.
+## 9. Build the responsive, accessible phrase workspace
 
-## 9. Build the Responsive, Accessible Phrase Workspace
+**Tests:** Add component tests first for radiogroup roving tabindex, read-only-during-generation controls, presets, tempo, theme, generate/regenerate/retry flows, retained prior score, profile-switch outcomes, notation errors, and live-region announcements. Add Playwright cases for landscape mobile/tablet, wide desktop, portrait rotate notice, 44px targets, focus visibility, reduced motion, and axe scans.
 
-**Tests:** Cover roving-tabindex radiogroups, generation read-only behavior, presets, tempo, theme, generate/regenerate/retry flows, retained scores, profile switches, notation failures, live regions, landscape mobile/tablet, wide desktop, portrait notice, target size, focus visibility, reduced motion, and axe scans.
+**Implement:** Build the workspace/component tree and state orchestration from the approved handoff. Rewrite `ui_ux/ui_common.css` into the production Tailwind 4 theme/component layers while preserving the approved visual direction, breakpoints, state styling, typography, and motion. Implement theme as in-memory System/Light/Dark presentation state, with no phrase redraw or persistent preference.
 
-**Implement:** Build the approved workspace and state orchestration. Rewrite `ui_ux/ui_common.css` into the production Tailwind theme/component layers while preserving the validated visual direction, breakpoints, states, typography, and motion. Theme remains in-memory presentation state and never triggers generation.
+**Verify:** Run component/E2E/accessibility suites in all specified viewports and themes; manually inspect keyboard-only operation, responsive score priority, portrait guard, no overflow, reduced motion, and state/error transitions against the UI handoff.
 
-**Verify:** Run component, E2E, and accessibility suites across specified viewports and themes. Manually inspect keyboard operation, score priority, portrait guard, overflow, reduced motion, and error transitions against the UI handoff.
+**Documents:** Update `ui_ux/index.md` and relevant strategy/handoff files to name the production Tailwind theme/component files as the styling source of truth and explain how future UI/UX alterations flow into them. Document the component/state map and accessibility behavior.
 
-**Documents:** Update the UI/UX index and handoffs to identify the production Tailwind files as the styling source of truth and document component/state and accessibility behavior.
+**ATD stewardship:** Link behavior-bearing workspace/state/responsive code and tests to `req_landscape_phrase_workspace`, `user_story_controlled_phrase_generation`, and `rule_presentation_preference_preserves_phrase`; keep purely visual utility classes outside ATD unless they enforce a governed behavior.
 
-**ATD stewardship:** Trace governed workspace, orientation, generation, and presentation behavior. Keep purely visual utilities outside ATD unless they enforce a governed requirement.
+## 10. Complete end-to-end release hardening and traceability
 
-## 10. Complete End-to-End Release Hardening and Traceability
+**Tests:** Expand Playwright into the full first-release journey: defaults, all controls, generate/regenerate, deterministic replay hooks, profile retain/regenerate paths, all notation modes, theme isolation, initial/later generation errors, notation retry, concurrent-operation prevention, offline reload, responsive layouts, accessibility, and explicit absence of MIDI/playback/scoring/persistence behavior.
 
-**Tests:** Exercise defaults, every control, generation/regeneration, deterministic replay, profile retention/regeneration, notation modes, theme isolation, initial/later generation errors, notation retry, concurrency prevention, offline reload, responsive layouts, accessibility, and explicit absence of MIDI, playback, scoring, and persistence.
+**Implement:** Close integration gaps, add stable test fixtures/failure injection at module seams, finalize PWA asset caching and production configuration, optimize only measured bundle/layout bottlenecks, and remove any accidental server/storage/optional-scope coupling.
 
-**Implement:** Close integration gaps, add stable fixtures and failure injection at module seams, finalize asset caching and production configuration, optimize only measured bottlenecks, and remove accidental deferred-scope coupling.
+**Verify:** Run the complete quality gate in a clean production-like environment: formatting, lint, strict typecheck, unit/component/property tests, Playwright browser matrix, axe scans, visual baselines, production build, offline test, ATD lint/link/semantic coverage, and final acceptance against every master-spec definition-of-done item.
 
-**Verify:** In a clean production-like environment run formatting, lint, strict typecheck, unit/component/property tests, Playwright browser coverage, axe, visual baselines, production build, offline checks, traceability checks, and every master-spec definition-of-done item.
+**Documents:** Finalize README setup/operations, architecture and verification matrix, supported-browser/offline limits, third-party licenses, release checklist, and known deferred scope. Reconcile the master spec, roadmap, and UI/UX handoffs with delivered behavior without silently changing product intent.
 
-**Documents:** Finalize setup/operations, architecture and verification matrix, supported-browser/offline limits, third-party licenses, release checklist, and deferred scope. Reconcile implementation with the master spec, roadmap, and UI/UX handoffs without silently changing intent.
+**ATD stewardship:** Run final source/test traceability and orphan checks, correct only verified links, synchronize affected business atoms to the delivered behavior through the documentalist workflow, and report any remaining drift or signoff requirement rather than rewriting intent to match code.
 
-**ATD stewardship:** Run final source/test traceability and orphan checks, correct only verified links, synchronize affected business documentation to delivered behavior, and report remaining drift or signoff requirements.
 
 ## Known Implementation Risks
 
