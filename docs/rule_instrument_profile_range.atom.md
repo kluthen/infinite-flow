@@ -7,7 +7,9 @@ priority: 1
 tags: range,instrument-profile,hard-constraint
 dependents:
   - [[entity_instrument_profile]]
+  - [[module_generation_request_construction]]
   - [[module_phrase_generation_profile_policy]]
+  - [[service_generation_orchestration]]
 human_name: Instrument Profile Range
 layer: BUSINESS
 parents:

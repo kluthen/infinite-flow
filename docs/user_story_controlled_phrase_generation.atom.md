@@ -9,7 +9,10 @@ parents:
 type: USER_STORY
 priority: 1
 tags: player-controls,generation
-dependents: []
+dependents:
+  - [[module_generation_request_construction]]
+  - [[service_workspace_session_flow]]
+  - [[specification_behavioral_quality_gates]]
 ---
 
 # Controlled Phrase Generation

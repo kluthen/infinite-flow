@@ -1,37 +1,78 @@
 # Infinite Flow
 
-Infinite Flow is a client-side web practice partner for a monophonic musician. Its first release generates a coherent four-measure phrase in standard notation from musical controls, then lets the player regenerate a new variation without losing the selected musical context.
+Infinite Flow is a browser-only musical phrase workspace. The first release will generate a coherent, staff-notated four-measure phrase from player-selected musical controls. Step 1 establishes only the executable client shell and its quality gates; it does not implement generation, controls, notation, profiles, session orchestration, or responsive workspace behavior.
 
-The project is currently specification-first: the musical rules, generator boundaries, theory research, and ATD traceability anchors are in place; application code has not started.
+## Prerequisites
 
-## First Release
+- Node.js `>=22.12.0`
+- npm (the committed `package-lock.json` is the only supported package manager input)
+- Playwright browser binaries for the current Chromium, Firefox, and WebKit regression projects
 
-- Generate exactly four 4/4 measures at a user-selected, stable BPM.
-- Render a chord-aware standard staff proposal from one concert-pitch event timeline.
-- Offer a neutral diatonic profile and a narrowly extended jazz profile with chromatic approaches and enclosures.
-- Control tonal context, harmonic motion, tension, note density, syncopation, silence, contour, register, leapiness, and arpeggio chaos.
-- Support deterministic re-generation: the same request and seed always reproduce the same phrase.
-- Support declarative C MIDI keyboard `48-72`, B-flat tenor saxophone `46-70`, and E-flat alto saxophone `51-75` concert-pitch profiles, each with a whole-phrase register-window policy.
-- Redraw the same phrase in Concert, B-flat, or E-flat notation without changing generated concert pitches.
+Install dependencies and browsers:
 
-Generated lead playback, MIDI integration, persistent sessions, microphone capture, automatic key detection, and the rolling MIDI-seeded continuation flow are intentionally deferred. Minimal MIDI connection and non-evaluative match/mismatch feedback are the immediate next roadmap item; Infinite Flow never assigns a performance score.
+```sh
+npm ci
+npx playwright install --with-deps chromium firefox webkit
+```
 
-## Documentation
+## Commands
+
+```sh
+npm run dev                 # Run the local Vite development server
+npm run build               # Strict typecheck, then create the production browser build
+npm run preview             # Serve the existing production build locally
+npm run format:check        # Check formatting for authored application and configuration files
+npm run lint                # Run the flat ESLint configuration
+npm run typecheck           # Run strict TypeScript and Vue template checks
+npm run test:unit           # Run Vue component smoke tests
+npm run verify:boundaries   # Reject authored persistence APIs and PWA runtime caching rules
+npm run test:e2e            # Production-startup test through vite preview, all browser projects
+npm run test:a11y           # Axe scan through vite preview, all browser projects
+npm run atd:lint            # Validate ATD atom structure
+npm run atd:check           # Check ATD source/test link coverage for the current diff
+npm run quality             # Run the complete Step 1 quality gate
+```
+
+`test:e2e` and `test:a11y` serve the already-built `dist/` directory through `vite preview`; run `npm run build` first when invoking either test independently. The aggregate `quality` command builds once before both browser suites.
+
+## Directory Boundaries
+
+- `src/main.ts` is the browser-only entry point and service-worker registration boundary.
+- `src/components/` holds Vue presentation components; `src/components/workspace/` currently holds the empty shell.
+- `src/domain/` is reserved for future immutable musical contracts and planners.
+- `src/composables/` is reserved for explicit in-memory UI/session coordination.
+- `src/styles/` is the production Tailwind 4 styling authority, using local warm parchment and ink tokens derived from `ui_ux/ui_common.css`.
+- `tests/unit/` holds Vitest and Vue Test Utils component coverage; `tests/e2e/` holds Playwright production-browser checks.
+- `public/` contains static public assets, including the PWA icon. `src/public/` is retained as a boundary marker for future source-owned public-asset metadata.
+- `scripts/verify-boundaries.mjs` deterministically inspects authored `src/` files and PWA configuration.
+
+## Runtime Constraints
+
+The client has no backend, SSR process, API server, or server runtime dependency. State is ephemeral: authored application code is prohibited from using `localStorage`, `sessionStorage`, IndexedDB, and the Cache API. ESLint restrictions and the deterministic boundary verifier enforce this policy.
+
+The PWA uses `vite-plugin-pwa` with `generateSW` to precache emitted application assets, including the revisioned `index.html` navigation fallback. Its Workbox policy explicitly sets `runtimeCaching: []` and does not cache user, session, or application state. The generated service worker is build output rather than authored application state logic. Deterministic offline reload testing is deferred to later release verification, when the required phrase loop exists; Step 1 instead verifies the generated service-worker/precache output and its source policy.
+
+Playwright runs the startup and axe gates in current Chromium, Firefox, and WebKit projects. This matrix is a current-engine regression suite, not a promise to support every historical browser. Vite's current default browser target is an implementation baseline, not a contractual browser-support claim.
+
+## Step 1 Verification Matrix
+
+| Gate                     | Command                                 | Scope                                                                   |
+| ------------------------ | --------------------------------------- | ----------------------------------------------------------------------- |
+| Install reproducibility  | `npm ci`                                | Lockfile-only dependency installation                                   |
+| Formatting               | `npm run format:check`                  | Authored app, tests, scripts, and configuration                         |
+| Static analysis          | `npm run lint && npm run typecheck`     | Flat ESLint and strict TypeScript/Vue checks                            |
+| Component shell          | `npm run test:unit`                     | App mount and empty accessible workspace semantics                      |
+| Production artifact      | `npm run build`                         | Static browser bundle and generated PWA files                           |
+| Persistence/PWA boundary | `npm run verify:boundaries`             | No authored persistence APIs or runtime cache rule                      |
+| Production startup       | `npm run test:e2e`                      | `vite preview` in Chromium, Firefox, and WebKit                         |
+| Automated accessibility  | `npm run test:a11y`                     | Axe gate in Chromium, Firefox, and WebKit; not a full conformance claim |
+| ATD structure/coverage   | `npm run atd:lint && npm run atd:check` | Existing documentation integrity without tooling links                  |
+
+## Product References
 
 - [First-release master specification](specs/first-release-master-spec.md) is the implementation handoff and definition of done.
-- [Roadmap](specs/roadmap.md) orders the settled delivery stages and visible gaps.
-- [Generator contract](specs/generator-contract.md) defines the implementation-neutral request/result boundary.
-- [Generator architecture](specs/generator-architecture.md) records the decoupling rules for future generator evolution.
-- [Specification index](specs/README.md) links the current drafts, decisions, and remaining open questions.
+- [First-release implementation plan](specs/first_release_plan.md) sequences delivery steps and boundaries.
+- [UI/UX index](ui_ux/index.md) links the approved interaction and visual authority.
+- [ATD documentation](docs/) records business intent. Step 1 tooling and shell scaffolding deliberately have no business traceability links.
 
-## Design Principles
-
-- Keep musical planners decoupled: control mapping, harmony, rhythm, pitch, notation, MIDI, optional backing, and future evaluation communicate through explicit data rather than internal state.
-- Store generated material in concert pitch. Instrument transposition is display-only.
-- Treat a four-bar result as a phrase with tension, release, continuity, breath, and contour; never as four unrelated random bars.
-- Keep style vocabulary behind profiles. The neutral profile stays diatonic, while the initial jazz profile only adds bounded chromatic ornaments.
-- Make generation deterministic and testable through explicit seeds.
-
-## Status
-
-The first-release specification is ready for implementation planning. The project includes DRAFT ATD BUSINESS anchors derived from the master specification; no application code or automated tests exist yet.
+Generated lead playback, MIDI integration, persistence, microphone capture, automatic key detection, scoring, and the rolling continuation flow remain outside this delivery step.

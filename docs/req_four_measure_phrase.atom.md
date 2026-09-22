@@ -7,6 +7,7 @@ dependents:
   - [[req_landscape_phrase_workspace]]
   - [[rule_arpeggio_chaos_respects_constraints]]
   - [[rule_complete_four_four_measures]]
+  - [[rule_ephemeral_session_state]]
   - [[rule_instrument_profile_range]]
   - [[rule_jazz_chromatic_resolution]]
   - [[rule_leap_recovery]]
@@ -24,6 +25,8 @@ dependents:
   - [[rule_seeded_phrase_reproduction]]
   - [[rule_tension_arc_level_policy]]
   - [[rule_tension_ranking_respects_constraints]]
+  - [[service_generation_orchestration]]
+  - [[specification_behavioral_quality_gates]]
   - [[user_story_controlled_phrase_generation]]
 type: REQUIREMENT
 layer: BUSINESS
