@@ -7,6 +7,7 @@ parents:
   - [[rule_seeded_phrase_reproduction]]
   - [[service_generation_orchestration]]
 dependents:
+  - [[module_register_window_resolution_primitives]]
   - [[service_generation_orchestration]]
 type: MODULE
 layer: ARCHITECTURE
