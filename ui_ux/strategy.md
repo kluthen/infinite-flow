@@ -2,9 +2,9 @@
 
 ## Problem Alignment
 
-Infinite Flow helps a tenor saxophone player obtain one readable, playable four-measure idea without writing a progression, interpreting an opaque randomizer, or being graded. The interface makes a single deliberate loop obvious: set musical character, inspect all four measures, then regenerate the whole phrase when a different proposal is wanted.
+Infinite Flow helps a C MIDI keyboard player, B-flat tenor saxophone player, or E-flat alto saxophone player obtain one readable, playable four-measure idea without writing a progression, interpreting an opaque randomizer, or being graded. The interface makes a single deliberate loop obvious: set musical character, inspect all four measures, then regenerate the whole phrase when a different proposal is wanted.
 
-The phrase is the primary object. Every supported viewport is landscape and gives the full staff the complete primary row. Controls remain available beneath it, but never claim score width.
+The phrase is the primary object. Mobile and tablet support is landscape-only; desktop supports either orientation when sufficient width is available. The full staff receives the complete primary row, and controls remain beneath it without claiming score width.
 
 ## Mental Model
 
@@ -32,13 +32,13 @@ Each displayed measure has a visible chord symbol above its first harmonic event
 
 ## Edge-Case Policy
 
-- **Initial empty:** Explain that a four-measure idea will appear here and place the generate action in the empty staff region. Keep the control sheet usable.
+- **Initial empty:** Explain that a four-measure idea will appear here. The workspace-header generation action remains the single primary action; keep the control sheet usable.
 - **Generating:** Disable only the phrase-generation action, retain controls as read-only context, preserve the previous phrase until a complete new result is ready, and announce generation status non-visually.
 - **Generation failure:** Keep the previous valid phrase visible. Put a concise error message beside the regeneration action and offer retry; do not show a partial staff.
-- **Notation failure:** Preserve the generated phrase data but replace the score with an error panel that offers retry. Never render a misleading fallback of letter names as the score.
+- **Notation failure:** Preserve the generated phrase data but replace the score with an error panel. The workspace-header action changes to retry notation; never render a misleading fallback of letter names as the score.
 - **Display-mode switch:** Redraw the same phrase promptly with no seed or control changes. Keep the staff frame stable; fade the contents only after correct engraving is ready.
 - **Instrument-profile switch:** Validate the unchanged concert phrase against the new active range and resolved whole-phrase register window. Retain and redraw it only when it fits; otherwise preserve controls and regenerate a complete replacement with a fresh seed. Never transpose source events to fit.
-- **Optional MIDI:** Connection and match states are quiet secondary indicators. A mismatch communicates only that the proposal did not match; it never exposes the incoming pitch or creates a score.
+- **Optional MIDI:** MIDI feedback is deferred from the current flow and screen set. When scheduled, connection and match states remain quiet secondary indicators; mismatch never exposes the incoming pitch or creates a score.
 - **Offline:** Required behavior remains available because generation and notation are browser-local. If a browser capability is unavailable, explain the affected optional capability without blocking phrase generation.
 
 ## Flow Index

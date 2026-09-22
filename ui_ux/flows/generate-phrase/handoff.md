@@ -2,7 +2,9 @@
 
 ```mermaid
 flowchart LR
-  A[phrase-workspace: empty] -->|Generate phrase| B[Build complete generation request]
+  A[phrase-workspace: empty] -->|Edit musical controls| A
+  A -->|Select instrument or musical profile| A
+  A -->|Generate complete phrase| B[Build complete generation request]
   B --> C{Complete valid phrase?}
   C -->|No| D[phrase-workspace: generation error]
   C -->|Yes| E[Engrave selected display convention]
@@ -15,11 +17,12 @@ flowchart LR
   H -->|Yes| E
   H -->|No| B
   D -->|Retry| B
-  G -->|Retry notation| E
+   G -->|Retry notation via phrase action| E
 ```
 
 - Screen: `screens/phrase-workspace/` for every step.
-- Generation request uses the current control values, selected instrument profile policy, and a fresh seed on `Generate phrase` or `Regenerate phrase`.
+- Before initial generation, every musical control, instrument profile, and musical-profile preset is editable on the empty workspace. Those selections update the pending direction only; they do not create a partial result or an implicit request.
+- Generation request uses the current control values, selected instrument profile policy, and a fresh seed on the explicit `Generate phrase` or `Regenerate phrase` action. The only exception is an invalid instrument-profile switch, which regenerates automatically with retained controls and a fresh seed.
 - The result must contain four complete common-time measures before engraving starts.
 - Display-mode selection routes to engraving only. It preserves controls, seed, concert-pitch events, harmonic plan, and profile-derived range policy.
 - Theme selection changes presentation only. It neither routes to generation nor engraving, and it does not change the phrase, controls, request, seed, profile policy, or result.
