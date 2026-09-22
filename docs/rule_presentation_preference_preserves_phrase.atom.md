@@ -2,7 +2,9 @@
 id: rule_presentation_preference_preserves_phrase
 status: DRAFT
 priority: 2
-dependents: []
+dependents:
+  - [[module_generation_request_construction]]
+  - [[service_workspace_session_flow]]
 human_name: Presentation Preference Preserves Phrase
 layer: BUSINESS
 version: 0.1

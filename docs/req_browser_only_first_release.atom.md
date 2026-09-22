@@ -2,7 +2,8 @@
 id: req_browser_only_first_release
 status: DRAFT
 tags: browser,delivery,first-release
-dependents: []
+dependents:
+  - [[specification_browser_only_operation_verification]]
 human_name: Browser-Only First Release
 type: REQUIREMENT
 layer: BUSINESS
