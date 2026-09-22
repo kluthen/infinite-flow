@@ -1,4 +1,6 @@
-# Controllable melodic-leapiness models for a browser-based tenor-sax melody generator
+# Controllable Melodic-Leapiness Research
+
+> Historical research note. The interval evidence and adopted leap budgets remain relevant. References to a tenor-only concert range `45-58` are superseded by the adopted declarative profiles and whole-phrase windows in [Saxophone Profile Ranges](../saxophone-profile-ranges.md).
 
 ## What do music theory, melodic practice, and algorithmic-composition research say about steps, leaps, recovery, and arpeggios?
 
@@ -14,7 +16,7 @@ Traditional melodic-writing practice treats stepwise motion as the default conne
 
 ### Inferences
 - Retain the existing post-large-leap rule as a hard validation constraint: after a **large leap** (defined below), the next sounding note must be an opposite-direction step (1-2 semitones) or a short contrary move (3-4 semitones). Do not let probability override it.
-- A recognised arpeggio is an exception to *per-note* recovery, not an exception to recovery altogether. Define an arpeggio run as 2-3 adjacent, same-direction chord-tone skips/leaps, with consistent harmonic ownership; apply recovery after the final note in the run. Reject a run that would leave the allowed register or cross a contour goal.
+- A recognised arpeggio is an exception to *per-note* recovery, not an exception to recovery altogether. Define it as 2-3 consecutive sounding chord-tone notes connected by 1-2 adjacent same-direction skip/leap intervals under one harmony; two same-direction leaps require the complete three-note run. Apply recovery after the final note and reject a run that would leave the allowed register or cross a contour goal.
 - Treat an unrecognised same-direction chain of two leaps as a generation failure, not as an arpeggio by accident. This prevents the familiar "random staircase of thirds" effect.
 - Let phrase structure make recovery readable: avoid starting a recovery obligation on the final sounding event of measure 4; give it a place in the current or following beat instead.
 
@@ -22,19 +24,19 @@ Traditional melodic-writing practice treats stepwise motion as the default conne
 - I found no high-quality, saxophone-specific empirical source that sets a universal maximum melodic interval for a short tenor-sax phrase. The recommended limits below are product and notation choices within the deliberately narrow supplied register, not claims about a tenor saxophone's full technical capability.
 - Classical counterpoint's leap-compensation conventions do not automatically describe all jazz, pop, or contemporary idioms. The first-release policy should therefore present them as a selectable "melodic character" constraint, not as a claim of stylistic correctness in every genre.
 
-## What bounded interval policy fits a four-measure phrase in concert MIDI 45-58, and how should it interact with contour, register, and arpeggio chaos?
+## What bounded interval policy fits the adopted whole-phrase profile windows, and how should it interact with contour, register, and arpeggio chaos?
 
 ### Takeaway
-Use a hard concert range of MIDI 45-58 and a small set of interval classes, then vary counts and permitted maxima by level. Make register and contour feasibility filters run before leapiness; make arpeggio chaos a lower-priority selector that cannot spend around those constraints.
+Use the selected profile's inclusive active range and resolved Low, Middle, or High whole-phrase window with a small set of interval classes, then vary counts and permitted maxima by level. Make range/window and contour feasibility filters run before leapiness; make arpeggio chaos a lower-priority selector that cannot spend around those constraints.
 
 ### Cited Findings
-- The specified concert range contains 14 chromatic pitch positions, from A2 (MIDI 45) through B-flat3 (MIDI 58). Transposing it for tenor produces approximately written B3 through C5; Yamaha's explanation of tenor transposition is the relevant notation basis. [Yamaha: The saxophone is a transposing instrument](https://www.yamaha.com/en/musical_instrument_guide/saxophone/play/play003.html)
+- The obsolete `45-58` prototype range is retained only as historical context. First release adopts keyboard `48-72`, tenor `46-70`, and alto `51-75`, each narrowed by one 13-pitch Low/Middle/High window for the complete phrase. [Current policy](../saxophone-profile-ranges.md)
 - Open Music Theory describes a phrase as an organised level of musical structure and distinguishes phrase beginnings, middles, and endings. This supports budgeting leap events over the whole four-measure phrase rather than independently randomising every note. [Open Music Theory: Foundational Concepts for Phrase-Level Forms](https://viva.pressbooks.pub/openmusictheory/chapter/foundational-concepts/)
 - Constraint-based sequence generation is an established approach for steering output under user requirements. A bounded interval policy, contour targets, and range are therefore compatible constraints rather than mutually exclusive generation modes. [Pachet and Roy, "Markov Constraints: Steerable Generation of Markov Sequences"](https://doi.org/10.1016/j.jc.2010.07.004)
 
 ### Inferences
-- Use these **implementation definitions** in semitones, measured between adjacent sounding notes: `step = 1-2`, `skip = 3-4`, `leap = 5-6`, `large leap = 7-12`. Never generate an interval larger than 12, even though the 14-note pitch window could permit a minor ninth; that keeps the control legible and avoids a one-jump traversal of almost all available register.
-- Enforce `45 <= concertMidi <= 58` as a non-negotiable final candidate filter. This range is intentionally much narrower than the instrument's practical compass, so playability concerns for this release are principally range, readable direction, and recovery rather than exotic fingerings.
+- Use these **implementation definitions** in semitones, measured between adjacent sounding notes: `step = 1-2`, `skip = 3-4`, `leap = 5-6`, `large leap = 7-12`. Never generate an interval larger than 12, even where the active profile/window could support one; that keeps the control legible and avoids a one-jump traversal of almost all available register.
+- Enforce both the selected profile's inclusive active range and resolved whole-phrase register window as non-negotiable candidate and final-result filters.
 - **Recommended four-level policy** (counts are maximums per four-measure phrase, not quotas):
 
   | UI label | Interval policy | Phrase budget | Recovery and arpeggio treatment |

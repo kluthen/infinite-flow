@@ -1,6 +1,6 @@
 # Jazz Profile
 
-Status: draft v0.1
+Status: curated profile summary
 
 ## Player Promise
 
@@ -8,24 +8,23 @@ The initial jazz profile keeps the neutral profile's diatonic harmonic plan and 
 
 ## Chromatic Approaches
 
-(proposed) A chromatic approach is one note a semitone above or below a target chord tone. It occurs on the subdivision immediately before its target and resolves directly to that target. It is an ornament, not a new chord or scale.
+A chromatic approach is one note a semitone above or below a target chord tone. The target is the next sounding event with no intervening rest or harmony change. It is an ornament, not a new chord or scale. Exact candidate and validation rules are in [Pitch Planner and Validation Policy](pitch-planner-validation.md#neutral-and-jazz-vocabulary).
 
 Constraints:
 
-- Use no more than one approach per target.
 - Target a chord tone, preferably at a chord change or metrically strong arrival.
 - Do not sustain the approach note longer than the target note.
 - Do not chain approaches or use one to target a non-chord tone.
 
 ## Chromatic Enclosures
 
-(proposed) An enclosure uses two short notes around a target chord tone: a neighboring pitch above and a chromatic pitch below, or the reverse, then the target. The three notes occupy consecutive short subdivisions and resolve directly to the target.
+An enclosure uses two consecutive short attacks around a target chord tone, one semitone above and one below in either order, then the target. At least one enclosure note lies outside the collection. The three attacks are contiguous, remain under one harmony, and resolve directly to the target.
 
 Constraints:
 
 - Use an enclosure only when the selected subdivision leaves enough room to hear its resolution.
-- Prefer one enclosure per bar at most.
-- Do not use an enclosure as the final unresolved event of a phrase.
+- Do not overlap ornaments or use one when the rhythm does not already supply all three attacks.
+- Resolve every enclosure before the final sounding event.
 - Keep the harmonic plan unchanged; an enclosure decorates a target and must not imply an altered or substitute chord.
 
 ## Why It Is Separate

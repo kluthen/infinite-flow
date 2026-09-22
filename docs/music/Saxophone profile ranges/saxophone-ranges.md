@@ -33,7 +33,7 @@ Using C4 = MIDI 60, the full conventional compass converts to concert MIDI 44--7
 ### Inferences
 - **B-flat tenor, full conventional compass:** written MIDI 58--90 minus 14 = concert A-flat2--E5, MIDI **44--76**. This is a direct calculation from the documented compass and ninth-below transposition. [Source](https://www.britannica.com/art/saxophone)
 - **E-flat alto, full conventional compass:** written MIDI 58--90 minus 9 = concert D-flat3--A5, MIDI **49--81**. This is a direct calculation from the documented compass and sixth-below transposition. [Source](https://www.britannica.com/art/saxophone)
-- MIDI endpoints are inclusive in the proposed profile policy. A range `46--70`, for example, permits both endpoint note numbers and contains 25 chromatic pitches across a two-octave (24-semitone) span.
+- MIDI endpoints are inclusive in the adopted profile policy. A range `46--70`, for example, permits both endpoint note numbers and contains 25 chromatic pitches across a two-octave (24-semitone) span.
 
 ### Gaps
 - MIDI itself transmits note numbers, not a mandatory human-readable octave-label convention. These notes explicitly adopt the widespread C4 = 60 convention so that the profile values are unambiguous.

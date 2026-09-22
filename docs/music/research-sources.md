@@ -36,8 +36,11 @@ This is a retained research trail for later generator design and player document
 ## Rhythm and Jazz Vocabulary
 
 - **S8 - Open Music Theory, rhythmic essentials.** Open Music Theory: https://viva.pressbooks.pub/openmusictheory/chapter/other-rhythmic-essentials/
-  - Useful for: syncopation as deliberate displacement against a stable pulse rather than unstructured density.
-  - Applied in: neutral rhythm and space rules.
+  - Useful for: simple-meter hierarchy and syncopation as weak-position attack or sustain across a stronger position, rather than unstructured density.
+  - Applied in: rhythm-grid, displacement, tie, and metrical-anchor policy.
+- **S8a - Open Music Theory, notation and simple meter.** Open Music Theory: https://viva.pressbooks.pub/openmusictheory/chapter/notating-rhythm/ and https://viva.pressbooks.pub/openmusictheory/chapter/simple-meter-and-time-signatures/
+  - Useful for: notes/rests partitioning measured time, ties sustaining without reattack, and quarter/eighth/sixteenth division in simple meter.
+  - Applied in: exact integer-tick representation and tie semantics. The project's quantitative grids/budgets remain implementation inference.
 - **S9 - Jazz scales.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/JazzScales.html
   - Useful for: confirming that chromatic jazz vocabulary belongs to a distinct style layer.
   - Applied in: the decision to isolate jazz-only chromatic ornaments.
@@ -48,7 +51,7 @@ This is a retained research trail for later generator design and player document
 ## Research Gaps
 
 - These sources explain tonal and jazz conventions, not a universal quantitative tension scale.
-- Wind-player breath policy still needs saxophone-specific sources or player testing. The initial tenor range is deliberately conservative and may later become player-configurable.
+- Wind-player breath comfort still requires player testing. The adopted tenor and alto ranges are conservative product profiles; any future widening or player-selectable variant is separate scope.
 - Modal practice varies materially by tradition. The generator must not force tonal dominant behavior on every selected mode.
 
 ## Saxophone Range and Transposition
@@ -65,4 +68,4 @@ This is a retained research trail for later generator design and player document
 - **S13 - MIDI pitch-number convention.** Inspired Acoustics: https://www.inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
   - Useful for: recording MIDI note numbers as the canonical range boundary, avoiding device-specific octave-label differences.
 
-For a phrase that must be mechanically playable by soprano, alto, tenor, and baritone without knowing which physical saxophone is active, the common non-altissimo concert interval is approximately `A-flat3` through `A4` (MIDI 56 through 69, where MIDI 60 is middle C). This shared interval is deliberately narrow. A wider two-octave range requires an active physical-instrument range policy separate from notation transposition.
+Historical note: the cross-saxophone `56-69` shared interval was considered before first-release instrument profiles were adopted. It is not current generator policy. First release instead receives one explicit validated profile: keyboard `48-72`, tenor `46-70`, or alto `51-75`, with the windows in [Saxophone Profile Ranges](saxophone-profile-ranges.md).

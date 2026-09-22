@@ -1,5 +1,7 @@
 # Melodic Control Interaction: Inspectable Policy and Bounded Tension
 
+> Historical interaction research. Its user-control and inspectability evidence remains useful. Exact first-release precedence and failure behavior are now defined by [Harmony Planner Policy](../harmony-planner-policy.md), [Rhythm and Phrase-Structure Policy](../rhythm-phrase-structure.md), and [Pitch Planner and Validation Policy](../pitch-planner-validation.md); hypothetical profile names and weighted tension suggestions below are not implementation policy.
+
 ## What interaction patterns make generative music controls inspectable and predictable?
 
 ### Takeaway
@@ -15,7 +17,7 @@ Use a small, stable set of user-facing controls whose scopes do not overlap, cla
 
 ### Inferences
 - Present a fixed "Phrase request" panel with three visually distinct groups, not a single mood panel: **Hard boundaries** (profile, contour, register), **Rhythm/spacing** (note density, silence density, syncopation), and **Motion/colour** (leapiness, arpeggio chaos, tension). The grouping teaches what each control can and cannot affect.
-- Give every control an inspectable one-line scope. Example: `Leapiness: probability and size of non-stepwise moves`; `Syncopation: onset placement against the beat`; `Tension: preference among already-valid options, not permission to break boundaries.` This avoids treating multiple controls as unnamed variants of "more active."
+- Give every control an inspectable one-line scope. Example: `Leapiness: maximum interval, phrase budget, and recovery`; `Syncopation: onset placement against the beat`; `Tension: preference among already-valid options, not permission to break boundaries.` This avoids treating multiple controls as unnamed variants of "more active."
 - Make values inspectable before generation with a compact policy preview, for example: `4 measures | Profile: lyrical | Contour: arch | Register: C4-A5 | Rhythm: medium density, low silence, off-beat accents | Motion: mostly stepwise | Tension: high within these limits.` The preview is the general explanation; the result notice identifies any policy that was actually limited.
 - Keep control changes local to the next explicit Generate request. Do not describe controls as learning, scoring, automatic continuation, playback behaviour, or saved preferences, because those capabilities are outside the product scope.
 - Offer a "Why this setting?" disclosure that maps each control to its policy field and shows the precedence order. Do not expose a false numerical confidence score: PAIR warns numeric confidence can be misunderstood and should be shown only when it supports an action.
@@ -46,14 +48,14 @@ Treat profile, contour, and register as explicit feasibility constraints; treat 
 | Note density | target count/range of sounding note events per measure | Explicit soft target; independent from pitch motion |
 | Silence density | target count/range of rests or unoccupied rhythmic slots | Explicit soft target; budgeted jointly with note density so their targets cannot both demand the same slot |
 | Syncopation | target share/strength of off-beat or tied-across-beat attacks | Explicit rhythmic-placement target; does not increase note count by itself |
-| Leapiness | target probability and size distribution of melodic intervals | Explicit motion target; register and contour still reject impossible leaps |
-| Arpeggio chaos | target irregularity in arpeggiated ordering, direction changes, omissions, and rhythmic variation | Explicit local-pattern target; only active where profile permits arpeggiated material |
-| Tension | bounded preference for candidate choices with greater contrast, instability, delayed resolution, accent displacement, or directed motion | Meta-preference only; lowest precedence |
+| Leapiness | adjacent-interval cap, phrase leap budget, and recovery obligation | Explicit motion constraint; register and contour still reject impossible leaps |
+| Arpeggio chaos | ordering and interval contrast among otherwise eligible chord tones | Explicit local pitch-pattern preference; cannot change rhythm or exceed leap policy |
+| Tension | bounded preference for the placement and resolution timing of already-legal instability | Meta-preference only; lowest precedence |
 
 - Build the candidate policy in this order: (1) hard feasibility: four measures plus profile, contour, and register; (2) allocate a rhythm grid that jointly satisfies note-density and silence-density ranges; (3) select onset placement for syncopation; (4) select intervals and arpeggio behaviour for leapiness and chaos; (5) rank only the surviving candidates using tension. This order makes the parameter separation implementable and explainable.
-- Define tension as a value from 0 to 1 that interpolates only *within per-control safe envelopes*. At high tension it may prefer: larger intervals only up to the requested leapiness cap and remaining register headroom; syncopated placements only up to the requested syncopation range; less immediate resolution only if the selected profile allows it; and denser local activity only if both density budgets still permit it. It may not add notes, remove rests, reverse contour, exceed register, or invoke an arpeggio pattern disallowed by the profile.
+- Superseded: do not implement the proposed hidden `0..1` interpolation or let tension increase intervals, syncopation, or density. Use the four named arc policies to rank active-note placement and legal resolution timing only, after explicit rhythm and motion controls.
 - Use a lexicographic rule rather than hidden weighted averaging: **hard constraints > explicit feature ranges > profile-specific compatibility > tension ranking > deterministic tie-break or seeded variation**. Weighted averaging is unsuitable here because it can silently trade a named setting against a vague one.
-- If an explicit control is unavailable under a profile, disable it with its reason rather than accepting input and ignoring it. Example: `Arpeggio chaos is unavailable in Cantabile profile; this profile uses single-line motion.` If product requirements require the control to remain visible, show `No effect in this profile` before Generate.
+- Superseded scope example: first release has only Neutral and Jazz, and both retain the arpeggio-chaos control inside the same leap/range constraints. Do not introduce hypothetical `Cantabile` or `Lyrical` profiles from this research note.
 - Define tension in user language as `How strongly the phrase seeks contrast and unresolved momentum within your other settings.` Avoid labels such as `intensity` or `complexity`, which overlap density, syncopation, leapiness, and chaos.
 
 ### Gaps
@@ -77,7 +79,7 @@ State the requested setting, the limiting named constraint, what the generator a
   - `High tension kept leap sizes mostly stepwise because Leapiness is Low. Tension will use stronger rhythmic contrast and delayed resolution where the profile allows.`
   - `Requested high leapiness is limited by Register C4-A5 and Descending contour. The phrase uses the largest downward intervals that fit both constraints.`
   - `High tension cannot add attacks because Note density is Low and Silence density is High. It changes harmonic/melodic emphasis only within the available events.`
-  - `Arpeggio chaos is not used: Lyrical profile permits single-line motion only. Choose an arpeggiated profile to enable this control.`
+  - `Arpeggio chaos stayed nearby because Smooth leapiness does not permit chord-tone leaps.`
   - `Requested syncopation is reduced to fit the remaining attack slots after the note and silence budgets were applied.`
 - When a user change has no effect, say so before Generate where possible: `Tension has limited room at this combination: low leapiness, low syncopation, low note density, and high silence density.` This makes the interaction predictable without claiming a failure.
 - Do not say `tension overridden` when a hard constraint wins. Prefer `Tension is applied after contour, register, profile, and explicit motion/rhythm settings.` The wording communicates intended policy, not an exceptional conflict.
