@@ -10,8 +10,13 @@ version: 0.1
 priority: 1
 tags: meter,rhythm,hard-constraint
 dependents:
+  - [[api_rhythm_domain_expansion]]
   - [[entity_concert_event_timeline]]
   - [[entity_exact_musical_time]]
+  - [[entity_rhythm_candidate_domain]]
+  - [[mechanic_syncopation_translation]]
+  - [[module_rhythm_domain_validation]]
+  - [[module_rhythm_skeleton_allocator]]
 ---
 
 # Complete Four-Four Measures

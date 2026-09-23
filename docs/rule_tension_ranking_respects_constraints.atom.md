@@ -4,6 +4,7 @@ status: DRAFT
 parents:
   - [[req_four_measure_phrase]]
 dependents:
+  - [[api_rhythm_domain_expansion]]
   - [[module_harmony_candidate_domain]]
 human_name: Tension Ranking Respects Constraints
 version: 0.1

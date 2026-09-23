@@ -5,7 +5,11 @@ type: RULE
 layer: BUSINESS
 version: 0.1
 priority: 2
-dependents: []
+dependents:
+  - [[api_rhythm_domain_expansion]]
+  - [[entity_rhythm_candidate_domain]]
+  - [[mechanic_syncopation_translation]]
+  - [[module_rhythm_domain_validation]]
 human_name: Preserve Metrical Anchor
 tags: rhythm,syncopation,pulse
 parents:

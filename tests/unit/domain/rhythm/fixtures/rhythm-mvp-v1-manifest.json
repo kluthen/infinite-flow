@@ -1,0 +1,733 @@
+{
+  "grammarVersion": "rhythm-mvp-v1",
+  "entries": {
+    "Quarter|Sparse|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "826e79e3f528a59857814236041dc566fb4913350773ae5dd6c89902345cfeb6"
+    },
+    "Quarter|Sparse|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "6eb9c7ac326b12682285c685ceef635c64e06b1f5c4ff4baefc4a58cf1e446c3"
+    },
+    "Quarter|Sparse|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "8bfe3285a646421cdac064f4db23f256e13ec9426d24ae8e26b5a1e91959d603"
+    },
+    "Quarter|Sparse|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "4d29dd24ac67e37548a441c59b78ac6ebb5def8ef76dd9c8756a960595bd3d2f"
+    },
+    "Quarter|Sparse|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 14,
+      "sha256": "2874824f81c9262bde202fc50ce2bae5502fa8c5a77768f8f7f6744b1b20ddad"
+    },
+    "Quarter|Sparse|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 14,
+      "sha256": "0063b232e5003124a9df6bab770fd1612cafc4cff2a61c3c7681156214f21d9a"
+    },
+    "Quarter|Sparse|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 30,
+      "sha256": "a6732e215055d66138cce69e6db608db8e6ab747ff7a3ac9c37131ae116488c6"
+    },
+    "Quarter|Sparse|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 30,
+      "sha256": "313c02b20b7f6dcf54f9bfdb3b968be8c0391169e88d5c723987335300e7a5b4"
+    },
+    "Quarter|Sparse|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Sparse|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Sparse|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Sparse|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Conversational|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "7f62e98e197537422376cb8c0a4ddac15076c5a9b9eb12789b16ae04c927b757"
+    },
+    "Quarter|Conversational|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "983b45fbaec5b92b9f763a8d34dc596cc52c2e4e1644f7a68c80417082fc744a"
+    },
+    "Quarter|Conversational|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "0efdf2946c7bf7027e9c76e1eeaf4dbb9413cb28fee99bbc1d74b49d4ac03ddb"
+    },
+    "Quarter|Conversational|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "de7f4ec5f1dbd29353eb662e5e94436ac7619cfa16632be42e27d7623321e8a6"
+    },
+    "Quarter|Conversational|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sha256": "a558f4ad1a9e283cadddc9557d07a7a4e0ad390b6dae5e324d0ce2367e7901bc"
+    },
+    "Quarter|Conversational|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sha256": "67bb27a1a5637e57f5b50fedad36c9256d4bf815f2a4314187b5366ac61fe2d2"
+    },
+    "Quarter|Conversational|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 21,
+      "sha256": "48bba556e97f62e8211c7fd6df149164bf5c3a6b94e0b80b37d108c65a5d36e8"
+    },
+    "Quarter|Conversational|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 21,
+      "sha256": "4d338ac82ba0b5332e3ddf6f3fc54e6a53d610b1f17d18de3e8e8d454eed13a7"
+    },
+    "Quarter|Conversational|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "e88756995718534d8e6001bd372e7e458a776916b7fc766beec5ad0204ee7dfb"
+    },
+    "Quarter|Conversational|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "b1dd4b644eb39eb90f9f118efe5589db83cf390b39b8f4d93d8e3f24d018c878"
+    },
+    "Quarter|Conversational|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "7803f4e4734944e435b7065e349c0d4e9d6b1a04357b875545dd8d1c6c19e4fe"
+    },
+    "Quarter|Conversational|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "be37f62613ecd2d40118c709f2f712d378c5c47ce64310be40a427aaeb40e35c"
+    },
+    "Quarter|Breath-heavy|Straight|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Quarter|Breath-heavy|Straight|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Quarter|Breath-heavy|Straight|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Quarter|Breath-heavy|Straight|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Quarter|Breath-heavy|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 10,
+      "sha256": "90ba2dccfef730bec1cbfe9738a535bd086757d13ad629e46acae81a1d7a43d0"
+    },
+    "Quarter|Breath-heavy|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 10,
+      "sha256": "971f2aba4b1af46fc9c818eda46c89fa77910dc3ed76e3faae3916fa6daa1751"
+    },
+    "Quarter|Breath-heavy|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 12,
+      "sha256": "852a59d2a39d7f571c41fe87b867b74061b7301878d5e3a380a58100fb4d42f1"
+    },
+    "Quarter|Breath-heavy|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 12,
+      "sha256": "505ed1acd03ced9334e50996ebfe62d33a3aef90ea1ea839651260bc0c945a44"
+    },
+    "Quarter|Breath-heavy|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Quarter|Breath-heavy|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Quarter|Breath-heavy|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Quarter|Breath-heavy|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Eighth|Sparse|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 14,
+      "sha256": "524684dbac3d3920f524f4175c15d5eb56b507e19d7f27b8329ec53125287bee"
+    },
+    "Eighth|Sparse|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 14,
+      "sha256": "c7cae01aa242462d882957e18db4233bfde42623eba88ffad252e7d40ea66d43"
+    },
+    "Eighth|Sparse|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 14,
+      "sha256": "f7d072f77c4c2d4bdd39d3e076c78b74fe5a91097c7a54b10b45a207c37c0f70"
+    },
+    "Eighth|Sparse|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 14,
+      "sha256": "34f784ba342c3e2058b21b7cffafdc5087ed04c93cffeedbba89e5f23a93bcc2"
+    },
+    "Eighth|Sparse|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 5,
+      "sha256": "d33bf4739a4a8cfde56174aa900e1ee5404b10ef39e3cef6831b60a5d5c89d68"
+    },
+    "Eighth|Sparse|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 5,
+      "sha256": "1f3320bc6f4f6cafc0d776825bf552260870d5cfb82c27c552254bd4175eab96"
+    },
+    "Eighth|Sparse|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 5,
+      "sha256": "0cdcec85b807f980c04523f30102bc03f98df668983eb26a650116b7578524a7"
+    },
+    "Eighth|Sparse|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 5,
+      "sha256": "0ce8d78ac6259a395cb83a449b0067f438d97003ffe276d5ce4b0050c110e4ee"
+    },
+    "Eighth|Sparse|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 34,
+      "sha256": "c76778da67880622dccde2621a3175e32608de57ac7a368e40079a1801ab76bd"
+    },
+    "Eighth|Sparse|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 34,
+      "sha256": "0ae1fd9f4b465361bdb230e4b40aac624a74309c4a7c09fda20fa418c44525fd"
+    },
+    "Eighth|Sparse|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 70,
+      "sha256": "dc297c0aef388f6e53f8c406c37bc1cd84d88cdd9f9bdafbac7d8ed1999edc6a"
+    },
+    "Eighth|Sparse|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 70,
+      "sha256": "2add9355cf42029d6cb50dca3bdaf1ee1026611adb04b864e9d000d74e1901a4"
+    },
+    "Eighth|Conversational|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 127,
+      "sha256": "2d7b81f9ed1417f343964754ce4459a544829c337b8c141a69deed91e2b8ad2f"
+    },
+    "Eighth|Conversational|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 127,
+      "sha256": "5818a77bc6b52e67596f6172bd02b9695665db8a0514797ffc21674fc0cd7afa"
+    },
+    "Eighth|Conversational|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 136,
+      "sha256": "e7a44ab09fde2018c1a83d6f965ad52d1479b28dfecd80dc39fe4b7897cbd548"
+    },
+    "Eighth|Conversational|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 136,
+      "sha256": "1f59937b9bfcf461efef2a289c41eb392b71b8bb83c8b7f53a9e7563805d3cea"
+    },
+    "Eighth|Conversational|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 92,
+      "sha256": "370e222924059eea9cef4299007ebbef3dfc1bbfa343b9bb6cd4ce940665484a"
+    },
+    "Eighth|Conversational|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 92,
+      "sha256": "3b96e0c3d03995d6bed4c2fbd35441b12068ccad4a91451e5d44675297d8c9f8"
+    },
+    "Eighth|Conversational|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 110,
+      "sha256": "745980b82c7f3530ccf32bc92e1a8707fa0253cd88189c1672dc8d4204da1339"
+    },
+    "Eighth|Conversational|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 110,
+      "sha256": "773b6d2fdffe962d2da572a144324a27d3f2881427fc13eb4f660e236d2966ec"
+    },
+    "Eighth|Conversational|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 218,
+      "sha256": "98b25b43e414811c85be0bb862a7934d954b0973f5c6e517d9de55505de51821"
+    },
+    "Eighth|Conversational|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 218,
+      "sha256": "6185c2bbf9d22615b1f4e7ff9cbaad410d99c872b4cb09ad6e412672dc86ca1f"
+    },
+    "Eighth|Conversational|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 398,
+      "sha256": "0bf68441801a61f1287dd1db6c0e372e1ad4cdaaeccbf4c277b3202b6e52d7ef"
+    },
+    "Eighth|Conversational|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 398,
+      "sha256": "f460f39bfba1f83fc498fa7be77ee418c248c95ee0ee414d1b89b1edbb1d6408"
+    },
+    "Eighth|Breath-heavy|Straight|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Eighth|Breath-heavy|Straight|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Eighth|Breath-heavy|Straight|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Eighth|Breath-heavy|Straight|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Eighth|Breath-heavy|Occasional offbeats|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Eighth|Breath-heavy|Occasional offbeats|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Eighth|Breath-heavy|Occasional offbeats|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Eighth|Breath-heavy|Occasional offbeats|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Eighth|Breath-heavy|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "transform_overlap_violation"]
+    },
+    "Eighth|Breath-heavy|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "transform_overlap_violation"]
+    },
+    "Eighth|Breath-heavy|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "transform_overlap_violation"]
+    },
+    "Eighth|Breath-heavy|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "transform_overlap_violation"]
+    },
+    "Sixteenth|Sparse|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 156,
+      "sha256": "11311dc0b076f87d5ad47c605b8226a40dc0844312d2e9f91f256fd0ee0a5fac"
+    },
+    "Sixteenth|Sparse|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 156,
+      "sha256": "bd61e129f691a9f179330ddfff304f3add58a5e21831044e2c78096c5419f84b"
+    },
+    "Sixteenth|Sparse|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 165,
+      "sha256": "b8bf6de49da49c022ce456176fa30478814cae0912a69eb94977ab792e504446"
+    },
+    "Sixteenth|Sparse|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 165,
+      "sha256": "28b3887e54504657de09980520bbaf1a702af664b018ea150f1599710ecda6a2"
+    },
+    "Sixteenth|Sparse|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 25,
+      "sha256": "eeedad6f7b5511c131211fb8aeca44b900fff28f4f995e169dbae9b33d6199ed"
+    },
+    "Sixteenth|Sparse|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 25,
+      "sha256": "520400fa2d308c4184bd398519f92dd0ec257623efe83cd81dcf87c228295cba"
+    },
+    "Sixteenth|Sparse|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 25,
+      "sha256": "53f884e8516d3c931360d1bbbdcb1f33ddcb5acb49b561d3451476dab5d952a4"
+    },
+    "Sixteenth|Sparse|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 25,
+      "sha256": "294f3a53d58badc77d92165176f25e109be3518906694b23d29a640316ffa661"
+    },
+    "Sixteenth|Sparse|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Sparse|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Sparse|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Sparse|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Conversational|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 49,
+      "sha256": "435bc7baa7d2b24af9648435b116fbbafd10ea2e90891b0860c50d9bae8f391c"
+    },
+    "Sixteenth|Conversational|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 49,
+      "sha256": "7c64c4af9a468ee4a7e5c5ae28a2f4c553f15157e51f3c5a7ed0f26f928f985c"
+    },
+    "Sixteenth|Conversational|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 57,
+      "sha256": "871a3ab0ea7a3629090b5c82621138fba995d9aa6e1daea4fdda8961fef9485a"
+    },
+    "Sixteenth|Conversational|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 57,
+      "sha256": "c77f0144cd106aba207771d7fa4aab6afc1053ee9e5a7f4a7c7d01ae31736b79"
+    },
+    "Sixteenth|Conversational|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "d98ee5122379bd9c8960794f722fe946675e130230d6d675b7a7322712ebc325"
+    },
+    "Sixteenth|Conversational|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "da8f13c6b70d528900dd7dc30db83182c414235e64aff073eda453ad5da49ad4"
+    },
+    "Sixteenth|Conversational|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "ac646e1cede77fc732d6d89d3d51953805bbcfd5a403525e7e3e80d4202bf30c"
+    },
+    "Sixteenth|Conversational|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "ae889b68751a41ce0770bd9074eb1839598c54d8c8ba294a4001af34988d8463"
+    },
+    "Sixteenth|Conversational|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Conversational|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Conversational|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Conversational|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Breath-heavy|Straight|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Sixteenth|Breath-heavy|Straight|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Sixteenth|Breath-heavy|Straight|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Sixteenth|Breath-heavy|Straight|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Sixteenth|Breath-heavy|Occasional offbeats|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Sixteenth|Breath-heavy|Occasional offbeats|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Sixteenth|Breath-heavy|Occasional offbeats|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Sixteenth|Breath-heavy|Occasional offbeats|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Sixteenth|Breath-heavy|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Sixteenth|Breath-heavy|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Sixteenth|Breath-heavy|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Sixteenth|Breath-heavy|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Mixed|Sparse|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 170,
+      "sha256": "aadb8012542c8fd3bf0af4e28bab26a0270c2ec9d948a2178fb46ee279831242"
+    },
+    "Mixed|Sparse|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 170,
+      "sha256": "7e006142d2341987bbcd375f1a0c65864ef58d93bcd17c333896403b88925441"
+    },
+    "Mixed|Sparse|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 297,
+      "sha256": "7973cbc47102237b3f3d882fc94677139e1cc015e9ced7ee593567990aa96ecc"
+    },
+    "Mixed|Sparse|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 297,
+      "sha256": "c8191e8b89d2637278f0dc98523a2d39eb4f3d22812e3fe4876dcb4249154b12"
+    },
+    "Mixed|Sparse|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1406,
+      "sha256": "e7e3750e37f14542ff24616ee544451757c12eb3c84e4116e226d05b1d6cd18b"
+    },
+    "Mixed|Sparse|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1406,
+      "sha256": "753ecdea6e1b0a318211721cedf7076a253a569f2515d465fd7acaca07522343"
+    },
+    "Mixed|Sparse|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2044,
+      "sha256": "20dfb05a6611564a58a839633edd9465953d3ffa35c975208c492baaf0e78c56"
+    },
+    "Mixed|Sparse|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2044,
+      "sha256": "e0630a8af5694a0bace1f72c392477b1b6bb04476a1c4b0ccdd946de971e388f"
+    },
+    "Mixed|Sparse|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 834,
+      "sha256": "ca75c586d0b64e1bd282acd2e93e7c7da6041699649648a0c7b44fb4097496c1"
+    },
+    "Mixed|Sparse|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 834,
+      "sha256": "1002fbd89d97057c464ba32836bff94836e39182cbd6d7e8b8f807b0ce4c6a64"
+    },
+    "Mixed|Sparse|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1848,
+      "sha256": "357a550c2d1728ca512bc598ce80c36ec1dee4e937d3086ed0e9cb977b42183c"
+    },
+    "Mixed|Sparse|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1848,
+      "sha256": "7f90a3fca46d953ab8fb4eca3ac51317173351c13c704ec1ea0bdbb54c9b0f10"
+    },
+    "Mixed|Conversational|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 102,
+      "sha256": "98038c1880a893e38768b00be9ebea7cd7325bc83d30a340bd0e4dc3c00b8c45"
+    },
+    "Mixed|Conversational|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 102,
+      "sha256": "e1c95018397353f44cd095d34e9f0b4d36fa456372231f66e4e792fdc429b0a9"
+    },
+    "Mixed|Conversational|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 212,
+      "sha256": "8209dd223e6460d9cc2392dfebe5affe3b43c3f06bdcfd783aa0dde9e66bea76"
+    },
+    "Mixed|Conversational|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 212,
+      "sha256": "b07c7f2cd51fdaad48fadf239f335b0b4d11b13f638736bd19928a99ce468a73"
+    },
+    "Mixed|Conversational|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 551,
+      "sha256": "ac8c93a7e419dd20549d1d02612493fc6bb1dde00bfc3ffe57b89a1af7a6cb88"
+    },
+    "Mixed|Conversational|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 551,
+      "sha256": "d27c89995c3446404b1d59375b002ad7450ed5b646df395d1af48a1fa327ec66"
+    },
+    "Mixed|Conversational|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 741,
+      "sha256": "ad880e6fc0b8e019919a7e6648db09ce0bbbb90edb64fc389fb6bacd17ca5b79"
+    },
+    "Mixed|Conversational|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 741,
+      "sha256": "0ab3221f611cf1290ffde35b7ecfe7e35a1a4ce32870ed3b027f6e37afec4c04"
+    },
+    "Mixed|Conversational|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 143,
+      "sha256": "39a579a2d849e72b9925373fb2ebd62d7e6548053b26aed2a1004d9518356889"
+    },
+    "Mixed|Conversational|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 143,
+      "sha256": "5ad22e75f701a7dc7e3749571adc2a03f7b437f2f384dd6e3c97581013a2aa69"
+    },
+    "Mixed|Conversational|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 220,
+      "sha256": "0e771a8ee0f937b5d21bc7dd0fd7256c2407b39225f962e5def0cb9cdeeff739"
+    },
+    "Mixed|Conversational|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 220,
+      "sha256": "144c8bd502b5cd34b82613c21c68a92892862010447565423f316cfcd6124285"
+    },
+    "Mixed|Breath-heavy|Straight|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Mixed|Breath-heavy|Straight|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Mixed|Breath-heavy|Straight|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Mixed|Breath-heavy|Straight|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Mixed|Breath-heavy|Occasional offbeats|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Mixed|Breath-heavy|Occasional offbeats|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Mixed|Breath-heavy|Occasional offbeats|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Mixed|Breath-heavy|Occasional offbeats|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["answer_transform_count_violation"]
+    },
+    "Mixed|Breath-heavy|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "mixed_duration_class_coverage_violation",
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Mixed|Breath-heavy|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "mixed_duration_class_coverage_violation",
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Mixed|Breath-heavy|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "mixed_duration_class_coverage_violation",
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Mixed|Breath-heavy|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "mixed_duration_class_coverage_violation",
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    }
+  }
+}

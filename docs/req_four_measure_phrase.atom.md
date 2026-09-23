@@ -5,6 +5,8 @@ tags: first-release,music-generation
 dependents:
   - [[entity_concert_event_timeline]]
   - [[entity_exact_musical_time]]
+  - [[entity_rhythm_candidate_domain]]
+  - [[module_rhythm_skeleton_allocator]]
   - [[req_browser_only_first_release]]
   - [[req_landscape_phrase_workspace]]
   - [[rule_arpeggio_chaos_respects_constraints]]
