@@ -1,32 +1,31 @@
 # Generator Contract
 
-Status: v0.2 — request/result envelope, closed event schema, exact duration model, and seeded determinism implemented (first_release_plan.md Step 2: "Define the immutable musical contract and deterministic foundations"); instrument profile/register (Step 3), control policy (Step 4), harmony (Step 5), rhythm (Step 6), and pitch planning (Step 7) remain planned and are described below as intent, not delivered behavior.
+Status: v0.4 — Steps 2-4 are implemented: immutable event/request foundations, declarative instrument/register policy, and typed generation controls, profile bundles, outer intent construction, and in-memory session coordination. Harmony (Step 5), rhythm (Step 6), resolved request construction and pitch orchestration (Step 7), notation (Step 8), and workspace UI (Step 9) remain planned.
 
 ## Purpose
 
 This document defines the stable boundary around musical generation. It lets the four-measure generator, later MIDI-seeded continuation, notation renderer, optional backing arranger, and feedback evaluator evolve independently.
 
-## Generation Request
+## Generation Requests
 
-The implemented core request (`GenerationRequest`) is immutable, serializable, and deliberately narrow. It carries only:
+The implemented resolved core request (`GenerationRequest`) is immutable, serializable, and deliberately narrow. It carries only:
 
 - a validated, non-empty request identity (`RequestId`)
 - a deterministic random seed (`Seed`; see Seed Semantics below)
 - requested measure count, fixed at four for the first release
 - meter, fixed at 4/4 for the first release
 
-Construction and parsing reject any other field outright, including instrument profile, control policy, theme, and notation display convention — those are not optional extensions of this type, they are structurally excluded from it. A hand-written boundary parser (`parseGenerationRequest`) enforces the same closure on untrusted input: an unrecognized field is rejected as a typed failure rather than ignored, so presentation or session state cannot silently enter a request.
+Construction and parsing reject any other field outright, including control policy, theme, and notation display convention — those are not optional extensions of this type, they are structurally excluded from it. A hand-written boundary parser (`parseGenerationRequest`) enforces the same closure on untrusted input: an unrecognized field is rejected as a typed failure rather than ignored, so presentation or session state cannot silently enter a request.
 
-The full player-facing request that later steps build on top of this core is still intent, not delivered behavior. It is expected to add:
+The implemented player-facing outer request (`GenerationIntent`) is immutable and serializable. It carries the core's request identity, seed, four measures, and 4/4 meter plus normalized controls, the selected musical-profile grammar identity/custom marker, the selected validated Step 3 instrument profile, and an outer register intent. The intent retains `Varying` and its Step 3 candidates; it does not resolve a window.
 
-- generator profile identifier
-- concert-pitch tonal center and selected scale or mode
-- a selected validated declarative instrument profile with its inclusive active concert range and resolved whole-phrase register window: C MIDI keyboard `48-72` (Low `48-60`, Middle `54-66`, High `60-72`), B-flat tenor saxophone `46-70` (Low `46-58`, Middle `52-64`, High `58-70`), or E-flat alto saxophone `51-75` (Low `51-63`, Middle `57-69`, High `63-75`), independent of notation display convention
-- tempo, carried as one user-selected BPM
-- normalized control policy for harmonic motion, tension, subdivision, syncopation, silence density, contour, register, leapiness, and arpeggio chaos
-- optional recent phrase context; absent for the first deliverable and present only when later MIDI continuation needs it
+First load is 90 BPM, C Ionian, Neutral, Lift, Shaped, B-flat tenor, and Predictable. Tempo accepts only integer values from 60 through 240 in 10-BPM increments. Neutral replaces all six profile-controlled values with Static/Quarter/Straight/Sparse/Arch/Middle; Jazz replaces them with Gentle diatonic/Eighth/Occasional offbeats/Conversational/Wandering/Varying. A manual edit to one of those six marks the current configuration custom while retaining the selected grammar identity; it never mutates either frozen bundle. A non-profile control edit does not change that selection state.
 
-The player-selected tonal center and scale or mode are expected to remain authoritative when a later MIDI seed phrase is supplied. Whatever form the full request takes, it must not contain notation transposition, browser state, audio nodes, UI widget values, or mutable session state — the implemented core already enforces this for the fields it owns.
+Explicit generation takes a caller-supplied request identity and seed. Regeneration retains the full controls and profile state while injected providers supply a fresh identity and seed. Domain code does not create browser randomness or a second PRNG. `GenerationIntent` structurally excludes theme, notation mode, browser state, audio state, widget objects, and session objects. It is not a resolved `GenerationRequest`: Step 7 owns fixed-window projection and Varying feasibility.
+
+## Session Ownership
+
+`createGenerationSession` is a root-composition factory, not a singleton and not a component dependency. It exposes readonly in-memory state and explicit actions around pending controls/profile state, latest intent, latest result placeholder, generation/notating operation state, and separate retryable generation and notation errors. Ordinary control/profile/theme/notation edits never generate. One generation or notation operation is allowed at a time; configuration changes are suppressed while either runs, while theme remains immediate. A failed initial generation retains an empty result, while a later failure retains the preceding successful result. Retry generation repeats the exact failed intent; regenerate builds an intent from the current controls/profile and requests a fresh seed and identity. The injected notation seam commits a changed display mode only after it succeeds; a failed attempt retains the phrase and previous mode and can retry the same result/mode without consuming generation providers. Theme and notation are presentation state only and are intentionally separate from every generation intent. No persistence or engraving behavior is implemented in this step.
 
 ## Generation Result
 

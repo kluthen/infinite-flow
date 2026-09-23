@@ -80,9 +80,24 @@ describe('parseMeasure', () => {
     const measure = parseMeasure({
       measureIndex: 1,
       events: [
-        { kind: 'note', duration: { numerator: 1, denominator: 4 }, pitch: 60, tieContinuation: false },
-        { kind: 'note', duration: { numerator: 1, denominator: 4 }, pitch: 62, tieContinuation: false },
-        { kind: 'note', duration: { numerator: 1, denominator: 4 }, pitch: 64, tieContinuation: false },
+        {
+          kind: 'note',
+          duration: { numerator: 1, denominator: 4 },
+          pitch: 60,
+          tieContinuation: false,
+        },
+        {
+          kind: 'note',
+          duration: { numerator: 1, denominator: 4 },
+          pitch: 62,
+          tieContinuation: false,
+        },
+        {
+          kind: 'note',
+          duration: { numerator: 1, denominator: 4 },
+          pitch: 64,
+          tieContinuation: false,
+        },
         { kind: 'rest', duration: { numerator: 1, denominator: 4 } },
       ],
     })

@@ -54,7 +54,13 @@ describe('makeConcertEventTimeline', () => {
 
   it('rejects more than four measures as a typed failure', () => {
     expect(() =>
-      makeConcertEventTimeline([fullMeasure(0), fullMeasure(1), fullMeasure(2), fullMeasure(3), fullMeasure(3)]),
+      makeConcertEventTimeline([
+        fullMeasure(0),
+        fullMeasure(1),
+        fullMeasure(2),
+        fullMeasure(3),
+        fullMeasure(3),
+      ]),
     ).toThrow(TimelineStructureViolation)
   })
 
@@ -87,9 +93,24 @@ describe('parseConcertEventTimeline', () => {
   const validRawMeasure = (measureIndex: number) => ({
     measureIndex,
     events: [
-      { kind: 'note', duration: { numerator: 1, denominator: 4 }, pitch: 60, tieContinuation: false },
-      { kind: 'note', duration: { numerator: 1, denominator: 4 }, pitch: 62, tieContinuation: false },
-      { kind: 'note', duration: { numerator: 1, denominator: 4 }, pitch: 64, tieContinuation: false },
+      {
+        kind: 'note',
+        duration: { numerator: 1, denominator: 4 },
+        pitch: 60,
+        tieContinuation: false,
+      },
+      {
+        kind: 'note',
+        duration: { numerator: 1, denominator: 4 },
+        pitch: 62,
+        tieContinuation: false,
+      },
+      {
+        kind: 'note',
+        duration: { numerator: 1, denominator: 4 },
+        pitch: 64,
+        tieContinuation: false,
+      },
       { kind: 'rest', duration: { numerator: 1, denominator: 4 } },
     ],
   })
@@ -107,7 +128,10 @@ describe('parseConcertEventTimeline', () => {
       parseConcertEventTimeline({
         measures: [
           validRawMeasure(0),
-          { measureIndex: 1, events: [{ kind: 'rest', duration: { numerator: 1, denominator: 4 } }] },
+          {
+            measureIndex: 1,
+            events: [{ kind: 'rest', duration: { numerator: 1, denominator: 4 } }],
+          },
           validRawMeasure(2),
           validRawMeasure(3),
         ],
