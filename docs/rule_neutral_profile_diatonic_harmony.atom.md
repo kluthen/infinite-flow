@@ -9,7 +9,8 @@ parents:
 type: RULE
 version: 0.1
 priority: 2
-dependents: []
+dependents:
+  - [[module_harmony_candidate_domain]]
 ---
 
 # Neutral Profile Diatonic Harmony

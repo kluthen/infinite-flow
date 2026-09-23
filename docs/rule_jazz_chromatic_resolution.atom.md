@@ -8,7 +8,8 @@ layer: BUSINESS
 version: 0.1
 parents:
   - [[req_four_measure_phrase]]
-dependents: []
+dependents:
+  - [[module_harmony_candidate_domain]]
 type: RULE
 ---
 

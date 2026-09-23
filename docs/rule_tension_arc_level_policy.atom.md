@@ -7,7 +7,8 @@ human_name: Tension Arc Level Policy
 layer: BUSINESS
 parents:
   - [[req_four_measure_phrase]]
-dependents: []
+dependents:
+  - [[module_harmony_candidate_domain]]
 type: RULE
 version: 0.1
 ---

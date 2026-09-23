@@ -9,7 +9,8 @@ layer: BUSINESS
 tags: phrase-ending,continuation
 parents:
   - [[req_four_measure_phrase]]
-dependents: []
+dependents:
+  - [[module_harmony_candidate_domain]]
 ---
 
 # Open Phrase Ending
