@@ -22,7 +22,6 @@ dependents:
   - [[rule_optional_midi_privacy]]
   - [[rule_presentation_preference_preserves_phrase]]
   - [[rule_preserve_metrical_anchor]]
-  - [[rule_profile_presets_apply_defined_controls]]
   - [[rule_profile_switch_validates_phrase]]
   - [[rule_seeded_phrase_reproduction]]
   - [[rule_tension_arc_level_policy]]

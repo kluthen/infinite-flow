@@ -10,7 +10,9 @@ type: USER_STORY
 priority: 1
 tags: player-controls,generation
 dependents:
+  - [[module_generation_control_catalog]]
   - [[module_generation_request_construction]]
+  - [[rule_selectable_generative_profiles]]
   - [[service_workspace_session_flow]]
   - [[specification_behavioral_quality_gates]]
 ---

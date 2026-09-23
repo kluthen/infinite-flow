@@ -7,7 +7,12 @@
 
 import { type Rational, makeRational } from '../time/rational'
 import { validateSixteenthGridAlignment } from '../time/grid'
-import { type EventAnnotations, type MeasureEvent, makeNoteEvent, makeRestEvent } from './measure-event'
+import {
+  type EventAnnotations,
+  type MeasureEvent,
+  makeNoteEvent,
+  makeRestEvent,
+} from './measure-event'
 import { type ConcertPitch, parseConcertPitch } from './concert-pitch'
 
 /** Typed failure for untrusted measure-event boundary input that cannot be parsed. */

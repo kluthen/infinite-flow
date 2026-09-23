@@ -1,6 +1,6 @@
 # Generator Architecture
 
-Status: v0.2 — event schema and deterministic foundations resolved and implemented (first_release_plan.md Step 2; see specs/generator-contract.md for the resolved shapes). Profile/register, control mapping, and the harmony/rhythm/pitch planner seams described below remain architectural intent, not delivered behavior.
+Status: v0.4 — Steps 2-4 are implemented: event/deterministic foundations, declarative profile/register data, and typed controls, immutable musical-profile bundles, outer intent construction, and root-created session coordination. Harmony/rhythm/pitch planner seams, resolved request construction, notation, and workspace UI remain architectural intent.
 
 ## Architectural Intent
 
@@ -18,7 +18,7 @@ Its initial extension permits chromatic approaches and enclosures around target 
 
 (proposed) A profile supplies theory vocabulary and planner policies: allowed scales and chord qualities, harmonic motion, tension devices, rhythm tendencies, contour preferences, and voicing or backing conventions. It does not own UI controls, browser APIs, audio scheduling, or persistent session state.
 
-For the first deliverable, the control-mapping seam turns the selected tonal center, scale or mode, harmonic-motion setting, and tension setting into a policy consumed by the harmony and pitch planners. Direct chord-progression selection is deferred.
+For the first deliverable, the implemented control-mapping boundary validates closed catalogs before planner consumption: 60-240 BPM in ten-BPM increments, twelve concert pitch classes, Major/Minor and seven named modes, and the documented musical controls. Its literal first-load state is 90 BPM, C Ionian, Neutral, Lift, Shaped, B-flat tenor, and Predictable. Direct chord-progression selection is deferred.
 
 The same seam maps contour, register, leapiness, and arpeggio chaos controls into pitch-planner policy. The pitch planner must use these values as constraints or weighted preferences, not as UI concepts. Arpeggio chaos controls the ordering and interval contrast of eligible chord tones; it does not override profile pitch vocabulary or resolution rules.
 
@@ -26,9 +26,17 @@ The first request contract fixes meter at 4/4 and carries a user-selected, stabl
 
 Notation consumes the stable generated event model. Standard staff rendering is required for the first deliverable and becomes a rolling-window renderer later; it must not cause generator behavior or alter the underlying concert-pitch event data. A selected declarative instrument profile supplies an inclusive active concert range and a whole-phrase register window: C MIDI keyboard `48-72`, B-flat tenor saxophone `46-70`, or E-flat alto saxophone `51-75`, with the adopted contained overlapping Low, Middle, and High windows. `Varying` deterministically resolves one feasible window before planning and never changes it mid-phrase. Transposition is an independent display conversion in treble G2 clef: Concert is `+0/+0`, B-flat tenor is `+14 semitones/+8 diatonic steps`, and E-flat alto is `+9/+5`. It transforms notation only and never regenerates material, changes the selected profile/range/window, or mutates concert-pitch events.
 
+## Delivered Outer Request Boundary
+
+`GenerationIntent` is now the immutable, serializable outer boundary. It owns request identity/seed, fixed four measures/4/4, normalized controls, selected musical-profile identity/custom state, selected Step 3 declarative instrument profile, and outer `RegisterIntent`. `Varying` deliberately remains unresolved at this boundary. Step 7 alone will project fixed choices or an eligible Varying candidate into the unchanged resolved `GenerationRequest`; no range/window algorithm is duplicated in Step 4.
+
+Neutral and Jazz are frozen replacement bundles, not mutable configurations: Neutral is Static/Quarter/Straight/Sparse/Arch/Middle and Jazz is Gentle diatonic/Eighth/Occasional offbeats/Conversational/Wandering/Varying. Reselecting replaces all six values. Editing one produces custom values while retaining the selected profile grammar identity; edits outside that set do not falsely change profile state.
+
+The root-created `createGenerationSession` factory is the application coordination boundary for this step. It has no singleton, storage, component, or browser-randomness dependency. It exposes readonly state and explicit actions, permits exactly one generation or notation operation, suppresses configuration edits while either runs, retains a prior valid result after later failures, retries the identical failed intent, and builds regeneration from current controls/profile with fresh injected identity/seed. Its injected pre-engraving notation seam commits a requested mode only after success, retains phrase/mode after failure, and retries the same result/mode without touching generation providers. Theme remains immediate and presentation settings stay separate from generation data. It intentionally does not implement engraving or workspace components.
+
 ## Proposed Generator Contract
 
-(proposed) A generation request provides only normalized musical context: meter, tempo, requested measure count, tonal/harmonic context, a selected instrument-profile identity with its explicit active range and resolved register window, a recent phrase when available, control values, a deterministic random seed, and an explicit generator-profile identifier.
+(proposed) A resolved planner request provides only normalized musical context: meter, tempo, requested measure count, tonal/harmonic context, a selected instrument-profile identity with its explicit active range and one resolved register window, a recent phrase when available, control values, a deterministic random seed, and an explicit generator-profile identifier.
 
 (proposed) A generation result returns a timeline of measures, note events, rests, chord events, and explanations or labels suitable for display. It does not render notation, schedule audio, read MIDI, or mutate application state.
 

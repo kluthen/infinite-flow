@@ -34,12 +34,7 @@ export interface Measure {
 
 /** Intent: validate a raw measure index is one of the four legal first-release positions. */
 function assertMeasureIndex(measureIndex: number): asserts measureIndex is MeasureIndex {
-  if (
-    measureIndex !== 0 &&
-    measureIndex !== 1 &&
-    measureIndex !== 2 &&
-    measureIndex !== 3
-  ) {
+  if (measureIndex !== 0 && measureIndex !== 1 && measureIndex !== 2 && measureIndex !== 3) {
     throw new MeasureTilingViolation(
       `Measure index must be one of 0, 1, 2, 3, got ${measureIndex}.`,
     )
