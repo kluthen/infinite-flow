@@ -3,7 +3,8 @@ id: rule_tension_ranking_respects_constraints
 status: DRAFT
 parents:
   - [[req_four_measure_phrase]]
-dependents: []
+dependents:
+  - [[module_harmony_candidate_domain]]
 human_name: Tension Ranking Respects Constraints
 version: 0.1
 type: RULE

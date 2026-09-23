@@ -12,6 +12,7 @@ tags: player-controls,generation
 dependents:
   - [[module_generation_control_catalog]]
   - [[module_generation_request_construction]]
+  - [[module_harmony_candidate_domain]]
   - [[rule_selectable_generative_profiles]]
   - [[service_workspace_session_flow]]
   - [[specification_behavioral_quality_gates]]

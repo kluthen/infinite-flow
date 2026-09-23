@@ -1,6 +1,6 @@
 # Generator Contract
 
-Status: v0.4 — Steps 2-4 are implemented: immutable event/request foundations, declarative instrument/register policy, and typed generation controls, profile bundles, outer intent construction, and in-memory session coordination. Harmony (Step 5), rhythm (Step 6), resolved request construction and pitch orchestration (Step 7), notation (Step 8), and workspace UI (Step 9) remain planned.
+Status: v0.5 — Steps 2-5 are implemented: immutable event/request foundations, declarative instrument/register policy, typed controls/outer intent/session coordination, and the seed-free structural harmony candidate domain. Rhythm (Step 6), resolved request construction and pitch orchestration (Step 7), notation (Step 8), and workspace UI (Step 9) remain planned.
 
 ## Purpose
 
@@ -34,7 +34,7 @@ The implemented core result (`GenerationResult`) is an immutable envelope around
 - the request identity and seed that produced it
 - the generated `ConcertEventTimeline`: exactly four ordered measures (see Event Shapes below)
 
-Musical annotations (chord degree, tension role, phrase function), validation annotations explaining applied rules, and each measure's harmonic role or chord/sustained-harmony event are not produced by anything implemented so far — they belong to the harmony planner (Step 5) and are described here as intent for that later step, not current output. The event shape already reserves an optional, free-form annotations slot on each note and rest event so that later work can attach these without a schema change.
+ Musical annotations are not yet attached to the core concert timeline. Step 5 now separately returns a structural harmony candidate domain; Step 7 will choose one candidate, bind it to rhythm, and attach the resulting facts to generated events. The event shape already reserves an optional, free-form annotations slot on each note and rest event so that later work can attach these without a schema change.
 
 The result does not contain rendered staff symbols, written pitches, MIDI device messages, audio scheduling timestamps, or scoring state. Notation is expected to derive written pitch from the result and the active transposition choice once it exists. Every returned result fills its requested meter exactly: measure-tiling and timeline-structure validation reject any candidate that does not, and hard range constraints are enforced once instrument-profile ranges exist (Step 3). Generation always fails explicitly — as one of the typed failures below — rather than returning an invalid or partial phrase.
 
@@ -88,11 +88,15 @@ Every boundary crosses through a hand-written parser or constructor that rejects
 - `TimelineStructureViolation` — a timeline does not contain exactly four measures, or they are not ordered `0, 1, 2, 3`.
 - `TimelineParseError` — untrusted timeline input is malformed, or wraps a `TimelineStructureViolation`.
 - `GenerationRequestError` — the request/result envelope boundary: invalid request identity, non-4/4 meter, measure count other than four, or an unrecognized field on untrusted input (including presentation/session fields such as `theme` or `notationDisplay`).
+- `HarmonyPlannerInputError` — a purported normalized harmony projection has an unsupported tonal center, collection, harmonic-motion, tension-arc, or musical-profile value. It does not select a default or fallback collection/motion.
+- `no_legal_harmony_plan` — a typed planner result, not a downstream pitch/rhythm infeasibility. It is returned only when a valid structural expansion has no legal candidates; the current finite policy has at least one candidate for every normalized control combination.
 
 Parsers at each level (event → measure → timeline) wrap a failure from the level below into their own typed error with positional context (e.g. which event in which measure) rather than letting a lower-level error escape unannotated; nothing is ever partially constructed while an error propagates.
 
 ## Stage Ownership
 
+- The delivered harmony planner consumes only normalized tonal center, collection, harmonic motion, tension arc, and profile identity. It returns an immutable, serializable `HarmonyCandidateDomain` with the exact selected collection, seven root-position diatonic triads, and every canonically ordered candidate. A candidate has a zero-based index, stable structural identity, serialized quarter-boundary harmony events (with merged adjacent equal triads and retained per-bar roles), endpoint class, and abstract tension requirement. It accepts neither a seed/random source nor rhythm/onsets, register/instrument data, contour/pitch feasibility, ranking, selection, orchestration, or presentation/session data.
+- Major and Minor use the tonal template family; separately selected Ionian and Aeolian use modal templates. Neutral and Jazz expose byte-equivalent structural domains for the same harmony controls. Template/document order, ascending degree alternatives, and unsplit-before-split expansion establish identities and indices; a later stage may rank but never renumber them.
 - The harmony planner owns chord events and phrase-level harmonic roles.
 - The rhythm planner owns event start positions, durations, ties, and rests.
 - The pitch planner owns concert pitches for note events under supplied harmonic and range constraints.

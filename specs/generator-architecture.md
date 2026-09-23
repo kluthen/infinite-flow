@@ -1,6 +1,6 @@
 # Generator Architecture
 
-Status: v0.4 — Steps 2-4 are implemented: event/deterministic foundations, declarative profile/register data, and typed controls, immutable musical-profile bundles, outer intent construction, and root-created session coordination. Harmony/rhythm/pitch planner seams, resolved request construction, notation, and workspace UI remain architectural intent.
+Status: v0.5 — Steps 2-5 are implemented: event/deterministic foundations, declarative profile/register data, typed controls/outer intent/session coordination, and an immutable structural harmony candidate-domain seam. Rhythm/pitch planner seams, resolved request construction, notation, and workspace UI remain architectural intent.
 
 ## Architectural Intent
 
@@ -34,6 +34,12 @@ Neutral and Jazz are frozen replacement bundles, not mutable configurations: Neu
 
 The root-created `createGenerationSession` factory is the application coordination boundary for this step. It has no singleton, storage, component, or browser-randomness dependency. It exposes readonly state and explicit actions, permits exactly one generation or notation operation, suppresses configuration edits while either runs, retains a prior valid result after later failures, retries the identical failed intent, and builds regeneration from current controls/profile with fresh injected identity/seed. Its injected pre-engraving notation seam commits a requested mode only after success, retains phrase/mode after failure, and retries the same result/mode without touching generation providers. Theme remains immediate and presentation settings stay separate from generation data. It intentionally does not implement engraving or workspace components.
 
+## Delivered Harmony Candidate Domain
+
+`makeHarmonyCandidateDomain` is the Step 5 pure structural planner boundary. It validates and projects only tonal center, collection, harmonic motion, tension arc, and musical-profile identity; it returns either an immutable `HarmonyCandidateDomain` or the typed `no_legal_harmony_plan` result. The success shape contains exact collection pitch classes and all seven derived root-position diatonic triads, then a complete canonical candidate list. Every candidate has a stable serialized identity, contiguous zero-based index, merged quarter-boundary chord events with preserved per-bar roles, an open endpoint class, and an abstract rhythm-independent tension requirement.
+
+This seam has no seed or random-stream dependency and does not receive rhythm/onsets, register/instrument profile, contour, pitch feasibility, ranking, selection, orchestration, Vue, browser, storage, or session state. It must return an identical domain for Neutral and Jazz under equal harmony controls. Major/Minor select tonal templates while named Ionian/Aeolian remain modal; expansion follows Harmony Planner Policy document order, ascending degree alternatives, and unsplit-before-split variants. Step 7 may bind/rank candidates but cannot mutate their structure, identity, or index.
+
 ## Proposed Generator Contract
 
 (proposed) A resolved planner request provides only normalized musical context: meter, tempo, requested measure count, tonal/harmonic context, a selected instrument-profile identity with its explicit active range and one resolved register window, a recent phrase when available, control values, a deterministic random seed, and an explicit generator-profile identifier.
@@ -45,7 +51,7 @@ This boundary makes a generated four-measure proposal reproducible from the same
 ## Candidate Musical Seams
 
 - **Control mapping:** translates user-facing knobs into a normalized musical policy. A knob does not call a specific generator directly.
-- **Harmony planner:** produces an ordered chord and tension plan for the requested measures.
+- **Harmony planner:** delivered as an ordered immutable structural candidate domain; it does not choose a chord/tension plan or bind rhythm.
 - **Rhythm planner:** allocates onset opportunities, subdivisions, syncopation, and rests independently of exact pitches.
 - **Pitch planner:** assigns pitches to the rhythm plan from harmonic constraints, contour, register, and permitted outside-chord behavior.
 - **Phrase transformer:** optionally derives material from a seed phrase. It is absent in the first deliverable and is added for MIDI continuation without replacing harmony, rhythm, or pitch planning.
