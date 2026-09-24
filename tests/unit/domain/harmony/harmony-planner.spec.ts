@@ -12,17 +12,18 @@ import {
   isNoLegalHarmonyPlan,
   makeHarmonyCandidateDomain,
   type HarmonyCandidateDomain,
+  type HarmonyPlannerInput,
 } from '@/domain/harmony/harmony-planner'
 
-const baseInput = {
+const baseInput: HarmonyPlannerInput = {
   tonalCenter: 'C',
   collection: 'Major',
   harmonicMotion: 'Static',
   tensionArc: 'Settled',
   profile: 'Neutral',
-} as const
+}
 
-function domainFor(input: Partial<typeof baseInput>): HarmonyCandidateDomain {
+function domainFor(input: Partial<HarmonyPlannerInput>): HarmonyCandidateDomain {
   const result = makeHarmonyCandidateDomain({ ...baseInput, ...input })
   if (isNoLegalHarmonyPlan(result)) throw new Error('Expected a nonempty harmony domain.')
   return result

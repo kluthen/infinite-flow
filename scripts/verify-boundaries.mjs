@@ -5,6 +5,10 @@ const applicationRoot = new URL('../src/', import.meta.url)
 const sourceExtensions = new Set(['.css', '.js', '.jsx', '.ts', '.tsx', '.vue'])
 const forbiddenPersistence = /\b(localStorage|sessionStorage|indexedDB|caches)\b/u
 
+/**
+ * @param {string} directory
+ * @returns {Promise<string[]>}
+ */
 async function authoredSourceFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true })
   const nested = await Promise.all(

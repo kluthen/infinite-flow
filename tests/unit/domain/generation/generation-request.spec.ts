@@ -103,7 +103,7 @@ describe('makeGenerationRequest', () => {
   })
 
   it('type level: a theme field cannot be part of a GenerationRequest object literal', () => {
-    const attempt: () => GenerationRequest = () => ({
+    const attempt = (): GenerationRequest => ({
       ...validRequestInput(),
       // @ts-expect-error theme is presentation state and must not be assignable into GenerationRequest
       theme: 'dark',
@@ -113,7 +113,7 @@ describe('makeGenerationRequest', () => {
   })
 
   it('type level: a notationDisplay field cannot be part of a GenerationRequest object literal', () => {
-    const attempt: () => GenerationRequest = () => ({
+    const attempt = (): GenerationRequest => ({
       ...validRequestInput(),
       // @ts-expect-error notation display convention must not be assignable into GenerationRequest
       notationDisplay: 'concert',
@@ -123,7 +123,7 @@ describe('makeGenerationRequest', () => {
   })
 
   it('type level: register cannot be assigned the outer RegisterChoice value "Varying"', () => {
-    const attempt: () => GenerationRequest = () => ({
+    const attempt = (): GenerationRequest => ({
       ...validRequestInput(),
       // @ts-expect-error Varying is the outer register-intent boundary vocabulary, not the core request's
       register: 'Varying' as RegisterChoice,

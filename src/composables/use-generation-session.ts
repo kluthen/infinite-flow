@@ -1,4 +1,4 @@
-import { reactive, readonly } from 'vue'
+import { readonly, shallowReactive } from 'vue'
 
 import { type GenerationControls, type MusicalProfile } from '@/domain/controls/generation-controls'
 import {
@@ -62,6 +62,15 @@ export interface CreateGenerationSessionOptions<TResult> {
   readonly notate: (result: TResult, requestedMode: NotationMode) => Promise<void>
 }
 
+/**
+ * Internal mutable mirror of `GenerationSessionState`: the public interface is readonly for
+ * consumers, but this module owns the fields and must be able to replace them.
+ */
+// @spec-link [[service_workspace_session_flow]]
+type MutableGenerationSessionState<TResult> = {
+  -readonly [K in keyof GenerationSessionState<TResult>]: GenerationSessionState<TResult>[K]
+}
+
 const PROFILE_CONTROL_KEYS = new Set<keyof ProfileControlledValues>([
   'harmonicMotion',
   'noteDensity',
@@ -79,7 +88,7 @@ const PROFILE_CONTROL_KEYS = new Set<keyof ProfileControlledValues>([
 export function createGenerationSession<TResult>(
   options: CreateGenerationSessionOptions<TResult>,
 ): GenerationSession<TResult> {
-  const state = reactive<GenerationSessionState<TResult>>({
+  const state = shallowReactive<MutableGenerationSessionState<TResult>>({
     controls: DEFAULT_GENERATION_CONTROLS,
     profileSelection: DEFAULT_PROFILE_SELECTION,
     presentation: { theme: 'System', notationMode: 'B-flat tenor' },
