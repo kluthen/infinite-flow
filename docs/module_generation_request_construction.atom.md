@@ -1,6 +1,6 @@
 ---
 id: module_generation_request_construction
-status: DRAFT
+status: REVIEW
 human_name: Generation Request Construction
 type: MODULE
 layer: ARCHITECTURE

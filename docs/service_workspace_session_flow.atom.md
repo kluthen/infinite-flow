@@ -1,6 +1,6 @@
 ---
 id: service_workspace_session_flow
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 version: 0.1
 parents:

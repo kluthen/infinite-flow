@@ -1,0 +1,146 @@
+@theme {
+  /* Typography: editorial UI with a dedicated SMuFL font reserved for engraved notation. */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-ui: 'Source Sans 3', 'Trebuchet MS', sans-serif;
+  --font-music: 'Bravura', 'Noto Music', serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --leading-tight: 1.1;
+  --leading-base: 1.5;
+
+  /* 8pt spacing grid. */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.5rem;
+  --spacing-6: 2rem;
+  --spacing-7: 3rem;
+  --spacing-8: 4rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --control-group-min-inline-size: 14rem;
+  --size-visually-hidden: 1px;
+
+  --shadow-panel: 0 0.5rem 1.5rem rgb(31 29 24 / 0.12);
+  --shadow-focus: 0 0 0 0.1875rem var(--color-focus-ring);
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-sheet: 20;
+  --z-alert: 30;
+
+  /* Motion tokens. */
+  --duration-feedback: 120ms;
+  --duration-fade-fast: 160ms;
+  --duration-fade: 240ms;
+  --duration-reduced: 1ms;
+  --ease-out-fast: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out-gentle: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Named responsive targets. All product screens are landscape-first. Reset Tailwind's
+     default breakpoint scale so only the product's three named targets remain available. */
+  --breakpoint-*: initial;
+  --breakpoint-mobile-landscape: 48rem;
+  --breakpoint-tablet-landscape: 64rem;
+  --breakpoint-desktop: 90rem;
+
+  /* Light theme (default): text contrast meets WCAG AA at normal text sizes. */
+  --color-canvas: #f4f0e7;
+  --color-surface: #fffdf8;
+  --color-surface-muted: #e9e1d2;
+  --color-text: #22201b;
+  --color-text-muted: #645f56;
+  --color-staff: #171613;
+  --color-border: #b8ae9d;
+  --color-accent: #7b4e12;
+  --color-accent-hover: #603b09;
+  --color-accent-text: #ffffff;
+  --color-focus-ring: #176c7f;
+  --color-success: #176b50;
+  --color-error: #a52c24;
+  --color-error-surface: #fce8e5;
+}
+
+@layer base {
+  /* Runtime palette swap (D4): semantic token names never change across themes, only their
+     values, so component classes stay identical under every theme. */
+  [data-theme='dark'] {
+    --color-canvas: #171816;
+    --color-surface: #23231f;
+    --color-surface-muted: #30302a;
+    --color-text: #f7f0df;
+    --color-text-muted: #d0c7b6;
+    --color-staff: #fff8e9;
+    --color-border: #756f62;
+    --color-accent: #e0a64b;
+    --color-accent-hover: #f1bc6a;
+    --color-accent-text: #211604;
+    --color-focus-ring: #70d2df;
+    --color-success: #75d5ac;
+    --color-error: #ff9c90;
+    --color-error-surface: #4a2421;
+    color-scheme: dark;
+  }
+
+  /* With no manual selection (D12), the initial palette follows the operating system. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      --color-canvas: #171816;
+      --color-surface: #23231f;
+      --color-surface-muted: #30302a;
+      --color-text: #f7f0df;
+      --color-text-muted: #d0c7b6;
+      --color-staff: #fff8e9;
+      --color-border: #756f62;
+      --color-accent: #e0a64b;
+      --color-accent-hover: #f1bc6a;
+      --color-accent-text: #211604;
+      --color-focus-ring: #70d2df;
+      --color-success: #75d5ac;
+      --color-error: #ff9c90;
+      --color-error-surface: #4a2421;
+      color-scheme: dark;
+    }
+  }
+
+  /* [data-theme='light'] takes the unmodified :root light values above, so a manual light
+     override always resolves to light even when the operating system prefers dark: the
+     dark media rule only targets :root:not([data-theme]), which an explicit attribute defeats. */
+  [data-theme='light'] {
+    color-scheme: light;
+  }
+
+  :root {
+    color-scheme: light;
+  }
+
+  /* Accessibility floor: 4.5:1 normal text, 3:1 large text and controls, 44px minimum targets. */
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-canvas);
+    color: var(--color-text);
+    font-family: var(--font-ui);
+    line-height: var(--leading-base);
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+
+  :focus-visible {
+    box-shadow: var(--shadow-focus);
+    outline: none;
+  }
+}

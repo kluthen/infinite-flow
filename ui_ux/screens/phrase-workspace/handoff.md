@@ -87,7 +87,7 @@ layout-app
 - At `bp-tablet-landscape`, use one full-width score row above a `control-group-row` that wraps as needed. The controls scroll with the page; `staff-viewport` uses its full available inline size.
 - At `bp-desktop`, use the same vertical structure. Orient control groups horizontally across the page and give `staff-viewport` its maximum available inline space; do not add a side rail or third content column.
 - Below `bp-desktop`, when the viewport is portrait, use `orientation-notice` instead of an interactive score layout. At `bp-desktop` and above, do not apply the portrait guard; retain the full-width `staff-viewport` when width is sufficient.
-- All visual styling and responsive dimensions use the canonical tokens and component classes in `ui_common.css`; this handoff declares no independent visual values.
+- All visual styling and responsive dimensions use the canonical tokens and component classes in `src/styles/theme.css` and `src/styles/components.css`; this handoff declares no independent visual values.
 
 ## States
 

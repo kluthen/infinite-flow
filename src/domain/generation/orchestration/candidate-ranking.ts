@@ -92,9 +92,36 @@ export interface RankedRhythmCache {
 }
 
 /**
- * Intent: fully materialize a rhythm candidate domain's lazy iterator exactly once, then sort it
- * into the seeded search order (seeded tie key ascending, candidateIndex ascending on collision),
- * and freeze the result as a reusable RankedRhythmCache.
+ * Intent: rank an already-materialized, complete rhythm candidate list into the seeded search
+ * order for one seed (seeded tie key ascending, candidateIndex ascending on collision), and freeze
+ * the result as a reusable RankedRhythmCache. Takes the candidate list as given, so a caller that
+ * already holds a memoized canonical expansion can rank it for a new seed without re-expanding the
+ * grammar.
+ */
+// @spec-link [[service_generation_orchestration]]
+export function rankMaterializedRhythmCandidates(
+  grammarVersion: RhythmGrammarVersion,
+  candidates: readonly RhythmCandidate[],
+  seed: Seed,
+): RankedRhythmCache {
+  const ranked = sortByTieKey(
+    candidates,
+    (candidate) => rhythmTieKey(seed, candidate),
+    (candidate) => candidate.candidateIndex,
+  )
+  return deepFreeze({
+    kind: 'ranked_rhythm_cache',
+    grammarVersion,
+    domainSize: candidates.length,
+    candidates: ranked,
+  })
+}
+
+/**
+ * Intent: fully materialize a rhythm candidate domain's lazy iterator exactly once, then rank it
+ * into the seeded search order via `rankMaterializedRhythmCandidates`. Kept for callers (and
+ * existing tests) that still hold a raw `RhythmCandidateDomain` rather than an already-materialized
+ * canonical candidate list.
  */
 // @spec-link [[service_generation_orchestration]]
 export function materializeRankedRhythmCache(
@@ -105,15 +132,5 @@ export function materializeRankedRhythmCache(
   for (const candidate of domain.candidates()) {
     all.push(candidate)
   }
-  const ranked = sortByTieKey(
-    all,
-    (candidate) => rhythmTieKey(seed, candidate),
-    (candidate) => candidate.candidateIndex,
-  )
-  return deepFreeze({
-    kind: 'ranked_rhythm_cache',
-    grammarVersion: domain.grammarVersion,
-    domainSize: all.length,
-    candidates: ranked,
-  })
+  return rankMaterializedRhythmCandidates(domain.grammarVersion, all, seed)
 }

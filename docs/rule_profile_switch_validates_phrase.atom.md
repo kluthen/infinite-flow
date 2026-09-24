@@ -1,6 +1,6 @@
 ---
 id: rule_profile_switch_validates_phrase
-status: DRAFT
+status: REVIEW
 version: 0.1
 priority: 1
 tags: instrument-profile,profile-switch,range,register-window

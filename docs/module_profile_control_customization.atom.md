@@ -1,6 +1,6 @@
 ---
 id: module_profile_control_customization
-status: DRAFT
+status: REVIEW
 type: MODULE
 priority: 1
 parents:

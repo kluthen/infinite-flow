@@ -1,6 +1,6 @@
 ---
 id: rule_presentation_preference_preserves_phrase
-status: DRAFT
+status: REVIEW
 priority: 2
 dependents:
   - [[module_generation_request_construction]]

@@ -22,6 +22,7 @@
     "eslint.config.js",
     "vite.config.ts",
     "vitest.config.ts",
+    "vitest.perf.config.ts",
     "playwright.config.ts",
     "vite.notation-harness.config.ts",
     "scripts/**/*.mjs"

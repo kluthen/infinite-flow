@@ -1,6 +1,6 @@
 ---
 id: rule_ephemeral_session_state
-status: DRAFT
+status: REVIEW
 tags: persistence,session,browser-state
 parents:
   - [[req_four_measure_phrase]]

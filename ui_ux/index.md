@@ -5,9 +5,16 @@ This design set defines the first-release interface for generating and reading o
 ## Map
 
 - `strategy.md` explains the product shape, visual direction, and shared state policy.
-- `ui_common.css` is the canonical themeable token and component vocabulary.
+- `src/styles/theme.css` and `src/styles/components.css` (in the application repo, imported by `src/styles/index.css`) are the canonical themeable token and component vocabulary. `ui_common.css`, in this tree, is a frozen design reference kept only for the mockups; it is not imported by the app and is not buildable truth.
 - `motion.md` defines the limited motion policy.
-- `mockups/` contains the interactive phrase-workspace review prototype.
+- `mockups/` contains the interactive phrase-workspace review prototype, styled from the frozen `ui_common.css` reference.
 - `flows/generate-phrase/` specifies the explicit four-measure generation journey.
 - `screens/phrase-workspace/` specifies the shared workspace screen.
 - `qna.md`, `decisions.md`, and `todo.md` are working registers. Read `todo.md` before extending this set.
+
+## How future UI changes flow
+
+- A token or component-style change is decided here, in the `ui_ux` handoff documents (this design set).
+- The ux-writer then updates `src/styles/theme.css` and `src/styles/components.css`, which it owns as the canonical production token and component-class source from this point forward.
+- Application code consumes those classes and tokens and never inlines a raw visual value.
+- `mockups/` and `ui_common.css` are updated only when the mockups themselves need to stay representative of the current design; otherwise a decision that changes production styling leaves the mockups and `ui_common.css` stale, and that staleness is expected rather than an error.
