@@ -174,6 +174,30 @@ describe('createGenerationSession', () => {
     expect(tracked.counts()).toEqual(generationCounts)
   })
 
+  it('passes notate the exact result instance generate returned, not a reactive proxy', async () => {
+    const tracked = trackedProviders()
+    const phrase = { phrase: 'x' }
+    const notateCalls: { readonly result: unknown }[] = []
+    let notationAttempts = 0
+    const session = createGenerationSession({
+      providers: tracked.providers,
+      generate: async () => phrase,
+      notate: async (result) => {
+        notateCalls.push({ result })
+        notationAttempts += 1
+        if (notationAttempts === 1) throw new Error('notation failure')
+      },
+    })
+
+    await session.actions.generate()
+    await expect(session.actions.setNotationMode('Concert')).resolves.toBe(false)
+    await expect(session.actions.retryNotation()).resolves.toBe(true)
+
+    expect(notateCalls).toHaveLength(2)
+    expect(notateCalls[0]?.result).toBe(phrase)
+    expect(notateCalls[1]?.result).toBe(phrase)
+  })
+
   it('locks generation and notation against each other while leaving theme immediate', async () => {
     const generation = createDeferred<string>()
     const notation = createDeferred<void>()

@@ -57,7 +57,7 @@ describe('GenerationIntent', () => {
   })
 
   it('structurally excludes presentation, browser, and session fields', () => {
-    const attempt: () => typeof first = () => ({
+    const attempt = (): typeof first => ({
       ...first,
       // @ts-expect-error presentation state cannot be part of GenerationIntent
       theme: 'Dark',
