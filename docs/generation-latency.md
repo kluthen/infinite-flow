@@ -24,7 +24,8 @@ For each setting it creates one fresh, empty `CanonicalRhythmDomainMemo` and mea
 
 ## Measured results (Node)
 
-Of the 144 settings, 114 succeeded and 30 failed:
+Of the 144 settings, 114 succeeded and 30 failed, identically before and after the enumeration
+speed package:
 
 - **24 `no_legal_rhythm_plan`** — exactly the 6 constant unsupported-rhythm-settings
   (`src/domain/controls/unsupported-rhythm-settings.ts`) × 4 tension arcs.
@@ -36,25 +37,32 @@ Of the 144 settings, 114 succeeded and 30 failed:
   workspace's default controls; they are a pitch-planner limit specific to this fixed context, out
   of Step 9's scope.
 
-Latency across the 114 successful settings:
+Latency across the 114 successful settings, measured back to back on the reference machine at
+`be9128b` (Step 9, before) and with the enumeration speed package (after). The Step 9 run
+originally recorded here (cold median 121.1 / p90 1199.7 / p95 5268.4 / max 16782.0 ms) was on a
+more loaded machine; the "before" row is a fresh re-measurement for a like-for-like comparison.
 
-|           | median | p90    | p95    | max     |
-| --------- | ------ | ------ | ------ | ------- |
-| Cold (ms) | 121.1  | 1199.7 | 5268.4 | 16782.0 |
-| Warm (ms) | 4.1    | 30.6   | 41.2   | 63.6    |
+|                  | median | p90    | p95    | max     |
+| ---------------- | ------ | ------ | ------ | ------- |
+| Cold before (ms) | 71.6   | 1065.2 | 4025.3 | 11394.4 |
+| Cold after (ms)  | 36.3   | 219.2  | 316.1  | 689.5   |
+| Warm before (ms) | 3.0    | 23.8   | 34.9   | 56.2    |
+| Warm after (ms)  | 2.6    | 23.5   | 34.7   | 56.6    |
 
-5 slowest cold settings, all Mixed note density + Active displacement syncopation:
+5 slowest cold settings after the speed package:
 
-| Setting                                              | Cold (ms) | Warm (ms) |
-| ---------------------------------------------------- | --------- | --------- |
-| Mixed / Conversational / Active displacement / Edge  | 16782.0   | 11.1      |
-| Mixed / Conversational / Active displacement / Build | 14185.5   | 10.3      |
-| Mixed / Sparse / Active displacement / Build         | 13497.0   | 58.6      |
-| Mixed / Sparse / Active displacement / Edge          | 13259.1   | 57.8      |
-| Mixed / Conversational / Active displacement / Lift  | 5556.8    | 7.5       |
+| Setting                                        | Cold (ms) | Warm (ms) |
+| ---------------------------------------------- | --------- | --------- |
+| Mixed / Sparse / Active displacement / Build   | 689.5     | 56.6      |
+| Mixed / Sparse / Active displacement / Edge    | 684.4     | 55.9      |
+| Mixed / Sparse / Occasional offbeats / Build   | 373.7     | 51.4      |
+| Mixed / Sparse / Occasional offbeats / Edge    | 365.5     | 50.3      |
+| Mixed / Sparse / Active displacement / Settled | 334.1     | 23.5      |
 
-The 30 unsupported/no-plan settings are fast in both cases: cold under 850 ms, warm under 2 ms —
-they fail before any expensive search, so the memo isn't the bottleneck there either way.
+Before the package the slowest were the four Mixed + Active displacement Build/Edge settings with
+Conversational or Sparse silence, at 10.6-11.4 s cold. The 30 unsupported/no-plan settings are
+fast in both cases (cold max 577.1 ms before, 200.6 ms after; warm under 2 ms): they fail before
+any expensive search.
 
 ## Browser (Chromium)
 
@@ -63,33 +71,48 @@ Each scenario clicks the primary action and times until the `generation-status` 
 "Phrase ready", so the figures include the Worker round trip, boundary re-validation, the
 written-notation transform, and VexFlow engraving. Cold is the first generation for that rhythm
 setting in a fresh page (empty memo in the Worker); warm is the following Regenerate (memo hit, new
-seed). Set `LATENCY_BROWSER_OUT` to write the JSON. Two runs on the reference machine:
+seed). Set `LATENCY_BROWSER_OUT` to write the JSON. Two runs each on the reference machine:
 
-| Scenario                                                         | Cold (ms)    | Warm (ms) |
-| ---------------------------------------------------------------- | ------------ | --------- |
-| Default (Quarter / Straight / Sparse / Lift)                     | 124, 117     | 111, 72   |
-| Worst case (Mixed / Conversational / Active displacement / Edge) | 10381, 10379 | 65, 85    |
+| Scenario                                                         | Cold before | Cold after | Warm before | Warm after |
+| ---------------------------------------------------------------- | ----------- | ---------- | ----------- | ---------- |
+| Default (Quarter / Straight / Sparse / Lift)                     | 96, 110     | 106, 106   | 122, 119    | 83, 79     |
+| Worst case (Mixed / Conversational / Active displacement / Edge) | 9371, 9376  | 324, 321   | 74, 68      | 86, 73     |
+
+(All times in ms.) The browser scenario is the Step 9 worst case; after the package the slowest
+Node setting is Mixed / Sparse / Active displacement / Build (689.5 ms cold in Node).
 
 Responsiveness: during the worst-case cold generation, a click on the theme control applied the new
-`data-theme` attribute in 35 ms and 39 ms (the spec asserts under 200 ms). Generation runs off the
-main thread, so the workspace stays interactive while a cold rhythm domain is materialized.
+`data-theme` attribute in 32-33 ms after the package (31-32 ms before; the spec asserts under 200
+ms). Generation runs off the main thread, so the workspace stays interactive while a cold rhythm
+domain is materialized.
 
-## Latency budget (signed off, provisional)
+## Enumeration speed package
 
-The product owner signed off this budget on 2026-09-24 as **provisional**. The approved rhythm-enumeration speed package is planned to land after Step 9; once it does, the cold worst-case bound is to be tightened to about 2 s.
+The cold worst case was dominated by the Step 6 rhythm-domain enumeration. The speed package makes
+that enumeration and the pitch search cheaper without changing any output: the Mixed-density
+gesture skip and `quickRejectRhythmCandidate` prefilter, per-expansion transform/selector memos,
+freezing only yielded rhythm candidates, reusing the no-plan probe's iterator, computing rhythm
+identity once, and a pitch search that caches per-state candidate orderings and tie keys and only
+freezes the returned phrase (see `docs/music/rhythm-phrase-structure.md` and
+`specs/generative-process.md`). Byte identity was checked over seeds 1-3 × all 144 settings and a
+2,880-case differential (outcome hash, kind, fuel): 0 mismatches. The `rhythm-mvp-v1` manifest and
+the Step 9 golden fixture are unchanged.
 
-- **Warm (memo hit) generation:** ≤ 250 ms p95 in Chromium on the reference machine.
-- **Cold first generation for a rhythm setting:** ≤ 1.5 s p90 and ≤ 20 s worst case, with the UI
-  kept responsive throughout — generation runs on the Worker, so controls and theme stay
+## Latency budget (signed off)
+
+The product owner signed off this budget on 2026-09-24, after the enumeration speed package landed.
+It replaces the provisional Step 9 budget (≤ 1.5 s p90, ≤ 20 s cold worst case). The bounds leave
+roughly 2-3× headroom over the post-package measurements above, for slower machines:
+
+- **Warm (memo hit) generation:** ≤ 250 ms p95 in Chromium on the reference machine (measured
+  ≤ 86 ms).
+- **Cold first generation for a rhythm setting:** ≤ 500 ms p90 (measured 219.2 ms in Node) and
+  ≤ 2 s worst case (measured 689.5 ms in Node, 324 ms for the Chromium worst-case scenario), with
+  the UI kept responsive throughout — generation runs on the Worker, so controls and theme stay
   interactive and a loading state is shown for the duration.
-- **Regression rule:** any measured regression of warm p95 above 250 ms, or of worst-case cold
-  above 20 s, fails the budget.
+- **Regression rule:** any measured regression of warm p95 above 250 ms, cold p90 above 500 ms, or
+  worst-case cold above 2 s fails the budget.
 
-Explicitly out of scope for this budget and this step:
-
-- The Step 6 rhythm-domain enumeration algorithm and its bounded-prefix ranking were **not**
-  changed by Step 9 — only the seed-independent memo around its result (see
-  `docs/phrase-workspace.md`'s Canonical rhythm-domain memo section).
-- Optimizing the cold worst case (Mixed note density + Active displacement, currently ~17 s in Node and ~10.4 s in Chromium) is
-  deferred; it needs its own product decision, since it would mean changing the Step 6 enumeration
-  itself or its ranking strategy, not just caching around it.
+Out of scope for this budget: precomputed rhythm domains, bounded-prefix ranking, and other
+changes to what the enumeration yields; the speed package changes only how fast the same domain
+is produced.

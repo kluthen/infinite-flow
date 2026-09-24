@@ -1,6 +1,6 @@
 ---
 id: module_rhythm_domain_validation
-status: DRAFT
+status: REVIEW
 tags: rhythm,validation,typed-failures,step6
 version: 0.1
 dependents: []

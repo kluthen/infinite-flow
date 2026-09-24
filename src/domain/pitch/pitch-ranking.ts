@@ -1,7 +1,7 @@
 import type { ArpeggioChaos } from '../controls/generation-controls'
 import { deepFreeze } from '../events/deep-freeze'
 import type { PitchAttack, PitchCandidate } from './pitch-types'
-import { compareUnsignedPitchTie, type PitchTieKeyFactory } from './pitch-tie-key'
+import { compareUnsignedTieKeys, type PitchTieKeyFactory } from './pitch-tie-key'
 
 /**
  * Musical rank tuple, lexicographic and lower first:
@@ -40,6 +40,9 @@ function compareRank(a: readonly number[], b: readonly number[]): number {
 /**
  * Order one attack's candidates for depth-first search: musical rank first, then the unsigned
  * seeded tie key, then MIDI, then enumeration index. Pure and seed-derived; no mutable PRNG.
+ * Each candidate's rank tuple and tie key are computed once before sorting, so the tie-key hash
+ * runs once per candidate rather than twice per comparison; the order is the same total order
+ * `compareUnsignedPitchTie` defines.
  */
 // @spec-link [[rule_arpeggio_chaos_respects_constraints]]
 export function orderCandidates(input: {
@@ -53,26 +56,22 @@ export function orderCandidates(input: {
   const ranked = input.candidates.map((candidate) => ({
     candidate,
     rank: pitchRank(input.chaos, input.attack, candidate, input.priorMidi),
+    tieKey: input.key({
+      seed: input.seed,
+      decisionIdentity: input.attack.identity,
+      candidateStableIdentity: candidate.identity,
+    }),
   }))
   ranked.sort(
     (a, b) =>
       compareRank(a.rank, b.rank) ||
-      compareUnsignedPitchTie(
-        {
-          seed: input.seed,
-          decisionIdentity: input.attack.identity,
-          candidateStableIdentity: a.candidate.identity,
-        },
-        {
-          seed: input.seed,
-          decisionIdentity: input.attack.identity,
-          candidateStableIdentity: b.candidate.identity,
-        },
+      compareUnsignedTieKeys(
+        a.tieKey,
+        b.tieKey,
         a.candidate.midi,
         b.candidate.midi,
         a.candidate.enumerationIndex,
         b.candidate.enumerationIndex,
-        input.key,
       ),
   )
   return ranked.map((entry) => entry.candidate)

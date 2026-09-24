@@ -28,11 +28,6 @@ export function initialPitchSearchState(context: PitchSearchContext): PitchSearc
   })
 }
 
-/** Build a frozen rejection carrying a validator-aligned reason. */
-function reject(reason: string): PitchAdvanceResult {
-  return deepFreeze({ kind: 'rejected', reason })
-}
-
 /** Chord-tone and collection membership of a MIDI value at an attack. */
 // @spec-link [[module_pitch_planner]]
 export function noteFacts(
@@ -66,6 +61,12 @@ function terminalError(context: PitchSearchContext, state: PitchSearchState): st
   return undefined
 }
 
+/** Resolves a proposed candidate to its canonical domain member at an attack, if any. */
+export type DomainMemberLookup = (
+  attack: PitchAttack,
+  candidate: PitchCandidate,
+) => PitchCandidate | undefined
+
 /**
  * The canonical domain member matching a candidate by stable identity and MIDI. Candidates from
  * an equal but separately compiled context are accepted; anything else is outside the domain.
@@ -82,22 +83,49 @@ function domainMember(
 }
 
 /**
- * The thin transition: compose the figure, motion, and contour reducers for one candidate on the
- * next attack, then apply the open-endpoint and terminal checks. It never rescans the prefix.
+ * `domainMember` over per-attack identity indexes built lazily for one search run. Each index
+ * keeps the first entry for an identity, which is the entry `domainMember`'s `find` returns.
  */
 // @spec-link [[module_pitch_planner]]
-export function advance(
+export function indexedDomainMember(context: PitchSearchContext): DomainMemberLookup {
+  const indexes = new Map<number, Map<string, PitchCandidate>>()
+  return (attack, candidate) => {
+    let index = indexes.get(attack.attackIndex)
+    if (!index) {
+      index = new Map()
+      for (const entry of context.candidateDomains[attack.attackIndex]!)
+        if (!index.has(entry.identity)) index.set(entry.identity, entry)
+      indexes.set(attack.attackIndex, index)
+    }
+    const member = index.get(candidate.identity)
+    return member?.midi === candidate.midi ? member : undefined
+  }
+}
+
+/** Placeholder ranking facts for internal search steps, whose caller never reads them. */
+const UNREAD_RANKING_FACTS: readonly number[] = deepFreeze([])
+
+/**
+ * The thin transition shared by `advance` and `advanceSearchStep`. `published` results carry
+ * their ranking facts and are deep-frozen; internal search steps skip both because the search only
+ * reads `kind` and `nextState`, and never exposes or mutates either.
+ */
+function transition(
   context: PitchSearchContext,
   state: PitchSearchState,
   proposed: PitchCandidate,
+  member: DomainMemberLookup,
+  published: boolean,
 ): PitchAdvanceResult {
+  const finish = (result: PitchAdvanceResult): PitchAdvanceResult =>
+    published ? deepFreeze(result) : result
   const attack = context.attacks[state.nextAttackIndex]
-  if (!attack) return reject('no_remaining_attack')
-  const candidate = domainMember(context, attack, proposed)
-  if (!candidate) return reject('candidate_outside_domain')
+  if (!attack) return finish({ kind: 'rejected', reason: 'no_remaining_attack' })
+  const candidate = member(attack, proposed)
+  if (!candidate) return finish({ kind: 'rejected', reason: 'candidate_outside_domain' })
   const note = noteFacts(context, attack, candidate.midi)
   if (attack.isFinal && !context.finalMidis.includes(candidate.midi))
-    return reject('open_endpoint_violation')
+    return finish({ kind: 'rejected', reason: 'open_endpoint_violation' })
   const figure = advanceFigure(state.figure, {
     attackIndex: attack.attackIndex,
     isFinal: attack.isFinal,
@@ -120,7 +148,7 @@ export function advance(
     candidate.midi,
     remainingReach(context, motion.state),
   )
-  if (!contour) return reject('contour_infeasible')
+  if (!contour) return finish({ kind: 'rejected', reason: 'contour_infeasible' })
   const nextState: PitchSearchState = {
     nextAttackIndex: state.nextAttackIndex + 1,
     prior: note,
@@ -129,17 +157,45 @@ export function advance(
     contour,
   }
   const terminal = attack.isFinal ? terminalError(context, nextState) : undefined
-  if (terminal) return reject(terminal)
-  return deepFreeze({
-    kind: 'accepted',
-    nextState,
-    rankingFacts: pitchRank(
-      context.input.policy.arpeggioChaos,
-      attack,
-      candidate,
-      state.prior?.midi,
-    ),
-  })
+  if (terminal) return finish({ kind: 'rejected', reason: terminal })
+  const rankingFacts = published
+    ? pitchRank(context.input.policy.arpeggioChaos, attack, candidate, state.prior?.midi)
+    : UNREAD_RANKING_FACTS
+  return finish({ kind: 'accepted', nextState, rankingFacts })
+}
+
+/**
+ * The thin transition: compose the figure, motion, and contour reducers for one candidate on the
+ * next attack, then apply the open-endpoint and terminal checks. It never rescans the prefix.
+ */
+// @spec-link [[module_pitch_planner]]
+export function advance(
+  context: PitchSearchContext,
+  state: PitchSearchState,
+  proposed: PitchCandidate,
+): PitchAdvanceResult {
+  return transition(
+    context,
+    state,
+    proposed,
+    (attack, candidate) => domainMember(context, attack, candidate),
+    true,
+  )
+}
+
+/**
+ * `advance` as `searchPitchPlan`'s inner step: the same acceptance, rejection reason, and
+ * `nextState`, resolved through the search run's `indexedDomainMember` lookup, without the unread
+ * ranking facts or the defensive freeze. It is charged one unit of fuel exactly like `advance`.
+ */
+// @spec-link [[module_pitch_planner]]
+export function advanceSearchStep(
+  context: PitchSearchContext,
+  state: PitchSearchState,
+  proposed: PitchCandidate,
+  member: DomainMemberLookup,
+): PitchAdvanceResult {
+  return transition(context, state, proposed, member, false)
 }
 
 /** Exact memo key: every field that can influence the rest of the search. */

@@ -1,6 +1,6 @@
 ---
 id: entity_rhythm_candidate_domain
-status: DRAFT
+status: REVIEW
 human_name: Rhythm Candidate Domain
 layer: ARCHITECTURE
 priority: 1

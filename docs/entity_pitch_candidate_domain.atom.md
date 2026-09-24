@@ -1,6 +1,6 @@
 ---
 id: entity_pitch_candidate_domain
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 priority: 1
 tags: pitch

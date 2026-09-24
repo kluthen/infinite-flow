@@ -137,6 +137,16 @@ event is always a fresh attack at bar 1, tick 0 (`rule_phrase_starts_on_downbeat
 Typed failure: `no_legal_rhythm_plan`, returned with the union of validation codes observed across
 the complete v1 expansion, only when structural rhythm validation rejects every candidate.
 
+Enumeration shortcuts (performance only, output unchanged): under Mixed density a gesture whose
+own source cells lack the 1-, 2- or 4-tick class is skipped, since no transform or answer bar can
+add one; and each assembled candidate first passes `quickRejectRhythmCandidate`
+(`rhythm-invariants.ts`), which reuses the validator's own metrical-anchor, Mixed-coverage,
+Active-anchor-ratio and answer-variation tests, so it only drops candidates the validator would
+reject. Only yielded candidates are deep-frozen, and transform/selector results are memoized for
+the duration of one expansion. When this fast pass yields nothing, the expansion re-runs without
+either shortcut so the reported codes are exactly those of the complete expansion; otherwise the
+probe's iterator is resumed by the first `candidates()` call rather than restarted.
+
 Details: [Rhythm and Phrase-Structure Policy](../docs/music/rhythm-phrase-structure.md).
 
 ## 5. Tension binding
@@ -195,7 +205,12 @@ decisionIdentity || candidateStableIdentity)`, drawn from the named `pitch` stre
 `tieKey` collision does MIDI, then `enumerationIndex`, break the tie (`pitch-tie-key.ts`).
 
 Search is depth-first over chronological attacks with forward checking, tracking proven-dead
-states so a subtree is never re-expanded (`pitch-search.ts`). Backtracking happens within pitch
+states so a subtree is never re-expanded (`pitch-search.ts`). Within one search the ranked
+ordering of an attack's surviving candidates is computed once per
+(attack, required obligation, prior MIDI) and reused, each candidate's tie key is computed once
+per ordering, and intermediate search steps use an unfrozen transition
+(`advanceSearchStep`) — only the returned `PitchPhrase` is deep-frozen. Candidate order and fuel
+consumption are identical to ranking every state from scratch. Backtracking happens within pitch
 candidates first; only once a bound harmony/rhythm pair's pitch domain is fully exhausted does
 orchestration (once built) advance to the next rhythm candidate, then the next harmony candidate,
 without replacement.
@@ -398,21 +413,19 @@ endpoint validation by returning a trivially "solved" empty plan.
 - **Tempo has no generation-time effect** in this release; it is stored on controls but no planner
   stage reads it (`docs/music/rhythm-phrase-structure.md#calibration-questions` notes any future
   tempo-conditioned density would need a separate product decision).
-- **Performance: rhythm-domain materialization dominates wall time for some combinations — now
-  mitigated by a memo and a Worker, not eliminated.** Step 9 implements two of the three mitigations
-  this document previously listed as candidates: a seed-independent canonical rhythm-domain memo
+- **Performance: cold rhythm-domain materialization is now sub-second, and mitigated further by a
+  memo and a Worker.** Step 9 added a seed-independent canonical rhythm-domain memo
   (`SHARED_CANONICAL_RHYTHM_DOMAIN_MEMO`, `src/domain/generation/orchestration/canonical-rhythm-domain.ts`)
-  that reuses an already-materialized rhythm domain across repeated generations/regenerations
-  against the same note density/silence density/syncopation/tension-arc setting, and running
-  generation in a Web Worker (`src/generation-worker/`) so the main thread and UI stay responsive
-  while a cold call runs. Measured cold worst case is unchanged by the memo — Mixed note density
-  with Active displacement still takes up to ~17 s the first time a given setting is generated (see
-  [docs/generation-latency.md](../docs/generation-latency.md)) — because the memo only skips
-  re-materializing a setting already seen; it does not speed up the first materialization itself.
-  A memo hit (warm call) is fast: ≤ ~64 ms measured in Node across every supported setting. The
-  third candidate mitigation, optimizing the Step 6 enumeration itself (or switching to
-  bounded-prefix ranking), remains a deferred option — Step 9 explicitly did not change the Step 6
-  enumeration algorithm.
+  that reuses an already-materialized rhythm domain across repeated generations/regenerations of
+  the same note density/silence density/syncopation/tension-arc setting, and runs generation in a
+  Web Worker (`src/generation-worker/`) so the UI stays responsive. The later enumeration speed
+  package then optimized the Step 6 enumeration and the pitch search themselves, with
+  byte-identical output (see [section 4](#4-rhythm-stage) and
+  [docs/generation-latency.md](../docs/generation-latency.md)): the measured cold worst case fell
+  from ~11 s to ~0.7 s in Node (Mixed / Sparse / Active displacement / Build), and the Step 9
+  Chromium worst-case scenario from ~9.4 s to ~0.32 s. A memo hit (warm call) stays ≤ ~57 ms in
+  Node across every supported setting. Bounded-prefix ranking and precomputed domains remain
+  unexplored options; neither is needed for the current budget.
 - **Six further note-density/silence-density/syncopation/tension-arc combinations have no legal
   pitch plan in the workspace's fixed default pitch context** (C Major, Gentle diatonic, Middle
   register, B-flat tenor, Arch, Shaped, Predictable, tempo 90): Eighth/Breath-heavy/Straight/Edge;

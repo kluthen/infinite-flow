@@ -6,11 +6,14 @@ import {
 } from '../controls/generation-controls'
 import { deepFreeze } from '../events/deep-freeze'
 import { normalizedRhythmIdentity, withRhythmIdentity } from './rhythm-identity'
+import { coversMixedDurationClasses, quickRejectRhythmCandidate } from './rhythm-invariants'
 import { enumerateGestureDerivations } from './rhythm-skeleton'
 import {
   applyTransformSet,
   enumerateAnswerTransformLists,
   enumerateSyncopationTemplates,
+  type SyncopationSelectorMemo,
+  type TransformResult,
 } from './syncopation'
 import type {
   NoLegalRhythmPlan,
@@ -96,15 +99,55 @@ function descriptorOrder(
   )
 }
 
+/**
+ * Per-expansion memos. `applied` memoizes applying one descriptor to one bar, keyed by the immutable
+ * bar and descriptor objects (shared across templates once `selectors` memoizes the syncopation
+ * selectors). Cached bars are shared between candidates and never mutated.
+ */
+interface ExpansionMemo {
+  readonly applied: WeakMap<RhythmBar, WeakMap<RhythmTransformDescriptor, TransformResult>>
+  readonly selectors: SyncopationSelectorMemo
+}
+
+type Freeze = <T>(value: T) => T
+
+/** The syncopation stage builds unfrozen bars; only yielded candidates are deep-frozen. */
+const leaveUnfrozen: Freeze = (value) => value
+
+function applyOne(
+  memo: ExpansionMemo,
+  bar: RhythmBar,
+  descriptors: readonly RhythmTransformDescriptor[],
+  freeze: Freeze,
+): TransformResult {
+  if (descriptors.length !== 1) return applyTransformSet(bar, descriptors, freeze)
+  const descriptor = descriptors[0]!
+  let byDescriptor = memo.applied.get(bar)
+  if (!byDescriptor) {
+    byDescriptor = new WeakMap()
+    memo.applied.set(bar, byDescriptor)
+  }
+  let result = byDescriptor.get(descriptor)
+  if (!result) {
+    result = applyTransformSet(bar, descriptors, freeze)
+    byDescriptor.set(descriptor, result)
+  }
+  return result
+}
+
 function applyByBar(
+  memo: ExpansionMemo,
   bars: readonly RhythmBar[],
   descriptors: readonly RhythmTransformDescriptor[],
+  freeze: Freeze = deepFreeze,
 ): readonly RhythmBar[] | undefined {
   const next: RhythmBar[] = []
   for (const bar of bars) {
-    const result = applyTransformSet(
+    const result = applyOne(
+      memo,
       bar,
       descriptors.filter((descriptor) => descriptor.barIndex === bar.barIndex),
+      freeze,
     )
     if (!result.ok) return undefined
     next.push(result.bar)
@@ -112,14 +155,26 @@ function applyByBar(
   return next
 }
 
-/** Full v1 derivation in documented depth-first order; it has no time or count cutoff. */
+/**
+ * Full v1 derivation in documented depth-first order; it has no time or count cutoff.
+ *
+ * Unless `exact`, it skips two kinds of work whose candidates the validator always rejects, so
+ * the yielded sequence is unchanged: under Mixed density, gestures whose source cells miss a
+ * required duration class (no derived phrase can cover it), and candidates
+ * `quickRejectRhythmCandidate` rejects before they are frozen and validated. Skipped work records
+ * no validation codes, so a no-plan result is re-derived `exact` to report the complete code set.
+ */
 function* derive(
   input: NormalizedRhythmExpansionInput,
   observed: Set<RhythmValidationCode>,
+  exact: boolean,
 ): IterableIterator<UnindexedRhythmCandidate> {
+  const memo: ExpansionMemo = { applied: new WeakMap(), selectors: new WeakMap() }
   let hadGesture = false
   for (const gesture of enumerateGestureDerivations(input)) {
     hadGesture = true
+    if (!exact && input.noteDensity === 'Mixed' && !coversMixedDurationClasses(gesture.bars))
+      continue
     const answerBase = [copyBar(gesture.bars[0], 2), copyBar(gesture.bars[1], 3)] as const
     let hadAnswerList = false
     for (const answerList of enumerateAnswerTransformLists(
@@ -132,7 +187,7 @@ function* derive(
       const answerOnly = answerList.filter(
         (descriptor) => descriptor.roles.length === 1 && descriptor.roles[0] === 'answer',
       )
-      const afterAnswer = applyByBar(answerBase, answerOnly)
+      const afterAnswer = applyByBar(memo, answerBase, answerOnly)
       if (!afterAnswer) {
         observed.add('transform_algebra_violation')
         continue
@@ -144,6 +199,7 @@ function* derive(
         input.noteDensity,
         input.syncopation,
         answerList.filter((descriptor) => descriptor.roles.includes('syncopation')),
+        memo.selectors,
       )) {
         hadSyncopationTemplate = true
         const syncStage = [
@@ -155,24 +211,25 @@ function* derive(
           observed.add('transform_overlap_violation')
           continue
         }
-        const phrase = applyByBar(phraseBeforeSync, syncStage)
-        if (!phrase) {
+        const bars = applyByBar(memo, phraseBeforeSync, syncStage, leaveUnfrozen)
+        if (!bars) {
           observed.add('transform_algebra_violation')
           continue
         }
-        const candidate: UnindexedRhythmCandidate = deepFreeze({
+        const candidate: UnindexedRhythmCandidate = {
           grammarVersion: input.grammarVersion,
           input,
-          bars: deepFreeze(phrase),
+          bars,
           recurrence: gesture.recurrence,
-          transforms: deepFreeze(transforms),
-        })
+          transforms,
+        }
+        if (!exact && quickRejectRhythmCandidate(candidate)) continue
         const failures = validateRhythmCandidate(candidate)
         if (failures.length > 0) {
           failures.forEach((failure) => observed.add(failure))
           continue
         }
-        yield candidate
+        yield deepFreeze(candidate)
       }
       if (!hadSyncopationTemplate) observed.add('syncopation_count_violation')
     }
@@ -184,14 +241,15 @@ function* derive(
 function* candidates(
   input: NormalizedRhythmExpansionInput,
   observed: Set<RhythmValidationCode>,
+  exact = false,
 ): IterableIterator<RhythmCandidate> {
   const identities = new Set<string>()
   let candidateIndex = 0
-  for (const candidate of derive(input, observed)) {
+  for (const candidate of derive(input, observed, exact)) {
     const identity = normalizedRhythmIdentity(candidate)
     if (identities.has(identity)) continue
     identities.add(identity)
-    yield withRhythmIdentity(candidate, candidateIndex)
+    yield withRhythmIdentity(candidate, candidateIndex, identity)
     candidateIndex += 1
   }
 }
@@ -208,10 +266,15 @@ export function isNoLegalRhythmPlan(
 export function makeRhythmCandidateDomain(input: RhythmExpansionInput): RhythmPlanResult {
   const normalized = normalizeInput(input)
   const observed = new Set<RhythmValidationCode>()
-  // Exhaustion is necessary only to distinguish the typed no-plan result. A surviving
-  // probe is discarded, so published domains remain lazy and replay from the grammar.
-  const probe = candidates(normalized, observed).next()
-  if (probe.done)
+  // Exhaustion is necessary only to distinguish the typed no-plan result. A fast probe that finds
+  // nothing is re-run exactly so the no-plan result reports every validation code.
+  let probe = candidates(normalized, observed)
+  let first = probe.next()
+  if (first.done) {
+    probe = candidates(normalized, observed, true)
+    first = probe.next()
+  }
+  if (first.done)
     return deepFreeze({
       kind: 'no_legal_rhythm_plan',
       input: normalized,
@@ -221,12 +284,24 @@ export function makeRhythmCandidateDomain(input: RhythmExpansionInput): RhythmPl
         ),
       ),
     })
+  // The first replay resumes the successful probe instead of re-deriving its prefix; every later
+  // replay derives afresh from the grammar, so published domains stay lazy and replayable.
+  let resumable: { readonly first: RhythmCandidate; readonly rest: typeof probe } | undefined = {
+    first: first.value,
+    rest: probe,
+  }
   return deepFreeze({
     kind: 'rhythm_candidate_domain' as const,
     grammarVersion: normalized.grammarVersion,
     input: normalized,
     candidates: function candidateIterator() {
-      return candidates(normalized, new Set())
+      if (!resumable) return candidates(normalized, new Set())
+      const { first: resumedFirst, rest } = resumable
+      resumable = undefined
+      return (function* resumeProbe() {
+        yield resumedFirst
+        yield* rest
+      })()
     },
   })
 }
