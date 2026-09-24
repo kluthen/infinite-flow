@@ -47,7 +47,7 @@ Approach/enclosure attacks must be no longer than their target, must fit the sel
 
 ## Contour checkpoints
 
-Choose each bar's checkpoint as its first metrical-anchor attack; if both beat 1 and beat 3 qualify, use beat 1. Compare checkpoint MIDI values, not every decorative note.
+Choose each bar's checkpoint as its first fresh attack on beat 1 or beat 3; if both qualify, use beat 1. A bar whose metrical anchor is only a tie continuation has no such attack; its checkpoint is then the bar's first fresh attack. Every generated bar has at least one attack, and the phrase's first attack is on bar 1, beat 1, so every bar has exactly one checkpoint. Compare checkpoint MIDI values, not every decorative note.
 
 - Rising: checkpoints are non-decreasing and checkpoint 4 is above checkpoint 1.
 - Falling: checkpoints are non-increasing and checkpoint 4 is below checkpoint 1.
@@ -58,9 +58,22 @@ Decorative notes may move contrary to checkpoint direction. Before accepting a p
 
 ## Leap, recovery, and arpeggio state
 
-Measure adjacent sounding-note intervals in semitones; rests do not interrupt adjacency. A step is `1-2`, skip `3-4`, leap `5-6`, and large leap `7-12`. Apply the exact level caps and budgets in [Melodic Control Models: Leap budgets](melodic-control-models.md#leap-budgets-preserve-direction-within-the-selected-register-window).
+Measure adjacent sounding-note intervals in semitones; rests do not interrupt adjacency. A step is `1-2`, skip `3-4`, leap `5-6`, and large leap `7-12`; a repeated pitch (`0`) has no direction. Apply the exact level caps and leap budgets in [Melodic Control Models: Leap budgets](melodic-control-models.md#leap-budgets-preserve-direction-within-the-selected-register-window).
 
-Planner state includes total leaps, total large leaps, per-bar/phrase arpeggio runs, pending recovery direction, and active arpeggio run. After a large leap, require an opposite-direction `1-2` step or `3-4` short contrary move on the next sounding note. A recognized arpeggio contains `2-3` consecutive sounding chord-tone notes under one unchanged harmony, connected by `1-2` adjacent same-direction skip/leap intervals. Every note must be a chord tone; chromatic ornaments and non-chord tones cannot join it. A two-note recognized run has one interval. Two same-direction skip/leap intervals necessarily require three sounding chord-tone notes and must be recognized as that complete three-note run before the second interval is committed; otherwise the second interval is invalid. A recognized run defers any recovery debt until its final note.
+**Recovery debt comes only from a large leap.** A skip, a leap, or an arpeggio run never creates debt on its own. Recovery is the next interval moving in the opposite direction by `1-4` semitones. A repeated pitch does not recover. The final sounding event cannot carry debt.
+
+**Arpeggio run.** A recognized run is exactly three consecutive sounding notes that are all chord tones of one unchanged harmony, connected by two same-direction intervals of `3` or more semitones. A single interval between two chord tones is ordinary motion governed only by the cap and leap budget: it is never counted as a run and never consumes run budget. Two consecutive same-direction intervals of `3` or more semitones are legal only as a recognized run; otherwise that second interval is invalid. A third consecutive same-direction interval of `3` or more semitones is always invalid, because runs have at most three notes. Chromatic ornaments and non-chord tones cannot join a run.
+
+**Deferral.** Where the level permits deferral, a large leap inside a recognized run makes its debt due on the note after the run's final note instead of on the next note. Several large leaps in one run make one debt. Where deferral is not permitted, a large leap must recover on the next note, so a run cannot contain one.
+
+| Level   | Recognized runs                                                                                | Large-leap recovery                               |
+| ------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Smooth  | At most 1 per phrase (skip intervals only, because of the 4-semitone cap).                     | Not applicable: no large leaps.                   |
+| Shaped  | At most 1 per phrase.                                                                          | Immediate; no deferral.                           |
+| Leaping | At most 1 per phrase.                                                                          | Immediate, or deferred to after a recognized run. |
+| Angular | At most 2 per phrase and at most 1 per measure; a run counts in the measure of its first note. | Immediate, or deferred to after a recognized run. |
+
+Planner state includes total leaps, total large leaps, per-measure/phrase run counts, the pending recovery (direction and due position), and the open two-note prefix that may still become a run.
 
 Arpeggio chaos ranks only legal chord-tone paths. Lower values prefer nearest chord tone and consistent ordering; higher values prefer reordering and interval contrast within the selected leap/arpeggio ceilings. It cannot turn an unrecognized leap chain into an arpeggio after the fact. Do not begin a recovery debt or arpeggio run unless the remaining range, window, contour, rhythm, harmony, and endpoint domains contain its completion.
 
@@ -107,6 +120,10 @@ Typed failures distinguish:
 
 No failure path changes the seed, retries nondeterministically, relaxes a control, widens a range/window, removes a rest, changes profile, returns a partial phrase, or substitutes a previous result as a new success.
 
+### Generation search ledger (engineering policy, `generation-search-v1`)
+
+Each window search runs under its own independent, wall-clock-independent fuel ledger: one fresh `FuelLedger` per resolved window, opened under a versioned `GenerationSearchPolicy` whose default allowance (`DEFAULT_WINDOW_SEARCH_FUEL`) is `250_000` units. Spending is 1 unit per visited harmony/rhythm pair, 1 unit per attempted concrete tension binding, plus every pitch search's own `fuelUsed` (its `advance` call count); the pitch search itself is bound to whatever fuel remains in the window's ledger at the time it is invoked. Any refusal of further work — remaining fuel below 1 while candidate space remains, exactly 0 remaining immediately after charging a binding, or the pitch search itself returning `search_limit_exceeded` — resolves the window as `search_limit_exceeded`; only a search that runs out of candidate space to try, never fuel, resolves it as exhausted with no legal plan. This allowance is a calibration value, not musical theory: it is sized from measurement (observed successful-window fuel spend and observed pure-pair-exhaustion bounds), not from any rule about what is or isn't a legal phrase, and it may be revised independently of every other policy in this document.
+
 ## Independent whole-result validation
 
 Validation reconstructs facts from the immutable result rather than trusting planner annotations:
@@ -120,6 +137,15 @@ Validation reconstructs facts from the immutable result rather than trusting pla
 - every scheduled local tension resolves before the final sounding event;
 - final sounding pitch/harmony satisfy [open-ending policy](harmony-planner-policy.md#open-ending);
 - same outer intent and seed reproduce successful-window set, resolved core request/register, harmony/rhythm iteration, pitch tie keys, timeline, annotations, and failure if any.
+
+The pitch-phrase validator applies these readings, and the planner must match them:
+
+- Free diatonic passing and neighbor tones are ordinary vocabulary and don't count as tension figures.
+  - A passing tone is entered and left by collection steps in the same direction and lands on a chord tone.
+  - A neighbor leaves a chord tone by a collection step and returns to the same MIDI value.
+- Appoggiaturas and two-note approaches are legal only as the bound tension figure. An appoggiatura is entered by a jump of three or more semitones.
+- The leap count includes large leaps. Recovery debt applies only as described under [leap, recovery, and arpeggio state](#leap-recovery-and-arpeggio-state).
+- Harmony is located by absolute beat. A sounding attack that no harmony event covers is a planner defect, not a validation failure.
 
 Tests should include boundary MIDI values for all adopted windows, every collection/profile/contour/leapiness combination in representative seed matrices, and regression seeds for every discovered failure. Include Varying fixtures for every successful-window subset, no-success, and search-limit indeterminacy. Statistical musical quality is not an invariant: evaluate template weights, candidate variety, and control perceptibility in listening tests.
 

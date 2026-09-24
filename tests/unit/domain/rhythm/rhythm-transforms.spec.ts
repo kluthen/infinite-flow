@@ -90,6 +90,9 @@ describe('rhythm-mvp-v1 bounded transforms', () => {
       .filter((descriptor) => descriptor.case === 'swap_final_pattern')
     expect(swaps).toHaveLength(1)
     expect(swaps[0]!.barIndex).toBe(3)
+    // Two beat-3 cells are eligible here. The answer swap must select the final one, not the
+    // first beat-3 cell encountered by a forward scan.
+    expect(swaps[0]!.sourceAddresses[1]).toMatchObject({ beatIndex: 3, cellIndex: 1 })
   })
 
   it('applies a bar-4 final-pattern swap locally without rebuilding unrelated merges', () => {
@@ -198,9 +201,14 @@ describe('rhythm-mvp-v1 bounded transforms', () => {
         'Occasional offbeats',
       ),
     ]
-    expect(lists.findIndex((list) => list.length === 2)).toBeGreaterThan(
-      lists.findLastIndex((list) => list.length === 1),
-    )
+    let finalSingle = -1
+    for (let index = lists.length - 1; index >= 0; index -= 1) {
+      if (lists[index]!.length === 1) {
+        finalSingle = index
+        break
+      }
+    }
+    expect(lists.findIndex((list) => list.length === 2)).toBeGreaterThan(finalSingle)
     const dual = lists.flatMap((list) => list).find((descriptor) => descriptor.roles.length === 2)
     expect(dual?.roles).toEqual(['answer', 'syncopation'])
   })

@@ -1,4 +1,5 @@
 import type {
+  NominalCell,
   RhythmCandidate,
   RhythmValidationCode,
   UnindexedRhythmCandidate,
@@ -33,6 +34,7 @@ const CODE_ORDER: readonly RhythmValidationCode[] = [
   'attack_count_changed',
   'rest_total_changed',
   'metrical_anchor_missing',
+  'first_note_off_downbeat',
   'active_anchor_ratio_violation',
   'invalid_tie_chain',
   'recurrence_witness_invalid',
@@ -126,7 +128,13 @@ function hasValidNominalProvenance(candidate: UnindexedRhythmCandidate): boolean
 /** The answer-ending policy deliberately ignores variation before the final ending unit. */
 function canonicalEndingSignature(bar: UnindexedRhythmCandidate['bars'][number]): string {
   const sourceCells = bar.events.flatMap((event) => event.sourceCells)
-  const finalCellIndex = sourceCells.findLastIndex((cell) => cell.kind === 'note')
+  let finalCellIndex = -1
+  for (let index = sourceCells.length - 1; index >= 0; index -= 1) {
+    if (sourceCells[index]!.kind === 'note') {
+      finalCellIndex = index
+      break
+    }
+  }
   const finalCell = sourceCells[finalCellIndex]
   if (!finalCell) return 'no_final_non_rest_cell'
   const renderedIndex = bar.events.findIndex((event) =>
@@ -159,16 +167,15 @@ function canonicalEndingSignature(bar: UnindexedRhythmCandidate['bars'][number])
 }
 
 function sourceCoordinates(bar: UnindexedRhythmCandidate['bars'][number]): Map<string, number> {
-  const cells = new Map<
-    string,
-    { readonly beatIndex: number; readonly cellIndex: number; readonly durationTicks: number }
-  >()
+  const cells = new Map<string, NominalCell>()
   for (const event of bar.events)
     for (const cell of event.sourceCells) cells.set(addressKey(cell.address), cell)
   let tick = 0
   const coordinates = new Map<string, number>()
   for (const [key, cell] of [...cells.entries()].sort(
-    ([, left], [, right]) => left.beatIndex - right.beatIndex || left.cellIndex - right.cellIndex,
+    ([, left], [, right]) =>
+      left.address.beatIndex - right.address.beatIndex ||
+      left.address.cellIndex - right.address.cellIndex,
   )) {
     coordinates.set(key, tick)
     tick += cell.durationTicks
@@ -270,6 +277,7 @@ function hasRenderedTransformAlgebra(candidate: UnindexedRhythmCandidate): boole
 
 /** Independently report every applicable invariant failure in policy-defined stable order. */
 // @spec-link [[module_rhythm_domain_validation]]
+// @spec-link [[rule_phrase_starts_on_downbeat]]
 export function validateRhythmCandidate(
   candidate: UnindexedRhythmCandidate,
 ): readonly RhythmValidationCode[] {
@@ -298,6 +306,16 @@ export function validateRhythmCandidate(
       )
     )
       failures.add('metrical_anchor_missing')
+    if (bar.barIndex === 0) {
+      const firstEvent = bar.events[0]
+      if (
+        !firstEvent ||
+        firstEvent.kind !== 'note' ||
+        firstEvent.startTick !== 0 ||
+        firstEvent.tieContinuation
+      )
+        failures.add('first_note_off_downbeat')
+    }
     const attacks = bar.events.filter(
       (event) => event.kind === 'note' && !event.tieContinuation,
     ).length
@@ -339,7 +357,7 @@ export function validateRhythmCandidate(
   const syncopationDescriptors = candidate.transforms.filter((descriptor) =>
     descriptor.roles.includes('syncopation'),
   )
-  const expectedSyncopation =
+  const expectedSyncopation: readonly [number, number] =
     candidate.input.syncopation === 'Straight'
       ? [0, 0]
       : candidate.input.syncopation === 'Occasional offbeats'

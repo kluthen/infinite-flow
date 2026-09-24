@@ -4,6 +4,7 @@ status: DRAFT
 version: 0.1
 priority: 1
 dependents:
+  - [[entity_pitch_candidate_domain]]
   - [[service_generation_orchestration]]
 tags: event-schema,partial-impl-step5
 parents:

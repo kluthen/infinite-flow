@@ -196,6 +196,7 @@ export type RhythmValidationCode =
   | 'attack_count_changed'
   | 'rest_total_changed'
   | 'metrical_anchor_missing'
+  | 'first_note_off_downbeat'
   | 'active_anchor_ratio_violation'
   | 'invalid_tie_chain'
   | 'recurrence_witness_invalid'

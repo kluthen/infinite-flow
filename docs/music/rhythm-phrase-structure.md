@@ -43,6 +43,10 @@ No bar may be all rest, and no single rest may exceed `8` ticks. Rest starts/dur
 
 Construct density and silence jointly. Reject a skeleton if its per-bar sounding-attack band, phrase rest budget, anchor rule, or answer relationship cannot all hold. Do not clamp silence, lower density, fill rests for tension, or convert a requested rest into a held note. The numerical rest bands are calibration policy; retain regression fixtures if later listening changes them.
 
+The silence table sets per-bar and phrase-level minimums only. It never fixes the number of rest events, so a Breath-heavy bar may hold several rests. The v1 implementation first required exactly one rest event per gesture bar, which excluded most Breath-heavy settings. Step 7 removed that restriction.
+
+Known unsupported settings (v1): even with that fix, six density/silence/syncopation settings produce no legal rhythm for any tension arc: Quarter + Sparse + Active displacement, Quarter + Breath-heavy + Active displacement, Sixteenth + Sparse + Active displacement, Sixteenth + Conversational + Active displacement, Sixteenth + Breath-heavy + Occasional offbeats, and Sixteenth + Breath-heavy + Active displacement. The Sixteenth + Active displacement cases need more tied and displaced cells than the one-merge-per-gesture limit below allows; the others have no identified cause yet. These settings are grammar limits, not musical rules. Generation is blocked for them per [[rule_unsupported_rhythm_settings_block_generation]] until a later grammar version resolves them.
+
 ## Syncopation and ties
 
 Syncopation transforms a legal nominal skeleton and preserves its number of sounding attacks, total rest ticks, and total duration. Let adjacent events be `L=[a,b)` and `R=[b,c)`. Moving their shared boundary by signed integer `delta` gives `b' = b + delta`, `duration(L)' = duration(L) + delta`, and `duration(R)' = duration(R) - delta`. A positive `delta` moves `R`'s start later; a negative `delta` moves it earlier. The transform is legal only when every resulting duration is a positive integer and all affected boundaries remain inside the bar.
@@ -66,9 +70,19 @@ A tie joins adjacent note segments of the same future pitch and produces one sou
 
 ## Metrical anchors
 
-Each bar must contain at least one sounding attack at tick `0` or `8` (beat 1 or 3). A tie continuing through that tick, a rest beginning there, or an attack moved away from it does not count. For active displacement, anchored attacks must be at least as numerous as syncopated attacks in that bar.
+Each bar must contain at least one note sounding at tick `0` or `8` (beat 1 or 3): a fresh attack, or a tie continuation carrying a note through that beat. A rest beginning there, or an attack moved away from it, does not count. For active displacement, anchored attacks must be at least as numerous as syncopated attacks in that bar.
 
 This exact definition is project policy for testability. It is narrower than every musical meaning of metric accent, but it prevents the selected syncopation from erasing 4/4 orientation.
+
+The phrase's first event is always a fresh attack at bar 1, tick `0`: the phrase never opens with a rest or a pickup. See [phrase starts on the downbeat](../rule_phrase_starts_on_downbeat.atom.md).
+
+> **Future note (no action planned).** The downbeat-start rule may be dropped later. Dropping it only lets bar 1 open with a rest or an offbeat attack. That stays inside the current model, and the change is small:
+> - remove the rhythm planner's first-note filter and the `first_note_off_downbeat` validation check, which are kept isolated for this purpose;
+> - remove the matching tests and the rule atom.
+>
+> Pitch planning already copes: a bar with no fresh beat-1/beat-3 attack takes its first fresh attack as the contour checkpoint, and no bar may be all rest.
+>
+> A true anacrusis, meaning notes *before* bar 1, is a different and much larger feature. It breaks the four tiled 4/4 bars contract and affects the event timeline, harmony alignment, and notation. It is not expected in the foreseeable future.
 
 ## Four-bar gesture and answer
 
@@ -120,7 +134,7 @@ Bars 3 and 4 start as exact copies of the fully merged bars 1 and 2. Enumerate a
 | `redistribute_note_pair` | In bars 3-4, choose two consecutive independent attacked note events spanning `[a,b)` and `[b,c)`. Set `b'=b+delta`, changing the left duration by `+delta` and right duration by `-delta`; enumerate `delta=-quantum` before `+quantum`, keep `b'` on the selected density's nominal grid, and require both durations positive. This preserves span, attack count, event kinds, and rest ticks and is not a syncopation event. For Mixed the quantum is one tick, but `b'` must coincide with a boundary admitted by the flattened Mixed source-cell provenance. |
 | `swap_final_pattern` | In bar 4, choose two equal-duration source cells with opposite kinds, one of them in the final beat, neither touched by a merge or prior transform, and exchange `N` and `R`. Boundaries, attack count, and rest ticks are unchanged. |
 
-An off-grid `translate_interior_rest` or any `displace_attack` is both an answer transform and a syncopation transform: one descriptor is stored once, applied once, and counted once in each applicable checklist. A Straight `translate_interior_rest`, `redistribute_note_pair`, and `swap_final_pattern` are answer-only transforms. Enumerate potential descriptors by answer bar, original left boundary, kind in the table order, then delta. To bound v1, retain only the first legal target for each `(kind,delta)` pair; `swap_final_pattern` retains its first legal cell pair in lexicographic address order. Apply answer-only descriptors first in descriptor order, then apply the complete syncopation set as described below. All addresses refer to the immutable pre-transform nominal source coordinates; a list is illegal if an earlier transform would make a later descriptor's recorded algebra false, with no fallback to a later target.
+An off-grid `translate_interior_rest` or any `displace_attack` is both an answer transform and a syncopation transform: one descriptor is stored once, applied once, and counted once in each applicable checklist. A Straight `translate_interior_rest`, `redistribute_note_pair`, and `swap_final_pattern` are answer-only transforms. Enumerate potential descriptors by answer bar, original left boundary, kind in the table order, then delta. To bound v1, retain only the first legal target for each `(kind,delta)` pair; `swap_final_pattern` retains one legal cell pair: scan bar-4 beat-3 cells from the end of the bar backward and, for the first such right cell that has a match, take the first matching left cell in address order. This order is a v1 correction recorded during Step 7 with user sign-off (2026-09-24); it replaces the earlier lexicographic-address rule, which let the swap shadow bar 2's own ending and left Sixteenth/Conversational/Occasional offbeats without a downbeat-starting phrase. It keeps the grammar version `rhythm-mvp-v1`. Apply answer-only descriptors first in descriptor order, then apply the complete syncopation set as described below. All addresses refer to the immutable pre-transform nominal source coordinates; a list is illegal if an earlier transform would make a later descriptor's recorded algebra false, with no fallback to a later target.
 
 After answer transforms, at least half of the gesture attack positions, and at least two positions, must still be shared before syncopation-only displacement. The final non-rest cell or trailing-rest pattern of bar 4 must differ from bar 2. A recurrence substitution is not an answer transform, and a syncopation applied correspondingly to gesture and answer does not by itself satisfy the answer-transform count.
 

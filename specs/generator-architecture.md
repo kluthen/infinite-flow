@@ -1,6 +1,6 @@
 # Generator Architecture
 
-Status: v0.5 — Steps 2-5 are implemented: event/deterministic foundations, declarative profile/register data, typed controls/outer intent/session coordination, and an immutable structural harmony candidate-domain seam. Rhythm/pitch planner seams, resolved request construction, notation, and workspace UI remain architectural intent.
+Status: v0.7 — Steps 2-7 are implemented: event/deterministic foundations, declarative profile/register data, typed controls/outer intent/session coordination, an immutable structural harmony candidate-domain seam, the rhythm and phrase-structure planner (Step 6), and the pitch planner/validation together with generation orchestration and independent whole-result validation (Step 7). Notation (Step 8) and workspace UI (Step 9) remain planned.
 
 ## Architectural Intent
 

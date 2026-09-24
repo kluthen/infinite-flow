@@ -6,7 +6,7 @@ layer: BUSINESS
 parents:
   - [[req_four_measure_phrase]]
 type: RULE
-version: 0.1
+version: 0.2
 priority: 2
 tags: melody,leaps,playability
 dependents: []
@@ -18,10 +18,10 @@ dependents: []
 Make larger melodic leaps recover in a playable, directional way.
 
 ## THE RULE / LOGIC
-After a large leap or a recognized same-direction chord-tone run, recovery is an opposite-direction step of 1-2 semitones or short contrary motion of 3-4 semitones. A recognized arpeggio is a coherent 2-3-note same-direction chord-tone run under one harmony; an unrecognized chain of two same-direction leaps is invalid. The planner reserves enough active range for the selected contour and required recovery before accepting an outward leap.
+Only a large leap (7-12 semitones) creates recovery debt; skips, leaps, and arpeggio runs never create debt on their own. Recovery is the next interval moving in the opposite direction by 1-4 semitones. By default the debt is due on the next sounding note. At Leaping and Angular, a large leap inside a recognized three-note chord-tone run defers its debt to the note after the run's final note; Shaped always recovers immediately and Smooth never has debt. The final sounding event cannot carry debt. The planner reserves enough active range for the selected contour and required recovery before accepting an outward leap.
 
 ## TECHNICAL INTERFACE
 Leapiness and register controls constrain melodic interval selection.
 
 ## EXPECTATION
-A phrase with a large leap or recognized arpeggio run contains the required recovery. It contains no unrecognized chain of two same-direction leaps, and selected contour remains feasible after every accepted outward leap.
+Every large leap is followed by its recovery, either on the next sounding note or, where deferral is permitted, directly after the recognized run containing it. The final sounding event carries no pending recovery, and selected contour remains feasible after every accepted outward leap.

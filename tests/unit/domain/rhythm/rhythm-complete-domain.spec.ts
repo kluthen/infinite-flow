@@ -1,7 +1,6 @@
 // @test-link [[api_rhythm_domain_expansion]]
 // @test-link [[entity_rhythm_candidate_domain]]
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 import { isNoLegalRhythmPlan, makeRhythmCandidateDomain } from '@/domain/rhythm/rhythm-planner'
@@ -137,9 +136,6 @@ describe('rhythm-mvp-v1 complete derivation domain', () => {
   })
 
   it('does not accept the provisional all-one manifest as a complete-domain fixture', () => {
-    const manifest = JSON.parse(
-      readFileSync('tests/unit/domain/rhythm/fixtures/rhythm-mvp-v1-manifest.json', 'utf8'),
-    ) as { entries: Record<string, { count: number; sha256: string }> }
     const domain = candidates({
       grammarVersion: 'rhythm-mvp-v1',
       noteDensity: 'Eighth',
@@ -148,9 +144,13 @@ describe('rhythm-mvp-v1 complete derivation domain', () => {
       tensionArc: 'Settled',
     })
     const payload = domain.map((candidate) => candidate.identity).join('\n') + '\n'
+    const provisionalAllOne = {
+      count: 1,
+      sha256: createHash('sha256').update(`${domain[0]!.identity}\n`, 'utf8').digest('hex'),
+    }
     expect({
       count: domain.length,
       sha256: createHash('sha256').update(payload, 'utf8').digest('hex'),
-    }).not.toEqual(manifest.entries['Eighth|Sparse|Straight|Settled'])
+    }).not.toEqual(provisionalAllOne)
   })
 })

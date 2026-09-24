@@ -6,6 +6,8 @@ import { normalizedRhythmIdentity } from '@/domain/rhythm/rhythm-identity'
 import { isNoLegalRhythmPlan, makeRhythmCandidateDomain } from '@/domain/rhythm/rhythm-planner'
 import { validateRhythmCandidate } from '@/domain/rhythm/rhythm-validator'
 import type {
+  BoundaryTransformDescriptor,
+  InteriorRestTransformDescriptor,
   RhythmCandidate,
   RhythmCandidateDomain,
   RhythmExpansionInput,
@@ -42,6 +44,7 @@ const candidateCodes = [
   'attack_count_changed',
   'rest_total_changed',
   'metrical_anchor_missing',
+  'first_note_off_downbeat',
   'active_anchor_ratio_violation',
   'invalid_tie_chain',
   'recurrence_witness_invalid',
@@ -89,7 +92,7 @@ function answerOnly(descriptor: RhythmTransformDescriptor): boolean {
 
 describe('rhythm validation', () => {
   it('returns stable ordered failures and never repairs malformed candidates', () => {
-    const candidate = {
+    const candidate: UnindexedRhythmCandidate = {
       grammarVersion: 'rhythm-mvp-v1',
       input: baseInput,
       bars: [],
@@ -146,7 +149,8 @@ describe('rhythm validation', () => {
         mutate: (candidate) => {
           candidate.bars[0]!.events[0]!.startTick = 1
         },
-        expected: ['invalid_measure_tiling'],
+        // Displacing bar 0's first event off tick 0 also breaks the phrase-opening downbeat.
+        expected: ['invalid_measure_tiling', 'first_note_off_downbeat'],
       },
       {
         name: 'phrase duration',
@@ -202,12 +206,14 @@ describe('rhythm validation', () => {
         mutate: (candidate) => {
           for (const event of candidate.bars[0]!.events) event.kind = 'rest'
         },
+        // Turning bar 0's events all to rests also removes its downbeat attack.
         expected: [
           'density_attack_band_violation',
           'silence_budget_violation',
           'all_rest_measure',
           'rest_total_changed',
           'metrical_anchor_missing',
+          'first_note_off_downbeat',
         ],
       },
       {
@@ -316,7 +322,8 @@ describe('rhythm validation', () => {
             if (event.kind === 'note' && (event.startTick === 0 || event.startTick === 8))
               event.kind = 'rest'
         },
-        expected: ['rest_total_changed', 'metrical_anchor_missing'],
+        // Clearing every anchor note also clears bar 0's own downbeat attack at tick 0.
+        expected: ['rest_total_changed', 'metrical_anchor_missing', 'first_note_off_downbeat'],
       },
       {
         name: 'Active anchor ratio',
@@ -332,7 +339,9 @@ describe('rhythm validation', () => {
         mutate: (candidate) => {
           firstEvent(candidate, 'note').tieContinuation = true
         },
-        expected: ['attack_count_changed', 'invalid_tie_chain'],
+        // Bar 0's first note is also the phrase's downbeat attack, so tying it off also
+        // removes the fresh downbeat note attack.
+        expected: ['attack_count_changed', 'first_note_off_downbeat', 'invalid_tie_chain'],
       },
       {
         name: 'exact recurrence witness',
@@ -418,6 +427,24 @@ describe('rhythm validation', () => {
       expect(actual, testCase.name).toEqual(testCase.expected)
     }
     expect([...exercised].sort()).toEqual([...candidateCodes].sort())
+  })
+
+  // @test-link [[rule_phrase_starts_on_downbeat]]
+  it('rejects a phrase whose bar 0 opens on a rest, a late note attack, or a tie continuation', () => {
+    const restOpening = mutableCandidate()
+    restOpening.bars[0]!.events[0]!.kind = 'rest'
+    expect(validateRhythmCandidate(restOpening)).toContain('first_note_off_downbeat')
+
+    const lateOpening = mutableCandidate()
+    lateOpening.bars[0]!.events[0]!.startTick = 2
+    expect(validateRhythmCandidate(lateOpening)).toContain('first_note_off_downbeat')
+
+    const tiedOpening = mutableCandidate()
+    tiedOpening.bars[0]!.events[0]!.tieContinuation = true
+    expect(validateRhythmCandidate(tiedOpening)).toContain('first_note_off_downbeat')
+
+    const onTime = mutableCandidate()
+    expect(validateRhythmCandidate(onTime)).not.toContain('first_note_off_downbeat')
   })
 
   it('reports independently constructed domain duplicate, index, identity, and replay failures', () => {
@@ -582,7 +609,9 @@ describe('rhythm validation', () => {
     expect(validateRhythmCandidate(ending)).toContain('answer_variation_missing')
 
     const variedEnding = mutableCandidate()
-    const finalNote = variedEnding.bars[3]!.events.findLast((event) => event.kind === 'note')!
+    const finalNote = [...variedEnding.bars[3]!.events]
+      .reverse()
+      .find((event) => event.kind === 'note')!
     finalNote.durationTicks += 1
     const followingRest =
       variedEnding.bars[3]!.events[variedEnding.bars[3]!.events.indexOf(finalNote) + 1]
@@ -595,14 +624,19 @@ describe('rhythm validation', () => {
     const overlap = mutableCandidate()
     const original = overlap.transforms[0]!
     const bar = overlap.bars[original.barIndex]!
-    const interior = {
-      ...original,
+    const interior: Mutable<InteriorRestTransformDescriptor> = {
+      grammarVersion: original.grammarVersion,
       case: 'interior_rest' as const,
+      barIndex: original.barIndex,
+      boundaryTick: original.boundaryTick,
+      delta: original.delta,
+      transformedBoundaries: [...original.transformedBoundaries],
       affectedAddresses: [
         original.affectedAddresses[0],
         original.affectedAddresses[1],
         bar.events.flatMap((event) => event.sourceCells)[2]!.address,
-      ] as const,
+      ],
+      roles: [...original.roles],
     }
     const attacked = interior.affectedAddresses[2]
     const another = bar.events
@@ -612,11 +646,17 @@ describe('rhythm validation', () => {
           cell.address.beatIndex !== attacked.beatIndex ||
           cell.address.cellIndex !== attacked.cellIndex,
       )!.address
-    overlap.transforms.push(interior, {
-      ...interior,
+    const noteToNote: Mutable<BoundaryTransformDescriptor<'note_to_note'>> = {
+      grammarVersion: interior.grammarVersion,
       case: 'note_to_note',
+      barIndex: interior.barIndex,
+      boundaryTick: interior.boundaryTick,
+      delta: interior.delta,
+      transformedBoundaries: [...interior.transformedBoundaries],
       affectedAddresses: [attacked, another],
-    })
+      roles: [...interior.roles],
+    }
+    overlap.transforms.push(interior, noteToNote)
     expect(validateRhythmCandidate(overlap)).toContain('transform_overlap_violation')
   })
 })

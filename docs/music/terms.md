@@ -24,7 +24,7 @@ Status: draft v0.1
 
 - **Subdivision:** how each beat is divided, such as quarters, eighths, or sixteenths.
 - **Syncopation:** emphasis or onset on a weak part of the beat, or a sustain that crosses a stronger beat.
-- **Metrical anchor:** broadly, an event that reinforces the perceived meter. For first-release validation it means exactly a sounding attack at bar-relative tick `0` or `8` (beat 1 or 3); a tie continuation or rest at that tick does not count.
+- **Metrical anchor:** broadly, an event that reinforces the perceived meter. For first-release validation it means exactly a note event starting at bar-relative tick `0` or `8` (beat 1 or 3), either a fresh attack or a tie continuation carrying a note through that beat; a rest at that tick does not count.
 - **Silence density:** the amount of intentional rests; it creates breathing space and shapes musical gestures.
 
 ## Jazz Extension
