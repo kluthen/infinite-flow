@@ -1,6 +1,6 @@
 # Generator Contract
 
-Status: v0.7 — Steps 2-7 are implemented: immutable event/request foundations, declarative instrument/register policy, typed controls/outer intent/session coordination, the seed-free structural harmony candidate domain, the rhythm planner (Step 6), and resolved request construction with pitch orchestration (Step 7). Notation (Step 8) and workspace UI (Step 9) remain planned.
+Status: v0.8 — Steps 2-8 are implemented: immutable event/request foundations, declarative instrument/register policy, typed controls/outer intent/session coordination, the seed-free structural harmony candidate domain, the rhythm planner (Step 6), resolved request construction with pitch orchestration (Step 7), and the written-notation transformation with VexFlow engraving (Step 8). Workspace UI (Step 9) remains planned.
 
 ## Purpose
 
@@ -36,7 +36,7 @@ The implemented core result (`GenerationResult`) is an immutable envelope around
 
 Musical annotations are not yet attached to the core concert timeline. Step 5 now separately returns a structural harmony candidate domain; Step 7 will choose one candidate, bind it to rhythm, and attach the resulting facts to generated events. The event shape already reserves an optional, free-form annotations slot on each note and rest event so that later work can attach these without a schema change.
 
-The result does not contain rendered staff symbols, written pitches, MIDI device messages, audio scheduling timestamps, or scoring state. Notation is expected to derive written pitch from the result and the active transposition choice once it exists. Every returned result fills its requested meter exactly: measure-tiling and timeline-structure validation reject any candidate that does not, and hard range constraints are enforced once instrument-profile ranges exist (Step 3). Generation always fails explicitly — as one of the typed failures below — rather than returning an invalid or partial phrase.
+The result does not contain rendered staff symbols, written pitches, MIDI device messages, audio scheduling timestamps, or scoring state. Notation derives written pitch, spelling, and chord symbols from the result, the intent's tonal context, the selected harmony provenance, and the active display convention, without changing any of them (see docs/notation-engraving.md). Every returned result fills its requested meter exactly: measure-tiling and timeline-structure validation reject any candidate that does not, and hard range constraints are enforced once instrument-profile ranges exist (Step 3). Generation always fails explicitly — as one of the typed failures below — rather than returning an invalid or partial phrase.
 
 ## Event Shapes
 

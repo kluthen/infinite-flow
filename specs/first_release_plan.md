@@ -11,7 +11,7 @@ The authoritative product inputs are [the first-release master specification](fi
 ## Technology and Delivery Decisions
 
 - Use Vue 3, strict TypeScript, Vite, Tailwind 4, Vitest, Vue Test Utils, Playwright, and `@axe-core/playwright`.
-- Use pinned VexFlow 5 through a narrow SVG engraving adapter. Written notation is derived from the immutable concert timeline and must fail explicitly when it cannot satisfy the one-system legibility contract.
+- Use pinned VexFlow 5 through a narrow SVG engraving adapter. Written notation is derived from the immutable concert timeline and must fail explicitly when it cannot satisfy the legibility contract: one staff system, or two aligned two-measure systems on the landscape phone layout (below `64rem`).
 - Use hand-written boundary parsers and invariant validators for the closed internal event model, plus a small documented deterministic 32-bit PRNG with golden tests.
 - Keep session coordination in a root-created composable. Do not add Pinia unless later scope introduces independent global stores.
 - Use `vite-plugin-pwa` only to precache immutable application assets. Do not place end-user or session state in localStorage, sessionStorage, IndexedDB, or cache entries.
