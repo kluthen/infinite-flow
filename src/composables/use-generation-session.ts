@@ -10,15 +10,27 @@ import {
   applyMusicalProfile,
   applyNonProfileControlValue,
 } from '@/domain/controls/profile-selection'
+import { isUnsupportedRhythmSetting } from '@/domain/controls/unsupported-rhythm-settings'
 import {
   type GenerationIntent,
   type GenerationIntentProviders,
   createGenerationIntent,
 } from '@/domain/generation/generation-intent'
 import type { NotationMode } from '@/domain/notation/notation-mode'
+import type { InstrumentProfileId } from '@/domain/profile/instrument-profile'
+import type { Seed } from '@/domain/random/seed'
+import {
+  createSelectInstrumentProfileAction,
+  type ProfileSelectionOutcome,
+  type SessionProfileSwitchDecision,
+} from './generation-session-profile-switch'
 
 export type ThemePreference = 'System' | 'Light' | 'Dark'
 export type { NotationMode } from '@/domain/notation/notation-mode'
+export type {
+  ProfileSelectionOutcome,
+  SessionProfileSwitchDecision,
+} from './generation-session-profile-switch'
 export type SessionOperation = 'idle' | 'generating' | 'notating'
 
 export interface PresentationSettings {
@@ -44,12 +56,15 @@ export interface GenerationSessionActions {
     value: GenerationControls[K],
   ) => boolean
   readonly selectMusicalProfile: (profile: MusicalProfile) => boolean
+  readonly selectInstrumentProfile: (id: InstrumentProfileId) => Promise<ProfileSelectionOutcome>
   readonly setTheme: (theme: ThemePreference) => boolean
   readonly setNotationMode: (notationMode: NotationMode) => Promise<boolean>
   readonly generate: () => Promise<boolean>
   readonly regenerate: () => Promise<boolean>
   readonly retryGeneration: () => Promise<boolean>
   readonly retryNotation: () => Promise<boolean>
+  readonly reportNotationFailure: (error: Error) => boolean
+  readonly reportNotationRecovered: () => boolean
 }
 
 export interface GenerationSession<TResult> {
@@ -61,14 +76,28 @@ export interface CreateGenerationSessionOptions<TResult> {
   readonly providers: GenerationIntentProviders
   readonly generate: (intent: GenerationIntent) => Promise<TResult>
   readonly notate: (result: TResult, requestedMode: NotationMode) => Promise<void>
+  readonly evaluateProfileSwitch: (
+    result: TResult,
+    nextControls: GenerationControls,
+    freshSeed: Seed,
+  ) => SessionProfileSwitchDecision
+}
+
+/** A programming-usage error: a caller used a session action against its documented contract. */
+export class SessionUsageError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'SessionUsageError'
+  }
 }
 
 /**
  * Internal mutable mirror of `GenerationSessionState`: the public interface is readonly for
- * consumers, but this module owns the fields and must be able to replace them.
+ * consumers, but this module owns the fields and must be able to replace them. Exported so the
+ * sibling profile-switch module can share the same reactive state object.
  */
 // @spec-link [[service_workspace_session_flow]]
-type MutableGenerationSessionState<TResult> = {
+export type MutableGenerationSessionState<TResult> = {
   -readonly [K in keyof GenerationSessionState<TResult>]: GenerationSessionState<TResult>[K]
 }
 
@@ -80,6 +109,11 @@ const PROFILE_CONTROL_KEYS = new Set<keyof ProfileControlledValues>([
   'contour',
   'register',
 ])
+
+/** Normalize an unknown caught value to an Error without swallowing a non-Error throw's message. */
+function toError(error: unknown): Error {
+  return error instanceof Error ? error : new Error(String(error))
+}
 
 /**
  * Root composition boundary: call once from application bootstrap and pass the returned readonly
@@ -105,12 +139,23 @@ export function createGenerationSession<TResult>(
     return state.operation === 'idle'
   }
 
+  /** True when the current controls' rhythm combination has no legal four-bar plan and must not start generation. */
+  // @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
+  function isBlockedByUnsupportedRhythm(): boolean {
+    return isUnsupportedRhythmSetting(state.controls)
+  }
+
   /** Manual controlled edits become custom; all other controls retain the current selection state. */
   // @spec-link [[module_profile_control_customization]]
   function setControl<K extends keyof GenerationControls>(
     key: K,
     value: GenerationControls[K],
   ): boolean {
+    if ((key as string) === 'instrumentProfileId') {
+      throw new SessionUsageError(
+        "setControl cannot change 'instrumentProfileId' directly; call selectInstrumentProfile instead.",
+      )
+    }
     if (!canChangeConfiguration()) return false
     if (PROFILE_CONTROL_KEYS.has(key as keyof ProfileControlledValues)) {
       const [controls, profileSelection] = applyControlledCustomValue(
@@ -143,6 +188,8 @@ export function createGenerationSession<TResult>(
     return true
   }
 
+  /** Presentation-only: never routes to generation or engraving, and never touches phrase/request/seed/result. */
+  // @spec-link [[rule_presentation_preference_preserves_phrase]]
   function setTheme(theme: ThemePreference): boolean {
     state.presentation = { ...state.presentation, theme }
     return true
@@ -161,21 +208,41 @@ export function createGenerationSession<TResult>(
     return runNotation(state.result, notationMode)
   }
 
-  /** Coordinate one injected generation operation, preserving a prior successful result on failure. */
+  /**
+   * Coordinate one full generation-then-engraving operation. A generation failure preserves the
+   * prior result and leaves notation state cleared (this attempt's start already cleared it); a
+   * generation success always continues into engraving the current display mode within the same
+   * operation, and resolves true even if that engraving then fails — the failure is exposed
+   * through `notationError`/`failedNotationMode` while the freshly generated result is kept.
+   */
   // @spec-link [[service_workspace_session_flow]]
   async function run(intent: GenerationIntent): Promise<boolean> {
     state.operation = 'generating'
     state.generationError = null
+    state.notationError = null
+    state.failedNotationMode = null
     state.latestIntent = intent
+
+    let result: TResult
     try {
-      state.result = await options.generate(intent)
-      return true
+      result = await options.generate(intent)
     } catch (error: unknown) {
-      state.generationError = error instanceof Error ? error : new Error(String(error))
+      state.generationError = toError(error)
+      state.operation = 'idle'
       return false
+    }
+
+    state.result = result
+    state.operation = 'notating'
+    try {
+      await options.notate(result, state.presentation.notationMode)
+    } catch (error: unknown) {
+      state.notationError = toError(error)
+      state.failedNotationMode = state.presentation.notationMode
     } finally {
       state.operation = 'idle'
     }
+    return true
   }
 
   /** Coordinate one injected notation attempt without changing phrase identity or generation inputs. */
@@ -190,7 +257,7 @@ export function createGenerationSession<TResult>(
       state.presentation = { ...state.presentation, notationMode: requestedMode }
       return true
     } catch (error: unknown) {
-      state.notationError = error instanceof Error ? error : new Error(String(error))
+      state.notationError = toError(error)
       state.failedNotationMode = requestedMode
       return false
     } finally {
@@ -202,6 +269,7 @@ export function createGenerationSession<TResult>(
   // @spec-link [[module_generation_request_construction]]
   function generate(): Promise<boolean> {
     if (state.operation !== 'idle') return Promise.resolve(false)
+    if (isBlockedByUnsupportedRhythm()) return Promise.resolve(false)
     return run(
       createGenerationIntent({
         requestId: options.providers.nextRequestId(),
@@ -216,6 +284,7 @@ export function createGenerationSession<TResult>(
   // @spec-link [[module_generation_request_construction]]
   function regenerate(): Promise<boolean> {
     if (state.operation !== 'idle') return Promise.resolve(false)
+    if (isBlockedByUnsupportedRhythm()) return Promise.resolve(false)
     return run(
       createGenerationIntent({
         requestId: options.providers.nextRequestId(),
@@ -253,17 +322,46 @@ export function createGenerationSession<TResult>(
     return runNotation(state.result, state.failedNotationMode)
   }
 
+  /** Surface a notation failure raised outside a session operation (e.g. a viewport-resize redraw). */
+  // @spec-link [[module_notation_layout_preflight]]
+  function reportNotationFailure(error: Error): boolean {
+    if (state.operation !== 'idle' || state.result === null) return false
+    state.notationError = error
+    state.failedNotationMode = state.presentation.notationMode
+    return true
+  }
+
+  /** Clear a previously reported outside-operation notation failure once a later redraw succeeds. */
+  // @spec-link [[module_notation_layout_preflight]]
+  function reportNotationRecovered(): boolean {
+    if (state.operation !== 'idle' || state.result === null) return false
+    state.notationError = null
+    state.failedNotationMode = null
+    return true
+  }
+
+  const selectInstrumentProfile = createSelectInstrumentProfileAction<TResult>({
+    state,
+    providers: options.providers,
+    evaluateProfileSwitch: options.evaluateProfileSwitch,
+    runGeneration: run,
+    redrawNotation: (result) => runNotation(result, state.presentation.notationMode),
+  })
+
   return {
     state: readonly(state) as Readonly<GenerationSessionState<TResult>>,
     actions: {
       setControl,
       selectMusicalProfile,
+      selectInstrumentProfile,
       setTheme,
       setNotationMode,
       generate,
       regenerate,
       retryGeneration,
       retryNotation,
+      reportNotationFailure,
+      reportNotationRecovered,
     },
   }
 }

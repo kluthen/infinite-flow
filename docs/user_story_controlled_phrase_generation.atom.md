@@ -1,6 +1,6 @@
 ---
 id: user_story_controlled_phrase_generation
-status: DRAFT
+status: REVIEW
 human_name: Controlled Phrase Generation
 layer: BUSINESS
 version: 0.1

@@ -18,6 +18,7 @@
 - Add optional MIDI-feedback flow and states when that first-release enhancement is scheduled.
 - Revalidate only if first-release specification refinement changes settled UI behavior, controls, or states.
 - Hand the validated set to implementation planning after the first-release specification is finalized and the user confirms handoff readiness.
+- Run `ux-critic` on the `.inline-alert.alert-notice` variant added to `src/styles/components.css` during the Step 9 production CSS rewrite (see `decisions.md` D21, `qna.md` Q5).
 
 ## Next Unit
 

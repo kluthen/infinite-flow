@@ -42,6 +42,7 @@ describe('createGenerationSession', () => {
       providers,
       generate: async () => ++calls,
       notate: async () => undefined,
+      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
 
     expect(calls).toBe(0)
@@ -57,6 +58,7 @@ describe('createGenerationSession', () => {
       providers: tracked.providers,
       generate: () => deferred.promise,
       notate: async () => undefined,
+      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
     const pending = session.actions.generate()
 
@@ -90,6 +92,7 @@ describe('createGenerationSession', () => {
         return 'result'
       },
       notate: async () => undefined,
+      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
 
     await expect(session.actions.generate()).resolves.toBe(false)
@@ -126,6 +129,7 @@ describe('createGenerationSession', () => {
         return intent.requestId
       },
       notate: async () => undefined,
+      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
 
     await session.actions.generate()
@@ -152,22 +156,32 @@ describe('createGenerationSession', () => {
       notate: async (result, mode) => {
         notationCalls.push({ result, mode })
         notationAttempts += 1
-        if (notationAttempts === 1) throw new Error('notation failure')
+        // Fails the post-generation automatic engrave (attempt 1) and the explicit retry below
+        // (attempt 2); succeeds only on the subsequent retryNotation (attempt 3).
+        if (notationAttempts <= 2) throw new Error('notation failure')
       },
+      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
 
-    await session.actions.generate()
+    await expect(session.actions.generate()).resolves.toBe(true)
     const generationCounts = tracked.counts()
+    expect(session.state.result).toBe('phrase')
+    expect(session.state.presentation.notationMode).toBe('B-flat tenor')
+    expect(session.state.notationError?.message).toBe('notation failure')
+    expect(session.state.failedNotationMode).toBe('B-flat tenor')
+
     await expect(session.actions.setNotationMode('Concert')).resolves.toBe(false)
     expect(session.state.result).toBe('phrase')
     expect(session.state.presentation.notationMode).toBe('B-flat tenor')
     expect(session.state.notationError?.message).toBe('notation failure')
     expect(session.state.failedNotationMode).toBe('Concert')
+
     await expect(session.actions.retryNotation()).resolves.toBe(true)
     expect(session.state.presentation.notationMode).toBe('Concert')
     expect(session.state.notationError).toBeNull()
     expect(session.state.failedNotationMode).toBeNull()
     expect(notationCalls).toEqual([
+      { result: 'phrase', mode: 'B-flat tenor' },
       { result: 'phrase', mode: 'Concert' },
       { result: 'phrase', mode: 'Concert' },
     ])
@@ -185,12 +199,14 @@ describe('createGenerationSession', () => {
       notate: async (result) => {
         notateCalls.push({ result })
         notationAttempts += 1
+        // The post-generation automatic engrave is attempt 1 and fails; retryNotation is attempt 2.
         if (notationAttempts === 1) throw new Error('notation failure')
       },
+      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
 
     await session.actions.generate()
-    await expect(session.actions.setNotationMode('Concert')).resolves.toBe(false)
+    expect(session.state.notationError?.message).toBe('notation failure')
     await expect(session.actions.retryNotation()).resolves.toBe(true)
 
     expect(notateCalls).toHaveLength(2)
@@ -202,17 +218,28 @@ describe('createGenerationSession', () => {
     const generation = createDeferred<string>()
     const notation = createDeferred<void>()
     const tracked = trackedProviders()
+    let notateCallIndex = 0
     const session = createGenerationSession({
       providers: tracked.providers,
       generate: () => generation.promise,
-      notate: () => notation.promise,
+      // The post-generation automatic engrave (call 1) resolves immediately; the explicit
+      // setNotationMode call below (call 2) stays pending on the shared deferred.
+      notate: () => {
+        notateCallIndex += 1
+        return notateCallIndex === 1 ? Promise.resolve() : notation.promise
+      },
+      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
 
     const generating = session.actions.generate()
+    expect(session.state.operation).toBe('generating')
     await expect(session.actions.setNotationMode('Concert')).resolves.toBe(true)
     expect(session.actions.setTheme('Light')).toBe(true)
     generation.resolve('phrase')
-    await generating
+    await expect(generating).resolves.toBe(true)
+    expect(session.state.operation).toBe('idle')
+    expect(session.state.result).toBe('phrase')
+    expect(session.state.presentation).toEqual({ theme: 'Light', notationMode: 'Concert' })
 
     const notating = session.actions.setNotationMode('E-flat alto')
     expect(session.state.operation).toBe('notating')

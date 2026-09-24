@@ -13,14 +13,17 @@
 import { deepFreeze } from '../../events/deep-freeze'
 import { makeHarmonyCandidateDomain, isNoLegalHarmonyPlan } from '../../harmony/harmony-planner'
 import type { HarmonyCandidate, HarmonyPlanResult } from '../../harmony/harmony-types'
-import { makeRhythmCandidateDomain, isNoLegalRhythmPlan } from '../../rhythm/rhythm-planner'
-import type { RhythmPlanResult } from '../../rhythm/rhythm-types'
+import { isNoLegalRhythmPlan } from '../../rhythm/rhythm-planner'
 import type { RegisterId } from '../../profile/register-id'
 import type { GenerationIntent } from '../generation-intent'
 import type { GenerationRequest } from '../generation-request'
 import {
-  materializeRankedRhythmCache,
+  type CanonicalRhythmDomainMemo,
+  SHARED_CANONICAL_RHYTHM_DOMAIN_MEMO,
+} from './canonical-rhythm-domain'
+import {
   rankHarmonyCandidates,
+  rankMaterializedRhythmCandidates,
   type RankedRhythmCache,
 } from './candidate-ranking'
 import type {
@@ -42,6 +45,7 @@ import {
 export interface GenerationOrchestrationOptions {
   readonly searchPolicy?: GenerationSearchPolicy
   readonly deps?: WindowSearchDeps
+  readonly rhythmDomainMemo?: CanonicalRhythmDomainMemo
 }
 
 /** Intent: build the exact structural harmony domain input the whole-result validator re-derives. */
@@ -55,9 +59,15 @@ function buildHarmonyDomain(intent: GenerationIntent): HarmonyPlanResult {
   })
 }
 
-/** Intent: build the exact structural rhythm domain input from the intent's rhythm-relevant controls. */
-function buildRhythmDomain(intent: GenerationIntent): RhythmPlanResult {
-  return makeRhythmCandidateDomain({
+/**
+ * Intent: look up the seed-independent canonical rhythm domain for the intent's rhythm-relevant
+ * controls in the given memo, expanding the Step 6 grammar only on a memo miss.
+ */
+function buildRhythmDomain(
+  intent: GenerationIntent,
+  memo: CanonicalRhythmDomainMemo,
+): ReturnType<CanonicalRhythmDomainMemo['lookup']> {
+  return memo.lookup({
     noteDensity: intent.controls.noteDensity,
     silenceDensity: intent.controls.silenceDensity,
     syncopation: intent.controls.syncopation,
@@ -179,6 +189,7 @@ export function generatePhrase(
 ): GenerationOutcome {
   const searchPolicy = options.searchPolicy ?? GENERATION_SEARCH_POLICY_V1
   const deps = options.deps ?? DEFAULT_WINDOW_SEARCH_DEPS
+  const rhythmDomainMemo = options.rhythmDomainMemo ?? SHARED_CANONICAL_RHYTHM_DOMAIN_MEMO
 
   const harmonyDomain = buildHarmonyDomain(intent)
   if (isNoLegalHarmonyPlan(harmonyDomain)) {
@@ -190,7 +201,7 @@ export function generatePhrase(
     return deepFreeze(outcome)
   }
 
-  const rhythmDomain = buildRhythmDomain(intent)
+  const rhythmDomain = buildRhythmDomain(intent, rhythmDomainMemo)
   if (isNoLegalRhythmPlan(rhythmDomain)) {
     const outcome: GenerationOutcome = {
       kind: 'generation_failure',
@@ -201,7 +212,11 @@ export function generatePhrase(
   }
 
   const rankedHarmony = rankHarmonyCandidates(harmonyDomain.candidates, intent.seed)
-  const rankedRhythm = materializeRankedRhythmCache(rhythmDomain, intent.seed)
+  const rankedRhythm = rankMaterializedRhythmCandidates(
+    rhythmDomain.grammarVersion,
+    rhythmDomain.candidates,
+    intent.seed,
+  )
   const requests = resolveCoreRequests(intent)
   const reports = runWindows(intent, requests, rankedHarmony, rankedRhythm, searchPolicy, deps)
   const windows = reports.map((report) => report.diagnostics)

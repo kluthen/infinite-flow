@@ -1,6 +1,6 @@
 ---
 id: req_landscape_phrase_workspace
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 priority: 1
 human_name: Landscape Phrase Workspace

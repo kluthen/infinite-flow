@@ -19,6 +19,7 @@
     "src/**/*.vue",
     "src/**/*.d.ts",
     "tests/unit/**/*.ts",
+    "tests/perf/**/*.ts",
     "tests/e2e/notation-harness/**/*.ts",
     "tests/e2e/notation-harness-window.d.ts"
   ]

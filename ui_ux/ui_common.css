@@ -1,3 +1,11 @@
+/* DESIGN REFERENCE ONLY - SUPERSEDED, NOT IMPORTED BY THE APP.
+   As of Step 9, the production Tailwind 4 token and component source is
+   `src/styles/theme.css` (tokens) and `src/styles/components.css`
+   (component classes), owned by ux-writer. This file is retained, frozen,
+   only because `mockups/phrase-workspace.html` still links it for the
+   review prototype. Do not treat it as buildable truth; see
+   `ui_ux/index.md` ("How future UI changes flow") for the current rule. */
+
 /* Infinite Flow canonical design system. Grid: 8pt. Semantic tokens, not component overrides, carry themes. */
 
 :root {

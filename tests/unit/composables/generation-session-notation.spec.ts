@@ -10,6 +10,11 @@ import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import { makeSeed } from '@/domain/random/seed'
 
+/** Intent: a profile-switch policy no test in this file exercises; never called since notation-mode switching never touches the profile. */
+function unusedEvaluateProfileSwitch(): never {
+  throw new Error('evaluateProfileSwitch should not be called by display-mode switching tests.')
+}
+
 /** The real per-session generation result: the successful outcome plus the intent that produced it. */
 interface SessionResult {
   readonly outcome: Extract<GenerationOutcome, { kind: 'generation_success' }>
@@ -63,10 +68,14 @@ describe('generation session notation display switching', () => {
           transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent), mode),
         )
       },
+      evaluateProfileSwitch: unusedEvaluateProfileSwitch,
     })
     useCheapControls(session)
 
     await expect(session.actions.generate()).resolves.toBe(true)
+    // generate() also drives the post-generation automatic engrave, in the default display mode.
+    expect(written).toHaveLength(1)
+    expect(written[0]?.mode).toBe('B-flat tenor')
     const countsAfterGenerate = tracked.counts()
     const resultSnapshot = JSON.stringify(session.state.result)
     const intentSnapshot = JSON.stringify(session.state.latestIntent)
@@ -96,19 +105,22 @@ describe('generation session notation display switching', () => {
     expect(session.state.presentation.notationMode).toBe('Concert')
     assertGenerationStateUntouched()
 
-    expect(written).toHaveLength(4)
+    expect(written).toHaveLength(5)
     expect(written.map((phrase) => phrase.mode)).toEqual([
+      'B-flat tenor',
       'Concert',
       'E-flat alto',
       'B-flat tenor',
       'Concert',
     ])
     expect(written.map((phrase) => phrase.transposition)).toEqual([
+      { chromatic: 14, diatonic: 8 },
       { chromatic: 0, diatonic: 0 },
       { chromatic: 9, diatonic: 5 },
       { chromatic: 14, diatonic: 8 },
       { chromatic: 0, diatonic: 0 },
     ])
+    expect(written[4]).toEqual(written[1])
     expect(written[3]).toEqual(written[0])
   })
 
@@ -125,13 +137,18 @@ describe('generation session notation display switching', () => {
           transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent), mode),
         )
       },
+      evaluateProfileSwitch: unusedEvaluateProfileSwitch,
     })
     useCheapControls(session)
 
+    // generate() succeeds, but the post-generation automatic engrave also fails while shouldFail
+    // is true: generation itself still resolves true, and the result is retained regardless.
     await expect(session.actions.generate()).resolves.toBe(true)
     const countsAfterGenerate = tracked.counts()
     const resultSnapshot = JSON.stringify(session.state.result)
     const modeBeforeFailure = session.state.presentation.notationMode
+    expect(session.state.notationError?.message).toBe('engraving redraw failed')
+    expect(session.state.failedNotationMode).toBe(modeBeforeFailure)
 
     await expect(session.actions.setNotationMode('Concert')).resolves.toBe(false)
     expect(session.state.presentation.notationMode).toBe(modeBeforeFailure)

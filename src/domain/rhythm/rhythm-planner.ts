@@ -33,6 +33,19 @@ export type {
   RhythmPlanResult,
 } from './rhythm-types'
 
+/**
+ * Intent: normalize a raw rhythm-expansion input to its validated, frozen canonical form (default
+ * grammar version applied, every control validated against its closed catalog). Exported so the
+ * Step 9 canonical-rhythm-domain memo can key its memo on exactly the same normalized shape this
+ * module expands from, without duplicating validation.
+ */
+// @spec-link [[api_rhythm_domain_expansion]]
+export function normalizeRhythmExpansionInput(
+  input: RhythmExpansionInput,
+): NormalizedRhythmExpansionInput {
+  return normalizeInput(input)
+}
+
 function normalizeInput(input: RhythmExpansionInput): NormalizedRhythmExpansionInput {
   const grammarVersion = input.grammarVersion ?? 'rhythm-mvp-v1'
   if (

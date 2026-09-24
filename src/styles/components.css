@@ -1,0 +1,474 @@
+@layer components {
+  /* Layout classes: landscape workspace keeps score larger than its supporting controls. */
+  .layout-app {
+    min-block-size: 100dvb;
+    padding: var(--spacing-4);
+  }
+  .layout-header {
+    align-items: center;
+    border-block-end: 1px solid var(--color-border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    justify-content: space-between;
+    min-inline-size: 0;
+    padding-block-end: var(--spacing-3);
+  }
+  .layout-workspace {
+    display: grid;
+    gap: var(--spacing-4);
+    grid-template-columns: minmax(0, 1fr);
+    margin-block-start: var(--spacing-3);
+  }
+  .control-panel,
+  .control-section {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-panel);
+    padding: var(--spacing-4);
+  }
+  .control-group-row {
+    display: grid;
+    gap: var(--spacing-4);
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .score-panel {
+    min-inline-size: 0;
+  }
+  .score-toolbar {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    justify-content: space-between;
+    margin-block-end: var(--spacing-3);
+  }
+  .staff-viewport {
+    inline-size: 100%;
+    min-inline-size: 0;
+  }
+  .score-context,
+  .control-summary,
+  .profile-range-summary,
+  .tempo-readout {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+  .meter-badge {
+    background: var(--color-surface-muted);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    padding: var(--spacing-1) var(--spacing-2);
+  }
+  .brand-mark {
+    color: var(--color-text);
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    line-height: var(--leading-tight);
+  }
+  .brand-subtitle {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+  .header-actions,
+  .context-group,
+  .control-options {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    min-inline-size: 0;
+  }
+  .header-actions {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+  .context-group {
+    flex: 1 1 var(--control-group-min-inline-size);
+    justify-content: space-between;
+  }
+  .context-readout {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    white-space: nowrap;
+  }
+  .character-disclosure {
+    border-block-start: 1px solid var(--color-border);
+    margin-block-start: var(--spacing-4);
+    padding-block-start: var(--spacing-4);
+  }
+  .chord-symbol {
+    color: var(--color-staff);
+    font-family: var(--font-music);
+  }
+
+  /* Titles and section copy shared by the score panel and the control section. */
+  .score-title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    line-height: var(--leading-tight);
+    margin: 0;
+  }
+  .control-section-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    margin: 0 0 var(--spacing-1);
+  }
+  .control-section-copy {
+    color: var(--color-text-muted);
+    margin: 0 0 var(--spacing-4);
+  }
+  .control-group {
+    border-inline-start: var(--spacing-1) solid var(--color-accent);
+    padding-inline-start: var(--spacing-3);
+  }
+  .control-group h3 {
+    font-size: var(--text-md);
+    margin: 0 0 var(--spacing-3);
+  }
+
+  /* States: default, loading, ready, fading-out, error. Hover/focus/active are not applicable
+     to the static staff container. */
+  .staff-frame,
+  .staff-ready {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    color: var(--color-staff);
+    min-block-size: 24rem;
+    padding: var(--spacing-4);
+  }
+  .staff-empty,
+  .staff-error {
+    align-content: center;
+    display: grid;
+    justify-items: center;
+  }
+  .staff-loading {
+    cursor: progress;
+    opacity: 0.78;
+  }
+  .staff-content {
+    animation: staff-fade-in var(--duration-fade) var(--ease-out-gentle) both;
+    inline-size: 100%;
+  }
+  .staff-content.is-fading-out {
+    animation: staff-fade-out var(--duration-fade-fast) var(--ease-out-gentle) both;
+    pointer-events: none;
+  }
+  .measure-slot {
+    min-inline-size: 0;
+  }
+
+  /* VexFlow renders `<svg class="staff-svg">` with presentation attributes (fill/stroke,
+     default black — see node_modules/vexflow build/esm/src/svgcontext.js) rather than CSS
+     classes, so recolor the painted attributes directly: a theme switch then recolors the
+     score without a redraw. `[fill='none']` and `[stroke='none']` are left untouched so
+     transparent shapes stay transparent. */
+  .staff-frame .staff-svg [fill]:not([fill='none']) {
+    fill: var(--color-staff);
+  }
+  .staff-frame .staff-svg [stroke]:not([stroke='none']) {
+    stroke: var(--color-staff);
+  }
+  .staff-frame .staff-svg text {
+    fill: var(--color-staff);
+  }
+
+  /* States: default, hover, focus-visible, active, disabled, loading, error. */
+  .btn {
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    min-block-size: 2.75rem;
+    padding: var(--spacing-2) var(--spacing-4);
+    transition:
+      background-color var(--duration-feedback) var(--ease-out-fast),
+      color var(--duration-feedback) var(--ease-out-fast);
+  }
+  .btn-primary {
+    background: var(--color-accent);
+    color: var(--color-accent-text);
+  }
+  .btn-primary:hover {
+    background: var(--color-accent-hover);
+  }
+  .btn-primary:active {
+    transform: translateY(1px);
+  }
+  .btn:disabled,
+  .btn.is-loading {
+    cursor: wait;
+    opacity: 0.55;
+  }
+  .btn-error {
+    background: var(--color-error);
+    color: var(--color-accent-text);
+  }
+  .btn-lg {
+    min-block-size: 3rem;
+    padding-inline: var(--spacing-5);
+  }
+
+  /* States: default, selected, hover, focus-visible, active, disabled, read-only, loading,
+     error. Single-select groups use radiogroup/radio with aria-checked. */
+  .segmented-control {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1);
+    max-inline-size: 100%;
+    min-inline-size: 0;
+  }
+  .segment {
+    background: var(--color-surface-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    max-inline-size: 100%;
+    min-block-size: 2.75rem;
+    /* 44px minimum target: single-letter pitch-class segments would otherwise be narrower. */
+    min-inline-size: 2.75rem;
+    padding-inline: var(--spacing-3);
+  }
+  .segment:hover {
+    border-color: var(--color-accent);
+  }
+  .segment:active {
+    background: var(--color-surface);
+  }
+  .segment.is-selected,
+  .segment[aria-checked='true'] {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-accent-text);
+  }
+  .segment:disabled,
+  .segmented-control.is-loading {
+    opacity: 0.55;
+  }
+  /* Read-only controls must stay keyboard-focusable: this only suppresses pointer and
+     roving-tab-stop arrow-key changes, which the component also enforces in script; it does
+     not change visibility or remove the control from the tab order. */
+  .segmented-control.is-readonly {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .segmented-control.is-error {
+    box-shadow: 0 0 0 1px var(--color-error);
+  }
+
+  /* States: default, hover, focus-visible, active, disabled, read-only, loading, error. */
+  .theme-control {
+    flex-wrap: wrap;
+  }
+
+  /* States: default, hover, focus-visible, active, disabled, loading, error. */
+  .field-group {
+    display: grid;
+    gap: var(--spacing-2);
+    margin-block-end: var(--spacing-4);
+  }
+  .field-label {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: 700;
+  }
+
+  /* The tempo stepper is a group: a decrement `stepper-button`, a numeric readout, and an
+     increment `stepper-button`. */
+  .input-stepper {
+    align-items: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    display: inline-flex;
+    gap: var(--spacing-2);
+    min-block-size: 2.75rem;
+    padding-inline: var(--spacing-3);
+  }
+  .input-stepper:hover {
+    border-color: var(--color-accent);
+  }
+  .input-stepper:active {
+    background: var(--color-surface-muted);
+  }
+  .input-stepper:disabled,
+  .field-group.is-loading {
+    opacity: 0.55;
+  }
+  /* Read-only controls must stay keyboard-focusable: see .segmented-control.is-readonly. */
+  .field-group.is-readonly {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .field-group.is-error .input-stepper {
+    border-color: var(--color-error);
+  }
+
+  /* 44px-minimum square target for the stepper's decrement/increment buttons, styled like
+     `.segment` so the whole control reads as one family. */
+  .stepper-button {
+    align-items: center;
+    background: var(--color-surface-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    display: inline-flex;
+    justify-content: center;
+    min-block-size: 2.75rem;
+    min-inline-size: 2.75rem;
+    padding: 0;
+  }
+  .stepper-button:hover {
+    border-color: var(--color-accent);
+  }
+  .stepper-button:active {
+    background: var(--color-surface);
+  }
+  .stepper-button:disabled {
+    opacity: 0.55;
+  }
+
+  /* States: default, loading, error. Custom feedback is informational, not interactive. */
+  .preset-status {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+  .preset-status.is-custom {
+    color: var(--color-text);
+    font-weight: 700;
+  }
+
+  /* States: ready, loading, error. This semantic status is visually hidden but remains
+     exposed to assistive technology. */
+  .generation-status {
+    block-size: var(--size-visually-hidden);
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    inline-size: var(--size-visually-hidden);
+    margin: calc(var(--size-visually-hidden) * -1);
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  /* States: default, hover, focus-visible, active, disabled, loading, error. */
+  .inline-alert {
+    border-inline-start: var(--spacing-1) solid;
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-3);
+  }
+  .alert-error {
+    background: var(--color-error-surface);
+    border-color: var(--color-error);
+    color: var(--color-error);
+  }
+  /* Calm, non-error notice (e.g. unsupported rhythm settings) composed only from existing
+     semantic tokens: no new color values. */
+  .alert-notice {
+    background: var(--color-surface-muted);
+    border-color: var(--color-accent);
+    color: var(--color-text);
+  }
+  .orientation-notice {
+    display: none;
+  }
+
+  @keyframes staff-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes staff-fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  /* bp-mobile-landscape (48rem) retains the one-column control stack and wraps every
+     segmented choice within its field. */
+  @media (min-width: 48rem) and (orientation: landscape) {
+    .layout-app {
+      padding: var(--spacing-5);
+    }
+    .layout-header {
+      min-block-size: 4rem;
+    }
+    .field-group > .segmented-control {
+      inline-size: 100%;
+    }
+  }
+  /* bp-tablet-landscape (64rem) lets control groups wrap without changing the vertical
+     workspace structure. */
+  @media (min-width: 64rem) and (orientation: landscape) {
+    .control-group-row {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .control-group-row > .control-group {
+      flex: 1 1 var(--control-group-min-inline-size);
+    }
+  }
+  /* bp-desktop (90rem) keeps all control groups horizontal when the full workspace width is
+     available. */
+  @media (min-width: 90rem) and (orientation: landscape) {
+    .layout-app {
+      padding: var(--spacing-6);
+    }
+    .header-actions {
+      flex: 0 1 auto;
+    }
+    .context-group {
+      flex: 0 1 auto;
+      justify-content: flex-end;
+    }
+    .staff-frame {
+      min-block-size: 28rem;
+    }
+    .control-group-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  /* The portrait guard applies only below bp-desktop (90rem); sufficiently wide desktop
+     portraits remain usable. */
+  @media (max-width: 89.9375rem) and (orientation: portrait) {
+    .layout-app {
+      display: none;
+    }
+    .orientation-notice {
+      align-content: center;
+      display: grid;
+      min-block-size: 100dvb;
+      padding: var(--spacing-6);
+      place-items: center;
+      text-align: center;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: var(--duration-reduced) !important;
+      scroll-behavior: auto !important;
+      transition-duration: var(--duration-reduced) !important;
+    }
+    .btn:active {
+      transform: none;
+    }
+  }
+}
