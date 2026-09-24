@@ -9,7 +9,8 @@ version: 0.1
 tags: workspace,orientation,first-release
 parents:
   - [[req_four_measure_phrase]]
-dependents: []
+dependents:
+  - [[module_notation_layout_preflight]]
 ---
 
 # Landscape Phrase Workspace

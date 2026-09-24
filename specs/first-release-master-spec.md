@@ -1,6 +1,6 @@
 # Infinite Flow: First-Release Master Specification
 
-Status: draft v1.8 - ready for implementation handoff
+Status: draft v1.9 - ready for implementation handoff
 
 ## Objective
 
@@ -113,7 +113,7 @@ An initial generation failure leaves the empty workspace visible and exposes a r
 
 Every discrete control is keyboard-operable as a labeled single-select radiogroup with one checked option. The checked option is the sole tab stop; arrow-key navigation selects and focuses the adjacent option. A persistent polite live-status region announces generation start, ready, and failure, but not ordinary control or presentation changes. Interactive controls provide a visible focus indicator and a minimum 44 CSS-pixel target. Reduced-motion preference suppresses nonessential transitions and phrase-replacement animation.
 
-The workspace supports landscape mobile and tablet layouts and desktop layouts at or above `90rem` in either orientation. Layout behavior changes at `48rem`, `64rem`, and `90rem`; below `90rem` in portrait, the application shows a rotate-device notice instead of interactive phrase controls. At every supported workspace layout, all four measures appear in one staff system with no horizontal score scrolling or clipping. If valid phrase data cannot be engraved under that constraint, show the retryable notation error rather than a partial, split, or substitute score.
+The workspace supports landscape mobile and tablet layouts and desktop layouts at or above `90rem` in either orientation. Layout behavior changes at `48rem`, `64rem`, and `90rem`; below `90rem` in portrait, the application shows a rotate-device notice instead of interactive phrase controls. At `64rem` and above, all four measures appear in one staff system. Below `64rem` (the landscape phone layout), the score uses one staff system when it fits at the legibility floor; otherwise it uses two staff systems of two measures each (measures 1-2, then 3-4). The second line repeats the clef and key signature, and the time signature appears only on the first line. Measures are equal in width and aligned between the two lines. No layout uses horizontal score scrolling, clipping, or more than two systems. If valid phrase data cannot be engraved under these constraints, show the retryable notation error rather than a partial, further-split, or substitute score.
 
 ## Notation
 
@@ -143,7 +143,7 @@ Switching the selected instrument profile validates every unchanged concert even
 - The application operates entirely in the browser for its required first-release behavior, without server dependency.
 - The workspace permits at most one active generation or notation operation. During generation, the action is disabled; configuration controls remain focusable read-only context and cannot change values; a prior valid phrase remains visible. Initial generation failure retains the empty workspace; later failure retains the valid phrase; notation failure retains phrase data but replaces score content with a retryable error. An incompatible instrument-profile switch is the sole automatic full-phrase regeneration.
 - Every control can be operated by keyboard with the defined radiogroup, roving-tab-stop, and arrow-key behavior. A polite live-status region announces generation start, completion, and failure. Controls have visible focus indication and at least 44 CSS-pixel targets; reduced-motion preference disables nonessential animation.
-- Required phrase generation and notation function offline without a server or optional browser capability. At `48rem`, `64rem`, and `90rem` layout changes preserve all four measures in a single non-scrolling, unclipped staff system. Below `90rem` in portrait, the application shows a rotate-device notice; desktop at or above `90rem` remains interactive in either orientation. An unrenderable valid phrase shows a retryable notation error rather than partial or substitute notation.
+- Required phrase generation and notation function offline without a server or optional browser capability. At `64rem` and `90rem`, layout changes preserve all four measures in a single non-scrolling, unclipped staff system. Below `64rem`, the four measures appear in one such system, or in two aligned two-measure systems when one does not fit at the legibility floor. Below `90rem` in portrait, the application shows a rotate-device notice; desktop at or above `90rem` remains interactive in either orientation. An unrenderable valid phrase shows a retryable notation error rather than partial or substitute notation.
 
 ## Deferred Work and Visible Gaps
 

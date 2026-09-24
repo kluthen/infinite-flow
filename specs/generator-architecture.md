@@ -1,6 +1,6 @@
 # Generator Architecture
 
-Status: v0.7 — Steps 2-7 are implemented: event/deterministic foundations, declarative profile/register data, typed controls/outer intent/session coordination, an immutable structural harmony candidate-domain seam, the rhythm and phrase-structure planner (Step 6), and the pitch planner/validation together with generation orchestration and independent whole-result validation (Step 7). Notation (Step 8) and workspace UI (Step 9) remain planned.
+Status: v0.8 — Steps 2-8 are implemented: event/deterministic foundations, declarative profile/register data, typed controls/outer intent/session coordination, an immutable structural harmony candidate-domain seam, the rhythm and phrase-structure planner (Step 6), the pitch planner/validation together with generation orchestration and independent whole-result validation (Step 7), and the pure written-notation transformation with one-system VexFlow engraving (Step 8). Workspace UI (Step 9) remains planned.
 
 ## Architectural Intent
 
@@ -40,6 +40,12 @@ The root-created `createGenerationSession` factory is the application coordinati
 
 This seam has no seed or random-stream dependency and does not receive rhythm/onsets, register/instrument profile, contour, pitch feasibility, ranking, selection, orchestration, Vue, browser, storage, or session state. It must return an identical domain for Neutral and Jazz under equal harmony controls. Major/Minor select tonal templates while named Ionian/Aeolian remain modal; expansion follows Harmony Planner Policy document order, ascending degree alternatives, and unsplit-before-split variants. Step 7 may bind/rank candidates but cannot mutate their structure, identity, or index.
 
+## Delivered Notation Boundary
+
+Notation is a pure consumer of a successful generation outcome. `notationInputFromOutcome` reads only the result's concert timeline, the intent's tonal context (tonal center and collection), and the selected harmony candidate recorded in `GenerationOutcome.provenance.harmony`; it never reaches into planner internals and never changes `GenerationRequest` or `GenerationResult`. `transformToWrittenPhrase(input, mode)` then produces a deep-frozen `WrittenPhrase` for Concert, B-flat tenor, or E-flat alto display. It spells the key, notes, chord roots, and slash bass with one consistent enharmonic rule (fewest accidentals, sharps on a tie). It also segments durations into notated values with ties and beam groups, and derives displayed accidentals per measure. The same input can be re-transformed for another mode without regenerating anything or mutating the source events.
+
+Engraving is a separate browser adapter. It is the only code allowed to import the pinned VexFlow library, and it lays out all four equal-width measures in one staff system at a single uniform scale. Only on the landscape phone layout (below `64rem`), when one system does not fit its container at a named legibility floor, it uses two aligned systems of two measures each. When no permitted arrangement fits at the floor, it returns a typed notation error instead of scrolling, clipping, splitting further, or shrinking without bound. A spoken-English score description accompanies each successful engraving. docs/notation-engraving.md records the pinned library boundary, the bundled font assets and their licenses, the domain-to-engraving mapping, the sizing and failure policy, the accessible representation, and the upgrade procedure.
+
 ## Proposed Generator Contract
 
 (proposed) A resolved planner request provides only normalized musical context: meter, tempo, requested measure count, tonal/harmonic context, a selected instrument-profile identity with its explicit active range and one resolved register window, a recent phrase when available, control values, a deterministic random seed, and an explicit generator-profile identifier.
@@ -73,5 +79,5 @@ The first-deliverable MIDI integration sits outside the evaluator. A matching in
 
 ## Deferred Architecture Questions
 
-- The exact event schema is resolved (specs/first_release_plan.md Step 2): a closed `MeasureEvent` union of `NoteEvent`/`RestEvent` carrying an exact Rational duration, a wide plausible-MIDI `ConcertPitch`, tie-continuation intent, and optional free-form annotations; an exactly-tiling `Measure`; and a fixed four-measure `ConcertEventTimeline`. See specs/generator-contract.md's Event Shapes, Duration Model, and Seed Semantics sections for the full shape. The notation representation remains unresolved; it is Step 8's ("Implement written-notation transformation and VexFlow engraving").
+- The exact event schema is resolved (specs/first_release_plan.md Step 2): a closed `MeasureEvent` union of `NoteEvent`/`RestEvent` carrying an exact Rational duration, a wide plausible-MIDI `ConcertPitch`, tie-continuation intent, and optional free-form annotations; an exactly-tiling `Measure`; and a fixed four-measure `ConcertEventTimeline`. See specs/generator-contract.md's Event Shapes, Duration Model, and Seed Semantics sections for the full shape. The notation representation is resolved by Step 8: see Delivered Notation Boundary above and docs/notation-engraving.md.
 - The degree to which a generator may revise an earlier planner's result to repair playability or voice leading is unresolved. See O10.

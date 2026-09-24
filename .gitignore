@@ -3,6 +3,7 @@ docs/.atd_audit.db
 .agent/logs/atd_trace.log
 node_modules/
 dist/
+dist-notation-harness/
 coverage/
 playwright-report/
 test-results/

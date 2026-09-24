@@ -15,9 +15,10 @@ import {
   type GenerationIntentProviders,
   createGenerationIntent,
 } from '@/domain/generation/generation-intent'
+import type { NotationMode } from '@/domain/notation/notation-mode'
 
 export type ThemePreference = 'System' | 'Light' | 'Dark'
-export type NotationMode = 'Concert' | 'B-flat tenor' | 'E-flat alto'
+export type { NotationMode } from '@/domain/notation/notation-mode'
 export type SessionOperation = 'idle' | 'generating' | 'notating'
 
 export interface PresentationSettings {

@@ -1,6 +1,6 @@
 ---
 id: rule_notation_display_preserves_phrase
-status: DRAFT
+status: REVIEW
 human_name: Notation Display Preserves Phrase
 type: RULE
 priority: 1
@@ -9,8 +9,10 @@ parents:
   - [[req_four_measure_phrase]]
 dependents:
   - [[module_notation_display_convention]]
+  - [[module_notation_layout_preflight]]
 layer: BUSINESS
-version: 0.2
+version: 0.3
+notes: User sign-off 2026-09-24 (relayed by coordinator): approved promotion DRAFT to REVIEW; rule text unchanged.
 ---
 
 # Notation Display Preserves Phrase

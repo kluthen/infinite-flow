@@ -18,6 +18,7 @@ export default [
   {
     ignores: [
       'dist/**',
+      'dist-notation-harness/**',
       'coverage/**',
       'node_modules/**',
       'playwright-report/**',
@@ -27,6 +28,14 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...vue.configs['flat/recommended'],
+  {
+    files: ['**/*.vue'],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+    },
+  },
   {
     files: ['**/*.{js,mjs,ts,vue}'],
     languageOptions: {
@@ -50,6 +59,28 @@ export default [
     files: ['tests/**/*.ts', 'playwright.config.ts', 'vitest.config.ts', 'scripts/**/*.mjs'],
     languageOptions: {
       globals: globals.node,
+    },
+  },
+  {
+    files: ['**/*.{ts,vue}'],
+    ignores: [
+      'src/notation/vexflow-mapping.ts',
+      'src/notation/vexflow-engraver.ts',
+      'src/notation/vexflow-two-system-engraver.ts',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['vexflow', 'vexflow/*'],
+              message:
+                'Only src/notation/vexflow-mapping.ts, vexflow-engraver.ts and vexflow-two-system-engraver.ts may import vexflow.',
+            },
+          ],
+        },
+      ],
     },
   },
   prettier,
