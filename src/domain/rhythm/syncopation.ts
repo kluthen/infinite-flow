@@ -120,7 +120,7 @@ function boundaryDescriptor(
 function displacementCandidates(
   bar: RhythmBar,
   density: NoteDensity,
-  descriptorCase: 'note_to_note' | 'interior_rest',
+  descriptorCase: 'note_to_note' | 'interior_rest' | 'redistribute_note_pair',
   deltas: readonly number[],
   descriptorRoles: readonly RhythmRole[],
   requireGrid: boolean,
@@ -150,16 +150,15 @@ function swapCandidates(bar: RhythmBar): readonly RhythmTransformDescriptor[] {
   const cells = bar.events.flatMap((event) =>
     event.sourceCells.length === 1 ? [{ cell: event.sourceCells[0]!, event }] : [],
   )
-  for (let leftIndex = 0; leftIndex < cells.length; leftIndex += 1)
-    for (let rightIndex = leftIndex + 1; rightIndex < cells.length; rightIndex += 1) {
+  // Scan beat-3 candidates from the end of the bar backward so the swap lands on the pattern
+  // closest to the bar's true ending rather than the first beat-3 cell encountered, keeping the
+  // "final pattern" swap distinct from bar1's own ending instead of shadowing it.
+  for (let rightIndex = cells.length - 1; rightIndex >= 0; rightIndex -= 1) {
+    const { cell: right } = cells[rightIndex]!
+    if (right.address.beatIndex !== 3) continue
+    for (let leftIndex = 0; leftIndex < rightIndex; leftIndex += 1) {
       const { cell: left, event: leftEvent } = cells[leftIndex]!
-      const { cell: right } = cells[rightIndex]!
-      if (
-        left.durationTicks !== right.durationTicks ||
-        left.kind === right.kind ||
-        right.address.beatIndex !== 3
-      )
-        continue
+      if (left.durationTicks !== right.durationTicks || left.kind === right.kind) continue
       return deepFreeze([
         freezeDescriptor({
           grammarVersion: 'rhythm-mvp-v1',
@@ -174,6 +173,7 @@ function swapCandidates(bar: RhythmBar): readonly RhythmTransformDescriptor[] {
         }),
       ])
     }
+  }
   return deepFreeze([])
 }
 
@@ -332,7 +332,7 @@ export function* enumerateSyncopationTemplates(
         const selectedBars = new Set(barSet)
         if ([...dualByBar.keys()].some((barIndex) => !selectedBars.has(barIndex))) continue
         const template = barSet.map((index) => {
-          const dual = dualByBar.get(index)
+          const dual = dualByBar.get(index as 0 | 1 | 2 | 3)
           if (dual)
             return dual.case === selector && (selector === 'tied_sustain' || dual.delta === 2)
               ? undefined
@@ -342,7 +342,8 @@ export function* enumerateSyncopationTemplates(
         if (
           template.every(
             (descriptor, index) =>
-              descriptor !== null && (descriptor !== undefined || dualByBar.has(barSet[index]!)),
+              descriptor !== null &&
+              (descriptor !== undefined || dualByBar.has(barSet[index]! as 0 | 1 | 2 | 3)),
           )
         )
           yield deepFreeze(

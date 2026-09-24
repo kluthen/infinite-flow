@@ -8,7 +8,6 @@ parents:
   - [[service_generation_orchestration]]
 dependents:
   - [[module_register_window_resolution_primitives]]
-  - [[service_generation_orchestration]]
 type: MODULE
 layer: ARCHITECTURE
 human_name: Named-Stream Pseudorandomness

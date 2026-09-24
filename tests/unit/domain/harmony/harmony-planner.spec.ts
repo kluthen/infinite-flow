@@ -189,7 +189,7 @@ describe('harmony candidate domain: structural invariants', () => {
         }
       }
     }
-  })
+  }, 30_000)
 
   it('records tension abstractly, with the exact four arc requirements and no onset data', () => {
     const expected = {

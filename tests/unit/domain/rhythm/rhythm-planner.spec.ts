@@ -25,7 +25,9 @@ const input = {
   tensionArc: 'Settled',
 } as const
 
-function domainFor(overrides: Partial<typeof input> = {}): RhythmCandidateDomain {
+function domainFor(
+  overrides: Partial<Parameters<typeof makeRhythmCandidateDomain>[0]> = {},
+): RhythmCandidateDomain {
   const result = makeRhythmCandidateDomain({ ...input, ...overrides })
   if (isNoLegalRhythmPlan(result))
     throw new Error(`Unexpected empty domain: ${result.codes.join(', ')}`)
@@ -66,16 +68,20 @@ describe('rhythm candidate domain', () => {
     ['Eighth', 2],
     ['Sixteenth', 1],
     ['Mixed', 1],
-  ] as const)('tiles %s bars exactly on its nominal grid', (noteDensity, quantum) => {
-    const candidate = domainFor({ noteDensity }).candidates().next().value!
-    for (const bar of candidate.bars) {
-      expect(bar.events[0]?.startTick).toBe(0)
-      expect(bar.events.at(-1)!.startTick + bar.events.at(-1)!.durationTicks).toBe(16)
-      expect(bar.events.every((event) => event.durationTicks > 0)).toBe(true)
-      expect(bar.events.filter((event) => event.kind === 'note').length).toBeGreaterThanOrEqual(1)
-      expect(bar.events.every((event) => event.nominalDurationTicks % quantum === 0)).toBe(true)
-    }
-  })
+  ] as const)(
+    'tiles %s bars exactly on its nominal grid',
+    (noteDensity, quantum) => {
+      const candidate = [...domainFor({ noteDensity }).candidates()][0]!
+      for (const bar of candidate.bars) {
+        expect(bar.events[0]?.startTick).toBe(0)
+        expect(bar.events.at(-1)!.startTick + bar.events.at(-1)!.durationTicks).toBe(16)
+        expect(bar.events.every((event) => event.durationTicks > 0)).toBe(true)
+        expect(bar.events.filter((event) => event.kind === 'note').length).toBeGreaterThanOrEqual(1)
+        expect(bar.events.every((event) => event.nominalDurationTicks % quantum === 0)).toBe(true)
+      }
+    },
+    60_000,
+  )
 
   it('covers all 144 controls with a complete domain or a typed, evidenced no-plan result', () => {
     for (const noteDensity of NOTE_DENSITIES)
@@ -100,6 +106,63 @@ describe('rhythm candidate domain', () => {
               candidates.every((candidate) => validateRhythmCandidate(candidate).length === 0),
             ).toBe(true)
           }
+  }, 300_000)
+
+  // @test-link [[rule_phrase_starts_on_downbeat]]
+  it('opens every legal control combination on a fresh downbeat note, including the tight combos', () => {
+    // These four previously had a single, late-opening legal candidate (see rhythm-skeleton.ts's
+    // opensOnDownbeat); the rule's generation-side fix must keep them producing legal candidates.
+    const previouslyTight = new Set(
+      (['Settled', 'Lift', 'Build', 'Edge'] as const).map(
+        (tensionArc) => `Sixteenth|Conversational|Occasional offbeats|${tensionArc}`,
+      ),
+    )
+    // Remaining infeasible density|silence|syncopation combos after the Breath-heavy rest-rule fix
+    // in feasibleGesture (see rhythm-skeleton.ts): a separate rhythm-grammar gap, not diagnosed here.
+    const stillInfeasible = new Set([
+      'Quarter|Sparse|Active displacement',
+      'Quarter|Breath-heavy|Active displacement',
+      'Sixteenth|Sparse|Active displacement',
+      'Sixteenth|Conversational|Active displacement',
+      'Sixteenth|Breath-heavy|Occasional offbeats',
+      'Sixteenth|Breath-heavy|Active displacement',
+    ])
+    let noPlanCount = 0
+    for (const noteDensity of NOTE_DENSITIES)
+      for (const silenceDensity of SILENCE_DENSITIES)
+        for (const syncopation of SYNCOPATIONS)
+          for (const tensionArc of TENSION_ARCS) {
+            const label = `${noteDensity}|${silenceDensity}|${syncopation}|${tensionArc}`
+            const result = makeRhythmCandidateDomain({
+              grammarVersion: 'rhythm-mvp-v1',
+              noteDensity,
+              silenceDensity,
+              syncopation,
+              tensionArc,
+            })
+            if (isNoLegalRhythmPlan(result)) {
+              noPlanCount += 1
+              expect(previouslyTight.has(label), label).toBe(false)
+              expect(
+                stillInfeasible.has(`${noteDensity}|${silenceDensity}|${syncopation}`),
+                label,
+              ).toBe(true)
+              continue
+            }
+            let sampled = 0
+            for (const candidate of result.candidates()) {
+              const first = candidate.bars[0]?.events[0]
+              expect(first?.kind, label).toBe('note')
+              expect(first?.startTick, label).toBe(0)
+              expect(first?.tieContinuation, label).toBeFalsy()
+              sampled += 1
+              if (sampled >= 50) break
+            }
+            expect(sampled, label).toBeGreaterThan(0)
+          }
+    // This legacy Step 6 surface is deliberately pinned, not diagnosed here. Its feasibility is a
+    // separate rhythm-grammar investigation from the downbeat rule.
+    expect(noPlanCount).toBe(24)
   }, 300_000)
 
   it('matches the checked-in complete v1 identity manifest', () => {

@@ -9,7 +9,7 @@ layer: BUSINESS
 priority: 1
 human_name: Leapiness Arpeggio Run Limits
 type: RULE
-version: 0.1
+version: 0.2
 ---
 
 # Leapiness Arpeggio Run Limits
@@ -18,10 +18,10 @@ version: 0.1
 Limit recognized same-direction chord-tone runs according to the selected leapiness.
 
 ## THE RULE / LOGIC
-Smooth permits no leap-producing arpeggio run. Shaped permits one recognized two-note chord-tone skip pair. Leaping permits a large leap to recover immediately or after one recognized same-direction chord-tone run of no more than 3 notes. Angular uses the same recovery allowance and permits no more than one 3-note arpeggio run per measure or two per phrase.
+A recognized run is exactly three consecutive sounding chord tones of one unchanged harmony connected by two same-direction intervals of at least 3 semitones; rests do not break adjacency. A single chord-tone interval is ordinary motion and never counts as a run. Two consecutive same-direction intervals of at least 3 semitones are legal only as a recognized run, and a third such interval is always invalid. Smooth, Shaped, and Leaping permit at most one run per phrase (Smooth runs contain only skips because of its 4-semitone cap). Angular permits at most two runs per phrase and one per measure, counted in the measure of the run's first note.
 
 ## TECHNICAL INTERFACE
 The selected leapiness constrains recognized arpeggio-run acceptance.
 
 ## EXPECTATION
-A phrase contains only the recognized arpeggio runs permitted by its selected leapiness and never exceeds its per-measure or phrase run limit.
+A phrase contains no unrecognized chain of same-direction intervals of at least 3 semitones, no chain longer than a recognized run, and never exceeds its level's per-measure or phrase run limit.

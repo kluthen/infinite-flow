@@ -11,6 +11,7 @@ priority: 1
 tags: player-controls,generation
 dependents:
   - [[api_rhythm_domain_expansion]]
+  - [[entity_generation_diagnostics]]
   - [[entity_rhythm_candidate_domain]]
   - [[mechanic_syncopation_translation]]
   - [[module_generation_control_catalog]]
@@ -19,6 +20,7 @@ dependents:
   - [[module_rhythm_skeleton_allocator]]
   - [[rule_selectable_generative_profiles]]
   - [[service_workspace_session_flow]]
+  - [[rule_unsupported_rhythm_settings_block_generation]]
   - [[specification_behavioral_quality_gates]]
 ---
 
@@ -34,4 +36,4 @@ The player selects a stable tempo from 60 through 240 BPM in 10-BPM increments; 
 Controls expose the stated musical choices, profile preset, and an explicit regeneration action that requests a whole new phrase.
 
 ## EXPECTATION
-A player can select every first-release control, including all twelve tonal centers, major, minor, and each church mode, and request generation. Regeneration affects the entire phrase rather than a single independently random measure.
+A player can select every first-release control, including all twelve tonal centers, major, minor, and each church mode, and request generation, except for the rhythm settings named by [[rule_unsupported_rhythm_settings_block_generation]]. Those settings stay selectable but block generation with an explanation. Regeneration affects the entire phrase rather than a single independently random measure.

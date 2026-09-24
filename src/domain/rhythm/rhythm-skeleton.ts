@@ -126,6 +126,17 @@ export interface V1Bar1Production {
   readonly provenance: BarFormProvenance
 }
 
+/**
+ * Single isolated gate for the downbeat rule: the `x` catalog entry always covers beat 0 (see
+ * formIndices), so rejecting rest-first entries here keeps every production opening on a downbeat
+ * attack instead of generating and discarding rest starts. Deleting this predicate (and its one
+ * call site) fully reverts bar-0 catalog selection to its pre-rule breadth.
+ */
+// @spec-link [[rule_phrase_starts_on_downbeat]]
+function opensOnDownbeat(entry: readonly { readonly kind: 'note' | 'rest' }[]): boolean {
+  return entry[0]?.kind === 'note'
+}
+
 /** Enumerate raw Bar1 productions before bars 1-2 feasibility pruning. */
 // @spec-link [[module_rhythm_skeleton_allocator]]
 export function* enumerateV1Bar1Productions(
@@ -134,6 +145,7 @@ export function* enumerateV1Bar1Productions(
   const catalog = V1_BEAT_CELL_CATALOGS[density]
   for (const form of V1_BAR1_FORMS) {
     for (let x = 0; x < catalog.length; x += 1) {
+      if (!opensOnDownbeat(catalog[x]!)) continue
       const ys = form === 'xxxx' ? [undefined] : Array.from({ length: catalog.length }, (_, y) => y)
       for (const y of ys) {
         if (y !== undefined && x === y) continue
@@ -203,10 +215,13 @@ function feasibleGesture(
       phraseRestTicks <= 20 &&
       restEvents.some((event) => event.durationTicks >= 2)
     )
+  // Breath-heavy requires "at least one rest in every bar" (docs/music/rhythm-phrase-structure.md:40),
+  // not exactly two rests total; the gesture is mirrored into bars 3-4, so >=1 rest per bar here
+  // already yields >=2 rests across the full phrase.
   return (
     phraseRestTicks >= 24 &&
     phraseRestTicks <= 32 &&
-    restEvents.length === 2 &&
+    bars.every((bar) => bar.events.some((event) => event.kind === 'rest')) &&
     restEvents.filter((event) => event.durationTicks >= 4).length >= 1
   )
 }
@@ -221,7 +236,10 @@ export function enumerateV1RecurrenceVariants(
   readonly recurrence: GestureDerivation['recurrence']
 }> {
   const sourceBeat = source.cells.find((cell) => cell.kind === 'note')?.address.beatIndex
-  function* variants() {
+  function* variants(): IterableIterator<{
+    readonly cells: readonly NominalCell[]
+    readonly recurrence: GestureDerivation['recurrence']
+  }> {
     if (sourceBeat === undefined) return
     const sourceCells = cellBeat(source.cells, sourceBeat)
     const targetBase = copyCells(source.cells, 1)
@@ -235,8 +253,8 @@ export function enumerateV1RecurrenceVariants(
     }
     yield { cells: targetBase, recurrence: deepFreeze({ kind: 'exact' as const, ...common }) }
     for (const target of cellBeat(targetBase, sourceBeat)) {
-      const afterKind = target.kind === 'note' ? 'rest' : 'note'
-      const changedBeat = cellBeat(targetBase, sourceBeat).map((cell) =>
+      const afterKind: RhythmEventKind = target.kind === 'note' ? 'rest' : 'note'
+      const changedBeat: readonly NominalCell[] = cellBeat(targetBase, sourceBeat).map((cell) =>
         cell.address === target.address ? { ...cell, kind: afterKind } : cell,
       )
       const catalogIndex = V1_BEAT_CELL_CATALOGS[input.noteDensity].findIndex(
@@ -245,7 +263,7 @@ export function enumerateV1RecurrenceVariants(
           beatCell.every((terminal, index) => sameTerminal(terminal, changedBeat[index]!)),
       )
       if (catalogIndex < 0) continue
-      const changed = targetBase.map((cell) =>
+      const changed: readonly NominalCell[] = targetBase.map((cell) =>
         cell.address.beatIndex === sourceBeat
           ? deepFreeze({
               ...changedBeat[cell.address.cellIndex]!,
@@ -363,8 +381,9 @@ export function* enumerateGestureDerivations(
 /** Compatibility seam until the answer-transform slice consumes gesture derivations directly. */
 // @spec-link [[module_rhythm_skeleton_allocator]]
 export function allocateNominalBars(input: NormalizedRhythmExpansionInput): readonly RhythmBar[] {
-  const gesture = enumerateGestureDerivations(input).next().value
-  if (!gesture) return deepFreeze([])
+  const derivation = enumerateGestureDerivations(input).next()
+  if (derivation.done) return deepFreeze([])
+  const gesture = derivation.value
   const answer = gesture.bars.map((bar, index) =>
     makeBar(
       (index + 2) as BarIndex,

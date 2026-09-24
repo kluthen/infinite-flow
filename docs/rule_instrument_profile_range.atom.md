@@ -11,7 +11,6 @@ dependents:
   - [[module_phrase_generation_profile_policy]]
   - [[module_register_intent_boundary]]
   - [[module_register_window_resolution_primitives]]
-  - [[service_generation_orchestration]]
 human_name: Instrument Profile Range
 layer: BUSINESS
 parents:

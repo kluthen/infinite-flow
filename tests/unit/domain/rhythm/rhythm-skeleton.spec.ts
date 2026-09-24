@@ -8,6 +8,7 @@ import {
   enumerateV1Bar1Productions,
   enumerateV1RecurrenceVariants,
 } from '@/domain/rhythm/rhythm-skeleton'
+import type { SingleMergePlan } from '@/domain/rhythm/rhythm-types'
 
 const terminal = (cell: { readonly kind: string; readonly durationTicks: number }) =>
   `${cell.kind === 'note' ? 'N' : 'R'}${cell.durationTicks}`
@@ -53,18 +54,22 @@ describe('rhythm-mvp-v1 nominal grammar', () => {
     })
   })
 
+  // @test-link [[rule_phrase_starts_on_downbeat]]
   it('enumerates all five Bar1 productions in canonical form then lexicographic catalog order', () => {
     expect(V1_BAR1_FORMS).toEqual(['xxxx', 'xxxy', 'xxyy', 'xyxy', 'xyyx'])
     const productions = [...enumerateV1Bar1Productions('Eighth')]
+    // Beat 0 always renders the "x" catalog entry (see formIndices), so only the note-starting
+    // Eighth entries (index 0 "N2 N2" and index 1 "N2 R2") are eligible x values; the rest-starting
+    // entries (index 2 "R2 N2" and index 3 "R2 R2") stay available as "y" for beats 1-3.
     expect(productions.map((production) => production.provenance.form)).toEqual([
-      ...Array.from({ length: 4 }, () => 'xxxx'),
-      ...Array.from({ length: 12 }, () => 'xxxy'),
-      ...Array.from({ length: 12 }, () => 'xxyy'),
-      ...Array.from({ length: 12 }, () => 'xyxy'),
-      ...Array.from({ length: 12 }, () => 'xyyx'),
+      ...Array.from({ length: 2 }, () => 'xxxx'),
+      ...Array.from({ length: 6 }, () => 'xxxy'),
+      ...Array.from({ length: 6 }, () => 'xxyy'),
+      ...Array.from({ length: 6 }, () => 'xyxy'),
+      ...Array.from({ length: 6 }, () => 'xyyx'),
     ])
     expect(
-      productions.slice(4, 7).map((production) => production.provenance.catalogIndices),
+      productions.slice(2, 5).map((production) => production.provenance.catalogIndices),
     ).toEqual([
       [0, 1],
       [0, 2],
@@ -86,11 +91,13 @@ describe('rhythm-mvp-v1 nominal grammar', () => {
       'substitute',
       'substitute',
     ])
-    expect(variants.map((variant) => variant.recurrence.substitution?.targetCellOffset)).toEqual([
-      undefined,
-      0,
-      1,
-    ])
+    expect(
+      variants.map((variant) =>
+        variant.recurrence.kind === 'substitute'
+          ? variant.recurrence.substitution.targetCellOffset
+          : undefined,
+      ),
+    ).toEqual([undefined, 0, 1])
     for (const variant of variants) {
       expect(variant.recurrence.sourceBeat).toBe(0)
       expect(variant.recurrence.targetBeat).toBe(0)
@@ -133,7 +140,35 @@ describe('rhythm-mvp-v1 nominal grammar', () => {
     })
     expect(plans[0]).toEqual({ kind: 'none' })
     expect(
-      plans.slice(1).map((plan) => [plan.left.barIndex, plan.left.beatIndex, plan.left.cellIndex]),
+      plans
+        .slice(1)
+        .filter((plan): plan is SingleMergePlan => plan.kind === 'merge')
+        .map((plan) => [plan.left.barIndex, plan.left.beatIndex, plan.left.cellIndex]),
     ).toEqual(eligible)
+  })
+
+  // @test-link [[module_rhythm_skeleton_allocator]]
+  it('accepts a Breath-heavy gesture with more than one rest event in a bar, as long as every bar has a rest', () => {
+    const derivations = enumerateGestureDerivations({
+      grammarVersion: 'rhythm-mvp-v1',
+      noteDensity: 'Eighth',
+      silenceDensity: 'Breath-heavy',
+    })
+    const multiRestBar = [...derivations].find((derivation) => {
+      const restCountsPerBar = derivation.bars.map(
+        (bar) => bar.events.filter((event) => event.kind === 'rest').length,
+      )
+      return (
+        restCountsPerBar.some((count) => count >= 2) &&
+        restCountsPerBar.every((count) => count >= 1)
+      )
+    })
+    expect(multiRestBar).toBeDefined()
+    const restedBar = multiRestBar!.bars.find(
+      (bar) => bar.events.filter((event) => event.kind === 'rest').length >= 2,
+    )!
+    expect(restedBar.events.filter((event) => event.kind === 'rest').length).toBeGreaterThanOrEqual(
+      2,
+    )
   })
 })
