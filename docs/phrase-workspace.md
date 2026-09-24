@@ -182,9 +182,12 @@ regeneration against an already-seen rhythm setting skips the expensive Step 6 e
   produces the exact same hash and deep-equal outcome as a fresh-memo cold call for that same
   seed. Together these prove the memo changes only what work is repeated, never what
   `generatePhrase` returns.
-- **Step 6 enumeration unchanged.** The memo caches the _result_ of `makeRhythmCandidateDomain`;
-  it does not touch the Step 6 enumeration algorithm itself (`rhythm-planner.ts` and its
-  collaborators are unmodified by Step 9).
+- **Memo is independent of enumeration speed.** The memo caches the _result_ of
+  `makeRhythmCandidateDomain`; Step 9 itself did not touch the Step 6 enumeration. The later
+  enumeration speed package (see
+  [rhythm-phrase-structure.md](music/rhythm-phrase-structure.md) and
+  [generation-latency.md](generation-latency.md)) makes that first materialization faster with
+  byte-identical output, so the memo and the golden fixture are unaffected by it.
 
 ## Unsupported rhythm settings
 

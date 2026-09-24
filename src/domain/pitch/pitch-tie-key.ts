@@ -28,8 +28,31 @@ export function compareUnsignedPitchTie(
   rightEnumerationIndex: number,
   keyFactory: PitchTieKeyFactory = pitchTieKey,
 ): number {
-  const leftKey = keyFactory(left) >>> 0
-  const rightKey = keyFactory(right) >>> 0
+  return compareUnsignedTieKeys(
+    keyFactory(left),
+    keyFactory(right),
+    leftMidi,
+    rightMidi,
+    leftEnumerationIndex,
+    rightEnumerationIndex,
+  )
+}
+
+/**
+ * The same comparison over tie keys that were already computed, so a sort can hash each
+ * candidate once instead of once per comparison.
+ */
+// @spec-link [[module_pitch_planner]]
+export function compareUnsignedTieKeys(
+  leftTieKey: number,
+  rightTieKey: number,
+  leftMidi: number,
+  rightMidi: number,
+  leftEnumerationIndex: number,
+  rightEnumerationIndex: number,
+): number {
+  const leftKey = leftTieKey >>> 0
+  const rightKey = rightTieKey >>> 0
   if (leftKey !== rightKey) return leftKey < rightKey ? -1 : 1
   if (leftMidi !== rightMidi) return leftMidi - rightMidi
   return leftEnumerationIndex - rightEnumerationIndex

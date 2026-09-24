@@ -13,13 +13,18 @@ export function normalizedRhythmIdentity(candidate: UnindexedRhythmCandidate): s
   })
 }
 
+/**
+ * Index and identify a candidate. A caller that already computed the candidate's
+ * `normalizedRhythmIdentity` (the planner does, to deduplicate) passes it to avoid recomputing it.
+ */
 export function withRhythmIdentity(
   candidate: UnindexedRhythmCandidate,
   candidateIndex: number,
+  identity: string = normalizedRhythmIdentity(candidate),
 ): RhythmCandidate {
   return deepFreeze({
     ...candidate,
     candidateIndex,
-    identity: normalizedRhythmIdentity(candidate),
+    identity,
   })
 }

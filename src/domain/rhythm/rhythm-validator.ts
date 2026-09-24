@@ -5,6 +5,13 @@ import type {
   UnindexedRhythmCandidate,
 } from './rhythm-types'
 import { normalizedRhythmIdentity } from './rhythm-identity'
+import {
+  activeAnchorRatioViolated,
+  canonicalEndingSignature,
+  coversMixedDurationClasses,
+  lacksMetricalAnchor,
+  sameAddress,
+} from './rhythm-invariants'
 import { V1_BEAT_CELL_CATALOGS } from './rhythm-skeleton'
 
 function addressKey(address: {
@@ -67,17 +74,6 @@ function attackBand(
         : [4, 12]
 }
 
-function sameAddress(
-  left: { readonly barIndex: number; readonly beatIndex: number; readonly cellIndex: number },
-  right: { readonly barIndex: number; readonly beatIndex: number; readonly cellIndex: number },
-): boolean {
-  return (
-    left.barIndex === right.barIndex &&
-    left.beatIndex === right.beatIndex &&
-    left.cellIndex === right.cellIndex
-  )
-}
-
 function sameTerminal(
   left: { readonly kind: string; readonly durationTicks: number },
   right: { readonly kind: string; readonly durationTicks: number },
@@ -123,47 +119,6 @@ function hasValidNominalProvenance(candidate: UnindexedRhythmCandidate): boolean
     if (tick !== 16) return false
   }
   return true
-}
-
-/** The answer-ending policy deliberately ignores variation before the final ending unit. */
-function canonicalEndingSignature(bar: UnindexedRhythmCandidate['bars'][number]): string {
-  const sourceCells = bar.events.flatMap((event) => event.sourceCells)
-  let finalCellIndex = -1
-  for (let index = sourceCells.length - 1; index >= 0; index -= 1) {
-    if (sourceCells[index]!.kind === 'note') {
-      finalCellIndex = index
-      break
-    }
-  }
-  const finalCell = sourceCells[finalCellIndex]
-  if (!finalCell) return 'no_final_non_rest_cell'
-  const renderedIndex = bar.events.findIndex((event) =>
-    event.sourceCells.some((cell) => sameAddress(cell.address, finalCell.address)),
-  )
-  const rendered = bar.events[renderedIndex]
-  if (!rendered) return 'missing_rendered_final_non_rest_cell'
-  return JSON.stringify({
-    finalNonRest: {
-      source: { kind: finalCell.kind, durationTicks: finalCell.durationTicks },
-      rendered: {
-        kind: rendered.kind,
-        startTick: rendered.startTick,
-        durationTicks: rendered.durationTicks,
-        tieChainId: rendered.tieChainId,
-        tieContinuation: rendered.tieContinuation ?? false,
-      },
-    },
-    trailingRests: {
-      source: sourceCells.slice(finalCellIndex + 1).map((cell) => ({
-        kind: cell.kind,
-        durationTicks: cell.durationTicks,
-      })),
-      rendered: bar.events.slice(renderedIndex + 1).map((event) => ({
-        kind: event.kind,
-        durationTicks: event.durationTicks,
-      })),
-    },
-  })
 }
 
 function sourceCoordinates(bar: UnindexedRhythmCandidate['bars'][number]): Map<string, number> {
@@ -300,12 +255,7 @@ export function validateRhythmCandidate(
       failures.add('invalid_measure_tiling')
     if (bar.events.some((event) => event.durationTicks <= 0)) failures.add('non_positive_duration')
     if (bar.events.every((event) => event.kind === 'rest')) failures.add('all_rest_measure')
-    if (
-      !bar.events.some(
-        (event) => event.kind === 'note' && (event.startTick === 0 || event.startTick === 8),
-      )
-    )
-      failures.add('metrical_anchor_missing')
+    if (lacksMetricalAnchor(bar)) failures.add('metrical_anchor_missing')
     if (bar.barIndex === 0) {
       const firstEvent = bar.events[0]
       if (
@@ -345,13 +295,7 @@ export function validateRhythmCandidate(
     failures.add('silence_shape_violation')
   if (events.some((event) => event.kind === 'rest' && event.durationTicks > 8))
     failures.add('rest_duration_limit_violation')
-  const mixedDurations = new Set(
-    events.flatMap((event) => event.sourceCells.map((cell) => cell.durationTicks)),
-  )
-  if (
-    candidate.input.noteDensity === 'Mixed' &&
-    ![1, 2, 4].every((duration) => mixedDurations.has(duration))
-  )
+  if (candidate.input.noteDensity === 'Mixed' && !coversMixedDurationClasses(candidate.bars))
     failures.add('mixed_duration_class_coverage_violation')
   if (!hasValidNominalProvenance(candidate)) failures.add('invalid_nominal_provenance')
   const syncopationDescriptors = candidate.transforms.filter((descriptor) =>
@@ -527,43 +471,7 @@ export function validateRhythmCandidate(
           descriptors[index - 1]!.boundaryTick <= descriptor.boundaryTick),
     )
   if (!ordered) failures.add('transform_order_violation')
-  if (candidate.input.syncopation === 'Active displacement') {
-    const syncopated = candidate.transforms.filter((descriptor) =>
-      descriptor.roles.includes('syncopation'),
-    )
-    const hasOffbeatDisplacedAttack = syncopated.some((descriptor) => {
-      if (descriptor.case === 'tied_sustain') return false
-      const attackTick =
-        descriptor.case === 'interior_rest'
-          ? descriptor.transformedBoundaries[1]
-          : descriptor.transformedBoundaries[0]
-      return attackTick !== undefined && attackTick % 4 !== 0
-    })
-    const hasTiedSustain = syncopated.some(
-      (descriptor) =>
-        descriptor.case === 'tied_sustain' &&
-        candidate.bars[descriptor.barIndex]?.events.some(
-          (event) => event.tieContinuation && event.tieChainId === descriptor.tieChainId,
-        ),
-    )
-    if (
-      !hasOffbeatDisplacedAttack ||
-      !hasTiedSustain ||
-      candidate.bars.some((bar) => {
-        const anchors = bar.events.filter(
-          (event) =>
-            event.kind === 'note' &&
-            !event.tieContinuation &&
-            (event.startTick === 0 || event.startTick === 8),
-        ).length
-        const syncopatedEvents = syncopated.filter(
-          (descriptor) => descriptor.barIndex === bar.barIndex,
-        ).length
-        return anchors < syncopatedEvents
-      })
-    )
-      failures.add('active_anchor_ratio_violation')
-  }
+  if (activeAnchorRatioViolated(candidate)) failures.add('active_anchor_ratio_violation')
   if ('identity' in candidate && candidate.identity !== normalizedRhythmIdentity(candidate))
     failures.add('candidate_identity_mismatch')
   return CODE_ORDER.filter((code) => failures.has(code))

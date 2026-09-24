@@ -285,6 +285,35 @@ export function* enumerateAnswerTransformLists(
       }
 }
 
+/**
+ * Per-bar memo of the pure syncopation selectors for one rhythm expansion, keyed by the immutable
+ * bar object and the selector arguments. A gesture's bars, and every answer bar an answer list
+ * leaves untouched, are the same objects across that gesture's answer lists, so each selector runs
+ * once per bar instead of once per template. Weakly keyed, so a bar no candidate retains is freed.
+ */
+// @spec-link [[mechanic_syncopation_translation]]
+export type SyncopationSelectorMemo = WeakMap<
+  RhythmBar,
+  Map<string, RhythmTransformDescriptor | undefined>
+>
+
+function memoSelector(
+  memo: SyncopationSelectorMemo,
+  bar: RhythmBar,
+  key: string,
+  compute: () => RhythmTransformDescriptor | undefined,
+): RhythmTransformDescriptor | undefined {
+  let byKey = memo.get(bar)
+  if (!byKey) {
+    byKey = new Map()
+    memo.set(bar, byKey)
+  }
+  if (byKey.has(key)) return byKey.get(key)
+  const value = compute()
+  byKey.set(key, value)
+  return value
+}
+
 function syncSelector(
   bar: RhythmBar,
   density: NoteDensity,
@@ -296,13 +325,17 @@ function syncSelector(
   return displacementCandidates(bar, density, selector, deltas, roles(false, true), false)[0]
 }
 
-/** Enumerate the finite, canonical v1 syncopation template catalog. */
+/**
+ * Enumerate the finite, canonical v1 syncopation template catalog. Pass one `memo` across the
+ * calls of a single expansion to share selector results between answer lists.
+ */
 // @spec-link [[mechanic_syncopation_translation]]
 export function* enumerateSyncopationTemplates(
   bars: readonly RhythmBar[],
   density: NoteDensity,
   syncopation: Syncopation,
   coalesced: readonly RhythmTransformDescriptor[] = [],
+  memo: SyncopationSelectorMemo = new WeakMap(),
 ): IterableIterator<readonly RhythmTransformDescriptor[]> {
   if (syncopation === 'Straight') {
     yield deepFreeze([])
@@ -321,6 +354,10 @@ export function* enumerateSyncopationTemplates(
         .map((descriptor) => [descriptor.barIndex, descriptor] as const),
     )
     if (dualByBar.size !== coalesced.length) return
+    const selectOccasional = (index: number, selector: (typeof selectors)[number]) =>
+      memoSelector(memo, bars[index]!, `occ|${density}|${selector}`, () =>
+        syncSelector(bars[index]!, density, selector, false),
+      )
     // Canonical nesting is cardinality, lexicographic bar set, then shared selector.
     for (const barSet of [
       ...bars.map((_, index) => [index]),
@@ -337,7 +374,7 @@ export function* enumerateSyncopationTemplates(
             return dual.case === selector && (selector === 'tied_sustain' || dual.delta === 2)
               ? undefined
               : null
-          return syncSelector(bars[index]!, density, selector, false)
+          return selectOccasional(index, selector)
         })
         if (
           template.every(
@@ -355,6 +392,20 @@ export function* enumerateSyncopationTemplates(
     return
   }
   if (bars.length !== 4) return
+  const activeTie = (bar: RhythmBar) =>
+    memoSelector(memo, bar, 'tie|active', () => syncSelector(bar, density, 'tied_sustain', true))
+  const activeDisplacement = (
+    bar: RhythmBar,
+    displacement: 'note_to_note' | 'interior_rest',
+    delta: number,
+  ) =>
+    memoSelector(
+      memo,
+      bar,
+      `act|${density}|${displacement}|${delta}`,
+      () =>
+        displacementCandidates(bar, density, displacement, [delta], roles(false, true), false)[0],
+    )
   for (const pattern of [
     ['tied_sustain', 'displacement', 'tied_sustain', 'displacement'],
     ['displacement', 'tied_sustain', 'displacement', 'tied_sustain'],
@@ -363,15 +414,8 @@ export function* enumerateSyncopationTemplates(
       for (const delta of [-2, -1, 1, 2]) {
         const template = bars.map((bar, index) =>
           pattern[index] === 'tied_sustain'
-            ? syncSelector(bar, density, 'tied_sustain', true)
-            : displacementCandidates(
-                bar,
-                density,
-                displacement,
-                [delta],
-                roles(false, true),
-                false,
-              )[0],
+            ? activeTie(bar)
+            : activeDisplacement(bar, displacement, delta),
         )
         if (
           template.every((descriptor) => descriptor !== undefined) &&
@@ -395,6 +439,7 @@ function retime(events: readonly RhythmEvent[], starts: readonly number[]): read
 export function applyTransform(
   bar: RhythmBar,
   descriptor: RhythmTransformDescriptor,
+  freeze: <T>(value: T) => T = deepFreeze,
 ): TransformResult {
   if (bar.barIndex !== descriptor.barIndex) return { ok: false, code: 'transform_address_mismatch' }
   if (descriptor.case === 'swap_final_pattern') {
@@ -427,7 +472,7 @@ export function applyTransform(
           ? { ...event, kind: firstCell.kind }
           : event,
     )
-    return { ok: true, bar: deepFreeze({ ...bar, events }) }
+    return { ok: true, bar: freeze({ ...bar, events }) }
   }
   if (descriptor.case === 'tied_sustain') {
     const index = bar.events.findIndex(
@@ -458,7 +503,7 @@ export function applyTransform(
     const rightSourceCells = event.sourceCells.slice(splitIndex + 1)
     return {
       ok: true,
-      bar: deepFreeze({
+      bar: freeze({
         ...bar,
         events: [
           ...bar.events.slice(0, index),
@@ -517,7 +562,7 @@ export function applyTransform(
     const events = retime(bar.events, starts)
     return events.some((event) => event.durationTicks <= 0)
       ? { ok: false, code: 'transform_algebra_violation' }
-      : { ok: true, bar: deepFreeze({ ...bar, events }) }
+      : { ok: true, bar: freeze({ ...bar, events }) }
   }
   if (
     left.kind !== 'note' ||
@@ -530,7 +575,7 @@ export function applyTransform(
   const events = retime(bar.events, starts)
   return events.some((event) => event.durationTicks <= 0)
     ? { ok: false, code: 'transform_algebra_violation' }
-    : { ok: true, bar: deepFreeze({ ...bar, events }) }
+    : { ok: true, bar: freeze({ ...bar, events }) }
 }
 
 /** Apply a descriptor set in recorded order after rejecting overlapping immutable source coordinates. */
@@ -538,6 +583,7 @@ export function applyTransform(
 export function applyTransformSet(
   bar: RhythmBar,
   descriptors: readonly RhythmTransformDescriptor[],
+  freeze: <T>(value: T) => T = deepFreeze,
 ): TransformResult {
   if (!disjoint(descriptors)) return { ok: false, code: 'transform_overlap_violation' }
   let current = bar
@@ -553,7 +599,7 @@ export function applyTransformSet(
     )
   })
   for (const descriptor of ordered) {
-    const result = applyTransform(current, descriptor)
+    const result = applyTransform(current, descriptor, freeze)
     if (!result.ok) return result
     current = result.bar
   }

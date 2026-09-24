@@ -5,9 +5,6 @@ type: RULE
 layer: BUSINESS
 version: 0.1
 priority: 2
-dependents:
-  - [[entity_rhythm_candidate_domain]]
-  - [[module_rhythm_domain_validation]]
 human_name: Phrase Starts on the Downbeat
 tags: rhythm,pulse,phrase-start
 parents:
