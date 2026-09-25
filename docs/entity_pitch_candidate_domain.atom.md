@@ -14,7 +14,9 @@ dependents:
   - [[module_pitch_attack_timeline]]
   - [[module_pitch_domain_validation]]
   - [[module_pitch_planner]]
+  - [[module_pitch_search_context]]
   - [[module_pitch_search_inspection]]
+  - [[module_pitch_search_transition]]
 human_name: Pitch Candidate Domain
 type: ENTITY
 ---

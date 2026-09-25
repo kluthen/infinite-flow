@@ -164,19 +164,30 @@
     min-inline-size: 0;
   }
 
-  /* VexFlow renders `<svg class="staff-svg">` with presentation attributes (fill/stroke,
-     default black — see node_modules/vexflow build/esm/src/svgcontext.js) rather than CSS
-     classes, so recolor the painted attributes directly: a theme switch then recolors the
-     score without a redraw. `[fill='none']` and `[stroke='none']` are left untouched so
-     transparent shapes stay transparent. */
-  .staff-frame .staff-svg [fill]:not([fill='none']) {
+  /* VexFlow paints most shapes (staff lines, stems, barlines, beams, ties, ledger lines) by
+     inheriting fill/stroke from an ancestor <g> or the root <svg> rather than by setting a
+     presentation attribute on every shape (SVGContext.applyAttributes skips an attribute that
+     would just repeat the nearest enclosing group's cached value — see node_modules/vexflow
+     build/esm/src/svgcontext.js): only the root <svg> reliably carries a real `fill="black"
+     stroke="black"`, plus a minority of shapes (explicit `fill='none'`/`stroke='none'` regions,
+     and glyph `<text>`) that differ from the ambient default. An attribute-selector rule that
+     only matches elements carrying their own `fill`/`stroke` therefore misses almost everything
+     and leaves the score black-on-black in dark mode. Recolor by inheritance instead, on the SVG
+     root and every group, so a theme switch still recolors the whole score without a redraw and
+     the SVG markup itself never changes. `[fill='none']` and `[stroke='none']` stay transparent,
+     and glyph `<text>` (note heads, rests, clef, chord symbols) gets no stroke outline, since
+     VexFlow always draws text as filled glyphs only. */
+  .staff-frame .staff-svg,
+  .staff-frame .staff-svg g {
     fill: var(--color-staff);
-  }
-  .staff-frame .staff-svg [stroke]:not([stroke='none']) {
     stroke: var(--color-staff);
   }
+  .staff-frame .staff-svg [fill='none'] {
+    fill: none;
+  }
+  .staff-frame .staff-svg [stroke='none'],
   .staff-frame .staff-svg text {
-    fill: var(--color-staff);
+    stroke: none;
   }
 
   /* States: default, hover, focus-visible, active, disabled, loading, error. */
@@ -359,9 +370,10 @@
     font-weight: 700;
   }
 
-  /* States: ready, loading, error. This semantic status is visually hidden but remains
+  /* States: ready, loading, error. These semantic statuses are visually hidden but remain
      exposed to assistive technology. */
-  .generation-status {
+  .generation-status,
+  .notation-status {
     block-size: var(--size-visually-hidden);
     clip: rect(0 0 0 0);
     clip-path: inset(50%);

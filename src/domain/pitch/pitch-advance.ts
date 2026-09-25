@@ -18,7 +18,7 @@ import type {
 } from './pitch-types'
 
 /** The search state before the first attack. */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_search_transition]]
 export function initialPitchSearchState(context: PitchSearchContext): PitchSearchState {
   return deepFreeze({
     nextAttackIndex: 0,
@@ -29,7 +29,7 @@ export function initialPitchSearchState(context: PitchSearchContext): PitchSearc
 }
 
 /** Chord-tone and collection membership of a MIDI value at an attack. */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_search_transition]]
 export function noteFacts(
   context: PitchSearchContext,
   attack: PitchAttack,
@@ -86,7 +86,7 @@ function domainMember(
  * `domainMember` over per-attack identity indexes built lazily for one search run. Each index
  * keeps the first entry for an identity, which is the entry `domainMember`'s `find` returns.
  */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_search_transition]]
 export function indexedDomainMember(context: PitchSearchContext): DomainMemberLookup {
   const indexes = new Map<number, Map<string, PitchCandidate>>()
   return (attack, candidate) => {
@@ -168,7 +168,7 @@ function transition(
  * The thin transition: compose the figure, motion, and contour reducers for one candidate on the
  * next attack, then apply the open-endpoint and terminal checks. It never rescans the prefix.
  */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_search_transition]]
 export function advance(
   context: PitchSearchContext,
   state: PitchSearchState,
@@ -188,7 +188,7 @@ export function advance(
  * `nextState`, resolved through the search run's `indexedDomainMember` lookup, without the unread
  * ranking facts or the defensive freeze. It is charged one unit of fuel exactly like `advance`.
  */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_search_transition]]
 export function advanceSearchStep(
   context: PitchSearchContext,
   state: PitchSearchState,
@@ -199,7 +199,7 @@ export function advanceSearchStep(
 }
 
 /** Exact memo key: every field that can influence the rest of the search. */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_search_transition]]
 export function pitchStateKey(state: PitchSearchState): string {
   return JSON.stringify([
     state.nextAttackIndex,

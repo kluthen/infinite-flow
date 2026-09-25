@@ -6,6 +6,14 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  build: {
+    // The lazy-loaded VexFlow engraver chunk (src/notation/vexflow-engraver-loader.ts) embeds the
+    // Bravura/Academico fonts as data URIs and is ~726 kB minified; it is precached for offline use
+    // but never part of the initial page load. Raise Vite's default 500 kB warning just above it so
+    // that expected chunk stops being flagged as noise. Real per-chunk size budgets are still
+    // enforced by scripts/verify-boundaries.mjs (npm run verify:boundaries).
+    chunkSizeWarningLimit: 800,
+  },
   plugins: [
     vue(),
     tailwindcss(),

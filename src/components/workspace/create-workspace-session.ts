@@ -97,8 +97,9 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   }
 
   const coordinator: NotationCoordinator = createNotationCoordinator({
-    reportNotationFailure: (error) => requireSession().actions.reportNotationFailure(error),
-    reportNotationRecovered: () => requireSession().actions.reportNotationRecovered(),
+    reportNotationFailure: (error, mode) =>
+      requireSession().actions.reportNotationFailure(error, mode),
+    reportNotationRecovered: (mode) => requireSession().actions.reportNotationRecovered(mode),
   })
 
   const created = createGenerationSession<WorkspaceSessionResult>({

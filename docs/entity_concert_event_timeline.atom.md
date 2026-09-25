@@ -12,6 +12,7 @@ dependents:
   - [[service_generation_orchestration]]
   - [[service_generation_request_resolution]]
   - [[service_generation_result_validation]]
+  - [[service_generation_window_search]]
 tags: event-schema,partial-impl-step5
 parents:
   - [[entity_exact_musical_time]]

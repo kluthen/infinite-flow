@@ -87,7 +87,11 @@ callers share one fetch. The chunk (`dist/assets/vexflow-engraver-*.js`, roughly
 uncompressed) is still part of the offline precache (see Offline guarantees above), so a first
 online load fetches it once and it is then available offline; a failed dynamic import (for example,
 mid-navigation on a flaky connection before the precache exists) surfaces as the same typed
-`notation_engraving_failed` `NotationError` the adapter itself uses, and is retryable.
+`notation_engraving_failed` `NotationError` the adapter itself uses, and is retryable. Its size is
+expected and budgeted: `vite.config.ts`'s `build.chunkSizeWarningLimit` keeps Vite's generic
+size warning from firing on this one known-large chunk, and `scripts/verify-boundaries.mjs` still
+enforces a hard per-chunk byte budget (800 KB for this chunk, tighter for others) as part of
+`npm run verify:boundaries`.
 
 ## Minimum viewport and responsive breakpoints
 

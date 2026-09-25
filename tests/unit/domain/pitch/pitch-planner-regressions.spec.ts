@@ -321,6 +321,7 @@ describe('pitch planner regressions', () => {
 
   // @test-link [[module_pitch_planner]]
   // @test-link [[module_pitch_search_inspection]]
+  // @test-link [[module_pitch_search_context]]
   it('rejects an all-rest rhythm rather than returning an empty plan', () => {
     const base = fixture()
     const input = makeBoundPitchPlannerInput({
@@ -333,6 +334,7 @@ describe('pitch planner regressions', () => {
 
   // @test-link [[module_pitch_planner]]
   // @test-link [[module_pitch_search_inspection]]
+  // @test-link [[module_pitch_search_context]]
   it('rejects a rhythm whose bar has no fresh attack for a contour checkpoint', () => {
     const base = fixture()
     const input = makeBoundPitchPlannerInput({

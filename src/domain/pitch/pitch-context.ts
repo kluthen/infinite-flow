@@ -22,7 +22,7 @@ import type {
  * when that bar's anchors are only tie continuations, its first fresh attack at any tick. A bar
  * with no fresh attack has no checkpoint, which leaves the contour plan impossible.
  */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_search_context]]
 function checkpointIndices(spans: readonly SoundingSpan[]): ReadonlyMap<number, number> {
   const anchored = new Map<number, number>()
   const first = new Map<number, number>()
@@ -35,7 +35,7 @@ function checkpointIndices(spans: readonly SoundingSpan[]): ReadonlyMap<number, 
 }
 
 /** Rebuild chronological sounding attacks with tie-inclusive spans and absolute-beat harmony. */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_search_context]]
 export function compileAttacks(input: BoundPitchPlannerInput): readonly PitchAttack[] {
   const spans = soundingSpans(input.rhythm)
   const harmonyIndices = spans.map((span) => harmonyEventIndexAt(input.harmony, span.start))
@@ -68,7 +68,7 @@ export function compileAttacks(input: BoundPitchPlannerInput): readonly PitchAtt
  * harmony (tonal gentle/active), collection degree 5 (tonal static), or a non-tonic chord tone
  * (modal).
  */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_search_context]]
 export function isOpenEndpointMidi(
   input: BoundPitchPlannerInput,
   attack: PitchAttack,
@@ -93,7 +93,7 @@ function distinctMidis(domain: readonly PitchCandidate[]): readonly ConcertPitch
  * open-endpoint MIDI values, leapiness limits, and the contour suffix table. All search
  * transitions read only this immutable snapshot.
  */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_search_context]]
 export function compilePitchSearchContext(input: BoundPitchPlannerInput): PitchSearchContext {
   const attacks = compileAttacks(input)
   const collection = collectionPitchClasses(input.policy)

@@ -85,6 +85,7 @@ function focusOption(index: number): void {
 </script>
 
 <template>
+  <!-- @spec-link [[rule_readonly_controls_keep_contrast]] -->
   <div
     class="segmented-control"
     :class="{ 'is-readonly': readonly }"

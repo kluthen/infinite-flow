@@ -28,7 +28,7 @@ export interface GenerationSearchPolicy {
 }
 
 /** The selected upstream candidates and binding that one phrase was planned from. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_window_search]]
 export interface GenerationProvenance {
   readonly harmony: HarmonyCandidate
   readonly rhythm: RhythmCandidate
@@ -46,7 +46,7 @@ export type GenerationFailureCode =
   | 'result_validation_failed'
 
 /** The determinate or indeterminate outcome of searching one resolved window. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_window_search]]
 export type WindowOutcome =
   | {
       readonly kind: 'window_success'

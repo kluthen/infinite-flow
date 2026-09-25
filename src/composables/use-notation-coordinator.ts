@@ -5,7 +5,8 @@
  * `engraved`/`notation-error` event. `PhraseScore` also fires those events on its own (a viewport
  * resize, a breakpoint crossing) with no session request behind them; those unsolicited events
  * report through the session's `reportNotationFailure`/`reportNotationRecovered` seam instead of
- * settling a promise nothing is waiting on.
+ * settling a promise nothing is waiting on, together with the display mode the pending phrase was
+ * computed in -- the one mode such a redraw can actually have rendered.
  */
 import { ref, type Ref } from 'vue'
 
@@ -24,10 +25,14 @@ export class NotationCoordinatorUsageError extends Error {
   }
 }
 
-/** The session-facing report actions this coordinator routes unsolicited PhraseScore events to. */
+/**
+ * The session-facing report actions this coordinator routes unsolicited PhraseScore events to,
+ * each told the display mode of the pending phrase that unsolicited redraw actually rendered.
+ */
+// @spec-link [[service_workspace_session_flow]]
 export interface NotationCoordinatorSessionReporter {
-  readonly reportNotationFailure: (error: Error) => boolean
-  readonly reportNotationRecovered: () => boolean
+  readonly reportNotationFailure: (error: Error, mode: NotationMode) => boolean
+  readonly reportNotationRecovered: (mode: NotationMode) => boolean
 }
 
 export interface NotationCoordinator {
@@ -53,6 +58,12 @@ export function createNotationCoordinator(
   reporter: NotationCoordinatorSessionReporter,
 ): NotationCoordinator {
   const pendingPhrase = ref<WrittenPhrase | null>(null) as Ref<WrittenPhrase | null>
+  /**
+   * The mode `pendingPhrase` was computed in, set by every `notate()` and cleared with it. Only a
+   * fresh `notate()` changes it -- never PhraseScore retrying the same phrase on a resize -- so it
+   * stays an accurate record of what an unsolicited redraw rendered, however many retries occur.
+   */
+  let pendingNotationMode: NotationMode | null = null
   let awaiting: AwaitingRequest | null = null
 
   /** Intent: compute the requested WrittenPhrase and await PhraseScore's next settlement of it. */
@@ -69,6 +80,7 @@ export function createNotationCoordinator(
     return new Promise<void>((resolve, reject) => {
       awaiting = { resolve, reject }
       pendingPhrase.value = phrase
+      pendingNotationMode = requestedMode
     })
   }
 
@@ -80,9 +92,15 @@ export function createNotationCoordinator(
       )
     }
     pendingPhrase.value = null
+    pendingNotationMode = null
   }
 
-  /** Intent: settle a pending notate() request on success, or report an outside-operation recovery. */
+  /**
+   * Intent: settle a pending notate() request on success, or report an outside-operation recovery
+   * in the pending phrase's mode. With no phrase ever published (or one since cleared) there is no
+   * mounted PhraseScore to have redrawn anything, so there is nothing to report.
+   */
+  // @spec-link [[service_workspace_session_flow]]
   function handleEngraved(): void {
     if (awaiting !== null) {
       const request = awaiting
@@ -90,10 +108,15 @@ export function createNotationCoordinator(
       request.resolve()
       return
     }
-    reporter.reportNotationRecovered()
+    if (pendingNotationMode === null) return
+    reporter.reportNotationRecovered(pendingNotationMode)
   }
 
-  /** Intent: settle a pending notate() request on failure, or report an outside-operation failure. */
+  /**
+   * Intent: settle a pending notate() request on failure, or report an outside-operation failure
+   * in the pending phrase's mode, under the same no-published-phrase guard as `handleEngraved`.
+   */
+  // @spec-link [[service_workspace_session_flow]]
   function handleNotationError(error: NotationError): void {
     if (awaiting !== null) {
       const request = awaiting
@@ -101,7 +124,8 @@ export function createNotationCoordinator(
       request.reject(error)
       return
     }
-    reporter.reportNotationFailure(error)
+    if (pendingNotationMode === null) return
+    reporter.reportNotationFailure(error, pendingNotationMode)
   }
 
   return { pendingPhrase, notate, clearPresentedPhrase, handleEngraved, handleNotationError }

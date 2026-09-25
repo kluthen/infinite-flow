@@ -382,8 +382,10 @@ describe('generation session workspace flow', () => {
         evaluateProfileSwitch: () => RETAIN,
       })
 
-      expect(session.actions.reportNotationFailure(new Error('resize redraw failed'))).toBe(false)
-      expect(session.actions.reportNotationRecovered()).toBe(false)
+      expect(
+        session.actions.reportNotationFailure(new Error('resize redraw failed'), 'Concert'),
+      ).toBe(false)
+      expect(session.actions.reportNotationRecovered('Concert')).toBe(false)
     })
 
     it('refuse while an operation is in progress, even with a result present', async () => {
@@ -397,12 +399,15 @@ describe('generation session workspace flow', () => {
       })
 
       const pending = session.actions.generate()
-      expect(session.actions.reportNotationFailure(new Error('resize redraw failed'))).toBe(false)
+      expect(
+        session.actions.reportNotationFailure(new Error('resize redraw failed'), 'Concert'),
+      ).toBe(false)
       deferred.resolve({ id: 1 })
       await pending
     })
 
-    it('set and clear notationError/failedNotationMode while idle with a result present', async () => {
+    // @test-link [[service_workspace_session_flow]]
+    it('records the reported mode (not presentation.notationMode) on failure, and commits it on recovery (D35)', async () => {
       const { providers } = trackedProviders()
       const session = createGenerationSession<StubResult>({
         providers,
@@ -412,13 +417,45 @@ describe('generation session workspace flow', () => {
       })
 
       await session.actions.generate()
-      expect(session.actions.reportNotationFailure(new Error('resize redraw failed'))).toBe(true)
-      expect(session.state.notationError?.message).toBe('resize redraw failed')
-      expect(session.state.failedNotationMode).toBe('B-flat tenor')
+      expect(session.state.presentation.notationMode).toBe('B-flat tenor')
+      expect(session.state.resultEngraved).toBe(true)
 
-      expect(session.actions.reportNotationRecovered()).toBe(true)
+      expect(
+        session.actions.reportNotationFailure(new Error('resize redraw failed'), 'Concert'),
+      ).toBe(true)
+      expect(session.state.notationError?.message).toBe('resize redraw failed')
+      expect(session.state.failedNotationMode).toBe('Concert')
+      expect(session.state.presentation.notationMode).toBe('B-flat tenor')
+      expect(session.state.resultEngraved).toBe(false)
+
+      expect(session.actions.reportNotationRecovered('Concert')).toBe(true)
+      expect(session.state.presentation.notationMode).toBe('Concert')
       expect(session.state.notationError).toBeNull()
       expect(session.state.failedNotationMode).toBeNull()
+      expect(session.state.resultEngraved).toBe(true)
+    })
+
+    // @test-link [[service_workspace_session_flow]]
+    it('records the reported mode on each repeated out-of-band failure, never presentation.notationMode (D35)', async () => {
+      const { providers } = trackedProviders()
+      const session = createGenerationSession<StubResult>({
+        providers,
+        generate: async () => ({ id: 1 }),
+        notate: async () => undefined,
+        evaluateProfileSwitch: () => RETAIN,
+      })
+
+      await session.actions.generate()
+
+      expect(session.actions.reportNotationFailure(new Error('first'), 'Concert')).toBe(true)
+      expect(session.state.notationError?.message).toBe('first')
+      expect(session.state.failedNotationMode).toBe('Concert')
+      expect(session.state.presentation.notationMode).toBe('B-flat tenor')
+
+      expect(session.actions.reportNotationFailure(new Error('second'), 'E-flat alto')).toBe(true)
+      expect(session.state.notationError?.message).toBe('second')
+      expect(session.state.failedNotationMode).toBe('E-flat alto')
+      expect(session.state.presentation.notationMode).toBe('B-flat tenor')
     })
   })
 

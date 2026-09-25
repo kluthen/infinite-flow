@@ -53,21 +53,94 @@ describe('createNotationCoordinator', () => {
     expect(() => coordinator.notate(result, 'E-flat alto')).toThrow(NotationCoordinatorUsageError)
   })
 
-  it('routes an unsolicited engraved event (no pending request) to reportNotationRecovered', () => {
+  it('reports nothing for an unsolicited engraved event when no phrase has ever been published', () => {
     const { coordinator, reportNotationRecovered } = buildCoordinator()
 
     coordinator.handleEngraved()
 
-    expect(reportNotationRecovered).toHaveBeenCalledOnce()
+    expect(reportNotationRecovered).not.toHaveBeenCalled()
   })
 
-  it('routes an unsolicited notation-error event (no pending request) to reportNotationFailure', () => {
+  it('reports nothing for an unsolicited notation-error event when no phrase has ever been published', () => {
     const { coordinator, reportNotationFailure } = buildCoordinator()
     const error = new NotationError('notation_bounds_exceeded', 'boom', {})
 
     coordinator.handleNotationError(error)
 
-    expect(reportNotationFailure).toHaveBeenCalledExactlyOnceWith(error)
+    expect(reportNotationFailure).not.toHaveBeenCalled()
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it("routes an unsolicited engraved event to reportNotationRecovered with the settled notate()'s mode", async () => {
+    const { coordinator, reportNotationRecovered } = buildCoordinator()
+    const result = buildWorkspaceSessionResult()
+
+    const pending = coordinator.notate(result, 'Concert')
+    coordinator.handleEngraved()
+    await pending
+
+    coordinator.handleEngraved()
+
+    expect(reportNotationRecovered).toHaveBeenCalledExactlyOnceWith('Concert')
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it("routes an unsolicited notation-error event to reportNotationFailure with the settled notate()'s mode", async () => {
+    const { coordinator, reportNotationFailure } = buildCoordinator()
+    const result = buildWorkspaceSessionResult()
+
+    const pending = coordinator.notate(result, 'Concert')
+    coordinator.handleEngraved()
+    await pending
+
+    const error = new NotationError('notation_bounds_exceeded', 'boom', {})
+    coordinator.handleNotationError(error)
+
+    expect(reportNotationFailure).toHaveBeenCalledExactlyOnceWith(error, 'Concert')
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it('tracks the latest notate() mode even when that request was itself rejected', async () => {
+    const { coordinator, reportNotationFailure, reportNotationRecovered } = buildCoordinator()
+    const result = buildWorkspaceSessionResult()
+
+    const first = coordinator.notate(result, 'B-flat tenor')
+    coordinator.handleEngraved()
+    await first
+
+    const second = coordinator.notate(result, 'Concert')
+    const rejection = new NotationError('notation_engraving_failed', 'boom', {})
+    coordinator.handleNotationError(rejection)
+    await expect(second).rejects.toBe(rejection)
+
+    const unsolicitedErrorOne = new NotationError('notation_bounds_exceeded', 'boom-1', {})
+    coordinator.handleNotationError(unsolicitedErrorOne)
+    const unsolicitedErrorTwo = new NotationError('notation_bounds_exceeded', 'boom-2', {})
+    coordinator.handleNotationError(unsolicitedErrorTwo)
+
+    expect(reportNotationFailure).toHaveBeenNthCalledWith(1, unsolicitedErrorOne, 'Concert')
+    expect(reportNotationFailure).toHaveBeenNthCalledWith(2, unsolicitedErrorTwo, 'Concert')
+
+    coordinator.handleEngraved()
+
+    expect(reportNotationRecovered).toHaveBeenCalledExactlyOnceWith('Concert')
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it('reports nothing for an unsolicited event after clearPresentedPhrase() drops the published phrase', async () => {
+    const { coordinator, reportNotationFailure, reportNotationRecovered } = buildCoordinator()
+    const result = buildWorkspaceSessionResult()
+
+    const pending = coordinator.notate(result, 'Concert')
+    coordinator.handleEngraved()
+    await pending
+    coordinator.clearPresentedPhrase()
+
+    coordinator.handleEngraved()
+    coordinator.handleNotationError(new NotationError('notation_bounds_exceeded', 'boom', {}))
+
+    expect(reportNotationRecovered).not.toHaveBeenCalled()
+    expect(reportNotationFailure).not.toHaveBeenCalled()
   })
 
   it('allows a fresh notate() call once the previous one has settled', async () => {

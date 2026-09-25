@@ -1,13 +1,35 @@
-# Known Deferred Scope
+# Post-v1 Scope (Roadmap Input)
+
+**This document does not gate v1.0.** It lists work that is outside the first release by design:
+roadmap candidates for after v1.0, and the known limitations v1.0 ships with. Nothing here needs
+to be resolved before v1.0 is validated.
+
+The v1.0 gate is [`release-checklist.md`](release-checklist.md): the quality gate, the
+Definition-of-Done sign-off, and **no open issue in [`issues/`](../../issues/)**. Findings from
+release-candidate testing, including musical calibration findings, are filed there, not here. To
+pull an item from this document into v1.0, file it as an issue first.
 
 Collected from [`specs/first-release-master-spec.md`](../../specs/first-release-master-spec.md),
 [`specs/roadmap.md`](../../specs/roadmap.md), [`specs/open-questions.md`](../../specs/open-questions.md),
 [`specs/first_release_plan.md`](../../specs/first_release_plan.md) ("Known Implementation Risks"),
 [`ui_ux/todo.md`](../../ui_ux/todo.md), and
 [`docs/req_tech_debt_backlog.atom.md`](../req_tech_debt_backlog.atom.md). Every item below cites its
-source file; nothing here changes product intent, it only inventories what was already deferred.
+source file. Nothing here changes product intent; it only inventories what was already deferred.
 
-## Product features deferred
+## Known v1 limitations
+
+These ship in v1.0 by design. They are documented behavior, not blockers.
+
+- **Chromium only.** Other browsers are untested and unsupported. See
+  [`browser-and-offline-limits.md`](browser-and-offline-limits.md).
+- **Offline needs one online load over a secure context.** The service worker precaches the app
+  after the first visit; see [`browser-and-offline-limits.md`](browser-and-offline-limits.md).
+- **Six rhythm-setting combinations are blocked.** The UI disables generation for them and
+  explains why. The roadmap side is under "Engineering debt" below.
+- **A generation can hit its work limit.** The search is bounded; when the limit is reached the
+  workspace says so and offers a retry with a fresh seed. It is never reported as "impossible".
+
+## Post-v1 product features (roadmap)
 
 - **Generated lead-line playback.** Explicitly excluded. Source:
   `specs/first-release-master-spec.md` ("Explicitly Excluded"); listed again under "Later
@@ -55,7 +77,7 @@ source file; nothing here changes product intent, it only inventories what was a
 - **MIDI-feedback UI flow and states.** UI/UX has not designed this yet; explicitly deferred until
   the minimal-MIDI roadmap stage is scheduled. Source: `ui_ux/todo.md` ("Remaining").
 
-## Engineering debt
+## Post-v1 engineering debt (roadmap)
 
 - **Planner-repair authority is undecided.** Whether a later planning stage (e.g. pitch) may revise
   an earlier stage's (e.g. harmony/rhythm) decision to repair voice leading or playability, and how
@@ -93,20 +115,11 @@ source file; nothing here changes product intent, it only inventories what was a
   (outside this docs-only task) to see the current count. Source:
   `docs/req_tech_debt_backlog.atom.md`.
 
-- **Step 10 review follow-ups (non-blocking).** These were confirmed at the Step 10 go/no-go review
-  and left open:
-  - No ATD atom owns the read-only contrast guarantee during an operation (the dashed ring
-    replacing opacity dimming). The behavior is covered by `npm run test:a11y`; only the
-    traceability is missing.
-  - No UI state is defined for a generation-error banner coexisting with the `Retry notation` label.
-    This happens when a display-mode redraw fails after a later generation failure. The behavior
-    is coherent (see `WorkspaceHeader.vue`), but `ui_ux/` does not describe it.
-  - The lazy VexFlow engraver chunk (about 726 KB, about 390 KB gzip) triggers Vite's chunk-size
-    warning during `npm run build`. It is lazy-loaded and precached, so the warning is expected.
-  - The `module_pitch_planner` and `service_generation_orchestration` atoms are still too broad and
-    need a split pass.
+## Post-v1 calibration work (roadmap)
 
-## Calibration work
+Calibration findings from v1.0 release-candidate testing are filed in [`issues/`](../../issues/)
+and gate v1.0 (for example ISS-004, note-density variety). This section covers only the ongoing,
+open-ended calibration that continues after v1.0.
 
 - **Listening-test calibration remains necessary** for harmony-template ordering, attack/rest
   bands, answer similarity, contour strictness, optional ornaments, and perceived spacing among

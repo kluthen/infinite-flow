@@ -34,6 +34,66 @@ test('System removes the data-theme override', async ({ page }) => {
   await expect(page.locator('html')).not.toHaveAttribute('data-theme')
 })
 
+/**
+ * Intent: the `--color-staff` custom property's computed value as an actual `rgb()` string, so it
+ * compares directly against `getComputedStyle(...).fill` / `.stroke` on the real SVG (a raw
+ * `--color-staff` read would still be the unresolved hex/`var()` source text).
+ */
+async function computedStaffColor(page: import('@playwright/test').Page): Promise<string> {
+  return page.evaluate(() => {
+    const probe = document.createElement('div')
+    probe.style.color = 'var(--color-staff)'
+    document.body.appendChild(probe)
+    const color = getComputedStyle(probe).color
+    probe.remove()
+    return color
+  })
+}
+
+/**
+ * Intent: every element under `svg.staff-svg` whose computed fill or stroke paints (is not `none`)
+ * but does not equal `expectedColor`, described as `<tag> fill=... stroke=...` for a readable
+ * failure message.
+ */
+async function unrecoloredStaffElements(
+  page: import('@playwright/test').Page,
+  expectedColor: string,
+): Promise<string[]> {
+  return page.evaluate((expected) => {
+    const svg = document.querySelector('svg.staff-svg')
+    if (!svg) throw new Error('svg.staff-svg not found')
+    const offenders: string[] = []
+    svg.querySelectorAll('*').forEach((el) => {
+      const style = getComputedStyle(el)
+      const fillOffends = style.fill !== 'none' && style.fill !== expected
+      const strokeOffends = style.stroke !== 'none' && style.stroke !== expected
+      if (fillOffends || strokeOffends) {
+        offenders.push(`${el.tagName} fill=${style.fill} stroke=${style.stroke}`)
+      }
+    })
+    return offenders
+  }, expectedColor)
+}
+
+// @test-link [[rule_presentation_preference_preserves_phrase]]
+test('every painted staff element matches --color-staff in both Light and Dark', async ({
+  page,
+}) => {
+  await gotoWorkspace(page)
+  await generateAndAwaitReady(page)
+
+  await radio(page, 'Presentation theme', 'Dark').click()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  const darkColor = await computedStaffColor(page)
+  expect(await unrecoloredStaffElements(page, darkColor)).toEqual([])
+
+  await radio(page, 'Presentation theme', 'Light').click()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+  const lightColor = await computedStaffColor(page)
+  expect(lightColor).not.toBe(darkColor)
+  expect(await unrecoloredStaffElements(page, lightColor)).toEqual([])
+})
+
 // @test-link [[rule_ephemeral_session_state]]
 test('nothing about the theme choice persists across a reload', async ({ page, context }) => {
   await gotoWorkspace(page)

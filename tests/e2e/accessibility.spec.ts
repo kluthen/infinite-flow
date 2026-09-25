@@ -67,6 +67,7 @@ test('has no detectable axe violations in the unsupported-rhythm-setting state',
 // The remaining states below need the real generation/notation failure seams the workspace harness
 // (port 4175) exposes -- the production build (port 4173) has no way to force them deterministically.
 
+// @test-link [[rule_readonly_controls_keep_contrast]]
 test('has no detectable axe violations while a generation is gated in flight', async ({ page }) => {
   await gotoWorkspaceHarness(page)
   await queueSeeds(page, [1])

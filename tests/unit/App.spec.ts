@@ -42,6 +42,7 @@ function fakeWorkspaceSession() {
     generationError: null,
     notationError: null,
     failedNotationMode: null,
+    resultEngraved: false,
   })
   const session: GenerationSession<WorkspaceSessionResult> = {
     state,

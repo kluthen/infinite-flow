@@ -41,9 +41,11 @@ assumes the previous ones passed.
       precache entry count/size, either read `vite-plugin-pwa`'s own build-time summary (printed
       after `vite build` completes) or grep `dist/sw.js`'s `precacheAndRoute([...])` array directly.
       A meaningful jump in any of these three numbers (not just the exact figures) is the signal
-      worth investigating — this is a manual sanity check, not a gate `npm run quality` enforces on
-      its own beyond precache _completeness_ (`verify:boundaries` fails if any built asset is
-      missing from the precache, but does not fail on size growth).
+      worth investigating — this is a manual sanity check for trend and gzip size, not the only gate
+      on size: `verify:boundaries` also fails if any built asset is missing from the precache, or if
+      any `dist/assets/*.js` chunk exceeds its hard budget (entry 200 KB, `generation.worker`
+      150 KB, `vexflow-engraver` 800 KB, other 100 KB, all minified, checked by
+      `scripts/verify-boundaries.mjs`).
 
 ## 4. Manual offline check
 
@@ -128,6 +130,11 @@ and smoke-test it independently of step 2's host-side gate.
 - [ ] Confirm every item is either **Verified** by the gates already run in step 2, or its
       **Manual** step has actually been performed (and recorded), or it is an explicitly accepted
       **Partially verified** / **Fix in progress** item with no open blocker for this release.
+- [ ] Run `issues --status open` (or read [`issues/README.md`](../../issues/README.md)): there must
+      be **no open issue**. Every filed issue is resolved or explicitly closed as `Wont Fix` before
+      v1.0 is validated.
+- [ ] [`deferred-scope.md`](deferred-scope.md) is post-v1 roadmap input and is **not** part of this
+      gate. Do not hold the release for its items; file an issue first if one must ship in v1.0.
 - [ ] Get an explicit named sign-off (a release owner or delegate) that the matrix as a whole is
       acceptable for this release, recorded in the release's own tracking (e.g. the PR description
       or release notes) — this checklist does not itself store that sign-off.

@@ -1,5 +1,5 @@
 import { extname, join, relative } from 'node:path'
-import { readFile, readdir } from 'node:fs/promises'
+import { readFile, readdir, stat } from 'node:fs/promises'
 
 const applicationRoot = new URL('../src/', import.meta.url)
 const sourceExtensions = new Set(['.css', '.js', '.jsx', '.ts', '.tsx', '.vue'])
@@ -90,10 +90,53 @@ for (const entry of assetEntries) {
   }
 }
 
+/**
+ * Per-chunk minified-size budgets (bytes), matched by file-name prefix. The lazy VexFlow engraver
+ * chunk (src/notation/vexflow-engraver-loader.ts) embeds the Bravura/Academico fonts and is
+ * intentionally large -- see its budget and the matching comment on vite.config.ts's
+ * `chunkSizeWarningLimit`, which silences Vite's own generic size warning in favor of this
+ * targeted check. Every other JS chunk is expected to stay small; an unmatched chunk falls back to
+ * the tightest budget so unexpected new chunks are still guarded.
+ */
+const entryChunkByteBudget = 200 * 1024
+const generationWorkerChunkByteBudget = 150 * 1024
+const vexflowEngraverChunkByteBudget = 800 * 1024
+const defaultChunkByteBudget = 100 * 1024
+
+const chunkByteBudgets = [
+  { prefix: 'index-', budget: entryChunkByteBudget, label: 'entry chunk (index-*.js)' },
+  {
+    prefix: 'generation.worker-',
+    budget: generationWorkerChunkByteBudget,
+    label: 'generation Worker chunk (generation.worker-*.js)',
+  },
+  {
+    prefix: 'vexflow-engraver-',
+    budget: vexflowEngraverChunkByteBudget,
+    label: 'VexFlow engraver chunk (vexflow-engraver-*.js)',
+  },
+]
+
+let jsChunkCount = 0
+for (const entry of assetEntries) {
+  if (!entry.isFile() || extname(entry.name) !== '.js') continue
+  jsChunkCount += 1
+  const matchedBudget = chunkByteBudgets.find(({ prefix }) => entry.name.startsWith(prefix))
+  const budget = matchedBudget?.budget ?? defaultChunkByteBudget
+  const label = matchedBudget?.label ?? 'other JS chunk'
+  const { size } = await stat(join(distAssetsPath.pathname, entry.name))
+  if (size > budget) {
+    violations.push(
+      `dist/assets/${entry.name} (${label} exceeds its budget: ${Math.round(size / 1024)} kB > ${Math.round(budget / 1024)} kB)`,
+    )
+  }
+}
+
 if (violations.length > 0) {
   throw new Error(`Boundary violation(s) found: ${violations.join('; ')}`)
 }
 
 console.log(
-  `Boundary verification passed for ${files.length} authored source files and ${precacheableAssetCount} precacheable dist/assets entries.`,
+  `Boundary verification passed for ${files.length} authored source files, ${precacheableAssetCount} precacheable dist/assets entries, and ${jsChunkCount} JS chunk(s) within budget ` +
+    `(entry ${entryChunkByteBudget / 1024} kB, generation.worker ${generationWorkerChunkByteBudget / 1024} kB, vexflow-engraver ${vexflowEngraverChunkByteBudget / 1024} kB, other ${defaultChunkByteBudget / 1024} kB).`,
 )

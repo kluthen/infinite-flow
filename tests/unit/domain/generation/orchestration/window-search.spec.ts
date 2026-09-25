@@ -84,7 +84,7 @@ function tinyWindowSearchInput(fixture: WindowSearchFixture): WindowSearchInput 
   }
 }
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[service_generation_window_search]]
 // @test-link [[mechanic_pitch_search_policy]]
 describe('searchWindow', () => {
   describe('real success', () => {

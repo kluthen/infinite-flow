@@ -34,6 +34,7 @@ test('regenerating replaces the score with a different phrase', async ({ page })
 })
 
 // @test-link [[user_story_controlled_phrase_generation]]
+// @test-link [[rule_readonly_controls_keep_contrast]]
 test('controls stay read-only but focusable during generation: arrows move focus, not selection', async ({
   page,
 }) => {
