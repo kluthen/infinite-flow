@@ -135,3 +135,74 @@ describe('pitch validation: bound tension figures', () => {
     })
   })
 })
+
+/** True when the structure check itself rejects the binding, ignoring every other rule's codes. */
+function bindingInvalid(
+  midis: readonly number[],
+  overrides: Overrides,
+  binding: ReturnType<typeof figure>,
+) {
+  return failures(midis, { ...overrides, binding }).some(
+    (failure) => failure.code === 'tension_binding_invalid',
+  )
+}
+
+// @test-link [[module_pitch_domain_validation]]
+describe('pitch validation: rests around the resolution delay', () => {
+  const NEXT_BEAT = { maximumResolutionDelay: 'next_beat_or_bar' } as const
+
+  it('accepts a target rest landing exactly on the resolution deadline', () => {
+    // Bar 0: q(0-4) q(4-8) r:q(8-12) q(12-16). Member (attack 1) ends at tick 8; the next-beat-or-bar
+    // deadline is tick 12, and the target (attack 2) starts right on it.
+    const bars = [bar(0, 'q q r:q q'), ...QUARTERS.slice(1)]
+    const midis = withMidis({}, BASELINE.slice(0, 15))
+    const binding = figure('diatonic_passing_or_neighbor', [1])
+    expect(bindingInvalid(midis, { bars, requirement: NEXT_BEAT }, binding)).toBe(false)
+  })
+
+  it('rejects a target rest pushing it past the next-beat-or-bar deadline', () => {
+    // Bar 0: q(0-4) q(4-8) r:q(8-12) r:e(12-14) e(14-16). Member ends at tick 8; deadline is tick
+    // 12, but the target only starts at tick 14.
+    const bars = [bar(0, 'q q r:q r:e e'), ...QUARTERS.slice(1)]
+    const midis = withMidis({}, BASELINE.slice(0, 15))
+    const binding = figure('diatonic_passing_or_neighbor', [1])
+    expect(bindingInvalid(midis, { bars, requirement: NEXT_BEAT }, binding)).toBe(true)
+  })
+
+  it('accepts that same late target under the wider Settled next-strong-sounding-onset grid', () => {
+    // Same rhythm as above: member ends at tick 8. The next strong onset after tick 8 is tick 16,
+    // so the target at tick 14 is in time even though it misses the beat-or-bar grid.
+    const bars = [bar(0, 'q q r:q r:e e'), ...QUARTERS.slice(1)]
+    const midis = withMidis({}, BASELINE.slice(0, 15))
+    const binding = figure('diatonic_passing_or_neighbor', [1])
+    const invalid = bindingInvalid(
+      midis,
+      { bars, requirement: { maximumResolutionDelay: 'next_strong_sounding_onset' } },
+      binding,
+    )
+    expect(invalid).toBe(false)
+  })
+
+  it('accepts a passing/neighbor binding whose preparation is separated by a rest', () => {
+    // Bar 0: q(0-4, preparation) r:h(4-12) e(12-14, member) e(14-16, target). The preparation link
+    // has no delay bound, so the half-bar rest before the member does not block the binding.
+    const bars = [bar(0, 'q r:h e e'), ...QUARTERS.slice(1)]
+    const midis = withMidis({}, BASELINE.slice(0, 15))
+    const binding = figure('diatonic_passing_or_neighbor', [1])
+    expect(bindingInvalid(midis, { bars }, binding)).toBe(false)
+  })
+
+  it('accepts a Build two-note diatonic approach with rests before, inside, and before its target', () => {
+    // Bar 0: r:q(0-4) q(4-8, approach 0) r:e(8-10) e(10-12, approach 1) r:q(12-16). Bar 1: q(16-20,
+    // target). The harmony spans both bars so the figure is not split across chords.
+    const bars = [bar(0, 'r:q q r:e e r:q'), ...QUARTERS.slice(1)]
+    const midis = withMidis({}, BASELINE.slice(0, 14))
+    const binding = figure('two_note_diatonic_approach', [0, 1])
+    const overrides = {
+      bars,
+      events: [chord(1, 0, 16)],
+      requirement: { ...NEXT_BEAT, permittedFigureKinds: ['two_note_diatonic_approach'] as const },
+    }
+    expect(bindingInvalid(midis, overrides, binding)).toBe(false)
+  })
+})

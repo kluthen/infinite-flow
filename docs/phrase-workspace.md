@@ -174,8 +174,9 @@ regeneration against an already-seen rhythm setting skips the expensive Step 6 e
 (tension arc) = 144` distinct rhythm settings per grammar version, so the keyspace the memo can
   ever be asked to fill is bounded.
 - **Byte-identical proof.** `tests/unit/domain/generation/orchestration/generation-outcome-golden.spec.ts`
-  replays a golden fixture of 8 intents — `GENERATION_OUTCOME_GOLDEN_V1`, recorded from the
-  pre-memo baseline orchestrator — against the current orchestrator and asserts
+  replays a golden fixture of 8 intents — `GENERATION_OUTCOME_GOLDEN_V2`, recorded from the
+  pre-memo baseline orchestrator and re-recorded (v1 → v2) for the signed-off tension-binding
+  correction, which changed exactly two of the eight hashes — against the current orchestrator and asserts
   `fnv1a32(JSON.stringify(outcome))` matches exactly in three ways: a cold call on a fresh, empty
   memo; a warm call (second `generatePhrase` call for the same intent on the same memo instance,
   i.e. a memo hit); and, for every success case, that a warm-memo call with a _different_ seed

@@ -1,6 +1,6 @@
 ---
 id: module_pitch_domain_validation
-status: DRAFT
+status: REVIEW
 human_name: Pitch Domain Validation
 type: MODULE
 layer: ARCHITECTURE
