@@ -182,8 +182,8 @@ const GENERATION_REQUEST_ALLOWED_KEYS = new Set([
   'registerWindow',
 ])
 
-const CONCERT_RANGE_ALLOWED_KEYS = new Set(['minMidi', 'maxMidi'])
-const REGISTER_WINDOW_ALLOWED_KEYS = new Set(['minMidi', 'maxMidi'])
+const CONCERT_RANGE_ALLOWED_KEYS = new Set(['kind', 'minMidi', 'maxMidi'])
+const REGISTER_WINDOW_ALLOWED_KEYS = new Set(['kind', 'minMidi', 'maxMidi'])
 const VALID_REGISTER_IDS = new Set<string>(['Low', 'Middle', 'High'])
 
 /** Intent: narrow an unknown value to a plain, non-null, non-array object record. */
@@ -194,7 +194,23 @@ function asPlainRecord(input: unknown, context: string): Record<string, unknown>
   return input as Record<string, unknown>
 }
 
-/** Intent: parse an untrusted boundary value into an ActiveConcertRange. */
+/**
+ * Intent: reject a nested value object's `kind` discriminant unless it is absent or exactly the
+ * tag the domain constructor itself stamps, so a constructed request round-trips while a
+ * mislabelled value (for example a RegisterWindow sent as the active range) is refused.
+ */
+function assertKindTag(record: Record<string, unknown>, expected: string, context: string): void {
+  if ('kind' in record && record.kind !== expected) {
+    throw new GenerationRequestError(
+      `${context}.kind must be "${expected}" when present, got ${JSON.stringify(record.kind)}.`,
+    )
+  }
+}
+
+/**
+ * Intent: parse an untrusted boundary value into an ActiveConcertRange, accepting the domain's own
+ * `kind: 'ActiveConcertRange'` tag (or its absence) and rejecting any other field or tag value.
+ */
 function parseActiveConcertRange(input: unknown): ActiveConcertRange {
   const record = asPlainRecord(input, 'GenerationRequest.activeConcertRange')
   for (const key of Object.keys(record)) {
@@ -204,6 +220,7 @@ function parseActiveConcertRange(input: unknown): ActiveConcertRange {
       )
     }
   }
+  assertKindTag(record, 'ActiveConcertRange', 'GenerationRequest.activeConcertRange')
   const { minMidi, maxMidi } = record
   if (typeof minMidi !== 'number' || typeof maxMidi !== 'number') {
     throw new GenerationRequestError(
@@ -219,7 +236,10 @@ function parseActiveConcertRange(input: unknown): ActiveConcertRange {
   }
 }
 
-/** Intent: parse an untrusted boundary value into a RegisterWindow. */
+/**
+ * Intent: parse an untrusted boundary value into a RegisterWindow, accepting the domain's own
+ * `kind: 'RegisterWindow'` tag (or its absence) and rejecting any other field or tag value.
+ */
 function parseRegisterWindow(input: unknown): RegisterWindow {
   const record = asPlainRecord(input, 'GenerationRequest.registerWindow')
   for (const key of Object.keys(record)) {
@@ -229,6 +249,7 @@ function parseRegisterWindow(input: unknown): RegisterWindow {
       )
     }
   }
+  assertKindTag(record, 'RegisterWindow', 'GenerationRequest.registerWindow')
   const { minMidi, maxMidi } = record
   if (typeof minMidi !== 'number' || typeof maxMidi !== 'number') {
     throw new GenerationRequestError(

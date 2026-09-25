@@ -275,6 +275,46 @@ describe('parseGenerationRequest', () => {
   })
 })
 
+// @test-link [[service_generation_orchestration]]
+describe('parseGenerationRequest: round trip of a domain-constructed request', () => {
+  it('accepts a request built by makeGenerationRequest, kind tags included', () => {
+    const built = makeGenerationRequest(validRequestInput())
+    expect(built.activeConcertRange.kind).toBe('ActiveConcertRange')
+    expect(built.registerWindow.kind).toBe('RegisterWindow')
+
+    expect(parseGenerationRequest(built)).toStrictEqual(built)
+  })
+
+  it('accepts the structuredClone of a built request, as the Worker boundary receives it', () => {
+    const built = makeGenerationRequest(validRequestInput())
+    const reparsed = parseGenerationRequest(structuredClone(built))
+
+    expect(reparsed).toStrictEqual(built)
+    expect(Object.isFrozen(reparsed.activeConcertRange)).toBe(true)
+    expect(Object.isFrozen(reparsed.registerWindow)).toBe(true)
+  })
+
+  it('rejects a wrong kind tag on activeConcertRange or registerWindow', () => {
+    const cloned = structuredClone(makeGenerationRequest(validRequestInput()))
+    const swappedRange = {
+      ...cloned,
+      activeConcertRange: { ...cloned.activeConcertRange, kind: 'RegisterWindow' },
+    }
+    const swappedWindow = {
+      ...cloned,
+      registerWindow: { ...cloned.registerWindow, kind: 'ActiveConcertRange' },
+    }
+    const undefinedTag = {
+      ...cloned,
+      registerWindow: { ...cloned.registerWindow, kind: undefined },
+    }
+
+    expect(() => parseGenerationRequest(swappedRange)).toThrow(GenerationRequestError)
+    expect(() => parseGenerationRequest(swappedWindow)).toThrow(GenerationRequestError)
+    expect(() => parseGenerationRequest(undefinedTag)).toThrow(GenerationRequestError)
+  })
+})
+
 describe('makeRequestId', () => {
   it('rejects an empty string as a typed failure', () => {
     expect(() => makeRequestId('')).toThrow(GenerationRequestError)

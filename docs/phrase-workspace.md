@@ -125,13 +125,11 @@ session and one long-lived `Worker`:
   `GenerationDiagnostics` have no existing boundary parser (nothing upstream ever accepted them as
   untrusted input before this worker boundary existed), so they get a minimal structural check
   instead. A parsed outcome is deep-frozen before being returned to the session.
-- **The `kind`-tag strip.** `parseGenerationRequest`'s untrusted wire format predates the `kind`
-  runtime discriminant that `makeGenerationRequest` now attaches to its nested
-  `ActiveConcertRange`/`RegisterWindow` values, and rejects it as an unknown field. Re-validating a
-  real, already-built `GenerationOutcome.request` therefore requires `stripKindTag` first
-  (`prepareRequestForParsing` in `generation-worker-protocol.ts`). This is a known gap in
-  `parseGenerationRequest`'s own allowlist, not a worker-protocol design choice — the protocol
-  works around it rather than loosening the domain parser itself.
+- **`kind` tags cross the wire unchanged.** `makeGenerationRequest` nests `ActiveConcertRange`
+  and `RegisterWindow` values that carry their runtime `kind` discriminant, and
+  `parseGenerationRequest` accepts that tag when it equals the expected literal (and rejects any
+  other value), so a retained `GenerationOutcome.request` is re-parsed exactly as the domain built
+  it, with no protocol-side stripping.
 - **Crash vs. transport errors.** A `crash` response (the worker's `generatePhrase` call, or its
   own request parsing, threw) rejects that one pending request with a typed
   `GenerationWorkerCrashError` carrying the original error's name/message; the worker itself stays

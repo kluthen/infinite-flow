@@ -126,6 +126,15 @@ describe('pitch validation: bound tension figures', () => {
     expect(failures(BASELINE, REQUIRED)).toEqual([{ code: 'tension_binding_invalid' }])
   })
 
+  it('rejects an appoggiatura bound on the first attack as a binding, not a figure, failure', () => {
+    // Attack 0 is a strong onset in allowed bar 0, so only the "not the first attack" rule forbids it.
+    const first = figure('appoggiatura', [0])
+    const requirement = { requiredFigureCount: 1, allowedBars: [0, 1, 2] } as const
+    const reported = failures(withMidis({ 0: 62 }), { requirement, binding: first })
+    expect(reported).toContainEqual({ code: 'tension_binding_invalid', attackIndex: 0 })
+    expect(reported.map((failure) => failure.code)).not.toContain('tension_figure_invalid')
+  })
+
   it('requires the bound target to precede the final sounding attack', () => {
     const late = figure('two_note_diatonic_approach', [13, 14])
     const requirement = { requiredFigureCount: 1, allowedBars: [0, 1, 2, 3] } as never
