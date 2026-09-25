@@ -154,4 +154,176 @@ describe('ScorePanel', () => {
     expect(wrapper.find('.phrase-score-stub').exists()).toBe(true)
     expect(wrapper.get('.staff-frame .alert-error').text()).toContain('Notation error')
   })
+
+  /** Intent: the standard PhraseScore `engraved` payload, only its shape matters here. */
+  const ENGRAVED_PAYLOAD = {
+    staffSpacePx: 1,
+    widthPx: 1,
+    heightPx: 1,
+    requiredUnits: 1,
+    systemCount: 1,
+  }
+
+  // @test-link [[service_workspace_session_flow]]
+  it('D33: the notation-status live region exists and is empty initially', () => {
+    const workspace = createTestWorkspace()
+    const wrapper = mountHarness(workspace)
+
+    const notationStatus = wrapper.get('.notation-status')
+    expect(notationStatus.attributes('role')).toBe('status')
+    expect(notationStatus.attributes('aria-live')).toBe('polite')
+    expect(notationStatus.attributes('aria-atomic')).toBe('true')
+    expect(notationStatus.text()).toBe('')
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it('D33: a fresh generation whose own engraving fails announces "Notation error. Try again." in notation-status, leaving generation-status silent', async () => {
+    const workspace = createTestWorkspace()
+    useCheapControls(workspace.session)
+    const wrapper = mountHarness(workspace)
+
+    const generated = workspace.session.actions.generate()
+    await flushPromises()
+    wrapper
+      .getComponent({ name: 'PhraseScore' })
+      .vm.$emit('notation-error', new NotationError('notation_engraving_failed', 'boom', {}))
+    await flushPromises()
+    await generated
+
+    expect(wrapper.get('.notation-status').text()).toBe('Notation error. Try again.')
+    expect(wrapper.get('.generation-status').text()).toBe('')
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it('D33: a successful Retry notation silently empties notation-status', async () => {
+    const workspace = createTestWorkspace()
+    useCheapControls(workspace.session)
+    const wrapper = mountHarness(workspace)
+
+    const generated = workspace.session.actions.generate()
+    await flushPromises()
+    wrapper
+      .getComponent({ name: 'PhraseScore' })
+      .vm.$emit('notation-error', new NotationError('notation_engraving_failed', 'boom', {}))
+    await flushPromises()
+    await generated
+    expect(wrapper.get('.notation-status').text()).toBe('Notation error. Try again.')
+
+    const retried = workspace.session.actions.retryNotation()
+    await flushPromises()
+    wrapper.getComponent({ name: 'PhraseScore' }).vm.$emit('engraved', ENGRAVED_PAYLOAD)
+    await flushPromises()
+    await retried
+
+    expect(wrapper.get('.notation-status').text()).toBe('')
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it('D33: an out-of-band notation-error with no pending request announces the same text', async () => {
+    const workspace = createTestWorkspace()
+    useCheapControls(workspace.session)
+    const wrapper = mountHarness(workspace)
+
+    const generated = workspace.session.actions.generate()
+    await flushPromises()
+    wrapper.getComponent({ name: 'PhraseScore' }).vm.$emit('engraved', ENGRAVED_PAYLOAD)
+    await flushPromises()
+    await generated
+    expect(wrapper.get('.notation-status').text()).toBe('')
+
+    wrapper
+      .getComponent({ name: 'PhraseScore' })
+      .vm.$emit(
+        'notation-error',
+        new NotationError('notation_bounds_exceeded', 'resize failed', {}),
+      )
+    await flushPromises()
+
+    expect(wrapper.get('.notation-status').text()).toBe('Notation error. Try again.')
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it('D33: a failed display-mode switch announces the same text', async () => {
+    const workspace = createTestWorkspace()
+    useCheapControls(workspace.session)
+    const wrapper = mountHarness(workspace)
+
+    const generated = workspace.session.actions.generate()
+    await flushPromises()
+    wrapper.getComponent({ name: 'PhraseScore' }).vm.$emit('engraved', ENGRAVED_PAYLOAD)
+    await flushPromises()
+    await generated
+
+    const switching = workspace.session.actions.setNotationMode('Concert')
+    await flushPromises()
+    wrapper
+      .getComponent({ name: 'PhraseScore' })
+      .vm.$emit('notation-error', new NotationError('notation_engraving_failed', 'boom', {}))
+    await flushPromises()
+    await switching
+
+    expect(wrapper.get('.notation-status').text()).toBe('Notation error. Try again.')
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it('D34: a retained unengraved result after a failed regenerate falls back to staff-error with no notation-error text, showing the generation-failure banner instead', async () => {
+    let call = 0
+    const workspace = createTestWorkspace(async (intent) => {
+      call += 1
+      if (call === 1) return buildWorkspaceSessionResult(intent.requestId, intent.seed)
+      throw new Error('regeneration blew up')
+    })
+    useCheapControls(workspace.session)
+    const wrapper = mountHarness(workspace)
+
+    const generated = workspace.session.actions.generate()
+    await flushPromises()
+    wrapper.getComponent({ name: 'PhraseScore' }).vm.$emit('engraved', ENGRAVED_PAYLOAD)
+    await flushPromises()
+    await generated
+
+    const switching = workspace.session.actions.setNotationMode('Concert')
+    await flushPromises()
+    wrapper
+      .getComponent({ name: 'PhraseScore' })
+      .vm.$emit('notation-error', new NotationError('notation_engraving_failed', 'boom', {}))
+    await flushPromises()
+    await switching
+    expect(wrapper.get('.staff-frame').classes()).toContain('staff-error')
+    expect(wrapper.get('.staff-frame .alert-error').text()).toContain('Notation error')
+
+    await workspace.session.actions.regenerate()
+    await flushPromises()
+
+    expect(wrapper.get('.staff-frame').classes()).toContain('staff-error')
+    expect(wrapper.find('.staff-frame .alert-error').exists()).toBe(false)
+    expect(wrapper.get('.inline-alert.alert-error').text().length).toBeGreaterThan(0)
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it("D34: no staff-error flash during an ordinary regenerate's own engraving step", async () => {
+    const workspace = createTestWorkspace()
+    useCheapControls(workspace.session)
+    const wrapper = mountHarness(workspace)
+
+    const generated = workspace.session.actions.generate()
+    await flushPromises()
+    wrapper.getComponent({ name: 'PhraseScore' }).vm.$emit('engraved', ENGRAVED_PAYLOAD)
+    await flushPromises()
+    await generated
+    expect(wrapper.get('.staff-frame').classes()).toContain('staff-ready')
+
+    const regenerated = workspace.session.actions.regenerate()
+    await flushPromises()
+
+    expect(workspace.session.state.operation).toBe('notating')
+    expect(wrapper.get('.staff-frame').classes()).toContain('staff-ready')
+    expect(wrapper.get('.staff-frame').classes()).not.toContain('staff-error')
+
+    wrapper.getComponent({ name: 'PhraseScore' }).vm.$emit('engraved', ENGRAVED_PAYLOAD)
+    await flushPromises()
+    await regenerated
+
+    expect(wrapper.get('.staff-frame').classes()).toContain('staff-ready')
+  })
 })

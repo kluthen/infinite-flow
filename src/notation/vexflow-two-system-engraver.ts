@@ -11,19 +11,14 @@ import {
   Barline,
   Formatter,
   Stave,
-  StaveNote,
   Voice,
+  type Beam,
   type RenderContext,
   type StaveTie,
 } from 'vexflow/bravura'
 
 import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
-import {
-  buildMeasureBeams,
-  buildPhraseTiesTwoSystem,
-  mapKeySpec,
-  type FlatGlyph,
-} from './vexflow-mapping'
+import { buildPhraseTiesTwoSystem, mapKeySpec, type FlatGlyph } from './vexflow-mapping'
 
 /** Vertical gap, in raw engraving units, between line one's content bottom and line two's stave top. */
 export const NOTATION_INTER_SYSTEM_GAP_UNITS = 40
@@ -40,13 +35,17 @@ interface DrawnMeasure {
   readonly group: SVGGElement
 }
 
-/** Intent: draw one measure's stave, voice and beams into a tagged `g.measure-slot`. */
+/**
+ * Intent: draw one measure's stave, voice and (already-beamed) beams into a tagged `g.measure-slot`.
+ * The beams are built and attached to their notes (via `Beam`'s own `note.setBeam()`) by the caller,
+ * before any voice in the phrase is formatted or drawn, so a beamed note's flag is already suppressed
+ * by the time `voice.draw` runs here.
+ */
 function drawMeasureGroup(
   context: RenderContext,
-  phrase: WrittenPhrase,
   stave: Stave,
   voice: Voice,
-  measureGlyphs: readonly StaveNote[],
+  measureBeams: readonly Beam[],
   phraseMeasureIndex: number,
   systemIndex: 0 | 1,
   scale: number,
@@ -58,7 +57,7 @@ function drawMeasureGroup(
   stave.setContext(context).draw()
   new Formatter().joinVoices([voice]).formatToStave([voice], stave)
   voice.draw(context, stave)
-  for (const beam of buildMeasureBeams(phrase.measures[phraseMeasureIndex]!, measureGlyphs)) {
+  for (const beam of measureBeams) {
     beam.setContext(context).draw()
   }
   context.closeGroup()
@@ -68,10 +67,9 @@ function drawMeasureGroup(
 /** Intent: draw every stave of one system (line) in phrase order, tagging each with its system index. */
 function drawSystemMeasures(
   context: RenderContext,
-  phrase: WrittenPhrase,
   staves: readonly [Stave, Stave],
   voices: readonly Voice[],
-  glyphs: readonly (readonly StaveNote[])[],
+  beams: readonly (readonly Beam[])[],
   phraseMeasureIndices: readonly [number, number],
   systemIndex: 0 | 1,
   scale: number,
@@ -83,10 +81,9 @@ function drawSystemMeasures(
     const phraseMeasureIndex = phraseMeasureIndices[i]!
     return drawMeasureGroup(
       context,
-      phrase,
       stave,
       voices[phraseMeasureIndex]!,
-      glyphs[phraseMeasureIndex]!,
+      beams[phraseMeasureIndex]!,
       phraseMeasureIndex,
       systemIndex,
       scale,
@@ -166,8 +163,8 @@ function buildLine2Staves(
 export function drawTwoSystems(
   context: RenderContext,
   phrase: WrittenPhrase,
-  glyphs: readonly (readonly StaveNote[])[],
   voices: readonly Voice[],
+  beams: readonly (readonly Beam[])[],
   flatGlyphs: readonly FlatGlyph[],
   leadingWidth: number,
   measureContentWidthUnits: number,
@@ -182,11 +179,11 @@ export function drawTwoSystems(
     systemPaddingUnits,
     staveTopYUnits,
   )
-  const system0 = drawSystemMeasures(context, phrase, line1, voices, glyphs, [0, 1], 0, scale)
+  const system0 = drawSystemMeasures(context, line1, voices, beams, [0, 1], 0, scale)
 
   const line2TopYUnits = groupsBottomUnits(system0.groups) + NOTATION_INTER_SYSTEM_GAP_UNITS
   const line2 = buildLine2Staves(line1, phrase, line2TopYUnits)
-  const system1 = drawSystemMeasures(context, phrase, line2, voices, glyphs, [2, 3], 1, scale)
+  const system1 = drawSystemMeasures(context, line2, voices, beams, [2, 3], 1, scale)
 
   const lineBreakGlyphIndex = phrase.measures[0]!.events.length + phrase.measures[1]!.events.length
   const ties = buildPhraseTiesTwoSystem(flatGlyphs, lineBreakGlyphIndex)

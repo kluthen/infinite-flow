@@ -47,6 +47,7 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
       generationError: null,
       notationError: null,
       failedNotationMode: null,
+      resultEngraved: false,
       ...overrides,
     },
     actions,

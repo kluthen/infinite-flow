@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * The score panel: its toolbar (title, the persistent generation-status live region, and a
- * generation-failure banner) plus the staff viewport that renders `PhraseScore` in the state the
+ * The score panel: its toolbar (title, the persistent generation-status and notation-status live
+ * regions, and a generation-failure banner) plus the staff viewport that renders `PhraseScore` in the state the
  * States table defines -- empty, loading (with the prior phrase still visible), ready, or a
  * notation-error panel layered over the still-mounted `PhraseScore` so a later Retry notation can
  * redraw the same instance rather than remounting it from scratch.
@@ -58,10 +58,39 @@ watch(
   },
 )
 
-/** The staff-frame state class the States table defines, in priority order. */
+const notationStatusText = ref('')
+
+/**
+ * Intent: announce a notation failure whenever `notationError` becomes set, whatever set it -- a
+ * fresh generation's own engraving step, Retry notation, an out-of-band redraw, a display-mode
+ * switch, or a retaining profile switch -- by watching the error itself rather than any call site.
+ * Recovery stays silent: a cleared error only empties the region, never announces.
+ */
+// @spec-link [[service_workspace_session_flow]]
+watch(
+  () => state.value.notationError,
+  (next) => {
+    notationStatusText.value = next !== null ? 'Notation error. Try again.' : ''
+  },
+)
+
+/**
+ * The staff-frame state class the States table defines, in priority order. A retained result
+ * that was never engraved (its notation error cleared by a later generation attempt that then
+ * failed) falls back to `staff-error` rather than `staff-ready` -- but only while idle, since every
+ * ordinary generation assigns a not-yet-engraved result just before its own engraving step runs.
+ */
+// @spec-link [[service_workspace_session_flow]]
 const staffFrameStateClass = computed(() => {
   if (state.value.operation === 'generating') return 'staff-loading'
   if (state.value.notationError !== null) return 'staff-error'
+  if (
+    state.value.operation === 'idle' &&
+    state.value.result !== null &&
+    !state.value.resultEngraved
+  ) {
+    return 'staff-error'
+  }
   if (state.value.result !== null) return 'staff-ready'
   return 'staff-empty'
 })
@@ -88,6 +117,9 @@ const generationErrorAlertText = computed(() =>
       <h2 id="score-panel-title" class="score-context">Four-measure phrase</h2>
       <p class="generation-status" role="status" aria-live="polite" aria-atomic="true">
         {{ statusText }}
+      </p>
+      <p class="notation-status" role="status" aria-live="polite" aria-atomic="true">
+        {{ notationStatusText }}
       </p>
     </div>
     <p v-if="generationErrorAlertText !== null" class="inline-alert alert-error">

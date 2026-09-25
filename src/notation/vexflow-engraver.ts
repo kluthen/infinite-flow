@@ -12,6 +12,7 @@ import {
   Stave,
   StaveNote,
   Voice,
+  type Beam,
   type RenderContext,
   type StaveTie,
 } from 'vexflow/bravura'
@@ -102,6 +103,19 @@ function buildMeasureVoices(glyphs: readonly (readonly StaveNote[])[]): readonly
   })
 }
 
+/**
+ * Intent: build every measure's beams from the phrase's written beam groups. `new Beam(...)` calls
+ * `note.setBeam()` on every grouped note, which is what suppresses that note's individual flag; this
+ * must therefore run before the notes are formatted or drawn (formatting can also consult beam
+ * membership for stem direction), not after.
+ */
+function buildPhraseBeams(
+  phrase: WrittenPhrase,
+  glyphs: readonly (readonly StaveNote[])[],
+): readonly (readonly Beam[])[] {
+  return phrase.measures.map((measure, index) => buildMeasureBeams(measure, glyphs[index]!))
+}
+
 /** Intent: measure each measure's minimum content width (raw units) via a throwaway Formatter. */
 function measureMinWidths(voices: readonly Voice[]): readonly [number, number, number, number] {
   const widths = voices.map((voice) =>
@@ -173,10 +187,9 @@ function errorMessage(error: unknown): string {
 /** Intent: draw all four measures of the one-system layout, each tagged with system index 0. */
 function drawOneSystem(
   context: RenderContext,
-  phrase: WrittenPhrase,
   staves: readonly [Stave, Stave, Stave, Stave],
   voices: readonly Voice[],
-  glyphs: readonly (readonly StaveNote[])[],
+  beams: readonly (readonly Beam[])[],
   scale: number,
 ): readonly { readonly x: number; readonly width: number }[] {
   return staves.map((stave, index) => {
@@ -190,7 +203,7 @@ function drawOneSystem(
     const voice = voices[index]!
     new Formatter().joinVoices([voice]).formatToStave([voice], stave)
     voice.draw(context, stave)
-    for (const beam of buildMeasureBeams(phrase.measures[index]!, glyphs[index]!)) {
+    for (const beam of beams[index]!) {
       beam.setContext(context).draw()
     }
     context.closeGroup()
@@ -211,6 +224,11 @@ function drawWrittenPhrase(
   allowTwoSystems: boolean,
 ): EngravedScore {
   const glyphs = buildMeasureGlyphs(phrase)
+  // Beams must attach to their notes (note.setBeam) before those notes are measured, formatted or
+  // drawn, so build them first and reuse the same instances throughout: measuring, formatting and
+  // drawing all share these glyph objects, and constructing a second Beam over the same notes later
+  // would just redo the same setBeam calls.
+  const beams = buildPhraseBeams(phrase, glyphs)
   const voices = buildMeasureVoices(glyphs)
   const minWidths = measureMinWidths(voices)
   const leadingWidth = measureLeadingWidth(phrase)
@@ -235,14 +253,14 @@ function drawWrittenPhrase(
 
   if (plan.systemCount === 1) {
     const staves = buildStaves(phrase, leadingWidth, plan.measureContentWidthUnits)
-    measureBoxes = drawOneSystem(context, phrase, staves, voices, glyphs, plan.scale)
+    measureBoxes = drawOneSystem(context, staves, voices, beams, plan.scale)
     ties = buildPhraseTies(flattenGlyphs(phrase, glyphs))
   } else {
     const twoSystems = drawTwoSystems(
       context,
       phrase,
-      glyphs,
       voices,
+      beams,
       flattenGlyphs(phrase, glyphs),
       leadingWidth,
       plan.measureContentWidthUnits,

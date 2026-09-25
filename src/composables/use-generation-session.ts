@@ -48,6 +48,12 @@ export interface GenerationSessionState<TResult> {
   readonly generationError: Error | null
   readonly notationError: Error | null
   readonly failedNotationMode: NotationMode | null
+  /**
+   * Whether the retained `result` has actually been engraved since it was last assigned: cleared
+   * when a fresh result is assigned or a notation attempt against it fails, set once one succeeds.
+   * Independent of `notationError`, which a new generation attempt clears without redrawing.
+   */
+  readonly resultEngraved: boolean
 }
 
 export interface GenerationSessionActions {
@@ -63,8 +69,8 @@ export interface GenerationSessionActions {
   readonly regenerate: () => Promise<boolean>
   readonly retryGeneration: () => Promise<boolean>
   readonly retryNotation: () => Promise<boolean>
-  readonly reportNotationFailure: (error: Error) => boolean
-  readonly reportNotationRecovered: () => boolean
+  readonly reportNotationFailure: (error: Error, mode: NotationMode) => boolean
+  readonly reportNotationRecovered: (mode: NotationMode) => boolean
 }
 
 export interface GenerationSession<TResult> {
@@ -139,6 +145,7 @@ export function createGenerationSession<TResult>(
     generationError: null,
     notationError: null,
     failedNotationMode: null,
+    resultEngraved: false,
   })
 
   function canChangeConfiguration(): boolean {
@@ -239,12 +246,15 @@ export function createGenerationSession<TResult>(
     }
 
     state.result = result
+    state.resultEngraved = false
     state.operation = 'notating'
     try {
       await options.notate(result, state.presentation.notationMode)
+      state.resultEngraved = true
     } catch (error: unknown) {
       state.notationError = toError(error)
       state.failedNotationMode = state.presentation.notationMode
+      state.resultEngraved = false
     } finally {
       state.operation = 'idle'
     }
@@ -261,10 +271,12 @@ export function createGenerationSession<TResult>(
     try {
       await options.notate(result, requestedMode)
       state.presentation = { ...state.presentation, notationMode: requestedMode }
+      state.resultEngraved = true
       return true
     } catch (error: unknown) {
       state.notationError = toError(error)
       state.failedNotationMode = requestedMode
+      state.resultEngraved = false
       return false
     } finally {
       state.operation = 'idle'
@@ -330,21 +342,33 @@ export function createGenerationSession<TResult>(
     return runNotation(state.result, state.failedNotationMode)
   }
 
-  /** Surface a notation failure raised outside a session operation (e.g. a viewport-resize redraw). */
+  /**
+   * Surface a notation failure raised outside a session operation (e.g. a viewport-resize redraw),
+   * recording the mode the failing redraw was actually rendered in, as reported by the caller.
+   */
   // @spec-link [[module_notation_layout_preflight]]
-  function reportNotationFailure(error: Error): boolean {
+  // @spec-link [[service_workspace_session_flow]]
+  function reportNotationFailure(error: Error, mode: NotationMode): boolean {
     if (state.operation !== 'idle' || state.result === null) return false
     state.notationError = error
-    state.failedNotationMode = state.presentation.notationMode
+    state.failedNotationMode = mode
+    state.resultEngraved = false
     return true
   }
 
-  /** Clear a previously reported outside-operation notation failure once a later redraw succeeds. */
+  /**
+   * Clear a previously reported outside-operation notation failure once a later redraw succeeds,
+   * committing the mode that redraw was actually rendered in -- the same commit `runNotation`'s
+   * success path performs -- so the header's notation-mode control matches the drawn score.
+   */
   // @spec-link [[module_notation_layout_preflight]]
-  function reportNotationRecovered(): boolean {
+  // @spec-link [[service_workspace_session_flow]]
+  function reportNotationRecovered(mode: NotationMode): boolean {
     if (state.operation !== 'idle' || state.result === null) return false
+    state.presentation = { ...state.presentation, notationMode: mode }
     state.notationError = null
     state.failedNotationMode = null
+    state.resultEngraved = true
     return true
   }
 
@@ -361,6 +385,7 @@ export function createGenerationSession<TResult>(
     state.generationError = null
     state.notationError = null
     state.failedNotationMode = null
+    state.resultEngraved = false
     options.clearPresentedPhrase?.()
   }
 

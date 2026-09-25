@@ -65,7 +65,7 @@ function pathCandidate(input: {
   }
 }
 
-// @test-link [[module_pitch_planner]]
+// @test-link [[module_pitch_search_transition]]
 describe('pitch-figures', () => {
   // @test-link [[rule_neutral_profile_diatonic_pitches]]
   describe('collectionStep', () => {

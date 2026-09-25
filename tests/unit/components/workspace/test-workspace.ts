@@ -42,8 +42,8 @@ export function createTestWorkspace(
   // eslint-disable-next-line prefer-const -- definite-assignment: this closure needs `session` before it exists.
   let session!: GenerationSession<WorkspaceSessionResult>
   const coordinator = createNotationCoordinator({
-    reportNotationFailure: (error) => session.actions.reportNotationFailure(error),
-    reportNotationRecovered: () => session.actions.reportNotationRecovered(),
+    reportNotationFailure: (error, mode) => session.actions.reportNotationFailure(error, mode),
+    reportNotationRecovered: (mode) => session.actions.reportNotationRecovered(mode),
   })
   session = createGenerationSession<WorkspaceSessionResult>({
     providers: {

@@ -118,6 +118,7 @@ function withLeapiness(
 // @test-link [[entity_pitch_candidate_domain]]
 // @test-link [[mechanic_pitch_search_policy]]
 describe('pitch planner slice A', () => {
+  // @test-link [[module_pitch_search_context]]
   it('checkpoints each bar on its first fresh tick-0/8 attack, else its first fresh attack', () => {
     const base = input(3)
     // Bar 2 (attacks 7-10 at ticks 0/4/8/12) keeps its anchors only as tie continuations: tick 0

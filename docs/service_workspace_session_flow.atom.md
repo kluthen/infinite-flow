@@ -13,6 +13,7 @@ priority: 1
 tags: workspace,session-state,operation-flow
 dependents:
   - [[rule_generation_failure_alert_copy]]
+  - [[rule_readonly_controls_keep_contrast]]
 type: SERVICE
 ---
 

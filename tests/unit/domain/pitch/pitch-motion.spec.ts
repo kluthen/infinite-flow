@@ -31,7 +31,7 @@ function advanceAll(
   return last
 }
 
-// @test-link [[module_pitch_planner]]
+// @test-link [[module_pitch_search_transition]]
 describe('pitch-motion', () => {
   // @test-link [[rule_leapiness_interval_budget]]
   describe('LEAPINESS_LIMITS', () => {
@@ -84,7 +84,7 @@ describe('pitch-motion', () => {
     })
   })
 
-  // @test-link [[module_pitch_planner]]
+  // @test-link [[module_pitch_search_transition]]
   describe('INITIAL_MOTION_STATE', () => {
     it('starts with no prior note, no chain, zero counters, and no debt', () => {
       expect(INITIAL_MOTION_STATE).toEqual({

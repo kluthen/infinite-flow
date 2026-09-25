@@ -243,7 +243,7 @@ function buildDiagnostics(
  * way), window_search_limit_exceeded on a fuel cutoff, or window_exhausted once every pair and
  * binding has been tried without a resolving plan.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_window_search]]
 // @spec-link [[mechanic_pitch_search_policy]]
 export function searchWindow(
   input: WindowSearchInput,

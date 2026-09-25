@@ -437,7 +437,7 @@ function walkAndCompare(
   return comparisons
 }
 
-// @test-link [[module_pitch_planner]]
+// @test-link [[module_pitch_search_transition]]
 describe('pitch-search-equivalence: advanceSearchStep vs advance', () => {
   it('agrees with advance on kind, reason, and nextState across real search states', () => {
     const inputs = [

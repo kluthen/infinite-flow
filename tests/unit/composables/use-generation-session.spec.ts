@@ -331,4 +331,115 @@ describe('createGenerationSession', () => {
     await expect(notating).resolves.toBe(true)
     expect(session.state.presentation).toEqual({ theme: 'Dark', notationMode: 'E-flat alto' })
   })
+
+  // @test-link [[service_workspace_session_flow]]
+  describe('resultEngraved (D34)', () => {
+    it('is false initially, true after a successful engrave, false after a failing one, and true again after a successful redraw', async () => {
+      const tracked = trackedProviders()
+      let notateAttempts = 0
+      const session = createGenerationSession({
+        providers: tracked.providers,
+        generate: async () => 'phrase',
+        notate: async () => {
+          notateAttempts += 1
+          // The fresh result's own engrave (attempt 1) succeeds; regenerate's own engrave
+          // (attempt 2) fails; the explicit retryNotation below (attempt 3) succeeds.
+          if (notateAttempts === 2) throw new Error('engrave failed')
+        },
+        evaluateProfileSwitch: () => ({ kind: 'retain' }),
+      })
+
+      expect(session.state.resultEngraved).toBe(false)
+
+      await expect(session.actions.generate()).resolves.toBe(true)
+      expect(session.state.resultEngraved).toBe(true)
+
+      await expect(session.actions.regenerate()).resolves.toBe(true)
+      expect(session.state.notationError?.message).toBe('engrave failed')
+      expect(session.state.resultEngraved).toBe(false)
+
+      await expect(session.actions.retryNotation()).resolves.toBe(true)
+      expect(session.state.resultEngraved).toBe(true)
+    })
+
+    it("is false during the fresh result's own engraving step, before notate resolves", async () => {
+      const tracked = trackedProviders()
+      const generation = createDeferred<string>()
+      const notation = createDeferred<void>()
+      const session = createGenerationSession({
+        providers: tracked.providers,
+        generate: () => generation.promise,
+        notate: () => notation.promise,
+        evaluateProfileSwitch: () => ({ kind: 'retain' }),
+      })
+
+      const pending = session.actions.generate()
+      generation.resolve('phrase')
+      await generation.promise
+
+      expect(session.state.operation).toBe('notating')
+      expect(session.state.result).toBe('phrase')
+      expect(session.state.resultEngraved).toBe(false)
+
+      notation.resolve()
+      await expect(pending).resolves.toBe(true)
+      expect(session.state.resultEngraved).toBe(true)
+    })
+
+    it('is left untouched by run() merely starting: a regenerate that then fails to generate keeps it true and retains the prior result', async () => {
+      const tracked = trackedProviders()
+      const generation = createDeferred<string>()
+      let call = 0
+      const session = createGenerationSession({
+        providers: tracked.providers,
+        generate: async () => {
+          call += 1
+          if (call === 1) return 'first'
+          return generation.promise
+        },
+        notate: async () => undefined,
+        evaluateProfileSwitch: () => ({ kind: 'retain' }),
+      })
+
+      await expect(session.actions.generate()).resolves.toBe(true)
+      expect(session.state.resultEngraved).toBe(true)
+
+      const pending = session.actions.regenerate()
+      expect(session.state.operation).toBe('generating')
+      expect(session.state.resultEngraved).toBe(true)
+
+      generation.reject(new Error('regeneration boom'))
+      await expect(pending).resolves.toBe(false)
+      expect(session.state.generationError?.message).toBe('regeneration boom')
+      expect(session.state.result).toBe('first')
+      expect(session.state.resultEngraved).toBe(true)
+    })
+
+    it('D32 exit (c): a notation failure leaves it false, and a subsequent failed regenerate leaves it false with notationError cleared and generationError set', async () => {
+      const tracked = trackedProviders()
+      let call = 0
+      const session = createGenerationSession({
+        providers: tracked.providers,
+        generate: async () => {
+          call += 1
+          if (call === 1) return 'first'
+          throw new Error('regeneration boom')
+        },
+        notate: async () => {
+          throw new Error('engrave failed')
+        },
+        evaluateProfileSwitch: () => ({ kind: 'retain' }),
+      })
+
+      await expect(session.actions.generate()).resolves.toBe(true)
+      expect(session.state.notationError?.message).toBe('engrave failed')
+      expect(session.state.resultEngraved).toBe(false)
+
+      await expect(session.actions.regenerate()).resolves.toBe(false)
+      expect(session.state.notationError).toBeNull()
+      expect(session.state.generationError?.message).toBe('regeneration boom')
+      expect(session.state.result).toBe('first')
+      expect(session.state.resultEngraved).toBe(false)
+    })
+  })
 })
