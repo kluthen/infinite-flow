@@ -33,9 +33,9 @@ speed package:
   `bb-tenor`, C Major/Gentle diatonic, Arch/Shaped/Predictable, tempo 90): Eighth/Breath-heavy/
   Straight/Edge; Eighth/Breath-heavy/Occasional offbeats/Build; Eighth/Breath-heavy/Occasional
   offbeats/Edge; Eighth/Breath-heavy/Active displacement/Build; Eighth/Breath-heavy/Active
-  displacement/Edge; Mixed/Breath-heavy/Active displacement/Edge. These six succeed under the
-  workspace's default controls; they are a pitch-planner limit specific to this fixed context, out
-  of Step 9's scope.
+  displacement/Edge; Mixed/Breath-heavy/Active displacement/Edge. The later tension-binding
+  correction fixed all six (see [below](#tension-binding-correction)); 120 settings now succeed
+  and only the 24 `no_legal_rhythm_plan` settings fail.
 
 Latency across the 114 successful settings, measured back to back on the reference machine at
 `be9128b` (Step 9, before) and with the enumeration speed package (after). The Step 9 run
@@ -85,6 +85,31 @@ Responsiveness: during the worst-case cold generation, a click on the theme cont
 `data-theme` attribute in 32-33 ms after the package (31-32 ms before; the spec asserts under 200
 ms). Generation runs off the main thread, so the workspace stays interactive while a cold rhythm
 domain is materialized.
+
+## Tension-binding correction
+
+The signed-off tension-binding correction (rests allowed between a figure and its target within
+the documented `maximumResolutionDelay`, and between a preparation and its figure; see
+[pitch-planner-validation.md](music/pitch-planner-validation.md#neutral-and-jazz-vocabulary))
+changes output, so it was re-measured back to back against `eeef500`, two runs each, on a quiet
+reference machine. The six former `no_legal_pitch_plan` settings now succeed, cold 5-58 ms and
+warm under 2 ms, so the successful set grows from 114 to 120.
+
+| Node (ms)                               | median     | p90          | p95          | max          |
+| --------------------------------------- | ---------- | ------------ | ------------ | ------------ |
+| Cold before (114 successes)             | 39.8, 40.0 | 230.5, 238.8 | 346.6, 342.3 | 741.2, 758.7 |
+| Cold after (120 successes)              | 36.5, 38.2 | 181.6, 185.9 | 307.9, 313.9 | 766.7, 768.1 |
+| Cold after, same 114 settings as before | —          | 230.6, 231.0 | 335.3, 350.3 | 766.7, 768.1 |
+| Warm before (114 successes)             | 2.7, 3.1   | 23.9, 27.0   | 35.7, 35.7   | 56.2, 54.8   |
+| Warm after (120 successes)              | 2.4, 2.6   | 23.8, 25.0   | 35.0, 28.2   | 56.4, 55.6   |
+
+The lower after-p90 comes mostly from adding six fast settings; over the same 114 settings the
+figures are unchanged within run-to-run noise. The slowest setting is still Mixed / Sparse /
+Active displacement / Build (741-768 ms cold), dominated by rhythm enumeration, which the
+correction does not touch. In Chromium (`npm run measure:latency:browser`), before → after: default
+cold 110, 99 → 114, 105 ms and warm 77, 81 → 71, 74 ms; worst-case cold 316, 323 → 326, 324 ms and
+warm 81, 86 → 86, 83 ms; theme response 33-34 → 32-33 ms. All figures stay inside the signed-off
+budget below.
 
 ## Enumeration speed package
 

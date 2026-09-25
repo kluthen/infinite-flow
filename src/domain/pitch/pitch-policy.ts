@@ -7,9 +7,19 @@ import type {
   PitchClass,
 } from '../controls/generation-controls'
 import { deepFreeze } from '../events/deep-freeze'
-import type { HarmonyCandidate, TensionFigureKind } from '../harmony/harmony-types'
+import type {
+  AbstractTensionRequirement,
+  HarmonyCandidate,
+  TensionFigureKind,
+} from '../harmony/harmony-types'
 import type { RhythmCandidate } from '../rhythm/rhythm-types'
-import { harmonyEventIndexAt, soundingSpans, type SoundingSpan } from './pitch-harmony'
+import {
+  harmonyEventIndexAt,
+  soundingSpans,
+  TICKS_PER_BAR,
+  TICKS_PER_BEAT,
+  type SoundingSpan,
+} from './pitch-harmony'
 import type {
   ConcreteTensionBinding,
   NoLegalTensionBinding,
@@ -62,10 +72,35 @@ function bindingAttacks(
   }))
 }
 
-/** True when each attack starts where the previous one's tie-inclusive span ends. */
-function contiguous(sequence: readonly BindingAttack[]): boolean {
+/** Ticks between strong onsets (beat 1 and beat 3 of a bar). */
+const TICKS_PER_STRONG_ONSET = TICKS_PER_BAR / 2
+
+/**
+ * The latest absolute tick at which the attack after one ending at `end` may start under the
+ * requirement's maximum resolution delay: the first beat boundary after `end` for `next_beat_or_bar`
+ * (the next bar's downbeat when `end` falls in the bar's last beat), or the first strong onset after
+ * `end` for `next_strong_sounding_onset`. Rests may fill the gap; an attack starting at `end` is
+ * always in time.
+ */
+function resolutionDeadline(
+  delay: AbstractTensionRequirement['maximumResolutionDelay'],
+  end: number,
+): number {
+  const grid = delay === 'next_beat_or_bar' ? TICKS_PER_BEAT : TICKS_PER_STRONG_ONSET
+  return Math.floor(end / grid) * grid + grid
+}
+
+/**
+ * True when every attack after the first starts no later than the resolution deadline of the
+ * attack before it. Rests between them are allowed; the delay bound is not.
+ */
+function withinResolutionDelay(
+  delay: AbstractTensionRequirement['maximumResolutionDelay'],
+  sequence: readonly BindingAttack[],
+): boolean {
   return sequence.every(
-    (attack, index) => index === 0 || sequence[index - 1]!.span.end === attack.span.start,
+    (attack, index) =>
+      index === 0 || attack.span.start <= resolutionDeadline(delay, sequence[index - 1]!.span.end),
   )
 }
 
@@ -76,9 +111,11 @@ function isStrong(attack: BindingAttack): boolean {
 
 /**
  * The concrete binding of one figure kind whose members start at `start`, or undefined when the
- * rhythm and harmony cannot host it there. Members and target sound back to back under one harmony
- * event; an appoggiatura needs a strong onset and a preceding note to leap from, so never starts on
- * attack 0; a passing/neighbor tone needs a contiguous preparation under the same harmony event.
+ * rhythm and harmony cannot host it there. Members and target are consecutive sounding attacks under
+ * one harmony event; rests may separate them, but each must start within the requirement's maximum
+ * resolution delay of the one before. An appoggiatura needs a strong onset and a preceding note to
+ * leap from, so never starts on attack 0; a passing/neighbor tone needs a preparation, the
+ * immediately preceding sounding attack under the same harmony event, which a rest may separate.
  */
 function bindingAt(
   harmony: HarmonyCandidate,
@@ -95,13 +132,12 @@ function bindingAt(
   const first = figure[0]!
   if (!requirement.allowedBars.includes(first.span.barIndex as 0 | 1 | 2)) return undefined
   const sequence = [...figure, target]
-  if (!contiguous(sequence)) return undefined
+  if (!withinResolutionDelay(requirement.maximumResolutionDelay, sequence)) return undefined
   if (sequence.some((attack) => attack.harmonyIndex !== first.harmonyIndex)) return undefined
   if (figureKind === 'appoggiatura' && (start === 0 || !isStrong(first))) return undefined
   if (figureKind === 'diatonic_passing_or_neighbor') {
     const preparation = attacks[start - 1]
-    if (!preparation || !contiguous([preparation, first])) return undefined
-    if (preparation.harmonyIndex !== first.harmonyIndex) return undefined
+    if (!preparation || preparation.harmonyIndex !== first.harmonyIndex) return undefined
   }
   if (target.index === attacks.length - 1 && requirement.mustResolveBeforeFinalSoundingEvent)
     return undefined

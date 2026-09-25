@@ -163,6 +163,15 @@ pairing has nowhere legal to place the required figure; orchestration is expecte
 the next rhythm candidate (and, once exhausted, the next harmony candidate) rather than treat it
 as a phrase-level failure.
 
+A figure's members and its target are consecutive sounding attacks under one harmony event, and
+rests may separate them: each attack after the first member must start within the requirement's
+`maximumResolutionDelay` of the previous attack's end (the next beat boundary for
+`next_beat_or_bar`, the next beat-1-or-3 boundary for Settled's `next_strong_sounding_onset`).
+The preparation note is the immediately preceding sounding attack under the same harmony, with a
+rest allowed and no delay bound. The independent validator (`bindingStructureHolds` in
+`src/domain/pitch/validation/figure-rules.ts`) re-derives the same rule. See
+[pitch-planner-validation.md](../docs/music/pitch-planner-validation.md#neutral-and-jazz-vocabulary).
+
 ## 6. Pitch stage
 
 **Modules:** `src/domain/pitch/` — `pitch-context.ts` (compiles one static, immutable
@@ -426,16 +435,17 @@ endpoint validation by returning a trivially "solved" empty plan.
   Chromium worst-case scenario from ~9.4 s to ~0.32 s. A memo hit (warm call) stays ≤ ~57 ms in
   Node across every supported setting. Bounded-prefix ranking and precomputed domains remain
   unexplored options; neither is needed for the current budget.
-- **Six further note-density/silence-density/syncopation/tension-arc combinations have no legal
-  pitch plan in the workspace's fixed default pitch context** (C Major, Gentle diatonic, Middle
-  register, B-flat tenor, Arch, Shaped, Predictable, tempo 90): Eighth/Breath-heavy/Straight/Edge;
-  Eighth/Breath-heavy/Occasional offbeats/Build and /Edge; Eighth/Breath-heavy/Active
-  displacement/Build and /Edge; Mixed/Breath-heavy/Active displacement/Edge. Each has a legal
-  rhythm plan (the memo materializes it normally), but the pitch planner finds no legal plan for it
-  under these specific pitch-context controls; retrying cannot help, since the outcome depends only
-  on the deterministic controls, not the seed. This is a pitch-planner limit in this pitch context,
-  not a rhythm-grammar limit, and is out of Step 9's scope; see
-  [docs/generation-latency.md](../docs/generation-latency.md) for how it was measured.
+- **Resolved: six note-density/silence-density/syncopation/tension-arc combinations used to have
+  no legal pitch plan in the workspace's fixed default pitch context** (C Major, Gentle diatonic,
+  Middle register, B-flat tenor, Arch, Shaped, Predictable, tempo 90): Eighth/Breath-heavy/
+  Straight/Edge; Eighth/Breath-heavy/Occasional offbeats/Build and /Edge; Eighth/Breath-heavy/
+  Active displacement/Build and /Edge; Mixed/Breath-heavy/Active displacement/Edge. The cause was
+  the tension binding, not the pitch search: it required a figure, its preparation, and its target
+  to be rest-free, which Breath-heavy rhythms rarely allow in the Build/Edge bar region. The
+  signed-off binding correction (see [section 5](#5-tension-binding)) honours the documented
+  resolution delay with rests allowed, and all six now generate. A feasibility test proves every
+  supported rhythm setting × tension arc × harmonic motion has at least one bindable pair; see
+  [docs/generation-latency.md](../docs/generation-latency.md) for the measurement.
 
 ## 11. Glossary and code map
 

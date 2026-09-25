@@ -1,10 +1,30 @@
 import { collectionStep, contiguous } from './phrase-facts'
+import type { AbstractTensionRequirement as TensionRequirement } from '../../harmony/harmony-types'
 import type { PhraseFacts, PitchValidationFailure, SoundingFact } from './pitch-validation-types'
 
 /** True when two consecutive moves go the same non-zero direction. */
 function sameDirection(first: SoundingFact, middle: SoundingFact, last: SoundingFact): boolean {
   const before = Math.sign(middle.midi - first.midi)
   return before !== 0 && before === Math.sign(last.midi - middle.midi)
+}
+
+/** Ticks per beat and per strong onset (beat 1 and beat 3 of a bar), for the resolution delay. */
+const TICKS_PER_BEAT = 4
+const TICKS_PER_STRONG_ONSET = 8
+
+/**
+ * True when `next` starts no later than the maximum resolution delay allows after `previous`
+ * releases: by the first beat boundary after it for `next_beat_or_bar` (the next bar's downbeat
+ * from the bar's last beat), or by the first strong onset after it for
+ * `next_strong_sounding_onset`. Rests may fill the gap.
+ */
+function inTime(
+  delay: TensionRequirement['maximumResolutionDelay'],
+  previous: SoundingFact,
+  next: SoundingFact,
+): boolean {
+  const grid = delay === 'next_beat_or_bar' ? TICKS_PER_BEAT : TICKS_PER_STRONG_ONSET
+  return next.start <= Math.floor(previous.end / grid) * grid + grid
 }
 
 /** True when attacks sound back to back under one unchanged harmony. */
@@ -29,8 +49,10 @@ function freelyExplained(attacks: readonly SoundingFact[], index: number): boole
 
 /**
  * Re-derive the concrete binding's structural claims from rhythm and harmony: permitted kind and
- * region, member count, contiguity under one harmony, a strong appoggiatura onset, a preparation for
- * passing/neighbor figures, and a target that precedes the final sounding attack.
+ * region, member count, consecutive attacks under one harmony (rests allowed) with each member and
+ * the target starting within the maximum resolution delay of the attack before it, a strong
+ * appoggiatura onset, a preparation for passing/neighbor figures, and a target that precedes the
+ * final sounding attack.
  */
 // @spec-link [[module_pitch_domain_validation]]
 function bindingStructureHolds(facts: PhraseFacts): boolean {
@@ -44,16 +66,20 @@ function bindingStructureHolds(facts: PhraseFacts): boolean {
   if (!target || members.length !== expectedCount || members.some((member) => !member)) return false
   const first = members[0]!
   const preparation = facts.attacks[first.index - 1]
+  const resolution = [...(members as SoundingFact[]), target]
   const group = [
     ...(binding.figureKind === 'diatonic_passing_or_neighbor' && preparation ? [preparation] : []),
-    ...(members as SoundingFact[]),
-    target,
+    ...resolution,
   ]
+  const delay = requirement.maximumResolutionDelay
   return (
     requirement.permittedFigureKinds.includes(binding.figureKind) &&
     (requirement.allowedBars as readonly number[]).includes(first.barIndex) &&
     group.every((attack, index) => index === 0 || attack.index === group[index - 1]!.index + 1) &&
-    tightGroup(group) &&
+    group.every((attack) => attack.harmony === first.harmony) &&
+    resolution.every(
+      (attack, index) => index === 0 || inTime(delay, resolution[index - 1]!, attack),
+    ) &&
     (binding.figureKind !== 'appoggiatura' || first.strongOnset) &&
     (binding.figureKind !== 'diatonic_passing_or_neighbor' || preparation !== undefined) &&
     target.index < facts.attacks.length - 1

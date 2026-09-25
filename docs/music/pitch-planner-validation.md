@@ -36,7 +36,9 @@ Neutral sounding pitches must belong to the selected seven-note collection. A no
 - Passing: approached and left by collection step in the same direction, ending on a chord tone.
 - Neighbor: leaves a chord tone by collection step and returns by collection step to that pitch class.
 - Appoggiatura: entered by a permitted leap on an accented/strong onset and resolved by collection step to a chord tone.
-- Diatonic approach: one or two collection-step notes immediately preceding a chord-tone target.
+- Diatonic approach: one or two collection-step notes immediately preceding a chord-tone target. "Immediately preceding" counts sounding attacks under the same harmony event, not ticks: a rest may separate the approach notes from each other or from the target, as long as each next attack starts within the tension requirement's maximum resolution delay (see below). This also applies to Build's required two-note approach.
+
+**Bound tension figures (passing/neighbor, appoggiatura, two-note approach).** The members of a bound figure and its target are consecutive sounding attacks under one harmony event; rests may separate them. Each attack after the first member must start no later than the resolution deadline measured from the end of the previous attack (tie-inclusive): for Lift, Build, and Edge (`next_beat_or_bar`) the next beat boundary after that end; for Settled (`next_strong_sounding_onset`) the next strong-onset boundary (beat 1 or beat 3) after that end. The preparation note before the first member must be the immediately preceding sounding attack under the same harmony event; a rest may separate it from the figure, and no delay bound applies to it. The planner (`bindingAt`) and the independent validator (`bindingStructureHolds`) enforce the same rule. Jazz chromatic approaches and enclosures keep their stricter no-rest rule below.
 
 Jazz inherits all Neutral candidates and adds:
 

@@ -9,8 +9,10 @@
  * wide check asserts a compact per-cell fingerprint (selected register + attack MIDIs) is
  * identical across the two passes gathered while running each cell, without a hard-coded golden.
  * The three control sets deliberately avoid 'Mixed' note density and 'Active displacement'
- * syncopation (which enumerate slowly) and Edge tension paired with Static harmonic motion
- * (which has no legal tension binding), so the whole matrix stays fast.
+ * syncopation (which enumerate slowly), so the whole matrix stays fast. Cells are re-checked for
+ * pass-to-pass reproduction rather than pinned hashes, so the signed-off tension-binding
+ * correction (rests allowed within the resolution delay) needed no fixture change here; it moved
+ * 12 of the 72 cells to a rest-crossing two-note approach, all still successful.
  */
 
 import { describe, expect, it } from 'vitest'

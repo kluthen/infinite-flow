@@ -10,6 +10,16 @@
  * instrument profile (c-keyboard, bb-tenor, eb-alto) appears at least once. `generation-outcome-
  * golden.spec.ts` asserts the post-memo orchestrator reproduces these hashes exactly, cold and
  * warm.
+ *
+ * Version history:
+ * - v1: recorded from the pre-Step-9 baseline orchestrator (above).
+ * - v2: signed-off tension-binding correction (option A). Figure binding now honours the
+ *   documented `maximumResolutionDelay` with rests allowed between a figure and its target, and
+ *   allows a rest between a preparation and its figure (including Build's two-note approach).
+ *   Exactly two hashes changed, both because the search now selects a rest-crossing two-note
+ *   approach it could not bind before: eighth-occasional-conversational-jazz (1260875452 ->
+ *   3547197893) and mixed-active-conversational-worst-case (1219559637 -> 2424973756). The
+ *   other six hashes are unchanged from v1.
  */
 
 import type { GenerationControls } from '@/domain/controls/generation-controls'
@@ -25,7 +35,7 @@ export interface GoldenCase {
   readonly expectedHash: number
 }
 
-export const GENERATION_OUTCOME_GOLDEN_V1: readonly GoldenCase[] = [
+export const GENERATION_OUTCOME_GOLDEN_V2: readonly GoldenCase[] = [
   {
     name: 'quarter-straight-sparse',
     seed: 1,
@@ -68,7 +78,7 @@ export const GENERATION_OUTCOME_GOLDEN_V1: readonly GoldenCase[] = [
       instrumentProfileId: 'bb-tenor',
     },
     expectedKind: 'generation_success',
-    expectedHash: 1260875452,
+    expectedHash: 3547197893,
   },
   {
     name: 'sixteenth-straight-conversational',
@@ -134,7 +144,7 @@ export const GENERATION_OUTCOME_GOLDEN_V1: readonly GoldenCase[] = [
       instrumentProfileId: 'bb-tenor',
     },
     expectedKind: 'generation_success',
-    expectedHash: 1219559637,
+    expectedHash: 2424973756,
   },
   {
     name: 'varying-register',
