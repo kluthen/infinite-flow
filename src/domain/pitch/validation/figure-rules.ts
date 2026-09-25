@@ -51,8 +51,8 @@ function freelyExplained(attacks: readonly SoundingFact[], index: number): boole
  * Re-derive the concrete binding's structural claims from rhythm and harmony: permitted kind and
  * region, member count, consecutive attacks under one harmony (rests allowed) with each member and
  * the target starting within the maximum resolution delay of the attack before it, a strong
- * appoggiatura onset, a preparation for passing/neighbor figures, and a target that precedes the
- * final sounding attack.
+ * appoggiatura onset that is not the phrase's first attack, a preparation for passing/neighbor
+ * figures, and a target that precedes the final sounding attack.
  */
 // @spec-link [[module_pitch_domain_validation]]
 function bindingStructureHolds(facts: PhraseFacts): boolean {
@@ -80,7 +80,7 @@ function bindingStructureHolds(facts: PhraseFacts): boolean {
     resolution.every(
       (attack, index) => index === 0 || inTime(delay, resolution[index - 1]!, attack),
     ) &&
-    (binding.figureKind !== 'appoggiatura' || first.strongOnset) &&
+    (binding.figureKind !== 'appoggiatura' || (first.index !== 0 && first.strongOnset)) &&
     (binding.figureKind !== 'diatonic_passing_or_neighbor' || preparation !== undefined) &&
     target.index < facts.attacks.length - 1
   )

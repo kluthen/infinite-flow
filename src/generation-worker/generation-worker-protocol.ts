@@ -262,29 +262,6 @@ function parseGenerationDiagnostics(input: unknown): GenerationDiagnostics {
   return record as unknown as GenerationDiagnostics
 }
 
-/**
- * Intent: strip a plain object's runtime `kind` discriminant tag, if present. `makeGenerationRequest`
- * nests already-constructed `ActiveConcertRange`/`RegisterWindow` values that each carry such a tag,
- * but `parseGenerationRequest`'s untrusted wire format predates that tag and rejects it as an
- * unknown field — so a real, already-built request must have it stripped before re-validation.
- */
-function stripKindTag(input: unknown): unknown {
-  if (typeof input !== 'object' || input === null || Array.isArray(input)) return input
-  const clone = { ...(input as Record<string, unknown>) }
-  delete clone.kind
-  return clone
-}
-
-/** Intent: adapt one wire `request` record into the shape `parseGenerationRequest` accepts. */
-function prepareRequestForParsing(input: unknown): unknown {
-  const record = asPlainRecord(input, 'GenerationOutcome.request')
-  return {
-    ...record,
-    activeConcertRange: stripKindTag(record.activeConcertRange),
-    registerWindow: stripKindTag(record.registerWindow),
-  }
-}
-
 const OUTCOME_SUCCESS_ALLOWED_KEYS = new Set([
   'kind',
   'request',
@@ -310,7 +287,7 @@ export function parseGenerationOutcome(input: unknown): GenerationOutcome {
 
   if (record.kind === 'generation_success') {
     requireAllowedKeys(record, OUTCOME_SUCCESS_ALLOWED_KEYS, 'GenerationOutcome')
-    const request = parseGenerationRequest(prepareRequestForParsing(record.request))
+    const request = parseGenerationRequest(record.request)
     const resultRecord = asPlainRecord(record.result, 'GenerationOutcome.result')
     requireAllowedKeys(resultRecord, GENERATION_RESULT_ALLOWED_KEYS, 'GenerationOutcome.result')
     if (

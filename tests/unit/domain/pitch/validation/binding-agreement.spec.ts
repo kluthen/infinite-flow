@@ -183,13 +183,6 @@ describe('planner/validator agreement: tension binding structure', () => {
         for (const figureKind of ALL_KINDS) {
           const figureLength = figureKind === 'two_note_diatonic_approach' ? 2 : 1
           for (let start = 0; start + figureLength < attackCount; start += 1) {
-            // Pre-existing, rest-unrelated gap (present before and after the resolution-delay fix):
-            // `bindingStructureHolds` checks only `first.strongOnset` for an appoggiatura, not that
-            // it starts after attack 0, so it structurally accepts an attack-0 appoggiatura that
-            // `bindingAt` never offers. The overall phrase is still rejected, but via
-            // `tension_figure_invalid` (no `before` attack for the shape check) rather than
-            // `tension_binding_invalid`, so it falls outside this structure-only sweep.
-            if (figureKind === 'appoggiatura' && start === 0) continue
             const attackIndices = Array.from({ length: figureLength }, (_, i) => start + i)
             const targetAttackIndex = start + figureLength
             const plannerOffered = plannerOffers(
