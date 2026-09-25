@@ -63,6 +63,7 @@ export function canonicalEndingSignature(bar: RhythmBar): string {
 
 /** `metrical_anchor_missing`: no note starts on beat 1 or beat 3 of the bar. */
 // @spec-link [[module_rhythm_domain_validation]]
+// @spec-link [[rule_preserve_metrical_anchor]]
 export function lacksMetricalAnchor(bar: RhythmBar): boolean {
   return !bar.events.some(
     (event) => event.kind === 'note' && (event.startTick === 0 || event.startTick === 8),

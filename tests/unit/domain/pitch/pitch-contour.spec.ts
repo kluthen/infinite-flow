@@ -10,10 +10,10 @@ import {
   initialContourTag,
 } from '@/domain/pitch/pitch-contour'
 
-// @test-link [[module_pitch_planner]]
+// @test-link [[mechanic_pitch_contour_forward_check]]
 describe('pitch-contour', () => {
   describe('initialContourTag', () => {
-    // @test-link [[module_pitch_planner]]
+    // @test-link [[mechanic_pitch_contour_forward_check]]
     it('starts Arch with both peak patterns still open and every other contour at zero', () => {
       expect(initialContourTag('Arch')).toBe(0b11)
       expect(initialContourTag('Rising')).toBe(0)
@@ -23,7 +23,7 @@ describe('pitch-contour', () => {
   })
 
   describe('contourStep: Rising', () => {
-    // @test-link [[module_pitch_planner]]
+    // @test-link [[mechanic_pitch_contour_forward_check]]
     it('rejects any downward step', () => {
       expect(contourStep('Rising', 1, -1, 0)).toBeUndefined()
     })
@@ -36,7 +36,7 @@ describe('pitch-contour', () => {
   })
 
   describe('contourStep: Falling', () => {
-    // @test-link [[module_pitch_planner]]
+    // @test-link [[mechanic_pitch_contour_forward_check]]
     it('mirrors Rising: rejects any upward step and records a downward step', () => {
       expect(contourStep('Falling', 1, 1, 0)).toBeUndefined()
       expect(contourStep('Falling', 1, -1, 0)).toBe(1)
@@ -45,7 +45,7 @@ describe('pitch-contour', () => {
   })
 
   describe('contourStep: Wandering', () => {
-    // @test-link [[module_pitch_planner]]
+    // @test-link [[mechanic_pitch_contour_forward_check]]
     it('records both a rise and a fall as they occur, and a flat step records neither', () => {
       expect(contourStep('Wandering', 1, 1, 0)).toBe(1)
       expect(contourStep('Wandering', 1, -1, 0)).toBe(2)
@@ -55,7 +55,7 @@ describe('pitch-contour', () => {
   })
 
   describe('contourStep: Arch', () => {
-    // @test-link [[module_pitch_planner]]
+    // @test-link [[mechanic_pitch_contour_forward_check]]
     it('keeps both peak patterns alive on an initial rise', () => {
       expect(contourStep('Arch', 1, 1, 0b11)).toBe(0b11)
     })
@@ -78,7 +78,7 @@ describe('pitch-contour', () => {
   })
 
   describe('contourAccepts', () => {
-    // @test-link [[module_pitch_planner]]
+    // @test-link [[mechanic_pitch_contour_forward_check]]
     it('requires Wandering to have observed both a rise and a fall', () => {
       expect(contourAccepts('Wandering', 0b11)).toBe(true)
       expect(contourAccepts('Wandering', 0b01)).toBe(false)
@@ -94,7 +94,7 @@ describe('pitch-contour', () => {
   })
 
   describe('contourAssignable', () => {
-    // @test-link [[module_pitch_planner]]
+    // @test-link [[mechanic_pitch_contour_forward_check]]
     it('is false when fewer than four checkpoints are supplied', () => {
       expect(contourAssignable('Rising', [[60], [64], [67]])).toBe(false)
     })
@@ -145,7 +145,7 @@ describe('pitch-contour', () => {
     const finalMidis = [74]
     const reach = (intervals: number) => intervals * 2
 
-    // @test-link [[module_pitch_planner]]
+    // @test-link [[mechanic_pitch_contour_forward_check]]
     it('walks a strictly rising checkpoint chain to completion and accepts the open final endpoint', () => {
       const plan = compileContourPlan({
         contour: 'Rising',
@@ -208,7 +208,7 @@ describe('pitch-contour', () => {
       expect(advanceContour(fallingPlan, fallingFirst!, 4, 70, generousReach)).toBeUndefined()
     })
 
-    // @test-link [[module_pitch_planner]]
+    // @test-link [[mechanic_pitch_contour_forward_check]]
     it('marks the plan impossible when fewer than four checkpoints are supplied, and advanceContour always fails', () => {
       const plan = compileContourPlan({
         contour: 'Rising',
@@ -225,7 +225,7 @@ describe('pitch-contour', () => {
   })
 
   describe('INITIAL_CONTOUR_STATE', () => {
-    // @test-link [[module_pitch_planner]]
+    // @test-link [[mechanic_pitch_contour_forward_check]]
     it('starts before the first checkpoint with a zero tag', () => {
       expect(INITIAL_CONTOUR_STATE).toEqual({ lastCheckpoint: -1, lastMidi: 0, tag: 0 })
       expect(Object.isFrozen(INITIAL_CONTOUR_STATE)).toBe(true)

@@ -10,6 +10,7 @@ import { computed, ref, watch } from 'vue'
 
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import { generationFailureAlertText } from '@/composables/generation-failure-alert'
 import PhraseScore from '@/components/notation/PhraseScore.vue'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
@@ -71,6 +72,14 @@ const hasPhrase = computed(() => props.pendingPhrase !== null)
 /** Intent: surface the retained notation failure as the staff-frame's replacement error content. */
 // @spec-link [[module_notation_layout_preflight]]
 const notationErrorMessage = computed(() => state.value.notationError?.message ?? null)
+
+/** Intent: the D29 alert-banner text, mapped by failure kind rather than a "Generation failed: " prefix concatenated onto the error's own message. */
+// @spec-link [[rule_generation_failure_alert_copy]]
+const generationErrorAlertText = computed(() =>
+  state.value.generationError !== null
+    ? generationFailureAlertText(state.value.generationError)
+    : null,
+)
 </script>
 
 <template>
@@ -81,8 +90,8 @@ const notationErrorMessage = computed(() => state.value.notationError?.message ?
         {{ statusText }}
       </p>
     </div>
-    <p v-if="state.generationError" class="inline-alert alert-error">
-      Generation failed: {{ state.generationError.message }}
+    <p v-if="generationErrorAlertText !== null" class="inline-alert alert-error">
+      {{ generationErrorAlertText }}
     </p>
     <div class="staff-viewport">
       <div class="staff-frame" :class="staffFrameStateClass" aria-labelledby="score-panel-title">

@@ -1,4 +1,3 @@
-// @test-link [[module_register_window_resolution_primitives]]
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -10,6 +9,7 @@ import {
 } from '@/domain/profile/register-window'
 import { makeActiveConcertRange } from '@/domain/profile/active-concert-range'
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('makeRegisterWindow', () => {
   it('constructs a valid inclusive window', () => {
     const window = makeRegisterWindow(48, 60)
@@ -51,6 +51,7 @@ describe('makeRegisterWindow', () => {
   })
 })
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('registerWindowContainsPitch', () => {
   const window = makeRegisterWindow(48, 60)
 
@@ -71,6 +72,7 @@ describe('registerWindowContainsPitch', () => {
   })
 })
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('registerWindowIsContainedIn', () => {
   it('reports a window fully inside the active range as contained', () => {
     const range = makeActiveConcertRange(48, 72)
@@ -91,6 +93,7 @@ describe('registerWindowIsContainedIn', () => {
   })
 })
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('registerWindowsIntersect', () => {
   it('reports two overlapping windows as intersecting', () => {
     const a = makeRegisterWindow(48, 60)

@@ -14,7 +14,7 @@ const ARCH_PATTERNS: readonly (readonly (readonly number[])[])[] = [
 ]
 
 /** The tag carried before any checkpoint direction has been observed. */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[mechanic_pitch_contour_forward_check]]
 export function initialContourTag(contour: Contour): number {
   return contour === 'Arch' ? 0b11 : 0
 }
@@ -24,7 +24,7 @@ export function initialContourTag(contour: Contour): number {
  * record a strict move, Wandering records the directions seen, and Arch keeps the still-possible
  * peak patterns. Returns undefined when the direction is illegal.
  */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[mechanic_pitch_contour_forward_check]]
 export function contourStep(
   contour: Contour,
   step: number,
@@ -43,7 +43,7 @@ export function contourStep(
 }
 
 /** True when the tag after all four checkpoints satisfies the contour. */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[mechanic_pitch_contour_forward_check]]
 export function contourAccepts(contour: Contour, tag: number): boolean {
   if (contour === 'Wandering') return tag === 0b11
   return tag !== 0
@@ -59,7 +59,7 @@ function contourTags(contour: Contour): readonly number[] {
  * from which checkpoints k+1..4 and the open endpoint can still be completed when checkpoint k
  * takes `midi`. `impossible` marks a phrase missing a checkpoint.
  */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[mechanic_pitch_contour_forward_check]]
 export interface ContourPlan {
   readonly contour: Contour
   readonly impossible: boolean
@@ -71,7 +71,7 @@ export interface ContourPlan {
 }
 
 /** Contour progress: the latest assigned checkpoint (-1 before the first) and its tag. */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[mechanic_pitch_contour_forward_check]]
 export interface ContourState {
   readonly lastCheckpoint: number
   readonly lastMidi: number
@@ -79,7 +79,7 @@ export interface ContourState {
 }
 
 /** Upper bound on the MIDI distance coverable by `intervals` more notes. */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[mechanic_pitch_contour_forward_check]]
 export type ReachFunction = (intervals: number) => number
 
 /** True when some value in `values` lies within `distance` of `midi`. */
@@ -127,7 +127,7 @@ function innerSuffix(
  * Compile the checkpoint suffix table backward in O(checkpoints × values² × tags). `reach` must
  * over-estimate movement so the table never rejects a completable prefix.
  */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[mechanic_pitch_contour_forward_check]]
 export function compileContourPlan(input: {
   readonly contour: Contour
   readonly checkpointAttackIndices: readonly number[]
@@ -167,7 +167,7 @@ export function compileContourPlan(input: {
   })
 }
 
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[mechanic_pitch_contour_forward_check]]
 export const INITIAL_CONTOUR_STATE: ContourState = deepFreeze({
   lastCheckpoint: -1,
   lastMidi: 0,
@@ -191,7 +191,7 @@ function checkpointViable(plan: ContourPlan, state: ContourState, index: number,
  * completable; any other note must still reach a viable next checkpoint, or the open endpoint once
  * every checkpoint is assigned, within `reach`.
  */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[mechanic_pitch_contour_forward_check]]
 export function advanceContour(
   plan: ContourPlan,
   state: ContourState,
@@ -222,7 +222,7 @@ export function advanceContour(
 }
 
 /** True when every checkpoint is assigned and the selected contour holds. */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[mechanic_pitch_contour_forward_check]]
 export function contourComplete(plan: ContourPlan, state: ContourState): boolean {
   return (
     !plan.impossible &&
@@ -235,7 +235,7 @@ export function contourComplete(plan: ContourPlan, state: ContourState): boolean
  * Pure contour feasibility over fixed or open checkpoint values, ignoring motion reach: a forward
  * set of reachable (value, tag) pairs, linear in checkpoints rather than a Cartesian product.
  */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[mechanic_pitch_contour_forward_check]]
 export function contourAssignable(
   contour: Contour,
   choices: readonly (readonly number[])[],

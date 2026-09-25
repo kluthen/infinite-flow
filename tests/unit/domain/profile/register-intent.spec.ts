@@ -1,4 +1,3 @@
-// @test-link [[module_register_intent_boundary]]
 import { describe, expect, it } from 'vitest'
 
 import { C_KEYBOARD_PROFILE, BB_TENOR_PROFILE } from '@/domain/profile/instrument-profiles'
@@ -11,6 +10,7 @@ import {
   type RegisterIntent,
 } from '@/domain/profile/register-intent'
 
+// @test-link [[module_register_intent_boundary]]
 describe('RegisterChoice', () => {
   it('is the outer, player-facing vocabulary: Low, Middle, High, or Varying', () => {
     const choices: readonly RegisterChoice[] = ['Low', 'Middle', 'High', 'Varying']
@@ -18,6 +18,7 @@ describe('RegisterChoice', () => {
   })
 })
 
+// @test-link [[module_register_intent_boundary]]
 describe('buildRegisterIntent', () => {
   it('carries the source range, requested register, resolved candidates, and policy version', () => {
     const intent = buildRegisterIntent(C_KEYBOARD_PROFILE, 'Low')
@@ -52,6 +53,7 @@ describe('buildRegisterIntent', () => {
   })
 })
 
+// @test-link [[module_register_intent_boundary]]
 describe('resolveRegisterIntentCandidate', () => {
   it('resolves exactly one candidate for a fixed Low/Middle/High choice, matching the profile-derived window', () => {
     const intent = buildRegisterIntent(C_KEYBOARD_PROFILE, 'Low')

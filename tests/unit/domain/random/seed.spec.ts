@@ -1,4 +1,3 @@
-// @test-link [[module_named_stream_pseudorandomness]]
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -10,6 +9,7 @@ import {
   type Seed,
 } from '@/domain/random/seed'
 
+// @test-link [[module_named_stream_pseudorandomness]]
 describe('makeSeed', () => {
   it('accepts 0 as the minimum valid 32-bit unsigned seed', () => {
     expect(() => makeSeed(0)).not.toThrow()
@@ -32,6 +32,7 @@ describe('makeSeed', () => {
   })
 })
 
+// @test-link [[module_named_stream_pseudorandomness]]
 describe('seed string encoding', () => {
   it('round-trips an arbitrary seed through encode then parse exactly', () => {
     const original = makeSeed(0x1234abcd)
@@ -76,6 +77,7 @@ describe('seed string encoding', () => {
   })
 })
 
+// @test-link [[module_named_stream_pseudorandomness]]
 describe('branded seed identity', () => {
   it('resists being constructed from an arbitrary raw number at the type level', () => {
     // @ts-expect-error a bare number is not assignable to the branded Seed type; callers must use makeSeed

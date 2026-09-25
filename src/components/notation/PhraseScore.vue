@@ -1,13 +1,16 @@
 <script setup lang="ts">
 /**
- * The engraving surface a later workspace step mounts: waits for notation fonts, engraves the
- * given written phrase into a hidden staging element at the current container width, and only
- * swaps it into the visible slot once engraving succeeds -- so a resize or a font/container
- * readiness failure never leaves a partial staff system on screen. Redraws on container resize
- * (coalesced to one redraw per frame, and only when the observed inline size actually changed, so
- * the swap's own height change never re-triggers itself), whenever the phrase prop changes, and
- * whenever the viewport crosses the 64rem tablet-landscape breakpoint (which flips whether the
- * two-system phone layout is permitted).
+ * The engraving surface a later workspace step mounts: loads the VexFlow engraver adapter through
+ * a lazy `import()` boundary (see notation/vexflow-engraver-loader.ts) and waits for notation
+ * fonts, engraves the given written phrase into a hidden staging element at the current container
+ * width, and only swaps it into the visible slot once engraving succeeds -- so a resize or a
+ * chunk-load/font/container readiness failure never leaves a partial staff system on screen. A
+ * failed module load is retried automatically on the next redraw (a resize, a phrase change, or a
+ * Retry re-requesting the same phrase). Redraws on container resize (coalesced to one redraw per
+ * frame, and only when the observed inline size actually changed, so the swap's own height change
+ * never re-triggers itself), whenever the phrase prop changes, and whenever the viewport crosses
+ * the 64rem tablet-landscape breakpoint (which flips whether the two-system phone layout is
+ * permitted).
  * Every successful swap is paired with an accessible text description of the same written phrase
  * (never the other way around: a failed or superseded engrave always clears it first).
  */
@@ -17,7 +20,7 @@ import { describeWrittenPhrase, type ScoreDescription } from '@/domain/notation/
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import { NOTATION_PHONE_LAYOUT_MEDIA_QUERY } from '@/notation/notation-layout-policy'
 import { NotationError } from '@/notation/notation-error'
-import { ensureNotationFonts, engraveWrittenPhrase } from '@/notation/vexflow-engraver'
+import { loadVexflowEngraver, type VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 
 // @spec-link [[module_notation_layout_preflight]]
 const props = defineProps<{ phrase: WrittenPhrase }>()
@@ -44,7 +47,7 @@ const stagingEl = ref<HTMLDivElement | null>(null)
 const description = ref<ScoreDescription | null>(null)
 const descriptionId = useId()
 
-let fontsReady = false
+let engraverModule: VexflowEngraverModule | null = null
 let resizeObserver: ResizeObserver | null = null
 let rafHandle: number | null = null
 let lastObservedInlineSize: number | null = null
@@ -55,14 +58,19 @@ function redraw(): void {
   const root = rootEl.value
   const visible = visibleEl.value
   const staging = stagingEl.value
-  if (!fontsReady || !root || !visible || !staging) return
+  if (!engraverModule || !root || !visible || !staging) return
 
   const containerWidthPx = root.clientWidth
   const allowTwoSystems = window.matchMedia(NOTATION_PHONE_LAYOUT_MEDIA_QUERY).matches
   staging.style.width = `${containerWidthPx}px`
 
   try {
-    const result = engraveWrittenPhrase(staging, props.phrase, containerWidthPx, allowTwoSystems)
+    const result = engraverModule.engraveWrittenPhrase(
+      staging,
+      props.phrase,
+      containerWidthPx,
+      allowTwoSystems,
+    )
     const summary = describeWrittenPhrase(props.phrase)
     visible.replaceChildren(...Array.from(staging.childNodes))
     const svg = visible.querySelector('svg.staff-svg')
@@ -89,12 +97,39 @@ function redraw(): void {
   }
 }
 
+/**
+ * Intent: load the lazy VexFlow engraver module and wait for its fonts exactly once, memoized in
+ * `engraverModule`. A prior failed attempt leaves `engraverModule` unset, so this is retried (and
+ * `loadVexflowEngraver` itself retries the dynamic import) on every subsequent call -- typically the
+ * next redraw a Retry triggers -- instead of redrawing forever against a module that never loaded.
+ */
+async function ensureEngraverReady(): Promise<boolean> {
+  if (engraverModule) return true
+  try {
+    const loaded = await loadVexflowEngraver()
+    await loaded.ensureNotationFonts()
+    engraverModule = loaded
+    return true
+  } catch (error) {
+    if (!(error instanceof NotationError)) throw error
+    state.value = 'error'
+    emit('notation-error', error)
+    return false
+  }
+}
+
+/** Intent: ensure the engraver is ready, then redraw -- the async counterpart `scheduleRedraw` awaits. */
+async function attemptRedraw(): Promise<void> {
+  if (!(await ensureEngraverReady())) return
+  redraw()
+}
+
 /** Intent: coalesce bursts of resize/phrase-change triggers into one redraw per animation frame. */
 function scheduleRedraw(): void {
   if (rafHandle !== null) cancelAnimationFrame(rafHandle)
   rafHandle = requestAnimationFrame(() => {
     rafHandle = null
-    redraw()
+    void attemptRedraw()
   })
 }
 
@@ -116,24 +151,14 @@ onMounted(async () => {
   const root = rootEl.value
   if (!root) return
 
-  try {
-    await ensureNotationFonts()
-  } catch (error) {
-    if (!(error instanceof NotationError)) throw error
-    state.value = 'error'
-    emit('notation-error', error)
-    return
-  }
-
-  fontsReady = true
   lastObservedInlineSize = root.clientWidth
-  redraw()
-
   resizeObserver = new ResizeObserver(handleResize)
   resizeObserver.observe(root)
 
   phoneLayoutQuery = window.matchMedia(NOTATION_PHONE_LAYOUT_MEDIA_QUERY)
   phoneLayoutQuery.addEventListener('change', scheduleRedraw)
+
+  if (await ensureEngraverReady()) redraw()
 })
 
 watch(

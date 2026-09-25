@@ -62,7 +62,7 @@ const request = makeGenerationRequest({
 })
 
 describe('timeline-assembly', () => {
-  // @test-link [[service_generation_orchestration]]
+  // @test-link [[module_phrase_timeline_assembly]]
   describe('assemblePhraseResult', () => {
     const rhythm = findCandidateWithTie(fastRhythmCandidates())
     const attackMidis = Array.from({ length: countFreshAttacks(rhythm) }, (_, i) => 60 + i)

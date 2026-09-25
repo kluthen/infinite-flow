@@ -27,8 +27,13 @@ dependents:
   - [[rule_preserve_metrical_anchor]]
   - [[rule_profile_switch_validates_phrase]]
   - [[rule_seeded_phrase_reproduction]]
+  - [[rule_tension_arc_build]]
+  - [[rule_tension_arc_edge]]
   - [[rule_tension_arc_level_policy]]
+  - [[rule_tension_arc_lift]]
+  - [[rule_tension_arc_settled]]
   - [[rule_tension_ranking_respects_constraints]]
+  - [[rule_tension_resolution_delay_permits_rests]]
   - [[specification_behavioral_quality_gates]]
   - [[user_story_controlled_phrase_generation]]
 type: REQUIREMENT

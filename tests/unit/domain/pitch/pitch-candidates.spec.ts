@@ -113,6 +113,7 @@ describe('pitch-candidates: buildCandidateDomains', () => {
       for (const candidate of domain) expect(collection).toContain(candidate.pitchClass)
   })
 
+  // @test-link [[rule_jazz_chromatic_resolution]]
   it('admits out-of-collection Jazz chromatic candidates that a Neutral profile never produces', () => {
     const neutral = domainsFor(fixtureInput({ profile: 'Neutral' })).domains
     const jazz = domainsFor(fixtureInput({ profile: 'Jazz' })).domains

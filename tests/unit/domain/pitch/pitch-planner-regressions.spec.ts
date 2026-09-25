@@ -119,6 +119,7 @@ function closestChordCandidate(input: BoundPitchPlannerInput, attackIndex: numbe
 }
 
 // @test-link [[module_pitch_planner]]
+// @test-link [[module_pitch_search_inspection]]
 // @test-link [[entity_pitch_candidate_domain]]
 describe('pitch planner regressions', () => {
   it('discharges a selected passing-or-neighbor binding with its member position and validates it', () => {
@@ -319,6 +320,7 @@ describe('pitch planner regressions', () => {
   })
 
   // @test-link [[module_pitch_planner]]
+  // @test-link [[module_pitch_search_inspection]]
   it('rejects an all-rest rhythm rather than returning an empty plan', () => {
     const base = fixture()
     const input = makeBoundPitchPlannerInput({
@@ -330,6 +332,7 @@ describe('pitch planner regressions', () => {
   })
 
   // @test-link [[module_pitch_planner]]
+  // @test-link [[module_pitch_search_inspection]]
   it('rejects a rhythm whose bar has no fresh attack for a contour checkpoint', () => {
     const base = fixture()
     const input = makeBoundPitchPlannerInput({

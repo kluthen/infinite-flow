@@ -1,4 +1,3 @@
-// @test-link [[module_harmony_candidate_domain]]
 import { describe, expect, it } from 'vitest'
 
 import { COLLECTION_OFFSETS, makeHarmonyCollection } from '@/domain/harmony/collection'
@@ -16,6 +15,7 @@ const EXPECTED_OFFSETS = {
   Locrian: [0, 1, 3, 5, 6, 8, 10],
 } as const
 
+// @test-link [[module_harmony_candidate_domain]]
 describe('harmony collection vocabulary', () => {
   it('uses every documented collection offset table exactly', () => {
     expect(COLLECTION_OFFSETS).toEqual(EXPECTED_OFFSETS)

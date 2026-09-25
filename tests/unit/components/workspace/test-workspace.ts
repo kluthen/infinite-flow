@@ -53,6 +53,7 @@ export function createTestWorkspace(
     generate,
     notate: coordinator.notate,
     evaluateProfileSwitch: evaluateWorkspaceProfileSwitch,
+    clearPresentedPhrase: coordinator.clearPresentedPhrase,
   })
 
   return {

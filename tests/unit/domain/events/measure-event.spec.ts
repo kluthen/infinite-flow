@@ -1,5 +1,3 @@
-// @test-link [[entity_concert_event_timeline]]
-// @test-link [[entity_exact_musical_time]]
 import { describe, expect, it } from 'vitest'
 
 import { makeRational } from '@/domain/time/rational'
@@ -10,6 +8,7 @@ import {
   makeRestEvent,
 } from '@/domain/events/measure-event'
 
+// @test-link [[entity_concert_event_timeline]]
 describe('makeNoteEvent', () => {
   it('constructs a note event with pitch and tie-continuation intent', () => {
     const note = makeNoteEvent({
@@ -94,6 +93,7 @@ describe('makeNoteEvent', () => {
   })
 })
 
+// @test-link [[entity_concert_event_timeline]]
 describe('makeRestEvent', () => {
   it('constructs a rest event', () => {
     const rest = makeRestEvent({ duration: makeRational(1, 8) })

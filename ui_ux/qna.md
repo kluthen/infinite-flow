@@ -1,3 +1,3 @@
 # Open Questions
 
-- Q5 — `.inline-alert.alert-notice` (the calm-notice variant added for the unsupported-rhythm message in the Step 9 production CSS rewrite) has not had an `ux-critic` validation pass. Confirm it belongs in the Tier 2 component-state matrix and matches the accessibility floor before treating it as settled. See `decisions.md` D21.
+No open questions at this time. Q12 (retry semantics after a generation error) was resolved by `decisions.md` D30 and D31. (This question was briefly mislabeled Q7 in an earlier draft; Q7 was already spent by D16 on an unrelated question. See D29's and D30's closing notes.)

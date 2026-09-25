@@ -31,7 +31,7 @@ export { advance } from './pitch-advance'
 export { compilePitchSearchContext } from './pitch-context'
 
 /** Chronological sounding attacks with tie-inclusive spans and absolute-beat harmony. */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_search_inspection]]
 export function pitchAttacks(input: BoundPitchPlannerInput): readonly PitchAttack[] {
   return compilePitchSearchContext(input).attacks
 }
@@ -49,7 +49,7 @@ export function enumeratePitchCandidates(
  * True when the selected contour can still hold given the checkpoint values already assigned,
  * with every unassigned checkpoint free over its candidate MIDI values.
  */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_search_inspection]]
 export function contourCanComplete(
   input: BoundPitchPlannerInput,
   assignments: readonly PitchAssignment[],
@@ -63,7 +63,7 @@ export function contourCanComplete(
 }
 
 /** Replay a chronological prefix through `advance`; undefined when any step is rejected. */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_search_inspection]]
 export function inspectPitchSearchState(
   input: BoundPitchPlannerInput,
   assignments: readonly PitchAssignment[],
@@ -80,7 +80,7 @@ export function inspectPitchSearchState(
 }
 
 /** True when the last assignment is the final attack and leaves the phrase open. */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_search_inspection]]
 export function isOpenPitchEndpoint(
   input: BoundPitchPlannerInput,
   assignments: readonly PitchAssignment[],

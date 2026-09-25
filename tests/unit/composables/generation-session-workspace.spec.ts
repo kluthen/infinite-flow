@@ -292,7 +292,7 @@ describe('generation session workspace flow', () => {
       expect(session.state.generationError?.message).toBe('regeneration boom')
     })
 
-    it('blocks regeneration without starting generation when the switched controls are an unsupported rhythm setting, keeping the prior result', async () => {
+    it('applies the switch and clears the prior phrase without starting generation when the switched controls are an unsupported rhythm setting', async () => {
       const { providers } = trackedProviders()
       let generateCalls = 0
       const session = createGenerationSession<StubResult>({
@@ -312,9 +312,44 @@ describe('generation session workspace flow', () => {
 
       const outcome = await session.actions.selectInstrumentProfile('eb-alto')
 
-      expect(outcome).toBe('regeneration_blocked')
+      expect(outcome).toBe('cleared_unsupported_rhythm')
+      expect(generateCalls).toBe(1)
+      expect(session.state.result).toBeNull()
+      expect(session.state.latestIntent).toBeNull()
+      expect(session.state.generationError).toBeNull()
+      expect(session.state.notationError).toBeNull()
+      expect(session.state.failedNotationMode).toBeNull()
+      expect(session.state.controls.instrumentProfileId).toBe('eb-alto')
+    })
+
+    it('retains the phrase under an unsupported rhythm setting when the policy itself decides to retain', async () => {
+      const { providers } = trackedProviders()
+      let generateCalls = 0
+      const notateCalls: { readonly result: StubResult; readonly mode: string }[] = []
+      const session = createGenerationSession<StubResult>({
+        providers,
+        generate: async () => {
+          generateCalls += 1
+          return { id: generateCalls }
+        },
+        notate: async (result, mode) => {
+          notateCalls.push({ result, mode })
+        },
+        evaluateProfileSwitch: () => RETAIN,
+      })
+      await session.actions.generate()
+      expect(generateCalls).toBe(1)
+      // Quarter + Sparse + Active displacement is a pinned unsupported rhythm combination,
+      // set only after the first generation succeeds so it does not block that call too.
+      expect(session.actions.setControl('syncopation', 'Active displacement')).toBe(true)
+      notateCalls.length = 0
+
+      const outcome = await session.actions.selectInstrumentProfile('eb-alto')
+
+      expect(outcome).toBe('retained')
       expect(generateCalls).toBe(1)
       expect(session.state.result).toEqual({ id: 1 })
+      expect(notateCalls).toEqual([{ result: { id: 1 }, mode: 'B-flat tenor' }])
       expect(session.state.controls.instrumentProfileId).toBe('eb-alto')
     })
   })

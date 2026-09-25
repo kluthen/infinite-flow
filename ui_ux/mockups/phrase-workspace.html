@@ -65,13 +65,13 @@
               <text class="measure-number" x="202" y="177">1</text><text class="measure-number" x="522" y="177">2</text><text class="measure-number" x="842" y="177">3</text><text class="measure-number" x="1162" y="177">4</text>
             </g>
           </svg>
-          <p class="control-summary">Illustrative review only - C Ionian concert harmony shown in B-flat display notation - no playback</p>
         </div>
       </div>
 
       <section class="control-section" aria-labelledby="controls-heading">
         <h2 class="control-section-title" id="controls-heading">Shape the next phrase</h2>
         <p class="control-section-copy">Scroll here when you want a different musical direction. Your current phrase remains visible above.</p>
+        <p class="control-summary" id="control-summary">C Ionian · Custom (Jazz grammar) · Lift · Shaped</p>
         <div class="control-group-row">
           <section class="control-group">
             <h3>Foundation</h3>
@@ -91,13 +91,13 @@
           </section>
           <section class="control-group">
             <h3>Melodic shape</h3>
-            <div class="field-group"><span class="field-label">Contour</span><div class="segmented-control" role="radiogroup" aria-label="Contour"><button class="segment" role="radio" aria-checked="false" type="button">Rising</button><button class="segment" role="radio" aria-checked="false" type="button">Arch</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Wandering</button><button class="segment" role="radio" aria-checked="false" type="button">Falling</button></div></div>
+            <div class="field-group"><span class="field-label">Contour</span><div class="segmented-control" role="radiogroup" aria-label="Contour"><button class="segment" role="radio" aria-checked="false" type="button">Rising</button><button class="segment" role="radio" aria-checked="false" type="button">Falling</button><button class="segment" role="radio" aria-checked="false" type="button">Arch</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Wandering</button></div></div>
             <div class="field-group"><span class="field-label">Register</span><div class="segmented-control" role="radiogroup" aria-label="Register"><button class="segment" role="radio" aria-checked="false" type="button">Low</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Middle</button><button class="segment" role="radio" aria-checked="false" type="button">High</button><button class="segment" role="radio" aria-checked="false" type="button">Varying</button></div></div>
             <div class="field-group"><span class="field-label">Leapiness</span><div class="segmented-control" role="radiogroup" aria-label="Leapiness"><button class="segment" role="radio" aria-checked="false" type="button">Smooth</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Shaped</button><button class="segment" role="radio" aria-checked="false" type="button">Leaping</button><button class="segment" role="radio" aria-checked="false" type="button">Angular</button></div></div>
           </section>
           <section class="control-group">
             <h3>Character</h3>
-            <div class="character-disclosure"><div class="field-group"><span class="field-label">Arpeggio chaos</span><div class="segmented-control" role="radiogroup" aria-label="Arpeggio chaos"><button class="segment is-selected" role="radio" aria-checked="true" type="button">Predictable</button><button class="segment" role="radio" aria-checked="false" type="button">Varied</button><button class="segment" role="radio" aria-checked="false" type="button">Chaotic</button></div></div></div>
+            <div class="character-static"><div class="field-group"><span class="field-label">Arpeggio chaos</span><div class="segmented-control" role="radiogroup" aria-label="Arpeggio chaos"><button class="segment is-selected" role="radio" aria-checked="true" type="button">Predictable</button><button class="segment" role="radio" aria-checked="false" type="button">Varied</button><button class="segment" role="radio" aria-checked="false" type="button">Chaotic</button></div></div></div>
           </section>
         </div>
       </section>
@@ -124,7 +124,22 @@
       }
     };
     const presetStatus = document.querySelector('#preset-status');
+    const controlSummary = document.querySelector('#control-summary');
     let retainedGrammar = 'Jazz';
+
+    const labelFor = (ariaLabel) => {
+      const group = document.querySelector(`[aria-label="${ariaLabel}"]`);
+      const checked = group.querySelector('[aria-checked="true"]');
+      return checked ? checked.textContent : '';
+    };
+
+    const updateControlSummary = () => {
+      const musicalProfile = presetStatus.classList.contains('is-custom')
+        ? `Custom (${retainedGrammar} grammar)`
+        : labelFor('Musical profile preset');
+      controlSummary.textContent =
+        `${labelFor('Tonal center')} ${labelFor('Collection')} · ${musicalProfile} · ${labelFor('Tension')} · ${labelFor('Leapiness')}`;
+    };
 
     const selectRadio = (group, button) => {
       group.querySelectorAll('[role="radio"]').forEach((option) => {
@@ -162,6 +177,7 @@
             presetStatus.classList.add('is-custom');
             presetStatus.textContent = `Custom configuration - ${retainedGrammar} grammar retained. Choosing Neutral or Jazz replaces all six preset-controlled values.`;
           }
+          updateControlSummary();
         });
         button.addEventListener('keydown', (event) => {
           const navigation = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 };
@@ -176,6 +192,8 @@
         });
       });
     });
+
+    updateControlSummary();
 
     document.querySelectorAll('[data-presentation]').forEach((button) => {
       button.addEventListener('click', () => {

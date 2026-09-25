@@ -1,5 +1,3 @@
-// @test-link [[entity_concert_event_timeline]]
-// @test-link [[entity_exact_musical_time]]
 import { describe, expect, it } from 'vitest'
 
 import { makeRational } from '@/domain/time/rational'
@@ -20,7 +18,9 @@ function fourQuarterNotes() {
   ]
 }
 
+// @test-link [[entity_concert_event_timeline]]
 describe('makeMeasure', () => {
+  // @test-link [[entity_exact_musical_time]]
   it('accepts events that exactly tile the measure with no gap and no overlap', () => {
     const measure = makeMeasure(0, fourQuarterNotes())
 
@@ -75,6 +75,7 @@ describe('makeMeasure', () => {
   })
 })
 
+// @test-link [[entity_concert_event_timeline]]
 describe('parseMeasure', () => {
   it('parses a well-formed untrusted measure that tiles exactly', () => {
     const measure = parseMeasure({

@@ -1,9 +1,9 @@
-// @test-link [[module_named_stream_pseudorandomness]]
 import { describe, expect, it } from 'vitest'
 
 import { makeSeed } from '@/domain/random/seed'
 import { STREAM_LABELS, STREAM_REGISTRY_VERSION, deriveNamedStream } from '@/domain/random/streams'
 
+// @test-link [[module_named_stream_pseudorandomness]]
 describe('STREAM_LABELS registry', () => {
   it('is a closed registry that at minimum contains harmony, rhythm, pitch, register resolution, and tie-breaking', () => {
     expect(STREAM_LABELS).toContain('harmony')
@@ -18,6 +18,7 @@ describe('STREAM_LABELS registry', () => {
   })
 })
 
+// @test-link [[module_named_stream_pseudorandomness]]
 describe('deriveNamedStream determinism', () => {
   it('the same seed reproduces an identical sequence for a label across repeated independent derivations', () => {
     const seed = makeSeed(0xdeadbeef)
@@ -48,6 +49,7 @@ describe('deriveNamedStream determinism', () => {
   })
 })
 
+// @test-link [[module_named_stream_pseudorandomness]]
 describe('stream isolation', () => {
   it('consuming any number of values from one named stream never changes the sequence any other named stream produces', () => {
     const seed = makeSeed(0x1234)

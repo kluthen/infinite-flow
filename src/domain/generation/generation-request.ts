@@ -26,13 +26,13 @@ import {
 declare const requestIdBrand: unique symbol
 
 /** A validated, non-empty request identity. Construct only via makeRequestId or parseRequestId. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_request_envelope]]
 export type RequestId = string & { readonly [requestIdBrand]: 'RequestId' }
 
 const REQUEST_ID_MAX_LENGTH = 128
 
 /** Typed failure for the generation request/result envelope boundary. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_request_envelope]]
 export class GenerationRequestError extends Error {
   readonly kind = 'GenerationRequestError' as const
 
@@ -47,7 +47,7 @@ export class GenerationRequestError extends Error {
  * a RequestId. Rejects an empty/whitespace-only string or one exceeding the documented maximum
  * length as a typed failure rather than truncating or padding.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_request_envelope]]
 export function makeRequestId(value: string): RequestId {
   if (value.trim().length === 0) {
     throw new GenerationRequestError('Request identity must not be empty.')
@@ -61,7 +61,7 @@ export function makeRequestId(value: string): RequestId {
 }
 
 /** Intent: parse an untrusted boundary value into a RequestId, rejecting any non-string input. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_request_envelope]]
 export function parseRequestId(input: unknown): RequestId {
   if (typeof input !== 'string') {
     throw new GenerationRequestError(`Request identity must be a string, got ${typeof input}.`)
@@ -73,14 +73,14 @@ export function parseRequestId(input: unknown): RequestId {
  * The meter of a generated phrase. Only 4/4 is supported for the first release; this shape
  * leaves room for a later release to widen the supported set without changing the field name.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_request_envelope]]
 export interface Meter {
   readonly beatsPerMeasure: 4
   readonly beatUnit: 4
 }
 
 /** Intent: the single first-release meter value, frozen once at module load. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_request_envelope]]
 export const FOUR_FOUR_METER: Meter = deepFreeze({ beatsPerMeasure: 4, beatUnit: 4 })
 
 /**
@@ -88,7 +88,7 @@ export const FOUR_FOUR_METER: Meter = deepFreeze({ beatsPerMeasure: 4, beatUnit:
  * than the exact documented 4/4 shape (wrong field values, missing fields, extra fields) as a
  * typed failure rather than defaulting to 4/4.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_request_envelope]]
 export function parseMeter(input: unknown): Meter {
   if (typeof input !== 'object' || input === null || Array.isArray(input)) {
     throw new GenerationRequestError(`Meter must be a plain object, got ${typeof input}.`)
@@ -147,7 +147,7 @@ interface GenerationRequestInput {
  * contained in the resolved active concert range, each as a typed failure; never defaults,
  * coerces, or transposes to force a fit.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_request_resolution]]
 export function makeGenerationRequest(input: GenerationRequestInput): GenerationRequest {
   if (input.measureCount !== PHRASE_MEASURE_COUNT) {
     throw new GenerationRequestError(
@@ -286,7 +286,7 @@ function parseResolvedRegisterId(input: unknown): RegisterId {
  * — any unknown field (theme, notationDisplay, sessionId, or any other presentation/browser-state
  * field) rather than silently ignoring it, so such state structurally cannot enter a request.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_request_envelope]]
 export function parseGenerationRequest(input: unknown): GenerationRequest {
   if (typeof input !== 'object' || input === null || Array.isArray(input)) {
     throw new GenerationRequestError(

@@ -1,5 +1,3 @@
-// @test-link [[module_register_window_resolution_primitives]]
-//
 // Versioned golden fixture for register tie-key derivation. These are literal, pre-computed
 // expected values (not derived from production code at test time) so that a cross-runtime/
 // JS-engine drift in the hash arithmetic, the seed encoding, or the canonical intent

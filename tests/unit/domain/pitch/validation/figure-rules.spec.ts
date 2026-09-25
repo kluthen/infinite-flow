@@ -157,6 +157,7 @@ function bindingInvalid(
 }
 
 // @test-link [[module_pitch_domain_validation]]
+// @test-link [[rule_tension_resolution_delay_permits_rests]]
 describe('pitch validation: rests around the resolution delay', () => {
   const NEXT_BEAT = { maximumResolutionDelay: 'next_beat_or_bar' } as const
 

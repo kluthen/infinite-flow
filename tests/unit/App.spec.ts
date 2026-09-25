@@ -71,8 +71,13 @@ function fakeWorkspaceSession() {
   }
 }
 
+const { workspaceSessionFactoryKey } = vi.hoisted(() => ({
+  workspaceSessionFactoryKey: Symbol('workspace-session-factory'),
+}))
+
 vi.mock('../../src/components/workspace/create-workspace-session', () => ({
   createWorkspaceSession: fakeWorkspaceSession,
+  WORKSPACE_SESSION_FACTORY: workspaceSessionFactoryKey,
 }))
 
 import App from '../../src/App.vue'
@@ -105,5 +110,18 @@ describe('App', () => {
     expect(document.documentElement.dataset.theme).toBe('dark')
     expect(lastGenerate).not.toHaveBeenCalled()
     expect(lastSetNotationMode).not.toHaveBeenCalled()
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it('uses an injected WORKSPACE_SESSION_FACTORY instead of the default createWorkspaceSession', () => {
+    const injected = fakeWorkspaceSession()
+    const injectedFactory = vi.fn(() => injected)
+
+    const wrapper = mount(App, {
+      global: { provide: { [workspaceSessionFactoryKey]: injectedFactory } },
+    })
+
+    expect(injectedFactory).toHaveBeenCalledTimes(1)
+    expect(wrapper.get('h1').text()).toBe('Infinite Flow')
   })
 })

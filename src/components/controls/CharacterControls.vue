@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /**
- * The "Character" control group: arpeggio chaos, presented behind the `character-disclosure`
- * wrapper the handoff defines for this advanced-only group. Props-in/events-out only.
+ * The "Character" control group: arpeggio chaos, presented inside the always-visible
+ * `character-static` wrapper the handoff defines for this single-field group. Props-in/events-out
+ * only.
  */
 import {
   ARPEGGIO_CHAOS_VALUES,
@@ -33,7 +34,7 @@ function handleArpeggioChaos(value: string): void {
 <template>
   <section class="control-group">
     <h3>Character</h3>
-    <div class="character-disclosure">
+    <div class="character-static">
       <div class="field-group" :class="{ 'is-readonly': readonly }">
         <span class="field-label">Arpeggio chaos</span>
         <SegmentedControl

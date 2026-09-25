@@ -1,4 +1,3 @@
-// @test-link [[rule_instrument_profile_range]]
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -38,6 +37,7 @@ const EXPECTED_PROFILES = [
   },
 ] as const
 
+// @test-link [[rule_instrument_profile_range]]
 describe('adopted instrument profiles: exact ranges and windows', () => {
   it.each(EXPECTED_PROFILES)(
     '$id has the documented active concert range',
@@ -49,6 +49,7 @@ describe('adopted instrument profiles: exact ranges and windows', () => {
   )
 })
 
+// @test-link [[rule_instrument_profile_range]]
 describe('adopted instrument profiles: exact derived windows', () => {
   it.each(EXPECTED_PROFILES)(
     '$id derives the documented Low/Middle/High windows',
@@ -65,6 +66,7 @@ describe('adopted instrument profiles: exact derived windows', () => {
   )
 })
 
+// @test-link [[rule_instrument_profile_range]]
 describe('adopted instrument profiles: canonical registered set', () => {
   it('contains exactly the three adopted profiles in id order', () => {
     expect(ADOPTED_INSTRUMENT_PROFILES.map((profile) => profile.id)).toEqual([

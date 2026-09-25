@@ -1,4 +1,3 @@
-// @test-link [[entity_exact_musical_time]]
 import { describe, expect, it } from 'vitest'
 
 import { makeRational } from '@/domain/time/rational'
@@ -12,6 +11,7 @@ import {
   sixteenthTicksOf,
 } from '@/domain/time/ticks'
 
+// @test-link [[entity_exact_musical_time]]
 describe('tick grid constants', () => {
   it('defines the bar as the half-open interval [0,16)', () => {
     expect(TICKS_PER_BAR).toBe(16)
@@ -30,6 +30,7 @@ describe('tick grid constants', () => {
   })
 })
 
+// @test-link [[entity_exact_musical_time]]
 describe('sixteenthTicksOf', () => {
   it('derives 0 ticks for a zero-duration position', () => {
     expect(sixteenthTicksOf(makeRational(0, 1))).toBe(0)
@@ -69,6 +70,7 @@ describe('sixteenthTicksOf', () => {
   })
 })
 
+// @test-link [[entity_exact_musical_time]]
 describe('barContainingTick', () => {
   it('maps ticks within [0,16) to bar 0, [16,32) to bar 1, etc.', () => {
     expect(barContainingTick(0)).toBe(0)

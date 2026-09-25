@@ -186,7 +186,7 @@ export function makeTensionBindingDomain(
 }
 
 /** Backward-compatible convenience accessor for callers that only need the first stable binding. */
-// @spec-link [[mechanic_pitch_search_policy]]
+// @spec-link [[rule_tension_resolution_delay_permits_rests]]
 export function bindTensionRequirement(
   harmony: HarmonyCandidate,
   rhythm: RhythmCandidate,

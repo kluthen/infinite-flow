@@ -13,14 +13,15 @@ dependents:
   - [[api_rhythm_domain_expansion]]
   - [[entity_generation_diagnostics]]
   - [[entity_rhythm_candidate_domain]]
+  - [[mechanic_syncopation_enumeration]]
   - [[mechanic_syncopation_translation]]
   - [[module_generation_control_catalog]]
   - [[module_generation_request_construction]]
   - [[module_harmony_candidate_domain]]
   - [[module_rhythm_skeleton_allocator]]
   - [[rule_selectable_generative_profiles]]
-  - [[service_workspace_session_flow]]
   - [[rule_unsupported_rhythm_settings_block_generation]]
+  - [[service_workspace_session_flow]]
   - [[specification_behavioral_quality_gates]]
 ---
 

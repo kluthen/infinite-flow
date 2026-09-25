@@ -1,4 +1,3 @@
-// @test-link [[module_register_window_resolution_primitives]]
 import { describe, expect, it } from 'vitest'
 
 import { makeActiveConcertRange } from '@/domain/profile/active-concert-range'
@@ -44,6 +43,7 @@ const ADOPTED_PROFILE_CASES = [
   },
 ] as const
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('deriveRegisterWindowCandidates: adopted profile literal expectations', () => {
   it.each(ADOPTED_PROFILE_CASES)(
     '$name derives the exact documented Low/Middle/High windows',
@@ -111,6 +111,7 @@ describe('deriveRegisterWindowCandidates: adopted profile literal expectations',
   )
 })
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('deriveRegisterWindowCandidates: canonical candidate identity and order', () => {
   it('returns candidates in canonical order Low, Middle, High with indices 0, 1, 2', () => {
     const range = makeActiveConcertRange(48, 72)
@@ -121,6 +122,7 @@ describe('deriveRegisterWindowCandidates: canonical candidate identity and order
   })
 })
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('deriveRegisterWindowCandidates: boundary MIDI edges', () => {
   it.each(ADOPTED_PROFILE_CASES)(
     '$name: pitches exactly at each window edge are inside, one semitone beyond is outside',
@@ -139,6 +141,7 @@ describe('deriveRegisterWindowCandidates: boundary MIDI edges', () => {
   )
 })
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('deriveRegisterWindowCandidates: determinism', () => {
   it('produces equal values on repeated calls with the same inputs', () => {
     const range = makeActiveConcertRange(46, 70)
@@ -150,6 +153,7 @@ describe('deriveRegisterWindowCandidates: determinism', () => {
   })
 })
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('deriveRegisterWindowCandidates: immutability', () => {
   it('returns a frozen candidate list and frozen candidates and windows', () => {
     const range = makeActiveConcertRange(48, 72)
@@ -170,6 +174,7 @@ describe('deriveRegisterWindowCandidates: immutability', () => {
   })
 })
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('deriveRegisterWindowCandidates: formula generalizes beyond the adopted S=12 floor', () => {
   it('derives a wider synthetic profile (W=36, S=18) rather than hardcoding S=12', () => {
     // Synthetic property check only: not an adopted profile. lo=40, hi=76 => W=36,
@@ -185,6 +190,7 @@ describe('deriveRegisterWindowCandidates: formula generalizes beyond the adopted
   })
 })
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('deriveRegisterWindowCandidates: policy validation', () => {
   it('rejects an unrecognized algorithm string', () => {
     const range = makeActiveConcertRange(48, 72)

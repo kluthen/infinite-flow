@@ -1,9 +1,9 @@
-// @test-link [[entity_exact_musical_time]]
 import { describe, expect, it } from 'vitest'
 
 import { makeRational } from '@/domain/time/rational'
 import { GridAlignmentViolation, validateSixteenthGridAlignment } from '@/domain/time/grid'
 
+// @test-link [[entity_exact_musical_time]]
 describe('validateSixteenthGridAlignment', () => {
   it('accepts a sixteenth note and returns its integer tick value', () => {
     expect(validateSixteenthGridAlignment(makeRational(1, 16))).toBe(1)

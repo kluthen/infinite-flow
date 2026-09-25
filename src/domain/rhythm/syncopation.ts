@@ -224,7 +224,7 @@ function disjoint(descriptors: readonly RhythmTransformDescriptor[]): boolean {
 }
 
 /** Enumerate answer lists only; no ranking, planner, or final candidate construction occurs here. */
-// @spec-link [[mechanic_syncopation_translation]]
+// @spec-link [[mechanic_syncopation_enumeration]]
 export function* enumerateAnswerTransformLists(
   bars: readonly [RhythmBar, RhythmBar],
   density: NoteDensity,
@@ -291,7 +291,7 @@ export function* enumerateAnswerTransformLists(
  * leaves untouched, are the same objects across that gesture's answer lists, so each selector runs
  * once per bar instead of once per template. Weakly keyed, so a bar no candidate retains is freed.
  */
-// @spec-link [[mechanic_syncopation_translation]]
+// @spec-link [[mechanic_syncopation_enumeration]]
 export type SyncopationSelectorMemo = WeakMap<
   RhythmBar,
   Map<string, RhythmTransformDescriptor | undefined>
@@ -329,7 +329,7 @@ function syncSelector(
  * Enumerate the finite, canonical v1 syncopation template catalog. Pass one `memo` across the
  * calls of a single expansion to share selector results between answer lists.
  */
-// @spec-link [[mechanic_syncopation_translation]]
+// @spec-link [[mechanic_syncopation_enumeration]]
 export function* enumerateSyncopationTemplates(
   bars: readonly RhythmBar[],
   density: NoteDensity,

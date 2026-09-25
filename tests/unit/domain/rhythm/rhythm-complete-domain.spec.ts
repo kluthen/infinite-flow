@@ -1,5 +1,3 @@
-// @test-link [[api_rhythm_domain_expansion]]
-// @test-link [[entity_rhythm_candidate_domain]]
 import { createHash } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
 
@@ -11,7 +9,9 @@ function candidates(input: Parameters<typeof makeRhythmCandidateDomain>[0]) {
   return [...result.candidates()]
 }
 
+// @test-link [[api_rhythm_domain_expansion]]
 describe('rhythm-mvp-v1 complete derivation domain', () => {
+  // @test-link [[entity_rhythm_candidate_domain]]
   it('retains canonical bar-form, recurrence, and merge derivations rather than one representative', () => {
     const domain = candidates({
       grammarVersion: 'rhythm-mvp-v1',

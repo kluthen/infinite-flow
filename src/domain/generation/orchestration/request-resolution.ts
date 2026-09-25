@@ -16,7 +16,7 @@ import {
 import { resolveRegisterIntentCandidate } from '../../profile/register-intent'
 
 /** Typed failure for a rejected attempt to resolve requests or select a Varying register. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_request_resolution]]
 export class RequestResolutionError extends Error {
   readonly kind = 'RequestResolutionError' as const
 
@@ -46,7 +46,7 @@ function buildCoreRequest(intent: GenerationIntent, id: RegisterId): GenerationR
  * Varying resolves to one request per resolved candidate window, in the intent's already-
  * canonical Low, Middle, High candidate order.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_request_resolution]]
 export function resolveCoreRequests(intent: GenerationIntent): readonly GenerationRequest[] {
   if (intent.registerIntent.requestedRegister === 'Varying') {
     return deepFreeze(

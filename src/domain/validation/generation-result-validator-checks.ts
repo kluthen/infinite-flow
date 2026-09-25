@@ -30,7 +30,7 @@ export interface FlatNoteRef {
 }
 
 /** Envelope identity: the same request identity and seed must thread through all three values. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_result_validation]]
 export function envelopeFailures(
   intent: GenerationIntent,
   request: GenerationRequest,
@@ -53,7 +53,7 @@ export function envelopeFailures(
 }
 
 /** Every resolved-request field must be re-derivable from the outer intent and instrument profile. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_result_validation]]
 // @spec-link [[rule_instrument_profile_range]]
 export function resolvedRequestFailures(
   intent: GenerationIntent,
@@ -144,7 +144,7 @@ function measureDurationFailures(
  * sixteenth grid. `structurallyValid` is false whenever later sections cannot safely walk the
  * timeline's events (wrong measure count/order, or a measure that does not tile).
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_result_validation]]
 // @spec-link [[rule_complete_four_four_measures]]
 export function timelineStructureFailures(result: GenerationResult): TimelineStructureOutcome {
   const timeline: ConcertEventTimeline = result.timeline
@@ -234,7 +234,7 @@ export interface RhythmCorrespondenceOutcome {
  * itself passes independent rhythm validation, and that its recorded input matches the intent's
  * rhythm-relevant controls. `structurallyValid` gates whether melodic reconstruction may proceed.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_result_validation]]
 export function rhythmCorrespondenceFailures(
   intent: GenerationIntent,
   result: GenerationResult,
@@ -271,7 +271,7 @@ export function rhythmCorrespondenceFailures(
 }
 
 /** Re-derive the structural harmony domain and require an exact-identity, exact-content match. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_result_validation]]
 export function harmonyProvenanceFailures(
   intent: GenerationIntent,
   provenance: GenerationProvenance,
@@ -321,7 +321,7 @@ export function flattenNotes(measures: readonly Measure[]): readonly FlatNoteRef
  * Every tie-continuation note must directly follow a sounding note (never a rest, never the
  * phrase start) and repeat its exact pitch, walking chronologically across bar lines.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_result_validation]]
 export function tieFailures(measures: readonly Measure[]): readonly Failure[] {
   const failures: Failure[] = []
   let previousNote: NoteEvent | undefined
@@ -345,7 +345,7 @@ export function tieFailures(measures: readonly Measure[]): readonly Failure[] {
 }
 
 /** Every source pitch must stay inside the inclusive active range and resolved register window. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_result_validation]]
 export function rangeFailures(
   request: GenerationRequest,
   measures: readonly Measure[],

@@ -79,6 +79,7 @@ export const DEFAULT_PROFILE_SELECTION: ProfileSelection = deepFreeze({
 
 /** A manual preset-controlled edit preserves grammar identity but marks only the current values custom. */
 // @spec-link [[module_profile_control_customization]]
+// @spec-link [[rule_profile_control_customization]]
 export function applyControlledCustomValue<K extends keyof ProfileControlledValues>(
   controls: GenerationControls,
   selection: ProfileSelection,

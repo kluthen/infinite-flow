@@ -114,6 +114,7 @@ function withLeapiness(
 }
 
 // @test-link [[module_pitch_planner]]
+// @test-link [[module_pitch_search_inspection]]
 // @test-link [[entity_pitch_candidate_domain]]
 // @test-link [[mechanic_pitch_search_policy]]
 describe('pitch planner slice A', () => {
@@ -419,6 +420,7 @@ describe('pitch planner slice A', () => {
     }
   })
 
+  // @test-link [[mechanic_pitch_tie_break_ordering]]
   it('compares tie keys unsigned and falls back to MIDI then enumeration only on an injected collision', () => {
     const low = { seed: 1, decisionIdentity: 'attack', candidateStableIdentity: 'low' }
     const high = { seed: 1, decisionIdentity: 'attack', candidateStableIdentity: 'high' }

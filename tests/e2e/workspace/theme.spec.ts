@@ -52,9 +52,10 @@ test('nothing about the theme choice persists across a reload', async ({ page, c
   )
   expect(origin?.localStorage ?? []).toEqual([])
 
-  // Verifying the ephemeral-state guarantee itself requires reading these browser-persistence
-  // globals; this assertion is the proof nothing is ever written to them, not a use of them.
-  // eslint-disable-next-line no-restricted-globals
+  // Verifying the ephemeral-state guarantee itself requires reading this browser-persistence
+  // global from within the page context; this assertion is the proof nothing is ever written to
+  // it, not a use of it. The production no-restricted-globals ban only scopes to src/**, so no
+  // suppression is needed here.
   const sessionStorageLength = await page.evaluate(() => sessionStorage.length)
   expect(sessionStorageLength).toBe(0)
 })

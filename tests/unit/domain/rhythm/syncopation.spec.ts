@@ -1,4 +1,3 @@
-// @test-link [[mechanic_syncopation_translation]]
 import { describe, expect, it } from 'vitest'
 
 import { applyTransform } from '@/domain/rhythm/syncopation'
@@ -58,6 +57,7 @@ const bar: RhythmBar = {
   ],
 }
 
+// @test-link [[mechanic_syncopation_translation]]
 describe('syncopation algebra', () => {
   it('translates an interior rest by the same signed delta without changing its span', () => {
     const descriptor: RhythmTransformDescriptor = {

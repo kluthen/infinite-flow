@@ -9,6 +9,7 @@ human_name: Phrase Starts on the Downbeat
 tags: rhythm,pulse,phrase-start
 parents:
   - [[req_four_measure_phrase]]
+dependents: []
 ---
 
 # Phrase Starts on the Downbeat

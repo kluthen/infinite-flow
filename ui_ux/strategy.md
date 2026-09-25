@@ -10,7 +10,7 @@ The phrase is the primary object. Mobile and tablet support is landscape-only; d
 
 The player approaches the screen as a music stand with a compact set of musical directions beside it. Chord symbols sit above the staff where lead-sheet readers expect them; barlines make the four-bar form immediately countable; the selected notation mode is visible next to the score rather than hidden in a settings area.
 
-Controls are grouped by the musical decision they influence: foundation, rhythm, melodic shape, and character. They follow the score in a downward-scrolling section and reorient from a horizontal set of groups on wide screens to compact stacked groups on mobile landscape. Each presents named musical outcomes rather than unexplained numeric values. Advanced character controls are disclosed only after the foundational controls, because a player can choose a usable phrase with tempo, tonal context, rhythm, and contour alone.
+Controls are grouped by the musical decision they influence: foundation, rhythm, melodic shape, and character. They follow the score in a downward-scrolling section and reorient from a horizontal set of groups on wide screens to compact stacked groups on mobile landscape. Each presents named musical outcomes rather than unexplained numeric values. The character group is placed last in reading order but is always visible and never collapsible — it holds only Arpeggio chaos in first release, and a static group with one field needs no progressive-disclosure interaction.
 
 ## Visual Direction
 

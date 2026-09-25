@@ -1,4 +1,3 @@
-// @test-link [[module_rhythm_domain_validation]]
 import { describe, expect, it } from 'vitest'
 
 import { validateRhythmCandidateDomain } from '@/domain/rhythm/rhythm-domain-validator'
@@ -90,6 +89,7 @@ function answerOnly(descriptor: RhythmTransformDescriptor): boolean {
   return descriptor.roles.length === 1 && descriptor.roles[0] === 'answer'
 }
 
+// @test-link [[module_rhythm_domain_validation]]
 describe('rhythm validation', () => {
   it('returns stable ordered failures and never repairs malformed candidates', () => {
     const candidate: UnindexedRhythmCandidate = {
@@ -120,6 +120,7 @@ describe('rhythm validation', () => {
     expect(candidate.bars).toEqual([])
   })
 
+  // @test-link [[rule_preserve_metrical_anchor]]
   it('audits every candidate-level stable code from independently generated valid output', () => {
     const cases: ReadonlyArray<{
       readonly name: string

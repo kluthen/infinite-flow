@@ -1,4 +1,3 @@
-// @test-link [[module_harmony_candidate_domain]]
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -29,7 +28,9 @@ function domainFor(input: Partial<HarmonyPlannerInput>): HarmonyCandidateDomain 
   return result
 }
 
+// @test-link [[module_harmony_candidate_domain]]
 describe('harmony candidate domain: policy expansion', () => {
+  // @test-link [[rule_neutral_profile_diatonic_harmony]]
   it('expands tonal templates in policy order, alternatives by ascending degree, and unsplit before split', () => {
     expect(domainFor({ harmonicMotion: 'Static' }).candidates).toHaveLength(1)
     expect(
@@ -125,6 +126,7 @@ describe('harmony candidate domain: policy expansion', () => {
     ).toEqual(expected)
   })
 
+  // @test-link [[rule_open_phrase_ending]]
   it('keeps Major/Minor tonal while separately named Ionian/Aeolian stay modal', () => {
     expect(
       domainFor({ collection: 'Major', harmonicMotion: 'Static' }).candidates[0]?.endpoint,
@@ -148,6 +150,7 @@ describe('harmony candidate domain: policy expansion', () => {
   })
 })
 
+// @test-link [[module_harmony_candidate_domain]]
 describe('harmony candidate domain: structural invariants', () => {
   it('sweeps all harmony controls and both profiles with complete immutable, serializable output', () => {
     for (const tonalCenter of PITCH_CLASSES) {
@@ -192,6 +195,11 @@ describe('harmony candidate domain: structural invariants', () => {
     }
   }, 30_000)
 
+  // @test-link [[rule_tension_arc_level_policy]]
+  // @test-link [[rule_tension_arc_settled]]
+  // @test-link [[rule_tension_arc_lift]]
+  // @test-link [[rule_tension_arc_build]]
+  // @test-link [[rule_tension_arc_edge]]
   it('records tension abstractly, with the exact four arc requirements and no onset data', () => {
     const expected = {
       Settled: { requiredFigureCount: 0, maximumFigureCount: 1, allowedBars: [0, 1, 2] },

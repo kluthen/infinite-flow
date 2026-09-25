@@ -14,11 +14,78 @@ const forbiddenPersistenceApis = [
   { name: 'caches', message: 'The Cache API is not available to authored application code.' },
 ]
 
+// First release has no MIDI, audio playback/synthesis, microphone, or network/server coupling:
+// browser-only, no optional scope. Globals reachable as bare identifiers (and mirrored below as
+// window/globalThis/self properties); navigator/document-scoped members are listed separately
+// since they are never bare globals themselves.
+const forbiddenOptionalScopeGlobals = [
+  {
+    name: 'AudioContext',
+    message: 'Audio playback/synthesis is outside the browser-only, no-optional-scope boundary.',
+  },
+  {
+    name: 'webkitAudioContext',
+    message: 'Audio playback/synthesis is outside the browser-only, no-optional-scope boundary.',
+  },
+  {
+    name: 'OfflineAudioContext',
+    message: 'Audio playback/synthesis is outside the browser-only, no-optional-scope boundary.',
+  },
+  {
+    name: 'Audio',
+    message: 'Audio playback/synthesis is outside the browser-only, no-optional-scope boundary.',
+  },
+  {
+    name: 'fetch',
+    message: 'Network access is outside the browser-only, no-optional-scope boundary.',
+  },
+  {
+    name: 'XMLHttpRequest',
+    message: 'Network access is outside the browser-only, no-optional-scope boundary.',
+  },
+  {
+    name: 'WebSocket',
+    message: 'Network access is outside the browser-only, no-optional-scope boundary.',
+  },
+  {
+    name: 'EventSource',
+    message: 'Network access is outside the browser-only, no-optional-scope boundary.',
+  },
+]
+
+const forbiddenOptionalScopeProperties = [
+  {
+    object: 'navigator',
+    property: 'requestMIDIAccess',
+    message: 'MIDI access is outside the browser-only, no-optional-scope boundary.',
+  },
+  {
+    object: 'navigator',
+    property: 'mediaDevices',
+    message: 'Microphone/camera access is outside the browser-only, no-optional-scope boundary.',
+  },
+  {
+    property: 'getUserMedia',
+    message: 'Microphone/camera access is outside the browser-only, no-optional-scope boundary.',
+  },
+  {
+    object: 'navigator',
+    property: 'sendBeacon',
+    message: 'Network access is outside the browser-only, no-optional-scope boundary.',
+  },
+  {
+    object: 'document',
+    property: 'cookie',
+    message: 'Cookies are outside the browser-only, no-optional-scope boundary.',
+  },
+]
+
 export default [
   {
     ignores: [
       'dist/**',
       'dist-notation-harness/**',
+      'dist-workspace-harness/**',
       'coverage/**',
       'node_modules/**',
       'playwright-report/**',
@@ -37,12 +104,16 @@ export default [
     },
   },
   {
-    files: ['**/*.{js,mjs,ts,vue}'],
+    files: ['src/**/*.{js,mjs,ts,vue}'],
     languageOptions: {
       globals: globals.browser,
     },
     rules: {
-      'no-restricted-globals': ['error', ...forbiddenPersistenceApis],
+      'no-restricted-globals': [
+        'error',
+        ...forbiddenPersistenceApis,
+        ...forbiddenOptionalScopeGlobals,
+      ],
       'no-restricted-properties': [
         'error',
         ...['window', 'globalThis'].flatMap((object) =>
@@ -52,6 +123,14 @@ export default [
             message,
           })),
         ),
+        ...['window', 'globalThis', 'self'].flatMap((object) =>
+          forbiddenOptionalScopeGlobals.map(({ name, message }) => ({
+            object,
+            property: name,
+            message,
+          })),
+        ),
+        ...forbiddenOptionalScopeProperties,
       ],
     },
   },

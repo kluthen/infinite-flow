@@ -8,9 +8,13 @@ parents:
   - [[entity_concert_event_timeline]]
 version: 1.0
 dependents:
+  - [[mechanic_pitch_contour_forward_check]]
   - [[mechanic_pitch_search_policy]]
+  - [[mechanic_pitch_tie_break_ordering]]
+  - [[module_pitch_attack_timeline]]
   - [[module_pitch_domain_validation]]
   - [[module_pitch_planner]]
+  - [[module_pitch_search_inspection]]
 human_name: Pitch Candidate Domain
 type: ENTITY
 ---

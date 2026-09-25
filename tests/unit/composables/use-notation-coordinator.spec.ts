@@ -83,4 +83,26 @@ describe('createNotationCoordinator', () => {
     await expect(second).resolves.toBeUndefined()
     expect(coordinator.pendingPhrase.value?.mode).toBe('E-flat alto')
   })
+
+  it('clearPresentedPhrase drops a settled phrase back to null', async () => {
+    const { coordinator } = buildCoordinator()
+    const result = buildWorkspaceSessionResult()
+
+    const pending = coordinator.notate(result, 'Concert')
+    coordinator.handleEngraved()
+    await pending
+    expect(coordinator.pendingPhrase.value).not.toBeNull()
+
+    coordinator.clearPresentedPhrase()
+    expect(coordinator.pendingPhrase.value).toBeNull()
+  })
+
+  it('clearPresentedPhrase crashes early while a notate() call is still pending', () => {
+    const { coordinator } = buildCoordinator()
+    const result = buildWorkspaceSessionResult()
+
+    void coordinator.notate(result, 'Concert').catch(() => {})
+
+    expect(() => coordinator.clearPresentedPhrase()).toThrow(NotationCoordinatorUsageError)
+  })
 })

@@ -34,7 +34,7 @@ function successOutcome() {
   return outcome
 }
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[module_generation_worker_protocol]]
 describe('parseGenerationWorkerResponse: retained request round trip', () => {
   it('re-parses a structured-cloned success outcome whose request keeps its kind tags', () => {
     const outcome = successOutcome()

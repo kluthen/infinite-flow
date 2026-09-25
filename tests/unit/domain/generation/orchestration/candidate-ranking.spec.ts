@@ -39,7 +39,7 @@ const SEED_B = makeSeed(2)
 
 // @test-link [[module_named_stream_pseudorandomness]]
 describe('candidate-ranking', () => {
-  // @test-link [[service_generation_orchestration]]
+  // @test-link [[module_ranked_candidate_ordering]]
   describe('rankHarmonyCandidates', () => {
     it('is a loss-free, duplication-free permutation of the domain', () => {
       const candidates = harmonyDomain()
@@ -88,7 +88,7 @@ describe('candidate-ranking', () => {
     })
   })
 
-  // @test-link [[service_generation_orchestration]]
+  // @test-link [[module_ranked_candidate_ordering]]
   describe('materializeRankedRhythmCache', () => {
     it('has a domainSize equal to the full candidate count', () => {
       const domain = fastRhythmDomain()

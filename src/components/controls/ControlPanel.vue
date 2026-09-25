@@ -5,15 +5,18 @@
  * events-out only -- no session import. This component owns no control state itself; it only
  * forwards each group's typed events upward unchanged.
  */
+import { computed } from 'vue'
+
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
 import FoundationControls from './FoundationControls.vue'
 import RhythmControls from './RhythmControls.vue'
 import MelodicShapeControls from './MelodicShapeControls.vue'
 import CharacterControls from './CharacterControls.vue'
+import { controlSummaryText } from './control-options'
 import type { SetControlPayload } from './set-control-event'
 
-defineProps<{
+const props = defineProps<{
   controls: GenerationControls
   profileSelection: ProfileSelection
   readonly: boolean
@@ -39,6 +42,9 @@ function forwardInstrumentProfile(id: GenerationControls['instrumentProfileId'])
 function forwardMusicalProfile(profile: ProfileSelection['musicalProfile']): void {
   emit('select-musical-profile', profile)
 }
+
+/** Intent: the muted control-summary line per D25, recomputed on every relevant control change. */
+const controlSummary = computed(() => controlSummaryText(props.controls, props.profileSelection))
 </script>
 
 <template>
@@ -48,6 +54,7 @@ function forwardMusicalProfile(profile: ProfileSelection['musicalProfile']): voi
       Scroll here when you want a different musical direction. Your current phrase remains visible
       above.
     </p>
+    <p class="control-summary">{{ controlSummary }}</p>
     <div class="control-group-row">
       <FoundationControls
         :controls="controls"

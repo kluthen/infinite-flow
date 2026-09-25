@@ -1,8 +1,8 @@
-// @test-link [[module_named_stream_pseudorandomness]]
 import { describe, expect, it } from 'vitest'
 
 import { createMulberry32 } from '@/domain/random/prng'
 
+// @test-link [[module_named_stream_pseudorandomness]]
 describe('createMulberry32', () => {
   it('produces the same deterministic sequence for the same raw seed across independent instances', () => {
     const first = createMulberry32(1)

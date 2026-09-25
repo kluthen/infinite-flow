@@ -1,4 +1,3 @@
-// @test-link [[entity_instrument_profile]]
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -6,6 +5,7 @@ import {
   makeActiveConcertRange,
 } from '@/domain/profile/active-concert-range'
 
+// @test-link [[entity_instrument_profile]]
 describe('makeActiveConcertRange', () => {
   it('constructs a valid active range at the minimum 24-semitone span', () => {
     const range = makeActiveConcertRange(48, 72)

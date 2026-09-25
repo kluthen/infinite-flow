@@ -1,8 +1,8 @@
-// @test-link [[module_register_window_resolution_primitives]]
 import { describe, expect, it } from 'vitest'
 
 import { CANONICAL_REGISTER_INDEX, CANONICAL_REGISTER_ORDER } from '@/domain/profile/register-id'
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('canonical register order', () => {
   it('is fixed as [Low, Middle, High]', () => {
     expect(CANONICAL_REGISTER_ORDER).toEqual(['Low', 'Middle', 'High'])
@@ -17,6 +17,7 @@ describe('canonical register order', () => {
   })
 })
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('canonical register index', () => {
   it('maps Low=0, Middle=1, High=2', () => {
     expect(CANONICAL_REGISTER_INDEX.Low).toBe(0)

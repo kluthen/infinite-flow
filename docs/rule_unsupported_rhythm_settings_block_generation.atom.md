@@ -27,7 +27,7 @@ Under the current rhythm grammar, six combinations of note density, silence dens
 - Sixteenth, Breath-heavy, Occasional offbeats
 - Sixteenth, Breath-heavy, Active displacement
 
-These values stay individually selectable. When the current selection matches one of these combinations, generation and regeneration are unavailable, any previously generated phrase stays visible, and the player sees a calm explanation that suggests a nearby supported change without applying it. Presets never select an unsupported combination.
+These values stay individually selectable. When the current selection matches one of these combinations, generation, regeneration, and generation retry are unavailable and the player sees a calm explanation that suggests a nearby supported change without applying it. Any previously generated phrase stays visible, with one exception: when an instrument-profile switch both lands on one of these combinations and finds the unchanged phrase invalid under the new profile's active range and resolved whole-phrase register window, the switch still applies but the phrase is cleared to the empty workspace instead of staying visible, and no generation runs. Presets never select an unsupported combination.
 
 This is a known limit of the rhythm grammar, not a musical judgment. The list shrinks when a grammar version makes a combination playable and must always equal the set of combinations for which the rhythm planner returns no legal plan.
 
@@ -35,4 +35,4 @@ This is a known limit of the rhythm grammar, not a musical judgment. The list sh
 A single domain-owned list names the unsupported combinations. The workspace reads it to disable generation and show the explanation, and a test checks it against the rhythm planner's no-legal-plan results across every control combination.
 
 ## EXPECTATION
-Selecting any listed combination disables generation and shows the explanation. Selecting a supported value restores generation. For every control combination not on the list, the rhythm planner produces at least one candidate.
+Selecting any listed combination disables generation, regeneration, and generation retry, and shows the explanation. Selecting a supported value restores generation. For every control combination not on the list, the rhythm planner produces at least one candidate.

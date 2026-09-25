@@ -1,0 +1,29 @@
+/* Self-hosted UI typefaces (D-approved visual language): latin-subset-only variable woff2 faces
+   for the two weights actually used (400 body text, 700 bold), so --font-display and --font-ui in
+   theme.css resolve to real glyphs offline instead of silently falling back to Georgia/Trebuchet.
+   Sourced from @fontsource-variable/fraunces and @fontsource-variable/source-sans-3 (SIL OFL 1.1);
+   only the latin unicode-range block of each package's weight-axis file is declared here, so no
+   other subset's woff2 is ever emitted or precached. */
+@font-face {
+  font-family: 'Fraunces Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Source Sans 3 Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url('@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
