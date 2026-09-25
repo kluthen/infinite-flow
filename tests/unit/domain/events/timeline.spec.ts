@@ -1,5 +1,3 @@
-// @test-link [[entity_concert_event_timeline]]
-// @test-link [[entity_exact_musical_time]]
 import { describe, expect, it } from 'vitest'
 
 import { equalsRational, makeRational, sumRational } from '@/domain/time/rational'
@@ -26,6 +24,7 @@ function fourMeasures() {
   return [fullMeasure(0), fullMeasure(1), fullMeasure(2), fullMeasure(3)] as const
 }
 
+// @test-link [[entity_concert_event_timeline]]
 describe('makeConcertEventTimeline', () => {
   it('accepts exactly four ordered measures', () => {
     const timeline = makeConcertEventTimeline(fourMeasures())
@@ -34,6 +33,7 @@ describe('makeConcertEventTimeline', () => {
     expect(timeline.measures.map((measure) => measure.measureIndex)).toStrictEqual([0, 1, 2, 3])
   })
 
+  // @test-link [[entity_exact_musical_time]]
   it('the four-measure phrase totals exactly 4 whole notes using exact rational equality', () => {
     const timeline = makeConcertEventTimeline(fourMeasures())
 
@@ -89,6 +89,7 @@ describe('makeConcertEventTimeline', () => {
   })
 })
 
+// @test-link [[entity_concert_event_timeline]]
 describe('parseConcertEventTimeline', () => {
   const validRawMeasure = (measureIndex: number) => ({
     measureIndex,

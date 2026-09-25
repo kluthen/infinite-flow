@@ -1,0 +1,61 @@
+# Keep the build context to what `npm run build` (strict typecheck + vite build) actually needs.
+# `npm run typecheck` is `vue-tsc --build --force` against tsconfig.json, whose project references
+# (tsconfig.app.json, tsconfig.node.json, tsconfig.e2e.json) span src/, tests/, scripts/, and every
+# root-level *.config.ts -- not just src/ and public/ -- so those all have to stay in the build
+# context. Only exclude what the build graph provably never touches: dependencies (reinstalled from
+# the lockfile), build outputs, test/tooling run state, VCS/agent state, and docs/specs/ui_ux
+# (markdown/CSS-reference content nothing in the TS project graph imports).
+
+# Dependencies -- reinstalled from package-lock.json inside the image.
+node_modules
+
+# Build outputs -- (re)built inside the image; never trust a host-built dist/.
+dist
+dist-notation-harness
+dist-workspace-harness
+
+# Test/tooling run state and reports -- never inputs to `npm run build`.
+test-results
+playwright-report
+blob-report
+coverage
+.vitest
+.vite
+*.tsbuildinfo
+
+# VCS and local agent/session/devcontainer state.
+.git
+.github
+.agent
+.devcontainer
+.atd
+
+# Local-only planning/notes files, not part of the shipped app or its build.
+TODO.md
+precusor.md
+
+# Env/secrets -- this app makes no network calls and has no env-driven build config, but never send
+# these into a build context regardless.
+.env
+.env.*
+!.env.example
+
+# Editor/OS cruft.
+.DS_Store
+*.log
+
+# Documentation/reference content: not part of the tsconfig project graph, so not needed to
+# typecheck or build.
+docs
+specs
+ui_ux
+README.md
+CODING_RULE.md
+THIRD_PARTY_LICENSES.md
+LICENSE
+
+# The Dockerfile/compose.yaml don't need to be inside their own build context (docker/ itself is
+# kept -- the runtime stage COPYs docker/nginx.conf and docker/security-headers.conf directly).
+Dockerfile
+compose.yaml
+

@@ -1,4 +1,3 @@
-// @test-link [[entity_concert_event_timeline]]
 import { describe, expect, it } from 'vitest'
 
 import { makeSeed } from '@/domain/random/seed'
@@ -21,6 +20,7 @@ function fullMeasure(measureIndex: 0 | 1 | 2 | 3) {
   ])
 }
 
+// @test-link [[entity_concert_event_timeline]]
 describe('makeGenerationResult', () => {
   it('constructs an immutable result carrying request identity, seed, and the timeline', () => {
     const requestId = makeRequestId('11111111-1111-4111-8111-111111111111')

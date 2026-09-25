@@ -53,7 +53,7 @@ describe('request-resolution', () => {
     }
   })
 
-  // @test-link [[service_generation_orchestration]]
+  // @test-link [[service_generation_request_resolution]]
   describe('resolveCoreRequests: Varying register', () => {
     it('resolves 3 requests in Low, Middle, High order, none unresolved', () => {
       const intent = createGenerationIntent({
@@ -71,7 +71,7 @@ describe('request-resolution', () => {
     })
   })
 
-  // @test-link [[service_generation_orchestration]]
+  // @test-link [[rule_instrument_profile_range]]
   describe('selectVaryingRegister', () => {
     const intent = createGenerationIntent({
       requestId: makeRequestId('request-select'),

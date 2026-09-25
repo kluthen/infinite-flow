@@ -1,0 +1,51 @@
+# Infinite Flow production container. Build and run:
+#
+#   docker compose up --build
+#
+# See README.md's "Run with Docker" section for details (port, HTTPS/secure-context caveat for the
+# service worker, and deploying behind a reverse proxy).
+name: infinite-flow
+
+services:
+  web:
+    build: .
+    image: infinite-flow:local
+    container_name: infinite-flow-web
+    restart: unless-stopped
+    # Bound to loopback by default: this container is meant to sit behind a host-level reverse
+    # proxy (see README.md's "Deploying behind a reverse proxy (Caddy)" section), not to be exposed
+    # on all interfaces directly. Override the bind address/port per deployment, e.g. on a shared
+    # VPS running several apps:
+    #   INFINITE_FLOW_PORT=8081 docker compose up -d --build
+    ports:
+      - '${INFINITE_FLOW_BIND:-127.0.0.1}:${INFINITE_FLOW_PORT:-8080}:8080'
+    # Hardening: nginx serves only pre-built static files and needs no writable application
+    # directory, so the container filesystem is read-only; the small set of paths nginx itself
+    # writes to at runtime (temp files, the pid file, the (unused) proxy cache dir) are tmpfs
+    # instead. No Linux capabilities and no privilege escalation are needed to serve static files.
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:8080/manifest.webmanifest']
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    # If Caddy itself runs as a Docker container on this host, attach to its network instead of (or
+    # in addition to) publishing a loopback port, and proxy to this service by container name
+    # (`infinite-flow-web:8080`) rather than a host port. Uncomment and create the network out of
+    # band first (`docker network create caddy`) -- it is intentionally not declared as an external
+    # network below by default, since `docker compose up` would otherwise fail whenever that
+    # network doesn't exist yet.
+    # networks:
+    #   - caddy
+
+# networks:
+#   caddy:
+#     external: true

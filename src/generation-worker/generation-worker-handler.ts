@@ -17,7 +17,7 @@ import {
  * response. Once the request parses, any exception `generatePhrase` throws is caught and reported
  * as a typed `crash` response carrying the underlying error's name/message, never swallowed.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_worker_protocol]]
 export function handleGenerationWorkerMessage(data: unknown): GenerationWorkerResponse {
   const request = parseGenerationWorkerRequest(data)
   try {

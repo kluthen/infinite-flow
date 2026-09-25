@@ -1,4 +1,3 @@
-// @test-link [[entity_concert_event_timeline]]
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -7,6 +6,7 @@ import {
   parseConcertPitch,
 } from '@/domain/events/concert-pitch'
 
+// @test-link [[entity_concert_event_timeline]]
 describe('makeConcertPitch', () => {
   it('accepts the full 46-75 span covering all three first-release profiles', () => {
     // C keyboard 48-72, B-flat tenor 46-70, E-flat alto 51-75: the union spans 46-75.
@@ -40,6 +40,7 @@ describe('makeConcertPitch', () => {
   })
 })
 
+// @test-link [[entity_concert_event_timeline]]
 describe('parseConcertPitch', () => {
   it('parses a plausible number into a ConcertPitch', () => {
     expect(parseConcertPitch(60)).toBe(60)

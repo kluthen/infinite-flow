@@ -7,7 +7,11 @@ parents:
   - [[rule_jazz_chromatic_resolution]]
   - [[rule_neutral_profile_diatonic_harmony]]
   - [[rule_open_phrase_ending]]
+  - [[rule_tension_arc_build]]
+  - [[rule_tension_arc_edge]]
   - [[rule_tension_arc_level_policy]]
+  - [[rule_tension_arc_lift]]
+  - [[rule_tension_arc_settled]]
   - [[rule_tension_ranking_respects_constraints]]
   - [[user_story_controlled_phrase_generation]]
 type: MODULE

@@ -16,7 +16,7 @@ import { makeGenerationResult, type GenerationResult } from '../generation-resul
 import type { GenerationRequest } from '../generation-request'
 
 /** Typed failure for a rejected attempt to assemble a phrase timeline from a rhythm and pitches. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_phrase_timeline_assembly]]
 export class PhraseAssemblyError extends Error {
   readonly kind = 'PhraseAssemblyError' as const
 
@@ -85,7 +85,7 @@ function translateBar(bar: RhythmBar, attackMidis: readonly number[], state: Wal
  * Rejects an attackMidis length that does not exactly equal the rhythm's fresh note-attack count,
  * and rejects a tie continuation with no preceding attack, each as a typed PhraseAssemblyError.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_phrase_timeline_assembly]]
 export function assemblePhraseResult(
   request: GenerationRequest,
   rhythm: RhythmCandidate,

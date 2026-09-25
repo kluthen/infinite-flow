@@ -1,9 +1,9 @@
-// @test-link [[entity_exact_musical_time]]
 import { describe, expect, it } from 'vitest'
 
 import { WHOLE_NOTE, equalsRational, makeRational, sumRational } from '@/domain/time/rational'
 import { BAR_START_TICKS, PHRASE_TICKS, TICKS_PER_BAR, sixteenthTicksOf } from '@/domain/time/ticks'
 
+// @test-link [[entity_exact_musical_time]]
 describe('four-measure phrase timing', () => {
   it('sums four 4/4 bars to exactly 4 whole notes using exact rational equality', () => {
     const bars = [WHOLE_NOTE, WHOLE_NOTE, WHOLE_NOTE, WHOLE_NOTE]

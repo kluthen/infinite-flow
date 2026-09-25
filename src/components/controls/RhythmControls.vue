@@ -111,8 +111,7 @@ const liveRegionText = computed(() => blockedMessage.value ?? '')
       />
     </div>
     <p
-      v-show="isBlocked"
-      class="inline-alert alert-notice"
+      :class="{ 'inline-alert alert-notice': isBlocked }"
       role="status"
       aria-live="polite"
       aria-atomic="true"

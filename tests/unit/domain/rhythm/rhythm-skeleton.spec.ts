@@ -1,4 +1,3 @@
-// @test-link [[module_rhythm_skeleton_allocator]]
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -13,6 +12,7 @@ import type { SingleMergePlan } from '@/domain/rhythm/rhythm-types'
 const terminal = (cell: { readonly kind: string; readonly durationTicks: number }) =>
   `${cell.kind === 'note' ? 'N' : 'R'}${cell.durationTicks}`
 
+// @test-link [[module_rhythm_skeleton_allocator]]
 describe('rhythm-mvp-v1 nominal grammar', () => {
   it('owns every ordered beat-cell catalog entry exactly', () => {
     expect(

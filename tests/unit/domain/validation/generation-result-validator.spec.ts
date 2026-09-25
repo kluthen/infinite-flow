@@ -202,7 +202,7 @@ function failureCodes(input: GenerationResultValidationInput): readonly string[]
   return verdict.kind === 'valid_generation_result' ? [] : verdict.failures.map((f) => f.code)
 }
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[service_generation_result_validation]]
 describe('validateGenerationResult: fixture sanity', () => {
   it('builds a real end-to-end valid fixture that the validator accepts', () => {
     const fixture = buildFixture()
@@ -226,7 +226,7 @@ describe('validateGenerationResult: fixture sanity', () => {
   })
 })
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[service_generation_result_validation]]
 describe('validateGenerationResult: envelope', () => {
   it('reports a mismatched requestId', () => {
     const fixture = buildFixture()
@@ -241,7 +241,7 @@ describe('validateGenerationResult: envelope', () => {
   })
 })
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[service_generation_result_validation]]
 // @test-link [[rule_instrument_profile_range]]
 describe('validateGenerationResult: resolved request vs intent/profile', () => {
   it('reports a register window that does not match the resolved register candidate', () => {
@@ -271,7 +271,7 @@ describe('validateGenerationResult: resolved request vs intent/profile', () => {
   })
 })
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[service_generation_result_validation]]
 // @test-link [[rule_complete_four_four_measures]]
 describe('validateGenerationResult: timeline structure', () => {
   it('reports a timeline that does not have exactly four measures', () => {
@@ -309,7 +309,7 @@ describe('validateGenerationResult: timeline structure', () => {
   })
 })
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[service_generation_result_validation]]
 describe('validateGenerationResult: rhythm correspondence', () => {
   it('reports an event duration that diverges from the bound rhythm candidate', () => {
     const fixture = buildFixture()
@@ -364,7 +364,7 @@ describe('validateGenerationResult: rhythm correspondence', () => {
   })
 })
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[service_generation_result_validation]]
 describe('validateGenerationResult: harmony provenance', () => {
   it('reports a harmony candidate whose identity is not in the re-derived domain', () => {
     const fixture = buildFixture()
@@ -381,7 +381,7 @@ describe('validateGenerationResult: harmony provenance', () => {
   })
 })
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[service_generation_result_validation]]
 describe('validateGenerationResult: ties', () => {
   it('reports a tie continuation whose pitch differs from the note it continues', () => {
     const fixture = buildFixture()
@@ -406,7 +406,7 @@ describe('validateGenerationResult: ties', () => {
   })
 })
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[service_generation_result_validation]]
 // @test-link [[rule_instrument_profile_range]]
 describe('validateGenerationResult: range and window', () => {
   it('reports a pitch outside the resolved register window', () => {
@@ -454,7 +454,7 @@ describe('validateGenerationResult: range and window', () => {
   })
 })
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[service_generation_result_validation]]
 // @test-link [[module_pitch_domain_validation]]
 describe('validateGenerationResult: melodic whole-result rules', () => {
   it('reports a pitch-rule violation when a MIDI is altered to break a melodic rule', () => {
@@ -486,7 +486,7 @@ describe('validateGenerationResult: melodic whole-result rules', () => {
   })
 })
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[service_generation_result_validation]]
 describe('validateGenerationResult: multiple failures', () => {
   it('reports several independent failures together in stable canonical-code order', () => {
     const fixture = buildFixture()
@@ -506,7 +506,7 @@ describe('validateGenerationResult: multiple failures', () => {
   })
 })
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[service_generation_result_validation]]
 describe('validateGenerationResult: module isolation', () => {
   it('never imports the pitch planner, pitch policy, or pitch search modules', () => {
     const validatorPath = resolve(

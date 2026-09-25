@@ -14,6 +14,7 @@ dependents:
   - [[entity_concert_event_timeline]]
   - [[entity_exact_musical_time]]
   - [[entity_rhythm_candidate_domain]]
+  - [[mechanic_syncopation_enumeration]]
   - [[mechanic_syncopation_translation]]
   - [[module_rhythm_domain_validation]]
   - [[module_rhythm_skeleton_allocator]]

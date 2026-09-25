@@ -1,10 +1,3 @@
-// @test-link [[service_workspace_session_flow]]
-// @test-link [[module_generation_request_construction]]
-// @test-link [[module_profile_control_customization]]
-// @test-link [[user_story_controlled_phrase_generation]]
-// @test-link [[rule_profile_control_customization]]
-// @test-link [[rule_seeded_phrase_reproduction]]
-// @test-link [[rule_presentation_preference_preserves_phrase]]
 import { isReadonly } from 'vue'
 import { describe, expect, it } from 'vitest'
 
@@ -34,6 +27,8 @@ function trackedProviders() {
   }
 }
 
+// @test-link [[service_workspace_session_flow]]
+// @test-link [[user_story_controlled_phrase_generation]]
 describe('createGenerationSession', () => {
   it('creates isolated readonly state and does not generate implicitly', () => {
     let calls = 0
@@ -79,7 +74,8 @@ describe('createGenerationSession', () => {
     expect(session.state.presentation).toEqual({ theme: 'Dark', notationMode: 'Concert' })
   })
 
-  it('retries the exact failed immutable generation intent without consuming providers', async () => {
+  // @test-link [[module_generation_request_construction]]
+  it('retries generation with a fresh request id and seed, not the failed intent unchanged (D30)', async () => {
     const tracked = trackedProviders()
     const intents: { readonly id: string; readonly seed: number }[] = []
     let attempts = 0
@@ -102,11 +98,93 @@ describe('createGenerationSession', () => {
     await expect(session.actions.retryGeneration()).resolves.toBe(true)
     expect(intents).toEqual([
       { id: 'request-1', seed: 1 },
-      { id: 'request-1', seed: 1 },
+      { id: 'request-2', seed: 2 },
     ])
+    expect(tracked.counts()).toEqual({ id: 2, seed: 2 })
+  })
+
+  // @test-link [[module_generation_request_construction]]
+  it('retries generation from the current controls/profile, picking up an edit made after the failure (D30)', async () => {
+    const tracked = trackedProviders()
+    const intents: { readonly tempo: number }[] = []
+    let attempts = 0
+    const session = createGenerationSession({
+      providers: tracked.providers,
+      generate: async (intent) => {
+        intents.push({ tempo: intent.controls.tempo })
+        attempts += 1
+        if (attempts === 1) throw new Error('first failure')
+        return 'result'
+      },
+      notate: async () => undefined,
+      evaluateProfileSwitch: () => ({ kind: 'retain' }),
+    })
+
+    await expect(session.actions.generate()).resolves.toBe(false)
+    expect(session.state.generationError).not.toBeNull()
+    // Controls remain editable while idle after an error.
+    expect(session.actions.setControl('tempo', 130)).toBe(true)
+    await expect(session.actions.retryGeneration()).resolves.toBe(true)
+    expect(intents).toEqual([{ tempo: 90 }, { tempo: 130 }])
+  })
+
+  // @test-link [[rule_unsupported_rhythm_settings_block_generation]]
+  it('blocks retry generation while the current controls are an unsupported rhythm setting (D30)', async () => {
+    const tracked = trackedProviders()
+    let attempts = 0
+    const session = createGenerationSession({
+      providers: tracked.providers,
+      generate: async () => {
+        attempts += 1
+        if (attempts === 1) throw new Error('first failure')
+        return 'result'
+      },
+      notate: async () => undefined,
+      evaluateProfileSwitch: () => ({ kind: 'retain' }),
+    })
+
+    await expect(session.actions.generate()).resolves.toBe(false)
+    expect(session.state.generationError).not.toBeNull()
+    // Default Neutral rhythm is Quarter/Sparse/Straight; Quarter+Sparse+Active displacement has
+    // no legal four-bar plan under any tension arc.
+    expect(session.actions.setControl('syncopation', 'Active displacement')).toBe(true)
+
+    await expect(session.actions.retryGeneration()).resolves.toBe(false)
+    expect(attempts).toBe(1)
+    expect(session.state.generationError).not.toBeNull()
     expect(tracked.counts()).toEqual({ id: 1, seed: 1 })
   })
 
+  it('retains the prior valid result after a later generation failure, retry available without it', async () => {
+    const tracked = trackedProviders()
+    let attempts = 0
+    const session = createGenerationSession({
+      providers: tracked.providers,
+      generate: async () => {
+        attempts += 1
+        if (attempts === 2) throw new Error('second failure')
+        return `result-${attempts}`
+      },
+      notate: async () => undefined,
+      evaluateProfileSwitch: () => ({ kind: 'retain' }),
+    })
+
+    await expect(session.actions.generate()).resolves.toBe(true)
+    expect(session.state.result).toBe('result-1')
+
+    await expect(session.actions.regenerate()).resolves.toBe(false)
+    expect(session.state.result).toBe('result-1')
+    expect(session.state.generationError?.message).toBe('second failure')
+
+    await expect(session.actions.retryGeneration()).resolves.toBe(true)
+    expect(session.state.result).toBe('result-3')
+    expect(session.state.generationError).toBeNull()
+  })
+
+  // @test-link [[module_generation_request_construction]]
+  // @test-link [[module_profile_control_customization]]
+  // @test-link [[rule_profile_control_customization]]
+  // @test-link [[rule_seeded_phrase_reproduction]]
   it('regenerates from current controls/profile with fresh providers and keeps presentation outside generation', async () => {
     const tracked = trackedProviders()
     const intents: {
@@ -214,6 +292,7 @@ describe('createGenerationSession', () => {
     expect(notateCalls[1]?.result).toBe(phrase)
   })
 
+  // @test-link [[rule_presentation_preference_preserves_phrase]]
   it('locks generation and notation against each other while leaving theme immediate', async () => {
     const generation = createDeferred<string>()
     const notation = createDeferred<void>()

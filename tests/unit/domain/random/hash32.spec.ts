@@ -1,8 +1,8 @@
-// @test-link [[module_named_stream_pseudorandomness]]
 import { describe, expect, it } from 'vitest'
 
 import { FNV_OFFSET_BASIS_32, FNV_PRIME_32, fnv1a32 } from '@/domain/random/hash32'
 
+// @test-link [[module_named_stream_pseudorandomness]]
 describe('fnv1a32', () => {
   it('carries the standard FNV-1a 32-bit offset basis and prime constants', () => {
     expect(FNV_OFFSET_BASIS_32).toBe(0x811c9dc5)

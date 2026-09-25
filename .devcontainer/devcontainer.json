@@ -1,0 +1,78 @@
+{
+  "name": "Infinite Flow (dev)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      // Keep in sync with the "@playwright/test" version in package-lock.json.
+      "PLAYWRIGHT_VERSION": "1.63.0"
+    }
+  },
+  "remoteUser": "node",
+  "workspaceFolder": "/workspaces/infinite-flow",
+  // Bind-mount the repo under its own name instead of the default `${localWorkspaceFolderBasename}`
+  // guess, so the path is stable regardless of the worktree directory name on the host.
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/infinite-flow,type=bind,consistency=cached",
+
+  // node_modules lives in its own named volume so host-installed native binaries (esbuild,
+  // vue-tsc, Playwright's driver, etc.) never leak between the host and the container. postCreate
+  // chowns it to the `node` user before `npm ci` populates it.
+  "mounts": [
+    "source=infinite-flow-node-modules,target=/workspaces/infinite-flow/node_modules,type=volume",
+    // Persist Claude Code's local state (credentials, config) across container rebuilds.
+    "source=infinite-flow-claude-home,target=/home/node/.claude,type=volume"
+  ],
+
+  "features": {
+    // Docker CLI + compose plugin, wired to the host's Docker socket, so the production image at
+    // the repo root (Dockerfile/compose.yaml, maintained separately) can be built/run from inside
+    // this dev container.
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    // GitHub CLI from GitHub's own release channel (bookworm's apt package is years behind).
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    // Claude Code CLI, since development happens through it.
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  },
+
+  "runArgs": [
+    "--init",
+    // Chromium's shared-memory usage under Playwright regularly exceeds the Docker default
+    // (64m) and crashes; 1g matches what Playwright's own Docker docs recommend.
+    "--shm-size=1g"
+  ],
+
+  "forwardPorts": [5173, 4173, 4174, 4175],
+  "portsAttributes": {
+    "5173": { "label": "Vite dev server", "onAutoForward": "notify" },
+    "4173": { "label": "Production preview (dist/)", "onAutoForward": "silent" },
+    "4174": { "label": "Notation harness", "onAutoForward": "silent" },
+    "4175": { "label": "Workspace harness", "onAutoForward": "silent" }
+  },
+
+  // Chown the node_modules volume (it's created root-owned on first mount) before installing;
+  // CI-neutral env only, nothing environment-specific baked in.
+  "postCreateCommand": "sudo chown node:node node_modules && npm ci",
+
+  "containerEnv": {
+    "PLAYWRIGHT_BROWSERS_PATH": "/ms-playwright"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Vue.volar",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-playwright.playwright",
+        "vitest.explorer"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        }
+      }
+    }
+  }
+}

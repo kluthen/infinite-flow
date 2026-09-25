@@ -1,78 +1,284 @@
 # Infinite Flow
 
-Infinite Flow is a browser-only musical phrase workspace. The first release will generate a coherent, staff-notated four-measure phrase from player-selected musical controls. Step 1 establishes only the executable client shell and its quality gates; it does not implement generation, controls, notation, profiles, session orchestration, or responsive workspace behavior.
+Infinite Flow is a browser-only musical phrase workspace. It generates one coherent,
+staff-notated four-measure phrase in 4/4 from a player-selected instrument profile and a set of
+musical controls (tonal center, collection, harmonic motion, tension arc, rhythm, contour,
+register, leapiness, and arpeggio chaos), rendering it in conventional notation with chord
+context. The player explicitly regenerates the whole phrase to hear and see a new variation; the
+product's value is a musically legible proposal, not playback, accompaniment, or an endless
+autonomous session.
 
 ## Prerequisites
 
 - Node.js `>=22.12.0`
 - npm (the committed `package-lock.json` is the only supported package manager input)
-- Playwright browser binaries for the current Chromium, Firefox, and WebKit regression projects
+- The Playwright Chromium browser binary (Chromium is the only supported browser for now)
 
-Install dependencies and browsers:
+## Install
 
 ```sh
 npm ci
-npx playwright install --with-deps chromium firefox webkit
+npx playwright install --with-deps chromium
 ```
+
+## Development container
+
+`.devcontainer/` provides a dev-only container (Node 22, the quality-gate CLIs, Playwright
+Chromium with its OS dependencies preinstalled, Docker CLI, Claude Code) as an alternative to the
+`Prerequisites`/`Install` steps above. Open the repo in VS Code and run "Dev Containers: Reopen in
+Container", or use the `@devcontainers/cli`. It is unrelated to the production `Dockerfile` /
+`compose.yaml` at the repo root, which only builds and serves the static `dist/` output. See
+[`.devcontainer/README.md`](.devcontainer/README.md) for details, ports, and caveats (notably
+visual-baseline font differences and that the `atd` CLI is not bundled).
 
 ## Commands
 
 ```sh
-npm run dev                 # Run the local Vite development server
-npm run build               # Strict typecheck, then create the production browser build
-npm run preview             # Serve the existing production build locally
-npm run format:check        # Check formatting for authored application and configuration files
-npm run lint                # Run the flat ESLint configuration
-npm run typecheck           # Run strict TypeScript and Vue template checks
-npm run test:unit           # Run Vue component smoke tests
-npm run verify:boundaries   # Reject authored persistence APIs and PWA runtime caching rules
-npm run test:e2e            # Production-startup test through vite preview, all browser projects
-npm run test:a11y           # Axe scan through vite preview, all browser projects
-npm run atd:lint            # Validate ATD atom structure
-npm run atd:check           # Check ATD source/test link coverage for the current diff
-npm run quality             # Run the complete Step 1 quality gate
+npm run dev                        # Local Vite development server
+npm run build                      # Strict typecheck, then create the production browser build
+npm run preview                    # Serve the existing production build (dist/) locally
+npm run build:workspace-harness    # Build the deterministic e2e workspace harness (port 4175 origin)
+npm run verify:boundaries          # Reject authored persistence/optional-scope APIs and check the PWA precache
+npm run format:check               # Check formatting for authored app, tests, scripts, and config files
+npm run lint                       # Run the flat ESLint configuration
+npm run typecheck                  # Run strict TypeScript and Vue template checks
+npm run test:unit                  # Vitest: unit, component, and property-based tests
+npm run measure:latency            # Vitest: generation-orchestrator latency measurement (node-side)
+npm run test:e2e                   # Playwright: production-preview + workspace-harness journeys (Chromium)
+npm run test:a11y                  # Playwright: axe scan across empty/ready/error/in-flight states
+npm run test:notation              # Playwright: notation engraving, layout, and visual-baseline checks
+npm run measure:latency:browser    # Playwright: cold/warm generation latency measured in Chromium
+npm run atd:lint                   # Validate ATD atom structure
+npm run atd:check                  # Check ATD source/test link coverage for the current diff
+npm run quality                    # The complete first-release quality gate (see the matrix below)
 ```
 
-`test:e2e` and `test:a11y` serve the already-built `dist/` directory through `vite preview`; run `npm run build` first when invoking either test independently. The aggregate `quality` command builds once before both browser suites.
+`test:e2e`, `test:a11y`, `test:notation`, and `measure:latency:browser` are Playwright suites.
+`playwright.config.ts` declares three `webServer` entries: port 4173 runs `npm run preview` against
+the already-built `dist/`, so **run `npm run build` first** when invoking any of these test
+commands on their own; ports 4174 (`build:notation-harness`) and 4175 (`build:workspace-harness`)
+build and serve themselves as part of starting the server, so they need no separate prior build.
+`npm run quality` builds once (via its own `npm run build` step, ahead of `verify:boundaries` and
+every Playwright suite) so the 4173 preview always has a `dist/` to serve.
 
 ## Directory Boundaries
 
-- `src/main.ts` is the browser-only entry point and service-worker registration boundary.
-- `src/components/` holds Vue presentation components; `src/components/workspace/` currently holds the empty shell.
-- `src/domain/` is reserved for future immutable musical contracts and planners.
-- `src/composables/` is reserved for explicit in-memory UI/session coordination.
-- `src/styles/` is the production Tailwind 4 styling authority, using local warm parchment and ink tokens derived from `ui_ux/ui_common.css`.
-- `tests/unit/` holds Vitest and Vue Test Utils component coverage; `tests/e2e/` holds Playwright production-browser checks.
-- `public/` contains static public assets, including the PWA icon. `src/public/` is retained as a boundary marker for future source-owned public-asset metadata.
-- `scripts/verify-boundaries.mjs` deterministically inspects authored `src/` files and PWA configuration.
+- `src/domain/**` — pure, serializable, Vue/browser-free musical logic: events, time, random
+  streams, instrument profiles, controls, harmony, rhythm, pitch planning and validation, and
+  generation-request/result orchestration.
+- `src/generation-worker/` — the typed request/response protocol and handler that run generation
+  inside a dedicated module Web Worker, off the main thread.
+- `src/notation/` — the concert-to-written transformation types and the VexFlow engraving adapter,
+  loaded lazily (`vexflow-engraver-loader.ts` is the sole static importer of the engraver module).
+- `src/composables/` — in-memory session/UI coordination (`use-generation-session.ts`,
+  `use-notation-coordinator.ts`, `workspace-session-result.ts`): no persistence, no singletons.
+- `src/components/**` — Vue presentation components, props-in/events-out; `src/components/workspace/`
+  holds the root session composition (`create-workspace-session.ts`) and the workspace component
+  tree (see [`docs/phrase-workspace.md`](docs/phrase-workspace.md)).
+- `src/styles/` — the production Tailwind 4 styling authority (`theme.css`, `components.css`,
+  `index.css`, `fonts.css`), consumed by application code; `ui_ux/ui_common.css` is a frozen design
+  reference, not buildable production styling.
+- `tests/unit` — Vitest/Vue Test Utils unit, component, and property-based coverage, mirroring
+  `src/`'s structure.
+- `tests/e2e/{workspace,release,workspace-harness}` — Playwright suites: `workspace/` exercises the
+  production preview build directly; `release/` exercises release-readiness journeys (determinism,
+  errors/retry, concurrency, profile switch, theme isolation, persistence/optional-scope absence,
+  offline) mostly through the workspace harness; `workspace-harness/` is the harness's own entry
+  point (`main.ts`) and DI-seam wiring, built by `vite.workspace-harness.config.ts`.
+- The notation harness (`tests/e2e/notation/`, `tests/e2e/notation-harness/`,
+  `vite.notation-harness.config.ts`) isolates notation engraving, layout, and visual-baseline
+  checks from the full workspace.
+- `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier.
+- `public/licenses/` — vendored full license texts for every runtime third-party component,
+  copied into `dist/licenses/` at build time; see [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
+- `docs/` — ATD-linked business-intent atoms plus narrative docs (architecture, notation,
+  generation latency, the phrase workspace, and `docs/release/*`).
+- `specs/` — the first-release master spec, implementation plan, generator architecture and
+  contract, and roadmap/open-questions.
+- `ui_ux/` — the approved interaction/visual authority (decisions, strategy, screen handoffs, and
+  the frozen `ui_common.css`/mockup reference).
 
 ## Runtime Constraints
 
-The client has no backend, SSR process, API server, or server runtime dependency. State is ephemeral: authored application code is prohibited from using `localStorage`, `sessionStorage`, IndexedDB, and the Cache API. ESLint restrictions and the deterministic boundary verifier enforce this policy.
+The client has no backend, SSR process, API server, or server runtime dependency. State is
+ephemeral: authored application code is prohibited from using `localStorage`, `sessionStorage`,
+IndexedDB, and the Cache API, and from touching MIDI, audio/microphone capture, or any network
+API. ESLint restrictions (`eslint.config.js`) and `scripts/verify-boundaries.mjs` both enforce this
+independently — see [`docs/release/browser-and-offline-limits.md`](docs/release/browser-and-offline-limits.md)
+for the exact forbidden-identifier lists.
 
-The PWA uses `vite-plugin-pwa` with `generateSW` to precache emitted application assets, including the revisioned `index.html` navigation fallback. Its Workbox policy explicitly sets `runtimeCaching: []` and does not cache user, session, or application state. The generated service worker is build output rather than authored application state logic. Deterministic offline reload testing is deferred to later release verification, when the required phrase loop exists; Step 1 instead verifies the generated service-worker/precache output and its source policy.
+The PWA uses `vite-plugin-pwa` with `generateSW` to precache every built HTML/JS/CSS/`woff2`/image
+asset, including the lazy VexFlow engraving chunk, the generation Worker chunk, and the revisioned
+`index.html` navigation fallback. Its Workbox policy sets `runtimeCaching: []` explicitly: there is
+no opportunistic runtime network caching, and nothing beyond the precache is ever cached. A first
+online load is required to install the service worker and populate the precache; after that,
+required phrase generation, notation, controls, and the current phrase work fully offline. See
+[`docs/release/browser-and-offline-limits.md`](docs/release/browser-and-offline-limits.md) for the
+full detail, including service-worker update behavior and the module-Worker/lazy-chunk requirements.
 
-Playwright runs the startup and axe gates in current Chromium, Firefox, and WebKit projects. This matrix is a current-engine regression suite, not a promise to support every historical browser. Vite's current default browser target is an implementation baseline, not a contractual browser-support claim.
+Chromium is currently the only supported browser; `playwright.config.ts` defines a single
+`chromium` project. Firefox and WebKit are not tested and not supported for now.
 
-## Step 1 Verification Matrix
+## Architecture Overview
 
-| Gate                     | Command                                 | Scope                                                                   |
-| ------------------------ | --------------------------------------- | ----------------------------------------------------------------------- |
-| Install reproducibility  | `npm ci`                                | Lockfile-only dependency installation                                   |
-| Formatting               | `npm run format:check`                  | Authored app, tests, scripts, and configuration                         |
-| Static analysis          | `npm run lint && npm run typecheck`     | Flat ESLint and strict TypeScript/Vue checks                            |
-| Component shell          | `npm run test:unit`                     | App mount and empty accessible workspace semantics                      |
-| Production artifact      | `npm run build`                         | Static browser bundle and generated PWA files                           |
-| Persistence/PWA boundary | `npm run verify:boundaries`             | No authored persistence APIs or runtime cache rule                      |
-| Production startup       | `npm run test:e2e`                      | `vite preview` in Chromium, Firefox, and WebKit                         |
-| Automated accessibility  | `npm run test:a11y`                     | Axe gate in Chromium, Firefox, and WebKit; not a full conformance claim |
-| ATD structure/coverage   | `npm run atd:lint && npm run atd:check` | Existing documentation integrity without tooling links                  |
+```
+UI (Vue components, props-in/events-out)
+  -> session composables (use-generation-session, use-notation-coordinator)
+    -> Web Worker (generation-worker/, typed correlated protocol)
+      -> domain orchestration: harmony -> rhythm -> pitch -> validation
+    -> notation (lazy VexFlow engraver, loaded on demand)
+```
+
+- **UI.** `App.vue` builds one root `WorkspaceSession` for the tab's lifetime via
+  `createWorkspaceSession` (or, in a test/harness, via the injected `WORKSPACE_SESSION_FACTORY`
+  seam). `WorkspaceShell`, `WorkspaceHeader`, `ScorePanel`, `ControlPanel` and its four control
+  groups are props-in/events-out around that one session.
+- **Session composables.** `createGenerationSession` owns the session's state machine (`idle` /
+  `generating` / `notating`, exactly one operation at a time, prior-result retention on failure)
+  and exposes explicit actions; `create-workspace-session.ts` wires it to a `generate` seam, a
+  `notate` seam driven by `createNotationCoordinator`, and the profile-switch policy adapter.
+- **Web Worker.** Every generation request runs off the main thread in one long-lived module
+  `Worker` behind a typed, correlated request/response protocol
+  (`src/generation-worker/generation-worker-protocol.ts`), which re-validates every field crossing
+  the wire through the same domain constructors/parsers the orchestrator uses, and deep-freezes the
+  result.
+- **Domain orchestration (harmony -> rhythm -> pitch -> validation).**
+  `generatePhrase`/`generation-orchestrator.ts` builds the structural harmony candidate domain
+  (`makeHarmonyCandidateDomain`), the rhythm candidate domain (materialized once per rhythm setting
+  and cached in a seed-independent memo, then ranked per seed), searches for a legal pitch
+  assignment per candidate window (`window-search.ts`), and independently re-validates the
+  assembled result (`validateGenerationResult`) before returning a `GenerationOutcome`.
+- **Notation.** A successful outcome's concert-pitch timeline is transformed into a `WrittenPhrase`
+  for the selected display convention (Concert / B-flat / E-flat), then engraved by a lazily loaded
+  VexFlow adapter (`src/notation/vexflow-engraver-loader.ts` is the sole static importer of the
+  engraver module) — the engraving chunk is fetched on first use and precached for offline reuse.
+
+See [`specs/generator-architecture.md`](specs/generator-architecture.md) for the full seam-by-seam
+architectural contract and [`docs/phrase-workspace.md`](docs/phrase-workspace.md) for the
+workspace's component tree, session wiring, state map, and Worker protocol in detail.
+
+## First-Release Verification Matrix
+
+| Gate                                    | Command                                 | Scope                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | What it proves                                                                                                                                                                                             |
+| --------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Install reproducibility                 | `npm ci`                                | Lockfile-only dependency installation                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | The committed lockfile alone reproduces the dependency tree.                                                                                                                                               |
+| Formatting                              | `npm run format:check`                  | Authored app, tests, scripts, config, and `docs/release`                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Source is Prettier-formatted; no unformatted diff can land.                                                                                                                                                |
+| Static analysis                         | `npm run lint && npm run typecheck`     | Flat ESLint (including the boundary `no-restricted-*` rules) and strict TypeScript/Vue                                                                                                                                                                                                                                                                                                                                                                                                                   | No lint violations (including the optional-scope/persistence lint mirror) and no type errors.                                                                                                              |
+| Unit/component/property                 | `npm run test:unit`                     | Vitest across `tests/unit/**`: domain logic, composables, components, worker handler                                                                                                                                                                                                                                                                                                                                                                                                                     | Domain rules, session state machine, and component contracts hold, including property-based coverage (e.g. `planner-validator-property.spec.ts`) and the byte-identical generation-outcome golden fixture. |
+| Production artifact                     | `npm run build`                         | Strict typecheck, then the static browser bundle and generated PWA files                                                                                                                                                                                                                                                                                                                                                                                                                                 | The app builds cleanly and emits `dist/` plus `dist/sw.js`.                                                                                                                                                |
+| Persistence/PWA/optional-scope boundary | `npm run verify:boundaries`             | Authored `src/**`: forbidden persistence/optional-scope identifiers; `vite.config.ts`'s `runtimeCaching: []`; every `dist/assets/*.{js,css,woff2}` present in the `dist/sw.js` precache manifest                                                                                                                                                                                                                                                                                                         | No authored persistence or MIDI/audio/network API; the offline precache is complete, including the lazy engraver and Worker chunks.                                                                        |
+| End-to-end journeys                     | `npm run test:e2e`                      | Playwright, Chromium only, against the production preview (port 4173) and the workspace harness (port 4175): startup, generate/regenerate, viewports, portrait notice, target size, focus visibility, reduced motion, theme, unsupported-rhythm blocking, plus the `tests/e2e/release/` journeys — deterministic replay, errors and retry, concurrent-operation prevention, notation-mode switching, profile switch, theme isolation, persistence absence, optional-scope absence, and offline-and-fonts | The full player-facing workflow behaves correctly end to end, including states (in-flight generation, forced generation/notation failures) that only the harness's deterministic seams can force.          |
+| Automated accessibility (a11y)          | `npm run test:a11y`                     | Playwright + `@axe-core/playwright` against the empty shell, post-generation in Light and Dark, the unsupported-rhythm state, and (via the workspace harness) the in-flight-generation, generation-failed, and notation-failed states                                                                                                                                                                                                                                                                    | No detectable axe violations in each covered UI state; not a full manual conformance claim.                                                                                                                |
+| Notation visual baselines               | `npm run test:notation`                 | Playwright against the notation harness (port 4174) and the production preview: engraving elements, calibration, display-mode switching, the two-system phone layout, and pixel-baseline snapshots (`tests/e2e/notation/notation-visual.spec.ts-snapshots/`)                                                                                                                                                                                                                                             | Engraved notation matches its recorded visual baseline and the documented layout/legibility policy.                                                                                                        |
+| ATD structure/link coverage             | `npm run atd:lint && npm run atd:check` | `docs/*.atom.md` structure and `@spec-link`/`@test-link` coverage for the current diff                                                                                                                                                                                                                                                                                                                                                                                                                   | Documentation atoms are well-formed and source/test traceability is maintained.                                                                                                                            |
+
+`npm run quality` runs all of the above (format, lint, unit, build, boundaries, e2e, a11y,
+notation, ATD) in one sequence. See [`docs/release/release-checklist.md`](docs/release/release-checklist.md)
+for the full release procedure and known timing caveats when running it.
+
+## Run with Docker
+
+A multi-stage [`Dockerfile`](Dockerfile) packages the production build behind a non-root nginx, and
+[`compose.yaml`](compose.yaml) runs it with a hardened container configuration (read-only root
+filesystem, all Linux capabilities dropped, `no-new-privileges`). The build stage runs the real
+`npm ci && npm run build` (strict typecheck, then `vite build`) inside the image; only the resulting
+`dist/` ships in the runtime image.
+
+```sh
+docker compose up --build
+```
+
+Open `http://localhost:8080/`. The published port is bound to loopback only
+(`127.0.0.1:8080` by default) and is easy to change per deployment without editing any file:
+
+```sh
+INFINITE_FLOW_PORT=8081 docker compose up -d --build
+```
+
+`INFINITE_FLOW_BIND` (default `127.0.0.1`) controls the bind address the same way, if a deployment
+ever needs to publish on a different interface instead of relying on a reverse proxy (see below).
+
+**Secure-context caveat.** The service worker — and with it offline mode and "Install app" — only
+registers in a [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts).
+`http://localhost` (and `http://127.0.0.1`) qualifies as a secure context in every browser, which is
+why the command above works as-is for local use. Plain `http://` on a LAN IP or a real hostname does
+**not** qualify: reaching this container that way loads the page but the service worker will not
+register, so there is no offline support and no install prompt. Production deployment therefore
+needs HTTPS termination in front of this container — see the next section — or an equivalent
+reverse proxy that terminates TLS. See
+[`docs/release/browser-and-offline-limits.md`](docs/release/browser-and-offline-limits.md) for the
+full detail on offline guarantees.
+
+### Deploying behind a reverse proxy (Caddy)
+
+This container is designed to sit behind a TLS-terminating reverse proxy rather than to be exposed
+directly: `compose.yaml` publishes only to loopback by default, and `docker/nginx.conf` sets
+`absolute_redirect off`/`port_in_redirect off` so nginx never leaks its internal `:8080` into a
+redirect `Location` header. On a shared VPS where an existing [Caddy](https://caddyserver.com/)
+instance already terminates TLS for several apps, add a site block for this app and reload Caddy
+(illustrative only — not applied by this repository):
+
+```caddyfile
+flow.example.com {
+    encode zstd gzip
+    reverse_proxy 127.0.0.1:8080
+}
+```
+
+If Caddy itself runs as a Docker container on the same host, attach this service to Caddy's Docker
+network instead (see the commented-out `networks:` block in `compose.yaml`) and proxy to the
+container by name instead of a host port:
+
+```caddyfile
+flow.example.com {
+    encode zstd gzip
+    reverse_proxy infinite-flow-web:8080
+}
+```
+
+Notes for either variant:
+
+- **Caddy provides HTTPS.** It is what turns this into the secure context the service worker and
+  offline mode require (see the caveat above); nothing in this container terminates TLS itself.
+- **HSTS is Caddy's job, not nginx's.** `docker/nginx.conf` deliberately does not set
+  `Strict-Transport-Security` — set it in Caddy (or your TLS-terminating proxy) if desired.
+- **Don't duplicate security headers.** `docker/nginx.conf` already sets the Content-Security-Policy
+  and the other security headers (see `docker/security-headers.conf`) so they travel with the app
+  regardless of which proxy sits in front of it; do not also set a CSP in the Caddyfile, or the
+  browser will receive two `Content-Security-Policy` headers, which is treated as the _intersection_
+  of both and can silently break the app.
+- **The app must be served at the domain root.** `vite.config.ts` uses the default Vite `base`
+  (`/`), and the PWA manifest's `scope` is `/` (see `dist/manifest.webmanifest` after a build). A
+  subpath deployment (e.g. `example.com/infinite-flow/`) is not supported as-is — it would need a
+  rebuild with a different Vite `base` (and manifest `scope`/`start_url`) before it could work
+  correctly, especially for the service worker's precache routing.
+- **Deploying an update:** `git pull && docker compose up -d --build` on the host; Caddy needs no
+  change for an app-only update since it only ever proxies to the container.
 
 ## Product References
 
-- [First-release master specification](specs/first-release-master-spec.md) is the implementation handoff and definition of done.
-- [First-release implementation plan](specs/first_release_plan.md) sequences delivery steps and boundaries.
-- [UI/UX index](ui_ux/index.md) links the approved interaction and visual authority.
-- [ATD documentation](docs/) records business intent. Step 1 tooling and shell scaffolding deliberately have no business traceability links.
+- [First-release master specification](specs/first-release-master-spec.md) — the implementation
+  handoff and definition of done.
+- [First-release implementation plan](specs/first_release_plan.md) — sequenced delivery steps.
+- [Generator architecture](specs/generator-architecture.md) — the seam-by-seam architectural
+  contract.
+- [UI/UX index](ui_ux/index.md) — the approved interaction and visual authority.
+- [ATD documentation](docs/) — business-intent atoms with source/test traceability.
+- [Third-party licenses](THIRD_PARTY_LICENSES.md) and [`public/licenses/`](public/licenses/) —
+  every runtime component shipped in `dist/`, with vendored full license text.
+- [`docs/release/browser-and-offline-limits.md`](docs/release/browser-and-offline-limits.md) —
+  supported-browser and offline guarantees/limits in detail.
+- [`docs/release/deferred-scope.md`](docs/release/deferred-scope.md) — known deferred product
+  scope and engineering debt.
+- [`docs/release/reconciliation-report.md`](docs/release/reconciliation-report.md) — spec/code
+  drift check performed for this release.
+- [`docs/release/release-checklist.md`](docs/release/release-checklist.md) — the ordered release
+  procedure.
+- [`docs/release/dod-acceptance-matrix.md`](docs/release/dod-acceptance-matrix.md) — Definition-of-Done
+  item-by-item verification evidence.
 
-Generated lead playback, MIDI integration, persistence, microphone capture, automatic key detection, scoring, and the rolling continuation flow remain outside this delivery step.
+Infinite Flow is released under the [MIT License](LICENSE).
+
+Generated lead playback, MIDI integration, persistence, microphone capture, automatic key
+detection, scoring, and the rolling continuation flow remain outside this release; see
+[`docs/release/deferred-scope.md`](docs/release/deferred-scope.md) for the complete inventory.

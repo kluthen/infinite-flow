@@ -22,7 +22,7 @@ flowchart LR
 
 - Screen: `screens/phrase-workspace/` for every step.
 - Before initial generation, every musical control, instrument profile, and musical-profile preset is editable on the empty workspace. Those selections update the pending direction only; they do not create a partial result or an implicit request.
-- Generation request uses the current control values, selected instrument profile policy, and a fresh seed on the explicit `Generate phrase` or `Regenerate phrase` action. The only exception is an invalid instrument-profile switch, which regenerates automatically with retained controls and a fresh seed.
+- Generation request uses the current control values, selected instrument profile policy, and a fresh seed on the explicit `Generate phrase`, `Regenerate phrase`, or `Retry generation` action. The only exception is an invalid instrument-profile switch, which regenerates automatically with retained controls and a fresh seed.
 - The result must contain four complete common-time measures before engraving starts.
 - Display-mode selection routes to engraving only. It preserves controls, seed, concert-pitch events, harmonic plan, and profile-derived range policy.
 - Theme selection changes presentation only. It neither routes to generation nor engraving, and it does not change the phrase, controls, request, seed, profile policy, or result.

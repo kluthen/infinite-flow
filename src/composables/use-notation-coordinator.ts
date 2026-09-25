@@ -35,6 +35,8 @@ export interface NotationCoordinator {
   readonly pendingPhrase: Ref<WrittenPhrase | null>
   /** The session's injected `notate` seam. */
   readonly notate: (result: WorkspaceSessionResult, requestedMode: NotationMode) => Promise<void>
+  /** Drop the presented phrase outside `notate()`'s promise lifecycle, for a session transition that discards the phrase without ever requesting a redraw. */
+  readonly clearPresentedPhrase: () => void
   /** Wire to `PhraseScore`'s `@engraved`. */
   readonly handleEngraved: () => void
   /** Wire to `PhraseScore`'s `@notation-error`. */
@@ -70,6 +72,16 @@ export function createNotationCoordinator(
     })
   }
 
+  /** Intent: drop the presented phrase for a session transition that discards it without redrawing. */
+  function clearPresentedPhrase(): void {
+    if (awaiting !== null) {
+      throw new NotationCoordinatorUsageError(
+        'clearPresentedPhrase() was called while a notate() request was still pending.',
+      )
+    }
+    pendingPhrase.value = null
+  }
+
   /** Intent: settle a pending notate() request on success, or report an outside-operation recovery. */
   function handleEngraved(): void {
     if (awaiting !== null) {
@@ -92,5 +104,5 @@ export function createNotationCoordinator(
     reporter.reportNotationFailure(error)
   }
 
-  return { pendingPhrase, notate, handleEngraved, handleNotationError }
+  return { pendingPhrase, notate, clearPresentedPhrase, handleEngraved, handleNotationError }
 }

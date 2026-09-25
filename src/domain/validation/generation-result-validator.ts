@@ -28,7 +28,7 @@ import {
 } from './generation-result-validator-checks'
 
 /** Stable canonical failure codes, listed in their canonical reporting order. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_result_validation]]
 export const GENERATION_RESULT_VALIDATION_CODES = [
   'request_id_mismatch',
   'seed_mismatch',
@@ -52,18 +52,18 @@ export const GENERATION_RESULT_VALIDATION_CODES = [
   'pitch_rule_violation',
 ] as const
 
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_result_validation]]
 export type GenerationResultValidationCode = (typeof GENERATION_RESULT_VALIDATION_CODES)[number]
 
 /** One independently reconstructed failure, with an optional location/reason detail string. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_result_validation]]
 export interface GenerationResultValidationFailure {
   readonly code: GenerationResultValidationCode
   readonly detail?: string
 }
 
 /** The complete bound-input facts this validator reads; provenance is treated as a claim to verify. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_result_validation]]
 export interface GenerationResultValidationInput {
   readonly intent: GenerationIntent
   readonly request: GenerationRequest
@@ -72,7 +72,7 @@ export interface GenerationResultValidationInput {
 }
 
 /** The whole-result verdict: valid, or every independently reconstructed failure. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_result_validation]]
 export type GenerationResultValidation =
   | { readonly kind: 'valid_generation_result' }
   | {
@@ -146,7 +146,7 @@ function melodicFailures(
  * every applicable failure (never stopping at the first), and never repairs, reranks, or mutates
  * its input. Pure: no seed/random/time use.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[service_generation_result_validation]]
 export function validateGenerationResult(
   input: GenerationResultValidationInput,
 ): GenerationResultValidation {

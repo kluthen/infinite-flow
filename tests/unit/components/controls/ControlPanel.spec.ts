@@ -50,6 +50,19 @@ describe('ControlPanel', () => {
     ])
   })
 
+  it('shows the control-summary line and recomputes it on a control or profile-selection change', async () => {
+    const wrapper = mountPanel()
+    expect(wrapper.get('.control-summary').text()).toBe('C Ionian · Neutral · Lift · Shaped')
+    const edited: GenerationControls = { ...DEFAULT_GENERATION_CONTROLS, tension: 'Edge' }
+    await wrapper.setProps({
+      controls: edited,
+      profileSelection: { musicalProfile: 'Neutral', isCustom: true },
+    })
+    expect(wrapper.get('.control-summary').text()).toBe(
+      'C Ionian · Custom (Neutral grammar) · Edge · Shaped',
+    )
+  })
+
   it('shows the active profile range summary', () => {
     const wrapper = mountPanel()
     expect(wrapper.get('.profile-range-summary').text()).toBe(
@@ -126,10 +139,16 @@ describe('ControlPanel', () => {
   )
 
   // @test-link [[rule_unsupported_rhythm_settings_block_generation]]
-  it('hides the unsupported-rhythm message for a supported combination', () => {
+  it('keeps the unsupported-rhythm status region mounted, empty, and unstyled for a supported combination', () => {
     const wrapper = mountPanel()
-    const alert = wrapper.get('.inline-alert.alert-notice')
-    expect(alert.isVisible()).toBe(false)
+    const rhythmGroup = wrapper
+      .findAll('.control-group')
+      .find((group) => group.get('h3').text() === 'Rhythm')!
+    const status = rhythmGroup.get('[role="status"]')
+    expect(status.text()).toBe('')
+    expect(status.classes()).not.toContain('inline-alert')
+    expect(status.classes()).not.toContain('alert-notice')
+    expect(status.attributes('aria-live')).toBe('polite')
   })
 
   // @test-link [[rule_unsupported_rhythm_settings_block_generation]]

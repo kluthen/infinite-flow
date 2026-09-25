@@ -1,10 +1,11 @@
 /**
- * The production root composition: one long-lived generation worker, one workspace session built
- * from it, and the notation coordinator that drives the mounted `PhraseScore`. Isolated in its own
- * module (rather than inlined in `App.vue`) so a test can replace this factory wholesale and never
- * spin a real browser `Worker` in jsdom.
+ * The root workspace-session composition, split into an explicit-dependency builder
+ * (`composeWorkspaceSession`) and the production entry (`createWorkspaceSession`) that supplies
+ * its real dependencies. Isolated in its own module (rather than inlined in `App.vue`) so a caller
+ * can replace the whole factory, and `composeWorkspaceSession`'s seams individually, without ever
+ * spinning a real browser `Worker` or touching `crypto` in a test or a harness.
  */
-import type { Ref } from 'vue'
+import type { InjectionKey, Ref } from 'vue'
 
 import {
   createGenerationSession,
@@ -20,7 +21,11 @@ import {
   type WorkspaceSessionResult,
 } from '@/composables/workspace-session-result'
 import { makeRequestId } from '@/domain/generation/generation-request'
-import type { GenerationIntentProviders } from '@/domain/generation/generation-intent'
+import type {
+  GenerationIntent,
+  GenerationIntentProviders,
+} from '@/domain/generation/generation-intent'
+import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { makeSeed } from '@/domain/random/seed'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
@@ -34,6 +39,28 @@ export interface WorkspaceSession {
   readonly handleNotationError: (error: NotationError) => void
   readonly dispose: () => void
 }
+
+/**
+ * The explicit dependency surface `composeWorkspaceSession` needs: identity/seed providers and
+ * the raw orchestration-outcome `generate` seam (plus its teardown). Production supplies the
+ * cryptographic seed provider and the real worker client; a harness supplies deterministic,
+ * gated, or failure-injecting equivalents that still call through to the real worker.
+ */
+export interface WorkspaceSessionDependencies {
+  readonly providers: GenerationIntentProviders
+  readonly generate: (intent: GenerationIntent) => Promise<GenerationOutcome>
+  readonly dispose: () => void
+}
+
+/**
+ * Injection key for the whole session factory, so `App.vue` can accept a caller-supplied
+ * `WorkspaceSession` builder (an e2e harness's `main.ts`) instead of always calling
+ * `createWorkspaceSession`. Production `main.ts` never provides this key, so `App.vue` falls back
+ * to the real production factory unchanged.
+ */
+export const WORKSPACE_SESSION_FACTORY: InjectionKey<() => WorkspaceSession> = Symbol(
+  'workspace-session-factory',
+)
 
 /** Intent: draw one fresh 32-bit unsigned seed from the browser's cryptographic RNG. */
 function nextCryptoSeed(): ReturnType<typeof makeSeed> {
@@ -49,18 +76,13 @@ function createRequestIdProvider(): () => ReturnType<typeof makeRequestId> {
 }
 
 /**
- * Intent: build the root workspace session used by `App.vue`: a real worker-backed generation
- * seam, the notation coordinator as the session's `notate` seam, and the profile-switch policy.
+ * Intent: build one workspace session from explicit dependencies: the identity/seed providers,
+ * the raw orchestration `generate` seam, and its teardown. Wires the same notation coordinator
+ * and profile-switch policy production always uses, so the only thing a caller can vary is where
+ * requests/seeds and generation outcomes come from.
  */
-export function createWorkspaceSession(): WorkspaceSession {
-  const port = createBrowserGenerationWorker()
-  const client = createGenerationWorkerClient(port)
-  const nextRequestId = createRequestIdProvider()
-  const providers: GenerationIntentProviders = {
-    nextRequestId,
-    nextSeed: nextCryptoSeed,
-  }
-
+// @spec-link [[service_workspace_session_flow]]
+export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): WorkspaceSession {
   let session: GenerationSession<WorkspaceSessionResult> | null = null
 
   /**
@@ -80,23 +102,37 @@ export function createWorkspaceSession(): WorkspaceSession {
   })
 
   const created = createGenerationSession<WorkspaceSessionResult>({
-    providers,
-    generate: createWorkspaceGenerate(client.generate),
+    providers: deps.providers,
+    generate: createWorkspaceGenerate(deps.generate),
     notate: coordinator.notate,
     evaluateProfileSwitch: evaluateWorkspaceProfileSwitch,
+    clearPresentedPhrase: coordinator.clearPresentedPhrase,
   })
   session = created
-
-  /** Intent: tear down the underlying worker when the workspace unmounts. */
-  function dispose(): void {
-    client.dispose()
-  }
 
   return {
     session: created,
     pendingPhrase: coordinator.pendingPhrase,
     handleEngraved: coordinator.handleEngraved,
     handleNotationError: coordinator.handleNotationError,
-    dispose,
+    dispose: deps.dispose,
   }
+}
+
+/**
+ * Intent: build the root workspace session used by `App.vue` in production: a real worker-backed
+ * generation seam, the cryptographic seed provider, and a monotonic request-id provider.
+ */
+// @spec-link [[service_workspace_session_flow]]
+export function createWorkspaceSession(): WorkspaceSession {
+  const port = createBrowserGenerationWorker()
+  const client = createGenerationWorkerClient(port)
+  return composeWorkspaceSession({
+    providers: {
+      nextRequestId: createRequestIdProvider(),
+      nextSeed: nextCryptoSeed,
+    },
+    generate: client.generate,
+    dispose: client.dispose,
+  })
 }

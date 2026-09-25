@@ -55,6 +55,7 @@ function freelyExplained(attacks: readonly SoundingFact[], index: number): boole
  * figures, and a target that precedes the final sounding attack.
  */
 // @spec-link [[module_pitch_domain_validation]]
+// @spec-link [[rule_tension_resolution_delay_permits_rests]]
 function bindingStructureHolds(facts: PhraseFacts): boolean {
   const { harmony, tensionBinding: binding } = facts.context
   const requirement = harmony.tensionRequirement

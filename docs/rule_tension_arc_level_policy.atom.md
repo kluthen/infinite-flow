@@ -19,7 +19,7 @@ version: 0.1
 Apply the selected tension arc as a bounded schedule of diatonic instability and local resolution.
 
 ## THE RULE / LOGIC
-Settled prioritizes chord tones on metrically strong locations and resolves an active scale degree by the next strong onset. Lift permits a small amount of active diatonic motion in measures 2-3 and one resolution deferred to the following beat or bar. Build concentrates active notes and permits one limited two-note diatonic approach in the middle of the phrase. Edge places the greatest permitted instability in measure 3 and uses the latest valid local resolution. Lift is the default.
+The tension-arc control selects exactly one of four named schedules — Settled, Lift, Build, or Edge — each governing where diatonic instability may occur across the phrase and how promptly it must locally resolve. Lift is the schedule applied when no tension arc is explicitly selected. Rests may separate the members of a bound tension figure from its resolution target under every schedule, subject to that schedule's own resolution-delay bound.
 
 ## TECHNICAL INTERFACE
 The tension-arc control selects Settled, Lift, Build, or Edge.

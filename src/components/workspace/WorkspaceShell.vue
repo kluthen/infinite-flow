@@ -5,7 +5,7 @@
  * itself -- it only forwards `ControlPanel`'s typed events onto the session's own actions, exactly
  * as the parallel controls-work contract defines them.
  */
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
@@ -14,6 +14,7 @@ import type { SettableControlKey } from '@/components/controls/set-control-event
 import type { GenerationControls, MusicalProfile } from '@/domain/controls/generation-controls'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
+import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
 import WorkspaceHeader from './WorkspaceHeader.vue'
 import ScorePanel from './ScorePanel.vue'
 import OrientationNotice from './OrientationNotice.vue'
@@ -26,6 +27,16 @@ const props = defineProps<{
 }>()
 
 const state = computed(() => props.session.state)
+
+/**
+ * Warm the lazy VexFlow engraver chunk as soon as the workspace mounts, well before the first
+ * phrase exists to notate, so the first Generate is not slowed by its fetch. A failure here is not
+ * reported: `PhraseScore` retries the same memoized loader once a phrase actually needs engraving,
+ * and surfaces any real failure through its own typed notation-error path at that point.
+ */
+onMounted(() => {
+  void loadVexflowEngraver().catch(() => {})
+})
 
 /** Every configuration control is read-only for the whole lifetime of any operation, not only generation. */
 const controlsReadonly = computed(() => state.value.operation !== 'idle')

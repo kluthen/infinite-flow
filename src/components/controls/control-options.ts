@@ -19,6 +19,8 @@ import {
   SYNCOPATIONS,
   TENSION_ARCS,
 } from '@/domain/controls/generation-controls'
+import type { GenerationControls } from '@/domain/controls/generation-controls'
+import type { ProfileSelection } from '@/domain/controls/profile-selection'
 import type { SegmentedControlOption } from './segmented-control-option'
 
 /** Intent: build the twelve tonal-center options with their sharp/flat enharmonic labels. */
@@ -127,4 +129,33 @@ export function leapinessOptions(): readonly SegmentedControlOption[] {
 // @spec-link [[module_generation_control_catalog]]
 export function arpeggioChaosOptions(): readonly SegmentedControlOption[] {
   return ARPEGGIO_CHAOS_VALUES.map((value) => ({ value, label: value }))
+}
+
+/** Intent: find one option's display label by its catalog value, or fail fast if none exists. */
+function labelFor(options: readonly SegmentedControlOption[], value: string): string {
+  const found = options.find((option) => option.value === value)
+  if (found === undefined) {
+    throw new Error(`No option exists for value ${JSON.stringify(value)}.`)
+  }
+  return found.label
+}
+
+/**
+ * Intent: the muted `control-summary` copy per D25 -- tonal center and collection labels
+ * separated by a plain space, then the musical-profile state (preset name, or `Custom ({grammar}
+ * grammar)` during a custom edit), tension arc, and leapiness, each segment separated by ` · `.
+ */
+// @spec-link [[module_generation_control_catalog]]
+export function controlSummaryText(
+  controls: GenerationControls,
+  profileSelection: ProfileSelection,
+): string {
+  const tonalCenterLabel = labelFor(tonalCenterOptions(), controls.tonalCenter)
+  const collectionLabel = labelFor(collectionOptions(), controls.collection)
+  const tensionLabel = labelFor(tensionOptions(), controls.tension)
+  const leapinessLabel = labelFor(leapinessOptions(), controls.leapiness)
+  const profileLabel = profileSelection.isCustom
+    ? `Custom (${profileSelection.musicalProfile} grammar)`
+    : profileSelection.musicalProfile
+  return `${tonalCenterLabel} ${collectionLabel} · ${profileLabel} · ${tensionLabel} · ${leapinessLabel}`
 }

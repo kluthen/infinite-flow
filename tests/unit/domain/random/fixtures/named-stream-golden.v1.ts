@@ -1,5 +1,3 @@
-// @test-link [[module_named_stream_pseudorandomness]]
-//
 // Versioned golden fixture for named-stream pseudorandomness. These are literal,
 // pre-computed expected values (not derived from production code at test time) so that a
 // cross-runtime/JS-engine drift in the PRNG or the stream-mixing arithmetic is caught by a

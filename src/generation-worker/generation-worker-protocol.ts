@@ -28,7 +28,7 @@ import type {
 } from '../domain/generation/orchestration/orchestration-types'
 
 /** Typed failure for a malformed generation-worker protocol envelope on either side of the wire. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_worker_protocol]]
 export class GenerationWorkerProtocolError extends Error {
   readonly kind = 'GenerationWorkerProtocolError' as const
 
@@ -39,7 +39,7 @@ export class GenerationWorkerProtocolError extends Error {
 }
 
 /** One correlated request posted from the session to the worker: run generation for one intent. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_worker_protocol]]
 export interface GenerationWorkerRequest {
   readonly type: 'generate'
   readonly id: number
@@ -47,7 +47,7 @@ export interface GenerationWorkerRequest {
 }
 
 /** One correlated response posted from the worker back to the session. */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_worker_protocol]]
 export type GenerationWorkerResponse =
   | { readonly type: 'outcome'; readonly id: number; readonly outcome: GenerationOutcome }
   | { readonly type: 'crash'; readonly id: number; readonly name: string; readonly message: string }
@@ -196,7 +196,7 @@ export function parseGenerationWorkerIntent(input: unknown): GenerationIntent {
  * unparsable `id` (never inventing one), or an invalid `intent` as a typed
  * GenerationWorkerProtocolError so a malformed request crashes the worker loudly.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_worker_protocol]]
 export function parseGenerationWorkerRequest(input: unknown): GenerationWorkerRequest {
   const record = asPlainRecord(input, 'GenerationWorkerRequest')
   requireAllowedKeys(record, new Set(['type', 'id', 'intent']), 'GenerationWorkerRequest')
@@ -281,7 +281,7 @@ const GENERATION_RESULT_ALLOWED_KEYS = new Set(['requestId', 'seed', 'timeline']
  * way the parsed outcome is deep-frozen before being returned, since `structuredClone` strips the
  * freezing generatePhrase itself applied.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_worker_protocol]]
 export function parseGenerationOutcome(input: unknown): GenerationOutcome {
   const record = asPlainRecord(input, 'GenerationOutcome')
 
@@ -342,7 +342,7 @@ export function parseGenerationOutcome(input: unknown): GenerationOutcome {
  * response re-validates its outcome via `parseGenerationOutcome`; a `crash` response requires a
  * string `name`/`message`. Any other shape is a typed GenerationWorkerProtocolError.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_generation_worker_protocol]]
 export function parseGenerationWorkerResponse(input: unknown): GenerationWorkerResponse {
   const record = asPlainRecord(input, 'GenerationWorkerResponse')
 

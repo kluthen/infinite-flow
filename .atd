@@ -1,5 +1,8 @@
 {
   "docs_path": "docs/",
+  "supported_extensions": {
+    ".mjs": true
+  },
   "diff_similarity_threshold": 0.85,
   "bloating_factor": {
     "default": 0.8,

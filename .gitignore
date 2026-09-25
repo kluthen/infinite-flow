@@ -4,6 +4,7 @@ docs/.atd_audit.db
 node_modules/
 dist/
 dist-notation-harness/
+dist-workspace-harness/
 coverage/
 playwright-report/
 test-results/

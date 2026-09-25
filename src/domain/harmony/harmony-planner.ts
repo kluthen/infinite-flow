@@ -40,6 +40,7 @@ type BarPlan = readonly ChordSlot[]
 const TONIC: ChordSlot = { degree: 1, role: 'tonic' }
 const OPEN_ARRIVAL: ChordSlot = { degree: 5, role: 'open_arrival' }
 
+// @spec-link [[rule_neutral_profile_diatonic_harmony]]
 function tonalRole(degree: CollectionDegree): HarmonyRole {
   if (degree === 1) return 'tonic'
   if (degree === 3 || degree === 6) return 'tonic_prolongation'
@@ -84,6 +85,11 @@ function validateInput(input: HarmonyPlannerInput): HarmonyPlannerInput {
   return deepFreeze({ ...input })
 }
 
+// @spec-link [[rule_tension_arc_level_policy]]
+// @spec-link [[rule_tension_arc_settled]]
+// @spec-link [[rule_tension_arc_lift]]
+// @spec-link [[rule_tension_arc_build]]
+// @spec-link [[rule_tension_arc_edge]]
 function tensionRequirement(arc: HarmonyPlannerInput['tensionArc']): AbstractTensionRequirement {
   const common = {
     mustResolveBeforeFinalSoundingEvent: true as const,
@@ -133,6 +139,7 @@ function tensionRequirement(arc: HarmonyPlannerInput['tensionArc']): AbstractTen
   }
 }
 
+// @spec-link [[rule_neutral_profile_diatonic_harmony]]
 function tonalPlans(
   motion: HarmonyPlannerInput['harmonicMotion'],
 ): readonly { id: string; bars: readonly BarPlan[] }[] {
@@ -282,6 +289,7 @@ function modalPlans(
   ]
 }
 
+// @spec-link [[rule_open_phrase_ending]]
 function endpoint(input: HarmonyPlannerInput): HarmonyEndpoint {
   if (input.collection !== 'Major' && input.collection !== 'Minor')
     return { kind: 'modal_non_tonic_chord_tone', degree: 5 }

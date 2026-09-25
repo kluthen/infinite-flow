@@ -3,13 +3,13 @@ import type { HarmonyCandidate } from '../harmony/harmony-types'
 import type { RhythmCandidate } from '../rhythm/rhythm-types'
 import { PitchPlannerInputError, type PitchPolicy } from './pitch-types'
 
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_attack_timeline]]
 export const TICKS_PER_BAR = 16
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_attack_timeline]]
 export const TICKS_PER_BEAT = 4
 
 /** One sounding attack rebuilt from the rhythm; `end` includes every tie continuation. */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_attack_timeline]]
 export interface SoundingSpan {
   readonly barIndex: 0 | 1 | 2 | 3
   readonly startTick: number
@@ -22,7 +22,7 @@ export interface SoundingSpan {
  * Rebuild chronological sounding attacks from the rhythm alone. A tie continuation extends the
  * attack it continues, a rest closes it, and a continuation with no source fails loudly.
  */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_attack_timeline]]
 export function soundingSpans(rhythm: Pick<RhythmCandidate, 'bars'>): readonly SoundingSpan[] {
   const spans: SoundingSpan[] = []
   let open: { -readonly [K in keyof SoundingSpan]: SoundingSpan[K] } | undefined
@@ -52,7 +52,7 @@ export function soundingSpans(rhythm: Pick<RhythmCandidate, 'bars'>): readonly S
  * Locate the harmony event sounding at an absolute phrase tick. Events may span bar lines, so the
  * comparison is in absolute beats; an uncovered tick is an upstream defect and throws.
  */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_attack_timeline]]
 export function harmonyEventIndexAt(
   harmony: Pick<HarmonyCandidate, 'identity' | 'events'>,
   absoluteTick: number,
@@ -70,7 +70,7 @@ export function harmonyEventIndexAt(
 }
 
 /** Stable identity of the harmony event at an absolute tick, used to compare harmonies. */
-// @spec-link [[module_pitch_planner]]
+// @spec-link [[module_pitch_attack_timeline]]
 export function harmonyIdentityAtTick(
   harmony: Pick<HarmonyCandidate, 'identity' | 'events'>,
   absoluteTick: number,

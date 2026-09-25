@@ -1,7 +1,7 @@
 @theme {
   /* Typography: editorial UI with a dedicated SMuFL font reserved for engraved notation. */
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-ui: 'Source Sans 3', 'Trebuchet MS', sans-serif;
+  --font-display: 'Fraunces Variable', Georgia, serif;
+  --font-ui: 'Source Sans 3 Variable', 'Trebuchet MS', sans-serif;
   --font-music: 'Bravura', 'Noto Music', serif;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -30,6 +30,10 @@
 
   --shadow-panel: 0 0.5rem 1.5rem rgb(31 29 24 / 0.12);
   --shadow-focus: 0 0 0 0.1875rem var(--color-focus-ring);
+  /* D28: read-only controls keep full color and signal "temporarily locked" with this dashed
+     ring instead of dimming. References `--color-text-muted`, which already switches per theme,
+     so no dark-theme override is needed here. */
+  --readonly-ring: 0.125rem dashed var(--color-text-muted);
   --z-base: 0;
   --z-sticky: 10;
   --z-sheet: 20;

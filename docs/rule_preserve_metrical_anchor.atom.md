@@ -8,6 +8,7 @@ priority: 2
 dependents:
   - [[api_rhythm_domain_expansion]]
   - [[entity_rhythm_candidate_domain]]
+  - [[mechanic_syncopation_enumeration]]
   - [[mechanic_syncopation_translation]]
   - [[module_rhythm_domain_validation]]
 human_name: Preserve Metrical Anchor

@@ -167,7 +167,7 @@ function enclosurePaths(facts: DomainFacts, group: readonly PitchAttack[]) {
  * Jazz ornament paths at every attack whose members are free of the bound figure, sound back to
  * back with their target under one harmony event, and last no longer than the target.
  */
-// @spec-link [[rule_neutral_profile_diatonic_pitches]]
+// @spec-link [[rule_jazz_chromatic_resolution]]
 function jazzPaths(facts: DomainFacts): readonly FigurePath[] {
   if (facts.input.policy.profile !== 'Jazz') return []
   const paths: FigurePath[] = []

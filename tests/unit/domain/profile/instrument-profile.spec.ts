@@ -1,4 +1,3 @@
-// @test-link [[entity_instrument_profile]]
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -20,6 +19,7 @@ const VALID_INPUT = {
   },
 } as const
 
+// @test-link [[entity_instrument_profile]]
 describe('makeInstrumentProfile', () => {
   it('constructs a valid profile', () => {
     const profile = makeInstrumentProfile(VALID_INPUT)
@@ -101,6 +101,7 @@ describe('makeInstrumentProfile', () => {
   })
 })
 
+// @test-link [[entity_instrument_profile]]
 describe('parseInstrumentProfile', () => {
   it('parses a valid untrusted object', () => {
     const profile = parseInstrumentProfile(VALID_INPUT)

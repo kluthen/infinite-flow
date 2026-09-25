@@ -1,4 +1,3 @@
-// @test-link [[mechanic_syncopation_translation]]
 import { describe, expect, it } from 'vitest'
 
 import { makeBar } from '@/domain/rhythm/rhythm-skeleton'
@@ -71,6 +70,7 @@ describe('rhythm-mvp-v1 bounded transforms', () => {
   const interior = answerBar(['note', 'rest', 'note', 'note'])
   const pair = answerBar(['note', 'note', 'rest', 'note'])
 
+  // @test-link [[mechanic_syncopation_enumeration]]
   it('enumerates Straight interior-rest translation on-grid and answer-only pair/final forms', () => {
     const lists = [...enumerateAnswerTransformLists([interior, pair], 'Eighth', 'Settled')]
     expect(lists).toHaveLength(8)
@@ -95,6 +95,7 @@ describe('rhythm-mvp-v1 bounded transforms', () => {
     expect(swaps[0]!.sourceAddresses[1]).toMatchObject({ beatIndex: 3, cellIndex: 1 })
   })
 
+  // @test-link [[mechanic_syncopation_translation]]
   it('applies a bar-4 final-pattern swap locally without rebuilding unrelated merges', () => {
     const mergedFirst = cell('note', 2, 0, 3)
     const mergedSecond = cell('note', 2, 1, 3)
@@ -163,6 +164,7 @@ describe('rhythm-mvp-v1 bounded transforms', () => {
     }
   })
 
+  // @test-link [[mechanic_syncopation_enumeration]]
   it('enumerates Occasional and Active displacement candidates with canonical signed deltas', () => {
     expect(
       [
@@ -192,6 +194,7 @@ describe('rhythm-mvp-v1 bounded transforms', () => {
     ).toEqual(expect.arrayContaining([-2, -1, 1, 2]))
   })
 
+  // @test-link [[mechanic_syncopation_enumeration]]
   it('orders one-answer lists before two-answer lists and coalesces dual roles', () => {
     const lists = [
       ...enumerateAnswerTransformLists(
@@ -213,6 +216,7 @@ describe('rhythm-mvp-v1 bounded transforms', () => {
     expect(dual?.roles).toEqual(['answer', 'syncopation'])
   })
 
+  // @test-link [[mechanic_syncopation_enumeration]]
   it('rejects Build and Edge lists that overlap an interior-rest translation at its attacked note', () => {
     for (const tension of ['Build', 'Edge'] as const) {
       const lists = [
@@ -250,6 +254,7 @@ describe('rhythm-mvp-v1 bounded transforms', () => {
     }
   })
 
+  // @test-link [[mechanic_syncopation_enumeration]]
   it('enumerates Straight identity and Occasional bars in canonical bar-set then selector order', () => {
     expect([...enumerateSyncopationTemplates([pair, pair], 'Eighth', 'Straight')]).toEqual([[]])
     const occasional = [
@@ -270,6 +275,7 @@ describe('rhythm-mvp-v1 bounded transforms', () => {
     ).toEqual(['0,1', '0,2', '0,3', '1,2', '1,3', '2,3'])
   })
 
+  // @test-link [[mechanic_syncopation_enumeration]]
   it('coalesces an Occasional dual-role answer into its shared-selector bar set', () => {
     const answer = [
       ...enumerateAnswerTransformLists(
@@ -306,6 +312,8 @@ describe('rhythm-mvp-v1 bounded transforms', () => {
     }
   })
 
+  // @test-link [[mechanic_syncopation_enumeration]]
+  // @test-link [[mechanic_syncopation_translation]]
   it('uses both Active phrase templates, rejects overlapping descriptors, and preserves source addresses', () => {
     // A non-merged bar has no legal tie target, so neither Active template may silently substitute one.
     expect([
@@ -334,6 +342,7 @@ describe('rhythm-mvp-v1 bounded transforms', () => {
     expect(JSON.stringify(interior)).toBe(original)
   })
 
+  // @test-link [[mechanic_syncopation_translation]]
   it('splits only a maximal merged note at a legal strong source boundary without a reattack', () => {
     const first = cell('note', 4, 0, 2)
     const second = cell('note', 4, 1, 2)

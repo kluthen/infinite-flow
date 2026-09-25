@@ -31,7 +31,7 @@ export type ProfileSelectionOutcome =
   | 'retained'
   | 'regenerated'
   | 'regeneration_failed'
-  | 'regeneration_blocked'
+  | 'cleared_unsupported_rhythm'
 
 /** The dependency surface `selectInstrumentProfile` needs from the root session composable. */
 export interface ProfileSwitchDependencies<TResult> {
@@ -44,6 +44,8 @@ export interface ProfileSwitchDependencies<TResult> {
   ) => SessionProfileSwitchDecision
   readonly runGeneration: (intent: GenerationIntent) => Promise<boolean>
   readonly redrawNotation: (result: TResult) => Promise<boolean>
+  /** Discard the current phrase and everything tied to it; the switch applies without regenerating. */
+  readonly clearPhrase: () => void
 }
 
 /**
@@ -51,7 +53,8 @@ export interface ProfileSwitchDependencies<TResult> {
  * reselection is a no-op; with no prior result the instrument-profile control is simply applied;
  * with a prior result the policy decides retain (redraw the current display) or regenerate (run a
  * complete generation with the drawn fresh seed, unless the resulting controls are themselves an
- * unsupported rhythm setting, in which case generation never starts and the prior result stays).
+ * unsupported rhythm setting, in which case generation never starts, the switch still applies, and
+ * the prior phrase is cleared rather than regenerated).
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[rule_profile_switch_validates_phrase]]
@@ -85,7 +88,10 @@ export function createSelectInstrumentProfileAction<TResult>(
       return 'retained'
     }
 
-    if (isUnsupportedRhythmSetting(controls)) return 'regeneration_blocked'
+    if (isUnsupportedRhythmSetting(controls)) {
+      deps.clearPhrase()
+      return 'cleared_unsupported_rhythm'
+    }
 
     const intent = createGenerationIntent({
       requestId: deps.providers.nextRequestId(),

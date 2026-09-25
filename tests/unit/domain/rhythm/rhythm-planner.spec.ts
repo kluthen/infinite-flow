@@ -1,4 +1,3 @@
-// @test-link [[api_rhythm_domain_expansion]]
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
@@ -34,6 +33,7 @@ function domainFor(
   return result
 }
 
+// @test-link [[api_rhythm_domain_expansion]]
 describe('rhythm candidate domain', () => {
   it('replays immutable, canonical candidates with contiguous indices and no seed dependencies', () => {
     const domain = domainFor()

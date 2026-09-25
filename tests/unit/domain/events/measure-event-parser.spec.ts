@@ -1,9 +1,9 @@
-// @test-link [[entity_concert_event_timeline]]
 import { describe, expect, it } from 'vitest'
 
 import { MeasureEventParseError } from '@/domain/events/measure-event-parser'
 import { parseMeasureEvent } from '@/domain/events/measure-event-parser'
 
+// @test-link [[entity_concert_event_timeline]]
 describe('parseMeasureEvent', () => {
   it('parses a well-formed untrusted note event', () => {
     const parsed = parseMeasureEvent({

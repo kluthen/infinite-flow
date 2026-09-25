@@ -1,5 +1,3 @@
-// @test-link [[service_generation_orchestration]]
-// @test-link [[module_register_intent_boundary]]
 import { describe, expect, it } from 'vitest'
 
 import { makeSeed } from '@/domain/random/seed'
@@ -41,6 +39,8 @@ function validRequestInput() {
   }
 }
 
+// @test-link [[service_generation_request_resolution]]
+// @test-link [[module_register_intent_boundary]]
 describe('makeGenerationRequest', () => {
   it('constructs an immutable request carrying only the fields this step owns', () => {
     const request = makeGenerationRequest(validRequestInput())
@@ -169,6 +169,8 @@ describe('makeGenerationRequest', () => {
   })
 })
 
+// @test-link [[module_generation_request_envelope]]
+// @test-link [[module_register_intent_boundary]]
 describe('parseGenerationRequest', () => {
   function validRawInput() {
     return {
@@ -275,7 +277,7 @@ describe('parseGenerationRequest', () => {
   })
 })
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[module_generation_request_envelope]]
 describe('parseGenerationRequest: round trip of a domain-constructed request', () => {
   it('accepts a request built by makeGenerationRequest, kind tags included', () => {
     const built = makeGenerationRequest(validRequestInput())
@@ -315,6 +317,7 @@ describe('parseGenerationRequest: round trip of a domain-constructed request', (
   })
 })
 
+// @test-link [[module_generation_request_envelope]]
 describe('makeRequestId', () => {
   it('rejects an empty string as a typed failure', () => {
     expect(() => makeRequestId('')).toThrow(GenerationRequestError)

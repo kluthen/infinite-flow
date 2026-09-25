@@ -46,6 +46,13 @@ test('controls stay read-only but focusable during generation: arrows move focus
   const contourGroup = page.getByRole('radiogroup', { name: 'Contour' })
   await expect(contourGroup).toHaveAttribute('aria-readonly', 'true')
 
+  // D28: read-only controls keep full color (never dimmed) and signal "locked" only via the
+  // dashed read-only ring on the wrapping `field-group`, not via opacity.
+  const contourFieldGroup = page.locator('.field-group.is-readonly', { has: contourGroup })
+  await expect(contourFieldGroup).toHaveCSS('opacity', '1')
+  await expect(contourFieldGroup).toHaveCSS('outline-style', 'dashed')
+  await expect(contourGroup).toHaveCSS('opacity', '1')
+
   const checked = contourGroup.getByRole('radio', { checked: true })
   const checkedLabel = await checked.textContent()
   await checked.focus()

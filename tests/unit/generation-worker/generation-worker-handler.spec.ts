@@ -44,7 +44,7 @@ function buildIntent(
   })
 }
 
-// @test-link [[service_generation_orchestration]]
+// @test-link [[module_generation_worker_protocol]]
 describe('handleGenerationWorkerMessage', () => {
   // @test-link [[rule_seeded_phrase_reproduction]]
   it('returns an outcome response whose outcome equals a direct generatePhrase call, for a success', () => {

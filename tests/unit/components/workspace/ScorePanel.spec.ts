@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
 
 import ScorePanel from '@/components/workspace/ScorePanel.vue'
+import { GenerationFailedError } from '@/composables/workspace-session-result'
 import { NotationError } from '@/notation/notation-error'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
@@ -97,7 +98,8 @@ describe('ScorePanel', () => {
     expect(wrapper.get('.generation-status').text()).toBe('Phrase ready')
   })
 
-  it('shows a generation-error banner in the toolbar and announces "Generation failed. Try again."', async () => {
+  // @test-link [[rule_generation_failure_alert_copy]]
+  it('shows the D29 generic alert banner for an unrecognized error and announces "Generation failed. Try again."', async () => {
     const workspace = createTestWorkspace(async () => {
       throw new Error('generation blew up')
     })
@@ -107,8 +109,27 @@ describe('ScorePanel', () => {
     await workspace.session.actions.generate()
     await flushPromises()
 
-    expect(wrapper.get('.alert-error').text()).toContain('Generation failed')
+    expect(wrapper.get('.alert-error').text()).toBe("Generation couldn't complete. Try again.")
     expect(wrapper.get('.generation-status').text()).toBe('Generation failed. Try again.')
+  })
+
+  // @test-link [[rule_generation_failure_alert_copy]]
+  it('shows the D29 typed-code alert banner for a GenerationFailedError, never the raw code or a doubled prefix', async () => {
+    const workspace = createTestWorkspace(async () => {
+      throw new GenerationFailedError('no_legal_harmony_plan')
+    })
+    useCheapControls(workspace.session)
+    const wrapper = mountHarness(workspace)
+
+    await workspace.session.actions.generate()
+    await flushPromises()
+
+    const alertText = wrapper.get('.alert-error').text()
+    expect(alertText).toBe(
+      "This combination of tonal center, collection, harmonic motion, tension, and musical profile can't produce a phrase. Try a different tonal center, collection, harmonic motion, tension, or profile.",
+    )
+    expect(alertText).not.toContain('Generation failed')
+    expect(alertText).not.toContain('no_legal_harmony_plan')
   })
 
   it('keeps a still-mounted PhraseScore visible and layers a notation-error banner over it', () => {

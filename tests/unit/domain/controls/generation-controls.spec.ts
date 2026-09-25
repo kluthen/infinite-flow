@@ -1,10 +1,3 @@
-// @test-link [[module_generation_control_catalog]]
-// @test-link [[module_generative_profile_selection]]
-// @test-link [[module_profile_control_customization]]
-// @test-link [[user_story_controlled_phrase_generation]]
-// @test-link [[rule_selectable_generative_profiles]]
-// @test-link [[rule_profile_presets_apply_defined_controls]]
-// @test-link [[rule_profile_control_customization]]
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -35,6 +28,7 @@ import {
   applyNonProfileControlValue,
 } from '@/domain/controls/profile-selection'
 
+// @test-link [[module_generation_control_catalog]]
 describe('generation control catalogs and normalization', () => {
   it('exhausts every closed selectable catalog and accepts every literal value', () => {
     expect(TEMPO_VALUES).toEqual([
@@ -67,6 +61,7 @@ describe('generation control catalogs and normalization', () => {
     for (const tempo of TEMPO_VALUES) expect(normalizeTempo(tempo)).toBe(tempo)
   })
 
+  // @test-link [[user_story_controlled_phrase_generation]]
   it('uses the literal first-load defaults', () => {
     expect(DEFAULT_GENERATION_CONTROLS).toMatchObject({
       tempo: 90,
@@ -95,7 +90,11 @@ describe('generation control catalogs and normalization', () => {
   })
 })
 
+// @test-link [[module_profile_control_customization]]
 describe('profile bundle replacement and customization', () => {
+  // @test-link [[module_generative_profile_selection]]
+  // @test-link [[rule_selectable_generative_profiles]]
+  // @test-link [[rule_profile_presets_apply_defined_controls]]
   it('applies each complete immutable bundle and reselecting replaces arbitrary custom values', () => {
     let [controls, selection] = applyMusicalProfile(DEFAULT_GENERATION_CONTROLS, 'Jazz')
     expect(controls).toMatchObject(PROFILE_BUNDLES.Jazz)
@@ -111,6 +110,7 @@ describe('profile bundle replacement and customization', () => {
     expect(selection).toEqual({ musicalProfile: 'Neutral', isCustom: false })
   })
 
+  // @test-link [[rule_profile_control_customization]]
   it('retains grammar identity on controlled custom edits and never mutates preset definitions', () => {
     const before = JSON.stringify(PROFILE_BUNDLES)
     const [controls, selection] = applyControlledCustomValue(

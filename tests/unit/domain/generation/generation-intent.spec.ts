@@ -1,8 +1,3 @@
-// @test-link [[module_generation_request_construction]]
-// @test-link [[module_generation_control_catalog]]
-// @test-link [[module_generative_profile_selection]]
-// @test-link [[rule_seeded_phrase_reproduction]]
-// @test-link [[rule_presentation_preference_preserves_phrase]]
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -17,6 +12,7 @@ import { makeRequestId } from '@/domain/generation/generation-request'
 import { BB_TENOR_PROFILE } from '@/domain/profile/instrument-profiles'
 import { makeSeed } from '@/domain/random/seed'
 
+// @test-link [[module_generation_request_construction]]
 describe('GenerationIntent', () => {
   const first = createGenerationIntent({
     requestId: makeRequestId('request-1'),
@@ -56,6 +52,7 @@ describe('GenerationIntent', () => {
     ])
   })
 
+  // @test-link [[rule_presentation_preference_preserves_phrase]]
   it('structurally excludes presentation, browser, and session fields', () => {
     const attempt = (): typeof first => ({
       ...first,
@@ -67,6 +64,7 @@ describe('GenerationIntent', () => {
     expect(Object.keys(first)).not.toContain('browserState')
   })
 
+  // @test-link [[rule_seeded_phrase_reproduction]]
   it('regenerates with fresh injected identity and seed while preserving controls/profile', () => {
     const regenerated = regenerateGenerationIntent(first, {
       nextRequestId: () => makeRequestId('request-2'),

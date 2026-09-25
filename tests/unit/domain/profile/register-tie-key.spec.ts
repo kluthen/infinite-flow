@@ -1,4 +1,3 @@
-// @test-link [[module_register_window_resolution_primitives]]
 import { describe, expect, it } from 'vitest'
 
 import { makeSeed } from '@/domain/random/seed'
@@ -16,12 +15,14 @@ import {
   REGISTER_TIE_KEY_GOLDEN_SEED,
 } from './fixtures/register-tie-key-golden.v1'
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('REGISTER_TIE_KEY_DOMAIN_V1', () => {
   it('is a versioned domain string constant', () => {
     expect(REGISTER_TIE_KEY_DOMAIN_V1).toBe('infinite-flow/register-window/v1')
   })
 })
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('canonicalizeGenerationAffectingRegisterIntent', () => {
   it('excludes display, theme, notation, and session state by signature (not by filtering)', () => {
     const intent: GenerationAffectingRegisterIntent = {
@@ -79,6 +80,7 @@ describe('canonicalizeGenerationAffectingRegisterIntent', () => {
   })
 })
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('registerTieKey: determinism and seed-sensitivity', () => {
   it('the same seed always yields an identical key across repeated calls', () => {
     const intent = buildRegisterIntent(C_KEYBOARD_PROFILE, 'Low')
@@ -120,6 +122,7 @@ describe('registerTieKey: determinism and seed-sensitivity', () => {
   })
 })
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('registerTieKey: display-state independence (positive property)', () => {
   it('same generation-affecting inputs always yield the same key, regardless of unrelated call context', () => {
     function computeKeyDuringSession(theme: 'light' | 'dark', notation: string): number {
@@ -139,6 +142,7 @@ describe('registerTieKey: display-state independence (positive property)', () =>
   })
 })
 
+// @test-link [[module_register_window_resolution_primitives]]
 describe('registerTieKey: golden fixtures', () => {
   it('carries an explicit version marker', () => {
     expect(REGISTER_TIE_KEY_GOLDEN_FIXTURE_VERSION).toBe(1)

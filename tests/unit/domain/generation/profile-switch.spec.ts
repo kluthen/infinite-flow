@@ -1,5 +1,3 @@
-// @test-link [[module_phrase_generation_profile_policy]]
-// @test-link [[rule_profile_switch_validates_phrase]]
 import { describe, expect, it } from 'vitest'
 
 import { makeSeed } from '@/domain/random/seed'
@@ -58,6 +56,8 @@ function candidatePitchOutsideWindowButInsideActiveRange(
   return window.maxMidi < profile.concertRange.maxMidi ? window.maxMidi + 1 : window.minMidi - 1
 }
 
+// @test-link [[module_phrase_generation_profile_policy]]
+// @test-link [[rule_profile_switch_validates_phrase]]
 describe('evaluateProfileSwitch: explicit Low/Middle/High resolution', () => {
   it.each(FIXED_REGISTERS)(
     'retains within the %s window and regenerates with the caller-supplied fresh seed outside it',
@@ -162,6 +162,7 @@ describe('evaluateProfileSwitch: explicit Low/Middle/High resolution', () => {
   })
 })
 
+// @test-link [[rule_profile_switch_validates_phrase]]
 describe('evaluateProfileSwitch: Varying resolution', () => {
   it('resolves from the new non-keyboard profile with the existing seed (minimum tie key)', () => {
     const intent = buildRegisterIntent(BB_TENOR_PROFILE, 'Varying')
@@ -269,6 +270,7 @@ describe('evaluateProfileSwitch: rest events are not pitch-checked', () => {
   })
 })
 
+// @test-link [[module_phrase_generation_profile_policy]]
 describe('evaluateProfileSwitch: independence from display-mode selection', () => {
   it('the retain/regenerate decision does not accept or depend on any display-convention input', () => {
     const timeline = singlePitchTimeline(54)

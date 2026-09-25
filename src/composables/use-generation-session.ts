@@ -81,6 +81,12 @@ export interface CreateGenerationSessionOptions<TResult> {
     nextControls: GenerationControls,
     freshSeed: Seed,
   ) => SessionProfileSwitchDecision
+  /**
+   * Drop whatever the injected `notate` seam is currently presenting, for the `clearPhrase`
+   * transition below. Optional because a caller with no presented-phrase concept of its own (every
+   * `TResult` in this file's own unit tests) has nothing to drop.
+   */
+  readonly clearPresentedPhrase?: () => void
 }
 
 /** A programming-usage error: a caller used a session action against its documented contract. */
@@ -265,19 +271,22 @@ export function createGenerationSession<TResult>(
     }
   }
 
+  /** Build a fresh, freshly identified/seeded intent from the current controls and profile selection. */
+  function freshIntentFromControls(): GenerationIntent {
+    return createGenerationIntent({
+      requestId: options.providers.nextRequestId(),
+      seed: options.providers.nextSeed(),
+      controls: state.controls,
+      musicalProfile: state.profileSelection,
+    })
+  }
+
   /** Explicit generation is the only ordinary action that creates a new intent. */
   // @spec-link [[module_generation_request_construction]]
   function generate(): Promise<boolean> {
     if (state.operation !== 'idle') return Promise.resolve(false)
     if (isBlockedByUnsupportedRhythm()) return Promise.resolve(false)
-    return run(
-      createGenerationIntent({
-        requestId: options.providers.nextRequestId(),
-        seed: options.providers.nextSeed(),
-        controls: state.controls,
-        musicalProfile: state.profileSelection,
-      }),
-    )
+    return run(freshIntentFromControls())
   }
 
   /** Regeneration creates a new identity and seed while retaining active controls and grammar. */
@@ -285,27 +294,26 @@ export function createGenerationSession<TResult>(
   function regenerate(): Promise<boolean> {
     if (state.operation !== 'idle') return Promise.resolve(false)
     if (isBlockedByUnsupportedRhythm()) return Promise.resolve(false)
-    return run(
-      createGenerationIntent({
-        requestId: options.providers.nextRequestId(),
-        seed: options.providers.nextSeed(),
-        controls: state.controls,
-        musicalProfile: state.profileSelection,
-      }),
-    )
+    return run(freshIntentFromControls())
   }
 
-  /** Retry repeats the failed immutable intent exactly; it never requests a replacement seed. */
+  /**
+   * Retry builds a brand-new intent from the current controls/profile with a fresh seed and
+   * identity -- the same construction as `regenerate()` -- rather than replaying the failed
+   * `state.latestIntent` unchanged. This is so a deterministic failure is never a dead end: since
+   * configuration edits are permitted while idle after an error, an edit made after the failure
+   * and before pressing Retry is picked up, exactly as it would be for `regenerate()` (user
+   * decision, 2026-09-25; see D30 in `ui_ux/decisions.md`). It therefore no longer needs
+   * `state.latestIntent` to be present, and applies the same unsupported-rhythm-settings block as
+   * `generate()`/`regenerate()`, since it starts a new generation from current controls.
+   */
   // @spec-link [[service_workspace_session_flow]]
   function retryGeneration(): Promise<boolean> {
-    if (
-      state.operation !== 'idle' ||
-      state.generationError === null ||
-      state.latestIntent === null
-    ) {
+    if (state.operation !== 'idle' || state.generationError === null) {
       return Promise.resolve(false)
     }
-    return run(state.latestIntent)
+    if (isBlockedByUnsupportedRhythm()) return Promise.resolve(false)
+    return run(freshIntentFromControls())
   }
 
   /** Retry the retained failed notation request with its original result and requested display mode. */
@@ -340,12 +348,29 @@ export function createGenerationSession<TResult>(
     return true
   }
 
+  /**
+   * Discard the current phrase and every field tied to it, without generating a replacement: the
+   * transition a profile switch takes when the new profile invalidates the phrase but the active
+   * rhythm combination has no legal regeneration to fall back to, so the switch applies and the
+   * phrase disappears instead of blocking.
+   */
+  // @spec-link [[rule_profile_switch_validates_phrase]]
+  function clearPhrase(): void {
+    state.latestIntent = null
+    state.result = null
+    state.generationError = null
+    state.notationError = null
+    state.failedNotationMode = null
+    options.clearPresentedPhrase?.()
+  }
+
   const selectInstrumentProfile = createSelectInstrumentProfileAction<TResult>({
     state,
     providers: options.providers,
     evaluateProfileSwitch: options.evaluateProfileSwitch,
     runGeneration: run,
     redrawNotation: (result) => runNotation(result, state.presentation.notationMode),
+    clearPhrase,
   })
 
   return {

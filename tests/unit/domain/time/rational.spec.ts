@@ -1,4 +1,3 @@
-// @test-link [[entity_exact_musical_time]]
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -14,6 +13,7 @@ import {
   type Rational,
 } from '@/domain/time/rational'
 
+// @test-link [[entity_exact_musical_time]]
 describe('makeRational', () => {
   it('normalizes a numerator and denominator to lowest terms', () => {
     const value = makeRational(2, 4)
@@ -65,6 +65,7 @@ describe('makeRational', () => {
   })
 })
 
+// @test-link [[entity_exact_musical_time]]
 describe('addRational', () => {
   it('adds two rationals exactly and reduces the result', () => {
     expect(addRational(makeRational(1, 4), makeRational(1, 4))).toStrictEqual<Rational>({
@@ -84,6 +85,7 @@ describe('addRational', () => {
   })
 })
 
+// @test-link [[entity_exact_musical_time]]
 describe('subtractRational', () => {
   it('subtracts two rationals exactly and reduces the result', () => {
     expect(subtractRational(makeRational(3, 4), makeRational(1, 4))).toStrictEqual<Rational>({
@@ -100,6 +102,7 @@ describe('subtractRational', () => {
   })
 })
 
+// @test-link [[entity_exact_musical_time]]
 describe('compareRational', () => {
   it('reports equal, less-than, and greater-than across differing denominators', () => {
     expect(compareRational(makeRational(1, 2), makeRational(2, 4))).toBe(0)
@@ -108,6 +111,7 @@ describe('compareRational', () => {
   })
 })
 
+// @test-link [[entity_exact_musical_time]]
 describe('equalsRational', () => {
   it('treats differently-expressed but equal values as equal', () => {
     expect(equalsRational(makeRational(2, 8), makeRational(1, 4))).toBe(true)
@@ -118,6 +122,7 @@ describe('equalsRational', () => {
   })
 })
 
+// @test-link [[entity_exact_musical_time]]
 describe('sumRational', () => {
   it('sums an empty list to zero', () => {
     expect(sumRational([])).toStrictEqual<Rational>({ numerator: 0, denominator: 1 })

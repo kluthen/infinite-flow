@@ -405,7 +405,7 @@ describe('property: every planned phrase passes independent validation', () => {
     expect(failingSearchLimits, summarizeSearchLimitFailures(outcomes)).toEqual([])
   })
 
-  // @test-link [[module_pitch_planner]]
+  // @test-link [[module_pitch_search_inspection]]
   it('gives every bar of every attempted phrase a contour checkpoint (no rhythm exemption)', () => {
     const missing = outcomes.flatMap((outcome) => outcome.missingCheckpoints)
     expect(missing, `${missing.slice(0, 10).join('\n')}\n${summarizeCounts(outcomes)}`).toEqual([])

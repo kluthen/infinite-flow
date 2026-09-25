@@ -90,7 +90,7 @@ function hasBindablePair(
  * fails the same way if the fix regresses.
  */
 // @test-link [[mechanic_pitch_search_policy]]
-// @test-link [[rule_tension_arc_level_policy]]
+// @test-link [[rule_tension_resolution_delay_permits_rests]]
 describe('tension binding feasibility sweep', () => {
   it('covers every supported rhythm setting crossed with every harmonic motion, per tension arc', () => {
     const expectedSupportedSettingCount =

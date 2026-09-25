@@ -5,7 +5,13 @@ version: 0.1
 priority: 1
 dependents:
   - [[entity_pitch_candidate_domain]]
+  - [[module_generation_request_envelope]]
+  - [[module_generation_worker_protocol]]
+  - [[module_phrase_timeline_assembly]]
+  - [[module_ranked_candidate_ordering]]
   - [[service_generation_orchestration]]
+  - [[service_generation_request_resolution]]
+  - [[service_generation_result_validation]]
 tags: event-schema,partial-impl-step5
 parents:
   - [[entity_exact_musical_time]]

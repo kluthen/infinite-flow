@@ -22,5 +22,11 @@ export default defineConfig({
       url: 'http://127.0.0.1:4174',
       reuseExistingServer: false,
     },
+    {
+      command:
+        'npm run build:workspace-harness && npx vite preview --config vite.workspace-harness.config.ts --host 127.0.0.1 --port 4175 --strictPort',
+      url: 'http://127.0.0.1:4175',
+      reuseExistingServer: false,
+    },
   ],
 })

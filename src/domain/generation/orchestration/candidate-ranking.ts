@@ -64,7 +64,7 @@ function sortByTieKey<T>(
  * for one seed, without loss or duplication. Every candidate is equal-ranked under current
  * policy, so order is the seeded tie key with a candidateIndex fallback on collision.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_ranked_candidate_ordering]]
 export function rankHarmonyCandidates(
   candidates: readonly HarmonyCandidate[],
   seed: Seed,
@@ -83,7 +83,7 @@ export function rankHarmonyCandidates(
  * into the seeded search order and frozen, so an orchestrator can reuse the same ranked candidate
  * list across every Varying register window without re-expanding or re-ranking the grammar.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_ranked_candidate_ordering]]
 export interface RankedRhythmCache {
   readonly kind: 'ranked_rhythm_cache'
   readonly grammarVersion: RhythmGrammarVersion
@@ -98,7 +98,7 @@ export interface RankedRhythmCache {
  * already holds a memoized canonical expansion can rank it for a new seed without re-expanding the
  * grammar.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_ranked_candidate_ordering]]
 export function rankMaterializedRhythmCandidates(
   grammarVersion: RhythmGrammarVersion,
   candidates: readonly RhythmCandidate[],
@@ -123,7 +123,7 @@ export function rankMaterializedRhythmCandidates(
  * existing tests) that still hold a raw `RhythmCandidateDomain` rather than an already-materialized
  * canonical candidate list.
  */
-// @spec-link [[service_generation_orchestration]]
+// @spec-link [[module_ranked_candidate_ordering]]
 export function materializeRankedRhythmCache(
   domain: RhythmCandidateDomain,
   seed: Seed,

@@ -1,7 +1,16 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
-import { generateAndAwaitReady, gotoWorkspace, radio } from './workspace/helpers'
+import { generateAndAwaitReady, gotoWorkspace, primaryButton, radio } from './workspace/helpers'
+import {
+  failNextGeneration,
+  failNextNotation,
+  gotoWorkspaceHarness,
+  harnessSnapshot,
+  holdGeneration,
+  queueSeeds,
+  releaseGeneration,
+} from './release/harness-helpers'
 
 /** Intent: format axe violations into a readable failure message rather than a raw object dump. */
 function describeViolations(violations: readonly { id: string; help: string }[]): string {
@@ -50,6 +59,50 @@ test('has no detectable axe violations in the unsupported-rhythm-setting state',
   await expect(
     page.getByRole('status').filter({ hasText: "can't form a four-bar phrase" }),
   ).toBeVisible()
+
+  const results = await new AxeBuilder({ page }).analyze()
+  expect(results.violations, describeViolations(results.violations)).toEqual([])
+})
+
+// The remaining states below need the real generation/notation failure seams the workspace harness
+// (port 4175) exposes -- the production build (port 4173) has no way to force them deterministically.
+
+test('has no detectable axe violations while a generation is gated in flight', async ({ page }) => {
+  await gotoWorkspaceHarness(page)
+  await queueSeeds(page, [1])
+  await holdGeneration(page)
+
+  await primaryButton(page).click()
+  await expect.poll(async () => (await harnessSnapshot(page)).operation).toBe('generating')
+
+  const results = await new AxeBuilder({ page }).analyze()
+  expect(results.violations, describeViolations(results.violations)).toEqual([])
+
+  await releaseGeneration(page)
+  await expect.poll(async () => (await harnessSnapshot(page)).operation).toBe('idle')
+})
+
+test('has no detectable axe violations in the generation-failed error state', async ({ page }) => {
+  await gotoWorkspaceHarness(page)
+  await queueSeeds(page, [1])
+  await failNextGeneration(page, 'no_legal_harmony_plan')
+
+  await primaryButton(page).click()
+  await expect(page.locator('.inline-alert.alert-error')).toBeVisible()
+
+  const results = await new AxeBuilder({ page }).analyze()
+  expect(results.violations, describeViolations(results.violations)).toEqual([])
+})
+
+test('has no detectable axe violations in the notation-failed error state', async ({ page }) => {
+  await gotoWorkspaceHarness(page)
+  await queueSeeds(page, [1])
+  await generateAndAwaitReady(page)
+
+  await failNextNotation(page)
+  await radio(page, 'Display notation', 'Concert').click()
+  await expect.poll(async () => (await harnessSnapshot(page)).operation).toBe('idle')
+  await expect(page.locator('.inline-alert.alert-error')).toBeVisible()
 
   const results = await new AxeBuilder({ page }).analyze()
   expect(results.violations, describeViolations(results.violations)).toEqual([])

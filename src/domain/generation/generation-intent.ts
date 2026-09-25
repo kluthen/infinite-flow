@@ -90,6 +90,7 @@ export function createGenerationIntent(input: GenerationIntentInput): Generation
 
 /** Regeneration retains active controls/profile grammar and obtains a fresh injected seed and identity. */
 // @spec-link [[module_generation_request_construction]]
+// @spec-link [[rule_seeded_phrase_reproduction]]
 export function regenerateGenerationIntent(
   previous: GenerationIntent,
   providers: GenerationIntentProviders,
