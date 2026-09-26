@@ -11,8 +11,9 @@ items are currently **Verified**.
 
 > "A user can select every chromatic tonal center; major, minor, and each church mode; a 60-240 BPM
 > tempo in 10 BPM increments; and all other first-release controls, then generate a complete
-> four-measure 4/4 phrase. First load uses 90 BPM, C Ionian, the neutral preset, `Lift` tension, and
-> `Shaped` leapiness."
+> four-measure 4/4 phrase. First load uses 90 BPM, written C Ionian on the B-flat tenor saxophone
+> (concert B-flat Ionian), the neutral preset, `Slightly varied` rhythmic variety, `Lift` tension,
+> and `Shaped` leapiness." (Master spec, amended Definition of Done.)
 
 - **Status: Verified.**
 - Evidence: `tests/unit/domain/controls/generation-controls.spec.ts` — `'exhausts every closed
@@ -27,31 +28,35 @@ engraves, and the action becomes Regenerate'`.
 - ATD atoms: `module_generation_control_catalog`, `req_four_measure_phrase`,
   `rule_complete_four_four_measures`, `user_story_controlled_phrase_generation`.
 
-## 2. Preset selection replaces all six preset-controlled values
+## 2. Preset selection replaces all seven preset-controlled values
 
-> "Selecting neutral sets harmonic motion, note density, syncopation, silence density, contour, and
-> register to neutral's complete bundle; selecting jazz sets each of those six controls to jazz's
-> complete bundle. The selection replaces every one of the six values even when one or more values
-> were manually changed beforehand."
+> "Selecting neutral sets harmonic motion, note density, rhythmic variety, syncopation, silence
+> density, contour, and register to neutral's complete bundle; selecting jazz sets each of those
+> seven controls to jazz's complete bundle. The selection replaces every one of the seven values
+> even when one or more values were manually changed beforehand." (Master spec, amended Definition
+> of Done.) Both presets set `Slightly varied` rhythmic variety; `Mixed` is not a note-density value
+> — control construction and the generation worker's boundary parser reject it as unknown.
 
 - **Status: Verified.**
 - Evidence: `tests/unit/domain/controls/generation-controls.spec.ts` — `'applies each complete
 immutable bundle and reselecting replaces arbitrary custom values'`.
-- `tests/e2e/release/defaults-and-controls.spec.ts` — `'the Neutral preset sets its six controlled
-values'`, `'the Jazz preset sets its six controlled values'`.
+- `tests/e2e/release/defaults-and-controls.spec.ts` — `'the Neutral preset sets its seven controlled
+values'`, `'the Jazz preset sets its seven controlled values'`, `'Rhythmic variety follows Note
+density with exactly Strict, Slightly varied (default) and Heavily varied, and Note density has no
+Mixed option'`.
 - Gates: `npm run test:unit`, `npm run test:e2e`.
 - ATD atoms: `rule_profile_presets_apply_defined_controls`, `module_generative_profile_selection`.
 
 ## 3. Custom configuration after a preset edit; workspace layout support
 
-> "After a preset selection, manually changing one or more of those six controls produces a custom
-> current configuration without changing either preset's defined bundle or the selected profile's
-> musical grammar. A later selection of neutral or jazz restores every value in the newly selected
-> preset's complete bundle. Jazz applies `Varying`; for a given complete request and seed, it
-> selects exactly one eligible `Low`, `Middle`, or `High` policy for the complete phrase while
+> "After a preset selection, manually changing one or more of those seven controls produces a
+> custom current configuration without changing either preset's defined bundle or the selected
+> musical profile's grammar. A later selection of neutral or jazz restores every value in the newly
+> selected preset's complete bundle. Jazz applies `Varying`; for a given complete request and seed,
+> it selects exactly one eligible `Low`, `Middle`, or `High` policy for the complete phrase while
 > retaining all hard musical constraints. The workspace supports landscape mobile and tablet views;
 > a portrait mobile or tablet view shows a rotate-device notice instead of interactive phrase
-> controls."
+> controls." (Master spec, amended Definition of Done.)
 
 - **Status: Verified.**
 - Evidence (custom configuration): `tests/unit/domain/controls/generation-controls.spec.ts` —
@@ -167,15 +172,18 @@ phrase'`.
 - Gates: `npm run test:unit`, `npm run test:e2e`.
 - ATD atoms: `rule_seeded_phrase_reproduction`, `module_named_stream_pseudorandomness`.
 
-## 9. Notation: clef, display transposition, and minimal-accidental enharmonic spelling
+## 9. Notation: clef, written-pitch transposition, and minimal-accidental enharmonic spelling
 
-> "For every supported tonal center, collection, and Concert, B-flat, or E-flat display mode,
-> standard staff notation uses treble G2 clef and the enharmonic spelling requiring the fewest
-> accidentals; equal minima use sharps. The resulting tonal-center label, key signature, note
-> accidentals, chord roots, and slash bass use the same spelling convention; chord quality remains
-> unchanged. B-flat notation is selected on first load, and changing display modes changes only
-> these written display values; it cannot change the concert timeline or the profile-derived
-> generator policy."
+> "For every supported written tonal center, collection, and instrument profile, standard staff
+> notation uses treble G2 clef, the instrument profile's written pitch, and the enharmonic spelling
+> of the selected written key requiring the fewest accidentals; equal minima use sharps. The
+> resulting tonal-center label, key signature, note accidentals, chord roots, and slash bass use the
+> same spelling convention; chord quality remains unchanged. Notation cannot change the concert
+> timeline or the profile-derived generator policy." There is no independently selectable Concert,
+> B-flat, or E-flat display convention and no Concert-display override: written pitch always follows
+> the selected instrument profile's own transposition, and it changes only through an
+> instrument-profile switch (see item 10), never through a separate display-mode selection. (Master
+> spec, Notation section.)
 
 - **Status: Verified.**
 - Evidence: `tests/unit/domain/notation/pitch-spelling.spec.ts` — `'spellWrittenKey — fewest-accidental
@@ -183,41 +191,54 @@ enharmonic spelling'` group (`'is minimal, sharp-on-tie, for every tonal center 
   and the named tie-break/edge-case tests), `'spellWrittenKey — label/key/scale consistency'` /
   `'spells every scale degree consistently with the reported signature membership'`,
   `'spellPitchClassInKey — chromatic spelling rule'` group.
-- `tests/unit/domain/notation/written-phrase.spec.ts`, `tests/unit/domain/notation/notation-input.spec.ts`
-  — transposition and chord-root/slash-bass spelling under the three display conventions.
-- `tests/e2e/release/notation-modes.spec.ts` — `'B-flat notation is selected on first load'`,
-  parameterized `` `switching to ${label} notation engraves the phrase without changing the seed,
-request identity, or timeline` ``.
-- `tests/e2e/notation/notation-display-switch.spec.ts`, `tests/e2e/notation/notation-elements.spec.ts`
-  — engraved clef/key/accidental checks in the browser.
+- `tests/unit/domain/notation/written-phrase.spec.ts` — `'transformToWrittenPhrase: chromatic
+transposition per instrument profile'`, `'transformToWrittenPhrase: enharmonic minimization'`,
+  `'transformToWrittenPhrase: written/concert spelling divergence'`, and `'transformToWrittenPhrase:
+chord symbols'` groups, exercised over the three shipped instrument-profile transpositions (Concert
+  C MIDI keyboard, B-flat tenor, E-flat alto) in place of the retired notation-display modes.
+- `tests/unit/domain/notation/notation-input.spec.ts` — chord-root/slash-bass spelling under each
+  instrument profile's transposition.
+- `tests/e2e/release/notation-modes.spec.ts` — the written→concert conversion for the default
+  B-flat tenor profile, a switch to E-flat alto, the transposition-free C MIDI keyboard profile, and
+  a non-Ionian written collection, snapshotting the real `GenerationIntent`'s concert/written
+  tonal-center pair.
+- `tests/e2e/notation/notation-key-signature-spelling.spec.ts` — engraved key-signature accidental
+  counts for the written/concert spelling divergence (a written F# Ionian on B-flat tenor engraving
+  6 sharps; a written flat-side C# on E-flat alto engraving 5 flats) and for two test-only Open
+  transposition profiles.
+- `tests/e2e/notation/notation-elements.spec.ts` — clef, key-signature, stavenote/beam/barline, and
+  accidental-glyph checks against the real rendered DOM.
 - Gates: `npm run test:unit`, `npm run test:notation`, `npm run test:e2e`.
 - ATD atoms: `module_notation_display_convention`, `rule_notation_display_preserves_phrase`.
 
-## 10. Instrument-profile switch: retain-vs-regenerate validation
+## 10. Instrument-profile switch: always regenerates, never retains or transposes
 
-> "Switching instrument profiles validates every unchanged concert event against the new active
-> range and the resolved whole-phrase register window... Tests cover retention and regeneration for
-> each fixed register selection, `Varying` resolution with a fixed seed, active-range and
-> register-window failures independently, and preservation of the original event values on
-> retention."
+> "Switching instrument profile while a phrase is shown keeps the written tonal center and
+> collection, derives the new concert tonal center from the new profile's transposition, retains
+> every other control, and regenerates all four measures with a fresh seed under the new profile;
+> it never retains the previous phrase or transposes source events. Tests cover a switch between
+> each pair of first-release profiles (written key unchanged, concert tonal center recomputed, fresh
+> seed), a switch with no phrase shown (selection only, no generation), and a switch under a blocked
+> rhythm setting (switch applies, phrase cleared, no generation)." (Master spec, Notation section.)
+> There is no keep-if-it-fits check: the previous phrase is never validated or retained against the
+> new profile's active range or register window.
 
 - **Status: Verified.**
-- Evidence: `tests/unit/domain/generation/profile-switch.spec.ts` — `'evaluateProfileSwitch:
-explicit Low/Middle/High resolution'` group (`'never transposes source events: a retained
-timeline is byte-identical to the input'`, `'regenerates when an event falls outside the new
-active concert range'`, `'uses the corresponding new-profile window for Middle/High, not the old
-profile window'`), `'evaluateProfileSwitch: Varying resolution'` group (`'resolves from the new
-non-keyboard profile with the existing seed (minimum tie key)'`, `'regenerates with the
-caller-supplied fresh seed when its selected candidate fails containment'`, `'is deterministic:
-repeated evaluation with the same seed resolves the same candidate'`), plus the rest-event and
-  display-mode-independence groups.
-- `tests/unit/composables/generation-session-workspace.spec.ts` — the `'selectInstrumentProfile
-outcomes'` group (7 tests covering reject-while-busy, unchanged, no-prior-result, retain,
-  regenerate, regeneration-failure, and the unsupported-rhythm clear outcome).
-- `tests/e2e/release/profile-switch.spec.ts` — `'a profile switch retains the phrase when every
-event fits the new profile'`, `'a profile switch regenerates the phrase with a fresh seed when it
-no longer fits'`, `'a profile switch clears the phrase to the empty workspace when regeneration is
-needed but the rhythm settings are unsupported'`.
+- Evidence: `tests/unit/composables/generation-session-workspace.spec.ts` — the `'selectInstrumentProfile
+outcomes'` group (6 tests: `'rejects while another operation is in progress'`, `'resolves unchanged
+and touches nothing for a reselection of the current profile'`, `'applies the control alone when
+there is no prior result'`, `'regenerates with a fresh request id and seed, and the switched (plus
+retained) controls, when there is a prior result'`, `'keeps the prior result when the regeneration
+itself fails'`, `'applies the switch and clears the prior phrase without starting generation when
+the switched controls are an unsupported rhythm setting'`).
+- `tests/e2e/release/profile-switch.spec.ts` — `'a profile switch with no prior phrase applies the
+selection alone, without starting a generation'`, `'a profile switch with a shown phrase always
+regenerates it with a fresh seed, regardless of the transposition relationship between the two
+profiles'`, `'a profile switch to the non-transposing C MIDI keyboard also regenerates and
+recomputes the concert tonal center'`, `'a profile switch clears the phrase to the empty workspace
+when regeneration is needed but the rhythm settings are unsupported'`.
+- `tests/e2e/release/notation-modes.spec.ts` — covers the written-key-preserving,
+  concert-tonal-center-recomputing switch end to end (see item 9).
 - Gates: `npm run test:unit`, `npm run test:e2e`.
 - ATD atoms: `rule_profile_switch_validates_phrase`, `module_phrase_generation_profile_policy`.
 
@@ -253,7 +274,7 @@ snapshot'`, `'the theme control keeps working while a generation is gated in fli
 never requested'`, `'no network request travels beyond this origin, and none is XHR, fetch,
 WebSocket, or SSE'`, `'no playback, scoring, or MIDI control is ever rendered'`.
 - `tests/e2e/release/persistence-absence.spec.ts` — `'no customized control, generated phrase, or
-notation mode survives a reload'`, `'a retryable generation failure does not survive a reload'`,
+instrument profile survives a reload'`, `'a retryable generation failure does not survive a reload'`,
   `'the PWA precache exists and holds only immutable static assets, never user or session state'`.
 - `tests/e2e/release/offline-and-fonts.spec.ts` — `'after the service worker installs, the workspace
 reloads and completes a full generation while offline'`.
@@ -268,9 +289,9 @@ reloads and completes a full generation while offline'`.
 > action is disabled; configuration controls remain focusable read-only context and cannot change
 > values; a prior valid phrase remains visible. Initial generation failure retains the empty
 > workspace; later failure retains the valid phrase; notation failure retains phrase data but
-> replaces score content with a retryable error. An incompatible instrument-profile switch is the
-> sole automatic full-phrase regeneration; under a blocked rhythm setting it clears the phrase
-> instead."
+> replaces score content with a retryable error. An instrument-profile switch while a phrase is
+> shown is the sole automatic full-phrase regeneration; under a blocked rhythm setting it clears the
+> phrase instead." (Master spec, amended Definition of Done.)
 
 - **Status: Verified.** The single-operation state machine, focusable-read-only controls, and
   failure-retention behaviors are verified (below). The doubled "Generation failed:" prefix and raw
@@ -305,7 +326,7 @@ data but replaces the score with a retryable error, and Retry notation recovers'
   builds a brand-new request from the current controls/profile with a fresh seed and identity, the
   same construction as Regenerate, rather than replaying the failed intent unchanged (user decision,
   2026-09-25; D30 in `ui_ux/decisions.md`).
-- `tests/e2e/release/profile-switch.spec.ts` (the three tests listed under item 10) covers the sole
+- `tests/e2e/release/profile-switch.spec.ts` (the four tests listed under item 10) covers the sole
   automatic-regeneration behavior and the unsupported-rhythm clear exception.
 - Gates: `npm run test:unit`, `npm run test:e2e`.
 - ATD atoms: `service_workspace_session_flow`, `rule_unsupported_rhythm_settings_block_generation`.
