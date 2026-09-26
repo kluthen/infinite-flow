@@ -123,6 +123,25 @@ describe('createGenerationSession', () => {
     expect(intents).toEqual([{ tempo: 90 }, { tempo: 130 }])
   })
 
+  // @test-link [[module_profile_control_customization]]
+  // @test-link [[module_rhythm_variety_grammar]]
+  it('marks the applied preset custom after a manual rhythmic-variety edit, the same as any other preset field', () => {
+    const tracked = trackedProviders()
+    const session = createGenerationSession({
+      providers: tracked.providers,
+      generate: async () => 'result',
+      notate: async () => undefined,
+    })
+
+    expect(session.actions.selectMusicalProfile('Jazz')).toBe(true)
+    expect(session.state.profileSelection).toEqual({ musicalProfile: 'Jazz', isCustom: false })
+    expect(session.state.controls.rhythmicVariety).toBe('Slightly varied')
+
+    expect(session.actions.setControl('rhythmicVariety', 'Heavily varied')).toBe(true)
+    expect(session.state.controls.rhythmicVariety).toBe('Heavily varied')
+    expect(session.state.profileSelection).toEqual({ musicalProfile: 'Jazz', isCustom: true })
+  })
+
   // @test-link [[rule_unsupported_rhythm_settings_block_generation]]
   it('blocks retry generation while the current controls are an unsupported rhythm setting (D30)', async () => {
     const tracked = trackedProviders()

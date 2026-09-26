@@ -1,11 +1,12 @@
 import type {
   NoteDensity,
+  RhythmicVariety,
   SilenceDensity,
   Syncopation,
   TensionArc,
 } from '../controls/generation-controls'
 
-export type RhythmGrammarVersion = 'rhythm-mvp-v1'
+export type RhythmGrammarVersion = 'rhythm-mvp-v2'
 export type RhythmEventKind = 'note' | 'rest'
 export type BarIndex = 0 | 1 | 2 | 3
 export type GestureBarIndex = 0 | 1
@@ -22,6 +23,7 @@ export type RhythmRole = 'answer' | 'syncopation'
 export interface RhythmExpansionInput {
   readonly grammarVersion?: RhythmGrammarVersion
   readonly noteDensity: NoteDensity
+  readonly rhythmicVariety: RhythmicVariety
   readonly silenceDensity: SilenceDensity
   readonly syncopation: Syncopation
   readonly tensionArc: TensionArc
@@ -30,6 +32,7 @@ export interface RhythmExpansionInput {
 export interface NormalizedRhythmExpansionInput {
   readonly grammarVersion: RhythmGrammarVersion
   readonly noteDensity: NoteDensity
+  readonly rhythmicVariety: RhythmicVariety
   readonly silenceDensity: SilenceDensity
   readonly syncopation: Syncopation
   readonly tensionArc: TensionArc
@@ -105,6 +108,7 @@ export type GestureMergePlan = NoMergePlan | SingleMergePlan
 export interface RhythmSkeletonInput {
   readonly grammarVersion: RhythmGrammarVersion
   readonly noteDensity: NoteDensity
+  readonly rhythmicVariety: RhythmicVariety
   readonly silenceDensity: SilenceDensity
 }
 /** A transform-free bars 1-2 grammar result, ready for answer/syncopation slices. */
@@ -184,7 +188,7 @@ export type RhythmValidationCode =
   | 'non_positive_duration'
   | 'invalid_nominal_provenance'
   | 'density_attack_band_violation'
-  | 'mixed_duration_class_coverage_violation'
+  | 'rhythmic_variety_violation'
   | 'silence_budget_violation'
   | 'silence_shape_violation'
   | 'all_rest_measure'

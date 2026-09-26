@@ -5,6 +5,7 @@ import {
   type HarmonicMotion,
   type MusicalProfile,
   type NoteDensity,
+  type RhythmicVariety,
   type SilenceDensity,
   type Syncopation,
   makeGenerationControls,
@@ -14,6 +15,7 @@ import type { RegisterChoice } from '../profile/register-intent'
 export interface ProfileControlledValues {
   readonly harmonicMotion: HarmonicMotion
   readonly noteDensity: NoteDensity
+  readonly rhythmicVariety: RhythmicVariety
   readonly syncopation: Syncopation
   readonly silenceDensity: SilenceDensity
   readonly contour: Contour
@@ -49,6 +51,7 @@ export const PROFILE_BUNDLES: Readonly<Record<MusicalProfile, ProfileControlledV
     Neutral: {
       harmonicMotion: 'Static',
       noteDensity: 'Quarter',
+      rhythmicVariety: 'Slightly varied',
       syncopation: 'Straight',
       silenceDensity: 'Sparse',
       contour: 'Arch',
@@ -57,6 +60,7 @@ export const PROFILE_BUNDLES: Readonly<Record<MusicalProfile, ProfileControlledV
     Jazz: {
       harmonicMotion: 'Gentle diatonic',
       noteDensity: 'Eighth',
+      rhythmicVariety: 'Slightly varied',
       syncopation: 'Occasional offbeats',
       silenceDensity: 'Conversational',
       contour: 'Wandering',

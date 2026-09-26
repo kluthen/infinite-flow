@@ -45,6 +45,7 @@ function buildFixture(): GenerationResultValidationInput {
     harmonicMotion: 'Static',
     tension: 'Lift',
     noteDensity: 'Eighth',
+    rhythmicVariety: 'Slightly varied',
     syncopation: 'Active displacement',
     silenceDensity: 'Conversational',
     contour: 'Arch',
@@ -89,6 +90,7 @@ function buildFixture(): GenerationResultValidationInput {
 
   const rhythmResult = makeRhythmCandidateDomain({
     noteDensity: controls.noteDensity,
+    rhythmicVariety: controls.rhythmicVariety,
     silenceDensity: controls.silenceDensity,
     syncopation: controls.syncopation,
     tensionArc: controls.tension,

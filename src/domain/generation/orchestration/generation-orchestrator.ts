@@ -69,6 +69,7 @@ function buildRhythmDomain(
 ): ReturnType<CanonicalRhythmDomainMemo['lookup']> {
   return memo.lookup({
     noteDensity: intent.controls.noteDensity,
+    rhythmicVariety: intent.controls.rhythmicVariety,
     silenceDensity: intent.controls.silenceDensity,
     syncopation: intent.controls.syncopation,
     tensionArc: intent.controls.tension,

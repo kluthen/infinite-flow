@@ -1,10 +1,10 @@
 /**
- * Manual Step 9 latency harness: for every one of the 144 rhythm settings (noteDensity x
- * silenceDensity x syncopation x tensionArc), measures a cold `generatePhrase` call on a fresh
- * canonical-rhythm-domain memo, then a warm call with a different seed on the same memo, and
- * prints a compact latency summary. Not part of `npm run quality`; run explicitly via
- * `npm run measure:latency`. Writes the full per-setting JSON to `LATENCY_OUT` when that env var
- * is set.
+ * Manual Step 9 latency harness: for every one of the 432 rhythm settings (noteDensity x
+ * rhythmicVariety x silenceDensity x syncopation x tensionArc -- the rhythmicVariety axis added by
+ * ISS-004), measures a cold `generatePhrase` call on a fresh canonical-rhythm-domain memo, then a
+ * warm call with a different seed on the same memo, and prints a compact latency summary. Not part
+ * of `npm run quality`; run explicitly via `npm run measure:latency`. Writes the full per-setting
+ * JSON to `LATENCY_OUT` when that env var is set.
  */
 
 import { writeFileSync } from 'node:fs'
@@ -14,6 +14,7 @@ import { describe, it } from 'vitest'
 import {
   makeGenerationControls,
   NOTE_DENSITIES,
+  RHYTHMIC_VARIETIES,
   SILENCE_DENSITIES,
   SYNCOPATIONS,
   TENSION_ARCS,
@@ -27,6 +28,7 @@ import { makeSeed } from '@/domain/random/seed'
 
 interface SettingMeasurement {
   readonly noteDensity: string
+  readonly rhythmicVariety: string
   readonly silenceDensity: string
   readonly syncopation: string
   readonly tensionArc: string
@@ -39,6 +41,7 @@ interface SettingMeasurement {
 /** Intent: the fixed, non-rhythm controls every measured setting shares. */
 function buildControls(
   noteDensity: (typeof NOTE_DENSITIES)[number],
+  rhythmicVariety: (typeof RHYTHMIC_VARIETIES)[number],
   silenceDensity: (typeof SILENCE_DENSITIES)[number],
   syncopation: (typeof SYNCOPATIONS)[number],
   tension: (typeof TENSION_ARCS)[number],
@@ -50,6 +53,7 @@ function buildControls(
     harmonicMotion: 'Gentle diatonic',
     tension,
     noteDensity,
+    rhythmicVariety,
     syncopation,
     silenceDensity,
     contour: 'Arch',
@@ -63,12 +67,19 @@ function buildControls(
 /** Intent: measure one rhythm setting's cold (fresh memo) and warm (different seed, same memo) call. */
 function measureSetting(
   noteDensity: (typeof NOTE_DENSITIES)[number],
+  rhythmicVariety: (typeof RHYTHMIC_VARIETIES)[number],
   silenceDensity: (typeof SILENCE_DENSITIES)[number],
   syncopation: (typeof SYNCOPATIONS)[number],
   tensionArc: (typeof TENSION_ARCS)[number],
 ): SettingMeasurement {
-  const controls = buildControls(noteDensity, silenceDensity, syncopation, tensionArc)
-  const name = `${noteDensity}-${silenceDensity}-${syncopation}-${tensionArc}`
+  const controls = buildControls(
+    noteDensity,
+    rhythmicVariety,
+    silenceDensity,
+    syncopation,
+    tensionArc,
+  )
+  const name = `${noteDensity}-${rhythmicVariety}-${silenceDensity}-${syncopation}-${tensionArc}`
   const memo = createCanonicalRhythmDomainMemo()
 
   const coldIntent = createGenerationIntent({
@@ -93,6 +104,7 @@ function measureSetting(
 
   return {
     noteDensity,
+    rhythmicVariety,
     silenceDensity,
     syncopation,
     tensionArc,
@@ -103,14 +115,18 @@ function measureSetting(
   }
 }
 
-/** Intent: every one of the 144 rhythm settings the harness measures, in a fixed, stable order. */
+/** Intent: every one of the 432 rhythm settings the harness measures, in a fixed, stable order. */
 function allSettings(): SettingMeasurement[] {
   const results: SettingMeasurement[] = []
   for (const noteDensity of NOTE_DENSITIES) {
-    for (const silenceDensity of SILENCE_DENSITIES) {
-      for (const syncopation of SYNCOPATIONS) {
-        for (const tensionArc of TENSION_ARCS) {
-          results.push(measureSetting(noteDensity, silenceDensity, syncopation, tensionArc))
+    for (const rhythmicVariety of RHYTHMIC_VARIETIES) {
+      for (const silenceDensity of SILENCE_DENSITIES) {
+        for (const syncopation of SYNCOPATIONS) {
+          for (const tensionArc of TENSION_ARCS) {
+            results.push(
+              measureSetting(noteDensity, rhythmicVariety, silenceDensity, syncopation, tensionArc),
+            )
+          }
         }
       }
     }
@@ -164,7 +180,7 @@ function printSummary(measurements: readonly SettingMeasurement[]): void {
   console.log('5 slowest cold settings:')
   for (const m of slowestCold) {
     console.log(
-      `  ${m.noteDensity}/${m.silenceDensity}/${m.syncopation}/${m.tensionArc}: ` +
+      `  ${m.noteDensity}/${m.rhythmicVariety}/${m.silenceDensity}/${m.syncopation}/${m.tensionArc}: ` +
         `cold=${m.coldMs.toFixed(1)}ms warm=${m.warmMs.toFixed(1)}ms`,
     )
   }
@@ -172,7 +188,7 @@ function printSummary(measurements: readonly SettingMeasurement[]): void {
   console.log(`Unsupported (no_legal_rhythm_plan) settings' timings:`)
   for (const m of unsupported) {
     console.log(
-      `  ${m.noteDensity}/${m.silenceDensity}/${m.syncopation}/${m.tensionArc}: ` +
+      `  ${m.noteDensity}/${m.rhythmicVariety}/${m.silenceDensity}/${m.syncopation}/${m.tensionArc}: ` +
         `cold=${m.coldMs.toFixed(1)}ms warm=${m.warmMs.toFixed(1)}ms`,
     )
   }

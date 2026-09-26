@@ -16,6 +16,7 @@ import { makeSeed } from '@/domain/random/seed'
 function fastRhythmCandidates(): readonly RhythmCandidate[] {
   const result = makeRhythmCandidateDomain({
     noteDensity: 'Eighth',
+    rhythmicVariety: 'Slightly varied',
     silenceDensity: 'Conversational',
     syncopation: 'Active displacement',
     tensionArc: 'Settled',

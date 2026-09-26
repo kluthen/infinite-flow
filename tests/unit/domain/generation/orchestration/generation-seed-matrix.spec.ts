@@ -8,8 +8,9 @@
  * active concert range, and reproduces the outcome bit-for-bit on a second call. A final matrix-
  * wide check asserts a compact per-cell fingerprint (selected register + attack MIDIs) is
  * identical across the two passes gathered while running each cell, without a hard-coded golden.
- * The three control sets deliberately avoid 'Mixed' note density and 'Active displacement'
- * syncopation (which enumerate slowly), so the whole matrix stays fast. Cells are re-checked for
+ * The three control sets deliberately avoid `Heavily varied` rhythmic variety and 'Active
+ * displacement' syncopation (which enumerate slowly), so the whole matrix stays fast. Cells are
+ * re-checked for
  * pass-to-pass reproduction rather than pinned hashes, so the signed-off tension-binding
  * correction (rests allowed within the resolution delay) needed no fixture change here; it moved
  * 12 of the 72 cells to a rest-crossing two-note approach, all still successful.
@@ -58,6 +59,7 @@ const CONTROL_SETS: readonly ControlSetSpec[] = [
         harmonicMotion: 'Gentle diatonic',
         tension: 'Settled',
         noteDensity: 'Quarter',
+        rhythmicVariety: 'Slightly varied',
         syncopation: 'Straight',
         silenceDensity: 'Sparse',
         contour: 'Arch',
@@ -78,6 +80,7 @@ const CONTROL_SETS: readonly ControlSetSpec[] = [
         harmonicMotion: 'Active diatonic',
         tension: 'Build',
         noteDensity: 'Eighth',
+        rhythmicVariety: 'Slightly varied',
         syncopation: 'Occasional offbeats',
         silenceDensity: 'Conversational',
         contour: 'Rising',
@@ -98,6 +101,7 @@ const CONTROL_SETS: readonly ControlSetSpec[] = [
         harmonicMotion: 'Static',
         tension: 'Lift',
         noteDensity: 'Sixteenth',
+        rhythmicVariety: 'Slightly varied',
         syncopation: 'Straight',
         silenceDensity: 'Breath-heavy',
         contour: 'Wandering',

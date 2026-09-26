@@ -1,4 +1,6 @@
 import { deepFreeze } from '../events/deep-freeze'
+import type { RhythmicVariety } from '../controls/generation-controls'
+import { attackBandFor, beatCellCatalog, densityTicks } from './rhythm-variety'
 import type {
   BarFormProvenance,
   BarIndex,
@@ -22,51 +24,6 @@ export const V1_BAR1_FORMS: readonly V1BarForm[] = deepFreeze([
   'xyxy',
   'xyyx',
 ])
-
-const terminal = (kind: RhythmEventKind, durationTicks: number): NominalTerminal => ({
-  kind,
-  durationTicks,
-})
-
-/** Ordered, version-owned grammar terminals. Never derive this order from object keys. */
-// @spec-link [[module_rhythm_skeleton_allocator]]
-export const V1_BEAT_CELL_CATALOGS: Readonly<
-  Record<RhythmSkeletonInput['noteDensity'], readonly (readonly NominalTerminal[])[]>
-> = deepFreeze({
-  Quarter: [[terminal('note', 4)], [terminal('rest', 4)]],
-  Eighth: [
-    [terminal('note', 2), terminal('note', 2)],
-    [terminal('note', 2), terminal('rest', 2)],
-    [terminal('rest', 2), terminal('note', 2)],
-    [terminal('rest', 2), terminal('rest', 2)],
-  ],
-  Sixteenth: [
-    [terminal('note', 1), terminal('note', 1), terminal('note', 1), terminal('note', 1)],
-    [terminal('note', 1), terminal('note', 1), terminal('note', 1), terminal('rest', 1)],
-    [terminal('rest', 1), terminal('note', 1), terminal('note', 1), terminal('note', 1)],
-    [terminal('note', 1), terminal('rest', 1), terminal('note', 1), terminal('rest', 1)],
-    [terminal('rest', 1), terminal('note', 1), terminal('rest', 1), terminal('note', 1)],
-    [terminal('note', 1), terminal('note', 1), terminal('rest', 1), terminal('rest', 1)],
-    [terminal('rest', 1), terminal('rest', 1), terminal('note', 1), terminal('note', 1)],
-    [terminal('rest', 1), terminal('rest', 1), terminal('rest', 1), terminal('rest', 1)],
-  ],
-  Mixed: [
-    [terminal('note', 4)],
-    [terminal('rest', 4)],
-    [terminal('note', 2), terminal('note', 2)],
-    [terminal('note', 2), terminal('rest', 2)],
-    [terminal('rest', 2), terminal('note', 2)],
-    [terminal('rest', 2), terminal('rest', 2)],
-    [terminal('note', 2), terminal('note', 1), terminal('note', 1)],
-    [terminal('note', 2), terminal('note', 1), terminal('rest', 1)],
-    [terminal('note', 2), terminal('rest', 1), terminal('note', 1)],
-    [terminal('rest', 2), terminal('note', 1), terminal('note', 1)],
-    [terminal('note', 1), terminal('note', 1), terminal('note', 2)],
-    [terminal('note', 1), terminal('rest', 1), terminal('note', 2)],
-    [terminal('rest', 1), terminal('note', 1), terminal('note', 2)],
-    [terminal('note', 1), terminal('note', 1), terminal('rest', 2)],
-  ],
-})
 
 /** Build one bar from source cells while retaining exact nominal provenance. */
 // @spec-link [[module_rhythm_skeleton_allocator]]
@@ -107,15 +64,16 @@ function formIndices(form: V1BarForm, x: number, y?: number): readonly number[] 
 
 function materializeBeat(
   density: RhythmSkeletonInput['noteDensity'],
+  variety: RhythmicVariety,
   catalogIndex: number,
   barIndex: BarIndex,
   beatIndex: number,
 ): readonly NominalCell[] {
-  return V1_BEAT_CELL_CATALOGS[density][catalogIndex]!.map((source, cellIndex) =>
+  return beatCellCatalog(density, variety)[catalogIndex]!.map((source, cellIndex) =>
     deepFreeze({
       ...source,
-      address: { grammarVersion: 'rhythm-mvp-v1', barIndex, beatIndex, cellIndex },
-      catalog: { grammarVersion: 'rhythm-mvp-v1', density, catalogIndex },
+      address: { grammarVersion: 'rhythm-mvp-v2', barIndex, beatIndex, cellIndex },
+      catalog: { grammarVersion: 'rhythm-mvp-v2', density, catalogIndex },
     }),
   )
 }
@@ -141,8 +99,9 @@ function opensOnDownbeat(entry: readonly { readonly kind: 'note' | 'rest' }[]): 
 // @spec-link [[module_rhythm_skeleton_allocator]]
 export function* enumerateV1Bar1Productions(
   density: RhythmSkeletonInput['noteDensity'],
+  variety: RhythmicVariety,
 ): IterableIterator<V1Bar1Production> {
-  const catalog = V1_BEAT_CELL_CATALOGS[density]
+  const catalog = beatCellCatalog(density, variety)
   for (const form of V1_BAR1_FORMS) {
     for (let x = 0; x < catalog.length; x += 1) {
       if (!opensOnDownbeat(catalog[x]!)) continue
@@ -151,10 +110,10 @@ export function* enumerateV1Bar1Productions(
         if (y !== undefined && x === y) continue
         const indices = formIndices(form, x, y)
         const cells = indices.flatMap((catalogIndex, beatIndex) =>
-          materializeBeat(density, catalogIndex, 0, beatIndex),
+          materializeBeat(density, variety, catalogIndex, 0, beatIndex),
         )
         const provenance: BarFormProvenance = deepFreeze({
-          grammarVersion: 'rhythm-mvp-v1',
+          grammarVersion: 'rhythm-mvp-v2',
           form,
           catalogIndices: y === undefined ? [x] : [x, y],
         })
@@ -180,16 +139,13 @@ function cellBeat(cells: readonly NominalCell[], beatIndex: number): readonly No
   return cells.filter((cell) => cell.address.beatIndex === beatIndex)
 }
 
-function feasibleBar(bar: RhythmBar, density: RhythmSkeletonInput['noteDensity']): boolean {
+function feasibleBar(
+  bar: RhythmBar,
+  density: RhythmSkeletonInput['noteDensity'],
+  variety: RhythmicVariety,
+): boolean {
   const attacks = bar.events.filter((event) => event.kind === 'note').length
-  const [minimum, maximum] =
-    density === 'Quarter'
-      ? [2, 4]
-      : density === 'Eighth'
-        ? [4, 8]
-        : density === 'Sixteenth'
-          ? [8, 16]
-          : [4, 12]
+  const [minimum, maximum] = attackBandFor(density, variety)
   return (
     attacks >= minimum &&
     attacks <= maximum &&
@@ -205,7 +161,7 @@ function feasibleGesture(
   bars: readonly [RhythmBar, RhythmBar],
   input: RhythmSkeletonInput,
 ): boolean {
-  if (!bars.every((bar) => feasibleBar(bar, input.noteDensity))) return false
+  if (!bars.every((bar) => feasibleBar(bar, input.noteDensity, input.rhythmicVariety))) return false
   const restEvents = bars.flatMap((bar) => bar.events.filter((event) => event.kind === 'rest'))
   const phraseRestTicks = restEvents.reduce((total, event) => total + event.durationTicks, 0) * 2
   if (input.silenceDensity === 'Sparse') return phraseRestTicks >= 4 && phraseRestTicks <= 8
@@ -244,7 +200,7 @@ export function enumerateV1RecurrenceVariants(
     const sourceCells = cellBeat(source.cells, sourceBeat)
     const targetBase = copyCells(source.cells, 1)
     const common = {
-      grammarVersion: input.grammarVersion as 'rhythm-mvp-v1',
+      grammarVersion: input.grammarVersion as 'rhythm-mvp-v2',
       sourceBar: 0 as const,
       sourceBeat,
       sourceCellAddresses: sourceCells.map((cell) => cell.address),
@@ -257,7 +213,7 @@ export function enumerateV1RecurrenceVariants(
       const changedBeat: readonly NominalCell[] = cellBeat(targetBase, sourceBeat).map((cell) =>
         cell.address === target.address ? { ...cell, kind: afterKind } : cell,
       )
-      const catalogIndex = V1_BEAT_CELL_CATALOGS[input.noteDensity].findIndex(
+      const catalogIndex = beatCellCatalog(input.noteDensity, input.rhythmicVariety).findIndex(
         (beatCell) =>
           beatCell.length === changedBeat.length &&
           beatCell.every((terminal, index) => sameTerminal(terminal, changedBeat[index]!)),
@@ -336,12 +292,28 @@ function makeMergedBar(
   return deepFreeze({ barIndex, events })
 }
 
-function mergePlans(cells: readonly NominalCell[]): IterableIterator<GestureMergePlan> {
+/**
+ * Bars 1-2 merge candidates: adjacent note cells may merge into one tied note, except a same-beat
+ * pair where neither source cell is longer than the density value `q` -- merging two ordinary `q`
+ * cells would just resynthesize a longer catalog cell, not add anything a plain beat-cell choice
+ * couldn't already express. A same-beat pair is only a merge candidate once one side already comes
+ * from a variety-extended "long" cell (§1, feasibility review); cross-beat pairs are never excluded.
+ */
+// @spec-link [[module_rhythm_skeleton_allocator]]
+function mergePlans(
+  cells: readonly NominalCell[],
+  density: RhythmSkeletonInput['noteDensity'],
+): IterableIterator<GestureMergePlan> {
   function* plans() {
     yield deepFreeze({ kind: 'none' as const })
     for (let index = 0; index < cells.length - 1; index += 1) {
       const left = cells[index]!
       const right = cells[index + 1]!
+      const sameBeat =
+        left.address.barIndex === right.address.barIndex &&
+        left.address.beatIndex === right.address.beatIndex
+      if (sameBeat && Math.max(left.durationTicks, right.durationTicks) <= densityTicks(density))
+        continue
       if (left.kind === 'note' && right.kind === 'note')
         yield deepFreeze({ kind: 'merge' as const, left: left.address, right: right.address })
     }
@@ -354,13 +326,13 @@ function mergePlans(cells: readonly NominalCell[]): IterableIterator<GestureMerg
 export function* enumerateGestureDerivations(
   input: RhythmSkeletonInput,
 ): IterableIterator<GestureDerivation> {
-  for (const source of enumerateV1Bar1Productions(input.noteDensity)) {
+  for (const source of enumerateV1Bar1Productions(input.noteDensity, input.rhythmicVariety)) {
     const sourceBar = source.bar
-    if (!feasibleBar(sourceBar, input.noteDensity)) continue
+    if (!feasibleBar(sourceBar, input.noteDensity, input.rhythmicVariety)) continue
     for (const variant of enumerateV1RecurrenceVariants(source, input)) {
       const targetBar = makeBar(1, variant.cells)
       if (!feasibleGesture([sourceBar, targetBar], input)) continue
-      for (const merge of mergePlans([...source.cells, ...variant.cells])) {
+      for (const merge of mergePlans([...source.cells, ...variant.cells], input.noteDensity)) {
         const bars = [
           makeMergedBar(0, source.cells, merge),
           makeMergedBar(1, variant.cells, merge),

@@ -1,11 +1,13 @@
 /**
  * Manual Step 9 browser latency harness: measures cold (first click) and warm (Regenerate) wall
- * time from click to "Phrase ready" for the documented worst-case rhythm setting (Mixed density +
- * Conversational silence + Active displacement + Edge tension) and for the default/cheap setting,
- * and checks the main thread stays responsive to a theme click during the worst-case cold run. Not
- * part of `npm run test:e2e`; run explicitly via `npm run measure:latency:browser`. Reports only --
- * it asserts nothing about the numbers themselves, only that the page never becomes unresponsive.
- * Writes the full JSON report to `LATENCY_BROWSER_OUT` when that env var is set.
+ * time from click to "Phrase ready" for the documented worst-case rhythm setting (ISS-004 moves
+ * this off Mixed density to Sixteenth / Heavily varied / Sparse silence / Active displacement /
+ * Build tension -- the largest candidate domain, 2,932 candidates) and for the default/cheap
+ * setting, and checks the main thread stays responsive to a theme click during the worst-case cold
+ * run. Not part of `npm run test:e2e`; run explicitly via `npm run measure:latency:browser`.
+ * Reports only -- it asserts nothing about the numbers themselves, only that the page never
+ * becomes unresponsive. Writes the full JSON report to `LATENCY_BROWSER_OUT` when that env var is
+ * set.
  */
 import { writeFileSync } from 'node:fs'
 
@@ -39,10 +41,11 @@ async function timeGeneration(page: import('@playwright/test').Page): Promise<nu
 
 /** Intent: apply the documented worst-case rhythm/tension setting through the real controls. */
 async function selectWorstCaseSetting(page: import('@playwright/test').Page): Promise<void> {
-  await radio(page, 'Note density', 'Mixed').click()
-  await radio(page, 'Silence density', 'Conversational space').click()
+  await radio(page, 'Note density', 'Sixteenth').click()
+  await radio(page, 'Rhythmic variety', 'Heavily varied').click()
+  await radio(page, 'Silence density', 'Sparse').click()
   await radio(page, 'Syncopation', 'Active displacement').click()
-  await radio(page, 'Tension', 'Edge').click()
+  await radio(page, 'Tension', 'Build').click()
 }
 
 test('reports cold/warm generation latency for the worst-case and default settings', async ({
@@ -81,7 +84,7 @@ test('reports cold/warm generation latency for the worst-case and default settin
         warmMs: cheapWarmMs,
       },
       {
-        scenario: 'worst case (Mixed/Conversational/Active displacement/Edge)',
+        scenario: 'worst case (Sixteenth/Heavily varied/Sparse/Active displacement/Build)',
         coldMs: worstColdMs,
         warmMs: worstWarmMs,
       },

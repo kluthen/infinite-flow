@@ -48,6 +48,7 @@ const CHEAP_CONTROLS: GenerationControls = makeGenerationControls({
   harmonicMotion: 'Gentle diatonic',
   tension: 'Settled',
   noteDensity: 'Quarter',
+  rhythmicVariety: 'Slightly varied',
   syncopation: 'Straight',
   silenceDensity: 'Sparse',
   contour: 'Arch',
@@ -104,6 +105,7 @@ export function computeRankedDomains(intent: GenerationIntent): RankedDomains {
 
   const rhythmResult = makeRhythmCandidateDomain({
     noteDensity: intent.controls.noteDensity,
+    rhythmicVariety: intent.controls.rhythmicVariety,
     silenceDensity: intent.controls.silenceDensity,
     syncopation: intent.controls.syncopation,
     tensionArc: intent.controls.tension,

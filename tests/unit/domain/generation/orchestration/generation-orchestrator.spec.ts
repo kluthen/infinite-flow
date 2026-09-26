@@ -49,7 +49,10 @@ function makeSubsetPlanPitch(subset: readonly RegisterId[]): WindowSearchDeps['p
   }
 }
 
-/** Six unsupported rhythm-grammar control combinations, by their exact catalog literal names. */
+/**
+ * The six `Strict`-level unsupported rhythm-grammar control combinations (ISS-004 feasibility
+ * review §4), by their exact catalog literal names.
+ */
 const UNSUPPORTED_RHYTHM_COMBOS = [
   { noteDensity: 'Quarter', silenceDensity: 'Sparse', syncopation: 'Active displacement' },
   { noteDensity: 'Quarter', silenceDensity: 'Breath-heavy', syncopation: 'Active displacement' },
@@ -229,6 +232,7 @@ describe('generatePhrase', () => {
         for (const tension of TENSION_ARCS) {
           const intent = buildOrchestratorIntent('Middle', makeSeed(11), {
             noteDensity: combo.noteDensity,
+            rhythmicVariety: 'Strict',
             silenceDensity: combo.silenceDensity,
             syncopation: combo.syncopation,
             tension,
@@ -247,6 +251,7 @@ describe('generatePhrase', () => {
       const combo = UNSUPPORTED_RHYTHM_COMBOS[0]
       const intent = buildOrchestratorIntent('Varying', makeSeed(11), {
         noteDensity: combo.noteDensity,
+        rhythmicVariety: 'Strict',
         silenceDensity: combo.silenceDensity,
         syncopation: combo.syncopation,
         tension: 'Settled',

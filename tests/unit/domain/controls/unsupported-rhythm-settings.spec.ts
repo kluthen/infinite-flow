@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { DEFAULT_GENERATION_CONTROLS, PROFILE_BUNDLES } from '@/domain/controls/profile-selection'
 import {
   NOTE_DENSITIES,
+  RHYTHMIC_VARIETIES,
   SILENCE_DENSITIES,
   SYNCOPATIONS,
   TENSION_ARCS,
@@ -21,33 +22,47 @@ import { isNoLegalRhythmPlan, makeRhythmCandidateDomain } from '@/domain/rhythm/
 describe('unsupported rhythm settings', () => {
   it('matches the rhythm planner no-legal-plan result across every control combination', () => {
     for (const noteDensity of NOTE_DENSITIES)
-      for (const silenceDensity of SILENCE_DENSITIES)
-        for (const syncopation of SYNCOPATIONS) {
-          const setting = { noteDensity, silenceDensity, syncopation }
-          const expectedUnsupported = isUnsupportedRhythmSetting(setting)
-          for (const tensionArc of TENSION_ARCS) {
-            const result = makeRhythmCandidateDomain({
-              noteDensity,
-              silenceDensity,
-              syncopation,
-              tensionArc,
-            })
-            expect(
-              isNoLegalRhythmPlan(result),
-              `${noteDensity}/${silenceDensity}/${syncopation}/${tensionArc}`,
-            ).toBe(expectedUnsupported)
+      for (const rhythmicVariety of RHYTHMIC_VARIETIES)
+        for (const silenceDensity of SILENCE_DENSITIES)
+          for (const syncopation of SYNCOPATIONS) {
+            const setting = { noteDensity, rhythmicVariety, silenceDensity, syncopation }
+            const expectedUnsupported = isUnsupportedRhythmSetting(setting)
+            for (const tensionArc of TENSION_ARCS) {
+              const result = makeRhythmCandidateDomain({
+                noteDensity,
+                rhythmicVariety,
+                silenceDensity,
+                syncopation,
+                tensionArc,
+              })
+              expect(
+                isNoLegalRhythmPlan(result),
+                `${noteDensity}/${rhythmicVariety}/${silenceDensity}/${syncopation}/${tensionArc}`,
+              ).toBe(expectedUnsupported)
+            }
           }
-        }
   }, 120_000)
 
-  it('has exactly 6 unique entries', () => {
-    expect(UNSUPPORTED_RHYTHM_SETTINGS).toHaveLength(6)
+  it('has exactly 10 unique entries: 6 Strict, 4 Slightly varied, 0 Heavily varied', () => {
+    expect(UNSUPPORTED_RHYTHM_SETTINGS).toHaveLength(10)
     const keys = new Set(
       UNSUPPORTED_RHYTHM_SETTINGS.map(
-        (setting) => `${setting.noteDensity}/${setting.silenceDensity}/${setting.syncopation}`,
+        (setting) =>
+          `${setting.noteDensity}/${setting.rhythmicVariety}/${setting.silenceDensity}/${setting.syncopation}`,
       ),
     )
-    expect(keys.size).toBe(6)
+    expect(keys.size).toBe(10)
+    expect(
+      UNSUPPORTED_RHYTHM_SETTINGS.filter((setting) => setting.rhythmicVariety === 'Strict'),
+    ).toHaveLength(6)
+    expect(
+      UNSUPPORTED_RHYTHM_SETTINGS.filter(
+        (setting) => setting.rhythmicVariety === 'Slightly varied',
+      ),
+    ).toHaveLength(4)
+    expect(
+      UNSUPPORTED_RHYTHM_SETTINGS.filter((setting) => setting.rhythmicVariety === 'Heavily varied'),
+    ).toHaveLength(0)
   })
 
   it('is frozen', () => {
@@ -62,11 +77,12 @@ describe('unsupported rhythm settings', () => {
     expect(isUnsupportedRhythmSetting(DEFAULT_GENERATION_CONTROLS)).toBe(false)
   })
 
-  it('suggests the pinned nearest supported change for each unsupported setting', () => {
+  it('suggests the pinned nearest supported change for each unsupported Strict setting', () => {
     const expected = [
       {
         setting: {
           noteDensity: 'Quarter',
+          rhythmicVariety: 'Strict',
           silenceDensity: 'Sparse',
           syncopation: 'Active displacement',
         },
@@ -79,6 +95,7 @@ describe('unsupported rhythm settings', () => {
       {
         setting: {
           noteDensity: 'Quarter',
+          rhythmicVariety: 'Strict',
           silenceDensity: 'Breath-heavy',
           syncopation: 'Active displacement',
         },
@@ -91,6 +108,7 @@ describe('unsupported rhythm settings', () => {
       {
         setting: {
           noteDensity: 'Sixteenth',
+          rhythmicVariety: 'Strict',
           silenceDensity: 'Sparse',
           syncopation: 'Active displacement',
         },
@@ -103,6 +121,7 @@ describe('unsupported rhythm settings', () => {
       {
         setting: {
           noteDensity: 'Sixteenth',
+          rhythmicVariety: 'Strict',
           silenceDensity: 'Conversational',
           syncopation: 'Active displacement',
         },
@@ -115,6 +134,7 @@ describe('unsupported rhythm settings', () => {
       {
         setting: {
           noteDensity: 'Sixteenth',
+          rhythmicVariety: 'Strict',
           silenceDensity: 'Breath-heavy',
           syncopation: 'Occasional offbeats',
         },
@@ -123,6 +143,51 @@ describe('unsupported rhythm settings', () => {
       {
         setting: {
           noteDensity: 'Sixteenth',
+          rhythmicVariety: 'Strict',
+          silenceDensity: 'Breath-heavy',
+          syncopation: 'Active displacement',
+        },
+        suggestion: { control: 'syncopation', from: 'Active displacement', to: 'Straight' },
+      },
+      {
+        setting: {
+          noteDensity: 'Quarter',
+          rhythmicVariety: 'Slightly varied',
+          silenceDensity: 'Sparse',
+          syncopation: 'Active displacement',
+        },
+        suggestion: {
+          control: 'syncopation',
+          from: 'Active displacement',
+          to: 'Occasional offbeats',
+        },
+      },
+      {
+        setting: {
+          noteDensity: 'Quarter',
+          rhythmicVariety: 'Slightly varied',
+          silenceDensity: 'Breath-heavy',
+          syncopation: 'Active displacement',
+        },
+        suggestion: {
+          control: 'syncopation',
+          from: 'Active displacement',
+          to: 'Occasional offbeats',
+        },
+      },
+      {
+        setting: {
+          noteDensity: 'Sixteenth',
+          rhythmicVariety: 'Slightly varied',
+          silenceDensity: 'Breath-heavy',
+          syncopation: 'Occasional offbeats',
+        },
+        suggestion: { control: 'syncopation', from: 'Occasional offbeats', to: 'Straight' },
+      },
+      {
+        setting: {
+          noteDensity: 'Sixteenth',
+          rhythmicVariety: 'Slightly varied',
           silenceDensity: 'Breath-heavy',
           syncopation: 'Active displacement',
         },

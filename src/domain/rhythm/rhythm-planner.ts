@@ -1,12 +1,14 @@
 import {
   NOTE_DENSITIES,
+  RHYTHMIC_VARIETIES,
   SILENCE_DENSITIES,
   SYNCOPATIONS,
   TENSION_ARCS,
 } from '../controls/generation-controls'
 import { deepFreeze } from '../events/deep-freeze'
 import { normalizedRhythmIdentity, withRhythmIdentity } from './rhythm-identity'
-import { coversMixedDurationClasses, quickRejectRhythmCandidate } from './rhythm-invariants'
+import { quickRejectRhythmCandidate } from './rhythm-invariants'
+import { gestureCannotReachShare } from './rhythm-variety'
 import { enumerateGestureDerivations } from './rhythm-skeleton'
 import {
   applyTransformSet,
@@ -50,10 +52,11 @@ export function normalizeRhythmExpansionInput(
 }
 
 function normalizeInput(input: RhythmExpansionInput): NormalizedRhythmExpansionInput {
-  const grammarVersion = input.grammarVersion ?? 'rhythm-mvp-v1'
+  const grammarVersion = input.grammarVersion ?? 'rhythm-mvp-v2'
   if (
-    grammarVersion !== 'rhythm-mvp-v1' ||
+    grammarVersion !== 'rhythm-mvp-v2' ||
     !NOTE_DENSITIES.includes(input.noteDensity) ||
+    !RHYTHMIC_VARIETIES.includes(input.rhythmicVariety) ||
     !SILENCE_DENSITIES.includes(input.silenceDensity) ||
     !SYNCOPATIONS.includes(input.syncopation) ||
     !TENSION_ARCS.includes(input.tensionArc)
@@ -159,10 +162,12 @@ function applyByBar(
  * Full v1 derivation in documented depth-first order; it has no time or count cutoff.
  *
  * Unless `exact`, it skips two kinds of work whose candidates the validator always rejects, so
- * the yielded sequence is unchanged: under Mixed density, gestures whose source cells miss a
- * required duration class (no derived phrase can cover it), and candidates
- * `quickRejectRhythmCandidate` rejects before they are frozen and validated. Skipped work records
- * no validation codes, so a no-plan result is re-derived `exact` to report the complete code set.
+ * the yielded sequence is unchanged: gestures whose optimistic best-case density share can never
+ * reach the selected rhythmic-variety level's floor (`gestureCannotReachShare`, an
+ * over-approximation of `rhythmic_variety_violation` proven safe because transforms never change a
+ * source cell's duration), and candidates `quickRejectRhythmCandidate` rejects before they are
+ * frozen and validated. Skipped work records no validation codes, so a no-plan result is
+ * re-derived `exact` to report the complete code set.
  */
 function* derive(
   input: NormalizedRhythmExpansionInput,
@@ -173,7 +178,8 @@ function* derive(
   let hadGesture = false
   for (const gesture of enumerateGestureDerivations(input)) {
     hadGesture = true
-    if (!exact && input.noteDensity === 'Mixed' && !coversMixedDurationClasses(gesture.bars))
+    // @spec-link [[module_rhythm_variety_grammar]]
+    if (!exact && gestureCannotReachShare(gesture.bars, input.noteDensity, input.rhythmicVariety))
       continue
     const answerBase = [copyBar(gesture.bars[0], 2), copyBar(gesture.bars[1], 3)] as const
     let hadAnswerList = false
@@ -313,7 +319,7 @@ const VALIDATION_ORDER: readonly RhythmValidationCode[] = [
   'non_positive_duration',
   'invalid_nominal_provenance',
   'density_attack_band_violation',
-  'mixed_duration_class_coverage_violation',
+  'rhythmic_variety_violation',
   'silence_budget_violation',
   'silence_shape_violation',
   'all_rest_measure',

@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import type { GenerationControls } from '@/domain/controls/generation-controls'
 import {
   DEFAULT_GENERATION_CONTROLS,
   DEFAULT_PROFILE_SELECTION,
@@ -107,6 +108,59 @@ describe('WorkspaceShell', () => {
     const radiogroup = wrapper.get('[aria-label="Written key"]')
     expect(radiogroup.attributes('aria-readonly')).toBeUndefined()
   })
+
+  // @test-link [[rule_unsupported_rhythm_settings_block_generation]]
+  // @test-link [[module_rhythm_variety_grammar]]
+  it.each([
+    {
+      noteDensity: 'Sixteenth' as const,
+      silenceDensity: 'Sparse' as const,
+      syncopation: 'Active displacement' as const,
+      blockedVariety: 'Strict' as const,
+      unblockedVariety: 'Slightly varied' as const,
+    },
+    {
+      noteDensity: 'Quarter' as const,
+      silenceDensity: 'Sparse' as const,
+      syncopation: 'Active displacement' as const,
+      blockedVariety: 'Slightly varied' as const,
+      unblockedVariety: 'Heavily varied' as const,
+    },
+  ])(
+    'toggles the blocked state, live-region text, and phrase-action disabled state on a rhythmic-variety-only change ($noteDensity/$silenceDensity/$syncopation)',
+    ({ noteDensity, silenceDensity, syncopation, blockedVariety, unblockedVariety }) => {
+      const baseControls: GenerationControls = {
+        ...DEFAULT_GENERATION_CONTROLS,
+        noteDensity,
+        silenceDensity,
+        syncopation,
+      }
+
+      const blockedSession = fakeSession({
+        controls: { ...baseControls, rhythmicVariety: blockedVariety },
+      }).session
+      const blockedWrapper = mountShell(blockedSession)
+      const blockedRhythmGroup = blockedWrapper
+        .findAll('.control-group')
+        .find((group) => group.get('h3').text() === 'Rhythm')!
+      const blockedStatus = blockedRhythmGroup.get('[role="status"]')
+      expect(blockedStatus.classes()).toContain('inline-alert')
+      expect(blockedStatus.text()).not.toBe('')
+      expect(blockedWrapper.get('button.btn-primary').attributes('disabled')).toBeDefined()
+
+      const unblockedSession = fakeSession({
+        controls: { ...baseControls, rhythmicVariety: unblockedVariety },
+      }).session
+      const unblockedWrapper = mountShell(unblockedSession)
+      const unblockedRhythmGroup = unblockedWrapper
+        .findAll('.control-group')
+        .find((group) => group.get('h3').text() === 'Rhythm')!
+      const unblockedStatus = unblockedRhythmGroup.get('[role="status"]')
+      expect(unblockedStatus.classes()).not.toContain('inline-alert')
+      expect(unblockedStatus.text()).toBe('')
+      expect(unblockedWrapper.get('button.btn-primary').attributes('disabled')).toBeUndefined()
+    },
+  )
 
   it('always renders the portrait orientation notice alongside the layout root', () => {
     const { session } = fakeSession()

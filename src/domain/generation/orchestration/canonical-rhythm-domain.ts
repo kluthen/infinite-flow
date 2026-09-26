@@ -1,12 +1,12 @@
 /**
  * Step 9 memo for the seed-independent canonical rhythm domain: `makeRhythmCandidateDomain`'s
- * full expansion depends only on the four rhythm-relevant controls (note density, silence density,
- * syncopation, tension arc) plus the grammar version, never on the seed, yet the finite v1 control
- * catalog carries only 4 x 3 x 3 x 4 = 144 distinct rhythm settings per grammar version. Every
- * repeated generation/regeneration against one of those 144 settings can therefore reuse one
- * already-materialized candidate list instead of re-running the expensive Step 6 enumeration, with
- * no eviction policy needed since the keyspace this memo can ever be asked to fill is bounded by
- * that finite catalog.
+ * full expansion depends only on the five rhythm-relevant controls (note density, rhythmic
+ * variety, silence density, syncopation, tension arc) plus the grammar version, never on the seed,
+ * yet the finite v2 control catalog carries only 3 x 3 x 3 x 3 x 4 = 324 distinct rhythm settings
+ * per grammar version. Every repeated generation/regeneration against one of those 324 settings
+ * can therefore reuse one already-materialized candidate list instead of re-running the expensive
+ * Step 6 enumeration, with no eviction policy needed since the keyspace this memo can ever be
+ * asked to fill is bounded by that finite catalog.
  */
 
 import { deepFreeze } from '../../events/deep-freeze'
@@ -39,8 +39,9 @@ export type CanonicalRhythmDomain =
     }
 
 /** Intent: build the memo key string from a normalized rhythm-expansion input's identity fields. */
+// @spec-link [[module_rhythm_variety_grammar]]
 function memoKey(input: NormalizedRhythmExpansionInput): string {
-  return `${input.grammarVersion}|${input.noteDensity}|${input.silenceDensity}|${input.syncopation}|${input.tensionArc}`
+  return `${input.grammarVersion}|${input.noteDensity}|${input.rhythmicVariety}|${input.silenceDensity}|${input.syncopation}|${input.tensionArc}`
 }
 
 /**
@@ -72,10 +73,10 @@ export interface CanonicalRhythmDomainMemo {
 }
 
 /**
- * Intent: create a fresh, empty canonical-rhythm-domain memo keyed by grammar version and the four
+ * Intent: create a fresh, empty canonical-rhythm-domain memo keyed by grammar version and the five
  * rhythm-relevant controls of the NORMALIZED input. A miss expands and materializes the domain
  * exactly once (or memoizes the typed no-plan result) and stores it; a hit returns the exact same
- * frozen instance without touching the grammar again. Bounded by the finite 144-setting-per-
+ * frozen instance without touching the grammar again. Bounded by the finite 324-setting-per-
  * grammar-version control catalog, so no eviction policy is needed.
  */
 // @spec-link [[api_rhythm_domain_expansion]]

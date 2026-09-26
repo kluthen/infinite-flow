@@ -42,6 +42,7 @@ function fixture(
   })
   const rhythms = makeRhythmCandidateDomain({
     noteDensity: options.density ?? 'Quarter',
+    rhythmicVariety: 'Slightly varied',
     silenceDensity: 'Sparse',
     syncopation: 'Straight',
     tensionArc: 'Settled',

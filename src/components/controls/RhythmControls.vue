@@ -8,6 +8,7 @@ import { computed } from 'vue'
 
 import {
   NOTE_DENSITIES,
+  RHYTHMIC_VARIETIES,
   SILENCE_DENSITIES,
   SYNCOPATIONS,
   validateControlValue,
@@ -21,7 +22,12 @@ import {
 } from '@/domain/controls/unsupported-rhythm-settings'
 import SegmentedControl from './SegmentedControl.vue'
 import type { SetControlPayload } from './set-control-event'
-import { noteDensityOptions, silenceDensityOptions, syncopationOptions } from './control-options'
+import {
+  noteDensityOptions,
+  rhythmicVarietyOptions,
+  silenceDensityOptions,
+  syncopationOptions,
+} from './control-options'
 
 const props = defineProps<{
   controls: GenerationControls
@@ -37,6 +43,14 @@ function handleNoteDensity(value: string): void {
   emit('set-control', {
     key: 'noteDensity',
     value: validateControlValue(NOTE_DENSITIES, value, 'Note density'),
+  })
+}
+
+/** Intent: report a rhythmic-variety change, re-validating against its catalog. */
+function handleRhythmicVariety(value: string): void {
+  emit('set-control', {
+    key: 'rhythmicVariety',
+    value: validateControlValue(RHYTHMIC_VARIETIES, value, 'Rhythmic variety'),
   })
 }
 
@@ -59,6 +73,7 @@ function handleSilenceDensity(value: string): void {
 /** Intent: name the rhythm-setting subset of the current controls that the block rule reads. */
 const rhythmSetting = computed(() => ({
   noteDensity: props.controls.noteDensity,
+  rhythmicVariety: props.controls.rhythmicVariety,
   silenceDensity: props.controls.silenceDensity,
   syncopation: props.controls.syncopation,
 }))
@@ -88,6 +103,16 @@ const liveRegionText = computed(() => blockedMessage.value ?? '')
         :model-value="controls.noteDensity"
         :readonly="readonly"
         @update:model-value="handleNoteDensity"
+      />
+    </div>
+    <div class="field-group" :class="{ 'is-readonly': readonly }">
+      <span class="field-label">Rhythmic variety</span>
+      <SegmentedControl
+        label="Rhythmic variety"
+        :options="rhythmicVarietyOptions()"
+        :model-value="controls.rhythmicVariety"
+        :readonly="readonly"
+        @update:model-value="handleRhythmicVariety"
       />
     </div>
     <div class="field-group" :class="{ 'is-readonly': readonly }">

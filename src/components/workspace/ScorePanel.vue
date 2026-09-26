@@ -62,9 +62,9 @@ const notationStatusText = ref('')
 
 /**
  * Intent: announce a notation failure whenever `notationError` becomes set, whatever set it -- a
- * fresh generation's own engraving step, Retry notation, an out-of-band redraw, a display-mode
- * switch, or a retaining profile switch -- by watching the error itself rather than any call site.
- * Recovery stays silent: a cleared error only empties the region, never announces.
+ * fresh generation's own engraving step, Retry notation, or an out-of-band redraw -- by watching
+ * the error itself rather than any call site. Recovery stays silent: a cleared error only empties
+ * the region, never announces.
  */
 // @spec-link [[service_workspace_session_flow]]
 watch(

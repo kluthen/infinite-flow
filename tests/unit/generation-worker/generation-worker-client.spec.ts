@@ -27,6 +27,7 @@ const CHEAP_CONTROLS: GenerationControls = makeGenerationControls({
   harmonicMotion: 'Gentle diatonic',
   tension: 'Settled',
   noteDensity: 'Quarter',
+  rhythmicVariety: 'Strict',
   syncopation: 'Straight',
   silenceDensity: 'Sparse',
   contour: 'Arch',

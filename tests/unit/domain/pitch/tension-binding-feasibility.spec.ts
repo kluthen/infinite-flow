@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest'
 import {
   HARMONIC_MOTIONS,
   NOTE_DENSITIES,
+  RHYTHMIC_VARIETIES,
   SILENCE_DENSITIES,
   SYNCOPATIONS,
   TENSION_ARCS,
   type HarmonicMotion,
   type NoteDensity,
+  type RhythmicVariety,
   type SilenceDensity,
   type Syncopation,
   type TensionArc,
@@ -23,18 +25,24 @@ import type { RhythmCandidate } from '@/domain/rhythm/rhythm-types'
 
 interface SupportedRhythmSetting {
   readonly noteDensity: NoteDensity
+  readonly rhythmicVariety: RhythmicVariety
   readonly silenceDensity: SilenceDensity
   readonly syncopation: Syncopation
 }
 
-/** Every note density + silence density + syncopation combination the rhythm grammar supports. */
+/**
+ * Every note density + rhythmic variety + silence density + syncopation combination the rhythm
+ * grammar supports.
+ */
 const SUPPORTED_RHYTHM_SETTINGS: readonly SupportedRhythmSetting[] = NOTE_DENSITIES.flatMap(
   (noteDensity) =>
-    SILENCE_DENSITIES.flatMap((silenceDensity) =>
-      SYNCOPATIONS.flatMap((syncopation) => {
-        const setting = { noteDensity, silenceDensity, syncopation }
-        return isUnsupportedRhythmSetting(setting) ? [] : [setting]
-      }),
+    RHYTHMIC_VARIETIES.flatMap((rhythmicVariety) =>
+      SILENCE_DENSITIES.flatMap((silenceDensity) =>
+        SYNCOPATIONS.flatMap((syncopation) => {
+          const setting = { noteDensity, rhythmicVariety, silenceDensity, syncopation }
+          return isUnsupportedRhythmSetting(setting) ? [] : [setting]
+        }),
+      ),
     ),
 )
 
@@ -63,7 +71,7 @@ function rhythmCandidatesFor(
   const domain = makeRhythmCandidateDomain({ ...setting, tensionArc })
   if (domain.kind !== 'rhythm_candidate_domain')
     throw new Error(
-      `no legal rhythm plan for ${setting.noteDensity}/${setting.silenceDensity}/${setting.syncopation}/${tensionArc}`,
+      `no legal rhythm plan for ${setting.noteDensity}/${setting.rhythmicVariety}/${setting.silenceDensity}/${setting.syncopation}/${tensionArc}`,
     )
   return [...domain.candidates()]
 }
@@ -94,10 +102,13 @@ function hasBindablePair(
 describe('tension binding feasibility sweep', () => {
   it('covers every supported rhythm setting crossed with every harmonic motion, per tension arc', () => {
     const expectedSupportedSettingCount =
-      NOTE_DENSITIES.length * SILENCE_DENSITIES.length * SYNCOPATIONS.length -
+      NOTE_DENSITIES.length *
+        RHYTHMIC_VARIETIES.length *
+        SILENCE_DENSITIES.length *
+        SYNCOPATIONS.length -
       UNSUPPORTED_RHYTHM_SETTINGS.length
     expect(SUPPORTED_RHYTHM_SETTINGS.length).toBe(expectedSupportedSettingCount)
-    expect(SUPPORTED_RHYTHM_SETTINGS.length).toBe(30)
+    expect(SUPPORTED_RHYTHM_SETTINGS.length).toBe(71)
     expect(HARMONIC_MOTIONS.length).toBe(3)
   })
 
@@ -119,7 +130,7 @@ describe('tension binding feasibility sweep', () => {
           checked += 1
           if (!hasBindablePair(harmonyCandidates, rhythmCandidates))
             infeasible.push(
-              `${setting.noteDensity}|${setting.silenceDensity}|${setting.syncopation}|${tensionArc}|${harmonicMotion}`,
+              `${setting.noteDensity}|${setting.rhythmicVariety}|${setting.silenceDensity}|${setting.syncopation}|${tensionArc}|${harmonicMotion}`,
             )
         }
       }

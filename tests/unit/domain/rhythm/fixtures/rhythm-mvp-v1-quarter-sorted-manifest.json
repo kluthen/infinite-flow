@@ -1,0 +1,217 @@
+{
+  "grammarVersion": "rhythm-mvp-v1",
+  "entries": {
+    "Quarter|Sparse|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "733e9b47b4dcb6aeee33ceb9251d41bd2b8dccc3e5999b5f0a7d02df9a9eff8c"
+    },
+    "Quarter|Sparse|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "619aad74a9e904ca0b1a52e491347aadba5c6bdb1e8ba93c3d8303a08ce12bc2"
+    },
+    "Quarter|Sparse|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "3575ed03e03b3663f4f61631f72dbf3c5f4f18f60103b874e1b989aa8f2c4654"
+    },
+    "Quarter|Sparse|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "fe7b1dc378ec1cc4d5b4624775cfb7ff01cd5c7c3ecb30923f7815e362980696"
+    },
+    "Quarter|Sparse|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 14,
+      "sortedSha256": "44f260223517c98b592b01857cc568eb662a6754ac7e55bbf921ec9b6ad924c0"
+    },
+    "Quarter|Sparse|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 14,
+      "sortedSha256": "e455ab740823317db46995d334aa4da67dfc1724e4ad85733db6d14ea0b289c3"
+    },
+    "Quarter|Sparse|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 30,
+      "sortedSha256": "7ba4d110ba286e14570793a8dc5a448583c4dbbdd5ed2c4a92f772d220d82336"
+    },
+    "Quarter|Sparse|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 30,
+      "sortedSha256": "cac0a467659100b29b6bc3d94b79594da554b7c56e07be3a153133c4a68467d8"
+    },
+    "Quarter|Sparse|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Sparse|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Sparse|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Sparse|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Conversational|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "8a24b7c51d0f52702950772c30c1b8f96a6355ee9c25201b5f382d84632e6945"
+    },
+    "Quarter|Conversational|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "d124989c4221e23dcea594dacbb6df4a083fb6fb3968563416c76664805a03cb"
+    },
+    "Quarter|Conversational|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "5acab14488a6b2f5db0bd529555974f0f4c2d33219b80c612947523e990ca7bc"
+    },
+    "Quarter|Conversational|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "d0c953e66e15a5d1a85539e1eeeec5f77da639532b82bc8ab406dec3f57a481d"
+    },
+    "Quarter|Conversational|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sortedSha256": "53c51074bea8754c63285673034286f4001076bfac2bdf657629d0b5cf205960"
+    },
+    "Quarter|Conversational|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sortedSha256": "c7cfaf0f87103197544efcf38f3cac7ce57c18e20606c68133702eff108aa292"
+    },
+    "Quarter|Conversational|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 21,
+      "sortedSha256": "c1a6895b5fc3b576d6ddf75cc6eb3dfa3db9e12abbc962b6a651f6b65cdeccb5"
+    },
+    "Quarter|Conversational|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 21,
+      "sortedSha256": "793f5d58755e823b16d040ed62a8b8a79788b4766fa5ae0b62bc709c701238e3"
+    },
+    "Quarter|Conversational|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "e88756995718534d8e6001bd372e7e458a776916b7fc766beec5ad0204ee7dfb"
+    },
+    "Quarter|Conversational|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "b1dd4b644eb39eb90f9f118efe5589db83cf390b39b8f4d93d8e3f24d018c878"
+    },
+    "Quarter|Conversational|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "7803f4e4734944e435b7065e349c0d4e9d6b1a04357b875545dd8d1c6c19e4fe"
+    },
+    "Quarter|Conversational|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "be37f62613ecd2d40118c709f2f712d378c5c47ce64310be40a427aaeb40e35c"
+    },
+    "Quarter|Breath-heavy|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "78ef5367bc56e5404720d67a4b39512b553325b8d8d7dd4694ec28baff98b616"
+    },
+    "Quarter|Breath-heavy|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "37f04f776fd43a0f6aa0d2382b323ca920a449ea2d974eeea95c2b1ae22c5947"
+    },
+    "Quarter|Breath-heavy|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "474230884a91bc7700cad782550508d43d79fb93373ae33f306eaacc2961416b"
+    },
+    "Quarter|Breath-heavy|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sortedSha256": "98bcb607e1c2b9d938a6ed8d554cfa49959d9a351fd5c97a0fbabdeb71b52ff3"
+    },
+    "Quarter|Breath-heavy|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 20,
+      "sortedSha256": "6e28ccd76c9f41386b86fa6e5101e41a65a74fef6e11e7b7ae281fd2e9598ecc"
+    },
+    "Quarter|Breath-heavy|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 20,
+      "sortedSha256": "051d8c2d85a79cd0705de6ef3231bb040efa2cf896e2a8c9e473091944124238"
+    },
+    "Quarter|Breath-heavy|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 26,
+      "sortedSha256": "b4dda492a6cc7a6aff845d5bda8ea8202dc610b5e68ea81ff4bcc8b1953b9674"
+    },
+    "Quarter|Breath-heavy|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 26,
+      "sortedSha256": "9e84f4f0b1bd393d1ed58cc7a0956f7738087c422fbeafef5d47d9cb54e66a40"
+    },
+    "Quarter|Breath-heavy|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Quarter|Breath-heavy|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Quarter|Breath-heavy|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Quarter|Breath-heavy|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    }
+  }
+}

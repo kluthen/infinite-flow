@@ -10,12 +10,13 @@ function candidates(input: Parameters<typeof makeRhythmCandidateDomain>[0]) {
 }
 
 // @test-link [[api_rhythm_domain_expansion]]
-describe('rhythm-mvp-v1 complete derivation domain', () => {
+describe('rhythm-mvp-v2 complete derivation domain', () => {
   // @test-link [[entity_rhythm_candidate_domain]]
   it('retains canonical bar-form, recurrence, and merge derivations rather than one representative', () => {
     const domain = candidates({
-      grammarVersion: 'rhythm-mvp-v1',
+      grammarVersion: 'rhythm-mvp-v2',
       noteDensity: 'Eighth',
+      rhythmicVariety: 'Slightly varied',
       silenceDensity: 'Sparse',
       syncopation: 'Straight',
       tensionArc: 'Settled',
@@ -37,8 +38,9 @@ describe('rhythm-mvp-v1 complete derivation domain', () => {
     'retains %s descriptor coverage in surviving candidates',
     (syncopation, minimum) => {
       const domain = candidates({
-        grammarVersion: 'rhythm-mvp-v1',
-        noteDensity: syncopation === 'Straight' ? 'Sixteenth' : 'Mixed',
+        grammarVersion: 'rhythm-mvp-v2',
+        noteDensity: syncopation === 'Straight' ? 'Sixteenth' : 'Eighth',
+        rhythmicVariety: syncopation === 'Straight' ? 'Slightly varied' : 'Heavily varied',
         silenceDensity: 'Sparse',
         syncopation,
         tensionArc: 'Build',
@@ -56,8 +58,9 @@ describe('rhythm-mvp-v1 complete derivation domain', () => {
 
   it('retains Occasional selectors compatible with the answer-ending policy', () => {
     const result = makeRhythmCandidateDomain({
-      grammarVersion: 'rhythm-mvp-v1',
+      grammarVersion: 'rhythm-mvp-v2',
       noteDensity: 'Eighth',
+      rhythmicVariety: 'Slightly varied',
       silenceDensity: 'Sparse',
       syncopation: 'Occasional offbeats',
       tensionArc: 'Build',
@@ -76,8 +79,9 @@ describe('rhythm-mvp-v1 complete derivation domain', () => {
 
   it('supplies all four phrase bars to Active templates and retains both documented shapes', () => {
     const result = makeRhythmCandidateDomain({
-      grammarVersion: 'rhythm-mvp-v1',
+      grammarVersion: 'rhythm-mvp-v2',
       noteDensity: 'Eighth',
+      rhythmicVariety: 'Slightly varied',
       silenceDensity: 'Sparse',
       syncopation: 'Active displacement',
       tensionArc: 'Build',
@@ -137,8 +141,9 @@ describe('rhythm-mvp-v1 complete derivation domain', () => {
 
   it('does not accept the provisional all-one manifest as a complete-domain fixture', () => {
     const domain = candidates({
-      grammarVersion: 'rhythm-mvp-v1',
+      grammarVersion: 'rhythm-mvp-v2',
       noteDensity: 'Eighth',
+      rhythmicVariety: 'Slightly varied',
       silenceDensity: 'Sparse',
       syncopation: 'Straight',
       tensionArc: 'Settled',

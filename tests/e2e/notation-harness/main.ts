@@ -17,6 +17,7 @@ import {
   PITCH_CLASSES,
   COLLECTIONS,
   NOTE_DENSITIES,
+  RHYTHMIC_VARIETIES,
   SYNCOPATIONS,
   SILENCE_DENSITIES,
   INSTRUMENT_PROFILE_IDS,
@@ -90,6 +91,11 @@ function buildHarnessIntent(params: URLSearchParams): GenerationIntent {
     harmonicMotion: 'Gentle diatonic',
     tension: 'Settled',
     noteDensity: validateControlValue(NOTE_DENSITIES, requireParam(params, 'density'), 'density'),
+    rhythmicVariety: validateControlValue(
+      RHYTHMIC_VARIETIES,
+      requireParam(params, 'variety'),
+      'variety',
+    ),
     syncopation: validateControlValue(
       SYNCOPATIONS,
       requireParam(params, 'syncopation'),

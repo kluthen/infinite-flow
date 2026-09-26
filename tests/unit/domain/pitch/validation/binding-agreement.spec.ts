@@ -33,6 +33,7 @@ function baseHarmony(): HarmonyCandidate {
 function baseRhythm(): RhythmCandidate {
   const domain = makeRhythmCandidateDomain({
     noteDensity: 'Quarter',
+    rhythmicVariety: 'Slightly varied',
     silenceDensity: 'Sparse',
     syncopation: 'Straight',
     tensionArc: 'Settled',
