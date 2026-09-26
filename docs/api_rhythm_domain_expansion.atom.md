@@ -5,7 +5,7 @@ human_name: Rhythm Domain Expansion
 layer: ARCHITECTURE
 priority: 1
 tags: rhythm,planner,canonical-domain,step6
-version: 0.2
+version: 0.3
 dependents: []
 type: API
 parents:
@@ -30,5 +30,4 @@ The public API accepts grammarVersion, NoteDensity, SilenceDensity, Syncopation,
 Callers provide RhythmExpansionInput with grammarVersion and the four rhythm controls and receive an immutable RhythmCandidateDomain whose candidates() factory returns a fresh finite IterableIterator, or a typed planner failure. The API accepts no seed, random source, harmony, pitch, profile, instrument, ranking, selection, arbitrary candidate limit, calibration table, catalog table, ordering table, or tooling fixture.
 
 ## EXPECTATION
-
-For identical versioned inputs, repeated full or partial traversals yield the same finite ordered candidate sequence with contiguous indices and normalized identities, independent of seed, iteration chunking, or backpressure. The API does not eagerly allocate the complete domain, mutate values, inspect harmony or pitch, or substitute another grammar version. Amendment note: the amended v1.0-gate master spec retires the player-facing Mixed note density and the mixed-subdivision concept in favor of a rhythmic-variety control layered on Quarter, Eighth, and Sixteenth density. rhythm-mvp-v1 as described above, including its current Mixed-density support, remains what shipped code implements today; a successor grammar version that drops Mixed and adds rhythmic-variety-aware expansion is required before that part of the spec can be implemented, and its exact mechanics (value sets, weighting, dominance measurement, tie-break placement) are not yet specified pending the rhythm-grammar feasibility review named in the master spec.
+For identical versioned inputs, repeated full or partial traversals yield the same finite ordered candidate sequence with contiguous indices and normalized identities, independent of seed, iteration chunking, or backpressure. The API does not eagerly allocate the complete domain, mutate values, inspect harmony or pitch, or substitute another grammar version. Amendment note: the amended v1.0-gate master spec retires the player-facing Mixed note density and the mixed-subdivision concept in favor of a rhythmic-variety control layered on Quarter, Eighth, and Sixteenth density. rhythm-mvp-v1 as described above, including its current Mixed-density support, remains what shipped code implements today; it is not yet updated. The successor grammar version rhythm-mvp-v2, which drops Mixed and adds rhythmic-variety-aware expansion, is now fully specified -- its per density x level value catalog, its nominal-attack-share dominance validator, its in-beat merge restriction, its place as a hard filter in the tie-break priority's budgets tier, its per-variety blocked-combination set, and its prefilter soundness and determinism obligations are recorded in [[module_rhythm_variety_grammar]], fixed by the user-confirmed rhythm-grammar feasibility review (D74, specs/decisions.md) -- but rhythm-mvp-v2 is not yet implemented in shipped code.
