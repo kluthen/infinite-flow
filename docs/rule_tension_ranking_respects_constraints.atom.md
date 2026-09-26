@@ -7,7 +7,7 @@ dependents:
   - [[api_rhythm_domain_expansion]]
   - [[module_harmony_candidate_domain]]
 human_name: Tension Ranking Respects Constraints
-version: 0.1
+version: 0.2
 type: RULE
 layer: BUSINESS
 priority: 1
@@ -20,10 +20,10 @@ tags: tension,constraints,determinism
 Prevent tension selection from overriding higher-priority phrase constraints.
 
 ## THE RULE / LOGIC
-Tension ranks only legal candidates. Candidate selection prioritizes hard feasibility and cadence policy; profile, tonal collection, range, and contour; density and silence budgets; syncopation onset plan; leapiness and arpeggio-chaos candidates; tension ranking; then the seeded deterministic tie-break. Tension cannot add onsets, remove rests, change register, exceed leap limits, or turn syncopation into a monotonic tension control.
+Tension ranks only legal candidates. Candidate selection prioritizes hard feasibility and cadence policy; profile, tonal collection, range, and contour; density, rhythmic variety, and silence budgets; syncopation onset plan; leapiness and arpeggio-chaos candidates; tension ranking; then the seeded deterministic tie-break. Tension cannot add onsets, remove rests, change register, exceed leap limits, or turn syncopation into a monotonic tension control.
 
 ## TECHNICAL INTERFACE
 Tension arc ranks candidates after higher-priority generation constraints have filtered them.
 
 ## EXPECTATION
-Changing tension arc never violates hard feasibility, cadence, profile, tonal, range, contour, density, silence, syncopation, leapiness, arpeggio-chaos, or deterministic seed policy.
+Changing tension arc never violates hard feasibility, cadence, profile, tonal, range, contour, density, rhythmic variety, silence, syncopation, leapiness, arpeggio-chaos, or deterministic seed policy.
