@@ -242,13 +242,86 @@ That is the point of the issue.
 
 ### 4.3 ISS-005
 
+Impact research on 2026-09-26 (codebase-explorer, spot-checked by spec-writer).
+
+**Blast radius: small.**
+
+| Location                                                                                               | What it is                                                | Action                                      |
+| ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- | ------------------------------------------- |
+| `src/domain/pitch/pitch-candidates.ts:172` (`jazzPaths`)                                               | behavior branch on name                                   | read the capability                         |
+| `src/domain/pitch/validation/figure-rules.ts:168`                                                      | behavior branch on name (`out_of_collection` unless Jazz) | read the capability                         |
+| `src/domain/controls/profile-selection.ts:30` (`PROFILE_BUNDLES`)                                      | data table keyed by profile                               | leave; the capability table goes next to it |
+| `src/domain/harmony/harmony-planner.ts:80`, `src/generation-worker/generation-worker-protocol.ts:129`  | membership validation                                     | leave                                       |
+| neutral diatonic rules (`pitch-figures.ts`, `pitch-candidates.ts:79/280`, `harmony-planner.ts:43/142`) | enforced through the collection, not the name             | leave                                       |
+
+**How the profile reaches the checks:** `use-generation-session.ts` →
+`intent.musicalProfile {musicalProfile, isCustom}` (the worker protocol) →
+`parseGenerationWorkerIntent` → `makeGenerationIntent` → `bindingPitchPolicy`
+(`window-search.ts:93-103`) → `makePitchPolicy` (`pitch-policy.ts`) → `PitchPolicy.profile`
+(`pitch-types.ts:38`) → the two checks.
+
+**Recommended shape (proposed; the implementer may refine it):**
+
+1. Put a capability table next to `PROFILE_BUNDLES` in `domain/controls/profile-selection.ts`:
+   `MUSICAL_PROFILE_CAPABILITIES: Record<MusicalProfile, {allowsChromaticApproach: boolean}>`
+   (the field name is illustrative).
+2. `makePitchPolicy` resolves the profile's capabilities once, onto a new frozen
+   `PitchPolicy.capabilities` field.
+   - Its `input` should also accept an **optional capabilities override**, so tests can inject a
+     capability set without a new profile name.
+   - `MusicalProfile` is a closed union, so a truly "test-only profile name" is impossible without
+     widening types, and that is out of scope.
+3. Replace the two checks with a read of `policy.capabilities`. Renaming `jazzPaths` (e.g.
+   `chromaticApproachPaths`) is optional.
+4. **The worker protocol does not change.** Capabilities are derived inside the domain after
+   parsing. The boundary rules allow it: `domain/pitch` already imports types from
+   `domain/controls`.
+
+**Byte-identity proof (do this in order):**
+
+1. **Before touching code, confirm the baseline actually exercises chromatic figures.**
+   - Jazz goldens exist (`generation-outcome-golden.v2.ts`: `eighth-occasional-conversational-jazz`
+     and `quarter-occasional-breath-heavy-jazz-edge`), and `pitch-search-equivalence.spec.ts` has
+     Jazz seeds.
+   - Nobody has yet verified that any of them **selects** an approach or enclosure.
+   - If none does, first add a pinned case whose outcome contains one, recording its hash from the
+     unchanged code. It goes in the same unit, but its baseline must come from the unchanged code.
+2. Apply the refactor.
+3. These must pass unchanged:
+   - `generation-outcome-golden.spec.ts` (the hash is `fnv1a32(JSON.stringify(outcome))`; the
+     outcome carries only `searchPolicyVersion`, not the policy object, so the new field should not
+     move hashes, and if it does, stop);
+   - `pitch-search-equivalence.spec.ts`;
+   - `generation-seed-matrix.spec.ts`;
+   - `pitch-candidates.spec.ts:116-129` (`@test-link [[rule_jazz_chromatic_resolution]]`);
+   - `figure-rules.spec.ts:37-70`.
+4. New tests use the override:
+   - Neutral **with** the capability gets chromatic candidates and passes validation;
+   - Jazz **without** it gets none, and chromatic pitches fail as `out_of_collection`.
+     This proves the gate reads the capability, not the name.
+5. `grep "'Jazz'" src/domain` matches only data tables and labels.
+
+**Performance:** a property read replaces a string compare, once per planner input. The difference
+is well under a millisecond per generation, against the 250 ms warm p95 budget.
+
+**Conflict hotspots:**
+
+- `profile-selection.ts` is shared with ISS-004 (seven-control bundles). This is a **medium**
+  conflict risk, so **land ISS-005 before ISS-004**.
+- No file overlap with ISS-003. Both pass through `generation-intent.ts` and `window-search.ts`
+  without editing the same lines. That is a low risk, and either order works.
+
+**ATD:** see §6 (ISS-005 addendum) for the architecture atom and the `@spec-link` placement.
+
 **Acceptance:**
 
-- `grep "'Jazz'"` in `src/domain` matches only the musical-profile definition table.
-- There is a unit test with a **test-only musical profile under another name that declares the
-  capability** and gets chromatic figures.
-- All goldens and seeded outputs are **byte-identical**.
-- `rule_jazz_chromatic_resolution` (or its successor atom) describes the capability.
+- `grep "'Jazz'"` in `src/domain` matches only the musical-profile data tables and labels.
+- A capability-override test shows behavior follows the capability, not the name (step 4 above).
+- All goldens and seeded outputs are **byte-identical**, and the baseline demonstrably exercises
+  a chromatic figure (step 1).
+- The worker protocol is unchanged.
+- `rule_jazz_chromatic_resolution` and the capability architecture atom describe the code, and
+  their `@spec-link` tags are placed directly above the functions that carry them.
 
 ---
 
@@ -304,10 +377,11 @@ pass, with 81 atoms and no broken links. `atd audit` was not run.
   constraints" becomes "the selected instrument profile's concert-to-written transposition, used
   only by notation and by request construction's written-to-concert tonal-center conversion, never
   alters those source events or generation constraints".
-- **Not edited; waiting for user sign-off:** `rule_instrument_profile_range` (STABLE, BUSINESS)
-  still speaks of "notation display transposition" and "display-convention change". The guarantee
-  is unchanged in substance, but the wording is stale, and changing it needs
-  `atd update --force`.
+- **`rule_instrument_profile_range`** (STABLE, BUSINESS): the wording was updated on 2026-09-26
+  with the user's approval (`atd update --force`), and the atom stays STABLE. The guarantee is
+  unchanged. Its LOGIC and EXPECTATION now say "the instrument profile's own concert-to-written
+  transposition, used only by notation and by the request's written-to-concert tonal-center
+  conversion, never changes the active concert range or the source events".
 - **Vision atom:** not touched. It still mentions "notation display-mode selection". This will be
   fixed during the vision rework.
 
@@ -341,11 +415,34 @@ advances their statuses once the code lands.
 
 ---
 
+### ISS-005 addendum (2026-09-26)
+
+- **New ARCHITECTURE atom `module_musical_profile_capabilities`** (DRAFT). It covers capabilities
+  as data, gating by capability and never by name, the first-release capability, and output left
+  unchanged.
+  - Parent: `rule_jazz_chromatic_resolution`.
+  - Dependents: `module_phrase_generation_profile_policy` and `module_harmony_candidate_domain`.
+  - It deliberately does not fix the implementation shape.
+- `rule_jazz_chromatic_resolution` already gates on the capability. `atd weave` added the
+  reciprocal link. The neutral diatonic rules were reviewed and left unchanged.
+- **`@spec-link` placement during ISS-005.** These tags are additive: keep the existing
+  `[[rule_jazz_chromatic_resolution]]` link on `jazzPaths`. Place
+  `@spec-link [[module_musical_profile_capabilities]]` directly above:
+  - the capability table definition, wherever it lands (§4.3 proposes `profile-selection.ts`);
+  - the `PitchPolicy` capability field (`pitch-types.ts`) and its assembly in `makePitchPolicy`
+    (`pitch-policy.ts`);
+  - the two call sites that now read the capability (`pitch-candidates.ts`, `figure-rules.ts`).
+
+---
+
 ## 7. Carried-forward notes (not blocking the gate)
 
 - **D72 (for v2):** MIDI input is read as concert pitch, and there is no input-transposition field
   in v1.0. Nothing to do for the gate.
-- **Negative transpositions** (instruments written below sounding pitch) are allowed by "integer"
-  in the spec. No v1 preset needs one, and a test with a negative value is optional (proposed).
-- **Switching between two instruments with the same transposition mod 12** still regenerates
-  (plain reading of D56c).
+- **Confirmed by the user on 2026-09-26:**
+  - Negative transpositions (instruments written below sounding pitch) are allowed, since the spec
+    says "integer". No v1 preset needs one, and a test with a negative value is optional.
+  - Switching between two instruments with the same transposition mod 12 still regenerates, as
+    D56c reads.
+  - Rhythmic variety is preset-controlled, so editing it gives the custom state.
+  - First load is written C on tenor, which sounds concert B♭.

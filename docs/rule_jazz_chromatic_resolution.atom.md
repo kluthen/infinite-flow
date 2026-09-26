@@ -10,6 +10,7 @@ parents:
   - [[req_four_measure_phrase]]
 dependents:
   - [[module_harmony_candidate_domain]]
+  - [[module_musical_profile_capabilities]]
 type: RULE
 ---
 
