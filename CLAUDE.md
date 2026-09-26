@@ -20,5 +20,6 @@ their music-theory knowledge for granted.
 - One box per misunderstanding. Skip spelling and typing slips that don't change the meaning.
 - Keep it encouraging. Never grade, lecture or pile on; no box is needed when they are right.
 - When you introduce a term they may not know, define it briefly in passing.
-- Use the project's glossary terms and definitions when they exist. The current glossary is
-  `docs/music/terms.md`. A full beginner lexicon is being built to replace it.
+- Use the project's lexicon terms and definitions when they exist. The lexicon is
+  `docs/music/lexicon.md`: one entry per term, with a plain popup line, a definition and the
+  app-specific meaning.

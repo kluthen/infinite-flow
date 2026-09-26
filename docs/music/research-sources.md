@@ -69,3 +69,22 @@ This is a retained research trail for later generator design and player document
   - Useful for: recording MIDI note numbers as the canonical range boundary, avoiding device-specific octave-label differences.
 
 Historical note: the cross-saxophone `56-69` shared interval was considered before first-release instrument profiles were adopted. It is not current generator policy. First release instead receives one explicit validated profile: keyboard `48-72`, tenor `46-70`, or alto `51-75`, with the windows in [Saxophone Profile Ranges](saxophone-profile-ranges.md).
+
+## Lexicon References
+
+These sources back the [Music Lexicon](lexicon.md). They are reference only: every lexicon definition is written in the project's own words, and no text is copied or closely paraphrased from them.
+
+- **S14 - Open Music Theory, version 2, glossary.** Mark Gotham et al., VIVA Pressbooks (2023), CC BY-SA: https://viva.pressbooks.pub/openmusictheory/back-matter/glossary/
+  - Useful for: the primary fact-check of term meanings across fundamentals, harmony, form and jazz vocabulary.
+  - Applied in: most lexicon entries, as the verification source. Reference only; no text copied.
+- **S15 - Sound Reasoning, glossary.** Anna Brandt and Brian McClure, LibreTexts: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Sound_Reasoning_(Brandt_and_McClure)/zz:_Back_Matter/20:_Glossary
+  - Useful for: cross-checking that beginner-level definitions (beat, meter, register, tempo and similar) are pitched at the right level.
+  - Applied in: basic lexicon entries. Reference only; no text copied.
+- **S16 - Transposing instrument.** Wikipedia: https://en.wikipedia.org/wiki/Transposing_instrument
+  - Useful for: the definition of transposing instruments, their naming by the concert pitch of a written C, and the B-flat and E-flat saxophone intervals.
+  - Applied in: the lexicon's instruments and transposition entries. Reference only; no text copied.
+- **S17 - Concert pitch.** Wikipedia: https://en.wikipedia.org/wiki/Concert_pitch
+  - Useful for: distinguishing sounding (concert) pitch from written pitch, and from the separate tuning-standard meaning of the term.
+  - Applied in: the lexicon's concert pitch and written pitch entries. Reference only; no text copied.
+
+Licence note: Music Theory for the 21st-Century Classroom (S1-S7, S9-S10) is © 2017 Robert Hutchinson and distributed under the GNU Free Documentation License, version 1.2 or later. The project cites it for verification and does not reproduce its text.

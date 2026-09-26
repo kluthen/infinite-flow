@@ -104,6 +104,11 @@ through an export the player triggers (D64, D69).
   switching instrument to get a new phrase "makes little to no sense from the user's point of
   view when he doesn't change instrument." Not designed here — `ux-writer` owns the actual action
   and copy once it is scheduled. See `ui_ux/qna.md` Q16, which stays open.
+- **Lexicon popups on music-theory terms.** Every music-theory word shown in the UI (control
+  labels, option values, notation terms) becomes hoverable/clickable and opens a popup with its
+  entry from the project lexicon (`docs/music/lexicon.md`: the popup text, with the plain
+  definition and the app-specific meaning on demand). Needs a `ux-writer` pass (trigger,
+  placement, touch behavior, accessibility) before implementation; no UI change was made in v1.
 
 ## Not in v2
 
