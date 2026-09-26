@@ -39,7 +39,7 @@ The full text lives in the documents linked here: [v2 proposal §7](versions/v2/
 - **O44 - Count-in**: should there be one? How does it fit "the first MIDI note starts the session"?
 - **O45 - Backing implementation**: render it from harmony, or generate it as a voice? Synthesized or sampled sound?
 - **O46 - Export scope**: whole session, favorites only, or both?
-- Proposed defaults for O10, O24 and O34–O46, and the new O50–O75, are in [v2 spec questions (O50+)](#v2-spec-questions-o50) below.
+- Proposed defaults for O10, O24 and O34–O46, and the new O50–O76, are in [v2 spec questions (O50+)](#v2-spec-questions-o50) below.
 
 **Later and governance**
 
@@ -58,6 +58,7 @@ it needs an answer, is in [v2 questions for the user](versions/v2/questions-for-
 - **O50 - Register window across joins**: with `Varying`, resolve once per session or per phrase?
 - **O51 - A leap across a join**: carry the recovery obligation into the next phrase, or restrict its first note?
 - **O52 - The v1 static workspace inside v2**: keep it outside sessions, with Start using the displayed phrase?
+- **O76 - Resolving tense notes at a join**: keep v1's "resolve before the last note" rule at every join, or only where the music stops?
 
 **Audio and backing** ([audio-and-backing.md](versions/v2/audio-and-backing.md#8-open-questions))
 

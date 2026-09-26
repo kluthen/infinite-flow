@@ -109,6 +109,16 @@ through an export the player triggers (D64, D69).
   entry from the project lexicon (`docs/music/lexicon.md`: the popup text, with the plain
   definition and the app-specific meaning on demand). Needs a `ux-writer` pass (trigger,
   placement, touch behavior, accessibility) before implementation; no UI change was made in v1.
+- **Unsupported rhythm settings: simpler message, clearer controls.** The user's view (2026-09-26):
+  the v1 notice ("This mix of note density, silence, and syncopation can't form a four-bar phrase
+  yet. Try …") should become simpler, along the lines of "try another combination of settings".
+  Today it names only three of the four settings involved, since rhythmic variety also decides
+  what is blocked, and it never suggests changing variety. The settings that combine this way
+  (rhythmic variety, note density, silence density, syncopation) should be marked differently in
+  the UI, with a hint that changing them changes how the phrase is composed. Not designed here:
+  `ux-writer` owns the copy and the marking once it is scheduled. The v1 domain rule
+  (`rule_unsupported_rhythm_settings_block_generation`) asks the notice to suggest a nearby
+  supported change, so dropping the suggestion would need that atom updated too.
 
 ## Not in v2
 

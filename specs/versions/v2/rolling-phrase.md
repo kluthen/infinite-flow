@@ -10,7 +10,7 @@ session, and the behaviour the rolling display has to support. Audio and the clo
 
 Anything the user has settled is written as fact and cites its decision. Everything else is
 tagged `(proposed)`. Question IDs point to the [register](../../open-questions.md). Questions
-first raised in this document (O50–O52) have their full text in [§8](#8-open-questions).
+first raised in this document (O50–O52, O76) have their full text in [§8](#8-open-questions).
 
 ## 1. Settled inputs
 
@@ -210,3 +210,14 @@ tension phrase by phrase in v2.0. The multi-phrase arc (N3 in the
   phrase generator (look, regenerate, no time pressure), with Start using the **displayed**
   phrase as phrase 1 (proposed)? Or is v2 only the rolling session? The proposed default keeps
   P1's "at own pace" mode (D49) and lets "I like this one, let's play it" work.
+- **O76 - Resolving tense notes at a join.** In v1 a phrase is the end of the music, so every
+  passing or neighbour tone, appoggiatura, and Jazz approach or enclosure must resolve _before_
+  the final sounding note, which then ends calm and open. (The v1 code does not fully enforce
+  this: free passing/neighbour tones and Jazz chromatic ornaments may still resolve _onto_ the
+  final note. Only the scheduled Tension figure is held to it. This is left unfixed on purpose,
+  pending this question.) In a rolling session the last note of _N_ is a join, not an ending.
+  Proposed default: the rule applies only where the music really stops (Stop, or a session end),
+  and at a join a tense note may resolve onto the last note of _N_. Resolving _across_ the join
+  into _N+1_ is not proposed for v2.0, because it needs _N+1_ to receive the pending resolution
+  in its `carryIn` (O34). The alternative keeps the v1 rule at every join (simpler, but every
+  phrase ends as if the music stopped).

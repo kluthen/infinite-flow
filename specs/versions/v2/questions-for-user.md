@@ -37,6 +37,14 @@ The five marked ★ block the most other work.
   - _Changes:_ the "no" alternative restricts every phrase's first note to steps or small
     intervals from the carry-in pitch.
   - [rolling-phrase.md §8](rolling-phrase.md)
+- **O76 — Resolving tense notes at a join.** v1 requires every passing or neighbour tone,
+  appoggiatura, and Jazz approach or enclosure to resolve _before_ a phrase's last note. Does
+  that still hold when the last note is only a join to the next phrase?
+  - _Default:_ no. The rule applies only when the music really stops (Stop or a session end). At
+    a join, a tense note may resolve onto the last note. Resolving across the join is not in v2.0.
+  - _Changes:_ the open-ending rule and its validation. The v1 code's partial enforcement (only the
+    Tension figure is held to it) is left unfixed until this is answered.
+  - [rolling-phrase.md §8](rolling-phrase.md)
 - **O50 — Register across joins.** With `Varying`, should the register window be resolved once
   per session, or per phrase as in v1?
   - _Default:_ once per session.
