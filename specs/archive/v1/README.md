@@ -18,7 +18,7 @@ This is the working record of the first release. The stand-in summary is the
 ## Still-live v1 documents (left in place)
 
 These documents describe v1, but they stay where they are. Files outside `specs/` link to them
-(ATD atoms, `docs/music/`, `docs/release/`, `issues/`, `ui_ux/`, `README.md`), and some are
+(`docs/music/`, `docs/release/`, `issues/`, `ui_ux/`, `README.md`), and some are
 still the contract for the running code.
 
 | Document | Role | Referenced from |
@@ -29,7 +29,7 @@ still the contract for the running code.
 | [generator-architecture.md](../../generator-architecture.md) | Live decoupling rules | `README.md`, `ui_ux/`, `docs/music/`, `docs/release/` |
 | [generative-process.md](../../generative-process.md) | Generation-process reference | `ui_ux/decisions.md`, `docs/generation-latency.md` |
 | [product-foundation.md](../../product-foundation.md) | Product intent (vision revision pending) | internal to `specs/` |
-| [roadmap.md](../../roadmap.md) | Delivery stages (vision revision pending) | `README.md`, `docs/release/`, vision atom |
+| [roadmap.md](../../roadmap.md) | Delivery stages (vision revision pending) | `README.md`, `docs/release/` |
 | [open-questions.md](../../open-questions.md) | Live question register | `README.md`, `docs/release/deferred-scope.md` |
 
 Release evidence lives in [`docs/release/`](../../../docs/release/): the release checklist, the
