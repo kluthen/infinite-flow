@@ -81,7 +81,13 @@ if (facts.context.policy.profile !== 'Jazz') {
 - **Acceptance:**
   - golden fixtures and seeded outputs are byte-identical before and after;
   - `grep "'Jazz'"` in `src/domain` finds only the profile table;
-  - there is a unit test for a test-only profile that has the flag but a different name;
+  - capability-override unit tests show behavior follows the capability, not the name: Neutral
+    with the capability gets chromatic figures, and Jazz without it gets none. `MusicalProfile` is a
+    closed union, so the pitch policy accepts an optional capabilities override instead of a
+    test-only profile name;
+  - before the refactor, confirm that at least one golden or equivalence case actually selects a
+    chromatic figure, and add a pinned case if none does;
+  - the worker protocol is unchanged, and capabilities are derived in the domain;
   - the latency budget still holds.
 - The documentalist updates `rule_jazz_chromatic_resolution` (or the atom that replaces it) so that
   it describes the capability rather than the profile name.
@@ -100,3 +106,4 @@ pitches, ornament preferences, signature gimmick, register tendencies), all decl
 
 - **2026-09-26**: Filed from decision D73 (the user's answer to O32). Tracked as a v1.0 gate item
   next to ISS-003 and ISS-004.
+- **2026-09-26**: Impact researched. Only the two name checks gate behavior; everything else is data, membership validation or collection-based. Recommended shape: a capability table next to `PROFILE_BUNDLES`, resolved into `PitchPolicy`, with no protocol change. Acceptance refined, and the medium conflict with ISS-004 on `profile-selection.ts` means this lands first. Details are in `specs/versions/v1/gate-execution-report.md` §4.3.
