@@ -132,7 +132,7 @@ Every bar must contain a **metrical anchor**: a note sounding (fresh attack or t
 at tick 0 or tick 8 (beat 1 or 3) — this is the "metrical anchor v0.2" relaxation: a tie
 _continuation_ through the anchor point counts, not only a fresh attack. The phrase's very first
 event is always a fresh attack at bar 1, tick 0 (`rule_phrase_starts_on_downbeat`; see
-[Known limits](#6-known-limits) for the trade-off this created).
+[Known limits](#10-known-limits) for the trade-off this created).
 
 Typed failure: `no_legal_rhythm_plan`, returned with the union of validation codes observed across
 the complete v1 expansion, only when structural rhythm validation rejects every candidate.
@@ -385,13 +385,15 @@ endpoint validation by returning a trivially "solved" empty plan.
 
 ## 10. Known limits
 
-- **Six rhythm density/silence/syncopation settings have no legal phrase under grammar
-  `rhythm-mvp-v1`**, for any tension arc: Quarter + Sparse + Active displacement, Quarter +
-  Breath-heavy + Active displacement, Sixteenth + Sparse + Active displacement, Sixteenth +
-  Conversational + Active displacement, Sixteenth + Breath-heavy + Occasional offbeats, and
-  Sixteenth + Breath-heavy + Active displacement. This is a documented grammar limit, not an
-  intended musical rule (see [roadmap.md](roadmap.md#explicitly-unresolved-decisions)). Step 9
-  implements the UI-level block for these settings: the domain-owned constant
+- **Some rhythm density/silence/syncopation settings have no legal phrase**, for any tension arc,
+  and which ones depends on the selected rhythmic-variety level. Under `Strict`, six are
+  unsupported: Quarter + Sparse + Active displacement, Quarter + Breath-heavy + Active
+  displacement, Sixteenth + Sparse + Active displacement, Sixteenth + Conversational + Active
+  displacement, Sixteenth + Breath-heavy + Occasional offbeats, and Sixteenth + Breath-heavy +
+  Active displacement. Under `Slightly varied`, only four of those six remain unsupported; under
+  `Heavily varied`, none do. This is a documented grammar limit, not an intended musical rule (see
+  [roadmap.md](roadmap.md#engineering-carry-overs-not-tied-to-one-version)). Step 9 implements the
+  UI-level block for these settings: the domain-owned constant
   `UNSUPPORTED_RHYTHM_SETTINGS` (`src/domain/controls/unsupported-rhythm-settings.ts`,
   `[[rule_unsupported_rhythm_settings_block_generation]]`) is checked against the rhythm planner's
   actual `no_legal_rhythm_plan` outcomes so the list cannot drift from the planner; the session

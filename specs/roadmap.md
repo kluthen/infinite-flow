@@ -86,9 +86,10 @@ is archived verbatim as [2026-09-25-roadmap-pre-vision.md](archive/2026-09-25-ro
 
 - **O10, planner authority:** can a later planner stage revise an earlier one without
   recoupling them? See the [register](open-questions.md).
-- **Rhythm settings with no legal phrase:** six density, silence and syncopation combinations are
-  blocked by the v1 rhythm grammar. It is a grammar limit, not a musical rule. The ISS-004
-  feasibility review should reassess it. See
+- **Rhythm settings with no legal phrase:** which density, silence and syncopation combinations
+  are blocked by the rhythm grammar depends on the selected rhythmic-variety level: six under
+  `Strict`, four under `Slightly varied`, none under `Heavily varied`. It is a grammar limit, not
+  a musical rule. The ISS-004 feasibility review fixed this per-variety list. See
   [`rule_unsupported_rhythm_settings_block_generation`](../docs/rule_unsupported_rhythm_settings_block_generation.atom.md).
 - **Listening-test calibration** continues. See
   [`docs/release/deferred-scope.md`](../docs/release/deferred-scope.md).

@@ -16,15 +16,15 @@ The [first-release master specification](../../specs/first-release-master-spec.m
 
 Represent a collection as seven ordered pitch classes relative to the selected concert tonic. Use these semitone sets:
 
-| Selection | Ordered offsets |
-| --- | --- |
-| Major, Ionian | `0, 2, 4, 5, 7, 9, 11` |
+| Selection      | Ordered offsets        |
+| -------------- | ---------------------- |
+| Major, Ionian  | `0, 2, 4, 5, 7, 9, 11` |
 | Minor, Aeolian | `0, 2, 3, 5, 7, 8, 10` |
-| Dorian | `0, 2, 3, 5, 7, 9, 10` |
-| Phrygian | `0, 1, 3, 5, 7, 8, 10` |
-| Lydian | `0, 2, 4, 6, 7, 9, 11` |
-| Mixolydian | `0, 2, 4, 5, 7, 9, 10` |
-| Locrian | `0, 1, 3, 5, 6, 8, 10` |
+| Dorian         | `0, 2, 3, 5, 7, 9, 10` |
+| Phrygian       | `0, 1, 3, 5, 7, 8, 10` |
+| Lydian         | `0, 2, 4, 6, 7, 9, 11` |
+| Mixolydian     | `0, 2, 4, 5, 7, 9, 10` |
+| Locrian        | `0, 1, 3, 5, 6, 8, 10` |
 
 Build the triad on degree `d` from collection degrees `d`, `d+2`, and `d+4`, wrapping modulo seven. Store degree and pitch classes; derive the displayed quality from those pitch classes. Do not alter a collection degree to manufacture a major dominant or leading tone. Major and Minor use the tonal template family; the seven explicitly named church modes, including Ionian and Aeolian, use the modal family so their separately selectable labels retain distinct planning behavior.
 
@@ -45,10 +45,10 @@ For Major and Minor, use `T` = degree 1, `TP` = degree 3 or 6, `PD` = degree 2 o
 Templates list one role per bar. A set such as `{ii, IV}` is expanded in the written order for seed-independent canonical indexing; Step 7 applies any musical ranking and seeded equal-rank tie key without changing those identities/indices.
 
 | Motion | Legal four-bar templates |
-| --- | --- |
-| Static | `I | I | I | I` |
-| Gentle | `I | I | {ii, IV} | 5`; `I | {iii, vi} | I | 5`; `I | {iii, vi} | {ii, IV} | 5` |
-| Active | `I | {iii, vi} | {ii, IV} | 5`; `I | {ii, IV} | 5 | 5`; `I | {iii, vi} | {ii, IV}->5 | 5`; `I | {iii, vi}-> {ii, IV} | 5 | 5` |
+| ------ | ------------------------ |
+| Static | `I                       | I         | I        | I`     |
+| Gentle | `I                       | I         | {ii, IV} | 5`; `I | {iii, vi} | I   | 5`; `I | {iii, vi} | {ii, IV}    | 5`     |
+| Active | `I                       | {iii, vi} | {ii, IV} | 5`; `I | {ii, IV}  | 5   | 5`; `I | {iii, vi} | {ii, IV}->5 | 5`; `I | {iii, vi}-> {ii, IV} | 5   | 5`  |
 
 `A->B` means two two-beat events in that bar. The final tonal harmony is collection degree 5 for gentle and active motion: `V` in Major and `v` in natural Minor. This is an open degree-5 arrival policy, not a claim that natural-minor `v` has common-practice dominant force. Static remains on `I`; its melodic endpoint must still satisfy the open-ending pitch rule below. No template returns to `I` in bar 4.
 
@@ -57,10 +57,10 @@ Templates list one role per bar. A set such as `{ii, IV}` is expanded in the wri
 Modal planning describes collection-relative color, not common-practice dominant function. Define a mode's color degree as Ionian `4`, Dorian `6`, Phrygian `2`, Lydian `4`, Mixolydian `7`, Aeolian `6`, and Locrian `5`. A `C` chord is any diatonic triad other than degree 1 that contains the mode's color degree. Canonically enumerate `C` candidates by degree; Step 7 may apply a seeded key only among candidates equal on the complete musical rank.
 
 | Motion | Legal four-bar templates |
-| --- | --- |
-| Static | `i/I | i/I | i/I | i/I` |
-| Gentle | `i/I | i/I | C | i/I`; `i/I | C | i/I | i/I` |
-| Active | `i/I | C1 | C2 | i/I`; `i/I | C1 | C2->C1 | i/I`; `i/I | C1->C2 | C1 | i/I` |
+| ------ | ------------------------ |
+| Static | `i/I                     | i/I | i/I | i/I`       |
+| Gentle | `i/I                     | i/I | C   | i/I`; `i/I | C   | i/I    | i/I`       |
+| Active | `i/I                     | C1  | C2  | i/I`; `i/I | C1  | C2->C1 | i/I`; `i/I | C1->C2 | C1  | i/I` |
 
 `C1` and `C2` must be different degrees. A candidate is illegal if no required color chord exists or if it repeats degree 1 in a `C` slot. Ending modal harmony on the modal tonic is permitted because openness is enforced melodically: the final sounding pitch must be a non-final continuation target, normally collection degree 5, and not degree 1. Locrian's diminished degree-1 triad is still the collection's tonic-area reference; the planner must not replace it with a chromatic major/minor tonic.
 
@@ -68,12 +68,12 @@ Modal planning describes collection-relative color, not common-practice dominant
 
 The harmony planner describes tension requirements without reading a rhythm plan or naming concrete onsets. Each harmony candidate carries a finite abstract requirement record with an allowed bar region, maximum resolution delay, permitted figure kinds, required/maximum figure count, and the rule that every obligation must resolve before the final sounding event. Step 7 binds that record to each independently enumerated rhythm candidate and rejects only that harmony/rhythm pair when the rhythm has no legal realization.
 
-| Arc | Scheduled policy |
-| --- | --- |
-| Settled | `required=0`; optional active figure must target the next abstract metrically strong sounding onset. |
-| Lift | `required=0, maximum=1`, region bars 2-3; maximum delay is the next beat or next bar. |
-| Build | `required=1, maximum=1`, region bars 2-3; permit one two-note diatonic approach; target must follow within the allowed region/delay. |
-| Edge | `required=1, maximum=1`, region bar 3; prefer the latest legal local resolution that still precedes the final sounding event. |
+| Arc     | Scheduled policy                                                                                                                     |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Settled | `required=0`; optional active figure must target the next abstract metrically strong sounding onset.                                 |
+| Lift    | `required=0, maximum=1`, region bars 2-3; maximum delay is the next beat or next bar.                                                |
+| Build   | `required=1, maximum=1`, region bars 2-3; permit one two-note diatonic approach; target must follow within the allowed region/delay. |
+| Edge    | `required=1, maximum=1`, region bar 3; prefer the latest legal local resolution that still precedes the final sounding event.        |
 
 Binding makes the delay concrete: every figure member and its target are consecutive sounding attacks under one harmony event, each starting no later than the next beat boundary (Lift, Build, Edge) or the next strong-onset boundary on beat 1 or 3 (Settled) after the previous attack ends. Rests may fall inside that delay, and a rest may separate the preparation note from the figure. See [Pitch Planner and Validation Policy](pitch-planner-validation.md#neutral-and-jazz-vocabulary).
 
@@ -85,7 +85,7 @@ Tension ranks legal realizations; it does not select a different harmonic-motion
 
 - Tonal gentle/active: the final harmony is collection degree 5 and the final sounding pitch is a chord tone of it; natural Minor uses an open `v`/degree-5 arrival without implying raised-leading-tone dominant force.
 - Tonal static: the final harmony remains degree 1 and the final sounding pitch is degree 5, not degree 1.
-- Modal: the final sounding pitch is degree 5 over the final modal-tonic area. If degree 5 is infeasible under hard pitch constraints, another non-degree-1 chord tone may be used; degree 1 is never legal as the final sounding pitch.
+- Modal: the final sounding pitch is any profile-approved non-tonic chord tone over the final modal-tonic area, such as (but with no preference for) scale degree 5; degree 1 is never legal as the final sounding pitch.
 - Every local non-chord tone, appoggiatura, Jazz approach, or enclosure resolves before that final event. The final event itself cannot carry a recovery debt or unresolved ornament role.
 - A trailing rest is allowed. Endpoint validation examines the final sounding event, not the last timeline event.
 
