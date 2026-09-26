@@ -12,7 +12,9 @@ import { deepFreeze } from '../domain/events/deep-freeze'
 import {
   makeGenerationControls,
   MUSICAL_PROFILES,
+  PITCH_CLASSES,
   type GenerationControls,
+  type PitchClass,
 } from '../domain/controls/generation-controls'
 import type { ProfileSelection } from '../domain/controls/profile-selection'
 import { makeGenerationIntent, type GenerationIntent } from '../domain/generation/generation-intent'
@@ -145,6 +147,7 @@ const GENERATION_INTENT_ALLOWED_KEYS = new Set([
   'measureCount',
   'meter',
   'controls',
+  'writtenTonalCenter',
   'musicalProfile',
   'instrumentProfile',
   'registerIntent',
@@ -152,11 +155,14 @@ const GENERATION_INTENT_ALLOWED_KEYS = new Set([
 
 /**
  * Intent: parse one untrusted wire GenerationIntent by re-validating its owning fields
- * (requestId, seed, controls, musicalProfile) through the existing domain constructors and
- * reconstructing the full intent via `makeGenerationIntent`, then asserting the rebuilt intent
- * deep-equals the received record field-for-field. `instrumentProfile` and `registerIntent` are
- * derived deterministically from those owning fields, so this both validates them and proves the
- * wire value was not tampered with or corrupted in transit.
+ * (requestId, seed, controls, writtenTonalCenter, musicalProfile) through the existing domain
+ * constructors and reconstructing the full intent via `makeGenerationIntent`, then asserting the
+ * rebuilt intent deep-equals the received record field-for-field. `instrumentProfile` and
+ * `registerIntent` are derived deterministically from those owning fields, so this both validates
+ * them and proves the wire value was not tampered with or corrupted in transit. `makeGenerationIntent`
+ * takes the player's written-pitch tonal center (never the wire's already-converted concert
+ * `controls.tonalCenter`) and re-derives the concert value itself, so the rebuild must substitute
+ * the wire's `writtenTonalCenter` back into the controls it reconstructs from.
  */
 // @spec-link [[service_workspace_session_flow]]
 export function parseGenerationWorkerIntent(input: unknown): GenerationIntent {
@@ -173,12 +179,20 @@ export function parseGenerationWorkerIntent(input: unknown): GenerationIntent {
     throw new GenerationWorkerProtocolError('GenerationWorkerRequest.intent.seed must be a number.')
   }
   const seed = makeSeed(record.seed)
-  const controls = makeGenerationControls(
-    asPlainRecord(
-      record.controls,
-      'GenerationWorkerRequest.intent.controls',
-    ) as unknown as GenerationControls,
-  )
+  if (
+    typeof record.writtenTonalCenter !== 'string' ||
+    !PITCH_CLASSES.includes(record.writtenTonalCenter as PitchClass)
+  ) {
+    throw new GenerationWorkerProtocolError(
+      `GenerationWorkerRequest.intent.writtenTonalCenter must be one of ${JSON.stringify(PITCH_CLASSES)}, got ${JSON.stringify(record.writtenTonalCenter)}.`,
+    )
+  }
+  const writtenTonalCenter = record.writtenTonalCenter as PitchClass
+  const wireControls = asPlainRecord(record.controls, 'GenerationWorkerRequest.intent.controls')
+  const controls = makeGenerationControls({
+    ...(wireControls as unknown as GenerationControls),
+    tonalCenter: writtenTonalCenter,
+  })
   const musicalProfile = parseProfileSelection(record.musicalProfile)
 
   const rebuilt = makeGenerationIntent({ requestId, seed, controls, musicalProfile })

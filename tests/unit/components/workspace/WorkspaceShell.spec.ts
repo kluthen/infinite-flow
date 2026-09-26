@@ -22,7 +22,6 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
     selectMusicalProfile: vi.fn(() => true),
     selectInstrumentProfile: vi.fn(async () => 'applied' as const),
     setTheme: vi.fn(() => true),
-    setNotationMode: vi.fn(async () => true),
     generate: vi.fn(async () => true),
     regenerate: vi.fn(async () => true),
     retryGeneration: vi.fn(async () => true),
@@ -34,13 +33,12 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
     state: {
       controls: DEFAULT_GENERATION_CONTROLS,
       profileSelection: DEFAULT_PROFILE_SELECTION,
-      presentation: { theme: 'System', notationMode: 'Concert' },
+      presentation: { theme: 'System' },
       latestIntent: null,
       result: null,
       operation: 'idle',
       generationError: null,
       notationError: null,
-      failedNotationMode: null,
       resultEngraved: false,
       ...overrides,
     },
@@ -96,7 +94,9 @@ describe('WorkspaceShell', () => {
     const { session } = fakeSession({ operation: 'generating' })
     const wrapper = mountShell(session)
 
-    const radiogroup = wrapper.get('[role="radiogroup"]')
+    // The presentation-theme control in the header is never read-only, so this targets a
+    // ControlPanel radiogroup specifically rather than the first radiogroup in the whole shell.
+    const radiogroup = wrapper.get('[aria-label="Written key"]')
     expect(radiogroup.attributes('aria-readonly')).toBe('true')
   })
 
@@ -104,7 +104,7 @@ describe('WorkspaceShell', () => {
     const { session } = fakeSession()
     const wrapper = mountShell(session)
 
-    const radiogroup = wrapper.get('[role="radiogroup"]')
+    const radiogroup = wrapper.get('[aria-label="Written key"]')
     expect(radiogroup.attributes('aria-readonly')).toBeUndefined()
   })
 

@@ -1,6 +1,6 @@
 /**
  * Step 10 release: the first-release "no optional scope" boundary, verified against the production
- * preview build (port 4173) -- the required controls/generate/regenerate/notation-mode workflow
+ * preview build (port 4173) -- the required controls/generate/regenerate/instrument-profile workflow
  * never requests MIDI, audio, or microphone access, never makes a network request beyond this
  * origin's own static build output, and never renders a playback, scoring, or MIDI control.
  */
@@ -9,14 +9,14 @@ import { expect, test } from '@playwright/test'
 import { generateAndAwaitReady, gotoWorkspace, radio } from '../workspace/helpers'
 
 /**
- * Intent: a full control/generate/regenerate/notation-switch pass through the required workflow,
- * on a page that has already navigated to the workspace.
+ * Intent: a full control/generate/regenerate/instrument-profile-switch pass through the required
+ * workflow, on a page that has already navigated to the workspace.
  */
 async function exerciseRequiredWorkflow(page: import('@playwright/test').Page): Promise<void> {
   await generateAndAwaitReady(page)
   await radio(page, 'Musical profile preset', 'Jazz').click()
   await generateAndAwaitReady(page)
-  await radio(page, 'Display notation', 'Concert').click()
+  await radio(page, 'Instrument profile', 'E-flat alto saxophone').click()
   await radio(page, 'Presentation theme', 'Dark').click()
 }
 

@@ -31,7 +31,7 @@ import { generatePhrase } from '@/domain/generation/orchestration/generation-orc
 import { resolveCoreRequests } from '@/domain/generation/orchestration/request-resolution'
 import { validateGenerationResult } from '@/domain/validation/generation-result-validator'
 import { makeSeed, type Seed } from '@/domain/random/seed'
-import type { InstrumentProfileId } from '@/domain/profile/instrument-profile'
+import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { RegisterChoice } from '@/domain/profile/register-intent'
 import type { Measure } from '@/domain/events/measure'
 

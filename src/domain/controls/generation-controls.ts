@@ -1,5 +1,8 @@
 import { deepFreeze } from '../events/deep-freeze'
-import type { InstrumentProfileId } from '../profile/instrument-profile'
+import {
+  ADOPTED_INSTRUMENT_PROFILE_IDS,
+  type InstrumentProfileId,
+} from '../profile/instrument-profiles'
 import type { RegisterChoice } from '../profile/register-intent'
 
 export const TEMPO_VALUES = deepFreeze(Array.from({ length: 19 }, (_, index) => 60 + index * 10))
@@ -45,11 +48,13 @@ export const CONTOURS = deepFreeze(['Rising', 'Falling', 'Arch', 'Wandering'] as
 export const LEAPINESS_VALUES = deepFreeze(['Smooth', 'Shaped', 'Leaping', 'Angular'] as const)
 export const ARPEGGIO_CHAOS_VALUES = deepFreeze(['Predictable', 'Varied', 'Chaotic'] as const)
 export const MUSICAL_PROFILES = deepFreeze(['Neutral', 'Jazz'] as const)
-export const INSTRUMENT_PROFILE_IDS = deepFreeze([
-  'c-keyboard',
-  'bb-tenor',
-  'eb-alto',
-] as const satisfies readonly InstrumentProfileId[])
+/**
+ * The catalog of selectable instrument-profile identities, derived from the single declarative
+ * profile table (`../profile/instrument-profiles.ts`) rather than hand-maintained here: adding a
+ * profile to that table is enough for it to appear as a control option with no parallel edit.
+ */
+// @spec-link [[entity_instrument_profile]]
+export const INSTRUMENT_PROFILE_IDS: readonly InstrumentProfileId[] = ADOPTED_INSTRUMENT_PROFILE_IDS
 export const REGISTER_CHOICES = deepFreeze([
   'Low',
   'Middle',

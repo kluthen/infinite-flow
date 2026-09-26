@@ -11,8 +11,8 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { makeGenerationControls } from '@/domain/controls/generation-controls'
-import { createGenerationIntent } from '@/domain/generation/generation-intent'
+import { makeGenerationControls, PITCH_CLASSES } from '@/domain/controls/generation-controls'
+import { createGenerationIntent, getInstrumentProfile } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { createCanonicalRhythmDomainMemo } from '@/domain/generation/orchestration/canonical-rhythm-domain'
@@ -26,14 +26,26 @@ import { GENERATION_OUTCOME_GOLDEN_V2, type GoldenCase } from './generation-outc
  * request identity — and therefore its hash — is byte-identical when `seed` is the fixture's
  * original seed; a different seed gets a distinguishing suffix since it is never hash-compared
  * against the golden fixture.
+ *
+ * `goldenCase.controls.tonalCenter` was recorded pre-ISS-003, when `GenerationControls.tonalCenter`
+ * was concert pitch (the only pitch the generator ever consumes) with no written/concert split.
+ * `createGenerationIntent` now reads its `controls.tonalCenter` input as the player's WRITTEN
+ * selection and converts it to concert internally, so this passes the written value whose
+ * conversion — through the case's own instrument profile transposition — lands back on exactly the
+ * originally-recorded concert tonal center, keeping the generator's actual concert-pitch input (and
+ * therefore the golden hash) byte-identical without touching the fixture.
  */
 function buildGoldenIntent(goldenCase: GoldenCase, seed: number = goldenCase.seed) {
   const requestId =
     seed === goldenCase.seed ? `golden-${goldenCase.name}` : `golden-${goldenCase.name}-${seed}`
+  const instrumentProfile = getInstrumentProfile(goldenCase.controls.instrumentProfileId)
+  const concertIndex = PITCH_CLASSES.indexOf(goldenCase.controls.tonalCenter)
+  const writtenIndex = (((concertIndex + instrumentProfile.transposition.chromatic) % 12) + 12) % 12
+  const writtenTonalCenter = PITCH_CLASSES[writtenIndex]!
   return createGenerationIntent({
     requestId: makeRequestId(requestId),
     seed: makeSeed(seed),
-    controls: makeGenerationControls(goldenCase.controls),
+    controls: makeGenerationControls({ ...goldenCase.controls, tonalCenter: writtenTonalCenter }),
     musicalProfile: goldenCase.musicalProfile,
   })
 }

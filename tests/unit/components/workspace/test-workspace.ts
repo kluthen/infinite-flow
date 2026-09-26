@@ -9,10 +9,7 @@ import {
   type GenerationSession,
 } from '@/composables/use-generation-session'
 import { createNotationCoordinator } from '@/composables/use-notation-coordinator'
-import {
-  evaluateWorkspaceProfileSwitch,
-  type WorkspaceSessionResult,
-} from '@/composables/workspace-session-result'
+import { type WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
@@ -42,8 +39,8 @@ export function createTestWorkspace(
   // eslint-disable-next-line prefer-const -- definite-assignment: this closure needs `session` before it exists.
   let session!: GenerationSession<WorkspaceSessionResult>
   const coordinator = createNotationCoordinator({
-    reportNotationFailure: (error, mode) => session.actions.reportNotationFailure(error, mode),
-    reportNotationRecovered: (mode) => session.actions.reportNotationRecovered(mode),
+    reportNotationFailure: (error) => session.actions.reportNotationFailure(error),
+    reportNotationRecovered: () => session.actions.reportNotationRecovered(),
   })
   session = createGenerationSession<WorkspaceSessionResult>({
     providers: {
@@ -52,7 +49,6 @@ export function createTestWorkspace(
     },
     generate,
     notate: coordinator.notate,
-    evaluateProfileSwitch: evaluateWorkspaceProfileSwitch,
     clearPresentedPhrase: coordinator.clearPresentedPhrase,
   })
 

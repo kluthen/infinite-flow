@@ -52,11 +52,11 @@ function handleTempo(value: number): void {
   emit('set-control', { key: 'tempo', value: normalizeTempo(value) })
 }
 
-/** Intent: report a tonal-center change, re-validating against the pitch-class catalog. */
+/** Intent: report a written-key tonal-center change, re-validating against the pitch-class catalog. */
 function handleTonalCenter(value: string): void {
   emit('set-control', {
     key: 'tonalCenter',
-    value: validateControlValue(PITCH_CLASSES, value, 'Tonal center'),
+    value: validateControlValue(PITCH_CLASSES, value, 'Written key'),
   })
 }
 
@@ -158,9 +158,9 @@ const profileRangeSummaryText = computed(() => {
       />
     </div>
     <div class="field-group" :class="{ 'is-readonly': readonly }">
-      <span class="field-label">Tonal center</span>
+      <span class="field-label">Written key</span>
       <SegmentedControl
-        label="Tonal center"
+        label="Written key"
         :options="tonalCenterOptions()"
         :model-value="controls.tonalCenter"
         :readonly="readonly"

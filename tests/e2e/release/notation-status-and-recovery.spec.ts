@@ -2,11 +2,12 @@
  * Step 10 release journey follow-up: the visually hidden `notation-status` live region (D33) that
  * announces "Notation error. Try again." whenever `notationError` becomes set, whatever the source,
  * and clears silently on recovery; an out-of-band `PhraseScore` redraw (a viewport resize) that
- * succeeds after a failed display-mode switch committing the mode it actually drew into
- * `presentation.notationMode` (D35); and a regenerate-branch instrument-profile switch that itself
- * fails to generate, replacing a retained notation error with the generation-failure banner rather
- * than surfacing a stale "Notation error:" message (D34). Runs against the workspace harness (port
- * 4175) for the deterministic seed, generation-failure, and notation-failure injection seams.
+ * recovers a prior engraving failure without starting a new generation (the phrase's own request
+ * identity is untouched, since there is no independently selectable display convention -- ISS-003
+ * -- for a redraw to "commit"); and a regenerate-branch instrument-profile switch that itself fails
+ * to generate, replacing a retained notation error with the generation-failure banner rather than
+ * surfacing a stale "Notation error:" message (D34). Runs against the workspace harness (port 4175)
+ * for the deterministic seed, generation-failure, and notation-failure injection seams.
  */
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
@@ -85,7 +86,7 @@ test('a fresh generation whose own engraving fails announces through notation-st
 })
 
 // @test-link [[service_workspace_session_flow]]
-test('an out-of-band redraw that recovers after a failed display-mode switch commits the mode it actually drew', async ({
+test('an out-of-band redraw (a viewport resize) recovers a prior engraving failure without touching the phrase identity', async ({
   page,
 }) => {
   await gotoWorkspaceHarness(page)
@@ -96,27 +97,31 @@ test('an out-of-band redraw that recovers after a failed display-mode switch com
   // Prove an ordinary, uninterrupted generation never passes through staff-error.
   const ordinaryLog = await readStaffFrameClassLog(page)
   expect(ordinaryLog.some((entry) => entry.includes('staff-error'))).toBe(false)
+  const before = await harnessSnapshot(page)
 
   await failNextNotation(page)
-  await radio(page, 'Display notation', 'Concert').click()
-  await expect.poll(async () => (await harnessSnapshot(page)).operation).toBe('idle')
+  // No session action: force an out-of-band PhraseScore redraw (a resize) to fail on its own. Stays
+  // above the 64rem phone-layout breakpoint so this is the only redraw trigger the resize fires --
+  // crossing the breakpoint also fires the phone-layout `matchMedia` listener's own `scheduleRedraw`,
+  // whose later, unarmed redraw would silently recover the just-armed failure before assertions run.
+  await page.setViewportSize({ width: 1100, height: 720 })
 
   await expect(page.locator('.staff-frame')).toHaveClass(/staff-error/)
   await expect(notationStatusRegion(page)).toHaveText('Notation error. Try again.')
-  // The failed switch never committed: the header's notation-mode control still agrees with what
-  // was actually drawn, not the mode the switch merely requested.
   const midFailure = await harnessSnapshot(page)
-  expect(midFailure.notationMode).toBe('B-flat tenor')
+  expect(midFailure.requestId).toBe(before.requestId)
+  expect(midFailure.seed).toBe(before.seed)
 
-  // No click: an out-of-band PhraseScore redraw (a resize) is the only thing that happens next.
+  // No click: a second out-of-band PhraseScore redraw (a further resize) is the only thing that
+  // happens next.
   await page.setViewportSize({ width: 1152, height: 720 })
 
-  await expect
-    .poll(async () => (await harnessSnapshot(page)).notationMode, { timeout: 10_000 })
-    .toBe('Concert')
-  await expect(page.locator('.staff-frame')).toHaveClass(/staff-ready/)
+  await expect(page.locator('.staff-frame')).toHaveClass(/staff-ready/, { timeout: 10_000 })
+  await expect(notationStatusRegion(page)).toHaveText('')
   await expect(primaryButton(page)).toHaveText('Regenerate phrase')
-  await expect(radio(page, 'Display notation', 'Concert')).toHaveAttribute('aria-checked', 'true')
+  const after = await harnessSnapshot(page)
+  expect(after.requestId).toBe(before.requestId)
+  expect(after.seed).toBe(before.seed)
 })
 
 // @test-link [[service_workspace_session_flow]]
@@ -133,8 +138,11 @@ test('a regenerate-branch profile switch that itself fails to generate replaces 
   await generateAndAwaitReady(page)
 
   await failNextNotation(page)
-  await radio(page, 'Display notation', 'Concert').click()
-  await expect.poll(async () => (await harnessSnapshot(page)).operation).toBe('idle')
+  // No session action: force an out-of-band PhraseScore redraw (a resize) to fail on its own. Stays
+  // above the 64rem phone-layout breakpoint so this is the only redraw trigger the resize fires --
+  // crossing the breakpoint also fires the phone-layout `matchMedia` listener's own `scheduleRedraw`,
+  // whose later, unarmed redraw would silently recover the just-armed failure before assertions run.
+  await page.setViewportSize({ width: 1100, height: 720 })
   await expect(page.locator('.staff-frame')).toHaveClass(/staff-error/)
   await expect(primaryButton(page)).toHaveText('Retry notation')
 

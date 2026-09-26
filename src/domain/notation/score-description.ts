@@ -99,12 +99,12 @@ function signatureWords(signature: WrittenKey['signature']): string {
   return `${signature.count} ${noun}`
 }
 
-/** Intent: build the one-line summary of a written phrase's display convention, key, and meter. */
+/** Intent: build the one-line summary of a written phrase's key and meter. */
 function summaryOf(phrase: WrittenPhrase): string {
   const signature = signatureWords(phrase.key.signature)
   const label = spellAccidentalsAsWords(phrase.key.label)
   return (
-    `${phrase.mode} notation, treble clef, key signature ${signature} (${label}), ` +
+    `Written notation, treble clef, key signature ${signature} (${label}), ` +
     `4/4 time, four measures.`
   )
 }

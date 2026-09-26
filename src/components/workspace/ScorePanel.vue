@@ -28,9 +28,9 @@ const statusText = ref('')
 
 /**
  * True from the moment a whole generate/regenerate/retry-generation cycle starts until it next
- * returns to idle. A standalone notation-mode switch, profile-switch redraw, or Retry notation
- * only ever passes through "notating" without ever setting this, so it stays silent below --
- * matching the requirement that only a real generation cycle announces its own completion.
+ * returns to idle. Retry notation only ever passes through "notating" without ever setting this,
+ * so it stays silent below -- matching the requirement that only a real generation cycle announces
+ * its own completion.
  */
 let announceOnIdle = false
 

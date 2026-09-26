@@ -124,7 +124,9 @@ function snapshot(): WorkspaceHarnessSnapshot {
   const result: WorkspaceSessionResult | null = state.result
   return {
     operation: state.operation,
-    notationMode: state.presentation.notationMode,
+    instrumentProfileId: state.controls.instrumentProfileId,
+    writtenTonalCenter: result === null ? null : result.intent.writtenTonalCenter,
+    concertTonalCenter: result === null ? null : result.intent.controls.tonalCenter,
     requestId: result === null ? null : result.intent.requestId,
     seed: result === null ? null : result.intent.seed,
     timeline: result === null ? null : JSON.stringify(result.outcome.result.timeline),

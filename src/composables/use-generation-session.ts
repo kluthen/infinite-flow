@@ -16,26 +16,18 @@ import {
   type GenerationIntentProviders,
   createGenerationIntent,
 } from '@/domain/generation/generation-intent'
-import type { NotationMode } from '@/domain/notation/notation-mode'
-import type { InstrumentProfileId } from '@/domain/profile/instrument-profile'
-import type { Seed } from '@/domain/random/seed'
+import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import {
   createSelectInstrumentProfileAction,
   type ProfileSelectionOutcome,
-  type SessionProfileSwitchDecision,
 } from './generation-session-profile-switch'
 
 export type ThemePreference = 'System' | 'Light' | 'Dark'
-export type { NotationMode } from '@/domain/notation/notation-mode'
-export type {
-  ProfileSelectionOutcome,
-  SessionProfileSwitchDecision,
-} from './generation-session-profile-switch'
+export type { ProfileSelectionOutcome } from './generation-session-profile-switch'
 export type SessionOperation = 'idle' | 'generating' | 'notating'
 
 export interface PresentationSettings {
   readonly theme: ThemePreference
-  readonly notationMode: NotationMode
 }
 
 export interface GenerationSessionState<TResult> {
@@ -47,7 +39,6 @@ export interface GenerationSessionState<TResult> {
   readonly operation: SessionOperation
   readonly generationError: Error | null
   readonly notationError: Error | null
-  readonly failedNotationMode: NotationMode | null
   /**
    * Whether the retained `result` has actually been engraved since it was last assigned: cleared
    * when a fresh result is assigned or a notation attempt against it fails, set once one succeeds.
@@ -64,13 +55,12 @@ export interface GenerationSessionActions {
   readonly selectMusicalProfile: (profile: MusicalProfile) => boolean
   readonly selectInstrumentProfile: (id: InstrumentProfileId) => Promise<ProfileSelectionOutcome>
   readonly setTheme: (theme: ThemePreference) => boolean
-  readonly setNotationMode: (notationMode: NotationMode) => Promise<boolean>
   readonly generate: () => Promise<boolean>
   readonly regenerate: () => Promise<boolean>
   readonly retryGeneration: () => Promise<boolean>
   readonly retryNotation: () => Promise<boolean>
-  readonly reportNotationFailure: (error: Error, mode: NotationMode) => boolean
-  readonly reportNotationRecovered: (mode: NotationMode) => boolean
+  readonly reportNotationFailure: (error: Error) => boolean
+  readonly reportNotationRecovered: () => boolean
 }
 
 export interface GenerationSession<TResult> {
@@ -81,12 +71,7 @@ export interface GenerationSession<TResult> {
 export interface CreateGenerationSessionOptions<TResult> {
   readonly providers: GenerationIntentProviders
   readonly generate: (intent: GenerationIntent) => Promise<TResult>
-  readonly notate: (result: TResult, requestedMode: NotationMode) => Promise<void>
-  readonly evaluateProfileSwitch: (
-    result: TResult,
-    nextControls: GenerationControls,
-    freshSeed: Seed,
-  ) => SessionProfileSwitchDecision
+  readonly notate: (result: TResult) => Promise<void>
   /**
    * Drop whatever the injected `notate` seam is currently presenting, for the `clearPhrase`
    * transition below. Optional because a caller with no presented-phrase concept of its own (every
@@ -138,13 +123,12 @@ export function createGenerationSession<TResult>(
   const state = shallowReactive<MutableGenerationSessionState<TResult>>({
     controls: DEFAULT_GENERATION_CONTROLS,
     profileSelection: DEFAULT_PROFILE_SELECTION,
-    presentation: { theme: 'System', notationMode: 'B-flat tenor' },
+    presentation: { theme: 'System' },
     latestIntent: null,
     result: null,
     operation: 'idle',
     generationError: null,
     notationError: null,
-    failedNotationMode: null,
     resultEngraved: false,
   })
 
@@ -209,31 +193,17 @@ export function createGenerationSession<TResult>(
   }
 
   /**
-   * With no phrase, a display choice is pending presentation state. With a phrase, commit it only
-   * after the injected notation boundary succeeds, so a failed redraw preserves the prior mode.
-   */
-  // @spec-link [[service_workspace_session_flow]]
-  function setNotationMode(notationMode: NotationMode): Promise<boolean> {
-    if (state.result === null) {
-      state.presentation = { ...state.presentation, notationMode }
-      return Promise.resolve(true)
-    }
-    return runNotation(state.result, notationMode)
-  }
-
-  /**
    * Coordinate one full generation-then-engraving operation. A generation failure preserves the
    * prior result and leaves notation state cleared (this attempt's start already cleared it); a
-   * generation success always continues into engraving the current display mode within the same
+   * generation success always continues into engraving the written phrase within the same
    * operation, and resolves true even if that engraving then fails — the failure is exposed
-   * through `notationError`/`failedNotationMode` while the freshly generated result is kept.
+   * through `notationError` while the freshly generated result is kept.
    */
   // @spec-link [[service_workspace_session_flow]]
   async function run(intent: GenerationIntent): Promise<boolean> {
     state.operation = 'generating'
     state.generationError = null
     state.notationError = null
-    state.failedNotationMode = null
     state.latestIntent = intent
 
     let result: TResult
@@ -249,11 +219,10 @@ export function createGenerationSession<TResult>(
     state.resultEngraved = false
     state.operation = 'notating'
     try {
-      await options.notate(result, state.presentation.notationMode)
+      await options.notate(result)
       state.resultEngraved = true
     } catch (error: unknown) {
       state.notationError = toError(error)
-      state.failedNotationMode = state.presentation.notationMode
       state.resultEngraved = false
     } finally {
       state.operation = 'idle'
@@ -263,19 +232,16 @@ export function createGenerationSession<TResult>(
 
   /** Coordinate one injected notation attempt without changing phrase identity or generation inputs. */
   // @spec-link [[service_workspace_session_flow]]
-  async function runNotation(result: TResult, requestedMode: NotationMode): Promise<boolean> {
+  async function runNotation(result: TResult): Promise<boolean> {
     if (state.operation !== 'idle') return false
     state.operation = 'notating'
     state.notationError = null
-    state.failedNotationMode = null
     try {
-      await options.notate(result, requestedMode)
-      state.presentation = { ...state.presentation, notationMode: requestedMode }
+      await options.notate(result)
       state.resultEngraved = true
       return true
     } catch (error: unknown) {
       state.notationError = toError(error)
-      state.failedNotationMode = requestedMode
       state.resultEngraved = false
       return false
     } finally {
@@ -328,46 +294,31 @@ export function createGenerationSession<TResult>(
     return run(freshIntentFromControls())
   }
 
-  /** Retry the retained failed notation request with its original result and requested display mode. */
+  /** Retry the retained failed notation request against its original result. */
   // @spec-link [[service_workspace_session_flow]]
   function retryNotation(): Promise<boolean> {
-    if (
-      state.operation !== 'idle' ||
-      state.result === null ||
-      state.notationError === null ||
-      state.failedNotationMode === null
-    ) {
+    if (state.operation !== 'idle' || state.result === null || state.notationError === null) {
       return Promise.resolve(false)
     }
-    return runNotation(state.result, state.failedNotationMode)
+    return runNotation(state.result)
   }
 
-  /**
-   * Surface a notation failure raised outside a session operation (e.g. a viewport-resize redraw),
-   * recording the mode the failing redraw was actually rendered in, as reported by the caller.
-   */
+  /** Surface a notation failure raised outside a session operation (e.g. a viewport-resize redraw). */
   // @spec-link [[module_notation_layout_preflight]]
   // @spec-link [[service_workspace_session_flow]]
-  function reportNotationFailure(error: Error, mode: NotationMode): boolean {
+  function reportNotationFailure(error: Error): boolean {
     if (state.operation !== 'idle' || state.result === null) return false
     state.notationError = error
-    state.failedNotationMode = mode
     state.resultEngraved = false
     return true
   }
 
-  /**
-   * Clear a previously reported outside-operation notation failure once a later redraw succeeds,
-   * committing the mode that redraw was actually rendered in -- the same commit `runNotation`'s
-   * success path performs -- so the header's notation-mode control matches the drawn score.
-   */
+  /** Clear a previously reported outside-operation notation failure once a later redraw succeeds. */
   // @spec-link [[module_notation_layout_preflight]]
   // @spec-link [[service_workspace_session_flow]]
-  function reportNotationRecovered(mode: NotationMode): boolean {
+  function reportNotationRecovered(): boolean {
     if (state.operation !== 'idle' || state.result === null) return false
-    state.presentation = { ...state.presentation, notationMode: mode }
     state.notationError = null
-    state.failedNotationMode = null
     state.resultEngraved = true
     return true
   }
@@ -384,7 +335,6 @@ export function createGenerationSession<TResult>(
     state.result = null
     state.generationError = null
     state.notationError = null
-    state.failedNotationMode = null
     state.resultEngraved = false
     options.clearPresentedPhrase?.()
   }
@@ -392,9 +342,7 @@ export function createGenerationSession<TResult>(
   const selectInstrumentProfile = createSelectInstrumentProfileAction<TResult>({
     state,
     providers: options.providers,
-    evaluateProfileSwitch: options.evaluateProfileSwitch,
     runGeneration: run,
-    redrawNotation: (result) => runNotation(result, state.presentation.notationMode),
     clearPhrase,
   })
 
@@ -405,7 +353,6 @@ export function createGenerationSession<TResult>(
       selectMusicalProfile,
       selectInstrumentProfile,
       setTheme,
-      setNotationMode,
       generate,
       regenerate,
       retryGeneration,

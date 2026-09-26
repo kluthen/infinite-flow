@@ -37,12 +37,11 @@ describe('createGenerationSession', () => {
       providers,
       generate: async () => ++calls,
       notate: async () => undefined,
-      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
 
     expect(calls).toBe(0)
     expect(session.state.controls.tempo).toBe(90)
-    expect(session.state.presentation).toEqual({ theme: 'System', notationMode: 'B-flat tenor' })
+    expect(session.state.presentation).toEqual({ theme: 'System' })
     expect(isReadonly(session.state)).toBe(true)
   })
 
@@ -53,7 +52,6 @@ describe('createGenerationSession', () => {
       providers: tracked.providers,
       generate: () => deferred.promise,
       notate: async () => undefined,
-      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
     const pending = session.actions.generate()
 
@@ -62,7 +60,6 @@ describe('createGenerationSession', () => {
     expect(session.actions.setControl('tempo', 100)).toBe(false)
     expect(session.actions.selectMusicalProfile('Jazz')).toBe(false)
     expect(session.actions.setTheme('Dark')).toBe(true)
-    await expect(session.actions.setNotationMode('Concert')).resolves.toBe(true)
     await expect(session.actions.generate()).resolves.toBe(false)
     await expect(session.actions.regenerate()).resolves.toBe(false)
     expect(tracked.counts()).toEqual({ id: 1, seed: 1 })
@@ -71,7 +68,7 @@ describe('createGenerationSession', () => {
     await expect(pending).resolves.toBe(true)
     expect(session.state.result).toBe('first')
     expect(session.state.operation).toBe('idle')
-    expect(session.state.presentation).toEqual({ theme: 'Dark', notationMode: 'Concert' })
+    expect(session.state.presentation).toEqual({ theme: 'Dark' })
   })
 
   // @test-link [[module_generation_request_construction]]
@@ -88,7 +85,6 @@ describe('createGenerationSession', () => {
         return 'result'
       },
       notate: async () => undefined,
-      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
 
     await expect(session.actions.generate()).resolves.toBe(false)
@@ -117,7 +113,6 @@ describe('createGenerationSession', () => {
         return 'result'
       },
       notate: async () => undefined,
-      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
 
     await expect(session.actions.generate()).resolves.toBe(false)
@@ -140,7 +135,6 @@ describe('createGenerationSession', () => {
         return 'result'
       },
       notate: async () => undefined,
-      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
 
     await expect(session.actions.generate()).resolves.toBe(false)
@@ -166,7 +160,6 @@ describe('createGenerationSession', () => {
         return `result-${attempts}`
       },
       notate: async () => undefined,
-      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
 
     await expect(session.actions.generate()).resolves.toBe(true)
@@ -207,7 +200,6 @@ describe('createGenerationSession', () => {
         return intent.requestId
       },
       notate: async () => undefined,
-      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
 
     await session.actions.generate()
@@ -226,43 +218,28 @@ describe('createGenerationSession', () => {
 
   it('coordinates notation success, failure, retry, and result retention without generation providers', async () => {
     const tracked = trackedProviders()
-    const notationCalls: { readonly result: string; readonly mode: string }[] = []
+    const notationCalls: { readonly result: string }[] = []
     let notationAttempts = 0
     const session = createGenerationSession({
       providers: tracked.providers,
       generate: async () => 'phrase',
-      notate: async (result, mode) => {
-        notationCalls.push({ result, mode })
+      notate: async (result) => {
+        notationCalls.push({ result })
         notationAttempts += 1
-        // Fails the post-generation automatic engrave (attempt 1) and the explicit retry below
-        // (attempt 2); succeeds only on the subsequent retryNotation (attempt 3).
-        if (notationAttempts <= 2) throw new Error('notation failure')
+        // Fails the post-generation automatic engrave (attempt 1); succeeds on the explicit
+        // retryNotation below (attempt 2).
+        if (notationAttempts === 1) throw new Error('notation failure')
       },
-      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
 
     await expect(session.actions.generate()).resolves.toBe(true)
     const generationCounts = tracked.counts()
     expect(session.state.result).toBe('phrase')
-    expect(session.state.presentation.notationMode).toBe('B-flat tenor')
     expect(session.state.notationError?.message).toBe('notation failure')
-    expect(session.state.failedNotationMode).toBe('B-flat tenor')
-
-    await expect(session.actions.setNotationMode('Concert')).resolves.toBe(false)
-    expect(session.state.result).toBe('phrase')
-    expect(session.state.presentation.notationMode).toBe('B-flat tenor')
-    expect(session.state.notationError?.message).toBe('notation failure')
-    expect(session.state.failedNotationMode).toBe('Concert')
 
     await expect(session.actions.retryNotation()).resolves.toBe(true)
-    expect(session.state.presentation.notationMode).toBe('Concert')
     expect(session.state.notationError).toBeNull()
-    expect(session.state.failedNotationMode).toBeNull()
-    expect(notationCalls).toEqual([
-      { result: 'phrase', mode: 'B-flat tenor' },
-      { result: 'phrase', mode: 'Concert' },
-      { result: 'phrase', mode: 'Concert' },
-    ])
+    expect(notationCalls).toEqual([{ result: 'phrase' }, { result: 'phrase' }])
     expect(tracked.counts()).toEqual(generationCounts)
   })
 
@@ -280,7 +257,6 @@ describe('createGenerationSession', () => {
         // The post-generation automatic engrave is attempt 1 and fails; retryNotation is attempt 2.
         if (notationAttempts === 1) throw new Error('notation failure')
       },
-      evaluateProfileSwitch: () => ({ kind: 'retain' }),
     })
 
     await session.actions.generate()
@@ -300,27 +276,28 @@ describe('createGenerationSession', () => {
     let notateCallIndex = 0
     const session = createGenerationSession({
       providers: tracked.providers,
-      generate: () => generation.promise,
-      // The post-generation automatic engrave (call 1) resolves immediately; the explicit
-      // setNotationMode call below (call 2) stays pending on the shared deferred.
+      // The post-generation automatic engrave (call 1) fails immediately; the explicit
+      // retryNotation call below (call 2) stays pending on the shared deferred.
       notate: () => {
         notateCallIndex += 1
-        return notateCallIndex === 1 ? Promise.resolve() : notation.promise
+        return notateCallIndex === 1
+          ? Promise.reject(new Error('engrave failed'))
+          : notation.promise
       },
-      evaluateProfileSwitch: () => ({ kind: 'retain' }),
+      generate: () => generation.promise,
     })
 
     const generating = session.actions.generate()
     expect(session.state.operation).toBe('generating')
-    await expect(session.actions.setNotationMode('Concert')).resolves.toBe(true)
     expect(session.actions.setTheme('Light')).toBe(true)
     generation.resolve('phrase')
     await expect(generating).resolves.toBe(true)
     expect(session.state.operation).toBe('idle')
     expect(session.state.result).toBe('phrase')
-    expect(session.state.presentation).toEqual({ theme: 'Light', notationMode: 'Concert' })
+    expect(session.state.notationError?.message).toBe('engrave failed')
+    expect(session.state.presentation).toEqual({ theme: 'Light' })
 
-    const notating = session.actions.setNotationMode('E-flat alto')
+    const notating = session.actions.retryNotation()
     expect(session.state.operation).toBe('notating')
     await expect(session.actions.generate()).resolves.toBe(false)
     await expect(session.actions.regenerate()).resolves.toBe(false)
@@ -329,7 +306,8 @@ describe('createGenerationSession', () => {
     expect(tracked.counts()).toEqual({ id: 1, seed: 1 })
     notation.resolve()
     await expect(notating).resolves.toBe(true)
-    expect(session.state.presentation).toEqual({ theme: 'Dark', notationMode: 'E-flat alto' })
+    expect(session.state.notationError).toBeNull()
+    expect(session.state.presentation).toEqual({ theme: 'Dark' })
   })
 
   // @test-link [[service_workspace_session_flow]]
@@ -346,7 +324,6 @@ describe('createGenerationSession', () => {
           // (attempt 2) fails; the explicit retryNotation below (attempt 3) succeeds.
           if (notateAttempts === 2) throw new Error('engrave failed')
         },
-        evaluateProfileSwitch: () => ({ kind: 'retain' }),
       })
 
       expect(session.state.resultEngraved).toBe(false)
@@ -370,7 +347,6 @@ describe('createGenerationSession', () => {
         providers: tracked.providers,
         generate: () => generation.promise,
         notate: () => notation.promise,
-        evaluateProfileSwitch: () => ({ kind: 'retain' }),
       })
 
       const pending = session.actions.generate()
@@ -398,7 +374,6 @@ describe('createGenerationSession', () => {
           return generation.promise
         },
         notate: async () => undefined,
-        evaluateProfileSwitch: () => ({ kind: 'retain' }),
       })
 
       await expect(session.actions.generate()).resolves.toBe(true)
@@ -428,7 +403,6 @@ describe('createGenerationSession', () => {
         notate: async () => {
           throw new Error('engrave failed')
         },
-        evaluateProfileSwitch: () => ({ kind: 'retain' }),
       })
 
       await expect(session.actions.generate()).resolves.toBe(true)

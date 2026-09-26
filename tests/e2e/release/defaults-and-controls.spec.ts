@@ -11,7 +11,7 @@ import { gotoWorkspace, radio } from '../workspace/helpers'
 
 /** Intent: every accessible radiogroup label this workspace renders, in on-page order. */
 const RADIOGROUP_LABELS = [
-  'Tonal center',
+  'Written key',
   'Collection',
   'Instrument profile',
   'Musical profile preset',
@@ -24,7 +24,6 @@ const RADIOGROUP_LABELS = [
   'Register',
   'Leapiness',
   'Arpeggio chaos',
-  'Display notation',
   'Presentation theme',
 ] as const
 
@@ -89,7 +88,7 @@ test('the empty workspace shows the spec-default control summary and empty-state
 
   await expect(page.locator('.control-summary')).toHaveText('C Ionian · Neutral · Lift · Shaped')
   await expect(page.getByText('Generate a phrase to begin.')).toBeVisible()
-  await expect(radio(page, 'Tonal center', 'C')).toHaveAttribute('aria-checked', 'true')
+  await expect(radio(page, 'Written key', 'C')).toHaveAttribute('aria-checked', 'true')
   await expect(radio(page, 'Collection', 'Ionian')).toHaveAttribute('aria-checked', 'true')
   await expect(radio(page, 'Musical profile preset', 'Neutral')).toHaveAttribute(
     'aria-checked',
@@ -99,11 +98,6 @@ test('the empty workspace shows the spec-default control summary and empty-state
     'aria-checked',
     'true',
   )
-  await expect(
-    page.getByRole('radiogroup', { name: 'Display notation' }).getByRole('radio', {
-      name: 'B-flat',
-    }),
-  ).toHaveAttribute('aria-checked', 'true')
 })
 
 for (const groupLabel of RADIOGROUP_LABELS) {

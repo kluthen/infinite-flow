@@ -9,7 +9,7 @@ import type { Collection, PitchClass } from '../controls/generation-controls'
 import type { ConcertEventTimeline } from '../events/timeline'
 import type { MeasureIndex } from '../events/measure'
 import type { PitchClassNumber } from '../harmony/harmony-types'
-import type { DisplayTransposition, NotationMode } from './notation-mode'
+import type { InstrumentTransposition } from '../profile/instrument-profile'
 
 /** Typed failure for notation input that violates the notation contract; never repaired. */
 // @spec-link [[module_notation_display_convention]]
@@ -22,7 +22,7 @@ export class NotationInputError extends Error {
   }
 }
 
-/** The selected concert tonal context the phrase was generated in. */
+/** The selected written tonal context (the player's own written-pitch selection) the phrase presents. */
 // @spec-link [[module_notation_display_convention]]
 export interface NotationTonalContext {
   readonly tonalCenter: PitchClass
@@ -46,13 +46,16 @@ export interface ConcertChordSymbol {
 /**
  * The complete explicit input of the display transform. Every measure carries at least one chord
  * symbol at tick 0 (a harmony continuing across a barline is restated) plus one per harmony
- * change inside the measure, in ascending tick order.
+ * change inside the measure, in ascending tick order. `transposition` is the active instrument
+ * profile's own concert-to-written transposition; there is no independently selectable display
+ * convention.
  */
 // @spec-link [[module_notation_display_convention]]
 export interface NotationPhraseInput {
   readonly timeline: ConcertEventTimeline
   readonly tonalContext: NotationTonalContext
   readonly chords: readonly ConcertChordSymbol[]
+  readonly transposition: InstrumentTransposition
 }
 
 /** A written staff letter. */
@@ -160,11 +163,15 @@ export interface WrittenMeasure {
   readonly chords: readonly WrittenChordSymbol[]
 }
 
-/** The written phrase for one display convention, in treble G2 clef and 4/4. */
+/**
+ * The written phrase for the active instrument profile's own written pitch, in treble G2 clef and
+ * 4/4. There is no independently selectable display convention: `transposition` is always the
+ * transposition of the instrument profile the phrase was generated for.
+ */
 // @spec-link [[module_notation_display_convention]]
+// @spec-link [[rule_notation_display_preserves_phrase]]
 export interface WrittenPhrase {
-  readonly mode: NotationMode
-  readonly transposition: DisplayTransposition
+  readonly transposition: InstrumentTransposition
   readonly clef: 'treble'
   readonly timeSignature: { readonly beats: 4; readonly beatValue: 4 }
   readonly key: WrittenKey

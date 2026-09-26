@@ -1,5 +1,10 @@
 import { deepFreeze } from '../events/deep-freeze'
-import { type GenerationControls, makeGenerationControls } from '../controls/generation-controls'
+import {
+  PITCH_CLASSES,
+  type GenerationControls,
+  type PitchClass,
+  makeGenerationControls,
+} from '../controls/generation-controls'
 import type { ProfileSelection } from '../controls/profile-selection'
 import { ADOPTED_INSTRUMENT_PROFILES } from '../profile/instrument-profiles'
 import type { InstrumentProfile } from '../profile/instrument-profile'
@@ -12,7 +17,11 @@ import {
   type RequestId,
 } from './generation-request'
 
-/** The outer request accepted by Step 7 orchestration; its register intent may still be Varying. */
+/**
+ * The outer request accepted by Step 7 orchestration; its register intent may still be Varying.
+ * `controls.tonalCenter` is always the concert-pitch tonal center the generator consumes;
+ * `writtenTonalCenter` is the player's written-pitch selection it was converted from.
+ */
 // @spec-link [[module_generation_request_construction]]
 export interface GenerationIntent {
   readonly requestId: RequestId
@@ -20,11 +29,13 @@ export interface GenerationIntent {
   readonly measureCount: 4
   readonly meter: Meter
   readonly controls: GenerationControls
+  readonly writtenTonalCenter: PitchClass
   readonly musicalProfile: ProfileSelection
   readonly instrumentProfile: InstrumentProfile
   readonly registerIntent: RegisterIntent
 }
 
+/** `controls.tonalCenter` here is the player's written-pitch selection, not concert pitch. */
 export interface GenerationIntentInput {
   readonly requestId: RequestId
   readonly seed: Seed
@@ -54,14 +65,45 @@ export function getInstrumentProfile(
   return profile
 }
 
+/** Intent: reduce an integer pitch-class arithmetic result into the closed 0..11 index range. */
+function pcIndexMod12(value: number): number {
+  return ((value % 12) + 12) % 12
+}
+
+/**
+ * Convert a written tonal center into its concert-pitch equivalent for the given instrument's
+ * chromatic transposition: concert pc = (written pc - chromatic) mod 12. Exported as the seam for
+ * request construction: it takes a full `InstrumentProfile` value, not a closed adopted-profile id,
+ * so a test-only profile (an open chromatic/diatonic pair no shipped preset uses) exercises this
+ * exact conversion without widening `getInstrumentProfile`'s closed lookup or any UI/worker-boundary
+ * type to accept arbitrary ids.
+ */
+// @spec-link [[module_generation_request_construction]]
+// @spec-link [[rule_instrument_profile_range]]
+export function writtenToConcertTonalCenter(
+  writtenTonalCenter: PitchClass,
+  instrumentProfile: InstrumentProfile,
+): PitchClass {
+  const writtenIndex = PITCH_CLASSES.indexOf(writtenTonalCenter)
+  const concertIndex = pcIndexMod12(writtenIndex - instrumentProfile.transposition.chromatic)
+  return PITCH_CLASSES[concertIndex]!
+}
+
 /**
  * Create an immutable, serializable outer intent. This deliberately does not construct the
  * resolved GenerationRequest: fixed-register resolution and Varying feasibility are Step 7 work.
+ * The caller's `controls.tonalCenter` is read as the player's written-pitch selection and
+ * converted to concert pitch here; the generator downstream only ever sees concert pitch.
  */
 // @spec-link [[module_generation_request_construction]]
 export function makeGenerationIntent(input: GenerationIntentInput): GenerationIntent {
-  const controls = makeGenerationControls(input.controls)
-  const instrumentProfile = getInstrumentProfile(controls.instrumentProfileId)
+  const writtenControls = makeGenerationControls(input.controls)
+  const instrumentProfile = getInstrumentProfile(writtenControls.instrumentProfileId)
+  const writtenTonalCenter = writtenControls.tonalCenter
+  const controls: GenerationControls = {
+    ...writtenControls,
+    tonalCenter: writtenToConcertTonalCenter(writtenTonalCenter, instrumentProfile),
+  }
   const registerIntent = buildRegisterIntent(instrumentProfile, controls.register)
 
   return deepFreeze({
@@ -70,6 +112,7 @@ export function makeGenerationIntent(input: GenerationIntentInput): GenerationIn
     measureCount: PHRASE_MEASURE_COUNT as 4,
     meter: FOUR_FOUR_METER,
     controls,
+    writtenTonalCenter,
     musicalProfile: { ...input.musicalProfile },
     instrumentProfile,
     registerIntent,
@@ -98,7 +141,7 @@ export function regenerateGenerationIntent(
   return makeGenerationIntent({
     requestId: providers.nextRequestId(),
     seed: providers.nextSeed(),
-    controls: previous.controls,
+    controls: { ...previous.controls, tonalCenter: previous.writtenTonalCenter },
     musicalProfile: previous.musicalProfile,
   })
 }

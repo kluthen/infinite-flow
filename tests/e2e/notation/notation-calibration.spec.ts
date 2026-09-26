@@ -1,7 +1,7 @@
 /**
  * A one-off calibration sweep for NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX / NOTATION_MAX_STAFF_SPACE_PX
  * (src/notation/notation-layout-policy.ts): drives the harness's generated source across every
- * (density x syncopation x seed x mode) combination at a container width wide enough to never hit
+ * (density x syncopation x seed x profile) combination at a container width wide enough to never hit
  * the legibility floor, and records each result's `requiredUnits` (independent of container width;
  * a function of the written phrase's content only). A second sweep exercises the two-system phone
  * fallback: the same combination grid at a phone-breakpoint viewport and two realistic phone
@@ -22,7 +22,7 @@ const DENSITIES = ['Quarter', 'Eighth', 'Sixteenth', 'Mixed'] as const
 const SYNCOPATIONS = ['Straight', 'Occasional offbeats'] as const
 const SILENCE = 'Conversational'
 const SEEDS = [1, 2, 3, 4, 5, 6] as const
-const MODES = ['Concert', 'B-flat tenor', 'E-flat alto'] as const
+const PROFILES = ['c-keyboard', 'bb-tenor', 'eb-alto'] as const
 
 type ComboResult =
   | { readonly ok: true; readonly requiredUnits: number }
@@ -33,28 +33,27 @@ function comboUrlAtWidth(
   density: string,
   syncopation: string,
   seed: number,
-  mode: string,
+  profile: string,
   containerWidthPx: number,
 ): string {
   const params = new URLSearchParams({
     source: 'generated',
     seed: String(seed),
-    mode,
     width: String(containerWidthPx),
     tonal: 'C',
     collection: 'Major',
     density,
     syncopation,
     silence: SILENCE,
-    profile: 'c-keyboard',
+    profile,
     register: 'Middle',
   })
   return `/?${params.toString()}`
 }
 
 /** Intent: build the harness URL for one calibration combination, every param supplied explicitly. */
-function comboUrl(density: string, syncopation: string, seed: number, mode: string): string {
-  return comboUrlAtWidth(density, syncopation, seed, mode, WIDE_CONTAINER_PX)
+function comboUrl(density: string, syncopation: string, seed: number, profile: string): string {
+  return comboUrlAtWidth(density, syncopation, seed, profile, WIDE_CONTAINER_PX)
 }
 
 /**
@@ -102,7 +101,7 @@ const STAFF_SPACES_PX = [7, 6, 5, 4.5] as const
 const TARGET_WIDTHS_PX = [667, 768, 1024, 1440] as const
 const NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE = 10
 
-test('sweeps density x syncopation x seed x mode and reports requiredUnits calibration', async ({
+test('sweeps density x syncopation x seed x profile and reports requiredUnits calibration', async ({
   page,
 }) => {
   test.setTimeout(10 * 60 * 1000)
@@ -113,8 +112,8 @@ test('sweeps density x syncopation x seed x mode and reports requiredUnits calib
   for (const density of DENSITIES) {
     for (const syncopation of SYNCOPATIONS) {
       for (const seed of SEEDS) {
-        for (const mode of MODES) {
-          const url = comboUrl(density, syncopation, seed, mode)
+        for (const profile of PROFILES) {
+          const url = comboUrl(density, syncopation, seed, profile)
           const result = await runCombo(page, url)
           if (result.ok) {
             const bucket = requiredUnitsByDensity.get(density) ?? []
@@ -122,7 +121,7 @@ test('sweeps density x syncopation x seed x mode and reports requiredUnits calib
             requiredUnitsByDensity.set(density, bucket)
           } else {
             failures.push(
-              `density=${density} syncopation=${syncopation} seed=${seed} mode=${mode}: ${result.code}`,
+              `density=${density} syncopation=${syncopation} seed=${seed} profile=${profile}: ${result.code}`,
             )
           }
         }
@@ -213,8 +212,8 @@ test('sweeps the same grid at phone container widths and reports one/two-system/
       const tally = { one: 0, two: 0, error: 0 }
       for (const syncopation of SYNCOPATIONS) {
         for (const seed of SEEDS) {
-          for (const mode of MODES) {
-            const url = comboUrlAtWidth(density, syncopation, seed, mode, width)
+          for (const profile of PROFILES) {
+            const url = comboUrlAtWidth(density, syncopation, seed, profile, width)
             const outcome = await runComboPhone(page, url)
             tally[outcome] += 1
           }

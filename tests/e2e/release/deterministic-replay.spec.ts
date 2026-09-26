@@ -35,7 +35,7 @@ test('the same seed and controls reproduce an identical timeline across two gene
 
   expect(second.seed).toBe(first.seed)
   expect(second.timeline).toBe(first.timeline)
-  expect(second.notationMode).toBe(first.notationMode)
+  expect(second.instrumentProfileId).toBe(first.instrumentProfileId)
 })
 
 // @test-link [[rule_seeded_phrase_reproduction]]

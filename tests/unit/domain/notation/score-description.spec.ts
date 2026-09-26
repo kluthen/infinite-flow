@@ -101,9 +101,7 @@ const F_AEOLIAN_1_FLAT_KEY: WrittenKey = deepFreeze({
 })
 
 /** Intent: build a frozen four-measure written phrase; every measure defaults to four rests. */
-function phrase(
-  overrides: Partial<Pick<WrittenPhrase, 'mode' | 'key' | 'measures'>> = {},
-): WrittenPhrase {
+function phrase(overrides: Partial<Pick<WrittenPhrase, 'key' | 'measures'>> = {}): WrittenPhrase {
   const defaultMeasures = [
     measure(0, [rest(0), rest(4), rest(8), rest(12)], [chord(0, { letter: 'C', alter: 0 }, '')]),
     measure(1, [rest(0), rest(4), rest(8), rest(12)], [chord(0, { letter: 'C', alter: 0 }, '')]),
@@ -111,7 +109,6 @@ function phrase(
     measure(3, [rest(0), rest(4), rest(8), rest(12)], [chord(0, { letter: 'C', alter: 0 }, '')]),
   ] as const
   return deepFreeze({
-    mode: 'Concert',
     transposition: { chromatic: 0, diatonic: 0 },
     clef: 'treble',
     timeSignature: { beats: 4, beatValue: 4 },
@@ -124,9 +121,9 @@ function phrase(
 // @test-link [[module_notation_layout_preflight]]
 describe('describeWrittenPhrase summary wording', () => {
   it('names 2 sharps and Ionian mode for a sharp key', () => {
-    const result = describeWrittenPhrase(phrase({ mode: 'B-flat tenor', key: D_IONIAN_KEY }))
+    const result = describeWrittenPhrase(phrase({ key: D_IONIAN_KEY }))
     expect(result.summary).toBe(
-      'B-flat tenor notation, treble clef, key signature 2 sharps (D Ionian), 4/4 time, four measures.',
+      'Written notation, treble clef, key signature 2 sharps (D Ionian), 4/4 time, four measures.',
     )
   })
 
@@ -138,7 +135,7 @@ describe('describeWrittenPhrase summary wording', () => {
   it('names no sharps or flats for a natural key', () => {
     const result = describeWrittenPhrase(phrase({ key: C_IONIAN_KEY }))
     expect(result.summary).toBe(
-      'Concert notation, treble clef, key signature no sharps or flats (C Ionian), 4/4 time, four measures.',
+      'Written notation, treble clef, key signature no sharps or flats (C Ionian), 4/4 time, four measures.',
     )
   })
 
@@ -240,14 +237,14 @@ describe('describeWrittenPhrase measure wording', () => {
   })
 
   it('does not mutate its frozen input', () => {
-    const input = phrase({ mode: 'E-flat alto', key: D_IONIAN_KEY })
+    const input = phrase({ key: D_IONIAN_KEY })
     const before = JSON.parse(JSON.stringify(input))
 
     describeWrittenPhrase(input)
 
     expect(JSON.parse(JSON.stringify(input))).toEqual(before)
     expect(() => {
-      ;(input as { mode: string }).mode = 'Concert'
+      ;(input as { key: unknown }).key = C_IONIAN_KEY
     }).toThrow()
   })
 })

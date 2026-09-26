@@ -24,8 +24,8 @@ function errorMessage(error: unknown): string {
 
 /**
  * Dynamically import the VexFlow engraving adapter, memoizing the in-flight or settled load so
- * repeat callers (a resize redraw, a notation-mode switch, a Retry) never re-trigger the chunk
- * fetch once it has already succeeded. Safe to call speculatively before the module is needed --
+ * repeat callers (a resize redraw, a Retry) never re-trigger the chunk fetch once it has already
+ * succeeded. Safe to call speculatively before the module is needed --
  * for example, on workspace mount -- to absorb the fetch latency ahead of the first engrave.
  */
 // @spec-link [[module_notation_layout_preflight]]

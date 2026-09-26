@@ -10,6 +10,7 @@ import { REGISTER_WINDOW_ALGORITHM_V1 } from '@/domain/profile/register-window-d
 
 const VALID_INPUT = {
   id: 'c-keyboard',
+  displayName: 'C MIDI keyboard',
   concertRange: { minMidi: 48, maxMidi: 72 },
   registerWindows: {
     algorithm: REGISTER_WINDOW_ALGORITHM_V1,
@@ -17,6 +18,7 @@ const VALID_INPUT = {
     widthNumerator: 1,
     widthDenominator: 2,
   },
+  transposition: { chromatic: 0, diatonic: 0 },
 } as const
 
 // @test-link [[entity_instrument_profile]]
@@ -45,6 +47,23 @@ describe('makeInstrumentProfile', () => {
     expect(() => makeInstrumentProfile({ ...VALID_INPUT, id: '   ' })).toThrow(
       InstrumentProfileError,
     )
+  })
+
+  it('rejects an empty display name', () => {
+    expect(() => makeInstrumentProfile({ ...VALID_INPUT, displayName: '' })).toThrow(
+      InstrumentProfileError,
+    )
+  })
+
+  it('rejects a whitespace-only display name', () => {
+    expect(() => makeInstrumentProfile({ ...VALID_INPUT, displayName: '   ' })).toThrow(
+      InstrumentProfileError,
+    )
+  })
+
+  it('carries the display name through construction', () => {
+    const profile = makeInstrumentProfile({ ...VALID_INPUT, displayName: 'C MIDI keyboard' })
+    expect(profile.displayName).toBe('C MIDI keyboard')
   })
 
   it('rejects a non-integer range endpoint', () => {
@@ -89,6 +108,7 @@ describe('makeInstrumentProfile', () => {
     expect(() =>
       makeInstrumentProfile({
         id: 'c-keyboard',
+        displayName: 'C MIDI keyboard',
         concertRange: { minMidi: 0, maxMidi: 100 },
         registerWindows: {
           algorithm: REGISTER_WINDOW_ALGORITHM_V1,
@@ -96,8 +116,55 @@ describe('makeInstrumentProfile', () => {
           widthNumerator: 1,
           widthDenominator: 100,
         },
+        transposition: { chromatic: 0, diatonic: 0 },
       }),
     ).toThrow(InstrumentProfileError)
+  })
+})
+
+// @test-link [[entity_instrument_profile]]
+describe('makeInstrumentProfile: transposition validation', () => {
+  it.each([
+    { chromatic: 0, diatonic: 0 },
+    { chromatic: 14, diatonic: 8 },
+    { chromatic: 9, diatonic: 5 },
+    { chromatic: 2, diatonic: 1 },
+    { chromatic: 21, diatonic: 12 },
+    { chromatic: -14, diatonic: -8 },
+  ])('accepts the consistent pair %o', (transposition) => {
+    const profile = makeInstrumentProfile({ ...VALID_INPUT, transposition })
+    expect(profile.transposition).toEqual(transposition)
+  })
+
+  it('rejects a non-integer chromatic value', () => {
+    expect(() =>
+      makeInstrumentProfile({ ...VALID_INPUT, transposition: { chromatic: 14.5, diatonic: 8 } }),
+    ).toThrow(InstrumentProfileError)
+  })
+
+  it('rejects a non-integer diatonic value', () => {
+    expect(() =>
+      makeInstrumentProfile({ ...VALID_INPUT, transposition: { chromatic: 14, diatonic: 8.5 } }),
+    ).toThrow(InstrumentProfileError)
+  })
+
+  it('rejects an inconsistent chromatic/diatonic pair', () => {
+    // diatonic 1 (a second, natural pc 2) cannot be reconciled with chromatic 14 (a major 9th)
+    // without more than a double accidental.
+    expect(() =>
+      makeInstrumentProfile({ ...VALID_INPUT, transposition: { chromatic: 14, diatonic: 1 } }),
+    ).toThrow(InstrumentProfileError)
+  })
+
+  it('is deep-frozen and cannot be mutated', () => {
+    const profile = makeInstrumentProfile({
+      ...VALID_INPUT,
+      transposition: { chromatic: 14, diatonic: 8 },
+    })
+    expect(() => {
+      // @ts-expect-error transposition.chromatic is readonly
+      profile.transposition.chromatic = 0
+    }).toThrow()
   })
 })
 
@@ -146,6 +213,12 @@ describe('parseInstrumentProfile', () => {
     )
   })
 
+  it('rejects a non-string displayName', () => {
+    expect(() => parseInstrumentProfile({ ...VALID_INPUT, displayName: 42 })).toThrow(
+      InstrumentProfileParseError,
+    )
+  })
+
   it('rejects a non-numeric concertRange field', () => {
     expect(() =>
       parseInstrumentProfile({
@@ -169,6 +242,33 @@ describe('parseInstrumentProfile', () => {
       parseInstrumentProfile({
         ...VALID_INPUT,
         concertRange: { minMidi: 48, maxMidi: 70 },
+      }),
+    ).toThrow(InstrumentProfileParseError)
+  })
+
+  it('rejects an unknown transposition field', () => {
+    expect(() =>
+      parseInstrumentProfile({
+        ...VALID_INPUT,
+        transposition: { ...VALID_INPUT.transposition, extra: true },
+      }),
+    ).toThrow(InstrumentProfileParseError)
+  })
+
+  it('rejects a non-numeric transposition field', () => {
+    expect(() =>
+      parseInstrumentProfile({
+        ...VALID_INPUT,
+        transposition: { chromatic: '14', diatonic: 8 },
+      }),
+    ).toThrow(InstrumentProfileParseError)
+  })
+
+  it('rejects an inconsistent transposition pair (delegating to makeInstrumentProfile validation)', () => {
+    expect(() =>
+      parseInstrumentProfile({
+        ...VALID_INPUT,
+        transposition: { chromatic: 14, diatonic: 1 },
       }),
     ).toThrow(InstrumentProfileParseError)
   })

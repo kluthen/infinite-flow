@@ -14,8 +14,8 @@ test('serves the browser client shell from the production build', async ({ page 
   await expect(page.getByText('Generate a phrase to begin.')).toBeVisible()
   await expect(
     page
-      .getByRole('radiogroup', { name: 'Display notation' })
-      .getByRole('radio', { name: 'B-flat' }),
+      .getByRole('radiogroup', { name: 'Instrument profile' })
+      .getByRole('radio', { name: 'B-flat tenor saxophone' }),
   ).toHaveAttribute('aria-checked', 'true')
 
   expect(consoleErrors, `Unexpected console errors:\n${consoleErrors.join('\n')}`).toEqual([])

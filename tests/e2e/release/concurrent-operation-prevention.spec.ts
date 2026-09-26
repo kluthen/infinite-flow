@@ -15,7 +15,7 @@ import {
   releaseGeneration,
 } from './harness-helpers'
 
-const SAMPLE_READONLY_GROUPS = ['Tonal center', 'Register', 'Musical profile preset'] as const
+const SAMPLE_READONLY_GROUPS = ['Written key', 'Register', 'Musical profile preset'] as const
 
 // @test-link [[user_story_controlled_phrase_generation]]
 test('every control group is read-only, and the primary action is disabled, while a generation is gated', async ({

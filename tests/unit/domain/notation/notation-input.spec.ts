@@ -131,6 +131,7 @@ describe('validateNotationPhraseInput', () => {
       timeline: FOUR_WHOLE_NOTES,
       tonalContext: { tonalCenter: 'C', collection: 'Major' },
       chords,
+      transposition: { chromatic: 0, diatonic: 0 },
     }
   }
 
@@ -180,6 +181,7 @@ describe('makeNotationPhraseInput', () => {
       result,
       tonalContext: { tonalCenter: 'C', collection: 'Major' },
       harmony: TONIC_EACH_BAR,
+      transposition: { chromatic: 0, diatonic: 0 },
     })
     expect(input.timeline).toBe(result.timeline)
     expect(Object.isFrozen(input)).toBe(true)
@@ -197,6 +199,7 @@ describe('makeNotationPhraseInput', () => {
         result,
         tonalContext: { tonalCenter: 'C', collection: 'Major' },
         harmony: badHarmony,
+        transposition: { chromatic: 0, diatonic: 0 },
       }),
     ).toThrow(NotationInputError)
   })
@@ -212,9 +215,10 @@ describe('notationInputFromOutcome', () => {
     const input = notationInputFromOutcome(outcome, intent)
     expect(input.timeline).toBe(outcome.result.timeline)
     expect(input.tonalContext).toEqual({
-      tonalCenter: intent.controls.tonalCenter,
+      tonalCenter: intent.writtenTonalCenter,
       collection: intent.controls.collection,
     })
+    expect(input.transposition).toEqual(intent.instrumentProfile.transposition)
     expect(input.chords).toEqual(chordSymbolsFromHarmony(outcome.provenance.harmony))
   })
 

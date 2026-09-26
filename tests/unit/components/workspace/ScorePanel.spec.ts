@@ -126,7 +126,7 @@ describe('ScorePanel', () => {
 
     const alertText = wrapper.get('.alert-error').text()
     expect(alertText).toBe(
-      "This combination of tonal center, collection, harmonic motion, tension, and musical profile can't produce a phrase. Try a different tonal center, collection, harmonic motion, tension, or profile.",
+      "This combination of written key, collection, harmonic motion, tension, and musical profile can't produce a phrase. Try a different written key, collection, harmonic motion, tension, or profile.",
     )
     expect(alertText).not.toContain('Generation failed')
     expect(alertText).not.toContain('no_legal_harmony_plan')
@@ -135,10 +135,7 @@ describe('ScorePanel', () => {
   it('keeps a still-mounted PhraseScore visible and layers a notation-error banner over it', () => {
     const workspace = createTestWorkspace()
     const result = buildWorkspaceSessionResult()
-    const phrase = transformToWrittenPhrase(
-      notationInputFromOutcome(result.outcome, result.intent),
-      'Concert',
-    )
+    const phrase = transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent))
     workspace.pendingPhrase.value = phrase
     const notationError = new NotationError('notation_engraving_failed', 'boom', {})
     const brokenWorkspace: TestWorkspace = {
@@ -243,7 +240,7 @@ describe('ScorePanel', () => {
   })
 
   // @test-link [[service_workspace_session_flow]]
-  it('D33: a failed display-mode switch announces the same text', async () => {
+  it('D33: a regenerate whose own engraving fails announces the same text', async () => {
     const workspace = createTestWorkspace()
     useCheapControls(workspace.session)
     const wrapper = mountHarness(workspace)
@@ -254,13 +251,13 @@ describe('ScorePanel', () => {
     await flushPromises()
     await generated
 
-    const switching = workspace.session.actions.setNotationMode('Concert')
+    const regenerating = workspace.session.actions.regenerate()
     await flushPromises()
     wrapper
       .getComponent({ name: 'PhraseScore' })
       .vm.$emit('notation-error', new NotationError('notation_engraving_failed', 'boom', {}))
     await flushPromises()
-    await switching
+    await regenerating
 
     expect(wrapper.get('.notation-status').text()).toBe('Notation error. Try again.')
   })
@@ -270,7 +267,7 @@ describe('ScorePanel', () => {
     let call = 0
     const workspace = createTestWorkspace(async (intent) => {
       call += 1
-      if (call === 1) return buildWorkspaceSessionResult(intent.requestId, intent.seed)
+      if (call <= 2) return buildWorkspaceSessionResult(intent.requestId, intent.seed)
       throw new Error('regeneration blew up')
     })
     useCheapControls(workspace.session)
@@ -282,13 +279,13 @@ describe('ScorePanel', () => {
     await flushPromises()
     await generated
 
-    const switching = workspace.session.actions.setNotationMode('Concert')
+    const regeneratingOnce = workspace.session.actions.regenerate()
     await flushPromises()
     wrapper
       .getComponent({ name: 'PhraseScore' })
       .vm.$emit('notation-error', new NotationError('notation_engraving_failed', 'boom', {}))
     await flushPromises()
-    await switching
+    await regeneratingOnce
     expect(wrapper.get('.staff-frame').classes()).toContain('staff-error')
     expect(wrapper.get('.staff-frame .alert-error').text()).toContain('Notation error')
 

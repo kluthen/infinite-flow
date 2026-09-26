@@ -8,7 +8,7 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { generateAndAwaitReady, primaryButton, radio, statusRegion } from '../workspace/helpers'
+import { generateAndAwaitReady, primaryButton, statusRegion } from '../workspace/helpers'
 import {
   failNextGeneration,
   failNextNotation,
@@ -30,7 +30,7 @@ test('an initial generation failure shows the empty workspace with an error, and
   await page.getByRole('button', { name: 'Generate phrase' }).click()
   await expect(statusRegion(page)).toHaveText('Generation failed. Try again.')
   await expect(page.locator('.inline-alert.alert-error')).toHaveText(
-    "This combination of tonal center, collection, harmonic motion, tension, and musical profile can't produce a phrase. Try a different tonal center, collection, harmonic motion, tension, or profile.",
+    "This combination of written key, collection, harmonic motion, tension, and musical profile can't produce a phrase. Try a different written key, collection, harmonic motion, tension, or profile.",
   )
   await expect(page.locator('.staff-frame')).toHaveClass(/staff-empty/)
   await expect(page.getByText('Generate a phrase to begin.')).toBeVisible()
@@ -80,8 +80,11 @@ test('a notation failure keeps the phrase data but replaces the score with a ret
   const before = await harnessSnapshot(page)
 
   await failNextNotation(page)
-  await radio(page, 'Display notation', 'Concert').click()
-  await expect.poll(async () => (await harnessSnapshot(page)).operation).toBe('idle')
+  // No session action: force an out-of-band PhraseScore redraw (a resize) to fail on its own. Stays
+  // above the 64rem phone-layout breakpoint so this is the only redraw trigger the resize fires --
+  // crossing the breakpoint also fires the phone-layout `matchMedia` listener's own `scheduleRedraw`,
+  // whose later, unarmed redraw would silently recover the just-armed failure before assertions run.
+  await page.setViewportSize({ width: 1100, height: 720 })
 
   await expect(page.locator('.staff-frame')).toHaveClass(/staff-error/)
   await expect(page.locator('.inline-alert.alert-error')).toContainText('Notation error')
@@ -97,7 +100,6 @@ test('a notation failure keeps the phrase data but replaces the score with a ret
   await expect(page.locator('.staff-frame')).toHaveClass(/staff-ready/)
   await expect(page.locator('svg')).toBeVisible()
   const after = await harnessSnapshot(page)
-  expect(after.notationMode).toBe('Concert')
   expect(after.requestId).toBe(before.requestId)
   expect(after.seed).toBe(before.seed)
   expect(after.timeline).toBe(before.timeline)
