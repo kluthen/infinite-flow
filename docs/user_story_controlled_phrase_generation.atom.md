@@ -19,6 +19,7 @@ dependents:
   - [[module_generation_request_construction]]
   - [[module_harmony_candidate_domain]]
   - [[module_rhythm_skeleton_allocator]]
+  - [[module_rhythm_variety_grammar]]
   - [[rule_selectable_generative_profiles]]
   - [[rule_unsupported_rhythm_settings_block_generation]]
   - [[service_workspace_session_flow]]
