@@ -33,6 +33,7 @@ function settledHarmony(): HarmonyCandidate {
 function quarterRhythm(): RhythmCandidate {
   const domain = makeRhythmCandidateDomain({
     noteDensity: 'Quarter',
+    rhythmicVariety: 'Slightly varied',
     silenceDensity: 'Sparse',
     syncopation: 'Straight',
     tensionArc: 'Settled',

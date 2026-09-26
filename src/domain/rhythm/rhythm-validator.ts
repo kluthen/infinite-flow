@@ -8,11 +8,10 @@ import { normalizedRhythmIdentity } from './rhythm-identity'
 import {
   activeAnchorRatioViolated,
   canonicalEndingSignature,
-  coversMixedDurationClasses,
   lacksMetricalAnchor,
   sameAddress,
 } from './rhythm-invariants'
-import { V1_BEAT_CELL_CATALOGS } from './rhythm-skeleton'
+import { attackBandFor, beatCellCatalog, varietyViolated } from './rhythm-variety'
 
 function addressKey(address: {
   readonly barIndex: number
@@ -29,7 +28,7 @@ const CODE_ORDER: readonly RhythmValidationCode[] = [
   'non_positive_duration',
   'invalid_nominal_provenance',
   'density_attack_band_violation',
-  'mixed_duration_class_coverage_violation',
+  'rhythmic_variety_violation',
   'silence_budget_violation',
   'silence_shape_violation',
   'all_rest_measure',
@@ -62,18 +61,6 @@ function restBudget(candidate: UnindexedRhythmCandidate): readonly [number, numb
       ? [12, 20]
       : [24, 32]
 }
-function attackBand(
-  density: UnindexedRhythmCandidate['input']['noteDensity'],
-): readonly [number, number] {
-  return density === 'Quarter'
-    ? [2, 4]
-    : density === 'Eighth'
-      ? [4, 8]
-      : density === 'Sixteenth'
-        ? [8, 16]
-        : [4, 12]
-}
-
 function sameTerminal(
   left: { readonly kind: string; readonly durationTicks: number },
   right: { readonly kind: string; readonly durationTicks: number },
@@ -89,7 +76,7 @@ function hasValidNominalProvenance(candidate: UnindexedRhythmCandidate): boolean
     if (bar.events.some((event) => event.sourceCells.length === 0)) return false
     for (const cell of cells) {
       const key = addressKey(cell.address)
-      const catalog = V1_BEAT_CELL_CATALOGS[candidate.input.noteDensity]
+      const catalog = beatCellCatalog(candidate.input.noteDensity, candidate.input.rhythmicVariety)
       const beatCell = catalog[cell.catalog.catalogIndex]
       const expected = beatCell?.[cell.address.cellIndex]
       const expectedBeat = Math.floor(tick / 4)
@@ -269,7 +256,10 @@ export function validateRhythmCandidate(
     const attacks = bar.events.filter(
       (event) => event.kind === 'note' && !event.tieContinuation,
     ).length
-    const [minimum, maximum] = attackBand(candidate.input.noteDensity)
+    const [minimum, maximum] = attackBandFor(
+      candidate.input.noteDensity,
+      candidate.input.rhythmicVariety,
+    )
     if (attacks < minimum || attacks > maximum) failures.add('density_attack_band_violation')
   }
   if (events.reduce((total, event) => total + event.durationTicks, 0) !== 64)
@@ -295,8 +285,8 @@ export function validateRhythmCandidate(
     failures.add('silence_shape_violation')
   if (events.some((event) => event.kind === 'rest' && event.durationTicks > 8))
     failures.add('rest_duration_limit_violation')
-  if (candidate.input.noteDensity === 'Mixed' && !coversMixedDurationClasses(candidate.bars))
-    failures.add('mixed_duration_class_coverage_violation')
+  // @spec-link [[module_rhythm_variety_grammar]]
+  if (varietyViolated(candidate)) failures.add('rhythmic_variety_violation')
   if (!hasValidNominalProvenance(candidate)) failures.add('invalid_nominal_provenance')
   const syncopationDescriptors = candidate.transforms.filter((descriptor) =>
     descriptor.roles.includes('syncopation'),

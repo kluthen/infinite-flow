@@ -21,12 +21,12 @@ const cell = (
   kind,
   durationTicks,
   address: {
-    grammarVersion: 'rhythm-mvp-v1',
+    grammarVersion: 'rhythm-mvp-v2',
     barIndex,
     beatIndex: Math.floor(index / 2),
     cellIndex: index % 2,
   },
-  catalog: { grammarVersion: 'rhythm-mvp-v1', density: 'Eighth', catalogIndex: 0 },
+  catalog: { grammarVersion: 'rhythm-mvp-v2', density: 'Eighth', catalogIndex: 0 },
 })
 
 const answerBar = (kinds: readonly ('note' | 'rest')[], barIndex: 2 | 3 = 2): RhythmBar =>
@@ -66,7 +66,7 @@ const mergedBar = (barIndex: 0 | 1 | 2 | 3): RhythmBar => {
   }
 }
 
-describe('rhythm-mvp-v1 bounded transforms', () => {
+describe('rhythm-mvp-v2 bounded transforms', () => {
   const interior = answerBar(['note', 'rest', 'note', 'note'])
   const pair = answerBar(['note', 'note', 'rest', 'note'])
 
@@ -366,7 +366,7 @@ describe('rhythm-mvp-v1 bounded transforms', () => {
       ],
     }
     const descriptor: RhythmTransformDescriptor = {
-      grammarVersion: 'rhythm-mvp-v1',
+      grammarVersion: 'rhythm-mvp-v2',
       case: 'tied_sustain',
       barIndex: 2,
       boundaryTick: 4,
@@ -375,7 +375,7 @@ describe('rhythm-mvp-v1 bounded transforms', () => {
       sourceSpan: [first.address, second.address],
       affectedAddresses: [first.address, second.address],
       strongTick: 4,
-      tieChainId: 'rhythm-mvp-v1/2/0/4/8',
+      tieChainId: 'rhythm-mvp-v2/2/0/4/8',
       roles: ['syncopation'],
     }
     const result = applyTransformSet(merged, [descriptor])

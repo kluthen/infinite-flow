@@ -18,6 +18,7 @@ const RADIOGROUP_LABELS = [
   'Harmonic motion',
   'Tension',
   'Note density',
+  'Rhythmic variety',
   'Syncopation',
   'Silence density',
   'Contour',
@@ -110,15 +111,56 @@ for (const groupLabel of RADIOGROUP_LABELS) {
   })
 }
 
+// @test-link [[module_generation_control_catalog]]
+// @test-link [[module_rhythm_variety_grammar]]
+test('Rhythmic variety follows Note density with exactly Strict, Slightly varied (default) and Heavily varied, and Note density has no Mixed option', async ({
+  page,
+}) => {
+  await gotoWorkspace(page)
+
+  const groupOrder = await page
+    .getByRole('radiogroup')
+    .evaluateAll((groups) => groups.map((group) => group.getAttribute('aria-label')))
+  const densityIndex = groupOrder.indexOf('Note density')
+  const varietyIndex = groupOrder.indexOf('Rhythmic variety')
+  expect(densityIndex).toBeGreaterThanOrEqual(0)
+  expect(varietyIndex).toBe(densityIndex + 1)
+
+  const noteDensityGroup = page.getByRole('radiogroup', { name: 'Note density', exact: true })
+  await expect(noteDensityGroup.getByRole('radio')).toHaveText([
+    'Quarter notes',
+    'Eighth notes',
+    'Sixteenth',
+  ])
+
+  const varietyGroup = page.getByRole('radiogroup', { name: 'Rhythmic variety', exact: true })
+  const varietyRadios = varietyGroup.getByRole('radio')
+  await expect(varietyRadios).toHaveText(['Strict', 'Slightly varied', 'Heavily varied'])
+  await expect(radio(page, 'Rhythmic variety', 'Slightly varied')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await expect(radio(page, 'Rhythmic variety', 'Strict')).toHaveAttribute('aria-checked', 'false')
+  await expect(radio(page, 'Rhythmic variety', 'Heavily varied')).toHaveAttribute(
+    'aria-checked',
+    'false',
+  )
+})
+
 // @test-link [[module_generative_profile_selection]]
-test('the Neutral preset sets its six controlled values', async ({ page }) => {
+test('the Neutral preset sets its seven controlled values', async ({ page }) => {
   await gotoWorkspace(page)
 
   await radio(page, 'Musical profile preset', 'Jazz').click()
+  await radio(page, 'Rhythmic variety', 'Heavily varied').click()
   await radio(page, 'Musical profile preset', 'Neutral').click()
 
   await expect(radio(page, 'Harmonic motion', 'Static')).toHaveAttribute('aria-checked', 'true')
   await expect(radio(page, 'Note density', 'Quarter notes')).toHaveAttribute('aria-checked', 'true')
+  await expect(radio(page, 'Rhythmic variety', 'Slightly varied')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
   await expect(radio(page, 'Syncopation', 'Straight')).toHaveAttribute('aria-checked', 'true')
   await expect(radio(page, 'Silence density', 'Sparse')).toHaveAttribute('aria-checked', 'true')
   await expect(radio(page, 'Contour', 'Arch')).toHaveAttribute('aria-checked', 'true')
@@ -127,9 +169,10 @@ test('the Neutral preset sets its six controlled values', async ({ page }) => {
 })
 
 // @test-link [[module_generative_profile_selection]]
-test('the Jazz preset sets its six controlled values', async ({ page }) => {
+test('the Jazz preset sets its seven controlled values', async ({ page }) => {
   await gotoWorkspace(page)
 
+  await radio(page, 'Rhythmic variety', 'Strict').click()
   await radio(page, 'Musical profile preset', 'Jazz').click()
 
   await expect(radio(page, 'Harmonic motion', 'Gentle diatonic')).toHaveAttribute(
@@ -137,6 +180,10 @@ test('the Jazz preset sets its six controlled values', async ({ page }) => {
     'true',
   )
   await expect(radio(page, 'Note density', 'Eighth notes')).toHaveAttribute('aria-checked', 'true')
+  await expect(radio(page, 'Rhythmic variety', 'Slightly varied')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
   await expect(radio(page, 'Syncopation', 'Occasional offbeats')).toHaveAttribute(
     'aria-checked',
     'true',
@@ -162,7 +209,7 @@ test('manually editing a preset-controlled value clears the preset selection to 
   const presetGroup = page.getByRole('radiogroup', { name: 'Musical profile preset' })
   await expect(presetGroup.getByRole('radio', { checked: true })).toHaveCount(0)
   await expect(page.locator('.preset-status')).toHaveText(
-    'Custom configuration - Neutral grammar retained. Choosing Neutral or Jazz replaces all six preset-controlled values.',
+    'Custom configuration - Neutral grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
   )
   await expect(page.locator('.control-summary')).toHaveText(
     'C Ionian · Custom (Neutral grammar) · Lift · Shaped',

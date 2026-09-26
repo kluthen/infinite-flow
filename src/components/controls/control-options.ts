@@ -14,6 +14,7 @@ import {
   NOTE_DENSITIES,
   PITCH_CLASSES,
   REGISTER_CHOICES,
+  RHYTHMIC_VARIETIES,
   SILENCE_DENSITIES,
   SYNCOPATIONS,
   TENSION_ARCS,
@@ -89,9 +90,14 @@ export function noteDensityOptions(): readonly SegmentedControlOption[] {
     Quarter: 'Quarter notes',
     Eighth: 'Eighth notes',
     Sixteenth: 'Sixteenth',
-    Mixed: 'Mixed',
   }
   return NOTE_DENSITIES.map((value) => ({ value, label: labels[value] }))
+}
+
+/** Intent: build the rhythmic-variety options; every catalog value is already its own label. */
+// @spec-link [[module_generation_control_catalog]]
+export function rhythmicVarietyOptions(): readonly SegmentedControlOption[] {
+  return RHYTHMIC_VARIETIES.map((value) => ({ value, label: value }))
 }
 
 /** Intent: build the syncopation options; every catalog value is already its own label. */

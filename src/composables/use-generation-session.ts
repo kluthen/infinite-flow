@@ -101,6 +101,7 @@ export type MutableGenerationSessionState<TResult> = {
 const PROFILE_CONTROL_KEYS = new Set<keyof ProfileControlledValues>([
   'harmonicMotion',
   'noteDensity',
+  'rhythmicVariety',
   'syncopation',
   'silenceDensity',
   'contour',

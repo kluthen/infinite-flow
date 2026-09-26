@@ -4,6 +4,7 @@ import {
   SILENCE_DENSITIES,
   SYNCOPATIONS,
   type NoteDensity,
+  type RhythmicVariety,
   type SilenceDensity,
   type Syncopation,
 } from './generation-controls'
@@ -11,41 +12,93 @@ import {
 // @spec-link [[module_generation_control_catalog]]
 export interface RhythmSetting {
   readonly noteDensity: NoteDensity
+  readonly rhythmicVariety: RhythmicVariety
   readonly silenceDensity: SilenceDensity
   readonly syncopation: Syncopation
 }
 
 /**
- * Intent: name every note density + silence density + syncopation combination for which the
- * rhythm grammar has no legal four-bar plan under any tension arc, so the workspace can block
- * Generate/Regenerate up front instead of letting a generation attempt fail. This is a known
- * grammar limit, not a musical judgment: delete this constant and the UI block it powers once a
- * rhythm-grammar fix makes these six combinations playable.
+ * Intent: name every rhythmic variety + note density + silence density + syncopation combination
+ * for which the rhythm grammar has no legal four-bar plan under any tension arc, so the workspace
+ * can block Generate/Regenerate up front instead of letting a generation attempt fail. This is a
+ * known grammar limit, not a musical judgment: delete this constant and the UI block it powers
+ * once a rhythm-grammar fix makes these combinations playable.
+ *
+ * `Strict` keeps the six settings blocked before rhythmic variety existed. `Slightly varied`
+ * unblocks two of them (the eighth-bearing cells it adds rescue the attack band under Active
+ * displacement). `Heavily varied` blocks nothing (§4, ISS-004 feasibility review).
  */
 // @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
 export const UNSUPPORTED_RHYTHM_SETTINGS: readonly RhythmSetting[] = deepFreeze([
-  { noteDensity: 'Quarter', silenceDensity: 'Sparse', syncopation: 'Active displacement' },
-  { noteDensity: 'Quarter', silenceDensity: 'Breath-heavy', syncopation: 'Active displacement' },
-  { noteDensity: 'Sixteenth', silenceDensity: 'Sparse', syncopation: 'Active displacement' },
+  {
+    noteDensity: 'Quarter',
+    rhythmicVariety: 'Strict',
+    silenceDensity: 'Sparse',
+    syncopation: 'Active displacement',
+  },
+  {
+    noteDensity: 'Quarter',
+    rhythmicVariety: 'Strict',
+    silenceDensity: 'Breath-heavy',
+    syncopation: 'Active displacement',
+  },
   {
     noteDensity: 'Sixteenth',
+    rhythmicVariety: 'Strict',
+    silenceDensity: 'Sparse',
+    syncopation: 'Active displacement',
+  },
+  {
+    noteDensity: 'Sixteenth',
+    rhythmicVariety: 'Strict',
     silenceDensity: 'Conversational',
     syncopation: 'Active displacement',
   },
   {
     noteDensity: 'Sixteenth',
+    rhythmicVariety: 'Strict',
     silenceDensity: 'Breath-heavy',
     syncopation: 'Occasional offbeats',
   },
-  { noteDensity: 'Sixteenth', silenceDensity: 'Breath-heavy', syncopation: 'Active displacement' },
+  {
+    noteDensity: 'Sixteenth',
+    rhythmicVariety: 'Strict',
+    silenceDensity: 'Breath-heavy',
+    syncopation: 'Active displacement',
+  },
+  {
+    noteDensity: 'Quarter',
+    rhythmicVariety: 'Slightly varied',
+    silenceDensity: 'Sparse',
+    syncopation: 'Active displacement',
+  },
+  {
+    noteDensity: 'Quarter',
+    rhythmicVariety: 'Slightly varied',
+    silenceDensity: 'Breath-heavy',
+    syncopation: 'Active displacement',
+  },
+  {
+    noteDensity: 'Sixteenth',
+    rhythmicVariety: 'Slightly varied',
+    silenceDensity: 'Breath-heavy',
+    syncopation: 'Occasional offbeats',
+  },
+  {
+    noteDensity: 'Sixteenth',
+    rhythmicVariety: 'Slightly varied',
+    silenceDensity: 'Breath-heavy',
+    syncopation: 'Active displacement',
+  },
 ])
 
-/** True when the given note density + silence density + syncopation combination cannot form a phrase. */
+/** True when the given rhythmic variety + note density + silence density + syncopation combination cannot form a phrase. */
 // @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
 export function isUnsupportedRhythmSetting(setting: RhythmSetting): boolean {
   return UNSUPPORTED_RHYTHM_SETTINGS.some(
     (entry) =>
       entry.noteDensity === setting.noteDensity &&
+      entry.rhythmicVariety === setting.rhythmicVariety &&
       entry.silenceDensity === setting.silenceDensity &&
       entry.syncopation === setting.syncopation,
   )

@@ -27,7 +27,7 @@ for (const { name, profile, seed } of CASES) {
   test(`staff-content matches its baseline for a generated ${name} phrase`, async ({ page }) => {
     const url =
       `/?source=generated&seed=${seed}&width=1200` +
-      '&tonal=C&collection=Major&density=Eighth&syncopation=Straight&silence=Conversational' +
+      '&tonal=C&collection=Major&density=Eighth&variety=Strict&syncopation=Straight&silence=Conversational' +
       `&profile=${profile}&register=Middle`
     await page.goto(url)
     await waitForHarnessSettled(page)

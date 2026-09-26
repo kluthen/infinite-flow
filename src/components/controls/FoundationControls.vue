@@ -114,9 +114,9 @@ const presetModelValue = computed<string | null>(() =>
 const presetStatusText = computed(() => {
   const { musicalProfile, isCustom } = props.profileSelection
   if (isCustom) {
-    return `Custom configuration - ${musicalProfile} grammar retained. Choosing Neutral or Jazz replaces all six preset-controlled values.`
+    return `Custom configuration - ${musicalProfile} grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.`
   }
-  return `${musicalProfile} preset applied. All six preset-controlled values were replaced.`
+  return `${musicalProfile} preset applied. All seven preset-controlled values were replaced.`
 })
 
 const activeInstrumentProfile = computed(() =>

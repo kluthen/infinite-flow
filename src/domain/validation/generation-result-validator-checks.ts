@@ -258,13 +258,14 @@ export function rhythmCorrespondenceFailures(
   const controls = intent.controls
   if (
     input.noteDensity !== controls.noteDensity ||
+    input.rhythmicVariety !== controls.rhythmicVariety ||
     input.silenceDensity !== controls.silenceDensity ||
     input.syncopation !== controls.syncopation ||
     input.tensionArc !== controls.tension
   )
     failures.push({
       code: 'rhythm_input_mismatch',
-      detail: `input=${input.noteDensity}/${input.silenceDensity}/${input.syncopation}/${input.tensionArc} controls=${controls.noteDensity}/${controls.silenceDensity}/${controls.syncopation}/${controls.tension}`,
+      detail: `input=${input.noteDensity}/${input.rhythmicVariety}/${input.silenceDensity}/${input.syncopation}/${input.tensionArc} controls=${controls.noteDensity}/${controls.rhythmicVariety}/${controls.silenceDensity}/${controls.syncopation}/${controls.tension}`,
     })
 
   return { failures, structurallyValid }

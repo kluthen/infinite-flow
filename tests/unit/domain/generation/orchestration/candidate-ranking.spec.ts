@@ -26,6 +26,7 @@ function harmonyDomain(): readonly HarmonyCandidate[] {
 function fastRhythmDomain() {
   const result = makeRhythmCandidateDomain({
     noteDensity: 'Eighth',
+    rhythmicVariety: 'Slightly varied',
     silenceDensity: 'Conversational',
     syncopation: 'Straight',
     tensionArc: 'Settled',

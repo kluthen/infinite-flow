@@ -45,6 +45,7 @@ function pinnedInput() {
 
   const rhythms = makeRhythmCandidateDomain({
     noteDensity: 'Eighth',
+    rhythmicVariety: 'Slightly varied',
     silenceDensity: 'Conversational',
     syncopation: 'Occasional offbeats',
     tensionArc: 'Settled',

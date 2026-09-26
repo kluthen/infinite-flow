@@ -5,6 +5,7 @@
  */
 
 import type { RhythmBar, UnindexedRhythmCandidate } from './rhythm-types'
+import { varietyViolated } from './rhythm-variety'
 
 /** Whether two source-cell addresses name the same bar, beat, and cell. */
 // @spec-link [[module_rhythm_domain_validation]]
@@ -71,21 +72,6 @@ export function lacksMetricalAnchor(bar: RhythmBar): boolean {
 }
 
 /**
- * Whether the bars' nominal source cells include the 1-, 2- and 4-tick duration classes that
- * Mixed density requires. Transforms move boundaries but never change a source cell's duration,
- * and answer bars copy the gesture's cells, so a gesture's own bars already decide this for
- * every phrase derived from it.
- */
-// @spec-link [[module_rhythm_domain_validation]]
-export function coversMixedDurationClasses(bars: readonly RhythmBar[]): boolean {
-  const durations = new Set<number>()
-  for (const bar of bars)
-    for (const event of bar.events)
-      for (const cell of event.sourceCells) durations.add(cell.durationTicks)
-  return [1, 2, 4].every((duration) => durations.has(duration))
-}
-
-/**
  * `active_anchor_ratio_violation`: under Active displacement, the phrase needs an offbeat
  * displaced attack and a realized tied sustain, and no bar may carry more syncopation events than
  * sounding beat-1/beat-3 anchors.
@@ -131,16 +117,16 @@ export function activeAnchorRatioViolated(candidate: UnindexedRhythmCandidate): 
 
 /**
  * The enumeration prefilter: true only when `validateRhythmCandidate` would certainly report a
- * failure (metrical anchor, Mixed coverage, active anchor ratio, or answer variation), so the
- * caller can skip freezing, validation, and identity work for that candidate. False means the
- * full validator decides.
+ * failure (metrical anchor, rhythmic-variety dominance, active anchor ratio, or answer variation),
+ * so the caller can skip freezing, validation, and identity work for that candidate. False means
+ * the full validator decides.
  */
 // @spec-link [[module_rhythm_domain_validation]]
 // @spec-link [[api_rhythm_domain_expansion]]
+// @spec-link [[module_rhythm_variety_grammar]]
 export function quickRejectRhythmCandidate(candidate: UnindexedRhythmCandidate): boolean {
   if (candidate.bars.some(lacksMetricalAnchor)) return true
-  if (candidate.input.noteDensity === 'Mixed' && !coversMixedDurationClasses(candidate.bars))
-    return true
+  if (varietyViolated(candidate)) return true
   if (activeAnchorRatioViolated(candidate)) return true
   return (
     candidate.bars.length === 4 &&

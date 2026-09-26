@@ -15,8 +15,8 @@ const bar: RhythmBar = {
         {
           kind: 'note',
           durationTicks: 4,
-          address: { grammarVersion: 'rhythm-mvp-v1', barIndex: 0, beatIndex: 0, cellIndex: 0 },
-          catalog: { grammarVersion: 'rhythm-mvp-v1', density: 'Quarter', catalogIndex: 0 },
+          address: { grammarVersion: 'rhythm-mvp-v2', barIndex: 0, beatIndex: 0, cellIndex: 0 },
+          catalog: { grammarVersion: 'rhythm-mvp-v2', density: 'Quarter', catalogIndex: 0 },
         },
       ],
     },
@@ -29,8 +29,8 @@ const bar: RhythmBar = {
         {
           kind: 'rest',
           durationTicks: 4,
-          address: { grammarVersion: 'rhythm-mvp-v1', barIndex: 0, beatIndex: 1, cellIndex: 0 },
-          catalog: { grammarVersion: 'rhythm-mvp-v1', density: 'Quarter', catalogIndex: 1 },
+          address: { grammarVersion: 'rhythm-mvp-v2', barIndex: 0, beatIndex: 1, cellIndex: 0 },
+          catalog: { grammarVersion: 'rhythm-mvp-v2', density: 'Quarter', catalogIndex: 1 },
         },
       ],
     },
@@ -43,14 +43,14 @@ const bar: RhythmBar = {
         {
           kind: 'note',
           durationTicks: 4,
-          address: { grammarVersion: 'rhythm-mvp-v1', barIndex: 0, beatIndex: 2, cellIndex: 0 },
-          catalog: { grammarVersion: 'rhythm-mvp-v1', density: 'Quarter', catalogIndex: 0 },
+          address: { grammarVersion: 'rhythm-mvp-v2', barIndex: 0, beatIndex: 2, cellIndex: 0 },
+          catalog: { grammarVersion: 'rhythm-mvp-v2', density: 'Quarter', catalogIndex: 0 },
         },
         {
           kind: 'note',
           durationTicks: 4,
-          address: { grammarVersion: 'rhythm-mvp-v1', barIndex: 0, beatIndex: 3, cellIndex: 0 },
-          catalog: { grammarVersion: 'rhythm-mvp-v1', density: 'Quarter', catalogIndex: 0 },
+          address: { grammarVersion: 'rhythm-mvp-v2', barIndex: 0, beatIndex: 3, cellIndex: 0 },
+          catalog: { grammarVersion: 'rhythm-mvp-v2', density: 'Quarter', catalogIndex: 0 },
         },
       ],
     },
@@ -61,16 +61,16 @@ const bar: RhythmBar = {
 describe('syncopation algebra', () => {
   it('translates an interior rest by the same signed delta without changing its span', () => {
     const descriptor: RhythmTransformDescriptor = {
-      grammarVersion: 'rhythm-mvp-v1',
+      grammarVersion: 'rhythm-mvp-v2',
       case: 'interior_rest',
       barIndex: 0,
       boundaryTick: 4,
       delta: 2,
       transformedBoundaries: [6, 10],
       affectedAddresses: [
-        { grammarVersion: 'rhythm-mvp-v1', barIndex: 0, beatIndex: 0, cellIndex: 0 },
-        { grammarVersion: 'rhythm-mvp-v1', barIndex: 0, beatIndex: 1, cellIndex: 0 },
-        { grammarVersion: 'rhythm-mvp-v1', barIndex: 0, beatIndex: 2, cellIndex: 0 },
+        { grammarVersion: 'rhythm-mvp-v2', barIndex: 0, beatIndex: 0, cellIndex: 0 },
+        { grammarVersion: 'rhythm-mvp-v2', barIndex: 0, beatIndex: 1, cellIndex: 0 },
+        { grammarVersion: 'rhythm-mvp-v2', barIndex: 0, beatIndex: 2, cellIndex: 0 },
       ],
       roles: ['syncopation'],
     }

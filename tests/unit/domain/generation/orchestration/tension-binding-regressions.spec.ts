@@ -26,7 +26,8 @@ import { makeSeed } from '@/domain/random/seed'
 
 /** One of the six settings that moved from `no_legal_pitch_plan` to success under the fix. */
 interface RegressionCase {
-  readonly noteDensity: 'Eighth' | 'Mixed'
+  readonly noteDensity: 'Eighth' | 'Sixteenth'
+  readonly rhythmicVariety: 'Slightly varied' | 'Heavily varied'
   readonly silenceDensity: 'Breath-heavy'
   readonly syncopation: 'Straight' | 'Occasional offbeats' | 'Active displacement'
   readonly tension: 'Build' | 'Edge'
@@ -35,38 +36,46 @@ interface RegressionCase {
 const REGRESSION_CASES: readonly RegressionCase[] = [
   {
     noteDensity: 'Eighth',
+    rhythmicVariety: 'Slightly varied',
     silenceDensity: 'Breath-heavy',
     syncopation: 'Straight',
     tension: 'Edge',
   },
   {
     noteDensity: 'Eighth',
+    rhythmicVariety: 'Slightly varied',
     silenceDensity: 'Breath-heavy',
     syncopation: 'Occasional offbeats',
     tension: 'Build',
   },
   {
     noteDensity: 'Eighth',
+    rhythmicVariety: 'Slightly varied',
     silenceDensity: 'Breath-heavy',
     syncopation: 'Occasional offbeats',
     tension: 'Edge',
   },
   {
     noteDensity: 'Eighth',
+    rhythmicVariety: 'Slightly varied',
     silenceDensity: 'Breath-heavy',
     syncopation: 'Active displacement',
     tension: 'Build',
   },
   {
     noteDensity: 'Eighth',
+    rhythmicVariety: 'Slightly varied',
     silenceDensity: 'Breath-heavy',
     syncopation: 'Active displacement',
     tension: 'Edge',
   },
   {
-    noteDensity: 'Mixed',
+    // Replaces the retired `Mixed` density: the densest, most-varied surviving setting, matching
+    // the worst-case grammar expansion moved here by ISS-004 (feasibility review §6).
+    noteDensity: 'Sixteenth',
+    rhythmicVariety: 'Heavily varied',
     silenceDensity: 'Breath-heavy',
-    syncopation: 'Active displacement',
+    syncopation: 'Occasional offbeats',
     tension: 'Edge',
   },
 ]
@@ -80,6 +89,7 @@ function buildIntent(testCase: RegressionCase) {
     harmonicMotion: 'Gentle diatonic',
     tension: testCase.tension,
     noteDensity: testCase.noteDensity,
+    rhythmicVariety: testCase.rhythmicVariety,
     syncopation: testCase.syncopation,
     silenceDensity: testCase.silenceDensity,
     contour: 'Arch',
@@ -90,7 +100,7 @@ function buildIntent(testCase: RegressionCase) {
   })
   return createGenerationIntent({
     requestId: makeRequestId(
-      `binding-regression-${testCase.noteDensity}-${testCase.silenceDensity}-${testCase.syncopation}-${testCase.tension}`,
+      `binding-regression-${testCase.noteDensity}-${testCase.rhythmicVariety}-${testCase.silenceDensity}-${testCase.syncopation}-${testCase.tension}`,
     ),
     seed: makeSeed(1),
     controls,

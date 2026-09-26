@@ -51,6 +51,7 @@ export function buildWindowSearchFixture(seed: Seed = makeSeed(7)): WindowSearch
     harmonicMotion: 'Gentle diatonic',
     tension: 'Settled',
     noteDensity: 'Quarter',
+    rhythmicVariety: 'Slightly varied',
     syncopation: 'Straight',
     silenceDensity: 'Sparse',
     contour: 'Arch',
@@ -95,6 +96,7 @@ export function buildWindowSearchFixture(seed: Seed = makeSeed(7)): WindowSearch
 
   const rhythmResult = makeRhythmCandidateDomain({
     noteDensity: controls.noteDensity,
+    rhythmicVariety: controls.rhythmicVariety,
     silenceDensity: controls.silenceDensity,
     syncopation: controls.syncopation,
     tensionArc: controls.tension,

@@ -2,24 +2,25 @@ import { describe, expect, it } from 'vitest'
 
 import {
   V1_BAR1_FORMS,
-  V1_BEAT_CELL_CATALOGS,
   enumerateGestureDerivations,
   enumerateV1Bar1Productions,
   enumerateV1RecurrenceVariants,
 } from '@/domain/rhythm/rhythm-skeleton'
+import { beatCellCatalog } from '@/domain/rhythm/rhythm-variety'
 import type { SingleMergePlan } from '@/domain/rhythm/rhythm-types'
 
 const terminal = (cell: { readonly kind: string; readonly durationTicks: number }) =>
   `${cell.kind === 'note' ? 'N' : 'R'}${cell.durationTicks}`
 
 // @test-link [[module_rhythm_skeleton_allocator]]
-describe('rhythm-mvp-v1 nominal grammar', () => {
-  it('owns every ordered beat-cell catalog entry exactly', () => {
+describe('rhythm-mvp-v2 nominal grammar', () => {
+  // @test-link [[module_rhythm_variety_grammar]]
+  it('owns every ordered beat-cell catalog entry exactly for Strict (the unaugmented base catalog)', () => {
     expect(
       Object.fromEntries(
-        Object.entries(V1_BEAT_CELL_CATALOGS).map(([density, catalog]) => [
+        (['Quarter', 'Eighth', 'Sixteenth'] as const).map((density) => [
           density,
-          catalog.map((beat) => beat.map(terminal).join(' ')),
+          beatCellCatalog(density, 'Strict').map((beat) => beat.map(terminal).join(' ')),
         ]),
       ),
     ).toEqual({
@@ -35,29 +36,28 @@ describe('rhythm-mvp-v1 nominal grammar', () => {
         'R1 R1 N1 N1',
         'R1 R1 R1 R1',
       ],
-      Mixed: [
-        'N4',
-        'R4',
-        'N2 N2',
-        'N2 R2',
-        'R2 N2',
-        'R2 R2',
-        'N2 N1 N1',
-        'N2 N1 R1',
-        'N2 R1 N1',
-        'R2 N1 N1',
-        'N1 N1 N2',
-        'N1 R1 N2',
-        'R1 N1 N2',
-        'N1 N1 R2',
-      ],
     })
+  })
+
+  // @test-link [[module_rhythm_variety_grammar]]
+  it('appends the extra Slightly varied and Heavily varied beat cells after the base catalog', () => {
+    expect(
+      beatCellCatalog('Eighth', 'Slightly varied').map((beat) => beat.map(terminal).join(' ')),
+    ).toEqual(['N2 N2', 'N2 R2', 'R2 N2', 'R2 R2', 'N4', 'N3 N1'])
+    expect(
+      beatCellCatalog('Eighth', 'Heavily varied').map((beat) => beat.map(terminal).join(' ')),
+    ).toEqual(['N2 N2', 'N2 R2', 'R2 N2', 'R2 R2', 'N4', 'N3 N1', 'N2 N1 N1', 'N1 N1 N2'])
+    // Quarter's `Slightly varied` catalog is byte-identical to `Strict` (no extra cells at that
+    // density, ISS-004 feasibility review §1/§7).
+    expect(beatCellCatalog('Quarter', 'Slightly varied')).toEqual(
+      beatCellCatalog('Quarter', 'Strict'),
+    )
   })
 
   // @test-link [[rule_phrase_starts_on_downbeat]]
   it('enumerates all five Bar1 productions in canonical form then lexicographic catalog order', () => {
     expect(V1_BAR1_FORMS).toEqual(['xxxx', 'xxxy', 'xxyy', 'xyxy', 'xyyx'])
-    const productions = [...enumerateV1Bar1Productions('Eighth')]
+    const productions = [...enumerateV1Bar1Productions('Eighth', 'Strict')]
     // Beat 0 always renders the "x" catalog entry (see formIndices), so only the note-starting
     // Eighth entries (index 0 "N2 N2" and index 1 "N2 R2") are eligible x values; the rest-starting
     // entries (index 2 "R2 N2" and index 3 "R2 R2") stay available as "y" for beats 1-3.
@@ -78,11 +78,12 @@ describe('rhythm-mvp-v1 nominal grammar', () => {
   })
 
   it('uses the earliest attacked beat and enumerates exact then every target-cell substitution', () => {
-    const production = enumerateV1Bar1Productions('Eighth').next().value!
+    const production = enumerateV1Bar1Productions('Eighth', 'Strict').next().value!
     const variants = [
       ...enumerateV1RecurrenceVariants(production, {
-        grammarVersion: 'rhythm-mvp-v1',
+        grammarVersion: 'rhythm-mvp-v2',
         noteDensity: 'Eighth',
+        rhythmicVariety: 'Strict',
         silenceDensity: 'Sparse',
       }),
     ]
@@ -107,8 +108,9 @@ describe('rhythm-mvp-v1 nominal grammar', () => {
   it('enumerates no merge then each eligible adjacent-note merge in chronological order', () => {
     const derivations = [
       ...enumerateGestureDerivations({
-        grammarVersion: 'rhythm-mvp-v1',
+        grammarVersion: 'rhythm-mvp-v2',
         noteDensity: 'Eighth',
+        rhythmicVariety: 'Strict',
         silenceDensity: 'Sparse',
       }),
     ]
@@ -130,13 +132,17 @@ describe('rhythm-mvp-v1 nominal grammar', () => {
           JSON.stringify(derivation.recurrence) === JSON.stringify(seed!.recurrence),
       )
       .map((derivation) => derivation.merge)
+    // A same-beat merge is only a candidate once one side already has duration > densityTicks
+    // (rhythm-mvp-v2's mergePlans, rhythm-skeleton.ts); at Eighth density every base cell is
+    // exactly q=2 ticks, so only cross-beat adjacent note pairs are eligible here.
     const eligible = seed!.bars.flatMap((bar) => {
       const cells = bar.events.flatMap((event) => event.sourceCells)
-      return cells.flatMap((cell, index) =>
-        cell.kind === 'note' && cells[index + 1]?.kind === 'note'
-          ? [[cell.address.barIndex, cell.address.beatIndex, cell.address.cellIndex]]
-          : [],
-      )
+      return cells.flatMap((cell, index) => {
+        const next = cells[index + 1]
+        if (cell.kind !== 'note' || next?.kind !== 'note') return []
+        if (cell.address.beatIndex === next.address.beatIndex) return []
+        return [[cell.address.barIndex, cell.address.beatIndex, cell.address.cellIndex]]
+      })
     })
     expect(plans[0]).toEqual({ kind: 'none' })
     expect(
@@ -150,8 +156,9 @@ describe('rhythm-mvp-v1 nominal grammar', () => {
   // @test-link [[module_rhythm_skeleton_allocator]]
   it('accepts a Breath-heavy gesture with more than one rest event in a bar, as long as every bar has a rest', () => {
     const derivations = enumerateGestureDerivations({
-      grammarVersion: 'rhythm-mvp-v1',
+      grammarVersion: 'rhythm-mvp-v2',
       noteDensity: 'Eighth',
+      rhythmicVariety: 'Strict',
       silenceDensity: 'Breath-heavy',
     })
     const multiRestBar = [...derivations].find((derivation) => {

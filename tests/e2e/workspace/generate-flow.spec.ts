@@ -39,8 +39,12 @@ test('controls stay read-only but focusable during generation: arrows move focus
   page,
 }) => {
   await gotoWorkspace(page)
-  // Mixed note density widens the in-flight window without approaching the documented worst case.
-  await radio(page, 'Note density', 'Mixed').click()
+  // Sixteenth density + Heavily varied rhythmic variety widens the in-flight window (690
+  // candidates at the default Sparse/Straight/Lift settings, comfortably more than the retired
+  // Mixed density's 174) without approaching the documented worst case of 2,932 candidates at
+  // Sparse/Active displacement/Build (ISS-004 feasibility review Sec 9-10).
+  await radio(page, 'Note density', 'Sixteenth').click()
+  await radio(page, 'Rhythmic variety', 'Heavily varied').click()
 
   await primaryButton(page).click()
 

@@ -11,6 +11,7 @@ import {
   NOTE_DENSITIES,
   PITCH_CLASSES,
   REGISTER_CHOICES,
+  RHYTHMIC_VARIETIES,
   SILENCE_DENSITIES,
   SYNCOPATIONS,
   TENSION_ARCS,
@@ -48,7 +49,8 @@ describe('generation control catalogs and normalization', () => {
     ])
     expect(HARMONIC_MOTIONS).toEqual(['Static', 'Gentle diatonic', 'Active diatonic'])
     expect(TENSION_ARCS).toEqual(['Settled', 'Lift', 'Build', 'Edge'])
-    expect(NOTE_DENSITIES).toEqual(['Quarter', 'Eighth', 'Sixteenth', 'Mixed'])
+    expect(NOTE_DENSITIES).toEqual(['Quarter', 'Eighth', 'Sixteenth'])
+    expect(RHYTHMIC_VARIETIES).toEqual(['Strict', 'Slightly varied', 'Heavily varied'])
     expect(SYNCOPATIONS).toEqual(['Straight', 'Occasional offbeats', 'Active displacement'])
     expect(SILENCE_DENSITIES).toEqual(['Sparse', 'Conversational', 'Breath-heavy'])
     expect(CONTOURS).toEqual(['Rising', 'Falling', 'Arch', 'Wandering'])
@@ -88,6 +90,22 @@ describe('generation control catalogs and normalization', () => {
       makeGenerationControls({ ...DEFAULT_GENERATION_CONTROLS, contour: 'Circle' as 'Arch' }),
     ).toThrow(GenerationControlError)
   })
+
+  // @test-link [[module_generation_control_catalog]]
+  it('rejects the retired Mixed note density and an unknown rhythmic variety', () => {
+    expect(() =>
+      makeGenerationControls({
+        ...DEFAULT_GENERATION_CONTROLS,
+        noteDensity: 'Mixed' as 'Quarter',
+      }),
+    ).toThrow(GenerationControlError)
+    expect(() =>
+      makeGenerationControls({
+        ...DEFAULT_GENERATION_CONTROLS,
+        rhythmicVariety: 'Loosely varied' as 'Slightly varied',
+      }),
+    ).toThrow(GenerationControlError)
+  })
 })
 
 // @test-link [[module_profile_control_customization]]
@@ -117,11 +135,11 @@ describe('profile bundle replacement and customization', () => {
       DEFAULT_GENERATION_CONTROLS,
       DEFAULT_PROFILE_SELECTION,
       'noteDensity',
-      'Mixed',
+      'Sixteenth',
     )
 
     expect(selection).toEqual({ musicalProfile: 'Neutral', isCustom: true })
-    expect(controls.noteDensity).toBe('Mixed')
+    expect(controls.noteDensity).toBe('Sixteenth')
     expect(JSON.stringify(PROFILE_BUNDLES)).toBe(before)
     expect(Object.isFrozen(PROFILE_BUNDLES.Neutral)).toBe(true)
   })

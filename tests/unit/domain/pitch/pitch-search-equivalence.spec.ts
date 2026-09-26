@@ -338,6 +338,7 @@ function fixtureInput(
   if (harmony.kind !== 'harmony_candidate_domain') throw new Error('fixture harmony missing')
   const rhythms = makeRhythmCandidateDomain({
     noteDensity: 'Quarter',
+    rhythmicVariety: 'Slightly varied',
     silenceDensity: 'Sparse',
     syncopation: 'Straight',
     tensionArc: 'Settled',

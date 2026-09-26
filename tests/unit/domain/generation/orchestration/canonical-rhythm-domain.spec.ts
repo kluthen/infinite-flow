@@ -27,6 +27,7 @@ import type { RhythmExpansionInput } from '@/domain/rhythm/rhythm-types'
 
 const CHEAP_RHYTHM_INPUT: RhythmExpansionInput = {
   noteDensity: 'Quarter',
+  rhythmicVariety: 'Slightly varied',
   silenceDensity: 'Sparse',
   syncopation: 'Straight',
   tensionArc: 'Settled',
@@ -39,6 +40,7 @@ const CHEAP_CONTROLS = {
   harmonicMotion: 'Gentle diatonic' as const,
   tension: 'Settled' as const,
   noteDensity: 'Quarter' as const,
+  rhythmicVariety: 'Slightly varied' as const,
   syncopation: 'Straight' as const,
   silenceDensity: 'Sparse' as const,
   contour: 'Arch' as const,
@@ -98,6 +100,7 @@ describe('canonical rhythm domain memo', () => {
   it('memoizes a no_legal_rhythm_plan result too, returning the same frozen instance on a hit', () => {
     const unsupported: RhythmExpansionInput = {
       noteDensity: 'Quarter',
+      rhythmicVariety: 'Strict',
       silenceDensity: 'Sparse',
       syncopation: 'Active displacement',
       tensionArc: 'Settled',

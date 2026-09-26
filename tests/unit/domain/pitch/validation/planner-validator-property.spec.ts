@@ -183,6 +183,7 @@ function runCase(spec: CaseSpec): MatrixOutcome {
 
   const rhythmResult = makeRhythmCandidateDomain({
     noteDensity: spec.noteDensity,
+    rhythmicVariety: 'Slightly varied',
     silenceDensity: spec.silenceDensity,
     syncopation: spec.syncopation,
     tensionArc: spec.tensionArc,

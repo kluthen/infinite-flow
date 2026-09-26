@@ -38,6 +38,7 @@ function fixtureInput(
   if (!tonic) throw new Error('fixture harmony candidate missing')
   const rhythms = makeRhythmCandidateDomain({
     noteDensity: 'Quarter',
+    rhythmicVariety: 'Slightly varied',
     silenceDensity: 'Sparse',
     syncopation: 'Straight',
     tensionArc: 'Settled',

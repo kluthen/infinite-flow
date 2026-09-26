@@ -84,7 +84,7 @@ function boundaryDescriptor(
       return undefined
     if (left.durationTicks + delta <= 0 || next.durationTicks - delta <= 0) return undefined
     return freezeDescriptor({
-      grammarVersion: 'rhythm-mvp-v1',
+      grammarVersion: 'rhythm-mvp-v2',
       case: 'interior_rest',
       barIndex: bar.barIndex,
       boundaryTick,
@@ -106,7 +106,7 @@ function boundaryDescriptor(
   )
     return undefined
   return freezeDescriptor({
-    grammarVersion: 'rhythm-mvp-v1',
+    grammarVersion: 'rhythm-mvp-v2',
     case: descriptorCase,
     barIndex: bar.barIndex,
     boundaryTick,
@@ -125,19 +125,12 @@ function displacementCandidates(
   descriptorRoles: readonly RhythmRole[],
   requireGrid: boolean,
 ): readonly RhythmTransformDescriptor[] {
-  const boundaries = sourceBoundaryTicks(bar)
   const result: RhythmTransformDescriptor[] = []
   for (const delta of deltas) {
     for (let index = 0; index < bar.events.length; index += 1) {
       const candidate = boundaryDescriptor(bar, index, descriptorCase, delta, descriptorRoles)
       if (!candidate) continue
       if (requireGrid && candidate.transformedBoundaries[0]! % quantum(density) !== 0) continue
-      if (
-        density === 'Mixed' &&
-        descriptorCase === 'redistribute_note_pair' &&
-        !boundaries.has(candidate.transformedBoundaries[0]!)
-      )
-        continue
       result.push(candidate)
       break // v1 retains the earliest target for a (case, delta) selector.
     }
@@ -161,7 +154,7 @@ function swapCandidates(bar: RhythmBar): readonly RhythmTransformDescriptor[] {
       if (left.durationTicks !== right.durationTicks || left.kind === right.kind) continue
       return deepFreeze([
         freezeDescriptor({
-          grammarVersion: 'rhythm-mvp-v1',
+          grammarVersion: 'rhythm-mvp-v2',
           case: 'swap_final_pattern',
           barIndex: bar.barIndex,
           boundaryTick: leftEvent.startTick,
@@ -196,7 +189,7 @@ function tieCandidate(
       continue
     const sourceSpan = [event.sourceCells[0]!.address, event.sourceCells.at(-1)!.address] as const
     return freezeDescriptor({
-      grammarVersion: 'rhythm-mvp-v1',
+      grammarVersion: 'rhythm-mvp-v2',
       case: 'tied_sustain',
       barIndex: bar.barIndex,
       boundaryTick: strongTick,
@@ -205,7 +198,7 @@ function tieCandidate(
       sourceSpan,
       affectedAddresses: sourceSpan,
       strongTick,
-      tieChainId: `rhythm-mvp-v1/${bar.barIndex}/${event.startTick}/${strongTick}/${eventEnds(event)}`,
+      tieChainId: `rhythm-mvp-v2/${bar.barIndex}/${event.startTick}/${strongTick}/${eventEnds(event)}`,
       roles: ['syncopation'],
     })
   }

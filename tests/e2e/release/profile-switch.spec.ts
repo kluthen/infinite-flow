@@ -44,8 +44,18 @@ test('a profile switch with a shown phrase always regenerates it with a fresh se
   expect(before.concertTonalCenter).toBe('A#')
 
   await radio(page, 'Instrument profile', 'E-flat alto saxophone').click()
-  await expect(statusRegion(page)).toHaveText('Generating phrase')
-  await expect(statusRegion(page)).toHaveText('Phrase ready', { timeout: 30_000 })
+  // A warm generation can finish before the transient "Generating phrase" status is observable,
+  // so wait for the switch's new request to settle instead of asserting that status.
+  await expect
+    .poll(
+      async () => {
+        const snapshot = await harnessSnapshot(page)
+        return snapshot.requestId !== before.requestId && snapshot.operation === 'idle'
+      },
+      { timeout: 30_000 },
+    )
+    .toBe(true)
+  await expect(statusRegion(page)).toHaveText('Phrase ready')
 
   const after = await harnessSnapshot(page)
   expect(after.instrumentProfileId).toBe('eb-alto')
@@ -70,8 +80,18 @@ test('a profile switch to the non-transposing C MIDI keyboard also regenerates a
   expect(before.concertTonalCenter).toBe('A#')
 
   await radio(page, 'Instrument profile', 'C MIDI keyboard').click()
-  await expect(statusRegion(page)).toHaveText('Generating phrase')
-  await expect(statusRegion(page)).toHaveText('Phrase ready', { timeout: 30_000 })
+  // A warm generation can finish before the transient "Generating phrase" status is observable,
+  // so wait for the switch's new request to settle instead of asserting that status.
+  await expect
+    .poll(
+      async () => {
+        const snapshot = await harnessSnapshot(page)
+        return snapshot.requestId !== before.requestId && snapshot.operation === 'idle'
+      },
+      { timeout: 30_000 },
+    )
+    .toBe(true)
+  await expect(statusRegion(page)).toHaveText('Phrase ready')
 
   const after = await harnessSnapshot(page)
   expect(after.instrumentProfileId).toBe('c-keyboard')

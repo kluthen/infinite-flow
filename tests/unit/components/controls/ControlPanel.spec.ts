@@ -41,6 +41,7 @@ describe('ControlPanel', () => {
       'Harmonic motion',
       'Tension',
       'Note density',
+      'Rhythmic variety',
       'Syncopation',
       'Silence density',
       'Contour',
@@ -102,7 +103,7 @@ describe('ControlPanel', () => {
   it('shows the applied-preset status text by default', () => {
     const wrapper = mountPanel()
     expect(wrapper.get('.preset-status').text()).toBe(
-      'Neutral preset applied. All six preset-controlled values were replaced.',
+      'Neutral preset applied. All seven preset-controlled values were replaced.',
     )
     expect(wrapper.get('.preset-status').classes()).not.toContain('is-custom')
   })
@@ -113,7 +114,7 @@ describe('ControlPanel', () => {
       isCustom: true,
     })
     expect(wrapper.get('.preset-status').text()).toBe(
-      'Custom configuration - Jazz grammar retained. Choosing Neutral or Jazz replaces all six preset-controlled values.',
+      'Custom configuration - Jazz grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
     )
     expect(wrapper.get('.preset-status').classes()).toContain('is-custom')
     const presetGroup = wrapper

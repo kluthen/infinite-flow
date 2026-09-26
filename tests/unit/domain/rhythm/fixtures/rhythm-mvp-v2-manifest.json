@@ -1,0 +1,1696 @@
+{
+  "entries": {
+    "Quarter|Strict|Sparse|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1,
+      "sha256": "c6d2c6e480c5122dbcf275f28063a7f82763630b9b1c0c5d8a61fadba78f50ad"
+    },
+    "Quarter|Strict|Sparse|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1,
+      "sha256": "630f75518107649adfa9266488bb5696f5f22202691fea16a6765b8ae9c9af7e"
+    },
+    "Quarter|Strict|Sparse|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1,
+      "sha256": "77cc12398c71d1d69141f788f822099e21767637df4d4e627c583a90440a87eb"
+    },
+    "Quarter|Strict|Sparse|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1,
+      "sha256": "188acf98565433e1e97df17bf0ce24f4a3b61b77b92765285dd592699719c213"
+    },
+    "Quarter|Strict|Sparse|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 5,
+      "sha256": "20de5740641afd4b017d5c8c30bbb4356b0bb58ac21568b1617ce6b44fc00769"
+    },
+    "Quarter|Strict|Sparse|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 5,
+      "sha256": "fce43352324a817afe8f2acc1a7bb59412459a2ade4a2d5184cb165ced7fdb89"
+    },
+    "Quarter|Strict|Sparse|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 10,
+      "sha256": "54d281622ad21bf1b9d1c489524e9d4cafa4f366db5dae5f13a79a8fb45c36f1"
+    },
+    "Quarter|Strict|Sparse|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 10,
+      "sha256": "703e19f7a995c0ab208b82d122eb987bcf03e2005db0930356586e505f587d13"
+    },
+    "Quarter|Strict|Sparse|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Strict|Sparse|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Strict|Sparse|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Strict|Sparse|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Strict|Conversational|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1,
+      "sha256": "0d146dfdfbce503c53fb86cb8351becd7007ce24d3eef7e1f19afbfc8b5472c3"
+    },
+    "Quarter|Strict|Conversational|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1,
+      "sha256": "2a85a29f229fcb6024c19b5d81c5b3e10beffd4ea9dbf01f205bbd36bc79b59e"
+    },
+    "Quarter|Strict|Conversational|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1,
+      "sha256": "aaf3b81ed49824548c28201eacf542ec0494965479360d1a2ecd6c2d01eb2ce7"
+    },
+    "Quarter|Strict|Conversational|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1,
+      "sha256": "99cea1d29ccd34dc68dcfb33f7549ac697e001d4911f25f136d67e7366f88a15"
+    },
+    "Quarter|Strict|Conversational|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 8,
+      "sha256": "bed7b94f33389ed484a88638c3e78fbe74b804a36e67284ac22179703f87893b"
+    },
+    "Quarter|Strict|Conversational|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 8,
+      "sha256": "e0b1b8f6ab3dedcc04f58a2756b8f0491e1ff3f4415a4e458089ea7137061906"
+    },
+    "Quarter|Strict|Conversational|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 11,
+      "sha256": "0fe276f55f34061e61372e98316b7d9f0672aac0df0c0382914c565edd97295d"
+    },
+    "Quarter|Strict|Conversational|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 11,
+      "sha256": "e34ed7512c5d0975f40f178e9fc3447cb25f40e279b9e84538628d68e2546c9a"
+    },
+    "Quarter|Strict|Conversational|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "45e1ee56684420fba606b368950e5d0c3e3f8eb758d972451e6cbad574fc40f9"
+    },
+    "Quarter|Strict|Conversational|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "afd16937123c77756053cebd0b74fbda9e810cc2c5e798af66b346032487e3ad"
+    },
+    "Quarter|Strict|Conversational|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "69a5bb2ba33000be577b8e1d23f8d9569dc83e35d8ab3e9de7bf56a7049a91e3"
+    },
+    "Quarter|Strict|Conversational|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "9ef8c2e12dcb5d1c26dd230f7519ff0cd02efd761192ca7acf9ec49c9956a65e"
+    },
+    "Quarter|Strict|Breath-heavy|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "b3f6d738a64520aebb8c30db5a3a841efa0fd55906e87ac0c31b2277198b6866"
+    },
+    "Quarter|Strict|Breath-heavy|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "7f94b9328e6ec84aa9106da1273f1f2d6a2cd37b74159f4ea5ecd125f7a771e1"
+    },
+    "Quarter|Strict|Breath-heavy|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "1c6392052f9eb15d5c97df2b34c77b7f22541def5cb242711044f214983a8ce8"
+    },
+    "Quarter|Strict|Breath-heavy|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "06c4d0240149187d27cdf9b8823cac9de0978a3b2755c4a38684f332f6036efc"
+    },
+    "Quarter|Strict|Breath-heavy|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 18,
+      "sha256": "44454bf2aa2bb28465452d6ec73339386c11d0266bbe841159d96a84cb63b0fa"
+    },
+    "Quarter|Strict|Breath-heavy|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 18,
+      "sha256": "d5e703d64f3f8539ae0971b27cfd9db44c7c45ece7d4c75db788cbd3a5dc1ff0"
+    },
+    "Quarter|Strict|Breath-heavy|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 24,
+      "sha256": "a6d085d080c655801eefcd6f54a9b189f4a9349626ce50eedc93e5b4d6b17c9b"
+    },
+    "Quarter|Strict|Breath-heavy|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 24,
+      "sha256": "c527babe245fd4d83c5d4e82e22d709a41d4af19679da65c861f509b31c2338a"
+    },
+    "Quarter|Strict|Breath-heavy|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Quarter|Strict|Breath-heavy|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Quarter|Strict|Breath-heavy|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Quarter|Strict|Breath-heavy|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Quarter|Slightly varied|Sparse|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "9e5d91f2d6805399076862e807573da454d0c16b4344179e1d4041586fc85297"
+    },
+    "Quarter|Slightly varied|Sparse|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "8b207c57bec6b568a36f1301b4d2045ef2921fde905d3fd25d739df268859947"
+    },
+    "Quarter|Slightly varied|Sparse|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "4e7086ced7176415bfe54c7fd3ae1242dfa9302fffde16d7bec52df1d6bb2431"
+    },
+    "Quarter|Slightly varied|Sparse|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "ca64fe4fbaa2a12ae9b476a9a8d865c39054359349f76189deeeb0813d7d1c39"
+    },
+    "Quarter|Slightly varied|Sparse|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 14,
+      "sha256": "f88fb620358095c40b53aa79d76f8a208bb9171c67663fc05466899f5d13c669"
+    },
+    "Quarter|Slightly varied|Sparse|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 14,
+      "sha256": "2be79852236f26e1e8ad5ee146d50f3fd0232820c65667ed9398aa178502c33d"
+    },
+    "Quarter|Slightly varied|Sparse|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 30,
+      "sha256": "96ab37c0332b62e29a2f92e7a89b1275529f3837c20380aee3bd3d9bc21adc6f"
+    },
+    "Quarter|Slightly varied|Sparse|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 30,
+      "sha256": "c6f83fe3cdba54e2043d231596341ca42b9b7a2ced0a4416f8203b2c19a293a7"
+    },
+    "Quarter|Slightly varied|Sparse|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Slightly varied|Sparse|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Slightly varied|Sparse|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Slightly varied|Sparse|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "metrical_anchor_missing",
+        "active_anchor_ratio_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Quarter|Slightly varied|Conversational|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "67fe3320883ab01345e5b0833d7a90a7358e0779e9e49cb65997db59e5815cf9"
+    },
+    "Quarter|Slightly varied|Conversational|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "a0ea7c223ba2b384ee4edd1d7889f2d91878c676e35a5844d907e0b76ff73e71"
+    },
+    "Quarter|Slightly varied|Conversational|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "b81aa7b950a5343f5c7f46f409067088ace13e16976502e576a910c6f3e2c6c4"
+    },
+    "Quarter|Slightly varied|Conversational|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "f0ae7a77276c07b7a1056424995a60dc39da5079120c647301f56dc6efb50a83"
+    },
+    "Quarter|Slightly varied|Conversational|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sha256": "7caa898c32a127e246943c7a32ab6752acf6889d21d39c25ba0e9ff242558994"
+    },
+    "Quarter|Slightly varied|Conversational|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sha256": "adb7c6287ee8cbe0503a0a836b87f2744a6e4f1bedbde2cbdfdac0f20aedab82"
+    },
+    "Quarter|Slightly varied|Conversational|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 21,
+      "sha256": "63d2b64327f7443f477a9f0ac3185c964c3f9e3d7df9e440936760b70d9090a4"
+    },
+    "Quarter|Slightly varied|Conversational|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 21,
+      "sha256": "60e6ab46290213103ed5bde611990c6c86f5026762fa4d69e454943ea2a8799f"
+    },
+    "Quarter|Slightly varied|Conversational|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "2030131059dc4df5ebde62741e9df8c4fb5ffd19849df8312f9c329e11b39a50"
+    },
+    "Quarter|Slightly varied|Conversational|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "72351f02193cfb6b5275d4664975345103a25431eb1d4814cc7e95b7c95220ee"
+    },
+    "Quarter|Slightly varied|Conversational|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "8cf72d75a7362d4789fa94be3fe5fbb74e1ac6d06f5200f9ca9feda829d046ce"
+    },
+    "Quarter|Slightly varied|Conversational|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "3646e4bd721b8a42053bb6db384e22914f0d4de8ef9e93f6216ba6592be5efe3"
+    },
+    "Quarter|Slightly varied|Breath-heavy|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "98fa8e20f30c838002122d47273b044a4ac50ccabdbf6ab333741d45f1e1babf"
+    },
+    "Quarter|Slightly varied|Breath-heavy|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "068a2a3a34a7a14a289b4975c666b2f75174893243c396195219511444d30b0d"
+    },
+    "Quarter|Slightly varied|Breath-heavy|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "1178ed8c7a90b69b880cf876cbc8b57ee5a72b3c56a104d47f5573831cfe5fb0"
+    },
+    "Quarter|Slightly varied|Breath-heavy|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "af97f58766bb93838fb136f6ce22dda1a0a0aa6ca08d035c59ff547839c6dc2b"
+    },
+    "Quarter|Slightly varied|Breath-heavy|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 20,
+      "sha256": "62d15fb3d03a4f2d44fad12a24a57ac49f2be239659623a4112547e8b21e0af0"
+    },
+    "Quarter|Slightly varied|Breath-heavy|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 20,
+      "sha256": "af4d1033cd012a78744a5099d83d08b77701798ef34e6bc71c3d1f433c309c1b"
+    },
+    "Quarter|Slightly varied|Breath-heavy|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 26,
+      "sha256": "28fe10fd27d2a8276413e814f3d7029c7944c4f8f50934748ac061b6631a273a"
+    },
+    "Quarter|Slightly varied|Breath-heavy|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 26,
+      "sha256": "91c54fe18692dadf5aaf00396def87be2c4ae47ae3dd0e034e344f40b03c6d3a"
+    },
+    "Quarter|Slightly varied|Breath-heavy|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Quarter|Slightly varied|Breath-heavy|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Quarter|Slightly varied|Breath-heavy|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Quarter|Slightly varied|Breath-heavy|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "answer_transform_count_violation"
+      ]
+    },
+    "Quarter|Heavily varied|Sparse|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 15,
+      "sha256": "4bb057a1892af8da0834c850b554eb293612cd8b47c53214c8e363caaf01ed25"
+    },
+    "Quarter|Heavily varied|Sparse|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 15,
+      "sha256": "93647aa3ca6ed6bb80511f6438df724da72f995ecd4f5fc4aeb8d705dad7aa17"
+    },
+    "Quarter|Heavily varied|Sparse|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 15,
+      "sha256": "008f38bffdd6491ceafbc1ea13bff9fd3bc18414268191abd12c3d844e605ff4"
+    },
+    "Quarter|Heavily varied|Sparse|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 15,
+      "sha256": "761e8dc535e501565bfeca42ce4c6b33748010c77566da7fa38826b4e01d9f81"
+    },
+    "Quarter|Heavily varied|Sparse|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 80,
+      "sha256": "c6be329edd47b22ee74b3d6a52a402e09d69bf3e371eae23708cf8e64d5704b3"
+    },
+    "Quarter|Heavily varied|Sparse|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 80,
+      "sha256": "f2f4b74f601168b13f21926209c520149996b5d0eb1bb0dff1295495b213d8c0"
+    },
+    "Quarter|Heavily varied|Sparse|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 136,
+      "sha256": "8cd8b40c76b806552ec78874a7d3d280507d852554102834d1fc0d7ee49f3e36"
+    },
+    "Quarter|Heavily varied|Sparse|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 136,
+      "sha256": "9d04879f2ca5a47aae3c7c9b48edb8c6a0da34b4659f9643b304cbd1bcbd01c7"
+    },
+    "Quarter|Heavily varied|Sparse|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 112,
+      "sha256": "0fca345575d6ce31c13e15bc70e677b246726011e49fc0d72e9e411a5af0c69b"
+    },
+    "Quarter|Heavily varied|Sparse|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 112,
+      "sha256": "6499246e0c292516de4d367a21d79e0cab47fbf0106516a7d4a171dd889dc1c6"
+    },
+    "Quarter|Heavily varied|Sparse|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 308,
+      "sha256": "35dfcb629dcae3adf36673491a6af0886c0e2f96327616e30279d6d000158e78"
+    },
+    "Quarter|Heavily varied|Sparse|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 308,
+      "sha256": "9a80c3f402ffd730e9a5504236ef0f9eda1112679c8dd89ae36788df10cc1ec3"
+    },
+    "Quarter|Heavily varied|Conversational|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sha256": "9afd7fef9c61d9539df3c36468475e93136acdfa1cc7b3ff2019b78fd0d6c8b6"
+    },
+    "Quarter|Heavily varied|Conversational|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sha256": "1ab7931e4601a06c86e41c9375f8d4e2a75025d9bd29b7fee058d21bb86bd562"
+    },
+    "Quarter|Heavily varied|Conversational|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sha256": "0a894d80a57f3d5d5511413fd32478df105021ad5b0e7344d89618d2bcac236b"
+    },
+    "Quarter|Heavily varied|Conversational|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sha256": "52e03b0e8a7219e2e1647e9439223e69ea459a89693518d85540d111399b3be5"
+    },
+    "Quarter|Heavily varied|Conversational|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 107,
+      "sha256": "0735dc8bb314ea1ac1d7aed86e18bc4449a2cc60f0084e3e06da3cebe2ce45ce"
+    },
+    "Quarter|Heavily varied|Conversational|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 107,
+      "sha256": "734ffbaa6ec3d0af9bbfec1c4340f1bbd485c7505479d0e119b4be8b00f0b72a"
+    },
+    "Quarter|Heavily varied|Conversational|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 155,
+      "sha256": "a2ad72245b612b382ebb9990c1331fad246d63cb7ad6e07bcb5aa4b7fc46c4aa"
+    },
+    "Quarter|Heavily varied|Conversational|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 155,
+      "sha256": "5fc076ad5754293ed9f39da68b6134d743d7fb929c4ed002922334980920a834"
+    },
+    "Quarter|Heavily varied|Conversational|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 193,
+      "sha256": "b0f61d62b77a9bb95c587880a15944c21049ef84b18bbbd2ed220214824adb3b"
+    },
+    "Quarter|Heavily varied|Conversational|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 193,
+      "sha256": "955b1df9ac0460cf28c7e9311afcf26adaf7da820a55ba4f96f96e2e5c319041"
+    },
+    "Quarter|Heavily varied|Conversational|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 327,
+      "sha256": "ca76c0c7645fa94a90f442195cafb2bc79752fd8d20146308ab60cbbb7c2a834"
+    },
+    "Quarter|Heavily varied|Conversational|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 327,
+      "sha256": "5012ccb1be0a89b8a96ebf9b993c779a03919ea3c1f6c019f0ac225923edc0fb"
+    },
+    "Quarter|Heavily varied|Breath-heavy|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "d6ae4d6eae375a19c4448187ad0e2d45f33633f5e9ab653fea907cd300d497f6"
+    },
+    "Quarter|Heavily varied|Breath-heavy|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "cf63b466c7792372a0231650df9268793ecdb457444a965632453422619ef7ae"
+    },
+    "Quarter|Heavily varied|Breath-heavy|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "7ca4bb4e9b1b6e109a5e2818703e96beb52bcce51202c6a06541e13d83ba1cce"
+    },
+    "Quarter|Heavily varied|Breath-heavy|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "c3da60e25f624bdebca2f68f6c6dd546427fcb52e284fa268afdc9a026236898"
+    },
+    "Quarter|Heavily varied|Breath-heavy|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 21,
+      "sha256": "869da03a118f68655032035df05b23a45297c5854f6802b575397d631555fdc1"
+    },
+    "Quarter|Heavily varied|Breath-heavy|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 21,
+      "sha256": "3ad25da880e70c13f68baebc52f064cf4ba75cfcd9531e6c22ed9f8caa7c0c14"
+    },
+    "Quarter|Heavily varied|Breath-heavy|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 27,
+      "sha256": "d50385d50ec440800d4904c95acf77f267445376b5ebf07bbbe9095ceaa1e29c"
+    },
+    "Quarter|Heavily varied|Breath-heavy|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 27,
+      "sha256": "7832d137560c9f816c37d07a78ea6ebbd14889294afde0fac6d082cee84d45e5"
+    },
+    "Quarter|Heavily varied|Breath-heavy|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 12,
+      "sha256": "cad5017550337764353e312d599134138e641f330985af14ac6129f45c44149d"
+    },
+    "Quarter|Heavily varied|Breath-heavy|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 12,
+      "sha256": "0117bcf1531af04b04d66a13a512fb4a4696349b9bbd2f6aa1d8b4d3b0ef6ccd"
+    },
+    "Quarter|Heavily varied|Breath-heavy|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 30,
+      "sha256": "8761adbff74523622a039c7fbcbc0ff0ee4f7376be95cf9d6b59e1fbf51bed5b"
+    },
+    "Quarter|Heavily varied|Breath-heavy|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 30,
+      "sha256": "938b8c30338287f54a15f9f1203443fc317f197e987ecc1aabb4c447bd8dfad9"
+    },
+    "Eighth|Strict|Sparse|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "1e4fe3d5a83fee051fc35fa471c7a22a161d726e95eb7dd27473b60a62197ad9"
+    },
+    "Eighth|Strict|Sparse|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "c560285e3a5633a206bef1e1a2aee971d2fee68b5c27829f818bfe220b908438"
+    },
+    "Eighth|Strict|Sparse|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "545f2a34111eec67ae64f6712de93559e68ede80774ed98fcf2fbb12c06a76a0"
+    },
+    "Eighth|Strict|Sparse|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 4,
+      "sha256": "2667b4925c6f3a5d464ccd5565d7c3e5d2f10b967fe118b96be6584e13b197ed"
+    },
+    "Eighth|Strict|Sparse|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 8,
+      "sha256": "e98fcf43a3fccb02bb8c4fb6d80e16c37ec78aa0bd8b98ebb30d278dc8e0af7c"
+    },
+    "Eighth|Strict|Sparse|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 8,
+      "sha256": "6da1f1e01cefa966cc9efe487657c40e5e34184dffff402c19d99389c09d373e"
+    },
+    "Eighth|Strict|Sparse|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 8,
+      "sha256": "1e1c80bc7b623839642a568940b8ccb256b4c32d23d38c90d3970183583c012c"
+    },
+    "Eighth|Strict|Sparse|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 8,
+      "sha256": "8ca6a1b2503afeba44a03328fa46c8d25e74bd54105a3e9cebb2d53a1a74bd01"
+    },
+    "Eighth|Strict|Sparse|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 50,
+      "sha256": "dcd80c60f634f93d0705ec29d0d5ffdc4922f94d022404d8d168688ca8e8425b"
+    },
+    "Eighth|Strict|Sparse|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 50,
+      "sha256": "882ff05c7ab018353790a6b6d055c44fe67d0fe0993c722a8c8bd1217c580170"
+    },
+    "Eighth|Strict|Sparse|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 106,
+      "sha256": "fe7d7192b78ef087f83af325ba33c43ff9242e3caef44d43ac92cec66cd7ce56"
+    },
+    "Eighth|Strict|Sparse|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 106,
+      "sha256": "84844e572945fb9cd6771b56c2f9eade45cd55359f74c43498ccfadfe091c8fb"
+    },
+    "Eighth|Strict|Conversational|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 30,
+      "sha256": "07de3e31052c22187d4cd3500df4f99bcc2f449a82b56f2ae13787f3c80c42fc"
+    },
+    "Eighth|Strict|Conversational|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 30,
+      "sha256": "b9c4121f05be76abb97ea08490c070e2dddf6381cc7fe00a84fd76d3ac370612"
+    },
+    "Eighth|Strict|Conversational|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 30,
+      "sha256": "6ab8d910cda89751bcf00d8ad3216fac81e41af4d3fae04d7deb1608230b2442"
+    },
+    "Eighth|Strict|Conversational|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 30,
+      "sha256": "f8c9b3e4f69b597d4626972ce0c519c75e76ac955b78067a97dff4a20e0a131d"
+    },
+    "Eighth|Strict|Conversational|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 32,
+      "sha256": "bfff657443f801e5141d570c9c8ac3ce27ef7f8567dc525ef3b30c0cbe4e7b88"
+    },
+    "Eighth|Strict|Conversational|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 32,
+      "sha256": "f257766ca34901e1a80c2c37e3d0bcbe7d7abbce1b18c40f8f55fbb053be7362"
+    },
+    "Eighth|Strict|Conversational|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 32,
+      "sha256": "07d65fcd93bb31a9b53b3fb5172f56c8c94778ead80a00372bc488495ef47931"
+    },
+    "Eighth|Strict|Conversational|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 32,
+      "sha256": "605670a1def6fb8fb0b2ae2243b413bf6fcbb61bdbb9bf72bcf753c80542a1f3"
+    },
+    "Eighth|Strict|Conversational|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 284,
+      "sha256": "b878cbaf7eae6d9db3ef3aed43006b72f1679192645abd9dfe0afc93fbdd2a91"
+    },
+    "Eighth|Strict|Conversational|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 284,
+      "sha256": "eb6d5c7b7485b5b4865bb02fe775a0f3c014694eb57c61d7df44c785a4995309"
+    },
+    "Eighth|Strict|Conversational|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 564,
+      "sha256": "ea2c49d8591c367c6853f0edbcd7b298616271d2a66bfba661c364033a9d90b9"
+    },
+    "Eighth|Strict|Conversational|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 564,
+      "sha256": "105620dbcb0192fd6d2e63aa0aa600123408ade6facb32eacd0b4f307e6a34b0"
+    },
+    "Eighth|Strict|Breath-heavy|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 6,
+      "sha256": "53d97cc6cdabad6554024186ad1986e6eb4a64e1b074fea2d196abe4839823f2"
+    },
+    "Eighth|Strict|Breath-heavy|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 6,
+      "sha256": "3d3e3269aff8ce53063e0af80bd6300cf39bd46e8d04343440fba5e36a80a678"
+    },
+    "Eighth|Strict|Breath-heavy|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 6,
+      "sha256": "675e13dec1eb8bcfb1af56f5998e9b2362133b9d9ea9f4ae0d224d193cd2c90e"
+    },
+    "Eighth|Strict|Breath-heavy|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 6,
+      "sha256": "30294f6b87d7c5baa869700c6d194cc0555fb36218f8107a32fa8f90bb97c1b3"
+    },
+    "Eighth|Strict|Breath-heavy|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1,
+      "sha256": "6086c1a1ccc01c429bdb25a37a2b516e2dc5542a98357611bcc18a4629caaec9"
+    },
+    "Eighth|Strict|Breath-heavy|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1,
+      "sha256": "540b562deb432eef95841481c9bc3e191c28138cd4bb2f83b58be39b8761675a"
+    },
+    "Eighth|Strict|Breath-heavy|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1,
+      "sha256": "23a49717bba1f117a773aa9337da4d3678278e2bb09c4f4151409bd4db684d05"
+    },
+    "Eighth|Strict|Breath-heavy|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1,
+      "sha256": "8cd5d10745ac991ba4db37576bd305a111de37d715db4fd0013bcb88d773d52b"
+    },
+    "Eighth|Strict|Breath-heavy|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 6,
+      "sha256": "791d0bf2d65538bc45a28ef784ad2fe3b2175eaea01898cfdfc5a5e4f226a9d3"
+    },
+    "Eighth|Strict|Breath-heavy|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 6,
+      "sha256": "55399d2c16c988052562d5d4dddf2e4920951516d3d7789b40a3fab43b6fe4c9"
+    },
+    "Eighth|Strict|Breath-heavy|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 6,
+      "sha256": "75069597a84df3ea46aa3c85169bc31b8f4dc267f35f8eab3b0b842b132a2060"
+    },
+    "Eighth|Strict|Breath-heavy|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 6,
+      "sha256": "29dadebae78e850896c2a4e937bd47f79fd3d231a4e524c043e165c364e19f8a"
+    },
+    "Eighth|Slightly varied|Sparse|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 33,
+      "sha256": "4faf813e0e88bc8a9153a6f0f263be5c71d4cb4d037cffd5f9fbd815c7a1a953"
+    },
+    "Eighth|Slightly varied|Sparse|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 33,
+      "sha256": "162dce38a98a8787bb7bb24d91ef6b1cb34db363508a859fa8d5d8054e54fcd3"
+    },
+    "Eighth|Slightly varied|Sparse|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 41,
+      "sha256": "3aea9107670409b3686ac606379bfb49e7be41f23d8992e1ce2b828fb3448f9c"
+    },
+    "Eighth|Slightly varied|Sparse|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 41,
+      "sha256": "3e8c7737c8eb851fe1d27d3103cae119931a363e30d434e93f79f1bef6bc2aff"
+    },
+    "Eighth|Slightly varied|Sparse|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 130,
+      "sha256": "9df691c15b568feefa0a42ab21203047def4d398f380003b46c33d14828f1447"
+    },
+    "Eighth|Slightly varied|Sparse|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 130,
+      "sha256": "c092a247454f3476aa5aecec9cdf66e4bfc50f623b881a58b3bc60928ec3e682"
+    },
+    "Eighth|Slightly varied|Sparse|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 188,
+      "sha256": "2c829b49643e35d4d914d3b5f7a82b0e833143eccaeaba0cfcf99968a927ee23"
+    },
+    "Eighth|Slightly varied|Sparse|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 188,
+      "sha256": "e53924e3c85cc2c39ba440e29e09050ee23fca9683c0c1d07e741ac4ffda5a90"
+    },
+    "Eighth|Slightly varied|Sparse|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 114,
+      "sha256": "f6125721eb07fefde1d4dbf43386ff01d76144fe5a0212585e01c907fefe92e8"
+    },
+    "Eighth|Slightly varied|Sparse|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 114,
+      "sha256": "e7feaefc7f9781a3e224c5ee677da378d689378869985590c5beb2868bfa198b"
+    },
+    "Eighth|Slightly varied|Sparse|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 264,
+      "sha256": "f2a8e9c1bfc2f4b189729c3882b4873281aaa2d55801976e7b93101e8a26e64c"
+    },
+    "Eighth|Slightly varied|Sparse|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 264,
+      "sha256": "6f17593fa91f3d6b0170b5c78c6d51e6a96acdbe6b6a81b0b5f50c2269031f8b"
+    },
+    "Eighth|Slightly varied|Conversational|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 105,
+      "sha256": "4619e1c81c59eb6949e70f4b1fff03408050979689cb78d20989998a75854db4"
+    },
+    "Eighth|Slightly varied|Conversational|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 105,
+      "sha256": "7b06fad0e6989fddb778bc5609728514221d4b015d5fe081e073ed1f899b9e64"
+    },
+    "Eighth|Slightly varied|Conversational|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 112,
+      "sha256": "1315274b52ca35622a40d8188f337d947dd8dfd5e7859a57af02be7737bf7051"
+    },
+    "Eighth|Slightly varied|Conversational|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 112,
+      "sha256": "7f51b146d00d84b2ee387e1b411a0e538250264872ffa7dfdd2a1861896d49e3"
+    },
+    "Eighth|Slightly varied|Conversational|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 108,
+      "sha256": "a83e1fff13fdf63f3beda65ba733af481eec1fe03c14e54d0803190bfba52e25"
+    },
+    "Eighth|Slightly varied|Conversational|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 108,
+      "sha256": "fc101457a772e3cf9f8e9adf852e1e8bed21420b979d1f016a4655e02f058381"
+    },
+    "Eighth|Slightly varied|Conversational|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 122,
+      "sha256": "705ac5cf6a9eaaf095e2780bf14c48a7d550b4ec70a2b4655891e5a067fde0ad"
+    },
+    "Eighth|Slightly varied|Conversational|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 122,
+      "sha256": "662ef2f4178b9cf1631ed50098dbd766e36f11763a9945dce800c7ae8f0ff51f"
+    },
+    "Eighth|Slightly varied|Conversational|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 293,
+      "sha256": "6d691e3b17079a7c8902dca120664cf25f1ac155622434d8998c88375bc529d1"
+    },
+    "Eighth|Slightly varied|Conversational|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 293,
+      "sha256": "ed6ad00127b0d383bc112e627b63efbcaeca544b03c41071f057dd01678dda3f"
+    },
+    "Eighth|Slightly varied|Conversational|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 585,
+      "sha256": "be2d1a734b307e7afeb1d86db3be176ef3c02f4fa145bf891edbab2fefc10e46"
+    },
+    "Eighth|Slightly varied|Conversational|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 585,
+      "sha256": "3a1eae2bc1025eeee99eee472e2c73952bf0e4ab5a91509373f8d5d71a5f6024"
+    },
+    "Eighth|Slightly varied|Breath-heavy|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 12,
+      "sha256": "8a8687f725dce471b40ebde2f1100172cf0bbaa8876515e8b9e3a59749d74d8a"
+    },
+    "Eighth|Slightly varied|Breath-heavy|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 12,
+      "sha256": "980d40216d58953e137a73df4600a6a76cea27312535a069f7cbd6f0a77a3778"
+    },
+    "Eighth|Slightly varied|Breath-heavy|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 12,
+      "sha256": "105432061fd3770e6066b8a854eab3b6938d5d6b1520aa78d95906d12920a6fb"
+    },
+    "Eighth|Slightly varied|Breath-heavy|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 12,
+      "sha256": "91fbc1f0023055f89865277f6daad1f8179ae9f7bf30906af6eb813949ffc3da"
+    },
+    "Eighth|Slightly varied|Breath-heavy|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 9,
+      "sha256": "1320f9e45269f6e9b4254f1adbdcdd658cedd27629ee8b37c05bf4be553626ca"
+    },
+    "Eighth|Slightly varied|Breath-heavy|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 9,
+      "sha256": "6a57a7cd018837b843f6afc6d69aaf6cfc41d88add83270b99d2d3adc93f3552"
+    },
+    "Eighth|Slightly varied|Breath-heavy|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 9,
+      "sha256": "d9f49353e80b053b0664795a7c7eec4753fc1f24afb85e2cfe0a6be726b14e11"
+    },
+    "Eighth|Slightly varied|Breath-heavy|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 9,
+      "sha256": "9680c06b455eba9bf5302a13aa468d9c74dc156610fffec9bb43087ad04d66a8"
+    },
+    "Eighth|Slightly varied|Breath-heavy|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 8,
+      "sha256": "cf841470c987a2cf256a5bb96bbfe7441f8ec1ad91780ce16228282a0a342f0a"
+    },
+    "Eighth|Slightly varied|Breath-heavy|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 8,
+      "sha256": "6c52cf45fcb1191403578fce0102351191112214c21395116dc5a8e87112e8ed"
+    },
+    "Eighth|Slightly varied|Breath-heavy|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 8,
+      "sha256": "3d3cd58c509967a1badddd9b6c29a0113697b7b51e755395488dee382ac1ffcb"
+    },
+    "Eighth|Slightly varied|Breath-heavy|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 8,
+      "sha256": "3dfa807fe7328ea190746c0e42e5b086dcca965d617d05184c4b3c36c26c8b66"
+    },
+    "Eighth|Heavily varied|Sparse|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 128,
+      "sha256": "7d2523d91cb57449a9b9358656eaf36c7a785e7ce44514031e944f1ba4815802"
+    },
+    "Eighth|Heavily varied|Sparse|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 128,
+      "sha256": "a188f43b1223e752355781af60efb905e940aa7f1ead5fbe6cbf460e83b797ef"
+    },
+    "Eighth|Heavily varied|Sparse|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 209,
+      "sha256": "0a8a8f4caf120c46dacdc84e6cc1d402b295ae5e57df5aaf8067a3e8c438fa03"
+    },
+    "Eighth|Heavily varied|Sparse|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 209,
+      "sha256": "b6f34b8fb6c6d282cd3581681e00ee96409f36e8a59b455dafab19495eabd4fd"
+    },
+    "Eighth|Heavily varied|Sparse|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 491,
+      "sha256": "5b9972e1f312bfc64f8e8680943dd12b2df338898b03dbefb18cf0c2d00bc03d"
+    },
+    "Eighth|Heavily varied|Sparse|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 491,
+      "sha256": "0a11ca69b2c0857533e41052218a79273fd6e2efbb37da87e883f4807cf782e2"
+    },
+    "Eighth|Heavily varied|Sparse|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1065,
+      "sha256": "b4fb58e634f10f6138540d0cbc061dabe577fc61e9401a32fa4a6e8a024a1bf7"
+    },
+    "Eighth|Heavily varied|Sparse|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1065,
+      "sha256": "1d4b72bb7410dc0b91c553688f59dc2cda6bb89a53939a9a6584dbb0379003a2"
+    },
+    "Eighth|Heavily varied|Sparse|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 326,
+      "sha256": "71b07156fe7138533eba2cefcc25e8dc0d53ae26c310d0f02bebbbba1c5ede2b"
+    },
+    "Eighth|Heavily varied|Sparse|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 326,
+      "sha256": "dc3f543d41bd8330baa3813302c565ac26be45953834dd45ba0a86b2645a1dde"
+    },
+    "Eighth|Heavily varied|Sparse|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 826,
+      "sha256": "a6acde1a422c0a0d887cf8323c870968443ee7b7eb92c696f7d8d8206c4770f0"
+    },
+    "Eighth|Heavily varied|Sparse|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 826,
+      "sha256": "5bfffc9ce5a3e0ab50308c5e54c9c4646ff3e2c2aa2e7b017ce337a705e874eb"
+    },
+    "Eighth|Heavily varied|Conversational|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 160,
+      "sha256": "dfc61e4887208486cd0203340bcbaa63d54b35c1788f9fd8b76cfd1368e61fb0"
+    },
+    "Eighth|Heavily varied|Conversational|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 160,
+      "sha256": "6222dfa6794b986911e5f6e80de7f384005743a4015bee06bbce14083c826fde"
+    },
+    "Eighth|Heavily varied|Conversational|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 224,
+      "sha256": "f49cdf577a370b376d503680ae296dd57df4787076981ebfc34b9166055d961c"
+    },
+    "Eighth|Heavily varied|Conversational|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 224,
+      "sha256": "20749d63b0533169f8f71f7827d4f2affe4d201f0c353f3983783355074e1849"
+    },
+    "Eighth|Heavily varied|Conversational|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 370,
+      "sha256": "37caae49549ef87e0ba21dbc824f90a1908d227164037f478f3cfb248c4874a4"
+    },
+    "Eighth|Heavily varied|Conversational|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 370,
+      "sha256": "906e236a5d5d9767e4faf33f1e000763c2021585af211fd3209eded813544f50"
+    },
+    "Eighth|Heavily varied|Conversational|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 615,
+      "sha256": "084d623da5f9930e11a41db1df2318b268795796489e401f0ce09f616d7cad8c"
+    },
+    "Eighth|Heavily varied|Conversational|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 615,
+      "sha256": "3aa7ebe141a77e37639b8119a485d02a9831fb32d460617360e25239c30813fa"
+    },
+    "Eighth|Heavily varied|Conversational|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 612,
+      "sha256": "1449452bb2615fb545aac349070ca7ed748d4c14df3c0485023d8a1d60d5e98c"
+    },
+    "Eighth|Heavily varied|Conversational|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 612,
+      "sha256": "8bdcf5350365dbf1bc4d9bc074ce9dd6db83377b910f5b8712f7c9f54dc6a99a"
+    },
+    "Eighth|Heavily varied|Conversational|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1302,
+      "sha256": "e18e4e63df1bf5fd116fcfbd281059851c56e507cfc22ba26d68ebeeb3bbe17d"
+    },
+    "Eighth|Heavily varied|Conversational|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1302,
+      "sha256": "0a07c17948d4d3c5373f3195e98e5229b13819942aab9ddb6bfc5f7ad39799dd"
+    },
+    "Eighth|Heavily varied|Breath-heavy|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 15,
+      "sha256": "93d9054bfb98c3412aaf20a08b6006906b8462a145ed454f42c57e8d0586f750"
+    },
+    "Eighth|Heavily varied|Breath-heavy|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 15,
+      "sha256": "bb7f313067d1eea46ae136cb2e314966525a686b44c50cf7aa5a58521af20117"
+    },
+    "Eighth|Heavily varied|Breath-heavy|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 17,
+      "sha256": "416ecf1e292c09fcfcc9faeb0b557551b513e390fef67756e585353826868688"
+    },
+    "Eighth|Heavily varied|Breath-heavy|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 17,
+      "sha256": "a718c391950cbac7e1d0ffa0ccaaf061c6c96d2e50e0aecb86e13ef12fb43811"
+    },
+    "Eighth|Heavily varied|Breath-heavy|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 19,
+      "sha256": "717b33f643c054436ec92304780f50f2e185eb39ee73857f02627f955844ba74"
+    },
+    "Eighth|Heavily varied|Breath-heavy|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 19,
+      "sha256": "c326b7f8bbffc15a7e96336eb8d7e1f05be3b55709d557d7b65639cd89079274"
+    },
+    "Eighth|Heavily varied|Breath-heavy|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 21,
+      "sha256": "0cc8dbd761509b16ddbbe9c54e4975cc057405a9146f93386c46028ad46b5b86"
+    },
+    "Eighth|Heavily varied|Breath-heavy|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 21,
+      "sha256": "21ddcaff3718c84bbec62800b12fa4eb3feaa11e15ebc045a435de14a93b3fa6"
+    },
+    "Eighth|Heavily varied|Breath-heavy|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 8,
+      "sha256": "4952dfdb214152de2de858a905e42774947d379d9397300d7a6a8eccdb040f33"
+    },
+    "Eighth|Heavily varied|Breath-heavy|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 8,
+      "sha256": "b712688999a01bf217a23938f2d464004ca30487ec086ac74d22b8379aa7dbf3"
+    },
+    "Eighth|Heavily varied|Breath-heavy|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 8,
+      "sha256": "596f11cac4fdbe80517454d17ebcac7bd5a913f23051b48b962e71284281b9ad"
+    },
+    "Eighth|Heavily varied|Breath-heavy|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 8,
+      "sha256": "8af7f8364ab5b19d4d3242d29eee8713510d44ec43dc0f5301d46ce6d0c5aaf0"
+    },
+    "Sixteenth|Strict|Sparse|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 20,
+      "sha256": "ff56fa3c5dd3b97b2055945f816d81be66218276acd7f8a75dd27b0322ec03ff"
+    },
+    "Sixteenth|Strict|Sparse|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 20,
+      "sha256": "708b79e2704cd9431e7b85bc77d80a6a15ce3f89a351b19a13f1c30b306c170a"
+    },
+    "Sixteenth|Strict|Sparse|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 20,
+      "sha256": "17670cb534de810bea489d50511cc756db03a2bfb9533a6578109d1ec23c768c"
+    },
+    "Sixteenth|Strict|Sparse|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 20,
+      "sha256": "d5d488c19e21218015a28666e8e4457e97f7ddf5f8a6bcadd6af89a3ddf977b7"
+    },
+    "Sixteenth|Strict|Sparse|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 28,
+      "sha256": "7e85760ce568a2d08eb1ca7cb3f4c0c5aa669f6fb74485536419ea062201db7c"
+    },
+    "Sixteenth|Strict|Sparse|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 28,
+      "sha256": "3721f1daf46b3cd8b19f95497522fd219b7355184c5d8c2cc2308a5f3f16f6a4"
+    },
+    "Sixteenth|Strict|Sparse|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 28,
+      "sha256": "f0d28377e3b7fc54d4ca0ff1ad1db31e83550e47f11c9724f3c061aeb4788b4b"
+    },
+    "Sixteenth|Strict|Sparse|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 28,
+      "sha256": "f0e1b5b95003ae1f634b079bfd5fefbe17e797a71963fa7d35e62f4ea9adcdd0"
+    },
+    "Sixteenth|Strict|Sparse|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Sparse|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Sparse|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Sparse|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Conversational|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 31,
+      "sha256": "c0ca68d5639ec0a97f388e0dd06a65ef408028a82c5716134ae9c9f09dfa4188"
+    },
+    "Sixteenth|Strict|Conversational|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 31,
+      "sha256": "a24f46646b78559e7e3b74d2b374dc5db07cee71a36ef9ce7f7b022ffe514dad"
+    },
+    "Sixteenth|Strict|Conversational|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 31,
+      "sha256": "3ac198aa0a2504a0f431001427050133bac66b28893361a058a2f6afc234f70a"
+    },
+    "Sixteenth|Strict|Conversational|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 31,
+      "sha256": "34ad08c07ce8b6526ed0526ce227831c89471d13b2eeb9050ab7fd634170b138"
+    },
+    "Sixteenth|Strict|Conversational|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sha256": "24df0d1736b239fe2224b53a14c47cb838f0986118a4c78f888101ae6bdbb66e"
+    },
+    "Sixteenth|Strict|Conversational|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sha256": "cea40656c35d7ffb83b3bc4df47d05fd50ac419fc1b28e548093f118b27e279b"
+    },
+    "Sixteenth|Strict|Conversational|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sha256": "5e026605e26cd3dc5e7e61b100e9703cbe1cee1d3424c0deec0175157c48b807"
+    },
+    "Sixteenth|Strict|Conversational|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sha256": "e574b7dfa6cf5f7f313af86fa7ad8bef406ccdc04307246cd6831ae1b980392b"
+    },
+    "Sixteenth|Strict|Conversational|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Conversational|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Conversational|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Conversational|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Breath-heavy|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "94d5271407f319db35573d345ea4f07fe0d435f395a8e914d13a9ae9d5bf7d1f"
+    },
+    "Sixteenth|Strict|Breath-heavy|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "0d9f111f9e84243f0aded6ad69645deae067e253c9304837570d9a353f72cac0"
+    },
+    "Sixteenth|Strict|Breath-heavy|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "29e95160c47b2fea31b1a5dbbb3f8cc42b032c529e9d11bcbff10051523618d6"
+    },
+    "Sixteenth|Strict|Breath-heavy|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "7f253df7cd6bd0d8cf19c2c0ab0fa1f696180a1a6beb2579b6cf4fc859375672"
+    },
+    "Sixteenth|Strict|Breath-heavy|Occasional offbeats|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Breath-heavy|Occasional offbeats|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Breath-heavy|Occasional offbeats|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Breath-heavy|Occasional offbeats|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Breath-heavy|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Breath-heavy|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Breath-heavy|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Strict|Breath-heavy|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Slightly varied|Sparse|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 241,
+      "sha256": "418d9b96c55482c0832bce935c94373bf2b1cf060cfa1a91c9c661e9ac6d48aa"
+    },
+    "Sixteenth|Slightly varied|Sparse|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 241,
+      "sha256": "acddfd0142c2d8d8c9de4b03b595aa17a3fbf850e661d873c740aaf9909d4198"
+    },
+    "Sixteenth|Slightly varied|Sparse|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 805,
+      "sha256": "c3d3fff5bc490e8a5680638cabc143b8f75d46db9f463d7a030f6ea58f5de557"
+    },
+    "Sixteenth|Slightly varied|Sparse|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 805,
+      "sha256": "a8dd29913639273fb99a3d0451dab3e2c9062f1cb68777d8085c4a96652257c8"
+    },
+    "Sixteenth|Slightly varied|Sparse|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 200,
+      "sha256": "e67bb3d25929c0f0de36237da4c7cb1f79f114018790796d95a451f349005303"
+    },
+    "Sixteenth|Slightly varied|Sparse|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 200,
+      "sha256": "27d58f06d94047a5101c1859a8d050738174a3ce43af81801cf7eb616ae5e62f"
+    },
+    "Sixteenth|Slightly varied|Sparse|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 588,
+      "sha256": "14b90d7dcb17bc702adf51d1bb220c69399a3e1b28b13f80cb22ca2300786105"
+    },
+    "Sixteenth|Slightly varied|Sparse|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 588,
+      "sha256": "7be9d924b8290d9ec05cdb43287c8dfd523bf89166c56ce57dd598a66b9841bd"
+    },
+    "Sixteenth|Slightly varied|Sparse|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 150,
+      "sha256": "c4ede257c86248a82ce68146b6c167f081fd089aaf31ada775156b33323ba90f"
+    },
+    "Sixteenth|Slightly varied|Sparse|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 150,
+      "sha256": "42f43a0ac5f0c2d89779464666ebb0b43ef687389ca00dbe1ef2ad4ea903d96e"
+    },
+    "Sixteenth|Slightly varied|Sparse|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 503,
+      "sha256": "59e3bca8c75a361153c5a001cd949346e704a9c1e7930a240d1faf3b52cead72"
+    },
+    "Sixteenth|Slightly varied|Sparse|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 503,
+      "sha256": "41613a79a2dde6959779da7a125a3eb91ca029cfd2d2122769eca89c8400cfca"
+    },
+    "Sixteenth|Slightly varied|Conversational|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 118,
+      "sha256": "2e06372eb74bf8102f45e38e2f90443b5721cb59128746efa2ae24507e77549a"
+    },
+    "Sixteenth|Slightly varied|Conversational|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 118,
+      "sha256": "861652871ba7a20927898e06712b27c06f5e4e618c5a8cb64da5a0475397c2e0"
+    },
+    "Sixteenth|Slightly varied|Conversational|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 259,
+      "sha256": "3537085a344f7205c93d726b0f73b5151240cfa78bb43a037a3b729c5688955e"
+    },
+    "Sixteenth|Slightly varied|Conversational|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 259,
+      "sha256": "576a5919a57d773069db05dc963a92f572f42670834741f31250d71c158543e2"
+    },
+    "Sixteenth|Slightly varied|Conversational|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 78,
+      "sha256": "018fc0e29a847d89524bc73f77d06f62dc352dc553a1ca063c35ff91409c542e"
+    },
+    "Sixteenth|Slightly varied|Conversational|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 78,
+      "sha256": "de42f34609efba3f45acb89f3f9a3ba55aabf129cafdccbb119ce290ed610fd8"
+    },
+    "Sixteenth|Slightly varied|Conversational|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 160,
+      "sha256": "4412e80f1908594867f13a67d98f2f36882907883dd606dcd025e7d0e8fae226"
+    },
+    "Sixteenth|Slightly varied|Conversational|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 160,
+      "sha256": "f123cfe10d2b226177749c75b410e2f0a058f6156739bb04f973ef3c59f1c26c"
+    },
+    "Sixteenth|Slightly varied|Conversational|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 36,
+      "sha256": "43b4e6b49efb0e17e98be9552882398962f40fba9fbfbc67ff0f1f8ce46ff2c0"
+    },
+    "Sixteenth|Slightly varied|Conversational|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 36,
+      "sha256": "d50a4877c6a680632dd1cfd8e60d79a404fe58b47ec4eca518e11e707d95b89d"
+    },
+    "Sixteenth|Slightly varied|Conversational|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 88,
+      "sha256": "df10a7a6aa51d132df7828a78ac91aa1fb85d462aa3d554082776ad4915cb073"
+    },
+    "Sixteenth|Slightly varied|Conversational|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 88,
+      "sha256": "824e09dea435640e7dd9f3dab21457661610727d43e829e8fa21ee48db484cef"
+    },
+    "Sixteenth|Slightly varied|Breath-heavy|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "6d8f3abf3842247a188b9abccfb219cf0262038a2cf0a0aba6f67bda4fdd0392"
+    },
+    "Sixteenth|Slightly varied|Breath-heavy|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "e888da75a13e631912c610d708fb24cd6e8e5d850af39661eac8dd8281d734ed"
+    },
+    "Sixteenth|Slightly varied|Breath-heavy|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "57d46ca0f9306203614f29936635a762b2d083168b47ddcd9befdaa396b2452e"
+    },
+    "Sixteenth|Slightly varied|Breath-heavy|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "6d8476b7510d67ae7d09218a34a25be2ad92fda82d1e415f2a8c2c56f8411f0f"
+    },
+    "Sixteenth|Slightly varied|Breath-heavy|Occasional offbeats|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Slightly varied|Breath-heavy|Occasional offbeats|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Slightly varied|Breath-heavy|Occasional offbeats|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Slightly varied|Breath-heavy|Occasional offbeats|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": ["syncopation_count_violation", "answer_transform_count_violation"]
+    },
+    "Sixteenth|Slightly varied|Breath-heavy|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "density_attack_band_violation",
+        "rhythmic_variety_violation",
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "active_anchor_ratio_violation",
+        "answer_transform_count_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Sixteenth|Slightly varied|Breath-heavy|Active displacement|Lift": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "density_attack_band_violation",
+        "rhythmic_variety_violation",
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "active_anchor_ratio_violation",
+        "answer_transform_count_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Sixteenth|Slightly varied|Breath-heavy|Active displacement|Build": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "density_attack_band_violation",
+        "rhythmic_variety_violation",
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "active_anchor_ratio_violation",
+        "answer_transform_count_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Sixteenth|Slightly varied|Breath-heavy|Active displacement|Edge": {
+      "kind": "no_legal_rhythm_plan",
+      "codes": [
+        "density_attack_band_violation",
+        "rhythmic_variety_violation",
+        "syncopation_count_violation",
+        "transform_overlap_violation",
+        "active_anchor_ratio_violation",
+        "answer_transform_count_violation",
+        "answer_variation_missing"
+      ]
+    },
+    "Sixteenth|Heavily varied|Sparse|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 690,
+      "sha256": "5ce353052aa88ecc8a017948a791172b00c54fda962947ade573780465e42df1"
+    },
+    "Sixteenth|Heavily varied|Sparse|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 690,
+      "sha256": "ea85fd53ee6a1ad8b6ed1f5bf4fffe077ef343f6245047b260bb2e5da8bc92b2"
+    },
+    "Sixteenth|Heavily varied|Sparse|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2932,
+      "sha256": "9d4bed9ac34ed7874e237c7428b779ce904142e518f3c9909eb8ad9defeb1d08"
+    },
+    "Sixteenth|Heavily varied|Sparse|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2932,
+      "sha256": "f772a4f40d016e47e1562eeb7e565311ababbe9d4a2ad02090dbc505c61585f9"
+    },
+    "Sixteenth|Heavily varied|Sparse|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 489,
+      "sha256": "ce904ae87d4415942610feb5fafb439d298f3ba14c8b3c4979f4790f1c366863"
+    },
+    "Sixteenth|Heavily varied|Sparse|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 489,
+      "sha256": "5b0ecb3270e8dc0bf192e9a4c81deca4c60ec0fc4b3111d718bed2e443f6be8d"
+    },
+    "Sixteenth|Heavily varied|Sparse|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1815,
+      "sha256": "0e36a73b49ba916d5674bead000a30e571debd6363424a7b5794c70d2c43c066"
+    },
+    "Sixteenth|Heavily varied|Sparse|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1815,
+      "sha256": "036ad3956f181ea37748155efd2006fb7bbc919b3f1efa206e00ac202575759f"
+    },
+    "Sixteenth|Heavily varied|Sparse|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 478,
+      "sha256": "3d61c632bddcfe5608cc223f3fed86d28dbc8aec630d06a98da2ce4f6884cd36"
+    },
+    "Sixteenth|Heavily varied|Sparse|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 478,
+      "sha256": "7f80b8668faf5c6be8358ea81cdbef3f6cd4dcffd136451ea43ffa7ab673e279"
+    },
+    "Sixteenth|Heavily varied|Sparse|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1797,
+      "sha256": "f1065b7be41d7befe49179c1fe3db1552eb3d671c64cdc89f6b1d337909e59ff"
+    },
+    "Sixteenth|Heavily varied|Sparse|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 1797,
+      "sha256": "00085a052b92f9c88de0dc0dbb3b374e25039f26ddfe24ee3b95d164aa909315"
+    },
+    "Sixteenth|Heavily varied|Conversational|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 278,
+      "sha256": "c577e9d61f9c6235721b43f7b842ea41acf94c39603cec2511e7426d3885d339"
+    },
+    "Sixteenth|Heavily varied|Conversational|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 278,
+      "sha256": "35c20563958a0d6b9f17bb16bea34c2b7d280eb52eb938680fa8408dbc7a1100"
+    },
+    "Sixteenth|Heavily varied|Conversational|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 916,
+      "sha256": "846671594168775ba8c1d8b3a66fb9ac30fa30f2292c6b2f7eb6a497cc7466a6"
+    },
+    "Sixteenth|Heavily varied|Conversational|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 916,
+      "sha256": "aa6e9f28bb8771522fd7ef98d57b976848cb1ee3ccc6df50f6cb60c2042df46f"
+    },
+    "Sixteenth|Heavily varied|Conversational|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 233,
+      "sha256": "b0e1180494cb3ae4fc922c19fa3a86f1080497eb8f94a1a6c83cced10a55ab08"
+    },
+    "Sixteenth|Heavily varied|Conversational|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 233,
+      "sha256": "fe7600ea8ead0aab8fb2e71711fd1bc155f9641e79c5ece4db8211c741485875"
+    },
+    "Sixteenth|Heavily varied|Conversational|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 702,
+      "sha256": "8354d3037a48e6ba55c3daf8ea874eab3ee89cf2de3422aa978142f65d6c7df9"
+    },
+    "Sixteenth|Heavily varied|Conversational|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 702,
+      "sha256": "e852bfee77dcd224dfc45e6abbf21e53fa69317804b9db88746f5746e5aba777"
+    },
+    "Sixteenth|Heavily varied|Conversational|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 76,
+      "sha256": "eaeb9893c7dad699a7c1fe1ab5cb8cf8e3561d42d083b87dd287676c8d349a96"
+    },
+    "Sixteenth|Heavily varied|Conversational|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 76,
+      "sha256": "f7f1736f908c977e23ad50fed659065596b0248febe6474e8f43ed3c7ccb7a6b"
+    },
+    "Sixteenth|Heavily varied|Conversational|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 199,
+      "sha256": "f9c04f5a4fb5461d9cb65156e8675a66de9f4c1b4f0422b53378220745da1623"
+    },
+    "Sixteenth|Heavily varied|Conversational|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 199,
+      "sha256": "4d5535c165756031748f6e42c17e094e74a4a4007c284a854df4b99e64e90b55"
+    },
+    "Sixteenth|Heavily varied|Breath-heavy|Straight|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 7,
+      "sha256": "48718b6272f2befc8417edcde2e9ffae301596896a47471863414e8a09adc24d"
+    },
+    "Sixteenth|Heavily varied|Breath-heavy|Straight|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 7,
+      "sha256": "af2a6c62b84f3427f1b6d15d7ca01eb2f4a2f371da33bb326213700891803cd1"
+    },
+    "Sixteenth|Heavily varied|Breath-heavy|Straight|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 17,
+      "sha256": "7efb4953e035e97c085d4850329df699b23a15ba332b431c31bef2ce34340ead"
+    },
+    "Sixteenth|Heavily varied|Breath-heavy|Straight|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 17,
+      "sha256": "40cb7d848956ccb0e1ab987013b9acf16c643398a3163b66566eec5a82561d64"
+    },
+    "Sixteenth|Heavily varied|Breath-heavy|Occasional offbeats|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 7,
+      "sha256": "788201c3f0a02f27238ee357403ca81ffe7f7119193c8674957edc351011fdd9"
+    },
+    "Sixteenth|Heavily varied|Breath-heavy|Occasional offbeats|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 7,
+      "sha256": "a336077598c7f01045fb1955175f090ba7167abd168fc6735f913a9bcf40e354"
+    },
+    "Sixteenth|Heavily varied|Breath-heavy|Occasional offbeats|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sha256": "36c294af2179455622a3f53578546b8f5888170e172da770b524495de508939c"
+    },
+    "Sixteenth|Heavily varied|Breath-heavy|Occasional offbeats|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 16,
+      "sha256": "41dd8a3cfa445af0ccfaad0d9c5376c24331e1772953a594050fb038946e0e4e"
+    },
+    "Sixteenth|Heavily varied|Breath-heavy|Active displacement|Settled": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "ae235c39bc1118d4169a61ff578072973bfc8ff165b7c3570857f063a3c9a7ea"
+    },
+    "Sixteenth|Heavily varied|Breath-heavy|Active displacement|Lift": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "71bcf429dad5bf6783da100b91b0f5745acc9e037439d1af5dba08aac299c98f"
+    },
+    "Sixteenth|Heavily varied|Breath-heavy|Active displacement|Build": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "55683da72b67e027a3dda5553f4e37bbd7804871f88b864da7f0fffbf36bf40d"
+    },
+    "Sixteenth|Heavily varied|Breath-heavy|Active displacement|Edge": {
+      "kind": "rhythm_candidate_domain",
+      "count": 2,
+      "sha256": "4bb68deeb3629a123f0691bc89fcaf1453f40f230a628193f4af92d6bb167111"
+    }
+  }
+}

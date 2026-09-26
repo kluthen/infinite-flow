@@ -4,7 +4,7 @@
 **Ref:** `ISS-004`
 **Date:** 2026-09-25
 **Severity:** Low
-**Status:** Open
+**Status:** Resolved
 **Component:** `src/domain/rhythm`
 **Affects:** `src/domain/rhythm/*` (budget, enumeration, prefilter), `src/domain/controls/generation-controls.ts` (`NOTE_DENSITIES`, new control), musical profile presets (`profile-selection.ts`), `specs/first-release-master-spec.md` §Note density, rhythm grammar / prefilter, `ui_ux/` controls
 
@@ -112,3 +112,4 @@ User wording (2026-09-25): "in eights or sixteenth mode, appearance of longer no
 
 - **2026-09-25**: The semantics are settled by a spec-writer session (D59). Variety now covers both shorter and longer values. The default is Slightly varied and presets set it. Mixed is retired (D60). A feasibility review is required before implementation. The status stays Open.
 - **2026-09-26**: Item 5 was stale (it still said O26 was open). It now reflects D60. The master spec was amended to draft v2.0 (Player Controls → Rhythmic variety / Note density; Definition of Done). The execution plan is in `specs/versions/v1/gate-execution-report.md`.
+- **2026-09-26**: Implemented on branch `iss004-rhythmic-variety` per the feasibility review (`specs/versions/v1/iss004-feasibility-review.md`): the rhythm grammar moved to `rhythm-mvp-v2`, `Mixed` note density is retired, `rhythmicVariety` (Strict / Slightly varied / Heavily varied) ships as its own control with a per-density-and-level beat-cell catalog and nominal-attack-share dominance rule, and Strict/Slightly-varied block 6/4 settings respectively while Heavily varied blocks none, matching §4. Status moves to Resolved.

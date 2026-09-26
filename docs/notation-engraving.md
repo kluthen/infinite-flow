@@ -159,39 +159,60 @@ One CSS reference pixel is about 0.26 mm at normal viewing distance. At that sca
 | ~4.5 px     | ~1.2 mm       | miniature study score                                                        |
 | below ~4 px | under ~1 mm   | smallest traditional rastral sizes, poorly suited to sight-reading on screen |
 
-Calibration measured `requiredUnits` for real generated phrases in Chromium. The sweep covered:
+Calibration measured `requiredUnits` for real generated phrases in Chromium. ISS-004 retired the
+Mixed note density and replaced it with the rhythmic-variety control, so the sweep now covers:
 
-- note densities Quarter, Eighth, Sixteenth, and Mixed;
+- note densities Quarter, Eighth, Sixteenth;
+- rhythmic variety Strict, Slightly varied, Heavily varied;
 - syncopation Straight and Occasional offbeats;
 - silence Conversational;
 - seeds 1 to 6;
 - all three display modes.
 
-That is 144 phrases, and none failed to generate. The minimum container width a phrase needs is `requiredUnits × staffSpacePx / 10`.
+That is 324 phrases (9 density/variety cells × 36 each), and none failed to generate. The minimum
+container width a phrase needs is `requiredUnits × staffSpacePx / 10`.
 
-| Density   | requiredUnits min / median / max | Worst-case width at 7 px | 6 px    | 5 px    | 4.5 px |
-| --------- | -------------------------------- | ------------------------ | ------- | ------- | ------ |
-| Quarter   | 433 / 541 / 665                  | 465 px                   | 399 px  | 332 px  | 299 px |
-| Eighth    | 961 / 1100 / 1212                | 848 px                   | 727 px  | 606 px  | 545 px |
-| Mixed     | 802 / 1167 / 1654                | 1158 px                  | 992 px  | 827 px  | 744 px |
-| Sixteenth | 1778 / 1937 / 2116               | 1481 px                  | 1270 px | 1058 px | 952 px |
+| Density / variety           | requiredUnits min / median / max | Worst-case width at 7 px | 6 px   | 5 px   | 4.5 px |
+| ---------------------------- | --------------------------------- | ------------------------- | ------ | ------ | ------ |
+| Quarter / Strict              | 383.0 / 519.7 / 587.8             | 411 px                     | 353 px | 294 px | 264 px |
+| Quarter / Slightly varied      | 383.0 / 519.7 / 587.8             | 411 px                     | 353 px | 294 px | 264 px |
+| Quarter / Heavily varied       | 519.7 / 753.4 / 830.3             | 581 px                     | 498 px | 415 px | 374 px |
+| Eighth / Strict                | 825.5 / 916.5 / 1000.8            | 701 px                     | 600 px | 500 px | 450 px |
+| Eighth / Slightly varied        | 825.5 / 916.5 / 993.4             | 695 px                     | 596 px | 497 px | 447 px |
+| Eighth / Heavily varied         | 685.6 / 865.1 / 993.4             | 695 px                     | 596 px | 497 px | 447 px |
+| Sixteenth / Strict              | 1222.3 / 1363.9 / 1642.9          | 1150 px                    | 986 px | 821 px | 739 px |
+| Sixteenth / Slightly varied      | 1180.0 / 1321.1 / 1642.9          | 1150 px                    | 986 px | 821 px | 739 px |
+| Sixteenth / Heavily varied       | 1104.3 / 1321.1 / 1600.3          | 1120 px                    | 960 px | 800 px | 720 px |
+
+Quarter and Eighth are unaffected or nearly unaffected by `Strict` versus `Slightly varied`
+(identical at Quarter, since `Slightly varied` adds no extra beat cells there), and widen somewhat
+under `Heavily varied`. Sixteenth is the widest density at every variety level, roughly unchanged
+across levels (`Heavily varied`'s longer merged cells trade attack count for width, offsetting the
+extra beat-cell choices).
 
 The workspace breakpoints are 48rem, 64rem, and 90rem, which is 768, 1024, and 1440 CSS px. Because the score takes the full content width before controls move below it, at the 5 px floor:
 
-- Quarter and Eighth phrases fit at every supported layout.
-- Mixed phrases fit on one system from 64rem. At 48rem the densest seeds need the two-system phone layout.
-- Sixteenth phrases fit at 90rem, and at 64rem for most seeds (the median needs 969 px). Below 64rem they need the two-system phone layout.
+- Quarter and Eighth phrases fit at every supported layout, at every rhythmic variety level.
+- Sixteenth phrases fit at 90rem and 64rem for every variety (worst case 821 px, under the 1024 px
+  breakpoint). Below 64rem they need the two-system phone layout.
 
-A 7 px floor would reject every Sixteenth phrase even at 90rem, and most Mixed and dense Eighth phrases below 90rem. For all measured phrases to fit at 48rem, the floor would have to drop to about 3.4 px, which is not legible for sight-reading.
+A 7 px floor would leave every phrase still under the 90rem (1440 px) breakpoint (worst case 1150 px,
+Sixteenth), but Sixteenth and the widest Eighth/Quarter cases would not fit at 48rem (768 px). For
+every measured phrase to fit at 48rem, the floor would have to drop to about 4.7 px (768 px / 1642.9
+requiredUnits × 10), which is not legible for sight-reading.
 
-A second calibration ran the same 144 combinations on a landscape-phone viewport (1000 × 500 CSS px, below 64rem) at two realistic score-container widths. It recorded whether each phrase engraved as one system, two systems, or the typed floor error (36 phrases per density):
+A second calibration ran the same 324 combinations on a landscape-phone viewport (1000 × 500 CSS px, below 64rem) at two realistic score-container widths. It recorded whether each phrase engraved as one system, two systems, or the typed floor error (36 phrases per density/variety cell):
 
-| Container width | Quarter (one / two / error) | Eighth     | Mixed      | Sixteenth  |
-| --------------- | --------------------------- | ---------- | ---------- | ---------- |
-| 667 px          | 36 / 0 / 0                  | 36 / 0 / 0 | 27 / 9 / 0 | 0 / 36 / 0 |
-| 768 px          | 36 / 0 / 0                  | 36 / 0 / 0 | 33 / 3 / 0 | 0 / 36 / 0 |
+| Container width | Quarter (one / two / error) | Eighth (Strict / Slightly / Heavily) | Sixteenth (Strict / Slightly / Heavily) |
+| --------------- | ---------------------------- | -------------------------------------- | ------------------------------------------ |
+| 667 px          | 36/0/0 at every variety      | 36/0/0, 36/0/0, 36/0/0                | 17/19/0, 21/15/0, 22/14/0                  |
+| 768 px          | 36/0/0 at every variety      | 36/0/0, 36/0/0, 36/0/0                | 31/5/0, 27/9/0, 35/1/0                     |
 
-Every measured phrase therefore renders legibly on a landscape phone. Two systems are used only for all Sixteenth phrases and the densest Mixed phrases. The typed, retryable notation error stays the outcome for any layout where even two systems do not fit at the floor, rather than an illegible score. The master spec explicitly allows this outcome.
+Every measured phrase therefore renders legibly on a landscape phone. Two systems are used only for
+Sixteenth phrases, most often under `Strict` at the narrower 667 px width and least often under
+`Heavily varied`. The typed, retryable notation error stays the outcome for any layout where even
+two systems do not fit at the floor, rather than an illegible score. The master spec explicitly
+allows this outcome.
 
 To reproduce the calibration, run `npm run build:notation-harness`, then:
 

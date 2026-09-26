@@ -37,7 +37,12 @@ export const HARMONIC_MOTIONS = deepFreeze([
   'Active diatonic',
 ] as const)
 export const TENSION_ARCS = deepFreeze(['Settled', 'Lift', 'Build', 'Edge'] as const)
-export const NOTE_DENSITIES = deepFreeze(['Quarter', 'Eighth', 'Sixteenth', 'Mixed'] as const)
+export const NOTE_DENSITIES = deepFreeze(['Quarter', 'Eighth', 'Sixteenth'] as const)
+export const RHYTHMIC_VARIETIES = deepFreeze([
+  'Strict',
+  'Slightly varied',
+  'Heavily varied',
+] as const)
 export const SYNCOPATIONS = deepFreeze([
   'Straight',
   'Occasional offbeats',
@@ -67,6 +72,7 @@ export type Collection = (typeof COLLECTIONS)[number]
 export type HarmonicMotion = (typeof HARMONIC_MOTIONS)[number]
 export type TensionArc = (typeof TENSION_ARCS)[number]
 export type NoteDensity = (typeof NOTE_DENSITIES)[number]
+export type RhythmicVariety = (typeof RHYTHMIC_VARIETIES)[number]
 export type Syncopation = (typeof SYNCOPATIONS)[number]
 export type SilenceDensity = (typeof SILENCE_DENSITIES)[number]
 export type Contour = (typeof CONTOURS)[number]
@@ -81,6 +87,7 @@ export interface GenerationControls {
   readonly harmonicMotion: HarmonicMotion
   readonly tension: TensionArc
   readonly noteDensity: NoteDensity
+  readonly rhythmicVariety: RhythmicVariety
   readonly syncopation: Syncopation
   readonly silenceDensity: SilenceDensity
   readonly contour: Contour
@@ -133,11 +140,16 @@ export function validateControlValue<T extends string>(
 export function makeGenerationControls(input: GenerationControls): GenerationControls {
   return deepFreeze({
     tempo: normalizeTempo(input.tempo),
-    tonalCenter: validateControlValue(PITCH_CLASSES, input.tonalCenter, 'Tonal center'),
+    tonalCenter: validateControlValue(PITCH_CLASSES, input.tonalCenter, 'Written tonal center'),
     collection: validateControlValue(COLLECTIONS, input.collection, 'Collection'),
     harmonicMotion: validateControlValue(HARMONIC_MOTIONS, input.harmonicMotion, 'Harmonic motion'),
     tension: validateControlValue(TENSION_ARCS, input.tension, 'Tension arc'),
     noteDensity: validateControlValue(NOTE_DENSITIES, input.noteDensity, 'Note density'),
+    rhythmicVariety: validateControlValue(
+      RHYTHMIC_VARIETIES,
+      input.rhythmicVariety,
+      'Rhythmic variety',
+    ),
     syncopation: validateControlValue(SYNCOPATIONS, input.syncopation, 'Syncopation'),
     silenceDensity: validateControlValue(
       SILENCE_DENSITIES,
