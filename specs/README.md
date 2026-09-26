@@ -1,14 +1,15 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.4
+Status: draft v0.5
 
 ## Status Snapshot
 
-- **v1 (First Release) is reached and implemented** (`v1.0-rc1` = `2418069`). The v1.0 gate waits
-  on ISS-005 (capability flags, D73), ISS-003 (written-pitch key, transposition as instrument data)
-  and ISS-004 (rhythmic variety, which starts with a feasibility review). The master spec is amended
-  to draft v2.0 for these. The execution plan for coordination-leader is
-  [versions/v1/gate-execution-report.md](versions/v1/gate-execution-report.md).
+- **v1 (First Release) is released as `v1.0`** (2026-09-26; `v1.0-rc1` = `2418069` is now history).
+  The v1.0 gate — "no open issue in `issues/`" — is closed: ISS-005 (capability flags, D73),
+  ISS-003 (written-pitch key, transposition as instrument data) and ISS-004 (rhythmic variety,
+  D74) are all resolved and merged. The master spec reflects them at draft v2.1. The gate's
+  working record is archived: [gate-execution-report.md](archive/v1/gate-execution-report.md) and
+  [iss004-feasibility-review.md](archive/v1/iss004-feasibility-review.md).
 - Infinite Flow is a client-side web practice partner for a monophonic player. v1 generates one
   coherent four-measure 4/4 phrase with harmony, in staff notation. The player regenerates it
   explicitly. It has no playback, MIDI or persistence.
@@ -66,7 +67,8 @@ Status: draft v0.4
 - [Archive index](archive/README.md): archived records (kept verbatim), and where each archived
   decision now lives as settled fact.
   - [v1 archive](archive/v1/README.md): the first-release working record, including decisions
-    D1–D46.
+    D1–D46 and the closed v1.0 gate's working documents (the gate execution report and the
+    ISS-004 feasibility review).
   - [Decisions D47–D71](archive/2026-09-25-decisions-D47-D71.md): the 2026-09-25 persona and
     vision session.
   - [Pre-vision roadmap](archive/2026-09-25-roadmap-pre-vision.md): the stage roadmap cited by

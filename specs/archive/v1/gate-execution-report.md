@@ -1,3 +1,9 @@
+> **Archived 2026-09-26.** The v1.0 gate is closed: ISS-003, ISS-004 and ISS-005 all landed and
+> are marked Resolved. This execution report is kept verbatim below this notice as the gate's
+> working record. The live summary is [versions/v1/README.md](../../versions/v1/README.md).
+> Relative links in the text below are unchanged and still resolve correctly (this folder sits at
+> the same depth as its original location, `specs/versions/v1/`).
+
 # v1.0 Gate — Execution Report (ISS-003, ISS-004, ISS-005)
 
 Status: v1.0 (2026-09-26). Handoff document for **coordination-leader**.
@@ -195,7 +201,7 @@ That is the point of the issue.
 ### 4.2 ISS-004
 
 **Review outcome (confirmed 2026-09-26).** The feasibility review
-(`specs/versions/v1/iss004-feasibility-review.md`) settled all eight items below with no new
+(`specs/archive/v1/iss004-feasibility-review.md`) settled all eight items below with no new
 blocked setting and `Heavily varied` never blocking. The user confirmed its two open stops, R1
 and R2, adopting the recommended readings: `Strict` is by nominal value (rendered values from
 syncopation displacement, plus rests and ties from silence density and syncopation, are exempt),

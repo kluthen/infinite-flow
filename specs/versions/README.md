@@ -1,6 +1,6 @@
 # Versions
 
-Status: draft v0.1
+Status: draft v0.2
 
 The scope of each planned version of Infinite Flow is kept in its own folder. The ordered
 timeline is in the [roadmap](../roadmap.md). The product-wide principles are in the
@@ -23,7 +23,7 @@ timeline is in the [roadmap](../roadmap.md). The product-wide principles are in 
 
 | Version                         | Status                          | Headline                                                                  |
 | ------------------------------- | ------------------------------- | ------------------------------------------------------------------------- |
-| [v1](v1/README.md)              | Reached; v1.0 gate open         | Finite four-measure phrase generator                                      |
+| [v1](v1/README.md)              | Released as `v1.0`; gate closed | Finite four-measure phrase generator                                      |
 | [v2](v2/README.md)              | Direction settled; next to spec | Rolling phrase, MIDI acknowledgement, backing, last-session review/export |
 | [v3](v3/README.md)              | Direction                       | Player-seeded continuation, "my instrument", earlier sessions             |
 | [v4](v4/README.md)              | Direction                       | Accompaniment with roles, whole-file seed (proposed)                      |

@@ -106,7 +106,7 @@ pitches, ornament preferences, signature gimmick, register tendencies), all decl
 
 - **2026-09-26**: Filed from decision D73 (the user's answer to O32). Tracked as a v1.0 gate item
   next to ISS-003 and ISS-004.
-- **2026-09-26**: Impact researched. Only the two name checks gate behavior; everything else is data, membership validation or collection-based. Recommended shape: a capability table next to `PROFILE_BUNDLES`, resolved into `PitchPolicy`, with no protocol change. Acceptance refined, and the medium conflict with ISS-004 on `profile-selection.ts` means this lands first. Details are in `specs/versions/v1/gate-execution-report.md` §4.3.
+- **2026-09-26**: Impact researched. Only the two name checks gate behavior; everything else is data, membership validation or collection-based. Recommended shape: a capability table next to `PROFILE_BUNDLES`, resolved into `PitchPolicy`, with no protocol change. Acceptance refined, and the medium conflict with ISS-004 on `profile-selection.ts` means this lands first. Details are in `specs/archive/v1/gate-execution-report.md` §4.3.
 - **2026-09-26**: Resolved. Added `MUSICAL_PROFILE_CAPABILITIES` next to `PROFILE_BUNDLES`
   (`src/domain/controls/profile-selection.ts`); `makePitchPolicy` resolves it once onto a new frozen
   `PitchPolicy.capabilities` field, with an optional test-only override since `MusicalProfile` stays

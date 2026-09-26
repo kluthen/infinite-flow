@@ -1,3 +1,9 @@
+> **Archived 2026-09-26.** ISS-004 is resolved and merged; this feasibility review is kept
+> verbatim below this notice as the ISS-004 working record. The live summary is
+> [versions/v1/README.md](../../versions/v1/README.md). Relative links in the text below are
+> unchanged and still resolve correctly (this folder sits at the same depth as its original
+> location, `specs/versions/v1/`).
+
 # ISS-004 feasibility review: rhythmic variety, Mixed retired
 
 **Confirmed by the user on 2026-09-26 (D74, `specs/decisions.md`).** R1 is resolved as the
@@ -6,7 +12,7 @@ and ties from silence density and syncopation, are exempt). R2 is resolved as th
 dominance rule (nominal attack share of q, floors 1.0/0.75/0.5, a 50% tie at `Heavily varied`
 allowed only with a shorter value). The rare-value sets in §1 are adopted as written, including
 Eighth `Slightly varied`'s rare `[3n,1n]` cell. See `specs/first-release-master-spec.md` for the
-resulting spec wording and `specs/versions/v1/gate-execution-report.md` §4.2 for the acceptance
+resulting spec wording and `specs/archive/v1/gate-execution-report.md` §4.2 for the acceptance
 pointer.
 
 Status: **for user confirmation** (gate report §3 step 4). Written 2026-09-26 by coding-leader.
