@@ -12,7 +12,7 @@ dependents:
   - [[module_notation_layout_preflight]]
 layer: BUSINESS
 version: 1.0
-notes: User sign-off 2026-09-24 (relayed by coordinator): approved promotion DRAFT to REVIEW; rule text unchanged. Re-confirmed 2026-09-26 against current (post-ISS-003) text: promotion DRAFT to REVIEW approved, verified against code as merged on main.
+notes: User sign-off 2026-09-24 (relayed by coordinator): approved promotion DRAFT to REVIEW; rule text unchanged. Re-confirmed 2026-09-26 against current (after the written-pitch key change) text: promotion DRAFT to REVIEW approved, verified against code as merged on main.
 ---
 
 # Notation Transposition Preserves Phrase
