@@ -11,6 +11,7 @@ import type { ConcertPitch } from '../events/concert-pitch'
 import type { GenerationRequest } from '../generation/generation-request'
 import type { HarmonyCandidate, TensionFigureKind } from '../harmony/harmony-types'
 import type { RhythmCandidate } from '../rhythm/rhythm-types'
+import type { MusicalProfileCapabilities } from '../controls/profile-selection'
 import type { ContourPlan, ContourState } from './pitch-contour'
 import type { FigureState } from './pitch-figures'
 import type { MotionLimits, MotionState } from './pitch-motion'
@@ -42,6 +43,8 @@ export interface PitchPolicy {
   readonly leapiness: Leapiness
   readonly arpeggioChaos: ArpeggioChaos
   readonly searchFuel: number
+  // @spec-link [[module_musical_profile_capabilities]]
+  readonly capabilities: MusicalProfileCapabilities
 }
 
 // @spec-link [[entity_pitch_candidate_domain]]

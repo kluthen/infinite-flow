@@ -13,7 +13,7 @@ export interface PitchValidationContext {
   readonly request: Pick<GenerationRequest, 'activeConcertRange' | 'registerWindow'>
   readonly policy: Pick<
     PitchPolicy,
-    'profile' | 'collection' | 'tonalCenter' | 'contour' | 'leapiness'
+    'profile' | 'collection' | 'tonalCenter' | 'contour' | 'leapiness' | 'capabilities'
   >
   readonly harmony: Pick<
     HarmonyCandidate,

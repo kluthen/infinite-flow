@@ -1,3 +1,4 @@
+import { MUSICAL_PROFILE_CAPABILITIES } from '@/domain/controls/profile-selection'
 import { makeHarmonyCollection } from '@/domain/harmony/collection'
 import type {
   AbstractTensionRequirement,
@@ -101,23 +102,27 @@ interface ContextOverrides {
   readonly requirement?: Partial<AbstractTensionRequirement>
   readonly binding?: ConcreteTensionBinding
   readonly window?: readonly [number, number]
+  /** Test-only override so a capability set can be exercised independent of the profile name. */
+  readonly capabilities?: { readonly allowsChromaticApproach: boolean }
 }
 
 /** C major, quarter notes, tonic every bar, static open endpoint, no bound figure. */
 // @test-link [[module_pitch_domain_validation]]
 export function context(overrides: ContextOverrides = {}): PitchValidationContext {
   const [minMidi, maxMidi] = overrides.window ?? [55, 79]
+  const profile = overrides.profile ?? 'Neutral'
   return {
     request: {
       activeConcertRange: { kind: 'ActiveConcertRange', minMidi: 48, maxMidi: 84 },
       registerWindow: { minMidi, maxMidi },
     } as PitchValidationContext['request'],
     policy: {
-      profile: overrides.profile ?? 'Neutral',
+      profile,
       collection: 'Major',
       tonalCenter: 'C',
       contour: overrides.contour ?? 'Wandering',
       leapiness: overrides.leapiness ?? 'Leaping',
+      capabilities: overrides.capabilities ?? MUSICAL_PROFILE_CAPABILITIES[profile],
     },
     harmony: {
       identity: 'fixture-harmony',

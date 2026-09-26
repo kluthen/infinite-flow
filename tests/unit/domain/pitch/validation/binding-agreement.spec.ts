@@ -141,6 +141,7 @@ function validatorAccepts(
       tonalCenter: 'C',
       contour: 'Wandering',
       leapiness: 'Leaping',
+      capabilities: { allowsChromaticApproach: false },
     },
     harmony: {
       identity: harmony.identity,

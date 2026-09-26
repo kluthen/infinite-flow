@@ -164,12 +164,14 @@ function enclosurePaths(facts: DomainFacts, group: readonly PitchAttack[]) {
 }
 
 /**
- * Jazz ornament paths at every attack whose members are free of the bound figure, sound back to
- * back with their target under one harmony event, and last no longer than the target.
+ * Chromatic approach and enclosure ornament paths at every attack whose members are free of the
+ * bound figure, sound back to back with their target under one harmony event, and last no longer
+ * than the target. Offered only when the active profile declares the capability.
  */
 // @spec-link [[rule_jazz_chromatic_resolution]]
-function jazzPaths(facts: DomainFacts): readonly FigurePath[] {
-  if (facts.input.policy.profile !== 'Jazz') return []
+// @spec-link [[module_musical_profile_capabilities]]
+function chromaticApproachPaths(facts: DomainFacts): readonly FigurePath[] {
+  if (!facts.input.policy.capabilities.allowsChromaticApproach) return []
   const paths: FigurePath[] = []
   const { attacks, boundAttacks } = facts
   const free = (attack: PitchAttack) => !boundAttacks.has(attack.attackIndex)
@@ -291,7 +293,7 @@ export function buildCandidateDomains(
     boundAttacks: new Set(input.tensionBinding.attackIndices),
   }
   const bound = pathCandidates(boundPaths(facts))
-  const jazz = pathCandidates(jazzPaths(facts))
+  const jazz = pathCandidates(chromaticApproachPaths(facts))
   return deepFreeze(
     attacks.map((attack) =>
       canonical(

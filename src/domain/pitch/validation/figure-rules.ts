@@ -143,12 +143,14 @@ function chromaticOrnament(
 }
 
 /**
- * Explain every non-chord tone. Neutral pitches stay in the collection; Jazz pitches outside it
- * must belong to a complete chromatic approach or enclosure. The bound figure must be structurally
- * sound and realized by its MIDI path. Remaining diatonic non-chord tones must be free passing
- * tones or neighbors.
+ * Explain every non-chord tone. Pitches stay in the collection unless the active profile declares
+ * the chromatic-approach capability, in which case an out-of-collection pitch must belong to a
+ * complete chromatic approach or enclosure. The bound figure must be structurally sound and
+ * realized by its MIDI path. Remaining diatonic non-chord tones must be free passing tones or
+ * neighbors.
  */
 // @spec-link [[module_pitch_domain_validation]]
+// @spec-link [[module_musical_profile_capabilities]]
 export function figureFailures(facts: PhraseFacts): readonly PitchValidationFailure[] {
   const failures: PitchValidationFailure[] = []
   const binding = facts.context.tensionBinding
@@ -165,7 +167,7 @@ export function figureFailures(facts: PhraseFacts): readonly PitchValidationFail
   const chromatic = new Set<number>()
   for (const attack of facts.attacks) {
     if (attack.inCollection) continue
-    if (facts.context.policy.profile !== 'Jazz') {
+    if (!facts.context.policy.capabilities.allowsChromaticApproach) {
       failures.push({ code: 'out_of_collection', attackIndex: attack.index })
       continue
     }
