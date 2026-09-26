@@ -180,14 +180,15 @@ export interface MakeNotationPhraseInputArgs {
   readonly result: GenerationResult
   readonly tonalContext: NotationTonalContext
   readonly harmony: HarmonyCandidate
+  readonly transposition: NotationPhraseInput['transposition']
 }
 
 /**
  * Intent: assemble and validate the explicit NotationPhraseInput a display transform reads, from
- * an already-produced GenerationResult, its selected tonal context, and the harmony candidate
- * that produced it. References the result's timeline as-is (it is already deep-frozen by its own
- * constructor) rather than copying or otherwise touching it, and deep-freezes only the new
- * envelope object this function returns.
+ * an already-produced GenerationResult, its selected written tonal context, the harmony candidate
+ * that produced it, and the active instrument profile's transposition. References the result's
+ * timeline as-is (it is already deep-frozen by its own constructor) rather than copying or
+ * otherwise touching it, and deep-freezes only the new envelope object this function returns.
  */
 // @spec-link [[module_notation_display_convention]]
 export function makeNotationPhraseInput(input: MakeNotationPhraseInputArgs): NotationPhraseInput {
@@ -196,6 +197,7 @@ export function makeNotationPhraseInput(input: MakeNotationPhraseInputArgs): Not
     timeline: input.result.timeline,
     tonalContext: input.tonalContext,
     chords,
+    transposition: input.transposition,
   }
   validateNotationPhraseInput(phraseInput)
   return deepFreeze(phraseInput)
@@ -203,7 +205,8 @@ export function makeNotationPhraseInput(input: MakeNotationPhraseInputArgs): Not
 
 /**
  * Intent: build the NotationPhraseInput for one successful generation outcome, deriving the
- * tonal context from the intent's controls and the chord symbols from the outcome's harmony
+ * written tonal context and transposition from the intent (the written selection and the active
+ * instrument profile's own transposition) and the chord symbols from the outcome's harmony
  * provenance. Crashes as a typed NotationInputError when the outcome's result was not produced by
  * this intent (a mismatched requestId), since a display transform must never be applied to a
  * result it was not generated for.
@@ -222,9 +225,10 @@ export function notationInputFromOutcome(
   return makeNotationPhraseInput({
     result: outcome.result,
     tonalContext: {
-      tonalCenter: intent.controls.tonalCenter,
+      tonalCenter: intent.writtenTonalCenter,
       collection: intent.controls.collection,
     },
     harmony: outcome.provenance.harmony,
+    transposition: intent.instrumentProfile.transposition,
   })
 }

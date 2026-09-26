@@ -23,8 +23,8 @@ describe('createNotationCoordinator', () => {
     const result = buildWorkspaceSessionResult()
 
     expect(coordinator.pendingPhrase.value).toBeNull()
-    const pending = coordinator.notate(result, 'B-flat tenor')
-    expect(coordinator.pendingPhrase.value?.mode).toBe('B-flat tenor')
+    const pending = coordinator.notate(result)
+    expect(coordinator.pendingPhrase.value).not.toBeNull()
 
     coordinator.handleEngraved()
     await expect(pending).resolves.toBeUndefined()
@@ -37,7 +37,7 @@ describe('createNotationCoordinator', () => {
     const result = buildWorkspaceSessionResult()
     const error = new NotationError('notation_engraving_failed', 'boom', {})
 
-    const pending = coordinator.notate(result, 'Concert')
+    const pending = coordinator.notate(result)
     coordinator.handleNotationError(error)
 
     await expect(pending).rejects.toBe(error)
@@ -49,8 +49,8 @@ describe('createNotationCoordinator', () => {
     const { coordinator } = buildCoordinator()
     const result = buildWorkspaceSessionResult()
 
-    void coordinator.notate(result, 'Concert').catch(() => {})
-    expect(() => coordinator.notate(result, 'E-flat alto')).toThrow(NotationCoordinatorUsageError)
+    void coordinator.notate(result).catch(() => {})
+    expect(() => coordinator.notate(result)).toThrow(NotationCoordinatorUsageError)
   })
 
   it('reports nothing for an unsolicited engraved event when no phrase has ever been published', () => {
@@ -71,44 +71,44 @@ describe('createNotationCoordinator', () => {
   })
 
   // @test-link [[service_workspace_session_flow]]
-  it("routes an unsolicited engraved event to reportNotationRecovered with the settled notate()'s mode", async () => {
+  it('routes an unsolicited engraved event to reportNotationRecovered once a phrase has settled', async () => {
     const { coordinator, reportNotationRecovered } = buildCoordinator()
     const result = buildWorkspaceSessionResult()
 
-    const pending = coordinator.notate(result, 'Concert')
+    const pending = coordinator.notate(result)
     coordinator.handleEngraved()
     await pending
 
     coordinator.handleEngraved()
 
-    expect(reportNotationRecovered).toHaveBeenCalledExactlyOnceWith('Concert')
+    expect(reportNotationRecovered).toHaveBeenCalledExactlyOnceWith()
   })
 
   // @test-link [[service_workspace_session_flow]]
-  it("routes an unsolicited notation-error event to reportNotationFailure with the settled notate()'s mode", async () => {
+  it('routes an unsolicited notation-error event to reportNotationFailure once a phrase has settled', async () => {
     const { coordinator, reportNotationFailure } = buildCoordinator()
     const result = buildWorkspaceSessionResult()
 
-    const pending = coordinator.notate(result, 'Concert')
+    const pending = coordinator.notate(result)
     coordinator.handleEngraved()
     await pending
 
     const error = new NotationError('notation_bounds_exceeded', 'boom', {})
     coordinator.handleNotationError(error)
 
-    expect(reportNotationFailure).toHaveBeenCalledExactlyOnceWith(error, 'Concert')
+    expect(reportNotationFailure).toHaveBeenCalledExactlyOnceWith(error)
   })
 
   // @test-link [[service_workspace_session_flow]]
-  it('tracks the latest notate() mode even when that request was itself rejected', async () => {
+  it('keeps reporting on the latest notate() even when that request was itself rejected', async () => {
     const { coordinator, reportNotationFailure, reportNotationRecovered } = buildCoordinator()
     const result = buildWorkspaceSessionResult()
 
-    const first = coordinator.notate(result, 'B-flat tenor')
+    const first = coordinator.notate(result)
     coordinator.handleEngraved()
     await first
 
-    const second = coordinator.notate(result, 'Concert')
+    const second = coordinator.notate(result)
     const rejection = new NotationError('notation_engraving_failed', 'boom', {})
     coordinator.handleNotationError(rejection)
     await expect(second).rejects.toBe(rejection)
@@ -118,12 +118,12 @@ describe('createNotationCoordinator', () => {
     const unsolicitedErrorTwo = new NotationError('notation_bounds_exceeded', 'boom-2', {})
     coordinator.handleNotationError(unsolicitedErrorTwo)
 
-    expect(reportNotationFailure).toHaveBeenNthCalledWith(1, unsolicitedErrorOne, 'Concert')
-    expect(reportNotationFailure).toHaveBeenNthCalledWith(2, unsolicitedErrorTwo, 'Concert')
+    expect(reportNotationFailure).toHaveBeenNthCalledWith(1, unsolicitedErrorOne)
+    expect(reportNotationFailure).toHaveBeenNthCalledWith(2, unsolicitedErrorTwo)
 
     coordinator.handleEngraved()
 
-    expect(reportNotationRecovered).toHaveBeenCalledExactlyOnceWith('Concert')
+    expect(reportNotationRecovered).toHaveBeenCalledExactlyOnceWith()
   })
 
   // @test-link [[service_workspace_session_flow]]
@@ -131,7 +131,7 @@ describe('createNotationCoordinator', () => {
     const { coordinator, reportNotationFailure, reportNotationRecovered } = buildCoordinator()
     const result = buildWorkspaceSessionResult()
 
-    const pending = coordinator.notate(result, 'Concert')
+    const pending = coordinator.notate(result)
     coordinator.handleEngraved()
     await pending
     coordinator.clearPresentedPhrase()
@@ -147,21 +147,21 @@ describe('createNotationCoordinator', () => {
     const { coordinator } = buildCoordinator()
     const result = buildWorkspaceSessionResult()
 
-    const first = coordinator.notate(result, 'Concert')
+    const first = coordinator.notate(result)
     coordinator.handleEngraved()
     await first
 
-    const second = coordinator.notate(result, 'E-flat alto')
+    const second = coordinator.notate(result)
     coordinator.handleEngraved()
     await expect(second).resolves.toBeUndefined()
-    expect(coordinator.pendingPhrase.value?.mode).toBe('E-flat alto')
+    expect(coordinator.pendingPhrase.value).not.toBeNull()
   })
 
   it('clearPresentedPhrase drops a settled phrase back to null', async () => {
     const { coordinator } = buildCoordinator()
     const result = buildWorkspaceSessionResult()
 
-    const pending = coordinator.notate(result, 'Concert')
+    const pending = coordinator.notate(result)
     coordinator.handleEngraved()
     await pending
     expect(coordinator.pendingPhrase.value).not.toBeNull()
@@ -174,7 +174,7 @@ describe('createNotationCoordinator', () => {
     const { coordinator } = buildCoordinator()
     const result = buildWorkspaceSessionResult()
 
-    void coordinator.notate(result, 'Concert').catch(() => {})
+    void coordinator.notate(result).catch(() => {})
 
     expect(() => coordinator.clearPresentedPhrase()).toThrow(NotationCoordinatorUsageError)
   })

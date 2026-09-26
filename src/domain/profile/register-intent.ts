@@ -53,6 +53,7 @@ export class RegisterIntentError extends Error {
  * requested choice — resolving Varying into one concrete candidate is not this function's job.
  */
 // @spec-link [[module_register_intent_boundary]]
+// @spec-link [[module_phrase_generation_profile_policy]]
 export function buildRegisterIntent(
   profile: InstrumentProfile,
   requestedRegister: RegisterChoice,

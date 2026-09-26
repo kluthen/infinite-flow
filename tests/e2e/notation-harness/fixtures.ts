@@ -5,10 +5,26 @@
  * phone layout's cross-line partial tie), one simple fixture (whole/half/quarter/rests, ties across
  * a barline, a dotted value and a beam group), and two key-signature-heavy fixtures (six sharps,
  * five flats) to exercise legibility-floor width at real key widths.
+ *
+ * The `testProfile*` and `writtenSpelling*` fixtures below are not hand-built: they run the real
+ * `transformToWrittenPhrase` display transform (Open transposition / spelling-risk coverage) over
+ * an explicit concert timeline, so the harness engraves whatever that transform actually produces
+ * for a test-only instrument transposition or a written/concert spelling-divergent key, with no
+ * production code change.
  */
+import { makeConcertPitch } from '@/domain/events/concert-pitch'
+import { makeMeasure, type Measure, type MeasureIndex } from '@/domain/events/measure'
+import { makeNoteEvent } from '@/domain/events/measure-event'
+import { makeConcertEventTimeline } from '@/domain/events/timeline'
+import { makeRational } from '@/domain/time/rational'
+import { BB_TENOR_PROFILE, EB_ALTO_PROFILE } from '@/domain/profile/instrument-profiles'
+import type { InstrumentTransposition } from '@/domain/profile/instrument-profile'
+import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type {
+  ConcertChordSymbol,
   DisplayedAccidental,
   NotatedDuration,
+  NotationPhraseInput,
   SpelledPitch,
   SpelledPitchClass,
   WrittenChordSymbol,
@@ -16,6 +32,7 @@ import type {
   WrittenMeasure,
   WrittenPhrase,
 } from '@/domain/notation/written-phrase-types'
+import type { Collection, PitchClass } from '@/domain/controls/generation-controls'
 
 const CONCERT_TRANSPOSITION = { chromatic: 0, diatonic: 0 } as const
 const TIME_SIGNATURE = { beats: 4, beatValue: 4 } as const
@@ -182,7 +199,6 @@ function buildDensePhrase(): WrittenPhrase {
   ]
 
   return {
-    mode: 'Concert',
     transposition: CONCERT_TRANSPOSITION,
     clef: 'treble',
     timeSignature: TIME_SIGNATURE,
@@ -332,7 +348,6 @@ function buildSimplePhrase(): WrittenPhrase {
   }
 
   return {
-    mode: 'Concert',
     transposition: CONCERT_TRANSPOSITION,
     clef: 'treble',
     timeSignature: TIME_SIGNATURE,
@@ -398,7 +413,6 @@ function buildKeySignaturePhrase(key: WrittenKey): WrittenPhrase {
   ]
 
   return {
-    mode: 'Concert',
     transposition: CONCERT_TRANSPOSITION,
     clef: 'treble',
     timeSignature: TIME_SIGNATURE,
@@ -407,8 +421,91 @@ function buildKeySignaturePhrase(key: WrittenKey): WrittenPhrase {
   }
 }
 
+/** A four-measure whole-note-tonic concert timeline, driven through the real display transform. */
+function wholeNoteTimeline(concertPitch: number): Measure[] {
+  return [0, 1, 2, 3].map((index) =>
+    makeMeasure(index as MeasureIndex, [
+      makeNoteEvent({
+        duration: makeRational(16, 16),
+        pitch: makeConcertPitch(concertPitch),
+        tieContinuation: false,
+      }),
+    ]),
+  )
+}
+
+/** One root-position, no-suffix chord symbol at every measure's downbeat. */
+function tonicChordEachMeasure(): readonly ConcertChordSymbol[] {
+  return [0, 1, 2, 3].map((measureIndex) => ({
+    measureIndex: measureIndex as MeasureIndex,
+    startTick: 0,
+    root: 0,
+    suffix: '',
+    bass: null,
+  }))
+}
+
+/**
+ * Intent: engrave a real, explicit written phrase (via `transformToWrittenPhrase`, not a hand-built
+ * WrittenPhrase) for one written tonal center/collection and instrument transposition, over a
+ * whole-note-tonic concert timeline.
+ */
+function buildTransformedPhrase(
+  concertPitch: number,
+  tonalCenter: PitchClass,
+  collection: Collection,
+  transposition: InstrumentTransposition,
+): WrittenPhrase {
+  const input: NotationPhraseInput = {
+    timeline: makeConcertEventTimeline(wholeNoteTimeline(concertPitch)),
+    tonalContext: { tonalCenter, collection },
+    chords: tonicChordEachMeasure(),
+    transposition,
+  }
+  return transformToWrittenPhrase(input)
+}
+
+/**
+ * Open transposition (Definition of Done): a test-only instrument profile whose transposition no
+ * first-release profile uses, engraved end to end from a written C Ionian selection.
+ */
+function buildTestProfilePlus2Plus1Phrase(): WrittenPhrase {
+  return buildTransformedPhrase(60, 'C', 'Ionian', { chromatic: 2, diatonic: 1 })
+}
+
+/** A second open, fabricated test-only instrument transposition, engraved the same way. */
+function buildTestProfilePlus21Plus12Phrase(): WrittenPhrase {
+  return buildTransformedPhrase(60, 'C', 'Ionian', { chromatic: 21, diatonic: 12 })
+}
+
+/**
+ * Gate report §5 (spelling risk): written F# Ionian on the B-flat tenor engraves as F# major (six
+ * sharps), spelled from the written selection, even though its concert counterpart (E) would
+ * otherwise spell with zero accidentals.
+ */
+function buildWrittenSharpSideBbTenorPhrase(): WrittenPhrase {
+  return buildTransformedPhrase(64, 'F#', 'Ionian', BB_TENOR_PROFILE.transposition)
+}
+
+/**
+ * Gate report §5 (spelling risk): the written flat-side pitch class C# on the E-flat alto engraves
+ * as D-flat major (five flats), the lowest-accidental spelling, from the written selection.
+ */
+function buildWrittenFlatSideEbAltoPhrase(): WrittenPhrase {
+  return buildTransformedPhrase(64, 'C#', 'Major', EB_ALTO_PROFILE.transposition)
+}
+
 /** The closed set of harness fixture names, selected via the page's `fixture` URL parameter. */
-export type FixtureName = 'dense' | 'denseTie' | 'simple' | 'sharps6' | 'flats5'
+export type FixtureName =
+  | 'dense'
+  | 'denseTie'
+  | 'simple'
+  | 'sharps6'
+  | 'flats5'
+  | 'testProfilePlus2Plus1'
+  | 'testProfilePlus21Plus12'
+  | 'writtenSharpSideBbTenor'
+  | 'writtenFlatSideEbAlto'
 
 /** Intent: resolve a harness fixture name to its WrittenPhrase, crashing on an unknown name. */
 // @test-link [[module_notation_layout_preflight]]
@@ -424,6 +521,14 @@ export function resolveFixture(name: string): WrittenPhrase {
       return buildKeySignaturePhrase(keyFSharpMajor())
     case 'flats5':
       return buildKeySignaturePhrase(keyDFlatMajor())
+    case 'testProfilePlus2Plus1':
+      return buildTestProfilePlus2Plus1Phrase()
+    case 'testProfilePlus21Plus12':
+      return buildTestProfilePlus21Plus12Phrase()
+    case 'writtenSharpSideBbTenor':
+      return buildWrittenSharpSideBbTenorPhrase()
+    case 'writtenFlatSideEbAlto':
+      return buildWrittenFlatSideEbAltoPhrase()
     default:
       throw new Error(`Unknown notation harness fixture: ${name}`)
   }

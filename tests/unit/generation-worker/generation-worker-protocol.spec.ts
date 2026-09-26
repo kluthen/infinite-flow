@@ -5,7 +5,36 @@ import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { GenerationRequestError, makeRequestId } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { makeSeed } from '@/domain/random/seed'
-import { parseGenerationWorkerResponse } from '@/generation-worker/generation-worker-protocol'
+import {
+  GenerationWorkerProtocolError,
+  parseGenerationWorkerRequest,
+  parseGenerationWorkerResponse,
+} from '@/generation-worker/generation-worker-protocol'
+
+/** Intent: one real GenerationWorkerRequest wire envelope, exactly as the session posts it. */
+function requestFixture() {
+  const intent = createGenerationIntent({
+    requestId: makeRequestId('protocol-request-fixture'),
+    seed: makeSeed(1),
+    controls: makeGenerationControls({
+      tempo: 90,
+      tonalCenter: 'C',
+      collection: 'Major',
+      harmonicMotion: 'Gentle diatonic',
+      tension: 'Settled',
+      noteDensity: 'Quarter',
+      syncopation: 'Straight',
+      silenceDensity: 'Sparse',
+      contour: 'Arch',
+      register: 'Middle',
+      leapiness: 'Shaped',
+      arpeggioChaos: 'Predictable',
+      instrumentProfileId: 'bb-tenor',
+    }),
+    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+  })
+  return structuredClone({ type: 'generate', id: 1, intent })
+}
 
 /** Intent: one real, cheap-to-search success outcome, exactly as the worker handler produces it. */
 function successOutcome() {
@@ -63,5 +92,45 @@ describe('parseGenerationWorkerResponse: retained request round trip', () => {
     }
 
     expect(() => parseGenerationWorkerResponse(tampered)).toThrow(GenerationRequestError)
+  })
+})
+
+// @test-link [[module_generation_worker_protocol]]
+// @test-link [[service_workspace_session_flow]]
+describe('parseGenerationWorkerRequest: writtenTonalCenter is required, valid, and untampered', () => {
+  it('parses a valid, structured-cloned request', () => {
+    const wire = requestFixture()
+    const parsed = parseGenerationWorkerRequest(wire)
+    expect(parsed.intent.writtenTonalCenter).toBe('C')
+    expect(parsed.intent.controls.tonalCenter).toBe('A#')
+  })
+
+  it('rejects a request missing writtenTonalCenter entirely', () => {
+    const wire = requestFixture()
+    const intentWithoutWrittenTonalCenter: Record<string, unknown> = { ...wire.intent }
+    delete intentWithoutWrittenTonalCenter.writtenTonalCenter
+    const tampered = { ...wire, intent: intentWithoutWrittenTonalCenter }
+
+    expect(() => parseGenerationWorkerRequest(tampered)).toThrow(GenerationWorkerProtocolError)
+  })
+
+  it('rejects a request with an invalid writtenTonalCenter value', () => {
+    const wire = requestFixture()
+    const tampered = { ...wire, intent: { ...wire.intent, writtenTonalCenter: 'H' } }
+
+    expect(() => parseGenerationWorkerRequest(tampered)).toThrow(GenerationWorkerProtocolError)
+  })
+
+  it('rejects a request whose written and concert tonal centers were tampered out of sync', () => {
+    const wire = requestFixture()
+    const tampered = {
+      ...wire,
+      intent: {
+        ...wire.intent,
+        controls: { ...wire.intent.controls, tonalCenter: 'D' },
+      },
+    }
+
+    expect(() => parseGenerationWorkerRequest(tampered)).toThrow(GenerationWorkerProtocolError)
   })
 })

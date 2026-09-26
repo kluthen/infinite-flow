@@ -9,14 +9,12 @@ import {
   DEFAULT_PROFILE_SELECTION,
 } from '../../src/domain/controls/profile-selection'
 import type { WrittenPhrase } from '../../src/domain/notation/written-phrase-types'
-import type { NotationMode } from '../../src/domain/notation/notation-mode'
 import type {
   SessionOperation,
   ThemePreference,
 } from '../../src/composables/use-generation-session'
 
 let lastGenerate: ReturnType<typeof vi.fn> | null = null
-let lastSetNotationMode: ReturnType<typeof vi.fn> | null = null
 
 /**
  * Intent: a minimal idle-state session double so App.spec.ts never constructs the real
@@ -26,22 +24,18 @@ let lastSetNotationMode: ReturnType<typeof vi.fn> | null = null
  */
 function fakeWorkspaceSession() {
   const generate = vi.fn(async () => false)
-  const setNotationMode = vi.fn(async () => false)
   lastGenerate = generate
-  lastSetNotationMode = setNotationMode
   const state = reactive({
     controls: DEFAULT_GENERATION_CONTROLS,
     profileSelection: DEFAULT_PROFILE_SELECTION,
-    presentation: { theme: 'System', notationMode: 'B-flat tenor' } as {
+    presentation: { theme: 'System' } as {
       theme: ThemePreference
-      notationMode: NotationMode
     },
     latestIntent: null,
     result: null,
     operation: 'idle' as SessionOperation,
     generationError: null,
     notationError: null,
-    failedNotationMode: null,
     resultEngraved: false,
   })
   const session: GenerationSession<WorkspaceSessionResult> = {
@@ -54,7 +48,6 @@ function fakeWorkspaceSession() {
         state.presentation = { ...state.presentation, theme }
         return true
       },
-      setNotationMode,
       generate,
       regenerate: async () => false,
       retryGeneration: async () => false,
@@ -102,7 +95,7 @@ describe('App', () => {
   })
 
   // @test-link [[rule_presentation_preference_preserves_phrase]]
-  it('applies data-theme on a theme selection without calling generate or setNotationMode', async () => {
+  it('applies data-theme on a theme selection without calling generate', async () => {
     const wrapper = mount(App)
 
     const themeGroup = wrapper.get('[aria-label="Presentation theme"]')
@@ -110,7 +103,6 @@ describe('App', () => {
 
     expect(document.documentElement.dataset.theme).toBe('dark')
     expect(lastGenerate).not.toHaveBeenCalled()
-    expect(lastSetNotationMode).not.toHaveBeenCalled()
   })
 
   // @test-link [[service_workspace_session_flow]]

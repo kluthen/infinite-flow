@@ -2,12 +2,13 @@
  * The notation engraving harness entry point. Two sources, selected by the `source` URL parameter:
  * `source=fixture` (the default when `source` is absent) resolves a hand-built WrittenPhrase from
  * `fixture`; `source=generated` runs a real, explicit GenerationIntent through `generatePhrase`,
- * derives its NotationPhraseInput, and transforms it into a WrittenPhrase for `mode`. Either way
- * PhraseScore is mounted inside a fixed-width container and the engrave outcome is published on
- * `window.__notationHarness` so the Playwright notation specs can assert on it without depending on
- * internal DOM structure beyond the documented `svg.staff-svg` / `g.measure-slot` marks. The
- * generated source additionally publishes the source snapshot and a `setMode`/`currentSnapshot`
- * pair so a spec can switch display convention without re-running generation.
+ * derives its NotationPhraseInput, and transforms it into a WrittenPhrase using the active
+ * instrument profile's own transposition (there is no independently selectable display
+ * convention). Either way PhraseScore is mounted inside a fixed-width container and the engrave
+ * outcome is published on `window.__notationHarness` so the Playwright notation specs can assert
+ * on it without depending on internal DOM structure beyond the documented `svg.staff-svg` /
+ * `g.measure-slot` marks. The generated source additionally publishes the source snapshot and a
+ * `currentSnapshot` accessor.
  */
 import { createApp, h, ref, type Ref } from 'vue'
 
@@ -29,7 +30,6 @@ import {
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
-import { NOTATION_MODES, type NotationMode } from '@/domain/notation/notation-mode'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import type { NotationPhraseInput } from '@/domain/notation/written-phrase-types'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
@@ -40,7 +40,7 @@ import type { NotationError } from '@/notation/notation-error'
 import { resolveFixture } from './fixtures'
 
 /** Extra fields the generated source publishes alongside every state transition; empty for a fixture. */
-type GeneratedExtras = Pick<NotationHarnessState, 'sourceSnapshot' | 'setMode' | 'currentSnapshot'>
+type GeneratedExtras = Pick<NotationHarnessState, 'sourceSnapshot' | 'currentSnapshot'>
 
 /** Intent: read a required URL parameter, crashing with a clear error rather than defaulting. */
 function requireParam(params: URLSearchParams, name: string): string {
@@ -49,14 +49,6 @@ function requireParam(params: URLSearchParams, name: string): string {
     throw new Error(`Notation harness requires a \`${name}\` URL parameter.`)
   }
   return value
-}
-
-/** Intent: validate a raw string as one of the closed set of notation display conventions. */
-function parseMode(value: string): NotationMode {
-  if (!NOTATION_MODES.includes(value as NotationMode)) {
-    throw new Error(`Unknown notation mode "${value}".`)
-  }
-  return value as NotationMode
 }
 
 /** Intent: mount PhraseScore against a reactive phrase ref, publishing every lifecycle event. */
@@ -127,9 +119,8 @@ function buildHarnessIntent(params: URLSearchParams): GenerationIntent {
   })
 }
 
-/** Intent: run the harness's generated source end to end, publishing the source snapshot/setMode pair. */
+/** Intent: run the harness's generated source end to end, publishing the source snapshot. */
 function runGeneratedSource(params: URLSearchParams): void {
-  const mode = parseMode(requireParam(params, 'mode'))
   const intent = buildHarnessIntent(params)
   const outcome: GenerationOutcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success') {
@@ -146,14 +137,10 @@ function runGeneratedSource(params: URLSearchParams): void {
     })
   const sourceSnapshot = buildSnapshot()
 
-  const phraseRef = ref(transformToWrittenPhrase(input, mode)) as Ref<WrittenPhrase>
+  const phraseRef = ref(transformToWrittenPhrase(input)) as Ref<WrittenPhrase>
   const extras: GeneratedExtras = {
     sourceSnapshot,
     currentSnapshot: buildSnapshot,
-    setMode: (nextMode: NotationMode) => {
-      window.__notationHarness = { state: 'pending', ...extras }
-      phraseRef.value = transformToWrittenPhrase(input, nextMode)
-    },
   }
 
   window.__notationHarness = { state: 'pending', ...extras }

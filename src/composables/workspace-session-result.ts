@@ -4,15 +4,11 @@
  * maps the domain profile-switch policy onto the session's typed retain/regenerate decision.
  */
 
-import { type GenerationControls } from '@/domain/controls/generation-controls'
-import { type GenerationIntent, getInstrumentProfile } from '@/domain/generation/generation-intent'
-import { evaluateProfileSwitch } from '@/domain/generation/profile-switch'
+import { type GenerationIntent } from '@/domain/generation/generation-intent'
 import {
   type GenerationFailureCode,
   type GenerationOutcome,
 } from '@/domain/generation/orchestration/orchestration-types'
-import { type Seed } from '@/domain/random/seed'
-import { type SessionProfileSwitchDecision } from './generation-session-profile-switch'
 
 /** The real per-session generation result: the successful outcome plus the intent that produced it. */
 // @spec-link [[service_workspace_session_flow]]
@@ -52,28 +48,4 @@ export function createWorkspaceGenerate(
     }
     return { outcome, intent }
   }
-}
-
-/**
- * Intent: adapt the domain `evaluateProfileSwitch` policy to the session's profile-switch seam,
- * reading the unchanged concert timeline, the current register selection, the existing seed, and
- * the newly resolved instrument profile straight off the prior workspace result and the caller's
- * next controls.
- */
-// @spec-link [[rule_profile_switch_validates_phrase]]
-export function evaluateWorkspaceProfileSwitch(
-  result: WorkspaceSessionResult,
-  nextControls: GenerationControls,
-  freshSeed: Seed,
-): SessionProfileSwitchDecision {
-  const decision = evaluateProfileSwitch({
-    timeline: result.outcome.result.timeline,
-    currentRegister: nextControls.register,
-    existingSeed: result.intent.seed,
-    newProfile: getInstrumentProfile(nextControls.instrumentProfileId),
-    freshSeed,
-  })
-
-  if (decision.kind === 'retain') return { kind: 'retain' }
-  return { kind: 'regenerate', seed: decision.seed }
 }

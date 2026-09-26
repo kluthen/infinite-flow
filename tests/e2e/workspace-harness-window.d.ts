@@ -17,7 +17,12 @@ type WorkspaceHarnessGenerationFailureCode =
 /** One deterministic-replay / presentation-isolation snapshot of the current workspace session. */
 interface WorkspaceHarnessSnapshot {
   readonly operation: 'idle' | 'generating' | 'notating'
-  readonly notationMode: 'Concert' | 'B-flat tenor' | 'E-flat alto'
+  /** The active instrument profile: notation always reads its own written pitch from this. */
+  readonly instrumentProfileId: string
+  /** The player's written-pitch tonal-center selection (ISS-003): null with no result yet. */
+  readonly writtenTonalCenter: string | null
+  /** The concert-pitch tonal center the generator actually consumed, converted from `writtenTonalCenter`. */
+  readonly concertTonalCenter: string | null
   readonly requestId: string | null
   readonly seed: number | null
   /** `JSON.stringify` of the latest result's concert-event timeline, or null with no result yet. */

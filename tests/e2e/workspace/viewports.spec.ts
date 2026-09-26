@@ -2,11 +2,13 @@
  * The three supported landscape breakpoints (mobile, tablet, desktop): no horizontal overflow, the
  * engraved score visible after generation, a representative control reachable and operable, and (as
  * the narrowest, most overflow-prone breakpoint is where a squeezed controls sidebar would first
- * break) that regenerating and switching notation display both stay reachable and overflow-free too.
+ * break) that regenerating and switching the instrument profile both stay reachable and
+ * overflow-free too (ISS-003: there is no independently selectable display-notation control any
+ * more, since notation always reads its transposition from the active instrument profile).
  */
 import { expect, test } from '@playwright/test'
 
-import { generateAndAwaitReady, gotoWorkspace, primaryButton, radio } from './helpers'
+import { generateAndAwaitReady, gotoWorkspace, primaryButton, radio, statusRegion } from './helpers'
 
 /** Intent: the current document has no horizontal scroll (within a 1px rounding tolerance). */
 async function expectNoHorizontalOverflow(page: import('@playwright/test').Page): Promise<void> {
@@ -38,7 +40,7 @@ for (const viewport of VIEWPORTS) {
     await expect(page.locator('svg.staff-svg')).toBeVisible()
     await expectNoHorizontalOverflow(page)
 
-    const tonalCenter = radio(page, 'Tonal center', 'C')
+    const tonalCenter = radio(page, 'Written key', 'C')
     await tonalCenter.scrollIntoViewIfNeeded()
     await expect(tonalCenter).toBeVisible()
     await expect(tonalCenter).toBeEnabled()
@@ -50,12 +52,20 @@ for (const viewport of VIEWPORTS) {
     await generateAndAwaitReady(page)
     await expectNoHorizontalOverflow(page)
 
-    for (const mode of ['Concert', 'E-flat', 'B-flat'] as const) {
-      const modeRadio = radio(page, 'Display notation', mode)
-      await modeRadio.scrollIntoViewIfNeeded()
-      await expect(modeRadio).toBeVisible()
-      await modeRadio.click()
-      await expect(modeRadio).toHaveAttribute('aria-checked', 'true')
+    for (const profileName of [
+      'C MIDI keyboard',
+      'E-flat alto saxophone',
+      'B-flat tenor saxophone',
+    ] as const) {
+      const profileRadio = radio(page, 'Instrument profile', profileName)
+      await profileRadio.scrollIntoViewIfNeeded()
+      await expect(profileRadio).toBeVisible()
+      await profileRadio.click()
+      // A shown phrase makes every profile switch start a regeneration (controls go read-only
+      // while it runs); wait for it to settle before the next click, or that click could land
+      // while the radiogroup is still disabled.
+      await expect(statusRegion(page)).toHaveText('Phrase ready', { timeout: 30_000 })
+      await expect(profileRadio).toHaveAttribute('aria-checked', 'true')
       await expect(page.locator('svg.staff-svg')).toBeVisible()
       await expectNoHorizontalOverflow(page)
     }

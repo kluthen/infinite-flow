@@ -5,12 +5,6 @@
  * it directly without pulling each other's files into their programs.
  */
 
-/**
- * The display conventions the harness can switch between; the same closed set as the domain's
- * NotationMode (src/domain/notation/notation-mode.ts), restated here to keep this file import-free.
- */
-type NotationHarnessMode = 'Concert' | 'B-flat tenor' | 'E-flat alto'
-
 /** The harness's published state: mirrors PhraseScore's pending/ready/error lifecycle for the test. */
 // @test-link [[module_notation_layout_preflight]]
 interface NotationHarnessState {
@@ -26,8 +20,6 @@ interface NotationHarnessState {
   }
   /** Only published by the `source=generated` path: the JSON snapshot taken right after generation. */
   sourceSnapshot?: string
-  /** Only published by the `source=generated` path: re-transform the same input into `mode`. */
-  setMode?: (mode: NotationHarnessMode) => void
   /** Only published by the `source=generated` path: the same snapshot shape, recomputed now. */
   currentSnapshot?: () => string
 }

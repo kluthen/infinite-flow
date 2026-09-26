@@ -1,28 +1,21 @@
 <script setup lang="ts">
 /**
- * The workspace header: brand mark, live meter/tempo/notation-mode context, the theme override,
- * and the single primary phrase action. This is the one place the generate/regenerate/retry
- * vocabulary and its disabled policy live -- everything else reads the session's state directly.
+ * The workspace header: brand mark, live meter/tempo context, the theme override, and the single
+ * primary phrase action. This is the one place the generate/regenerate/retry vocabulary and its
+ * disabled policy live -- everything else reads the session's state directly. There is no
+ * independently selectable display-notation control: the score is always shown in the active
+ * instrument profile's own written pitch.
  */
 import { computed } from 'vue'
 
 import type { GenerationSession, ThemePreference } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
-import SegmentedControl from '@/components/controls/SegmentedControl.vue'
-import type { SegmentedControlOption } from '@/components/controls/segmented-control-option'
 import { isUnsupportedRhythmSetting } from '@/domain/controls/unsupported-rhythm-settings'
-import type { NotationMode } from '@/domain/notation/notation-mode'
 import ThemeControl from './ThemeControl.vue'
 
 const props = defineProps<{
   session: GenerationSession<WorkspaceSessionResult>
 }>()
-
-const NOTATION_MODE_OPTIONS: readonly SegmentedControlOption[] = [
-  { value: 'Concert', label: 'Concert' },
-  { value: 'B-flat tenor', label: 'B-flat' },
-  { value: 'E-flat alto', label: 'E-flat' },
-]
 
 type PrimaryActionKind = 'generate' | 'regenerate' | 'retry-generation' | 'retry-notation'
 
@@ -80,11 +73,6 @@ function handlePrimaryAction(): void {
 function handleThemeSelect(theme: ThemePreference): void {
   props.session.actions.setTheme(theme)
 }
-
-/** Intent: request a display-notation switch; ignored while read-only, mirroring every other control. */
-function handleNotationModeSelect(value: string): void {
-  void props.session.actions.setNotationMode(value as NotationMode)
-}
 </script>
 
 <template>
@@ -95,13 +83,6 @@ function handleNotationModeSelect(value: string): void {
         <div class="score-context">
           <span class="meter-badge">4/4</span>
           <span class="tempo-readout">{{ state.controls.tempo }} BPM</span>
-          <SegmentedControl
-            label="Display notation"
-            :options="NOTATION_MODE_OPTIONS"
-            :model-value="state.presentation.notationMode"
-            :readonly="operationRunning"
-            @update:model-value="handleNotationModeSelect"
-          />
         </div>
         <ThemeControl :theme="state.presentation.theme" @select="handleThemeSelect" />
       </div>

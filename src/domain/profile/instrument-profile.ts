@@ -15,17 +15,35 @@ import {
 } from './register-window-derivation'
 import { registerWindowIsContainedIn, registerWindowsIntersect } from './register-window'
 
-/** The closed set of first-release adopted instrument profile identities. */
+/**
+ * Open transposition data for one instrument profile: an integer chromatic semitone count and an
+ * integer diatonic letter-step count carrying the instrument's written pitch relative to concert
+ * pitch (written = concert + transposition). Adding a new instrument preset is one data entry of
+ * this shape; nothing else in the codebase branches on a specific transposition value.
+ */
 // @spec-link [[entity_instrument_profile]]
-export type InstrumentProfileId = 'c-keyboard' | 'bb-tenor' | 'eb-alto'
+export interface InstrumentTransposition {
+  readonly chromatic: number
+  readonly diatonic: number
+}
 
-/** A validated, immutable declarative instrument profile. */
+/**
+ * A validated, immutable declarative instrument profile. `id` is intentionally an open string here
+ * (not a closed union): the adopted, first-release-supported set of identities is declared once, as
+ * data, in `./instrument-profiles.ts` (see `InstrumentProfileId` there); this atomic constructor
+ * accepts any non-empty identity so a test-only profile can be constructed and exercised through the
+ * whole pipeline without widening any production type. `displayName` is the player-facing instrument
+ * name carried as profile data, so a control catalog can build its option labels from the profile
+ * itself rather than hand-maintaining a parallel id-to-label map.
+ */
 // @spec-link [[entity_instrument_profile]]
 export interface InstrumentProfile {
   readonly kind: 'InstrumentProfile'
-  readonly id: InstrumentProfileId
+  readonly id: string
+  readonly displayName: string
   readonly concertRange: ActiveConcertRange
   readonly registerWindows: RegisterWindowPolicy
+  readonly transposition: InstrumentTransposition
 }
 
 /** Typed failure for an invalid attempt to construct an InstrumentProfile. */
@@ -52,12 +70,46 @@ export class InstrumentProfileParseError extends Error {
 
 interface InstrumentProfileInput {
   readonly id: string
+  readonly displayName: string
   readonly concertRange: { readonly minMidi: number; readonly maxMidi: number }
   readonly registerWindows: {
     readonly algorithm: string
     readonly minimumSpan: number
     readonly widthNumerator: number
     readonly widthDenominator: number
+  }
+  readonly transposition: { readonly chromatic: number; readonly diatonic: number }
+}
+
+/** The seven written letters in scale order and their natural (no-accidental) pitch classes. */
+const TRANSPOSITION_LETTER_COUNT = 7
+const NATURAL_PC_BY_LETTER_INDEX: readonly number[] = [0, 2, 4, 5, 7, 9, 11]
+
+/**
+ * Intent: reject a chromatic/diatonic transposition pair that is not mutually consistent — one
+ * that would require more than a double accidental to reconcile a diatonic letter-step move from
+ * C with the declared chromatic semitone count.
+ */
+// @spec-link [[entity_instrument_profile]]
+function assertConsistentTransposition(transposition: {
+  readonly chromatic: number
+  readonly diatonic: number
+}): void {
+  if (!Number.isInteger(transposition.chromatic) || !Number.isInteger(transposition.diatonic)) {
+    throw new InstrumentProfileError(
+      'Instrument transposition chromatic and diatonic counts must be integers.',
+    )
+  }
+  const letterIndex =
+    ((transposition.diatonic % TRANSPOSITION_LETTER_COUNT) + TRANSPOSITION_LETTER_COUNT) %
+    TRANSPOSITION_LETTER_COUNT
+  const octaveShift = Math.floor(transposition.diatonic / TRANSPOSITION_LETTER_COUNT)
+  const naturalPc = NATURAL_PC_BY_LETTER_INDEX[letterIndex]! + octaveShift * 12
+  const alter = transposition.chromatic - naturalPc
+  if (Math.abs(alter) > 2) {
+    throw new InstrumentProfileError(
+      `Instrument transposition chromatic ${transposition.chromatic} and diatonic ${transposition.diatonic} are not a consistent pair (would require a ${alter}-semitone accidental).`,
+    )
   }
 }
 
@@ -99,6 +151,9 @@ export function makeInstrumentProfile(input: InstrumentProfileInput): Instrument
   if (input.id.trim().length === 0) {
     throw new InstrumentProfileError('Instrument profile id must be a non-empty string.')
   }
+  if (input.displayName.trim().length === 0) {
+    throw new InstrumentProfileError('Instrument profile displayName must be a non-empty string.')
+  }
   if (input.registerWindows.algorithm !== REGISTER_WINDOW_ALGORITHM_V1) {
     throw new InstrumentProfileError(
       `Unrecognized register-window algorithm "${input.registerWindows.algorithm}"; expected "${REGISTER_WINDOW_ALGORITHM_V1}".`,
@@ -120,11 +175,19 @@ export function makeInstrumentProfile(input: InstrumentProfileInput): Instrument
   assertCandidatesContained(candidates, concertRange)
   assertAdjacentCandidatesIntersect(candidates)
 
+  assertConsistentTransposition(input.transposition)
+  const transposition: InstrumentTransposition = {
+    chromatic: input.transposition.chromatic,
+    diatonic: input.transposition.diatonic,
+  }
+
   return deepFreeze({
     kind: 'InstrumentProfile',
-    id: input.id as InstrumentProfileId,
+    id: input.id,
+    displayName: input.displayName,
     concertRange,
     registerWindows,
+    transposition,
   })
 }
 
@@ -149,7 +212,13 @@ function assertNoUnknownKeys(
   }
 }
 
-const PROFILE_ALLOWED_KEYS = new Set(['id', 'concertRange', 'registerWindows'])
+const PROFILE_ALLOWED_KEYS = new Set([
+  'id',
+  'displayName',
+  'concertRange',
+  'registerWindows',
+  'transposition',
+])
 const CONCERT_RANGE_ALLOWED_KEYS = new Set(['minMidi', 'maxMidi'])
 const REGISTER_WINDOWS_ALLOWED_KEYS = new Set([
   'algorithm',
@@ -157,6 +226,7 @@ const REGISTER_WINDOWS_ALLOWED_KEYS = new Set([
   'widthNumerator',
   'widthDenominator',
 ])
+const TRANSPOSITION_ALLOWED_KEYS = new Set(['chromatic', 'diatonic'])
 
 /**
  * Intent: parse one untrusted instrument-profile boundary object, rejecting a non-object input,
@@ -169,10 +239,15 @@ export function parseInstrumentProfile(input: unknown): InstrumentProfile {
   const record = asRecord(input, 'Instrument profile')
   assertNoUnknownKeys(record, PROFILE_ALLOWED_KEYS, 'Instrument profile')
 
-  const { id, concertRange, registerWindows } = record
+  const { id, displayName, concertRange, registerWindows } = record
   if (typeof id !== 'string') {
     throw new InstrumentProfileParseError(
       `Instrument profile.id must be a string, got ${typeof id}.`,
+    )
+  }
+  if (typeof displayName !== 'string') {
+    throw new InstrumentProfileParseError(
+      `Instrument profile.displayName must be a string, got ${typeof displayName}.`,
     )
   }
 
@@ -211,11 +286,26 @@ export function parseInstrumentProfile(input: unknown): InstrumentProfile {
     )
   }
 
+  const transpositionRecord = asRecord(record.transposition, 'Instrument profile.transposition')
+  assertNoUnknownKeys(
+    transpositionRecord,
+    TRANSPOSITION_ALLOWED_KEYS,
+    'Instrument profile.transposition',
+  )
+  const { chromatic, diatonic } = transpositionRecord
+  if (typeof chromatic !== 'number' || typeof diatonic !== 'number') {
+    throw new InstrumentProfileParseError(
+      'Instrument profile.transposition must have numeric chromatic and diatonic counts.',
+    )
+  }
+
   try {
     return makeInstrumentProfile({
       id,
+      displayName,
       concertRange: { minMidi, maxMidi },
       registerWindows: { algorithm, minimumSpan, widthNumerator, widthDenominator },
+      transposition: { chromatic, diatonic },
     })
   } catch (error) {
     throw new InstrumentProfileParseError(

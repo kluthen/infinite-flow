@@ -9,7 +9,6 @@ import {
   COLLECTIONS,
   CONTOURS,
   HARMONIC_MOTIONS,
-  INSTRUMENT_PROFILE_IDS,
   LEAPINESS_VALUES,
   MUSICAL_PROFILES,
   NOTE_DENSITIES,
@@ -21,6 +20,7 @@ import {
 } from '@/domain/controls/generation-controls'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import { ADOPTED_INSTRUMENT_PROFILES } from '@/domain/profile/instrument-profiles'
 import type { SegmentedControlOption } from './segmented-control-option'
 
 /** Intent: build the twelve tonal-center options with their sharp/flat enharmonic labels. */
@@ -49,15 +49,19 @@ export function collectionOptions(): readonly SegmentedControlOption[] {
   return COLLECTIONS.map((value) => ({ value, label: value }))
 }
 
-/** Intent: build the three instrument-profile options with their player-facing instrument names. */
+/**
+ * Intent: build the instrument-profile options from the single declarative profile table
+ * (`ADOPTED_INSTRUMENT_PROFILES`), reading each option's player-facing label straight off the
+ * profile's own `displayName` rather than a hand-maintained parallel id-to-label map -- so adding a
+ * profile to that table needs no edit here.
+ */
 // @spec-link [[module_generation_control_catalog]]
+// @spec-link [[entity_instrument_profile]]
 export function instrumentProfileOptions(): readonly SegmentedControlOption[] {
-  const labels: Readonly<Record<(typeof INSTRUMENT_PROFILE_IDS)[number], string>> = {
-    'c-keyboard': 'C MIDI keyboard',
-    'bb-tenor': 'B-flat tenor saxophone',
-    'eb-alto': 'E-flat alto saxophone',
-  }
-  return INSTRUMENT_PROFILE_IDS.map((value) => ({ value, label: labels[value] }))
+  return ADOPTED_INSTRUMENT_PROFILES.map((profile) => ({
+    value: profile.id,
+    label: profile.displayName,
+  }))
 }
 
 /** Intent: build the Neutral/Jazz musical-profile-preset options. */

@@ -3,8 +3,6 @@ import { describe, expect, it } from 'vitest'
 import {
   GenerationFailedError,
   createWorkspaceGenerate,
-  evaluateWorkspaceProfileSwitch,
-  type WorkspaceSessionResult,
 } from '@/composables/workspace-session-result'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import {
@@ -71,44 +69,5 @@ describe('createWorkspaceGenerate', () => {
       code: 'no_legal_pitch_plan',
     })
     await expect(workspaceGenerate(intent)).rejects.toBeInstanceOf(GenerationFailedError)
-  })
-})
-
-// @test-link [[rule_profile_switch_validates_phrase]]
-describe('evaluateWorkspaceProfileSwitch', () => {
-  it('retains the phrase when the next controls keep the same profile and register', () => {
-    const intent = cheapIntent()
-    const outcome = generatePhrase(intent)
-    if (outcome.kind !== 'generation_success') {
-      throw new Error('Fixture setup: expected generation_success.')
-    }
-    const result: WorkspaceSessionResult = { outcome, intent }
-
-    const decision = evaluateWorkspaceProfileSwitch(result, intent.controls, makeSeed(123))
-
-    expect(decision).toEqual({ kind: 'retain' })
-  })
-
-  it('regenerates with the fresh seed when a bb-tenor Low-register phrase does not fit eb-alto (its low notes fall below the active range)', () => {
-    // Pinned seed 9 with these cheap Low-register bb-tenor controls deterministically produces a
-    // phrase reaching MIDI 48, which is below E-flat alto's active range floor of 51.
-    const intent = cheapIntent()
-    const outcome = generatePhrase(intent)
-    if (outcome.kind !== 'generation_success') {
-      throw new Error('Fixture setup: expected generation_success.')
-    }
-    const lowestPitch = Math.min(
-      ...outcome.result.timeline.measures.flatMap((measure) =>
-        measure.events.filter((event) => event.kind === 'note').map((event) => event.pitch),
-      ),
-    )
-    expect(lowestPitch).toBeLessThan(51)
-    const result: WorkspaceSessionResult = { outcome, intent }
-    const nextControls = { ...intent.controls, instrumentProfileId: 'eb-alto' as const }
-    const freshSeed = makeSeed(4242)
-
-    const decision = evaluateWorkspaceProfileSwitch(result, nextControls, freshSeed)
-
-    expect(decision).toEqual({ kind: 'regenerate', seed: freshSeed })
   })
 })

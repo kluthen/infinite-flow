@@ -17,7 +17,6 @@ import {
 } from '@/composables/use-notation-coordinator'
 import {
   createWorkspaceGenerate,
-  evaluateWorkspaceProfileSwitch,
   type WorkspaceSessionResult,
 } from '@/composables/workspace-session-result'
 import { makeRequestId } from '@/domain/generation/generation-request'
@@ -97,16 +96,14 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   }
 
   const coordinator: NotationCoordinator = createNotationCoordinator({
-    reportNotationFailure: (error, mode) =>
-      requireSession().actions.reportNotationFailure(error, mode),
-    reportNotationRecovered: (mode) => requireSession().actions.reportNotationRecovered(mode),
+    reportNotationFailure: (error) => requireSession().actions.reportNotationFailure(error),
+    reportNotationRecovered: () => requireSession().actions.reportNotationRecovered(),
   })
 
   const created = createGenerationSession<WorkspaceSessionResult>({
     providers: deps.providers,
     generate: createWorkspaceGenerate(deps.generate),
     notate: coordinator.notate,
-    evaluateProfileSwitch: evaluateWorkspaceProfileSwitch,
     clearPresentedPhrase: coordinator.clearPresentedPhrase,
   })
   session = created

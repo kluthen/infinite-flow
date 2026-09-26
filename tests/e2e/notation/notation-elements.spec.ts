@@ -136,6 +136,6 @@ test('publishes an accessible description resolved by aria-describedby, with a s
   await expect(description.locator('ol > li')).toHaveCount(4)
 
   const summaryText = (await description.locator('p').textContent()) ?? ''
-  expect(summaryText).toContain('Concert')
+  expect(summaryText).toContain('Written notation')
   expect(summaryText).toContain('no sharps or flats')
 })

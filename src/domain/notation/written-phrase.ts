@@ -1,21 +1,17 @@
 /**
- * The pure written-phrase display transform: turns one explicit NotationPhraseInput plus a
- * selected NotationMode into a WrittenPhrase carrying every engraving decision (spelling, key
- * signature, displayed accidentals, notated durations, ties, beam groups, chord-symbol
- * placement). Never mutates its input and never re-decides harmony or pitch — it only re-renders
- * the already-planned concert phrase for one display convention, deterministically and
- * independently of any other convention's rendering of the same input.
+ * The pure written-phrase display transform: turns one explicit NotationPhraseInput into the
+ * WrittenPhrase for the active instrument profile's own written pitch, carrying every engraving
+ * decision (spelling, key signature, displayed accidentals, notated durations, ties, beam groups,
+ * chord-symbol placement). Never mutates its input and never re-decides harmony or pitch — it only
+ * re-renders the already-planned concert phrase, deterministically. There is no independently
+ * selectable display convention.
  */
 import { PITCH_CLASSES } from '../controls/generation-controls'
 import { deepFreeze } from '../events/deep-freeze'
 import type { ConcertEventTimeline } from '../events/timeline'
 import type { Measure, MeasureIndex } from '../events/measure'
 import type { PitchClassNumber } from '../harmony/harmony-types'
-import {
-  DISPLAY_TRANSPOSITIONS,
-  type DisplayTransposition,
-  type NotationMode,
-} from './notation-mode'
+import type { InstrumentTransposition } from '../profile/instrument-profile'
 import { validateNotationPhraseInput } from './notation-input'
 import {
   pitchClassText,
@@ -97,7 +93,7 @@ function buildWrittenEvents(
   measure: Measure,
   segments: readonly RhythmSegment[],
   key: WrittenKey,
-  transposition: DisplayTransposition,
+  transposition: InstrumentTransposition,
 ): readonly WrittenEvent[] {
   const accidentalState = createAccidentalState()
 
@@ -139,7 +135,7 @@ function buildWrittenEvents(
 /** Intent: respell one concert chord symbol's root and optional bass in the display key. */
 function respellChord(
   chord: ConcertChordSymbol,
-  transposition: DisplayTransposition,
+  transposition: InstrumentTransposition,
   key: WrittenKey,
 ): WrittenChordSymbol {
   const root = spellPitchClassInKey(pcMod12(chord.root + transposition.chromatic), key)
@@ -175,7 +171,7 @@ function assertChordsAlignToGlyphs(
 function buildWrittenMeasure(
   input: NotationPhraseInput,
   measureIndex: MeasureIndex,
-  transposition: DisplayTransposition,
+  transposition: InstrumentTransposition,
   key: WrittenKey,
 ): WrittenMeasure {
   assertCrossMeasureTieResolvable(input.timeline, measureIndex)
@@ -197,23 +193,19 @@ function buildWrittenMeasure(
 }
 
 /**
- * Intent: transform one explicit NotationPhraseInput into the WrittenPhrase for one display
- * convention. Pure: reads only its inputs, never mutates the input timeline or chords, and
- * returns a brand-new deep-frozen value every call, so rendering the same input in every mode (in
- * any order, any number of times) never affects any other mode's rendering.
+ * Intent: transform one explicit NotationPhraseInput into the WrittenPhrase for the active
+ * instrument profile's own written pitch. Pure: reads only its inputs, never mutates the input
+ * timeline or chords, and returns a brand-new deep-frozen value every call. There is no
+ * independently selectable display convention: `input.tonalContext.tonalCenter` is already the
+ * written tonal center, and `input.transposition` is the instrument profile's own transposition.
  */
 // @spec-link [[module_notation_display_convention]]
 // @spec-link [[rule_notation_display_preserves_phrase]]
-export function transformToWrittenPhrase(
-  input: NotationPhraseInput,
-  mode: NotationMode,
-): WrittenPhrase {
+export function transformToWrittenPhrase(input: NotationPhraseInput): WrittenPhrase {
   validateNotationPhraseInput(input)
 
-  const transposition = DISPLAY_TRANSPOSITIONS[mode]
-  const writtenTonicPc = pcMod12(
-    PITCH_CLASSES.indexOf(input.tonalContext.tonalCenter) + transposition.chromatic,
-  )
+  const transposition = input.transposition
+  const writtenTonicPc = pcMod12(PITCH_CLASSES.indexOf(input.tonalContext.tonalCenter))
   const key = spellWrittenKey(writtenTonicPc, input.tonalContext.collection)
 
   const [first, second, third, fourth] = [0, 1, 2, 3].map((index) =>
@@ -227,7 +219,6 @@ export function transformToWrittenPhrase(
   ]
 
   return deepFreeze({
-    mode,
     transposition,
     clef: 'treble',
     timeSignature: { beats: 4, beatValue: 4 },

@@ -101,8 +101,11 @@ test('has no detectable axe violations in the notation-failed error state', asyn
   await generateAndAwaitReady(page)
 
   await failNextNotation(page)
-  await radio(page, 'Display notation', 'Concert').click()
-  await expect.poll(async () => (await harnessSnapshot(page)).operation).toBe('idle')
+  // No session action: force an out-of-band PhraseScore redraw (a resize) to fail on its own. Stays
+  // above the 64rem phone-layout breakpoint so this is the only redraw trigger the resize fires --
+  // crossing the breakpoint also fires the phone-layout `matchMedia` listener's own `scheduleRedraw`,
+  // whose later, unarmed redraw would silently recover the just-armed failure before assertions run.
+  await page.setViewportSize({ width: 1100, height: 720 })
   await expect(page.locator('.inline-alert.alert-error')).toBeVisible()
 
   const results = await new AxeBuilder({ page }).analyze()

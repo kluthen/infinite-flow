@@ -34,7 +34,7 @@ describe('ControlPanel', () => {
     const labels = wrapper.findAll('.field-label').map((l) => l.text())
     expect(labels).toEqual([
       'Tempo',
-      'Tonal center',
+      'Written key',
       'Collection',
       'Instrument profile',
       'Musical profile preset',

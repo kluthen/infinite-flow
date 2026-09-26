@@ -1,10 +1,11 @@
 /**
  * Step 10 release: the ephemeral-state boundary verified across the full required phrase workflow
  * (not just the presentation theme, already covered by tests/e2e/workspace/theme.spec.ts) -- no
- * customized control, generated phrase, notation mode, or in-flight/retryable operation state
- * survives a reload, and no user- or session-state entry is ever written to localStorage,
- * sessionStorage, or IndexedDB. The PWA's own immutable-asset precache (Cache Storage) is read here
- * too, but only to confirm it is the one storage area allowed to be non-empty.
+ * customized control (including the instrument profile), generated phrase, or in-flight/retryable
+ * operation state survives a reload, and no user- or session-state entry is ever written to
+ * localStorage, sessionStorage, or IndexedDB. The PWA's own immutable-asset precache (Cache
+ * Storage) is read here too, but only to confirm it is the one storage area allowed to be
+ * non-empty.
  */
 import { expect, test } from '@playwright/test'
 
@@ -25,14 +26,14 @@ async function readUserStatePersistence(page: import('@playwright/test').Page) {
 
 // @test-link [[specification_ephemeral_state_verification]]
 // @test-link [[rule_ephemeral_session_state]]
-test('no customized control, generated phrase, or notation mode survives a reload', async ({
+test('no customized control, generated phrase, or instrument profile survives a reload', async ({
   page,
 }) => {
   await gotoWorkspace(page)
   await radio(page, 'Musical profile preset', 'Jazz').click()
   await radio(page, 'Register', 'Low').click()
   await generateAndAwaitReady(page)
-  await radio(page, 'Display notation', 'Concert').click()
+  await radio(page, 'Instrument profile', 'E-flat alto saxophone').click()
 
   const before = await readUserStatePersistence(page)
   expect(before.localStorageLength).toBe(0)
@@ -48,8 +49,8 @@ test('no customized control, generated phrase, or notation mode survives a reloa
   )
   await expect(radio(page, 'Register', 'Middle')).toHaveAttribute('aria-checked', 'true')
   await expect(
-    page.getByRole('radiogroup', { name: 'Display notation' }).getByRole('radio', {
-      name: 'B-flat',
+    page.getByRole('radiogroup', { name: 'Instrument profile' }).getByRole('radio', {
+      name: 'B-flat tenor saxophone',
     }),
   ).toHaveAttribute('aria-checked', 'true')
   await expect(page.getByText('Generate a phrase to begin.')).toBeVisible()

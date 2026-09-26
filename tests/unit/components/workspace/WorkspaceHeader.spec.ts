@@ -28,7 +28,6 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
     selectMusicalProfile: vi.fn(() => true),
     selectInstrumentProfile: vi.fn(async () => 'applied' as const),
     setTheme: vi.fn(() => true),
-    setNotationMode: vi.fn(async () => true),
     generate: vi.fn(async () => true),
     regenerate: vi.fn(async () => true),
     retryGeneration: vi.fn(async () => true),
@@ -40,13 +39,12 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
     state: {
       controls: DEFAULT_GENERATION_CONTROLS,
       profileSelection: DEFAULT_PROFILE_SELECTION,
-      presentation: { theme: 'System', notationMode: 'Concert' },
+      presentation: { theme: 'System' },
       latestIntent: null,
       result: null,
       operation: 'idle',
       generationError: null,
       notationError: null,
-      failedNotationMode: null,
       resultEngraved: false,
       ...overrides,
     },
@@ -165,24 +163,12 @@ describe('WorkspaceHeader', () => {
     expect(actions.generate).not.toHaveBeenCalled()
     expect(actions.regenerate).not.toHaveBeenCalled()
     expect(actions.retryNotation).not.toHaveBeenCalled()
-    expect(actions.setNotationMode).not.toHaveBeenCalled()
   })
 
-  it('calls setNotationMode on a display-notation selection', async () => {
-    const { session, actions } = fakeSession()
+  it('has no independently selectable display-notation control', () => {
+    const { session } = fakeSession()
     const wrapper = mount(WorkspaceHeader, { props: { session } })
 
-    const notationGroup = wrapper.get('[aria-label="Display notation"]')
-    await notationGroup.findAll('button')[1]!.trigger('click')
-
-    expect(actions.setNotationMode).toHaveBeenCalledExactlyOnceWith('B-flat tenor')
-  })
-
-  it('marks the display-notation control read-only while an operation is running', () => {
-    const { session } = fakeSession({ operation: 'notating' })
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
-
-    const notationGroup = wrapper.get('[aria-label="Display notation"]')
-    expect(notationGroup.attributes('aria-readonly')).toBe('true')
+    expect(wrapper.find('[aria-label="Display notation"]').exists()).toBe(false)
   })
 })
