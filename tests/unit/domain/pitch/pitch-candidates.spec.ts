@@ -23,6 +23,7 @@ function fixtureInput(
     readonly profile?: MusicalProfile
     readonly tensionBinding?: ConcreteTensionBinding
     readonly window?: readonly [number, number]
+    readonly capabilities?: { readonly allowsChromaticApproach: boolean }
   } = {},
 ): BoundPitchPlannerInput {
   const harmony = makeHarmonyCandidateDomain({
@@ -65,6 +66,7 @@ function fixtureInput(
       leapiness: 'Angular',
       arpeggioChaos: 'Predictable',
       searchFuel: 20_000,
+      ...(input.capabilities ? { capabilities: input.capabilities } : {}),
     }),
     harmony: tonic,
     rhythm,
@@ -126,6 +128,28 @@ describe('pitch-candidates: buildCandidateDomains', () => {
       .some((candidate) => !collection.includes(candidate.pitchClass))
     expect(neutralOutOfCollection).toBe(false)
     expect(jazzOutOfCollection).toBe(true)
+  })
+
+  // @test-link [[module_musical_profile_capabilities]]
+  // @test-link [[rule_jazz_chromatic_resolution]]
+  it('gates chromatic candidates on the declared capability, not the profile name', () => {
+    const { collection: neutralCollection } = domainsFor(fixtureInput({ profile: 'Neutral' }))
+    const neutralWithCapability = domainsFor(
+      fixtureInput({ profile: 'Neutral', capabilities: { allowsChromaticApproach: true } }),
+    ).domains
+    const jazzWithoutCapability = domainsFor(
+      fixtureInput({ profile: 'Jazz', capabilities: { allowsChromaticApproach: false } }),
+    ).domains
+    expect(
+      neutralWithCapability
+        .flat()
+        .some((candidate) => !neutralCollection.includes(candidate.pitchClass)),
+    ).toBe(true)
+    expect(
+      jazzWithoutCapability
+        .flat()
+        .some((candidate) => !neutralCollection.includes(candidate.pitchClass)),
+    ).toBe(false)
   })
 
   // @test-link [[entity_pitch_candidate_domain]]

@@ -6,6 +6,10 @@ import type {
   MusicalProfile,
   PitchClass,
 } from '../controls/generation-controls'
+import {
+  MUSICAL_PROFILE_CAPABILITIES,
+  type MusicalProfileCapabilities,
+} from '../controls/profile-selection'
 import { deepFreeze } from '../events/deep-freeze'
 import type {
   AbstractTensionRequirement,
@@ -32,8 +36,13 @@ import type {
 // @spec-link [[mechanic_pitch_search_policy]]
 export const DEFAULT_PITCH_SEARCH_FUEL = 20_000
 
-/** Freeze a versioned pitch policy, filling the default search fuel when none is given. */
+/**
+ * Freeze a versioned pitch policy, filling the default search fuel when none is given and
+ * resolving the profile's declared capabilities. `capabilities` may be overridden for tests, since
+ * `MusicalProfile` is a closed union and a test-only profile name would require widening it.
+ */
 // @spec-link [[mechanic_pitch_search_policy]]
+// @spec-link [[module_musical_profile_capabilities]]
 export function makePitchPolicy(input: {
   readonly profile: MusicalProfile
   readonly collection: Collection
@@ -42,11 +51,13 @@ export function makePitchPolicy(input: {
   readonly leapiness: Leapiness
   readonly arpeggioChaos: ArpeggioChaos
   readonly searchFuel?: number
+  readonly capabilities?: MusicalProfileCapabilities
 }): PitchPolicy {
   return deepFreeze({
     version: 'pitch-search-v1' as const,
     ...input,
     searchFuel: input.searchFuel ?? DEFAULT_PITCH_SEARCH_FUEL,
+    capabilities: input.capabilities ?? MUSICAL_PROFILE_CAPABILITIES[input.profile],
   })
 }
 

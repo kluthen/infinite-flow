@@ -9,6 +9,7 @@
  * rhythm validator, and the harmony planner's public candidate-domain constructor.
  */
 
+import { MUSICAL_PROFILE_CAPABILITIES } from '../controls/profile-selection'
 import { deepFreeze } from '../events/deep-freeze'
 import type { GenerationIntent } from '../generation/generation-intent'
 import type { GenerationRequest } from '../generation/generation-request'
@@ -125,6 +126,8 @@ function melodicFailures(
       tonalCenter: intent.controls.tonalCenter,
       contour: intent.controls.contour,
       leapiness: intent.controls.leapiness,
+      // @spec-link [[module_musical_profile_capabilities]]
+      capabilities: MUSICAL_PROFILE_CAPABILITIES[intent.musicalProfile.musicalProfile],
     },
     harmony: provenance.harmony,
     rhythm: provenance.rhythm,

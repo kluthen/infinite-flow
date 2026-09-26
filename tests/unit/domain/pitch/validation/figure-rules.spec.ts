@@ -70,6 +70,22 @@ describe('pitch validation: Jazz chromatic ornaments', () => {
   })
 })
 
+// @test-link [[module_musical_profile_capabilities]]
+// @test-link [[rule_jazz_chromatic_resolution]]
+describe('pitch validation: chromatic approach gated by capability, not profile name', () => {
+  it('accepts a chromatic approach under Neutral when the capability is overridden on', () => {
+    const overrides = { capabilities: { allowsChromaticApproach: true } } as const
+    expect(failures(withMidis({ 1: 63 }), overrides)).toEqual([])
+  })
+
+  it('rejects a chromatic approach under Jazz when the capability is overridden off', () => {
+    const overrides = { ...JAZZ, capabilities: { allowsChromaticApproach: false } } as const
+    expect(failures(withMidis({ 1: 63 }), overrides)).toEqual([
+      { code: 'out_of_collection', attackIndex: 1 },
+    ])
+  })
+})
+
 // @test-link [[module_pitch_domain_validation]]
 describe('pitch validation: bound tension figures', () => {
   const APPOGGIATURA = [60, 62, 64, 64, 69, 67, 65, 64, 60, 62, 64, 62, 64, 65, 67, 67]

@@ -4,7 +4,7 @@
 **Ref:** `ISS-005`
 **Date:** 2026-09-26
 **Severity:** Low
-**Status:** Open
+**Status:** Resolved
 **Component:** `src/domain/pitch/pitch-candidates.ts`
 **Affects:** `src/domain/pitch/validation/figure-rules.ts`, `src/domain/controls/generation-controls.ts` (`MUSICAL_PROFILES`), the musical-profile policy passed into pitch planning, atom `rule_jazz_chromatic_resolution`, and later character presets (see `specs/vision/endgame.md`)
 
@@ -107,3 +107,21 @@ pitches, ornament preferences, signature gimmick, register tendencies), all decl
 - **2026-09-26**: Filed from decision D73 (the user's answer to O32). Tracked as a v1.0 gate item
   next to ISS-003 and ISS-004.
 - **2026-09-26**: Impact researched. Only the two name checks gate behavior; everything else is data, membership validation or collection-based. Recommended shape: a capability table next to `PROFILE_BUNDLES`, resolved into `PitchPolicy`, with no protocol change. Acceptance refined, and the medium conflict with ISS-004 on `profile-selection.ts` means this lands first. Details are in `specs/versions/v1/gate-execution-report.md` §4.3.
+- **2026-09-26**: Resolved. Added `MUSICAL_PROFILE_CAPABILITIES` next to `PROFILE_BUNDLES`
+  (`src/domain/controls/profile-selection.ts`); `makePitchPolicy` resolves it once onto a new frozen
+  `PitchPolicy.capabilities` field, with an optional test-only override since `MusicalProfile` stays
+  a closed union. `jazzPaths` (renamed `chromaticApproachPaths`) and the figure-rules
+  out-of-collection check now read `policy.capabilities.allowsChromaticApproach` instead of
+  comparing the profile name; the independent `generation-result-validator.ts` derives the same
+  capability from the table directly, since it must never import the planner. Before touching code,
+  a probe over `planPitchPhrase` confirmed a Jazz seed (seed 11, first Gentle-diatonic harmony
+  candidate, first Eighth/Conversational rhythm candidate) actually selects a chromatic enclosure,
+  not just offers one as a candidate; that case is now pinned in
+  `tests/unit/domain/pitch/chromatic-figure-selection.spec.ts` with its pre-refactor hash
+  (`765058683`), which the refactor reproduces byte-for-byte. `generation-outcome-golden.spec.ts`,
+  `pitch-search-equivalence.spec.ts`, `generation-seed-matrix.spec.ts`, `pitch-candidates.spec.ts`,
+  and `figure-rules.spec.ts` all pass unchanged. New capability-override tests (Neutral with the
+  capability gets chromatic candidates/passes validation; Jazz without it gets none and fails
+  `out_of_collection`) are in `pitch-candidates.spec.ts` and `figure-rules.spec.ts`.
+  `grep -rn "'Jazz'" src/domain` now matches only the `MUSICAL_PROFILES` data table. The worker
+  protocol is unchanged.
