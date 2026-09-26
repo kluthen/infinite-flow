@@ -15,11 +15,6 @@
           <div class="score-context">
             <span class="meter-badge">4/4</span>
             <span class="tempo-readout">90 BPM</span>
-            <div class="segmented-control" role="radiogroup" aria-label="Display notation">
-              <button class="segment" role="radio" aria-checked="false" type="button">Concert</button>
-              <button class="segment is-selected" role="radio" aria-checked="true" type="button">B-flat</button>
-              <button class="segment" role="radio" aria-checked="false" type="button">E-flat</button>
-            </div>
           </div>
           <div class="segmented-control theme-control" role="radiogroup" aria-label="Presentation theme">
             <button class="segment is-selected" role="radio" aria-checked="true" type="button" data-presentation="system">System</button>
@@ -35,16 +30,16 @@
       <div class="score-panel">
         <p class="score-caption">Current proposal</p>
         <h1 class="score-title" id="score-heading">Four measures. One open thought.</h1>
-        <p class="score-subtitle">B-flat tenor notation - illustrative review state, not final engraving</p>
+        <p class="score-subtitle">B-flat tenor saxophone written pitch - illustrative review state, not final engraving</p>
         <div class="staff-frame staff-ready">
           <!-- Illustration only. Production notation comes from semantic events and an engraving engine. -->
-          <svg class="score-art staff-content" viewBox="0 0 1440 430" role="img" aria-label="Illustrative B-flat display of a C Ionian phrase in D Ionian, with an F-sharp and C-sharp key signature: D major seven, G major seven, A seven, and B minor seven. This is not final engraving.">
-            <desc>Illustrative review score only. The B-flat display transposes C Ionian to D Ionian; its key signature places F-sharp on the top staff line and C-sharp in the third space. Final notation is rendered from semantic events by an engraving engine.</desc>
-            <text class="score-text" x="82" y="56">Dmaj7</text><text class="score-text" x="420" y="56">Gmaj7</text><text class="score-text" x="770" y="56">A7</text><text class="score-text" x="1120" y="56">Bm7</text>
+          <svg class="score-art staff-content" viewBox="0 0 1440 430" role="img" aria-label="Illustrative B-flat tenor saxophone written rendering of a C Ionian phrase, with no key signature: C major seven, F major seven, G seven, and A minor seven. This is not final engraving.">
+            <desc>Illustrative review score only. The B-flat tenor saxophone profile's own written pitch for a C Ionian written key has no sharps or flats; the concert sound is a major ninth lower, B-flat Ionian. Final notation is rendered from semantic events by an engraving engine.</desc>
+            <text class="score-text" x="82" y="56">Cmaj7</text><text class="score-text" x="420" y="56">Fmaj7</text><text class="score-text" x="770" y="56">G7</text><text class="score-text" x="1120" y="56">Am7</text>
             <g transform="translate(82 110)">
               <path class="staff-line" d="M0 0H1274M0 30H1274M0 60H1274M0 90H1274M0 120H1274"/>
               <path class="bar-line" d="M132 -15V135M380 -15V135M700 -15V135M1020 -15V135M1274 -15V135"/>
-              <text x="3" y="93" fill="currentColor" font-size="76">𝄞</text><text class="key-signature" x="61" y="12">♯</text><text class="key-signature" x="84" y="57">♯</text><text x="108" y="70" fill="currentColor" font-size="32">4</text><text x="108" y="104" fill="currentColor" font-size="32">4</text><text class="key-signature-label" x="142" y="-28">D Ionian · 2♯</text>
+              <text x="3" y="93" fill="currentColor" font-size="76">𝄞</text><text x="108" y="70" fill="currentColor" font-size="32">4</text><text x="108" y="104" fill="currentColor" font-size="32">4</text><text class="key-signature-label" x="142" y="-28">C Ionian</text>
               <g>
               <ellipse class="note-head" cx="175" cy="90" rx="12" ry="8" transform="rotate(-20 175 90)"/><path class="stem" d="M186 88V10"/>
                 <ellipse class="note-head" cx="205" cy="60" rx="12" ry="8" transform="rotate(-20 205 60)"/><path class="stem" d="M216 58V-20"/>
@@ -76,16 +71,17 @@
           <section class="control-group">
             <h3>Foundation</h3>
             <div class="field-group"><span class="field-label">Tempo</span><button class="input-stepper" type="button">90 BPM</button></div>
-            <div class="field-group"><span class="field-label">Tonal center</span><div class="segmented-control" role="radiogroup" aria-label="Tonal center"><button class="segment is-selected" role="radio" aria-checked="true" type="button">C</button><button class="segment" role="radio" aria-checked="false" type="button">C-sharp/D-flat</button><button class="segment" role="radio" aria-checked="false" type="button">D</button><button class="segment" role="radio" aria-checked="false" type="button">D-sharp/E-flat</button><button class="segment" role="radio" aria-checked="false" type="button">E</button><button class="segment" role="radio" aria-checked="false" type="button">F</button><button class="segment" role="radio" aria-checked="false" type="button">F-sharp/G-flat</button><button class="segment" role="radio" aria-checked="false" type="button">G</button><button class="segment" role="radio" aria-checked="false" type="button">G-sharp/A-flat</button><button class="segment" role="radio" aria-checked="false" type="button">A</button><button class="segment" role="radio" aria-checked="false" type="button">A-sharp/B-flat</button><button class="segment" role="radio" aria-checked="false" type="button">B</button></div></div>
+            <div class="field-group"><span class="field-label">Written key</span><div class="segmented-control" role="radiogroup" aria-label="Written key"><button class="segment is-selected" role="radio" aria-checked="true" type="button">C</button><button class="segment" role="radio" aria-checked="false" type="button">C-sharp/D-flat</button><button class="segment" role="radio" aria-checked="false" type="button">D</button><button class="segment" role="radio" aria-checked="false" type="button">D-sharp/E-flat</button><button class="segment" role="radio" aria-checked="false" type="button">E</button><button class="segment" role="radio" aria-checked="false" type="button">F</button><button class="segment" role="radio" aria-checked="false" type="button">F-sharp/G-flat</button><button class="segment" role="radio" aria-checked="false" type="button">G</button><button class="segment" role="radio" aria-checked="false" type="button">G-sharp/A-flat</button><button class="segment" role="radio" aria-checked="false" type="button">A</button><button class="segment" role="radio" aria-checked="false" type="button">A-sharp/B-flat</button><button class="segment" role="radio" aria-checked="false" type="button">B</button></div></div>
             <div class="field-group"><span class="field-label">Collection</span><div class="segmented-control" role="radiogroup" aria-label="Collection"><button class="segment" role="radio" aria-checked="false" type="button">Major</button><button class="segment" role="radio" aria-checked="false" type="button">Minor</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Ionian</button><button class="segment" role="radio" aria-checked="false" type="button">Dorian</button><button class="segment" role="radio" aria-checked="false" type="button">Phrygian</button><button class="segment" role="radio" aria-checked="false" type="button">Lydian</button><button class="segment" role="radio" aria-checked="false" type="button">Mixolydian</button><button class="segment" role="radio" aria-checked="false" type="button">Aeolian</button><button class="segment" role="radio" aria-checked="false" type="button">Locrian</button></div></div>
             <div class="field-group"><span class="field-label">Instrument profile</span><div class="segmented-control" role="radiogroup" aria-label="Instrument profile"><button class="segment" role="radio" aria-checked="false" type="button">C MIDI keyboard</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">B-flat tenor saxophone</button><button class="segment" role="radio" aria-checked="false" type="button">E-flat alto saxophone</button></div><p class="profile-range-summary">Active range 46-70. Whole-phrase windows: Low 46-58, Middle 52-64, High 58-70.</p></div>
-            <div class="field-group"><span class="field-label">Musical profile preset</span><div class="segmented-control" role="radiogroup" aria-label="Musical profile preset"><button class="segment" role="radio" aria-checked="false" type="button" data-preset="Neutral">Neutral</button><button class="segment" role="radio" aria-checked="false" type="button" data-preset="Jazz">Jazz</button></div><p class="preset-status is-custom" id="preset-status" role="status" aria-live="polite">Custom configuration - Jazz grammar retained. Choosing Neutral or Jazz replaces all six preset-controlled values.</p></div>
+            <div class="field-group"><span class="field-label">Musical profile preset</span><div class="segmented-control" role="radiogroup" aria-label="Musical profile preset"><button class="segment" role="radio" aria-checked="false" type="button" data-preset="Neutral">Neutral</button><button class="segment" role="radio" aria-checked="false" type="button" data-preset="Jazz">Jazz</button></div><p class="preset-status is-custom" id="preset-status" role="status" aria-live="polite">Custom configuration - Jazz grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.</p></div>
             <div class="field-group"><span class="field-label">Harmonic motion</span><div class="segmented-control" role="radiogroup" aria-label="Harmonic motion"><button class="segment" role="radio" aria-checked="false" type="button">Static</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Gentle diatonic</button><button class="segment" role="radio" aria-checked="false" type="button">Active diatonic</button></div></div>
             <div class="field-group"><span class="field-label">Tension</span><div class="segmented-control" role="radiogroup" aria-label="Tension"><button class="segment" role="radio" aria-checked="false" type="button">Settled</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Lift</button><button class="segment" role="radio" aria-checked="false" type="button">Build</button><button class="segment" role="radio" aria-checked="false" type="button">Edge</button></div></div>
           </section>
           <section class="control-group">
             <h3>Rhythm</h3>
-            <div class="field-group"><span class="field-label">Note density</span><div class="segmented-control" role="radiogroup" aria-label="Note density"><button class="segment" role="radio" aria-checked="false" type="button">Quarter notes</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Eighth notes</button><button class="segment" role="radio" aria-checked="false" type="button">Sixteenth</button><button class="segment" role="radio" aria-checked="false" type="button">Mixed</button></div></div>
+            <div class="field-group"><span class="field-label">Note density</span><div class="segmented-control" role="radiogroup" aria-label="Note density"><button class="segment" role="radio" aria-checked="false" type="button">Quarter notes</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Eighth notes</button><button class="segment" role="radio" aria-checked="false" type="button">Sixteenth</button></div></div>
+            <div class="field-group"><span class="field-label">Rhythmic variety</span><div class="segmented-control" role="radiogroup" aria-label="Rhythmic variety"><button class="segment" role="radio" aria-checked="false" type="button">Strict</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Slightly varied</button><button class="segment" role="radio" aria-checked="false" type="button">Heavily varied</button></div></div>
             <div class="field-group"><span class="field-label">Syncopation</span><div class="segmented-control" role="radiogroup" aria-label="Syncopation"><button class="segment" role="radio" aria-checked="false" type="button">Straight</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Occasional offbeats</button><button class="segment" role="radio" aria-checked="false" type="button">Active displacement</button></div></div>
             <div class="field-group"><span class="field-label">Silence density</span><div class="segmented-control" role="radiogroup" aria-label="Silence density"><button class="segment" role="radio" aria-checked="false" type="button">Sparse</button><button class="segment is-selected" role="radio" aria-checked="true" type="button">Conversational space</button><button class="segment" role="radio" aria-checked="false" type="button">Breath-heavy</button></div></div>
           </section>
@@ -109,6 +105,7 @@
       Neutral: {
         'Harmonic motion': 'Static',
         'Note density': 'Quarter notes',
+        'Rhythmic variety': 'Slightly varied',
         Syncopation: 'Straight',
         'Silence density': 'Sparse',
         Contour: 'Arch',
@@ -117,6 +114,7 @@
       Jazz: {
         'Harmonic motion': 'Gentle diatonic',
         'Note density': 'Eighth notes',
+        'Rhythmic variety': 'Slightly varied',
         Syncopation: 'Occasional offbeats',
         'Silence density': 'Conversational space',
         Contour: 'Wandering',
@@ -138,7 +136,7 @@
         ? `Custom (${retainedGrammar} grammar)`
         : labelFor('Musical profile preset');
       controlSummary.textContent =
-        `${labelFor('Tonal center')} ${labelFor('Collection')} · ${musicalProfile} · ${labelFor('Tension')} · ${labelFor('Leapiness')}`;
+        `${labelFor('Written key')} ${labelFor('Collection')} · ${musicalProfile} · ${labelFor('Tension')} · ${labelFor('Leapiness')}`;
     };
 
     const selectRadio = (group, button) => {
@@ -166,7 +164,7 @@
               selectRadio(controlledGroup, matchingButton);
             });
             presetStatus.classList.remove('is-custom');
-            presetStatus.textContent = `${retainedGrammar} preset applied. All six preset-controlled values were replaced.`;
+            presetStatus.textContent = `${retainedGrammar} preset applied. All seven preset-controlled values were replaced.`;
           } else if (Object.hasOwn(presetBundles[retainedGrammar], group.getAttribute('aria-label'))) {
             const presetGroup = document.querySelector('[aria-label="Musical profile preset"]');
             presetGroup.querySelectorAll('[role="radio"]').forEach((option) => {
@@ -175,7 +173,7 @@
               option.tabIndex = option === presetGroup.querySelector('[role="radio"]') ? 0 : -1;
             });
             presetStatus.classList.add('is-custom');
-            presetStatus.textContent = `Custom configuration - ${retainedGrammar} grammar retained. Choosing Neutral or Jazz replaces all six preset-controlled values.`;
+            presetStatus.textContent = `Custom configuration - ${retainedGrammar} grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.`;
           }
           updateControlSummary();
         });
