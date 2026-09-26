@@ -20,13 +20,17 @@ dependents:
 # Generation Request Construction
 
 ## INTENT
+
 Construct one outer generation intent from normalized generation controls only when the player explicitly requests generation.
 
 ## THE RULE / LOGIC
-The GenerationIntent factory constructs an outer request boundary from normalized generation-only controls, the selected instrument-profile policy, player register intent including unresolved Varying, an injected seed, and an injected request identity. Theme, notation display choice, browser capability state, mutable workspace session state, audio state, UI state, and prior results are structurally excluded. Generate, Regenerate, and Retry generation are the only actions that invoke the factory; each retains the current controls while using a renewed injected seed and request identity, including Retry generation after a failure, which builds this same fresh intent from the current controls rather than replaying the failed one unchanged. The existing resolved GenerationRequest remains unchanged. Step 7 orchestration, not this factory, owns Varying feasibility and planner-facing resolution.
+
+The GenerationIntent factory constructs an outer request boundary from normalized generation-only controls, the selected instrument-profile policy, player register intent including unresolved Varying, an injected seed, and an injected request identity. Theme, browser capability state, mutable workspace session state, audio state, UI state, and prior results are structurally excluded. Generate, Regenerate, and Retry generation are the only actions that invoke the factory; each retains the current controls while using a renewed injected seed and request identity, including Retry generation after a failure, which builds this same fresh intent from the current controls rather than replaying the failed one unchanged. The existing resolved GenerationRequest remains unchanged. Step 7 orchestration, not this factory, owns Varying feasibility and planner-facing resolution.
 
 ## TECHNICAL INTERFACE
+
 Generate, Regenerate, and Retry generation supply normalized catalog controls, the selected instrument-profile policy, an injected seed, and an injected request identity to produce GenerationIntent. Consumers receive GenerationIntent separately from presentation state; core planners continue to accept only the existing resolved GenerationRequest.
 
 ## EXPECTATION
+
 Changing presentation, browser, session, audio, or UI state cannot alter or construct GenerationIntent. Every emitted intent has normalized generation controls, one selected profile policy, one register intent, one seed, and one request identity. An unresolved Varying selection never reaches the existing resolved GenerationRequest through this factory.

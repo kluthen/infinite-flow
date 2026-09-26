@@ -1,4 +1,4 @@
-# Issue: The tonal-center selection should be the written key of the displayed instrument
+# Issue: The tonal-center selection should be the written key of the instrument, and transposition should be instrument data
 
 **ID:** `Ref_20260925_tonal_center_in_written_key`
 **Ref:** `ISS-003`
@@ -6,7 +6,7 @@
 **Severity:** Medium
 **Status:** Open
 **Component:** `src/domain/notation/pitch-spelling.ts`
-**Affects:** `src/domain/controls/generation-controls.ts` (tonal-center control), `src/components/controls/*` (tonal-center picker labels), `src/notation/vexflow-engraver.ts` (key signature), `specs/first-release-master-spec.md` §Tonal context / §Notation, `ui_ux/` control docs
+**Affects:** `src/domain/notation/notation-mode.ts` (closed `NotationMode` set and literal transposition types), `src/domain/profile/instrument-profile(s).ts` (templates gain transposition), `src/composables/generation-session-profile-switch.ts` (switch policy), `src/domain/generation/generation-intent.ts` (written→concert conversion), `src/domain/controls/generation-controls.ts` (tonal-center control), `src/components/controls/*` (tonal-center picker labels), `src/notation/vexflow-engraver.ts` (key signature), `specs/first-release-master-spec.md` §Tonal context / §Notation, `ui_ux/` control docs, ATD atoms `module_notation_display_convention`, `rule_notation_display_preserves_phrase`, `rule_profile_switch_validates_phrase`, `contract_infinite_flow_first_release`
 
 ---
 
@@ -53,9 +53,36 @@ Expected:  written C Ionian  (concert B-flat Ionian)             →  key signat
 
 ---
 
+## Settled Semantics (2026-09-25, spec-writer session)
+
+These decisions answer the four open questions listed under Recommended Fix. Source: `specs/archive/2026-09-25-decisions-D47-D71.md` D56–D58, and the persona P1 in `specs/personas/personas.md`.
+
+1. **Transposition belongs to the instrument template** (D56a). Keyboard is concert, B-flat tenor is +14/+8, E-flat alto is +9/+5. The separate notation-display selector is removed.
+2. **The tonal center and scale are read in the instrument's written pitch** (D56b). C Ionian on tenor is written C major with an empty key signature, which is concert B-flat Ionian. The written selection is converted to the concert tonal center at request construction, so the generator stays concert-only.
+3. **Switching instrument keeps the written key** (D56c). The concert key changes and the phrase regenerates. This replaces the keep-the-phrase-if-it-fits switch policy. Switching is expected to be rare.
+4. **v1.0 has no Concert-display override** (D56d), and therefore no "(written for B♭)" picker label: the picker simply names the written key.
+
+### Extended scope: adding an instrument preset must be easy (D57)
+
+- **Today (confirmed in code):**
+  - `NotationMode` is a closed union: `'Concert' | 'B-flat tenor' | 'E-flat alto'`.
+  - `DisplayTransposition` uses literal types: `chromatic: 0 | 9 | 14`, `diatonic: 0 | 5 | 8`.
+  - Instrument profiles carry no transposition.
+  - So adding, for example, a B-flat clarinet or soprano (+2/+1) or a baritone (+21/+12) would need type changes across notation and controls.
+- **Required:**
+  - Transposition is a validated data field (chromatic and diatonic interval) on each declarative instrument template.
+  - Adding a preset means adding one template entry plus its validation fixtures. It needs no new type members, no enum edits and no per-instrument UI branches.
+  - Add a test that proves this: a test-only template with an unusual transposition passes through request construction, spelling and engraving.
+
+### Contract
+
+`contract_infinite_flow_first_release` may be amended for v1.0 (D58). Its STABLE range invariant is unaffected. The clause "notation display transposition never alters those source events or generation constraints" needs rewording once there is no display selector. Documentalist proposes the wording and the version bump, and a human confirms them.
+
+---
+
 ## Recommended Fix
 
-**Short term:** Decide the semantics (spec-writer, then ux-writer). Open questions:
+**Short term:** ~~Decide the semantics~~ Done; see Settled Semantics above. Next: ux-writer updates the control docs (the display selector is removed and the key picker is labeled in written pitch). Then coding-leader implements. The original questions were:
 
 1. Is the tonal center read in the **display mode's** written key or in the **instrument profile's** transposition? Display mode and instrument profile are independent today; for example a keyboard profile can be viewed in B-flat.
 2. When the display mode changes, does the phrase stay concert-identical, so the written key changes as it does today? Or is the selected written key kept, so the concert key changes and a regeneration is needed?
@@ -80,3 +107,10 @@ A B-flat-display screenshot at default settings (C Ionian concert) shows a two-s
 - `src/domain/notation/pitch-spelling.ts`
 - `src/domain/controls/generation-controls.ts`
 - `src/notation/vexflow-engraver.ts`
+
+---
+
+## Change Log
+
+- **2026-09-25**: The semantics are settled by a spec-writer session (D56). The scope is extended so that transposition becomes instrument-template data and adding new instrument presets stays easy (D57). The contract may be amended (D58). The status stays Open until implementation.
+- **2026-09-26**: The master spec was amended to draft v2.0 for D56/D57 (Scope, Player Controls → Tonal context, Architecture and Boundaries, Application State, Notation, Definition of Done). The line references above predate that amendment. The execution plan is in `specs/versions/v1/gate-execution-report.md`.
