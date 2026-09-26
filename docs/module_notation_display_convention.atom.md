@@ -1,27 +1,31 @@
 ---
 id: module_notation_display_convention
-status: REVIEW
-version: 1.2
+status: DRAFT
+version: 2.0
 dependents: []
-human_name: Notation Display Convention
+human_name: Notation Written-Pitch Rendering
 layer: ARCHITECTURE
 priority: 1
-tags: notation,display-convention,concert,b-flat,e-flat
+tags: notation
 parents:
   - [[rule_notation_display_preserves_phrase]]
 type: MODULE
 ---
 
-# Notation Display Convention
+# Notation Written-Pitch Rendering
 
 ## INTENT
-Select notation display convention independently from phrase generation.
+
+Render written notation directly in the selected instrument profile's written pitch, with no independently selectable display convention.
 
 ## THE RULE / LOGIC
-Notation accepts an independently selected Concert, B-flat, or E-flat display convention and renders written notation in treble G2 clef from the unchanged concert-pitch timeline. Concert-to-written transforms are Concert +0 chromatic/+0 diatonic, B-flat tenor +14 chromatic/+8 diatonic, and E-flat alto +9 chromatic/+5 diatonic. The transform applies to notes, key, tonal label, chord roots, and slash bass, but preserves chord quality. In each display mode, derive the written tonal center and collection from the transposition, choose the spelling with the fewest accidentals for that tonal center and collection, breaking a tie toward sharps, and apply that one spelling to the tonal label, key signature, note accidentals, chord roots, and slash bass; chord quality, alterations, and extensions are preserved. Changing the display convention never mutates the concert timeline or the selected generator profile.
+
+Notation derives written pitch from the concert-pitch timeline using only the selected instrument profile's own concert-to-written transposition (an integer chromatic semitone count and integer diatonic letter-step count). There is no independently selectable Concert, B-flat, or E-flat display convention and no Concert-display override: the written pitch shown is always the one belonging to the currently selected instrument profile. The first-release transpositions are C MIDI keyboard +0 chromatic/+0 diatonic, B-flat tenor saxophone +14 chromatic/+8 diatonic (major ninth), and E-flat alto saxophone +9 chromatic/+5 diatonic (major sixth); a later profile supplies its own open transposition pair rather than selecting from a closed list. The transposition applies to note spelling, key, tonal-center label, chord roots, and slash bass, but preserves chord quality, alterations, extensions, additions, and omissions. Choosing the enharmonic spelling with the fewest accidentals (ties toward sharps) is applied consistently to every displayed item under this one transposition. Rendering written pitch never mutates the concert timeline, the selected instrument profile, its range/register policy, or any generation control.
 
 ## TECHNICAL INTERFACE
-The notation boundary accepts a concert-pitch event timeline and one selected display convention: Concert, B-flat, or E-flat.
+
+The notation boundary accepts a concert-pitch event timeline and the selected instrument profile's transposition (chromatic/diatonic integer pair); it exposes no separate display-convention parameter.
 
 ## EXPECTATION
-For identical concert-pitch events and generator profile, each display selection changes only written notation representation: transformed notes, key, tonal label, chord roots, and slash bass in treble G2 clef; chord quality and source events remain unchanged.
+
+For identical concert-pitch events, notation renders exactly one written-pitch representation determined solely by the selected instrument profile's transposition: transformed notes, key, tonal label, chord roots, and slash bass in treble G2 clef; chord quality and source events remain unchanged. Switching the selected instrument profile is the only way written pitch changes, and it is governed by the profile-switch rule, not by an independent display selection.

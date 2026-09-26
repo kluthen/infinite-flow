@@ -2,6 +2,8 @@
 
 Status: approved for implementation
 
+> Historical plan for v1.0-rc1. The v1.0 gate amendments (2026-09-26: instrument-carried transposition and written-key selection, rhythmic variety replacing Mixed density, capability flags) live in the [master spec](first-release-master-spec.md) draft v2.0; where this plan describes a display-convention selector or Mixed density, the master spec supersedes it.
+
 ## Objective and Scope
 
 Implement the approved first release as a browser-only Vue application that generates and engraves one four-measure musical phrase. Each delivery step is test-first and includes implementation, verification, documentation, and business-focused ATD stewardship.
@@ -149,7 +151,6 @@ The authoritative product inputs are [the first-release master specification](fi
 **Documents:** Finalize README setup/operations, architecture and verification matrix, supported-browser/offline limits, third-party licenses, release checklist, and known deferred scope. Reconcile the master spec, roadmap, and UI/UX handoffs with delivered behavior without silently changing product intent.
 
 **ATD stewardship:** Run final source/test traceability and orphan checks, correct only verified links, synchronize affected business atoms to the delivered behavior through the documentalist workflow, and report any remaining drift or signoff requirement rather than rewriting intent to match code.
-
 
 ## Known Implementation Risks
 
