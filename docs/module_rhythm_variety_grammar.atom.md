@@ -1,7 +1,7 @@
 ---
 id: module_rhythm_variety_grammar
-status: DRAFT
-version: 0.1
+status: REVIEW
+version: 0.2
 human_name: Rhythm Variety Grammar
 type: MODULE
 layer: ARCHITECTURE
@@ -30,7 +30,7 @@ The per-(density, silence, syncopation) unsupported combinations that [[rule_uns
 The grammar's prefilter (the gesture-level prune that replaces the retired Mixed-coverage prune) is a subset of the validator by construction: it calls the same dominance predicate the validator's `rhythmic_variety_violation` check calls, over-approximating a gesture's achievable q-share (a transform never changes source cells, and a tie can at best turn a merged head into its first cell), so every candidate the prefilter prunes is one the validator would reject with `rhythmic_variety_violation`, and the domain the grammar yields is identical whether or not the prefilter runs. This preserves the domain-expansion API's existing determinism and replayability guarantee (governed by [[api_rhythm_domain_expansion]]): for identical versioned inputs, the sha256 of the ordered accepted-candidate sequence is the same across repeated materializations and processes.
 
 ## TECHNICAL INTERFACE
-The grammar registry adds `rhythm-mvp-v2` as a selectable grammarVersion for the existing RhythmExpansionInput/RhythmCandidateDomain boundary ([[api_rhythm_domain_expansion]]), accepting the same four rhythm controls plus the rhythmicVariety control. It exposes no new public API of its own: the per-level catalog, attack bands, dominance predicate, and per-variety blocked-combination list are grammar-version-owned data and logic, read by the skeleton allocator, the validator, and the workspace's blocked-status check, never by a caller directly. rhythm-mvp-v1's Mixed-density catalog and behavior are retired from this version; a caller requesting rhythm-mvp-v2 cannot select Mixed.
+The grammar registry replaces rhythm-mvp-v1 with rhythm-mvp-v2 as the sole selectable grammarVersion for the existing RhythmExpansionInput/RhythmCandidateDomain boundary ([[api_rhythm_domain_expansion]]), accepting the same four rhythm controls plus the rhythmicVariety control. It exposes no new public API of its own: the per-level catalog, attack bands, dominance predicate, and per-variety blocked-combination list are grammar-version-owned data and logic, read by the skeleton allocator, the validator, and the workspace's blocked-status check, never by a caller directly. rhythm-mvp-v1's Mixed-density catalog and behavior are retired: a caller cannot select rhythm-mvp-v1 or Mixed at all.
 
 ## EXPECTATION
 For every (density, variety) pair, the grammar's yielded domain's nominal attack values are exactly the union stated for that pair, and every yielded candidate passes rhythmic_variety_violation at the stated floor. Selecting Heavily varied never blocks a (density, silence, syncopation) combination that any level supports. Enabling or disabling the prefilter prune never changes the yielded domain's order or contents. Repeated materialization of the same versioned input yields the identical ordered candidate sequence.
