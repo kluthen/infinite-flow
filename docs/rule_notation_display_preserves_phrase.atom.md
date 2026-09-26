@@ -1,6 +1,6 @@
 ---
 id: rule_notation_display_preserves_phrase
-status: DRAFT
+status: REVIEW
 human_name: Notation Transposition Preserves Phrase
 type: RULE
 priority: 1
@@ -12,7 +12,7 @@ dependents:
   - [[module_notation_layout_preflight]]
 layer: BUSINESS
 version: 1.0
-notes: User sign-off 2026-09-24 (relayed by coordinator): approved promotion DRAFT to REVIEW; rule text unchanged.
+notes: User sign-off 2026-09-24 (relayed by coordinator): approved promotion DRAFT to REVIEW; rule text unchanged. Re-confirmed 2026-09-26 against current (post-ISS-003) text: promotion DRAFT to REVIEW approved, verified against code as merged on main.
 ---
 
 # Notation Transposition Preserves Phrase
