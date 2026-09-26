@@ -11,6 +11,9 @@ This design set defines the first-release interface for generating and reading o
 - `flows/generate-phrase/` specifies the explicit four-measure generation journey.
 - `screens/phrase-workspace/` specifies the shared workspace screen.
 - `qna.md`, `decisions.md`, and `todo.md` are working registers. Read `todo.md` before extending this set.
+- `archive/v1/` holds the closed first-release (v1.0) working record: the complete decision log
+  (D1-D44), the closed question that record answers, and the finished work tracker. The live
+  registers above stay current; the archive is kept verbatim and is never edited further.
 
 ## How future UI changes flow
 
