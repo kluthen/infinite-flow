@@ -17,7 +17,7 @@ assumes the previous ones passed.
 - [ ] Confirm no other CPU-heavy job is running, in particular **no background LLM/Ollama job**
       (e.g. an `atd audit` run, or anything else driving Ollama). ATD's own audit tooling saturates
       the local Ollama server, and that CPU contention has caused timing-sensitive specs — for
-      example `rhythm-prefilter-soundness-mixed.spec.ts` — to time out under load rather than fail
+      example `rhythm-variety-value-sets.spec.ts` — to time out under load rather than fail
       on their own merits. Run `npm run quality` alone, not alongside such a job.
 - [ ] `npm run quality` — runs, in order: `format:check`, `lint`, `test:unit`, `build`,
       `verify:boundaries`, `test:e2e`, `test:a11y`, `test:notation`, `atd:lint`, `atd:check`. See
@@ -96,7 +96,7 @@ and smoke-test it independently of step 2's host-side gate.
       `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`), and that a missing `/assets/*`
       file 404s rather than falling back to `index.html`.
 - [ ] Load the container's URL in Chromium, click Generate, confirm the score engraves, and switch
-      through every notation display mode. Confirm zero `securitypolicyviolation` events and zero
+      through every instrument profile. Confirm zero `securitypolicyviolation` events and zero
       console/page errors (open DevTools → Console, or drive it with Playwright as documented in the
       container packaging's own verification notes).
 - [ ] Confirm the service worker registers, activates, and (after one reload) controls the page;
