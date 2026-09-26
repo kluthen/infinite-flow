@@ -450,7 +450,7 @@ endpoint validation by returning a trivially "solved" empty plan.
 ## 11. Glossary and code map
 
 For melodic/harmonic/rhythmic vocabulary (tonic, passing tone, appoggiatura, metrical anchor,
-chromatic enclosure, etc.), see [Music Terms](../docs/music/terms.md).
+chromatic enclosure, etc.), see [Music Lexicon](../docs/music/lexicon.md).
 
 | Module                  | Files                                                                                                                                                                                                                                     | Role                                                                                                                                                                                                                                                                                     |
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

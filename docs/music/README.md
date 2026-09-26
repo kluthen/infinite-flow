@@ -18,7 +18,7 @@ These three documents are implementation policy derived from the [master specifi
 
 - [Neutral profile](neutral-profile.md): diatonic four-measure phrases in a selected major, minor, or modal collection.
 - [Jazz profile](jazz-profile.md): the neutral harmonic plan with limited chromatic approaches and enclosures.
-- [Terms](terms.md): concise shared definitions for player-facing explanations and implementation annotations.
+- [Lexicon](lexicon.md): the project's single music-theory lexicon: beginner definitions, app-specific meanings and control explanations, shared by player-facing text and implementation annotations.
 - [Research sources](research-sources.md): retained theory sources and the specific questions they inform.
 - [Saxophone profile ranges](saxophone-profile-ranges.md): adopted instrument ranges, whole-phrase register windows, and independent notation-display transforms.
 - [Melodic control models](melodic-control-models.md): tension/leapiness rationale and settled control precedence.
