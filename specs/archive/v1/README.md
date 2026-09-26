@@ -1,6 +1,6 @@
 # v1 (First Release) Archive
 
-Status: archived 2026-09-25
+Status: archived 2026-09-25; the v1.0 gate documents were added 2026-09-26
 
 This is the working record of the first release. The stand-in summary is the
 [v1 feature note](../../features/v1-first-release.md).
@@ -10,6 +10,10 @@ This is the working record of the first release. The stand-in summary is the
 - [decisions-v1.md](decisions-v1.md): the complete first-release decision log, D1–D46, kept
   verbatim. It is append-only history, so don't edit it. New decisions go in the live
   [decisions log](../../decisions.md), numbered from D47.
+- [gate-execution-report.md](gate-execution-report.md): the v1.0 gate's execution report for
+  ISS-003, ISS-004 and ISS-005 (closed 2026-09-26), kept verbatim below its archive notice.
+- [iss004-feasibility-review.md](iss004-feasibility-review.md): the ISS-004 rhythmic-variety
+  feasibility review (closed 2026-09-26), kept verbatim below its archive notice.
 
 ## Still-live v1 documents (left in place)
 

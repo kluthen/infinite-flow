@@ -89,7 +89,7 @@ seed).
 The default scenario is `Slightly varied`, not `Strict`: at Quarter density, `Slightly varied`'s
 candidate domain (318 validator-accepted candidates, summed across the supported silence x
 syncopation x tension-arc settings) is larger than `Strict`'s (184), per the prefilter-soundness
-table in `specs/versions/v1/iss004-feasibility-review.md` §3.
+table in `specs/archive/v1/iss004-feasibility-review.md` §3.
 
 Responsiveness: during the worst-case cold generation, a click on the theme control applied the new
 `data-theme` attribute in 34 ms (the spec asserts under 200 ms). Generation runs off the main

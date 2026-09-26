@@ -176,7 +176,7 @@ describe('transformToWrittenPhrase: enharmonic minimization', () => {
 })
 
 /**
- * Gate report (specs/versions/v1/gate-execution-report.md §5, spelling risk): written keys whose
+ * Gate report (specs/archive/v1/gate-execution-report.md §5, spelling risk): written keys whose
  * concert counterpart spells differently must be spelled from the written selection itself, never
  * re-derived from the converted concert tonal center.
  */

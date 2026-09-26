@@ -99,6 +99,11 @@ through an export the player triggers (D64, D69).
 - **Embellishment and style-figure flags** are expected in v2 or v3. They may overlap with v1's
   rhythmic variety setting or complete it, and variety may become selective rates (for example
   "embellishment at 20%").
+- **A generation action reachable from the notation-error states**, replacing instrument-profile
+  switching as the de-facto escape from a recurring notation error. The user's view (2026-09-26):
+  switching instrument to get a new phrase "makes little to no sense from the user's point of
+  view when he doesn't change instrument." Not designed here — `ux-writer` owns the actual action
+  and copy once it is scheduled. See `ui_ux/qna.md` Q16, which stays open.
 
 ## Not in v2
 
