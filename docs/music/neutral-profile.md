@@ -37,4 +37,4 @@ The pitch planner favors nearby legal chord tones, then complete resolving diato
 - Leapiness uses the settled `Smooth`, `Shaped`, `Leaping`, and `Angular` caps/budgets; these are ceilings, not quotas.
 - Large leaps and recognized arpeggio runs incur the documented contrary-motion recovery obligation.
 - Contour is evaluated at bar-level metrical checkpoints while decorative notes may move locally in either direction.
-- Arpeggio chaos changes the order and interval contrast of eligible chord tones. At low chaos, trace nearby tones in a predictable direction; at high chaos, permit reordered eligible tones and stronger interval contrast, but retain range, contour, and leap-recovery constraints.
+- Arpeggio chaos only orders chord-tone candidates by distance from the previous pitch. `Predictable` prefers the nearest chord tone; `Chaotic` prefers the farthest; `Varied` leaves chord-tone order to the seeded tie-break. It retains range, contour, and leap-recovery constraints.

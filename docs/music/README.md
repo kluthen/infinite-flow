@@ -20,7 +20,7 @@ These three documents are implementation policy derived from the [master specifi
 - [Jazz profile](jazz-profile.md): the neutral harmonic plan with limited chromatic approaches and enclosures.
 - [Lexicon](lexicon.md): the project's single music-theory lexicon: beginner definitions, app-specific meanings and control explanations, shared by player-facing text and implementation annotations.
 - [Research sources](research-sources.md): retained theory sources and the specific questions they inform.
-- [Saxophone profile ranges](saxophone-profile-ranges.md): adopted instrument ranges, whole-phrase register windows, and independent notation-display transforms.
+- [Saxophone profile ranges](saxophone-profile-ranges.md): adopted instrument ranges, whole-phrase register windows, and each profile's written-pitch transposition.
 - [Melodic control models](melodic-control-models.md): tension/leapiness rationale and settled control precedence.
 
 ## Evidence and Historical Notes
@@ -37,6 +37,6 @@ These three documents are implementation policy derived from the [master specifi
 - A generated result is a short phrase, not a sequence of independently random bars.
 - A tension control changes observable musical choices such as harmonic function, non-chord-tone placement, rhythmic displacement, contour, leap size, and space. It is not an objective universal score.
 - Strong expectations are style- and mode-dependent. Modal material does not automatically use dominant-to-tonic behavior that belongs to tonal practice.
-- Range, breath, and difficulty constraints use a selected declarative instrument profile. First release supports C MIDI keyboard concert MIDI `48-72`, B-flat tenor saxophone `46-70`, and E-flat alto saxophone `51-75`, each with one resolved Low, Middle, or High window for the whole phrase. `Varying` deterministically selects a feasible window and never changes it mid-phrase; notation display remains independent of the profile.
+- Range, breath, and difficulty constraints use a selected declarative instrument profile. First release supports C MIDI keyboard concert MIDI `48-72`, B-flat tenor saxophone `46-70`, and E-flat alto saxophone `51-75`, each with one resolved Low, Middle, or High window for the whole phrase. `Varying` deterministically selects a feasible window and never changes it mid-phrase; notation always shows the selected profile's own written pitch, with no independent display-mode selection.
 - The Neutral and Jazz profiles share one diatonic harmony plan. Jazz may add only bounded melodic chromatic approaches/enclosures with immediate chord-tone resolution.
 - Every local tension resolves before the final sounding event, while the phrase endpoint remains open. A tonic-closed ending is not a first-release option.

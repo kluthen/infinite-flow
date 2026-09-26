@@ -18,11 +18,11 @@ Use integer sixteenth-note ticks: one quarter beat is `4` ticks and each 4/4 bar
 
 Build a nominal skeleton before syncopation:
 
-| Density | Nominal boundaries and durations | Sounding attacks per bar |
-| --- | --- | --- |
-| Quarter | starts on `0,4,8,12`; durations are positive multiples of `4` | `2-4` |
-| Eighth | starts on even ticks; durations are positive multiples of `2` | `4-8` |
-| Sixteenth | starts on any integer tick; durations are positive integer ticks | `8-16` |
+| Density   | Nominal boundaries and durations                                 | Sounding attacks per bar |
+| --------- | ---------------------------------------------------------------- | ------------------------ |
+| Quarter   | starts on `0,4,8,12`; durations are positive multiples of `4`    | `2-4`                    |
+| Eighth    | starts on even ticks; durations are positive multiples of `2`    | `4-8`                    |
+| Sixteenth | starts on any integer tick; durations are positive integer ticks | `8-16`                   |
 
 The `Mixed` note density (a fourth lattice using all three of durations `1,2,4` per phrase) was
 retired by ISS-004 and replaced by the rhythmic-variety control (`Strict`, `Slightly varied`,
@@ -40,11 +40,11 @@ The attack band is measured after rests and ties are applied. A tie continuation
 
 Measure silence as total rest ticks across the complete phrase:
 
-| Silence setting | Required phrase rest ticks | Additional shape rule |
-| --- | --- | --- |
-| Sparse rests | `4-8` | At least one rest event; no required long breath. |
-| Conversational space | `12-20` | At least two rest events in different two-bar halves; at least one rest is `>=2` ticks. |
-| Breath-heavy phrasing | `24-32` | At least one rest in every bar; at least two rests are `>=4` ticks. |
+| Silence setting       | Required phrase rest ticks | Additional shape rule                                                                   |
+| --------------------- | -------------------------- | --------------------------------------------------------------------------------------- |
+| Sparse rests          | `4-8`                      | At least one rest event; no required long breath.                                       |
+| Conversational space  | `12-20`                    | At least two rest events in different two-bar halves; at least one rest is `>=2` ticks. |
+| Breath-heavy phrasing | `24-32`                    | At least one rest in every bar; at least two rests are `>=4` ticks.                     |
 
 No bar may be all rest, and no single rest may exceed `8` ticks. Rest starts/durations follow the nominal density grid before syncopation. A rest placed at a gesture boundary is preferred over splitting a sounding event, but all table requirements are hard.
 
@@ -52,7 +52,7 @@ Construct density and silence jointly. Reject a skeleton if its per-bar sounding
 
 The silence table sets per-bar and phrase-level minimums only. It never fixes the number of rest events, so a Breath-heavy bar may hold several rests. The v1 implementation first required exactly one rest event per gesture bar, which excluded most Breath-heavy settings. Step 7 removed that restriction.
 
-Known unsupported settings (v1): even with that fix, six density/silence/syncopation settings produce no legal rhythm for any tension arc: Quarter + Sparse + Active displacement, Quarter + Breath-heavy + Active displacement, Sixteenth + Sparse + Active displacement, Sixteenth + Conversational + Active displacement, Sixteenth + Breath-heavy + Occasional offbeats, and Sixteenth + Breath-heavy + Active displacement. The Sixteenth + Active displacement cases need more tied and displaced cells than the one-merge-per-gesture limit below allows; the others have no identified cause yet. These settings are grammar limits, not musical rules. Generation is blocked for them per [[rule_unsupported_rhythm_settings_block_generation]] until a later grammar version resolves them.
+Known unsupported settings (v1): even with that fix, which density/silence/syncopation settings produce no legal rhythm for any tension arc depends on the selected rhythmic-variety level. Under `Strict`, six combinations are unsupported: Quarter + Sparse + Active displacement, Quarter + Breath-heavy + Active displacement, Sixteenth + Sparse + Active displacement, Sixteenth + Conversational + Active displacement, Sixteenth + Breath-heavy + Occasional offbeats, and Sixteenth + Breath-heavy + Active displacement. Under `Slightly varied`, only four remain unsupported: the Strict six minus Sixteenth + Sparse + Active displacement and Sixteenth + Conversational + Active displacement, which the extra eighth-bearing beat cells `Slightly varied` adds make playable. Under `Heavily varied`, none of the combinations are unsupported. Eighth note density is never blocked at any variety level. The Sixteenth + Active displacement cases need more tied and displaced cells than the one-merge-per-gesture limit below allows; the others have no identified cause yet. These settings are grammar limits, not musical rules. Generation is blocked for them per [[rule_unsupported_rhythm_settings_block_generation]] until a later grammar version resolves them.
 
 ## Syncopation and ties
 
@@ -64,12 +64,12 @@ Syncopation transforms a legal nominal skeleton and preserves its number of soun
 
 Apply the boundary algebra by event-kind transition:
 
-| Boundary case | Legal transform and invariants |
-| --- | --- |
-| `note -> note` | Move the second note's attack from `b` to `b'`. For later displacement `delta > 0`, lengthen the first note by `delta` and shorten the second by `delta`; for earlier displacement, reverse those transfers. Attack count and rest ticks are unchanged. |
-| `note -> rest` | This boundary has no attack to displace and cannot move independently because that would change total rest ticks. It may move only as the first boundary of an interior-rest translation paired with the following `rest -> note` boundary by the same `delta`. |
-| `rest -> note` | This boundary is a note attack. To move it while preserving rest ticks, translate the entire interior rest: for `note [a,b), rest [b,c), note [c,d)`, set `b'=b+delta` and `c'=c+delta`. The left note changes by `+delta`, the rest keeps duration `c-b`, and the attacked note changes by `-delta`. A leading or trailing rest lacking both movable boundaries is not eligible for this transform. |
-| tied sustain | To syncopate by sustaining across strong tick `q`, split one sounding note `[a,c)` with `a < q < c` into `[a,q)` and `[q,c)` carrying one tie-chain ID and one future pitch. The split at `q` is a notation continuation, not an attack; summed duration, attack count, and rest ticks are unchanged. Do not convert two separately attacked notes into a tie, because that would reduce attack count. |
+| Boundary case  | Legal transform and invariants                                                                                                                                                                                                                                                                                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `note -> note` | Move the second note's attack from `b` to `b'`. For later displacement `delta > 0`, lengthen the first note by `delta` and shorten the second by `delta`; for earlier displacement, reverse those transfers. Attack count and rest ticks are unchanged.                                                                                                                                                |
+| `note -> rest` | This boundary has no attack to displace and cannot move independently because that would change total rest ticks. It may move only as the first boundary of an interior-rest translation paired with the following `rest -> note` boundary by the same `delta`.                                                                                                                                        |
+| `rest -> note` | This boundary is a note attack. To move it while preserving rest ticks, translate the entire interior rest: for `note [a,b), rest [b,c), note [c,d)`, set `b'=b+delta` and `c'=c+delta`. The left note changes by `+delta`, the rest keeps duration `c-b`, and the attacked note changes by `-delta`. A leading or trailing rest lacking both movable boundaries is not eligible for this transform.   |
+| tied sustain   | To syncopate by sustaining across strong tick `q`, split one sounding note `[a,c)` with `a < q < c` into `[a,q)` and `[q,c)` carrying one tie-chain ID and one future pitch. The split at `q` is a notation continuation, not an attack; summed duration, attack count, and rest ticks are unchanged. Do not convert two separately attacked notes into a tie, because that would reduce attack count. |
 
 Every displacement annotation records the original boundary or note span, signed `delta` (zero for a tied split), transformed boundaries, and case. Quarter and Eighth density may therefore have off-grid rendered boundaries after displacement; nominal-grid provenance and unchanged attack count retain the selected density semantics. After all transforms, events must still tile `[0,16)` exactly, all durations must be positive integer ticks, and phrase total rest ticks must equal the pre-syncopation budget.
 
@@ -84,12 +84,13 @@ This exact definition is project policy for testability. It is narrower than eve
 The phrase's first event is always a fresh attack at bar 1, tick `0`: the phrase never opens with a rest or a pickup. See [phrase starts on the downbeat](../rule_phrase_starts_on_downbeat.atom.md).
 
 > **Future note (no action planned).** The downbeat-start rule may be dropped later. Dropping it only lets bar 1 open with a rest or an offbeat attack. That stays inside the current model, and the change is small:
+>
 > - remove the rhythm planner's first-note filter and the `first_note_off_downbeat` validation check, which are kept isolated for this purpose;
 > - remove the matching tests and the rule atom.
 >
 > Pitch planning already copes: a bar with no fresh beat-1/beat-3 attack takes its first fresh attack as the contour checkpoint, and no bar may be all rest.
 >
-> A true anacrusis, meaning notes *before* bar 1, is a different and much larger feature. It breaks the four tiled 4/4 bars contract and affects the event timeline, harmony alignment, and notation. It is not expected in the foreseeable future.
+> A true anacrusis, meaning notes _before_ bar 1, is a different and much larger feature. It breaks the four tiled 4/4 bars contract and affects the event timeline, harmony alignment, and notation. It is not expected in the foreseeable future.
 
 ## Four-bar gesture and answer
 
@@ -120,12 +121,12 @@ bands, and dominance rule.
 
 Grammar terminals are nominal source cells `N(d)` and `R(d)`, where `d` is the cell duration in ticks and `N` starts one sounding note. Adjacent `N` cells remain separate attacks unless a merge production removes their shared attack boundary. The following ordered beat-cell catalogs are exhaustive for v1:
 
-| Density | Beat cells, in canonical order |
-| --- | --- |
-| Quarter | `N4`; `R4` |
-| Eighth | `N2 N2`; `N2 R2`; `R2 N2`; `R2 R2` |
-| Sixteenth | `N1 N1 N1 N1`; `N1 N1 N1 R1`; `R1 N1 N1 N1`; `N1 R1 N1 R1`; `R1 N1 R1 N1`; `N1 N1 R1 R1`; `R1 R1 N1 N1`; `R1 R1 R1 R1` |
-| Mixed | `N4`; `R4`; `N2 N2`; `N2 R2`; `R2 N2`; `R2 R2`; `N2 N1 N1`; `N2 N1 R1`; `N2 R1 N1`; `R2 N1 N1`; `N1 N1 N2`; `N1 R1 N2`; `R1 N1 N2`; `N1 N1 R2` |
+| Density   | Beat cells, in canonical order                                                                                                                 |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Quarter   | `N4`; `R4`                                                                                                                                     |
+| Eighth    | `N2 N2`; `N2 R2`; `R2 N2`; `R2 R2`                                                                                                             |
+| Sixteenth | `N1 N1 N1 N1`; `N1 N1 N1 R1`; `R1 N1 N1 N1`; `N1 R1 N1 R1`; `R1 N1 R1 N1`; `N1 N1 R1 R1`; `R1 R1 N1 N1`; `R1 R1 R1 R1`                         |
+| Mixed     | `N4`; `R4`; `N2 N2`; `N2 R2`; `R2 N2`; `R2 R2`; `N2 N1 N1`; `N2 N1 R1`; `N2 R1 N1`; `R2 N1 N1`; `N1 N1 N2`; `N1 R1 N2`; `R1 N1 N2`; `N1 N1 R2` |
 
 Let `x` and `y` be beat cells from the selected density catalog. A nominal first bar is expanded in this production order:
 
@@ -145,12 +146,12 @@ After both gesture bars exist, enumerate a merge plan: no merge first, followed 
 
 Bars 3 and 4 start as exact copies of the fully merged bars 1 and 2. Enumerate answer-transform lists of length exactly one for Settled/Lift and length one before length two for Build/Edge. Lists are strictly increasing in descriptor order, cannot repeat a descriptor, and must satisfy these v1 productions:
 
-| Descriptor | Exact precondition and algebra |
-| --- | --- |
-| `translate_interior_rest` | In bars 3-4, choose independent (untied) `note [a,b), rest [b,c), note [c,d)`. Set `b'=b+delta`, `c'=c+delta`; the left note changes by `+delta`, the rest remains `c-b`, and the attacked note changes by `-delta`. All three durations stay positive. For Straight, enumerate `-quantum` before `+quantum` and require both transformed boundaries to remain nominal-grid boundaries; this is answer variation, not syncopation. For Occasional, only `delta=+2` is legal. For Active, use the signed-delta order below. |
-| `displace_attack` | In bars 3-4, choose an untied `note -> note` boundary `b` whose right note is an independent attack and which is not used by another descriptor. Set `b'=b+delta`, changing the left duration by `+delta` and right duration by `-delta`; both stay positive. The transform is unavailable for Straight, uses only `delta=+2` for Occasional, and uses the Active signed-delta order below. |
-| `redistribute_note_pair` | In bars 3-4, choose two consecutive independent attacked note events spanning `[a,b)` and `[b,c)`. Set `b'=b+delta`, changing the left duration by `+delta` and right duration by `-delta`; enumerate `delta=-quantum` before `+quantum`, keep `b'` on the selected density's nominal grid, and require both durations positive. This preserves span, attack count, event kinds, and rest ticks and is not a syncopation event. (The retired `Mixed` density used a one-tick quantum with `b'` constrained to a boundary admitted by its flattened source-cell provenance; Quarter/Eighth/Sixteenth use their own nominal-grid quantum.) |
-| `swap_final_pattern` | In bar 4, choose two equal-duration source cells with opposite kinds, one of them in the final beat, neither touched by a merge or prior transform, and exchange `N` and `R`. Boundaries, attack count, and rest ticks are unchanged. |
+| Descriptor                | Exact precondition and algebra                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `translate_interior_rest` | In bars 3-4, choose independent (untied) `note [a,b), rest [b,c), note [c,d)`. Set `b'=b+delta`, `c'=c+delta`; the left note changes by `+delta`, the rest remains `c-b`, and the attacked note changes by `-delta`. All three durations stay positive. For Straight, enumerate `-quantum` before `+quantum` and require both transformed boundaries to remain nominal-grid boundaries; this is answer variation, not syncopation. For Occasional, only `delta=+2` is legal. For Active, use the signed-delta order below.                                                                                                               |
+| `displace_attack`         | In bars 3-4, choose an untied `note -> note` boundary `b` whose right note is an independent attack and which is not used by another descriptor. Set `b'=b+delta`, changing the left duration by `+delta` and right duration by `-delta`; both stay positive. The transform is unavailable for Straight, uses only `delta=+2` for Occasional, and uses the Active signed-delta order below.                                                                                                                                                                                                                                              |
+| `redistribute_note_pair`  | In bars 3-4, choose two consecutive independent attacked note events spanning `[a,b)` and `[b,c)`. Set `b'=b+delta`, changing the left duration by `+delta` and right duration by `-delta`; enumerate `delta=-quantum` before `+quantum`, keep `b'` on the selected density's nominal grid, and require both durations positive. This preserves span, attack count, event kinds, and rest ticks and is not a syncopation event. (The retired `Mixed` density used a one-tick quantum with `b'` constrained to a boundary admitted by its flattened source-cell provenance; Quarter/Eighth/Sixteenth use their own nominal-grid quantum.) |
+| `swap_final_pattern`      | In bar 4, choose two equal-duration source cells with opposite kinds, one of them in the final beat, neither touched by a merge or prior transform, and exchange `N` and `R`. Boundaries, attack count, and rest ticks are unchanged.                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 An off-grid `translate_interior_rest` or any `displace_attack` is both an answer transform and a syncopation transform: one descriptor is stored once, applied once, and counted once in each applicable checklist. A Straight `translate_interior_rest`, `redistribute_note_pair`, and `swap_final_pattern` are answer-only transforms. Enumerate potential descriptors by answer bar, original left boundary, kind in the table order, then delta. To bound v1, retain only the first legal target for each `(kind,delta)` pair; `swap_final_pattern` retains one legal cell pair: scan bar-4 beat-3 cells from the end of the bar backward and, for the first such right cell that has a match, take the first matching left cell in address order. This order is a v1 correction recorded during Step 7 with user sign-off (2026-09-24); it replaces the earlier lexicographic-address rule, which let the swap shadow bar 2's own ending and left Sixteenth/Conversational/Occasional offbeats without a downbeat-starting phrase. It keeps the grammar version `rhythm-mvp-v1`. Apply answer-only descriptors first in descriptor order, then apply the complete syncopation set as described below. All addresses refer to the immutable pre-transform nominal source coordinates; a list is illegal if an earlier transform would make a later descriptor's recorded algebra false, with no fallback to a later target.
 
