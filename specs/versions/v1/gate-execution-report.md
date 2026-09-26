@@ -194,6 +194,15 @@ That is the point of the issue.
 
 ### 4.2 ISS-004
 
+**Review outcome (confirmed 2026-09-26).** The feasibility review
+(`specs/versions/v1/iss004-feasibility-review.md`) settled all eight items below with no new
+blocked setting and `Heavily varied` never blocking. The user confirmed its two open stops, R1
+and R2, adopting the recommended readings: `Strict` is by nominal value (rendered values from
+syncopation displacement, plus rests and ties from silence density and syncopation, are exempt),
+and dominance is the nominal attack share of q with floors 1.0/0.75/0.5, a 50% tie at `Heavily
+varied` allowed only with a shorter value. This is decision D74 (`specs/decisions.md`); the master
+spec (draft v2.1) and the acceptance line below reflect it.
+
 **Feasibility review must settle** (these are acceptance inputs, not implementation choices):
 
 1. The value set per density × level: which shorter and longer values, dotted values and ties
@@ -232,7 +241,9 @@ That is the point of the issue.
 
 - Exactly three levels exist, the default is `Slightly varied`, and both presets set it.
 - Changing variety after picking a preset gives the custom state.
-- Under `Strict`, every attack uses the selected density's value, apart from rests and ties.
+- Under `Strict`, every attack's nominal value equals the selected density's value, apart from
+  rendered values produced by syncopation displacement and the rests and ties produced by silence
+  density and syncopation.
 - Each level produces exactly the value set fixed by the review, and dominance holds under the
   review's measure, across the seed matrix for every density.
 - Note density offers exactly `Quarter`, `Eighth` and `Sixteenth`, and `Mixed` is rejected by
