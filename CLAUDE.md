@@ -23,3 +23,14 @@ their music-theory knowledge for granted.
 - Use the project's lexicon terms and definitions when they exist. The lexicon is
   `docs/music/lexicon.md`: one entry per term, with a plain popup line, a definition and the
   app-specific meaning.
+
+## Markdown link checking
+
+- `npm run lint:links` checks every relative Markdown link and `#heading` anchor in the repo,
+  offline and deterministically, via remark-validate-links. It is part of `npm run quality`.
+- Run it after any change that adds, moves, renames or deletes a `.md` file or heading, or edits
+  links, and fix every finding before commit.
+- When moving or renaming a doc, update every inbound link in the same change. For archived files
+  (`*/archive/`), only fix link paths — never their wording.
+- To exclude a generated/build-output tree from the check, add it to `.remarkignore`. Archived
+  docs (`specs/archive`, `ui_ux/archive`) must never be excluded — their links stay checked.

@@ -6,11 +6,9 @@ every service that spawns during v3.0). These rules are **transverse**: they hol
 which repo, language, or layer you are in. They go **beyond ATD** (which governs *documentation
 traceability*); this doc governs *how code is written and changed*.
 
-> **Precedence.** ATD structure → [`.agent/rules/ATD.md`](.agent/rules/ATD.md). Project map →
-> [`.agent/rules/UPSILON.md`](.agent/rules/UPSILON.md). Hub-specific operational specifics (which
-> test scripts, `bin/` paths) → [`.agent/rules/COMMON.md`](.agent/rules/COMMON.md). **This file is
-> the canonical source for the universal principles below**; where COMMON.md restates one, this
-> file wins on the principle and COMMON.md wins only on hub-local mechanics.
+> **Precedence.** **This file is the canonical source for the universal principles below**; any
+> other document that restates one of them wins only on local mechanics, never on the principle
+> itself.
 
 The seven non-negotiables. Each is **MUST/NEVER**, not a preference.
 
@@ -71,7 +69,7 @@ The seven non-negotiables. Each is **MUST/NEVER**, not a preference.
 - Tests exercise production code — **no test-only branches in production files** (rare observability
   exceptions only). Feature tests hit real dependencies; only external engines are doubled.
 - Prefer targeted runs (`scripts/trigger_one_ci_test.sh`, unit suites) over the full destructive CI
-  sweep; see COMMON.md for the hub's exact scripts.
+  sweep.
 
 ## 6. Code health — zero-error standard
 

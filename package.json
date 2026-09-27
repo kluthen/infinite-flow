@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "typecheck": "vue-tsc --build --force",
     "lint": "eslint .",
+    "lint:links": "remark . --quiet --frail --no-stdout --ext md",
     "format": "prettier --write index.html package.json README.md THIRD_PARTY_LICENSES.md eslint.config.js playwright.config.ts vite.config.ts vite.notation-harness.config.ts vite.workspace-harness.config.ts vitest.config.ts vitest.perf.config.ts tsconfig.json tsconfig.app.json tsconfig.node.json tsconfig.e2e.json .prettierrc.json compose.yaml .devcontainer src tests scripts public docs/release",
     "format:check": "prettier --check index.html package.json README.md THIRD_PARTY_LICENSES.md eslint.config.js playwright.config.ts vite.config.ts vite.notation-harness.config.ts vite.workspace-harness.config.ts vitest.config.ts vitest.perf.config.ts tsconfig.json tsconfig.app.json tsconfig.node.json tsconfig.e2e.json .prettierrc.json compose.yaml .devcontainer src tests scripts public docs/release",
     "test:unit": "vitest run",
@@ -26,7 +27,7 @@
     "measure:latency:browser": "playwright test tests/e2e/workspace/generation-latency.spec.ts",
     "atd:lint": "atd lint",
     "atd:check": "atd check",
-    "quality": "npm run format:check && npm run lint && npm run test:unit && npm run build && npm run verify:boundaries && npm run test:e2e && npm run test:a11y && npm run test:notation && npm run atd:lint && npm run atd:check"
+    "quality": "npm run format:check && npm run lint && npm run lint:links && npm run test:unit && npm run build && npm run verify:boundaries && npm run test:e2e && npm run test:a11y && npm run test:notation && npm run atd:lint && npm run atd:check"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "latest",
@@ -53,6 +54,8 @@
     "globals": "latest",
     "jsdom": "latest",
     "prettier": "latest",
+    "remark-cli": "latest",
+    "remark-validate-links": "latest",
     "typescript": "latest",
     "typescript-eslint": "latest",
     "vitest": "latest",
