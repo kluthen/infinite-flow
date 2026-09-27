@@ -31,5 +31,5 @@ The evidence for each is the [issues index](../../../issues/README.md) (all thre
 archived [gate execution report](../../archive/v1/gate-execution-report.md) and
 [ISS-004 feasibility review](../../archive/v1/iss004-feasibility-review.md), and the decisions
 behind them: each issue's own file, the
-[D47–D71 archive](../../archive/2026-09-25-decisions-D47-D71.md) (D56–D60), and the live
+[D47–D71 archive](../../archive/2026-09-25-personas-and-vision/decisions-D47-D71.md) (D56–D60), and the live
 [decisions log](../../decisions.md) (D72–D75).

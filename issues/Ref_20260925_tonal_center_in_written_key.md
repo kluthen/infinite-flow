@@ -55,7 +55,7 @@ Expected:  written C Ionian  (concert B-flat Ionian)             →  key signat
 
 ## Settled Semantics (2026-09-25, spec-writer session)
 
-These decisions answer the four open questions listed under Recommended Fix. Source: `specs/archive/2026-09-25-decisions-D47-D71.md` D56–D58, and the persona P1 in `specs/personas/personas.md`.
+These decisions answer the four open questions listed under Recommended Fix. Source: `specs/archive/2026-09-25-personas-and-vision/decisions-D47-D71.md` D56–D58, and the persona P1 in `specs/personas.md`.
 
 1. **Transposition belongs to the instrument template** (D56a). Keyboard is concert, B-flat tenor is +14/+8, E-flat alto is +9/+5. The separate notation-display selector is removed.
 2. **The tonal center and scale are read in the instrument's written pitch** (D56b). C Ionian on tenor is written C major with an empty key signature, which is concert B-flat Ionian. The written selection is converted to the concert tonal center at request construction, so the generator stays concert-only.

@@ -6,7 +6,7 @@ verbatim from the live tracker at the time v1.0 was archived; wording is unchang
 file's own path is new. A decision citation like "D22" or "D30" refers to the decision log;
 see the live [`decisions.md`](../../decisions.md) header for where D1-D44 now live
 ([`decisions-D1-D44.md`](decisions-D1-D44.md)). A question citation like "Q12" or "Q15"
-refers to the question register; see the live [`qna.md`](../../qna.md) header for where closed
+refers to the question register; see the live [`qna.md`](../../open-questions.md) header for where closed
 first-release questions now live.
 
 ## Complete

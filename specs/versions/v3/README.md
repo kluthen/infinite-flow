@@ -3,7 +3,7 @@
 Status: direction (2026-09-25). Not yet specced.
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
-Also every tester on an instrument v1 doesn't ship. See [personas](../../personas/personas.md).
+Also every tester on an instrument v1 doesn't ship. See [personas](../../personas.md).
 
 ## Settled direction
 

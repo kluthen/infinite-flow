@@ -27,13 +27,13 @@
   --radius-lg: 1rem;
   --control-group-min-inline-size: 14rem;
   --size-visually-hidden: 1px;
-  /* D112: the connection sheet's own comfortable reading measure, distinct from
+  /* The connection sheet's own comfortable reading measure, distinct from
      `--control-group-min-inline-size` (a control-layout minimum, not a modal panel width). */
   --sheet-max-inline-size: 28rem;
 
   --shadow-panel: 0 0.5rem 1.5rem rgb(31 29 24 / 0.12);
   --shadow-focus: 0 0 0 0.1875rem var(--color-focus-ring);
-  /* D28: read-only controls keep full color and signal "temporarily locked" with this dashed
+  /* Read-only controls keep full color and signal "temporarily locked" with this dashed
      ring instead of dimming. References `--color-text-muted`, which already switches per theme,
      so no dark-theme override is needed here. */
   --readonly-ring: 0.125rem dashed var(--color-text-muted);
@@ -72,14 +72,14 @@
   --color-success: #176b50;
   --color-error: #a52c24;
   --color-error-surface: #fce8e5;
-  /* D112: the connection sheet's backdrop scrim. Deliberately not theme-dependent (unlike the
+  /* The connection sheet's backdrop scrim. Deliberately not theme-dependent (unlike the
      palette above) -- a modal scrim reads as a dimming overlay over whatever is beneath it in
      either theme, the same way `--shadow-panel` below stays one fixed value across themes. */
   --color-scrim: rgb(23 22 19 / 0.6);
 }
 
 @layer base {
-  /* Runtime palette swap (D4): semantic token names never change across themes, only their
+  /* Runtime palette swap: semantic token names never change across themes, only their
      values, so component classes stay identical under every theme. */
   [data-theme='dark'] {
     --color-canvas: #171816;
@@ -99,7 +99,7 @@
     color-scheme: dark;
   }
 
-  /* With no manual selection (D12), the initial palette follows the operating system. */
+  /* With no manual selection, the initial palette follows the operating system. */
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme]) {
       --color-canvas: #171816;

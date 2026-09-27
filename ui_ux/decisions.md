@@ -18,11 +18,11 @@ through this header. Numbering continues from D45.
   information architecture for all v2 flow/screen work that follows: the rolling session, its
   locked-controls state, and the review are all extensions of the same screen and its existing
   flow, not a parallel IA. It does not settle how the rolling display itself presents the phrase
-  sequence on screen — see `qna.md` Q17.
+  sequence on screen — see `open-questions.md` Q17.
 
-- **D111 (2026-09-27).** The Idle screen carries a quiet, non-comparative reference to the tempo
+- **D46 (2026-09-27).** The Idle screen carries a quiet, non-comparative reference to the tempo
   reached in the previous session (adaptive tempo, v2.2), when that session used adaptive tempo.
-  Closes `qna.md` Q22, a pure presentation call left to `ux-writer` by `spec-writer` (no
+  Closes `open-questions.md` Q22, a pure presentation call left to `ux-writer` by `spec-writer` (no
   business-rule or data-model content: the value only needs to persist in memory for the current
   browser session, same as the review already does). Reasoning: the master spec's own "never
   graded, scored or marked wrong" guarantee (DoD item 13, §11) rules out anything that reads as a
@@ -36,7 +36,7 @@ through this header. Numbering continues from D45.
   placement, exact copy, and the empty case (no prior session this browser session) are for the
   Idle screen's own `intent.md`/`handoff.md` when that unit is written up (todo.md unit 8).
 
-- **D112 (2026-09-27).** Controller connection is its own flow and screen (`flows/controller-
+- **D47 (2026-09-27).** Controller connection is its own flow and screen (`flows/controller-
   connection/`, `screens/controller-connection/`), entered from a new persistent header element on
   `screens/phrase-workspace/` rather than folded into that screen's own states. Grounds:
   `master-spec.md` §6 ("Starting audio at all needs one prior user click") and §8 (connection

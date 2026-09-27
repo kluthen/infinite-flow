@@ -2,7 +2,7 @@
 
 > **Archived 2026-09-27.** Every question here is now either settled (see
 > [versions/v2/master-spec.md](../../versions/v2/master-spec.md) and the
-> [decisions log](../decisions-D72-D108.md)) or carried forward as a still-open item in
+> [decisions log](decisions-D72-D108.md)) or carried forward as a still-open item in
 > [open-questions.md](../../open-questions.md).
 
 Status: draft v0.1 (2026-09-26).

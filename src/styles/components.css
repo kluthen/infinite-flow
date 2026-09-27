@@ -266,8 +266,8 @@
   }
   /* Read-only controls must stay keyboard-focusable: this only suppresses pointer and
      roving-tab-stop arrow-key changes, which the component also enforces in script; it does
-     not change visibility or remove the control from the tab order. Read-only never dims color
-     (D28): it keeps every label and selected-segment color at full strength -- opacity here
+     not change visibility or remove the control from the tab order. Read-only never dims color:
+     it keeps every label and selected-segment color at full strength -- opacity here
      previously pushed the field label and dark-theme selected-segment text below 4.5:1 -- and
      signals "temporarily locked" with a dashed ring instead. Suppressed one layer down when a
      `field-group` ancestor already carries the same ring, so wrapped fields show it once. */
@@ -408,7 +408,7 @@
     display: none;
   }
 
-  /* D112. States: default, entering/leaving (opacity transition only -- no spatial motion, per
+  /* States: default, entering/leaving (opacity transition only -- no spatial motion, per
      `motion.md`'s "communicates ... immediate interaction feedback" rule). Not itself an
      interactive control (its dismiss-on-click is handled by script), so hover/focus-visible/
      active/disabled do not apply here. */
@@ -498,7 +498,7 @@
     opacity: 0.55;
   }
 
-  /* D112. States: never-attempted (plain `.btn`, no dot), connected (`status-dot` success),
+  /* States: never-attempted (plain `.btn`, no dot), connected (`status-dot` success),
      no-controller (`status-dot` neutral, covering both an explicit disconnect and a controller
      lost mid-session). Hover/focus-visible/active follow `.btn`'s own rules above when rendered
      as a `.btn`; the badge form is a button element throughout (always clickable), so the same

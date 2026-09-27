@@ -19,7 +19,7 @@ Reading rules:
 - Foundation letters (A–N) are local labels for this document only. They are not open-question
   IDs. Questions are listed unnumbered at the end, for the owner of the register to number.
 - Decision numbers (Dnn) refer to the
-  [2026-09-25 archive](../archive/2026-09-25-decisions-D47-D71.md). O10 refers to the
+  [2026-09-25 archive](../archive/2026-09-25-personas-and-vision/decisions-D47-D71.md). O10 refers to the
   [register](../open-questions.md); O24 is resolved (D108) — see
   [v2/master-spec.md §9](v2/master-spec.md#9-the-end-of-measure-chord-fit-check).
 

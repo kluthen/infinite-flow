@@ -5,7 +5,7 @@ drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the aut
 ID-free description of v2.0 through v2.3, ready to hand to `coding-leader` and, later, `ux-writer`.
 
 **Serves:** P2, the Speed Builder, first. P1 gets its real-time goal (reading notes as they come).
-P3 gets session review and export. See [personas](../../personas/personas.md).
+P3 gets session review and export. See [personas](../../personas.md).
 
 ## Documents
 
@@ -149,7 +149,7 @@ through an export the player triggers (D64, D69).
   switching as the de-facto escape from a recurring notation error. The user's view (2026-09-26):
   switching instrument to get a new phrase "makes little to no sense from the user's point of
   view when he doesn't change instrument." Not designed here — `ux-writer` owns the actual action
-  and copy once it is scheduled. See `ui_ux/qna.md` Q16, which stays open.
+  and copy once it is scheduled. See `ui_ux/open-questions.md` Q16, which stays open.
 - **Lexicon popups on music-theory terms.** Every music-theory word shown in the UI (control
   labels, option values, notation terms) becomes hoverable/clickable and opens a popup with its
   entry from the project lexicon (`docs/music/lexicon.md`: the popup text, with the plain

@@ -159,8 +159,9 @@ sheet-backdrop
     identical layout and identical action set; only the body text differs.
 - **Connected:** `sheet-title` reads "Controller connected". `sheet-body` shows a `status-dot`
   marked success (`--color-success`; this is the one state in this flow allowed a positive color,
-  since it is not one of the "absence is normal" states D112 reserves neutral treatment for — see
-  `flows/controller-connection/intent.md`, Color discipline) plus the connected device's name.
+  since it is not one of the "absence is normal" states that the color-discipline policy reserves
+  neutral treatment for — see `flows/controller-connection/intent.md`, Color discipline) plus the
+  connected device's name.
   `sheet-actions` holds `Run check again` (`btn`), `Choose a different device` (`btn`, present only
   when more than one input has ever been seen this session), `Disconnect` (`btn`), and the implicit
   dismiss path via `sheet-close`. `connection-status` announces `Controller connected`.

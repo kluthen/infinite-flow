@@ -7,7 +7,7 @@ This is the working record of the first release. The stand-in summary is the
 
 ## Archived here
 
-- [decisions-v1.md](decisions-v1.md): the complete first-release decision log, D1–D46, kept
+- [decisions-D1-D46.md](decisions-D1-D46.md): the complete first-release decision log, D1–D46, kept
   verbatim. It is append-only history, so don't edit it. New decisions go in the live
   [decisions log](../../decisions.md), numbered from D47.
 - [gate-execution-report.md](gate-execution-report.md): the v1.0 gate's execution report for

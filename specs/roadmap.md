@@ -10,7 +10,7 @@ This is an ordered timeline with no dates. Each version's scope lives in its fol
 The old stages 2 ("Minimal MIDI Integration") and 3 ("MIDI-Seeded Continuation") are
 **superseded** by the v2/v3 split below. v2 bundles MIDI acknowledgement with the rolling phrase.
 MIDI-seeded continuation moves to v3. The previous roadmap, which `docs/release/` cites by section,
-is archived verbatim as [2026-09-25-roadmap-pre-vision.md](archive/2026-09-25-roadmap-pre-vision.md).
+is archived verbatim as [2026-09-25-roadmap-pre-vision.md](archive/2026-09-25-personas-and-vision/roadmap-pre-vision.md).
 
 ## Timeline
 

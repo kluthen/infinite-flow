@@ -7,7 +7,7 @@ does the browser see it, which one should the app read, and does it agree with t
 template's written pitch. Nothing about that handshake changes what a phrase says or how it is
 notated, and nothing about a phrase's controls resolves a device question. Keeping the two apart
 mirrors the same reasoning that keeps session mode inside `phrase-workspace` as an extension of a
-shared concern (D45) while still giving controller connection its own flat screen: `phrase-workspace`
+shared concern while still giving controller connection its own flat screen: `phrase-workspace`
 already owns every state that is actually about the phrase on screen, and folding a five-or-six-step
 device handshake into that screen's own state machine would make an unrelated concern compete for
 the same states, the same header action, and the same script logic that generation, regeneration,

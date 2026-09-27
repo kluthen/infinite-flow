@@ -262,7 +262,7 @@ Notes for either variant:
 - [First-release implementation plan](specs/first_release_plan.md) — sequenced delivery steps.
 - [Generator architecture](specs/generator-architecture.md) — the seam-by-seam architectural
   contract.
-- [UI/UX index](ui_ux/index.md) — the approved interaction and visual authority.
+- [UI/UX index](ui_ux/README.md) — the approved interaction and visual authority.
 - [ATD documentation](docs/) — business-intent atoms with source/test traceability.
 - [Third-party licenses](THIRD_PARTY_LICENSES.md) and [`public/licenses/`](public/licenses/) —
   every runtime component shipped in `dist/`, with vendored full license text.

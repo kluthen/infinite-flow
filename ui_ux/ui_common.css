@@ -4,7 +4,7 @@
    (component classes), owned by ux-writer. This file is retained, frozen,
    only because `mockups/phrase-workspace.html` still links it for the
    review prototype. Do not treat it as buildable truth; see
-   `ui_ux/index.md` ("How future UI changes flow") for the current rule. */
+   `ui_ux/README.md` ("How future UI changes flow") for the current rule. */
 
 /* Infinite Flow canonical design system. Grid: 8pt. Semantic tokens, not component overrides, carry themes. */
 

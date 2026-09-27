@@ -57,7 +57,7 @@ The variety setting should be a ratio or weight on longer values, not a switch t
 
 ## Settled Semantics (2026-09-25, spec-writer session)
 
-Source: `specs/archive/2026-09-25-decisions-D47-D71.md` D59–D60, and the persona P1 in `specs/personas/personas.md`. P1 learns by exposure to possibilities, which argues for variety by default.
+Source: `specs/archive/2026-09-25-personas-and-vision/decisions-D47-D71.md` D59–D60, and the persona P1 in `specs/personas.md`. P1 learns by exposure to possibilities, which argues for variety by default.
 
 1. **Meaning.** Rhythmic variety is the _chance of appearance_ of note values other than the selected density, both **shorter and longer**. (The previous "longer values only" framing is dropped.) At Sixteenth, only longer values are possible, because the v1 grammar has nothing shorter.
 2. **Levels.** _Strict_ allows only the selected value, plus the rests and ties produced by silence and syncopation. _Slightly varied_ matches today's Quarter-mode feel. _Heavily varied_ makes other values common, with the selected value still dominant. "Rhythmic variety" is the canonical concept term; ux-writer picks the player-facing label.

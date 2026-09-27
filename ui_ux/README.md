@@ -6,9 +6,9 @@ for a C MIDI keyboard, B-flat tenor saxophone, or E-flat alto saxophone profile;
 product, controls support it, and notation receives the largest share of space at every supported
 landscape viewport. v2 ("Rolling Phrase," `specs/versions/v2/master-spec.md`) turns that static
 phrase into a continuous, MIDI-acknowledged session with backing audio and a review/export step,
-built as an extension of the same screen and flow rather than a new top-level IA (see `decisions.md`
-D45). v2 design work is in progress; see `todo.md` for exactly what is written, what is designable
-now, and what is blocked on `spec-writer`.
+built as an extension of the same screen and flow rather than a new top-level IA. v2 design work is
+in progress; see `todo.md` for exactly what is written, what is designable now, and what is blocked
+on `spec-writer`.
 
 ## Map
 
@@ -18,10 +18,12 @@ now, and what is blocked on `spec-writer`.
 - `mockups/` contains the interactive phrase-workspace review prototype, styled from the frozen `ui_common.css` reference.
 - `flows/generate-phrase/` specifies the explicit four-measure generation journey.
 - `screens/phrase-workspace/` specifies the shared workspace screen.
-- `qna.md`, `decisions.md`, and `todo.md` are working registers. Read `todo.md` before extending this set.
-- `archive/v1/` holds the closed first-release (v1.0) working record: the complete decision log
-  (D1-D44), the closed question that record answers, and the finished work tracker. The live
-  registers above stay current; the archive is kept verbatim and is never edited further.
+- `flows/controller-connection/` specifies the MIDI controller connection and transposition-check journey.
+- `screens/controller-connection/` specifies the connection sheet screen that flow traverses.
+- `open-questions.md`, `decisions.md`, and `todo.md` are working registers. Read `todo.md` before extending this set.
+- `archive/v1/` holds the closed first-release (v1.0) working record: the complete decision log,
+  the closed question that record answers, and the finished work tracker. The live registers above
+  stay current; the archive is kept verbatim and is never edited further.
 
 ## How future UI changes flow
 

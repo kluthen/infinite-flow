@@ -3,7 +3,7 @@
 Compares delivered behaviour against
 [`specs/first-release-master-spec.md`](../../specs/first-release-master-spec.md),
 [`specs/roadmap.md`](../../specs/roadmap.md), and the `ui_ux/` set
-([`index.md`](../../ui_ux/index.md), [`decisions.md`](../../ui_ux/decisions.md),
+([`README.md`](../../ui_ux/README.md), [`decisions.md`](../../ui_ux/decisions.md),
 [`strategy.md`](../../ui_ux/strategy.md), and the `screens/phrase-workspace/` handoff docs). This
 report does not change product intent; `specs/` and `ui_ux/` content is not edited by this task.
 `specs/roadmap.md` was checked for a per-step delivery-status field to update with a plain status
@@ -136,7 +136,7 @@ and needs no action beyond the owner's Chromium-only decision.
 
 ## Items checked and found already consistent (no drift)
 
-- `ui_ux/index.md` already names `src/styles/theme.css`/`components.css` as the canonical
+- `ui_ux/README.md` (then `index.md`) already names `src/styles/theme.css`/`components.css` as the canonical
   production token/component source (Step 9's documented requirement), with `ui_ux/ui_common.css`
   correctly described as a frozen, non-buildable reference.
 - `specs/roadmap.md` "Explicitly Unresolved Decisions" → "Rhythm settings with no legal phrase"

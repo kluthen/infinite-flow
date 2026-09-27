@@ -2,7 +2,7 @@
 
 Status: draft v0.2 (v1-era)
 
-> **v1-era foundation.** Since 2026-09-25, [personas](personas/personas.md), the
+> **v1-era foundation.** Since 2026-09-25, [personas](personas.md), the
 > [far vision](vision/far-vision.md), the [roadmap](roadmap.md) and [versions/](versions/README.md)
 > supersede this document wherever they conflict, notably on MIDI feedback, stage order and the
 > non-evaluative wording. It will be revised when the vision is consolidated.

@@ -2,7 +2,7 @@
 
 Status: draft v0.7
 
-Personas are the user's decisions. Anything not yet confirmed is tagged `(proposed)`. Settled 2026-09-25. The decisions behind this document (D48–D50, D54, D61) are in the [2026-09-25 archive](../archive/2026-09-25-decisions-D47-D71.md).
+Personas are the user's decisions. Anything not yet confirmed is tagged `(proposed)`. Settled 2026-09-25. The decisions behind this document (D48–D50, D54, D61) are in the [2026-09-25 archive](archive/2026-09-25-personas-and-vision/decisions-D47-D71.md).
 
 | Persona                     | Role      | Core want                                  | Served mainly by                   |
 | --------------------------- | --------- | ------------------------------------------ | ---------------------------------- |
@@ -18,7 +18,7 @@ All persona names are working names.
 
 - A musician who can already play. They read most standard notation, but still struggle to read quickly and to perform at speed.
 - A **beginner at improvisation**.
-- A "player" in the game-player sense. **For now this is an attitude** (D50): curious, playful, enthusiastic, and inclined to poke at settings to see what happens. There are no game mechanics in the near term. The far future is covered in [far vision](../vision/far-vision.md).
+- A "player" in the game-player sense. **For now this is an attitude** (D50): curious, playful, enthusiastic, and inclined to poke at settings to see what happens. There are no game mechanics in the near term. The far future is covered in [far vision](vision/far-vision.md).
 - No age or gender target. Probably under about 60.
 - The product owner fits this persona. P2 and P3 exist to balance that bias.
 
@@ -62,11 +62,11 @@ This persona merges the earlier keyboard-tester and sight-reading-student candid
 - **They test the concert-pitch side of D56 and the "easy to add an instrument" rule (D57).** P1's saxophone habits don't cover these.
 - **They care most about variety (D59).** Material that is too uniform can be memorized and stops training reading.
 - **v2 is their real release.** v1 gives them fresh material but no tempo reference (D49).
-- **They pull hardest toward progress tracking.** Examples: "what BPM did I reach?" or a BPM ladder. The guiding principle (acknowledge, never score; adaptation is opt-in and visible; see [far vision](../vision/far-vision.md)) bounds what can serve this.
+- **They pull hardest toward progress tracking.** Examples: "what BPM did I reach?" or a BPM ladder. The guiding principle (acknowledge, never score; adaptation is opt-in and visible; see [far vision](vision/far-vision.md)) bounds what can serve this.
 - **Nice to have: adaptive tempo (v2.2).** An opt-in checkbox. Settled (D101): the BPM rises on a
   flat, unconditional schedule (+5 BPM every 2 phrases) rather than reacting to how well the
   player matches notes — a performance-linked version is deferred to v3+. See
-  [v2/master-spec.md §10](../versions/v2/master-spec.md#10-adaptive-tempo).
+  [v2/master-spec.md §10](versions/v2/master-spec.md#10-adaptive-tempo).
 
 ## P3 — The Fledgling Composer (secondary; D61)
 
@@ -102,4 +102,4 @@ This persona merges the earlier keyboard-tester and sight-reading-student candid
 ## Open Questions
 
 None. O24 (the persona-related question about what "fits the chord" means) is resolved — see
-D108 and [v2/master-spec.md §9](../versions/v2/master-spec.md#9-the-end-of-measure-chord-fit-check).
+D108 and [v2/master-spec.md §9](versions/v2/master-spec.md#9-the-end-of-measure-chord-fit-check).

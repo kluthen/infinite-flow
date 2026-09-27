@@ -9,7 +9,7 @@
   ALIGNED by `ux-critic` and confirmed implemented in production code. Archived record:
   [`archive/v1/todo.md`](archive/v1/todo.md); archived decisions:
   [`archive/v1/decisions-D1-D44.md`](archive/v1/decisions-D1-D44.md); archived closed question:
-  [`archive/v1/qna-Q15.md`](archive/v1/qna-Q15.md).
+  [`archive/v1/open-questions-Q15.md`](archive/v1/open-questions-Q15.md).
 
 ## In Progress
 
@@ -19,19 +19,19 @@
   session mode extends the existing `screens/phrase-workspace/` screen and `flows/generate-phrase/`
   flow rather than forking a new top-level screen. No flow or screen documents have been written
   yet for v2 — this pass is grounding and open-question triage only. Six open questions were raised
-  (`qna.md` Q17–Q22): Q17 is self-directed and still open. **Update 2026-09-27:** `spec-writer`
-  answered Q18–Q22 (D109–D110 in `decisions.md`, plus master-spec passages already covering Q19/Q20);
-  `ux-writer` resolved Q22 itself (D111). All five units that were waiting on them are now
-  unblocked — see the list below. Q16, already open from v1.0, does **not** intersect with Q20 (that
-  earlier note was a mistake, now corrected in `qna.md`); it remains its own separate, lower-priority
-  item about the Idle screen only.
+  (`open-questions.md` Q17–Q22): Q17 is self-directed and still open. **Update 2026-09-27:**
+  `spec-writer` answered Q18–Q21 (spec D109–D110 in `specs/decisions.md`, plus master-spec passages
+  already covering Q19/Q20); `ux-writer` resolved Q22 itself (ux D46 in this tree's `decisions.md`).
+  All five units that were waiting on them are now unblocked — see the list below. Q16, already open
+  from v1.0, does **not** intersect with Q20 (that earlier note was a mistake, now corrected in
+  `open-questions.md`); it remains its own separate, lower-priority item about the Idle screen only.
 
 ## Remaining — v2 design units, roughly in build order
 
 Units below are not yet started. None is blocked on anything **except** where noted.
 
 1. **Controller connection & transposition-check flow** (master-spec §8). **Written up
-   2026-09-27** per `decisions.md` D112: `flows/controller-connection/intent.md` and `handoff.md`,
+   2026-09-27** per `decisions.md` D47: `flows/controller-connection/intent.md` and `handoff.md`,
    `screens/controller-connection/intent.md` and `handoff.md`, plus the `phrase-workspace` header
    addition (`controller-status`, its three states, and the mid-session-loss state) in that
    screen's own `intent.md`/`handoff.md`. New Tier 2 surface added to `src/styles/components.css`
@@ -57,15 +57,26 @@ Units below are not yet started. None is blocked on anything **except** where no
    (e) CSS: the `.sheet-actions` column stack sits in the wrong media block and is inverted
    across breakpoints; `.connection-status` is not visually hidden; `.sheet-body` is undefined;
    `--color-scrim` barely dims the page in dark theme.
-   (f) Two-register leaks: decision IDs in `index.md`, `flows/controller-connection/intent.md`,
-   `screens/controller-connection/handoff.md`, `theme.css` and `components.css`.
-   (g) Registers: ui_ux and specs decision numbers collide (D45, D111+ exist in both), and the
-   Q18/Q21 citations to "D109–D110 in `decisions.md`" point at the wrong file. D112 says "once
-   ever connected", but the tier docs say "attempted". `index.md`'s Map omits the new flow and
-   screen. There are two small errors in `qna.md`'s v2 header and in Q17.
+   (f) **Fixed by the 2026-09-27 document-tree migration:** decision-ID leaks removed from
+   `README.md` (was `index.md`), `flows/controller-connection/intent.md`,
+   `screens/controller-connection/handoff.md`, `theme.css`, and `components.css`.
+   (g) **Partly fixed by the same migration:** the ui_ux/specs decision-number collision is
+   resolved — the two ui_ux decisions that had been numbered D111/D112 (accidentally continuing
+   the _specs_ tree's counter instead of ui_ux's own D45) are renumbered D46/D47, and the
+   Q18/Q21 citations now correctly point at spec D109–D110 in `specs/decisions.md` rather than at
+   this tree's `decisions.md`. `README.md`'s Map now lists the controller-connection flow and
+   screen. The two small errors in `open-questions.md` (was `qna.md`) are fixed: the v2 header
+   wrongly said Q18–Q22 were all routed to `spec-writer` (Q22 was `ux-writer`'s own call; now
+   says Q18–Q21), and Q17 cited "D45 below" when D45 lives in `decisions.md` (now "ux D45 in
+   `decisions.md`"). **Still open, not a migration fix:** D47 (`decisions.md`) says the header badge
+   converts to its permanent form "once ever connected", but the tier docs
+   (`screens/phrase-workspace/intent.md` and `handoff.md`, `flows/controller-connection/intent.md`)
+   say "once a connection has ever been attempted" — these are two different behaviors (a failed
+   permission/no-device attempt vs. an actual successful connection) and picking between them is a
+   design call for `ux-writer`, not something this migration pass resolves.
    (h) Missing states: a device plugged in or unplugged while the sheet is open; Requesting
    access while the browser's own permission prompt is waiting.
-   Re-run `ux-critic` after the fixes.
+   Re-run `ux-critic` after (a)-(e), (g)'s remaining open item (attempted vs. connected; its other parts are fixed), and (h) are fixed.
 2. **Session core-loop flow + rolling-display screen extension** (master-spec §3, §4, §6, §7 start/
    end mechanics; extends `screens/phrase-workspace/`). Blocked on **Q17** only (self-directed —
    ux-writer must settle the spatial presentation before writing this screen's handoff). **Q20 is
@@ -81,12 +92,12 @@ Units below are not yet started. None is blocked on anything **except** where no
    small, folds into unit 2.
 6. **Last-session review + export, v2.0 slice** (§7). Fully specified for the base review (every
    phrase shown in order, favorites, MusicXML/MIDI export scopes) and the discard-with-confirmation
-   rule. **Q18 resolved (D109): no repeat-marker element at all** — a failure-ladder repeat reads
+   rule. **Q18 resolved (spec D109): no repeat-marker element at all** — a failure-ladder repeat reads
    identically to any other phrase in the review. Not blocked.
 7. **Review v2.1 additions**: played-notes toggle and the export-time played-notes opt-in checkbox
    (§7). Fully specified; extends unit 6.
 8. **Adaptive tempo UI** (§10, v2.2). Mostly specified (unavailable-with-reason when no controller;
-   flat schedule; ceiling; reset-on-end). **Q22 resolved (D111)**: the Idle screen carries a quiet,
+   flat schedule; ceiling; reset-on-end). **Q22 resolved (ux D46)**: the Idle screen carries a quiet,
    non-comparative "reached tempo" reference from the previous session when adaptive tempo was
    used; placement, copy, and the empty case are this unit's own to settle when written up.
 9. **End-of-measure chord-fit check presentation** (§9, v2.3). Master spec explicitly hands this
@@ -98,13 +109,13 @@ Units below are not yet started. None is blocked on anything **except** where no
     reflects the new value, unannounced, with no highlight/scroll/shift): no affordance beyond the
     plain toggle to design. Still blocked on the master spec's own still-open cadence/default-state
     item (§12) for copy that mentions cadence.
-11. **Multi-phrase tension arc** (§3, v2.2). **Q21 resolved (D110): yes, it gets a visible on/off
+11. **Multi-phrase tension arc** (§3, v2.2). **Q21 resolved (spec D110): yes, it gets a visible on/off
     control**, on the same footing as the settings-mutation flag and adaptive tempo. No longer
     blocked on whether a surface exists — the open design task is now the control's placement, copy,
     and presentation, which is entirely ours to settle when this unit is written up.
 
 - Revalidate only if a specification refinement changes settled UI behavior, controls, or states.
-- **Q16** (`qna.md`): design a generation action reachable from the notation-error states
+- **Q16** (`open-questions.md`): design a generation action reachable from the notation-error states
   themselves, replacing the undiscoverable instrument-profile-switch escape. Stands alone — it does
   **not** intersect with Q20 (Q20 is resolved: an in-session notation failure structurally cannot
   occur, so there is nothing to reconcile against). Still open, still lower priority, still about
@@ -112,12 +123,13 @@ Units below are not yet started. None is blocked on anything **except** where no
 
 ## Next Unit
 
-All of Q18–Q22 are now resolved (D109–D111), unblocking units 6, 8, 10 (partially), and 11. Unit 1
+All of Q18–Q22 are now resolved (spec D109–D110, ux D46), unblocking units 6, 8, 10 (partially), and 11. Unit 1
 — the controller connection & transposition-check flow — is now written up (see above) and awaits
 an `ux-critic` pass. Unit 2 (session core-loop flow + rolling-display screen extension) is next in
 build order but stays blocked on Q17 (self-directed) — settle that before or alongside it.
 
 **ux-critic plan read (2026-09-27), to weigh before continuing:**
+
 - Q17 is on the critical path and is less open than it looks. §4 requires part of the next phrase
   to be visible while the current phrase's last measure plays, which rules out replacing the
   single system in place. `motion.md`'s "do not scroll the staff" will need a v2 revision.

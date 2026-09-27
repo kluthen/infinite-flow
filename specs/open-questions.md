@@ -6,8 +6,8 @@ Only questions that are truly open appear here. IDs are stable. Each question's 
 exactly one place: here, or in the document named. When a question is resolved it leaves this
 register and its answer goes to the [decisions log](decisions.md). Resolved questions from earlier
 work are recorded in the archived logs:
-[D1–D46](archive/v1/decisions-v1.md) and
-[D47–D71](archive/2026-09-25-decisions-D47-D71.md).
+[D1–D46](archive/v1/decisions-D1-D46.md) and
+[D47–D71](archive/2026-09-25-personas-and-vision/decisions-D47-D71.md).
 
 No v2 question in the Active list remains open — O24 was resolved 2026-09-27 (D108): the check is
 kept, ships in v2.3, and fires only on measures where the player goes off-script.

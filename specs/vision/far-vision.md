@@ -8,7 +8,7 @@ first-release contract describes the current version and may be amended for v1.0
 
 Scope per version is in [versions/](../versions/README.md), and the order is in the
 [roadmap](../roadmap.md). This document owns no open question. The decisions behind it (D47–D71)
-are in the [2026-09-25 archive](../archive/2026-09-25-decisions-D47-D71.md).
+are in the [2026-09-25 archive](../archive/2026-09-25-personas-and-vision/decisions-D47-D71.md).
 
 ## Where it is going
 
@@ -21,7 +21,7 @@ and antagonists as system voices, characters as restrictive musical presets, and
 exchanges of short phrases. The user's first preview of it listed team and character management,
 skills, items, exploration, battle scenes and character progression. See [endgame](endgame.md).
 
-The people it serves are described in [personas](../personas/personas.md): P1, the Curious
+The people it serves are described in [personas](../personas.md): P1, the Curious
 Improviser (primary), P2, the Speed Builder, and P3, the Fledgling Composer.
 
 ## Guiding principles

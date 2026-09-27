@@ -68,7 +68,7 @@ Status: draft v0.5
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md).
-- [Personas](personas/personas.md) (draft): who the product serves.
+- [Personas](personas.md) (draft): who the product serves.
 - [Far vision](vision/far-vision.md) (draft): the long-term direction and the guiding principles.
   The [endgame](vision/endgame.md) describes the rhythm RPG horizon.
 - [Product foundation](product-foundation.md): the v1-era product intent. Where it conflicts with
@@ -101,10 +101,8 @@ Status: draft v0.5
   - [v1 archive](archive/v1/README.md): the first-release working record, including decisions
     D1–D46 and the closed v1.0 gate's working documents (the gate execution report and the
     ISS-004 feasibility review).
-  - [Decisions D47–D71](archive/2026-09-25-decisions-D47-D71.md): the 2026-09-25 persona and
-    vision session.
-  - [Pre-vision roadmap](archive/2026-09-25-roadmap-pre-vision.md): the stage roadmap cited by
-    `docs/release/`.
+  - [2026-09-25 persona and vision session](archive/2026-09-25-personas-and-vision/README.md):
+    decisions D47–D71 and the pre-vision stage roadmap cited by `docs/release/`.
   - [v2 archive](archive/v2/README.md): the v2.0–v2.3 spec-consolidation working record —
     decisions D72–D108 and the eight draft topic documents, superseded by
     [versions/v2/master-spec.md](versions/v2/master-spec.md).

@@ -72,7 +72,7 @@ This boundary makes a generated four-measure proposal reproducible from the same
 
 Each seam consumes and produces explicit, serializable data. It should not reach into browser APIs, controls, audio state, or another seam's internal state.
 
-MIDI integration is not part of v1 and sits outside the evaluator. When v2 adds it, it acknowledges only a played note that matches the expected note, with no mismatch hint (D52, D66 in `archive/2026-09-25-decisions-D47-D71.md`). MIDI input is read as concert pitch (D72). It never computes a score or alters generator state. The v2 design is in `versions/v2/master-spec.md` (§8–§9).
+MIDI integration is not part of v1 and sits outside the evaluator. When v2 adds it, it acknowledges only a played note that matches the expected note, with no mismatch hint (D52, D66 in `archive/2026-09-25-personas-and-vision/decisions-D47-D71.md`). MIDI input is read as concert pitch (D72). It never computes a score or alters generator state. The v2 design is in `versions/v2/master-spec.md` (§8–§9).
 
 ## Evolution Rules
 

@@ -8,7 +8,7 @@ Status: approved for implementation
 
 Implement the approved first release as a browser-only Vue application that generates and engraves one four-measure musical phrase. Each delivery step is test-first and includes implementation, verification, documentation, and business-focused ATD stewardship.
 
-The authoritative product inputs are [the first-release master specification](first-release-master-spec.md), [the roadmap](roadmap.md), [the generator contract](generator-contract.md), [the generator architecture](generator-architecture.md), and the UI/UX set beginning at [`ui_ux/index.md`](../ui_ux/index.md). The release excludes persistence, a backend, MIDI access, playback, scoring, adaptation, and microphone input. End-user state exists only in memory for the active session.
+The authoritative product inputs are [the first-release master specification](first-release-master-spec.md), [the roadmap](roadmap.md), [the generator contract](generator-contract.md), [the generator architecture](generator-architecture.md), and the UI/UX set beginning at [`ui_ux/README.md`](../ui_ux/README.md). The release excludes persistence, a backend, MIDI access, playback, scoring, adaptation, and microphone input. End-user state exists only in memory for the active session.
 
 ## Technology and Delivery Decisions
 
@@ -136,7 +136,7 @@ The authoritative product inputs are [the first-release master specification](fi
 
 **Verify:** Run component/E2E/accessibility suites in all specified viewports and themes; manually inspect keyboard-only operation, responsive score priority, portrait guard, no overflow, reduced motion, and state/error transitions against the UI handoff.
 
-**Documents:** Update `ui_ux/index.md` and relevant strategy/handoff files to name the production Tailwind theme/component files as the styling source of truth and explain how future UI/UX alterations flow into them. Document the component/state map and accessibility behavior.
+**Documents:** Update `ui_ux/README.md` and relevant strategy/handoff files to name the production Tailwind theme/component files as the styling source of truth and explain how future UI/UX alterations flow into them. Document the component/state map and accessibility behavior.
 
 **ATD stewardship:** Link behavior-bearing workspace/state/responsive code and tests to `req_landscape_phrase_workspace`, `user_story_controlled_phrase_generation`, and `rule_presentation_preference_preserves_phrase`; keep purely visual utility classes outside ATD unless they enforce a governed behavior.
 
