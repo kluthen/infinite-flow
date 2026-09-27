@@ -6,7 +6,8 @@ layer: ARCHITECTURE
 priority: 1
 tags: rhythm,planner,canonical-domain,step6
 version: 0.4
-dependents: []
+dependents:
+  - [[module_rhythm_variety_grammar]]
 type: API
 parents:
   - [[rule_complete_four_four_measures]]

@@ -6,6 +6,7 @@ parents:
 dependents:
   - [[api_rhythm_domain_expansion]]
   - [[module_harmony_candidate_domain]]
+  - [[module_rhythm_variety_grammar]]
 human_name: Tension Ranking Respects Constraints
 version: 0.2
 type: RULE

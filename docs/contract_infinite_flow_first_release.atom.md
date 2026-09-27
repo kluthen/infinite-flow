@@ -18,8 +18,7 @@ dependents: []
 Record the current guaranteed public surface for the first release: the STABLE, human-confirmed non-negotiable invariants that hold regardless of what remains in development.
 
 ## THE RULE / LOGIC
-
-One invariant is confirmed STABLE and enters the guaranteed surface: every generated concert pitch falls inside the selected instrument profile's inclusive active concert range and resolved whole-phrase register window, and the selected instrument profile's concert-to-written transposition, used only by notation and by request construction's written-to-concert tonal-center conversion, never alters those source events or generation constraints (governed by [[rule_instrument_profile_range]]). MIDI controller connection and match or mismatch feedback are excluded from the first release and are not a first-release contract guarantee. No other first-release BUSINESS or ARCHITECTURE atom is STABLE yet, so no further feature guarantee is enumerated.
+One invariant is confirmed STABLE and enters the guaranteed surface: every generated concert pitch falls inside the selected instrument profile's inclusive active concert range and resolved whole-phrase register window, and the selected instrument profile's concert-to-written transposition, used only by notation and by request construction's written-to-concert tonal-center conversion, never alters those source events or generation constraints. MIDI controller connection and match or mismatch feedback are excluded from the first release and are not a first-release contract guarantee. No other first-release BUSINESS or ARCHITECTURE atom is STABLE yet, so no further feature guarantee is enumerated.
 
 ## TECHNICAL INTERFACE
 

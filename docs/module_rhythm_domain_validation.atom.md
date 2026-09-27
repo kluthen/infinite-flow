@@ -3,7 +3,8 @@ id: module_rhythm_domain_validation
 status: REVIEW
 tags: rhythm,validation,typed-failures,step6
 version: 0.1
-dependents: []
+dependents:
+  - [[module_rhythm_variety_grammar]]
 human_name: Rhythm Domain Validation
 parents:
   - [[rule_complete_four_four_measures]]

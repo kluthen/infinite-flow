@@ -20,8 +20,7 @@ parents:
 Make a generated phrase reproducible from its complete request and seed.
 
 ## THE RULE / LOGIC
-
-Phrase generation is deterministic for a given complete request and seed. The complete request includes the selected musical values, profile preset, tension arc, and leapiness. Explicit regeneration creates a new random seed while preserving the active controls, and the result retains that seed for internal reproduction. Applying a presentation theme is not a generation request and cannot alter the phrase. Switching the selected instrument profile is a distinct, automatic regeneration path with its own fresh seed (governed by [[rule_profile_switch_validates_phrase]]), not a same-seed reproduction of the prior request.
+Phrase generation is deterministic for a given complete request and seed. The complete request includes the selected musical values, profile preset, tension arc, and leapiness. Explicit regeneration creates a new random seed while preserving the active controls, and the result retains that seed for internal reproduction. Applying a presentation theme is not a generation request and cannot alter the phrase. Switching the selected instrument profile is a distinct, automatic regeneration path with its own fresh seed, not a same-seed reproduction of the prior request.
 
 ## TECHNICAL INTERFACE
 

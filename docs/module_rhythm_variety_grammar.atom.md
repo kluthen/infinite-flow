@@ -8,6 +8,9 @@ layer: ARCHITECTURE
 priority: 1
 tags: rhythm,variety,grammar,rhythm-mvp-v2
 parents:
+  - [[api_rhythm_domain_expansion]]
+  - [[module_rhythm_domain_validation]]
+  - [[rule_tension_ranking_respects_constraints]]
   - [[rule_unsupported_rhythm_settings_block_generation]]
   - [[user_story_controlled_phrase_generation]]
 dependents: []

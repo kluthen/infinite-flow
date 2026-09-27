@@ -7,6 +7,7 @@ tags: phrase-generation,instrument-profile,active-range,register-policy
 parents:
   - [[entity_instrument_profile]]
   - [[rule_instrument_profile_range]]
+  - [[rule_profile_switch_validates_phrase]]
 dependents:
   - [[module_register_window_resolution_primitives]]
 human_name: Phrase Generation Profile Policy

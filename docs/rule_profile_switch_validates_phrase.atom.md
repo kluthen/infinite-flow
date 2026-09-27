@@ -4,7 +4,8 @@ status: DRAFT
 version: 1.0
 priority: 1
 tags: instrument-profile
-dependents: []
+dependents:
+  - [[module_phrase_generation_profile_policy]]
 layer: BUSINESS
 parents:
   - [[req_four_measure_phrase]]
