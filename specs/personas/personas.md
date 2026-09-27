@@ -63,7 +63,10 @@ This persona merges the earlier keyboard-tester and sight-reading-student candid
 - **They care most about variety (D59).** Material that is too uniform can be memorized and stops training reading.
 - **v2 is their real release.** v1 gives them fresh material but no tempo reference (D49).
 - **They pull hardest toward progress tracking.** Examples: "what BPM did I reach?" or a BPM ladder. The guiding principle (acknowledge, never score; adaptation is opt-in and visible; see [far vision](../vision/far-vision.md)) bounds what can serve this.
-- **Nice to have: adaptive tempo (v2).** An opt-in checkbox. The BPM slowly rises as long as the player keeps an "acceptable level" of matching notes, which depends on O24 in [v2](../versions/v2/README.md).
+- **Nice to have: adaptive tempo (v2.2).** An opt-in checkbox. Settled (D101): the BPM rises on a
+  flat, unconditional schedule (+5 BPM every 2 phrases) rather than reacting to how well the
+  player matches notes — a performance-linked version is deferred to v3+. See
+  [v2/master-spec.md §10](../versions/v2/master-spec.md#10-adaptive-tempo).
 
 ## P3 — The Fledgling Composer (secondary; D61)
 
@@ -98,4 +101,5 @@ This persona merges the earlier keyboard-tester and sight-reading-student candid
 
 ## Open Questions
 
-None. The one persona-related question still open is O24, owned by [v2](../versions/v2/README.md).
+None. O24 (the persona-related question about what "fits the chord" means) is resolved — see
+D108 and [v2/master-spec.md §9](../versions/v2/master-spec.md#9-the-end-of-measure-chord-fit-check).

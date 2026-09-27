@@ -8,6 +8,7 @@ links were written from their original location.
 | [v1/](v1/README.md)                                                  | First-release working record, including decisions D1–D46 and the closed v1.0 gate's execution report and ISS-004 feasibility review.                                    |
 | [2026-09-25-decisions-D47-D71.md](2026-09-25-decisions-D47-D71.md)   | Decision log from the 2026-09-25 persona and vision session.                                                                                                            |
 | [2026-09-25-roadmap-pre-vision.md](2026-09-25-roadmap-pre-vision.md) | Stage roadmap before the vision session. Its stages 2 and 3 are superseded by the v2/v3 split in the live [roadmap](../roadmap.md). `docs/release/` cites its sections. |
+| [v2/](v2/README.md)                                                  | v2 (rolling phrase) spec-consolidation working record: decisions D72–D108 and the eight v2.0–v2.3 draft topic documents, superseded by [versions/v2/master-spec.md](../versions/v2/master-spec.md). |
 
 ## Where D47–D71 now live as settled fact
 

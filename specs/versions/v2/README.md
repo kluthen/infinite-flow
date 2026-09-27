@@ -1,48 +1,87 @@
 # v2 — Rolling Phrase
 
-Status: direction settled (2026-09-25); topic documents draft v0.1 (2026-09-26). Next version to spec. A draft of the highlights is in
-[highlights-proposal.md](highlights-proposal.md), which is being drafted.
+Status: consolidated into the master spec (2026-09-27). The individual topic documents that were
+drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
+ID-free description of v2.0 through v2.3, ready to hand to `coding-leader` and, later, `ux-writer`.
 
 **Serves:** P2, the Speed Builder, first. P1 gets its real-time goal (reading notes as they come).
 P3 gets session review and export. See [personas](../../personas/personas.md).
 
 ## Documents
 
-| Document                                                   | Purpose                                                                                                                                                            | Status     |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- |
-| [highlights-proposal.md](highlights-proposal.md)           | Headline, walk-through, ranked highlights, proposed cut line, design tensions grounded in code                                                                     | draft v0.1 |
-| [rolling-phrase.md](rolling-phrase.md)                     | Generation unit, carry-in across joins, look-ahead and failure, control changes in a session, display behaviour (O34–O36, O39, O40, O10, O50–O52)                  | draft v0.1 |
-| [audio-and-backing.md](audio-and-backing.md)               | Audio clock, autoplay unlock, backing renderer, click, count-in, tempo (O38, O44, O45, O53, O54, O57, O58, O68)                                                    | draft v0.1 |
-| [midi-and-acknowledgement.md](midi-and-acknowledgement.md) | Web MIDI input, concert pitch (D72), controller check, expected-note acknowledgement, chord-fit check, event identity (O24, O41–O43, O55, O56, O60, O61, O70, O71) | draft v0.1 |
-| [sessions-review-export.md](sessions-review-export.md)     | Session lifecycle, history, last-session review, favorites, MusicXML and MIDI export, privacy (O37, O46, O59, O62–O66, O72, O73)                                   | draft v0.1 |
-| [adaptive-tempo.md](adaptive-tempo.md)                     | The opt-in adaptive tempo rule (O67, O74)                                                                                                                          | draft v0.1 |
-| [definition-of-done.md](definition-of-done.md)             | Proposed cut line and v2.0 definition of done, collecting every document's acceptance criteria (O69, O75)                                                          | draft v0.1 |
-| [questions-for-user.md](questions-for-user.md)             | Every open v2 question with its proposed default, grouped by when it must be answered                                                                              | draft v0.1 |
+| Document                                | Purpose                                                                                                        | Status            |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------ |
+| [master-spec.md](master-spec.md)         | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1     |
 
-## Status snapshot (2026-09-26)
+The original draft topic documents (highlights proposal, rolling phrase, audio and backing, MIDI
+and acknowledgement, sessions/review/export, adaptive tempo, definition of done,
+questions-for-user) are archived verbatim at
+[../../archive/v2/](../../archive/v2/README.md), each with a note pointing to the master-spec
+section that now carries its content.
 
-Settled scope is below and unchanged. The topic documents add **proposals only**; none is
-settled until the user confirms it.
+## Status snapshot (2026-09-27)
 
-- Proposed: the four-bar phrase stays the generation unit. Phrases chain through a forward-only
-  `carryIn` (last pitch and leap state, register window, final chord, phrase number). Every
-  phrase starts on beat 1. O10 is deferred to v3.
-- Proposed: one phrase of look-ahead. Failures retry silently, then repeat a phrase; never an
-  alert during a session.
-- Proposed: the audio clock is master; the backing is a synthesized renderer from harmony; a
-  one-bar count-in for both kinds of start; tempo stays transport-only.
-- Found: a MIDI note can never unlock audio by itself (browser rule), so a "connect controller"
-  click is needed (O54). A controller whose transposition differs from the template would never
-  be acknowledged, silently, so a controller check is proposed (O55).
-- Proposed: exact-pitch acknowledgement from 150 ms early to 200 ms late (or the end of the
-  note). A concrete O24 default exists for the user to react to.
-- Proposed: history stores timelines plus reproduction inputs and a generator version; export
-  both session and favorites; played notes in MIDI export only, by choice.
-- Proposed, and **departing from the settled wording below**: adaptive tempo measures
-  expected-note matching rather than O24's chord fit, so it doesn't wait on O24
-  ([adaptive-tempo.md](adaptive-tempo.md), O67).
-- Open: 41 questions (O10, O24, O34–O46, O50–O75), 5 marked as most blocking; see
-  [questions-for-user.md](questions-for-user.md).
+Settled scope is below and unchanged. The topic documents mark each item settled or `(proposed)`.
+
+- **Settled (D104): O75, the v2.0 cut line.** v2.0 is the full core loop, MIDI included; chord-fit
+  and played-note review move to v2.1, adaptive tempo to v2.2.
+- **Settled (D105): O34, the continuation boundary.** Carry-in is limited to the last pitch (with
+  leap state), the register window, the final chord and the phrase number. Every join starts
+  with a fresh attack on beat 1; no tie or rest crosses a join in v2.0.
+- **Settled (D76): O54, audio unlock.** One "connect controller" click unlocks audio and MIDI
+  together; before it, a MIDI note cannot start a session.
+- **Settled (D77): O55, controller check.** v2.0 ships it: play a shown note, and the app reports
+  any constant offset and how to fix it.
+- **Settled (D78): O41, acknowledgement window.** 150 ms early to the later of 200 ms late or the
+  note's end; exact pitch, octave included; ties count once; chords match on the expected note.
+- **D79** notes that v3's "my instrument" should inherit the controller check's (D77) detected
+  offset instead of asking again every session.
+- **Settled (D80–D88, 2026-09-27 batch):** leap recovery carries across a join (D80); a tense
+  note at a join may resolve onto the join's last note, full v1 resolution only where the music
+  truly stops (D81); `Varying` register resolves once per session (D82); planner authority
+  deferred to v3 (D83); tempo shapes only the clock, never material (D84); one-bar count-in for
+  both start types, backing is a synthesized renderer, click on by default, timeout arms on the
+  first note played (D85); only note-on counts as MIDI activity (D86); v2 stays Chromium-only
+  (D87); history/review/export defaults (both timeline and reproduction inputs stored, both
+  session and favorites exportable, whole-phrase favorites, confirm before discarding unexported
+  favorites, chord symbols and optional backing in exports, no session-length cap) (D88).
+- **Overrides (2026-09-27 batch, not the proposed default):** a hidden tab now **ends the
+  session immediately**, like Stop, instead of pausing (**D89**); v2.0 expects a **single** MIDI
+  input, with a picker if more than one is connected, instead of merging inputs (**D90**).
+- **Substantive modification (2026-09-27 batch): O39 → D91.** The settings UI is locked for the
+  entire session, not only the instrument selector — there is no manual mid-session editing at
+  all. Only automatic sources (the new **O77** mutation flag, or adaptive tempo O67) can change
+  settings mid-session, still applied at the next phrase boundary, and reflected in the UI
+  without highlight, scroll or screen-shift.
+- **Narrowed (D103): O77.** Scope, magnitude and the invalid-combination rule are settled: every
+  setting except instrument selection and tempo is eligible; each mutation shifts one by at most
+  one grade in either direction; landing on an unsupported combination re-mutates until a
+  supported one is found. Still open: the exact cadence ("every few phrases") and whether the
+  flag defaults on or off.
+- **Settled (D92): O42, played pitch in the live view.** On a successfully matched note, the
+  **expected note** lights up (theme colour, e.g. green), with no other decoration. The played
+  pitch itself is never rendered — this keeps the no-mismatch-hint principle (D22/D52) intact.
+- **Settled (D93): O64, played notes in the review.** Generated notes are always shown. Played
+  notes are optional, on a toggle, unquantized and neutral, and may indicate which notes matched
+  the script — an appreciation, not a score.
+- **Settled (D94–D97, D99, D100–D102, second 2026-09-27 batch):** look-ahead and failure ladder
+  confirmed as proposed (D94); the rolling display ships two switchable modes, fixed and
+  scrolling (D95); event identity confirmed as proposed (D96); the v1 workspace stays outside
+  sessions, largely unchanged, with a short list of additions (D97); harmonic horizon stays
+  phrase-by-phrase in v2.0, with the multi-phrase arc confirmed for v2.2 (D99); latency
+  calibration stays tuned constants for v2, with a player calibration step moved to **v3**, not
+  v2.1 (D100); adaptive tempo (v2.2) uses a flat +5 BPM every 2 phrases, no longer tied to O24 or
+  to matching performance, resetting to the starting tempo on Stop/Start (D101, D102).
+- **Settled (D108): O24, the chord-fit check.** Kept (D52 stands); judged per measure by pitch
+  class (full definition in [master-spec.md §9](master-spec.md#9-the-end-of-measure-chord-fit-check));
+  "blue"/passing chromatic notes that don't resolve onto a chord tone get no signal, by design;
+  and it fires **only** when the player deviates from the written phrase in that measure — never
+  on a measure played exactly as written. It ships in its own release, **v2.3**, after played-note
+  review/export and the O77 flag (v2.1) and adaptive tempo (v2.2).
+- **Settled (D107): O77's release is v2.1.**
+- Open: 8 questions across the v2 register; none is currently flagged ★ (all 5 most-blocking
+  ones are settled). See [open-questions.md](../../open-questions.md) and
+  [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
 
 ## Settled scope
 
@@ -59,7 +98,9 @@ settled until the user confirms it.
     what was played fits that measure's chord, and if so acknowledges that the player kept that
     part of the contract.
   - Embellishing and trying out improvisation are welcome, as long as the notes suit the chord.
-    What "fits" means is **O24** (below).
+    What "fits" means, judged per measure by pitch class, is settled (D108; see
+    [master-spec.md §9](master-spec.md#9-the-end-of-measure-chord-fit-check)); it ships in v2.3
+    and fires only when the player deviates from the written phrase.
 - **Backing playback.** This is the product's first audio.
   - It plays a bass line and block chords that follow the generated harmony, in pitch and on the
     beat, with an optional click and a mute/volume control. Rudimentary is acceptable.
@@ -74,17 +115,18 @@ settled until the user confirms it.
 - **Last-session review and export.**
   - At the end, the player reviews the last session (what was displayed and what was played) and
     marks what they liked.
-  - Export formats are MusicXML and MIDI. Export ships with the v2 review (proposed).
+  - Export formats are MusicXML and MIDI. Export ships with the v2.0 review (D104).
   - The user considers this "not urgent, but must come soon": it is instrumental for working with
     gimmicks and leitmotifs.
 - **Played-note privacy.**
   - Played notes belong to the player and are never sent anywhere.
   - For the review they are held in memory for the last session only.
   - An export includes played notes only if the player chooses it.
-- **Adaptive tempo (nice to have).**
+- **Adaptive tempo (nice to have, v2.2).**
   - An opt-in checkbox for players working on reading and playing speed.
-  - While it is on, the BPM rises slowly as long as the player keeps an "acceptable level" of
-    matching notes. That level is undefined and depends on O24.
+  - While it is on, the BPM rises on a flat, unconditional schedule — +5 BPM every 2 phrases,
+    up to 240 — independent of what the player plays (D101). It no longer depends on O24; a
+    performance-linked version is deferred to v3+.
 - **Guiding principle** (product-wide; see [far vision](../../vision/far-vision.md)): acknowledge
   and encourage, never penalize, grade, rank or score. Anything adaptive is opt-in and visible.
 
@@ -134,25 +176,15 @@ through an export the player triggers (D64, D69).
 
 ## Open questions
 
-- **O24 — What does "fits the chord" mean for the measure check?**
-  - Is it chord tones only, chord plus scale tones, or whatever the active profile allows (the
-    jazz profile adds chromatic approaches)?
-  - Is it judged by pitch class or by exact pitch?
-  - How is a note tied across a barline counted?
-  - Is the unit the whole bar or the half-bar? A bar can hold two chords (`startBeat: 0|2`).
-  - What happens when a measure doesn't fit: nothing shown, or something else?
-  - Conflict to resolve: the generated line itself uses non-chord scale tones and, in jazz,
-    chromatic approaches, so a strict chord-tone check would fail the app's own proposal.
-  - The user's view (2026-09-25): "almost everything is legit when arpeggiating chord and
-    improvising." The acceptable/unacceptable boundary needs dedicated work. This question also
-    defines adaptive tempo's "acceptable level".
-- **O10 (planner authority)** matters once generation continues from earlier material. See the
-  [register](../../open-questions.md).
-- **O33–O46** are the v2 questions from the [highlights proposal](highlights-proposal.md) and the
-  [prerequisites analysis](../prerequisites.md); they are listed in the [register](../../open-questions.md).
-- **O50–O75** were raised while drafting the topic documents (2026-09-26). Their full text lives
-  in the topic documents, and every open v2 question with its proposed default is collected in
-  [questions-for-user.md](questions-for-user.md).
+- **O47, O48, O49** are governance/later-version questions, unrelated to v2's own scope. Full
+  text is in the [register](../../open-questions.md).
+- **O57, O68, O69, O71** are the remaining research-track questions. **O77** (settings-mutation
+  flag) is narrowed by D103, and its release is settled at v2.1 (D107) — but its cadence and
+  default state are still open. Full text is in
+  [open-questions.md](../../open-questions.md) and [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
+- Every other question originally registered here (O10, O24, O33, O35–O39, O41–O46, O50–O56,
+  O58–O67, O70, O72–O76) is now **settled** — see the status snapshot above and the
+  [decisions log](../../decisions.md).
 
 ## Glossary
 
@@ -181,14 +213,14 @@ One canonical term per concept. "Flow mode", used in the highlights proposal, me
 - **Note acknowledgement:** the quiet positive signal that a played note matched an expected
   note.
 - **Chord-fit acknowledgement:** the end-of-measure positive signal that what was played fit the
-  harmony (O24).
+  harmony, fired only when the player deviated from the written phrase (D108, v2.3).
 - **Harmony span:** the part of a measure governed by one harmony event (a whole bar, or half a
   bar when `startBeat` is 2).
 - **Backing:** the bass and block chords rendered from the harmony. It is not a generated voice.
-- **Click:** the metronome sound. **Count-in:** the bar(s) of click before the first phrase and
-  after a pause.
+- **Click:** the metronome sound. **Count-in:** the bar(s) of click before a session's first
+  phrase (D85). There is no pause/resume in v2.0 (D89): a hidden tab ends the session outright.
 - **Review:** the view of the last session after it ends. **Favorite:** a phrase the player
   marked in the review.
 - **Export:** a MusicXML or MIDI file download that the player triggers.
-- **Adaptive tempo:** the opt-in option that raises the tempo while the player keeps matching
-  expected notes.
+- **Adaptive tempo:** the opt-in option that raises the tempo on a flat, unconditional schedule
+  while it is on (D101) — not tied to how the player plays.

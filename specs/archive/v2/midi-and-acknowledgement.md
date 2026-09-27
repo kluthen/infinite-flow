@@ -1,5 +1,8 @@
 # v2 — MIDI Input and Acknowledgement
 
+> **Archived 2026-09-27.** Consolidated into the v2 master spec. Live summary:
+> [versions/v2/master-spec.md §8–§9](../../versions/v2/master-spec.md).
+
 Status: draft v0.1 (2026-09-26)
 
 **Scope of this document.**
@@ -15,8 +18,10 @@ Sessions and privacy are covered in [sessions-review-export.md](sessions-review-
 clock is covered in [audio-and-backing.md](audio-and-backing.md).
 
 Settled items cite their decision. Everything else is `(proposed)`. Question IDs point to the
-[register](../../open-questions.md). O55, O56, O60, O61, O70 and O71 have their full text in
-[§9](#9-open-questions).
+[register](../../open-questions.md). O71 has its full text in [§9](#9-open-questions). O24 is
+settled (D108, see §6): the chord-fit check is kept, ships in v2.3, and fires only when the
+player goes off-script. O55, O41, O42, O43, O56, O60, O61 and O70 are settled (D77, D78, D92, D96,
+D100, D86, D90, D87).
 
 ## 1. Settled inputs
 
@@ -24,9 +29,10 @@ Settled items cite their decision. Everything else is `(proposed)`. Question IDs
   **only when it is the expected note**, and gives no mismatch hint (D52; this supersedes the
   archived D21/D22 hint).
 - **End-of-measure check.** The app keeps track of everything played. When a measure's time is
-  up, it checks whether what was played fits that measure's chord. If it fits, it acknowledges
-  that the player kept that part of the contract (D52). Embellishment is welcome as long as the
-  notes suit the chord. What "fits" means is **O24**.
+  up, and the player deviated from the written phrase in that measure, it checks whether what was
+  played fits that measure's chord. If it fits, it acknowledges that the player kept that part of
+  the contract (D52). Embellishment is welcome as long as the notes suit the chord. What "fits"
+  means, and the check's release and exact trigger, are settled (D108); see §6.
 - **Acknowledge, never penalize.** The app never penalizes, grades, ranks or scores (D66).
 - **Concert pitch.** MIDI input is read as concert pitch, and there is no input-transposition
   field for now. This must be verified on the device early in v2, and an optional template field
@@ -62,13 +68,15 @@ Settled items cite their decision. Everything else is `(proposed)`. Question IDs
   jitter (secondary source). The browser sees a BLE device only once the OS has paired it
   (**O71**).
 
-## 3. Input model `(proposed)`
+## 3. Input model (O61 settled D90; O60 settled D86)
 
-- **Inputs and channels.** All connected MIDI inputs are merged and all channels are accepted
-  (omni) (**O61**). A device picker appears only when more than one input is connected.
-- **Which messages count.** Only **note-on with velocity > 0** is a played note. Note-on with
-  velocity 0 and note-off end it. CC (breath included), pitch bend, aftertouch and SysEx are
-  ignored, and SysEx is never requested (**O60**).
+- **Inputs and channels (D90).** v2.0 expects a **single** MIDI input. If more than one is
+  connected, the player is asked to **pick one** — inputs are not merged. All channels on the
+  chosen input are accepted (omni).
+- **Which messages count (D86).** Only **note-on with velocity > 0** is a played note. Note-on
+  with velocity 0 and note-off end it. CC (breath included), pitch bend, aftertouch and SysEx are
+  ignored, and SysEx is never requested, because breath/CC signal from the owner's controller
+  isn't accurate enough to use.
 - **Played note.** A played note is recorded as its concert MIDI pitch, its onset on the audio
   clock (after compensation, §5), its release time, and a session sequence number (see O43).
   Velocity is kept for export only.
@@ -81,10 +89,11 @@ Settled items cite their decision. Everything else is `(proposed)`. Question IDs
 | Not yet connected                    | A "connect controller" action (a click) requests MIDI access and unlocks audio (O54).                                                                                                                                                                       |
 | Permission denied                    | The app says MIDI is blocked and how to re-allow it in site settings. Start still works.                                                                                                                                                                    |
 | Connected, no device                 | The app shows "no controller found" and listens for devices appearing (`statechange`).                                                                                                                                                                      |
+| Several devices connected (D90)      | The player is asked to pick one. Inputs are never merged.                                                                                                                                                                                                    |
 | Device unplugged during a session    | The session continues as a **no-controller session**: only Stop ends it (D67), and the 30 s inactivity timer is disarmed. A non-blocking notice is shown. If the device comes back it is re-attached automatically, and the timer re-arms on its next note. |
 | Transposition or octave offset found | See §4.                                                                                                                                                                                                                                                     |
 
-## 4. A silent failure to design out: controller vs template transposition (O55)
+## 4. A silent failure to design out: controller vs template transposition (settled, D77)
 
 - **The problem, which follows from D56 and D72 together.**
   - A saxophone-fingered wind controller left at its default setting behaves as a **C
@@ -100,7 +109,7 @@ Settled items cite their decision. Everything else is `(proposed)`. Question IDs
     silence, by ±12.
 - **D72 still holds.** The app reads MIDI as concert pitch. The question is how the player finds
   out that their device and template disagree.
-- **Proposed: a controller check.** It is part of connecting, and can be re-run at any time.
+- **Settled (D77): a controller check.** It is part of connecting, and can be re-run at any time.
   1. The app shows one written note from the selected template's range, and asks the player to
      play it.
   2. It computes the offset between the played note and the expected concert pitch.
@@ -109,16 +118,16 @@ Settled items cite their decision. Everything else is `(proposed)`. Question IDs
   5. For any other offset, it says the controller seems to transpose by _n_ semitones. It
      suggests setting the device to match the template (for the Travel Sax, in its app), or
      choosing the template that matches the device.
-- **Proposed:** the check ships in v2.0 regardless, because it is cheap and protects every
+- **Settled (D77):** the check ships in v2.0 regardless, because it is cheap and protects every
   tester. The optional input-offset field that D72 allows is added **only if** the Travel Sax
   verification shows the device cannot simply be set to match. If it is added, the check fills
   it in. It lasts for the session only, because persistence is v3.
 
-## 5. Expected-note acknowledgement (O41, O42) `(proposed)`
+## 5. Expected-note acknowledgement (O41 settled D78; O42 settled D92)
 
 - **Expected note.** An expected note is every **fresh attack** in the phrase timeline. A tie
   continuation belongs to its attack, and rests have no expected note.
-- **Timing window.**
+- **Timing window (settled, D78).**
   - The window **opens** 150 ms before the attack's onset (early grace).
   - It **closes** at the later of 200 ms after the onset (late grace) and the end of the note's
     tied sounding span. It never closes later than the next expected attack's window opening.
@@ -127,78 +136,116 @@ Settled items cite their decision. Everything else is `(proposed)`. Question IDs
   - For comparison, the most lenient osu!mania judgement tiers reach ±121–188 ms. With no
     scoring, v2 has no reason to be stricter.
   - All values are to be tuned on the Travel Sax 2 (USB and BLE) and one USB keyboard (O56).
-- **Pitch.**
+- **Pitch (settled, D78).**
   - The played note must be the **exact concert MIDI pitch**, octave included. P2 reads ledger
     lines, and octave matters for reading training.
-  - Octave-free matching is the alternative in O41. The controller check (§4) catches a
-    constant octave offset, which is the main reason octave-free matching would be wanted.
+  - Octave-free matching was the rejected alternative. The controller check (§4, D77) catches a
+    constant octave offset, which was the main reason octave-free matching would have been
+    wanted.
 - **One-to-one.** One played note acknowledges at most one expected note: the earliest
   unacknowledged note whose window contains it and whose pitch matches. An expected note is
   acknowledged at most once.
-- **Chords (keyboard).** If a chord contains the expected pitch within the window, that note is
-  acknowledged, and the extra notes are simply recorded (O41). Nothing is penalized.
-- **What the live view shows (O42).**
-  - Only acknowledgements: the expected note changes state, and ux-writer designs how.
-  - The live view **never shows the played pitch** (keeping archived D22's intent).
-  - _Reasoning:_ showing a wrong played pitch next to the expected one is a mismatch hint by
-    another name, and D52 removed those.
-  - The review may show played notes (see
-    [sessions-review-export.md](sessions-review-export.md), O64).
-- **Latency compensation (O56).**
+- **Chords (keyboard, settled, D78).** If a chord contains the expected pitch within the window,
+  that note is acknowledged, and the extra notes are simply recorded. Nothing is penalized.
+- **What the live view shows (settled, D92).** On a successfully matched note, the **expected
+  note itself** lights up (colour adapted to the current theme — green is the working example),
+  with no other decoration: no sound cue, no animation, no rendered pitch value. This keeps the
+  no-mismatch-hint principle intact (D22/D52): only a positive catch is ever marked, and a note
+  that is not matched, or played at the wrong pitch, shows nothing at all. The played pitch
+  itself is never rendered in the live view.
+  - This confirms §8's acceptance criterion 5 ("no leak of played pitch") as written: the
+    highlight is on the expected note, not a rendering of what was played.
+  - The review shows played notes as an option (see
+    [sessions-review-export.md](sessions-review-export.md), D93).
+- **Latency compensation (settled, D100).**
   - The played onset is the MIDI timestamp mapped onto audio time, minus the output latency.
     The player is reacting to sound that reaches them `outputLatency` late.
   - A per-connection constant covers input latency: USB is small, and BLE is about 10–15 ms
     plus jitter.
-  - v2.0 ships these as tuned constants. A player-facing calibration step is a v2.1 candidate
-    if testers need it (O56). Rhythm games offer one, but our windows are wide.
+  - v2.0 ships these as tuned constants only. A player-facing calibration step is **v3**, not a
+    v2.1 candidate (D100) — it pairs naturally with "my instrument" persistence. Rhythm games
+    offer one, but our windows are wide.
 
-## 6. End-of-measure chord-fit check (O24) `(proposed default for the user to react to)`
+## 6. End-of-measure chord-fit check (settled, D108; ships v2.3)
 
-This proposal answers O24's sub-questions directly. The goal it serves is the user's own
-statement that "almost everything is legit when arpeggiating chord and improvising". So the
-check is deliberately **more permissive than the generator**, and **the app's own line always
-fits**.
+**2026-09-27, research pass (D106):** `principal-advisor` grounded a recommendation in the actual
+generator code — the harmony never leaves the phrase's own scale/collection, and every chromatic
+note the generator itself ever writes is an approach or enclosure one semitone from a chord tone
+(which may legally resolve across a barline). Full reasoning in D106.
 
-- **Unit: the measure** (D52), but each note is judged against the harmony that is **sounding at
-  its onset**. That handles bars that hold two chords (`startBeat: 0|2`) without splitting the
-  acknowledgement into half-bars.
-- **Pitch class, not exact pitch.** Octave doesn't matter for "suits the chord".
-- **Which notes count.** Played attacks whose compensated onset falls inside the measure. An
-  onset up to 150 ms early counts for the next measure, as an anticipation. A note sustained or
-  tied across the barline counts only in the measure where it was attacked.
+**Resolved (D108), the three points the research pass returned to the owner:**
+
+1. **Keep the check.** D52's "embellishment welcome as long as it suits the chord" stands
+   unchanged. It's the only acknowledgement an improviser who decorates the line gets beyond
+   playing the script exactly.
+2. **Accepted trade-off.** "Blue" notes that don't resolve onto a chord tone (e.g. a ♭3 or ♭5 over
+   a major chord) and bebop-style chromatic passing tones that land on a scale note rather than a
+   chord tone get no acknowledgement under this rule. This is intentional, not a gap to close.
+3. **Trigger: off-script only.** A fitting measure is acknowledged **only when the player's notes
+   in that measure differ from the written phrase** — i.e. they embellished or improvised rather
+   than playing it exactly. A measure played exactly as written gets only the per-note highlight
+   (D92); chord-fit never fires on it. This means the two acknowledgement signals never double up
+   on the same bar.
+4. **Release: v2.3**, not v2.1. Played-note review/export (S2) and the settings-mutation flag
+   (O77) ship in v2.1; chord-fit is its own later release.
+
+The definition below is the kept, shipping rule, updated from the earlier draft in two ways the
+research flagged: pitch class instead of exact pitch (unchanged from the earlier draft), and a
+note's measure decided by **rounding to the nearest sixteenth-note grid point** rather than a
+fixed millisecond grace (a sixteenth is shorter than a 150 ms grace above 160 BPM, which would
+misclassify the app's own fast notes into the wrong measure).
+
+- **Off-script gate.** Before judging fit, compare the measure's played notes to its written
+  notes (same pitch classes in the same order, ties aside). If they match exactly, the check does
+  not run at all for that measure — only D92's per-note highlight applies. The fit judgement
+  below only ever runs on a measure where the player departed from the script.
+
+- **Unit: the measure** (D52), never split into half-bars, but each note is judged against the
+  harmony that is **sounding at its onset**. That handles bars that hold two chords
+  (`startBeat: 0|2`) without splitting the acknowledgement.
+- **Pitch class, not exact pitch.** Octave doesn't matter for "suits the chord" — this is
+  deliberately different from D78's exact-pitch note matching, which trains reading (where
+  octave matters). Chord-fit is about harmony, where a note belongs to a chord in any octave.
+- **Which measure a note belongs to.** Round each note's compensated onset to the nearest
+  sixteenth-note grid point; the rounded position decides both the measure and the harmony it's
+  judged against. A measure is judged once time passes the next barline plus half a sixteenth. A
+  note sustained or tied across a barline counts only once, in the measure where it was attacked.
 - **When a measure fits.** A measure **fits** when all of the following hold:
   1. at least one note was played in it, **and**
   2. at least one of its notes is a **chord tone** of the harmony sounding at that note's onset,
      **and**
   3. every note's pitch class is **in the phrase's collection** (the scale), **or** it is a
-     chromatic note that is followed, within the next two played notes, by a chord tone one
-     semitone away. That covers a chromatic approach or enclosure, whether or not the profile's
-     capability flag allows the generator to write them (D73).
+     chromatic note that is followed, within the next two played notes — possibly in the *next*
+     measure, since its resolution may land there — by a chord tone one semitone away. That
+     covers a chromatic approach or enclosure, whether or not the profile's capability flag
+     allows the generator to write them (D73).
 - **Why this passes the app's own line.**
   - Neutral pitches are all in the collection. Jazz chromatic pitches are approaches or
     enclosures that resolve by semitone to a chord tone within two attacks
     (`docs/music/jazz-profile.md`, `pitch-planner-validation.md`).
-  - The first attack of every phrase is a chord tone (`pitch-candidates.ts`).
-  - Whether **every measure** of every generated phrase contains a chord-tone attack is
-    **inference**. The acceptance test below verifies it, and condition 2 is relaxed if the test
-    finds counter-examples.
+  - The first attack of every phrase is a chord tone (`pitch-candidates.ts`), but a chord tone on
+    beat 1 elsewhere is only a ranking preference (`pitch-planner-validation.md`), not a hard
+    rule — whether **every measure** of every generated phrase contains a chord-tone attack is
+    **inference**, not guaranteed by the code. The acceptance test below verifies it, and
+    condition 2 is relaxed to "stayed in the key, chromatic notes resolve" if the test finds
+    counter-examples.
 - **When nothing is played in a measure:** nothing happens. No check runs and no signal is
   shown.
 - **When a measure doesn't fit:** nothing happens, and **nothing is ever shown** (D66). There is
   no "almost" signal.
-- **Profiles.** One rule for every profile. The player's freedom doesn't depend on what the
-  generator is allowed to write.
-- **What this rejects, and why the user must confirm it.**
-  - A held blue note, and outside playing that never resolves by semitone.
-  - A borrowed or altered chord tone. For example, ♭7 over a major-key I chord is outside the
-    collection.
-  - The alternatives are: (a) allow any single unresolved chromatic note per measure; (b) judge
-    only notes on beats 1 and 3 (strong beats); (c) the collection only, with no chord-tone
-    requirement.
+- **Profiles.** One rule for every profile — not "whatever the generator would have written",
+  which would refuse a chromatic note from a Neutral-profile player and reject the app's own most
+  common cross-barline approach. The generator's own rules are for composing a whole phrase
+  (leap budgets, contour, first/last notes), not for judging whether one note sounds right.
+- **Caveat for later versions:** this relies on the harmony staying inside one scale per phrase,
+  true of all v1/v2 harmony. If a later version adds out-of-scale chords (secondary dominants,
+  borrowed chords), condition 3 would need "a scale per chord" instead of "the phrase's scale" —
+  not needed now. If O77's mutation flag changes key or mode at a join, judge each measure
+  against its own phrase's scale.
 - **Presentation** of the measure acknowledgement is ux-writer's decision. The requirement is
   that it is positive and quiet (D66), and distinct from note acknowledgement.
 
-## 7. Event identity (O43) `(proposed)`
+## 7. Event identity (settled, D96)
 
 - **Phrase ordinal.** `phraseOrdinal` is the 1-based position of a phrase in the session.
   Repeated phrases (the O36 failure ladder) get their own ordinal.
@@ -221,9 +268,11 @@ fits**.
    change** of any kind.
 2. **Recovery.** A correct note played partway through a long expected note is acknowledged.
 3. **Chords.** A chord containing the expected pitch acknowledges it, and nothing else changes.
-4. **The app's own line fits.** For every seed × supported-settings combination in the existing
-   test matrix, and for both profiles, playing the generated phrase exactly (with the same
-   timing) makes every non-empty measure fit (§6). This is a property test over the fixtures.
+4. **The app's own line never fires chord-fit falsely.** For every seed × supported-settings
+   combination in the existing test matrix, and for both profiles, playing the generated phrase
+   exactly (with the same timing) never triggers the chord-fit signal — the off-script gate (§6)
+   holds it silent, and only the per-note highlight (D92) appears. This is a property test over
+   the fixtures. (v2.3)
 5. **No leak of played pitch.** The live view never renders a played pitch. This is checked by
    a component test that injects wrong notes.
 6. **Controller check.** Injected offsets of 0, 12, 14 and 9 produce the matching message
@@ -237,21 +286,9 @@ fits**.
 
 ## 9. Open questions
 
-Existing IDs covered here: **O24**, **O41**, **O42** and **O43** (proposed defaults above).
+**Settled here:** O24, O41, O42, O43, O55, O56, O60, O61, O70 (D108, D78, D92, D96, D77, D100,
+D86, D90, D87).
 
-- **O55 - Controller vs template transposition.** Should v2.0 ship the controller check (§4) that
-  detects a constant pitch offset and tells the player how to fix it (proposed)? And if the
-  Travel Sax can't be set to match the tenor template, should v2 add D72's optional input-offset
-  field then (proposed), or require players to read the template that matches their device?
-- **O56 - Latency calibration.** Should v2.0 use tuned constants per connection type (proposed),
-  or give players a calibration step?
-- **O60 - What counts as input activity.** Should only note-ons count for starting a session, the
-  30 s timeout and acknowledgement (proposed)? Or should breath and other CC messages also count
-  as "the player is still there"?
-- **O61 - Several inputs and channels.** Should all inputs be merged and all channels accepted
-  (proposed), with a picker only when there is more than one device?
-- **O70 - Browser scope for v2.** Should v2 stay Chromium-only, as v1 (proposed)? Web MIDI means
-  no iPad or iPhone support, and Firefox would need a site-permission add-on.
 - **O71 - Bluetooth MIDI** _(research on the owner's setup)_: is USB the tested path for v2.0,
   with BLE best-effort (proposed)? That depends on whether the owner's OS exposes the Travel
   Sax's BLE MIDI to Chromium, and on its measured jitter.

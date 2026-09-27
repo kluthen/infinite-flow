@@ -40,10 +40,11 @@ is archived verbatim as [2026-09-25-roadmap-pre-vision.md](archive/2026-09-25-ro
   - last-session review with MusicXML and MIDI export;
   - adaptive tempo as an opt-in (nice to have).
 - **Depends on:** the v1.0 gate (instrument transposition as data); the first audio and timing
-  foundation; **O24** (what "fits the chord" means); **O10** once continuation reuses earlier
-  material.
-- **Folder:** [versions/v2](versions/v2/README.md). There is also a highlights proposal
-  ([v2/highlights-proposal.md](versions/v2/highlights-proposal.md)) being drafted.
+  foundation; **O10** once continuation reuses earlier material. (O24, what "fits the chord"
+  means, is resolved — see D108.)
+- **Folder:** [versions/v2](versions/v2/README.md), consolidated into
+  [v2/master-spec.md](versions/v2/master-spec.md). The original highlights proposal is archived at
+  [archive/v2/highlights-proposal.md](archive/v2/highlights-proposal.md).
 
 ### 2. v3 — Player material and "my instrument"
 

@@ -16,6 +16,11 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
     controller now; the microphone much later, see [v5+](../v5-plus/README.md)), the expected
     range and the transposition.
   - It builds on v1.0's instrument templates, where transposition is open data.
+  - **Feeds from v2's controller check (D79):** v2.0's controller check (D77) detects a constant
+    pitch offset between the controller and the selected template — octave, semitone, or any
+    other constant delta — but only for the session (D77: no persistence in v2). Once "my
+    instrument" exists, the same check's result should populate or update the saved template
+    automatically, instead of asking the player to redo or re-enter it every session.
   - The instrument will eventually belong to a user profile. Switching instrument is expected to
     be rare.
   - A Concert-display override, absent from v1.0, may return here if someone needs it.

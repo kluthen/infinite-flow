@@ -1,5 +1,8 @@
 # v2 — Sessions, Last-Session Review and Export
 
+> **Archived 2026-09-27.** Consolidated into the v2 master spec. Live summary:
+> [versions/v2/master-spec.md §7](../../versions/v2/master-spec.md).
+
 Status: draft v0.1 (2026-09-26)
 
 **Scope of this document.** How a session starts and ends, what the session history records,
@@ -7,8 +10,8 @@ the last-session review with favorites, MusicXML and MIDI export, and how played
 private. Timing and audio are covered in [audio-and-backing.md](audio-and-backing.md); MIDI input
 is covered in [midi-and-acknowledgement.md](midi-and-acknowledgement.md).
 
-Settled items cite their decision. Everything else is `(proposed)`. O59, O62–O66, O72 and O73
-have their full text in [§8](#8-open-questions).
+Settled items cite their decision. Everything else is `(proposed)`. O37, O46, O59, O62, O63, O64,
+O65, O66, O72 and O73 are all settled (D88, D85, D93) — see [§8](#8-open-questions).
 
 ## 1. Settled inputs
 
@@ -47,33 +50,33 @@ have their full text in [§8](#8-open-questions).
 - **No version stamp on results.** `GenerationResult` is `{ requestId, seed, timeline }`
   (`src/domain/generation/generation-result.ts`).
 
-## 3. Session lifecycle `(proposed)`
+## 3. Session lifecycle (settled, D85/D89)
 
 | State       | Entered by                                                           | Left by                                                                                       |
 | ----------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Idle        | App load. End of review (starting again or dismissing it).           | Start click, or the first note-on once a controller is connected and audio is unlocked (O54). |
-| Counting in | Start. Resuming after a pause.                                       | End of the count-in bar(s) (O44). Stop.                                                       |
-| Running     | End of the count-in.                                                 | Stop. Inactivity timeout (controller sessions only). Page hidden (O53).                       |
-| Paused      | Page hidden (O53).                                                   | Page visible again (back to Counting in). Stop.                                               |
-| Review      | End of a session in which **at least one phrase was shown** (below). | Start (a new session replaces this review, O63). Dismiss.                                     |
+| Idle        | App load. End of review (starting again or dismissing it).           | Start click, or the first note-on once a controller is connected and audio is unlocked (D76). |
+| Counting in | Start.                                                                | End of the count-in bar(s) (D85). Stop.                                                       |
+| Running     | End of the count-in.                                                 | Stop. Inactivity timeout (controller sessions only). Page hidden (D89, ends the session).      |
+| Review      | End of a session in which **at least one phrase was shown** (below). | Start (a new session replaces this review, D88). Dismiss.                                     |
 
 - **Stop** ends the session at once. The backing and click fade out over about 100 ms, so it
   doesn't end on a click, and the review opens.
 - **Stop during the count-in**, before any phrase was shown, returns to Idle with no review.
+- **A hidden tab (D89) ends the session the same way Stop does** — there is no Paused state.
 - **Controller session.** A session is a controller session while at least one MIDI input is
-  attached. The 30 s inactivity timer counts from the most recent **note-on** (O60). It is armed
-  by the first note-on of the session (O59), so a player who clicks Start and has not yet played
-  is not timed out.
+  attached. The 30 s inactivity timer counts from the most recent **note-on** (D86). It is armed
+  by the first note-on of the session (**settled, D85**), so a player who clicks Start and has not
+  yet played is not timed out.
 - **Device loss** turns a controller session into a no-controller session (see
   [midi-and-acknowledgement.md §3](midi-and-acknowledgement.md)).
 - **"Shown" phrase.** A phrase counts as shown once its **first bar has started sounding**. The
   look-ahead phrase that was displayed as read-ahead but never sounded is not part of the
   history. The phrase that was sounding when the session ended is included whole.
 - **Trailing silence.** A timeout ends a session after more than 30 s of silence, which is 2 to 8
-  phrases the player did not play, depending on tempo. Proposed default: they stay in the
-  history, because they were shown and may have been read (**O73**).
+  phrases the player did not play, depending on tempo. **Settled (D85):** they stay in the
+  history, because they were shown and may have been read.
 
-## 4. Session history (O37) `(proposed)`
+## 4. Session history (settled, D88)
 
 - **One record per shown phrase**, in order, held in memory only:
   - `phraseOrdinal` (1-based; O43);
@@ -84,7 +87,7 @@ have their full text in [§8](#8-open-questions).
   - the tempo the phrase was played at, and its start time on the session clock;
   - `repeatOf`, when the phrase is a failure-ladder repeat (O36);
   - the phrase's acknowledgements, and the played notes whose onsets fall in the phrase (§6).
-- **Why store both the timeline and the reproduction inputs (O37):**
+- **Why store both the timeline and the reproduction inputs (D88):**
   - The timeline makes the review and the export independent of regeneration. They can never
     disagree with what was shown, even if a future generator version would produce something
     else.
@@ -97,27 +100,30 @@ have their full text in [§8](#8-open-questions).
   identifier". It changes whenever golden fixtures change. This is a contract change in
   `specs/generator-contract.md` (reported, not edited here).
 
-## 5. Last-session review (D62) `(proposed)`
+## 5. Last-session review (D62, D88)
 
 - **What it shows:** every shown phrase, in order, engraved as it was displayed (written pitch,
   key signature, chord symbols), with its phrase number and tempo. The layout and navigation are
   ux-writer's decision. The requirement is that the player can reach any phrase in a long
-  session without waiting (O72).
-- **Favorites (O62):** a favorite marks a **whole phrase**, and can be toggled on and off.
-  Marking a bar range is a snippet selection, which D68 ties to continuation seeds, so it is v3.
-- **Played notes in the review (O64):** hidden by default, shown with a toggle. When shown, they
-  appear against the phrase's time grid, **unquantized and neutral**. There is no right/wrong
-  colouring, because anything else is grading (D66). The acknowledgements received live may be
-  shown as they were live (positive marks only).
+  session without waiting (settled, D88: no cap on session length).
+- **Favorites (settled, D88):** a favorite marks a **whole phrase**, and can be toggled on and
+  off. Marking a bar range is a snippet selection, which D68 ties to continuation seeds, so it is
+  v3.
+- **Played notes in the review (settled, D93).** The generated notes are always shown (this was
+  already true). Played notes are **optional**, shown with a toggle (the original proposed
+  default holds). When shown, they appear against the phrase's time grid, **unquantized and
+  neutral**, and may indicate which notes matched the script — an appreciation of having
+  followed it, not a score. There is still no right/wrong colouring on a miss: only a positive
+  match is ever marked, per D66/D92.
 - **Only the last session exists.** Starting a new session discards the current review and its
-  played notes. Proposed: if favorites were marked and not exported, a confirmation is asked
-  first (O63). Closing or reloading the page discards everything, without a prompt.
+  played notes. **Settled (D88):** if favorites were marked and not exported, a confirmation is
+  asked first. Closing or reloading the page discards everything, without a prompt.
 - **Empty review.** A session that showed phrases but received no MIDI input still gets a review.
   Only the played-notes toggle is unavailable.
 
-## 6. Export `(proposed)`
+## 6. Export (settled, D88)
 
-- **Scope (O46): both.** "Export session" exports every shown phrase. "Export favorites" is
+- **Scope: both.** "Export session" exports every shown phrase. "Export favorites" is
   available when at least one favorite exists, and exports only those phrases, in session order.
   Every exported phrase keeps its session phrase number.
 - **Delivery:** a file download created in the browser (a `Blob` and an object URL). There is no
@@ -129,7 +135,7 @@ have their full text in [§8](#8-open-questions).
     pitch. For a C template, the element is omitted.
   - Treble clef, as in v1. The key signature is repeated wherever the key changed during the
     session.
-  - Chord symbols as `<harmony>` elements at their written tick (O66: always included).
+  - Chord symbols as `<harmony>` elements at their written tick (settled, D88: always included).
   - Each phrase starts with a rehearsal mark ("Phrase 7") and a double barline. A metronome mark
     appears at the start and at each tempo change.
   - Implemented as a pure serializer over the written phrases, with no library.
@@ -140,7 +146,7 @@ have their full text in [§8](#8-open-questions).
   - A tempo map (tempo meta-events at every change), time signature 4/4, and a marker per phrase
     ("Phrase 7").
   - Optional track: the backing, as rendered during the session (bass and chords). Off by
-    default (O66).
+    default (settled, D88).
   - Optional track: the played notes, **only if the player ticks "include what I played"**. Off
     by default (D69). They are unquantized, converted from session time with the tempo map, and
     keep their velocity.
@@ -163,28 +169,9 @@ have their full text in [§8](#8-open-questions).
 
 ## 8. Open questions
 
-Existing IDs covered here: **O37** and **O46** (proposed defaults above).
+**Settled here:** O37, O46, O59, O62, O63, O64, O65, O66, O72, O73 (D88, D93, D85, above).
 
-- **O59 - Arming the inactivity timeout.** Should the 30 s timeout start counting only after the
-  first note-on of the session (proposed, so Start plus a pause to get ready doesn't end the
-  session)? Or should it count from the session start whenever a controller is connected?
-- **O62 - Favorite granularity.** Should a favorite be a whole phrase in v2 (proposed), with bar
-  ranges left to v3 snippet selection (D68)?
-- **O63 - Discarding the last session.** Should a confirmation be asked before a new session
-  discards a review with unexported favorites (proposed), always, or never?
-- **O64 - Played notes in the review.** Should played notes be hidden by default and shown on a
-  toggle, unquantized and neutral (proposed)? And may the review show the live acknowledgements,
-  given that their absence on other notes can read as a grade?
-- **O65 - Played notes in export formats.** Should played notes be exported in MIDI only
-  (proposed), or also quantized into MusicXML?
-- **O66 - What else goes into export.** Should chord symbols always be in MusicXML (proposed),
-  and the backing in MIDI only as an option that is off by default (proposed)?
-- **O72 - Long sessions.** Is there no cap on session length (proposed, since memory cost is
-  small), provided the review stays responsive, for example by rendering only the phrases in
-  view? Or should sessions be capped?
-- **O73 - Trailing silent phrases.** After a timeout, should the up to 30 s of phrases nobody
-  played stay in the review and the export (proposed)? Or should they be trimmed from the last
-  played note onwards?
+No open questions remain in this document.
 
 ## 9. Acceptance criteria (proposed)
 

@@ -1,5 +1,8 @@
 # v2 — Audio Clock, Backing, Click, Count-in and Tempo
 
+> **Archived 2026-09-27.** Consolidated into the v2 master spec. Live summary:
+> [versions/v2/master-spec.md §6](../../versions/v2/master-spec.md).
+
 Status: draft v0.1 (2026-09-26)
 
 **Scope of this document.** The product's first audio: the master clock, the backing (bass and
@@ -7,8 +10,9 @@ block chords), the click, the count-in, and what tempo means. MIDI timing agains
 in [midi-and-acknowledgement.md](midi-and-acknowledgement.md).
 
 Settled items cite their decision. Everything else is `(proposed)`. Question IDs point to the
-[register](../../open-questions.md). O53, O54, O57, O58 and O68 have their full text in
-[§8](#8-open-questions).
+[register](../../open-questions.md). O57 and O68 have their full text in [§8](#8-open-questions).
+O38, O44, O45, O53, O54, O58 and O59/O73 (in [sessions-review-export.md](sessions-review-export.md))
+are settled (D76, D84, D85, D89).
 
 ## 1. Settled inputs
 
@@ -58,12 +62,12 @@ Settled items cite their decision. Everything else is `(proposed)`. Question IDs
   `AudioContext.getOutputTimestamp()`, which returns a matched `contextTime` and
   `performanceTime`, and it accounts for `outputLatency` (Chrome 102+). Otherwise the playhead
   runs ahead of the sound by the output latency.
-- **Hidden tab (O53).** Browsers throttle timers in hidden pages, and a throttled scheduler
-  produces gaps. Proposed default: when the page is hidden, the session **pauses** (the clock
-  stops and the inactivity timer is suspended). When the page is visible again, the session
-  resumes with a count-in. Reading needs the page visible anyway.
+- **Hidden tab (settled, D89).** The page being hidden **ends the session immediately**, the same
+  as a manual Stop: the backing and click fade out, and the review opens. This replaces the
+  earlier "pause and resume with a count-in" proposal (browsers throttle timers in hidden pages
+  anyway, so a paused clock could never resume cleanly).
 
-## 4. Autoplay and the first sound (O54) `(proposed)`
+## 4. Autoplay and the first sound (settled, D76)
 
 - **Chromium's autoplay policy:** an `AudioContext` created before a user gesture starts
   _suspended_, and `resume()` needs a user activation.
@@ -73,7 +77,7 @@ Settled items cite their decision. Everything else is `(proposed)`. Question IDs
 - **Consequence for D62's "the first MIDI note starts a session":** it can only start audio if the
   page already has _sticky_ user activation, meaning the player clicked or pressed a key on the
   page at least once.
-- **Proposed default:** the "connect controller" action is a click. It requests MIDI access and
+- **Settled (D76):** the "connect controller" action is a click. It requests MIDI access and
   unlocks audio in the same gesture. For the rest of the page's life, a MIDI note can then start
   a session. Before that click, a MIDI note cannot start a session. The app doesn't have MIDI
   access yet anyway, so the two constraints coincide.
@@ -81,7 +85,7 @@ Settled items cite their decision. Everything else is `(proposed)`. Question IDs
   and the player is asked to click to enable sound. The app never starts a silent session with a
   frozen clock.
 
-## 5. Backing (O45) `(proposed)`
+## 5. Backing (settled, D85)
 
 - **The backing is a renderer, not a generated voice.** A pure function maps each phrase's
   harmony events and tempo to backing note events, which are scheduled as audio.
@@ -96,9 +100,9 @@ Settled items cite their decision. Everything else is `(proposed)`. Question IDs
   - Voicing and register are **O57**. Proposed: bass in MIDI 36–47 (C2–B2); chords as the
     closest inversion to the previous one, with the top note at or below MIDI 64 (E4), so the
     backing stays mostly below the lead's register.
-- **Sound (O45's second half).** Proposed default for v2.0: **synthesized in-app with plain Web
-  Audio nodes** (oscillators, filters and envelopes). There are no assets, so it is offline-safe
-  with no precache growth and no third-party licence.
+- **Sound (O45's second half, settled D85).** **Synthesized in-app with plain Web Audio nodes**
+  (oscillators, filters and envelopes). There are no assets, so it is offline-safe with no
+  precache growth and no third-party licence.
   - **Alternatives considered:**
     - _Tone.js_: MIT, about 77 kB gzip. It adds a transport and synths, but duplicates the clock
       we need to own anyway.
@@ -110,9 +114,9 @@ Settled items cite their decision. Everything else is `(proposed)`. Question IDs
 - **Controls:** backing on/off (mute), backing volume, click on/off, click volume `(proposed)`.
   Where they sit and how they look is ux-writer's decision.
 
-## 6. Click and count-in (O44) `(proposed)`
+## 6. Click and count-in (settled, D85)
 
-- **Click:** quarter notes, with beat 1 accented. Proposed default: **on** (**O58**), because the
+- **Click:** quarter notes, with beat 1 accented. Settled: **on** by default, because the
   click is what makes the tempo readable before the backing makes sense.
 - **Count-in:** **one bar** of click before phrase 1, for **both** ways of starting.
   - _Start button:_ the click-in begins immediately.
@@ -121,13 +125,14 @@ Settled items cite their decision. Everything else is `(proposed)`. Question IDs
   - **Why the MIDI case needs a count-in:** the app cannot know in advance where the player's
     beat 1 falls. Treating the first note as beat 1 would force phrase 1's first note to be
     "already played", and would pin the tempo to an unknown moment.
-- **After a pause** (hidden tab, O53), the session resumes with the same one-bar count-in.
+- A hidden tab now ends the session outright (D89), so there is no "resume after a pause"
+  count-in case to design for.
 - Phrases 1 and 2 are generated before the count-in ends (O36, see
   [rolling-phrase.md](rolling-phrase.md)). With v1's warm latency, one bar (at most 4 s at
   60 BPM, at least 1 s at 240 BPM) is enough. If the first generation is cold and misses the
   count-in, the count-in extends by whole bars. It is never cut short.
 
-## 7. Tempo (O38) `(proposed)`
+## 7. Tempo (settled, D84)
 
 - **Tempo stays transport-only in v2.** It is not added to the generation request, and material
   does not change with BPM.
@@ -143,26 +148,19 @@ Settled items cite their decision. Everything else is `(proposed)`. Question IDs
   - Adaptive tempo may land on in-between integer values (see
     [adaptive-tempo.md](adaptive-tempo.md)).
   - A tempo change always applies at a phrase boundary (see
-    [rolling-phrase.md §5](rolling-phrase.md#5-control-changes-during-a-session-o39-proposed)).
+    [rolling-phrase.md §5](rolling-phrase.md#5-control-changes-during-a-session-settled-d91-see-also-o77)).
 - **Swing:** v1 is straight (Straight, Occasional offbeats and Active displacement are
   syncopation settings, not swing; `docs/music/rhythm-phrase-structure.md`). v2 adds no swing
   feel to the backing or click.
 
 ## 8. Open questions
 
-Existing IDs covered here: **O38**, **O44** and **O45** (proposed defaults above).
+**Settled here:** O38, O44, O45, O53, O54, O58 (D76, D84, D85, D89, above).
 
-- **O53 - Hidden tab during a session.** Should a hidden page pause the session and resume with
-  a count-in (proposed), end the session, or keep running and accept possible gaps?
-- **O54 - Audio unlock and MIDI-started sessions.** Is a single "connect controller" click that
-  unlocks audio and requests MIDI access acceptable (proposed), given that a MIDI note alone can
-  never start audio on a page nobody clicked?
 - **O57 - Backing voicing and register** _(listening-test calibration)_: bass in MIDI 36–47,
   chords close-position with the top note at or below MIDI 64, attacked per harmony event and
   per downbeat (proposed). Is that acceptable for v2.0, or should the chords sit higher or
   comp rhythmically?
-- **O58 - Click default.** Should the click be on by default (proposed), on only during the
-  count-in, or off?
 - **O68 - Main-thread engraving vs audio scheduling** _(prototype needed)_: does engraving a
   phrase (VexFlow, main thread) ever block longer than the scheduler's look-ahead? Proposed: a
   200 ms look-ahead, and the scheduler's wake-up timer in a Worker. The v2 prototype measures the

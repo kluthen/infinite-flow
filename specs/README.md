@@ -25,8 +25,40 @@ Status: draft v0.5
   - **v4:** accompaniment with roles.
   - **v5+:** a library and microphone input.
   - **Endgame:** a rhythm RPG.
-- **Open:** O10 (planner authority) and O24 (what "fits the chord" means). No other question is
-  open.
+- **Open:** 8 questions remain live (down from 27), none flagged ★. The 5 most-blocking ones
+  settled first (**D104** O75 v2.0 cut line is the full loop; **D105** O34 continuation boundary;
+  **D76** O54 audio unlock; **D77** O55 controller check ships; **D78** O41 acknowledgement
+  window), then two large 2026-09-27 batches closed nearly everything else (**D80–D88**:
+  leap-across-join, tense-note resolution at a join, register window, planner authority,
+  tempo-as-input, count-in, backing, click, timeout arming, trailing silence, MIDI activity,
+  browser scope, history storage, export scope/extras, favorites, discard confirmation, session
+  length; **D92–D102**: the live view highlights a matched expected note, never the played
+  pitch; the review always shows generated notes with played notes optional on a toggle;
+  look-ahead/failure ladder, event identity and the v1-workspace-in-v2 shape all confirmed;
+  the rolling display ships two candidate modes behind a toggle rather than picking one; the
+  harmonic horizon stays phrase-by-phrase for v2.0, with a v2.2 multi-phrase arc noted as
+  non-urgent; latency calibration moves to v3, not v2.1; adaptive tempo (v2.2) is a flat +5 BPM
+  every 2 phrases, unconditional, resetting to the starting tempo on Stop/Start). Three of that
+  series are **overrides** of the proposed default rather than confirmations (**D89** hidden tab
+  now ends the session immediately; **D90** v2.0 expects a single MIDI input, no merging;
+  **D101**, which replaces the proposed performance-linked adaptive-tempo metric with an
+  unconditional flat schedule, decoupling it from O24 entirely), and one is a **substantive
+  modification** (**D91**: the settings UI is locked for the whole session, not just the
+  instrument selector). **O24 is settled (D108):** the chord-fit check is kept, judged per
+  measure by pitch class, fires only when the player deviates from the written phrase (accepting
+  that "blue"/passing chromatic notes get no signal), and ships in its own new release, **v2.3**.
+  **O77's release is settled at v2.1 (D107)**; it is otherwise narrowed by **D103**: every
+  setting except instrument selection and tempo is eligible, each mutation shifts one by at most
+  one grade in either direction, and landing on an unsupported combination re-mutates until a
+  supported one is found — but the exact cadence and the flag's default on/off state are still
+  open. The rest of what's open is verification/research work, not a design decision: O47,
+  O48, O49 (later/governance, outside v2's own scope), and O57, O68, O69, O71 (listening test,
+  prototype, measurement, and Bluetooth-MIDI research). **D79** notes that v3's "my instrument"
+  should inherit the controller check's detected offset. **The v2 spec (v2.0–v2.3) is now
+  consolidated** into [versions/v2/master-spec.md](versions/v2/master-spec.md); the draft topic
+  documents that fed it, including the original questions-for-user, are archived at
+  [archive/v2/](archive/v2/README.md). See the live [register](open-questions.md) for what
+  remains open.
 
 ## Documents
 
@@ -52,8 +84,8 @@ Status: draft v0.5
 
 ### Tracking
 
-- [Open questions](open-questions.md): only truly open questions (O10, O24).
-- [Decisions](decisions.md): the live append-only log, numbered from D72.
+- [Open questions](open-questions.md): only truly open questions.
+- [Decisions](decisions.md): the live append-only log, numbered from D109.
 
 ### v1 reference (kept in place because other files link to them)
 
@@ -73,3 +105,6 @@ Status: draft v0.5
     vision session.
   - [Pre-vision roadmap](archive/2026-09-25-roadmap-pre-vision.md): the stage roadmap cited by
     `docs/release/`.
+  - [v2 archive](archive/v2/README.md): the v2.0–v2.3 spec-consolidation working record —
+    decisions D72–D108 and the eight draft topic documents, superseded by
+    [versions/v2/master-spec.md](versions/v2/master-spec.md).

@@ -18,8 +18,8 @@
 ## Remaining
 
 - Add optional MIDI-feedback flow and states when that enhancement is scheduled. Now scoped on the
-  spec side as `specs/versions/v2/README.md`'s `midi-and-acknowledgement.md`; design starts once
-  v2 UI work begins.
+  spec side in `specs/versions/v2/master-spec.md` §8–§9 (MIDI input, note acknowledgement, and the
+  end-of-measure chord-fit check); design starts once v2 UI work begins.
 - Revalidate only if a specification refinement changes settled UI behavior, controls, or states.
 - **Q16** (`qna.md`): design a generation action reachable from the notation-error states
   themselves, replacing the undiscoverable instrument-profile-switch escape. Deferred past v1.0;

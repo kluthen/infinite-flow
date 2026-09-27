@@ -1,19 +1,23 @@
 # v2 — Definition of Done
 
+> **Archived 2026-09-27.** Consolidated into the v2 master spec. Live summary:
+> [versions/v2/master-spec.md §11](../../versions/v2/master-spec.md).
+
 Status: draft v0.1 (2026-09-26). Everything here is `(proposed)`. It refines the candidate
 definition in [highlights-proposal.md §6](highlights-proposal.md#6-candidate-v2-definition-of-done-proposed)
 and collects the acceptance criteria of the topic documents.
 
-## 1. Cut line (O75)
+## 1. Cut line (D104)
 
-The proposed cut line follows [highlights-proposal.md §4](highlights-proposal.md#4-proposed-cut-line).
-Whether it holds is **O75**.
+**Settled (D104):** v2.0 is the full core loop, MIDI included. The cut line follows
+[highlights-proposal.md §4](highlights-proposal.md#4-proposed-cut-line).
 
 | Release  | Content                                                                                                                                                                                                                                                                                                                                          |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **v2.0** | Rolling phrase with carry-in (M1, M5). Backing, click and count-in (M2). Sessions (M3). MIDI expected-note acknowledgement and the controller check (M4; M6 is replaced by the check, see D72 and O55). Last-session review with favorites (M7). MusicXML and MIDI export of generated material (M8). Control changes at phrase boundaries (S3). |
-| **v2.1** | End-of-measure chord-fit acknowledgement (S1, once O24 is settled). Played notes in the review, and in the MIDI export by choice (S2). Latency calibration if testers need it (O56).                                                                                                                                                             |
-| **v2.2** | Adaptive tempo (N1). Multi-phrase arc (N3, O35). Embellishment flags (N2) are v2.2 or v3.                                                                                                                                                                                                                                                        |
+| **v2.1** | Played notes in the review, always available, and in the MIDI export by choice (S2, D93/D88). The settings-mutation flag (O77), settled D103/D107: every setting except instrument selection and tempo is eligible, each mutation shifts one by at most one grade, and landing on an unsupported combination re-mutates until a supported one is found; the exact cadence and default on/off state are still open. |
+| **v2.2** | Adaptive tempo (N1), a flat +5 BPM every 2 phrases, resetting on Stop/Start (D101, D102). Multi-phrase arc (N3, O35, D99). Embellishment flags (N2) are v2.2 or v3.                                                                                                                                                                                                                                        |
+| **v2.3** | End-of-measure chord-fit acknowledgement (S1), settled D108: kept, per-measure/pitch-class, fires only when the player's notes in that measure deviate from the written phrase — never on a measure played exactly as written. See [midi-and-acknowledgement.md §6](midi-and-acknowledgement.md). |
 
 Count-in (N4) is promoted into v2.0, because the MIDI start needs it (see
 [audio-and-backing.md §6](audio-and-backing.md)).
@@ -79,9 +83,6 @@ A v2.0 release is done when all of the following hold.
 
 ## 5. Open questions
 
-- **O75 - The v2.0 cut line.** Should v2.0 ship the full core loop (proposed: M1–M8 plus S3 and
-  the count-in, with chord-fit and played-note review in v2.1)? Or should it take the leaner cut
-  from the proposal, v2.0 without MIDI ("flow, backing, review") and MIDI in v2.1?
 - **O69 - Latency after ISS-004** _(measurement)_: re-run the latency harness after ISS-004,
   adding cold runs after a mid-session control change. Does the cold worst case stay under a
   quarter of the one-bar deadline at 240 BPM (250 ms in Chromium)?

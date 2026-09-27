@@ -1,5 +1,8 @@
 # v2 Highlights — Draft Proposal
 
+> **Archived 2026-09-27.** The original 2026-09-26 highlights/cut-line proposal that opened the v2
+> conversation. Superseded by [versions/v2/master-spec.md](../../versions/v2/master-spec.md).
+
 Status: draft v0.1. For the user to react to. Anything the user hasn't settled is tagged `(proposed)`. Settled inputs cite their decision IDs.
 
 Topic documents (draft v0.1, 2026-09-26) develop this proposal: [rolling phrase](rolling-phrase.md), [audio and backing](audio-and-backing.md), [MIDI and acknowledgement](midi-and-acknowledgement.md), [sessions, review and export](sessions-review-export.md), [adaptive tempo](adaptive-tempo.md), [definition of done](definition-of-done.md) and [questions for the user](questions-for-user.md).
@@ -70,10 +73,16 @@ v2 is still a practice partner, not a judge (D66).
 | N3  | **Multi-phrase arc:** tension shaped across 8 or 16 bars instead of repeating every 4 | Flow feels less cyclic | P1       | `(proposed)`              |
 | N4  | **Count-in before the first phrase**                                                  | Easier entry           | all      | `(proposed)`              |
 
-## 4. Proposed cut line
+## 4. Proposed cut line (superseded)
+
+This section is the original 2026-09-26 proposal, kept for history. The authoritative cut line is
+now [definition-of-done.md §1](definition-of-done.md), settled D104/D107/D108: v2.0 is the full
+core loop (M1–M8, S3); v2.1 is S2 and the settings-mutation flag; v2.2 is adaptive tempo (N1) and
+the multi-phrase arc (N3); v2.3 is the chord-fit check (S1), split out on its own once O24 was
+resolved rather than shipping alongside S2 in v2.1 as first proposed here.
 
 - **v2.0:** M1–M8. This delivers the core loop: flow, backing, MIDI acknowledgement, review and export.
-- **v2.1:** S1 and S2, once O24 is defined and the privacy UI for played notes is designed. S3 goes in here too if it is not trivial in v2.0.
+- **v2.1 (superseded, see above):** S1 and S2, once O24 is defined and the privacy UI for played notes is designed. S3 goes in here too if it is not trivial in v2.0.
 - **v2.2 and later:** N1–N4.
 - **Alternative, leaner cut:** ship v2.0 without MIDI (M4, M6), as "flow, backing, review", and add MIDI in v2.1. This lowers risk, because audio and the rolling display are new ground. But it delays the feature the product owner tests with.
 

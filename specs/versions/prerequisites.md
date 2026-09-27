@@ -19,8 +19,9 @@ Reading rules:
 - Foundation letters (A–N) are local labels for this document only. They are not open-question
   IDs. Questions are listed unnumbered at the end, for the owner of the register to number.
 - Decision numbers (Dnn) refer to the
-  [2026-09-25 archive](../archive/2026-09-25-decisions-D47-D71.md). O10 and O24 refer to the
-  [register](../open-questions.md).
+  [2026-09-25 archive](../archive/2026-09-25-decisions-D47-D71.md). O10 refers to the
+  [register](../open-questions.md); O24 is resolved (D108) — see
+  [v2/master-spec.md §9](v2/master-spec.md#9-the-end-of-measure-chord-fit-check).
 
 ## 1. Dependency map
 
@@ -30,11 +31,11 @@ Reading rules:
 | Rhythmic variety, Mixed retired (D59, D60)                                                                 | v1.0    | M, I                                                  | Partly: density-keyed cell catalogs; variety concept absent                                     | M (pending the ISS-004 feasibility review) |
 | Rolling phrase continuing its own output (D51, D65)                                                        | v2      | A, B, E, N, plus a latency budget                     | No: fixed four-measure one-shot generation, no prior-context input                              | L                                          |
 | MIDI input, expected-note acknowledgement (D52)                                                            | v2      | C, B, H, L                                            | No MIDI code; no event identity through notation                                                | M–L                                        |
-| End-of-measure chord-fit check (O24)                                                                       | v2      | C, D, B                                               | Partly: chord events per measure and an internal chord-tone fact exist                          | S–M once O24 is settled                    |
+| End-of-measure chord-fit check (D108, ships v2.3)                                                          | v2      | C, D, B                                               | Partly: chord events per measure and an internal chord-tone fact exist                          | S–M, now that D108 has settled the rule    |
 | Backing audio: bass, block chords, click (D63, D70)                                                        | v2      | B, D                                                  | No audio code at all                                                                            | M–L                                        |
 | Session model, last-session review (D62, D67)                                                              | v2      | E, C, N                                               | No: the session holds one result, no history                                                    | M                                          |
 | MusicXML / MIDI export (D62, D67)                                                                          | v2      | G, E                                                  | No                                                                                              | M                                          |
-| Adaptive tempo, opt-in (D66)                                                                               | v2      | B, C, D, E                                            | No (depends on O24)                                                                             | S once B–E exist                           |
+| Adaptive tempo, opt-in (D66, D101)                                                                         | v2      | B, C, D, E                                            | No (flat schedule, D101; no longer depends on the chord-fit check)                              | S once B–E exist                           |
 | Played-note privacy (D69)                                                                                  | v2      | E (in memory), G (export choice)                      | Trivially satisfied today: nothing is played or stored                                          | S                                          |
 | Embellishment and style flags (D59)                                                                        | v2/v3   | I, J, M                                               | Partly: appoggiatura, enclosure, passing and neighbor figures exist; no trill/mordent/grace     | M–L                                        |
 | MIDI-seeded continuation (D53)                                                                             | v3      | A (full form), C, O10                                 | No                                                                                              | L                                          |
@@ -168,9 +169,11 @@ future accompaniment.
 - **Inference:**
   - A measure check can be computed from the chord events plus the collection alone.
   - Whether "fits" should also reuse the profile's own figure legality (so the check never
-    fails the app's own line) is exactly O24.
+    fails the app's own line) is now settled (D108): yes — the check fires only when the player's
+    played notes deviate from the written phrase, never on a measure played exactly as written.
 
-**Earliest version.** v2. The gap is small, but blocked on O24.
+**Earliest version.** v2.3 (D104, D108). The gap is small and no longer blocked; see
+[v2/master-spec.md §9](v2/master-spec.md#9-the-end-of-measure-chord-fit-check).
 
 ### E. Session model with phrase history
 
@@ -439,7 +442,8 @@ produced a result.
 4. **A version stamp on `GenerationResult` (N)**, before any history exists.
 5. **Stable event identity through the notation pipeline (L).** This is a prerequisite of
    acknowledgement highlighting and of review marks.
-6. **Expose the per-measure harmony facts (D)** for consumers once O24 is settled.
+6. **Expose the per-measure harmony facts (D)** for consumers, now that D108 has settled the
+   chord-fit rule.
 
 ### Premature now: do not pull forward
 
