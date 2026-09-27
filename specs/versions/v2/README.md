@@ -79,6 +79,10 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   on a measure played exactly as written. It ships in its own release, **v2.3**, after played-note
   review/export and the O77 flag (v2.1) and adaptive tempo (v2.2).
 - **Settled (D107): O77's release is v2.1.**
+- **Settled (D109, from `ux-writer`'s design kickoff): a failure-ladder repeat phrase is never
+  visibly marked in the review**, though it's still recorded internally.
+- **Settled (D110, from `ux-writer`'s design kickoff): the v2.2 multi-phrase tension arc is a
+  player-facing opt-in**, with its own toggle, not an invisible generation behavior.
 - Open: 8 questions across the v2 register; none is currently flagged ★ (all 5 most-blocking
   ones are settled). See [open-questions.md](../../open-questions.md) and
   [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).

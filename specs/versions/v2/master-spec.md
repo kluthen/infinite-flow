@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1 (2026-09-27). This is the consolidated, execution-ready specification for
+Status: master spec v1.1 (2026-09-27). This is the consolidated, execution-ready specification for
 v2, covering releases v2.0 through v2.3. It supersedes the individual v2 draft topic documents,
 which are kept in the archive as working history.
 
@@ -92,9 +92,12 @@ is deferred to v3 entirely).
   the whole session unless a control change forces a re-resolution. A fixed register setting (Low,
   Middle, High) behaves exactly as in v1.
 - Each phrase's own tension arc (build and release within its own four bars) is independent of
-  carry-in and of any other phrase in the session — v2 does not plan a tension shape that spans
-  multiple phrases. A flag that lets tension rise and fall across a longer, multi-phrase arc is
-  confirmed as v2.2 scope, but is not considered urgent for that release.
+  carry-in and of any other phrase in the session by default. A separate, opt-in **multi-phrase
+  tension arc** flag lets tension rise and fall across a longer arc spanning several phrases
+  instead; it is confirmed as v2.2 scope, but is not considered urgent for that release. Unlike
+  the always-on single-phrase arc, this is a player-facing control with its own visible on/off
+  toggle, on the same footing as the settings-mutation flag (§5) and adaptive tempo (§10) —
+  presentation is a UI/UX design decision, not specified here.
 
 ## 4. Look-ahead and failure handling
 
@@ -216,8 +219,10 @@ original reproduction inputs — the resolved request, seed, and carry-in — so
 this session is exactly reproducible from its stored inputs" is a testable guarantee, not an
 assumption. This also stores whatever a v3 persistence/continuation feature will need later. The
 history additionally records each phrase's acknowledgements and the played notes whose onsets fall
-within it, and marks any phrase that is a repeat inserted by the failure ladder in §4. There is no
-cap on session length; the review must stay responsive regardless of how long a session ran.
+within it, and marks any phrase that is a repeat inserted by the failure ladder in §4 — internally
+only: the review itself never visibly distinguishes a repeated phrase from any other phrase, since
+a repeat is a generator implementation detail, not something worth surfacing to the player. There
+is no cap on session length; the review must stay responsive regardless of how long a session ran.
 
 **The last-session review.** Every phrase that was shown appears, in order, engraved exactly as it
 was displayed (written pitch, key signature, chord symbols), each with its phrase number and the
