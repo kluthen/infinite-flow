@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.1 (2026-09-27). This is the consolidated, execution-ready specification for
+Status: master spec v1.5 (2026-09-27). This is the consolidated, execution-ready specification for
 v2, covering releases v2.0 through v2.3. It supersedes the individual v2 draft topic documents,
 which are kept in the archive as working history.
 
@@ -177,10 +177,27 @@ written key.
   readable before the backing itself makes musical sense. Backing on/off, backing volume, click
   on/off and click volume are all separate mix controls, reachable at all times (§5).
 - **Count-in:** one measure of click before phrase 1, for both ways of starting a session — a
-  Start click, or the very first MIDI note. In the MIDI case, that first note starts the count-in
-  and is **not** itself matched against phrase 1 — the app can't know in advance where the
-  player's own beat 1 falls, so treating that note as an expected match would incorrectly pin the
-  tempo and the phrase's first note to an arbitrary moment.
+  Start click, or a MIDI note. **Only one MIDI note can start a session: the note phrase 1 starts
+  on** (its first attacked note; phrase 1 is the phrase already on screen, §4). Any other note
+  played while the app is Idle starts nothing. Nothing played while the player is connecting a
+  controller or running its transposition check (§8) can start a session either, not even that
+  same note: connecting is a step of its own. The MIDI case still needs the count-in, because the
+  app can't know in advance where the player's own beat 1 falls, and the count-in is what sets it.
+  - **The starting note must be that exact note, octave included.** Its position on the staff
+    fixes its octave, so C4 and C5 are different notes here (an octave is 12 half steps, for
+    example from C4 up to C5). The match uses the same rule as expected-note acknowledgement
+    (§8): the exact concert pitch of that written note under the instrument's transposition.
+  - **A note that starts nothing changes nothing on screen** — no mismatch hint, as everywhere
+    else. Instead, a neutral line that is always visible names the note that starts the session.
+    How it looks is a UI/UX design decision.
+  - **The starting note only starts the count-in.** It is not phrase 1's first note already
+    played, and it belongs to no phrase in the history or export. After the count-in the player
+    plays phrase 1 from its first note, on beat 1.
+  - **The count-in is shown as well as heard**, for both kinds of start: its beats are counted on
+    screen in time with the click, and phrase 1's whole first measure stays fully visible
+    throughout the count-in. How the count looks is a UI/UX design decision.
+  - **Still open** (§12): starting a session from the Review rather than from Idle — which phrase
+    becomes phrase 1 there, and whether a MIDI note can start it at all.
 - **Tempo stays transport-only.** It is never part of what's generated — the same seed and
   settings always produce the same material, at any tempo. The known consequence (very fast note
   density becoming hard to play at very high tempo) is accepted for v2: the player chose both
@@ -191,10 +208,12 @@ written key.
   time, so the playhead and the audio it represents never visibly drift apart. A muted backing
   does not stop this clock — muting is implemented as silencing the sound, never as suspending the
   clock itself.
-- **Starting audio at all** needs one prior user click ("connect controller") — browsers do not
-  count a MIDI note as the kind of interaction that unlocks audio, so before that one click, a
-  MIDI note cannot start a session; that same click also requests MIDI permission, so both
-  restrictions are lifted together.
+- **Starting audio at all** needs a user click. Browsers do not count a MIDI note as the kind of
+  interaction that unlocks audio. A Start click is such a click, so it can always start a session
+  with sound. For a MIDI note to be able to start a session, the player must first have clicked
+  **"Connect controller"**. That one click is the click that unlocks audio, and it also requests
+  MIDI permission, so both restrictions are lifted together. There is no separate audio-unlock
+  step.
 - **A hidden browser tab ends the session immediately**, exactly like a manual Stop — the backing
   and click fade out over about 100 ms, and the review opens. Browsers already throttle timers
   in hidden tabs, so a paused-and-resumed clock could never resume cleanly; there is no
@@ -202,13 +221,21 @@ written key.
 
 ## 7. Sessions, review, export and privacy
 
-**Starting and ending.** A session starts on the first MIDI input (once a controller is connected
-and audio is unlocked) or on a Start click. With a controller attached, it ends after more than 30
-seconds without any note played, or on Stop; that 30-second timer only starts counting once the
-player has played at least one note, so clicking Start and taking a moment before playing never
-times out. Without a controller attached, only Stop ends a session. While a connected controller
-falls silent mid-session (catching a breath, or losing their place), the phrase keeps rolling
-regardless — the pressure to keep up is deliberately mild.
+**Starting and ending.** A session starts on a Start click, or on a MIDI note that is the note
+phrase 1 starts on, once a controller is connected and audio is unlocked (§6 gives the full rule,
+including the notes that can never start a session). With a controller attached, it ends after
+more than 30 seconds without any note played, or on Stop; that 30-second timer only starts
+counting once the player has played at least one note, so clicking Start and taking a moment
+before playing never times out. A controller can only be connected between sessions (§8), so a
+session started without one stays without one for its whole length, and only Stop ends it. While a
+connected controller falls silent mid-session (catching a breath, or losing their place), the
+phrase keeps rolling regardless — the pressure to keep up is deliberately mild: phrases keep being
+generated and played at tempo, and the app only tracks, on the audio clock, which note is due
+next. Expected notes that fall due while the player is silent simply go unacknowledged, like any
+note not played. **Falling silent and losing the controller are different things:** silence is
+covered by the 30-second rule above, unchanged, while a controller that disappears mid-session
+follows its own rule in §8, which can also end the session. "With a controller attached" has the
+precise meaning given in §8.
 
 **What's recorded, and why both forms are kept.** For every phrase that actually started sounding
 during the session (a look-ahead phrase that was only ever shown as read-ahead, and never
@@ -264,11 +291,65 @@ everything, and nothing here changes that.
 connected inputs are never merged — the player is asked to pick one), read as concert pitch on any
 channel (omni). Only a note-on with non-zero velocity counts as a played note; breath/CC data,
 pitch bend, aftertouch and SysEx are all ignored, because the reference controller's own breath
-signal isn't accurate enough to build a feature on. Every connection state (no MIDI support in this
-browser, not yet connected, permission denied, no device found, device unplugged mid-session) is
-non-blocking: a session without any controller connected is always possible, and losing a
-previously connected controller mid-session simply turns it into a no-controller session (only
-Stop ends it from that point, and the inactivity timer is disarmed) rather than ending anything.
+signal isn't accurate enough to build a feature on.
+
+**Connecting happens only between sessions,** while the app is Idle or showing the Review, never
+during a session. It is a step of its own: the player clicks "Connect controller" (the same click
+that unlocks audio, §6), MIDI permission is requested, the player picks the one input if several
+are present, and the transposition check below is part of it. Nothing played during this step can
+start a session. Every connection state (no MIDI support in this browser, not yet connected,
+permission denied, no device found, the selected controller unplugged) is non-blocking: a session without any controller connected is
+always possible, and such a session stays controller-less for its whole length, ending only on
+Stop.
+
+**A controller counts as connected** once MIDI permission is granted, one input is selected (the
+player's pick, or the only device present), and that input's port is present and open. No note has
+to be played first. This is what "with a controller attached" means for the silence timer (§7), for
+starting a session from MIDI (§6) and for adaptive tempo (§10). The transposition check is a
+separate step that follows. **A controller counts as lost** when that port reports it has
+disconnected.
+
+**The same device reattaches by itself, during a session or between sessions.** Once a controller
+is connected, unplugging it does not clear the player's selection. If that same device comes back,
+it is reattached automatically, with no action from the player, and the transposition check is
+not re-run. This holds whether the controller was lost during a session (below) or while the app
+was Idle or showing the Review. A different device is never picked up this way: it goes through
+the connection step above, which is only available between sessions. While the selected controller
+is away between sessions, the app behaves exactly as with no controller connected: this is not an
+error, and the 30-second reconnection window below does not apply, since no session is running.
+
+**Starting a session while the selected controller is away.** A Start click in that state begins a
+session with no controller, like any session started without one: it stays controller-less for its
+whole length. The session begins at the Start click, so this covers the count-in too. If the same
+device is plugged back in during that session, it is not reattached. The selection is kept
+throughout, and once the session ends the device reattaches by itself, as above, if it is still
+plugged in. Likewise, a controller lost mid-session and still away when the session ends (after
+the 30-second window below, or on Stop) keeps its selection into the Review, exactly like a
+controller unplugged between sessions.
+
+The kept selection lives in memory only. It does not survive a page reload: v2 saves nothing to
+browser storage (§7), so after a reload the player goes through the connection step again.
+Remembering the player's controller across visits belongs to v3's "my instrument".
+
+**Losing the controller mid-session** is not the same as the player falling silent (§7). When a
+connected controller disappears during a session:
+
+- the loss is made **clearly visible** to the player, even though that briefly draws attention
+  away from playing. How it looks is a UI/UX design decision;
+- the session keeps running meanwhile, since v2 has no pause state (§6): phrases keep being
+  generated and played at tempo, and the app keeps tracking, on the audio clock, which note is due
+  next;
+- the controller may be reconnected: the **same device** coming back is reattached automatically,
+  as described above. This is not a new connection, so "connect only between sessions" still
+  holds; a different device cannot be attached mid-session;
+- **if it is not reconnected within 30 seconds, the session ends**, the same way the silence
+  timeout ends it. The 30 seconds count from the moment the controller is lost, whatever came
+  before: how long the player had already been silent does not shorten them. While no controller
+  is attached the silence timer (§7) is suspended; after a reconnection it counts again from the
+  reconnection;
+- expected notes that fell due while the controller was away stay unacknowledged, like any note
+  not played, with no signal. Notes played after a reconnection are recorded and acknowledged
+  exactly as before. The review does not mark the gap.
 
 Web MIDI support in browsers is Chromium-only in practice (no support in Safari/WebKit or in
 Firefox without an added permission extension) — v2 stays Chromium-only, matching v1's existing
@@ -278,10 +359,12 @@ browser scope.
 template can silently disagree — for example, a controller left at its factory default sends
 untransposed MIDI, while a tenor-saxophone template expects concert pitch 14 semitones below
 written pitch; since acknowledgement never gives a mismatch hint, a player in that state would get
-total silence with no clue why. v2.0 ships a one-time, re-runnable check as part of connecting a
-controller: the app shows one written note from the instrument's own range, the player plays it,
-and the app reports either "matches," "transposed by n octaves," or "transposed by n semitones,"
-suggesting either a device setting to change or a better-matching instrument template. This check
+total silence with no clue why. v2.0 ships a one-time check as part of connecting a
+controller, re-runnable between sessions only: the app shows one written note from the
+instrument's own range, the player plays it, and the app reports either "matches," "transposed by
+n octaves," or "transposed by n semitones," suggesting either a device setting to change or a
+better-matching instrument template. No note played during the check can start a session, even
+one that happens to be the note phrase 1 starts on. This check
 ships regardless of what a later "input transposition" setting decision requires, because it's
 cheap and protects every early tester immediately. A future v3 "my instrument" persistence feature
 should remember and reuse the offset this check detects, rather than asking again every session.
@@ -429,7 +512,7 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
 4. A control change is only ever visible starting at the first phrase that hasn't begun sounding —
    no note already on screen ever changes.
 5. The backing stays in pitch and on the beat; muting it never affects timing; nothing plays before
-   the player has clicked to unlock audio.
+   the player has clicked, either Start or "Connect controller", which unlocks audio.
 6. The on-screen playhead stays within 20 ms of the actual audio output position over a five-minute
    session in Chromium.
 7. Acknowledgement is exact and positive-only: only the exact expected pitch inside its window is
@@ -437,8 +520,9 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
 8. The controller check correctly reports a match or a constant offset for injected test offsets.
 9. The acknowledgement windows and latency constants are tuned and documented against the actual
    reference hardware (a breath controller over USB, and a USB keyboard).
-10. A session works with no MIDI at all — permission denied, API unsupported, or device
-    unplugged mid-session — without ever blocking Start or ending the session unexpectedly.
+10. A session works with no MIDI at all — permission denied or API unsupported — without ever
+    blocking Start. A session started without a controller runs until Stop and cannot gain a
+    controller mid-session.
 11. A rhythm-setting combination v1 already disallows can neither start nor be applied during a
     session.
 12. The review and export are complete, exact, and reproducible from stored inputs; MusicXML opens
@@ -450,6 +534,32 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
     rules, Chromium-only support, and offline use after first load with no additional audio assets.
 15. The re-signed latency budget holds: no main-thread task ever runs longer than the audio
     scheduler's own look-ahead window during a 240 BPM session.
+16. A controller lost mid-session (its port reports disconnected) is clearly visible to the
+    player. If the same device comes back within 30 seconds of the loss, it is reattached
+    automatically without re-running the transposition check, and the session carries on; if not,
+    the session ends, however long the player had been silent before the loss. The phrase keeps
+    playing at tempo throughout; notes that fell due during the loss stay unacknowledged, and
+    notes played after the reconnection are acknowledged as usual. Silence alone ends a session
+    only under the 30-second no-note rule in §7.
+17. From MIDI, only the note phrase 1 starts on, at its exact pitch with the octave included,
+    starts a session. Any other note played at Idle, and any note at all played while connecting
+    a controller or during the transposition check, starts nothing and changes nothing on screen.
+    The note that starts a session is always named on screen, neutrally.
+18. The starting note only starts the count-in and is recorded in no phrase. The count-in is shown
+    on screen in time with the click, for both kinds of start, and phrase 1's whole first measure
+    stays fully visible throughout it.
+19. A connected controller unplugged at Idle or in the Review keeps its selection: plugging the
+    same device back in reattaches it automatically, without re-running the transposition check
+    and without any action from the player. While it is away, the app behaves as with no
+    controller connected and shows no error. A different device plugged in is not picked up
+    until the player goes through the connection step.
+20. A Start click while the selected controller is unplugged begins a controller-less session.
+    Plugging the same device back in during that session, count-in included, does not reattach
+    it; once the session ends, it reattaches automatically, without re-running the transposition
+    check, if it is still plugged in. A controller lost mid-session and still away when the
+    session ends, by the 30-second rule or by Stop, keeps its selection into the Review and
+    reattaches automatically there when the same device returns. After a page reload no
+    selection is remembered.
 
 ### Added by v2.1 and later
 
@@ -466,8 +576,8 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
 ## 12. Open questions carried forward
 
 These are consciously left for implementation (or a later, focused conversation with the product
-owner) to resolve — they are not silently dropped, and none of them blocks starting v2.0
-implementation:
+owner) to resolve. None of them is silently dropped. None of the items in this first list blocks
+starting v2.0 implementation:
 
 - **The settings-mutation flag's exact cadence and default state** (§5): how many phrases typically
   pass between mutations, whether that count is fixed or randomized within a range, and whether the
@@ -493,6 +603,17 @@ implementation:
   a written middle C actually sends, whether an octave setting changes it, and what note-on
   velocity it uses. This determines whether an additional manual "input transposition" setting is
   needed beyond the check itself.
+
+One session-start item came up while the controller-connection rules were being settled. It
+blocks only the path it names, not the rest of v2.0:
+
+- **Starting a session from the Review** (§6, §7): a new session can be started from the Review as
+  well as from Idle, but "phrase 1 is the phrase already on screen" assumes Idle. Which phrase
+  becomes phrase 1 there is undecided, and depends on what the Review screen shows besides the
+  review. Whether a MIDI note can start a session from the Review at all is also undecided: it
+  would collide with the confirmation §7 asks for when the review holds unexported favorites, since
+  a confirmation needs a click. Proposed, not yet confirmed by the product owner: from the Review,
+  only a Start click starts a session.
 
 Two further items are noted as direction for v2 or later, without being scoped precisely enough to
 build yet, and are **not** part of the v2.0–v2.3 definition of done above:

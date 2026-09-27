@@ -190,11 +190,18 @@
     stroke: none;
   }
 
-  /* States: default, hover, focus-visible, active, disabled, loading, error. */
+  /* States: default, hover, focus-visible, active, disabled, loading, error (`btn-error`).
+     A plain `.btn` is the neutral secondary button (e.g. `Connect controller`, `Continue without
+     a controller`): a bordered surface, so it reads as a button on both the canvas and a sheet.
+     `btn-primary` and `btn-error` override its colors. Disabled means "not available now"
+     (`not-allowed`); loading means "working" (`wait`) -- `is-loading` is declared after
+     `:disabled` so a button that is both reads as loading. */
   .btn {
     align-items: center;
-    border: 1px solid transparent;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
+    color: var(--color-text);
     cursor: pointer;
     display: inline-flex;
     justify-content: center;
@@ -202,25 +209,44 @@
     padding: var(--spacing-2) var(--spacing-4);
     transition:
       background-color var(--duration-feedback) var(--ease-out-fast),
+      border-color var(--duration-feedback) var(--ease-out-fast),
       color var(--duration-feedback) var(--ease-out-fast);
+  }
+  /* `:where()` keeps these plain-button feedback rules at single-class weight, so the
+     `btn-primary`/`btn-error` color rules below always win over them. */
+  .btn:where(:hover:not(:disabled)) {
+    border-color: var(--color-accent);
+  }
+  .btn:where(:active:not(:disabled)) {
+    background: var(--color-surface-muted);
+  }
+  .btn:focus-visible {
+    box-shadow: var(--shadow-focus);
+    outline: none;
   }
   .btn-primary {
     background: var(--color-accent);
+    border-color: var(--color-accent);
     color: var(--color-accent-text);
   }
   .btn-primary:hover {
     background: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
   }
   .btn-primary:active {
     transform: translateY(1px);
   }
-  .btn:disabled,
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
   .btn.is-loading {
     cursor: wait;
     opacity: 0.55;
   }
   .btn-error {
     background: var(--color-error);
+    border-color: var(--color-error);
     color: var(--color-accent-text);
   }
   .btn-lg {
@@ -411,7 +437,8 @@
   /* States: default, entering/leaving (opacity transition only -- no spatial motion, per
      `motion.md`'s "communicates ... immediate interaction feedback" rule). Not itself an
      interactive control (its dismiss-on-click is handled by script), so hover/focus-visible/
-     active/disabled do not apply here. */
+     active/disabled do not apply here. `--color-scrim` is theme-dependent, so the page beneath
+     visibly dims in light and dark themes alike. */
   .sheet-backdrop {
     align-items: center;
     background: var(--color-scrim);
@@ -425,16 +452,20 @@
   }
 
   /* States: default, entering/leaving (opacity transition, same tokens as the backdrop above).
-     Hover/active do not apply to the panel itself; focus-visible and disabled apply only to its
-     children (`sheet-close`, body controls, `sheet-actions`), covered by their own component
-     rules below. */
+     Hover/active/focus-visible/disabled do not apply to the panel itself; they apply only to
+     its children (`sheet-close`, `device-option`, `sheet-actions` buttons), covered by their
+     own component rules. Capped by the backdrop's padding at every breakpoint; scrolls
+     vertically inside itself on a short landscape viewport and never horizontally. */
   .sheet {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-panel);
     inline-size: 100%;
+    max-block-size: 100%;
     max-inline-size: var(--sheet-max-inline-size);
+    overflow-x: hidden;
+    overflow-y: auto;
     padding: var(--spacing-4);
     transition: opacity var(--duration-feedback) var(--ease-out-fast);
   }
@@ -445,6 +476,7 @@
     justify-content: space-between;
     margin-block-end: var(--spacing-3);
   }
+  /* Named by `aria-labelledby`; never itself a focus target. */
   .sheet-title {
     font-family: var(--font-display);
     font-size: var(--text-xl);
@@ -455,20 +487,62 @@
   .sheet-close {
     flex: 0 0 auto;
   }
-  /* Each child reuses `.btn`'s own states; this class only lays them out. Defaults to a single
-     row (bp-tablet-landscape and bp-desktop); see the bp-mobile-landscape override below for the
-     stacked, full-width form at the narrowest supported viewport. */
+  /* States: default only. A static content column for one sheet state's copy, at most one
+     `inline-alert`, and any state content (`check-note`, `device-picker`). Not interactive. */
+  .sheet-body {
+    color: var(--color-text);
+    display: grid;
+    gap: var(--spacing-3);
+    overflow-wrap: anywhere;
+  }
+  .sheet-body p {
+    margin: 0;
+  }
+  /* Secondary one-line guidance inside `sheet-body`. Static text. */
+  .sheet-hint {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+  /* States: default only. The transposition check's single engraved note: a short staff drawn
+     by the notation pipeline, recolored by inheritance exactly like `.staff-frame .staff-svg`
+     (see below) so it follows the theme without a redraw. Not interactive. */
+  .check-note {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-staff);
+    display: flex;
+    font-family: var(--font-music);
+    justify-content: center;
+    padding: var(--spacing-3);
+  }
+  .check-note .staff-svg,
+  .check-note .staff-svg g {
+    fill: var(--color-staff);
+    stroke: var(--color-staff);
+  }
+  .check-note .staff-svg [fill='none'] {
+    fill: none;
+  }
+  .check-note .staff-svg [stroke='none'],
+  .check-note .staff-svg text {
+    stroke: none;
+  }
+  /* Layout only: each child is a `.btn` and keeps that component's own states. Primary action
+     first in markup, and visual order always matches markup and focus order. Default (the
+     narrowest layout, bp-mobile-landscape): a full-width stack, primary on top. From
+     bp-tablet-landscape up (see that media block below): one row aligned to the end. */
   .sheet-actions {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: var(--spacing-2);
-    justify-content: flex-end;
     margin-block-start: var(--spacing-4);
   }
 
-  /* States: default, selected, hover, focus-visible, active, disabled. Single-select list,
-     modeled directly on `.segmented-control`/`.segment`'s own radiogroup/radio pattern above --
-     see `screens/controller-connection/handoff.md` for the shared roving-tab-stop behavior. */
+  /* States: default, in use (`is-selected`, paired in markup with the visible words
+     "(in use)"), hover, focus-visible, active, disabled. A vertical list of plain buttons with
+     one roving tab stop; arrow keys only move focus, Enter/Space/click chooses -- see
+     `screens/controller-connection/handoff.md`. Visually modeled on `.segment`. */
   .device-picker {
     display: grid;
     gap: var(--spacing-2);
@@ -478,40 +552,82 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     color: var(--color-text);
+    cursor: pointer;
     min-block-size: 2.75rem;
-    padding-inline: var(--spacing-3);
+    overflow-wrap: anywhere;
+    padding: var(--spacing-2) var(--spacing-3);
     text-align: start;
   }
   .device-option:hover {
     border-color: var(--color-accent);
   }
+  .device-option:focus-visible {
+    box-shadow: var(--shadow-focus);
+    outline: none;
+  }
   .device-option:active {
     background: var(--color-surface);
   }
-  .device-option.is-selected,
-  .device-option[aria-checked='true'] {
+  .device-option.is-selected {
     background: var(--color-accent);
     border-color: var(--color-accent);
     color: var(--color-accent-text);
   }
   .device-option:disabled {
+    cursor: not-allowed;
     opacity: 0.55;
   }
 
-  /* States: never-attempted (plain `.btn`, no dot), connected (`status-dot` success),
-     no-controller (`status-dot` neutral, covering both an explicit disconnect and a controller
-     lost mid-session). Hover/focus-visible/active follow `.btn`'s own rules above when rendered
-     as a `.btn`; the badge form is a button element throughout (always clickable), so the same
-     states apply to it too. Never renders with `--color-error`/`.alert-error` in any state. */
+  /* States: default, hover, focus-visible, active, disabled, error.
+     Always a `button` composed as `btn controller-status`, so it inherits `.btn`'s default,
+     hover, focus-visible, active and disabled states. Forms:
+     - `Connect controller` button: plain `.btn`, no dot. Disabled during a session takes the
+       ordinary dimmed `.btn:disabled` look.
+     - badge (`is-badge`): `status-dot` + `controller-status-label`. Connected (`is-success` dot)
+       and No controller (`is-neutral` dot) are neutral; MIDI access blocked and Controller
+       disconnected add `is-error` (the error tone: `--color-error` family), always with words.
+     - disabled badge (during a session): a status display only -- full strength, no hover, no
+       pointer, never dimmed, so the state stays readable.
+     Every badge form has one width: `controller-status-label` has a fixed inline size, so
+     switching between forms never moves the rest of the header. */
   .controller-status {
-    align-items: center;
-    display: inline-flex;
     gap: var(--spacing-2);
   }
+  .controller-status.is-badge {
+    background: transparent;
+    font-size: var(--text-sm);
+  }
+  .controller-status.is-badge.is-error {
+    background: var(--color-error-surface);
+    border-color: var(--color-error);
+    color: var(--color-error);
+  }
+  .controller-status.is-badge.is-error:hover:not(:disabled):not(:focus-visible) {
+    box-shadow: inset 0 0 0 1px var(--color-error);
+  }
+  .controller-status.is-badge:disabled {
+    cursor: default;
+    opacity: 1;
+  }
+  /* Not interactive on its own (its `controller-status` button carries the states). A fixed
+     inline size, never content-sized; short labels start at the inline start and leave the
+     rest empty, long device names are cut with an ellipsis (full name in the button's
+     `title`). */
+  .controller-status-label {
+    flex: 0 0 auto;
+    inline-size: var(--controller-status-label-inline-size);
+    overflow: hidden;
+    text-align: start;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* States: success, neutral, error. A decorative dot; never the only signal -- it always sits
+     beside words. Not interactive. */
   .status-dot {
     border-radius: 50%;
     block-size: var(--spacing-2);
     display: inline-block;
+    flex: 0 0 auto;
     inline-size: var(--spacing-2);
   }
   .status-dot.is-success {
@@ -519,6 +635,44 @@
   }
   .status-dot.is-neutral {
     background: var(--color-text-muted);
+  }
+  .status-dot.is-error {
+    background: var(--color-error);
+  }
+
+  /* States: empty (reserved, nothing shown), occupied (the disconnect banner). The space a
+     session that started with a controller keeps free above the staff, at one fixed block
+     size at every breakpoint, so the banner appearing or leaving never moves the staff. Not
+     interactive. */
+  .session-alert-slot {
+    block-size: var(--session-alert-slot-block-size);
+    margin-block-end: var(--spacing-3);
+  }
+  /* States: shown, absent (no entering/leaving animation). Composed as
+     `inline-alert alert-error session-alert`; fills its slot and never grows it. Not
+     interactive, so hover/focus-visible/active/disabled do not apply. Its only child is
+     `session-alert-text`, so the flex layout centres one block of copy vertically and never
+     splits the sentence into separate flex items. */
+  .session-alert {
+    align-items: center;
+    block-size: 100%;
+    display: flex;
+    overflow: hidden;
+  }
+  /* States: none (static copy; only the countdown inside it changes). The banner's whole
+     sentence as one inline run: it wraps as ordinary text, keeps the space before the
+     countdown, and holds `session-alert-countdown` inline within the sentence. */
+  .session-alert-text {
+    display: block;
+    min-inline-size: 0;
+  }
+  /* The live "{n} s" count, inline within `session-alert-text`: tabular digits so the line
+     never jitters as the number changes; "{n} s" never breaks across lines. */
+  .session-alert-countdown {
+    display: inline;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    white-space: nowrap;
   }
 
   @keyframes staff-fade-in {
@@ -550,15 +704,6 @@
     .field-group > .segmented-control {
       inline-size: 100%;
     }
-    .sheet {
-      margin-inline: var(--spacing-4);
-    }
-    .sheet-actions {
-      flex-direction: column;
-    }
-    .sheet-actions > .btn {
-      inline-size: 100%;
-    }
   }
   /* bp-tablet-landscape (64rem) lets control groups wrap without changing the vertical
      workspace structure. */
@@ -569,6 +714,13 @@
     }
     .control-group-row > .control-group {
       flex: 1 1 var(--control-group-min-inline-size);
+    }
+    /* From bp-tablet-landscape up, sheet actions sit in one row aligned to the end (the
+       narrower default above stacks them full-width). */
+    .sheet-actions {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
   }
   /* bp-desktop (90rem) keeps all control groups horizontal when the full workspace width is

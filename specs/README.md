@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.5
+Status: draft v0.9
 
 ## Status Snapshot
 
@@ -25,7 +25,31 @@ Status: draft v0.5
   - **v4:** accompaniment with roles.
   - **v5+:** a library and microphone input.
   - **Endgame:** a rhythm RPG.
-- **Open:** 8 questions remain live (down from 27), none flagged ★. The 5 most-blocking ones
+- **Controller connection and session start (2026-09-27, D111–D118)**, from the owner's answers to
+  ux Q23/Q24 on `ux-critic`'s findings. Silence and losing the controller are different events.
+  A controller connects only between sessions. A controller lost mid-session is shown clearly and
+  may be reconnected; after 30 s without a reconnection the session ends (**D114** replaces the
+  old "becomes a no-controller session" rule). A MIDI note starts a session only if it is phrase
+  1's first note (**D115** overrides the old "any first note" count-in rule). Nothing played while
+  connecting or during the transposition check can start a session. Blind and screen-reader users
+  are not a target (D117). The same day the owner settled the six sub-points this opened
+  (O78–O83, **D119–D124**): the 30 s count from the moment the controller is unplugged, and the
+  silence timer is suspended meanwhile (D119); the phrase keeps playing at tempo while the player
+  is silent or unplugged, and notes after a reconnection are handled as usual (D120); the starting
+  note only starts the count-in, which is shown as well as heard, with phrase 1's first measure
+  visible (D121); "connected" = permission, one input selected, port open (D122); only the same
+  device reconnects, automatically (D123); the starting note must be that exact note, octave
+  included, and a neutral line always names it (D124). **D125** (owner, ux Q26) extends D123 to
+  between sessions: a controller unplugged at Idle or in the Review keeps its selection and the
+  same device reattaches by itself, with no new transposition check; while away it counts as no
+  controller, not an error. **D126** (owner, O85 / ux Q29) settles starting while the selected
+  controller is away: a Start click then begins a controller-less session, the device is not
+  reattached during it, and it reattaches by itself once the session ends; a controller lost
+  mid-session and still away at the end keeps its selection into the Review. The selection lives
+  in memory only and does not survive a page reload (v2 saves nothing to browser storage). The
+  master spec is at v1.5. One gap is open (**O84**: starting a session from the Review).
+- **Open:** 9 questions remain live: O84 above, plus the 8 older ones this bullet goes
+  on to describe. None is flagged ★. The 5 most-blocking ones
   settled first (**D104** O75 v2.0 cut line is the full loop; **D105** O34 continuation boundary;
   **D76** O54 audio unlock; **D77** O55 controller check ships; **D78** O41 acknowledgement
   window), then two large 2026-09-27 batches closed nearly everything else (**D80–D88**:
