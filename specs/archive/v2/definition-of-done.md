@@ -10,7 +10,7 @@ and collects the acceptance criteria of the topic documents.
 ## 1. Cut line (D104)
 
 **Settled (D104):** v2.0 is the full core loop, MIDI included. The cut line follows
-[highlights-proposal.md §4](highlights-proposal.md#4-proposed-cut-line).
+[highlights-proposal.md §4](highlights-proposal.md#4-proposed-cut-line-superseded).
 
 | Release  | Content                                                                                                                                                                                                                                                                                                                                          |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

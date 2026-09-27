@@ -1,0 +1,13 @@
+# Generated / build-output trees: never source docs, and can contain stray .md files
+# (e.g. inside node_modules-style dependency dumps) that would otherwise be checked.
+# Archived docs (specs/archive, ui_ux/archive) are NOT excluded: their links must stay checked.
+node_modules/
+dist/
+dist-notation-harness/
+dist-workspace-harness/
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.vite/
+.vitest/
