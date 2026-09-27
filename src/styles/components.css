@@ -408,6 +408,119 @@
     display: none;
   }
 
+  /* D112. States: default, entering/leaving (opacity transition only -- no spatial motion, per
+     `motion.md`'s "communicates ... immediate interaction feedback" rule). Not itself an
+     interactive control (its dismiss-on-click is handled by script), so hover/focus-visible/
+     active/disabled do not apply here. */
+  .sheet-backdrop {
+    align-items: center;
+    background: var(--color-scrim);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: var(--spacing-4);
+    position: fixed;
+    transition: opacity var(--duration-feedback) var(--ease-out-fast);
+    z-index: var(--z-sheet);
+  }
+
+  /* States: default, entering/leaving (opacity transition, same tokens as the backdrop above).
+     Hover/active do not apply to the panel itself; focus-visible and disabled apply only to its
+     children (`sheet-close`, body controls, `sheet-actions`), covered by their own component
+     rules below. */
+  .sheet {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-panel);
+    inline-size: 100%;
+    max-inline-size: var(--sheet-max-inline-size);
+    padding: var(--spacing-4);
+    transition: opacity var(--duration-feedback) var(--ease-out-fast);
+  }
+  .sheet-header {
+    align-items: center;
+    display: flex;
+    gap: var(--spacing-3);
+    justify-content: space-between;
+    margin-block-end: var(--spacing-3);
+  }
+  .sheet-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    margin: 0;
+  }
+  /* `sheet-close` reuses `.btn`'s own default/hover/focus-visible/active/disabled states; no
+     rules are added here beyond composing with it in markup. */
+  .sheet-close {
+    flex: 0 0 auto;
+  }
+  /* Each child reuses `.btn`'s own states; this class only lays them out. Defaults to a single
+     row (bp-tablet-landscape and bp-desktop); see the bp-mobile-landscape override below for the
+     stacked, full-width form at the narrowest supported viewport. */
+  .sheet-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    justify-content: flex-end;
+    margin-block-start: var(--spacing-4);
+  }
+
+  /* States: default, selected, hover, focus-visible, active, disabled. Single-select list,
+     modeled directly on `.segmented-control`/`.segment`'s own radiogroup/radio pattern above --
+     see `screens/controller-connection/handoff.md` for the shared roving-tab-stop behavior. */
+  .device-picker {
+    display: grid;
+    gap: var(--spacing-2);
+  }
+  .device-option {
+    background: var(--color-surface-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    min-block-size: 2.75rem;
+    padding-inline: var(--spacing-3);
+    text-align: start;
+  }
+  .device-option:hover {
+    border-color: var(--color-accent);
+  }
+  .device-option:active {
+    background: var(--color-surface);
+  }
+  .device-option.is-selected,
+  .device-option[aria-checked='true'] {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-accent-text);
+  }
+  .device-option:disabled {
+    opacity: 0.55;
+  }
+
+  /* D112. States: never-attempted (plain `.btn`, no dot), connected (`status-dot` success),
+     no-controller (`status-dot` neutral, covering both an explicit disconnect and a controller
+     lost mid-session). Hover/focus-visible/active follow `.btn`'s own rules above when rendered
+     as a `.btn`; the badge form is a button element throughout (always clickable), so the same
+     states apply to it too. Never renders with `--color-error`/`.alert-error` in any state. */
+  .controller-status {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--spacing-2);
+  }
+  .status-dot {
+    border-radius: 50%;
+    block-size: var(--spacing-2);
+    display: inline-block;
+    inline-size: var(--spacing-2);
+  }
+  .status-dot.is-success {
+    background: var(--color-success);
+  }
+  .status-dot.is-neutral {
+    background: var(--color-text-muted);
+  }
+
   @keyframes staff-fade-in {
     from {
       opacity: 0;
@@ -435,6 +548,15 @@
       min-block-size: 4rem;
     }
     .field-group > .segmented-control {
+      inline-size: 100%;
+    }
+    .sheet {
+      margin-inline: var(--spacing-4);
+    }
+    .sheet-actions {
+      flex-direction: column;
+    }
+    .sheet-actions > .btn {
       inline-size: 100%;
     }
   }

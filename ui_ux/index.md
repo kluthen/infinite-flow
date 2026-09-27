@@ -1,6 +1,14 @@
 # Infinite Flow UI/UX
 
-This design set defines the first-release interface for generating and reading one four-measure phrase for a C MIDI keyboard, B-flat tenor saxophone, or E-flat alto saxophone profile. The phrase is the product: controls support it, and notation receives the largest share of space at every supported landscape viewport.
+This design set defines the interface for Infinite Flow, a client-side web practice partner for a
+monophonic instrumentalist. Its first release (v1.0) generates and reads one four-measure phrase
+for a C MIDI keyboard, B-flat tenor saxophone, or E-flat alto saxophone profile; the phrase is the
+product, controls support it, and notation receives the largest share of space at every supported
+landscape viewport. v2 ("Rolling Phrase," `specs/versions/v2/master-spec.md`) turns that static
+phrase into a continuous, MIDI-acknowledged session with backing audio and a review/export step,
+built as an extension of the same screen and flow rather than a new top-level IA (see `decisions.md`
+D45). v2 design work is in progress; see `todo.md` for exactly what is written, what is designable
+now, and what is blocked on `spec-writer`.
 
 ## Map
 

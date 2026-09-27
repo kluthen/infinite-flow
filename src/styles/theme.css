@@ -27,6 +27,9 @@
   --radius-lg: 1rem;
   --control-group-min-inline-size: 14rem;
   --size-visually-hidden: 1px;
+  /* D112: the connection sheet's own comfortable reading measure, distinct from
+     `--control-group-min-inline-size` (a control-layout minimum, not a modal panel width). */
+  --sheet-max-inline-size: 28rem;
 
   --shadow-panel: 0 0.5rem 1.5rem rgb(31 29 24 / 0.12);
   --shadow-focus: 0 0 0 0.1875rem var(--color-focus-ring);
@@ -69,6 +72,10 @@
   --color-success: #176b50;
   --color-error: #a52c24;
   --color-error-surface: #fce8e5;
+  /* D112: the connection sheet's backdrop scrim. Deliberately not theme-dependent (unlike the
+     palette above) -- a modal scrim reads as a dimming overlay over whatever is beneath it in
+     either theme, the same way `--shadow-panel` below stays one fixed value across themes. */
+  --color-scrim: rgb(23 22 19 / 0.6);
 }
 
 @layer base {
