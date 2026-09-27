@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.7
+Status: draft v0.11
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -9,8 +9,11 @@ work are recorded in the archived logs:
 [D1–D46](archive/v1/decisions-D1-D46.md) and
 [D47–D71](archive/2026-09-25-personas-and-vision/decisions-D47-D71.md).
 
-No v2 question in the Active list remains open — O24 was resolved 2026-09-27 (D108): the check is
-kept, ships in v2.3, and fires only on measures where the player goes off-script.
+O24 was resolved 2026-09-27 (D108): the check is kept, ships in v2.3, and fires only on measures
+where the player goes off-script. Six v2 questions (O78–O83) were opened the same day by the
+controller-connection answers (D111–D118) and resolved later that day (D119–D124). O84 was opened
+while recording them (see the last section). O85, opened while recording D125, was resolved the
+same day (D126).
 
 ### Registered from the v2 proposal and the prerequisites analysis (2026-09-25)
 
@@ -57,3 +60,21 @@ resolved 2026-09-27 (D97). O24 was resolved 2026-09-27 (D108).
   including cold runs after a mid-session control change. Does the cold worst case stay under a
   quarter of the one-bar deadline at 240 BPM (250 ms in Chromium)?
   [master-spec.md §11](versions/v2/master-spec.md#11-definition-of-done).
+
+## v2 controller connection and session start (O78+)
+
+O78–O83 were opened 2026-09-27 by the product owner's answers to ux Q23 and ux Q24 (D111–D118)
+and resolved the same day (D119–D124). O85 was resolved the same day too (D126).
+
+- **O84 - Starting a session from the Review** _(D113, D115, D124; noticed by `spec-writer` while
+  recording D119–D124)_: master-spec §4 makes phrase 1 "the phrase already on screen before
+  Start", and §6 says which note starts a session "while the app is Idle", but a new session can
+  also be started from the Review (§7), where the screen shows the past session. Which phrase
+  becomes phrase 1 there, and can a MIDI note start the session from the Review at all? The second
+  part collides with §7's rule that starting a new session asks for confirmation when the review
+  holds unexported favorites: a confirmation needs a click, which a MIDI start doesn't give.
+  Proposed default for the second part: from the Review, only a Start click starts a session; a
+  MIDI note starts nothing there. The first part has no proposed default yet: it depends on what
+  the Review screen shows besides the review, which `ux-writer` designs. Not confirmed by the
+  owner.
+  [master-spec.md §6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo).

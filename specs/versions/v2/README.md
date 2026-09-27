@@ -11,7 +11,7 @@ P3 gets session review and export. See [personas](../../personas.md).
 
 | Document                                | Purpose                                                                                                        | Status            |
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------ |
-| [master-spec.md](master-spec.md)         | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1     |
+| [master-spec.md](master-spec.md)         | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.5   |
 
 The original draft topic documents (highlights proposal, rolling phrase, audio and backing, MIDI
 and acknowledgement, sessions/review/export, adaptive tempo, definition of done,
@@ -83,8 +83,18 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   visibly marked in the review**, though it's still recorded internally.
 - **Settled (D110, from `ux-writer`'s design kickoff): the v2.2 multi-phrase tension arc is a
   player-facing opt-in**, with its own toggle, not an invisible generation behavior.
-- Open: 8 questions across the v2 register; none is currently flagged ★ (all 5 most-blocking
-  ones are settled). See [open-questions.md](../../open-questions.md) and
+- **Settled (D111–D126, from the owner's answers to ux Q23/Q24/Q26/Q29 and their follow-ups):
+  controller connection and session start.** A controller connects only between sessions; one lost
+  mid-session is shown clearly, reattaches automatically if the same device returns, and the
+  session ends 30 s after the loss otherwise. Between sessions, an unplugged controller keeps its
+  selection and the same device reattaches by itself too (D125). A Start click while the selected
+  controller is away begins a controller-less session: the device is not reattached during it and
+  reattaches by itself afterwards; a controller still away when a session ends keeps its selection
+  into the Review; the selection does not survive a page reload (D126). Only phrase 1's first note, at its exact pitch,
+  starts a session from MIDI, and it only starts the count-in, which is shown as well as heard.
+  Full rules in [master-spec.md §6–§8](master-spec.md#8-midi-input-and-note-acknowledgement).
+- Open: 9 questions across the register, including O84 (starting a session from the Review);
+  none is currently flagged ★ (all 5 most-blocking ones are settled). See [open-questions.md](../../open-questions.md) and
   [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
 
 ## Settled scope

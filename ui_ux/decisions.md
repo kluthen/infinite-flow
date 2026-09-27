@@ -88,3 +88,198 @@ through this header. Numbering continues from D45.
     real use of `--z-sheet`), a `device-picker`/`device-option` list component modeled on
     `segmented-control`/`segment`, and the header's `controller-status` badge (`status-dot` plus
     label). These are additions to the existing, already-settled token system, not a rethink of it.
+
+- **D48 (2026-09-27).** Refines D47's entry point and colour rule after `ux-critic` flagged a
+  contradiction (D47 said the header's `Connect controller` button becomes a badge "once ever
+  connected"; the tier docs said "once ever attempted"). User's call: **a refused MIDI permission
+  is badged, in the theme's error tone** (`--color-error` family — "red" is only what the current
+  themes happen to render, not a fixed colour), so the player can see at a glance that access was
+  refused by their own browser choice, not by a fault in the app. Grounds: unlike "no device
+  found" or "no controller", a refused permission cannot be fixed from inside the app —
+  Chromium remembers the block, so the app can't simply ask again, and the player has to undo it
+  in the browser's own site settings. That makes it the one connection state that really is a
+  blocked setting, not an ordinary way of playing. Consequences:
+  - The header element shows the `Connect controller` button until either a controller has
+    actually connected (then the neutral status badge, as D47) or permission has been refused
+    (then an error-toned badge). A failed attempt with no device found leaves the button as it
+    is, since trying again is the natural next step there.
+  - D47's "no connection state ever uses `--color-error`" rule is narrowed: it still holds for
+    no MIDI support, no device found, and ordinary no-controller play. Permission refused is the
+    one exception. How a mid-session disconnect is shown is **not** settled by this entry (see
+    Q23). The "nothing ever marked wrong" rule for the player's own playing is unaffected: this is
+    about a browser setting, never about a note.
+  - The permission-refused sheet copy has to tell the player how to allow MIDI again in the
+    browser, rather than offering a retry that cannot work on its own.
+
+- **D49 (2026-09-27).** Keyboard and focus rules for the controller-connection sheet, and the
+  scope of assistive-technology work, answering `ux-critic`'s accessibility findings. User's call:
+  - **Screen-reader users are not a design target.** Blind players are outside the product's
+    audience, so no v2 screen or state is designed around spoken announcements.
+    "Announced" in these docs means a **clear visible message**. The visually hidden live regions
+    v1 already ships stay as they are (no removal work), and a new screen may reuse that existing
+    pattern where it costs nothing, but no v2 finding is ever blocked on screen-reader behavior.
+  - **Keyboard (computer keyboard) and mouse users are the target.** In `device-picker`, arrow
+    keys only move between devices; Enter or Space (or a click) chooses one. Arrow keys never
+    commit a choice.
+  - **Focus.** When the sheet moves to a new state, focus goes to that state's main action,
+    inside the sheet. When the sheet closes, focus goes to the workspace's Start/Stop button
+    rather than back to the header element that opened it: the player is most likely about to
+    play, and Start/Stop is the one control that matters then. That is also the fallback
+    whenever a focus target is unclear.
+  - States that were only conveyed to a screen reader ("unsupported browser", a controller lost
+    mid-session) must instead be conveyed by a clear, visible message.
+  - A colour is never the only signal: the error-toned permission-refused badge (D48) and any
+    status dot always carry words as well, for colour-blind players.
+
+- **D50 (2026-09-27).** Transposition-check result wording, within the three existing instrument
+  profiles (C MIDI keyboard, B-flat tenor saxophone, E-flat alto saxophone). Remembering a detected
+  offset or adding a custom "my instrument" profile is v3 scope, not v2. User's call to stay on the
+  three; the wording rules are `ux-writer`'s:
+  - Every mismatch result states the **direction** (the controller sounds higher or lower than the
+    current profile expects) and **names the current profile**.
+  - The distance is given in semitones, with the octave breakdown added when it is 12 or more
+    ("14 semitones — 1 octave and 2"). An exact whole number of octaves is described in octaves.
+  - The first suggestion is always the controller's own setting (its transposition, or its octave
+    setting for a whole-octave shift). A different profile is suggested only when one of the other
+    two profiles would make the played note match, and then framed as "if you actually play
+    that instrument", naming it. For a whole-octave shift no profile can match, so the controller's
+    octave setting is the only suggestion.
+
+- **D51 (2026-09-27).** How a controller lost mid-session is shown, under spec D112/D114
+  (visible unplug; 30 seconds to reconnect, counted from the unplug itself whatever came before,
+  or the session ends). User's call: a banner in the theme's error tone above the staff, with a
+  **live countdown** ("Controller disconnected — plug it back in to keep playing. Session ends in
+  23 s."). It sits in space kept free for it, so it never pushes the staff or shifts what the
+  player is reading. It disappears the moment the same device reattaches (automatically, with no
+  new check), and the session carries on. If the countdown reaches zero, the session ends exactly
+  as a silence timeout does. The phrase keeps rolling at tempo throughout, and notes due while the
+  controller is away simply stay unlit, like any unplayed note. This replaces the neutral
+  "No controller" treatment D47 gave a mid-session loss. Because an error colour is never the only
+  signal (D49), the words carry the state on their own.
+
+- **D52 (2026-09-27).** Starting a session from the controller, under spec D115 (only phrase 1's
+  first note starts a session). User's direction, for the session core-loop unit to design in
+  full:
+  - During the one-measure count-in, the beat count is **shown on screen**, in time with the
+    click (one number per beat of the 4/4 measure), and the whole first measure of phrase 1 stays
+    fully visible the entire time. The player then plays phrase 1 from its first note, on beat 1.
+  - A neutral, always-visible line says which note starts the session. It identifies the exact
+    note, octave included (the note on the staff, not just its letter name), since only that
+    exact note starts anything. A different note still changes nothing on screen.
+
+- **D53 (2026-09-27).** The header `controller-status` element during a running session, as a
+  direct consequence of spec D113/D123 (a controller connects only between sessions; a lost
+  controller reattaches by itself, with no second check). Closes ux Q23 together with D51. D47 had
+  made the element clickable at all times, including mid-session, to reconnect, switch device or
+  re-run the check; none of those can happen during a session any more. So, while a session is
+  running, the element is a **status display only**: the badge is not clickable, and the
+  `Connect controller` button (a session started without a controller) stays in place but
+  disabled, so the header never shifts. It becomes interactive again at Idle and in the Review.
+  While a lost controller's 30-second countdown runs, the badge shows the disconnected state in
+  the same error tone as the D51 banner, with words, and returns to the connected badge when the
+  device reattaches.
+
+- **D54 (2026-09-27).** Execution details of the unit-1 fix pass (controller connection), made by
+  a `ux-writer` delegate as direct consequences of D47–D51, D53 and spec §6/§8 (spec D111–D124).
+  None changes a settled decision; the three genuinely new behaviors are logged as Q26–Q28 for
+  confirmation instead of here.
+  - `device-picker` is a group of plain buttons with one roving tab stop, not a `radiogroup`:
+    under D49 arrow keys only move and Enter/Space/click chooses, which a radio group's
+    "arrow selects" convention would contradict. `is-selected` now marks only the device in use
+    when the picker is reached from Connected, with the visible words "(in use)".
+  - The visually hidden `connection-status` region is dropped: under D49 it was not free (a
+    second copy of every state's wording to keep in step), every state is already conveyed by
+    its visible title and body, and the dialog is named by its title.
+  - Focus on each state change goes to that state's main action (D49); states with no labeled
+    action (Requesting access, the check's Prompt) send it to `sheet-close`, since focus must
+    stay inside the modal. Connected gets an explicit `Done` primary action (D47's "a close
+    action"), so it has a main action to focus.
+  - Permission denied uses `inline-alert alert-error` inside the sheet as well as the header's
+    error-toned badge (D48), with `Check again` worded as the step after changing the browser
+    setting. The header shows the MIDI-blocked badge from the moment that state is reached,
+    until a later request succeeds.
+  - Following spec §8's definition, the header shows the connected badge from the moment a
+    device is selected and its port open (on entering the check), not only after a check result;
+    dismissing during the check leaves the controller connected but unchecked.
+  - Check-result copy (D50): distance in brackets after the semitone count ("14 semitones
+    (1 octave and 2)") rather than after a dash, for readability inside a sentence; the full
+    offset → suggested-profile table is written into the screen handoff.
+  - Tier 2: plain `.btn` gets a real neutral surface, border, hover, active and explicit
+    `:focus-visible` (v1 only ever shipped `btn-primary`, so the plain button had no visible
+    chrome); `:disabled` and `is-loading` are split (`not-allowed` vs `wait`). New:
+    `.sheet-body`, `.sheet-hint`, `.check-note` (with the same theme recoloring as the staff),
+    `.controller-status.is-badge`/`.is-error`, `.controller-status-label`, `.status-dot.is-error`,
+    `.session-alert-slot`, `.session-alert`, `.session-alert-countdown`; tokens
+    `--controller-status-label-max-inline-size`, `--session-alert-slot-block-size`, and a dark
+    value for `--color-scrim`. `.sheet-actions` stacks by default and becomes a row from
+    bp-tablet-landscape; the stray `.sheet` inline margin at 48rem (which overflowed the
+    backdrop) is removed; `.sheet` scrolls vertically inside itself on short viewports.
+
+- **D55 (2026-09-27).** Closes ux Q28 and ux Q26 on the user's go-ahead ("ok, go ahead") to the
+  proposals put to them:
+  - **Q28:** the proposed device-change behaviors while the connection sheet is open are
+    confirmed as written in `screens/controller-connection/handoff.md` ("Device changes while
+    the sheet is open"): No device found moves on by itself when a device is plugged in; the
+    picker adds and removes devices live; unplugging the device being checked or already
+    connected returns to the picker or No device found with a "{device} was unplugged." line,
+    never switching device by itself. Their (proposed) tags come off.
+  - **Q26:** between sessions, an unplugged controller's selection survives: the same device
+    plugged back in reattaches by itself, with no new transposition check, exactly as it does
+    mid-session. A different device goes through the sheet. While it is away, the header shows
+    the neutral no-controller badge (not the error tone, which is reserved for a mid-session
+    unplug). This extends spec D123 to Idle and the Review, so it is passed to `spec-writer` to
+    record on the spec side.
+
+- **D56 (2026-09-27).** Settles two points `ux-critic`'s re-run on the controller-connection unit
+  found inconsistent:
+  - **The header badge keeps one width in every form.** Its label area has a fixed inline size (a
+    named token), sized for the longest fixed label ("Controller disconnected"); a longer device
+    name is truncated with an ellipsis, and its full name stays available on hover and in the
+    sheet. Changing between a device name, "No controller", "MIDI blocked" and "Controller
+    disconnected" then never moves anything else in the header, at any breakpoint. This makes the
+    "the header never shifts" promise hold, not only at session start.
+  - **The header never goes back to the `Connect controller` button once a controller has
+    connected in this page session.** After MIDI access was blocked and later allowed again, the
+    header shows the connected badge if a device is now connected; if none is, it shows the
+    no-controller badge when a controller had connected earlier in the page session, and the
+    `Connect controller` button only when none ever had.
+  Also records that the controller-connection flow serves two persona goals, which its intent
+  document must name: P1.G2 (real-time reading) and P2.S1 (a steady supply of material at a rising
+  tempo), both from `specs/personas.md`.
+
+- **D57 (2026-09-27).** Closes ux Q29 (mirrors spec O85): the user accepted both proposed
+  defaults. (1) A Start click while the selected controller is unplugged begins a no-controller
+  session; plugging that device back in during the session does not reattach it, and it
+  reattaches by itself once the session ends if still plugged in. (2) A controller lost
+  mid-session and still away when the session ends keeps its selection into the Review, like any
+  controller unplugged between sessions. The "(proposed)" tags on these two cases come off.
+  Passed to `spec-writer` to close spec O85.
+
+- **D58 (2026-09-27).** Closes ux Q30 (the selected controller unplugged while the connection
+  sheet is open), and records execution details from the unit-1 second fix pass.
+  - **Replug inside the open sheet.** The same device plugged back in while the sheet is still
+    open reattaches with no new check if it had already reached Connected (its check was done, so
+    spec D125's "no new check" applies), and the sheet returns to Connected. If it was unplugged
+    during the check, the check starts again, since it never finished. Closing the sheet without
+    choosing another device keeps it as the selected controller, so a later replug reattaches it
+    by itself. This refines Q30's proposed default, which would have re-run a completed check.
+  - **Execution details.** The badge label token D54 named is now
+    `--controller-status-label-inline-size`, a fixed width sized for "Controller disconnected"
+    (D56). The disconnect banner's copy sits in a single `session-alert-text` run so the countdown
+    stays inside its sentence. The blocked-permission label is "MIDI access blocked", the tier
+    docs' wording, not D56's shorthand "MIDI blocked".
+  - **Accepted.** Switching between the `Connect controller` button and a badge can still change
+    the header element's width, but only between sessions (first connection, permission blocked
+    or lifted), never while the player is reading a running session. No fixed width for the whole
+    element.
+
+- **D59 (2026-09-27).** Closes `ux-critic`'s third-pass findings on the controller-connection
+  unit. (1) The flow intent's two session-edge cases are stated as settled (they were closed by
+  D57). (2) D58's in-sheet replug rule wins over the general device-change rules for the device
+  that was just unplugged; the flow diagram gains the replug edges and the general rules say they
+  apply to new devices only. (3) A late "block" answer to a browser permission prompt left waiting
+  when the sheet was closed changes the header to the MIDI-blocked badge only between sessions;
+  during a running session (count-in included) the change waits until the session ends, keeping
+  D53's "the header never changes shape during a session" true. A narrow confirmation pass then found two
+  placement slips in these edits (a scoping sentence attached to the wrong bullet; the flow
+  intent's summary still stating the new-device rule without the replug exception); both fixed.

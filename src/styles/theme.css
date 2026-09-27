@@ -30,6 +30,18 @@
   /* The connection sheet's own comfortable reading measure, distinct from
      `--control-group-min-inline-size` (a control-layout minimum, not a modal panel width). */
   --sheet-max-inline-size: 28rem;
+  /* The fixed inline size of the header `controller-status` badge's label area, the same in
+     every badge form (device name, No controller, MIDI access blocked, Controller
+     disconnected), so a form change never moves anything else in the header. Sized in `ch` of
+     the label's own font for the longest fixed label, "Controller disconnected" (23
+     characters), plus one character of slack for glyphs wider than "0". A longer device name
+     is cut with an ellipsis. */
+  --controller-status-label-inline-size: 24ch;
+  /* The fixed block size a session keeps free above the staff for the controller-disconnect
+     banner: two lines of `--text-md` at `--leading-base` (2 x 1.5rem) plus `.inline-alert`'s
+     block padding (2 x `--spacing-3`). Fixed, never content-sized, so the banner appearing or
+     leaving never moves the staff. */
+  --session-alert-slot-block-size: 4.5rem;
 
   --shadow-panel: 0 0.5rem 1.5rem rgb(31 29 24 / 0.12);
   --shadow-focus: 0 0 0 0.1875rem var(--color-focus-ring);
@@ -72,9 +84,9 @@
   --color-success: #176b50;
   --color-error: #a52c24;
   --color-error-surface: #fce8e5;
-  /* The connection sheet's backdrop scrim. Deliberately not theme-dependent (unlike the
-     palette above) -- a modal scrim reads as a dimming overlay over whatever is beneath it in
-     either theme, the same way `--shadow-panel` below stays one fixed value across themes. */
+  /* The connection sheet's backdrop scrim. Theme-dependent: a warm ink at 60% dims the light
+     paper clearly, but over the dark canvas the same value is almost invisible, so both dark
+     blocks below use a deeper, more opaque black that visibly dims the bright parchment text. */
   --color-scrim: rgb(23 22 19 / 0.6);
 }
 
@@ -96,6 +108,7 @@
     --color-success: #75d5ac;
     --color-error: #ff9c90;
     --color-error-surface: #4a2421;
+    --color-scrim: rgb(0 0 0 / 0.72);
     color-scheme: dark;
   }
 
@@ -116,6 +129,7 @@
       --color-success: #75d5ac;
       --color-error: #ff9c90;
       --color-error-surface: #4a2421;
+      --color-scrim: rgb(0 0 0 / 0.72);
       color-scheme: dark;
     }
   }

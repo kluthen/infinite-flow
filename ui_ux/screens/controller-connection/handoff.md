@@ -6,162 +6,222 @@
 sheet-backdrop
   sheet (role="dialog" aria-modal="true" aria-labelledby="sheet-title")
     sheet-header
-      sheet-title
+      sheet-title (id="sheet-title")
       sheet-close (btn, "Close")
-    sheet-body (exactly one per-state block below, at a time)
-      -- Requesting access
+    sheet-body (exactly one per-state block below at a time)
+      inline-alert alert-notice (device-change line; only when a state was reached because a device was unplugged -- see Device changes while the sheet is open)
+      -- Requesting access (Checking, or Waiting for your browser)
       -- Unsupported browser
       -- Permission denied
       -- No device found
       -- Multi-device picker
-        device-picker
-          device-option (one per input, repeated)
+        device-picker (role="group" aria-labelledby the picker's instruction line)
+          device-option (button, one per input)
       -- Transposition check
-        (prompt sub-state, then exactly one of the three outcome sub-states)
+        check-note (the engraved written note)
+        prompt text, or exactly one result inline-alert alert-notice
       -- Connected
-    sheet-actions (state-specific btn group, see States)
-  connection-status (visually hidden role="status" aria-live="polite" aria-atomic="true")
+    sheet-actions (state-specific buttons, primary first -- see States)
 ```
 
 ## Components and Content
 
-- `sheet-backdrop` covers the full viewport at `--z-sheet`, using the same stacking layer for both
-  itself and `sheet` (an overlay above the workspace, distinct from `--z-alert`, which stays
-  reserved for in-workspace notices like the generation-failure banner). Backdrop click is a dismiss
-  action, identical in effect to Escape or `sheet-close`.
+- `sheet-backdrop` covers the viewport at `--z-sheet` and dims the workspace with `--color-scrim`
+  in both themes. `sheet` shares that layer. A backdrop click is a dismiss action, identical in
+  effect to Escape or `sheet-close`.
 - `sheet` is a centered panel, not a bottom sheet: the product is landscape-only below
-  `bp-desktop` and portrait-capable only at `bp-desktop` and above (per `phrase-workspace`'s own
-  `orientation-notice` guard), so there is no thumb-reach case this design set needs to account for
-  the way a portrait mobile product would. `sheet-title` names the current state in plain language
-  (e.g. "Connect a controller," "Choose a controller," "Check your controller," "Controller
-  connected") and changes on every state transition; `sheet-close` is always present and always
-  enabled, using `btn`.
-- `connection-status` is a persistent, visually hidden `role="status"` region with
-  `aria-live="polite"` and `aria-atomic="true"`, the same visually-hidden mechanism as
-  `phrase-workspace`'s `generation-status`/`notation-status`. It announces once per state entry:
-  `Requesting controller access`, `MIDI access blocked`, `No controller found`, `Choose a
-  controller`, `Play the note shown to check your controller`, one of the three check-outcome
-  announcements (see Transposition check below), or `Controller connected`. It does not announce
-  control navigation inside `device-picker` or the transposition check's own play prompt repeating
-  itself.
-- `device-picker` uses `role="radiogroup"` with an accessible group label ("Choose a controller"),
-  modeled directly on `phrase-workspace`'s existing `segmented-control`/`segment` pattern: each
-  `device-option` uses `role="radio"` and `aria-checked="true"`/`"false"`, exactly one is checked
-  once a selection is made (none is checked on first showing the list — the same "a radiogroup may
-  have no checked radio" allowance `phrase-workspace` already uses for the custom musical-profile
-  state), and the group uses a roving tab stop: the checked option is `tabindex="0"` and every other
-  option is `tabindex="-1"` (the first option is the tab stop before any selection is made). Up and
-  Left move to the prior option, Down and Right move to the next, and each move selects and focuses
-  its destination, identically to the existing pattern. Selecting a `device-option` immediately
-  advances to **Transposition check** for that device; there is no separate confirm action.
-- The transposition check's written note renders using the same staff-adjacent visual language as
-  the rest of the product (`--font-music`, `--color-staff`) rather than plain text, since a note
-  name alone ("D4") is exactly the kind of literal-notation-avoidance this product elsewhere embraces
-  by engraving the actual glyph.
-- Every action in `sheet-actions` uses `btn`; the state-appropriate primary action (the one that
-  moves the flow forward on success) uses `btn btn-primary`, and every other action in the same
-  state uses plain `btn`. No action in this screen ever uses `btn-error`.
+  `bp-desktop`, so there is no portrait thumb-reach case. It is capped at
+  `--sheet-max-inline-size` and scrolls vertically inside itself when its content is taller than
+  the viewport.
+- `sheet-title` names the current state in plain language and changes on every state change.
+  `sheet-close` is a `btn` labeled `Close`, always present and always enabled.
+- `sheet-body` holds the state's copy as plain paragraphs, plus at most one `inline-alert`.
+  Secondary one-line hints use `sheet-hint`.
+- `check-note` shows the one written note on a short staff, engraved by the same notation pipeline
+  as the score (treble clef, the current instrument profile's written pitch, `--font-music`,
+  `--color-staff`), never as a letter name in text.
+- `device-picker` is a group of `device-option` buttons, one per input the browser currently
+  reports, labeled with the device's name, in the order the browser reports them; a device plugged
+  in while the list is showing is appended at the end. Keyboard: one roving tab stop — the first
+  option (or the option marked in use) is `tabindex="0"`, the others `tabindex="-1"`. Up and Left
+  move focus to the previous option, Down and Right to the next; arrow keys only move focus and
+  never choose. Enter, Space, or a click chooses the focused option and immediately advances to
+  **Transposition check** for that device; there is no separate confirm action. When the picker is
+  reached from **Connected** through `Choose a different device`, the device currently in use
+  carries `is-selected` and the visible words "(in use)" after its name; choosing it again re-runs
+  the check for it.
+- The dialog is named by `sheet-title`. There is no hidden live region: every state is conveyed by
+  its visible title and body.
+- Every action in `sheet-actions` is a `btn`. The state's primary action uses `btn btn-primary`;
+  every other action uses plain `btn`. The primary action comes first in the markup, and visual
+  order matches markup and focus order at every breakpoint. No action uses `btn-error`.
+- Tone: every state uses neutral styling (`alert-notice`, `status-dot is-neutral` or
+  `is-success`), except **Permission denied**, which uses `inline-alert alert-error` because it is
+  a blocked browser setting. Words always carry the state; colour never does alone.
 
-## Named actions and copy
+## Named actions
 
-- `Try again` — re-attempts device resolution from **Permission denied** or **No device found**;
-  returns to **Requesting access**.
-- `Continue without a controller` — dismisses the sheet; appears only on **Unsupported browser**,
-  **Permission denied**, **No device found**, and **Multi-device picker** (see States) since it
-  stops reading as a meaningful choice once a device has already been selected.
-- `Run check again` — from **Connected**, returns to **Transposition check** for the currently
-  connected device, skipping permission and device resolution entirely.
-- `Choose a different device` — from **Connected**, present only when more than one input has ever
-  been seen this browser session; returns to **Multi-device picker**.
-- `Disconnect` — from **Connected**, clears the active device and returns the header
-  `controller-status` to its "No controller" badge (see `screens/phrase-workspace/handoff.md`); the
-  sheet itself closes.
-- `Close` (`sheet-close`) — dismisses the sheet from any state; always present and always enabled.
-
-## Responsive Behavior
-
-- At `bp-mobile-landscape`, `sheet` takes the majority of the available inline size with margin on
-  both sides so the backdrop stays visible as a framing cue; `sheet-actions` stacks its buttons
-  full-width when more than one is present.
-- At `bp-tablet-landscape` and `bp-desktop`, `sheet` caps at a comfortable reading measure and stays
-  centered; `sheet-actions` lays its buttons out in a single row.
-- `device-picker`'s options wrap onto additional lines rather than causing `sheet` to scroll
-  horizontally, at every named breakpoint.
-- All visual styling and responsive dimensions use the canonical tokens and component classes in
-  `src/styles/theme.css` and `src/styles/components.css`; this handoff declares no independent
-  visual values.
+- `Continue without a controller` — closes the sheet. On **Unsupported browser**, **Permission
+  denied**, **No device found**, and **Multi-device picker** only.
+- `Check again` — on **Permission denied**; re-requests MIDI access and returns to **Requesting
+  access**.
+- `Try again` — on **No device found**; returns to **Requesting access**.
+- `Continue` — on a check result; advances to **Connected**.
+- `Run check again` — on a check result and on **Connected**; returns to the check's *Prompt*
+  sub-state for the same device, with no permission request or device resolution.
+- `Choose a different device` — on **Connected**, only when more than one input has been seen this
+  page session; opens **Multi-device picker**.
+- `Disconnect` — on **Connected**; releases the device, closes the sheet, and sets the header
+  `controller-status` to the no-controller badge.
+- `Done` — on **Connected**; closes the sheet, keeping the connection.
+- `Close` (`sheet-close`), Escape, backdrop click — close the sheet from any state.
 
 ## Focus Management
 
-- On open, focus moves to `sheet-title` (given `tabindex="-1"` so it is programmatically focusable
-  without being a normal tab stop), identically for every state the sheet can open into, including
-  every re-entry case from the header badge. This announces the dialog's current purpose
-  immediately without picking a different, state-dependent focus target that would need its own
-  justification per state.
-- While the sheet is open, focus is trapped within `sheet`: Tab and Shift+Tab cycle only through
-  `sheet`'s own focusable elements (the title's own programmatic focus stop excluded from the cycle
-  itself, `sheet-close`, any `sheet-body` control such as `device-picker`'s options, and
-  `sheet-actions`' buttons), identically to how `phrase-workspace` traps nothing today because it has
-  never needed a modal until this screen.
-- On close, by any dismiss path, focus returns to the header's `controller-status` element on
-  `screens/phrase-workspace/`, regardless of which state the sheet closed from.
+- On open and on every state change, focus moves to the new state's main action, named per state
+  below. States with no labeled action send focus to `sheet-close`.
+- While the sheet is open, focus is trapped in `sheet`: Tab and Shift+Tab cycle through
+  `sheet-close`, any `sheet-body` control, and the `sheet-actions` buttons.
+- On close, by any path, focus moves to the workspace's Start/Stop button. That is also the
+  fallback whenever a focus target outside the sheet is unclear.
 
 ## States
 
-- **Requesting access:** `sheet-title` reads "Connecting…". `sheet-body` shows a single line, "Checking
-  for a connected controller…", with no interactive control in the body. `sheet-actions` holds only
-  the implicit dismiss path (Escape, backdrop, `sheet-close`); there is no labeled action, since
-  this state is expected to resolve on its own within a moment. `connection-status` announces
-  `Requesting controller access`. Resolves automatically into **Unsupported browser**, **Permission
-  denied**, **No device found**, **Transposition check** (exactly one input found), or **Multi-
-  device picker** (more than one input found).
-- **Unsupported browser:** `sheet-title` reads "Controller connection isn't available here".
-  `sheet-body` reads "This browser can't see a MIDI controller. Practicing without one works exactly
-  the same." No `status-dot` is shown in this state (there is no device state to represent yet).
-  `sheet-actions` holds only `Continue without a controller`; there is no `Try again`, since nothing
-  about clicking it again would change which browser is running. `connection-status` announces
-  `Requesting controller access` then, once resolved, no separate announcement for this state beyond
-  the dialog title itself being read (there is no further action to prompt).
-- **Permission denied:** `sheet-title` reads "Controller access is blocked". `sheet-body` reads
-  "This browser blocked MIDI access. Allow it in your browser's site settings, then try again." with
-  an `alert-notice` `status-dot` marked neutral (never `alert-error`). `sheet-actions` holds `Try
-  again` (`btn btn-primary`) and `Continue without a controller` (`btn`). `connection-status`
-  announces `MIDI access blocked`.
-- **No device found:** `sheet-title` reads "No controller found". `sheet-body` reads "No MIDI
-  controller was found. Connect one and try again, or continue without one." with an `alert-notice`
-  `status-dot` marked neutral. `sheet-actions` holds `Try again` (`btn btn-primary`) and `Continue
-  without a controller` (`btn`). `connection-status` announces `No controller found`.
-- **Multi-device picker:** `sheet-title` reads "Choose a controller". `sheet-body` shows
-  `device-picker` listing every currently reported input by its device name, plus `Continue without
-  a controller` (`btn`) below the list. There is no separate confirm action: selecting a
-  `device-option` immediately advances to **Transposition check** for that device.
-  `connection-status` announces `Choose a controller`.
-- **Transposition check:** `sheet-title` reads "Check your controller". Two sub-states:
-  - *Prompt:* `sheet-body` shows the one written note (from the current instrument profile's own
-    range) and the instruction "Play the note shown above." `sheet-actions` holds no forward action
-    yet (the check advances on its own once a note is played) and the implicit dismiss path.
-    `connection-status` announces `Play the note shown to check your controller`.
-  - *Result (one of three, shown after a note is played):* `sheet-body` replaces the prompt with an
-    `alert-notice` (never `alert-error`, regardless of which of the three) stating the outcome and
-    its one-line suggestion:
-    - **Match:** "Matches — nothing to change." / suggestion: "Your controller is ready to use."
-      `connection-status` announces `Controller check: matches`.
-    - **Transposed by N octaves:** "Transposed by {N} octave(s)." / suggestion: "Try setting your
-      controller's octave shift to 0, or choose an instrument profile that matches this offset."
-      `connection-status` announces `Controller check: transposed by {N} octaves`.
-    - **Transposed by N semitones:** "Transposed by {N} semitone(s)." / suggestion: "Try adjusting
-      your controller's transpose setting by {N} semitone(s) the other way, or choose an instrument
-      profile that matches this offset."
-      `connection-status` announces `Controller check: transposed by {N} semitones`.
+- **Requesting access** — two sub-states, both resolving on their own into **Unsupported
+  browser**, **Permission denied**, **No device found**, **Transposition check** (exactly one
+  input), or **Multi-device picker** (two or more). No labeled action; focus on `sheet-close`.
+  - *Checking:* shown while the request resolves without a browser prompt. `sheet-title`
+    "Connecting…"; body "Looking for your controller…".
+  - *Waiting for your browser:* shown while the browser's own permission prompt is waiting for an
+    answer (MIDI permission was not yet decided when the request was made). `sheet-title` "Allow
+    MIDI access"; body "Your browser is asking whether this page may use MIDI devices. Choose Allow
+    in its prompt, near the address bar." plus `sheet-hint` "You can also close this and practice
+    without a controller." Closing the sheet here abandons the attempt (see the flow handoff for
+    what a late answer does).
+- **Unsupported browser** — `sheet-title` "Controller connection isn't available here". Body
+  "This browser can't see MIDI controllers. Practicing without one works exactly the same." plus
+  `sheet-hint` "To use a controller, open Infinite Flow in a Chromium-based browser such as Chrome
+  or Edge." No `status-dot`. `sheet-actions`: `Continue without a controller` (`btn btn-primary`),
+  the main action. No retry.
+- **Permission denied** — `sheet-title` "MIDI access is blocked". Body: `inline-alert alert-error`
+  reading "Your browser has blocked MIDI devices for this page, so the app can't ask again by
+  itself.", then the paragraph "To allow it: click the site-settings icon at the left of the
+  address bar, set MIDI devices to Allow, then choose Check again." `sheet-actions`: `Check again`
+  (`btn btn-primary`, main action), `Continue without a controller` (`btn`). The header
+  `controller-status` shows the MIDI-blocked badge from the moment this state is reached.
+- **No device found** — `sheet-title` "No controller found". Body: `inline-alert alert-notice`
+  reading "No MIDI controller is plugged in. Plug one in and switch it on, or continue without
+  one." `sheet-actions`: `Try again` (`btn btn-primary`, main action), `Continue without a
+  controller` (`btn`). While this state shows, a device being plugged in moves the sheet on by
+  itself, exactly as `Try again` would.
+- **Multi-device picker** — `sheet-title` "Choose a controller". Body: the line "Several MIDI
+  devices are plugged in. Choose the one you play." then `device-picker`. `sheet-actions`:
+  `Continue without a controller` (`btn`). Main action: the `device-option` holding the roving tab
+  stop.
+- **Transposition check** — `sheet-title` "Check your controller". From the moment this state is
+  entered, the chosen device counts as connected and the header shows the connected badge.
+  - *Prompt:* `check-note` shows one written note from the current instrument profile's range.
+    Body "Play this note on your controller." plus `sheet-hint` "Playing it here won't start a
+    session." No labeled action; focus on `sheet-close`. The first note-on with non-zero velocity
+    from the chosen input is the played note; any other input is ignored.
+  - *Result:* `check-note` stays; below it one `inline-alert alert-notice` with a result sentence
+    and its suggestion (see Check result copy). `sheet-actions`: `Continue` (`btn btn-primary`,
+    main action), `Run check again` (`btn`). Layout and actions are identical for every result;
+    only the text differs.
+- **Connected** — `sheet-title` "Controller connected". Body: `status-dot is-success` followed by
+  "{device name} is connected." `sheet-actions`: `Done` (`btn btn-primary`, main action), `Run
+  check again` (`btn`), `Choose a different device` (`btn`, conditional, see Named actions),
+  `Disconnect` (`btn`).
 
-    `sheet-actions` holds `Continue` (`btn btn-primary`, advances to **Connected**) and `Run check
-    again` (`btn`, returns to the *Prompt* sub-state for the same device). All three outcomes use
-    identical layout and identical action set; only the body text differs.
-- **Connected:** `sheet-title` reads "Controller connected". `sheet-body` shows a `status-dot`
-  marked success (`--color-success`; this is the one state in this flow allowed a positive color,
-  since it is not one of the "absence is normal" states that the color-discipline policy reserves
-  neutral treatment for — see `flows/controller-connection/intent.md`, Color discipline) plus the
-  connected device's name.
-  `sheet-actions` holds `Run check again` (`btn`), `Choose a different device` (`btn`, present only
-  when more than one input has ever been seen this session), `Disconnect` (`btn`), and the implicit
-  dismiss path via `sheet-close`. `connection-status` announces `Controller connected`.
+## Check result copy
+
+Let the current profile be one of `C MIDI keyboard`, `B-flat tenor saxophone`, `E-flat alto
+saxophone`, and let *d* be the played concert pitch minus the expected concert pitch, in semitones
+(positive: the controller sounds higher). Direction words: *d* > 0 → "higher", and the suggestion
+turns it "lower"; *d* < 0 → "lower", and the suggestion turns it "higher".
+
+- **Distance wording.** |*d*| below 12: "{|*d*|} semitone(s)". |*d*| of 12 or more and not a
+  multiple of 12: "{|*d*|} semitones ({octaves} octave(s) and {remainder})". A multiple of 12:
+  "{|*d*|/12} octave(s)". Singular for 1: "1 semitone", "1 octave".
+- **Match** (*d* = 0): "Your controller matches the {profile} profile." / "Nothing to change —
+  you're ready to play."
+- **Whole octaves** (*d* a non-zero multiple of 12): "Your controller sounds {distance}
+  {direction} than the {profile} profile expects." / "Change your controller's octave setting so
+  it plays {distance} {opposite direction}, then run the check again." No profile suggestion.
+- **Semitones** (any other *d*): "Your controller sounds {distance} {direction} than the {profile}
+  profile expects." / "Change your controller's transpose setting so it plays {distance} {opposite
+  direction}, then run the check again." Then, only when another profile would match, a second
+  line: "If you actually play the {other profile}, choose the {other profile} instrument profile
+  instead — no controller change needed."
+- **When another profile matches.** Profile transpositions are 0 (C MIDI keyboard), 14 (B-flat
+  tenor saxophone), and 9 (E-flat alto saxophone) semitones from concert to written pitch. Another
+  profile matches when its transposition equals the current profile's transposition minus *d*.
+  The complete set:
+
+  | Current profile | *d* | Suggested profile |
+  | --- | --- | --- |
+  | B-flat tenor saxophone | +14 | C MIDI keyboard |
+  | B-flat tenor saxophone | +5 | E-flat alto saxophone |
+  | E-flat alto saxophone | +9 | C MIDI keyboard |
+  | E-flat alto saxophone | −5 | B-flat tenor saxophone |
+  | C MIDI keyboard | −14 | B-flat tenor saxophone |
+  | C MIDI keyboard | −9 | E-flat alto saxophone |
+
+- **Worked example.** B-flat tenor saxophone profile, controller sending the written note
+  untransposed (*d* = +14): "Your controller sounds 14 semitones (1 octave and 2) higher than the
+  B-flat tenor saxophone profile expects." / "Change your controller's transpose setting so it
+  plays 14 semitones (1 octave and 2) lower, then run the check again." / "If you actually play
+  the C MIDI keyboard, choose the C MIDI keyboard instrument profile instead — no controller change
+  needed."
+
+## Device changes while the sheet is open
+
+The sheet follows the inputs the browser currently reports.
+
+- **Requesting access, Unsupported browser, Permission denied:** device changes have no effect; the
+  inputs present when access is granted are the ones resolved.
+
+The next two rules apply to devices new to the sheet; the device that was just unplugged coming
+back follows its own rule, further down.
+
+- **No device found:** a device plugged in resolves again as `Try again` would — one input present
+  → **Transposition check**; two or more → **Multi-device picker**.
+- **Multi-device picker:** a device plugged in is appended to `device-picker`. An unplugged device
+  is removed; if it held focus, focus moves to the next option, or the previous one when it was
+  last. If the list is left with one option, the picker stays (the player chooses it). If none are
+  left → **No device found**.
+- **Transposition check or Connected, the chosen device unplugged:** the connection ends and the
+  header shows the no-controller badge. With other inputs present → **Multi-device picker**; with
+  none → **No device found**. Either state then opens with the device-change line,
+  `inline-alert alert-notice` reading "{device name} was unplugged.", above its own body. The sheet
+  never switches to a different device by itself.
+- **The unplugged device plugged back in while the sheet is still open:** if it had already
+  reached **Connected**, it reattaches with no new check and the sheet returns to **Connected**;
+  if it was unplugged during the **Transposition check**, the check starts again for it. Either
+  way the device-change line is removed. Closing the sheet without choosing another device keeps
+  the unplugged device as the selected controller, so plugging it back in later reattaches it by
+  itself.
+- **Transposition check or Connected, another device plugged in or unplugged:** no visible change,
+  except that `Choose a different device` appears on **Connected** once a second input has been
+  seen.
+
+## Responsive Behavior
+
+- At `bp-mobile-landscape`: `sheet` fills the inline size left by the backdrop's padding, up to
+  `--sheet-max-inline-size`; `sheet-actions` stacks its buttons full-width, primary on top.
+- At `bp-tablet-landscape` and `bp-desktop`: `sheet` stays centered at up to
+  `--sheet-max-inline-size`; `sheet-actions` lays its buttons out in one row, aligned to the end,
+  primary first.
+- At every breakpoint: `device-picker` options stack vertically and long device names wrap within
+  their option; `sheet` never scrolls horizontally, and scrolls vertically inside itself when the
+  viewport is too short.
+- All visual values come from the tokens and classes in `src/styles/theme.css` and
+  `src/styles/components.css`; this handoff declares none of its own.
+
+## Empty, loading, and error states
+
+- Empty: **No device found** (and the zero-option picker case, which becomes it).
+- Loading: **Requesting access**, both sub-states.
+- Error: **Permission denied**, the only error-toned state. **Unsupported browser** is an
+  informational notice, not an error.
+- Offline: the sheet works offline; MIDI access is browser-local.
