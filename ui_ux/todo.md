@@ -197,12 +197,11 @@ three passes, confirmed by the user, committed 2026-09-27. Next, in this order:
 
 0. ~~Version-change highlighting convention~~ — done 2026-09-28 (D61), applied to every existing
    v2 edit. Every later v2 edit at the root carries its marks as it is written.
-1. **`strategy.md` persona pass** (see the Remaining list): short, in dialogue with the user.
-   Drafted 2026-09-28; ux D62–D70 settled (spec D127–D130 recorded). `ux-critic` pass 1 DRIFT (5
-   findings), pass 2 DRIFT (2 wording findings), all fixed. Awaiting the owner's confirmation, then
-   commit with the spec-tree changes. Carried to unit 2: Q36 (countdown size), Q37 (staff-only
-   view); to unit 6: Q25 (may a note start a session from the Review).
-2. **Settle Q17** (rolling-display presentation) with the user — ux-writer proposes a default.
+1. ~~**`strategy.md` persona pass**~~ — done 2026-09-28 (ux D62–D70, spec D127–D130), `ux-critic`
+   ALIGNED after two fix rounds, owner-confirmed, merged `9958478`. Carried: Q36, Q37 to unit 2;
+   Q25 to unit 6.
+2. ~~**Settle Q17**~~ — done 2026-09-28 (ux D71: two alternating systems), recorded in
+   `strategy.md` trade-offs. **Next session starts at item 3, unit 2.**
 3. **Unit 2** (session core loop + rolling display, extending `screens/phrase-workspace/`). It now
    also carries ux D52 (on-screen count-in beats, the starting-note line — hidden when no
    controller is connected, as proposed to the user), Q27 (when the disconnect slot appears), and
@@ -212,7 +211,7 @@ three passes, confirmed by the user, committed 2026-09-27. Next, in this order:
 
 - Q17 is on the critical path and is less open than it looks. §4 requires part of the next phrase
   to be visible while the current phrase's last measure plays, which rules out replacing the
-  single system in place. `motion.md`'s "do not scroll the staff" will need a v2 revision.
+  single system in place. `motion.md`'s "do not scroll the staff" will need a v2 revision. (Superseded by ux D71: alternating systems need no scroll, the rule stands.)
 - D45's grounds support keeping Idle and the session on one screen, but not the Review. Revisit
   the Review part before unit 6.
 - Unit 8 (adaptive tempo) depended on unit 1's meaning of "connected" — now defined (spec §8).

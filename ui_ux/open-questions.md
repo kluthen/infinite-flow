@@ -38,6 +38,7 @@ master-spec passages cited below). Q17, Q25 and Q27 are open in this section; Q2
   position alone vs. some quiet visual state), or does it read identically until its own turn
   comes? This blocks starting the Session core-loop flow and screen work. `ux-writer` will
   propose a default and settle it, not `spec-writer` — logged here only so it isn't lost.
+  **Closed 2026-09-28 by ux D71** (two alternating systems; playhead only, no dimming).
 
 - **Q25 — what a session started from the Review uses as phrase 1, and what the Review screen
   shows besides the review itself.** Spec O84 (logged by `spec-writer` 2026-09-27) notes that
