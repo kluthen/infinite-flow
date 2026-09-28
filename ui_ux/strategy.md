@@ -6,6 +6,7 @@
 > - _New:_ the context of use: devices, reading distance, hands during and between sessions,
 >   session length, sound ([Context of Use](#context-of-use))
 > - _New:_ whose needs win when the personas disagree ([Trade-offs](#trade-offs))
+> - _New:_ the rolling display as two alternating staff systems ([Trade-offs](#trade-offs))
 > - _Changed:_ the problem is restated around the continuous session and the three personas it
 >   serves, primary first ([Problem Alignment](#problem-alignment))
 > - _Changed:_ optional MIDI is now specified: when a controller's state is neutral, when it takes
@@ -52,6 +53,7 @@ Controls are grouped by the musical decision they influence: foundation, rhythm,
 - Named segmented options are chosen over freeform knobs or continuous sliders. The generator has discrete first-release policy values, and labels make the consequences inspectable.
 - Chord symbols transpose with the selected instrument profile's own written pitch. The underlying harmony remains concert-pitch data, but a displayed lead sheet must keep written notes, key, chord labels, and slash bass in the same written-pitch reading.
 - Every instrument profile uses treble G2 clef. Only that profile's own fixed transposition changes what is written; it never changes the concert phrase or requires a separate notation-display selection.
+- **[v2 new]** During a session the staff area shows two systems, one above the other: the player reads one while the other is refilled with what comes next, top then bottom then top, like reading down a page. Each system holds what the layout already puts on one line, four measures or, on a phone that splits a phrase, two. This is chosen over replacing a single system in place, which leaves nothing to read ahead, and over a scrolling strip or lines that move up, which move the music under the player's eyes, the hardest thing to follow from a music stand. Only the system not being read ever changes, so nothing scrolls or shifts; the system being played is marked by the playhead alone, and the other is never dimmed, since it is what the player reads ahead into.
 - **[v2 new]** Where the personas pull in different directions, the Curious Improviser's experience is the default, and the others are served inside it:
   - **Progress and pressure.** The Speed Builder pulls toward tempo tracking and a visible measure of progress. The Improviser's mild, never-scored pressure wins: a rising tempo exists only as an opt-in, visibly announced, and no number is ever presented as a result to beat.
   - **Review and flow.** The Fledgling Composer needs a review at the end of each session; the Improviser and the Speed Builder want to get straight back to playing. The review appears between sessions only, never interrupts one, and starting the next session is one action away from it, with no confirmation: the next session's review simply replaces it.

@@ -386,3 +386,19 @@ through this header. Numbering continues from D45.
   forgettable, apart from the exceptions already settled (the disconnect countdown). The owner
   floated letting the player remove everything else from the screen: carried as a proposed
   staff-only view (Q37). Applied to `strategy.md`, context of use.
+
+- **D71 — The rolling display is two alternating staff systems (2026-09-28, user-confirmed; closes
+  Q17).** During a session the staff area shows two systems, one above the other. The player reads
+  one while the other, never the one being read, is refilled with what comes next; reading goes
+  top, bottom, top, like a page. Each system holds what the layout already puts on one line: four
+  measures where a phrase fits one system (desktop, tablet, and a phone wide enough), two measures
+  on a phone that splits a phrase over two systems, so the phone keeps exactly the two systems it
+  already uses and refills half a phrase at a time. A phrase always starts on the top system. The
+  read-ahead is at least a whole phrase on large screens and two measures on the split phone layout
+  (the spec asks for one). The system being played is marked by the playhead only; the other is not
+  dimmed, since it is what the player reads ahead into. Refilling uses the existing phrase-
+  replacement fade; nothing scrolls or shifts, so `motion.md`'s "never scroll the staff" stands. The
+  idle workspace reserves the second system's space, so Start causes no layout shift. Rejected:
+  replacing one system in place (no read-ahead), a scrolling strip or lines moving up (music moving
+  under the eyes, hardest to follow from a stand). Governs unit 2; recorded in `strategy.md`,
+  trade-offs.
