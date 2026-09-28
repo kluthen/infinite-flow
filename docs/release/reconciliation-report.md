@@ -137,7 +137,7 @@ and needs no action beyond the owner's Chromium-only decision.
 ## Items checked and found already consistent (no drift)
 
 - `ui_ux/README.md` (then `index.md`) already names `src/styles/theme.css`/`components.css` as the canonical
-  production token/component source (Step 9's documented requirement), with `ui_ux/ui_common.css`
+  production token/component source (Step 9's documented requirement), with `ui_ux/versions/v1/ui_common.css`
   correctly described as a frozen, non-buildable reference.
 - `specs/roadmap.md` "Explicitly Unresolved Decisions" → "Rhythm settings with no legal phrase"
   lists exactly the same six settings as

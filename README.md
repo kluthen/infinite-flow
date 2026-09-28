@@ -76,7 +76,7 @@ every Playwright suite) so the 4173 preview always has a `dist/` to serve.
   holds the root session composition (`create-workspace-session.ts`) and the workspace component
   tree (see [`docs/phrase-workspace.md`](docs/phrase-workspace.md)).
 - `src/styles/` — the production Tailwind 4 styling authority (`theme.css`, `components.css`,
-  `index.css`, `fonts.css`), consumed by application code; `ui_ux/ui_common.css` is a frozen design
+  `index.css`, `fonts.css`), consumed by application code; `ui_ux/versions/v1/ui_common.css` is a frozen design
   reference, not buildable production styling.
 - `tests/unit` — Vitest/Vue Test Utils unit, component, and property-based coverage, mirroring
   `src/`'s structure.
@@ -95,8 +95,9 @@ every Playwright suite) so the 4173 preview always has a `dist/` to serve.
   generation latency, the phrase workspace, and `docs/release/*`).
 - `specs/` — the first-release master spec, implementation plan, generator architecture and
   contract, and roadmap/open-questions.
-- `ui_ux/` — the approved interaction/visual authority (decisions, strategy, screen handoffs, and
-  the frozen `ui_common.css`/mockup reference).
+- `ui_ux/` — the approved interaction/visual authority: each released version's design, frozen, in
+  `ui_ux/versions/` (v1 includes the frozen `ui_common.css`/mockup reference), and the next
+  version's work in progress at its root (decisions, strategy, flow and screen handoffs).
 
 ## Runtime Constraints
 

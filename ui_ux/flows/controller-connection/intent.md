@@ -1,5 +1,7 @@
 # Controller Connection Intent
 
+> **New in v2.**
+
 Connecting a MIDI controller is a separate concern from generating or reading a phrase, not a
 variant state of either. Generating a phrase is about musical content: what the player wants to
 practice next. Connecting a controller is about a physical device handshake: is one plugged in,

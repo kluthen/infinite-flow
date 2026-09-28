@@ -29,7 +29,7 @@ export const NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX = 5
 export const NOTATION_MAX_STAFF_SPACE_PX = 12
 
 /**
- * Mirrors the workspace's own `--bp-tablet-landscape: 64rem` breakpoint (ui_ux/ui_common.css) as a
+ * Mirrors the workspace's own `--breakpoint-tablet-landscape: 64rem` breakpoint (src/styles/theme.css) as a
  * `matchMedia` query: below this width, a landscape phone container is permitted to fall back to
  * the two-system phone layout when one system does not fit at the legibility floor. At 64rem and
  * above, only the one-system budget is ever tried.

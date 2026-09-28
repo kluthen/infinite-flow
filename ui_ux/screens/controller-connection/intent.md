@@ -1,5 +1,7 @@
 # Controller Connection Screen Intent
 
+> **New in v2.**
+
 This screen is a sheet, not a route, and every state is built to be read in a few seconds and then
 acted on or dismissed — nothing here asks for the sustained attention the phrase workspace does.
 Each state has exactly one job, stated in its own title and body copy, with no competing message

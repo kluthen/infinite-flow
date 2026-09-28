@@ -1,5 +1,7 @@
 # Controller Connection Handoff
 
+> **New in v2.**
+
 ## Entry and exit
 
 ```mermaid
