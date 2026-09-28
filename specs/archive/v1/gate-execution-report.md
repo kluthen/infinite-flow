@@ -119,7 +119,7 @@ Each unit follows the project workflow: its own worktree, one commit plus a `--n
    - Files: `ui_ux/flows/generate-phrase/intent.md`, `ui_ux/screens/phrase-workspace/handoff.md`
      (e.g. the segmented "notation mode" control, the notation-status announcement list mentioning
      "display-mode switch", `staff-content` "selected display convention", chord symbols "follow
-     the selected display mode"), `ui_ux/mockups/phrase-workspace.html`, `ui_ux/decisions.md`,
+     the selected display mode"), `ui_ux/versions/v1/mockups/phrase-workspace.html`, `ui_ux/decisions.md`,
      `ui_ux/strategy.md`, `ui_ux/index.md` and `ui_ux/todo.md`.
    - Forward the master spec only. The variety control's shape is designable now; only its
      musical value sets wait for step 5.

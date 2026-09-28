@@ -10,6 +10,10 @@
   [`archive/v1/todo.md`](archive/v1/todo.md); archived decisions:
   [`archive/v1/decisions-D1-D44.md`](archive/v1/decisions-D1-D44.md); archived closed question:
   [`archive/v1/open-questions-Q15.md`](archive/v1/open-questions-Q15.md).
+- `versions/v1/` (2026-09-28, D60): the v1 design as shipped, frozen, with a summary README; the
+  mockup and `ui_common.css` moved into it. The stale path in the comment in
+  `src/notation/notation-layout-policy.ts` was fixed by `coding-executor` in the same change (it now
+  names `src/styles/theme.css`, the breakpoint's real source).
 
 ## In Progress
 
@@ -191,6 +195,8 @@ Units below are not yet started. None is blocked on anything **except** where no
 Unit 1 (controller connection & transposition check) is **done** — `ux-critic` ALIGNED after
 three passes, confirmed by the user, committed 2026-09-27. Next, in this order:
 
+0. ~~Version-change highlighting convention~~ — done 2026-09-28 (D61), applied to every existing
+   v2 edit. Every later v2 edit at the root carries its marks as it is written.
 1. **`strategy.md` persona pass** (see the Remaining list): short, in dialogue with the user.
 2. **Settle Q17** (rolling-display presentation) with the user — ux-writer proposes a default.
 3. **Unit 2** (session core loop + rolling display, extending `screens/phrase-workspace/`). It now

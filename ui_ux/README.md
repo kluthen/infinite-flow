@@ -10,12 +10,30 @@ built as an extension of the same screen and flow rather than a new top-level IA
 in progress; see `todo.md` for exactly what is written, what is designable now, and what is blocked
 on `spec-writer`.
 
+## Released versions and work in progress
+
+- `versions/<version>/` holds each released version's design exactly as it shipped, frozen, with a
+  `README.md` summarizing the decisions worth keeping. `versions/v1/` is the first release.
+- Everything outside `versions/` and `archive/` is work in progress toward the next version. It
+  covers the whole interface, not only what the next version adds: a screen the next version
+  extends is specified here in full, old behavior included. When a version's design is approved,
+  a copy of it goes into `versions/<version>/`, and the work at the root continues toward the one
+  after.
+- What the version in progress adds, changes and removes is marked, so the unchanged part never
+  has to be read to find it. A document that differs from its copy in `versions/` opens with a
+  **Changes since v1** block, one line per item linking to where it sits; the spot itself carries
+  a **[v2 new]** or **[v2 changed]** tag (in a code block or stylesheet, the same words as an
+  annotation or comment). Removals are listed only in that block, pointing to the old wording in
+  `versions/`. A document new in v2 says so under its title. `grep -rn "v2 new\|v2 changed"`
+  finds every mark. The marks stay until design work on the version after starts; the copy in
+  `versions/` keeps them.
+
 ## Map
 
 - `strategy.md` explains the product shape, visual direction, and shared state policy.
-- `src/styles/theme.css` and `src/styles/components.css` (in the application repo, imported by `src/styles/index.css`) are the canonical themeable token and component vocabulary. `ui_common.css`, in this tree, is a frozen design reference kept only for the mockups; it is not imported by the app and is not buildable truth.
+- `src/styles/theme.css` and `src/styles/components.css` (in the application repo, imported by `src/styles/index.css`) are the canonical themeable token and component vocabulary. `versions/v1/ui_common.css` is a frozen design reference kept only for the v1 mockup; it is not imported by the app and is not buildable truth.
 - `motion.md` defines the limited motion policy.
-- `mockups/` contains the interactive phrase-workspace review prototype, styled from the frozen `ui_common.css` reference.
+- `versions/v1/mockups/` contains the interactive v1 phrase-workspace review prototype, styled from the frozen `versions/v1/ui_common.css` reference.
 - `flows/generate-phrase/` specifies the explicit four-measure generation journey.
 - `screens/phrase-workspace/` specifies the shared workspace screen.
 - `flows/controller-connection/` specifies the MIDI controller connection and transposition-check journey.
@@ -30,4 +48,4 @@ on `spec-writer`.
 - A token or component-style change is decided here, in the `ui_ux` handoff documents (this design set).
 - The ux-writer then updates `src/styles/theme.css` and `src/styles/components.css`, which it owns as the canonical production token and component-class source from this point forward.
 - Application code consumes those classes and tokens and never inlines a raw visual value.
-- `mockups/` and `ui_common.css` are updated only when the mockups themselves need to stay representative of the current design; otherwise a decision that changes production styling leaves the mockups and `ui_common.css` stale, and that staleness is expected rather than an error.
+- The v1 mockup and its `ui_common.css` are frozen with the rest of `versions/v1/` and are never updated; a later production styling decision leaves them stale, and that staleness is expected rather than an error.

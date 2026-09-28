@@ -356,10 +356,10 @@ shadows, motion durations, the three named responsive breakpoints, and the full 
 palette) and `src/styles/components.css` (`@layer components`: every component class this
 workspace renders, its interactive states, and its breakpoint/portrait/reduced-motion rules) are
 the canonical, buildable production styling source, imported through `src/styles/index.css`.
-`ui_ux/ui_common.css` is a frozen design reference kept only for the `ui_ux/mockups/` prototype; it
+`ui_ux/versions/v1/ui_common.css` is a frozen design reference kept only for the `ui_ux/versions/v1/mockups/` prototype; it
 is not imported by the application and is not buildable truth. Per `ui_ux/README.md`, a token or
 component-style change is decided in the `ui_ux` handoff documents first, then applied to
 `theme.css`/`components.css` as the canonical production source; application code consumes those
-classes and tokens and never inlines a raw visual value, and `ui_ux/mockups/`/`ui_common.css` are
+classes and tokens and never inlines a raw visual value, and `ui_ux/versions/v1/mockups/`/`ui_common.css` are
 updated only when they themselves need to stay representative — otherwise their staleness relative
 to a later production styling decision is expected, not an error.

@@ -283,3 +283,35 @@ through this header. Numbering continues from D45.
   D53's "the header never changes shape during a session" true. A narrow confirmation pass then found two
   placement slips in these edits (a scoping sentence attached to the wrong bullet; the flow
   intent's summary still stating the new-device rule without the replug exception); both fixed.
+- **D60 — Released versions live frozen in `versions/<version>/`; the root is work in progress
+  (2026-09-28, user direction).** `versions/v1/` holds the v1 design exactly as it shipped: the
+  tier documents taken from the `v1.0` tag, with the phrase-workspace handoff at the one
+  post-tag correction that aligned it with shipped code (`d0a831c`), plus the mockup and its
+  frozen `ui_common.css`, moved there because they are v1-only artifacts. Its `README.md` summarizes
+  the v1 decisions worth keeping, with links into those documents. The working record stays in
+  `archive/v1/`. Everything else at the `ui_ux/` root is work in progress toward the next version
+  and stays cumulative: it specifies the whole interface, old behavior included, rather than only
+  the next version's additions, so nothing built earlier can be broken for lack of a spec. When a
+  version's design is approved, a copy goes into `versions/<version>/`. The user's concern with a
+  cumulative root — an implementer should not have to read every page to find what changed — is
+  to be answered by highlighting what each version adds, changes and removes; that convention is
+  being settled separately. One inbound reference is left for `coding-leader`: the comment in
+  `src/notation/notation-layout-policy.ts` still names `ui_ux/ui_common.css` (application source,
+  not edited here).
+- **D61 — Change marking for the version in progress (2026-09-28, user-confirmed; completes
+  D60).** Every root tier document that differs from its copy in the latest `versions/` folder
+  opens with a "Changes since v1" block (New / Changed / Removed, one line each, linking to the
+  section; in a document without headings, pointing to the tagged paragraph, because the link
+  checker rejects HTML anchors). The changed spot carries `**[v2 new]**` or `**[v2 changed]**` at
+  the start of its section, list item, paragraph or table row, never mid-sentence; bracketed, so a
+  tag stays distinct from a bullet's own bold label. In a code block or diagram the same words go
+  in the element's annotation (`controller-status (v2 new; …)`); in the stylesheets
+  (`src/styles/theme.css`, `components.css`) as comments, with a from-here/end pair around a long
+  run of new blocks. Removals appear only in the block, linking to the frozen wording, never as
+  struck-through text. A wholly new document carries `> **New in v2.**` only. The `versions/` copy
+  keeps its marks; at the root they are cleared in one pass when design work on the next version
+  starts. Applied 2026-09-28 to `strategy.md`, `screens/phrase-workspace/`, the four
+  controller-connection documents and both stylesheets. The same convention was written into the
+  shared agent definitions (`ux-writer`, `ux-critic`, `coding-leader`, in all three ports), the
+  `ux-validate` and `milestone-archive` skills, and `doc-tree-conventions.md`, in the dev_team
+  repo, at the user's request.

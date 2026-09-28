@@ -190,6 +190,7 @@
     stroke: none;
   }
 
+  /* v2 changed -- `.btn` becomes a bordered neutral button with its full state matrix. */
   /* States: default, hover, focus-visible, active, disabled, loading, error (`btn-error`).
      A plain `.btn` is the neutral secondary button (e.g. `Connect controller`, `Continue without
      a controller`): a bordered surface, so it reads as a button on both the canvas and a sheet.
@@ -434,6 +435,8 @@
     display: none;
   }
 
+  /* v2 new -- from here to "end v2 new": connection sheet, device picker, transposition-check
+     note, controller status, session alert. */
   /* States: default, entering/leaving (opacity transition only -- no spatial motion, per
      `motion.md`'s "communicates ... immediate interaction feedback" rule). Not itself an
      interactive control (its dismiss-on-click is handled by script), so hover/focus-visible/
@@ -674,6 +677,7 @@
     font-weight: 700;
     white-space: nowrap;
   }
+  /* end v2 new */
 
   @keyframes staff-fade-in {
     from {
@@ -715,7 +719,7 @@
     .control-group-row > .control-group {
       flex: 1 1 var(--control-group-min-inline-size);
     }
-    /* From bp-tablet-landscape up, sheet actions sit in one row aligned to the end (the
+    /* v2 new -- from bp-tablet-landscape up, sheet actions sit in one row aligned to the end (the
        narrower default above stacks them full-width). */
     .sheet-actions {
       flex-direction: row;
