@@ -1,8 +1,13 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.5 (2026-09-27). This is the consolidated, execution-ready specification for
+Status: master spec v1.7 (2026-09-28). This is the consolidated, execution-ready specification for
 v2, covering releases v2.0 through v2.3. It supersedes the individual v2 draft topic documents,
-which are kept in the archive as working history.
+which are kept in the archive as working history. Change in v1.6: the export is chosen by content,
+generated notes or played notes, and played notes come as a MIDI file of their own instead of an
+opt-in track inside the generated MIDI file (§2, §7, §8, §11–§13). Change in v1.7: marking
+favorites moves to v3, so the review has no favorites, every export covers the whole session, and
+starting a new session from the review asks no confirmation; the generated notes and the played
+notes each have their own export action, one file each (§2, §7, §11–§13).
 
 ## 1. Core concept
 
@@ -34,8 +39,8 @@ from a played motif, "my instrument," and local persistence across sessions) is 
   that catches a controller/instrument-template transposition mismatch.
 - A quiet, per-measure "did what you played fit the harmony" acknowledgement for players who
   embellish or improvise rather than playing the generated line exactly.
-- A review of the last session, with the ability to mark favorite phrases, and exporting the
-  session (or just the favorites) to MusicXML and MIDI.
+- A review of the last session, and exporting the whole session: the generated notes to MusicXML
+  or MIDI, and the notes the player played to MIDI, each through its own export action.
 - An opt-in, visible flag that lets the app quietly vary its own generation settings over the
   course of a session, and a separate opt-in flag that raises the tempo on a fixed schedule.
 
@@ -45,11 +50,13 @@ from a played motif, "my instrument," and local persistence across sessions) is 
   this is v3.
 - "My instrument": remembering a specific controller's transposition/offset across sessions —
   this is v3, and it will reuse the offset the v2.0 controller check detects.
-- Persistence of any kind: session history, favorites, or settings surviving a page reload — v2
+- Marking favorite phrases in the review, and exporting only the favorites — v3, where favorites
+  are settled.
+- Persistence of any kind: session history or settings surviving a page reload — v2
   session state is fully ephemeral by design (see §7, Privacy).
 - Reviewing any session other than the most recent one — v3.
 - Editing, cutting, splicing or otherwise manipulating generated material in the review — out of
-  scope entirely; the only per-phrase action is marking/unmarking a favorite.
+  scope entirely; the v2 review has no per-phrase action at all.
 - Accompaniment with musical roles (harmonizing, contrasting, responding to the player) — v4.
 - Any grading, scoring, ranking or wrong-note signal, in any view, at any point — this is a
   permanent product-wide constraint, not a v2-specific gap.
@@ -101,9 +108,9 @@ is deferred to v3 entirely).
 
 ## 4. Look-ahead and failure handling
 
-The app always looks one phrase ahead: as soon as phrase *N* starts sounding, phrase *N+1* is
+The app always looks one phrase ahead: as soon as phrase _N_ starts sounding, phrase _N+1_ is
 requested, and it must be generated and engraved before its **deadline** — the start of phrase
-*N*'s last measure. That leaves at least one measure of read-ahead visible on screen at all times.
+_N_'s last measure. That leaves at least one measure of read-ahead visible on screen at all times.
 At session start, the phrase already on screen before Start was pressed becomes phrase 1 of the
 new session (there is no separate "generate phrase 1" step), and phrase 2 is generated during the
 one-bar count-in, before the count-in ends.
@@ -246,7 +253,7 @@ original reproduction inputs — the resolved request, seed, and carry-in — so
 this session is exactly reproducible from its stored inputs" is a testable guarantee, not an
 assumption. This also stores whatever a v3 persistence/continuation feature will need later. The
 history additionally records each phrase's acknowledgements and the played notes whose onsets fall
-within it, and marks any phrase that is a repeat inserted by the failure ladder in §4 — internally
+within it (each with its concert pitch, velocity, onset and release on the audio clock), and marks any phrase that is a repeat inserted by the failure ladder in §4 — internally
 only: the review itself never visibly distinguishes a repeated phrase from any other phrase, since
 a repeat is a generator implementation detail, not something worth surfacing to the player. There
 is no cap on session length; the review must stay responsive regardless of how long a session ran.
@@ -256,34 +263,74 @@ was displayed (written pitch, key signature, chord symbols), each with its phras
 tempo it played at. The generated notes are always shown; the notes the player actually played are
 **optional**, shown only on a toggle, and when shown they are unquantized and neutrally colored,
 possibly indicating which ones matched the script — this is an appreciation of having followed the
-line, never a score, and there is still no coloring anywhere for a note that didn't match. A
-favorite marks a whole phrase (not a bar range — that's a v3 idea, tied to seeding a v3
-continuation). Only the most recently completed session's review exists; starting a new session
-discards the current one, asking for confirmation first only if it holds unexported favorites.
-Closing or reloading the page discards everything without asking.
+line, never a score, and there is still no coloring anywhere for a note that didn't match. The
+review has no favorites: marking phrases is v3 (§2). Only the most recently completed session's
+review exists. Starting a new session from the review discards it without asking for
+confirmation, so the next session is always one action away. Closing or reloading the page
+discards everything without asking.
 
-**Export.** Two export scopes are available: the whole session, or favorites only (in session
-order, each phrase keeping its original session phrase number) — delivered as a browser file
-download, with no upload and no server-side step anywhere. Two formats:
+**Export.** Getting what was played out of the app matters as much as getting the generated
+material out, so the review offers two export actions, one per content: one exports the
+**generated notes**, the other the **played notes**. Each action delivers exactly one file, as a
+browser file download, with no upload and no server-side step anywhere.
+
+- **Scope:** every export covers the whole session. Its phrases sit back to back in session
+  order, each keeping its session phrase number, with no gap between them, starting at time zero
+  with phrase 1.
+- **Content:** the action the player triggers decides it. Played notes only ever leave the app
+  when the player triggers the played-notes action; the generated-notes action never carries
+  them.
+
+**Generated notes** come in one file, MusicXML or MIDI; the generated-notes action lets the
+player choose the format:
 
 - **MusicXML** (score-partwise 4.0): one part, in the session's instrument's own written pitch
   with a `<transpose>` element carrying that transposition (omitted for a C instrument); chord
   symbols always included; each phrase marked with a rehearsal mark and a double barline, with a
-  metronome mark at the start and at every tempo change. Played notes are never included in
-  MusicXML — unquantized playing can't be faithfully engraved, and quantizing it would misrepresent
-  what was actually played.
+  metronome mark at the start and at every tempo change. MusicXML only ever holds generated notes:
+  unquantized playing can't be faithfully engraved, and quantizing it would misrepresent what was
+  actually played.
 - **MIDI** (Standard MIDI File, type 1): the generated line at concert pitch on its own track, a
-  full tempo map, one marker per phrase; an optional backing track (off by default); and an
-  optional track of the player's own played notes, included **only** if the player explicitly
-  opts in when exporting (off by default) — unquantized, with their original velocity.
+  full tempo map, one marker per phrase, and an optional backing track (off by default). It never
+  holds played notes.
+
+**Played notes** come in one file, **MIDI only** (Standard MIDI File, type 1), with one track of
+the notes the player played:
+
+- **Which notes:** every played note whose onset falls within a phrase of the session. A note
+  whose onset falls before phrase 1 begins (the note that started the session, or anything played
+  during the count-in) belongs to no phrase and is never exported.
+- **Pitch and velocity:** concert pitch exactly as received from the controller, and the original
+  note-on velocity.
+- **Timing, unquantized:** each note keeps its exact onset relative to the start of its phrase,
+  converted to MIDI time through the tempo map, with no snapping to any grid. The file's time
+  resolution is fine enough that no onset moves by more than 1 ms from where it was played. A note
+  lasts until the controller released it (§8). A note still held when the session ends stops at
+  the session's end.
+- **Lining up with the generated notes:** the played-notes file carries the same tempo map and
+  the same phrase markers as the generated-notes MIDI file of the same session, at the same time
+  resolution, with phrase 1 at time zero in both, whether or not the generated notes are exported
+  too. Imported together into a digital audio workstation (DAW, a music production program), the
+  two files line up phrase by phrase. The played-notes file never holds the backing, which is generated material and stays
+  an option of the generated-notes MIDI file.
+- **Only when there is something to export:** when the session holds no played note at all (a
+  session without a controller, or one in which nothing was played), the played-notes action is
+  unavailable, and only generated notes can be exported. How that is shown is a UI/UX design
+  decision.
+
+**Both contents** means using both actions: two separate files from the same session, the
+generated-notes file in the format the player picked (MusicXML or MIDI) and the played-notes MIDI
+file. They are never merged into one file, and no single action ever delivers both. Their file
+names make clear which content each holds and that they come from the same session; the exact
+names are a UI/UX design decision.
 
 **Privacy is absolute and by construction, not by policy.** Played notes exist only in memory, for
 the current session and its review. v2 writes nothing about a session — generated or played — to
 any browser storage (`localStorage`, IndexedDB, the Cache API, or any network request); the only
-way a played note ever leaves the player's machine is through an export they explicitly triggered,
-with the played-notes option explicitly checked. There is exactly one local user, with no accounts,
-roles, sharing, or any other multi-user access model to define — whoever has the page open can do
-everything, and nothing here changes that.
+way a played note ever leaves the player's machine is through the played-notes export action,
+which they explicitly triggered. There is exactly one local
+user, with no accounts, roles, sharing, or any other multi-user access model to define — whoever
+has the page open can do everything, and nothing here changes that.
 
 ## 8. MIDI input and note acknowledgement
 
@@ -291,7 +338,10 @@ everything, and nothing here changes that.
 connected inputs are never merged — the player is asked to pick one), read as concert pitch on any
 channel (omni). Only a note-on with non-zero velocity counts as a played note; breath/CC data,
 pitch bend, aftertouch and SysEx are all ignored, because the reference controller's own breath
-signal isn't accurate enough to build a feature on.
+signal isn't accurate enough to build a feature on. A note-off (or a note-on with zero velocity)
+is read for one purpose only: to know when a played note ends, which the played-notes export
+needs (§7). It is never a played note and never counts as activity. A new
+note-on for a pitch that is still held ends the earlier one.
 
 **Connecting happens only between sessions,** while the app is Idle or showing the Review, never
 during a session. It is a step of its own: the player clicks "Connect controller" (the same click
@@ -443,7 +493,7 @@ single scale per phrase; any chromatic note the generator itself ever writes is 
 or enclosure figure that resolves by one semitone onto a chord tone within two notes. This should
 mean every generated measure already fits under this rule when played as written — though since
 the check never fires on a script-perfect measure anyway (see above), this is really a guarantee
-about the check never being *unfair* to an embellishing player who mixes in the app's own idiom,
+about the check never being _unfair_ to an embellishing player who mixes in the app's own idiom,
 not something that needs separate verification against the exact written line.
 
 **A caveat for later versions:** this whole approach relies on the harmony staying inside one scale
@@ -482,12 +532,12 @@ players deliberately building reading and playing speed:
 
 ### Release sequence
 
-| Release  | Delivers |
-| -------- | -------- |
-| **v2.0** | The full core loop: rolling phrases with carry-in (§3–§4), backing/click/count-in (§6), sessions (§7), MIDI expected-note acknowledgement and the controller check (§8), last-session review with favorites and MusicXML/MIDI export (§7), control changes locked to phrase boundaries (§5). |
-| **v2.1** | Played notes become visible in the review (already partly true in v2.0) and exportable by choice (§7); the settings-mutation flag (§5). |
-| **v2.2** | Adaptive tempo (§10); the multi-phrase tension arc noted in §3. |
-| **v2.3** | The end-of-measure chord-fit check (§9). |
+| Release  | Delivers                                                                                                                                                                                                                                                                                                   |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **v2.0** | The full core loop: rolling phrases with carry-in (§3–§4), backing/click/count-in (§6), sessions (§7), MIDI expected-note acknowledgement and the controller check (§8), last-session review and export of the generated notes to MusicXML or MIDI (§7), control changes locked to phrase boundaries (§5). |
+| **v2.1** | Played notes become visible in the review (already partly true in v2.0) and exportable by choice, through their own export action, as their own MIDI file (§7); the settings-mutation flag (§5).                                                                                                           |
+| **v2.2** | Adaptive tempo (§10); the multi-phrase tension arc noted in §3.                                                                                                                                                                                                                                            |
+| **v2.3** | The end-of-measure chord-fit check (§9).                                                                                                                                                                                                                                                                   |
 
 Count-in is part of v2.0 because starting the session on a MIDI note needs it.
 
@@ -527,7 +577,11 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
     session.
 12. The review and export are complete, exact, and reproducible from stored inputs; MusicXML opens
     correctly in a real notation program (MuseScore) for at least three transposing instrument
-    templates; MIDI opens correctly in a real tool with the correct tempo map.
+    templates; MIDI opens correctly in a real tool with the correct tempo map. Every export
+    covers the whole session. In v2.0 only the generated-notes export action exists, and no
+    exported file holds a played note. The review has no favorites. Starting a new session from
+    the review discards it without any confirmation, and closing or reloading the page discards
+    everything without asking.
 13. Privacy holds absolutely (verified with a network/storage spy across a full session, review and
     export), and nothing anywhere is ever graded, scored or marked wrong.
 14. All existing v1 guarantees still hold unchanged: the instrument range contract, the notation
@@ -563,8 +617,18 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
 
 ### Added by v2.1 and later
 
-- **v2.1:** played notes appear in the review only when the toggle is on, and in the MIDI export
-  only when the player explicitly opts in at export time.
+- **v2.1:** played notes appear in the review only when the toggle is on. The review gets a
+  played-notes export action beside the generated-notes one, and:
+  - a played-notes file is MIDI and holds exactly the played notes whose onsets fall in the
+    session's phrases, at concert pitch as received, with their original velocity, and no onset
+    more than 1 ms away from where it was played relative to its phrase;
+  - no generated-notes file, MusicXML or MIDI, ever holds a played note;
+  - each export action delivers exactly one file; exporting both contents takes both actions and
+    gives two separate files;
+  - imported together into a real DAW, the played-notes file and the generated-notes MIDI file
+    of the same session line up phrase by phrase, with the same tempo map and markers;
+  - the played-notes action is unavailable when the session holds no played note;
+  - privacy still holds under the network and storage spy of v2.0 item 13.
 - **v2.2:** adaptive tempo meets its own acceptance criteria in §10 (flat, unconditional schedule;
   never decreases automatically; resets correctly at session end; generation itself is provably
   unaffected by whether it's on).
@@ -604,16 +668,20 @@ starting v2.0 implementation:
   velocity it uses. This determines whether an additional manual "input transposition" setting is
   needed beyond the check itself.
 
+One item left v2 when favorites moved to v3, and is not a v2 gap: **what makes a favorite count
+as exported**, which only mattered for asking before discarding unexported favorites. It stays
+open and is settled with favorites in v3, together with marking itself.
+
 One session-start item came up while the controller-connection rules were being settled. It
 blocks only the path it names, not the rest of v2.0:
 
 - **Starting a session from the Review** (§6, §7): a new session can be started from the Review as
   well as from Idle, but "phrase 1 is the phrase already on screen" assumes Idle. Which phrase
   becomes phrase 1 there is undecided, and depends on what the Review screen shows besides the
-  review. Whether a MIDI note can start a session from the Review at all is also undecided: it
-  would collide with the confirmation §7 asks for when the review holds unexported favorites, since
-  a confirmation needs a click. Proposed, not yet confirmed by the product owner: from the Review,
-  only a Start click starts a session.
+  review. Whether a MIDI note can start a session from the Review at all is also undecided.
+  Proposed, not yet confirmed by the product owner: from the Review, only a Start click starts a
+  session. Starting from the Review no longer asks for any confirmation (§7), so that reason for
+  the proposal is gone; whether a MIDI start is wanted there is the remaining question.
 
 Two further items are noted as direction for v2 or later, without being scoped precisely enough to
 build yet, and are **not** part of the v2.0–v2.3 definition of done above:
@@ -630,5 +698,5 @@ build yet, and are **not** part of the v2.0–v2.3 definition of done above:
 v2 has exactly one local user, with no accounts, roles, permissions or any form of sharing —
 whoever has the page open can do everything the app offers. The only data that ever leaves the
 player's machine is an export they explicitly triggered, and even then only carries their own
-played notes if they explicitly opted into that at export time. There is nothing further to design
+played notes if they explicitly triggered the played-notes export. There is nothing further to design
 here: v2 has no multi-role access model to specify.

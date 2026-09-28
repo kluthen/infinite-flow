@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.11
+Status: draft v0.14
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -13,7 +13,8 @@ O24 was resolved 2026-09-27 (D108): the check is kept, ships in v2.3, and fires 
 where the player goes off-script. Six v2 questions (O78–O83) were opened the same day by the
 controller-connection answers (D111–D118) and resolved later that day (D119–D124). O84 was opened
 while recording them (see the last section). O85, opened while recording D125, was resolved the
-same day (D126).
+same day (D126). O86 was opened 2026-09-28 by the export-by-content change (D129), and deferred
+to v3 the same day, when favorites moved there (D130).
 
 ### Registered from the v2 proposal and the prerequisites analysis (2026-09-25)
 
@@ -54,7 +55,10 @@ resolved 2026-09-27 (D97). O24 was resolved 2026-09-27 (D108).
   BPM. [master-spec.md §6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo).
 - **O71 - Bluetooth MIDI** _(research on the owner's setup)_: is USB the tested path for v2.0,
   with BLE best-effort (proposed)? Depends on whether the owner's OS exposes the reference
-  controller's BLE MIDI to Chromium, and its measured jitter.
+  controller's BLE MIDI to Chromium, and its measured jitter. Note (2026-09-28, D127): the owner
+  also plays occasionally on an Android phone with the Travel Sax, so "the owner's OS" covers
+  Android Chrome as well as the main computer. How the controller connects to the phone
+  (Bluetooth or USB) is not known.
   [master-spec.md §12](versions/v2/master-spec.md#12-open-questions-carried-forward).
 - **O69 - Latency after ISS-004** _(measurement)_: re-run the latency harness after ISS-004,
   including cold runs after a mid-session control change. Does the cold worst case stay under a
@@ -71,10 +75,24 @@ and resolved the same day (D119–D124). O85 was resolved the same day too (D126
   Start", and §6 says which note starts a session "while the app is Idle", but a new session can
   also be started from the Review (§7), where the screen shows the past session. Which phrase
   becomes phrase 1 there, and can a MIDI note start the session from the Review at all? The second
-  part collides with §7's rule that starting a new session asks for confirmation when the review
-  holds unexported favorites: a confirmation needs a click, which a MIDI start doesn't give.
-  Proposed default for the second part: from the Review, only a Start click starts a session; a
-  MIDI note starts nothing there. The first part has no proposed default yet: it depends on what
+  part used to collide with a confirmation before discarding unexported favorites, which a MIDI
+  start can't answer; since D130 the review has no favorites and starting from it asks no
+  confirmation, so that collision is gone. Proposed default for the second part, kept though its
+  original reason is gone: from the Review, only a Start click starts a session; a MIDI note
+  starts nothing there. The first part has no proposed default yet: it depends on what
   the Review screen shows besides the review, which `ux-writer` designs. Not confirmed by the
   owner.
   [master-spec.md §6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo).
+
+## Favorites, deferred to v3 (O86)
+
+- **O86 - What makes a favorite "exported"** _(v3; D88, D129, D130; noticed by `spec-writer`
+  while recording D129)_: v2's spec used to ask for confirmation before starting a new session
+  when the review held unexported favorites. With the export split by scope and by content, a
+  favorite could leave the app in part: its played notes only, or inside a whole-session export.
+  Does that count as exported? Since D130 v2 has no favorites and asks no confirmation, so this
+  is not a v2 question. The owner: "leave this as open question for later". It is settled with
+  favorites in v3, and may change shape there, since v3 adds local persistence. Earlier proposed
+  default, not confirmed: a favorite counts as exported once any export that included its phrase
+  has been triggered, whatever the scope and content.
+  [v3 favorites](versions/v3/README.md#favorites-v3-scope-to-be-settled).

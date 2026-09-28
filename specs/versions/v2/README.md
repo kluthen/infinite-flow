@@ -1,17 +1,18 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27). The individual topic documents that were
+Status: consolidated into the master spec (2026-09-27; master spec v1.7, 2026-09-28, D130). The
+individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
 ID-free description of v2.0 through v2.3, ready to hand to `coding-leader` and, later, `ux-writer`.
 
 **Serves:** P2, the Speed Builder, first. P1 gets its real-time goal (reading notes as they come).
-P3 gets session review and export. See [personas](../../personas.md).
+P3 gets session review and export; marking favorites is v3 (D130). See [personas](../../personas.md).
 
 ## Documents
 
-| Document                                | Purpose                                                                                                        | Status            |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------ |
-| [master-spec.md](master-spec.md)         | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.5   |
+| Document                         | Purpose                                                                                                        | Status           |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------- | ---------------- |
+| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.6 |
 
 The original draft topic documents (highlights proposal, rolling phrase, audio and backing, MIDI
 and acknowledgement, sessions/review/export, adaptive tempo, definition of done,
@@ -19,7 +20,7 @@ questions-for-user) are archived verbatim at
 [../../archive/v2/](../../archive/v2/README.md), each with a note pointing to the master-spec
 section that now carries its content.
 
-## Status snapshot (2026-09-27)
+## Status snapshot (2026-09-28)
 
 Settled scope is below and unchanged. The topic documents mark each item settled or `(proposed)`.
 
@@ -44,7 +45,8 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   first note played (D85); only note-on counts as MIDI activity (D86); v2 stays Chromium-only
   (D87); history/review/export defaults (both timeline and reproduction inputs stored, both
   session and favorites exportable, whole-phrase favorites, confirm before discarding unexported
-  favorites, chord symbols and optional backing in exports, no session-length cap) (D88).
+  favorites, chord symbols and optional backing in exports, no session-length cap) (D88). Its
+  favorite defaults no longer apply to v2: favorites moved to v3 (D130).
 - **Overrides (2026-09-27 batch, not the proposed default):** a hidden tab now **ends the
   session immediately**, like Stop, instead of pausing (**D89**); v2.0 expects a **single** MIDI
   input, with a picker if more than one is connected, instead of merging inputs (**D90**).
@@ -93,7 +95,23 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   into the Review; the selection does not survive a page reload (D126). Only phrase 1's first note, at its exact pitch,
   starts a session from MIDI, and it only starts the count-in, which is shown as well as heard.
   Full rules in [master-spec.md §6–§8](master-spec.md#8-midi-input-and-note-acknowledgement).
-- Open: 9 questions across the register, including O84 (starting a session from the Review);
+- **Changed (D129, owner via `ux-writer`, ux D66): export by content.** For either scope (whole
+  session, or favorites, a scope D130 then removed), the player exports the generated notes (one MusicXML or MIDI file, as
+  before, the default), the played notes (one MIDI file only, unquantized, original velocity, same
+  tempo map and phrase markers as the generated MIDI so both line up in a DAW), or both (two
+  separate files). This replaces the opt-in played-notes track inside the one MIDI file. v2.0
+  exports generated notes only; played notes and "both" arrive in v2.1. Opens **O86** (what makes
+  a favorite "exported"). Keeping sessions stays later than v2 (ux D67): see
+  [v3](../v3/README.md#keeping-sessions-candidates-not-committed).
+- **Changed (D130, owner via `ux-writer`, ux D68, ux D69): favorites move to v3, one export
+  action per content.** The review has no favorites; every export covers the whole session;
+  starting a new session from the review asks no confirmation (closing or reloading still
+  discards everything without asking). The review offers one export action for the generated
+  notes (MusicXML or MIDI) and one for the played notes (MIDI), one file each; "both" means using
+  both. The played-notes action is unavailable when the session holds no played note. **O86**
+  is deferred to v3 with favorites ([v3](../v3/README.md#favorites-v3-scope-to-be-settled)).
+- Open: 10 questions across the register, including O84 (starting a session from the Review);
+  O86 (what makes a favorite "exported") is still open but now belongs to v3 (D130);
   none is currently flagged ★ (all 5 most-blocking ones are settled). See [open-questions.md](../../open-questions.md) and
   [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
 
@@ -127,15 +145,18 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   - While a MIDI player is silent, the phrase keeps scrolling, because they may be catching their
     breath or recovering after losing track.
 - **Last-session review and export.**
-  - At the end, the player reviews the last session (what was displayed and what was played) and
-    marks what they liked.
+  - At the end, the player reviews the last session (what was displayed and what was played).
+    Marking what they liked is v3 (D130).
   - Export formats are MusicXML and MIDI. Export ships with the v2.0 review (D104).
+  - The export is chosen by content (D129), one action each (D130): the generated notes as
+    MusicXML or MIDI, the played notes as MIDI only. Using both gives two separate files. Every
+    export covers the whole session.
   - The user considers this "not urgent, but must come soon": it is instrumental for working with
     gimmicks and leitmotifs.
 - **Played-note privacy.**
   - Played notes belong to the player and are never sent anywhere.
   - For the review they are held in memory for the last session only.
-  - An export includes played notes only if the player chooses it.
+  - An export includes played notes only if the player chooses them as its content (D129).
 - **Adaptive tempo (nice to have, v2.2).**
   - An opt-in checkbox for players working on reading and playing speed.
   - While it is on, the BPM rises on a flat, unconditional schedule — +5 BPM every 2 phrases,
@@ -196,6 +217,9 @@ through an export the player triggers (D64, D69).
   flag) is narrowed by D103, and its release is settled at v2.1 (D107) — but its cadence and
   default state are still open. Full text is in
   [open-questions.md](../../open-questions.md) and [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
+- **O84** (starting a session from the Review) is a v2 gap carried in
+  [master-spec.md §12](master-spec.md#12-open-questions-carried-forward). **O86** (what makes a
+  favorite "exported", opened by D129) moved to v3 with favorites (D130).
 - Every other question originally registered here (O10, O24, O33, O35–O39, O41–O46, O50–O56,
   O58–O67, O70, O72–O76) is now **settled** — see the status snapshot above and the
   [decisions log](../../decisions.md).
@@ -233,8 +257,10 @@ One canonical term per concept. "Flow mode", used in the highlights proposal, me
 - **Backing:** the bass and block chords rendered from the harmony. It is not a generated voice.
 - **Click:** the metronome sound. **Count-in:** the bar(s) of click before a session's first
   phrase (D85). There is no pause/resume in v2.0 (D89): a hidden tab ends the session outright.
-- **Review:** the view of the last session after it ends. **Favorite:** a phrase the player
-  marked in the review.
-- **Export:** a MusicXML or MIDI file download that the player triggers.
+- **Review:** the view of the last session after it ends. It has no favorites in v2; marking
+  favorites is v3 (D130).
+- **Export:** a file download that the player triggers from the review, covering the whole
+  session: the generated notes (MusicXML or MIDI) or the played notes (MIDI), one action and one
+  file each (D129, D130).
 - **Adaptive tempo:** the opt-in option that raises the tempo on a flat, unconditional schedule
   while it is on (D101) — not tied to how the player plays.

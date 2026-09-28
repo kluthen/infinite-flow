@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.9
+Status: draft v0.13
 
 ## Status Snapshot
 
@@ -18,10 +18,37 @@ Status: draft v0.9
   [far vision](vision/far-vision.md).
 - **Personas:** P1, the Curious Improviser (primary); P2, the Speed Builder; P3, the Fledgling
   Composer.
+- **Context of use and browser scope (2026-09-28, D127)**, from the owner via `ux-writer` (ux D62,
+  ux D63). A shared [context of use](personas.md#context-of-use) now covers all personas: laptop
+  or desktop in Chrome or Edge first, a Chromium tablet on the music stand as a candidate, a
+  landscape phone occasionally; music-stand distance, often standing; no click while playing;
+  no oversized controls; 5 to 30 minute sessions, alone. v2 has no iPad support. Wider browser
+  support (Chromium, Firefox, Safari) is placed at v4 or v5, undecided; Safari alone would not
+  bring controllers to the iPad ([roadmap](roadmap.md#engineering-carry-overs-not-tied-to-one-version)).
+- **Review on the phone, and review candidates (2026-09-28, D128)**, from the owner via
+  `ux-writer` (ux D64). The phone's Review is the plain baseline: the spec's review functions,
+  nothing more. Two roadmap candidates, neither committed: richer review tooling on tablet and
+  desktop (replaying a selected passage; expected against played on one measure, bounded by the
+  "no wrong-note signal" constraint), version open; and a cross-device review by export then
+  import, for P3, no earlier than v6 ([roadmap](roadmap.md#candidates-not-committed)).
+- **Export by content, and keeping sessions later (2026-09-28, D129)**, from the owner via
+  `ux-writer` (ux D66, ux D67). A v2 scope change: the export offers the generated notes
+  (MusicXML or MIDI), the played notes (MIDI only, unquantized, lining up with the generated MIDI
+  in a DAW), or both as two files, replacing the opt-in played-notes track. It opened **O86**
+  (what makes a favorite "exported"). v2 stays ephemeral; pinning sessions, access to older
+  sessions and session comments are candidates, version open
+  ([v3](versions/v3/README.md#keeping-sessions-candidates-not-committed)).
+- **Favorites move to v3; one export action per content (2026-09-28, D130)**, from the owner via
+  `ux-writer` (ux D68, ux D69). A v2 scope change: the review has no favorites, every export
+  covers the whole session, and starting a new session from the review asks no confirmation.
+  The review has one export action for the generated notes (MusicXML or MIDI) and one for the
+  played notes (MIDI), one file each. Favorites are v3 scope, to be settled there, and **O86**
+  moves with them ([v3](versions/v3/README.md#favorites-v3-scope-to-be-settled)). P3's C1 is
+  served in v2 by looking back at the last session. The v2 master spec is now v1.7.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.
-  - **v3:** MIDI-seeded continuation, "my instrument" and local persistence.
+  - **v3:** MIDI-seeded continuation, "my instrument", local persistence and favorites.
   - **v4:** accompaniment with roles.
   - **v5+:** a library and microphone input.
   - **Endgame:** a rhythm RPG.
@@ -47,9 +74,10 @@ Status: draft v0.9
   reattached during it, and it reattaches by itself once the session ends; a controller lost
   mid-session and still away at the end keeps its selection into the Review. The selection lives
   in memory only and does not survive a page reload (v2 saves nothing to browser storage). The
-  master spec is at v1.5. One gap is open (**O84**: starting a session from the Review).
-- **Open:** 9 questions remain live: O84 above, plus the 8 older ones this bullet goes
-  on to describe. None is flagged ★. The 5 most-blocking ones
+  master spec was then at v1.5 (v1.7 since D130). One gap is open (**O84**: starting a session
+  from the Review).
+- **Open:** 10 questions remain live: O84 above, O86 (D129, a v3 question since D130), plus the 8
+  older ones this bullet goes on to describe. None is flagged ★. The 5 most-blocking ones
   settled first (**D104** O75 v2.0 cut line is the full loop; **D105** O34 continuation boundary;
   **D76** O54 audio unlock; **D77** O55 controller check ships; **D78** O41 acknowledgement
   window), then two large 2026-09-27 batches closed nearly everything else (**D80–D88**:
@@ -88,7 +116,8 @@ Status: draft v0.9
 
 ### Direction
 
-- [Roadmap](roadmap.md): the ordered timeline from the v1.0 gate to the endgame, with no dates.
+- [Roadmap](roadmap.md): the ordered timeline from the v1.0 gate to the endgame, with no dates,
+  plus uncommitted candidates.
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md).

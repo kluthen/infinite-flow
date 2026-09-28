@@ -315,3 +315,74 @@ through this header. Numbering continues from D45.
   shared agent definitions (`ux-writer`, `ux-critic`, `coding-leader`, in all three ports), the
   `ux-validate` and `milestone-archive` skills, and `doc-tree-conventions.md`, in the dev_team
   repo, at the user's request.
+
+- **D62 — Context of use for v2 (2026-09-28, user-confirmed; input to the `strategy.md` persona
+  pass).** The product owner confirmed the playing conditions the strategy designs for: a laptop or
+  desktop in Chrome or Edge as the main device; a tablet on the music stand as a good candidate
+  (their own is an older iPad Pro); a landscape phone (Samsung Galaxy S20 FE) occasionally, outside
+  with the Travel Sax, accepted as "probably not ideal". The screen is read at music-stand distance,
+  often standing. During a session both hands (and the mouth, on sax or Travel Sax) are on the
+  instrument: nothing mid-session may require a click or key press. Between sessions the hands are
+  free, so controls need **no enlargement beyond the existing accessibility floor** (44px minimum
+  targets): the owner explicitly asked not to design oversized buttons for distance. Sessions run
+  about 5 to 30 minutes, alone, at home. Backing and click level balance is a real problem the
+  owner cannot quantify yet; it needs listening tests (see Q31). These facts belong in
+  `specs/personas.md`; to be passed to `spec-writer`. The tablet candidate collides with spec
+  v2's Chromium-only scope (see Q32).
+
+- **D63 — No iPad (WebKit) support in v2 (2026-09-28, user-confirmed; closes Q32).** The product
+  owner places the wider browser scope (Chromium, Firefox, Safari) at v4 or v5. For v2 the iPad
+  gets no dedicated design: it is outside the supported browsers, and the controller-connection
+  sheet's existing Unsupported browser state is what it shows. The tablet in the context of use
+  (ux D62) therefore means a Chromium tablet for v2. Noted to the owner: supporting Safari does
+  not by itself bring controllers to the iPad, since WebKit has no Web MIDI; what would is Apple
+  shipping it, or the roadmap's microphone input (v5+). To be recorded by `spec-writer` with ux D62.
+
+- **D64 — The phone's Review is the plain baseline (2026-09-28, user-confirmed; closes Q33).** On
+  the phone layout the Review keeps the functions the v2 spec gives it on every device, and nothing
+  more, with the least information and annotation the space allows: no phone-specific tooling.
+  Richer review tooling, if it comes, belongs to the tablet and desktop layouts; the owner cites
+  selecting a passage to replay, and showing what was expected against what was played on the same
+  measure, as later possibilities (future scope, for `spec-writer`). A player who wants a real
+  review of a phone session exports it and moves device. The owner places an import that reopens an
+  exported session for review as a "maybe, not before v6", mainly for the Fledgling Composer (P3);
+  passed to `spec-writer` for the roadmap. Applied to `strategy.md`, trade-offs (phone and larger
+  screens).
+
+- **D65 — Persona trade-offs confirmed (2026-09-28, user-confirmed; completes the `strategy.md`
+  persona pass).** The review appears between sessions only, is mainly about the last session, and
+  starting the next session is one action away from it. Acknowledgement is quiet and sits on the
+  notes themselves; a missed note produces nothing. Comparing played against expected, whenever it
+  comes, offers no judgment. The owner restated that v2's review is the plain review the spec
+  defines; later review tooling (replay a selection, pinning or commenting on sessions) is not v2.
+  Applied to `strategy.md`, trade-offs.
+
+- **D66 — Export by content: generated or played (2026-09-28, user-confirmed; closes Q34).** Getting
+  what was played out of the app matters to the owner. The export offers the generated notes
+  (MusicXML or MIDI, as the spec has them) or the played notes (MIDI only, unquantized, since
+  played timing cannot be engraved faithfully); both at once means two separate files. This
+  changes the v2 spec's export (§7), where played notes were an opt-in track inside the one MIDI
+  file; passed to `spec-writer`. Governs the export part of the Review screen.
+
+- **D67 — Keeping sessions is later than v2 (2026-09-28, user-confirmed; closes Q35).** v2 keeps
+  the spec's ephemeral model: nothing survives a reload. The owner's ideas for later — storing more
+  than one session only when the player asks (pinning), suitable access to older sessions, a
+  comment on a session — are v3-or-later candidates, passed to `spec-writer`.
+
+- **D68 — Two export buttons (2026-09-28, user-confirmed).** The Review offers one export action for
+  the generated notes and one for the played notes. "Both" is simply using both, one file each,
+  so no single action ever triggers two downloads (and no browser multiple-download prompt).
+  Governs the Review screen's export; passed to `spec-writer` for spec §7's wording.
+
+- **D69 — Favorites move to v3; the next session is one click from the Review (2026-09-28,
+  user-confirmed).** The owner places marking favorites, and what counts as an exported favorite,
+  in v3. In v2 the Review has no favorites, its export has no favorites-only scope, and starting
+  the next session from it asks no confirmation. The Fledgling Composer's C1 is served in v2 by
+  looking back at the last session, and marking by v3. Changes v2 spec §2, §7, §11 and spec O86;
+  passed to `spec-writer`. Applied to `strategy.md` (problem alignment, trade-offs).
+
+- **D70 — In a session only the staff and Stop are essential (2026-09-28, user-confirmed; narrows
+  Q36).** Everything else on screen during a session (audio levels, tempo, status) is secondary and
+  forgettable, apart from the exceptions already settled (the disconnect countdown). The owner
+  floated letting the player remove everything else from the screen: carried as a proposed
+  staff-only view (Q37). Applied to `strategy.md`, context of use.
