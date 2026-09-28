@@ -1,16 +1,51 @@
 # Personas
 
-Status: draft v0.7
+Status: draft v0.11
 
-Personas are the user's decisions. Anything not yet confirmed is tagged `(proposed)`. Settled 2026-09-25. The decisions behind this document (D48–D50, D54, D61) are in the [2026-09-25 archive](archive/2026-09-25-personas-and-vision/decisions-D47-D71.md).
+Personas are the user's decisions. Anything not yet confirmed is tagged `(proposed)`. Settled 2026-09-25. The decisions behind this document (D48–D50, D54, D61) are in the [2026-09-25 archive](archive/2026-09-25-personas-and-vision/decisions-D47-D71.md). The shared context of use was added 2026-09-28 (D127, in the [live log](decisions.md)); the phone review pointer and the review candidates followed the same day (D128), then export by content and the session-keeping candidates (D129), then favorites moving to v3 (D130).
 
-| Persona                     | Role      | Core want                                  | Served mainly by                   |
-| --------------------------- | --------- | ------------------------------------------ | ---------------------------------- |
-| P1 — The Curious Improviser | Primary   | Learn improvisation by playing, gain speed | v1 (at own pace), then v2          |
-| P2 — The Speed Builder      | Secondary | Read and play faster                       | v2 (rolling phrase, mild pressure) |
-| P3 — The Fledgling Composer | Secondary | Keep and grow ideas                        | v2 review/export, v3 seeding       |
+| Persona                     | Role      | Core want                                  | Served mainly by                       |
+| --------------------------- | --------- | ------------------------------------------ | -------------------------------------- |
+| P1 — The Curious Improviser | Primary   | Learn improvisation by playing, gain speed | v1 (at own pace), then v2              |
+| P2 — The Speed Builder      | Secondary | Read and play faster                       | v2 (rolling phrase, mild pressure)     |
+| P3 — The Fledgling Composer | Secondary | Keep and grow ideas                        | v2 review/export, v3 favorites/seeding |
 
 All persona names are working names.
+
+## Context of use
+
+This applies to all three personas (D127). It comes mainly from the product owner's own setup as
+P1, so it carries the same bias P1 does (see [P1 — Who](#who)). P2's and P3's conditions are
+assumed to match until an outside tester shows otherwise.
+
+- **Devices.**
+  - **Main:** a laptop or desktop, in Chrome or Edge.
+  - **Tablet:** a tablet on the music stand is a good candidate. For v2 this means a Chromium
+    tablet: the owner's own tablet is an iPad, and v2 does not run on iPad (WebKit has no Web
+    MIDI; see [browser scope](roadmap.md#engineering-carry-overs-not-tied-to-one-version)).
+  - **Phone, occasionally:** a landscape phone (the owner's Samsung Galaxy S20 FE), used outside
+    with the Travel Sax. The owner calls this "probably not ideal".
+    - On the phone the Review is the plain baseline: the functions the spec gives it on every
+      device, and nothing more (D128, ux D64). A player who wants a real review of a phone
+      session exports it and moves to a larger screen. Its layout is `ux-writer`'s.
+- **Distance and posture.** The screen is read at music-stand distance, often while standing.
+- **During a session.** The hands, and the mouth on a sax or Travel Sax, are on the instrument.
+  The player expects to click nothing while playing. Consequence: nothing the player has to do
+  mid-session may need a click or a key press. The v2 spec already fits this: a MIDI note can
+  start a session, and silence ends one
+  ([v2 master spec §6–§7](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo)).
+- **Between sessions.** The hands are free. The owner explicitly does not want oversized controls
+  for reading at a distance: the normal accessibility floor is enough.
+- **Sessions.** About 5 to 30 minutes, alone. Usually at home; the phone case above is the outdoor
+  exception.
+- **Sound.**
+  - An acoustic sax is loud in the room.
+  - A Travel Sax or a keyboard plays through the same speakers or headphones as the backing.
+  - Balancing the backing and click levels against the player's own sound is a real problem that
+    the owner cannot quantify yet. It needs listening tests. The spec already requires separate
+    backing and click volume controls, reachable at all times
+    ([v2 master spec §6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo)). Their
+    default values are tracked on the UX side as ux Q31.
 
 ## P1 — The Curious Improviser (primary; D48)
 
@@ -82,10 +117,11 @@ This persona merges the earlier keyboard-tester and sight-reading-student candid
 
 ### How the plan serves them
 
-- **C1 and C2 → v2 (D62).** At the end of a session the player reviews it, marks favorites and exports them as MusicXML or MIDI. A session runs from the first MIDI input or a Start click until 30 s without input or a Stop click. Keeping a history of generated notes is cheap: each phrase already retains its seed.
+- **C1 and C2 → v2, marking → v3 (D62, D130).** At the end of a session the player looks back at it and exports the whole session: the generated notes as MusicXML or MIDI, the played notes as a MIDI file of their own, each through its own export action (D129, D130). Marking the parts they liked, and exporting only the marked material, are v3: favorites are settled there ([v3](versions/v3/README.md#favorites-v3-scope-to-be-settled)). A session runs from the first MIDI input or a Start click until 30 s without input or a Stop click. Keeping a history of generated notes is cheap: each phrase already retains its seed.
 - **Played notes are private.** Reviewing them reuses v2's played-note tracking. They stay on the player's system, or leave it only through an export the player chooses. Keeping them across sessions is opt-in and deletable (v3).
 - **C3 → v3 (D53).** v2's rolling phrase already continues the app's own output, which is the simpler form of the same mechanism (D65).
 - **Later (D65).** A whole MusicXML or MIDI file can seed a continuation. Around v5, a library lets the player pick a snippet from a file or a past session. Snippet selection exists only to create a seed; Infinite Flow stays "not a DAW" (D68).
+- **Candidates, not committed (D128).** For C1: a cross-device review, where a session exported on one device is imported on another and reopens for review, placed no earlier than v6 ([v5+](versions/v5-plus/README.md#candidates-not-committed)); and richer review tooling on tablet and desktop, version open ([v3](versions/v3/README.md#later-review-tooling-candidates-not-committed)). For C1 and C2 (D129): keeping sessions only on request (pinning), suitable access to older sessions, and an optional comment on a session, version open ([v3](versions/v3/README.md#keeping-sessions-candidates-not-committed)).
 
 ## Fit against v1 (findings)
 

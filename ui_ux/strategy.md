@@ -3,15 +3,37 @@
 > **Changes since v1**
 >
 > - _New:_ the controller-connection flow ([Flow Index](#flow-index))
+> - _New:_ the context of use: devices, reading distance, hands during and between sessions,
+>   session length, sound ([Context of Use](#context-of-use))
+> - _New:_ whose needs win when the personas disagree ([Trade-offs](#trade-offs))
+> - _Changed:_ the problem is restated around the continuous session and the three personas it
+>   serves, primary first ([Problem Alignment](#problem-alignment))
 > - _Changed:_ optional MIDI is now specified: when a controller's state is neutral, when it takes
 >   the error tone, and that it connects only between sessions ([Edge-Case Policy](#edge-case-policy))
 > - _Removed:_ nothing
 
 ## Problem Alignment
 
-Infinite Flow helps a C MIDI keyboard player, B-flat tenor saxophone player, or E-flat alto saxophone player obtain one readable, playable four-measure idea without writing a progression, interpreting an opaque randomizer, or being graded. The interface makes a single deliberate loop obvious: set musical character, inspect all four measures, then regenerate the whole phrase when a different proposal is wanted.
+**[v2 changed]** Infinite Flow is a practice partner for musicians who can already read and play, and who want to get better by playing generated material rather than by studying it. The personas are defined in [`specs/personas.md`](../specs/personas.md); this interface serves them in this order:
+
+- **[v2 new]** **The Curious Improviser (P1, primary).** A beginner at improvisation who wants to get to know musical ideas by playing them (vocabulary by exposure, G1) and to read and react in real time, gradually faster (real-time reading, G2). Between sessions the workspace still offers the deliberate loop of the first release: set a musical direction, read all four measures, regenerate the whole phrase when another idea is wanted. That loop serves G1 at the player's own pace. The continuous session serves G2 with mild pressure: phrases keep coming without being asked for, over a backing track, and the notes played right are quietly acknowledged.
+- **[v2 new]** **The Speed Builder (P2).** Wants an endless supply of fresh material they cannot memorize, read at a steadily higher tempo (S1). The continuous session and the opt-in rising tempo serve them; nothing ever scores them.
+- **[v2 new]** **The Fledgling Composer (P3).** Wants to look back at a session, mark what they liked (C1) and take it out to other tools (C2). The review at the end of a session and its export serve them: the export gives the generated notes or the notes actually played. Marking favorites, and growing an idea from something they played (C3), are beyond this version.
+
+**[v2 new]** None of them is graded, ranked or shown a wrong note, anywhere, ever: the app acknowledges and encourages, and anything that adapts to the player is opt-in and visible.
 
 The phrase is the primary object. Mobile and tablet support is landscape-only; desktop supports either orientation when sufficient width is available. The full staff receives the complete primary row, and controls remain beneath it without claiming score width.
+
+## Context of Use
+
+**[v2 new]** The conditions the design has to survive, as confirmed by the product owner and recorded in [`specs/personas.md`](../specs/personas.md#context-of-use). Each is followed by what it forces on the design.
+
+- **Device.** Mainly a laptop or desktop running Chrome or Edge. A tablet on the music stand is a good fit; a landscape phone is used occasionally, outside with a wind controller, and accepted as a lesser experience. The supported browsers are the Chromium ones, because only they can reach a MIDI controller; a tablet therefore means a Chromium tablet, and an iPad falls outside this version's scope. → Desktop and tablet landscape are the layouts to optimize; the phone layout must stay correct and legible but never dictates a choice that costs the larger screens.
+- **Distance.** The screen stands where a music stand would be, read from arm's length or further, often standing up. → Engraving size wins over interface chrome: the staff keeps the full width. The one thing off the staff the player must read mid-session, the disconnect countdown, has to be legible from the stand too; everything else off the staff is secondary (see the next point).
+- **Hands and eyes during a session.** Both hands are on the instrument, and on a saxophone or wind controller the mouth too; the eyes stay on the staff, reading ahead. → Between its start and its end, nothing in a session may require a pointer or a key press. With a controller connected, the ends need none either: from the idle workspace the session starts when the player plays the note phrase 1 begins on (whether a note may also start one from the review is not decided yet), ends when they go silent, and recovers from an unplug when the controller is plugged back in; Stop stays on screen but is never needed. Without a controller, as with an acoustic saxophone, the session starts from Start and only Stop ends it: one action at each end, none in between. The staff and Stop are the only essential things on screen during a session, with one exception: the disconnect countdown, which must show the moment a controller is lost. Everything else (audio levels, tempo, other status) is secondary: glanceable, never needed, and possibly hideable altogether for a staff-only view (proposed). Everything that appears or moves on or near the staff belongs to the session itself: the rolling phrases and their read-ahead, the playhead, the count-in, the starting-note line, the acknowledgements on the notes, the session's own brief notices, and the disconnect countdown. Nothing else pops up or moves there.
+- **Hands between sessions.** Free: the player sets controls and reviews with a pointer or a finger. → Controls need no enlargement for distance. The accessibility floor's minimum target size is enough, and is already right for touch on a tablet or phone.
+- **Session length.** About 5 to 30 minutes, alone, usually at home; the phone outdoors is the exception. → Sessions are practice-length, not performance-length: the review at the end must stay readable for a half-hour session, and nothing is designed for an audience or a second person.
+- **Sound.** An acoustic saxophone is loud in the room; a wind controller or keyboard plays through the same speakers or headphones as the backing. → The balance between backing, click and the player's own sound is a real problem, and the right levels are not known yet: they need listening tests before the audio controls' defaults and ranges are fixed.
 
 ## Mental Model
 
@@ -30,6 +52,11 @@ Controls are grouped by the musical decision they influence: foundation, rhythm,
 - Named segmented options are chosen over freeform knobs or continuous sliders. The generator has discrete first-release policy values, and labels make the consequences inspectable.
 - Chord symbols transpose with the selected instrument profile's own written pitch. The underlying harmony remains concert-pitch data, but a displayed lead sheet must keep written notes, key, chord labels, and slash bass in the same written-pitch reading.
 - Every instrument profile uses treble G2 clef. Only that profile's own fixed transposition changes what is written; it never changes the concert phrase or requires a separate notation-display selection.
+- **[v2 new]** Where the personas pull in different directions, the Curious Improviser's experience is the default, and the others are served inside it:
+  - **Progress and pressure.** The Speed Builder pulls toward tempo tracking and a visible measure of progress. The Improviser's mild, never-scored pressure wins: a rising tempo exists only as an opt-in, visibly announced, and no number is ever presented as a result to beat.
+  - **Review and flow.** The Fledgling Composer needs a review at the end of each session; the Improviser and the Speed Builder want to get straight back to playing. The review appears between sessions only, never interrupts one, and starting the next session is one action away from it, with no confirmation: the next session's review simply replaces it.
+  - **Reading the phrase and seeing feedback.** Acknowledging the notes played right serves all three, but must never pull the eyes off the staff for the Improviser and the Speed Builder, who are reading ahead. Acknowledgement is quiet and sits on the notes themselves; a note that misses produces nothing.
+  - **Phone and larger screens.** The phone is a real but occasional device, used for playing rather than for looking back. Where a layout choice would help the phone at the cost of the desk or stand screen, the larger screen wins. The phone's review keeps the review's functions but carries the least information and annotation that space allows, and gains no tooling of its own; any richer review tooling belongs to the tablet and desktop layouts. A player who wants a real look back at a phone session exports it and continues on a larger screen.
 
 ## Engraving Policy
 

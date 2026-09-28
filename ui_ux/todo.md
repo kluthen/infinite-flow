@@ -198,6 +198,10 @@ three passes, confirmed by the user, committed 2026-09-27. Next, in this order:
 0. ~~Version-change highlighting convention~~ — done 2026-09-28 (D61), applied to every existing
    v2 edit. Every later v2 edit at the root carries its marks as it is written.
 1. **`strategy.md` persona pass** (see the Remaining list): short, in dialogue with the user.
+   Drafted 2026-09-28; ux D62–D70 settled (spec D127–D130 recorded). `ux-critic` pass 1 DRIFT (5
+   findings), pass 2 DRIFT (2 wording findings), all fixed. Awaiting the owner's confirmation, then
+   commit with the spec-tree changes. Carried to unit 2: Q36 (countdown size), Q37 (staff-only
+   view); to unit 6: Q25 (may a note start a session from the Review).
 2. **Settle Q17** (rolling-display presentation) with the user — ux-writer proposes a default.
 3. **Unit 2** (session core loop + rolling display, extending `screens/phrase-workspace/`). It now
    also carries ux D52 (on-screen count-in beats, the starting-note line — hidden when no

@@ -48,6 +48,9 @@ master-spec passages cited below). Q17, Q25 and Q27 are open in this section; Q2
   phrase 1 there depends on what the Review screen shows, which is `ux-writer`'s to design. Ties in
   with `ux-critic`'s earlier note that ux D45's grounds support Idle and session sharing one
   screen but not the Review. Settle before unit 6 (Review); does not block unit 1 or unit 2.
+  **Updated 2026-09-28:** with favorites moved to v3 (ux D69, spec D130) there is no confirmation
+  left, so the reason behind spec O84's click-only default is gone. The open question is now
+  whether a MIDI note may start a session from the Review at all.
 
 - **Q27 — when does the session's reserved disconnect slot appear?** The disconnect banner sits in
   `session-alert-slot`, kept free for the whole session so the banner never moves the staff. If
@@ -206,3 +209,66 @@ starting-note line). Entries kept verbatim below.
   rules, between sessions).
   **Closed 2026-09-27 by ux D58** (`ux-writer`'s own interaction call within spec D125; the
   proposed default above is refined, not taken as is).
+
+- **Q31 — the balance between backing, click and the player's own instrument.** The product owner
+  confirms backing volume is a real problem (an acoustic tenor is loud in the room; a Travel Sax or
+  keyboard plays through the same speakers or headphones as the backing) but cannot give levels
+  yet. Needs listening tests before the audio-mix controls' defaults and ranges are designed. Not
+  blocking the strategy pass; blocks the audio-mix part of the session screen. See
+  `strategy.md`, context of use.
+
+- **Q32 — the tablet on the music stand is an iPad, and iPads cannot connect a controller.** Every
+  browser on iPadOS runs on WebKit, which has no Web MIDI; spec v2 is Chromium-only for that
+  reason. So the owner's stand tablet can only run controller-less sessions (reading at a fixed
+  tempo, stopped by tapping Stop), with no acknowledgement, no silence stop, no adaptive tempo.
+  Whether that is an accepted, designed-for mode on iPad or out of scope is a product-scope
+  decision for `spec-writer`; the design consequence (what the iPad sees at the `Connect
+  controller` entry: today the Unsupported browser state) follows from it. An Android tablet or the
+  S20 FE in Chrome does have Web MIDI (USB; Bluetooth is best-effort per the spec's open item).
+  **Closed 2026-09-28 by ux D63** (no iPad support in v2; wider browser scope is v4 or v5).
+
+- **Q33 — the Review on a phone: a plainer layout, or fewer functions?** The product owner expects
+  no real reviewing on a phone and wants the phone Review kept minimal; for a true review of a
+  phone session, the player would move to another device. The v2 spec gives the Review the same
+  functions everywhere (every phrase shown engraved, mark favorites, export whole session or
+  favorites). A plainer phone layout with those functions intact is a design call; dropping a
+  function on phones changes product scope and goes to `spec-writer`. Also noted to the owner: no
+  version plans an import that reopens an exported session for review. v2's cross-device path is
+  export, then opening the MusicXML or MIDI in another tool; v4's whole-file seed feeds a
+  continuation, not a review. See `strategy.md`, trade-offs (phone and larger screens).
+  **Closed 2026-09-28 by ux D64** (spec baseline functions, minimal annotation, no added tooling).
+
+- **Q34 — export shape: the owner's picture differs from the v2 spec.** The owner expects to
+  export *either* the generated notes *or* the played notes, and two separate files when both are
+  wanted. The v2 spec (§7) has MusicXML carrying only the generated line (played notes never), and
+  one MIDI file with the generated line, an optional backing track and an optional played-notes
+  track in the same file. A spec question; needs the owner's call, then `spec-writer`. Blocks the
+  export part of the Review screen. See `strategy.md`, problem alignment (the Fledgling Composer).
+  **Closed 2026-09-28 by ux D66** (generated or played; played is MIDI only; both means two files).
+
+- **Q35 — keeping more than one session: v2 or later?** The owner spoke of session content being in
+  local storage, with more than one session kept only when the player asks (pinning a session),
+  suitable access to older sessions, and perhaps a comment on a session. The v2 spec stores nothing
+  (§2, §7: closing or reloading discards everything); local persistence and reviewing older
+  sessions are v3. Likely the owner means v3 or later; to confirm, then pinning and comments go to
+  `spec-writer` as candidates. See `strategy.md`, trade-offs (review and flow).
+  **Closed 2026-09-28 by ux D67** (v3 or later; pinning and comments are candidates).
+
+- **Q36 — session-time text legibility from the stand.** The strategy's context of use requires
+  anything read mid-session away from the staff to be legible from music-stand distance
+  (proposed). Today's tokens don't show it: `.tempo-readout` is `--text-sm` and muted (spec §10
+  wants the tempo in effect shown during an adaptive-tempo session), and `.session-alert` sets no
+  size, so the disconnect banner inherits body text. To settle in unit 2 (session screen), with
+  the owner, in `screens/phrase-workspace/` and the token source. Raised by `ux-critic` on the
+  strategy persona pass. See `strategy.md`, context of use (distance).
+  **Narrowed 2026-09-28 by ux D70:** only the disconnect countdown must be legible from the stand;
+  the tempo readout and other session text are secondary. What remains: the countdown's size.
+
+- **Q37 — a staff-only session view: which elements may it hide?** The owner floated letting the
+  player remove everything but the staff and Stop from the screen during a session (ux D70). The
+  spec mandates some session elements: audio volume controls reachable at all times (§6), the tempo
+  in effect shown during an adaptive-tempo session (§10), the count-in counted on screen and the
+  starting-note line (§6), the repeat notice (§4), the disconnect countdown (§8). Which may a
+  staff-only view hide, and is "reachable" still met by un-hiding? To settle in unit 2 with the
+  owner; any hide of a spec-mandated element goes to `spec-writer`. See `strategy.md`, context of
+  use (hands and eyes during a session).

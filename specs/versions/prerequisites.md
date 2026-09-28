@@ -223,7 +223,9 @@ standalone phrases.**
 **What it is.**
 
 - **Export (v2):** MusicXML from the written view, and Standard MIDI File from concert pitch
-  plus tempo.
+  plus tempo. Since D129, the played notes are exported as a second Standard MIDI File sharing
+  the generated file's tempo map and phrase markers, so the serializer also writes unquantized
+  played events.
 - **Import (v4 whole-file seed, v5+ library):** parse, then normalize to the event model.
 
 **Current state.**

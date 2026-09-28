@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.5
+Status: draft v2.9
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -146,3 +146,106 @@ fact in the live documents (see the [archive index](archive/README.md) and
   Clarification, not a new rule: the kept selection lives in memory only and does not survive a
   page reload, since v2 writes nothing to browser storage (master-spec §7); remembering the
   player's controller across visits belongs to v3 "my instrument". See master-spec §8.
+- **D127 (2026-09-28): the context of use for all personas, no iPad support in v2, and wider
+  browser support placed at v4 or v5.** Owner, confirmed to `ux-writer` (ux D62 and ux D63; ux D63
+  closes ux Q32 on the UX side). (1) **Context of use.** Recorded as a shared section in
+  [personas.md](personas.md#context-of-use), mainly from the owner's own setup as P1: a laptop or
+  desktop in Chrome or Edge as the main device; a tablet on the music stand as a good candidate; a
+  landscape phone (Samsung Galaxy S20 FE) occasionally, outside with the Travel Sax, which the
+  owner calls "probably not ideal"; the screen read at music-stand distance, often standing; hands
+  (and mouth, on sax or Travel Sax) on the instrument during a session, with no click expected
+  while playing; hands free between sessions, with no oversized controls for distance beyond the
+  normal accessibility floor; sessions of about 5 to 30 minutes, alone, at home; and a real but
+  unquantified balance problem between the backing, the click and the player's own sound. (2)
+  **No iPad (WebKit) support in v2**, consistent with the Chromium-only scope of master-spec §8.
+  The tablet in (1) therefore means a Chromium tablet for v2. (3) **Wider browser support**
+  (Chromium, Firefox, Safari) is placed at v4 or v5; which one is still open. Caveat recorded with
+  it: Safari support does not bring MIDI controllers to the iPad, since WebKit has no Web MIDI; a
+  controller becomes usable there only if Apple ships Web MIDI, or through the v5+ microphone
+  input. See the [roadmap](roadmap.md#engineering-carry-overs-not-tied-to-one-version). No spec
+  question is opened for the backing and click level defaults: the spec already requires separate
+  backing and click volume controls (master-spec §6), and their default values are listening-test
+  calibration tracked as ux Q31. O71 gains a note: the phone in (1) means the owner's setup
+  includes an Android system as well as the main computer.
+- **D128 (2026-09-28): the phone's Review is the plain baseline; richer review tooling and a
+  cross-device review by import are recorded as roadmap candidates, not committed scope.** Owner,
+  in direct conversation with `ux-writer` (ux D64, which closes ux Q33 on the UX side). (1)
+  **Phone baseline.** On the phone the Review keeps exactly the functions the v2 spec gives it on
+  every device (master-spec §7), with the least annotation the space allows and no phone-specific
+  tooling. This is a layout matter owned by `ux-writer`; the spec tree only carries a pointer in
+  [personas.md](personas.md#context-of-use). A player who wants a real review of a phone session
+  exports it and moves to a larger screen. (2) **Richer review tooling, tablet and desktop only,
+  version open.** Two examples from the owner: selecting a passage to replay, and showing on the
+  same measure what was expected against what was played. Recorded next to v3's review of earlier
+  sessions, which is where review next evolves; the owner gave no version, so this is not a v3
+  placement. The expected-versus-played idea is bounded by the permanent constraint of
+  master-spec §2: no wrong-note signal, grading or scoring in any view. See
+  [v3](versions/v3/README.md#later-review-tooling-candidates-not-committed). (3) **Cross-device
+  review by export, then import**, placed no earlier than v6 (the owner: "a maybe, but not prior
+  v6", "mostly composer stuff", so it serves P3's C1). No version plans it today: v4's whole-file
+  seed feeds a continuation, not a review. See
+  [v5+](versions/v5-plus/README.md#candidates-not-committed). No open question is registered for
+  the placements, following D127's browser-scope precedent: both are uncommitted candidates and
+  nothing current depends on them. See the
+  [roadmap](roadmap.md#candidates-not-committed).
+- **D129 (2026-09-28): the v2 export is chosen by content, generated notes or played notes; keeping
+  sessions stays later than v2, with the owner's ideas recorded as candidates.** Owner, in direct
+  conversation with `ux-writer` (ux D66, closing ux Q34; ux D67, closing ux Q35). (1) **Export by
+  content (ux D66), a v2 scope change.** Getting what was played out of the app matters to the
+  owner. The export now offers, for either existing scope (whole session, or favorites only): the
+  **generated notes**, as one MusicXML or MIDI file, with the MusicXML and generated-MIDI rules
+  unchanged (concert pitch, tempo map, one marker per phrase, optional backing off by default);
+  the **played notes**, as one MIDI file only, unquantized, at concert pitch as received, with
+  their original velocity; or **both**, as two separate files. This replaces the opt-in
+  played-notes track inside the one MIDI file. MusicXML stays generated-only, since unquantized
+  playing cannot be engraved faithfully. With favorites, the played-notes file holds the played
+  notes of the favorite phrases, in session order. `spec-writer`'s calls, recorded with it: the
+  played-notes file carries the same tempo map, phrase markers, time resolution and time zero as
+  the generated MIDI file of the same scope, so the two line up phrase by phrase in a DAW; the
+  exported phrases sit back to back in session order in every file; the backing stays an option
+  of the generated file only; generated notes are the default content, so played notes still
+  leave only by the player's choice; played notes and "both" are unavailable when the scope holds
+  no played note; "both" pairs the played-notes MIDI with the generated file in whichever format
+  the player picks; no onset moves by more than 1 ms; a note-off now ends a played note (it is
+  still never activity), a note held at the session's end stops there, and in a favorites export
+  a note held past its phrase stops at the phrase's end when the next session phrase is not
+  exported. Release placement unchanged: v2.0 exports generated notes only, played notes and
+  "both" arrive in v2.1. The privacy rule still holds: a played note leaves the machine only
+  through an export the player triggers with played notes chosen as its content. Opens **O86**
+  (what makes a favorite "exported"). Master spec v1.5 → **v1.6**: §2, §7, §8, §11 (v2.0 item
+  12, the v2.1 release row and its acceptance list), §12 and §13. (2) **Keeping sessions stays
+  later than v2 (ux D67). No v2 change:** v2 stays ephemeral, and nothing survives a reload. The
+  owner's ideas are recorded as candidates, version open, not committed: storing more than one
+  session only when the player asks (for example by pinning it), suitable access to older
+  sessions, and an optional comment on a session. They sit next to D128's review-tooling
+  candidates in [v3](versions/v3/README.md#keeping-sessions-candidates-not-committed), where they
+  meet v3's planned local persistence and review of earlier sessions. No open question is
+  registered for their placement, following D127's and D128's precedent.
+- **D130 (2026-09-28): favorites move from v2 to v3; the review offers one export action per
+  content.** Owner, in direct conversation with `ux-writer` (ux D68, ux D69). (1) **Favorites move
+  to v3 (ux D69), a v2 scope change.** The owner: "favorite and the like will be decided in v3,
+  leave this as open question for later", and "next session is truly one click away". In v2 the
+  review has no favorites and no per-phrase action, every export covers the whole session (the
+  favorites-only scope is gone), and starting a new session from the review discards it without
+  asking for confirmation. Closing or reloading the page still discards everything without
+  asking. This supersedes, for v2, D88's favorite defaults (whole-phrase favorites, a
+  favorites-only export scope, confirming before discarding unexported favorites) and D129's
+  favorites-scope rules (played notes of the favorite phrases, a held note stopping at its
+  phrase's end). Favorites are **v3 scope, to be settled there**, not a candidate with an open
+  version; D88's defaults are kept in
+  [v3](versions/v3/README.md#favorites-v3-scope-to-be-settled) as a starting point, not binding.
+  **O86** (what makes a favorite "exported") stays open, re-scoped to v3. P3's C1 is served in
+  v2 by looking back at the last session; marking is v3. C2 is served in v2 by exporting the
+  whole session; exporting only the marked material comes with marking. O84's proposed default
+  (from the Review, only a Start click starts a session) loses the reason it was given, the
+  collision with the confirmation; O84 stays open. (2) **Two export actions (ux D68).** The
+  review has one export action for the generated notes (which still offers MusicXML or MIDI)
+  and one for the played notes (MIDI). Each action delivers exactly one file. "Both" means using
+  both actions, one file each; no single action triggers two downloads, so the note about
+  Chromium's multiple-download prompt is dropped. The played-notes action is unavailable when
+  the session holds no played note. Played notes still leave only by the player's choice: the
+  played-notes action has to be triggered, which replaces "generated notes are the default
+  content". The privacy rule and every file rule of D129 hold otherwise. Release placement
+  unchanged: v2.0 has the generated-notes action only, the played-notes action arrives in v2.1.
+  Master spec v1.6 → **v1.7**: §2, §7, §11 (the release table, v2.0 item 12 and the v2.1
+  acceptance list), §12 and §13.
