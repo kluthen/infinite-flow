@@ -27,6 +27,11 @@
         "timeout_ms": 2000
       },
       {
+        "name": "tailnet",
+        "base_url": "http://100.77.105.99:11434",
+        "timeout_ms": 5000
+      },
+      {
         "name": "local",
         "base_url": "http://localhost:11434",
         "timeout_ms": 500
