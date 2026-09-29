@@ -11,6 +11,7 @@ parents:
   - [[req_four_measure_phrase]]
 dependents:
   - [[module_harmony_candidate_domain]]
+  - [[rule_join_tense_note_resolution]]
 ---
 
 # Open Phrase Ending

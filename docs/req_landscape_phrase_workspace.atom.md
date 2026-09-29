@@ -11,6 +11,11 @@ parents:
   - [[req_four_measure_phrase]]
 dependents:
   - [[module_notation_layout_preflight]]
+  - [[rule_idle_phrase_too_dense_is_replaced]]
+  - [[rule_landscape_lock_during_session]]
+  - [[rule_session_ends_on_portrait_view]]
+  - [[rule_session_layout_fixed_at_start]]
+  - [[rule_staff_needs_room_notice]]
 ---
 
 # Landscape Phrase Workspace

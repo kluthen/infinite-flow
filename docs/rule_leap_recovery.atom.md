@@ -9,7 +9,8 @@ type: RULE
 version: 0.2
 priority: 2
 tags: melody,leaps,playability
-dependents: []
+dependents:
+  - [[rule_join_inherits_leap_recovery]]
 ---
 
 # Leap Recovery

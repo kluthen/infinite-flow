@@ -1,7 +1,7 @@
 ---
 id: req_four_measure_phrase
 status: DRAFT
-tags: first-release,music-generation
+tags: [first-release, music-generation, v2, release-v2.0, revised-for-v2]
 dependents:
   - [[entity_concert_event_timeline]]
   - [[entity_exact_musical_time]]
@@ -9,6 +9,7 @@ dependents:
   - [[module_rhythm_skeleton_allocator]]
   - [[req_browser_only_first_release]]
   - [[req_landscape_phrase_workspace]]
+  - [[req_rolling_practice_session]]
   - [[rule_arpeggio_chaos_respects_constraints]]
   - [[rule_complete_four_four_measures]]
   - [[rule_ephemeral_session_state]]
@@ -19,9 +20,9 @@ dependents:
   - [[rule_leapiness_interval_budget]]
   - [[rule_neutral_profile_diatonic_harmony]]
   - [[rule_neutral_profile_diatonic_pitches]]
+  - [[rule_no_grading_or_mismatch_signal]]
   - [[rule_notation_display_preserves_phrase]]
   - [[rule_open_phrase_ending]]
-  - [[rule_optional_midi_privacy]]
   - [[rule_phrase_starts_on_downbeat]]
   - [[rule_presentation_preference_preserves_phrase]]
   - [[rule_preserve_metrical_anchor]]
@@ -38,10 +39,11 @@ dependents:
   - [[user_story_controlled_phrase_generation]]
 type: REQUIREMENT
 layer: BUSINESS
-version: 0.1
+version: 0.2
 parents: []
 human_name: Four-Measure Musical Proposal
 priority: 1
+notes: Revised 2026-09-29 by v2 spec ingestion for release v2.0 (previous version 0.1). The first-release exclusions of accompaniment, autonomous continuous generation and a rolling session are lifted (v2 adds sessions with a backing track); the phrase stays the unit of generation, and lead-line playback and performance scoring stay excluded. Intent and interface unchanged. The code still meets this version for Idle behaviour; sessions are not yet built.
 ---
 
 # Four-Measure Musical Proposal
@@ -50,10 +52,10 @@ priority: 1
 Provide a player with one coherent, staff-notated four-measure musical proposal for a selected C MIDI keyboard, B-flat tenor saxophone, or E-flat alto saxophone profile that they can explicitly regenerate.
 
 ## THE RULE / LOGIC
-The first release generates one complete four-measure 4/4 phrase from player-selected controls and a selected supported instrument profile. The product provides a musically legible proposal rather than playback, accompaniment, scoring, or autonomous continuous generation.
+Every generated phrase is one complete four-measure 4/4 phrase, generated from player-selected controls and a selected supported instrument profile. At Idle, the player explicitly requests generation or regeneration of one phrase; during a session, the app shows such phrases one after another, each still a complete, self-contained phrase. The product provides a musically legible proposal to read and play: it never plays the generated lead line back, and it never scores the player's performance.
 
 ## TECHNICAL INTERFACE
 The player selects a supported instrument profile and musical controls, then explicitly requests phrase generation or regeneration. The generated phrase is presented as conventional staff notation with harmonic context.
 
 ## EXPECTATION
-A completed generation produces one coherent four-measure 4/4 phrase for the selected supported profile. The required release does not provide lead-line playback, required accompaniment, performance scoring, or a rolling autonomous session.
+A completed generation produces one coherent four-measure 4/4 phrase for the selected supported profile, whether it is shown at Idle or as one phrase of a session. No generated lead line is ever played back, and no performance is ever scored.

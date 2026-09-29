@@ -3,25 +3,26 @@ id: rule_optional_midi_privacy
 status: DRAFT
 human_name: Optional MIDI Privacy
 layer: BUSINESS
-version: 0.1
+version: 0.2
 priority: 2
-tags: midi,privacy,non-scoring
+tags: [midi, privacy, non-scoring, v2, release-v2.0, revised-for-v2]
 dependents: []
 type: RULE
 parents:
-  - [[req_four_measure_phrase]]
+  - [[req_midi_controller_input]]
+notes: Revised 2026-09-29 by v2 spec ingestion for release v2.0 (previous version 0.1). Version 0.1 stated the first-release boundary that the app has no MIDI controller connection, input or feedback at all; v2 lifts that exclusion, so this rule now states how played MIDI input stays private. Not yet built - the code and its tags (the MIDI-absence test and boundary script) still implement version 0.1.
 ---
 
 # Optional MIDI Privacy
 
 ## INTENT
-Exclude MIDI controller connection and input feedback from the first release.
+Keep the notes the player plays on their own machine unless they explicitly export them.
 
 ## THE RULE / LOGIC
-The first release provides no MIDI controller connection, input, match or mismatch feedback, timing evaluation, MIDI-seeded continuation, scoring, generation change, or phrase advancement.
+MIDI input stays private by construction, not by policy. Played notes exist only in memory, for the current session and its review. They are never written to any browser storage and never sent in any network request, and no export other than the played-notes export ever carries them. The only way a played note ever leaves the player's machine is the played-notes export action, which the player explicitly triggers; until that action exists (release v2.1), no played note ever leaves the machine.
 
 ## TECHNICAL INTERFACE
-The first-release phrase workspace has no MIDI-controller connection or input-feedback interface.
+No storage or network path carries played notes; the played-notes export is a local file download the player triggers.
 
 ## EXPECTATION
-First-release behavior neither requests MIDI controller access nor presents MIDI input or feedback.
+Under a network and storage spy across a full session, its review and every export, no played note is written to storage or sent over the network, and played notes appear only in a played-notes export file the player triggered.
