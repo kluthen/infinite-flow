@@ -1,7 +1,9 @@
 # Infinite Flow v2 — Build Plan
 
-Status: draft v0.2 (2026-09-29). Chunk 0 is done. Build plan for v2.0 through v2.3, written from
-[master spec v1.18](master-spec.md). Not yet approved for execution.
+Status: draft v0.3 (2026-09-29). Chunk 0 is done. Build plan for v2.0 through v2.3, written from
+[master spec v1.20](master-spec.md). Not yet approved for execution. Change in v0.3: the spec gaps
+are resolved, so the phrase-boundary change and the key change's harmonic drop move from chunks 7
+and 8 to chunk 24 in v2.1, and each chunk is blocked only by what is still open.
 
 This plan cuts v2 into chunks that one owner can build, test and document at a time, and puts
 them in order. It adds no behaviour. What the app does is in the [master spec](master-spec.md);
@@ -26,7 +28,7 @@ part of the [definition of done](master-spec.md#11-definition-of-done).
 | Release | Delivers                                                                                                                                                                                                                                                                                             | Chunks          |
 | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
 | v2.0    | The core loop: phrases that keep coming and join smoothly, backing, click and count-in, sessions, MIDI note acknowledgement and the controller check, the last-session review, and the export of the generated notes. Settings are locked during a session. Also the three changes to v1 at Idle. | 0–21 (22)       |
-| v2.1    | The played notes in the review, with their own MIDI export. The settings-mutation flag.                                                                                                                                                                                                             | 22–26 (5)       |
+| v2.1    | The played notes in the review, with their own MIDI export. The settings-mutation flag, with its changes applied at the next phrase boundary.                                                                                                                                                       | 22–26 (5)       |
 | v2.2    | Adaptive tempo. The multi-phrase tension arc.                                                                                                                                                                                                                                                        | 27–31 (5)       |
 | v2.3    | The end-of-measure chord-fit check.                                                                                                                                                                                                                                                                  | 32–34 (3)       |
 
@@ -46,13 +48,16 @@ prerequisites. The code and the registers add three more.
   flags. v1.0 was tagged on 2026-09-26.
 - **Generation latency, re-measured: [chunk 1](#chunk-1--baseline-checks).** The look-ahead
   deadline must keep comfortable headroom at 240 BPM, the fastest tempo, including a cold
-  generation after a mid-session control change. A generation is "cold" when it is the first one
-  for a combination of settings, before the generator's caches for that combination are warm.
+  generation. A generation is "cold" when it is the first one for a combination of settings,
+  before the generator's caches for that combination are warm. The spec asks for the cold run
+  after a mid-session control change from v2.1, when the settings-mutation flag can cause one:
+  nothing changes a setting during a v2.0 session. Chunk 1 measures it with the rest, since the
+  harness is the same, and its figure gates [chunk 24](#chunk-24--settings-mutation-engine).
   - At 240 BPM one bar lasts one second. A look-ahead phrase normally has three bars: it is
     requested when the phrase before it starts sounding, and is due when that phrase's last bar
     starts ([§4](master-spec.md#4-look-ahead-and-failure-handling)).
-  - Two cases have only one bar. Phrase 2 is generated during the one-bar count-in. A look-ahead
-    phrase regenerated after an automatic settings change needs at least one bar left
+  - Two cases have only one bar. Phrase 2 is generated during the one-bar count-in. From v2.1, a
+    look-ahead phrase regenerated after an automatic settings change needs at least one bar left
     ([§5](master-spec.md#5-control-changes-during-a-session)).
   - A failed attempt is retried up to four times inside that window.
   - The [open-questions register](../../open-questions.md#v2-spec-questions-o50) sets the working
@@ -70,9 +75,10 @@ prerequisites. The code and the registers add three more.
   enough.
 - **The v2 business atoms: done in [chunk 0](#chunk-0--atd-ingestion-of-the-master-spec) on
   2026-09-29.** The master spec is ingested into ATD: 90 new atoms, each tagged with its release,
-  and the v1 atoms v2 contradicts revised in place. Two things remain, both assigned: the owner's
-  sign-off on the revised product vision, and small drifts between the code and the new atoms,
-  each fixed by the chunk that changes that code.
+  and the v1 atoms v2 contradicts revised in place. The same day, nine atoms were revised to match
+  master spec v1.19, and the two about applying a setting change at a phrase boundary moved to
+  v2.1. Two things remain, both assigned: the owner's sign-off on the revised product vision, and
+  small drifts between the code and the new atoms, each fixed by the chunk that changes that code.
 - **The browser boundaries: [chunk 2](#chunk-2--browser-boundaries).** v1's lint rules and
   boundary script forbid Web Audio and Web MIDI anywhere in `src/`. Chunk 2 allows them in named
   places only, before any audio or MIDI code lands.
@@ -95,7 +101,7 @@ chunks in different sections; the second to merge rebases on the first.
 | 6    | 17 MIDI in the session                                                                                                                                                                                                                            | Wave 5                                                                      |
 | 7    | 20 Review and generated-notes export (blocked)                                                                                                                                                                                                    | Chunk 17 and its design                                                     |
 | 8    | 21 v2.0 release gate                                                                                                                                                                                                                              | Every v2.0 chunk                                                            |
-| 9    | 22 Played-notes MIDI encoding · 24 Settings-mutation engine (blocked in part)                                                                                                                                                                    | Chunks 4, 8, 9 and 19; may start before v2.0 ships                          |
+| 9    | 22 Played-notes MIDI encoding · 24 Settings-mutation engine (blocked in part)                                                                                                                                                                    | Chunks 4, 7, 8, 9 and 19; may start before v2.0 ships                       |
 | 10   | 23 Review: played notes (blocked) · 25 Settings-mutation control (blocked)                                                                                                                                                                       | Wave 9, v2.0, and their designs                                             |
 | 11   | 26 v2.1 release gate                                                                                                                                                                                                                              | Every v2.1 chunk                                                            |
 | 12   | 27 Adaptive tempo engine · 29 Multi-phrase tension arc (blocked)                                                                                                                                                                                  | v2.0 chunks; may start before v2.1 ships                                    |
@@ -221,8 +227,8 @@ chunk isn't finished until step 6 is done.**
    the chunk's **Atoms** line. It checks that the change is grounded in them and flags conflicts
    or missing coverage. A missing or conflicting atom stops the chunk until it is resolved.
    - The v2 business atoms exist: [chunk 0](#chunk-0--atd-ingestion-of-the-master-spec) created
-     them from master spec v1.18. An atom still missing goes back to `documentalist` for
-     ingestion.
+     them from master spec v1.18, and they were brought in line with v1.19 the same day. An atom
+     still missing goes back to `documentalist` for ingestion.
    - If the gap is in the spec itself, it goes back to `spec-writer`; if it is in the UI/UX
      design, to `ux-writer`.
    - ATD covers business behaviour only. Technical choices (module structure, data formats,
@@ -298,8 +304,11 @@ touches, what it waits for, how to tell it is done, and what blocks it.
 - "Item _n_" is item _n_ of the
   [v2.0 definition of done](master-spec.md#v20-is-done-when-all-of-the-following-hold).
 - A **spec gap** is a hole or a contradiction in master spec v1.18, found while its atoms were
-  written. The eleven gaps are listed in [chunk 0](#chunk-0--atd-ingestion-of-the-master-spec);
-  `spec-writer` is triaging them. A chunk blocked on a gap builds everything else first.
+  written. The eleven gaps are resolved: master spec v1.19 settles eight of them, one only in
+  part, and leaves three open for the owner in
+  [§12](master-spec.md#12-open-questions-carried-forward).
+  [Chunk 0](#chunk-0--atd-ingestion-of-the-master-spec) records how each was resolved. No chunk
+  waits on a gap any more; a chunk blocked by an open question builds everything else first.
 - "In part" means the chunk can start, but the criteria that the blocker names can't be signed
   off until it is settled.
 
@@ -354,21 +363,32 @@ atoms' EXPECTATION sections, except item 15 (the main-thread budget), which is t
   | `service_workspace_session_flow` makes a layout failure a retryable notation error                                                                                     | [Chunk 5](#chunk-5--idle-fit-retries-and-the-room-notice) |
   | `rule_generation_failure_alert_copy` has no session case: a session never shows a blocking alert                                                                       | [Chunk 15](#chunk-15--session-screen-start-and-end)   |
 
-- **Eleven spec gaps**, routed to `spec-writer` on 2026-09-29. The chunks they block say so:
+- **Eleven spec gaps**, routed to `spec-writer` on 2026-09-29 and resolved the same day in master
+  spec v1.19. Eight are settled, one of them only in part; three are open questions for the owner,
+  listed in [§12](master-spec.md#12-open-questions-carried-forward). The chunks an open question
+  blocks say so:
 
-  | #   | Gap                                                                                                                                                                | Blocks            |
-  | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------- |
-  | 1   | Tense-note resolution at a session's end (§3): "full resolution at Stop or the session's end" can't be enforced one phrase ahead; a tense ending or a pending leap recovery before a standalone fallback or a repeat is unstated | 7, 8              |
-  | 2   | May a session phrase end with a pending leap recovery or an unresolved tense note (§3), when v1 forbids debt on the final sounding event?                          | 7                 |
-  | 3   | The standalone fallback's join (§4 step 2 against §11 item 2): "isn't smoothed", yet "every join obeys"                                                            | 7, 8, 21          |
-  | 4   | The review shows "every phrase shown" (§7), but the history excludes a read-ahead phrase that never sounded                                                         | 9, 20             |
-  | 5   | Discarding a look-ahead phrase at a boundary change (§5) against "no note on screen ever changes" (§11 item 4), when that phrase is already on screen as read-ahead | 8, 16             |
-  | 6   | The phrase-boundary change in v2.0 (§11 table against §5): v2.0 has no automatic source of change before v2.1, yet its atoms are tagged v2.0                        | 7, 8, 24          |
-  | 7   | Played notes in the v2.0 review (§11 table): "already partly true in v2.0" is not specified                                                                          | 20, 23            |
-  | 8   | Multi-phrase tension arc (§3): mechanics and default unspecified                                                                                                     | 29, 30            |
-  | 9   | Adaptive tempo (§10): a controller lost mid-session, and the flag's default, unstated                                                                                | 27, 28            |
-  | 10  | When the "generator is struggling" notice clears (§4)                                                                                                                | 8, 15             |
-  | 11  | Where a tense note at a join resolves: the v2 README and the master spec (§3) disagree                                                                              | 7                 |
+  | #   | Gap                                                                                                                                                                | How it was resolved                                                                                                                                                                                                                         | Lands in                           |
+  | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+  | 1   | Tense-note resolution at a session's end (§3): "full resolution at Stop or the session's end" can't be enforced one phrase ahead; a tense ending or a pending leap recovery before a standalone fallback or a repeat is unstated | **Open** for the owner: what a session's last phrase may owe (§12). The proposed answer keeps the carry-over between phrases; its alternative, every phrase ending as v1 requires, would remove it altogether. The part about a standalone fallback or a repeat is settled with gap 3 | 7 (the carry-over), 21 (item 2)    |
+  | 2   | May a session phrase end with a pending leap recovery or an unresolved tense note (§3), when v1 forbids debt on the final sounding event?                          | **Settled in part** (§3): a phrase generated with carry-in may end owing either, and the next phrase settles it; a phrase generated without carry-in obeys v1 in full. The rest is gap 1's open question                                   | 7                                  |
+  | 3   | The standalone fallback's join (§4 step 2 against §11 item 2): "isn't smoothed", yet "every join obeys"                                                            | **Settled** (§3, §4, items 2 and 3): a join made without carry-in, into the standalone phrase or into a repeat, isn't smoothed and settles nothing the phrase before owed. Item 2 covers joins made with carry-in; item 3 names the standalone phrase | 7, 8, 21                           |
+  | 4   | The review shows "every phrase shown" (§7), but the history excludes a read-ahead phrase that never sounded                                                         | **Settled** (§7): the review shows every phrase that started sounding                                                                                                                                                                       | 9, 20                              |
+  | 5   | Discarding a look-ahead phrase at a boundary change (§5) against "no note on screen ever changes" (§11 item 4), when that phrase is already on screen as read-ahead | **Settled** (§5, §11 v2.1): a look-ahead phrase partly on screen is never discarded; the change applies from the phrase after it. It moves to v2.1 with gap 6                                                                               | 24, 25                             |
+  | 6   | The phrase-boundary change in v2.0 (§11 table against §5): v2.0 has no automatic source of change before v2.1, yet its atoms are tagged v2.0                        | **Settled** (§5, §11): applying a change at a phrase boundary ships in v2.1 with the settings-mutation flag, and its two atoms are now tagged `release-v2.1`. v2.0 has the settings lock only                                             | 24, moved there from 7 and 8       |
+  | 7   | Played notes in the v2.0 review (§11 table): "already partly true in v2.0" is not specified                                                                          | **Settled** (§11): v2.0 records the played notes in the session history and doesn't show them; the review shows them from v2.1                                                                                                              | 17, 20, 23                         |
+  | 8   | Multi-phrase tension arc (§3): mechanics and default unspecified                                                                                                     | **Open** for the owner: how the arc runs, and its default (§12)                                                                                                                                                                             | 29, 30                             |
+  | 9   | Adaptive tempo (§10): a controller lost mid-session, and the flag's default, unstated                                                                                | **Open** for the owner: adaptive tempo while the controller is away, and its default (§12)                                                                                                                                                 | 27, 28                             |
+  | 10  | When the "generator is struggling" notice clears (§4)                                                                                                                | **Settled** (§4, item 1): the notice stays until a newly generated phrase, the standalone one included, starts sounding, and goes when the session ends                                                                                     | 8, 15                              |
+  | 11  | Where a tense note at a join resolves: the v2 README and the master spec (§3) disagree                                                                              | **Settled** (§3): onto the next phrase's first note, never later; the v2 README now says so                                                                                                                                                | 7                                  |
+
+- **Three contradictions** found while writing this plan were settled too, in master spec v1.20
+  and the [v2 README](README.md). The rolling display is two alternating staff systems with no
+  display-mode toggle, which is what [chunk 16](#chunk-16--rolling-display) builds. Item 12's
+  MuseScore check covers each of the three instrument templates: the two saxophones, which
+  transpose, with their `<transpose>` element, and the C keyboard without one. The README's
+  session-start line now follows §6: from MIDI, only phrase 1's first note, at its exact pitch,
+  starts a session.
 
 **Blocked by:** nothing.
 
@@ -397,11 +417,12 @@ they are measured against.
 
 - `npm run measure:latency` and `npm run measure:latency:browser` have been re-run on the v1.0
   code, and a new cold case has been added and measured: the first generation after a change to
-  one setting, as a mid-session change would cause. The figures, with the machine and date, are
-  in [`docs/generation-latency.md`](../../../docs/generation-latency.md).
+  one setting, as a mid-session change will cause from v2.1. The figures, with the machine and
+  date, are in [`docs/generation-latency.md`](../../../docs/generation-latency.md).
 - The same document states a verdict against the working target: the cold worst case stays under
   250 ms in Chromium, a quarter of one bar at 240 BPM. If it doesn't, the plan stops before
-  chunks 8 and 10, and the owner decides how to proceed.
+  chunks 8 and 10, and the owner decides how to proceed. If only the case after a setting change
+  misses, the plan stops before [chunk 24](#chunk-24--settings-mutation-engine) instead.
 - The longest main-thread task while engraving a phrase in Chromium is measured for the densest
   settings and the largest staff. The document says whether it stays under 200 ms, the proposed
   scheduler window, and so whether moving the scheduler's wake-up timer into a Web Worker is
@@ -655,21 +676,21 @@ highlight. The overlays are driven from outside; this chunk only draws them.
 **Goal.** Let the generator continue from the phrase before. A request may carry a **carry-in**:
 the last sounding concert pitch with its leap state, the register window, the final chord and its
 endpoint class, and the phrase number. The join then obeys the same rules as the inside of a
-phrase. With no carry-in, the output stays byte-identical to v1.
-A [leap](../../../docs/music/lexicon.md#leap) is a jump larger than a step; its
+phrase, and a phrase generated with carry-in may end owing a leap recovery or a tense note's
+resolution, which the next phrase settles. With no carry-in, the output stays byte-identical to
+v1. A [leap](../../../docs/music/lexicon.md#leap) is a jump larger than a step; its
 [recovery](../../../docs/music/lexicon.md#recovery) is the small move back the other way that must follow it. A tense
 note is one that asks to [resolve](../../../docs/music/lexicon.md#tension-and-resolution).
 
-**Spec sections:** [§3](master-spec.md#3-the-generation-unit-and-how-phrases-join),
-[§5](master-spec.md#5-control-changes-during-a-session) (a key change drops the harmonic part),
-items 2 and 3.
+**Spec sections:** [§3](master-spec.md#3-the-generation-unit-and-how-phrases-join), items 2 and 3.
 
 **Design docs:** none.
 
 **Atoms:** `rule_join_carry_in_limited`, `rule_join_inherits_leap_recovery`,
 `rule_join_interval_obeys_phrase_rules`, `rule_join_tense_note_resolution`,
 `rule_varying_register_once_per_session`, `rule_no_carry_in_output_matches_v1`,
-`rule_key_change_drops_harmonic_carry_in`, `rule_tempo_never_affects_generation`; v1:
+`rule_tempo_never_affects_generation`, `req_rolling_practice_session` (a session phrase may end
+owing); v1:
 `rule_phrase_starts_on_downbeat`, `rule_leap_recovery`, `rule_open_phrase_ending`,
 `rule_seeded_phrase_reproduction`, `rule_instrument_profile_range`,
 `module_generation_request_envelope`, `service_generation_request_resolution`,
@@ -685,23 +706,31 @@ items 2 and 3.
 - The pitch planner in `src/domain/pitch/` treats the carry-in pitch as the note before beat 1: a
   pending leap recovery is inherited, and the first interval obeys the leapiness and interval
   rules. The harmony planner in `src/domain/harmony/` starts from the carried chord. Property
-  tests over the seed matrix check every join against the same validators a phrase's inside uses.
+  tests over the seed matrix check every join made with carry-in against the same validators a
+  phrase's inside uses (item 2).
+- A phrase generated with carry-in may end owing a leap recovery or a tense note's resolution,
+  and the next phrase generated with that carry-in settles it: the recovery under the in-phrase
+  rules, the tense note resolving onto its first note and never later. Property tests over the
+  seed matrix check both across the join.
+- A phrase generated without carry-in never ends owing either. Nothing the generator does depends
+  on whether the phrase before ended owing something: a join into a phrase generated without
+  carry-in settles nothing.
 - Every phrase with a carry-in still starts with a fresh attack on beat 1: no tie or rest crosses
   the join.
-- A carry-in without its harmonic part (after a key or collection change) is accepted; its pitch
-  is re-checked against the new range and register window. Unit tests cover a pitch that no
-  longer fits.
 - `Varying` is resolved once, for phrase 1, and reused through the carried register window.
 - The golden outcome tests (`generation-outcome-golden.spec.ts`, `generation-seed-matrix.spec.ts`)
-  pass unchanged: no carry-in gives v1's bytes (item 3).
+  pass unchanged: no carry-in gives v1's bytes, for a session's first phrase, the failure
+  ladder's standalone phrase and the phrase at Idle alike (item 3).
 - Tempo reaches no generation input (a type-level test and a property test).
 - `npm run measure:latency` shows no regression against chunk 1's figures.
 
-**Blocked by:** in part, spec gaps: tense-note resolution at a session's end, and before a
-fallback or a repeat (§3); whether a session phrase may end with a pending recovery or an
-unresolved tense note (§3); the standalone fallback's join (§4 against §11 item 2); where a tense
-note at a join resolves (README against §3); the phrase-boundary change in v2.0 (§11 against §5),
-for the harmonic drop only. The rest of the chunk can be built.
+**Blocked by:** in part, §12: a session's last phrase ending with something owed (O97). Its
+proposed answer keeps the carry-over between phrases; its alternative, every phrase ending as v1
+requires, removes it altogether. So the carry-over as a whole waits for the answer: a phrase
+ending owing a leap recovery or a tense note's resolution, and the next phrase settling it. The
+rest of the chunk can be built: the carry-in value, the join interval, the carried chord,
+`Varying`, v1's bytes with no carry-in. Once it is answered, `documentalist` gives the v1 atoms
+`rule_leap_recovery` and `rule_open_phrase_ending` their v2 scope.
 
 ### Chunk 8 — Session engine
 
@@ -726,8 +755,8 @@ diagram gives the session's states and transitions).
 `rule_phrase_one_is_idle_phrase`, `rule_look_ahead_phrase_must_fit_staff` (the fit check is an
 injected seam; chunk 16 provides it), `rule_session_generation_failure_ladder`,
 `rule_struggling_generator_notice`, `rule_session_settings_locked`,
-`rule_session_change_applies_at_phrase_boundary`, `rule_session_density_only_steps_down`,
-`rule_tempo_never_affects_generation`, `rule_session_never_pauses`,
+`rule_session_density_only_steps_down`, `rule_tempo_never_affects_generation`,
+`rule_session_never_pauses`,
 `rule_repeat_phrase_marked_internally_only`; v1: `service_generation_orchestration`,
 `module_generation_worker_protocol`, `rule_ephemeral_session_state`.
 
@@ -745,21 +774,20 @@ injected seam; chunk 16 provides it), `rule_session_generation_failure_ladder`,
   at 60, 120 and 240 BPM show the request and the deadline at the right times, including phrase 2
   during the one-bar count-in.
 - The failure ladder, with failed generations and failed fit checks mixed: up to three retries
-  with a fresh seed and the same carry-in while the deadline allows; one standalone retry; a
-  repeat of the previous phrase at the deadline, marked in the phrase's record; the struggling
-  notice after two repeats in a row. The session never ends because of a failure (item 1).
-- The settings are frozen at start. The density a phrase is generated with comes from chunk 4's
-  function; after the first `Eighth`, every later phrase uses `Eighth` (item 27).
-- The phrase-boundary mechanism exists: a change applies at the first phrase that hasn't started
-  sounding, a look-ahead phrase is regenerated only when a measure remains before its deadline,
-  and no phrase already shown changes (item 4). v2.0 has nothing that triggers it yet; tests
-  trigger it directly.
+  with a fresh seed and the same carry-in while the deadline allows; one standalone retry, without
+  carry-in; a repeat of the previous phrase at the deadline, marked in the phrase's record. The
+  session never ends because of a failure (item 1).
+- The struggling notice shows from the second repeat in a row, stays through further repeats, and
+  clears when a newly generated phrase starts sounding, the standalone one included; it goes when
+  the session ends (item 1). Engine tests on timed events cover each case.
+- The settings are frozen at start, and nothing in the engine changes one during a session
+  (item 4). The density a phrase is generated with comes from chunk 4's function; after the first
+  `Eighth`, every later phrase uses `Eighth` (item 27). Applying a setting change at a phrase
+  boundary is not built here: it arrives in v2.1, in
+  [chunk 24](#chunk-24--settings-mutation-engine).
 - Tempo is transport only: the same events at any tempo give the same generation requests.
 
-**Blocked by:** in part, spec gaps: tense-note resolution before a fallback or a repeat (§3); the
-standalone fallback's join (§4 against §11 item 2); a look-ahead phrase discarded while already on
-screen as read-ahead (§5 against §11 item 4); the phrase-boundary change in v2.0 (§11 against
-§5); when the struggling notice clears (§4).
+**Blocked by:** nothing.
 
 ### Chunk 9 — Session history
 
@@ -789,7 +817,8 @@ privacy), items 12, 13 and 27.
 **Done when** (all hold):
 
 - The history takes the engine's "phrase started sounding" events. A phrase shown only as
-  read-ahead that never sounded is not recorded; a session ended in the count-in records nothing.
+  read-ahead that never sounded is not recorded, so it is in neither the review nor any export; a
+  session ended in the count-in records nothing.
 - For every recorded phrase, regenerating from its stored inputs gives a timeline equal to the
   one stored. A property test runs this over the seed matrix, with carry-in.
 - Encoding a recorded session with chunks 18 and 19 gives the same bytes as encoding the phrases
@@ -801,8 +830,7 @@ privacy), items 12, 13 and 27.
   time budget, since the session length has no cap.
 - Nothing is written to browser storage; `npm run verify:boundaries` passes.
 
-**Blocked by:** in part, spec gap: the review shows "every phrase shown" while the history leaves
-out an unsounded read-ahead phrase (§7).
+**Blocked by:** nothing.
 
 ### Chunk 10 — Audio transport
 
@@ -1029,7 +1057,8 @@ showing phrase 1 while running; chunk 16 makes it roll.
 **Spec sections:** [§5](master-spec.md#5-control-changes-during-a-session) (the lock),
 [§6](master-spec.md#6-backing-click-count-in-and-tempo) (count-in, when a session can start, the
 wake lock, a hidden tab, landscape), [§7](master-spec.md#7-sessions-review-export-and-privacy)
-(starting and ending, a session ended during the count-in), items 10, 11, 18, 21, 22, 23 and 24.
+(starting and ending, a session ended during the count-in), items 1, 4, 10, 11, 18, 21, 22, 23
+and 24.
 
 **Design docs:** [play-session flow handoff](../../../ui_ux/flows/play-session/handoff.md) and
 [intent](../../../ui_ux/flows/play-session/intent.md) (Starting, The Count-In, The Session
@@ -1076,13 +1105,15 @@ Session); [`motion.md`](../../../ui_ux/motion.md).
   handoff says (item 23). A session ended later reaches the engine's "ended" state with its
   history. The Review arrives in chunk 20.
 - A session started with no controller runs until `Stop` and never ends by itself (item 10).
-- The struggling notice shows in the cue row after two repeats and never blocks. No blocking alert
-  shows during a session.
+- The struggling notice shows in the cue row from the second repeat in a row and never blocks. It
+  stays through further repeats, clears when a newly generated phrase starts sounding, the
+  standalone one included, and goes when the session ends (item 1). One scenario per case, driven
+  by failed generations on the fake clock. No blocking alert shows during a session.
 - Step 6 fixes the chunk 0 drift in `rule_generation_failure_alert_copy`: a session has no alert.
 
-**Blocked by:** in part, ux Q31: the audio mix's ranges and default levels are placeholders. Spec
-gap: when the struggling notice clears (§4). §12's screen wake lock dropped mid-session (O87): the
-proposed default, asking again silently, is built only once confirmed.
+**Blocked by:** in part, ux Q31: the audio mix's ranges and default levels are placeholders.
+§12's screen wake lock dropped mid-session (O87): the proposed default, asking again silently, is
+built only once confirmed.
 
 ### Chunk 16 — Rolling display
 
@@ -1095,7 +1126,7 @@ session when what is shown or waiting no longer fits.
 
 **Spec sections:** [§4](master-spec.md#4-look-ahead-and-failure-handling) (a look-ahead phrase
 must fit), [§6](master-spec.md#6-backing-click-count-in-and-tempo) (the audio clock, the window
-during a session), items 1, 4, 6, 15, 24 and 25.
+during a session), items 1, 6, 15, 24 and 25.
 
 **Design docs:** [play-session intent: The Rolling Display](../../../ui_ux/flows/play-session/intent.md#the-rolling-display);
 [phrase-workspace handoff: Notation Contract](../../../ui_ux/screens/phrase-workspace/handoff.md#notation-contract)
@@ -1125,14 +1156,15 @@ waiting), `rule_playhead_follows_audio_clock`, `rule_phrase_one_is_idle_phrase`;
 - A resize within the held layout re-engraves both systems at the new size and moves no note
   between systems. A resize that makes what is shown, or what is checked and waiting, no longer
   fit ends the session like Stop. No notation error ever shows in a session (items 24, 25).
-- A note once drawn doesn't change until its system is refilled (item 4).
+- A note once drawn doesn't change until its system is refilled. Nothing in v2.0 discards a
+  look-ahead phrase once it is drawn; from v2.1, [chunk 25](#chunk-25--settings-mutation-control)
+  asks this chunk whether any of a look-ahead phrase is on screen yet.
 - In real Chromium, over a five-minute session at 120 BPM, the playhead band's measure changes
   within 20 ms of the audio clock's barline (item 6).
 - In real Chromium at 240 BPM with the densest settings, no main-thread task runs longer than the
   scheduler's window (item 15). The measurement method is chunk 1's.
 
-**Blocked by:** in part, spec gap: a look-ahead phrase discarded while it is already on screen as
-read-ahead (§5 against §11 item 4).
+**Blocked by:** nothing.
 
 ### Chunk 17 — MIDI in the session
 
@@ -1174,8 +1206,10 @@ and [intent: A controller lost during a session](../../../ui_ux/flows/controller
   other note, a note in any state of item 22, and a note with no controller attached start
   nothing, change nothing and name nothing (item 17). Workspace-harness scenarios on the fake
   MIDI access cover each case.
-- The starting note is in no phrase of the history. Played notes whose onsets fall in a phrase are
-  recorded in it with pitch, velocity, onset and release (item 18).
+- The starting note is in no phrase of the history (item 18). Played notes whose onsets fall in a
+  phrase are recorded in it with pitch, velocity, onset and release, together with the phrase's
+  acknowledgements. v2.0 records them and shows them nowhere after the session; the review shows
+  them from v2.1.
 - A matched note lights up on the staff through chunk 6; an unmatched or wrong note changes
   nothing at all on screen. A test compares screenshots before and after a wrong note (item 7).
 - With a controller attached, the session ends after more than 30 s without a note, counted from
@@ -1287,25 +1321,26 @@ and its design.
 
 **Done when** (all hold):
 
-- A session ended after phrase 1 sounded opens the review, which shows every recorded phrase in
-  order, engraved from the stored timeline, with its number and tempo. A repeat looks like any
-  other phrase. A 2 000-phrase history stays responsive.
+- A session ended after phrase 1 sounded opens the review, which shows every phrase that started
+  sounding, in order, engraved from the stored timeline, with its number and tempo. A phrase only
+  ever drawn as read-ahead is not in it. A repeat looks like any other phrase. A 2 000-phrase
+  history stays responsive.
+- The review shows no played note, although the history holds them since chunk 17: they appear
+  from v2.1, in [chunk 23](#chunk-23--review-played-notes).
 - The generated-notes action lets the player pick MusicXML or MIDI (and the backing track for
   MIDI, off by default) and downloads exactly one file, built from the history by chunks 18 and
   19. Exporting twice gives identical bytes. No played note is in either file.
-- MuseScore opens the MusicXML correctly for each instrument template; a MIDI tool opens the MIDI
-  file with the right tempo map and markers. The checks are done by hand and written down.
+- MuseScore opens the MusicXML correctly for each of the three instrument templates: the B♭ tenor
+  and E♭ alto saxophones, which transpose, with their `<transpose>` element, and the C keyboard
+  without one. A MIDI tool opens the MIDI file with the right tempo map and markers. The checks
+  are done by hand and written down.
 - Starting a new session from the review discards it without confirmation. Reloading the page
   discards everything.
 - A network and storage spy across a full session, the review and both exports sees no request
   and no write (item 13).
 
 **Blocked by:** design: the Review and export (v2.0), unit 6 in `ui_ux/todo.md`, with ux Q25 and
-Q47 (Review part). §12: starting a session from the Review (O84). Spec gaps: the review shows
-"every phrase shown" while the history leaves out an unsounded read-ahead phrase (§7); played
-notes in the v2.0 review, "already partly true" (§11 table). Spec contradiction, reported to
-`spec-writer`: item 12 asks for "at least three transposing instrument templates", and the app has
-two (the third template is in C); this blocks only the wording of the MuseScore criterion.
+Q47 (Review part). §12: starting a session from the Review (O84).
 
 ### Chunk 21 — v2.0 release gate
 
@@ -1332,21 +1367,28 @@ chunks left open, and get the owner's go.
 - Item 1: a sweep over the seed matrix and every supported combination at 60, 120 and 240 BPM, on
   the fake clock, meets every deadline and survives injected failures.
 - Items 6, 9 and 15 are measured in real Chromium on the reference machine and hardware.
-- Items 12 and 13: MuseScore and a MIDI tool open real exports; the privacy spy runs across a
-  session, the review and export.
+- Item 2: the property tests of chunk 7 check every join made with carry-in, and a join into the
+  standalone phrase or into a repeat is held to no join rule. Item 3: the standalone phrase's
+  output is v1's.
+- Items 12 and 13: MuseScore opens real MusicXML exports for the three instrument templates, the
+  two saxophones with `<transpose>` and the C keyboard without; a MIDI tool opens real MIDI
+  exports; the privacy spy runs across a session, the review and export.
 - Item 14: every v1 release test still passes; offline use after first load works with no audio
   asset added.
 - The open items that §12 lets implementation start without are closed or carried forward by the
   owner: backing voicing (listening test), Bluetooth MIDI, the controller check on the reference
   hardware, the wake lock dropped mid-session, and starting from the Review. The audio mix's
   levels are set.
+- The owner has answered what a session's last phrase may owe. Chunk 7's carry-over criteria hold
+  under that answer, and `documentalist` has given `rule_leap_recovery` and
+  `rule_open_phrase_ending` their v2 scope.
 - The owner has signed off VISION v0.4, and `documentalist` has advanced the v2.0 atoms' status
   with the owner's agreement.
 - The owner decides the tag.
 
-**Blocked by:** every open item above, until closed. Spec gap: the standalone fallback's join (§4
-against §11 item 2), for item 2's check. The "three transposing templates" contradiction, for item
-12's wording.
+**Blocked by:** every open item above, until closed. §12: a session's last phrase ending with
+something owed (O97), for item 2's check that a join made with carry-in settles what the phrase
+before owed.
 
 ### Chunk 22 — Played-notes MIDI encoding
 
@@ -1402,8 +1444,10 @@ notes, both contents), [§11, v2.1](master-spec.md#added-by-v21-and-later).
 
 **Done when** (all hold):
 
-- Played notes show only when the toggle is on, unquantized and in a neutral colour. A matched
-  note may be marked as matched; nothing ever marks a note that didn't match.
+- Played notes show only when the toggle is on, unquantized and in a neutral colour. They come
+  from the session history, which holds the played notes and the acknowledgements since v2.0
+  (chunk 17); this chunk records nothing new. A matched note may be marked as matched; nothing
+  ever marks a note that didn't match.
 - The played-notes action downloads exactly one MIDI file from chunk 22. It is unavailable when
   the session holds no played note. Using both actions gives two files, whose names say which
   content each holds and that they come from the same session.
@@ -1411,18 +1455,23 @@ notes, both contents), [§11, v2.1](master-spec.md#added-by-v21-and-later).
   The check is done by hand and written down.
 - The privacy spy of item 13 still sees nothing.
 
-**Blocked by:** design: the Review's v2.1 additions, unit 7 in `ui_ux/todo.md`. Spec gap: played
-notes in the v2.0 review, "already partly true" (§11 table).
+**Blocked by:** design: the Review's v2.1 additions, unit 7 in `ui_ux/todo.md`.
 
 ### Chunk 24 — Settings-mutation engine
 
 **Release:** v2.1.
 
-**Goal.** The logic of the settings-mutation flag: every few phrases, one eligible setting moves by
-at most one step; an unsupported combination rerolls; the change applies at the next phrase
-boundary through chunk 8's mechanism.
+**Goal.** The logic of the settings-mutation flag, and of applying a setting change at a phrase
+boundary, which the flag is the first thing to need: every few phrases, one eligible setting moves
+by at most one step; an unsupported combination rerolls; the change applies at the next phrase
+boundary, and never to a look-ahead phrase already partly on screen. A key or collection change
+drops the harmonic part of the carry-in. In v2.0 the settings are only locked during a session;
+this chunk adds the first way for one to change.
 
-**Spec sections:** [§5](master-spec.md#5-control-changes-during-a-session),
+**Spec sections:** [§5](master-spec.md#5-control-changes-during-a-session) (the automatic sources,
+the phrase boundary, a key change drops the harmonic part),
+[§11 prerequisites](master-spec.md#prerequisites-that-must-already-be-in-place) (the cold run
+after a mid-session change), [§11, v2.1](master-spec.md#added-by-v21-and-later),
 [§12](master-spec.md#12-open-questions-carried-forward) (cadence and default; the flag with
 `Eighth`).
 
@@ -1430,11 +1479,14 @@ boundary through chunk 8's mechanism.
 
 **Atoms:** `req_settings_mutation_flag`, `rule_mutation_rerolls_unsupported_combination`,
 `rule_session_change_applies_at_phrase_boundary`, `rule_key_change_drops_harmonic_carry_in`,
-`rule_varying_register_once_per_session`, `rule_sixteenth_unavailable_below_tablet_width`; v1:
-`rule_unsupported_rhythm_settings_block_generation`, `module_generation_control_catalog`.
+`rule_varying_register_once_per_session`, `rule_sixteenth_unavailable_below_tablet_width`,
+`rule_join_carry_in_limited`, `rule_look_ahead_deadline`, `rule_session_settings_locked`; v1:
+`rule_unsupported_rhythm_settings_block_generation`, `module_generation_control_catalog`,
+`module_generation_worker_protocol`, `module_pitch_planner`, `module_register_intent_boundary`.
 
-**Depends on:** [chunk 4](#chunk-4--note-density-on-small-screens),
-[chunk 8](#chunk-8--session-engine).
+**Depends on:** [chunk 1](#chunk-1--baseline-checks) (the cold case after a setting change),
+[chunk 4](#chunk-4--note-density-on-small-screens),
+[chunk 7](#chunk-7--generator-continuation), [chunk 8](#chunk-8--session-engine).
 
 **Done when** (all hold):
 
@@ -1443,27 +1495,42 @@ boundary through chunk 8's mechanism.
 - A mutation that lands on an unsupported combination, or on `Sixteenth` below
   `bp-tablet-landscape`, mutates again until it lands on a supported one. No cycle is skipped. A
   property test over every starting combination always ends on a supported one.
-- The change applies at the next phrase boundary. A key or collection change drops the harmonic
-  part of the carry-in; a register change re-resolves `Varying`. Engine tests on timed events
+- The session engine of chunk 8 applies a change at the first phrase that hasn't started
+  sounding. A look-ahead phrase generated with the old settings is discarded and regenerated only
+  when none of it is on screen yet and at least a measure remains before its deadline; otherwise
+  it stays as it is and the change applies from the phrase after it. Whether any of it is on
+  screen is an injected seam; chunk 25 connects it to the rolling display. Engine tests on timed
+  events cover the three cases: nothing drawn with a measure left, partly drawn, less than a
+  measure left.
+- With the flag off, nothing changes a setting during a session: chunk 8's lock tests still pass.
+- The generator of chunk 7 accepts a carry-in without its harmonic part, after a key or collection
+  change; its pitch is re-checked against the new range and register window. Unit tests cover a
+  pitch that no longer fits. A register change re-resolves `Varying`. Engine tests on timed events
   show both.
+- Chunk 1's figure for the first generation after a setting change meets the working target,
+  including a regenerated look-ahead phrase with one measure left at 240 BPM, or the owner has
+  decided how to proceed.
 - The cadence and the default are the owner's answer, in one named constant each.
 
 **Blocked by:** in part, §12: the flag's cadence and default (O77); the flag in a session generating
-with `Eighth` (O93). Spec gap: the phrase-boundary change in v2.0 (§11 against §5).
+with `Eighth` (O93).
 
 ### Chunk 25 — Settings-mutation control
 
 **Release:** v2.1.
 
-**Goal.** The flag's on/off control, and the settings panel quietly showing each automatic change.
+**Goal.** The flag's on/off control, the settings panel quietly showing each automatic change, and
+the flag running in the real session: chunk 24's engine connected to the rolling display.
 
-**Spec sections:** [§5](master-spec.md#5-control-changes-during-a-session).
+**Spec sections:** [§5](master-spec.md#5-control-changes-during-a-session),
+[§11, v2.1](master-spec.md#added-by-v21-and-later).
 
 **Design docs:** not designed yet: the settings-mutation flag UI, unit 10 in
 [`ui_ux/todo.md`](../../../ui_ux/todo.md).
 
 **Atoms:** `req_settings_mutation_flag`, `rule_automatic_change_updates_controls_quietly`,
-`rule_session_settings_locked`; v1: `rule_readonly_controls_keep_contrast`.
+`rule_session_settings_locked`, `rule_session_change_applies_at_phrase_boundary`; v1:
+`rule_readonly_controls_keep_contrast`.
 
 **Depends on:** [chunk 24](#chunk-24--settings-mutation-engine), v2.0, and its design.
 
@@ -1472,6 +1539,10 @@ with `Eighth` (O93). Spec gap: the phrase-boundary change in v2.0 (§11 against 
 - The flag can be set at Idle and in the Review, and is read-only during a session.
 - When a change applies, the locked control shows the new value with no highlight, no scroll and
   no shift. A workspace-harness test compares the layout before and after.
+- Chunk 24's "any of it on screen" seam is answered by the rolling display of chunk 16. A
+  workspace-harness scenario on the fake clock makes a change while the next phrase is partly
+  drawn as read-ahead: that phrase stays as drawn and the change first shows in the phrase after
+  it. No note on screen changes (the v2.1 criterion of §11).
 - The control's default is the owner's answer.
 
 **Blocked by:** design: the settings-mutation flag UI, unit 10 in `ui_ux/todo.md`. §12: the flag's
@@ -1495,6 +1566,9 @@ cadence and default (O77).
 
 - Each v2.1 criterion of §11 has a named test or a written hand check, in the release notes.
 - The two MIDI files of one session line up in a real DAW; the privacy spy still sees nothing.
+- A setting changed by the flag first shows at the first phrase that hasn't begun sounding, or at
+  the phrase after it, and no note on screen ever changes. The latency prerequisite's cold run
+  after a mid-session change holds, re-run on the v2.1 code.
 - The v2.0 gate's tests all still pass.
 - `documentalist` has advanced the v2.1 atoms with the owner's agreement. The owner decides the tag.
 
@@ -1530,8 +1604,9 @@ the starting tempo when the session ends. Generation never sees it.
 - A property test shows the same seeds and settings generate the same phrases with the flag on or
   off.
 
-**Blocked by:** in part, spec gap: adaptive tempo when the controller is lost mid-session, and the
-flag's default (§10).
+**Blocked by:** in part, §12: adaptive tempo when the controller is lost mid-session, and the
+flag's default (O99). Whether the rise carries on while the controller is away waits for the
+answer; the rest can be built.
 
 ### Chunk 28 — Adaptive tempo control
 
@@ -1557,8 +1632,8 @@ the exact tempo during a session, and the quiet "reached tempo" note at Idle.
 - During a session the exact tempo in effect is shown, even off the control's list.
 - Nothing about performance is shown, stored or exported.
 
-**Blocked by:** design: the adaptive-tempo UI, unit 8 in `ui_ux/todo.md`. Spec gap: adaptive tempo
-when the controller is lost mid-session, and the flag's default (§10).
+**Blocked by:** design: the adaptive-tempo UI, unit 8 in `ui_ux/todo.md`. §12: adaptive tempo
+when the controller is lost mid-session, and the flag's default (O99).
 
 ### Chunk 29 — Multi-phrase tension arc
 
@@ -1579,10 +1654,13 @@ multi-phrase tension arc).
 
 **Depends on:** the v2.0 chunks (7 and 8 in particular).
 
-**Done when:** defined once the spec gap is settled. At least: with the flag off, every phrase's
-output is unchanged (the golden tests pass); with it on, the same seeds give the same session.
+**Done when:** defined once the owner has said how the arc runs and whether it starts on or off.
+At least: with the flag off, every phrase's output is unchanged (the golden tests pass); with it
+on, the same seeds give the same session. The proposed answer also says how the arc meets the
+settings-mutation flag, which may change the tension setting itself; if it is kept, this chunk
+also depends on [chunk 24](#chunk-24--settings-mutation-engine).
 
-**Blocked by:** spec gap: the multi-phrase tension arc's mechanics and default (§3).
+**Blocked by:** §12: how the multi-phrase tension arc runs, and its default (O98).
 
 ### Chunk 30 — Tension arc control
 
@@ -1604,8 +1682,8 @@ output is unchanged (the golden tests pass); with it on, the same seeds give the
 - The control can be set at Idle and in the Review, and is read-only during a session.
 - Its state reaches the session engine; a workspace-harness test runs a session with it on.
 
-**Blocked by:** design: the tension-arc control, unit 11 in `ui_ux/todo.md`. Spec gap: the
-multi-phrase tension arc's mechanics and default (§3).
+**Blocked by:** design: the tension-arc control, unit 11 in `ui_ux/todo.md`. §12: how the
+multi-phrase tension arc runs, and its default (O98).
 
 ### Chunk 31 — v2.2 release gate
 

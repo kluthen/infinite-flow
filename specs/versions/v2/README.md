@@ -12,8 +12,8 @@ P3 gets session review and export; marking favorites is v3 (D130). See [personas
 
 | Document                         | Purpose                                                                                                        | Status            |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------- |
-| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.19 |
-| [build-plan.md](build-plan.md)   | The build plan: v2.0–v2.3 cut into ordered chunks, each with its atoms, tests and blockers                     | draft v0.2        |
+| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.20 |
+| [build-plan.md](build-plan.md)   | The build plan: v2.0–v2.3 cut into ordered chunks, each with its atoms, tests and blockers                     | draft v0.3        |
 
 The original draft topic documents (highlights proposal, rolling phrase, audio and backing, MIDI
 and acknowledgement, sessions/review/export, adaptive tempo, definition of done,
