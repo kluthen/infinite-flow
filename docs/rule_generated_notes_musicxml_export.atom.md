@@ -24,6 +24,6 @@ The MusicXML export (score-partwise 4.0) holds one part, in the session instrume
 The generated-notes export in MusicXML format produces one score-partwise 4.0 file.
 
 ## EXPECTATION
-- The MusicXML file opens correctly in a real notation program (MuseScore) for at least three transposing instrument templates.
+- The MusicXML file opens correctly in a real notation program (MuseScore) for each of the three instrument templates: the B♭ tenor and E♭ alto saxophones, which transpose, with their transpose element, and the C keyboard, which does not transpose, without one.
 - It shows written pitch, chord symbols, one rehearsal mark and double barline per phrase, and metronome marks at the start and at every tempo change.
 - It never contains played notes.
