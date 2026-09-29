@@ -67,8 +67,10 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
 ## Directory Boundaries
 
 - `src/domain/**` — pure, serializable, Vue/browser-free musical logic: events, time, random
-  streams, instrument profiles, controls, harmony, rhythm, pitch planning and validation, and
-  generation-request/result orchestration.
+  streams, instrument profiles, controls, harmony, rhythm, pitch planning and validation,
+  generation-request/result orchestration, and note acknowledgement (`src/domain/acknowledgement/`:
+  expected notes, their timing windows, latency-corrected played onsets and exact-pitch matching;
+  see [`docs/midi-acknowledgement.md`](docs/midi-acknowledgement.md)).
 - `src/generation-worker/` — the typed request/response protocol and handler that run generation
   inside a dedicated module Web Worker, off the main thread.
 - `src/notation/` — the concert-to-written transformation types and the VexFlow engraving adapter,
@@ -193,6 +195,11 @@ UI (Vue components, props-in/events-out)
   for the selected display convention (Concert / B-flat / E-flat), then engraved by a lazily loaded
   VexFlow adapter (`src/notation/vexflow-engraver-loader.ts` is the sole static importer of the
   engraver module) — the engraving chunk is fetched on first use and precached for offline reuse.
+- **Note acknowledgement.** `src/domain/acknowledgement/` decides, as pure logic, which expected
+  notes of the phrase a player's notes acknowledge: exact concert pitch, inside a timing window on
+  the audio clock, with the played onset corrected for latency. Its only output is a list of note
+  identities. Nothing calls it yet: MIDI input and the live session are still to come. See
+  [`docs/midi-acknowledgement.md`](docs/midi-acknowledgement.md).
 
 - **Export.** `encodeGeneratedNotesMusicXml` (`src/export/musicxml/`) turns a session's phrases,
   each with its number, its `WrittenPhrase` and its tempo, into one score-partwise 4.0 MusicXML
@@ -311,6 +318,9 @@ Notes for either variant:
 - [UI/UX index](ui_ux/README.md) — the approved interaction and visual authority.
 - [Testing](docs/testing.md) — test layers, scripts, the two harnesses and their seams, and the
   fixture list.
+- [MIDI note acknowledgement](docs/midi-acknowledgement.md) — how played notes are matched to the
+  phrase's expected notes: the window rule, the latency constants and their sources, and the
+  identity-only output.
 - [ATD documentation](docs/) — business-intent atoms with source/test traceability.
 - [Third-party licenses](THIRD_PARTY_LICENSES.md) and [`public/licenses/`](public/licenses/) —
   every runtime component shipped in `dist/`, with vendored full license text.
