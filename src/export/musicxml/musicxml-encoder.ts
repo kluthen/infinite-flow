@@ -3,7 +3,8 @@
  * score-partwise 4.0 document. One part, in the instrument's written pitch, with a transpose
  * element for a transposing instrument. The phrases sit back to back from phrase 1, four measures
  * each, measures numbered from 1 across the whole session. Every phrase opens with a rehearsal mark
- * holding its phrase number and closes with a double barline; a metronome mark opens the score and
+ * holding its phrase number and closes with a double barline, except the last phrase, which closes
+ * with a final (light-heavy) barline; a metronome mark opens the score and
  * every phrase whose tempo differs from the one before; a key signature is written again where a
  * phrase's written key differs from the one before. The output depends only on the input, so the
  * same session always gives the same bytes.
@@ -21,6 +22,7 @@ import {
   phraseEndBarline,
   rehearsalMark,
   sameKey,
+  sessionEndBarline,
 } from './musicxml-marks'
 import { measureContent } from './musicxml-measure'
 import { element, serializeXmlDocument, textElement, type XmlElement } from './xml-text'
@@ -57,16 +59,21 @@ function phraseOpening(
   return opening
 }
 
-/** Intent: the four measure elements of one phrase, numbered on from `firstMeasureNumber`. */
+/**
+ * Intent: the four measure elements of one phrase, numbered on from `firstMeasureNumber`, the last
+ * closed by a final barline when the phrase is the session's last and by a double barline otherwise.
+ */
 function phraseMeasures(
   phrase: MusicXmlSessionPhrase,
   previous: MusicXmlSessionPhrase | null,
+  isLastPhrase: boolean,
   input: GeneratedNotesMusicXmlInput,
 ): XmlElement[] {
   const firstMeasureNumber = (phrase.number - 1) * MEASURES_PER_PHRASE + 1
+  const endBarline = isLastPhrase ? sessionEndBarline() : phraseEndBarline()
   return phrase.writtenPhrase.measures.map((measure: WrittenMeasure, index) => {
     const opening = index === 0 ? phraseOpening(phrase, previous, input) : []
-    const closing = index === MEASURES_PER_PHRASE - 1 ? [phraseEndBarline()] : []
+    const closing = index === MEASURES_PER_PHRASE - 1 ? [endBarline] : []
     return element(
       'measure',
       [['number', String(firstMeasureNumber + index)]],
@@ -85,7 +92,12 @@ function phraseMeasures(
 export function encodeGeneratedNotesMusicXml(input: GeneratedNotesMusicXmlInput): string {
   validateMusicXmlExportInput(input)
   const measures = input.phrases.flatMap((phrase, position) =>
-    phraseMeasures(phrase, position === 0 ? null : input.phrases[position - 1]!, input),
+    phraseMeasures(
+      phrase,
+      position === 0 ? null : input.phrases[position - 1]!,
+      position === input.phrases.length - 1,
+      input,
+    ),
   )
   const score = element(
     'score-partwise',

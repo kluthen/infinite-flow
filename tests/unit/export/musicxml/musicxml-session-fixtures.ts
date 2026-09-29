@@ -146,7 +146,6 @@ function phrase(
  * C MIDI keyboard, written C Ionian (concert C major): phrase 1 "rich", phrase 2 "plain", both at
  * 90 BPM. No transposition, one metronome mark.
  */
-// @test-link [[rule_generated_notes_musicxml_export]]
 export function cKeyboardSession(): GeneratedNotesMusicXmlInput {
   return {
     instrument: C_KEYBOARD_PROFILE,
