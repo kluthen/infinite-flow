@@ -1,6 +1,6 @@
 ---
 id: module_notation_layout_preflight
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: notation
 parents:
@@ -13,7 +13,7 @@ type: MODULE
 human_name: Notation Layout Preflight
 version: 0.5
 layer: ARCHITECTURE
-notes: Rewritten 2026-09-29 to the v2 planner: split below 64rem at idle as in a session, one system from 64rem up, a scale fitting the height as well as the width below 64rem, one engraving per system position, two positions always reserved, and two typed layout failures (no room, notes too wide). This replaces the v1 one-system-first rule with its two-line phone fallback and content-derived height. Status returned from REVIEW to DRAFT pending the owner's sign-off on the rewritten text; the 5 px legibility floor keeps its 2026-09-24 sign-off. Same-day post-task sync precision fix: the no-room width test counts the fixed padding and depends on the key signature (a setting), not the notes; a window too short for the staff splits its height budget equally between the two positions.
+notes: Rewritten 2026-09-29 to the v2 planner: split below 64rem at idle as in a session, one system from 64rem up, a scale fitting the height as well as the width below 64rem, one engraving per system position, two positions always reserved, and two typed layout failures (no room, notes too wide). This replaces the v1 one-system-first rule with its two-line phone fallback and content-derived height. Status returned from REVIEW to DRAFT pending the owner's sign-off on the rewritten text, which the owner gave on 2026-09-29 for version 0.5, promoting it DRAFT to REVIEW; the 5 px legibility floor keeps its 2026-09-24 sign-off. Same-day post-task sync precision fix: the no-room width test counts the fixed padding and depends on the key signature (a setting), not the notes; a window too short for the staff splits its height budget equally between the two positions.
 ---
 
 # Notation Layout Preflight

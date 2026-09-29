@@ -12,7 +12,7 @@ dependents:
   - [[rule_played_onset_latency_compensation]]
 type: RULE
 tags: [v2, release-v2.0, midi, acknowledgement]
-notes: Revised 2026-09-29 on an owner decision of 2026-09-29 (previous version 0.1). Version 0.1 opened each window 150 ms before its onset and cut it at the next window's opening, so when the next onset came less than 150 ms later (sixteenths from 110 BPM, eighths from 210 BPM) the next window opened before this note's onset and an on-time note was rejected on pitch. The owner chose to split the gap at the midpoint. Nothing changes for notes 300 ms or more apart. Still DRAFT pending sign-off on the rewritten text.
+notes: Revised 2026-09-29 on an owner decision of 2026-09-29 (previous version 0.1). Version 0.1 opened each window 150 ms before its onset and cut it at the next window's opening, so when the next onset came less than 150 ms later (sixteenths from 110 BPM, eighths from 210 BPM) the next window opened before this note's onset and an on-time note was rejected on pitch. The owner chose to split the gap at the midpoint. Nothing changes for notes 300 ms or more apart. The owner approved the version 0.2 text on 2026-09-29; it stays DRAFT until the note acknowledgement code implementing it lands.
 ---
 
 # Expected-Note Timing Window

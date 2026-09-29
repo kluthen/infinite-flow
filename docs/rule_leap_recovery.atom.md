@@ -11,6 +11,7 @@ priority: 2
 tags: melody,leaps,playability
 dependents:
   - [[rule_join_inherits_leap_recovery]]
+notes: Revised 2026-09-29 for v2 sessions (previous version 0.2). Version 0.3 lets a phrase generated with carry-in end with a large leap's recovery still owed, repaid by the first note of the next phrase generated with that carry-in and left unpaid when no such phrase follows; a phrase generated without carry-in still ends owing nothing. The owner approved the version 0.3 text on 2026-09-29. Status stays DRAFT.
 ---
 
 # Leap Recovery
