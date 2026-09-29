@@ -97,7 +97,7 @@ chunks in different sections; the second to merge rebases on the first.
 | Wave | Chunks                                                                                                                                                                                                                                            | Waits for                                                                   |
 | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29)                                                                                                                                                                                           | Nothing                                                                     |
-| 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 (done 2026-09-29) · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation · 14 Note acknowledgement · 18 MusicXML encoding · 19 Generated-notes MIDI encoding                                                    | Chunk 0 (done). Start chunk 3 first (see the caveat).                        |
+| 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 (done 2026-09-29) · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation (done 2026-09-29) · 14 Note acknowledgement · 18 MusicXML encoding · 19 Generated-notes MIDI encoding                                                    | Chunk 0 (done). Start chunk 3 first (see the caveat).                        |
 | 2    | 5 Idle fit retries and the room notice · 6 Note identity and session overlays · 8 Session engine · 10 Audio transport                                                                                                                             | Wave 1. Chunks 8 and 10 also need chunk 1's verdict.                        |
 | 3    | 9 Session history · 11 Backing · 12 MIDI input                                                                                                                                                                                                    | Wave 2                                                                      |
 | 4    | 15 Session screen: start and end                                                                                                                                                                                                                  | Wave 3                                                                      |
@@ -774,9 +774,16 @@ highlight. The overlays are driven from outside; this chunk only draws them.
 
 ### Chunk 7 — Generator continuation
 
-**Release:** v2.0. **In progress since 2026-09-29** (worktree branch `v2-chunk-7`): everything but
-the carry-over of a debt across the join, which waited for O97 until the owner answered it the
-same day (D167); now the whole chunk.
+**Release:** v2.0. **Done on 2026-09-29.** A typed, immutable carry-in (the last sounding concert
+pitch with its leap state, the register window, the final chord and its endpoint class, the phrase
+number) travels through the worker protocol and is validated there. The join obeys the in-phrase
+rules; a phrase generated with carry-in may end owing a leap recovery or a tense note's resolution
+(D167), and the next phrase settles it on its first note. A join matrix of 480 chained phrases
+checks both. Without carry-in the output is v1's, byte for byte, and tempo reaches no generation
+input. The carry-in isn't wired into the app yet: that is [chunk 8](#chunk-8--session-engine).
+`npm run quality` passes in full on the merged code. v2.1 will need a partial carry-in: a key or
+collection change drops only its harmonic part, and today the carry-in refuses settings it doesn't
+fit.
 
 **Goal.** Let the generator continue from the phrase before. A request may carry a **carry-in**:
 the last sounding concert pitch with its leap state, the register window, the final chord and its

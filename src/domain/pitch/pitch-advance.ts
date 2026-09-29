@@ -5,8 +5,15 @@ import {
   INITIAL_CONTOUR_STATE,
   type ReachFunction,
 } from './pitch-contour'
-import { advanceFigure, figureSettled, initialFigureState } from './pitch-figures'
-import { advanceMotion, INITIAL_MOTION_STATE, motionSettled, reachBound } from './pitch-motion'
+import { owedRecoveryCanSettle, resolvesOnto } from '../generation/carry-in/phrase-ending-debt'
+import { carriedMotionState } from './pitch-carry-in'
+import {
+  advanceFigure,
+  figureOwesOnlyFinalResolution,
+  figureSettled,
+  initialFigureState,
+} from './pitch-figures'
+import { advanceMotion, motionSettled, reachBound } from './pitch-motion'
 import { pitchRank } from './pitch-ranking'
 import type {
   PitchAdvanceResult,
@@ -17,12 +24,16 @@ import type {
   PitchSearchState,
 } from './pitch-types'
 
-/** The search state before the first attack. */
+/**
+ * The search state before the first attack: with a carry-in, the carried pitch is the motion
+ * reducer's prior note, with its open chain and any recovery it still owes.
+ */
 // @spec-link [[module_pitch_search_transition]]
+// @spec-link [[rule_join_inherits_leap_recovery]]
 export function initialPitchSearchState(context: PitchSearchContext): PitchSearchState {
   return deepFreeze({
     nextAttackIndex: 0,
-    motion: INITIAL_MOTION_STATE,
+    motion: carriedMotionState(context.input.request.carryIn),
     figure: initialFigureState(context.input.tensionBinding.figureKind !== undefined),
     contour: INITIAL_CONTOUR_STATE,
   })
@@ -53,12 +64,62 @@ function remainingReach(
     reachBound(limits, intervals, limits.leaps - motion.leaps, limits.phraseRuns - motion.runs)
 }
 
-/** Whole-phrase obligations that must be clear once the final attack is assigned. */
-function terminalError(context: PitchSearchContext, state: PitchSearchState): string | undefined {
-  if (!figureSettled(state.figure)) return 'terminal_figure_open'
-  if (!motionSettled(state.motion)) return 'terminal_recovery_due'
+/**
+ * Whole-phrase obligations that must be clear once the final attack is assigned. A phrase that
+ * may end owing (one generated with carry-in) may leave a tense final note unresolved, or a large
+ * leap unrecovered, when the next phrase's first note can settle it inside the window.
+ */
+// @spec-link [[rule_leap_recovery]]
+// @spec-link [[rule_open_phrase_ending]]
+function terminalError(
+  context: PitchSearchContext,
+  state: PitchSearchState,
+  finalMidi: number,
+): string | undefined {
+  const owes = context.endingDebt
+  if (
+    !figureSettled(state.figure) &&
+    !(owes.tenseNote && figureOwesOnlyFinalResolution(state.figure, finalMidi))
+  )
+    return 'terminal_figure_open'
+  const debt = state.motion.debt
+  if (
+    !motionSettled(state.motion) &&
+    !(
+      owes.leapRecovery &&
+      debt !== undefined &&
+      owedRecoveryCanSettle(
+        finalMidi,
+        debt.direction,
+        context.collectionPitchClasses,
+        context.input.request.registerWindow,
+      )
+    )
+  )
+    return 'terminal_recovery_due'
   if (!contourComplete(context.contourPlan, state.contour)) return 'terminal_contour'
   return undefined
+}
+
+/** The pitch sounding before the next attack: the phrase's latest note, or the carried pitch. */
+// @spec-link [[rule_join_interval_obeys_phrase_rules]]
+export function priorSoundingMidi(state: PitchSearchState): number | undefined {
+  return state.motion.prior?.midi
+}
+
+/** True when the first attack fails to resolve a tense carried note by step onto a chord tone. */
+// @spec-link [[rule_join_tense_note_resolution]]
+function leavesCarriedTensionUnresolved(
+  context: PitchSearchContext,
+  attack: PitchAttack,
+  midi: number,
+): boolean {
+  const tense = context.carriedTenseMidi
+  return (
+    tense !== undefined &&
+    attack.attackIndex === 0 &&
+    !resolvesOnto(tense, midi, attack.chordPitchClasses, context.collectionPitchClasses)
+  )
 }
 
 /** Resolves a proposed candidate to its canonical domain member at an attack, if any. */
@@ -126,12 +187,15 @@ function transition(
   const note = noteFacts(context, attack, candidate.midi)
   if (attack.isFinal && !context.finalMidis.includes(candidate.midi))
     return finish({ kind: 'rejected', reason: 'open_endpoint_violation' })
+  if (leavesCarriedTensionUnresolved(context, attack, candidate.midi))
+    return finish({ kind: 'rejected', reason: 'carried_tension_unresolved' })
   const figure = advanceFigure(state.figure, {
     attackIndex: attack.attackIndex,
     isFinal: attack.isFinal,
     ...(state.prior ? { prior: state.prior } : {}),
     note,
     candidate,
+    ...(attack.isFinal && context.endingDebt.tenseNote ? { mayOweResolution: true } : {}),
   })
   if (figure.kind === 'rejected') return figure
   const motion = advanceMotion(context.limits, state.motion, {
@@ -156,10 +220,10 @@ function transition(
     figure: figure.state,
     contour,
   }
-  const terminal = attack.isFinal ? terminalError(context, nextState) : undefined
+  const terminal = attack.isFinal ? terminalError(context, nextState, candidate.midi) : undefined
   if (terminal) return finish({ kind: 'rejected', reason: terminal })
   const rankingFacts = published
-    ? pitchRank(context.input.policy.arpeggioChaos, attack, candidate, state.prior?.midi)
+    ? pitchRank(context.input.policy.arpeggioChaos, attack, candidate, priorSoundingMidi(state))
     : UNREAD_RANKING_FACTS
   return finish({ kind: 'accepted', nextState, rankingFacts })
 }

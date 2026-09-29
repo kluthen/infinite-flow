@@ -17,6 +17,7 @@ import { type Seed, makeSeed } from '../random/seed'
 import { deepFreeze } from '../events/deep-freeze'
 import { type ActiveConcertRange, makeActiveConcertRange } from '../profile/active-concert-range'
 import { type RegisterId } from '../profile/register-id'
+import { parseCarryIn, type CarryIn } from './carry-in/carry-in'
 import {
   type RegisterWindow,
   makeRegisterWindow,
@@ -114,13 +115,16 @@ export const PHRASE_MEASURE_COUNT = 4
 /**
  * The resolved core generation request. Immutable and serializable: contains only request
  * identity, seed, requested measure count, meter, resolved active concert range, resolved
- * register identity, and resolved register window. The register field's type admits only Low,
+ * register identity, resolved register window, and, for a session phrase generated after another,
+ * the carry-in that phrase handed forward (whose window is then the resolved window). The register field's type admits only Low,
  * Middle, or High — the outer RegisterChoice's Varying is not a representable value here, so an
  * unresolved register intent cannot be constructed as a core request. Theme, notation display
  * convention, browser state, audio nodes, UI widget values, and mutable session state cannot
  * enter this type — see rule_seeded_phrase_reproduction / rule_presentation_preference_preserves_phrase.
  */
+// @spec-link [[rule_tempo_never_affects_generation]]
 // @spec-link [[module_register_intent_boundary]]
+// @spec-link [[entity_phrase_carry_in]]
 export interface GenerationRequest {
   readonly requestId: RequestId
   readonly seed: Seed
@@ -129,6 +133,7 @@ export interface GenerationRequest {
   readonly activeConcertRange: ActiveConcertRange
   readonly register: RegisterId
   readonly registerWindow: RegisterWindow
+  readonly carryIn?: CarryIn
 }
 
 interface GenerationRequestInput {
@@ -139,14 +144,17 @@ interface GenerationRequestInput {
   readonly activeConcertRange: ActiveConcertRange
   readonly register: RegisterId
   readonly registerWindow: RegisterWindow
+  readonly carryIn?: CarryIn
 }
 
 /**
  * Intent: construct an immutable, deep-frozen GenerationRequest from already-validated inputs.
- * Rejects a measure count other than four, and a resolved register window that is not fully
- * contained in the resolved active concert range, each as a typed failure; never defaults,
- * coerces, or transposes to force a fit.
+ * Rejects a measure count other than four, a resolved register window that is not fully contained
+ * in the resolved active concert range, and a carry-in whose window is not the resolved window,
+ * each as a typed failure; never defaults, coerces, or transposes to force a fit. A request without
+ * a carry-in has no `carryIn` field at all, so it serializes exactly as a first-release request.
  */
+// @spec-link [[rule_no_carry_in_output_matches_v1]]
 // @spec-link [[service_generation_request_resolution]]
 export function makeGenerationRequest(input: GenerationRequestInput): GenerationRequest {
   if (input.measureCount !== PHRASE_MEASURE_COUNT) {
@@ -161,6 +169,18 @@ export function makeGenerationRequest(input: GenerationRequestInput): Generation
     )
   }
 
+  const carried = input.carryIn?.registerWindow
+  if (
+    carried !== undefined &&
+    (carried.minMidi !== input.registerWindow.minMidi ||
+      carried.maxMidi !== input.registerWindow.maxMidi)
+  ) {
+    throw new GenerationRequestError(
+      `Resolved register window ${input.registerWindow.minMidi}-${input.registerWindow.maxMidi} is not ` +
+        `the carried window ${carried.minMidi}-${carried.maxMidi}.`,
+    )
+  }
+
   return deepFreeze({
     requestId: input.requestId,
     seed: input.seed,
@@ -169,6 +189,7 @@ export function makeGenerationRequest(input: GenerationRequestInput): Generation
     activeConcertRange: input.activeConcertRange,
     register: input.register,
     registerWindow: input.registerWindow,
+    ...(input.carryIn === undefined ? {} : { carryIn: input.carryIn }),
   })
 }
 
@@ -180,6 +201,7 @@ const GENERATION_REQUEST_ALLOWED_KEYS = new Set([
   'activeConcertRange',
   'register',
   'registerWindow',
+  'carryIn',
 ])
 
 const CONCERT_RANGE_ALLOWED_KEYS = new Set(['kind', 'minMidi', 'maxMidi'])
@@ -318,6 +340,7 @@ export function parseGenerationRequest(input: unknown): GenerationRequest {
   const activeConcertRange = parseActiveConcertRange(record.activeConcertRange)
   const register = parseResolvedRegisterId(record.register)
   const registerWindow = parseRegisterWindow(record.registerWindow)
+  const carryIn = 'carryIn' in record ? parseRequestCarryIn(record.carryIn) : undefined
 
   return makeGenerationRequest({
     requestId,
@@ -327,5 +350,17 @@ export function parseGenerationRequest(input: unknown): GenerationRequest {
     activeConcertRange,
     register,
     registerWindow,
+    ...(carryIn === undefined ? {} : { carryIn }),
   })
+}
+
+/** Intent: parse an untrusted request carry-in, reporting any fault as a GenerationRequestError. */
+function parseRequestCarryIn(input: unknown): CarryIn {
+  try {
+    return parseCarryIn(input)
+  } catch (error) {
+    throw new GenerationRequestError(
+      `GenerationRequest.carryIn is invalid: ${(error as Error).message}`,
+    )
+  }
 }

@@ -1,5 +1,7 @@
 import type { Leapiness } from '../../controls/generation-controls'
-import type { PhraseFacts, PitchValidationFailure, SoundingFact } from './pitch-validation-types'
+import { recoveryLandsOn } from '../../generation/carry-in/phrase-ending-debt'
+import { finalRecoveryMayStayOwed, joinLead, type MotionFact } from './join-rules'
+import type { PhraseFacts, PitchValidationFailure } from './pitch-validation-types'
 
 interface LeapinessRule {
   readonly maxInterval: number
@@ -60,14 +62,14 @@ interface ArpeggioRun {
 }
 
 /** Signed interval arriving at attack `index + 1`. */
-function intervalAfter(attacks: readonly SoundingFact[], index: number): number {
+function intervalAfter(attacks: readonly MotionFact[], index: number): number {
   return attacks[index + 1]!.midi - attacks[index]!.midi
 }
 
 /** Enforce the adjacent-interval cap and the phrase leap budgets, reporting where each is broken. */
 // @spec-link [[rule_leapiness_arpeggio_run_limits]]
 function intervalFailures(
-  attacks: readonly SoundingFact[],
+  attacks: readonly MotionFact[],
   rule: LeapinessRule,
 ): PitchValidationFailure[] {
   const failures: PitchValidationFailure[] = []
@@ -86,18 +88,23 @@ function intervalFailures(
 }
 
 /** True when three attacks starting at `first` are chord tones of one unchanged harmony. */
-function recognizable(attacks: readonly SoundingFact[], first: number): boolean {
+function recognizable(attacks: readonly MotionFact[], first: number): boolean {
   const notes = attacks.slice(first, first + 3)
   return notes.every((note) => note.chordTone && note.harmony === notes[0]!.harmony)
 }
 
 /**
- * Split the phrase into maximal chains of same-direction intervals of at least a skip. A chain of
+ * Split the line into maximal chains of same-direction intervals of at least a skip. A chain of
  * one interval is ordinary motion, two intervals must form a recognized run, and three or more are
- * always invalid.
+ * always invalid. `carriedDirection` is the direction of a chain already open when the line's
+ * first note sounds (arriving at a carried pitch): a first chain continuing it counts that earlier
+ * interval too, and since it spans the join it can never be a recognized run.
  */
 // @spec-link [[rule_leapiness_arpeggio_run_limits]]
-function wideChains(attacks: readonly SoundingFact[]): {
+function wideChains(
+  attacks: readonly MotionFact[],
+  carriedDirection: -1 | 0 | 1,
+): {
   readonly runs: readonly ArpeggioRun[]
   readonly failures: readonly PitchValidationFailure[]
 } {
@@ -113,11 +120,13 @@ function wideChains(attacks: readonly SoundingFact[]): {
       Math.sign(intervalAfter(attacks, index + length)) === direction
     )
       length += 1
-    if (length >= 3) failures.push({ code: 'wide_chain_too_long', attackIndex: index + 3 })
-    else if (length === 2 && recognizable(attacks, index))
+    const carried = index === 0 && length > 0 && direction === carriedDirection ? 1 : 0
+    const total = length + carried
+    if (total >= 3) failures.push({ code: 'wide_chain_too_long', attackIndex: index + 3 - carried })
+    else if (total === 2 && carried === 0 && recognizable(attacks, index))
       runs.push({ first: index, direction: direction as -1 | 1 })
-    else if (length === 2)
-      failures.push({ code: 'unrecognized_wide_chain', attackIndex: index + 2 })
+    else if (total === 2)
+      failures.push({ code: 'unrecognized_wide_chain', attackIndex: index + 2 - carried })
     index += Math.max(length, 1)
   }
   return { runs, failures }
@@ -126,7 +135,7 @@ function wideChains(attacks: readonly SoundingFact[]): {
 /** Enforce phrase and per-measure recognized-run ceilings; a run belongs to its first note's bar. */
 // @spec-link [[rule_leapiness_arpeggio_run_limits]]
 function runBudgetFailures(
-  attacks: readonly SoundingFact[],
+  attacks: readonly MotionFact[],
   runs: readonly ArpeggioRun[],
   rule: LeapinessRule,
 ): PitchValidationFailure[] {
@@ -144,13 +153,15 @@ function runBudgetFailures(
 /**
  * Every large leap owes an opposite-direction move of 1-4 semitones on the next interval. Where
  * the level permits deferral, a large leap inside a recognized run owes it on the interval after
- * the run's final note instead. A debt still open at the final attack is a failure.
+ * the run's final note instead. A debt still open at the final attack is a failure, unless the
+ * phrase may end owing a recovery (`mayStayOwed`) that its next phrase can repay.
  */
 // @spec-link [[rule_leap_recovery]]
 function recoveryFailures(
-  attacks: readonly SoundingFact[],
+  attacks: readonly MotionFact[],
   runs: readonly ArpeggioRun[],
   rule: LeapinessRule,
+  mayStayOwed: (finalMidi: number, leapDirection: -1 | 1) => boolean,
 ): PitchValidationFailure[] {
   const failures: PitchValidationFailure[] = []
   for (let index = 0; index + 1 < attacks.length; index += 1) {
@@ -160,6 +171,8 @@ function recoveryFailures(
       ? runs.find((candidate) => candidate.first <= index && index <= candidate.first + 1)
       : undefined
     const due = run ? run.first + 2 : index + 1
+    if (due === attacks.length - 1 && mayStayOwed(attacks[due]!.midi, Math.sign(leap) as -1 | 1))
+      continue
     const recovery = due + 1 < attacks.length ? intervalAfter(attacks, due) : 0
     const recovered =
       Math.sign(recovery) === -Math.sign(leap) && Math.abs(recovery) >= 1 && Math.abs(recovery) <= 4
@@ -168,16 +181,46 @@ function recoveryFailures(
   return failures
 }
 
-/** Validate interval caps, leap budgets, recognized runs, and recovery debts for the phrase. */
+/** A recovery the carried pitch still owes must be repaid by the line's first interval. */
+// @spec-link [[rule_join_inherits_leap_recovery]]
+function owedRecoveryFailures(
+  line: readonly MotionFact[],
+  owedLeapDirection: -1 | 1 | undefined,
+): PitchValidationFailure[] {
+  if (owedLeapDirection === undefined || line.length < 2) return []
+  return recoveryLandsOn(line[0]!.midi, line[1]!.midi, owedLeapDirection)
+    ? []
+    : [{ code: 'unrecovered_large_leap', attackIndex: 1 }]
+}
+
+/**
+ * Validate interval caps, leap budgets, recognized runs, and recovery debts for the phrase. With a
+ * carry-in the carried pitch leads the line as the note before the first attack, so the join is
+ * judged by the same rules as the phrase's inside (its interval counts in the phrase's budgets),
+ * a chain arriving at the carried pitch stays open, and a recovery it owes falls due on the first
+ * attack. Failures are reported at phrase attack indices; the join interval is attack 0.
+ */
 // @spec-link [[rule_leap_recovery]]
 // @spec-link [[rule_leapiness_arpeggio_run_limits]]
+// @spec-link [[rule_join_interval_obeys_phrase_rules]]
 export function motionFailures(facts: PhraseFacts): readonly PitchValidationFailure[] {
   const rule = LEAPINESS_RULES[facts.context.policy.leapiness]
-  const { runs, failures: chainFailures } = wideChains(facts.attacks)
-  return [
-    ...intervalFailures(facts.attacks, rule),
+  const lead = joinLead(facts)
+  const line: readonly MotionFact[] = lead ? [lead.note, ...facts.attacks] : facts.attacks
+  const offset = lead ? 1 : 0
+  const { runs, failures: chainFailures } = wideChains(line, lead?.chainDirection ?? 0)
+  const failures = [
+    ...intervalFailures(line, rule),
     ...chainFailures,
-    ...runBudgetFailures(facts.attacks, runs, rule),
-    ...recoveryFailures(facts.attacks, runs, rule),
+    ...runBudgetFailures(line, runs, rule),
+    ...recoveryFailures(line, runs, rule, (finalMidi, direction) =>
+      finalRecoveryMayStayOwed(facts, finalMidi, direction),
+    ),
+    ...owedRecoveryFailures(line, lead?.owedLeapDirection),
   ]
+  return failures.map((failure) =>
+    failure.attackIndex === undefined
+      ? failure
+      : { ...failure, attackIndex: failure.attackIndex - offset },
+  )
 }

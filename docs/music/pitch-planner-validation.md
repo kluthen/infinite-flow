@@ -137,7 +137,7 @@ Validation reconstructs facts from the immutable result rather than trusting pla
 - every tie repeats pitch and remains legal across harmony;
 - contour checkpoints, leap caps/budgets, recovery debts, and arpeggio-run limits pass;
 - every scheduled local tension resolves before the final sounding event;
-- final sounding pitch/harmony satisfy [open-ending policy](harmony-planner-policy.md#open-ending);
+- final sounding pitch/harmony satisfy [open-ending policy](harmony-planner-policy.md#open-ending), except the settleable debt a phrase generated with carry-in may leave (see [joins between session phrases](#joins-between-session-phrases-v2));
 - same outer intent and seed reproduce successful-window set, resolved core request/register, harmony/rhythm iteration, pitch tie keys, timeline, annotations, and failure if any.
 
 The pitch-phrase validator applies these readings, and the planner must match them:
@@ -150,6 +150,45 @@ The pitch-phrase validator applies these readings, and the planner must match th
 - Harmony is located by absolute beat. A sounding attack that no harmony event covers is a planner defect, not a validation failure.
 
 Tests should include boundary MIDI values for all adopted windows, every collection/profile/contour/leapiness combination in representative seed matrices, and regression seeds for every discovered failure. Include Varying fixtures for every successful-window subset, no-success, and search-limit indeterminacy. Statistical musical quality is not an invariant: evaluate template weights, candidate variety, and control perceptibility in listening tests.
+
+## Joins between session phrases (v2)
+
+In a session, each phrase after the first is generated with a **carry-in** from the phrase before:
+its last sounding pitch with its leap state (the interval that arrived at it, and any large-leap
+recovery it still owes), its resolved register window, its final chord with that chord's role and
+endpoint class, and its ordinal. A phrase generated without carry-in (the Idle phrase that becomes
+phrase 1, the failure ladder's standalone phrase) is exactly the first-release phrase for its
+request and seed, and owes nothing at its end.
+
+- **The carried pitch is the note before beat 1.** The first interval meets the leapiness cap and
+  counts in the new phrase's leap budget. A chain of skips or leaps arriving at the carried pitch
+  stays open, so continuing it across the join in the same direction is invalid: a chain that
+  spans the join always spans a harmony change and can never be a recognized run. Tension figures
+  stay inside one phrase: the carried pitch never prepares a non-chord tone of the new phrase, so
+  the first attack is a chord tone (or a Jazz ornament member), as in the first release.
+- **The register window is carried.** `Varying` is resolved once, for phrase 1, and every later
+  phrase is searched in that one window. A fixed register must carry its own window.
+- **The harmony starts from the carried chord.** Every template opens on the collection's tonic
+  (degree 1), so the join always moves from the degree-5 open arrival (tonal gentle and active
+  motion) or the tonic area (static and modal harmony) to the tonic. The carried chord must be one
+  the same settings end a phrase on.
+- **A phrase generated with carry-in may end owing** (owner's decision): the recovery of a large
+  leap into its final note, or a tense final note (a scale tone outside the final chord, reached
+  by a collection step). It may end owing only what the next phrase can settle inside the carried
+  window: a tone of the tonic triad 1-4 semitones back against the leap, or a tonic-triad tone one
+  collection step from the tense note. When it ends on a tense note, that note replaces the open
+  endpoint chord tone; the phrase still never closes on the tonic.
+- **The next phrase settles the debt on its first note, never later.** An owed recovery is repaid
+  by the first interval (opposite direction, 1-4 semitones). A tense carried note is resolved by
+  the first note: a collection step onto a tone of the first chord.
+- **A join made without carry-in settles nothing.** The standalone phrase and a repeated phrase
+  are not held to any of these rules, and a debt the phrase before left owing is simply dropped.
+
+The independent validator reads the carry-in from the resolved request and applies the same
+interval, chain, budget, recovery and resolution rules to the join, reporting a join failure at
+attack 0. The ending allowance is decided in one place,
+`src/domain/generation/carry-in/phrase-ending-debt.ts`, which the planner and the validator both
+read.
 
 ## Calibration questions
 

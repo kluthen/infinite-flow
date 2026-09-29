@@ -10,7 +10,7 @@ import type { ConcreteTensionBinding, PitchPolicy } from '../pitch-types'
  */
 // @spec-link [[module_pitch_domain_validation]]
 export interface PitchValidationContext {
-  readonly request: Pick<GenerationRequest, 'activeConcertRange' | 'registerWindow'>
+  readonly request: Pick<GenerationRequest, 'activeConcertRange' | 'registerWindow' | 'carryIn'>
   readonly policy: Pick<
     PitchPolicy,
     'profile' | 'collection' | 'tonalCenter' | 'contour' | 'leapiness' | 'capabilities'
@@ -35,6 +35,7 @@ export const PITCH_VALIDATION_CODES = [
   'invalid_chromatic_ornament',
   'tension_binding_invalid',
   'tension_figure_invalid',
+  'carried_tension_unresolved',
   'interval_cap_exceeded',
   'leap_budget_exceeded',
   'large_leap_budget_exceeded',

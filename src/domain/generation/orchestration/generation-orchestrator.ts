@@ -12,6 +12,7 @@
 
 import { deepFreeze } from '../../events/deep-freeze'
 import { makeHarmonyCandidateDomain, isNoLegalHarmonyPlan } from '../../harmony/harmony-planner'
+import { candidatesFollowingCarriedHarmony } from '../../harmony/harmony-join'
 import type { HarmonyCandidate, HarmonyPlanResult } from '../../harmony/harmony-types'
 import { isNoLegalRhythmPlan } from '../../rhythm/rhythm-planner'
 import type { RegisterId } from '../../profile/register-id'
@@ -32,7 +33,11 @@ import type {
   GenerationSearchPolicy,
   WindowDiagnostics,
 } from './orchestration-types'
-import { resolveCoreRequests, selectVaryingRegister } from './request-resolution'
+import {
+  resolveCoreRequests,
+  searchesVaryingWindows,
+  selectVaryingRegister,
+} from './request-resolution'
 import { GENERATION_SEARCH_POLICY_V1 } from './search-ledger'
 import {
   DEFAULT_WINDOW_SEARCH_DEPS,
@@ -147,19 +152,20 @@ function chooseSuccess(
   intent: GenerationIntent,
   successes: readonly Extract<WindowSearchReport['outcome'], { kind: 'window_success' }>[],
 ): Extract<WindowSearchReport['outcome'], { kind: 'window_success' }> {
-  if (intent.registerIntent.requestedRegister !== 'Varying') return successes[0]!
+  if (!searchesVaryingWindows(intent)) return successes[0]!
   const successfulRegisters = successes.map((success) => success.request.register)
   const selected = selectVaryingRegister(intent, successfulRegisters)
   return successes.find((success) => success.request.register === selected)!
 }
 
-/** Intent: the typed no-selection failure code, distinct for a fixed intent versus Varying. */
+/**
+ * Intent: the typed no-selection failure code, distinct for one resolved window (a fixed register,
+ * or any intent with a carry-in) versus a Varying search over every window.
+ */
 function noSelectionFailureCode(
   intent: GenerationIntent,
 ): 'no_legal_pitch_plan' | 'no_eligible_register_window' {
-  return intent.registerIntent.requestedRegister === 'Varying'
-    ? 'no_eligible_register_window'
-    : 'no_legal_pitch_plan'
+  return searchesVaryingWindows(intent) ? 'no_eligible_register_window' : 'no_legal_pitch_plan'
 }
 
 /**
@@ -180,6 +186,7 @@ function resolveOutcomeKind(
  * Intent: generate one four-measure phrase for one outer GenerationIntent: expand and rank the
  * structural harmony and rhythm domains once, resolve the intent's one-or-three core requests,
  * search every window independently, and resolve the documented outcome precedence among them.
+ * With a carry-in, the harmony starts from the carried chord and the one carried window is searched.
  * `options.searchPolicy`/`options.deps` default to the production search policy and collaborators;
  * only these injectable collaborators are defaulted, never any domain data derived from `intent`.
  */
@@ -212,7 +219,11 @@ export function generatePhrase(
     return deepFreeze(outcome)
   }
 
-  const rankedHarmony = rankHarmonyCandidates(harmonyDomain.candidates, intent.seed)
+  const harmonyCandidates =
+    intent.carryIn === undefined
+      ? harmonyDomain.candidates
+      : candidatesFollowingCarriedHarmony(harmonyDomain, intent.carryIn.finalHarmony)
+  const rankedHarmony = rankHarmonyCandidates(harmonyCandidates, intent.seed)
   const rankedRhythm = rankMaterializedRhythmCandidates(
     rhythmDomain.grammarVersion,
     rhythmDomain.candidates,

@@ -2,6 +2,7 @@ import { deepFreeze } from '../../events/deep-freeze'
 import type { PitchPhrase } from '../pitch-types'
 import { contourFailures, endpointFailures } from './contour-endpoint-rules'
 import { figureFailures } from './figure-rules'
+import { carriedTensionFailures } from './join-rules'
 import { motionFailures } from './motion-rules'
 import { reconstructPhraseFacts, soundingSpans } from './phrase-facts'
 import {
@@ -37,7 +38,8 @@ function ordered(failures: readonly PitchValidationFailure[]): readonly PitchVal
 
 /**
  * Validate one MIDI value per sounding attack against the bound rhythm, harmony, request, policy,
- * and tension binding. Every fact is reconstructed here; nothing is repaired, reranked, or chosen.
+ * and tension binding, and, with a carry-in, the join from the carried pitch. Every fact is
+ * reconstructed here; nothing is repaired, reranked, or chosen.
  */
 // @spec-link [[module_pitch_domain_validation]]
 export function validatePitchMidis(
@@ -57,6 +59,7 @@ export function validatePitchMidis(
   const failures = [
     ...rangeFailures(facts),
     ...figureFailures(facts),
+    ...carriedTensionFailures(facts),
     ...motionFailures(facts),
     ...contourFailures(facts),
     ...endpointFailures(facts),

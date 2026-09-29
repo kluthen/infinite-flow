@@ -45,6 +45,11 @@ export interface FigureStep {
   readonly prior?: PitchNoteFacts
   readonly note: PitchNoteFacts
   readonly candidate: PitchCandidate
+  /**
+   * True on the final attack of a phrase that may end owing a tense note's resolution: a prepared
+   * free tone may then end the phrase, its resolution owed to the next phrase's first note.
+   */
+  readonly mayOweResolution?: boolean
 }
 
 /** Initial figure state; a phrase without a bound figure starts already fulfilled. */
@@ -162,7 +167,11 @@ export function advanceFigure(state: FigureState, step: FigureStep): FigureResul
   } else if (opensPath) return reject('figure_overlap')
   else if (!reservation && !step.note.chordTone) {
     const prior = step.prior
-    if (step.isFinal || !prior || !collectionStep(prior, step.note))
+    if (
+      (step.isFinal && step.mayOweResolution !== true) ||
+      !prior ||
+      !collectionStep(prior, step.note)
+    )
       return reject('free_tone_unprepared')
     free = { before: prior, midi: step.note.midi }
   }
@@ -180,6 +189,16 @@ export function advanceFigure(state: FigureState, step: FigureStep): FigureResul
 // @spec-link [[entity_pitch_candidate_domain]]
 export function figureSettled(state: FigureState): boolean {
   return !state.path && !state.free && state.boundFulfilled
+}
+
+/**
+ * True when the only thing left open is the free tone sounding as the final note: no figure path,
+ * the bound figure realized, and a free obligation on exactly `finalMidi`. That is a tense ending
+ * whose resolution the next phrase owes.
+ */
+// @spec-link [[rule_join_tense_note_resolution]]
+export function figureOwesOnlyFinalResolution(state: FigureState, finalMidi: number): boolean {
+  return !state.path && state.boundFulfilled && state.free?.midi === finalMidi
 }
 
 /** The MIDI value the active path requires next, if any; lets search skip certain rejections. */

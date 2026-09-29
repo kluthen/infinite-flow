@@ -296,6 +296,24 @@ engraving on the main thread: no audio, MIDI or other session work was running.
 379.1 ms (under 500 ms), warm p95 44.8 ms in Node (under 250 ms) and the Chromium worst-case cold
 1.44 s (under 2 s), so the v1 budget below still passes here.
 
+### Chunk 7 reference run (2026-09-29)
+
+One `npm run measure:latency` run on 2026-09-29, after the generator learned to continue from the
+phrase before (carry-in). The harness generates without carry-in, the path whose output is
+byte-identical to v1, so it measures that path only; generation with carry-in is not covered by
+it. Same kind of cloud container as the chunk 1 baseline (4 vCPU, Node v22.22.2), **shared with
+another chunk's work while it ran**: 1-minute load average 5.0 before and 2.7 after. Figures are
+for reference only and gate nothing (the owner's rule for virtual machines, above).
+
+| Node, 284 settings (ms) | median | p90   | p95   | max     |
+| ----------------------- | ------ | ----- | ----- | ------- |
+| Cold                    | 29.5   | 316.0 | 506.4 | 1,745.8 |
+| Warm                    | 3.6    | 23.7  | 35.4  | 206.6   |
+
+The same 40 settings fail fast with `no_legal_rhythm_plan`. 39 settings take longer than 250 ms
+cold and 5 longer than 1 s; no warm generation takes longer than 250 ms. The slowest cold setting
+is again Sixteenth / Heavily varied / Sparse / Active displacement / Edge.
+
 ## Measured results (Node, v2 catalog, reference machine)
 
 Measured on the reference machine on branch `iss004-rhythmic-variety` (fix round 1), machine load

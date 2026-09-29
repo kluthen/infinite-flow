@@ -16,6 +16,7 @@ import type { MeasureEvent, NoteEvent } from '../events/measure-event'
 import { WHOLE_NOTE, compareRational, sumRational, type Rational } from '../time/rational'
 import { NonIntegerTickError, sixteenthTicksOf } from '../time/ticks'
 import { makeHarmonyCandidateDomain } from '../harmony/harmony-planner'
+import { harmonyJoinFollows } from '../harmony/harmony-join'
 import { validateRhythmCandidate } from '../rhythm/rhythm-validator'
 import type { RhythmBar, RhythmEvent } from '../rhythm/rhythm-types'
 import type { GenerationResultValidationFailure } from './generation-result-validator'
@@ -98,6 +99,37 @@ export function resolvedRequestFailures(
       detail: `requested=${requested} resolved=${request.register}`,
     })
 
+  return failures
+}
+
+/**
+ * A join made with carry-in: the intent and the resolved request must hold the same carry-in (or
+ * neither one), the resolved window must be the carried window, and the phrase's harmony must
+ * start from the carried chord, opening on the tonic.
+ */
+// @spec-link [[service_generation_result_validation]]
+// @spec-link [[rule_varying_register_once_per_session]]
+export function carryInFailures(
+  intent: GenerationIntent,
+  request: GenerationRequest,
+  provenance: GenerationProvenance,
+): readonly Failure[] {
+  if (JSON.stringify(intent.carryIn) !== JSON.stringify(request.carryIn))
+    return [{ code: 'carry_in_mismatch' }]
+  const carryIn = request.carryIn
+  if (carryIn === undefined) return []
+  const failures: Failure[] = []
+  const carried = carryIn.registerWindow
+  if (
+    request.registerWindow.minMidi !== carried.minMidi ||
+    request.registerWindow.maxMidi !== carried.maxMidi
+  )
+    failures.push({
+      code: 'carry_in_register_window_mismatch',
+      detail: `request=${request.registerWindow.minMidi}-${request.registerWindow.maxMidi} carried=${carried.minMidi}-${carried.maxMidi}`,
+    })
+  if (!harmonyJoinFollows(carryIn.finalHarmony, provenance.harmony))
+    failures.push({ code: 'harmony_join_invalid', detail: provenance.harmony.identity })
   return failures
 }
 

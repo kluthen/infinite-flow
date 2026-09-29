@@ -1,4 +1,5 @@
 import type { ConcertPitch } from '../events/concert-pitch'
+import { phraseEndingDebtAllowance } from '../generation/carry-in/phrase-ending-debt'
 import { deepFreeze } from '../events/deep-freeze'
 import { buildCandidateDomains } from './pitch-candidates'
 import { compileContourPlan } from './pitch-contour'
@@ -83,6 +84,18 @@ export function isOpenEndpointMidi(
   return input.harmony.events[attack.harmonyIndex]!.triad.degree === endpoint.degree
 }
 
+/**
+ * The carried pitch when it is a tense note: a pitch outside the carried final chord, which the
+ * new phrase's first attack must resolve.
+ */
+function carriedTenseMidi(input: BoundPitchPlannerInput): number | undefined {
+  const carryIn = input.request.carryIn
+  if (carryIn === undefined) return undefined
+  const pitchClass = ((carryIn.lastPitch.midi % 12) + 12) % 12
+  const chord = carryIn.finalHarmony.triad.pitchClasses as readonly number[]
+  return chord.includes(pitchClass) ? undefined : carryIn.lastPitch.midi
+}
+
 /** Distinct MIDI values of one candidate domain, in first-seen canonical order. */
 function distinctMidis(domain: readonly PitchCandidate[]): readonly ConcertPitch[] {
   return [...new Set(domain.map((candidate) => candidate.midi))]
@@ -90,8 +103,10 @@ function distinctMidis(domain: readonly PitchCandidate[]): readonly ConcertPitch
 
 /**
  * Compile every static fact once: attacks, canonical candidate domains, checkpoint domains, the
- * open-endpoint MIDI values, leapiness limits, and the contour suffix table. All search
- * transitions read only this immutable snapshot.
+ * MIDI values allowed on the final attack (open endpoints, and settleable tense endings when the
+ * phrase may end owing), leapiness limits, the contour suffix table, what the final note may owe,
+ * and a tense carried pitch the first attack must resolve. All search transitions read only this
+ * immutable snapshot.
  */
 // @spec-link [[module_pitch_search_context]]
 export function compilePitchSearchContext(input: BoundPitchPlannerInput): PitchSearchContext {
@@ -104,10 +119,15 @@ export function compilePitchSearchContext(input: BoundPitchPlannerInput): PitchS
   )
   const final = attacks.at(-1)
   const finalMidis = final
-    ? distinctMidis(candidateDomains[final.attackIndex]!).filter((midi) =>
-        isOpenEndpointMidi(input, final, midi, collection),
+    ? distinctMidis(
+        candidateDomains[final.attackIndex]!.filter(
+          (candidate) =>
+            (candidate.role === 'passing_or_neighbor' && candidate.reservation === undefined) ||
+            isOpenEndpointMidi(input, final, candidate.midi, collection),
+        ),
       )
     : []
+  const tenseMidi = carriedTenseMidi(input)
   const limits = LEAPINESS_LIMITS[input.policy.leapiness]
   const contourPlan = compileContourPlan({
     contour: input.policy.contour,
@@ -128,5 +148,7 @@ export function compilePitchSearchContext(input: BoundPitchPlannerInput): PitchS
     limits,
     contourPlan,
     finalMidis,
+    endingDebt: phraseEndingDebtAllowance(input.request.carryIn !== undefined),
+    ...(tenseMidi === undefined ? {} : { carriedTenseMidi: tenseMidi }),
   })
 }

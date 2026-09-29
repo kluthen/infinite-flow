@@ -175,6 +175,13 @@ UI (Vue components, props-in/events-out)
   and cached in a seed-independent memo, then ranked per seed), searches for a legal pitch
   assignment per candidate window (`window-search.ts`), and independently re-validates the
   assembled result (`validateGenerationResult`) before returning a `GenerationOutcome`.
+- **Continuing from the phrase before (carry-in).** A session phrase after the first is generated
+  from an intent carrying a `CarryIn` (`src/domain/generation/carry-in/`): the last sounding pitch
+  with its leap state, the register window, the final chord with its endpoint class, and the phrase
+  number, derived from the phrase before by `deriveCarryIn`. The pitch search starts from the
+  carried pitch, the harmony from the carried chord, and the one carried window is searched; the
+  join is validated like the inside of a phrase. Without a carry-in the output is byte-identical
+  to v1. See [joins between session phrases](docs/music/pitch-planner-validation.md#joins-between-session-phrases-v2).
 - **Notation.** A successful outcome's concert-pitch timeline is transformed into a `WrittenPhrase`
   for the selected display convention (Concert / B-flat / E-flat), then engraved by a lazily loaded
   VexFlow adapter (`src/notation/vexflow-engraver-loader.ts` is the sole static importer of the
