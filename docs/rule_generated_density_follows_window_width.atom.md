@@ -5,6 +5,7 @@ parents:
   - [[rule_sixteenth_unavailable_below_tablet_width]]
 priority: 1
 dependents:
+  - [[module_generation_control_catalog]]
   - [[rule_session_density_only_steps_down]]
 type: RULE
 layer: BUSINESS

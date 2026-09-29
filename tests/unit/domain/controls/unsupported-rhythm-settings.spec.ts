@@ -13,9 +13,12 @@ import {
   UNSUPPORTED_RHYTHM_SETTING_MESSAGE,
   UnsupportedRhythmSettingSuggestionError,
   describeRhythmSettingSuggestion,
+  generatedRhythmSetting,
+  isRhythmSettingBlocked,
   isUnsupportedRhythmSetting,
   suggestNearestSupportedRhythmChange,
 } from '@/domain/controls/unsupported-rhythm-settings'
+import type { NoteDensityContext } from '@/domain/controls/generated-note-density'
 import { isNoLegalRhythmPlan, makeRhythmCandidateDomain } from '@/domain/rhythm/rhythm-planner'
 
 // @test-link [[rule_unsupported_rhythm_settings_block_generation]]
@@ -222,5 +225,79 @@ describe('unsupported rhythm settings', () => {
         to: 'Occasional offbeats',
       }),
     ).toBe('Suggested change: Occasional offbeats instead of Active displacement.')
+  })
+})
+
+const WIDE: NoteDensityContext = { belowTabletLandscape: false, sessionSteppedDown: false }
+const NARROW: NoteDensityContext = { belowTabletLandscape: true, sessionSteppedDown: false }
+
+/** Intent: every chosen rhythm setting the four rhythm controls can form. */
+function everyRhythmSetting() {
+  return NOTE_DENSITIES.flatMap((noteDensity) =>
+    RHYTHMIC_VARIETIES.flatMap((rhythmicVariety) =>
+      SILENCE_DENSITIES.flatMap((silenceDensity) =>
+        SYNCOPATIONS.map((syncopation) => ({
+          noteDensity,
+          rhythmicVariety,
+          silenceDensity,
+          syncopation,
+        })),
+      ),
+    ),
+  )
+}
+
+// @test-link [[rule_unsupported_rhythm_settings_block_generation]]
+describe('unsupported rhythm settings judged on the density a phrase is generated with', () => {
+  const sixteenthEntries = UNSUPPORTED_RHYTHM_SETTINGS.filter(
+    (setting) => setting.noteDensity === 'Sixteenth',
+  )
+  const quarterEntries = UNSUPPORTED_RHYTHM_SETTINGS.filter(
+    (setting) => setting.noteDensity === 'Quarter',
+  )
+
+  it.each(sixteenthEntries)(
+    'blocks the Sixteenth combination %j from bp-tablet-landscape up and allows it below',
+    (setting) => {
+      expect(isRhythmSettingBlocked(setting, WIDE)).toBe(true)
+      expect(isRhythmSettingBlocked(setting, NARROW)).toBe(false)
+    },
+  )
+
+  it.each(quarterEntries)('blocks the Quarter combination %j at every width', (setting) => {
+    expect(isRhythmSettingBlocked(setting, WIDE)).toBe(true)
+    expect(isRhythmSettingBlocked(setting, NARROW)).toBe(true)
+  })
+
+  it('judges every chosen setting exactly as the list judges its generated setting', () => {
+    for (const setting of everyRhythmSetting())
+      for (const context of [WIDE, NARROW]) {
+        const generated = generatedRhythmSetting(setting, context)
+        expect(generated.noteDensity).toBe(
+          context.belowTabletLandscape && setting.noteDensity === 'Sixteenth'
+            ? 'Eighth'
+            : setting.noteDensity,
+        )
+        expect(isRhythmSettingBlocked(setting, context)).toBe(isUnsupportedRhythmSetting(generated))
+      }
+  })
+
+  // @test-link [[rule_session_density_only_steps_down]]
+  it('never blocks a chosen Sixteenth in a session that stepped down, whatever the width', () => {
+    for (const setting of everyRhythmSetting().filter((s) => s.noteDensity === 'Sixteenth'))
+      for (const belowTabletLandscape of [false, true])
+        expect(
+          isRhythmSettingBlocked(setting, { belowTabletLandscape, sessionSteppedDown: true }),
+        ).toBe(false)
+  })
+
+  it('never suggests Sixteenth for a combination blocked below bp-tablet-landscape', () => {
+    for (const setting of everyRhythmSetting()) {
+      if (!isRhythmSettingBlocked(setting, NARROW)) continue
+      const suggestion = suggestNearestSupportedRhythmChange(
+        generatedRhythmSetting(setting, NARROW),
+      )
+      expect(suggestion.to).not.toBe('Sixteenth')
+    }
   })
 })

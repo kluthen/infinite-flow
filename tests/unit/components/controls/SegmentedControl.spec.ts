@@ -101,4 +101,68 @@ describe('SegmentedControl', () => {
     expect(radios[1]!.attributes('tabindex')).toBe('0')
     expect(radios[0]!.attributes('tabindex')).toBe('-1')
   })
+
+  describe('an unavailable option', () => {
+    const WITH_DISABLED = [
+      { value: 'a', label: 'Option A' },
+      { value: 'b', label: 'Option B' },
+      { value: 'c', label: 'Option C', disabled: true, describedBy: 'c-note' },
+    ]
+
+    function mountWithDisabled(modelValue: string | null, readonly = false) {
+      return mount(SegmentedControl, {
+        props: { label: 'Test group', options: WITH_DISABLED, modelValue, readonly },
+        attachTo: document.body,
+      })
+    }
+
+    it('renders natively disabled and names its reason with aria-describedby', () => {
+      const radios = mountWithDisabled('a').findAll('[role="radio"]')
+      expect(radios[2]!.attributes('disabled')).toBeDefined()
+      expect(radios[2]!.attributes('aria-describedby')).toBe('c-note')
+      expect(radios[0]!.attributes('disabled')).toBeUndefined()
+      expect(radios[0]!.attributes('aria-describedby')).toBeUndefined()
+    })
+
+    it('never emits when clicked', async () => {
+      const wrapper = mountWithDisabled('a')
+      await wrapper.findAll('[role="radio"]')[2]!.trigger('click')
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+    })
+
+    it('is skipped by arrow-key selection in both directions', async () => {
+      const wrapper = mountWithDisabled('b')
+      const radios = wrapper.findAll('[role="radio"]')
+      await radios[1]!.trigger('keydown', { key: 'ArrowRight' })
+      expect(wrapper.emitted('update:modelValue')).toEqual([['a']])
+      expect(document.activeElement).toBe(radios[0]!.element)
+      await radios[0]!.trigger('keydown', { key: 'ArrowLeft' })
+      expect(wrapper.emitted('update:modelValue')![1]).toEqual(['b'])
+    })
+
+    it('is skipped by End, which lands on the last available option', async () => {
+      const wrapper = mountWithDisabled('a')
+      await wrapper.findAll('[role="radio"]')[0]!.trigger('keydown', { key: 'End' })
+      expect(wrapper.emitted('update:modelValue')).toEqual([['b']])
+    })
+
+    it('hands the roving tab stop back when the option holding it becomes unavailable', async () => {
+      const wrapper = mount(SegmentedControl, {
+        props: { label: 'Test group', options: OPTIONS, modelValue: 'a', readonly: true },
+        attachTo: document.body,
+      })
+      await wrapper.findAll('[role="radio"]')[1]!.trigger('keydown', { key: 'ArrowRight' })
+      expect(wrapper.findAll('[role="radio"]')[2]!.attributes('tabindex')).toBe('0')
+
+      await wrapper.setProps({ options: WITH_DISABLED })
+
+      const radios = wrapper.findAll('[role="radio"]')
+      expect(radios[2]!.attributes('tabindex')).toBe('-1')
+      expect(radios[0]!.attributes('tabindex')).toBe('0')
+    })
+
+    it('can never be the checked option', () => {
+      expect(() => mountWithDisabled('c')).toThrow(/unavailable option/)
+    })
+  })
 })

@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { createGenerationSession } from '@/composables/use-generation-session'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
+import { createFakeViewportWidth } from './fake-viewport-width'
 
 function createDeferred<T>() {
   let resolve: (value: T) => void = () => undefined
@@ -34,6 +35,7 @@ describe('createGenerationSession', () => {
     let calls = 0
     const { providers } = trackedProviders()
     const session = createGenerationSession({
+      viewport: createFakeViewportWidth(),
       providers,
       generate: async () => ++calls,
       notate: async () => undefined,
@@ -49,6 +51,7 @@ describe('createGenerationSession', () => {
     const deferred = createDeferred<string>()
     const tracked = trackedProviders()
     const session = createGenerationSession({
+      viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: () => deferred.promise,
       notate: async () => undefined,
@@ -77,6 +80,7 @@ describe('createGenerationSession', () => {
     const intents: { readonly id: string; readonly seed: number }[] = []
     let attempts = 0
     const session = createGenerationSession({
+      viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async (intent) => {
         intents.push({ id: intent.requestId, seed: intent.seed })
@@ -105,6 +109,7 @@ describe('createGenerationSession', () => {
     const intents: { readonly tempo: number }[] = []
     let attempts = 0
     const session = createGenerationSession({
+      viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async (intent) => {
         intents.push({ tempo: intent.controls.tempo })
@@ -128,6 +133,7 @@ describe('createGenerationSession', () => {
   it('marks the applied preset custom after a manual rhythmic-variety edit, the same as any other preset field', () => {
     const tracked = trackedProviders()
     const session = createGenerationSession({
+      viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async () => 'result',
       notate: async () => undefined,
@@ -147,6 +153,7 @@ describe('createGenerationSession', () => {
     const tracked = trackedProviders()
     let attempts = 0
     const session = createGenerationSession({
+      viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async () => {
         attempts += 1
@@ -172,6 +179,7 @@ describe('createGenerationSession', () => {
     const tracked = trackedProviders()
     let attempts = 0
     const session = createGenerationSession({
+      viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async () => {
         attempts += 1
@@ -207,6 +215,7 @@ describe('createGenerationSession', () => {
       readonly custom: boolean
     }[] = []
     const session = createGenerationSession({
+      viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async (intent) => {
         intents.push({
@@ -240,6 +249,7 @@ describe('createGenerationSession', () => {
     const notationCalls: { readonly result: string }[] = []
     let notationAttempts = 0
     const session = createGenerationSession({
+      viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async () => 'phrase',
       notate: async (result) => {
@@ -268,6 +278,7 @@ describe('createGenerationSession', () => {
     const notateCalls: { readonly result: unknown }[] = []
     let notationAttempts = 0
     const session = createGenerationSession({
+      viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async () => phrase,
       notate: async (result) => {
@@ -294,6 +305,7 @@ describe('createGenerationSession', () => {
     const tracked = trackedProviders()
     let notateCallIndex = 0
     const session = createGenerationSession({
+      viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       // The post-generation automatic engrave (call 1) fails immediately; the explicit
       // retryNotation call below (call 2) stays pending on the shared deferred.
@@ -335,6 +347,7 @@ describe('createGenerationSession', () => {
       const tracked = trackedProviders()
       let notateAttempts = 0
       const session = createGenerationSession({
+        viewport: createFakeViewportWidth(),
         providers: tracked.providers,
         generate: async () => 'phrase',
         notate: async () => {
@@ -363,6 +376,7 @@ describe('createGenerationSession', () => {
       const generation = createDeferred<string>()
       const notation = createDeferred<void>()
       const session = createGenerationSession({
+        viewport: createFakeViewportWidth(),
         providers: tracked.providers,
         generate: () => generation.promise,
         notate: () => notation.promise,
@@ -386,6 +400,7 @@ describe('createGenerationSession', () => {
       const generation = createDeferred<string>()
       let call = 0
       const session = createGenerationSession({
+        viewport: createFakeViewportWidth(),
         providers: tracked.providers,
         generate: async () => {
           call += 1
@@ -413,6 +428,7 @@ describe('createGenerationSession', () => {
       const tracked = trackedProviders()
       let call = 0
       const session = createGenerationSession({
+        viewport: createFakeViewportWidth(),
         providers: tracked.providers,
         generate: async () => {
           call += 1

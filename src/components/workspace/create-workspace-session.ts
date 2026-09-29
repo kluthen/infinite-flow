@@ -30,6 +30,8 @@ import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
 import { createGenerationWorkerClient } from '@/generation-worker/generation-worker-client'
+import type { ViewportWidthProvider } from '@/composables/viewport-width'
+import { createBrowserViewportWidth } from './browser-viewport-width'
 
 export interface WorkspaceSession {
   readonly session: GenerationSession<WorkspaceSessionResult>
@@ -40,13 +42,15 @@ export interface WorkspaceSession {
 }
 
 /**
- * The explicit dependency surface `composeWorkspaceSession` needs: identity/seed providers and
- * the raw orchestration-outcome `generate` seam (plus its teardown). Production supplies the
- * cryptographic seed provider and the real worker client; a harness supplies deterministic,
- * gated, or failure-injecting equivalents that still call through to the real worker.
+ * The explicit dependency surface `composeWorkspaceSession` needs: identity/seed providers, the
+ * window-width provider, and the raw orchestration-outcome `generate` seam (plus its teardown).
+ * Production supplies the cryptographic seed provider, the `matchMedia` width provider and the
+ * real worker client; a harness supplies deterministic, gated, or failure-injecting equivalents
+ * that still call through to the real worker.
  */
 export interface WorkspaceSessionDependencies {
   readonly providers: GenerationIntentProviders
+  readonly viewport: ViewportWidthProvider
   readonly generate: (intent: GenerationIntent) => Promise<GenerationOutcome>
   readonly dispose: () => void
 }
@@ -102,6 +106,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
 
   const created = createGenerationSession<WorkspaceSessionResult>({
     providers: deps.providers,
+    viewport: deps.viewport,
     generate: createWorkspaceGenerate(deps.generate),
     notate: coordinator.notate,
     clearPresentedPhrase: coordinator.clearPresentedPhrase,
@@ -113,13 +118,17 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     pendingPhrase: coordinator.pendingPhrase,
     handleEngraved: coordinator.handleEngraved,
     handleNotationError: coordinator.handleNotationError,
-    dispose: deps.dispose,
+    dispose: () => {
+      created.dispose()
+      deps.dispose()
+    },
   }
 }
 
 /**
  * Intent: build the root workspace session used by `App.vue` in production: a real worker-backed
- * generation seam, the cryptographic seed provider, and a monotonic request-id provider.
+ * generation seam, the cryptographic seed provider, a monotonic request-id provider, and the
+ * window's own `matchMedia` width provider.
  */
 // @spec-link [[service_workspace_session_flow]]
 export function createWorkspaceSession(): WorkspaceSession {
@@ -130,6 +139,7 @@ export function createWorkspaceSession(): WorkspaceSession {
       nextRequestId: createRequestIdProvider(),
       nextSeed: nextCryptoSeed,
     },
+    viewport: createBrowserViewportWidth(),
     generate: client.generate,
     dispose: client.dispose,
   })

@@ -18,7 +18,14 @@ function mountPanel(
   profileSelection: ProfileSelection = DEFAULT_PROFILE_SELECTION,
   readonly = false,
 ) {
-  return mount(ControlPanel, { props: { controls, profileSelection, readonly } })
+  return mount(ControlPanel, {
+    props: {
+      controls,
+      profileSelection,
+      readonly,
+      noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
+    },
+  })
 }
 
 describe('ControlPanel', () => {

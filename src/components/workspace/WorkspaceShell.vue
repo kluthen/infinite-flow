@@ -74,6 +74,7 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         :controls="state.controls"
         :profile-selection="state.profileSelection"
         :readonly="controlsReadonly"
+        :note-density-context="state.noteDensityContext"
         @set-control="handleSetControl"
         @select-instrument-profile="handleSelectInstrumentProfile"
         @select-musical-profile="handleSelectMusicalProfile"

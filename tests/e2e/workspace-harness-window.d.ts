@@ -27,6 +27,10 @@ interface WorkspaceHarnessSnapshot {
   readonly seed: number | null
   /** `JSON.stringify` of the latest result's concert-event timeline, or null with no result yet. */
   readonly timeline: string | null
+  /** The note density the player has chosen, kept as chosen whatever the window's width. */
+  readonly chosenNoteDensity: string
+  /** The note density the latest result was generated with (`Eighth` for a chosen `Sixteenth` below the tablet-landscape width), or null with no result yet. */
+  readonly generatedNoteDensity: string | null
 }
 
 interface WorkspaceHarnessApi {

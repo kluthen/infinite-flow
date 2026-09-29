@@ -10,7 +10,7 @@ import { computed } from 'vue'
 
 import type { GenerationSession, ThemePreference } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
-import { isUnsupportedRhythmSetting } from '@/domain/controls/unsupported-rhythm-settings'
+import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
 import ThemeControl from './ThemeControl.vue'
 
 const props = defineProps<{
@@ -42,7 +42,8 @@ const primaryActionLabel = computed(() => PRIMARY_ACTION_LABEL[primaryActionKind
 const operationRunning = computed(() => state.value.operation !== 'idle')
 
 /**
- * True while the current control combination cannot form a four-bar phrase. This blocks every
+ * True while the current control combination cannot form a four-bar phrase, judged on the note
+ * density a phrase would be generated with at the window's current width. This blocks every
  * phrase action except Retry notation: retrying the engraving of an already-generated phrase
  * replays that phrase's own stored request, so it never depends on the current rhythm-control
  * combination the way starting a new generation does.
@@ -51,7 +52,7 @@ const operationRunning = computed(() => state.value.operation !== 'idle')
 const blockedByUnsupportedRhythm = computed(
   () =>
     primaryActionKind.value !== 'retry-notation' &&
-    isUnsupportedRhythmSetting(state.value.controls),
+    isRhythmSettingBlocked(state.value.controls, state.value.noteDensityContext),
 )
 
 const primaryActionDisabled = computed(

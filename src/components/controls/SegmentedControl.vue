@@ -4,7 +4,9 @@
  * Props-in/events-out only: no session or domain import, no internal notion of which musical
  * catalog it renders. Supports one deliberate exception to "always has a selection": a null
  * `modelValue` renders the group with no checked segment (the custom musical-preset state), with
- * its first option acting as the roving tab stop until a selection exists.
+ * its first option acting as the roving tab stop until a selection exists. An option can be marked
+ * unavailable (`disabled`): natively disabled, named by the element that says why, never checked,
+ * and skipped by keyboard selection.
  */
 import { computed, ref, watch } from 'vue'
 
@@ -28,24 +30,60 @@ function indexForValue(value: string | null): number | null {
   if (index === -1) {
     throw new Error(`SegmentedControl "${props.label}" has no option for value "${value}".`)
   }
+  if (props.options[index]!.disabled === true) {
+    throw new Error(
+      `SegmentedControl "${props.label}" cannot check its unavailable option "${value}".`,
+    )
+  }
   return index
+}
+
+/** Intent: whether the option at `index` can take focus and be selected. */
+function isAvailable(index: number): boolean {
+  return props.options[index]?.disabled !== true
+}
+
+/**
+ * Intent: the nearest available option from `start`, stepping by `step` (+1 or -1) and wrapping,
+ * `start` included. Null only when no option is available.
+ */
+function nearestAvailable(start: number, step: 1 | -1): number | null {
+  const count = props.options.length
+  for (let offset = 0; offset < count; offset++) {
+    const index = (((start + step * offset) % count) + count) % count
+    if (isAvailable(index)) return index
+  }
+  return null
 }
 
 /** Intent: crash early on an unresolvable selection rather than rendering an inconsistent group. */
 const checkedIndex = computed(() => indexForValue(props.modelValue))
 
 /** Intent: track which option currently holds the roving tab stop, independent of selection. */
-const rovingIndex = ref(checkedIndex.value ?? 0)
+const rovingIndex = ref(checkedIndex.value ?? nearestAvailable(0, 1) ?? 0)
 
 watch(checkedIndex, (next) => {
-  rovingIndex.value = next ?? 0
+  rovingIndex.value = next ?? nearestAvailable(0, 1) ?? 0
 })
+
+/**
+ * Intent: an option that becomes unavailable while it holds the roving tab stop (reached by arrow
+ * keys while read-only) hands the stop back to the checked option, or the first available one, so
+ * the group never loses its only tabbable segment.
+ */
+watch(
+  () => props.options,
+  () => {
+    if (!isAvailable(rovingIndex.value))
+      rovingIndex.value = checkedIndex.value ?? nearestAvailable(0, 1) ?? 0
+  },
+)
 
 /** Intent: emit the selected value unless the group is read-only, in which case selection is inert. */
 function select(index: number): void {
   if (props.readonly) return
   const option = props.options[index]
-  if (!option) return
+  if (!option || option.disabled === true) return
   emit('update:modelValue', option.value)
 }
 
@@ -61,15 +99,18 @@ function handleClick(index: number): void {
   select(index)
 }
 
-/** Intent: roving-tabindex arrow/Home/End navigation that always moves focus, even when read-only. */
+/**
+ * Intent: roving-tabindex arrow/Home/End navigation that always moves focus, even when read-only,
+ * skipping unavailable options.
+ */
 function handleKeydown(event: KeyboardEvent, index: number): void {
-  const count = props.options.length
   let nextIndex: number | null = null
-  if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (index + 1) % count
+  if (event.key === 'ArrowRight' || event.key === 'ArrowDown')
+    nextIndex = nearestAvailable(index + 1, 1)
   else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp')
-    nextIndex = (index - 1 + count) % count
-  else if (event.key === 'Home') nextIndex = 0
-  else if (event.key === 'End') nextIndex = count - 1
+    nextIndex = nearestAvailable(index - 1, -1)
+  else if (event.key === 'Home') nextIndex = nearestAvailable(0, 1)
+  else if (event.key === 'End') nextIndex = nearestAvailable(props.options.length - 1, -1)
   if (nextIndex === null) return
   event.preventDefault()
   moveTo(nextIndex)
@@ -103,6 +144,8 @@ function focusOption(index: number): void {
       role="radio"
       :aria-checked="index === checkedIndex ? 'true' : 'false'"
       :tabindex="index === rovingIndex ? 0 : -1"
+      :disabled="option.disabled === true"
+      :aria-describedby="option.describedBy"
       @click="handleClick(index)"
       @keydown="handleKeydown($event, index)"
     >

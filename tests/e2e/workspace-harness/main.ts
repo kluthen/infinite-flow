@@ -18,8 +18,10 @@
  *   `vexflow-engraver-loader-seam.ts` for the real loader so PhraseScore's genuine `redraw()`
  *   catch/emit('notation-error') and Retry-notation path run end to end, never a fabricated result).
  *
- * The lazy VexFlow engraver, the real generation Worker, and real notation all run for real; only
- * randomness, timing, and fault injection are made deterministic.
+ * The lazy VexFlow engraver, the real generation Worker, real notation, and the real `matchMedia`
+ * window-width provider all run for real (a spec moves the window across `bp-tablet-landscape`
+ * with `page.setViewportSize`); only randomness, timing, and fault injection are made
+ * deterministic.
  */
 import { createApp } from 'vue'
 
@@ -40,6 +42,7 @@ import type {
 import { makeSeed, type Seed } from '../../../src/domain/random/seed'
 import { createBrowserGenerationWorker } from '../../../src/generation-worker/browser-generation-worker'
 import { createGenerationWorkerClient } from '../../../src/generation-worker/generation-worker-client'
+import { createBrowserViewportWidth } from '../../../src/components/workspace/browser-viewport-width'
 import { armNextNotationFailure } from './vexflow-engraver-loader-seam'
 
 /** Intent: a deterministic seed provider -- a spec-filled queue, falling back to a plain counter. */
@@ -130,6 +133,8 @@ function snapshot(): WorkspaceHarnessSnapshot {
     requestId: result === null ? null : result.intent.requestId,
     seed: result === null ? null : result.intent.seed,
     timeline: result === null ? null : JSON.stringify(result.outcome.result.timeline),
+    chosenNoteDensity: state.controls.noteDensity,
+    generatedNoteDensity: result === null ? null : result.intent.controls.noteDensity,
   }
 }
 
@@ -148,6 +153,7 @@ const app = createApp(App)
 app.provide(WORKSPACE_SESSION_FACTORY, () => {
   workspace = composeWorkspaceSession({
     providers: { nextRequestId: requestIdProvider, nextSeed: seedProvider.nextSeed },
+    viewport: createBrowserViewportWidth(),
     generate: harnessGenerate,
     dispose: client.dispose,
   })
