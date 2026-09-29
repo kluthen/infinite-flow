@@ -250,3 +250,26 @@ baselines are recorded on the same setup that checks them.
 
 The goldens hold literal values, never values recomputed by the code under test. They change only in
 a deliberate, reviewed step that bumps the version in their name.
+
+### Browser boundary fixtures
+
+`tests/fixtures/boundaries/src/` is laid out like `src/` but sits outside it, so the real lint run
+and boundary scan never see it. Each file makes one browser call. The two boundary checks read
+the tree as if it were `src/`:
+
+- `tests/unit/boundaries/verify-boundaries.spec.ts` runs `scanSourceBoundaries` from
+  `scripts/verify-boundaries.mjs` with this directory as its root;
+- `tests/unit/boundaries/eslint-boundaries.spec.ts` lints each file through the ESLint Node API
+  with the real `eslint.config.js`, as if it sat at `src/<same path>`.
+
+| Path (under `tests/fixtures/boundaries/src/`)         | What it holds                                                                       | Expected                            |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------- |
+| `audio/audio-context.ts`                              | `new AudioContext()`, `new OfflineAudioContext(…)`, `window.webkitAudioContext`     | Allowed                             |
+| `midi/audio-context.ts`, `other/audio-context.ts`     | The same three audio contexts                                                       | Rejected by both checks             |
+| `midi/midi-access.ts`                                 | `navigator.requestMIDIAccess()`                                                     | Allowed                             |
+| `audio/midi-access.ts`, `other/midi-access.ts`        | The same MIDI request                                                                | Rejected by both checks             |
+| `audio/network.ts`, `midi/network.ts`                 | A `fetch` POST to another origin                                                    | Rejected, even in these directories |
+| `audio/microphone.ts`, `midi/microphone.ts`           | `navigator.mediaDevices.getUserMedia({ audio: true })`                              | Rejected, even in these directories |
+| `audio/storage.ts`, `midi/storage.ts`                 | `localStorage.setItem(…)`                                                           | Rejected, even in these directories |
+
+The fixture files carry no ATD tags; the tests that read them do.

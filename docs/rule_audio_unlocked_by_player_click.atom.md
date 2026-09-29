@@ -9,7 +9,8 @@ parents:
   - [[req_rolling_practice_session]]
 layer: BUSINESS
 priority: 1
-dependents: []
+dependents:
+  - [[specification_browser_only_operation_verification]]
 ---
 
 # Audio Starts Only After a Player Click

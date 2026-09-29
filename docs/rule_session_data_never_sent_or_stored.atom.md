@@ -9,7 +9,8 @@ tags: [v2, release-v2.0, privacy, session]
 parents:
   - [[req_browser_only_first_release]]
   - [[rule_ephemeral_session_state]]
-dependents: []
+dependents:
+  - [[specification_browser_only_operation_verification]]
 type: RULE
 ---
 

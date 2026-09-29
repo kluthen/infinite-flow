@@ -97,7 +97,7 @@ chunks in different sections; the second to merge rebases on the first.
 | Wave | Chunks                                                                                                                                                                                                                                            | Waits for                                                                   |
 | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29)                                                                                                                                                                                           | Nothing                                                                     |
-| 1    | 2 Browser boundaries · 3 Notation layout v2 · 4 Note density on small screens · 7 Generator continuation · 14 Note acknowledgement · 18 MusicXML encoding · 19 Generated-notes MIDI encoding                                                    | Chunk 0 (done). Start chunk 3 first (see the caveat).                        |
+| 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 · 4 Note density on small screens · 7 Generator continuation · 14 Note acknowledgement · 18 MusicXML encoding · 19 Generated-notes MIDI encoding                                                    | Chunk 0 (done). Start chunk 3 first (see the caveat).                        |
 | 2    | 5 Idle fit retries and the room notice · 6 Note identity and session overlays · 8 Session engine · 10 Audio transport                                                                                                                             | Wave 1. Chunks 8 and 10 also need chunk 1's verdict.                        |
 | 3    | 9 Session history · 11 Backing · 12 MIDI input                                                                                                                                                                                                    | Wave 2                                                                      |
 | 4    | 15 Session screen: start and end                                                                                                                                                                                                                  | Wave 3                                                                      |
@@ -512,7 +512,13 @@ main-thread engraving against the scheduler.
 
 ### Chunk 2 — Browser boundaries
 
-**Release:** v2.0. **In progress since 2026-09-29** (worktree branch `v2-chunk-2`): ATD preflight running.
+**Release:** v2.0. **Done on 2026-09-29.** Audio contexts are allowed only under `src/audio/` and MIDI access only
+under `src/midi/`, in both checks, with a fixture tree proving each case. The absence spec asserts
+v2's rule. `specification_browser_only_operation_verification` is rewritten for v2; the chunk 0
+drift for this chunk is fixed. `npm run quality` passes but for the four known snapshots (see
+[chunk 1](#chunk-1--baseline-checks)). Left for the owner: a stale note in
+`rule_optional_midi_privacy`, which is a business atom, and a business rule for the microphone
+ban, which only the vision states today.
 
 **Goal.** Let Web Audio and Web MIDI into the code, in named places only, before any audio or MIDI
 code lands. Everything else v1 forbids stays forbidden: browser storage, network calls, the

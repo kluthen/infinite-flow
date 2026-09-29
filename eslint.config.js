@@ -4,6 +4,9 @@ import vue from 'eslint-plugin-vue'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
+// @spec-link [[rule_ephemeral_session_state]]
+// @spec-link [[specification_ephemeral_state_verification]]
+// @spec-link [[rule_session_data_never_sent_or_stored]]
 const forbiddenPersistenceApis = [
   { name: 'localStorage', message: 'Browser persistence is outside the ephemeral-state boundary.' },
   {
@@ -14,71 +17,98 @@ const forbiddenPersistenceApis = [
   { name: 'caches', message: 'The Cache API is not available to authored application code.' },
 ]
 
-// First release has no MIDI, audio playback/synthesis, microphone, or network/server coupling:
-// browser-only, no optional scope. Globals reachable as bare identifiers (and mirrored below as
-// window/globalThis/self properties); navigator/document-scoped members are listed separately
-// since they are never bare globals themselves.
-const forbiddenOptionalScopeGlobals = [
-  {
-    name: 'AudioContext',
-    message: 'Audio playback/synthesis is outside the browser-only, no-optional-scope boundary.',
-  },
-  {
-    name: 'webkitAudioContext',
-    message: 'Audio playback/synthesis is outside the browser-only, no-optional-scope boundary.',
-  },
-  {
-    name: 'OfflineAudioContext',
-    message: 'Audio playback/synthesis is outside the browser-only, no-optional-scope boundary.',
-  },
+// Globals no authored file may use, in any directory of src/: the network (the app is
+// browser-only, and session data is never sent anywhere) and media-element playback. Reachable as
+// bare identifiers, and mirrored below as window/globalThis/self properties.
+// @spec-link [[specification_browser_only_operation_verification]]
+// @spec-link [[rule_session_data_never_sent_or_stored]]
+// @spec-link [[rule_optional_midi_privacy]]
+const alwaysForbiddenGlobals = [
   {
     name: 'Audio',
-    message: 'Audio playback/synthesis is outside the browser-only, no-optional-scope boundary.',
+    message:
+      'Media-element playback is forbidden everywhere in src/; Web Audio lives under src/audio/.',
   },
-  {
-    name: 'fetch',
-    message: 'Network access is outside the browser-only, no-optional-scope boundary.',
-  },
-  {
-    name: 'XMLHttpRequest',
-    message: 'Network access is outside the browser-only, no-optional-scope boundary.',
-  },
-  {
-    name: 'WebSocket',
-    message: 'Network access is outside the browser-only, no-optional-scope boundary.',
-  },
-  {
-    name: 'EventSource',
-    message: 'Network access is outside the browser-only, no-optional-scope boundary.',
-  },
+  ...['fetch', 'XMLHttpRequest', 'WebSocket', 'EventSource'].map((name) => ({
+    name,
+    message: 'Network access is forbidden everywhere in src/: session data is never sent.',
+  })),
 ]
 
-const forbiddenOptionalScopeProperties = [
-  {
-    object: 'navigator',
-    property: 'requestMIDIAccess',
-    message: 'MIDI access is outside the browser-only, no-optional-scope boundary.',
-  },
+// navigator/document members no authored file may use, in any directory of src/: the
+// microphone/camera, the beacon network call and cookies. They are never bare globals themselves.
+// @spec-link [[specification_browser_only_operation_verification]]
+// @spec-link [[rule_session_data_never_sent_or_stored]]
+// @spec-link [[rule_optional_midi_privacy]]
+const alwaysForbiddenProperties = [
   {
     object: 'navigator',
     property: 'mediaDevices',
-    message: 'Microphone/camera access is outside the browser-only, no-optional-scope boundary.',
+    message: 'Microphone/camera access is forbidden everywhere in src/.',
   },
   {
     property: 'getUserMedia',
-    message: 'Microphone/camera access is outside the browser-only, no-optional-scope boundary.',
+    message: 'Microphone/camera access is forbidden everywhere in src/.',
   },
   {
     object: 'navigator',
     property: 'sendBeacon',
-    message: 'Network access is outside the browser-only, no-optional-scope boundary.',
+    message: 'Network access is forbidden everywhere in src/: session data is never sent.',
   },
   {
     object: 'document',
     property: 'cookie',
-    message: 'Cookies are outside the browser-only, no-optional-scope boundary.',
+    message: 'Cookies are forbidden everywhere in src/: session data is never stored.',
   },
 ]
+
+// Web Audio contexts: allowed only under src/audio/ (see the override block below). The live
+// AudioContext, its legacy webkitAudioContext name and OfflineAudioContext, which renders audio
+// off-line, count as one capability.
+// @spec-link [[specification_browser_only_operation_verification]]
+const audioContextGlobals = ['AudioContext', 'webkitAudioContext', 'OfflineAudioContext'].map(
+  (name) => ({ name, message: 'Web Audio contexts may be created only under src/audio/.' }),
+)
+
+// Web MIDI access: allowed only under src/midi/ (see the override block below). Matched on the
+// property name alone, so it is caught however navigator is reached.
+// @spec-link [[specification_browser_only_operation_verification]]
+const midiAccessProperties = [
+  {
+    property: 'requestMIDIAccess',
+    message: 'MIDI access may be requested only under src/midi/.',
+  },
+]
+
+/**
+ * Intent: the no-restricted-globals / no-restricted-properties rule pair for one part of src/,
+ * given the directory-scoped globals and properties still forbidden there. Persistence and the
+ * always-forbidden APIs are included everywhere.
+ *
+ * @param {{ name: string, message: string }[]} scopedGlobals
+ * @param {{ object?: string, property: string, message: string }[]} scopedProperties
+ */
+function boundaryRules(scopedGlobals, scopedProperties) {
+  const globalsFromWindow = [...alwaysForbiddenGlobals, ...scopedGlobals]
+  return {
+    'no-restricted-globals': ['error', ...forbiddenPersistenceApis, ...globalsFromWindow],
+    'no-restricted-properties': [
+      'error',
+      ...['window', 'globalThis'].flatMap((object) =>
+        forbiddenPersistenceApis.map(({ name, message }) => ({
+          object,
+          property: name,
+          message,
+        })),
+      ),
+      ...['window', 'globalThis', 'self'].flatMap((object) =>
+        globalsFromWindow.map(({ name, message }) => ({ object, property: name, message })),
+      ),
+      ...alwaysForbiddenProperties,
+      ...scopedProperties,
+    ],
+  }
+}
 
 export default [
   {
@@ -108,31 +138,19 @@ export default [
     languageOptions: {
       globals: globals.browser,
     },
-    rules: {
-      'no-restricted-globals': [
-        'error',
-        ...forbiddenPersistenceApis,
-        ...forbiddenOptionalScopeGlobals,
-      ],
-      'no-restricted-properties': [
-        'error',
-        ...['window', 'globalThis'].flatMap((object) =>
-          forbiddenPersistenceApis.map(({ name, message }) => ({
-            object,
-            property: name,
-            message,
-          })),
-        ),
-        ...['window', 'globalThis', 'self'].flatMap((object) =>
-          forbiddenOptionalScopeGlobals.map(({ name, message }) => ({
-            object,
-            property: name,
-            message,
-          })),
-        ),
-        ...forbiddenOptionalScopeProperties,
-      ],
-    },
+    rules: boundaryRules(audioContextGlobals, midiAccessProperties),
+  },
+  // src/audio/ may create Web Audio contexts; everything else stays forbidden there, MIDI included.
+  // @spec-link [[specification_browser_only_operation_verification]]
+  {
+    files: ['src/audio/**/*.{js,mjs,ts,vue}'],
+    rules: boundaryRules([], midiAccessProperties),
+  },
+  // src/midi/ may request MIDI access; everything else stays forbidden there, audio included.
+  // @spec-link [[specification_browser_only_operation_verification]]
+  {
+    files: ['src/midi/**/*.{js,mjs,ts,vue}'],
+    rules: boundaryRules(audioContextGlobals, []),
   },
   {
     files: ['tests/**/*.ts', 'playwright.config.ts', 'vitest.config.ts', 'scripts/**/*.mjs'],
