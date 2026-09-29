@@ -41,7 +41,9 @@ flowchart TD
   PICK -->|"Continue without a controller, Escape, backdrop, Close"| CLOSED
   REQ -->|"Escape, backdrop, Close"| CLOSED
   CHECK -->|"Escape, backdrop, Close"| CLOSED
-  CLOSED -->|Focus| SS[phrase-workspace Start/Stop button]
+  CLOSED -->|"Focus, Start session enabled"| SS[phrase-workspace session action]
+  CLOSED -->|"Focus, Start session disabled, phrase action enabled"| PA[phrase-workspace phrase action]
+  CLOSED -->|"Focus, both header actions disabled (Loading, unsupported rhythm)"| CS[phrase-workspace controller-status]
 ```
 
 ## Mid-session controller loss (never enters the sheet)
@@ -53,7 +55,7 @@ flowchart TD
   LOST -->|"Same device reattaches before zero"| RUN
   LOST -->|"Different device plugged in"| LOST
   LOST -->|Countdown reaches zero| END
-  LOST -->|"Stop, or tab hidden"| END
+  LOST -->|"Stop, tab hidden, or a window that can no longer show the staff"| END
 ```
 
 ## Between-session unplug (sheet closed; never enters the sheet)
@@ -113,8 +115,9 @@ flowchart TD
   controller and stays without one; the same device plugged back in during it is not reattached.
   The header keeps the no-controller badge, disabled. When the session ends, the device
   reattaches by itself if it is plugged in.
-- **Controller still away when a session ends** (countdown reached zero, Stop, or a
-  hidden tab): its selection carries into the Review, handled as unplugged between sessions.
+- **Controller still away when a session ends** (countdown reached zero, Stop, a hidden tab,
+  or a window that can no longer show the staff): its selection carries into the Review, handled
+  as unplugged between sessions.
 - `Unsupported browser` has no retry: nothing about asking again changes which browser is running.
 - `Requesting access` resolves on its own; while the browser's own permission prompt is waiting for
   an answer, it shows its waiting sub-state (see the screen handoff). If the sheet is closed while
@@ -130,7 +133,11 @@ flowchart TD
 - `Choose a different device` is present on **Connected** only when more than one input has been
   seen this page session.
 - Every dismiss path returns to the same place: the sheet closes, `phrase-workspace` is exactly as
-  it was, and focus moves to the workspace's Start/Stop button. The header element reflects
+  it was, and focus moves to the first enabled of, in order: the workspace's session action; the
+  phrase action (when `Start session` is disabled: an empty workspace, a generation-failure banner
+  showing, a notation error); `controller-status`, the element that opened the sheet (when both
+  are disabled: **Loading**, or an unsupported rhythm combination), which is always interactive
+  outside a session. The header element reflects
   whatever is current (unchanged if nothing was resolved, the connected badge if a device was
   selected before the dismiss).
 - A running session's controller loss is handled only on `screens/phrase-workspace/`: 30 seconds
@@ -138,4 +145,5 @@ flowchart TD
   and restarted from the reattachment; only the same device reattaches, automatically, with no
   check; at zero the session ends exactly like a silence timeout.
 - A session started with no controller (none ever connected, or the selected one away) stays
-  controller-less until it ends; only Stop (or a hidden tab) ends it.
+  controller-less until it ends; only Stop ends it, apart from a hidden tab or a window that can
+  no longer show the staff.

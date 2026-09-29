@@ -1,7 +1,8 @@
 # v3 — Player Material and "My Instrument"
 
 Status: direction (2026-09-25; review-tooling candidates added 2026-09-28, D128;
-session-keeping candidates added 2026-09-28, D129; favorites moved here from v2 2026-09-28, D130).
+session-keeping candidates added 2026-09-28, D129; favorites moved here from v2 2026-09-28, D130;
+a note on saving note density added 2026-09-28, D146).
 Not yet specced.
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
@@ -29,6 +30,9 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
 - **Local persistence (first in the product).**
   - This deliberately departs from v1's ephemeral sessions.
   - Data stays on the player's system: local storage, or a file export the player triggers.
+  - **Feeds from v2's narrow-window density rule (D146):** below the tablet-landscape width, v2
+    generates with `Eighth` while keeping a `Sixteenth` the player chose, in memory only. If v3
+    saves settings, it saves the chosen value, not the one generated with.
 - **Review of earlier sessions.**
   - This extends v2's last-session review through persistence.
   - Keeping played notes across sessions requires the player's explicit opt-in and a way to

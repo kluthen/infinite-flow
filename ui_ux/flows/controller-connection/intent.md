@@ -86,9 +86,15 @@ reconstruct that context; a sheet never leaves it. The sheet uses `--z-sheet`, t
 for an overlay above the workspace, distinct from `--z-alert`, which stays reserved for notices
 inside the workspace itself.
 
-When the sheet closes, focus goes to the workspace's Start/Stop button rather than back to the
-header element that opened it. A player who has just connected a controller is most likely about
-to play, and Start/Stop is the one control that matters then.
+When the sheet closes, focus goes to the workspace's session action, `Start session`, rather than
+back to the header element that opened it. A player who has just connected a controller is most
+likely about to play, and `Start session` is the one control that matters then. When `Start
+session` is disabled, as on an empty workspace or under a generation-failure message, focus goes
+to the phrase action instead: a disabled button cannot take focus, and generating or retrying the
+phrase is then the step that leads to playing. When both are disabled, while a phrase is still
+being generated or when the rhythm settings cannot form a phrase, focus goes back to the header
+element that opened the sheet, which is always usable between sessions: there is no next step to
+jump to yet, so the player lands where they started.
 
 ## Why only two connection states use the error tone
 
@@ -215,9 +221,10 @@ Two cases at the edge of a session follow the same logic:
   badge, disabled for the session. Once the session ends, the device reattaches by itself if it is
   plugged in by then.
 - **A controller still away when a session ends.** A controller unplugged during a
-  session and not back when the session ends (the countdown ran out, or the player stopped) keeps
-  its selection into the Review, like any controller unplugged between sessions: the header shows
-  the no-controller badge, and plugging the same device back in reattaches it by itself.
+  session and not back when the session ends (the countdown ran out, the player stopped, the tab
+  was hidden, or the window could no longer show the staff) keeps its selection into the Review,
+  like any controller unplugged between sessions: the header shows the no-controller badge, and
+  plugging the same device back in reattaches it by itself.
 
 ## A controller lost during a session
 
@@ -235,9 +242,11 @@ controller has gone would otherwise keep playing into silence and conclude the a
 listening. What changes:
 
 - A banner in the theme's error tone appears above the staff, with a live countdown: "Controller
-  disconnected — plug it back in to keep playing. Session ends in 23 s." It sits in space kept
-  free for it for the whole session, so it never pushes the staff or shifts what the player is
-  reading.
+  disconnected — plug it back in to keep playing. Session ends in 23 s." On a phone, where it
+  shares its row with a compact `Stop` and `Volume`, it reads "Controller disconnected. Session
+  ends in 23 s.", the obvious clause dropped so it still fits. It takes the session cue
+  row, which is always present at one fixed height, so it never pushes the staff or shifts what
+  the player is reading (see `flows/play-session/`).
 - The header badge switches to the same error tone, with the words "Controller disconnected".
 - The phrase keeps rolling at tempo — there is no pause state — and notes that fall due while the
   controller is away stay unlit, like any unplayed note.

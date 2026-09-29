@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.13
+Status: draft v0.22
 
 ## Status Snapshot
 
@@ -44,13 +44,103 @@ Status: draft v0.13
   The review has one export action for the generated notes (MusicXML or MIDI) and one for the
   played notes (MIDI), one file each. Favorites are v3 scope, to be settled there, and **O86**
   moves with them ([v3](versions/v3/README.md#favorites-v3-scope-to-be-settled)). P3's C1 is
-  served in v2 by looking back at the last session. The v2 master spec is now v1.7.
+  served in v2 by looking back at the last session. The v2 master spec became v1.7.
+- **Wake lock, count-in click, staff-only view (2026-09-28, D131–D133)**, from the owner via
+  `ux-writer`'s unit-2 session review (ux D72–D74). The app holds a screen wake lock for the whole
+  session and releases it at the end; a refused or missing lock is silent (D131). The count-in
+  always clicks, even with the click turned off (D132). A staff-only session view is placed in
+  v5, not v2 (D133, [v5+](versions/v5-plus/README.md#settled-direction)). Opened **O87** (the
+  lock dropped mid-session) and **O88** (the click volume during the count-in). The v2 master
+  spec became v1.8.
+- **Count-in volume (2026-09-28, D134)**, from the owner (ux D84). The count-in plays at the click
+  volume, and the click volume control never reaches silence: turning the click off is the on/off
+  switch's job alone, so the count-in is always audible. Closes **O88**. The v2 master spec became
+  v1.9.
+- **Session start and end (2026-09-28, D135–D137)**, from the owner via `ux-writer`'s play-session
+  decisions (ux D87, D89, D90). No session starts while a generation failure is being reported at
+  Idle, even over a kept phrase: the player regenerates successfully first (D135). A session ended
+  during the count-in goes back to Idle with phrase 1 on screen, with no review, and the previous
+  review is not restored (D136). The app asks for a landscape lock during a session (a refusal is
+  silent, and usually happens on a phone), and a phone or tablet turned to portrait ends the
+  session like Stop (D137). Opened **O89** (a portrait-shaped view without turning the device).
+  The v2 master spec became v1.10.
+- **When the staff can't be shown (2026-09-28, D138)**, from the owner (ux D94). A session ends
+  like Stop whenever the staff can no longer be shown: the view becomes portrait-shaped below the
+  desktop breakpoint, whether or not the device was turned, or the window gets too narrow for the
+  staff layout held since Start. Other viewport changes keep the session running. Closes **O89**;
+  opened **O90** (whether a session can start while the staff is not shown). The v2 master spec
+  became v1.11.
+- **When a session can start, and fitting the staff (2026-09-28, D139–D141)**, from the owner (ux
+  D98, D79, D93, D100). No session starts while the staff is not shown (D139, closes **O90**). The
+  master spec now lists every state in which no session starts at Idle: no phrase yet, a new
+  phrase being generated, a phrase that cannot be drawn, a generation failure being reported,
+  unsupported rhythm settings, the staff not shown; the starting note is named exactly when
+  playing it would start a session (D140). During a session a look-ahead phrase must fit the staff
+  layout held since Start, which the window's width alone fixes; one that does not fit is retried
+  like a failed generation, and repeated only when every attempt fails (D141). The v2 master spec
+  became v1.12.
+- **A window too short, and material waiting to be drawn (2026-09-28, D142–D143)**, from the owner
+  (ux D104, D105). Below the tablet-landscape width the staff must fit the window's height too,
+  with the session's cue row, measured with the browser's toolbars showing: if even its minimum
+  readable size cannot fit, no session starts and a running one ends like Stop (D142, extending
+  D138/D139). A change to the window's size during a session also re-checks the phrase material
+  already checked and waiting to be drawn, and ends the session like Stop if any of it no longer
+  fits, so a session never shows a notation error (D143). The v2 master spec became v1.13.
+- **Three changes to v1 at Idle (2026-09-28, D144–D146)**, from the owner (ux D107–D109). A staff
+  that cannot be shown for lack of space shows a plain notice with no retry action, not a notation
+  error (D144). A phrase whose notes do not fit a window with room for the staff is replaced with
+  the normal fresh-seed retries, as in a session, and the notice shows only when every retry fails
+  (D145). Below the tablet-landscape width the `Sixteenth` note density is unavailable: phrases
+  generate with `Eighth`, and a `Sixteenth` chosen while the window was wider is kept (D146).
+  Opened **O91** (the density when the window crosses that width, still proposed) and **O92**
+  (which phrase the notice keeps). The v2 master spec became v1.14.
+- **The density rule's crossings, and the notice clearing (2026-09-28, D147–D150)**, from the
+  owner (ux D110, ux D112). **O91 and O92 closed.** The density a phrase is generated with follows
+  the window's width when that phrase is generated, at Idle and in a session; a phrase on screen
+  or already checked is never regenerated for it (D147). Unsupported rhythm settings are judged
+  on that density, and a session that has generated with `Eighth` keeps it until it ends, so
+  v2.0 item 11 still holds mid-session (D148). When the "staff needs more room" notice clears, a
+  new phrase is always generated (D149, against O92's proposal). The v2.1 mutation flag treats
+  `Sixteenth` as unavailable below that width (D150). Opened **O93** (the mutation flag in a
+  session generating with `Eighth`) and **O94** (the notice clearing under unsupported rhythm
+  settings). The v2 master spec became v1.15.
+- **What clears the "needs more room" notice (2026-09-28, D151–D152)**, from the owner (ux D114,
+  ux D116). **O94 closed** with its proposal: when the notice clears while the rhythm combination
+  is unsupported, no phrase is shown, the unsupported-rhythm alert shows, and generation stays
+  blocked until the settings change (D151). When the notice shows because every retry was too
+  dense, a wider window, a changed setting or regenerating by hand starts a fresh round of
+  retries by itself; the first phrase that fits clears the notice, a failed round leaves it, and
+  a narrower window starts nothing. So the notice, whatever its cause, only ever gives way to a
+  new phrase (D152). ux D115 (the no-room sentence per breakpoint) is wording, left to the UI
+  documents. Opened **O95** (a change that should restart the retries landing on unsupported
+  rhythm settings). The v2 master spec became v1.16.
+- **Unsupported settings and a wider window under the notice (2026-09-28/29, D153–D154)**, from
+  the owner (ux D117, ux D118). **O95 closed** against its proposal, with the alternative it
+  named: while the notice shows because every retry was too dense, a change that makes the rhythm
+  combination unsupported starts no round, and the notice gives way to no phrase with the
+  unsupported-rhythm alert, as D151 does; nothing is generated by itself once the combination is
+  allowed again (D153). A phrase already on screen still stays when a rhythm setting makes the
+  combination unsupported, as in v1. A wider window while a round of retries runs starts
+  nothing: the round carries on, and if it fails the notice stays until the next change (D154).
+  The rest of ux D117 is UI-only. Opened **O96** (which note density a round's later attempts use
+  when the window crosses the tablet-landscape width during the round). The v2 master spec
+  became v1.17.
+- **A crossing during a round, and a phrase that stops fitting under unsupported settings
+  (2026-09-29, D155–D156)**, `ux-writer`'s calls under the owner's delegation of minor calls (ux
+  D119; ux D120, ux D121). **O96 closed** with its proposal, the literal reading of D147: each
+  attempt of a round of retries takes its note density from the window when it is generated; a
+  widening past the tablet-landscape width that makes the rhythm combination unsupported stops
+  the round and gives way to no phrase with the unsupported-rhythm alert, as D153 does, and a
+  narrowing steps the remaining attempts down to `Eighth` (D155). At Idle, a phrase on screen that
+  stops fitting while the combination is unsupported gives way to no phrase with the alert too,
+  not to the notice; a window with no room still shows the notice (D156). Nothing newly opened.
+  The v2 master spec is now v1.18.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.
   - **v3:** MIDI-seeded continuation, "my instrument", local persistence and favorites.
   - **v4:** accompaniment with roles.
-  - **v5+:** a library and microphone input.
+  - **v5+:** a library, microphone input and a staff-only session view.
   - **Endgame:** a rhythm RPG.
 - **Controller connection and session start (2026-09-27, D111–D118)**, from the owner's answers to
   ux Q23/Q24 on `ux-critic`'s findings. Silence and losing the controller are different events.
@@ -74,9 +164,10 @@ Status: draft v0.13
   reattached during it, and it reattaches by itself once the session ends; a controller lost
   mid-session and still away at the end keeps its selection into the Review. The selection lives
   in memory only and does not survive a page reload (v2 saves nothing to browser storage). The
-  master spec was then at v1.5 (v1.7 since D130). One gap is open (**O84**: starting a session
+  master spec was then at v1.5 (v1.18 since D156). One gap is open (**O84**: starting a session
   from the Review).
-- **Open:** 10 questions remain live: O84 above, O86 (D129, a v3 question since D130), plus the 8
+- **Open:** 12 questions remain live: O84 above, O86 (D129, a v3 question since D130), O87
+  (D131) and O93 (D150), plus the 8
   older ones this bullet goes on to describe. None is flagged ★. The 5 most-blocking ones
   settled first (**D104** O75 v2.0 cut line is the full loop; **D105** O34 continuation boundary;
   **D76** O54 audio unlock; **D77** O55 controller check ships; **D78** O41 acknowledgement

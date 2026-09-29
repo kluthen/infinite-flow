@@ -2,7 +2,8 @@
 
 Status: draft v1.4 (rewritten 2026-09-25 after the persona and vision session; browser scope
 added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keeping candidates and
-export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130)
+export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
+session view placed in v5 2026-09-28, D133)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -75,7 +76,8 @@ is archived verbatim as [2026-09-25-roadmap-pre-vision.md](archive/2026-09-25-pe
 
 - **Intent:** broaden where seeds and input come from.
 - **Headline scope:** a library where files and past sessions are displayed alike, with snippet
-  selection as a seed (not a DAW); microphone input "v5 or 8".
+  selection as a seed (not a DAW); microphone input "v5 or 8"; a staff-only session view, hiding
+  everything but the staff and Stop while a session runs (v5, D133).
 - **Depends on:** v3's persistence; v4's file seed; v3's "my instrument" input kind.
 - **Folder:** [versions/v5-plus](versions/v5-plus/README.md).
 

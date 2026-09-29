@@ -27,7 +27,8 @@
   --radius-lg: 1rem;
   --control-group-min-inline-size: 14rem;
   --size-visually-hidden: 1px;
-  /* v2 new -- from here to "end v2 new": sheet, controller-status and session-alert sizes. */
+  /* v2 new -- from here to "end v2 new": sheet, controller-status, session action, session cue
+     row, phone staff budget and toggle-button sizes. */
   /* The connection sheet's own comfortable reading measure, distinct from
      `--control-group-min-inline-size` (a control-layout minimum, not a modal panel width). */
   --sheet-max-inline-size: 28rem;
@@ -38,11 +39,69 @@
      characters), plus one character of slack for glyphs wider than "0". A longer device name
      is cut with an ellipsis. */
   --controller-status-label-inline-size: 24ch;
-  /* The fixed block size a session keeps free above the staff for the controller-disconnect
-     banner: two lines of `--text-md` at `--leading-base` (2 x 1.5rem) plus `.inline-alert`'s
-     block padding (2 x `--spacing-3`). Fixed, never content-sized, so the banner appearing or
-     leaving never moves the staff. */
-  --session-alert-slot-block-size: 4.5rem;
+  /* The one fixed inline size shared by the header session action in both its labels,
+     `Start session` and `Stop`, so switching between them never moves anything in the header.
+     Sized in `ch` of the button's own font for the longer label, "Start session" (13
+     characters), plus one character of slack, plus `.btn-lg`'s inline padding on both sides. */
+  --session-action-inline-size: calc(14ch + 2 * var(--spacing-5));
+  /* The fixed block size of the session cue row between the score toolbar and the staff,
+     present at Idle, during a session and in the Review, whatever it holds (nothing, the
+     starting-note line, the count-in, or a session notice). Sized for its tallest content, the
+     disconnect banner at `bp-mobile-landscape`, where its sentence (`--text-lg`) wraps to at
+     most two lines and the second line carries the `--text-2xl` countdown at
+     `--leading-tight`: about 1.875rem + 2.4rem of line boxes, plus `.inline-alert`'s block
+     padding (2 x `--spacing-3`), rounded up to the 8pt grid. Fixed, never content-sized, so no
+     change of content ever moves the staff. At `bp-mobile-landscape` during a session the
+     banner shares the row with `session-cue-actions` (compact Stop and Volume), which narrows
+     it, so there it takes its shorter wording (without `session-alert-clause`) and keeps to
+     the same two lines. One value at every breakpoint, the phone included: there is no separate
+     phone cue-row size. Below `bp-tablet-landscape` it is also the largest fixed cost in the
+     phone staff budget below. */
+  --session-cue-row-block-size: 6rem;
+  /* The space between the session cue row and the staff area under it (`session-cue-row`'s
+     `margin-block-end`). Named because the phone staff budget below subtracts it. */
+  --session-cue-row-gap: var(--spacing-3);
+  /* The staff frame's chrome: its padding on every side and its border width, the same values
+     as v1. Named because the phone staff budget below subtracts them. */
+  --staff-frame-padding: var(--spacing-4);
+  --staff-frame-border-width: 1px;
+  /* The phone staff budget: below `bp-tablet-landscape`, the block size the two staff systems
+     may take together. The small viewport height (`100svh`, browser toolbars showing) minus
+     `session-cue-row`, the gap under it, and the staff frame's padding and border, so that
+     the cue row and both systems, with the frame around them, always fit together inside the
+     viewport: the start jump can always put them wholly in view, and nothing needs scrolling
+     mid-session.
+     - The engraving scale there is the largest that fits both the phrase's width and this
+       height, capped at the notation maximum, and never below the legibility floor (5 CSS px
+       per staff space, NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX in
+       src/notation/notation-layout-policy.ts). The two system positions take their block size
+       from the height side of that scale, which does not depend on any phrase, so a refill or a
+       new phrase never changes the staff area; a phrase that needs a smaller scale for its width
+       draws smaller inside its positions.
+     - Measured against the small viewport height, never `dvh` or `vh`: a browser toolbar hiding
+       or reappearing changes neither this value nor the scale, so it never redraws the staff
+       (a hidden toolbar only leaves spare room below). Only a real viewport change (a turned
+       device, a split screen, a resized window) changes it.
+     - The same at idle and in a session: the phone uses the split layout in both, so Start
+       re-engraves nothing and moves nothing.
+     - If even the legibility floor cannot fit this height, the staff has no room: at idle the
+       staff frame shows `room-notice` ("This screen is too small to show the staff.") instead
+       of the score, never the notation-error state, and no session can start; during a session
+       the session ends exactly as Stop ends it.
+     Rough sizing: at the floor, two systems for the B-flat tenor saxophone's written range
+     (C4 to C6, chord symbols above) need about 24 to 28 staff spaces, 120 to 140 px; the cue
+     row, its gap and the frame chrome add about 142 px, so about 262 to 282 px of small viewport
+     height, which a landscape phone about 360 px tall still has with its toolbar showing (about
+     300 px). From `bp-tablet-landscape` up this budget does not apply: the frame keeps v1's
+     fixed minimum block size. Applied in components.css as the frame's `max-block-size` (the
+     budget plus the frame's own padding and border). */
+  --staff-systems-phone-block-budget: calc(
+    100svh - var(--session-cue-row-block-size) - var(--session-cue-row-gap) - 2 *
+      var(--staff-frame-padding) - 2 * var(--staff-frame-border-width)
+  );
+  /* The fixed inline size of a `toggle-button`'s state word ("on" / "off"), so the button keeps
+     one width in both states. */
+  --toggle-button-state-inline-size: 3ch;
   /* end v2 new */
 
   --shadow-panel: 0 0.5rem 1.5rem rgb(31 29 24 / 0.12);
@@ -53,6 +112,7 @@
   --readonly-ring: 0.125rem dashed var(--color-text-muted);
   --z-base: 0;
   --z-sticky: 10;
+  --z-popover: 15; /* v2 new: the audio-mix Volume popover, above the page, below a sheet. */
   --z-sheet: 20;
   --z-alert: 30;
 
@@ -86,11 +146,28 @@
   --color-success: #176b50;
   --color-error: #a52c24;
   --color-error-surface: #fce8e5;
-  /* v2 new */
+  /* v2 new -- from here to "end v2 new": scrim, acknowledgement and playhead colours. */
   /* The connection sheet's backdrop scrim. Theme-dependent: a warm ink at 60% dims the light
      paper clearly, but over the dark canvas the same value is almost invisible, so both dark
      blocks below use a deeper, more opaque black that visibly dims the bright parchment text. */
   --color-scrim: rgb(23 22 19 / 0.6);
+  /* An expected note acknowledged during a session: its notehead, stem, flag and own accidental
+     switch to this colour. A mid-tone green of its own, not the success green: acknowledgement
+     is carried by colour alone, so it must differ from the staff ink by at least 3:1 in
+     luminance (WCAG G183), and a red-green colour-blind player then still sees a lit note as
+     lighter or darker than the rest. It also clears 3:1 against the staff surface, the canvas
+     and the playhead band below, in both themes. Light: 3.71:1 against the staff ink, 4.79:1
+     against the staff surface, 4.28:1 against the canvas, 3.78:1 against the playhead band.
+     Dark (both dark blocks below): 3.32:1 ink, 4.49:1 surface, 5.07:1 canvas, 3.45:1 band.
+     `--color-success` is unchanged and remains the green for success text. */
+  --color-note-ack: #128159;
+  /* The playhead: a quiet tint behind the measure being played, drawn behind the notes. Deliberately
+     minor (about 1.27:1 against the staff surface in light, 1.30:1 in dark): it says where the
+     music is without competing with the notes. Staff ink keeps 14.05:1 (light) and 11.46:1
+     (dark) on it, the start marker's accent 5.55:1 (light) and 5.61:1 (dark), and the
+     acknowledgement colour 3.78:1 (light) and 3.45:1 (dark). */
+  --color-playhead-band: #ebe2cf;
+  /* end v2 new */
 }
 
 @layer base {
@@ -112,6 +189,8 @@
     --color-error: #ff9c90;
     --color-error-surface: #4a2421;
     --color-scrim: rgb(0 0 0 / 0.72); /* v2 new */
+    --color-note-ack: #2d9a72; /* v2 new */
+    --color-playhead-band: #373630; /* v2 new */
     color-scheme: dark;
   }
 
@@ -133,6 +212,8 @@
       --color-error: #ff9c90;
       --color-error-surface: #4a2421;
       --color-scrim: rgb(0 0 0 / 0.72); /* v2 new */
+      --color-note-ack: #2d9a72; /* v2 new */
+      --color-playhead-band: #373630; /* v2 new */
       color-scheme: dark;
     }
   }
@@ -147,6 +228,27 @@
   :root {
     color-scheme: light;
   }
+
+  /* v2 new -- from here to "end v2 new": audio-mix levels. */
+  /* Audio-mix levels (proposed -- every value in this block waits on listening tests of the
+     backing / click / instrument balance; none is final). Unitless gain fractions of each
+     channel's own full level, read by the audio mix at start-up (`getComputedStyle`) and given
+     to each volume `range-input` as its `min`, `max`, `step` and initial `value`, so no level
+     is ever written inline in application code. Declared on `:root` rather than in `@theme`
+     because no stylesheet rule consumes them, and Tailwind only emits `@theme` variables that
+     are used. The click minimum is above zero on purpose: the click slider never reaches
+     silence (turning the click off is its toggle's job), so the count-in, which plays at the
+     click volume and always sounds, is always audible. The backing slider does reach silence:
+     the player may mute the backing entirely, by its toggle or by its slider. */
+  :root {
+    --mix-backing-volume-min: 0;
+    --mix-click-volume-min: 0.2;
+    --mix-volume-max: 1;
+    --mix-volume-step: 0.05;
+    --mix-backing-volume-default: 0.8;
+    --mix-click-volume-default: 0.8;
+  }
+  /* end v2 new */
 
   /* Accessibility floor: 4.5:1 normal text, 3:1 large text and controls, 44px minimum targets. */
   * {

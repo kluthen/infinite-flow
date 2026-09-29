@@ -84,8 +84,12 @@ sheet-backdrop
   below. States with no labeled action send focus to `sheet-close`.
 - While the sheet is open, focus is trapped in `sheet`: Tab and Shift+Tab cycle through
   `sheet-close`, any `sheet-body` control, and the `sheet-actions` buttons.
-- On close, by any path, focus moves to the workspace's Start/Stop button. That is also the
-  fallback whenever a focus target outside the sheet is unclear.
+- On close, by any path, focus moves to the first enabled of, in order: the workspace's session
+  action; the phrase action (when `Start session` is disabled: an empty workspace, a
+  generation-failure banner showing, a notation error); `controller-status`, the element that
+  opened the sheet (when both header actions are disabled: **Loading**, or an unsupported rhythm
+  combination), which is always interactive outside a session. That order is also the fallback
+  whenever a focus target outside the sheet is unclear.
 
 ## States
 

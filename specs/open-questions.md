@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.14
+Status: draft v0.22
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -14,7 +14,24 @@ where the player goes off-script. Six v2 questions (O78–O83) were opened the s
 controller-connection answers (D111–D118) and resolved later that day (D119–D124). O84 was opened
 while recording them (see the last section). O85, opened while recording D125, was resolved the
 same day (D126). O86 was opened 2026-09-28 by the export-by-content change (D129), and deferred
-to v3 the same day, when favorites moved there (D130).
+to v3 the same day, when favorites moved there (D130). O87 and O88 were opened 2026-09-28 while
+recording the screen wake lock (D131) and the count-in that always clicks (D132). O88 was
+resolved the same day (D134): the count-in plays at the click volume, which never reaches silence.
+O89 was opened 2026-09-28 while recording the landscape lock and the portrait rule (D137), and
+resolved the same day (D138): a session ends whenever the staff can no longer be shown, whether or
+not the device was turned. O90 was opened while recording D138, and resolved the same day (D139):
+no session starts while the staff is not shown. O91 and O92 were opened 2026-09-28 while
+recording the changes to v1 at Idle (D144–D146), and resolved the same day (D147–D150): the
+density follows the window's width for the next phrase generated, and a session's density only
+steps down (O91); a new phrase is generated when the notice clears (O92). O93 and O94 were opened
+while recording them. O94 was resolved the same day (D151): when the notice clears under
+unsupported rhythm settings, no phrase is shown and generation stays blocked until the settings
+change. O95 was opened while recording what clears the "these notes need more room" notice
+(D152), and resolved the same day (D153): a change that lands on unsupported rhythm settings while
+that notice shows gives way to no phrase, as D151 does. O96 was opened 2026-09-29 while recording
+that a wider window during a round of retries starts nothing (D154), and resolved the same day
+(D155): each attempt of a round takes its note density from the window when it is generated, and
+a crossing that makes the rhythm combination disallowed stops the round.
 
 ### Registered from the v2 proposal and the prerequisites analysis (2026-09-25)
 
@@ -81,7 +98,10 @@ and resolved the same day (D119–D124). O85 was resolved the same day too (D126
   original reason is gone: from the Review, only a Start click starts a session; a MIDI note
   starts nothing there. The first part has no proposed default yet: it depends on what
   the Review screen shows besides the review, which `ux-writer` designs. Not confirmed by the
-  owner.
+  owner. Since D135 (2026-09-28) no session starts over a generation failure at Idle, and since
+  D139–D140 the spec lists every state in which no session starts at Idle (master-spec §6, "When a
+  session can start"); the answer also has to say how those conditions apply when starting from
+  the Review.
   [master-spec.md §6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo).
 
 ## Favorites, deferred to v3 (O86)
@@ -96,3 +116,42 @@ and resolved the same day (D119–D124). O85 was resolved the same day too (D126
   default, not confirmed: a favorite counts as exported once any export that included its phrase
   has been triggered, whatever the scope and content.
   [v3 favorites](versions/v3/README.md#favorites-v3-scope-to-be-settled).
+
+## v2 session behaviour (O87+)
+
+Opened 2026-09-28 by `spec-writer` while recording owner decisions from the `ux-writer` unit-2
+session core-loop review, and later that day from `ux-writer`'s play-session decisions. O88 was
+resolved the same day (D134), O89 too (D138), and O90 too (D139). O87 does not block starting
+v2.0 implementation.
+
+- **O87 - The screen wake lock dropped mid-session** _(D131, from ux D73)_: the app holds a
+  screen wake lock for the whole session, and a refused or missing lock is silent. A browser may
+  also release a granted lock by itself while the session is still running (for example to save
+  battery). Does the app ask for it again? Proposed default, not confirmed by the owner: it asks
+  again, silently, while the session runs and the page is visible; nothing is shown either way.
+  [master-spec.md §6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo).
+
+## v2 changes to v1 at Idle (O91+)
+
+Opened 2026-09-28 by `spec-writer` while recording the owner's decisions from `ux-writer` (ux
+D107–D109, spec D144–D146). O91 and O92 were resolved the same day (ux D110 and ux D112, spec
+D147–D150): O91's defaults (a) and (b) were replaced by D147 (the density follows the window's
+width when each phrase is generated, at Idle and in a session) and D148 (a session's density only
+steps down); (c) was settled with its proposal (D148), and so was (d) (D150). O92 was settled
+against its proposal (D149): the notice always clears to a new phrase. O93 and O94 were opened
+while recording those answers. O94 was settled with its proposal the same day (ux D114, spec
+D151). O95 was opened while recording ux D116 (spec D152), and settled the same day against its
+proposal, with the alternative it named (ux D117, spec D153). O96 was opened 2026-09-29 while
+recording ux D118 (spec D154), and settled the same day with its proposal by `ux-writer` under
+the owner's delegation of minor calls (ux D120 and ux D119, spec D155). O93 does not block
+starting v2.0 implementation; it blocks only the behaviour it names.
+
+- **O93 - The settings-mutation flag in a session generating with `Eighth`** _(D150, D147, D148;
+  v2.1, with O77)_: when a chosen `Sixteenth` generates as `Eighth`, which of the two does a
+  note-density mutation step from? From the chosen `Sixteenth`, a step down to `Eighth` changes
+  nothing generated. And does `Sixteenth` count as unavailable in a session that stepped down to
+  `Eighth` (D148) and whose window is now wide enough, where landing on it would change nothing
+  generated either? D150 covers only "below the width". Proposed, not confirmed by the owner: a
+  mutation steps from the density generated with, and `Sixteenth` counts as unavailable whenever
+  the session generates with `Eighth` under D146, whatever the window's width.
+  [master-spec.md §5](versions/v2/master-spec.md#5-control-changes-during-a-session).

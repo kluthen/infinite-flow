@@ -1,6 +1,6 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27; master spec v1.7, 2026-09-28, D130). The
+Status: consolidated into the master spec (2026-09-27; master spec v1.18, 2026-09-29, D156). The
 individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
 ID-free description of v2.0 through v2.3, ready to hand to `coding-leader` and, later, `ux-writer`.
@@ -10,9 +10,9 @@ P3 gets session review and export; marking favorites is v3 (D130). See [personas
 
 ## Documents
 
-| Document                         | Purpose                                                                                                        | Status           |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------- | ---------------- |
-| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.6 |
+| Document                         | Purpose                                                                                                        | Status            |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------- |
+| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.18 |
 
 The original draft topic documents (highlights proposal, rolling phrase, audio and backing, MIDI
 and acknowledgement, sessions/review/export, adaptive tempo, definition of done,
@@ -110,7 +110,85 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   notes (MusicXML or MIDI) and one for the played notes (MIDI), one file each; "both" means using
   both. The played-notes action is unavailable when the session holds no played note. **O86**
   is deferred to v3 with favorites ([v3](../v3/README.md#favorites-v3-scope-to-be-settled)).
-- Open: 10 questions across the register, including O84 (starting a session from the Review);
+- **Settled (D131–D133, owner via `ux-writer`'s unit-2 session review, ux D72–D74).** The app
+  holds a screen wake lock for the whole session and releases it at the end; a refused or missing
+  lock is silent (D131, v2.0). The count-in always clicks, even with the click turned off; the
+  click setting governs the session from phrase 1 on (D132). A staff-only session view is not v2:
+  it is placed in v5 (D133). Opened **O87** (the lock dropped mid-session) and **O88** (the click
+  volume during the count-in).
+- **Settled (D134, owner, ux D84): O88 closed.** The count-in plays at the click volume, and the
+  click volume control never reaches silence (turning the click off is the on/off switch's job
+  alone), so the always-clicking count-in is always audible.
+- **Settled (D135–D137, owner via `ux-writer`'s play-session decisions, ux D87, D89, D90).** No
+  session starts while a generation failure is being reported at Idle, even over a kept phrase
+  (D135). A session ended during the count-in goes back to Idle with phrase 1 on screen, no review
+  opens, and the previous review is not restored (D136). The app asks for a landscape lock during
+  a session, silently refused if the browser won't grant it, and a phone or tablet turned to
+  portrait ends the session like Stop (D137, v2.0). Opened **O89** (a portrait-shaped view
+  without turning the device).
+- **Settled (D138, owner, ux D94): O89 closed.** A session ends like Stop (during the count-in,
+  back to Idle) whenever the staff can no longer be shown: the view becomes portrait-shaped below
+  the desktop breakpoint, whether or not the device was turned (split screen, resized window), or
+  the staff layout held since Start can no longer be engraved at its legibility floor at the new
+  width. Any other viewport change keeps the session running, re-engraved at the new width.
+  Opened **O90** (whether a session can start while the staff is not shown).
+- **Settled (D139–D141, owner, ux D98, D79, D93, D100): O90 closed.** No session starts while the
+  staff is not shown (D139). Every state in which no session starts at Idle is listed in one
+  place: no phrase yet, a new phrase being generated, a phrase that cannot be drawn, a generation
+  failure being reported, unsupported rhythm settings, the staff not shown; the starting note is
+  named exactly when playing it would start a session (D140). During a session a look-ahead
+  phrase must fit the held staff layout, fixed at Start by the window's width alone; a misfit is a
+  failed attempt that takes the normal retries, and a phrase is repeated only when every attempt
+  fails (D141).
+- **Settled (D142–D143, owner, ux D104, D105).** Below the tablet-landscape width the staff must
+  fit the window's height as well as its width (with the session's cue row, browser toolbars
+  showing); a window too short for it at the legibility floor blocks a start and ends a running
+  session like Stop (D142). A viewport change during a session also re-checks material already
+  checked and waiting to be drawn, and ends the session like Stop if any of it no longer fits
+  (D143). No new open question.
+- **Settled (D144–D146, owner, ux D107–D109): three changes to v1 at Idle.** A staff that cannot
+  be shown for lack of space (too narrow, or too short below the tablet-landscape width) shows a
+  plain notice with no retry action, not a notation error (D144). A phrase whose notes do not fit
+  a window that has room for the staff is replaced with the normal fresh-seed retries, as in a
+  session; only when every retry fails does the notice show (D145). Below the tablet-landscape
+  width the `Sixteenth` note density is unavailable: phrases generate with `Eighth`, and a
+  `Sixteenth` chosen while the window was wider is kept (D146). Opened **O91** (the density when
+  the window crosses that width, at Idle and in a session, plus its interactions with unsupported
+  rhythm settings and the mutation flag) and **O92** (which phrase the notice keeps).
+- **Settled (D147–D150, owner, ux D110, ux D112): O91 and O92 closed.** The density a phrase is
+  generated with follows the window's width when that phrase is generated, at Idle and in a
+  session; a phrase on screen or already checked is never regenerated for it, and the history
+  records each phrase's density (D147). Unsupported rhythm settings are judged on that density;
+  a session that has generated with `Eighth` keeps it until it ends, never stepping back up, so
+  item 11 holds mid-session (D148). The notice always clears to a new phrase (D149). The v2.1
+  mutation flag treats `Sixteenth` as unavailable below that width (D150). Opened **O93** (the
+  mutation flag in a session generating with `Eighth`, v2.1) and **O94** (the notice clearing
+  under unsupported rhythm settings).
+- **Settled (D151–D152, owner, ux D114, ux D116): O94 closed.** When the notice clears while the
+  rhythm combination is unsupported, no phrase is shown and generation stays blocked until the
+  settings change, with the unsupported-rhythm alert showing (D151). When the notice shows
+  because every retry was too dense, a wider window, a changed setting or regenerating by hand
+  starts a fresh round of retries; the first phrase that fits clears it, a failed round leaves
+  it, and a narrower window starts nothing (D152). Opened **O95** (such a change landing on
+  unsupported rhythm settings).
+- **Settled (D153–D154, owner, ux D117, ux D118): O95 closed.** While the notice shows because
+  every retry was too dense, a change that makes the rhythm combination unsupported starts no
+  round, and the notice gives way to no phrase with the unsupported-rhythm alert, as when it
+  clears under unsupported settings; nothing is generated by itself once the combination is
+  allowed again (D153, O95's named alternative, not its proposal). A phrase already on screen
+  still stays when a rhythm setting makes the combination unsupported, as in v1. A wider window
+  while a round runs starts nothing: the round carries on, and if it fails the notice stays
+  until the next change (D154). Opened **O96** (which note density a round's later attempts use
+  when the window crosses the tablet-landscape width during the round).
+- **Settled (D155–D156, `ux-writer` under the owner's delegation, ux D119, ux D120, ux D121): O96
+  closed** with its proposal. Each attempt of a round of retries takes its note density from the
+  window when it is generated; a widening that makes the rhythm combination unsupported stops the
+  round and gives way to no phrase with the unsupported-rhythm alert, and a narrowing steps the
+  remaining attempts down to `Eighth` (D155). At Idle, a phrase on screen that stops fitting while
+  the combination is unsupported gives way to no phrase with the alert, not to the notice; a
+  window with no room still shows the notice (D156).
+- Open: 12 questions across the register, including O84 (starting a session from the Review),
+  O87 and O93 (above);
   O86 (what makes a favorite "exported") is still open but now belongs to v3 (D130);
   none is currently flagged ★ (all 5 most-blocking ones are settled). See [open-questions.md](../../open-questions.md) and
   [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
@@ -201,6 +279,7 @@ through an export the player triggers (D64, D69).
 
 - MIDI-seeded continuation from a played motif: v3.
 - Persistence, reviewing earlier sessions, and "my instrument": v3.
+- A staff-only session view (everything but the staff and Stop hidden): v5 (D133).
 
 ## Depends on
 
@@ -220,6 +299,12 @@ through an export the player triggers (D64, D69).
 - **O84** (starting a session from the Review) is a v2 gap carried in
   [master-spec.md §12](master-spec.md#12-open-questions-carried-forward). **O86** (what makes a
   favorite "exported", opened by D129) moved to v3 with favorites (D130).
+- **O87** (the screen wake lock dropped mid-session, D131) is a small v2 gap, carried in
+  [master-spec.md §12](master-spec.md#12-open-questions-carried-forward); it does not block v2.0.
+  **O88** (the click volume during the count-in, D132) was settled the same day (D134).
+- **O89** (a portrait-shaped view without turning the device, D137) was settled the same day
+  (D138). **O90** (starting a session while the staff is not shown, D138) was settled the same
+  day too (D139).
 - Every other question originally registered here (O10, O24, O33, O35–O39, O41–O46, O50–O56,
   O58–O67, O70, O72–O76) is now **settled** — see the status snapshot above and the
   [decisions log](../../decisions.md).
@@ -256,7 +341,12 @@ One canonical term per concept. "Flow mode", used in the highlights proposal, me
   bar when `startBeat` is 2).
 - **Backing:** the bass and block chords rendered from the harmony. It is not a generated voice.
 - **Click:** the metronome sound. **Count-in:** the bar(s) of click before a session's first
-  phrase (D85). There is no pause/resume in v2.0 (D89): a hidden tab ends the session outright.
+  phrase (D85). It always clicks, whatever the click setting (D132), at the click volume, which
+  never reaches silence (D134). There is no pause/resume
+  in v2.0 (D89): a hidden tab ends the session outright, and so does the staff no longer being
+  shown, a portrait-shaped view or a window too narrow for the staff, or too short for it below
+  the tablet-landscape width (D137, D138, D142). A session ended
+  during the count-in has no review (D136).
 - **Review:** the view of the last session after it ends. It has no favorites in v2; marking
   favorites is v3 (D130).
 - **Export:** a file download that the player triggers from the review, covering the whole

@@ -142,22 +142,114 @@ Units below are not yet started. None is blocked on anything **except** where no
    kept or not when unplugged while the sheet is open). `decisions.md` D54 still names the old
    token; not yet logged: the token rename and `.session-alert-text`.
 2. **Session core-loop flow + rolling-display screen extension** (master-spec §3, §4, §6, §7 start/
-   end mechanics; extends `screens/phrase-workspace/`). Blocked on **Q17** only (self-directed —
+   end mechanics; extends `screens/phrase-workspace/`). **2026-09-28: written up** (ux D71–D85) as
+   `flows/play-session/` plus the session states of `screens/phrase-workspace/`, with units 3, 4
+   and 5 folded in; Tier 2 and `motion.md` updated. New questions Q38–Q43, all closed by the
+   owner (ux D86–D92). **2026-09-28: D86–D92 applied** (delegate) to play-session, phrase-workspace,
+   controller-connection, `strategy.md`, `motion.md` and the token source (new layout class
+   `session-cue-actions`); new questions Q44–Q46, closed by the owner (ux D94–D97).
+   **2026-09-28: D94–D97 applied** (delegate): one viewport-change rule (end when the staff can no
+   longer be shown, else re-engrave in the held layout), focus order on sheet close, the phone's
+   short disconnect wording (new class `session-alert-clause`), D93/D97 choices made settled. New
+   question Q47 (a too-narrow end when the idle layout fails too). First `ux-critic` pass
+   2026-09-28 found Q48, Q49 and two small marking/diagram fixes; the owner settled ux D98–D101.
+   **2026-09-28: D98–D101 and the two critic fixes applied** (delegate): no start while the staff
+   is not shown; `Retry notation` focus after a too-narrow count-in end (now settled, in the
+   diagram); session staff layout fixed by breakpoint (split below `bp-tablet-landscape`) and a
+   look-ahead misfit is a failed attempt with the normal retries; `--color-note-ack` has its own
+   mid-tone green (ratios verified); banner-position mark; reattach-to-struggling edge. New
+   question Q50 (phone phrase 1 on one system at Start), closed by the owner (ux D102, with D103
+   settling three re-engrave behaviours). **2026-09-28: D102 applied** (delegate): below
+   `bp-tablet-landscape` the staff is always engraved in the split layout, idle included, so
+   Start never moves a note; the proposed Start re-engrave is gone from play-session,
+   phrase-workspace, `motion.md` and `strategy.md` (phrase-workspace marked `[v2 changed]` against
+   the v1 idle rule). Second `ux-critic` pass 2026-09-28 found Q51 (session view taller than a
+   landscape phone), Q52 (waiting split-layout material not re-checked on a viewport change) and
+   the misfit/struggling-notice wording; the owner settled ux D104–D106. **2026-09-28: D104–D106
+   applied** (delegate): below `bp-tablet-landscape` the engraving scale fits the height (small
+   viewport height) as well as the width, `staff-frame` loses v1's fixed minimum block size there
+   (new tokens `--staff-systems-phone-block-budget`, `--staff-frame-padding`,
+   `--staff-frame-border-width`, `--session-cue-row-gap`; phone rule in a width-only media block
+   in `components.css`), and a floor that cannot fit the height counts as the staff not shown
+   (idle Notation error, no start, a running session ends); a viewport change re-checks material
+   already waiting; the misfit/notice wording corrected in both intents. Touched play-session,
+   phrase-workspace, `strategy.md`, `motion.md` and both stylesheets. The critic-pass findings led
+   the owner to settle ux D107–D112 (Q53 and Q54 closed). **2026-09-28: D107–D109 applied**
+   (delegate), with D110 and D112 folded in where they settle the same text: a window with no room
+   for the staff shows `room-notice` inside `staff-frame staff-no-room` instead of the
+   notation error (new classes `staff-no-room`, `room-notice`; `orientation-notice` states
+   comment), which is kept for retry-curable failures; an idle phrase too wide for the room is
+   regenerated with up to three fresh-seed retries inside one Loading; below
+   `bp-tablet-landscape` Note density's `Sixteenth` is disabled with a `field-note` (new class;
+   `.segment:disabled` cursor and hover rules), following the current viewport, stepping down
+   only during a session. Touched play-session, phrase-workspace, `strategy.md`, `motion.md` and
+   both stylesheets. New questions Q55–Q57 hold the write-up's proposed details. D111 needed no
+   handoff change (the per-phrase scale was already written). The owner closed Q57 with ux D113
+   (one sentence per cause). **2026-09-28: D113 applied** (delegate): `room-notice` shows "The
+   staff needs more room. Make the window larger." (no room, `bp-tablet-landscape` and up), "This
+   screen is too small to show the staff." (no room, below it) or "These notes need more room.
+   Make the window larger, or choose a lower note density." (every idle retry too wide, any
+   breakpoint); the no-room pair are two spans shown by breakpoint (new classes
+   `room-notice-wide`, `room-notice-narrow`, width-only query); `notation-status` announces the
+   sentence shown. Same pass: the stale "kept phrase returns" wording removed (a cleared notice
+   always generates a new phrase), and the handoffs checked against spec D147–D150 and O94 (phrase
+   1 is generated at idle, so the session's step-down rule starts with phrase 2, now stated in
+   both handoffs; the notice clearing under an unsupported rhythm combination lands on Empty, now
+   also in the flow diagram). Touched phrase-workspace, play-session, `strategy.md`, `motion.md`
+   and both stylesheets. The owner then settled ux D114–D116 (Q55–Q59 closed). **2026-09-28:
+   D114–D116 applied** (delegate): the `(proposed)` tags on every Q55/Q56 detail and on spec O94's
+   default removed (phrase-workspace, play-session, the phone `staff-frame` comment in
+   `components.css`); a desktop window narrowed below `bp-tablet-landscape` gets the "too small"
+   sentence, stated with its reason in the workspace handoff's sentence table, both intents,
+   `strategy.md` and the `room-notice-narrow` comment; the too-many-notes notice now clears only
+   on a phrase that fits, a widening, a musical-control change or `Regenerate phrase` starting a
+   fresh round of idle retries at once (narrowing never does), written into the workspace
+   handoff (**Needs more room**, Loading, **Room for the staff**), both intents, the flow
+   diagram and start-conditions text, `strategy.md`, `motion.md` and the `staff-no-room` and
+   `room-notice` comments. New Q60 holds two proposed details of that round (notice kept under
+   `staff-loading`; a failed round re-announced). New Q61: the two **Needs more room** under a
+   generation-failure banner lines stay tagged (proposed), since Q56's list did not name them.
+   **2026-09-29: D117–D121 applied** (see Next Unit). **Third `ux-critic` pass 2026-09-29:
+   DRIFT**; its findings settled by `ux-writer` under D119 as ux D122–D125 and **applied
+   2026-09-29** (delegate): `flows/generate-phrase/` intent and handoff brought up to v2 (change
+   blocks and tags; its diagram now owns the idle transitions: fit retries, **Needs more room**
+   and its clearing, **Empty** with the unsupported-rhythm alert; the play-session diagram keeps
+   only the start and points to it); the first retries stop on an unsupported combination
+   (spec D155's reading); the session start closes the volume popover (D122); the phone toggles
+   a scroll away (D123); one `staff-content` per system position, Layout Tree included (D124);
+   the two audio-mix `(proposed)` tags removed (D125); `components.css`'s three width-only rules
+   moved out of the landscape block; the controller-connection end list completed; the
+   Generating policy, Flow Index and README map updated. **Next: a narrow `ux-critic`
+   confirmation pass, then the owner's confirmation.** **Handoff note:** D102 changes the
+   shipped v1 layout planner (it tries one system first); tell `coding-leader`, and have the owners
+   update `specs/generator-architecture.md`, `docs/notation-engraving.md`,
+   `docs/module_notation_layout_preflight.atom.md` (documentalist) and
+   `docs/release/browser-and-offline-limits.md`, which still state the v1 rule. D104 adds a height
+   input to the same planner (the engraver reads the budget from `staff-frame`'s computed
+   `max-block-size`) and makes the reserved system positions below `bp-tablet-landscape` depend
+   on the viewport height; tell `coding-leader` with the D102 note.
+   Historical note: Blocked on **Q17** only (self-directed —
    ux-writer must settle the spatial presentation before writing this screen's handoff). **Q20 is
    resolved and no longer a blocker**: an in-session notation failure can structurally never occur
    (settings lock, §5, plus DoD item 11, §11), so there are no failure-state variants beyond the
-   generation-failure ladder (§4), which is fully specified.
-3. **Locked settings-sheet-during-session state** (§5). Mechanically specified (read-only controls,
+   generation-failure ladder (§4), which is fully specified. (Corrected by ux D100: fit to the held
+   layout is content-dependent, so a misfit can occur; it is handled as a failed generation
+   attempt, not as a notation failure.)
+3. **Locked settings-sheet-during-session state** (§5). **Folded into unit 2 (ux D80), written
+   2026-09-28.** Mechanically specified (read-only controls,
    automatic changes apply with no highlight/scroll/shift); not blocked, but is a variant of unit 2
    and should follow it rather than precede it.
-4. **Per-note acknowledgement live view** (§8: highlight-only, positive-only, played note never
+4. **Per-note acknowledgement live view** (**folded into unit 2 (ux D82), written 2026-09-28**; §8: highlight-only, positive-only, played note never
    rendered). Fully specified; a state within unit 2's screen, not a separate unit.
-5. **Audio mix controls** (backing/click on/off + volume, always reachable, §6). Fully specified;
+5. **Audio mix controls** (backing/click on/off + volume, always reachable, §6). **Folded into unit
+   2 (ux D84), written 2026-09-28**; ranges and default levels still wait on Q31. Fully specified;
    small, folds into unit 2.
 6. **Last-session review + export, v2.0 slice** (§7). Fully specified for the base review (every
    phrase shown in order, favorites, MusicXML/MIDI export scopes) and the discard-with-confirmation
    rule. **Q18 resolved (spec D109): no repeat-marker element at all** — a failure-ladder repeat reads
-   identically to any other phrase in the review. Not blocked.
+   identically to any other phrase in the review. Not blocked. Carries **Q47 (Review part)**: what
+   the Review shows over a staff in notation error after a too-narrow end once phrase 1 has
+   sounded, and where focus goes; also Q25.
 7. **Review v2.1 additions**: played-notes toggle and the export-time played-notes opt-in checkbox
    (§7). Fully specified; extends unit 6.
 8. **Adaptive tempo UI** (§10, v2.2). Mostly specified (unavailable-with-reason when no controller;
@@ -206,6 +298,53 @@ three passes, confirmed by the user, committed 2026-09-27. Next, in this order:
    also carries ux D52 (on-screen count-in beats, the starting-note line — hidden when no
    controller is connected, as proposed to the user), Q27 (when the disconnect slot appears), and
    the Start/Stop button that the controller-connection sheet sends focus to.
+   **2026-09-28: proposal confirmed (ux D72–D85) and written up** (branch `ux-session`, delegated
+   write-up): new `flows/play-session/`; `screens/phrase-workspace/` intent and handoff extended
+   (action table, session cue row, two reserved systems, start marker, playhead band,
+   acknowledgement, audio mix, session states); `src/styles/theme.css` and `components.css`
+   (`session-cue-row` replaces `session-alert-slot`); `motion.md`; `strategy.md` (flow index,
+   edge-case policy, staff-only view dropped); README map; controller-connection docs now name the
+   session action. Units 3, 4 and 5 are folded in. The draft is deleted.
+   Q38–Q43 settled with the owner (ux D86–D92) and **applied 2026-09-28**; new Q44–Q46 logged,
+   settled (ux D94–D97) and **applied 2026-09-28**; new Q47 logged (proposed default in the
+   handoffs for the count-in end; the post-phrase-1 end goes to unit 6).
+   First `ux-critic` pass run; the owner settled D98–D101 (Q47 narrowed, Q48 and Q49 closed), and
+   **D98–D101 plus the two critic fixes were applied 2026-09-28**. New Q50 logged, then closed
+   by the owner (ux D102: phones always use the split layout, idle included); **D102 applied
+   2026-09-28**. Second `ux-critic` pass run; the owner settled D104–D106 (Q51, Q52 closed), and
+   **D104–D106 were applied 2026-09-28**. The owner then settled D107–D112 (Q53, Q54 closed);
+   **D107–D109, with D110 and D112, were applied 2026-09-28**; Q55–Q57 logged for the owner.
+   The owner closed Q57 (ux D113); **D113 applied 2026-09-28**. The owner then confirmed Q55–Q59
+   (ux D114–D116; **applied 2026-09-28**, spec D151–D152, master spec v1.16) and Q60, Q61 and spec
+   O95 (ux D117), then, on 2026-09-29, ux D118; **D117 and D118 applied 2026-09-29** (delegated
+   write-up), which logged Q62 for the owner (the notice beside the unsupported-rhythm alert on
+   two paths no change starts; proposed default in the entry). Session ended 2026-09-28 here; all
+   work is uncommitted in the `ux-session` worktree.
+   **Next, in order:** (1) ~~delegate the D117 write-up: O95 option (b) replaces the "notice stays
+   beside the unsupported-rhythm alert" text in the phrase-workspace handoff/intent and the
+   play-session diagram; remove the `(proposed)` tags on the Q60 and Q61 details; fix "any musical
+   control starts a round" to "a setting the phrase is generated from" (tempo, mix, theme do not;
+   spec D152); apply ux D118 (2026-09-29: a widening during a running round starts nothing).~~
+   **Done, applied 2026-09-29** (with D118); Q62 logged, then closed by `ux-writer` under the
+   owner's D119 (ux D120, D121, applied 2026-09-29 to phrase-workspace, play-session and
+   `strategy.md`; D119's session rule added to `strategy.md`'s edge-case policy).
+   (2) ~~`spec-writer`: record ux D117 (1) and D118, close spec O95.~~ **Done 2026-09-29**: spec
+   D153, D154, master spec v1.17; spec O96 opened, answered by ux D120. (2b) ~~`spec-writer`:
+   record ux D120 (close spec O96) and D121.~~ **Done 2026-09-29**: spec D155, D156.
+   (3) ~~Third `ux-critic` pass on unit 2 (flow + screen + Tier 2 + spec v1.17+); per ux D119,
+   settle its minor findings without asking the owner.~~ **Done 2026-09-29: DRIFT**; findings
+   settled as ux D122–D125 and **applied 2026-09-29** (delegated fix pass; see the unit-2 entry
+   above). (3b) ~~Narrow `ux-critic` confirmation pass on that fix pass.~~ **Done 2026-09-29:
+   DRIFT, three minor findings, all fixed the same day by `ux-writer`** (D126's second half carried
+   into the workspace States and both session-end landing lists, the intent's "phrase already on
+   screen" sentence qualified, the idle bottom position has no `staff-content`). Every finding of
+   every pass is resolved; `specs/personas.md` corrected to the starting-note rule by
+   `spec-writer`. Still open and not blocking the unit: Q31 (mix levels, placeholders in place),
+   Q25 and Q47's Review part (unit 6), Q16. (4) **Awaiting the owner's explicit confirmation of
+   the unit**, then commit and `--no-ff` merge only when asked. The commit carries `ui_ux/`,
+   `specs/` and `src/styles/`. With it, tell `coding-leader` the handoff note above (D102, D104:
+   the shipped v1 layout planner). After that, unit 6 (Review), which carries Q47's Review part
+   and Q25.
 
 **ux-critic plan read (2026-09-27), to weigh before continuing:**
 

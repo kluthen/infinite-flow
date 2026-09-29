@@ -107,5 +107,8 @@ already a controller — so those states rely on `Done`, `Close`, Escape, and th
 
 Keyboard and mouse users are the target. Each time the sheet moves to a new state, focus goes to
 that state's main action, so a keyboard player can keep going with Enter without hunting. When the
-sheet closes, focus goes to the workspace's Start/Stop button: the player is most likely about to
-play. Everything that matters is shown as visible text; nothing depends on being read aloud.
+sheet closes, focus goes to the workspace's session action, `Start session`: the player is most
+likely about to play. When `Start session` is disabled, focus goes to the phrase action instead,
+since getting a playable phrase on screen is then the next step. When both are disabled, while a
+phrase is generating or the rhythm settings cannot form one, focus returns to the header element
+that opened the sheet, the one control always usable between sessions. Everything that matters is shown as visible text; nothing depends on being read aloud.
