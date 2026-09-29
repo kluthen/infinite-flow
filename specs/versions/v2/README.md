@@ -1,6 +1,6 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27; master spec v1.21, 2026-09-29, D167). The
+Status: consolidated into the master spec (2026-09-27; master spec v1.22, 2026-09-29, D168). The
 individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
 ID-free description of v2.0 through v2.3, ready to hand to `coding-leader` and, later, `ux-writer`.
@@ -12,7 +12,7 @@ P3 gets session review and export; marking favorites is v3 (D130). See [personas
 
 | Document                         | Purpose                                                                                                        | Status            |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------- |
-| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.21 |
+| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.22 |
 | [build-plan.md](build-plan.md)   | The build plan: v2.0–v2.3 cut into ordered chunks, each with its atoms, tests and blockers                     | draft v0.3        |
 
 The original draft topic documents (highlights proposal, rolling phrase, audio and backing, MIDI
@@ -36,6 +36,8 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   any constant offset and how to fix it.
 - **Settled (D78): O41, acknowledgement window.** 150 ms early to the later of 200 ms late or the
   note's end; exact pitch, octave included; ties count once; chords match on the expected note.
+  D168 refines the cut between two close notes: the boundary is the later of 150 ms before the
+  second onset and the halfway point, so every window contains its own onset.
 - **D79** notes that v3's "my instrument" should inherit the controller check's (D77) detected
   offset instead of asking again every session.
 - **Settled (D80–D88, 2026-09-27 batch):** leap recovery carries across a join (D80); a tense
@@ -214,6 +216,11 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   kept, and a session's last phrase, in the review and the export, may end with a leap recovery or
   a tense note's resolution still owed, as it may be cut off mid-phrase; the same holds before the
   failure ladder's standalone phrase or a repeat. Master spec v1.21.
+- **Settled (D168, the owner's decision on the acknowledgement window, 2026-09-29):** the
+  boundary between two consecutive expected notes is the later of 150 ms before the second onset
+  and the halfway point between the two onsets, so every window contains its own onset and an
+  on-time note always matches; windows include both ends, and a phrase's last expected note is
+  bounded by the next phrase's first the same way. Master spec v1.22.
 - Open: 14 questions across the register, including O84 (starting a session from the Review),
   O87, O93, O98 and O99 (above);
   O86 (what makes a favorite "exported") is still open but now belongs to v3 (D130);

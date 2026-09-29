@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.20
+Status: draft v2.21
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -727,3 +727,24 @@ fact in the live documents (see the [archive index](archive/README.md) and
   stop at the cost of joins that sound more like one phrase stopping and the next starting. v1's
   atoms `rule_leap_recovery` and `rule_open_phrase_ending` need a v2 scope accordingly. Master
   spec §3, §11 (v2.0 item 2) and §12. Master spec v1.20 → **v1.21**.
+- **D168 (2026-09-29): the boundary between two close expected notes splits the gap at the
+  halfway point.** The product owner's decision, on a flaw the chunk 14 implementer found in master
+  spec §8. The rule said a window opens 150 ms before its note's onset and closes at the later of
+  200 ms after it or the end of the note's tied span, but never after the next expected note's
+  window opens. When the next onset is less than 150 ms later (sixteenth notes from 110 BPM,
+  eighth notes from 210 BPM), the earlier note's window then closes before its own onset: at
+  120 BPM sixteenth notes are 125 ms apart, so note A's window becomes [−150, −25] ms and note B's
+  [−25, 100] ms around A's onset, and A played on time falls in B's window and is rejected on
+  pitch. At exactly 150 ms apart the two windows meet at A's onset. Decided: the boundary between
+  two consecutive expected notes is the later of (the second note's onset − 150 ms) and the point
+  halfway between the two onsets. A note's window closes at the later of 200 ms after its onset or
+  the end of its tied span, but never after that boundary; the next note's window opens at that
+  boundary. Every window then contains its own onset, and nothing changes when notes are 300 ms or
+  more apart. Two readings the implementer proposed, which follow the spec's existing wording, are
+  now stated explicitly: windows include both their ends, and at an instant two windows share, the
+  earliest unacknowledged expected note whose pitch matches wins; a phrase's last expected note is
+  bounded by the next phrase's first expected note in the same way (every phrase starts with a
+  fresh attack on beat 1), and while the next phrase is not known yet its window is not cut short
+  by it. Refines D78 (O41). v1 has no note acknowledgement, so nothing in v1 changes. The atom
+  `rule_expected_note_window` still states the old cutoff and needs updating by `documentalist`.
+  Master spec §8 and §11 (v2.0 item 7); v2 README. Master spec v1.21 → **v1.22**.

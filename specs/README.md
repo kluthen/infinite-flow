@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.25
+Status: draft v0.26
 
 ## Status Snapshot
 
@@ -158,7 +158,15 @@ Status: draft v0.25
   O97 with its proposal. The carry-over between phrases is kept, and a session's last phrase, in
   the review and the export, may end with a leap recovery or a tense note's resolution still
   owed, as it may be cut off mid-phrase; the same holds before the failure ladder's standalone
-  phrase or a repeat. The v2 master spec is now v1.21.
+  phrase or a repeat. The v2 master spec became v1.21.
+- **The acknowledgement window between close notes (2026-09-29, D168)**: the chunk 14 build found
+  that cutting a window off 150 ms before the next expected note's onset leaves an on-time note
+  unmatchable when the next onset is less than 150 ms later. The owner decided to split the gap
+  at the halfway point: the boundary between two consecutive expected notes is the later of 150 ms
+  before the second onset and the halfway point, so every window contains its own onset; nothing
+  changes for notes 300 ms or more apart. Windows include both ends, and a phrase's last expected
+  note is bounded by the next phrase's first the same way. Nothing newly opened. The v2 master
+  spec is now v1.22.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.
@@ -188,7 +196,7 @@ Status: draft v0.25
   reattached during it, and it reattaches by itself once the session ends; a controller lost
   mid-session and still away at the end keeps its selection into the Review. The selection lives
   in memory only and does not survive a page reload (v2 saves nothing to browser storage). The
-  master spec was then at v1.5 (v1.21 since D167). One gap is open (**O84**: starting a session
+  master spec was then at v1.5 (v1.22 since D168). One gap is open (**O84**: starting a session
   from the Review).
 - **Open:** 14 questions remain live: O84 above, O86 (D129, a v3 question since D130), O87
   (D131), O93 (D150), O98 and O99 (D157–D163), plus the 8

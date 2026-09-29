@@ -1119,10 +1119,11 @@ needed. Build the check; that verification closes before the v2.0 gate.
 
 ### Chunk 14 — Note acknowledgement
 
-**Release:** v2.0. **Paused on 2026-09-29, before any code**: as written, `rule_expected_note_window`
-stops an on-time note from matching when the next note starts less than 150 ms later (sixteenths
-from 110 BPM, eighths from 210 BPM), because the next window opens before the note's own onset.
-The owner decides the fix.
+**Release:** v2.0. **In progress since 2026-09-29** (worktree branch `v2-chunk-14`). It paused
+before any code: as first written, `rule_expected_note_window` stopped an on-time note from
+matching when the next note starts less than 150 ms later (sixteenths from 110 BPM, eighths from
+210 BPM). The owner chose to split the gap at the midpoint the same day (D168, master spec v1.22),
+and the chunk resumed.
 
 **Goal.** The matching rule, as pure logic: each expected note's window, exact-pitch matching,
 once per note, the earliest match first, and the latency correction of a played onset.
@@ -1142,9 +1143,12 @@ once per note, the earliest match first, and the latency correction of a played 
 
 - Expected notes are the phrase's fresh attacks; a tie continuation belongs to its attack and a
   rest has none.
-- A window opens 150 ms before the onset and closes at the later of 200 ms after it or the end of
-  the note's tied span, but never after the next expected note's window opens. Unit tests cover a
-  short note, a long tied note, and fast notes at 240 BPM whose windows touch.
+- Two consecutive expected notes share a boundary: the later of 150 ms before the second onset and
+  the point halfway between the two onsets. A window opens 150 ms before its onset, or at the
+  boundary with the note before if that is later, and closes at the later of 200 ms after the
+  onset or the end of the note's tied span, but never after the boundary with the next note, so it
+  always holds its own onset (D168). Unit tests cover a short note, a long tied note, sixteenths at
+  120 BPM and eighths at 240 BPM, and the last note of a phrase against the next phrase's first.
 - A played note matches only the exact concert pitch, octave included. Each expected note is
   matched at most once, by the earliest unmatched note whose window holds the played onset. On a
   keyboard chord, only the expected note is matched and the others are recorded.

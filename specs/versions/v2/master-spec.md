@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.21 (2026-09-29). This is the consolidated, execution-ready specification for
+Status: master spec v1.22 (2026-09-29). This is the consolidated, execution-ready specification for
 v2, covering releases v2.0 through v2.3. It supersedes the individual v2 draft topic documents,
 which are kept in the archive as working history. Change in v1.6: the export is chosen by content,
 generated notes or played notes, and played notes come as a MIDI file of their own instead of an
@@ -68,7 +68,13 @@ three transpose (§11). Change in v1.21, the product owner's answer to an item l
 the carry-over between phrases is kept, and a session's last phrase, in the review and the export,
 may end with a leap recovery or a tense note's resolution still owed, as it may be cut off
 mid-phrase; the same holds before the failure ladder's standalone phrase or a repeat (§3, §11,
-§12).
+§12). Change in v1.22, the product owner's decision on a flaw found while building note
+acknowledgement: the boundary between two consecutive expected notes is the later of 150 ms before
+the second note's onset and the point halfway between the two onsets, so every acknowledgement
+window contains its own note's onset and a note played on time can always be matched, where before
+a note followed less than 150 ms later could not be; nothing changes for notes 300 ms or more
+apart. Windows include both their ends, and a phrase's last expected note is bounded by the next
+phrase's first in the same way (§8, §11).
 
 ## 1. Core concept
 
@@ -766,17 +772,36 @@ cheap and protects every early tester immediately. A future v3 "my instrument" p
 should remember and reuse the offset this check detects, rather than asking again every session.
 
 **Expected-note acknowledgement.** Every fresh attack in the generated phrase (a tie continuation
-belongs to its original attack; rests have none) is an "expected note" with a timing window: it
-opens 150 ms before the attack's own onset, and closes at the later of 200 ms after the onset or
-the end of that note's full (possibly tied) sounding span — but never later than the next expected
-note's own window opening. A played note acknowledges an expected note only if it matches that
-note's **exact concert pitch, octave included** (this is deliberately strict on octave, unlike the
-chord-fit check in §9, because it's meant to train reading — including which octave is written —
-and the controller check above already catches a simple constant-octave mismatch). Each expected
-note can be acknowledged at most once, matched by the earliest unacknowledged expected note whose
-window contains the played note and whose pitch matches; on a chord played on a keyboard, only the
-one note that matches the expectation is acknowledged, and the extra notes are simply recorded
-without penalty.
+belongs to its original attack; rests have none) is an "expected note" with a timing window, set
+as follows:
+
+- **The boundary between two consecutive expected notes** is the later of two instants: 150 ms
+  before the second note's onset, and the point halfway between the two onsets. When the onsets
+  are 300 ms or more apart, that is simply 150 ms before the second onset; when they are closer,
+  it is the halfway point.
+- **A window opens** 150 ms before its note's onset, or at the boundary with the expected note
+  before it when that is later. **It closes** at the later of 200 ms after the onset or the end of
+  the note's full (possibly tied) sounding span, but never after the boundary with the next
+  expected note.
+- **Every window therefore contains its own onset**, so a note played exactly on time can always
+  be matched, however fast the tempo and however dense the rhythm. For example, at 120 BPM
+  sixteenth notes are 125 ms apart, so when several follow one another each boundary falls halfway
+  between two onsets, and each note's window runs from 62.5 ms before its onset to 62.5 ms after it.
+- **Windows include both their ends.** Two consecutive windows can therefore share one instant,
+  their boundary.
+- **Across a join.** Every phrase starts with a fresh attack on beat 1 (§3), so a phrase's last
+  expected note and the next phrase's first expected note are consecutive expected notes like any
+  other, with a boundary between them. As long as the next phrase is not known, and so always for
+  a session's last phrase, the last expected note's window is not cut short on its account.
+
+A played note acknowledges an expected note only if it matches that note's **exact concert pitch,
+octave included** (this is deliberately strict on octave, unlike the chord-fit check in §9, because
+it's meant to train reading — including which octave is written — and the controller check above
+already catches a simple constant-octave mismatch). Each expected note can be acknowledged at most
+once, matched by the earliest unacknowledged expected note whose window contains the played note and
+whose pitch matches; this also settles a note played at the instant two windows share. On a chord
+played on a keyboard, only the one note that matches the expectation is acknowledged, and the extra
+notes are simply recorded without penalty.
 
 **What's ever shown.** On a successful match, only the expected note itself lights up on screen (a
 theme-colored highlight, green in the working example) — no sound cue, no animation, and critically,
@@ -922,6 +947,9 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
    session in Chromium.
 7. Acknowledgement is exact and positive-only: only the exact expected pitch inside its window is
    ever acknowledged, and the live view never renders a played pitch under any circumstance.
+   Every expected note's window contains its own onset (§8), so a note played exactly on time at
+   the exact pitch is acknowledged at every supported tempo and note density, sixteenth notes at
+   240 BPM included, and across a join between two phrases.
 8. The controller check correctly reports a match or a constant offset for injected test offsets.
 9. The acknowledgement windows and latency constants are tuned and documented against the actual
    reference hardware (a breath controller over USB, and a USB keyboard).
