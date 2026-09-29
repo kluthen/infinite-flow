@@ -131,19 +131,67 @@
     margin: 0 0 var(--spacing-3);
   }
 
-  /* States: default, loading, ready, fading-out, error. Hover/focus/active are not applicable
-     to the static staff container. */
+  /* States: default, loading, ready, fading-out, error, no-room (`staff-no-room`, v2 new: the
+     staff has no room and `room-notice` replaces the score). Hover/focus/active are not
+     applicable to the static staff container. */
+  /* v2 changed -- the border and padding now read the named `--staff-frame-border-width` and
+     `--staff-frame-padding` (the same values as v1), because the phone staff budget subtracts
+     them. v1's fixed minimum block size now holds from bp-tablet-landscape up only: below it,
+     the phone block right after this rule removes it and caps the frame at the phone staff
+     budget (see `--staff-systems-phone-block-budget` in theme.css). */
   .staff-frame,
   .staff-ready {
     background: var(--color-surface);
-    border: 1px solid var(--color-border);
+    border: var(--staff-frame-border-width) solid var(--color-border);
     border-radius: var(--radius-lg);
     color: var(--color-staff);
     min-block-size: 24rem;
-    padding: var(--spacing-4);
+    padding: var(--staff-frame-padding);
+  }
+  /* v2 new -- below bp-tablet-landscape, the staff area is sized by the engraving scale, not by
+     a fixed minimum. The query is width-only, the same as the notation layout's
+     NOTATION_PHONE_LAYOUT_MEDIA_QUERY (src/notation/notation-layout-policy.ts), so the CSS and
+     the engraver always agree on which side of the breakpoint they are. There the engraving
+     scale is the largest that fits both the width and the height, never below the legibility
+     floor (5 CSS px per staff space, NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX in the same file).
+     The frame has no minimum block size; its maximum is the phone staff budget plus its own
+     padding and border, so its content box at that maximum is exactly
+     `--staff-systems-phone-block-budget`. The notation layout reads the height budget from the
+     frame's computed `max-block-size` (viewport units resolve to CSS px there) minus its padding
+     and border; no pixel value is written in application code. Within that ceiling the frame's
+     block size is the two reserved system positions at the height-fit scale, set by the
+     notation layout in every state (Empty, Loading, Ready, the error states, every session
+     state), and the same at idle and in a session, so Start moves nothing. */
+  @media (max-width: 63.9375rem) {
+    .staff-frame,
+    .staff-ready {
+      max-block-size: calc(
+        var(--staff-systems-phone-block-budget) + 2 * var(--staff-frame-padding) + 2 *
+          var(--staff-frame-border-width)
+      );
+      min-block-size: 0;
+    }
   }
   .staff-empty,
   .staff-error {
+    align-content: center;
+    display: grid;
+    justify-items: center;
+  }
+  /* v2 new -- the staff has no room: the window is too narrow for the staff layout at the
+     legibility floor, or, below bp-tablet-landscape, too short for it, or every attempt at a
+     phrase that fits has failed. `room-notice` replaces the score, centred. The frame keeps its
+     usual sizing: from bp-tablet-landscape up its minimum block size; below it, the phone
+     `max-block-size` above, which this state must never override, because the notation layout
+     reads the height budget from it to know when the staff fits again. There the notation layout
+     sets the frame's block size to that maximum; `room-notice` is `--text-md` with no
+     padding of its own: its no-room sentence below bp-tablet-landscape ("This screen is too
+     small to show the staff.") is one line, so it fits even a budget far below the staff's, and
+     its longer too-many-notes sentence only shows when the budget already holds a staff. Under
+     that sentence, a round of retries (started by a widening, a change to a setting the phrase
+     is generated from, or `Regenerate phrase`) adds `staff-loading` while it runs, so the notice
+     stays in place, dimmed, until a phrase that fits lands. */
+  .staff-no-room {
     align-content: center;
     display: grid;
     justify-items: center;
@@ -291,6 +339,17 @@
   .segmented-control.is-loading {
     opacity: 0.55;
   }
+  /* v2 changed -- a disabled segment reads "not available here" and takes no hover feedback. It
+     is never the checked segment. Its reason is always given in words, in the field's
+     `field-note`, which the segment names with `aria-describedby`, so the dimmed label is never
+     the only signal. Native `disabled` takes it out of the roving tab stop and out of arrow-key
+     selection, which skips over it. */
+  .segment:disabled {
+    cursor: not-allowed;
+  }
+  .segment:disabled:hover {
+    border-color: var(--color-border);
+  }
   /* Read-only controls must stay keyboard-focusable: this only suppresses pointer and
      roving-tab-stop arrow-key changes, which the component also enforces in script; it does
      not change visibility or remove the control from the tab order. Read-only never dims color:
@@ -323,6 +382,16 @@
     color: var(--color-text-muted);
     font-size: var(--text-sm);
     font-weight: 700;
+  }
+  /* v2 new -- States: shown, absent. A short static line after a field's control giving the
+     reason one of its options is unavailable (Note density's `Sixteenth` below
+     bp-tablet-landscape). Plain text, not a live region, at full muted contrast whatever state
+     the option it explains is in; the disabled option names it with `aria-describedby`.
+     Informational, so hover/focus-visible/active/disabled do not apply. */
+  .field-note {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin: 0;
   }
 
   /* The tempo stepper is a group: a decrement `stepper-button`, a numeric readout, and an
@@ -431,12 +500,60 @@
     border-color: var(--color-accent);
     color: var(--color-text);
   }
+  /* v2 changed -- states comment added; `room-notice` below is its sibling. States: absent
+     (default), shown (portrait-shaped below bp-desktop, where it replaces `layout-app`; see the
+     portrait guard at the end of this file). Plain centred copy with no action, cleared by the
+     viewport alone; not interactive, so hover/focus-visible/active/disabled do not apply. */
   .orientation-notice {
     display: none;
   }
+  /* v2 new -- States: absent (default: not rendered), shown (inside `staff-frame
+     staff-no-room`, replacing the score), focused (`:focus-visible`). The `orientation-notice`
+     pattern -- one plain centred sentence, no action, cleared by itself: by the viewport change
+     that gives the staff room (no-room cause), or by the first phrase that fits (too-many-notes
+     cause); under a rhythm combination that cannot form a phrase, either cause gives way to
+     `staff-empty` instead -- but it replaces only the score, so the header and the controls stay
+     usable. It carries `tabindex="-1"` so the app can move focus to it when a session ends onto
+     it; it is never in the tab order, and has no hover, active or disabled state. No padding of
+     its own: the frame's padding holds it, so it fits a phone staff budget far smaller than the
+     staff needs. */
+  .room-notice {
+    color: var(--color-text);
+    font-size: var(--text-md);
+    margin: 0;
+    text-align: center;
+  }
+  .room-notice:focus-visible {
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-focus);
+    outline: none;
+  }
+  /* v2 new -- States: shown, absent (not rendered, `display: none`, so assistive technology reads
+     only the sentence on screen). The two sentences of the no-room cause, inline spans inside
+     `room-notice`, which holds both: `room-notice-wide`, "The staff needs more room. Make the
+     window larger.", shown from bp-tablet-landscape up; `room-notice-narrow`, "This screen is too
+     small to show the staff.", shown below it, where a screen cannot be made larger (a desktop
+     window narrowed below it gets it too: rare, and accepted to keep one query). The query
+     is width-only, the same as the phone staff block above and the notation layout's split-layout
+     query, so the sentence always matches the room rule that applied. The too-many-notes cause
+     uses neither: its sentence is `room-notice`'s own text. Not interactive: no hover, focus,
+     active or disabled state (focus belongs to `room-notice`). */
+  .room-notice-narrow {
+    display: none;
+  }
+  @media (max-width: 63.9375rem) {
+    .room-notice-wide {
+      display: none;
+    }
+    .room-notice-narrow {
+      display: inline;
+    }
+  }
 
   /* v2 new -- from here to "end v2 new": connection sheet, device picker, transposition-check
-     note, controller status, session alert. */
+     note, controller status, session action, session cue row (starting-note line, count-in,
+     session notices), start marker, playhead band, note acknowledgement, audio mix
+     (toggle buttons, Volume popover, range inputs). */
   /* States: default, entering/leaving (opacity transition only -- no spatial motion, per
      `motion.md`'s "communicates ... immediate interaction feedback" rule). Not itself an
      interactive control (its dismiss-on-click is handled by script), so hover/focus-visible/
@@ -643,39 +760,302 @@
     background: var(--color-error);
   }
 
-  /* States: empty (reserved, nothing shown), occupied (the disconnect banner). The space a
-     session that started with a controller keeps free above the staff, at one fixed block
-     size at every breakpoint, so the banner appearing or leaving never moves the staff. Not
-     interactive. */
-  .session-alert-slot {
-    block-size: var(--session-alert-slot-block-size);
-    margin-block-end: var(--spacing-3);
+  /* States: default, hover, focus-visible, active, disabled, loading -- all from `.btn`, in
+     either emphasis: `btn btn-lg session-action` (secondary) or `btn btn-primary btn-lg
+     session-action` (primary). The header session action, reading `Start session` or `Stop`.
+     One fixed inline size for both labels and both emphases, so a label or emphasis change
+     never moves anything in the header. */
+  .session-action {
+    flex: 0 0 auto;
+    inline-size: var(--session-action-inline-size);
+    white-space: nowrap;
   }
-  /* States: shown, absent (no entering/leaving animation). Composed as
-     `inline-alert alert-error session-alert`; fills its slot and never grows it. Not
-     interactive, so hover/focus-visible/active/disabled do not apply. Its only child is
-     `session-alert-text`, so the flex layout centres one block of copy vertically and never
-     splits the sentence into separate flex items. */
+
+  /* States: empty (nothing to say: Idle with no controller attached, most of a running
+     session), starting note (`start-note-line`), count-in (`count-in`), notice
+     (`session-alert`: the disconnect banner, or the struggling notice). It holds one of them at
+     a time, plus, on the phone during a session only, `session-cue-actions` at its trailing
+     end. Always present, between `score-toolbar` and `staff-viewport`, at one fixed block
+     size at every breakpoint, so no change of content ever moves the staff. Contents appear
+     and leave with no animation. Not interactive itself, so hover/focus-visible/active/
+     disabled do not apply to the row (the buttons in `session-cue-actions` carry their own). */
+  .session-cue-row {
+    align-items: center;
+    block-size: var(--session-cue-row-block-size);
+    display: flex;
+    gap: var(--spacing-3);
+    margin-block-end: var(--session-cue-row-gap);
+    min-inline-size: 0;
+  }
+  /* Layout only: each child carries its own states. The phone's compact session actions, at
+     the trailing end of `session-cue-row`, rendered from a session's start (count-in
+     included) until it ends, so they stay on screen when the header and the score toolbar
+     have scrolled above the visible area: a compact `Stop` (`btn btn-primary`: default,
+     hover, focus-visible, active, disabled from `.btn` and `.btn-primary`) and a second
+     `Volume` button in its own `mix-volume` anchor (`.btn` with `aria-expanded` and
+     `aria-controls`; default, hover, focus-visible, active, disabled, plus the open state of
+     `.mix-volume > .btn[aria-expanded='true']`), opening the same volume `popover` under
+     itself. `.btn`'s minimum block size keeps both at the accessibility floor's target size.
+     Shown below bp-tablet-landscape only, whatever the orientation (the width-only block right
+     after this rule, the same query as the phone staff block above and the notation layout's
+     split layout); from bp-tablet-landscape up it never shows, since the header and toolbar
+     stay on screen there. */
+  .session-cue-actions {
+    align-items: center;
+    display: none;
+    flex: 0 0 auto;
+    gap: var(--spacing-2);
+    margin-inline-start: auto;
+  }
+  @media (max-width: 63.9375rem) {
+    .session-cue-actions {
+      display: flex;
+    }
+  }
+  /* States: shown, absent. The neutral line naming the note that starts a session, "Play this
+     note to start: {note}", the note (written pitch with its octave number) in a `strong`
+     that never breaks across lines. Static text; never a live region. */
+  .start-note-line {
+    color: var(--color-text);
+    font-size: var(--text-md);
+    margin: 0;
+    min-inline-size: 0;
+  }
+  .start-note-line strong {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  /* States: upcoming (default: muted), current (`is-current`: accent colour and an accent bar
+     under the digit, so colour is never the only signal), past (`is-past`: full text colour,
+     no bar). An `ol` of four `count-in-beat` items, "1 2 3 4". Every beat keeps one box in
+     every state (bold throughout, tabular digits, a transparent bar when not current), so
+     lighting a beat never moves another. Changes are instant, on the audio clock: no
+     transition. Not interactive. */
+  .count-in {
+    align-items: center;
+    display: flex;
+    font-size: var(--text-2xl);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    gap: var(--spacing-5);
+    line-height: var(--leading-tight);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .count-in-beat {
+    border-block-end: var(--spacing-1) solid transparent;
+    color: var(--color-text-muted);
+  }
+  .count-in-beat.is-past {
+    color: var(--color-text);
+  }
+  .count-in-beat.is-current {
+    border-block-end-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+  /* States: shown, absent (no entering/leaving animation). A session notice inside
+     `session-cue-row`, in one of two tones:
+     - `inline-alert alert-error session-alert`: the controller-disconnect banner, the one
+       piece of session text sized for music-stand distance -- sentence at `--text-lg`,
+       countdown at `--text-2xl`;
+     - `inline-alert alert-notice session-alert`: the neutral "struggling" notice, at the body
+       size; never error-toned.
+     Fills the row and never grows it. Not interactive, so hover/focus-visible/active/disabled
+     do not apply. Its only child is `session-alert-text`, so the flex layout centres one block
+     of copy vertically and never splits the sentence into separate flex items. */
   .session-alert {
     align-items: center;
     block-size: 100%;
     display: flex;
+    flex: 1 1 auto;
+    min-inline-size: 0;
     overflow: hidden;
   }
-  /* States: none (static copy; only the countdown inside it changes). The banner's whole
+  /* States: none (static copy; only the countdown inside it changes). The notice's whole
      sentence as one inline run: it wraps as ordinary text, keeps the space before the
      countdown, and holds `session-alert-countdown` inline within the sentence. */
   .session-alert-text {
     display: block;
     min-inline-size: 0;
   }
-  /* The live "{n} s" count, inline within `session-alert-text`: tabular digits so the line
-     never jitters as the number changes; "{n} s" never breaks across lines. */
+  .session-alert.alert-error .session-alert-text {
+    font-size: var(--text-lg);
+  }
+  /* The live "{n} s" count, inline within the disconnect banner's `session-alert-text`: large,
+     bold, tabular digits so the line never jitters as the number changes; "{n} s" never breaks
+     across lines. The number changes with no animation. */
   .session-alert-countdown {
     display: inline;
+    font-size: var(--text-2xl);
     font-variant-numeric: tabular-nums;
     font-weight: 700;
+    line-height: var(--leading-tight);
     white-space: nowrap;
+  }
+  /* States: shown (bp-tablet-landscape and up), absent (below it). The disconnect banner's
+     middle clause, "plug it back in to keep playing" with the space and em dash before it, an
+     inline span inside `session-alert-text`. From bp-tablet-landscape up it shows inline,
+     giving the full sentence. Not rendered below bp-tablet-landscape, whatever the orientation
+     (the width-only block right after this rule, the same query as `session-cue-actions`),
+     where the banner shares `session-cue-row` with `session-cue-actions` and reads "Controller
+     disconnected. Session ends in {n} s.". Absent is `display: none`, so the shorter wording is
+     also what assistive technology reads. Not interactive. */
+  .session-alert-clause {
+    display: inline;
+  }
+  @media (max-width: 63.9375rem) {
+    .session-alert-clause {
+      display: none;
+    }
+  }
+
+  /* States: shown (Idle only, with a controller attached and a session startable), absent.
+     The small accent triangle the notation pipeline draws above phrase 1's first attacked note,
+     which makes the starting note's octave unambiguous on the staff itself. Drawn inside the
+     score SVG and sized in staff spaces by the engraver; this rule only colours it, and
+     outranks the staff recolouring above. Removed, with no animation, when the count-in starts.
+     Not interactive. */
+  .staff-frame .staff-svg .start-note-marker,
+  .staff-frame .staff-svg .start-note-marker g {
+    fill: var(--color-accent);
+    stroke: none;
+  }
+  /* States: shown (a running session, from bar 1 after the count-in), absent (Idle, the
+     count-in, after the session). The playhead: a quiet tint covering the extent of the
+     measure being played, drawn inside the score SVG behind every glyph of that measure. It
+     moves only by stepping to the next measure at each barline, on the audio clock -- never a
+     transition, never a glide. Not interactive. */
+  .staff-frame .staff-svg .playhead-band {
+    fill: var(--color-playhead-band);
+    stroke: none;
+  }
+  /* States: unlit (default: staff ink), lit (`note-ack`). Put on an acknowledged expected
+     note's own notehead, stem, flag and accidental -- never on a beam it shares with other
+     notes, nor on its ledger lines, which keep the staff ink. A tied continuation's glyphs take
+     the class together with their attack. Switches instantly (no transition, no animation) and
+     stays until its system is refilled. Not interactive. */
+  .staff-frame .staff-svg .note-ack,
+  .staff-frame .staff-svg .note-ack g {
+    fill: var(--color-note-ack);
+    stroke: var(--color-note-ack);
+  }
+  .staff-frame .staff-svg .note-ack [fill='none'] {
+    fill: none;
+  }
+  .staff-frame .staff-svg .note-ack [stroke='none'],
+  .staff-frame .staff-svg .note-ack text {
+    stroke: none;
+  }
+
+  /* Layout only: each child carries its own states. The audio mix -- the `Backing` and `Click`
+     toggle buttons, then `mix-volume` (the `Volume` button and its popover). Never locked:
+     fully interactive at Idle, during a session and in the Review. From bp-tablet-landscape
+     up it sits at the toolbar's trailing end; below it, whatever the orientation (the
+     width-only block right after this rule, the same query as `session-cue-actions`), it takes
+     its own row of the wrapping `score-toolbar`, under the title. */
+  .mix-controls {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    margin-inline-start: auto;
+    min-inline-size: 0;
+  }
+  @media (max-width: 63.9375rem) {
+    .mix-controls {
+      flex: 1 1 100%;
+      margin-inline-start: 0;
+    }
+  }
+  /* Layout only: the positioning anchor for the Volume popover. The `Volume` button is a plain
+     `.btn` with `aria-expanded` and `aria-controls`; while its popover is open it keeps the
+     accent border (open state), in addition to `.btn`'s own states. */
+  .mix-volume {
+    position: relative;
+  }
+  .mix-volume > .btn[aria-expanded='true'] {
+    border-color: var(--color-accent);
+  }
+  /* States: off (default, `aria-pressed="false"`), on (`aria-pressed="true"`), hover,
+     focus-visible, active, disabled. Composed as `btn toggle-button`, so hover, focus-visible,
+     active and disabled come from `.btn`. The state is always in words: `toggle-button-state`
+     reads "on" or "off" (hidden from assistive technology, which reads `aria-pressed`); on also
+     adds the accent border and an accent bar along the block end, so colour is never the only
+     signal. One width in both states. */
+  .toggle-button {
+    gap: var(--spacing-2);
+  }
+  .toggle-button[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    box-shadow: inset 0 calc(var(--spacing-1) * -1) 0 var(--color-accent);
+  }
+  .toggle-button[aria-pressed='true']:focus-visible {
+    box-shadow:
+      var(--shadow-focus),
+      inset 0 calc(var(--spacing-1) * -1) 0 var(--color-accent);
+  }
+  .toggle-button-state {
+    color: var(--color-text-muted);
+    display: inline-block;
+    font-weight: 700;
+    inline-size: var(--toggle-button-state-inline-size);
+    text-align: start;
+  }
+  .toggle-button[aria-pressed='true'] .toggle-button-state {
+    color: var(--color-text);
+  }
+  /* States: closed (`hidden`: absent), open. It opens and closes instantly, with no
+     animation. A non-modal panel anchored under the `Volume`
+     button, aligned to its inline end, holding the two volume `field-group`s. The one element
+     allowed to cover part of the staff, since only the player opens it. Not itself
+     interactive: its sliders carry their own states. */
+  .popover {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-panel);
+    display: grid;
+    gap: var(--spacing-3);
+    inset-block-start: calc(100% + var(--spacing-2));
+    inset-inline-end: 0;
+    min-inline-size: var(--control-group-min-inline-size);
+    padding: var(--spacing-4);
+    position: absolute;
+    z-index: var(--z-popover);
+  }
+  .popover[hidden] {
+    display: none;
+  }
+  .popover .field-group {
+    margin-block-end: 0;
+  }
+  /* States: default, hover, focus-visible, active (dragging), disabled. A native
+     `input type="range"` whose `min`, `max`, `step` and initial `value` come from the audio-mix
+     level tokens in `theme.css` (never inline). 44px-minimum block size for the hit target.
+     Its `field-label` names it; no visible number. */
+  .range-input {
+    accent-color: var(--color-accent);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    inline-size: 100%;
+    margin: 0;
+    min-block-size: 2.75rem;
+  }
+  .range-input:hover {
+    accent-color: var(--color-accent-hover);
+  }
+  .range-input:focus-visible {
+    box-shadow: var(--shadow-focus);
+    outline: none;
+  }
+  .range-input:active {
+    cursor: grabbing;
+  }
+  .range-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
   }
   /* end v2 new */
 

@@ -402,3 +402,478 @@ through this header. Numbering continues from D45.
   replacing one system in place (no read-ahead), a scrolling strip or lines moving up (music moving
   under the eyes, hardest to follow from a stand). Governs unit 2; recorded in `strategy.md`,
   trade-offs.
+
+- **D72 — Staff-only session view goes to v5 (2026-09-28, user-confirmed; closes Q37).** v2 has no
+  staff-only view. With the unit-2 layout, everything on or near the staff during a session already
+  belongs to the session, and hiding the audio mix would conflict with spec §5/§6 ("reachable at
+  all times"). The owner places the idea in v5; passed to `spec-writer` for the roadmap.
+
+- **D73 — The screen stays awake during a session (2026-09-28, user-confirmed; new behaviour for
+  `spec-writer`).** A 5–30 minute session involves no touch (ux D62), so a tablet, phone or laptop
+  would dim and lock mid-session. On a phone a locked screen hides the tab, which ends the session
+  (spec §6). The app holds a screen wake lock from session start (Start click or starting note)
+  until the session ends, and releases it at the end. If the browser refuses or lacks the lock, the
+  session runs as normal, with no message (not worth pulling the eyes off the staff). The spec
+  does not mention this; passed to `spec-writer` to record.
+
+- **D74 — The count-in always clicks (2026-09-28, user-confirmed; for `spec-writer`).** The
+  count-in's click sounds even when the player has turned the click off. It is the only thing
+  that sets the tempo before bar 1. The click setting governs the session after the count-in.
+  Clarifies spec §6 ("one measure of click"); passed to `spec-writer`.
+
+- **D75 — The playhead is a minor, stepping measure band (2026-09-28, user-confirmed).** A quiet
+  tint behind the measure being played. It steps at each barline on the audio clock and never
+  glides; it sits behind the notes, so it never competes with acknowledgement. The owner wants the
+  playhead minor. Rejected: a line gliding through the beat (music moving under the eyes, as D71
+  rejected). `motion.md`'s "do not animate musical playback" becomes: the playhead steps measure
+  by measure and never glides, and nothing else moves with the music.
+
+- **D76 — The session cue row (2026-09-28, user-confirmed; closes Q27).** One row between the score
+  toolbar and the staff, with a fixed block size and always present (Idle, session, Review). It
+  replaces the session-only `session-alert-slot`. It holds one thing at a time: at Idle, with a
+  controller connected and a phrase shown, the starting-note line; during the count-in, the beat
+  count; during the session, nothing, or a notice (the disconnect banner takes priority over the
+  "struggling" notice). Neither Start, the count-in nor a disconnect ever moves the staff. Accepted
+  cost: an empty row at Idle when no controller is connected.
+
+- **D77 — Wording correction to D71 (2026-09-28).** D71's "a phrase always starts on the top
+  system" holds only on the split phone layout (bars 1–2 on top, bars 3–4 below). Where a phrase
+  fits one system, whole phrases alternate between the top and bottom systems. The rest of D71
+  stands.
+
+- **D78 — The session flow's shape (2026-09-28, user-confirmed).** The session core loop is its own
+  flow, `flows/play-session/`, on the same screen, `screens/phrase-workspace/`, as that screen's
+  session states. D45's point (no separate session screen) stands; its "and its existing flow" is
+  narrowed, since folding the session into `generate-phrase` would bury both flows' logic. The flow
+  ends where the Review opens (unit 6). Units 3 (locked controls), 4 (acknowledgement) and 5 (audio
+  mix) are folded into this unit.
+
+- **D79 — Start and Stop (2026-09-28, user-confirmed).** Two fixed action slots end the header: the
+  phrase action, then the session action. Primary emphasis sits on the next useful step:
+  - Empty or initial generation error: phrase action primary (`Generate phrase` / `Retry
+generation`); `Start session` secondary, disabled.
+  - Phrase shown (Ready, or generation error over a retained phrase): `Regenerate phrase` / `Retry
+generation` secondary; `Start session` primary.
+  - Loading: phrase action disabled and loading; `Start session` primary, disabled until the new
+    phrase lands (so phrase 1 is never ambiguous).
+  - Notation error (staff blank): `Retry notation` primary; `Start session` secondary, disabled.
+  - Unsupported rhythm combination: both disabled (spec DoD 11).
+  - Session running, count-in included: phrase action disabled in place; the session action reads
+    `Stop`, primary.
+    `Start session` and `Stop` share one fixed inline size (new token), so the header never moves. A
+    Start click leaves focus on the button, now `Stop`, so Space or Enter stops; no global shortcut.
+    At session start, if the staff is not in view, the page jumps (no animation) to the top of the
+    workspace, once, before the count-in.
+
+- **D80 — Session-time workspace (2026-09-28, user-confirmed).** During a session: `controller-status`
+  is display-only (D53); the theme control stays live; `tempo-readout` shows the tempo in effect.
+  The controls below the score take the Loading state's read-only treatment for the whole session
+  (full-strength values, read-only ring, no change accepted); an automatic change (v2.1+) updates
+  the shown value with no highlight. The audio mix is never locked. The two staff systems are
+  already reserved at Idle (D71), so nothing moves at Start.
+
+- **D81 — Starting-note line and count-in (2026-09-28, user-confirmed; completes D52).** In the cue
+  row (D76):
+  - At Idle, with a controller connected and a phrase shown: "Play this note to start: {note}",
+    the note in written pitch with its octave number (e.g. B♭4), neutral tone, `--text-md`. Phrase
+    1's first attacked note carries a small accent-coloured start marker (a triangle above the
+    note), which is what makes the octave unambiguous for a reader who doesn't use octave numbers.
+    Line and marker are hidden when no controller is attached (including a selected controller
+    that is away); the marker goes when the count-in starts.
+  - During the count-in, either kind of start: four beat marks "1 2 3 4" at `--text-2xl`, each lit
+    on its click on the audio clock (current strong, passed stay visible, upcoming muted). The staff
+    is untouched, so bar 1 stays fully visible. On large screens phrase 2 fades into the lower
+    system as soon as it is ready. After beat 4 the row empties and the playhead starts.
+
+- **D82 — Refilling and acknowledgement (2026-09-28, user-confirmed; with D75, D77).** When the
+  playhead leaves a system, that system clears at once (existing fast fade-out) and fills with the
+  next material as soon as it is engraved (existing fade-in), so a glance never lands on the phrase
+  just played. A failure-ladder repeat fills a system like any phrase, unmarked (spec D109). On a
+  match, the expected note's notehead, stem, flag and own accidental switch instantly to
+  `--color-note-ack` (new semantic token, an alias of the success green, differing from the staff
+  ink in lightness as well as hue, at least 3:1 against the canvas in both themes); shared beams
+  and ledger lines stay; a tied continuation lights with its attack; the note stays lit until its
+  system is refilled. No animation. A missed or wrong note changes nothing, and the played note is
+  never drawn.
+
+- **D83 — Session notices (2026-09-28, user-confirmed; closes Q36).** Both live in the cue row. The
+  disconnect banner (D51 wording unchanged): sentence at `--text-lg`, countdown "{n} s" at
+  `--text-2xl`, bold, inline in the sentence; the only session text sized for music-stand distance;
+  the row's block size fits it at `bp-mobile-landscape`. The "struggling" notice (spec §4 step 4):
+  neutral `alert-notice`, "The generator is struggling with these settings.", from the second
+  consecutive repeat until a freshly generated phrase starts sounding; no animation, never
+  error-toned; the disconnect banner replaces it while the countdown runs.
+
+- **D84 — Audio mix placement (2026-09-28, user-confirmed).** In the score toolbar's trailing end,
+  always visible (Idle, session, Review), never over the staff, never locked: two toggle buttons,
+  `Backing` and `Click`, their state in words ("on"/"off"); one `Volume` button opening a small
+  popover with two sliders (Backing, Click), opened only by the player, closed by Escape or an
+  outside click (the one element allowed to cover part of the staff). Same pattern at every
+  breakpoint; on the phone the toolbar wraps the mix under the title. Defaults: click on (spec),
+  backing on. **The volume sliders never reach silence:** off is the toggles' job, so the count-in,
+  which follows the click volume and always sounds (D74), is always audible. Exact ranges and
+  default levels wait on Q31. New Tier 2 components: `toggle-button` (`aria-pressed`),
+  `range-input`, `popover`, each with a full state matrix.
+
+- **D85 — Ending a session (2026-09-28, user-confirmed).** Stop, more than 30 s of silence, a
+  disconnect countdown reaching zero, and a hidden tab all end the session the same way: backing
+  and click fade out over about 100 ms, the playhead goes, the Review opens with no confirmation and
+  no summary step. Focus goes to the session action, which reads `Start session` again. (v2.2: the
+  tempo control resets to the session's starting tempo, spec §10.)
+
+- **D86 — The backing volume may reach silence (2026-09-28, user-confirmed; narrows D84).** D84's
+  "the volume sliders never reach silence" holds for the **click** slider only (it carries the
+  always-audible count-in, spec D134). The **backing** slider's range goes down to silence: the
+  player may mute the backing entirely, by its toggle or by its slider. D84 had extended the
+  no-silence rule to the backing without the owner's confirmation; this corrects it.
+
+- **D87 — No session starts over a generation error (2026-09-28, user-confirmed; closes Q38;
+  changes D79).** While a generation-failure banner is showing, `Start session` is disabled, and
+  the starting note starts nothing (the starting-note line is not shown), including over a
+  retained phrase. The phrase shown is then primary as `Retry generation`. The player regenerates
+  successfully first. So no error banner is ever on screen at Start and nothing shifts at Start.
+  D79's "Phrase shown … or generation error over a retained phrase" row loses its generation-error
+  case. Restricts when a session may start (spec §6/§7); passed to `spec-writer`.
+
+- **D88 — A controller lost during the count-in (2026-09-28, user-confirmed; closes Q39).** The
+  disconnect banner takes the cue row at once; the count-in keeps clicking; after beat 4 the
+  session runs as in any disconnect (countdown from the unplug).
+
+- **D89 — A session ended before phrase 1 sounds (2026-09-28, user-confirmed; closes Q40).** Stop,
+  or a hidden tab, during the count-in returns straight to Idle with phrase 1 still on screen; no
+  Review opens (there is nothing to review) and the previous Review, if any, is not restored.
+  Touches spec §7 (what a session with no sounded phrase is); passed to `spec-writer`.
+
+- **D90 — Orientation and resizing during a session (2026-09-28, user-confirmed; closes Q41).** At
+  session start the app asks the browser to lock landscape orientation, and releases the lock at
+  the end; a refusal is silent. If the device still turns to portrait mid-session, the session ends
+  exactly like Stop. Any other viewport change keeps the staff layout chosen at Start (one system
+  per phrase or the split layout) until the session ends. Noted to the owner: Chromium grants an
+  orientation lock only in fullscreen, so on a phone in a normal tab the lock will usually be
+  refused and the portrait rule is what applies in practice. Passed to `spec-writer` (a new way a
+  session ends).
+
+- **D91 — On a phone, a session shows the whole staff (2026-09-28, user-confirmed; closes Q42).**
+  The phone is the tertiary display. At `bp-mobile-landscape`, when a session starts the page
+  settles so the cue row and both staff systems are entirely visible; the header and the score
+  toolbar may sit above the visible area. During a session, a compact `Stop` and the `Volume`
+  button sit at the cue row's trailing end on the phone only, so Stop and the mix stay reachable
+  (spec §5). Everything else is secondary, apart from the exceptions already settled (count-in,
+  starting-note line, disconnect countdown, all in the cue row). Desktop and tablet are unchanged.
+
+- **D92 — Focus when the connection sheet closes and Start is disabled (2026-09-28,
+  user-confirmed; closes Q43).** Focus goes to the phrase action instead of the session action.
+
+- **D93 — Three write-up behaviours confirmed (2026-09-28, user-confirmed).** Proposed by the unit-2
+  write-up delegate, now settled: the starting-note line (and its start marker) shows only when
+  `Start session` is enabled; the generation and notation status live regions stay silent for
+  generation during a session; the "struggling" notice comes back after a disconnect banner leaves,
+  if the generator is still struggling (the condition that raised it still holds).
+
+- **D94 — A session ends when the staff can no longer be shown (2026-09-28, user-confirmed; closes
+  Q46, answers spec O89; generalizes D90's portrait rule).** One rule covers every viewport change
+  during a session: if the workspace would show the orientation notice (the viewport becomes
+  portrait-shaped below `bp-desktop`, whether the device was turned or not — split screen, a
+  resized window), or the held staff layout can no longer be engraved at the legibility floor in the
+  new width, the session ends exactly like Stop (during the count-in, as D89). Otherwise, on any
+  viewport change, both systems re-engrave at once at the new width with the layout chosen at
+  Start (one phrase per system, or the split layout); a resize is the player's own manual action,
+  so the redraw does not break the hands-free reading rule. Passed to `spec-writer` for O89 and the
+  "too narrow" end.
+
+- **D95 — Focus when the connection sheet closes with both header actions disabled (2026-09-28,
+  user-confirmed; closes Q44; completes D92).** In Loading or under an unsupported rhythm
+  combination, focus returns to `controller-status`, the element that opened the sheet (always
+  interactive outside a session). Order of preference on close: the session action if enabled,
+  else the phrase action if enabled, else `controller-status`.
+
+- **D96 — Short disconnect wording on the phone (2026-09-28, user-confirmed; closes Q45).** At
+  `bp-mobile-landscape` the disconnect banner reads "Controller disconnected. Session ends in
+  {n} s." (the "plug it back in" clause is dropped as obvious), so it fits the cue row's two lines
+  beside the compact session actions. Wider breakpoints keep D51's full sentence.
+
+- **D97 — Five write-up choices confirmed (2026-09-28, user-confirmed).** From the D86–D92 pass:
+  the phone settle scrolls the least distance that puts the whole cue row and `staff-viewport` in
+  view, once and instantly; a phrase 2 already drawn clears with the fast fade-out when a session
+  ends during the count-in; a controller reattaching during the count-in brings the count-in back
+  into the cue row; the volume popover closes when the session ends; "portrait" means the viewport
+  becomes portrait-shaped below `bp-desktop`, where the orientation notice would replace the
+  workspace.
+
+- **D98 — No session starts while the staff is not shown (2026-09-28, user-confirmed; answers
+  spec O90; completes D94).** While the rotate-device notice replaces the workspace (portrait-shaped
+  below `bp-desktop`), and while the held staff layout cannot be engraved at the legibility floor,
+  the starting note does nothing and `Start session` is not reachable: a session started there would
+  end at once under D94. Once the view can show the staff again, the idle start conditions apply as
+  usual. Passed to `spec-writer` for O90.
+
+- **D99 — Focus after a too-narrow end that lands in Notation error (2026-09-28, user-confirmed;
+  narrows Q47).** When a session ended during the count-in by a too-narrow window leaves the
+  workspace in Notation error, focus goes to the phrase action, `Retry notation`, per D95's order.
+  The play-session diagram gains this branch. The end after phrase 1 (the Review over a staff in
+  notation error) stays open under Q47 for unit 6. A rare, mostly desktop case.
+
+- **D100 — A session phrase must fit the held layout; phones hold the split layout (2026-09-28,
+  user-confirmed; closes Q48; corrects Q20).** Whether a phrase fits at the legibility floor depends
+  on its content, so an in-session misfit can occur (Q20's "cannot occur" was wrong for fit). During
+  a session, fitting the held staff layout at the legibility floor is part of what makes a
+  look-ahead phrase valid: a phrase that does not fit is a failed attempt and takes spec §4's normal
+  fresh-seed retries, exactly like one the generator could not find; only when every retry fails
+  does the failure ladder repeat a phrase, as for any generation failure. The fit check is invisible
+  to the player. The held layout no longer depends on phrase 1's content: below
+  `bp-tablet-landscape` a session always uses the split layout (bars 1–2 on the top system, bars 3–4
+  on the bottom); at `bp-tablet-landscape` and up it always uses one system per phrase. The idle
+  layout rules are unchanged. Passed to `spec-writer` (§4 retries, §7 history).
+
+- **D101 — The acknowledgement colour gets its own mid-tone green (2026-09-28, user-confirmed;
+  closes Q49; amends D82).** `--color-note-ack` stops aliasing `--color-success`: acknowledgement is
+  carried by colour alone, so it must differ from the staff ink by at least 3:1 in luminance
+  (WCAG G183), and also clear 3:1 against the staff surface and `--color-playhead-band`, in both
+  themes. Light `#128159` (3.71:1 ink, 4.28:1 canvas, 3.78:1 band); dark `#2d9a72` (3.32:1 ink,
+  5.07:1 canvas, 3.45:1 band). `--color-success` is unchanged for text. No non-colour cue: a lit
+  note is encouragement, not information the player needs to keep playing. The slim dark margin
+  joins the listening/playing checks alongside Q31.
+
+- **D102 — Phones always use the split layout, idle included (2026-09-28, user-confirmed; closes
+  Q50; completes D100; changes v1's phone idle rule).** Below `bp-tablet-landscape` the staff is
+  always engraved as two systems of two measures (bars 1–2 top, bars 3–4 bottom), at idle as in a
+  session; the v1 "try one system first, fall back to two" rule no longer applies there. What the
+  player sees before Start is exactly what they read during the session, so Start never moves a
+  note (D71). The cost, a wide phone no longer showing a short phrase on one line at idle, is
+  accepted because the phone is the tertiary display (D91). At idle a phrase that does not fit the
+  split layout at the legibility floor still takes Notation error. At `bp-tablet-landscape` and up
+  nothing changes. Replaces the proposed instant re-engrave of phrase 1 at Start.
+
+- **D103 — Three re-engrave behaviours confirmed (2026-09-28, user-confirmed; from the D94 write-up,
+  checked sound by `ux-critic`).** When a viewport change re-engraves both systems mid-session: notes
+  already lit keep `note-ack` and `playhead-band` stays on the measure being played (both are
+  reconstructable from the session history and the audio clock); the re-engrave is instant, with no
+  fade, since a fade would blank the system being read (only a refill fades); and a session never
+  shows the notation-error state (a layout that no longer fits ends the session under D94, a
+  look-ahead misfit is retried under D100, and a repeat is the phrase just shown).
+
+- **D104 — On a phone the staff is sized to the height too (2026-09-28, user-confirmed; closes
+  Q51; extends D94 and D98).** Below `bp-tablet-landscape` the engraving scale is the largest that
+  fits both the width and the height: `session-cue-row` and both staff systems (with the
+  `staff-frame` chrome) must fit together inside the viewport, measured as the small viewport height
+  (browser toolbars showing), so a toolbar hiding or reappearing never redraws the staff. The
+  scale never drops below the legibility floor. v1's fixed minimum block size for `staff-frame`
+  no longer applies there; the staff area's block size is set by that scale and is the same at idle
+  and in a session (D102), so Start still moves nothing. If even the legibility floor cannot fit the
+  height, the staff counts as not shown: no session starts (as D98) and a running one ends like Stop
+  (as D94). At `bp-tablet-landscape` and up nothing changes. Passed to `spec-writer` (spec D138,
+  D139: the "staff not shown" condition now includes height).
+
+- **D105 — A viewport change re-checks material already waiting (2026-09-28, user-confirmed;
+  closes Q52; completes D94 and D100).** On any viewport change during a session, the fit test
+  covers the systems on screen and every piece of material already checked and waiting to be drawn
+  (in the split layout, the next phrase's bars 3–4 or a repeated phrase's bars 1–2). If any of it no
+  longer fits the held layout at the legibility floor, the session ends like Stop, as for any
+  too-narrow change. A session therefore never shows the notation-error state.
+
+- **D106 — What a misfit does to the struggling notice, worded exactly (2026-09-28; write-up
+  correction found by `ux-critic`, consistent with D100 and spec D141).** A misfit that a retry
+  fixes never counts toward the struggling notice. A repeat counts whatever caused its failed
+  attempts, misfits included. The intents must not claim a misfit can never raise the notice.
+
+- **D107 — When the staff has no room, say so plainly (2026-09-28, user-confirmed; closes Q53;
+  changes v1's too-narrow idle behaviour).** Some screens simply cannot show the staff, and that is
+  accepted. When the reason is space (a window too narrow, or below `bp-tablet-landscape` a
+  viewport too short for the legibility floor), the workspace shows a plain notice on the
+  `orientation-notice` pattern, "The staff needs more room. Make the window larger.", with no
+  action: it clears by itself once the staff fits. Start is unreachable while it shows (D98). The
+  notation-error state with `Retry notation` is kept only for failures a retry can cure.
+
+- **D108 — At idle, a phrase with too many notes to fit is regenerated (2026-09-28,
+  user-confirmed; extends D100 to idle; changes v1's idle behaviour).** When the space would fit a
+  phrase but this phrase's content does not (its notes need more width than the legibility floor
+  allows), the app quietly generates a new one with the normal fresh-seed retries, as in a session,
+  instead of showing the notation error. Only when every retry fails does the workspace show the
+  D107 notice. Passed to `spec-writer`.
+
+- **D109 — No `Sixteenth` note density on a phone (2026-09-28, user-confirmed; product rule passed
+  to `spec-writer`).** Below `bp-tablet-landscape` the `Sixteenth` option of Note density is
+  unavailable (shown disabled with a short reason), because it is the most likely cause of a phrase
+  too dense to fit; if `Sixteenth` was chosen elsewhere, the phone generates with `Eighth`. This
+  removes the main overflow case without banning sixteenth notes themselves: other settings (such
+  as rhythmic variety) can still produce some. The phone is the tertiary display (D91), so the
+  narrower choice is accepted. How this behaves when the viewport crosses `bp-tablet-landscape`
+  (at idle, and during a session whose settings are locked) is written up as proposed, pending the
+  owner.
+
+- **D110 — The phone density rule follows the current screen size, even mid-session (2026-09-28,
+  user-confirmed; settles D109's two proposed behaviours).** The effective Note density is derived
+  from the current viewport: whenever the viewport is below `bp-tablet-landscape`, a stored
+  `Sixteenth` generates as `Eighth`; above it, the stored choice applies again. This applies to the
+  next phrase generated, at idle and during a session alike (a session's locked setting is the
+  stored choice; the effective density is derived from the screen, and the owner does not expect a
+  desktop window to be resized mid-session). A phrase already on screen or already checked for a
+  refill is not regenerated for this reason; it stays if it fits (otherwise D108 at idle, D105 in a
+  session). Replaces the proposed "fixed at Start" default. Passed to `spec-writer`: a session's
+  history records the effective density each phrase was generated with.
+
+- **D111 — Phrases keep their own engraving scale during a session (2026-09-28, user-confirmed;
+  closes Q54).** Each phrase is engraved at the largest scale its own content allows within the
+  fixed system positions, so two phrases on screen may occasionally differ slightly in size; nothing
+  moves, since the system positions never change. Holding one scale for a session was rejected: it
+  would shrink every phrase to fit the densest possible one, or reject more phrases. In practice the
+  difference is rare (most desktop phrases reach the scale cap; on a phone the height sets the
+  scale). Revisit if playing tests find it distracting.
+
+- **D112 — Knock-on rules of the phone density rule (2026-09-28, user-confirmed; answers spec O91
+  and O92; completes D110).** (1) Unsupported rhythm combinations are judged on the density actually
+  generated with: below `bp-tablet-landscape` a stored `Sixteenth` counts as `Eighth`, so
+  combinations blocked only because of `Sixteenth` are allowed there. (2) During a session, widening
+  the viewport changes nothing: once a session generates as `Eighth`, it stays `Eighth` until it
+  ends (the density may step down mid-session, never up); the stored choice applies again from
+  Idle. (3) When the "staff needs more room" notice clears because the staff fits again, a new
+  phrase is generated (not the last one shown). (4) The v2.1 settings mutation can never land on
+  `Sixteenth` below `bp-tablet-landscape`: it treats it as unavailable. Passed to `spec-writer`.
+
+- **D113 — The "needs more room" notice has one sentence per cause (2026-09-28, user-confirmed;
+  closes Q57).** Not enough space at `bp-tablet-landscape` and up: "The staff needs more room. Make
+  the window larger." Not enough space below `bp-tablet-landscape` (a phone cannot be made
+  larger): "This screen is too small to show the staff." Space enough for a staff but every idle
+  retry too dense: "These notes need more room. Make the window larger, or choose a lower note
+  density." The idle retry count ("up to three fresh-seed retries, no carry-in") is already stated
+  by spec D145.
+
+- **D114 — The proposed detail sets for the phone density rule and the room notice are confirmed
+  (2026-09-28, user-confirmed; closes Q55 and Q56; answers spec O94).** All details listed in Q55
+  and Q56 stand as written in the phrase-workspace and play-session documents, including: the
+  disabled `Sixteenth` segment's `field-note`; the substitution never clearing a musical profile
+  preset; the read-only control showing the effective density in a session; `Regenerate phrase`
+  staying enabled under the notice; focus to `room-notice` after a session ends on it; shrinking the
+  window at idle may replace the phrase on screen; and a notice that clears while the rhythm
+  combination is unsupported leaves the staff empty with the unsupported-rhythm alert until a
+  setting changes (spec O94's default). The `(proposed)` tags on them are to be removed.
+
+- **D115 — The no-room sentence follows the width breakpoint, desktop included (2026-09-28,
+  user-confirmed; closes Q58).** A desktop window narrowed below `bp-tablet-landscape` gets the
+  phone sentence, "This screen is too small to show the staff." Accepted: the notice only appears
+  there when the window is extremely narrow or short (the split layout usually fits), and a desktop
+  player reading "too small" enlarges the window anyway. The sentence keeps the engraver's width
+  query, so it always matches the room rule that applied.
+
+- **D116 — What clears the "these notes need more room" notice (2026-09-28, user-confirmed;
+  closes Q59).** Anything that could cure it starts a fresh round of the idle fresh-seed retries
+  automatically: widening the viewport, changing a setting (such as Note density), or
+  `Regenerate phrase`, which stays enabled. The first phrase that fits clears the notice and is
+  shown; if the round fails too, the notice stays. Narrowing the viewport never starts a round.
+  Passed to `spec-writer` with spec O94's answer (D114).
+
+- **D117 — Last detail answers of unit 2 (2026-09-28, user-confirmed; closes Q60 and Q61; answers
+  spec O95).** (1) spec O95, option (b): a blocked rhythm combination always shows the empty staff
+  with the unsupported-rhythm alert, whatever was on screen before, including when the "these
+  notes need more room" notice is showing (the notice gives way; nothing is generated
+  automatically afterwards, as spec D151). This replaces the write-up where that notice stayed
+  beside the alert. (2) Q60: during a fresh round `room-notice` stays in the frame with the loading
+  treatment; after a failed round `notation-status` reads the notice's sentence again. (3) Q61:
+  under a generation-failure banner, the notice keeps the banner's rule: `Retry generation` is the
+  primary action and `Start session` is secondary and disabled. Also to fix in the write-up: only
+  a change to a setting the phrase is generated from starts a round (tempo, the audio mix and the
+  theme do not), as spec D152 reads.
+
+- **D118 — A wider window during a running round starts nothing (2026-09-29, user-confirmed).**
+  While the "these notes need more room" notice shows and a round of fresh-seed retries is
+  running, the window getting wider neither restarts that round nor queues another one. The round
+  carries on (each remaining attempt is engraved at the window's size when it is drawn, as every
+  engraving is), and if it fails the notice stays until the next widening, setting change or
+  `Regenerate phrase`. Rejected: queueing one more round when the window grew during a round that
+  then failed (every widening would visibly get an answer, at the cost of one more rule), and
+  abandoning and restarting the round (needs a settle delay, since dragging a window edge fires
+  many changes in a row). Accepted cost: a single widening that lands inside a round's brief run
+  can look as if it did nothing; a player dragging an edge keeps widening after the round ends.
+  A reading of spec D152, which says a wider window starts a round but not what happens during
+  one; passed to `spec-writer`. Governs `screens/phrase-workspace/handoff.md`, States, **Needs
+  more room** (too-many-notes clearing).
+
+- **D119 — Working rules from the owner: minor calls, phones, and problems during a session
+  (2026-09-29, user-stated).** (1) Minor design issues, including `ux-critic` findings that do not
+  change a flow, a product rule or the session's behaviour as the player sees it, are
+  `ux-writer`'s to settle at its best judgment and record here, without asking the owner. (2) The
+  phone is not a main customer: where a phone case needs a call, the simplest acceptable
+  behaviour is enough, and the larger screen wins any conflict (confirms `strategy.md`,
+  context of use and trade-offs). (3) During a running session the player is never expected to
+  interact. The one exception is a hard problem the player can fix, such as a controller
+  disconnect, which shows its countdown. Any problem follows the default rule already applied:
+  it ends the session exactly as Stop does, after the 30-second window if it can recover, or at
+  once if not. This confirms the strategy's "hands and eyes during a session" and "interruptions
+  end a session" rules and extends them to any case not yet listed. Applied to `strategy.md`,
+  edge-case policy.
+
+- **D120 — During a round, each attempt takes the density the window gives (2026-09-29;
+  `ux-writer`'s call under D119; answers spec O96).** Each fresh-seed attempt of a round under the
+  "these notes need more room" notice takes its note density from the window's width at the moment
+  it is generated, as every generation does (the phone density rule follows the current window).
+  If a crossing of `bp-tablet-landscape` during the round makes the rhythm combination unsupported
+  (a widening with a stored `Sixteenth`), the round stops and the workspace shows **Empty** with
+  the unsupported-rhythm alert, exactly where D117 (1) leaves a blocked combination; nothing is
+  generated automatically afterwards. A narrowing below it steps the remaining attempts down to
+  `Eighth` and the round carries on. Rejected: freezing the round's starting density (a second
+  density rule, for a rare case on a secondary device). Passed to `spec-writer` to close spec O96.
+  Governs `screens/phrase-workspace/handoff.md`, States, **Needs more room**.
+
+- **D121 — A phrase that stops fitting under a blocked rhythm combination gives way to Empty
+  (2026-09-29; `ux-writer`'s call under D119; closes Q62 with D120).** At idle, while the rhythm
+  combination is unsupported, a phrase on screen that stops fitting the room (a narrowing, or one
+  widening past `bp-tablet-landscape` that both switches to one system per phrase and makes a
+  stored `Sixteenth` combination unsupported) is not drawn, and the workspace shows **Empty** with
+  the unsupported-rhythm alert, as D117 (1) does when the too-many-notes notice meets a blocked
+  combination; it no longer takes the too-many-notes notice. This replaces one detail confirmed in
+  D114 (Q56's list): the notice's sentence offers two cures, neither of which can work while no
+  phrase can be generated, whereas the alert names the actual block. A window with no room at all
+  still shows the no-room notice, which is about the window and stays true. Q62 (b) is D120.
+  Governs `screens/phrase-workspace/handoff.md`, Notation Contract, **Room for the staff**, and
+  States, **Needs more room**.
+
+- **D122 — A session start closes the volume popover (2026-09-29; `ux-writer`'s call under D119;
+  from the third `ux-critic` pass on unit 2).** A session start, by the Start click or by the
+  starting note, closes the `Volume` popover if it is open, whichever `Volume` opened it. If focus
+  was inside the popover, it returns to the `Volume` button that opened it, as Escape does;
+  otherwise focus does not move. Reason: a popover left open over the top system would need a hand
+  off the instrument to clear, which D119 (3) and the strategy rule out. Opened by the player
+  during a session, the popover closes the usual ways only (Escape, a pointer press outside, Tab
+  out): opening it mid-session is the player's own choice. The existing close at session end
+  stays. Governs `screens/phrase-workspace/handoff.md` (`mix-controls`, States **Session
+  count-in**) and `flows/play-session/handoff.md` (start).
+
+- **D123 — On the phone, the on/off toggles stay a scroll away during a session (2026-09-29;
+  `ux-writer`'s call under D119 (2); from the same pass).** The phone's compact set at the end of
+  the cue row stays `Stop` and `Volume`. The `Backing` and `Click` toggles stay in the score
+  toolbar, which can sit above the visible area during a phone session: still reachable by
+  scrolling back up, so the mix stays reachable as the spec requires, just not on screen.
+  Accepted because the phone is a secondary device and a session never needs the toggles.
+  Rejected: adding the toggles to the compact popover (content that changes by breakpoint, for a
+  secondary device). The intents' "Stop and the volumes are the only things up there the player
+  may still need" is corrected to say so. Governs `flows/play-session/intent.md` (Starting, Audio
+  Mix) and `screens/phrase-workspace/intent.md` (the phone and the window).
+
+- **D124 — Each staff system is its own `staff-content` unit (2026-09-29; `ux-writer`'s call;
+  from the same pass).** `staff-frame` holds the two system positions in every state, and each
+  position that shows notes is one `staff-content` unit (its own engraving) holding its own
+  `measure-slot`s: four in the one-system layout, two in the split layout. At idle in the
+  one-system layout, the top position holds phrase 1 and the bottom one is reserved and empty; in
+  the split layout, phrase 1 is two units, bars 1–2 on top and bars 3–4 below, drawn at the
+  phrase's one scale. The fade, the refill and the engraving scale apply per unit, so a session
+  start redraws nothing and each half can fade on its own. Replaces the first release's "one
+  `staff-content` unit with exactly four `measure-slot` elements". Governs
+  `screens/phrase-workspace/handoff.md` (Layout Tree; Components and Content).
+
+- **D125 — Two audio-mix details confirmed as written (2026-09-29; `ux-writer`'s call under D119
+  (1); from the same pass).** A volume slider stays adjustable while its channel is toggled off,
+  and its level applies when the channel is switched back on; Tab moving focus out of the volume
+  popover closes it. Their `(proposed)` tags go. The default levels and ranges still wait on Q31.
+  Governs `screens/phrase-workspace/handoff.md`, `mix-controls`.
+
+- **D126 — Stopped first retries go to Empty, even after `Regenerate phrase` (2026-09-29;
+  `ux-writer`'s call under D119, confirming a write-up reading).** When the first fresh-seed
+  retries of an idle generation stop because a crossing of `bp-tablet-landscape` made the rhythm
+  combination unsupported, the workspace shows **Empty** with the unsupported-rhythm alert, even
+  when the retries followed `Regenerate phrase` from **Ready** and the previous phrase was still
+  shown during the Loading: that phrase goes too. Rejected: bringing the previous phrase back
+  (it would need its own fit check at the new size, for a rare edge on a secondary device). Also
+  confirmed from the same write-up: an attempt that finds no phrase during a Loading that showed no
+  score lands in **Initial generation error**, since no phrase is kept. Governs
+  `flows/generate-phrase/handoff.md` and `screens/phrase-workspace/handoff.md`, Notation Contract,
+  **Room for the staff**.

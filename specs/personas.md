@@ -1,8 +1,8 @@
 # Personas
 
-Status: draft v0.11
+Status: draft v0.12
 
-Personas are the user's decisions. Anything not yet confirmed is tagged `(proposed)`. Settled 2026-09-25. The decisions behind this document (D48–D50, D54, D61) are in the [2026-09-25 archive](archive/2026-09-25-personas-and-vision/decisions-D47-D71.md). The shared context of use was added 2026-09-28 (D127, in the [live log](decisions.md)); the phone review pointer and the review candidates followed the same day (D128), then export by content and the session-keeping candidates (D129), then favorites moving to v3 (D130).
+Personas are the user's decisions. Anything not yet confirmed is tagged `(proposed)`. Settled 2026-09-25. The decisions behind this document (D48–D50, D54, D61) are in the [2026-09-25 archive](archive/2026-09-25-personas-and-vision/decisions-D47-D71.md). The shared context of use was added 2026-09-28 (D127, in the [live log](decisions.md)); the phone review pointer and the review candidates followed the same day (D128), then export by content and the session-keeping candidates (D129), then favorites moving to v3 (D130). On 2026-09-29 the session start and end wording was corrected to match the v2 master spec §6–§7 (a correction, no new decision).
 
 | Persona                     | Role      | Core want                                  | Served mainly by                       |
 | --------------------------- | --------- | ------------------------------------------ | -------------------------------------- |
@@ -31,8 +31,8 @@ assumed to match until an outside tester shows otherwise.
 - **Distance and posture.** The screen is read at music-stand distance, often while standing.
 - **During a session.** The hands, and the mouth on a sax or Travel Sax, are on the instrument.
   The player expects to click nothing while playing. Consequence: nothing the player has to do
-  mid-session may need a click or a key press. The v2 spec already fits this: a MIDI note can
-  start a session, and silence ends one
+  mid-session may need a click or a key press. The v2 spec already fits this: playing the starting
+  note (the note phrase 1 begins on) can start a session, and silence ends one
   ([v2 master spec §6–§7](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo)).
 - **Between sessions.** The hands are free. The owner explicitly does not want oversized controls
   for reading at a distance: the normal accessibility floor is enough.
@@ -117,7 +117,7 @@ This persona merges the earlier keyboard-tester and sight-reading-student candid
 
 ### How the plan serves them
 
-- **C1 and C2 → v2, marking → v3 (D62, D130).** At the end of a session the player looks back at it and exports the whole session: the generated notes as MusicXML or MIDI, the played notes as a MIDI file of their own, each through its own export action (D129, D130). Marking the parts they liked, and exporting only the marked material, are v3: favorites are settled there ([v3](versions/v3/README.md#favorites-v3-scope-to-be-settled)). A session runs from the first MIDI input or a Start click until 30 s without input or a Stop click. Keeping a history of generated notes is cheap: each phrase already retains its seed.
+- **C1 and C2 → v2, marking → v3 (D62, D130).** At the end of a session the player looks back at it and exports the whole session: the generated notes as MusicXML or MIDI, the played notes as a MIDI file of their own, each through its own export action (D129, D130). Marking the parts they liked, and exporting only the marked material, are v3: favorites are settled there ([v3](versions/v3/README.md#favorites-v3-scope-to-be-settled)). A session runs from a Start click or the starting note (the note phrase 1 begins on, [§6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo)) until a Stop click or, with a controller, more than 30 s without a note played ([§7](versions/v2/master-spec.md#7-sessions-review-export-and-privacy) gives the full rules). Keeping a history of generated notes is cheap: each phrase already retains its seed.
 - **Played notes are private.** Reviewing them reuses v2's played-note tracking. They stay on the player's system, or leave it only through an export the player chooses. Keeping them across sessions is opt-in and deletable (v3).
 - **C3 → v3 (D53).** v2's rolling phrase already continues the app's own output, which is the simpler form of the same mechanism (D65).
 - **Later (D65).** A whole MusicXML or MIDI file can seed a continuation. Around v5, a library lets the player pick a snippet from a file or a past session. Snippet selection exists only to create a seed; Infinite Flow stays "not a DAW" (D68).

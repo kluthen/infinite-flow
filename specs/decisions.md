@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.9
+Status: draft v2.17
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -249,3 +249,371 @@ fact in the live documents (see the [archive index](archive/README.md) and
   unchanged: v2.0 has the generated-notes action only, the played-notes action arrives in v2.1.
   Master spec v1.6 → **v1.7**: §2, §7, §11 (the release table, v2.0 item 12 and the v2.1
   acceptance list), §12 and §13.
+- **D131 (2026-09-28): the screen stays awake during a session.** Owner, in the `ux-writer` unit-2
+  session core-loop review (ux D73). New v2 behaviour, v2.0. The app holds a screen wake lock
+  from the moment a session starts (the Start click or the starting note, so the count-in is
+  covered) until the session ends, however it ends, and releases it then. If the browser refuses
+  the lock or does not support it, the session runs as normal and nothing is shown: a message is
+  not worth pulling the player's eyes off the staff. Why: a 5 to 30 minute session involves no
+  touch ([context of use](personas.md#context-of-use), D127), so a tablet, phone or laptop would
+  dim and lock mid-session, and on a phone a locked screen hides the tab, which ends the session
+  (master-spec §6, D89). The lock stores nothing and sends nothing, so the privacy rule is
+  untouched. Opens **O87** (what the app does if the browser drops the lock mid-session), noticed
+  by `spec-writer` while recording it. Master spec §6 and §11 (new v2.0 item 21).
+- **D132 (2026-09-28): the count-in always clicks.** Owner, in the `ux-writer` unit-2 session
+  core-loop review (ux D74). The count-in's click sounds even when the player has turned the
+  click off, because it is the only thing that sets the tempo before bar 1. The click on/off
+  setting governs the session from phrase 1 on. This clarifies master-spec §6 ("one measure of
+  click"); it changes no release placement. Opens **O88** (whether the click volume applies to the
+  count-in), noticed by `spec-writer` while recording it. Master spec §6 and §11 (v2.0 item 18).
+- **D133 (2026-09-28): a staff-only session view is placed in v5, not v2.** Owner, in the
+  `ux-writer` unit-2 session core-loop review (ux D72, which closed ux Q37). The idea: during a
+  session, hide everything but the staff and Stop. v2 has no such view: with the unit-2 layout,
+  everything on or near the staff during a session already belongs to the session, and hiding the
+  audio mix would conflict with master-spec §5 and §6, where the mix stays reachable at all times.
+  The owner places the idea in v5, so it is recorded as v5 direction, not as a candidate with an
+  open version ([v5+](versions/v5-plus/README.md#settled-direction)); whoever specs it there has
+  to revisit the "mix reachable at all times" rule. No open question is registered. Master spec
+  §2 (out of scope for v2). Master spec v1.7 → **v1.8** for D131–D133: §2, §6, §11 and §12.
+- **D134 (2026-09-28): the count-in follows the click volume, and the click volume never reaches
+  silence.** Owner (recorded on the UX side as ux D84, the audio mix placement).
+  Resolves **O88**. The count-in plays at the click volume like any other click. The click volume
+  control has no silent setting: its lowest setting is still audible, and turning the click off is
+  the click on/off switch's job alone. So the count-in, which always clicks (D132), is always
+  audible, with no special rule of its own. Exact ranges and default levels are an interface
+  matter, waiting on listening tests (ux Q31); the spec does not fix them. Master spec v1.8 →
+  **v1.9**: §6, §11 (v2.0 item 18) and §12.
+- **D135 (2026-09-28): no session starts over a generation failure.** Owner (recorded on the UX
+  side as ux D87, which closed ux Q38). While the app is Idle and reporting a failed generation
+  (v1's generation-failure state, including a later failure that keeps the previous phrase on
+  screen), neither a Start click nor any MIDI note starts a session, the starting note included,
+  and no starting note is named. The player has to regenerate successfully first. Why: a session
+  then never starts with a failure report on screen, and nothing on the screen shifts at Start.
+  Narrows master-spec §6/§7's start rules; changes no release placement (v2.0). How the rule
+  applies when starting from the Review is folded into **O84**. Master spec §6, §7, §11 (v2.0
+  item 17 amended, new item 22) and §12.
+- **D136 (2026-09-28): a session ended during the count-in goes back to Idle.** Owner (recorded on
+  the UX side as ux D89, which closed ux Q40). A session that ends before phrase 1 starts
+  sounding, by Stop or a hidden tab during the count-in (and, since D137, a turn to portrait),
+  returns straight to Idle with phrase 1 still on screen. No review opens: no phrase started
+  sounding, so there is nothing to review. The previous session's review is not restored: starting
+  the session had already discarded it (master-spec §7). This refines §6's "a hidden tab ends the
+  session … and the review opens" and §8's "keeps its selection into the Review" for that case.
+  Master spec §6, §7, §8 and §11 (new v2.0 item 23).
+- **D137 (2026-09-28): a session holds landscape, and turning to portrait ends it.** Owner
+  (recorded on the UX side as ux D90, which closed ux Q41). New v2 behaviour, v2.0. At session
+  start (the Start click or the starting note) the app asks the browser for a landscape
+  orientation lock, and releases it when the session ends, however it ends; a refused or
+  unsupported lock is silent, like the wake lock (D131). Chromium grants the lock only to a page
+  in fullscreen, so on a phone in a normal tab it is usually refused, and the rule that applies in
+  practice is the next one: a phone or tablet turned to portrait during a session, count-in
+  included, ends the session exactly like Stop. This is a new way a session ends, next to the
+  hidden-tab rule (§6). Why: as in v1, a portrait phone or tablet view shows a rotate-device notice
+  instead of the staff, which would hide the staff and Stop mid-session. Other viewport changes
+  keep the staff layout chosen at Start until the session ends; that is presentation, left to the
+  UI documents. Opens **O89** (a portrait-shaped view without the device being turned), noticed
+  by `spec-writer` while recording it. Master spec v1.9 → **v1.10** for D135–D137: §6, §7, §8,
+  §11 (new v2.0 items 22–24) and §12.
+- **D138 (2026-09-28): a session ends when the staff can no longer be shown.** Owner (recorded on
+  the UX side as ux D94, which closed ux Q46). Resolves **O89** and generalizes D137's portrait
+  rule (a turn to portrait is now one case of it). One rule covers every
+  viewport change during a session, count-in included: the session ends exactly like Stop
+  (during the count-in, back to Idle as D136) whenever the staff can no longer be shown. That
+  happens when the view becomes portrait-shaped below the desktop breakpoint, where the
+  rotate-device notice would replace the workspace, whether or not the device was turned (a
+  split screen or a resized window count as well); or when the staff layout held since Start can
+  no longer be engraved at its legibility floor (the minimum readable engraving size, a UI/UX
+  quantity) at the new width, since a session never shows a notation error. Any other viewport
+  change does not end the session: the staff is re-engraved at the new width in the held layout;
+  the presentation details stay in the UI documents. Why: the staff and Stop are what a session
+  needs on screen, however the view lost them. D137's landscape lock is unchanged. Opens **O90**
+  (whether a session can start while the staff is not shown), noticed by `spec-writer` while
+  recording it. Master spec v1.10 → **v1.11**: §6, §7, §11 (v2.0 items 23 and 24) and §12.
+- **D139 (2026-09-28): no session starts while the staff is not shown.** Owner (recorded on the
+  UX side as ux D98, which answers O90 and completes ux D94). Resolves **O90** with its proposed
+  default. While the rotate-device notice replaces the workspace (a portrait-shaped view below the
+  desktop breakpoint), and while the staff cannot be engraved at its legibility floor in the
+  layout a session would hold, neither a Start click nor any MIDI note starts a session, the
+  starting note included, and no starting note is named. Why: a session started there would end
+  at once under D138. Once the view can show the staff again, the other start conditions apply as
+  usual. Master spec §6 (new "When a session can start" list), §11 (v2.0 item 22) and §12 (the
+  item is removed).
+- **D140 (2026-09-28): the full list of states in which no session starts, and when the starting
+  note is named.** Owner (recorded on the UX side as ux D79, the Start and Stop actions, and ux
+  D93, where the starting-note line shows only while `Start session` is enabled; the gap was found
+  by `ux-critic`). The spec named only a reported generation failure (D135) as a state in which no
+  session starts, and v2.0 item 17 said the starting note is "always named" otherwise. The design
+  also rules out a start while a new phrase is being generated (phrase 1 is "the phrase already on
+  screen", which is then about to be replaced, so which phrase is phrase 1 is not clear), while the
+  phrase cannot be drawn (notation error), under a rhythm combination v1 disallows (already v2.0
+  item 11), before a first phrase exists, and (D139) while the staff is not shown. Taken from the
+  ux play-session flow's start conditions and ux D98; no new condition. The spec now lists them
+  all in one place, and the starting note is named exactly when playing it would start a session:
+  a controller attached (§8), not while connecting one, and a session able to start. Changes no
+  release placement (v2.0). How these conditions apply when starting from the Review stays with
+  **O84**. Master spec §4, §6, §7, §11 (v2.0 items 17 and 22 rewritten) and §12.
+- **D141 (2026-09-28): fitting the staff is part of a valid session phrase.** Owner (recorded on
+  the UX side as ux D100, which closed ux Q48 and corrected ux Q20's "cannot occur"). Whether a
+  phrase fits at the legibility floor depends on its content, so an in-session misfit can occur.
+  During a session, a look-ahead phrase must fit the held staff layout at the legibility floor to
+  be valid. One that does not fit is never shown: it is a failed attempt and takes master-spec
+  §4's normal fresh-seed retries, exactly like a generation that found no phrase; only when no
+  attempt produces a valid phrase by the deadline does the failure ladder repeat a phrase, and
+  the repeat is recorded in §7's history like any other (D109: never visibly marked). The fit
+  check is invisible to the player, and a session still never shows a notation error. The held
+  layout is fixed at Start by breakpoint, never by phrase 1's content (on the UX side, the split
+  layout below the tablet-landscape breakpoint and one system per phrase from it up); the spec
+  records only that it depends on the window's width alone, and leaves the layouts themselves to
+  the UI documents. Noted while recording it: each shown phrase's stored inputs (master-spec §7)
+  are those of the attempt actually shown, so reproducibility from stored inputs is unchanged,
+  though which fresh seed a session ends up using can now depend on the window's width. Master
+  spec v1.11 → **v1.12** for D139–D141: §4, §6, §7, §11 (v2.0 items 17 and 22 rewritten, new
+  item 25) and §12.
+- **D142 (2026-09-28): below the tablet-landscape width, the staff must fit the window's height
+  too.** Owner (recorded on the UX side as ux D104, which closed ux Q51). Extends D138 and D139:
+  the "staff can no longer be shown" condition now also covers the window's height. Below the
+  width where the UI/UX design switches to its tablet-landscape layout, the staff is sized to fit
+  the window's height as well as its width: the whole staff, together with the row above it where
+  the session shows the count-in and its notices, has to fit inside the window, measured with the
+  browser's toolbars showing, so a toolbar appearing or hiding changes nothing. If even the
+  staff's minimum readable size (its legibility floor) cannot fit that height, the staff counts as
+  not shown: no session starts (as D139), and a running one ends exactly like Stop (as D138;
+  during the count-in, back to Idle as D136). From the tablet-landscape width up, only the width
+  counts, as before. The held layout is still chosen by the window's width alone (D141); the
+  scale and the sizes involved stay in the UI documents. Master spec §6, §7 and §11 (v2.0 items
+  22 and 24).
+- **D143 (2026-09-28): a window change re-checks material already waiting to be drawn.** Owner
+  (recorded on the UX side as ux D105, which closed ux Q52). Completes D138 and D141. On any
+  change to the window's size during a session, count-in included, the fit check covers not only
+  what is on screen but everything already checked and waiting to be drawn: in a layout that
+  draws a phrase in parts, the part of the next phrase, or of a repeated phrase, not yet drawn. If
+  any of it no longer fits the held layout at the legibility floor, the session ends exactly like
+  Stop, as for any window too small for the staff. So a session never shows a notation error,
+  whatever the window does. Noted while recording it, as a reading of D141 rather than a new rule:
+  material already checked is not retried, since D141's retries apply to a look-ahead phrase when
+  it is first checked, and a phrase still being generated at the time of the change is checked
+  when it arrives, against the window as it is then. Master spec v1.12 → **v1.13** for D142–D143:
+  §4, §6, §7 and §11 (v2.0 items 22, 24 and 25).
+- **D144 (2026-09-28): a staff not shown for lack of space is a notice, not an error.** Owner
+  (recorded on the UX side as ux D107, which closed ux Q53). **Changes v1's behaviour at Idle.**
+  In v1, a phrase that could not be drawn in the window showed the notation error with its retry
+  action, which cannot help until the window changes. Now, when the staff cannot be shown for lack
+  of space (a window too narrow, or, below the tablet-landscape width, too short for the staff's
+  minimum readable size, D142), the app shows a plain notice with no retry action, which clears by
+  itself once the staff fits. The notation error, with its retry action, is kept only for failures
+  a retry can cure. This notice is the Idle form of the "staff not shown" state of D139 and D142,
+  so no session starts while it shows (unchanged); the rotate-device notice is unchanged. During a
+  session nothing changes: a staff that can no longer be shown ends the session (D138). The
+  notice's wording and look are UI/UX's (ux D107). Master spec §2, §6 and §11 (v2.0 item 22, new
+  item 26).
+- **D145 (2026-09-28): at Idle, a phrase whose notes do not fit is regenerated.** Owner (recorded
+  on the UX side as ux D108). Extends D141 to Idle. **Changes v1's behaviour at Idle**, where such
+  a phrase showed the notation error, and adds a second automatic regeneration to v1's one (an
+  instrument switch). When the window has room for the staff but a phrase's content does not fit
+  it (its notes need more width than the staff's minimum readable size allows), the phrase is not
+  shown: the app quietly generates a new one with the normal fresh-seed retries, as in a session
+  (D141). Only when every retry fails does the D144 notice show; no notation error is shown for
+  it. Noted while recording it, as readings rather than new rules: an Idle phrase has no carry-in
+  and no deadline, so only the first step of master-spec §4 applies (up to three fresh-seed
+  retries); the rule covers any phrase about to be drawn at Idle, including the one on screen when
+  a change to the window's size means it no longer fits; while the retries run, a new phrase is
+  being generated, so no session starts (D140); and the generator's output for a given request and
+  seed is unchanged, but which seed ends up shown at Idle can now depend on the window's size, as
+  D141 already noted for a session. Opens **O92** (which phrase the notice keeps once every retry
+  has failed), noticed by `spec-writer` while recording it. Master spec §2, §4, §6 and §11 (v2.0
+  items 3 and 22, new item 26) and §12.
+- **D146 (2026-09-28): below the tablet-landscape width, the `Sixteenth` note density is
+  unavailable.** Owner (recorded on the UX side as ux D109, a product rule). **Changes v1's
+  behaviour below that width.** Below the width where the UI/UX design switches to its
+  tablet-landscape layout, the `Sixteenth` option of Note density cannot be chosen, since it is the
+  most likely cause of a phrase too dense to fit a phone's staff. If `Sixteenth` was chosen while
+  the window was wider, phrases below that width are generated with `Eighth`, and the chosen value
+  is kept: it applies again once the window is wide enough. This is not a ban on sixteenth notes:
+  other settings, such as rhythmic variety, can still produce some. How the unavailable option is
+  shown is UI/UX's (ux D109). Two behaviours are still proposed, awaiting the owner, and are opened
+  as **O91**: what happens when the window crosses that width at Idle, and during a session. Noted
+  while recording it: v2 saves no settings across a page reload (master-spec §2), so "kept" means
+  kept in memory for the page's lifetime, and `Sixteenth` can only reach a narrow window by having
+  been chosen while it was wider (neither preset sets it); v3's local persistence will save the
+  chosen value, not the one generated with; and a phrase's stored reproduction inputs (master-spec
+  §7) hold the density it was actually generated with, so reproduction stays exact. Two further
+  interactions, with the unsupported rhythm settings (v2.0 item 11) and with the settings-mutation
+  flag (**O77**), are part of **O91**. Master spec v1.13 → **v1.14** for D144–D146: §2 (new
+  "Changes to v1 at Idle"), §4, §5, §6, §7, §11 (v2.0 items 3, 11 and 22 updated, new items 26
+  and 27) and §12.
+- **D147 (2026-09-28): the note density a phrase is generated with follows the window's current
+  width, at Idle and during a session.** Owner (recorded on the UX side as ux D110, which settles
+  ux D109's two proposed behaviours). Replaces **O91**'s proposed defaults (a) and (b), including
+  "fixed at Start". The density a phrase is generated with is derived from the window when that
+  phrase is generated: below the tablet-landscape width a chosen `Sixteenth` generates as
+  `Eighth`, and at or above it the chosen value applies (limited during a session by D148). This
+  applies to the next phrase generated, at Idle and during a session alike: a session's locked
+  setting is the chosen value, and the owner does not expect a desktop window to be resized
+  mid-session. A phrase already on screen, or a look-ahead phrase already checked and waiting to
+  be drawn, is never regenerated because the window crossed that width: it stays if it still fits,
+  and otherwise D145 replaces it at Idle, or the session ends (D143). A session's history records,
+  for each phrase, the density it was generated with (already true of the stored reproduction
+  inputs, D146; now stated for a session whose density changes). Master spec §2, §5, §7 and §11
+  (v2.0 item 27).
+- **D148 (2026-09-28): unsupported rhythm settings are judged on the density generated with, and
+  a session's density only steps down.** Owner (recorded on the UX side as ux D112, points 1 and
+  2). Closes **O91**(c) with its proposal, and completes D147. (1) Whether a rhythm combination is
+  one v1 disallows is judged on the note density a phrase is generated with: below the
+  tablet-landscape width a chosen `Sixteenth` counts as `Eighth`, so a combination disallowed only
+  because of `Sixteenth` blocks neither generation nor a start there, and a crossing at Idle can
+  make the current settings blocked or unblocked. (2) During a session, widening the window
+  changes nothing: once a session has generated a phrase with `Eighth` under D146, every later
+  phrase of that session is generated with `Eighth` too, until it ends; the chosen value applies
+  again from Idle. The density may step down mid-session, never up. Why v2.0 item 11 still holds
+  during a session: the only change a window can make to a running session's density is the step
+  from `Sixteenth` down to `Eighth`, and none of v1's disallowed combinations uses `Eighth`
+  (checked against v1's list in `src/domain/controls/unsupported-rhythm-settings.ts`: four
+  `Strict` and two `Slightly varied` combinations use `Sixteenth`, the rest `Quarter`), so the step
+  can never land on one; the step back up, which could, is ruled out. If the rhythm grammar ever
+  gains a disallowed `Eighth` combination, this reasoning must be checked again. Noted while
+  recording it, as a reading rather than a new rule: phrase 1 is the phrase already on screen at
+  Start (master-spec §4), generated at Idle with the density that applied then, so the session's
+  own generation, and the step-down rule, start with phrase 2; a session whose phrase 1 was
+  generated with `Eighth` in a window widened before Start generates phrase 2 with `Sixteenth`,
+  and the Start check (1) is made on the window at Start. Master spec §2, §5, §6 and §11 (v2.0
+  items 11 and 27).
+- **D149 (2026-09-28): when the "staff needs more room" notice clears, a new phrase is
+  generated.** Owner (recorded on the UX side as ux D112, point 3). Resolves **O92** against its
+  proposed default, which kept the phrase last on screen if it fit: the owner chose "always a new
+  one". Whenever the notice (D144) clears at Idle because the staff fits again, the phrase last on
+  screen is not drawn again; a new phrase is generated with D145's fresh-seed retries. This holds
+  whichever way the notice came up: a window too small for the staff, or every retry to replace a
+  phrase too wide for it having failed. Opens **O94** (the notice clearing while the rhythm
+  settings are unsupported, so that no phrase can be generated), noticed by `spec-writer` while
+  recording it. Master spec §2, §4, §6, §11 (v2.0 item 26) and §12.
+- **D150 (2026-09-28): the settings-mutation flag treats `Sixteenth` as unavailable below the
+  tablet-landscape width.** Owner (recorded on the UX side as ux D112, point 4). Closes **O91**(d)
+  with its proposal, and so closes **O91** as a whole (with D147 and D148). In v2.1, a mutation
+  that would land on `Sixteenth` below that width mutates again, as for an unsupported combination
+  (D103). Opens **O93** (how the flag treats note density in a session generating with `Eighth`:
+  which value a density mutation steps from, and whether `Sixteenth` is unavailable in a session
+  that stepped down and whose window is now wide), noticed by `spec-writer` while recording it.
+  ux D111 (each phrase keeps its own engraving scale) is not recorded here: the spec leaves scale
+  to the UI documents (D142). Master spec v1.14 → **v1.15** for D147–D150: §2, §4, §5, §6, §7,
+  §11 (v2.0 items 11, 26 and 27) and §12.
+- **D151 (2026-09-28): when the "staff needs more room" notice clears under unsupported rhythm
+  settings, no phrase is shown.** Owner (recorded on the UX side as ux D114, which confirmed this
+  question's proposed default). Closes **O94** with its proposal. When the notice (D144) clears at
+  Idle because the staff fits again, while the rhythm settings are a combination v1 disallows
+  (judged on the density a phrase would be generated with, D148), no phrase can be generated, so
+  none is shown: the workspace is as it is before a first phrase exists, with the
+  unsupported-rhythm alert showing as it does there, and generation stays blocked until the
+  settings change. The phrase last on screen is not drawn again (D149). How it looks is UI/UX's
+  (ux D114). Noted while recording it, as a reading rather than a new rule: once the settings are
+  allowed again, the player generates a phrase as before a first phrase exists; nothing is
+  generated by itself, since the notice has already cleared (compare D152). Master spec §6, §11
+  (v2.0 item 26) and §12.
+- **D152 (2026-09-28): what clears the "these notes need more room" notice.** Owner (recorded on
+  the UX side as ux D116, which closed ux Q59). Completes D145 and D149. The notice (D144) has two
+  causes: no room for the staff (a window too narrow, or, below the tablet-landscape width, too
+  short, D142), or room for the staff but every one of D145's Idle retries too dense to fit it.
+  For the second cause, anything that could cure it starts a fresh round of D145's retries
+  automatically: a new phrase is generated from the current settings with a fresh seed, and
+  retried with fresh seeds if it does not fit. Three things start a round: the window getting
+  wider, a change to a setting (such as note density), and regenerating by hand, since the phrase
+  action stays available beside the notice (ux D114). The first phrase that fits clears the notice
+  and is shown; if the round fails too, the notice stays, and the next such change starts another
+  round. The window getting narrower never starts a round. **Adds automatic regenerations at
+  Idle**, only while this notice shows: a wider window or a changed setting regenerates without
+  the player asking, besides v1's instrument switch and D145's retries. Checked against D149 ("a
+  new phrase is generated when the notice clears") for both causes, as readings rather than new
+  rules: for no room, the notice clears when the staff fits, and the new phrase D149 generates is
+  itself such a round, so if every attempt is too dense the notice shows again, now with the
+  second cause; for too-dense notes, the order is reversed, since the notice clears only once a
+  round's phrase fits, and that phrase is the one shown. So D149 holds for both causes: the
+  notice only ever gives way to a new phrase, never to the phrase last on screen or to any
+  attempt too dense to fit. Further readings: "a setting" means one the phrase is generated from,
+  since only those could cure it (tempo, the audio mix and the theme cannot change the notes,
+  §6); "wider" is about width alone, since a phrase too dense needs more width than the staff's
+  minimum readable size allows (D145); a narrowing that leaves no room for the staff gives the
+  notice its first cause; while the window has no room, a phrase generated by hand cannot be
+  shown either, so the notice stays (ux D114); and while a round runs, a new phrase is being
+  generated, so no session starts (D140). Opens **O95** (a change that should start a round
+  landing on a rhythm combination v1 disallows, so that no round can run), noticed by
+  `spec-writer` while recording it: D151 covers the notice clearing under unsupported settings,
+  but under the second cause the notice clears only when a phrase fits. ux D115 (the no-room
+  sentence follows the width breakpoint) is not recorded here: the spec leaves the notice's
+  wording to the UI documents (§6). Master spec v1.15 → **v1.16** for D151–D152: §2, §4, §6, §11
+  (v2.0 item 26) and §12.
+- **D153 (2026-09-28): unsupported rhythm settings under the "these notes need more room" notice
+  give way to no phrase.** Owner (recorded on the UX side as ux D117, point 1). Closes **O95**
+  against its proposed default, with the alternative it named, which follows D151. While the
+  notice (D144) shows because every retry was too dense (D152's second cause), a change that would
+  start a round but makes the rhythm settings a combination v1 disallows (judged on the density a
+  phrase would be generated with, D148) starts no round, since no phrase can be generated. A
+  setting change can do this, and so can the window getting wider past the tablet-landscape width
+  with a chosen `Sixteenth`. The notice gives way: no phrase is shown, as before a first phrase
+  exists, with the unsupported-rhythm alert showing as it does there, and generation stays blocked
+  until the combination is allowed again. Once it is, whether by a setting change or by the window
+  crossing that width (D148), nothing is generated by itself: the player generates a phrase by
+  hand, as before a first phrase exists. So, whichever way the notice clears or gives way, a
+  blocked combination leads to the same workspace (D151 for the notice clearing, this entry for a
+  change made while it shows). This concerns the notice only. v1's behaviour when a phrase is on
+  screen is unchanged: a rhythm setting that makes the combination unsupported leaves that phrase
+  on screen, with the alert, and blocks generation. The rest of ux D117 (ux Q60 and ux Q61: how
+  the notice looks during a round and over a generation-failure report) is UI-only and not
+  recorded here. Its last sentence, that only a change to a setting the phrase is generated from
+  starts a round, is already D152's reading. Master spec §2, §4, §6, §11 (v2.0 item 26) and §12.
+- **D154 (2026-09-29): a wider window while a round of retries runs starts nothing.** Owner
+  (recorded on the UX side as ux D118). A reading of D152, which says a wider window starts a
+  round but not what happens while one runs. While the "these notes need more room" notice shows
+  and a round of D145's retries is running, the window getting wider neither restarts that round
+  nor queues another. The round carries on, each remaining attempt checked against the window's
+  size when it is drawn, as every phrase is; the first that fits clears the notice and is shown,
+  and if the round fails, the notice stays until the next widening, setting change or regenerating
+  by hand. Rejected: queueing one more round when the window grew during a round that then failed
+  (every widening would visibly get an answer, at the cost of one more rule); abandoning and
+  restarting the round (it needs a settle delay, since dragging a window edge gives many size
+  changes in a row). Accepted cost: a single widening that lands inside a round's brief run can
+  look as if it did nothing; a player dragging an edge keeps widening after the round ends. Noted
+  while recording it, as a reading rather than a new rule: of D152's three things that start a
+  round, only the window can change during one, since while a phrase is being generated v1 makes
+  the settings it is generated from read-only and disables the phrase action. Opens **O96**
+  (which note density a round's later attempts use when the window crosses the tablet-landscape
+  width during the round), noticed by `spec-writer` while recording it: D147 takes the density
+  from the window when each phrase is generated, and with a chosen `Sixteenth` a crossing can
+  make the rest of the round a combination v1 disallows. Master spec v1.16 → **v1.17** for
+  D153–D154: §2, §4, §6, §11 (v2.0 item 26) and §12.
+- **D155 (2026-09-29): during a round of retries, each attempt takes its note density from the
+  window when it is generated.** `ux-writer`'s call under the owner's delegation of minor calls
+  (recorded on the UX side as ux D120; the delegation is ux D119). Closes **O96** with its
+  proposal, the literal reading of D147. Each fresh-seed attempt of a round of D145's retries
+  under the "these notes need more room" notice takes its note density from the window's width
+  at the moment it is generated, as every phrase does (D147). If a crossing of the
+  tablet-landscape width during the round makes the rhythm settings a combination v1 disallows (a
+  widening with a chosen `Sixteenth`, judged as in D148), the round stops at once and none of its
+  attempts is drawn: the workspace is where D153 leaves it, with no phrase, the unsupported-rhythm
+  alert, generation blocked until the combination is allowed again, and nothing generated by
+  itself once it is. A narrowing below that width steps the remaining attempts down to `Eighth`,
+  and the round carries on; that step can never land on a disallowed combination, since none
+  uses `Eighth` (D148). Rejected: a round keeping the density it started with (a second density
+  rule, for a rare case). Noted while recording it, as a reading rather than a new rule: the same
+  holds for D145's first retries, those that replace a phrase that stopped fitting before any
+  notice shows, since D147 applies to every phrase generated; a crossing that makes the
+  combination disallowed during them stops them the same way, with the outcome D156 gives a
+  phrase that stops fitting under such a combination. Master spec §2, §4, §5, §6, §11 (v2.0 item
+  26) and §12.
+- **D156 (2026-09-29): at Idle, a phrase that stops fitting while the rhythm settings are
+  disallowed gives way to no phrase.** `ux-writer`'s call under the owner's delegation (recorded
+  on the UX side as ux D121, which closed ux Q62 with ux D120; the delegation is ux D119). Fills a
+  gap in D145, which replaces a phrase on screen that no longer fits with fresh-seed retries:
+  none can run while the rhythm settings are a combination v1 disallows (judged on the density a
+  phrase would be generated with, D148), and the spec did not say what shows then. At Idle, while
+  the combination is disallowed, a phrase on screen that stops fitting the room is not drawn and
+  no retry runs: the workspace is where D153 leaves it, with no phrase, the unsupported-rhythm
+  alert, generation blocked until the combination is allowed again, and nothing generated by
+  itself once it is. It does not take the "these notes need more room" notice, whose cures cannot
+  work while no phrase can be generated, whereas the alert names the actual block. Its most
+  likely trigger is one widening past the tablet-landscape width, which both changes the staff's
+  layout, so the phrase may no longer fit, and makes a chosen `Sixteenth` combination disallowed
+  (D148); a narrowing can do it too. A window with no room for the staff at all still shows the
+  notice (its first cause, D152), which is about the window and stays true; when it clears, D151
+  applies. So D153's last point, that a phrase on screen stays when a rhythm setting makes the
+  combination unsupported, as in v1, holds as long as that phrase fits. This replaces a UI detail
+  the spec never recorded (confirmed in ux D114), where such a phrase took the notice. Master
+  spec v1.17 → **v1.18** for D155–D156: §2, §4, §5, §6, §11 (v2.0 item 26) and §12.

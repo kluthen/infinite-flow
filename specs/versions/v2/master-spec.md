@@ -1,13 +1,55 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.7 (2026-09-28). This is the consolidated, execution-ready specification for
+Status: master spec v1.18 (2026-09-29). This is the consolidated, execution-ready specification for
 v2, covering releases v2.0 through v2.3. It supersedes the individual v2 draft topic documents,
 which are kept in the archive as working history. Change in v1.6: the export is chosen by content,
 generated notes or played notes, and played notes come as a MIDI file of their own instead of an
 opt-in track inside the generated MIDI file (§2, §7, §8, §11–§13). Change in v1.7: marking
 favorites moves to v3, so the review has no favorites, every export covers the whole session, and
 starting a new session from the review asks no confirmation; the generated notes and the played
-notes each have their own export action, one file each (§2, §7, §11–§13).
+notes each have their own export action, one file each (§2, §7, §11–§13). Change in v1.8: the
+screen stays awake during a session, the count-in always clicks, even with the click turned off,
+and a staff-only session view is placed in v5 (§2, §6, §11, §12). Change in v1.9: the count-in
+plays at the click volume, and the click volume control never reaches silence, so the count-in is
+always audible (§6, §11, §12). Change in v1.10: no session starts while a generation failure is
+being reported; a session ended during the count-in goes back to Idle with no review; the app asks
+for a landscape lock during a session, and turning a phone or tablet to portrait ends the session
+(§6, §7, §8, §11, §12). Change in v1.11: a session ends whenever the staff can no longer be shown,
+whether the device was turned or not: the view becomes portrait-shaped where the rotate-device
+notice replaces the staff, or the window gets too narrow to draw the staff readably in the layout
+the session started with; any other change to the window's size keeps the session running
+(§6, §7, §11, §12). Change in v1.12: a session starts only while the staff is shown and the phrase
+on screen is settled: not while a new phrase is being generated, the phrase cannot be drawn, the
+rhythm combination is unsupported, a generation failure is being reported, or the rotate-device
+notice replaces the staff; the starting note is named exactly when playing it would start a
+session. During a session, a look-ahead phrase must also fit the staff layout the session holds,
+which is fixed at Start by the window's width; one that does not fit is retried like a failed
+generation (§4, §6, §7, §11, §12). Change in v1.13: below the tablet-landscape layout's width, the
+staff must fit the window's height as well as its width, so a window too short for the staff
+blocks a start and ends a running session like one too narrow; and a change to the window's size
+during a session also re-checks the phrase material already waiting to be drawn, ending the
+session like Stop if any of it no longer fits (§4, §6, §7, §11). Change in v1.14, three changes to
+v1's behaviour at Idle: a phrase whose notes do not fit the staff is replaced by a new one with
+the usual fresh-seed retries instead of showing a notation error; a staff that cannot be shown for
+lack of space shows a plain notice, not an error; and below the tablet-landscape layout's width,
+the `Sixteenth` note density is unavailable and phrases are generated with `Eighth`
+(§2, §4, §5, §6, §7, §11, §12). Change in v1.15: the note density a phrase is generated with
+follows the window's width when that phrase is generated, at Idle and during a session, and a
+session that has generated with `Eighth` keeps it until it ends; unsupported rhythm settings are
+judged on that density; a new phrase is generated when the "staff needs more room" notice clears;
+and the settings-mutation flag treats `Sixteenth` as unavailable below the tablet-landscape
+layout's width (§2, §4, §5, §6, §7, §11, §12). Change in v1.16: when the "staff needs more room"
+notice clears while the rhythm combination is unsupported, no phrase is shown and generation
+stays blocked until the settings change; and when the notice shows because every retry was too
+dense to fit, a wider window, a changed setting or regenerating by hand starts a fresh round of
+retries, and the notice clears only when a phrase fits (§2, §4, §6, §11, §12). Change in v1.17:
+while that notice shows, a change that makes the rhythm combination unsupported starts no round
+and the notice gives way to no phrase, as when it clears under unsupported settings; and a wider
+window while a round is running starts nothing, the round carrying on (§2, §4, §6, §11, §12).
+Change in v1.18: each attempt of a round of retries takes its note density from the window when
+it is generated, and a wider window that makes the rhythm combination unsupported during a round
+stops it, giving way to no phrase; and a phrase on screen that stops fitting while the combination
+is unsupported gives way to no phrase too, not to the notice (§2, §4, §5, §6, §11, §12).
 
 ## 1. Core concept
 
@@ -58,8 +100,34 @@ from a played motif, "my instrument," and local persistence across sessions) is 
 - Editing, cutting, splicing or otherwise manipulating generated material in the review — out of
   scope entirely; the v2 review has no per-phrase action at all.
 - Accompaniment with musical roles (harmonizing, contrasting, responding to the player) — v4.
+- A staff-only session view, hiding everything but the staff and Stop while a session runs —
+  v5. In v2 the audio mix stays reachable throughout a session (§5).
 - Any grading, scoring, ranking or wrong-note signal, in any view, at any point — this is a
   permanent product-wide constraint, not a v2-specific gap.
+
+### Changes to v1 at Idle
+
+Outside a session, v2 keeps v1's workspace, with three changes to how v1 behaves. Each is stated
+in full where it belongs:
+
+- **A phrase whose notes do not fit the staff is replaced, not shown as a notation error.** The
+  app generates a new one with the usual fresh-seed retries (§4). This is a second automatic
+  regeneration, besides v1's instrument switch. While the rhythm settings are unsupported no
+  phrase can be generated, so such a phrase gives way to no phrase, with the unsupported-rhythm
+  alert (§4, §6).
+- **A staff that cannot be shown for lack of space is a plain notice, not an error.** A window
+  too narrow, or too short below the tablet-landscape layout's width, shows a notice with no
+  retry action, which clears by itself once the staff fits; a new phrase is then generated (§4,
+  §6). The same notice shows when every retry to replace a phrase whose notes do not fit has
+  failed; a wider window, a changed setting or regenerating by hand then starts a new round of
+  retries, the first two without the player asking, and the notice clears once a phrase fits, or
+  gives way to no phrase if the rhythm settings become unsupported, before a round or during one
+  (§4, §6). v1's notation error, with its retry action, stays only for a failure that retrying
+  can cure.
+- **Below the tablet-landscape layout's width, the `Sixteenth` note density is unavailable.**
+  Phrases there are generated with `Eighth`, and a `Sixteenth` chosen while the window was wider
+  is kept, applying again to the next phrase generated at or above that width. Unsupported rhythm
+  settings are judged on the density a phrase is generated with (§5).
 
 ## 3. The generation unit and how phrases join
 
@@ -113,7 +181,47 @@ requested, and it must be generated and engraved before its **deadline** — the
 _N_'s last measure. That leaves at least one measure of read-ahead visible on screen at all times.
 At session start, the phrase already on screen before Start was pressed becomes phrase 1 of the
 new session (there is no separate "generate phrase 1" step), and phrase 2 is generated during the
-one-bar count-in, before the count-in ends.
+one-bar count-in, before the count-in ends. No session can start while a new phrase is being
+generated (§6), so phrase 1 is never ambiguous.
+
+**A look-ahead phrase must also fit the staff.** During a session, a phrase is only valid if it
+can be drawn at the staff's minimum readable size in the staff layout the session holds (§6).
+Whether it fits depends on its own content, so a generated phrase can fail to fit. A phrase that
+does not fit is never shown: it counts as a failed attempt, exactly like a generation that found no
+phrase, and goes through the same steps below. The check is invisible to the player. A phrase is
+checked against the window's size at the time it is checked. Once it has passed, it is not
+retried: if a later change to the window's size means it no longer fits before it is drawn, the
+session ends instead (§6). So a session never shows a notation error for a look-ahead phrase, as
+it never shows one for a resized window (§6).
+
+**At Idle, a phrase whose notes do not fit is replaced too.** This changes v1's behaviour, where
+such a phrase showed the notation error. At Idle, whenever a phrase is about to be drawn (a newly
+generated one, or the one on screen when a change to the window's size means it no longer fits),
+and the window has room for the staff (§6) but this phrase's notes need more width than the
+staff's minimum readable size allows, the phrase is not drawn. The app quietly generates a new
+one with the same fresh-seed retries as in a session: the first step below, up to three retries.
+An Idle phrase has no carry-in and no deadline, so the later steps do not apply. Each retry is
+generated with the note density the window gives when it is generated (§5). While the retries
+run, a new phrase is being generated, so no session can start (§6). While the rhythm settings
+are a combination v1 disallows, no retry can run: a phrase that stops fitting then gives way to
+no phrase, with the unsupported-rhythm alert, and retries during which the window's width makes
+the settings disallowed stop at once, with the same outcome (§6). A retry that fits is shown
+like any generated phrase, with its own seed. Only when every retry fails does the app show the
+plain notice that the staff needs more room (§6); no notation error is shown for it. The
+generator's output for a given request and seed does not change; which seed ends up shown can
+depend on the window's size, at Idle as in a session. The notice has two causes (§6): no room for
+the staff, or notes too dense for the room it has. When it clears because the staff fits again,
+the phrase last on screen is not drawn again: a new phrase is generated, with the same retries,
+and if every one of them is too dense, the notice shows again with the second cause. While it
+shows with that cause, anything that could cure it starts a fresh round of the same retries by
+itself: the window getting wider, a change to a setting the phrase is generated from, or
+regenerating by hand. The first phrase that fits clears the notice and is shown; if every
+attempt of the round is too dense, the notice stays. The window getting narrower never starts a
+round, and neither does the window getting wider while a round runs: the round carries on. A
+change that makes the rhythm settings unsupported starts no round either, and a wider window
+that does so while a round runs stops it; either way the notice gives way to no phrase at all
+(§6). Whatever happens, the notice never gives way to a phrase shown
+before.
 
 If generation fails, the player never sees a v1-style blocking alert during a session. Instead:
 
@@ -127,7 +235,10 @@ If generation fails, the player never sees a v1-style blocking alert during a se
    with these settings") without stopping the session.
 
 The session is never stopped by a generation failure — that would be a penalty the player didn't
-cause, and repeating a phrase is musically harmless.
+cause, and repeating a phrase is musically harmless. "Generation failure" here covers both kinds of
+failed attempt: no phrase found, or a phrase that does not fit the staff. A phrase is repeated
+only when no attempt has produced a valid phrase by the deadline, and the repeat is recorded in the session history the same
+way whichever kind of failure led to it (§7).
 
 ## 5. Control changes during a session
 
@@ -169,6 +280,42 @@ The instrument template itself is never touched by either automatic flag and sta
 whole session — an instrument switch is rare and, per v1, already regenerates and keeps the
 written key.
 
+**Note density below the tablet-landscape layout's width.** This changes v1's behaviour. Below
+the width where the interface design switches to its tablet-landscape layout, the `Sixteenth`
+option of note density cannot be chosen: it is the most likely cause of a phrase too dense to fit
+a phone's staff. The chosen value is kept as chosen; what the window's width changes is the
+density a phrase is **generated with**. v2 saves no settings across a page reload (§2), so the
+kept value lasts as long as the page. This is not a ban on sixteenth notes: other settings, such
+as rhythmic variety, can still produce some. How the unavailable option is shown is a UI/UX design
+decision.
+
+- **The density follows the window's current width.** Whenever the window is below that width
+  when a phrase is generated, a chosen `Sixteenth` generates as `Eighth`; at or above it, the
+  chosen value applies, as in v1, except in a session that has stepped down (next point). This
+  holds at Idle and during a session alike: a session's locked setting is the chosen value, and
+  the density a phrase is generated with is taken from the window when that phrase is generated.
+  A crossing of that width therefore applies to the next phrase generated, including the next
+  attempt of a round of retries at Idle (§4). A phrase already on screen, or a look-ahead phrase
+  already checked and waiting to be drawn, is never regenerated because the window crossed that
+  width: it stays if it still fits, and otherwise it is replaced at Idle (§4), or gives way to no
+  phrase there if the rhythm settings are then unsupported (§4, §6), or the session ends (§6).
+- **During a session, the density only steps down.** Once a session has generated a phrase with
+  `Eighth` under this rule, every later phrase of that session is generated with `Eighth` too,
+  even if the window becomes wide enough again; the chosen value applies again from Idle. Phrase
+  1 is the phrase already on screen at Start (§4), generated at Idle with the density that
+  applied then; the session's own generation starts with phrase 2.
+- **Unsupported rhythm settings are judged on the density generated with.** Below that width, a
+  chosen `Sixteenth` counts as `Eighth`, so a combination v1 disallows only because of
+  `Sixteenth` blocks neither generation nor a start there. A crossing at Idle can therefore make
+  the current settings blocked or unblocked, and one that blocks them while retries run stops
+  them (§4). During a session this can never bring the session
+  onto a disallowed combination: the density can only step from `Sixteenth` down to `Eighth`,
+  never back up, and no combination v1 disallows uses `Eighth`.
+- **The settings-mutation flag** (v2.1) treats `Sixteenth` as unavailable below that width: a
+  mutation that would land on it mutates again, as for a combination the generator does not
+  support. How the flag treats note density in a session generating with `Eighth` under this rule
+  is otherwise still open (§12).
+
 ## 6. Backing, click, count-in and tempo
 
 - **Backing.** v2 adds a bass line and block chords that follow the phrase's own generated
@@ -182,21 +329,30 @@ written key.
   roles (harmonizing, responding, contrasting) — that is v4.
 - **Click:** on by default, quarter notes with beat 1 accented — it's what makes the tempo
   readable before the backing itself makes musical sense. Backing on/off, backing volume, click
-  on/off and click volume are all separate mix controls, reachable at all times (§5).
+  on/off and click volume are all separate mix controls, reachable at all times (§5). The click
+  on/off setting governs the session from phrase 1 on; the count-in clicks whatever it says
+  (below). **The click volume control never reaches silence:** its lowest setting is still
+  audible, and turning the click off is the on/off switch's job alone. Its exact range and
+  default level are left to the interface design.
 - **Count-in:** one measure of click before phrase 1, for both ways of starting a session — a
-  Start click, or a MIDI note. **Only one MIDI note can start a session: the note phrase 1 starts
-  on** (its first attacked note; phrase 1 is the phrase already on screen, §4). Any other note
-  played while the app is Idle starts nothing. Nothing played while the player is connecting a
-  controller or running its transposition check (§8) can start a session either, not even that
-  same note: connecting is a step of its own. The MIDI case still needs the count-in, because the
+  Start click, or a MIDI note. **The count-in always clicks,** even when the player has turned the
+  click off, because it is the only thing that sets the tempo before bar 1. It plays at the click
+  volume, which is never silent (above), so it is always audible. **Only one MIDI note
+  can start a session: the note phrase 1 starts on** (its first attacked note; phrase 1 is the
+  phrase already on screen, §4). Any other note played while the app is Idle starts nothing.
+  Nothing played while the player is connecting a controller or running its transposition check
+  (§8) can start a session either, not even that same note: connecting is a step of its own. Nor
+  can it start one while a session cannot start at all (below). The MIDI case still needs the count-in, because the
   app can't know in advance where the player's own beat 1 falls, and the count-in is what sets it.
   - **The starting note must be that exact note, octave included.** Its position on the staff
     fixes its octave, so C4 and C5 are different notes here (an octave is 12 half steps, for
     example from C4 up to C5). The match uses the same rule as expected-note acknowledgement
     (§8): the exact concert pitch of that written note under the instrument's transposition.
   - **A note that starts nothing changes nothing on screen** — no mismatch hint, as everywhere
-    else. Instead, a neutral line that is always visible names the note that starts the session.
-    How it looks is a UI/UX design decision.
+    else. Instead, a neutral line names the note that starts the session whenever playing it would
+    start one: a controller is attached (§8), the player is not connecting one, and a session can
+    start (below). At any other time no note is named, since none would start anything. How the
+    line looks is a UI/UX design decision.
   - **The starting note only starts the count-in.** It is not phrase 1's first note already
     played, and it belongs to no phrase in the history or export. After the count-in the player
     plays phrase 1 from its first note, on beat 1.
@@ -205,6 +361,90 @@ written key.
     throughout the count-in. How the count looks is a UI/UX design decision.
   - **Still open** (§12): starting a session from the Review rather than from Idle — which phrase
     becomes phrase 1 there, and whether a MIDI note can start it at all.
+- **When a session can start.** At Idle, a session starts only while every one of these holds.
+  While any of them does not, neither a Start click nor any MIDI note starts a session, the
+  starting note included, and no starting note is named. Once they all hold again, starting works
+  as above. How an unavailable start looks is a UI/UX design decision. (How these conditions apply
+  when starting from the Review is still open, §12.)
+  - **A phrase is on screen, drawn in full.** Not before a first phrase has been generated, and not
+    while the phrase cannot be drawn (v1's notation error, now kept only for a failure that
+    retrying can cure).
+  - **No new phrase is being generated.** Phrase 1 is the phrase already on screen (§4); while a
+    regeneration is under way, that phrase is about to be replaced, so which phrase would be phrase
+    1 is not clear. This includes the retries that replace a phrase whose notes do not fit the
+    staff (§4). Starting works again once the new phrase is on screen.
+  - **No generation failure is being reported.** While the app reports a failed generation (v1's
+    generation-failure state, whether or not the previous phrase is still on screen), the player
+    has to regenerate successfully first. So a session never starts with a failure report on
+    screen.
+  - **The rhythm settings are a combination v1 allows.** A combination v1 disallows can never
+    start a session (§11). It is judged on the note density a phrase would be generated with:
+    below the tablet-landscape layout's width, a chosen `Sixteenth` counts as `Eighth` (§5).
+  - **The staff is shown.** Not while the rotate-device notice replaces it (a portrait-shaped view
+    below the desktop layout's width), and not while phrase 1 cannot be drawn at the staff's
+    minimum readable size in the layout a session would hold, within the window's width and,
+    below the tablet-landscape layout's width, its height too (below). At Idle, the staff not
+    shown for lack of space is a plain notice, not an error (next point). A session started there
+    would end at once, since a session ends as soon as the staff can no longer be shown (below).
+    Once the staff can be shown again, the other conditions apply as usual.
+- **At Idle, a staff with no room is a plain notice, not an error.** This changes v1's behaviour,
+  where a phrase that could not be drawn in the window showed the notation error, whose retry
+  action cannot help until the window changes. When the staff cannot be shown for lack of space (a
+  window too narrow, or, below the tablet-landscape layout's width, too short for the staff's
+  minimum readable size), the app shows a plain notice that the staff needs more room, with no
+  retry action. The notation error, with its retry action, is kept only for a failure that
+  retrying can cure. No session starts while the notice shows (above). Its wording and look are
+  UI/UX design decisions. The rotate-device notice is unchanged, and during a session this notice
+  never appears: a staff that can no longer be shown ends the session instead (below). The notice
+  has two causes, and what clears it depends on the cause; either way, it gives way only to a new
+  phrase or, under unsupported rhythm settings, to no phrase, never to one shown before:
+  - **No room for the staff.** The notice clears by itself once the staff fits, and a new phrase
+    is then generated with the retries of §4: the phrase last on screen is not drawn again. If
+    every attempt is too dense to fit, the notice shows again, with the second cause. While the
+    window has no room, a phrase generated by hand cannot be shown either, so the notice stays.
+    When the notice clears while the rhythm settings are a combination v1 disallows (judged on
+    the note density a phrase would be generated with, §5), no phrase can be generated: none is
+    shown, as before a first phrase exists, with the unsupported-rhythm alert showing as it does
+    there, and generation stays blocked until the settings change. The phrase last on screen is
+    not drawn again, and nothing is generated by itself once the settings are allowed again.
+  - **Notes too dense for the room.** The window has room for the staff, but every retry to
+    replace a phrase whose notes do not fit has failed (§4). Anything that could cure it starts a
+    fresh round of those retries by itself: the window getting wider, a change to a setting the
+    phrase is generated from (tempo, the audio mix and the theme cannot change the notes, so they
+    start nothing), or regenerating by hand, since the phrase action stays available beside the
+    notice. The first phrase that fits clears the notice and is shown; if every attempt of the
+    round is too dense, the notice stays until the next such change. The window getting narrower
+    never starts a round; one narrowed until the staff has no room gives the notice the first
+    cause. While a round runs, a new phrase is being generated, so no session starts (above), and
+    of the three things that start a round, only the window can change during one: while a phrase
+    is being generated, the settings it is generated from are read-only and the phrase action is
+    unavailable, as in v1. The window getting wider during a round neither restarts it nor queues
+    another: the round carries on, each remaining attempt generated with the note density the
+    window gives when it is generated (§5) and checked against the window's size when it is
+    drawn, and if it fails, the notice stays until the next such change. A single widening that
+    lands inside a round's brief run can therefore look as if it did nothing; that is accepted,
+    since a player dragging a window edge keeps widening after the round ends. A narrowing below
+    the tablet-landscape layout's width during a round steps its remaining attempts down to
+    `Eighth`, and the round carries on. A change that would start a round but makes the rhythm
+    settings a combination v1 disallows (judged on the note density a phrase would be generated
+    with, §5) starts none, since no phrase can be generated: a setting change can do this, and so
+    can the window getting wider past the tablet-landscape layout's width with a chosen
+    `Sixteenth`. That widening, made while a round runs, stops the round at once instead, and
+    none of its attempts is drawn. The notice then gives way exactly as when it clears under
+    unsupported settings (previous point): no phrase is shown, as before a first phrase exists,
+    with the unsupported-rhythm alert showing, and generation stays blocked until the combination
+    is allowed again, by a setting change or by the window crossing that width (§5). Once it is,
+    nothing is generated by itself: the player generates a phrase by hand.
+  - **A phrase that stops fitting under unsupported rhythm settings.** Outside the notice, a
+    rhythm setting that makes the combination unsupported while a phrase is on screen leaves that
+    phrase on screen, with the alert, as in v1, as long as it fits. One that stops fitting while
+    the combination is unsupported is not drawn, and no retry runs (§4). It does not take the
+    notice either, whose cures cannot work while no phrase can be generated: no phrase is shown,
+    with the unsupported-rhythm alert, exactly as when the notice gives way under unsupported
+    settings (above). Its most likely cause is one widening past the tablet-landscape layout's
+    width, which both changes the staff's layout, so the phrase may no longer fit, and can make a
+    chosen `Sixteenth` combination disallowed (§5). A window with no room for the staff at all
+    still shows the notice, which is about the window; when it clears, the first point applies.
 - **Tempo stays transport-only.** It is never part of what's generated — the same seed and
   settings always produce the same material, at any tempo. The known consequence (very fast note
   density becoming hard to play at very high tempo) is accepted for v2: the player chose both
@@ -217,20 +457,68 @@ written key.
   clock itself.
 - **Starting audio at all** needs a user click. Browsers do not count a MIDI note as the kind of
   interaction that unlocks audio. A Start click is such a click, so it can always start a session
-  with sound. For a MIDI note to be able to start a session, the player must first have clicked
+  with sound whenever a session can start at all. For a MIDI note to be able to start a session, the player must first have clicked
   **"Connect controller"**. That one click is the click that unlocks audio, and it also requests
   MIDI permission, so both restrictions are lifted together. There is no separate audio-unlock
   step.
+- **The screen stays awake during a session.** A session runs 5 to 30 minutes with no touch, so
+  a tablet, phone or laptop would otherwise dim and lock mid-session, and on a phone a locked
+  screen hides the tab, which ends the session (next point). The app holds a screen wake lock from
+  the moment the session starts (the Start click or the starting note, so the count-in is covered)
+  until the session ends, however it ends, and releases it then. If the browser refuses the lock
+  or does not support it, the session runs as normal and nothing is shown: a message is not worth
+  pulling the player's eyes off the staff. **Still open** (§12): what the app does if the browser
+  drops the lock while the session is still running.
 - **A hidden browser tab ends the session immediately**, exactly like a manual Stop — the backing
-  and click fade out over about 100 ms, and the review opens. Browsers already throttle timers
-  in hidden tabs, so a paused-and-resumed clock could never resume cleanly; there is no
-  pause/resume state in v2 at all.
+  and click fade out over about 100 ms, and the review opens (or, during the count-in, the app
+  goes back to Idle, §7). Browsers already throttle timers in hidden tabs, so a paused-and-resumed
+  clock could never resume cleanly; there is no pause/resume state in v2 at all.
+- **A session is held in landscape, and ends when the staff can no longer be shown.** Like v1,
+  the app has no portrait layout below the desktop layout's width: a portrait-shaped view there
+  shows a rotate-device notice instead of the staff. From the moment the session starts (the Start
+  click or the starting note) until it ends, however it ends, the app asks the browser to lock the
+  screen in landscape orientation, and releases the lock at the end. If the browser refuses the lock or does not support it, the session
+  runs as normal and nothing is shown. In practice the lock is usually refused on a phone: Chromium
+  grants it only to a page in fullscreen, and the app does not go fullscreen. So what normally
+  applies is the next rule: **whenever the staff can no longer be shown during a session,
+  count-in included, the session ends exactly like a manual Stop.** That happens in two cases:
+  - **The view becomes portrait-shaped below the desktop layout's width,** where the rotate-device
+    notice would replace the staff and Stop, whatever caused it: a phone or tablet turned to
+    portrait, a split-screen view, or a window resized on any device.
+  - **The window becomes too small to draw the staff readably** in the layout the session holds.
+    That layout is fixed at Start by the window's width alone, never by phrase 1's content, and
+    stays in use until the session ends; which layouts exist, and at which widths, is a UI/UX
+    design decision. A session never shows a notation error, so a staff that can no longer be
+    drawn at its minimum readable size ends the session instead. That minimum size is the one the
+    UI/UX design fixes for the staff.
+    - **Width and height.** From the tablet-landscape layout's width up, only the window's width
+      counts: the window is too small when it gets too narrow. Below that width, the staff must
+      fit the window's height as well: the whole staff, together with the row above it where the
+      session shows the count-in and its notices, has to fit inside the window, so a window too
+      short for it counts as well as one too narrow. The height is measured with the browser's
+      toolbars showing, so a toolbar appearing or hiding never ends a session.
+    - **What is checked.** On every change to the window's size, the check covers what is on
+      screen and every part of a phrase already checked and waiting to be drawn (in a layout that
+      draws a phrase in parts, the part of the next phrase, or of a repeated phrase, not yet
+      drawn). If any of it no longer fits, the session ends. A look-ahead phrase still being
+      generated at the time is checked when it arrives, against the window as it is then, and one
+      that does not fit is retried instead (§4).
+
+  Any other change to the window's size during a session does not end it: the staff is redrawn
+  at the new size, in the same layout; how that looks is a UI/UX design decision. Nor can a
+  session start while the staff is not shown (When a session can start, above).
 
 ## 7. Sessions, review, export and privacy
 
 **Starting and ending.** A session starts on a Start click, or on a MIDI note that is the note
 phrase 1 starts on, once a controller is connected and audio is unlocked (§6 gives the full rule,
-including the notes that can never start a session). With a controller attached, it ends after
+including the notes that can never start a session, and the states in which nothing can start
+one: a new phrase being generated, a phrase that cannot be drawn, a generation failure being
+reported, unsupported rhythm settings, and the staff not being shown). Whatever the controller situation, a session also ends on a hidden tab, or
+as soon as the staff can no longer be shown (a portrait-shaped view, or a window too narrow for
+the staff or, below the tablet-landscape layout's width, too short for it, including for phrase
+material already waiting to be drawn), each exactly like Stop (§6). With a controller attached,
+it ends after
 more than 30 seconds without any note played, or on Stop; that 30-second timer only starts
 counting once the player has played at least one note, so clicking Start and taking a moment
 before playing never times out. A controller can only be connected between sessions (§8), so a
@@ -251,9 +539,14 @@ shown (so the review and export can never disagree with what actually played, ev
 version of the generator would produce something different from the same inputs), and the
 original reproduction inputs — the resolved request, seed, and carry-in — so that "every phrase in
 this session is exactly reproducible from its stored inputs" is a testable guarantee, not an
-assumption. This also stores whatever a v3 persistence/continuation feature will need later. The
+assumption. The resolved request holds the settings the phrase was actually generated with, note
+density included: `Eighth` rather than a chosen `Sixteenth` for every phrase generated with
+`Eighth` under §5's rule, whether the window was below the tablet-landscape layout's width or the
+session had already stepped down to `Eighth`. This also
+stores whatever a v3 persistence/continuation feature will need later. The
 history additionally records each phrase's acknowledgements and the played notes whose onsets fall
-within it (each with its concert pitch, velocity, onset and release on the audio clock), and marks any phrase that is a repeat inserted by the failure ladder in §4 — internally
+within it (each with its concert pitch, velocity, onset and release on the audio clock), and marks any phrase that is a repeat inserted by the failure ladder in §4, the same way whether
+the attempts failed because no phrase was found or because none fit the staff — internally
 only: the review itself never visibly distinguishes a repeated phrase from any other phrase, since
 a repeat is a generator implementation detail, not something worth surfacing to the player. There
 is no cap on session length; the review must stay responsive regardless of how long a session ran.
@@ -268,6 +561,13 @@ review has no favorites: marking phrases is v3 (§2). Only the most recently com
 review exists. Starting a new session from the review discards it without asking for
 confirmation, so the next session is always one action away. Closing or reloading the page
 discards everything without asking.
+
+**A session ended during the count-in** — by Stop, a hidden tab or the staff no longer being
+shown, before
+phrase 1 starts sounding — has nothing to review: no phrase started sounding, so its history holds
+no phrase. The app goes straight back to Idle with phrase 1 still on screen as the Idle phrase, and
+no review opens. The previous session's review is not restored either: starting this session had
+already discarded it, and it stays discarded.
 
 **Export.** Getting what was played out of the app matters as much as getting the generated
 material out, so the review offers two export actions, one per content: one exports the
@@ -374,8 +674,8 @@ whole length. The session begins at the Start click, so this covers the count-in
 device is plugged back in during that session, it is not reattached. The selection is kept
 throughout, and once the session ends the device reattaches by itself, as above, if it is still
 plugged in. Likewise, a controller lost mid-session and still away when the session ends (after
-the 30-second window below, or on Stop) keeps its selection into the Review, exactly like a
-controller unplugged between sessions.
+the 30-second window below, or on Stop) keeps its selection into the Review (or into Idle, for a
+session ended during the count-in, §7), exactly like a controller unplugged between sessions.
 
 The kept selection lives in memory only. It does not survive a page reload: v2 saves nothing to
 browser storage (§7), so after a reload the player goes through the connection step again.
@@ -557,8 +857,9 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
    session running through a generation failure.
 2. Every join obeys the same interval and register rules as a join inside a single phrase, and the
    register stays stable across a whole session unless a control genuinely changes it.
-3. With no carry-in at all (a session's first phrase, or the unchanged v1 static workspace),
-   output is byte-identical to v1.
+3. With no carry-in at all (a session's first phrase, or the phrase at Idle), the output for a
+   given request and seed is byte-identical to v1. At Idle, only which request and seed end up
+   shown can differ from v1 (items 26 and 27).
 4. A control change is only ever visible starting at the first phrase that hasn't begun sounding —
    no note already on screen ever changes.
 5. The backing stays in pitch and on the beat; muting it never affects timing; nothing plays before
@@ -574,7 +875,11 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
     blocking Start. A session started without a controller runs until Stop and cannot gain a
     controller mid-session.
 11. A rhythm-setting combination v1 already disallows can neither start nor be applied during a
-    session.
+    session. A combination is judged on the note density a phrase is generated with (item 27):
+    below the tablet-landscape layout's width, a chosen `Sixteenth` counts as `Eighth`. A change
+    of window never brings a running session onto a disallowed combination, since its density can
+    only step from `Sixteenth` down to `Eighth` (item 27) and no combination v1 disallows uses
+    `Eighth`.
 12. The review and export are complete, exact, and reproducible from stored inputs; MusicXML opens
     correctly in a real notation program (MuseScore) for at least three transposing instrument
     templates; MIDI opens correctly in a real tool with the correct tempo map. Every export
@@ -586,6 +891,8 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
     export), and nothing anywhere is ever graded, scored or marked wrong.
 14. All existing v1 guarantees still hold unchanged: the instrument range contract, the notation
     rules, Chromium-only support, and offline use after first load with no additional audio assets.
+    The only changes to v1's behaviour at Idle are those of items 26 and 27; no partial or
+    substitute staff is ever drawn.
 15. The re-signed latency budget holds: no main-thread task ever runs longer than the audio
     scheduler's own look-ahead window during a 240 BPM session.
 16. A controller lost mid-session (its port reports disconnected) is clearly visible to the
@@ -596,12 +903,19 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
     notes played after the reconnection are acknowledged as usual. Silence alone ends a session
     only under the 30-second no-note rule in §7.
 17. From MIDI, only the note phrase 1 starts on, at its exact pitch with the octave included,
-    starts a session. Any other note played at Idle, and any note at all played while connecting
-    a controller or during the transposition check, starts nothing and changes nothing on screen.
-    The note that starts a session is always named on screen, neutrally.
+    starts a session, and only while a session can start at all (item 22). Any other note played
+    at Idle, any note played while a session cannot start, and any note at all played while
+    connecting a controller or during the transposition check, starts nothing and changes nothing
+    on screen. The note that starts a session is named on screen, neutrally, exactly when playing
+    it would start one: with a controller attached, outside the connection step, and while a
+    session can start. No note is named without a controller attached (including a selected
+    controller that is away), while connecting one, or in any case listed in item 22.
 18. The starting note only starts the count-in and is recorded in no phrase. The count-in is shown
     on screen in time with the click, for both kinds of start, and phrase 1's whole first measure
-    stays fully visible throughout it.
+    stays fully visible throughout it. The count-in's click sounds even when the click is turned
+    off, including when it is turned off during the count-in; the click setting applies from
+    phrase 1 on. The count-in plays at the current click volume, and no setting of the click
+    volume control makes the click silent.
 19. A connected controller unplugged at Idle or in the Review keeps its selection: plugging the
     same device back in reattaches it automatically, without re-running the transposition check
     and without any action from the player. While it is away, the app behaves as with no
@@ -614,6 +928,82 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
     session ends, by the 30-second rule or by Stop, keeps its selection into the Review and
     reattaches automatically there when the same device returns. After a page reload no
     selection is remembered.
+21. From the moment a session starts, by a Start click or the starting note, until it ends, by
+    any means, the app holds a screen wake lock, and it releases the lock when the session ends.
+    When the browser refuses the lock or does not support it, the session starts and runs exactly
+    as it otherwise would, and nothing is shown about the lock.
+22. At Idle, neither a Start click nor any MIDI note starts a session, and no starting note is
+    named, while: no phrase has been generated yet; a new phrase is being generated, including
+    the retries that replace a phrase whose notes do not fit (item 26); the phrase cannot be drawn
+    (notation error); a failed generation is being reported, with or without the previous phrase
+    still on screen; the rhythm settings are a combination v1 disallows (item 11); the
+    rotate-device notice replaces the staff; or phrase 1 cannot be drawn at the staff's minimum
+    readable size in the layout a session would hold, within the window's width or, below the
+    tablet-landscape layout's width, within its height (the staff together with the row above it
+    where the count-in and the session's notices appear, measured with the browser's toolbars
+    showing), in which case the notice of item 26 shows instead of the staff. Once none of these
+    holds (a successful regeneration, the new phrase on screen, a view that shows the staff
+    again), a session starts as usual.
+23. A session ended during the count-in, by Stop, a hidden tab or the staff no longer being shown
+    (item 24), goes back to Idle with phrase 1 still on screen. No review opens, and the previous session's review is not
+    restored.
+24. From the moment a session starts until it ends, by any means, the app asks for a landscape
+    orientation lock, and it releases the lock when the session ends. A refused or unsupported
+    lock changes nothing about the session and shows nothing. During a session, count-in
+    included, the session ends exactly like Stop as soon as the view becomes portrait-shaped
+    below the desktop layout's width (whether a device was turned, the window was resized, or a
+    split screen was opened), or the window becomes too narrow to draw the staff at its minimum
+    readable size in the layout the session started with, or, below the tablet-landscape
+    layout's width, too short to fit it (as measured in item 22). A browser toolbar appearing or
+    hiding never ends a session. Any other change to the window's size keeps the session running,
+    with the staff redrawn at the new size in the same layout.
+25. The staff layout a session holds is chosen at Start from the window's width alone: the same
+    width always gives the same layout, whatever phrase 1 contains. During a session, a
+    look-ahead phrase that cannot be drawn at the staff's minimum readable size in that layout is
+    never shown and counts as a failed attempt: it goes through the same retries as a generation
+    that found no phrase, a phrase is repeated only when no attempt produced a valid phrase by the
+    deadline, and that repeat is recorded in the history like any other. On a change to the
+    window's size, a phrase or part of a phrase already checked and waiting to be drawn that no
+    longer fits ends the session like Stop (item 24) and is not retried; a look-ahead phrase that
+    arrives after the change is checked against the new size. No notation error is ever shown
+    during a session, whatever the window does.
+26. At Idle, as two changes to v1's behaviour: when the window has room for the staff but a
+    phrase's notes cannot be drawn at the staff's minimum readable size, whether the phrase was just
+    generated or was on screen when the window's size changed, that phrase is not drawn: the
+    app generates a new one with up to three fresh-seed retries, and shows the first one that
+    fits. When the staff cannot be shown for lack of space (too narrow, or, below the
+    tablet-landscape layout's width, too short, as measured in item 22), or when every one of
+    those retries has failed, the app shows a plain notice that the staff needs more room, with
+    no retry action, instead of the staff. For lack of space, it clears by itself once the staff
+    fits, and a new phrase is then generated with the same retries. When every retry has failed,
+    a wider window, a change to a setting the phrase is generated from, or regenerating by hand
+    each starts a new round of the same retries; the first phrase that fits clears the notice and
+    is shown, a round that fails leaves the notice in place, and a narrower window never starts a
+    round. A wider window while a round runs neither restarts it nor starts another after it: the
+    round carries on, each attempt generated with the note density the window gives when it is
+    generated, and if it fails, the notice stays until the next wider window, setting change or
+    regeneration by hand. Either way, the phrase last on screen, and any phrase too dense
+    to fit, is never drawn. If the notice clears because the staff fits while the rhythm settings
+    are a combination v1 disallows, or if, while every retry has failed, a setting change or a
+    wider window makes them one, before a round or during one, no phrase is generated or shown (a
+    round under way stops at once, and none of its attempts is drawn): the unsupported-rhythm
+    alert shows as before a first phrase exists, generation stays blocked until the combination
+    is allowed again, and once it is, no phrase is generated until the player asks for one. A
+    phrase on screen when the combination becomes unsupported stays on screen, as in v1, as long
+    as it fits. One that stops fitting while the combination is unsupported gets no retries and
+    no notice: no phrase is shown, with the alert, as above, unless the window has no room for
+    the staff at all, which shows the notice. Neither case ever shows the notation error, which
+    is kept for failures that retrying can cure.
+27. Below the tablet-landscape layout's width, as a change to v1's behaviour, the `Sixteenth`
+    note density cannot be chosen, and a `Sixteenth` chosen while the window was wider is kept
+    but generates as `Eighth`. The density is taken from the window's width when each phrase is
+    generated, at Idle and during a session alike; a phrase on screen, or one already checked and
+    waiting to be drawn, is never regenerated because the window crossed that width. At Idle,
+    the chosen `Sixteenth` applies again to the next phrase generated at or above that width, as
+    in v1. During a session, once a phrase has been generated with `Eighth` under this rule,
+    every later phrase of that session is too, whatever the window does; the chosen value
+    applies again from Idle. A session's history records, for each phrase, the density it was
+    generated with. Sixteenth notes can still appear in a phrase through other settings.
 
 ### Added by v2.1 and later
 
@@ -667,6 +1057,10 @@ starting v2.0 implementation:
   a written middle C actually sends, whether an octave setting changes it, and what note-on
   velocity it uses. This determines whether an additional manual "input transposition" setting is
   needed beyond the check itself.
+- **The screen wake lock dropped mid-session** (§6): a browser may release the lock by itself
+  while the session is still running (for example to save battery). Whether the app asks for it
+  again is undecided. Proposed, not yet confirmed by the product owner: it asks again, silently,
+  while the session runs and the page is visible; nothing is shown either way.
 
 One item left v2 when favorites moved to v3, and is not a v2 gap: **what makes a favorite count
 as exported**, which only mattered for asking before discarding unexported favorites. It stays
@@ -681,7 +1075,21 @@ blocks only the path it names, not the rest of v2.0:
   review. Whether a MIDI note can start a session from the Review at all is also undecided.
   Proposed, not yet confirmed by the product owner: from the Review, only a Start click starts a
   session. Starting from the Review no longer asks for any confirmation (§7), so that reason for
-  the proposal is gone; whether a MIDI start is wanted there is the remaining question.
+  the proposal is gone; whether a MIDI start is wanted there is the remaining question. Whatever
+  the answer, it also has to say how the conditions under which a session can start (§6),
+  settled for Idle, apply when starting from the Review.
+
+One item came up with the note-density rule and the "staff needs more room" notice (§2). It
+blocks only the behaviour it names:
+
+- **The settings-mutation flag in a session generating with `Eighth`** (§5, v2.1). When a chosen
+  `Sixteenth` generates as `Eighth`, it is undecided which of the two a note-density mutation
+  steps from: from the chosen `Sixteenth`, a step down to `Eighth` changes nothing generated. It
+  is also undecided whether `Sixteenth` counts as unavailable in a session that stepped down to
+  `Eighth` and whose window is now wide enough, where landing on it would change nothing
+  generated either. Proposed, not yet confirmed by the product owner: a mutation steps from the
+  density generated with, and `Sixteenth` counts as unavailable whenever the session generates
+  with `Eighth` under this rule, whatever the window's width.
 
 Two further items are noted as direction for v2 or later, without being scoped precisely enough to
 build yet, and are **not** part of the v2.0–v2.3 definition of done above:

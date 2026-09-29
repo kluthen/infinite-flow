@@ -2,7 +2,7 @@
 
 Status: direction (2026-09-25). These are far placements: "maybe v5 material", and microphone
 "v5 or 8". A cross-device review candidate was added 2026-09-28 (D128), placed no earlier than
-v6.
+v6. A staff-only session view was placed in v5 2026-09-28 (D133).
 
 ## Settled direction
 
@@ -17,6 +17,14 @@ v6.
   - Acoustic pitch detection as an input kind, alongside MIDI.
   - It plugs into v3's "my instrument" input-kind setting.
   - It stays far out because browser-side detection adds latency and uncertainty.
+- **Staff-only session view (v5).** Placed here 2026-09-28 (D133, from ux D72).
+  - The idea: while a session runs, hide everything but the staff and Stop.
+  - v2 does not have it. The v2 session layout keeps only session material on and near the
+    staff, and v2's audio mix stays reachable throughout a session
+    ([v2 master spec §5](../v2/master-spec.md#5-control-changes-during-a-session)).
+  - To settle when it is specced: hiding the mix goes against that "reachable at all times"
+    rule, so the rule has to be revisited for this view. Not designed here; `ux-writer` owns the
+    view itself.
 
 ## Candidates (not committed)
 
