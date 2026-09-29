@@ -618,18 +618,11 @@ provider each time it builds an intent, and a crossing never generates. Below
 kept. The unsupported-rhythm check judges the generated density; the chunk 0 drift for this chunk
 is fixed. `npm run quality` passes but for the four known snapshots (see
 [chunk 1](#chunk-1--baseline-checks)).
-Waiting for the owner:
-
-- wording additions to three REVIEW atoms (`module_generation_request_construction`,
-  `module_rhythm_variety_grammar`, `service_workspace_session_flow`), which also fix two older
-  statements that the instrument-profile switch contradicts: it does regenerate;
-- one sentence in `rule_profile_switch_validates_phrase`: a blocked combination is judged on the
-  density a phrase would be generated with;
-- acknowledging a notes-only edit to `rule_unsupported_rhythm_settings_block_generation`, which
-  records what is built;
-- advancing `rule_sixteenth_unavailable_below_tablet_width` and
-  `module_generation_control_catalog` (v1.2, rewritten for v2) from DRAFT to REVIEW.
-
+The owner accepted every ATD change the same day. Three REVIEW atoms gained the v2 density rule and
+lost their older claim that an instrument-profile switch never generates;
+`rule_profile_switch_validates_phrase` judges a blocked combination on the density a phrase would be
+generated with; `rule_sixteenth_unavailable_below_tablet_width` and
+`module_generation_control_catalog` moved to REVIEW.
 The session's step-down memory is chunk 8's; the idle fit retries on a crossing are chunk 5's.
 
 **Goal.** Below `bp-tablet-landscape`, `Sixteenth` can't be chosen, a stored `Sixteenth`

@@ -1,6 +1,6 @@
 ---
 id: rule_sixteenth_unavailable_below_tablet_width
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.1

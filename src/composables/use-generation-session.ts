@@ -163,6 +163,7 @@ export function createGenerationSession<TResult>(
    * generation has no session behind it, so it never counts as stepped down.
    */
   // @spec-link [[rule_generated_density_follows_window_width]]
+  // @spec-link [[service_workspace_session_flow]]
   function readNoteDensityContext(): NoteDensityContext {
     const belowTabletLandscape = options.viewport.isBelowTabletLandscape()
     if (belowTabletLandscape !== state.noteDensityContext.belowTabletLandscape) {
@@ -296,6 +297,7 @@ export function createGenerationSession<TResult>(
    * density, never the width itself, while `state.controls` keeps the chosen value.
    */
   // @spec-link [[rule_generated_density_follows_window_width]]
+  // @spec-link [[service_workspace_session_flow]]
   function freshIntentFromControls(): GenerationIntent {
     return createGenerationIntent({
       requestId: options.providers.nextRequestId(),

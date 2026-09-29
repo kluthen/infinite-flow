@@ -1,6 +1,6 @@
 ---
 id: module_generation_control_catalog
-status: DRAFT
+status: REVIEW
 type: MODULE
 tags: controls
 parents:
