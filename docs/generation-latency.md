@@ -3,7 +3,11 @@
 This document records `generatePhrase` latency across every rhythm setting in the current
 `rhythm-mvp-v2` control catalog (ISS-004: rhythmic variety replaces Mixed density), cold (fresh
 canonical-rhythm-domain memo) versus warm (memo hit), and the signed-off latency budget those
-numbers are checked against. The historical `rhythm-mvp-v1` measurements (144-setting catalog,
+numbers are checked against. It also records the first generation after a change to one setting,
+and the longest main-thread task while a phrase is engraved. The newest figures are in
+[v2 baseline (chunk 1, 2026-09-29)](#v2-baseline-chunk-1-2026-09-29), with the v2 verdicts; the
+older tables below it were measured on the product owner's reference machine and are labelled with
+their provenance. The historical `rhythm-mvp-v1` measurements (144-setting catalog,
 Mixed density) are kept at the bottom for record only — see
 [Historical: rhythm-mvp-v1 measurements](#historical-rhythm-mvp-v1-measurements). They no longer
 describe the current catalog and are not re-checked against the budget.
@@ -28,7 +32,271 @@ For each setting it creates one fresh, empty `CanonicalRhythmDomainMemo` and mea
 - **Warm** — one `generatePhrase` call with seed 2 against the _same_ memo instance right after
   (a memo hit: the rhythm domain is already materialized, only re-ranked for the new seed).
 
-## Measured results (Node, v2 catalog)
+The rhythm-domain memo is keyed by the five rhythm controls only (note density, rhythmic variety,
+silence density, syncopation, tension arc). A generation is **cold** when its rhythm setting is not
+yet in the memo, so the memo first builds that setting's whole rhythm domain; that is the expensive
+step. No other control (tonal center, register, contour and so on) enters the key.
+
+**First generation after a change to one setting.** From v2.1 a settings mutation can move one
+setting by one grade in the middle of a session, and the look-ahead phrase is then regenerated with
+the new setting. The same harness measures that case in a second test, run after the first in the
+same process. It models the generation Worker, which keeps one memo for the whole page and so for
+the whole session:
+
+- For each of the 324 rhythm settings (the "starting setting"), with every other control as above,
+  it creates one fresh memo and warms it with one generation (seed 1). A starting setting that
+  cannot generate is skipped, since a session can never be playing it: 284 starting settings
+  remain.
+- Against that same memo, it then generates once (seed 2) for every one-step neighbour of the
+  starting setting and times that call. A one-step neighbour moves exactly one control by one grade
+  in its catalog order, as a mutation does: each of the five rhythm controls (for example Eighth →
+  Sixteenth, or Lift → Build), plus two non-rhythm controls, tonal center (one semitone up or down:
+  C → C# and C → B) and register (Middle → Low and Middle → High).
+- Every neighbour differs from the starting setting and from every other neighbour, so each
+  rhythm-control change is a memo miss (the harness checks this by the memo's size) and each
+  tonal-center or register change is a memo hit.
+- Targets that are unsupported rhythm settings fail fast (under 100 ms) and are left out of the
+  statistics: a mutation that lands on one is re-rolled, never applied.
+
+`LATENCY_OUT` and `LATENCY_TRANSITIONS_OUT` name JSON files for the full per-setting and
+per-transition results.
+
+**Browser timing.** `npm run measure:latency:browser` times each generation from the click on the
+primary action to the `generation-status` live region reading "Phrase ready", so its figures
+include the Worker round trip and the engraving. Its second test measures the first generation
+after a one-control change in the browser: in a fresh page it generates a one-step neighbour of the
+worst-case setting, changes that one control through the UI to reach the worst case, and times the
+next generation; it does the same for a register change and a written-key change that keep the
+worst-case rhythm setting. Since chunk 1 every cycle is reported two ways. The **in-page** figure is
+exact: a click listener in the page stamps the click and a `MutationObserver` stamps the moment the
+live region's text changes. The **wall-clock** figure is what the harness reported before: the time
+the test runner waited for Playwright's text assertion. Playwright polls that assertion at growing
+intervals, ending at one check every 500 ms, so the wall-clock figure can overstate a cycle longer
+than about 300 ms by up to half a second. The v2 baseline uses the in-page figures.
+`LATENCY_BROWSER_OUT` and `LATENCY_BROWSER_CHANGE_OUT` name JSON files for the two tests' reports.
+
+**Main-thread engraving.** `npm run measure:engraving` runs
+`tests/e2e/workspace/engraving-main-thread.spec.ts` (Playwright, Chromium, production preview
+build). Generation runs in the Worker, off the main thread. What runs on the main thread per phrase
+is the click handler, the Worker's reply (decoding the result, checking it again, turning it into
+written notation) and the animation-frame callback that engraves the phrase with VexFlow and swaps
+it onto the screen, followed by that frame's style, layout and paint. The spec installs three
+probes in the page before the app loads:
+
+- a buffered `longtask` `PerformanceObserver`, which reports every main-thread task of 50 ms or
+  more;
+- a buffered `long-animation-frame` observer, which reports long frames with the scripts that ran
+  in them, so the engraving callback (`FrameRequestCallback`) is told apart from the Worker's reply
+  (`Worker.onmessage`);
+- a heartbeat of chained zero-delay timers during each cycle. The longest gap between two beats is
+  the longest a main-thread timer callback had to wait, measured below 50 ms too.
+
+It uses the setting that puts the most notes on the staff. Over seeds 1-12, Sixteenth / Strict /
+Sparse / Straight / Edge fills all 64 sixteenth-note slots of the four bars, about 58 of them notes
+and the rest rests; no other setting has more notes or more glyphs. Every other control keeps the
+workspace default. It runs at two large desktop viewports, 2560 × 1440 and 1920 × 1080 CSS pixels:
+one fresh page each, one first generation, then 12 regenerations (each with a new random seed),
+then 10 re-engravings of the last phrase caused by a 16-pixel width change alone, with no
+generation. `ENGRAVING_OUT` names a JSON file for the full report.
+
+## v2 baseline (chunk 1, 2026-09-29)
+
+Measured on 2026-09-29 on the v1.0 code (only documentation had changed since the v1.0 tag).
+
+> **Not the reference machine.** These figures come from a cloud container: 4 vCPU Intel Xeon @
+> 2.10 GHz, 15 GB RAM, Ubuntu 24.04.4 LTS (Linux 6.18), Node v22.22.2, Chromium 153.0.8010.12
+> (the Playwright 1.63.0 headless shell). The product owner's reference machine (12 CPUs), which
+> produced every older table in this document, was not available. On the same harness this machine
+> is about twice as slow on the cold worst case (2,063 ms here against 990.7 ms there), so the
+> owner may want the four commands re-run on the reference machine before deciding. Each run ran
+> alone, with no other build or test process on the machine. Load averages (1-minute) before →
+> after each run: Node 0.54 → 1.14; Chromium run 1 0.04 → 1.51; Chromium run 2 1.39 → 1.42 and
+> engraving 1.31 → 1.04. The last two started seconds after the previous run ended, so their
+> starting 1-minute average still carries that run; nothing else was running.
+
+### Node
+
+`npm run measure:latency`. Of the 324 settings, 284 succeed and 40 fail fast with
+`no_legal_rhythm_plan` (the documented unsupported rhythm settings, under 101 ms each), as before.
+
+| Node, 284 settings (ms) | median | p90   | p95   | max     |
+| ----------------------- | ------ | ----- | ----- | ------- |
+| Cold                    | 30.3   | 379.1 | 540.0 | 2,063.2 |
+| Warm                    | 3.4    | 26.7  | 44.8  | 160.7   |
+
+43 of the 284 settings take longer than 250 ms cold, and 6 longer than 1 s. No warm generation
+takes longer than 250 ms. The five slowest cold settings are all Sixteenth / Heavily varied /
+Sparse: Active displacement / Edge 2,063.2 ms, Active displacement / Build 1,859.7 ms, Straight /
+Build 1,267.8 ms, Occasional offbeats / Build 1,226.2 ms, Straight / Edge 1,185.4 ms.
+
+Cold p90 by note density × rhythmic variety (ms):
+
+| Density   | Strict | Slightly varied | Heavily varied |
+| --------- | ------ | --------------- | -------------- |
+| Quarter   | 10.6   | 10.2            | 81.4           |
+| Eighth    | 168.4  | 169.0           | 528.9          |
+| Sixteenth | 73.2   | 458.7           | 1,226.2        |
+
+**First generation after a one-step change to one setting** (3,102 transitions from the 284
+starting settings; 124 land on an unsupported rhythm setting and are left out):
+
+| Changed control (ms)          | n     | memo misses | median | p90   | p95   | max     |
+| ----------------------------- | ----- | ----------- | ------ | ----- | ----- | ------- |
+| Any rhythm control            | 1,842 | 1,842       | 33.2   | 375.5 | 526.6 | 2,119.4 |
+| Note density                  | 352   | 352         | 33.9   | 370.6 | 532.8 | 1,823.8 |
+| Rhythmic variety              | 352   | 352         | 27.0   | 363.1 | 473.0 | 1,967.0 |
+| Silence density               | 360   | 360         | 36.8   | 382.6 | 544.0 | 1,848.9 |
+| Syncopation                   | 352   | 352         | 35.7   | 385.2 | 529.3 | 1,747.6 |
+| Tension arc                   | 426   | 426         | 30.7   | 377.6 | 526.6 | 2,119.4 |
+| Tonal center or register      | 1,136 | 0           | 3.7    | 24.9  | 41.5  | 280.1   |
+| Tonal center (C → C#, B)      | 568   | 0           | 3.8    | 25.7  | 42.9  | 262.1   |
+| Register (Middle → Low, High) | 568   | 0           | 3.5    | 23.9  | 40.6  | 280.1   |
+
+Of the 1,842 rhythm-control changes, 278 (15.1 %) take longer than 250 ms, 104 (5.6 %) longer than
+500 ms and 34 (1.8 %) longer than 1 s.
+
+The ten slowest transitions all end on a Sixteenth / Heavily varied / Sparse / Active displacement
+setting:
+
+| From → to (the control that moved)                                                     | ms      |
+| -------------------------------------------------------------------------------------- | ------- |
+| Sixteenth / Heavily varied / Sparse / Active displacement: Lift → Build                | 2,119.4 |
+| Sixteenth / Sparse / Active displacement / Edge: Slightly → Heavily varied             | 1,967.0 |
+| Sixteenth / Heavily varied / Sparse / Active displacement: Edge → Build                | 1,865.8 |
+| Sixteenth / Heavily varied / Sparse / Active displacement: Build → Edge                | 1,863.9 |
+| Sixteenth / Heavily varied / Active displacement / Build: Conversational → Sparse      | 1,848.9 |
+| Heavily varied / Sparse / Active displacement / Build: Eighth → Sixteenth              | 1,823.8 |
+| Sixteenth / Sparse / Active displacement / Build: Slightly → Heavily varied            | 1,806.1 |
+| Heavily varied / Sparse / Active displacement / Edge: Eighth → Sixteenth               | 1,802.2 |
+| Sixteenth / Heavily varied / Sparse / Edge: Occasional offbeats → Active displacement  | 1,747.6 |
+| Sixteenth / Heavily varied / Sparse / Build: Occasional offbeats → Active displacement | 1,736.0 |
+
+What makes a generation cold after a change:
+
+- **Any change to a rhythm control** — note density, rhythmic variety, silence density,
+  syncopation or tension arc — makes the next generation cold, every time. The memo holding the
+  previous setting does not help: its figures match the cold figures of a fresh memo above. The
+  cost depends on the setting the change lands on, not on which control moved.
+- **A change to tonal center or register** keeps the rhythm setting, so the next generation is a
+  memo hit and costs what a warm generation costs. The same holds for every other control outside
+  the rhythm memo key (collection, harmonic motion, contour, leapiness, arpeggio chaos): they do not
+  enter the key either.
+
+### Chromium
+
+`npm run measure:latency:browser`, run twice. Click to "Phrase ready", in-page figures, with the
+wall-clock figure in brackets; both include the Worker round trip and the engraving.
+
+| Scenario                                                                       | Cold (ms)                       | Warm (ms)               |
+| ------------------------------------------------------------------------------ | ------------------------------- | ----------------------- |
+| Default (Quarter / Slightly varied / Straight / Sparse / Lift)                 | 72.7, 78.1 (175, 186)           | 31.4, 34.6 (83, 86)     |
+| Worst case (Sixteenth / Heavily varied / Sparse / Active displacement / Build) | 1,441.4, 1,432.6 (1,887, 1,868) | 233.4, 254.1 (260, 339) |
+
+During the worst-case cold generation a click on the theme control applied in 87 ms and 95 ms
+(under the 200 ms the spec asserts).
+
+**First generation after a one-control change into the worst case.** Each row is a fresh page
+(one Worker, one empty memo). The page first generates the starting setting ("warm-up"), then one
+control is changed through the UI and the next generation is timed.
+
+| Starting setting → worst case (control changed)          | Warm-up (ms)     | After the change (ms) |
+| -------------------------------------------------------- | ---------------- | --------------------- |
+| Note density: Eighth → Sixteenth                         | 524.0, 596.6     | 1,296.2, 1,470.8      |
+| Rhythmic variety: Slightly varied → Heavily varied       | 518.1, 579.9     | 1,306.5, 1,568.4      |
+| Silence density: Conversational → Sparse                 | 507.1, 457.1     | 1,272.9, 1,325.9      |
+| Syncopation: Occasional offbeats → Active displacement   | 939.6, 1,034.2   | 1,530.6, 1,589.4      |
+| Tension: Lift → Build                                    | 611.6, 619.6     | 1,369.3, 1,346.9      |
+| Register: Middle → High (worst-case rhythm kept)         | 1,410.3, 1,365.0 | 236.3, 256.5          |
+| Written key: C → C-sharp/D-flat (worst-case rhythm kept) | 1,611.1, 1,295.0 | 237.0, 241.0          |
+
+The worst case after a rhythm-control change is 1,589.4 ms; after a register or key change,
+256.5 ms, the same as a warm worst-case generation.
+
+**The older wall-clock figures overstate long cycles.** The wall-clock column lands on
+Playwright's polling steps (about 850, 1,360 and 1,870 ms) whatever the real duration: for example
+1,296 ms in the page was read as 1,356 ms, and 457 ms as 866 ms. The reference machine's 823 ms
+worst-case cold figure below was measured the same way, so the real figure there may be up to
+about 500 ms lower.
+
+### Main-thread engraving
+
+`npm run measure:engraving`, the densest setting (Sixteenth / Strict / Sparse / Straight / Edge,
+64 notes and rests on the staff, 58 of them notes on average). In ms:
+
+| Viewport (staff size)        | First generation: longest task (heartbeat gap) | 12 regenerations: tasks ≥ 50 ms | Engraving callback, max (median) | Heartbeat gap, max (median) | 10 resize redraws: heartbeat gap, max (median) |
+| ---------------------------- | ---------------------------------------------- | ------------------------------- | -------------------------------- | --------------------------- | ---------------------------------------------- |
+| 2560 × 1440 (2,462 × 263 px) | 83 (93.2)                                      | none                            | 33.7 (18.8)                      | 42.9 (31.5)                 | 88.0 (22.9)                                    |
+| 1920 × 1080 (1,822 × 263 px) | 56 (66.6)                                      | none                            | 33.2 (under 5)                   | 42.1 (27.9)                 | 29.2 (20.6)                                    |
+
+- No regeneration or resize redraw produced a main-thread task of 50 ms or more, at either size.
+  The longest engraving callback was 33.8 ms (in a 2560 × 1440 resize redraw).
+- The longest main-thread block of the whole run was the first generation in a fresh page: 83 ms at
+  2560 × 1440 (93.2 ms by heartbeat). That task is the Worker's reply, which on the first phrase
+  also mounts the score and engraves it with code that has not run before. In a session, phrase 1
+  is on screen before Start, so this first engraving happens before any sound is scheduled.
+- The one 88.0 ms heartbeat gap in a resize redraw comes from the whole page being laid out again
+  for a new window width, which does not happen during a session unless the window is resized.
+- Generation adds nothing to the main thread: the Worker's reply stayed under 50 ms after the first
+  phrase. The click-to-ready cycle for these phrases was 54-60 ms (median).
+
+### Verdicts
+
+**Against the working target (cold worst case under 250 ms in Chromium): missed.** The target is a
+quarter of one bar at 240 BPM (one bar lasts 1 s). The cold worst case measured 1,432-1,441 ms in
+Chromium on this machine, and the first generation after a rhythm-control change up to 1,589 ms.
+Both miss, and the target misses even on the reference machine's older, overstated 823 ms. Per the
+build plan, **the plan stops before chunk 8 (session engine) and chunk 10 (audio transport), and
+the product owner decides how to proceed.** The case after a setting change misses too, so the stop
+before chunk 24 (settings-mutation engine) also applies; it is not the only miss. Warm generations
+and changes that keep the rhythm setting (tonal center, register) stay at or around 250 ms in the
+worst case (233-257 ms here).
+
+**Against the deadline itself (`rule_look_ahead_deadline`)** — a separate question from the working
+target. The rule: each look-ahead phrase must be generated **and** engraved before it is due. At
+240 BPM that is normally 3 bars, 3 s, after it is requested; it is 1 bar, 1 s, for phrase 2 (made
+during the one-bar count-in) and, from v2.1, for a phrase regenerated after an automatic settings
+change. Up to four retries after a failed attempt share that same window. Only the Chromium
+click-to-"Phrase ready" figures include engraving; the Node figures do not. On this machine:
+
+- **3 s window: met for the setting measured in Chromium, not shown for every setting.** The
+  Chromium worst case (Sixteenth / Heavily varied / Sparse / Active displacement / Build) took
+  1.44 s cold. A retry after a failed attempt runs on the same rhythm setting, which the first
+  attempt has already put in the memo, so each retry costs about a warm worst case, about 0.25 s:
+  1.44 + 4 × 0.25 ≈ 2.5 s, still inside 3 s, with about 0.5 s to spare. But the Node run found
+  slower settings on this machine, before engraving and the Worker round trip: the same setting
+  with Edge tension at 2,063 ms cold, and a change into it at 2,119 ms. With four retries that
+  comes to about 3.1 s, over the window. Node and Chromium figures don't compare directly (on the
+  Build setting, Chromium was faster than Node here), so whether every supported setting meets the
+  3 s window needs the Edge setting measured in Chromium.
+- **1 s window, phrase 2 during the count-in: met, if phrase 1 warmed the memo.** Phrase 2 has the
+  same settings as phrase 1, which was generated in the same Worker before Start, so phrase 2 is a
+  warm generation: at most about 0.25 s. It would miss if phrase 2 were cold (1.44 s), and, in the
+  worst case, if all four retries were needed (0.25 + 4 × 0.25 ≈ 1.25 s).
+- **1 s window, regeneration after a settings change (v2.1): missed.** A rhythm-control change is
+  always cold, and the worst measured case took 1.59 s in Chromium. In Node, 1.8 % of the one-step
+  rhythm changes took longer than 1 s even before engraving and the Worker round trip. Changes that
+  keep the rhythm setting (tonal center, register and the other non-rhythm controls) fit easily.
+
+**Main-thread engraving against the 200 ms scheduler window: under.** The longest main-thread task
+while engraving the densest phrase on the largest staff was 83 ms by `longtask` (93.2 ms by the
+heartbeat), and that was the first phrase in a fresh page; later phrases stayed under 50 ms (at
+most 42.9 ms by the heartbeat). So moving the scheduler's wake-up timer into a Web Worker is enough
+here. The reasoning: a timer in a Worker wakes on time even while the main thread is busy, but if
+the scheduling work itself (queuing the next notes with the audio clock) then runs on the main
+thread, it has to wait for the running main-thread task to finish. That is harmless as long as
+every main-thread task is shorter than the look-ahead window, because notes already queued keep
+playing on the audio thread and the late wake-up still queues the next notes before they are due. If
+a single main-thread task could exceed 200 ms, a Worker timer alone would not guarantee on-time
+scheduling, and the scheduling itself would have to move off the main thread too. Measured here,
+the worst block leaves about 100 ms of the 200 ms window. Limits of this check: one desktop machine
+(not the reference machine, not a phone), a headless Chromium, 1× device pixel ratio, and only
+engraving on the main thread: no audio, MIDI or other session work was running.
+
+**Against the v1 signed-off budget,** for the record: on this machine the whole-catalog cold p90 is
+379.1 ms (under 500 ms), warm p95 44.8 ms in Node (under 250 ms) and the Chromium worst-case cold
+1.44 s (under 2 s), so the v1 budget below still passes here.
+
+## Measured results (Node, v2 catalog, reference machine)
 
 Measured on the reference machine on branch `iss004-rhythmic-variety` (fix round 1), machine load
 ~0.3-1.8 (12 CPUs, mostly idle). Of the 324 settings, 284 succeed and 40 fail with
@@ -74,7 +342,9 @@ density × variety cells) still comfortably passes the 500 ms budget while the s
 
 ## Browser (Chromium)
 
-Measured by `npm run measure:latency:browser` (Playwright, Chromium, production preview build).
+Reference machine, same ISS-004 round as the Node table above; wall-clock figures only (see
+[Method](#method) for why long wall-clock figures overstate the cycle). Measured by
+`npm run measure:latency:browser` (Playwright, Chromium, production preview build).
 Each scenario clicks the primary action and times until the `generation-status` live region reads
 "Phrase ready", so the figures include the Worker round trip, boundary re-validation, the
 written-notation transform, and VexFlow engraving. Cold is the first generation for that rhythm

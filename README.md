@@ -48,18 +48,19 @@ npm run test:e2e                   # Playwright: production-preview + workspace-
 npm run test:a11y                  # Playwright: axe scan across empty/ready/error/in-flight states
 npm run test:notation              # Playwright: notation engraving, layout, and visual-baseline checks
 npm run measure:latency:browser    # Playwright: cold/warm generation latency measured in Chromium
+npm run measure:engraving          # Playwright: longest main-thread task while engraving, in Chromium
 npm run atd:lint                   # Validate ATD atom structure
 npm run atd:check                  # Check ATD source/test link coverage for the current diff
 npm run quality                    # The complete first-release quality gate (see the matrix below)
 ```
 
-`test:e2e`, `test:a11y`, `test:notation`, and `measure:latency:browser` are Playwright suites.
-`playwright.config.ts` declares three `webServer` entries: port 4173 runs `npm run preview` against
-the already-built `dist/`, so **run `npm run build` first** when invoking any of these test
-commands on their own; ports 4174 (`build:notation-harness`) and 4175 (`build:workspace-harness`)
-build and serve themselves as part of starting the server, so they need no separate prior build.
-`npm run quality` builds once (via its own `npm run build` step, ahead of `verify:boundaries` and
-every Playwright suite) so the 4173 preview always has a `dist/` to serve.
+`test:e2e`, `test:a11y`, `test:notation`, `measure:latency:browser` and `measure:engraving` are
+Playwright suites. `playwright.config.ts` declares three `webServer` entries: port 4173 runs
+`npm run preview` against the already-built `dist/`, so **run `npm run build` first** when
+invoking any of these test commands on their own; ports 4174 (`build:notation-harness`) and 4175
+(`build:workspace-harness`) build and serve themselves as part of starting the server, so they need
+no separate prior build. `npm run quality` builds once (via its own `npm run build` step, ahead of
+`verify:boundaries` and every Playwright suite) so the 4173 preview always has a `dist/` to serve.
 
 ## Directory Boundaries
 
@@ -264,6 +265,8 @@ Notes for either variant:
 - [Generator architecture](specs/generator-architecture.md) — the seam-by-seam architectural
   contract.
 - [UI/UX index](ui_ux/README.md) — the approved interaction and visual authority.
+- [Testing](docs/testing.md) — test layers, scripts, the two harnesses and their seams, and the
+  fixture list.
 - [ATD documentation](docs/) — business-intent atoms with source/test traceability.
 - [Third-party licenses](THIRD_PARTY_LICENSES.md) and [`public/licenses/`](public/licenses/) —
   every runtime component shipped in `dist/`, with vendored full license text.

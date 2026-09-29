@@ -1,24 +1,29 @@
 /**
- * Manual Step 9 browser latency harness: measures cold (first click) and warm (Regenerate) wall
- * time from click to "Phrase ready" for the documented worst-case rhythm setting (ISS-004 moves
- * this off Mixed density to Sixteenth / Heavily varied / Sparse silence / Active displacement /
- * Build tension -- the largest candidate domain, 2,932 candidates) and for the default/cheap
- * setting, and checks the main thread stays responsive to a theme click during the worst-case cold
- * run. Not part of `npm run test:e2e`; run explicitly via `npm run measure:latency:browser`.
- * Reports only -- it asserts nothing about the numbers themselves, only that the page never
- * becomes unresponsive. Writes the full JSON report to `LATENCY_BROWSER_OUT` when that env var is
- * set.
+ * Manual Step 9 browser latency harness: measures cold (first click) and warm (Regenerate) time
+ * from click to "Phrase ready" for the documented worst-case rhythm setting (ISS-004 moves this
+ * off Mixed density to Sixteenth / Heavily varied / Sparse silence / Active displacement / Build
+ * tension -- the largest candidate domain, 2,932 candidates) and for the default/cheap setting,
+ * and checks the main thread stays responsive to a theme click during the worst-case cold run. A
+ * second scenario measures the first generation after a change to one setting, as a mid-session
+ * settings mutation causes: the page's one generation Worker (and so its one rhythm-domain memo)
+ * is warmed on a one-step neighbour of the worst case, one control is changed through the UI to
+ * reach the worst case, and that generation is timed; then a tonal-center and a register change,
+ * which keep the rhythm setting, are timed the same way. Every cycle is timed both by the runner's
+ * wall clock and exactly in the page (see `timePhraseReady`). Not part of `npm run test:e2e`; run
+ * explicitly via `npm run measure:latency:browser`. Reports only -- it asserts nothing about the
+ * numbers themselves, only that the page never becomes unresponsive. Writes the full JSON reports
+ * to `LATENCY_BROWSER_OUT` and `LATENCY_BROWSER_CHANGE_OUT` when those env vars are set.
  */
 import { writeFileSync } from 'node:fs'
 
-import { expect, test } from '@playwright/test'
+import { type Page, expect, test } from '@playwright/test'
 
-import { gotoWorkspace, primaryButton, radio } from './helpers'
+import { gotoWorkspace, radio, timePhraseReady, type PhraseReadyTiming } from './helpers'
 
 interface ScenarioMeasurement {
   readonly scenario: string
-  readonly coldMs: number
-  readonly warmMs: number
+  readonly cold: PhraseReadyTiming
+  readonly warm: PhraseReadyTiming
 }
 
 interface LatencyReport {
@@ -26,26 +31,54 @@ interface LatencyReport {
   readonly themeResponseDuringColdWorstCaseMs: number
 }
 
+/** One setting change: the control moved, the value it moved from, and the value it moved to. */
+interface SettingChange {
+  readonly group: string
+  readonly from: string
+  readonly to: string
+}
+
+interface ChangeMeasurement {
+  readonly change: string
+  /** The first generation on the starting setting, in a fresh page (a cold rhythm memo). */
+  readonly warmUp: PhraseReadyTiming
+  /** The first generation after the one-control change. */
+  readonly afterChange: PhraseReadyTiming
+}
+
 const TEST_TIMEOUT_MS = 120_000
 const THEME_RESPONSE_BUDGET_MS = 200
 
-/** Intent: click the primary action and time the wall-clock interval until "Phrase ready". */
-async function timeGeneration(page: import('@playwright/test').Page): Promise<number> {
-  const start = Date.now()
-  await primaryButton(page).click()
-  await expect(page.locator('.generation-status')).toHaveText('Phrase ready', {
-    timeout: TEST_TIMEOUT_MS,
-  })
-  return Date.now() - start
-}
+// The scenarios time generations, so they must never overlap each other on the machine.
+test.describe.configure({ mode: 'default' })
+
+/**
+ * Intent: the documented worst-case rhythm/tension setting, as radiogroup label -> option label
+ * (`to`), with the one-step neighbour each setting-change scenario starts from (`from`).
+ */
+const WORST_CASE_SETTING: readonly SettingChange[] = [
+  { group: 'Note density', from: 'Eighth notes', to: 'Sixteenth' },
+  { group: 'Rhythmic variety', from: 'Slightly varied', to: 'Heavily varied' },
+  { group: 'Silence density', from: 'Conversational space', to: 'Sparse' },
+  { group: 'Syncopation', from: 'Occasional offbeats', to: 'Active displacement' },
+  { group: 'Tension', from: 'Lift', to: 'Build' },
+]
 
 /** Intent: apply the documented worst-case rhythm/tension setting through the real controls. */
-async function selectWorstCaseSetting(page: import('@playwright/test').Page): Promise<void> {
-  await radio(page, 'Note density', 'Sixteenth').click()
-  await radio(page, 'Rhythmic variety', 'Heavily varied').click()
-  await radio(page, 'Silence density', 'Sparse').click()
-  await radio(page, 'Syncopation', 'Active displacement').click()
-  await radio(page, 'Tension', 'Build').click()
+async function selectWorstCaseSetting(page: Page): Promise<void> {
+  for (const control of WORST_CASE_SETTING) {
+    await radio(page, control.group, control.to).click()
+  }
+}
+
+/** Intent: one timed generation cycle, click to "Phrase ready", within the test timeout. */
+function timeGeneration(page: Page): Promise<PhraseReadyTiming> {
+  return timePhraseReady(page, TEST_TIMEOUT_MS)
+}
+
+/** Intent: the compact console form of one timing, in-page first since it is the exact one. */
+function formatTiming(timing: PhraseReadyTiming): string {
+  return `${timing.inPageMs.toFixed(1)}ms in page (${timing.wallMs}ms wall)`
 }
 
 test('reports cold/warm generation latency for the worst-case and default settings', async ({
@@ -54,8 +87,8 @@ test('reports cold/warm generation latency for the worst-case and default settin
   test.setTimeout(TEST_TIMEOUT_MS * 3)
 
   await gotoWorkspace(page)
-  const cheapColdMs = await timeGeneration(page)
-  const cheapWarmMs = await timeGeneration(page)
+  const cheapCold = await timeGeneration(page)
+  const cheapWarm = await timeGeneration(page)
 
   await gotoWorkspace(page)
   await selectWorstCaseSetting(page)
@@ -72,21 +105,21 @@ test('reports cold/warm generation latency for the worst-case and default settin
   })
   const themeResponseMs = Date.now() - themeClickStart
 
-  const worstColdMs = await worstColdPromise
+  const worstCold = await worstColdPromise
 
-  const worstWarmMs = await timeGeneration(page)
+  const worstWarm = await timeGeneration(page)
 
   const report: LatencyReport = {
     scenarios: [
       {
         scenario: 'default/cheap (Quarter/Straight/Sparse/Lift)',
-        coldMs: cheapColdMs,
-        warmMs: cheapWarmMs,
+        cold: cheapCold,
+        warm: cheapWarm,
       },
       {
         scenario: 'worst case (Sixteenth/Heavily varied/Sparse/Active displacement/Build)',
-        coldMs: worstColdMs,
-        warmMs: worstWarmMs,
+        cold: worstCold,
+        warm: worstWarm,
       },
     ],
     themeResponseDuringColdWorstCaseMs: themeResponseMs,
@@ -94,7 +127,9 @@ test('reports cold/warm generation latency for the worst-case and default settin
 
   console.log('\n=== Step 9 browser generation latency ===')
   for (const scenario of report.scenarios) {
-    console.log(`${scenario.scenario}: cold=${scenario.coldMs}ms warm=${scenario.warmMs}ms`)
+    console.log(
+      `${scenario.scenario}: cold=${formatTiming(scenario.cold)} warm=${formatTiming(scenario.warm)}`,
+    )
   }
   console.log(`Theme click applied data-theme during worst-case cold run in ${themeResponseMs}ms`)
 
@@ -108,4 +143,62 @@ test('reports cold/warm generation latency for the worst-case and default settin
   expect(themeResponseMs, 'main thread must stay responsive during cold generation').toBeLessThan(
     THEME_RESPONSE_BUDGET_MS,
   )
+})
+
+test('reports the first generation after a one-control change into the worst case', async ({
+  page,
+}) => {
+  test.setTimeout(TEST_TIMEOUT_MS * 8)
+  const measurements: ChangeMeasurement[] = []
+
+  // Rhythm controls: each is part of the Worker's rhythm-domain memo key, so the change is cold.
+  for (const changed of WORST_CASE_SETTING) {
+    await gotoWorkspace(page)
+    await selectWorstCaseSetting(page)
+    await radio(page, changed.group, changed.from).click()
+    const warmUp = await timeGeneration(page)
+    await radio(page, changed.group, changed.to).click()
+    const afterChange = await timeGeneration(page)
+    measurements.push({
+      change: `${changed.group}: ${changed.from} -> ${changed.to}`,
+      warmUp,
+      afterChange,
+    })
+  }
+
+  // Non-rhythm controls: the rhythm setting, and so the memo key, stays the worst case.
+  const nonRhythmChanges: readonly SettingChange[] = [
+    { group: 'Register', from: 'Middle', to: 'High' },
+    { group: 'Written key', from: 'C', to: 'C-sharp/D-flat' },
+  ]
+  for (const changed of nonRhythmChanges) {
+    await gotoWorkspace(page)
+    await selectWorstCaseSetting(page)
+    await expect(radio(page, changed.group, changed.from)).toHaveAttribute('aria-checked', 'true')
+    const warmUp = await timeGeneration(page)
+    await radio(page, changed.group, changed.to).click()
+    const afterChange = await timeGeneration(page)
+    measurements.push({
+      change: `${changed.group}: ${changed.from} -> ${changed.to} (worst-case rhythm kept)`,
+      warmUp,
+      afterChange,
+    })
+  }
+
+  console.log('\n=== Browser: first generation after a one-control change ===')
+  for (const m of measurements) {
+    console.log(
+      `${m.change}: warm-up=${formatTiming(m.warmUp)} after change=${formatTiming(m.afterChange)}`,
+    )
+  }
+
+  test.info().annotations.push({
+    type: 'setting-change-latency-report',
+    description: JSON.stringify(measurements),
+  })
+
+  const outPath = process.env.LATENCY_BROWSER_CHANGE_OUT
+  if (outPath !== undefined) {
+    writeFileSync(outPath, JSON.stringify(measurements, null, 2))
+  }
 })

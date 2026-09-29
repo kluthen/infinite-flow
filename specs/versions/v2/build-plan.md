@@ -46,7 +46,9 @@ prerequisites. The code and the registers add three more.
 - **The v1.0 gate: done.** Instrument templates carry their own written-pitch transposition,
   rhythmic variety replaced the old "Mixed" setting, and profile behaviour runs on capability
   flags. v1.0 was tagged on 2026-09-26.
-- **Generation latency, re-measured: [chunk 1](#chunk-1--baseline-checks).** The look-ahead
+- **Generation latency, re-measured: done in [chunk 1](#chunk-1--baseline-checks) on 2026-09-29;
+  the working target is missed on the cloud machine used, and the owner decides at chunks 8, 10
+  and 24.** The look-ahead
   deadline must keep comfortable headroom at 240 BPM, the fastest tempo, including a cold
   generation. A generation is "cold" when it is the first one for a combination of settings,
   before the generator's caches for that combination are warm. The spec asks for the cold run
@@ -92,7 +94,7 @@ chunks in different sections; the second to merge rebases on the first.
 
 | Wave | Chunks                                                                                                                                                                                                                                            | Waits for                                                                   |
 | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks                                                                                                                                                                                              | Nothing                                                                     |
+| 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29)                                                                                                                                                                                           | Nothing                                                                     |
 | 1    | 2 Browser boundaries · 3 Notation layout v2 · 4 Note density on small screens · 7 Generator continuation · 14 Note acknowledgement · 18 MusicXML encoding · 19 Generated-notes MIDI encoding                                                    | Chunk 0 (done). Start chunk 3 first (see the caveat).                        |
 | 2    | 5 Idle fit retries and the room notice · 6 Note identity and session overlays · 8 Session engine · 10 Audio transport                                                                                                                             | Wave 1. Chunks 8 and 10 also need chunk 1's verdict.                        |
 | 3    | 9 Session history · 11 Backing · 12 MIDI input                                                                                                                                                                                                    | Wave 2                                                                      |
@@ -394,7 +396,72 @@ atoms' EXPECTATION sections, except item 15 (the main-thread budget), which is t
 
 ### Chunk 1 — Baseline checks
 
-**Release:** v2.0, prerequisite.
+**Release:** v2.0, prerequisite. **Done on 2026-09-29.**
+
+**Progress** (updated as each step lands):
+
+| Step                                 | State       | Notes                                                                                                       |
+| ------------------------------------ | ----------- | ----------------------------------------------------------------------------------------------------------- |
+| 1. ATD preflight                     | Done        | PROCEED. No atom changes, no tags on measurement harnesses; `rule_look_ahead_deadline` is the reference     |
+| Latency re-run and the new cold case | Done        | Figures and verdicts in [`docs/generation-latency.md`](../../../docs/generation-latency.md#v2-baseline-chunk-1-2026-09-29) |
+| Main-thread engraving                | Done        | New `npm run measure:engraving`; same document                                                              |
+| Phone layout check                   | Done        | One overflow at 740 × 360; see below                                                                        |
+| `docs/testing.md`                    | Done        | Test layers, both harnesses and their seams, scripts, 23 fixtures                                           |
+| 4. Verify (`npm run quality`)        | Done        | All passes except 4 notation visual snapshots, which fail identically on an unchanged checkout here (below) |
+| 6. ATD stewardship                   | Done        | No tags changed; `atd lint` and `atd check` pass. One atom conflict for the owner, below                    |
+
+**Results.** Measured on a 4-vCPU cloud container, about twice as slow as the reference machine on
+the cold worst case, so the owner may want the figures re-run there.
+
+- **Working target (cold worst case under 250 ms in Chromium): missed.** Cold worst case
+  1.43–1.44 s; the first generation after a rhythm-control change up to 1.59 s. Changes that keep
+  the rhythm setting (key, register) stay near 250 ms. By this plan, the stop before chunks 8, 10
+  and 24 applies. The owner's view on 2026-09-29: a miss may come from the measuring machine and
+  does not stop the chunks that don't depend on it. The decision for chunks 8, 10 and 24 is taken
+  when they come up.
+- **The deadline itself (`rule_look_ahead_deadline`, generation and engraving):** the normal
+  three-bar window (3 s at 240 BPM) is met, retries included, for the worst setting measured in
+  Chromium. A slower setting in Node (Edge tension, 2.06 s cold) could exceed it with four retries,
+  and still has to be measured in Chromium. Phrase 2's one-bar window is met when
+  phrase 1 has warmed the generator's cache, as it does in the same Worker. The one-bar window for
+  a v2.1 regeneration after a rhythm-control change is missed (1.59 s). This puts three DRAFT
+  business atoms at odds with the generator as measured: `rule_look_ahead_deadline` expects every
+  phrase on time, `req_settings_mutation_flag` lets rhythm controls change, and
+  `rule_session_change_applies_at_phrase_boundary` regenerates with one measure left. The owner
+  settles it before [chunk 24](#chunk-24--settings-mutation-engine): relax the expectation for
+  that case, raise the one-measure threshold, or require faster generation.
+- **Main-thread engraving: under 200 ms.** The longest task was 83 ms (93 ms by a timer heartbeat),
+  for the first phrase in a fresh page; later phrases stayed under 50 ms. A Worker wake-up timer is
+  enough for [chunk 10](#chunk-10--audio-transport), as long as every main-thread task stays shorter
+  than the scheduler's window.
+- **The old browser figures overstate long generations.** Playwright polls the status text every
+  500 ms, so a wall-clock time lands on the next poll: 457 ms in the page read as 866 ms. The
+  harness now also times inside the page.
+
+**The visual snapshots on the cloud machine.** The four notation visual snapshots
+(`tests/e2e/notation/notation-visual.spec.ts`) differ by about 1 % of their pixels (265–608
+pixels) in the cloud container, on an unchanged checkout too, with the same counts: its Chromium
+renders the staff slightly differently from the machine that made the reference images. Every
+other step of `npm run quality` passes. A chunk run in that container reports these four as known
+and leaves the reference images alone unless its layout really changes them.
+
+**What the phone check saw, for [chunk 3](#chunk-3--notation-layout-v2).** The v1.0 code, as a
+preview build in Chromium, at 740 × 360 and 844 × 390, with six phrases each of Sixteenth /
+Strict / Sparse, Sixteenth / Heavily varied / Sparse and Eighth notes / Heavily varied / Sparse
+(36 engravings).
+
+- No horizontal overflow anywhere. `staff-frame`'s computed `max-block-size` is 252 px at
+  740 × 360 and 282 px at 844 × 390, and its overflow is visible.
+- 35 of 36 phrases were engraved on one system, 117–232 px tall, and fit the frame. One of them,
+  at 740 × 360, came within 3 px of the frame's bottom.
+- **One overflowed.** At 740 × 360, a Sixteenth / Heavily varied phrase didn't fit one system, so
+  v1 drew two. The drawing is 357 px tall in a frame capped at 252 px: the second system runs
+  122 px past the frame's bottom edge, over the content below it. This is the in-between state
+  [the caveat](#2-read-first-the-notation-layout-caveat) describes: the stylesheet caps the height,
+  and the engraver doesn't read it.
+  - [The staff frame](phone-check-2026-09-29/740x360-overflow-staff-frame.png): the second system
+    cut off at the frame's border.
+  - [The window](phone-check-2026-09-29/740x360-overflow-page.png).
 
 **Goal.** Measure what the session engine depends on, before anyone builds it: generation latency
 against the look-ahead deadline, and main-thread engraving against the audio scheduler's window.
@@ -438,7 +505,7 @@ main-thread engraving against the scheduler.
 
 ### Chunk 2 — Browser boundaries
 
-**Release:** v2.0.
+**Release:** v2.0. **In progress since 2026-09-29** (worktree branch `v2-chunk-2`): ATD preflight running.
 
 **Goal.** Let Web Audio and Web MIDI into the code, in named places only, before any audio or MIDI
 code lands. Everything else v1 forbids stays forbidden: browser storage, network calls, the
@@ -481,7 +548,7 @@ microphone.
 ### Chunk 3 — Notation layout v2
 
 **Release:** v2.0. Carries [the caveat](#2-read-first-the-notation-layout-caveat). Starts first in
-its wave.
+its wave. **In progress since 2026-09-29** (worktree branch `v2-chunk-3`), in parallel with chunk 2.
 
 **Goal.** Replace v1's layout planner with v2's: split below `bp-tablet-landscape`, one system per
 phrase from it up, a scale that fits the height as well as the width on the phone, one
