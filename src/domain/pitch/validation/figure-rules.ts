@@ -1,3 +1,4 @@
+import { isOwedTenseEnding } from './join-rules'
 import { collectionStep, contiguous } from './phrase-facts'
 import type { AbstractTensionRequirement as TensionRequirement } from '../../harmony/harmony-types'
 import type { PhraseFacts, PitchValidationFailure, SoundingFact } from './pitch-validation-types'
@@ -147,7 +148,8 @@ function chromaticOrnament(
  * the chromatic-approach capability, in which case an out-of-collection pitch must belong to a
  * complete chromatic approach or enclosure. The bound figure must be structurally sound and
  * realized by its MIDI path. Remaining diatonic non-chord tones must be free passing tones or
- * neighbors.
+ * neighbors, except a tense final note a phrase generated with carry-in may leave for its next
+ * phrase to resolve.
  */
 // @spec-link [[module_pitch_domain_validation]]
 // @spec-link [[module_musical_profile_capabilities]]
@@ -183,7 +185,8 @@ export function figureFailures(facts: PhraseFacts): readonly PitchValidationFail
       !attack.inCollection ||
       chromatic.has(attack.index) ||
       bound.has(attack.index) ||
-      freelyExplained(facts.attacks, attack.index)
+      freelyExplained(facts.attacks, attack.index) ||
+      isOwedTenseEnding(facts, attack)
     if (!explained) failures.push({ code: 'unexplained_non_chord_tone', attackIndex: attack.index })
   }
   return failures

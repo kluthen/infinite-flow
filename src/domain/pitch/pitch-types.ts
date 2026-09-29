@@ -8,6 +8,7 @@ import type {
 } from '../controls/generation-controls'
 import { deepFreeze } from '../events/deep-freeze'
 import type { ConcertPitch } from '../events/concert-pitch'
+import type { PhraseEndingDebtAllowance } from '../generation/carry-in/phrase-ending-debt'
 import type { GenerationRequest } from '../generation/generation-request'
 import type { HarmonyCandidate, TensionFigureKind } from '../harmony/harmony-types'
 import type { RhythmCandidate } from '../rhythm/rhythm-types'
@@ -178,8 +179,15 @@ export interface PitchSearchContext {
   readonly collectionPitchClasses: readonly number[]
   readonly limits: MotionLimits
   readonly contourPlan: ContourPlan
-  /** MIDI values that satisfy the open endpoint on the final attack. */
+  /**
+   * MIDI values allowed on the final attack: open-endpoint chord tones, plus, when the phrase may
+   * end owing a resolution, tense scale tones the next phrase's first note can resolve.
+   */
   readonly finalMidis: readonly number[]
+  /** What the final note may still owe; nothing for a phrase generated without carry-in. */
+  readonly endingDebt: PhraseEndingDebtAllowance
+  /** The carried pitch, when it is a tense note that the first attack must resolve. */
+  readonly carriedTenseMidi?: number
 }
 
 // @spec-link [[entity_pitch_candidate_domain]]

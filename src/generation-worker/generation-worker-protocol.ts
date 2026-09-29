@@ -17,6 +17,7 @@ import {
   type PitchClass,
 } from '../domain/controls/generation-controls'
 import type { ProfileSelection } from '../domain/controls/profile-selection'
+import { parseCarryIn } from '../domain/generation/carry-in/carry-in'
 import { makeGenerationIntent, type GenerationIntent } from '../domain/generation/generation-intent'
 import { makeRequestId, parseGenerationRequest } from '../domain/generation/generation-request'
 import { makeGenerationResult } from '../domain/generation/generation-result'
@@ -151,6 +152,7 @@ const GENERATION_INTENT_ALLOWED_KEYS = new Set([
   'musicalProfile',
   'instrumentProfile',
   'registerIntent',
+  'carryIn',
 ])
 
 /**
@@ -162,9 +164,12 @@ const GENERATION_INTENT_ALLOWED_KEYS = new Set([
  * them and proves the wire value was not tampered with or corrupted in transit. `makeGenerationIntent`
  * takes the player's written-pitch tonal center (never the wire's already-converted concert
  * `controls.tonalCenter`) and re-derives the concert value itself, so the rebuild must substitute
- * the wire's `writtenTonalCenter` back into the controls it reconstructs from.
+ * the wire's `writtenTonalCenter` back into the controls it reconstructs from. A `carryIn`, when
+ * present, is parsed field by field (any fault is a CarryInError) and then checked against the
+ * rebuilt intent by `makeGenerationIntent` itself; an intent without one must have no such field.
  */
 // @spec-link [[service_workspace_session_flow]]
+// @spec-link [[entity_phrase_carry_in]]
 export function parseGenerationWorkerIntent(input: unknown): GenerationIntent {
   const record = asPlainRecord(input, 'GenerationWorkerRequest.intent')
   requireAllowedKeys(record, GENERATION_INTENT_ALLOWED_KEYS, 'GenerationWorkerRequest.intent')
@@ -194,8 +199,15 @@ export function parseGenerationWorkerIntent(input: unknown): GenerationIntent {
     tonalCenter: writtenTonalCenter,
   })
   const musicalProfile = parseProfileSelection(record.musicalProfile)
+  const carryIn = 'carryIn' in record ? parseCarryIn(record.carryIn) : undefined
 
-  const rebuilt = makeGenerationIntent({ requestId, seed, controls, musicalProfile })
+  const rebuilt = makeGenerationIntent({
+    requestId,
+    seed,
+    controls,
+    musicalProfile,
+    ...(carryIn === undefined ? {} : { carryIn }),
+  })
 
   if (!deepEqual(rebuilt, record)) {
     throw new GenerationWorkerProtocolError(

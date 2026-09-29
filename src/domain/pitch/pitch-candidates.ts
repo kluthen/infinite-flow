@@ -1,5 +1,9 @@
 import { makeConcertPitch } from '../events/concert-pitch'
 import { deepFreeze } from '../events/deep-freeze'
+import {
+  phraseEndingDebtAllowance,
+  tenseNoteCanSettle,
+} from '../generation/carry-in/phrase-ending-debt'
 import type {
   BoundPitchPlannerInput,
   PitchAttack,
@@ -231,14 +235,37 @@ function pathCandidates(paths: readonly FigurePath[]): Map<number, RawCandidate[
   return byAttack
 }
 
-/** Ordinary candidates: chord tones everywhere, free diatonic tones away from the phrase ends. */
+/**
+ * Tense endings of a phrase generated with carry-in: free diatonic tones on the final attack that
+ * the next phrase's first note can resolve by step onto its tonic triad inside the window. Empty
+ * for a phrase that may not end owing a resolution, and on a first attack, which nothing prepares.
+ */
+// @spec-link [[rule_join_tense_note_resolution]]
+function tenseEndingCandidates(facts: DomainFacts, attack: PitchAttack): readonly RawCandidate[] {
+  const request = facts.input.request
+  const allowed = phraseEndingDebtAllowance(request.carryIn !== undefined).tenseNote
+  if (!allowed || !attack.isFinal || attack.attackIndex === 0) return []
+  return diatonicNonChord(facts, attack)
+    .filter((midi) => tenseNoteCanSettle(midi, facts.collection, request.registerWindow))
+    .map((midi): RawCandidate => ({
+      role: 'passing_or_neighbor',
+      midi,
+      obligation: `free:${attack.identity}`,
+    }))
+}
+
+/**
+ * Ordinary candidates: chord tones everywhere, free diatonic tones away from the phrase ends, and
+ * on the final attack of a phrase that may end owing a resolution, its settleable tense tones.
+ */
 function ordinaryCandidates(facts: DomainFacts, attack: PitchAttack): readonly RawCandidate[] {
   const chord = chordMidis(facts, attack).map((midi): RawCandidate => ({
     role: 'chord_tone',
     midi,
     obligation: `chord:${attack.identity}`,
   }))
-  if (attack.attackIndex === 0 || attack.isFinal) return chord
+  if (attack.attackIndex === 0 || attack.isFinal)
+    return [...chord, ...tenseEndingCandidates(facts, attack)]
   const free = diatonicNonChord(facts, attack).map((midi): RawCandidate => ({
     role: 'passing_or_neighbor',
     midi,

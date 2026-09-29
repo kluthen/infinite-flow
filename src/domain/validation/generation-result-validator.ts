@@ -18,6 +18,7 @@ import type { GenerationProvenance } from '../generation/orchestration/orchestra
 import { validatePitchMidis } from '../pitch/validation/pitch-phrase-validator'
 import type { PitchValidationContext } from '../pitch/validation/pitch-validation-types'
 import {
+  carryInFailures,
   envelopeFailures,
   flattenNotes,
   harmonyProvenanceFailures,
@@ -39,6 +40,8 @@ export const GENERATION_RESULT_VALIDATION_CODES = [
   'register_not_offered',
   'register_window_mismatch',
   'register_choice_mismatch',
+  'carry_in_mismatch',
+  'carry_in_register_window_mismatch',
   'timeline_measure_count_invalid',
   'timeline_measure_order_invalid',
   'measure_duration_invalid',
@@ -47,6 +50,7 @@ export const GENERATION_RESULT_VALIDATION_CODES = [
   'rhythm_candidate_invalid',
   'rhythm_input_mismatch',
   'harmony_provenance_mismatch',
+  'harmony_join_invalid',
   'tie_continuation_invalid',
   'outside_active_range',
   'outside_register_window',
@@ -119,6 +123,7 @@ function melodicFailures(
     request: {
       activeConcertRange: request.activeConcertRange,
       registerWindow: request.registerWindow,
+      ...(request.carryIn === undefined ? {} : { carryIn: request.carryIn }),
     },
     policy: {
       profile: intent.musicalProfile.musicalProfile,
@@ -157,6 +162,7 @@ export function validateGenerationResult(
   const failures: GenerationResultValidationFailure[] = [
     ...envelopeFailures(intent, request, result),
     ...resolvedRequestFailures(intent, request),
+    ...carryInFailures(intent, request, provenance),
   ]
 
   const timelineOutcome = timelineStructureFailures(result)

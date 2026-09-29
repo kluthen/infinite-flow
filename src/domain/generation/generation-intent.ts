@@ -10,6 +10,8 @@ import { ADOPTED_INSTRUMENT_PROFILES } from '../profile/instrument-profiles'
 import type { InstrumentProfile } from '../profile/instrument-profile'
 import { buildRegisterIntent, type RegisterIntent } from '../profile/register-intent'
 import type { Seed } from '../random/seed'
+import type { CarryIn } from './carry-in/carry-in'
+import { assertCarryInFitsIntent } from './carry-in/carry-in-fit'
 import {
   FOUR_FOUR_METER,
   PHRASE_MEASURE_COUNT,
@@ -33,6 +35,8 @@ export interface GenerationIntent {
   readonly musicalProfile: ProfileSelection
   readonly instrumentProfile: InstrumentProfile
   readonly registerIntent: RegisterIntent
+  /** What the session phrase before hands forward; absent for a phrase generated without one. */
+  readonly carryIn?: CarryIn
 }
 
 /** `controls.tonalCenter` here is the player's written-pitch selection, not concert pitch. */
@@ -41,6 +45,7 @@ export interface GenerationIntentInput {
   readonly seed: Seed
   readonly controls: GenerationControls
   readonly musicalProfile: ProfileSelection
+  readonly carryIn?: CarryIn
 }
 
 // @spec-link [[module_generation_request_construction]]
@@ -93,7 +98,9 @@ export function writtenToConcertTonalCenter(
  * Create an immutable, serializable outer intent. This deliberately does not construct the
  * resolved GenerationRequest: fixed-register resolution and Varying feasibility are Step 7 work.
  * The caller's `controls.tonalCenter` is read as the player's written-pitch selection and
- * converted to concert pitch here; the generator downstream only ever sees concert pitch.
+ * converted to concert pitch here; the generator downstream only ever sees concert pitch. A
+ * carry-in, when given, is checked against the finished intent and kept unchanged; without one the
+ * intent has no `carryIn` field at all.
  */
 // @spec-link [[module_generation_request_construction]]
 export function makeGenerationIntent(input: GenerationIntentInput): GenerationIntent {
@@ -105,6 +112,12 @@ export function makeGenerationIntent(input: GenerationIntentInput): GenerationIn
     tonalCenter: writtenToConcertTonalCenter(writtenTonalCenter, instrumentProfile),
   }
   const registerIntent = buildRegisterIntent(instrumentProfile, controls.register)
+  if (input.carryIn !== undefined)
+    assertCarryInFitsIntent(input.carryIn, {
+      controls,
+      musicalProfile: input.musicalProfile,
+      registerIntent,
+    })
 
   return deepFreeze({
     requestId: input.requestId,
@@ -116,6 +129,7 @@ export function makeGenerationIntent(input: GenerationIntentInput): GenerationIn
     musicalProfile: { ...input.musicalProfile },
     instrumentProfile,
     registerIntent,
+    ...(input.carryIn === undefined ? {} : { carryIn: input.carryIn }),
   })
 }
 

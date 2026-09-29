@@ -6,6 +6,7 @@ tags: [v2, release-v2.0, session, phrase-join]
 parents:
   - [[req_rolling_practice_session]]
 dependents:
+  - [[entity_phrase_carry_in]]
   - [[rule_join_inherits_leap_recovery]]
   - [[rule_join_interval_obeys_phrase_rules]]
   - [[rule_join_tense_note_resolution]]

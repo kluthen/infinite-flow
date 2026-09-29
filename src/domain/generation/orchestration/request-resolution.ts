@@ -5,6 +5,7 @@
  * window, walked in the canonical Low, Middle, High order.
  */
 
+import type { CarryIn } from '../carry-in/carry-in'
 import type { GenerationIntent } from '../generation-intent'
 import { makeGenerationRequest, type GenerationRequest } from '../generation-request'
 import { deepFreeze } from '../../events/deep-freeze'
@@ -26,7 +27,10 @@ export class RequestResolutionError extends Error {
   }
 }
 
-/** Intent: build one resolved core GenerationRequest for one candidate register window. */
+/**
+ * Intent: build one resolved core GenerationRequest for one candidate register window, carrying
+ * the intent's carry-in unchanged when it has one.
+ */
 function buildCoreRequest(intent: GenerationIntent, id: RegisterId): GenerationRequest {
   const candidate = resolveRegisterIntentCandidate(intent.registerIntent, id)
   return makeGenerationRequest({
@@ -37,17 +41,45 @@ function buildCoreRequest(intent: GenerationIntent, id: RegisterId): GenerationR
     activeConcertRange: intent.instrumentProfile.concertRange,
     register: candidate.id,
     registerWindow: candidate.window,
+    ...(intent.carryIn === undefined ? {} : { carryIn: intent.carryIn }),
   })
+}
+
+/** Intent: the register whose window is the carried window, refusing a window none resolves to. */
+function carriedRegister(intent: GenerationIntent, carryIn: CarryIn): RegisterId {
+  const { minMidi, maxMidi } = carryIn.registerWindow
+  const candidate = intent.registerIntent.candidates.find(
+    (entry) => entry.window.minMidi === minMidi && entry.window.maxMidi === maxMidi,
+  )
+  if (!candidate)
+    throw new RequestResolutionError(
+      `The carried window ${minMidi}-${maxMidi} is not one of the intent's register windows.`,
+    )
+  return candidate.id
+}
+
+/**
+ * Intent: true when generation must search every Varying window and choose among them: a Varying
+ * intent without carry-in. With a carry-in the window was resolved for the session's phrase 1 and
+ * is reused as it is.
+ */
+// @spec-link [[rule_varying_register_once_per_session]]
+export function searchesVaryingWindows(intent: GenerationIntent): boolean {
+  return intent.registerIntent.requestedRegister === 'Varying' && intent.carryIn === undefined
 }
 
 /**
  * Intent: resolve a GenerationIntent into the complete, immutable list of core requests it
- * covers. A fixed register (Low/Middle/High) resolves to exactly one request for that register;
- * Varying resolves to one request per resolved candidate window, in the intent's already-
- * canonical Low, Middle, High candidate order.
+ * covers. With a carry-in, exactly one request for the carried window (the window resolved for
+ * the session's phrase 1, for Varying too). Otherwise a fixed register (Low/Middle/High) resolves
+ * to exactly one request for that register, and Varying to one request per resolved candidate
+ * window, in the intent's already-canonical Low, Middle, High candidate order.
  */
 // @spec-link [[service_generation_request_resolution]]
+// @spec-link [[rule_varying_register_once_per_session]]
 export function resolveCoreRequests(intent: GenerationIntent): readonly GenerationRequest[] {
+  if (intent.carryIn !== undefined)
+    return deepFreeze([buildCoreRequest(intent, carriedRegister(intent, intent.carryIn))])
   if (intent.registerIntent.requestedRegister === 'Varying') {
     return deepFreeze(
       intent.registerIntent.candidates.map((candidate) => buildCoreRequest(intent, candidate.id)),

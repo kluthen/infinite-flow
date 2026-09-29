@@ -1,4 +1,5 @@
 import type { Contour } from '../../controls/generation-controls'
+import { isOwedTenseEnding } from './join-rules'
 import type { PhraseFacts, PitchValidationFailure, SoundingFact } from './pitch-validation-types'
 
 /**
@@ -61,19 +62,22 @@ export function contourFailures(facts: PhraseFacts): readonly PitchValidationFai
 /**
  * The final sounding attack must be an open continuation: a chord tone of the final degree-5
  * harmony (tonal gentle/active), collection degree 5 (tonal static), or a non-tonic chord tone
- * (modal). A trailing rest is irrelevant because only sounding attacks are examined.
+ * (modal). A trailing rest is irrelevant because only sounding attacks are examined. A phrase
+ * generated with carry-in may instead end on a tense note its next phrase resolves.
  */
 // @spec-link [[module_pitch_domain_validation]]
+// @spec-link [[rule_open_phrase_ending]]
 export function endpointFailures(facts: PhraseFacts): readonly PitchValidationFailure[] {
   const final = facts.attacks.at(-1)
   if (!final) return [{ code: 'open_endpoint_violation' }]
   const endpoint = facts.context.harmony.endpoint
   const [tonic, , , , dominant] = facts.collectionPitchClasses
   const open =
-    endpoint.kind === 'tonal_degree_five_chord_tone'
+    isOwedTenseEnding(facts, final) ||
+    (endpoint.kind === 'tonal_degree_five_chord_tone'
       ? final.chordTone && final.harmony.triad.degree === 5
       : endpoint.kind === 'tonal_static_degree_five'
         ? final.chordTone && final.pitchClass === dominant
-        : final.chordTone && final.pitchClass !== tonic
+        : final.chordTone && final.pitchClass !== tonic)
   return open ? [] : [{ code: 'open_endpoint_violation', attackIndex: final.index }]
 }

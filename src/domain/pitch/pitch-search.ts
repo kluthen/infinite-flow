@@ -4,6 +4,7 @@ import {
   indexedDomainMember,
   initialPitchSearchState,
   pitchStateKey,
+  priorSoundingMidi,
 } from './pitch-advance'
 import { compilePitchSearchContext } from './pitch-context'
 import { requiredMidi } from './pitch-figures'
@@ -52,7 +53,7 @@ export function searchPitchPlan(
   const ordered = (state: PitchSearchState): readonly PitchCandidate[] => {
     const attack = context.attacks[state.nextAttackIndex]!
     const required = requiredMidi(state.figure)
-    const priorMidi = state.prior?.midi
+    const priorMidi = priorSoundingMidi(state)
     const orderingKey = `${attack.attackIndex}|${required ?? ''}|${priorMidi ?? ''}`
     let candidates = orderings.get(orderingKey)
     if (!candidates) {
