@@ -1389,7 +1389,7 @@ notes, MusicXML), item 12.
 
 ### Chunk 19 — Generated-notes MIDI encoding
 
-**Release:** v2.0.
+**Release:** v2.0. **In progress since 2026-09-29** (worktree branch `v2-chunk-19`).
 
 **Goal.** A pure encoder from a session's phrases to one Standard MIDI File, type 1: the generated
 line at concert pitch, the tempo map, a marker per phrase, and an optional backing track. It fixes
