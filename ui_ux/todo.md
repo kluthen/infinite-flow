@@ -343,7 +343,9 @@ three passes, confirmed by the user, committed 2026-09-27. Next, in this order:
    Q25 and Q47's Review part (unit 6), Q16. (4) **Awaiting the owner's explicit confirmation of
    the unit**, then commit and `--no-ff` merge only when asked. The commit carries `ui_ux/`,
    `specs/` and `src/styles/`. With it, tell `coding-leader` the handoff note above (D102, D104:
-   the shipped v1 layout planner). After that, unit 6 (Review), which carries Q47's Review part
+   the shipped v1 layout planner). **Done 2026-09-29:** unit 2 merged and pushed (a218e38); the
+   layout-planner note is carried by `specs/versions/v2/build-plan.md` (its notation-layout caveat,
+   chunk 3). After that, unit 6 (Review), which carries Q47's Review part
    and Q25.
 
 **ux-critic plan read (2026-09-27), to weigh before continuing:**
