@@ -34,3 +34,9 @@ their music-theory knowledge for granted.
   (`*/archive/`), only fix link paths — never their wording.
 - To exclude a generated/build-output tree from the check, add it to `.remarkignore`. Archived
   docs (`specs/archive`, `ui_ux/archive`) must never be excluded — their links stay checked.
+
+## Declared intent
+
+This project records its declared intent with ATD: atoms in `docs/*.atom.md`, linked from code by
+`@spec-link` / `@test-link`, managed with the `atd` tool. `documentalist` owns it; leaders gate
+every change through it (skill `intent-gating-protocol`).

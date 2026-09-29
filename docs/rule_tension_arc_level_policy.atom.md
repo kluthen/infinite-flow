@@ -9,6 +9,7 @@ parents:
   - [[req_four_measure_phrase]]
 dependents:
   - [[module_harmony_candidate_domain]]
+  - [[req_multi_phrase_tension_arc]]
 type: RULE
 version: 0.1
 ---

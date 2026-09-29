@@ -7,6 +7,7 @@ parents:
 layer: BUSINESS
 version: 0.1
 dependents:
+  - [[rule_session_data_never_sent_or_stored]]
   - [[service_workspace_session_flow]]
   - [[specification_ephemeral_state_verification]]
 human_name: Ephemeral Session State
