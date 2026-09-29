@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.18 (2026-09-29). This is the consolidated, execution-ready specification for
+Status: master spec v1.19 (2026-09-29). This is the consolidated, execution-ready specification for
 v2, covering releases v2.0 through v2.3. It supersedes the individual v2 draft topic documents,
 which are kept in the archive as working history. Change in v1.6: the export is chosen by content,
 generated notes or played notes, and played notes come as a MIDI file of their own instead of an
@@ -50,6 +50,18 @@ Change in v1.18: each attempt of a round of retries takes its note density from 
 it is generated, and a wider window that makes the rhythm combination unsupported during a round
 stops it, giving way to no phrase; and a phrase on screen that stops fitting while the combination
 is unsupported gives way to no phrase too, not to the notice (§2, §4, §5, §6, §11, §12).
+Change in v1.19, corrections that add no new rule, and three items left open: a join is smoothed
+only when the next phrase is generated with carry-in, so after a standalone phrase or a repeat no
+leap recovery or tense note left owing is settled; a phrase generated with carry-in may end owing
+one, which the next phrase settles; the review shows every phrase that started sounding; a
+look-ahead phrase already partly on screen is never discarded for a setting change, which then
+applies one phrase later; applying a setting change at a phrase boundary ships with the
+settings-mutation flag in v2.1, since nothing can change a setting during a v2.0 session; v2.0
+records played notes in the session history without showing them; the "generator is struggling"
+notice stays until a newly generated phrase starts sounding. Left open (§12): a session's last
+phrase ending with a leap recovery or a tense note owed, the multi-phrase tension arc's mechanics
+and default, and adaptive tempo when the controller is lost, with its default (§3, §4, §5, §7,
+§10, §11, §12).
 
 ## 1. Core concept
 
@@ -132,10 +144,12 @@ in full where it belongs:
 ## 3. The generation unit and how phrases join
 
 The four-measure phrase stays the unit of generation exactly as in v1 — the timeline type is not
-widened, and every individual phrase remains a valid, self-contained v1 result. Widening it would
-ripple through harmony, rhythm, pitch and notation; instead, a session is an **ordered sequence**
-of these phrases, and the join between one phrase and the next is smoothed by a small, well-defined
-handoff.
+widened. A phrase generated without carry-in (below) is exactly v1's result for its request and
+seed; one generated with carry-in obeys every v1 rule too, except that it may end owing a leap
+recovery or a tense note's resolution, which the next phrase settles (join mechanics, below).
+Widening the timeline would ripple through harmony, rhythm, pitch and notation; instead, a session
+is an **ordered sequence** of these phrases, and the join between one phrase and the next is
+smoothed by a small, well-defined handoff.
 
 **What crosses a join ("carry-in"):** only four things move from one phrase to the next —
 
@@ -153,13 +167,25 @@ is deferred to v3 entirely).
 **Join mechanics:**
 
 - If the ending phrase finished mid-leap (a large interval whose recovery step hasn't happened
-  yet), the next phrase inherits that recovery obligation exactly as if the leap had occurred
-  inside a single phrase.
+  yet), the next phrase, generated with carry-in, inherits that recovery obligation exactly as if
+  the leap had occurred inside a single phrase.
 - A "tense" note (an unresolved scale tone) at the very end of a phrase may resolve onto the next
-  phrase's first note, rather than being forced to resolve before the phrase ends. The full v1
-  rule — a tense note must resolve before the last note — still applies in full only where the
-  music actually stops: at Stop, or at the end of a session. Resolving further forward, into the
-  next phrase's own material past its very first note, is not attempted in v2.
+  phrase's first note, rather than being forced to resolve before the phrase ends; the next
+  phrase, generated with carry-in, starts on that resolution. Resolving further forward, into the
+  next phrase's own material past its very first note, is not attempted in v2. The full v1 rule —
+  a tense note must resolve before the last note — holds for every phrase generated without
+  carry-in.
+- **A join made without carry-in is not smoothed.** The standalone phrase of the failure ladder
+  (§4, step 2) is generated without regard to the phrase before it, and a repeated phrase (§4,
+  step 3) is the previous phrase again, as it was. Across such a join the interval and register
+  rules do not apply, and a leap recovery or a tense note's resolution left owing by the phrase
+  before is not settled. The standalone phrase itself obeys v1's rules in full, so it never ends
+  owing either; a repeated phrase ends as the phrase it repeats did.
+- **Where the music actually stops is still open** (§12). The app cannot know in advance which
+  phrase a session will end on: Stop, the silence timeout, a hidden tab, a lost controller or a
+  staff that can no longer be shown can each end it at any moment, usually mid-phrase. A
+  session's last phrase can therefore end owing a leap recovery or a tense note's resolution that
+  no next phrase will settle.
 - Every phrase in a session, after the first, still starts with a fresh attack on beat 1 of its
   first measure. There is no tie or rest carried across a join in v2 — that (along with pickup
   measures) is left for v3, which already has to solve it for player-seeded continuations.
@@ -172,7 +198,8 @@ is deferred to v3 entirely).
   instead; it is confirmed as v2.2 scope, but is not considered urgent for that release. Unlike
   the always-on single-phrase arc, this is a player-facing control with its own visible on/off
   toggle, on the same footing as the settings-mutation flag (§5) and adaptive tempo (§10) —
-  presentation is a UI/UX design decision, not specified here.
+  presentation is a UI/UX design decision, not specified here. How the longer arc runs, and
+  whether the toggle starts on or off, are still open (§12).
 
 ## 4. Look-ahead and failure handling
 
@@ -228,11 +255,12 @@ If generation fails, the player never sees a v1-style blocking alert during a se
 1. retry silently, up to three times, with a fresh seed and the same carry-in, while the deadline
    still allows it;
 2. if that keeps failing, retry once more **without** carry-in, as a standalone phrase — the join
-   isn't smoothed, but a valid phrase is shown;
+   isn't smoothed (§3), but a valid phrase is shown;
 3. if the deadline passes regardless, **repeat the previous phrase** as the next one, and record
-   the repeat in the session history;
+   the repeat in the session history; that join isn't smoothed either (§3);
 4. after two consecutive repeats, show a small, non-blocking notice ("the generator is struggling
-   with these settings") without stopping the session.
+   with these settings") without stopping the session. It stays until a newly generated phrase
+   (not a repeat; a standalone phrase counts) starts sounding, and goes when the session ends.
 
 The session is never stopped by a generation failure — that would be a penalty the player didn't
 cause, and repeating a phrase is musically harmless. "Generation failure" here covers both kinds of
@@ -266,10 +294,16 @@ opt-in flag:
   the flag defaults on or off when a session starts. This flag ships in **v2.1**.
 - **Adaptive tempo,** described fully in §6, ships in **v2.2**.
 
+Neither source exists in v2.0, so nothing can change a setting during a v2.0 session. Applying a
+change at a phrase boundary, as follows, ships with the first source that needs it, the
+settings-mutation flag, in v2.1.
+
 Whichever of these fires, the change applies at the next **phrase boundary**: the first phrase
 that has not yet started sounding. If a look-ahead phrase was already generated with the old
-settings, it is discarded and regenerated with the new ones, provided at least one measure remains
-before its deadline; otherwise the change simply applies one phrase later than that. A key or
+settings and none of it is on screen yet, it is discarded and regenerated with the new ones,
+provided at least one measure remains before its deadline. Otherwise, when some of it is already
+drawn as read-ahead or less than a measure remains, it stays as it is, and the change applies from
+the phrase after it. No note already on screen ever changes because of a setting change. A key or
 collection change drops the harmonic part of carry-in (the pitch part still applies, re-checked
 against the new range and register window); a register change re-resolves "Varying." When an
 automatic change lands, the settings UI updates to stay truthful about what's currently in effect,
@@ -551,16 +585,17 @@ only: the review itself never visibly distinguishes a repeated phrase from any o
 a repeat is a generator implementation detail, not something worth surfacing to the player. There
 is no cap on session length; the review must stay responsive regardless of how long a session ran.
 
-**The last-session review.** Every phrase that was shown appears, in order, engraved exactly as it
-was displayed (written pitch, key signature, chord symbols), each with its phrase number and the
-tempo it played at. The generated notes are always shown; the notes the player actually played are
-**optional**, shown only on a toggle, and when shown they are unquantized and neutrally colored,
-possibly indicating which ones matched the script — this is an appreciation of having followed the
-line, never a score, and there is still no coloring anywhere for a note that didn't match. The
-review has no favorites: marking phrases is v3 (§2). Only the most recently completed session's
-review exists. Starting a new session from the review discards it without asking for
-confirmation, so the next session is always one action away. Closing or reloading the page
-discards everything without asking.
+**The last-session review.** Every phrase that started sounding appears, in order, engraved exactly
+as it was displayed (written pitch, key signature, chord symbols), each with its phrase number and
+the tempo it played at: these are the phrases the session history holds (above), so a look-ahead
+phrase only ever shown as read-ahead is not among them. The generated notes are always shown; the
+notes the player actually played are **optional**, shown only on a toggle, and when shown they are
+unquantized and neutrally colored, possibly indicating which ones matched the script — this is an
+appreciation of having followed the line, never a score, and there is still no coloring anywhere for
+a note that didn't match. The review has no favorites: marking phrases is v3 (§2). Only the most
+recently completed session's review exists. Starting a new session from the review discards it
+without asking for confirmation, so the next session is always one action away. Closing or reloading
+the page discards everything without asking.
 
 **A session ended during the count-in** — by Stop, a hidden tab or the staff no longer being
 shown, before
@@ -827,17 +862,19 @@ players deliberately building reading and playing speed:
   tempo on a value outside that list; during the session the exact value in effect is shown. At the
   end of the session (Stop, or the next Start), the control resets to the tempo the player actually
   started that session from, while the review records the tempo the session actually reached.
+- **Still open** (§12): what the rise does while a controller lost mid-session is away, and
+  whether adaptive tempo starts on or off.
 
 ## 11. Definition of done
 
 ### Release sequence
 
-| Release  | Delivers                                                                                                                                                                                                                                                                                                   |
-| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **v2.0** | The full core loop: rolling phrases with carry-in (§3–§4), backing/click/count-in (§6), sessions (§7), MIDI expected-note acknowledgement and the controller check (§8), last-session review and export of the generated notes to MusicXML or MIDI (§7), control changes locked to phrase boundaries (§5). |
-| **v2.1** | Played notes become visible in the review (already partly true in v2.0) and exportable by choice, through their own export action, as their own MIDI file (§7); the settings-mutation flag (§5).                                                                                                           |
-| **v2.2** | Adaptive tempo (§10); the multi-phrase tension arc noted in §3.                                                                                                                                                                                                                                            |
-| **v2.3** | The end-of-measure chord-fit check (§9).                                                                                                                                                                                                                                                                   |
+| Release  | Delivers                                                                                                                                                                                                                                                                                                                 |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **v2.0** | The full core loop: rolling phrases with carry-in (§3–§4), backing/click/count-in (§6), sessions (§7), MIDI expected-note acknowledgement and the controller check (§8), last-session review and export of the generated notes to MusicXML or MIDI (§7), generation settings locked for the whole session (§5).          |
+| **v2.1** | Played notes become visible in the review (the v2.0 session history already records them, §7, but the v2.0 review does not show them) and exportable by choice, through their own export action, as their own MIDI file (§7); the settings-mutation flag, with setting changes applied at the next phrase boundary (§5). |
+| **v2.2** | Adaptive tempo (§10); the multi-phrase tension arc noted in §3.                                                                                                                                                                                                                                                          |
+| **v2.3** | The end-of-measure chord-fit check (§9).                                                                                                                                                                                                                                                                                 |
 
 Count-in is part of v2.0 because starting the session on a MIDI note needs it.
 
@@ -847,21 +884,26 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
   rhythmic-variety rework that retired the old "Mixed" setting; profile behavior driven by
   capability flags rather than by profile name.
 - Generation latency must be re-measured after that rhythmic-variety rework, including a cold run
-  triggered by a mid-session control change, to confirm the look-ahead deadline in §4 still has
-  comfortable headroom at the fastest supported tempo.
+  triggered by a mid-session control change (from v2.1, when the settings-mutation flag can cause
+  one), to confirm the look-ahead deadline in §4 still has comfortable headroom at the fastest
+  supported tempo.
 
 ### v2.0 is done when all of the following hold
 
 1. Across every seed and supported-settings combination, at 60, 120 and 240 BPM, every phrase after
    the first is generated and engraved before its deadline, and the failure ladder (§4) keeps a
-   session running through a generation failure.
-2. Every join obeys the same interval and register rules as a join inside a single phrase, and the
-   register stays stable across a whole session unless a control genuinely changes it.
-3. With no carry-in at all (a session's first phrase, or the phrase at Idle), the output for a
-   given request and seed is byte-identical to v1. At Idle, only which request and seed end up
-   shown can differ from v1 (items 26 and 27).
-4. A control change is only ever visible starting at the first phrase that hasn't begun sounding —
-   no note already on screen ever changes.
+   session running through a generation failure. After two consecutive repeated phrases, the
+   non-blocking "struggling" notice shows until a newly generated phrase starts sounding.
+2. Every join made with carry-in obeys the same interval and register rules as two consecutive
+   notes inside a single phrase, and settles a leap recovery or a tense note's resolution left
+   owing by the phrase before (§3). A join into the failure ladder's standalone phrase or into a
+   repeated phrase is not smoothed (§3). The register stays stable across a whole session.
+3. With no carry-in at all (a session's first phrase, the failure ladder's standalone phrase, or
+   the phrase at Idle), the output for a given request and seed is byte-identical to v1. At Idle,
+   only which request and seed end up shown can differ from v1 (items 26 and 27).
+4. Every generation setting is locked from the moment a session starts until it ends, so nothing
+   changes what is generated during a v2.0 session except the note-density rule of item 27; Stop
+   and the audio mix stay reachable throughout (§5).
 5. The backing stays in pitch and on the beat; muting it never affects timing; nothing plays before
    the player has clicked, either Start or "Connect controller", which unlocks audio.
 6. The on-screen playhead stays within 20 ms of the actual audio output position over a five-minute
@@ -1018,7 +1060,11 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
   - imported together into a real DAW, the played-notes file and the generated-notes MIDI file
     of the same session line up phrase by phrase, with the same tempo map and markers;
   - the played-notes action is unavailable when the session holds no played note;
-  - privacy still holds under the network and storage spy of v2.0 item 13.
+  - privacy still holds under the network and storage spy of v2.0 item 13;
+  - a setting changed by the settings-mutation flag is only ever visible starting at the first
+    phrase that hasn't begun sounding, or at the phrase after it when that phrase is already
+    partly drawn as read-ahead or less than a measure remains before its deadline; no note already
+    on screen ever changes (§5).
 - **v2.2:** adaptive tempo meets its own acceptance criteria in §10 (flat, unconditional schedule;
   never decreases automatically; resets correctly at session end; generation itself is provably
   unaffected by whether it's on).
@@ -1090,6 +1136,43 @@ blocks only the behaviour it names:
   generated either. Proposed, not yet confirmed by the product owner: a mutation steps from the
   density generated with, and `Sixteenth` counts as unavailable whenever the session generates
   with `Eighth` under this rule, whatever the window's width.
+
+Three items came up when the spec was checked against the business rules drawn from it. The first
+blocks only how a phrase generated with carry-in may end (§3), in v2.0; the other two block only
+the v2.2 behaviour they name:
+
+- **A session's last phrase ending with something owed** (§3). Inside a session, a phrase may end
+  just after a big leap (a jump of 7 to 12 half steps), whose recovery (a small move back the other
+  way, of 1 to 4 half steps, which makes the jump sound finished) the next phrase then starts with;
+  or on a tense note (a note that clashes with the chord and wants to step onto a chord note), which
+  the next phrase's first note resolves. v1 never lets a phrase end either way. The spec used to
+  keep v1's rule "where the music actually stops", but the app cannot know which phrase will be the
+  last one: a session ends at any moment, usually mid-phrase. Proposed, not yet confirmed by the
+  product owner: keep this carry-over between phrases, and accept that a session's last phrase, in
+  the review and the export, may end with a recovery or a resolution still owed, just as it may be
+  cut off mid-phrase. The same then holds before the failure ladder's standalone phrase or a repeat,
+  whose join is not smoothed. The alternative: every session phrase ends as v1 requires, so any
+  phrase is a clean place to stop and every seam is clean too, at the cost of joins that sound more
+  like one phrase stopping and the next one starting.
+- **How the multi-phrase tension arc runs, and its default** (§3, v2.2). Tension here is the
+  unsettled sound of a note that clashes with the chord before it settles; the tension-arc setting
+  (Settled, Lift, Build or Edge) decides how much of it a phrase has and where. How the longer arc
+  moves that across phrases is undecided, and so is whether its toggle starts on or off. Proposed,
+  not yet confirmed by the product owner: the arc repeats every four phrases (16 measures), counted
+  from phrase 1. The first phrase of each group is generated with the chosen tension arc (so phrase
+  1, generated at Idle, already fits), the second one step tenser, the third as chosen again, and
+  the fourth one step calmer, in the order Settled, Lift, Build, Edge, with no step past either end.
+  The tension-arc setting keeps showing the player's choice; only what each phrase is generated with
+  changes. The toggle starts off.
+- **Adaptive tempo when the controller is lost, and its default** (§10, v2.2). Adaptive tempo is
+  only available with a controller attached, but a controller can be lost mid-session and come back
+  within 30 seconds. Proposed, not yet confirmed by the product owner: the rise carries on its
+  schedule while the controller is away, since it never depends on what or whether the player plays,
+  so a reconnected player may find the tempo a little higher (at most 15 BPM, at a fast tempo). A
+  session started while the selected controller is away has no controller, so adaptive tempo does
+  not run in it. The alternative is to pause the rise while the controller is away. Adaptive tempo
+  starts off when the page loads; the player's choice is then kept from one session to the next for
+  as long as the page stays open, since v2 saves nothing across a reload.
 
 Two further items are noted as direction for v2 or later, without being scoped precisely enough to
 build yet, and are **not** part of the v2.0–v2.3 definition of done above:

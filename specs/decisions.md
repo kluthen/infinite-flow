@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.17
+Status: draft v2.18
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -617,3 +617,70 @@ fact in the live documents (see the [archive index](archive/README.md) and
   combination unsupported, as in v1, holds as long as that phrase fits. This replaces a UI detail
   the spec never recorded (confirmed in ux D114), where such a phrase took the notice. Master
   spec v1.17 → **v1.18** for D155–D156: §2, §4, §5, §6, §11 (v2.0 item 26) and §12.
+- **D157 (2026-09-29): a join made without carry-in is not smoothed, and settles nothing the
+  phrase before it owed.** `spec-writer`'s correction under the owner's rule for this pass (minor
+  issues settled without asking), from gaps 1 and 3 of `documentalist`'s v2 ingestion report. No
+  new rule. The failure ladder's second step retries "without carry-in, as a standalone phrase"
+  and says the join isn't smoothed, while v2.0 item 2 said every join obeys the in-phrase
+  interval and register rules. Carry-in is what carries the last pitch and its leap state across
+  a join (D105), and the join rules act through it (D80, D81), so a join into the standalone
+  phrase, or into a repeat (the previous phrase again, as it was), cannot obey them: no interval
+  or register rule applies across it, and a leap recovery or a tense note's resolution the phrase
+  before left owing is not settled. The standalone phrase obeys v1's rules in full, and its output
+  for a given request and seed is v1's (v2.0 item 3 now names it). Item 2 now covers joins made
+  with carry-in. Whether a phrase should be allowed to end owing something such a join, or the
+  session's end, leaves unsettled is **O97**. Master spec §3, §4 and §11 (v2.0 items 2 and 3).
+- **D158 (2026-09-29): a phrase generated with carry-in may end owing a leap recovery or a tense
+  note's resolution, and a tense note resolves onto the next phrase's first note.**
+  `spec-writer`'s correction under the owner's rule for this pass, from gaps 2 and 11 of the same
+  report. No new rule. Master spec §3 said every phrase "remains a valid, self-contained v1
+  result", which D80 and D81 contradict: v1 lets no phrase's final sounding event carry a leap
+  recovery debt or an unresolved local dissonance. Stated now: a phrase generated without
+  carry-in is exactly a v1 result; one generated with carry-in obeys every v1 rule except that it
+  may end owing either, which the next phrase settles. D81's title says the tense note resolves
+  "onto the join's last note", and the v2 README repeated it; D81's body, the archived
+  rolling-phrase draft and the master spec all say the next phrase's first note, which is the
+  reading kept, and the README now says so. D81's other half, full v1 resolution "where the music
+  really stops", cannot be enforced, since no phrase is known in advance to be the last: it is
+  opened as **O97**, and master spec §3 marks it open. Master spec §3; v2 README.
+- **D159 (2026-09-29): the review shows every phrase that started sounding.** `spec-writer`'s
+  correction, from gap 4 of the same report. No new rule. §7's review listed "every phrase that
+  was shown", while the session history it is built from keeps only phrases that started sounding
+  (D88), and says a look-ahead phrase only ever shown as read-ahead does not count. The history's
+  definition wins: such a phrase, drawn but never sounded because the session ended first, is in
+  neither the review nor any export. Master spec §7.
+- **D160 (2026-09-29): a look-ahead phrase already partly on screen is never discarded for a
+  setting change.** `spec-writer`'s correction, from gap 5 of the same report, settled by the rule
+  that no note already on screen ever changes (v2.0 item 4 until now, and the intent of the
+  phrase-boundary rule) and by the quiet update of D91. §5 discarded and regenerated a look-ahead
+  phrase generated with the old settings whenever at least a measure remained before its
+  deadline, but the rolling display draws a look-ahead phrase as soon as it is engraved (ux D82),
+  in the one-system layout usually long before its deadline. Now such a phrase is discarded only
+  if none of it is on screen yet and at least a measure remains; otherwise it stays as it is, and
+  the change applies from the phrase after it. Rejected: discarding a phrase already drawn as
+  read-ahead, which would change notes the player may already be reading. Master spec §5 and §11
+  (v2.1).
+- **D161 (2026-09-29): applying a setting change at a phrase boundary ships in v2.1, with the
+  settings-mutation flag.** `spec-writer`'s correction, from gap 6 of the same report. The
+  settings are locked for the whole session and only automatic sources may change one (D91); the
+  first, the settings-mutation flag, ships in v2.1 (D107), and adaptive tempo (v2.2) changes only
+  the tempo, which never changes what is generated (D84). So nothing changes a setting during a
+  v2.0 session, and the v2.0 row's "control changes locked to phrase boundaries" and v2.0 item 4
+  described a mechanism with nothing to trigger it. v2.0 now delivers the settings lock, which
+  item 4 states; the phrase-boundary rule (with D160) and its acceptance criterion move to v2.1.
+  Rejected: building it in v2.0 behind a test-only trigger. The note-density rule (D147, D148) is
+  not a setting change and stays in v2.0. The latency prerequisite's cold run after a mid-session
+  change applies from v2.1. Master spec §5 and §11.
+- **D162 (2026-09-29): v2.0 records played notes in the session history but does not show them.**
+  `spec-writer`'s correction, from gap 7 of the same report. The v2.1 row said played notes in
+  the review were "already partly true in v2.0" without saying what. From D93, D104 and §7's
+  history: v2.0 records the played notes and the acknowledgements in the session history, but its
+  review does not show them; the toggle that shows them arrives in v2.1, with their export. Master
+  spec §11.
+- **D163 (2026-09-29): the "generator is struggling" notice stays until a newly generated phrase
+  starts sounding.** `spec-writer`'s correction, from gap 10 of the same report, bringing the
+  master spec in line with ux D83 (user-confirmed). The notice shows from the second consecutive
+  repeated phrase until a newly generated phrase (not a repeat; the failure ladder's standalone
+  phrase counts) starts sounding, and goes when the session ends. Master spec §4 and §11 (v2.0
+  item 1). Master spec v1.18 → **v1.19** for D157–D163, which also lists **O97**, **O98** and
+  **O99** in §12 (opened with them, from gaps 1–2, 8 and 9).
