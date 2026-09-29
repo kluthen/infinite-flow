@@ -1112,7 +1112,7 @@ needed. Build the check; that verification closes before the v2.0 gate.
 
 ### Chunk 14 — Note acknowledgement
 
-**Release:** v2.0.
+**Release:** v2.0. **In progress since 2026-09-29** (worktree branch `v2-chunk-14`), in parallel with chunk 7.
 
 **Goal.** The matching rule, as pure logic: each expected note's window, exact-pitch matching,
 once per note, the earliest match first, and the latency correction of a played onset.
