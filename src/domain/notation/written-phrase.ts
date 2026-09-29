@@ -198,6 +198,8 @@ function buildWrittenMeasure(
  * timeline or chords, and returns a brand-new deep-frozen value every call. There is no
  * independently selectable display convention: `input.tonalContext.tonalCenter` is already the
  * written tonal center, and `input.transposition` is the instrument profile's own transposition.
+ * The profile's active concert range, moved by the same transposition's semitones, becomes the
+ * phrase's written range.
  */
 // @spec-link [[module_notation_display_convention]]
 // @spec-link [[rule_notation_display_preserves_phrase]]
@@ -220,6 +222,10 @@ export function transformToWrittenPhrase(input: NotationPhraseInput): WrittenPhr
 
   return deepFreeze({
     transposition,
+    writtenRange: {
+      minMidi: input.concertRange.minMidi + transposition.chromatic,
+      maxMidi: input.concertRange.maxMidi + transposition.chromatic,
+    },
     clef: 'treble',
     timeSignature: { beats: 4, beatValue: 4 },
     key,

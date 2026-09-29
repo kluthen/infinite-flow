@@ -116,7 +116,8 @@ The constants live in `src/notation/notation-layout-policy.ts`:
 - `NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE = 10` is VexFlow's native geometry.
 - `NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX` is the smallest staff space, in CSS pixels, at which the score may be drawn. The Legibility Floor section below gives its value and rationale.
 - `NOTATION_MAX_STAFF_SPACE_PX` is the largest staff space, reached on wide containers.
-- `NOTATION_SYSTEM_POSITION_UNITS = 175` is one system position's block size in engraving units (17.5 staff spaces), and `NOTATION_STAFF_TOP_LINE_UNITS = 80` is where the staff's top line sits inside it. They hold every written pitch any instrument profile reaches, with its stems, beams, ledger lines and chord symbols (see the height calibration below).
+- `NOTATION_SYSTEM_POSITION_UNITS = 160` is one system position's block size in engraving units (16 staff spaces), the same for every instrument profile. It holds the tallest ink any one profile's written range produces, start marker included, with about one staff space clear at each end (see the height calibration below).
+- `planStaffPlacement` places the staff's top line inside the position for the phrase's instrument, from that instrument's written range alone. The written phrase carries the range (`writtenRange`: the profile's active concert range moved by its transposition), so the placement belongs to the phrase's instrument and never to its notes. The ink a range can produce reaches above the top line by the larger of `NOTATION_STAFF_INK_ABOVE_TOP_LINE_UNITS = 32` (chord symbols over notes within the staff) and the range's highest note plus `NOTATION_HIGH_NOTE_INK_ABOVE_UNITS = 52` (the engraver draws every stem up, so the note's stem rises 3.5 spaces over it and its chord symbol sits over the stem's tip), plus `NOTATION_START_MARKER_RESERVE_UNITS = 15` for the start marker (one space tall, half a space clear of the ink under it); it reaches below by the larger of `NOTATION_STAFF_INK_BELOW_TOP_LINE_UNITS = 45` (a note on the bottom line) and the range's lowest note plus `NOTATION_LOW_NOTE_INK_BELOW_UNITS = 7` (half a notehead and its ledger line's stroke). The staff is placed so that this ink sits centred in the position. The saxophones (written C4 to C6) get their top line at 95 units; the C MIDI keyboard (written C3 to C5) at 60, higher in its position, with more room below.
 - `NOTATION_MIN_MEASURE_WIDTH_UNITS = 40` is the narrowest content width a measure is ever drawn at, about one whole note with its margins.
 - `NOTATION_PHONE_LAYOUT_MEDIA_QUERY = '(max-width: 63.9375rem)'` mirrors the workspace's 64rem tablet-landscape breakpoint. While it matches, the split layout applies. The stylesheet's phone staff block uses the same width-only query, so the two always agree on the side.
 
@@ -133,12 +134,12 @@ position      = NOTATION_SYSTEM_POSITION_UNITS × min(maxStaffSpace / 10, height
 
 - `leadingWidth` is the clef, key signature, and time signature on the first stave. Each measure's minimum width comes from VexFlow's formatter.
 - Every measure gets the same width, so the measures read as visibly equal. The two systems of the split layout share the same column positions, so bar 3 sits directly under bar 1 and bar 4 under bar 2. The bottom system's notes are forced to start at the top system's note-start position, so the columns stay aligned although it carries no time signature. A system spans the container's full width: when the height sets the scale, the measures widen to fill it.
-- The position size does not depend on the phrase. From 64rem up, where the scale fits the width only, it is the position height at the maximum scale (210 px at 12 px per staff space), so every phrase fits it. The frame keeps its fixed minimum block size (24rem) and grows past it to hold both positions, to about 454 px with its padding and border, about 70 px taller than v1's frame. Below 64rem it is the position height at the height-fit scale. A phrase whose width needs a smaller scale is drawn smaller, at the top of its position.
-- **The height budget** is read by `PhraseScore` from `staff-frame`'s computed `max-block-size`, minus the frame's block padding and border. The stylesheet builds that maximum from `--staff-systems-phone-block-budget`: the small viewport height (`100svh`, the height with the browser's toolbars showing) minus the session cue row, its gap and the frame chrome. No pixel value is written in application code. Because the budget uses the small viewport height, a browser toolbar showing or hiding changes neither the budget nor the scale.
+- The position size does not depend on the phrase or the profile. From 64rem up, where the scale fits the width only, it is the position height at the maximum scale (192 px at 12 px per staff space), so every phrase fits it. The frame keeps its fixed minimum block size (24rem, 384 px) and grows past it to hold both positions, to 418 px with its padding and border, 34 px taller than v1's frame; from the 90rem desktop breakpoint its 28rem (448 px) minimum holds. Below 64rem it is the position height at the height-fit scale. A phrase whose width needs a smaller scale is drawn smaller, at the top of its position.
+- **The height budget** is read by `PhraseScore` from `staff-frame`'s computed `max-block-size`, minus the frame's block padding and border. The stylesheet builds that maximum from `--staff-systems-phone-block-budget`: the small viewport height (`100svh`, the height with the browser's toolbars showing) minus the session cue row, its gap and the frame chrome. Below 64rem the frame's block padding is `--staff-frame-padding-block-phone` (8 px) instead of its usual 16 px, which it keeps on its inline sides. No pixel value is written in application code. Because the budget uses the small viewport height, a browser toolbar showing or hiding changes neither the budget nor the scale.
 
 A phrase that cannot be drawn at the floor fails in one of two ways. The planner returns them as distinct outcomes, and the engraver throws them as distinct `NotationError` codes (`isStaffLayoutFailure` tells them apart from the retryable ones):
 
-- **No room** (`notation_no_room`): the window cannot hold the layout at the floor, whatever phrase it holds. It is too narrow for the leading width plus `m` measures at the minimum measure width plus padding, or, below 64rem, too short for the two positions (`2 × 175 × 0.5 = 175` CSS px of budget). Only a window change cures it. This is checked first.
+- **No room** (`notation_no_room`): the window cannot hold the layout at the floor, whatever phrase it holds. It is too narrow for the leading width plus `m` measures at the minimum measure width plus padding, or, below 64rem, too short for the two positions (`2 × 160 × 0.5 = 160` CSS px of budget). Only a window change cures it. This is checked first.
 - **Notes too wide** (`notation_notes_too_wide`): the window has room, but this phrase's widest measure needs more width than the floor allows. Another phrase may fit.
 
 Both carry numeric details: the container width and the required width, or the height budget and the required height. What the workspace shows for each is the caller's decision; until the room notice and the idle fit retries exist, the workspace shows both as the retryable notation error.
@@ -205,32 +206,33 @@ The workspace breakpoints are 48rem, 64rem, and 90rem, which is 768, 1024, and 1
 
 A 7 px floor would leave every phrase still under the 90rem (1440 px) breakpoint (worst case 1150 px, Sixteenth), but not every phrase at 64rem. For every measured phrase to fit one system at 48rem, the floor would have to drop to about 4.7 px (768 px / 1642.9 requiredUnits × 10), which is not legible for sight-reading; the split layout is what serves those widths.
 
-A height calibration measured how far each system's ink reaches, on pixels: each system is screenshotted over a transparent page and its first and last inked rows are found. `getBBox()` cannot be used for this, because VexFlow draws every music glyph as `<text>`, whose box is the font's whole line box. The sweep covers every register, leapiness and contour, the three note densities, seeds 1 to 3 and the three instrument profiles (1,296 phrases, one of which found no phrase to generate). Values are in engraving units from the system position's top edge; the staff's top line is at 80 and its bottom line at 120. No system's ink touched either edge of its position:
+A height calibration measured how far each system's ink reaches, on pixels: each system is screenshotted over a transparent page and its first and last inked rows are found. `getBBox()` cannot be used for this, because VexFlow draws every music glyph as `<text>`, whose box is the font's whole line box. The sweep covers every register, leapiness and contour, the three note densities, seeds 1 to 3 and the three instrument profiles (1,296 phrases, one of which found no phrase to generate). The start marker over phrase 1's first attacked note is not drawn by the engraver yet, so the calibration reserves its room where it will sit: one staff space tall, half a space clear of other ink, in the note's own column, in the first gap above the staff that holds it (between the note's own ink and its chord symbol), else above the highest ink in that column. Values are in engraving units from the 160-unit system position's top edge; the staff's top line is where `planStaffPlacement` puts it for the profile, and its bottom line 40 units lower. No system's ink, marker included, came closer than 8.3 units to either edge of its position:
 
-| Profile and register  | Highest ink | Lowest ink |
-| --------------------- | ----------- | ---------- |
-| C MIDI keyboard, Low    | 48.3        | 165.0      |
-| C MIDI keyboard, Middle | 48.3        | 150.0      |
-| C MIDI keyboard, High   | 48.3        | 136.7      |
-| B-flat tenor, Low       | 43.3        | 136.7      |
-| B-flat tenor, Middle    | 28.3        | 136.7      |
-| B-flat tenor, High      | 8.3         | 136.7      |
-| E-flat alto, Low        | 48.3        | 136.7      |
-| E-flat alto, Middle     | 28.3        | 136.7      |
-| E-flat alto, High       | 13.3        | 136.7      |
+| Profile and register    | Top line | Highest ink | Start marker top | Lowest ink |
+| ----------------------- | -------- | ----------- | ---------------- | ---------- |
+| C MIDI keyboard, Low    | 60       | 28.3        | 23.3             | 145.0      |
+| C MIDI keyboard, Middle | 60       | 28.3        | 23.3             | 130.0      |
+| C MIDI keyboard, High   | 60       | 28.3        | 23.3             | 116.7      |
+| B-flat tenor, Low       | 95       | 58.3        | 43.3             | 151.7      |
+| B-flat tenor, Middle    | 95       | 43.3        | 33.3             | 151.7      |
+| B-flat tenor, High      | 95       | 23.3        | 8.3              | 151.7      |
+| E-flat alto, Low        | 95       | 63.3        | 58.3             | 151.7      |
+| E-flat alto, Middle     | 95       | 43.3        | 33.3             | 151.7      |
+| E-flat alto, High       | 95       | 28.3        | 23.3             | 151.7      |
 
-The highest ink is a chord symbol over the saxophones' highest written notes (up to C6), about 7.2 staff spaces above the top line. The lowest is the C MIDI keyboard's lowest written notes (down to C3) with their ledger lines, about 8.5 spaces below the top line. The 175-unit position keeps every system inside it with a margin of about one staff space at each end. Both positions share this one size, for every profile, so the frame never changes size with a phrase or a profile.
+The saxophones' highest ink is a chord symbol over their highest written notes (up to C6), about 7.2 staff spaces above the top line: the engraver draws every stem up, so a high note's stem rises 3.5 spaces over it and the chord symbol sits over the stem's tip. When a tenor phrase starts on such a note, the stem leaves no room under the chord symbol, and the start marker goes above it, about 8.7 spaces above the top line. Their lowest ink is written C4 with its ledger line, about 5.7 spaces below the top line. The C MIDI keyboard's ink reaches about 3.2 spaces above the top line and, at its lowest written notes (down to C3), 8.5 spaces below it. Each profile's ink, marker included, spans at most about 14.3 spaces, and the staff placement centres it in the 16-space position, leaving about 0.8 space at each end for the saxophones and more for the keyboard. Both positions share this one size, for every profile, so the frame never changes size with a phrase or a profile. The size is not the saxophones' highest reach stacked over the keyboard's lowest, which no phrase reaches: that would take about 20 spaces.
 
-At the floor, two positions need `2 × 175 × 0.5 = 175` CSS px of height budget. The budget is the small viewport height minus about 142 px (the session cue row, its gap and the frame chrome), so a window needs a small viewport height of about 317 px to show the staff below 64rem.
+At the floor, two positions need `2 × 160 × 0.5 = 160` CSS px of height budget. The budget is the small viewport height minus 126 px (the session cue row, 96 px; its gap, 12 px; the frame's phone block padding, 2 × 8 px; its border, 2 × 1 px), so a window needs a small viewport height of 286 px to show the staff below 64rem.
 
-A phone calibration ran the width grid (324 phrases) on the two landscape phone windows the app is checked on, with the staff frame at the app's width there (708 px at 740 × 360, 796 px at 844 × 390). In headless Chromium the small viewport height is the window's height, with no toolbar:
+A phone calibration ran the width grid (324 phrases) on landscape phone windows at the heights that matter, with the staff frame at the app's width there (708 px at 740 px wide, 796 px at 844 px wide): 740 × 286, the smallest height that holds the staff; 740 × 300 and 844 × 330, phones about 360 and 390 px tall with their browser toolbar showing. In headless Chromium the small viewport height is the window's height, with no toolbar:
 
-| Window    | Engraved | Notes too wide | No room | Staff space        |
-| --------- | -------- | -------------- | ------- | ------------------ |
-| 740 × 360 | 324      | 0              | 0       | 6.23 px (height-fit) |
-| 844 × 390 | 324      | 0              | 0       | 7.09 px (height-fit) |
+| Window    | Engraved | Notes too wide | No room | Staff space          |
+| --------- | -------- | -------------- | ------- | -------------------- |
+| 740 × 286 | 324      | 0              | 0       | 5.00 px (height-fit) |
+| 740 × 300 | 324      | 0              | 0       | 5.44 px (height-fit) |
+| 844 × 330 | 324      | 0              | 0       | 6.38 px (height-fit) |
 
-Every phrase fits in the split layout on both windows, Sixteenth included, and the scale there is set by the height, not the width: the same for every phrase.
+Every phrase fits in the split layout on all three windows, Sixteenth included, and the scale there is set by the height, not the width: the same for every phrase.
 
 To reproduce the calibration, run (it starts the test servers itself, and takes about a quarter of an hour):
 
@@ -238,7 +240,7 @@ To reproduce the calibration, run (it starts the test servers itself, and takes 
 CALIBRATE=1 npx playwright test tests/e2e/notation/notation-calibration.spec.ts --project=chromium --workers=1
 ```
 
-The run prints the three sweep reports: width, height and phone.
+The run prints the three sweep reports: width, height and phone. The height report also fails the run if any profile's ink, start marker included, comes within about one staff space (7.5 units) of a position edge.
 
 ## Accessible Representation
 
@@ -255,11 +257,13 @@ Each successful engraving includes a text equivalent of what is drawn:
   - key, chord, and slash-bass consistency;
   - quality preservation and rhythm segmentation;
   - deep-frozen inputs, and unchanged source and session state across display switches;
-  - the layout planner: the layout chosen by the breakpoint alone, the scale fitting the width and the height, the two typed failures, and the phrase-independent position size.
+  - the layout planner: the layout chosen by the breakpoint alone, the scale fitting the width and the height, the two typed failures, and the phrase-independent position size;
+  - the staff placement: derived from the written range alone, lower in its position for the saxophones than for the keyboard, with every adopted profile's estimated ink, start marker included, at least 0.8 staff space inside the position.
 - **Browser tests** in `tests/e2e/notation/` run against a dedicated harness (`tests/e2e/notation-harness/`, built with `npm run build:notation-harness`). The harness mounts `PhraseScore` inside a real `staff-frame` with the app's own stylesheet, so below 64rem the frame's `max-block-size` gives the same height budget as in the app, and it publishes a running `engraveCount` with every state. Its generated source also takes optional `contour` and `leapiness` URL parameters (default `Arch` and `Shaped`), which the calibration varies. The tests run the real generation-to-engraving pipeline and hand-built fixtures on Chromium, the only browser project the notation, end-to-end, and accessibility suites run on. They assert:
   - that every element type is present;
   - one system inside the container on wide layouts with the bottom position reserved and blank, and, on a landscape-phone viewport, every phrase split into two aligned systems, each its own SVG, with the line-crossing tie drawn as a partial tie in each (`notation-layout.spec.ts`);
   - the two typed layout failures in one small container, and "no room" for a window too short or too narrow;
+  - two systems fitting at the floor down to a 286 px small viewport height and "no room" at 285 px, the scale on 740 × 300 and 844 × 330 phone windows, the phone frame's 8 px block padding, and the 418 px frame from 64rem up;
   - a lower scale in a shorter phone window, and no re-engraving when only the signals of a browser toolbar change (headless Chromium has no toolbar, so the test fires its resize events while the small viewport height stays put);
   - font readiness, resize redraw, and a typed failure clearing the staff and its description;
   - offline operation;

@@ -137,8 +137,9 @@
   /* v2 changed -- the border and padding now read the named `--staff-frame-border-width` and
      `--staff-frame-padding` (the same values as v1), because the phone staff budget subtracts
      them. v1's fixed minimum block size now holds from bp-tablet-landscape up only: below it,
-     the phone block right after this rule removes it and caps the frame at the phone staff
-     budget (see `--staff-systems-phone-block-budget` in theme.css). */
+     the phone block right after this rule removes it, takes the smaller phone block padding and
+     caps the frame at the phone staff budget (see `--staff-systems-phone-block-budget` in
+     theme.css). */
   .staff-frame,
   .staff-ready {
     background: var(--color-surface);
@@ -154,8 +155,10 @@
      the engraver always agree on which side of the breakpoint they are. There the engraving
      scale is the largest that fits both the width and the height, never below the legibility
      floor (5 CSS px per staff space, NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX in the same file).
-     The frame has no minimum block size; its maximum is the phone staff budget plus its own
-     padding and border, so its content box at that maximum is exactly
+     The frame has no minimum block size; its block padding drops to
+     `--staff-frame-padding-block-phone` (the inline padding stays `--staff-frame-padding`, since
+     the width does not limit the phone's staff); its maximum is the phone staff budget plus
+     that block padding and its border, so its content box at that maximum is exactly
      `--staff-systems-phone-block-budget`. The notation layout reads the height budget from the
      frame's computed `max-block-size` (viewport units resolve to CSS px there) minus its padding
      and border; no pixel value is written in application code. Within that ceiling the frame's
@@ -166,10 +169,11 @@
     .staff-frame,
     .staff-ready {
       max-block-size: calc(
-        var(--staff-systems-phone-block-budget) + 2 * var(--staff-frame-padding) + 2 *
+        var(--staff-systems-phone-block-budget) + 2 * var(--staff-frame-padding-block-phone) + 2 *
           var(--staff-frame-border-width)
       );
       min-block-size: 0;
+      padding-block: var(--staff-frame-padding-block-phone);
     }
   }
   .staff-empty,

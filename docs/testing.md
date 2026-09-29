@@ -274,8 +274,8 @@ engraved staff: `concert`, `bflat-tenor` and `eflat-alto` (generated source, see
 with `npx playwright test tests/e2e/notation/notation-visual.spec.ts --update-snapshots`, and must
 then pass again unchanged. Font rendering differs between machines and container images, so
 baselines are recorded on the same setup that checks them. The current four were recorded in the
-cloud container on 2026-09-29, when chunk 3 changed the layout; they need recording again on the
-owner's machine.
+cloud container on 2026-09-29, when chunk 3b made the system positions 16 staff spaces tall and
+placed the staff in them by instrument profile; they need recording again on the owner's machine.
 
 ### Unit fixtures, goldens and manifests
 

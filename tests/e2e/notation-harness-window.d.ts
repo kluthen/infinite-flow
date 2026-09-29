@@ -24,6 +24,17 @@ interface NotationHarnessState {
     systemCount: 1 | 2
     positionBlockPx: number
   }
+  /**
+   * Where the phrase's instrument places the staff in its system position (engraving units from the
+   * position's top edge: the staff's top line), published with every ready state.
+   */
+  staffTopLineUnits?: number
+  /**
+   * The index, among the top system's note and rest glyphs in drawing order, of phrase 1's first
+   * attacked note (the one the start marker points at), or null for a phrase of rests only;
+   * published with every ready state.
+   */
+  firstAttackGlyphIndex?: number | null
   /** Only published by the `source=generated` path: the JSON snapshot taken right after generation. */
   sourceSnapshot?: string
   /** Only published by the `source=generated` path: the same snapshot shape, recomputed now. */

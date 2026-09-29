@@ -11,8 +11,8 @@ import { Formatter, Renderer, Stave, StaveNote, Voice, type Beam } from 'vexflow
 import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
 import { NotationError } from './notation-error'
 import {
-  NOTATION_STAFF_TOP_LINE_UNITS,
   NOTATION_SYSTEM_POSITION_UNITS,
+  planStaffPlacement,
   planSystemLayout,
   type StaffNoRoom,
   type StaffNotesTooWide,
@@ -182,8 +182,9 @@ function layoutFailureError(outcome: StaffNoRoom | StaffNotesTooWide): NotationE
 
 /**
  * Intent: check one system's drawn content lies within the container's width. The height needs no
- * such check: the system position's height is fixed and holds every written pitch any instrument
- * profile reaches, stems, beams and chord symbols included (see NOTATION_SYSTEM_POSITION_UNITS),
+ * such check: the system position's height is fixed, and the staff is placed in it for the
+ * phrase's instrument so that every written pitch that instrument reaches, stems, beams and chord
+ * symbols included, stays inside (see NOTATION_SYSTEM_POSITION_UNITS and planStaffPlacement),
  * and an SVG box could not measure it anyway, since every music glyph is `<text>` whose box is the
  * font's whole line box rather than the glyph's ink.
  */
@@ -282,7 +283,7 @@ function drawWrittenPhrase(
     leadingWidth,
     measureContentWidthUnits: plan.measureContentWidthUnits,
     systemPaddingUnits: SYSTEM_PADDING_UNITS,
-    staffTopLineUnits: NOTATION_STAFF_TOP_LINE_UNITS,
+    staffTopLineUnits: planStaffPlacement(phrase.writtenRange).staffTopLineUnits,
   }
   const topStaves = buildSystemStaves(phrase, {
     ...staveSpec,

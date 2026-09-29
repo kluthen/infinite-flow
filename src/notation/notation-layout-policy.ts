@@ -9,6 +9,7 @@
  * (the window, whatever the phrase) and notes too wide (this phrase). This module never touches
  * vexflow or the DOM so the arithmetic can be tested in isolation from the rendering adapter.
  */
+import type { InstrumentMidiRange } from '../domain/notation/written-phrase-types'
 import { NotationError } from './notation-error'
 
 /** VexFlow engraving units per staff space at its native scale of 1. */
@@ -33,24 +34,126 @@ export const NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX = 5
 export const NOTATION_MAX_STAFF_SPACE_PX = 12
 
 /**
- * The block size of one system position, in engraving units at scale 1: 17.5 staff spaces, the
- * same for both positions and every instrument profile, so a position's size depends on the scale
- * alone, never on a phrase. It is the staff's top-line offset below (8 spaces of headroom) plus 9.5
- * spaces from the top line down: the staff itself (4 spaces) and the room under it. Calibrated on
- * the ink of real engraved phrases (see docs/notation-engraving.md): the highest ink, chord symbols
- * over the saxophones' highest written notes (up to C6), reaches about 7.2 spaces above the top
- * line; the lowest, the C MIDI keyboard's lowest written notes (down to C3) with their ledger
- * lines, about 8.5 spaces below it.
+ * The block size of one system position, in engraving units at scale 1: 16 staff spaces, the same
+ * for both positions and every instrument profile, so a position's size depends on the scale
+ * alone, never on a phrase or a profile. It holds the tallest ink any one profile's written range
+ * can produce, start marker included (see `planStaffPlacement`), with about one staff space clear
+ * at each end: the saxophones' ink, from the start marker over a chord symbol over written C6 down
+ * to written C4, and the C MIDI keyboard's, from the start marker over a chord symbol over written
+ * C5 down to written C3, each span about 14.4 spaces. It is not sized for one profile's highest
+ * ink stacked over another's lowest, which no phrase can reach: that would take about 20 spaces,
+ * too tall for two systems on a landscape phone with its browser toolbar showing. Two positions at
+ * the 5 px legibility floor take 160 px. A future profile whose ink needs more makes this one size
+ * larger for every profile.
  */
 // @spec-link [[module_notation_layout_preflight]]
-export const NOTATION_SYSTEM_POSITION_UNITS = 175
+export const NOTATION_SYSTEM_POSITION_UNITS = 160
 
 /**
- * Where the staff's top line sits inside its system position, in engraving units from the
- * position's top edge: the headroom kept for chord symbols and high ledger-line notes.
+ * The staff's own reach, in engraving units from its top line, for ink any phrase can draw
+ * whatever its range: chord symbols over notes that sit within the staff reach about 3.2 spaces
+ * above the top line; below, a note on the bottom line reaches half a space under it. Measured on
+ * real engraved phrases.
  */
 // @spec-link [[module_notation_layout_preflight]]
-export const NOTATION_STAFF_TOP_LINE_UNITS = 80
+export const NOTATION_STAFF_INK_ABOVE_TOP_LINE_UNITS = 32
+// @spec-link [[module_notation_layout_preflight]]
+export const NOTATION_STAFF_INK_BELOW_TOP_LINE_UNITS = 45
+
+/**
+ * How far ink reaches beyond a range's outermost written notes, in engraving units from that
+ * note's staff position (its notehead's centre). Above the highest note, about 5.2 spaces: the
+ * engraver gives every stem the upward direction (it sets none of its own), so the note's stem
+ * rises 3.5 spaces over it, and its chord symbol sits over the stem's tip. Below the lowest note,
+ * about 0.7 space: the notehead's lower half and the stroke of its ledger line (the stem points
+ * up, away from it). Measured on real engraved phrases.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+export const NOTATION_HIGH_NOTE_INK_ABOVE_UNITS = 52
+// @spec-link [[module_notation_layout_preflight]]
+export const NOTATION_LOW_NOTE_INK_BELOW_UNITS = 7
+
+/**
+ * The room, in engraving units, kept above the highest ink for the start marker, the small
+ * triangle drawn over phrase 1's first attacked note at idle: the marker itself, one staff space
+ * tall, and half a space clear of the ink under it. The marker sits between the note's own ink
+ * and its chord symbol where they leave room for it, and above the chord symbol only where they do
+ * not; over a high first note the note's up-stem fills the room under its chord symbol, so a
+ * phrase starting on the range's highest note puts the marker over its highest chord symbol. The
+ * placement keeps this room for every phrase, since it never depends on a phrase's notes.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+export const NOTATION_START_MARKER_RESERVE_UNITS = 15
+
+/**
+ * Where the staff sits in a system position for one written range, and the ink extent it was
+ * placed for, all in engraving units from the position's top edge.
+ */
+export interface StaffPlacement {
+  /** The staff's top line. Its bottom line is 40 units (4 staff spaces) lower. */
+  readonly staffTopLineUnits: number
+  /** The highest ink the range can produce: the start marker's room over its highest chord symbols. */
+  readonly inkTopUnits: number
+  /** The lowest ink the range can produce: its lowest notes' noteheads and ledger lines. */
+  readonly inkBottomUnits: number
+}
+
+/** Engraving units per diatonic step: a line to the next space is half a staff space. */
+const UNITS_PER_DIATONIC_STEP = NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE / 2
+/** Semitones above C of the seven natural letters, C to B. */
+const NATURAL_SEMITONES = [0, 2, 4, 5, 7, 9, 11] as const
+/** The treble staff's top line, written F5, as a diatonic step count (octave × 7 + letter). */
+const TREBLE_TOP_LINE_STEP = 5 * 7 + 3
+
+/**
+ * Intent: the diatonic step (octave × 7 + letter index, C4 = 28) of a MIDI note's natural
+ * spelling, moving to the nearest natural letter below (`down`) or above (`up`) when the note is
+ * a black key, so a range's outer notes are placed where their plainer spelling sits.
+ */
+function naturalStep(midi: number, direction: 'down' | 'up'): number {
+  let natural = midi
+  while (!(NATURAL_SEMITONES as readonly number[]).includes(((natural % 12) + 12) % 12)) {
+    natural += direction === 'down' ? -1 : 1
+  }
+  const letterIndex = (NATURAL_SEMITONES as readonly number[]).indexOf(((natural % 12) + 12) % 12)
+  return (Math.floor(natural / 12) - 1) * 7 + letterIndex
+}
+
+/**
+ * Place the staff inside its system position for an instrument's written range, derived from the
+ * range alone and never from a phrase's notes, so a refill or a new phrase never moves a staff
+ * line and only a profile switch can. The ink the range can produce reaches above the top line by
+ * the more of the staff's own chord-symbol reach and the reach over its highest note, plus the
+ * start marker's room, and below by the more of the staff's own reach and its lowest note's; the
+ * staff is placed so that this ink sits centred in the position, with equal room above and below.
+ * A range that reaches high (the saxophones, written C4 to C6) so gets more room above the staff,
+ * one that reaches low (the C MIDI keyboard, written C3 to C5) more room below. The outer notes
+ * are placed by their natural spelling, a black key by its natural neighbour outward. The
+ * first-release ranges all end on C, which no written key respells one letter further out (B♯
+ * needs seven sharps, and the fewest-accidental key spelling never uses seven).
+ */
+// @spec-link [[module_notation_layout_preflight]]
+export function planStaffPlacement(range: InstrumentMidiRange): StaffPlacement {
+  const highestAboveTopLine =
+    (naturalStep(range.maxMidi, 'up') - TREBLE_TOP_LINE_STEP) * UNITS_PER_DIATONIC_STEP
+  const lowestBelowTopLine =
+    (TREBLE_TOP_LINE_STEP - naturalStep(range.minMidi, 'down')) * UNITS_PER_DIATONIC_STEP
+  const inkAbove =
+    Math.max(
+      NOTATION_STAFF_INK_ABOVE_TOP_LINE_UNITS,
+      highestAboveTopLine + NOTATION_HIGH_NOTE_INK_ABOVE_UNITS,
+    ) + NOTATION_START_MARKER_RESERVE_UNITS
+  const inkBelow = Math.max(
+    NOTATION_STAFF_INK_BELOW_TOP_LINE_UNITS,
+    lowestBelowTopLine + NOTATION_LOW_NOTE_INK_BELOW_UNITS,
+  )
+  const inkTopUnits = (NOTATION_SYSTEM_POSITION_UNITS - inkAbove - inkBelow) / 2
+  return {
+    staffTopLineUnits: inkTopUnits + inkAbove,
+    inkTopUnits,
+    inkBottomUnits: inkTopUnits + inkAbove + inkBelow,
+  }
+}
 
 /**
  * The narrowest content width, in engraving units, the engraver ever gives a measure: about a

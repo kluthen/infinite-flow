@@ -130,6 +130,7 @@ function written(
     tonalContext: { tonalCenter: writtenTonalCenter, collection },
     chords: shape.chords,
     transposition: instrument.transposition,
+    concertRange: instrument.concertRange,
   })
 }
 

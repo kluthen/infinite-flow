@@ -43,6 +43,7 @@ import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import { makeSeed } from '@/domain/random/seed'
 import PhraseScore, { type EngravedPayload } from '@/components/notation/PhraseScore.vue'
 import type { NotationError } from '@/notation/notation-error'
+import { planStaffPlacement } from '@/notation/notation-layout-policy'
 import '@/styles/index.css'
 import { resolveFixture } from './fixtures'
 
@@ -62,6 +63,17 @@ function requireParam(params: URLSearchParams, name: string): string {
 let engraveCount = 0
 
 /**
+ * Intent: the index, among the phrase's glyphs in drawing order, of its first attacked note (not
+ * a rest, not a tied continuation), or null when every glyph is a rest.
+ */
+function firstAttackGlyphIndex(phrase: WrittenPhrase): number | null {
+  const index = phrase.measures
+    .flatMap((measure) => measure.events)
+    .findIndex((event) => event.kind === 'note' && !event.tieFromPrevious)
+  return index < 0 ? null : index
+}
+
+/**
  * Intent: mount PhraseScore inside a real `staff-frame` against a reactive phrase ref, publishing
  * every lifecycle event.
  */
@@ -77,6 +89,8 @@ function mountPhraseScore(phraseRef: Ref<WrittenPhrase>, extras: GeneratedExtras
               state: 'ready',
               engraved: payload,
               engraveCount,
+              staffTopLineUnits: planStaffPlacement(phraseRef.value.writtenRange).staffTopLineUnits,
+              firstAttackGlyphIndex: firstAttackGlyphIndex(phraseRef.value),
               ...extras,
             }
           },

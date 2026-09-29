@@ -110,6 +110,7 @@ function phrase(overrides: Partial<Pick<WrittenPhrase, 'key' | 'measures'>> = {}
   ] as const
   return deepFreeze({
     transposition: { chromatic: 0, diatonic: 0 },
+    writtenRange: { minMidi: 48, maxMidi: 72 },
     clef: 'treble',
     timeSignature: { beats: 4, beatValue: 4 },
     key: C_IONIAN_KEY,
