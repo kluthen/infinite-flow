@@ -2,7 +2,7 @@
 id: req_rolling_practice_session
 status: DRAFT
 layer: BUSINESS
-version: 0.1
+version: 0.2
 tags: [v2, release-v2.0, session]
 parents:
   - [[req_four_measure_phrase]]
@@ -41,7 +41,7 @@ dependents:
 Let the player practise through a continuous session in which the app keeps generating and showing one phrase after another without being asked again.
 
 ## THE RULE / LOGIC
-- A session is an ordered sequence of four-measure 4/4 phrases. The four-measure phrase stays the unit of generation: every phrase of a session is a complete, valid, self-contained phrase in its own right, and the generated timeline is never widened to span several phrases.
+- A session is an ordered sequence of four-measure 4/4 phrases. The four-measure phrase stays the unit of generation, and the generated timeline is never widened to span several phrases. Every phrase of a session is a complete phrase that obeys every rule a single phrase obeys, with one exception: a phrase generated with carry-in (the small handoff from the phrase before it) may end owing a leap recovery or a tense note's resolution, for the next phrase to settle.
 - A session starts from Idle (the phrase workspace outside any session and outside the review), then runs at the chosen tempo, the app looking one phrase ahead so the next phrase is ready before it is needed, until the session ends.
 - During a session the app plays a simple backing track under the phrases, can read one MIDI controller to quietly acknowledge the notes the player gets right, and never asks the player to request the next phrase.
 - When a session that sounded at least one phrase ends, the review of that session opens, from which the player can export it or start again.
@@ -52,5 +52,5 @@ Idle offers a way to start a session (a Start click, or the starting note on a c
 
 ## EXPECTATION
 - Once started, a session shows phrase after phrase with no request from the player until it ends.
-- Every phrase a session shows is a complete four-measure 4/4 phrase that would be valid on its own.
+- Every phrase a session shows is a complete four-measure 4/4 phrase that obeys every single-phrase rule, except that a phrase generated with carry-in may end owing a leap recovery or a tense note's resolution.
 - When a session that sounded at least one phrase ends, its review opens.
