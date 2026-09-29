@@ -10,7 +10,7 @@ dependents: []
 type: RULE
 layer: BUSINESS
 priority: 1
-tags: [v2, release-v2.0, session, phrase-join]
+tags: [v2, release-v2.1, session, phrase-join]
 ---
 
 # Key Change Drops Harmonic Carry-In
