@@ -92,9 +92,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** musical phrase
 - **popup:** A short musical thought, like a sentence: a group of notes that belong together and head toward a stopping point.
 - **definition:** A phrase is a short stretch of music that makes sense as one idea and moves toward an ending, much like a sentence in speech. In a lot of Western music a phrase lasts about four measures and ends with a cadence, a moment that sounds either finished or like a pause asking for more. Listeners feel phrases without knowing any theory, because the music seems to breathe at their ends.
-- **in_infinite_flow:** The app's whole output is one four-measure phrase in 4/4. Measures 1-2 form an opening gesture and measures 3-4 answer it. The phrase always ends open, never on the home note, so that it invites another phrase.
+- **in_infinite_flow:** The app's unit is a four-measure phrase in 4/4. Outside a session it shows one phrase at a time; in a session it keeps generating and playing one phrase after another. Measures 1-2 form an opening gesture and measures 3-4 answer it. The phrase always ends open, never on the home note, so that it invites another phrase.
 - **related:** `cadence`, `measure`, `gesture-and-answer`, `open-ending`
-- **sources:** S1, S14, S15
+- **sources:** S1, S14, S15, specs/versions/v2/master-spec.md
 
 ### Pitch
 
@@ -563,9 +563,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** neighbor note, auxiliary note, neighbour tone
 - **popup:** A decorating note one step above or below a main note, which then steps straight back to the main note.
 - **definition:** A neighbor tone decorates a stable note by stepping away from it, up or down, and then stepping straight back. The pattern is main note, neighbor, main note, as in E-F-E over a C major chord. An upper neighbor sits above the main note, a lower neighbor below. Like a passing tone, it usually falls on a weaker beat and adds only gentle tension.
-- **in_infinite_flow:** A collection note outside the current chord, one collection step away from a chord tone, that steps straight back to that same chord tone. Both presets use it anywhere except the phrase's first and last note, and it can also be the one figure the Tension control schedules.
+- **in_infinite_flow:** A collection note outside the current chord, one collection step away from a chord tone, that steps straight back to that same chord tone. Both presets use it anywhere except the phrase's first and last note, and it can also be the one figure the Tension control schedules. The tense scale tone a session phrase generated from the phrase before it may end on, resolved by the next phrase's first note, is a separate case, not a neighbor tone on the last note.
 - **related:** `passing-tone`, `non-chord-tone`, `chord-tone`, `step`, `enclosure`
-- **sources:** S4, S14
+- **sources:** S4, S14, src/domain/generation/carry-in/phrase-ending-debt.ts
 
 ### Non-chord tone
 
@@ -573,9 +573,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** nonharmonic tone, embellishing tone, NCT
 - **popup:** A melody note that is not part of the chord sounding at that moment. It adds color or tension and usually moves on to a chord note.
 - **definition:** A non-chord tone is a melody note that does not belong to the chord sounding at that moment. It makes a small clash, from barely noticeable to strongly tense, which usually eases when the melody moves to a chord tone. Theory names the types by how the note is approached and left: passing tones, neighbor tones, appoggiaturas and others.
-- **in_infinite_flow:** A pitch from the selected scale (collection) that is not part of the active chord; Jazz also adds brief out-of-collection chromatic notes. Its approach, metric position, duration and resolution determine whether it feels stable or tense. The one figure scheduled by the Tension control must resolve before the phrase's final note, but plain passing and neighbor tones, and Jazz chromatic notes, may resolve onto the final note itself, which is always a chord tone.
+- **in_infinite_flow:** A pitch from the selected scale (collection) that is not part of the active chord; Jazz also adds brief out-of-collection chromatic notes. Its approach, metric position, duration and resolution determine whether it feels stable or tense. The one figure scheduled by the Tension control must resolve before the phrase's final note, but plain passing and neighbor tones, and Jazz chromatic notes, may resolve onto the final note itself. That final note is a chord tone, except in a session phrase generated from the phrase before it: such a phrase may end on a scale tone outside its last chord, reached by step, and the next phrase's first note resolves it.
 - **related:** `chord-tone`, `passing-tone`, `neighbor-tone`, `appoggiatura`, `chromatic-approach`, `tension-and-resolution`
-- **sources:** S4, S14
+- **sources:** S4, S14, src/domain/generation/carry-in/phrase-ending-debt.ts
 
 ### Passing tone
 
@@ -625,9 +625,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** phrase ending, endpoint
 - **popup:** The way a phrase ends. Some endings sound finished, like a period; others sound open, like a comma.
 - **definition:** A cadence is the ending gesture of a phrase, the point where the music pauses or comes to rest. In major and minor keys, arriving on the tonic chord, usually right after the dominant (V to I), sounds closed and final, like a period. Arriving on the dominant chord sounds open, like a comma or a question; this is called a half cadence. Melody and rhythm take part too: a long note on the home pitch sounds most complete.
-- **in_infinite_flow:** The app always writes an open ending, as a product rule meant to invite continuation. Major and Minor phrases with Gentle or Active motion end on the degree-5 chord, with a note of that chord as the last note. Static Major/Minor phrases stay on the home chord and end on degree 5. Modal phrases end over the home chord on one of its other notes (its 3rd or 5th), never on the home note. See Open ending.
+- **in_infinite_flow:** The app always writes an open ending, as a product rule meant to invite continuation. Major and Minor phrases with Gentle or Active motion end on the degree-5 chord, with a note of that chord as the last note. Static Major/Minor phrases stay on the home chord and end on degree 5. Modal phrases end over the home chord on one of its other notes (its 3rd or 5th), never on the home note. In a session, a phrase generated from the phrase before it may instead end on a scale tone outside its last chord, reached by step, which the next phrase's first note resolves. See Open ending.
 - **related:** `phrase`, `tonic`, `dominant`, `harmonic-function`, `open-ending`
-- **sources:** S3, S1, S14, S15
+- **sources:** S3, S1, S14, S15, src/domain/generation/carry-in/phrase-ending-debt.ts
 
 ### Chord
 
@@ -775,9 +775,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** tension, resolution, tension and release
 - **popup:** Tension is a sound that feels unsettled and wants to move on; resolution is the relief when it lands on a stable note.
 - **definition:** Tension is the feeling that the music is unsettled and needs to go somewhere; resolution is the release when it gets there. Many things create tension: a note that clashes with the chord, a chord far from home, a syncopated rhythm, a high or long-held note. Resolution usually means moving to a stable note or chord, often by step. Music lives on the balance between the two.
-- **in_infinite_flow:** In the app, the Tension control schedules at most one tension figure: a note outside the chord (a passing or neighbor tone, an appoggiatura, or, under Build, a two-note approach) that resolves by step onto a chord tone before the phrase's last note. The setting decides whether a figure is required and where it falls. Plain passing and neighbor tones, and Jazz's chromatic notes, also appear but are not counted as tension figures.
+- **in_infinite_flow:** In the app, the Tension control schedules at most one tension figure: a note outside the chord (a passing or neighbor tone, an appoggiatura, or, under Build, a two-note approach) that resolves by step onto a chord tone before the phrase's last note. The setting decides whether a figure is required and where it falls. Plain passing and neighbor tones, and Jazz's chromatic notes, also appear but are not counted as tension figures. In a session, a phrase generated from the phrase before it may also end on a tense scale tone that the next phrase's first note resolves; that note is not a tension figure either.
 - **related:** `non-chord-tone`, `appoggiatura`, `chord-tone`, `cadence`, `control-tension`
-- **sources:** S4, S6, S14
+- **sources:** S4, S6, S14, src/domain/generation/carry-in/phrase-ending-debt.ts
 
 ### Tonic
 
@@ -1161,9 +1161,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** tension arc
 - **popup:** How much melodic tension the phrase builds, and where: none needed, a light lift, a clear build, or a late edge.
 - **definition:** Tension chooses how much melodic tension the phrase contains and where it happens. Here, tension means short melodic figures: notes that clash with the chord and then resolve onto a chord note. Musicians would speak of tension and release, or of non-chord tones. The project's documents call the control "Tension arc".
-- **in_infinite_flow:** The control schedules at most one tension figure: a note outside the chord, placed on purpose and resolved by step onto a chord tone before the phrase's last note. **Settled**: no figure required; if one occurs (a passing tone, neighbor tone or appoggiatura, in measures 1-3), it resolves by the next beat 1 or 3. **Lift** (default): at most one figure of those kinds, in measure 2 or 3, resolving by the next beat. **Build**: exactly one figure is required, and it must be a two-note stepwise approach into a chord tone, in measure 2 or 3. **Edge**: exactly one passing tone, neighbor tone or appoggiatura, in measure 3, resolving as late as allowed. Plain passing and neighbor tones can still appear anywhere except the first and last note; they don't count as the tension figure, and neither do Jazz's chromatic approaches and enclosures. Tension works inside what the other controls allow; it never changes them.
+- **in_infinite_flow:** The control schedules at most one tension figure: a note outside the chord, placed on purpose and resolved by step onto a chord tone before the phrase's last note. **Settled**: no figure required; if one occurs (a passing tone, neighbor tone or appoggiatura, in measures 1-3), it resolves by the next beat 1 or 3. **Lift** (default): at most one figure of those kinds, in measure 2 or 3, resolving by the next beat. **Build**: exactly one figure is required, and it must be a two-note stepwise approach into a chord tone, in measure 2 or 3. **Edge**: exactly one passing tone, neighbor tone or appoggiatura, in measure 3, resolving as late as allowed. Plain passing and neighbor tones can still appear anywhere except the first and last note; they don't count as the tension figure, and neither do Jazz's chromatic approaches and enclosures. The tense scale tone a session phrase generated from the phrase before it may end on, resolved by the next phrase's first note, is a separate case: not a passing or neighbor tone on the last note, and not the tension figure. Tension works inside what the other controls allow; it never changes them.
 - **related:** `tension-and-resolution`, `non-chord-tone`, `appoggiatura`, `approach-note`, `cadence`
-- **sources:** ui_ux/screens/phrase-workspace/handoff.md, docs/music/harmony-planner-policy.md, docs/music/melodic-control-models.md
+- **sources:** ui_ux/screens/phrase-workspace/handoff.md, docs/music/harmony-planner-policy.md, docs/music/melodic-control-models.md, src/domain/generation/carry-in/phrase-ending-debt.ts
 
 ### Written key
 
@@ -1213,9 +1213,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** open endpoint, cadence/endpoint, continuation rule
 - **popup:** Internal rule: every phrase ends sounding unfinished, never on the home note, so it leads on to the next phrase.
 - **definition:** Open ending is the project's rule that every phrase ends sounding unfinished. In major and minor keys, landing on the home chord and home note usually closes a phrase, while landing on the dominant chord leaves it open. The app never ends a phrase on the home note. In the modes this openness comes from the melody's last note alone and needs no dominant chord. The aim is a phrase that invites the next one.
-- **in_infinite_flow:** Major/Minor with Gentle or Active motion: the final chord is on degree 5 and the final sounding note is a tone of that chord (in Minor this is the minor v, without claiming dominant pull). Major/Minor with Static motion: the chord stays I and the final note is degree 5. Modes: the final chord is the home chord and the final note is any of its tones except the home note, so its 3rd or 5th, with no preference between them. Degree 1 is never the final note. The one tension figure resolves before the final note; plain passing and neighbor tones may resolve onto it. A trailing rest is allowed.
+- **in_infinite_flow:** Major/Minor with Gentle or Active motion: the final chord is on degree 5 and the final sounding note is a tone of that chord (in Minor this is the minor v, without claiming dominant pull). Major/Minor with Static motion: the chord stays I and the final note is degree 5. Modes: the final chord is the home chord and the final note is any of its tones except the home note, so its 3rd or 5th, with no preference between them. Degree 1 is never the final note. The one tension figure resolves before the final note; plain passing and neighbor tones may resolve onto it. A session phrase generated from the phrase before it may instead end on a scale tone outside its final chord, reached by step, which the next phrase's first note resolves; that note is still never degree 1. A trailing rest is allowed.
 - **related:** `cadence`, `phrase`, `dominant`, `scale-degree`
-- **sources:** S3, docs/music/harmony-planner-policy.md, src/domain/pitch/pitch-context.ts
+- **sources:** S3, docs/music/harmony-planner-policy.md, src/domain/pitch/pitch-context.ts, src/domain/generation/carry-in/phrase-ending-debt.ts
 
 ### Recovery
 
@@ -1223,9 +1223,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** recovery debt, leap recovery
 - **popup:** Internal rule: after a big jump, the melody must turn back the other way by a small move.
 - **definition:** A long-standing melodic guideline says that after a large leap the line should turn back the other way, often by step, to balance the jump. The app makes this a hard rule: a large leap (7-12 half steps) creates a recovery debt, paid when the next note moves in the opposite direction by 1-4 half steps. Smaller leaps, skips and steps create no debt.
-- **in_infinite_flow:** Smooth allows no large leaps, so it never creates debt. Under Shaped the recovery must come on the very next note. Under Leaping and Angular, a large leap inside a recognized arpeggio run may recover after the run's last note instead. The phrase's final note can't leave a debt unpaid, and a repeated pitch does not count as recovery.
+- **in_infinite_flow:** Smooth allows no large leaps, so it never creates debt. Under Shaped the recovery must come on the very next note. Under Leaping and Angular, a large leap inside a recognized arpeggio run may recover after the run's last note instead. The phrase's final note can't leave a debt unpaid, except in a session phrase generated from the phrase before it: such a phrase may end owing a recovery, and the next phrase's first note pays it by moving back 1-4 half steps onto a note of the home chord. A repeated pitch does not count as recovery.
 - **related:** `leap`, `run`, `control-leapiness`
-- **sources:** S7, docs/music/melodic-control-models.md
+- **sources:** S7, docs/music/melodic-control-models.md, src/domain/generation/carry-in/phrase-ending-debt.ts
 
 ### Register window
 
