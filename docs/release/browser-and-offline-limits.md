@@ -116,24 +116,40 @@ The notation layout has its own legibility floor (`NOTATION_LEGIBILITY_FLOOR_STA
 error rather than shrinking further, splitting into more than two systems, or scrolling/clipping the
 score.
 
-## Out of scope (verified against the boundary gates)
+## Browser API boundaries (verified by the boundary gates)
 
-No MIDI, audio, microphone, network, or persistence code runs in this release. This is enforced by
-two independent gates, not just documentation:
+Authored code in `src/` may use Web Audio and Web MIDI only in one named directory each, and never
+uses the network, the microphone or browser storage:
+
+- **Web Audio only in `src/audio/`.** `AudioContext`, its legacy name `webkitAudioContext`, and
+  `OfflineAudioContext` may be used only in files under `src/audio/`.
+- **Web MIDI only in `src/midi/`.** `requestMIDIAccess` may be used only in files under
+  `src/midi/`.
+- **Forbidden everywhere, `src/audio/` and `src/midi/` included:** media-element playback
+  (`new Audio(...)`), the network (`fetch(...)`, `XMLHttpRequest`, `WebSocket`, `EventSource`,
+  `navigator.sendBeacon`), cookies (`document.cookie`), the microphone and camera
+  (`navigator.mediaDevices`, `getUserMedia`), and browser storage (`localStorage`,
+  `sessionStorage`, `indexedDB`, and the Cache API `caches`).
+
+Two independent gates enforce these rules, and a use in the wrong place fails both:
 
 - [`scripts/verify-boundaries.mjs`](../../scripts/verify-boundaries.mjs) scans every authored
-  `src/**` file for forbidden persistence identifiers (`localStorage`, `sessionStorage`,
-  `indexedDB`, `caches`) and forbidden optional-scope APIs (`requestMIDIAccess`, `AudioContext`,
-  `webkitAudioContext`, `OfflineAudioContext`, `getUserMedia`, `mediaDevices`, `XMLHttpRequest`,
-  `WebSocket`, `EventSource`, `sendBeacon`, `new Audio(...)`, `fetch(...)`, `document.cookie`),
-  and fails the boundary check if any authored file contains one.
-- [`eslint.config.js`](../../eslint.config.js) mirrors the same boundary as lint-time
-  `no-restricted-globals`/`no-restricted-properties`/`no-restricted-imports` rules (see its MIDI,
-  audio/microphone, network, and persistence entries), so a violation is also flagged at lint time,
-  not only at the separate `verify:boundaries` script.
+  `src/**` file and fails the boundary check if a file contains a forbidden identifier, or a Web
+  Audio or Web MIDI identifier outside its allowed directory.
+- [`eslint.config.js`](../../eslint.config.js) states the same rules as lint-time
+  `no-restricted-globals`/`no-restricted-properties` rules, with an override block for each of
+  `src/audio/` and `src/midi/`, so a violation is also flagged at lint time, not only by the
+  separate `verify:boundaries` script.
 
-These gates cover the browser-only/no-optional-scope and ephemeral-state boundaries described in
-[`docs/rule_optional_midi_privacy.atom.md`](../rule_optional_midi_privacy.atom.md),
+In the running app, nothing creates an audio context or requests MIDI access before the player
+clicks Start or "Connect controller", the microphone is never requested, and no request leaves the
+page's origin. [`tests/e2e/release/optional-scope-absence.spec.ts`](../../tests/e2e/release/optional-scope-absence.spec.ts)
+checks this across every workspace interaction. Neither button exists yet, so today no interaction
+may create an audio context or request MIDI access.
+
+These gates cover the boundaries described in
+[`docs/rule_audio_unlocked_by_player_click.atom.md`](../rule_audio_unlocked_by_player_click.atom.md),
+[`docs/rule_session_data_never_sent_or_stored.atom.md`](../rule_session_data_never_sent_or_stored.atom.md),
 [`docs/rule_ephemeral_session_state.atom.md`](../rule_ephemeral_session_state.atom.md),
 [`docs/specification_browser_only_operation_verification.atom.md`](../specification_browser_only_operation_verification.atom.md),
 and [`docs/specification_ephemeral_state_verification.atom.md`](../specification_ephemeral_state_verification.atom.md).

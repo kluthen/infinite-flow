@@ -24,5 +24,6 @@
     "tests/e2e/notation-harness-window.d.ts",
     "tests/e2e/workspace-harness/**/*.ts",
     "tests/e2e/workspace-harness-window.d.ts"
-  ]
+  ],
+  "exclude": ["tests/unit/boundaries/**"]
 }
