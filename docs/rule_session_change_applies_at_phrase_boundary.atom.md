@@ -7,9 +7,9 @@ human_name: Mid-Session Setting Changes Apply at a Phrase Boundary
 dependents:
   - [[rule_automatic_change_updates_controls_quietly]]
   - [[rule_key_change_drops_harmonic_carry_in]]
-version: 0.1
+version: 0.2
 priority: 1
-tags: [v2, release-v2.0, session, player-controls]
+tags: [v2, release-v2.1, session, player-controls]
 parents:
   - [[rule_session_settings_locked]]
 ---
@@ -20,11 +20,12 @@ parents:
 Never change a note already on screen when a setting changes during a session.
 
 ## THE RULE / LOGIC
-Whichever automatic source changes a setting during a session, the change applies at the next phrase boundary: the first phrase that has not yet started sounding. If a look-ahead phrase was already generated with the old settings, it is discarded and regenerated with the new ones, provided at least one measure remains before its deadline; otherwise the change applies one phrase later than that. A change is therefore only ever visible starting at the first phrase that has not begun sounding, and no note already on screen ever changes.
+Whichever automatic source changes a setting during a session, the change applies at the next phrase boundary: the first phrase that has not yet started sounding. A look-ahead phrase already generated with the old settings is discarded and regenerated with the new ones only when none of it is on screen yet and at least one measure remains before its deadline. Otherwise, when some of it is already drawn as read-ahead or less than a measure remains, it stays as it is and the change applies from the phrase after it. A change is therefore only ever visible starting at the first phrase that has not begun sounding, or at the phrase after it, and no note already on screen ever changes because of a setting change.
 
 ## TECHNICAL INTERFACE
-A mid-session setting change is queued for the next phrase boundary; a waiting look-ahead phrase generated with the old settings is regenerated when time allows.
+A mid-session setting change is queued for the next phrase boundary; a waiting look-ahead phrase generated with the old settings is regenerated only while none of it is drawn and at least a measure remains before its deadline.
 
 ## EXPECTATION
-- A setting change during a session first appears in the first phrase that has not begun sounding, or one phrase later when fewer than one measure remains before that phrase's deadline.
+- A setting change during a session first appears in the first phrase that has not begun sounding, or in the phrase after it when that phrase is already partly drawn as read-ahead or fewer than one measure remains before its deadline.
+- A look-ahead phrase of which any part is already on screen is never discarded because of a setting change.
 - No note already on screen ever changes because of a setting change.

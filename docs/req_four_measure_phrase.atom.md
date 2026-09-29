@@ -43,7 +43,7 @@ version: 0.2
 parents: []
 human_name: Four-Measure Musical Proposal
 priority: 1
-notes: Revised 2026-09-29 by v2 spec ingestion for release v2.0 (previous version 0.1). The first-release exclusions of accompaniment, autonomous continuous generation and a rolling session are lifted (v2 adds sessions with a backing track); the phrase stays the unit of generation, and lead-line playback and performance scoring stay excluded. Intent and interface unchanged. The code still meets this version for Idle behaviour; sessions are not yet built.
+notes: Revised 2026-09-29 by v2 spec ingestion for release v2.0 (previous version 0.1). The first-release exclusions of accompaniment, autonomous continuous generation and a rolling session are lifted (v2 adds sessions with a backing track); the phrase stays the unit of generation, and lead-line playback and performance scoring stay excluded. Intent and interface unchanged. The code still meets this version for Idle behaviour; sessions are not yet built. Same-day refinement: a session phrase is no longer called self-contained, since a phrase generated with carry-in may end owing a leap recovery or a tense note resolution for the next phrase to settle.
 ---
 
 # Four-Measure Musical Proposal
@@ -52,7 +52,7 @@ notes: Revised 2026-09-29 by v2 spec ingestion for release v2.0 (previous versio
 Provide a player with one coherent, staff-notated four-measure musical proposal for a selected C MIDI keyboard, B-flat tenor saxophone, or E-flat alto saxophone profile that they can explicitly regenerate.
 
 ## THE RULE / LOGIC
-Every generated phrase is one complete four-measure 4/4 phrase, generated from player-selected controls and a selected supported instrument profile. At Idle, the player explicitly requests generation or regeneration of one phrase; during a session, the app shows such phrases one after another, each still a complete, self-contained phrase. The product provides a musically legible proposal to read and play: it never plays the generated lead line back, and it never scores the player's performance.
+Every generated phrase is one complete four-measure 4/4 phrase, generated from player-selected controls and a selected supported instrument profile. At Idle, the player explicitly requests generation or regeneration of one phrase; during a session, the app shows such phrases one after another, each still a complete four-measure phrase. The product provides a musically legible proposal to read and play: it never plays the generated lead line back, and it never scores the player's performance.
 
 ## TECHNICAL INTERFACE
 The player selects a supported instrument profile and musical controls, then explicitly requests phrase generation or regeneration. The generated phrase is presented as conventional staff notation with harmonic context.
