@@ -5,104 +5,235 @@ import {
   NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE,
   NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX,
   NOTATION_MAX_STAFF_SPACE_PX,
+  NOTATION_MIN_MEASURE_WIDTH_UNITS,
+  NOTATION_SYSTEM_POSITION_UNITS,
+  planStaffPositions,
   planSystemLayout,
+  type StaffViewport,
+  type SystemLayoutInput,
+  type SystemLayoutOutcome,
+  type SystemLayoutPlan,
 } from '@/notation/notation-layout-policy'
 
-const baseInput = {
+const MAX_SCALE = NOTATION_MAX_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
+const FLOOR_SCALE =
+  NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
+
+const ONE_SYSTEM: StaffViewport = { layout: 'one-system' }
+
+/** Intent: a split-layout viewport whose height budget holds both systems at exactly `scale`. */
+function splitViewportAtScale(scale: number): StaffViewport {
+  return { layout: 'split', heightBudgetPx: 2 * NOTATION_SYSTEM_POSITION_UNITS * scale }
+}
+
+/** A split-layout viewport tall enough that the height never limits the scale. */
+const TALL_SPLIT: StaffViewport = splitViewportAtScale(MAX_SCALE * 4)
+
+const base = {
   leadingWidth: 60,
   measureMinWidths: [80, 80, 80, 80] as const,
   systemPadding: 10,
-  allowTwoSystems: false,
 }
 
-function requiredUnitsFor(measureMinWidths: readonly [number, number, number, number]): number {
-  return baseInput.leadingWidth + 4 * Math.max(...measureMinWidths) + baseInput.systemPadding
-}
-
-function requiredUnitsTwoSystemsFor(
-  measureMinWidths: readonly [number, number, number, number],
+/** Intent: the raw units one system needs for `measuresPerSystem` measures of the given widths. */
+function requiredUnitsFor(
+  measuresPerSystem: 2 | 4,
+  measureMinWidths: readonly number[] = base.measureMinWidths,
 ): number {
-  return baseInput.leadingWidth + 2 * Math.max(...measureMinWidths) + baseInput.systemPadding
+  const widest = Math.max(NOTATION_MIN_MEASURE_WIDTH_UNITS, ...measureMinWidths)
+  return base.leadingWidth + measuresPerSystem * widest + base.systemPadding
+}
+
+/** Intent: the raw units of the layout's fixed parts, every measure at the minimum measure width. */
+function fixedUnitsFor(measuresPerSystem: 2 | 4): number {
+  return (
+    base.leadingWidth + measuresPerSystem * NOTATION_MIN_MEASURE_WIDTH_UNITS + base.systemPadding
+  )
+}
+
+/** Intent: run the planner over the shared base input with the given overrides. */
+function plan(overrides: Partial<SystemLayoutInput> & Pick<SystemLayoutInput, 'viewport'>) {
+  return planSystemLayout({ ...base, containerWidthPx: 1000, ...overrides })
+}
+
+/** Intent: unwrap a fitting outcome, failing the test with the outcome when it did not fit. */
+function expectFits(outcome: SystemLayoutOutcome): SystemLayoutPlan {
+  if (outcome.kind !== 'fits') throw new Error(`Expected a fit, got ${JSON.stringify(outcome)}`)
+  return outcome.plan
 }
 
 // @test-link [[module_notation_layout_preflight]]
-describe('planSystemLayout', () => {
-  it('fits at the maximum scale on a very wide container', () => {
-    const requiredUnits = requiredUnitsFor(baseInput.measureMinWidths)
-    const maxScale = NOTATION_MAX_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
-    const plan = planSystemLayout({
-      ...baseInput,
-      containerWidthPx: requiredUnits * maxScale * 10,
-    })
+describe('planSystemLayout: layout chosen by the breakpoint alone', () => {
+  it('returns the one-system layout from the tablet-landscape breakpoint up', () => {
+    const fitted = expectFits(plan({ viewport: ONE_SYSTEM, containerWidthPx: 5000 }))
 
-    expect(plan.scale).toBe(maxScale)
-    expect(plan.staffSpacePx).toBe(NOTATION_MAX_STAFF_SPACE_PX)
-    expect(plan.systemCount).toBe(1)
+    expect(fitted.layout).toBe('one-system')
+    expect(fitted.systemCount).toBe(1)
+    expect(fitted.measuresPerSystem).toBe(4)
+    expect(fitted.requiredUnits).toBe(requiredUnitsFor(4))
   })
 
-  it('shrinks the scale between the maximum and the legibility floor for a mid-width container', () => {
-    const requiredUnits = requiredUnitsFor(baseInput.measureMinWidths)
-    const maxScale = NOTATION_MAX_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
-    const floorScale =
-      NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
-    const midScale = (maxScale + floorScale) / 2
-    const plan = planSystemLayout({ ...baseInput, containerWidthPx: requiredUnits * midScale })
+  it('returns the split layout below the breakpoint, even for a phrase that one system would hold', () => {
+    // Wide enough for all four measures on one line at the maximum scale: v1 would have kept one
+    // system here. v2 never tries one system below the breakpoint.
+    const containerWidthPx = requiredUnitsFor(4) * MAX_SCALE * 2
+    const fitted = expectFits(plan({ viewport: TALL_SPLIT, containerWidthPx }))
 
-    expect(plan.scale).toBeCloseTo(midScale, 10)
-    expect(plan.scale).toBeLessThan(maxScale)
-    expect(plan.scale).toBeGreaterThan(floorScale)
+    expect(fitted.layout).toBe('split')
+    expect(fitted.systemCount).toBe(2)
+    expect(fitted.measuresPerSystem).toBe(2)
+    expect(fitted.requiredUnits).toBe(requiredUnitsFor(2))
   })
 
-  it('fits exactly at the legibility floor boundary', () => {
-    const requiredUnits = requiredUnitsFor(baseInput.measureMinWidths)
-    const floorScale =
-      NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
-    const plan = planSystemLayout({ ...baseInput, containerWidthPx: requiredUnits * floorScale })
+  it('never falls back to the split layout from the breakpoint up: a phrase too wide for one system is "notes too wide"', () => {
+    // Room for two measures per line at the floor, not for four.
+    const containerWidthPx = requiredUnitsFor(2) * FLOOR_SCALE * 1.5
+    expect(containerWidthPx).toBeLessThan(requiredUnitsFor(4) * FLOOR_SCALE)
 
-    expect(plan.scale).toBeCloseTo(floorScale, 10)
-    expect(plan.staffSpacePx).toBeCloseTo(NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX, 10)
-    expect(plan.systemCount).toBe(1)
+    const outcome = plan({ viewport: ONE_SYSTEM, containerWidthPx })
+
+    expect(outcome.kind).toBe('notes_too_wide')
   })
+})
 
-  it('throws notation_below_legibility_floor with numeric details just below the floor when two systems are not allowed', () => {
-    const requiredUnits = requiredUnitsFor(baseInput.measureMinWidths)
-    const floorScale =
-      NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
-    const containerWidthPx = requiredUnits * floorScale - 1
-
-    let caught: unknown
-    try {
-      planSystemLayout({ ...baseInput, containerWidthPx })
-    } catch (error) {
-      caught = error
+// @test-link [[module_notation_layout_preflight]]
+describe('planSystemLayout: the scale fits the width and, below the breakpoint, the height', () => {
+  it('fits at the maximum scale on a very wide, very tall container', () => {
+    for (const viewport of [ONE_SYSTEM, TALL_SPLIT]) {
+      const fitted = expectFits(plan({ viewport, containerWidthPx: 20000 }))
+      expect(fitted.scale).toBe(MAX_SCALE)
+      expect(fitted.staffSpacePx).toBe(NOTATION_MAX_STAFF_SPACE_PX)
     }
-
-    expect(caught).toBeInstanceOf(NotationError)
-    const error = caught as NotationError
-    expect(error.code).toBe('notation_below_legibility_floor')
-    expect(error.details.containerWidthPx).toBe(containerWidthPx)
-    expect(error.details.floor).toBe(NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX)
-    expect(error.details.requiredWidthPx).toBeGreaterThan(containerWidthPx)
-    expect(error.details.requiredUnits).toBe(requiredUnits)
-    expect(error.details.requiredUnitsTwoSystems).toBeUndefined()
   })
 
-  it('exposes requiredUnits on a successful plan, for calibration', () => {
-    const requiredUnits = requiredUnitsFor(baseInput.measureMinWidths)
-    const maxScale = NOTATION_MAX_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
-    const plan = planSystemLayout({
-      ...baseInput,
-      containerWidthPx: requiredUnits * maxScale * 10,
+  it('takes the width-fit scale when the height leaves more room', () => {
+    const midScale = (MAX_SCALE + FLOOR_SCALE) / 2
+    const containerWidthPx = requiredUnitsFor(2) * midScale
+    const fitted = expectFits(plan({ viewport: TALL_SPLIT, containerWidthPx }))
+
+    expect(fitted.scale).toBeCloseTo(midScale, 10)
+  })
+
+  it('lowers the scale in a shorter window, the width unchanged', () => {
+    const containerWidthPx = requiredUnitsFor(2) * MAX_SCALE * 2
+    const tall = expectFits(plan({ viewport: splitViewportAtScale(MAX_SCALE), containerWidthPx }))
+    const heightScale = (MAX_SCALE + FLOOR_SCALE) / 2
+    const short = expectFits(
+      plan({ viewport: splitViewportAtScale(heightScale), containerWidthPx }),
+    )
+
+    expect(tall.scale).toBe(MAX_SCALE)
+    expect(short.scale).toBeCloseTo(heightScale, 10)
+    expect(short.scale).toBeLessThan(tall.scale)
+    // The system still spans the container: the measures widen to fill it at the lower scale.
+    expect(short.systemWidthUnits * short.scale).toBeCloseTo(containerWidthPx, 6)
+  })
+
+  it('takes the smaller of the width and height scales, never above the maximum', () => {
+    const widthScale = FLOOR_SCALE * 1.2
+    const heightScale = FLOOR_SCALE * 1.6
+    const containerWidthPx = requiredUnitsFor(2) * widthScale
+    const fitted = expectFits(
+      plan({ viewport: splitViewportAtScale(heightScale), containerWidthPx }),
+    )
+
+    expect(fitted.scale).toBeCloseTo(widthScale, 10)
+  })
+
+  it('fits exactly at the legibility floor, on either side', () => {
+    const atWidthFloor = expectFits(
+      plan({ viewport: TALL_SPLIT, containerWidthPx: requiredUnitsFor(2) * FLOOR_SCALE }),
+    )
+    const atHeightFloor = expectFits(
+      plan({ viewport: splitViewportAtScale(FLOOR_SCALE), containerWidthPx: 5000 }),
+    )
+
+    expect(atWidthFloor.staffSpacePx).toBeCloseTo(NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX, 10)
+    expect(atHeightFloor.staffSpacePx).toBeCloseTo(NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX, 10)
+  })
+
+  it('gives every measure the widest measure width, never less than the minimum measure width', () => {
+    const measureMinWidths = [5, 10, 5, 10] as const
+    const containerWidthPx = requiredUnitsFor(4, measureMinWidths) * FLOOR_SCALE * 1.1
+    const fitted = expectFits(plan({ viewport: ONE_SYSTEM, measureMinWidths, containerWidthPx }))
+
+    expect(fitted.requiredUnits).toBe(fixedUnitsFor(4))
+    expect(fitted.measureContentWidthUnits).toBeGreaterThanOrEqual(NOTATION_MIN_MEASURE_WIDTH_UNITS)
+  })
+})
+
+// @test-link [[module_notation_layout_preflight]]
+describe('planSystemLayout: two distinct typed failures', () => {
+  it('gives "no room" (too short) for a window too short for two systems at the floor, whatever the phrase', () => {
+    const viewport = splitViewportAtScale(FLOOR_SCALE * 0.99)
+    for (const measureMinWidths of [
+      [1, 1, 1, 1],
+      [400, 400, 400, 400],
+    ] as const) {
+      const outcome = plan({ viewport, measureMinWidths, containerWidthPx: 20000 })
+      expect(outcome).toMatchObject({ kind: 'no_room', cause: 'too_short' })
+      if (outcome.kind !== 'no_room') continue
+      expect(outcome.details.requiredHeightPx).toBeCloseTo(
+        2 * NOTATION_SYSTEM_POSITION_UNITS * FLOOR_SCALE,
+        10,
+      )
+    }
+  })
+
+  it('gives "no room" (too narrow) for a container that cannot hold the fixed parts at the floor, whatever the phrase', () => {
+    for (const [viewport, measuresPerSystem] of [
+      [ONE_SYSTEM, 4],
+      [TALL_SPLIT, 2],
+    ] as const) {
+      const containerWidthPx = fixedUnitsFor(measuresPerSystem) * FLOOR_SCALE - 1
+      for (const measureMinWidths of [
+        [1, 1, 1, 1],
+        [400, 400, 400, 400],
+      ] as const) {
+        const outcome = plan({ viewport, measureMinWidths, containerWidthPx })
+        expect(outcome).toMatchObject({ kind: 'no_room', cause: 'too_narrow' })
+        if (outcome.kind !== 'no_room') continue
+        expect(outcome.details.containerWidthPx).toBe(containerWidthPx)
+        expect(outcome.details.requiredWidthPx).toBeCloseTo(
+          fixedUnitsFor(measuresPerSystem) * FLOOR_SCALE,
+          10,
+        )
+      }
+    }
+  })
+
+  it('gives "notes too wide" when the window has room but this phrase\'s measures need more width than the floor allows', () => {
+    const containerWidthPx = fixedUnitsFor(2) * FLOOR_SCALE * 1.5
+    const sparse = plan({ viewport: TALL_SPLIT, measureMinWidths: [1, 1, 1, 1], containerWidthPx })
+    const dense = plan({
+      viewport: TALL_SPLIT,
+      measureMinWidths: [400, 400, 400, 400],
+      containerWidthPx,
     })
 
-    expect(plan.requiredUnits).toBe(requiredUnits)
+    expect(sparse.kind).toBe('fits')
+    expect(dense.kind).toBe('notes_too_wide')
+    if (dense.kind !== 'notes_too_wide') return
+    expect(dense.details.containerWidthPx).toBe(containerWidthPx)
+    expect(dense.details.requiredUnits).toBe(requiredUnitsFor(2, [400]))
+    expect(dense.details.requiredWidthPx).toBeCloseTo(requiredUnitsFor(2, [400]) * FLOOR_SCALE, 10)
+  })
+
+  it('reports "no room" before "notes too wide" when both hold', () => {
+    const outcome = plan({
+      viewport: splitViewportAtScale(FLOOR_SCALE / 2),
+      measureMinWidths: [400, 400, 400, 400],
+      containerWidthPx: 50,
+    })
+
+    expect(outcome).toMatchObject({ kind: 'no_room' })
   })
 
   it('rejects a non-finite or non-positive container width as notation_container_unavailable', () => {
     for (const containerWidthPx of [0, -100, Number.NaN, Number.POSITIVE_INFINITY]) {
       let caught: unknown
       try {
-        planSystemLayout({ ...baseInput, containerWidthPx })
+        plan({ viewport: ONE_SYSTEM, containerWidthPx })
       } catch (error) {
         caught = error
       }
@@ -112,98 +243,56 @@ describe('planSystemLayout', () => {
     }
   })
 
-  it('gives all four measures visibly equal content width regardless of their individual minimums', () => {
-    const measureMinWidths = [40, 90, 60, 70] as const
-    const requiredUnits = requiredUnitsFor(measureMinWidths)
-    const maxScale = NOTATION_MAX_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
-    const plan = planSystemLayout({
-      ...baseInput,
-      measureMinWidths,
-      containerWidthPx: requiredUnits * maxScale * 3,
-    })
-
-    // One scale, one measureContentWidthUnits shared by all four measure slots.
-    expect(plan.measureContentWidthUnits).toBeGreaterThanOrEqual(Math.max(...measureMinWidths))
-  })
-
-  it('falls back to two systems when one system fails the floor and two systems are allowed', () => {
-    const requiredUnits = requiredUnitsFor(baseInput.measureMinWidths)
-    const requiredUnitsTwoSystems = requiredUnitsTwoSystemsFor(baseInput.measureMinWidths)
-    const floorScale =
-      NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
-    // Wide enough to clear the floor for two systems, but not for one.
-    const containerWidthPx = requiredUnitsTwoSystems * floorScale * 1.5
-    expect(containerWidthPx).toBeLessThan(requiredUnits * floorScale)
-
-    const plan = planSystemLayout({
-      ...baseInput,
-      allowTwoSystems: true,
-      containerWidthPx,
-    })
-
-    expect(plan.systemCount).toBe(2)
-    expect(plan.scale).toBeGreaterThanOrEqual(floorScale)
-    expect(plan.requiredUnits).toBe(requiredUnits)
-    expect(plan.requiredUnitsTwoSystems).toBe(requiredUnitsTwoSystems)
-  })
-
-  it('fits exactly at the two-system legibility floor boundary', () => {
-    const requiredUnitsTwoSystems = requiredUnitsTwoSystemsFor(baseInput.measureMinWidths)
-    const floorScale =
-      NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
-    const containerWidthPx = requiredUnitsTwoSystems * floorScale
-
-    const plan = planSystemLayout({
-      ...baseInput,
-      allowTwoSystems: true,
-      containerWidthPx,
-    })
-
-    expect(plan.systemCount).toBe(2)
-    expect(plan.scale).toBeCloseTo(floorScale, 10)
-  })
-
-  it('throws with only the one-system requirement when two systems are not allowed, even though a narrower two-system budget would fit', () => {
-    const requiredUnits = requiredUnitsFor(baseInput.measureMinWidths)
-    const requiredUnitsTwoSystems = requiredUnitsTwoSystemsFor(baseInput.measureMinWidths)
-    const floorScale =
-      NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
-    const containerWidthPx = requiredUnitsTwoSystems * floorScale * 1.5
-    expect(containerWidthPx).toBeLessThan(requiredUnits * floorScale)
-
-    let caught: unknown
-    try {
-      planSystemLayout({ ...baseInput, allowTwoSystems: false, containerWidthPx })
-    } catch (error) {
-      caught = error
+  it('rejects a non-finite height budget as notation_container_unavailable', () => {
+    for (const heightBudgetPx of [Number.NaN, Number.POSITIVE_INFINITY]) {
+      expect(() => plan({ viewport: { layout: 'split', heightBudgetPx } })).toThrow(NotationError)
     }
+  })
+})
 
-    expect(caught).toBeInstanceOf(NotationError)
-    const error = caught as NotationError
-    expect(error.code).toBe('notation_below_legibility_floor')
-    expect(error.details.requiredUnitsTwoSystems).toBeUndefined()
+// @test-link [[module_notation_layout_preflight]]
+describe('planStaffPositions: two reserved positions sized by the viewport, never by a phrase', () => {
+  it('sizes both positions at the maximum scale from the breakpoint up', () => {
+    expect(planStaffPositions(ONE_SYSTEM)).toEqual({
+      kind: 'room',
+      scaleCeiling: MAX_SCALE,
+      positionBlockPx: NOTATION_SYSTEM_POSITION_UNITS * MAX_SCALE,
+    })
   })
 
-  it('throws notation_below_legibility_floor with both one- and two-system requirements when neither fits', () => {
-    const requiredUnits = requiredUnitsFor(baseInput.measureMinWidths)
-    const requiredUnitsTwoSystems = requiredUnitsTwoSystemsFor(baseInput.measureMinWidths)
-    const floorScale =
-      NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
-    const containerWidthPx = requiredUnitsTwoSystems * floorScale - 1
+  it('sizes both positions at the height-fit scale below the breakpoint, capped at the maximum', () => {
+    const heightScale = (MAX_SCALE + FLOOR_SCALE) / 2
+    const positions = planStaffPositions(splitViewportAtScale(heightScale))
+    expect(positions.kind).toBe('room')
+    if (positions.kind !== 'room') return
+    expect(positions.scaleCeiling).toBeCloseTo(heightScale, 10)
+    expect(positions.positionBlockPx * 2).toBeCloseTo(
+      2 * NOTATION_SYSTEM_POSITION_UNITS * heightScale,
+      6,
+    )
+    expect(planStaffPositions(TALL_SPLIT)).toMatchObject({ scaleCeiling: MAX_SCALE })
+  })
 
-    let caught: unknown
-    try {
-      planSystemLayout({ ...baseInput, allowTwoSystems: true, containerWidthPx })
-    } catch (error) {
-      caught = error
-    }
+  it('gives "no room" (too short) below the floor', () => {
+    expect(planStaffPositions(splitViewportAtScale(FLOOR_SCALE * 0.99))).toMatchObject({
+      kind: 'no_room',
+      cause: 'too_short',
+    })
+  })
 
-    expect(caught).toBeInstanceOf(NotationError)
-    const error = caught as NotationError
-    expect(error.code).toBe('notation_below_legibility_floor')
-    expect(error.details.requiredUnits).toBe(requiredUnits)
-    expect(error.details.requiredUnitsTwoSystems).toBe(requiredUnitsTwoSystems)
-    expect(error.details.requiredWidthPx).toBeGreaterThan(containerWidthPx)
-    expect(error.details.requiredWidthPxTwoSystems).toBeGreaterThan(containerWidthPx)
+  it('gives every fitting plan the same position block size for one viewport, sparse or dense', () => {
+    const viewport = splitViewportAtScale((MAX_SCALE + FLOOR_SCALE) / 2)
+    const containerWidthPx = requiredUnitsFor(2, [300]) * FLOOR_SCALE * 1.2
+    const sparse = expectFits(plan({ viewport, measureMinWidths: [1, 1, 1, 1], containerWidthPx }))
+    const dense = expectFits(
+      plan({ viewport, measureMinWidths: [300, 300, 300, 300], containerWidthPx }),
+    )
+    const positions = planStaffPositions(viewport)
+
+    expect(dense.scale).toBeLessThan(sparse.scale)
+    expect(positions.kind).toBe('room')
+    if (positions.kind !== 'room') return
+    expect(sparse.positionBlockPx).toBe(positions.positionBlockPx)
+    expect(dense.positionBlockPx).toBe(positions.positionBlockPx)
   })
 })

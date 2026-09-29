@@ -9,6 +9,11 @@
 // @test-link [[module_notation_layout_preflight]]
 interface NotationHarnessState {
   state: 'pending' | 'ready' | 'error'
+  /**
+   * How many successful engravings PhraseScore has reported since the page loaded, published with
+   * every state (a spec resetting the state to pending may drop it until the next publish).
+   */
+  engraveCount?: number
   errorCode?: string
   errorDetails?: Readonly<Record<string, number>>
   engraved?: {
@@ -17,6 +22,7 @@ interface NotationHarnessState {
     heightPx: number
     requiredUnits: number
     systemCount: 1 | 2
+    positionBlockPx: number
   }
   /** Only published by the `source=generated` path: the JSON snapshot taken right after generation. */
   sourceSnapshot?: string

@@ -37,13 +37,17 @@ function mountHarness(workspace: TestWorkspace) {
 
 // @test-link [[module_notation_layout_preflight]]
 describe('ScorePanel', () => {
-  it('renders the empty state with no PhraseScore mounted before any phrase exists', () => {
+  it('renders the empty state with PhraseScore (the reserved system positions) mounted and no phrase', () => {
     const workspace = createTestWorkspace()
     const wrapper = mountHarness(workspace)
 
     expect(wrapper.get('.staff-frame').classes()).toContain('staff-empty')
-    expect(wrapper.find('.phrase-score-stub').exists()).toBe(false)
-    expect(wrapper.get('.staff-empty-copy').text()).toBe('Generate a phrase to begin.')
+    // The staff area reserves its two system positions in every state, the empty one included.
+    const phraseScore = wrapper.getComponent({ name: 'PhraseScore' })
+    expect(phraseScore.props('phrase')).toBeNull()
+    expect(wrapper.get('.phrase-score-stub .staff-empty-copy').text()).toBe(
+      'Generate a phrase to begin.',
+    )
   })
 
   it('shows the loading state and announces "Generating phrase" while generation runs', async () => {

@@ -1,38 +1,93 @@
 /**
- * The two-system phone layout's VexFlow geometry: builds and draws the two lines of two staves
- * each (bars 1-2 on line one, bars 3-4 on line two, clef and key signature repeated on line two,
- * the 4/4 time signature only on line one) at aligned, equal-width measure columns, and assembles
- * the phrase's ties including the one that crosses the line break as two partial StaveTies. Draws
- * into a `RenderContext` already positioned by ./vexflow-engraver.ts, which owns the SVG root,
- * overall bounds checking and final sizing. Together with ./vexflow-mapping.ts and
- * ./vexflow-engraver.ts, this is the only trio of files allowed to import 'vexflow'.
+ * The VexFlow geometry of one staff system: builds a system's staves (four measures in the
+ * one-system layout; bars 1-2 or bars 3-4 in the split layout's two systems) at equal measure
+ * widths, and draws one system's measures into its own SVG context. In the split layout the bottom
+ * system repeats the clef and key signature but not the time signature, and its notes are forced
+ * to start at the same x as the top system's, so bar 3 aligns under bar 1 and bar 4 under bar 2.
+ * The caller, ./vexflow-engraver.ts, owns the SVG roots, the ties, bounds checking and sizing.
+ * Together with ./vexflow-mapping.ts and ./vexflow-engraver.ts, this is the only trio of files
+ * allowed to import 'vexflow'.
  */
 import {
   Barline,
   Formatter,
   Stave,
-  Voice,
   type Beam,
   type RenderContext,
-  type StaveTie,
+  type Voice,
 } from 'vexflow/bravura'
 
 import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
-import { buildPhraseTiesTwoSystem, mapKeySpec, type FlatGlyph } from './vexflow-mapping'
+import { mapKeySpec } from './vexflow-mapping'
 
-/** Vertical gap, in raw engraving units, between line one's content bottom and line two's stave top. */
-export const NOTATION_INTER_SYSTEM_GAP_UNITS = 40
-
-/** The geometry and ties the two-system draw produces, mirroring one system's measureBoxes shape. */
-export interface TwoSystemDrawResult {
-  readonly measureBoxes: readonly { readonly x: number; readonly width: number }[]
-  readonly ties: readonly StaveTie[]
+/** One drawn measure's scaled pixel box, relative to its own system's SVG. */
+export interface MeasureBox {
+  readonly x: number
+  readonly width: number
 }
 
-/** One drawn measure's scaled pixel box and the raw `g.measure-slot` element, for bbox measuring. */
-interface DrawnMeasure {
-  readonly box: { readonly x: number; readonly width: number }
-  readonly group: SVGGElement
+/** How to build one system's staves: its measure count and what its first stave carries. */
+export interface SystemStaveSpec {
+  readonly measureCount: 2 | 4
+  /** Only the phrase's first system carries the 4/4 time signature. */
+  readonly withTimeSignature: boolean
+  /** Only the phrase's last system ends with the final barline. */
+  readonly endsPhrase: boolean
+  readonly leadingWidth: number
+  readonly measureContentWidthUnits: number
+  readonly systemPaddingUnits: number
+  /** The staff's top line, in engraving units from the top of the system's SVG. */
+  readonly staffTopLineUnits: number
+  /**
+   * The top system's staves, for the split layout's bottom system: each stave's notes start at
+   * the same x as the stave above it, so the measure columns align although this system carries
+   * no time signature.
+   */
+  readonly alignTo?: readonly Stave[]
+}
+
+/**
+ * Intent: add the clef and key signature every system starts with. The engraver's leading-width
+ * measurement uses the same helper, so the measured width always matches the drawn staff.
+ */
+export function addClefAndKey(stave: Stave, phrase: WrittenPhrase): void {
+  stave.addClef('treble')
+  stave.addKeySignature(
+    phrase.key.signature.count === 0 ? 'C' : mapKeySpec(phrase.key.signature.ionianTonic),
+  )
+}
+
+/**
+ * Build one system's staves left to right: the first carries the leading width (clef, key
+ * signature and, on the phrase's first system, the time signature) plus one measure's content
+ * width, the middle ones one content width each, and the last one content width plus the system
+ * padding. Every system of a phrase uses the same widths, so their measure columns line up.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+export function buildSystemStaves(phrase: WrittenPhrase, spec: SystemStaveSpec): readonly Stave[] {
+  const widths = Array.from({ length: spec.measureCount }, (_, index) => {
+    const leading = index === 0 ? spec.leadingWidth : 0
+    const trailing = index === spec.measureCount - 1 ? spec.systemPaddingUnits : 0
+    return leading + spec.measureContentWidthUnits + trailing
+  })
+
+  let x = 0
+  const staves = widths.map((width) => {
+    // No space above the top line, so the stave's y is the top line itself (VexFlow's default
+    // keeps four spaces there); chord symbols and ledger lines still draw above it.
+    const stave = new Stave(x, spec.staffTopLineUnits, width, { spaceAboveStaffLn: 0 })
+    x += width
+    return stave
+  })
+
+  const first = staves[0]!
+  addClefAndKey(first, phrase)
+  if (spec.withTimeSignature) first.addTimeSignature('4/4')
+  if (spec.endsPhrase) staves[staves.length - 1]!.setEndBarType(Barline.type.END)
+  if (spec.alignTo) {
+    staves.forEach((stave, index) => stave.setNoteStartX(spec.alignTo![index]!.getNoteStartX()))
+  }
+  return staves
 }
 
 /**
@@ -49,7 +104,9 @@ function drawMeasureGroup(
   phraseMeasureIndex: number,
   systemIndex: 0 | 1,
   scale: number,
-): DrawnMeasure {
+): MeasureBox {
+  // context.openGroup prefixes the class ('vf-measure-slot'); reset it to the documented,
+  // VexFlow-version-independent public contract other code and tests select on.
   const group: SVGGElement = context.openGroup('measure-slot')
   group.setAttribute('class', 'measure-slot')
   group.setAttribute('data-measure-index', String(phraseMeasureIndex))
@@ -61,24 +118,26 @@ function drawMeasureGroup(
     beam.setContext(context).draw()
   }
   context.closeGroup()
-  return { box: { x: stave.getX() * scale, width: stave.getWidth() * scale }, group }
+  return { x: stave.getX() * scale, width: stave.getWidth() * scale }
 }
 
-/** Intent: draw every stave of one system (line) in phrase order, tagging each with its system index. */
-function drawSystemMeasures(
+/**
+ * Draw one system's measures into its own context, in phrase order, each tagged with its phrase
+ * measure index and the system's index (0 for the top system, 1 for the split layout's bottom
+ * one), and return their scaled boxes.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+export function drawSystemMeasures(
   context: RenderContext,
-  staves: readonly [Stave, Stave],
+  staves: readonly Stave[],
   voices: readonly Voice[],
   beams: readonly (readonly Beam[])[],
-  phraseMeasureIndices: readonly [number, number],
+  phraseMeasureIndices: readonly number[],
   systemIndex: 0 | 1,
   scale: number,
-): {
-  readonly boxes: readonly { readonly x: number; readonly width: number }[]
-  readonly groups: readonly SVGGElement[]
-} {
-  const drawn = staves.map((stave, i) => {
-    const phraseMeasureIndex = phraseMeasureIndices[i]!
+): readonly MeasureBox[] {
+  return staves.map((stave, index) => {
+    const phraseMeasureIndex = phraseMeasureIndices[index]!
     return drawMeasureGroup(
       context,
       stave,
@@ -89,104 +148,4 @@ function drawSystemMeasures(
       scale,
     )
   })
-  return { boxes: drawn.map((d) => d.box), groups: drawn.map((d) => d.group) }
-}
-
-/** Intent: the lowest point (raw units) any of the given measure-slot groups' content reaches. */
-function groupsBottomUnits(groups: readonly SVGGElement[]): number {
-  return Math.max(
-    ...groups.map((group) => {
-      const box = group.getBBox()
-      return box.y + box.height
-    }),
-  )
-}
-
-/** Intent: build line one's two staves (bars 1-2), clef/key/time on the first, at the system top. */
-function buildLine1Staves(
-  phrase: WrittenPhrase,
-  leadingWidth: number,
-  measureContentWidthUnits: number,
-  systemPaddingUnits: number,
-  staveTopYUnits: number,
-): readonly [Stave, Stave] {
-  const leadWidth = leadingWidth + measureContentWidthUnits
-  const tailWidth = measureContentWidthUnits + systemPaddingUnits
-
-  const first = new Stave(0, staveTopYUnits, leadWidth)
-  first.addClef('treble')
-  first.addKeySignature(
-    phrase.key.signature.count === 0 ? 'C' : mapKeySpec(phrase.key.signature.ionianTonic),
-  )
-  first.addTimeSignature('4/4')
-
-  const second = new Stave(leadWidth, staveTopYUnits, tailWidth)
-
-  return [first, second]
-}
-
-/**
- * Intent: build line two's two staves (bars 3-4), clef and key signature repeated but no time
- * signature, at widths and x positions mirroring line one so bar 3 aligns under bar 1 and bar 4
- * under bar 2, with notes forced to start at the same x as line one via `setNoteStartX`.
- */
-function buildLine2Staves(
-  line1: readonly [Stave, Stave],
-  phrase: WrittenPhrase,
-  line2TopYUnits: number,
-): readonly [Stave, Stave] {
-  const [line1First, line1Second] = line1
-
-  const third = new Stave(line1First.getX(), line2TopYUnits, line1First.getWidth())
-  third.addClef('treble')
-  third.addKeySignature(
-    phrase.key.signature.count === 0 ? 'C' : mapKeySpec(phrase.key.signature.ionianTonic),
-  )
-  third.setNoteStartX(line1First.getNoteStartX())
-
-  const fourth = new Stave(line1Second.getX(), line2TopYUnits, line1Second.getWidth())
-  fourth.setEndBarType(Barline.type.END)
-  fourth.setNoteStartX(line1Second.getNoteStartX())
-
-  return [third, fourth]
-}
-
-/**
- * Draw the phrase as two staff systems of two measures each into `context`: line one (bars 1-2,
- * full leading) at `staveTopYUnits`, line two (bars 3-4, clef/key repeated, no time signature)
- * positioned directly below line one's measured content bottom plus the named inter-system gap,
- * both lines sharing the same scale and equal, aligned measure-column widths. Returns the four
- * measures' scaled boxes in phrase order and every StaveTie the phrase requires, with the one tie
- * crossing the line break split into two partial ties.
- */
-// @spec-link [[module_notation_layout_preflight]]
-export function drawTwoSystems(
-  context: RenderContext,
-  phrase: WrittenPhrase,
-  voices: readonly Voice[],
-  beams: readonly (readonly Beam[])[],
-  flatGlyphs: readonly FlatGlyph[],
-  leadingWidth: number,
-  measureContentWidthUnits: number,
-  systemPaddingUnits: number,
-  staveTopYUnits: number,
-  scale: number,
-): TwoSystemDrawResult {
-  const line1 = buildLine1Staves(
-    phrase,
-    leadingWidth,
-    measureContentWidthUnits,
-    systemPaddingUnits,
-    staveTopYUnits,
-  )
-  const system0 = drawSystemMeasures(context, line1, voices, beams, [0, 1], 0, scale)
-
-  const line2TopYUnits = groupsBottomUnits(system0.groups) + NOTATION_INTER_SYSTEM_GAP_UNITS
-  const line2 = buildLine2Staves(line1, phrase, line2TopYUnits)
-  const system1 = drawSystemMeasures(context, line2, voices, beams, [2, 3], 1, scale)
-
-  const lineBreakGlyphIndex = phrase.measures[0]!.events.length + phrase.measures[1]!.events.length
-  const ties = buildPhraseTiesTwoSystem(flatGlyphs, lineBreakGlyphIndex)
-
-  return { measureBoxes: [...system0.boxes, ...system1.boxes], ties }
 }

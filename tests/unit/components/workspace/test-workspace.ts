@@ -69,10 +69,10 @@ export function useCheapControls(session: GenerationSession<WorkspaceSessionResu
   session.actions.setControl('tension', CHEAP_CONTROLS.tension)
 }
 
-/** A minimal global stub for `PhraseScore`: renders nothing, but exposes the same emitted events. */
+/** A minimal global stub for `PhraseScore`: renders only its default slot (the frame's messages) and exposes the same emitted events. */
 export const PHRASE_SCORE_STUB = {
   name: 'PhraseScore',
-  template: '<div class="phrase-score-stub" />',
+  template: '<div class="phrase-score-stub"><slot /></div>',
   props: ['phrase'],
   emits: ['engraved', 'notation-error'],
 }

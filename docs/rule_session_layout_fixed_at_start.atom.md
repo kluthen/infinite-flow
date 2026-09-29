@@ -7,6 +7,7 @@ parents:
   - [[req_landscape_phrase_workspace]]
   - [[req_rolling_practice_session]]
 dependents:
+  - [[module_notation_layout_preflight]]
   - [[rule_session_ends_when_staff_too_small]]
 type: RULE
 layer: BUSINESS

@@ -1,9 +1,11 @@
 /**
- * End-to-end coverage of the VexFlow engraving adapter against the test-only notation harness:
- * every fixture reaches a single-system, non-overflowing ready state at a normal width; a dense
- * fixture below the legibility floor fails with a typed error and no visible staff; resizing
- * transitions ready/error/ready without ever leaving stale notation on screen; the bundled Bravura
- * font is actually loaded; and no network request escapes the bundled, offline-capable harness.
+ * End-to-end coverage of the VexFlow engraving adapter against the test-only notation harness, at
+ * the default desktop viewport (the one-system layout): every fixture reaches a single-system,
+ * non-overflowing ready state at a normal width; a phrase whose notes need more width than the
+ * legibility floor allows fails with the typed "notes too wide" error and no visible staff;
+ * resizing transitions ready/error/ready without ever leaving stale notation on screen; the
+ * bundled Bravura font is actually loaded; and no network request escapes the bundled,
+ * offline-capable harness.
  */
 import { expect, test } from '@playwright/test'
 
@@ -17,10 +19,10 @@ async function waitForHarnessSettled(page: import('@playwright/test').Page): Pro
 }
 
 /**
- * Each fixture's ready-state width: the three lighter fixtures fit comfortably at a normal desktop
- * width; the dense fixture (a full sixteenth grid with beams, accidentals and a mid-bar chord
- * change on every measure) is deliberately the worst case and only fits a legible system past
- * ~1707px (see the CALIBRATION report), so it is exercised at a wider container here.
+ * Each fixture's ready-state frame width: the three lighter fixtures fit comfortably at a normal
+ * desktop width; the dense fixture (a full sixteenth grid with beams, accidentals and a mid-bar
+ * chord change on every measure) is deliberately the worst case, needing about 883 px of staff at
+ * the legibility floor for one system of four measures, so it is exercised at a wider frame here.
  */
 const FIXTURES_AT_WIDTH = [
   ['simple', 1200],
@@ -62,7 +64,7 @@ for (const [fixture, width] of FIXTURES_AT_WIDTH) {
 }
 
 // @test-link [[module_notation_layout_preflight]]
-test('a dense fixture below the legibility floor fails with a typed error, no visible staff and no description', async ({
+test('a dense fixture too wide for the legibility floor fails as "notes too wide", with no visible staff and no description', async ({
   page,
 }) => {
   await page.goto('/?fixture=dense&width=300')
@@ -70,7 +72,7 @@ test('a dense fixture below the legibility floor fails with a typed error, no vi
 
   const harnessState = await page.evaluate(() => window.__notationHarness)
   expect(harnessState.state).toBe('error')
-  expect(harnessState.errorCode).toBe('notation_below_legibility_floor')
+  expect(harnessState.errorCode).toBe('notation_notes_too_wide')
   await expect(page.locator('svg.staff-svg')).toHaveCount(0)
   await expect(page.locator('.score-description')).toHaveCount(0)
 })
@@ -92,7 +94,7 @@ test('a ready score that becomes a layout failure clears both the staff and its 
 
   const harnessState = await page.evaluate(() => window.__notationHarness)
   expect(harnessState.state).toBe('error')
-  expect(harnessState.errorCode).toBe('notation_below_legibility_floor')
+  expect(harnessState.errorCode).toBe('notation_notes_too_wide')
   await expect(page.locator('svg.staff-svg')).toHaveCount(0)
   await expect(page.locator('.score-description')).toHaveCount(0)
 })

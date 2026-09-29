@@ -159,44 +159,29 @@ export interface FlatGlyph {
 }
 
 /**
- * Build one StaveTie for every glyph whose written event has `tieToNext`, connecting it to the
- * immediately following glyph in phrase order (including across a barline within the system).
- */
-export function buildPhraseTies(flatGlyphs: readonly FlatGlyph[]): StaveTie[] {
-  const ties: StaveTie[] = []
-  for (let index = 0; index < flatGlyphs.length - 1; index += 1) {
-    const current = flatGlyphs[index]!
-    if (!current.tieToNext) continue
-    ties.push(
-      new StaveTie({
-        firstNote: current.glyph,
-        lastNote: flatGlyphs[index + 1]!.glyph,
-      }),
-    )
-  }
-  return ties
-}
-
-/**
- * Build the phrase's ties for the two-system phone layout: identical to `buildPhraseTies` except
- * the one tie crossing `lineBreakGlyphIndex` (the last glyph of line one tying into the first
- * glyph of line two) is split into two partial StaveTies -- one hanging from the line-one glyph to
- * its own stave's right edge (`firstNote` only), the other hanging from the line-two glyph back to
- * its own stave's left edge (`lastNote` only) -- so no single curve is ever drawn spanning back
- * across the SVG between the two lines.
+ * Build the StaveTies one system draws, for the glyphs `[start, end)` of the phrase's flattened
+ * glyphs (the whole phrase in the one-system layout; bars 1-2 or bars 3-4 in the split layout).
+ * A tie between two glyphs of the system is one StaveTie. A tie crossing the system's edge becomes a
+ * partial StaveTie in each system: the earlier system draws one hanging from its last glyph to its
+ * stave's right edge (`firstNote` only), the later one draws one arriving at its first glyph from
+ * its stave's left edge (`lastNote` only), since each system is its own SVG and no curve can span
+ * two of them. The phrase's very last glyph never ties out: the phrase ends there.
  */
 // @spec-link [[module_notation_layout_preflight]]
-export function buildPhraseTiesTwoSystem(
+export function buildSystemTies(
   flatGlyphs: readonly FlatGlyph[],
-  lineBreakGlyphIndex: number,
+  start: number,
+  end: number,
 ): StaveTie[] {
   const ties: StaveTie[] = []
-  for (let index = 0; index < flatGlyphs.length - 1; index += 1) {
+  if (start > 0 && flatGlyphs[start - 1]!.tieToNext) {
+    ties.push(new StaveTie({ lastNote: flatGlyphs[start]!.glyph }))
+  }
+  for (let index = start; index < end; index += 1) {
     const current = flatGlyphs[index]!
-    if (!current.tieToNext) continue
-    if (index + 1 === lineBreakGlyphIndex) {
+    if (!current.tieToNext || index + 1 >= flatGlyphs.length) continue
+    if (index + 1 === end) {
       ties.push(new StaveTie({ firstNote: current.glyph }))
-      ties.push(new StaveTie({ lastNote: flatGlyphs[index + 1]!.glyph }))
       continue
     }
     ties.push(
