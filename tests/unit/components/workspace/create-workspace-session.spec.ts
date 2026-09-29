@@ -4,7 +4,7 @@
  * `createWorkspaceSession` wires the same composition to a real `GenerationWorkerClient`-shaped
  * `generate`/`dispose` pair without ever constructing a real browser `Worker`.
  */
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
   composeWorkspaceSession,
@@ -23,6 +23,10 @@ import {
   DEFAULT_PROFILE_SELECTION,
 } from '@/domain/controls/profile-selection'
 import { makeSeed } from '@/domain/random/seed'
+import {
+  createFakeViewportWidth,
+  type FakeViewportWidth,
+} from '../../composables/fake-viewport-width'
 
 vi.mock('@/generation-worker/browser-generation-worker', () => ({
   createBrowserGenerationWorker: vi.fn(() => ({
@@ -56,6 +60,7 @@ function cheapOutcome(requestId: string, seed: number): GenerationOutcome {
 function fakeDependencies(): WorkspaceSessionDependencies & {
   readonly generateMock: ReturnType<typeof vi.fn>
   readonly disposeMock: ReturnType<typeof vi.fn>
+  readonly viewport: FakeViewportWidth
 } {
   let seedCounter = 0
   let requestCounter = 0
@@ -71,6 +76,7 @@ function fakeDependencies(): WorkspaceSessionDependencies & {
       nextRequestId: () => makeRequestId(`di-seam-request-${++requestCounter}`),
       nextSeed: () => makeSeed(++seedCounter),
     },
+    viewport: createFakeViewportWidth(),
     generate: generateMock,
     dispose: disposeMock,
     generateMock,
@@ -137,15 +143,56 @@ describe('composeWorkspaceSession', () => {
 
     expect(deps.disposeMock).toHaveBeenCalledTimes(1)
   })
+
+  it('dispose() also stops the session listening for window-width crossings', () => {
+    const deps = fakeDependencies()
+    const workspace = composeWorkspaceSession(deps)
+    expect(deps.viewport.listenerCount()).toBe(1)
+
+    workspace.dispose()
+
+    expect(deps.viewport.listenerCount()).toBe(0)
+  })
 })
 
+/** Intent: a jsdom stand-in for `window.matchMedia`, recording the query and its listeners. */
+function stubMatchMedia(matches: boolean) {
+  const listeners = new Set<unknown>()
+  const matchMedia = vi.fn((query: string) => ({
+    media: query,
+    matches,
+    addEventListener: (_type: string, listener: unknown) => listeners.add(listener),
+    removeEventListener: (_type: string, listener: unknown) => listeners.delete(listener),
+  }))
+  vi.stubGlobal('matchMedia', matchMedia)
+  return { matchMedia, listeners }
+}
+
 describe('createWorkspaceSession', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   it('builds a production session without ever calling crypto.getRandomValues eagerly', () => {
+    stubMatchMedia(false)
     const workspace = createWorkspaceSession()
 
     expect(workspace.session.state.operation).toBe('idle')
     expect(workspace.session.state.controls).toEqual(DEFAULT_GENERATION_CONTROLS)
 
     workspace.dispose()
+  })
+
+  // @test-link [[rule_generated_density_follows_window_width]]
+  it("reads the window's width against bp-tablet-landscape through matchMedia", () => {
+    const { matchMedia, listeners } = stubMatchMedia(true)
+    const workspace = createWorkspaceSession()
+
+    expect(matchMedia).toHaveBeenCalledWith('(max-width: 63.9375rem)')
+    expect(workspace.session.state.noteDensityContext.belowTabletLandscape).toBe(true)
+    expect(listeners.size).toBe(1)
+
+    workspace.dispose()
+    expect(listeners.size).toBe(0)
   })
 })

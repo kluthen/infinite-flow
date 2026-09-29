@@ -6,7 +6,11 @@
  */
 
 import { applyNonProfileControlValue } from '@/domain/controls/profile-selection'
-import { isUnsupportedRhythmSetting } from '@/domain/controls/unsupported-rhythm-settings'
+import {
+  resolveGeneratedControls,
+  type NoteDensityContext,
+} from '@/domain/controls/generated-note-density'
+import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
 import {
   createGenerationIntent,
   type GenerationIntent,
@@ -29,6 +33,8 @@ export type ProfileSelectionOutcome =
 export interface ProfileSwitchDependencies<TResult> {
   readonly state: MutableGenerationSessionState<TResult>
   readonly providers: GenerationIntentProviders
+  /** Read the window's width now and return the note-density context it gives. */
+  readonly readNoteDensityContext: () => NoteDensityContext
   readonly runGeneration: (intent: GenerationIntent) => Promise<boolean>
   /** Discard the current phrase and everything tied to it; the switch applies without regenerating. */
   readonly clearPhrase: () => void
@@ -39,12 +45,14 @@ export interface ProfileSwitchDependencies<TResult> {
  * reselection is a no-op; with no prior result the instrument-profile control is simply applied;
  * with a prior result there is no keep-if-it-fits check — the switch always regenerates the
  * complete phrase with a fresh seed under the new profile's active range and register-window
- * policy, unless the resulting controls are themselves an unsupported rhythm setting, in which
+ * policy, unless the resulting controls are themselves an unsupported rhythm setting (judged on
+ * the note density a phrase would be generated with at the window's current width), in which
  * case generation never starts, the switch still applies, and the prior phrase is cleared rather
- * than regenerated.
+ * than regenerated. The regeneration itself uses that same density.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[rule_profile_switch_validates_phrase]]
+// @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
 export function createSelectInstrumentProfileAction<TResult>(
   deps: ProfileSwitchDependencies<TResult>,
 ): (id: InstrumentProfileId) => Promise<ProfileSelectionOutcome> {
@@ -67,7 +75,8 @@ export function createSelectInstrumentProfileAction<TResult>(
     const priorResult = state.result
     if (priorResult === null) return 'applied'
 
-    if (isUnsupportedRhythmSetting(controls)) {
+    const densityContext = deps.readNoteDensityContext()
+    if (isRhythmSettingBlocked(controls, densityContext)) {
       deps.clearPhrase()
       return 'cleared_unsupported_rhythm'
     }
@@ -75,7 +84,7 @@ export function createSelectInstrumentProfileAction<TResult>(
     const intent = createGenerationIntent({
       requestId: deps.providers.nextRequestId(),
       seed: deps.providers.nextSeed(),
-      controls,
+      controls: resolveGeneratedControls(controls, densityContext),
       musicalProfile: profileSelection,
     })
     const succeeded = await deps.runGeneration(intent)

@@ -12,7 +12,7 @@ parents:
 dependents:
   - [[module_rhythm_variety_grammar]]
   - [[rule_unsupported_rhythm_gives_way_to_no_phrase]]
-notes: Revised 2026-09-29 by v2 spec ingestion for release v2.0 (previous version 0.3). Changes - a combination is judged on the note density a phrase would be generated with (a chosen Sixteenth counts as Eighth below the tablet-landscape layout width); a blocked combination also blocks session start; a shown phrase stays visible only while it fits the staff. Not yet built - the code and its tags still implement version 0.3.
+notes: Revised 2026-09-29 by v2 spec ingestion for release v2.0 (previous version 0.3). Changes - a combination is judged on the note density a phrase would be generated with (a chosen Sixteenth counts as Eighth below the tablet-landscape layout width); a blocked combination also blocks session start; a shown phrase stays visible only while it fits the staff. Built - judging a combination on the note density a phrase would be generated with, at Idle, in the workspace's generation, profile switch, phrase action and rhythm-controls notice. Not yet built - blocking a session start (no session exists yet), and a shown phrase staying visible only while it fits the staff.
 ---
 
 # Unsupported Rhythm Settings Block Generation

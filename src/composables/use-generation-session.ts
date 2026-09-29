@@ -10,7 +10,11 @@ import {
   applyMusicalProfile,
   applyNonProfileControlValue,
 } from '@/domain/controls/profile-selection'
-import { isUnsupportedRhythmSetting } from '@/domain/controls/unsupported-rhythm-settings'
+import {
+  resolveGeneratedControls,
+  type NoteDensityContext,
+} from '@/domain/controls/generated-note-density'
+import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
 import {
   type GenerationIntent,
   type GenerationIntentProviders,
@@ -21,6 +25,7 @@ import {
   createSelectInstrumentProfileAction,
   type ProfileSelectionOutcome,
 } from './generation-session-profile-switch'
+import type { ViewportWidthProvider } from './viewport-width'
 
 export type ThemePreference = 'System' | 'Light' | 'Dark'
 export type { ProfileSelectionOutcome } from './generation-session-profile-switch'
@@ -45,6 +50,13 @@ export interface GenerationSessionState<TResult> {
    * Independent of `notationError`, which a new generation attempt clears without redrawing.
    */
   readonly resultEngraved: boolean
+  /**
+   * What, besides the chosen note density, decides the density the next phrase is generated with:
+   * where the window stood against `bp-tablet-landscape` at the last read or crossing, and whether
+   * a session has stepped down (never, at Idle). The controls show the density it gives and the
+   * unsupported-rhythm block judges it; each generation reads the width afresh.
+   */
+  readonly noteDensityContext: NoteDensityContext
 }
 
 export interface GenerationSessionActions {
@@ -66,10 +78,14 @@ export interface GenerationSessionActions {
 export interface GenerationSession<TResult> {
   readonly state: Readonly<GenerationSessionState<TResult>>
   readonly actions: GenerationSessionActions
+  /** Stop listening for window-width crossings; the root calls it when the workspace unmounts. */
+  readonly dispose: () => void
 }
 
 export interface CreateGenerationSessionOptions<TResult> {
   readonly providers: GenerationIntentProviders
+  /** Where the window stands against `bp-tablet-landscape`; read when each phrase is generated. */
+  readonly viewport: ViewportWidthProvider
   readonly generate: (intent: GenerationIntent) => Promise<TResult>
   readonly notate: (result: TResult) => Promise<void>
   /**
@@ -131,16 +147,40 @@ export function createGenerationSession<TResult>(
     generationError: null,
     notationError: null,
     resultEngraved: false,
+    noteDensityContext: {
+      belowTabletLandscape: options.viewport.isBelowTabletLandscape(),
+      sessionSteppedDown: false,
+    },
   })
 
   function canChangeConfiguration(): boolean {
     return state.operation === 'idle'
   }
 
-  /** True when the current controls' rhythm combination has no legal four-bar plan and must not start generation. */
+  /**
+   * Read the window's width now and return the note-density context it gives, updating the
+   * exposed context when the width has crossed `bp-tablet-landscape` since the last read. Idle
+   * generation has no session behind it, so it never counts as stepped down.
+   */
+  // @spec-link [[rule_generated_density_follows_window_width]]
+  function readNoteDensityContext(): NoteDensityContext {
+    const belowTabletLandscape = options.viewport.isBelowTabletLandscape()
+    if (belowTabletLandscape !== state.noteDensityContext.belowTabletLandscape) {
+      state.noteDensityContext = { ...state.noteDensityContext, belowTabletLandscape }
+    }
+    return state.noteDensityContext
+  }
+
+  const stopListeningForCrossings = options.viewport.subscribe(readNoteDensityContext)
+
+  /**
+   * True when the current controls' rhythm combination has no legal four-bar plan and must not
+   * start generation, judged on the note density a phrase would be generated with at the window's
+   * current width.
+   */
   // @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
   function isBlockedByUnsupportedRhythm(): boolean {
-    return isUnsupportedRhythmSetting(state.controls)
+    return isRhythmSettingBlocked(state.controls, readNoteDensityContext())
   }
 
   /** Manual controlled edits become custom; all other controls retain the current selection state. */
@@ -250,12 +290,17 @@ export function createGenerationSession<TResult>(
     }
   }
 
-  /** Build a fresh, freshly identified/seeded intent from the current controls and profile selection. */
+  /**
+   * Build a fresh, freshly identified/seeded intent from the current controls and profile
+   * selection, with the note density the window's width gives now: the intent carries that plain
+   * density, never the width itself, while `state.controls` keeps the chosen value.
+   */
+  // @spec-link [[rule_generated_density_follows_window_width]]
   function freshIntentFromControls(): GenerationIntent {
     return createGenerationIntent({
       requestId: options.providers.nextRequestId(),
       seed: options.providers.nextSeed(),
-      controls: state.controls,
+      controls: resolveGeneratedControls(state.controls, readNoteDensityContext()),
       musicalProfile: state.profileSelection,
     })
   }
@@ -343,6 +388,7 @@ export function createGenerationSession<TResult>(
   const selectInstrumentProfile = createSelectInstrumentProfileAction<TResult>({
     state,
     providers: options.providers,
+    readNoteDensityContext,
     runGeneration: run,
     clearPhrase,
   })
@@ -361,5 +407,6 @@ export function createGenerationSession<TResult>(
       reportNotationFailure,
       reportNotationRecovered,
     },
+    dispose: stopListeningForCrossings,
   }
 }

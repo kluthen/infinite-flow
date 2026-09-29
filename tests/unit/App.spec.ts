@@ -37,6 +37,7 @@ function fakeWorkspaceSession() {
     generationError: null,
     notationError: null,
     resultEngraved: false,
+    noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
   })
   const session: GenerationSession<WorkspaceSessionResult> = {
     state,
@@ -55,6 +56,7 @@ function fakeWorkspaceSession() {
       reportNotationFailure: () => false,
       reportNotationRecovered: () => false,
     },
+    dispose: () => {},
   }
   return {
     session,

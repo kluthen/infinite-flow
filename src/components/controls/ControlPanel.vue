@@ -7,6 +7,7 @@
  */
 import { computed } from 'vue'
 
+import type { NoteDensityContext } from '@/domain/controls/generated-note-density'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
 import FoundationControls from './FoundationControls.vue'
@@ -20,6 +21,7 @@ const props = defineProps<{
   controls: GenerationControls
   profileSelection: ProfileSelection
   readonly: boolean
+  noteDensityContext: NoteDensityContext
 }>()
 
 const emit = defineEmits<{
@@ -64,7 +66,12 @@ const controlSummary = computed(() => controlSummaryText(props.controls, props.p
         @select-instrument-profile="forwardInstrumentProfile"
         @select-musical-profile="forwardMusicalProfile"
       />
-      <RhythmControls :controls="controls" :readonly="readonly" @set-control="forwardSetControl" />
+      <RhythmControls
+        :controls="controls"
+        :readonly="readonly"
+        :note-density-context="noteDensityContext"
+        @set-control="forwardSetControl"
+      />
       <MelodicShapeControls
         :controls="controls"
         :readonly="readonly"

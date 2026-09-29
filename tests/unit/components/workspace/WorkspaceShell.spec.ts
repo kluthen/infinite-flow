@@ -41,9 +41,11 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
       generationError: null,
       notationError: null,
       resultEngraved: false,
+      noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
       ...overrides,
     },
     actions,
+    dispose: vi.fn(),
   }
   return { session, actions }
 }
@@ -99,6 +101,20 @@ describe('WorkspaceShell', () => {
     // ControlPanel radiogroup specifically rather than the first radiogroup in the whole shell.
     const radiogroup = wrapper.get('[aria-label="Written key"]')
     expect(radiogroup.attributes('aria-readonly')).toBe('true')
+  })
+
+  // @test-link [[rule_sixteenth_unavailable_below_tablet_width]]
+  it("hands the session's note-density context to the rhythm controls", () => {
+    const { session } = fakeSession({
+      controls: { ...DEFAULT_GENERATION_CONTROLS, noteDensity: 'Sixteenth' },
+      noteDensityContext: { belowTabletLandscape: true, sessionSteppedDown: false },
+    })
+    const wrapper = mountShell(session)
+
+    const density = wrapper.get('[role="radiogroup"][aria-label="Note density"]')
+    const segments = density.findAll('[role="radio"]')
+    expect(segments[2]!.attributes('disabled')).toBeDefined()
+    expect(segments[1]!.attributes('aria-checked')).toBe('true')
   })
 
   it('leaves the control panel selectable when idle', () => {

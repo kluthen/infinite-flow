@@ -8,6 +8,7 @@ import {
   type SilenceDensity,
   type Syncopation,
 } from './generation-controls'
+import { resolveGeneratedNoteDensity, type NoteDensityContext } from './generated-note-density'
 
 // @spec-link [[module_generation_control_catalog]]
 export interface RhythmSetting {
@@ -20,9 +21,12 @@ export interface RhythmSetting {
 /**
  * Intent: name every rhythmic variety + note density + silence density + syncopation combination
  * for which the rhythm grammar has no legal four-bar plan under any tension arc, so the workspace
- * can block Generate/Regenerate up front instead of letting a generation attempt fail. This is a
- * known grammar limit, not a musical judgment: delete this constant and the UI block it powers
- * once a rhythm-grammar fix makes these combinations playable.
+ * can block Generate/Regenerate up front instead of letting a generation attempt fail. The note
+ * density here is the one a phrase is generated with, which is what the rhythm grammar receives:
+ * below the tablet-landscape width a chosen `Sixteenth` is generated, and so judged, as `Eighth`
+ * (see `isRhythmSettingBlocked`). This is a known grammar limit, not a musical judgment: delete
+ * this constant and the UI block it powers once a rhythm-grammar fix makes these combinations
+ * playable.
  *
  * `Strict` keeps the six settings blocked before rhythmic variety existed. `Slightly varied`
  * unblocks two of them (the eighth-bearing cells it adds rescue the attack band under Active
@@ -92,7 +96,11 @@ export const UNSUPPORTED_RHYTHM_SETTINGS: readonly RhythmSetting[] = deepFreeze(
   },
 ])
 
-/** True when the given rhythmic variety + note density + silence density + syncopation combination cannot form a phrase. */
+/**
+ * True when the given rhythmic variety + note density + silence density + syncopation combination
+ * cannot form a phrase. The setting is taken as generated: its note density is the one the rhythm
+ * grammar would receive. To judge the player's chosen setting, call `isRhythmSettingBlocked`.
+ */
 // @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
 export function isUnsupportedRhythmSetting(setting: RhythmSetting): boolean {
   return UNSUPPORTED_RHYTHM_SETTINGS.some(
@@ -206,4 +214,37 @@ export const UNSUPPORTED_RHYTHM_SETTING_MESSAGE =
 // @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
 export function describeRhythmSettingSuggestion(suggestion: RhythmSettingSuggestion): string {
   return `Suggested change: ${suggestion.to} instead of ${suggestion.from}.`
+}
+
+/**
+ * Intent: the rhythm setting a phrase would be generated from: the chosen setting with its note
+ * density resolved for the window's width and the session's step-down (a chosen `Sixteenth` counts
+ * as `Eighth` below the tablet-landscape width). Every other rhythm control is kept as chosen.
+ */
+// @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
+export function generatedRhythmSetting(
+  chosen: RhythmSetting,
+  context: NoteDensityContext,
+): RhythmSetting {
+  return {
+    noteDensity: resolveGeneratedNoteDensity(chosen.noteDensity, context),
+    rhythmicVariety: chosen.rhythmicVariety,
+    silenceDensity: chosen.silenceDensity,
+    syncopation: chosen.syncopation,
+  }
+}
+
+/**
+ * Intent: whether the player's chosen rhythm setting blocks generation, judged on the note
+ * density a phrase would be generated with. Below the tablet-landscape width a combination
+ * unsupported only because of a chosen `Sixteenth` therefore blocks nothing, and a crossing of
+ * that width can block or unblock the same chosen setting. `Eighth` is never blocked, so a session
+ * whose density has stepped down can never be blocked by a change of window.
+ */
+// @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
+export function isRhythmSettingBlocked(
+  chosen: RhythmSetting,
+  context: NoteDensityContext,
+): boolean {
+  return isUnsupportedRhythmSetting(generatedRhythmSetting(chosen, context))
 }

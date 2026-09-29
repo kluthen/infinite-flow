@@ -97,7 +97,7 @@ chunks in different sections; the second to merge rebases on the first.
 | Wave | Chunks                                                                                                                                                                                                                                            | Waits for                                                                   |
 | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29)                                                                                                                                                                                           | Nothing                                                                     |
-| 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 · 4 Note density on small screens · 7 Generator continuation · 14 Note acknowledgement · 18 MusicXML encoding · 19 Generated-notes MIDI encoding                                                    | Chunk 0 (done). Start chunk 3 first (see the caveat).                        |
+| 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation · 14 Note acknowledgement · 18 MusicXML encoding · 19 Generated-notes MIDI encoding                                                    | Chunk 0 (done). Start chunk 3 first (see the caveat).                        |
 | 2    | 5 Idle fit retries and the room notice · 6 Note identity and session overlays · 8 Session engine · 10 Audio transport                                                                                                                             | Wave 1. Chunks 8 and 10 also need chunk 1's verdict.                        |
 | 3    | 9 Session history · 11 Backing · 12 MIDI input                                                                                                                                                                                                    | Wave 2                                                                      |
 | 4    | 15 Session screen: start and end                                                                                                                                                                                                                  | Wave 3                                                                      |
@@ -611,7 +611,26 @@ layout depends on width alone; the session holds it in chunk 16); v1:
 
 ### Chunk 4 — Note density on small screens
 
-**Release:** v2.0. **In progress since 2026-09-29** (worktree branch `v2-chunk-4`), in parallel with chunk 3.
+**Release:** v2.0. **Done on 2026-09-29.** One pure function, `resolveGeneratedNoteDensity`, gives
+the density a phrase is generated with; the session reads the window's width through an injected
+provider each time it builds an intent, and a crossing never generates. Below
+`bp-tablet-landscape`, `Sixteenth` is disabled with its field-note and a stored `Sixteenth` is
+kept. The unsupported-rhythm check judges the generated density; the chunk 0 drift for this chunk
+is fixed. `npm run quality` passes but for the four known snapshots (see
+[chunk 1](#chunk-1--baseline-checks)).
+Waiting for the owner:
+
+- wording additions to three REVIEW atoms (`module_generation_request_construction`,
+  `module_rhythm_variety_grammar`, `service_workspace_session_flow`), which also fix two older
+  statements that the instrument-profile switch contradicts: it does regenerate;
+- one sentence in `rule_profile_switch_validates_phrase`: a blocked combination is judged on the
+  density a phrase would be generated with;
+- acknowledging a notes-only edit to `rule_unsupported_rhythm_settings_block_generation`, which
+  records what is built;
+- advancing `rule_sixteenth_unavailable_below_tablet_width` and
+  `module_generation_control_catalog` (v1.2, rewritten for v2) from DRAFT to REVIEW.
+
+The session's step-down memory is chunk 8's; the idle fit retries on a crossing are chunk 5's.
 
 **Goal.** Below `bp-tablet-landscape`, `Sixteenth` can't be chosen, a stored `Sixteenth`
 generates as `Eighth`, and unsupported rhythm combinations are judged on the density a phrase is

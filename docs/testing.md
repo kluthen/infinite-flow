@@ -100,9 +100,15 @@ dependencies, plus one Vite alias.
 | `releaseGeneration`        | `() => void`                                               | Opens the gate; every waiting call carries on.                                                                                                                                                                                                                      |
 | `failNextGeneration`       | `(code: WorkspaceHarnessGenerationFailureCode) => void`    | The next `generate` call, once past the gate, returns a `generation_failure` with that code and empty diagnostics instead of calling the Worker. One shot. The codes: `no_legal_harmony_plan`, `no_legal_rhythm_plan`, `no_legal_pitch_plan`, `no_eligible_register_window`, `search_limit_exceeded`, `result_validation_failed`. |
 | `failNextNotation`         | `() => void`                                               | The next call to `engraveWrittenPhrase` throws a `NotationError` with code `notation_engraving_failed`. One shot. It arms the engraver loader seam below.                                                                                                           |
-| `snapshot`                 | `() => WorkspaceHarnessSnapshot`                           | The session's current state: `operation`, `instrumentProfileId`, `writtenTonalCenter`, `concertTonalCenter`, `requestId`, `seed`, and `timeline` (the latest result's concert timeline as a JSON string). Fields read from the result are `null` before the first result. Throws if called before the session mounts. |
+| `snapshot`                 | `() => WorkspaceHarnessSnapshot`                           | The session's current state: `operation`, `instrumentProfileId`, `writtenTonalCenter`, `concertTonalCenter`, `requestId`, `seed`, `timeline` (the latest result's concert timeline as a JSON string), `chosenNoteDensity` (the density the player chose, kept whatever the window's width) and `generatedNoteDensity` (the density the latest result was generated with: `Eighth` for a chosen `Sixteenth` below `bp-tablet-landscape`). Fields read from the result are `null` before the first result. Throws if called before the session mounts. |
 
 Request ids are also deterministic: `workspace-harness-request-1`, `-2`, and so on, per page load.
+
+**The window's width is real.** The harness gives the session the production `matchMedia` width
+provider (`createBrowserViewportWidth`), so a spec moves the window across `bp-tablet-landscape`
+(64rem, 1024 px) with `page.setViewportSize` and the session sees the crossing exactly as in the
+app. `tests/e2e/release/note-density-width.spec.ts` does this for the note-density rule, reading
+`chosenNoteDensity` and `generatedNoteDensity` from `snapshot` after each generation.
 
 **The engraver loader seam.** `vite.workspace-harness.config.ts` aliases
 `@/notation/vexflow-engraver-loader` to `vexflow-engraver-loader-seam.ts`. Every production import of
@@ -185,6 +191,22 @@ that a test advances by hand and a fake audio output; chunk 12 adds a fake MIDI 
 unplugs and plays notes on command. Both go into the workspace harness as new seams and are
 documented in its table above.
 
+## Fake window width
+
+The workspace session reads the window's position against `bp-tablet-landscape` through an
+injected `ViewportWidthProvider` (`src/composables/viewport-width.ts`). Unit tests replace it with
+`createFakeViewportWidth(initiallyBelowTabletLandscape?)` from
+`tests/unit/composables/fake-viewport-width.ts`, which never touches `matchMedia`:
+
+- `cross(below)` moves the window to that side of the width and tells every subscriber, as the
+  browser's media-query `change` event does;
+- `setWithoutNotifying(below)` moves it without telling anyone, to prove a phrase takes the width
+  read when it is generated rather than the last crossing reported;
+- `listenerCount()` shows whether the session still listens, for the dispose checks.
+
+Every `createGenerationSession` and `composeWorkspaceSession` call in a unit test passes one as
+`viewport`. The Playwright harness uses the real provider instead (see above).
+
 ## Determinism
 
 - **Same seed, same result.** Generation is a pure function of its intent, seed included. A test
@@ -196,7 +218,7 @@ documented in its table above.
   test can replace, so a timing rule is tested by advancing the fake clock, not by waiting.
 - **No test-only branches.** Production code carries no `if (test)` path. A test replaces a
   dependency through a seam that production code already exposes: `composeWorkspaceSession`'s
-  providers and `generate` function, the `WORKSPACE_SESSION_FACTORY` injection point, a fake
+  providers, `viewport` width provider and `generate` function, the `WORKSPACE_SESSION_FACTORY` injection point, a fake
   `GenerationWorkerPort`, or a Vite alias in a harness build config.
 
 ## Fixture list
@@ -235,7 +257,8 @@ baselines are recorded on the same setup that checks them.
 | Name                                     | Path                                                                          | What it holds                                                                                                                                                                                                                                  | Used by                                                                                                     |
 | ---------------------------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | Workspace session result                 | `tests/unit/workspace-test-fixtures.ts`                                       | `CHEAP_CONTROLS` (the defaults with cheap rhythm and harmony settings) and `buildWorkspaceSessionResult(requestId, seed)`, which runs one real, cheap generation.                                                                             | `ScorePanel`, `WorkspaceHeader`, `use-notation-coordinator` specs; `test-workspace.ts`                      |
-| Test workspace                           | `tests/unit/components/workspace/test-workspace.ts`                           | `createTestWorkspace(generate?)`: the real session and notation coordinator without a Worker; `useCheapControls`; `PHRASE_SCORE_STUB`, a `PhraseScore` that renders nothing but has the same events.                                         | `ScorePanel`, `WorkspaceShell` specs                                                                        |
+| Test workspace                           | `tests/unit/components/workspace/test-workspace.ts`                           | `createTestWorkspace(generate?)`: the real session and notation coordinator without a Worker, with a fake window width at or above `bp-tablet-landscape`; `useCheapControls`; `PHRASE_SCORE_STUB`, a `PhraseScore` that renders nothing but has the same events. | `ScorePanel`, `WorkspaceShell` specs                                                                        |
+| Fake window width                        | `tests/unit/composables/fake-viewport-width.ts`                               | `createFakeViewportWidth(initiallyBelowTabletLandscape?)`: a `ViewportWidthProvider` a test moves across `bp-tablet-landscape` by hand (see [Fake window width](#fake-window-width)).                                                          | every spec that builds a session; `generation-session-note-density.spec.ts`, `create-workspace-session.spec.ts` |
 | Fake Worker port                         | `tests/unit/generation-worker/fake-generation-worker-port.ts`                 | `createFakeGenerationWorkerPort`: an in-memory `GenerationWorkerPort` that structured-clones both ways and answers through the real handler, a scripted responder, or not at all.                                                            | `generation-worker-client.spec.ts`                                                                          |
 | Window search fixture                    | `tests/unit/domain/generation/orchestration/window-search-fixture.ts`         | `buildWindowSearchFixture(seed)`: a real intent, request, ranked harmony and rhythm candidates and search policy from cheap controls.                                                                                                          | `window-search`, `generation-orchestrator` specs; `generation-orchestrator-fixture.ts`                      |
 | Orchestrator fixture                     | `tests/unit/domain/generation/orchestration/generation-orchestrator-fixture.ts` | `buildOrchestratorIntent(register, seed)` from cheap controls, and helpers that recompute the ranked domains and one window's outcome independently.                                                                                         | `generation-orchestrator`, `notation-input`, `written-phrase` specs                                         |

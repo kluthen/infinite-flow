@@ -14,6 +14,7 @@ import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
 import { CHEAP_CONTROLS, buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
+import { createFakeViewportWidth } from '../../composables/fake-viewport-width'
 
 export interface TestWorkspace {
   readonly session: GenerationSession<WorkspaceSessionResult>
@@ -43,6 +44,7 @@ export function createTestWorkspace(
     reportNotationRecovered: () => session.actions.reportNotationRecovered(),
   })
   session = createGenerationSession<WorkspaceSessionResult>({
+    viewport: createFakeViewportWidth(),
     providers: {
       nextRequestId: () => makeRequestId(`workspace-spec-${++requestCounter}`),
       nextSeed: () => makeSeed(++seedCounter),

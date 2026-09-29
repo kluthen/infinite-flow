@@ -72,10 +72,11 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
 - `src/notation/` — the concert-to-written transformation types and the VexFlow engraving adapter,
   loaded lazily (`vexflow-engraver-loader.ts` is the sole static importer of the engraver module).
 - `src/composables/` — in-memory session/UI coordination (`use-generation-session.ts`,
-  `use-notation-coordinator.ts`, `workspace-session-result.ts`): no persistence, no singletons.
+  `use-notation-coordinator.ts`, `workspace-session-result.ts`, and `viewport-width.ts`, the
+  injected window-width seam): no persistence, no singletons.
 - `src/components/**` — Vue presentation components, props-in/events-out; `src/components/workspace/`
-  holds the root session composition (`create-workspace-session.ts`) and the workspace component
-  tree (see [`docs/phrase-workspace.md`](docs/phrase-workspace.md)).
+  holds the root session composition (`create-workspace-session.ts`, with the `matchMedia` width
+  provider in `browser-viewport-width.ts`) and the workspace component tree (see [`docs/phrase-workspace.md`](docs/phrase-workspace.md)).
 - `src/styles/` — the production Tailwind 4 styling authority (`theme.css`, `components.css`,
   `index.css`, `fonts.css`), consumed by application code; `ui_ux/versions/v1/ui_common.css` is a frozen design
   reference, not buildable production styling.

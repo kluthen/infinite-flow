@@ -59,6 +59,10 @@ every settable control key except `instrumentProfileId`, which has its own dedic
   (`workspace-request-<n>`); `nextSeed` draws a fresh 32-bit unsigned seed from
   `crypto.getRandomValues`. Both are injected into `createGenerationSession` as
   `GenerationIntentProviders`, so no domain code ever reaches for browser randomness itself.
+- **Window width.** `createBrowserViewportWidth()` (`browser-viewport-width.ts`) is injected as
+  the session's `viewport`: a `ViewportWidthProvider` backed by
+  `matchMedia('(max-width: 63.9375rem)')`, the same condition the stylesheet uses for "below
+  `bp-tablet-landscape`". See [Note density below `bp-tablet-landscape`](#note-density-below-bp-tablet-landscape).
 - **Generate.** One long-lived `createBrowserGenerationWorker()` port is wrapped by
   `createGenerationWorkerClient`, and `createWorkspaceGenerate` adapts its `generate` seam: a
   successful `GenerationOutcome` becomes the session's `WorkspaceSessionResult` (the outcome plus
@@ -76,8 +80,9 @@ every settable control key except `instrumentProfileId`, which has its own dedic
   policy to the session's typed `retain`/`regenerate` decision, reading the unchanged concert
   timeline, the current register selection, the existing seed, and the newly resolved instrument
   profile off the prior result and the caller's next controls.
-- **Dispose.** `WorkspaceSession.dispose()` terminates the worker client (`client.dispose()`).
-  `App.vue` calls it from `onUnmounted`.
+- **Dispose.** `WorkspaceSession.dispose()` stops the session listening for width crossings
+  (`session.dispose()`) and terminates the worker client (`client.dispose()`). `App.vue` calls it
+  from `onUnmounted`.
 
 `create-workspace-session.ts` is isolated in its own module — rather than inlined in `App.vue` —
 so a test can replace the whole factory and never spin a real `Worker` in jsdom.
@@ -91,7 +96,8 @@ so a test can replace the whole factory and never spin a real `Worker` in jsdom.
 | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `operation` (`'idle' \| 'generating' \| 'notating'`)                | Every configuration control (all four `ControlPanel` groups, and the header's notation-mode segmented control) is read-only-but-focusable whenever `operation !== 'idle'` (`WorkspaceShell`'s `controlsReadonly`, `WorkspaceHeader`'s `operationRunning`). The primary action is disabled while an operation runs. `ScorePanel`'s `staff-loading` frame class and the `generation-status` live region text ("Generating phrase") only apply while `operation === 'generating'`.                                                                                                                                                                                                                                                                                                                                                                                            |
 | `notationError` / `generationError` / `result`                      | Together they decide the primary action's label, in this priority: **Retry notation** (a `notationError` is set) > **Retry generation** (a `generationError` is set, no `notationError`) > **Regenerate** (`result` is set, no error) > **Generate** (nothing yet). `WorkspaceHeader`'s `primaryActionKind` computed implements exactly this order.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| `controls` (rhythm subset)                                          | `isUnsupportedRhythmSetting(state.controls)` blocks every primary action **except** Retry notation: retrying the engraving of an already-generated phrase replays that phrase's own stored request, so it never depends on the current rhythm-control combination the way starting a new generation does. `WorkspaceHeader`'s `blockedByUnsupportedRhythm` computed encodes this exemption explicitly.                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `noteDensityContext`                                                | Where the window stood against `bp-tablet-landscape` at the last read or crossing, and whether a session has stepped down (always `false` until the session engine exists). `WorkspaceShell` hands it to `RhythmControls`, which disables `Sixteenth` below the width, shows the density a phrase would be generated with as the checked segment, and judges the unsupported-rhythm notice on it; `WorkspaceHeader` judges the phrase action's block on it. A crossing updates it and nothing else: it never generates, regenerates or redraws by itself.                                                                                                                                                                                                                                                                                                                                                  |
+| `controls` (rhythm subset)                                          | `isRhythmSettingBlocked(state.controls, state.noteDensityContext)` blocks every primary action **except** Retry notation: retrying the engraving of an already-generated phrase replays that phrase's own stored request, so it never depends on the current rhythm-control combination the way starting a new generation does. `WorkspaceHeader`'s `blockedByUnsupportedRhythm` computed encodes this exemption explicitly.                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `result` across a generation failure or an unsupported-rhythm block | The previously generated result is retained on a rejected generation/regeneration attempt: `generate`/`regenerate` never clear `state.result`, so `ScorePanel` keeps showing the last successful phrase underneath the failure banner. The one exception is a profile switch that both invalidates the prior phrase and lands on an unsupported rhythm setting: `clearPhrase()` clears `result`/`latestIntent`/`generationError`/`notationError`/`failedNotationMode` and drops the presented phrase, so `ScorePanel` returns to its empty state instead — see the `profileSelection` switch outcomes row below.                                                                                                                                                                                                                                                           |
 | `notationError` (in-operation)                                      | `ScorePanel` shows an inline alert ("Notation error: …") layered over the still-mounted `PhraseScore`, and the header exposes Retry notation. `retryNotation()` replays the retained `failedNotationMode` against the retained `result` without touching generation providers.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `notationError`/`notationError` recovery (out-of-operation)         | A `PhraseScore` redraw that fires outside any session operation (a resize, a breakpoint crossing) reports through `reportNotationFailure`/`reportNotationRecovered` instead of settling a promise — this is how a later successful redraw clears a stale notation error without a new `notate()` call.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -200,9 +206,15 @@ regeneration against an already-seen rhythm setting skips the expensive Step 6 e
   a musical judgment: deleting the constant and the block it powers is the whole migration once a
   grammar fix makes these settings playable.
 
-* **`isUnsupportedRhythmSetting(setting)`** is the single predicate every consumer (the session's
-  `generate`/`regenerate`/`selectInstrumentProfile`, and `RhythmControls`' own inline check) calls
-  against the current `{ noteDensity, silenceDensity, syncopation }`.
+* **`isUnsupportedRhythmSetting(setting)`** judges a setting as generated: its note density is the
+  one the rhythm grammar receives. The list is keyed that way.
+* **`isRhythmSettingBlocked(chosen, noteDensityContext)`** is the predicate every consumer (the
+  session's `generate`/`regenerate`/`retryGeneration`/`selectInstrumentProfile`, `WorkspaceHeader`
+  and `RhythmControls`) calls against the player's chosen rhythm setting. It resolves the note
+  density first (`generatedRhythmSetting`), so below `bp-tablet-landscape` a combination
+  unsupported only because of a chosen `Sixteenth` blocks nothing, and a crossing can block or
+  unblock the same chosen setting. The suggestion is computed from the generated setting too, so
+  it never proposes `Sixteenth` below the width.
 * **Message.** `UNSUPPORTED_RHYTHM_SETTING_MESSAGE` is the fixed, calm sentence shown when blocked:
   "This mix of note density, silence, and syncopation can't form a four-bar phrase yet. Try a
   lighter syncopation, a different note density, or another silence setting."
@@ -223,6 +235,43 @@ regeneration against an already-seen rhythm setting skips the expensive Step 6 e
   `Gentle diatonic/Eighth/Occasional offbeats/Conversational/Wandering/Varying` respectively); by
   construction neither preset's density/silence/syncopation triple is in
   `UNSUPPORTED_RHYTHM_SETTINGS`.
+
+## Note density below `bp-tablet-landscape`
+
+Below the tablet-landscape layout's width (64rem), `Sixteenth` can't be chosen and a chosen
+`Sixteenth` generates as `Eighth`; the chosen value is kept and applies again to the next phrase
+generated at or above the width. The pieces, and why they are built this way:
+
+- **One pure function decides the density.** `resolveGeneratedNoteDensity(chosen, context)` in
+  `src/domain/controls/generated-note-density.ts` takes the chosen density and a
+  `NoteDensityContext` — `belowTabletLandscape` and `sessionSteppedDown` — and returns the density
+  a phrase is generated with. `resolveGeneratedControls` applies it to a whole controls object.
+  The session engine will pass `sessionSteppedDown: true` once a session has generated a phrase
+  with `Eighth` this way, so its density never steps back up; at Idle it is always `false`. Keeping
+  the rule pure lets every case be unit-tested without a browser, and gives the session engine the
+  same function the workspace uses.
+- **The width comes through an injected provider, read at generation.** The session takes a
+  `ViewportWidthProvider` (`src/composables/viewport-width.ts`) and reads it each time it builds a
+  generation intent (`freshIntentFromControls`, and the profile switch's regeneration), so a phrase
+  takes the width the window has when that phrase is generated. It also subscribes to the
+  provider's crossings and mirrors them in `state.noteDensityContext`, so the controls and the
+  unsupported-rhythm block follow the window at Idle without waiting for a generation.
+- **The intent stays free of browser state.** The intent receives the resolved controls: its
+  `controls.noteDensity` is a plain `Eighth` or `Sixteenth`, and nothing about the window reaches
+  `createGenerationIntent`, the Worker or the generator. `state.controls.noteDensity` keeps the
+  chosen value; the substitution is not a manual edit, so it never marks the musical profile
+  preset custom.
+- **A crossing never regenerates.** Neither the provider's crossing handler nor anything reading
+  `noteDensityContext` starts a generation; only the player's actions do. The phrase on screen is
+  redrawn at the new size by `PhraseScore`, as for any resize, under its own
+  `(max-width: 63.9375rem)` layout query.
+- **The control shows the density generated with.** `RhythmControls` passes
+  `SegmentedControl` a `Sixteenth` option with `disabled` and `describedBy` below the width, and
+  checks the resolved density, so a stored `Sixteenth` shows as `Eighth`. The disabled segment is a
+  native `disabled` button named by the `field-note` "Sixteenth isn't available on small screens."
+  with `aria-describedby`; `SegmentedControl` skips unavailable options in arrow-key, Home and End
+  selection and refuses to check one. Choosing the checked `Eighth` while it stands in for a stored
+  `Sixteenth` emits nothing, so the stored `Sixteenth` is kept.
 
 ## E2E workspace harness and DI seam
 

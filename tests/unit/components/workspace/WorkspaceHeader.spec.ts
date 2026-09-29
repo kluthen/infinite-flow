@@ -46,9 +46,11 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
       generationError: null,
       notationError: null,
       resultEngraved: false,
+      noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
       ...overrides,
     },
     actions,
+    dispose: vi.fn(),
   }
   return { session, actions }
 }
@@ -110,6 +112,28 @@ describe('WorkspaceHeader', () => {
     const wrapper = mount(WorkspaceHeader, { props: { session } })
 
     expect(primaryButton(wrapper).attributes('disabled')).toBeDefined()
+  })
+
+  it('judges a Sixteenth-only combination on the density generated with: blocked from the width up, allowed below', () => {
+    const sixteenthOnly: GenerationControls = {
+      ...DEFAULT_GENERATION_CONTROLS,
+      noteDensity: 'Sixteenth',
+      rhythmicVariety: 'Strict',
+      silenceDensity: 'Sparse',
+      syncopation: 'Active displacement',
+    }
+    const wide = fakeSession({ controls: sixteenthOnly }).session
+    const narrow = fakeSession({
+      controls: sixteenthOnly,
+      noteDensityContext: { belowTabletLandscape: true, sessionSteppedDown: false },
+    }).session
+
+    expect(
+      primaryButton(mount(WorkspaceHeader, { props: { session: wide } })).attributes('disabled'),
+    ).toBeDefined()
+    expect(
+      primaryButton(mount(WorkspaceHeader, { props: { session: narrow } })).attributes('disabled'),
+    ).toBeUndefined()
   })
 
   it('does not disable Retry notation for an unsupported rhythm combination', () => {
