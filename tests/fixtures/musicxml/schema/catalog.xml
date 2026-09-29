@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Maps the network locations the MusicXML 4.0 schema imports to the copies in this directory, so
+  xmllint validates offline (with its no-network option set). Point XML_CATALOG_FILES at this file.
+-->
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <uri name="http://www.musicxml.org/xsd/musicxml.xsd" uri="musicxml.xsd"/>
+  <uri name="http://www.musicxml.org/xsd/xlink.xsd" uri="xlink.xsd"/>
+  <uri name="http://www.musicxml.org/xsd/xml.xsd" uri="xml.xsd"/>
+</catalog>

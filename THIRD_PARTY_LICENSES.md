@@ -82,6 +82,25 @@ Under SIL OFL 1.1, as verified from the Fraunces/Source Sans 3 license text:
 - The license text must travel with the fonts. All four fonts satisfy this through
   [`public/licenses/`](public/licenses/), which ships as `dist/licenses/`.
 
+## Test fixtures (not shipped in `dist/`)
+
+The MusicXML 4.0 schema is vendored under [`tests/fixtures/musicxml/schema/`](tests/fixtures/musicxml/schema/)
+so the unit tests can validate the MusicXML export offline. These files are test data only: no
+`src/` code imports them and they never reach `dist/`. They are copied unmodified from the `v4.0`
+tag of the W3C MusicXML repository (<https://github.com/w3c/musicxml>, directory `schema/`).
+
+| File           | License                                                                                                                                                                                                  | Copyright holder                                                                                                |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `musicxml.xsd` | W3C Community Final Specification Agreement (FSA), <https://www.w3.org/community/about/agreements/final/>                                                                                                | © 2004-2021 the Contributors to the MusicXML Specification, published by the W3C Music Notation Community Group |
+| `xlink.xsd`    | W3C Community Final Specification Agreement (FSA), as above                                                                                                                                              | © 2004-2021 the Contributors to the MusicXML Specification, as above                                            |
+| `xml.xsd`      | No licence notice in the file; it is the W3C's schema for the `xml:` namespace, which the MusicXML repository redistributes unmodified next to its own schema, and it is redistributed here the same way | World Wide Web Consortium (W3C)                                                                                 |
+
+Both MusicXML files state their license in their own header, with a human-readable summary at
+<https://www.w3.org/community/about/agreements/fsa-deed/>. The FSA grants a copyright license to
+reproduce and distribute the specification, which covers keeping an unmodified copy of the schema
+for validation. `catalog.xml` in the same directory is the project's own file (MIT), not a copy of
+the upstream catalog.
+
 ## Dev-only tooling (not shipped in `dist/`)
 
 A short, non-exhaustive list of the build/test toolchain, all MIT-licensed per their own

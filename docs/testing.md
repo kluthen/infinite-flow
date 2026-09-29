@@ -65,6 +65,11 @@ The measurement results, with the machine and the date, are recorded in `docs/ge
 load, so never run it next to `atd audit` (which saturates the local model server), a measurement
 script, or another test run.
 
+`test:unit` needs `xmllint` (from libxml2; the Debian package is `libxml2-utils`) on the `PATH`:
+`tests/unit/export/musicxml/musicxml-schema.spec.ts` runs it to validate the MusicXML export
+against the MusicXML 4.0 schema, offline. The development container installs it. Without it that
+spec fails; it never skips.
+
 Every Playwright command starts all three `webServer` entries of `playwright.config.ts`, whatever
 spec it runs:
 
@@ -282,9 +287,34 @@ owner's machine.
 | Rhythm manifest v1, Quarter, sorted      | `tests/unit/domain/rhythm/fixtures/rhythm-mvp-v1-quarter-sorted-manifest.json` | The 36 Quarter settings of the previous grammar, hashed over sorted identities, to prove the Quarter candidate sets did not change.                                                                                                          | `rhythm-planner.spec.ts`                                                                                    |
 | Rhythm manifest v1                       | `tests/unit/domain/rhythm/fixtures/rhythm-mvp-v1-manifest.json`               | The 144 settings of the previous grammar, including the retired Mixed density.                                                                                                                                                                | No test reads it today.                                                                                     |
 | Rhythm prefilter oracle                  | `tests/unit/domain/rhythm/rhythm-prefilter-oracle.ts`                         | An unpruned enumeration of raw rhythm candidates, to prove the planner's early pruning never drops a valid candidate.                                                                                                                        | `rhythm-prefilter-soundness-{quarter,eighth,sixteenth}` specs                                               |
+| MusicXML sessions                        | `tests/unit/export/musicxml/musicxml-session-fixtures.ts`                     | Hand-built sessions run through the real `transformToWrittenPhrase`: `cKeyboardSession`, `bbTenorTempoChangeSession` (90 then 120 BPM), `ebAltoKeyChangeSession` (written A then D major), `cKeyboardPlainSession(tempos)` and `plainPhraseFor(instrument)`. The "rich" phrase has eighths, beamed sixteenths, a displayed sharp, a rest, ties, a triad of each quality and two two-chord measures. | `musicxml-encoder`, `musicxml-golden`, `musicxml-schema` specs                                              |
 
 The goldens hold literal values, never values recomputed by the code under test. They change only in
 a deliberate, reviewed step that bumps the version in their name.
+
+### MusicXML fixtures
+
+`tests/fixtures/musicxml/` holds the MusicXML export's golden files and the schema that validates
+them. See [`docs/export.md`](export.md) for what the encoder writes.
+
+| Path (under `tests/fixtures/musicxml/`)     | What it holds                                                                                                                                                         | Used by                                   |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| `golden/c-keyboard.v1.musicxml`             | `cKeyboardSession`: two phrases at 90 BPM, written C major, no `<transpose>`, two-chord measures.                                                                     | `musicxml-golden`, `musicxml-schema` specs |
+| `golden/bb-tenor-tempo-change.v1.musicxml`  | `bbTenorTempoChangeSession`: two phrases, written D major, `<transpose>` down a major ninth, metronome marks at 90 and 120 BPM.                                        | `musicxml-golden`, `musicxml-schema` specs |
+| `golden/eb-alto-key-change.v1.musicxml`     | `ebAltoKeyChangeSession`: two phrases at 120 BPM, `<transpose>` down a major sixth, written A major then D major.                                                     | `musicxml-golden`, `musicxml-schema` specs |
+| `schema/musicxml.xsd`, `xlink.xsd`, `xml.xsd` | The MusicXML 4.0 W3C XML Schema and the two schemas it imports, unmodified, from the `v4.0` tag of the W3C MusicXML repository (licence in `THIRD_PARTY_LICENSES.md`). | `musicxml-schema.spec.ts`                 |
+| `schema/catalog.xml`                        | An XML catalog mapping the schema's import locations to the local copies, so `xmllint --nonet` validates without a network (`XML_CATALOG_FILES` points at it).       | `musicxml-schema.spec.ts`                 |
+
+The golden files hold the exact bytes the encoder must produce, reviewed by hand against the
+export rules when they were written. Like the other goldens, they change only in a deliberate,
+reviewed step that bumps the version in their name.
+
+To validate a file by hand:
+
+```sh
+XML_CATALOG_FILES=tests/fixtures/musicxml/schema/catalog.xml \
+  xmllint --noout --nonet --schema tests/fixtures/musicxml/schema/musicxml.xsd <file>
+```
 
 ### Browser boundary fixtures
 
