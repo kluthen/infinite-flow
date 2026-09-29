@@ -4,7 +4,7 @@ status: REVIEW
 human_name: Generation Request Construction
 type: MODULE
 layer: ARCHITECTURE
-version: 0.2
+version: 0.3
 priority: 1
 tags: controls,generation-request,action-boundary
 parents:
@@ -27,7 +27,7 @@ Construct one outer generation intent from normalized generation controls only w
 The GenerationIntent factory constructs an outer request boundary from normalized generation-only controls, the selected instrument-profile policy, player register intent including unresolved Varying, an injected seed, and an injected request identity. Theme, browser capability state, mutable workspace session state, audio state, UI state, and prior results are structurally excluded. The note density in the controls the factory receives is the density the phrase is generated with, which can differ from the chosen one: the caller resolves the chosen density when the request is made, from whether the window is below the tablet-landscape layout's width and, during a session, whether that session has stepped its density down, and passes the plain result. The window's width reaches the intent only through that resolved density, never as browser state, and the chosen density itself is left unchanged. Generate, Regenerate, Retry generation, and the regeneration an instrument-profile switch runs while a phrase is shown are the only actions that invoke the factory; each retains the current controls while using a renewed injected seed and request identity, including Retry generation after a failure, which builds this same fresh intent from the current controls rather than replaying the failed one unchanged. The existing resolved GenerationRequest remains unchanged. Step 7 orchestration, not this factory, owns Varying feasibility and planner-facing resolution.
 
 ## TECHNICAL INTERFACE
-Generate, Regenerate, and Retry generation supply normalized catalog controls, with the note density resolved for the window's width at that moment, the selected instrument-profile policy, an injected seed, and an injected request identity to produce GenerationIntent. Consumers receive GenerationIntent separately from presentation state; core planners continue to accept only the existing resolved GenerationRequest.
+Generate, Regenerate, Retry generation, and the regeneration an instrument-profile switch runs supply normalized catalog controls, with the note density resolved for the window's width at that moment, the selected instrument-profile policy, an injected seed, and an injected request identity to produce GenerationIntent. Consumers receive GenerationIntent separately from presentation state; core planners continue to accept only the existing resolved GenerationRequest.
 
 ## EXPECTATION
 Changing presentation, browser, session, audio, or UI state cannot alter or construct GenerationIntent, except that the note density a newly built intent carries is the one the window's width (and, during a session, the session's step-down) gives at the moment it is built; a crossing of that width never builds an intent or alters one already built. Every emitted intent has normalized generation controls, one selected profile policy, one register intent, one seed, and one request identity. An unresolved Varying selection never reaches the existing resolved GenerationRequest through this factory.
