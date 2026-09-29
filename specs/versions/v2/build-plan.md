@@ -574,6 +574,14 @@ recording again on the owner's machine. Waiting for the owner: the new text of
 floor, since the tallest phrases need 17.5 staff spaces per system against the design's 12–14; and
 from `bp-tablet-landscape` up the staff frame is about 70 px taller than v1's.
 
+**Follow-up, chunk 3b: in progress since 2026-09-29** (worktree branch `v2-chunk-3b`). The owner
+approved the atom text (v0.5, REVIEW). `ux-writer` answered the height question (UX D127–D129), and
+the owner accepted its answer and about 276 px as the phone minimum. One system position is sized
+for one instrument's reach, 15 staff spaces instead of 17.5, with the staff placed in it for each
+instrument. Below 64rem the staff frame's top and bottom padding shrinks to 8 px. The start marker
+sits between the first note and its chord symbol where there is room. From `bp-tablet-landscape`
+up, the frame shrinks back to about 10 px taller than v1's.
+
 **Goal.** Replace v1's layout planner with v2's: split below `bp-tablet-landscape`, one system per
 phrase from it up, a scale that fits the height as well as the width on the phone, one
 `staff-content` unit per system position, and two system positions always reserved. The planner
