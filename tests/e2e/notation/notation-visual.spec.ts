@@ -2,9 +2,10 @@
  * Visual regression coverage for the engraved staff, chromium-only (font antialiasing and subpixel
  * layout differ across browser engines, so cross-browser screenshot comparison is not meaningful
  * here): three fixed generated seeds, one per instrument profile (each engraving in that
- * instrument's own written pitch), at a normal desktop width, plus one fixed phone-viewport case
- * that exercises the two-system fallback layout. Baselines are generated with `--update-snapshots`
- * and must then re-run stable.
+ * instrument's own written pitch), at a normal desktop width in the one-system layout, plus one
+ * fixed phone-viewport case showing the whole staff frame in the split layout at idle: a sparse
+ * phrase that one system would hold, drawn as bars 1-2 over bars 3-4 in the two reserved system
+ * positions. Baselines are generated with `--update-snapshots` and must then re-run stable.
  */
 import { expect, test } from '@playwright/test'
 
@@ -40,11 +41,11 @@ for (const { name, profile, seed } of CASES) {
 // @test-link [[module_notation_layout_preflight]]
 test('two-system phone layout matches its baseline', async ({ page }) => {
   await page.setViewportSize({ width: 740, height: 360 })
-  await page.goto('/?fixture=dense&width=700')
+  await page.goto('/?fixture=simple&width=700')
   await waitForHarnessSettled(page)
-  expect((await page.evaluate(() => window.__notationHarness)).state).toBe('ready')
+  const harnessState = await page.evaluate(() => window.__notationHarness)
+  expect(harnessState.state).toBe('ready')
+  expect(harnessState.engraved?.systemCount).toBe(2)
 
-  await expect(page.locator('.staff-content')).toHaveScreenshot(
-    'two-system-phone-staff-content.png',
-  )
+  await expect(page.locator('.staff-frame')).toHaveScreenshot('two-system-phone-staff-frame.png')
 })

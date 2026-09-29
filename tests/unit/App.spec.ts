@@ -77,6 +77,14 @@ vi.mock('../../src/components/workspace/create-workspace-session', () => ({
 }))
 
 import App from '../../src/App.vue'
+import { PHRASE_SCORE_STUB } from './components/workspace/test-workspace'
+
+/**
+ * Stub PhraseScore, as every workspace component spec does: it is mounted in every state (it holds
+ * the staff's reserved system positions), and its real engraving surface needs the browser layout
+ * APIs (ResizeObserver, matchMedia, computed styles) that jsdom lacks.
+ */
+const STUBS = { PhraseScore: PHRASE_SCORE_STUB }
 
 afterEach(() => {
   document.documentElement.removeAttribute('data-theme')
@@ -84,21 +92,21 @@ afterEach(() => {
 
 describe('App', () => {
   it('mounts the client shell', () => {
-    const wrapper = mount(App)
+    const wrapper = mount(App, { global: { stubs: STUBS } })
 
     expect(wrapper.get('h1').text()).toBe('Infinite Flow')
   })
 
   // @test-link [[rule_presentation_preference_preserves_phrase]]
   it('leaves no data-theme override on mount while the preference is System', () => {
-    mount(App)
+    mount(App, { global: { stubs: STUBS } })
 
     expect(document.documentElement.hasAttribute('data-theme')).toBe(false)
   })
 
   // @test-link [[rule_presentation_preference_preserves_phrase]]
   it('applies data-theme on a theme selection without calling generate', async () => {
-    const wrapper = mount(App)
+    const wrapper = mount(App, { global: { stubs: STUBS } })
 
     const themeGroup = wrapper.get('[aria-label="Presentation theme"]')
     await themeGroup.findAll('button')[2]!.trigger('click')
@@ -113,7 +121,7 @@ describe('App', () => {
     const injectedFactory = vi.fn(() => injected)
 
     const wrapper = mount(App, {
-      global: { provide: { [workspaceSessionFactoryKey]: injectedFactory } },
+      global: { stubs: STUBS, provide: { [workspaceSessionFactoryKey]: injectedFactory } },
     })
 
     expect(injectedFactory).toHaveBeenCalledTimes(1)

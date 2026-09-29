@@ -1,10 +1,11 @@
 <script setup lang="ts">
 /**
  * The score panel: its toolbar (title, the persistent generation-status and notation-status live
- * regions, and a generation-failure banner) plus the staff viewport that renders `PhraseScore` in the state the
- * States table defines -- empty, loading (with the prior phrase still visible), ready, or a
- * notation-error panel layered over the still-mounted `PhraseScore` so a later Retry notation can
- * redraw the same instance rather than remounting it from scratch.
+ * regions, and a generation-failure banner) plus the staff viewport, whose `staff-frame` always
+ * holds `PhraseScore` and with it the two reserved staff system positions, in every state the
+ * States table defines -- empty (the instruction laid over the blank positions), loading (with the
+ * prior phrase still visible), ready, or a notation-error message laid over the still-mounted
+ * `PhraseScore` so a later Retry notation can redraw the same instance rather than remounting it.
  */
 import { computed, ref, watch } from 'vue'
 
@@ -95,7 +96,7 @@ const staffFrameStateClass = computed(() => {
   return 'staff-empty'
 })
 
-/** True once a valid phrase has ever been generated: only then is PhraseScore mounted at all. */
+/** True once a phrase has been presented for engraving; before that the frame shows its instruction. */
 const hasPhrase = computed(() => props.pendingPhrase !== null)
 
 /** Intent: surface the retained notation failure as the staff-frame's replacement error content. */
@@ -127,16 +128,16 @@ const generationErrorAlertText = computed(() =>
     </p>
     <div class="staff-viewport">
       <div class="staff-frame" :class="staffFrameStateClass" aria-labelledby="score-panel-title">
-        <p v-if="!hasPhrase" class="staff-empty-copy">Generate a phrase to begin.</p>
         <PhraseScore
-          v-if="pendingPhrase !== null"
           :phrase="pendingPhrase"
           @engraved="handleEngraved"
           @notation-error="handleNotationError"
-        />
-        <p v-if="notationErrorMessage !== null" class="inline-alert alert-error">
-          Notation error: {{ notationErrorMessage }}
-        </p>
+        >
+          <p v-if="!hasPhrase" class="staff-empty-copy">Generate a phrase to begin.</p>
+          <p v-if="notationErrorMessage !== null" class="inline-alert alert-error">
+            Notation error: {{ notationErrorMessage }}
+          </p>
+        </PhraseScore>
       </div>
     </div>
   </div>

@@ -97,7 +97,7 @@ chunks in different sections; the second to merge rebases on the first.
 | Wave | Chunks                                                                                                                                                                                                                                            | Waits for                                                                   |
 | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29)                                                                                                                                                                                           | Nothing                                                                     |
-| 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation · 14 Note acknowledgement · 18 MusicXML encoding · 19 Generated-notes MIDI encoding                                                    | Chunk 0 (done). Start chunk 3 first (see the caveat).                        |
+| 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 (done 2026-09-29) · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation · 14 Note acknowledgement · 18 MusicXML encoding · 19 Generated-notes MIDI encoding                                                    | Chunk 0 (done). Start chunk 3 first (see the caveat).                        |
 | 2    | 5 Idle fit retries and the room notice · 6 Note identity and session overlays · 8 Session engine · 10 Audio transport                                                                                                                             | Wave 1. Chunks 8 and 10 also need chunk 1's verdict.                        |
 | 3    | 9 Session history · 11 Backing · 12 MIDI input                                                                                                                                                                                                    | Wave 2                                                                      |
 | 4    | 15 Session screen: start and end                                                                                                                                                                                                                  | Wave 3                                                                      |
@@ -561,7 +561,18 @@ microphone.
 ### Chunk 3 — Notation layout v2
 
 **Release:** v2.0. Carries [the caveat](#2-read-first-the-notation-layout-caveat). Starts first in
-its wave. **In progress since 2026-09-29** (worktree branch `v2-chunk-3`), in parallel with chunk 2.
+its wave. **Done on 2026-09-29.** The v2 planner splits every phrase below `bp-tablet-landscape`
+and keeps one system from it up; the scale fits the width and, below it, the height budget read
+from `staff-frame`'s `max-block-size`, never below 5 px per staff space. "No room for the staff"
+and "notes too wide" are two typed failures. Each system position is its own `staff-content`
+engraving, and two positions are always reserved. The phone check now passes 36 of 36, including
+the phrase that overflowed in [chunk 1](#chunk-1--baseline-checks). `npm run quality` passes in
+full on the merged code. The four visual baselines were recorded in the cloud container and need
+recording again on the owner's machine. Waiting for the owner: the new text of
+`module_notation_layout_preflight` (v0.5, back to DRAFT), and two design questions for
+`ux-writer`: a phone needs about 317 px of small-viewport height for two systems at the legibility
+floor, since the tallest phrases need 17.5 staff spaces per system against the design's 12–14; and
+from `bp-tablet-landscape` up the staff frame is about 70 px taller than v1's.
 
 **Goal.** Replace v1's layout planner with v2's: split below `bp-tablet-landscape`, one system per
 phrase from it up, a scale that fits the height as well as the width on the phone, one

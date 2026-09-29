@@ -395,8 +395,9 @@ state'`, `'... in the notation-failed error state'`. `npm run test:a11y` is 6/6 
 installs, the workspace reloads and completes a full generation while offline'`, `'the two
 self-hosted UI typefaces load without any network request'`.
 - Evidence (breakpoints/single-system/two-system layout): `tests/e2e/workspace/viewports.spec.ts`
-  (see item 3) and `tests/e2e/notation/notation-two-system.spec.ts` — `'two-system phone layout
-matches its baseline'` plus its companion engraving-element checks.
+  (see item 3) and `tests/e2e/notation/notation-layout.spec.ts` (the v2 staff layout: split below
+  `64rem`, one system from it up) — plus `tests/e2e/notation/notation-visual.spec.ts`'s
+  `'two-system phone layout matches its baseline'`.
 - Evidence (portrait notice): `tests/e2e/workspace/portrait-notice.spec.ts` (see item 3).
 - Evidence (unrenderable-phrase notation error): `tests/e2e/release/errors-and-retry.spec.ts` —
   `'a notation failure keeps the phrase data but replaces the score with a retryable error, and

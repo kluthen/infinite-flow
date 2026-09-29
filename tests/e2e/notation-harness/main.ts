@@ -1,11 +1,14 @@
 /**
- * The notation engraving harness entry point. Two sources, selected by the `source` URL parameter:
+ * The notation engraving harness entry point. PhraseScore is mounted inside a real `staff-frame`
+ * with the app's own stylesheet, so below the tablet-landscape breakpoint the frame's computed
+ * `max-block-size` (built from the small viewport height) is the height budget the notation layout
+ * reads, exactly as in the app; the `width` URL parameter sets the frame's outer width. Two sources, selected by the `source` URL parameter:
  * `source=fixture` (the default when `source` is absent) resolves a hand-built WrittenPhrase from
  * `fixture`; `source=generated` runs a real, explicit GenerationIntent through `generatePhrase`,
  * derives its NotationPhraseInput, and transforms it into a WrittenPhrase using the active
  * instrument profile's own transposition (there is no independently selectable display
- * convention). Either way PhraseScore is mounted inside a fixed-width container and the engrave
- * outcome is published on `window.__notationHarness` so the Playwright notation specs can assert
+ * convention). Either way the engrave outcome, and a running count of successful engravings, is
+ * published on `window.__notationHarness` so the Playwright notation specs can assert
  * on it without depending on internal DOM structure beyond the documented `svg.staff-svg` /
  * `g.measure-slot` marks. The generated source additionally publishes the source snapshot and a
  * `currentSnapshot` accessor.
@@ -14,6 +17,8 @@ import { createApp, h, ref, type Ref } from 'vue'
 
 import {
   makeGenerationControls,
+  CONTOURS,
+  LEAPINESS_VALUES,
   PITCH_CLASSES,
   COLLECTIONS,
   NOTE_DENSITIES,
@@ -36,8 +41,9 @@ import type { NotationPhraseInput } from '@/domain/notation/written-phrase-types
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import { makeSeed } from '@/domain/random/seed'
-import PhraseScore from '@/components/notation/PhraseScore.vue'
+import PhraseScore, { type EngravedPayload } from '@/components/notation/PhraseScore.vue'
 import type { NotationError } from '@/notation/notation-error'
+import '@/styles/index.css'
 import { resolveFixture } from './fixtures'
 
 /** Extra fields the generated source publishes alongside every state transition; empty for a fixture. */
@@ -52,37 +58,57 @@ function requireParam(params: URLSearchParams, name: string): string {
   return value
 }
 
-/** Intent: mount PhraseScore against a reactive phrase ref, publishing every lifecycle event. */
+/** Successful engravings reported since the page loaded (see NotationHarnessState.engraveCount). */
+let engraveCount = 0
+
+/**
+ * Intent: mount PhraseScore inside a real `staff-frame` against a reactive phrase ref, publishing
+ * every lifecycle event.
+ */
 function mountPhraseScore(phraseRef: Ref<WrittenPhrase>, extras: GeneratedExtras): void {
   const app = createApp({
     render: () =>
-      h(PhraseScore, {
-        phrase: phraseRef.value,
-        onEngraved: (payload: {
-          staffSpacePx: number
-          widthPx: number
-          heightPx: number
-          requiredUnits: number
-          systemCount: 1 | 2
-        }) => {
-          window.__notationHarness = { state: 'ready', engraved: payload, ...extras }
-        },
-        onNotationError: (error: NotationError) => {
-          window.__notationHarness = {
-            state: 'error',
-            errorCode: error.code,
-            errorDetails: error.details,
-            ...extras,
-          }
-        },
-      }),
+      h('div', { class: 'staff-frame' }, [
+        h(PhraseScore, {
+          phrase: phraseRef.value,
+          onEngraved: (payload: EngravedPayload) => {
+            engraveCount += 1
+            window.__notationHarness = {
+              state: 'ready',
+              engraved: payload,
+              engraveCount,
+              ...extras,
+            }
+          },
+          onNotationError: (error: NotationError) => {
+            window.__notationHarness = {
+              state: 'error',
+              errorCode: error.code,
+              errorDetails: error.details,
+              engraveCount,
+              ...extras,
+            }
+          },
+        }),
+      ]),
   })
   const container = document.getElementById('app')
   if (!container) throw new Error('Notation harness is missing its #app mount element.')
   app.mount(container)
 }
 
-/** Intent: build the explicit, cheap-controls-free GenerationIntent for the harness's generated source. */
+/**
+ * Intent: read an optional URL parameter that has a documented harness default (used only for the
+ * contour and leapiness the calibration sweep varies; every other control is required).
+ */
+function optionalParam(params: URLSearchParams, name: string, harnessDefault: string): string {
+  return params.get(name) ?? harnessDefault
+}
+
+/**
+ * Intent: build the explicit, cheap-controls-free GenerationIntent for the harness's generated
+ * source. Contour and leapiness default to `Arch` and `Shaped` unless the URL sets them.
+ */
 function buildHarnessIntent(params: URLSearchParams): GenerationIntent {
   const controls = makeGenerationControls({
     tempo: 90,
@@ -106,9 +132,13 @@ function buildHarnessIntent(params: URLSearchParams): GenerationIntent {
       requireParam(params, 'silence'),
       'silence',
     ),
-    contour: 'Arch',
+    contour: validateControlValue(CONTOURS, optionalParam(params, 'contour', 'Arch'), 'contour'),
     register: validateControlValue(REGISTER_CHOICES, requireParam(params, 'register'), 'register'),
-    leapiness: 'Shaped',
+    leapiness: validateControlValue(
+      LEAPINESS_VALUES,
+      optionalParam(params, 'leapiness', 'Shaped'),
+      'leapiness',
+    ),
     arpeggioChaos: 'Predictable',
     instrumentProfileId: validateControlValue(
       INSTRUMENT_PROFILE_IDS,

@@ -145,25 +145,34 @@ A new seam is added to `main.ts`, typed in `workspace-harness-window.d.ts`, wrap
 **Files.** `tests/e2e/notation-harness/index.html`, `main.ts` and `fixtures.ts`, the typed state
 `tests/e2e/notation-harness-window.d.ts`, and the build config `vite.notation-harness.config.ts`. It
 is served on port 4174; every notation spec sets `test.use({ baseURL: 'http://127.0.0.1:4174' })`.
-It mounts `PhraseScore` alone, without the app shell, inside the `#app` container.
+It mounts `PhraseScore` without the app shell, inside a real `staff-frame` in the `#app` container,
+with the app's own stylesheet (Tailwind runs in the harness build), because the notation layout
+reads its height budget from `staff-frame`'s computed `max-block-size`.
 
 **URL parameters.** A missing required parameter throws; nothing is defaulted except `source`.
 
-- `width` (required): the container width in CSS pixels.
+- `width` (required): the frame's outer width in CSS pixels.
 - `source`: `fixture` (the default) or `generated`.
 - With `source=fixture`: `fixture`, one of the named fixtures listed below.
 - With `source=generated`: `seed`, `tonal`, `collection`, `density`, `variety`, `syncopation`,
-  `silence`, `register` and `profile`, each validated against the domain catalogs. The other
-  controls are fixed (tempo 90, Gentle diatonic motion, Settled tension, Arch contour, Shaped
-  leapiness, Predictable arpeggio chaos, Neutral musical profile). The phrase is generated on the
+  `silence`, `register` and `profile`, each validated against the domain catalogs, and optionally
+  `contour` (default Arch) and `leapiness` (default Shaped), which the calibration sweep varies.
+  The other controls are fixed (tempo 90, Gentle diatonic motion, Settled tension, Predictable
+  arpeggio chaos, Neutral musical profile). The phrase is generated on the
   page's main thread with `generatePhrase`, and engraved in the chosen instrument's written pitch. A
   generation failure throws as a page error; no state is published for it.
 
 **Published state.** `window.__notationHarness` follows `PhraseScore`'s lifecycle:
 
 - `{ state: 'pending' }` until the first engraving settles;
-- `{ state: 'ready', engraved: { staffSpacePx, widthPx, heightPx, requiredUnits, systemCount } }`;
-- `{ state: 'error', errorCode, errorDetails }`, for example `notation_below_legibility_floor`.
+- `{ state: 'ready', engraved: { staffSpacePx, widthPx, heightPx, requiredUnits, systemCount,
+  positionBlockPx } }`, where `positionBlockPx` is the height of one reserved system position;
+- `{ state: 'error', errorCode, errorDetails }`, for example `notation_no_room` (the window has no
+  room for the staff) or `notation_notes_too_wide` (this phrase's notes don't fit).
+
+Every state also carries `engraveCount`, the number of successful engravings since the page loaded,
+so a spec can prove that something (a browser toolbar showing or hiding) caused no redraw. A spec
+that resets the state to `pending` drops it until the next publish.
 
 The generated source also publishes `sourceSnapshot` (the JSON of the result, provenance, request
 and intent right after generation) and `currentSnapshot()`, which recomputes it, so a spec can check
@@ -233,9 +242,9 @@ All in `tests/e2e/notation-harness/fixtures.ts`, selected by the `fixture` URL p
 
 | Name                      | What it holds                                                                                                                                  | Used by                                                                                                |
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `dense`                   | Hand-built C major phrase: a full sixteenth-note grid with accidentals and a chord change in the middle of every bar. The widest case.         | `notation-elements`, `notation-engraving`, `notation-two-system`, `notation-visual` specs              |
-| `denseTie`                | `dense` with a tie across the bar 2 to bar 3 barline, which the two-system layout splits across lines.                                        | `notation-two-system.spec.ts`                                                                          |
-| `simple`                  | Hand-built phrase: whole, half and quarter notes, rests, ties across a barline, a dotted value and a beam group.                              | `notation-engraving`, `notation-flags`, `notation-two-system` specs                                    |
+| `dense`                   | Hand-built C major phrase: a full sixteenth-note grid with accidentals and a chord change in the middle of every bar. The widest case.         | `notation-elements`, `notation-engraving`, `notation-layout`, `notation-visual` specs                  |
+| `denseTie`                | `dense` with a tie across the bar 2 to bar 3 barline, which the two-system layout splits across lines.                                        | `notation-layout.spec.ts`                                                                              |
+| `simple`                  | Hand-built phrase: whole, half and quarter notes, rests, ties across a barline, a dotted value and a beam group.                              | `notation-engraving`, `notation-flags`, `notation-layout`, `notation-visual` specs                     |
 | `sharps6`                 | F-sharp major key signature (six sharps).                                                                                                      | `notation-engraving.spec.ts`                                                                           |
 | `flats5`                  | D-flat major key signature (five flats).                                                                                                       | `notation-engraving.spec.ts`                                                                           |
 | `testProfilePlus2Plus1`   | Whole-note tonic phrase, written C Ionian, run through `transformToWrittenPhrase` for a made-up transposition (+2 semitones, +1 letter).       | `notation-key-signature-spelling.spec.ts`                                                              |
@@ -247,17 +256,20 @@ All in `tests/e2e/notation-harness/fixtures.ts`, selected by the `fixture` URL p
 
 `tests/e2e/notation/notation-visual.spec.ts-snapshots/` holds four Chromium-on-Linux PNGs of the
 engraved staff: `concert`, `bflat-tenor` and `eflat-alto` (generated source, seeds 21, 22 and 23 at
-1200 px) and `two-system-phone` (`dense` at 700 px in a 740 × 360 viewport). They are rewritten
+1200 px, one system position each) and `two-system-phone-staff-frame` (the whole `staff-frame` for
+`simple` at 700 px in a 740 × 360 viewport, split over two systems at idle). They are rewritten
 with `npx playwright test tests/e2e/notation/notation-visual.spec.ts --update-snapshots`, and must
 then pass again unchanged. Font rendering differs between machines and container images, so
-baselines are recorded on the same setup that checks them.
+baselines are recorded on the same setup that checks them. The current four were recorded in the
+cloud container on 2026-09-29, when chunk 3 changed the layout; they need recording again on the
+owner's machine.
 
 ### Unit fixtures, goldens and manifests
 
 | Name                                     | Path                                                                          | What it holds                                                                                                                                                                                                                                  | Used by                                                                                                     |
 | ---------------------------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | Workspace session result                 | `tests/unit/workspace-test-fixtures.ts`                                       | `CHEAP_CONTROLS` (the defaults with cheap rhythm and harmony settings) and `buildWorkspaceSessionResult(requestId, seed)`, which runs one real, cheap generation.                                                                             | `ScorePanel`, `WorkspaceHeader`, `use-notation-coordinator` specs; `test-workspace.ts`                      |
-| Test workspace                           | `tests/unit/components/workspace/test-workspace.ts`                           | `createTestWorkspace(generate?)`: the real session and notation coordinator without a Worker, with a fake window width at or above `bp-tablet-landscape`; `useCheapControls`; `PHRASE_SCORE_STUB`, a `PhraseScore` that renders nothing but has the same events. | `ScorePanel`, `WorkspaceShell` specs                                                                        |
+| Test workspace                           | `tests/unit/components/workspace/test-workspace.ts`                           | `createTestWorkspace(generate?)`: the real session and notation coordinator without a Worker, with a fake window width at or above `bp-tablet-landscape`; `useCheapControls`; `PHRASE_SCORE_STUB`, a `PhraseScore` that renders only its slot and has the same events. | `ScorePanel`, `WorkspaceShell` specs                                                                        |
 | Fake window width                        | `tests/unit/composables/fake-viewport-width.ts`                               | `createFakeViewportWidth(initiallyBelowTabletLandscape?)`: a `ViewportWidthProvider` a test moves across `bp-tablet-landscape` by hand (see [Fake window width](#fake-window-width)).                                                          | every spec that builds a session; `generation-session-note-density.spec.ts`, `create-workspace-session.spec.ts` |
 | Fake Worker port                         | `tests/unit/generation-worker/fake-generation-worker-port.ts`                 | `createFakeGenerationWorkerPort`: an in-memory `GenerationWorkerPort` that structured-clones both ways and answers through the real handler, a scripted responder, or not at all.                                                            | `generation-worker-client.spec.ts`                                                                          |
 | Window search fixture                    | `tests/unit/domain/generation/orchestration/window-search-fixture.ts`         | `buildWindowSearchFixture(seed)`: a real intent, request, ranked harmony and rhythm candidates and search policy from cheap controls.                                                                                                          | `window-search`, `generation-orchestrator` specs; `generation-orchestrator-fixture.ts`                      |

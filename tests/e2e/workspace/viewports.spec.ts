@@ -21,6 +21,14 @@ async function expectNoHorizontalOverflow(page: import('@playwright/test').Page)
   )
 }
 
+/**
+ * Intent: the engraved score is visible: its top system, which every layout draws (below the
+ * tablet-landscape breakpoint the split layout adds a second system SVG under it).
+ */
+async function expectScoreVisible(page: import('@playwright/test').Page): Promise<void> {
+  await expect(page.locator('[data-system-position="top"] svg.staff-svg')).toBeVisible()
+}
+
 const VIEWPORTS = [
   { name: 'landscape mobile', width: 800, height: 400 },
   { name: 'tablet', width: 1024, height: 768 },
@@ -37,7 +45,7 @@ for (const viewport of VIEWPORTS) {
     await expectNoHorizontalOverflow(page)
 
     await generateAndAwaitReady(page)
-    await expect(page.locator('svg.staff-svg')).toBeVisible()
+    await expectScoreVisible(page)
     await expectNoHorizontalOverflow(page)
 
     const tonalCenter = radio(page, 'Written key', 'C')
@@ -66,7 +74,7 @@ for (const viewport of VIEWPORTS) {
       // while the radiogroup is still disabled.
       await expect(statusRegion(page)).toHaveText('Phrase ready', { timeout: 30_000 })
       await expect(profileRadio).toHaveAttribute('aria-checked', 'true')
-      await expect(page.locator('svg.staff-svg')).toBeVisible()
+      await expectScoreVisible(page)
       await expectNoHorizontalOverflow(page)
     }
   })
