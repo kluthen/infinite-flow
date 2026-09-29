@@ -1112,7 +1112,10 @@ needed. Build the check; that verification closes before the v2.0 gate.
 
 ### Chunk 14 — Note acknowledgement
 
-**Release:** v2.0. **In progress since 2026-09-29** (worktree branch `v2-chunk-14`), in parallel with chunk 7.
+**Release:** v2.0. **Paused on 2026-09-29, before any code**: as written, `rule_expected_note_window`
+stops an on-time note from matching when the next note starts less than 150 ms later (sixteenths
+from 110 BPM, eighths from 210 BPM), because the next window opens before the note's own onset.
+The owner decides the fix.
 
 **Goal.** The matching rule, as pure logic: each expected note's window, exact-pitch matching,
 once per note, the earliest match first, and the latency correction of a played onset.
@@ -1333,7 +1336,7 @@ hardware: the tuning covers USB; Bluetooth stays best-effort until settled.
 
 ### Chunk 18 — MusicXML encoding
 
-**Release:** v2.0.
+**Release:** v2.0. **In progress since 2026-09-29** (worktree branch `v2-chunk-18`), in parallel with chunk 7.
 
 **Goal.** A pure encoder from a session's phrases to one MusicXML file. No screen and no download:
 chunk 20 adds those.
