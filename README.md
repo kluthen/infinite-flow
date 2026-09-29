@@ -13,6 +13,8 @@ autonomous session.
 - Node.js `>=22.12.0`
 - npm (the committed `package-lock.json` is the only supported package manager input)
 - The Playwright Chromium browser binary (Chromium is the only supported browser for now)
+- `xmllint` from libxml2 (Debian/Ubuntu package `libxml2-utils`), used by the unit tests to validate
+  the MusicXML export against the MusicXML 4.0 schema
 
 ## Install
 
@@ -71,6 +73,9 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   inside a dedicated module Web Worker, off the main thread.
 - `src/notation/` — the concert-to-written transformation types and the VexFlow engraving adapter,
   loaded lazily (`vexflow-engraver-loader.ts` is the sole static importer of the engraver module).
+- `src/export/` — pure, browser-free encoders that turn a session's phrases into the bytes of one
+  export file; `musicxml/` holds the generated-notes MusicXML encoder. See
+  [`docs/export.md`](docs/export.md).
 - `src/composables/` — in-memory session/UI coordination (`use-generation-session.ts`,
   `use-notation-coordinator.ts`, `workspace-session-result.ts`, and `viewport-width.ts`, the
   injected window-width seam): no persistence, no singletons.
@@ -88,6 +93,8 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   `other/`) that call the restricted browser APIs on purpose. They sit outside `src/`, so the real
   lint and boundary scan never treat them as application code; the boundary unit tests lint and
   scan them as if they were in `src/`.
+- `tests/fixtures/musicxml/` — the MusicXML export's golden files and the vendored MusicXML 4.0
+  schema (with an XML catalog for offline validation); see [`docs/testing.md`](docs/testing.md).
 - `tests/e2e/{workspace,release,workspace-harness}` — Playwright suites: `workspace/` exercises the
   production preview build directly; `release/` exercises release-readiness journeys (determinism,
   errors/retry, concurrency, profile switch, theme isolation, persistence/optional-scope absence,
@@ -186,6 +193,11 @@ UI (Vue components, props-in/events-out)
   for the selected display convention (Concert / B-flat / E-flat), then engraved by a lazily loaded
   VexFlow adapter (`src/notation/vexflow-engraver-loader.ts` is the sole static importer of the
   engraver module) — the engraving chunk is fetched on first use and precached for offline reuse.
+
+- **Export.** `encodeGeneratedNotesMusicXml` (`src/export/musicxml/`) turns a session's phrases,
+  each with its number, its `WrittenPhrase` and its tempo, into one score-partwise 4.0 MusicXML
+  document in the instrument's written pitch. It is a pure function with no caller yet: the Review
+  screen and the download come later. See [`docs/export.md`](docs/export.md).
 
 See [`specs/generator-architecture.md`](specs/generator-architecture.md) for the full seam-by-seam
 architectural contract and [`docs/phrase-workspace.md`](docs/phrase-workspace.md) for the

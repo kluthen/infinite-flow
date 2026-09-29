@@ -12,6 +12,8 @@ where you edit and test it.
 - Playwright's Chromium build, pinned to the `@playwright/test` version in `package-lock.json`,
   with its OS-level dependencies and the fonts it needs for notation screenshots
   (`fonts-liberation`, `fonts-noto-color-emoji`)
+- `xmllint` (`libxml2-utils`), which the unit tests use to validate the MusicXML export against
+  the MusicXML 4.0 schema
 - git, ripgrep (`rg`), fd-find (`fd`), jq, curl, nano, bash-completion,
   openssh-client, procps, ca-certificates, locales (en_US.UTF-8), tzdata
 - Docker CLI + the compose plugin, via the `docker-outside-of-docker` feature, wired to the host's

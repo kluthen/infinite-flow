@@ -21,7 +21,8 @@ ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 USER root
 
-# Dev CLI tools + fonts Chromium needs for legible/stable notation screenshots. Split from the
+# Dev CLI tools + fonts Chromium needs for legible/stable notation screenshots. libxml2-utils
+# provides xmllint, which the unit tests use to validate the MusicXML export against its schema. Split from the
 # Playwright system-dependency install below so the apt cache/list cleanup happens once here;
 # `playwright install --with-deps` runs its own apt pass afterwards.
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -29,6 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fd-find \
     fonts-liberation \
     fonts-noto-color-emoji \
+    libxml2-utils \
     && ln -s /usr/bin/fdfind /usr/local/bin/fd \
     && rm -rf /var/lib/apt/lists/*
 # git, jq, curl, nano, bash-completion, openssh-client (ssh), procps (ps), ca-certificates,
