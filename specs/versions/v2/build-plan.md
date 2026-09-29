@@ -516,9 +516,9 @@ main-thread engraving against the scheduler.
 under `src/midi/`, in both checks, with a fixture tree proving each case. The absence spec asserts
 v2's rule. `specification_browser_only_operation_verification` is rewritten for v2; the chunk 0
 drift for this chunk is fixed. `npm run quality` passes but for the four known snapshots (see
-[chunk 1](#chunk-1--baseline-checks)). Left for the owner: a stale note in
-`rule_optional_midi_privacy`, which is a business atom, and a business rule for the microphone
-ban, which only the vision states today.
+[chunk 1](#chunk-1--baseline-checks)). With the owner's agreement, the stale note in
+`rule_optional_midi_privacy` now says the rule isn't built yet. The microphone ban stays without a
+business rule of its own: the owner ruled it out of scope.
 
 **Goal.** Let Web Audio and Web MIDI into the code, in named places only, before any audio or MIDI
 code lands. Everything else v1 forbids stays forbidden: browser storage, network calls, the
@@ -611,7 +611,7 @@ layout depends on width alone; the session holds it in chunk 16); v1:
 
 ### Chunk 4 — Note density on small screens
 
-**Release:** v2.0.
+**Release:** v2.0. **In progress since 2026-09-29** (worktree branch `v2-chunk-4`), in parallel with chunk 3.
 
 **Goal.** Below `bp-tablet-landscape`, `Sixteenth` can't be chosen, a stored `Sixteenth`
 generates as `Eighth`, and unsupported rhythm combinations are judged on the density a phrase is

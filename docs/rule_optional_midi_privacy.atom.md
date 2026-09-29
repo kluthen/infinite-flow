@@ -10,7 +10,7 @@ dependents: []
 type: RULE
 parents:
   - [[req_midi_controller_input]]
-notes: Revised 2026-09-29 by v2 spec ingestion for release v2.0 (previous version 0.1). Version 0.1 stated the first-release boundary that the app has no MIDI controller connection, input or feedback at all; v2 lifts that exclusion, so this rule now states how played MIDI input stays private. Not yet built - the code and its tags (the MIDI-absence test and boundary script) still implement version 0.1.
+notes: 'Revised 2026-09-29 by v2 spec ingestion for release v2.0 (previous version 0.1). Version 0.1 stated the first-release boundary that the app has no MIDI controller connection, input or feedback at all; v2 lifts that exclusion, so this rule now states how played MIDI input stays private. Not yet built: no played notes exist yet. The lint and boundary-script bans on network and storage enforce its never-sent/never-stored half; no test verifies it until played notes exist.'
 ---
 
 # Optional MIDI Privacy
