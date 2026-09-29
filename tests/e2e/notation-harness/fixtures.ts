@@ -18,7 +18,6 @@ import { makeNoteEvent } from '@/domain/events/measure-event'
 import { makeConcertEventTimeline } from '@/domain/events/timeline'
 import { makeRational } from '@/domain/time/rational'
 import { BB_TENOR_PROFILE, EB_ALTO_PROFILE } from '@/domain/profile/instrument-profiles'
-import type { InstrumentTransposition } from '@/domain/profile/instrument-profile'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type {
   ConcertChordSymbol,
@@ -35,6 +34,13 @@ import type {
 import type { Collection, PitchClass } from '@/domain/controls/generation-controls'
 
 const CONCERT_TRANSPOSITION = { chromatic: 0, diatonic: 0 } as const
+/**
+ * The written range every hand-built phrase is placed for: the saxophones' (written C4 to C6),
+ * which holds all their notes, up to the dense phrases' written C6.
+ */
+const FIXTURE_WRITTEN_RANGE = { minMidi: 60, maxMidi: 84 } as const
+/** The C MIDI keyboard's active concert range, for the test-only transpositions' phrases. */
+const KEYBOARD_CONCERT_RANGE = { minMidi: 48, maxMidi: 72 } as const
 const TIME_SIGNATURE = { beats: 4, beatValue: 4 } as const
 
 /** Intent: build the no-accidental C major written key shared by the dense and simple fixtures. */
@@ -200,6 +206,7 @@ function buildDensePhrase(): WrittenPhrase {
 
   return {
     transposition: CONCERT_TRANSPOSITION,
+    writtenRange: FIXTURE_WRITTEN_RANGE,
     clef: 'treble',
     timeSignature: TIME_SIGNATURE,
     key: keyCMajor(),
@@ -349,6 +356,7 @@ function buildSimplePhrase(): WrittenPhrase {
 
   return {
     transposition: CONCERT_TRANSPOSITION,
+    writtenRange: FIXTURE_WRITTEN_RANGE,
     clef: 'treble',
     timeSignature: TIME_SIGNATURE,
     key: keyCMajor(),
@@ -414,6 +422,7 @@ function buildKeySignaturePhrase(key: WrittenKey): WrittenPhrase {
 
   return {
     transposition: CONCERT_TRANSPOSITION,
+    writtenRange: FIXTURE_WRITTEN_RANGE,
     clef: 'treble',
     timeSignature: TIME_SIGNATURE,
     key,
@@ -454,13 +463,14 @@ function buildTransformedPhrase(
   concertPitch: number,
   tonalCenter: PitchClass,
   collection: Collection,
-  transposition: InstrumentTransposition,
+  instrument: Pick<NotationPhraseInput, 'transposition' | 'concertRange'>,
 ): WrittenPhrase {
   const input: NotationPhraseInput = {
     timeline: makeConcertEventTimeline(wholeNoteTimeline(concertPitch)),
     tonalContext: { tonalCenter, collection },
     chords: tonicChordEachMeasure(),
-    transposition,
+    transposition: instrument.transposition,
+    concertRange: instrument.concertRange,
   }
   return transformToWrittenPhrase(input)
 }
@@ -470,12 +480,18 @@ function buildTransformedPhrase(
  * first-release profile uses, engraved end to end from a written C Ionian selection.
  */
 function buildTestProfilePlus2Plus1Phrase(): WrittenPhrase {
-  return buildTransformedPhrase(60, 'C', 'Ionian', { chromatic: 2, diatonic: 1 })
+  return buildTransformedPhrase(60, 'C', 'Ionian', {
+    transposition: { chromatic: 2, diatonic: 1 },
+    concertRange: KEYBOARD_CONCERT_RANGE,
+  })
 }
 
 /** A second open, fabricated test-only instrument transposition, engraved the same way. */
 function buildTestProfilePlus21Plus12Phrase(): WrittenPhrase {
-  return buildTransformedPhrase(60, 'C', 'Ionian', { chromatic: 21, diatonic: 12 })
+  return buildTransformedPhrase(60, 'C', 'Ionian', {
+    transposition: { chromatic: 21, diatonic: 12 },
+    concertRange: KEYBOARD_CONCERT_RANGE,
+  })
 }
 
 /**
@@ -484,7 +500,7 @@ function buildTestProfilePlus21Plus12Phrase(): WrittenPhrase {
  * otherwise spell with zero accidentals.
  */
 function buildWrittenSharpSideBbTenorPhrase(): WrittenPhrase {
-  return buildTransformedPhrase(64, 'F#', 'Ionian', BB_TENOR_PROFILE.transposition)
+  return buildTransformedPhrase(64, 'F#', 'Ionian', BB_TENOR_PROFILE)
 }
 
 /**
@@ -492,7 +508,7 @@ function buildWrittenSharpSideBbTenorPhrase(): WrittenPhrase {
  * as D-flat major (five flats), the lowest-accidental spelling, from the written selection.
  */
 function buildWrittenFlatSideEbAltoPhrase(): WrittenPhrase {
-  return buildTransformedPhrase(64, 'C#', 'Major', EB_ALTO_PROFILE.transposition)
+  return buildTransformedPhrase(64, 'C#', 'Major', EB_ALTO_PROFILE)
 }
 
 /** The closed set of harness fixture names, selected via the page's `fixture` URL parameter. */

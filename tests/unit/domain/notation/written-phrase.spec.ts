@@ -31,6 +31,8 @@ const TRANSPOSITIONS: Record<string, InstrumentTransposition> = {
   'E-flat alto': { chromatic: 9, diatonic: 5 },
 }
 const CONCERT: InstrumentTransposition = TRANSPOSITIONS.Concert!
+/** The C MIDI keyboard's active concert range (C3 to C5), the range every hand-built input uses. */
+const KEYBOARD_CONCERT_RANGE = { minMidi: 48, maxMidi: 72 } as const
 const TRANSPOSITION_NAMES = Object.keys(TRANSPOSITIONS)
 
 function note(pitch: number, ticks: number, tieContinuation = false): MeasureEvent {
@@ -78,7 +80,13 @@ function inputOf(
   chords: readonly ConcertChordSymbol[] = tonicChordEachMeasure(),
   transposition: InstrumentTransposition = CONCERT,
 ): NotationPhraseInput {
-  return { timeline, tonalContext: { tonalCenter, collection }, chords, transposition }
+  return {
+    timeline,
+    tonalContext: { tonalCenter, collection },
+    chords,
+    transposition,
+    concertRange: KEYBOARD_CONCERT_RANGE,
+  }
 }
 
 const C_MAJOR_SINGLE_NOTE = inputOf(wholeNoteTimeline(60), 'C', 'Major')
@@ -406,6 +414,36 @@ describe('transformToWrittenPhrase: non-mutation and cross-transposition determi
 })
 
 // @test-link [[module_notation_display_convention]]
+describe("transformToWrittenPhrase: the instrument profile's written range", () => {
+  it("carries the profile's concert range moved by its chromatic transposition, whatever the notes", () => {
+    for (const profile of [BB_TENOR_PROFILE, EB_ALTO_PROFILE]) {
+      for (const concertPitch of [55, 62]) {
+        const phrase = transformToWrittenPhrase({
+          ...inputOf(wholeNoteTimeline(concertPitch), 'C', 'Major'),
+          transposition: profile.transposition,
+          concertRange: profile.concertRange,
+        })
+        expect(phrase.writtenRange).toEqual({ minMidi: 60, maxMidi: 84 })
+      }
+    }
+    const keyboard = transformToWrittenPhrase(inputOf(wholeNoteTimeline(60), 'C', 'Major'))
+    expect(keyboard.writtenRange).toEqual({ minMidi: 48, maxMidi: 72 })
+  })
+
+  it("takes the range from the generation intent's instrument profile", () => {
+    const intent = buildOrchestratorIntent('Middle', makeSeed(7))
+    const outcome = generatePhrase(intent)
+    if (outcome.kind !== 'generation_success') throw new Error('Expected a successful generation.')
+    const phrase = transformToWrittenPhrase(notationInputFromOutcome(outcome, intent))
+    const profile = intent.instrumentProfile
+    expect(phrase.writtenRange).toEqual({
+      minMidi: profile.concertRange.minMidi + profile.transposition.chromatic,
+      maxMidi: profile.concertRange.maxMidi + profile.transposition.chromatic,
+    })
+  })
+})
+
+// @test-link [[module_notation_display_convention]]
 describe('transformToWrittenPhrase: real end-to-end generation', () => {
   const seeds = [makeSeed(7), makeSeed(11), makeSeed(23)]
 
@@ -519,8 +557,21 @@ describe('transformToWrittenPhrase: rejections', () => {
       tonalContext: { tonalCenter: 'C', collection: 'Major' },
       chords: [{ measureIndex: 0, startTick: 4, root: 0, suffix: '', bass: null }],
       transposition: CONCERT,
+      concertRange: KEYBOARD_CONCERT_RANGE,
     }
     expect(() => transformToWrittenPhrase(badInput)).toThrow(NotationInputError)
+  })
+
+  it('rejects a concert range that is not two integers, low below high', () => {
+    for (const concertRange of [
+      { minMidi: 72, maxMidi: 48 },
+      { minMidi: 60, maxMidi: 60 },
+      { minMidi: 48.5, maxMidi: 72 },
+    ]) {
+      expect(() =>
+        transformToWrittenPhrase({ ...inputOf(wholeNoteTimeline(60), 'C', 'Major'), concertRange }),
+      ).toThrow(NotationInputError)
+    }
   })
 
   it('rejects measure 0 opening with a dangling tie continuation', () => {

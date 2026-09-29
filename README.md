@@ -335,4 +335,6 @@ detection, scoring, and the rolling continuation flow remain outside this releas
 
 ## Open Issues
 
-No open issues.
+| Ref                                                   | Severity | Summary                                                                                                 |
+| ----------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| [ISS-006](issues/Ref_20260929_every_stem_drawn_up.md) | Medium   | Every stem is drawn up, high notes included, which also makes each staff system about two spaces taller |

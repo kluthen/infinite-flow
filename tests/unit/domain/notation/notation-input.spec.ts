@@ -132,6 +132,7 @@ describe('validateNotationPhraseInput', () => {
       tonalContext: { tonalCenter: 'C', collection: 'Major' },
       chords,
       transposition: { chromatic: 0, diatonic: 0 },
+      concertRange: { minMidi: 48, maxMidi: 72 },
     }
   }
 
@@ -182,6 +183,7 @@ describe('makeNotationPhraseInput', () => {
       tonalContext: { tonalCenter: 'C', collection: 'Major' },
       harmony: TONIC_EACH_BAR,
       transposition: { chromatic: 0, diatonic: 0 },
+      concertRange: { minMidi: 48, maxMidi: 72 },
     })
     expect(input.timeline).toBe(result.timeline)
     expect(Object.isFrozen(input)).toBe(true)
@@ -200,6 +202,7 @@ describe('makeNotationPhraseInput', () => {
         tonalContext: { tonalCenter: 'C', collection: 'Major' },
         harmony: badHarmony,
         transposition: { chromatic: 0, diatonic: 0 },
+        concertRange: { minMidi: 48, maxMidi: 72 },
       }),
     ).toThrow(NotationInputError)
   })

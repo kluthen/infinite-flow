@@ -293,3 +293,100 @@ test('a browser toolbar showing or hiding never re-engraves; a real height chang
   expect(afterResize.engraveCount).toBe(2)
   expect(afterResize.engraved!.staffSpacePx).toBeLessThan(first.engraved!.staffSpacePx)
 })
+
+/** Intent: read the frame's rendered block size and block padding, and each position's block size. */
+async function readFrame(page: Page) {
+  return page.evaluate(() => {
+    const frame = document.querySelector('.staff-frame')!
+    const style = getComputedStyle(frame)
+    return {
+      height: frame.getBoundingClientRect().height,
+      paddingBlockStart: parseFloat(style.paddingBlockStart),
+      paddingBlockEnd: parseFloat(style.paddingBlockEnd),
+      paddingInlineStart: parseFloat(style.paddingInlineStart),
+      maxBlockSize: parseFloat(style.maxBlockSize),
+      positions: Array.from(document.querySelectorAll('[data-system-position]')).map(
+        (position) => position.getBoundingClientRect().height,
+      ),
+    }
+  })
+}
+
+/**
+ * The fixed block cost around the two systems on a landscape phone, in CSS px: the session cue
+ * row (96), its gap (12), the staff frame's phone block padding (2 x 8) and its border (2 x 1).
+ */
+const PHONE_FIXED_BLOCK_PX = 96 + 12 + 2 * 8 + 2 * 1
+
+// @test-link [[module_notation_layout_preflight]]
+test('below the breakpoint the frame takes 8 px block padding and keeps 16 px inline', async ({
+  page,
+}) => {
+  await engraveFixture(page, PHONE_VIEWPORT, 'simple', PHONE_FRAME_WIDTH)
+  const frame = await readFrame(page)
+  expect(frame.paddingBlockStart).toBe(8)
+  expect(frame.paddingBlockEnd).toBe(8)
+  expect(frame.paddingInlineStart).toBe(16)
+  expect(frame.maxBlockSize).toBeCloseTo(PHONE_VIEWPORT.height - 96 - 12, 1)
+})
+
+// @test-link [[module_notation_layout_preflight]]
+test('two systems fit at the legibility floor down to a 286 px small viewport height, and not below', async ({
+  page,
+}) => {
+  for (const fixture of ['simple', 'dense']) {
+    const fits = await engraveFixture(page, { width: 740, height: 286 }, fixture, PHONE_FRAME_WIDTH)
+    expect(fits.state, fixture).toBe('ready')
+    expect(fits.engraved!.systemCount).toBe(2)
+    expect(fits.engraved!.staffSpacePx).toBeGreaterThanOrEqual(5)
+    expect(fits.engraved!.staffSpacePx).toBeCloseTo(5, 5)
+    const frame = await readFrame(page)
+    // The cue row above the frame and the frame itself fit the viewport together.
+    expect(frame.height).toBeLessThanOrEqual(286 - 96 - 12 + 0.5)
+    for (const position of frame.positions) expect(position).toBeCloseTo(80, 1)
+
+    const tooShort = await engraveFixture(
+      page,
+      { width: 740, height: 285 },
+      fixture,
+      PHONE_FRAME_WIDTH,
+    )
+    expect(tooShort.state, fixture).toBe('error')
+    expect(tooShort.errorCode, fixture).toBe('notation_no_room')
+    expect(tooShort.errorDetails).toMatchObject({ requiredHeightPx: 160 })
+    await expect(page.locator('svg.staff-svg')).toHaveCount(0)
+  }
+})
+
+// @test-link [[module_notation_layout_preflight]]
+test('a landscape phone with its toolbar showing draws the staff above the floor', async ({
+  page,
+}) => {
+  for (const [viewport, frameWidth] of [
+    [{ width: 740, height: 300 }, PHONE_FRAME_WIDTH],
+    [{ width: 844, height: 330 }, 796],
+  ] as const) {
+    const harnessState = await engraveFixture(page, viewport, 'dense', frameWidth)
+    const label = `${viewport.width}x${viewport.height}`
+    expect(harnessState.state, label).toBe('ready')
+    // The height sets the scale: two 16-space positions (32 spaces) share what the fixed parts
+    // leave.
+    const heightFitPx = (viewport.height - PHONE_FIXED_BLOCK_PX) / 32
+    expect(harnessState.engraved!.staffSpacePx, label).toBeCloseTo(heightFitPx, 5)
+    expect(harnessState.engraved!.staffSpacePx, label).toBeGreaterThan(5.4)
+    const frame = await readFrame(page)
+    expect(frame.height, label).toBeLessThanOrEqual(frame.maxBlockSize + 0.5)
+    expect(frame.height, label).toBeLessThanOrEqual(viewport.height - 96 - 12 + 0.5)
+  }
+})
+
+// @test-link [[module_notation_layout_preflight]]
+test('from the breakpoint up the frame holds both 192 px positions, 418 px in all', async ({
+  page,
+}) => {
+  await engraveFixture(page, DESKTOP_VIEWPORT, 'simple', 1200)
+  const frame = await readFrame(page)
+  expect(frame.paddingBlockStart).toBe(16)
+  for (const position of frame.positions) expect(position).toBeCloseTo(192, 1)
+  expect(frame.height).toBeCloseTo(2 * 192 + 2 * 16 + 2 * 1, 0)
+})

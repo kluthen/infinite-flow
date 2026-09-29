@@ -103,7 +103,9 @@ Three named breakpoints are defined once in `src/styles/theme.css` (`--breakpoin
   two-measure systems (measures 1-2, then 3-4), for every phrase. Its scale fits the height as well
   as the width: the two systems share the staff frame's `max-block-size`, built from the small
   viewport height (`100svh`, browser toolbars showing) minus the row above the staff, so a toolbar
-  showing or hiding never redraws the score. The staff area reserves both systems in every state.
+  showing or hiding never redraws the score. The staff area reserves both systems in every state;
+  two systems fit at the legibility floor from about 286 px of small viewport height, and a
+  shorter window shows no staff.
 - `48rem` and up, landscape: control groups begin to wrap instead of staying in a single column.
 - `64rem` and up: all four measures render in one staff system, with the second system position
   reserved below it and left blank; control groups can wrap further.

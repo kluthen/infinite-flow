@@ -1,7 +1,7 @@
 ---
 id: module_notation_display_convention
 status: DRAFT
-version: 2.0
+version: 2.1
 dependents: []
 human_name: Notation Written-Pitch Rendering
 layer: ARCHITECTURE
@@ -24,7 +24,7 @@ Notation derives written pitch from the concert-pitch timeline using only the se
 
 ## TECHNICAL INTERFACE
 
-The notation boundary accepts a concert-pitch event timeline and the selected instrument profile's transposition (chromatic/diatonic integer pair); it exposes no separate display-convention parameter.
+The notation boundary accepts a concert-pitch event timeline and the selected instrument profile's transposition (chromatic/diatonic integer pair) and active concert range; it exposes no separate display-convention parameter. The written phrase carries that profile's written range (its active concert range moved by the transposition's semitones), which describes the instrument, not the phrase's notes, and which the engraver uses to place the staff.
 
 ## EXPECTATION
 

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { ADOPTED_INSTRUMENT_PROFILES } from '@/domain/profile/instrument-profiles'
+import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import { NotationError } from '@/notation/notation-error'
 import {
   NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE,
@@ -7,6 +9,7 @@ import {
   NOTATION_MAX_STAFF_SPACE_PX,
   NOTATION_MIN_MEASURE_WIDTH_UNITS,
   NOTATION_SYSTEM_POSITION_UNITS,
+  planStaffPlacement,
   planStaffPositions,
   planSystemLayout,
   type StaffViewport,
@@ -294,5 +297,85 @@ describe('planStaffPositions: two reserved positions sized by the viewport, neve
     if (positions.kind !== 'room') return
     expect(sparse.positionBlockPx).toBe(positions.positionBlockPx)
     expect(dense.positionBlockPx).toBe(positions.positionBlockPx)
+  })
+})
+
+/** Intent: a profile's written range: its active concert range moved by its chromatic transposition. */
+function writtenRangeOf(profile: InstrumentProfile): { minMidi: number; maxMidi: number } {
+  return {
+    minMidi: profile.concertRange.minMidi + profile.transposition.chromatic,
+    maxMidi: profile.concertRange.maxMidi + profile.transposition.chromatic,
+  }
+}
+
+/** One staff space, in engraving units. */
+const SPACE = NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
+
+// @test-link [[module_notation_layout_preflight]]
+describe('the shared system position size', () => {
+  it('is 16 staff spaces, the most that keeps two systems on a toolbar-showing phone', () => {
+    expect(NOTATION_SYSTEM_POSITION_UNITS).toBe(16 * SPACE)
+  })
+
+  it('needs 160 px of height budget for two systems at the legibility floor, and no more', () => {
+    expect(planStaffPositions({ layout: 'split', heightBudgetPx: 160 })).toEqual({
+      kind: 'room',
+      scaleCeiling: FLOOR_SCALE,
+      positionBlockPx: 80,
+    })
+    expect(planStaffPositions({ layout: 'split', heightBudgetPx: 159 })).toMatchObject({
+      kind: 'no_room',
+      cause: 'too_short',
+      details: { requiredHeightPx: 160 },
+    })
+  })
+
+  it('is 192 px per position from the breakpoint up, at the 12 px maximum', () => {
+    expect(planStaffPositions(ONE_SYSTEM)).toMatchObject({ positionBlockPx: 192 })
+  })
+})
+
+// @test-link [[module_notation_layout_preflight]]
+describe("planStaffPlacement: the staff placed in its position by the profile's written range", () => {
+  it("keeps every adopted profile's ink, start marker included, about one staff space inside the position at both ends", () => {
+    for (const profile of ADOPTED_INSTRUMENT_PROFILES) {
+      const placement = planStaffPlacement(writtenRangeOf(profile))
+      expect(placement.inkTopUnits, profile.id).toBeGreaterThanOrEqual(0.8 * SPACE)
+      expect(
+        NOTATION_SYSTEM_POSITION_UNITS - placement.inkBottomUnits,
+        profile.id,
+      ).toBeGreaterThanOrEqual(0.8 * SPACE)
+      // Centred: the room above the ink equals the room below it.
+      expect(placement.inkTopUnits).toBeCloseTo(
+        NOTATION_SYSTEM_POSITION_UNITS - placement.inkBottomUnits,
+        10,
+      )
+    }
+  })
+
+  it("places the saxophones' staff (written C4-C6) lower than the keyboard's (written C3-C5)", () => {
+    const [keyboard, tenor, alto] = ADOPTED_INSTRUMENT_PROFILES.map((profile) =>
+      planStaffPlacement(writtenRangeOf(profile)),
+    )
+    expect(writtenRangeOf(ADOPTED_INSTRUMENT_PROFILES[0]!)).toEqual({ minMidi: 48, maxMidi: 72 })
+    expect(writtenRangeOf(ADOPTED_INSTRUMENT_PROFILES[1]!)).toEqual({ minMidi: 60, maxMidi: 84 })
+    expect(tenor!.staffTopLineUnits).toBeCloseTo(95, 10)
+    expect(alto).toEqual(tenor)
+    expect(keyboard!.staffTopLineUnits).toBeCloseTo(60, 10)
+  })
+
+  it('derives the placement from the range alone: a range reaching higher gets more room above the staff', () => {
+    const base = planStaffPlacement({ minMidi: 60, maxMidi: 84 })
+    const higher = planStaffPlacement({ minMidi: 60, maxMidi: 88 })
+    const lower = planStaffPlacement({ minMidi: 55, maxMidi: 84 })
+    expect(higher.staffTopLineUnits).toBeGreaterThan(base.staffTopLineUnits)
+    expect(lower.staffTopLineUnits).toBeLessThan(base.staffTopLineUnits)
+  })
+
+  it('places a black-key range end by its plainer natural neighbour, outward', () => {
+    // Written B-flat 5 (82) sits no higher than B5; written C-sharp 4 (61) no lower than C4.
+    expect(planStaffPlacement({ minMidi: 61, maxMidi: 82 })).toEqual(
+      planStaffPlacement({ minMidi: 60, maxMidi: 83 }),
+    )
   })
 })

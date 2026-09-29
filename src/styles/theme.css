@@ -65,9 +65,16 @@
      as v1. Named because the phone staff budget below subtracts them. */
   --staff-frame-padding: var(--spacing-4);
   --staff-frame-border-width: 1px;
+  /* The staff frame's block (top and bottom) padding below `bp-tablet-landscape`, smaller than
+     `--staff-frame-padding`, which the frame keeps on its inline sides there: on a landscape
+     phone the height limits the staff and the width does not, so the padding above and below
+     gives up its breathing room to the notes. Named because the phone staff budget below
+     subtracts it. */
+  --staff-frame-padding-block-phone: var(--spacing-2);
   /* The phone staff budget: below `bp-tablet-landscape`, the block size the two staff systems
      may take together. The small viewport height (`100svh`, browser toolbars showing) minus
-     `session-cue-row`, the gap under it, and the staff frame's padding and border, so that
+     `session-cue-row`, the gap under it, and the staff frame's phone block padding and its
+     border, so that
      the cue row and both systems, with the frame around them, always fit together inside the
      viewport: the start jump can always put them wholly in view, and nothing needs scrolling
      mid-session.
@@ -88,16 +95,18 @@
        staff frame shows `room-notice` ("This screen is too small to show the staff.") instead
        of the score, never the notation-error state, and no session can start; during a session
        the session ends exactly as Stop ends it.
-     Rough sizing: at the floor, two systems for the B-flat tenor saxophone's written range
-     (C4 to C6, chord symbols above) need about 24 to 28 staff spaces, 120 to 140 px; the cue
-     row, its gap and the frame chrome add about 142 px, so about 262 to 282 px of small viewport
-     height, which a landscape phone about 360 px tall still has with its toolbar showing (about
-     300 px). From `bp-tablet-landscape` up this budget does not apply: the frame keeps v1's
+     Rough sizing: each system position is 16 staff spaces tall, for every instrument profile
+     (NOTATION_SYSTEM_POSITION_UNITS in src/notation/notation-layout-policy.ts), so at the floor
+     two systems need 2 x 16 spaces x 5 px = 160 px; the cue row (96 px), its gap (12 px), the
+     phone block padding (2 x 8 px) and the border (2 x 1 px) add 126 px, so the staff needs
+     about 286 px of small viewport height. A landscape phone about 360 px tall has about 300 px
+     with its toolbar showing, which draws the staff at about 5.4 px per space (about 6.4 px at
+     330 px). From `bp-tablet-landscape` up this budget does not apply: the frame keeps v1's
      fixed minimum block size. Applied in components.css as the frame's `max-block-size` (the
-     budget plus the frame's own padding and border). */
+     budget plus the frame's own phone block padding and border). */
   --staff-systems-phone-block-budget: calc(
     100svh - var(--session-cue-row-block-size) - var(--session-cue-row-gap) - 2 *
-      var(--staff-frame-padding) - 2 * var(--staff-frame-border-width)
+      var(--staff-frame-padding-block-phone) - 2 * var(--staff-frame-border-width)
   );
   /* The fixed inline size of a `toggle-button`'s state word ("on" / "off"), so the button keeps
      one width in both states. */

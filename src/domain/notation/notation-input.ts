@@ -132,12 +132,25 @@ export function chordSymbolsFromHarmony(harmony: HarmonyCandidate): readonly Con
 }
 
 /**
- * Intent: crash early unless a notation input's chord symbols are strictly ascending by measure
- * then tick, every tick is an integer in [0, 15], every measure index is 0-3, and every measure
- * carries a chord symbol at tick 0 — the explicit shape the display transform depends on.
+ * Intent: crash early unless a notation input's concert range is two integers, low below high,
+ * and its chord symbols are strictly ascending by measure then tick, every tick is an integer in
+ * [0, 15], every measure index is 0-3, and every measure carries a chord symbol at tick 0 — the
+ * explicit shape the display transform depends on.
  */
 // @spec-link [[module_notation_display_convention]]
 export function validateNotationPhraseInput(input: NotationPhraseInput): void {
+  const range = input.concertRange
+  if (
+    !Number.isInteger(range.minMidi) ||
+    !Number.isInteger(range.maxMidi) ||
+    range.minMidi >= range.maxMidi
+  ) {
+    throw new NotationInputError(
+      `Notation input concert range must be two integers, low below high, got ` +
+        `${range.minMidi}-${range.maxMidi}.`,
+    )
+  }
+
   const chords = input.chords
   if (chords.length === 0) {
     throw new NotationInputError('Notation input must carry at least one chord symbol.')
@@ -181,14 +194,16 @@ export interface MakeNotationPhraseInputArgs {
   readonly tonalContext: NotationTonalContext
   readonly harmony: HarmonyCandidate
   readonly transposition: NotationPhraseInput['transposition']
+  readonly concertRange: NotationPhraseInput['concertRange']
 }
 
 /**
  * Intent: assemble and validate the explicit NotationPhraseInput a display transform reads, from
  * an already-produced GenerationResult, its selected written tonal context, the harmony candidate
- * that produced it, and the active instrument profile's transposition. References the result's
- * timeline as-is (it is already deep-frozen by its own constructor) rather than copying or
- * otherwise touching it, and deep-freezes only the new envelope object this function returns.
+ * that produced it, and the active instrument profile's transposition and active concert range.
+ * References the result's timeline as-is (it is already deep-frozen by its own constructor) rather
+ * than copying or otherwise touching it, and deep-freezes only the new envelope object this
+ * function returns.
  */
 // @spec-link [[module_notation_display_convention]]
 export function makeNotationPhraseInput(input: MakeNotationPhraseInputArgs): NotationPhraseInput {
@@ -198,6 +213,7 @@ export function makeNotationPhraseInput(input: MakeNotationPhraseInputArgs): Not
     tonalContext: input.tonalContext,
     chords,
     transposition: input.transposition,
+    concertRange: { minMidi: input.concertRange.minMidi, maxMidi: input.concertRange.maxMidi },
   }
   validateNotationPhraseInput(phraseInput)
   return deepFreeze(phraseInput)
@@ -205,9 +221,9 @@ export function makeNotationPhraseInput(input: MakeNotationPhraseInputArgs): Not
 
 /**
  * Intent: build the NotationPhraseInput for one successful generation outcome, deriving the
- * written tonal context and transposition from the intent (the written selection and the active
- * instrument profile's own transposition) and the chord symbols from the outcome's harmony
- * provenance. Crashes as a typed NotationInputError when the outcome's result was not produced by
+ * written tonal context, transposition and concert range from the intent (the written selection
+ * and the active instrument profile's own transposition and active concert range) and the chord
+ * symbols from the outcome's harmony provenance. Crashes as a typed NotationInputError when the outcome's result was not produced by
  * this intent (a mismatched requestId), since a display transform must never be applied to a
  * result it was not generated for.
  */
@@ -230,5 +246,6 @@ export function notationInputFromOutcome(
     },
     harmony: outcome.provenance.harmony,
     transposition: intent.instrumentProfile.transposition,
+    concertRange: intent.instrumentProfile.concertRange,
   })
 }
