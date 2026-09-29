@@ -944,3 +944,16 @@ generation` secondary; `Start session` primary.
   where they do not; the shared position size (D127) allows for whichever the calibration finds
   tallest, and the calibration draws the marker. Governs `screens/phrase-workspace/handoff.md`,
   Notation Contract, **Start marker**.
+
+- **D130 — The owner accepts the phone staff-height rework (2026-09-29, user-confirmed; closes
+  Q63; confirms D127–D129).** The owner accepts the recommendation as written: one shared
+  15-space system position with the staff's top line placed per profile from its written range
+  (D127), the phone `staff-frame` block padding of `--spacing-2` through
+  `--staff-frame-padding-block-phone` (D128), and the start marker kept inside the top position
+  (D129). About 276 px of small viewport height is the phone minimum (about 291 px if the marker
+  needs the taller position); a shorter window shows "This screen is too small to show the staff."
+  Not taken: the `4rem` phone cue row (D51 and D97's disconnect banner stay as they are). The
+  legibility floor stays 5 px per staff space. The build goes to a coding chunk: the token source
+  change (`--staff-frame-padding-block-phone`, the phone budget, the phone `staff-frame` block),
+  the notation-layout constants and per-profile placement, the calibration with the marker drawn,
+  `docs/notation-engraving.md`, and the preflight atom through `documentalist`.

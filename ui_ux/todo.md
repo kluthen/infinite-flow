@@ -357,14 +357,16 @@ three passes, confirmed by the user, committed 2026-09-27. Next, in this order:
    Written into `screens/phrase-workspace/handoff.md` (Notation Contract: new **System position
    size and staff placement**, **Scale below `bp-tablet-landscape`**, **Start marker**; Layout
    Tree; Responsive Behavior; change block) and `intent.md` (Focal Point and Header; change
-   block). Q63 logged for the owner (target height; phone cue row and lower floor held in
-   reserve). **Pending:** (a) the token source change (this pass was barred from editing
-   `src/styles/`): add `--staff-frame-padding-block-phone`, subtract it in
+   block). Q63 logged for the owner, then **closed 2026-09-29 by ux D130: the owner accepts the
+   design** (about 276 px phone minimum; no `4rem` phone cue row; the 5 px floor stays).
+   **Design accepted; build handed to a coding chunk**, which makes: (a) the token source change
+   (add `--staff-frame-padding-block-phone: var(--spacing-2)`, subtract it in
    `--staff-systems-phone-block-budget`, set `padding-block` in the phone `staff-frame` block of
-   `components.css`, and correct the budget's "Rough sizing" comment; (b) the coding chunk
-   (notation-layout constants, engraver placement per profile, calibration with the marker, the
-   engraving doc; the preflight atom via `documentalist`); (c) a narrow `ux-critic` pass on the
-   phrase-workspace edits; (d) the owner's confirmation and Q63.
+   `components.css`, correct the budget's "Rough sizing" comment); (b) the notation-layout
+   constants (position 150 units, at most 160; top line per written range), engraver placement
+   per profile, the calibration with the marker drawn, `docs/notation-engraving.md`, and the
+   preflight atom via `documentalist`. Still to do here: (c) a narrow `ux-critic` pass on the
+   phrase-workspace edits (see the result below, when run).
 
 **ux-critic plan read (2026-09-27), to weigh before continuing:**
 

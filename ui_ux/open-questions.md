@@ -585,3 +585,5 @@ controller` entry: today the Unsupported browser state) follows from it. An Andr
   small to show the staff." The owner confirms, or names the shortest small viewport height the
   staff must fit. See `screens/phrase-workspace/handoff.md`, Notation Contract (**Scale below
   `bp-tablet-landscape`**, **System position size and staff placement**).
+  **Closed 2026-09-29 by ux D130** (the owner accepts D127–D129 as recommended; about 276 px is the
+  phone minimum; no `4rem` phone cue row; the 5 px floor stays).
