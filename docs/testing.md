@@ -297,6 +297,8 @@ owner's machine.
 | Rhythm manifest v1                       | `tests/unit/domain/rhythm/fixtures/rhythm-mvp-v1-manifest.json`               | The 144 settings of the previous grammar, including the retired Mixed density.                                                                                                                                                                | No test reads it today.                                                                                     |
 | Rhythm prefilter oracle                  | `tests/unit/domain/rhythm/rhythm-prefilter-oracle.ts`                         | An unpruned enumeration of raw rhythm candidates, to prove the planner's early pruning never drops a valid candidate.                                                                                                                        | `rhythm-prefilter-soundness-{quarter,eighth,sixteenth}` specs                                               |
 | MusicXML sessions                        | `tests/unit/export/musicxml/musicxml-session-fixtures.ts`                     | Hand-built sessions run through the real `transformToWrittenPhrase`: `cKeyboardSession`, `bbTenorTempoChangeSession` (90 then 120 BPM), `ebAltoKeyChangeSession` (written A then D major), `cKeyboardPlainSession(tempos)` and `plainPhraseFor(instrument)`. The "rich" phrase has eighths, beamed sixteenths, a displayed sharp, a rest, ties, a triad of each quality and two two-chord measures. | `musicxml-encoder`, `musicxml-golden`, `musicxml-schema` specs                                              |
+| MIDI sessions                            | `tests/unit/export/midi/midi-session-fixtures.ts`                             | Hand-built concert timelines and backing notes: the "tied" phrase (quarters, eighths, sixteenths, a rest, concert E4 tied across the barline between measures 3 and 4) and the "plain" phrase, each with a hand-rendered backing (bass root and fifth, a close-position triad per chord); `referenceSessionWithoutBacking` and `referenceSessionWithBacking` ("tied" at 90 BPM, "plain" at 120, "tied" at 120), and `midiPhrase`. | `midi-encoder`, `midi-export-input`, `midi-golden` specs |
+| SMF reader                               | `tests/unit/export/midi/smf-reader.ts`                                        | `readSmf`, a small Standard MIDI File reader written for the tests (running status, a zero-velocity note-on as a release, and a crash on any malformed chunk), with `notesOf`, `tempoMap` and `metaTexts`. It shares no code with the encoder. | `midi-encoder`, `smf-reader` specs |
 
 The goldens hold literal values, never values recomputed by the code under test. They change only in
 a deliberate, reviewed step that bumps the version in their name.
@@ -324,6 +326,21 @@ To validate a file by hand:
 XML_CATALOG_FILES=tests/fixtures/musicxml/schema/catalog.xml \
   xmllint --noout --nonet --schema tests/fixtures/musicxml/schema/musicxml.xsd <file>
 ```
+
+### MIDI fixtures
+
+`tests/fixtures/midi/golden/` holds the generated-notes MIDI export's golden files. See
+[`docs/export.md`](export.md) for what the encoder writes.
+
+| Path (under `tests/fixtures/midi/`)       | What it holds                                                                                                                                                                                  | Used by              |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| `golden/reference-session.v1.mid`         | `referenceSessionWithoutBacking`: three phrases, a tempo change from 90 to 120 BPM at phrase 2 and none at phrase 3, a tie across a barline in phrases 1 and 3, backing off: two tracks.       | `midi-golden.spec.ts` |
+| `golden/reference-session-backing.v1.mid` | `referenceSessionWithBacking`: the same session with the backing on: a third track, the backing, on MIDI channel 2.                                                                           | `midi-golden.spec.ts` |
+
+The golden files hold the exact bytes the encoder must produce. They were reviewed byte by byte
+against the export rules when they were written, and read back with an independent MIDI library
+(mido), which gave the same tempo map, markers, note counts and length (26.667 s). Like the other
+goldens, they change only in a deliberate, reviewed step that bumps the version in their name.
 
 ### Browser boundary fixtures
 
