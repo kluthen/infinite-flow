@@ -223,16 +223,30 @@ describe('encodeGeneratedNotesMusicXml: phrase marks', () => {
     ])
   })
 
-  it('closes every phrase with a double barline, and no other measure', () => {
+  it('closes every phrase but the last with a double barline, the last with a final barline, and no other measure', () => {
+    const barlines = (tempos: readonly number[]): string[] =>
+      Array.from(encodeAndParse(cKeyboardPlainSession(tempos)).querySelectorAll('barline')).map(
+        (barline) =>
+          `${measureNumber(barline)}:${barline.getAttribute('location')}:${text(barline, 'bar-style')}`,
+      )
+    expect(barlines([90, 90, 90])).toEqual([
+      '4:right:light-light',
+      '8:right:light-light',
+      '12:right:light-heavy',
+    ])
+    expect(barlines([90, 90])).toEqual(['4:right:light-light', '8:right:light-heavy'])
+  })
+
+  it('closes a one-phrase session with a final barline', () => {
     const barlines = Array.from(
-      encodeAndParse(cKeyboardPlainSession([90, 90, 90])).querySelectorAll('barline'),
+      encodeAndParse(cKeyboardPlainSession([90])).querySelectorAll('barline'),
     )
     expect(
       barlines.map(
         (barline) =>
           `${measureNumber(barline)}:${barline.getAttribute('location')}:${text(barline, 'bar-style')}`,
       ),
-    ).toEqual(['4:right:light-light', '8:right:light-light', '12:right:light-light'])
+    ).toEqual(['4:right:light-heavy'])
   })
 
   it('writes a metronome mark at the start and at every tempo change, and nowhere else', () => {

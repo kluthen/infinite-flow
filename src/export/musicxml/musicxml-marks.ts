@@ -1,8 +1,8 @@
 /**
  * The score-level marks the MusicXML export writes around the phrases: the opening attributes
  * (divisions, written key signature, 4/4, treble G2 clef, and the instrument's transposition),
- * a key-signature change, the rehearsal mark and metronome mark that open a phrase, and the double
- * barline that closes one.
+ * a key-signature change, the rehearsal mark and metronome mark that open a phrase, the double
+ * barline that closes a phrase, and the final barline that closes the session's last phrase.
  */
 import type { Collection } from '@/domain/controls/generation-controls'
 import type { WrittenKey } from '@/domain/notation/written-phrase-types'
@@ -126,8 +126,17 @@ export function metronomeMark(tempo: number): XmlElement {
   )
 }
 
-/** Intent: the double barline (light-light) that closes a phrase. */
+/** Intent: the double barline (light-light) that closes every phrase but the session's last. */
 // @spec-link [[rule_generated_notes_musicxml_export]]
 export function phraseEndBarline(): XmlElement {
   return element('barline', [['location', 'right']], [textElement('bar-style', 'light-light')])
+}
+
+/**
+ * Intent: the final barline (light-heavy: a thin line then a thick one) that closes the session's
+ * last phrase, the sign printed music ends on.
+ */
+// @spec-link [[rule_generated_notes_musicxml_export]]
+export function sessionEndBarline(): XmlElement {
+  return element('barline', [['location', 'right']], [textElement('bar-style', 'light-heavy')])
 }

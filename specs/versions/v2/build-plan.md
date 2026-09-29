@@ -1368,8 +1368,8 @@ hardware: the tuning covers USB; Bluetooth stays best-effort until settled.
 tempo) into one score-partwise 4.0 file. It has no field for played notes and rejects extra fields
 at run time. Phrase numbers must run 1, 2, 3… with no gap, so chunk 20's session history must
 number only the phrases that sounded. A phrase in a new key opens with a new key signature. Every
-phrase, the last one included, ends with a double barline; the owner may still prefer a final
-barline on the last phrase. The MusicXML 4.0 schema is stored under
+phrase ends with a double barline except the last, which ends with a final barline: the owner
+decided this on 2026-09-29, and `rule_generated_notes_musicxml_export` v0.2 now states both. The MusicXML 4.0 schema is stored under
 `tests/fixtures/musicxml/schema/`, and a unit test validates the output and three golden files
 against it offline, so the unit tests now need `xmllint` (package `libxml2-utils`). The MuseScore
 check stays in chunk 20. `npm run quality` passes in full on the merged code.

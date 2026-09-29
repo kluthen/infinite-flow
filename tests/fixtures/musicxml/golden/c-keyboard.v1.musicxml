@@ -355,7 +355,7 @@
         <type>whole</type>
       </note>
       <barline location="right">
-        <bar-style>light-light</bar-style>
+        <bar-style>light-heavy</bar-style>
       </barline>
     </measure>
   </part>

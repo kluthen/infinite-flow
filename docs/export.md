@@ -19,7 +19,7 @@ writes to it.
 | `src/export/musicxml/musicxml-export-input.ts` | The input types (`GeneratedNotesMusicXmlInput`, `MusicXmlSessionPhrase`), the typed `MusicXmlExportError`, and `validateMusicXmlExportInput`, the input check. |
 | `src/export/musicxml/musicxml-encoder.ts`      | `encodeGeneratedNotesMusicXml`, the entry point: the score header, the part, and the measures of every phrase in session order.                               |
 | `src/export/musicxml/musicxml-measure.ts`      | One written measure as MusicXML: notes, rests, ties, beams and chord symbols.                                                                                 |
-| `src/export/musicxml/musicxml-marks.ts`        | The opening attributes, a key change, the transposition, the rehearsal mark, the metronome mark and the double barline.                                       |
+| `src/export/musicxml/musicxml-marks.ts`        | The opening attributes, a key change, the transposition, the rehearsal mark, the metronome mark, the double barline and the final barline.                    |
 | `src/export/musicxml/xml-text.ts`              | A small XML tree and its serializer: escaping, two-space indentation, a line feed after every line.                                                           |
 
 ## Generated notes as MusicXML
@@ -83,9 +83,9 @@ One score-partwise 4.0 document, UTF-8, with the MusicXML 4.0 partwise document 
   numbered from 1 across the whole session, so phrase _n_ fills measures 4_n_ − 3 to 4_n_.
 - **Rehearsal marks.** The first measure of every phrase opens with a rehearsal mark holding its
   phrase number, above the staff.
-- **Double barlines.** The last measure of every phrase, the last phrase included, ends with a
-  light-light barline. Every phrase is marked by a double barline, so the session ends with the
-  same double barline rather than a final (light-heavy) one: the rule holds without an exception.
+- **Double barlines and the final barline.** The last measure of every phrase ends with a double
+  (light-light) barline, except the last phrase: its last measure ends with a final (light-heavy)
+  barline, a thin line then a thick one, as printed music normally ends.
 - **Metronome marks.** The first phrase opens with a metronome mark (quarter note = tempo), with a
   `<sound tempo>` for playback. Any later phrase whose tempo differs from the phrase before
   gets another one. No other phrase has one.
