@@ -76,8 +76,8 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
 - `src/notation/` — the concert-to-written transformation types and the VexFlow engraving adapter,
   loaded lazily (`vexflow-engraver-loader.ts` is the sole static importer of the engraver module).
 - `src/export/` — pure, browser-free encoders that turn a session's phrases into the bytes of one
-  export file; `musicxml/` holds the generated-notes MusicXML encoder. See
-  [`docs/export.md`](docs/export.md).
+  export file; `musicxml/` holds the generated-notes MusicXML encoder, `midi/` the generated-notes
+  MIDI encoder. See [`docs/export.md`](docs/export.md).
 - `src/composables/` — in-memory session/UI coordination (`use-generation-session.ts`,
   `use-notation-coordinator.ts`, `workspace-session-result.ts`, and `viewport-width.ts`, the
   injected window-width seam): no persistence, no singletons.
@@ -97,6 +97,8 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   scan them as if they were in `src/`.
 - `tests/fixtures/musicxml/` — the MusicXML export's golden files and the vendored MusicXML 4.0
   schema (with an XML catalog for offline validation); see [`docs/testing.md`](docs/testing.md).
+- `tests/fixtures/midi/` — the generated-notes MIDI export's golden files; see
+  [`docs/testing.md`](docs/testing.md).
 - `tests/e2e/{workspace,release,workspace-harness}` — Playwright suites: `workspace/` exercises the
   production preview build directly; `release/` exercises release-readiness journeys (determinism,
   errors/retry, concurrency, profile switch, theme isolation, persistence/optional-scope absence,
@@ -203,8 +205,12 @@ UI (Vue components, props-in/events-out)
 
 - **Export.** `encodeGeneratedNotesMusicXml` (`src/export/musicxml/`) turns a session's phrases,
   each with its number, its `WrittenPhrase` and its tempo, into one score-partwise 4.0 MusicXML
-  document in the instrument's written pitch. It is a pure function with no caller yet: the Review
-  screen and the download come later. See [`docs/export.md`](docs/export.md).
+  document in the instrument's written pitch. `encodeGeneratedNotesMidi` (`src/export/midi/`) turns
+  the same phrases, each with its number, its concert timeline and its tempo, plus the backing's
+  notes when asked, into one type 1 Standard MIDI File at 960 MIDI ticks per quarter note: a
+  conductor track (tempo map, one marker per phrase), the generated line at concert pitch, and the
+  optional backing track. Both are pure functions with no caller yet: the Review screen and the
+  download come later. See [`docs/export.md`](docs/export.md).
 
 See [`specs/generator-architecture.md`](specs/generator-architecture.md) for the full seam-by-seam
 architectural contract and [`docs/phrase-workspace.md`](docs/phrase-workspace.md) for the
