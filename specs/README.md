@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.23
+Status: draft v0.24
 
 ## Status Snapshot
 
@@ -145,7 +145,15 @@ Status: draft v0.23
   v2.1 (D161); v2.0 records played notes without showing them (D162); the struggling notice
   stays until a newly generated phrase starts sounding (D163). Opened for the owner: **O97** (a
   session's last phrase ending with something owed), **O98** (the multi-phrase tension arc) and
-  **O99** (adaptive tempo while the controller is lost). The v2 master spec is now v1.19.
+  **O99** (adaptive tempo while the controller is lost). The v2 master spec became v1.19.
+- **Inconsistencies found by the v2 build plan (2026-09-29, D164–D166)**: `coding-leader` found
+  three while writing the v2 build plan, routed by `ux-writer`; `spec-writer` corrected them under
+  the owner's rule for minor issues. ux D71's two alternating staff systems supersede D95's two
+  switchable display modes: one display, nothing scrolling, no mode toggle (D164); the MuseScore
+  check of the MusicXML export covers the two transposing templates with `<transpose>` and the C
+  keyboard without it, since only two of the three templates transpose (D165); the v2 README's
+  session start follows master spec §6, only phrase 1's first note at its exact pitch starting a
+  session from MIDI (D166). Nothing newly opened. The v2 master spec is now v1.20.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.
@@ -175,7 +183,7 @@ Status: draft v0.23
   reattached during it, and it reattaches by itself once the session ends; a controller lost
   mid-session and still away at the end keeps its selection into the Review. The selection lives
   in memory only and does not survive a page reload (v2 saves nothing to browser storage). The
-  master spec was then at v1.5 (v1.19 since D163). One gap is open (**O84**: starting a session
+  master spec was then at v1.5 (v1.20 since D165). One gap is open (**O84**: starting a session
   from the Review).
 - **Open:** 15 questions remain live: O84 above, O86 (D129, a v3 question since D130), O87
   (D131), O93 (D150) and O97–O99 (D157–D163), plus the 8

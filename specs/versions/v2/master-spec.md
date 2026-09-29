@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.19 (2026-09-29). This is the consolidated, execution-ready specification for
+Status: master spec v1.20 (2026-09-29). This is the consolidated, execution-ready specification for
 v2, covering releases v2.0 through v2.3. It supersedes the individual v2 draft topic documents,
 which are kept in the archive as working history. Change in v1.6: the export is chosen by content,
 generated notes or played notes, and played notes come as a MIDI file of their own instead of an
@@ -61,7 +61,10 @@ records played notes in the session history without showing them; the "generator
 notice stays until a newly generated phrase starts sounding. Left open (§12): a session's last
 phrase ending with a leap recovery or a tense note owed, the multi-phrase tension arc's mechanics
 and default, and adaptive tempo when the controller is lost, with its default (§3, §4, §5, §7,
-§10, §11, §12).
+§10, §11, §12). Change in v1.20, a correction that adds no new rule: the MuseScore
+check of the MusicXML export covers each of the three instrument templates, the two transposing
+ones with their `<transpose>` element and the C keyboard without one, since only two of the
+three transpose (§11).
 
 ## 1. Core concept
 
@@ -923,12 +926,13 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
     only step from `Sixteenth` down to `Eighth` (item 27) and no combination v1 disallows uses
     `Eighth`.
 12. The review and export are complete, exact, and reproducible from stored inputs; MusicXML opens
-    correctly in a real notation program (MuseScore) for at least three transposing instrument
-    templates; MIDI opens correctly in a real tool with the correct tempo map. Every export
-    covers the whole session. In v2.0 only the generated-notes export action exists, and no
-    exported file holds a played note. The review has no favorites. Starting a new session from
-    the review discards it without any confirmation, and closing or reloading the page discards
-    everything without asking.
+    correctly in a real notation program (MuseScore) for each of the three instrument templates:
+    the B♭ tenor and E♭ alto saxophones, the two transposing ones, with their `<transpose>`
+    element, and the C keyboard, which does not transpose, without one (§7); MIDI opens correctly
+    in a real tool with the correct tempo map. Every export covers the whole session. In v2.0
+    only the generated-notes export action exists, and no exported file holds a played note. The
+    review has no favorites. Starting a new session from the review discards it without any
+    confirmation, and closing or reloading the page discards everything without asking.
 13. Privacy holds absolutely (verified with a network/storage spy across a full session, review and
     export), and nothing anywhere is ever graded, scored or marked wrong.
 14. All existing v1 guarantees still hold unchanged: the instrument range contract, the notation
