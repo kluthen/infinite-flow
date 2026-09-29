@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.24
+Status: draft v0.25
 
 ## Status Snapshot
 
@@ -153,7 +153,12 @@ Status: draft v0.24
   check of the MusicXML export covers the two transposing templates with `<transpose>` and the C
   keyboard without it, since only two of the three templates transpose (D165); the v2 README's
   session start follows master spec §6, only phrase 1's first note at its exact pitch starting a
-  session from MIDI (D166). Nothing newly opened. The v2 master spec is now v1.20.
+  session from MIDI (D166). Nothing newly opened. The v2 master spec became v1.20.
+- **A session's last phrase ending with something owed (2026-09-29, D167)**: the owner answered
+  O97 with its proposal. The carry-over between phrases is kept, and a session's last phrase, in
+  the review and the export, may end with a leap recovery or a tense note's resolution still
+  owed, as it may be cut off mid-phrase; the same holds before the failure ladder's standalone
+  phrase or a repeat. The v2 master spec is now v1.21.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.
@@ -183,10 +188,10 @@ Status: draft v0.24
   reattached during it, and it reattaches by itself once the session ends; a controller lost
   mid-session and still away at the end keeps its selection into the Review. The selection lives
   in memory only and does not survive a page reload (v2 saves nothing to browser storage). The
-  master spec was then at v1.5 (v1.20 since D165). One gap is open (**O84**: starting a session
+  master spec was then at v1.5 (v1.21 since D167). One gap is open (**O84**: starting a session
   from the Review).
-- **Open:** 15 questions remain live: O84 above, O86 (D129, a v3 question since D130), O87
-  (D131), O93 (D150) and O97–O99 (D157–D163), plus the 8
+- **Open:** 14 questions remain live: O84 above, O86 (D129, a v3 question since D130), O87
+  (D131), O93 (D150), O98 and O99 (D157–D163), plus the 8
   older ones this bullet goes on to describe. None is flagged ★. The 5 most-blocking ones
   settled first (**D104** O75 v2.0 cut line is the full loop; **D105** O34 continuation boundary;
   **D76** O54 audio unlock; **D77** O55 controller check ships; **D78** O41 acknowledgement

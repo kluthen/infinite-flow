@@ -380,7 +380,7 @@ atoms' EXPECTATION sections, except item 15 (the main-thread budget), which is t
 
   | #   | Gap                                                                                                                                                                | How it was resolved                                                                                                                                                                                                                         | Lands in                           |
   | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-  | 1   | Tense-note resolution at a session's end (§3): "full resolution at Stop or the session's end" can't be enforced one phrase ahead; a tense ending or a pending leap recovery before a standalone fallback or a repeat is unstated | **Open** for the owner: what a session's last phrase may owe (§12). The proposed answer keeps the carry-over between phrases; its alternative, every phrase ending as v1 requires, would remove it altogether. The part about a standalone fallback or a repeat is settled with gap 3 | 7 (the carry-over), 21 (item 2)    |
+  | 1   | Tense-note resolution at a session's end (§3): "full resolution at Stop or the session's end" can't be enforced one phrase ahead; a tense ending or a pending leap recovery before a standalone fallback or a repeat is unstated | **Answered** by the owner on 2026-09-29 (D167, v1.21): the carry-over stays, and a session's last phrase may end owing. The proposed answer keeps the carry-over between phrases; its alternative, every phrase ending as v1 requires, would remove it altogether. The part about a standalone fallback or a repeat is settled with gap 3 | 7 (the carry-over), 21 (item 2)    |
   | 2   | May a session phrase end with a pending leap recovery or an unresolved tense note (§3), when v1 forbids debt on the final sounding event?                          | **Settled in part** (§3): a phrase generated with carry-in may end owing either, and the next phrase settles it; a phrase generated without carry-in obeys v1 in full. The rest is gap 1's open question                                   | 7                                  |
   | 3   | The standalone fallback's join (§4 step 2 against §11 item 2): "isn't smoothed", yet "every join obeys"                                                            | **Settled** (§3, §4, items 2 and 3): a join made without carry-in, into the standalone phrase or into a repeat, isn't smoothed and settles nothing the phrase before owed. Item 2 covers joins made with carry-in; item 3 names the standalone phrase | 7, 8, 21                           |
   | 4   | The review shows "every phrase shown" (§7), but the history excludes a read-ahead phrase that never sounded                                                         | **Settled** (§7): the review shows every phrase that started sounding                                                                                                                                                                       | 9, 20                              |
@@ -770,7 +770,9 @@ highlight. The overlays are driven from outside; this chunk only draws them.
 
 ### Chunk 7 — Generator continuation
 
-**Release:** v2.0.
+**Release:** v2.0. **In progress since 2026-09-29** (worktree branch `v2-chunk-7`): everything but
+the carry-over of a debt across the join, which waited for O97 until the owner answered it the
+same day (D167); now the whole chunk.
 
 **Goal.** Let the generator continue from the phrase before. A request may carry a **carry-in**:
 the last sounding concert pitch with its leap state, the register window, the final chord and its
@@ -823,13 +825,11 @@ owing); v1:
 - Tempo reaches no generation input (a type-level test and a property test).
 - `npm run measure:latency` shows no regression against chunk 1's figures.
 
-**Blocked by:** in part, §12: a session's last phrase ending with something owed (O97). Its
-proposed answer keeps the carry-over between phrases; its alternative, every phrase ending as v1
-requires, removes it altogether. So the carry-over as a whole waits for the answer: a phrase
-ending owing a leap recovery or a tense note's resolution, and the next phrase settling it. The
-rest of the chunk can be built: the carry-in value, the join interval, the carried chord,
-`Varying`, v1's bytes with no carry-in. Once it is answered, `documentalist` gives the v1 atoms
-`rule_leap_recovery` and `rule_open_phrase_ending` their v2 scope.
+**Blocked by:** nothing since 2026-09-29. The owner answered O97 (D167, master spec v1.21): the
+carry-over between phrases stays, and a session's last phrase may end with a leap recovery or a
+tense note's resolution still owed, since a session ends where it ends. Step 6 has
+`documentalist` give the v1 atoms `rule_leap_recovery` and `rule_open_phrase_ending` their v2
+scope.
 
 ### Chunk 8 — Session engine
 
@@ -1485,9 +1485,9 @@ chunks left open, and get the owner's go.
   with the owner's agreement.
 - The owner decides the tag.
 
-**Blocked by:** every open item above, until closed. §12: a session's last phrase ending with
-something owed (O97), for item 2's check that a join made with carry-in settles what the phrase
-before owed.
+**Blocked by:** every open item above, until closed. O97, which item 2's check depended on, was
+answered on 2026-09-29 (D167): a join made with carry-in settles what the phrase before owed, and a
+session's last phrase may end with it still owed.
 
 ### Chunk 22 — Played-notes MIDI encoding
 

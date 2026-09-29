@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.20 (2026-09-29). This is the consolidated, execution-ready specification for
+Status: master spec v1.21 (2026-09-29). This is the consolidated, execution-ready specification for
 v2, covering releases v2.0 through v2.3. It supersedes the individual v2 draft topic documents,
 which are kept in the archive as working history. Change in v1.6: the export is chosen by content,
 generated notes or played notes, and played notes come as a MIDI file of their own instead of an
@@ -64,7 +64,11 @@ and default, and adaptive tempo when the controller is lost, with its default (�
 §10, §11, §12). Change in v1.20, a correction that adds no new rule: the MuseScore
 check of the MusicXML export covers each of the three instrument templates, the two transposing
 ones with their `<transpose>` element and the C keyboard without one, since only two of the
-three transpose (§11).
+three transpose (§11). Change in v1.21, the product owner's answer to an item left open in v1.19:
+the carry-over between phrases is kept, and a session's last phrase, in the review and the export,
+may end with a leap recovery or a tense note's resolution still owed, as it may be cut off
+mid-phrase; the same holds before the failure ladder's standalone phrase or a repeat (§3, §11,
+§12).
 
 ## 1. Core concept
 
@@ -184,11 +188,15 @@ is deferred to v3 entirely).
   rules do not apply, and a leap recovery or a tense note's resolution left owing by the phrase
   before is not settled. The standalone phrase itself obeys v1's rules in full, so it never ends
   owing either; a repeated phrase ends as the phrase it repeats did.
-- **Where the music actually stops is still open** (§12). The app cannot know in advance which
-  phrase a session will end on: Stop, the silence timeout, a hidden tab, a lost controller or a
-  staff that can no longer be shown can each end it at any moment, usually mid-phrase. A
-  session's last phrase can therefore end owing a leap recovery or a tense note's resolution that
-  no next phrase will settle.
+- **A session's last phrase may end with something still owed.** The app cannot know in advance
+  which phrase a session will end on: Stop, the silence timeout, a hidden tab, a lost controller
+  or a staff that can no longer be shown can each end it at any moment, usually mid-phrase. The
+  carry-over between phrases is kept anyway: when the session ends, it ends there. A session's
+  last phrase, in the review and the export, may end owing a leap recovery or a tense note's
+  resolution that no next phrase settles, just as it may be cut off mid-phrase. The same holds
+  before the failure ladder's standalone phrase or a repeat, whose join is not smoothed (above).
+  Rejected: making every session phrase end as v1 requires, so that any phrase is a clean place
+  to stop, at the cost of joins that sound more like one phrase stopping and the next starting.
 - Every phrase in a session, after the first, still starts with a fresh attack on beat 1 of its
   first measure. There is no tie or rest carried across a join in v2 — that (along with pickup
   measures) is left for v3, which already has to solve it for player-seeded continuations.
@@ -900,7 +908,8 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
 2. Every join made with carry-in obeys the same interval and register rules as two consecutive
    notes inside a single phrase, and settles a leap recovery or a tense note's resolution left
    owing by the phrase before (§3). A join into the failure ladder's standalone phrase or into a
-   repeated phrase is not smoothed (§3). The register stays stable across a whole session.
+   repeated phrase is not smoothed (§3), and a session's last phrase may end with one still owed
+   (§3). The register stays stable across a whole session.
 3. With no carry-in at all (a session's first phrase, the failure ladder's standalone phrase, or
    the phrase at Idle), the output for a given request and seed is byte-identical to v1. At Idle,
    only which request and seed end up shown can differ from v1 (items 26 and 27).
@@ -1141,23 +1150,9 @@ blocks only the behaviour it names:
   density generated with, and `Sixteenth` counts as unavailable whenever the session generates
   with `Eighth` under this rule, whatever the window's width.
 
-Three items came up when the spec was checked against the business rules drawn from it. The first
-blocks only how a phrase generated with carry-in may end (§3), in v2.0; the other two block only
-the v2.2 behaviour they name:
+Two items came up when the spec was checked against the business rules drawn from it. Each
+blocks only the v2.2 behaviour it names:
 
-- **A session's last phrase ending with something owed** (§3). Inside a session, a phrase may end
-  just after a big leap (a jump of 7 to 12 half steps), whose recovery (a small move back the other
-  way, of 1 to 4 half steps, which makes the jump sound finished) the next phrase then starts with;
-  or on a tense note (a note that clashes with the chord and wants to step onto a chord note), which
-  the next phrase's first note resolves. v1 never lets a phrase end either way. The spec used to
-  keep v1's rule "where the music actually stops", but the app cannot know which phrase will be the
-  last one: a session ends at any moment, usually mid-phrase. Proposed, not yet confirmed by the
-  product owner: keep this carry-over between phrases, and accept that a session's last phrase, in
-  the review and the export, may end with a recovery or a resolution still owed, just as it may be
-  cut off mid-phrase. The same then holds before the failure ladder's standalone phrase or a repeat,
-  whose join is not smoothed. The alternative: every session phrase ends as v1 requires, so any
-  phrase is a clean place to stop and every seam is clean too, at the cost of joins that sound more
-  like one phrase stopping and the next one starting.
 - **How the multi-phrase tension arc runs, and its default** (§3, v2.2). Tension here is the
   unsettled sound of a note that clashes with the chord before it settles; the tension-arc setting
   (Settled, Lift, Build or Edge) decides how much of it a phrase has and where. How the longer arc

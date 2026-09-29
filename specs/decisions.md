@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.19
+Status: draft v2.20
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -713,3 +713,17 @@ fact in the live documents (see the [archive index](archive/README.md) and
   note phrase 1 starts on, at its exact pitch with the octave included, starts a session, and only
   while a session can start at all; any other note starts nothing. The item now says so and points
   to §6. v2 README.
+- **D167 (2026-09-29): a session's last phrase may end with a leap recovery or a tense note's
+  resolution still owed; the carry-over between phrases is kept.** The product owner's answer to
+  **O97**, confirming its proposal: "if the session end, it ends, that's it. We allow tension to
+  settle on the next phrase. but if the next phrase never happen due to session ending, that's
+  ok." Inside a session a phrase may still end just after a big leap whose recovery the next
+  phrase starts with (D80), or on a tense note the next phrase's first note resolves (D81, D158).
+  The app cannot know which phrase a session ends on, so a session's last phrase, in the review
+  and the export, may end with a recovery or a resolution still owed, as it may be cut off
+  mid-phrase; the same holds before the failure ladder's standalone phrase or a repeat, whose join
+  is not smoothed (D157). This replaces D81's "full v1 resolution where the music really stops".
+  Rejected: every session phrase ending as v1 requires, which makes any phrase a clean place to
+  stop at the cost of joins that sound more like one phrase stopping and the next starting. v1's
+  atoms `rule_leap_recovery` and `rule_open_phrase_ending` need a v2 scope accordingly. Master
+  spec §3, §11 (v2.0 item 2) and §12. Master spec v1.20 → **v1.21**.

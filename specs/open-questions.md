@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.24
+Status: draft v0.25
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -32,7 +32,9 @@ that notice shows gives way to no phrase, as D151 does. O96 was opened 2026-09-2
 that a wider window during a round of retries starts nothing (D154), and resolved the same day
 (D155): each attempt of a round takes its note density from the window when it is generated, and
 a crossing that makes the rhythm combination disallowed stops the round. O97–O99 were opened
-2026-09-29 while correcting the gaps `documentalist` found in the v2 master spec (D157–D163).
+2026-09-29 while correcting the gaps `documentalist` found in the v2 master spec (D157–D163). O97
+was answered by the owner the same day (D167): the carry-over between phrases is kept, and a
+session's last phrase may end with a leap recovery or a tense note's resolution still owed.
 
 ### Registered from the v2 proposal and the prerequisites analysis (2026-09-25)
 
@@ -162,25 +164,9 @@ starting v2.0 implementation; it blocks only the behaviour it names.
 
 Opened 2026-09-29 by `spec-writer` while correcting the gaps `documentalist` found when it drew
 ATD atoms from master spec v1.18 (D157–D163). They are product decisions, left for the owner. O97
-blocks only how a phrase generated with carry-in may end, in v2.0; O98 and O99 block only the
-v2.2 behaviour they name.
+was answered by the owner on 2026-09-29 with its proposal (D167). O98 and O99 block only the v2.2
+behaviour they name.
 
-- **O97 - A session's last phrase ending with something owed** _(D80, D81, D157, D158; gaps 1
-  and 2)_: inside a session a phrase may end just after a big leap (7 to 12 half steps), whose
-  recovery (a move back the other way of 1 to 4 half steps) the next phrase starts with (D80), or
-  on a tense note (one that clashes with the chord and wants to step onto a chord note), which the
-  next phrase's first note resolves (D81). v1 never lets a phrase end either way. D81 kept v1's
-  rule "where the music really stops", at Stop or the session's end, but the app cannot know which
-  phrase will be the last: a session ends at any moment, usually mid-phrase. The same debt goes
-  unsettled before the failure ladder's standalone phrase or a repeat, whose join is not smoothed
-  (D157). Proposed, not confirmed by the owner: keep the carry-over, and accept that a session's
-  last phrase, in the review and the export, may end with a recovery or a resolution still owed,
-  as it may be cut off mid-phrase; the same holds before a standalone phrase or a repeat.
-  Alternative: every session phrase ends as v1 requires, so any phrase is a clean place to stop
-  and every seam is clean, at the cost of joins that sound more like one phrase stopping and the
-  next starting. Either way, v1's atoms `rule_leap_recovery` and `rule_open_phrase_ending` need a
-  v2 scope once this is settled.
-  [master-spec.md §3](versions/v2/master-spec.md#3-the-generation-unit-and-how-phrases-join).
 - **O98 - How the multi-phrase tension arc runs, and its default** _(D99, D110; v2.2; gap 8)_: the
   tension-arc setting (Settled, Lift, Build, Edge) decides how much melodic tension (a note that
   clashes with the chord before settling onto a chord note) a phrase has and where. D110 makes the
