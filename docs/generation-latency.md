@@ -244,10 +244,10 @@ about 500 ms lower.
 **Against the working target (cold worst case under 250 ms in Chromium): missed.** The target is a
 quarter of one bar at 240 BPM (one bar lasts 1 s). The cold worst case measured 1,432-1,441 ms in
 Chromium on this machine, and the first generation after a rhythm-control change up to 1,589 ms.
-Both miss, and the target misses even on the reference machine's older, overstated 823 ms. Per the
-build plan, **the plan stops before chunk 8 (session engine) and chunk 10 (audio transport), and
-the product owner decides how to proceed.** The case after a setting change misses too, so the stop
-before chunk 24 (settings-mutation engine) also applies; it is not the only miss. Warm generations
+Both miss, and the target misses even on the reference machine's older, overstated 823 ms. These
+figures come from a cloud virtual machine, and the product owner decided on 2026-09-29 that no
+performance figure from a virtual machine gates the build plan: **they are recorded for reference
+only, stop no chunk, and the check is re-run on a real computer.** Warm generations
 and changes that keep the rhythm setting (tonal center, register) stay at or around 250 ms in the
 worst case (233-257 ms here).
 

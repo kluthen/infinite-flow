@@ -46,9 +46,10 @@ prerequisites. The code and the registers add three more.
 - **The v1.0 gate: done.** Instrument templates carry their own written-pitch transposition,
   rhythmic variety replaced the old "Mixed" setting, and profile behaviour runs on capability
   flags. v1.0 was tagged on 2026-09-26.
-- **Generation latency, re-measured: done in [chunk 1](#chunk-1--baseline-checks) on 2026-09-29;
-  the working target is missed on the cloud machine used, and the owner decides at chunks 8, 10
-  and 24.** The look-ahead
+- **Generation latency, re-measured: done in [chunk 1](#chunk-1--baseline-checks) on 2026-09-29,
+  on a cloud virtual machine, for reference only.** The owner decided the same day that no
+  performance figure from a virtual machine gates the plan: the latency and engraving checks are
+  re-run on a real computer (see [step 4](#3-workflow-for-every-chunk)). The look-ahead
   deadline must keep comfortable headroom at 240 BPM, the fastest tempo, including a cold
   generation. A generation is "cold" when it is the first one for a combination of settings,
   before the generator's caches for that combination are warm. The spec asks for the cold run
@@ -67,8 +68,9 @@ prerequisites. The code and the registers add three more.
   - Today's figures in [`docs/generation-latency.md`](../../../docs/generation-latency.md) miss
     that target on the worst case: 990.7 ms cold in Node, and 823 ms from click to "Phrase ready"
     in Chromium for the densest settings. The medians are far lower (17.1 ms cold in Node).
-    Chunk 1 decides whether the deadline holds. If it does not, the plan stops before the session
-    engine ([chunk 8](#chunk-8--session-engine)).
+    Chunk 1 was to decide whether the deadline holds, and stop the plan before the session engine
+    ([chunk 8](#chunk-8--session-engine)) if it did not. Its figures come from a virtual machine,
+    so they don't gate: the re-run on a real computer does.
 - **Engraving on the main thread against the audio scheduler: measured by chunk 1, applied by
   [chunk 10](#chunk-10--audio-transport).** Engraving runs on the page's main thread. If it blocks
   longer than the audio scheduler's look-ahead window (200 ms proposed), sound could come late.
@@ -267,6 +269,12 @@ chunk isn't finished until step 6 is done.**
    - The chunk's **Done when** criteria hold.
    - `npm run quality` passes on an idle machine: the whole suite, with no regression in earlier
      chunks.
+   - **Performance on a virtual machine never gates.** A cloud or other virtual machine is too
+     slow and too noisy to judge latency, main-thread time or any other timing budget. A chunk
+     run on one checks that its measuring code runs, takes one measurement for reference, records
+     it with the machine and date, and moves on; a missed figure stops nothing. The budgets are
+     checked on a real computer, by the owner, before the release gate that names them. Decided by
+     the owner on 2026-09-29.
    - The run is repeatable: the same seed gives the same result, and the same script on the fake
      clock and fake MIDI gives the same outcome on a second run.
    - A debug run shows the behaviour on screen: `npm run dev` in Chromium for the real app (with a
@@ -415,10 +423,9 @@ the cold worst case, so the owner may want the figures re-run there.
 
 - **Working target (cold worst case under 250 ms in Chromium): missed.** Cold worst case
   1.43–1.44 s; the first generation after a rhythm-control change up to 1.59 s. Changes that keep
-  the rhythm setting (key, register) stay near 250 ms. By this plan, the stop before chunks 8, 10
-  and 24 applies. The owner's view on 2026-09-29: a miss may come from the measuring machine and
-  does not stop the chunks that don't depend on it. The decision for chunks 8, 10 and 24 is taken
-  when they come up.
+  the rhythm setting (key, register) stay near 250 ms. These are virtual-machine figures, for
+  reference only: by the owner's decision of 2026-09-29, they don't stop chunks 8, 10 or 24, and
+  the check is re-run on a real computer (see [step 4](#3-workflow-for-every-chunk)).
 - **The deadline itself (`rule_look_ahead_deadline`, generation and engraving):** the normal
   three-bar window (3 s at 240 BPM) is met, retries included, for the worst setting measured in
   Chromium. A slower setting in Node (Edge tension, 2.06 s cold) could exceed it with four retries,
@@ -427,9 +434,9 @@ the cold worst case, so the owner may want the figures re-run there.
   a v2.1 regeneration after a rhythm-control change is missed (1.59 s). This puts three DRAFT
   business atoms at odds with the generator as measured: `rule_look_ahead_deadline` expects every
   phrase on time, `req_settings_mutation_flag` lets rhythm controls change, and
-  `rule_session_change_applies_at_phrase_boundary` regenerates with one measure left. The owner
-  settles it before [chunk 24](#chunk-24--settings-mutation-engine): relax the expectation for
-  that case, raise the one-measure threshold, or require faster generation.
+  `rule_session_change_applies_at_phrase_boundary` regenerates with one measure left. It is
+  settled once the re-run on a real computer shows whether the conflict is real: relax the
+  expectation for that case, raise the one-measure threshold, or require faster generation.
 - **Main-thread engraving: under 200 ms.** The longest task was 83 ms (93 ms by a timer heartbeat),
   for the first phrase in a fresh page; later phrases stayed under 50 ms. A Worker wake-up timer is
   enough for [chunk 10](#chunk-10--audio-transport), as long as every main-thread task stays shorter
