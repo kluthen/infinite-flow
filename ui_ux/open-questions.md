@@ -565,3 +565,23 @@ controller` entry: today the Unsupported browser state) follows from it. An Andr
   to **Empty** with the alert, as proposed; (b) each attempt takes the density the window gives
   when it is generated, not the round's starting density, and a round that meets an unsupported
   combination stops and gives way to **Empty**.
+
+- **Q63 — the shortest phone screen the staff must fit, and whether to go further than D127 and
+  D128.** Found 2026-09-29 reworking the phone staff height after build-plan chunk 3. With ux
+  D127 (one system size for every instrument, sized for one instrument's reach) and D128 (a
+  smaller block padding in the phone's staff frame), two staff systems fit at the legibility floor
+  (5 px per staff space) down to a small viewport height of about 276 px (about 291 px if the
+  start marker must sit above a chord symbol, D129). That covers the working figure of about
+  300 px for a 360-px-tall landscape phone with its browser toolbar showing, at about 5.8 px per
+  space, and about 330 px at about 6.8 px. Real phones vary: where the system status bar also
+  stays visible in landscape, a 360-px phone can leave the page about 280 px, which the
+  recommendation only just covers. Two further levers exist, neither applied: (a) a phone cue row
+  of `4rem` instead of `6rem` (32 px more, down to about 244 px; the phone's disconnect banner
+  then has to fit one line beside the compact `Stop` and `Volume`, so it gets smaller or shorter,
+  which touches the owner's D51 and D97); (b) a lower legibility floor, a product call, since the
+  owner signed off 5 px on 2026-09-24 (4.5 px saves 15 px with D127, 4 px saves 30 px; below
+  5 px a sight-reading staff is smaller than a pocket score). Proposed default, per D119 (2): no
+  further change; about 276 px is the phone minimum, and a shorter screen gets "This screen is too
+  small to show the staff." The owner confirms, or names the shortest small viewport height the
+  staff must fit. See `screens/phrase-workspace/handoff.md`, Notation Contract (**Scale below
+  `bp-tablet-landscape`**, **System position size and staff placement**).

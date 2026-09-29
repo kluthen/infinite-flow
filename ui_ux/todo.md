@@ -347,6 +347,24 @@ three passes, confirmed by the user, committed 2026-09-27. Next, in this order:
    layout-planner note is carried by `specs/versions/v2/build-plan.md` (its notation-layout caveat,
    chunk 3). After that, unit 6 (Review), which carries Q47's Review part
    and Q25.
+   (5) **Phone staff-height rework, 2026-09-29** (owner's request after chunk 3 measured 17.5
+   staff spaces per system, so about 317 px of small viewport height, above a toolbar-showing
+   360-px phone's about 300 px). Settled by `ux-writer` under D119: ux D127 (one system-position
+   size for every profile, sized for one profile's reach, about 15 spaces; staff placed per
+   profile from its written range), D128 (phone `staff-frame` block padding `--spacing-2` via a
+   new `--staff-frame-padding-block-phone`), D129 (start marker kept inside the position).
+   Together: about 276 px needed (291 px worst case with the marker), 5.8 px per space at 300 px.
+   Written into `screens/phrase-workspace/handoff.md` (Notation Contract: new **System position
+   size and staff placement**, **Scale below `bp-tablet-landscape`**, **Start marker**; Layout
+   Tree; Responsive Behavior; change block) and `intent.md` (Focal Point and Header; change
+   block). Q63 logged for the owner (target height; phone cue row and lower floor held in
+   reserve). **Pending:** (a) the token source change (this pass was barred from editing
+   `src/styles/`): add `--staff-frame-padding-block-phone`, subtract it in
+   `--staff-systems-phone-block-budget`, set `padding-block` in the phone `staff-frame` block of
+   `components.css`, and correct the budget's "Rough sizing" comment; (b) the coding chunk
+   (notation-layout constants, engraver placement per profile, calibration with the marker, the
+   engraving doc; the preflight atom via `documentalist`); (c) a narrow `ux-critic` pass on the
+   phrase-workspace edits; (d) the owner's confirmation and Q63.
 
 **ux-critic plan read (2026-09-27), to weigh before continuing:**
 

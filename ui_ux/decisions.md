@@ -877,3 +877,70 @@ generation` secondary; `Start session` primary.
   score lands in **Initial generation error**, since no phrase is kept. Governs
   `flows/generate-phrase/handoff.md` and `screens/phrase-workspace/handoff.md`, Notation Contract,
   **Room for the staff**.
+
+- **D127 — One system-position size for every profile, sized for one profile's reach, the staff
+  placed per profile (2026-09-29; `ux-writer`'s call under D119 (1) and (2); from the phone-height
+  finding of build-plan chunk 3, "Notation layout v2").** Chunk 3 sized each system position at
+  17.5 staff spaces (the notation layout's `NOTATION_SYSTEM_POSITION_UNITS`, 175, with the top
+  line at 80), measured on real ink: the saxophones' highest ink, a chord symbol over written C6,
+  about 7.2 spaces above the top line, and the C MIDI keyboard's lowest, written C3 with its ledger
+  lines, about 8.5 below it. That is the union of two profiles' extremes, which no phrase reaches:
+  the saxophones (written C4–C6) never go below the staff's first ledger line, and the keyboard
+  (written C3–C5) never above the staff. Two positions at the 5 px floor then need 175 px, and with
+  the fixed 142 px (cue row 96, gap 12, frame padding 2 × 16, border 2 × 1) a small viewport height
+  of 317 px: a 360-px landscape phone with its toolbar showing (about 300 px) gets the no-room
+  notice. Decided: the two positions keep one shared size, the same for every profile (so a profile
+  switch never resizes the staff area, as before), equal to the tallest single profile's ink plus
+  about one staff space at each end, `start-note-marker` included (D129); within it, the staff's
+  top line is placed per profile, derived from its written range (never a per-profile table, so a
+  future profile needs no new rule; one that needs more makes the shared size larger for all).
+  From chunk 3's height calibration (`docs/notation-engraving.md`): saxophone ink spans about 12.8
+  spaces (7.2 above the top line, 5.7 below), keyboard ink about 11.7 measured, 12.2 at C3's
+  notehead (3.2 above, up to 9.0 below). So the position becomes 15 spaces (150 units), the
+  saxophones' top line about 8.2 spaces from the position's top edge (82 units) and the keyboard's
+  about 4.6 (46 units), to be confirmed by re-running the calibration with the start marker drawn.
+  Acceptance bound: at most 16 spaces, so that, with D128, the phone keeps at least 10 px of
+  margin at a 300 px small viewport height. Effect alone: 292 px needed (5.27 px per space at
+  300 px, 6.27 at 330 px). Side effect from `bp-tablet-landscape` up, where positions are sized at
+  the 12 px maximum: the frame goes from about 454 px to about 394 px (v1's `24rem` minimum is
+  384 px; at `bp-desktop` the `28rem` minimum, 448 px, holds), so most of chunk 3's "about 70 px
+  taller than v1" goes too. Rejected: a position size per profile (the frame would change size on
+  a profile switch, for no gain on the default tenor saxophone, the tallest); tighter chord-symbol
+  clearance over high notes (about 1.5 spaces at best on the saxophones only, crowds the melody,
+  takes the start marker's room, and alone still needs about 302 px); a shared chord row between
+  the systems (in the split layout each system has its own measures and chords, so both still need
+  a row); lowering the legibility floor (the owner's, see Q63). Governs
+  `screens/phrase-workspace/handoff.md` (Notation Contract, **System position size and staff
+  placement**; Layout Tree) and `screens/phrase-workspace/intent.md` (Focal Point and Header).
+  Needs, in the coding chunk: `src/notation/notation-layout-policy.ts` (position size, top line
+  per written range), the engraver, the calibration test, `docs/notation-engraving.md`, and
+  `docs/module_notation_layout_preflight.atom.md` (`documentalist`).
+
+- **D128 — The phone's staff frame takes a smaller block padding (2026-09-29; `ux-writer`'s call
+  under D119 (1) and (2); with D127).** Below `bp-tablet-landscape`, `staff-frame`'s block padding
+  (top and bottom) drops from `--staff-frame-padding` (`--spacing-4`, 16 px) to a new token
+  `--staff-frame-padding-block-phone` (`--spacing-2`, 8 px); its inline padding stays, since width
+  does not limit the phone's staff. The phone budget subtracts the new token. Saves 16 px: the
+  fixed cost goes from 142 to 126 px. With D127: two systems at the floor need 150 px, so 276 px
+  of small viewport height; at 300 px the staff draws at about 5.8 px per space, at 330 px about
+  6.8 px (at the 740 px and 844 px phone widths the width allows more, so the height sets the
+  scale). If D129's check makes the position 16.5 spaces, 291 px is needed (5.27 px at 300 px).
+  Rejected: a smaller cue row on the phone (`4rem` would save 32 px, but the disconnect banner
+  would have to fit one line beside the compact `Stop` and `Volume`, shrinking the one session text
+  D51 sizes for the music stand; kept in reserve, see Q63); taking the header or the score toolbar
+  out during a session (they already sit above the view after the start jump, outside the budget:
+  no gain); a smaller cue-row gap (4 px, not worth a phone-only rule). Governs
+  `screens/phrase-workspace/handoff.md` (Notation Contract, **Scale below
+  `bp-tablet-landscape`**; Responsive Behavior). The token is not yet in `src/styles/theme.css`:
+  this pass proposes it for the coding chunk (see `todo.md`).
+
+- **D129 — The start marker stays inside the top system position (2026-09-29; `ux-writer`'s call
+  under D119 (1); found while sizing D127).** `start-note-marker` (D81) sits above phrase 1's first
+  attacked note, clear of any chord symbol. Over a saxophone phrase that starts on a high note
+  under a chord symbol, a marker above the chord symbol would reach beyond the position's headroom
+  (already so with the 17.5-space position; chunk 3's calibration did not draw the marker, which is
+  not implemented yet). Decided: the marker sits between the note's own ink and its chord symbol
+  where they leave room, the chord symbol never moved for it, and above the chord symbol only
+  where they do not; the shared position size (D127) allows for whichever the calibration finds
+  tallest, and the calibration draws the marker. Governs `screens/phrase-workspace/handoff.md`,
+  Notation Contract, **Start marker**.
