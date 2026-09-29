@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.22
+Status: draft v0.23
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -31,7 +31,8 @@ change. O95 was opened while recording what clears the "these notes need more ro
 that notice shows gives way to no phrase, as D151 does. O96 was opened 2026-09-29 while recording
 that a wider window during a round of retries starts nothing (D154), and resolved the same day
 (D155): each attempt of a round takes its note density from the window when it is generated, and
-a crossing that makes the rhythm combination disallowed stops the round.
+a crossing that makes the rhythm combination disallowed stops the round. O97–O99 were opened
+2026-09-29 while correcting the gaps `documentalist` found in the v2 master spec (D157–D163).
 
 ### Registered from the v2 proposal and the prerequisites analysis (2026-09-25)
 
@@ -155,3 +156,49 @@ starting v2.0 implementation; it blocks only the behaviour it names.
   mutation steps from the density generated with, and `Sixteenth` counts as unavailable whenever
   the session generates with `Eighth` under D146, whatever the window's width.
   [master-spec.md §5](versions/v2/master-spec.md#5-control-changes-during-a-session).
+
+## v2 gaps from the atom ingestion (O97+)
+
+Opened 2026-09-29 by `spec-writer` while correcting the gaps `documentalist` found when it drew
+ATD atoms from master spec v1.18 (D157–D163). They are product decisions, left for the owner. O97
+blocks only how a phrase generated with carry-in may end, in v2.0; O98 and O99 block only the
+v2.2 behaviour they name.
+
+- **O97 - A session's last phrase ending with something owed** _(D80, D81, D157, D158; gaps 1
+  and 2)_: inside a session a phrase may end just after a big leap (7 to 12 half steps), whose
+  recovery (a move back the other way of 1 to 4 half steps) the next phrase starts with (D80), or
+  on a tense note (one that clashes with the chord and wants to step onto a chord note), which the
+  next phrase's first note resolves (D81). v1 never lets a phrase end either way. D81 kept v1's
+  rule "where the music really stops", at Stop or the session's end, but the app cannot know which
+  phrase will be the last: a session ends at any moment, usually mid-phrase. The same debt goes
+  unsettled before the failure ladder's standalone phrase or a repeat, whose join is not smoothed
+  (D157). Proposed, not confirmed by the owner: keep the carry-over, and accept that a session's
+  last phrase, in the review and the export, may end with a recovery or a resolution still owed,
+  as it may be cut off mid-phrase; the same holds before a standalone phrase or a repeat.
+  Alternative: every session phrase ends as v1 requires, so any phrase is a clean place to stop
+  and every seam is clean, at the cost of joins that sound more like one phrase stopping and the
+  next starting. Either way, v1's atoms `rule_leap_recovery` and `rule_open_phrase_ending` need a
+  v2 scope once this is settled.
+  [master-spec.md §3](versions/v2/master-spec.md#3-the-generation-unit-and-how-phrases-join).
+- **O98 - How the multi-phrase tension arc runs, and its default** _(D99, D110; v2.2; gap 8)_: the
+  tension-arc setting (Settled, Lift, Build, Edge) decides how much melodic tension (a note that
+  clashes with the chord before settling onto a chord note) a phrase has and where. D110 makes the
+  longer arc a visible toggle; how it moves tension across phrases, and whether the toggle starts
+  on or off, are undecided. Proposed, not confirmed by the owner: the arc repeats every four
+  phrases (16 measures), counted from phrase 1: the first phrase of each group is generated with
+  the chosen tension arc (so phrase 1, generated at Idle, already fits), the second one step
+  tenser, the third as chosen, the fourth one step calmer, in the order Settled, Lift, Build,
+  Edge, with no step past either end. The setting keeps showing the player's choice. The toggle
+  starts off. Its interaction with the settings-mutation flag (O77), which may change the tension
+  arc itself, follows: the arc steps around whatever value is in effect.
+  [master-spec.md §3](versions/v2/master-spec.md#3-the-generation-unit-and-how-phrases-join).
+- **O99 - Adaptive tempo when the controller is lost, and its default** _(D101, D114; v2.2; gap
+  9)_: adaptive tempo is available only with a controller attached, but a controller lost
+  mid-session may come back within 30 seconds (D114). Does the rise carry on meanwhile, and does
+  the flag start on or off? Proposed, not confirmed by the owner: the rise carries on its schedule,
+  since it never depends on what or whether the player plays (D101), so a reconnected player may
+  find the tempo up to 15 BPM higher at a fast tempo; a session started while the selected
+  controller is away (D126) has no controller, so adaptive tempo does not run in it. Alternative:
+  pause the rise while the controller is away. Adaptive tempo starts off when the page loads, and
+  the player's choice is kept between sessions for as long as the page stays open.
+  [master-spec.md §10](versions/v2/master-spec.md#10-adaptive-tempo).

@@ -1,6 +1,6 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27; master spec v1.18, 2026-09-29, D156). The
+Status: consolidated into the master spec (2026-09-27; master spec v1.19, 2026-09-29, D163). The
 individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
 ID-free description of v2.0 through v2.3, ready to hand to `coding-leader` and, later, `ux-writer`.
@@ -12,7 +12,7 @@ P3 gets session review and export; marking favorites is v3 (D130). See [personas
 
 | Document                         | Purpose                                                                                                        | Status            |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------- |
-| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.18 |
+| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.19 |
 | [build-plan.md](build-plan.md)   | The build plan: v2.0–v2.3 cut into ordered chunks, each with its atoms, tests and blockers                     | draft v0.2        |
 
 The original draft topic documents (highlights proposal, rolling phrase, audio and backing, MIDI
@@ -21,7 +21,7 @@ questions-for-user) are archived verbatim at
 [../../archive/v2/](../../archive/v2/README.md), each with a note pointing to the master-spec
 section that now carries its content.
 
-## Status snapshot (2026-09-28)
+## Status snapshot (2026-09-29)
 
 Settled scope is below and unchanged. The topic documents mark each item settled or `(proposed)`.
 
@@ -39,8 +39,9 @@ Settled scope is below and unchanged. The topic documents mark each item settled
 - **D79** notes that v3's "my instrument" should inherit the controller check's (D77) detected
   offset instead of asking again every session.
 - **Settled (D80–D88, 2026-09-27 batch):** leap recovery carries across a join (D80); a tense
-  note at a join may resolve onto the join's last note, full v1 resolution only where the music
-  truly stops (D81); `Varying` register resolves once per session (D82); planner authority
+  note at a join may resolve onto the next phrase's first note (D81; D158 corrects the "join's
+  last note" wording), with full v1 resolution only where the music truly stops, which is open
+  again as O97 (D158); `Varying` register resolves once per session (D82); planner authority
   deferred to v3 (D83); tempo shapes only the clock, never material (D84); one-bar count-in for
   both start types, backing is a synthesized renderer, click on by default, timeout arms on the
   first note played (D85); only note-on counts as MIDI activity (D86); v2 stays Chromium-only
@@ -188,8 +189,20 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   remaining attempts down to `Eighth` (D155). At Idle, a phrase on screen that stops fitting while
   the combination is unsupported gives way to no phrase with the alert, not to the notice; a
   window with no room still shows the notice (D156).
-- Open: 12 questions across the register, including O84 (starting a session from the Review),
-  O87 and O93 (above);
+- **Corrected (D157–D163, `spec-writer` under the owner's rule for minor issues, from the gaps
+  `documentalist` found while drawing ATD atoms from v1.18):** a join made without carry-in (the
+  failure ladder's standalone phrase, or a repeat) is not smoothed and settles nothing owed
+  (D157); a phrase generated with carry-in may end owing a leap recovery or a tense note's
+  resolution (D158); the review shows every phrase that started sounding (D159); a look-ahead
+  phrase already partly on screen is never discarded for a setting change (D160); applying a
+  setting change at a phrase boundary ships in v2.1 with the settings-mutation flag (D161); v2.0
+  records played notes without showing them (D162); the struggling notice stays until a newly
+  generated phrase starts sounding (D163). Opened **O97** (a session's last phrase ending with a
+  leap recovery or a tense note owed), **O98** (the multi-phrase tension arc's mechanics and
+  default, v2.2) and **O99** (adaptive tempo while the controller is lost, and its default, v2.2).
+  Master spec v1.19.
+- Open: 15 questions across the register, including O84 (starting a session from the Review),
+  O87, O93 and O97–O99 (above);
   O86 (what makes a favorite "exported") is still open but now belongs to v3 (D130);
   none is currently flagged ★ (all 5 most-blocking ones are settled). See [open-questions.md](../../open-questions.md) and
   [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
@@ -306,6 +319,11 @@ through an export the player triggers (D64, D69).
 - **O89** (a portrait-shaped view without turning the device, D137) was settled the same day
   (D138). **O90** (starting a session while the staff is not shown, D138) was settled the same
   day too (D139).
+- **O97** (a session's last phrase ending with a leap recovery or a tense note owed) blocks only
+  how a phrase generated with carry-in may end, in v2.0. **O98** (the multi-phrase tension arc's
+  mechanics and default) and **O99** (adaptive tempo while the controller is lost, and its
+  default) block only those v2.2 behaviours. All three are carried in
+  [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
 - Every other question originally registered here (O10, O24, O33, O35–O39, O41–O46, O50–O56,
   O58–O67, O70, O72–O76) is now **settled** — see the status snapshot above and the
   [decisions log](../../decisions.md).

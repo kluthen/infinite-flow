@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.22
+Status: draft v0.23
 
 ## Status Snapshot
 
@@ -134,7 +134,18 @@ Status: draft v0.22
   narrowing steps the remaining attempts down to `Eighth` (D155). At Idle, a phrase on screen that
   stops fitting while the combination is unsupported gives way to no phrase with the alert too,
   not to the notice; a window with no room still shows the notice (D156). Nothing newly opened.
-  The v2 master spec is now v1.18.
+  The v2 master spec became v1.18.
+- **Gaps found by the atom ingestion (2026-09-29, D157–D163)**: `documentalist` found 11 gaps
+  while drawing ATD atoms from master spec v1.18; `spec-writer` corrected the minor ones under
+  the owner's rule for this pass. A join made without carry-in is not smoothed and settles nothing
+  owed (D157); a phrase generated with carry-in may end owing a leap recovery or a tense note's
+  resolution, which resolves onto the next phrase's first note (D158); the review shows every
+  phrase that started sounding (D159); a look-ahead phrase already partly on screen is never
+  discarded for a setting change (D160); applying a setting change at a phrase boundary ships in
+  v2.1 (D161); v2.0 records played notes without showing them (D162); the struggling notice
+  stays until a newly generated phrase starts sounding (D163). Opened for the owner: **O97** (a
+  session's last phrase ending with something owed), **O98** (the multi-phrase tension arc) and
+  **O99** (adaptive tempo while the controller is lost). The v2 master spec is now v1.19.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.
@@ -164,10 +175,10 @@ Status: draft v0.22
   reattached during it, and it reattaches by itself once the session ends; a controller lost
   mid-session and still away at the end keeps its selection into the Review. The selection lives
   in memory only and does not survive a page reload (v2 saves nothing to browser storage). The
-  master spec was then at v1.5 (v1.18 since D156). One gap is open (**O84**: starting a session
+  master spec was then at v1.5 (v1.19 since D163). One gap is open (**O84**: starting a session
   from the Review).
-- **Open:** 12 questions remain live: O84 above, O86 (D129, a v3 question since D130), O87
-  (D131) and O93 (D150), plus the 8
+- **Open:** 15 questions remain live: O84 above, O86 (D129, a v3 question since D130), O87
+  (D131), O93 (D150) and O97–O99 (D157–D163), plus the 8
   older ones this bullet goes on to describe. None is flagged ★. The 5 most-blocking ones
   settled first (**D104** O75 v2.0 cut line is the full loop; **D105** O34 continuation boundary;
   **D76** O54 audio unlock; **D77** O55 controller check ships; **D78** O41 acknowledgement
