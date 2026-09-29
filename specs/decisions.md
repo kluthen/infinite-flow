@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.18
+Status: draft v2.19
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -684,3 +684,32 @@ fact in the live documents (see the [archive index](archive/README.md) and
   phrase counts) starts sounding, and goes when the session ends. Master spec §4 and §11 (v2.0
   item 1). Master spec v1.18 → **v1.19** for D157–D163, which also lists **O97**, **O98** and
   **O99** in §12 (opened with them, from gaps 1–2, 8 and 9).
+- **D164 (2026-09-29): the rolling display is two alternating staff systems with no mode toggle;
+  ux D71 supersedes D95.** `spec-writer`'s correction under the owner's rule for minor issues,
+  found by `coding-leader` while writing the v2 build plan and routed by `ux-writer`. No new rule.
+  D95 (archived) had v2.0 ship two rolling-display behaviours, "fixed" and "scrolling", switchable
+  by a toggle, so the app could be tried both ways before one was chosen. The design has since
+  chosen: ux D71 (user-confirmed, 2026-09-28) settles one display, two staff systems one above the
+  other, the one not being read refilled with what comes next and nothing scrolling or shifting,
+  and rejects a scrolling strip. So v2 has one rolling display and no mode toggle, and D95 no
+  longer holds. O40, which D95 resolved, stays resolved, by ux D71. The master spec never carried
+  the two modes and leaves the display to the design, so it is unchanged. The v2 README's status
+  snapshot, which still listed D95 as settled, now records the supersession, and its "Sessions"
+  item, which said the phrase "keeps scrolling" through a silence, now says it keeps rolling, as
+  master spec §7 does. v2 README; open-questions.md.
+- **D165 (2026-09-29): the MuseScore check of the MusicXML export covers the two transposing
+  templates with `<transpose>` and the C keyboard without it.** `spec-writer`'s correction, same
+  route. No new rule. Master spec §11 (v2.0 item 12) asked for MusicXML to open correctly in
+  MuseScore "for at least three transposing instrument templates", which cannot be checked: the
+  app has three instrument templates and only two transpose. The B♭ tenor and E♭ alto saxophones
+  carry a written-pitch transposition; the C MIDI keyboard carries none
+  (`src/domain/profile/instrument-profiles.ts`), and §7 leaves `<transpose>` out for a C
+  instrument. The criterion now covers each of the three: the two transposing templates with their
+  `<transpose>` element, and the C keyboard without one, which also checks the omission. Master
+  spec §11. Master spec v1.19 → **v1.20**.
+- **D166 (2026-09-29): the v2 README's session start follows master spec §6.** `spec-writer`'s
+  correction, same route. No new rule. The README's "Sessions" item said a session starts "on the
+  first MIDI input or a Start click", the rule D115 replaced. Master spec §6: from MIDI, only the
+  note phrase 1 starts on, at its exact pitch with the octave included, starts a session, and only
+  while a session can start at all; any other note starts nothing. The item now says so and points
+  to §6. v2 README.

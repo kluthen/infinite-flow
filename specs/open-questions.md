@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.23
+Status: draft v0.24
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -39,7 +39,8 @@ a crossing that makes the rhythm combination disallowed stops the round. O97–O
 The original proposal is archived: [v2 highlights proposal](archive/v2/highlights-proposal.md) and
 [prerequisites §5](versions/prerequisites.md#5-questions-registered-in-open-questions). O32 and
 O33 were resolved on 2026-09-26 (D73, D72). O10 was resolved 2026-09-27 (D83). O36, O40 and O43
-were resolved 2026-09-27 (D94, D95, D96).
+were resolved 2026-09-27 (D94, D95, D96). O40 stays resolved, but by ux D71's two alternating
+staff systems, which supersede D95's two display modes (D164).
 
 **Later and governance**
 

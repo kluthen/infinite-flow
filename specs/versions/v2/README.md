@@ -1,6 +1,6 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27; master spec v1.19, 2026-09-29, D163). The
+Status: consolidated into the master spec (2026-09-27; master spec v1.20, 2026-09-29, D165). The
 individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
 ID-free description of v2.0 through v2.3, ready to hand to `coding-leader` and, later, `ux-writer`.
@@ -68,9 +68,10 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   notes are optional, on a toggle, unquantized and neutral, and may indicate which notes matched
   the script — an appreciation, not a score.
 - **Settled (D94–D97, D99, D100–D102, second 2026-09-27 batch):** look-ahead and failure ladder
-  confirmed as proposed (D94); the rolling display ships two switchable modes, fixed and
-  scrolling (D95); event identity confirmed as proposed (D96); the v1 workspace stays outside
-  sessions, largely unchanged, with a short list of additions (D97); harmonic horizon stays
+  confirmed as proposed (D94); the rolling display's two switchable modes, fixed and scrolling
+  (D95), are superseded by ux D71: one display, two alternating staff systems, nothing scrolling,
+  no mode toggle (D164); event identity confirmed as proposed (D96); the v1 workspace stays
+  outside sessions, largely unchanged, with a short list of additions (D97); harmonic horizon stays
   phrase-by-phrase in v2.0, with the multi-phrase arc confirmed for v2.2 (D99); latency
   calibration stays tuned constants for v2, with a player calibration step moved to **v3**, not
   v2.1 (D100); adaptive tempo (v2.2) uses a flat +5 BPM every 2 phrases, no longer tied to O24 or
@@ -200,6 +201,13 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   leap recovery or a tense note owed), **O98** (the multi-phrase tension arc's mechanics and
   default, v2.2) and **O99** (adaptive tempo while the controller is lost, and its default, v2.2).
   Master spec v1.19.
+- **Corrected (D164–D166, `spec-writer` under the owner's rule for minor issues, from
+  inconsistencies `coding-leader` found while writing the v2 build plan):** ux D71's two
+  alternating staff systems supersede D95's two switchable display modes, so there is no mode
+  toggle (D164); the MuseScore check of the MusicXML export covers the two transposing templates
+  with `<transpose>` and the C keyboard without it, since only two of the three templates
+  transpose (D165); the session-start wording below follows master spec §6 (D166). Nothing newly
+  opened. Master spec v1.20.
 - Open: 15 questions across the register, including O84 (starting a session from the Review),
   O87, O93 and O97–O99 (above);
   O86 (what makes a favorite "exported") is still open but now belongs to v3 (D130);
@@ -230,11 +238,14 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   - It plays only while a session is running, and keeps playing through the player's silences.
   - There is no generated lead-line playback.
 - **Sessions.**
-  - A session starts on the first MIDI input or a Start click.
+  - A session starts on a Start click, or from MIDI on the note phrase 1 starts on, at its exact
+    pitch, octave included; any other note starts nothing. Full rule, including when no session
+    can start at all, in [master-spec.md §6](master-spec.md#6-backing-click-count-in-and-tempo)
+    (D115, D124, D166).
   - With a controller, it ends after more than 30 s without input or on a Stop click. Without a
     controller, only Stop ends it.
-  - While a MIDI player is silent, the phrase keeps scrolling, because they may be catching their
-    breath or recovering after losing track.
+  - While a MIDI player is silent, the phrase keeps rolling (D164), because they may be catching
+    their breath or recovering after losing track.
 - **Last-session review and export.**
   - At the end, the player reviews the last session (what was displayed and what was played).
     Marking what they liked is v3 (D130).
