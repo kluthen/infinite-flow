@@ -13,8 +13,8 @@ O24 was resolved 2026-09-27 (D108): the check is kept, ships in v2.3, and fires 
 where the player goes off-script. Six v2 questions (O78–O83) were opened the same day by the
 controller-connection answers (D111–D118) and resolved later that day (D119–D124). O84 was opened
 while recording them, and resolved 2026-09-30 (D169, from ux D137): a fresh phrase generated at
-the session end is the next phrase 1, and a session starts from the Review exactly as from Idle,
-the starting note included. O85, opened while recording D125, was resolved the
+the session end is the next phrase 1. Its start from the Review was replaced the same day by the
+owner (D170): no session starts while the Review shows; the player leaves it first. O85, opened while recording D125, was resolved the
 same day (D126). O86 was opened 2026-09-28 by the export-by-content change (D129), and deferred
 to v3 the same day, when favorites moved there (D130). O87 and O88 were opened 2026-09-28 while
 recording the screen wake lock (D131) and the count-in that always clicks (D132). O88 was
@@ -93,7 +93,8 @@ resolved 2026-09-27 (D97). O24 was resolved 2026-09-27 (D108).
 O78–O83 were opened 2026-09-27 by the product owner's answers to ux Q23 and ux Q24 (D111–D118)
 and resolved the same day (D119–D124). O85 was resolved the same day too (D126). O84, the last
 question of this section, was resolved 2026-09-30 (D169): `ux-writer` settled it as ux D137 under
-the owner's delegation of unit 6 (ux D135). No question of this section is open.
+the owner's delegation of unit 6 (ux D135); the owner replaced its start from the Review the same
+day (D170, ux D143). No question of this section is open.
 
 ## Favorites, deferred to v3 (O86)
 

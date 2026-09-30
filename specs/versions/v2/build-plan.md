@@ -1680,16 +1680,16 @@ notes, MIDI; played notes, lining up), item 12.
 
 **Goal.** The last-session review: every phrase that sounded, in order, engraved as it was shown,
 with its number and tempo. The generated-notes export action, MusicXML or MIDI, as a browser
-download. Starting a new session from the review.
+download. Leaving the review, and reopening it until the next session starts.
 
 **Spec sections:** [§7](master-spec.md#7-sessions-review-export-and-privacy) (the review, export,
 privacy, the next session's phrase 1), [§6](master-spec.md#6-backing-click-count-in-and-tempo)
-(starting from the Review), items 12, 13 and 28.
+(no session starts while the review shows), items 12, 13, 17 and 28.
 
 **Design docs:** [review-and-export flow handoff](../../../ui_ux/flows/review-and-export/handoff.md)
 and [intent](../../../ui_ux/flows/review-and-export/intent.md);
 [last-session-review screen handoff](../../../ui_ux/screens/last-session-review/handoff.md) and
-[intent](../../../ui_ux/screens/last-session-review/intent.md) (ux D135–D142).
+[intent](../../../ui_ux/screens/last-session-review/intent.md) (ux D135–D144).
 
 **Atoms:** `req_last_session_review`, `rule_new_session_discards_review`,
 `rule_session_end_generates_next_phrase_one`, `req_session_export`,
@@ -1715,16 +1715,17 @@ and its design.
   and E♭ alto saxophones, which transpose, with their `<transpose>` element, and the C keyboard
   without one. A MIDI tool opens the MIDI file with the right tempo map and markers. The checks
   are done by hand and written down.
-- At every session end once phrase 1 has sounded, a fresh phrase is generated and becomes the
-  next session's phrase 1 (item 28). Starting a new session from the review, by the Start click
-  or the starting note, discards it without confirmation. Reloading the page discards
-  everything.
+- At every session end once phrase 1 has sounded, a fresh phrase is generated; phrase 1 of the
+  next session is the phrase on screen at Idle when it starts (item 28). While the review shows,
+  neither the Start click nor any note starts a session, the starting note included, and no
+  starting note is named. Leaving the review keeps it reachable until the next session starts,
+  which discards it without confirmation. Reloading the page discards everything.
 - A network and storage spy across a full session, the review and both exports sees no request
   and no write (item 13).
 
-**Blocked by:** nothing. The design is written (UX unit 6, ux D135–D142) and O84 is closed (spec
-D169, 2026-09-30). The session history must carry the session's start time and instrument
-profile, for the export file names and the review's summary line (chunk 9).
+**Blocked by:** nothing. The design is written (UX unit 6, ux D135–D144) and O84 is closed (spec
+D169, with its start from the review replaced by spec D170, 2026-09-30). The session history must
+carry the session's start time and instrument profile, for the export file names and the review's summary line (chunk 9).
 
 ### Chunk 21 — v2.0 release gate
 

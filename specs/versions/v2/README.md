@@ -1,6 +1,6 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27; master spec v1.23, 2026-09-30, D169). The
+Status: consolidated into the master spec (2026-09-27; master spec v1.24, 2026-09-30, D170). The
 individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
 ID-free description of v2.0 through v2.3, ready to hand to `coding-leader` and, later, `ux-writer`.
@@ -12,7 +12,7 @@ P3 gets session review and export; marking favorites is v3 (D130). See [personas
 
 | Document                         | Purpose                                                                                                        | Status            |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------- |
-| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.23 |
+| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.24 |
 | [build-plan.md](build-plan.md)   | The build plan: v2.0–v2.3 cut into ordered chunks, each with its atoms, tests and blockers                     | draft v0.3        |
 
 The original draft topic documents (highlights proposal, rolling phrase, audio and backing, MIDI
@@ -224,9 +224,11 @@ Settled scope is below and unchanged. The topic documents mark each item settled
 - **Settled (D169, from ux D137 under the owner's delegation of unit 6, 2026-09-30; closes
   O84):** at every session end once phrase 1 has sounded, a fresh phrase is generated from the
   current settings; the next session's phrase 1 is the phrase on screen when it starts, first
-  generated fresh at that end; a session starts from the Review
-  exactly as from Idle, by the Start click or the starting note, under the same conditions, and
-  either start discards the Review without asking. Master spec v1.23.
+  generated fresh at that end. Master spec v1.23. Its start from the Review was replaced by D170.
+- **Settled (D170, the owner's decision, 2026-09-30; ux D143):** one leaves the Review before
+  starting a new session. While the Review shows, no session starts, by the Start click or any
+  note, the starting note included; leaving keeps it reachable until the next session starts,
+  and only that start discards it. Master spec v1.24.
 - Open: 13 questions across the register, including O87, O93, O98 and O99 (above);
   O86 (what makes a favorite "exported") is still open but now belongs to v3 (D130);
   none is currently flagged ★ (all 5 most-blocking ones are settled). See [open-questions.md](../../open-questions.md) and
@@ -338,7 +340,8 @@ through an export the player triggers (D64, D69).
   flag) is narrowed by D103, and its release is settled at v2.1 (D107) — but its cadence and
   default state are still open. Full text is in
   [open-questions.md](../../open-questions.md) and [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
-- **O84** (starting a session from the Review) was settled 2026-09-30 (D169, from ux D137).
+- **O84** (starting a session from the Review) was settled 2026-09-30 (D169, from ux D137); its
+  start from the Review was replaced the same day by the owner (D170).
   **O86** (what makes a
   favorite "exported", opened by D129) moved to v3 with favorites (D130).
 - **O87** (the screen wake lock dropped mid-session, D131) is a small v2 gap, carried in

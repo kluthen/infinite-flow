@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.22
+Status: draft v2.23
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -750,7 +750,8 @@ fact in the live documents (see the [archive index](archive/README.md) and
   Master spec §8 and §11 (v2.0 item 7); v2 README. Master spec v1.21 → **v1.22**.
 - **D169 (2026-09-30): the next session's phrase 1 is a fresh phrase generated at the session
   end, and a session starts from the Review exactly as from Idle, the starting note included.**
-  Resolves **O84**. The owner delegated the unit 6 decisions (the last-session Review) to
+  Resolves **O84**. _Its start-from-Review part is superseded by **D170** (owner, same day): no
+  session starts while the Review shows. The fresh phrase at the session end stands._ The owner delegated the unit 6 decisions (the last-session Review) to
   `ux-writer` on 2026-09-30, the Review's phrase 1 and its start included (ux D135: keep the
   Review as simple as possible), and `ux-writer` settled them as **ux D137**, recorded here as
   settled. At every session end once phrase 1 has started sounding, the ended session's phrases
@@ -773,3 +774,18 @@ fact in the live documents (see the [archive index](archive/README.md) and
   is the phrase on screen when the session starts, first generated fresh at the session end, since
   regenerating by hand, an instrument switch or a phrase that stops fitting still replaces it
   while the Review shows (ux D136).
+- **D170 (2026-09-30): leave the Review before starting a session.** The product owner, through
+  the coordinator, overriding part of ux D137 (recorded as **ux D143**, with the design details as
+  ux D144): "one should leave review mode before starting a new session." Supersedes D169's
+  start-from-Review part. While the Review shows, no session starts: not by a Start click, not by
+  any MIDI note, the starting note included; no note played there starts anything and no
+  starting note is named (connecting a controller still works there, master spec §8). The player leaves the Review, then starts from Idle under the usual conditions (master
+  spec §6). Leaving keeps the Review, reachable again until the next session starts or the page
+  closes; only that start discards it, still without confirmation (D130). D169's other parts
+  stand: at every session end once phrase 1 has sounded, a fresh phrase is generated from the
+  current settings, and phrase 1 is the phrase on screen at Idle when the session starts. The
+  stray-note risk D169 accepted is gone. The next session is now two actions away from the Review
+  (leave, then start) instead of one, by the owner's choice. How the Review is shown and left
+  (ux D144: it replaces the staff and the controls, and the session button reads `Close review`)
+  is the design's call. Master spec §4, §6, §7 and §11 (v2.0 items 12, 17, 22 and 28); v2 README;
+  build plan chunk 20. Master spec v1.23 → **v1.24**.

@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.27
+Status: draft v0.28
 
 ## Status Snapshot
 
@@ -171,9 +171,13 @@ Status: draft v0.27
   `ux-writer` under the owner's delegation of unit 6 (ux D135). At every session end once phrase 1
   has sounded, a fresh phrase is generated from the current settings, as regenerating by hand
   would; phrase 1 is then the phrase on screen when the next session starts, first generated
-  fresh at that end; a session starts from the Review exactly as from
-  Idle, by the Start click or the starting note, under the same conditions, and either start
-  discards the Review without asking. Nothing newly opened. The v2 master spec is now v1.23.
+  fresh at that end. Its start from the Review, by the Start click or the starting note, was
+  replaced the same day by the owner (next item). The v2 master spec became v1.23.
+- **Leave the Review before starting a session (2026-09-30, D170, owner; ux D143)**: while the
+  Review shows, no session starts, by the Start click or any note, the starting note included;
+  the player leaves it first. Leaving keeps it reachable until the next session starts, and only
+  that start discards it. The fresh phrase at the session end stands. Nothing newly opened. The
+  v2 master spec is now v1.24.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.
@@ -203,7 +207,7 @@ Status: draft v0.27
   reattached during it, and it reattaches by itself once the session ends; a controller lost
   mid-session and still away at the end keeps its selection into the Review. The selection lives
   in memory only and does not survive a page reload (v2 saves nothing to browser storage). The
-  master spec was then at v1.5 (v1.23 since D169). The one gap left open then (**O84**: starting
+  master spec was then at v1.5 (v1.24 since D170). The one gap left open then (**O84**: starting
   a session from the Review) was closed 2026-09-30 (D169).
 - **Open:** 13 questions remain live: O86 (D129, a v3 question since D130), O87
   (D131), O93 (D150), O98 and O99 (D157–D163), plus the 8
