@@ -5,6 +5,37 @@
  * it directly without pulling each other's files into their programs.
  */
 
+/** A note identity as the harness publishes it: phrase number, measure index, event index. */
+// @test-link [[module_notation_note_identity_overlays]]
+interface NotationHarnessNoteIdentity {
+  readonly phraseNumber: number
+  readonly measureIndex: 0 | 1 | 2 | 3
+  readonly eventIndex: number
+}
+
+/** The written facts of one glyph that decide which tagged parts its engraving carries. */
+// @test-link [[module_notation_note_identity_overlays]]
+interface NotationHarnessGlyphFact {
+  readonly kind: 'note' | 'rest'
+  readonly value: 'whole' | 'half' | 'quarter' | 'eighth' | 'sixteenth'
+  readonly dots: 0 | 1
+  readonly accidental: boolean
+  readonly beamed: boolean
+  readonly tieFromPrevious: boolean
+}
+
+/**
+ * The overlay state the harness hands PhraseScore: notes by identity and a measure by index only.
+ * There is no pitch input, so no overlay can show a note the phrase does not hold.
+ */
+// @test-link [[module_notation_note_identity_overlays]]
+// @test-link [[rule_no_grading_or_mismatch_signal]]
+interface NotationHarnessOverlays {
+  readonly startMarker: NotationHarnessNoteIdentity | null
+  readonly playheadMeasure: 0 | 1 | 2 | 3 | null
+  readonly acknowledged: readonly NotationHarnessNoteIdentity[]
+}
+
 /** The harness's published state: mirrors PhraseScore's pending/ready/error lifecycle for the test. */
 // @test-link [[module_notation_layout_preflight]]
 interface NotationHarnessState {
@@ -35,6 +66,30 @@ interface NotationHarnessState {
    * published with every ready state.
    */
   firstAttackGlyphIndex?: number | null
+  /**
+   * Every glyph's note identity, measure by measure in written-event order (the attack's identity
+   * for a tie continuation, null for a rest), for the harness's phrase number; published with
+   * every ready state.
+   */
+  glyphIdentities?: readonly (readonly (NotationHarnessNoteIdentity | null)[])[]
+  /** Every glyph's written facts, in the same shape as `glyphIdentities`; published when ready. */
+  glyphFacts?: readonly (readonly NotationHarnessGlyphFact[])[]
+  /**
+   * Sets PhraseScore's overlay state; resolves once it is drawn, rejects with the overlay error
+   * (named `ScoreOverlayError`) when the state names a note or measure the phrase lacks.
+   * Published with every ready state.
+   */
+  setOverlays?: (overlays: NotationHarnessOverlays) => Promise<void>
+  /**
+   * Gives PhraseScore another fixture phrase, phrase number and overlay state in one tick;
+   * resolves once the new phrase is engraved with the overlays drawn, rejects with the overlay
+   * error (named `ScoreOverlayError`) any draw threw meanwhile. Published with every ready state.
+   */
+  swapPhrase?: (
+    fixtureName: string,
+    phraseNumber: number,
+    overlays: NotationHarnessOverlays,
+  ) => Promise<void>
   /** Only published by the `source=generated` path: the JSON snapshot taken right after generation. */
   sourceSnapshot?: string
   /** Only published by the `source=generated` path: the same snapshot shape, recomputed now. */

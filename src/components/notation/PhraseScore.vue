@@ -27,6 +27,11 @@ export interface EngravedPayload {
  * toolbar showing or hiding, leaves the staff untouched. Every successful swap is paired with an
  * accessible text description of the same written phrase (a failed or superseded engrave always
  * clears it first). The default slot is laid over the positions, for the frame's own messages.
+ * The overlay state (start marker, playhead band, acknowledged notes) is drawn onto the engraved
+ * SVGs once they sit in their visible positions, after every successful engraving and whenever the
+ * state changes, without re-engraving; a re-engrave therefore keeps the overlays. While a new
+ * phrase or phrase number waits for its engraving, the previous score is never drawn on: the
+ * engraving draws the overlay state current at its swap.
  */
 import { onMounted, onUnmounted, ref, useId, watch } from 'vue'
 
@@ -38,10 +43,25 @@ import {
   type StaffViewport,
 } from '@/notation/notation-layout-policy'
 import { NotationError } from '@/notation/notation-error'
+import {
+  applyScoreOverlays,
+  NO_SCORE_OVERLAYS,
+  type ScoreOverlays,
+} from '@/notation/score-overlays'
 import { loadVexflowEngraver, type VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 
 // @spec-link [[module_notation_layout_preflight]]
-const props = defineProps<{ phrase: WrittenPhrase | null }>()
+// @spec-link [[module_notation_note_identity_overlays]]
+const props = withDefaults(
+  defineProps<{
+    phrase: WrittenPhrase | null
+    /** Which phrase of the session this is (1 for the first); names its engraved notes. */
+    phraseNumber: number
+    /** What the session marks on the score; the idle score, with nothing drawn, by default. */
+    overlays?: ScoreOverlays
+  }>(),
+  { overlays: () => NO_SCORE_OVERLAYS },
+)
 
 const emit = defineEmits<{
   engraved: [payload: EngravedPayload]
@@ -73,6 +93,12 @@ let lastEngravedInputs: string | null = null
 /** Counts the checks that reached the engraver, so a superseded one never engraves or reports. */
 let latestCheck = 0
 let phoneLayoutQuery: MediaQueryList | null = null
+/** The system SVGs on screen, the phrase and phrase number they engrave, or null with none. */
+let shownScore: {
+  readonly svgs: readonly SVGSVGElement[]
+  readonly phrase: WrittenPhrase
+  readonly phraseNumber: number
+} | null = null
 
 /** Intent: find the enclosing `staff-frame`, whose computed style carries the height budget. */
 function staffFrame(root: HTMLElement): HTMLElement {
@@ -129,6 +155,7 @@ function sizePositions(viewport: StaffViewport): void {
 
 /** Intent: clear both positions, the staging hosts and the description together. */
 function clearScore(): void {
+  shownScore = null
   topPositionEl.value?.replaceChildren()
   bottomPositionEl.value?.replaceChildren()
   stagingEl.value?.replaceChildren()
@@ -170,6 +197,20 @@ function labelSystems(svgs: readonly SVGSVGElement[], summary: string): void {
   })
 }
 
+/**
+ * Intent: draw the current overlay state onto the systems on screen. With no engraved phrase on
+ * screen, or while the score on screen is still the previous phrase or phrase number (the new
+ * one's engraving is pending, as when both props change in the same tick), there is nothing to
+ * draw on yet: the engraving that swaps in the current phrase calls this again, reading the state
+ * then, so the latest state always lands on the score it names. An overlay naming a note or
+ * measure the engraved phrase lacks is the caller's error and throws.
+ */
+function drawOverlays(): void {
+  if (shownScore === null) return
+  if (shownScore.phrase !== props.phrase || shownScore.phraseNumber !== props.phraseNumber) return
+  applyScoreOverlays(shownScore.svgs, shownScore.phraseNumber, props.overlays)
+}
+
 /** Intent: engrave the current phrase with the given inputs, swapping it in on success only. */
 function engrave(phrase: WrittenPhrase, inputs: LayoutInputs): void {
   const top = topPositionEl.value
@@ -186,6 +227,7 @@ function engrave(phrase: WrittenPhrase, inputs: LayoutInputs): void {
     const result = engraverModule.engraveWrittenPhrase(
       [stagedTop, stagedBottom],
       phrase,
+      props.phraseNumber,
       inputs.containerWidthPx,
       inputs.viewport,
     )
@@ -196,6 +238,8 @@ function engrave(phrase: WrittenPhrase, inputs: LayoutInputs): void {
     staging.replaceChildren()
     description.value = summary
     state.value = 'ready'
+    shownScore = { svgs: result.svgs, phrase, phraseNumber: props.phraseNumber }
+    drawOverlays()
     emit('engraved', {
       staffSpacePx: result.staffSpacePx,
       widthPx: result.widthPx,
@@ -302,10 +346,8 @@ onMounted(async () => {
   await checkLayout(true)
 })
 
-watch(
-  () => props.phrase,
-  () => scheduleCheck(true),
-)
+watch([() => props.phrase, () => props.phraseNumber], () => scheduleCheck(true))
+watch(() => props.overlays, drawOverlays, { deep: true })
 
 onUnmounted(() => {
   resizeObserver?.disconnect()

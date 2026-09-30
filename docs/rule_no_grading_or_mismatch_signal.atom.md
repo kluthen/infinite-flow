@@ -10,6 +10,7 @@ priority: 1
 parents:
   - [[req_four_measure_phrase]]
 dependents:
+  - [[module_notation_note_identity_overlays]]
   - [[rule_acknowledgement_highlights_expected_note_only]]
 ---
 

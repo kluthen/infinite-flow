@@ -74,7 +74,10 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
 - `src/generation-worker/` — the typed request/response protocol and handler that run generation
   inside a dedicated module Web Worker, off the main thread.
 - `src/notation/` — the concert-to-written transformation types and the VexFlow engraving adapter,
-  loaded lazily (`vexflow-engraver-loader.ts` is the sole static importer of the engraver module).
+  loaded lazily (`vexflow-engraver-loader.ts` is the sole static importer of the engraver module);
+  `note-identity.ts`, which names each engraved note with the identity acknowledgement reports, and
+  `score-overlays.ts`, which draws the start marker, playhead band and acknowledged notes onto the
+  engraved SVG (see [`docs/notation-engraving.md`](docs/notation-engraving.md)).
 - `src/export/` — pure, browser-free encoders that turn a session's phrases into the bytes of one
   export file; `musicxml/` holds the generated-notes MusicXML encoder, `midi/` the generated-notes
   MIDI encoder. See [`docs/export.md`](docs/export.md).
@@ -225,6 +228,9 @@ UI (Vue components, props-in/events-out)
   for the selected display convention (Concert / B-flat / E-flat), then engraved by a lazily loaded
   VexFlow adapter (`src/notation/vexflow-engraver-loader.ts` is the sole static importer of the
   engraver module) — the engraving chunk is fetched on first use and precached for offline reuse.
+  The engraver tags every note's own parts with its note identity (`note-identity.ts`), and
+  `score-overlays.ts` draws the session's marks onto the engraved SVG by those identities, without
+  re-engraving.
 - **Note acknowledgement.** `src/domain/acknowledgement/` decides, as pure logic, which expected
   notes of the phrase a player's notes acknowledge: exact concert pitch, inside a timing window on
   the audio clock, with the played onset corrected for latency. Its only output is a list of note
@@ -381,6 +387,7 @@ detection, scoring, and the rolling continuation flow remain outside this releas
 
 ## Open Issues
 
-| Ref                                                   | Severity | Summary                                                                                                 |
-| ----------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
-| [ISS-006](issues/Ref_20260929_every_stem_drawn_up.md) | Medium   | Every stem is drawn up, high notes included, which also makes each staff system about two spaces taller |
+| Ref                                                              | Severity | Summary                                                                                                                |
+| ---------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| [ISS-007](issues/Ref_20260930_ledger_lines_keep_vexflow_grey.md) | Medium   | Ledger lines keep VexFlow's own `#444` stroke, so they ignore the staff colour and have low contrast in the dark theme |
+| [ISS-006](issues/Ref_20260929_every_stem_drawn_up.md)            | Medium   | Every stem is drawn up, high notes included, which also makes each staff system about two spaces taller                |

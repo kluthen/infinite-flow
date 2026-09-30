@@ -3,8 +3,10 @@
  * spelling into VexFlow key/duration codes, and the construction of individual StaveNote,
  * Accidental, Dot, ChordSymbol, Beam and StaveTie instances from the model's own fields. Nothing
  * here re-decides music (no auto-accidentals, no auto-beaming): every glyph, accidental, beam
- * group and tie is taken verbatim from the WrittenPhrase. Together with ./vexflow-engraver.ts and
- * ./vexflow-two-system-engraver.ts, this is the only trio of files allowed to import 'vexflow'.
+ * group and tie is taken verbatim from the WrittenPhrase. It also reports where a drawn note's own
+ * parts are, for the note-identity tagging (./note-part-tags.ts). Together with
+ * ./vexflow-engraver.ts and ./vexflow-two-system-engraver.ts, this is the only trio of files
+ * allowed to import 'vexflow'.
  */
 import {
   Accidental,
@@ -26,6 +28,7 @@ import type {
   WrittenEvent,
   WrittenMeasure,
 } from '../domain/notation/written-phrase-types'
+import type { NotePartRefs } from './note-part-tags'
 
 /**
  * The rest key position for every notated rest: the middle line, except a whole rest, which by
@@ -192,4 +195,40 @@ export function buildSystemTies(
     )
   }
   return ties
+}
+
+/** Intent: the DOM id VexFlow's SVG context gives the group it opens for a drawn element. */
+function drawnGroupId(element: { getAttribute(name: string): unknown }): string {
+  return `vf-${String(element.getAttribute('id'))}`
+}
+
+/**
+ * Report where a drawn note glyph's own parts are in its system's SVG, for the note-identity
+ * tagging: its stavenote and notehead groups, its stem group (drawn inside the beam's group for a
+ * beamed note), whether it drew a flag, the glyph strings of its notehead, accidental and dot
+ * texts, and its chord symbol groups. Every written note is a single-key glyph.
+ */
+// @spec-link [[module_notation_note_identity_overlays]]
+export function describeNoteParts(glyph: StaveNote): NotePartRefs {
+  const noteHeads = glyph.noteHeads
+  if (noteHeads.length !== 1) {
+    throw new Error(`A written note glyph has ${noteHeads.length} noteheads, not one.`)
+  }
+  const noteHead = noteHeads[0]!
+  let stemDomId: string | null = null
+  if (glyph.hasStem()) {
+    const stem = glyph.getStem()
+    if (stem === undefined) throw new Error('A stemmed written note glyph has no stem to tag.')
+    stemDomId = drawnGroupId(stem)
+  }
+  return {
+    stavenoteDomId: drawnGroupId(glyph),
+    noteheadDomId: drawnGroupId(noteHead),
+    noteheadText: noteHead.getText(),
+    stemDomId,
+    hasFlag: glyph.shouldDrawFlag(),
+    accidentalTexts: glyph.getModifiersByType(Accidental.CATEGORY).map((m) => m.getText()),
+    dotTexts: glyph.getModifiersByType(Dot.CATEGORY).map((m) => m.getText()),
+    chordSymbolDomIds: glyph.getModifiersByType(ChordSymbol.CATEGORY).map(drawnGroupId),
+  }
 }

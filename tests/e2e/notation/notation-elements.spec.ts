@@ -7,8 +7,10 @@
  * stavenote, stavebarline, stavetie, beam, chordsymbol); `Accidental` is the one modifier that
  * never opens its own group -- it draws a bare second `<text>` sibling inside the notehead's own
  * `.vf-notehead` group (via `Element.renderText` -> `SVGContext.fillText`, with no `openGroup`
- * call), so accidental presence is asserted via that per-notehead text count, not a `.vf-accidental`
- * class (there is no such class in this VexFlow version).
+ * call). The note-identity tagging then wraps the notehead text and each accidental text in their
+ * own tagged `<g>` (`data-note-part` `notehead` / `accidental`) in place, so accidental presence is
+ * asserted via those wrapped texts per notehead group, not a `.vf-accidental` class (there is no
+ * such class in this VexFlow version).
  */
 import { expect, test } from '@playwright/test'
 
@@ -101,12 +103,22 @@ test('draws every stavenote, beam and barline', async ({ page }) => {
 test('draws every displayed accidental as a second text glyph inside its notehead group', async ({
   page,
 }) => {
-  // A direct-child selector: chord symbols also nest inside the notehead group they're attached
+  // Direct-child selectors: chord symbols also nest inside the notehead group they're attached
   // to (as their own `.vf-chordsymbol` subgroup), so a descendant selector would over-count them.
-  const noteheadTextCount = await page.evaluate(
-    () => document.querySelectorAll('svg.staff-svg g.vf-notehead > text').length,
-  )
-  expect(noteheadTextCount).toBe(EVENTS_PER_MEASURE * MEASURES + ACCIDENTALS_PER_MEASURE * MEASURES)
+  const counts = await page.evaluate(() => {
+    const count = (selector: string): number =>
+      document.querySelectorAll(`svg.staff-svg g.vf-notehead > ${selector}`).length
+    return {
+      notehead: count('g[data-note-part="notehead"] > text'),
+      accidental: count('g[data-note-part="accidental"] > text'),
+      bare: count('text'),
+    }
+  })
+  expect(counts).toEqual({
+    notehead: EVENTS_PER_MEASURE * MEASURES,
+    accidental: ACCIDENTALS_PER_MEASURE * MEASURES,
+    bare: 0,
+  })
 })
 
 test("draws every chord symbol with text equal to the written model's chord text", async ({

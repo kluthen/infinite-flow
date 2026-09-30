@@ -99,6 +99,10 @@ saxophone's High register, phrases starting on their highest note leave only abo
 between the stem tip and the chord symbol, so the start marker's reserved room lies above the
 chord symbol.
 
+2026-09-30 (note identity and session overlays): with every stem up, the drawn start marker never
+fits between its note and the chord symbol and is always drawn above the chord symbol (25 of 25
+first attacks measured across the three profiles and three registers).
+
 ---
 
 ## References
@@ -107,3 +111,9 @@ chord symbol.
 - `src/notation/notation-layout-policy.ts`
 - `tests/e2e/notation/notation-calibration.spec.ts`
 - `docs/notation-engraving.md`
+
+---
+
+## Change Log
+
+- **2026-09-30**: Extra Data gains the start marker placement measured once the marker is drawn.

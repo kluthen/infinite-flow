@@ -3,13 +3,18 @@
  * system position that shows notes, at the scale ./notation-layout-policy.ts plans: one system in
  * the top position from the tablet-landscape breakpoint up, or, below it, bars 1-2 in the top
  * position and bars 3-4 in the bottom one. It maps the written model 1:1 through
- * ./vexflow-mapping.ts and never re-decides music. Together with that file and
- * ./vexflow-two-system-engraver.ts, this is the only trio of files allowed to import 'vexflow'.
+ * ./vexflow-mapping.ts and never re-decides music, then tags every note glyph's own parts with the
+ * identity of the attack it sounds as (./note-identity.ts, ./note-part-tags.ts). Together with
+ * that file and ./vexflow-two-system-engraver.ts, this is the only trio of files allowed to
+ * import 'vexflow'.
  */
 import { Formatter, Renderer, Stave, StaveNote, Voice, type Beam } from 'vexflow/bravura'
 
+import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
 import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
 import { NotationError } from './notation-error'
+import { resolveGlyphIdentities } from './note-identity'
+import { tagSystemNoteParts, type TaggedNoteGlyph } from './note-part-tags'
 import {
   NOTATION_SYSTEM_POSITION_UNITS,
   planStaffPlacement,
@@ -24,6 +29,7 @@ import {
   buildMeasureBeams,
   buildStaveNote,
   buildSystemTies,
+  describeNoteParts,
   type FlatGlyph,
 } from './vexflow-mapping'
 import {
@@ -157,6 +163,32 @@ function flattenGlyphs(
   )
 }
 
+/** Every glyph's note identity, measure by measure, as resolveGlyphIdentities returns it. */
+type GlyphIdentities = readonly (readonly (ExpectedNoteIdentity | null)[])[]
+
+/**
+ * Intent: pair each note glyph of one system's measures with where its parts were drawn and the
+ * attack it sounds as; rests are left out, since they carry no identity.
+ */
+function systemNoteGlyphs(
+  phrase: WrittenPhrase,
+  glyphs: readonly (readonly StaveNote[])[],
+  identities: GlyphIdentities,
+  measureIndices: readonly number[],
+): TaggedNoteGlyph[] {
+  return measureIndices.flatMap((measureIndex) =>
+    phrase.measures[measureIndex]!.events.flatMap((event, glyphIndex) => {
+      if (event.kind === 'rest') return []
+      const identity = identities[measureIndex]?.[glyphIndex]
+      if (!identity) {
+        throw new Error(`Note glyph ${glyphIndex} of measure ${measureIndex} has no identity.`)
+      }
+      const parts = describeNoteParts(glyphs[measureIndex]![glyphIndex]!)
+      return [{ parts, identity, isAttack: !event.tieFromPrevious }]
+    }),
+  )
+}
+
 /** Intent: turn any thrown value into a readable message, since a caught value need not be an Error. */
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
@@ -251,9 +283,11 @@ function finishSystemSvg(host: HTMLElement, plan: SystemLayoutPlan): SVGSVGEleme
  * `RuntimeError` included) is caught by that function's single wrapping try/catch, never partially
  * escaping as an untyped error.
  */
+// @spec-link [[module_notation_note_identity_overlays]]
 function drawWrittenPhrase(
   targets: SystemTargets,
   phrase: WrittenPhrase,
+  identities: GlyphIdentities,
   containerWidthPx: number,
   viewport: StaffViewport,
 ): EngravedScore {
@@ -330,6 +364,7 @@ function drawWrittenPhrase(
 
     const svg = finishSystemSvg(host, plan)
     assertSystemWidthBounds(svg, plan, containerWidthPx)
+    tagSystemNoteParts(svg, systemNoteGlyphs(phrase, glyphs, identities, measureIndices))
     svgs.push(svg)
   })
 
@@ -346,25 +381,31 @@ function drawWrittenPhrase(
 }
 
 /**
- * Engrave the written phrase into its system hosts, in the layout the viewport selects: clears
- * both hosts, plans the layout against `containerWidthPx` and the viewport, then draws each
- * system's staves, notes, chord symbols, beams and ties into its own host at the phrase's one
- * scale (the bottom host stays empty in the one-system layout). Throws a typed NotationError
+ * Engrave the written phrase, as phrase number `phraseNumber` of its session, into its system
+ * hosts, in the layout the viewport selects: clears both hosts, plans the layout against
+ * `containerWidthPx` and the viewport, then draws each system's staves, notes, chord symbols,
+ * beams and ties into its own host at the phrase's one scale (the bottom host stays empty in the
+ * one-system layout), tags every note glyph's own parts with its attack's identity and records
+ * each measure's playhead band. An invalid phrase number or a malformed tie is a caller error and
+ * throws NoteIdentityError before anything is cleared. Otherwise throws a typed NotationError
  * instead of showing partial notation: `notation_no_room` or `notation_notes_too_wide` for the
  * layout's two failures, and any unexpected non-NotationError throw (a VexFlow `RuntimeError`,
  * for example) wrapped as `notation_engraving_failed` with the original error as `cause`.
  */
 // @spec-link [[module_notation_layout_preflight]]
+// @spec-link [[module_notation_note_identity_overlays]]
 export function engraveWrittenPhrase(
   targets: SystemTargets,
   phrase: WrittenPhrase,
+  phraseNumber: number,
   containerWidthPx: number,
   viewport: StaffViewport,
 ): EngravedScore {
+  const identities = resolveGlyphIdentities(phrase, phraseNumber)
   for (const target of targets) target.replaceChildren()
 
   try {
-    return drawWrittenPhrase(targets, phrase, containerWidthPx, viewport)
+    return drawWrittenPhrase(targets, phrase, identities, containerWidthPx, viewport)
   } catch (error) {
     for (const target of targets) target.replaceChildren()
     if (error instanceof NotationError) throw error

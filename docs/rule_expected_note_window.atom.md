@@ -8,6 +8,7 @@ human_name: Expected-Note Timing Window
 parents:
   - [[req_midi_controller_input]]
 dependents:
+  - [[module_notation_note_identity_overlays]]
   - [[rule_acknowledgement_exact_pitch]]
   - [[rule_played_onset_latency_compensation]]
 type: RULE
