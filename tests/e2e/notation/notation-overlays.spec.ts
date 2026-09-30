@@ -19,6 +19,7 @@ import {
   setOverlays,
   type Identity,
 } from './overlay-harness'
+import { waitForStaffFadeSettled } from './staff-fade-settle'
 
 test.use({ baseURL: 'http://127.0.0.1:4174' })
 
@@ -343,6 +344,7 @@ test.describe('score overlays match their baselines', () => {
       test(`${name}, ${theme} theme`, async ({ page }) => {
         await openHarness(page, viewport, `${query}&theme=${theme}`)
         expect(await setOverlays(page, overlays)).toBeNull()
+        await waitForStaffFadeSettled(page)
         await expect(page.locator(target)).toHaveScreenshot(`${name}-${theme}.png`)
       })
     }

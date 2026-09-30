@@ -4,8 +4,8 @@ This document records how the Step 9 browser workspace turns one root-composed s
 responsive, accessible screen a player generates and reads a four-measure phrase from: the
 component tree and its props/events contracts, how the session is wired together at the
 application root, the state-to-UI map, the generation Worker protocol, the seed-independent
-canonical rhythm-domain memo, the unsupported-rhythm-settings block, accessibility behavior, and
-the styling source of truth.
+canonical rhythm-domain memo, the unsupported-rhythm-settings block, the idle fit run and the room
+notice, accessibility behavior, and the styling source of truth.
 
 ## Component tree
 
@@ -26,21 +26,21 @@ App.vue
     OrientationNotice.vue
 ```
 
-| Component                  | Responsibility                                                                                                                                                                                                                           | Props in / events out                                                                                                                            |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `App.vue`                  | Builds the one production `WorkspaceSession` for the tab's lifetime via `createWorkspaceSession`, applies the theme preference as a DOM side effect, and disposes the worker on unmount.                                                 | No props/events; it is the composition root.                                                                                                     |
-| `WorkspaceShell.vue`       | Lays out header, score panel, control panel, and the portrait guard around one already-constructed session; forwards `ControlPanel`'s typed events onto the session's own actions.                                                       | In: `session`, `pendingPhrase`, `handleEngraved`, `handleNotationError`. Out: none (it calls session actions directly).                          |
-| `WorkspaceHeader.vue`      | Brand mark, meter/tempo/notation-mode context, the theme override, and the single primary action (`Generate phrase` / `Regenerate phrase` / `Retry generation` / `Retry notation`), including that label's priority and disabled policy. | In: `session`. Out: none (drives `session.actions` directly).                                                                                    |
-| `ThemeControl.vue`         | The header's System/Light/Dark segmented control.                                                                                                                                                                                        | In: `theme`. Out: `select` (a `ThemePreference`).                                                                                                |
-| `ScorePanel.vue`           | The score toolbar (title, the `generation-status` live region, and a generation-failure banner) plus the staff viewport, whose `staff-frame` always holds `PhraseScore` and with it the two reserved staff system positions: empty (the instruction laid over the blank positions), loading, ready, or a notation-error panel layered over the still-mounted `PhraseScore`. | In: `session`, `pendingPhrase`, `handleEngraved`, `handleNotationError`. Out: none (mounts `PhraseScore` and wires its events straight through). |
-| `ControlPanel.vue`         | The full below-score control sheet: Foundation, Rhythm, Melodic shape, and Character groups, each delegated to its own group component. Owns no control state; forwards every group's typed event upward unchanged.                      | In: `controls`, `profileSelection`, `readonly`. Out: `set-control`, `select-instrument-profile`, `select-musical-profile`.                       |
-| `FoundationControls.vue`   | Tempo, tonal center, collection, instrument profile (with its range summary), musical-profile preset (with its status region), harmonic motion, and tension.                                                                             | In: `controls`, `profileSelection`, `readonly`. Out: `set-control`, `select-instrument-profile`, `select-musical-profile`.                       |
-| `RhythmControls.vue`       | Note density, syncopation, silence density, plus the unsupported-rhythm-setting notice and its live region.                                                                                                                              | In: `controls`, `readonly`. Out: `set-control`.                                                                                                  |
-| `MelodicShapeControls.vue` | Contour, register, leapiness.                                                                                                                                                                                                            | In: `controls`, `readonly`. Out: `set-control`.                                                                                                  |
-| `CharacterControls.vue`    | Arpeggio chaos, inside the always-visible `character-static` wrapper.                                                                                                                                                                    | In: `controls`, `readonly`. Out: `set-control`.                                                                                                  |
-| `SegmentedControl.vue`     | Generic presentational single-select radiogroup with roving tabindex; carries no domain or session knowledge.                                                                                                                            | In: `label`, `options`, `modelValue`, `readonly`. Out: `update:modelValue`.                                                                      |
-| `TempoStepper.vue`         | Generic presentational spinbutton stepper over a fixed ordered catalog.                                                                                                                                                                  | In: `modelValue`, `values`, `readonly`. Out: `update:modelValue`.                                                                                |
-| `OrientationNotice.vue`    | Static portrait-rotate copy; entirely CSS-driven (see Accessibility below), so it carries no responsive logic itself.                                                                                                                    | No props/events.                                                                                                                                 |
+| Component                  | Responsibility                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Props in / events out                                                                                                                                                                             |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `App.vue`                  | Builds the one production `WorkspaceSession` for the tab's lifetime via `createWorkspaceSession`, applies the theme preference as a DOM side effect, and disposes the worker on unmount.                                                                                                                                                                                                                                                                                            | No props/events; it is the composition root.                                                                                                                                                      |
+| `WorkspaceShell.vue`       | Lays out header, score panel, control panel, and the portrait guard around one already-constructed session; forwards `ControlPanel`'s typed events onto the session's own actions.                                                                                                                                                                                                                                                                                                  | In: `session`, `pendingPhrase`, `handleEngraved`, `handleNotationError`, `handleLayoutInputs`. Out: none (it calls session actions directly).                                                     |
+| `WorkspaceHeader.vue`      | Brand mark, meter/tempo/notation-mode context, the theme override, and the single primary action (`Generate phrase` / `Regenerate phrase` / `Retry generation` / `Retry notation`), including that label's priority and disabled policy (`Regenerate phrase` under the room notice, unless a banner shows).                                                                                                                                                                         | In: `session`. Out: none (drives `session.actions` directly).                                                                                                                                     |
+| `ThemeControl.vue`         | The header's System/Light/Dark segmented control.                                                                                                                                                                                                                                                                                                                                                                                                                                   | In: `theme`. Out: `select` (a `ThemePreference`).                                                                                                                                                 |
+| `ScorePanel.vue`           | The score toolbar (title, the `generation-status` and `notation-status` live regions, and a generation-failure banner) plus the staff viewport, whose `staff-frame` always holds `PhraseScore` and with it the two reserved staff system positions: empty (the instruction laid over the blank positions), loading, ready, a notation-error panel layered over the still-mounted `PhraseScore`, or the "staff needs more room" notice (`room-notice`) laid over the same positions. | In: `session`, `pendingPhrase`, `handleEngraved`, `handleNotationError`, `handleLayoutInputs`. Out: none (mounts `PhraseScore` and wires its events, `layout-inputs` included, straight through). |
+| `ControlPanel.vue`         | The full below-score control sheet: Foundation, Rhythm, Melodic shape, and Character groups, each delegated to its own group component. Owns no control state; forwards every group's typed event upward unchanged.                                                                                                                                                                                                                                                                 | In: `controls`, `profileSelection`, `readonly`. Out: `set-control`, `select-instrument-profile`, `select-musical-profile`.                                                                        |
+| `FoundationControls.vue`   | Tempo, tonal center, collection, instrument profile (with its range summary), musical-profile preset (with its status region), harmonic motion, and tension.                                                                                                                                                                                                                                                                                                                        | In: `controls`, `profileSelection`, `readonly`. Out: `set-control`, `select-instrument-profile`, `select-musical-profile`.                                                                        |
+| `RhythmControls.vue`       | Note density, syncopation, silence density, plus the unsupported-rhythm-setting notice and its live region.                                                                                                                                                                                                                                                                                                                                                                         | In: `controls`, `readonly`. Out: `set-control`.                                                                                                                                                   |
+| `MelodicShapeControls.vue` | Contour, register, leapiness.                                                                                                                                                                                                                                                                                                                                                                                                                                                       | In: `controls`, `readonly`. Out: `set-control`.                                                                                                                                                   |
+| `CharacterControls.vue`    | Arpeggio chaos, inside the always-visible `character-static` wrapper.                                                                                                                                                                                                                                                                                                                                                                                                               | In: `controls`, `readonly`. Out: `set-control`.                                                                                                                                                   |
+| `SegmentedControl.vue`     | Generic presentational single-select radiogroup with roving tabindex; carries no domain or session knowledge.                                                                                                                                                                                                                                                                                                                                                                       | In: `label`, `options`, `modelValue`, `readonly`. Out: `update:modelValue`.                                                                                                                       |
+| `TempoStepper.vue`         | Generic presentational spinbutton stepper over a fixed ordered catalog.                                                                                                                                                                                                                                                                                                                                                                                                             | In: `modelValue`, `values`, `readonly`. Out: `update:modelValue`.                                                                                                                                 |
+| `OrientationNotice.vue`    | Static portrait-rotate copy; entirely CSS-driven (see Accessibility below), so it carries no responsive logic itself.                                                                                                                                                                                                                                                                                                                                                               | No props/events.                                                                                                                                                                                  |
 
 Every control-group component is props-in/events-out only: it re-validates whatever it emits
 against its own domain catalog (`validateControlValue`) before the event leaves, and it never
@@ -76,6 +76,17 @@ every settable control key except `instrumentProfileId`, which has its own dedic
   a pending request behind them (a viewport resize, a breakpoint crossing), the coordinator routes
   them through `reportNotationFailure`/`reportNotationRecovered` instead of settling a promise
   nothing is waiting on.
+- **Fit and room checks.** The same coordinator keeps the staff's latest layout inputs, which
+  `PhraseScore` reports through its `layout-inputs` event (wired as `handleLayoutInputs`), and
+  gives the session three more seams from them: `staffLayout`, which tells subscribers of every
+  report; `checkFit(result)`, which checks the result's written phrase against the latest inputs
+  without drawing it; and `checkRoom(signature)`, which checks whether the staff has room at all
+  with a key signature. Both checks load the engraver module through the same lazy loader
+  `PhraseScore` draws with and wait for the notation fonts, since the planning measures the chord
+  symbols' text as drawing does. Before `PhraseScore` has reported once, both reject with a
+  retryable `notation_container_unavailable`: there are no default inputs, because a check against
+  a guessed width could let through a phrase the staff then cannot draw. See
+  [Idle fit run and the room notice](#idle-fit-run-and-the-room-notice).
 - **Profile switch.** `evaluateWorkspaceProfileSwitch` adapts the domain `evaluateProfileSwitch`
   policy to the session's typed `retain`/`regenerate` decision, reading the unchanged concert
   timeline, the current register selection, the existing seed, and the newly resolved instrument
@@ -87,8 +98,9 @@ every settable control key except `instrumentProfileId`, which has its own dedic
 - **Pre-warm.** Unless the prewarm policy is `disabled`, the session also gets the same client's
   fire-and-forget `prewarm`, and posts it when it starts and whenever the rhythm setting a phrase
   would be generated with changes. See [Pre-warm](#pre-warm).
-- **Dispose.** `WorkspaceSession.dispose()` stops the session listening for width crossings
-  (`session.dispose()`) and terminates the worker client (`client.dispose()`). `App.vue` calls it
+- **Dispose.** `WorkspaceSession.dispose()` stops the session listening for width crossings and
+  for the staff's layout reports (`session.dispose()`) and terminates the worker client
+  (`client.dispose()`). `App.vue` calls it
   from `onUnmounted`.
 
 `create-workspace-session.ts` is isolated in its own module — rather than inlined in `App.vue` —
@@ -99,17 +111,19 @@ so a test can replace the whole factory and never spin a real `Worker` in jsdom.
 `createGenerationSession` (`src/composables/use-generation-session.ts`) owns one
 `shallowReactive` state object with these fields, each driving specific UI:
 
-| State field                                                         | UI it drives                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `operation` (`'idle' \| 'generating' \| 'notating'`)                | Every configuration control (all four `ControlPanel` groups, and the header's notation-mode segmented control) is read-only-but-focusable whenever `operation !== 'idle'` (`WorkspaceShell`'s `controlsReadonly`, `WorkspaceHeader`'s `operationRunning`). The primary action is disabled while an operation runs. `ScorePanel`'s `staff-loading` frame class and the `generation-status` live region text ("Generating phrase") only apply while `operation === 'generating'`.                                                                                                                                                                                                                                                                                                                                                                                            |
-| `notationError` / `generationError` / `result`                      | Together they decide the primary action's label, in this priority: **Retry notation** (a `notationError` is set) > **Retry generation** (a `generationError` is set, no `notationError`) > **Regenerate** (`result` is set, no error) > **Generate** (nothing yet). `WorkspaceHeader`'s `primaryActionKind` computed implements exactly this order.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| `noteDensityContext`                                                | Where the window stood against `bp-tablet-landscape` at the last read or crossing, and whether a session has stepped down (always `false` until the session engine exists). `WorkspaceShell` hands it to `RhythmControls`, which disables `Sixteenth` below the width, shows the density a phrase would be generated with as the checked segment, and judges the unsupported-rhythm notice on it; `WorkspaceHeader` judges the phrase action's block on it. A crossing updates it and nothing else: it never generates, regenerates or redraws by itself.                                                                                                                                                                                                                                                                                                                                                  |
-| `controls` (rhythm subset)                                          | `isRhythmSettingBlocked(state.controls, state.noteDensityContext)` blocks every primary action **except** Retry notation: retrying the engraving of an already-generated phrase replays that phrase's own stored request, so it never depends on the current rhythm-control combination the way starting a new generation does. `WorkspaceHeader`'s `blockedByUnsupportedRhythm` computed encodes this exemption explicitly.                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `result` across a generation failure or an unsupported-rhythm block | The previously generated result is retained on a rejected generation/regeneration attempt: `generate`/`regenerate` never clear `state.result`, so `ScorePanel` keeps showing the last successful phrase underneath the failure banner. The one exception is a profile switch that both invalidates the prior phrase and lands on an unsupported rhythm setting: `clearPhrase()` clears `result`/`latestIntent`/`generationError`/`notationError`/`failedNotationMode` and drops the presented phrase, so `ScorePanel` returns to its empty state instead — see the `profileSelection` switch outcomes row below.                                                                                                                                                                                                                                                           |
-| `notationError` (in-operation)                                      | `ScorePanel` shows an inline alert ("Notation error: …") layered over the still-mounted `PhraseScore`, and the header exposes Retry notation. `retryNotation()` replays the retained `failedNotationMode` against the retained `result` without touching generation providers.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `notationError`/`notationError` recovery (out-of-operation)         | A `PhraseScore` redraw that fires outside any session operation (a change of the container width, the height budget or the breakpoint; a browser toolbar showing or hiding changes none of them) reports through `reportNotationFailure`/`reportNotationRecovered` instead of settling a promise — this is how a later successful redraw clears a stale notation error without a new `notate()` call.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `profileSelection` switch outcomes                                  | `selectInstrumentProfile` resolves to `'retained'` (prior phrase kept, redrawn at its current notation mode — no new generation), `'regenerated'` (a full generation ran with a fresh seed and succeeded), `'regeneration_failed'` (that generation failed; the prior result is preserved exactly as any other generation failure does), or `'cleared_unsupported_rhythm'` (the switch would land on an unsupported rhythm setting: the profile switch still applies, but `clearPhrase()` discards the prior phrase — `state.result` and every field tied to it go back to null, and the presented phrase is dropped — instead of regenerating; `ScorePanel` shows its empty state and the unsupported-rhythm notice, and the primary action reads "Generate phrase"). `'applied'`/`'unchanged'`/`'rejected'` cover the no-prior-result, same-id, and mid-operation cases. |
-| `presentation.theme`                                                | In-memory only: `setTheme` never touches `result`, `latestIntent`, or any generation/notation field, and `applyThemePreference` is a pure DOM side effect (`data-theme` on `document.documentElement`) that never regenerates or redraws the phrase.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| State field                                                         | UI it drives                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `operation` (`'idle' \| 'generating' \| 'notating'`)                | Every configuration control (all four `ControlPanel` groups, and the header's notation-mode segmented control) is read-only-but-focusable whenever `operation !== 'idle'` (`WorkspaceShell`'s `controlsReadonly`, `WorkspaceHeader`'s `operationRunning`). The primary action is disabled while an operation runs. `ScorePanel`'s `staff-loading` frame class and the `generation-status` live region text ("Generating phrase") only apply while `operation === 'generating'`, which a fit run keeps from its start until it draws its phrase, however many attempts it makes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `notationError` / `generationError` / `result`                      | Together they decide the primary action's label, in this priority: **Retry notation** (a `notationError` is set) > **Retry generation** (a `generationError` is set, no `notationError`) > **Regenerate** (`roomNotice` or `result` is set, no error) > **Generate** (nothing yet). `WorkspaceHeader`'s `primaryActionKind` computed implements exactly this order.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `noteDensityContext`                                                | Where the window stood against `bp-tablet-landscape` at the last read or crossing, and whether a session has stepped down (always `false` until the session engine exists). `WorkspaceShell` hands it to `RhythmControls`, which disables `Sixteenth` below the width, shows the density a phrase would be generated with as the checked segment, and judges the unsupported-rhythm notice on it; `WorkspaceHeader` judges the phrase action's block on it. A crossing updates it and nothing else: it never generates, regenerates or redraws by itself.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `controls` (rhythm subset)                                          | `isRhythmSettingBlocked(state.controls, state.noteDensityContext)` blocks every primary action **except** Retry notation: retrying the engraving of an already-generated phrase replays that phrase's own stored request, so it never depends on the current rhythm-control combination the way starting a new generation does. `WorkspaceHeader`'s `blockedByUnsupportedRhythm` computed encodes this exemption explicitly.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `result` across a generation failure or an unsupported-rhythm block | The previously generated result is retained on a rejected generation/regeneration attempt: a fit run started by `generate`/`regenerate` keeps what the staff shows until it draws a replacement, so `ScorePanel` keeps showing the last successful phrase underneath the failure banner. A run that starts with no score shown (a replacement for a phrase that stopped fitting, or the no-room notice clearing) has no phrase to keep, and the room notice drops the phrase when it shows. The one exception is a profile switch that both invalidates the prior phrase and lands on an unsupported rhythm setting: `clearPhrase()` clears `result`/`latestIntent`/`generationError`/`notationError`/`failedNotationMode` and drops the presented phrase, so `ScorePanel` returns to its empty state instead — see the `profileSelection` switch outcomes row below.                                                                                                                                                                                          |
+| `notationError` (in-operation)                                      | `ScorePanel` shows an inline alert ("Notation error: …") layered over the still-mounted `PhraseScore`, and the header exposes Retry notation. `retryNotation()` replays the retained `failedNotationMode` against the retained `result` without touching generation providers.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `notationError`/`notationError` recovery (out-of-operation)         | A `PhraseScore` redraw that fires outside any session operation (a change of the container width, the height budget or the breakpoint; a browser toolbar showing or hiding changes none of them) reports through `reportNotationFailure`/`reportNotationRecovered` instead of settling a promise — this is how a later successful redraw clears a stale notation error without a new `notate()` call. A staff layout failure (`notation_no_room`, `notation_notes_too_wide`) reported this way, or by a Retry notation, never becomes a `notationError`: it goes to the room notice or to a replacement run (see [Layout failures outside a run](#layout-failures-outside-a-run)).                                                                                                                                                                                                                                                                                                                                                                             |
+| `profileSelection` switch outcomes                                  | `selectInstrumentProfile` resolves to `'retained'` (prior phrase kept, redrawn at its current notation mode — no new generation), `'regenerated'` (a full generation ran with a fresh seed and succeeded), `'regeneration_failed'` (that generation failed; the prior result is preserved exactly as any other generation failure does), or `'cleared_unsupported_rhythm'` (the switch would land on an unsupported rhythm setting: the profile switch still applies, but `clearPhrase()` discards the prior phrase — `state.result` and every field tied to it go back to null, and the presented phrase is dropped — instead of regenerating; `ScorePanel` shows its empty state and the unsupported-rhythm notice, and the primary action reads "Generate phrase"). `'applied'`/`'unchanged'`/`'rejected'` cover the no-prior-result, same-id, and mid-operation cases. The regeneration is a fit run. Under the room notice, the switch starts a round with the too-many-notes cause, and only changes the selection (`'applied'`) with the no-room cause. |
+| `roomNotice` (`'no_room' \| 'notes_too_wide' \| null`)              | Whether the "staff needs more room" notice shows, and why. `ScorePanel` gives `staff-frame` the `staff-no-room` class (with `staff-loading` too while a run under the notice is running, which dims it), lays `room-notice` over the reserved positions with the cause's sentence, hides the instruction and never shows the notation error under it. No phrase is shown while it is set. See [The room notice](#the-room-notice).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `retriesRunning` / `roomNoticeAnnouncements`                        | `retriesRunning` is true while a run's fresh-seed retries run; nothing on screen reads it yet. `roomNoticeAnnouncements` goes up each time the notice must be announced; `ScorePanel` then empties `notation-status` and sets the visible sentence again, so a screen reader hears the same sentence twice. See [State for the session screen](#state-for-the-session-screen).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `presentation.theme`                                                | In-memory only: `setTheme` never touches `result`, `latestIntent`, or any generation/notation field, and `applyThemePreference` is a pure DOM side effect (`data-theme` on `document.documentElement`) that never regenerates or redraws the phrase.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 Every `set-control`/`select-musical-profile`/`select-instrument-profile` request is rejected
 (returns `false`/`'rejected'`) whenever `state.operation !== 'idle'`, which is what makes the
@@ -293,7 +307,8 @@ to one on a cold memo.
 * **`isUnsupportedRhythmSetting(setting)`** judges a setting as generated: its note density is the
   one the rhythm grammar receives. The list is keyed that way.
 * **`isRhythmSettingBlocked(chosen, noteDensityContext)`** is the predicate every consumer (the
-  session's `generate`/`regenerate`/`retryGeneration`/`selectInstrumentProfile`, `WorkspaceHeader`
+  session's `generate`/`regenerate`/`retryGeneration`/`selectInstrumentProfile`, the idle fit run
+  before each attempt and on each width crossing, the room-notice reactions, `WorkspaceHeader`
   and `RhythmControls`) calls against the player's chosen rhythm setting. It resolves the note
   density first (`generatedRhythmSetting`), so below `bp-tablet-landscape` a combination
   unsupported only because of a chosen `Sixteenth` blocks nothing, and a crossing can block or
@@ -336,17 +351,19 @@ generated at or above the width. The pieces, and why they are built this way:
   same function the workspace uses.
 - **The width comes through an injected provider, read at generation.** The session takes a
   `ViewportWidthProvider` (`src/composables/viewport-width.ts`) and reads it each time it builds a
-  generation intent (`freshIntentFromControls`, and the profile switch's regeneration), so a phrase
-  takes the width the window has when that phrase is generated. It also subscribes to the
-  provider's crossings and mirrors them in `state.noteDensityContext`, so the controls and the
-  unsupported-rhythm block follow the window at Idle without waiting for a generation.
+  generation intent (`freshIntentFromControls`, once per attempt of a fit run, whatever started the
+  run), so a phrase takes the width the window has when that phrase is generated. It also subscribes
+  to the provider's crossings and mirrors them in `state.noteDensityContext`, so the controls and
+  the unsupported-rhythm block follow the window at Idle without waiting for a generation.
 - **The intent stays free of browser state.** The intent receives the resolved controls: its
   `controls.noteDensity` is a plain `Eighth` or `Sixteenth`, and nothing about the window reaches
   `createGenerationIntent`, the Worker or the generator. `state.controls.noteDensity` keeps the
   chosen value; the substitution is not a manual edit, so it never marks the musical profile
   preset custom.
 - **A crossing never regenerates.** Neither the provider's crossing handler nor anything reading
-  `noteDensityContext` starts a generation; only the player's actions do. The phrase on screen is
+  `noteDensityContext` starts a generation; only the player's actions do. A crossing can stop one:
+  when it makes the rhythm combination blocked while a fit run is retrying or shows no score, the
+  run stops at once (see [The run token](#the-run-token)). The phrase on screen is
   redrawn at the new size by `PhraseScore`, as for any resize, under its own
   `(max-width: 63.9375rem)` layout query.
 - **The control shows the density generated with.** `RhythmControls` passes
@@ -356,6 +373,195 @@ generated at or above the width. The pieces, and why they are built this way:
   with `aria-describedby`; `SegmentedControl` skips unavailable options in arrow-key, Home and End
   selection and refuses to check one. Choosing the checked `Eighth` while it stands in for a stored
   `Sixteenth` emits nothing, so the stored `Sixteenth` is kept.
+
+## Idle fit run and the room notice
+
+At Idle, a phrase whose notes are too wide for the room the window gives the staff is never
+drawn: the workspace generates another one with a fresh seed (the number that picks which phrase
+the generator returns for the same settings) and shows the first that fits. A window with no room
+for the staff at all, or a run whose attempts were all too wide, shows the "staff needs more room"
+notice instead of the staff. The notation error is kept for the failures a retry of the drawing
+can cure. Two sibling modules of `use-generation-session.ts` hold this:
+`src/composables/generation-session-fit-round.ts` (the run) and
+`src/composables/generation-session-room-notice.ts` (the reactions around the notice). Neither
+owns session state: both read and write the shared state object the root composable builds.
+
+### Fit before drawing
+
+- **Every Idle generation is one fit run.** Generate, Regenerate phrase, Retry generation, the
+  regeneration of an instrument-profile switch, the new phrase generated when the no-room notice
+  clears, the replacement for a phrase a window change leaves too wide, and a round under the
+  too-many-notes notice all call the runner's `run(start)`. `start` says what the staff shows
+  meanwhile: `keep_screen` leaves it as it is (a phrase kept on screen, the notice kept for a
+  round under it, or nothing); `no_score` drops the phrase and any notice first.
+- **The check runs before anything is drawn.** Each generated attempt goes to `checkFit`, which
+  runs the engraver's own planning (`planWrittenPhraseFit`, see
+  [Pre-draw checks](notation-engraving.md#pre-draw-checks)) against the staff's latest layout
+  inputs: the container width and, below `bp-tablet-landscape`, the height budget. It answers
+  `fits`, `notes_too_wide` or `no_room`. Only a fitting attempt is set as `result` and handed to
+  `notate`. A too-wide attempt drawn and then taken away would flash on screen; checked first,
+  `PhraseScore` only ever receives a phrase it can draw, and a phrase kept on screen stays visible
+  and untouched through the Loading until its replacement is drawn. The check is the planning code
+  drawing runs, not an estimate, so the two never disagree about a phrase.
+- **A draw that still fails.** The window can change between the check and the draw. A draw that
+  then fails with `notation_notes_too_wide` counts as a too-wide attempt: the score is dropped and
+  the run goes on to its next attempt. One that fails with `notation_no_room` ends the run on the
+  no-room notice. Any other draw failure keeps that attempt as the result, with the retryable
+  notation error.
+
+### Attempts
+
+- **Budget.** A run is the first attempt plus up to three fresh-seed retries: at most four
+  attempts (`FIT_RUN_ATTEMPTS`), whatever started it (UI/UX decision D134). Each round under the
+  too-many-notes notice starts a new count.
+- **One seed and one request id per attempt.** Each attempt builds its own intent with
+  `freshIntentFromControls`: one fresh seed and one fresh request id from the injected providers,
+  so every attempt is a different phrase and the one drawn keeps its own seed, which reproduces
+  it. `latestIntent` follows every attempt; `result` changes only for the attempt drawn.
+- **Density read per attempt.** The same call reads the window's width, so each attempt is
+  generated with the note density (the setting for the shortest common note value in a phrase)
+  the width gives at that moment: a chosen `Sixteenth` generates as `Eighth` for an attempt made
+  after the window crossed below `bp-tablet-landscape`, even mid-run.
+- **One operation, one Loading.** `operation` stays `generating` from the run's start through
+  every attempt and check, and turns `notating` only for the draw of a fitting attempt. So
+  `ScorePanel` announces "Generating phrase" once per run and "Phrase ready" at most once, only
+  when the run ends with a phrase shown (not on the notice, a notation error or Empty), and the
+  controls stay read-only for the whole run.
+
+### How a run ends
+
+- **The first attempt that fits** is drawn, and any notice clears.
+- **Every attempt too wide:** the notice shows with its `notes_too_wide` cause.
+- **No room:** an attempt checked with `no_room` (the window narrowed during the run) ends the run
+  on the notice with its `no_room` cause, with no further attempt, since no phrase can fit.
+- **A generation failure** ends the run with the generation-failure banner and is not a counted
+  retry: over the notice if one shows, with the kept phrase if one stayed on screen, and with no
+  phrase if the Loading showed none.
+- **A check that rejects** with a `NotationError` (the engraver module or its fonts did not load,
+  or the staff has not reported its inputs yet) keeps that attempt as the result with the
+  retryable notation error, so Retry notation can draw it once the cause is gone. Any other
+  rejection is a programming error: it propagates, after the run has put the session back to idle.
+- **A blocked rhythm combination:** before each attempt, and once the last attempt is too wide,
+  the run checks the combination at the width now; when it blocks generation, the run ends with no
+  phrase instead of another attempt or the notice (see [The run token](#the-run-token)).
+
+### The run token
+
+The generation Worker has no cancel: a request posted is always answered. The runner therefore
+keeps a run token, which changes whenever a run starts or is stopped, and every step of an attempt
+(after generating, after the check, after the draw) first checks that its run still owns the
+token; a step of a stopped run does nothing.
+
+When a width crossing makes the rhythm combination one that blocks generation while a run is
+`generating`, `stopIfBlocked` decides by what the staff shows (v2.0 definition of done, item 26: a
+phrase on screen stays while it fits):
+
+- **Retries running, or no score kept.** When `retriesRunning` is true (an attempt was already too
+  wide, or the run is a round under the too-many-notes notice), or no phrase is kept (`result` is
+  `null`: a first Generate from Empty, or a run started with no score shown), it stops the run at
+  once: the token changes, the operation returns to idle and `clearPhrase` leaves no phrase next
+  to the unsupported-rhythm alert, the kept phrase, the notice and any generation-failure banner
+  all gone. The Worker's response to the attempt in flight is discarded on arrival, and nothing
+  from it is drawn. The workspace must show that empty state at once, not when the Worker answers,
+  and the token is what lets the session stop waiting without a cancel.
+- **The first attempt of a run with a phrase kept on screen** (Generate, Regenerate phrase or an
+  instrument-profile switch from Ready) carries on, and the kept phrase stays visible through the
+  Loading. If the attempt fits, it is drawn: the workspace is Ready, with the unsupported-rhythm
+  alert since the combination is now blocked. If it is too wide, the check before the next attempt
+  finds the combination blocked and ends the run on Empty.
+
+A room check that is still waiting reads the same token (`epoch()`) to see that a run started or
+stopped meanwhile.
+
+### Layout failures outside a run
+
+A redraw of the phrase on screen at Idle (a resize, a breakpoint crossing) or a Retry notation can
+fail with a staff layout failure. `reportNotationFailure` hands it to `routeLayoutFailure` instead
+of setting `notationError`:
+
+- **`notation_no_room`** shows the notice with its no-room cause, starts no retries, and leaves a
+  generation-failure banner in place.
+- **`notation_notes_too_wide`** starts a replacement run with no score shown or, while the rhythm
+  combination blocks generation, shows no phrase with the unsupported-rhythm alert, with no
+  retries and no notice.
+- **Any other code** keeps the retryable notation error.
+
+### The room notice
+
+`roomNotice` holds the notice's cause: `no_room` (the window has no room for the staff whatever
+the notes: too narrow for the staff's fixed parts or, below `bp-tablet-landscape`, too short for
+its two systems) or `notes_too_wide` (a run's attempts were all too wide). While it shows, no phrase
+is shown; the phrase shown before it is dropped and never drawn again.
+
+**Under the no-room cause.** Only the window or the key can bring room back, so the reactions run
+the phrase-independent room check, `checkRoom` (`planStaffRoomForKey`). It plans from the height
+budget and the width of the layout's fixed parts: the clef, key signature and time signature at
+the start of the staff, and every measure at its narrowest width. The key signature (the sharps or
+flats at the start of the staff that name the key) is the one the next phrase would have, spelled
+from the current written tonal center and collection (`currentKeySignature`), because it sets that
+leading width: seven sharps take more room than none. The check runs on:
+
+- every change of the staff's layout inputs, that is every `layout-inputs` report;
+- every change to a setting the phrase is generated from, a musical-profile switch included, but
+  not an instrument-profile switch. Tempo, the audio mix and the theme change nothing the notes
+  depend on, so they run nothing.
+
+Once there is room, the notice clears and a run starts with no score shown; if the rhythm
+combination blocks generation by then, no phrase shows, with the unsupported-rhythm alert, and
+nothing generates until the player asks. An instrument-profile switch under this cause only
+changes the selection: it runs no room check, and the notice and any banner stay (UI/UX decision
+D134).
+
+**Under the too-many-notes cause.** With no run active, each of these starts a round: a run with
+the notice kept, dimmed, while it runs, and `retriesRunning` true from its start.
+
+- **A wider staff container:** its width grew compared with the previous layout report. The
+  reference width updates on every report, during a run too, so a widening during a run starts
+  nothing and queues nothing. The room check runs first: with no room, the notice takes its
+  no-room cause instead.
+- **A change to a setting the phrase is generated from**, an instrument-profile switch included
+  (tempo, the mix and the theme excluded).
+- **Regenerate phrase**, or **Retry generation** under a banner.
+
+If the change makes the rhythm combination one that blocks generation, no phrase shows, with the
+unsupported-rhythm alert, and no round starts. A narrower window starts nothing, but it still runs
+the room check, so a window narrowed to no room gives the notice its no-room cause.
+
+**Stale room checks.** The room check is asynchronous: it may wait for the engraver module. Its
+answer is dropped when a later check has started, a run has started or stopped, the operation is no
+longer idle, or the notice has changed meanwhile, so only the latest check acts.
+
+### State for the session screen
+
+The session screen, still to come, will read three read-only fields to decide whether a session
+can start, so the state names them explicitly:
+
+- **`roomNotice`**: `'no_room'`, `'notes_too_wide'` or `null`.
+- **`retriesRunning`**: true from the first attempt found too wide, or from the start of a round
+  under the too-many-notes notice, until the run ends.
+- **`roomNoticeAnnouncements`**: goes up by one each time the notice begins and each time a round
+  under it ends with every attempt too wide, and at no other time. It is a counter rather than a
+  flag because the same notice must be announced again after a failed round: `ScorePanel` watches
+  it, empties `notation-status`, lets the DOM update, then sets the visible sentence again.
+
+### Decisions made while building
+
+- **A phrase already being drawn stays.** A blocking width crossing stops a run only while it is
+  `generating`. A phrase that has passed its check and is being drawn (`notating`) is drawn, and
+  the workspace shows it as Ready.
+- **A kept phrase outlives a blocking crossing during the first attempt.** Only the retries stop
+  at once; the first attempt of a run from Ready is not a retry, so the phrase on screen, which
+  still fits, is not wiped for it. The run ends on Empty only once an attempt is too wide.
+- **Regenerate phrase and Retry generation under the no-room notice** run like a round: the notice
+  stays while they run, and an attempt that finds no room lands back on it.
+- **A change of cause is not announced.** Under the too-many-notes notice, a window narrowed to no
+  room switches the cause and its sentence silently; only the notice beginning, or a failed round,
+  is announced.
+- **A check that rejects with a `NotationError`** keeps that attempt as a retryable notation error
+  rather than retrying: the failure is the engraver's, not the phrase's, and another seed would
+  meet it too.
+- **The empty instruction** ("Generate a phrase to begin.") shows whenever no phrase and no notice
+  show, as in v1, a Loading with no score included.
 
 ## E2E workspace harness and DI seam
 
@@ -398,12 +604,14 @@ production's `src/main.ts` does, and calls `app.provide(WORKSPACE_SESSION_FACTOR
   `generate` wrapper awaits before ever delegating to the real worker-backed client, so a spec can
   deterministically assert in-flight state (read-only controls, disabled primary action, the
   `generating` operation) without racing real generation latency.
-- **One-shot generation failure injection.** `failNextGeneration(code)` arms exactly one call to
-  return a real `{ kind: 'generation_failure', code, diagnostics }` outcome shape — the same shape
-  orchestration itself produces, with a minimal but real `GenerationDiagnostics` value — instead of
-  ever fabricating a component-level result.
-- **One-shot notation failure injection.** `failNextNotation()` arms exactly one forced failure at
-  the next `engraveWrittenPhrase()` call, injected through a harness-only substitute for
+- **One-shot generation failure injection.** `failNextGeneration(code, skip?)` arms exactly one
+  call to return a real `{ kind: 'generation_failure', code, diagnostics }` outcome shape — the
+  same shape orchestration itself produces, with a minimal but real `GenerationDiagnostics` value —
+  instead of ever fabricating a component-level result. `skip` lets that many calls through for
+  real first, so a spec can fail a fit run's second or third attempt.
+- **One-shot notation failure injection.** `failNextNotation(code?)` arms exactly one forced
+  failure, with `notation_engraving_failed` (the default) or one of the two staff layout failure
+  codes, at the next `engraveWrittenPhrase()` call, injected through a harness-only substitute for
   `@/notation/vexflow-engraver-loader` that `vite.workspace-harness.config.ts`'s `resolve.alias`
   swaps in for every import of that loader. `tests/e2e/workspace-harness/vexflow-engraver-loader-seam.ts`
   always delegates to the real loader and its real dynamic `import()`, then wraps the resolved
@@ -412,16 +620,26 @@ production's `src/main.ts` does, and calls `app.provide(WORKSPACE_SESSION_FACTOR
   faking a component result. The wrap happens at the call, not at module load, because `PhraseScore`
   memoizes the loaded module after its first successful load — a load-time rejection could only ever
   be observed before any phrase had engraved.
+- **Forced fit verdicts.** `queueFitVerdicts(verdicts)` queues `fits` or `notes_too_wide` answers
+  for the next pre-draw fit checks, through the same loader seam, which wraps
+  `planWrittenPhraseFit`; once the queue is empty the real planner answers. A forced
+  `notes_too_wide` is what the real planner answers for a dense phrase in a small window, so a
+  spec can drive the fit retries with any phrase; real no-room comes from real window sizes. The
+  counters `seedsDrawn`, `fitChecks`, `engravings` and `roomChecks` let a spec prove how many
+  attempts, checks and draws happened.
 - **`snapshot()`.** Reads the mounted session's current `operation`, `presentation.notationMode`,
   and (when a result exists) the result's `requestId`, `seed`, and a `JSON.stringify` of its concert
-  timeline — the read side every determinism/isolation assertion polls.
+  timeline — the read side every determinism/isolation assertion polls — plus `latestSeed` (the
+  latest attempt's seed, drawn or not) and the room notice's state: `roomNotice`,
+  `retriesRunning` and `roomNoticeAnnouncements`.
 - **The production prewarm policy, counted.** The harness reads the prewarm policy from its page
   URL exactly as `App.vue` does (`?prewarm=off` disables it), forwards every pre-warm to the real
   worker client unchanged, and counts it for `prewarmCount()`, which stays 0 with `?prewarm=off`.
 
 `tests/e2e/workspace-harness-window.d.ts` is the single ambient declaration of the published
 `window.__workspaceHarness` API (`queueSeeds`, `holdGeneration`, `releaseGeneration`,
-`failNextGeneration`, `failNextNotation`, `snapshot`, `prewarmCount`, and the `audio` seams),
+`failNextGeneration`, `failNextNotation`, `queueFitVerdicts`, the `seedsDrawn`/`fitChecks`/
+`engravings`/`roomChecks` counters, `snapshot`, `prewarmCount`, and the `audio` seams),
 shared by the harness page and every spec
 under `tests/e2e/release/` (via `tests/e2e/release/harness-helpers.ts`'s thin `page.evaluate`
 wrappers) and `tests/e2e/accessibility.spec.ts`'s harness-backed cases.
@@ -458,7 +676,11 @@ exists.
   full generate/regenerate/retry-generation cycle, "Phrase ready" on that cycle's success, and
   "Generation failed. Try again." on its failure — never for a standalone notation-mode switch,
   profile-switch redraw, or Retry notation, each of which only ever passes through the `notating`
-  operation state silently. `RhythmControls`' unsupported-setting notice and `FoundationControls`'
+  operation state silently. A fit run announces once however many attempts it makes, and a run
+  that ends on the room notice announces no "Phrase ready". The notice speaks through
+  `.notation-status` instead: its visible sentence each time `roomNoticeAnnouncements` goes up
+  (the region is emptied first, so the same sentence announced again is heard), and nothing when
+  the notice clears. `RhythmControls`' unsupported-setting notice and `FoundationControls`'
   preset-status paragraph are each their own always-mounted, always-`aria-live="polite"` region
   (see Unsupported rhythm settings above and the preset-status copy in `FoundationControls.vue`).
 - **44px targets.** `.segment`, `.stepper-button`, and `.btn` all set `min-block-size: 2.75rem`

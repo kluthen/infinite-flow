@@ -28,6 +28,7 @@ import type { GenerationOutcome } from '@/domain/generation/orchestration/orches
 import { makeSeed } from '@/domain/random/seed'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
+import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
 import { createGenerationWorkerClient } from '@/generation-worker/generation-worker-client'
 import type { ViewportWidthProvider } from '@/composables/viewport-width'
@@ -60,6 +61,13 @@ export interface WorkspaceSession {
   readonly pendingPhrase: Ref<WrittenPhrase | null>
   readonly handleEngraved: () => void
   readonly handleNotationError: (error: NotationError) => void
+  /**
+   * Wire to `PhraseScore`'s `@layout-inputs`: the staff's measured inputs, which the session's
+   * pre-draw fit and room checks plan against. Until the staff reports once, every check fails as
+   * a retryable notation error.
+   */
+  // @spec-link [[module_idle_fit_round]]
+  readonly handleLayoutInputs: (inputs: StaffLayoutInputs) => void
   /**
    * Start a session runner bound to the same raw `generate` seam the Idle flow uses, and so the
    * app's one generation worker. Phrase 2 is generated during the one-measure count-in (1 s at
@@ -128,7 +136,8 @@ function createRequestIdProvider(): () => ReturnType<typeof makeRequestId> {
 /**
  * Intent: build one workspace session from explicit dependencies: the identity/seed providers,
  * the raw orchestration `generate` seam, its teardown, and the audio transport, exposed unchanged. Wires the same notation coordinator
- * and profile-switch policy production always uses, so the only thing a caller can vary is where
+ * (which also answers the session's pre-draw fit and room checks from the staff's reported layout
+ * inputs) and profile-switch policy production always uses, so the only thing a caller can vary is where
  * requests/seeds and generation outcomes come from. Session runners it starts share the Idle
  * flow's providers, window-width reading and raw `generate` seam (the one worker), so phrase 2
  * reuses the rhythm-domain memo phrase 1 warmed. With the prewarm policy enabled the session posts
@@ -137,6 +146,7 @@ function createRequestIdProvider(): () => ReturnType<typeof makeRequestId> {
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]
+// @spec-link [[module_idle_fit_round]]
 export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): WorkspaceSession {
   let session: GenerationSession<WorkspaceSessionResult> | null = null
 
@@ -161,6 +171,9 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     viewport: deps.viewport,
     generate: createWorkspaceGenerate(deps.generate),
     notate: coordinator.notate,
+    checkFit: coordinator.checkFit,
+    checkRoom: coordinator.checkRoom,
+    staffLayout: coordinator.staffLayout,
     clearPresentedPhrase: coordinator.clearPresentedPhrase,
     ...(deps.prewarmPolicy === 'enabled' ? { prewarm: deps.prewarm } : {}),
   })
@@ -171,6 +184,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     pendingPhrase: coordinator.pendingPhrase,
     handleEngraved: coordinator.handleEngraved,
     handleNotationError: coordinator.handleNotationError,
+    handleLayoutInputs: coordinator.handleLayoutInputs,
     createSessionRunner: (input) =>
       createSessionRunner(
         {

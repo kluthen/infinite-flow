@@ -28,10 +28,17 @@ const PRIMARY_ACTION_LABEL: Readonly<Record<PrimaryActionKind, string>> = {
 
 const state = computed(() => props.session.state)
 
-/** Intent: name which of the four phrase-action labels the current session state calls for. */
+/**
+ * Intent: name which of the four phrase-action labels the current session state calls for. Under
+ * the room notice no phrase is kept, yet the action is `Regenerate phrase` (a new phrase, which
+ * under the too-many-notes cause starts a round), unless a generation-failure banner shows.
+ */
+// @spec-link [[rule_staff_needs_room_notice]]
+// @spec-link [[user_story_controlled_phrase_generation]]
 const primaryActionKind = computed<PrimaryActionKind>(() => {
   if (state.value.notationError !== null) return 'retry-notation'
   if (state.value.generationError !== null) return 'retry-generation'
+  if (state.value.roomNotice !== null) return 'regenerate'
   if (state.value.result !== null) return 'regenerate'
   return 'generate'
 })

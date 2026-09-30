@@ -6,14 +6,24 @@
  * events on its own (a viewport resize, a breakpoint crossing) with no session request behind
  * them; those unsolicited events report through the session's
  * `reportNotationFailure`/`reportNotationRecovered` seam instead of settling a promise nothing is
- * waiting on.
+ * waiting on. It also keeps the staff's latest layout inputs, as `PhraseScore` reports them, and
+ * implements the session's two pre-draw checks against them (does this phrase fit, is there room
+ * for the staff at all) through the same lazy engraver loader `PhraseScore` draws with.
  */
 import { ref, type Ref } from 'vue'
 
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
-import type { NotationError } from '@/notation/notation-error'
+import { NotationError } from '@/notation/notation-error'
+import type {
+  StaffFitVerdict,
+  StaffKeySignature,
+  StaffLayoutInputs,
+  StaffRoomVerdict,
+} from '@/notation/staff-fit-types'
+import { loadVexflowEngraver, type VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
+import type { StaffLayoutReports } from './generation-session-room-notice'
 import type { WorkspaceSessionResult } from './workspace-session-result'
 
 /** A programming-usage error: a second `notate` call arrived before the first one settled. */
@@ -42,11 +52,31 @@ export interface NotationCoordinator {
   readonly handleEngraved: () => void
   /** Wire to `PhraseScore`'s `@notation-error`. */
   readonly handleNotationError: (error: NotationError) => void
+  /** Wire to `PhraseScore`'s `@layout-inputs`: keeps them as the latest and tells subscribers. */
+  readonly handleLayoutInputs: (inputs: StaffLayoutInputs) => void
+  /** The session's `staffLayout` seam: every layout report, as `handleLayoutInputs` receives it. */
+  readonly staffLayout: StaffLayoutReports
+  /** The session's `checkFit` seam: the result's written phrase against the latest inputs. */
+  readonly checkFit: (result: WorkspaceSessionResult) => Promise<StaffFitVerdict>
+  /** The session's `checkRoom` seam: room for the staff with this key, at the latest inputs. */
+  readonly checkRoom: (signature: StaffKeySignature) => Promise<StaffRoomVerdict>
 }
+
+/** The part of the engraver module the pre-draw checks use. */
+type EngraverPlanning = Pick<
+  VexflowEngraverModule,
+  'ensureNotationFonts' | 'planWrittenPhraseFit' | 'planStaffRoomForKey'
+>
 
 interface AwaitingRequest {
   readonly resolve: () => void
   readonly reject: (error: Error) => void
+}
+
+/** Intent: the written phrase a result is drawn as: the active profile's own written pitch. */
+// @spec-link [[module_idle_fit_round]]
+function writtenPhraseOf(result: WorkspaceSessionResult): WrittenPhrase {
+  return transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent))
 }
 
 /** Intent: build one coordinator instance for one workspace session's PhraseScore lifetime. */
@@ -69,7 +99,7 @@ export function createNotationCoordinator(
         'notate() was called while a previous notation request was still pending.',
       )
     }
-    const phrase = transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent))
+    const phrase = writtenPhraseOf(result)
     return new Promise<void>((resolve, reject) => {
       awaiting = { resolve, reject }
       pendingPhrase.value = phrase
@@ -121,5 +151,94 @@ export function createNotationCoordinator(
     reporter.reportNotationFailure(error)
   }
 
-  return { pendingPhrase, notate, clearPresentedPhrase, handleEngraved, handleNotationError }
+  /** The staff's latest layout inputs, or null before `PhraseScore` has measured any. */
+  let latestInputs: StaffLayoutInputs | null = null
+  const layoutListeners = new Set<(inputs: StaffLayoutInputs) => void>()
+
+  /**
+   * Intent: keep the reported inputs as the latest, then tell every subscriber; stored first, so a
+   * check a subscriber starts in reaction already plans with them.
+   */
+  // @spec-link [[module_idle_fit_round]]
+  function handleLayoutInputs(inputs: StaffLayoutInputs): void {
+    latestInputs = inputs
+    for (const listener of [...layoutListeners]) listener(inputs)
+  }
+
+  /** Intent: add a layout-report listener; the returned function removes it. */
+  // @spec-link [[module_idle_fit_round]]
+  function subscribeToLayout(listener: (inputs: StaffLayoutInputs) => void): () => void {
+    layoutListeners.add(listener)
+    return () => {
+      layoutListeners.delete(listener)
+    }
+  }
+
+  /**
+   * Intent: the latest layout inputs, or the retryable failure a check meets before `PhraseScore`
+   * has measured any. There are no default inputs: a check against a guessed width could let a
+   * phrase through that the staff then cannot draw.
+   */
+  // @spec-link [[module_idle_fit_round]]
+  function requireLayoutInputs(): StaffLayoutInputs {
+    if (latestInputs === null) {
+      throw new NotationError(
+        'notation_container_unavailable',
+        'The staff has not reported its layout inputs yet, so nothing can be checked against it.',
+        {},
+      )
+    }
+    return latestInputs
+  }
+
+  /**
+   * Intent: the engraver module with its notation fonts ready, since the planning measures the
+   * chord symbols' text as the drawing does. A load or font failure is the loader's or the font
+   * wait's own NotationError, unchanged; the next check tries again.
+   */
+  // @spec-link [[module_idle_fit_round]]
+  async function planningModule(): Promise<EngraverPlanning> {
+    const loaded: EngraverPlanning = await loadVexflowEngraver()
+    await loaded.ensureNotationFonts()
+    return loaded
+  }
+
+  /**
+   * Intent: check, drawing nothing, whether the result's written phrase fits the staff at the
+   * layout inputs current once the engraver is ready.
+   */
+  // @spec-link [[module_idle_fit_round]]
+  // @spec-link [[rule_idle_phrase_too_dense_is_replaced]]
+  async function checkFit(result: WorkspaceSessionResult): Promise<StaffFitVerdict> {
+    requireLayoutInputs()
+    const phrase = writtenPhraseOf(result)
+    const engraver = await planningModule()
+    const inputs = requireLayoutInputs()
+    return engraver.planWrittenPhraseFit(phrase, inputs.containerWidthPx, inputs.viewport)
+  }
+
+  /**
+   * Intent: check, whatever the notes, whether the staff has room with this key signature at the
+   * layout inputs current once the engraver is ready.
+   */
+  // @spec-link [[module_idle_fit_round]]
+  // @spec-link [[rule_staff_needs_room_notice]]
+  async function checkRoom(signature: StaffKeySignature): Promise<StaffRoomVerdict> {
+    requireLayoutInputs()
+    const engraver = await planningModule()
+    const inputs = requireLayoutInputs()
+    return engraver.planStaffRoomForKey(signature, inputs.containerWidthPx, inputs.viewport)
+  }
+
+  return {
+    pendingPhrase,
+    notate,
+    clearPresentedPhrase,
+    handleEngraved,
+    handleNotationError,
+    handleLayoutInputs,
+    staffLayout: { subscribe: subscribeToLayout },
+    checkFit,
+    checkRoom,
+  }
 }

@@ -9,6 +9,8 @@
  */
 import { expect, test } from '@playwright/test'
 
+import { waitForStaffFadeSettled } from './staff-fade-settle'
+
 test.use({ baseURL: 'http://127.0.0.1:4174' })
 
 /** Intent: wait until the harness publishes a settled (ready or error) engrave outcome. */
@@ -34,6 +36,7 @@ for (const { name, profile, seed } of CASES) {
     await waitForHarnessSettled(page)
     expect((await page.evaluate(() => window.__notationHarness)).state).toBe('ready')
 
+    await waitForStaffFadeSettled(page)
     await expect(page.locator('.staff-content')).toHaveScreenshot(`${name}-staff-content.png`)
   })
 }
@@ -47,5 +50,6 @@ test('two-system phone layout matches its baseline', async ({ page }) => {
   expect(harnessState.state).toBe('ready')
   expect(harnessState.engraved?.systemCount).toBe(2)
 
+  await waitForStaffFadeSettled(page)
   await expect(page.locator('.staff-frame')).toHaveScreenshot('two-system-phone-staff-frame.png')
 })

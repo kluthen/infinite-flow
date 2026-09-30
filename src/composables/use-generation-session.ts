@@ -1,6 +1,10 @@
 import { readonly, shallowReactive } from 'vue'
 
-import { type GenerationControls, type MusicalProfile } from '@/domain/controls/generation-controls'
+import {
+  PITCH_CLASSES,
+  type GenerationControls,
+  type MusicalProfile,
+} from '@/domain/controls/generation-controls'
 import {
   DEFAULT_GENERATION_CONTROLS,
   DEFAULT_PROFILE_SELECTION,
@@ -20,16 +24,31 @@ import {
   type GenerationIntentProviders,
   createGenerationIntent,
 } from '@/domain/generation/generation-intent'
+import type { PitchClassNumber } from '@/domain/harmony/harmony-types'
+import { spellWrittenKey } from '@/domain/notation/pitch-spelling'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
+import { NotationError, isStaffLayoutFailure } from '@/notation/notation-error'
+import type {
+  StaffFitVerdict,
+  StaffKeySignature,
+  StaffRoomVerdict,
+} from '@/notation/staff-fit-types'
+import { createFitRunner, toError, type RoomNoticeCause } from './generation-session-fit-round'
 import {
   createSelectInstrumentProfileAction,
   type ProfileSelectionOutcome,
 } from './generation-session-profile-switch'
 import { createRhythmPrewarmTrigger, type PostPrewarm } from './generation-session-prewarm'
+import {
+  createRoomNoticeReactions,
+  type StaffLayoutReports,
+} from './generation-session-room-notice'
 import type { ViewportWidthProvider } from './viewport-width'
 
 export type ThemePreference = 'System' | 'Light' | 'Dark'
 export type { ProfileSelectionOutcome } from './generation-session-profile-switch'
+export type { RoomNoticeCause } from './generation-session-fit-round'
+export type { StaffLayoutReports } from './generation-session-room-notice'
 export type SessionOperation = 'idle' | 'generating' | 'notating'
 
 export interface PresentationSettings {
@@ -58,6 +77,18 @@ export interface GenerationSessionState<TResult> {
    * unsupported-rhythm block judges it; each generation reads the width afresh.
    */
   readonly noteDensityContext: NoteDensityContext
+  /** Whether the "staff needs more room" notice shows at Idle, and with which cause. */
+  readonly roomNotice: RoomNoticeCause | null
+  /**
+   * Whether a fit run's fresh-seed retries are running: true from the first attempt found too
+   * wide, or from the start of a round under the too-many-notes notice, until the run ends.
+   */
+  readonly retriesRunning: boolean
+  /**
+   * Counts every time the notice must be announced: each time it begins, and each time a round
+   * under it ends with every attempt too wide. The interface re-announces the notice on a change.
+   */
+  readonly roomNoticeAnnouncements: number
 }
 
 export interface GenerationSessionActions {
@@ -89,12 +120,17 @@ export interface CreateGenerationSessionOptions<TResult> {
   readonly viewport: ViewportWidthProvider
   readonly generate: (intent: GenerationIntent) => Promise<TResult>
   readonly notate: (result: TResult) => Promise<void>
+  /** Check a generated phrase against the staff's current layout inputs, drawing nothing. */
+  readonly checkFit: (result: TResult) => Promise<StaffFitVerdict>
+  /** Check whether the staff has room at all, whatever the notes, with this key signature. */
+  readonly checkRoom: (signature: StaffKeySignature) => Promise<StaffRoomVerdict>
+  /** The staff's layout-input reports (container width, viewport and height budget). */
+  readonly staffLayout: StaffLayoutReports
   /**
-   * Drop whatever the injected `notate` seam is currently presenting, for the `clearPhrase`
-   * transition below. Optional because a caller with no presented-phrase concept of its own (every
-   * `TResult` in this file's own unit tests) has nothing to drop.
+   * Drop whatever the injected `notate` seam is currently presenting: for a phrase that gives way
+   * to no phrase, to the room notice, or to a Loading with no score shown.
    */
-  readonly clearPresentedPhrase?: () => void
+  readonly clearPresentedPhrase: () => void
   /**
    * Where to post a rhythm-domain prewarm (the worker client's fire-and-forget `prewarm`): once at
    * creation for the current width-resolved controls, then once per change of the width-resolved
@@ -132,10 +168,8 @@ const PROFILE_CONTROL_KEYS = new Set<keyof ProfileControlledValues>([
   'register',
 ])
 
-/** Normalize an unknown caught value to an Error without swallowing a non-Error throw's message. */
-function toError(error: unknown): Error {
-  return error instanceof Error ? error : new Error(String(error))
-}
+/** Controls that cannot change the notes: changing one starts no round under the notice. */
+const NON_NOTE_CONTROL_KEYS = new Set<keyof GenerationControls>(['tempo'])
 
 /**
  * Root composition boundary: call once from application bootstrap and pass the returned readonly
@@ -159,6 +193,9 @@ export function createGenerationSession<TResult>(
       belowTabletLandscape: options.viewport.isBelowTabletLandscape(),
       sessionSteppedDown: false,
     },
+    roomNotice: null,
+    retriesRunning: false,
+    roomNoticeAnnouncements: 0,
   })
 
   function canChangeConfiguration(): boolean {
@@ -197,16 +234,17 @@ export function createGenerationSession<TResult>(
     )
   }
 
-  /** A width crossing updates the note-density context, then re-warms if it changed the setting. */
+  /**
+   * A width crossing updates the note-density context, then re-warms if it changed the setting,
+   * and stops a running fit run at once when the combination now blocks generation.
+   */
   // @spec-link [[rule_generated_density_follows_window_width]]
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[module_idle_fit_round]]
   function handleWidthCrossing(): void {
     readNoteDensityContext()
     prewarmCurrentRhythmSetting()
+    fitRunner.stopIfBlocked()
   }
-
-  const stopListeningForCrossings = options.viewport.subscribe(handleWidthCrossing)
-  prewarmCurrentRhythmSetting()
 
   /**
    * True when the current controls' rhythm combination has no legal four-bar plan and must not
@@ -220,7 +258,8 @@ export function createGenerationSession<TResult>(
 
   /**
    * Manual controlled edits become custom; all other controls retain the current selection state.
-   * An edit that changes the width-resolved rhythm setting posts a prewarm for it.
+   * An edit that changes the width-resolved rhythm setting posts a prewarm for it. Under the room
+   * notice, an edit to a setting the phrase is generated from (tempo excluded) reacts to it.
    */
   // @spec-link [[module_profile_control_customization]]
   // @spec-link [[service_workspace_session_flow]]
@@ -244,6 +283,7 @@ export function createGenerationSession<TResult>(
       state.controls = controls
       state.profileSelection = profileSelection
       prewarmCurrentRhythmSetting()
+      roomNotice.afterGenerationSettingChange()
       return true
     }
     const [controls, profileSelection] = applyNonProfileControlValue(
@@ -255,10 +295,14 @@ export function createGenerationSession<TResult>(
     state.controls = controls
     state.profileSelection = profileSelection
     prewarmCurrentRhythmSetting()
+    if (!NON_NOTE_CONTROL_KEYS.has(key)) roomNotice.afterGenerationSettingChange()
     return true
   }
 
-  /** Apply a musical profile's values; a switch that changes the rhythm setting posts a prewarm. */
+  /**
+   * Apply a musical profile's values; a switch that changes the rhythm setting posts a prewarm, and
+   * under the room notice the switch reacts to it as a generation-setting change.
+   */
   // @spec-link [[module_generative_profile_selection]]
   // @spec-link [[service_workspace_session_flow]]
   function selectMusicalProfile(profile: MusicalProfile): boolean {
@@ -267,6 +311,7 @@ export function createGenerationSession<TResult>(
     state.controls = controls
     state.profileSelection = profileSelection
     prewarmCurrentRhythmSetting()
+    roomNotice.afterGenerationSettingChange()
     return true
   }
 
@@ -278,45 +323,12 @@ export function createGenerationSession<TResult>(
   }
 
   /**
-   * Coordinate one full generation-then-engraving operation. A generation failure preserves the
-   * prior result and leaves notation state cleared (this attempt's start already cleared it); a
-   * generation success always continues into engraving the written phrase within the same
-   * operation, and resolves true even if that engraving then fails — the failure is exposed
-   * through `notationError` while the freshly generated result is kept.
+   * Coordinate one injected notation attempt without changing phrase identity or generation
+   * inputs. A layout failure is routed as one of the phrase on screen; the operation is idle by
+   * then, so the replacement run it may start owns the operation.
    */
   // @spec-link [[service_workspace_session_flow]]
-  async function run(intent: GenerationIntent): Promise<boolean> {
-    state.operation = 'generating'
-    state.generationError = null
-    state.notationError = null
-    state.latestIntent = intent
-
-    let result: TResult
-    try {
-      result = await options.generate(intent)
-    } catch (error: unknown) {
-      state.generationError = toError(error)
-      state.operation = 'idle'
-      return false
-    }
-
-    state.result = result
-    state.resultEngraved = false
-    state.operation = 'notating'
-    try {
-      await options.notate(result)
-      state.resultEngraved = true
-    } catch (error: unknown) {
-      state.notationError = toError(error)
-      state.resultEngraved = false
-    } finally {
-      state.operation = 'idle'
-    }
-    return true
-  }
-
-  /** Coordinate one injected notation attempt without changing phrase identity or generation inputs. */
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[module_idle_fit_round]]
   async function runNotation(result: TResult): Promise<boolean> {
     if (state.operation !== 'idle') return false
     state.operation = 'notating'
@@ -324,13 +336,12 @@ export function createGenerationSession<TResult>(
     try {
       await options.notate(result)
       state.resultEngraved = true
+      state.operation = 'idle'
       return true
     } catch (error: unknown) {
-      state.notationError = toError(error)
-      state.resultEngraved = false
-      return false
-    } finally {
       state.operation = 'idle'
+      reportNotationFailure(toError(error))
+      return false
     }
   }
 
@@ -350,12 +361,22 @@ export function createGenerationSession<TResult>(
     })
   }
 
+  /**
+   * The key signature the next phrase would have: the written key the current written tonal
+   * center and collection spell, which sets the width of the staff's fixed parts.
+   */
+  // @spec-link [[module_idle_fit_round]]
+  function currentKeySignature(): StaffKeySignature {
+    const writtenTonic = PITCH_CLASSES.indexOf(state.controls.tonalCenter) as PitchClassNumber
+    return spellWrittenKey(writtenTonic, state.controls.collection).signature
+  }
+
   /** Explicit generation is the only ordinary action that creates a new intent. */
   // @spec-link [[module_generation_request_construction]]
   function generate(): Promise<boolean> {
     if (state.operation !== 'idle') return Promise.resolve(false)
     if (isBlockedByUnsupportedRhythm()) return Promise.resolve(false)
-    return run(freshIntentFromControls())
+    return fitRunner.run('keep_screen')
   }
 
   /** Regeneration creates a new identity and seed while retaining active controls and grammar. */
@@ -363,7 +384,7 @@ export function createGenerationSession<TResult>(
   function regenerate(): Promise<boolean> {
     if (state.operation !== 'idle') return Promise.resolve(false)
     if (isBlockedByUnsupportedRhythm()) return Promise.resolve(false)
-    return run(freshIntentFromControls())
+    return fitRunner.run('keep_screen')
   }
 
   /**
@@ -382,7 +403,7 @@ export function createGenerationSession<TResult>(
       return Promise.resolve(false)
     }
     if (isBlockedByUnsupportedRhythm()) return Promise.resolve(false)
-    return run(freshIntentFromControls())
+    return fitRunner.run('keep_screen')
   }
 
   /** Retry the retained failed notation request against its original result. */
@@ -394,13 +415,21 @@ export function createGenerationSession<TResult>(
     return runNotation(state.result)
   }
 
-  /** Surface a notation failure raised outside a session operation (e.g. a viewport-resize redraw). */
+  /**
+   * Surface a notation failure of the phrase on screen raised outside a run (a viewport-resize
+   * redraw, a Retry notation): a staff-layout failure goes to the room notice or a replacement
+   * run; any other failure is the retryable notation error.
+   */
   // @spec-link [[module_notation_layout_preflight]]
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[module_idle_fit_round]]
   function reportNotationFailure(error: Error): boolean {
     if (state.operation !== 'idle' || state.result === null) return false
-    state.notationError = error
     state.resultEngraved = false
+    if (error instanceof NotationError && isStaffLayoutFailure(error)) {
+      roomNotice.routeLayoutFailure(error)
+      return true
+    }
+    state.notationError = error
     return true
   }
 
@@ -415,28 +444,53 @@ export function createGenerationSession<TResult>(
   }
 
   /**
-   * Discard the current phrase and every field tied to it, without generating a replacement: the
-   * transition a profile switch takes when the new profile invalidates the phrase but the active
-   * rhythm combination has no legal regeneration to fall back to, so the switch applies and the
-   * phrase disappears instead of blocking.
+   * Discard the current phrase, the room notice and every field tied to them, without generating
+   * a replacement: no phrase shows, as before a first one exists. The transition wherever a
+   * replacement phrase is needed but the active rhythm combination has no legal generation.
    */
   // @spec-link [[rule_profile_switch_validates_phrase]]
+  // @spec-link [[module_idle_fit_round]]
   function clearPhrase(): void {
     state.latestIntent = null
     state.result = null
     state.generationError = null
     state.notationError = null
     state.resultEngraved = false
-    options.clearPresentedPhrase?.()
+    state.roomNotice = null
+    state.retriesRunning = false
+    options.clearPresentedPhrase()
   }
+
+  const fitRunner = createFitRunner<TResult>({
+    state,
+    generate: options.generate,
+    checkFit: options.checkFit,
+    notate: options.notate,
+    clearPresentedPhrase: options.clearPresentedPhrase,
+    freshIntent: freshIntentFromControls,
+    isBlocked: isBlockedByUnsupportedRhythm,
+    showEmpty: clearPhrase,
+  })
+
+  const roomNotice = createRoomNoticeReactions<TResult>({
+    state,
+    checkRoom: options.checkRoom,
+    staffLayout: options.staffLayout,
+    fitRunner,
+    currentSignature: currentKeySignature,
+    isBlocked: isBlockedByUnsupportedRhythm,
+    showEmpty: clearPhrase,
+  })
 
   const selectInstrumentProfile = createSelectInstrumentProfileAction<TResult>({
     state,
-    providers: options.providers,
-    readNoteDensityContext,
-    runGeneration: run,
+    isBlocked: isBlockedByUnsupportedRhythm,
+    runFitRun: () => fitRunner.run('keep_screen'),
     clearPhrase,
   })
+
+  const stopListeningForCrossings = options.viewport.subscribe(handleWidthCrossing)
+  prewarmCurrentRhythmSetting()
 
   return {
     state: readonly(state) as Readonly<GenerationSessionState<TResult>>,
@@ -452,6 +506,9 @@ export function createGenerationSession<TResult>(
       reportNotationFailure,
       reportNotationRecovered,
     },
-    dispose: stopListeningForCrossings,
+    dispose: () => {
+      stopListeningForCrossings()
+      roomNotice.dispose()
+    },
   }
 }

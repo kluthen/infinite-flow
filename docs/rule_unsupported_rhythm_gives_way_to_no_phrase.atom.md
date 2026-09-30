@@ -2,7 +2,8 @@
 id: rule_unsupported_rhythm_gives_way_to_no_phrase
 status: DRAFT
 human_name: Unsupported Rhythm Settings Give Way to No Phrase
-dependents: []
+dependents:
+  - [[module_idle_fit_round]]
 type: RULE
 tags: [v2, release-v2.0, idle, rhythm, v1-change]
 parents:

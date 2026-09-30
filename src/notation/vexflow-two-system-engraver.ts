@@ -21,6 +21,7 @@ import {
 
 import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
 import { NOTATION_SYSTEM_POSITION_UNITS } from './notation-layout-policy'
+import type { StaffKeySignature } from './staff-fit-types'
 import { mapKeySpec } from './vexflow-mapping'
 
 /** One drawn measure's scaled pixel box, relative to its own system's SVG. */
@@ -51,13 +52,12 @@ export interface SystemStaveSpec {
 
 /**
  * Intent: add the clef and key signature every system starts with. The engraver's leading-width
- * measurement uses the same helper, so the measured width always matches the drawn staff.
+ * measurement (for a phrase's layout and for the phrase-independent room check alike) uses the
+ * same helper, so the measured width always matches the drawn staff.
  */
-export function addClefAndKey(stave: Stave, phrase: WrittenPhrase): void {
+export function addClefAndKey(stave: Stave, signature: StaffKeySignature): void {
   stave.addClef('treble')
-  stave.addKeySignature(
-    phrase.key.signature.count === 0 ? 'C' : mapKeySpec(phrase.key.signature.ionianTonic),
-  )
+  stave.addKeySignature(signature.count === 0 ? 'C' : mapKeySpec(signature.ionianTonic))
 }
 
 /**
@@ -84,7 +84,7 @@ export function buildSystemStaves(phrase: WrittenPhrase, spec: SystemStaveSpec):
   })
 
   const first = staves[0]!
-  addClefAndKey(first, phrase)
+  addClefAndKey(first, phrase.key.signature)
   if (spec.withTimeSignature) first.addTimeSignature('4/4')
   if (spec.endsPhrase) staves[staves.length - 1]!.setEndBarType(Barline.type.END)
   if (spec.alignTo) {

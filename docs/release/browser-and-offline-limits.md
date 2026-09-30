@@ -105,7 +105,7 @@ Three named breakpoints are defined once in `src/styles/theme.css` (`--breakpoin
   viewport height (`100svh`, browser toolbars showing) minus the row above the staff, so a toolbar
   showing or hiding never redraws the score. The staff area reserves both systems in every state;
   two systems fit at the legibility floor from about 286 px of small viewport height, and a
-  shorter window shows no staff.
+  shorter window shows the "staff needs more room" notice instead of the staff.
 - `48rem` and up, landscape: control groups begin to wrap instead of staying in a single column.
 - `64rem` and up: all four measures render in one staff system, with the second system position
   reserved below it and left blank; control groups can wrap further.
@@ -122,7 +122,12 @@ The notation layout has its own legibility floor (`NOTATION_LEGIBILITY_FLOOR_STA
 two systems, or scrolls or clips it. A phrase that cannot be drawn at the floor fails with one of two
 typed errors: `notation_no_room` when the window is too narrow for the staff, or, below `64rem`, too
 short for it, whatever the phrase; `notation_notes_too_wide` when the window has room but this
-phrase's notes need more width. Today the workspace shows both as the retryable notation error.
+phrase's notes need more width. At Idle the workspace never shows either as the notation error: it
+checks each generated phrase before drawing it, replaces a phrase whose notes are too wide with up
+to three fresh-seed retries, and shows the "staff needs more room" notice when the window has no
+room or no attempt fits. With no room, the notice clears by itself once the window gives the staff
+room again; with notes too wide, a wider window starts a new round of attempts (see
+[`docs/phrase-workspace.md`](../phrase-workspace.md#idle-fit-run-and-the-room-notice)).
 
 ## Browser API boundaries (verified by the boundary gates)
 

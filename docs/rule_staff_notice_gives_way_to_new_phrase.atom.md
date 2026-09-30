@@ -9,7 +9,8 @@ type: RULE
 version: 0.1
 priority: 1
 tags: [v2, release-v2.0, idle, notation, v1-change]
-dependents: []
+dependents:
+  - [[module_idle_fit_round]]
 ---
 
 # Staff Notice Gives Way Only to a New Phrase

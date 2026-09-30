@@ -1,15 +1,24 @@
 /**
  * The workspace-harness-only substitute for `@/notation/vexflow-engraver-loader`, wired in by
  * `vite.workspace-harness.config.ts`'s `resolve.alias` so every real production import of that
- * loader (PhraseScore.vue's engrave path, WorkspaceShell.vue's mount-time preload) resolves here
- * instead -- never a test-only branch inside src/ itself. Always delegates to the real loader and
- * the real dynamic `import()` it performs; the one-shot failure `armNextNotationFailure()` arms is
- * injected at `engraveWrittenPhrase()` instead of at module load, because PhraseScore memoizes the
- * loaded module after its first successful load (see vexflow-engraver-loader.ts), so a load-time
- * rejection could only ever be observed before any phrase had engraved. Wrapping the resolved
- * module's own `engraveWrittenPhrase` lets a spec force a failure on any later redraw (a notation
- * mode switch, a Retry), exercising PhraseScore's real `redraw()` catch/emit('notation-error') path
- * and its real Retry re-request end to end, rather than faking a component result.
+ * loader (PhraseScore.vue's engrave path, WorkspaceShell.vue's mount-time preload, the workspace's
+ * pre-draw fit check) resolves here instead -- never a test-only branch inside src/ itself. Always
+ * delegates to the real loader and the real dynamic `import()` it performs, and wraps two of the
+ * resolved module's functions:
+ *
+ * - `engraveWrittenPhrase`, for the one-shot failure `armNextNotationFailure()` arms. It is
+ *   injected there instead of at module load, because PhraseScore memoizes the loaded module after
+ *   its first successful load (see vexflow-engraver-loader.ts), so a load-time rejection could only
+ *   ever be observed before any phrase had engraved. A spec can force a failure on any later redraw
+ *   (a resize, a Retry), exercising PhraseScore's real `redraw()` catch/emit('notation-error') path
+ *   end to end; the armed code picks a retryable failure or one of the staff layout's two failures.
+ *   Every call is counted, so a spec can tell that nothing but the phrase it expects was drawn.
+ * - `planWrittenPhraseFit`, for a FIFO of forced verdicts `queueFitVerdicts()` fills: each call
+ *   consumes one, and once the queue is empty the real planner answers. A forced `notes_too_wide`
+ *   is what the real planner returns for a dense phrase in a small window, so a spec can drive the
+ *   idle fit retries with any phrase at any window size. Every call is counted.
+ * - `planStaffRoomForKey`, only to count its calls, so a spec can wait for a room check to have
+ *   run before asserting that it started nothing.
  */
 import { NotationError } from '../../../src/notation/notation-error'
 import {
@@ -17,30 +26,68 @@ import {
   type VexflowEngraverModule,
 } from '../../../src/notation/vexflow-engraver-loader'
 
-let forcedFailureArmed = false
+let armedFailureCode: WorkspaceHarnessNotationFailureCode | null = null
+const forcedFitVerdicts: WorkspaceHarnessFitVerdict[] = []
+let fitChecksRun = 0
+let engravingsRun = 0
+let roomChecksRun = 0
 let wrappedModule: VexflowEngraverModule | null = null
 
-/** Intent: arm exactly one forced engraving failure for the next `engraveWrittenPhrase()` call. */
-export function armNextNotationFailure(): void {
-  forcedFailureArmed = true
+/** Intent: arm exactly one forced failure, with this code, for the next `engraveWrittenPhrase()` call. */
+export function armNextNotationFailure(
+  code: WorkspaceHarnessNotationFailureCode = 'notation_engraving_failed',
+): void {
+  armedFailureCode = code
 }
 
-/** Intent: the aliased drop-in for the real loader, wrapping `engraveWrittenPhrase` to allow one forced failure. */
+/** Intent: append forced verdicts the next `planWrittenPhraseFit()` calls return, in order. */
+export function queueForcedFitVerdicts(verdicts: readonly WorkspaceHarnessFitVerdict[]): void {
+  forcedFitVerdicts.push(...verdicts)
+}
+
+/** Intent: how many fit checks have run since the page loaded, forced or real. */
+export function fitCheckCount(): number {
+  return fitChecksRun
+}
+
+/** Intent: how many engravings (draws and redraws) have been attempted since the page loaded. */
+export function engravingCount(): number {
+  return engravingsRun
+}
+
+/** Intent: how many phrase-independent room checks have run since the page loaded. */
+export function roomCheckCount(): number {
+  return roomChecksRun
+}
+
+/** Intent: the aliased drop-in for the real loader, wrapping the engraving and both checks. */
 export async function loadVexflowEngraver(): Promise<VexflowEngraverModule> {
   const real = await loadRealVexflowEngraver()
   if (wrappedModule === null) {
     wrappedModule = {
       ...real,
       engraveWrittenPhrase: (...args) => {
-        if (forcedFailureArmed) {
-          forcedFailureArmed = false
+        engravingsRun += 1
+        if (armedFailureCode !== null) {
+          const code = armedFailureCode
+          armedFailureCode = null
           throw new NotationError(
-            'notation_engraving_failed',
-            'Workspace harness injected a forced notation engraving failure.',
+            code,
+            `Workspace harness injected a forced notation failure (${code}).`,
             {},
           )
         }
         return real.engraveWrittenPhrase(...args)
+      },
+      planWrittenPhraseFit: (...args) => {
+        fitChecksRun += 1
+        const forced = forcedFitVerdicts.shift()
+        if (forced !== undefined) return { kind: forced }
+        return real.planWrittenPhraseFit(...args)
+      },
+      planStaffRoomForKey: (...args) => {
+        roomChecksRun += 1
+        return real.planStaffRoomForKey(...args)
       },
     }
   }

@@ -14,6 +14,13 @@ type WorkspaceHarnessGenerationFailureCode =
   | 'search_limit_exceeded'
   | 'result_validation_failed'
 
+/** The notation failure codes `failNextNotation` can force: a retryable one, or a staff layout failure. */
+type WorkspaceHarnessNotationFailureCode =
+  'notation_engraving_failed' | 'notation_notes_too_wide' | 'notation_no_room'
+
+/** A fit verdict `queueFitVerdicts` can force on the pre-draw fit check (no room comes from real sizes). */
+type WorkspaceHarnessFitVerdict = 'notes_too_wide' | 'fits'
+
 /** One deterministic-replay / presentation-isolation snapshot of the current workspace session. */
 interface WorkspaceHarnessSnapshot {
   readonly operation: 'idle' | 'generating' | 'notating'
@@ -31,6 +38,14 @@ interface WorkspaceHarnessSnapshot {
   readonly chosenNoteDensity: string
   /** The note density the latest result was generated with (`Eighth` for a chosen `Sixteenth` below the tablet-landscape width), or null with no result yet. */
   readonly generatedNoteDensity: string | null
+  /** The seed of the latest attempt the session generated, drawn or not, or null before any. */
+  readonly latestSeed: number | null
+  /** Whether the "staff needs more room" notice shows, and with which cause. */
+  readonly roomNotice: 'no_room' | 'notes_too_wide' | null
+  /** Whether a fit run's fresh-seed retries are running. */
+  readonly retriesRunning: boolean
+  /** How many times the notice has had to be announced since the page loaded. */
+  readonly roomNoticeAnnouncements: number
 }
 
 /** Where the harness's audio runs: the fake audio rig (the default) or `?audio=real`. */
@@ -131,10 +146,29 @@ interface WorkspaceHarnessApi {
   holdGeneration: () => void
   /** Release the current hold; every gated `generate` call resumes immediately. */
   releaseGeneration: () => void
-  /** Arm exactly one forced generation failure using the given real orchestration failure code. */
-  failNextGeneration: (code: WorkspaceHarnessGenerationFailureCode) => void
-  /** Arm exactly one forced notation engraving-module load failure on the next redraw attempt. */
-  failNextNotation: () => void
+  /**
+   * Arm exactly one forced generation failure using the given real orchestration failure code,
+   * applied to the `generate` call after `skip` more (default 0) have passed through for real.
+   */
+  failNextGeneration: (code: WorkspaceHarnessGenerationFailureCode, skip?: number) => void
+  /**
+   * Arm exactly one forced notation failure on the next engraving (a draw or a redraw), with this
+   * code: `notation_engraving_failed` (the default, retryable) or a staff layout failure.
+   */
+  failNextNotation: (code?: WorkspaceHarnessNotationFailureCode) => void
+  /**
+   * Append forced verdicts the next pre-draw fit checks return, one per check, in order; once the
+   * queue is empty the real planner answers.
+   */
+  queueFitVerdicts: (verdicts: readonly WorkspaceHarnessFitVerdict[]) => void
+  /** How many pre-draw fit checks have run since the page loaded, forced or real. */
+  fitChecks: () => number
+  /** How many engravings (draws and redraws) have been attempted since the page loaded. */
+  engravings: () => number
+  /** How many phrase-independent room checks have run since the page loaded. */
+  roomChecks: () => number
+  /** How many seeds the session has drawn from the seed provider since the page loaded. */
+  seedsDrawn: () => number
   /** The current workspace session snapshot. */
   snapshot: () => WorkspaceHarnessSnapshot
   /**

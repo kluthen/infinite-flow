@@ -4,7 +4,7 @@
  * `createWorkspaceSession` wires the same composition to a real `GenerationWorkerClient`-shaped
  * `generate`/`dispose` pair without ever constructing a real browser `Worker`.
  */
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   composeWorkspaceSession,
@@ -31,6 +31,8 @@ import {
 import { transportRig } from '../../audio/transport-rig'
 import type { WorkspacePrewarmPolicy } from '@/components/workspace/prewarm-policy'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
+import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
+import { fakeEngraver, resetFakeEngraver } from '../../notation/fake-vexflow-engraver-loader'
 
 vi.mock('@/generation-worker/browser-generation-worker', () => ({
   createBrowserGenerationWorker: vi.fn(() => ({
@@ -39,6 +41,22 @@ vi.mock('@/generation-worker/browser-generation-worker', () => ({
     terminate: vi.fn(),
   })),
 }))
+
+// The fit and room checks plan through the lazy engraver loader; a fake planner answers here.
+vi.mock(
+  '@/notation/vexflow-engraver-loader',
+  () => import('../../notation/fake-vexflow-engraver-loader'),
+)
+
+beforeEach(() => {
+  resetFakeEngraver()
+})
+
+/** The layout inputs a mounted PhraseScore would report for a wide window. */
+const STAFF_INPUTS: StaffLayoutInputs = {
+  containerWidthPx: 1100,
+  viewport: { layout: 'one-system' },
+}
 
 const CHEAP_CONTROLS = {
   ...DEFAULT_GENERATION_CONTROLS,
@@ -100,13 +118,15 @@ function fakeDependencies(
 }
 
 /**
- * Intent: start `generate()`, then settle its inner `notate()` the way a mounted `PhraseScore`
- * would (`handleEngraved` once the coordinator publishes a phrase to engrave), so a fake
- * dependency bundle with no real component tree can still exercise the whole operation.
+ * Intent: report the staff's layout inputs, start `generate()`, then settle its inner `notate()`
+ * the way a mounted `PhraseScore` would (`layout-inputs` at mount, `handleEngraved` once the
+ * coordinator publishes a phrase to engrave), so a fake dependency bundle with no real component
+ * tree can still exercise the whole operation.
  */
 function generateAndEngrave(
   workspace: ReturnType<typeof composeWorkspaceSession>,
 ): Promise<boolean> {
+  workspace.handleLayoutInputs(STAFF_INPUTS)
   const running = workspace.session.actions.generate()
   void vi
     .waitFor(() => {
@@ -176,6 +196,85 @@ describe('composeWorkspaceSession', () => {
     workspace.dispose()
 
     expect(deps.viewport.listenerCount()).toBe(0)
+  })
+})
+
+// @test-link [[module_idle_fit_round]]
+describe('composeWorkspaceSession fit and room checks', () => {
+  // @test-link [[module_idle_fit_round]]
+  it("checks each phrase with the coordinator's latest layout inputs before it is drawn", async () => {
+    const deps = fakeDependencies()
+    const workspace = composeWorkspaceSession(deps)
+
+    expect(await generateAndEngrave(workspace)).toBe(true)
+
+    const result = workspace.session.state.result!
+    expect(fakeEngraver.planWrittenPhraseFit).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ key: expect.anything() }),
+      STAFF_INPUTS.containerWidthPx,
+      STAFF_INPUTS.viewport,
+    )
+    const checked = fakeEngraver.planWrittenPhraseFit.mock.calls[0]![0]
+    expect(workspace.pendingPhrase.value).toEqual(checked)
+    expect(result.intent.requestId).toBe('di-seam-request-1')
+  })
+
+  // @test-link [[module_idle_fit_round]]
+  // @test-link [[rule_idle_phrase_too_dense_is_replaced]]
+  // @test-link [[rule_staff_needs_room_notice]]
+  it('never draws a phrase the check finds too wide: four attempts, then the too-many-notes notice', async () => {
+    const deps = fakeDependencies()
+    fakeEngraver.planWrittenPhraseFit.mockReturnValue({ kind: 'notes_too_wide' })
+    const workspace = composeWorkspaceSession(deps)
+    workspace.handleLayoutInputs(STAFF_INPUTS)
+
+    expect(await workspace.session.actions.generate()).toBe(false)
+
+    expect(deps.generateMock).toHaveBeenCalledTimes(4)
+    expect(workspace.pendingPhrase.value).toBeNull()
+    expect(workspace.session.state.roomNotice).toBe('notes_too_wide')
+    expect(workspace.session.state.notationError).toBeNull()
+  })
+
+  // @test-link [[module_idle_fit_round]]
+  // @test-link [[rule_staff_notice_gives_way_to_new_phrase]]
+  it('runs the room check on each layout report under the no-room notice, with the reported inputs', async () => {
+    const deps = fakeDependencies()
+    fakeEngraver.planWrittenPhraseFit.mockReturnValue({ kind: 'no_room', cause: 'too_narrow' })
+    fakeEngraver.planStaffRoomForKey.mockReturnValue({ kind: 'no_room', cause: 'too_narrow' })
+    const workspace = composeWorkspaceSession(deps)
+    workspace.handleLayoutInputs(STAFF_INPUTS)
+    await workspace.session.actions.generate()
+    expect(workspace.session.state.roomNotice).toBe('no_room')
+
+    const narrower: StaffLayoutInputs = {
+      containerWidthPx: 300,
+      viewport: { layout: 'one-system' },
+    }
+    workspace.handleLayoutInputs(narrower)
+    await vi.waitFor(() => expect(fakeEngraver.planStaffRoomForKey).toHaveBeenCalledTimes(1))
+
+    expect(fakeEngraver.planStaffRoomForKey).toHaveBeenCalledWith(
+      expect.objectContaining({ count: expect.any(Number) }),
+      narrower.containerWidthPx,
+      narrower.viewport,
+    )
+    expect(workspace.session.state.roomNotice).toBe('no_room')
+  })
+
+  // @test-link [[module_idle_fit_round]]
+  it('keeps a phrase checked before the staff reported any inputs as a retryable notation error, undrawn', async () => {
+    const deps = fakeDependencies()
+    const workspace = composeWorkspaceSession(deps)
+
+    expect(await workspace.session.actions.generate()).toBe(true)
+
+    expect(workspace.session.state.notationError).toMatchObject({
+      code: 'notation_container_unavailable',
+    })
+    expect(workspace.session.state.result).not.toBeNull()
+    expect(workspace.pendingPhrase.value).toBeNull()
+    expect(workspace.session.state.roomNotice).toBeNull()
   })
 })
 

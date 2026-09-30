@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { createGenerationSession } from '@/composables/use-generation-session'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
+import { alwaysFitsStaff } from './fake-staff-fit'
 import { createFakeViewportWidth } from './fake-viewport-width'
 
 function createDeferred<T>() {
@@ -35,6 +36,7 @@ describe('createGenerationSession', () => {
     let calls = 0
     const { providers } = trackedProviders()
     const session = createGenerationSession({
+      ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers,
       generate: async () => ++calls,
@@ -51,6 +53,7 @@ describe('createGenerationSession', () => {
     const deferred = createDeferred<string>()
     const tracked = trackedProviders()
     const session = createGenerationSession({
+      ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: () => deferred.promise,
@@ -80,6 +83,7 @@ describe('createGenerationSession', () => {
     const intents: { readonly id: string; readonly seed: number }[] = []
     let attempts = 0
     const session = createGenerationSession({
+      ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async (intent) => {
@@ -109,6 +113,7 @@ describe('createGenerationSession', () => {
     const intents: { readonly tempo: number }[] = []
     let attempts = 0
     const session = createGenerationSession({
+      ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async (intent) => {
@@ -133,6 +138,7 @@ describe('createGenerationSession', () => {
   it('marks the applied preset custom after a manual rhythmic-variety edit, the same as any other preset field', () => {
     const tracked = trackedProviders()
     const session = createGenerationSession({
+      ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async () => 'result',
@@ -153,6 +159,7 @@ describe('createGenerationSession', () => {
     const tracked = trackedProviders()
     let attempts = 0
     const session = createGenerationSession({
+      ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async () => {
@@ -179,6 +186,7 @@ describe('createGenerationSession', () => {
     const tracked = trackedProviders()
     let attempts = 0
     const session = createGenerationSession({
+      ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async () => {
@@ -215,6 +223,7 @@ describe('createGenerationSession', () => {
       readonly custom: boolean
     }[] = []
     const session = createGenerationSession({
+      ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async (intent) => {
@@ -249,6 +258,7 @@ describe('createGenerationSession', () => {
     const notationCalls: { readonly result: string }[] = []
     let notationAttempts = 0
     const session = createGenerationSession({
+      ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async () => 'phrase',
@@ -278,6 +288,7 @@ describe('createGenerationSession', () => {
     const notateCalls: { readonly result: unknown }[] = []
     let notationAttempts = 0
     const session = createGenerationSession({
+      ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       generate: async () => phrase,
@@ -305,6 +316,7 @@ describe('createGenerationSession', () => {
     const tracked = trackedProviders()
     let notateCallIndex = 0
     const session = createGenerationSession({
+      ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
       // The post-generation automatic engrave (call 1) fails immediately; the explicit
@@ -347,6 +359,7 @@ describe('createGenerationSession', () => {
       const tracked = trackedProviders()
       let notateAttempts = 0
       const session = createGenerationSession({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers: tracked.providers,
         generate: async () => 'phrase',
@@ -375,16 +388,22 @@ describe('createGenerationSession', () => {
       const tracked = trackedProviders()
       const generation = createDeferred<string>()
       const notation = createDeferred<void>()
+      const notateCalled = createDeferred<void>()
       const session = createGenerationSession({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers: tracked.providers,
         generate: () => generation.promise,
-        notate: () => notation.promise,
+        notate: () => {
+          notateCalled.resolve()
+          return notation.promise
+        },
       })
 
       const pending = session.actions.generate()
       generation.resolve('phrase')
-      await generation.promise
+      // The fit check sits between generation and engraving; wait for the engraving step itself.
+      await notateCalled.promise
 
       expect(session.state.operation).toBe('notating')
       expect(session.state.result).toBe('phrase')
@@ -400,6 +419,7 @@ describe('createGenerationSession', () => {
       const generation = createDeferred<string>()
       let call = 0
       const session = createGenerationSession({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers: tracked.providers,
         generate: async () => {
@@ -428,6 +448,7 @@ describe('createGenerationSession', () => {
       const tracked = trackedProviders()
       let call = 0
       const session = createGenerationSession({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers: tracked.providers,
         generate: async () => {

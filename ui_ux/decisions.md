@@ -995,3 +995,15 @@ generation` secondary; `Start session` primary.
   otherwise its base sits half a space above the chord symbol's top. The chord symbol never moves.
   Governs `screens/phrase-workspace/handoff.md`, Notation Contract, **Start marker**, and the
   `start-note-marker` comment in `src/styles/components.css`.
+
+- **D134 — Idle attempt budget, and a profile switch under the room notice (2026-09-30;
+  `ux-writer`'s call under D119 (1); asked by the v2 chunk 5 build; applies spec D145 and master
+  spec §6).** (1) Every idle fit run is the first attempt plus up to three fresh-seed retries, at
+  most four attempts, whatever starts it; each round under the too-many-notes notice starts a new
+  count. (2) An instrument-profile switch while **Needs more room** shows: with the too-many-notes
+  cause it starts a round like any other change to a setting the phrase is generated from, with
+  the notice kept, dimmed, or, under an unsupported rhythm combination, gives **Empty** with the
+  unsupported-rhythm alert; with the no-room cause it only changes the selection, and the notice
+  and any generation-failure banner stay. Neither changes what the design draws. Governs
+  `flows/generate-phrase/handoff.md` (diagram, **Attempt budget**, the profile-switch bullet) and
+  `screens/phrase-workspace/handoff.md`, States, **Needs more room**.

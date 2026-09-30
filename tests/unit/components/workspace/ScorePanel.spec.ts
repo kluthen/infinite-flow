@@ -1,39 +1,13 @@
-import { flushPromises, mount } from '@vue/test-utils'
+import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { defineComponent, h } from 'vue'
 
-import ScorePanel from '@/components/workspace/ScorePanel.vue'
 import { GenerationFailedError } from '@/composables/workspace-session-result'
 import { NotationError } from '@/notation/notation-error'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
-import {
-  createTestWorkspace,
-  PHRASE_SCORE_STUB,
-  type TestWorkspace,
-  useCheapControls,
-} from './test-workspace'
-
-const MOUNT_OPTIONS = { global: { stubs: { PhraseScore: PHRASE_SCORE_STUB } } }
-
-/** Intent: a thin reactive harness that re-reads `workspace.pendingPhrase.value` on every render. */
-const ScorePanelHarness = defineComponent({
-  props: { workspace: { type: Object, required: true } },
-  setup(props) {
-    return () =>
-      h(ScorePanel, {
-        session: (props.workspace as TestWorkspace).session,
-        pendingPhrase: (props.workspace as TestWorkspace).pendingPhrase.value,
-        handleEngraved: (props.workspace as TestWorkspace).handleEngraved,
-        handleNotationError: (props.workspace as TestWorkspace).handleNotationError,
-      })
-  },
-})
-
-function mountHarness(workspace: TestWorkspace) {
-  return mount(ScorePanelHarness, { props: { workspace }, ...MOUNT_OPTIONS })
-}
+import { ENGRAVED_PAYLOAD, mountHarness } from './score-panel-harness'
+import { createTestWorkspace, type TestWorkspace, useCheapControls } from './test-workspace'
 
 // @test-link [[module_notation_layout_preflight]]
 describe('ScorePanel', () => {
@@ -155,15 +129,6 @@ describe('ScorePanel', () => {
     expect(wrapper.find('.phrase-score-stub').exists()).toBe(true)
     expect(wrapper.get('.staff-frame .alert-error').text()).toContain('Notation error')
   })
-
-  /** Intent: the standard PhraseScore `engraved` payload, only its shape matters here. */
-  const ENGRAVED_PAYLOAD = {
-    staffSpacePx: 1,
-    widthPx: 1,
-    heightPx: 1,
-    requiredUnits: 1,
-    systemCount: 1,
-  }
 
   // @test-link [[service_workspace_session_flow]]
   it('D33: the notation-status live region exists and is empty initially', () => {

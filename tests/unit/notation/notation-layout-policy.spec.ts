@@ -11,6 +11,7 @@ import {
   NOTATION_SYSTEM_POSITION_UNITS,
   planStaffPlacement,
   planStaffPositions,
+  planStaffRoom,
   planSystemLayout,
   type StaffViewport,
   type SystemLayoutInput,
@@ -377,5 +378,83 @@ describe("planStaffPlacement: the staff placed in its position by the profile's 
     expect(planStaffPlacement({ minMidi: 61, maxMidi: 82 })).toEqual(
       planStaffPlacement({ minMidi: 60, maxMidi: 83 }),
     )
+  })
+})
+
+/** Intent: run the phrase-independent room check over the shared base fixed parts. */
+function room(containerWidthPx: number, viewport: StaffViewport) {
+  return planStaffRoom({
+    containerWidthPx,
+    leadingWidth: base.leadingWidth,
+    systemPadding: base.systemPadding,
+    viewport,
+  })
+}
+
+// @test-link [[module_idle_fit_round]]
+// @test-link [[module_notation_layout_preflight]]
+describe('planStaffRoom: whether the window has room for the staff, whatever the phrase', () => {
+  it("gives room, with the positions' scale ceiling and block size, when the fixed parts fit at the floor", () => {
+    expect(room(fixedUnitsFor(4) * FLOOR_SCALE, ONE_SYSTEM)).toEqual({
+      kind: 'room',
+      scaleCeiling: MAX_SCALE,
+      positionBlockPx: NOTATION_SYSTEM_POSITION_UNITS * MAX_SCALE,
+    })
+    const viewport = splitViewportAtScale(FLOOR_SCALE * 1.5)
+    expect(room(fixedUnitsFor(2) * FLOOR_SCALE, viewport)).toEqual({
+      kind: 'room',
+      scaleCeiling: FLOOR_SCALE * 1.5,
+      positionBlockPx: NOTATION_SYSTEM_POSITION_UNITS * FLOOR_SCALE * 1.5,
+    })
+  })
+
+  it('gives "no room" (too short) for a window too short for two systems at the floor, checked before the width', () => {
+    const outcome = room(10, splitViewportAtScale(FLOOR_SCALE * 0.99))
+    expect(outcome).toMatchObject({ kind: 'no_room', cause: 'too_short' })
+    if (outcome.kind !== 'no_room') return
+    expect(outcome.details.requiredHeightPx).toBeCloseTo(
+      2 * NOTATION_SYSTEM_POSITION_UNITS * FLOOR_SCALE,
+      10,
+    )
+  })
+
+  it('gives "no room" (too narrow) for a container that cannot hold the fixed parts at the floor', () => {
+    for (const [viewport, measuresPerSystem] of [
+      [ONE_SYSTEM, 4],
+      [TALL_SPLIT, 2],
+    ] as const) {
+      const containerWidthPx = fixedUnitsFor(measuresPerSystem) * FLOOR_SCALE - 1
+      const outcome = room(containerWidthPx, viewport)
+      expect(outcome).toMatchObject({ kind: 'no_room', cause: 'too_narrow' })
+      if (outcome.kind !== 'no_room') continue
+      expect(outcome.details).toEqual({
+        containerWidthPx,
+        requiredWidthPx: fixedUnitsFor(measuresPerSystem) * FLOOR_SCALE,
+        floor: NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX,
+      })
+    }
+  })
+
+  it('rejects a non-finite or non-positive container width as notation_container_unavailable', () => {
+    for (const containerWidthPx of [0, Number.NaN]) {
+      expect(() => room(containerWidthPx, ONE_SYSTEM)).toThrow(NotationError)
+    }
+  })
+
+  it('gives the same "no room" outcome planSystemLayout gives, for any phrase', () => {
+    for (const [containerWidthPx, viewport] of [
+      [fixedUnitsFor(4) * FLOOR_SCALE - 1, ONE_SYSTEM],
+      [fixedUnitsFor(2) * FLOOR_SCALE - 1, TALL_SPLIT],
+      [20000, splitViewportAtScale(FLOOR_SCALE * 0.5)],
+    ] as const) {
+      const outcome = room(containerWidthPx, viewport)
+      expect(outcome.kind).toBe('no_room')
+      for (const measureMinWidths of [
+        [1, 1, 1, 1],
+        [400, 400, 400, 400],
+      ] as const) {
+        expect(plan({ viewport, measureMinWidths, containerWidthPx })).toEqual(outcome)
+      }
+    }
   })
 })

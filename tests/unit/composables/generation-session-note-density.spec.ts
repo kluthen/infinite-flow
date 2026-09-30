@@ -10,6 +10,7 @@ import { createGenerationSession } from '@/composables/use-generation-session'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
+import { alwaysFitsStaff } from './fake-staff-fit'
 import { createFakeViewportWidth } from './fake-viewport-width'
 
 /** A Sixteenth combination blocked from `bp-tablet-landscape` up and allowed below it. */
@@ -26,6 +27,7 @@ function densitySession(initiallyBelowTabletLandscape: boolean) {
   const intents: GenerationIntent[] = []
   let counter = 0
   const session = createGenerationSession<GenerationIntent>({
+    ...alwaysFitsStaff(),
     providers: {
       nextRequestId: () => makeRequestId(`density-${++counter}`),
       nextSeed: () => makeSeed(counter),
@@ -86,6 +88,7 @@ describe('generation session: the density a phrase is generated with', () => {
     const intents: GenerationIntent[] = []
     let counter = 0
     const session = createGenerationSession<GenerationIntent>({
+      ...alwaysFitsStaff(),
       providers: {
         nextRequestId: () => makeRequestId(`retry-${++counter}`),
         nextSeed: () => makeSeed(counter),
