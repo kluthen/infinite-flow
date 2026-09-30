@@ -1,0 +1,94 @@
+# Last Session Review Intent
+
+> **New in v2.**
+
+## What This Screen Is
+
+The **Last session** panel is part of the workspace page, not a page of its own. It appears after
+the musical controls when a session ends, once the session's first phrase has sounded, and it goes
+when the next session starts. Everything above it, the header, the staff with the next phrase and
+the controls, works exactly as between any two sessions. The reasoning for that placement, and for
+what happens around it at a session end, is in
+[`flows/review-and-export/intent.md`](../../flows/review-and-export/intent.md).
+
+It is written first for the Fledgling Composer (P3), who wants to look back at a session (P3.C1)
+and take it out to other tools (P3.C2). Personas are defined in
+[`specs/personas.md`](../../../specs/personas.md). For the Curious Improviser (P1) and the Speed
+Builder (P2), who mostly want to play again, its job is to stay below the controls and cost them
+nothing.
+
+## Focal Point
+
+The phrases are the point. The panel opens with a short header, a title, one line of summary and
+the export, and then gives the rest of its space to the phrases, one after another, drawn exactly
+as they were on the staff. The export sits in the header rather than at the bottom, because after
+a long session the bottom is far away, and taking the session out is the one thing most people who
+open the review came to do.
+
+Each phrase carries only what the product asks of it: its number and its tempo, on one quiet line
+above it. The number matters because the export marks phrases with the same numbers, so "phrase 12
+was the one" means the same thing in the review and in a notation program. The tempo is the same
+for every phrase in this version; it is shown anyway, because a later version lets the tempo rise
+during a session, and the line should not change shape when it does.
+
+A phrase the app repeated, because it could not find a new one in time, is shown and numbered like
+any other: it is what the player heard and read, and the reason behind it is the app's business.
+
+## What Is Deliberately Left Out
+
+- **Nothing about how the player played.** No lit notes, no played notes, no counts. The review
+  shows the music the session gave; the notes the player played arrive in the next point release,
+  behind their own switch, and even then nothing is ever marked as missed.
+- **No per-phrase actions.** Replaying a phrase, or using one as the starting point for new
+  material, may come later. When they do, they sit at the end of each phrase's number-and-tempo
+  line, where there is room for them today; whole-session tools sit beside the export. On larger
+  screens they stay inside the panel: there is no side rail, so the phrases keep the full width,
+  as the staff does.
+- **No way to keep or discard it by hand.** The review lasts until the next session or until the
+  page closes. The summary line says so, because a player who assumes it is saved would otherwise
+  find out the hard way.
+
+## The Export
+
+The export is one row: a choice of format, the backing option when it applies, and one button. The
+format is a two-option switch rather than two buttons, because the product's rule is one action
+per kind of content: the generated notes are one kind, in either format, and the played notes, in
+the next point release, will be the other, with their own button beside this one. MusicXML comes
+first and is the default, because it keeps what the review shows, the notation. The backing track
+only exists in the MIDI file, so its switch appears only while MIDI is chosen, rather than sitting
+there disabled with an explanation beside it.
+
+The button is not the page's primary action. Between sessions that emphasis belongs to
+`Start session` in the header, the next useful step for most players, most of the time; a second
+primary button further down would compete with it.
+
+Making the file takes a moment at most. The button shows it is working, the browser's own download
+confirms the result, and the app adds no message of its own when it works. If making the file ever
+fails, a plain message says so under the export and the button tries again.
+
+## A Long Review
+
+A half-hour session holds more than a hundred phrases, and there is no limit on length. The list
+must stay quick to scroll however long it is, so a phrase is drawn only when it comes near the
+visible part of the page. Every phrase's space is set aside before it is drawn, at the size a
+staff system has on that screen, so the page never jumps and the scrollbar tells the truth about
+the review's length. Phrases appear with no fade: a fade on something scrolling into view is
+decoration, and a player scrolling quickly would see phrases flicker in.
+
+## When the Window Is Too Small
+
+The review draws its phrases with the same rules as the staff above it, at the same readable
+minimum size. So when the window has no room for the staff at all, it has none for the review's
+phrases either, and the list gives way to the same sentence the staff area shows, until the window
+is large enough. The title and the export stay, since making a file needs no room on screen. When
+the window has room but one phrase's notes need more width than it now gives, that phrase alone
+shows a short line in its place, keeping its number and tempo: a review is a record, so a phrase
+that does not fit cannot be replaced by another.
+
+## On a Phone
+
+The owner wants the phone's review kept to the minimum: the phrases and the export, nothing else.
+So the phone drops the summary line and keeps the title, the export row, wrapped onto as many
+lines as it needs, and the phrases, in the phone's two-line layout, at the size the staff has on
+that phone, each still with its number and tempo. When the played notes arrive, their switch and
+their export join the header here too.

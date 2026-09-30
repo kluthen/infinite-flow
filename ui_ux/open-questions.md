@@ -27,7 +27,7 @@ Numbering continues from Q17. Q17 is a self-directed design question — `ux-wri
 a future session, no `spec-writer` input needed. Q18–Q21 were routed to `spec-writer`; Q22 was
 `ux-writer`'s own presentation call. All five were answered 2026-09-27 (see spec D109–D110 in
 [`specs/decisions.md`](../specs/decisions.md), ux D46 in this tree's `decisions.md`, and the
-master-spec passages cited below). Q25 is open in this section (Q17 and Q27 are closed in place); Q26 and Q28–Q30 are closed, at the end of this file.
+master-spec passages cited below). Q17, Q25 and Q27 are closed in place in this section; Q26 and Q28–Q30 are closed, at the end of this file.
 
 - **Q17 — how the rolling display actually presents the phrase sequence on screen.** The master
   spec requires at least one measure of the next phrase visible as read-ahead at all times
@@ -54,6 +54,10 @@ master-spec passages cited below). Q25 is open in this section (Q17 and Q27 are 
   **Updated 2026-09-28:** with favorites moved to v3 (ux D69, spec D130) there is no confirmation
   left, so the reason behind spec O84's click-only default is gone. The open question is now
   whether a MIDI note may start a session from the Review at all.
+  **Closed 2026-09-30 by ux D137** (`ux-writer`'s call under the owner's delegation, ux D135):
+  at the session end a fresh phrase is generated on the staff above the Review and is phrase 1;
+  the Review changes no start condition, so the starting note works there as at idle. See
+  `flows/review-and-export/intent.md`, Starting the Next Session From the Review.
 
 - **Q27 — when does the session's reserved disconnect slot appear?** The disconnect banner sits in
   `session-alert-slot`, kept free for the whole session so the banner never moves the staff. If
@@ -387,6 +391,10 @@ controller` entry: today the Unsupported browser state) follows from it. An Andr
   only for the end after phrase 1, in unit 6. **Updated 2026-09-28 by ux D107/D108:** a too-small
   end now lands on the "needs more room" notice (or regenerates when only the phrase is too wide),
   not on Notation error; the unit-6 part becomes what the Review shows over that notice.
+  **Closed 2026-09-30 by ux D139** (with D138; `ux-writer`'s call under the owner's delegation,
+  ux D135): the Review opens; its list gives way to the same no-room sentence while the staff
+  has no room, its export keeps working, and focus goes to the staff area's `room-notice`. See
+  `flows/review-and-export/intent.md`, When the Window Has No Room.
 
 - **Q48 — a look-ahead phrase that does not fit the held staff layout mid-session.** Found by
   `ux-critic` on 2026-09-28. Whether a phrase fits at the legibility floor depends on its content

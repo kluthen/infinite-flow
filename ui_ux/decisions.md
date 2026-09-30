@@ -1007,3 +1007,116 @@ generation` secondary; `Start session` primary.
   and any generation-failure banner stay. Neither changes what the design draws. Governs
   `flows/generate-phrase/handoff.md` (diagram, **Attempt budget**, the profile-switch bullet) and
   `screens/phrase-workspace/handoff.md`, States, **Needs more room**.
+
+- **D135 — The owner delegates unit 6 and sets its direction (2026-09-30, owner-stated through
+  the coordinator).** The owner delegates the unit 6 decisions (last-session Review and export)
+  to `ux-writer`, including Q25 and the Review part of Q47, within these instructions: on a
+  phone, the minimum treatment only (show the generated notes and the played notes, allow
+  export, nothing else); on larger screens (tablet, laptop), no side tools for now, later
+  versions adding some (replay, "use as seed for generation", and so on); keep the Review as
+  simple as possible, but structured so more activity can come later, leaving room for those
+  tools without designing them. Confirmed the same day: showing played notes stays v2.1 (unit
+  7); the v2.0 Review shows only the generated notes and exports only them, and the phone keeps a
+  place for played notes when v2.1 lands. Governs D136–D141.
+
+- **D136 — Where the Review sits (2026-09-30; `ux-writer`'s call under D135).** The Review is a
+  **Last session** panel, `review-panel`, on the phrase-workspace page after `control-section`,
+  present from a session end once phrase 1 has sounded until the next session starts or the page
+  closes; the header, the staff and the controls above it work exactly as at idle. A
+  `Review last session` button, `review-link`, sits at the trailing end of `session-cue-row` at
+  idle while a Review exists (beside `start-note-line` when that shows) and jumps instantly to the
+  panel, focusing its title (`tabindex="-1"`). Rejected: the panel between the staff and the
+  controls (a half-hour session holds over a hundred phrases, all between the primary persona and
+  the controls they set up the next session with); a Review screen replacing the workspace (the
+  next session would start on a phrase not yet seen, or after a second action, and the starting
+  note could name nothing on screen); a side panel (the staff keeps the full width, and D135
+  rules out side tools). Accepted cost: the Review starts below the fold, which `review-link`
+  answers. Refines D45's open Review part: the Review extends the same screen. Governs
+  `flows/review-and-export/`, `screens/last-session-review/`, `screens/phrase-workspace/`
+  (Layout Tree, `session-cue-row`, States).
+
+- **D137 — Phrase 1 from the Review, and the starting note there (2026-09-30; `ux-writer`'s call
+  under D135; closes Q25; answers spec O84).** At every session end once phrase 1 has sounded, the
+  session's systems clear with the fast fade-out and the app generates a fresh phrase from the
+  current controls, with a fresh seed and no carry-in, through the ordinary idle Loading (no score
+  shown) and the idle attempt budget, exactly as `Regenerate phrase` would; that phrase, on the
+  staff above the Review, is the next session's phrase 1. If the staff has no room, nothing is
+  generated until the notice clears, as at idle. The Review changes no start condition: a session
+  starts from **Ready** by `Start session` or, with a controller attached, by the starting note,
+  exactly as at idle, and the starting-note line and marker show as at idle. Either start discards
+  the Review without confirmation (spec §7). Rejected: click-only from the Review (after the first
+  session of a visit a Review is almost always open, so the hands-free start of D52 would stop
+  working, or need an extra discard button: two new rules against D135's "as simple as
+  possible"); phrase 1 as the last phrase played or as the session's own phrase 1 again (a
+  memorized start, against P2.S1). Accepted risk: a note played while looking back can start a
+  session and discard an unexported Review; `start-note-line` names that note, and
+  `review-summary` says the Review lasts until the next session starts or the page closes (not on
+  the phone, per D135). Passed to `spec-writer` for O84.
+
+- **D138 — Focus at a session end that opens the Review (2026-09-30; `ux-writer`'s call under
+  D119 (1); completes D85).** Focus moves to the session action, `Start session`, as D85 says.
+  Because the next phrase (D137) is loading at that moment, the session action then carries
+  `aria-disabled="true"` instead of `disabled`: it keeps focus, ignores activation, and looks
+  disabled; it becomes a normal enabled button, focus kept, when the phrase lands in **Ready**, so
+  a keyboard player who stopped with Space starts again with Space. It is the only place the
+  session action uses `aria-disabled`. If the workspace lands anywhere else, the session action
+  becomes `disabled` and focus moves once: to `room-notice` in **Needs more room** (either cause,
+  or at once when the staff has no room and nothing is generated), else to the phrase action if
+  enabled (`Retry generation` in **Initial generation error**), else to `controller-status`
+  (D95's order; e.g. **Empty** under a combination a stored `Sixteenth` blocks after a widening).
+  Rejected: D95's order during the Loading, which would put focus on `controller-status` at every
+  session end, where Space opens the connection sheet. The count-in end's rule (focus to
+  `controller-status` during a Loading, D114) is unchanged: it is rare there. New CSS:
+  `.session-action[aria-disabled='true']`.
+
+- **D139 — The Review over a staff with no room (2026-09-30; `ux-writer`'s call under D135;
+  closes Q47).** A session ended by a window that leaves the staff no room still opens the Review,
+  since phrases sounded. The staff area shows **Needs more room** with its no-room sentence; the
+  next phrase is generated when the notice clears, as at idle. The Review's list uses the staff's
+  own room test: while the staff has no room, a `room-notice` (the same two sentences by
+  breakpoint, no `tabindex`) stands in place of `review-list`, and the list returns on the
+  viewport change that gives the staff room; the title and the export keep working. Focus goes to
+  the staff area's `room-notice` (D138), which says what to do, as after a count-in end (D114).
+  Where the staff has room but one review phrase's notes do not fit at the legibility floor in the
+  current layout, that phrase alone shows "This phrase needs a wider window." in its reserved
+  space, keeping its number and tempo; a review phrase is never regenerated.
+
+- **D140 — What the Review shows, and where later tools go (2026-09-30; `ux-writer`'s call under
+  D135).** `review-header`: `review-title` "Last session"; `review-summary` "{n} phrases ·
+  {instrument profile}. Kept until the next session starts or the page is closed." (from
+  `bp-tablet-landscape` up only); `review-actions` holding the export (D141). `review-list`: every
+  phrase that started sounding, in order, each with "Phrase {n}" and "{tempo} BPM" on one line,
+  engraved from the stored timeline in the session's profile, key and chords, in the current
+  breakpoint's layout (one system from `bp-tablet-landscape` up, the split layout below), with
+  nothing of the session drawn (no start marker, playhead or acknowledgement), and a repeat
+  unmarked. Each phrase reserves the workspace staff's system-position block size before it is
+  engraved and is drawn at the largest scale its content allows, never above the staff's; phrases
+  are engraved lazily near the viewport, with no fade and no loading indicator, so a 2 000-phrase
+  Review stays responsive and never jumps. An engraving that fails shows "This phrase couldn't be
+  drawn." Later tools: whole-session tools join `review-actions`; per-phrase tools (replay, use as
+  a seed) take the trailing end of each phrase's number-and-tempo line; nothing in a side rail.
+  v2.1: the played-notes toggle joins `review-header` and the played-notes export joins
+  `review-actions`, the phone included. The phone shows the title, the export and the phrases,
+  nothing else (D135). No discard button: the next session or a page close ends the Review.
+
+- **D141 — The generated-notes export (2026-09-30; `ux-writer`'s call under D135; applies spec
+  §7 and D66, D68).** One row in `review-actions`: a Format `segmented-control` (`MusicXML`, the
+  default, then `MIDI`); a `Backing track` `toggle-button` (off by default), rendered only while
+  `MIDI` is chosen and independent of the audio mix's `Backing`; and `Export generated notes`, a
+  secondary `btn` (the page's one primary stays `Start session`). Choices hold for the page
+  session. One click builds exactly one file and starts a browser download; the button is
+  `is-loading` and disabled while the file is built; no message on success; a failure shows
+  `review-export-error`, "The file couldn't be made. Try again.", until the next export starts.
+  File names: `infinite-flow-{YYYY-MM-DD}-{HHmmss}-generated.musicxml` or `.mid`, the time being
+  the session's start in local time; v2.1's played-notes file takes the same stem with
+  `-played.mid` (spec §7 leaves the names to this design). The export works in every idle state,
+  including while the next phrase loads and while the staff has no room.
+
+- **D142 — First `ux-critic` pass on unit 6 (2026-09-30; `ux-writer`'s calls under D119 (1)).**
+  Verdict BLOCKED on one item only: master spec §6 and §12 (spec O84) still list starting from the
+  Review as open, with a click-only proposal, while the unit builds D137 as settled; the owner
+  delegated the call (D135), so it goes to `spec-writer` to record, and the handoffs stand. Fixed
+  the same day: focus moves to the session action when the starting note removes `review-link`
+  while it has focus (not only when focus was in the panel); `strategy.md`'s review policy says
+  the phone's review does not carry the "kept until" line; the unspecified "same bytes on every
+  export" promise is dropped from the tier documents (build-plan chunk 20 keeps its own test).

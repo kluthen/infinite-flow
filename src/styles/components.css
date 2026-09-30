@@ -1070,6 +1070,203 @@
   }
   /* end v2 new */
 
+  /* v2 new -- from here to "end v2 new": the last-session Review (`review-panel` and its parts,
+     `review-link` in the session cue row) and the session action's focus-keeping unavailable
+     state at a session end. */
+  /* States: default, unavailable-with-focus (`aria-disabled="true"`). Used only at a session end
+     that opens the Review, while the next phrase loads: the session action keeps focus (a
+     natively disabled button would drop it) and script ignores its activation. It looks exactly
+     like `.btn:disabled` and shows no hover or press feedback. Everywhere else the session action
+     is natively `disabled`. */
+  .session-action[aria-disabled='true'] {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  .btn-primary.session-action[aria-disabled='true']:hover {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+  .btn-primary.session-action[aria-disabled='true']:active {
+    transform: none;
+  }
+  /* States: default, hover, focus-visible, active, disabled -- all from `.btn` (secondary
+     emphasis only). "Review last session", at the trailing end of `session-cue-row`, rendered at
+     idle while a Review exists, beside `start-note-line` or alone; removed at a session start.
+     Activation jumps (instantly) to `review-panel` and focuses `review-title`. */
+  .review-link {
+    flex: 0 0 auto;
+    margin-inline-start: auto;
+  }
+  /* States: absent (default: not rendered), shown. The "Last session" panel after
+     `control-section`, a surface panel like it. Not interactive itself: hover/focus-visible/
+     active/disabled do not apply. Appears and goes with no animation. Full inline size at every
+     breakpoint: no side rail. */
+  .review-panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-panel);
+    min-inline-size: 0;
+    padding: var(--spacing-4);
+  }
+  /* Layout only: `review-heading` at the inline start, `review-actions` at the inline end,
+     wrapping under the heading when they do not fit; stacked below bp-tablet-landscape (the
+     width-only block after these rules). */
+  .review-header {
+    align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3) var(--spacing-5);
+    justify-content: space-between;
+    margin-block-end: var(--spacing-4);
+  }
+  .review-heading {
+    display: grid;
+    gap: var(--spacing-1);
+    min-inline-size: 0;
+  }
+  /* States: default, focused (`:focus-visible`). An h2 with `tabindex="-1"`, the target of
+     `review-link`; never in the tab order; no hover, active or disabled state. */
+  .review-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    line-height: var(--leading-tight);
+    margin: 0;
+  }
+  .review-title:focus-visible {
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-focus);
+    outline: none;
+  }
+  /* States: shown (bp-tablet-landscape and up), absent (below it). Static muted text. */
+  .review-summary {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+  /* Layout only: whole-session tools, the generated-notes export in v2.0 (the played-notes
+     export joins it in v2.1). Each child carries its own states. */
+  .review-actions,
+  .review-export {
+    align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    min-inline-size: 0;
+  }
+  /* Inside the export row the Format field keeps its natural width (the bp-mobile-landscape
+     rule that stretches workspace segmented controls to the field's width does not apply here)
+     and drops the field's bottom margin, so the row's controls align on one baseline. */
+  .review-export .field-group {
+    margin-block-end: 0;
+  }
+  .review-export .field-group > .segmented-control {
+    inline-size: auto;
+  }
+  /* States: default, hover, focus-visible, active, disabled, loading -- all from `.btn`
+     (secondary emphasis, never `btn-primary`); `is-loading` plus `disabled` while the file is
+     built. */
+  .review-export-action {
+    flex: 0 0 auto;
+  }
+  /* States: absent, shown (after a failed export, until the next export starts). An
+     `inline-alert alert-error` under the actions; static, not a live region. */
+  .review-export-error {
+    flex: 1 1 100%;
+    margin: 0;
+  }
+  /* Layout only: the ordered list of the session's phrases, one `review-phrase` each, divided by
+     hairlines. */
+  .review-list {
+    display: grid;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  /* States: not yet engraved (its `review-staff` reserved and blank), engraved, note
+     (`review-phrase-note` in place of the engraving). Not interactive in v2.0. */
+  .review-phrase {
+    border-block-start: 1px solid var(--color-border);
+    min-inline-size: 0;
+    padding-block: var(--spacing-3);
+  }
+  .review-phrase:first-child {
+    border-block-start: 0;
+    padding-block-start: 0;
+  }
+  /* Layout only: the phrase's number and tempo on one line; later per-phrase tools take its
+     trailing end. */
+  .review-phrase-header {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1) var(--spacing-3);
+    margin-block-end: var(--spacing-2);
+  }
+  .review-phrase-title {
+    font-size: var(--text-md);
+    font-weight: 700;
+    margin: 0;
+  }
+  .review-phrase-tempo {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+  /* States: reserved (blank, before engraving), engraved, note. The phrase's one or two system
+     positions, their block size set by the notation layout before engraving (the same size as
+     the workspace staff's positions at the current viewport), so lazy engraving never moves the
+     page. Its `staff-content` takes no entrance or exit animation. Not interactive. */
+  .review-staff {
+    color: var(--color-staff);
+    display: grid;
+    min-inline-size: 0;
+  }
+  .review-staff .staff-content {
+    animation: none;
+  }
+  /* Recolour by inheritance, exactly as in `staff-frame` (see the VexFlow note above), so a
+     theme switch recolours the review without re-engraving. */
+  .review-staff .staff-svg,
+  .review-staff .staff-svg g {
+    fill: var(--color-staff);
+    stroke: var(--color-staff);
+  }
+  .review-staff .staff-svg [fill='none'] {
+    fill: none;
+  }
+  .review-staff .staff-svg [stroke='none'],
+  .review-staff .staff-svg text {
+    stroke: none;
+  }
+  /* States: absent, shown. "This phrase needs a wider window." or "This phrase couldn't be
+     drawn.", centred in the phrase's reserved space. Static text, no action. */
+  .review-phrase-note {
+    align-self: center;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    justify-self: center;
+    margin: 0;
+    text-align: center;
+  }
+  /* In place of `review-list` while the staff has no room: `room-notice` (no tabindex here),
+     with the room the frame's padding gives it in `staff-frame`. */
+  .review-panel > .room-notice {
+    padding-block: var(--spacing-6);
+  }
+  /* Below bp-tablet-landscape (width-only, the same query as the notation layout's split
+     layout): the header stacks and the summary is not rendered -- the phone's review is the
+     phrases and the export, nothing else. */
+  @media (max-width: 63.9375rem) {
+    .review-header {
+      align-items: stretch;
+      flex-direction: column;
+    }
+    .review-summary {
+      display: none;
+    }
+  }
+  /* end v2 new */
+
   @keyframes staff-fade-in {
     from {
       opacity: 0;
