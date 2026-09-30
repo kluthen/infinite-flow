@@ -6,7 +6,8 @@ layer: BUSINESS
 version: 0.1
 priority: 1
 tags: [v2, release-v2.0, midi, acknowledgement, non-scoring]
-dependents: []
+dependents:
+  - [[module_notation_note_identity_overlays]]
 human_name: Only the Matched Expected Note Lights Up
 parents:
   - [[rule_acknowledgement_exact_pitch]]

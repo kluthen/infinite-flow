@@ -957,3 +957,41 @@ generation` secondary; `Start session` primary.
   change (`--staff-frame-padding-block-phone`, the phone budget, the phone `staff-frame` block),
   the notation-layout constants and per-profile placement, the calibration with the marker drawn,
   `docs/notation-engraving.md`, and the preflight atom through `documentalist`.
+
+- **D131 — What an acknowledgement lights (2026-09-30; `ux-writer`'s call under D119 (1); asked by
+  the v2 chunk 6 build; refines D82).** An acknowledged note's augmentation dot lights with its
+  notehead: it is the note's own rhythmic glyph, and an ink dot beside a lit notehead would read as
+  a separate mark. A tie arc stays in the staff ink, as a beam does: it is a connector between two
+  glyphs, and the tied continuation's own notehead, stem, flag, accidental and dot light with the
+  attack (D82). The chord symbol attached to the note stays in the staff ink: it belongs to the
+  harmony, not the note, including where the engraver draws it inside the note's own SVG group
+  (the class then goes on the lit glyphs, not the group). Governs
+  `screens/phrase-workspace/handoff.md`, Notation Contract, **Acknowledgement**, and the
+  `note-ack` comment in `src/styles/components.css`.
+
+- **D132 — Playhead band geometry (2026-09-30; `ux-writer`'s call under D119 (1); asked by the v2
+  chunk 6 build; refines D75).** Horizontally, the band runs from the measure's opening barline to
+  its closing barline; on a system's first measure it starts where the notes start, after the
+  clef, key and time signatures, so it never tints them (not the whole `measure-slot` group, which
+  includes those). Vertically, one staff space beyond each outer staff line, extended to half a
+  space past any notehead lying further out, clamped to the system position, and taken over the
+  whole system rather than per measure: amended from a per-measure extent, because a band whose
+  top and bottom jumped at each barline would add a second movement in time with the music, which
+  `motion.md` rules out ("nothing else moves with the music"). Stems, beams, ties and chord symbols
+  beyond it stay uncovered. The `--color-playhead-band` fill is opaque (no opacity) and drawn
+  behind every glyph of the system, staff lines and barlines included. Governs
+  `screens/phrase-workspace/handoff.md`, Notation Contract, **Playhead band**, and the
+  `playhead-band` comment in `src/styles/components.css`. No token change.
+
+- **D133 — Start marker shape and placement (2026-09-30; `ux-writer`'s call under D119 (1); asked
+  by the v2 chunk 6 build; refines D81 and D129).** An isosceles triangle, apex down, 1.2 staff
+  spaces wide and 1 space tall, centred horizontally on the notehead, so it fits the 1.5-space
+  reserve above the top system position's highest ink (1 tall plus half a space clear). Its base
+  sits half a space above the higher of the note's own ink (notehead, stem, flag, accidental,
+  ledger lines, a beam over its stem) and the staff's top line: amended with the top-line floor,
+  since with every stem drawn up a low note's stem tip ends inside the staff and the marker would
+  otherwise sit on the staff lines. Over a chord symbol, it stays below it only when the gap from
+  that edge to the chord symbol's bottom is at least 2 spaces (half a space clear each side);
+  otherwise its base sits half a space above the chord symbol's top. The chord symbol never moves.
+  Governs `screens/phrase-workspace/handoff.md`, Notation Contract, **Start marker**, and the
+  `start-note-marker` comment in `src/styles/components.css`.

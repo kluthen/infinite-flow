@@ -11,9 +11,19 @@
  * published on `window.__notationHarness` so the Playwright notation specs can assert
  * on it without depending on internal DOM structure beyond the documented `svg.staff-svg` /
  * `g.measure-slot` marks. The generated source additionally publishes the source snapshot and a
- * `currentSnapshot` accessor.
+ * `currentSnapshot` accessor. The `phrase` URL parameter sets the phrase number PhraseScore engraves
+ * the phrase as (1 when absent, the phrase a session starts with); every ready state also publishes
+ * each glyph's resolved note identity and the written facts the note-identity spec checks the
+ * engraved tags against. The `theme` URL parameter (`light` or `dark`) sets the page's colour theme
+ * the way the app's theme control does; absent, the page follows the system scheme.
+ * `window.__notationHarness.setOverlays` sets PhraseScore's overlay state (start marker, playhead
+ * measure, acknowledged identities; never a pitch), resolving once it is drawn and rejecting with
+ * the overlay step's own error when the state names a note or measure the phrase lacks.
+ * `window.__notationHarness.swapPhrase` gives PhraseScore another fixture phrase, phrase number and
+ * overlay state in one tick, as a session moving to its next phrase does, resolving once the new
+ * phrase is engraved with the overlays drawn on it.
  */
-import { createApp, h, ref, type Ref } from 'vue'
+import { createApp, h, nextTick, ref, shallowRef, type Ref } from 'vue'
 
 import {
   makeGenerationControls,
@@ -44,6 +54,8 @@ import { makeSeed } from '@/domain/random/seed'
 import PhraseScore, { type EngravedPayload } from '@/components/notation/PhraseScore.vue'
 import type { NotationError } from '@/notation/notation-error'
 import { planStaffPlacement } from '@/notation/notation-layout-policy'
+import { resolveGlyphIdentities } from '@/notation/note-identity'
+import { NO_SCORE_OVERLAYS, ScoreOverlayError, type ScoreOverlays } from '@/notation/score-overlays'
 import '@/styles/index.css'
 import { resolveFixture } from './fixtures'
 
@@ -62,6 +74,66 @@ function requireParam(params: URLSearchParams, name: string): string {
 /** Successful engravings reported since the page loaded (see NotationHarnessState.engraveCount). */
 let engraveCount = 0
 
+/** The overlay state PhraseScore is given; `setOverlays` replaces it. */
+const overlaysRef = shallowRef<ScoreOverlays>(NO_SCORE_OVERLAYS)
+/** The overlay error PhraseScore threw since the last `setOverlays` call, if any. */
+let overlayFailure: ScoreOverlayError | null = null
+/** The phrase PhraseScore engraves; `swapPhrase` replaces it. */
+let phraseRef: Ref<WrittenPhrase> | null = null
+/** The phrase number PhraseScore engraves the phrase as; `swapPhrase` replaces it. */
+const phraseNumberRef = ref(1)
+/** The pending `swapPhrase` call, settled by the next engraving outcome. */
+let engraveWaiter: { resolve: () => void; reject: (error: NotationError) => void } | null = null
+
+/**
+ * Intent: give PhraseScore a new overlay state and settle once it is drawn: after Vue's update
+ * (PhraseScore draws in its watcher) and the next frame. Rejects with the ScoreOverlayError the
+ * draw threw, which Vue routes to the app's error handler rather than to this caller.
+ */
+async function setOverlays(overlays: ScoreOverlays): Promise<void> {
+  overlayFailure = null
+  overlaysRef.value = overlays
+  await nextTick()
+  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+  const failure = overlayFailure
+  overlayFailure = null
+  if (failure !== null) throw failure
+}
+
+/**
+ * Intent: give PhraseScore a new phrase (a fixture), phrase number and overlay state in the same
+ * tick, and settle once the new phrase is engraved with the overlays drawn on it. Rejects with the
+ * ScoreOverlayError any overlay draw threw meanwhile, or with the NotationError the engraving hit.
+ */
+async function swapPhrase(
+  fixtureName: string,
+  phraseNumber: number,
+  overlays: ScoreOverlays,
+): Promise<void> {
+  if (phraseRef === null) throw new Error('Notation harness swapped a phrase before mounting.')
+  if (engraveWaiter !== null) throw new Error('Notation harness swaps one phrase at a time.')
+  overlayFailure = null
+  const engraved = new Promise<void>((resolve, reject) => {
+    engraveWaiter = { resolve, reject }
+  })
+  phraseRef.value = resolveFixture(fixtureName)
+  phraseNumberRef.value = phraseNumber
+  overlaysRef.value = overlays
+  await engraved
+  const failure = overlayFailure
+  overlayFailure = null
+  if (failure !== null) throw failure
+}
+
+/** Intent: settle the pending `swapPhrase` call, if any, with an engraving outcome. */
+function settleEngraveWaiter(error: NotationError | null): void {
+  const waiter = engraveWaiter
+  engraveWaiter = null
+  if (waiter === null) return
+  if (error === null) waiter.resolve()
+  else waiter.reject(error)
+}
+
 /**
  * Intent: the index, among the phrase's glyphs in drawing order, of its first attacked note (not
  * a rest, not a tied continuation), or null when every glyph is a rest.
@@ -74,25 +146,57 @@ function firstAttackGlyphIndex(phrase: WrittenPhrase): number | null {
 }
 
 /**
- * Intent: mount PhraseScore inside a real `staff-frame` against a reactive phrase ref, publishing
- * every lifecycle event.
+ * Intent: the written facts of every glyph, measure by measure, that decide which tagged parts
+ * its engraving must carry (a stem unless whole, a flag if unbeamed and flagged, its accidental,
+ * its dot).
  */
-function mountPhraseScore(phraseRef: Ref<WrittenPhrase>, extras: GeneratedExtras): void {
+function glyphFacts(phrase: WrittenPhrase): NotationHarnessGlyphFact[][] {
+  return phrase.measures.map((measure) =>
+    measure.events.map((event, glyphIndex) => ({
+      kind: event.kind,
+      value: event.duration.value,
+      dots: event.duration.dots,
+      accidental: event.kind === 'note' && event.accidental !== null,
+      beamed: measure.beamGroups.some((group) => group.includes(glyphIndex)),
+      tieFromPrevious: event.kind === 'note' && event.tieFromPrevious,
+    })),
+  )
+}
+
+/**
+ * Intent: mount PhraseScore inside a real `staff-frame` against a reactive phrase, as phrase
+ * `phraseNumber`, publishing every lifecycle event.
+ */
+function mountPhraseScore(
+  phrase: WrittenPhrase,
+  phraseNumber: number,
+  extras: GeneratedExtras,
+): void {
+  const shown = ref(phrase) as Ref<WrittenPhrase>
+  phraseRef = shown
+  phraseNumberRef.value = phraseNumber
   const app = createApp({
     render: () =>
       h('div', { class: 'staff-frame' }, [
         h(PhraseScore, {
-          phrase: phraseRef.value,
+          phrase: shown.value,
+          phraseNumber: phraseNumberRef.value,
+          overlays: overlaysRef.value,
           onEngraved: (payload: EngravedPayload) => {
             engraveCount += 1
             window.__notationHarness = {
               state: 'ready',
               engraved: payload,
               engraveCount,
-              staffTopLineUnits: planStaffPlacement(phraseRef.value.writtenRange).staffTopLineUnits,
-              firstAttackGlyphIndex: firstAttackGlyphIndex(phraseRef.value),
+              staffTopLineUnits: planStaffPlacement(shown.value.writtenRange).staffTopLineUnits,
+              firstAttackGlyphIndex: firstAttackGlyphIndex(shown.value),
+              glyphIdentities: resolveGlyphIdentities(shown.value, phraseNumberRef.value),
+              glyphFacts: glyphFacts(shown.value),
+              setOverlays,
+              swapPhrase,
               ...extras,
             }
+            settleEngraveWaiter(null)
           },
           onNotationError: (error: NotationError) => {
             window.__notationHarness = {
@@ -102,10 +206,20 @@ function mountPhraseScore(phraseRef: Ref<WrittenPhrase>, extras: GeneratedExtras
               engraveCount,
               ...extras,
             }
+            settleEngraveWaiter(error)
           },
         }),
       ]),
   })
+  // An overlay error thrown in PhraseScore's watcher reaches only the app's error handler: keep it
+  // for the pending `setOverlays` call. Any other error is logged, as Vue does by default.
+  app.config.errorHandler = (error) => {
+    if (error instanceof ScoreOverlayError) {
+      overlayFailure = error
+      return
+    }
+    console.error(error)
+  }
   const container = document.getElementById('app')
   if (!container) throw new Error('Notation harness is missing its #app mount element.')
   app.mount(container)
@@ -170,7 +284,7 @@ function buildHarnessIntent(params: URLSearchParams): GenerationIntent {
 }
 
 /** Intent: run the harness's generated source end to end, publishing the source snapshot. */
-function runGeneratedSource(params: URLSearchParams): void {
+function runGeneratedSource(params: URLSearchParams, phraseNumber: number): void {
   const intent = buildHarnessIntent(params)
   const outcome: GenerationOutcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success') {
@@ -187,34 +301,49 @@ function runGeneratedSource(params: URLSearchParams): void {
     })
   const sourceSnapshot = buildSnapshot()
 
-  const phraseRef = ref(transformToWrittenPhrase(input)) as Ref<WrittenPhrase>
   const extras: GeneratedExtras = {
     sourceSnapshot,
     currentSnapshot: buildSnapshot,
   }
 
   window.__notationHarness = { state: 'pending', ...extras }
-  mountPhraseScore(phraseRef, extras)
+  mountPhraseScore(transformToWrittenPhrase(input), phraseNumber, extras)
 }
 
 /** Intent: run the harness's hand-built fixture source (the pre-existing, still-supported path). */
-function runFixtureSource(params: URLSearchParams): void {
+function runFixtureSource(params: URLSearchParams, phraseNumber: number): void {
   const fixtureName = requireParam(params, 'fixture')
-  const phraseRef = ref(resolveFixture(fixtureName)) as Ref<WrittenPhrase>
   window.__notationHarness = { state: 'pending' }
-  mountPhraseScore(phraseRef, {})
+  mountPhraseScore(resolveFixture(fixtureName), phraseNumber, {})
+}
+
+/**
+ * Intent: apply the `theme` URL parameter: `light` or `dark` set the root's `data-theme` as the
+ * app's theme control does; absent, no attribute (the system scheme); any other value is a
+ * mistyped test URL and crashes.
+ */
+function applyThemeParam(params: URLSearchParams): void {
+  const theme = params.get('theme')
+  if (theme === null) return
+  if (theme !== 'light' && theme !== 'dark') {
+    throw new Error(`Notation harness \`theme\` must be light or dark, got "${theme}".`)
+  }
+  document.documentElement.dataset.theme = theme
 }
 
 window.__notationHarness = { state: 'pending' }
 
 const params = new URLSearchParams(window.location.search)
+applyThemeParam(params)
 const widthParam = requireParam(params, 'width')
 const container = document.getElementById('app')
 if (!container) throw new Error('Notation harness is missing its #app mount element.')
 container.style.width = `${widthParam}px`
+// The idle phrase is the phrase a session starts with, phrase 1, unless the URL names another.
+const phraseNumber = Number(optionalParam(params, 'phrase', '1'))
 
 if (params.get('source') === 'generated') {
-  runGeneratedSource(params)
+  runGeneratedSource(params, phraseNumber)
 } else {
-  runFixtureSource(params)
+  runFixtureSource(params, phraseNumber)
 }

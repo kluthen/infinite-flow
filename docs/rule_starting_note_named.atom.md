@@ -9,7 +9,8 @@ layer: BUSINESS
 priority: 1
 parents:
   - [[rule_midi_starting_note]]
-dependents: []
+dependents:
+  - [[module_notation_note_identity_overlays]]
 ---
 
 # Starting Note Named Neutrally

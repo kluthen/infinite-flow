@@ -917,8 +917,9 @@
   /* States: shown (Idle only, with a controller attached and a session startable), absent.
      The small accent triangle the notation pipeline draws above phrase 1's first attacked note,
      which makes the starting note's octave unambiguous on the staff itself. Drawn inside the
-     score SVG and sized in staff spaces by the engraver; this rule only colours it, and
-     outranks the staff recolouring above. Removed, with no animation, when the count-in starts.
+     score SVG and sized in staff spaces by the engraver (apex down, 1.2 spaces wide, 1 tall,
+     centred on the notehead; placement in the phrase-workspace handoff); this rule only
+     colours it, and outranks the staff recolouring above. Removed, with no animation, when the count-in starts.
      Not interactive. */
   .staff-frame .staff-svg .start-note-marker,
   .staff-frame .staff-svg .start-note-marker g {
@@ -926,8 +927,11 @@
     stroke: none;
   }
   /* States: shown (a running session, from bar 1 after the count-in), absent (Idle, the
-     count-in, after the session). The playhead: a quiet tint covering the extent of the
-     measure being played, drawn inside the score SVG behind every glyph of that measure. It
+     count-in, after the session). The playhead: a quiet opaque tint (no opacity) behind the
+     measure being played, drawn inside the score SVG behind every glyph of its system, staff
+     lines included. Its geometry is the engraver's, in staff spaces: barline to barline (after
+     the clef, key and time signatures on a system's first measure), one space beyond the outer
+     staff lines or half a space past the system's outermost notehead, one height per system. It
      moves only by stepping to the next measure at each barline, on the audio clock -- never a
      transition, never a glide. Not interactive. */
   .staff-frame .staff-svg .playhead-band {
@@ -935,9 +939,12 @@
     stroke: none;
   }
   /* States: unlit (default: staff ink), lit (`note-ack`). Put on an acknowledged expected
-     note's own notehead, stem, flag and accidental -- never on a beam it shares with other
-     notes, nor on its ledger lines, which keep the staff ink. A tied continuation's glyphs take
-     the class together with their attack. Switches instantly (no transition, no animation) and
+     note's own notehead, stem, flag, accidental and augmentation dot -- never on a beam it
+     shares with other notes, its ledger lines, a tie arc or its chord symbol, which keep the
+     staff ink. Where the engraver draws the chord symbol or ledger lines inside the note's own
+     group, the class goes on the lit glyphs, not on that group, since `g` and `text` below
+     inherit it. A tied continuation's notehead, stem, flag, accidental and dot take the class
+     together with their attack; the tie arc stays unlit. Switches instantly (no transition, no animation) and
      stays until its system is refilled. Not interactive. */
   .staff-frame .staff-svg .note-ack,
   .staff-frame .staff-svg .note-ack g {

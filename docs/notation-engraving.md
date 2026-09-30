@@ -1,6 +1,6 @@
 # Notation and Engraving
 
-This document records how a generated four-measure phrase becomes a written score on screen: the pure display transformation, the pinned engraving library boundary, the bundled font assets and their licenses, the mapping from written-phrase objects to engraving objects, the staff layout's sizing and failure policy, the accessible score representation, and the procedure for upgrading the engraving library.
+This document records how a generated four-measure phrase becomes a written score on screen: the pure display transformation, the pinned engraving library boundary, the bundled font assets and their licenses, the mapping from written-phrase objects to engraving objects, the staff layout's sizing and failure policy, the note identities and session overlays drawn on the engraved score, the accessible score representation, and the procedure for upgrading the engraving library.
 
 ## Pipeline
 
@@ -15,8 +15,8 @@ Notation is a strict consumer of a successful generation. It never changes a gen
 
 2. **Transformation** — `transformToWrittenPhrase(input, mode)` (`src/domain/notation/written-phrase.ts`) is pure. It returns a deep-frozen `WrittenPhrase` (`src/domain/notation/written-phrase-types.ts`) that has everything engraving needs and nothing it has to infer: clef, meter, spelled key, and four measures of written notes and rests with notated durations, ties, beam groups, displayed accidentals, and spelled chord symbols. Calling it again with another mode is how a display switch works. The source input is left untouched.
 3. **Description** — `describeWrittenPhrase(phrase)` (`src/domain/notation/score-description.ts`) produces the spoken-English summary and per-measure text (see Accessible Representation).
-4. **Engraving** — `engraveWrittenPhrase(targets, phrase, containerWidthPx, viewport)` (`src/notation/vexflow-engraver.ts`) plans the layout the viewport selects and draws one SVG per staff system into its host (the top host alone in the one-system layout, both in the split layout), or throws a typed `NotationError` (`src/notation/notation-error.ts`).
-5. **Component** — `PhraseScore.vue` (`src/components/notation/PhraseScore.vue`) sits inside `staff-frame` in every state and holds the staff's two reserved system positions, sized from the viewport whether or not there is a phrase. It waits for fonts and a measured container, engraves into hidden staging hosts, and moves the systems into their positions only after the whole phrase succeeds. It re-engraves when the phrase, the container width, the height budget or the layout changes, and emits either `engraved` or `notation-error`.
+4. **Engraving** — `engraveWrittenPhrase(targets, phrase, phraseNumber, containerWidthPx, viewport)` (`src/notation/vexflow-engraver.ts`) plans the layout the viewport selects and draws one SVG per staff system into its host (the top host alone in the one-system layout, both in the split layout), tagging every note's own parts with the identity of the attack it sounds as (see Note Identity and Session Overlays), or throws a typed `NotationError` (`src/notation/notation-error.ts`).
+5. **Component** — `PhraseScore.vue` (`src/components/notation/PhraseScore.vue`) sits inside `staff-frame` in every state and holds the staff's two reserved system positions, sized from the viewport whether or not there is a phrase. It waits for fonts and a measured container, engraves into hidden staging hosts, and moves the systems into their positions only after the whole phrase succeeds. It re-engraves when the phrase, its phrase number, the container width, the height budget or the layout changes, and emits either `engraved` or `notation-error`. After every successful engraving, and whenever its `overlays` prop changes, it draws the session overlays onto the systems on screen.
 
 ## Display Conventions and Spelling
 
@@ -58,19 +58,22 @@ A chord-symbol start is always a segment boundary, so every chord symbol attache
 ## Engraving Library Boundary
 
 - **Library.** VexFlow is pinned to exactly `5.0.0` in `package.json`, with no range operator. The lockfile records the resolved tarball and its integrity hash.
-- **Import boundary.** Only `src/notation/vexflow-mapping.ts`, `src/notation/vexflow-engraver.ts`, and `src/notation/vexflow-two-system-engraver.ts` (one system's staves and measures, in either layout) may import `vexflow`. ESLint enforces this with `no-restricted-imports`. Everything else, including the Vue component, talks to the adapter through `WrittenPhrase`, `EngravedScore`, `NotationError`, and `ensureNotationFonts`.
+- **Import boundary.** Only `src/notation/vexflow-mapping.ts`, `src/notation/vexflow-engraver.ts`, and `src/notation/vexflow-two-system-engraver.ts` (one system's staves and measures, in either layout) may import `vexflow`. ESLint enforces this with `no-restricted-imports`. Everything else, including the Vue component, talks to the adapter through `WrittenPhrase`, `EngravedScore`, `NotationError`, and `ensureNotationFonts`. The note-identity files (`note-identity.ts`, `note-part-tags.ts`) and the overlay step (`score-overlays.ts`) import no VexFlow: they work on the finished SVG markup alone.
 - **Entry point.** The adapter imports from `vexflow/bravura`. This entry registers the Bravura music font and the Academico text font and sets them as the default fonts.
 - **API surface.** The adapter uses only this part of VexFlow:
   - `Renderer`, with the SVG backend, `resize`, `getContext`, and context `scale`, `openGroup`, and `closeGroup`;
   - `Stave`, with `addClef('treble')`, `addKeySignature`, `addTimeSignature('4/4')`, `setEndBarType(Barline.type.END)`, `getNoteStartX`, and `setNoteStartX`;
   - `StaveNote`, built from `keys` and a `duration` code;
   - `Accidental`, `Dot.buildAndAttach`, `ChordSymbol` (`addText`, `addGlyphOrText`, and `setVertical(TOP)`), `Beam`, `StaveTie`, and `Voice` (with strict tick counting);
-  - `Formatter`, with `joinVoices`, `formatToStave`, and `preCalculateMinTotalWidth`.
+  - `Formatter`, with `joinVoices`, `formatToStave`, and `preCalculateMinTotalWidth`;
+  - for the note-identity tags and the playhead band: a `StaveNote`'s `noteHeads` (and each notehead's `getText`), `hasStem`, `getStem`, `shouldDrawFlag`, `getModifiersByType` with `Accidental.CATEGORY`, `Dot.CATEGORY` and `ChordSymbol.CATEGORY` (and each modifier's `getText`), `isRest` and `getYs`; each drawn element's `getAttribute('id')`, since the SVG context names the group it opens for an element `vf-<id>`; `Stave`'s `getX`, `getWidth`, `getYForLine`, `getNumLines` and `getSpacingBetweenLines`; and `Voice`'s `getTickables`.
 - **Output contract.** The only structural contract other code may select on is this:
   - one `svg.staff-svg` with `role="img"` per staff system, inside its own `staff-content` unit in its system position (`[data-system-position="top"]` or `"bottom"`);
-  - one `g.measure-slot` per measure, carrying `data-measure-index` 0 to 3 and `data-system-index` (0 on the top system, 1 on the split layout's bottom system).
+  - one `g.measure-slot` per measure, carrying `data-measure-index` 0 to 3, `data-system-index` (0 on the top system, 1 on the split layout's bottom system), and its playhead band's rectangle in `data-band-x`, `data-band-y`, `data-band-width` and `data-band-height`;
+  - on every note's own parts, `<g>` groups carrying `data-note-id` and `data-note-part`, and on an attack's chord symbol group, `data-chord-for` (see SVG DOM Contract under Note Identity and Session Overlays);
+  - the overlay step's own marks: `rect.playhead-band`, `path.start-note-marker`, and the `note-ack` class.
 
-  VexFlow's own `vf-*` classes are internal to the adapter and its browser tests.
+  VexFlow's own `vf-*` classes are internal to the adapter, the note-identity tagging, the overlay step and their browser tests.
 
 ## Fonts and Licenses
 
@@ -206,7 +209,7 @@ The workspace breakpoints are 48rem, 64rem, and 90rem, which is 768, 1024, and 1
 
 A 7 px floor would leave every phrase still under the 90rem (1440 px) breakpoint (worst case 1150 px, Sixteenth), but not every phrase at 64rem. For every measured phrase to fit one system at 48rem, the floor would have to drop to about 4.7 px (768 px / 1642.9 requiredUnits × 10), which is not legible for sight-reading; the split layout is what serves those widths.
 
-A height calibration measured how far each system's ink reaches, on pixels: each system is screenshotted over a transparent page and its first and last inked rows are found. `getBBox()` cannot be used for this, because VexFlow draws every music glyph as `<text>`, whose box is the font's whole line box. The sweep covers every register, leapiness and contour, the three note densities, seeds 1 to 3 and the three instrument profiles (1,296 phrases, one of which found no phrase to generate). The start marker over phrase 1's first attacked note is not drawn by the engraver yet, so the calibration reserves its room where it will sit: one staff space tall, half a space clear of other ink, in the note's own column, in the first gap above the staff that holds it (between the note's own ink and its chord symbol), else above the highest ink in that column. Values are in engraving units from the 160-unit system position's top edge; the staff's top line is where `planStaffPlacement` puts it for the profile, and its bottom line 40 units lower. No system's ink, marker included, came closer than 8.3 units to either edge of its position:
+A height calibration measured how far each system's ink reaches, on pixels: each system is screenshotted over a transparent page and its first and last inked rows are found. `getBBox()` cannot be used for this, because VexFlow draws every music glyph as `<text>`, whose box is the font's whole line box. The sweep covers every register, leapiness and contour, the three note densities, seeds 1 to 3 and the three instrument profiles (1,296 phrases, one of which found no phrase to generate). The calibration engraves without overlays, so it does not see the drawn start marker over phrase 1's first attacked note; it reserves the marker's room on the pixels, by the same 2-space rule the overlay step places it by (see Placement under Note Identity and Session Overlays): one staff space tall, half a space clear of other ink, in the note's own column, in the first gap above the staff that holds it (between the note's own ink and its chord symbol), else above the highest ink in that column. Values are in engraving units from the 160-unit system position's top edge; the staff's top line is where `planStaffPlacement` puts it for the profile, and its bottom line 40 units lower. No system's ink, marker included, came closer than 8.3 units to either edge of its position:
 
 | Profile and register    | Top line | Highest ink | Start marker top | Lowest ink |
 | ----------------------- | -------- | ----------- | ---------------- | ---------- |
@@ -242,6 +245,65 @@ CALIBRATE=1 npx playwright test tests/e2e/notation/notation-calibration.spec.ts 
 
 The run prints the three sweep reports: width, height and phone. The height report also fails the run if any profile's ink, start marker included, comes within about one staff space (7.5 units) of a position edge.
 
+## Note Identity and Session Overlays
+
+A session marks three things on the engraved score: the start marker over phrase 1's first attacked note at idle, the playhead band behind the measure being played, and the acknowledged notes, lit in their own colour. Their design comes from the phrase-workspace handoff's Notation Contract and UI/UX decisions D131 to D133; this section states every rule as the code implements it. The engraver names every note's own parts in the SVG it draws, and a separate overlay step draws the marks onto that SVG without re-engraving. Only the engraver's report of where VexFlow drew each part imports VexFlow: the identity, the tagging and the overlay step do not.
+
+### Identity
+
+`resolveGlyphIdentities(phrase, phraseNumber)` (`src/notation/note-identity.ts`) is pure. It names every written glyph, measure by measure in written-event order, with the identity of the attack it sounds as. The identity is the one acknowledgement reports, `ExpectedNoteIdentity` (`src/domain/acknowledgement/expected-note.ts`, see [Note identity](midi-acknowledgement.md#note-identity)): phrase number, measure index and event index, the attack's index among its measure's concert events, rests included. An acknowledged identity is therefore drawn on the score unchanged.
+
+- A fresh attack takes its measure's index and its own source event index.
+- A glyph tied from the glyph before it takes the identity of the attack it continues: the second piece of a note split inside its measure, a tie continuation across a barline, every glyph of a tie chain across two barlines, and a continuation across the split layout's system break, drawn in the other system's SVG.
+- A rest takes none.
+
+It throws `NoteIdentityError` for a phrase number that is not a positive integer, and for a tied glyph whose previous glyph is not a note tied to it: the written phrase is then malformed, and nothing is guessed. The score writes an identity as `noteIdentityKey(identity)`, `<phraseNumber>:<measureIndex>:<eventIndex>`. `engraveWrittenPhrase` resolves the identities before it clears its hosts, so a `NoteIdentityError` reaches the caller as it is, never wrapped as a `NotationError`.
+
+### SVG DOM Contract
+
+After drawing each system, the engraver tags each note glyph's own parts (`tagSystemNoteParts` in `src/notation/note-part-tags.ts`). `describeNoteParts` in `vexflow-mapping.ts` reports where VexFlow drew them: the DOM ids of the note's stavenote, notehead, stem and chord-symbol groups, the glyph strings of its notehead, accidental and dot texts, and whether it drew a flag.
+
+- **Tagged parts.** Every tagged part is a `<g>` carrying `data-note-id` (the key) and `data-note-part`: `notehead`, `stem`, `flag`, `accidental` or `dot`. Because every part is a group, a class on it recolours the part by inheritance, like the staff's own recolouring, without having to reach a bare `<text>`.
+- **Glyph texts.** VexFlow draws the notehead, each accidental and each augmentation dot as a bare `<text>` inside the note's `g.vf-notehead` group, the notehead first. Each is wrapped in a new, attribute-less `<g>` at the same place, and that group is tagged. The wrap changes no pixel: the text keeps its own presentation attributes and inherits the same values through the new group.
+- **Stems.** An unbeamed note's `g.vf-stem` sits in its `g.vf-stavenote` group. A beamed note's stem is drawn inside the beam's `g.vf-beam` group, among the measure's groups, and is tagged there; the beam group is not.
+- **Flags.** An unbeamed flagged note's own `g.vf-flag`, a direct child of its stavenote group.
+- **Chord symbols.** VexFlow draws a chord symbol inside the notehead group of the note it is attached to. It carries no `data-note-id`. On an attack, its `g.vf-chordsymbol` group carries `data-chord-for` with the attack's key, which is how the start marker finds it.
+- **Ties.** A tie continuation's parts carry its attack's key, so one key can appear in both systems of the split layout.
+- **Measure slots.** Each `g.measure-slot` carries its playhead band's rectangle in `data-band-x`, `data-band-y`, `data-band-width` and `data-band-height`, in the SVG's own user units (the engraving units its `viewBox` spans; see Placement).
+- **Never tagged:** rests; ledger lines, which VexFlow draws as bare `<path>`s straight in the stavenote group; beams; tie arcs; the stavenote and notehead groups themselves; chord symbols, beyond `data-chord-for`; staves, barlines, clefs, key and time signatures.
+
+An engraving whose structure does not match what VexFlow reported (a notehead group that does not open with its notehead text, an unexpected text, a missing accidental, dot, flag or id) throws inside the engraver and is reported as `notation_engraving_failed`, with no partial notation shown.
+
+### Overlay State
+
+`src/notation/score-overlays.ts` defines the state and draws it. `ScoreOverlays` has three fields: `startMarker`, the note the marker points at, or `null`; `playheadMeasure`, the measure index the band lies behind, or `null`; and `acknowledged`, the notes acknowledged so far. Every field names a note by its identity or a measure by its index, and none carries a pitch, so no overlay can draw a note the phrase does not hold, and nothing marks a missed or wrong note. `NO_SCORE_OVERLAYS` is the idle state, with nothing drawn.
+
+`applyScoreOverlays(svgs, phraseNumber, overlays)` applies a state to the system SVGs on screen, replacing whatever state was applied before:
+
+- **It validates before it mutates.** Every identity named must carry the score's phrase number, and some part must carry its key: a rest, a tie continuation's own index or an index past the measure's events carries none. The band's measure must be drawn. One the engraved phrase lacks throws `ScoreOverlayError`. The step also reads every position it needs (the band's rectangle, the marker's placement) before it changes anything, so a rejected state leaves the score exactly as it was.
+- **It clears, then draws.** It removes the previous state's `.start-note-marker` and `.playhead-band` elements and every `note-ack` class, dropping a `class` attribute left empty so the markup is back exactly as engraved, then draws the new state. Applying the same state twice therefore gives the same markup.
+- **Acknowledgement.** `note-ack` goes on every part carrying an acknowledged key, in every system, so a tie continuation lights with its attack. Nothing else changes and nothing moves. The colours are in `src/styles/components.css`.
+- **Playhead band.** One `rect.playhead-band` with its measure slot's `data-band-*` rectangle, inserted as its system SVG's first child, so it paints behind every glyph there, staff lines included.
+- **Start marker.** One `path.start-note-marker`, appended last in its system SVG, so it paints over every glyph. It is placed from the ink drawn now, so the SVGs must be rendered.
+- **No animation.** Every change is instant.
+
+`PhraseScore` takes a required `phraseNumber` prop, which phrase of the session it shows (`ScorePanel` passes 1: the idle phrase is the one a session starts with), and an optional `overlays` prop, `NO_SCORE_OVERLAYS` by default. It engraves the phrase as that phrase number, re-engraving when the number changes, and re-applies the current overlays after every successful engraving, once the systems sit in their visible positions, so a redraw for a resize, a layout change or a new phrase keeps them. A change of the overlays alone re-applies them without re-engraving. With no engraved phrase on screen there is nothing to draw on, and the next successful engraving draws the state. An overlay naming a note or measure the engraved phrase lacks is the caller's error: its `ScoreOverlayError` propagates.
+
+### Placement
+
+**Playhead band** (D132). The engraver records it on each measure slot (`vexflow-two-system-engraver.ts`):
+
+- Horizontally, from the opening barline to the closing barline. On a system's first measure it starts at the stave's note-start position, after the clef, key and time signatures, so it never tints them.
+- Vertically, from one staff space above the top line to one space below the bottom line, pushed out to one space from the centre of any notehead lying further out (a notehead is one space tall, so that is half a space past its edge), and clamped to the 160-unit system position. The span is taken over every note of the system, not measure by measure, so the band keeps one height while it steps along a system. Stems, beams, ties and chord symbols beyond it are not covered.
+
+**Start marker** (D133). A triangle, apex down, 1.2 staff spaces wide and 1 tall, centred on the notehead's ink:
+
+- The reference edge is the higher of the note's own ink and the staff's top line (the top of the stave group's box, which holds only the five staff lines). The note's own ink is every part tagged with its key in its stavenote group, its ledger lines (the stavenote group's bare paths), and, for a beamed note, the beam group over its stem. Should a tie continuation in the same measure also be beamed, the stem nearest the attack's notehead picks the beam.
+- The apex sits half a space above that edge. Over a chord symbol (the groups whose `data-chord-for` is the key), it stays there only when the gap from the edge up to the chord symbol's bottom is at least 2 spaces, half a space clear on each side. Otherwise the apex sits half a space above the chord symbol's top. The chord symbol never moves.
+- **Measuring ink.** `getBBox()` on a `<text>` returns the font's whole line box, far taller than a music glyph, so each glyph text is measured on a 2D canvas instead: `measureText` in the text's own computed font, from its start-anchored `x`/`y` baseline, at ten times the font size and scaled back, because the canvas reports whole-pixel bounds. A shape's ink is its `getBBox()` widened by half its stroke. Invisible shapes (`opacity="0"`) are left out.
+
+**Where the marker goes on real phrases.** The engraver draws every stem up; which way a stem should point is still an open question. With every stem up, VexFlow sets a chord symbol about one staff space above the note's stem tip, or above the staff, whichever is higher, so the gap under a chord symbol never reaches 2 spaces. The "between" placement therefore never occurs on real phrases today: the marker always goes above the chord symbol. Measured over 25 first attacks (the `simple` fixture and 24 generated phrases across the three instrument profiles and the three registers), all 25 went above the chord symbol, and every marker's top sat at least 23 engraving units inside the top system position's top edge. The calibration's wider sweep under Legibility Floor finds the closest case, 8.3 units, on the B-flat tenor's High register. The between placement is checked by raising a drawn chord symbol in the marker spec (see Verification).
+
 ## Accessible Representation
 
 Each successful engraving includes a text equivalent of what is drawn:
@@ -258,7 +320,8 @@ Each successful engraving includes a text equivalent of what is drawn:
   - quality preservation and rhythm segmentation;
   - deep-frozen inputs, and unchanged source and session state across display switches;
   - the layout planner: the layout chosen by the breakpoint alone, the scale fitting the width and the height, the two typed failures, and the phrase-independent position size;
-  - the staff placement: derived from the written range alone, lower in its position for the saxophones than for the keyboard, with every adopted profile's estimated ink, start marker included, at least 0.8 staff space inside the position.
+  - the staff placement: derived from the written range alone, lower in its position for the saxophones than for the keyboard, with every adopted profile's estimated ink, start marker included, at least 0.8 staff space inside the position;
+  - the note identities (`tests/unit/notation/note-identity.spec.ts`): a fresh attack, a rest, a note split inside its measure, a tie across a barline and a tie chain across two barlines, exactly the expected notes acknowledgement derives on every acknowledgement fixture phrase, and the two `NoteIdentityError` rejections.
 - **Browser tests** in `tests/e2e/notation/` run against a dedicated harness (`tests/e2e/notation-harness/`, built with `npm run build:notation-harness`). The harness mounts `PhraseScore` inside a real `staff-frame` with the app's own stylesheet, so below 64rem the frame's `max-block-size` gives the same height budget as in the app, and it publishes a running `engraveCount` with every state. Its generated source also takes optional `contour` and `leapiness` URL parameters (default `Arch` and `Shaped`), which the calibration varies. The tests run the real generation-to-engraving pipeline and hand-built fixtures on Chromium, the only browser project the notation, end-to-end, and accessibility suites run on. They assert:
   - that every element type is present;
   - one system inside the container on wide layouts with the bottom position reserved and blank, and, on a landscape-phone viewport, every phrase split into two aligned systems, each its own SVG, with the line-crossing tie drawn as a partial tie in each (`notation-layout.spec.ts`);
@@ -267,9 +330,11 @@ Each successful engraving includes a text equivalent of what is drawn:
   - a lower scale in a shorter phone window, and no re-engraving when only the signals of a browser toolbar change (headless Chromium has no toolbar, so the test fires its resize events while the small viewport height stays put);
   - font readiness, resize redraw, and a typed failure clearing the staff and its description;
   - offline operation;
-  - unchanged source data across display switches.
+  - unchanged source data across display switches;
+  - the note-identity tags and band rectangles on every note's parts, in both layouts and across the system break (`notation-note-identity.spec.ts`);
+  - the overlays: acknowledgement lighting only the note's own parts, the band behind its system stepping across both systems, a rejected identity drawing nothing, and a re-engrave keeping the overlays (`notation-overlays.spec.ts`), and the start marker's placement on drawn pixels (`notation-overlays-marker.spec.ts`).
 
-  Chromium also keeps fixed-seed screenshot baselines: one system per instrument profile on the desktop, and the whole staff frame on a 740 × 360 phone window, where a sparse fixture is split at idle. `npm run test:notation` runs as part of `npm run quality`.
+  Chromium also keeps fixed-seed screenshot baselines: one system per instrument profile on the desktop, the whole staff frame on a 740 × 360 phone window, where a sparse fixture is split at idle, and the overlays in the light and dark themes (listed in [the testing guide](testing.md#visual-baselines)). `npm run test:notation` runs as part of `npm run quality`.
 
 ## Upgrade Procedure
 

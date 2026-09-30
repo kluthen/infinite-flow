@@ -128,8 +128,10 @@ const generationErrorAlertText = computed(() =>
     </p>
     <div class="staff-viewport">
       <div class="staff-frame" :class="staffFrameStateClass" aria-labelledby="score-panel-title">
+        <!-- The idle phrase is the phrase a session starts with, phrase 1. -->
         <PhraseScore
           :phrase="pendingPhrase"
+          :phrase-number="1"
           @engraved="handleEngraved"
           @notation-error="handleNotationError"
         >
