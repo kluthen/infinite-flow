@@ -2,16 +2,17 @@
  * The fake clock and fake audio output the audio transport is tested on: an audio clock the test
  * advances by hand, a wake-up timer that fires on every `WAKE_INTERVAL_SECONDS` step of that clock,
  * and an audio output that records every call it gets, stamped with the clock time it was made at.
- * It then answers what the player would actually hear: which clicks sound, and at which gain. The
- * recorder (`recordAudioOutput`) and the audible-click reading (`audibleClicksOf`) work on any
- * audio output, so the workspace harness also records the real Web Audio output with them. It
- * imports no Node module, so the browser workspace harness can reuse it.
+ * It then answers what the player would actually hear: which clicks and backing notes sound, and at
+ * which gain. The recorder (`recordAudioOutput`) and the audible readings (`audibleClicksOf`,
+ * `audibleBackingOf`) work on any audio output, so the workspace harness also records the real Web
+ * Audio output with them. It imports no Node module, so the browser workspace harness can reuse it.
  */
 
 import {
   WAKE_INTERVAL_SECONDS,
   type AudioOutput,
   type AudioTime,
+  type BackingVoice,
   type ClickRoute,
   type MixGain,
   type SessionBus,
@@ -28,6 +29,17 @@ export interface FakeClickEvent {
   readonly at: AudioTime
   readonly accent: boolean
   readonly route: ClickRoute
+  readonly scheduledAt: AudioTime
+}
+
+/** One backing note scheduled on a session bus, from `at` until `until`. */
+export interface FakeBackingEvent {
+  readonly kind: 'backing'
+  readonly bus: number
+  readonly voice: BackingVoice
+  readonly pitch: number
+  readonly at: AudioTime
+  readonly until: AudioTime
   readonly scheduledAt: AudioTime
 }
 
@@ -57,10 +69,16 @@ export interface FakeOpenBusEvent {
 }
 
 /** Every call the fake output records, in call order. */
-export type FakeAudioEvent = FakeClickEvent | FakeGainEvent | FakeFadeEvent | FakeOpenBusEvent
+export type FakeAudioEvent =
+  FakeClickEvent | FakeBackingEvent | FakeGainEvent | FakeFadeEvent | FakeOpenBusEvent
 
 /** A click that sounds, with the click-volume gain it sounds at. */
 export interface AudibleClick extends FakeClickEvent {
+  readonly gain: number
+}
+
+/** A backing note that sounds, with the backing-volume gain it sounds at. */
+export interface AudibleBackingNote extends FakeBackingEvent {
   readonly gain: number
 }
 
@@ -98,6 +116,10 @@ export interface FakeAudioRig {
   readonly gainAt: (gain: MixGain, t: AudioTime) => number
   /** The clicks that actually sound, with the gain they sound at. */
   readonly audibleClicks: () => readonly AudibleClick[]
+  /** Every scheduled backing note, in order. */
+  readonly backingNotes: () => readonly FakeBackingEvent[]
+  /** The backing notes that actually sound, with the gain they sound at. */
+  readonly audibleBacking: () => readonly AudibleBackingNote[]
   /** Report an interruption to every `onInterrupted` listener, as the browser would. */
   readonly interrupt: () => void
   /** Change the output latency the output reports from now on. */
@@ -146,11 +168,15 @@ function gainValueAt(events: readonly FakeAudioEvent[], gain: MixGain, t: AudioT
 }
 
 /**
- * Intent: whether a click is silenced by its bus's fade. Simplification: any click at or after
- * the start of a fade on its bus counts as silent, rather than sounding at a partial gain.
+ * Intent: whether a sound (a click or a backing note) is silenced by its bus's fade.
+ * Simplification: any sound starting at or after the start of a fade on its bus counts as silent,
+ * rather than sounding at a partial gain.
  */
-function fadedOut(events: readonly FakeAudioEvent[], click: FakeClickEvent): boolean {
-  return events.some((e) => e.kind === 'fade' && e.bus === click.bus && e.at <= click.at)
+function fadedOut(
+  events: readonly FakeAudioEvent[],
+  sound: FakeClickEvent | FakeBackingEvent,
+): boolean {
+  return events.some((e) => e.kind === 'fade' && e.bus === sound.bus && e.at <= sound.at)
 }
 
 /**
@@ -171,6 +197,24 @@ export function audibleClicksOf(events: readonly FakeAudioEvent[]): AudibleClick
   return audible
 }
 
+/**
+ * Intent: the backing notes the player hears. A note sounds when the backing on/off gain and the
+ * backing volume are both above zero at its start, and its bus has not started fading by then
+ * (see `fadedOut`).
+ */
+// @test-link [[req_session_backing_track]]
+// @test-link [[req_session_audio_mix]]
+export function audibleBackingOf(events: readonly FakeAudioEvent[]): AudibleBackingNote[] {
+  const audible: AudibleBackingNote[] = []
+  for (const event of events) {
+    if (event.kind !== 'backing' || fadedOut(events, event)) continue
+    const gain = gainValueAt(events, 'backing-volume', event.at)
+    const enabled = gainValueAt(events, 'backing-enable', event.at) > 0
+    if (gain > 0 && enabled) audible.push({ ...event, gain })
+  }
+  return audible
+}
+
 /** An audio output that records every call it passes on, and the log it writes. */
 export interface RecordedAudioOutput {
   /** The recording output: hand this to the transport in place of the inner one. */
@@ -180,7 +224,8 @@ export interface RecordedAudioOutput {
 }
 
 /**
- * Intent: wrap `inner` so every gain change, bus opening, scheduled click and fade is passed on
+ * Intent: wrap `inner` so every gain change, bus opening, scheduled click or backing note and fade
+ * is passed on
  * and then recorded as a `FakeAudioEvent`, stamped with `inner.now()` at the call. Buses are
  * numbered from 1 in opening order. A call the inner output rejects throws and is not recorded.
  */
@@ -199,6 +244,10 @@ export function recordAudioOutput(inner: AudioOutput): RecordedAudioOutput {
       scheduleClick: (click) => {
         innerBus.scheduleClick(click)
         log.push({ kind: 'click', bus, ...click, scheduledAt: inner.now() })
+      },
+      scheduleBackingNote: (note) => {
+        innerBus.scheduleBackingNote(note)
+        log.push({ kind: 'backing', bus, ...note, scheduledAt: inner.now() })
       },
       fadeOut: (at, duration) => {
         innerBus.fadeOut(at, duration)
@@ -223,7 +272,11 @@ export function recordAudioOutput(inner: AudioOutput): RecordedAudioOutput {
 }
 
 /** A session bus that makes no sound: the fake output's buses, whose calls the recorder logs. */
-const SILENT_BUS: SessionBus = { scheduleClick: () => {}, fadeOut: () => {} }
+const SILENT_BUS: SessionBus = {
+  scheduleClick: () => {},
+  scheduleBackingNote: () => {},
+  fadeOut: () => {},
+}
 
 /**
  * Intent: build a fake audio rig whose clock starts at `startTime` and only moves when the test
@@ -285,6 +338,9 @@ export function createFakeAudioRig(options: FakeAudioRigOptions = {}): FakeAudio
     clicks: () => recorded.events().filter((e): e is FakeClickEvent => e.kind === 'click'),
     gainAt: (gain, t) => gainValueAt(recorded.events(), gain, t),
     audibleClicks: () => audibleClicksOf(recorded.events()),
+    backingNotes: () =>
+      recorded.events().filter((e): e is FakeBackingEvent => e.kind === 'backing'),
+    audibleBacking: () => audibleBackingOf(recorded.events()),
     interrupt: () => interruptListeners.forEach((listener) => listener()),
     setOutputLatency: (seconds) => {
       latency = seconds

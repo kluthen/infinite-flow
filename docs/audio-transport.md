@@ -2,13 +2,14 @@
 
 This document records how `src/audio/` keeps time and makes sound: the one audio context and how
 it is unlocked, the ports that keep it testable, the look-ahead scheduler and its Worker timer,
-the click and the count-in, the mix, the fade on stop, what happens when the browser interrupts
-the audio, the latency reading for the playhead, how it is tested, and what later chunks add.
+the click and the count-in, the backing, the mix, the fade on stop, what happens when the browser
+interrupts the audio, the latency reading for the playhead, how it is tested, and what later
+chunks add.
 
 ## What it is
 
-The audio transport is the audio clock and everything scheduled on it except the backing, which
-chunk 11 adds. The **audio clock** is the one master clock of a session: the click, the backing,
+The audio transport is the audio clock and everything scheduled on it: the click, the count-in
+and the backing. The **audio clock** is the one master clock of a session: the click, the backing,
 the playhead and the session engine's events all read their time from it, as plain seconds.
 
 - **One audio context.** The app has exactly one `AudioContext`, and only `src/audio/` may create
@@ -20,23 +21,28 @@ the playhead and the session engine's events all read their time from it, as pla
 - **Never suspended or closed.** Once unlocked, the context runs until the page closes. An unlock
   from "Connect controller" therefore still holds when a MIDI note later starts a session.
 
-| File                         | Holds                                                                              |
-| ---------------------------- | ---------------------------------------------------------------------------------- |
-| `audio-ports.ts`             | The contract: the clock, output, session bus and wake timer ports, the click type. |
-| `audio-mix.ts`               | The four mix controls, their design tokens, range checks and gain values.          |
-| `click-track.ts`             | The click and count-in as pure arithmetic on audio time.                           |
-| `look-ahead-scheduler.ts`    | The scheduler that plans sound a fixed window ahead of the clock.                  |
-| `audio-transport.ts`         | `createAudioTransport(deps)`: unlock, start, stop, the mix and interruptions.      |
-| `web-audio-output.ts`        | The output on Web Audio: the one context, the mix graph, `openWebAudioOutput()`.   |
-| `web-audio-session-bus.ts`   | One session's fade gains and the synthesized click voice.                          |
-| `wake-timer-protocol.ts`     | The wake-up Worker's messages and its pure handler.                                |
-| `wake-timer.worker.ts`       | The wake-up Worker's entry point.                                                  |
-| `worker-wake-timer.ts`       | The main-thread wake timer backed by that Worker.                                  |
-| `browser-audio-transport.ts` | `createBrowserAudioTransport()`: the transport wired to the browser.               |
+| File                         | Holds                                                                                                |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `audio-ports.ts`             | The contract: the clock, output, session bus and wake timer ports, the click and backing note types. |
+| `audio-mix.ts`               | The four mix controls, their design tokens, range checks and gain values.                            |
+| `click-track.ts`             | The click and count-in as pure arithmetic on audio time, and `beatAt`, the beat grid.                |
+| `backing-track.ts`           | A phrase's rendered backing placed on the beat grid, as pure arithmetic on audio time.               |
+| `look-ahead-scheduler.ts`    | The scheduler that plans sound a fixed window ahead of the clock.                                    |
+| `audio-transport.ts`         | `createAudioTransport(deps)`: unlock, start, the backing queue, stop, the mix and interruptions.     |
+| `web-audio-output.ts`        | The output on Web Audio: the one context, the mix graph, `openWebAudioOutput()`.                     |
+| `web-audio-session-bus.ts`   | One session's fade gains and the synthesized click and backing voices.                               |
+| `wake-timer-protocol.ts`     | The wake-up Worker's messages and its pure handler.                                                  |
+| `wake-timer.worker.ts`       | The wake-up Worker's entry point.                                                                    |
+| `worker-wake-timer.ts`       | The main-thread wake timer backed by that Worker.                                                    |
+| `browser-audio-transport.ts` | `createBrowserAudioTransport()`: the transport wired to the browser.                                 |
 
 `createBrowserAudioTransport()` composes `openWebAudioOutput`, the Worker wake timer and
 `readAudioMixDesign(getComputedStyle(document.documentElement))`. The workspace session exposes it
 as `WorkspaceSession.audio`.
+
+The backing's notes are decided outside `src/audio/`, by the pure renderer
+`src/domain/backing/backing-renderer.ts` (see [The backing](#the-backing)). It lives in the domain
+so the MIDI export can reuse it.
 
 ## The ports
 
@@ -45,7 +51,8 @@ The transport talks to the browser only through four ports, declared in `audio-p
 - **Clock** (`AudioClock`): `now()` and `outputLatency()`.
 - **Output** (`AudioOutput`): the clock, plus `setGain`, `openSessionBus` and `onInterrupted`. It
   has no suspend or pause operation on purpose.
-- **Session bus** (`SessionBus`): `scheduleClick` and `fadeOut` for one session's sound.
+- **Session bus** (`SessionBus`): `scheduleClick`, `scheduleBackingNote` and `fadeOut` for one
+  session's sound.
 - **Wake timer** (`WakeTimer`): `start(onWake)` and `stop()`.
 
 Why ports: a fake of each makes every test deterministic. A test advances the fake clock by hand,
@@ -96,6 +103,107 @@ The window size is still "proposed" in the master spec's
 - **Synthesized, no audio assets.** Each click is a short sine blip: 1500 Hz and louder on beat 1,
   1000 Hz otherwise, with a 2 ms rise and a 50 ms decay. Its timbre is a placeholder.
 
+## The backing
+
+The backing is a bass line and block chords (the chord's notes played together) that follow the
+phrase's own [harmony](music/lexicon.md#harmony), in pitch and on the beat. It is built in three
+layers: a pure renderer decides the notes, a pure timing step puts them on the audio clock, and
+synthesized voices play them.
+
+### The renderer
+
+`renderBacking(harmony, meter)` in `src/domain/backing/backing-renderer.ts` turns one phrase's
+harmony events into `{ bass, chords }`: two lists of `BackingNote`, each ordered by start. A
+`BackingNote` holds a `pitch` (a concert [MIDI note number](music/lexicon.md#midi-note-number),
+that is, the note as it sounds, see [concert pitch](music/lexicon.md#concert-pitch)) and a `start`
+and a `duration`, exact values in whole notes from the phrase's start. It has the same shape as the
+MIDI export's `MidiBackingNote`, so the export can take the renderer's notes as they are. The
+renderer is pure: it reads no clock, draws no random number and never touches audio, and its
+result is frozen.
+
+- **Where it attacks.** An attack is the moment a note starts. Each harmony event is cut at every
+  [bar line](music/lexicon.md#bar-line) it crosses, into segments, and each segment is one attack.
+  The backing therefore attacks at every chord change and on every
+  [downbeat](music/lexicon.md#downbeat) (beat 1 of a measure), and nowhere else. A chord held over
+  two measures is attacked again on the second measure's beat 1.
+- **The bass.** The bass plays the chord's [root](music/lexicon.md#root), the note the chord is
+  built on, as MIDI 36 plus the root's pitch class (the note name without its octave, 0 for C up
+  to 11 for B): C2 to B2. A segment that fills a whole measure (four beats) plays the root on
+  beats 1 and 2 and the fifth on beats 3 and 4. The fifth is the
+  [chord tone](music/lexicon.md#chord-tone) (a note of the chord) five letter names above the
+  root: G over C. Any shorter segment, such as
+  each half of a two-chord measure, plays the root throughout. The fifth stays in the same octave
+  band, MIDI 36 to 47, so it can sit below the root: under a G chord the bass plays G2 then D2.
+- **The chords.** Each segment holds one close-position [triad](music/lexicon.md#triad): the
+  three chord notes stacked as tightly as possible. A triad has three such stacks, with the root,
+  the third or the fifth at the bottom (its inversions). The renderer takes the one whose top note
+  is the highest at or below E4 (MIDI 64). So the inversion changes with the chord, and every
+  chord note stays between F3 (MIDI 53) and E4, its top note between B3 and E4. C major is played
+  G3, C4, E4; G major is played G3, B3, D4.
+- **The register.** `BACKING_REGISTER` holds the proposed default
+  [register](music/lexicon.md#register) (how high or low the notes sit) of the master spec's open
+  question O57: the bass from MIDI 36 to 47, the chords' top note at most MIDI 64. It is a
+  placeholder until the listening test.
+- **What it refuses.** It throws a `BackingRenderError`, and repairs nothing, on a meter other than
+  4/4, on harmony events that don't tile the phrase's 16 beats exactly (a gap, an overlap, events
+  out of order, a length that isn't a positive whole number of beats), and on a triad whose three
+  pitch classes aren't the root, third and fifth of its stated quality.
+
+### Timing on the click's grid
+
+`backing-track.ts` places a phrase's rendered notes on the session's beat grid. It is pure
+arithmetic on audio time and reads no clock.
+
+- **The click's own grid.** A backing note's start and end are computed by the click track's own
+  `beatAt`, the same multiplication from the session's start. A backing note on beat `k`
+  therefore falls at exactly the time of the click on beat `k`, not merely close to it.
+- **Phrases back to back.** Phrase 1 starts when the count-in ends, and each next phrase four
+  measures (16 beats) later: `phraseStartsAt` gives that time. A note that doesn't start and end
+  on a whole beat throws rather than falling between two clicks; the renderer never makes one.
+- **One window at a time.** `backingNotesBetween(queue, from, to)` hands the scheduler the queued
+  notes with `from <= at < to`. The window is half-open like the click's, so no note is planned
+  twice and none is skipped. Each wake-up plans the window's clicks and backing notes together, on
+  the session's bus.
+
+### The transport API
+
+- **`queueBacking(phraseNumber, harmony)`** renders a phrase's backing from its harmony events and
+  queues it. Phrases must come in order, 1, 2, 3 …, and each before planning has reached its
+  start. It throws, leaving the queue as it was, when no session is running, when the phrase is
+  not the next one due, and when planning has already passed the phrase's start (queued too late).
+- **A phrase never queued stays silent.** The transport can't tell a phrase is missing until the
+  next `queueBacking` call, which then throws: out of order, or too late.
+- **`phraseStartsAt(phraseNumber)`** gives when the running session's phrase starts sounding: the
+  count-in's end plus (N − 1) phrases. It throws when no session is running.
+- **Only after the count-in, until stop.** Phrase 1 starts when the count-in ends, so the count-in
+  has no backing. The backing does not listen to the player: it keeps playing through their
+  silence. Stop halts planning, and the fade on stop silences the notes already planned past it.
+
+**How chunk 15 wires it.** Right after `start`, the session screen queues phrase 1 with the idle
+phrase's harmony. Then, on each `phrase-ready` output of the session engine (see
+[`docs/session-engine.md`](session-engine.md)), it queues that phrase's number with
+`phrase.outcome.provenance.harmony.events`, a repeat included. Phrase 1 gets no `phrase-ready`,
+which is why it is queued at start. The engine readies each later phrase by its deadline, at the
+latest the start of the last measure of the phrase before, so it is queued at least a measure
+before it starts, well ahead of the 200 ms window.
+
+### The voices
+
+The backing is synthesized from oscillators and gains only: no sample, no audio file and no extra
+download. `BACKING_VOICE` in `web-audio-session-bus.ts` sets its placeholder timbre and levels:
+
+- the bass is a triangle wave, each chord note a quieter sine wave;
+- each note gets its own oscillator and its own envelope gain: it rises from silence in 5 ms,
+  holds, then falls to near silence over the 40 ms before its end, and the oscillator stops at the
+  end. A note attacked again on the same pitch is therefore heard again, and no note ends in a
+  click;
+- a note shorter than the rise plus the fall (45 ms), or a pitch that isn't a whole MIDI number
+  from 0 to 127, is refused.
+
+`npm run verify:boundaries` keeps it that way: it rejects the sample and decoding calls of Web Audio
+anywhere in `src/`, and any audio or sample file in the build output (see
+[`docs/testing.md`](testing.md#scripts)).
+
 ## The mix
 
 The mix graph is built once, at unlock:
@@ -106,7 +214,8 @@ count-in route:                 click-volume -> destination
 backing route:  backing-enable -> backing-volume -> destination
 ```
 
-The backing gains exist already; the backing voices that feed them arrive in chunk 11.
+Each session's sound enters these routes through its own session bus (see [Stop](#stop)): the
+clicks into the click route or the count-in route, the backing voices into the backing route.
 
 - **On/off** is an enable gain of 1 or 0. **Volume** is a linear gain equal to the slider level: a
   placeholder mapping until listening tests settle a loudness curve.
@@ -124,9 +233,10 @@ The backing gains exist already; the backing voices that feed them arrive in chu
 
 ## Stop
 
-Every session opens a fresh **session bus**: one fade gain per click route. On stop the bus fades
-to silence over `STOP_FADE_SECONDS` (0.1 s, the rule's "about 100 ms") and the scheduler halts.
-Sound already planned past the fade goes through the faded bus and stays silent, and the next
+Every session opens a fresh **session bus**: three fade gains, one per click route and one for the
+backing. On stop the bus fades all three to silence over `STOP_FADE_SECONDS` (0.1 s, the rule's
+"about 100 ms") and the scheduler halts. Sound already planned past the fade goes through the
+faded bus and stays silent, and the next
 session gets a fresh bus that the fade never touched. `stop` returns `fadeEndsAt`, when the fade
 reaches silence.
 
@@ -151,18 +261,25 @@ scheduled: v2.0 item 6 asks for it to stay within 20 ms of the actual audio outp
 ## How it's tested
 
 Unit tests drive the transport through its ports: a fake audio clock advanced by hand, a fake
-wake timer and a fake output that records every gain, click and fade with its time. The Web Audio
-adapters are tested against a recording fake context. The workspace harness injects the fake
-clock and output through its `audio` seams, and a real-Chromium test plays a count-in on the real
-`AudioContext`. See [`docs/testing.md`](testing.md) for how to drive them.
+wake timer and a fake output that records every gain, click, backing note and fade with its time.
+The Web Audio adapters are tested against a recording fake context. The backing renderer is tested
+on hand-built harmony and on real planner harmony in every collection, one- and two-chord
+measures included, with every pitch class checked against the harmony event it plays under. On
+the fake clock, eight bars of backing at 60, 120 and 240 BPM land exactly on the clicks, muting
+changes no scheduled time, and the backing plays only from the count-in's end until stop. The
+workspace harness injects the fake clock and output through its `audio` seams, and real-Chromium
+tests play a count-in and a short backing on the real `AudioContext`. See
+[`docs/testing.md`](testing.md) for how to drive them.
 
 ## What later chunks add
 
-- **Chunk 11:** the backing voices on the backing route, and their scheduler source.
 - **Chunk 15:** the Start and "Connect controller" calls to `unlock()`, the session runner's `now`
-  reading `WorkspaceSession.audio.now`, the count-in display, the mix controls, and hidden-tab
-  detection.
+  reading `WorkspaceSession.audio.now`, the count-in display, the mix controls, hidden-tab
+  detection, and the `queueBacking` calls (see
+  [How chunk 15 wires it](#the-transport-api)).
 - **Chunk 16:** the playhead, placed using `outputLatency`.
+- **Chunk 20:** the MIDI export's backing track, from `renderBacking` for each recorded phrase's
+  harmony, so the file and the audio play the same notes.
 
 ## Choices made while building it
 
@@ -174,3 +291,29 @@ clock and output through its `audio` seams, and a real-Chromium test plays a cou
   controller" keeps the same context.
 - **One scheduler for the transport's lifetime,** created at the first `start` and reused. Its
   wake-up timer, and so its Worker, is created once.
+
+The backing's choices were made in chunk 11 and await the owner's acceptance:
+
+- **A "four-beat harmony event" is read as a full measure under one chord.** So a chord held over
+  two measures gets root then fifth in each measure, not once over the eight beats.
+- **Chords are attacked on each chord change and each downbeat only,** never again on beat 3.
+  This follows O57's wording; the atom's "re-attacked in the same way" is looser.
+- **The chord voicing is the highest close-position stack whose top note is at or below E4.** The
+  inversion therefore varies with the chord, and the chord's top note always lies between F3 and
+  E4.
+- **The bass fifth is taken in the same octave band as the root** (MIDI 36 to 47), so it can sit
+  below the root.
+- **Each note is held for its whole segment,** with a short release before the next attack. The
+  timbre and the levels are placeholders.
+- **The transport API.** Phrases are queued in order from 1, a late queue throws, and a phrase
+  never queued stays silent until the next queue call throws. The renderer lives in
+  `src/domain/backing/`, outside `src/audio/`, so the MIDI export can reuse it.
+- **The backing is scheduled whatever the backing switch says,** like the click: the
+  backing-enable gain mutes it, so switching it on mid-session needs nothing re-planned.
+- **`verify:boundaries` gained two explicit rules:** no audio or sample file in `dist/`, and no
+  `decodeAudioData`, `createBufferSource`, `createMediaElementSource` or `new AudioBuffer` in
+  `src/`.
+
+Still open for the v2.0 gate: O57's listening test (the voicing, the register, the attack pattern
+and the timbre), and ux Q31 (the backing volume's range and default, and the linear
+volume-to-gain mapping).

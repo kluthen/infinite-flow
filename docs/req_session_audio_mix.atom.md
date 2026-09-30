@@ -12,7 +12,7 @@ layer: BUSINESS
 version: 0.1
 parents:
   - [[req_rolling_practice_session]]
-notes: Recorded 2026-09-30 in v2 chunk 10 (audio transport); requirement text unchanged. Each volume control sets its gain equal to its level, a linear mapping that is a placeholder until listening tests settle a loudness curve. Chunk 10 builds the four controls as gains on the audio output only; the on-screen controls and the backing sound come in later chunks.
+notes: Recorded 2026-09-30 in v2 chunk 10 (audio transport); requirement text unchanged. Each volume control sets its gain equal to its level, a linear mapping that is a placeholder until listening tests settle a loudness curve. Chunk 10 builds the four controls as gains on the audio output only; the on-screen controls and the backing sound come in later chunks. Chunk 11 (backing, 2026-09-30) routes the synthesized backing through the backing on/off and backing volume gains; muting or lowering the backing changes only those gains, never a scheduled note or the clock. The backing volume range, from the design tokens, reaches silence (minimum 0), unlike the click volume; a design choice AWAITING THE OWNER ACCEPTANCE. The on-screen controls still come in a later chunk.
 ---
 
 # Session Audio Mix Controls

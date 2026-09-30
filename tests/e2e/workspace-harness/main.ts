@@ -23,7 +23,8 @@
  *   planner answers, and real no-room comes from real window sizes;
  * - the audio transport (audio-seams.ts): the fake audio clock and output by default, or the real
  *   Web Audio output with `?audio=real`, both recorded, started only by a click on the page's own
- *   "Start audio (harness)" button, which stands in for chunk 15's Start click;
+ *   "Start audio (harness)" button, which stands in for chunk 15's Start click, with backing
+ *   queued from the shown phrase's harmony, read here from the session's own result;
  * - the prewarm policy, read from the page URL exactly as production reads it (`?prewarm=off`
  *   disables it, on by default), with every prewarm forwarded to the real worker client and
  *   counted for `prewarmCount()`.
@@ -44,6 +45,7 @@ import {
 } from '../../../src/components/workspace/create-workspace-session'
 import type { WorkspaceSessionResult } from '../../../src/composables/workspace-session-result'
 import type { GenerationIntent } from '../../../src/domain/generation/generation-intent'
+import type { HarmonyEvent } from '../../../src/domain/harmony/harmony-types'
 import { makeRequestId, type RequestId } from '../../../src/domain/generation/generation-request'
 import type {
   GenerationDiagnostics,
@@ -131,7 +133,7 @@ let armedFailureCode: WorkspaceHarnessGenerationFailureCode | null = null
 /** How many gated `generate` calls still pass through before the armed failure applies. */
 let callsBeforeArmedFailure = 0
 
-const harnessAudio = createHarnessAudio(harnessAudioMode(window.location.search))
+const harnessAudio = createHarnessAudio(harnessAudioMode(window.location.search), shownHarmony)
 bindHarnessAudioStart(document, harnessAudio.startFromClick)
 
 const port = createBrowserGenerationWorker()
@@ -190,6 +192,22 @@ function snapshot(): WorkspaceHarnessSnapshot {
     retriesRunning: state.retriesRunning,
     roomNoticeAnnouncements: state.roomNoticeAnnouncements,
   }
+}
+
+/**
+ * Intent: the harmony of the phrase the workspace shows (its outcome's provenance), for the audio
+ * seams' `queueBacking`. Throws before the session mounts or while no phrase is shown.
+ */
+// @test-link [[req_session_backing_track]]
+function shownHarmony(): readonly HarmonyEvent[] {
+  if (workspace === null) {
+    throw new Error('Workspace harness: queueBacking() was called before the session mounted.')
+  }
+  const result: WorkspaceSessionResult | null = workspace.session.state.result
+  if (result === null) {
+    throw new Error('Workspace harness: queueBacking() needs a shown phrase; generate one first.')
+  }
+  return result.outcome.provenance.harmony.events
 }
 
 window.__workspaceHarness = {

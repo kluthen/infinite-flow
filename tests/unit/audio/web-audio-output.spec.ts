@@ -39,6 +39,24 @@ describe('the mix gains', () => {
   })
 
   // @test-link [[req_session_audio_mix]]
+  // @test-link [[req_session_backing_track]]
+  it("feeds each session bus's fade gains into the click volume, the click gate and the backing gate", () => {
+    const fake = createFakeWebAudioContext()
+    const output = createWebAudioOutput(fake.port)
+    const clickEnable = mixNode(output, fake, 'click-enable')
+    const clickVolume = mixNode(output, fake, 'click-volume')
+    const backingEnable = mixNode(output, fake, 'backing-enable')
+
+    output.openSessionBus()
+    const fades = fake.gains.slice(4)
+    expect(fades.map((fade) => fade.outputs)).toEqual([
+      [clickVolume],
+      [clickEnable],
+      [backingEnable],
+    ])
+  })
+
+  // @test-link [[req_session_audio_mix]]
   it('starts all four gains at 1', () => {
     const fake = createFakeWebAudioContext()
     createWebAudioOutput(fake.port)

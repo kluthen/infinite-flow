@@ -5,12 +5,16 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import type { AudioOutput, SessionBus } from '@/audio/audio-ports'
-import { audibleClicksOf, recordAudioOutput } from './fake-audio'
+import { audibleBackingOf, audibleClicksOf, recordAudioOutput } from './fake-audio'
 
 /** Intent: an inner output made of spies, whose clock the test sets through `clock.t`. */
 function spyOutput() {
   const clock = { t: 3 }
-  const bus = { scheduleClick: vi.fn(), fadeOut: vi.fn() } satisfies SessionBus
+  const bus = {
+    scheduleClick: vi.fn(),
+    scheduleBackingNote: vi.fn(),
+    fadeOut: vi.fn(),
+  } satisfies SessionBus
   const inner = {
     now: vi.fn(() => clock.t),
     outputLatency: vi.fn(() => 0.02),
@@ -80,6 +84,41 @@ describe('recordAudioOutput', () => {
 
     expect(audibleClicksOf(recorded.events()).map(({ at, gain }) => ({ at, gain }))).toEqual([
       { at: 3.5, gain: 0.4 },
+    ])
+  })
+
+  // @test-link [[req_session_backing_track]]
+  // @test-link [[req_session_audio_mix]]
+  it('records backing notes and feeds audibleBackingOf the backing gains and fades', () => {
+    const { clock, bus, inner } = spyOutput()
+    const recorded = recordAudioOutput(inner)
+    recorded.output.setGain('backing-enable', 1, 3)
+    recorded.output.setGain('backing-volume', 0.5, 3)
+    recorded.output.setGain('backing-enable', 0, 4)
+    recorded.output.setGain('backing-enable', 1, 5)
+    recorded.output.setGain('backing-volume', 0, 6)
+    const opened = recorded.output.openSessionBus()
+    const note = (at: number) => ({ voice: 'bass', pitch: 40, at, until: at + 0.5 }) as const
+    clock.t = 3.2
+    for (const at of [3.5, 4.5, 5.5, 6.5]) opened.scheduleBackingNote(note(at))
+    const faded = recorded.output.openSessionBus()
+    faded.scheduleBackingNote(note(3.5))
+    faded.scheduleBackingNote(note(5.5))
+    faded.fadeOut(5, 0.1)
+
+    expect(bus.scheduleBackingNote).toHaveBeenCalledWith(note(3.5))
+    expect(recorded.events()).toContainEqual({
+      kind: 'backing',
+      bus: 1,
+      ...note(3.5),
+      scheduledAt: 3.2,
+    })
+    expect(
+      audibleBackingOf(recorded.events()).map(({ bus: n, at, gain }) => [n, at, gain]),
+    ).toEqual([
+      [1, 3.5, 0.5],
+      [1, 5.5, 0.5],
+      [2, 3.5, 0.5],
     ])
   })
 })

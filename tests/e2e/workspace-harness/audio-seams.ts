@@ -4,7 +4,9 @@
  * `window.__workspaceHarness.audio` API. The URL chooses the mode: by default the transport runs on
  * the fake audio rig (a clock only `advance` moves), and with `?audio=real` it runs on the real
  * Web Audio output and the real wake-up Worker. Both modes record what the transport schedules
- * with the same recorder, as the same `FakeAudioEvent` shape, and read audible clicks the same way.
+ * with the same recorder, as the same `FakeAudioEvent` shape, and read audible clicks and backing
+ * notes the same way. The backing a spec queues is the harmony of the phrase the workspace shows,
+ * read by the harness page from its own session (no production hook).
  */
 import { readAudioMixDesign, type AudioMixDesign } from '../../../src/audio/audio-mix'
 import type { AudioOutput, WakeTimer } from '../../../src/audio/audio-ports'
@@ -18,11 +20,14 @@ import {
   createBrowserWakeTimerWorker,
   createWorkerWakeTimer,
 } from '../../../src/audio/worker-wake-timer'
+import type { HarmonyEvent } from '../../../src/domain/harmony/harmony-types'
 import {
+  audibleBackingOf,
   audibleClicksOf,
   createFakeAudioRig,
   recordAudioOutput,
   type FakeAudioEvent,
+  type FakeBackingEvent,
   type RecordedAudioOutput,
 } from '../../unit/audio/fake-audio'
 
@@ -88,14 +93,29 @@ function pageMixDesign(): AudioMixDesign {
   return readAudioMixDesign(getComputedStyle(document.documentElement))
 }
 
+/** Intent: the harness's plain-JSON view of the harmony events `queueBacking` queued. */
+function queuedHarmonyView(harmony: readonly HarmonyEvent[]): WorkspaceHarnessQueuedHarmonyEvent[] {
+  return harmony.map(({ barIndex, startBeat, durationBeats, triad }) => ({
+    barIndex,
+    startBeat,
+    durationBeats,
+    pitchClasses: [...triad.pitchClasses],
+  }))
+}
+
 /**
  * Intent: build the harness's audio in `mode`: a transport on that mode's seams, and the API a
  * spec drives it through. `start` is not on the API: only the harness's Start button starts a
- * session, from a real click, at the tempo `armStart` set beforehand.
+ * session, from a real click, at the tempo `armStart` set beforehand. `shownHarmony` reads the
+ * harmony of the phrase the workspace shows, which `queueBacking` hands to the transport.
  */
 // @test-link [[rule_audio_unlocked_by_player_click]]
 // @test-link [[rule_playhead_follows_audio_clock]]
-export function createHarnessAudio(mode: WorkspaceHarnessAudioMode): HarnessAudio {
+// @test-link [[req_session_backing_track]]
+export function createHarnessAudio(
+  mode: WorkspaceHarnessAudioMode,
+  shownHarmony: () => readonly HarmonyEvent[],
+): HarnessAudio {
   const parts = mode === 'real' ? realModeParts() : fakeModeParts()
   const transport = createAudioTransport({
     openOutput: parts.openOutput,
@@ -128,6 +148,13 @@ export function createHarnessAudio(mode: WorkspaceHarnessAudioMode): HarnessAudi
     advance: (seconds) => parts.advance(seconds),
     events: () => [...parts.events()],
     audibleClicks: () => audibleClicksOf(parts.events()),
+    queueBacking: (phraseNumber) => {
+      const harmony = shownHarmony()
+      transport.queueBacking(phraseNumber, harmony)
+      return queuedHarmonyView(harmony)
+    },
+    backingNotes: () => parts.events().filter((e): e is FakeBackingEvent => e.kind === 'backing'),
+    audibleBacking: () => audibleBackingOf(parts.events()),
     setClickOn: (on) => transport.setClickOn(on),
     setClickVolume: (level) => transport.setClickVolume(level),
     setBackingOn: (on) => transport.setBackingOn(on),
