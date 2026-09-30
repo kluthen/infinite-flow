@@ -86,8 +86,10 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
 - `src/session/` — the session engine: pure, deterministic, Vue/browser-free logic that turns a
   running session's timed events (audio time in seconds, carried on each event, never read from a
   clock) into generation requests, fit checks, read-ahead phrases, the struggling notice and the
-  end, plus the runner that executes those requests through the injected `generate` seam. See
-  [`docs/session-engine.md`](docs/session-engine.md).
+  end, plus the runner that executes those requests through the injected `generate` seam; the
+  in-memory session history, which records every phrase that sounded with the inputs that
+  reproduce it; and the adapter that turns a recorded session into the export encoders' inputs.
+  See [`docs/session-engine.md`](docs/session-engine.md).
 - `src/audio/` — the audio transport, and the only place allowed to use Web Audio (see Runtime
   Constraints): the app's one `AudioContext`, created on the player's click, the look-ahead
   scheduler and its Web Worker wake-up timer, the click and count-in, and the mix gains. See
@@ -208,8 +210,11 @@ UI (Vue components, props-in/events-out)
   of the one sounding, the failure ladder (three carry-in retries, one standalone retry, then a
   repeat of the phrase before), the struggling-generator notice, and settings locked at start.
   `createSessionRunner` executes its requests; `composeWorkspaceSession` binds it to the same
-  `generate` seam, and so the same Worker, the Idle flow uses. Nothing starts a session yet: the
-  session screen is still to come. See [`docs/session-engine.md`](docs/session-engine.md).
+  `generate` seam, and so the same Worker, the Idle flow uses. `createSessionHistory` records, in
+  memory, every phrase that started sounding: the phrase as shown and the inputs that reproduce
+  it, with its tempo; the MusicXML and MIDI export inputs are built from those stored phrases,
+  never regenerated. Nothing starts a session yet: the session screen is still to come. See
+  [`docs/session-engine.md`](docs/session-engine.md).
 - **Audio transport.** `src/audio/` holds the app's one `AudioContext`, created only by `unlock()`
   inside the player's Start or "Connect controller" click and never suspended or closed. A
   look-ahead scheduler, woken every 25 ms by a Web Worker timer, plans sound 200 ms ahead on the

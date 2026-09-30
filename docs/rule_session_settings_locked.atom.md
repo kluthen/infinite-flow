@@ -9,6 +9,7 @@ tags: [v2, release-v2.0, session, player-controls]
 dependents:
   - [[rule_session_change_applies_at_phrase_boundary]]
   - [[service_session_engine]]
+  - [[service_session_history]]
 type: RULE
 parents:
   - [[req_rolling_practice_session]]

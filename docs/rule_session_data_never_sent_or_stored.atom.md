@@ -10,6 +10,7 @@ parents:
   - [[req_browser_only_first_release]]
   - [[rule_ephemeral_session_state]]
 dependents:
+  - [[service_session_history]]
   - [[specification_browser_only_operation_verification]]
 type: RULE
 ---

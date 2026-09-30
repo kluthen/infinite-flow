@@ -6,7 +6,8 @@ human_name: Session History Records Played Notes
 tags: [v2, release-v2.0, session, history, midi]
 parents:
   - [[rule_session_history_keeps_timeline_and_inputs]]
-dependents: []
+dependents:
+  - [[service_session_history]]
 type: RULE
 layer: BUSINESS
 version: 0.1

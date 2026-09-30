@@ -10,6 +10,7 @@ parents:
   - [[rule_session_history_keeps_timeline_and_inputs]]
 dependents:
   - [[service_session_engine]]
+  - [[service_session_history]]
 version: 0.2
 tags: [v2, release-v2.0, session, history]
 notes: Revised 2026-09-30 in v2 chunk 8 (previous version 0.1) as a clarification of existing behaviour, accepted by the chunk owner under the owner standing rule to settle minor issues and record them; AWAITING THE OWNER ACCEPTANCE. Adds a rejected generation request to the kinds of failure a marked repeat can follow.
