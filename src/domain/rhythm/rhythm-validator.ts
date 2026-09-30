@@ -7,11 +7,14 @@ import type {
 import { normalizedRhythmIdentity } from './rhythm-identity'
 import {
   activeAnchorRatioViolated,
+  answerSimilarityViolatedBy,
+  attackBandViolated,
+  attackTicks,
   canonicalEndingSignature,
   lacksMetricalAnchor,
   sameAddress,
 } from './rhythm-invariants'
-import { attackBandFor, beatCellCatalog, varietyViolated } from './rhythm-variety'
+import { beatCellCatalog, varietyViolated } from './rhythm-variety'
 
 function addressKey(address: {
   readonly barIndex: number
@@ -253,14 +256,8 @@ export function validateRhythmCandidate(
       )
         failures.add('first_note_off_downbeat')
     }
-    const attacks = bar.events.filter(
-      (event) => event.kind === 'note' && !event.tieContinuation,
-    ).length
-    const [minimum, maximum] = attackBandFor(
-      candidate.input.noteDensity,
-      candidate.input.rhythmicVariety,
-    )
-    if (attacks < minimum || attacks > maximum) failures.add('density_attack_band_violation')
+    if (attackBandViolated(bar, candidate.input.noteDensity, candidate.input.rhythmicVariety))
+      failures.add('density_attack_band_violation')
   }
   if (events.reduce((total, event) => total + event.durationTicks, 0) !== 64)
     failures.add('invalid_phrase_duration')
@@ -429,16 +426,7 @@ export function validateRhythmCandidate(
       : answerCount === 1 || answerCount === 2
   if (!answerCountIsLegal) failures.add('answer_transform_count_violation')
   if (candidate.bars.length === 4) {
-    const attackPositions = (bars: readonly UnindexedRhythmCandidate['bars'][number][]) =>
-      bars.flatMap((bar, halfBarIndex) =>
-        bar.events
-          .filter((event) => event.kind === 'note' && !event.tieContinuation)
-          .map((event) => `${halfBarIndex}:${event.startTick}`),
-      )
-    const gesture = attackPositions(candidate.bars.slice(0, 2))
-    const answer = new Set(attackPositions(candidate.bars.slice(2)))
-    const shared = gesture.filter((position) => answer.has(position)).length
-    if (shared < Math.max(2, Math.ceil(gesture.length / 2)))
+    if (answerSimilarityViolatedBy(candidate.bars, attackTicks))
       failures.add('answer_similarity_violation')
     if (
       canonicalEndingSignature(candidate.bars[1]!) === canonicalEndingSignature(candidate.bars[3]!)

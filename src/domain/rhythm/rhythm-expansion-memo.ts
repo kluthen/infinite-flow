@@ -7,6 +7,8 @@
 import type { Syncopation } from '../controls/generation-controls'
 import {
   activeAnchorRatioViolatedBy,
+  answerSimilarityViolatedBy,
+  attackTicks,
   canonicalEndingSignature,
   lacksMetricalAnchor,
   soundingAnchorCount,
@@ -34,6 +36,7 @@ interface AppliedNode {
 interface BarFacts {
   readonly lacksAnchor: boolean
   readonly anchors: number
+  readonly attackTicks: readonly number[]
 }
 
 /**
@@ -280,7 +283,11 @@ export function disjointFromList(
 function barFacts(memo: ExpansionMemo, bar: RhythmBar): BarFacts {
   let facts = memo.facts.get(bar)
   if (!facts) {
-    facts = { lacksAnchor: lacksMetricalAnchor(bar), anchors: soundingAnchorCount(bar) }
+    facts = {
+      lacksAnchor: lacksMetricalAnchor(bar),
+      anchors: soundingAnchorCount(bar),
+      attackTicks: attackTicks(bar),
+    }
     memo.facts.set(bar, facts)
   }
   return facts
@@ -318,4 +325,13 @@ export function rejectsBeforeAssembly(
     syncopation === 'Active displacement' &&
     activeAnchorRatioViolatedBy(bars, syncopated, (bar) => barFacts(memo, bar).anchors)
   )
+}
+
+/**
+ * `answer_similarity_violation` on the final four bars, read from each bar's cached attack ticks:
+ * the fast path's stand-in for that part of `validateRhythmCandidate`, which it no longer calls.
+ */
+// @spec-link [[api_rhythm_domain_expansion]]
+export function failsAnswerSimilarity(memo: ExpansionMemo, bars: readonly RhythmBar[]): boolean {
+  return answerSimilarityViolatedBy(bars, (bar) => barFacts(memo, bar).attackTicks)
 }

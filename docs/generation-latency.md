@@ -4,8 +4,10 @@ This document records `generatePhrase` latency across every rhythm setting in th
 `rhythm-mvp-v2` control catalog (ISS-004: rhythmic variety replaces Mixed density), cold (fresh
 canonical-rhythm-domain memo) versus warm (memo hit), and the signed-off latency budget those
 numbers are checked against. It also records the first generation after a change to one setting,
-and the longest main-thread task while a phrase is engraved. The newest figures, and the verdicts
-that gate the build plan, are in
+and the longest main-thread task while a phrase is engraved. The newest figures are in
+[Validator-free fast enumeration on the reference machine (2026-09-30)](#validator-free-fast-enumeration-on-the-reference-machine-2026-09-30),
+after the [cold-generation speed-up](#cold-generation-speed-up-on-the-reference-machine-2026-09-30);
+the verdicts that gate the build plan were set in
 [v2 re-run on the reference machine (2026-09-30)](#v2-re-run-on-the-reference-machine-2026-09-30).
 The [v2 baseline (chunk 1, 2026-09-29)](#v2-baseline-chunk-1-2026-09-29) below it came from a cloud
 virtual machine and is kept for reference; the older tables below that were measured on the
@@ -115,6 +117,138 @@ one fresh page each, one first generation, then 12 regenerations (each with a ne
 then 10 re-engravings of the last phrase caused by a 16-pixel width change alone, with no
 generation. `ENGRAVING_OUT` names a JSON file for the full report.
 
+## Validator-free fast enumeration on the reference machine (2026-09-30)
+
+Measured on 2026-09-30, 17:44-17:57 CEST, on branch `v2-perf-validator` (`main` at `de8ba3e` plus
+this step), on the same reference machine and versions as the speed-up below: AMD Ryzen 5 PRO
+8640HS (6 cores, 12 threads), 11 GiB RAM, bare metal, Debian 13.6 (Linux 6.12), Node v22.23.2,
+Chromium 153.0.8010.12 (Playwright 1.63.0 headless shell). Each run started once the 1-minute load
+average was under 1.5 (1.04-1.45 before a run, up to 1.99 after). The machine was shared, though:
+another session's Godot tests and benchmark ran alongside every run, at 76-110 % of one core. The
+owner accepted that, as long as the figures stay within bounds. A check of `main` on the same busy
+machine right after (below) shows how much that load costs. Every figure is "new (was old)", old
+being the [cold-generation speed-up](#cold-generation-speed-up-on-the-reference-machine-2026-09-30).
+
+**What changed.** The first generation for a rhythm setting still builds that setting's whole
+rhythm domain, and the output is unchanged byte for byte: the golden fixture and the older oracles
+pass unchanged. The fast enumeration no longer runs the full rhythm validator
+(`validateRhythmCandidate`) on each candidate. Two early checks, on the fast path only, replace
+what only the validator caught:
+
+- **Attack band, once per gesture.** An attack is a note that starts; a tied continuation does not
+  count. The attack band is the range of attacks a bar may have for the chosen note density and
+  rhythmic variety. The check runs on the gesture's bars (bars 1-2) before any transform, and that
+  is exact: no transform changes how many attacks a bar has, and bars 3-4 copy bars 1-2.
+- **Answer similarity, per syncopation template.** The answer (bars 3-4) must repeat enough of the
+  attack positions of the gesture (bars 1-2). The check runs on the final four bars, from each
+  bar's attack positions cached for the expansion.
+- **Silence budget: no new check.** It was already enforced per gesture.
+- **The validator stays elsewhere.** It still runs on the exact re-run, so a no-plan result
+  reports the same codes, and in the independent result check (`rhythm_candidate_invalid`).
+- **Proof.** With the validator skipped and no new checks, 46 invalid candidates got through in 20
+  settings (30 for answer similarity, 16 for the attack band): 12 Quarter settings with
+  Breath-heavy silence and Occasional offbeats, and 8 Eighth / Strict / Breath-heavy settings with
+  Occasional offbeats or Active displacement. With the two checks, the exhaustive validation specs
+  (`rhythm-domain-exhaustive-validation-{quarter,eighth,sixteenth}.spec.ts`) find no invalid
+  candidate, and every one of the 324 settings has the manifest's count. They stay as the
+  permanent guard.
+- **New browser scenario.** The browser harness also times Sixteenth / Heavily varied / Sparse /
+  Straight / Edge, the slowest setting in Node.
+
+**Node** (`npm run measure:latency`; no Worker, no pre-warm). The same 284 settings succeed and the
+same 40 fail fast (35 under 28 ms, the slowest 32.6 ms).
+
+| Node, 284 settings (ms) | median      | p90          | p95           | max           |
+| ----------------------- | ----------- | ------------ | ------------- | ------------- |
+| Cold                    | 14.1 (14.7) | 86.4 (116.3) | 126.7 (174.1) | 327.5 (522.0) |
+| Warm                    | 2.1 (1.6)   | 10.6 (9.3)   | 14.3 (12.4)   | 47.9 (42.2)   |
+
+The warm and fail-fast figures are slightly up. That is noise from the shared machine: a warm
+generation reuses the memo and never runs the enumeration this step changed. 4 settings (was 6)
+take longer than 250 ms cold and none longer than 1 s. The slowest are all Sixteenth / Heavily
+varied / Sparse: Straight / Edge 327.5 ms (was 522.0), Straight / Build 316.7 ms (was 507.5),
+Active displacement / Build 278.5 ms (was 447.7), Active displacement / Edge 259.8 ms (was 397.9).
+Next comes Occasional offbeats / Edge at 245.4 ms.
+
+Cold p90 by note density × rhythmic variety (ms):
+
+| Density   | Strict      | Slightly varied | Heavily varied |
+| --------- | ----------- | --------------- | -------------- |
+| Quarter   | 4.9 (4.2)   | 3.2 (3.9)       | 26.2 (38.2)    |
+| Eighth    | 42.0 (60.5) | 48.6 (60.0)     | 115.3 (152.5)  |
+| Sixteenth | 19.4 (21.3) | 97.9 (138.9)    | 259.8 (397.9)  |
+
+First generation after a one-step change to one setting (the same 3,102 transitions, 124 left out):
+rhythm-control changes (1,842, all memo misses) median 12.8 (15.6), p90 82.5 (121.7), p95 120.8
+(172.6), max 304.2 (542.7) ms; 17 (was 35) take longer than 250 ms, none (was 11) longer than
+500 ms, none longer than 1 s. Tonal-center changes: max 50.3 ms; register changes: max 41.0 ms
+(was 51.4 for the two together).
+
+**Chromium** (`npm run measure:latency:browser`, run twice in `off` and `on`, once in `settled`).
+Click to "Phrase ready", in-page, including the Worker round trip and the engraving. The modes are
+as in the speed-up below: `off` is true cold, `on` clicks right after the control changes, and
+`settled` waits 3 s for pre-warm first. The worst case is Sixteenth / Heavily varied / Sparse /
+Active displacement / Build; Straight / Edge is Sixteenth / Heavily varied / Sparse / Straight /
+Edge, not measured before (the speed-up's Node figures put it near 500 ms).
+
+| Scenario (ms), run 1, run 2                         | `off` (true cold)           | `on` (immediate click)      | `settled`           |
+| --------------------------------------------------- | --------------------------- | --------------------------- | ------------------- |
+| Default, cold                                       | 43.0, 41.3 (43.8, 44.1)     | 46.3, 39.7 (43.9, 40.5)     | 38.2 (44.9, 46.8)   |
+| Default, warm                                       | 37.9, 37.4 (37.1, 35.0)     | 36.7, 36.9 (36.4, 39.5)     | 37.0 (36.0, 37.5)   |
+| Worst case, cold                                    | 381.1, 319.2 (423.2, 440.1) | 273.4, 295.4 (391.4, 389.8) | 111.6 (65.7, 102.0) |
+| Worst case, warm                                    | 45.0, 46.5 (44.3, 44.5)     | 80.4, 76.8 (44.5, 46.5)     | 51.1 (44.4, 46.0)   |
+| Straight / Edge, cold (new)                         | 319.9, 289.8                | 283.5, 247.1                | 95.2                |
+| Straight / Edge, warm (new)                         | 62.7, 58.8                  | 61.5, 59.5                  | 61.6                |
+| Any one-control change into the worst case, slowest | 307.9, 277.2 (464.1)        | 246.9, 269.7 (368.4)        | 93.2 (95.7)         |
+| Register or key change, worst rhythm kept, slowest  | 46.1, 40.2 (42.6)           | 81.4, 76.3 (59.0)           | 44.7 (44.1)         |
+
+To see what the shared machine costs, `main` was measured the same way just after: worst case cold
+504.7 ms in `off`, 437.3 and 515.8 ms in `on`, warm 42.6 and 43.3 ms in `on`. So on this busy
+machine `main` was slower than the speed-up's figures from 14:33, and the branch saves about 120-240 ms on
+the worst cold generation. The `settled` worst cold (111.6 ms, one run) is within that noise. The
+`on`-mode warm rise, 77-80 ms against 43 ms on `main`, is real on the branch, but it is a shift in
+when the Worker's garbage collector runs, not extra work. On the branch the `on`-mode cold
+generation allocates less, so V8 runs a full collection just after it (while idle) instead of in
+the middle of it; the first ranking after a full collection hashes the tie keys about 2.5× slower
+(54 ms instead of about 21 ms), and here that is the warm one. Forcing the same collection on
+`main` gives the same effect (warm 60-75 ms instead of 41-45 ms). So a player sees at most 15-35 ms
+extra, once, on the first generation after a full collection, on either build. Traces are in the
+session scratchpad, `perf-step-2/diag/`.
+
+During the worst case's cold generation a theme click applied in 36 and 39 ms (`off`), 48 and
+34 ms (`on`) and 45 ms (`settled`) (was 30-39 ms, and 81 ms once).
+
+**Main-thread engraving** (`npm run measure:engraving`, one run, the densest staff). No task
+reached 50 ms at either size (was none). The longest main-thread wait was 51.4 ms at 2560 × 1440
+and 54.5 ms at 1920 × 1080, both at the first generation (was 42.6 and 40.5 ms). That rise is noise
+from the shared machine: regenerations waited at most 27.2 ms and resize redraws at most 24.0 ms.
+
+### Verdicts (after dropping the fast validator)
+
+**Against the working goal (cold worst case under 250 ms in Chromium):**
+
+- **True cold: still missed, but closer.** The worst case takes 319-381 ms (was 423-440) and
+  Straight / Edge 290-320 ms: about 1.2-1.5× the goal.
+- **A click right after the change: missed narrowly.** The worst case takes 273-295 ms (was 390);
+  Straight / Edge takes 247-284 ms, at the goal in one run of two. In Node, 4 settings, all
+  Sixteenth / Heavily varied / Sparse, still take 260-328 ms.
+- **When the player pauses before clicking: met.** Once pre-warm has finished, the slowest first
+  generations take about 95-112 ms.
+- **Everything else: met.** Warm generations and changes that keep the rhythm setting stay under
+  about 81 ms, the `on`-mode rise included.
+
+**Against the deadline itself (`rule_look_ahead_deadline`):**
+
+- **3 s window: met.** Cold worst case about 0.38 s, plus four retries at the `on`-mode warm worst
+  case (about 0.08 s each): about 0.38 + 4 × 0.08 ≈ 0.70 s.
+- **1 s window, phrase 2 during the count-in: met, retries included, even cold.** With the memo
+  warmed by phrase 1: about 0.08 + 4 × 0.08 = 0.40 s. A cold phrase 2: about 0.38 + 0.32 = 0.70 s.
+- **1 s window, regeneration after a rhythm-control change (v2.1): met with retries.** The slowest
+  measured change in Chromium took 308 ms without pre-warm; four retries hit the now-warm memo,
+  about 0.08 s each: about 0.63 s. The slowest Node change (304 ms, before the Worker round trip
+  and engraving) leaves about the same margin.
+- **Main thread:** the longest wait is 54.5 ms, well under the 200 ms scheduler window.
+
 ## Cold-generation speed-up on the reference machine (2026-09-30)
 
 Measured on 2026-09-30, 14:33-14:40, on branch `v2-perf-cold-generation` (`main` at `5df8c24` plus
@@ -142,7 +276,9 @@ varied, the memo's list and the ranked order for seeds 1-20) passes unchanged. W
   interrupts (see [`phrase-workspace.md`](phrase-workspace.md#pre-warm)).
 - **Not done: dropping the second full validation.** Without it the fast path would yield 46
   invalid candidates in 20 Quarter and Eighth settings with Breath-heavy silence (answer
-  similarity and attack band), so the output would change. The validator stays.
+  similarity and attack band), so the output would change. The validator stays. (A later step
+  dropped it behind two early checks; see
+  [Validator-free fast enumeration](#validator-free-fast-enumeration-on-the-reference-machine-2026-09-30).)
 
 **Node** (`npm run measure:latency`; no Worker, no pre-warm). The same 284 settings succeed and the
 same 40 fail fast (under 28 ms each).

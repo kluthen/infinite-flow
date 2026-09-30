@@ -4,8 +4,9 @@
  * rejects is one the validator would also reject.
  */
 
+import type { NoteDensity, RhythmicVariety } from '../controls/generation-controls'
 import type { RhythmBar, RhythmTransformDescriptor, UnindexedRhythmCandidate } from './rhythm-types'
-import { varietyViolated } from './rhythm-variety'
+import { attackBandFor, varietyViolated } from './rhythm-variety'
 
 /** Whether two source-cell addresses name the same bar, beat, and cell. */
 // @spec-link [[module_rhythm_domain_validation]]
@@ -83,6 +84,54 @@ export function soundingAnchorCount(bar: RhythmBar): number {
     )
       anchors += 1
   return anchors
+}
+
+/** The bar's attacks: start ticks of its note events that are not tie continuations, in order. */
+// @spec-link [[module_rhythm_domain_validation]]
+// @spec-link [[api_rhythm_domain_expansion]]
+export function attackTicks(bar: RhythmBar): readonly number[] {
+  const ticks: number[] = []
+  for (const event of bar.events)
+    if (event.kind === 'note' && !event.tieContinuation) ticks.push(event.startTick)
+  return ticks
+}
+
+/** `density_attack_band_violation` for one bar: its attack count lies outside the level's band. */
+// @spec-link [[module_rhythm_domain_validation]]
+// @spec-link [[api_rhythm_domain_expansion]]
+export function attackBandViolated(
+  bar: RhythmBar,
+  density: NoteDensity,
+  variety: RhythmicVariety,
+): boolean {
+  const attacks = attackTicks(bar).length
+  const [minimum, maximum] = attackBandFor(density, variety)
+  return attacks < minimum || attacks > maximum
+}
+
+/**
+ * `answer_similarity_violation` on a four-bar phrase: the answer bars 3-4 must repeat at least
+ * max(2, half, rounded up) of the gesture bars 1-2's attacks at the same tick of the matching bar.
+ * `attackTicksOf` must equal `attackTicks`, so the enumeration can pass cached per-bar values.
+ * Any other bar count is a caller bug and throws.
+ */
+// @spec-link [[module_rhythm_domain_validation]]
+// @spec-link [[api_rhythm_domain_expansion]]
+export function answerSimilarityViolatedBy(
+  bars: readonly RhythmBar[],
+  attackTicksOf: (bar: RhythmBar) => readonly number[],
+): boolean {
+  if (bars.length !== 4) throw new RangeError('answer similarity needs exactly four bars')
+  let gestureAttacks = 0
+  let shared = 0
+  for (const halfBarIndex of [0, 1]) {
+    const answer = attackTicksOf(bars[halfBarIndex + 2]!)
+    for (const tick of attackTicksOf(bars[halfBarIndex]!)) {
+      gestureAttacks += 1
+      if (answer.includes(tick)) shared += 1
+    }
+  }
+  return shared < Math.max(2, Math.ceil(gestureAttacks / 2))
 }
 
 /**

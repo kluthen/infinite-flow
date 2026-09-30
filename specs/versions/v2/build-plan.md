@@ -598,7 +598,7 @@ Out of scope: budgeted or partial picks, and anything that changes which phrase 
 - **Remedy 2 dropped.** With the second full validation removed, the fast enumeration would yield
   46 invalid candidates in 20 Quarter and Eighth settings with Breath-heavy silence (answer
   similarity and attack band), which would change their output. The validator stays; the
-  exhaustive test that found this stays as a guard.
+  exhaustive test that found this stays as a guard. (Retried in step 2 below.)
 - **Figures** (reference machine, in-page Chromium):
   - Worst case cold, true cold: 423-440 ms (was 829-951).
   - The same click right after the change: 390 ms.
@@ -609,6 +609,62 @@ Out of scope: budgeted or partial picks, and anything that changes which phrase 
 - **Verdicts:** the 250 ms goal is still missed for true cold and an immediate click (about 2×
   closer), and met when the player pauses. `rule_look_ahead_deadline` is met in every window,
   retries included, including the v2.1 one-bar regeneration after a rhythm-control change.
+
+##### Step 2: drop the redundant validator from the fast enumeration
+
+**Done on 2026-09-30** on branch `v2-perf-validator`; the merge waits for the owner's acceptance
+of the `api_rhythm_domain_expansion` amendment.
+
+**Goal.** Remedy 2, retried. The full validator (`validateRhythmCandidate`) is now the largest
+remaining cold cost, about 250-370 ms on the worst setting. Move the checks only it makes (answer
+similarity, the attack band, the silence budget, and anything else the exhaustive comparison
+reveals) into the early per-bar and per-list filter of the fast enumeration, run as early as their
+inputs allow. Then drop the validator from the fast enumeration; it stays on the exact re-run path
+(the no-plan codes are unchanged) and in the independent result check. Out of scope: anything that
+changes which phrase a seed gives.
+
+**Done when** (all hold):
+
+- The exhaustive test shows the fast path alone yields exactly the validated domain for all 324
+  settings: no invalid candidate and none missing. It stays as a permanent guard.
+- The golden fixture and every older oracle pass unchanged; same seed, same result.
+- The owner approves the `api_rhythm_domain_expansion` amendment before the merge.
+- `npm run quality` passes.
+- [`docs/generation-latency.md`](../../../docs/generation-latency.md) has the before → after
+  figures, including Sixteenth / Heavily varied / Sparse / Straight / Edge in Chromium, with
+  verdicts against the 250 ms goal and `rule_look_ahead_deadline`.
+
+**Progress:**
+
+| Step                          | State   | Notes                                                                                                                                                                                |
+| ----------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1. ATD preflight              | Done    | PROCEED-WITH-SIGNOFF-PENDING: `api_rhythm_domain_expansion` needs a signed-off amendment                                                                                             |
+| 2. Tests first                | Done    | With the validator skipped and no new checks, the exhaustive specs found 46 invalid candidates in 20 settings (red)                                                                  |
+| 3. Early checks, drop         | Done    | Two early checks (attack band per gesture, answer similarity per template) bring the count to 0; the validator is dropped from the fast path; the exhaustive specs stay as the guard |
+| 4. Verify (`npm run quality`) | Done    | Passes; goldens and older oracles unchanged                                                                                                                                          |
+| Measurements                  | Done    | [Figures and verdicts](../../../docs/generation-latency.md#validator-free-fast-enumeration-on-the-reference-machine-2026-09-30)                                                      |
+| 5. Documents                  | Done    | Latency, testing, rhythm phrase structure                                                                                                                                            |
+| 6. ATD stewardship            | Done    | `api_rhythm_domain_expansion` amendment at DRAFT, awaiting the owner; tags checked; `atd lint` and `atd check` pass                                                                  |
+| Owner acceptance              | Pending | The owner accepts the amendment; then the merge                                                                                                                                      |
+
+**Outcome.**
+
+- **Output:** unchanged. The golden fixture and the older oracles pass unchanged.
+- **Validator dropped from the fast path.** The attack band is checked once per gesture and answer
+  similarity once per syncopation template; with them the exhaustive specs find no invalid
+  candidate and the manifest's count in all 324 settings. The validator still runs on the exact
+  re-run (no-plan codes unchanged) and in the independent result check.
+- **Figures** (reference machine, shared with another session's load; in-page Chromium):
+  - Worst case cold, true cold: 319-381 ms (was 423-440).
+  - The same click right after the change: 273-295 ms (was 390).
+  - Straight / Edge, first measured in Chromium: 290-320 ms true cold, 247-284 ms right after the
+    change.
+  - Once pre-warm has finished: about 95-112 ms.
+  - Node cold maximum: 328 ms (was 522); 4 settings (was 6) over 250 ms.
+- **Verdicts:** the 250 ms goal is still missed for true cold (about 1.2-1.5× over) and narrowly
+  for an immediate click, and met when the player pauses. `rule_look_ahead_deadline` is met in
+  every window, retries included, including the v2.1 one-bar regeneration after a rhythm-control
+  change.
 
 ### Chunk 2 — Browser boundaries
 
