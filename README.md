@@ -210,7 +210,10 @@ UI (Vue components, props-in/events-out)
   `Worker` behind a typed, correlated request/response protocol
   (`src/generation-worker/generation-worker-protocol.ts`), which re-validates every field crossing
   the wire through the same domain constructors/parsers the orchestrator uses, and deep-freezes the
-  result.
+  result. A second, uncorrelated `prewarm` message, never answered, asks the Worker to build the
+  current rhythm setting's domain in short slices between requests, so the first Generate on that
+  setting finds it ready (`?prewarm=off` on the page URL turns it off for latency measurement).
+  See [`docs/phrase-workspace.md`](docs/phrase-workspace.md#pre-warm).
 - **Domain orchestration (harmony -> rhythm -> pitch -> validation).**
   `generatePhrase`/`generation-orchestrator.ts` builds the structural harmony candidate domain
   (`makeHarmonyCandidateDomain`), the rhythm candidate domain (materialized once per rhythm setting

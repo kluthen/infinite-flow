@@ -2,7 +2,8 @@
  * Manual Step 9 browser latency harness: measures cold (first click) and warm (Regenerate) time
  * from click to "Phrase ready" for the documented worst-case rhythm setting (ISS-004 moves this
  * off Mixed density to Sixteenth / Heavily varied / Sparse silence / Active displacement / Build
- * tension -- the largest candidate domain, 2,932 candidates) and for the default/cheap setting,
+ * tension -- 1,797 rhythm candidates, the slowest setting to generate; the largest domain, 2,932
+ * candidates, is Straight / Build) and for the default/cheap setting,
  * and checks the main thread stays responsive to a theme click during the worst-case cold run. A
  * second scenario measures the first generation after a change to one setting, as a mid-session
  * settings mutation causes: the page's one generation Worker (and so its one rhythm-domain memo)
@@ -13,6 +14,17 @@
  * explicitly via `npm run measure:latency:browser`. Reports only -- it asserts nothing about the
  * numbers themselves, only that the page never becomes unresponsive. Writes the full JSON reports
  * to `LATENCY_BROWSER_OUT` and `LATENCY_BROWSER_CHANGE_OUT` when those env vars are set.
+ *
+ * The page pre-warms the current rhythm setting's domain in its generation Worker when the Worker
+ * starts and after every rhythm-setting change, so the env var `LATENCY_PREWARM` picks one of three
+ * modes (recorded as `prewarmMode` in both JSON reports; any other value throws):
+ * - `off`: every page load uses `?prewarm=off` -- true cold generation, the fair comparison with
+ *   the figures measured before pre-warm existed (2026-09-30).
+ * - `on` (the default, since it is what the production page does): each generation is clicked
+ *   right after the rhythm-control change(s), so pre-warm has only just started.
+ * - `settled`: as `on`, but after reaching each setting it waits `PREWARM_SETTLE_MS` before the
+ *   click so pre-warm has finished. The production page exposes no completion signal, so this is
+ *   a fixed wait sized well above the worst full domain build (under 1 s in Chromium).
  */
 import { writeFileSync } from 'node:fs'
 
@@ -27,6 +39,7 @@ interface ScenarioMeasurement {
 }
 
 interface LatencyReport {
+  readonly prewarmMode: PrewarmMode
   readonly scenarios: readonly ScenarioMeasurement[]
   readonly themeResponseDuringColdWorstCaseMs: number
 }
@@ -36,6 +49,11 @@ interface SettingChange {
   readonly group: string
   readonly from: string
   readonly to: string
+}
+
+interface ChangeReport {
+  readonly prewarmMode: PrewarmMode
+  readonly measurements: readonly ChangeMeasurement[]
 }
 
 interface ChangeMeasurement {
@@ -48,6 +66,37 @@ interface ChangeMeasurement {
 
 const TEST_TIMEOUT_MS = 120_000
 const THEME_RESPONSE_BUDGET_MS = 200
+
+/** How the page's rhythm-domain pre-warm is set up for a run; see the file header. */
+type PrewarmMode = 'off' | 'on' | 'settled'
+
+/**
+ * Wait, in `settled` mode, between reaching a setting and clicking, so the pre-warm the page posted
+ * for it has finished: a fixed bound, as the page has no completion signal, well above the worst
+ * full rhythm-domain build (under 1 s in Chromium).
+ */
+const PREWARM_SETTLE_MS = 3_000
+
+/** Intent: the pre-warm mode `LATENCY_PREWARM` asks for, `on` when unset; any other value throws. */
+function prewarmModeFromEnv(value: string | undefined): PrewarmMode {
+  if (value === undefined || value === 'on') return 'on'
+  if (value === 'off' || value === 'settled') return value
+  throw new Error(`Unknown LATENCY_PREWARM "${value}"; use "off", "on" or "settled".`)
+}
+
+const PREWARM_MODE = prewarmModeFromEnv(process.env.LATENCY_PREWARM)
+
+/** Intent: load a fresh workspace page, with pre-warm disabled on the URL in `off` mode. */
+function gotoLatencyWorkspace(page: Page): Promise<void> {
+  return gotoWorkspace(page, PREWARM_MODE === 'off' ? '?prewarm=off' : '')
+}
+
+/** Intent: once a setting is reached, wait for its pre-warm to finish in `settled` mode only. */
+async function settlePrewarm(page: Page): Promise<void> {
+  if (PREWARM_MODE === 'settled') {
+    await page.waitForTimeout(PREWARM_SETTLE_MS)
+  }
+}
 
 // The scenarios time generations, so they must never overlap each other on the machine.
 test.describe.configure({ mode: 'default' })
@@ -86,12 +135,14 @@ test('reports cold/warm generation latency for the worst-case and default settin
 }) => {
   test.setTimeout(TEST_TIMEOUT_MS * 3)
 
-  await gotoWorkspace(page)
+  await gotoLatencyWorkspace(page)
+  await settlePrewarm(page)
   const cheapCold = await timeGeneration(page)
   const cheapWarm = await timeGeneration(page)
 
-  await gotoWorkspace(page)
+  await gotoLatencyWorkspace(page)
   await selectWorstCaseSetting(page)
+  await settlePrewarm(page)
 
   const worstColdPromise = timeGeneration(page)
 
@@ -110,6 +161,7 @@ test('reports cold/warm generation latency for the worst-case and default settin
   const worstWarm = await timeGeneration(page)
 
   const report: LatencyReport = {
+    prewarmMode: PREWARM_MODE,
     scenarios: [
       {
         scenario: 'default/cheap (Quarter/Straight/Sparse/Lift)',
@@ -125,7 +177,7 @@ test('reports cold/warm generation latency for the worst-case and default settin
     themeResponseDuringColdWorstCaseMs: themeResponseMs,
   }
 
-  console.log('\n=== Step 9 browser generation latency ===')
+  console.log(`\n=== Step 9 browser generation latency (prewarm: ${PREWARM_MODE}) ===`)
   for (const scenario of report.scenarios) {
     console.log(
       `${scenario.scenario}: cold=${formatTiming(scenario.cold)} warm=${formatTiming(scenario.warm)}`,
@@ -153,11 +205,13 @@ test('reports the first generation after a one-control change into the worst cas
 
   // Rhythm controls: each is part of the Worker's rhythm-domain memo key, so the change is cold.
   for (const changed of WORST_CASE_SETTING) {
-    await gotoWorkspace(page)
+    await gotoLatencyWorkspace(page)
     await selectWorstCaseSetting(page)
     await radio(page, changed.group, changed.from).click()
+    await settlePrewarm(page)
     const warmUp = await timeGeneration(page)
     await radio(page, changed.group, changed.to).click()
+    await settlePrewarm(page)
     const afterChange = await timeGeneration(page)
     measurements.push({
       change: `${changed.group}: ${changed.from} -> ${changed.to}`,
@@ -172,11 +226,13 @@ test('reports the first generation after a one-control change into the worst cas
     { group: 'Written key', from: 'C', to: 'C-sharp/D-flat' },
   ]
   for (const changed of nonRhythmChanges) {
-    await gotoWorkspace(page)
+    await gotoLatencyWorkspace(page)
     await selectWorstCaseSetting(page)
     await expect(radio(page, changed.group, changed.from)).toHaveAttribute('aria-checked', 'true')
+    await settlePrewarm(page)
     const warmUp = await timeGeneration(page)
     await radio(page, changed.group, changed.to).click()
+    await settlePrewarm(page)
     const afterChange = await timeGeneration(page)
     measurements.push({
       change: `${changed.group}: ${changed.from} -> ${changed.to} (worst-case rhythm kept)`,
@@ -185,20 +241,23 @@ test('reports the first generation after a one-control change into the worst cas
     })
   }
 
-  console.log('\n=== Browser: first generation after a one-control change ===')
+  console.log(
+    `\n=== Browser: first generation after a one-control change (prewarm: ${PREWARM_MODE}) ===`,
+  )
   for (const m of measurements) {
     console.log(
       `${m.change}: warm-up=${formatTiming(m.warmUp)} after change=${formatTiming(m.afterChange)}`,
     )
   }
 
+  const report: ChangeReport = { prewarmMode: PREWARM_MODE, measurements }
   test.info().annotations.push({
     type: 'setting-change-latency-report',
-    description: JSON.stringify(measurements),
+    description: JSON.stringify(report),
   })
 
   const outPath = process.env.LATENCY_BROWSER_CHANGE_OUT
   if (outPath !== undefined) {
-    writeFileSync(outPath, JSON.stringify(measurements, null, 2))
+    writeFileSync(outPath, JSON.stringify(report, null, 2))
   }
 })

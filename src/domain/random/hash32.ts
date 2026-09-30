@@ -25,3 +25,19 @@ export function fnv1a32(input: string): number {
   }
   return hash >>> 0
 }
+
+/**
+ * Intent: resume an FNV-1a 32-bit hash state over the UTF-16 code units `input[start..end)`, with
+ * exactly the per-character arithmetic of `fnv1a32`. Hashing a string in consecutive pieces with
+ * this helper, starting from `FNV_OFFSET_BASIS_32`, gives the same value as `fnv1a32` over their
+ * concatenation, so a caller can hash a shared prefix once and continue it without concatenating.
+ */
+// @spec-link [[module_ranked_candidate_ordering]]
+export function fnv1a32Resume(hash: number, input: string, start: number, end: number): number {
+  let state = hash >>> 0
+  for (let index = start; index < end; index += 1) {
+    state = (state ^ input.charCodeAt(index)) >>> 0
+    state = Math.imul(state, FNV_PRIME_32) >>> 0
+  }
+  return state >>> 0
+}

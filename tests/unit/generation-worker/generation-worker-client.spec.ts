@@ -169,3 +169,42 @@ describe('createGenerationWorkerClient', () => {
     expect(port.terminated()).toBe(true)
   })
 })
+
+// @test-link [[module_generation_worker_protocol]]
+describe('createGenerationWorkerClient: prewarm', () => {
+  it('posts one id-less prewarm message and consumes no correlation id', async () => {
+    const port = createFakeGenerationWorkerPort()
+    const client = createGenerationWorkerClient(port)
+    const intent = buildIntent('client-prewarm', 61)
+
+    expect(client.prewarm(intent)).toBeUndefined()
+    const outcome = client.generate(intent)
+
+    expect(port.postedMessages()).toEqual([
+      { type: 'prewarm', intent },
+      { type: 'generate', id: 1, intent },
+    ])
+    await expect(outcome).resolves.toEqual(generatePhrase(intent))
+  })
+
+  it('gets no response for a prewarm, and its queued slice then completes quietly', async () => {
+    const port = createFakeGenerationWorkerPort()
+    const client = createGenerationWorkerClient(port)
+    client.prewarm(buildIntent('client-prewarm-quiet', 62))
+    await Promise.resolve()
+
+    expect(port.pendingSliceCount()).toBe(1)
+    port.runNextSlice()
+    expect(port.pendingSliceCount()).toBe(0)
+  })
+
+  it('posts nothing once the worker is unusable', () => {
+    const port = createFakeGenerationWorkerPort(null)
+    const client = createGenerationWorkerClient(port)
+    port.emitError()
+
+    client.prewarm(buildIntent('client-prewarm-broken', 63))
+
+    expect(port.postedMessages()).toEqual([])
+  })
+})

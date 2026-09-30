@@ -165,6 +165,12 @@ dependencies are `generate`, `checkFit`, `now`, `providers`, `viewport`, `onOutp
 the one seam, and phrase 2 reuses the rhythm-domain memo that generating phrase 1 warmed (see
 [Canonical rhythm-domain memo](phrase-workspace.md#canonical-rhythm-domain-memo)).
 
+The runner posts no pre-warm of its own, but it shares the Worker and memo with the Idle flow's
+[pre-warm](phrase-workspace.md#pre-warm), so a rhythm setting pre-warmed at Idle is already built
+when the runner generates on it. A runner `generate` that arrives while a pre-warm is still
+building is served between two of its slices, after about one slice (8 ms) at most. Phrase 2's
+warm reuse of the memo is unchanged.
+
 ## What later chunks add
 
 - **Chunk 9:** the session history, built from `phrase-sounding` outputs.

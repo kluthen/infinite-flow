@@ -13,9 +13,14 @@ import {
   WORKSPACE_SESSION_FACTORY,
   createWorkspaceSession,
 } from './components/workspace/create-workspace-session'
+import { prewarmPolicyFromSearch } from './components/workspace/prewarm-policy'
 import WorkspaceShell from './components/workspace/WorkspaceShell.vue'
 
-const buildWorkspaceSession = inject(WORKSPACE_SESSION_FACTORY, createWorkspaceSession)
+// The production fallback reads the prewarm policy once from the page URL: `?prewarm=off` is the
+// latency measurement seam, loading the real app with cold generation; prewarm is on otherwise.
+const buildWorkspaceSession = inject(WORKSPACE_SESSION_FACTORY, () =>
+  createWorkspaceSession({ prewarmPolicy: prewarmPolicyFromSearch(window.location.search) }),
+)
 const workspace = buildWorkspaceSession()
 
 watch(() => workspace.session.state.presentation.theme, applyThemePreference, { immediate: true })

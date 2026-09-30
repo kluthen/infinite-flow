@@ -29,6 +29,8 @@ import {
   type FakeViewportWidth,
 } from '../../composables/fake-viewport-width'
 import { transportRig } from '../../audio/transport-rig'
+import type { WorkspacePrewarmPolicy } from '@/components/workspace/prewarm-policy'
+import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
 
 vi.mock('@/generation-worker/browser-generation-worker', () => ({
   createBrowserGenerationWorker: vi.fn(() => ({
@@ -58,10 +60,16 @@ function cheapOutcome(requestId: string, seed: number): GenerationOutcome {
   return generatePhrase(intent)
 }
 
-/** Intent: build a fully fake dependency bundle whose seams a test can assert against directly. */
-function fakeDependencies(): WorkspaceSessionDependencies & {
+/**
+ * Intent: build a fully fake dependency bundle whose seams a test can assert against directly,
+ * under the given prewarm policy (disabled unless a test is about prewarm).
+ */
+function fakeDependencies(
+  prewarmPolicy: WorkspacePrewarmPolicy = 'disabled',
+): WorkspaceSessionDependencies & {
   readonly generateMock: ReturnType<typeof vi.fn>
   readonly disposeMock: ReturnType<typeof vi.fn>
+  readonly prewarmMock: ReturnType<typeof vi.fn<(intent: GenerationIntent) => void>>
   readonly viewport: FakeViewportWidth
 } {
   let seedCounter = 0
@@ -73,6 +81,7 @@ function fakeDependencies(): WorkspaceSessionDependencies & {
     return cheapOutcome(intent.requestId, intent.seed)
   })
   const disposeMock = vi.fn()
+  const prewarmMock = vi.fn<(intent: GenerationIntent) => void>()
   return {
     providers: {
       nextRequestId: () => makeRequestId(`di-seam-request-${++requestCounter}`),
@@ -80,10 +89,13 @@ function fakeDependencies(): WorkspaceSessionDependencies & {
     },
     viewport: createFakeViewportWidth(),
     generate: generateMock,
+    prewarmPolicy,
+    prewarm: prewarmMock,
     audio: transportRig().transport,
     dispose: disposeMock,
     generateMock,
     disposeMock,
+    prewarmMock,
   }
 }
 
@@ -225,6 +237,42 @@ describe('composeWorkspaceSession session runner', () => {
     expect(outputs.at(-1)?.kind).toBe('ended')
     expect(errors).toEqual([])
   })
+
+  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_runner]]
+  it('keeps the runner on the generate seam with prewarm enabled: it never prewarms or draws for it', async () => {
+    const deps = fakeDependencies('enabled')
+    deps.generateMock.mockImplementation(async (intent: GenerationIntent) => generatePhrase(intent))
+    const workspace = composeWorkspaceSession(deps)
+    chooseCheapControls(workspace)
+    expect(await generateAndEngrave(workspace)).toBe(true)
+    const idle = workspace.session.state.result!
+    const prewarmsBeforeRunner = deps.prewarmMock.mock.calls.length
+
+    const runner = workspace.createSessionRunner({
+      start: {
+        at: 0,
+        settings: {
+          controls: workspace.session.state.controls,
+          musicalProfile: workspace.session.state.profileSelection,
+        },
+        phraseOne: { intent: idle.intent, outcome: idle.outcome },
+      },
+      checkFit: async () => true,
+      now: () => 0.1,
+      onOutput: () => undefined,
+      onError: (error) => {
+        throw error
+      },
+    })
+    runner.dispatch({ kind: 'end', at: 0.1, cause: 'stop' })
+
+    expect(deps.generateMock).toHaveBeenCalledTimes(2)
+    const phraseTwoIntent = deps.generateMock.mock.calls[1]![0] as GenerationIntent
+    expect(phraseTwoIntent.requestId).toBe('di-seam-request-2')
+    expect(phraseTwoIntent.seed).toBe(2)
+    expect(deps.prewarmMock).toHaveBeenCalledTimes(prewarmsBeforeRunner)
+  })
 })
 
 /** Intent: a jsdom stand-in for `window.matchMedia`, recording the query and its listeners. */
@@ -247,7 +295,7 @@ describe('createWorkspaceSession', () => {
 
   it('builds a production session without ever calling crypto.getRandomValues eagerly', () => {
     stubMatchMedia(false)
-    const workspace = createWorkspaceSession()
+    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
 
     expect(workspace.session.state.operation).toBe('idle')
     expect(workspace.session.state.controls).toEqual(DEFAULT_GENERATION_CONTROLS)
@@ -267,7 +315,7 @@ describe('createWorkspaceSession', () => {
         }
       },
     )
-    const workspace = createWorkspaceSession()
+    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
 
     expect(workspace.audio.isUnlocked()).toBe(false)
     expect(workspace.audio.isRunning()).toBe(false)
@@ -280,7 +328,7 @@ describe('createWorkspaceSession', () => {
   // @test-link [[rule_generated_density_follows_window_width]]
   it("reads the window's width against bp-tablet-landscape through matchMedia", () => {
     const { matchMedia, listeners } = stubMatchMedia(true)
-    const workspace = createWorkspaceSession()
+    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
 
     expect(matchMedia).toHaveBeenCalledWith('(max-width: 63.9375rem)')
     expect(workspace.session.state.noteDensityContext.belowTabletLandscape).toBe(true)
@@ -288,5 +336,36 @@ describe('createWorkspaceSession', () => {
 
     workspace.dispose()
     expect(listeners.size).toBe(0)
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it('posts one prewarm for the default controls to the new worker with prewarm enabled', () => {
+    stubMatchMedia(false)
+    const workspace = createWorkspaceSession({ prewarmPolicy: 'enabled' })
+
+    const port = vi.mocked(createBrowserGenerationWorker).mock.results.at(-1)!.value as {
+      postMessage: ReturnType<typeof vi.fn>
+    }
+    expect(port.postMessage).toHaveBeenCalledTimes(1)
+    expect(port.postMessage.mock.calls[0]![0]).toMatchObject({
+      type: 'prewarm',
+      intent: { controls: { noteDensity: DEFAULT_GENERATION_CONTROLS.noteDensity } },
+    })
+
+    workspace.dispose()
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it('posts nothing to the new worker with prewarm disabled', () => {
+    stubMatchMedia(false)
+    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
+    workspace.session.actions.setControl('syncopation', 'Active displacement')
+
+    const port = vi.mocked(createBrowserGenerationWorker).mock.results.at(-1)!.value as {
+      postMessage: ReturnType<typeof vi.fn>
+    }
+    expect(port.postMessage).not.toHaveBeenCalled()
+
+    workspace.dispose()
   })
 })

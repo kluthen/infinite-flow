@@ -40,6 +40,7 @@ import type { SessionStart } from '@/session/session-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { createBrowserAudioTransport } from '@/audio/browser-audio-transport'
 import { createBrowserViewportWidth } from './browser-viewport-width'
+import type { WorkspacePrewarmPolicy } from './prewarm-policy'
 
 /**
  * What a caller supplies to start a session runner from the workspace: the session's start and the
@@ -79,16 +80,21 @@ export interface WorkspaceSession {
 
 /**
  * The explicit dependency surface `composeWorkspaceSession` needs: identity/seed providers, the
- * window-width provider, the raw orchestration-outcome `generate` seam (plus its teardown) and the
- * audio transport. Production supplies the cryptographic seed provider, the `matchMedia` width
- * provider, the real worker client and the Web Audio transport; a harness supplies deterministic,
- * gated, or failure-injecting equivalents that still call through to the real worker, and a
- * transport on a fake or a recorded real audio output.
+ * window-width provider, the raw orchestration-outcome `generate` seam (plus its teardown), the
+ * prewarm policy and seam, and the audio transport. Production supplies the cryptographic seed
+ * provider, the `matchMedia` width provider, the real worker client and the Web Audio transport; a
+ * harness supplies deterministic, gated, or failure-injecting equivalents that still call through
+ * to the real worker, and a transport on a fake or a recorded real audio output.
  */
+// @spec-link [[service_workspace_session_flow]]
 export interface WorkspaceSessionDependencies {
   readonly providers: GenerationIntentProviders
   readonly viewport: ViewportWidthProvider
   readonly generate: (intent: GenerationIntent) => Promise<GenerationOutcome>
+  /** Whether `prewarm` is ever called; `disabled` posts nothing at all. */
+  readonly prewarmPolicy: WorkspacePrewarmPolicy
+  /** The same worker's fire-and-forget rhythm-domain prewarm (the client's `prewarm`). */
+  readonly prewarm: (intent: GenerationIntent) => void
   /** The audio transport, passed through unchanged as `WorkspaceSession.audio`. */
   // @spec-link [[req_session_audio_mix]]
   // @spec-link [[rule_audio_unlocked_by_player_click]]
@@ -125,7 +131,9 @@ function createRequestIdProvider(): () => ReturnType<typeof makeRequestId> {
  * and profile-switch policy production always uses, so the only thing a caller can vary is where
  * requests/seeds and generation outcomes come from. Session runners it starts share the Idle
  * flow's providers, window-width reading and raw `generate` seam (the one worker), so phrase 2
- * reuses the rhythm-domain memo phrase 1 warmed.
+ * reuses the rhythm-domain memo phrase 1 warmed. With the prewarm policy enabled the session posts
+ * a prewarm now, for the current width-resolved controls, and after each rhythm-setting change;
+ * those prewarms land in the same worker's memo the runner's phrases read.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]
@@ -154,6 +162,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     generate: createWorkspaceGenerate(deps.generate),
     notate: coordinator.notate,
     clearPresentedPhrase: coordinator.clearPresentedPhrase,
+    ...(deps.prewarmPolicy === 'enabled' ? { prewarm: deps.prewarm } : {}),
   })
   session = created
 
@@ -183,15 +192,24 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   }
 }
 
+/** What the production root chooses when it builds the workspace session. */
+// @spec-link [[service_workspace_session_flow]]
+export interface ProductionWorkspaceSessionOptions {
+  /** Read by App.vue from the page URL (`?prewarm=off`, the latency measurement switch). */
+  readonly prewarmPolicy: WorkspacePrewarmPolicy
+}
+
 /**
  * Intent: build the root workspace session used by `App.vue` in production: a real worker-backed
- * generation seam, the cryptographic seed provider, a monotonic request-id provider, the
- * window's own `matchMedia` width provider, and the Web Audio transport, still locked: no audio
- * context exists until a player click unlocks it.
+ * generation seam and its prewarm under the given policy, the cryptographic seed provider, a
+ * monotonic request-id provider, the window's own `matchMedia` width provider, and the Web Audio
+ * transport, still locked: no audio context exists until a player click unlocks it.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[rule_audio_unlocked_by_player_click]]
-export function createWorkspaceSession(): WorkspaceSession {
+export function createWorkspaceSession(
+  options: ProductionWorkspaceSessionOptions,
+): WorkspaceSession {
   const port = createBrowserGenerationWorker()
   const client = createGenerationWorkerClient(port)
   return composeWorkspaceSession({
@@ -201,6 +219,8 @@ export function createWorkspaceSession(): WorkspaceSession {
     },
     viewport: createBrowserViewportWidth(),
     generate: client.generate,
+    prewarmPolicy: options.prewarmPolicy,
+    prewarm: client.prewarm,
     audio: createBrowserAudioTransport(),
     dispose: client.dispose,
   })

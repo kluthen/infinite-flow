@@ -10,6 +10,7 @@ import { deepFreeze } from '../../events/deep-freeze'
 import type { HarmonyCandidate } from '../../harmony/harmony-types'
 import { fnv1a32 } from '../../random/hash32'
 import { encodeSeed, type Seed } from '../../random/seed'
+import { computeRhythmTieKeys } from './rhythm-tie-key-batch'
 import type {
   RhythmCandidate,
   RhythmCandidateDomain,
@@ -45,16 +46,20 @@ export function rhythmTieKey(
 
 /**
  * Intent: sort items by an explicit unsigned tie key ascending, breaking a key collision by the
- * canonical candidate index ascending. Never mutates the input array; returns a new array in the
- * stably-determined order.
+ * canonical candidate index ascending. `keyOf` receives each item with its input position. Never
+ * mutates the input array; returns a new array in the stably-determined order.
  */
 function sortByTieKey<T>(
   items: readonly T[],
-  keyOf: (item: T) => number,
+  keyOf: (item: T, position: number) => number,
   candidateIndexOf: (item: T) => number,
 ): readonly T[] {
   return items
-    .map((item) => ({ item, key: keyOf(item), candidateIndex: candidateIndexOf(item) }))
+    .map((item, position) => ({
+      item,
+      key: keyOf(item, position),
+      candidateIndex: candidateIndexOf(item),
+    }))
     .sort((left, right) => left.key - right.key || left.candidateIndex - right.candidateIndex)
     .map((entry) => entry.item)
 }
@@ -96,7 +101,8 @@ export interface RankedRhythmCache {
  * order for one seed (seeded tie key ascending, candidateIndex ascending on collision), and freeze
  * the result as a reusable RankedRhythmCache. Takes the candidate list as given, so a caller that
  * already holds a memoized canonical expansion can rank it for a new seed without re-expanding the
- * grammar.
+ * grammar. Keys come from `computeRhythmTieKeys`, bit-identical to `rhythmTieKey` but hashed
+ * incrementally.
  */
 // @spec-link [[module_ranked_candidate_ordering]]
 export function rankMaterializedRhythmCandidates(
@@ -104,9 +110,10 @@ export function rankMaterializedRhythmCandidates(
   candidates: readonly RhythmCandidate[],
   seed: Seed,
 ): RankedRhythmCache {
+  const keys = computeRhythmTieKeys(candidates, seed)
   const ranked = sortByTieKey(
     candidates,
-    (candidate) => rhythmTieKey(seed, candidate),
+    (_candidate, position) => keys[position]!,
     (candidate) => candidate.candidateIndex,
   )
   return deepFreeze({

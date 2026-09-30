@@ -1,0 +1,124 @@
+{
+  "cases": {
+    "f-sharp-dorian#Sixteenth|Heavily varied|Sparse|Active displacement|Build": [
+      "3117fb5e1ea2b275",
+      "fd980b56ca725786",
+      "1b00da3eaa3fed6a"
+    ],
+    "f-sharp-dorian#Sixteenth|Heavily varied|Sparse|Active displacement|Edge": [
+      "c82ea3afef95f6ee",
+      "82c55740f756fa59",
+      "06e44736b6e44aa2"
+    ],
+    "f-sharp-dorian#Sixteenth|Heavily varied|Sparse|Straight|Build": [
+      "3790af6c361f8787",
+      "c751bac34f4ab509",
+      "f99310e20ef1a36a"
+    ],
+    "f-sharp-dorian#Eighth|Slightly varied|Conversational|Occasional offbeats|Lift": [
+      "298b29489b87292a",
+      "885ab4e12e29d290",
+      "c4bb3e819b955ed8"
+    ],
+    "minor-active-high#Sixteenth|Heavily varied|Sparse|Active displacement|Build": [
+      "1d7604e15591b658",
+      "3c6c20b6344ed583",
+      "2bb8aca7a167daba"
+    ],
+    "minor-active-high#Sixteenth|Heavily varied|Sparse|Active displacement|Edge": [
+      "e1c6ea90196b9675",
+      "a798432869625fc0",
+      "4b0ae1160665828a"
+    ],
+    "minor-active-high#Sixteenth|Heavily varied|Sparse|Straight|Build": [
+      "bc286eedbfe91576",
+      "c7cc3f4956e12d67",
+      "55cb6aa4ae97fca9"
+    ],
+    "minor-active-high#Eighth|Slightly varied|Conversational|Occasional offbeats|Lift": [
+      "332fddb748fcbe48",
+      "7ed7a5dc2d780f9c",
+      "badd4b9dbb882da6"
+    ],
+    "static-falling-angular-low#Sixteenth|Heavily varied|Sparse|Active displacement|Build": [
+      "8f7283e4a8e22bf6",
+      "1f16553f6ce51f2b",
+      "113871232a6d1b80"
+    ],
+    "static-falling-angular-low#Sixteenth|Heavily varied|Sparse|Active displacement|Edge": [
+      "2745179ef9d5eb36",
+      "48f6ff6e8b8e2532",
+      "b361c8f83ed1a218"
+    ],
+    "static-falling-angular-low#Sixteenth|Heavily varied|Sparse|Straight|Build": [
+      "f8b1f47295ebc178",
+      "07faf24c4179f10a",
+      "558e488fa0679848"
+    ],
+    "static-falling-angular-low#Eighth|Slightly varied|Conversational|Occasional offbeats|Lift": [
+      "ba15d76269b04437",
+      "84d3e6d7ea32c197",
+      "ccba9587b4676201"
+    ],
+    "varying-chaotic-rising#Sixteenth|Heavily varied|Sparse|Active displacement|Build": [
+      "e4211e823e7dda38",
+      "999c5c100f3d0a80",
+      "4b770f7f4d252a32"
+    ],
+    "varying-chaotic-rising#Sixteenth|Heavily varied|Sparse|Active displacement|Edge": [
+      "7e5c62996312ed83",
+      "3a467d9008e69363",
+      "f057395ed5c1ccb9"
+    ],
+    "varying-chaotic-rising#Sixteenth|Heavily varied|Sparse|Straight|Build": [
+      "294cee350200a0ad",
+      "54cd0211eaf10d37",
+      "417f836b56990a33"
+    ],
+    "varying-chaotic-rising#Eighth|Slightly varied|Conversational|Occasional offbeats|Lift": [
+      "c29214174ae60530",
+      "0acc0ed5fdded05f",
+      "9a6c4bb60a39e1b8"
+    ],
+    "jazz-mixolydian-alto#Sixteenth|Heavily varied|Sparse|Active displacement|Build": [
+      "9e841925295e3004",
+      "bd4d9f244b933d6f",
+      "5c19db54d14edaf7"
+    ],
+    "jazz-mixolydian-alto#Sixteenth|Heavily varied|Sparse|Active displacement|Edge": [
+      "2d20c5bc443a7861",
+      "b1f0afb1299a627b",
+      "43e6be5d6aaf2f0d"
+    ],
+    "jazz-mixolydian-alto#Sixteenth|Heavily varied|Sparse|Straight|Build": [
+      "d5ed0b03e763f701",
+      "68d9267a6635e24f",
+      "7a3371477de56772"
+    ],
+    "jazz-mixolydian-alto#Eighth|Slightly varied|Conversational|Occasional offbeats|Lift": [
+      "d95b9091be720247",
+      "0383cc06597ce45d",
+      "ed005363b60fc3a5"
+    ],
+    "keyboard-locrian-smooth#Sixteenth|Heavily varied|Sparse|Active displacement|Build": [
+      "7f61d224c7b79d80",
+      "dadefcf0f2ee7a31",
+      "c4044c55f274023f"
+    ],
+    "keyboard-locrian-smooth#Sixteenth|Heavily varied|Sparse|Active displacement|Edge": [
+      "c51728da914e9da5",
+      "07f99989df8ea978",
+      "f7ebc3e34a7f7209"
+    ],
+    "keyboard-locrian-smooth#Sixteenth|Heavily varied|Sparse|Straight|Build": [
+      "9f42ae67f2d1a253",
+      "bb48bfe41993ab33",
+      "955531dac2bdc545"
+    ],
+    "keyboard-locrian-smooth#Eighth|Slightly varied|Conversational|Occasional offbeats|Lift": [
+      "e3c7428cc9a42ee5",
+      "11ad1de0ed636a22",
+      "c4a5eec1289ddd28"
+    ]
+  }
+}

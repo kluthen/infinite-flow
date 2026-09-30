@@ -137,6 +137,11 @@ interface WorkspaceHarnessApi {
   failNextNotation: () => void
   /** The current workspace session snapshot. */
   snapshot: () => WorkspaceHarnessSnapshot
+  /**
+   * How many rhythm-domain prewarms the workspace has posted to the real worker since the page
+   * loaded; always 0 with `?prewarm=off`.
+   */
+  prewarmCount: () => number
   /** The audio transport's seams (see `WorkspaceHarnessAudioApi`). */
   audio: WorkspaceHarnessAudioApi
 }

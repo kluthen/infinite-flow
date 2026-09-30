@@ -149,7 +149,7 @@ function measureSetting(
   }
 }
 
-/** Intent: every one of the 432 rhythm settings the harness measures, in a fixed, stable order. */
+/** Intent: every one of the 324 rhythm settings the harness measures, in a fixed, stable order. */
 function allSettings(): SettingMeasurement[] {
   const results: SettingMeasurement[] = []
   for (const noteDensity of NOTE_DENSITIES) {
