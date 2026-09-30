@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.21
+Status: draft v2.22
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -748,3 +748,25 @@ fact in the live documents (see the [archive index](archive/README.md) and
   by it. Refines D78 (O41). v1 has no note acknowledgement, so nothing in v1 changes. The atom
   `rule_expected_note_window` still states the old cutoff and needs updating by `documentalist`.
   Master spec §8 and §11 (v2.0 item 7); v2 README. Master spec v1.21 → **v1.22**.
+- **D169 (2026-09-30): the next session's phrase 1 is a fresh phrase generated at the session
+  end, and a session starts from the Review exactly as from Idle, the starting note included.**
+  Resolves **O84**. The owner delegated the unit 6 decisions (the last-session Review) to
+  `ux-writer` on 2026-09-30, the Review's phrase 1 and its start included (ux D135: keep the
+  Review as simple as possible), and `ux-writer` settled them as **ux D137**, recorded here as
+  settled. At every session end once phrase 1 has started sounding, the ended session's phrases
+  leave the staff and the app generates a fresh phrase from the current settings, with a fresh
+  seed and no carry-in, as regenerating by hand at Idle would (the retries that replace a phrase
+  whose notes do not fit included); if the staff has no room, nothing is generated until the
+  notice clears. That phrase, on screen above the Review, is the next session's phrase 1, so §4's
+  "the phrase already on screen before Start" holds unchanged. A session starts from the Review by
+  a Start click or, with a controller attached, by that phrase's starting note, under the Idle
+  start conditions (§6), which now say "at Idle, the review showing or not"; the starting note is
+  named as at Idle. Either start discards the Review without asking (D130). Accepted risk: a note
+  played while looking back can start a session and discard an unexported Review; the starting
+  note is always named. Rejected: O84's click-only proposal (after a visit's first session a
+  Review is almost always open, so the hands-free start of D115 would stop working or need an
+  extra discard action), and phrase 1 as the ended session's last phrase or its phrase 1 again (a
+  start on material already read, against P2.S1). A session ended during its count-in is
+  unchanged: no Review, phrase 1 stays. No other product rule changes. Master spec §4, §6, §7,
+  §11 (v2.0 items 12, 17 and 22, and new item 28) and §12; v2 README. Master spec v1.22 →
+  **v1.23**.

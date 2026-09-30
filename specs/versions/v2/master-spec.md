@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.22 (2026-09-29). This is the consolidated, execution-ready specification for
+Status: master spec v1.23 (2026-09-30). This is the consolidated, execution-ready specification for
 v2, covering releases v2.0 through v2.3. It supersedes the individual v2 draft topic documents,
 which are kept in the archive as working history. Change in v1.6: the export is chosen by content,
 generated notes or played notes, and played notes come as a MIDI file of their own instead of an
@@ -74,7 +74,13 @@ the second note's onset and the point halfway between the two onsets, so every a
 window contains its own note's onset and a note played on time can always be matched, where before
 a note followed less than 150 ms later could not be; nothing changes for notes 300 ms or more
 apart. Windows include both their ends, and a phrase's last expected note is bounded by the next
-phrase's first in the same way (§8, §11).
+phrase's first in the same way (§8, §11). Change in v1.23, the answer to the item left open about
+starting a session from the review, settled by the interface design under the product owner's
+delegation: at every session end once phrase 1 has started sounding, the app generates a fresh
+phrase from the current settings, as regenerating by hand at Idle would, and that phrase, on
+screen while the review shows, is the next session's phrase 1; a session starts from the review
+exactly as from Idle, by a Start click or by the starting note, under the same conditions, and
+either start discards the review without asking (§4, §6, §7, §11, §12).
 
 ## 1. Core concept
 
@@ -226,7 +232,9 @@ _N_'s last measure. That leaves at least one measure of read-ahead visible on sc
 At session start, the phrase already on screen before Start was pressed becomes phrase 1 of the
 new session (there is no separate "generate phrase 1" step), and phrase 2 is generated during the
 one-bar count-in, before the count-in ends. No session can start while a new phrase is being
-generated (§6), so phrase 1 is never ambiguous.
+generated (§6), so phrase 1 is never ambiguous. The same holds for a session started from the
+review: the phrase on screen there is the fresh phrase generated when the previous session ended
+(§7), never one the previous session played.
 
 **A look-ahead phrase must also fit the staff.** During a session, a phrase is only valid if it
 can be drawn at the staff's minimum readable size in the staff layout the session holds (§6).
@@ -390,7 +398,8 @@ decision.
   click off, because it is the only thing that sets the tempo before bar 1. It plays at the click
   volume, which is never silent (above), so it is always audible. **Only one MIDI note
   can start a session: the note phrase 1 starts on** (its first attacked note; phrase 1 is the
-  phrase already on screen, §4). Any other note played while the app is Idle starts nothing.
+  phrase already on screen, §4). Any other note played while the app is Idle, the review showing
+  or not, starts nothing.
   Nothing played while the player is connecting a controller or running its transposition check
   (§8) can start a session either, not even that same note: connecting is a step of its own. Nor
   can it start one while a session cannot start at all (below). The MIDI case still needs the count-in, because the
@@ -410,13 +419,22 @@ decision.
   - **The count-in is shown as well as heard**, for both kinds of start: its beats are counted on
     screen in time with the click, and phrase 1's whole first measure stays fully visible
     throughout the count-in. How the count looks is a UI/UX design decision.
-  - **Still open** (§12): starting a session from the Review rather than from Idle — which phrase
-    becomes phrase 1 there, and whether a MIDI note can start it at all.
-- **When a session can start.** At Idle, a session starts only while every one of these holds.
-  While any of them does not, neither a Start click nor any MIDI note starts a session, the
-  starting note included, and no starting note is named. Once they all hold again, starting works
-  as above. How an unavailable start looks is a UI/UX design decision. (How these conditions apply
-  when starting from the Review is still open, §12.)
+  - **From the review, a session starts exactly as from Idle.** The review leaves the staff on
+    screen, holding the next session's phrase 1: the fresh phrase generated when the last session
+    ended (§7). A Start click, or, with a controller attached, the note that phrase starts on,
+    starts a session there, under the same conditions (below), and the starting note is named
+    exactly as at Idle. Either start discards the review without asking (§7). A note played while
+    looking back at the review, instrument in hand, can therefore start a session and discard a
+    review not yet exported; that is accepted, since the starting note is always named when it
+    would start one. Rejected: only a Start click starting a session from the review. After the
+    first session of a visit a review is almost always open, so the hands-free start would in
+    practice stop working, or need an extra action just to close the review.
+- **When a session can start.** At Idle, the review showing or not, a session starts only while
+  every one of these holds. While any of them does not, neither a Start click nor any MIDI note
+  starts a session, the starting note included, and no starting note is named. Once they all hold
+  again, starting works as above. How an unavailable start looks is a UI/UX design decision. The
+  conditions are the same from the review: while the next phrase 1 is being generated after a
+  session ends (§7), no session starts.
   - **A phrase is on screen, drawn in full.** Not before a first phrase has been generated, and not
     while the phrase cannot be drawn (v1's notation error, now kept only for a failure that
     retrying can cure).
@@ -610,9 +628,24 @@ notes the player actually played are **optional**, shown only on a toggle, and w
 unquantized and neutrally colored, possibly indicating which ones matched the script — this is an
 appreciation of having followed the line, never a score, and there is still no coloring anywhere for
 a note that didn't match. The review has no favorites: marking phrases is v3 (§2). Only the most
-recently completed session's review exists. Starting a new session from the review discards it
-without asking for confirmation, so the next session is always one action away. Closing or reloading
-the page discards everything without asking.
+recently completed session's review exists. Starting a new session from the review, by a Start
+click or by the starting note (§6), discards it without asking for confirmation, so the next
+session is always one action away. Closing or reloading the page discards everything without
+asking.
+
+**The next session's phrase 1.** At every session end once phrase 1 has started sounding, the
+ended session's phrases leave the staff (they are all in the review) and the app generates a fresh
+phrase from the current settings, with a fresh seed and no carry-in, exactly as regenerating by
+hand at Idle would, the retries that replace a phrase whose notes do not fit included (§4). That
+phrase, on screen while the review shows, is the next session's phrase 1 (§4). Neither the ended
+session's last phrase nor its phrase 1 is offered again: a player who wants endless new material
+should not start a session on a phrase already read. While it is being generated, no session
+starts (§6). If the staff has no room at that moment, nothing is generated until the notice that
+the staff needs more room clears, as at Idle (§6). Like any generation at Idle, it may also end
+with a generation failure being reported, or, when the rhythm settings are a combination v1
+disallows for the note density the window now gives (§5), with no phrase at all, as when that
+notice clears under such settings (§6); the conditions under which a session can start (§6) then
+apply as at Idle.
 
 **A session ended during the count-in** — by Stop, a hidden tab or the staff no longer being
 shown, before
@@ -968,8 +1001,9 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
     element, and the C keyboard, which does not transpose, without one (§7); MIDI opens correctly
     in a real tool with the correct tempo map. Every export covers the whole session. In v2.0
     only the generated-notes export action exists, and no exported file holds a played note. The
-    review has no favorites. Starting a new session from the review discards it without any
-    confirmation, and closing or reloading the page discards everything without asking.
+    review has no favorites. Starting a new session from the review, by a Start click or by the
+    starting note, discards it without any confirmation, and closing or reloading the page
+    discards everything without asking.
 13. Privacy holds absolutely (verified with a network/storage spy across a full session, review and
     export), and nothing anywhere is ever graded, scored or marked wrong.
 14. All existing v1 guarantees still hold unchanged: the instrument range contract, the notation
@@ -987,7 +1021,8 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
     only under the 30-second no-note rule in §7.
 17. From MIDI, only the note phrase 1 starts on, at its exact pitch with the octave included,
     starts a session, and only while a session can start at all (item 22). Any other note played
-    at Idle, any note played while a session cannot start, and any note at all played while
+    at Idle, the review showing or not, any note played while a session cannot start, and any
+    note at all played while
     connecting a controller or during the transposition check, starts nothing and changes nothing
     on screen. The note that starts a session is named on screen, neutrally, exactly when playing
     it would start one: with a controller attached, outside the connection step, and while a
@@ -1015,8 +1050,8 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
     any means, the app holds a screen wake lock, and it releases the lock when the session ends.
     When the browser refuses the lock or does not support it, the session starts and runs exactly
     as it otherwise would, and nothing is shown about the lock.
-22. At Idle, neither a Start click nor any MIDI note starts a session, and no starting note is
-    named, while: no phrase has been generated yet; a new phrase is being generated, including
+22. At Idle, the review showing or not, neither a Start click nor any MIDI note starts a session,
+    and no starting note is named, while: no phrase has been generated yet; a new phrase is being generated, including
     the retries that replace a phrase whose notes do not fit (item 26); the phrase cannot be drawn
     (notation error); a failed generation is being reported, with or without the previous phrase
     still on screen; the rhythm settings are a combination v1 disallows (item 11); the
@@ -1087,6 +1122,14 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
     every later phrase of that session is too, whatever the window does; the chosen value
     applies again from Idle. A session's history records, for each phrase, the density it was
     generated with. Sixteenth notes can still appear in a phrase through other settings.
+28. At every session end once phrase 1 has started sounding, the app generates a fresh phrase
+    from the current settings, with a fresh seed and no carry-in, as regenerating by hand at Idle
+    would (with item 26's retries), or, if the staff has no room at that moment, once the notice
+    clears. That phrase, on screen with the review, is the next session's phrase 1; it is neither
+    the ended session's last phrase nor its phrase 1. From the review, a session starts exactly as
+    at Idle, by a Start click or, with a controller attached, by the note that phrase starts on,
+    and never in any case of item 22, which includes the time the fresh phrase is being
+    generated. Either start discards the review without confirmation (item 12).
 
 ### Added by v2.1 and later
 
@@ -1152,19 +1195,6 @@ starting v2.0 implementation:
 One item left v2 when favorites moved to v3, and is not a v2 gap: **what makes a favorite count
 as exported**, which only mattered for asking before discarding unexported favorites. It stays
 open and is settled with favorites in v3, together with marking itself.
-
-One session-start item came up while the controller-connection rules were being settled. It
-blocks only the path it names, not the rest of v2.0:
-
-- **Starting a session from the Review** (§6, §7): a new session can be started from the Review as
-  well as from Idle, but "phrase 1 is the phrase already on screen" assumes Idle. Which phrase
-  becomes phrase 1 there is undecided, and depends on what the Review screen shows besides the
-  review. Whether a MIDI note can start a session from the Review at all is also undecided.
-  Proposed, not yet confirmed by the product owner: from the Review, only a Start click starts a
-  session. Starting from the Review no longer asks for any confirmation (§7), so that reason for
-  the proposal is gone; whether a MIDI start is wanted there is the remaining question. Whatever
-  the answer, it also has to say how the conditions under which a session can start (§6),
-  settled for Idle, apply when starting from the Review.
 
 One item came up with the note-density rule and the "staff needs more room" notice (§2). It
 blocks only the behaviour it names:
