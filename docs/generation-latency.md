@@ -198,8 +198,9 @@ the heartbeat.
 **Against the working target (cold worst case under 250 ms in Chromium): missed.** The cold worst
 case took 829-951 ms in Chromium, and the first generation after a rhythm-control change up to
 842 ms. Warm generations and changes that keep the rhythm setting stay under 200 ms (143-192 ms).
-By [chunk 1's rule](../specs/versions/v2/build-plan.md#chunk-1--baseline-checks), a miss stops the
-plan before chunks 8 and 10 until the owner decides how to proceed.
+By [chunk 1's rule](../specs/versions/v2/build-plan.md#chunk-1--baseline-checks), a miss stopped the
+plan before chunks 8 and 10 until the owner decided. On 2026-09-30 the owner decided that the
+250 ms target is, for now, a goal to aim for and not a gate; the deadline below is the gate.
 
 **Against the deadline itself (`rule_look_ahead_deadline`):**
 

@@ -70,9 +70,11 @@ prerequisites. The code and the registers add three more.
     miss that target on the worst case: 1,016 ms cold in Node, and 829-951 ms from click to
     "Phrase ready" in Chromium for the densest settings. The medians are far lower (17.8 ms cold
     in Node). The deadline itself holds everywhere except a v2.1 regeneration after a
-    rhythm-control change that needs retries. Chunk 1's rule stops the plan before the session
-    engine ([chunk 8](#chunk-8--session-engine)) and [chunk 10](#chunk-10--audio-transport) until
-    the owner decides how to proceed.
+    rhythm-control change that needs retries. On 2026-09-30 the owner decided that the 250 ms
+    target is, for now, a goal to aim for and not a gate: `rule_look_ahead_deadline` is the gate,
+    so the session engine ([chunk 8](#chunk-8--session-engine)) and
+    [chunk 10](#chunk-10--audio-transport) may start. The v2.1 case still goes to
+    [chunk 24](#chunk-24--settings-mutation-engine).
 - **Engraving on the main thread against the audio scheduler: measured by chunk 1, applied by
   [chunk 10](#chunk-10--audio-transport).** Engraving runs on the page's main thread. If it blocks
   longer than the audio scheduler's look-ahead window (200 ms proposed), sound could come late.
@@ -100,7 +102,7 @@ chunks in different sections; the second to merge rebases on the first.
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
 | 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29)                                                                                                                                                                                                                                                                                                       | Nothing                                               |
 | 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 (done 2026-09-29), follow-up 3b Phone staff height (done 2026-09-29) · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation (done 2026-09-29) · 14 Note acknowledgement (done 2026-09-29) · 18 MusicXML encoding (done 2026-09-29) · 19 Generated-notes MIDI encoding (done 2026-09-29) | Chunk 0 (done). Start chunk 3 first (see the caveat). |
-| 2    | 5 Idle fit retries and the room notice · 6 Note identity and session overlays · 8 Session engine · 10 Audio transport                                                                                                                                                                                                                                                         | Wave 1. Chunks 8 and 10 also need chunk 1's verdict.  |
+| 2    | 5 Idle fit retries and the room notice · 6 Note identity and session overlays · 8 Session engine · 10 Audio transport                                                                                                                                                                                                                                                         | Wave 1. Chunk 1's verdict: given (2026-09-30).        |
 | 3    | 9 Session history · 11 Backing · 12 MIDI input                                                                                                                                                                                                                                                                                                                                | Wave 2                                                |
 | 4    | 15 Session screen: start and end                                                                                                                                                                                                                                                                                                                                              | Wave 3                                                |
 | 5    | 13 Controller connection · 16 Rolling display                                                                                                                                                                                                                                                                                                                                 | Chunk 15                                              |
@@ -426,8 +428,8 @@ atoms' EXPECTATION sections, except item 15 (the main-thread budget), which is t
 
 - **Working target (cold worst case under 250 ms in Chromium): missed.** Cold worst case
   829-951 ms; the first generation after a rhythm-control change up to 842 ms. Changes that keep
-  the rhythm setting stay under 200 ms. By this chunk's rule, the plan stops before chunks 8 and
-  10 until the owner decides how to proceed.
+  the rhythm setting stay under 200 ms. The owner decided on 2026-09-30 that the target is, for
+  now, a goal to aim for and not a gate, so the miss doesn't stop chunks 8 and 10.
 - **The deadline itself (`rule_look_ahead_deadline`):** the three-bar window is met for every
   setting, four retries included (about 1.55 s of 3 s); Edge is not slower than Build here.
   Phrase 2's one-bar window is met, retries included, when phrase 1 has warmed the cache (about
