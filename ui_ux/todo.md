@@ -250,7 +250,9 @@ Units below are not yet started. None is blocked on anything **except** where no
    session-end and Review edits in `screens/phrase-workspace/`, `flows/play-session/` and
    `flows/generate-phrase/`, `strategy.md` (context of use, trade-offs, edge-case policy, flow
    index), `motion.md`, the README map, and the token source (`review-*` classes, `review-link`,
-   `.session-action[aria-disabled='true']`). Q25 closed by D137, Q47 by D139. Unblocks build-plan
+   `.session-action[aria-disabled='true']`, removed again by D144). Q25 closed by D137, Q47 by
+   D139. **Revised 2026-09-30 by the owner's D143 and ux D144:** the Review is a mode, left by
+   `Close review` before any session starts, and kept until the next session. Unblocks build-plan
    chunk 20. For `spec-writer`: spec O84 (phrase 1 and the starting note from the Review, D137);
    the file names and the export's default format are this design's (D141). For `coding-leader`:
    chunk 20 needs the session's start time (local wall clock) and instrument profile from the
@@ -380,7 +382,10 @@ three passes, confirmed by the user, committed 2026-09-27. Next, in this order:
    `spec-writer`), plus three minor findings, fixed (ux D142). **Next:** (a) `spec-writer` records
    D137 (fresh phrase 1 at a session end; the Review changes no start condition; the starting note
    works there) in §6, §7 and §12 and closes O84; (b) a narrow `ux-critic` confirmation pass once
-   the spec matches; (c) the owner's confirmation, then merge. Build-plan chunk 20 can start from
+   the spec matches; (c) the owner's confirmation, then merge. **Superseded in part by the
+   owner's D143 (ux D144 applied the same day):** `spec-writer` now records D143/D144 instead
+   (spec D169 and §6, §7, §11 items 12 and 28 describe a start from the Review), `documentalist`
+   follows in the atoms, then the `ux-critic` pass the coordinator runs. Build-plan chunk 20 can start from
    these handoffs meanwhile.
 
 **ux-critic plan read (2026-09-27), to weigh before continuing:**

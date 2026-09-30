@@ -2,19 +2,23 @@
 
 > **New in v2.**
 
-`review-panel` is a region of the phrase-workspace page (`screens/phrase-workspace/`), placed after
-`control-section` in `layout-workspace`, rendered only while a Review exists: from a session end
-once phrase 1 has sounded until the next session starts or the page closes. It is drawn from the
-session history held in memory; nothing in it reads the current controls. Flow and routing:
+`review-panel` is the phrase-workspace page's review mode (`screens/phrase-workspace/`): while the
+Review shows, it is the only child of `layout-workspace` that is rendered, in place of
+`score-panel` and `control-section`, under the unchanged `layout-header`, whose session action
+reads `Close review`. A Review exists from a session end once phrase 1 has sounded until the next
+session starts or the page closes; it shows at that session end and after `Review last session`,
+and is kept, not shown, after `Close review`. It is drawn from the session history held in
+memory; nothing in it reads the current controls. Flow and routing:
 `flows/review-and-export/handoff.md`.
 
 ## Layout Tree
 
 ```text
+layout-header                  (screens/phrase-workspace/; the session action reads Close review, primary, while the Review shows; the phrase action is disabled)
 layout-workspace
-  score-panel                  (screens/phrase-workspace/; its session-cue-row holds review-link while this panel exists)
-  control-section              (screens/phrase-workspace/)
-  review-panel                 (section, aria-labelledby review-title)
+  score-panel                  (screens/phrase-workspace/; hidden while the Review shows; its session-cue-row holds review-link while a Review exists and is not showing)
+  control-section              (screens/phrase-workspace/; hidden while the Review shows)
+  review-panel                 (section, aria-labelledby review-title; rendered only while the Review shows)
     review-header
       review-heading
         review-title           (h2, tabindex -1: "Last session")
@@ -49,7 +53,7 @@ layout-workspace
 ## Components and Content
 
 - `review-panel` is a surface panel like `control-section` (surface, border, radius, shadow,
-  padding from the token source). It has no state classes of its own; it is present or absent.
+  padding from the token source). It has no state classes of its own; it is rendered while the Review shows, and not otherwise.
 - `review-title` reads "Last session". It carries `tabindex="-1"` so `review-link` can move focus
   to it; it is never in the tab order and takes the `:focus-visible` ring.
 - `review-summary` reads "{n} phrases · {instrument profile}. Kept until the next session starts
@@ -66,7 +70,8 @@ layout-workspace
     `MIDI` is checked. Off at first; its state holds for the page session, including while hidden.
     It is independent of the audio mix's `Backing` toggle.
   - **Export**: `btn review-export-action` reading "Export generated notes". Secondary emphasis
-    (never `btn-primary`): `Start session` keeps the page's one primary action. Activation builds
+    (never `btn-primary`): `Close review`, in the header, is the page's one primary action while
+    the Review shows. Activation builds
     exactly one file from the session history and starts a browser download.
   - While the file is built the button takes `is-loading` and `disabled`; Format and Backing track
     stay live and apply to the next export. Focus stays on the button and returns to it enabled.
@@ -119,22 +124,25 @@ layout-workspace
   `room-notice` stands in its place holding `room-notice-wide` and `room-notice-narrow`, shown by
   the same width-only query as in `staff-frame`. It carries no `tabindex` and is not announced.
   The list returns on the viewport change that gives the staff room.
+- `Close review` is the header's session action (`btn btn-primary btn-lg session-action`, same
+  fixed inline size) with that label while the Review shows; see `screens/phrase-workspace/`,
+  Components and Content, and `flows/review-and-export/handoff.md`, Close review.
 - `review-link` (in `screens/phrase-workspace/`, `session-cue-row`): `btn review-link` reading
-  "Review last session", at the row's trailing end, rendered at idle whenever `review-panel`
-  exists, beside whatever else the row holds (`start-note-line`, or nothing). Activation scrolls
-  the page instantly so `review-panel`'s top edge sits at the top of the viewport, then moves
-  focus to `review-title` without scrolling again.
+  "Review last session", at the row's trailing end, rendered at idle while a Review exists and is
+  not showing, beside whatever else the row holds (`start-note-line`, or nothing). Activation shows
+  the Review again, scrolled to its top, and moves focus to `review-title`.
 
 ## Focus and Keyboard
 
-- Tab order follows the page: header, score toolbar, cue row (`review-link`), staff area, controls,
-  then `review-panel`: Format, Backing track (when shown), Export generated notes. Items in the list
-  hold nothing focusable in v2.0.
-- A session end moves focus as `flows/review-and-export/handoff.md` (Focus at the end) sets; the
-  panel's appearance moves no focus by itself.
-- A session start removes the panel; focus was on the session action (Start click) and stays
-  there, now `Stop`; if focus was inside the panel, or on `review-link`, when the starting note
-  started the session, it moves to the session action.
+- While the Review shows, the tab order is the header (`controller-status`, `theme-control`, the
+  disabled phrase action skipped, `Close review`), then `review-panel`: Format, Backing track (when
+  shown), Export generated notes. Items in the list hold nothing focusable in v2.0.
+- A session end moves focus to `Close review`. `Close review` and `Review last session` move focus
+  as `flows/review-and-export/handoff.md` sets. Keyboard route from a session end: Space closes the
+  Review, focus stays on the session action, now `Start session`; Space starts the next session.
+  No global shortcut closes the Review.
+- A session start (only from idle, the Review not showing) removes `review-link`; if it had focus
+  when the starting note started the session, focus moves to the session action.
 
 ## Responsive Behavior
 
@@ -145,7 +153,7 @@ layout-workspace
   played-notes toggle and export join `review-header` and `review-actions` here too.
 - At `bp-tablet-landscape` and `bp-desktop`: `review-heading` at the inline start and
   `review-actions` at the inline end of one row, wrapping under the heading when they do not fit;
-  `review-summary` under the title. One system per phrase at `staff-viewport`'s width.
+  `review-summary` under the title. One system per phrase, across the panel's content width.
 - `review-panel` takes the full inline size of `layout-workspace` at every breakpoint; no side
   rail, no second column.
 - Every visual value comes from the token source (`src/styles/theme.css`,
@@ -155,9 +163,12 @@ layout-workspace
 
 - **Absent:** no Review exists (before the first session with a sounded phrase, from any session
   start, after a reload). No `review-panel`, no `review-link`.
-- **Shown:** as above, alongside whatever idle state the workspace is in (**Loading**, **Ready**,
-  the errors, **Needs more room**, **Empty**). It never changes with those states, except for the
-  no-room list replacement.
+- **Showing:** as above, in place of the staff and the controls, whatever idle state the hidden
+  workspace is in (**Loading**, **Ready**, the errors, **Needs more room**, **Empty**). It never
+  changes with those states, except for the no-room list replacement. No session starts: the
+  session action reads `Close review`, and every MIDI note is ignored.
+- **Kept, not showing:** after `Close review`, until the next session starts: the workspace as at
+  idle, with `review-link` in `session-cue-row`.
 - **Empty:** cannot occur: a Review opens only once a phrase has sounded, so it always holds at
   least one phrase.
 - **Loading:** per phrase only: an item not yet engraved shows its reserved space, blank, with no

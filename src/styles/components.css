@@ -1071,36 +1071,22 @@
   /* end v2 new */
 
   /* v2 new -- from here to "end v2 new": the last-session Review (`review-panel` and its parts,
-     `review-link` in the session cue row) and the session action's focus-keeping unavailable
-     state at a session end. */
-  /* States: default, unavailable-with-focus (`aria-disabled="true"`). Used only at a session end
-     that opens the Review, while the next phrase loads: the session action keeps focus (a
-     natively disabled button would drop it) and script ignores its activation. It looks exactly
-     like `.btn:disabled` and shows no hover or press feedback. Everywhere else the session action
-     is natively `disabled`. */
-  .session-action[aria-disabled='true'] {
-    cursor: not-allowed;
-    opacity: 0.55;
-  }
-  .btn-primary.session-action[aria-disabled='true']:hover {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-  }
-  .btn-primary.session-action[aria-disabled='true']:active {
-    transform: none;
-  }
+     `review-link` in the session cue row). While the Review shows, the header's session action
+     reads `Close review` (`btn btn-primary btn-lg session-action`, no class of its own) and
+     `score-panel` and `control-section` are hidden with the `hidden` attribute. */
   /* States: default, hover, focus-visible, active, disabled -- all from `.btn` (secondary
      emphasis only). "Review last session", at the trailing end of `session-cue-row`, rendered at
-     idle while a Review exists, beside `start-note-line` or alone; removed at a session start.
-     Activation jumps (instantly) to `review-panel` and focuses `review-title`. */
+     idle while a Review exists and is not showing (after `Close review`), beside
+     `start-note-line` or alone; removed at a session start. Activation shows the Review again
+     and focuses `review-title`. */
   .review-link {
     flex: 0 0 auto;
     margin-inline-start: auto;
   }
-  /* States: absent (default: not rendered), shown. The "Last session" panel after
-     `control-section`, a surface panel like it. Not interactive itself: hover/focus-visible/
-     active/disabled do not apply. Appears and goes with no animation. Full inline size at every
-     breakpoint: no side rail. */
+  /* States: absent (default: not rendered), shown. The "Last session" review, rendered alone in
+     `layout-workspace` while the Review shows, a surface panel like `control-section`. Not
+     interactive itself: hover/focus-visible/active/disabled do not apply. Appears and goes with no
+     animation. Full inline size at every breakpoint: no side rail. */
   .review-panel {
     background: var(--color-surface);
     border: 1px solid var(--color-border);

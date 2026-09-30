@@ -1033,7 +1033,8 @@ generation` secondary; `Start session` primary.
   rules out side tools). Accepted cost: the Review starts below the fold, which `review-link`
   answers. Refines D45's open Review part: the Review extends the same screen. Governs
   `flows/review-and-export/`, `screens/last-session-review/`, `screens/phrase-workspace/`
-  (Layout Tree, `session-cue-row`, States).
+  (Layout Tree, `session-cue-row`, States). **Placement superseded by D144** (the Review replaces
+  the staff and the controls while it shows); `review-link` stands, shown once the Review is left.
 
 - **D137 — Phrase 1 from the Review, and the starting note there (2026-09-30; `ux-writer`'s call
   under D135; closes Q25; answers spec O84).** At every session end once phrase 1 has sounded, the
@@ -1051,7 +1052,9 @@ generation` secondary; `Start session` primary.
   memorized start, against P2.S1). Accepted risk: a note played while looking back can start a
   session and discard an unexported Review; `start-note-line` names that note, and
   `review-summary` says the Review lasts until the next session starts or the page closes (not on
-  the phone, per D135). Passed to `spec-writer` for O84.
+  the phone, per D135). Passed to `spec-writer` for O84. **Start-from-Review part superseded by
+  D143** (no session starts while the Review shows); the fresh phrase generated at the session
+  end, found on the staff when the player leaves the Review, still holds.
 
 - **D138 — Focus at a session end that opens the Review (2026-09-30; `ux-writer`'s call under
   D119 (1); completes D85).** Focus moves to the session action, `Start session`, as D85 says.
@@ -1067,7 +1070,8 @@ generation` secondary; `Start session` primary.
   Rejected: D95's order during the Loading, which would put focus on `controller-status` at every
   session end, where Space opens the connection sheet. The count-in end's rule (focus to
   `controller-status` during a Loading, D114) is unchanged: it is rare there. New CSS:
-  `.session-action[aria-disabled='true']`.
+  `.session-action[aria-disabled='true']`. **Superseded by D144**: focus goes to `Close review`,
+  always enabled, and the `aria-disabled` state and its CSS are removed.
 
 - **D139 — The Review over a staff with no room (2026-09-30; `ux-writer`'s call under D135;
   closes Q47).** A session ended by a window that leaves the staff no room still opens the Review,
@@ -1077,6 +1081,7 @@ generation` secondary; `Start session` primary.
   breakpoint, no `tabindex`) stands in place of `review-list`, and the list returns on the
   viewport change that gives the staff room; the title and the export keep working. Focus goes to
   the staff area's `room-notice` (D138), which says what to do, as after a count-in end (D114).
+  **Focus part amended by D144**: `Close review` at the session end, `room-notice` on leaving.
   Where the staff has room but one review phrase's notes do not fit at the legibility floor in the
   current layout, that phrase alone shows "This phrase needs a wider window." in its reserved
   space, keeping its number and tempo; a review phrase is never regenerated.
@@ -1120,3 +1125,42 @@ generation` secondary; `Start session` primary.
   while it has focus (not only when focus was in the panel); `strategy.md`'s review policy says
   the phone's review does not carry the "kept until" line; the unspecified "same bytes on every
   export" promise is dropped from the tier documents (build-plan chunk 20 keeps its own test).
+
+- **D143 — Leave the Review before starting a session (2026-09-30, owner decision through the
+  coordinator; overrides D137's start-from-Review part).** The owner: "one should leave review mode
+  before starting a new session." While the Review shows, no session starts: not by a Start click,
+  not by the starting note. The player first leaves the Review, then starts from the idle
+  workspace as usual. D137's other parts stand: at every session end once phrase 1 has sounded, a
+  fresh phrase is generated from the current controls (fresh seed, no carry-in, idle attempt
+  budget), and the phrase on screen when a session starts from idle is its phrase 1. The stray-note
+  risk D137 accepted is gone: while the Review shows, every MIDI note is ignored. For
+  `spec-writer` (spec D169, master spec §6, §7, §11 items 12 and 28) and `documentalist`.
+
+- **D144 — How the Review is shown, left and reopened (2026-09-30; `ux-writer`'s call under D135,
+  applying D143; supersedes D136's placement and D138).** (1) The Review is a mode: while it shows,
+  `layout-workspace` renders `review-panel` alone, and `score-panel` and `control-section` are
+  hidden with their state (the staff, cue row, audio mix, controls and their live regions out of
+  sight; idle rules keep running underneath). The header stays: `controller-status` and
+  `theme-control` interactive, the phrase action disabled in place, and the session action reads
+  `Close review`, primary, same fixed size. With nothing to start, the staff and controls have no
+  job, and a long Review needs the room; D136's reasons against replacing the workspace (phrase 1
+  unseen, a starting note naming nothing) no longer apply, since starting now happens after
+  leaving. (2) Leaving: `Close review`, in the slot where `Start session` will be, so the button
+  the player looks for to play says what to do first and no extra message is needed; no second
+  close in the panel, no global shortcut. A session end puts focus on it (D85's button); on
+  leaving, focus stays on it, now `Start session`, when enabled, so the keyboard route is Space
+  then Space; otherwise it moves to `room-notice` in **Needs more room**, else the phrase action
+  if enabled, else `controller-status`. The page jumps instantly to its top on each switch.
+  (3) Leaving keeps the Review: `review-link` ("Review last session") in `session-cue-row` shows it
+  again, focus on `review-title`, until the next session starts or the page closes; so a mistaken
+  close loses nothing, and only a deliberate session start from idle discards it. (4) While the
+  Review shows, `Start session` is not offered and notes are ignored; `start-note-line` and
+  `start-note-marker` are hidden with the staff, so nothing suggests a note would start anything.
+  (5) The next phrase is generated out of sight at the session end; the `aria-disabled` state of
+  D138 and its CSS are removed. (6) No room at a session end: the Review shows its no-room
+  sentence in place of the list as D139 says, focus is on `Close review`, and leaving lands on
+  **Needs more room** with focus on `room-notice`. (7) The audio mix is not shown while the Review
+  shows (nothing plays; a later replay tool would bring its own access to it). Governs
+  `flows/review-and-export/`, `screens/last-session-review/`, `screens/phrase-workspace/`
+  (header table, `session-action`, `review-link`, `mix-controls`, States **Review showing**),
+  `flows/play-session/`, `strategy.md`, `motion.md` and the token source.

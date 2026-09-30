@@ -4,18 +4,19 @@
 
 ## What This Screen Is
 
-The **Last session** panel is part of the workspace page, not a page of its own. It appears after
-the musical controls when a session ends, once the session's first phrase has sounded, and it goes
-when the next session starts. Everything above it, the header, the staff with the next phrase and
-the controls, works exactly as between any two sessions. The reasoning for that placement, and for
-what happens around it at a session end, is in
-[`flows/review-and-export/intent.md`](../../flows/review-and-export/intent.md).
+The **Last session** review is a mode of the workspace page, not a page of its own. When a
+session ends, once the session's first phrase has sounded, it takes the place of the staff and the
+controls under the same header, and no session can start while it shows: the header's session
+button reads `Close review` instead of `Start session`. Leaving it brings the workspace back as
+between any two sessions; a `Review last session` button above the staff reopens it until the next
+session starts. The reasoning for that shape, and for what happens around it at a session end, is
+in [`flows/review-and-export/intent.md`](../../flows/review-and-export/intent.md).
 
 It is written first for the Fledgling Composer (P3), who wants to look back at a session (P3.C1)
 and take it out to other tools (P3.C2). Personas are defined in
 [`specs/personas.md`](../../../specs/personas.md). For the Curious Improviser (P1) and the Speed
-Builder (P2), who mostly want to play again, its job is to stay below the controls and cost them
-nothing.
+Builder (P2), who mostly want to play again, its job is to cost them one key or click on
+the way out.
 
 ## Focal Point
 
@@ -44,9 +45,12 @@ any other: it is what the player heard and read, and the reason behind it is the
   line, where there is room for them today; whole-session tools sit beside the export. On larger
   screens they stay inside the panel: there is no side rail, so the phrases keep the full width,
   as the staff does.
-- **No way to keep or discard it by hand.** The review lasts until the next session or until the
-  page closes. The summary line says so, because a player who assumes it is saved would otherwise
-  find out the hard way.
+- **No way to keep or discard it by hand.** Leaving the review does not discard it; it lasts until
+  the next session starts or the page closes. The summary line says so, because a player who
+  assumes it is saved would otherwise find out the hard way.
+- **No way out inside the panel.** `Close review` lives in the header, in the slot where
+  `Start session` will be once the player has left; a second close button in the panel would be
+  one more thing on a screen the owner wants plain.
 
 ## The Export
 
@@ -58,9 +62,9 @@ first and is the default, because it keeps what the review shows, the notation. 
 only exists in the MIDI file, so its switch appears only while MIDI is chosen, rather than sitting
 there disabled with an explanation beside it.
 
-The button is not the page's primary action. Between sessions that emphasis belongs to
-`Start session` in the header, the next useful step for most players, most of the time; a second
-primary button further down would compete with it.
+The button is not the page's primary action. While the review shows, that emphasis belongs to
+`Close review` in the header, the next step for every player; a second primary button further
+down would compete with it.
 
 Making the file takes a moment at most. The button shows it is working, the browser's own download
 confirms the result, and the app adds no message of its own when it works. If making the file ever
@@ -77,10 +81,10 @@ decoration, and a player scrolling quickly would see phrases flicker in.
 
 ## When the Window Is Too Small
 
-The review draws its phrases with the same rules as the staff above it, at the same readable
+The review draws its phrases with the same rules as the staff it replaces, at the same readable
 minimum size. So when the window has no room for the staff at all, it has none for the review's
-phrases either, and the list gives way to the same sentence the staff area shows, until the window
-is large enough. The title and the export stay, since making a file needs no room on screen. When
+phrases either, and the list gives way to the same sentence the staff area would show, until the
+window is large enough. The title, the export and `Close review` stay, since making a file needs no room on screen. When
 the window has room but one phrase's notes need more width than it now gives, that phrase alone
 shows a short line in its place, keeping its number and tempo: a review is a record, so a phrase
 that does not fit cannot be replaced by another.

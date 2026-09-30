@@ -56,8 +56,10 @@ master-spec passages cited below). Q17, Q25 and Q27 are closed in place in this 
   whether a MIDI note may start a session from the Review at all.
   **Closed 2026-09-30 by ux D137** (`ux-writer`'s call under the owner's delegation, ux D135):
   at the session end a fresh phrase is generated on the staff above the Review and is phrase 1;
-  the Review changes no start condition, so the starting note works there as at idle. See
-  `flows/review-and-export/intent.md`, Starting the Next Session From the Review.
+  the Review changes no start condition, so the starting note works there as at idle.
+  **Start part superseded 2026-09-30 by ux D143** (owner): no session starts while the Review
+  shows; the player leaves it first (ux D144). See `flows/review-and-export/intent.md`, Reviewing
+  Is a Mode, and Playing Starts Outside It.
 
 - **Q27 — when does the session's reserved disconnect slot appear?** The disconnect banner sits in
   `session-alert-slot`, kept free for the whole session so the banner never moves the staff. If
@@ -393,7 +395,8 @@ controller` entry: today the Unsupported browser state) follows from it. An Andr
   not on Notation error; the unit-6 part becomes what the Review shows over that notice.
   **Closed 2026-09-30 by ux D139** (with D138; `ux-writer`'s call under the owner's delegation,
   ux D135): the Review opens; its list gives way to the same no-room sentence while the staff
-  has no room, its export keeps working, and focus goes to the staff area's `room-notice`. See
+  has no room, its export keeps working, and focus goes to the staff area's `room-notice` (on
+  leaving the Review, per ux D144). See
   `flows/review-and-export/intent.md`, When the Window Has No Room.
 
 - **Q48 — a look-ahead phrase that does not fit the held staff layout mid-session.** Found by
