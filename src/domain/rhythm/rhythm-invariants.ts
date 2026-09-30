@@ -4,7 +4,7 @@
  * rejects is one the validator would also reject.
  */
 
-import type { RhythmBar, UnindexedRhythmCandidate } from './rhythm-types'
+import type { RhythmBar, RhythmTransformDescriptor, UnindexedRhythmCandidate } from './rhythm-types'
 import { varietyViolated } from './rhythm-variety'
 
 /** Whether two source-cell addresses name the same bar, beat, and cell. */
@@ -71,6 +71,20 @@ export function lacksMetricalAnchor(bar: RhythmBar): boolean {
   )
 }
 
+/** Sounding beat-1/beat-3 anchors of one bar: note attacks, not tie continuations, at tick 0 or 8. */
+// @spec-link [[module_rhythm_domain_validation]]
+export function soundingAnchorCount(bar: RhythmBar): number {
+  let anchors = 0
+  for (const event of bar.events)
+    if (
+      event.kind === 'note' &&
+      !event.tieContinuation &&
+      (event.startTick === 0 || event.startTick === 8)
+    )
+      anchors += 1
+  return anchors
+}
+
 /**
  * `active_anchor_ratio_violation`: under Active displacement, the phrase needs an offbeat
  * displaced attack and a realized tied sustain, and no bar may carry more syncopation events than
@@ -79,9 +93,24 @@ export function lacksMetricalAnchor(bar: RhythmBar): boolean {
 // @spec-link [[module_rhythm_domain_validation]]
 export function activeAnchorRatioViolated(candidate: UnindexedRhythmCandidate): boolean {
   if (candidate.input.syncopation !== 'Active displacement') return false
-  const syncopated = candidate.transforms.filter((descriptor) =>
-    descriptor.roles.includes('syncopation'),
+  return activeAnchorRatioViolatedBy(
+    candidate.bars,
+    candidate.transforms.filter((descriptor) => descriptor.roles.includes('syncopation')),
+    soundingAnchorCount,
   )
+}
+
+/**
+ * The Active displacement anchor-ratio test on its parts: the phrase bars, the descriptors carrying
+ * the syncopation role (in any order), and a per-bar anchor count equal to `soundingAnchorCount`,
+ * so the enumeration can run it from cached per-bar facts before it assembles a candidate.
+ */
+// @spec-link [[module_rhythm_domain_validation]]
+export function activeAnchorRatioViolatedBy(
+  bars: readonly RhythmBar[],
+  syncopated: readonly RhythmTransformDescriptor[],
+  anchorsOf: (bar: RhythmBar) => number,
+): boolean {
   const hasOffbeatDisplacedAttack = syncopated.some((descriptor) => {
     if (descriptor.case === 'tied_sustain') return false
     const attackTick =
@@ -93,24 +122,18 @@ export function activeAnchorRatioViolated(candidate: UnindexedRhythmCandidate): 
   const hasTiedSustain = syncopated.some(
     (descriptor) =>
       descriptor.case === 'tied_sustain' &&
-      candidate.bars[descriptor.barIndex]?.events.some(
+      bars[descriptor.barIndex]?.events.some(
         (event) => event.tieContinuation && event.tieChainId === descriptor.tieChainId,
       ),
   )
   return (
     !hasOffbeatDisplacedAttack ||
     !hasTiedSustain ||
-    candidate.bars.some((bar) => {
-      const anchors = bar.events.filter(
-        (event) =>
-          event.kind === 'note' &&
-          !event.tieContinuation &&
-          (event.startTick === 0 || event.startTick === 8),
-      ).length
+    bars.some((bar) => {
       const syncopatedEvents = syncopated.filter(
         (descriptor) => descriptor.barIndex === bar.barIndex,
       ).length
-      return anchors < syncopatedEvents
+      return anchorsOf(bar) < syncopatedEvents
     })
   )
 }

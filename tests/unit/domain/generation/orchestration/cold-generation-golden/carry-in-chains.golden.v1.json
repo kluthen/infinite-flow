@@ -1,0 +1,124 @@
+{
+  "chains": {
+    "Sixteenth|Heavily varied|Sparse|Active displacement|Build#1": [
+      "44d06d6d9901183e",
+      "d0b72158acd049d5",
+      "ae34e0a70e1f14e5"
+    ],
+    "Sixteenth|Heavily varied|Sparse|Active displacement|Build#2": [
+      "0e3280edadf62b35",
+      "06ac18568361bafa",
+      "b026815fd7e9f936"
+    ],
+    "Sixteenth|Heavily varied|Sparse|Active displacement|Build#3": [
+      "56097e21c07d0c46",
+      "8d7d573749eb6848",
+      "ee1721855f627ef3"
+    ],
+    "Sixteenth|Heavily varied|Sparse|Active displacement|Edge#1": [
+      "3cd3689fe93d73db",
+      "692bddba2ecbe8c7",
+      "6e6ff840afce3742"
+    ],
+    "Sixteenth|Heavily varied|Sparse|Active displacement|Edge#2": [
+      "fb8233449c288f3b",
+      "53edcff15ddc7794",
+      "270a55aed0dfc946"
+    ],
+    "Sixteenth|Heavily varied|Sparse|Active displacement|Edge#3": [
+      "7e71097ddce0a982",
+      "a4132b3cbb989151",
+      "679881e9e09d3ba5"
+    ],
+    "Sixteenth|Heavily varied|Sparse|Straight|Build#1": [
+      "b77a77f980871974",
+      "95a5ad8d95ad5fdc",
+      "e0259142953ff889"
+    ],
+    "Sixteenth|Heavily varied|Sparse|Straight|Build#2": [
+      "a2f52c3f3a4ac8b1",
+      "bf08516edbf40e5a",
+      "b7435e82b73803c2"
+    ],
+    "Sixteenth|Heavily varied|Sparse|Straight|Build#3": [
+      "998b5fa31e59bb02",
+      "45ed2352e74e06df",
+      "9228dde0e7c05c12"
+    ],
+    "Quarter|Slightly varied|Sparse|Straight|Settled#1": [
+      "be1461303203cc95",
+      "3c8d0894a3ad5b24",
+      "c2f08f8874a9839e"
+    ],
+    "Quarter|Slightly varied|Sparse|Straight|Settled#2": [
+      "006ee239034978ba",
+      "68eb731e48399ad2",
+      "755eed563e2d2ebf"
+    ],
+    "Quarter|Slightly varied|Sparse|Straight|Settled#3": [
+      "23bd9f5ed213c72e",
+      "c6a38d7dc80d8722",
+      "82f7e572fa4ead45"
+    ],
+    "Eighth|Heavily varied|Conversational|Occasional offbeats|Lift#1": [
+      "87518816416bfd94",
+      "7dc3c83dadfbb28f",
+      "598c5fda12afe367"
+    ],
+    "Eighth|Heavily varied|Conversational|Occasional offbeats|Lift#2": [
+      "37e8111498b3e281",
+      "0c1dce406a97eec4",
+      "cf3e24c926fde7c1"
+    ],
+    "Eighth|Heavily varied|Conversational|Occasional offbeats|Lift#3": [
+      "d4b83b0047a23834",
+      "0713bd36435c2a4a",
+      "56015edb0f5fe292"
+    ],
+    "Sixteenth|Strict|Breath-heavy|Straight|Settled#1": [
+      "76a84d1f8fcb99ff",
+      "ac5a329725a9725e",
+      "5bf95932bf7da96a"
+    ],
+    "Sixteenth|Strict|Breath-heavy|Straight|Settled#2": [
+      "3eb23df78564abf5",
+      "40e30d1bdfcefa80",
+      "8d9a1465590e75b5"
+    ],
+    "Sixteenth|Strict|Breath-heavy|Straight|Settled#3": [
+      "865af10181cde5ad",
+      "f7b899ea7f93d474",
+      "f960b2db5b54f9c3"
+    ],
+    "Eighth|Slightly varied|Breath-heavy|Active displacement|Edge#1": [
+      "4c887b7cc6ca66e7",
+      "11f3f4910ff4e780",
+      "2ee89f1a60c53958"
+    ],
+    "Eighth|Slightly varied|Breath-heavy|Active displacement|Edge#2": [
+      "264a714aead05ec7",
+      "406fc924139e439f",
+      "eec82cc5e115b0dd"
+    ],
+    "Eighth|Slightly varied|Breath-heavy|Active displacement|Edge#3": [
+      "6de6eddf4dcf1e62",
+      "54079e7eaefd31b5",
+      "9d46062bef4edfc9"
+    ],
+    "Quarter|Heavily varied|Conversational|Active displacement|Build#1": [
+      "1f6d3853317ed046",
+      "15d3f68d9c1a7086",
+      "5bd054171dcd1aa7"
+    ],
+    "Quarter|Heavily varied|Conversational|Active displacement|Build#2": [
+      "8d3f439b8a0d80ef",
+      "ecd0ae6b3d64e281",
+      "a27144c1e330680c"
+    ],
+    "Quarter|Heavily varied|Conversational|Active displacement|Build#3": [
+      "d8b45e9c34855dae",
+      "1d8491a85b165165",
+      "72bb5d19074c8d16"
+    ]
+  }
+}

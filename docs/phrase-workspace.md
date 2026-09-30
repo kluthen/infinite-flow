@@ -84,6 +84,9 @@ every settable control key except `instrumentProfileId`, which has its own dedic
   (`src/session/session-runner.ts`) bound to the same `deps.generate` the Idle flow uses, so a
   practice session's phrase 2 onward go through the one Worker that generated phrase 1 and reuse
   its warm rhythm-domain memo. See [`docs/session-engine.md`](session-engine.md).
+- **Pre-warm.** Unless the prewarm policy is `disabled`, the session also gets the same client's
+  fire-and-forget `prewarm`, and posts it when it starts and whenever the rhythm setting a phrase
+  would be generated with changes. See [Pre-warm](#pre-warm).
 - **Dispose.** `WorkspaceSession.dispose()` stops the session listening for width crossings
   (`session.dispose()`) and terminates the worker client (`client.dispose()`). `App.vue` calls it
   from `onUnmounted`.
@@ -118,9 +121,13 @@ being a purely cosmetic lock.
 `src/generation-worker/` implements one typed, correlated request/response protocol between the
 session and one long-lived `Worker`:
 
-- **Message types.** `GenerationWorkerRequest` is `{ type: 'generate', id, intent }`.
-  `GenerationWorkerResponse` is a closed union of `{ type: 'outcome', id, outcome }` and
-  `{ type: 'crash', id, name, message }`.
+- **Message types.** The worker accepts two messages (`GenerationWorkerInboundMessage`):
+  `GenerationWorkerRequest` is `{ type: 'generate', id, intent }`, and `GenerationWorkerPrewarm` is
+  `{ type: 'prewarm', intent }`, which carries no `id` and is never answered (see
+  [Pre-warm](#pre-warm)). `GenerationWorkerResponse` is a closed union of
+  `{ type: 'outcome', id, outcome }` and `{ type: 'crash', id, name, message }`. A malformed
+  message of either kind, or one with an unknown `type`, throws a `GenerationWorkerProtocolError`
+  in the worker.
 - **Id correlation.** `generation-worker-client.ts` assigns a monotonically increasing integer
   `id` per `generate()` call and keeps a `Map<number, PendingRequest>`; an incoming response
   resolves or rejects exactly the pending request with the matching `id`, and an unmatched id is
@@ -151,9 +158,12 @@ session and one long-lived `Worker`:
   `Worker` per session, reused across every generation and regeneration, because the worker's
   rhythm-domain memo (below) only pays off when the same worker instance handles every request.
   `generation.worker.ts` keeps that memo alive in module scope for the worker's whole lifetime by
-  registering exactly one `message` listener that delegates to the pure
-  `handleGenerationWorkerMessage` handler (itself never touching `self`/`postMessage` directly, so
-  it can be exercised in a plain Vitest environment) and posts back its response.
+  registering exactly one `message` listener that hands every message to the worker runtime
+  (`createGenerationWorkerRuntime`, `generation-worker-runtime.ts`) and posts back the response it
+  returns, if any. The runtime answers a `generate` at once through the pure
+  `handleGenerationWorkerRequest` handler and runs pre-warm work in slices between messages. Neither
+  touches `self`/`postMessage` directly: the clock, the slice scheduler, the memo and the generator
+  are injected, so both run in a plain Vitest environment.
 
 ## Canonical rhythm-domain memo
 
@@ -161,14 +171,24 @@ session and one long-lived `Worker`:
 canonical rhythm domain `makeRhythmCandidateDomain` expands, so a repeated generation or
 regeneration against an already-seen rhythm setting skips the expensive Step 6 enumeration.
 
-- **Key.** The memo key is built from the grammar version plus the four rhythm-relevant fields of
-  the _normalized_ input: note density, silence density, syncopation, and tension arc (all taken
-  from `intent.controls`, normalized by `normalizeRhythmExpansionInput`).
-- **What's stored.** A miss materializes a fresh `RhythmCandidateDomain`'s lazy iterator exactly
-  once, in its canonical iterator order, and stores either the complete, deep-frozen candidate
-  list (`{ kind: 'canonical_rhythm_domain', grammarVersion, input, candidates }`) or the typed
+- **Key.** The memo key is built from the grammar version plus the five rhythm-relevant fields of
+  the _normalized_ input: note density, rhythmic variety, silence density, syncopation, and
+  tension arc (all taken from `intent.controls`, normalized by `normalizeRhythmExpansionInput`).
+- **What's stored.** A miss builds the setting's domain exactly once, in its canonical iterator
+  order, and stores either the complete, deep-frozen candidate list
+  (`{ kind: 'canonical_rhythm_domain', grammarVersion, input, candidates }`) or the typed
   `NoLegalRhythmPlan` result, memoized as-is. A hit returns the exact same frozen instance without
   touching the grammar again.
+- **Build jobs.** Every entry is built by a build job over the planner's stepped builder
+  (`createRhythmDomainBuilder` in `rhythm-planner.ts`). One step is at most one gesture unit: one
+  gesture (the rhythmic idea of measures 1-2, which measures 3-4 answer with a varied copy) with
+  all its answer lists and syncopation templates. The builder produces exactly what
+  `makeRhythmCandidateDomain` plus a full drain of its candidates would. A lookup miss runs the job
+  to the end at once; `beginBuild` starts a resumable, cancellable job that the Worker's pre-warm
+  runs in slices (see [Pre-warm](#pre-warm)). Both store an identical entry. A lookup of a setting
+  whose pre-warm job is unfinished finishes that job synchronously rather than starting over; a
+  lookup of another setting leaves the unfinished job to resume later. At most one unfinished job
+  exists per memo: beginning one for a new setting cancels the old one, which writes nothing.
 - **Per-seed ranking.** The memo never ranks anything — ranking is seed-dependent and stays outside
   it. `generation-orchestrator.ts` looks the domain up via `buildRhythmDomain`, then calls
   `rankMaterializedRhythmCandidates(domain.grammarVersion, domain.candidates, intent.seed)`
@@ -177,10 +197,14 @@ regeneration against an already-seen rhythm setting skips the expensive Step 6 e
 - **Lifetime and bound.** `SHARED_CANONICAL_RHYTHM_DOMAIN_MEMO` is the module-level instance
   `generatePhrase` defaults to (`options.rhythmDomainMemo` can override it, which the perf harness
   and golden tests use to get a fresh, empty memo per measurement). It lives for the worker's whole
-  lifetime — the worker module never reconstructs it — and needs no eviction policy: the finite v1
-  control catalog carries only `4 (note density) × 3 (silence density) × 3 (syncopation) × 4
-(tension arc) = 144` distinct rhythm settings per grammar version, so the keyspace the memo can
-  ever be asked to fill is bounded.
+  lifetime — the worker module never reconstructs it — and never evicts an entry. The number of
+  entries is bounded: the finite v2 control catalog carries only 3 note densities × 3 rhythmic
+  varieties × 3 silence densities × 3 syncopations × 4 tension arcs = 324 distinct rhythm settings
+  per grammar version. Their bytes are not small, though. Measured as retained heap, the slowest
+  setting to generate (Sixteenth / Heavily varied / Sparse / Active displacement / Build, 1,797
+  candidates) holds about 37.1 MiB, and the largest domain (Sixteenth / Heavily varied / Sparse /
+  Straight / Build, 2,932 candidates) about 49.4 MiB, down from 38.5 MiB and 58.5 MiB before the
+  cold-generation speed-up. A long session that visits many large settings keeps them all resident.
 - **Byte-identical proof.** `tests/unit/domain/generation/orchestration/generation-outcome-golden.spec.ts`
   replays a golden fixture of 8 intents — `GENERATION_OUTCOME_GOLDEN_V2`, recorded from the
   pre-memo baseline orchestrator and re-recorded (v1 → v2) for the signed-off tension-binding
@@ -196,7 +220,63 @@ regeneration against an already-seen rhythm setting skips the expensive Step 6 e
   enumeration speed package (see
   [rhythm-phrase-structure.md](music/rhythm-phrase-structure.md) and
   [generation-latency.md](generation-latency.md)) makes that first materialization faster with
-  byte-identical output, so the memo and the golden fixture are unaffected by it.
+  byte-identical output, so the memo and the golden fixture are unaffected by it. The
+  cold-generation speed-up that followed (candidates rejected before they are assembled, freezing
+  only when a candidate is published, rhythm tie keys hashed incrementally, build jobs) is
+  byte-identical too; the cold-generation goldens prove it over the whole catalog (see
+  [Testing](testing.md#unit-fixtures-goldens-and-manifests)).
+
+### Pre-warm
+
+Pre-warm builds the memo entry for the rhythm setting the player is on while the workspace sits
+idle, so the first Generate on that setting finds it already built. It changes only when the work
+is done, never what `generatePhrase` returns: a generation on a pre-warmed memo is byte-identical
+to one on a cold memo.
+
+- **Policy.** `src/components/workspace/prewarm-policy.ts` defines `WorkspacePrewarmPolicy`
+  (`'enabled' | 'disabled'`). `App.vue` reads it once from the page URL through
+  `prewarmPolicyFromSearch(window.location.search)`: no `prewarm` parameter or `?prewarm=on` is
+  `enabled`, `?prewarm=off` is `disabled`, and any other value throws, so a mistyped URL never
+  measures the wrong mode. `?prewarm=off` is the latency measurement switch: the only way to load
+  the production page with cold generation. `composeWorkspaceSession` hands the session the
+  client's `prewarm` only when the policy is `enabled`; `disabled` posts nothing at all.
+- **Triggers.** `createGenerationSession` (`use-generation-session.ts`) posts a pre-warm for the
+  controls a phrase would be generated with right now (note density already resolved against the
+  window's width): once when the session is created, after every `setControl`, after a
+  musical-profile switch, and after a width crossing.
+- **Dedupe.** `createRhythmPrewarmTrigger` (`src/composables/generation-session-prewarm.ts`) posts
+  only when the width-resolved rhythm setting differs from the last one it posted. Its key,
+  `rhythmSettingKeyOf`, is the same five controls the memo is keyed by, so an edit to a non-rhythm
+  control (tonal center, tempo, contour and so on), or a width crossing that leaves the generated
+  note density unchanged, posts nothing. A unit test pins the key to the memo's rhythm input for
+  every rhythm setting.
+- **Fixed identity.** Every pre-warm intent carries seed 0 (`PREWARM_SEED`) and the request id
+  `workspace-prewarm` (`PREWARM_REQUEST_ID`). The rhythm domain does not depend on the seed, so
+  any fixed value works, and a fixed one means pre-warm never draws from the session's seed or
+  request-id providers: a queued seed sequence is drawn exactly as it would be with pre-warm off.
+- **In the worker.** The client's `prewarm(intent)` posts `{ type: 'prewarm', intent }`: no id is
+  consumed, nothing is awaited, and it does nothing once the worker is unusable (the next
+  `generate` reports that failure). The runtime calls `beginRhythmDomainPrewarm`
+  (`rhythm-domain-prewarm.ts`), which starts the memo's build job for the intent's rhythm input.
+  It starts nothing when the entry is already memoized, or when the intent's harmony has no legal
+  plan (`generatePhrase` would never reach the rhythm domain). A newer pre-warm of another
+  setting cancels the unfinished one. An exception inside a slice cancels the job and is rethrown,
+  so the worker fails loudly.
+- **Slices and preemption.** The runtime runs the current job in slices of about 8 ms
+  (`DEFAULT_PREWARM_SLICE_BUDGET_MS`), checking the clock after each step, with at most one slice
+  scheduled at a time. A `generate` that arrives meanwhile is served between two slices, so it
+  waits for at most about one slice. If it asks for the setting being pre-warmed, its memo lookup
+  finishes the remaining build at once; otherwise the unfinished job resumes afterwards.
+- **Why a `MessageChannel`.** `generation.worker.ts` schedules each slice by posting to a private
+  `MessageChannel`, which yields to the worker's message queue without a timer. Measured in
+  Chromium, Firefox and WebKit on the slowest setting, with a small-setting `generate` posted
+  40 ms into its pre-warm, the `generate` waited at most 3 ms, 4 ms and 9 ms respectively before
+  the worker picked it up, and the whole pre-warm took at most 14 ms longer than its own work.
+  `setTimeout(0)` preempted as well, but browsers clamp nested timers to 4 ms, which stretched the
+  pre-warm by 180-270 ms.
+- **Shared with the session runner.** The session runner uses the same worker and memo (see
+  [Session wiring](#session-wiring)), so a setting pre-warmed at Idle is already built when a
+  practice session generates on it.
 
 ## Unsupported rhythm settings
 
@@ -287,12 +367,13 @@ into an explicit-dependency builder and a production entry:
   teardown, and wires them to the same notation coordinator and profile-switch policy production
   always uses. It is the one seam a caller can vary; everything downstream of it is real production
   wiring.
-- **`createWorkspaceSession()`** is the production entry: it calls `composeWorkspaceSession` with a
-  real `createBrowserGenerationWorker()`-backed client, the cryptographic `nextCryptoSeed` provider
+- **`createWorkspaceSession({ prewarmPolicy })`** is the production entry: it calls
+  `composeWorkspaceSession` with a real `createBrowserGenerationWorker()`-backed client (its
+  `generate` and `prewarm`), the given prewarm policy, the cryptographic `nextCryptoSeed` provider
   (`crypto.getRandomValues`), and a monotonic request-id provider.
 - **`WORKSPACE_SESSION_FACTORY`** is a Vue `InjectionKey<() => WorkspaceSession>` exported from the
-  same module. `src/App.vue` reads it with `inject(WORKSPACE_SESSION_FACTORY, createWorkspaceSession)`,
-  so any caller that never provides the key (production `src/main.ts`) gets the real production
+  same module. `src/App.vue` reads it with `inject(WORKSPACE_SESSION_FACTORY, ...)`, whose default
+  calls `createWorkspaceSession` with the prewarm policy read from the page URL, so any caller that never provides the key (production `src/main.ts`) gets the real production
   factory unchanged, while a caller that does provide it (a test, or an e2e harness's own entry
   point) can substitute a `composeWorkspaceSession` call built from deterministic or
   failure-injecting dependencies instead.
@@ -334,10 +415,14 @@ production's `src/main.ts` does, and calls `app.provide(WORKSPACE_SESSION_FACTOR
 - **`snapshot()`.** Reads the mounted session's current `operation`, `presentation.notationMode`,
   and (when a result exists) the result's `requestId`, `seed`, and a `JSON.stringify` of its concert
   timeline — the read side every determinism/isolation assertion polls.
+- **The production prewarm policy, counted.** The harness reads the prewarm policy from its page
+  URL exactly as `App.vue` does (`?prewarm=off` disables it), forwards every pre-warm to the real
+  worker client unchanged, and counts it for `prewarmCount()`, which stays 0 with `?prewarm=off`.
 
 `tests/e2e/workspace-harness-window.d.ts` is the single ambient declaration of the published
 `window.__workspaceHarness` API (`queueSeeds`, `holdGeneration`, `releaseGeneration`,
-`failNextGeneration`, `failNextNotation`, `snapshot`), shared by the harness page and every spec
+`failNextGeneration`, `failNextNotation`, `snapshot`, `prewarmCount`, and the `audio` seams),
+shared by the harness page and every spec
 under `tests/e2e/release/` (via `tests/e2e/release/harness-helpers.ts`'s thin `page.evaluate`
 wrappers) and `tests/e2e/accessibility.spec.ts`'s harness-backed cases.
 

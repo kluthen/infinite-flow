@@ -100,7 +100,7 @@ chunks in different sections; the second to merge rebases on the first.
 
 | Wave | Chunks                                                                                                                                                                                                                                                                                                                                                                        | Waits for                                             |
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29)                                                                                                                                                                                                                                                                                                       | Nothing                                               |
+| 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29), follow-up Performance: cold generation (done 2026-09-30)                                                                                                                                                                                                                                             | Nothing                                               |
 | 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 (done 2026-09-29), follow-up 3b Phone staff height (done 2026-09-29) · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation (done 2026-09-29) · 14 Note acknowledgement (done 2026-09-29) · 18 MusicXML encoding (done 2026-09-29) · 19 Generated-notes MIDI encoding (done 2026-09-29) | Chunk 0 (done). Start chunk 3 first (see the caveat). |
 | 2    | 5 Idle fit retries and the room notice · 6 Note identity and session overlays (done 2026-09-30) · 8 Session engine (done 2026-09-30) · 10 Audio transport (done 2026-09-30)                                                                                                                                                                                                   | Wave 1. Chunk 1's verdict: given (2026-09-30).        |
 | 3    | 9 Session history · 11 Backing · 12 MIDI input                                                                                                                                                                                                                                                                                                                                | Wave 2                                                |
@@ -534,6 +534,80 @@ they are measured against.
 
 **Blocked by:** nothing. It answers two of §12's open items: re-measuring generation latency, and
 main-thread engraving against the scheduler.
+
+#### Performance follow-up: cold generation
+
+**Release:** v2.0, follow-up of chunk 1. **Done on 2026-09-30** on branch `v2-perf-cold-generation` (not merged).
+
+**Goal.** Chunk 1 found the first ("cold") generation for a rhythm setting at 829-951 ms in
+Chromium on the reference machine, against the 250 ms goal. Almost all of it is building that
+setting's rhythm domain (every legal four-bar rhythm the grammar allows) and ranking it by seed.
+Make that faster **without changing any output**: the same seed still gives the same phrase, byte
+for byte. The owner approved five remedies on 2026-09-30:
+
+1. Reject before building: per-gesture selectors, per-bar caches, and the per-bar and per-list
+   checks (template feasibility, disjointness, anchor ratio, ending signature) before a full
+   four-bar candidate is assembled.
+2. Drop the redundant full validator from the fast enumeration, keeping it on the exact re-run
+   path and in the independent result check, once an exhaustive test over all 324 settings proves
+   it rejects nothing and the owner approves the atom amendment.
+3. Faster seeded tie-key hashing with identical tie keys.
+4. Freeze only at yield, build identities from cached per-bar fragments, no per-template spreads.
+5. Pre-warm: the generation Worker builds the current setting's domain in the background, in
+   interruptible slices, at start and after a rhythm control changes; a real request preempts it.
+
+Out of scope: budgeted or partial picks, and anything that changes which phrase a seed gives.
+
+**Atoms:** `api_rhythm_domain_expansion`, `module_ranked_candidate_ordering`,
+`entity_rhythm_candidate_domain`, `module_generation_worker_protocol`,
+`rule_seeded_phrase_reproduction`, `rule_no_carry_in_output_matches_v1`.
+`rule_look_ahead_deadline` is the reference the figures are judged against.
+
+**Done when** (all hold):
+
+- A golden fixture recorded on the unchanged code (all 324 rhythm settings × seeds 1-10, plus
+  carry-in and other non-rhythm samples, the memo's canonical order and the ranked order for seeds
+  1-20 on a sample including the worst settings) passes unchanged after every remedy.
+- Each remedy is kept or dropped with its reason recorded; none changes output.
+- Pre-warm works for the idle screen and the session runner, can be disabled through a seam, and
+  its completed memo equals the one a direct build gives.
+- `npm run quality` passes.
+- [`docs/generation-latency.md`](../../../docs/generation-latency.md) has the before → after
+  figures on the reference machine (cold without and with pre-warm, warm, memo memory) and updated
+  verdicts against the 250 ms goal and `rule_look_ahead_deadline`, including the v2.1 one-bar
+  case.
+
+**Progress** (updated as each step lands):
+
+| Step                          | State | Notes                                                                                                                                                              |
+| ----------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1. ATD preflight              | Done  | PROCEED-WITH-SIGNOFF-PENDING; four architecture atoms amended before code (tie keys, Worker protocol, workspace flow, session runner)                              |
+| 2. Golden fixture             | Done  | Recorded on unchanged `main`: 3,240 phrases, 72 carry-in and 72 other-control hashes, memo list and ranked order for 10 settings; never regenerated                |
+| 3. Remedies 1-4               | Done  | 1, 3 and 4 kept; 2 dropped (see below)                                                                                                                             |
+| 3. Pre-warm                   | Done  | Worker slices of one gesture unit, about 8 ms; `?prewarm=off` switch; Idle and the runner share it                                                                 |
+| 4. Verify (`npm run quality`) | Done  | Passes; goldens unchanged                                                                                                                                          |
+| Measurements                  | Done  | [Figures and verdicts](../../../docs/generation-latency.md#cold-generation-speed-up-on-the-reference-machine-2026-09-30)                                           |
+| 5. Documents                  | Done  | Latency, phrase workspace, session engine, testing, README, rhythm phrase structure; specs synced by `spec-writer`                                                 |
+| 6. ATD stewardship            | Done  | Tags added on the planner and publication; `atd lint` and `atd check` pass. `api_rhythm_domain_expansion` back to DRAFT: its new speed-up wording awaits the owner |
+
+**Outcome.**
+
+- **Output:** unchanged. The golden fixture and the older oracles pass unchanged, and so do the
+  same-seed rule and the byte identity with v1 without carry-in.
+- **Remedy 2 dropped.** With the second full validation removed, the fast enumeration would yield
+  46 invalid candidates in 20 Quarter and Eighth settings with Breath-heavy silence (answer
+  similarity and attack band), which would change their output. The validator stays; the
+  exhaustive test that found this stays as a guard.
+- **Figures** (reference machine, in-page Chromium):
+  - Worst case cold, true cold: 423-440 ms (was 829-951).
+  - The same click right after the change: 390 ms.
+  - Once pre-warm has finished: 66-102 ms.
+  - Warm: 44-47 ms (was 143-148).
+  - Node cold maximum: 522 ms (was 1,016).
+  - Largest memo entry: 49.4 MiB (was 58.5).
+- **Verdicts:** the 250 ms goal is still missed for true cold and an immediate click (about 2×
+  closer), and met when the player pauses. `rule_look_ahead_deadline` is met in every window,
+  retries included, including the v2.1 one-bar regeneration after a rhythm-control change.
 
 ### Chunk 2 — Browser boundaries
 

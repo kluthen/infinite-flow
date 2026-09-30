@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { FNV_OFFSET_BASIS_32, FNV_PRIME_32, fnv1a32 } from '@/domain/random/hash32'
+import { FNV_OFFSET_BASIS_32, FNV_PRIME_32, fnv1a32, fnv1a32Resume } from '@/domain/random/hash32'
 
 // @test-link [[module_named_stream_pseudorandomness]]
 describe('fnv1a32', () => {
@@ -36,5 +36,21 @@ describe('fnv1a32', () => {
 
   it('different inputs produce different hashes (for these sample inputs)', () => {
     expect(fnv1a32('harmony')).not.toBe(fnv1a32('rhythm'))
+  })
+})
+
+// @test-link [[module_ranked_candidate_ordering]]
+describe('fnv1a32Resume', () => {
+  it('hashing consecutive pieces equals fnv1a32 over their concatenation', () => {
+    const input = 'infinite-flow/rhythm-tie/v1|seed1-00000001|rhythm-mvp-v2|{"bars":[]}é'
+    for (const split of [0, 1, 27, input.length - 1, input.length]) {
+      const head = fnv1a32Resume(FNV_OFFSET_BASIS_32, input, 0, split)
+      expect(fnv1a32Resume(head, input, split, input.length)).toBe(fnv1a32(input))
+    }
+  })
+
+  it('hashes only the requested range and returns the state unchanged for an empty one', () => {
+    expect(fnv1a32Resume(FNV_OFFSET_BASIS_32, 'xfoobarx', 1, 7)).toBe(fnv1a32('foobar'))
+    expect(fnv1a32Resume(12345, 'abc', 2, 2)).toBe(12345)
   })
 })

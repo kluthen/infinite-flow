@@ -1,20 +1,38 @@
 /**
  * An in-memory GenerationWorkerPort fixture for generation-worker-client tests. `postMessage`
- * structured-clones the request (as the real message-channel boundary would), runs it through an
- * injected responder asynchronously, and structured-clones the response back before dispatching
+ * structured-clones the message (as the real message-channel boundary would), runs it through an
+ * injected responder asynchronously, and structured-clones any response back before dispatching
  * it to registered listeners — so a test exercises exactly the same serialization boundary a real
- * Worker imposes, without spawning one.
+ * Worker imposes, without spawning one. The default responder is the real Worker runtime over the
+ * port's own fresh memo (one memo per worker, as in production), whose prewarm slices are queued
+ * and never run on their own: a test runs them on demand with `runNextSlice`, so a generate posted
+ * after a prewarm is served before any slice unless the test runs some first.
  */
 
+import {
+  createCanonicalRhythmDomainMemo,
+  type CanonicalRhythmDomainMemo,
+} from '@/domain/generation/orchestration/canonical-rhythm-domain'
 import type { GenerationWorkerPort } from '@/generation-worker/generation-worker-client'
-import { handleGenerationWorkerMessage } from '@/generation-worker/generation-worker-handler'
 import type {
-  GenerationWorkerRequest,
+  GenerationWorkerInboundMessage,
   GenerationWorkerResponse,
 } from '@/generation-worker/generation-worker-protocol'
+import { createGenerationWorkerRuntime } from '@/generation-worker/generation-worker-runtime'
 
 type PortListener = (event: Event | MessageEvent) => void
 type PortEventType = 'message' | 'error' | 'messageerror'
+
+/** A scripted worker: the response to one posted message, or undefined for none (a prewarm). */
+export type FakeWorkerResponder = (data: unknown) => GenerationWorkerResponse | undefined
+
+/** Options of the default runtime-backed responder. */
+export interface FakeGenerationWorkerPortOptions {
+  /** The runtime clock; defaults to a frozen `() => 0`, so one slice finishes a whole job. */
+  readonly now?: () => number
+  /** The runtime's memo; defaults to a fresh one per port. */
+  readonly memo?: CanonicalRhythmDomainMemo
+}
 
 export interface FakeGenerationWorkerPort extends GenerationWorkerPort {
   /** Directly and synchronously invoke every registered 'message' listener with `data`. */
@@ -25,6 +43,10 @@ export interface FakeGenerationWorkerPort extends GenerationWorkerPort {
   readonly emitMessageError: () => void
   readonly terminated: () => boolean
   readonly postedMessages: () => readonly unknown[]
+  /** The number of prewarm slices the default runtime has scheduled and not yet run. */
+  readonly pendingSliceCount: () => number
+  /** Run the oldest scheduled prewarm slice; throws when none is scheduled. */
+  readonly runNextSlice: () => void
 }
 
 /** Intent: dispatch a bare `{ data }` MessageEvent-shaped payload to every listener in `listeners`. */
@@ -34,15 +56,15 @@ function dispatchMessageEvent(listeners: ReadonlySet<PortListener>, data: unknow
 }
 
 /**
- * Intent: build one fake port whose async responder defaults to the real
- * `handleGenerationWorkerMessage`, letting a caller override it (e.g. to script a `crash`
- * response without touching real generation). Passing `null` disables auto-responding entirely,
- * for tests that must observe a request stay pending until they manually dispatch or emit an
- * event (e.g. asserting a pending request is rejected once an "error" event fires, before any
- * response would otherwise arrive).
+ * Intent: build one fake port whose async responder defaults to the real Worker runtime (see the
+ * file header), letting a caller override it (e.g. to script a `crash` response without touching
+ * real generation). Passing `null` disables auto-responding entirely, for tests that must observe
+ * a request stay pending until they manually dispatch or emit an event (e.g. asserting a pending
+ * request is rejected once an "error" event fires, before any response would otherwise arrive).
  */
 export function createFakeGenerationWorkerPort(
-  respond: ((data: unknown) => GenerationWorkerResponse) | null = handleGenerationWorkerMessage,
+  respond?: FakeWorkerResponder | null,
+  options: FakeGenerationWorkerPortOptions = {},
 ): FakeGenerationWorkerPort {
   const listeners: Record<PortEventType, Set<PortListener>> = {
     message: new Set(),
@@ -50,15 +72,24 @@ export function createFakeGenerationWorkerPort(
     messageerror: new Set(),
   }
   const posted: unknown[] = []
+  const slices: (() => void)[] = []
   let terminated = false
+  const responder: FakeWorkerResponder | null =
+    respond === undefined
+      ? createGenerationWorkerRuntime({
+          now: options.now ?? (() => 0),
+          scheduleSlice: (run) => slices.push(run),
+          memo: options.memo ?? createCanonicalRhythmDomainMemo(),
+        }).handleMessage
+      : respond
 
-  function postMessage(message: GenerationWorkerRequest): void {
+  function postMessage(message: GenerationWorkerInboundMessage): void {
     posted.push(message)
-    if (respond === null) return
+    if (responder === null) return
     const cloned = structuredClone(message)
     queueMicrotask(() => {
-      const response = respond(cloned)
-      dispatchMessageEvent(listeners.message, structuredClone(response))
+      const response = responder(cloned)
+      if (response !== undefined) dispatchMessageEvent(listeners.message, structuredClone(response))
     })
   }
 
@@ -68,6 +99,13 @@ export function createFakeGenerationWorkerPort(
 
   function terminate(): void {
     terminated = true
+  }
+
+  /** Intent: run the oldest scheduled slice, failing loudly when none is scheduled. */
+  function runNextSlice(): void {
+    const run = slices.shift()
+    if (run === undefined) throw new Error('No prewarm slice is scheduled.')
+    run()
   }
 
   return {
@@ -85,5 +123,7 @@ export function createFakeGenerationWorkerPort(
     },
     terminated: () => terminated,
     postedMessages: () => posted,
+    pendingSliceCount: () => slices.length,
+    runNextSlice,
   }
 }

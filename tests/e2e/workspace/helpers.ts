@@ -5,9 +5,12 @@
  */
 import { type Locator, type Page, expect } from '@playwright/test'
 
-/** Intent: land on the workspace's empty state, ready for a fresh session. */
-export async function gotoWorkspace(page: Page): Promise<void> {
-  await page.goto('/')
+/**
+ * Intent: land on the workspace's empty state, ready for a fresh session. `search` is an optional
+ * page-URL query string (e.g. `?prewarm=off`); omitted, the page loads with no query.
+ */
+export async function gotoWorkspace(page: Page, search = ''): Promise<void> {
+  await page.goto(`/${search}`)
 }
 
 /** Intent: the single workspace-header phrase action (Generate/Regenerate/Retry, by current label). */

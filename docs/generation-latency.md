@@ -77,6 +77,20 @@ intervals, ending at one check every 500 ms, so the wall-clock figure can overst
 than about 300 ms by up to half a second. The v2 baseline uses the in-page figures.
 `LATENCY_BROWSER_OUT` and `LATENCY_BROWSER_CHANGE_OUT` name JSON files for the two tests' reports.
 
+The page pre-warms the current rhythm setting's domain in its Worker when it starts and after every
+rhythm-setting change (see [Pre-warm](phrase-workspace.md#pre-warm)), so the environment variable
+`LATENCY_PREWARM` picks one of three modes, recorded as `prewarmMode` in both JSON reports (any
+other value throws):
+
+- **`off`**: every page load uses `?prewarm=off`, so every first generation on a setting is truly
+  cold. This is the fair comparison with the figures measured before pre-warm existed.
+- **`on`** (the default, since it is what the production page does): each generation is clicked
+  right after the rhythm-control change that reaches its setting, so pre-warm has only just
+  started.
+- **`settled`**: as `on`, but after reaching each setting the test waits 3 s before clicking, so
+  pre-warm has finished. The page exposes no completion signal, so this is a fixed wait, well above
+  the worst full domain build (under 1 s in Chromium).
+
 **Main-thread engraving.** `npm run measure:engraving` runs
 `tests/e2e/workspace/engraving-main-thread.spec.ts` (Playwright, Chromium, production preview
 build). Generation runs in the Worker, off the main thread. What runs on the main thread per phrase
@@ -100,6 +114,122 @@ workspace default. It runs at two large desktop viewports, 2560 × 1440 and 1920
 one fresh page each, one first generation, then 12 regenerations (each with a new random seed),
 then 10 re-engravings of the last phrase caused by a 16-pixel width change alone, with no
 generation. `ENGRAVING_OUT` names a JSON file for the full report.
+
+## Cold-generation speed-up on the reference machine (2026-09-30)
+
+Measured on 2026-09-30, 14:33-14:40, on branch `v2-perf-cold-generation` (`main` at `5df8c24` plus
+the speed-up), on the same reference machine and versions as the re-run below: AMD Ryzen 5 PRO
+8640HS (6 cores, 12 threads), 11 GiB RAM, bare metal, Debian 13 (Linux 6.12), Node v22.23.2,
+Chromium 153.0.8010.12 (Playwright 1.63.0 headless shell). Each run ran alone, started once the
+1-minute load average was under 1.5 (0.81-1.49 before a run, up to 1.59 after); the owner's desktop
+session stayed open. Every figure is "new (was old)", old being the
+[2026-09-30 re-run](#v2-re-run-on-the-reference-machine-2026-09-30).
+
+**What changed.** The first generation for a rhythm setting still builds that setting's whole
+rhythm domain (every legal four-bar rhythm), and the output is unchanged byte for byte: a golden
+fixture recorded before the change (all 324 settings × seeds 1-10, carry-in chains, other controls
+varied, the memo's list and the ranked order for seeds 1-20) passes unchanged. What is faster:
+
+- **Reject before building.** The enumeration drops answer lists that can take no syncopation
+  template, and runs the anchor, anchor-ratio and ending checks on single bars, before a four-bar
+  candidate is assembled. On the worst setting it now assembles 1,797 candidates instead of 10,535.
+- **Faster seeded ordering.** Tie keys are hashed incrementally with shared-prefix checkpoints;
+  they are the same keys.
+- **Less allocation.** Candidates are frozen once, when published, and identities are joined from
+  cached per-bar text.
+- **Pre-warm.** The generation Worker builds the current setting's domain in the background, at
+  start and after every rhythm-setting change, in slices of about 8 ms that a real request
+  interrupts (see [`phrase-workspace.md`](phrase-workspace.md#pre-warm)).
+- **Not done: dropping the second full validation.** Without it the fast path would yield 46
+  invalid candidates in 20 Quarter and Eighth settings with Breath-heavy silence (answer
+  similarity and attack band), so the output would change. The validator stays.
+
+**Node** (`npm run measure:latency`; no Worker, no pre-warm). The same 284 settings succeed and the
+same 40 fail fast (under 28 ms each).
+
+| Node, 284 settings (ms) | median      | p90           | p95           | max             |
+| ----------------------- | ----------- | ------------- | ------------- | --------------- |
+| Cold                    | 14.7 (17.8) | 116.3 (196.9) | 174.1 (268.5) | 522.0 (1,016.3) |
+| Warm                    | 1.6 (1.9)   | 9.3 (18.4)    | 12.4 (28.7)   | 42.2 (112.3)    |
+
+6 settings (was 22) take longer than 250 ms cold and none (was 1) longer than 1 s. The slowest are
+all Sixteenth / Heavily varied / Sparse: Straight / Edge 522.0 ms, Straight / Build 507.5 ms (was
+770.3), Active displacement / Build 447.7 ms (was 1,016.3), Active displacement / Edge 397.9 ms
+(was 970.9). Straight has the largest domain (2,932 rhythms), so it is now the slowest.
+
+Cold p90 by note density × rhythmic variety (ms):
+
+| Density   | Strict      | Slightly varied | Heavily varied |
+| --------- | ----------- | --------------- | -------------- |
+| Quarter   | 4.2 (5.3)   | 3.9 (4.7)       | 38.2 (63.7)    |
+| Eighth    | 60.5 (82.6) | 60.0 (85.7)     | 152.5 (314.2)  |
+| Sixteenth | 21.3 (25.5) | 138.9 (229.4)   | 397.9 (710.9)  |
+
+First generation after a one-step change to one setting (the same 3,102 transitions, 124 left out):
+rhythm-control changes (1,842, all memo misses) median 15.6 (18.4), p90 121.7 (201.9), p95 172.6
+(277.3), max 542.7 (1,157.0) ms; 35 (was 134) take longer than 250 ms, 11 (was 35) longer than
+500 ms, none (was 5) longer than 1 s. Tonal-center or register changes: max 51.4 (115.8) ms.
+
+**Chromium** (`npm run measure:latency:browser`, run twice in each pre-warm mode, interleaved).
+Click to "Phrase ready", in-page, including the Worker round trip and the engraving. `off` is the
+like-for-like comparison with the old figures (no pre-warm, true cold); `on` is the production page
+with the click right after the control changes; `settled` waits 3 s for pre-warm first. The
+wall-clock figures are left out: Playwright's polling rounds every slow case to 816-832 ms.
+
+| Scenario (ms), run 1, run 2                         | `off` (true cold) | `on` (immediate click) | `settled`   | was (no pre-warm) |
+| --------------------------------------------------- | ----------------- | ---------------------- | ----------- | ----------------- |
+| Default, cold                                       | 43.8, 44.1        | 43.9, 40.5             | 44.9, 46.8  | 44.9, 48.9        |
+| Default, warm                                       | 37.1, 35.0        | 36.4, 39.5             | 36.0, 37.5  | 36.4, 38.5        |
+| Worst case, cold                                    | 423.2, 440.1      | 391.4, 389.8           | 65.7, 102.0 | 829.3, 951.4      |
+| Worst case, warm                                    | 44.3, 44.5        | 44.5, 46.5             | 44.4, 46.0  | 142.7, 148.0      |
+| Any one-control change into the worst case, slowest | 464.1             | 368.4                  | 95.7        | 842.4             |
+| Register or key change, worst rhythm kept, slowest  | 42.6              | 59.0                   | 44.1        | 192.3             |
+
+The worst case is Sixteenth / Heavily varied / Sparse / Active displacement / Build. During its
+cold generation a theme click applied in 30-39 ms in five runs and 81 ms in one (`settled` run 1;
+was 36 and 45 ms). In a separate check of the Worker (six runs per browser), a generation request
+sent while a pre-warm was running waited at most 3.3 ms in Chromium, 4 ms in Firefox and 9 ms in
+WebKit before the Worker picked it up. A full pre-warm of the worst setting took about 420 ms in
+Chromium, 560 ms in Firefox and 580 ms in WebKit.
+
+**Main-thread engraving** (`npm run measure:engraving`, one run, the densest staff). No task
+reached 50 ms at either size (was 52, and 90, 63, 68 ms). The longest main-thread wait was 42.6 ms
+at 2560 × 1440 and 40.5 ms at 1920 × 1080, both at the first generation (was up to 103.5 ms).
+
+**Memo memory** (retained heap of one rhythm-domain entry, Node, median of 3): Active displacement
+/ Build 37.0 MiB (was 38.5); Straight / Build, the largest domain, 49.4 MiB (was 58.5). The memo
+still keeps every setting it has built for the page's lifetime.
+
+### Verdicts (after the speed-up)
+
+**Against the working goal (cold worst case under 250 ms in Chromium):**
+
+- **True cold, and a click right after the change: missed, about 2× closer.** The worst case takes
+  423-440 ms, or 390 ms when the click follows the change at once (pre-warm has only just
+  started), down from 829-951 ms. In Node, 6 settings, all Sixteenth / Heavily varied / Sparse,
+  still take 398-522 ms; Straight / Edge, the slowest, was not timed in Chromium but should land
+  near 500 ms.
+- **When the player pauses before clicking: met.** Once pre-warm has finished, the worst first
+  generation takes 60-102 ms. The worst pre-warm takes about 0.4 s in Chromium, so
+  under a second of pause is enough.
+- **Everything else: met.** Warm generations and changes that keep the rhythm setting stay under
+  60 ms (were 143-192 ms).
+
+**Against the deadline itself (`rule_look_ahead_deadline`):**
+
+- **3 s window: met, with more room.** Cold worst case about 0.44 s, plus four retries at a warm
+  worst case each (about 0.05 s): about 0.64 s (was 1.55 s).
+- **1 s window, phrase 2 during the count-in: met, retries included, even cold.** With the memo
+  warmed by phrase 1: about 0.05 + 4 × 0.05 = 0.25 s. Even a cold phrase 2 fits: about
+  0.44 + 4 × 0.05 = 0.64 s.
+- **1 s window, regeneration after a rhythm-control change (v2.1): now met with retries.** The
+  slowest measured change in Chromium took 464 ms without pre-warm; four retries hit the now-warm
+  memo, about 0.05 s each: about 0.66 s. The slowest Node change (543 ms, before the Worker round
+  trip and engraving) leaves about the same margin. So the conflict chunk 1 named between the
+  three DRAFT atoms (`rule_look_ahead_deadline`, `req_settings_mutation_flag`,
+  `rule_session_change_applies_at_phrase_boundary`) no longer shows in these figures. A mutation
+  engine that posts a pre-warm as soon as it picks the new setting would widen the margin further.
+- **Main thread:** the longest wait is 42.6 ms, well under the 200 ms scheduler window.
 
 ## v2 re-run on the reference machine (2026-09-30)
 
@@ -536,7 +666,9 @@ Result against the v2 catalog measured above:
   aggregate number.
 
 Out of scope for this budget: precomputed rhythm domains, bounded-prefix ranking, and other changes
-to what the enumeration yields.
+to what the enumeration yields. Pre-warm is not a precomputed domain: the Worker builds the domain
+at run time from the grammar, exactly as a cold generation would, only earlier, and its output is
+the same.
 
 ## Historical: rhythm-mvp-v1 measurements
 

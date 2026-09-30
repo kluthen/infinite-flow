@@ -7,6 +7,8 @@ import { generatePhrase } from '@/domain/generation/orchestration/generation-orc
 import { makeSeed } from '@/domain/random/seed'
 import {
   GenerationWorkerProtocolError,
+  parseGenerationWorkerInboundMessage,
+  parseGenerationWorkerPrewarm,
   parseGenerationWorkerRequest,
   parseGenerationWorkerResponse,
 } from '@/generation-worker/generation-worker-protocol'
@@ -134,5 +136,44 @@ describe('parseGenerationWorkerRequest: writtenTonalCenter is required, valid, a
     }
 
     expect(() => parseGenerationWorkerRequest(tampered)).toThrow(GenerationWorkerProtocolError)
+  })
+})
+
+// @test-link [[module_generation_worker_protocol]]
+describe('parseGenerationWorkerPrewarm and parseGenerationWorkerInboundMessage', () => {
+  it('round-trips a structured-cloned prewarm message to an equal value', () => {
+    const { intent } = requestFixture()
+    const wire = structuredClone({ type: 'prewarm', intent })
+
+    expect(parseGenerationWorkerPrewarm(wire)).toEqual(wire)
+    expect(parseGenerationWorkerInboundMessage(wire)).toEqual(wire)
+  })
+
+  it('dispatches a generate message to the request parser', () => {
+    const wire = requestFixture()
+
+    expect(parseGenerationWorkerInboundMessage(wire)).toEqual(parseGenerationWorkerRequest(wire))
+  })
+
+  it('rejects a prewarm with an id, a missing or tampered intent, or a wrong type', () => {
+    const { intent } = requestFixture()
+    const tamperedIntent = { ...intent, controls: { ...intent.controls, tonalCenter: 'D' } }
+
+    for (const wire of [
+      { type: 'prewarm', id: 1, intent },
+      { type: 'prewarm' },
+      { type: 'prewarm', intent: tamperedIntent },
+      { type: 'generate', intent },
+    ]) {
+      expect(() => parseGenerationWorkerPrewarm(wire)).toThrow(GenerationWorkerProtocolError)
+    }
+  })
+
+  it('rejects an inbound message of unknown type or shape', () => {
+    const { intent } = requestFixture()
+
+    for (const wire of [{ type: 'warm', intent }, null, [], 'prewarm']) {
+      expect(() => parseGenerationWorkerInboundMessage(wire)).toThrow(GenerationWorkerProtocolError)
+    }
   })
 })

@@ -3,7 +3,9 @@
  * outcome equality, identity of the returned frozen instance on a hit, distinct memo keys for
  * distinct tension arcs, memoization of the typed no-plan result, `size()` growing only on a miss,
  * and that the memo's materialized candidate order matches `materializeRankedRhythmCache(
- * makeRhythmCandidateDomain(...), seed)`'s ranked order for a seed.
+ * makeRhythmCandidateDomain(...), seed)`'s ranked order for a seed; a build step that throws (in a
+ * prewarm slice, or in a lookup finishing the pending job) stores nothing, fails the job for good
+ * and frees the pending slot; and `discardPendingBuild` cancels the unfinished job.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -15,6 +17,8 @@ import { generatePhrase } from '@/domain/generation/orchestration/generation-orc
 import {
   createCanonicalRhythmDomainMemo,
   type CanonicalRhythmDomain,
+  type CanonicalRhythmDomainBuildJob,
+  type RhythmDomainBuilderFactory,
 } from '@/domain/generation/orchestration/canonical-rhythm-domain'
 import {
   materializeRankedRhythmCache,
@@ -22,7 +26,10 @@ import {
 } from '@/domain/generation/orchestration/candidate-ranking'
 import { fnv1a32 } from '@/domain/random/hash32'
 import { makeSeed } from '@/domain/random/seed'
-import { makeRhythmCandidateDomain } from '@/domain/rhythm/rhythm-planner'
+import {
+  createRhythmDomainBuilder,
+  makeRhythmCandidateDomain,
+} from '@/domain/rhythm/rhythm-planner'
 import type { RhythmExpansionInput } from '@/domain/rhythm/rhythm-types'
 
 const CHEAP_RHYTHM_INPUT: RhythmExpansionInput = {
@@ -154,5 +161,85 @@ describe('canonical rhythm domain memo', () => {
 
     expect(fnv1a32(JSON.stringify(hitOutcome))).toBe(fnv1a32(JSON.stringify(missOutcome)))
     expect(hitOutcome).toEqual(missOutcome)
+  })
+})
+
+/**
+ * Intent: a builder factory whose first builder is the real one but throws on its `failAtStep`-th
+ * step, like a grammar failing partway; every later builder is the untouched real one.
+ */
+function failingFirstBuilder(failAtStep: number): RhythmDomainBuilderFactory {
+  let builds = 0
+  return (input) => {
+    builds += 1
+    const real = createRhythmDomainBuilder(input)
+    if (builds > 1) return real
+    let steps = 0
+    return {
+      step: () => {
+        steps += 1
+        if (steps === failAtStep) throw new Error('grammar failed partway')
+        return real.step()
+      },
+      result: real.result,
+    }
+  }
+}
+
+/** Intent: the job a memo began, failing when it began none. */
+function begun(job: CanonicalRhythmDomainBuildJob | undefined): CanonicalRhythmDomainBuildJob {
+  if (job === undefined) throw new Error('Expected a build job.')
+  return job
+}
+
+// @test-link [[api_rhythm_domain_expansion]]
+// @test-link [[entity_rhythm_candidate_domain]]
+describe('canonical rhythm domain memo: failing builds and discarded jobs', () => {
+  const expected = createCanonicalRhythmDomainMemo().lookup(CHEAP_RHYTHM_INPUT)
+
+  it('a prewarm slice whose step throws rethrows, stores nothing and frees the pending slot', () => {
+    const memo = createCanonicalRhythmDomainMemo(failingFirstBuilder(2))
+    const job = begun(memo.beginBuild(CHEAP_RHYTHM_INPUT))
+    expect(() => job.runSlice(() => false)).toThrow('grammar failed partway')
+    expect(memo.size()).toBe(0)
+    expect(() => job.runSlice(() => false)).toThrow(/failed; it cannot resume/)
+    job.cancel()
+    expect(() => job.runSlice(() => false)).toThrow(/failed; it cannot resume/)
+    const retry = begun(memo.beginBuild(CHEAP_RHYTHM_INPUT))
+    expect(retry).not.toBe(job)
+    expect(retry.runSlice(() => false)).toBe(true)
+    expect(memo.lookup(CHEAP_RHYTHM_INPUT)).toEqual(expected)
+    expect(memo.size()).toBe(1)
+  })
+
+  it('a lookup finishing a pending job whose step throws rethrows and stores nothing', () => {
+    const memo = createCanonicalRhythmDomainMemo(failingFirstBuilder(2))
+    const job = begun(memo.beginBuild(CHEAP_RHYTHM_INPUT))
+    expect(job.runSlice(() => true)).toBe(false)
+    expect(() => memo.lookup(CHEAP_RHYTHM_INPUT)).toThrow('grammar failed partway')
+    expect(memo.size()).toBe(0)
+    expect(() => job.runSlice(() => false)).toThrow(/failed; it cannot resume/)
+    expect(memo.lookup(CHEAP_RHYTHM_INPUT)).toEqual(expected)
+    expect(memo.size()).toBe(1)
+  })
+
+  it('discardPendingBuild cancels the unfinished job and is a no-op without one', () => {
+    const memo = createCanonicalRhythmDomainMemo()
+    memo.discardPendingBuild()
+    const job = begun(memo.beginBuild(CHEAP_RHYTHM_INPUT))
+    expect(job.runSlice(() => true)).toBe(false)
+    memo.discardPendingBuild()
+    expect(() => job.runSlice(() => false)).toThrow(/cancelled/)
+    expect(memo.size()).toBe(0)
+    expect(memo.beginBuild(CHEAP_RHYTHM_INPUT)).not.toBe(job)
+  })
+
+  it('discardPendingBuild leaves a completed entry memoized', () => {
+    const memo = createCanonicalRhythmDomainMemo()
+    const job = begun(memo.beginBuild(CHEAP_RHYTHM_INPUT))
+    expect(job.runSlice(() => false)).toBe(true)
+    memo.discardPendingBuild()
+    expect(memo.size()).toBe(1)
+    expect(memo.beginBuild(CHEAP_RHYTHM_INPUT)).toBeUndefined()
   })
 })

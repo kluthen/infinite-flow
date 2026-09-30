@@ -52,7 +52,10 @@ selection, their own domain-separated `fnv1a32` hashes (`infinite-flow/harmony-t
 `src/domain/profile/register-tie-key.ts`) rather than the named-stream registry. Every one of these
 tie-breaking derivations is now drawn by orchestration: harmony and rhythm candidates are ranked by
 their tie key before a window is searched, and `selectVaryingRegister` draws the register tie key
-to choose among successful Varying windows.
+to choose among successful Varying windows. Rhythm tie keys for a whole candidate list are
+computed in one batch by an incremental FNV-1a that hashes the versioned prefix once and resumes
+from shared identity prefixes, giving keys identical to per-candidate `rhythmTieKey`
+(`rhythm-tie-key-batch.ts`).
 
 ## 2. Inputs: controls and what they influence
 
@@ -137,15 +140,22 @@ event is always a fresh attack at bar 1, tick 0 (`rule_phrase_starts_on_downbeat
 Typed failure: `no_legal_rhythm_plan`, returned with the union of validation codes observed across
 the complete v1 expansion, only when structural rhythm validation rejects every candidate.
 
-Enumeration shortcuts (performance only, output unchanged): under Mixed density a gesture whose
-own source cells lack the 1-, 2- or 4-tick class is skipped, since no transform or answer bar can
-add one; and each assembled candidate first passes `quickRejectRhythmCandidate`
-(`rhythm-invariants.ts`), which reuses the validator's own metrical-anchor, Mixed-coverage,
-Active-anchor-ratio and answer-variation tests, so it only drops candidates the validator would
-reject. Only yielded candidates are deep-frozen, and transform/selector results are memoized for
-the duration of one expansion. When this fast pass yields nothing, the expansion re-runs without
-either shortcut so the reported codes are exactly those of the complete expansion; otherwise the
-probe's iterator is resumed by the first `candidates()` call rather than restarted.
+Enumeration shortcuts (performance only, output unchanged): on the fast path, a gesture whose
+optimistic best-case duration share can never reach the selected rhythmic-variety floor is skipped
+(`gestureCannotReachShare`), since transforms never change a source cell's duration; under Active
+displacement, a gesture or answer list whose bars admit no syncopation template is skipped, read
+from per-bar Active-template bitmasks (`activeTemplateMask`, `syncopation-templates.ts`); and the
+validator's own metrical-anchor, Active-anchor-ratio and answer-ending-signature tests run before a
+candidate is assembled, from per-bar facts cached for the expansion (`rejectsBeforeAssembly`,
+`rhythm-expansion-memo.ts`), with the rhythmic-variety test on the assembled candidate completing
+`quickRejectRhythmCandidate`'s set (`rhythm-invariants.ts`). Transform-descriptor disjointness is
+likewise checked before assembly, from each descriptor's cached source-cell keys. Each shortcut
+only drops candidates the validator would reject, the full validator still runs on every
+survivor, and the yielded candidates and their order are unchanged. Only yielded candidates are
+deep-frozen, and transform/selector results are memoized for the duration of one expansion. When
+this fast pass yields nothing, the expansion re-runs exactly, without any shortcut, so the reported
+codes are exactly those of the complete expansion; otherwise the probe's iterator is resumed by
+the first `candidates()` call rather than restarted.
 
 Details: [Rhythm and Phrase-Structure Policy](../docs/music/rhythm-phrase-structure.md).
 
@@ -428,8 +438,13 @@ endpoint validation by returning a trivially "solved" empty plan.
   memo and a Worker.** Step 9 added a seed-independent canonical rhythm-domain memo
   (`SHARED_CANONICAL_RHYTHM_DOMAIN_MEMO`, `src/domain/generation/orchestration/canonical-rhythm-domain.ts`)
   that reuses an already-materialized rhythm domain across repeated generations/regenerations of
-  the same note density/silence density/syncopation/tension-arc setting, and runs generation in a
-  Web Worker (`src/generation-worker/`) so the UI stays responsive. The later enumeration speed
+  the same rhythm setting, keyed by the grammar version plus the five rhythm controls (note
+  density, rhythmic variety, silence density, syncopation, tension arc), and runs generation in a
+  Web Worker (`src/generation-worker/`) so the UI stays responsive. An entry is filled either by a
+  lookup miss or by a completed prewarm build job, which the Worker runs in the background for the
+  setting in use and which stores an entry identical to an on-demand build. The memo never evicts:
+  its entries are bounded by the 324-setting catalog per grammar version, but not small (the
+  slowest setting's entry retains about 37 MiB, the largest about 49 MiB). The later enumeration speed
   package then optimized the Step 6 enumeration and the pitch search themselves, with
   byte-identical output (see [section 4](#4-rhythm-stage) and
   [docs/generation-latency.md](../docs/generation-latency.md)): the measured cold worst case fell
@@ -472,7 +487,7 @@ chromatic enclosure, etc.), see [Music Lexicon](../docs/music/lexicon.md).
 | Pitch validation        | `src/domain/pitch/validation/phrase-facts.ts`, `motion-rules.ts`, `figure-rules.ts`, `contour-endpoint-rules.ts`, `pitch-phrase-validator.ts`, `pitch-validation-types.ts`                                                                | Independent, planner-blind re-derivation and validation.                                                                                                                                                                                                                                 |
 | Orchestration           | `src/domain/generation/orchestration/orchestration-types.ts`, `search-ledger.ts`, `candidate-ranking.ts`, `request-resolution.ts`, `timeline-assembly.ts`, `window-search.ts`, `generation-orchestrator.ts`, `canonical-rhythm-domain.ts` | `generatePhrase`: fuel ledger, seeded candidate ranking/caching, request/register resolution, timeline assembly, per-window search, top-level outcome precedence; the seed-independent canonical rhythm-domain memo (Step 9) that skips re-materializing an already-seen rhythm setting. |
 | Whole-result validation | `src/domain/validation/generation-result-validator.ts`, `generation-result-validator-checks.ts`                                                                                                                                           | Independent re-derivation of envelope, request, timeline, rhythm/harmony provenance, ties, range, and melodic rules from a `GenerationResult`.                                                                                                                                           |
-| Generation worker       | `src/generation-worker/generation.worker.ts`, `generation-worker-handler.ts`, `generation-worker-protocol.ts`, `generation-worker-client.ts`, `browser-generation-worker.ts`                                                              | Step 9's one long-lived Web Worker running `generatePhrase` off the main thread: the typed correlated request/response protocol, boundary re-validation, and the session-facing client.                                                                                                  |
+| Generation worker       | `src/generation-worker/generation.worker.ts`, `generation-worker-runtime.ts`, `generation-worker-handler.ts`, `generation-worker-protocol.ts`, `generation-worker-client.ts`, `browser-generation-worker.ts`                              | Step 9's one long-lived Web Worker running `generatePhrase` off the main thread: the typed correlated request/response protocol plus the unanswered `prewarm` message, the sliced background prewarm runtime, boundary re-validation, and the session-facing client.                     |
 
 ## 12. Discrepancies found while writing this document
 

@@ -6,18 +6,24 @@ import {
   TENSION_ARCS,
 } from '../controls/generation-controls'
 import { deepFreeze } from '../events/deep-freeze'
-import { normalizedRhythmIdentity, withRhythmIdentity } from './rhythm-identity'
-import { quickRejectRhythmCandidate } from './rhythm-invariants'
-import { gestureCannotReachShare } from './rhythm-variety'
-import { enumerateGestureDerivations } from './rhythm-skeleton'
+import { withRhythmIdentity } from './rhythm-identity'
+import { createRhythmIdentityFragments, fragmentRhythmIdentity } from './rhythm-identity-fragments'
 import {
-  applyTransformSet,
-  enumerateAnswerTransformLists,
-  enumerateSyncopationTemplates,
-  type SyncopationSelectorMemo,
-  type TransformResult,
-} from './syncopation'
+  answerStageBars,
+  createExpansionMemo,
+  descriptorOrder,
+  disjointFromList,
+  listAddressKeys,
+  rejectsBeforeAssembly,
+  syncStageBars,
+  type ExpansionMemo,
+} from './rhythm-expansion-memo'
+import { gestureCannotReachShare, varietyViolated } from './rhythm-variety'
+import { enumerateGestureDerivations } from './rhythm-skeleton'
+import { answerTransformLists, syncopationTemplateLists } from './syncopation'
+import { activeTemplateMask } from './syncopation-templates'
 import type {
+  GestureDerivation,
   NoLegalRhythmPlan,
   NormalizedRhythmExpansionInput,
   RhythmBar,
@@ -65,199 +71,243 @@ function normalizeInput(input: RhythmExpansionInput): NormalizedRhythmExpansionI
   return deepFreeze({ ...input, grammarVersion })
 }
 
+/**
+ * Copy a gesture bar as answer bar 3 or 4, re-addressing every source cell to the new bar. The copy
+ * is left unfrozen and never mutated; a candidate that publishes it deep-freezes it then.
+ */
 function copyBar(bar: RhythmBar, barIndex: 2 | 3): RhythmBar {
-  return deepFreeze({
+  return {
     barIndex,
-    events: bar.events.map((event) =>
-      deepFreeze({
-        ...event,
-        sourceCells: event.sourceCells.map((cell) =>
-          deepFreeze({ ...cell, address: { ...cell.address, barIndex } }),
-        ),
-      }),
-    ),
-  })
+    events: bar.events.map((event) => ({
+      ...event,
+      sourceCells: event.sourceCells.map((cell) => ({
+        ...cell,
+        address: { ...cell.address, barIndex },
+      })),
+    })),
+  }
 }
 
-function disjoint(descriptors: readonly RhythmTransformDescriptor[]): boolean {
-  const seen = new Set<string>()
-  for (const descriptor of descriptors)
-    for (const address of descriptor.affectedAddresses) {
-      const key = `${address.barIndex}:${address.beatIndex}:${address.cellIndex}`
-      if (seen.has(key)) return false
-      seen.add(key)
-    }
-  return true
-}
-
-function descriptorOrder(
-  left: RhythmTransformDescriptor,
-  right: RhythmTransformDescriptor,
-): number {
-  return (
-    left.barIndex - right.barIndex ||
-    left.boundaryTick - right.boundaryTick ||
-    left.case.localeCompare(right.case) ||
-    left.delta - right.delta
-  )
+/** The fixed arguments of one derivation, shared by its per-list and per-template steps. */
+interface DeriveContext {
+  readonly input: NormalizedRhythmExpansionInput
+  readonly observed: Set<RhythmValidationCode>
+  readonly exact: boolean
+  readonly memo: ExpansionMemo
 }
 
 /**
- * Per-expansion memos. `applied` memoizes applying one descriptor to one bar, keyed by the immutable
- * bar and descriptor objects (shared across templates once `selectors` memoizes the syncopation
- * selectors). Cached bars are shared between candidates and never mutated.
+ * Marks the end of one gesture unit (one gesture with all its answer lists and templates) in the
+ * derivation stream, so a stepping builder can stop between units; `candidates` filters it out.
  */
-interface ExpansionMemo {
-  readonly applied: WeakMap<RhythmBar, WeakMap<RhythmTransformDescriptor, TransformResult>>
-  readonly selectors: SyncopationSelectorMemo
-}
-
-type Freeze = <T>(value: T) => T
-
-/** The syncopation stage builds unfrozen bars; only yielded candidates are deep-frozen. */
-const leaveUnfrozen: Freeze = (value) => value
-
-function applyOne(
-  memo: ExpansionMemo,
-  bar: RhythmBar,
-  descriptors: readonly RhythmTransformDescriptor[],
-  freeze: Freeze,
-): TransformResult {
-  if (descriptors.length !== 1) return applyTransformSet(bar, descriptors, freeze)
-  const descriptor = descriptors[0]!
-  let byDescriptor = memo.applied.get(bar)
-  if (!byDescriptor) {
-    byDescriptor = new WeakMap()
-    memo.applied.set(bar, byDescriptor)
-  }
-  let result = byDescriptor.get(descriptor)
-  if (!result) {
-    result = applyTransformSet(bar, descriptors, freeze)
-    byDescriptor.set(descriptor, result)
-  }
-  return result
-}
-
-function applyByBar(
-  memo: ExpansionMemo,
-  bars: readonly RhythmBar[],
-  descriptors: readonly RhythmTransformDescriptor[],
-  freeze: Freeze = deepFreeze,
-): readonly RhythmBar[] | undefined {
-  const next: RhythmBar[] = []
-  for (const bar of bars) {
-    const result = applyOne(
-      memo,
-      bar,
-      descriptors.filter((descriptor) => descriptor.barIndex === bar.barIndex),
-      freeze,
-    )
-    if (!result.ok) return undefined
-    next.push(result.bar)
-  }
-  return next
-}
+const GESTURE_END: unique symbol = Symbol('gesture_end')
+type GestureEnd = typeof GESTURE_END
 
 /**
- * Full v1 derivation in documented depth-first order; it has no time or count cutoff.
+ * Full v1 derivation in documented depth-first order, one gesture per outer iteration, each
+ * gesture's unit (skipped or not) followed by `GESTURE_END`; it has no time or count cutoff.
  *
- * Unless `exact`, it skips two kinds of work whose candidates the validator always rejects, so
- * the yielded sequence is unchanged: gestures whose optimistic best-case density share can never
- * reach the selected rhythmic-variety level's floor (`gestureCannotReachShare`, an
- * over-approximation of `rhythmic_variety_violation` proven safe because transforms never change a
- * source cell's duration), and candidates `quickRejectRhythmCandidate` rejects before they are
- * frozen and validated. Skipped work records no validation codes, so a no-plan result is
- * re-derived `exact` to report the complete code set.
+ * Unless `exact`, it skips work whose candidates the validator always rejects or that yields no
+ * candidate at all, so the yielded sequence is unchanged: gestures whose optimistic best-case
+ * density share can never reach the selected rhythmic-variety level's floor
+ * (`gestureCannotReachShare`, an over-approximation of `rhythmic_variety_violation` proven safe
+ * because transforms never change a source cell's duration); under Active displacement, gestures
+ * and answer lists whose bars admit no syncopation template (`activeTemplateMask`); and candidates
+ * `quickRejectRhythmCandidate` rejects, tested as `rejectsBeforeAssembly` then `varietyViolated`.
+ * Skipped work records no validation codes, so a no-plan result is re-derived `exact` to report
+ * the complete code set.
  */
+// @spec-link [[api_rhythm_domain_expansion]]
 function* derive(
   input: NormalizedRhythmExpansionInput,
   observed: Set<RhythmValidationCode>,
   exact: boolean,
-): IterableIterator<UnindexedRhythmCandidate> {
-  const memo: ExpansionMemo = { applied: new WeakMap(), selectors: new WeakMap() }
+): IterableIterator<UnindexedRhythmCandidate | GestureEnd> {
+  const context: DeriveContext = { input, observed, exact, memo: createExpansionMemo() }
   let hadGesture = false
   for (const gesture of enumerateGestureDerivations(input)) {
     hadGesture = true
-    // @spec-link [[module_rhythm_variety_grammar]]
-    if (!exact && gestureCannotReachShare(gesture.bars, input.noteDensity, input.rhythmicVariety))
-      continue
-    const answerBase = [copyBar(gesture.bars[0], 2), copyBar(gesture.bars[1], 3)] as const
-    let hadAnswerList = false
-    for (const answerList of enumerateAnswerTransformLists(
-      answerBase,
-      input.noteDensity,
-      input.tensionArc,
-      input.syncopation,
-    )) {
-      hadAnswerList = true
-      const answerOnly = answerList.filter(
-        (descriptor) => descriptor.roles.length === 1 && descriptor.roles[0] === 'answer',
-      )
-      const afterAnswer = applyByBar(memo, answerBase, answerOnly)
-      if (!afterAnswer) {
-        observed.add('transform_algebra_violation')
-        continue
-      }
-      let hadSyncopationTemplate = false
-      const phraseBeforeSync = [...gesture.bars, ...afterAnswer]
-      for (const syncopationSet of enumerateSyncopationTemplates(
-        phraseBeforeSync,
-        input.noteDensity,
-        input.syncopation,
-        answerList.filter((descriptor) => descriptor.roles.includes('syncopation')),
-        memo.selectors,
-      )) {
-        hadSyncopationTemplate = true
-        const syncStage = [
-          ...answerList.filter((descriptor) => descriptor.roles.includes('syncopation')),
-          ...syncopationSet,
-        ]
-        const transforms = [...answerOnly, ...syncStage.sort(descriptorOrder)]
-        if (!disjoint(transforms)) {
-          observed.add('transform_overlap_violation')
-          continue
-        }
-        const bars = applyByBar(memo, phraseBeforeSync, syncStage, leaveUnfrozen)
-        if (!bars) {
-          observed.add('transform_algebra_violation')
-          continue
-        }
-        const candidate: UnindexedRhythmCandidate = {
-          grammarVersion: input.grammarVersion,
-          input,
-          bars,
-          recurrence: gesture.recurrence,
-          transforms,
-        }
-        if (!exact && quickRejectRhythmCandidate(candidate)) continue
-        const failures = validateRhythmCandidate(candidate)
-        if (failures.length > 0) {
-          failures.forEach((failure) => observed.add(failure))
-          continue
-        }
-        yield deepFreeze(candidate)
-      }
-      if (!hadSyncopationTemplate) observed.add('syncopation_count_violation')
-    }
-    if (!hadAnswerList) observed.add('answer_transform_count_violation')
+    yield* gestureCandidates(context, gesture)
+    yield GESTURE_END
   }
   if (!hadGesture) observed.add('silence_budget_violation')
 }
 
-function* candidates(
+/** The candidates of one gesture, over every answer list, in canonical order: one gesture unit. */
+// @spec-link [[api_rhythm_domain_expansion]]
+function* gestureCandidates(
+  context: DeriveContext,
+  gesture: GestureDerivation,
+): IterableIterator<UnindexedRhythmCandidate> {
+  const { input, observed, exact, memo } = context
+  // @spec-link [[module_rhythm_variety_grammar]]
+  if (!exact && gestureCannotReachShare(gesture.bars, input.noteDensity, input.rhythmicVariety))
+    return
+  if (
+    !exact &&
+    input.syncopation === 'Active displacement' &&
+    activeTemplateMask(gesture.bars, input.noteDensity, memo.selectors) === 0
+  )
+    return
+  const answerBase = [copyBar(gesture.bars[0], 2), copyBar(gesture.bars[1], 3)] as const
+  let hadAnswerList = false
+  for (const answerList of answerTransformLists(
+    answerBase,
+    input.noteDensity,
+    input.tensionArc,
+    input.syncopation,
+  )) {
+    hadAnswerList = true
+    yield* answerListCandidates(context, gesture, answerBase, answerList)
+  }
+  if (!hadAnswerList) observed.add('answer_transform_count_violation')
+}
+
+/** The candidates of one answer list, over every syncopation template, in canonical order. */
+// @spec-link [[api_rhythm_domain_expansion]]
+function* answerListCandidates(
+  context: DeriveContext,
+  gesture: GestureDerivation,
+  answerBase: readonly RhythmBar[],
+  answerList: readonly RhythmTransformDescriptor[],
+): IterableIterator<UnindexedRhythmCandidate> {
+  const { input, observed, exact, memo } = context
+  const answerOnly = answerList.filter(
+    (descriptor) => descriptor.roles.length === 1 && descriptor.roles[0] === 'answer',
+  )
+  const afterAnswer = answerStageBars(memo, answerBase, answerOnly)
+  if (!afterAnswer) {
+    observed.add('transform_algebra_violation')
+    return
+  }
+  const phraseBeforeSync = [...gesture.bars, ...afterAnswer]
+  if (
+    !exact &&
+    input.syncopation === 'Active displacement' &&
+    activeTemplateMask(phraseBeforeSync, input.noteDensity, memo.selectors) === 0
+  ) {
+    observed.add('syncopation_count_violation')
+    return
+  }
+  const duals = answerList.filter((descriptor) => descriptor.roles.includes('syncopation'))
+  const listKeys = listAddressKeys(memo, [answerOnly, duals])
+  let hadSyncopationTemplate = false
+  for (const template of syncopationTemplateLists(
+    phraseBeforeSync,
+    input.noteDensity,
+    input.syncopation,
+    duals,
+    memo.selectors,
+  )) {
+    hadSyncopationTemplate = true
+    const candidate = templateCandidate(context, gesture, phraseBeforeSync, answerOnly, duals, {
+      listKeys,
+      template,
+    })
+    if (candidate) yield candidate
+  }
+  if (!hadSyncopationTemplate) observed.add('syncopation_count_violation')
+}
+
+/**
+ * The validated candidate of one template, or undefined when the transforms overlap, fail to apply,
+ * or (unless `exact`) are quick-rejected or fail validation. The prefilter runs on the applied bars
+ * before the four-bar candidate and its transform list are built. The candidate is not frozen here:
+ * `candidates` deep-freezes it once when it publishes it, and never freezes a duplicate.
+ */
+// @spec-link [[api_rhythm_domain_expansion]]
+function templateCandidate(
+  context: DeriveContext,
+  gesture: GestureDerivation,
+  phraseBeforeSync: readonly RhythmBar[],
+  answerOnly: readonly RhythmTransformDescriptor[],
+  duals: readonly RhythmTransformDescriptor[],
+  stage: {
+    readonly listKeys: ReadonlySet<string> | undefined
+    readonly template: readonly RhythmTransformDescriptor[]
+  },
+): UnindexedRhythmCandidate | undefined {
+  const { input, observed, exact, memo } = context
+  const { listKeys, template } = stage
+  if (!disjointFromList(memo, listKeys, template)) {
+    observed.add('transform_overlap_violation')
+    return undefined
+  }
+  const bars = syncStageBars(memo, phraseBeforeSync, duals, template)
+  if (!bars) {
+    observed.add('transform_algebra_violation')
+    return undefined
+  }
+  const syncopated = duals.length === 0 ? template : [...duals, ...template]
+  if (!exact && rejectsBeforeAssembly(memo, input.syncopation, bars, syncopated)) return undefined
+  const candidate: UnindexedRhythmCandidate = {
+    grammarVersion: input.grammarVersion,
+    input,
+    bars,
+    recurrence: gesture.recurrence,
+    transforms: [...answerOnly, ...[...syncopated].sort(descriptorOrder)],
+  }
+  if (!exact && varietyViolated(candidate)) return undefined
+  const failures = validateRhythmCandidate(candidate)
+  if (failures.length > 0) {
+    failures.forEach((failure) => observed.add(failure))
+    return undefined
+  }
+  return candidate
+}
+
+/**
+ * The deduplicated, indexed candidates of one derivation, with each gesture unit's `GESTURE_END`
+ * passed through. Each identity is spliced from cached per-part JSON fragments (the same text as
+ * `normalizedRhythmIdentity`), and `withRhythmIdentity` deep-freezes each published candidate with
+ * every bar it shares with later ones.
+ */
+// @spec-link [[api_rhythm_domain_expansion]]
+// @spec-link [[entity_rhythm_candidate_domain]]
+function* candidateUnits(
   input: NormalizedRhythmExpansionInput,
   observed: Set<RhythmValidationCode>,
-  exact = false,
-): IterableIterator<RhythmCandidate> {
+  exact: boolean,
+): IterableIterator<RhythmCandidate | GestureEnd> {
   const identities = new Set<string>()
+  const fragments = createRhythmIdentityFragments()
   let candidateIndex = 0
   for (const candidate of derive(input, observed, exact)) {
-    const identity = normalizedRhythmIdentity(candidate)
+    if (candidate === GESTURE_END) {
+      yield candidate
+      continue
+    }
+    const identity = fragmentRhythmIdentity(fragments, candidate)
     if (identities.has(identity)) continue
     identities.add(identity)
     yield withRhythmIdentity(candidate, candidateIndex, identity)
     candidateIndex += 1
   }
+}
+
+/** The deduplicated, indexed candidates of one derivation, without gesture-unit markers. */
+function* candidates(
+  input: NormalizedRhythmExpansionInput,
+  observed: Set<RhythmValidationCode>,
+  exact = false,
+): IterableIterator<RhythmCandidate> {
+  for (const item of candidateUnits(input, observed, exact)) if (item !== GESTURE_END) yield item
+}
+
+/** The typed no-plan result of one setting, reporting every observed code in validation order. */
+function noLegalRhythmPlan(
+  input: NormalizedRhythmExpansionInput,
+  observed: ReadonlySet<RhythmValidationCode>,
+): NoLegalRhythmPlan {
+  return deepFreeze({
+    kind: 'no_legal_rhythm_plan',
+    input,
+    codes: deepFreeze(
+      [...observed].sort(
+        (left, right) => VALIDATION_ORDER.indexOf(left) - VALIDATION_ORDER.indexOf(right),
+      ),
+    ),
+  })
 }
 
 /** Detect the typed no-plan branch without assuming a selected candidate exists. */
@@ -280,16 +330,7 @@ export function makeRhythmCandidateDomain(input: RhythmExpansionInput): RhythmPl
     probe = candidates(normalized, observed, true)
     first = probe.next()
   }
-  if (first.done)
-    return deepFreeze({
-      kind: 'no_legal_rhythm_plan',
-      input: normalized,
-      codes: deepFreeze(
-        [...observed].sort(
-          (left, right) => VALIDATION_ORDER.indexOf(left) - VALIDATION_ORDER.indexOf(right),
-        ),
-      ),
-    })
+  if (first.done) return noLegalRhythmPlan(normalized, observed)
   // The first replay resumes the successful probe instead of re-deriving its prefix; every later
   // replay derives afresh from the grammar, so published domains stay lazy and replayable.
   let resumable: { readonly first: RhythmCandidate; readonly rest: typeof probe } | undefined = {
@@ -310,6 +351,71 @@ export function makeRhythmCandidateDomain(input: RhythmExpansionInput): RhythmPl
       })()
     },
   })
+}
+
+/**
+ * The complete result of a stepped build: the typed no-plan result, or every candidate of the
+ * domain in canonical iterator order (what a full drain of the domain's first replay yields).
+ */
+export type RhythmDomainBuildResult =
+  | NoLegalRhythmPlan
+  | {
+      readonly kind: 'rhythm_candidate_list'
+      readonly input: NormalizedRhythmExpansionInput
+      readonly candidates: readonly RhythmCandidate[]
+    }
+
+/** A resumable build of one setting's complete domain, advanced one gesture unit at a time. */
+export interface RhythmDomainBuilder {
+  /**
+   * Runs one step: the rest of the current gesture unit up to its end, or the end of a pass (which
+   * either completes the build or starts the exact re-run of a pass that found nothing). Returns
+   * true once the build is complete; later calls do nothing and return true.
+   */
+  readonly step: () => boolean
+  /** The complete result; throws before the build is complete. */
+  readonly result: () => RhythmDomainBuildResult
+}
+
+/**
+ * Intent: build what `makeRhythmCandidateDomain` plus a full drain of its first replay produce, in
+ * steps of at most one gesture unit, over the same derivation: the fast pass, then, if it found
+ * nothing, the exact re-run (also stepped per gesture unit) that reports the complete code set. A
+ * setting with G gestures completes in G + 1 steps, or 2 (G + 1) when it has no plan.
+ */
+// @spec-link [[api_rhythm_domain_expansion]]
+export function createRhythmDomainBuilder(input: RhythmExpansionInput): RhythmDomainBuilder {
+  const normalized = normalizeInput(input)
+  const observed = new Set<RhythmValidationCode>()
+  const found: RhythmCandidate[] = []
+  let exact = false
+  let units = candidateUnits(normalized, observed, exact)
+  let complete: RhythmDomainBuildResult | undefined
+
+  function step(): boolean {
+    if (complete) return true
+    for (let next = units.next(); next.done !== true; next = units.next()) {
+      if (next.value === GESTURE_END) return false
+      found.push(next.value)
+    }
+    if (found.length === 0 && !exact) {
+      exact = true
+      units = candidateUnits(normalized, observed, exact)
+      return false
+    }
+    complete =
+      found.length === 0
+        ? noLegalRhythmPlan(normalized, observed)
+        : { kind: 'rhythm_candidate_list', input: normalized, candidates: found }
+    return true
+  }
+
+  function result(): RhythmDomainBuildResult {
+    if (!complete) throw new Error('The rhythm domain build is not complete.')
+    return complete
+  }
+
+  return { step, result }
 }
 
 const VALIDATION_ORDER: readonly RhythmValidationCode[] = [

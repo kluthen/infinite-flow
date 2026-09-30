@@ -5,7 +5,7 @@ type: SERVICE
 layer: ARCHITECTURE
 priority: 1
 human_name: Session Runner
-version: 0.1
+version: 0.2
 tags: session,generation-worker
 parents:
   - [[rule_look_ahead_deadline]]
@@ -27,7 +27,7 @@ The runner wraps one session engine. It forwards every engine output, those prod
 - The fit-check seam is required and has no default.
 - Ticks, count-in over, phrase started sounding and every end cause come from the transport that drives the runner through its dispatch, not from the runner itself. A transport event the engine refuses throws synchronously from dispatch, to the transport that sent it.
 
-The workspace composition binds the session runner to the same generate seam, and so the same single worker, that the Idle flow uses for phrase 1. Phrase 2 therefore reuses the warm rhythm-domain memo phrase 1 built, instead of paying a cold start inside the one-measure count-in, which is only one second at 240 BPM.
+The workspace composition binds the session runner to the same generate seam, and so the same single worker, that the Idle flow uses for phrase 1. Phrase 2 therefore reuses the warm rhythm-domain memo phrase 1 built, instead of paying a cold start inside the one-measure count-in, which is only one second at 240 BPM. The workspace's prewarm of the current rhythm setting lands in that same worker's memo, so the Idle flow and a running session both benefit from it; phrase 2's reuse of the warm memo phrase 1 built is unchanged.
 
 ## TECHNICAL INTERFACE
 `createSessionRunner({ generate, checkFit, now, providers, viewport, onOutput, onError }, start)` in `src/session/session-runner.ts`, with `checkFit` and `onError` required, returns `{ dispatch(event) }` for the transport events `count-in-over`, `phrase-started-sounding`, `tick` and `end`. A `generate` rejection that is a `GenerationWorkerCrashError` or a `GenerationWorkerTransportError` becomes `generation-crashed { attemptId }`; any other `generate` rejection, a `checkFit` rejection, or an engine throw while handling a fed-back result goes to `onError`, with nothing fed back. A transport event the engine refuses throws its `SessionEngineError` synchronously from `dispatch`. `composeWorkspaceSession` exposes a `createSessionRunner({ start, checkFit, now, onOutput, onError })` bound to the same `deps.generate`, providers and window-width reading as the Idle flow.

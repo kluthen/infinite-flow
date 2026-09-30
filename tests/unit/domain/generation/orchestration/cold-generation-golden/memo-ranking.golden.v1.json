@@ -1,0 +1,973 @@
+{
+  "settings": {
+    "Sixteenth|Heavily varied|Sparse|Active displacement|Build": {
+      "kind": "canonical_rhythm_domain",
+      "count": 1797,
+      "candidatesHash": "5faf8946a99bd86c",
+      "rankings": [
+        {
+          "seed": 1,
+          "orderHash": "522b5cdb0d4c722b",
+          "first": [1228, 1134, 145, 793, 1790]
+        },
+        {
+          "seed": 2,
+          "orderHash": "5cadd8613185bf7a",
+          "first": [401, 710, 133, 828, 1058]
+        },
+        {
+          "seed": 3,
+          "orderHash": "44a2cccd7e18174e",
+          "first": [309, 409, 1740, 55, 162]
+        },
+        {
+          "seed": 4,
+          "orderHash": "4870a4f101012c0d",
+          "first": [1288, 1023, 1628, 440, 548]
+        },
+        {
+          "seed": 5,
+          "orderHash": "c2d1e44b050abd7c",
+          "first": [1435, 1405, 1694, 1000, 1529]
+        },
+        {
+          "seed": 6,
+          "orderHash": "ad49275626796144",
+          "first": [531, 1497, 70, 640, 1377]
+        },
+        {
+          "seed": 7,
+          "orderHash": "53d3fff647d4fe02",
+          "first": [244, 651, 1153, 413, 635]
+        },
+        {
+          "seed": 8,
+          "orderHash": "95396de364f0f49e",
+          "first": [1080, 1366, 136, 1118, 982]
+        },
+        {
+          "seed": 9,
+          "orderHash": "304c4f45b7e36700",
+          "first": [1744, 955, 126, 667, 1322]
+        },
+        {
+          "seed": 10,
+          "orderHash": "d60d84aa46d7fa4b",
+          "first": [1038, 1097, 1383, 1754, 1724]
+        },
+        {
+          "seed": 11,
+          "orderHash": "5742cf7b84fa45fa",
+          "first": [304, 787, 974, 749, 422]
+        },
+        {
+          "seed": 12,
+          "orderHash": "b99b86b6ba147368",
+          "first": [1357, 715, 648, 1212, 1544]
+        },
+        {
+          "seed": 13,
+          "orderHash": "9747882e31890e11",
+          "first": [166, 1513, 330, 1195, 1127]
+        },
+        {
+          "seed": 14,
+          "orderHash": "ad2ddeca17a36b1e",
+          "first": [1344, 140, 1746, 86, 948]
+        },
+        {
+          "seed": 15,
+          "orderHash": "37876a7cac6e6717",
+          "first": [1173, 117, 853, 1035, 987]
+        },
+        {
+          "seed": 16,
+          "orderHash": "a57523a3a2853934",
+          "first": [502, 1139, 949, 1494, 1356]
+        },
+        {
+          "seed": 17,
+          "orderHash": "e0251351fc642b54",
+          "first": [1305, 383, 1697, 1576, 1034]
+        },
+        {
+          "seed": 18,
+          "orderHash": "bf75dfe0a7387097",
+          "first": [700, 1712, 557, 342, 537]
+        },
+        {
+          "seed": 19,
+          "orderHash": "dea0735ad9854be7",
+          "first": [1350, 1199, 676, 569, 66]
+        },
+        {
+          "seed": 20,
+          "orderHash": "dfbe84a616150f18",
+          "first": [149, 1105, 1659, 74, 898]
+        }
+      ]
+    },
+    "Sixteenth|Heavily varied|Sparse|Active displacement|Edge": {
+      "kind": "canonical_rhythm_domain",
+      "count": 1797,
+      "candidatesHash": "e4713cc7e1725ebe",
+      "rankings": [
+        {
+          "seed": 1,
+          "orderHash": "17af2e3529b739cf",
+          "first": [1340, 262, 857, 1326, 911]
+        },
+        {
+          "seed": 2,
+          "orderHash": "6432519d3f764623",
+          "first": [913, 479, 468, 471, 194]
+        },
+        {
+          "seed": 3,
+          "orderHash": "88b2797762294eff",
+          "first": [822, 1790, 36, 519, 922]
+        },
+        {
+          "seed": 4,
+          "orderHash": "3be762c1b8a60909",
+          "first": [1007, 581, 322, 1089, 1215]
+        },
+        {
+          "seed": 5,
+          "orderHash": "4b8a91fa906ab4de",
+          "first": [253, 850, 772, 149, 509]
+        },
+        {
+          "seed": 6,
+          "orderHash": "de8fe99a564c4658",
+          "first": [375, 1393, 441, 1243, 1341]
+        },
+        {
+          "seed": 7,
+          "orderHash": "45f9bfe2d5b5b467",
+          "first": [946, 1102, 1284, 160, 1659]
+        },
+        {
+          "seed": 8,
+          "orderHash": "473dd533a5ee5984",
+          "first": [1063, 1565, 706, 1782, 1500]
+        },
+        {
+          "seed": 9,
+          "orderHash": "9d0fa1a06167837b",
+          "first": [1006, 305, 1635, 606, 1218]
+        },
+        {
+          "seed": 10,
+          "orderHash": "8544e829c7a513c6",
+          "first": [466, 479, 305, 485, 209]
+        },
+        {
+          "seed": 11,
+          "orderHash": "3c1039a4e7a4aea8",
+          "first": [1116, 1773, 21, 1172, 994]
+        },
+        {
+          "seed": 12,
+          "orderHash": "93341c1d2ae8acaa",
+          "first": [624, 1584, 3, 1460, 891]
+        },
+        {
+          "seed": 13,
+          "orderHash": "5af0d7161c1e0084",
+          "first": [325, 387, 727, 1365, 853]
+        },
+        {
+          "seed": 14,
+          "orderHash": "4281216db7053ca5",
+          "first": [1106, 943, 1630, 57, 1056]
+        },
+        {
+          "seed": 15,
+          "orderHash": "fdc73182635781f2",
+          "first": [1349, 1575, 1095, 651, 527]
+        },
+        {
+          "seed": 16,
+          "orderHash": "0515c65d79210867",
+          "first": [1544, 1331, 247, 1646, 1364]
+        },
+        {
+          "seed": 17,
+          "orderHash": "6a6c66598c49c667",
+          "first": [1579, 1333, 1290, 27, 376]
+        },
+        {
+          "seed": 18,
+          "orderHash": "c6d2d4d5f650652d",
+          "first": [1027, 772, 934, 1003, 445]
+        },
+        {
+          "seed": 19,
+          "orderHash": "2c5be061a9a25d17",
+          "first": [1510, 1159, 732, 608, 1198]
+        },
+        {
+          "seed": 20,
+          "orderHash": "badc0386e80dab71",
+          "first": [490, 343, 542, 188, 466]
+        }
+      ]
+    },
+    "Sixteenth|Heavily varied|Sparse|Straight|Build": {
+      "kind": "canonical_rhythm_domain",
+      "count": 2932,
+      "candidatesHash": "07da8bc4285b825f",
+      "rankings": [
+        {
+          "seed": 1,
+          "orderHash": "49e44da57ae9ceda",
+          "first": [646, 2253, 2848, 281, 2072]
+        },
+        {
+          "seed": 2,
+          "orderHash": "559ce28b7a632eaa",
+          "first": [1899, 809, 115, 2494, 388]
+        },
+        {
+          "seed": 3,
+          "orderHash": "9d134ea8f64a6747",
+          "first": [1313, 1610, 2097, 2118, 1943]
+        },
+        {
+          "seed": 4,
+          "orderHash": "32516ba982797c6e",
+          "first": [101, 1549, 1106, 1115, 1893]
+        },
+        {
+          "seed": 5,
+          "orderHash": "9f605298dc04b23c",
+          "first": [1120, 2652, 1801, 527, 1912]
+        },
+        {
+          "seed": 6,
+          "orderHash": "14a276983774cf65",
+          "first": [2562, 910, 349, 644, 2327]
+        },
+        {
+          "seed": 7,
+          "orderHash": "170c295bd3cc5e61",
+          "first": [325, 1177, 1986, 1460, 354]
+        },
+        {
+          "seed": 8,
+          "orderHash": "2749db1b819df0cd",
+          "first": [2288, 1411, 898, 1412, 2]
+        },
+        {
+          "seed": 9,
+          "orderHash": "3deb2bb6da634a88",
+          "first": [431, 102, 1786, 1224, 497]
+        },
+        {
+          "seed": 10,
+          "orderHash": "6a5ce8225741f302",
+          "first": [938, 2292, 489, 2204, 2218]
+        },
+        {
+          "seed": 11,
+          "orderHash": "e4af84d771163de7",
+          "first": [321, 2435, 1849, 220, 1199]
+        },
+        {
+          "seed": 12,
+          "orderHash": "af23379d7c21064d",
+          "first": [1730, 2172, 2156, 357, 521]
+        },
+        {
+          "seed": 13,
+          "orderHash": "ba9edfbd850b4a79",
+          "first": [727, 299, 808, 2595, 2280]
+        },
+        {
+          "seed": 14,
+          "orderHash": "47ed382999999d7d",
+          "first": [2052, 1501, 1834, 2575, 436]
+        },
+        {
+          "seed": 15,
+          "orderHash": "fcf0331e2d07757d",
+          "first": [1513, 2252, 861, 496, 2393]
+        },
+        {
+          "seed": 16,
+          "orderHash": "1260b2a03957c91f",
+          "first": [2180, 423, 590, 266, 2073]
+        },
+        {
+          "seed": 17,
+          "orderHash": "0c1d77744ef6b27e",
+          "first": [1809, 984, 2087, 2221, 2381]
+        },
+        {
+          "seed": 18,
+          "orderHash": "f6417a7f3568b7c0",
+          "first": [856, 2784, 444, 1617, 2149]
+        },
+        {
+          "seed": 19,
+          "orderHash": "f541955ef4ba2bb5",
+          "first": [381, 2331, 1909, 2836, 598]
+        },
+        {
+          "seed": 20,
+          "orderHash": "61fee971ee54ed70",
+          "first": [2590, 628, 141, 2167, 2795]
+        }
+      ]
+    },
+    "Quarter|Strict|Sparse|Active displacement|Settled": {
+      "kind": "no_legal_rhythm_plan",
+      "count": 0,
+      "candidatesHash": "f59cdc907e3b875c",
+      "rankings": []
+    },
+    "Quarter|Strict|Sparse|Straight|Settled": {
+      "kind": "canonical_rhythm_domain",
+      "count": 1,
+      "candidatesHash": "f3b9cb21fc03b2b3",
+      "rankings": [
+        {
+          "seed": 1,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 2,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 3,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 4,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 5,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 6,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 7,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 8,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 9,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 10,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 11,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 12,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 13,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 14,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 15,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 16,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 17,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 18,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 19,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        },
+        {
+          "seed": 20,
+          "orderHash": "5feceb66ffc86f38",
+          "first": [0]
+        }
+      ]
+    },
+    "Quarter|Heavily varied|Breath-heavy|Straight|Edge": {
+      "kind": "canonical_rhythm_domain",
+      "count": 4,
+      "candidatesHash": "1bdcdec6f0b687c3",
+      "rankings": [
+        {
+          "seed": 1,
+          "orderHash": "7a61a299e0946063",
+          "first": [1, 2, 3, 0]
+        },
+        {
+          "seed": 2,
+          "orderHash": "ab3d48f87cec8091",
+          "first": [3, 0, 1, 2]
+        },
+        {
+          "seed": 3,
+          "orderHash": "29f589a4e8911676",
+          "first": [2, 0, 1, 3]
+        },
+        {
+          "seed": 4,
+          "orderHash": "29f589a4e8911676",
+          "first": [2, 0, 1, 3]
+        },
+        {
+          "seed": 5,
+          "orderHash": "ab3d48f87cec8091",
+          "first": [3, 0, 1, 2]
+        },
+        {
+          "seed": 6,
+          "orderHash": "29f589a4e8911676",
+          "first": [2, 0, 1, 3]
+        },
+        {
+          "seed": 7,
+          "orderHash": "7a61a299e0946063",
+          "first": [1, 2, 3, 0]
+        },
+        {
+          "seed": 8,
+          "orderHash": "29f589a4e8911676",
+          "first": [2, 0, 1, 3]
+        },
+        {
+          "seed": 9,
+          "orderHash": "dbb1f9e9c18ad0b5",
+          "first": [3, 0, 2, 1]
+        },
+        {
+          "seed": 10,
+          "orderHash": "b1db2dadd744c770",
+          "first": [3, 1, 0, 2]
+        },
+        {
+          "seed": 11,
+          "orderHash": "845280786e5e924f",
+          "first": [2, 3, 0, 1]
+        },
+        {
+          "seed": 12,
+          "orderHash": "ab3d48f87cec8091",
+          "first": [3, 0, 1, 2]
+        },
+        {
+          "seed": 13,
+          "orderHash": "f39b41f58ef23664",
+          "first": [2, 1, 3, 0]
+        },
+        {
+          "seed": 14,
+          "orderHash": "f39b41f58ef23664",
+          "first": [2, 1, 3, 0]
+        },
+        {
+          "seed": 15,
+          "orderHash": "15b513c63e2f545c",
+          "first": [0, 3, 1, 2]
+        },
+        {
+          "seed": 16,
+          "orderHash": "8327f47101ff2b3e",
+          "first": [1, 0, 2, 3]
+        },
+        {
+          "seed": 17,
+          "orderHash": "84deff01f1994516",
+          "first": [0, 1, 2, 3]
+        },
+        {
+          "seed": 18,
+          "orderHash": "8327f47101ff2b3e",
+          "first": [1, 0, 2, 3]
+        },
+        {
+          "seed": 19,
+          "orderHash": "714ef266a0bf866b",
+          "first": [1, 3, 0, 2]
+        },
+        {
+          "seed": 20,
+          "orderHash": "7b5189227f53cc4f",
+          "first": [0, 2, 3, 1]
+        }
+      ]
+    },
+    "Eighth|Slightly varied|Conversational|Occasional offbeats|Lift": {
+      "kind": "canonical_rhythm_domain",
+      "count": 108,
+      "candidatesHash": "15e677bce4726181",
+      "rankings": [
+        {
+          "seed": 1,
+          "orderHash": "ddc9b56b7d092d0c",
+          "first": [55, 71, 2, 73, 18]
+        },
+        {
+          "seed": 2,
+          "orderHash": "8e55e5a72c27ecb3",
+          "first": [12, 106, 100, 83, 107]
+        },
+        {
+          "seed": 3,
+          "orderHash": "a3f9aab2a5bf465a",
+          "first": [77, 84, 10, 44, 93]
+        },
+        {
+          "seed": 4,
+          "orderHash": "cf20806c93fb03de",
+          "first": [46, 86, 0, 61, 32]
+        },
+        {
+          "seed": 5,
+          "orderHash": "babc9e57c9d4b1ff",
+          "first": [91, 80, 55, 52, 107]
+        },
+        {
+          "seed": 6,
+          "orderHash": "5332bf0dd5ce3fd5",
+          "first": [79, 107, 8, 17, 51]
+        },
+        {
+          "seed": 7,
+          "orderHash": "713a6ab22eb6ec5b",
+          "first": [13, 60, 77, 52, 12]
+        },
+        {
+          "seed": 8,
+          "orderHash": "4c699e5dd701aca2",
+          "first": [42, 54, 21, 7, 70]
+        },
+        {
+          "seed": 9,
+          "orderHash": "be53b7d4dbb0277c",
+          "first": [105, 76, 5, 13, 11]
+        },
+        {
+          "seed": 10,
+          "orderHash": "679df236482bf94c",
+          "first": [9, 56, 14, 19, 98]
+        },
+        {
+          "seed": 11,
+          "orderHash": "97845ae0c5c6db33",
+          "first": [11, 37, 58, 6, 53]
+        },
+        {
+          "seed": 12,
+          "orderHash": "9258b3853d1e88a0",
+          "first": [91, 94, 16, 93, 2]
+        },
+        {
+          "seed": 13,
+          "orderHash": "43d9c6d751f9c6b9",
+          "first": [83, 94, 98, 12, 87]
+        },
+        {
+          "seed": 14,
+          "orderHash": "0514556cb86afb11",
+          "first": [15, 86, 13, 77, 99]
+        },
+        {
+          "seed": 15,
+          "orderHash": "4b6e0143cddec03d",
+          "first": [53, 50, 43, 2, 29]
+        },
+        {
+          "seed": 16,
+          "orderHash": "f624e07319a05c62",
+          "first": [81, 56, 8, 23, 0]
+        },
+        {
+          "seed": 17,
+          "orderHash": "a463ca113db85d18",
+          "first": [77, 35, 67, 59, 74]
+        },
+        {
+          "seed": 18,
+          "orderHash": "6fb4fd30abd54b56",
+          "first": [28, 100, 87, 76, 60]
+        },
+        {
+          "seed": 19,
+          "orderHash": "4a99e69bf52ffab3",
+          "first": [0, 36, 84, 30, 15]
+        },
+        {
+          "seed": 20,
+          "orderHash": "da50901d43c83a0b",
+          "first": [64, 67, 86, 4, 99]
+        }
+      ]
+    },
+    "Eighth|Heavily varied|Sparse|Active displacement|Build": {
+      "kind": "canonical_rhythm_domain",
+      "count": 826,
+      "candidatesHash": "55891a536f8445c2",
+      "rankings": [
+        {
+          "seed": 1,
+          "orderHash": "c8cb0724f162d3b6",
+          "first": [197, 236, 428, 229, 551]
+        },
+        {
+          "seed": 2,
+          "orderHash": "4c74ba500a8b0967",
+          "first": [235, 420, 225, 363, 306]
+        },
+        {
+          "seed": 3,
+          "orderHash": "a8ed6806fe97ae32",
+          "first": [139, 635, 332, 410, 272]
+        },
+        {
+          "seed": 4,
+          "orderHash": "9a2769ba651fde14",
+          "first": [355, 394, 632, 365, 347]
+        },
+        {
+          "seed": 5,
+          "orderHash": "596953a2578d1604",
+          "first": [659, 219, 129, 661, 484]
+        },
+        {
+          "seed": 6,
+          "orderHash": "cf66188f3bed1b2a",
+          "first": [97, 433, 221, 506, 555]
+        },
+        {
+          "seed": 7,
+          "orderHash": "5ee10ef9b2cf5a0a",
+          "first": [593, 722, 584, 797, 643]
+        },
+        {
+          "seed": 8,
+          "orderHash": "c240822efe8fa33e",
+          "first": [96, 744, 354, 385, 586]
+        },
+        {
+          "seed": 9,
+          "orderHash": "061caf9e95946fc5",
+          "first": [506, 240, 534, 705, 454]
+        },
+        {
+          "seed": 10,
+          "orderHash": "11a6323fe251968b",
+          "first": [210, 247, 734, 78, 257]
+        },
+        {
+          "seed": 11,
+          "orderHash": "70a4b4aae15c410f",
+          "first": [731, 387, 380, 653, 356]
+        },
+        {
+          "seed": 12,
+          "orderHash": "a6373b9f2ec30e86",
+          "first": [555, 541, 649, 213, 342]
+        },
+        {
+          "seed": 13,
+          "orderHash": "bf75712203072302",
+          "first": [70, 155, 99, 687, 580]
+        },
+        {
+          "seed": 14,
+          "orderHash": "81e6856c6ad9bd18",
+          "first": [324, 188, 214, 353, 381]
+        },
+        {
+          "seed": 15,
+          "orderHash": "8665d5d9079abb46",
+          "first": [421, 68, 358, 628, 516]
+        },
+        {
+          "seed": 16,
+          "orderHash": "c3d0192bfa60cfa5",
+          "first": [745, 568, 154, 372, 534]
+        },
+        {
+          "seed": 17,
+          "orderHash": "8f96bdcc8d5d8440",
+          "first": [145, 229, 107, 494, 820]
+        },
+        {
+          "seed": 18,
+          "orderHash": "0374c194f223fdbd",
+          "first": [475, 321, 578, 503, 429]
+        },
+        {
+          "seed": 19,
+          "orderHash": "d30400cfce2e0fdd",
+          "first": [325, 452, 611, 342, 50]
+        },
+        {
+          "seed": 20,
+          "orderHash": "d9f80631322d5d2d",
+          "first": [113, 797, 501, 139, 295]
+        }
+      ]
+    },
+    "Sixteenth|Strict|Conversational|Straight|Settled": {
+      "kind": "canonical_rhythm_domain",
+      "count": 31,
+      "candidatesHash": "06990a1bddbd13b7",
+      "rankings": [
+        {
+          "seed": 1,
+          "orderHash": "60ef8570f01fcce3",
+          "first": [22, 26, 17, 3, 23]
+        },
+        {
+          "seed": 2,
+          "orderHash": "ebb595e52a30fde6",
+          "first": [17, 1, 21, 12, 0]
+        },
+        {
+          "seed": 3,
+          "orderHash": "9c3681e764413565",
+          "first": [13, 17, 6, 0, 14]
+        },
+        {
+          "seed": 4,
+          "orderHash": "bb2f2d25bfb691a7",
+          "first": [10, 16, 3, 23, 27]
+        },
+        {
+          "seed": 5,
+          "orderHash": "4995bf7d1b455d9a",
+          "first": [16, 29, 4, 25, 22]
+        },
+        {
+          "seed": 6,
+          "orderHash": "ef358613f7aff408",
+          "first": [19, 20, 10, 17, 18]
+        },
+        {
+          "seed": 7,
+          "orderHash": "1b9e2204e5e5ee77",
+          "first": [29, 5, 15, 19, 1]
+        },
+        {
+          "seed": 8,
+          "orderHash": "d1e3957b77c90cd1",
+          "first": [27, 10, 6, 20, 24]
+        },
+        {
+          "seed": 9,
+          "orderHash": "20d668346041e2bc",
+          "first": [21, 6, 19, 17, 30]
+        },
+        {
+          "seed": 10,
+          "orderHash": "6a84257b8b2c88d5",
+          "first": [24, 22, 18, 27, 19]
+        },
+        {
+          "seed": 11,
+          "orderHash": "4c26c296cdea49b4",
+          "first": [23, 3, 10, 29, 0]
+        },
+        {
+          "seed": 12,
+          "orderHash": "294e67bcc4bafed0",
+          "first": [28, 27, 3, 26, 4]
+        },
+        {
+          "seed": 13,
+          "orderHash": "d73a57a55c0ff46b",
+          "first": [27, 18, 17, 10, 26]
+        },
+        {
+          "seed": 14,
+          "orderHash": "557a5dd3dc3fd679",
+          "first": [18, 25, 6, 1, 16]
+        },
+        {
+          "seed": 15,
+          "orderHash": "82a744a746e4de57",
+          "first": [10, 7, 24, 14, 12]
+        },
+        {
+          "seed": 16,
+          "orderHash": "58b2beb591e3b823",
+          "first": [1, 6, 8, 11, 14]
+        },
+        {
+          "seed": 17,
+          "orderHash": "e2f17c78aee84388",
+          "first": [23, 29, 4, 15, 3]
+        },
+        {
+          "seed": 18,
+          "orderHash": "117babdaceb1cce8",
+          "first": [14, 29, 22, 30, 28]
+        },
+        {
+          "seed": 19,
+          "orderHash": "4800c987af111fdf",
+          "first": [16, 21, 8, 28, 15]
+        },
+        {
+          "seed": 20,
+          "orderHash": "27b220be78f9b5fa",
+          "first": [9, 5, 16, 20, 8]
+        }
+      ]
+    },
+    "Sixteenth|Slightly varied|Conversational|Occasional offbeats|Lift": {
+      "kind": "canonical_rhythm_domain",
+      "count": 78,
+      "candidatesHash": "e157afa42ee4e146",
+      "rankings": [
+        {
+          "seed": 1,
+          "orderHash": "b6f00d788b6226b6",
+          "first": [70, 71, 22, 20, 59]
+        },
+        {
+          "seed": 2,
+          "orderHash": "63bfd49b9bbd3ee5",
+          "first": [40, 71, 59, 48, 14]
+        },
+        {
+          "seed": 3,
+          "orderHash": "c87a1e1715b2f717",
+          "first": [5, 76, 41, 37, 61]
+        },
+        {
+          "seed": 4,
+          "orderHash": "e4279b975de60de7",
+          "first": [5, 15, 75, 26, 20]
+        },
+        {
+          "seed": 5,
+          "orderHash": "95063d8c6038a91e",
+          "first": [53, 6, 34, 33, 62]
+        },
+        {
+          "seed": 6,
+          "orderHash": "0039905669a02437",
+          "first": [32, 15, 49, 0, 45]
+        },
+        {
+          "seed": 7,
+          "orderHash": "d67037718835a185",
+          "first": [22, 40, 55, 24, 15]
+        },
+        {
+          "seed": 8,
+          "orderHash": "b4102c7d74e7eafa",
+          "first": [56, 73, 31, 36, 50]
+        },
+        {
+          "seed": 9,
+          "orderHash": "2b1968a8de8b1cce",
+          "first": [45, 6, 47, 16, 60]
+        },
+        {
+          "seed": 10,
+          "orderHash": "02acadc6847e65ad",
+          "first": [53, 10, 23, 35, 11]
+        },
+        {
+          "seed": 11,
+          "orderHash": "294ce11f874bd93b",
+          "first": [10, 58, 17, 60, 15]
+        },
+        {
+          "seed": 12,
+          "orderHash": "f3962625a992ccc9",
+          "first": [9, 50, 37, 18, 30]
+        },
+        {
+          "seed": 13,
+          "orderHash": "9f450692180223cd",
+          "first": [8, 71, 18, 54, 49]
+        },
+        {
+          "seed": 14,
+          "orderHash": "6afc9abb9bca6398",
+          "first": [57, 34, 70, 37, 60]
+        },
+        {
+          "seed": 15,
+          "orderHash": "a9505fd3b8a1d132",
+          "first": [55, 74, 34, 10, 1]
+        },
+        {
+          "seed": 16,
+          "orderHash": "3c7ba54a94115c1f",
+          "first": [55, 9, 51, 20, 57]
+        },
+        {
+          "seed": 17,
+          "orderHash": "fb688886e075d577",
+          "first": [40, 65, 77, 19, 14]
+        },
+        {
+          "seed": 18,
+          "orderHash": "6f9e13b5ce814649",
+          "first": [4, 42, 67, 46, 22]
+        },
+        {
+          "seed": 19,
+          "orderHash": "be6f82a54f127253",
+          "first": [26, 5, 25, 32, 47]
+        },
+        {
+          "seed": 20,
+          "orderHash": "b14d2fdcb556deb3",
+          "first": [6, 70, 57, 16, 56]
+        }
+      ]
+    }
+  }
+}

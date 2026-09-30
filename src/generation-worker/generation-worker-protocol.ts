@@ -49,6 +49,20 @@ export interface GenerationWorkerRequest {
   readonly intent: GenerationIntent
 }
 
+/**
+ * One uncorrelated prewarm message posted from the session to the worker: build this intent's
+ * rhythm domain into the memo in the background. It carries no id and is never answered.
+ */
+// @spec-link [[module_generation_worker_protocol]]
+export interface GenerationWorkerPrewarm {
+  readonly type: 'prewarm'
+  readonly intent: GenerationIntent
+}
+
+/** Every worker-bound message: a correlated generate request or an unanswered prewarm. */
+// @spec-link [[module_generation_worker_protocol]]
+export type GenerationWorkerInboundMessage = GenerationWorkerRequest | GenerationWorkerPrewarm
+
 /** One correlated response posted from the worker back to the session. */
 // @spec-link [[module_generation_worker_protocol]]
 export type GenerationWorkerResponse =
@@ -234,6 +248,42 @@ export function parseGenerationWorkerRequest(input: unknown): GenerationWorkerRe
   const id = parseCorrelationId(record.id, 'GenerationWorkerRequest')
   const intent = parseGenerationWorkerIntent(record.intent)
   return { type: 'generate', id, intent }
+}
+
+/**
+ * Intent: parse one untrusted prewarm message posted to the worker: exactly `type` and `intent`,
+ * the intent parsed exactly like a generate request's. Any other shape throws a typed
+ * GenerationWorkerProtocolError so a malformed prewarm crashes the worker as loudly as a
+ * malformed generate request.
+ */
+// @spec-link [[module_generation_worker_protocol]]
+export function parseGenerationWorkerPrewarm(input: unknown): GenerationWorkerPrewarm {
+  const record = asPlainRecord(input, 'GenerationWorkerPrewarm')
+  requireAllowedKeys(record, new Set(['type', 'intent']), 'GenerationWorkerPrewarm')
+  if (record.type !== 'prewarm') {
+    throw new GenerationWorkerProtocolError(
+      `GenerationWorkerPrewarm.type must be "prewarm", got ${JSON.stringify(record.type)}.`,
+    )
+  }
+  const intent = parseGenerationWorkerIntent(record.intent)
+  return { type: 'prewarm', intent }
+}
+
+/**
+ * Intent: parse any untrusted worker-bound message, dispatching on its `type` to the generate
+ * request or the prewarm parser. A non-object or an unknown `type` throws a typed
+ * GenerationWorkerProtocolError, never guessing which message was meant.
+ */
+// @spec-link [[module_generation_worker_protocol]]
+export function parseGenerationWorkerInboundMessage(
+  input: unknown,
+): GenerationWorkerInboundMessage {
+  const record = asPlainRecord(input, 'GenerationWorkerInboundMessage')
+  if (record.type === 'generate') return parseGenerationWorkerRequest(record)
+  if (record.type === 'prewarm') return parseGenerationWorkerPrewarm(record)
+  throw new GenerationWorkerProtocolError(
+    `GenerationWorkerInboundMessage.type must be "generate" or "prewarm", got ${JSON.stringify(record.type)}.`,
+  )
 }
 
 const PROVENANCE_ALLOWED_KEYS = new Set(['harmony', 'rhythm', 'tensionBinding'])

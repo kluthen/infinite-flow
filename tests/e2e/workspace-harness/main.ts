@@ -19,7 +19,10 @@
  *   catch/emit('notation-error') and Retry-notation path run end to end, never a fabricated result);
  * - the audio transport (audio-seams.ts): the fake audio clock and output by default, or the real
  *   Web Audio output with `?audio=real`, both recorded, started only by a click on the page's own
- *   "Start audio (harness)" button, which stands in for chunk 15's Start click.
+ *   "Start audio (harness)" button, which stands in for chunk 15's Start click;
+ * - the prewarm policy, read from the page URL exactly as production reads it (`?prewarm=off`
+ *   disables it, on by default), with every prewarm forwarded to the real worker client and
+ *   counted for `prewarmCount()`.
  *
  * The lazy VexFlow engraver, the real generation Worker, real notation, and the real `matchMedia`
  * window-width provider all run for real (a spec moves the window across `bp-tablet-landscape`
@@ -46,6 +49,7 @@ import { makeSeed, type Seed } from '../../../src/domain/random/seed'
 import { createBrowserGenerationWorker } from '../../../src/generation-worker/browser-generation-worker'
 import { createGenerationWorkerClient } from '../../../src/generation-worker/generation-worker-client'
 import { createBrowserViewportWidth } from '../../../src/components/workspace/browser-viewport-width'
+import { prewarmPolicyFromSearch } from '../../../src/components/workspace/prewarm-policy'
 import { bindHarnessAudioStart, createHarnessAudio, harnessAudioMode } from './audio-seams'
 import { armNextNotationFailure } from './vexflow-engraver-loader-seam'
 
@@ -123,6 +127,15 @@ async function harnessGenerate(intent: GenerationIntent): Promise<GenerationOutc
   return client.generate(intent)
 }
 
+let prewarmsPosted = 0
+
+/** Intent: count one prewarm, then forward it to the real worker client unchanged. */
+// @test-link [[service_workspace_session_flow]]
+function harnessPrewarm(intent: GenerationIntent): void {
+  prewarmsPosted += 1
+  client.prewarm(intent)
+}
+
 let workspace: WorkspaceSession | null = null
 
 /** Intent: the latest session state's requestId/seed/timeline/operation/mode, for replay/isolation assertions. */
@@ -154,6 +167,7 @@ window.__workspaceHarness = {
   },
   failNextNotation: () => armNextNotationFailure(),
   snapshot,
+  prewarmCount: () => prewarmsPosted,
   audio: harnessAudio.api,
 }
 
@@ -163,6 +177,8 @@ app.provide(WORKSPACE_SESSION_FACTORY, () => {
     providers: { nextRequestId: requestIdProvider, nextSeed: seedProvider.nextSeed },
     viewport: createBrowserViewportWidth(),
     generate: harnessGenerate,
+    prewarmPolicy: prewarmPolicyFromSearch(window.location.search),
+    prewarm: harnessPrewarm,
     audio: harnessAudio.transport,
     dispose: client.dispose,
   })

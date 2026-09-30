@@ -15,6 +15,7 @@ import { makeHarmonyCandidateDomain, isNoLegalHarmonyPlan } from '../../harmony/
 import { candidatesFollowingCarriedHarmony } from '../../harmony/harmony-join'
 import type { HarmonyCandidate, HarmonyPlanResult } from '../../harmony/harmony-types'
 import { isNoLegalRhythmPlan } from '../../rhythm/rhythm-planner'
+import type { RhythmExpansionInput } from '../../rhythm/rhythm-types'
 import type { RegisterId } from '../../profile/register-id'
 import type { GenerationIntent } from '../generation-intent'
 import type { GenerationRequest } from '../generation-request'
@@ -54,7 +55,8 @@ export interface GenerationOrchestrationOptions {
 }
 
 /** Intent: build the exact structural harmony domain input the whole-result validator re-derives. */
-function buildHarmonyDomain(intent: GenerationIntent): HarmonyPlanResult {
+// @spec-link [[service_generation_orchestration]]
+export function buildHarmonyDomain(intent: GenerationIntent): HarmonyPlanResult {
   return makeHarmonyCandidateDomain({
     tonalCenter: intent.controls.tonalCenter,
     collection: intent.controls.collection,
@@ -65,6 +67,21 @@ function buildHarmonyDomain(intent: GenerationIntent): HarmonyPlanResult {
 }
 
 /**
+ * Intent: the rhythm-domain memo input of one intent: its five rhythm-relevant controls, the only
+ * part of the intent the seed-independent canonical rhythm domain depends on.
+ */
+// @spec-link [[service_generation_orchestration]]
+export function rhythmDomainInputOf(intent: GenerationIntent): RhythmExpansionInput {
+  return {
+    noteDensity: intent.controls.noteDensity,
+    rhythmicVariety: intent.controls.rhythmicVariety,
+    silenceDensity: intent.controls.silenceDensity,
+    syncopation: intent.controls.syncopation,
+    tensionArc: intent.controls.tension,
+  }
+}
+
+/**
  * Intent: look up the seed-independent canonical rhythm domain for the intent's rhythm-relevant
  * controls in the given memo, expanding the Step 6 grammar only on a memo miss.
  */
@@ -72,13 +89,7 @@ function buildRhythmDomain(
   intent: GenerationIntent,
   memo: CanonicalRhythmDomainMemo,
 ): ReturnType<CanonicalRhythmDomainMemo['lookup']> {
-  return memo.lookup({
-    noteDensity: intent.controls.noteDensity,
-    rhythmicVariety: intent.controls.rhythmicVariety,
-    silenceDensity: intent.controls.silenceDensity,
-    syncopation: intent.controls.syncopation,
-    tensionArc: intent.controls.tension,
-  })
+  return memo.lookup(rhythmDomainInputOf(intent))
 }
 
 /**

@@ -25,6 +25,7 @@ import {
   createSelectInstrumentProfileAction,
   type ProfileSelectionOutcome,
 } from './generation-session-profile-switch'
+import { createRhythmPrewarmTrigger, type PostPrewarm } from './generation-session-prewarm'
 import type { ViewportWidthProvider } from './viewport-width'
 
 export type ThemePreference = 'System' | 'Light' | 'Dark'
@@ -94,6 +95,13 @@ export interface CreateGenerationSessionOptions<TResult> {
    * `TResult` in this file's own unit tests) has nothing to drop.
    */
   readonly clearPresentedPhrase?: () => void
+  /**
+   * Where to post a rhythm-domain prewarm (the worker client's fire-and-forget `prewarm`): once at
+   * creation for the current width-resolved controls, then once per change of the width-resolved
+   * rhythm setting. Absent means prewarm is off: the workspace composition root leaves it out when
+   * its prewarm policy is disabled, and a caller with no generation worker has nothing to warm.
+   */
+  readonly prewarm?: PostPrewarm
 }
 
 /** A programming-usage error: a caller used a session action against its documented contract. */
@@ -172,7 +180,33 @@ export function createGenerationSession<TResult>(
     return state.noteDensityContext
   }
 
-  const stopListeningForCrossings = options.viewport.subscribe(readNoteDensityContext)
+  const rhythmPrewarm =
+    options.prewarm === undefined ? undefined : createRhythmPrewarmTrigger(options.prewarm)
+
+  /**
+   * Post a prewarm for the controls a phrase would be generated with now, at the window's current
+   * width, when that rhythm setting differs from the last one posted (the trigger dedupes). Never
+   * draws a seed or request id, and changes no session state beyond the width read.
+   */
+  // @spec-link [[service_workspace_session_flow]]
+  function prewarmCurrentRhythmSetting(): void {
+    if (rhythmPrewarm === undefined) return
+    rhythmPrewarm(
+      resolveGeneratedControls(state.controls, readNoteDensityContext()),
+      state.profileSelection,
+    )
+  }
+
+  /** A width crossing updates the note-density context, then re-warms if it changed the setting. */
+  // @spec-link [[rule_generated_density_follows_window_width]]
+  // @spec-link [[service_workspace_session_flow]]
+  function handleWidthCrossing(): void {
+    readNoteDensityContext()
+    prewarmCurrentRhythmSetting()
+  }
+
+  const stopListeningForCrossings = options.viewport.subscribe(handleWidthCrossing)
+  prewarmCurrentRhythmSetting()
 
   /**
    * True when the current controls' rhythm combination has no legal four-bar plan and must not
@@ -184,8 +218,12 @@ export function createGenerationSession<TResult>(
     return isRhythmSettingBlocked(state.controls, readNoteDensityContext())
   }
 
-  /** Manual controlled edits become custom; all other controls retain the current selection state. */
+  /**
+   * Manual controlled edits become custom; all other controls retain the current selection state.
+   * An edit that changes the width-resolved rhythm setting posts a prewarm for it.
+   */
   // @spec-link [[module_profile_control_customization]]
+  // @spec-link [[service_workspace_session_flow]]
   function setControl<K extends keyof GenerationControls>(
     key: K,
     value: GenerationControls[K],
@@ -205,6 +243,7 @@ export function createGenerationSession<TResult>(
       )
       state.controls = controls
       state.profileSelection = profileSelection
+      prewarmCurrentRhythmSetting()
       return true
     }
     const [controls, profileSelection] = applyNonProfileControlValue(
@@ -215,15 +254,19 @@ export function createGenerationSession<TResult>(
     )
     state.controls = controls
     state.profileSelection = profileSelection
+    prewarmCurrentRhythmSetting()
     return true
   }
 
+  /** Apply a musical profile's values; a switch that changes the rhythm setting posts a prewarm. */
   // @spec-link [[module_generative_profile_selection]]
+  // @spec-link [[service_workspace_session_flow]]
   function selectMusicalProfile(profile: MusicalProfile): boolean {
     if (!canChangeConfiguration()) return false
     const [controls, profileSelection] = applyMusicalProfile(state.controls, profile)
     state.controls = controls
     state.profileSelection = profileSelection
+    prewarmCurrentRhythmSetting()
     return true
   }
 

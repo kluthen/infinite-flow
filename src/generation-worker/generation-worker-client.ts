@@ -11,12 +11,12 @@ import type { GenerationOutcome } from '../domain/generation/orchestration/orche
 import {
   parseGenerationWorkerResponse,
   GenerationWorkerProtocolError,
-  type GenerationWorkerRequest,
+  type GenerationWorkerInboundMessage,
 } from './generation-worker-protocol'
 
 /** The minimal Worker-shaped surface this client depends on, satisfied by a real or fake worker. */
 export interface GenerationWorkerPort {
-  postMessage(message: GenerationWorkerRequest): void
+  postMessage(message: GenerationWorkerInboundMessage): void
   addEventListener(
     type: 'message' | 'error' | 'messageerror',
     listener: (event: Event | MessageEvent) => void,
@@ -27,6 +27,7 @@ export interface GenerationWorkerPort {
 /** The session-facing generation seam this worker client implements. */
 export interface GenerationWorkerClient {
   generate(intent: GenerationIntent): Promise<GenerationOutcome>
+  prewarm(intent: GenerationIntent): void
   dispose(): void
 }
 
@@ -125,11 +126,22 @@ export function createGenerationWorkerClient(port: GenerationWorkerPort): Genera
     })
   }
 
+  /**
+   * Intent: ask the worker to build this intent's rhythm domain in the background, fire-and-forget:
+   * no id is consumed, nothing is awaited and no response ever arrives. A no-op on an unusable
+   * worker, whose failure the next `generate` call reports.
+   */
+  // @spec-link [[module_generation_worker_protocol]]
+  function prewarm(intent: GenerationIntent): void {
+    if (broken !== null) return
+    port.postMessage({ type: 'prewarm', intent })
+  }
+
   /** Intent: terminate the underlying port and reject every still-pending request. */
   function dispose(): void {
     breakWorker(new GenerationWorkerTransportError('Generation worker client was disposed.'))
     port.terminate()
   }
 
-  return { generate, dispose }
+  return { generate, prewarm, dispose }
 }

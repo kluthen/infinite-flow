@@ -4,10 +4,24 @@ import type {
   NominalCellAddress,
   RhythmBar,
   RhythmEvent,
-  RhythmRole,
   RhythmTransformDescriptor,
-  TiedSustainDescriptor,
 } from './rhythm-types'
+import {
+  disjoint,
+  displacementCandidates,
+  eventEnds,
+  freezeDescriptor,
+  quantum,
+  roles,
+  sameAddress,
+  sourceBoundaryTicks,
+} from './transform-descriptors'
+
+export {
+  enumerateSyncopationTemplates,
+  syncopationTemplateLists,
+  type SyncopationSelectorMemo,
+} from './syncopation-templates'
 
 export type TransformFailureCode =
   'transform_algebra_violation' | 'transform_overlap_violation' | 'transform_address_mismatch'
@@ -23,121 +37,16 @@ const CASE_ORDER = {
   tied_sustain: 4,
 } as const
 
-function sameAddress(left: NominalCellAddress, right: NominalCellAddress): boolean {
-  return (
-    left.grammarVersion === right.grammarVersion &&
-    left.barIndex === right.barIndex &&
-    left.beatIndex === right.beatIndex &&
-    left.cellIndex === right.cellIndex
-  )
-}
+/** Shared frozen role lists of answer-only and dual-role answer descriptors. */
+const ANSWER_ROLES = roles(true, false)
+const DUAL_ROLES = roles(true, true)
 
-function eventEnds(event: RhythmEvent): number {
-  return event.startTick + event.durationTicks
-}
-
+/** Whether any of the event's source cells has this address. */
 function hasAddress(event: RhythmEvent, address: NominalCellAddress): boolean {
   return event.sourceCells.some((cell) => sameAddress(cell.address, address))
 }
 
-function quantum(density: NoteDensity): number {
-  return density === 'Quarter' ? 4 : density === 'Eighth' ? 2 : 1
-}
-
-function sourceBoundaryTicks(bar: RhythmBar): ReadonlySet<number> {
-  const ticks = new Set<number>([0, 16])
-  for (const event of bar.events) {
-    let tick = event.startTick
-    for (const cell of event.sourceCells) {
-      tick += cell.durationTicks
-      ticks.add(tick)
-    }
-  }
-  return ticks
-}
-
-function freezeDescriptor<T extends RhythmTransformDescriptor>(descriptor: T): T {
-  return deepFreeze(descriptor)
-}
-
-function roles(answer: boolean, syncopation: boolean): readonly RhythmRole[] {
-  return deepFreeze(
-    answer && syncopation ? ['answer', 'syncopation'] : answer ? ['answer'] : ['syncopation'],
-  )
-}
-
-function boundaryDescriptor(
-  bar: RhythmBar,
-  index: number,
-  descriptorCase: 'note_to_note' | 'interior_rest' | 'redistribute_note_pair',
-  delta: number,
-  descriptorRoles: readonly RhythmRole[],
-): RhythmTransformDescriptor | undefined {
-  const left = bar.events[index]
-  const right = bar.events[index + 1]
-  if (!left || !right || left.sourceCells.length !== 1 || right.sourceCells.length !== 1)
-    return undefined
-  const boundaryTick = eventEnds(left)
-  if (descriptorCase === 'interior_rest') {
-    const next = bar.events[index + 2]
-    if (!next || left.kind !== 'note' || right.kind !== 'rest' || next.kind !== 'note')
-      return undefined
-    if (left.durationTicks + delta <= 0 || next.durationTicks - delta <= 0) return undefined
-    return freezeDescriptor({
-      grammarVersion: 'rhythm-mvp-v2',
-      case: 'interior_rest',
-      barIndex: bar.barIndex,
-      boundaryTick,
-      delta,
-      transformedBoundaries: [boundaryTick + delta, eventEnds(right) + delta],
-      affectedAddresses: [
-        left.sourceCells[0]!.address,
-        right.sourceCells[0]!.address,
-        next.sourceCells[0]!.address,
-      ],
-      roles: descriptorRoles,
-    })
-  }
-  if (
-    left.kind !== 'note' ||
-    right.kind !== 'note' ||
-    left.durationTicks + delta <= 0 ||
-    right.durationTicks - delta <= 0
-  )
-    return undefined
-  return freezeDescriptor({
-    grammarVersion: 'rhythm-mvp-v2',
-    case: descriptorCase,
-    barIndex: bar.barIndex,
-    boundaryTick,
-    delta,
-    transformedBoundaries: [boundaryTick + delta],
-    affectedAddresses: [left.sourceCells[0]!.address, right.sourceCells[0]!.address],
-    roles: descriptorRoles,
-  })
-}
-
-function displacementCandidates(
-  bar: RhythmBar,
-  density: NoteDensity,
-  descriptorCase: 'note_to_note' | 'interior_rest' | 'redistribute_note_pair',
-  deltas: readonly number[],
-  descriptorRoles: readonly RhythmRole[],
-  requireGrid: boolean,
-): readonly RhythmTransformDescriptor[] {
-  const result: RhythmTransformDescriptor[] = []
-  for (const delta of deltas) {
-    for (let index = 0; index < bar.events.length; index += 1) {
-      const candidate = boundaryDescriptor(bar, index, descriptorCase, delta, descriptorRoles)
-      if (!candidate) continue
-      if (requireGrid && candidate.transformedBoundaries[0]! % quantum(density) !== 0) continue
-      result.push(candidate)
-      break // v1 retains the earliest target for a (case, delta) selector.
-    }
-  }
-  return deepFreeze(result)
-}
-
+/** Bar 4's single final-pattern swap descriptor, or none; other bars have no swap. */
 function swapCandidates(bar: RhythmBar): readonly RhythmTransformDescriptor[] {
   if (bar.barIndex !== 3) return deepFreeze([])
   const cells = bar.events.flatMap((event) =>
@@ -170,59 +79,17 @@ function swapCandidates(bar: RhythmBar): readonly RhythmTransformDescriptor[] {
   return deepFreeze([])
 }
 
-function tieCandidate(
-  bar: RhythmBar,
-  permittedTicks: readonly (4 | 8 | 12)[],
-): TiedSustainDescriptor | undefined {
-  for (const strongTick of permittedTicks) {
-    const event = bar.events.find(
-      (candidate) =>
-        candidate.kind === 'note' &&
-        candidate.startTick < strongTick &&
-        eventEnds(candidate) > strongTick,
-    )
-    if (
-      !event ||
-      event.sourceCells.length < 2 ||
-      !sourceBoundaryTicks({ ...bar, events: [event] }).has(strongTick)
-    )
-      continue
-    const sourceSpan = [event.sourceCells[0]!.address, event.sourceCells.at(-1)!.address] as const
-    return freezeDescriptor({
-      grammarVersion: 'rhythm-mvp-v2',
-      case: 'tied_sustain',
-      barIndex: bar.barIndex,
-      boundaryTick: strongTick,
-      delta: 0,
-      transformedBoundaries: [strongTick],
-      sourceSpan,
-      affectedAddresses: sourceSpan,
-      strongTick,
-      tieChainId: `rhythm-mvp-v2/${bar.barIndex}/${event.startTick}/${strongTick}/${eventEnds(event)}`,
-      roles: ['syncopation'],
-    })
-  }
-  return undefined
-}
-
-function disjoint(descriptors: readonly RhythmTransformDescriptor[]): boolean {
-  const addresses: NominalCellAddress[] = []
-  for (const descriptor of descriptors) {
-    for (const address of descriptor.affectedAddresses) {
-      if (addresses.some((used) => sameAddress(used, address))) return false
-      addresses.push(address)
-    }
-  }
-  return true
-}
-
-/** Enumerate answer lists only; no ranking, planner, or final candidate construction occurs here. */
+/**
+ * The canonical answer lists without freezing them, for the rhythm planner, which never publishes
+ * an answer list (a candidate records a fresh transform list; each descriptor is frozen when
+ * built). Same lists in the same order as `enumerateAnswerTransformLists`.
+ */
 // @spec-link [[mechanic_syncopation_enumeration]]
-export function* enumerateAnswerTransformLists(
+export function* answerTransformLists(
   bars: readonly [RhythmBar, RhythmBar],
   density: NoteDensity,
   tension: TensionArc,
-  syncopation: Syncopation = 'Straight',
+  syncopation: Syncopation,
 ): IterableIterator<readonly RhythmTransformDescriptor[]> {
   const candidates: RhythmTransformDescriptor[] = []
   const signed =
@@ -230,7 +97,7 @@ export function* enumerateAnswerTransformLists(
   for (const bar of bars) {
     if (syncopation === 'Straight') {
       candidates.push(
-        ...displacementCandidates(bar, density, 'interior_rest', signed, roles(true, false), true),
+        ...displacementCandidates(bar, density, 'interior_rest', signed, ANSWER_ROLES, true),
       )
       candidates.push(
         ...displacementCandidates(
@@ -238,7 +105,7 @@ export function* enumerateAnswerTransformLists(
           density,
           'redistribute_note_pair',
           signed,
-          roles(true, false),
+          ANSWER_ROLES,
           true,
         ),
       )
@@ -247,7 +114,7 @@ export function* enumerateAnswerTransformLists(
       const deltas = syncopation === 'Occasional offbeats' ? [2] : signed
       for (const descriptorCase of ['note_to_note', 'interior_rest'] as const)
         candidates.push(
-          ...displacementCandidates(bar, density, descriptorCase, deltas, roles(true, true), false),
+          ...displacementCandidates(bar, density, descriptorCase, deltas, DUAL_ROLES, false),
         )
       candidates.push(
         ...displacementCandidates(
@@ -255,7 +122,7 @@ export function* enumerateAnswerTransformLists(
           density,
           'redistribute_note_pair',
           [-quantum(density), quantum(density)],
-          roles(true, false),
+          ANSWER_ROLES,
           true,
         ),
       )
@@ -269,156 +136,28 @@ export function* enumerateAnswerTransformLists(
       CASE_ORDER[left.case] - CASE_ORDER[right.case] ||
       left.delta - right.delta,
   )
-  for (const descriptor of candidates) yield deepFreeze([descriptor])
+  for (const descriptor of candidates) yield [descriptor]
   if (tension === 'Build' || tension === 'Edge')
     for (let left = 0; left < candidates.length; left += 1)
       for (let right = left + 1; right < candidates.length; right += 1) {
         const list = [candidates[left]!, candidates[right]!]
-        if (disjoint(list)) yield deepFreeze(list)
+        if (disjoint(list)) yield list
       }
 }
 
-/**
- * Per-bar memo of the pure syncopation selectors for one rhythm expansion, keyed by the immutable
- * bar object and the selector arguments. A gesture's bars, and every answer bar an answer list
- * leaves untouched, are the same objects across that gesture's answer lists, so each selector runs
- * once per bar instead of once per template. Weakly keyed, so a bar no candidate retains is freed.
- */
+/** Enumerate answer lists only; no ranking, planner, or final candidate construction occurs here. */
 // @spec-link [[mechanic_syncopation_enumeration]]
-export type SyncopationSelectorMemo = WeakMap<
-  RhythmBar,
-  Map<string, RhythmTransformDescriptor | undefined>
->
-
-function memoSelector(
-  memo: SyncopationSelectorMemo,
-  bar: RhythmBar,
-  key: string,
-  compute: () => RhythmTransformDescriptor | undefined,
-): RhythmTransformDescriptor | undefined {
-  let byKey = memo.get(bar)
-  if (!byKey) {
-    byKey = new Map()
-    memo.set(bar, byKey)
-  }
-  if (byKey.has(key)) return byKey.get(key)
-  const value = compute()
-  byKey.set(key, value)
-  return value
-}
-
-function syncSelector(
-  bar: RhythmBar,
+export function* enumerateAnswerTransformLists(
+  bars: readonly [RhythmBar, RhythmBar],
   density: NoteDensity,
-  selector: 'note_to_note' | 'interior_rest' | 'tied_sustain',
-  active: boolean,
-): RhythmTransformDescriptor | undefined {
-  if (selector === 'tied_sustain') return tieCandidate(bar, active ? [4, 8, 12] : [8])
-  const deltas = active ? [-2, -1, 1, 2] : [2]
-  return displacementCandidates(bar, density, selector, deltas, roles(false, true), false)[0]
-}
-
-/**
- * Enumerate the finite, canonical v1 syncopation template catalog. Pass one `memo` across the
- * calls of a single expansion to share selector results between answer lists.
- */
-// @spec-link [[mechanic_syncopation_enumeration]]
-export function* enumerateSyncopationTemplates(
-  bars: readonly RhythmBar[],
-  density: NoteDensity,
-  syncopation: Syncopation,
-  coalesced: readonly RhythmTransformDescriptor[] = [],
-  memo: SyncopationSelectorMemo = new WeakMap(),
+  tension: TensionArc,
+  syncopation: Syncopation = 'Straight',
 ): IterableIterator<readonly RhythmTransformDescriptor[]> {
-  if (syncopation === 'Straight') {
-    yield deepFreeze([])
-    return
-  }
-  if (syncopation === 'Occasional offbeats') {
-    const selectors = ['note_to_note', 'interior_rest', 'tied_sustain'] as const
-    const dualByBar = new Map(
-      coalesced
-        .filter(
-          (descriptor) =>
-            descriptor.roles.length === 2 &&
-            descriptor.roles[0] === 'answer' &&
-            descriptor.roles[1] === 'syncopation',
-        )
-        .map((descriptor) => [descriptor.barIndex, descriptor] as const),
-    )
-    if (dualByBar.size !== coalesced.length) return
-    const selectOccasional = (index: number, selector: (typeof selectors)[number]) =>
-      memoSelector(memo, bars[index]!, `occ|${density}|${selector}`, () =>
-        syncSelector(bars[index]!, density, selector, false),
-      )
-    // Canonical nesting is cardinality, lexicographic bar set, then shared selector.
-    for (const barSet of [
-      ...bars.map((_, index) => [index]),
-      ...bars.flatMap((_, left) =>
-        bars.slice(left + 1).map((__, offset) => [left, left + offset + 1]),
-      ),
-    ])
-      for (const selector of selectors) {
-        const selectedBars = new Set(barSet)
-        if ([...dualByBar.keys()].some((barIndex) => !selectedBars.has(barIndex))) continue
-        const template = barSet.map((index) => {
-          const dual = dualByBar.get(index as 0 | 1 | 2 | 3)
-          if (dual)
-            return dual.case === selector && (selector === 'tied_sustain' || dual.delta === 2)
-              ? undefined
-              : null
-          return selectOccasional(index, selector)
-        })
-        if (
-          template.every(
-            (descriptor, index) =>
-              descriptor !== null &&
-              (descriptor !== undefined || dualByBar.has(barSet[index]! as 0 | 1 | 2 | 3)),
-          )
-        )
-          yield deepFreeze(
-            template.filter(
-              (descriptor): descriptor is RhythmTransformDescriptor => descriptor !== undefined,
-            ),
-          )
-      }
-    return
-  }
-  if (bars.length !== 4) return
-  const activeTie = (bar: RhythmBar) =>
-    memoSelector(memo, bar, 'tie|active', () => syncSelector(bar, density, 'tied_sustain', true))
-  const activeDisplacement = (
-    bar: RhythmBar,
-    displacement: 'note_to_note' | 'interior_rest',
-    delta: number,
-  ) =>
-    memoSelector(
-      memo,
-      bar,
-      `act|${density}|${displacement}|${delta}`,
-      () =>
-        displacementCandidates(bar, density, displacement, [delta], roles(false, true), false)[0],
-    )
-  for (const pattern of [
-    ['tied_sustain', 'displacement', 'tied_sustain', 'displacement'],
-    ['displacement', 'tied_sustain', 'displacement', 'tied_sustain'],
-  ] as const) {
-    for (const displacement of ['note_to_note', 'interior_rest'] as const)
-      for (const delta of [-2, -1, 1, 2]) {
-        const template = bars.map((bar, index) =>
-          pattern[index] === 'tied_sustain'
-            ? activeTie(bar)
-            : activeDisplacement(bar, displacement, delta),
-        )
-        if (
-          template.every((descriptor) => descriptor !== undefined) &&
-          disjoint(template as RhythmTransformDescriptor[])
-        )
-          yield deepFreeze(template as RhythmTransformDescriptor[])
-      }
-  }
+  for (const list of answerTransformLists(bars, density, tension, syncopation))
+    yield deepFreeze(list)
 }
 
+/** Re-time each event to the given start ticks; each lasts until the next start or the bar end. */
 function retime(events: readonly RhythmEvent[], starts: readonly number[]): readonly RhythmEvent[] {
   return events.map((event, index) => ({
     ...event,
