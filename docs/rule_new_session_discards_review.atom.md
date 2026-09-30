@@ -7,7 +7,7 @@ parents:
   - [[req_last_session_review]]
 dependents: []
 layer: BUSINESS
-version: 0.2
+version: 0.3
 tags: [v2, release-v2.0, review, session-start]
 type: RULE
 ---
@@ -15,14 +15,15 @@ type: RULE
 # New Session Discards the Review Without Asking
 
 ## INTENT
-Keep the next session one action away.
+Keep the last session's review available until the next session starts, and discard it then without asking.
 
 ## THE RULE / LOGIC
-Starting a new session from the review, by a Start click or by the starting MIDI note, discards that review without asking for confirmation, so the next session is always one action away. A note played while looking back at the review, instrument in hand, can therefore start a session and discard a review not yet exported; that risk is accepted, because the starting note is always named whenever playing it would start a session. Closing or reloading the page discards everything without asking.
+The review of the last session opens when that session ends. Leaving it keeps it: it stays reachable again until the next session starts or the page closes. Starting that next session, which happens only after the player has left the review, discards it without asking for confirmation. Closing or reloading the page discards everything without asking.
 
 ## TECHNICAL INTERFACE
-No confirmation dialog guards discarding the review, whichever start discards it, or the page's state.
+Leaving the review keeps it reachable; no confirmation dialog guards discarding it when the next session starts, or discarding the page's state.
 
 ## EXPECTATION
-- Starting a new session from the review, by a Start click or by the starting note, discards it without any confirmation.
+- After leaving the review, the player can reach it again until the next session starts.
+- Starting the next session discards the review without any confirmation.
 - Closing or reloading the page discards everything without asking.
