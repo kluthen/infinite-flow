@@ -16,7 +16,10 @@
  *   (`failNextNotation`, armed through the `@/notation/vexflow-engraver-loader` alias configured in
  *   vite.workspace-harness.config.ts, which substitutes this directory's
  *   `vexflow-engraver-loader-seam.ts` for the real loader so PhraseScore's genuine `redraw()`
- *   catch/emit('notation-error') and Retry-notation path run end to end, never a fabricated result).
+ *   catch/emit('notation-error') and Retry-notation path run end to end, never a fabricated result);
+ * - the audio transport (audio-seams.ts): the fake audio clock and output by default, or the real
+ *   Web Audio output with `?audio=real`, both recorded, started only by a click on the page's own
+ *   "Start audio (harness)" button, which stands in for chunk 15's Start click.
  *
  * The lazy VexFlow engraver, the real generation Worker, real notation, and the real `matchMedia`
  * window-width provider all run for real (a spec moves the window across `bp-tablet-landscape`
@@ -43,6 +46,7 @@ import { makeSeed, type Seed } from '../../../src/domain/random/seed'
 import { createBrowserGenerationWorker } from '../../../src/generation-worker/browser-generation-worker'
 import { createGenerationWorkerClient } from '../../../src/generation-worker/generation-worker-client'
 import { createBrowserViewportWidth } from '../../../src/components/workspace/browser-viewport-width'
+import { bindHarnessAudioStart, createHarnessAudio, harnessAudioMode } from './audio-seams'
 import { armNextNotationFailure } from './vexflow-engraver-loader-seam'
 
 /** Intent: a deterministic seed provider -- a spec-filled queue, falling back to a plain counter. */
@@ -102,6 +106,9 @@ const requestIdProvider = createRequestIdProvider()
 const gate = createGenerationGate()
 let armedFailureCode: WorkspaceHarnessGenerationFailureCode | null = null
 
+const harnessAudio = createHarnessAudio(harnessAudioMode(window.location.search))
+bindHarnessAudioStart(document, harnessAudio.startFromClick)
+
 const port = createBrowserGenerationWorker()
 const client = createGenerationWorkerClient(port)
 
@@ -147,6 +154,7 @@ window.__workspaceHarness = {
   },
   failNextNotation: () => armNextNotationFailure(),
   snapshot,
+  audio: harnessAudio.api,
 }
 
 const app = createApp(App)
@@ -155,6 +163,7 @@ app.provide(WORKSPACE_SESSION_FACTORY, () => {
     providers: { nextRequestId: requestIdProvider, nextSeed: seedProvider.nextSeed },
     viewport: createBrowserViewportWidth(),
     generate: harnessGenerate,
+    audio: harnessAudio.transport,
     dispose: client.dispose,
   })
   return workspace

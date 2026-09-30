@@ -28,6 +28,7 @@ import {
   createFakeViewportWidth,
   type FakeViewportWidth,
 } from '../../composables/fake-viewport-width'
+import { transportRig } from '../../audio/transport-rig'
 
 vi.mock('@/generation-worker/browser-generation-worker', () => ({
   createBrowserGenerationWorker: vi.fn(() => ({
@@ -79,6 +80,7 @@ function fakeDependencies(): WorkspaceSessionDependencies & {
     },
     viewport: createFakeViewportWidth(),
     generate: generateMock,
+    audio: transportRig().transport,
     dispose: disposeMock,
     generateMock,
     disposeMock,
@@ -134,6 +136,15 @@ describe('composeWorkspaceSession', () => {
 
     expect(succeeded).toBe(true)
     expect(workspace.session.state.notationError).toBeNull()
+  })
+
+  // @test-link [[rule_audio_unlocked_by_player_click]]
+  it('exposes the injected audio transport unchanged, still locked', () => {
+    const deps = fakeDependencies()
+    const workspace = composeWorkspaceSession(deps)
+
+    expect(workspace.audio).toBe(deps.audio)
+    expect(workspace.audio.isUnlocked()).toBe(false)
   })
 
   it('dispose() forwards to the injected teardown', () => {
@@ -242,6 +253,28 @@ describe('createWorkspaceSession', () => {
     expect(workspace.session.state.controls).toEqual(DEFAULT_GENERATION_CONTROLS)
 
     workspace.dispose()
+  })
+
+  // @test-link [[rule_audio_unlocked_by_player_click]]
+  it('builds a locked audio transport that never constructs an AudioContext', () => {
+    stubMatchMedia(false)
+    const constructions = vi.fn()
+    vi.stubGlobal(
+      'AudioContext',
+      class {
+        constructor() {
+          constructions()
+        }
+      },
+    )
+    const workspace = createWorkspaceSession()
+
+    expect(workspace.audio.isUnlocked()).toBe(false)
+    expect(workspace.audio.isRunning()).toBe(false)
+    expect(constructions).not.toHaveBeenCalled()
+
+    workspace.dispose()
+    expect(constructions).not.toHaveBeenCalled()
   })
 
   // @test-link [[rule_generated_density_follows_window_width]]

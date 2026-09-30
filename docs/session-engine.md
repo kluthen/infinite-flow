@@ -168,7 +168,8 @@ the one seam, and phrase 2 reuses the rhythm-domain memo that generating phrase 
 ## What later chunks add
 
 - **Chunk 9:** the session history, built from `phrase-sounding` outputs.
-- **Chunk 10:** the audio clock the runner's `now` reads, and the fake clock for tests.
+- **Chunk 10 (built):** the audio clock is `WorkspaceSession.audio.now` (see
+  [the audio transport](audio-transport.md)), and chunk 15 passes it as the runner's `now`.
 - **Chunk 15:** the session screen, audio, count-in display and locks, and the transport that sends
   `count-in-over`, `phrase-started-sounding`, ticks and the `stop`, `hidden-tab` and
   `staff-not-shown` ends.

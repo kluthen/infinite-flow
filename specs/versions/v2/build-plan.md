@@ -102,7 +102,7 @@ chunks in different sections; the second to merge rebases on the first.
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
 | 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29)                                                                                                                                                                                                                                                                                                       | Nothing                                               |
 | 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 (done 2026-09-29), follow-up 3b Phone staff height (done 2026-09-29) · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation (done 2026-09-29) · 14 Note acknowledgement (done 2026-09-29) · 18 MusicXML encoding (done 2026-09-29) · 19 Generated-notes MIDI encoding (done 2026-09-29) | Chunk 0 (done). Start chunk 3 first (see the caveat). |
-| 2    | 5 Idle fit retries and the room notice · 6 Note identity and session overlays · 8 Session engine (done 2026-09-30) · 10 Audio transport                                                                                                                                                                                                                                       | Wave 1. Chunk 1's verdict: given (2026-09-30).        |
+| 2    | 5 Idle fit retries and the room notice · 6 Note identity and session overlays · 8 Session engine (done 2026-09-30) · 10 Audio transport (done 2026-09-30)                                                                                                                                                                                                                     | Wave 1. Chunk 1's verdict: given (2026-09-30).        |
 | 3    | 9 Session history · 11 Backing · 12 MIDI input                                                                                                                                                                                                                                                                                                                                | Wave 2                                                |
 | 4    | 15 Session screen: start and end                                                                                                                                                                                                                                                                                                                                              | Wave 3                                                |
 | 5    | 13 Controller connection · 16 Rolling display                                                                                                                                                                                                                                                                                                                                 | Chunk 15                                              |
@@ -1009,7 +1009,39 @@ privacy), items 12, 13 and 27.
 
 ### Chunk 10 — Audio transport
 
-**Release:** v2.0. Needs chunk 1's main-thread verdict.
+**Release:** v2.0. **Done on 2026-09-30.** `src/audio/` holds the one `AudioContext`, created
+only by the transport's `unlock()`, which chunk 15's Start and "Connect controller" click handlers
+will call; it is never suspended or closed. A look-ahead scheduler plans sound 200 ms ahead on the
+audio clock, woken every 25 ms by a Web Worker timer (chunk 1's verdict). The click plays quarter
+notes with beat 1 accented; the one-measure count-in takes a route past the click on/off gain but
+through the click volume, so it sounds with the click off, even when it is turned off during the
+count-in. On/off and volume are gains, and muting never touches the clock. Stop fades the
+session's own bus out over 0.1 s. The click volume's range and default are ux-writer's
+placeholder design tokens (`--mix-*` in `src/styles/theme.css`), read at unlock; the lowest, 0.2,
+is checked to be above zero. ux Q31 must settle the real values before the gate. The workspace
+session exposes the transport as `WorkspaceSession.audio`. A fake audio clock and output
+(`tests/unit/audio/fake-audio.ts`) back the unit tests and the workspace harness's `audio` seams
+(`?audio=real` for the real context). Playwright scripts a count-in and eight bars at 120 BPM on
+the fake clock, and plays a count-in on the real `AudioContext` in Chromium; no audio context
+exists before the click in either. Technical choices:
+[`docs/audio-transport.md`](../../../docs/audio-transport.md). Decided in the chunk: the count-in's
+beat 1 is accented, inferred from the click rule; Stop during the count-in fades too; the
+volume-to-gain mapping is linear, a placeholder; a browser interruption of the audio clock halts
+the transport and tells its listeners (chunk 15 ends the session), and resuming after one is not
+built.
+
+**Progress:**
+
+| Step               | State | Notes                                                                          |
+| ------------------ | ----- | ------------------------------------------------------------------------------ |
+| 1. ATD preflight   | Done  | PROCEED-WITH-SIGNOFF-PENDING; no architecture atoms (adapter choices in docs)  |
+| 2. Tests first     | Done  | Red on assertions against stub modules                                         |
+| 3. Implement       | Done  | `src/audio/` (12 files), the workspace wiring and the harness `audio` seams    |
+| 4. Verify          | Done  | `npm run quality` passes; real-Chromium count-in test included                 |
+| 5. Documents       | Done  | `docs/audio-transport.md`, `docs/testing.md`, README, `docs/session-engine.md` |
+| 6. ATD stewardship | Done  | Tags checked; the atoms' status awaits the owner                               |
+
+Needs chunk 1's main-thread verdict.
 
 **Goal.** The audio clock and everything scheduled on it except the backing: the audio adapter,
 the scheduler, the click, the count-in, the mix gains, the fade on stop, and the fake clock and

@@ -37,6 +37,8 @@ import {
   type SessionRunnerDependencies,
 } from '@/session/session-runner'
 import type { SessionStart } from '@/session/session-types'
+import type { AudioTransport } from '@/audio/audio-transport'
+import { createBrowserAudioTransport } from '@/audio/browser-audio-transport'
 import { createBrowserViewportWidth } from './browser-viewport-width'
 
 /**
@@ -64,20 +66,33 @@ export interface WorkspaceSession {
    * memo, which lives once per worker; a cold phrase 2 takes about 0.95 s.
    */
   readonly createSessionRunner: (input: WorkspaceSessionRunnerInput) => SessionRunner
+  /**
+   * The app's one audio transport, locked until a player click. Chunk 15's Start and "Connect
+   * controller" click handlers call `audio.unlock()` synchronously, and a session runner's `now`
+   * reads `audio.now`, the audio clock.
+   */
+  // @spec-link [[req_session_audio_mix]]
+  // @spec-link [[rule_audio_unlocked_by_player_click]]
+  readonly audio: AudioTransport
   readonly dispose: () => void
 }
 
 /**
  * The explicit dependency surface `composeWorkspaceSession` needs: identity/seed providers, the
- * window-width provider, and the raw orchestration-outcome `generate` seam (plus its teardown).
- * Production supplies the cryptographic seed provider, the `matchMedia` width provider and the
- * real worker client; a harness supplies deterministic, gated, or failure-injecting equivalents
- * that still call through to the real worker.
+ * window-width provider, the raw orchestration-outcome `generate` seam (plus its teardown) and the
+ * audio transport. Production supplies the cryptographic seed provider, the `matchMedia` width
+ * provider, the real worker client and the Web Audio transport; a harness supplies deterministic,
+ * gated, or failure-injecting equivalents that still call through to the real worker, and a
+ * transport on a fake or a recorded real audio output.
  */
 export interface WorkspaceSessionDependencies {
   readonly providers: GenerationIntentProviders
   readonly viewport: ViewportWidthProvider
   readonly generate: (intent: GenerationIntent) => Promise<GenerationOutcome>
+  /** The audio transport, passed through unchanged as `WorkspaceSession.audio`. */
+  // @spec-link [[req_session_audio_mix]]
+  // @spec-link [[rule_audio_unlocked_by_player_click]]
+  readonly audio: AudioTransport
   readonly dispose: () => void
 }
 
@@ -106,7 +121,7 @@ function createRequestIdProvider(): () => ReturnType<typeof makeRequestId> {
 
 /**
  * Intent: build one workspace session from explicit dependencies: the identity/seed providers,
- * the raw orchestration `generate` seam, and its teardown. Wires the same notation coordinator
+ * the raw orchestration `generate` seam, its teardown, and the audio transport, exposed unchanged. Wires the same notation coordinator
  * and profile-switch policy production always uses, so the only thing a caller can vary is where
  * requests/seeds and generation outcomes come from. Session runners it starts share the Idle
  * flow's providers, window-width reading and raw `generate` seam (the one worker), so phrase 2
@@ -160,6 +175,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
         },
         input.start,
       ),
+    audio: deps.audio,
     dispose: () => {
       created.dispose()
       deps.dispose()
@@ -169,10 +185,12 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
 
 /**
  * Intent: build the root workspace session used by `App.vue` in production: a real worker-backed
- * generation seam, the cryptographic seed provider, a monotonic request-id provider, and the
- * window's own `matchMedia` width provider.
+ * generation seam, the cryptographic seed provider, a monotonic request-id provider, the
+ * window's own `matchMedia` width provider, and the Web Audio transport, still locked: no audio
+ * context exists until a player click unlocks it.
  */
 // @spec-link [[service_workspace_session_flow]]
+// @spec-link [[rule_audio_unlocked_by_player_click]]
 export function createWorkspaceSession(): WorkspaceSession {
   const port = createBrowserGenerationWorker()
   const client = createGenerationWorkerClient(port)
@@ -183,6 +201,7 @@ export function createWorkspaceSession(): WorkspaceSession {
     },
     viewport: createBrowserViewportWidth(),
     generate: client.generate,
+    audio: createBrowserAudioTransport(),
     dispose: client.dispose,
   })
 }

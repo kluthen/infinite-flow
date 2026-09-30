@@ -11,6 +11,7 @@ priority: 1
 human_name: One-Measure Count-In Always Clicks
 tags: [v2, release-v2.0, session, audio, session-start]
 layer: BUSINESS
+notes: Recorded 2026-09-30 in v2 chunk 10 (audio transport); rule text unchanged. The count-in accents its beat 1, like the metronome click. This is an inference, since the rule does not say whether the first beat of the count-in is accented; the chunk accents it because the count-in is one measure of that same click. AWAITING THE OWNER ACCEPTANCE.
 ---
 
 # One-Measure Count-In Always Clicks

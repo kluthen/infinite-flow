@@ -33,6 +33,97 @@ interface WorkspaceHarnessSnapshot {
   readonly generatedNoteDensity: string | null
 }
 
+/** Where the harness's audio runs: the fake audio rig (the default) or `?audio=real`. */
+type WorkspaceHarnessAudioMode = 'fake' | 'real'
+
+/** A started session's timeline on the audio clock, in seconds. */
+interface WorkspaceHarnessAudioTimeline {
+  readonly startAt: number
+  readonly countInEndsAt: number
+}
+
+/** One mix gain stage (src/audio/audio-ports.ts's `MixGain`). */
+type WorkspaceHarnessMixGain = 'click-enable' | 'click-volume' | 'backing-enable' | 'backing-volume'
+
+/**
+ * One call the transport made on its audio output, as the recorder logged it (the shape of
+ * tests/unit/audio/fake-audio.ts's `FakeAudioEvent`). `scheduledAt` is the audio clock's time at
+ * the call; buses are numbered from 1 in opening order.
+ */
+type WorkspaceHarnessAudioEvent =
+  | {
+      readonly kind: 'click'
+      readonly bus: number
+      readonly at: number
+      readonly accent: boolean
+      readonly route: 'count-in' | 'click'
+      readonly scheduledAt: number
+    }
+  | {
+      readonly kind: 'gain'
+      readonly gain: WorkspaceHarnessMixGain
+      readonly value: number
+      readonly at: number
+      readonly scheduledAt: number
+    }
+  | {
+      readonly kind: 'fade'
+      readonly bus: number
+      readonly at: number
+      readonly duration: number
+      readonly scheduledAt: number
+    }
+  | { readonly kind: 'open-bus'; readonly bus: number; readonly scheduledAt: number }
+
+/** A click that sounds, with the click-volume gain it sounds at. */
+type WorkspaceHarnessAudibleClick = Extract<WorkspaceHarnessAudioEvent, { kind: 'click' }> & {
+  readonly gain: number
+}
+
+/** The mix's first-load levels and volume range, read from the `--mix-*` design tokens. */
+interface WorkspaceHarnessMixDesign {
+  readonly defaults: {
+    readonly clickOn: boolean
+    readonly clickVolume: number
+    readonly backingOn: boolean
+    readonly backingVolume: number
+  }
+  readonly range: {
+    readonly clickVolumeMin: number
+    readonly backingVolumeMin: number
+    readonly volumeMax: number
+  }
+}
+
+/**
+ * The harness's audio transport. A session starts only from a click on the harness's
+ * "Start audio (harness)" button, at the tempo `armStart` set; every value returned is plain JSON.
+ */
+interface WorkspaceHarnessAudioApi {
+  mode: () => WorkspaceHarnessAudioMode
+  /** Set the tempo the next Start audio click starts at. One shot; an unarmed click throws. */
+  armStart: (options: { readonly tempo: number }) => void
+  /** The latest started session's timeline, or null before the first Start audio click. */
+  timeline: () => WorkspaceHarnessAudioTimeline | null
+  isUnlocked: () => boolean
+  isRunning: () => boolean
+  /** The audio clock's time. Throws before the first Start audio click. */
+  now: () => number
+  /** Move the fake audio clock forward in 25 ms wake steps. Throws in real mode. */
+  advance: (seconds: number) => void
+  /** Every recorded call on the audio output, in call order. */
+  events: () => readonly WorkspaceHarnessAudioEvent[]
+  /** The recorded clicks that sound, with the gain they sound at. */
+  audibleClicks: () => readonly WorkspaceHarnessAudibleClick[]
+  setClickOn: (on: boolean) => void
+  setClickVolume: (level: number) => void
+  setBackingOn: (on: boolean) => void
+  setBackingVolume: (level: number) => void
+  /** Fade the running session out; throws if none is running. */
+  stop: () => { readonly fadeEndsAt: number }
+  mixDesign: () => WorkspaceHarnessMixDesign
+}
+
 interface WorkspaceHarnessApi {
   /** Append deterministic seeds to the queue `nextSeed()` draws from first, in call order. */
   queueSeeds: (seeds: readonly number[]) => void
@@ -46,6 +137,8 @@ interface WorkspaceHarnessApi {
   failNextNotation: () => void
   /** The current workspace session snapshot. */
   snapshot: () => WorkspaceHarnessSnapshot
+  /** The audio transport's seams (see `WorkspaceHarnessAudioApi`). */
+  audio: WorkspaceHarnessAudioApi
 }
 
 interface Window {
