@@ -214,7 +214,8 @@ async function measureGeneration(page: Page, label: string): Promise<CycleMeasur
 /**
  * Intent: re-engrave the phrase on screen by changing only the viewport width, and measure that
  * redraw's main-thread work; no generation is involved. The end is the moment the engraved staff
- * is swapped into the visible score element.
+ * is swapped into the top system position's `staff-content` unit, the only one shown at desktop
+ * widths.
  */
 async function measureResizeRedraw(
   page: Page,
@@ -224,8 +225,8 @@ async function measureResizeRedraw(
 ): Promise<CycleMeasurement> {
   await startHeartbeat(page)
   const start = await page.evaluate(() => {
-    const score = document.querySelector('.staff-content__score')
-    if (!score) throw new Error('visible score element not found')
+    const score = document.querySelector('.phrase-score .staff-content')
+    if (!score) throw new Error('visible staff-content unit not found')
     const stamps: { swappedAt: number | null } = { swappedAt: null }
     window.__redrawStamps = stamps
     const observer = new MutationObserver(() => {
@@ -247,7 +248,7 @@ async function measureResizeRedraw(
 /** Intent: the engraved staff's size and note count, read from the visible score. */
 async function readStaff(page: Page): Promise<{ width: number; height: number; notes: number }> {
   return page.evaluate(() => {
-    const svg = document.querySelector('.staff-content__score svg.staff-svg')
+    const svg = document.querySelector('.phrase-score .staff-content svg.staff-svg')
     if (!svg) throw new Error('engraved staff svg not found')
     const box = svg.getBoundingClientRect()
     return {

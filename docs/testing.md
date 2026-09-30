@@ -275,7 +275,8 @@ with `npx playwright test tests/e2e/notation/notation-visual.spec.ts --update-sn
 then pass again unchanged. Font rendering differs between machines and container images, so
 baselines are recorded on the same setup that checks them. The current four were recorded in the
 cloud container on 2026-09-29, when chunk 3b made the system positions 16 staff spaces tall and
-placed the staff in them by instrument profile; they need recording again on the owner's machine.
+placed the staff in them by instrument profile. On 2026-09-30 all four also passed unchanged on the
+owner's machine, so they stand as recorded.
 
 ### Unit fixtures, goldens and manifests
 

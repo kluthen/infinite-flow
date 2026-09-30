@@ -4,10 +4,12 @@ This document records `generatePhrase` latency across every rhythm setting in th
 `rhythm-mvp-v2` control catalog (ISS-004: rhythmic variety replaces Mixed density), cold (fresh
 canonical-rhythm-domain memo) versus warm (memo hit), and the signed-off latency budget those
 numbers are checked against. It also records the first generation after a change to one setting,
-and the longest main-thread task while a phrase is engraved. The newest figures are in
-[v2 baseline (chunk 1, 2026-09-29)](#v2-baseline-chunk-1-2026-09-29), with the v2 verdicts; the
-older tables below it were measured on the product owner's reference machine and are labelled with
-their provenance. The historical `rhythm-mvp-v1` measurements (144-setting catalog,
+and the longest main-thread task while a phrase is engraved. The newest figures, and the verdicts
+that gate the build plan, are in
+[v2 re-run on the reference machine (2026-09-30)](#v2-re-run-on-the-reference-machine-2026-09-30).
+The [v2 baseline (chunk 1, 2026-09-29)](#v2-baseline-chunk-1-2026-09-29) below it came from a cloud
+virtual machine and is kept for reference; the older tables below that were measured on the
+product owner's reference machine and are labelled with their provenance. The historical `rhythm-mvp-v1` measurements (144-setting catalog,
 Mixed density) are kept at the bottom for record only — see
 [Historical: rhythm-mvp-v1 measurements](#historical-rhythm-mvp-v1-measurements). They no longer
 describe the current catalog and are not re-checked against the budget.
@@ -98,6 +100,131 @@ workspace default. It runs at two large desktop viewports, 2560 × 1440 and 1920
 one fresh page each, one first generation, then 12 regenerations (each with a new random seed),
 then 10 re-engravings of the last phrase caused by a 16-pixel width change alone, with no
 generation. `ENGRAVING_OUT` names a JSON file for the full report.
+
+## v2 re-run on the reference machine (2026-09-30)
+
+Measured on 2026-09-30 on `main` at `adf8d34` (chunks 2, 3, 3b, 4, 7, 14, 18 and 19 merged), on the
+product owner's reference machine: AMD Ryzen 5 PRO 8640HS (6 cores, 12 threads), 11 GiB RAM,
+bare metal, Debian 13 (Linux 6.12), Node v22.23.2, Chromium 153.0.8010.12 (the Playwright 1.63.0
+headless shell). This is the re-run on a real computer that the owner's rule for virtual machines
+asks for, so these figures gate. Each run ran alone, but the owner's desktop session (with a
+desktop Chrome) stayed open: 1-minute load average 0.9-1.8 before and after each run, up to 3.4
+after the first engraving run.
+
+Since the chunk 1 baseline the code has changed in two ways that touch these harnesses. Chunk 7's
+carry-in is not used by either harness, and generation without it is v1's, byte for byte, so the
+latency figures compare directly. Chunk 3's layout draws the densest staff 192 px tall at both
+desktop sizes (263 px before), and moved the engraved staff into one `staff-content` unit per
+system position; `tests/e2e/workspace/engraving-main-thread.spec.ts` still looked for the old
+`.staff-content__score` element and failed until its two selectors were updated on 2026-09-30.
+`npm run measure:engraving` is not part of `npm run quality`, so nothing caught it earlier.
+
+**Node** (`npm run measure:latency`). The same 284 settings succeed and the same 40 fail fast
+(under 45 ms each).
+
+| Node, 284 settings (ms) | median | p90   | p95   | max     |
+| ----------------------- | ------ | ----- | ----- | ------- |
+| Cold                    | 17.8   | 196.9 | 268.5 | 1,016.3 |
+| Warm                    | 1.9    | 18.4  | 28.7  | 112.3   |
+
+22 settings take longer than 250 ms cold and 1 longer than 1 s; no warm generation takes longer
+than 250 ms. The slowest cold settings are all Sixteenth / Heavily varied / Sparse: Active
+displacement / Build 1,016.3 ms, Active displacement / Edge 970.9 ms, Straight / Build 770.3 ms.
+Unlike the cloud machine, Edge is not slower than Build here.
+
+Cold p90 by note density × rhythmic variety (ms):
+
+| Density   | Strict | Slightly varied | Heavily varied |
+| --------- | ------ | --------------- | -------------- |
+| Quarter   | 5.3    | 4.7             | 63.7           |
+| Eighth    | 82.6   | 85.7            | 314.2          |
+| Sixteenth | 25.5   | 229.4           | 710.9          |
+
+First generation after a one-step change to one setting (the same 3,102 transitions; 124 land on
+an unsupported rhythm setting and are left out):
+
+| Changed control (ms)     | n     | memo misses | median | p90   | p95   | max     |
+| ------------------------ | ----- | ----------- | ------ | ----- | ----- | ------- |
+| Any rhythm control       | 1,842 | 1,842       | 18.4   | 201.9 | 277.3 | 1,157.0 |
+| Note density             | 352   | 352         | 18.7   | 189.4 | 318.9 | 1,016.2 |
+| Rhythmic variety         | 352   | 352         | 14.1   | 190.5 | 253.1 | 1,001.8 |
+| Silence density          | 360   | 360         | 21.7   | 210.3 | 273.0 | 981.2   |
+| Syncopation              | 352   | 352         | 19.3   | 217.9 | 297.0 | 995.4   |
+| Tension arc              | 426   | 426         | 17.3   | 208.8 | 287.1 | 1,157.0 |
+| Tonal center or register | 1,136 | 0           | 2.1    | 20.2  | 29.1  | 115.8   |
+
+Of the 1,842 rhythm-control changes, 134 (7.3 %) take longer than 250 ms, 35 (1.9 %) longer than
+500 ms and 5 (0.3 %) longer than 1 s. The slowest is Sixteenth / Heavily varied / Sparse / Active
+displacement: Edge → Build, 1,157.0 ms.
+
+**Chromium** (`npm run measure:latency:browser`, run twice). Click to "Phrase ready", in-page
+figures, with the wall-clock figure in brackets; both include the Worker round trip and the
+engraving.
+
+| Scenario                                                                       | Cold (ms)                   | Warm (ms)               |
+| ------------------------------------------------------------------------------ | --------------------------- | ----------------------- |
+| Default (Quarter / Slightly varied / Straight / Sparse / Lift)                 | 44.9, 48.9 (138, 162)       | 36.4, 38.5 (70, 111)    |
+| Worst case (Sixteenth / Heavily varied / Sparse / Active displacement / Build) | 829.3, 951.4 (1,322, 1,318) | 142.7, 148.0 (209, 209) |
+
+During the worst-case cold generation a click on the theme control applied in 36 ms and 45 ms.
+
+| Starting setting → worst case (control changed)          | Warm-up (ms) | After the change (ms) |
+| -------------------------------------------------------- | ------------ | --------------------- |
+| Note density: Eighth → Sixteenth                         | 304.6, 313.7 | 813.6, 842.4          |
+| Rhythmic variety: Slightly varied → Heavily varied       | 307.9, 297.2 | 759.9, 826.9          |
+| Silence density: Conversational → Sparse                 | 236.7, 251.1 | 762.8, 796.6          |
+| Syncopation: Occasional offbeats → Active displacement   | 501.7, 532.0 | 786.6, 840.7          |
+| Tension: Lift → Build                                    | 305.8, 307.4 | 769.9, 805.1          |
+| Register: Middle → High (worst-case rhythm kept)         | 925.4, 778.0 | 192.3, 160.5          |
+| Written key: C → C-sharp/D-flat (worst-case rhythm kept) | 794.5, 792.8 | 143.2, 143.2          |
+
+**Main-thread engraving** (`npm run measure:engraving`, run twice; the densest setting, 64 notes
+and rests on the staff). In ms:
+
+| Viewport (staff size)        | Run | First generation: longest task (heartbeat gap) | 12 regenerations: tasks ≥ 50 ms | Engraving callback, max | Heartbeat gap, max (median) | 10 resize redraws: heartbeat gap, max (median) |
+| ---------------------------- | --- | ---------------------------------------------- | ------------------------------- | ----------------------- | --------------------------- | ---------------------------------------------- |
+| 2560 × 1440 (2,462 × 192 px) | 1   | under 50 (53.5)                                | 52                              | 44.1                    | 85.6 (21.3)                 | 32.3 (19.8)                                    |
+| 2560 × 1440 (2,462 × 192 px) | 2   | under 50 (40.0)                                | none                            | under 50                | 21.6 (19.5)                 | 20.6 (17.7)                                    |
+| 1920 × 1080 (1,822 × 192 px) | 1   | under 50 (39.6)                                | 90, 63, 68                      | 73.0                    | 103.5 (23.8)                | 37.2 (18.4)                                    |
+| 1920 × 1080 (1,822 × 192 px) | 2   | under 50 (37.0)                                | none                            | under 50                | 29.6 (20.1)                 | 19.8 (15.7)                                    |
+
+The long tasks of run 1 did not come back in run 2, where no task reached 50 ms at either size;
+run 1 is the one after which the load average reached 3.4, so the desktop session likely caused
+them. The worst figure of either run is still the one to judge by: 90 ms by `longtask`, 103.5 ms by
+the heartbeat.
+
+### Verdicts (reference machine)
+
+**Against the working target (cold worst case under 250 ms in Chromium): missed.** The cold worst
+case took 829-951 ms in Chromium, and the first generation after a rhythm-control change up to
+842 ms. Warm generations and changes that keep the rhythm setting stay under 200 ms (143-192 ms).
+By [chunk 1's rule](../specs/versions/v2/build-plan.md#chunk-1--baseline-checks), a miss stops the
+plan before chunks 8 and 10 until the owner decides how to proceed.
+
+**Against the deadline itself (`rule_look_ahead_deadline`):**
+
+- **3 s window: met, with room to spare.** Cold worst case about 0.95 s, plus four retries at a
+  warm worst case each (about 0.15 s): 0.95 + 4 × 0.15 ≈ 1.55 s. The slowest Node setting
+  (1,016 ms, before the Worker round trip and engraving) leaves the same margin. The Edge setting
+  the cloud run flagged is not slower than Build here.
+- **1 s window, phrase 2 during the count-in: met, retries included,** as long as phrase 1 warmed
+  the memo, which it does in the same Worker: 0.15 + 4 × 0.15 ≈ 0.75 s. A cold phrase 2 would
+  take about 0.95 s, too close to the window to count on.
+- **1 s window, regeneration after a rhythm-control change (v2.1): met on the first attempt only.**
+  The worst measured case took 842 ms in Chromium, about 160 ms under the window; one retry
+  (about 0.15 s more) reaches it, and four retries miss it (about 1.45 s). In Node, 5 of the 1,842
+  rhythm changes (0.3 %) took longer than 1 s before engraving. The conflict between the three
+  DRAFT atoms chunk 1 named (`rule_look_ahead_deadline`, `req_settings_mutation_flag`,
+  `rule_session_change_applies_at_phrase_boundary`) is real, but narrower than on the cloud
+  machine: it is the retries, and the few slowest settings, that don't fit.
+
+**Main-thread engraving against the 200 ms scheduler window: under.** The worst main-thread block
+was 90 ms by `longtask` (103.5 ms by the heartbeat), in a regeneration during the noisier run;
+the quieter run had none of 50 ms or more. A Worker wake-up timer is enough for chunk 10, with
+about 100 ms of the window left in the worst case.
+
+**Against the v1 signed-off budget:** whole-catalog cold p90 196.9 ms (under 500 ms), warm p95
+28.7 ms in Node (under 250 ms), Chromium worst-case cold 0.95 s (under 2 s): passes.
 
 ## v2 baseline (chunk 1, 2026-09-29)
 
@@ -324,15 +451,15 @@ Slightly-varied settings, × 4 tension arcs = 40; Heavily varied blocks none). U
 fail fast (all under a few ms) before any search, so they are excluded from the latency statistics
 below, which cover only the 284 successful settings.
 
-| Node (ms) | median | p90    | p95    | max    |
-| --------- | ------ | ------ | ------ | ------ |
-| Cold      | 17.1   | 185.8  | 260.1  | 990.7  |
-| Warm      | 1.9    | 18.1   | 27.8   | 111.4  |
+| Node (ms) | median | p90   | p95   | max   |
+| --------- | ------ | ----- | ----- | ----- |
+| Cold      | 17.1   | 185.8 | 260.1 | 990.7 |
+| Warm      | 1.9    | 18.1  | 27.8  | 111.4 |
 
 5 slowest cold settings:
 
-| Setting                                               | Cold (ms) |
-| ------------------------------------------------------ | --------- |
+| Setting                                                 | Cold (ms) |
+| ------------------------------------------------------- | --------- |
 | Sixteenth / Heavily varied / Sparse / ... (slowest)     | 990.7     |
 | Sixteenth / Heavily varied / Sparse / ... (2nd slowest) | 989.4     |
 | Sixteenth / Heavily varied / ... (3rd slowest)          | 691.7     |
@@ -346,10 +473,10 @@ cell catalog, which is already the largest catalog at Strict.
 Cold p90 by note density × rhythmic variety (ms), the 3×3 breakdown of the table above:
 
 | Density   | Strict | Slightly varied | Heavily varied |
-| --------- | ------ | ---------------- | --------------- |
-| Quarter   | 4.4    | 5.2               | 59.8             |
-| Eighth    | 82.4   | 83.9              | 304.9            |
-| Sixteenth | 24.0   | 226.6             | 688.5            |
+| --------- | ------ | --------------- | -------------- |
+| Quarter   | 4.4    | 5.2             | 59.8           |
+| Eighth    | 82.4   | 83.9            | 304.9          |
+| Sixteenth | 24.0   | 226.6           | 688.5          |
 
 Quarter and Eighth density stay fast at every variety level; Sixteenth grows sharply as the variety
 band widens, because Sixteenth's beat-cell catalog is already the richest of the three densities
@@ -369,9 +496,9 @@ written-notation transform, and VexFlow engraving. Cold is the first generation 
 setting in a fresh page (empty memo in the Worker); warm is the following Regenerate (memo hit, new
 seed).
 
-| Scenario                                                                                 | Cold (ms) | Warm (ms) |
-| ----------------------------------------------------------------------------------------- | --------- | --------- |
-| Default (Quarter / Slightly varied (the default) / Straight / Sparse / Lift)               | 120       | 82        |
+| Scenario                                                                                         | Cold (ms) | Warm (ms) |
+| ------------------------------------------------------------------------------------------------ | --------- | --------- |
+| Default (Quarter / Slightly varied (the default) / Straight / Sparse / Lift)                     | 120       | 82        |
 | Worst case (Sixteenth / Heavily varied / Sparse / Active displacement / Build, 2,932 candidates) | 823       | 228       |
 
 The default scenario is `Slightly varied`, not `Strict`: at Quarter density, `Slightly varied`'s
@@ -446,7 +573,7 @@ more loaded machine; the "before" row is a fresh re-measurement for a like-for-l
 5 slowest cold v1 settings after the speed package:
 
 | Setting                                        | Cold (ms) | Warm (ms) |
-| ----------------------------------------------- | --------- | --------- |
+| ---------------------------------------------- | --------- | --------- |
 | Mixed / Sparse / Active displacement / Build   | 689.5     | 56.6      |
 | Mixed / Sparse / Active displacement / Edge    | 684.4     | 55.9      |
 | Mixed / Sparse / Occasional offbeats / Build   | 373.7     | 51.4      |
@@ -464,7 +591,7 @@ Measured by `npm run measure:latency:browser` on the v1 catalog. Two runs each o
 machine:
 
 | Scenario                                                         | Cold before | Cold after | Warm before | Warm after |
-| ----------------------------------------------------------------- | ----------- | ---------- | ----------- | ---------- |
+| ---------------------------------------------------------------- | ----------- | ---------- | ----------- | ---------- |
 | Default (Quarter / Straight / Sparse / Lift)                     | 96, 110     | 106, 106   | 122, 119    | 83, 79     |
 | Worst case (Mixed / Conversational / Active displacement / Edge) | 9371, 9376  | 324, 321   | 74, 68      | 86, 73     |
 
@@ -486,7 +613,7 @@ reference machine. The six former `no_legal_pitch_plan` settings now succeed, co
 warm under 2 ms, so the successful set grows from 114 to 120.
 
 | Node (ms)                               | median     | p90          | p95          | max          |
-| ---------------------------------------- | ---------- | ------------ | ------------ | ------------ |
+| --------------------------------------- | ---------- | ------------ | ------------ | ------------ |
 | Cold before (114 successes)             | 39.8, 40.0 | 230.5, 238.8 | 346.6, 342.3 | 741.2, 758.7 |
 | Cold after (120 successes)              | 36.5, 38.2 | 181.6, 185.9 | 307.9, 313.9 | 766.7, 768.1 |
 | Cold after, same 114 settings as before | —          | 230.6, 231.0 | 335.3, 350.3 | 766.7, 768.1 |

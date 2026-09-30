@@ -47,11 +47,11 @@ prerequisites. The code and the registers add three more.
   rhythmic variety replaced the old "Mixed" setting, and profile behaviour runs on capability
   flags. v1.0 was tagged on 2026-09-26.
 - **Generation latency, re-measured: done in [chunk 1](#chunk-1--baseline-checks) on 2026-09-29,
-  on a cloud virtual machine, for reference only.** The owner decided the same day that no
-  performance figure from a virtual machine gates the plan: the latency and engraving checks are
-  re-run on a real computer (see [step 4](#3-workflow-for-every-chunk)). The look-ahead
-  deadline must keep comfortable headroom at 240 BPM, the fastest tempo, including a cold
-  generation. A generation is "cold" when it is the first one for a combination of settings,
+  on a cloud virtual machine, for reference only, and re-run on the owner's reference machine on
+  2026-09-30.** The owner decided on 2026-09-29 that no performance figure from a virtual machine
+  gates the plan (see [step 4](#3-workflow-for-every-chunk)); the 2026-09-30 figures are the ones
+  that gate. The look-ahead deadline must keep comfortable headroom at 240 BPM, the fastest
+  tempo, including a cold generation. A generation is "cold" when it is the first one for a combination of settings,
   before the generator's caches for that combination are warm. The spec asks for the cold run
   after a mid-session control change from v2.1, when the settings-mutation flag can cause one:
   nothing changes a setting during a v2.0 session. Chunk 1 measures it with the rest, since the
@@ -65,12 +65,14 @@ prerequisites. The code and the registers add three more.
   - A failed attempt is retried up to four times inside that window.
   - The [open-questions register](../../open-questions.md#v2-spec-questions-o50) sets the working
     target: the cold worst case stays under a quarter of one bar at 240 BPM, 250 ms in Chromium.
-  - Today's figures in [`docs/generation-latency.md`](../../../docs/generation-latency.md) miss
-    that target on the worst case: 990.7 ms cold in Node, and 823 ms from click to "Phrase ready"
-    in Chromium for the densest settings. The medians are far lower (17.1 ms cold in Node).
-    Chunk 1 was to decide whether the deadline holds, and stop the plan before the session engine
-    ([chunk 8](#chunk-8--session-engine)) if it did not. Its figures come from a virtual machine,
-    so they don't gate: the re-run on a real computer does.
+  - The reference-machine figures in
+    [`docs/generation-latency.md`](../../../docs/generation-latency.md#v2-re-run-on-the-reference-machine-2026-09-30)
+    miss that target on the worst case: 1,016 ms cold in Node, and 829-951 ms from click to
+    "Phrase ready" in Chromium for the densest settings. The medians are far lower (17.8 ms cold
+    in Node). The deadline itself holds everywhere except a v2.1 regeneration after a
+    rhythm-control change that needs retries. Chunk 1's rule stops the plan before the session
+    engine ([chunk 8](#chunk-8--session-engine)) and [chunk 10](#chunk-10--audio-transport) until
+    the owner decides how to proceed.
 - **Engraving on the main thread against the audio scheduler: measured by chunk 1, applied by
   [chunk 10](#chunk-10--audio-transport).** Engraving runs on the page's main thread. If it blocks
   longer than the audio scheduler's look-ahead window (200 ms proposed), sound could come late.
@@ -416,10 +418,30 @@ atoms' EXPECTATION sections, except item 15 (the main-thread budget), which is t
 | Phone layout check                   | Done  | One overflow at 740 × 360; see below                                                                                       |
 | `docs/testing.md`                    | Done  | Test layers, both harnesses and their seams, scripts, 23 fixtures                                                          |
 | 4. Verify (`npm run quality`)        | Done  | All passes except 4 notation visual snapshots, which fail identically on an unchanged checkout here (below)                |
+| Re-run on the reference machine      | Done  | 2026-09-30; [figures and verdicts](../../../docs/generation-latency.md#v2-re-run-on-the-reference-machine-2026-09-30)      |
 | 6. ATD stewardship                   | Done  | No tags changed; `atd lint` and `atd check` pass. One atom conflict for the owner, below                                   |
 
-**Results.** Measured on a 4-vCPU cloud container, about twice as slow as the reference machine on
-the cold worst case, so the owner may want the figures re-run there.
+**Results on the reference machine (2026-09-30).** The owner's 12-thread machine, bare metal, on
+`main` at `adf8d34`. These figures gate; the cloud figures below stay for reference.
+
+- **Working target (cold worst case under 250 ms in Chromium): missed.** Cold worst case
+  829-951 ms; the first generation after a rhythm-control change up to 842 ms. Changes that keep
+  the rhythm setting stay under 200 ms. By this chunk's rule, the plan stops before chunks 8 and
+  10 until the owner decides how to proceed.
+- **The deadline itself (`rule_look_ahead_deadline`):** the three-bar window is met for every
+  setting, four retries included (about 1.55 s of 3 s); Edge is not slower than Build here.
+  Phrase 2's one-bar window is met, retries included, when phrase 1 has warmed the cache (about
+  0.75 s). A v2.1 regeneration after a rhythm-control change fits its one bar on the first
+  attempt (842 ms at worst) but not with retries. So the conflict between the three DRAFT atoms
+  named below is real, but narrower: only retries, and the slowest settings, don't fit.
+- **Main-thread engraving: under 200 ms.** Worst task 90 ms (103.5 ms by the heartbeat), in the
+  noisier of two runs; the other had no task of 50 ms or more. A Worker wake-up timer is enough.
+- **Visual snapshots:** the four baselines recorded in the cloud container pass unchanged here.
+- `npm run measure:engraving` had broken with chunk 3's layout (it looked for the old
+  `.staff-content__score` element) and is fixed. It is not in `npm run quality`.
+
+**Results on the cloud machine (2026-09-29, reference only).** Measured on a 4-vCPU cloud
+container, about twice as slow as the reference machine on the cold worst case.
 
 - **Working target (cold worst case under 250 ms in Chromium): missed.** Cold worst case
   1.43–1.44 s; the first generation after a rhythm-control change up to 1.59 s. Changes that keep
@@ -445,7 +467,8 @@ the cold worst case, so the owner may want the figures re-run there.
   500 ms, so a wall-clock time lands on the next poll: 457 ms in the page read as 866 ms. The
   harness now also times inside the page.
 
-**The visual snapshots on the cloud machine.** The four notation visual snapshots
+**The visual snapshots on the cloud machine.** (Resolved on 2026-09-30: the baselines re-recorded
+by chunk 3b pass unchanged on the owner's machine too.) The four notation visual snapshots
 (`tests/e2e/notation/notation-visual.spec.ts`) differ by about 1 % of their pixels (265–608
 pixels) in the cloud container, on an unchanged checkout too, with the same counts: its Chromium
 renders the staff slightly differently from the machine that made the reference images. Every
@@ -567,8 +590,8 @@ from `staff-frame`'s `max-block-size`, never below 5 px per staff space. "No roo
 and "notes too wide" are two typed failures. Each system position is its own `staff-content`
 engraving, and two positions are always reserved. The phone check now passes 36 of 36, including
 the phrase that overflowed in [chunk 1](#chunk-1--baseline-checks). `npm run quality` passes in
-full on the merged code. The four visual baselines were recorded in the cloud container and need
-recording again on the owner's machine. Two findings went to `ux-writer`: a phone needed about
+full on the merged code. The four visual baselines were recorded in the cloud container; chunk 3b
+re-recorded them (below). Two findings went to `ux-writer`: a phone needed about
 317 px of small-viewport height for two systems at the legibility floor, since the tallest phrases
 need 17.5 staff spaces per system against the design's 12–14; and from `bp-tablet-landscape` up
 the staff frame was about 70 px taller than v1's. Both are settled by chunk 3b below.
@@ -583,8 +606,9 @@ at the 5 px floor from 286 px of small-viewport height (was 317). The 276 px tar
 spaces, but every stem is drawn up, so the start marker didn't fit: issue ISS-006. The owner
 accepted 286 px for now; fixing stem direction later should bring it back to about 276 px. From
 64rem up the frame is 418 px (v1: 384). The owner signed off `module_notation_layout_preflight`
-v0.6, which stays REVIEW. The four visual baselines were re-recorded in the container and need
-recording again on the owner's machine. `npm run quality` passes in full on the merged code.
+v0.6, which stays REVIEW. The four visual baselines were re-recorded in the container, and pass
+unchanged on the owner's machine (checked 2026-09-30). `npm run quality` passes in full on the
+merged code.
 
 **Goal.** Replace v1's layout planner with v2's: split below `bp-tablet-landscape`, one system per
 phrase from it up, a scale that fits the height as well as the width on the phone, one
