@@ -10,7 +10,7 @@ Where the two pull apart, the Curious Improviser's experience is the default: no
 
 The flow lives on the same screen as phrase generation, `screens/phrase-workspace/`, as that screen's session states. A session is not a place the player goes to; it is the workspace starting to move. Keeping it on one screen means the phrase the player was just reading becomes the first phrase they play, in the same position, at the same size, with nothing to re-find. It is a flow of its own, rather than a branch of `flows/generate-phrase/`, because the two have different drivers: phrase generation is driven by the player's clicks, the session by the audio clock, and folding one into the other would bury both.
 
-The flow ends where the Review opens. The Review is designed separately and is not described here.
+The flow ends where the Review opens. The Review, and the fresh phrase the staff gets for the next session, are the next flow, [`flows/review-and-export/`](../review-and-export/intent.md).
 
 ## Starting
 
@@ -71,7 +71,7 @@ For the whole session, including the count-in, the workspace keeps its shape and
 - the audio mix is never locked: the player may reach for it at any time, and it is the one thing they may reasonably want mid-session;
 - on a phone, a compact `Stop` and the `Volume` button sit at the end of the cue row, since the header and toolbar may be out of view.
 
-Everything on or near the staff belongs to the session. One row between the score toolbar and the staff, the session cue row, is where the session speaks: the starting-note line at idle, the count-in, and the session's notices. It is always present, at one fixed height, at idle, during a session and in the Review, so neither Start, nor the count-in, nor a notice ever moves the staff. The accepted cost is an empty row at idle when no controller is connected.
+Everything on or near the staff belongs to the session. One row between the score toolbar and the staff, the session cue row, is where the session speaks: the starting-note line at idle, the count-in, and the session's notices. It is always present, at one fixed height, at idle and during a session (the Review, when it shows, takes the place of the whole staff area, the row included), so neither Start, nor the count-in, nor a notice ever moves the staff. The accepted cost is an empty row at idle when no controller is connected.
 
 ## The Audio Mix
 
@@ -81,7 +81,7 @@ The click and the backing are both on by default. The click's volume slider neve
 
 ## Ending
 
-Stop, more than 30 seconds without a note (with a controller attached, counted only once the player has played a first note), a disconnect countdown reaching zero, a hidden browser tab, and a change of window that leaves no room for the staff all end the session the same way: the backing and click fade out briefly rather than cutting, the playhead goes, and the Review opens. There is no confirmation and no summary step. A confirmation would ask the player to take a hand off the instrument to agree with what they just did, and the Review is the summary. Focus goes to the session action, which reads `Start session` again, so the next session is one action away.
+Stop, more than 30 seconds without a note (with a controller attached, counted only once the player has played a first note), a disconnect countdown reaching zero, a hidden browser tab, and a change of window that leaves no room for the staff all end the session the same way: the backing and click fade out briefly rather than cutting, the playhead goes, and the Review opens. There is no confirmation and no summary step. A confirmation would ask the player to take a hand off the instrument to agree with what they just did, and the Review is the summary. Focus goes to the session action, which now reads `Close review`: the player leaves the Review before starting again, and the same button then reads `Start session`, so the next session is two presses of the same key away (see [`flows/review-and-export/`](../review-and-export/intent.md)).
 
 A hidden tab ends the session rather than pausing it: browsers throttle a hidden tab's timers, so a clock paused there could never resume in time, and a session with no pause state is simpler to trust.
 

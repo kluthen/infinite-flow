@@ -244,12 +244,20 @@ Units below are not yet started. None is blocked on anything **except** where no
 5. **Audio mix controls** (backing/click on/off + volume, always reachable, §6). **Folded into unit
    2 (ux D84), written 2026-09-28**; ranges and default levels still wait on Q31. Fully specified;
    small, folds into unit 2.
-6. **Last-session review + export, v2.0 slice** (§7). Fully specified for the base review (every
-   phrase shown in order, favorites, MusicXML/MIDI export scopes) and the discard-with-confirmation
-   rule. **Q18 resolved (spec D109): no repeat-marker element at all** — a failure-ladder repeat reads
-   identically to any other phrase in the review. Not blocked. Carries **Q47 (Review part)**: what
-   the Review shows over a staff in notation error after a too-narrow end once phrase 1 has
-   sounded, and where focus goes; also Q25.
+6. **Last-session review + export, v2.0 slice** (§7). **Written 2026-09-30** (branch
+   `ux-review`) under the owner's delegation (ux D135): ux D136–D141, new
+   `flows/review-and-export/` and `screens/last-session-review/` (intent and handoff each), the
+   session-end and Review edits in `screens/phrase-workspace/`, `flows/play-session/` and
+   `flows/generate-phrase/`, `strategy.md` (context of use, trade-offs, edge-case policy, flow
+   index), `motion.md`, the README map, and the token source (`review-*` classes, `review-link`,
+   `.session-action[aria-disabled='true']`, removed again by D144). Q25 closed by D137, Q47 by
+   D139. **Revised 2026-09-30 by the owner's D143 and ux D144:** the Review is a mode, left by
+   `Close review` before any session starts, and kept until the next session. Unblocks build-plan
+   chunk 20. For `spec-writer`: spec O84 (phrase 1 and the starting note from the Review, D137);
+   the file names and the export's default format are this design's (D141). For `coding-leader`:
+   chunk 20 needs the session's start time (local wall clock) and instrument profile from the
+   session history (chunk 9) for the file name and the summary line. `ux-critic` validation:
+   see the Next Unit list.
 7. **Review v2.1 additions**: played-notes toggle and the export-time played-notes opt-in checkbox
    (§7). Fully specified; extends unit 6.
 8. **Adaptive tempo UI** (§10, v2.2). Mostly specified (unavailable-with-reason when no controller;
@@ -340,7 +348,7 @@ three passes, confirmed by the user, committed 2026-09-27. Next, in this order:
    screen" sentence qualified, the idle bottom position has no `staff-content`). Every finding of
    every pass is resolved; `specs/personas.md` corrected to the starting-note rule by
    `spec-writer`. Still open and not blocking the unit: Q31 (mix levels, placeholders in place),
-   Q25 and Q47's Review part (unit 6), Q16. (4) **Awaiting the owner's explicit confirmation of
+   Q25 and Q47's Review part (unit 6; closed 2026-09-30 by ux D137, D139), Q16. (4) **Awaiting the owner's explicit confirmation of
    the unit**, then commit and `--no-ff` merge only when asked. The commit carries `ui_ux/`,
    `specs/` and `src/styles/`. With it, tell `coding-leader` the handoff note above (D102, D104:
    the shipped v1 layout planner). **Done 2026-09-29:** unit 2 merged and pushed (a218e38); the
@@ -368,11 +376,26 @@ three passes, confirmed by the user, committed 2026-09-27. Next, in this order:
    preflight atom via `documentalist`. Still to do here: (c) a narrow `ux-critic` pass on the
    phrase-workspace edits (see the result below, when run).
 
+4. **Unit 6 (Review + export, v2.0), 2026-09-30.** Written under the owner's delegation (ux D135,
+   D136–D141; see the unit-6 entry above). First `ux-critic` pass: **BLOCKED** on one spec item
+   only (spec O84 still open in master spec §6 and §12 while D137 settles it; routed to
+   `spec-writer`), plus three minor findings, fixed (ux D142). **Next:** (a) `spec-writer` records
+   D137 (fresh phrase 1 at a session end; the Review changes no start condition; the starting note
+   works there) in §6, §7 and §12 and closes O84; (b) a narrow `ux-critic` confirmation pass once
+   the spec matches; (c) the owner's confirmation, then merge. **Superseded in part by the
+   owner's D143 (ux D144 applied the same day):** `spec-writer` now records D143/D144 instead
+   (spec D169 and §6, §7, §11 items 12 and 28 describe a start from the Review), `documentalist`
+   follows in the atoms, then the `ux-critic` pass the coordinator runs. **D145 (same day)**: the
+   controls stay usable while the Review shows (spec D170 found D144 hid them against §5, §6,
+   §10); the Review takes only the staff area's place. Build-plan chunk 20 can start from
+   these handoffs meanwhile.
+
 **ux-critic plan read (2026-09-27), to weigh before continuing:**
 
 - Q17 is on the critical path and is less open than it looks. §4 requires part of the next phrase
   to be visible while the current phrase's last measure plays, which rules out replacing the
   single system in place. `motion.md`'s "do not scroll the staff" will need a v2 revision. (Superseded by ux D71: alternating systems need no scroll, the rule stands.)
 - D45's grounds support keeping Idle and the session on one screen, but not the Review. Revisit
-  the Review part before unit 6.
+  the Review part before unit 6. (Settled by ux D136: a panel on the same page, after the
+  controls.)
 - Unit 8 (adaptive tempo) depended on unit 1's meaning of "connected" — now defined (spec §8).

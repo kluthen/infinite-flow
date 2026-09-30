@@ -107,7 +107,7 @@ chunks in different sections; the second to merge rebases on the first.
 | 4    | 15 Session screen: start and end                                                                                                                                                                                                                                                                                                                                              | Wave 3                                                |
 | 5    | 13 Controller connection · 16 Rolling display                                                                                                                                                                                                                                                                                                                                 | Chunk 15                                              |
 | 6    | 17 MIDI in the session                                                                                                                                                                                                                                                                                                                                                        | Wave 5                                                |
-| 7    | 20 Review and generated-notes export (blocked)                                                                                                                                                                                                                                                                                                                                | Chunk 17 and its design                               |
+| 7    | 20 Review and generated-notes export                                                                                                                                                                                                                                                                                                                                          | Chunk 17                                              |
 | 8    | 21 v2.0 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.0 chunk                                      |
 | 9    | 22 Played-notes MIDI encoding · 24 Settings-mutation engine (blocked in part)                                                                                                                                                                                                                                                                                                 | Chunks 4, 7, 8, 9 and 19; may start before v2.0 ships |
 | 10   | 23 Review: played notes (blocked) · 25 Settings-mutation control (blocked)                                                                                                                                                                                                                                                                                                    | Wave 9, v2.0, and their designs                       |
@@ -1717,16 +1717,19 @@ notes, MIDI; played notes, lining up), item 12.
 
 **Goal.** The last-session review: every phrase that sounded, in order, engraved as it was shown,
 with its number and tempo. The generated-notes export action, MusicXML or MIDI, as a browser
-download. Starting a new session from the review.
+download. Leaving the review, and reopening it until the next session starts.
 
 **Spec sections:** [§7](master-spec.md#7-sessions-review-export-and-privacy) (the review, export,
-privacy), [§12](master-spec.md#12-open-questions-carried-forward) (starting from the Review),
-items 12 and 13.
+privacy, the next session's phrase 1), [§6](master-spec.md#6-backing-click-count-in-and-tempo)
+(no session starts while the review shows), items 12, 13, 17 and 28.
 
-**Design docs:** not designed yet: the Review and export, unit 6 in
-[`ui_ux/todo.md`](../../../ui_ux/todo.md).
+**Design docs:** [review-and-export flow handoff](../../../ui_ux/flows/review-and-export/handoff.md)
+and [intent](../../../ui_ux/flows/review-and-export/intent.md);
+[last-session-review screen handoff](../../../ui_ux/screens/last-session-review/handoff.md) and
+[intent](../../../ui_ux/screens/last-session-review/intent.md) (ux D135–D144).
 
-**Atoms:** `req_last_session_review`, `rule_new_session_discards_review`, `req_session_export`,
+**Atoms:** `req_last_session_review`, `rule_new_session_discards_review`,
+`rule_session_end_generates_next_phrase_one`, `req_session_export`,
 `rule_generated_notes_musicxml_export`, `rule_generated_notes_midi_export`,
 `rule_repeat_phrase_marked_internally_only`, `rule_session_data_never_sent_or_stored`,
 `rule_optional_midi_privacy`, `rule_no_grading_or_mismatch_signal`,
@@ -1749,13 +1752,17 @@ and its design.
   and E♭ alto saxophones, which transpose, with their `<transpose>` element, and the C keyboard
   without one. A MIDI tool opens the MIDI file with the right tempo map and markers. The checks
   are done by hand and written down.
-- Starting a new session from the review discards it without confirmation. Reloading the page
-  discards everything.
+- At every session end once phrase 1 has sounded, a fresh phrase is generated; phrase 1 of the
+  next session is the phrase on screen at Idle when it starts (item 28). While the review shows,
+  neither the Start click nor any note starts a session, the starting note included, and no
+  starting note is named. Leaving the review keeps it reachable until the next session starts,
+  which discards it without confirmation. Reloading the page discards everything.
 - A network and storage spy across a full session, the review and both exports sees no request
   and no write (item 13).
 
-**Blocked by:** design: the Review and export (v2.0), unit 6 in `ui_ux/todo.md`, with ux Q25 and
-Q47 (Review part). §12: starting a session from the Review (O84).
+**Blocked by:** nothing. The design is written (UX unit 6, ux D135–D144) and O84 is closed (spec
+D169, with its start from the review replaced by spec D170, 2026-09-30). The session history must
+carry the session's start time and instrument profile, for the export file names and the review's summary line (chunk 9).
 
 ### Chunk 21 — v2.0 release gate
 
@@ -1792,7 +1799,8 @@ chunks left open, and get the owner's go.
   asset added.
 - The open items that §12 lets implementation start without are closed or carried forward by the
   owner: backing voicing (listening test), Bluetooth MIDI, the controller check on the reference
-  hardware, the wake lock dropped mid-session, and starting from the Review. The audio mix's
+  hardware, and the wake lock dropped mid-session. (Starting from the Review is settled: spec
+  D170, no session starts while it shows.) The audio mix's
   levels are set.
 - The owner has answered what a session's last phrase may owe. Chunk 7's carry-over criteria hold
   under that answer, and `documentalist` has given `rule_leap_recovery` and

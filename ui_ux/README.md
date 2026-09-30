@@ -39,6 +39,8 @@ on `spec-writer`.
 - `flows/controller-connection/` specifies the MIDI controller connection and transposition-check journey.
 - `screens/controller-connection/` specifies the connection sheet screen that flow traverses.
 - `flows/play-session/` specifies the continuous session: starting (Start or the starting note), the count-in, the rolling two-system display, acknowledgement, the audio mix, and every way a session ends, up to the review opening. It runs on `screens/phrase-workspace/`, whose session states it names.
+- `flows/review-and-export/` specifies what follows a session once its first phrase has sounded: the review of the last session, the export of its generated notes, the fresh phrase the staff gets for the next session, leaving the review, and starting again.
+- `screens/last-session-review/` specifies the **Last session** review, which takes the staff's place after a session until the player closes it, the controls staying usable; no session starts while it shows.
 - `open-questions.md`, `decisions.md`, and `todo.md` are working registers. Read `todo.md` before extending this set.
 - `archive/v1/` holds the closed first-release (v1.0) working record: the complete decision log,
   the closed question that record answers, and the finished work tracker. The live registers above

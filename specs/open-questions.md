@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.25
+Status: draft v0.26
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -12,7 +12,9 @@ work are recorded in the archived logs:
 O24 was resolved 2026-09-27 (D108): the check is kept, ships in v2.3, and fires only on measures
 where the player goes off-script. Six v2 questions (O78–O83) were opened the same day by the
 controller-connection answers (D111–D118) and resolved later that day (D119–D124). O84 was opened
-while recording them (see the last section). O85, opened while recording D125, was resolved the
+while recording them, and resolved 2026-09-30 (D169, from ux D137): a fresh phrase generated at
+the session end is the next phrase 1. Its start from the Review was replaced the same day by the
+owner (D170): no session starts while the Review shows; the player leaves it first. O85, opened while recording D125, was resolved the
 same day (D126). O86 was opened 2026-09-28 by the export-by-content change (D129), and deferred
 to v3 the same day, when favorites moved there (D130). O87 and O88 were opened 2026-09-28 while
 recording the screen wake lock (D131) and the count-in that always clicks (D132). O88 was
@@ -89,24 +91,10 @@ resolved 2026-09-27 (D97). O24 was resolved 2026-09-27 (D108).
 ## v2 controller connection and session start (O78+)
 
 O78–O83 were opened 2026-09-27 by the product owner's answers to ux Q23 and ux Q24 (D111–D118)
-and resolved the same day (D119–D124). O85 was resolved the same day too (D126).
-
-- **O84 - Starting a session from the Review** _(D113, D115, D124; noticed by `spec-writer` while
-  recording D119–D124)_: master-spec §4 makes phrase 1 "the phrase already on screen before
-  Start", and §6 says which note starts a session "while the app is Idle", but a new session can
-  also be started from the Review (§7), where the screen shows the past session. Which phrase
-  becomes phrase 1 there, and can a MIDI note start the session from the Review at all? The second
-  part used to collide with a confirmation before discarding unexported favorites, which a MIDI
-  start can't answer; since D130 the review has no favorites and starting from it asks no
-  confirmation, so that collision is gone. Proposed default for the second part, kept though its
-  original reason is gone: from the Review, only a Start click starts a session; a MIDI note
-  starts nothing there. The first part has no proposed default yet: it depends on what
-  the Review screen shows besides the review, which `ux-writer` designs. Not confirmed by the
-  owner. Since D135 (2026-09-28) no session starts over a generation failure at Idle, and since
-  D139–D140 the spec lists every state in which no session starts at Idle (master-spec §6, "When a
-  session can start"); the answer also has to say how those conditions apply when starting from
-  the Review.
-  [master-spec.md §6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo).
+and resolved the same day (D119–D124). O85 was resolved the same day too (D126). O84, the last
+question of this section, was resolved 2026-09-30 (D169): `ux-writer` settled it as ux D137 under
+the owner's delegation of unit 6 (ux D135); the owner replaced its start from the Review the same
+day (D170, ux D143). No question of this section is open.
 
 ## Favorites, deferred to v3 (O86)
 

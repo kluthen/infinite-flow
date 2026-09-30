@@ -46,7 +46,8 @@
   --session-action-inline-size: calc(14ch + 2 * var(--spacing-5));
   /* The fixed block size of the session cue row between the score toolbar and the staff,
      present at Idle, during a session and in the Review, whatever it holds (nothing, the
-     starting-note line, the count-in, or a session notice). Sized for its tallest content, the
+     starting-note line, the count-in, or a session notice; with a Review kept but not showing,
+     `review-link` at its end, one `.btn` high). Sized for its tallest content, the
      disconnect banner at `bp-mobile-landscape`, where its sentence (`--text-lg`) wraps to at
      most two lines and the second line carries the `--text-2xl` countdown at
      `--leading-tight`: about 1.875rem + 2.4rem of line boxes, plus `.inline-alert`'s block
