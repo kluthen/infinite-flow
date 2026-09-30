@@ -4,9 +4,9 @@
 
 ```mermaid
 flowchart TD
-  PS["flows/play-session/: Session end (phrase 1 has sounded)"] --> RV["Review showing: review-panel replaces score-panel and control-section; session action reads Close review, primary, focused; phrase action disabled"]
+  PS["flows/play-session/: Session end (phrase 1 has sounded)"] --> RV["Review showing: review-panel in the staff area's place; toolbar, mix and controls still usable; session action reads Close review, primary, focused; phrase action disabled"]
   RV -.->|"Meanwhile, hidden: session systems cleared; next phrase generated from the current controls (fresh seed, no carry-in, idle fit retries), or none while the staff has no room"| RV
-  RV -->|"Start session is not offered; any MIDI note does nothing"| RV
+  RV -->|"Start session is not offered; no MIDI note starts a session"| RV
   RV -->|"Format: MusicXML or MIDI; Backing track (MIDI only)"| RV
   RV -->|Export generated notes| X[Build one file from the session history: review-export-action is-loading]
   X -->|Built| DL[Browser download starts; no message]
@@ -36,15 +36,21 @@ flowchart TD
   session starts or the page closes. It is _showing_ while the player is in it: at that session
   end, and again after `Review last session`. Only one Review exists: the most recent session's. A
   session ended during its count-in opens none and does not restore an earlier one.
-- **Showing.** `layout-workspace` renders `review-panel` alone; `score-panel` and `control-section`
-  stay mounted with their state but are not rendered (`hidden`), so the staff, the cue row, the
-  audio mix, the controls and their live regions are out of sight and silent. The header stays:
-  `controller-status` interactive (the connection sheet may open, since connecting is allowed
-  between sessions), `theme-control` live, `tempo-readout` as at idle, the phrase action disabled
-  in place, secondary, and the session action reading `Close review`, primary.
+- **Showing.** Inside `score-panel`, `review-panel` is rendered in place of the generation-failure
+  banner, `session-cue-row` and `staff-viewport`, which stay mounted with their state but hidden;
+  `score-toolbar` stays, its `score-title` not rendered (`review-title` heads the review) and
+  `mix-controls` fully usable. `control-section` stays after `score-panel`, fully editable as at
+  idle (tempo and every setting; a profile switch regenerates the hidden phrase as at idle). The
+  header stays: `controller-status` interactive (the connection sheet opens and its transposition
+  check works, since connecting is allowed between sessions), `theme-control` live,
+  `tempo-readout` as at idle, the phrase action disabled in place, secondary, and the session
+  action reading `Close review`, primary. `generation-status` and `notation-status` stay silent
+  while the Review shows, as during a session; the hidden staff's state is what the player finds on
+  leaving.
 - **No start while showing.** No session starts while the Review shows: `Start session` is not
-  offered (its slot reads `Close review`), and any MIDI note, the starting note included, does
-  nothing. `start-note-line` and `start-note-marker` are hidden with the staff.
+  offered (its slot reads `Close review`), and no MIDI note, the starting note included, starts a
+  session. `start-note-line` and `start-note-marker` are hidden with the staff. Notes played into
+  the open connection sheet work there as usual.
 - **The next phrase.** At the session end both systems' `staff-content` are cleared (hidden, so no
   fade shows) and a new phrase is generated from the current controls with a fresh seed and no
   carry-in, through the idle attempt budget (`flows/generate-phrase/handoff.md`, **Attempt
@@ -56,8 +62,9 @@ flowchart TD
   ordinary idle start.
 - **Focus at the end.** Focus moves to the session action, which now reads `Close review` and is
   always enabled while the Review shows.
-- **Close review.** Activation (click, Space, Enter) stops showing the Review, renders
-  `score-panel` and `control-section` again, scrolls the page instantly to its top, and adds
+- **Close review.** Activation (click, Space, Enter) stops showing the Review, shows the staff
+  area (banner, `session-cue-row`, `staff-viewport`) and `score-title` again, scrolls the page
+  instantly to its top, and adds
   `review-link` to `session-cue-row`. The session action takes its idle label and emphasis. Focus:
   stays on the session action if it is enabled (`Start session` in **Ready**); otherwise moves once
   to `room-notice` in **Needs more room**, else to the phrase action if enabled, else to

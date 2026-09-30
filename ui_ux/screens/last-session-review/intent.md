@@ -5,10 +5,11 @@
 ## What This Screen Is
 
 The **Last session** review is a mode of the workspace page, not a page of its own. When a
-session ends, once the session's first phrase has sounded, it takes the place of the staff and the
-controls under the same header, and no session can start while it shows: the header's session
-button reads `Close review` instead of `Start session`. Leaving it brings the workspace back as
-between any two sessions; a `Review last session` button above the staff reopens it until the next
+session ends, once the session's first phrase has sounded, it takes the staff's place, under the
+same header and score toolbar, with the controls still below it, and no session can start while
+it shows: the header's session
+button reads `Close review` instead of `Start session`. Leaving it brings the staff back as between
+any two sessions; a `Review last session` button above the staff reopens it until the next
 session starts. The reasoning for that shape, and for what happens around it at a session end, is
 in [`flows/review-and-export/intent.md`](../../flows/review-and-export/intent.md).
 
@@ -81,7 +82,7 @@ decoration, and a player scrolling quickly would see phrases flicker in.
 
 ## When the Window Is Too Small
 
-The review draws its phrases with the same rules as the staff it replaces, at the same readable
+The review draws its phrases with the same rules as the staff whose place it takes, at the same readable
 minimum size. So when the window has no room for the staff at all, it has none for the review's
 phrases either, and the list gives way to the same sentence the staff area would show, until the
 window is large enough. The title, the export and `Close review` stay, since making a file needs no room on screen. When

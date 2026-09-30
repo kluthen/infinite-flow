@@ -20,19 +20,25 @@ an obvious place to go without changing its shape.
 ## Reviewing Is a Mode, and Playing Starts Outside It
 
 The owner's rule is that the player leaves the review before starting a new session. So the review
-is a mode of the workspace: when a session ends, once its first phrase has sounded, the page shows
-the **Last session** review in place of the staff and the controls, under the same header. No
-session can start while it shows, neither by a click nor by a note. The player leaves it, the
-workspace comes back exactly as between any two sessions, and they start from there as usual.
+is a mode of the workspace: when a session ends, once its first phrase has sounded, the
+**Last session** review takes the staff's place, under the same header and score toolbar, with the
+musical controls still below it. No session can start while it shows, neither by a click nor by a
+note. Everything else between sessions keeps working: the audio mix, the tempo and every setting
+stay within reach, and a controller can still be connected, its check note included. The player
+leaves the review, the staff comes back exactly as between any two sessions, and they start from
+there as usual.
 
 This removes the one real risk the review had. Looking back at a session with the instrument still
 in hand, a player may well play a few notes; if one of them could start a session, it would throw
-away a review they had not exported yet. While the review shows, notes do nothing at all.
+away a review they had not exported yet. While the review shows, no note starts a session.
 
-Taking over the page, rather than adding a panel somewhere on it, follows from the same rule. With
-no session to start, the staff and the controls have nothing to do while the review shows, and a
-long review (a half-hour session holds well over a hundred phrases) needs the room. A panel beside
-the staff was never an option: the staff keeps the full width of the screen, and the owner wants no
+Taking the staff's place, rather than adding a panel somewhere else on the page, follows from the
+same rule: with no session to start, the staff has nothing to do while the review shows, and the
+review is then the first thing under the toolbar. The controls stay below it, because the product
+keeps them usable between sessions, review or not; the cost is that a long review (a half-hour
+session holds well over a hundred phrases) puts them a scroll away until the player leaves it. The
+audio mix, in the toolbar above, and the tempo, in the header, stay in view. A panel beside the
+staff was never an option: the staff keeps the full width of the screen, and the owner wants no
 side tools for now.
 
 ## Leaving and Coming Back
@@ -58,7 +64,7 @@ under its title.
 The session's own ending is described in [`flows/play-session/`](../play-session/intent.md): the
 audio fades, the playhead goes. From there:
 
-- **The review shows** in place of the staff and the controls, at the top of the page.
+- **The review shows** in the staff's place, under the header and the score toolbar.
 - **The workspace gets the next phrase, out of sight.** The session's last systems are cleared from
   the staff, and the app generates a fresh phrase from the current settings, exactly as
   `Regenerate phrase` would. That phrase is what the player finds on the staff when they leave the
@@ -134,6 +140,6 @@ notes arrive, their switch and their export join the same places as on a larger 
 - No replay, no "continue from this phrase", no selection. Whole-session tools, when they come,
   join the export in the review's header; tools for one phrase go at the end of that phrase's
   number and tempo line. On larger screens they stay inside the review: there is no side rail.
-  Tools that play sound, such as a replay, will also need the audio mix, which the review does not
-  show in this version, since nothing in it plays.
+  Tools that play sound, such as a replay, find the audio mix already in view, in the toolbar
+  above the review.
 - No way to keep a review past the next session or a reload.

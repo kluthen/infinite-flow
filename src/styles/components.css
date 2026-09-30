@@ -1072,8 +1072,10 @@
 
   /* v2 new -- from here to "end v2 new": the last-session Review (`review-panel` and its parts,
      `review-link` in the session cue row). While the Review shows, the header's session action
-     reads `Close review` (`btn btn-primary btn-lg session-action`, no class of its own) and
-     `score-panel` and `control-section` are hidden with the `hidden` attribute. */
+     reads `Close review` (`btn btn-primary btn-lg session-action`, no class of its own), and inside
+     `score-panel` the generation-failure banner, `session-cue-row`, `staff-viewport` and
+     `score-title` are hidden with the `hidden` attribute; `score-toolbar` (with the audio mix)
+     and `control-section` stay. */
   /* States: default, hover, focus-visible, active, disabled -- all from `.btn` (secondary
      emphasis only). "Review last session", at the trailing end of `session-cue-row`, rendered at
      idle while a Review exists and is not showing (after `Close review`), beside
@@ -1083,8 +1085,9 @@
     flex: 0 0 auto;
     margin-inline-start: auto;
   }
-  /* States: absent (default: not rendered), shown. The "Last session" review, rendered alone in
-     `layout-workspace` while the Review shows, a surface panel like `control-section`. Not
+  /* States: absent (default: not rendered), shown. The "Last session" review, rendered inside
+     `score-panel` after `score-toolbar`, in the staff area's place, while the Review shows; a
+     surface panel like `control-section`. Not
      interactive itself: hover/focus-visible/active/disabled do not apply. Appears and goes with no
      animation. Full inline size at every breakpoint: no side rail. */
   .review-panel {

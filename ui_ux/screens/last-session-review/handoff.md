@@ -3,9 +3,10 @@
 > **New in v2.**
 
 `review-panel` is the phrase-workspace page's review mode (`screens/phrase-workspace/`): while the
-Review shows, it is the only child of `layout-workspace` that is rendered, in place of
-`score-panel` and `control-section`, under the unchanged `layout-header`, whose session action
-reads `Close review`. A Review exists from a session end once phrase 1 has sounded until the next
+Review shows, it is rendered inside `score-panel`, after `score-toolbar`, in place of the staff area
+(the generation-failure banner, `session-cue-row` and `staff-viewport`, hidden), with
+`control-section` still after it and `layout-header` unchanged except that its session action reads
+`Close review`. A Review exists from a session end once phrase 1 has sounded until the next
 session starts or the page closes; it shows at that session end and after `Review last session`,
 and is kept, not shown, after `Close review`. It is drawn from the session history held in
 memory; nothing in it reads the current controls. Flow and routing:
@@ -16,38 +17,40 @@ memory; nothing in it reads the current controls. Flow and routing:
 ```text
 layout-header                  (screens/phrase-workspace/; the session action reads Close review, primary, while the Review shows; the phrase action is disabled)
 layout-workspace
-  score-panel                  (screens/phrase-workspace/; hidden while the Review shows; its session-cue-row holds review-link while a Review exists and is not showing)
-  control-section              (screens/phrase-workspace/; hidden while the Review shows)
-  review-panel                 (section, aria-labelledby review-title; rendered only while the Review shows)
-    review-header
-      review-heading
-        review-title           (h2, tabindex -1: "Last session")
-        review-summary         (p; from bp-tablet-landscape up only)
-      review-actions           (whole-session tools; v2.0 holds review-export only)
-        review-export          (role group, aria-label "Export generated notes")
-          field-group          (Format)
-            field-label        ("Format")
-            segmented-control  (MusicXML, MIDI)
-          btn toggle-button    (Backing track; aria-pressed; rendered only while MIDI is selected)
-            toggle-button-state
-          btn review-export-action ("Export generated notes")
-        (v2.1: the played-notes export joins here, beside review-export -- not rendered in v2.0)
-      inline-alert alert-error review-export-error (only after a failed export)
-      (v2.1: the played-notes toggle joins review-header -- not rendered in v2.0)
-    review-list                (ol; replaced by room-notice while the staff has no room)
-      review-phrase x n        (li, one per phrase that started sounding, in session order)
-        review-phrase-header
-          review-phrase-title  (h3: "Phrase {n}")
-          review-phrase-tempo  ("{tempo} BPM")
-          (later per-phrase tools go at this row's trailing end -- none in v2.0)
-        review-staff           (one system position from bp-tablet-landscape up, two below; reserved before engraving)
-          staff-content        (one per system position: a whole phrase, or bars 1-2 then bars 3-4)
-            chord-symbol
-            measure-slot       (four per unit in the one-system layout, two in the split layout)
-          review-phrase-note   (in place of staff-content when the phrase cannot be drawn -- see States)
-    room-notice                (p, no tabindex; in place of review-list while the staff has no room)
-      room-notice-wide
-      room-notice-narrow
+  score-panel                  (screens/phrase-workspace/)
+    score-toolbar              (stays; score-title not rendered while the Review shows; mix-controls usable)
+    (generation-failure banner, session-cue-row, staff-viewport: hidden while the Review shows; session-cue-row holds review-link while a Review exists and is not showing)
+    review-panel               (section, aria-labelledby review-title; rendered only while the Review shows)
+      review-header
+        review-heading
+          review-title           (h2, tabindex -1: "Last session")
+          review-summary         (p; from bp-tablet-landscape up only)
+        review-actions           (whole-session tools; v2.0 holds review-export only)
+          review-export          (role group, aria-label "Export generated notes")
+            field-group          (Format)
+              field-label        ("Format")
+              segmented-control  (MusicXML, MIDI)
+            btn toggle-button    (Backing track; aria-pressed; rendered only while MIDI is selected)
+              toggle-button-state
+            btn review-export-action ("Export generated notes")
+          (v2.1: the played-notes export joins here, beside review-export -- not rendered in v2.0)
+        inline-alert alert-error review-export-error (only after a failed export)
+        (v2.1: the played-notes toggle joins review-header -- not rendered in v2.0)
+      review-list                (ol; replaced by room-notice while the staff has no room)
+        review-phrase x n        (li, one per phrase that started sounding, in session order)
+          review-phrase-header
+            review-phrase-title  (h3: "Phrase {n}")
+            review-phrase-tempo  ("{tempo} BPM")
+            (later per-phrase tools go at this row's trailing end -- none in v2.0)
+          review-staff           (one system position from bp-tablet-landscape up, two below; reserved before engraving)
+            staff-content        (one per system position: a whole phrase, or bars 1-2 then bars 3-4)
+              chord-symbol
+              measure-slot       (four per unit in the one-system layout, two in the split layout)
+            review-phrase-note   (in place of staff-content when the phrase cannot be drawn -- see States)
+      room-notice                (p, no tabindex; in place of review-list while the staff has no room)
+        room-notice-wide
+        room-notice-narrow
+  control-section              (screens/phrase-workspace/; stays, fully editable, while the Review shows)
 ```
 
 ## Components and Content
@@ -135,8 +138,9 @@ layout-workspace
 ## Focus and Keyboard
 
 - While the Review shows, the tab order is the header (`controller-status`, `theme-control`, the
-  disabled phrase action skipped, `Close review`), then `review-panel`: Format, Backing track (when
-  shown), Export generated notes. Items in the list hold nothing focusable in v2.0.
+  disabled phrase action skipped, `Close review`), `score-toolbar`'s `mix-controls`, then
+  `review-panel` (Format, Backing track when shown, Export generated notes), then
+  `control-section`. Items in the list hold nothing focusable in v2.0.
 - A session end moves focus to `Close review`. `Close review` and `Review last session` move focus
   as `flows/review-and-export/handoff.md` sets. Keyboard route from a session end: Space closes the
   Review, focus stays on the session action, now `Start session`; Space starts the next session.
@@ -163,10 +167,10 @@ layout-workspace
 
 - **Absent:** no Review exists (before the first session with a sounded phrase, from any session
   start, after a reload). No `review-panel`, no `review-link`.
-- **Showing:** as above, in place of the staff and the controls, whatever idle state the hidden
-  workspace is in (**Loading**, **Ready**, the errors, **Needs more room**, **Empty**). It never
+- **Showing:** as above, in place of the staff area, whatever idle state the hidden staff is in (**Loading**, **Ready**, the errors, **Needs more room**, **Empty**). It never
   changes with those states, except for the no-room list replacement. No session starts: the
-  session action reads `Close review`, and every MIDI note is ignored.
+  session action reads `Close review`, and no MIDI note starts a session (the connection sheet
+  and its check note work as usual). The audio mix, tempo and settings stay usable.
 - **Kept, not showing:** after `Close review`, until the next session starts: the workspace as at
   idle, with `review-link` in `session-cue-row`.
 - **Empty:** cannot occur: a Review opens only once a phrase has sounded, so it always holds at

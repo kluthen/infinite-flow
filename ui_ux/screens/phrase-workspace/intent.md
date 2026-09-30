@@ -34,8 +34,8 @@
 >   ([When the Staff Has No Room](#when-the-staff-has-no-room),
 >   [Focal Point and Header](#focal-point-and-header), [Start and Stop](#start-and-stop))
 > - _New:_ what the workspace does when a session ends: a fresh phrase for the next session, the
->   Review in place of the staff and the controls until the player closes it, and a button above
->   the staff that brings it back
+>   Review in the staff's place until the player closes it, the controls still usable, and a
+>   button above the staff that brings it back
 >   ([After a Session](#after-a-session))
 > - _Removed:_ nothing
 
@@ -121,4 +121,4 @@ A session asks the browser to hold the screen in landscape, and lets go at the e
 
 ## After a Session
 
-**[v2 new]** When a session ends after its first phrase has sounded, the workspace steps aside for the Review: the **Last session** review takes the place of the staff and the controls, under the same header, and the header's session button reads `Close review` where it would read `Start session`. No session starts while the Review shows, not by a click and not by a note, so a note played while looking back can never throw the Review away; the button itself, sitting where Start will be, says what to do first. Out of sight, the staff gets a fresh phrase, generated from the current settings with the ordinary loading, which is what the player finds when they leave. `Close review` brings the workspace back exactly as between any two sessions, focus still on the same button, now `Start session`, so a keyboard player leaves with one key and starts with the same key again. Leaving keeps the Review: a `Review last session` button at the end of the row above the staff brings it back until the next session starts, which is the only thing that ends it. The Review's own design is in [`screens/last-session-review/`](../last-session-review/intent.md); the reasoning for its shape is in [`flows/review-and-export/`](../../flows/review-and-export/intent.md).
+**[v2 new]** When a session ends after its first phrase has sounded, the workspace steps aside for the Review: the **Last session** review takes the staff's place, under the same header and score toolbar, with the audio mix and every control still usable, and the header's session button reads `Close review` where it would read `Start session`. No session starts while the Review shows, not by a click and not by a note (a controller can still be connected, its check note included), so a note played while looking back can never throw the Review away; the button itself, sitting where Start will be, says what to do first. Out of sight, the staff gets a fresh phrase, generated from the current settings with the ordinary loading, which is what the player finds when they leave. `Close review` brings the staff back exactly as between any two sessions, focus still on the same button, now `Start session`, so a keyboard player leaves with one key and starts with the same key again. Leaving keeps the Review: a `Review last session` button at the end of the row above the staff brings it back until the next session starts, which is the only thing that ends it. The Review's own design is in [`screens/last-session-review/`](../last-session-review/intent.md); the reasoning for its shape is in [`flows/review-and-export/`](../../flows/review-and-export/intent.md).

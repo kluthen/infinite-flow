@@ -1163,4 +1163,23 @@ generation` secondary; `Start session` primary.
   shows (nothing plays; a later replay tool would bring its own access to it). Governs
   `flows/review-and-export/`, `screens/last-session-review/`, `screens/phrase-workspace/`
   (header table, `session-action`, `review-link`, `mix-controls`, States **Review showing**),
-  `flows/play-session/`, `strategy.md`, `motion.md` and the token source.
+  `flows/play-session/`, `strategy.md`, `motion.md` and the token source. **Parts (1), (4) and
+  (7) revised by D145**: the controls stay usable; only the session start is withheld.
+
+- **D145 — The controls stay reachable while the Review shows (2026-09-30; `ux-writer`'s call,
+  correcting D144 after spec D170, master spec v1.24).** D144 hid the audio mix, the tempo and
+  the settings with the staff, against master spec §5 (settings editable at Idle or showing the
+  Review), §6 (mix controls reachable at all times) and §10 (tempo changeable at Idle or in the
+  Review); the owner only asked that the player leave the Review before starting a session. Now
+  `review-panel` takes only the staff area's place, inside `score-panel` after `score-toolbar`:
+  the generation-failure banner, `session-cue-row`, `staff-viewport` and `score-title` are hidden;
+  `score-toolbar` with `mix-controls`, `control-section` (tempo and every setting, editable as at
+  idle, a profile switch regenerating the hidden phrase), the header's `controller-status` (the
+  connection sheet and its check note included), `theme-control` and `tempo-readout` all stay.
+  `generation-status` and `notation-status` stay silent while the Review shows. Only the session
+  start is withheld: `Close review` keeps the session button's slot, and no MIDI note starts a
+  session ("every note is ignored" is corrected: notes played into the connection sheet work as
+  usual). The phrase action stays disabled in place, since the staff is not shown. Accepted cost:
+  after a long session the controls sit below the Review, a scroll away, until the player leaves
+  it; the mix and the tempo readout stay in view above it. D144's leaving, keeping, focus and
+  keyboard route stand.

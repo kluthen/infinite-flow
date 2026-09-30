@@ -385,7 +385,9 @@ three passes, confirmed by the user, committed 2026-09-27. Next, in this order:
    the spec matches; (c) the owner's confirmation, then merge. **Superseded in part by the
    owner's D143 (ux D144 applied the same day):** `spec-writer` now records D143/D144 instead
    (spec D169 and §6, §7, §11 items 12 and 28 describe a start from the Review), `documentalist`
-   follows in the atoms, then the `ux-critic` pass the coordinator runs. Build-plan chunk 20 can start from
+   follows in the atoms, then the `ux-critic` pass the coordinator runs. **D145 (same day)**: the
+   controls stay usable while the Review shows (spec D170 found D144 hid them against §5, §6,
+   §10); the Review takes only the staff area's place. Build-plan chunk 20 can start from
    these handoffs meanwhile.
 
 **ux-critic plan read (2026-09-27), to weigh before continuing:**
