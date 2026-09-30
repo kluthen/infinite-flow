@@ -537,7 +537,8 @@ main-thread engraving against the scheduler.
 
 #### Performance follow-up: cold generation
 
-**Release:** v2.0, follow-up of chunk 1. **Done on 2026-09-30** on branch `v2-perf-cold-generation` (not merged).
+**Release:** v2.0, follow-up of chunk 1. **Done on 2026-09-30** on branch `v2-perf-cold-generation`, merged
+into `main` (`b59b220`). The owner signed off on 2026-09-30.
 
 **Goal.** Chunk 1 found the first ("cold") generation for a rhythm setting at 829-951 ms in
 Chromium on the reference machine, against the 250 ms goal. Almost all of it is building that
@@ -588,7 +589,7 @@ Out of scope: budgeted or partial picks, and anything that changes which phrase 
 | 4. Verify (`npm run quality`) | Done  | Passes; goldens unchanged                                                                                                                                          |
 | Measurements                  | Done  | [Figures and verdicts](../../../docs/generation-latency.md#cold-generation-speed-up-on-the-reference-machine-2026-09-30)                                           |
 | 5. Documents                  | Done  | Latency, phrase workspace, session engine, testing, README, rhythm phrase structure; specs synced by `spec-writer`                                                 |
-| 6. ATD stewardship            | Done  | Tags added on the planner and publication; `atd lint` and `atd check` pass. `api_rhythm_domain_expansion` back to DRAFT: its new speed-up wording awaits the owner |
+| 6. ATD stewardship            | Done  | Tags added on the planner and publication; `atd lint` and `atd check` pass. Owner sign-off 2026-09-30: speed-up wording approved, both lowered atoms now at REVIEW |
 
 **Outcome.**
 
