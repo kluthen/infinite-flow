@@ -8,9 +8,11 @@ human_name: Repeated Phrase Marked Only Internally
 parents:
   - [[rule_session_generation_failure_ladder]]
   - [[rule_session_history_keeps_timeline_and_inputs]]
-dependents: []
-version: 0.1
+dependents:
+  - [[service_session_engine]]
+version: 0.2
 tags: [v2, release-v2.0, session, history]
+notes: Revised 2026-09-30 in v2 chunk 8 (previous version 0.1) as a clarification of existing behaviour, accepted by the chunk owner under the owner standing rule to settle minor issues and record them; AWAITING THE OWNER ACCEPTANCE. Adds a rejected generation request to the kinds of failure a marked repeat can follow.
 ---
 
 # Repeated Phrase Marked Only Internally
@@ -19,7 +21,7 @@ tags: [v2, release-v2.0, session, history]
 Keep a failure-ladder repeat traceable without ever surfacing it to the player.
 
 ## THE RULE / LOGIC
-The session history marks any phrase that is a repeat inserted by the session's generation failure handling, the same way whether the attempts failed because no phrase was found or because none fitted the staff. The mark is internal only: the review never visibly distinguishes a repeated phrase from any other phrase, since a repeat is a generator implementation detail, not something worth showing the player.
+The session history marks any phrase that is a repeat inserted by the session's generation failure handling, the same way whether the attempts failed because no phrase was found, because a generation request was rejected (the generator crashed on it or had stopped working), or because none fitted the staff. The mark is internal only: the review never visibly distinguishes a repeated phrase from any other phrase, since a repeat is a generator implementation detail, not something worth showing the player.
 
 ## TECHNICAL INTERFACE
 History entries carry an internal repeat mark that no view displays.

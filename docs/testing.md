@@ -20,7 +20,9 @@ a layer, a script, a harness seam, a fake or a fixture updates this document in 
 - **Pure logic** (no DOM, no browser API) gets a Vitest spec under `tests/unit/`, at the path that
   mirrors its source file: `src/domain/rhythm/syncopation.ts` is tested by
   `tests/unit/domain/rhythm/syncopation.spec.ts`. A component or composable spec goes under
-  `tests/unit/components/` or `tests/unit/composables/` the same way.
+  `tests/unit/components/` or `tests/unit/composables/` the same way. A session engine or runner
+  spec goes under `tests/unit/session/`, next to `session-harness.ts` (see
+  [The session driver](#the-session-driver)).
 - **Behaviour on screen** gets a Playwright spec. Use the production preview (`tests/e2e/workspace/`)
   when the real app can reach the state on its own, and the workspace harness (`tests/e2e/release/`
   today) when the test needs a fixed seed, a held generation or a forced failure.
@@ -221,6 +223,29 @@ injected `ViewportWidthProvider` (`src/composables/viewport-width.ts`). Unit tes
 Every `createGenerationSession` and `composeWorkspaceSession` call in a unit test passes one as
 `viewport`. The Playwright harness uses the real provider instead (see above).
 
+## The session driver
+
+`tests/unit/session/session-harness.ts` holds the shared builders of the session engine specs. It
+drives the real `createSessionEngine` and replaces only its two seams:
+
+- **Queued seeds.** `queuedProviders(firstSeed?, queueLength?)` hands out seeds `firstSeed`,
+  `firstSeed + 1`, ... and request ids `session-1`, `session-2`, ..., records every seed in
+  `seedsHandedOut`, and throws once the queue is empty, so a run is deterministic and a test can
+  check that each attempt got a fresh seed.
+- **Fake viewport.** `fakeViewport(below)` is a window-width reading the test moves by hand
+  (`viewport.below = true`); the engine reads it each time it builds a request.
+- **Real phrases.** `phraseOneFor(settings, options?)` generates a real phrase 1 at Idle through
+  `generatePhrase`, and `successFor(intent)` the real successful outcome of an intent the engine
+  requested; both are cached, since generation is pure. `failureOutcome(code?)` is a real
+  generation failure outcome. `sessionSettings(overrides?)` builds the chosen settings, and
+  `withoutTempo(intent)` drops the tempo for comparing intents built at different tempos.
+- **Timed event driving.** `SessionDriver` starts one engine (start time, settings, phrase 1,
+  viewport and providers all have defaults) and logs every output it returns. Its methods send one
+  timed event each: `countInOver(at)`, `sounding(at, phraseNumber)`, `tick(at)`, `end(at, cause?)`,
+  and, for the latest request, `fail(at)`, `crash(at)`, `succeed(at)`, `fit(at, fits)` and
+  `accept(at)` (a success that fits). `exhaust(at)` fails every remaining rung of the ladder.
+  `all(kind)`, `requests(phraseNumber?)`, `lastRequest()` and `kinds(outputs)` read the log.
+
 ## Determinism
 
 - **Same seed, same result.** Generation is a pure function of its intent, seed included. A test
@@ -230,6 +255,13 @@ Every `createGenerationSession` and `composeWorkspaceSession` call in a unit tes
   across a page reload, gives the same timeline, and seed 4243 gives a different one.
 - **Injected clock.** Code never reads the time directly. It takes it from an injected clock that a
   test can replace, so a timing rule is tested by advancing the fake clock, not by waiting.
+- **Timed events, no clock.** The session engine never reads a clock at all: every event carries
+  its audio time. Its specs under `tests/unit/session/` drive it with a scripted list of timed
+  events through `SessionDriver`, so deadlines, late results and repeats are tested by the times
+  written in the test, with no waiting and no fake clock.
+- **Tempo only sets the times.** `session-timing.spec.ts` runs the same event script scaled to 60,
+  120 and 240 BPM and checks that the request intents are identical once `controls.tempo` is left
+  out, with the same phrase numbers, steps and retries.
 - **No test-only branches.** Production code carries no `if (test)` path. A test replaces a
   dependency through a seam that production code already exposes: `composeWorkspaceSession`'s
   providers, `viewport` width provider and `generate` function, the `WORKSPACE_SESSION_FACTORY` injection point, a fake

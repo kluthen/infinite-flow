@@ -31,13 +31,39 @@ import type { NotationError } from '@/notation/notation-error'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
 import { createGenerationWorkerClient } from '@/generation-worker/generation-worker-client'
 import type { ViewportWidthProvider } from '@/composables/viewport-width'
+import {
+  createSessionRunner,
+  type SessionRunner,
+  type SessionRunnerDependencies,
+} from '@/session/session-runner'
+import type { SessionStart } from '@/session/session-types'
 import { createBrowserViewportWidth } from './browser-viewport-width'
+
+/**
+ * What a caller supplies to start a session runner from the workspace: the session's start and the
+ * seams the workspace does not own (fit check, audio clock, output and error sinks).
+ */
+// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_runner]]
+export interface WorkspaceSessionRunnerInput extends Pick<
+  SessionRunnerDependencies,
+  'checkFit' | 'now' | 'onOutput' | 'onError'
+> {
+  readonly start: SessionStart
+}
 
 export interface WorkspaceSession {
   readonly session: GenerationSession<WorkspaceSessionResult>
   readonly pendingPhrase: Ref<WrittenPhrase | null>
   readonly handleEngraved: () => void
   readonly handleNotationError: (error: NotationError) => void
+  /**
+   * Start a session runner bound to the same raw `generate` seam the Idle flow uses, and so the
+   * app's one generation worker. Phrase 2 is generated during the one-measure count-in (1 s at
+   * 240 BPM) and is on time only because phrase 1 already warmed the generator's rhythm-domain
+   * memo, which lives once per worker; a cold phrase 2 takes about 0.95 s.
+   */
+  readonly createSessionRunner: (input: WorkspaceSessionRunnerInput) => SessionRunner
   readonly dispose: () => void
 }
 
@@ -82,9 +108,12 @@ function createRequestIdProvider(): () => ReturnType<typeof makeRequestId> {
  * Intent: build one workspace session from explicit dependencies: the identity/seed providers,
  * the raw orchestration `generate` seam, and its teardown. Wires the same notation coordinator
  * and profile-switch policy production always uses, so the only thing a caller can vary is where
- * requests/seeds and generation outcomes come from.
+ * requests/seeds and generation outcomes come from. Session runners it starts share the Idle
+ * flow's providers, window-width reading and raw `generate` seam (the one worker), so phrase 2
+ * reuses the rhythm-domain memo phrase 1 warmed.
  */
 // @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_runner]]
 export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): WorkspaceSession {
   let session: GenerationSession<WorkspaceSessionResult> | null = null
 
@@ -118,6 +147,19 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     pendingPhrase: coordinator.pendingPhrase,
     handleEngraved: coordinator.handleEngraved,
     handleNotationError: coordinator.handleNotationError,
+    createSessionRunner: (input) =>
+      createSessionRunner(
+        {
+          generate: deps.generate,
+          checkFit: input.checkFit,
+          now: input.now,
+          providers: deps.providers,
+          viewport: deps.viewport,
+          onOutput: input.onOutput,
+          onError: input.onError,
+        },
+        input.start,
+      ),
     dispose: () => {
       created.dispose()
       deps.dispose()

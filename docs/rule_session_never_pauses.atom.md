@@ -10,6 +10,7 @@ parents:
 dependents:
   - [[rule_controller_loss_mid_session]]
   - [[rule_hidden_tab_ends_session]]
+  - [[service_session_engine]]
 type: RULE
 layer: BUSINESS
 ---

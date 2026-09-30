@@ -7,7 +7,8 @@ human_name: Hidden Tab Ends the Session
 parents:
   - [[rule_session_never_pauses]]
   - [[rule_stop_ends_session]]
-dependents: []
+dependents:
+  - [[service_session_engine]]
 layer: BUSINESS
 version: 0.1
 tags: [v2, release-v2.0, session, session-end]

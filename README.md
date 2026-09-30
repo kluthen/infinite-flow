@@ -78,6 +78,11 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
 - `src/export/` — pure, browser-free encoders that turn a session's phrases into the bytes of one
   export file; `musicxml/` holds the generated-notes MusicXML encoder, `midi/` the generated-notes
   MIDI encoder. See [`docs/export.md`](docs/export.md).
+- `src/session/` — the session engine: pure, deterministic, Vue/browser-free logic that turns a
+  running session's timed events (audio time in seconds, carried on each event, never read from a
+  clock) into generation requests, fit checks, read-ahead phrases, the struggling notice and the
+  end, plus the runner that executes those requests through the injected `generate` seam. See
+  [`docs/session-engine.md`](docs/session-engine.md).
 - `src/composables/` — in-memory session/UI coordination (`use-generation-session.ts`,
   `use-notation-coordinator.ts`, `workspace-session-result.ts`, and `viewport-width.ts`, the
   injected window-width seam): no persistence, no singletons.
@@ -164,6 +169,7 @@ UI (Vue components, props-in/events-out)
   -> session composables (use-generation-session, use-notation-coordinator)
     -> Web Worker (generation-worker/, typed correlated protocol)
       -> domain orchestration: harmony -> rhythm -> pitch -> validation
+    -> session engine (src/session/: pure timed-event engine; its runner uses the same Worker)
     -> notation (lazy VexFlow engraver, loaded on demand)
 ```
 
@@ -175,6 +181,15 @@ UI (Vue components, props-in/events-out)
   `generating` / `notating`, exactly one operation at a time, prior-result retention on failure)
   and exposes explicit actions; `create-workspace-session.ts` wires it to a `generate` seam, a
   `notate` seam driven by `createNotationCoordinator`, and the profile-switch policy adapter.
+- **Session engine.** `src/session/` decides, as pure logic, what a running practice session
+  requests, shows and ends, from timed events that each carry their audio time: phrase 2 requested
+  at start and due when the count-in ends, each later phrase due at the start of the last measure
+  of the one sounding, the failure ladder (three carry-in retries, one standalone retry, then a
+  repeat of the phrase before), the struggling-generator notice, and settings locked at start.
+  `createSessionRunner` executes its requests; `composeWorkspaceSession` binds it to the same
+  `generate` seam, and so the same Worker, the Idle flow uses. Nothing starts a session yet: the
+  audio clock and the session screen are still to come. See
+  [`docs/session-engine.md`](docs/session-engine.md).
 - **Web Worker.** Every generation request runs off the main thread in one long-lived module
   `Worker` behind a typed, correlated request/response protocol
   (`src/generation-worker/generation-worker-protocol.ts`), which re-validates every field crossing
@@ -214,7 +229,8 @@ UI (Vue components, props-in/events-out)
 
 See [`specs/generator-architecture.md`](specs/generator-architecture.md) for the full seam-by-seam
 architectural contract and [`docs/phrase-workspace.md`](docs/phrase-workspace.md) for the
-workspace's component tree, session wiring, state map, and Worker protocol in detail.
+workspace's component tree, session wiring, state map, and Worker protocol in detail, and
+[`docs/session-engine.md`](docs/session-engine.md) for the session engine.
 
 ## First-Release Verification Matrix
 
