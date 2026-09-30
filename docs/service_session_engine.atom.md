@@ -20,6 +20,7 @@ parents:
   - [[rule_tempo_never_affects_generation]]
   - [[rule_varying_register_once_per_session]]
 dependents:
+  - [[service_session_history]]
   - [[service_session_runner]]
 type: SERVICE
 layer: ARCHITECTURE

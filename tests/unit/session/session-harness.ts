@@ -69,6 +69,14 @@ export function queuedProviders(firstSeed = 3000, queueLength = 80): QueuedProvi
   }
 }
 
+/** The epoch milliseconds a fixed test wall clock reads: 2026-09-30 at 12:00 UTC. */
+export const SESSION_START_EPOCH_MS = Date.UTC(2026, 8, 30, 12)
+
+/** Intent: a wall clock stuck at `SESSION_START_EPOCH_MS`, for tests that ignore the start time. */
+export function fixedWallClock(): number {
+  return SESSION_START_EPOCH_MS
+}
+
 /** A window-width reading the test moves by hand. */
 export interface FakeViewport {
   below: boolean

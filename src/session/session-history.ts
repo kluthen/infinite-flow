@@ -1,0 +1,257 @@
+/**
+ * The session history: an in-memory record of every phrase of a session that started sounding,
+ * fed from the session engine's outputs in order. Each entry keeps the phrase as it was shown and
+ * the inputs that reproduce it, with the tempo it played at and the internal repeat mark, and
+ * leaves empty slots for the acknowledgements and played notes that played-note tracking fills.
+ * It also keeps when the session started, read once from an injected wall clock, and the instrument
+ * profile of the locked settings. It never reads the system time, touches no browser API and stores
+ * nothing outside memory.
+ */
+
+import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
+import type { ConcertPitch } from '../domain/events/concert-pitch'
+import { deepFreeze } from '../domain/events/deep-freeze'
+import type { GenerationIntent } from '../domain/generation/generation-intent'
+import type { InstrumentProfileId } from '../domain/profile/instrument-profiles'
+import type { AudioTime, SessionOutput, SessionSettings, SuccessfulOutcome } from './session-types'
+
+/** A note the player played during a phrase: its concert pitch, velocity and audio-clock span. */
+// @spec-link [[rule_session_history_records_played_notes]]
+export interface RecordedPlayedNote {
+  readonly pitch: ConcertPitch
+  readonly velocity: number
+  readonly onsetAt: AudioTime
+  readonly releaseAt: AudioTime
+}
+
+/**
+ * One phrase that started sounding. `outcome` is the phrase exactly as shown (its timeline and the
+ * harmony its chord symbols come from); `intent` holds the resolved request with the density it
+ * was generated with, the seed and the carry-in; `tempo` is the tempo it played at. `isRepeat` and
+ * `repeatOf` are the internal repeat mark, which no view shows. `acknowledgements` and
+ * `playedNotes` stay empty until played-note tracking fills them.
+ */
+// @spec-link [[service_session_history]]
+// @spec-link [[rule_session_history_keeps_timeline_and_inputs]]
+// @spec-link [[rule_session_history_records_played_notes]]
+// @spec-link [[rule_repeat_phrase_marked_internally_only]]
+export interface SessionHistoryRecord {
+  readonly phraseNumber: number
+  readonly startedAt: AudioTime
+  readonly outcome: SuccessfulOutcome
+  readonly intent: GenerationIntent
+  readonly tempo: number
+  readonly isRepeat: boolean
+  readonly repeatOf?: number
+  readonly acknowledgements: readonly ExpectedNoteIdentity[]
+  readonly playedNotes: readonly RecordedPlayedNote[]
+}
+
+/**
+ * A session's history: fed every engine output in order, read back as one ordered list, with the
+ * session's start time (epoch milliseconds, read once from the wall clock at creation) and the
+ * instrument profile id of its locked settings.
+ */
+// @spec-link [[service_session_history]]
+// @spec-link [[rule_session_settings_locked]]
+export interface SessionHistory {
+  record(output: SessionOutput): void
+  phrases(): readonly SessionHistoryRecord[]
+  readonly phraseCount: number
+  readonly startedAt: number
+  readonly instrumentProfileId: InstrumentProfileId
+}
+
+/** The injected wall clock: the player's current local moment, as epoch milliseconds. */
+// @spec-link [[service_session_history]]
+export type WallClock = () => number
+
+/** Typed failure for a caller that feeds the history outputs a session cannot produce. */
+// @spec-link [[service_session_history]]
+export class SessionHistoryError extends Error {
+  readonly kind = 'SessionHistoryError' as const
+
+  constructor(message: string) {
+    super(message)
+    this.name = 'SessionHistoryError'
+  }
+}
+
+/** A phrase-sounding output, the only kind the history records. */
+type SoundingOutput = Extract<SessionOutput, { kind: 'phrase-sounding' }>
+
+/** An ended output, which closes the history. */
+type EndedOutput = Extract<SessionOutput, { kind: 'ended' }>
+
+/**
+ * Intent: the session's tempo, from the settings locked at start: a finite positive BPM, or the
+ * caller handed settings no session can run at.
+ */
+function sessionTempo(settings: SessionSettings): number {
+  const tempo = settings.controls.tempo
+  if (!Number.isFinite(tempo) || tempo <= 0)
+    throw new SessionHistoryError(`The session tempo must be a positive BPM, got ${tempo}.`)
+  return tempo
+}
+
+/**
+ * Intent: the session's start time, the wall clock's one reading at creation: finite, not before
+ * the epoch, or the injected clock is broken.
+ */
+function sessionStartTime(wallClock: WallClock): number {
+  const startedAt = wallClock()
+  if (!Number.isFinite(startedAt) || startedAt < 0)
+    throw new SessionHistoryError(
+      `The session start time must be finite epoch milliseconds, got ${startedAt}.`,
+    )
+  return startedAt
+}
+
+/**
+ * Intent: the session's instrument profile id, from the settings locked at start; never
+ * defaulted, so settings without one are refused.
+ */
+function sessionInstrumentProfileId(settings: SessionSettings): InstrumentProfileId {
+  const id = settings.controls.instrumentProfileId
+  if (typeof id !== 'string' || id.length === 0)
+    throw new SessionHistoryError('The session settings hold no instrument profile.')
+  return id
+}
+
+/**
+ * Intent: refuse a phrase generated for an instrument profile other than the session's; the
+ * profile is locked for the whole session.
+ */
+function assertSessionProfile(output: SoundingOutput, instrumentProfileId: string): void {
+  const phraseProfileId = output.phrase.intent.instrumentProfile.id
+  if (phraseProfileId !== instrumentProfileId)
+    throw new SessionHistoryError(
+      `Phrase ${output.phrase.phraseNumber} was generated for ${phraseProfileId}; the session runs ${instrumentProfileId}.`,
+    )
+}
+
+/**
+ * Intent: refuse a repeat mark the engine cannot produce: a repeat names an earlier phrase, and
+ * any other phrase names none.
+ */
+function assertRepeatMark(output: SoundingOutput): void {
+  const { phraseNumber, origin, repeatOf } = output.phrase
+  if (origin !== 'repeat') {
+    if (repeatOf !== undefined)
+      throw new SessionHistoryError(
+        `Phrase ${phraseNumber} is no repeat but names phrase ${repeatOf}.`,
+      )
+    return
+  }
+  if (
+    repeatOf === undefined ||
+    !Number.isInteger(repeatOf) ||
+    repeatOf < 1 ||
+    repeatOf >= phraseNumber
+  )
+    throw new SessionHistoryError(`Repeat phrase ${phraseNumber} must name an earlier phrase.`)
+}
+
+/**
+ * Intent: refuse a sounding output that is not the next phrase, or that starts before the phrase
+ * before it; the engine outputs phrases in order on a clock that never runs backwards.
+ */
+function assertNextSounding(
+  output: SoundingOutput,
+  previous: SessionHistoryRecord | undefined,
+): void {
+  const expected = (previous?.phraseNumber ?? 0) + 1
+  if (output.phrase.phraseNumber !== expected)
+    throw new SessionHistoryError(
+      `Phrase ${output.phrase.phraseNumber} started sounding; phrase ${expected} was next.`,
+    )
+  if (!Number.isFinite(output.at) || (previous !== undefined && output.at < previous.startedAt))
+    throw new SessionHistoryError(
+      `Phrase ${expected} started at ${output.at}, before phrase ${expected - 1}.`,
+    )
+}
+
+/**
+ * Intent: refuse an end that disagrees with what was recorded: an end in the count-in follows no
+ * sounded phrase, and the count of sounded phrases it reports is the history's.
+ */
+function assertEndMatches(output: EndedOutput, recorded: number): void {
+  if (output.phase === 'count-in' && recorded > 0)
+    throw new SessionHistoryError(`The session ended in its count-in after ${recorded} phrases.`)
+  if (output.soundedPhraseCount !== recorded)
+    throw new SessionHistoryError(
+      `The session ended with ${output.soundedPhraseCount} phrases sounded; ${recorded} recorded.`,
+    )
+}
+
+/** Intent: the deep-frozen record of one sounded phrase at the session's tempo. */
+function recordOf(output: SoundingOutput, tempo: number): SessionHistoryRecord {
+  const { phraseNumber, origin, intent, outcome, repeatOf } = output.phrase
+  return deepFreeze({
+    phraseNumber,
+    startedAt: output.at,
+    outcome,
+    intent,
+    tempo,
+    isRepeat: origin === 'repeat',
+    ...(repeatOf === undefined ? {} : { repeatOf }),
+    acknowledgements: [],
+    playedNotes: [],
+  })
+}
+
+/**
+ * Intent: an empty history for one session, created at its start from the settings locked at that
+ * start and an injected wall clock, read exactly once here for the start time. `record` takes
+ * every engine output in order: a phrase-sounding output adds the next record, `ended` closes the
+ * history, and every other kind (read-ahead included) is ignored. An output after the end, a
+ * phrase out of order or for another instrument profile, or an end that disagrees with the
+ * records throws a SessionHistoryError.
+ */
+// @spec-link [[service_session_history]]
+// @spec-link [[rule_session_history_keeps_timeline_and_inputs]]
+// @spec-link [[rule_repeat_phrase_marked_internally_only]]
+// @spec-link [[rule_session_settings_locked]]
+export function createSessionHistory(
+  settings: SessionSettings,
+  wallClock: WallClock,
+): SessionHistory {
+  const tempo = sessionTempo(settings)
+  const instrumentProfileId = sessionInstrumentProfileId(settings)
+  const startedAt = sessionStartTime(wallClock)
+  const records: SessionHistoryRecord[] = []
+  let snapshot: readonly SessionHistoryRecord[] | undefined
+  let ended = false
+
+  /** Intent: add the next sounded phrase; the read-back list is rebuilt on the next read. */
+  function addSounding(output: SoundingOutput): void {
+    assertNextSounding(output, records.at(-1))
+    assertRepeatMark(output)
+    assertSessionProfile(output, instrumentProfileId)
+    records.push(recordOf(output, tempo))
+    snapshot = undefined
+  }
+
+  return Object.freeze({
+    startedAt,
+    instrumentProfileId,
+    /** Intent: take one engine output, in the order the engine gave it. */
+    record(output: SessionOutput): void {
+      if (ended) throw new SessionHistoryError(`A ${output.kind} output arrived after the end.`)
+      if (output.kind === 'phrase-sounding') addSounding(output)
+      else if (output.kind === 'ended') {
+        assertEndMatches(output, records.length)
+        ended = true
+      }
+    },
+    /** Intent: every recorded phrase in sounding order, as a list frozen until the next record. */
+    phrases(): readonly SessionHistoryRecord[] {
+      snapshot ??= Object.freeze([...records])
+      return snapshot
+    },
+    /** Intent: how many phrases have started sounding so far. */
+    get phraseCount(): number {
+      return records.length
+    },
+  })
+}

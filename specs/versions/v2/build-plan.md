@@ -103,7 +103,7 @@ chunks in different sections; the second to merge rebases on the first.
 | 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29), follow-up Performance: cold generation (done 2026-09-30)                                                                                                                                                                                                                                             | Nothing                                               |
 | 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 (done 2026-09-29), follow-up 3b Phone staff height (done 2026-09-29) · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation (done 2026-09-29) · 14 Note acknowledgement (done 2026-09-29) · 18 MusicXML encoding (done 2026-09-29) · 19 Generated-notes MIDI encoding (done 2026-09-29) | Chunk 0 (done). Start chunk 3 first (see the caveat). |
 | 2    | 5 Idle fit retries and the room notice (done 2026-09-30) · 6 Note identity and session overlays (done 2026-09-30) · 8 Session engine (done 2026-09-30) · 10 Audio transport (done 2026-09-30)                                                                                                                                                                                 | Wave 1. Chunk 1's verdict: given (2026-09-30).        |
-| 3    | 9 Session history · 11 Backing · 12 MIDI input                                                                                                                                                                                                                                                                                                                                | Wave 2                                                |
+| 3    | 9 Session history (done 2026-09-30) · 11 Backing · 12 MIDI input                                                                                                                                                                                                                                                                                                              | Wave 2                                                |
 | 4    | 15 Session screen: start and end                                                                                                                                                                                                                                                                                                                                              | Wave 3                                                |
 | 5    | 13 Controller connection · 16 Rolling display                                                                                                                                                                                                                                                                                                                                 | Chunk 15                                              |
 | 6    | 17 MIDI in the session                                                                                                                                                                                                                                                                                                                                                        | Wave 5                                                |
@@ -1097,7 +1097,44 @@ injected seam; chunk 16 provides it), `rule_session_generation_failure_ladder`,
 
 ### Chunk 9 — Session history
 
-**Release:** v2.0.
+**Release:** v2.0. **Done on 2026-09-30.** `createSessionHistory(settings, wallClock)` in
+`src/session/` is fed every session-engine output in order and records one entry per phrase that
+started sounding:
+phrase 1 at the end of the count-in, then each later phrase. A read-ahead phrase that never
+sounded is not recorded, and a session ended in the count-in records nothing. Each record keeps
+the phrase exactly as shown (its timeline, and the harmony its chord symbols come from), the
+inputs that reproduce it (the resolved request with the density actually generated with, the
+seed, the carry-in), its tempo, the internal repeat mark, and empty slots for chunk 17's
+acknowledgements and played notes. The history also keeps the session's start time (read once
+from an injected wall clock) and instrument profile, for chunk 20's file names and summary line.
+Records are deep-frozen and stay in memory. A property test
+records a real five-phrase session through the runner for each of the 96 cells of the carry-in
+seed matrix: every record regenerates to the timeline it stored, and for each of the three
+instrument templates the recorded session encodes to the same MusicXML and MIDI bytes as the
+regenerated phrases. `src/session/session-history-export.ts` builds those encoder inputs from the
+stored phrases, never regenerated; the repeat mark never travels. A test spies on browser storage
+and the network through a recorded session and its export, and sees neither touched. Nothing on
+screen uses the history yet (chunks 15 and 20). Building and reading back 2 000 phrases (about
+2 h 15 min at 60 BPM) has a 250 ms budget, checked in `test:unit`; it took 2.3 ms on the
+reference machine on 2026-09-30. Technical choices:
+[`docs/session-engine.md`](../../../docs/session-engine.md#session-history). Decided in the chunk,
+awaiting the owner's acceptance: the record stores the whole shown outcome as well as the intent
+(the intent reproduces the phrase, the outcome carries the harmony the chord symbols need); the
+tempo comes from the session's locked settings, passed at creation, never from a default; the
+history throws when the engine's ordering breaks (phrase order, time order, the repeat mark, the
+sounded count at the end); the export adapter takes the instrument from the records and refuses a
+mix.
+
+**Progress:**
+
+| Step               | State | Notes                                                            |
+| ------------------ | ----- | ---------------------------------------------------------------- |
+| 1. ATD preflight   | Done  | PROCEED; architecture atom `service_session_history` added       |
+| 2. Tests first     | Done  | Red on assertions against stubs                                  |
+| 3. Implement       | Done  | `src/session/session-history.ts` and `session-history-export.ts` |
+| 4. Verify          | Done  | `npm run quality` passes; no screen to look at in this chunk     |
+| 5. Documents       | Done  | `docs/session-engine.md`, `docs/testing.md`, README              |
+| 6. ATD stewardship | Done  | Tags checked; atoms await the owner                              |
 
 **Goal.** Record every phrase that started sounding: the timeline as shown, and the inputs that
 reproduce it (the resolved request with the density generated with, the seed, the carry-in), with
@@ -1589,8 +1626,8 @@ hardware: the tuning covers USB; Bluetooth stays best-effort until settled.
 **Release:** v2.0. **Done on 2026-09-29.** `encodeGeneratedNotesMusicXml` in
 `src/export/musicxml/` turns the instrument and the session's phrases (number, written phrase,
 tempo) into one score-partwise 4.0 file. It has no field for played notes and rejects extra fields
-at run time. Phrase numbers must run 1, 2, 3… with no gap, so chunk 20's session history must
-number only the phrases that sounded. A phrase in a new key opens with a new key signature. Every
+at run time. Phrase numbers must run 1, 2, 3… with no gap, so the session history
+([chunk 9](#chunk-9--session-history)) must number only the phrases that sounded. A phrase in a new key opens with a new key signature. Every
 phrase ends with a double barline except the last, which ends with a final barline: the owner
 decided this on 2026-09-29, and `rule_generated_notes_musicxml_export` v0.2 now states both. The MusicXML 4.0 schema is stored under
 `tests/fixtures/musicxml/schema/`, and a unit test validates the output and three golden files

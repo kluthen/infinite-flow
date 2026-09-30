@@ -9,6 +9,7 @@ priority: 1
 dependents:
   - [[rule_repeat_phrase_marked_internally_only]]
   - [[rule_session_history_records_played_notes]]
+  - [[service_session_history]]
 type: RULE
 version: 0.1
 human_name: Session History Keeps Timeline and Reproduction Inputs

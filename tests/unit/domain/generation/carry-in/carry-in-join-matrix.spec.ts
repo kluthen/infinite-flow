@@ -16,12 +16,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import {
-  makeGenerationControls,
-  type GenerationControls,
-  type Leapiness,
-  type MusicalProfile,
-} from '@/domain/controls/generation-controls'
+import { makeGenerationControls, type Leapiness } from '@/domain/controls/generation-controls'
 import type { CarryIn } from '@/domain/generation/carry-in/carry-in'
 import {
   createGenerationIntent,
@@ -29,11 +24,10 @@ import {
 } from '@/domain/generation/generation-intent'
 import { makeGenerationRequest, makeRequestId } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
-import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
-import type { RegisterChoice } from '@/domain/profile/register-intent'
 import { makeSeed } from '@/domain/random/seed'
 import { validateGenerationResult } from '@/domain/validation/generation-result-validator'
 import { attackMidis, carryInAfter, type SuccessOutcome } from './carry-in-fixture'
+import { buildMatrix, type MatrixCell } from './carry-in-matrix'
 
 /** Intent: true when the carried pitch is not a tone of the carried chord: a tense note. */
 function carriesTenseNote(carryIn: CarryIn): boolean {
@@ -47,126 +41,12 @@ function owesDebt(carryIn: CarryIn): boolean {
   return carryIn.lastPitch.recovery.kind === 'owed' || carriesTenseNote(carryIn)
 }
 
-/** One representative control set of the seed matrix. */
-interface ControlSet {
-  readonly name: string
-  readonly musicalProfile: MusicalProfile
-  readonly controls: Omit<GenerationControls, 'register' | 'instrumentProfileId'>
-}
-
-const CONTROL_SETS: readonly ControlSet[] = [
-  {
-    name: 'A (Neutral, C Major, gentle, settled, shaped)',
-    musicalProfile: 'Neutral',
-    controls: {
-      tempo: 90,
-      tonalCenter: 'C',
-      collection: 'Major',
-      harmonicMotion: 'Gentle diatonic',
-      tension: 'Settled',
-      noteDensity: 'Quarter',
-      rhythmicVariety: 'Slightly varied',
-      syncopation: 'Straight',
-      silenceDensity: 'Sparse',
-      contour: 'Arch',
-      leapiness: 'Shaped',
-      arpeggioChaos: 'Predictable',
-    },
-  },
-  {
-    name: 'B (Jazz, F Dorian, active, build, leaping)',
-    musicalProfile: 'Jazz',
-    controls: {
-      tempo: 90,
-      tonalCenter: 'F',
-      collection: 'Dorian',
-      harmonicMotion: 'Active diatonic',
-      tension: 'Build',
-      noteDensity: 'Eighth',
-      rhythmicVariety: 'Slightly varied',
-      syncopation: 'Occasional offbeats',
-      silenceDensity: 'Conversational',
-      contour: 'Rising',
-      leapiness: 'Leaping',
-      arpeggioChaos: 'Varied',
-    },
-  },
-  {
-    name: 'C (Neutral, A Aeolian, static, lift, angular)',
-    musicalProfile: 'Neutral',
-    controls: {
-      tempo: 90,
-      tonalCenter: 'A',
-      collection: 'Aeolian',
-      harmonicMotion: 'Static',
-      tension: 'Lift',
-      noteDensity: 'Sixteenth',
-      rhythmicVariety: 'Slightly varied',
-      syncopation: 'Straight',
-      silenceDensity: 'Breath-heavy',
-      contour: 'Wandering',
-      leapiness: 'Angular',
-      arpeggioChaos: 'Chaotic',
-    },
-  },
-  {
-    // Varied leaves chord-tone order to the seed, so leap budget often remains for a large leap
-    // into the final note: this set is where phrases most often end owing a recovery.
-    name: 'D (Neutral, D Major, gentle, lift, angular, varied)',
-    musicalProfile: 'Neutral',
-    controls: {
-      tempo: 90,
-      tonalCenter: 'D',
-      collection: 'Major',
-      harmonicMotion: 'Gentle diatonic',
-      tension: 'Lift',
-      noteDensity: 'Eighth',
-      rhythmicVariety: 'Slightly varied',
-      syncopation: 'Straight',
-      silenceDensity: 'Conversational',
-      contour: 'Wandering',
-      leapiness: 'Angular',
-      arpeggioChaos: 'Varied',
-    },
-  },
-]
-
-const INSTRUMENT_PROFILE_IDS: readonly InstrumentProfileId[] = ['c-keyboard', 'bb-tenor', 'eb-alto']
-const REGISTER_CHOICES: readonly RegisterChoice[] = ['Low', 'Middle', 'High', 'Varying']
-const SEEDS: readonly number[] = [7, 13]
-
 /** The adjacent-interval ceiling of each leapiness level, restated from the melodic policy. */
 const MAX_INTERVAL: Readonly<Record<Leapiness, number>> = {
   Smooth: 4,
   Shaped: 7,
   Leaping: 10,
   Angular: 12,
-}
-
-/** One matrix cell before it is run. */
-interface MatrixCell {
-  readonly instrumentProfileId: InstrumentProfileId
-  readonly register: RegisterChoice
-  readonly set: ControlSet
-  readonly seed: number
-  readonly label: string
-}
-
-/** Intent: the full profile x register x control-set x seed matrix, in a fixed order. */
-function buildMatrix(): readonly MatrixCell[] {
-  const cells: MatrixCell[] = []
-  for (const instrumentProfileId of INSTRUMENT_PROFILE_IDS)
-    for (const register of REGISTER_CHOICES)
-      for (const set of CONTROL_SETS)
-        for (const seed of SEEDS)
-          cells.push({
-            instrumentProfileId,
-            register,
-            set,
-            seed,
-            label: `${instrumentProfileId} / ${register} / ${set.name} / seed ${seed}`,
-          })
-  return cells
 }
 
 const MATRIX = buildMatrix()
