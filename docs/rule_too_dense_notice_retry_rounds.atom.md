@@ -7,6 +7,7 @@ tags: [v2, release-v2.0, idle, notation, v1-change]
 parents:
   - [[rule_staff_needs_room_notice]]
 dependents:
+  - [[module_idle_fit_round]]
   - [[rule_retry_round_window_changes]]
 type: RULE
 version: 0.1

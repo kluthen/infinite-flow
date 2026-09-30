@@ -7,6 +7,7 @@ parents:
   - [[req_landscape_phrase_workspace]]
   - [[user_story_controlled_phrase_generation]]
 dependents:
+  - [[module_idle_fit_round]]
   - [[rule_retry_round_window_changes]]
 layer: BUSINESS
 version: 0.1

@@ -4,7 +4,10 @@
  * the top position from the tablet-landscape breakpoint up, or, below it, bars 1-2 in the top
  * position and bars 3-4 in the bottom one. It maps the written model 1:1 through
  * ./vexflow-mapping.ts and never re-decides music, then tags every note glyph's own parts with the
- * identity of the attack it sounds as (./note-identity.ts, ./note-part-tags.ts). Together with
+ * identity of the attack it sounds as (./note-identity.ts, ./note-part-tags.ts). It also runs the
+ * two pure pre-draw checks the idle workspace needs, through the same planning code drawing uses
+ * and without touching the DOM: whether a phrase fits, and whether the window has room for the
+ * staff with a given key signature at all. Together with
  * that file and ./vexflow-two-system-engraver.ts, this is the only trio of files allowed to
  * import 'vexflow'.
  */
@@ -18,12 +21,15 @@ import { tagSystemNoteParts, type TaggedNoteGlyph } from './note-part-tags'
 import {
   NOTATION_SYSTEM_POSITION_UNITS,
   planStaffPlacement,
+  planStaffRoom,
   planSystemLayout,
   type StaffNoRoom,
   type StaffNotesTooWide,
   type StaffViewport,
+  type SystemLayoutOutcome,
   type SystemLayoutPlan,
 } from './notation-layout-policy'
+import type { StaffFitVerdict, StaffKeySignature, StaffRoomVerdict } from './staff-fit-types'
 import {
   attachMeasureChordSymbols,
   buildMeasureBeams,
@@ -142,10 +148,13 @@ function measureMinWidths(voices: readonly Voice[]): readonly [number, number, n
   return [widths[0]!, widths[1]!, widths[2]!, widths[3]!]
 }
 
-/** Intent: measure the first stave's leading width (clef + key signature + time signature). */
-function measureLeadingWidth(phrase: WrittenPhrase): number {
+/**
+ * Intent: measure the first stave's leading width (clef + key signature + time signature) for a
+ * key signature, on a scratch stave built with the drawn staff's own helper.
+ */
+function measureLeadingWidth(signature: StaffKeySignature): number {
   const scratch = new Stave(0, 0, LEADING_SCRATCH_WIDTH_UNITS)
-  addClefAndKey(scratch, phrase)
+  addClefAndKey(scratch, signature)
   scratch.addTimeSignature('4/4')
   return scratch.getNoteStartX()
 }
@@ -192,6 +201,57 @@ function systemNoteGlyphs(
 /** Intent: turn any thrown value into a readable message, since a caught value need not be an Error. */
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
+}
+
+/**
+ * Intent: pass a typed NotationError through, and wrap any other thrown value (a VexFlow
+ * `RuntimeError`, for example) as `notation_engraving_failed` with the original as `cause`.
+ */
+function asNotationError(error: unknown): NotationError {
+  if (error instanceof NotationError) return error
+  return new NotationError(
+    'notation_engraving_failed',
+    `VexFlow engraving failed: ${errorMessage(error)}`,
+    {},
+    error,
+  )
+}
+
+/** One phrase's planning: its glyphs, beams and voices, its leading width and the planner's outcome. */
+interface PhrasePlanning {
+  readonly glyphs: readonly (readonly StaveNote[])[]
+  readonly beams: readonly (readonly Beam[])[]
+  readonly voices: readonly Voice[]
+  readonly leadingWidth: number
+  readonly outcome: SystemLayoutOutcome
+}
+
+/**
+ * Intent: plan the phrase's layout: build its glyphs, beams and voices, measure its leading and
+ * measure widths, and run the layout planner. The one planning path both drawing and the fit
+ * check take, so they can never disagree; it draws nothing and touches no DOM.
+ */
+function planPhraseLayout(
+  phrase: WrittenPhrase,
+  containerWidthPx: number,
+  viewport: StaffViewport,
+): PhrasePlanning {
+  const glyphs = buildMeasureGlyphs(phrase)
+  // Beams must attach to their notes (note.setBeam) before those notes are measured, formatted or
+  // drawn, so build them first and reuse the same instances throughout: measuring, formatting and
+  // drawing all share these glyph objects, and constructing a second Beam over the same notes later
+  // would just redo the same setBeam calls.
+  const beams = buildPhraseBeams(phrase, glyphs)
+  const voices = buildMeasureVoices(glyphs)
+  const leadingWidth = measureLeadingWidth(phrase.key.signature)
+  const outcome = planSystemLayout({
+    containerWidthPx,
+    leadingWidth,
+    measureMinWidths: measureMinWidths(voices),
+    systemPadding: SYSTEM_PADDING_UNITS,
+    viewport,
+  })
+  return { glyphs, beams, voices, leadingWidth, outcome }
 }
 
 /** Intent: turn the planner's two layout failures into their distinct typed notation errors. */
@@ -291,22 +351,11 @@ function drawWrittenPhrase(
   containerWidthPx: number,
   viewport: StaffViewport,
 ): EngravedScore {
-  const glyphs = buildMeasureGlyphs(phrase)
-  // Beams must attach to their notes (note.setBeam) before those notes are measured, formatted or
-  // drawn, so build them first and reuse the same instances throughout: measuring, formatting and
-  // drawing all share these glyph objects, and constructing a second Beam over the same notes later
-  // would just redo the same setBeam calls.
-  const beams = buildPhraseBeams(phrase, glyphs)
-  const voices = buildMeasureVoices(glyphs)
-  const leadingWidth = measureLeadingWidth(phrase)
-
-  const outcome = planSystemLayout({
+  const { glyphs, beams, voices, leadingWidth, outcome } = planPhraseLayout(
+    phrase,
     containerWidthPx,
-    leadingWidth,
-    measureMinWidths: measureMinWidths(voices),
-    systemPadding: SYSTEM_PADDING_UNITS,
     viewport,
-  })
+  )
   if (outcome.kind !== 'fits') throw layoutFailureError(outcome)
   const plan = outcome.plan
 
@@ -408,12 +457,57 @@ export function engraveWrittenPhrase(
     return drawWrittenPhrase(targets, phrase, identities, containerWidthPx, viewport)
   } catch (error) {
     for (const target of targets) target.replaceChildren()
-    if (error instanceof NotationError) throw error
-    throw new NotationError(
-      'notation_engraving_failed',
-      `VexFlow engraving failed: ${errorMessage(error)}`,
-      {},
-      error,
-    )
+    throw asNotationError(error)
+  }
+}
+
+/**
+ * Check, before drawing anything, whether the written phrase can be drawn at the legibility floor
+ * with these layout inputs: the planning `engraveWrittenPhrase` runs, with no drawing and no DOM,
+ * so the verdict always matches what drawing it would do. Returns `fits`, `no_room` with its cause
+ * (the window, whatever the phrase) or `notes_too_wide` (this phrase). An unusable width throws
+ * `notation_container_unavailable`, as the planner does; any unexpected non-NotationError throw is
+ * wrapped as `notation_engraving_failed`.
+ */
+// @spec-link [[module_idle_fit_round]]
+export function planWrittenPhraseFit(
+  phrase: WrittenPhrase,
+  containerWidthPx: number,
+  viewport: StaffViewport,
+): StaffFitVerdict {
+  let outcome: SystemLayoutOutcome
+  try {
+    outcome = planPhraseLayout(phrase, containerWidthPx, viewport).outcome
+  } catch (error) {
+    throw asNotationError(error)
+  }
+  if (outcome.kind === 'no_room') return { kind: 'no_room', cause: outcome.cause }
+  return { kind: outcome.kind }
+}
+
+/**
+ * Check, whatever the notes, whether the window has room for the staff with this key signature:
+ * the leading clef, key signature and 4/4 time signature measured exactly as the drawn staff
+ * carries them, then the planner's phrase-independent room check (the height, then the fixed
+ * parts' width). Returns `room` or `no_room` with its cause. An unusable width throws
+ * `notation_container_unavailable`; any unexpected non-NotationError throw is wrapped as
+ * `notation_engraving_failed`.
+ */
+// @spec-link [[module_idle_fit_round]]
+export function planStaffRoomForKey(
+  signature: StaffKeySignature,
+  containerWidthPx: number,
+  viewport: StaffViewport,
+): StaffRoomVerdict {
+  try {
+    const outcome = planStaffRoom({
+      containerWidthPx,
+      leadingWidth: measureLeadingWidth(signature),
+      systemPadding: SYSTEM_PADDING_UNITS,
+      viewport,
+    })
+    return outcome.kind === 'room' ? { kind: 'room' } : { kind: 'no_room', cause: outcome.cause }
+  } catch (error) {
+    throw asNotationError(error)
   }
 }

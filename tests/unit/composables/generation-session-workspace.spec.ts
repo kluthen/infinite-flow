@@ -9,6 +9,7 @@ import { PITCH_CLASSES } from '@/domain/controls/generation-controls'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { ADOPTED_INSTRUMENT_PROFILES } from '@/domain/profile/instrument-profiles'
 import { makeSeed } from '@/domain/random/seed'
+import { alwaysFitsStaff } from './fake-staff-fit'
 import { createFakeViewportWidth } from './fake-viewport-width'
 
 interface StubResult {
@@ -46,6 +47,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       const operations: SessionOperation[] = []
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
         generate: async () => {
@@ -71,6 +73,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       let notateAttempts = 0
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
         generate: async () => ({ id: 7 }),
@@ -93,6 +96,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       let call = 0
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
         generate: async () => {
@@ -120,6 +124,7 @@ describe('generation session workspace flow', () => {
       const tracked = trackedProviders()
       let generateCalls = 0
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers: tracked.providers,
         generate: async () => {
@@ -153,6 +158,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       const deferred = createDeferred<StubResult>()
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
         generate: () => deferred.promise,
@@ -170,6 +176,7 @@ describe('generation session workspace flow', () => {
     it('resolves unchanged and touches nothing for a reselection of the current profile', async () => {
       const { providers } = trackedProviders()
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
         generate: async () => ({ id: 1 }),
@@ -184,6 +191,7 @@ describe('generation session workspace flow', () => {
     it('applies the control alone when there is no prior result', async () => {
       const { providers } = trackedProviders()
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
         generate: async () => ({ id: 1 }),
@@ -204,6 +212,7 @@ describe('generation session workspace flow', () => {
         readonly tempo: number
       }[] = []
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers: tracked.providers,
         generate: async (intent) => {
@@ -239,6 +248,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       let call = 0
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
         generate: async () => {
@@ -262,6 +272,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       let generateCalls = 0
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
         generate: async () => {
@@ -321,6 +332,7 @@ describe('generation session workspace flow', () => {
         const tracked = trackedProviders()
         const intents: { readonly seed: number; readonly tonalCenter: string }[] = []
         const session = createGenerationSession<StubResult>({
+          ...alwaysFitsStaff(),
           viewport: createFakeViewportWidth(),
           providers: tracked.providers,
           generate: async (intent) => {
@@ -357,6 +369,7 @@ describe('generation session workspace flow', () => {
     it('throws a typed SessionUsageError for instrumentProfileId, directing callers to selectInstrumentProfile', () => {
       const { providers } = trackedProviders()
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
         generate: async () => ({ id: 1 }),
@@ -375,6 +388,7 @@ describe('generation session workspace flow', () => {
     it('refuse when idle with no result yet', () => {
       const { providers } = trackedProviders()
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
         generate: async () => ({ id: 1 }),
@@ -389,6 +403,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       const deferred = createDeferred<StubResult>()
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
         generate: () => deferred.promise,
@@ -405,6 +420,7 @@ describe('generation session workspace flow', () => {
     it('sets notationError and clears resultEngraved on failure, then clears notationError and restores resultEngraved on recovery (D34)', async () => {
       const { providers } = trackedProviders()
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
         generate: async () => ({ id: 1 }),
@@ -426,6 +442,7 @@ describe('generation session workspace flow', () => {
     it('replaces the notation error message on each repeated out-of-band failure', async () => {
       const { providers } = trackedProviders()
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
         generate: async () => ({ id: 1 }),
@@ -448,6 +465,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       const deferred = createDeferred<StubResult>()
       const session = createGenerationSession<StubResult>({
+        ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
         generate: () => deferred.promise,

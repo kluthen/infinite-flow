@@ -8,6 +8,7 @@ layer: BUSINESS
 priority: 1
 human_name: Staff Needs More Room Notice
 dependents:
+  - [[module_idle_fit_round]]
   - [[module_notation_layout_preflight]]
   - [[rule_staff_notice_gives_way_to_new_phrase]]
   - [[rule_too_dense_notice_retry_rounds]]

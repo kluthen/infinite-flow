@@ -14,6 +14,7 @@ import type { SettableControlKey } from '@/components/controls/set-control-event
 import type { GenerationControls, MusicalProfile } from '@/domain/controls/generation-controls'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
+import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
 import WorkspaceHeader from './WorkspaceHeader.vue'
 import ScorePanel from './ScorePanel.vue'
@@ -24,6 +25,7 @@ const props = defineProps<{
   pendingPhrase: WrittenPhrase | null
   handleEngraved: () => void
   handleNotationError: (error: NotationError) => void
+  handleLayoutInputs: (inputs: StaffLayoutInputs) => void
 }>()
 
 const state = computed(() => props.session.state)
@@ -69,6 +71,7 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         :pending-phrase="pendingPhrase"
         :handle-engraved="handleEngraved"
         :handle-notation-error="handleNotationError"
+        :handle-layout-inputs="handleLayoutInputs"
       />
       <ControlPanel
         :controls="state.controls"

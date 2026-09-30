@@ -38,6 +38,9 @@ function fakeWorkspaceSession() {
     notationError: null,
     resultEngraved: false,
     noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
+    roomNotice: null,
+    retriesRunning: false,
+    roomNoticeAnnouncements: 0,
   })
   const session: GenerationSession<WorkspaceSessionResult> = {
     state,
@@ -63,6 +66,7 @@ function fakeWorkspaceSession() {
     pendingPhrase: ref<WrittenPhrase | null>(null),
     handleEngraved: () => {},
     handleNotationError: () => {},
+    handleLayoutInputs: () => {},
     dispose: () => {},
   }
 }

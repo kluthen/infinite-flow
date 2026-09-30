@@ -13,10 +13,14 @@
  *   prevention deterministically;
  * - one-shot failure injection for generation (`failNextGeneration`, resolving with the real
  *   `GenerationOutcome` failure shape orchestration itself produces) and for notation
- *   (`failNextNotation`, armed through the `@/notation/vexflow-engraver-loader` alias configured in
- *   vite.workspace-harness.config.ts, which substitutes this directory's
- *   `vexflow-engraver-loader-seam.ts` for the real loader so PhraseScore's genuine `redraw()`
- *   catch/emit('notation-error') and Retry-notation path run end to end, never a fabricated result);
+ *   (`failNextNotation`, a retryable failure or one of the staff layout's two, armed through the
+ *   `@/notation/vexflow-engraver-loader` alias configured in vite.workspace-harness.config.ts, which
+ *   substitutes this directory's `vexflow-engraver-loader-seam.ts` for the real loader so
+ *   PhraseScore's genuine `redraw()` catch/emit('notation-error') and Retry-notation path run end
+ *   to end, never a fabricated result);
+ * - forced verdicts for the workspace's pre-draw fit check (`queueFitVerdicts`, through the same
+ *   alias), so a spec can make any phrase too wide for the room; once they run out the real
+ *   planner answers, and real no-room comes from real window sizes;
  * - the audio transport (audio-seams.ts): the fake audio clock and output by default, or the real
  *   Web Audio output with `?audio=real`, both recorded, started only by a click on the page's own
  *   "Start audio (harness)" button, which stands in for chunk 15's Start click;
@@ -51,18 +55,33 @@ import { createGenerationWorkerClient } from '../../../src/generation-worker/gen
 import { createBrowserViewportWidth } from '../../../src/components/workspace/browser-viewport-width'
 import { prewarmPolicyFromSearch } from '../../../src/components/workspace/prewarm-policy'
 import { bindHarnessAudioStart, createHarnessAudio, harnessAudioMode } from './audio-seams'
-import { armNextNotationFailure } from './vexflow-engraver-loader-seam'
+import {
+  armNextNotationFailure,
+  engravingCount,
+  fitCheckCount,
+  queueForcedFitVerdicts,
+  roomCheckCount,
+} from './vexflow-engraver-loader-seam'
 
-/** Intent: a deterministic seed provider -- a spec-filled queue, falling back to a plain counter. */
+/**
+ * Intent: a deterministic seed provider -- a spec-filled queue, falling back to a plain counter --
+ * that counts every seed it hands out.
+ */
 function createSeedProvider(): {
   readonly nextSeed: () => Seed
   readonly queueSeeds: (seeds: readonly number[]) => void
+  readonly seedsDrawn: () => number
 } {
   let counter = 0
+  let drawn = 0
   const queue: number[] = []
   return {
-    nextSeed: () => makeSeed(queue.length > 0 ? queue.shift()! : ++counter),
+    nextSeed: () => {
+      drawn += 1
+      return makeSeed(queue.length > 0 ? queue.shift()! : ++counter)
+    },
     queueSeeds: (seeds) => queue.push(...seeds),
+    seedsDrawn: () => drawn,
   }
 }
 
@@ -109,6 +128,8 @@ const seedProvider = createSeedProvider()
 const requestIdProvider = createRequestIdProvider()
 const gate = createGenerationGate()
 let armedFailureCode: WorkspaceHarnessGenerationFailureCode | null = null
+/** How many gated `generate` calls still pass through before the armed failure applies. */
+let callsBeforeArmedFailure = 0
 
 const harnessAudio = createHarnessAudio(harnessAudioMode(window.location.search))
 bindHarnessAudioStart(document, harnessAudio.startFromClick)
@@ -116,10 +137,15 @@ bindHarnessAudioStart(document, harnessAudio.startFromClick)
 const port = createBrowserGenerationWorker()
 const client = createGenerationWorkerClient(port)
 
-/** Intent: gate, then optionally fail with a real orchestration failure shape, then delegate for real. */
+/**
+ * Intent: gate, then optionally fail with a real orchestration failure shape (once the armed
+ * number of calls has passed through), then delegate for real.
+ */
 async function harnessGenerate(intent: GenerationIntent): Promise<GenerationOutcome> {
   await gate.wait()
-  if (armedFailureCode !== null) {
+  if (armedFailureCode !== null && callsBeforeArmedFailure > 0) {
+    callsBeforeArmedFailure -= 1
+  } else if (armedFailureCode !== null) {
     const code = armedFailureCode
     armedFailureCode = null
     return { kind: 'generation_failure', code, diagnostics: EMPTY_DIAGNOSTICS }
@@ -138,7 +164,11 @@ function harnessPrewarm(intent: GenerationIntent): void {
 
 let workspace: WorkspaceSession | null = null
 
-/** Intent: the latest session state's requestId/seed/timeline/operation/mode, for replay/isolation assertions. */
+/**
+ * Intent: the latest session state's requestId/seed/timeline/operation/mode, for replay/isolation
+ * assertions, plus the room notice's state. `requestId`/`seed` are the result's, which a fit run
+ * sets only for the attempt it draws; `latestSeed` is the latest attempt's, drawn or not.
+ */
 function snapshot(): WorkspaceHarnessSnapshot {
   if (workspace === null) {
     throw new Error('Workspace harness snapshot() was requested before the session mounted.')
@@ -155,6 +185,10 @@ function snapshot(): WorkspaceHarnessSnapshot {
     timeline: result === null ? null : JSON.stringify(result.outcome.result.timeline),
     chosenNoteDensity: state.controls.noteDensity,
     generatedNoteDensity: result === null ? null : result.intent.controls.noteDensity,
+    latestSeed: state.latestIntent === null ? null : state.latestIntent.seed,
+    roomNotice: state.roomNotice,
+    retriesRunning: state.retriesRunning,
+    roomNoticeAnnouncements: state.roomNoticeAnnouncements,
   }
 }
 
@@ -162,10 +196,16 @@ window.__workspaceHarness = {
   queueSeeds: (seeds) => seedProvider.queueSeeds(seeds),
   holdGeneration: () => gate.hold(),
   releaseGeneration: () => gate.release(),
-  failNextGeneration: (code) => {
+  failNextGeneration: (code, skip = 0) => {
     armedFailureCode = code
+    callsBeforeArmedFailure = skip
   },
-  failNextNotation: () => armNextNotationFailure(),
+  failNextNotation: (code) => armNextNotationFailure(code),
+  queueFitVerdicts: (verdicts) => queueForcedFitVerdicts(verdicts),
+  fitChecks: fitCheckCount,
+  engravings: engravingCount,
+  roomChecks: roomCheckCount,
+  seedsDrawn: seedProvider.seedsDrawn,
   snapshot,
   prewarmCount: () => prewarmsPosted,
   audio: harnessAudio.api,

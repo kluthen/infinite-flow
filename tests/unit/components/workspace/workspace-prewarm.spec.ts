@@ -5,7 +5,7 @@
  * of every other change, the fixed prewarm identity that never draws a seed or request id, and a
  * generated outcome identical with and without prewarm when real prewarm slices run in between.
  */
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   composeWorkspaceSession,
@@ -33,6 +33,17 @@ import {
   createFakeGenerationWorkerPort,
   type FakeGenerationWorkerPort,
 } from '../../generation-worker/fake-generation-worker-port'
+import { resetFakeEngraver } from '../../notation/fake-vexflow-engraver-loader'
+
+// The fit and room checks plan through the lazy engraver loader; a fake planner answers here.
+vi.mock(
+  '@/notation/vexflow-engraver-loader',
+  () => import('../../notation/fake-vexflow-engraver-loader'),
+)
+
+beforeEach(() => {
+  resetFakeEngraver()
+})
 
 /** A workspace over fake seams, with the prewarm and generate calls recorded. */
 interface PrewarmRig {
@@ -82,10 +93,11 @@ function rhythmOf(intent: GenerationIntent): string {
 }
 
 /**
- * Intent: start `generate()`, then settle its inner `notate()` the way a mounted `PhraseScore`
- * would, so the whole Idle operation runs without a component tree.
+ * Intent: report the staff's layout inputs, start `generate()`, then settle its inner `notate()`
+ * the way a mounted `PhraseScore` would, so the whole Idle operation runs without a component tree.
  */
 function generateAndEngrave(workspace: WorkspaceSession): Promise<boolean> {
+  workspace.handleLayoutInputs({ containerWidthPx: 1100, viewport: { layout: 'one-system' } })
   const running = workspace.session.actions.generate()
   void vi
     .waitFor(() => {

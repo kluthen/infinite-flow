@@ -90,12 +90,59 @@ interface NotationHarnessState {
     phraseNumber: number,
     overlays: NotationHarnessOverlays,
   ) => Promise<void>
+  /**
+   * How many `layout-inputs` events PhraseScore had emitted when it reported this engraving,
+   * published with every ready state.
+   */
+  layoutInputsBeforeEngrave?: number
   /** Only published by the `source=generated` path: the JSON snapshot taken right after generation. */
   sourceSnapshot?: string
   /** Only published by the `source=generated` path: the same snapshot shape, recomputed now. */
   currentSnapshot?: () => string
 }
 
+/** The staff's layout inputs as PhraseScore reports them (StaffLayoutInputs, serialisable). */
+// @test-link [[module_idle_fit_round]]
+interface NotationHarnessLayoutInputs {
+  readonly containerWidthPx: number
+  readonly viewport:
+    | { readonly layout: 'one-system' }
+    | { readonly layout: 'split'; readonly heightBudgetPx: number }
+}
+
+/** A key signature as the room check takes it (WrittenKey['signature'], serialisable). */
+interface NotationHarnessKeySignature {
+  readonly accidental: 'sharp' | 'flat' | null
+  readonly count: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
+  readonly letters: readonly ('C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B')[]
+  readonly ionianTonic: {
+    readonly letter: 'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B'
+    readonly alter: -2 | -1 | 0 | 1 | 2
+  }
+}
+
+/**
+ * The engraver's two pure pre-draw checks, run on the real engraver module once its fonts are
+ * loaded: the fit of a fixture phrase, and the phrase-independent room for a key signature. Each
+ * resolves to the check's verdict.
+ */
+// @test-link [[module_idle_fit_round]]
+interface NotationHarnessChecks {
+  planFit(
+    fixtureName: string,
+    containerWidthPx: number,
+    viewport: NotationHarnessLayoutInputs['viewport'],
+  ): Promise<{ readonly kind: string; readonly cause?: string }>
+  planRoom(
+    signature: NotationHarnessKeySignature,
+    containerWidthPx: number,
+    viewport: NotationHarnessLayoutInputs['viewport'],
+  ): Promise<{ readonly kind: string; readonly cause?: string }>
+}
+
 interface Window {
   __notationHarness: NotationHarnessState
+  /** Every `layout-inputs` event PhraseScore emitted since the page loaded, in order. */
+  __notationLayoutInputs: NotationHarnessLayoutInputs[]
+  __notationChecks: NotationHarnessChecks
 }

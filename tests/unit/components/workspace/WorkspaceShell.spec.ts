@@ -42,6 +42,9 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
       notationError: null,
       resultEngraved: false,
       noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
+      roomNotice: null,
+      retriesRunning: false,
+      roomNoticeAnnouncements: 0,
       ...overrides,
     },
     actions,
@@ -57,6 +60,7 @@ function mountShell(session: GenerationSession<WorkspaceSessionResult>) {
       pendingPhrase: null,
       handleEngraved: () => {},
       handleNotationError: () => {},
+      handleLayoutInputs: () => {},
     },
     ...MOUNT_OPTIONS,
   })
@@ -194,11 +198,14 @@ describe('WorkspaceShell', () => {
         pendingPhrase: workspace.pendingPhrase.value,
         handleEngraved: workspace.handleEngraved,
         handleNotationError: workspace.handleNotationError,
+        handleLayoutInputs: workspace.handleLayoutInputs,
       },
       ...MOUNT_OPTIONS,
     })
 
     await wrapper.get('button.btn-primary').trigger('click')
+    // The phrase is published only once its fit check passes, a few ticks after generation.
+    await vi.waitFor(() => expect(workspace.pendingPhrase.value).not.toBeNull())
     await wrapper.setProps({ pendingPhrase: workspace.pendingPhrase.value })
     wrapper.getComponent({ name: 'PhraseScore' }).vm.$emit('engraved', {
       staffSpacePx: 1,
@@ -207,10 +214,8 @@ describe('WorkspaceShell', () => {
       requiredUnits: 1,
       systemCount: 1,
     })
-    await Promise.resolve()
-    await Promise.resolve()
+    await vi.waitFor(() => expect(workspace.session.state.operation).toBe('idle'))
 
     expect(workspace.session.state.result).not.toBeNull()
-    expect(workspace.session.state.operation).toBe('idle')
   })
 })

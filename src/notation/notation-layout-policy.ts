@@ -202,6 +202,18 @@ export type StaffPositionsOutcome =
   | { readonly kind: 'room'; readonly scaleCeiling: number; readonly positionBlockPx: number }
   | StaffNoRoom
 
+/** The phrase-independent inputs of the room check: the container and the layout's fixed parts. */
+export interface StaffRoomInput {
+  readonly containerWidthPx: number
+  /** The leading clef, key signature and time signature width, in engraving units at scale 1. */
+  readonly leadingWidth: number
+  readonly systemPadding: number
+  readonly viewport: StaffViewport
+}
+
+/** Whether the window has room for the staff, whatever phrase it holds, and how its positions size. */
+export type StaffRoomOutcome = StaffPositionsOutcome
+
 /** The exact budget inputs for a four-measure phrase, in engraving units at scale 1. */
 export interface SystemLayoutInput {
   readonly containerWidthPx: number
@@ -298,25 +310,22 @@ export function planStaffPositions(viewport: StaffViewport): StaffPositionsOutco
 }
 
 /**
- * Plan the four-measure written phrase in the layout its viewport selects, never trying the other
- * one. One system needs the leading width (clef, key signature, time signature) plus its measure
- * count (four, or two in the split layout) times the widest measure's minimum width, never less
- * than the minimum measure width, plus padding; every measure gets that one width, so they read as
- * visibly equal and the split layout's columns align. The scale is the smallest of the maximum,
- * the width fit and (split layout) the height fit. Failures are returned, not thrown, as two
- * distinct outcomes: "no room" when the window cannot hold the staff whatever the phrase (too short
- * for two systems at the floor, or too narrow for the fixed parts with every measure at the minimum
- * width), checked first; "notes too wide" when there is room but this phrase needs more width.
+ * Check, independent of any phrase, whether the window has room for the staff at the legibility
+ * floor, in the layout its viewport selects: first the height (below the breakpoint, two systems
+ * must fit the height budget), then the width of the layout's fixed parts (the leading clef, key
+ * signature and time signature, every measure at the minimum measure width, and the padding). No
+ * phrase can fit where this finds no room; `planSystemLayout` runs this same check first, so both
+ * always agree.
  */
 // @spec-link [[module_notation_layout_preflight]]
-export function planSystemLayout(input: SystemLayoutInput): SystemLayoutOutcome {
+// @spec-link [[module_idle_fit_round]]
+export function planStaffRoom(input: StaffRoomInput): StaffRoomOutcome {
   assertContainerWidth(input.containerWidthPx)
 
   const positions = planStaffPositions(input.viewport)
   if (positions.kind === 'no_room') return positions
 
-  const layout = input.viewport.layout
-  const measuresPerSystem = layout === 'one-system' ? 4 : 2
+  const measuresPerSystem = input.viewport.layout === 'one-system' ? 4 : 2
   const fixedUnits =
     input.leadingWidth + measuresPerSystem * NOTATION_MIN_MEASURE_WIDTH_UNITS + input.systemPadding
   if (input.containerWidthPx < fixedUnits * FLOOR_SCALE) {
@@ -330,7 +339,27 @@ export function planSystemLayout(input: SystemLayoutInput): SystemLayoutOutcome 
       },
     }
   }
+  return positions
+}
 
+/**
+ * Plan the four-measure written phrase in the layout its viewport selects, never trying the other
+ * one. One system needs the leading width (clef, key signature, time signature) plus its measure
+ * count (four, or two in the split layout) times the widest measure's minimum width, never less
+ * than the minimum measure width, plus padding; every measure gets that one width, so they read as
+ * visibly equal and the split layout's columns align. The scale is the smallest of the maximum,
+ * the width fit and (split layout) the height fit. Failures are returned, not thrown, as two
+ * distinct outcomes: "no room" when the window cannot hold the staff whatever the phrase (too short
+ * for two systems at the floor, or too narrow for the fixed parts with every measure at the minimum
+ * width), checked first; "notes too wide" when there is room but this phrase needs more width.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+export function planSystemLayout(input: SystemLayoutInput): SystemLayoutOutcome {
+  const positions = planStaffRoom(input)
+  if (positions.kind === 'no_room') return positions
+
+  const layout = input.viewport.layout
+  const measuresPerSystem = layout === 'one-system' ? 4 : 2
   const widestMeasureUnits = Math.max(NOTATION_MIN_MEASURE_WIDTH_UNITS, ...input.measureMinWidths)
   const requiredUnits =
     input.leadingWidth + measuresPerSystem * widestMeasureUnits + input.systemPadding

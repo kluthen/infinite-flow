@@ -31,7 +31,10 @@ export interface EngravedPayload {
  * SVGs once they sit in their visible positions, after every successful engraving and whenever the
  * state changes, without re-engraving; a re-engrave therefore keeps the overlays. While a new
  * phrase or phrase number waits for its engraving, the previous score is never drawn on: the
- * engraving draws the overlay state current at its swap.
+ * engraving draws the overlay state current at its swap. It reports its layout inputs (the
+ * container width and the viewport) at its first measurement and whenever they really change,
+ * with or without a phrase and before any engraving, so the workspace can check a phrase's fit or
+ * the staff's room before it draws anything.
  */
 import { onMounted, onUnmounted, ref, useId, watch } from 'vue'
 
@@ -43,6 +46,7 @@ import {
   type StaffViewport,
 } from '@/notation/notation-layout-policy'
 import { NotationError } from '@/notation/notation-error'
+import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import {
   applyScoreOverlays,
   NO_SCORE_OVERLAYS,
@@ -52,6 +56,7 @@ import { loadVexflowEngraver, type VexflowEngraverModule } from '@/notation/vexf
 
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[module_notation_note_identity_overlays]]
+// @spec-link [[module_idle_fit_round]]
 const props = withDefaults(
   defineProps<{
     phrase: WrittenPhrase | null
@@ -66,15 +71,10 @@ const props = withDefaults(
 const emit = defineEmits<{
   engraved: [payload: EngravedPayload]
   'notation-error': [payload: NotationError]
+  'layout-inputs': [inputs: StaffLayoutInputs]
 }>()
 
 type NotationState = 'empty' | 'pending' | 'ready' | 'error'
-
-/** What one engraving depends on besides the phrase: the container width and the viewport. */
-interface LayoutInputs {
-  readonly containerWidthPx: number
-  readonly viewport: StaffViewport
-}
 
 const state = ref<NotationState>(props.phrase === null ? 'empty' : 'pending')
 const rootEl = ref<HTMLDivElement | null>(null)
@@ -90,6 +90,8 @@ let resizeObserver: ResizeObserver | null = null
 let rafHandle: number | null = null
 let forceNextCheck = false
 let lastEngravedInputs: string | null = null
+/** The layout inputs last reported through `layout-inputs`, as a comparison key. */
+let lastReportedInputs: string | null = null
 /** Counts the checks that reached the engraver, so a superseded one never engraves or reports. */
 let latestCheck = 0
 let phoneLayoutQuery: MediaQueryList | null = null
@@ -133,10 +135,18 @@ function readViewport(frame: HTMLElement): StaffViewport {
 }
 
 /** Intent: read the current layout inputs, or null before the root element exists. */
-function readLayoutInputs(): LayoutInputs | null {
+function readLayoutInputs(): StaffLayoutInputs | null {
   const root = rootEl.value
   if (!root) return null
   return { containerWidthPx: root.clientWidth, viewport: readViewport(staffFrame(root)) }
+}
+
+/** Intent: report the layout inputs through `layout-inputs` when they differ from the last report. */
+function reportLayoutInputs(inputs: StaffLayoutInputs): void {
+  const key = JSON.stringify(inputs)
+  if (key === lastReportedInputs) return
+  lastReportedInputs = key
+  emit('layout-inputs', inputs)
 }
 
 /**
@@ -212,7 +222,7 @@ function drawOverlays(): void {
 }
 
 /** Intent: engrave the current phrase with the given inputs, swapping it in on success only. */
-function engrave(phrase: WrittenPhrase, inputs: LayoutInputs): void {
+function engrave(phrase: WrittenPhrase, inputs: StaffLayoutInputs): void {
   const top = topPositionEl.value
   const bottom = bottomPositionEl.value
   const staging = stagingEl.value
@@ -278,14 +288,16 @@ async function ensureEngraverReady(): Promise<NotationError | null> {
 }
 
 /**
- * Intent: resize the positions for the current viewport, then engrave the phrase if it changed
- * (`force`) or if the inputs it was last engraved with did. With no phrase, clear the staff.
+ * Intent: report the layout inputs if they changed and resize the positions for the current
+ * viewport, then engrave the phrase if it changed (`force`) or if the inputs it was last engraved
+ * with did. With no phrase, clear the staff.
  * Only the latest check that got past the input comparison may engrave or report: an older one
  * still waiting for the engraver module gives way to it.
  */
 async function checkLayout(force: boolean): Promise<void> {
   const inputs = readLayoutInputs()
   if (!inputs) return
+  reportLayoutInputs(inputs)
   sizePositions(inputs.viewport)
   const phrase = props.phrase
   if (phrase === null) {
@@ -311,7 +323,9 @@ async function checkLayout(force: boolean): Promise<void> {
   }
   // The inputs may have moved while the module loaded; engrave with the current ones.
   const current = readLayoutInputs()
-  if (!current || props.phrase !== phrase) return
+  if (!current) return
+  reportLayoutInputs(current)
+  if (props.phrase !== phrase) return
   lastEngravedInputs = JSON.stringify(current)
   engrave(phrase, current)
 }

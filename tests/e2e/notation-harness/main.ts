@@ -2,14 +2,15 @@
  * The notation engraving harness entry point. PhraseScore is mounted inside a real `staff-frame`
  * with the app's own stylesheet, so below the tablet-landscape breakpoint the frame's computed
  * `max-block-size` (built from the small viewport height) is the height budget the notation layout
- * reads, exactly as in the app; the `width` URL parameter sets the frame's outer width. Two sources, selected by the `source` URL parameter:
- * `source=fixture` (the default when `source` is absent) resolves a hand-built WrittenPhrase from
- * `fixture`; `source=generated` runs a real, explicit GenerationIntent through `generatePhrase`,
- * derives its NotationPhraseInput, and transforms it into a WrittenPhrase using the active
- * instrument profile's own transposition (there is no independently selectable display
- * convention). Either way the engrave outcome, and a running count of successful engravings, is
- * published on `window.__notationHarness` so the Playwright notation specs can assert
- * on it without depending on internal DOM structure beyond the documented `svg.staff-svg` /
+ * reads, exactly as in the app; the `width` URL parameter sets the frame's outer width. Three
+ * sources, selected by the `source` URL parameter: `source=fixture` (the default when `source` is
+ * absent) resolves a hand-built WrittenPhrase from `fixture`; `source=generated` runs a real,
+ * explicit GenerationIntent through `generatePhrase`, derives its NotationPhraseInput, and
+ * transforms it into a WrittenPhrase using the active instrument profile's own transposition
+ * (there is no independently selectable display convention); `source=empty` mounts PhraseScore
+ * with no phrase at all. Either way the engrave outcome, and a running count of successful
+ * engravings, is published on `window.__notationHarness` so the Playwright notation specs can
+ * assert on it without depending on internal DOM structure beyond the documented `svg.staff-svg` /
  * `g.measure-slot` marks. The generated source additionally publishes the source snapshot and a
  * `currentSnapshot` accessor. The `phrase` URL parameter sets the phrase number PhraseScore engraves
  * the phrase as (1 when absent, the phrase a session starts with); every ready state also publishes
@@ -21,7 +22,9 @@
  * the overlay step's own error when the state names a note or measure the phrase lacks.
  * `window.__notationHarness.swapPhrase` gives PhraseScore another fixture phrase, phrase number and
  * overlay state in one tick, as a session moving to its next phrase does, resolving once the new
- * phrase is engraved with the overlays drawn on it.
+ * phrase is engraved with the overlays drawn on it. Every `layout-inputs` event PhraseScore emits
+ * is appended to `window.__notationLayoutInputs`, and `window.__notationChecks` runs the engraver's
+ * two pure pre-draw checks (a fixture's fit, a key signature's room) on the real engraver module.
  */
 import { createApp, h, nextTick, ref, shallowRef, type Ref } from 'vue'
 
@@ -54,6 +57,8 @@ import { makeSeed } from '@/domain/random/seed'
 import PhraseScore, { type EngravedPayload } from '@/components/notation/PhraseScore.vue'
 import type { NotationError } from '@/notation/notation-error'
 import { planStaffPlacement } from '@/notation/notation-layout-policy'
+import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
+import { loadVexflowEngraver, type VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 import { resolveGlyphIdentities } from '@/notation/note-identity'
 import { NO_SCORE_OVERLAYS, ScoreOverlayError, type ScoreOverlays } from '@/notation/score-overlays'
 import '@/styles/index.css'
@@ -78,8 +83,8 @@ let engraveCount = 0
 const overlaysRef = shallowRef<ScoreOverlays>(NO_SCORE_OVERLAYS)
 /** The overlay error PhraseScore threw since the last `setOverlays` call, if any. */
 let overlayFailure: ScoreOverlayError | null = null
-/** The phrase PhraseScore engraves; `swapPhrase` replaces it. */
-let phraseRef: Ref<WrittenPhrase> | null = null
+/** The phrase PhraseScore engraves (none for `source=empty`); `swapPhrase` replaces it. */
+let phraseRef: Ref<WrittenPhrase | null> | null = null
 /** The phrase number PhraseScore engraves the phrase as; `swapPhrase` replaces it. */
 const phraseNumberRef = ref(1)
 /** The pending `swapPhrase` call, settled by the next engraving outcome. */
@@ -168,11 +173,11 @@ function glyphFacts(phrase: WrittenPhrase): NotationHarnessGlyphFact[][] {
  * `phraseNumber`, publishing every lifecycle event.
  */
 function mountPhraseScore(
-  phrase: WrittenPhrase,
+  phrase: WrittenPhrase | null,
   phraseNumber: number,
   extras: GeneratedExtras,
 ): void {
-  const shown = ref(phrase) as Ref<WrittenPhrase>
+  const shown = ref(phrase) as Ref<WrittenPhrase | null>
   phraseRef = shown
   phraseNumberRef.value = phraseNumber
   const app = createApp({
@@ -182,16 +187,22 @@ function mountPhraseScore(
           phrase: shown.value,
           phraseNumber: phraseNumberRef.value,
           overlays: overlaysRef.value,
+          onLayoutInputs: (inputs: StaffLayoutInputs) => {
+            window.__notationLayoutInputs.push(inputs)
+          },
           onEngraved: (payload: EngravedPayload) => {
+            const engravedPhrase = shown.value
+            if (engravedPhrase === null) throw new Error('PhraseScore engraved with no phrase.')
             engraveCount += 1
             window.__notationHarness = {
               state: 'ready',
               engraved: payload,
               engraveCount,
-              staffTopLineUnits: planStaffPlacement(shown.value.writtenRange).staffTopLineUnits,
-              firstAttackGlyphIndex: firstAttackGlyphIndex(shown.value),
-              glyphIdentities: resolveGlyphIdentities(shown.value, phraseNumberRef.value),
-              glyphFacts: glyphFacts(shown.value),
+              layoutInputsBeforeEngrave: window.__notationLayoutInputs.length,
+              staffTopLineUnits: planStaffPlacement(engravedPhrase.writtenRange).staffTopLineUnits,
+              firstAttackGlyphIndex: firstAttackGlyphIndex(engravedPhrase),
+              glyphIdentities: resolveGlyphIdentities(engravedPhrase, phraseNumberRef.value),
+              glyphFacts: glyphFacts(engravedPhrase),
               setOverlays,
               swapPhrase,
               ...extras,
@@ -317,6 +328,31 @@ function runFixtureSource(params: URLSearchParams, phraseNumber: number): void {
   mountPhraseScore(resolveFixture(fixtureName), phraseNumber, {})
 }
 
+/** Intent: mount PhraseScore with no phrase, as the workspace does before its first phrase. */
+function runEmptySource(phraseNumber: number): void {
+  window.__notationHarness = { state: 'pending' }
+  mountPhraseScore(null, phraseNumber, {})
+}
+
+/** Intent: load the real engraver module and wait for its fonts, as PhraseScore does before drawing. */
+async function readyEngraver(): Promise<VexflowEngraverModule> {
+  const engraver = await loadVexflowEngraver()
+  await engraver.ensureNotationFonts()
+  return engraver
+}
+
+/** The engraver's two pure pre-draw checks, published for the fit-check spec. */
+const notationChecks: NotationHarnessChecks = {
+  async planFit(fixtureName, containerWidthPx, viewport) {
+    const engraver = await readyEngraver()
+    return engraver.planWrittenPhraseFit(resolveFixture(fixtureName), containerWidthPx, viewport)
+  },
+  async planRoom(signature, containerWidthPx, viewport) {
+    const engraver = await readyEngraver()
+    return engraver.planStaffRoomForKey(signature, containerWidthPx, viewport)
+  },
+}
+
 /**
  * Intent: apply the `theme` URL parameter: `light` or `dark` set the root's `data-theme` as the
  * app's theme control does; absent, no attribute (the system scheme); any other value is a
@@ -332,6 +368,8 @@ function applyThemeParam(params: URLSearchParams): void {
 }
 
 window.__notationHarness = { state: 'pending' }
+window.__notationLayoutInputs = []
+window.__notationChecks = notationChecks
 
 const params = new URLSearchParams(window.location.search)
 applyThemeParam(params)
@@ -344,6 +382,8 @@ const phraseNumber = Number(optionalParam(params, 'phrase', '1'))
 
 if (params.get('source') === 'generated') {
   runGeneratedSource(params, phraseNumber)
+} else if (params.get('source') === 'empty') {
+  runEmptySource(phraseNumber)
 } else {
   runFixtureSource(params, phraseNumber)
 }

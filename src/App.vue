@@ -34,5 +34,6 @@ onUnmounted(() => workspace.dispose())
     :pending-phrase="workspace.pendingPhrase.value"
     :handle-engraved="workspace.handleEngraved"
     :handle-notation-error="workspace.handleNotationError"
+    :handle-layout-inputs="workspace.handleLayoutInputs"
   />
 </template>

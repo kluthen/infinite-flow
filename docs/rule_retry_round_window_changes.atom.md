@@ -6,7 +6,8 @@ layer: BUSINESS
 version: 0.1
 priority: 1
 human_name: Window Changes During an Idle Retry Round
-dependents: []
+dependents:
+  - [[module_idle_fit_round]]
 tags: [v2, release-v2.0, idle, notation, v1-change]
 parents:
   - [[rule_idle_phrase_too_dense_is_replaced]]
