@@ -35,6 +35,14 @@ their music-theory knowledge for granted.
 - To exclude a generated/build-output tree from the check, add it to `.remarkignore`. Archived
   docs (`specs/archive`, `ui_ux/archive`) must never be excluded — their links stay checked.
 
+## Production VPS (shared — filetstudio must never go down)
+
+The app is served at https://infinity.upsilon-hub.com from `ssh vps`, directory `~/infinite-flow`, behind
+the Caddy container of another app (filetstudio/crochethub). The runbook for up, down, update and the
+Caddy procedure is `~/infinite-flow/README_INFINITE_FLOW.md` on the VPS — read it before touching
+anything there. Never stop, restart or recreate anything under `~/crochethub`; change Caddy only by
+backup → validate → graceful reload. Never store secrets on the VPS. Ask before deploying.
+
 ## Declared intent
 
 This project records its declared intent with ATD: atoms in `docs/*.atom.md`, linked from code by
