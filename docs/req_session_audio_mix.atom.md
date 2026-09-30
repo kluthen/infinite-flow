@@ -12,6 +12,7 @@ layer: BUSINESS
 version: 0.1
 parents:
   - [[req_rolling_practice_session]]
+notes: Recorded 2026-09-30 in v2 chunk 10 (audio transport); requirement text unchanged. Each volume control sets its gain equal to its level, a linear mapping that is a placeholder until listening tests settle a loudness curve. Chunk 10 builds the four controls as gains on the audio output only; the on-screen controls and the backing sound come in later chunks.
 ---
 
 # Session Audio Mix Controls

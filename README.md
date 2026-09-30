@@ -83,6 +83,10 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   clock) into generation requests, fit checks, read-ahead phrases, the struggling notice and the
   end, plus the runner that executes those requests through the injected `generate` seam. See
   [`docs/session-engine.md`](docs/session-engine.md).
+- `src/audio/` — the audio transport, and the only place allowed to use Web Audio (see Runtime
+  Constraints): the app's one `AudioContext`, created on the player's click, the look-ahead
+  scheduler and its Web Worker wake-up timer, the click and count-in, and the mix gains. See
+  [`docs/audio-transport.md`](docs/audio-transport.md).
 - `src/composables/` — in-memory session/UI coordination (`use-generation-session.ts`,
   `use-notation-coordinator.ts`, `workspace-session-result.ts`, and `viewport-width.ts`, the
   injected window-width seam): no persistence, no singletons.
@@ -112,13 +116,14 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
 - The notation harness (`tests/e2e/notation/`, `tests/e2e/notation-harness/`,
   `vite.notation-harness.config.ts`) isolates notation engraving, layout, and visual-baseline
   checks from the full workspace.
-- `src/audio/` and `src/midi/` — reserved for the Web Audio and Web MIDI code, and the only places
-  allowed to use those APIs (see Runtime Constraints). No code lives there yet.
+- `src/midi/` — reserved for the Web MIDI code, and the only place allowed to use that API (see
+  Runtime Constraints). No code lives there yet.
 - `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier.
 - `public/licenses/` — vendored full license texts for every runtime third-party component,
   copied into `dist/licenses/` at build time; see [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
 - `docs/` — ATD-linked business-intent atoms plus narrative docs (architecture, notation,
-  generation latency, the phrase workspace, and `docs/release/*`).
+  generation latency, the phrase workspace, the session engine, the audio transport, and
+  `docs/release/*`).
 - `specs/` — the first-release master spec, implementation plan, generator architecture and
   contract, and roadmap/open-questions.
 - `ui_ux/` — the approved interaction/visual authority: each released version's design, frozen, in
@@ -170,6 +175,7 @@ UI (Vue components, props-in/events-out)
     -> Web Worker (generation-worker/, typed correlated protocol)
       -> domain orchestration: harmony -> rhythm -> pitch -> validation
     -> session engine (src/session/: pure timed-event engine; its runner uses the same Worker)
+    -> audio transport (src/audio/: the one AudioContext, look-ahead scheduler, click, mix)
     -> notation (lazy VexFlow engraver, loaded on demand)
 ```
 
@@ -188,8 +194,15 @@ UI (Vue components, props-in/events-out)
   repeat of the phrase before), the struggling-generator notice, and settings locked at start.
   `createSessionRunner` executes its requests; `composeWorkspaceSession` binds it to the same
   `generate` seam, and so the same Worker, the Idle flow uses. Nothing starts a session yet: the
-  audio clock and the session screen are still to come. See
-  [`docs/session-engine.md`](docs/session-engine.md).
+  session screen is still to come. See [`docs/session-engine.md`](docs/session-engine.md).
+- **Audio transport.** `src/audio/` holds the app's one `AudioContext`, created only by `unlock()`
+  inside the player's Start or "Connect controller" click and never suspended or closed. A
+  look-ahead scheduler, woken every 25 ms by a Web Worker timer, plans sound 200 ms ahead on the
+  audio clock: the quarter-note click with beat 1 accented and the one-measure count-in, which
+  sounds even with the click off. The mix is four gains (click and backing, each on/off and
+  volume) whose ranges come from the `--mix-*` design tokens, and Stop fades a per-session bus out
+  over 0.1 s. The workspace session exposes it as `WorkspaceSession.audio`; nothing calls
+  `unlock()` yet. See [`docs/audio-transport.md`](docs/audio-transport.md).
 - **Web Worker.** Every generation request runs off the main thread in one long-lived module
   `Worker` behind a typed, correlated request/response protocol
   (`src/generation-worker/generation-worker-protocol.ts`), which re-validates every field crossing
@@ -229,8 +242,9 @@ UI (Vue components, props-in/events-out)
 
 See [`specs/generator-architecture.md`](specs/generator-architecture.md) for the full seam-by-seam
 architectural contract and [`docs/phrase-workspace.md`](docs/phrase-workspace.md) for the
-workspace's component tree, session wiring, state map, and Worker protocol in detail, and
-[`docs/session-engine.md`](docs/session-engine.md) for the session engine.
+workspace's component tree, session wiring, state map, and Worker protocol in detail,
+[`docs/session-engine.md`](docs/session-engine.md) for the session engine, and
+[`docs/audio-transport.md`](docs/audio-transport.md) for the audio transport.
 
 ## First-Release Verification Matrix
 

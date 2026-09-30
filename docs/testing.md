@@ -7,13 +7,13 @@ a layer, a script, a harness seam, a fake or a fixture updates this document in 
 
 ## Test layers
 
-| Layer         | Where                                                                                                                | Runner and config                                                                 | What it is for                                                                                                                                                                                                 |
-| ------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit          | `tests/unit/**/*.spec.ts`, mirroring `src/`                                                                          | Vitest, `vitest.config.ts` (jsdom environment for every spec)                     | Pure logic and component contracts: domain rules, generation, the session state machine, the Worker protocol and client, Vue components through Vue Test Utils, property-based checks and the golden fixtures. |
-| End-to-end    | `tests/e2e/startup.spec.ts`, `tests/e2e/workspace/`, `tests/e2e/release/`                                            | Playwright, `playwright.config.ts`, Chromium only                                 | Player-facing journeys in a real browser. `workspace/` drives the production preview build; most of `release/` drives the workspace harness for states that only its seams can force.                          |
-| Accessibility | `tests/e2e/accessibility.spec.ts`                                                                                    | Playwright with `@axe-core/playwright`                                            | An axe scan of each covered UI state, on the production preview and, for the in-flight and failure states, on the workspace harness.                                                                           |
-| Notation      | `tests/e2e/notation/`                                                                                                | Playwright against the notation harness                                           | Engraving, layout, calibration and key-signature spelling of one phrase in a container of a given width, plus pixel baselines in `tests/e2e/notation/notation-visual.spec.ts-snapshots/`.                      |
-| Measurement   | `tests/perf/`, `tests/e2e/workspace/generation-latency.spec.ts`, `tests/e2e/workspace/engraving-main-thread.spec.ts` | Vitest with `vitest.perf.config.ts` (node environment, 60 s timeouts); Playwright | Timing reports, not pass/fail checks on the numbers. They run only when called by name and never inside `npm run quality`.                                                                                     |
+| Layer         | Where                                                                                                                | Runner and config                                                                 | What it is for                                                                                                                                                                                                                                                                   |
+| ------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit          | `tests/unit/**/*.spec.ts`, mirroring `src/`                                                                          | Vitest, `vitest.config.ts` (jsdom environment for every spec)                     | Pure logic and component contracts: domain rules, generation, the session state machine, the Worker protocol and client, Vue components through Vue Test Utils, property-based checks and the golden fixtures.                                                                   |
+| End-to-end    | `tests/e2e/startup.spec.ts`, `tests/e2e/workspace/`, `tests/e2e/release/`, `tests/e2e/audio/`                        | Playwright, `playwright.config.ts`, Chromium only                                 | Player-facing journeys in a real browser. `workspace/` drives the production preview build; most of `release/` drives the workspace harness for states that only its seams can force; `audio/` drives the harness's audio transport, on the fake audio clock or on the real one. |
+| Accessibility | `tests/e2e/accessibility.spec.ts`                                                                                    | Playwright with `@axe-core/playwright`                                            | An axe scan of each covered UI state, on the production preview and, for the in-flight and failure states, on the workspace harness.                                                                                                                                             |
+| Notation      | `tests/e2e/notation/`                                                                                                | Playwright against the notation harness                                           | Engraving, layout, calibration and key-signature spelling of one phrase in a container of a given width, plus pixel baselines in `tests/e2e/notation/notation-visual.spec.ts-snapshots/`.                                                                                        |
+| Measurement   | `tests/perf/`, `tests/e2e/workspace/generation-latency.spec.ts`, `tests/e2e/workspace/engraving-main-thread.spec.ts` | Vitest with `vitest.perf.config.ts` (node environment, 60 s timeouts); Playwright | Timing reports, not pass/fail checks on the numbers. They run only when called by name and never inside `npm run quality`.                                                                                                                                                       |
 
 ### Where a new test goes
 
@@ -26,6 +26,9 @@ a layer, a script, a harness seam, a fake or a fixture updates this document in 
 - **Behaviour on screen** gets a Playwright spec. Use the production preview (`tests/e2e/workspace/`)
   when the real app can reach the state on its own, and the workspace harness (`tests/e2e/release/`
   today) when the test needs a fixed seed, a held generation or a forced failure.
+- **Audio timing** gets a Playwright spec under `tests/e2e/audio/`, on the workspace harness's fake
+  audio clock when the test checks exact times, and on its real audio clock (`?audio=real`) when
+  it checks what the browser's own `AudioContext` does.
 - **Engraving and layout** of one phrase gets a spec under `tests/e2e/notation/`, driven through
   the notation harness.
 - **A timing measurement** gets its own spec and its own `measure:*` script, and stays out of
@@ -34,7 +37,9 @@ a layer, a script, a harness seam, a fake or a fixture updates this document in 
 ### The `test:e2e` file list
 
 `test:e2e` names its specs one by one: `tests/e2e/startup.spec.ts`, eight files in
-`tests/e2e/workspace/`, and the whole `tests/e2e/release/` directory. A new Playwright spec outside
+`tests/e2e/workspace/`, the three audio transport specs in `tests/e2e/audio/`
+(`audio-transport.spec.ts`, `audio-transport-mix.spec.ts` and `audio-transport-real.spec.ts`), and
+the whole `tests/e2e/release/` directory. A new Playwright spec outside
 `tests/e2e/notation/` (which `test:notation` runs as a directory) and outside `tests/e2e/release/`
 must be added to that list in `package.json`, or it never runs in `npm run quality`. Measurement
 specs are left out on purpose. `accessibility.spec.ts` is not in the list either: `test:a11y` runs
@@ -45,7 +50,7 @@ it.
 | Script                    | Command                                                             | What it does                                                                                                                                                                                                                                         |
 | ------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `test:unit`               | `vitest run`                                                        | Every `tests/unit/**/*.spec.ts` in jsdom.                                                                                                                                                                                                            |
-| `test:e2e`                | `playwright test` with the explicit file list above                 | Startup, workspace and release journeys.                                                                                                                                                                                                             |
+| `test:e2e`                | `playwright test` with the explicit file list above                 | Startup, workspace, audio transport and release journeys.                                                                                                                                                                                            |
 | `test:a11y`               | `playwright test tests/e2e/accessibility.spec.ts`                   | The axe scans.                                                                                                                                                                                                                                       |
 | `test:notation`           | `playwright test tests/e2e/notation`                                | Every notation spec, including the visual baselines.                                                                                                                                                                                                 |
 | `measure:latency`         | `vitest run --config vitest.perf.config.ts`                         | `tests/perf/generation-latency.perf.ts`: a cold then a warm `generatePhrase` call in Node for every combination of note density, rhythmic variety, silence density, syncopation and tension arc. Writes full JSON to `LATENCY_OUT` when set.         |
@@ -87,29 +92,67 @@ ports makes the run fail.
 ## The workspace harness
 
 **Files.** `tests/e2e/workspace-harness/index.html` and `main.ts`, the engraver seam
-`tests/e2e/workspace-harness/vexflow-engraver-loader-seam.ts`, the typed API
+`tests/e2e/workspace-harness/vexflow-engraver-loader-seam.ts`, the audio seams
+`tests/e2e/workspace-harness/audio-seams.ts`, the typed API
 `tests/e2e/workspace-harness-window.d.ts`, and the build config `vite.workspace-harness.config.ts`.
 It is served on port 4175 and has no PWA plugin and no service worker.
 
 **What is real.** The harness mounts the production `App.vue` tree with the production styles. Its
 workspace session is built by `composeWorkspaceSession` and handed to `App.vue` through the
 `WORKSPACE_SESSION_FACTORY` provide/inject point. Generation runs in the real Worker through the
-real client, and notation is engraved by the real VexFlow adapter. Only randomness, timing and fault
+real client, and notation is engraved by the real VexFlow adapter. The audio transport is the real
+`createAudioTransport`, on the fake audio clock and output by default or on the real Web Audio
+output with `?audio=real` (see [Audio modes](#audio-modes)). Only randomness, timing and fault
 injection are replaced. Nothing in `src/` knows the harness exists: the seams are injected
 dependencies, plus one Vite alias.
 
 **Seams.** `main.ts` publishes them on `window.__workspaceHarness`:
 
-| Seam                 | Signature                                               | Behaviour                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| -------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `queueSeeds`         | `(seeds: readonly number[]) => void`                    | Appends seeds to a queue. Each new generation draws the next queued seed. When the queue is empty the seed comes from a counter (1, 2, 3 …) instead of `crypto`.                                                                                                                                                                                                                                                                                                                                                                                     |
-| `holdGeneration`     | `() => void`                                            | Every later `generate` call waits at a gate before it reaches the Worker. Holding an already held gate does nothing.                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `releaseGeneration`  | `() => void`                                            | Opens the gate; every waiting call carries on.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `failNextGeneration` | `(code: WorkspaceHarnessGenerationFailureCode) => void` | The next `generate` call, once past the gate, returns a `generation_failure` with that code and empty diagnostics instead of calling the Worker. One shot. The codes: `no_legal_harmony_plan`, `no_legal_rhythm_plan`, `no_legal_pitch_plan`, `no_eligible_register_window`, `search_limit_exceeded`, `result_validation_failed`.                                                                                                                                                                                                                    |
-| `failNextNotation`   | `() => void`                                            | The next call to `engraveWrittenPhrase` throws a `NotationError` with code `notation_engraving_failed`. One shot. It arms the engraver loader seam below.                                                                                                                                                                                                                                                                                                                                                                                            |
-| `snapshot`           | `() => WorkspaceHarnessSnapshot`                        | The session's current state: `operation`, `instrumentProfileId`, `writtenTonalCenter`, `concertTonalCenter`, `requestId`, `seed`, `timeline` (the latest result's concert timeline as a JSON string), `chosenNoteDensity` (the density the player chose, kept whatever the window's width) and `generatedNoteDensity` (the density the latest result was generated with: `Eighth` for a chosen `Sixteenth` below `bp-tablet-landscape`). Fields read from the result are `null` before the first result. Throws if called before the session mounts. |
+| Seam                     | Signature                                               | Behaviour                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------------------ | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `queueSeeds`             | `(seeds: readonly number[]) => void`                    | Appends seeds to a queue. Each new generation draws the next queued seed. When the queue is empty the seed comes from a counter (1, 2, 3 …) instead of `crypto`.                                                                                                                                                                                                                                                                                                                                                                                     |
+| `holdGeneration`         | `() => void`                                            | Every later `generate` call waits at a gate before it reaches the Worker. Holding an already held gate does nothing.                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `releaseGeneration`      | `() => void`                                            | Opens the gate; every waiting call carries on.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `failNextGeneration`     | `(code: WorkspaceHarnessGenerationFailureCode) => void` | The next `generate` call, once past the gate, returns a `generation_failure` with that code and empty diagnostics instead of calling the Worker. One shot. The codes: `no_legal_harmony_plan`, `no_legal_rhythm_plan`, `no_legal_pitch_plan`, `no_eligible_register_window`, `search_limit_exceeded`, `result_validation_failed`.                                                                                                                                                                                                                    |
+| `failNextNotation`       | `() => void`                                            | The next call to `engraveWrittenPhrase` throws a `NotationError` with code `notation_engraving_failed`. One shot. It arms the engraver loader seam below.                                                                                                                                                                                                                                                                                                                                                                                            |
+| `audio.mode`             | `() => 'fake' \| 'real'`                                | The audio mode the page was loaded in (see [Audio modes](#audio-modes)).                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `audio.armStart`         | `({ tempo }) => void`                                   | Sets the tempo the next click on the "Start audio (harness)" button starts at. One shot: a click with nothing armed throws.                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `audio.timeline`         | `() => { startAt, countInEndsAt } \| null`              | The latest session's timeline on the audio clock: the count-in's first click and the moment phrase 1 starts. `null` before the first Start audio click.                                                                                                                                                                                                                                                                                                                                                                                              |
+| `audio.isUnlocked`       | `() => boolean`                                         | Whether the audio output has been opened, which only the Start audio click does.                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `audio.isRunning`        | `() => boolean`                                         | Whether a session is running.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `audio.now`              | `() => number`                                          | The audio clock's time, in seconds. Throws before the first Start audio click.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `audio.advance`          | `(seconds: number) => void`                             | Moves the fake audio clock forward in 25 ms wake-up steps, planning sound at each step. Fake mode only; throws with `?audio=real`.                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `audio.events`           | `() => WorkspaceHarnessAudioEvent[]`                    | Every call the transport made on its audio output, in order: `click`, `gain`, `fade` and `open-bus` events, each with `scheduledAt`, the audio clock's time at the call. The same shape in both modes.                                                                                                                                                                                                                                                                                                                                               |
+| `audio.audibleClicks`    | `() => WorkspaceHarnessAudibleClick[]`                  | The recorded clicks that sound, with the click-volume gain they sound at, read from `events` by the same function in both modes.                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `audio.setClickOn`       | `(on: boolean) => void`                                 | The click on/off switch, passed to the transport.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `audio.setClickVolume`   | `(level: number) => void`                               | The click volume, passed to the transport. A level outside the design range throws.                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `audio.setBackingOn`     | `(on: boolean) => void`                                 | The backing on/off switch, passed to the transport.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `audio.setBackingVolume` | `(level: number) => void`                               | The backing volume, passed to the transport. A level outside the design range throws.                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `audio.stop`             | `() => { fadeEndsAt }`                                  | Fades the running session out over 0.1 s from now. Throws if none is running.                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `audio.mixDesign`        | `() => WorkspaceHarnessMixDesign`                       | The mix's first-load levels and volume range, read from the `--mix-*` design tokens, so a spec can use the lowest click volume.                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `snapshot`               | `() => WorkspaceHarnessSnapshot`                        | The session's current state: `operation`, `instrumentProfileId`, `writtenTonalCenter`, `concertTonalCenter`, `requestId`, `seed`, `timeline` (the latest result's concert timeline as a JSON string), `chosenNoteDensity` (the density the player chose, kept whatever the window's width) and `generatedNoteDensity` (the density the latest result was generated with: `Eighth` for a chosen `Sixteenth` below `bp-tablet-landscape`). Fields read from the result are `null` before the first result. Throws if called before the session mounts. |
 
 Request ids are also deterministic: `workspace-harness-request-1`, `-2`, and so on, per page load.
+
+### Audio modes
+
+The URL chooses where the harness's audio transport runs. Any other `audio` value throws.
+
+- **Fake** (the default, or `?audio=fake`): the transport runs on `createFakeAudioRig()` (see
+  [Fake audio clock and output](#fake-audio-clock-and-output)). Its clock starts at 0 and moves
+  only when a spec calls `audio.advance`, so every time is exact and a run repeats exactly. No
+  `AudioContext` is ever created.
+- **Real** (`?audio=real`): the transport runs on the production seams, `openWebAudioOutput` and the
+  wake-up Worker timer, with the output wrapped by the same recorder the fake uses. The first Start
+  audio click creates the page's one `AudioContext`, and time is the real audio clock. Headless
+  Chromium runs it with no launch flag: the Playwright click is a real user activation, so the
+  context runs and `currentTime` advances.
+
+**The Start audio button.** `index.html` holds, outside `#app`, a "Start audio (harness)" button in
+an `aside` landmark. The App has no Start button yet, so this one stands in for it: its click
+handler calls `unlock()` and then `start({ tempo })` synchronously, as the App's Start click will.
+A spec arms the tempo with `audio.armStart`, then clicks it with `page.click`, which the browser
+counts as a player's click.
 
 **The window's width is real.** The harness gives the session the production `matchMedia` width
 provider (`createBrowserViewportWidth`), so a spec moves the window across `bp-tablet-landscape`
@@ -128,7 +171,11 @@ arming, or a second, unarmed redraw recovers before the assertions run.
 
 **Driving it.** `tests/e2e/release/harness-helpers.ts` wraps every seam in a typed function
 (`gotoWorkspaceHarness`, `queueSeeds`, `holdGeneration`, `releaseGeneration`, `failNextGeneration`,
-`failNextNotation`, `harnessSnapshot`), and `tests/e2e/workspace/helpers.ts` supplies the page
+`failNextNotation`, `harnessSnapshot`); `tests/e2e/audio/audio-harness-helpers.ts` wraps the audio
+seams (`gotoAudioHarness(page, mode?)`, `startAudio`, which arms the tempo and clicks Start audio,
+`advanceAudio`, `advanceAudioTo`, `audioNow`, `audioEvents`, `scheduledClicks`, `audibleClicks`,
+the mix setters, `stopAudio` and `mixDesign`) and holds `installAudioSpy`, which counts every
+`AudioContext` construction, `suspend` and `close`; and `tests/e2e/workspace/helpers.ts` supplies the page
 helpers shared with the production specs (`primaryButton`, `statusRegion`, `radio`,
 `generateAndAwaitReady`). From `tests/e2e/release/concurrent-operation-prevention.spec.ts`:
 
@@ -144,8 +191,9 @@ await releaseGeneration(page)
 await expect(statusRegion(page)).toHaveText('Phrase ready', { timeout: 30_000 })
 ```
 
-A new seam is added to `main.ts`, typed in `workspace-harness-window.d.ts`, wrapped in
-`harness-helpers.ts`, and listed in the table above.
+A new seam is added to `main.ts` (or a module it wires, like `audio-seams.ts`), typed in
+`workspace-harness-window.d.ts`, wrapped in `harness-helpers.ts` (or, for the audio seams,
+`audio-harness-helpers.ts`), and listed in the table above.
 
 ## The notation harness
 
@@ -202,10 +250,55 @@ expect((await page.evaluate(() => window.__notationHarness)).state).toBe('error'
 
 ## Fakes still to come
 
-The audio clock, the audio output and Web MIDI access have no fakes yet. Chunk 10 adds a fake clock
-that a test advances by hand and a fake audio output; chunk 12 adds a fake MIDI access that plugs,
-unplugs and plays notes on command. Both go into the workspace harness as new seams and are
-documented in its table above.
+Web MIDI access has no fake yet. Chunk 12 adds a fake MIDI access that plugs, unplugs and plays
+notes on command. It goes into the workspace harness as a new seam and is documented in its table
+above.
+
+## Fake audio clock and output
+
+The audio transport takes its audio output and its wake-up timer through injected seams
+(`src/audio/audio-ports.ts`). Unit tests replace both with `createFakeAudioRig(options?)` from
+`tests/unit/audio/fake-audio.ts`, which never touches Web Audio or a Worker and imports no Node
+module, so the workspace harness reuses it:
+
+- **The clock** starts at `startTime` (0 by default) and moves only on `advance(seconds)` or
+  `advanceTo(t)`. It steps on the grid `startTime + k * 0.025` and wakes the fake timer after
+  every 25 ms step, as the Worker timer would, so the look-ahead scheduler plans sound exactly as
+  it does in the browser, and long runs do not drift.
+- **The output** records every call as a `FakeAudioEvent`: `click` (bus, time, accent, route),
+  `gain` (gain stage, value, time), `fade` (bus, time, duration) and `open-bus`, each stamped with
+  `scheduledAt`, the clock's time at the call. `events()` returns them in order and `clicks()` the
+  clicks alone.
+- **What is heard.** `audibleClicks()` returns the clicks that sound, with the click-volume gain
+  they sound at: the volume is above zero, the click is enabled or on the count-in route, and its
+  bus has not started fading. `gainAt(gain, t)` reads one gain at a time.
+- **Shared with the real output.** `recordAudioOutput(output)` is the recorder the rig itself uses,
+  and `audibleClicksOf(events)` is the reading behind `audibleClicks()`. The harness's
+  `?audio=real` mode wraps the real Web Audio output with the same recorder, so both modes give the
+  same event shape and the same audible-click reading.
+
+A unit test builds a transport on a rig (`tests/unit/audio/transport-rig.ts` does it, reading the
+mix design from the real stylesheet) and drives the clock by hand. From
+`tests/unit/audio/audio-transport.spec.ts`:
+
+```ts
+const { rig, transport } = transportRig()
+transport.unlock()
+const timeline = transport.start({ tempo: 120 })
+rig.advanceTo(beat(timeline.startAt, 35.5))
+const audible = rig.audibleClicks()
+expect(audible).toHaveLength(36)
+```
+
+A harness test does the same through `window.__workspaceHarness.audio`. Condensed from
+`tests/e2e/audio/audio-transport.spec.ts`:
+
+```ts
+await gotoAudioHarness(page)
+const { startAt } = await startAudio(page) // arms 120 BPM, clicks Start audio
+await advanceAudioTo(page, startAt + 35 * BEAT_SECONDS + 0.1)
+expect(await audibleClicks(page)).toHaveLength(36)
+```
 
 ## Fake window width
 
@@ -264,8 +357,9 @@ drives the real `createSessionEngine` and replaces only its two seams:
   out, with the same phrase numbers, steps and retries.
 - **No test-only branches.** Production code carries no `if (test)` path. A test replaces a
   dependency through a seam that production code already exposes: `composeWorkspaceSession`'s
-  providers, `viewport` width provider and `generate` function, the `WORKSPACE_SESSION_FACTORY` injection point, a fake
-  `GenerationWorkerPort`, or a Vite alias in a harness build config.
+  providers, `viewport` width provider, `generate` function and `audio` transport, the
+  `WORKSPACE_SESSION_FACTORY` injection point, a fake `GenerationWorkerPort`, the audio
+  transport's `openOutput` and `createWakeTimer`, or a Vite alias in a harness build config.
 
 - **Joins are property-tested over the seed matrix.** `carry-in-join-matrix.spec.ts` chains six
   phrases for every instrument profile, register choice, four control sets and two seeds: phrase 1
@@ -316,6 +410,7 @@ owner's machine, so they stand as recorded.
 | ----------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Workspace session result            | `tests/unit/workspace-test-fixtures.ts`                                         | `CHEAP_CONTROLS` (the defaults with cheap rhythm and harmony settings) and `buildWorkspaceSessionResult(requestId, seed)`, which runs one real, cheap generation.                                                                                                                                                                                                                                                                                                                                                                     | `ScorePanel`, `WorkspaceHeader`, `use-notation-coordinator` specs; `test-workspace.ts`                                                                                |
 | Test workspace                      | `tests/unit/components/workspace/test-workspace.ts`                             | `createTestWorkspace(generate?)`: the real session and notation coordinator without a Worker, with a fake window width at or above `bp-tablet-landscape`; `useCheapControls`; `PHRASE_SCORE_STUB`, a `PhraseScore` that renders only its slot and has the same events.                                                                                                                                                                                                                                                                | `ScorePanel`, `WorkspaceShell` specs                                                                                                                                  |
+| Fake audio rig                      | `tests/unit/audio/fake-audio.ts`                                                | `createFakeAudioRig(options?)`: a hand-advanced audio clock, a wake-up timer stepped by it and a recording audio output, with `events`, `clicks`, `audibleClicks` and `gainAt`; `recordAudioOutput` and `audibleClicksOf`, shared with the harness's real audio mode (see [Fake audio clock and output](#fake-audio-clock-and-output)).                                                                                                                                                                                               | every `tests/unit/audio/` transport spec; `transport-rig.ts`; the workspace harness's `audio-seams.ts`                                                                |
 | Fake window width                   | `tests/unit/composables/fake-viewport-width.ts`                                 | `createFakeViewportWidth(initiallyBelowTabletLandscape?)`: a `ViewportWidthProvider` a test moves across `bp-tablet-landscape` by hand (see [Fake window width](#fake-window-width)).                                                                                                                                                                                                                                                                                                                                                 | every spec that builds a session; `generation-session-note-density.spec.ts`, `create-workspace-session.spec.ts`                                                       |
 | Fake Worker port                    | `tests/unit/generation-worker/fake-generation-worker-port.ts`                   | `createFakeGenerationWorkerPort`: an in-memory `GenerationWorkerPort` that structured-clones both ways and answers through the real handler, a scripted responder, or not at all.                                                                                                                                                                                                                                                                                                                                                     | `generation-worker-client.spec.ts`                                                                                                                                    |
 | Window search fixture               | `tests/unit/domain/generation/orchestration/window-search-fixture.ts`           | `buildWindowSearchFixture(seed)`: a real intent, request, ranked harmony and rhythm candidates and search policy from cheap controls.                                                                                                                                                                                                                                                                                                                                                                                                 | `window-search`, `generation-orchestrator` specs; `generation-orchestrator-fixture.ts`                                                                                |
