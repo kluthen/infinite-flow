@@ -1762,7 +1762,8 @@ chunks left open, and get the owner's go.
   asset added.
 - The open items that §12 lets implementation start without are closed or carried forward by the
   owner: backing voicing (listening test), Bluetooth MIDI, the controller check on the reference
-  hardware, the wake lock dropped mid-session, and starting from the Review. The audio mix's
+  hardware, and the wake lock dropped mid-session. (Starting from the Review is settled: spec
+  D170, no session starts while it shows.) The audio mix's
   levels are set.
 - The owner has answered what a session's last phrase may owe. Chunk 7's carry-over criteria hold
   under that answer, and `documentalist` has given `rule_leap_recovery` and

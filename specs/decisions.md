@@ -788,4 +788,7 @@ fact in the live documents (see the [archive index](archive/README.md) and
   (leave, then start) instead of one, by the owner's choice. How the Review is shown and left
   (ux D144: it replaces the staff and the controls, and the session button reads `Close review`)
   is the design's call. Master spec §4, §6, §7 and §11 (v2.0 items 12, 17, 22 and 28); v2 README;
-  build plan chunk 20. Master spec v1.23 → **v1.24**.
+  build plan chunk 20. Master spec v1.23 → **v1.24**. _Corrected the same day:_ ux D145 revised
+  D144, so the Review takes only the staff area's place; the mix, tempo, settings and controller
+  connection stay usable while it shows (§5, §6, §8, §10), and only the session start is
+  withheld.
