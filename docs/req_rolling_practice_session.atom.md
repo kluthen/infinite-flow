@@ -33,6 +33,7 @@ dependents:
   - [[rule_session_settings_locked]]
   - [[rule_session_start_conditions]]
   - [[rule_stop_ends_session]]
+  - [[service_session_engine]]
 ---
 
 # Rolling Practice Session

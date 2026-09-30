@@ -80,6 +80,10 @@ every settable control key except `instrumentProfileId`, which has its own dedic
   policy to the session's typed `retain`/`regenerate` decision, reading the unchanged concert
   timeline, the current register selection, the existing seed, and the newly resolved instrument
   profile off the prior result and the caller's next controls.
+- **Session runner.** `WorkspaceSession.createSessionRunner(...)` builds a session runner
+  (`src/session/session-runner.ts`) bound to the same `deps.generate` the Idle flow uses, so a
+  practice session's phrase 2 onward go through the one Worker that generated phrase 1 and reuse
+  its warm rhythm-domain memo. See [`docs/session-engine.md`](session-engine.md).
 - **Dispose.** `WorkspaceSession.dispose()` stops the session listening for width crossings
   (`session.dispose()`) and terminates the worker client (`client.dispose()`). `App.vue` calls it
   from `onUnmounted`.

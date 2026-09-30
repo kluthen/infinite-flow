@@ -9,7 +9,8 @@ parents:
   - [[rule_seeded_phrase_reproduction]]
 layer: BUSINESS
 version: 0.1
-dependents: []
+dependents:
+  - [[service_session_engine]]
 ---
 
 # Tempo Never Affects Generated Material

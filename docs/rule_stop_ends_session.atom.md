@@ -15,6 +15,7 @@ dependents:
   - [[rule_session_ends_on_portrait_view]]
   - [[rule_session_ends_when_staff_too_small]]
   - [[rule_silence_timeout_ends_session]]
+  - [[service_session_engine]]
 ---
 
 # Stop Ends the Session

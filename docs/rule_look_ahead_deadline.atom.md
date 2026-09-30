@@ -10,8 +10,11 @@ parents:
 dependents:
   - [[rule_look_ahead_phrase_must_fit_staff]]
   - [[rule_session_generation_failure_ladder]]
-version: 0.1
+  - [[service_session_engine]]
+  - [[service_session_runner]]
+version: 0.2
 human_name: One-Phrase Look-Ahead Deadline
+notes: Revised 2026-09-30 in v2 chunk 8 (previous version 0.1) as a clarification of existing behaviour, accepted by the chunk owner under the owner standing rule to settle minor issues and record them; AWAITING THE OWNER ACCEPTANCE. The EXPECTATION now allows for the failure ladder repeat decided at the deadline, which the ladder rule already required; the rule itself is unchanged.
 ---
 
 # One-Phrase Look-Ahead Deadline
@@ -26,5 +29,5 @@ During a session the app always looks one phrase ahead. As soon as phrase N star
 While a phrase sounds, the next phrase is requested in the background and becomes available as read-ahead before the current phrase's last measure starts.
 
 ## EXPECTATION
-- Across every seed and supported settings combination, at 60, 120 and 240 BPM, every phrase after the first is generated and engraved before its deadline.
+- Across every seed and supported settings combination, at 60, 120 and 240 BPM, every phrase after the first is generated and engraved before its deadline, except when the session generation failure ladder finds no valid phrase by then, in which case the previous phrase is repeated as that phrase, decided at the deadline.
 - At least one measure of read-ahead is visible throughout a session.

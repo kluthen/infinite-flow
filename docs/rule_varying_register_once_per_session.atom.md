@@ -7,7 +7,8 @@ tags: [v2, release-v2.0, session, register]
 parents:
   - [[rule_join_carry_in_limited]]
 human_name: Varying Register Resolved Once per Session
-dependents: []
+dependents:
+  - [[service_session_engine]]
 type: RULE
 layer: BUSINESS
 ---

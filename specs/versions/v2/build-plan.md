@@ -102,7 +102,7 @@ chunks in different sections; the second to merge rebases on the first.
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
 | 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29)                                                                                                                                                                                                                                                                                                       | Nothing                                               |
 | 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 (done 2026-09-29), follow-up 3b Phone staff height (done 2026-09-29) · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation (done 2026-09-29) · 14 Note acknowledgement (done 2026-09-29) · 18 MusicXML encoding (done 2026-09-29) · 19 Generated-notes MIDI encoding (done 2026-09-29) | Chunk 0 (done). Start chunk 3 first (see the caveat). |
-| 2    | 5 Idle fit retries and the room notice · 6 Note identity and session overlays · 8 Session engine · 10 Audio transport                                                                                                                                                                                                                                                         | Wave 1. Chunk 1's verdict: given (2026-09-30).        |
+| 2    | 5 Idle fit retries and the room notice · 6 Note identity and session overlays · 8 Session engine (done 2026-09-30) · 10 Audio transport                                                                                                                                                                                                                                       | Wave 1. Chunk 1's verdict: given (2026-09-30).        |
 | 3    | 9 Session history · 11 Backing · 12 MIDI input                                                                                                                                                                                                                                                                                                                                | Wave 2                                                |
 | 4    | 15 Session screen: start and end                                                                                                                                                                                                                                                                                                                                              | Wave 3                                                |
 | 5    | 13 Controller connection · 16 Rolling display                                                                                                                                                                                                                                                                                                                                 | Chunk 15                                              |
@@ -882,7 +882,34 @@ scope.
 
 ### Chunk 8 — Session engine
 
-**Release:** v2.0. Needs chunk 1's latency verdict.
+**Release:** v2.0. **Done on 2026-09-30.** A pure engine in `src/session/` takes timed events
+(start, count-in over, phrase started sounding, a generation, crash or fit result, a tick, an end)
+with their audio time and returns what to request, what to show next and what ended; it never
+reads a clock. Phrase 1 is the idle phrase; phrase 2 is requested at start and due when the
+one-bar count-in ends; each later phrase is due at the start of the last measure of the one
+sounding. The failure ladder (three carry-in retries, one standalone retry with the session's
+register, a repeat decided at the deadline), the struggling notice, the frozen settings and the
+density step-down are covered by 55 engine and runner tests on timed events, at 60, 120 and
+240 BPM. A
+runner executes the engine's requests on the same `generate` seam, so the same Worker, as the
+Idle flow: phrase 2 reuses the rhythm-domain memo phrase 1 warmed, and a test asserts it. Nothing
+starts a session on screen yet (chunks 10 and 15). `npm run quality` passes in full, the four
+notation snapshots included. Technical choices: [`docs/session-engine.md`](../../../docs/session-engine.md).
+Decided in the chunk, recorded in the atoms and awaiting the owner's acceptance: a rejected
+generation request (a worker crash, even a dead worker) is a failed attempt and never ends the
+session; the step-down memory is set when an `Eighth` request is built, a failed one included;
+the struggling notice shows when the second repeat in a row is decided, at its deadline.
+
+**Progress:**
+
+| Step               | State | Notes                                                                                   |
+| ------------------ | ----- | --------------------------------------------------------------------------------------- |
+| 1. ATD preflight   | Done  | PROCEED; architecture atoms `service_session_engine` and `service_session_runner` added |
+| 2. Tests first     | Done  | Red on assertions against a stub engine and runner                                      |
+| 3. Implement       | Done  | `src/session/` (7 files) and the workspace wiring                                       |
+| 4. Verify          | Done  | `npm run quality` passes; no screen to look at in this chunk                            |
+| 5. Documents       | Done  | `docs/session-engine.md`, README, `docs/testing.md`, `docs/phrase-workspace.md`         |
+| 6. ATD stewardship | Done  | Tags checked; four wording clarifications await the owner                               |
 
 **Goal.** The session's logic, with no audio and no screen. A pure state machine, given the time,
 never reading a clock: phrase 1 is the idle phrase; phrase _N+1_ is requested when phrase _N_

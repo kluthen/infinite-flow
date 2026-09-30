@@ -9,7 +9,8 @@ type: RULE
 version: 0.1
 priority: 1
 tags: [v2, release-v2.0, session, session-start]
-dependents: []
+dependents:
+  - [[service_session_engine]]
 ---
 
 # Phrase on Screen Becomes Phrase 1

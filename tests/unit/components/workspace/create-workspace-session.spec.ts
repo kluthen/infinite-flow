@@ -23,6 +23,7 @@ import {
   DEFAULT_PROFILE_SELECTION,
 } from '@/domain/controls/profile-selection'
 import { makeSeed } from '@/domain/random/seed'
+import type { SessionOutput } from '@/session/session-types'
 import {
   createFakeViewportWidth,
   type FakeViewportWidth,
@@ -152,6 +153,66 @@ describe('composeWorkspaceSession', () => {
     workspace.dispose()
 
     expect(deps.viewport.listenerCount()).toBe(0)
+  })
+})
+
+/** Intent: set the workspace's controls to the cheap-to-generate values, one control at a time. */
+function chooseCheapControls(workspace: ReturnType<typeof composeWorkspaceSession>): void {
+  const keys = [
+    'noteDensity',
+    'syncopation',
+    'silenceDensity',
+    'harmonicMotion',
+    'tension',
+  ] as const
+  for (const key of keys) {
+    expect(workspace.session.actions.setControl(key, CHEAP_CONTROLS[key])).toBe(true)
+  }
+}
+
+// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_runner]]
+describe('composeWorkspaceSession session runner', () => {
+  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_runner]]
+  // @test-link [[rule_phrase_one_is_idle_phrase]]
+  it('starts from the Idle phrase and requests phrase 2 through the same generate seam', async () => {
+    const deps = fakeDependencies()
+    deps.generateMock.mockImplementation(async (intent: GenerationIntent) => generatePhrase(intent))
+    const workspace = composeWorkspaceSession(deps)
+    chooseCheapControls(workspace)
+    expect(await generateAndEngrave(workspace)).toBe(true)
+    const idle = workspace.session.state.result
+    expect(idle).not.toBeNull()
+    const outputs: SessionOutput[] = []
+    const errors: unknown[] = []
+
+    const runner = workspace.createSessionRunner({
+      start: {
+        at: 0,
+        settings: {
+          controls: workspace.session.state.controls,
+          musicalProfile: workspace.session.state.profileSelection,
+        },
+        phraseOne: { intent: idle!.intent, outcome: idle!.outcome },
+      },
+      checkFit: async () => true,
+      now: () => 0.1,
+      onOutput: (output) => outputs.push(output),
+      onError: (error) => errors.push(error),
+    })
+    runner.dispatch({ kind: 'end', at: 0.1, cause: 'stop' })
+
+    expect(deps.generateMock).toHaveBeenCalledTimes(2)
+    const phraseTwoIntent = deps.generateMock.mock.calls[1]![0] as GenerationIntent
+    expect(phraseTwoIntent.carryIn?.phraseNumber).toBe(1)
+    expect(outputs[0]).toMatchObject({
+      kind: 'request-generation',
+      phraseNumber: 2,
+      intent: phraseTwoIntent,
+    })
+    expect(outputs.at(-1)?.kind).toBe('ended')
+    expect(errors).toEqual([])
   })
 })
 
