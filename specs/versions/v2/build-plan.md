@@ -1691,7 +1691,8 @@ and [intent](../../../ui_ux/flows/review-and-export/intent.md);
 [last-session-review screen handoff](../../../ui_ux/screens/last-session-review/handoff.md) and
 [intent](../../../ui_ux/screens/last-session-review/intent.md) (ux D135–D142).
 
-**Atoms:** `req_last_session_review`, `rule_new_session_discards_review`, `req_session_export`,
+**Atoms:** `req_last_session_review`, `rule_new_session_discards_review`,
+`rule_session_end_generates_next_phrase_one`, `req_session_export`,
 `rule_generated_notes_musicxml_export`, `rule_generated_notes_midi_export`,
 `rule_repeat_phrase_marked_internally_only`, `rule_session_data_never_sent_or_stored`,
 `rule_optional_midi_privacy`, `rule_no_grading_or_mismatch_signal`,

@@ -769,4 +769,7 @@ fact in the live documents (see the [archive index](archive/README.md) and
   start on material already read, against P2.S1). A session ended during its count-in is
   unchanged: no Review, phrase 1 stays. No other product rule changes. Master spec §4, §6, §7,
   §11 (v2.0 items 12, 17 and 22, and new item 28) and §12; v2 README. Master spec v1.22 →
-  **v1.23**.
+  **v1.23**. Wording fixed the same day, no new rule (from `ux-critic`'s narrow pass): phrase 1
+  is the phrase on screen when the session starts, first generated fresh at the session end, since
+  regenerating by hand, an instrument switch or a phrase that stops fitting still replaces it
+  while the Review shows (ux D136).

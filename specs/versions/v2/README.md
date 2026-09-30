@@ -223,7 +223,8 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   bounded by the next phrase's first the same way. Master spec v1.22.
 - **Settled (D169, from ux D137 under the owner's delegation of unit 6, 2026-09-30; closes
   O84):** at every session end once phrase 1 has sounded, a fresh phrase is generated from the
-  current settings and becomes the next session's phrase 1; a session starts from the Review
+  current settings; the next session's phrase 1 is the phrase on screen when it starts, first
+  generated fresh at that end; a session starts from the Review
   exactly as from Idle, by the Start click or the starting note, under the same conditions, and
   either start discards the Review without asking. Master spec v1.23.
 - Open: 13 questions across the register, including O87, O93, O98 and O99 (above);

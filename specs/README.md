@@ -170,7 +170,8 @@ Status: draft v0.27
 - **Starting a session from the Review (2026-09-30, D169)**: closes O84 from ux D137, settled by
   `ux-writer` under the owner's delegation of unit 6 (ux D135). At every session end once phrase 1
   has sounded, a fresh phrase is generated from the current settings, as regenerating by hand
-  would, and becomes the next session's phrase 1; a session starts from the Review exactly as from
+  would; phrase 1 is then the phrase on screen when the next session starts, first generated
+  fresh at that end; a session starts from the Review exactly as from
   Idle, by the Start click or the starting note, under the same conditions, and either start
   discards the Review without asking. Nothing newly opened. The v2 master spec is now v1.23.
 - **Timeline** ([roadmap](roadmap.md)):

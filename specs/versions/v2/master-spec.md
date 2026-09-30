@@ -77,10 +77,14 @@ apart. Windows include both their ends, and a phrase's last expected note is bou
 phrase's first in the same way (§8, §11). Change in v1.23, the answer to the item left open about
 starting a session from the review, settled by the interface design under the product owner's
 delegation: at every session end once phrase 1 has started sounding, the app generates a fresh
-phrase from the current settings, as regenerating by hand at Idle would, and that phrase, on
-screen while the review shows, is the next session's phrase 1; a session starts from the review
-exactly as from Idle, by a Start click or by the starting note, under the same conditions, and
-either start discards the review without asking (§4, §6, §7, §11, §12).
+phrase from the current settings, as regenerating by hand at Idle would, and the next session's
+phrase 1 is the phrase on screen when it starts, that fresh phrase unless the player has since
+replaced it; a session starts from the review exactly as from Idle, by a Start click or by the
+starting note, under the same conditions, and either start discards the review without asking
+(§4, §6, §7, §11, §12). A wording fix within v1.23, adding no rule: phrase 1 from the review is
+the phrase on screen when the session starts, first generated fresh at the session end, since
+regenerating by hand, an instrument switch or a phrase that stops fitting the window still
+replaces it while the review shows, exactly as at Idle (§4, §6, §7, §11).
 
 ## 1. Core concept
 
@@ -233,8 +237,9 @@ At session start, the phrase already on screen before Start was pressed becomes 
 new session (there is no separate "generate phrase 1" step), and phrase 2 is generated during the
 one-bar count-in, before the count-in ends. No session can start while a new phrase is being
 generated (§6), so phrase 1 is never ambiguous. The same holds for a session started from the
-review: the phrase on screen there is the fresh phrase generated when the previous session ended
-(§7), never one the previous session played.
+review: phrase 1 is the phrase on screen when the session starts, first generated fresh when the
+previous session ended (§7) and possibly replaced since, as at Idle, never one the previous
+session played.
 
 **A look-ahead phrase must also fit the staff.** During a session, a phrase is only valid if it
 can be drawn at the staff's minimum readable size in the staff layout the session holds (§6).
@@ -420,8 +425,9 @@ decision.
     screen in time with the click, and phrase 1's whole first measure stays fully visible
     throughout the count-in. How the count looks is a UI/UX design decision.
   - **From the review, a session starts exactly as from Idle.** The review leaves the staff on
-    screen, holding the next session's phrase 1: the fresh phrase generated when the last session
-    ended (§7). A Start click, or, with a controller attached, the note that phrase starts on,
+    screen, and phrase 1 is the phrase on it when the session starts: first generated fresh when
+    the last session ended (§7), and replaced since only as at Idle (regenerating by hand, an
+    instrument switch, a phrase that stops fitting the window). A Start click, or, with a controller attached, the note that phrase starts on,
     starts a session there, under the same conditions (below), and the starting note is named
     exactly as at Idle. Either start discards the review without asking (§7). A note played while
     looking back at the review, instrument in hand, can therefore start a session and discard a
@@ -636,8 +642,10 @@ asking.
 **The next session's phrase 1.** At every session end once phrase 1 has started sounding, the
 ended session's phrases leave the staff (they are all in the review) and the app generates a fresh
 phrase from the current settings, with a fresh seed and no carry-in, exactly as regenerating by
-hand at Idle would, the retries that replace a phrase whose notes do not fit included (§4). That
-phrase, on screen while the review shows, is the next session's phrase 1 (§4). Neither the ended
+hand at Idle would, the retries that replace a phrase whose notes do not fit included (§4). The
+next session's phrase 1 is the phrase on screen when it starts (§4): this fresh phrase, unless
+the player has replaced it since, by any of the ways that replace a phrase at Idle, which all
+keep working while the review shows. Neither the ended
 session's last phrase nor its phrase 1 is offered again: a player who wants endless new material
 should not start a session on a phrase already read. While it is being generated, no session
 starts (§6). If the staff has no room at that moment, nothing is generated until the notice that
@@ -1125,8 +1133,10 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
 28. At every session end once phrase 1 has started sounding, the app generates a fresh phrase
     from the current settings, with a fresh seed and no carry-in, as regenerating by hand at Idle
     would (with item 26's retries), or, if the staff has no room at that moment, once the notice
-    clears. That phrase, on screen with the review, is the next session's phrase 1; it is neither
-    the ended session's last phrase nor its phrase 1. From the review, a session starts exactly as
+    clears; it is neither the ended session's last phrase nor its phrase 1. The next session's
+    phrase 1 is the phrase on screen when it starts: that fresh phrase, unless it has since been
+    replaced in any way a phrase is replaced at Idle, all of which keep working while the review
+    shows. From the review, a session starts exactly as
     at Idle, by a Start click or, with a controller attached, by the note that phrase starts on,
     and never in any case of item 22, which includes the time the fresh phrase is being
     generated. Either start discards the review without confirmation (item 12).
