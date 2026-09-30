@@ -500,7 +500,7 @@ seed).
 | Scenario                                                                                         | Cold (ms) | Warm (ms) |
 | ------------------------------------------------------------------------------------------------ | --------- | --------- |
 | Default (Quarter / Slightly varied (the default) / Straight / Sparse / Lift)                     | 120       | 82        |
-| Worst case (Sixteenth / Heavily varied / Sparse / Active displacement / Build, 2,932 candidates) | 823       | 228       |
+| Worst case (Sixteenth / Heavily varied / Sparse / Active displacement / Build, 1,797 candidates) | 823       | 228       |
 
 The default scenario is `Slightly varied`, not `Strict`: at Quarter density, `Slightly varied`'s
 candidate domain (318 validator-accepted candidates, summed across the supported silence x
