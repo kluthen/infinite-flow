@@ -150,8 +150,13 @@ candidate is assembled, from per-bar facts cached for the expansion (`rejectsBef
 `rhythm-expansion-memo.ts`), with the rhythmic-variety test on the assembled candidate completing
 `quickRejectRhythmCandidate`'s set (`rhythm-invariants.ts`). Transform-descriptor disjointness is
 likewise checked before assembly, from each descriptor's cached source-cell keys. Each shortcut
-only drops candidates the validator would reject, the full validator still runs on every
-survivor, and the yielded candidates and their order are unchanged. Only yielded candidates are
+only drops candidates the validator would reject. The fast path does not run the full validator
+on its survivors: the two rules only the validator caught are checked early instead — the attack
+band once per gesture (bars 1-2) and answer similarity on the final four bars — and every other
+rule holds by construction; exhaustive tests over all 324 settings show the fast path yields
+exactly the fully validated candidates. The full validator still runs on the exact re-run below
+and in the [whole-result validation](#7-independent-validation-pitch-only-and-whole-result) of
+the chosen phrase. The yielded candidates and their order are unchanged. Only yielded candidates are
 deep-frozen, and transform/selector results are memoized for the duration of one expansion. When
 this fast pass yields nothing, the expansion re-runs exactly, without any shortcut, so the reported
 codes are exactly those of the complete expansion; otherwise the probe's iterator is resumed by

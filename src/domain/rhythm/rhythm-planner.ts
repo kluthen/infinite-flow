@@ -13,11 +13,13 @@ import {
   createExpansionMemo,
   descriptorOrder,
   disjointFromList,
+  failsAnswerSimilarity,
   listAddressKeys,
   rejectsBeforeAssembly,
   syncStageBars,
   type ExpansionMemo,
 } from './rhythm-expansion-memo'
+import { attackBandViolated } from './rhythm-invariants'
 import { gestureCannotReachShare, varietyViolated } from './rhythm-variety'
 import { enumerateGestureDerivations } from './rhythm-skeleton'
 import { answerTransformLists, syncopationTemplateLists } from './syncopation'
@@ -108,14 +110,20 @@ type GestureEnd = typeof GESTURE_END
  * gesture's unit (skipped or not) followed by `GESTURE_END`; it has no time or count cutoff.
  *
  * Unless `exact`, it skips work whose candidates the validator always rejects or that yields no
- * candidate at all, so the yielded sequence is unchanged: gestures whose optimistic best-case
- * density share can never reach the selected rhythmic-variety level's floor
- * (`gestureCannotReachShare`, an over-approximation of `rhythmic_variety_violation` proven safe
- * because transforms never change a source cell's duration); under Active displacement, gestures
- * and answer lists whose bars admit no syncopation template (`activeTemplateMask`); and candidates
- * `quickRejectRhythmCandidate` rejects, tested as `rejectsBeforeAssembly` then `varietyViolated`.
- * Skipped work records no validation codes, so a no-plan result is re-derived `exact` to report
- * the complete code set.
+ * candidate at all, so the yielded sequence is unchanged: gestures with a bar outside the attack
+ * band (`attackBandViolated`, exact per gesture because transforms never change a bar's attack
+ * count and bars 3-4 copy bars 1-2); gestures whose optimistic best-case density share can never
+ * reach the selected rhythmic-variety level's floor (`gestureCannotReachShare`, an
+ * over-approximation of `rhythmic_variety_violation` proven safe because transforms never change a
+ * source cell's duration); under Active displacement, gestures and answer lists whose bars admit
+ * no syncopation template (`activeTemplateMask`); candidates `quickRejectRhythmCandidate` rejects,
+ * tested as `rejectsBeforeAssembly` then `varietyViolated`; and candidates that fail answer
+ * similarity (`failsAnswerSimilarity`). With those checks the fast path no longer calls
+ * `validateRhythmCandidate`: every other validation code holds by construction for the candidates
+ * it reaches, which the exhaustive per-setting validation specs guard by validating every published
+ * candidate of all 324 settings. Skipped work records no validation codes, so a no-plan result is
+ * re-derived `exact` (every shortcut off, every candidate validated) to report the complete code
+ * set.
  */
 // @spec-link [[api_rhythm_domain_expansion]]
 function* derive(
@@ -140,6 +148,11 @@ function* gestureCandidates(
   gesture: GestureDerivation,
 ): IterableIterator<UnindexedRhythmCandidate> {
   const { input, observed, exact, memo } = context
+  if (
+    !exact &&
+    gesture.bars.some((bar) => attackBandViolated(bar, input.noteDensity, input.rhythmicVariety))
+  )
+    return
   // @spec-link [[module_rhythm_variety_grammar]]
   if (!exact && gestureCannotReachShare(gesture.bars, input.noteDensity, input.rhythmicVariety))
     return
@@ -210,10 +223,13 @@ function* answerListCandidates(
 }
 
 /**
- * The validated candidate of one template, or undefined when the transforms overlap, fail to apply,
- * or (unless `exact`) are quick-rejected or fail validation. The prefilter runs on the applied bars
- * before the four-bar candidate and its transform list are built. The candidate is not frozen here:
- * `candidates` deep-freezes it once when it publishes it, and never freezes a duplicate.
+ * The legal candidate of one template, or undefined when the transforms overlap or fail to apply,
+ * when (unless `exact`) the prefilter or the answer-similarity check rejects it, or when (only if
+ * `exact`) it fails `validateRhythmCandidate`. The fast path does not validate: its checks reject
+ * exactly the candidates the validator would, as the exhaustive validation specs guard. The
+ * prefilter runs on the applied bars before the four-bar candidate and its transform list are
+ * built. The candidate is not frozen here: `candidates` deep-freezes it once when it publishes it,
+ * and never freezes a duplicate.
  */
 // @spec-link [[api_rhythm_domain_expansion]]
 function templateCandidate(
@@ -239,7 +255,12 @@ function templateCandidate(
     return undefined
   }
   const syncopated = duals.length === 0 ? template : [...duals, ...template]
-  if (!exact && rejectsBeforeAssembly(memo, input.syncopation, bars, syncopated)) return undefined
+  if (
+    !exact &&
+    (rejectsBeforeAssembly(memo, input.syncopation, bars, syncopated) ||
+      failsAnswerSimilarity(memo, bars))
+  )
+    return undefined
   const candidate: UnindexedRhythmCandidate = {
     grammarVersion: input.grammarVersion,
     input,
@@ -248,10 +269,12 @@ function templateCandidate(
     transforms: [...answerOnly, ...[...syncopated].sort(descriptorOrder)],
   }
   if (!exact && varietyViolated(candidate)) return undefined
-  const failures = validateRhythmCandidate(candidate)
-  if (failures.length > 0) {
-    failures.forEach((failure) => observed.add(failure))
-    return undefined
+  if (exact) {
+    const failures = validateRhythmCandidate(candidate)
+    if (failures.length > 0) {
+      failures.forEach((failure) => observed.add(failure))
+      return undefined
+    }
   }
   return candidate
 }

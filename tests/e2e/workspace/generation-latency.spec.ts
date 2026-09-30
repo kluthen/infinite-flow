@@ -3,17 +3,19 @@
  * from click to "Phrase ready" for the documented worst-case rhythm setting (ISS-004 moves this
  * off Mixed density to Sixteenth / Heavily varied / Sparse silence / Active displacement / Build
  * tension -- 1,797 rhythm candidates, the slowest setting to generate; the largest domain, 2,932
- * candidates, is Straight / Build) and for the default/cheap setting,
- * and checks the main thread stays responsive to a theme click during the worst-case cold run. A
- * second scenario measures the first generation after a change to one setting, as a mid-session
- * settings mutation causes: the page's one generation Worker (and so its one rhythm-domain memo)
- * is warmed on a one-step neighbour of the worst case, one control is changed through the UI to
- * reach the worst case, and that generation is timed; then a tonal-center and a register change,
- * which keep the rhythm setting, are timed the same way. Every cycle is timed both by the runner's
- * wall clock and exactly in the page (see `timePhraseReady`). Not part of `npm run test:e2e`; run
- * explicitly via `npm run measure:latency:browser`. Reports only -- it asserts nothing about the
- * numbers themselves, only that the page never becomes unresponsive. Writes the full JSON reports
- * to `LATENCY_BROWSER_OUT` and `LATENCY_BROWSER_CHANGE_OUT` when those env vars are set.
+ * candidates, is Straight / Build), for Sixteenth / Heavily varied / Sparse silence / Straight /
+ * Edge tension (the slowest setting to generate in Node since the cold-generation speed-up) and for
+ * the default/cheap setting, and checks the main thread stays responsive to a theme click during
+ * the worst-case cold run. A second scenario measures the first generation after a change to one
+ * setting, as a mid-session settings mutation causes: the page's one generation Worker (and so its
+ * one rhythm-domain memo) is warmed on a one-step neighbour of the worst case, one control is
+ * changed through the UI to reach the worst case, and that generation is timed; then a
+ * tonal-center and a register change, which keep the rhythm setting, are timed the same way.
+ * Every cycle is timed both by the runner's wall clock and exactly in the page (see
+ * `timePhraseReady`). Not part of `npm run test:e2e`; run explicitly via
+ * `npm run measure:latency:browser`. Reports only -- it asserts nothing about the numbers
+ * themselves, only that the page never becomes unresponsive. Writes the full JSON reports to
+ * `LATENCY_BROWSER_OUT` and `LATENCY_BROWSER_CHANGE_OUT` when those env vars are set.
  *
  * The page pre-warms the current rhythm setting's domain in its generation Worker when the Worker
  * starts and after every rhythm-setting change, so the env var `LATENCY_PREWARM` picks one of three
@@ -113,11 +115,32 @@ const WORST_CASE_SETTING: readonly SettingChange[] = [
   { group: 'Tension', from: 'Lift', to: 'Build' },
 ]
 
-/** Intent: apply the documented worst-case rhythm/tension setting through the real controls. */
-async function selectWorstCaseSetting(page: Page): Promise<void> {
-  for (const control of WORST_CASE_SETTING) {
+/**
+ * Intent: the slowest rhythm/tension setting to generate in Node since the cold-generation
+ * speed-up, as radiogroup label -> option label (`to`); it differs from the worst case only in
+ * syncopation and tension, and each is measured in its own fresh page (so its own Worker).
+ */
+const STRAIGHT_EDGE_SETTING: readonly Pick<SettingChange, 'group' | 'to'>[] = [
+  { group: 'Note density', to: 'Sixteenth' },
+  { group: 'Rhythmic variety', to: 'Heavily varied' },
+  { group: 'Silence density', to: 'Sparse' },
+  { group: 'Syncopation', to: 'Straight' },
+  { group: 'Tension', to: 'Edge' },
+]
+
+/** Intent: apply a rhythm/tension setting through the real controls, in the order listed. */
+async function selectSetting(
+  page: Page,
+  setting: readonly Pick<SettingChange, 'group' | 'to'>[],
+): Promise<void> {
+  for (const control of setting) {
     await radio(page, control.group, control.to).click()
   }
+}
+
+/** Intent: apply the documented worst-case rhythm/tension setting through the real controls. */
+function selectWorstCaseSetting(page: Page): Promise<void> {
+  return selectSetting(page, WORST_CASE_SETTING)
 }
 
 /** Intent: one timed generation cycle, click to "Phrase ready", within the test timeout. */
@@ -130,10 +153,10 @@ function formatTiming(timing: PhraseReadyTiming): string {
   return `${timing.inPageMs.toFixed(1)}ms in page (${timing.wallMs}ms wall)`
 }
 
-test('reports cold/warm generation latency for the worst-case and default settings', async ({
+test('reports cold/warm generation latency for the worst-case, Straight/Edge and default settings', async ({
   page,
 }) => {
-  test.setTimeout(TEST_TIMEOUT_MS * 3)
+  test.setTimeout(TEST_TIMEOUT_MS * 5)
 
   await gotoLatencyWorkspace(page)
   await settlePrewarm(page)
@@ -160,6 +183,15 @@ test('reports cold/warm generation latency for the worst-case and default settin
 
   const worstWarm = await timeGeneration(page)
 
+  // A fresh page, so a fresh Worker: the Straight/Edge domain is cold (only its own pre-warm, in
+  // `on`/`settled` mode, may have built it). The controls are clicked in an order whose
+  // intermediate settings all differ from Straight/Edge, so no earlier pre-warm builds it either.
+  await gotoLatencyWorkspace(page)
+  await selectSetting(page, STRAIGHT_EDGE_SETTING)
+  await settlePrewarm(page)
+  const straightEdgeCold = await timeGeneration(page)
+  const straightEdgeWarm = await timeGeneration(page)
+
   const report: LatencyReport = {
     prewarmMode: PREWARM_MODE,
     scenarios: [
@@ -172,6 +204,11 @@ test('reports cold/warm generation latency for the worst-case and default settin
         scenario: 'worst case (Sixteenth/Heavily varied/Sparse/Active displacement/Build)',
         cold: worstCold,
         warm: worstWarm,
+      },
+      {
+        scenario: 'Straight/Edge (Sixteenth/Heavily varied/Sparse/Straight/Edge)',
+        cold: straightEdgeCold,
+        warm: straightEdgeWarm,
       },
     ],
     themeResponseDuringColdWorstCaseMs: themeResponseMs,
