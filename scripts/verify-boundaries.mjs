@@ -24,6 +24,38 @@ const alwaysForbidden =
   /\b(getUserMedia|mediaDevices|XMLHttpRequest|WebSocket|EventSource|sendBeacon)\b|\bnew\s+Audio\s*\(|\bfetch\s*\(|document\.cookie/u
 
 /**
+ * Web Audio calls no authored source file may make, in any directory, `src/audio/` included: the
+ * session's voices (click and backing) are synthesized from oscillators and gains only, so nothing
+ * decodes, buffers or streams recorded sound. `new AudioBuffer` is matched as its exact
+ * construction form; the other three are unambiguous method names.
+ */
+// @spec-link [[req_session_backing_track]]
+const sampledAudioApis =
+  /\b(decodeAudioData|createBufferSource|createMediaElementSource)\b|\bnew\s+AudioBuffer\s*\(/u
+
+/**
+ * File extensions of recorded audio, MIDI files and sample libraries, none of which the build
+ * output may ship: the backing is synthesized in the app, with no sample library and no extra
+ * download. Matched case-insensitively.
+ */
+// @spec-link [[req_session_backing_track]]
+const audioAssetExtensions = new Set([
+  '.wav',
+  '.mp3',
+  '.ogg',
+  '.oga',
+  '.opus',
+  '.flac',
+  '.aac',
+  '.m4a',
+  '.weba',
+  '.mid',
+  '.midi',
+  '.sf2',
+  '.sfz',
+])
+
+/**
  * APIs allowed in exactly one directory of `src/` and rejected everywhere else: Web Audio contexts
  * (the live `AudioContext`, its legacy `webkitAudioContext` name, and `OfflineAudioContext`, which
  * renders audio off-line) only under `src/audio/`, and Web MIDI access only under `src/midi/`.
@@ -82,12 +114,68 @@ export function sourceBoundaryViolations(relativePath, contents) {
   if (alwaysForbidden.test(contents)) {
     boundaries.push('browser-only boundary: network, cookie, microphone or media-element API found')
   }
+  if (sampledAudioApis.test(contents)) {
+    boundaries.push(
+      'synthesized-backing boundary: sampled or decoded audio API found (voices are oscillators and gains only)',
+    )
+  }
   for (const { pattern, allowedDirectory, boundary } of directoryScopedApis) {
     if (pattern.test(contents) && !relativePath.startsWith(allowedDirectory)) {
       boundaries.push(boundary)
     }
   }
   return boundaries
+}
+
+/**
+ * Intent: every file under `directory`, recursively, whatever its extension, as absolute paths.
+ *
+ * @param {string} directory
+ * @returns {Promise<string[]>}
+ */
+async function everyFile(directory) {
+  const entries = await readdir(directory, { withFileTypes: true })
+  const nested = await Promise.all(
+    entries.map((entry) => {
+      const entryPath = join(directory, entry.name)
+      return entry.isDirectory() ? everyFile(entryPath) : [entryPath]
+    }),
+  )
+  return nested.flat()
+}
+
+/**
+ * Intent: the boundary labels one build-output file breaks, given its path relative to the build
+ * output root (forward slashes, e.g. `assets/index-abc.js`).
+ *
+ * @param {string} relativePath
+ * @returns {string[]}
+ */
+// @spec-link [[req_session_backing_track]]
+export function buildOutputBoundaryViolations(relativePath) {
+  if (audioAssetExtensions.has(extname(relativePath).toLowerCase())) {
+    return ['synthesized-backing boundary: audio or sample asset found in the build output']
+  }
+  return []
+}
+
+/**
+ * Intent: scan every file under `outputRoot` (the directory that stands for the build output
+ * `dist/`) and report each boundary it breaks, with paths relative to `outputRoot` in forward
+ * slashes, so the same scan runs over the real `dist/` or over a test tree laid out like it.
+ *
+ * @param {string} outputRoot
+ * @returns {Promise<{ files: string[], violations: { file: string, boundary: string }[] }>}
+ */
+// @spec-link [[req_session_backing_track]]
+export async function scanBuildOutputBoundaries(outputRoot) {
+  const files = (await everyFile(outputRoot))
+    .map((absolutePath) => relative(outputRoot, absolutePath).split(sep).join('/'))
+    .sort()
+  const violations = files.flatMap((file) =>
+    buildOutputBoundaryViolations(file).map((boundary) => ({ file, boundary })),
+  )
+  return { files, violations }
 }
 
 /**
@@ -116,8 +204,8 @@ export async function scanSourceBoundaries(sourceRoot) {
 
 /**
  * Intent: the full boundary verification run by `npm run verify:boundaries`: the authored-source
- * scan of `src/`, the Workbox runtime-caching setting, the precache manifest and the chunk-size
- * budgets. Throws with every violation found.
+ * scan of `src/`, the Workbox runtime-caching setting, the precache manifest, the build output's
+ * audio-asset scan and the chunk-size budgets. Throws with every violation found.
  */
 async function verifyBoundaries() {
   const { files, violations: sourceViolations } = await scanSourceBoundaries(
@@ -143,6 +231,13 @@ async function verifyBoundaries() {
 
   if (!precachedUrls.has('index.html')) {
     violations.push('dist/sw.js (index.html is missing from precacheAndRoute)')
+  }
+
+  const { files: outputFiles, violations: outputViolations } = await scanBuildOutputBoundaries(
+    fileURLToPath(new URL('../dist/', import.meta.url)),
+  )
+  for (const { file, boundary } of outputViolations) {
+    violations.push(`dist/${file} (${boundary})`)
   }
 
   // Every emitted JS/CSS/woff2 asset (the main chunk, the lazy notation chunk, the worker chunk, the
@@ -206,7 +301,7 @@ async function verifyBoundaries() {
   }
 
   console.log(
-    `Boundary verification passed for ${files.length} authored source files, ${precacheableAssetCount} precacheable dist/assets entries, and ${jsChunkCount} JS chunk(s) within budget ` +
+    `Boundary verification passed for ${files.length} authored source files, ${outputFiles.length} build-output files with no audio or sample asset, ${precacheableAssetCount} precacheable dist/assets entries, and ${jsChunkCount} JS chunk(s) within budget ` +
       `(entry ${entryChunkByteBudget / 1024} kB, generation.worker ${generationWorkerChunkByteBudget / 1024} kB, vexflow-engraver ${vexflowEngraverChunkByteBudget / 1024} kB, other ${defaultChunkByteBudget / 1024} kB).`,
   )
 }

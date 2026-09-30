@@ -1,9 +1,10 @@
 /**
  * Shared helpers for the audio transport specs: navigation to the workspace harness in its fake or
- * real audio mode, the harness's Start audio click, thin wrappers around the typed
+ * real audio mode, the harness's Start audio click, a generated phrase for the backing to follow,
+ * thin wrappers around the typed
  * `window.__workspaceHarness.audio` API, and a spy on every Web Audio context the page creates.
  */
-import { type Page } from '@playwright/test'
+import { expect, type Page } from '@playwright/test'
 
 import { WORKSPACE_HARNESS_URL } from '../release/harness-helpers'
 
@@ -124,6 +125,50 @@ export async function scheduledClicks(
 /** Intent: the clicks that sound, with the gain they sound at. */
 export function audibleClicks(page: Page): Promise<readonly WorkspaceHarnessAudibleClick[]> {
   return page.evaluate(() => window.__workspaceHarness.audio.audibleClicks())
+}
+
+/**
+ * Intent: generate one phrase in the harness's workspace from a real Generate click, seeded with
+ * `seed` first, and wait until the session is idle with a phrase shown.
+ */
+// @test-link [[req_session_backing_track]]
+export async function generateShownPhrase(page: Page, seed: number): Promise<void> {
+  await page.evaluate((s) => window.__workspaceHarness.queueSeeds([s]), seed)
+  await page.getByRole('button', { name: 'Generate phrase' }).click()
+  await expect
+    .poll(
+      async () => {
+        const { operation, timeline } = await page.evaluate(() =>
+          window.__workspaceHarness.snapshot(),
+        )
+        return operation === 'idle' && timeline !== null
+      },
+      { timeout: 30_000 },
+    )
+    .toBe(true)
+}
+
+/** Intent: queue phrase `phraseNumber`'s backing from the shown phrase; returns its harmony. */
+export function queueBacking(
+  page: Page,
+  phraseNumber: number,
+): Promise<readonly WorkspaceHarnessQueuedHarmonyEvent[]> {
+  return page.evaluate((n) => window.__workspaceHarness.audio.queueBacking(n), phraseNumber)
+}
+
+/** Intent: every scheduled backing note, in order. */
+export function backingNotes(page: Page): Promise<readonly WorkspaceHarnessBackingNote[]> {
+  return page.evaluate(() => window.__workspaceHarness.audio.backingNotes())
+}
+
+/** Intent: the backing notes that sound, with the gain they sound at. */
+export function audibleBacking(page: Page): Promise<readonly WorkspaceHarnessAudibleBackingNote[]> {
+  return page.evaluate(() => window.__workspaceHarness.audio.audibleBacking())
+}
+
+/** Intent: set the backing volume. */
+export function setBackingVolume(page: Page, level: number): Promise<void> {
+  return page.evaluate((value) => window.__workspaceHarness.audio.setBackingVolume(value), level)
 }
 
 /** Intent: turn the click on or off. */

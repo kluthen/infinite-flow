@@ -147,7 +147,10 @@ that belongs to the export screen, once it can download them.
   phrase's backing notes. A backing note has exactly a `pitch` (a concert MIDI note number), a
   `start` counted from the beginning of its phrase and a `duration`, both exact values in whole
   notes. The encoder doesn't render the backing: the review screen passes it the backing
-  renderer's notes for each phrase.
+  renderer's notes for each phrase. That renderer is `renderBacking` in
+  `src/domain/backing/backing-renderer.ts`, the one the audio plays from (see
+  [the backing](audio-transport.md#the-renderer)); its `BackingNote` has the same shape as
+  `MidiBackingNote`, and its bass (MIDI 36 to 47) and chords (MIDI 53 to 64) never share a pitch.
 
 There is no field for played notes, and none can be added: `validateMidiExportInput` rejects any
 extra field on the input, on a phrase, on a backing entry or on a backing note. The

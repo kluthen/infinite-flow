@@ -103,7 +103,7 @@ chunks in different sections; the second to merge rebases on the first.
 | 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29), follow-up Performance: cold generation (done 2026-09-30)                                                                                                                                                                                                                                             | Nothing                                               |
 | 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 (done 2026-09-29), follow-up 3b Phone staff height (done 2026-09-29) · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation (done 2026-09-29) · 14 Note acknowledgement (done 2026-09-29) · 18 MusicXML encoding (done 2026-09-29) · 19 Generated-notes MIDI encoding (done 2026-09-29) | Chunk 0 (done). Start chunk 3 first (see the caveat). |
 | 2    | 5 Idle fit retries and the room notice (done 2026-09-30) · 6 Note identity and session overlays (done 2026-09-30) · 8 Session engine (done 2026-09-30) · 10 Audio transport (done 2026-09-30)                                                                                                                                                                                 | Wave 1. Chunk 1's verdict: given (2026-09-30).        |
-| 3    | 9 Session history (done 2026-09-30) · 11 Backing · 12 MIDI input                                                                                                                                                                                                                                                                                                              | Wave 2                                                |
+| 3    | 9 Session history (done 2026-09-30) · 11 Backing (done 2026-09-30) · 12 MIDI input                                                                                                                                                                                                                                                                                            | Wave 2                                                |
 | 4    | 15 Session screen: start and end                                                                                                                                                                                                                                                                                                                                              | Wave 3                                                |
 | 5    | 13 Controller connection · 16 Rolling display                                                                                                                                                                                                                                                                                                                                 | Chunk 15                                              |
 | 6    | 17 MIDI in the session                                                                                                                                                                                                                                                                                                                                                        | Wave 5                                                |
@@ -1252,7 +1252,54 @@ with them; the gate needs the real values.
 
 ### Chunk 11 — Backing
 
-**Release:** v2.0.
+**Release:** v2.0. **Done on 2026-09-30.** `renderBacking(harmony, meter)` in
+`src/domain/backing/backing-renderer.ts` is a pure function from a phrase's harmony events to a
+bass line and block chords, as notes in whole notes from the phrase's start, the same shape as the
+MIDI export's `MidiBackingNote`. Each harmony event is cut at the bar lines, so the backing attacks
+at every chord change and every [downbeat](../../../docs/music/lexicon.md#downbeat). The bass plays
+the root from C2 to B2 (MIDI 36 to 47), with the fifth (the chord tone five letter names above the
+root) on beats 3 and 4 of a measure under one chord; the chords are the highest close-position
+[triad](../../../docs/music/lexicon.md#triad) (the three chord notes stacked as tightly as
+possible) whose top note is at or below E4. `BACKING_REGISTER` holds O57's proposed register.
+Harmony that doesn't tile the 16 beats, a meter other than 4/4 or an inconsistent triad throws a
+`BackingRenderError`. In `src/audio/`, `backing-track.ts` places the notes with the click's own
+`beatAt`, so a note on a beat falls at exactly that click's time; the transport's
+`queueBacking(phraseNumber, harmony)` takes phrases in order from 1 and throws with no session,
+out of order, or once planning has passed the phrase's start; `phraseStartsAt` gives each phrase's
+start. The voices are oscillators and gains on a third fade gain of the session bus, routed into
+backing-enable and backing-volume, in a placeholder timbre. `npm run verify:boundaries` now
+rejects any audio or sample file in `dist/` and the sampled-audio calls in `src/`. The workspace
+harness gained `audio.queueBacking`, `backingNotes` and `audibleBacking`; Playwright checks eight
+bars at 120 BPM on the fake clock and a short run on the real `AudioContext` in Chromium, and unit
+tests put eight bars at 60, 120 and 240 BPM exactly on the click grid. For
+[chunk 15](#chunk-15--session-screen-start-and-end): queue phrase 1 right after `start`, and each
+later phrase on the engine's `phrase-ready`. For
+[chunk 20](#chunk-20--review-and-generated-notes-export): the MIDI export's backing is
+`renderBacking` of each recorded phrase's harmony. Technical choices:
+[`docs/audio-transport.md`](../../../docs/audio-transport.md#the-backing). Decided in the chunk,
+awaiting the owner's acceptance: a "four-beat harmony event" is every full measure under one
+chord, so a chord held over two measures gets root then fifth in each; chords are attacked on
+chord changes and downbeats only, never on beat 3 (O57's wording; the atom's "re-attacked in the
+same way" is looser); the voicing is the highest close-position stack with its top at or below
+E4, so the inversion varies and the top note always lies between F3 and E4; the bass fifth stays in the
+MIDI 36 to 47 band, so it can sit below the root; notes are held for their whole segment with a
+short release, and timbre and levels are placeholders; the transport API above (in-order queue, a
+late queue throws, a phrase never queued stays silent until the next queue call throws), with the
+renderer in `src/domain/backing/` for the export to reuse; `verify:boundaries` gained explicit
+no-audio-asset and no-sample-API rules. Still open for the v2.0 gate: O57's listening test (the
+voicing, register, attack pattern and timbre) and ux Q31 (the backing volume's range and default,
+and the linear volume-to-gain mapping).
+
+**Progress:**
+
+| Step               | State | Notes                                                                                |
+| ------------------ | ----- | ------------------------------------------------------------------------------------ |
+| 1. ATD preflight   | Done  | PROCEED; no architecture atom                                                        |
+| 2. Tests first     | Done  | Red on assertions against stubs                                                      |
+| 3. Implement       | Done  | The renderer, the backing track, the voices, the transport API and the harness seams |
+| 4. Verify          | Done  | `npm run quality` passes; real-Chromium backing run included                         |
+| 5. Documents       | Done  | `docs/audio-transport.md`, `docs/testing.md`, README, `docs/export.md`               |
+| 6. ATD stewardship | Done  | Tags checked; atoms await the owner                                                  |
 
 **Goal.** A bass line and block chords that follow the phrase's own harmony, in pitch and on the
 beat. A pure renderer from the harmony to note events, and plain Web Audio voices that play them.
@@ -1798,10 +1845,11 @@ chunks left open, and get the owner's go.
 - Item 14: every v1 release test still passes; offline use after first load works with no audio
   asset added.
 - The open items that §12 lets implementation start without are closed or carried forward by the
-  owner: backing voicing (listening test), Bluetooth MIDI, the controller check on the reference
+  owner: backing voicing (O57's listening test: the voicing, register, attack pattern and timbre
+  chunk 11 built as placeholders), Bluetooth MIDI, the controller check on the reference
   hardware, and the wake lock dropped mid-session. (Starting from the Review is settled: spec
-  D170, no session starts while it shows.) The audio mix's
-  levels are set.
+  D170, no session starts while it shows.) The audio mix's levels are set (ux Q31: the click and
+  backing volumes' ranges and defaults, and the volume-to-gain mapping, linear for now).
 - The owner has answered what a session's last phrase may owe. Chunk 7's carry-over criteria hold
   under that answer, and `documentalist` has given `rule_leap_recovery` and
   `rule_open_phrase_ending` their v2 scope.

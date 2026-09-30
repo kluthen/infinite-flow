@@ -75,6 +75,15 @@ type WorkspaceHarnessAudioEvent =
       readonly scheduledAt: number
     }
   | {
+      readonly kind: 'backing'
+      readonly bus: number
+      readonly voice: 'bass' | 'chord'
+      readonly pitch: number
+      readonly at: number
+      readonly until: number
+      readonly scheduledAt: number
+    }
+  | {
       readonly kind: 'gain'
       readonly gain: WorkspaceHarnessMixGain
       readonly value: number
@@ -93,6 +102,24 @@ type WorkspaceHarnessAudioEvent =
 /** A click that sounds, with the click-volume gain it sounds at. */
 type WorkspaceHarnessAudibleClick = Extract<WorkspaceHarnessAudioEvent, { kind: 'click' }> & {
   readonly gain: number
+}
+
+/** A scheduled backing note, as recorded. */
+type WorkspaceHarnessBackingNote = Extract<WorkspaceHarnessAudioEvent, { kind: 'backing' }>
+
+/** A backing note that sounds, with the backing-volume gain it sounds at. */
+type WorkspaceHarnessAudibleBackingNote = WorkspaceHarnessBackingNote & { readonly gain: number }
+
+/**
+ * One harmony event of the shown phrase, as `queueBacking` queued it: where it starts in the
+ * phrase (bar 0-3, beat 0 or 2), how many beats it lasts, and its triad's three pitch classes
+ * (0-11, root first).
+ */
+interface WorkspaceHarnessQueuedHarmonyEvent {
+  readonly barIndex: number
+  readonly startBeat: number
+  readonly durationBeats: number
+  readonly pitchClasses: readonly [number, number, number]
 }
 
 /** The mix's first-load levels and volume range, read from the `--mix-*` design tokens. */
@@ -130,6 +157,17 @@ interface WorkspaceHarnessAudioApi {
   events: () => readonly WorkspaceHarnessAudioEvent[]
   /** The recorded clicks that sound, with the gain they sound at. */
   audibleClicks: () => readonly WorkspaceHarnessAudibleClick[]
+  /**
+   * Queue the running session's phrase `phraseNumber` (1, 2, 3… in order) with the harmony of the
+   * phrase the workspace currently shows (`outcome.provenance.harmony.events`), through the
+   * transport's own `queueBacking`, and return that harmony. Throws with no phrase shown, and
+   * whenever the transport's `queueBacking` throws (no session, out of order, too late).
+   */
+  queueBacking: (phraseNumber: number) => readonly WorkspaceHarnessQueuedHarmonyEvent[]
+  /** Every scheduled backing note, in call order. */
+  backingNotes: () => readonly WorkspaceHarnessBackingNote[]
+  /** The recorded backing notes that sound, with the gain they sound at. */
+  audibleBacking: () => readonly WorkspaceHarnessAudibleBackingNote[]
   setClickOn: (on: boolean) => void
   setClickVolume: (level: number) => void
   setBackingOn: (on: boolean) => void

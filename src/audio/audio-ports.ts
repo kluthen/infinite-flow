@@ -37,6 +37,22 @@ export interface ScheduledClick {
   readonly route: ClickRoute
 }
 
+/** Which backing voice a note belongs to: the bass line or one note of a block chord. */
+// @spec-link [[req_session_backing_track]]
+export type BackingVoice = 'bass' | 'chord'
+
+/**
+ * One backing note to sound: its voice, its concert MIDI pitch, and when it starts and ends on
+ * the audio clock. It goes through the backing on/off gain and the backing volume.
+ */
+// @spec-link [[req_session_backing_track]]
+export interface ScheduledBackingNote {
+  readonly voice: BackingVoice
+  readonly pitch: number
+  readonly at: AudioTime
+  readonly until: AudioTime
+}
+
 /**
  * The mix's gain stages. The `*-enable` gains are the on/off switches (1 or 0); the `*-volume`
  * gains are the volume levels. Muting is always one of these gains set to zero, never a
@@ -46,14 +62,18 @@ export interface ScheduledClick {
 export type MixGain = 'click-enable' | 'click-volume' | 'backing-enable' | 'backing-volume'
 
 /**
- * The sound of one session. Every voice a session schedules goes through its own bus, so fading
+ * The sound of one session, its clicks and its backing. Every voice a session schedules goes
+ * through its own bus, so fading
  * the bus out on stop silences everything it scheduled, including sound planned past the fade,
  * without touching a later session.
  */
 // @spec-link [[rule_stop_ends_session]]
+// @spec-link [[req_session_backing_track]]
 export interface SessionBus {
   /** Schedule one click on this session's bus. */
   readonly scheduleClick: (click: ScheduledClick) => void
+  /** Schedule one backing note on this session's bus. */
+  readonly scheduleBackingNote: (note: ScheduledBackingNote) => void
   /** Fade this session's bus out, from `at`, to silence over `durationSeconds`. */
   readonly fadeOut: (at: AudioTime, durationSeconds: number) => void
 }

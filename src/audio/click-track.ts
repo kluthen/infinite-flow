@@ -35,9 +35,12 @@ export function createClickPlan(startAt: AudioTime, tempo: number): ClickPlan {
 
 /**
  * Intent: when beat `k` falls, computed by one multiplication from the start rather than by
- * adding beat lengths, so a long session never drifts.
+ * adding beat lengths, so a long session never drifts. Everything placed on the beat grid (the
+ * clicks and the backing) goes through it, so a sound on beat `k` falls at the very same time.
  */
-function beatAt(plan: ClickPlan, k: number): AudioTime {
+// @spec-link [[rule_click_track]]
+// @spec-link [[rule_playhead_follows_audio_clock]]
+export function beatAt(plan: ClickPlan, k: number): AudioTime {
   return plan.startAt + (k * 60) / plan.tempo
 }
 

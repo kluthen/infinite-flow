@@ -40,8 +40,7 @@ function mixGainInto(
 
 /**
  * Intent: build the four mix gains, each at 1: click on/off into click volume and backing on/off
- * into backing volume, both volumes into the speakers. The backing gains wait for the backing
- * voices.
+ * into backing volume, both volumes into the speakers.
  */
 // @spec-link [[req_session_audio_mix]]
 function buildMix(context: WebAudioContextPort): Readonly<Record<MixGain, WebAudioGainNodePort>> {
@@ -72,7 +71,8 @@ function watchInterruptions(context: WebAudioContextPort, listeners: readonly ((
 
 /**
  * Intent: the audio output over `context`: its clock readings, the four mix gains built once, a
- * fresh bus per session and the interruption notice. Muting is a gain at zero; it never suspends,
+ * fresh bus per session (its click routes into the click gains, its backing into the backing
+ * on/off gain) and the interruption notice. Muting is a gain at zero; it never suspends,
  * closes or pauses the context.
  */
 // @spec-link [[req_session_audio_mix]]
@@ -104,6 +104,7 @@ export function createWebAudioOutput(context: WebAudioContextPort): AudioOutput 
       createWebAudioSessionBus(context, {
         'count-in': mix['click-volume'],
         click: mix['click-enable'],
+        backing: mix['backing-enable'],
       }),
     onInterrupted: (listener) => {
       interruptionListeners.push(listener)
