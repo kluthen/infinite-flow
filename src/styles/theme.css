@@ -39,6 +39,14 @@
      characters), plus one character of slack for glyphs wider than "0". A longer device name
      is cut with an ellipsis. */
   --controller-status-label-inline-size: 24ch;
+  /* The fixed content inline size of the whole header `controller-status`, the same in every
+     form, the `Connect controller` button included, so no change of form ever moves anything
+     else in the header: a badge's content exactly (`status-dot`, the `.controller-status` gap,
+     then the label area). Applied with `box-sizing: content-box`, so `.btn`'s padding and border
+     add the same amount to every form. */
+  --controller-status-inline-size: calc(
+    var(--spacing-2) + var(--spacing-2) + var(--controller-status-label-inline-size)
+  );
   /* The one fixed inline size shared by the header session action in both its labels,
      `Start session` and `Stop`, so switching between them never moves anything in the header.
      Sized in `ch` of the button's own font for the longer label, "Start session" (13

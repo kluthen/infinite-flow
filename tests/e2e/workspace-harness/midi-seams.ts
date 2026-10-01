@@ -123,6 +123,7 @@ export function createHarnessMidi(
     denyNextRequest: () => fakeAccess('denyNextRequest').denyNextRequest(),
     holdNextRequest: () => fakeAccess('holdNextRequest').holdNextRequest(),
     releaseHeldRequest: () => fakeAccess('releaseHeldRequest').releaseHeldRequest(),
+    setPermission: (state) => fakeAccess('setPermission').setPermission(state),
     requestCount: () => fakeAccess('requestCount').requestCount(),
     playedNotes: () => played.map((note) => ({ ...note })),
     endedNotes: () => ended.map((note) => ({ ...note })),

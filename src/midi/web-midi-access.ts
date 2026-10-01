@@ -1,6 +1,7 @@
 /**
- * The browser adapter of the MIDI access port: `navigator.requestMIDIAccess`, `MIDIAccess` and
- * `MIDIInput`, read through structural slices so tests can supply hand-made fakes.
+ * The browser adapter of the MIDI access port: `navigator.requestMIDIAccess`, the `midi` permission
+ * of `navigator.permissions`, `MIDIAccess` and `MIDIInput`, read through structural slices so tests
+ * can supply hand-made fakes.
  */
 
 import type {
@@ -8,6 +9,7 @@ import type {
   MidiAccessProvider,
   MidiAccessRequest,
   MidiInputPort,
+  MidiPermissionState,
 } from './midi-access-port'
 
 /** The slice of a Web MIDI port (input or output) the adapter reads. */
@@ -49,10 +51,20 @@ export interface WebMidiAccessLike {
   addEventListener(type: 'statechange', listener: (event: WebMidiConnectionEventLike) => void): void
 }
 
-/** The slice of `navigator` the adapter reads; `requestMIDIAccess` is absent without Web MIDI. */
+/** The slice of `navigator.permissions` the adapter reads: a permission query that never prompts. */
+// @spec-link [[rule_controller_connects_between_sessions]]
+export interface WebMidiPermissionsLike {
+  query(descriptor: PermissionDescriptor): Promise<{ readonly state: PermissionState }>
+}
+
+/**
+ * The slice of `navigator` the adapter reads; `requestMIDIAccess` is absent without Web MIDI, and
+ * `permissions` without the Permissions API.
+ */
 // @spec-link [[rule_chromium_only_support]]
 export interface WebMidiNavigatorPort {
   requestMIDIAccess?: (options: { sysex: boolean }) => Promise<WebMidiAccessLike>
+  readonly permissions?: WebMidiPermissionsLike
 }
 
 /** Typed failure for a MIDI access request the browser rejected for a reason no state covers. */
@@ -100,6 +112,7 @@ const KNOWN_REJECTIONS: ReadonlyMap<string, MidiAccessRequest> = new Map<string,
  *   `denied`; `NotSupportedError` (the browser cannot provide MIDI on this system, the same
  *   meaning for the player as no Web MIDI) resolves `unsupported`. Any other rejection is no known
  *   product state and throws a WebMidiAccessError carrying the original name and message.
+ * - permission: see readMidiPermission.
  */
 // @spec-link [[rule_controller_connects_between_sessions]]
 // @spec-link [[rule_midi_never_blocks_session]]
@@ -109,6 +122,7 @@ export function createWebMidiAccessProvider(
 ): MidiAccessProvider {
   return {
     isSupported: () => typeof navigatorPort.requestMIDIAccess === 'function',
+    permission: () => readMidiPermission(navigatorPort.permissions),
     request: async () => {
       if (typeof navigatorPort.requestMIDIAccess !== 'function') return { kind: 'unsupported' }
       let access: WebMidiAccessLike
@@ -119,6 +133,25 @@ export function createWebMidiAccessProvider(
       }
       return { kind: 'granted', access: wrapAccess(access) }
     },
+  }
+}
+
+/**
+ * Intent: read the browser's `midi` permission without prompting: `granted`, `prompt` or `denied`
+ * as the browser reports it. `unknown` when the browser can't tell: no Permissions API, or a query
+ * rejected with a TypeError (the browser does not know the `midi` name). Any other rejection is no
+ * known product state and propagates as it is.
+ */
+// @spec-link [[rule_controller_connects_between_sessions]]
+async function readMidiPermission(
+  permissions: WebMidiPermissionsLike | undefined,
+): Promise<MidiPermissionState> {
+  if (permissions === undefined) return 'unknown'
+  try {
+    return (await permissions.query({ name: 'midi' })).state
+  } catch (error) {
+    if (error instanceof TypeError) return 'unknown'
+    throw error
   }
 }
 

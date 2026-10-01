@@ -72,9 +72,12 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   streams, instrument profiles, controls, harmony, rhythm, pitch planning and validation,
   generation-request/result orchestration, note acknowledgement (`src/domain/acknowledgement/`:
   expected notes, their timing windows, latency-corrected played onsets and exact-pitch matching;
-  see [`docs/midi-acknowledgement.md`](docs/midi-acknowledgement.md)), and the backing renderer
+  see [`docs/midi-acknowledgement.md`](docs/midi-acknowledgement.md)), the backing renderer
   (`src/domain/backing/`: a phrase's harmony turned into bass and chord notes, shared by the audio
-  and the MIDI export; see [`docs/audio-transport.md`](docs/audio-transport.md#the-backing)).
+  and the MIDI export; see [`docs/audio-transport.md`](docs/audio-transport.md#the-backing)), and
+  the controller transposition check (`src/domain/controller-check/`: the written note the check
+  shows, the expected concert pitch and the verdict on the played note, with its wording; see
+  [`docs/controller-connection.md`](docs/controller-connection.md#the-transposition-check)).
 - `src/generation-worker/` — the typed request/response protocol and handler that run generation
   inside a dedicated module Web Worker, off the main thread.
 - `src/notation/` — the concert-to-written transformation types and the VexFlow engraving adapter,
@@ -112,8 +115,11 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   holds the root session composition (`create-workspace-session.ts`, with the `matchMedia` width
   provider in `browser-viewport-width.ts` and the session's browser adapters in `browser-*.ts`),
   the session controller (`workspace-session-controller.ts`, loaded as its own chunk) and the
-  workspace component tree, the session action, cue row and audio mix included (see
-  [`docs/phrase-workspace.md`](docs/phrase-workspace.md)).
+  workspace component tree, the session action, cue row, audio mix and header `controller-status`
+  included (see [`docs/phrase-workspace.md`](docs/phrase-workspace.md));
+  `src/components/controller-connection/` holds the connection sheet, loaded as its own chunk
+  (`load-connection-sheet.ts` is its sole importer), with its pure reducer, its view data and the
+  check note (see [`docs/controller-connection.md`](docs/controller-connection.md)).
 - `src/styles/` — the production Tailwind 4 styling authority (`theme.css`, `components.css`,
   `index.css`, `fonts.css`), consumed by application code; `ui_ux/versions/v1/ui_common.css` is a frozen design
   reference, not buildable production styling.
@@ -129,11 +135,12 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   schema (with an XML catalog for offline validation); see [`docs/testing.md`](docs/testing.md).
 - `tests/fixtures/midi/` — the generated-notes MIDI export's golden files; see
   [`docs/testing.md`](docs/testing.md).
-- `tests/e2e/{workspace,release,session,workspace-harness}` — Playwright suites: `workspace/`
-  exercises the production preview build directly; `release/` exercises release-readiness journeys
-  (determinism, errors/retry, concurrency, profile switch, theme isolation,
-  persistence/optional-scope absence, offline) mostly through the workspace harness; `session/`
-  drives whole practice sessions through the harness on its fake audio clock;
+- `tests/e2e/{workspace,release,session,controller,workspace-harness}` — Playwright suites:
+  `workspace/` exercises the production preview build directly; `release/` exercises
+  release-readiness journeys (determinism, errors/retry, concurrency, profile switch, theme
+  isolation, persistence/optional-scope absence, offline) mostly through the workspace harness;
+  `session/` drives whole practice sessions through the harness on its fake audio clock;
+  `controller/` drives `controller-status` and the connection sheet on its fake MIDI access;
   `workspace-harness/` is the harness's own entry
   point (`main.ts`) and DI-seam wiring, built by `vite.workspace-harness.config.ts`, including
   forced fit verdicts and layout failures through its engraver loader seam (see
@@ -144,8 +151,8 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
 - `src/midi/` — MIDI input, and the only place allowed to use Web MIDI (see Runtime Constraints):
   the browser adapter with the app's one `requestMIDIAccess` call, the parsing of note-on and
   note-off messages, the played-note tracker, the mapping of MIDI timestamps onto the audio clock,
-  and the controller that picks one input and follows it through an unplug and back. See
-  [`docs/midi-input.md`](docs/midi-input.md).
+  the controller that picks one input and follows it through an unplug and back, and the header's
+  status form folded from it (`controller-status.ts`). See [`docs/midi-input.md`](docs/midi-input.md).
 - `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier, and
   `replay-phrase.mjs`, the headless phrase replay behind `npm run replay:phrase` (see
   [Phrase replay key](docs/phrase-workspace.md#phrase-replay-key)).
@@ -153,7 +160,7 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   copied into `dist/licenses/` at build time; see [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
 - `docs/` — ATD-linked business-intent atoms plus narrative docs (architecture, notation,
   generation latency, the phrase workspace, the session engine, the audio transport, MIDI input,
-  and `docs/release/*`).
+  the controller connection, and `docs/release/*`).
 - `specs/` — the first-release master spec, implementation plan, generator architecture and
   contract, and roadmap/open-questions.
 - `ui_ux/` — the approved interaction/visual authority: each released version's design, frozen, in
@@ -187,9 +194,9 @@ for each of `src/audio/` and `src/midi/`), run by `npm run lint`, and the source
 is checked by `verify:boundaries` alone, in its source scan and in a scan of every file in `dist/`.
 In the running app,
 `tests/e2e/release/optional-scope-absence.spec.ts` checks that no audio context is created and no
-MIDI access is requested before the player clicks `Start session` or "Connect controller" (the
+MIDI access is requested before the player clicks `Start session` or `Connect controller` (the
 spec loads, generates, changes controls, regenerates, switches profile and theme, but never
-clicks either; "Connect controller" does not exist yet), that the
+clicks either), that the
 microphone is never requested, and that no request leaves the page's origin.
 
 The PWA uses `vite-plugin-pwa` with `generateSW` to precache every built HTML/JS/CSS/`woff2`/image
@@ -216,14 +223,17 @@ UI (Vue components, props-in/events-out)
     -> audio transport (src/audio/: the one AudioContext, look-ahead scheduler, click, backing, mix)
       -> backing renderer (src/domain/backing/: harmony -> bass and chord notes)
     -> MIDI input (src/midi/: one controller, played notes on the audio clock)
+      <- controller connection (header controller-status, lazy connection sheet, transposition check)
     -> notation (lazy VexFlow engraver, loaded on demand)
 ```
 
 - **UI.** `App.vue` builds one root `WorkspaceSession` for the tab's lifetime via
   `createWorkspaceSession` (or, in a test/harness, via the injected `WORKSPACE_SESSION_FACTORY`
   seam), and loads its session controller once, as a lazy chunk. `WorkspaceShell`,
-  `WorkspaceHeader`, `ScorePanel` (with the audio mix and the session cue row), `ControlPanel`
-  and its four control groups are props-in/events-out around that one session and its controller.
+  `WorkspaceHeader` (with `controller-status`), `ScorePanel` (with the audio mix and the session
+  cue row), `ControlPanel` and its four control groups are props-in/events-out around that one
+  session and its controller. The connection sheet loads as its own chunk when
+  `controller-status` is clicked (see below).
 - **Session composables.** `createGenerationSession` owns the session's state machine (`idle` /
   `generating` / `notating`, exactly one operation at a time, prior-result retention on failure)
   and exposes explicit actions; `create-workspace-session.ts` wires it to a `generate` seam, a
@@ -256,7 +266,7 @@ UI (Vue components, props-in/events-out)
   [`docs/session-engine.md`](docs/session-engine.md#the-session-controller) and
   [`docs/phrase-workspace.md`](docs/phrase-workspace.md#the-session-screen).
 - **Audio transport.** `src/audio/` holds the app's one `AudioContext`, created only by `unlock()`
-  inside the player's Start or "Connect controller" click and never suspended or closed. A
+  inside the player's `Start session` or `controller-status` click and never suspended or closed. A
   look-ahead scheduler, woken every 25 ms by a Web Worker timer, plans sound 200 ms ahead on the
   audio clock: the quarter-note click with beat 1 accented and the one-measure count-in, which
   sounds even with the click off. The backing is queued phrase by phrase with `queueBacking`: the
@@ -271,15 +281,22 @@ UI (Vue components, props-in/events-out)
   (`Backing`, `Click`, `Volume`) sets its gains. See
   [`docs/audio-transport.md`](docs/audio-transport.md).
 - **MIDI input.** `src/midi/` reads one MIDI controller. Access is requested only by
-  `connect()`, which the "Connect controller" click will call; no Web MIDI, a refused permission
+  `connect()`, which the header's `controller-status` click calls; no Web MIDI, a refused permission
   and no device are typed states, never errors. Only a note-on with non-zero velocity, on any
   channel, is a played note; a note-off or a zero-velocity note-on ends it, and every other
   message is ignored. The controller selects the only device present or the player's pick, by its
   port id; when that port reports disconnected it is `away`, its held notes end, and the same
   device coming back is reattached by itself. Each note's onset and release are mapped from the
   MIDI timestamp onto the audio clock through the transport's `clockAnchor()`. The workspace
-  session exposes it as `WorkspaceSession.midi`; nothing calls `connect()` yet (chunk 13 will).
-  See [`docs/midi-input.md`](docs/midi-input.md).
+  session exposes it as `WorkspaceSession.midi`. See [`docs/midi-input.md`](docs/midi-input.md).
+- **Controller connection.** Between sessions only, the header's `controller-status` shows the
+  controller's status (`Connect controller`, the connected device's name, `No controller` or
+  `MIDI access blocked`), frozen while a session runs. Its click unlocks the audio, asks for MIDI
+  access and opens the connection sheet, a lazily loaded modal dialog driven by a pure reducer:
+  it says why it can't connect when it can't, lets the player pick one device, and runs the
+  transposition check, which shows one written note of the instrument profile, engraved, and
+  compares the note the controller sends with the expected concert pitch. See
+  [`docs/controller-connection.md`](docs/controller-connection.md).
 - **Web Worker.** Every generation request runs off the main thread in one long-lived module
   `Worker` behind a typed, correlated request/response protocol
   (`src/generation-worker/generation-worker-protocol.ts`), which re-validates every field crossing
@@ -331,8 +348,9 @@ See [`specs/generator-architecture.md`](specs/generator-architecture.md) for the
 architectural contract and [`docs/phrase-workspace.md`](docs/phrase-workspace.md) for the
 workspace's component tree, session wiring, state map, and Worker protocol in detail,
 [`docs/session-engine.md`](docs/session-engine.md) for the session engine, and
-[`docs/audio-transport.md`](docs/audio-transport.md) for the audio transport, and
-[`docs/midi-input.md`](docs/midi-input.md) for MIDI input.
+[`docs/audio-transport.md`](docs/audio-transport.md) for the audio transport,
+[`docs/midi-input.md`](docs/midi-input.md) for MIDI input, and
+[`docs/controller-connection.md`](docs/controller-connection.md) for the controller connection.
 
 ## First-Release Verification Matrix
 
@@ -343,7 +361,7 @@ workspace's component tree, session wiring, state map, and Worker protocol in de
 | Static analysis                         | `npm run lint && npm run typecheck`     | Flat ESLint (including the boundary `no-restricted-*` rules) and strict TypeScript/Vue                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | No lint violations (including the optional-scope/persistence lint mirror) and no type errors.                                                                                                                                                                                            |
 | Unit/component/property                 | `npm run test:unit`                     | Vitest across `tests/unit/**`: domain logic, composables, components, worker handler                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Domain rules, session state machine, and component contracts hold, including property-based coverage (e.g. `planner-validator-property.spec.ts`) and the byte-identical generation-outcome golden fixture.                                                                               |
 | Production artifact                     | `npm run build`                         | Strict typecheck, then the static browser bundle and generated PWA files                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | The app builds cleanly and emits `dist/` plus `dist/sw.js`.                                                                                                                                                                                                                              |
-| Persistence/PWA/optional-scope boundary | `npm run verify:boundaries`             | Authored `src/**`: forbidden persistence/network/microphone identifiers, sampled-audio calls, and Web Audio/Web MIDI outside `src/audio/`/`src/midi/`; every `dist/` file, for audio or sample assets; `vite.config.ts`'s `runtimeCaching: []`; every `dist/assets/*.{js,css,woff2}` present in the `dist/sw.js` precache manifest; per-chunk minified-size budgets for `dist/assets/*.js` (entry 220 kB, `generation.worker` 150 kB, `vexflow-engraver` 800 kB, other 100 kB)                                                                                                                                                                                                                                                            | No authored persistence, network or microphone API, and no Web Audio/Web MIDI outside its directory; the sound is synthesized, with no recorded audio shipped; the offline precache is complete, including the lazy engraver and Worker chunks; no chunk has grown past its size budget. |
+| Persistence/PWA/optional-scope boundary | `npm run verify:boundaries`             | Authored `src/**`: forbidden persistence/network/microphone identifiers, sampled-audio calls, and Web Audio/Web MIDI outside `src/audio/`/`src/midi/`; every `dist/` file, for audio or sample assets; `vite.config.ts`'s `runtimeCaching: []`; every `dist/assets/*.{js,css,woff2}` present in the `dist/sw.js` precache manifest; per-chunk minified-size budgets for `dist/assets/*.js` (entry 224 kB, `generation.worker` 150 kB, `vexflow-engraver` 800 kB, other 100 kB)                                                                                                                                                                                                                                                            | No authored persistence, network or microphone API, and no Web Audio/Web MIDI outside its directory; the sound is synthesized, with no recorded audio shipped; the offline precache is complete, including the lazy engraver and Worker chunks; no chunk has grown past its size budget. |
 | End-to-end journeys                     | `npm run test:e2e`                      | Playwright, Chromium only, against the production preview (port 4173) and the workspace harness (port 4175): startup, generate/regenerate, viewports, portrait notice, target size, focus visibility, reduced motion, theme, unsupported-rhythm blocking, the audio transport, backing and audio mix, MIDI input, the `tests/e2e/session/` practice sessions (start conditions, count-in, locks, every end, the struggling notice), plus the `tests/e2e/release/` journeys — deterministic replay, errors and retry, concurrent-operation prevention, written-key/instrument-profile switching, profile switch, theme isolation, persistence absence, optional-scope absence, offline-and-fonts, and the idle fit retries and room notice | The full player-facing workflow behaves correctly end to end, including states (in-flight generation, forced generation/notation failures) that only the harness's deterministic seams can force.                                                                                        |
 | Automated accessibility (a11y)          | `npm run test:a11y`                     | Playwright + `@axe-core/playwright` against the empty shell, the audio mix's volume popover open, post-generation in Light and Dark, the unsupported-rhythm state, and (via the workspace harness) the in-flight-generation, generation-failed, and notation-failed states                                                                                                                                                                                                                                                                                                                                                                                                                                                                | No detectable axe violations in each covered UI state; not a full manual conformance claim.                                                                                                                                                                                              |
 | Notation visual baselines               | `npm run test:notation`                 | Playwright against the notation harness (port 4174) and the production preview: engraving elements, calibration, key-signature spelling, the staff layout (split below 64rem, one system from it up, the two typed layout failures, the height budget, the pre-draw fit and room checks), and pixel-baseline snapshots (`tests/e2e/notation/notation-visual.spec.ts-snapshots/`)                                                                                                                                                                                                                                                                                                                                                          | Engraved notation matches its recorded visual baseline and the documented layout/legibility policy.                                                                                                                                                                                      |

@@ -7,7 +7,9 @@
  * the audio mix, which the toolbar's and the phone's compact `Volume` share and a session's start
  * and end close. It runs the screen's side of a practice session over the session controller:
  * the Start click (popover closed, session started, the one jump), Stop, the musical controls
- * locked while a session runs, and where focus goes when it ends.
+ * locked while a session runs, and where focus goes when it ends. It also hosts the controller
+ * connection: the header `controller-status` it feeds, the click that opens the lazily loaded
+ * connection sheet, and where focus goes when the sheet closes.
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -20,6 +22,9 @@ import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
+import { loadConnectionSheet } from '@/components/controller-connection/load-connection-sheet'
+import { getInstrumentProfile } from '@/domain/generation/generation-intent'
+import type { MidiController } from '@/midi/midi-controller-state'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
 import WorkspaceHeader from './WorkspaceHeader.vue'
 import ScorePanel from './ScorePanel.vue'
@@ -28,6 +33,8 @@ import { createMixVolumePopover } from './mix-volume-popover'
 import { jumpForSessionStart, type SessionJumpView } from './session-start-jump'
 import { awaitsLateRoomNotice, sessionEndFocusTarget } from './session-end-focus'
 import type { SessionController } from './workspace-session-controller-types'
+import { useConnectionSheet } from './use-connection-sheet'
+import { useControllerStatus } from './use-controller-status'
 
 const props = withDefaults(
   defineProps<{
@@ -39,6 +46,8 @@ const props = withDefaults(
     handleSessionStaffFailed: (error: NotationError) => void
     handleLayoutInputs: (inputs: StaffLayoutInputs) => void
     audio: AudioTransport
+    /** The app's one MIDI controller, which `controller-status` shows and the sheet connects. */
+    midi: MidiController
     /** The session controller; null while its lazy chunk loads (no session can start then). */
     controller: SessionController | null
     /** How the start's jump scrolls and measures the window; the window itself by default. */
@@ -74,6 +83,15 @@ onMounted(() => {
 })
 
 /**
+ * Warm the lazy connection sheet chunk once the workspace mounts, so a `controller-status` click
+ * opens it without waiting on its fetch. A failure here is not reported: the click retries the same
+ * memoized loader, and a failure then propagates.
+ */
+onMounted(() => {
+  void loadConnectionSheet().catch(() => {})
+})
+
+/**
  * The element a window end moved focus to, while Needs more room may still land late (see
  * `awaitsLateRoomNotice`); null otherwise. Cleared when the notice lands, at the next start, and
  * when an Idle operation starts.
@@ -93,6 +111,30 @@ const sessionActive = computed(
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[rule_readonly_controls_keep_contrast]]
 const controlsReadonly = computed(() => state.value.operation !== 'idle' || sessionActive.value)
+
+// The header's `controller-status`, frozen at its form while a session runs.
+// @spec-link [[rule_same_controller_reattaches]]
+const controllerStatus = useControllerStatus(props.midi, () => sessionActive.value)
+
+// @spec-link [[rule_controller_connects_between_sessions]]
+const {
+  connectionSheetOpen,
+  sheetComponent,
+  sheetProps,
+  open: openConnectionSheet,
+  close: closeConnectionSheet,
+} = useConnectionSheet({
+  midi: props.midi,
+  audio: props.audio,
+  status: controllerStatus,
+  profile: () => getInstrumentProfile(state.value.controls.instrumentProfileId),
+  sessionActive: () => sessionActive.value,
+})
+
+defineExpose({
+  /** True while the connection sheet is open (see `ConnectionSheetHost.connectionSheetOpen`). */
+  connectionSheetOpen,
+})
 
 /** Intent: the loaded controller; a session action reaching here before it loads is a defect. */
 function requireController(): SessionController {
@@ -168,6 +210,7 @@ function focusAfterSessionEnd(): void {
   const parts = focusParts()
   if (target === 'room-notice') parts.scorePanel.focusRoomNotice()
   else if (target === 'phrase-action') parts.header.focusPhraseAction()
+  else if (target === 'controller-status') parts.header.focusControllerStatus()
   else parts.header.focusSessionAction()
   lateRoomNoticeFrom = awaitsLateRoomNotice(end, target) ? document.activeElement : null
 }
@@ -208,14 +251,30 @@ const stopLateNoticeWatch = watch(
 )
 
 /**
- * Intent: a session that ends, or a room notice that lands, while the shell unmounts moves no
- * focus: the page it would go to is going away. The two focus watchers stop here, while the
- * header and score panel are still mounted (Vue would stop them a step later anyway; stopping
- * them here makes it explicit), so neither ever runs without them.
+ * Intent: once the connection sheet has closed, by any path, and the page has rendered without
+ * it, move focus to the first enabled of the session action, the phrase action and
+ * `controller-status`.
+ */
+// @spec-link [[rule_controller_connects_between_sessions]]
+const stopSheetCloseFocusWatch = watch(
+  connectionSheetOpen,
+  (open, wasOpen) => {
+    if (open || !wasOpen) return
+    focusParts().header.focusAfterConnectionSheet()
+  },
+  { flush: 'post' },
+)
+
+/**
+ * Intent: a session that ends, a room notice that lands, or a sheet that closes while the shell
+ * unmounts moves no focus: the page it would go to is going away. The focus watchers stop here,
+ * while the header and score panel are still mounted (Vue would stop them a step later anyway;
+ * stopping them here makes it explicit), so none ever runs without them.
  */
 onBeforeUnmount(() => {
   stopEndFocusWatch()
   stopLateNoticeWatch()
+  stopSheetCloseFocusWatch()
 })
 
 /** Intent: an Idle operation starting settles the end's landing: no late notice takes focus. */
@@ -251,8 +310,10 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
       ref="header"
       :session="session"
       :controller="controller"
+      :controller-status="controllerStatus.form.value"
       @start-session="handleStartSession"
       @stop-session="handleStopSession"
+      @open-connection-sheet="openConnectionSheet"
     />
     <div class="layout-workspace">
       <ScorePanel
@@ -279,5 +340,11 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
       />
     </div>
   </main>
+  <component
+    :is="sheetComponent"
+    v-if="sheetComponent !== null && sheetProps !== null"
+    v-bind="sheetProps"
+    @close="closeConnectionSheet"
+  />
   <OrientationNotice />
 </template>

@@ -75,6 +75,7 @@ function fakeWorkspaceSession() {
     handleSessionStaffFailed: () => {},
     handleLayoutInputs: () => {},
     audio: transportRig().transport,
+    midi: createControllerRig().controller,
     createSessionController: async () => {
       if (controllerLoad !== null) await controllerLoad.promise
       nextController ??= createFakeSessionController()
@@ -105,6 +106,7 @@ vi.mock('../../src/components/workspace/create-workspace-session', () => ({
 
 import App from '../../src/App.vue'
 import { transportRig } from './audio/transport-rig'
+import { createControllerRig } from './midi/midi-controller-rig'
 import { PHRASE_SCORE_STUB } from './components/workspace/test-workspace'
 import {
   createFakeSessionController,

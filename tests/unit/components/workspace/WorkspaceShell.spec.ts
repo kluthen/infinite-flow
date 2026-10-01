@@ -16,6 +16,7 @@ import { createTestWorkspace, PHRASE_SCORE_STUB } from './test-workspace'
 import { createFakeSessionController } from './fake-session-controller'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
 import { themeMixTokens, transportRig } from '../../audio/transport-rig'
+import { createControllerRig } from '../../midi/midi-controller-rig'
 
 const MOUNT_OPTIONS = { global: { stubs: { PhraseScore: PHRASE_SCORE_STUB } } }
 
@@ -74,6 +75,7 @@ function mountShell(
       handleSessionStaffFailed: () => {},
       handleLayoutInputs: () => {},
       audio: transportRig().transport,
+      midi: createControllerRig().controller,
       controller,
       jumpView,
     },
@@ -222,6 +224,7 @@ describe('WorkspaceShell', () => {
         handleSessionStaffFailed: workspace.handleSessionStaffFailed,
         handleLayoutInputs: workspace.handleLayoutInputs,
         audio: workspace.audio,
+        midi: createControllerRig().controller,
         controller: null,
       },
       ...MOUNT_OPTIONS,

@@ -5,8 +5,8 @@
  * merged, and every other port is never opened nor listened to. Its state is derived, on every
  * input change, from permission, selection and the selected port's own state; every state is a
  * normal, non-blocking one. The selection lives in memory only and survives an unplug: the same
- * port coming back is reattached by itself, and a different device is never picked up that way.
- * Notes are read on every channel, mapped onto the audio clock through a fresh clock anchor per
+ * port coming back is reattached by itself, and a different device is never picked up that way;
+ * only the player's Disconnect clears it. Notes are read on every channel, mapped onto the audio clock through a fresh clock anchor per
  * message, kept in the port's message order, and tracked into played and ended notes.
  */
 
@@ -17,6 +17,7 @@ import type {
   MidiAccessProvider,
   MidiAccessRequest,
   MidiInputPort,
+  MidiPermissionState,
 } from './midi-access-port'
 import { midiTimestampToAudioTime } from './midi-clock-mapping'
 import {
@@ -49,9 +50,14 @@ type AccessPhase = 'unsupported' | 'not-requested' | 'requesting' | 'denied' | '
  * Intent: create the MIDI controller, `unsupported` when the provider says this browser has no
  * Web MIDI, else `not-requested`. Nothing is requested until `connect()`.
  * - connect: requests access from `not-requested` or `denied`, then selects the only device
- *   present if nothing is selected yet; an existing selection is kept. Throws from `requesting`
- *   or `unsupported`. A rejected request restores the stage it started from, then propagates.
+ *   present if nothing is selected yet; an existing selection is kept. While `requesting`, adopts
+ *   an abandoned in-flight connect() (settling with it); throws from `requesting` otherwise, or
+ *   from `unsupported`. A rejected request restores the stage it started from, then propagates.
+ * - permission: the provider's reading of the MIDI permission; never prompts, in any state.
+ * - abandonConnect: only while `requesting`; the request's outcome is still recorded, but the
+ *   connect() it belongs to selects nothing, unless a later connect() adopts it.
  * - select: selects a present input by id (replacing any selection), listens to it and opens it.
+ * - disconnect: the player's Disconnect; ends held notes now and clears the selection.
  * - releaseHeld: ends every held note at `at` (the session end), and reports it.
  * Subscribers hear every change of state or of the present devices; note listeners hear every
  * played and ended note. Both are called synchronously, in subscription order.
@@ -71,6 +77,8 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   let selected: MidiInputPort | undefined
   let openToken = 0
   let openInFlight = false
+  let connectAbandoned = false
+  let connectInFlight: Promise<void> | undefined
   let lastMappedAt: AudioTime | undefined
   let lastReported = changeKey(snapshot())
 
@@ -122,6 +130,12 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     return emitNotes(tracker.releaseAll(at))
   }
 
+  /** Intent: the browser's MIDI permission, as the provider reads it; never prompts, in any state. */
+  // @spec-link [[rule_controller_connects_between_sessions]]
+  function permission(): Promise<MidiPermissionState> {
+    return provider.permission()
+  }
+
   /** Intent: the granted access, or a typed failure for a call that needs it before it exists. */
   function grantedAccess(action: string): MidiAccessPort {
     if (access === undefined) {
@@ -130,11 +144,31 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     return access
   }
 
-  /** Intent: request MIDI access (the only place that does), then pick the only device. */
-  async function connect(): Promise<void> {
-    if (phase === 'unsupported' || phase === 'requesting') {
-      throw new MidiControllerError(`Cannot connect a controller while MIDI access is ${phase}.`)
+  /**
+   * Intent: connect a controller. While a request is in flight that the player abandoned (closed
+   * the sheet while the browser asks), a new connect() adopts it rather than asking again: the
+   * abandon is withdrawn, so the only device is picked on grant, and it settles with that request.
+   */
+  // @spec-link [[rule_controller_connects_between_sessions]]
+  function connect(): Promise<void> {
+    if (phase === 'requesting' && connectAbandoned && connectInFlight !== undefined) {
+      connectAbandoned = false
+      return connectInFlight
     }
+    if (phase === 'unsupported' || phase === 'requesting') {
+      return Promise.reject(
+        new MidiControllerError(`Cannot connect a controller while MIDI access is ${phase}.`),
+      )
+    }
+    connectInFlight = requestAndPick()
+    return connectInFlight
+  }
+
+  /**
+   * Intent: request MIDI access (the only place that does), then pick the only device. A connect()
+   * abandoned while its request was in flight records the outcome, then picks nothing.
+   */
+  async function requestAndPick(): Promise<void> {
     if (phase === 'not-requested' || phase === 'denied') {
       const result = await requestAccess(phase)
       if (result.kind !== 'granted') {
@@ -145,8 +179,26 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
       access = result.access
       phase = 'granted'
       access.onInputStateChange(onInputStateChange)
+      if (connectAbandoned) {
+        report()
+        return
+      }
     }
     await selectTheOnlyDevice()
+  }
+
+  /**
+   * Intent: abandon the connect() whose request is in flight (the player closed the sheet while
+   * the browser asks). The request cannot be withdrawn from the browser, so the state stays
+   * `requesting` until it is answered; only the device pick after it is dropped, unless a later
+   * connect() adopts the request.
+   */
+  // @spec-link [[rule_controller_connects_between_sessions]]
+  function abandonConnect(): void {
+    if (phase !== 'requesting') {
+      throw new MidiControllerError(`Cannot abandon a connect while MIDI access is ${phase}.`)
+    }
+    connectAbandoned = true
   }
 
   /**
@@ -156,6 +208,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
    */
   async function requestAccess(before: 'not-requested' | 'denied'): Promise<MidiAccessRequest> {
     phase = 'requesting'
+    connectAbandoned = false
     report()
     try {
       return await provider.request()
@@ -195,6 +248,26 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     selected = port
     listenTo(port)
     await openSelected(port)
+  }
+
+  /**
+   * Intent: the player's Disconnect. Notes still held end now, on the audio clock, as on a device
+   * switch; the selection clears, so the state is `choosing` or `no-device`. An open still in flight
+   * no longer counts; the old port stays listened to but is never read (only the selected port is),
+   * and its coming back changes only the device list. Throws when nothing is selected.
+   */
+  // @spec-link [[req_midi_controller_input]]
+  // @spec-link [[rule_controller_attached_definition]]
+  function disconnect(): void {
+    if (selected === undefined) {
+      throw new MidiControllerError('Cannot disconnect: no controller is selected.')
+    }
+    if (tracker.held().length > 0) releaseHeld(clock.anchor().audioTime)
+    selected = undefined
+    lastMappedAt = undefined
+    openToken += 1
+    openInFlight = false
+    report()
   }
 
   /**
@@ -285,8 +358,11 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   return {
     state,
     devices,
+    permission,
     connect,
+    abandonConnect,
     select,
+    disconnect,
     subscribe: changeListeners.add,
     onPlayedNote: noteListeners.add,
     releaseHeld,

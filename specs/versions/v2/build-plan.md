@@ -105,7 +105,7 @@ chunks in different sections; the second to merge rebases on the first.
 | 2    | 5 Idle fit retries and the room notice (done 2026-09-30) · 6 Note identity and session overlays (done 2026-09-30) · 8 Session engine (done 2026-09-30) · 10 Audio transport (done 2026-09-30)                                                                                                                                                                                 | Wave 1. Chunk 1's verdict: given (2026-09-30).        |
 | 3    | 9 Session history (done 2026-09-30) · 11 Backing (done 2026-09-30) · 12 MIDI input (done 2026-10-01)                                                                                                                                                                                                                                                                          | Wave 2                                                |
 | 4    | 15 Session screen: start and end (done 2026-10-01)                                                                                                                                                                                                                                                                                                                            | Wave 3                                                |
-| 5    | 13 Controller connection · 16 Rolling display (done 2026-10-01)                                                                                                                                                                                                                                                                                                               | Chunk 15                                              |
+| 5    | 13 Controller connection (done 2026-10-01) · 16 Rolling display (done 2026-10-01)                                                                                                                                                                                                                                                                                             | Chunk 15                                              |
 | 6    | 17 MIDI in the session                                                                                                                                                                                                                                                                                                                                                        | Wave 5                                                |
 | 7    | 20 Review and generated-notes export                                                                                                                                                                                                                                                                                                                                          | Chunk 17                                              |
 | 8    | 21 v2.0 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.0 chunk                                      |
@@ -1427,7 +1427,73 @@ best-effort until it is settled. Still open after the chunk: it stays open for t
 
 ### Chunk 13 — Controller connection
 
-**Release:** v2.0.
+**Release:** v2.0. **Done on 2026-10-01** on branch `v2-chunk-13` (not merged). The pure check in
+`src/domain/controller-check/` shows the written C nearest the middle of the instrument profile's
+written range (C4 for the C MIDI keyboard, C5 for both saxophones) and takes d, the played concert
+pitch minus the expected concert pitch. It reports a match, a whole-octave offset (the device's
+octave setting, no profile suggested) or a semitone offset (the device's transpose setting, plus a
+suggested profile when another profile's transposition equals the current one minus d: the screen
+handoff's six rows), with the handoff's Check result copy; unit tests inject 0, ±12, ±2, ±14, ±9
+and ±5 semitones for each profile (item 8). The engraver's new `engraveCheckNote`
+(`src/notation/vexflow-check-note-engraver.ts`) draws the one written note inside the engraver's
+chunk: treble clef, no key or time signature, labelled "Written note C 5". The MIDI controller
+gained `permission()`, a Permissions API read that makes the sheet show "Connecting…" or "Allow
+MIDI access" (`unknown` reads as Connecting); `abandonConnect()`, for a sheet closed while access
+is requested: the browser's answer is still recorded but selects nothing, and a later
+`Connect controller` click adopts the pending request; and `disconnect()`, the player's
+`Disconnect`, which clears the selection so nothing reattaches. `src/midi/controller-status.ts`
+folds the facts into the header's form: `Connect controller`, connected, no controller, MIDI
+access blocked, and the session-only disconnected form chunk 17 wires. The header's
+`controller-status` (`src/components/workspace/ControllerStatus.vue`) is disabled during a session
+with its contrast kept, and its form is frozen for the session; its click unlocks the audio, then
+asks for MIDI access, then opens the sheet. The connection sheet
+(`src/components/controller-connection/`, its own chunk, loaded on demand and warmed after mount)
+is a pure reducer with effects that covers every state, action, focus rule and device-change rule
+of the screen handoff. Focus on close goes to the session action, else the phrase action, else
+`controller-status`; after a count-in end that regenerates phrase 1 it now goes to
+`controller-status`, which resolves chunk 15's interim. The phrase replay announcer now loads on
+demand too, in the same order. The entry chunk's size budget in `npm run verify:boundaries` rose
+from 220 KiB to 224 KiB (the entry went from 224,133 B to 228,797 B; the sheet's chunk is 15.8 kB,
+the announcer's 2.1 kB). The workspace harness gained `midi.setPermission` and the notation
+harness `__notationCheckNote`. 48 Playwright tests in `tests/e2e/controller/` cover the states,
+the check, device changes, closing, the layout and `controller-status`; `test:a11y` gained 22
+scans (the sheet in 11 states, light and dark); 7 more tests are in
+`tests/e2e/notation/notation-check-note.spec.ts`; and unit tests cover the controller's additions,
+the check, the reducer, the status fold and the components. `ux-writer` settled three details in
+the chunk: ux D146 (the `Connect controller` form has the badge's width, so no change of form moves
+the header), ux D147 (Connected's four actions may wrap onto two rows) and ux D148 (spacing and
+wording). For [chunk 17](#chunk-17--midi-in-the-session): no note may start a session while the
+sheet is open (`connectionSheetOpen` on the shell; item 17's tests pass trivially until MIDI can
+start a session); the header's form freeze must let the disconnected badge (`lostInSession`)
+through; and suspending reattachment for a session started while the controller is away stays
+with chunk 17. For [chunk 20](#chunk-20--review-and-generated-notes-export): the Review's half of
+reattaching and of opening the sheet from the Review. Technical choices:
+[`docs/controller-connection.md`](../../../docs/controller-connection.md) and
+[`docs/midi-input.md`](../../../docs/midi-input.md#technical-choices-made-in-chunk-13). Atoms:
+`documentalist` proposes REVIEW for `req_midi_controller_input`, `rule_chromium_only_support`,
+`rule_midi_never_blocks_session`, `rule_controller_attached_definition` (after a fix to its notes),
+`rule_same_controller_reattaches` and `entity_instrument_profile`; the others wait for chunk 17.
+The owner's sign-off is needed on `rule_controller_transposition_check`'s wording ("instrument
+template" becomes profile), the "used only by" clause in the STABLE `rule_instrument_profile_range`
+and in the CONTRACT, the CONTRACT's outdated MIDI exclusion, and whether a Disconnect rule is
+added. Decided in the chunk, awaiting the owner's acceptance: the check note is the written C
+nearest the middle of the written range; closing the sheet while access is requested abandons the
+attempt in both sub-states; a second click adopts a pending request; `Disconnect` clears the
+selection; the header keeps its form for the whole session; and Checking or Waiting for your
+browser is read from the Permissions API. Still open for the v2.0 gate: §12's controller check on
+the reference hardware (which note a written middle C sends at each device setting decides whether
+a manual input-transposition setting is also needed).
+
+**Progress:**
+
+| Step               | State | Notes                                                                                                                                      |
+| ------------------ | ----- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1. ATD preflight   | Done  | PROCEED-WITH-SIGNOFF-PENDING; no architecture atom                                                                                         |
+| 2. Tests first     | Done  | Unit tests for the check, the reducer and the status fold; Playwright scenarios for every sheet state                                      |
+| 3. Implement       | Done  | The check, the check note, the controller's additions, the status fold, `controller-status`, the sheet and the harness seams               |
+| 4. Verify          | Done  | `npm run quality` passes; the leader confirms before commit                                                                                |
+| 5. Documents       | Done  | `docs/controller-connection.md`, `docs/midi-input.md`, `docs/testing.md`, `docs/notation-engraving.md`, `docs/phrase-workspace.md`, README |
+| 6. ATD stewardship | Done  | Tags checked; atoms await the owner                                                                                                        |
 
 **Goal.** The connection step, between sessions only: the `Connect controller` click that also
 unlocks audio, the connection sheet with its states and device picker, the transposition check,

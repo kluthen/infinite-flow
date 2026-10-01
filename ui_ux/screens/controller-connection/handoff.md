@@ -37,8 +37,12 @@ sheet-backdrop
   the viewport.
 - `sheet-title` names the current state in plain language and changes on every state change.
   `sheet-close` is a `btn` labeled `Close`, always present and always enabled.
-- `sheet-body` holds the state's copy as plain paragraphs, plus at most one `inline-alert`.
-  Secondary one-line hints use `sheet-hint`.
+- `sheet-body` holds the state's copy as plain paragraphs, plus at most one `inline-alert` of the
+  state's own; a state reached because a device was unplugged also shows the device-change line,
+  a second `inline-alert alert-notice`, above it (see Device changes while the sheet is open).
+  Consecutive paragraphs inside an `inline-alert`, such as a check result's sentence, suggestion
+  and profile line, are spaced by the stylesheet, not by the markup. Secondary one-line hints use
+  `sheet-hint`.
 - `check-note` shows the one written note on a short staff, engraved by the same notation pipeline
   as the score (treble clef, the current instrument profile's written pitch, `--font-music`,
   `--color-staff`), never as a letter name in text.
@@ -217,7 +221,9 @@ back follows its own rule, further down.
   `--sheet-max-inline-size`; `sheet-actions` stacks its buttons full-width, primary on top.
 - At `bp-tablet-landscape` and `bp-desktop`: `sheet` stays centered at up to
   `--sheet-max-inline-size`; `sheet-actions` lays its buttons out in one row, aligned to the end,
-  primary first.
+  primary first. When they don't fit the sheet's width in one row (**Connected** with all four
+  actions), they wrap onto a second row, each row aligned to the end, in the same order, so
+  reading, visual and focus order still match.
 - At every breakpoint: `device-picker` options stack vertically and long device names wrap within
   their option; `sheet` never scrolls horizontally, and scrolls vertically inside itself when the
   viewport is too short.

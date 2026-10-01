@@ -262,7 +262,7 @@ async function verifyBoundaries() {
    * targeted check. Every other JS chunk is expected to stay small; an unmatched chunk falls back to
    * the tightest budget so unexpected new chunks are still guarded.
    */
-  const entryChunkByteBudget = 220 * 1024 // chunk 16: rolling display (PhraseScore session mode and its wiring)
+  const entryChunkByteBudget = 224 * 1024 // chunk 13: the header's controller-status badge and its state (the connection sheet and the replay announcer load on demand)
   const generationWorkerChunkByteBudget = 150 * 1024
   const vexflowEngraverChunkByteBudget = 800 * 1024
   const defaultChunkByteBudget = 100 * 1024

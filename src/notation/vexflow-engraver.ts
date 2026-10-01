@@ -8,9 +8,10 @@
  * draws one system part at a time instead, into the position its rolling display gives it, from
  * the same whole-phrase plan. It also runs the two pure pre-draw checks the idle workspace needs,
  * through the same planning code drawing uses and without touching the DOM: whether a phrase
- * fits, and whether the window has room for the staff with a given key signature at all. Together
- * with that file and ./vexflow-two-system-engraver.ts, this is the only trio of files allowed to
- * import 'vexflow'.
+ * fits, and whether the window has room for the staff with a given key signature at all. It also
+ * re-exports the controller check's one-note engraving (./vexflow-check-note-engraver.ts), so that
+ * ships in this same lazy chunk. Together with that file, ./vexflow-mapping.ts and
+ * ./vexflow-two-system-engraver.ts, this is one of the only four files allowed to import 'vexflow'.
  */
 import { Formatter, Stave, StaveNote, Voice, type Beam } from 'vexflow/bravura'
 
@@ -55,6 +56,8 @@ import {
   openSystemSvg,
   type MeasureBox,
 } from './vexflow-two-system-engraver'
+
+export { engraveCheckNote } from './vexflow-check-note-engraver'
 
 /** The engraved result: one SVG per system that shows notes, plus the geometry PhraseScore reports. */
 export interface EngravedScore {

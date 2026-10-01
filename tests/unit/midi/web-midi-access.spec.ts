@@ -16,6 +16,7 @@ import {
 import {
   createFakeWebMidiAccess,
   createFakeWebMidiNavigator,
+  createFakeWebMidiPermissions,
   createFakeWebMidiPort,
   type FakeWebMidiAccess,
 } from './fake-web-midi'
@@ -65,6 +66,40 @@ describe('WebMidiAccessProvider: support and the one access request', () => {
 
   it('accepts the browser navigator as its navigator port', () => {
     expectTypeOf<Navigator>().toExtend<WebMidiNavigatorPort>()
+  })
+})
+
+// @test-link [[rule_controller_connects_between_sessions]]
+describe('WebMidiAccessProvider: the MIDI permission, read without prompting', () => {
+  it.each(['granted', 'prompt', 'denied'] as const)(
+    'answers %s as the browser reports it, querying "midi" and never requesting access',
+    async (state) => {
+      const navigator = createFakeWebMidiNavigator(() =>
+        Promise.resolve(createFakeWebMidiAccess([])),
+      )
+      const permissions = createFakeWebMidiPermissions(() => Promise.resolve({ state }))
+      const provider = createWebMidiAccessProvider({ ...navigator, permissions })
+      await expect(provider.permission()).resolves.toBe(state)
+      expect(permissions.queries).toEqual([{ name: 'midi' }])
+      expect(navigator.calls).toEqual([])
+    },
+  )
+
+  it('is unknown without navigator.permissions', async () => {
+    await expect(createWebMidiAccessProvider({}).permission()).resolves.toBe('unknown')
+  })
+
+  it('is unknown when the browser does not know the "midi" permission name (TypeError)', async () => {
+    const permissions = createFakeWebMidiPermissions(() =>
+      Promise.reject(new TypeError("'midi' is not a valid PermissionName")),
+    )
+    await expect(createWebMidiAccessProvider({ permissions }).permission()).resolves.toBe('unknown')
+  })
+
+  it('propagates any other rejection of the query as it is', async () => {
+    const failure = new DOMException('query refused', 'InvalidStateError')
+    const permissions = createFakeWebMidiPermissions(() => Promise.reject(failure))
+    await expect(createWebMidiAccessProvider({ permissions }).permission()).rejects.toBe(failure)
   })
 })
 

@@ -98,9 +98,10 @@ flowchart TD
   | MIDI-blocked badge (error tone) | The browser refused MIDI permission on the latest request | Requesting access |
   | Disconnected badge (error tone) | Session only: a controller lost mid-session, while its countdown runs | Not clickable (session) |
 
-- Every badge form has the same width: the label area has one fixed inline size, and a long
-  device name is cut with an ellipsis (see `screens/phrase-workspace/handoff.md`). No change of
-  form ever moves another header element.
+- Every form has the same width, the `Connect controller` button included: the button and its
+  label area each have one fixed inline size, and a long device name is cut with an ellipsis
+  (see `screens/phrase-workspace/handoff.md`). No change of form ever moves another header
+  element, the first connection included.
 - A later successful request replaces the MIDI-blocked badge: the connected badge if it connects a
   device; otherwise the no-controller badge if a controller had connected earlier in this page
   session, or the `Connect controller` button only if none ever had. Once a controller has

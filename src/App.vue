@@ -60,6 +60,7 @@ onUnmounted(() => {
     :handle-session-staff-failed="workspace.handleSessionStaffFailed"
     :handle-layout-inputs="workspace.handleLayoutInputs"
     :audio="workspace.audio"
+    :midi="workspace.midi"
     :controller="sessionController"
   />
 </template>
