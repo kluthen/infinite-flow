@@ -17,14 +17,15 @@ with its [concert pitch](music/lexicon.md#concert-pitch) (the note as it sounds)
   `web-midi-access.ts`. Both boundary checks enforce the directory (see
   [Runtime Constraints](../README.md#runtime-constraints)).
 - **Asked for only by `connect()`.** Building the controller asks the browser for nothing. MIDI
-  permission is requested only when the player clicks "Connect controller" (chunk 13 wires that
-  click), never at page load.
+  permission is requested only when the player clicks the header's `controller-status` (the
+  `Connect controller` button or a badge), never at page load.
 - **Every state is a normal state.** No Web MIDI, a refused permission, no device: each is a typed
   state the app works in, never an exception that reaches the page, and none of them blocks a
   session.
-- **No screen yet.** The workspace session holds the controller as `WorkspaceSession.midi`
-  (`src/components/workspace/create-workspace-session.ts`). Nothing calls it yet: chunk 13's
-  connection sheet will.
+- **The connection sheet drives it.** The workspace session holds the controller as
+  `WorkspaceSession.midi` (`src/components/workspace/create-workspace-session.ts`). The header's
+  `controller-status` shows its status, and the connection sheet connects, selects and
+  disconnects it (see [`docs/controller-connection.md`](controller-connection.md)).
 
 The rules come from the master spec's
 [§8, MIDI input and note acknowledgement](../specs/versions/v2/master-spec.md#8-midi-input-and-note-acknowledgement)
@@ -42,6 +43,10 @@ and the controller-connection flow's
 | `web-midi-access.ts`       | `createWebMidiAccessProvider(navigator)`: the port on the browser's Web MIDI, and the app's one access request. |
 | `midi-controller-state.ts` | The controller's public shapes: its states, the device snapshot, the change it reports, its typed failure.      |
 | `midi-controller.ts`       | `createMidiController({ provider, clock })`: the one controller, from the access request to the played notes.   |
+| `controller-status.ts`     | The header's status facts, folded from the controller's changes, and the one header form read from them. Pure.  |
+
+`controller-status.ts` serves the header only; it is described in
+[The header: `controller-status`](controller-connection.md#the-header-controller-status).
 
 `createWorkspaceSession` builds the controller on `createWebMidiAccessProvider(navigator)` and on
 the audio transport's clock anchor (see [The audio clock](#the-audio-clock)).
@@ -52,8 +57,9 @@ The controller talks to the browser only through `MidiAccessProvider` and `MidiA
 declared in `midi-access-port.ts`:
 
 - **Provider** (`MidiAccessProvider`): `isSupported()`, which answers without asking the player
-  anything, and `request()`, which asks for MIDI permission and resolves `granted` with the access,
-  `denied` or `unsupported`.
+  anything; `request()`, which asks for MIDI permission and resolves `granted` with the access,
+  `denied` or `unsupported`; and `permission()`, which reads the MIDI permission without ever
+  prompting and resolves `granted`, `prompt`, `denied` or `unknown` (`MidiPermissionState`).
 - **Access** (`MidiAccessPort`): `inputs()`, the inputs present right now, and
   `onInputStateChange(listener)`, called whenever a device is plugged or unplugged or a port
   opens, with the change's timestamp.
@@ -75,6 +81,10 @@ fit them too.
   browser refused) resolve `denied`; `NotSupportedError` (the browser can't give MIDI on this
   system) resolves `unsupported`. Any other rejection is no known state, and throws a
   `WebMidiAccessError` carrying the browser's own name and message.
+- `permission()` queries `navigator.permissions` for `{ name: 'midi' }` and returns the browser's
+  `granted`, `prompt` or `denied`. It is `unknown` when the browser can't tell: no Permissions API,
+  or a query rejected with a `TypeError` (the browser doesn't know the `midi` name). Any other
+  rejection propagates as it is.
 - Each browser input gets one wrapper, cached by the input object, so a port keeps its identity
   across an unplug and a replug. Outputs are never exposed.
 - A `null` name or manufacturer (Web MIDI's "the system gives none") reads as an empty string.
@@ -140,15 +150,27 @@ and ended note.
 - **`connect()` is the only path to the request.** From `not-requested` or `denied` it asks for
   access; once access is granted it asks no more. Then, with nothing selected, it selects the only
   device present; with several it leaves the state at `choosing`. An existing selection is kept.
-  It throws from `unsupported` and from `requesting`.
+  It rejects with a `MidiControllerError` from `unsupported`, and from `requesting` unless it
+  adopts an abandoned request (below).
+- **`permission()`** reads the browser's MIDI permission through the provider, in any state, and
+  never prompts. The sheet uses it to tell its Checking sub-state from Waiting for your browser.
+- **`abandonConnect()`**, only while `requesting` (else it throws), marks the `connect()` in flight
+  as abandoned: the player closed the sheet while the browser asks. The answer is still recorded
+  (access granted or refused, devices listed), but that `connect()` then selects nothing. A
+  `connect()` called before the answer adopts the request: the abandon is withdrawn, no second
+  request is made, and it settles with the first one, picking the only device on a grant.
 - **`select(id)`** selects a present input, replacing any selection, then listens to it and opens
   it. Notes still held on the device it replaces end at once. Only the selected port is ever
   opened or listened to: several inputs are never merged.
+- **`disconnect()`** is the player's Disconnect. Notes still held end at the current audio time,
+  the selection clears (the state is `choosing` or `no-device`), and an open still in flight no
+  longer counts. The old port is never read again nor reattached by itself: its coming back only
+  changes the device list. It throws when nothing is selected.
 - **Lost.** When the selected port reports disconnected, the state is `away` and the selection is
   kept. Notes still held end at the unplug's time, placed on the audio clock.
 - **The same device comes back by itself.** When the selected port reports connected again, the
   controller reattaches it with no action from the player and no check. If the browser left the
-  port closed, the controller reopens it.
+  port closed, the controller reopens it. Only the player's Disconnect clears the selection.
 - **A different device is only listed.** A device plugged in while the selected one is away, or
   while another is connected, appears in the device list and is never opened or picked up.
 - **`releaseHeld(at)`** ends every held note at `at`, for the session's end.
@@ -195,8 +217,10 @@ connection delay is one of chunk 14's latency constants.
 
 Unit tests drive the pure modules directly, and the controller through a fake MIDI access on the
 fake audio rig: every message, every connection state, the lost controller and its return, and the
-clock mapping with a known offset between the two clocks. The browser adapter is tested on
-hand-made fakes of the Web MIDI objects, and the real anchor on a recording fake audio context.
+clock mapping with a known offset between the two clocks, the permission read, an abandoned and an
+adopted request, and the player's Disconnect. The browser adapter is tested on hand-made fakes of
+the Web MIDI objects and of `navigator.permissions`, and the real anchor on a recording fake audio
+context.
 The workspace harness injects the same fake access through its `midi` seams, and Playwright runs
 the connection states, the message rules and a lost controller on the fake audio clock, repeats a
 scripted run to the same recordings, checks that the production app asks for no MIDI access at
@@ -209,17 +233,21 @@ typed state. Reading a real controller is checked by hand, with `npm run dev` an
 
 ## What later chunks add
 
-- **Chunk 13:** the connection sheet. Its "Connect controller" click handler calls
-  `WorkspaceSession.audio.unlock()` and then `midi.connect()`, in that order, and it drives
-  `select(id)` from its device picker. In `no-device`, a device plugged in only moves the state to
-  `choosing`; the sheet calls `connect()` again, which selects it if it is the only one.
+- **Chunk 13 (built):** the connection sheet and the header's `controller-status` (see
+  [`docs/controller-connection.md`](controller-connection.md)). The `controller-status` click
+  calls `WorkspaceSession.audio.unlock()`, then `midi.permission()` and `midi.connect()`, in that
+  order, inside the click. The sheet selects through `select(id)`, abandons a request when it is
+  closed while the browser asks, and disconnects through `disconnect()`. In `no-device`, a device
+  plugged in moves the controller to `choosing`, and the sheet resolves it as `Try again` would,
+  with no new request.
 - **Chunks 14 and 17:** each played note is handed to `compensatePlayedNote` through
   `toNoteOnOnAudioClock` before matching.
 - **Chunk 17:** MIDI in the session. It suspends reattaching for a session started while the
   selected controller was away, so that session stays controller-less (`rule_start_while_controller_away`),
   ends the held notes with `releaseHeld(at)` at the session's end, and records the ended notes in
   the session history. It also decides whether the history and the played-notes export store the
-  raw onsets or the compensated ones: `documentalist` flagged this as open.
+  raw onsets or the compensated ones: `documentalist` flagged this as open. What chunk 13 left
+  for it is listed under [What chunk 17 must know](#what-chunk-17-must-know).
 
 ## Technical choices made in chunk 12
 
@@ -261,3 +289,49 @@ These were decided in the chunk and await the owner's acceptance:
   timestamp, so compensation subtracts it once and only once.
 - **A fresh anchor per message,** rather than one anchor read at unlock, so clock drift never
   builds up.
+
+## Technical choices made in chunk 13
+
+Chunk 13 built the connection sheet (see [`docs/controller-connection.md`](controller-connection.md))
+and added `permission()`, `abandonConnect()` and `disconnect()` to the controller for it. These
+choices were made in the chunk and await the owner's acceptance:
+
+- **Checking or Waiting, from a permission query made alongside the request.** The sheet must show
+  "Allow MIDI access" while the browser's own prompt waits for the player, and "Connecting…"
+  otherwise, but Web MIDI never says when the browser prompts. So the click reads the `midi`
+  permission through the Permissions API, which never prompts, in the same click as the request:
+  `prompt` means access was not yet decided, so the browser is asking. The query starts just
+  before the request, in the same click. A browser that can't tell (no Permissions API, or no
+  `midi` name in it) answers `unknown`, and the sheet stays at Checking, which makes no claim
+  about a prompt, until the request settles.
+- **Abandon keeps the request in flight.** A browser can't withdraw a permission prompt once
+  shown, so closing the sheet while it asks can't cancel the request. `abandonConnect()` only
+  marks the `connect()` as abandoned: the answer is still recorded, so a later "block" shows the
+  MIDI-blocked badge and a later "allow" leaves access granted, but the abandoned `connect()`
+  selects nothing, and the next click resolves without a prompt. A second `connect()` while the
+  request is still in flight adopts it rather than asking again, so there is never more than one
+  request, and the player answers the prompt already up.
+- **`connect()` rejects rather than throws.** It now returns a rejected promise from `unsupported`
+  and from `requesting`, so every failure of a connect reaches its caller the same way.
+- **Disconnect clears the selection.** The player's Disconnect must mean "stop using this device",
+  so `disconnect()` clears the selection, and nothing reattaches when the same port comes back: it
+  is only listed, like any other device. Held notes end at the current audio time, as on a switch
+  of device. The old port stays listened to, but its messages are never read: only the selected
+  port's are.
+
+### What chunk 17 must know
+
+- **`connectionSheetOpen`.** `WorkspaceShell` exposes it, true from the `controller-status` click
+  until the sheet closes, its loading included. Chunk 17 must read it so that no MIDI note starts
+  a session or its count-in while the sheet is open, phrase 1's first note included. A note played
+  then reaches the sheet's check only.
+- **The header form is frozen during a session.** `useControllerStatus` keeps the form the header
+  showed when the session started, count-in included, until the session ends.
+  `controllerStatusForm` already gives the error-toned `disconnected` form first when its
+  `lostInSession` option is set, but the composable passes `false` today, and the frozen form wins
+  over the live one during a session. Chunk 17 must let a controller lost mid-session show the
+  disconnected badge through the freeze, while its countdown runs.
+- **Suspending the reattachment stays chunk 17's.** A session started while the selected
+  controller is away must stay without one (`rule_start_while_controller_away`); the controller
+  still reattaches the same port by itself whenever it comes back. The frozen header already keeps
+  showing `No controller` for such a session.

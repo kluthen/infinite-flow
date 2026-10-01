@@ -11,6 +11,7 @@ import type {
   MidiAccessProvider,
   MidiAccessRequest,
   MidiInputPort,
+  MidiPermissionState,
   MidiPortConnection,
   MidiPortState,
 } from '../../../src/midi/midi-access-port'
@@ -62,6 +63,11 @@ export interface FakeMidiAccess extends MidiAccessProvider {
   readonly holdNextRequest: () => void
   /** Settle the held access request. */
   readonly releaseHeldRequest: () => void
+  /**
+   * Set the permission `permission()` answers. Like a browser, it is otherwise `prompt` until a
+   * request is answered (`unknown` without Web MIDI), then `granted` or `denied` as answered.
+   */
+  readonly setPermission: (state: MidiPermissionState) => void
   /** Keep the next `open()` of this device in flight until `releaseHeldOpen`. */
   readonly holdNextOpen: (id: string) => void
   /** Complete the held `open()` of this device. */
@@ -107,6 +113,7 @@ export function createFakeMidiAccess(options: FakeMidiAccessOptions = {}): FakeM
   let failNext: Error | undefined
   let holdNext = false
   let heldRequest: (() => void) | undefined
+  let permission: MidiPermissionState = supported ? 'prompt' : 'unknown'
 
   const access: MidiAccessPort = {
     inputs: () => Object.freeze(present.map((id) => portOf(id).port)),
@@ -189,18 +196,24 @@ export function createFakeMidiAccess(options: FakeMidiAccessOptions = {}): FakeM
     ;[...fake.listeners].forEach((listener) => listener(data, timestampMs))
   }
 
-  /** Intent: resolve a request the way the fake is currently set up to answer it. */
+  /**
+   * Intent: resolve a request the way the fake is currently set up to answer it; the permission
+   * then reads as answered, as a browser's does.
+   */
   function answer(): MidiAccessRequest {
     if (!supported) return { kind: 'unsupported' }
     if (denyNext) {
       denyNext = false
+      permission = 'denied'
       return { kind: 'denied' }
     }
+    permission = 'granted'
     return { kind: 'granted', access }
   }
 
   return {
     isSupported: () => supported,
+    permission: () => Promise.resolve(permission),
     request: () => {
       requests += 1
       const failure = failNext
@@ -252,6 +265,9 @@ export function createFakeMidiAccess(options: FakeMidiAccessOptions = {}): FakeM
       const release = heldRequest
       heldRequest = undefined
       release()
+    },
+    setPermission: (state) => {
+      permission = state
     },
     holdNextOpen: (id) => {
       portOf(id).holdNextOpen = true

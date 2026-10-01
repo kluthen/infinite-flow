@@ -7,8 +7,8 @@
  * Each measure's group also records its playhead band rectangle. It also opens, sizes, finishes
  * and bounds-checks a system's SVG root. The caller, ./vexflow-engraver.ts, owns the planning,
  * which systems are drawn into which hosts, the ties and the note-identity tagging.
- * Together with ./vexflow-mapping.ts and ./vexflow-engraver.ts, this is the only trio of files
- * allowed to import 'vexflow'.
+ * Together with ./vexflow-mapping.ts, ./vexflow-engraver.ts and ./vexflow-check-note-engraver.ts,
+ * this is one of the only four files allowed to import 'vexflow'.
  */
 import {
   Barline,

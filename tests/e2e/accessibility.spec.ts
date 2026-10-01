@@ -1,6 +1,19 @@
 import AxeBuilder from '@axe-core/playwright'
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
+import {
+  CHECK,
+  KEYS,
+  PAD,
+  clickControllerStatus,
+  connectThroughSheet,
+  deviceOption,
+  gotoControllerHarness,
+  play,
+  sheet,
+  sheetAction,
+  unplug,
+} from './controller/controller-helpers'
 import { generateAndAwaitReady, gotoWorkspace, primaryButton, radio } from './workspace/helpers'
 import {
   failNextGeneration,
@@ -124,3 +137,130 @@ test('has no detectable axe violations in the notation-failed error state', asyn
   const results = await new AxeBuilder({ page }).analyze()
   expect(results.violations, describeViolations(results.violations)).toEqual([])
 })
+
+// The connection sheet, open in each of its states (chunk 13), on the workspace harness's fake
+// MIDI access, in both themes. Each state is reached through the header's controller-status click.
+
+/** One sheet state to scan: how to reach it from a fresh harness page, and its title. */
+interface SheetScan {
+  readonly name: string
+  readonly midi?: 'fake' | 'unsupported'
+  readonly reach: (page: Page) => Promise<void>
+  readonly title: string
+}
+
+const SHEET_SCANS: readonly SheetScan[] = [
+  {
+    name: 'Requesting access, Checking',
+    reach: async (page) => {
+      await page.evaluate(() => {
+        window.__workspaceHarness.midi.setPermission('granted')
+        window.__workspaceHarness.midi.holdNextRequest()
+      })
+      await clickControllerStatus(page)
+    },
+    title: 'Connecting…',
+  },
+  {
+    name: 'Requesting access, Waiting for your browser',
+    reach: async (page) => {
+      await page.evaluate(() => window.__workspaceHarness.midi.holdNextRequest())
+      await clickControllerStatus(page)
+    },
+    title: 'Allow MIDI access',
+  },
+  {
+    name: 'Unsupported browser',
+    midi: 'unsupported',
+    reach: (page) => clickControllerStatus(page),
+    title: "Controller connection isn't available here",
+  },
+  {
+    name: 'Permission denied',
+    reach: async (page) => {
+      await page.evaluate(() => window.__workspaceHarness.midi.denyNextRequest())
+      await clickControllerStatus(page)
+    },
+    title: 'MIDI access is blocked',
+  },
+  {
+    name: 'No device found',
+    reach: (page) => clickControllerStatus(page),
+    title: 'No controller found',
+  },
+  {
+    name: 'Multi-device picker',
+    reach: (page) => connectThroughSheet(page, [KEYS, PAD]),
+    title: 'Choose a controller',
+  },
+  {
+    name: 'Transposition check, Prompt',
+    reach: async (page) => {
+      await connectThroughSheet(page, [KEYS])
+      await expect(sheet(page).locator('.check-note svg')).toHaveCount(1)
+    },
+    title: 'Check your controller',
+  },
+  {
+    name: 'Transposition check, Result',
+    reach: async (page) => {
+      await connectThroughSheet(page, [KEYS])
+      await play(page, KEYS, CHECK.tenor.written)
+      await expect(sheetAction(page, 'Continue')).toBeFocused()
+    },
+    title: 'Check your controller',
+  },
+  {
+    name: 'Connected',
+    reach: async (page) => {
+      await connectThroughSheet(page, [KEYS, PAD])
+      await deviceOption(page, KEYS.name).click()
+      await play(page, KEYS, CHECK.tenor.concert)
+      await sheetAction(page, 'Continue').click()
+    },
+    title: 'Controller connected',
+  },
+  {
+    name: 'Multi-device picker with the device in use',
+    reach: async (page) => {
+      await connectThroughSheet(page, [KEYS, PAD])
+      await deviceOption(page, KEYS.name).click()
+      await play(page, KEYS, CHECK.tenor.concert)
+      await sheetAction(page, 'Continue').click()
+      await sheetAction(page, 'Choose a different device').click()
+      await expect(deviceOption(page, KEYS.name)).toHaveClass(/is-selected/)
+    },
+    title: 'Choose a controller',
+  },
+  {
+    name: 'the device-change line',
+    reach: async (page) => {
+      await connectThroughSheet(page, [KEYS, PAD])
+      await deviceOption(page, KEYS.name).click()
+      await unplug(page, KEYS)
+      await expect(sheet(page).locator('.sheet-body')).toContainText('Keys 49 was unplugged.')
+    },
+    title: 'Choose a controller',
+  },
+]
+
+for (const scan of SHEET_SCANS) {
+  for (const theme of ['Light', 'Dark'] as const) {
+    // @test-link [[rule_controller_connects_between_sessions]]
+    test(`has no detectable axe violations with the connection sheet at ${scan.name}, ${theme} theme`, async ({
+      page,
+    }) => {
+      await gotoControllerHarness(page, { midi: scan.midi ?? 'fake' })
+      await radio(page, 'Presentation theme', theme).click()
+
+      await scan.reach(page)
+      await expect(sheet(page).locator('#sheet-title')).toHaveText(scan.title)
+      await page.waitForFunction(() =>
+        document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
+      )
+
+      const results = await new AxeBuilder({ page }).analyze()
+      expect(results.violations, describeViolations(results.violations)).toEqual([])
+    })
+  }
+}

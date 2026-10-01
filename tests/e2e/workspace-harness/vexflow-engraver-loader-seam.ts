@@ -20,6 +20,9 @@
  *   idle fit retries with any phrase at any window size. Every call is counted.
  * - `planStaffRoomForKey`, only to count its calls, so a spec can wait for a room check to have
  *   run before asserting that it started nothing.
+ *
+ * Every other function, the connection sheet's `engraveCheckNote` included, is the real module's
+ * own, forwarded unwrapped: it neither counts as an engraving nor consumes an armed failure.
  */
 import { NotationError } from '../../../src/notation/notation-error'
 import {

@@ -5,6 +5,7 @@
  */
 
 import type { AudioTime } from '../session/session-types'
+import type { MidiPermissionState } from './midi-access-port'
 import type { PlayedNoteEvent, PlayedNoteEvents } from './played-note-tracker'
 
 /** A plain snapshot of one MIDI input, for display and selection; never the port itself. */
@@ -54,8 +55,24 @@ export interface MidiControllerChange {
 export interface MidiController {
   readonly state: () => MidiControllerState
   readonly devices: () => readonly MidiDevice[]
+  /** The browser's MIDI permission, read through the provider; never prompts, in any state. */
+  // @spec-link [[rule_controller_connects_between_sessions]]
+  readonly permission: () => Promise<MidiPermissionState>
   readonly connect: () => Promise<void>
+  /**
+   * Abandon the connect() whose request is in flight (only while `requesting`, else throws a
+   * MidiControllerError): its outcome is still recorded, but that connect() selects nothing,
+   * unless a connect() called before the answer adopts the request.
+   */
+  // @spec-link [[rule_controller_connects_between_sessions]]
+  readonly abandonConnect: () => void
   readonly select: (deviceId: string) => Promise<void>
+  /**
+   * The player's Disconnect: end held notes, clear the selection; the old port is no longer read
+   * nor reattached by itself. Throws a MidiControllerError when nothing is selected.
+   */
+  // @spec-link [[req_midi_controller_input]]
+  readonly disconnect: () => void
   readonly subscribe: (listener: (change: MidiControllerChange) => void) => () => void
   readonly onPlayedNote: (listener: (event: PlayedNoteEvent) => void) => () => void
   readonly releaseHeld: (at: AudioTime) => PlayedNoteEvents

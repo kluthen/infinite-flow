@@ -22,10 +22,10 @@ describe('sessionEndFocusTarget', () => {
     )
   })
 
-  it('sends focus to the session action while phrase 1 regenerates (interim until controller-status)', () => {
+  it('sends focus to controller-status while phrase 1 regenerates after a count-in end', () => {
     const end = { cause: 'staff-not-shown', phase: 'count-in', soundedPhraseCount: 0 } as const
     expect(sessionEndFocusTarget(end, { roomNotice: null, operation: 'generating' })).toBe(
-      'session-action',
+      'controller-status',
     )
   })
 
@@ -55,6 +55,7 @@ describe('awaitsLateRoomNotice', () => {
       soundedPhraseCount: 0,
     } as const
     expect(awaitsLateRoomNotice(windowEnd, 'session-action')).toBe(true)
+    expect(awaitsLateRoomNotice(windowEnd, 'controller-status')).toBe(true)
     expect(awaitsLateRoomNotice({ ...windowEnd, phase: 'running' }, 'phrase-action')).toBe(true)
     expect(awaitsLateRoomNotice(windowEnd, 'room-notice')).toBe(false)
   })

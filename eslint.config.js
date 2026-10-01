@@ -164,6 +164,7 @@ export default [
       'src/notation/vexflow-mapping.ts',
       'src/notation/vexflow-engraver.ts',
       'src/notation/vexflow-two-system-engraver.ts',
+      'src/notation/vexflow-check-note-engraver.ts',
     ],
     rules: {
       'no-restricted-imports': [
@@ -173,7 +174,7 @@ export default [
             {
               group: ['vexflow', 'vexflow/*'],
               message:
-                'Only src/notation/vexflow-mapping.ts, vexflow-engraver.ts and vexflow-two-system-engraver.ts may import vexflow.',
+                'Only src/notation/vexflow-mapping.ts, vexflow-engraver.ts, vexflow-two-system-engraver.ts and vexflow-check-note-engraver.ts may import vexflow.',
             },
           ],
         },

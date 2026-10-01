@@ -575,7 +575,9 @@ freshly generated phrase.
   the playhead stepping on heard time, the re-engrave in the held layout when the window changes,
   and the material rule that ends a session whose shown or waiting phrases no longer fit.
 - **Chunk 17:** the MIDI end causes (silence timeout, controller lost), a session started by the
-  starting note, and the acknowledgements and played notes in the history's records.
+  starting note (never while the connection sheet is open: see
+  [What chunk 17 must know](midi-input.md#what-chunk-17-must-know)), and the acknowledgements and
+  played notes in the history's records.
 - **Chunk 20:** the Review and the generated-notes export, built from the history (`lastHistory`),
   in place of the interim end after phrase 1 sounded.
 - **Chunk 24:** setting changes applied at a phrase boundary.

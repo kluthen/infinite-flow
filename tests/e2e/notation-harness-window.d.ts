@@ -220,10 +220,59 @@ interface NotationHarnessSystems {
   }>
 }
 
+/** What the check note's host holds once `engraveCheckNote` has drawn into it. */
+// @test-link [[rule_controller_transposition_check]]
+interface NotationHarnessCheckNoteSnapshot {
+  /** The `svg` elements in the host, and the host's element children. */
+  readonly svgCount: number
+  readonly hostChildCount: number
+  readonly className: string | null
+  readonly role: string | null
+  readonly ariaLabel: string | null
+  readonly width: string | null
+  readonly height: string | null
+  readonly viewBox: string | null
+  readonly clefCount: number
+  readonly timeSignatureCount: number
+  readonly keySignatureCount: number
+  readonly staveNoteCount: number
+  /** The `<text>` glyphs in the notehead group: the notehead, then its accidental if drawn. */
+  readonly noteheadGroupTexts: readonly string[]
+  /** The notehead glyph's `y`, in the SVG's own units (smaller is higher on the staff). */
+  readonly noteheadY: number
+  /** Each ledger line's own `stroke` attribute (null: it inherits the staff colour). */
+  readonly ledgerLineStrokes: readonly (string | null)[]
+  /** Whether the SVG's box lies inside the host's content box. */
+  readonly fitsHost: boolean
+  /** The SVG's computed size in CSS px. */
+  readonly renderedWidthPx: number
+  readonly renderedHeightPx: number
+  /** The host's computed `color` (the staff colour) and the notehead's computed `fill`. */
+  readonly hostColour: string
+  readonly noteheadFill: string
+}
+
+/**
+ * The connection sheet's check-note hook, on the real engraver module once its fonts are loaded:
+ * `engrave` draws a written MIDI note into the page's one `.check-note` host and snapshots it;
+ * `engraveFailure` makes the same call, reports what it threw and whether the host kept what it
+ * held.
+ */
+// @test-link [[rule_controller_transposition_check]]
+interface NotationHarnessCheckNote {
+  engrave(writtenMidi: number): Promise<NotationHarnessCheckNoteSnapshot>
+  engraveFailure(writtenMidi: number): Promise<{
+    readonly thrown: NotationHarnessThrown | null
+    readonly hostChildCount: number
+    readonly previousSvgKept: boolean
+  }>
+}
+
 interface Window {
   __notationHarness: NotationHarnessState
   /** Every `layout-inputs` event PhraseScore emitted since the page loaded, in order. */
   __notationLayoutInputs: NotationHarnessLayoutInputs[]
   __notationChecks: NotationHarnessChecks
   __notationSystems: NotationHarnessSystems
+  __notationCheckNote: NotationHarnessCheckNote
 }

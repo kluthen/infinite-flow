@@ -27,6 +27,8 @@
  * two pure pre-draw checks (a fixture's fit, a key signature's room) on the real engraver module.
  * `window.__notationSystems` (./phrase-systems.ts) draws a fixture phrase whole or one system part
  * at a time on the real engraver module, into scratch hosts, and snapshots what was drawn.
+ * `window.__notationCheckNote` (./check-note.ts) draws the controller check's one written note on
+ * the real engraver module into a `.check-note` host kept on the page, and snapshots it.
  */
 import { createApp, h, nextTick, ref, shallowRef, type Ref } from 'vue'
 
@@ -65,6 +67,7 @@ import { resolveGlyphIdentities } from '@/notation/note-identity'
 import { NO_SCORE_OVERLAYS, ScoreOverlayError, type ScoreOverlays } from '@/notation/score-overlays'
 import '@/styles/index.css'
 import { resolveFixture } from './fixtures'
+import { notationCheckNoteHook } from './check-note'
 import { notationSystemsHook } from './phrase-systems'
 
 /** Extra fields the generated source publishes alongside every state transition; empty for a fixture. */
@@ -374,6 +377,7 @@ window.__notationHarness = { state: 'pending' }
 window.__notationLayoutInputs = []
 window.__notationChecks = notationChecks
 window.__notationSystems = notationSystemsHook(readyEngraver)
+window.__notationCheckNote = notationCheckNoteHook(readyEngraver)
 
 const params = new URLSearchParams(window.location.search)
 applyThemeParam(params)

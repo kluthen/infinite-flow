@@ -12,6 +12,7 @@ import type {
   WebMidiInputLike,
   WebMidiMessageEventLike,
   WebMidiNavigatorPort,
+  WebMidiPermissionsLike,
 } from '../../../src/midi/web-midi-access'
 
 /** A fake Web MIDI port whose live readings the test sets, with the test's controls. */
@@ -43,6 +44,11 @@ export interface FakeRequestCall {
 /** A fake navigator with Web MIDI, recording every `requestMIDIAccess` call. */
 export interface FakeWebMidiNavigator extends WebMidiNavigatorPort {
   readonly calls: FakeRequestCall[]
+}
+
+/** A fake `navigator.permissions`, recording every descriptor it was queried with. */
+export interface FakeWebMidiPermissions extends WebMidiPermissionsLike {
+  readonly queries: PermissionDescriptor[]
 }
 
 /** Intent: a fake port, present and closed, of the given type; `open()` opens it at once. */
@@ -113,6 +119,21 @@ export function createFakeWebMidiNavigator(
     calls,
     requestMIDIAccess(options) {
       calls.push({ options, self: this })
+      return answer()
+    },
+  }
+}
+
+/** Intent: a fake `navigator.permissions` whose `query` records the descriptor and returns `answer()`. */
+// @test-link [[rule_controller_connects_between_sessions]]
+export function createFakeWebMidiPermissions(
+  answer: () => Promise<{ readonly state: PermissionState }>,
+): FakeWebMidiPermissions {
+  const queries: PermissionDescriptor[] = []
+  return {
+    queries,
+    query(descriptor) {
+      queries.push(descriptor)
       return answer()
     },
   }

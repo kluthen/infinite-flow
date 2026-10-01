@@ -60,12 +60,21 @@ export type MidiAccessRequest =
   | { readonly kind: 'unsupported' }
 
 /**
+ * The browser's MIDI permission, read without prompting. `unknown`: this browser can't tell (no
+ * Permissions API, or it doesn't know the `midi` name).
+ */
+// @spec-link [[rule_controller_connects_between_sessions]]
+export type MidiPermissionState = 'granted' | 'prompt' | 'denied' | 'unknown'
+
+/**
  * Where MIDI access comes from. `isSupported` answers without asking the player anything;
- * `request` asks for MIDI permission, and is only called when the player connects a controller.
+ * `request` asks for MIDI permission, and is only called when the player connects a controller;
+ * `permission` reads that permission and never prompts.
  */
 // @spec-link [[rule_controller_connects_between_sessions]]
 // @spec-link [[rule_chromium_only_support]]
 export interface MidiAccessProvider {
   readonly isSupported: () => boolean
   readonly request: () => Promise<MidiAccessRequest>
+  readonly permission: () => Promise<MidiPermissionState>
 }

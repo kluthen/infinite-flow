@@ -10,6 +10,7 @@ import {
 } from '@/domain/controls/profile-selection'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
+import type { ControllerStatusForm } from '@/midi/controller-status'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
 import { createFakeSessionController } from './fake-session-controller'
 
@@ -60,12 +61,19 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
   return { session, actions }
 }
 
-/** Intent: mount the header over `session`, with no session controller loaded unless given. */
+/**
+ * Intent: mount the header over `session`, with no session controller loaded unless given, and
+ * `controller-status` in its Connect controller form unless given.
+ */
 function mountHeader(
   session: GenerationSession<WorkspaceSessionResult>,
   controller: SessionController | null = null,
+  controllerStatus: ControllerStatusForm = { kind: 'connect' },
 ) {
-  return mount(WorkspaceHeader, { props: { session, controller }, attachTo: document.body })
+  return mount(WorkspaceHeader, {
+    props: { session, controller, controllerStatus },
+    attachTo: document.body,
+  })
 }
 
 /** Intent: the phrase action, the header's first action slot, whatever its emphasis. */
@@ -391,5 +399,88 @@ describe('WorkspaceHeader session action', () => {
     exposed.focusPhraseAction()
     expect(document.activeElement).toBe(primaryButton(wrapper).element)
     wrapper.unmount()
+  })
+})
+
+/** Intent: the header's `controller-status` button. */
+function controllerStatus(wrapper: ReturnType<typeof mount>) {
+  return wrapper.get('.context-group > button.controller-status')
+}
+
+const KEYS = { id: 'port-a', name: 'Keys 49', manufacturer: 'Acme' }
+
+// @test-link [[rule_controller_connects_between_sessions]]
+// @test-link [[rule_readonly_controls_keep_contrast]]
+describe('WorkspaceHeader controller-status', () => {
+  it('sits first in context-group, before score-context and theme-control', () => {
+    const wrapper = mountHeader(fakeSession().session)
+    const children = Array.from(wrapper.get('.context-group').element.children)
+    expect(children).toHaveLength(3)
+    expect(children[0]!.classList.contains('controller-status')).toBe(true)
+    expect(children[1]!.classList.contains('score-context')).toBe(true)
+    expect(children[2]!.classList.contains('theme-control')).toBe(true)
+  })
+
+  it('shows the form it is given', () => {
+    const wrapper = mountHeader(fakeSession().session, null, { kind: 'connected', device: KEYS })
+    expect(controllerStatus(wrapper).classes()).toContain('is-badge')
+    expect(controllerStatus(wrapper).text()).toBe('Keys 49')
+  })
+
+  it('is enabled at Idle, while the controller loads and while a phrase loads', () => {
+    const loading = mountHeader(fakeSession({ operation: 'generating' }).session)
+    expect(controllerStatus(loading).attributes('disabled')).toBeUndefined()
+    const idle = mountHeader(fakeSession(READY).session, createFakeSessionController().controller)
+    expect(controllerStatus(idle).attributes('disabled')).toBeUndefined()
+  })
+
+  it.each(['count-in', 'running'] as const)(
+    'is disabled in the %s, its classes unchanged, and asks for nothing',
+    async (phase) => {
+      const fake = createFakeSessionController()
+      const form: ControllerStatusForm = { kind: 'connected', device: KEYS }
+      const wrapper = mountHeader(fakeSession(READY).session, fake.controller, form)
+      const idleClasses = controllerStatus(wrapper).classes()
+      fake.start()
+      fake.state.phase = phase
+      await wrapper.vm.$nextTick()
+
+      expect(controllerStatus(wrapper).attributes('disabled')).toBeDefined()
+      expect(controllerStatus(wrapper).classes()).toEqual(idleClasses)
+      await controllerStatus(wrapper).trigger('click')
+      expect(wrapper.emitted('open-connection-sheet')).toBeUndefined()
+    },
+  )
+
+  it('asks the shell to open the connection sheet on a click', async () => {
+    const wrapper = mountHeader(fakeSession().session)
+    await controllerStatus(wrapper).trigger('click')
+    expect(wrapper.emitted('open-connection-sheet')).toHaveLength(1)
+  })
+
+  it('moves focus to controller-status on request', () => {
+    const wrapper = mountHeader(fakeSession().session)
+    const exposed = wrapper.vm as unknown as { focusControllerStatus: () => void }
+    exposed.focusControllerStatus()
+    expect(document.activeElement).toBe(controllerStatus(wrapper).element)
+    wrapper.unmount()
+  })
+
+  it('after the sheet closes, focuses the first enabled of session action, phrase action, controller-status', () => {
+    type Exposed = { focusAfterConnectionSheet: () => void }
+    const ready = mountHeader(fakeSession(READY).session, createFakeSessionController().controller)
+    ;(ready.vm as unknown as Exposed).focusAfterConnectionSheet()
+    expect(document.activeElement).toBe(sessionAction(ready).element)
+    ready.unmount()
+
+    const empty = mountHeader(fakeSession().session)
+    ;(empty.vm as unknown as Exposed).focusAfterConnectionSheet()
+    expect(document.activeElement).toBe(primaryButton(empty).element)
+    empty.unmount()
+
+    const loading = mountHeader(fakeSession({ operation: 'generating' }).session)
+    ;(loading.vm as unknown as Exposed).focusAfterConnectionSheet()
+    expect(document.activeElement).toBe(controllerStatus(loading).element)
+    loading.unmount()
   })
 })

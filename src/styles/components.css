@@ -611,8 +611,12 @@
   .sheet-close {
     flex: 0 0 auto;
   }
-  /* States: default only. A static content column for one sheet state's copy, at most one
-     `inline-alert`, and any state content (`check-note`, `device-picker`). Not interactive. */
+  /* States: default only. A static content column for one sheet state's copy, its
+     `inline-alert` (with, after an unplug, the device-change line above it), and any state
+     content (`check-note`, `device-picker`). Not interactive. Paragraphs carry no margin of
+     their own: the grid gap spaces the column, and consecutive paragraphs inside an
+     `inline-alert` (the check result's sentence, suggestion and profile line) are spaced by
+     `--spacing-2`. */
   .sheet-body {
     color: var(--color-text);
     display: grid;
@@ -621,6 +625,9 @@
   }
   .sheet-body p {
     margin: 0;
+  }
+  .sheet-body .inline-alert p + p {
+    margin-block-start: var(--spacing-2);
   }
   /* Secondary one-line guidance inside `sheet-body`. Static text. */
   .sheet-hint {
@@ -655,7 +662,9 @@
   /* Layout only: each child is a `.btn` and keeps that component's own states. Primary action
      first in markup, and visual order always matches markup and focus order. Default (the
      narrowest layout, bp-mobile-landscape): a full-width stack, primary on top. From
-     bp-tablet-landscape up (see that media block below): one row aligned to the end. */
+     bp-tablet-landscape up (see that media block below): one row aligned to the end; actions
+     that don't fit the sheet's width (Connected with all four) wrap onto a further row, each
+     row aligned to the end, the order unchanged. */
   .sheet-actions {
     display: flex;
     flex-direction: column;
@@ -712,14 +721,20 @@
        disconnected add `is-error` (the error tone: `--color-error` family), always with words.
      - disabled badge (during a session): a status display only -- full strength, no hover, no
        pointer, never dimmed, so the state stays readable.
-     Every badge form has one width: `controller-status-label` has a fixed inline size, so
-     switching between forms never moves the rest of the header. */
+     Every form has one width: the button has the fixed content inline size
+     `--controller-status-inline-size` (a badge's dot, gap and fixed-size label), and every
+     form uses `--text-sm`, so the `ch`-based size resolves the same; the `Connect controller`
+     words sit centred in it. It never grows or shrinks in the header's flex row. Switching
+     between any two forms never moves the rest of the header. */
   .controller-status {
+    box-sizing: content-box;
+    flex: 0 0 auto;
+    font-size: var(--text-sm);
     gap: var(--spacing-2);
+    inline-size: var(--controller-status-inline-size);
   }
   .controller-status.is-badge {
     background: transparent;
-    font-size: var(--text-sm);
   }
   .controller-status.is-badge.is-error {
     background: var(--color-error-surface);

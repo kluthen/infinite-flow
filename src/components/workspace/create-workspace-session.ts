@@ -31,7 +31,6 @@ import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
 import { createGenerationWorkerClient } from '@/generation-worker/generation-worker-client'
-import { announcePhraseReplayKey } from '@/generation-worker/phrase-replay-key'
 import type { ViewportWidthProvider } from '@/composables/viewport-width'
 import {
   createSessionRunner,
@@ -50,7 +49,7 @@ import { createBrowserPageVisibility } from './browser-page-visibility'
 import { createBrowserOrientationLock, createBrowserScreenWakeLock } from './browser-screen-locks'
 import { createBrowserWindowShape } from './browser-window-shape'
 import { createIdleLayoutGate } from './idle-layout-gate'
-import { announcingSessionOutputs } from './phrase-replay-announcement'
+import { createPhraseReplayAnnouncer } from './phrase-replay-announcer'
 import type { WorkspacePrewarmPolicy } from './prewarm-policy'
 import type {
   SessionController,
@@ -106,8 +105,8 @@ export interface WorkspaceSession {
   readonly audio: AudioTransport
   /**
    * The app's one MIDI controller reading, its notes placed on `audio`'s clock. MIDI access is
-   * requested only by `midi.connect()`, which chunk 13's "Connect controller" click handler calls
-   * right after `audio.unlock()`; no screen uses it yet.
+   * requested only by `midi.connect()`, which the header's `controller-status` click calls right
+   * after `audio.unlock()` (see use-connection-sheet.ts).
    */
   // @spec-link [[req_midi_controller_input]]
   // @spec-link [[rule_controller_connects_between_sessions]]
@@ -226,6 +225,7 @@ function createRequestIdProvider(): () => ReturnType<typeof makeRequestId> {
 // @spec-link [[module_phrase_replay_key]]
 export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): WorkspaceSession {
   let session: GenerationSession<WorkspaceSessionResult> | null = null
+  const announcer = createPhraseReplayAnnouncer(deps.logPhraseReplayKey)
 
   /**
    * Intent: hand the coordinator's reporter callbacks the session they report into. They only
@@ -253,8 +253,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     staffLayout: coordinator.staffLayout,
     clearPresentedPhrase: coordinator.clearPresentedPhrase,
     ...(deps.prewarmPolicy === 'enabled' ? { prewarm: deps.prewarm } : {}),
-    onPhraseAccepted: (intent) =>
-      announcePhraseReplayKey(intent, { source: 'workspace' }, deps.logPhraseReplayKey),
+    onPhraseAccepted: announcer.announceWorkspacePhrase,
   })
   session = created
   const staffReports = createIdleLayoutGate({
@@ -276,7 +275,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
         now: input.now,
         providers: deps.providers,
         viewport: deps.viewport,
-        onOutput: announcingSessionOutputs(input.onOutput, deps.logPhraseReplayKey),
+        onOutput: announcer.announcingSessionOutputs(input.onOutput),
         onError: input.onError,
       },
       input.start,
@@ -295,12 +294,14 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     midi: deps.midi,
     browser: deps.browser,
     createSessionController: async () => {
+      // The replay-key announcer must have loaded before the controller starts any runner.
       const [
         { createSessionController },
         { measureSessionStaffFixedParts, loadSessionStaffFitPlanner },
       ] = await Promise.all([
         import('./workspace-session-controller'),
         import('./session-staff-fixed-parts'),
+        announcer.loaded,
       ])
       return createSessionController({
         idle: created,

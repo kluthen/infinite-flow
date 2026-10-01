@@ -3,7 +3,8 @@
  * engine readies it with a carry-in or standalone origin, a look-ahead phrase readied but never
  * sounded included. A repeat generates nothing new, and the Idle phrase that becomes phrase 1 was
  * already announced by the workspace fit run when it was accepted; the engine never readies that
- * `idle` record, since it is the session's start, but it is skipped here all the same.
+ * `idle` record, since it is the session's start, but it is skipped here all the same. Loaded
+ * lazily, through phrase-replay-announcer.ts only.
  */
 import {
   announcePhraseReplayKey,
@@ -45,4 +46,13 @@ export function announcingSessionOutputs(
     if (accepted !== null) announcePhraseReplayKey(accepted.intent, accepted.context, log)
     onOutput(output)
   }
+}
+
+/** Intent: hand an accepted Idle phrase's replay key line (a workspace phrase) to `log` once. */
+// @spec-link [[module_phrase_replay_key]]
+export function announceWorkspacePhrase(
+  intent: GenerationIntent,
+  log: (line: string) => void,
+): void {
+  announcePhraseReplayKey(intent, { source: 'workspace' }, log)
 }

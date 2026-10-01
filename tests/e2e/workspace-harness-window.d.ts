@@ -216,6 +216,9 @@ type WorkspaceHarnessMidiState =
 /** One of the controller's state kinds. */
 type WorkspaceHarnessMidiStateKind = WorkspaceHarnessMidiState['kind']
 
+/** The browser's MIDI permission (src/midi/midi-access-port.ts's `MidiPermissionState`). */
+type WorkspaceHarnessMidiPermissionState = 'granted' | 'prompt' | 'denied' | 'unknown'
+
 /** A note-on that counted as played: its concert pitch, velocity and audio-clock onset. */
 interface WorkspaceHarnessPlayedNote {
   readonly pitch: number
@@ -265,6 +268,12 @@ interface WorkspaceHarnessMidiApi {
   holdNextRequest: () => void
   /** Settle the held MIDI access request. Fake only. */
   releaseHeldRequest: () => void
+  /**
+   * Set the MIDI permission the browser reports, read without prompting. Otherwise it is `prompt`
+   * until a request is answered (`unknown` with `?midi=unsupported`), then `granted` or `denied`
+   * as answered. Fake only.
+   */
+  setPermission: (state: WorkspaceHarnessMidiPermissionState) => void
   /** How many times MIDI access was requested since the page loaded. Fake only. */
   requestCount: () => number
   /** Every note the controller reported played, in order. */

@@ -1183,3 +1183,41 @@ generation` secondary; `Start session` primary.
   after a long session the controls sit below the Review, a scroll away, until the player leaves
   it; the mix and the tempo readout stay in view above it. D144's leaving, keeping, focus and
   keyboard route stand.
+
+- **D146 — The `Connect controller` button has the badge's width (2026-10-01; `ux-writer`'s
+  call under the owner's delegation of minor design issues, from build-plan chunk 13).** The flow
+  rule "no change of form ever moves another header element" was only built for the badge forms:
+  at 1280×800 the `Connect controller` button measured 160 px and a badge 218 px, so
+  `score-context` shifted 29 px at the first connection. Now every form shares one box: new token
+  `--controller-status-inline-size` (a badge's content exactly: `status-dot`, the gap and
+  `--controller-status-label-inline-size`), applied to `.controller-status` with
+  `box-sizing: content-box` and `flex: 0 0 auto`, and `font-size: var(--text-sm)` moves from `.controller-status.is-badge`
+  to `.controller-status`, so the `ch`-based size resolves the same in every form. A badge keeps
+  its width; the `Connect controller` words, now `--text-sm`, sit centred in it. Rejected: letting
+  the one Connect→badge change move the header, since the move happens at the very moment the
+  player looks at the header for the result. No markup change. Governs
+  `screens/phrase-workspace/handoff.md`, `flows/controller-connection/handoff.md` and the token
+  source.
+
+- **D147 — Connected's four sheet actions wrap onto two rows on wide screens (2026-10-01;
+  `ux-writer`'s call, from build-plan chunk 13).** From `bp-tablet-landscape` up `sheet-actions`
+  is one row aligned to the end, but **Connected** with `Choose a different device` has four
+  actions, which don't fit `--sheet-max-inline-size`. Accepted: they wrap onto a second row, each
+  row aligned to the end, in markup order, so reading, visual and focus order still match. It
+  happens only once a second input has been seen; the common one-device case (three actions)
+  stays one row. Rejected: widening the sheet for one state (a longer reading measure for every
+  state) and a stacked layout for **Connected** only (a markup modifier for a rare case). The
+  existing CSS (`flex-wrap: wrap`) already does this; only the handoff and the component comment
+  change.
+
+- **D148 — Sheet paragraph spacing, the connected dot, and two alerts after an unplug
+  (2026-10-01; `ux-writer`'s call, from build-plan chunk 13).** (1) `.sheet-body p { margin: 0 }`
+  also removed the space between the paragraphs inside the check result's `inline-alert`
+  (result sentence, suggestion, optional profile line); new rule
+  `.sheet-body .inline-alert p + p { margin-block-start: var(--spacing-2) }` spaces them, with no
+  markup change. (2) Between `status-dot is-success` and "{device name} is connected." a plain
+  text space stays: the dot sits inline in the sentence, and a class for it would add nothing the
+  player sees. Dismissed. (3) The screen handoff said `sheet-body` holds "at most one
+  `inline-alert`", but a state reached by an unplug shows the device-change line above the
+  state's own alert, as the Layout Tree already said; the wording now says so (at most one of the
+  state's own, plus the device-change line). The implementation, which shows both, is right.

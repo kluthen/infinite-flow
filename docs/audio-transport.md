@@ -18,8 +18,9 @@ the playhead and the session engine's events all read their time from it, as pla
 - **Created by `unlock()`.** Browsers let audio start only from a player's click, and a MIDI note
   does not count. `unlock()` must therefore run synchronously inside the player's Start or
   "Connect controller" click handler: the session controller's `start()` calls it in the
-  `Start session` click, and chunk 13 will call it in the "Connect controller" click. Nothing
-  creates the context before.
+  `Start session` click, and the header's `controller-status` click calls it before asking for
+  MIDI access (see [The click](controller-connection.md#the-click)). Nothing creates the context
+  before.
 - **Never suspended or closed.** Once unlocked, the context runs until the page closes. An unlock
   from "Connect controller" therefore still holds when a MIDI note later starts a session.
 
@@ -326,7 +327,8 @@ tests play a count-in and a short backing on the real `AudioContext`. See
   (see [The audio mix](phrase-workspace.md#the-audio-mix)), hidden-tab detection, the end on an
   interruption, and the `queueBacking` calls (see
   [How the session controller wires it](#the-transport-api)).
-- **Chunk 13:** the "Connect controller" click's call to `unlock()`.
+- **Chunk 13 (built):** the `controller-status` click's call to `unlock()` (the
+  `Connect controller` button or a badge other than the connected one).
 - **Chunk 16 (built):** the playhead, read once per frame on heard time, `now()` minus
   `outputLatency()` (see [The playhead](#the-playhead)).
 - **Chunk 17:** played notes placed on the audio clock through `clockAnchor()` (chunk 12 built

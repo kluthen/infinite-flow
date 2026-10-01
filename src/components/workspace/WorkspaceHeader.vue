@@ -1,10 +1,12 @@
 <script setup lang="ts">
 /**
- * The workspace header: brand mark, live meter/tempo context, the theme override, then its two
- * action slots: the phrase action and the session action (`Start session` / `Stop`). This is the
+ * The workspace header: brand mark, `controller-status`, live meter/tempo context, the theme
+ * override, then its two action slots: the phrase action and the session action (`Start session` /
+ * `Stop`). This is the
  * one place the generate/regenerate/retry vocabulary, the session action's label and both slots'
  * disabled and emphasis policy live -- everything else reads the session's state directly. The
- * session action only asks: the shell starts and stops the session. There is no independently
+ * session action and `controller-status` only ask: the shell starts and stops the session and
+ * opens the connection sheet. There is no independently
  * selectable display-notation control: the score is always shown in the active instrument
  * profile's own written pitch.
  */
@@ -13,14 +15,19 @@ import { computed, ref } from 'vue'
 import type { GenerationSession, ThemePreference } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
+import type { ControllerStatusForm } from '@/midi/controller-status'
+import ControllerStatus from './ControllerStatus.vue'
 import ThemeControl from './ThemeControl.vue'
 import { primaryHeaderAction } from './session-action-policy'
+import { sheetCloseFocusTarget } from './sheet-close-focus'
 import type { SessionController } from './workspace-session-controller-types'
 
 const props = defineProps<{
   session: GenerationSession<WorkspaceSessionResult>
   /** The session controller; null while its lazy chunk loads, when `Start session` is disabled. */
   controller: SessionController | null
+  /** The form `controller-status` shows (kept as a session started with, during it). */
+  controllerStatus: ControllerStatusForm
 }>()
 
 const emit = defineEmits<{
@@ -28,10 +35,13 @@ const emit = defineEmits<{
   'start-session': []
   /** `Stop` was clicked. */
   'stop-session': []
+  /** The enabled `controller-status` was clicked; the shell opens the sheet inside this click. */
+  'open-connection-sheet': []
 }>()
 
 const phraseActionButton = ref<HTMLButtonElement | null>(null)
 const sessionActionButton = ref<HTMLButtonElement | null>(null)
+const controllerStatusButton = ref<InstanceType<typeof ControllerStatus> | null>(null)
 
 type PrimaryActionKind = 'generate' | 'regenerate' | 'retry-generation' | 'retry-notation'
 
@@ -142,10 +152,41 @@ function handleSessionAction(): void {
   else emit('start-session')
 }
 
+/**
+ * Intent: ask for the connection sheet from `controller-status`, synchronously in the click. During
+ * a session the button is disabled (a status display only), so no click reaches here.
+ */
+// @spec-link [[rule_controller_connects_between_sessions]]
+function handleControllerStatus(): void {
+  emit('open-connection-sheet')
+}
+
 /** Intent: move focus to an action slot's button, which is always rendered. */
 function focusButton(button: HTMLButtonElement | null): void {
   if (button === null) throw new Error('workspace header: an action button is not mounted')
   button.focus()
+}
+
+/** Intent: move focus to `controller-status`, which is always rendered. */
+function focusControllerStatus(): void {
+  if (controllerStatusButton.value === null)
+    throw new Error('workspace header: controller-status is not mounted')
+  controllerStatusButton.value.focus()
+}
+
+/**
+ * Intent: after the connection sheet closes, by any path, focus the first enabled of the session
+ * action, the phrase action and `controller-status`.
+ */
+// @spec-link [[rule_controller_connects_between_sessions]]
+function focusAfterConnectionSheet(): void {
+  const target = sheetCloseFocusTarget({
+    sessionActionEnabled: !sessionActionDisabled.value,
+    phraseActionEnabled: !primaryActionDisabled.value,
+  })
+  if (target === 'session-action') focusButton(sessionActionButton.value)
+  else if (target === 'phrase-action') focusButton(phraseActionButton.value)
+  else focusControllerStatus()
 }
 
 defineExpose({
@@ -153,6 +194,10 @@ defineExpose({
   focusSessionAction: () => focusButton(sessionActionButton.value),
   /** Focus the phrase action (a session end once phrase 1 has sounded, interim D-A). */
   focusPhraseAction: () => focusButton(phraseActionButton.value),
+  /** Focus `controller-status` (a count-in end that regenerates phrase 1). */
+  focusControllerStatus,
+  /** Focus where the connection sheet's close sends it. */
+  focusAfterConnectionSheet,
 })
 
 /** Intent: apply a manual or system theme choice; the session enforces this never reaches generation or engraving. */
@@ -166,6 +211,12 @@ function handleThemeSelect(theme: ThemePreference): void {
     <h1 id="workspace-title" class="brand-mark">Infinite Flow</h1>
     <div class="header-actions">
       <div class="context-group" aria-label="Score context">
+        <ControllerStatus
+          ref="controllerStatusButton"
+          :form="controllerStatus"
+          :disabled="sessionActive"
+          @open="handleControllerStatus"
+        />
         <div class="score-context">
           <span class="meter-badge">4/4</span>
           <span class="tempo-readout">{{ shownTempo }} BPM</span>
