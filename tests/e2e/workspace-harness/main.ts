@@ -25,6 +25,9 @@
  *   Web Audio output with `?audio=real`, both recorded, started only by a click on the page's own
  *   "Start audio (harness)" button, which stands in for chunk 15's Start click, with backing
  *   queued from the shown phrase's harmony, read here from the session's own result;
+ * - the MIDI controller (midi-seams.ts): the production controller on a fake Web MIDI access by
+ *   default, a fake browser without Web MIDI with `?midi=unsupported`, or the browser's own with
+ *   `?midi=real`, reading the harness audio transport's clock, with its states and notes recorded;
  * - the prewarm policy, read from the page URL exactly as production reads it (`?prewarm=off`
  *   disables it, on by default), with every prewarm forwarded to the real worker client and
  *   counted for `prewarmCount()`.
@@ -57,6 +60,7 @@ import { createGenerationWorkerClient } from '../../../src/generation-worker/gen
 import { createBrowserViewportWidth } from '../../../src/components/workspace/browser-viewport-width'
 import { prewarmPolicyFromSearch } from '../../../src/components/workspace/prewarm-policy'
 import { bindHarnessAudioStart, createHarnessAudio, harnessAudioMode } from './audio-seams'
+import { createHarnessMidi, harnessMidiMode } from './midi-seams'
 import {
   armNextNotationFailure,
   engravingCount,
@@ -135,6 +139,7 @@ let callsBeforeArmedFailure = 0
 
 const harnessAudio = createHarnessAudio(harnessAudioMode(window.location.search), shownHarmony)
 bindHarnessAudioStart(document, harnessAudio.startFromClick)
+const harnessMidi = createHarnessMidi(harnessMidiMode(window.location.search), harnessAudio)
 
 const port = createBrowserGenerationWorker()
 const client = createGenerationWorkerClient(port)
@@ -227,6 +232,7 @@ window.__workspaceHarness = {
   snapshot,
   prewarmCount: () => prewarmsPosted,
   audio: harnessAudio.api,
+  midi: harnessMidi.api,
 }
 
 const app = createApp(App)
@@ -238,6 +244,7 @@ app.provide(WORKSPACE_SESSION_FACTORY, () => {
     prewarmPolicy: prewarmPolicyFromSearch(window.location.search),
     prewarm: harnessPrewarm,
     audio: harnessAudio.transport,
+    midi: harnessMidi.controller,
     dispose: client.dispose,
   })
   return workspace

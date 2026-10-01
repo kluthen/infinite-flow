@@ -8,6 +8,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { START_DELAY_SECONDS } from '@/audio/audio-transport'
+import { FAKE_PERFORMANCE_OFFSET_MS } from './fake-audio'
 import {
   beat,
   nonClickEvents,
@@ -27,6 +28,7 @@ describe('unlocking the audio', () => {
     expect(() => transport.start({ tempo: 120 })).toThrow()
     expect(() => transport.now()).toThrow()
     expect(() => transport.outputLatency()).toThrow()
+    expect(() => transport.clockAnchor()).toThrow('audio transport: the audio is not unlocked yet')
     expect(rig.events()).toEqual([])
     transport.unlock()
     transport.unlock()
@@ -57,6 +59,19 @@ describe('unlocking the audio', () => {
     rig.advance(1)
     expect(transport.now()).toBe(RIG_START + 1)
     expect(transport.outputLatency()).toBe(0.05)
+  })
+
+  // @test-link [[rule_played_onset_latency_compensation]]
+  it("reads the clock anchor from the output's clock once unlocked", () => {
+    const { rig, transport } = transportRig()
+    transport.unlock()
+    expect(transport.clockAnchor()).toEqual({
+      audioTime: RIG_START,
+      performanceTimeMs: RIG_START * 1000 + FAKE_PERFORMANCE_OFFSET_MS,
+    })
+    rig.advance(2)
+    expect(transport.clockAnchor()).toEqual(rig.output.anchor())
+    expect(transport.clockAnchor().audioTime).toBe(RIG_START + 2)
   })
 })
 

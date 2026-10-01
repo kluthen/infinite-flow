@@ -1,0 +1,73 @@
+/**
+ * The MIDI controller's public shapes: the device snapshot, the connection state, the change it
+ * reports, its operations and its typed failure. Every state is a normal state the app works in:
+ * none of them blocks a session.
+ */
+
+import type { AudioTime } from '../session/session-types'
+import type { PlayedNoteEvent, PlayedNoteEvents } from './played-note-tracker'
+
+/** A plain snapshot of one MIDI input, for display and selection; never the port itself. */
+// @spec-link [[req_midi_controller_input]]
+export interface MidiDevice {
+  readonly id: string
+  readonly name: string
+  readonly manufacturer: string
+}
+
+/**
+ * Where the controller connection stands.
+ * - `unsupported`: this browser has no Web MIDI (known without asking the player).
+ * - `not-requested`: MIDI access was never asked for.
+ * - `requesting`: the permission request is in flight.
+ * - `denied`: the player or the browser refused MIDI access.
+ * - `no-device`: access granted, nothing selected, no input present.
+ * - `choosing`: access granted, nothing selected, inputs present: the player must pick one.
+ * - `opening`: the selected input's port is being opened.
+ * - `connected`: the selected input's port is present and open (the controller is attached).
+ * - `away`: the selected input's port reports disconnected (the controller is lost), or is
+ *   present but its open failed (not attached; its next input change retries); the selection is
+ *   kept.
+ */
+// @spec-link [[rule_controller_attached_definition]]
+// @spec-link [[rule_midi_never_blocks_session]]
+export type MidiControllerState =
+  | { readonly kind: 'unsupported' }
+  | { readonly kind: 'not-requested' }
+  | { readonly kind: 'requesting' }
+  | { readonly kind: 'denied' }
+  | { readonly kind: 'no-device' }
+  | { readonly kind: 'choosing' }
+  | { readonly kind: 'opening'; readonly device: MidiDevice }
+  | { readonly kind: 'connected'; readonly device: MidiDevice }
+  | { readonly kind: 'away'; readonly device: MidiDevice }
+
+/** What subscribers are told whenever the state or the list of present devices changes. */
+// @spec-link [[rule_controller_attached_definition]]
+export interface MidiControllerChange {
+  readonly state: MidiControllerState
+  readonly devices: readonly MidiDevice[]
+}
+
+/** The MIDI controller's operations; see createMidiController. */
+// @spec-link [[req_midi_controller_input]]
+export interface MidiController {
+  readonly state: () => MidiControllerState
+  readonly devices: () => readonly MidiDevice[]
+  readonly connect: () => Promise<void>
+  readonly select: (deviceId: string) => Promise<void>
+  readonly subscribe: (listener: (change: MidiControllerChange) => void) => () => void
+  readonly onPlayedNote: (listener: (event: PlayedNoteEvent) => void) => () => void
+  readonly releaseHeld: (at: AudioTime) => PlayedNoteEvents
+}
+
+/** Typed failure for a call the controller's current state does not allow (a caller bug). */
+// @spec-link [[req_midi_controller_input]]
+export class MidiControllerError extends Error {
+  readonly kind = 'MidiControllerError' as const
+
+  constructor(message: string) {
+    super(message)
+    this.name = 'MidiControllerError'
+  }
+}

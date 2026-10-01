@@ -22,6 +22,8 @@ import {
 /** Two times this close are the same step boundary; it absorbs the float error of `k * interval`. */
 const SAME_TIME_EPSILON = 1e-9
 
+const MILLISECONDS_PER_SECOND = 1000
+
 /** One click scheduled on a session bus. `bus` numbers buses from 1 in the order they opened. */
 export interface FakeClickEvent {
   readonly kind: 'click'
@@ -82,10 +84,20 @@ export interface AudibleBackingNote extends FakeBackingEvent {
   readonly gain: number
 }
 
-/** Where the fake clock starts and the output latency it reports; both default to 0. */
+/**
+ * The default offset of the fake performance.now() timeline from the fake audio clock, in
+ * milliseconds: clearly not zero, so a test that forgets to map a MIDI timestamp fails.
+ */
+export const FAKE_PERFORMANCE_OFFSET_MS = 50_000
+
+/**
+ * Where the fake clock starts and the output latency it reports, both 0 by default, and how far
+ * the fake performance.now() timeline runs ahead of it (`FAKE_PERFORMANCE_OFFSET_MS` by default).
+ */
 export interface FakeAudioRigOptions {
   readonly startTime?: number
   readonly outputLatency?: number
+  readonly performanceOffsetMs?: number
 }
 
 /** The fake clock, wake-up timer and audio output, with the controls and queries a test needs. */
@@ -124,6 +136,8 @@ export interface FakeAudioRig {
   readonly interrupt: () => void
   /** Change the output latency the output reports from now on. */
   readonly setOutputLatency: (seconds: number) => void
+  /** The performance.now() time, in milliseconds, that audio time `audioTime` corresponds to. */
+  readonly performanceTimeAt: (audioTime: AudioTime) => number
 }
 
 /** The fake timer plus the hook the clock uses to wake it. */
@@ -260,6 +274,7 @@ export function recordAudioOutput(inner: AudioOutput): RecordedAudioOutput {
     output: {
       now: () => inner.now(),
       outputLatency: () => inner.outputLatency(),
+      anchor: () => inner.anchor(),
       setGain: (gain, value, at) => {
         inner.setGain(gain, value, at)
         log.push({ kind: 'gain', gain, value, at, scheduledAt: inner.now() })
@@ -281,20 +296,31 @@ const SILENT_BUS: SessionBus = {
 /**
  * Intent: build a fake audio rig whose clock starts at `startTime` and only moves when the test
  * advances it. The clock steps on the grid `startTime + k * WAKE_INTERVAL_SECONDS`, so long runs
- * do not drift; an advance that ends between two grid points takes a shorter last step.
+ * do not drift; an advance that ends between two grid points takes a shorter last step. Its clock
+ * anchor pairs the clock's time with a fake performance.now() timeline running
+ * `performanceOffsetMs` ahead of it, so a fake MIDI message stamped `performanceTimeAt(t)` maps
+ * onto audio time `t`.
  */
 // @test-link [[rule_playhead_follows_audio_clock]]
 export function createFakeAudioRig(options: FakeAudioRigOptions = {}): FakeAudioRig {
   const startTime = options.startTime ?? 0
   let latency = options.outputLatency ?? 0
+  const performanceOffsetMs = options.performanceOffsetMs ?? FAKE_PERFORMANCE_OFFSET_MS
   let current = startTime
   let ticks = 0
   let openCalls = 0
   const interruptListeners: (() => void)[] = []
   const timer = createFakeTimer()
+
+  /** Intent: the fake performance.now() time, in milliseconds, of audio time `audioTime`. */
+  function performanceTimeAt(audioTime: AudioTime): number {
+    return audioTime * MILLISECONDS_PER_SECOND + performanceOffsetMs
+  }
+
   const recorded = recordAudioOutput({
     now: () => current,
     outputLatency: () => latency,
+    anchor: () => ({ audioTime: current, performanceTimeMs: performanceTimeAt(current) }),
     setGain: () => {},
     openSessionBus: () => SILENT_BUS,
     onInterrupted: (listener) => interruptListeners.push(listener),
@@ -345,5 +371,6 @@ export function createFakeAudioRig(options: FakeAudioRigOptions = {}): FakeAudio
     setOutputLatency: (seconds) => {
       latency = seconds
     },
+    performanceTimeAt,
   }
 }

@@ -3,8 +3,8 @@
 This document records how `src/audio/` keeps time and makes sound: the one audio context and how
 it is unlocked, the ports that keep it testable, the look-ahead scheduler and its Worker timer,
 the click and the count-in, the backing, the mix, the fade on stop, what happens when the browser
-interrupts the audio, the latency reading for the playhead, how it is tested, and what later
-chunks add.
+interrupts the audio, the latency reading for the playhead, the clock anchor MIDI input maps its
+timestamps through, how it is tested, and what later chunks add.
 
 ## What it is
 
@@ -48,7 +48,8 @@ so the MIDI export can reuse it.
 
 The transport talks to the browser only through four ports, declared in `audio-ports.ts`:
 
-- **Clock** (`AudioClock`): `now()` and `outputLatency()`.
+- **Clock** (`AudioClock`): `now()`, `outputLatency()` and `anchor()` (see
+  [The clock anchor](#the-clock-anchor)).
 - **Output** (`AudioOutput`): the clock, plus `setGain`, `openSessionBus` and `onInterrupted`. It
   has no suspend or pause operation on purpose.
 - **Session bus** (`SessionBus`): `scheduleClick`, `scheduleBackingNote` and `fadeOut` for one
@@ -258,6 +259,25 @@ browser to run the context again, so a later session may stay silent.
 speakers. It is exposed so chunk 16 can place the playhead on what is heard, not on what is
 scheduled: v2.0 item 6 asks for it to stay within 20 ms of the actual audio output.
 
+## The clock anchor
+
+A MIDI note arrives stamped on the page's `performance.now()` timeline, in milliseconds, not on
+the audio clock. `anchor()` on the clock, exposed by the transport as `clockAnchor()`, gives one
+simultaneous reading of both: a `ClockAnchor`, an audio time and the `performance.now()` time it
+corresponds to. `clockAnchor()` throws before unlock, like `now()`.
+
+- **While the context runs,** the Web Audio output reads `getOutputTimestamp()`, the frame heard at
+  a given `performance.now()` time, and adds `outputLatency()`. The anchor is therefore on the
+  timeline the clicks, the backing and the playhead are scheduled on.
+- **While the audio clock stands still** (the context not running, or its output timestamp still
+  at 0), the anchor is `currentTime` at the page's `performance.now()`, which
+  `createWebAudioOutput` takes as an injected function.
+- **A running context reporting a timestamp that isn't a finite time** throws.
+
+`src/midi/` maps every MIDI timestamp through a fresh anchor. See
+[`docs/midi-input.md`](midi-input.md#the-audio-clock) for the mapping, and why the output latency
+added here is taken off only once, later.
+
 ## How it's tested
 
 Unit tests drive the transport through its ports: a fake audio clock advanced by hand, a fake
@@ -278,6 +298,8 @@ tests play a count-in and a short backing on the real `AudioContext`. See
   detection, and the `queueBacking` calls (see
   [How chunk 15 wires it](#the-transport-api)).
 - **Chunk 16:** the playhead, placed using `outputLatency`.
+- **Chunk 17:** played notes placed on the audio clock through `clockAnchor()` (chunk 12 built
+  the mapping, see [`docs/midi-input.md`](midi-input.md)).
 - **Chunk 20:** the MIDI export's backing track, from `renderBacking` for each recorded phrase's
   harmony, so the file and the audio play the same notes.
 

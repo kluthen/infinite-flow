@@ -130,7 +130,8 @@ the identity or the return type. The type checker runs them as part of `npm run 
 ## What is not here
 
 - **Reading the controller**: which MIDI messages count as a played note, and mapping a MIDI
-  timestamp onto the audio clock. The input here is a note-on already on the audio clock.
+  timestamp onto the audio clock. The input here is a note-on already on the audio clock. Chunk
+  12 built both in `src/midi/`: see [`docs/midi-input.md`](midi-input.md).
 - **Drawing the highlight** on the staff for an acknowledged identity.
 - **Wiring it into the session**: calling the matcher as notes arrive, placing windows again when
   the next phrase is generated, and recording the played notes.

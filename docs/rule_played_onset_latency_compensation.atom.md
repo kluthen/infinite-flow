@@ -10,6 +10,7 @@ dependents: []
 layer: BUSINESS
 priority: 1
 tags: [v2, release-v2.0, midi, acknowledgement]
+notes: Recorded 2026-10-01 in v2 chunk 12 (MIDI input); rule text unchanged. Chunk 12 builds the mapping half. Each MIDI timestamp is mapped onto the audio clock through an anchor read afresh per message, one simultaneous reading of the audio clock (on the scheduling timeline the clicks and playhead use) and of the page's performance.now() timeline. A time mapped from the selected input is never earlier than the previous one from that input, because Web MIDI delivers a port's messages in order; this only absorbs anchor jitter of a few milliseconds. The output latency and connection-type constant are subtracted afterward, on the mapped time.
 ---
 
 # Latency-Compensated Played Onset

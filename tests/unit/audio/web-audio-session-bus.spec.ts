@@ -17,7 +17,7 @@ import {
 /** Intent: a fresh output on a fake context, with its four mix gains found. */
 function setUp() {
   const fake = createFakeWebAudioContext()
-  const output = createWebAudioOutput(fake.port)
+  const output = createWebAudioOutput(fake.port, fake.performanceNow)
   const clickEnable = mixNode(output, fake, 'click-enable')
   const clickVolume = mixNode(output, fake, 'click-volume')
   const backingEnable = mixNode(output, fake, 'backing-enable')

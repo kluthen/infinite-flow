@@ -103,7 +103,7 @@ chunks in different sections; the second to merge rebases on the first.
 | 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29), follow-up Performance: cold generation (done 2026-09-30)                                                                                                                                                                                                                                             | Nothing                                               |
 | 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 (done 2026-09-29), follow-up 3b Phone staff height (done 2026-09-29) · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation (done 2026-09-29) · 14 Note acknowledgement (done 2026-09-29) · 18 MusicXML encoding (done 2026-09-29) · 19 Generated-notes MIDI encoding (done 2026-09-29) | Chunk 0 (done). Start chunk 3 first (see the caveat). |
 | 2    | 5 Idle fit retries and the room notice (done 2026-09-30) · 6 Note identity and session overlays (done 2026-09-30) · 8 Session engine (done 2026-09-30) · 10 Audio transport (done 2026-09-30)                                                                                                                                                                                 | Wave 1. Chunk 1's verdict: given (2026-09-30).        |
-| 3    | 9 Session history (done 2026-09-30) · 11 Backing (done 2026-09-30) · 12 MIDI input                                                                                                                                                                                                                                                                                            | Wave 2                                                |
+| 3    | 9 Session history (done 2026-09-30) · 11 Backing (done 2026-09-30) · 12 MIDI input (done 2026-10-01)                                                                                                                                                                                                                                                                          | Wave 2                                                |
 | 4    | 15 Session screen: start and end                                                                                                                                                                                                                                                                                                                                              | Wave 3                                                |
 | 5    | 13 Controller connection · 16 Rolling display                                                                                                                                                                                                                                                                                                                                 | Chunk 15                                              |
 | 6    | 17 MIDI in the session                                                                                                                                                                                                                                                                                                                                                        | Wave 5                                                |
@@ -257,9 +257,10 @@ chunk isn't finished until step 6 is done.**
      engraves a fixture or a generated phrase in a container of a given size.
    - **Web MIDI and the audio clock are replaced by fakes**, so every test is deterministic: a
      fake MIDI access that plugs, unplugs and plays notes on command, and a fake clock the test
-     advances by hand. Neither exists yet. [Chunk 10](#chunk-10--audio-transport) creates the fake
+     advances by hand. Both now exist: [chunk 10](#chunk-10--audio-transport) created the fake
      clock and fake audio output, [chunk 12](#chunk-12--midi-input) the fake MIDI access, and both
-     add them to the workspace harness.
+     added them to the workspace harness. [`docs/testing.md`](../../../docs/testing.md#fake-midi-access)
+     says how to drive them.
    - **Generation is seeded.** Tests queue seeds so that "same seed, same result" can be asserted.
    - A fixture that doesn't exist yet is created here, and added to the fixture list (step 5).
    - A new Playwright spec outside `tests/e2e/notation/` must be added to the `test:e2e` file list
@@ -1338,7 +1339,55 @@ are placeholders.
 
 ### Chunk 12 — MIDI input
 
-**Release:** v2.0.
+**Release:** v2.0. **Done on 2026-10-01.** `src/midi/` reads one MIDI controller.
+`parseMidiMessage` reads a note-on with non-zero velocity as a played note and a note-off, or a
+zero-velocity note-on, as a note end, on any channel; control change, pitch bend, both kinds of
+aftertouch, program change, SysEx and every system message are ignored, and a malformed note
+message throws. The played-note tracker, keyed by pitch, ends a held pitch at a new note-on for
+it, ignores a note-off for a pitch not held, and gives ended notes chunk 9's `RecordedPlayedNote`
+shape. `createWebMidiAccessProvider(navigator)` makes the app's one `requestMIDIAccess` call,
+`{ sysex: false }`, and maps the browser's refusals onto the typed states `denied` and
+`unsupported`. `createMidiController` asks for access only in `connect()`, selects the only device
+present or the player's pick, and derives its state (`unsupported`, `not-requested`, `requesting`,
+`denied`, `no-device`, `choosing`, `opening`, `connected`, `away`) from the permission, the
+selection and the selected port. A lost port is `away`, with its held notes ended at the unplug's
+time; the same port coming back is reattached with no check; a different device is only listed.
+`midiTimestampToAudioTime` maps each timestamp onto the audio clock through a fresh `ClockAnchor`
+from the transport's new `clockAnchor()`, which the Web Audio output reads from
+`getOutputTimestamp()` plus the output latency, on the scheduling timeline. The workspace session
+holds the controller as `WorkspaceSession.midi`. The fake MIDI access
+(`tests/unit/midi/fake-midi-access.ts`) plugs, unplugs and plays notes at given times; the
+workspace harness gained `?midi=fake|unsupported|real` and the `midi` seams, and
+`tests/e2e/midi/midi-input.spec.ts` runs 16 Playwright tests on the fake clock, plus a real-Chromium
+smoke that only proves a typed state (headless Chromium answers `denied`). For
+[chunk 13](#chunk-13--controller-connection): call `midi.connect()` right after `audio.unlock()` in
+the "Connect controller" click, drive `select(id)` from the picker, and call `connect()` again when
+a device is plugged in while `no-device`. For [chunk 17](#chunk-17--midi-in-the-session): suspend
+reattaching for a session started while the selected controller is away
+(`rule_start_while_controller_away`), end held notes with `releaseHeld(at)` at the session's end,
+pass played notes to `compensatePlayedNote`, and decide whether the history and the export store
+raw or compensated onsets (flagged by `documentalist`). Technical choices:
+[`docs/midi-input.md`](../../../docs/midi-input.md#technical-choices-made-in-chunk-12). Decided in
+the chunk, awaiting the owner's acceptance: a device is identified by its Web MIDI port id, with no
+fallback on name or maker, so two identical keyboards stay distinct (Chromium keeps the port and
+its id across a replug within a page); the selection lives in memory only; `connect()` picks the
+only device present, and a device plugged in later is picked up only by the next `connect()`; held
+notes end on an unplug (at its mapped time) and on a switch of device (at the current audio time);
+a request that rejects for an unknown reason restores the stage it started from and rethrows; a
+stale open changes nothing; `NotSupportedError` reads as `unsupported`; the anchor adds the output
+latency, so compensation takes it off exactly once; a fresh anchor per message. Still open for the
+v2.0 gate: O71, Bluetooth MIDI (below).
+
+**Progress:**
+
+| Step               | State | Notes                                                                                                       |
+| ------------------ | ----- | ----------------------------------------------------------------------------------------------------------- |
+| 1. ATD preflight   | Done  | PROCEED; no architecture atom: the port-id identity is a technical choice, recorded in `docs/midi-input.md` |
+| 2. Tests first     | Done  | Red on assertions against stubs                                                                             |
+| 3. Implement       | Done  | The parser, the tracker, the clock mapping and anchor, the adapter, the controller and the harness seams    |
+| 4. Verify          | Done  | `npm run quality` passes; real-Chromium smoke included                                                      |
+| 5. Documents       | Done  | `docs/midi-input.md`, `docs/testing.md`, `docs/audio-transport.md`, `docs/midi-acknowledgement.md`, README  |
+| 6. ATD stewardship | Done  | Tags checked; atoms await the owner                                                                         |
 
 **Goal.** Read one MIDI controller. The Web MIDI adapter, note-on and note-off parsing, choosing
 one input, what "connected" and "lost" mean, the same device reattaching, and the timestamps
@@ -1374,7 +1423,7 @@ and [A controller unplugged between sessions](../../../ui_ux/flows/controller-co
   workspace harness, and `docs/testing.md` says how to drive it.
 
 **Blocked by:** in part, §12's Bluetooth MIDI item (O71): USB is the tested path; Bluetooth stays
-best-effort until it is settled.
+best-effort until it is settled. Still open after the chunk: it stays open for the v2.0 gate.
 
 ### Chunk 13 — Controller connection
 

@@ -32,13 +32,15 @@ import {
 } from '../../unit/audio/fake-audio'
 
 /**
- * The harness's audio: the transport the workspace gets, the API published for specs, and the
- * Start button's click handler.
+ * The harness's audio: the transport the workspace gets, the API published for specs, the Start
+ * button's click handler, and the fake performance.now() time of an audio time, which stamps the
+ * harness's fake MIDI messages (throws with `?audio=real`, whose clocks cannot be predicted).
  */
 export interface HarnessAudio {
   readonly transport: AudioTransport
   readonly api: WorkspaceHarnessAudioApi
   readonly startFromClick: () => void
+  readonly performanceTimeAt: (audioTime: number) => number
 }
 
 /** What differs between the modes: the transport's seams, the event log and the clock control. */
@@ -47,6 +49,7 @@ interface AudioModeParts {
   readonly createWakeTimer: () => WakeTimer
   readonly events: () => readonly FakeAudioEvent[]
   readonly advance: (seconds: number) => void
+  readonly performanceTimeAt: (audioTime: number) => number
 }
 
 /** Intent: the audio mode the page URL asks for: `?audio=real`, or the fake rig by default. */
@@ -66,6 +69,7 @@ function fakeModeParts(): AudioModeParts {
     createWakeTimer: rig.createWakeTimer,
     events: rig.events,
     advance: rig.advance,
+    performanceTimeAt: rig.performanceTimeAt,
   }
 }
 
@@ -84,6 +88,11 @@ function realModeParts(): AudioModeParts {
     events: () => recorded?.events() ?? [],
     advance: () => {
       throw new Error('Workspace harness: advance() needs the fake audio clock, not ?audio=real')
+    },
+    performanceTimeAt: () => {
+      throw new Error(
+        'Workspace harness: stamping a MIDI message at an audio time needs the fake audio clock, not ?audio=real',
+      )
     },
   }
 }
@@ -165,7 +174,7 @@ export function createHarnessAudio(
       return { defaults: { ...defaults }, range: { ...range } }
     },
   }
-  return { transport, api, startFromClick }
+  return { transport, api, startFromClick, performanceTimeAt: parts.performanceTimeAt }
 }
 
 /** Intent: make the harness's Start audio button, found by its data attribute, start audio. */

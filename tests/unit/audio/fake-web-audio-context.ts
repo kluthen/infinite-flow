@@ -52,7 +52,18 @@ export interface FakeWebAudioContext {
   readonly resumeCalls: () => number
   readonly setCurrentTime: (seconds: number) => void
   readonly setOutputLatency: (seconds: number) => void
+  /** Set what the context's `getOutputTimestamp()` reads from now on. */
+  readonly setOutputTimestamp: (timestamp: FakeOutputTimestamp) => void
+  /** The page's performance.now() clock beside the context, as the output's injected reader. */
+  readonly performanceNow: () => number
+  readonly setPerformanceNow: (ms: number) => void
   readonly changeState: (state: string) => void
+}
+
+/** What the fake context's `getOutputTimestamp()` returns: lib.dom's `AudioTimestamp` shape. */
+export interface FakeOutputTimestamp {
+  readonly contextTime?: number
+  readonly performanceTime?: number
 }
 
 /** Intent: a fake parameter starting at `initial` that records every automation call. */
@@ -125,6 +136,8 @@ export function createFakeWebAudioContext(initialState = 'running'): FakeWebAudi
   const stateListeners: (() => void)[] = []
   const accessedMembers = new Set<string | symbol>()
   let resumeCalls = 0
+  let outputTimestamp: FakeOutputTimestamp = { contextTime: 0, performanceTime: 0 }
+  let performanceNowMs = 0
   const context = {
     currentTime: 0,
     outputLatency: 0.02,
@@ -144,6 +157,7 @@ export function createFakeWebAudioContext(initialState = 'running'): FakeWebAudi
       resumeCalls += 1
       return Promise.resolve()
     },
+    getOutputTimestamp: (): FakeOutputTimestamp => ({ ...outputTimestamp }),
     addEventListener: (_type: 'statechange', listener: () => void) => stateListeners.push(listener),
   }
   const port = new Proxy(context, {
@@ -164,6 +178,13 @@ export function createFakeWebAudioContext(initialState = 'running'): FakeWebAudi
     },
     setOutputLatency: (seconds) => {
       context.outputLatency = seconds
+    },
+    setOutputTimestamp: (timestamp) => {
+      outputTimestamp = timestamp
+    },
+    performanceNow: () => performanceNowMs,
+    setPerformanceNow: (ms) => {
+      performanceNowMs = ms
     },
     changeState: (state) => {
       context.state = state

@@ -29,6 +29,8 @@ import {
   type FakeViewportWidth,
 } from '../../composables/fake-viewport-width'
 import { transportRig } from '../../audio/transport-rig'
+import { createFakeMidiAccess, type FakeMidiAccess } from '../../midi/fake-midi-access'
+import { createMidiController } from '@/midi/midi-controller'
 import type { WorkspacePrewarmPolicy } from '@/components/workspace/prewarm-policy'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
@@ -89,6 +91,7 @@ function fakeDependencies(
   readonly disposeMock: ReturnType<typeof vi.fn>
   readonly prewarmMock: ReturnType<typeof vi.fn<(intent: GenerationIntent) => void>>
   readonly viewport: FakeViewportWidth
+  readonly midiAccess: FakeMidiAccess
 } {
   let seedCounter = 0
   let requestCounter = 0
@@ -100,6 +103,8 @@ function fakeDependencies(
   })
   const disposeMock = vi.fn()
   const prewarmMock = vi.fn<(intent: GenerationIntent) => void>()
+  const { transport } = transportRig()
+  const midiAccess = createFakeMidiAccess()
   return {
     providers: {
       nextRequestId: () => makeRequestId(`di-seam-request-${++requestCounter}`),
@@ -109,11 +114,16 @@ function fakeDependencies(
     generate: generateMock,
     prewarmPolicy,
     prewarm: prewarmMock,
-    audio: transportRig().transport,
+    audio: transport,
+    midi: createMidiController({
+      provider: midiAccess,
+      clock: { anchor: () => transport.clockAnchor() },
+    }),
     dispose: disposeMock,
     generateMock,
     disposeMock,
     prewarmMock,
+    midiAccess,
   }
 }
 
@@ -177,6 +187,17 @@ describe('composeWorkspaceSession', () => {
 
     expect(workspace.audio).toBe(deps.audio)
     expect(workspace.audio.isUnlocked()).toBe(false)
+  })
+
+  // @test-link [[req_midi_controller_input]]
+  // @test-link [[rule_controller_connects_between_sessions]]
+  it('exposes the injected MIDI controller unchanged, without requesting MIDI access', () => {
+    const deps = fakeDependencies()
+    const workspace = composeWorkspaceSession(deps)
+
+    expect(workspace.midi).toBe(deps.midi)
+    expect(workspace.midi.state()).toEqual({ kind: 'not-requested' })
+    expect(deps.midiAccess.requestCount()).toBe(0)
   })
 
   it('dispose() forwards to the injected teardown', () => {

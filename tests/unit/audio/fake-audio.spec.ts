@@ -5,7 +5,14 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import type { AudioOutput, SessionBus } from '@/audio/audio-ports'
-import { audibleBackingOf, audibleClicksOf, recordAudioOutput } from './fake-audio'
+import { midiTimestampToAudioTime } from '@/midi/midi-clock-mapping'
+import {
+  audibleBackingOf,
+  audibleClicksOf,
+  createFakeAudioRig,
+  FAKE_PERFORMANCE_OFFSET_MS,
+  recordAudioOutput,
+} from './fake-audio'
 
 /** Intent: an inner output made of spies, whose clock the test sets through `clock.t`. */
 function spyOutput() {
@@ -18,6 +25,7 @@ function spyOutput() {
   const inner = {
     now: vi.fn(() => clock.t),
     outputLatency: vi.fn(() => 0.02),
+    anchor: vi.fn(() => ({ audioTime: clock.t, performanceTimeMs: 90_000 + clock.t * 1000 })),
     setGain: vi.fn(),
     openSessionBus: vi.fn(() => bus),
     onInterrupted: vi.fn(),
@@ -44,6 +52,7 @@ describe('recordAudioOutput', () => {
     expect(bus.fadeOut).toHaveBeenCalledWith(3.4, 0.1)
     expect(recorded.output.now()).toBe(3.4)
     expect(recorded.output.outputLatency()).toBe(0.02)
+    expect(recorded.output.anchor()).toEqual({ audioTime: 3.4, performanceTimeMs: 93_400 })
     expect(recorded.events()).toEqual([
       { kind: 'gain', gain: 'click-volume', value: 0.5, at: 3, scheduledAt: 3 },
       { kind: 'open-bus', bus: 1, scheduledAt: 3.25 },
@@ -120,5 +129,50 @@ describe('recordAudioOutput', () => {
       [1, 5.5, 0.5],
       [2, 3.5, 0.5],
     ])
+  })
+})
+
+// @test-link [[rule_played_onset_latency_compensation]]
+// @test-link [[rule_playhead_follows_audio_clock]]
+describe('the fake rig clock anchor', () => {
+  // @test-link [[rule_playhead_follows_audio_clock]]
+  it('reads the fake clock beside a performance.now() timeline offset from it', () => {
+    const rig = createFakeAudioRig({ startTime: 2 })
+    expect(FAKE_PERFORMANCE_OFFSET_MS).not.toBe(0)
+    expect(rig.output.anchor()).toEqual({
+      audioTime: 2,
+      performanceTimeMs: 2_000 + FAKE_PERFORMANCE_OFFSET_MS,
+    })
+    rig.advance(1.5)
+    expect(rig.output.anchor()).toEqual({
+      audioTime: 3.5,
+      performanceTimeMs: 3_500 + FAKE_PERFORMANCE_OFFSET_MS,
+    })
+  })
+
+  // @test-link [[rule_playhead_follows_audio_clock]]
+  it('takes the performance.now() offset from its options', () => {
+    const rig = createFakeAudioRig({ startTime: 1, performanceOffsetMs: 7_000 })
+    expect(rig.output.anchor()).toEqual({ audioTime: 1, performanceTimeMs: 8_000 })
+    expect(rig.performanceTimeAt(4)).toBe(11_000)
+  })
+
+  // @test-link [[rule_played_onset_latency_compensation]]
+  it('maps a MIDI timestamp stamped at performanceTimeAt(t) back onto exactly t', () => {
+    const rig = createFakeAudioRig({ startTime: 5 })
+    const times = [0.5, 5, 5.3, 7.125, 12.9]
+    for (const t of times) {
+      expect(midiTimestampToAudioTime(rig.performanceTimeAt(t), rig.output.anchor())).toBeCloseTo(
+        t,
+        9,
+      )
+    }
+    rig.advance(3.2)
+    for (const t of times) {
+      expect(midiTimestampToAudioTime(rig.performanceTimeAt(t), rig.output.anchor())).toBeCloseTo(
+        t,
+        9,
+      )
+    }
   })
 })
