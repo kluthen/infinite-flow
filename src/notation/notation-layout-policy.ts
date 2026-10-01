@@ -1,11 +1,13 @@
 /**
- * The pure staff layout planner for a four-measure written phrase. The layout is chosen by the
- * viewport's width alone: from the 64rem tablet-landscape breakpoint up, one staff system holds all
- * four measures; below it, the split layout puts bars 1-2 on a top system and bars 3-4 on a bottom
- * one, for every phrase. The staff area always reserves two system positions of one block size,
- * set from the viewport and never from a phrase. The planner picks one uniform engraving scale
- * that fits the width and, below the breakpoint, the height too, never below a named legibility
- * floor and never above a named maximum, and tells its two failures apart: no room for the staff
+ * The pure staff layout planner for a four-measure written phrase. At Idle the layout is chosen by
+ * the viewport's width alone: from the 64rem tablet-landscape breakpoint up, one staff system holds
+ * all four measures; below it, the split layout puts bars 1-2 on a top system and bars 3-4 on a
+ * bottom one, for every phrase. A running session draws the layout it held at Start instead,
+ * whatever the width now selects. The height budget belongs to the window, not to the layout:
+ * below the breakpoint the window gives one, from it up none. The staff area always reserves two
+ * system positions of one block size, set from the viewport and never from a phrase. The planner
+ * picks one uniform engraving scale that fits the width and, where the window gives a height
+ * budget, the height too, never below a named legibility floor and never above a named maximum, and tells its two failures apart: no room for the staff
  * (the window, whatever the phrase) and notes too wide (this phrase). This module never touches
  * vexflow or the DOM so the arithmetic can be tested in isolation from the rendering adapter.
  */
@@ -167,8 +169,8 @@ export const NOTATION_MIN_MEASURE_WIDTH_UNITS = 40
 
 /**
  * Mirrors the workspace's own `--breakpoint-tablet-landscape: 64rem` breakpoint
- * (src/styles/theme.css) as a width-only `matchMedia` query: while it matches, the staff uses the
- * split layout and fits the height budget as well as the width. The stylesheet's phone staff block
+ * (src/styles/theme.css) as a width-only `matchMedia` query: while it matches, the window gives the
+ * staff a height budget to fit as well as the width, and the Idle staff uses the split layout. The stylesheet's phone staff block
  * in src/styles/components.css uses the same query, so both always agree on the side.
  */
 // @spec-link [[module_notation_layout_preflight]]
@@ -194,11 +196,34 @@ export const BREAKPOINT_DESKTOP_REM = 90
 export type StaffLayout = 'one-system' | 'split'
 
 /**
- * The viewport as the planner sees it: the layout its width selects and, for the split layout
- * only, the height budget (CSS px) the two system positions must fit in together.
+ * What one system position holds of a phrase: bars 1-4 (the one-system layout's `whole`), or the
+ * split layout's bars 1-2 (`opening`) or bars 3-4 (`closing`).
  */
-export type StaffViewport =
-  { readonly layout: 'one-system' } | { readonly layout: 'split'; readonly heightBudgetPx: number }
+// @spec-link [[module_session_rolling_display]]
+export type SystemPart = 'whole' | 'opening' | 'closing'
+
+/**
+ * The viewport as the planner sees it: the layout drawn and the window's height budget (CSS px)
+ * the two system positions must fit in together. The budget is the window's, whatever the layout:
+ * non-null exactly while the window is below bp-tablet-landscape, null from it up. At Idle the
+ * layout is the one the width selects (split with a budget below, one system without one from the
+ * breakpoint up); a running session draws its held layout in the window's budget (`heldViewport`).
+ */
+// @spec-link [[module_notation_layout_preflight]]
+export interface StaffViewport {
+  readonly layout: StaffLayout
+  readonly heightBudgetPx: number | null
+}
+
+/**
+ * Intent: the viewport a session draws in: its held layout, with the window's own height budget
+ * kept as it is, so a held layout is sized and judged against the window it is shown in.
+ */
+// @spec-link [[rule_session_layout_fixed_at_start]]
+// @spec-link [[module_notation_layout_preflight]]
+export function heldViewport(windowViewport: StaffViewport, held: StaffLayout): StaffViewport {
+  return { layout: held, heightBudgetPx: windowViewport.heightBudgetPx }
+}
 
 /** The window cannot hold the staff at the legibility floor, whatever phrase it holds. */
 export interface StaffNoRoom {
@@ -285,7 +310,7 @@ function assertContainerWidth(containerWidthPx: number): void {
   }
 }
 
-/** Intent: guard the split layout's height budget is a finite pixel measurement (it may be negative: no room). */
+/** Intent: guard the window's height budget is a finite pixel measurement (it may be negative: no room). */
 function assertHeightBudget(heightBudgetPx: number): void {
   if (!Number.isFinite(heightBudgetPx)) {
     throw new NotationError(
@@ -297,16 +322,18 @@ function assertHeightBudget(heightBudgetPx: number): void {
 }
 
 /**
- * Size the two reserved system positions for a viewport, independent of any phrase. From the
- * breakpoint up, where the scale fits the width only, the positions take the maximum scale, so
- * any phrase fits them; the frame keeps its fixed minimum block size and grows past it to hold
- * both. Below it, both positions together must fit the height budget: the scale ceiling is the
- * largest that does, capped at the maximum, and a budget too short for the legibility floor
- * leaves the staff no room.
+ * Size the two reserved system positions for a viewport, independent of any phrase and of the
+ * layout drawn. With no height budget (the window from the breakpoint up), where the scale fits
+ * the width only, the positions take the maximum scale, so any phrase fits them; the frame keeps
+ * its fixed minimum block size and grows past it to hold both. With a budget (the window below
+ * it), both positions together must fit it, in either layout: the scale ceiling is the largest
+ * that does, capped at the maximum, and a budget too short for the legibility floor leaves the
+ * staff no room.
  */
 // @spec-link [[module_notation_layout_preflight]]
+// @spec-link [[rule_session_ends_when_staff_too_small]]
 export function planStaffPositions(viewport: StaffViewport): StaffPositionsOutcome {
-  if (viewport.layout === 'one-system') {
+  if (viewport.heightBudgetPx === null) {
     return {
       kind: 'room',
       scaleCeiling: MAX_SCALE,
@@ -336,8 +363,8 @@ export function planStaffPositions(viewport: StaffViewport): StaffPositionsOutco
 
 /**
  * Check, independent of any phrase, whether the window has room for the staff at the legibility
- * floor, in the layout its viewport selects: first the height (below the breakpoint, two systems
- * must fit the height budget), then the width of the layout's fixed parts (the leading clef, key
+ * floor, in the viewport's layout: first the height (where the window gives a height budget, two
+ * systems must fit it), then the width of the layout's fixed parts (the leading clef, key
  * signature and time signature, every measure at the minimum measure width, and the padding). No
  * phrase can fit where this finds no room; `planSystemLayout` runs this same check first, so both
  * always agree.
@@ -386,12 +413,12 @@ export function planStaffWidthRoom(input: StaffWidthRoomInput): StaffNoRoom | nu
 }
 
 /**
- * Plan the four-measure written phrase in the layout its viewport selects, never trying the other
- * one. One system needs the leading width (clef, key signature, time signature) plus its measure
+ * Plan the four-measure written phrase in the viewport's layout, never trying the other one. One
+ * system needs the leading width (clef, key signature, time signature) plus its measure
  * count (four, or two in the split layout) times the widest measure's minimum width, never less
  * than the minimum measure width, plus padding; every measure gets that one width, so they read as
  * visibly equal and the split layout's columns align. The scale is the smallest of the maximum,
- * the width fit and (split layout) the height fit. Failures are returned, not thrown, as two
+ * the width fit and (where the window gives a height budget) the height fit. Failures are returned, not thrown, as two
  * distinct outcomes: "no room" when the window cannot hold the staff whatever the phrase (too short
  * for two systems at the floor, or too narrow for the fixed parts with every measure at the minimum
  * width), checked first; "notes too wide" when there is room but this phrase needs more width.

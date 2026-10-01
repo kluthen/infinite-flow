@@ -14,13 +14,12 @@ import {
   GenerationWorkerCrashError,
   GenerationWorkerTransportError,
 } from '@/generation-worker/generation-worker-client'
-import { createSessionRunner, type SessionRunner } from '@/session/session-runner'
 import {
-  SessionEngineError,
-  type SessionOutput,
-  type SessionStart,
-  type SuccessfulOutcome,
-} from '@/session/session-types'
+  createSessionRunner,
+  type FitCandidate,
+  type SessionRunner,
+} from '@/session/session-runner'
+import { SessionEngineError, type SessionOutput, type SessionStart } from '@/session/session-types'
 import {
   SessionDriver,
   failureOutcome,
@@ -42,7 +41,7 @@ interface PendingGeneration {
 
 /** One fit check the test has not answered yet. */
 interface PendingFit {
-  readonly outcome: SuccessfulOutcome
+  readonly candidate: FitCandidate
   readonly phraseNumber: number
   readonly resolve: (fits: boolean) => void
   readonly reject: (error: unknown) => void
@@ -81,9 +80,9 @@ function rig(): Rig {
       }),
   )
   const checkFit = vi.fn(
-    (outcome: SuccessfulOutcome, phraseNumber: number) =>
+    (candidate: FitCandidate, phraseNumber: number) =>
       new Promise<boolean>((resolve, reject) => {
-        fits.push({ outcome, phraseNumber, resolve, reject })
+        fits.push({ candidate, phraseNumber, resolve, reject })
       }),
   )
   const start = fastStart()
@@ -169,12 +168,26 @@ describe('session runner', () => {
     const fit = lastFit(r)
     expect(r.checkFit).toHaveBeenCalledTimes(1)
     expect(fit.phraseNumber).toBe(2)
-    expect(fit.outcome).toBe(successFor(requests(r)[0]!.intent))
+    expect(fit.candidate.outcome).toBe(successFor(requests(r)[0]!.intent))
     await fitAt(r, 0.5, true)
     const ready = r.log.at(-1)
     expect(ready?.kind).toBe('phrase-ready')
     expect(ready).toMatchObject({ phrase: { phraseNumber: 2, origin: 'carry-in' } })
     expect(r.errors).toEqual([])
+  })
+
+  // @test-link [[service_session_runner]]
+  it("hands the fit-check seam the attempt's outcome with that attempt's own intent", async () => {
+    const r = rig()
+    r.clock.at = 0.2
+    r.generations[0]!.resolve(failureOutcome())
+    await settle()
+    const retry = requests(r)[1]!
+    await succeedAt(r, 0.3)
+    const { candidate } = lastFit(r)
+    expect(candidate.outcome).toBe(successFor(retry.intent))
+    expect(candidate.intent).toBe(retry.intent)
+    expect(r.checkFit).toHaveBeenCalledWith({ outcome: candidate.outcome, intent: retry.intent }, 2)
   })
 
   // @test-link [[service_session_runner]]

@@ -32,6 +32,7 @@ import {
   type FakeSessionBrowser,
 } from '../../session/fake-session-browser'
 import { fixedWallClock } from '../../session/session-harness'
+import { createFakeFrames } from './fake-frames'
 import { useCheapControls } from './test-workspace'
 
 vi.mock('@/generation-worker/browser-generation-worker', () => ({
@@ -52,7 +53,10 @@ beforeEach(() => {
 })
 
 /** The staff's inputs in the fake desktop window (1280 x 800). */
-const WIDE_STAFF: StaffLayoutInputs = { containerWidthPx: 1100, viewport: { layout: 'one-system' } }
+const WIDE_STAFF: StaffLayoutInputs = {
+  containerWidthPx: 1100,
+  viewport: { layout: 'one-system', heightBudgetPx: null },
+}
 
 /** A workspace at Ready with a running session's controller, and every seam in the test's hand. */
 interface Rig {
@@ -101,7 +105,11 @@ async function readyRig(): Promise<Rig> {
       clock: { anchor: () => transport.clockAnchor() },
     }),
     browser,
-    sessionClock: { createWakeTimer: audioRig.createExtraWakeTimer, wallClock: fixedWallClock },
+    sessionClock: {
+      createWakeTimer: audioRig.createExtraWakeTimer,
+      wallClock: fixedWallClock,
+      frames: createFakeFrames().port,
+    },
     dispose: () => undefined,
   })
   useCheapControls(workspace.session)
@@ -138,7 +146,10 @@ describe('the workspace session: the Idle layout hand-off', () => {
     const before = idleView(rig.workspace)
 
     rig.browser.windowShape.resize({ widthPx: 1100, smallHeightPx: 700, remPx: 16 })
-    rig.workspace.handleLayoutInputs({ containerWidthPx: 1000, viewport: { layout: 'one-system' } })
+    rig.workspace.handleLayoutInputs({
+      containerWidthPx: 1000,
+      viewport: { layout: 'one-system', heightBudgetPx: null },
+    })
     rig.workspace.handleEngraved()
     expect(idleView(rig.workspace)).toEqual(before)
     expect(rig.controller.state.phase).toBe('count-in')

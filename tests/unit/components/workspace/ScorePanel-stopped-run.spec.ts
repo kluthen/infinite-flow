@@ -50,6 +50,7 @@ function mountPanel(workspace: TestWorkspace) {
       pendingPhrase: null,
       handleEngraved: workspace.handleEngraved,
       handleNotationError: workspace.handleNotationError,
+      handleSessionStaffFailed: workspace.handleSessionStaffFailed,
       handleLayoutInputs: workspace.handleLayoutInputs,
       audio: workspace.audio,
       mixPopover: createMixVolumePopover('mix-volume-popover'),

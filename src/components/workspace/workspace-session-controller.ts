@@ -4,9 +4,11 @@
  * Start unlocks the audio, asks for the screen locks and starts the transport inside the click;
  * from then on everything is driven by the audio clock, through an injected wake-up timer that
  * reads it: the count-in display, the count-in's end, each phrase starting to sound, and the
- * engine's deadlines. Every runner output goes into the session's history. Besides Stop, a session
- * ends on an audio interruption, and on what its end watchers report (the page hidden, the staff
- * no longer shown); every end takes the same path. It draws nothing.
+ * engine's deadlines. Every runner output goes into the session's history. Its rolling display
+ * (./workspace-session-display.ts) gives the screen the staff to draw, checks each look-ahead
+ * phrase's fit and moves the playhead once a frame. Besides Stop, a session ends on an audio
+ * interruption, and on what its end watchers report (the page hidden, the staff no longer shown or
+ * failing); every end takes the same path. It draws nothing itself.
  */
 import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
 
@@ -34,6 +36,9 @@ import type {
 } from '@/session/session-types'
 import { isPortraitBelowDesktop, sessionLayoutAtStart } from '@/session/session-window'
 import type { StaffLayout } from '@/notation/notation-layout-policy'
+import type { SessionStaff } from '@/components/notation/session-staff'
+import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
+import { createSessionDisplay, type SessionDisplay } from './workspace-session-display'
 import { watchSessionEnds, type SessionEndWatch } from './workspace-session-end-watchers'
 import {
   SessionControllerError,
@@ -47,7 +52,7 @@ import {
 /** The ended output, the one that closes a session. */
 type EndedOutput = Extract<SessionOutput, { kind: 'ended' }>
 
-/** The running session: its timeline, history, runner, agenda and audio-time floor. */
+/** The running session: its timeline, history, runner, agenda, display and audio-time floor. */
 interface ActiveSession {
   readonly timeline: TransportTimeline
   readonly tempo: number
@@ -62,16 +67,8 @@ interface ActiveSession {
   ended: EndedOutput | null
   /** The watchers of the session's other ends, once it is fully started. */
   watch: SessionEndWatch | null
-}
-
-/**
- * Intent: the interim fit check (decision D-C): every phrase fits. Chunk 16 replaces it with the
- * staff planner's check in the layout the session holds; until then no look-ahead phrase is drawn,
- * so nothing can overflow.
- */
-// @spec-link [[service_workspace_session_flow]]
-function acceptEveryPhrase(): Promise<boolean> {
-  return Promise.resolve(true)
+  /** The rolling display, from the start until the session is torn down. */
+  display: SessionDisplay | null
 }
 
 /**
@@ -132,6 +129,8 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     heldLayout: null as StaffLayout | null,
     lastEnd: null as SessionEndSummary | null,
     lastHistory: null as SessionHistory | null,
+    sessionStaff: null as SessionStaff | null,
+    latestReady: null as number | null,
     get canStart(): boolean {
       return startBlocker.value === null
     },
@@ -155,6 +154,13 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   function runnerOf(session: ActiveSession): SessionRunner {
     if (session.runner === null) throw new Error('session controller: the runner is not built yet')
     return session.runner
+  }
+
+  /** Intent: the running session's display; reaching here before it exists is a wiring defect. */
+  function displayOf(session: ActiveSession): SessionDisplay {
+    if (session.display === null)
+      throw new Error('session controller: the display is not built yet')
+    return session.display
   }
 
   /** Intent: send one transport event at `at` (raised to the floor) to the session's runner. */
@@ -197,6 +203,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     }
     session.nextReady += 1
     audio.queueBacking(phraseNumber, output.phrase.outcome.provenance.harmony.events)
+    displayOf(session).phraseReady(output.phrase)
     session.agenda.schedule(audio.phraseStartsAt(phraseNumber), () =>
       dispatchAt(session, audio.phraseStartsAt(phraseNumber), {
         kind: 'phrase-started-sounding',
@@ -219,8 +226,9 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   /**
    * Intent: undo everything a start set up: no more wake-ups or scheduled events, the audio
    * faded out (unless the transport already ended its own session), both locks released, the
-   * session state back to Idle, and, last, the end watchers stopped, which hands the staff's
-   * reports back to the Idle machinery and re-applies the latest of them. A start that failed
+   * display's frame loop stopped and the staff left to Idle, the session state back to Idle, and,
+   * last, the end watchers stopped, which hands the staff's reports back to the Idle machinery and
+   * re-applies the latest of them. A start that failed
    * part-way passes the session only once it was built, and may not have started the timer or
    * the watchers yet: only what was set up is undone.
    */
@@ -231,6 +239,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     session?.agenda.clear()
     startedTimer?.stop()
     startedTimer = null
+    session?.display?.stop()
     if (audio.isRunning()) audio.stop()
     browser.wakeLock.release()
     browser.orientationLock.unlock()
@@ -239,6 +248,8 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     state.strugglingNotice = false
     state.sessionTempo = null
     state.heldLayout = null
+    state.sessionStaff = null
+    state.latestReady = null
     session?.watch?.stop()
   }
 
@@ -384,6 +395,8 @@ export function createSessionController(deps: SessionControllerDependencies): Se
       musicalProfile: idle.state.profileSelection,
     }
     const tempo = settings.controls.tempo
+    const idleWritten = deps.idlePhrase()
+    if (idleWritten === null) throw new Error('session controller: Idle shows no written phrase')
     const shape = browser.windowShape.read()
     const heldLayout = sessionLayoutAtStart(shape.widthPx, shape.remPx)
     audio.unlock()
@@ -405,8 +418,9 @@ export function createSessionController(deps: SessionControllerDependencies): Se
         nextReady: 2,
         ended: null,
         watch: null,
+        display: null,
       }
-      startSession(session, settings, heldLayout)
+      startSession(session, settings, heldLayout, idleWritten)
     } catch (error: unknown) {
       abandonStart(session, error)
     }
@@ -414,15 +428,21 @@ export function createSessionController(deps: SessionControllerDependencies): Se
 
   /**
    * Intent: the rest of a start, once the transport runs and phrase 1's backing is queued: make
-   * `session` the running one, show its count-in, schedule the count-in's end, start the wake-ups,
-   * the runner and the end watchers. `start` undoes it all if any of it throws.
+   * `session` the running one, show its count-in and its staff (phrase 1, the very phrase Idle
+   * shows), schedule the count-in's end, start the wake-ups, the display's frame loop, the runner
+   * (checking fits through the display) and the end watchers. `start` undoes it all if any of it
+   * throws.
    */
   // @spec-link [[rule_count_in_shown_on_screen]]
   // @spec-link [[rule_session_layout_fixed_at_start]]
+  // @spec-link [[rule_phrase_one_is_idle_phrase]]
+  // @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
+  // @spec-link [[module_session_rolling_display]]
   function startSession(
     session: ActiveSession,
     settings: SessionSettings,
     heldLayout: StaffLayout,
+    idleWritten: WrittenPhrase,
   ): void {
     const { timeline, tempo, phraseOne } = session
     active = session
@@ -439,6 +459,21 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     timer ??= deps.clock.createWakeTimer()
     timer.start(onWake)
     startedTimer = timer
+    const display = createSessionDisplay({
+      audio,
+      frames: deps.clock.frames,
+      tempo,
+      heldLayout,
+      phraseOne: idleWritten,
+      latestInputs: deps.idleLayout.latestInputs,
+      loadPlanner: deps.staffFitPlanner,
+      publish: (staff, latestReady) => {
+        state.sessionStaff = staff
+        state.latestReady = latestReady
+      },
+      fail: (error) => failLoudly(session, error),
+    })
+    session.display = display
     const sessionStart: SessionStart = {
       at: timeline.startAt,
       settings,
@@ -446,7 +481,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     }
     session.runner = deps.createSessionRunner({
       start: sessionStart,
-      checkFit: acceptEveryPhrase,
+      checkFit: display.checkFit,
       now: () => engineTime(session, audio.now()),
       onOutput: (output) => onOutput(session, output),
       onError: (error) => failLoudly(session, error),
@@ -456,6 +491,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
       idleLayout: deps.idleLayout,
       heldLayout,
       fixedParts: deps.staffFixedParts(phraseOne),
+      materialFits: display.materialFits,
       end: (cause) => endIfRunning(session, cause),
       fail: (error) => failLoudly(session, error),
     })
@@ -465,6 +501,12 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     state: shallowReadonly(state),
     start,
     stop: () => end('stop'),
+    isPhraseOnScreen: (phraseNumber) => {
+      if (!(Number.isInteger(phraseNumber) && phraseNumber >= 1)) {
+        throw new SessionControllerError(`session controller: ${phraseNumber} is no phrase number`)
+      }
+      return active?.display?.isPhraseOnScreen(phraseNumber) ?? false
+    },
     dispose: () => {
       if (disposed) throw new SessionControllerError('session controller: disposed twice')
       disposed = true

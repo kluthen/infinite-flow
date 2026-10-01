@@ -8,6 +8,23 @@ import type {
   SessionController,
   SessionControllerState,
 } from '../../../src/components/workspace/workspace-session-controller-types'
+import { slotKey, waitingMaterial } from '../../../src/session/rolling-display'
+
+/** Intent: the session staff as plain JSON: the playhead, the shown and the waiting slot keys. */
+function rollingDisplayOf(state: SessionControllerState) {
+  const staff = state.sessionStaff
+  if (staff === null || state.latestReady === null) {
+    return { playhead: null, systems: { top: null, bottom: null }, waiting: [] }
+  }
+  return {
+    playhead: staff.playhead === null ? null : { ...staff.playhead },
+    systems: {
+      top: staff.top === null ? null : slotKey(staff.top),
+      bottom: staff.bottom === null ? null : slotKey(staff.bottom),
+    },
+    waiting: waitingMaterial(staff.layout, staff.playhead, state.latestReady).map(slotKey),
+  }
+}
 
 /** The seam: the wrapper for the workspace's factory and the API published for specs. */
 export interface HarnessSessionController {
@@ -15,7 +32,10 @@ export interface HarnessSessionController {
   readonly api: WorkspaceHarnessSessionApi
 }
 
-/** Intent: the controller's state as plain JSON, its last history reduced to its phrase count. */
+/**
+ * Intent: the controller's state as plain JSON, its last history reduced to its phrase count and
+ * its session staff to the playhead and slot keys.
+ */
 function snapshotOf(state: SessionControllerState): WorkspaceHarnessSessionState {
   return {
     phase: state.phase,
@@ -30,6 +50,8 @@ function snapshotOf(state: SessionControllerState): WorkspaceHarnessSessionState
     startBlocker: state.startBlocker,
     lastEnd: state.lastEnd === null ? null : { ...state.lastEnd },
     lastHistoryPhraseCount: state.lastHistory === null ? null : state.lastHistory.phraseCount,
+    ...rollingDisplayOf(state),
+    latestReady: state.latestReady,
   }
 }
 

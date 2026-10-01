@@ -28,6 +28,7 @@ const ScorePanelHarness = defineComponent({
         pendingPhrase: (props.workspace as TestWorkspace).pendingPhrase.value,
         handleEngraved: (props.workspace as TestWorkspace).handleEngraved,
         handleNotationError: (props.workspace as TestWorkspace).handleNotationError,
+        handleSessionStaffFailed: (props.workspace as TestWorkspace).handleSessionStaffFailed,
         handleLayoutInputs: (props.workspace as TestWorkspace).handleLayoutInputs,
         audio: (props.workspace as TestWorkspace).audio,
         mixPopover,

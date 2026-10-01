@@ -13,6 +13,7 @@ import { type WorkspaceSessionResult } from '@/composables/workspace-session-res
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
+import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { CHEAP_CONTROLS, buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
@@ -28,6 +29,9 @@ export interface TestWorkspace {
   readonly pendingPhrase: ReturnType<typeof createNotationCoordinator>['pendingPhrase']
   readonly handleEngraved: () => void
   readonly handleNotationError: ReturnType<typeof createNotationCoordinator>['handleNotationError']
+  /** Records every session staff failure a ScorePanel forwards. */
+  readonly handleSessionStaffFailed: (error: NotationError) => void
+  readonly sessionStaffFailures: NotationError[]
   /** Records every layout report a ScorePanel forwards; the session's fit checks are `staff`'s. */
   readonly handleLayoutInputs: (inputs: StaffLayoutInputs) => void
   readonly layoutReports: StaffLayoutInputs[]
@@ -57,6 +61,7 @@ export function createTestWorkspace(
   let session!: GenerationSession<WorkspaceSessionResult>
   const staff = createFakeStaffFit<WorkspaceSessionResult>()
   const layoutReports: StaffLayoutInputs[] = []
+  const sessionStaffFailures: NotationError[] = []
   const viewport = createFakeViewportWidth()
   const coordinator = createNotationCoordinator({
     reportNotationFailure: (error) => session.actions.reportNotationFailure(error),
@@ -81,6 +86,10 @@ export function createTestWorkspace(
     pendingPhrase: coordinator.pendingPhrase,
     handleEngraved: coordinator.handleEngraved,
     handleNotationError: coordinator.handleNotationError,
+    handleSessionStaffFailed: (error) => {
+      sessionStaffFailures.push(error)
+    },
+    sessionStaffFailures,
     handleLayoutInputs: (inputs) => {
       layoutReports.push(inputs)
     },
@@ -104,6 +113,6 @@ export function useCheapControls(session: GenerationSession<WorkspaceSessionResu
 export const PHRASE_SCORE_STUB = {
   name: 'PhraseScore',
   template: '<div class="phrase-score-stub"><slot /></div>',
-  props: ['phrase'],
-  emits: ['engraved', 'notation-error', 'layout-inputs'],
+  props: ['phrase', 'session'],
+  emits: ['engraved', 'notation-error', 'layout-inputs', 'session-staff-failed'],
 }

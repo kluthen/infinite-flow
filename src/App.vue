@@ -57,6 +57,7 @@ onUnmounted(() => {
     :pending-phrase="workspace.pendingPhrase.value"
     :handle-engraved="workspace.handleEngraved"
     :handle-notation-error="workspace.handleNotationError"
+    :handle-session-staff-failed="workspace.handleSessionStaffFailed"
     :handle-layout-inputs="workspace.handleLayoutInputs"
     :audio="workspace.audio"
     :controller="sessionController"

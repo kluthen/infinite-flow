@@ -199,7 +199,7 @@ describe('createNotationCoordinator', () => {
 
 const WIDE_INPUTS: StaffLayoutInputs = {
   containerWidthPx: 1200,
-  viewport: { layout: 'one-system' },
+  viewport: { layout: 'one-system', heightBudgetPx: null },
 }
 const PHONE_INPUTS: StaffLayoutInputs = {
   containerWidthPx: 390,

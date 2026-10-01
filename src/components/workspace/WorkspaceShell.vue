@@ -35,6 +35,8 @@ const props = withDefaults(
     pendingPhrase: WrittenPhrase | null
     handleEngraved: () => void
     handleNotationError: (error: NotationError) => void
+    /** The staff failing to show a running session; it ends the session, never reaching Idle. */
+    handleSessionStaffFailed: (error: NotationError) => void
     handleLayoutInputs: (inputs: StaffLayoutInputs) => void
     audio: AudioTransport
     /** The session controller; null while its lazy chunk loads (no session can start then). */
@@ -259,6 +261,7 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         :pending-phrase="pendingPhrase"
         :handle-engraved="handleEngraved"
         :handle-notation-error="handleNotationError"
+        :handle-session-staff-failed="handleSessionStaffFailed"
         :handle-layout-inputs="handleLayoutInputs"
         :audio="audio"
         :mix-popover="mixPopover"

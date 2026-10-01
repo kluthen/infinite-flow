@@ -11,6 +11,7 @@ priority: 1
 human_name: Rolling Practice Session
 dependents:
   - [[module_notation_note_identity_overlays]]
+  - [[module_session_rolling_display]]
   - [[req_adaptive_tempo]]
   - [[req_last_session_review]]
   - [[req_midi_controller_input]]

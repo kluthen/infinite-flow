@@ -9,6 +9,7 @@ import {
   NOTATION_MAX_STAFF_SPACE_PX,
   NOTATION_MIN_MEASURE_WIDTH_UNITS,
   NOTATION_SYSTEM_POSITION_UNITS,
+  heldViewport,
   planStaffPlacement,
   planStaffPositions,
   planStaffRoom,
@@ -23,7 +24,7 @@ const MAX_SCALE = NOTATION_MAX_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STA
 const FLOOR_SCALE =
   NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
 
-const ONE_SYSTEM: StaffViewport = { layout: 'one-system' }
+const ONE_SYSTEM: StaffViewport = { layout: 'one-system', heightBudgetPx: null }
 
 /** Intent: a split-layout viewport whose height budget holds both systems at exactly `scale`. */
 function splitViewportAtScale(scale: number): StaffViewport {
@@ -298,6 +299,71 @@ describe('planStaffPositions: two reserved positions sized by the viewport, neve
     if (positions.kind !== 'room') return
     expect(sparse.positionBlockPx).toBe(positions.positionBlockPx)
     expect(dense.positionBlockPx).toBe(positions.positionBlockPx)
+  })
+})
+
+// @test-link [[module_notation_layout_preflight]]
+describe('planStaffPositions: the height budget belongs to the window, whatever layout is drawn', () => {
+  it('gives "no room" (too short) to a one-system layout drawn in a window too short for two systems at the floor', () => {
+    const viewport: StaffViewport = {
+      layout: 'one-system',
+      heightBudgetPx: 2 * NOTATION_SYSTEM_POSITION_UNITS * FLOOR_SCALE * 0.99,
+    }
+    expect(planStaffPositions(viewport)).toMatchObject({ kind: 'no_room', cause: 'too_short' })
+    expect(plan({ viewport, containerWidthPx: 20000 })).toMatchObject({
+      kind: 'no_room',
+      cause: 'too_short',
+    })
+  })
+
+  it('caps a one-system layout with a height budget at the height-fit scale, never above the maximum', () => {
+    const heightScale = (MAX_SCALE + FLOOR_SCALE) / 2
+    const budgeted: StaffViewport = {
+      layout: 'one-system',
+      heightBudgetPx: 2 * NOTATION_SYSTEM_POSITION_UNITS * heightScale,
+    }
+    const positions = planStaffPositions(budgeted)
+    expect(positions.kind).toBe('room')
+    if (positions.kind !== 'room') return
+    expect(positions.scaleCeiling).toBeCloseTo(heightScale, 10)
+    expect(positions.positionBlockPx).toBeCloseTo(NOTATION_SYSTEM_POSITION_UNITS * heightScale, 6)
+    expect(
+      planStaffPositions({ layout: 'one-system', heightBudgetPx: TALL_SPLIT.heightBudgetPx }),
+    ).toMatchObject({ scaleCeiling: MAX_SCALE })
+
+    const fitted = expectFits(plan({ viewport: budgeted, containerWidthPx: 20000 }))
+    expect(fitted.layout).toBe('one-system')
+    expect(fitted.scale).toBeCloseTo(heightScale, 10)
+  })
+
+  it('sizes a split layout with no height budget at the maximum scale', () => {
+    const viewport: StaffViewport = { layout: 'split', heightBudgetPx: null }
+    expect(planStaffPositions(viewport)).toEqual({
+      kind: 'room',
+      scaleCeiling: MAX_SCALE,
+      positionBlockPx: NOTATION_SYSTEM_POSITION_UNITS * MAX_SCALE,
+    })
+    const fitted = expectFits(plan({ viewport, containerWidthPx: 20000 }))
+    expect(fitted.layout).toBe('split')
+    expect(fitted.scale).toBe(MAX_SCALE)
+  })
+})
+
+// @test-link [[rule_session_layout_fixed_at_start]]
+// @test-link [[module_notation_layout_preflight]]
+describe("heldViewport: a held layout drawn in the window's height budget", () => {
+  it("keeps the window's height budget and swaps in the held layout", () => {
+    const shortSplit = splitViewportAtScale(FLOOR_SCALE * 1.2)
+    expect(heldViewport(shortSplit, 'one-system')).toEqual({
+      layout: 'one-system',
+      heightBudgetPx: shortSplit.heightBudgetPx,
+    })
+    expect(heldViewport(ONE_SYSTEM, 'split')).toEqual({ layout: 'split', heightBudgetPx: null })
+  })
+
+  it('returns the window unchanged when the held layout is the one the window selects', () => {
+    expect(heldViewport(TALL_SPLIT, 'split')).toEqual(TALL_SPLIT)
+    expect(heldViewport(ONE_SYSTEM, 'one-system')).toEqual(ONE_SYSTEM)
   })
 })
 

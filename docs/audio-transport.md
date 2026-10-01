@@ -268,8 +268,24 @@ browser to run the context again, so a later session may stay silent.
 ## The playhead
 
 `outputLatency()` gives the seconds between a sound's scheduled time and the moment it leaves the
-speakers. It is exposed so chunk 16 can place the playhead on what is heard, not on what is
-scheduled: v2.0 item 6 asks for it to stay within 20 ms of the actual audio output.
+speakers. The playhead uses it to follow what is heard, not what is scheduled: v2.0 item 6 asks
+for it to stay within 20 ms of the actual audio output.
+
+The session's rolling display (see
+[The rolling display](session-engine.md#the-rolling-display)) reads the playhead once per
+animation frame, on **heard time**, `now() - outputLatency()`, and finds the measure that time
+falls in from `phraseStartsAt(1)` and the measure length: barline k at
+`phraseStartsAt(1) + k × 240 / tempo`. Exactly at a barline the playhead is on the new measure.
+The band (`rect.playhead-band`) moves only when the measure changes, in one step with no
+transition, so it lags the heard barline by at most one frame (about 17 ms at 60 frames per
+second) plus the time to draw it. The scheduler and the engine's deadlines keep reading `now()`
+itself; only the display subtracts the latency.
+
+How close the band lands in practice is measured in real Chromium, on the real `AudioContext`
+through the workspace harness: the moment the band moves at each barline is compared with that
+barline's heard time, mapped to `performance.now()` through `clockAnchor()` (below). The figures,
+with the machine and the date, are recorded in
+[Rolling display (chunk 16)](generation-latency.md#rolling-display-chunk-16).
 
 ## The clock anchor
 
@@ -311,7 +327,8 @@ tests play a count-in and a short backing on the real `AudioContext`. See
   interruption, and the `queueBacking` calls (see
   [How the session controller wires it](#the-transport-api)).
 - **Chunk 13:** the "Connect controller" click's call to `unlock()`.
-- **Chunk 16:** the playhead, placed using `outputLatency`.
+- **Chunk 16 (built):** the playhead, read once per frame on heard time, `now()` minus
+  `outputLatency()` (see [The playhead](#the-playhead)).
 - **Chunk 17:** played notes placed on the audio clock through `clockAnchor()` (chunk 12 built
   the mapping, see [`docs/midi-input.md`](midi-input.md)).
 - **Chunk 20:** the MIDI export's backing track, from `renderBacking` for each recorded phrase's

@@ -18,6 +18,7 @@ import { createFakeViewportWidth } from '../../composables/fake-viewport-width'
 import { createFakeMidiAccess } from '../../midi/fake-midi-access'
 import { createFakeSessionBrowser } from '../../session/fake-session-browser'
 import { fixedWallClock } from '../../session/session-harness'
+import { createFakeFrames } from './fake-frames'
 
 vi.mock('@/generation-worker/browser-generation-worker', () => ({
   createBrowserGenerationWorker: vi.fn(() => ({
@@ -78,7 +79,11 @@ describe('composeWorkspaceSession: the session browser ports', () => {
         clock: { anchor: () => transport.clockAnchor() },
       }),
       browser,
-      sessionClock: { createWakeTimer: rig.createExtraWakeTimer, wallClock: fixedWallClock },
+      sessionClock: {
+        createWakeTimer: rig.createExtraWakeTimer,
+        wallClock: fixedWallClock,
+        frames: createFakeFrames().port,
+      },
       dispose: () => undefined,
     })
 

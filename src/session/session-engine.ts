@@ -169,7 +169,15 @@ function onGenerationResult(
   const fitting: Attempt = { ...attempt, stage: 'fitting', outcome }
   return {
     state: { ...state, lookAhead: { ...lookAhead, attempt: fitting } },
-    outputs: [{ kind: 'check-fit', attemptId, phraseNumber: lookAhead.phraseNumber, outcome }],
+    outputs: [
+      {
+        kind: 'check-fit',
+        attemptId,
+        phraseNumber: lookAhead.phraseNumber,
+        outcome,
+        intent: attempt.intent,
+      },
+    ],
   }
 }
 

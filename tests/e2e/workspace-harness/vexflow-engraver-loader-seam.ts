@@ -3,13 +3,14 @@
  * `vite.workspace-harness.config.ts`'s `resolve.alias` so every real production import of that
  * loader (PhraseScore.vue's engrave path, WorkspaceShell.vue's mount-time preload, the workspace's
  * pre-draw fit check) resolves here instead -- never a test-only branch inside src/ itself. Always
- * delegates to the real loader and the real dynamic `import()` it performs, and wraps two of the
+ * delegates to the real loader and the real dynamic `import()` it performs, and wraps these of the
  * resolved module's functions:
  *
- * - `engraveWrittenPhrase`, for the one-shot failure `armNextNotationFailure()` arms. It is
- *   injected there instead of at module load, because PhraseScore memoizes the loaded module after
- *   its first successful load (see vexflow-engraver-loader.ts), so a load-time rejection could only
- *   ever be observed before any phrase had engraved. A spec can force a failure on any later redraw
+ * - `engraveWrittenPhrase` and `engravePhraseSystem` (a whole phrase at Idle, one system part in a
+ *   running session), for the one-shot failure `armNextNotationFailure()` arms: whichever engraving
+ *   comes next throws it. It is injected there instead of at module load, because PhraseScore
+ *   memoizes the loaded module after its first successful load (see vexflow-engraver-loader.ts), so
+ *   a load-time rejection could only ever be observed before any phrase had engraved. A spec can force a failure on any later redraw
  *   (a resize, a Retry), exercising PhraseScore's real `redraw()` catch/emit('notation-error') path
  *   end to end; the armed code picks a retryable failure or one of the staff layout's two failures.
  *   Every call is counted, so a spec can tell that nothing but the phrase it expects was drawn.
@@ -33,7 +34,7 @@ let engravingsRun = 0
 let roomChecksRun = 0
 let wrappedModule: VexflowEngraverModule | null = null
 
-/** Intent: arm exactly one forced failure, with this code, for the next `engraveWrittenPhrase()` call. */
+/** Intent: arm exactly one forced failure, with this code, for the next engraving call. */
 export function armNextNotationFailure(
   code: WorkspaceHarnessNotationFailureCode = 'notation_engraving_failed',
 ): void {
@@ -50,7 +51,10 @@ export function fitCheckCount(): number {
   return fitChecksRun
 }
 
-/** Intent: how many engravings (draws and redraws) have been attempted since the page loaded. */
+/**
+ * Intent: how many engravings (draws and redraws, of a whole phrase or of one system part) have
+ * been attempted since the page loaded.
+ */
 export function engravingCount(): number {
   return engravingsRun
 }
@@ -60,24 +64,35 @@ export function roomCheckCount(): number {
   return roomChecksRun
 }
 
-/** Intent: the aliased drop-in for the real loader, wrapping the engraving and both checks. */
+/**
+ * Intent: count one engraving attempt and, when a failure is armed, disarm it and throw it in
+ * place of the real engraving.
+ */
+function countEngravingOrFail(): void {
+  engravingsRun += 1
+  if (armedFailureCode === null) return
+  const code = armedFailureCode
+  armedFailureCode = null
+  throw new NotationError(
+    code,
+    `Workspace harness injected a forced notation failure (${code}).`,
+    {},
+  )
+}
+
+/** Intent: the aliased drop-in for the real loader, wrapping both engravings and both checks. */
 export async function loadVexflowEngraver(): Promise<VexflowEngraverModule> {
   const real = await loadRealVexflowEngraver()
   if (wrappedModule === null) {
     wrappedModule = {
       ...real,
       engraveWrittenPhrase: (...args) => {
-        engravingsRun += 1
-        if (armedFailureCode !== null) {
-          const code = armedFailureCode
-          armedFailureCode = null
-          throw new NotationError(
-            code,
-            `Workspace harness injected a forced notation failure (${code}).`,
-            {},
-          )
-        }
+        countEngravingOrFail()
         return real.engraveWrittenPhrase(...args)
+      },
+      engravePhraseSystem: (...args) => {
+        countEngravingOrFail()
+        return real.engravePhraseSystem(...args)
       },
       planWrittenPhraseFit: (...args) => {
         fitChecksRun += 1

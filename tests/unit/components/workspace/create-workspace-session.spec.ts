@@ -36,9 +36,11 @@ import {
   type FakeSessionBrowser,
 } from '../../session/fake-session-browser'
 import { fixedWallClock } from '../../session/session-harness'
+import { createFakeFrames, type FakeFrames } from './fake-frames'
 import type { FakeWakeTimer } from '../../audio/fake-audio'
 import type { WorkspacePrewarmPolicy } from '@/components/workspace/prewarm-policy'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
+import { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import { fakeEngraver, resetFakeEngraver } from '../../notation/fake-vexflow-engraver-loader'
 
@@ -63,7 +65,7 @@ beforeEach(() => {
 /** The layout inputs a mounted PhraseScore would report for a wide window. */
 const STAFF_INPUTS: StaffLayoutInputs = {
   containerWidthPx: 1100,
-  viewport: { layout: 'one-system' },
+  viewport: { layout: 'one-system', heightBudgetPx: null },
 }
 
 const CHEAP_CONTROLS = {
@@ -100,6 +102,7 @@ function fakeDependencies(
   readonly midiAccess: FakeMidiAccess
   readonly browser: FakeSessionBrowser
   readonly sessionTimers: FakeWakeTimer[]
+  readonly sessionFrames: FakeFrames
 } {
   let seedCounter = 0
   let requestCounter = 0
@@ -114,6 +117,7 @@ function fakeDependencies(
   const { rig, transport } = transportRig()
   const midiAccess = createFakeMidiAccess()
   const sessionTimers: FakeWakeTimer[] = []
+  const sessionFrames = createFakeFrames()
   return {
     providers: {
       nextRequestId: () => makeRequestId(`di-seam-request-${++requestCounter}`),
@@ -136,8 +140,10 @@ function fakeDependencies(
         return timer
       },
       wallClock: fixedWallClock,
+      frames: sessionFrames.port,
     },
     sessionTimers,
+    sessionFrames,
     dispose: disposeMock,
     generateMock,
     disposeMock,
@@ -241,6 +247,26 @@ describe('composeWorkspaceSession', () => {
     expect(controller.state.lastHistory?.phraseCount).toBe(0)
   })
 
+  // @test-link [[rule_phrase_one_is_idle_phrase]]
+  // @test-link [[module_session_rolling_display]]
+  it('gives a session the very phrase Idle shows and its frame loop, and ends it when its staff fails', async () => {
+    const deps = fakeDependencies()
+    const workspace = composeWorkspaceSession(deps)
+    const controller = await workspace.createSessionController()
+    expect(await generateAndEngrave(workspace)).toBe(true)
+
+    controller.start()
+
+    expect(controller.state.sessionStaff?.top?.phrase).toBe(workspace.pendingPhrase.value)
+    expect(deps.sessionFrames.pending()).toBe(1)
+    workspace.handleSessionStaffFailed(new NotationError('notation_engraving_failed', 'x', {}))
+    expect(controller.state.lastEnd?.cause).toBe('staff-not-shown')
+    expect(controller.state.sessionStaff).toBeNull()
+    expect(deps.sessionFrames.pending()).toBe(0)
+    expect(workspace.session.state.notationError).toBeNull()
+    controller.dispose()
+  })
+
   it('dispose() forwards to the injected teardown', () => {
     const deps = fakeDependencies()
     const workspace = composeWorkspaceSession(deps)
@@ -311,7 +337,7 @@ describe('composeWorkspaceSession fit and room checks', () => {
 
     const narrower: StaffLayoutInputs = {
       containerWidthPx: 300,
-      viewport: { layout: 'one-system' },
+      viewport: { layout: 'one-system', heightBudgetPx: null },
     }
     workspace.handleLayoutInputs(narrower)
     await vi.waitFor(() => expect(fakeEngraver.planStaffRoomForKey).toHaveBeenCalledTimes(1))

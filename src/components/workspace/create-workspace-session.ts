@@ -74,6 +74,12 @@ export interface WorkspaceSession {
   readonly handleEngraved: () => void
   readonly handleNotationError: (error: NotationError) => void
   /**
+   * Wire to `PhraseScore`'s `@session-staff-failed`: the staff failing to show a running session,
+   * which ends it; it goes to the session alone, never to the Idle machinery.
+   */
+  // @spec-link [[module_session_rolling_display]]
+  readonly handleSessionStaffFailed: (error: NotationError) => void
+  /**
    * Wire to `PhraseScore`'s `@layout-inputs`: the staff's measured inputs, which the session's
    * pre-draw fit and room checks plan against. Until the staff reports once, every check fails as
    * a retryable notation error. While a practice session runs, this and the two engraving handlers
@@ -161,8 +167,9 @@ export interface WorkspaceSessionDependencies {
   readonly browser: SessionBrowserPorts
   /**
    * The session controller's time seams: the wake-up timer that has it read the audio clock
-   * (production: a Web Worker timer; the harness: a timer stepped by its fake audio clock) and the
-   * wall clock that stamps a session's history.
+   * (production: a Web Worker timer; the harness: a timer stepped by its fake audio clock), the
+   * wall clock that stamps a session's history, and the frame loop its playhead is read in (the
+   * browser's animation frames).
    */
   // @spec-link [[service_workspace_session_flow]]
   readonly sessionClock: SessionControllerClock
@@ -265,24 +272,30 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     pendingPhrase: coordinator.pendingPhrase,
     handleEngraved: staffReports.engraved,
     handleNotationError: staffReports.notationError,
+    handleSessionStaffFailed: staffReports.sessionStaffFailed,
     handleLayoutInputs: staffReports.layoutInputs,
     createSessionRunner: startRunner,
     audio: deps.audio,
     midi: deps.midi,
     browser: deps.browser,
     createSessionController: async () => {
-      const [{ createSessionController }, { measureSessionStaffFixedParts }] = await Promise.all([
+      const [
+        { createSessionController },
+        { measureSessionStaffFixedParts, loadSessionStaffFitPlanner },
+      ] = await Promise.all([
         import('./workspace-session-controller'),
         import('./session-staff-fixed-parts'),
       ])
       return createSessionController({
         idle: created,
+        idlePhrase: () => coordinator.pendingPhrase.value,
         audio: deps.audio,
         browser: deps.browser,
         createSessionRunner: startRunner,
         clock: deps.sessionClock,
         idleLayout: staffReports,
         staffFixedParts: measureSessionStaffFixedParts,
+        staffFitPlanner: loadSessionStaffFitPlanner,
       })
     },
     dispose: () => {
@@ -307,8 +320,8 @@ export interface ProductionWorkspaceSessionOptions {
  * MIDI controller on that transport's clock, which requests no MIDI access until `connect()`, and
  * the browser adapters of the session's wake lock, orientation lock, page visibility and window
  * shape, none of which asks or listens for anything until used, and the session clock: a wake-up
- * Worker timer, created only when a session controller first starts a session, and the system's
- * wall clock for session histories.
+ * Worker timer, created only when a session controller first starts a session, the system's
+ * wall clock for session histories, and the browser's animation frames for the playhead.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[rule_audio_unlocked_by_player_click]]
@@ -344,6 +357,10 @@ export function createWorkspaceSession(
     sessionClock: {
       createWakeTimer: () => createWorkerWakeTimer(createBrowserWakeTimerWorker()),
       wallClock: () => Date.now(),
+      frames: {
+        request: (callback) => requestAnimationFrame(() => callback()),
+        cancel: (handle) => cancelAnimationFrame(handle),
+      },
     },
     dispose: client.dispose,
   })

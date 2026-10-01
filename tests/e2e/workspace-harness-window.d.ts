@@ -151,6 +151,16 @@ interface WorkspaceHarnessAudioApi {
   isRunning: () => boolean
   /** The audio clock's time. Throws before the first Start audio click. */
   now: () => number
+  /** The output's latency in seconds, as the playhead reads it. Throws before unlock. */
+  outputLatency: () => number
+  /**
+   * One simultaneous reading of the audio clock and performance.now() (the transport's
+   * `clockAnchor()`): `audioTime` on the scheduling timeline, in seconds, and the
+   * `performanceTimeMs` it corresponds to. Throws before unlock.
+   */
+  clockAnchor: () => { readonly audioTime: number; readonly performanceTimeMs: number }
+  /** When the running session's phrase `phraseNumber` (from 1) starts; throws with none running. */
+  phraseStartsAt: (phraseNumber: number) => number
   /** Move the fake audio clock forward in 25 ms wake steps. Throws in real mode. */
   advance: (seconds: number) => void
   /** Every recorded call on the audio output, in call order. */
@@ -326,7 +336,9 @@ type WorkspaceHarnessSessionEndCause = 'stop' | 'hidden-tab' | 'staff-not-shown'
 /**
  * The session controller's state as plain JSON (src/components/workspace/
  * workspace-session-controller-types.ts's `SessionControllerState`), its last closed history
- * reduced to the number of phrases it recorded.
+ * reduced to the number of phrases it recorded, and its session staff reduced to the playhead and
+ * the slot keys (`${phraseNumber}:${part}`, part `whole`, `opening` or `closing`) of src/session/
+ * rolling-display.ts.
  */
 interface WorkspaceHarnessSessionState {
   readonly phase: 'idle' | 'count-in' | 'running'
@@ -348,6 +360,14 @@ interface WorkspaceHarnessSessionState {
   } | null
   /** How many phrases the last ended session's history recorded; null before any end. */
   readonly lastHistoryPhraseCount: number | null
+  /** The measure being played (0-based, 0 to 3); null in the count-in and with no session. */
+  readonly playhead: { readonly phraseNumber: number; readonly measureIndex: number } | null
+  /** The slot key each system position shows; both null with no session, one null when blank. */
+  readonly systems: { readonly top: string | null; readonly bottom: string | null }
+  /** The slot keys of readied material no position shows yet, in order; empty with no session. */
+  readonly waiting: readonly string[]
+  /** The highest phrase number the session readied (1 until phrase 2 is); null with no session. */
+  readonly latestReady: number | null
 }
 
 /** The workspace's session controller, read only: a spec drives it through the app's buttons. */
@@ -378,18 +398,23 @@ interface WorkspaceHarnessApi {
   /** How many `generate` calls have returned since the page loaded: forced failures and answers. */
   generationsSettled: () => number
   /**
-   * Arm exactly one forced notation failure on the next engraving (a draw or a redraw), with this
-   * code: `notation_engraving_failed` (the default, retryable) or a staff layout failure.
+   * Arm exactly one forced notation failure on the next engraving (a draw or a redraw, of a whole
+   * phrase or of one system part), with this code: `notation_engraving_failed` (the default,
+   * retryable) or a staff layout failure.
    */
   failNextNotation: (code?: WorkspaceHarnessNotationFailureCode) => void
   /**
-   * Append forced verdicts the next pre-draw fit checks return, one per check, in order; once the
-   * queue is empty the real planner answers.
+   * Append forced verdicts the next fit checks return, one per check, in order: Idle's pre-draw
+   * checks and a session's (each look-ahead attempt, and each phrase shown or waiting at a staff
+   * layout report); once the queue is empty the real planner answers.
    */
   queueFitVerdicts: (verdicts: readonly WorkspaceHarnessFitVerdict[]) => void
   /** How many pre-draw fit checks have run since the page loaded, forced or real. */
   fitChecks: () => number
-  /** How many engravings (draws and redraws) have been attempted since the page loaded. */
+  /**
+   * How many engravings (draws and redraws, of a whole phrase or of one system part) have been
+   * attempted since the page loaded.
+   */
   engravings: () => number
   /** How many phrase-independent room checks have run since the page loaded. */
   roomChecks: () => number

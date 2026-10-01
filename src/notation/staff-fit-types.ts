@@ -14,7 +14,7 @@ export interface StaffLayoutInputs {
   readonly viewport: StaffViewport
 }
 
-/** Why the window has no room for the staff: too narrow, or (split layout) too short. */
+/** Why the window has no room for the staff: too narrow, or (in a window's height budget) too short. */
 export type StaffNoRoomCause = 'too_narrow' | 'too_short'
 
 /** Whether a generated phrase can be drawn at the legibility floor with the current inputs. */

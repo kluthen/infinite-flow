@@ -105,7 +105,7 @@ chunks in different sections; the second to merge rebases on the first.
 | 2    | 5 Idle fit retries and the room notice (done 2026-09-30) · 6 Note identity and session overlays (done 2026-09-30) · 8 Session engine (done 2026-09-30) · 10 Audio transport (done 2026-09-30)                                                                                                                                                                                 | Wave 1. Chunk 1's verdict: given (2026-09-30).        |
 | 3    | 9 Session history (done 2026-09-30) · 11 Backing (done 2026-09-30) · 12 MIDI input (done 2026-10-01)                                                                                                                                                                                                                                                                          | Wave 2                                                |
 | 4    | 15 Session screen: start and end (done 2026-10-01)                                                                                                                                                                                                                                                                                                                            | Wave 3                                                |
-| 5    | 13 Controller connection · 16 Rolling display                                                                                                                                                                                                                                                                                                                                 | Chunk 15                                              |
+| 5    | 13 Controller connection · 16 Rolling display (done 2026-10-01)                                                                                                                                                                                                                                                                                                               | Chunk 15                                              |
 | 6    | 17 MIDI in the session                                                                                                                                                                                                                                                                                                                                                        | Wave 5                                                |
 | 7    | 20 Review and generated-notes export                                                                                                                                                                                                                                                                                                                                          | Chunk 17                                              |
 | 8    | 21 v2.0 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.0 chunk                                      |
@@ -1657,7 +1657,56 @@ built only once confirmed. Still open after the chunk: both stay open for the v2
 
 ### Chunk 16 — Rolling display
 
-**Release:** v2.0.
+**Release:** v2.0. **Done on 2026-10-01** on branch `v2-chunk-16` (not merged). The pure placement
+plan `src/session/rolling-display.ts` says where the playhead is, on heard time (`playheadAt`), what
+each system position shows (`systemsAt`), what readied material waits (`waitingMaterial`), which
+phrases are shown or waiting (`phrasesShownOrWaiting`), how many measures are read ahead
+(`readAheadMeasures`) and whether any of a phrase is on screen (`isPhraseOnScreen`). The planner's
+viewport is now the drawn layout plus the window's height budget (`null` from
+`bp-tablet-landscape` up), and `heldViewport` gives a session's held layout that budget, so a held
+one-system layout below `bp-tablet-landscape` now also ends the session for height: chunk 15's
+hand-off gap, resolved in favour of `rule_session_ends_when_staff_too_small`. The engraver's new
+`engravePhraseSystem` draws one system of a phrase from the whole phrase's plan. `PhraseScore`
+gained a session mode (the `session` prop, `src/components/notation/session-staff*.ts`): it
+refills one position at a time, the fade-out then the entrance fade, re-engraves in place on a
+resize, and in a session never emits `engraved` or `notation-error`, only `session-staff-failed`,
+which the Idle layout gate routes to the session alone. The controller's display
+(`src/components/workspace/workspace-session-display.ts`) runs a frame loop through an injected
+frame port, runs the session fit check (chunk 3's planner in the held viewport at the legibility
+floor; the engine's `check-fit` and the runner's seam now carry the attempt's intent,
+`FitCandidate`), applies the material rule on every layout report, and adds `sessionStaff` and
+`latestReady` to the controller state, with `isPhraseOnScreen(n)` for chunk 25. The workspace
+harness gained the session snapshot's `playhead`, `systems`, `waiting` and `latestReady` and the
+audio seams `outputLatency`, `clockAnchor` and `phraseStartsAt`; the notation harness gained
+`__notationSystems`. 14 Playwright tests in `tests/e2e/session/rolling-display-barlines.spec.ts`,
+`rolling-display-fit.spec.ts` and `rolling-display-resize.spec.ts` run on the fake clock (eight
+phrases per layout checked at every barline, a read-ahead of at least one measure, a phrase late
+past its deadline included, a misfit retried and never drawn, resizes, and ends like Stop on shown
+and waiting misfits), 6 more in `tests/e2e/notation/notation-phrase-systems.spec.ts`, and unit
+tests cover the plan, `PhraseScore`'s session mode, the display and the controller. The entry
+chunk's size budget in `npm run verify:boundaries` rose from 212 KiB to 220 KiB. Measured with
+`npm run measure:rolling` on the reference machine on 2026-10-01 (figures in
+[`docs/generation-latency.md`](../../../docs/generation-latency.md#rolling-display-chunk-16)):
+for item 6, over two five-minute runs at 120 BPM the band's measure changed at most 17.2 ms from
+the heard barline (none over 20 ms), but counted to the next painted frame it is up to 33.2 ms;
+for item 15, at 240 BPM with the densest settings the longest main-thread block was 42.6 ms
+against the 200 ms window. For [chunk 17](#chunk-17--midi-in-the-session): acknowledged notes are
+filtered to the notes drawn on screen and apply per phrase, and the start marker is not drawn in
+session mode. For [chunk 20](#chunk-20--review-and-generated-notes-export): the Review replaces
+the redraw of phrase 1 at the end. For [chunk 25](#chunk-25--settings-mutation-control):
+`isPhraseOnScreen(n)`. For ux-writer:
+[Responsive Behavior](../../../ui_ux/screens/phrase-workspace/handoff.md#responsive-behavior)'s
+example of waiting material, "a repeated phrase's bars 1–2", should read bars 3–4 (a repeat's bars
+1–2 are drawn at the deadline into the top system, already cleared). Technical choices:
+[`docs/session-engine.md`](../../../docs/session-engine.md#the-rolling-display) and
+[`docs/notation-engraving.md`](../../../docs/notation-engraving.md#session-systems). Decided in the
+chunk, awaiting the owner's acceptance: until chunk 20's Review, the staff leaves session mode at
+every end and draws phrase 1 again in the window's layout; the playhead reads heard time
+(`now - outputLatency`) once per animation frame, so the engine, on context time, can ready the
+phrase after next while the band is still in the last measure, and that phrase counts as waiting
+material; a session-mode engraving failure ends the session like Stop; and no start marker is
+drawn in session mode. Still open for the v2.0 gate: whether item 6's 20 ms is judged at the
+band's change (met) or at the painted frame (not met: about one frame later by construction).
 
 **Goal.** Make the staff roll. Two systems alternate: the player reads one while the other is
 refilled. The playhead band follows the audio clock. Each look-ahead phrase is checked against the

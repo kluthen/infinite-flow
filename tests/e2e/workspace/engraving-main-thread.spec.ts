@@ -6,7 +6,8 @@
  * re-validation, the written-notation transform) and the animation-frame callback that engraves
  * the phrase with VexFlow and swaps it in, followed by that frame's style, layout and paint.
  *
- * Three in-page probes, installed before the app loads, record that main-thread work:
+ * Three in-page probes (main-thread-probes.ts), installed before the app loads, record that
+ * main-thread work:
  *
  * - a buffered `longtask` PerformanceObserver: every main-thread task of 50 ms or more;
  * - a buffered `long-animation-frame` PerformanceObserver, where the browser supports it: the
@@ -27,12 +28,13 @@ import { writeFileSync } from 'node:fs'
 import { type Page, test } from '@playwright/test'
 
 import { gotoWorkspace, radio, timePhraseReady } from './helpers'
-
-/** One main-thread task or frame the in-page observers recorded, in page-clock milliseconds. */
-interface TimedEntry {
-  readonly startTime: number
-  readonly duration: number
-}
+import {
+  DENSEST_SETTING,
+  describeLongestScript,
+  installMainThreadProbes,
+  startHeartbeat,
+  type TimedEntry,
+} from './main-thread-probes'
 
 /** What one generation cycle, or one resize redraw, put on the main thread. */
 interface CycleMeasurement {
@@ -72,19 +74,6 @@ const TRAILING_WINDOW_MS = 250
 /** The proposed audio-scheduler look-ahead window the longest task is judged against. */
 const SCHEDULER_WINDOW_MS = 200
 
-/**
- * The densest supported rhythm setting: Sixteenth / Strict / Sparse / Straight / Edge fills all
- * 64 sixteenth slots of the four bars (about 58 of them notes, the rest rests), the most glyphs
- * and notes of any setting in the catalog over seeds 1-12.
- */
-const DENSEST_SETTING: readonly (readonly [group: string, option: string])[] = [
-  ['Note density', 'Sixteenth'],
-  ['Rhythmic variety', 'Strict'],
-  ['Silence density', 'Sparse'],
-  ['Syncopation', 'Straight'],
-  ['Tension', 'Edge'],
-]
-
 const VIEWPORTS = [
   { width: 2560, height: 1440 },
   { width: 1920, height: 1080 },
@@ -92,74 +81,6 @@ const VIEWPORTS = [
 
 // The measurements time main-thread work, so they must never overlap each other on the machine.
 test.describe.configure({ mode: 'default' })
-
-/** Intent: install the long-task, long-frame and heartbeat probes before any app script runs. */
-async function installMainThreadProbes(page: Page): Promise<void> {
-  await page.addInitScript(() => {
-    const probes: NonNullable<Window['__mainThread']> = {
-      longTasks: [],
-      longFrames: [],
-      heartbeat: { running: false, last: 0, maxGap: 0 },
-    }
-    window.__mainThread = probes
-    new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) {
-        probes.longTasks.push({ startTime: entry.startTime, duration: entry.duration })
-      }
-    }).observe({ type: 'longtask', buffered: true })
-    if (PerformanceObserver.supportedEntryTypes.includes('long-animation-frame')) {
-      new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          const frame = entry as PerformanceEntry & {
-            readonly scripts: readonly (PerformanceEntry & {
-              readonly invoker: string
-              readonly invokerType: string
-            })[]
-          }
-          probes.longFrames.push({
-            startTime: frame.startTime,
-            duration: frame.duration,
-            scripts: frame.scripts.map((script) => ({
-              startTime: script.startTime,
-              duration: script.duration,
-              invoker: script.invoker,
-              invokerType: script.invokerType,
-            })),
-          })
-        }
-      }).observe({ type: 'long-animation-frame', buffered: true })
-    }
-  })
-}
-
-/** Intent: start the zero-delay heartbeat that measures how long a main-thread timer could wait. */
-async function startHeartbeat(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const beat = window.__mainThread?.heartbeat
-    if (!beat) throw new Error('main-thread probes are not installed')
-    beat.running = true
-    beat.last = performance.now()
-    beat.maxGap = 0
-    const tick = (): void => {
-      if (!beat.running) return
-      const now = performance.now()
-      beat.maxGap = Math.max(beat.maxGap, now - beat.last)
-      beat.last = now
-      setTimeout(tick, 0)
-    }
-    setTimeout(tick, 0)
-  })
-}
-
-/** Intent: name the longest attributed script of a cycle, so a long frame can be traced to its cause. */
-function describeLongestScript(
-  scripts: readonly { duration: number; invoker: string; invokerType: string }[],
-): string {
-  const longest = [...scripts].sort((left, right) => right.duration - left.duration)[0]
-  return longest === undefined
-    ? ''
-    : `${longest.invokerType} ${longest.invoker} ${longest.duration.toFixed(0)}ms`
-}
 
 /**
  * Intent: let the cycle's trailing frame work finish and its entries be delivered, stop the

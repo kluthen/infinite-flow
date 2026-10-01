@@ -292,6 +292,11 @@ app.provide(WORKSPACE_SESSION_FACTORY, () => {
     sessionClock: {
       createWakeTimer: harnessAudio.createSessionWakeTimer,
       wallClock: () => Date.now(),
+      // The browser's own frames, as in the app: the playhead is read on the harness's audio clock.
+      frames: {
+        request: (callback) => requestAnimationFrame(() => callback()),
+        cancel: (handle) => cancelAnimationFrame(handle),
+      },
     },
     dispose: client.dispose,
   })
