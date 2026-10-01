@@ -11,6 +11,7 @@ parents:
   - [[rule_session_layout_fixed_at_start]]
   - [[rule_stop_ends_session]]
 dependents:
+  - [[module_session_rolling_display]]
   - [[service_workspace_session_flow]]
 ---
 

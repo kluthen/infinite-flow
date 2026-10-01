@@ -4,7 +4,9 @@ This document records `generatePhrase` latency across every rhythm setting in th
 `rhythm-mvp-v2` control catalog (ISS-004: rhythmic variety replaces Mixed density), cold (fresh
 canonical-rhythm-domain memo) versus warm (memo hit), and the signed-off latency budget those
 numbers are checked against. It also records the first generation after a change to one setting,
-and the longest main-thread task while a phrase is engraved. The newest figures are in
+and the longest main-thread task while a phrase is engraved. The timing of a running session's
+rolling display (the playhead band against the heard barline, and the main thread at 240 BPM) is in
+[Rolling display (chunk 16)](#rolling-display-chunk-16). The newest generation figures are in
 [Validator-free fast enumeration on the reference machine (2026-09-30)](#validator-free-fast-enumeration-on-the-reference-machine-2026-09-30),
 after the [cold-generation speed-up](#cold-generation-speed-up-on-the-reference-machine-2026-09-30);
 the verdicts that gate the build plan were set in
@@ -116,6 +118,107 @@ workspace default. It runs at two large desktop viewports, 2560 × 1440 and 1920
 one fresh page each, one first generation, then 12 regenerations (each with a new random seed),
 then 10 re-engravings of the last phrase caused by a 16-pixel width change alone, with no
 generation. `ENGRAVING_OUT` names a JSON file for the full report.
+
+## Rolling display (chunk 16)
+
+Two timing checks of a running session in real Chromium, for chunk 16's done-when (see
+[the build plan](../specs/versions/v2/build-plan.md#chunk-16--rolling-display)): the playhead
+band against the heard barline (v2.0 item 6), and the main thread at 240 BPM with the densest
+setting against the scheduler's window (item 15).
+
+**Machine and date.** Measured on 2026-10-01, 13:49-14:05 CEST, on branch `v2-chunk-16` (`main` at
+`99bdd7b` plus chunk 16's uncommitted work), on the reference machine: AMD Ryzen 5 PRO 8640HS (6
+cores, 12 threads), 11 GiB RAM, bare metal, Debian 13 (Linux 6.12), Chromium 153.0.8010.12 (the
+Playwright 1.63.0 headless shell, which Playwright launches with `--mute-audio`). Each run ran
+alone; the owner's desktop session stayed open (about 90 % idle CPU before the first run).
+
+**Method.** `npm run measure:rolling` runs `tests/e2e/session/rolling-display-timing.spec.ts`
+against the workspace harness with `?audio=real`: the real `AudioContext` (48 kHz, base latency
+10.7 ms, output latency 32-56 ms as read during the runs), the real wake-up Workers and the real
+generation Worker, with no controller connected. The session starts from a real click on
+`Start session`, after phrase 1 (seed 7) is generated at the chosen tempo. `ROLLING_OUT` names the
+JSON reports, one per measurement.
+
+- **Playhead (item 6).** 120 BPM, default settings, 1920 × 1080 (the one-system layout), five
+  minutes of audio time from phrase 1's start: 150 barlines, 2 s apart. Before Start, a
+  `MutationObserver` on the staff stamps `performance.now()` each time `rect.playhead-band` lands
+  on a different measure or system, and, in the same callback, reads a fresh `clockAnchor()` and
+  `outputLatency()` through the harness. A `requestAnimationFrame` requested there stamps the next
+  frame, and `document.timeline.currentTime` gives the start of the frame that moved the band.
+- **The heard barline.** Barline k is at `phraseStartsAt(1) + k × 2 s` on the audio clock, the
+  time the band itself uses. The band reads heard time as `now() - outputLatency()`, so the barline
+  is heard when the audio clock reads `barline + outputLatency`. The anchor is on that same
+  scheduling timeline: the output timestamp's `contextTime`, the frame the output device renders at
+  `performanceTimeMs`, plus the output latency (see
+  [The audio clock](midi-input.md#the-audio-clock)). So the heard barline on `performance.now()`
+  is `performanceTimeMs + (barline + outputLatency - audioTime)`, in seconds converted to ms. The
+  latency the anchor adds is taken off once, and the result is the browser's own answer to "when
+  does the output device render the barline's frame". A fresh anchor per barline matters: the
+  output timestamp drifted against `performance.now()` by 12 ms and 22 ms over the two
+  five-minute runs, which one anchor read at the start would have carried into the late barlines.
+- **Figures.** Each barline's difference is the band's time minus the heard barline's: positive is
+  late. Three band times: the **observer callback** (the band's measure has changed in the page,
+  before paint); the **frame start** (the frame whose animation callback moved it); and the
+  **next frame** (the next animation frame's timestamp, about when the painted band can first
+  reach the screen). The screen's own display latency is in none of them.
+- **Main thread (item 15).** 240 BPM, the densest setting (Sixteenth / Strict / Sparse / Straight /
+  Edge, as in [Main-thread engraving](#main-thread-engraving)), at 2560 × 1440 and 1920 × 1080:
+  one fresh page each, with chunk 1's three probes (`tests/e2e/workspace/main-thread-probes.ts`,
+  shared with `measure:engraving`) installed before the app loads and the heartbeat running from
+  just before the Start click. The window runs from the Start click (1 s count-in) to 60 s after
+  phrase 1's start: 15 phrases, each engraving its system as it enters. As a check that the probes
+  fire in this browser, a separate page with a deliberate 120 ms timer task and a 90 ms animation
+  callback was caught by all three probes (with `long-animation-frame` naming `setTimeout` and
+  `FrameRequestCallback`).
+
+**Playhead band against the heard barline** (ms; 150 barlines each run, every barline seen, the
+band never missing from the staff and never landing on a measure out of order):
+
+| Run | 1-min load before → after | Band time         | max \|diff\| | p95 \|diff\| | median \|diff\| | mean | range        | over 20 ms |
+| --- | ------------------------- | ----------------- | ------------ | ------------ | --------------- | ---- | ------------ | ---------- |
+| 1   | 1.25 → 1.05               | observer callback | 17.2         | 14.0         | 8.8             | 6.6  | -7.5 to 17.2 | 0          |
+|     |                           | frame start       | 16.5         | 13.0         | 8.0             | 5.7  | -8.4 to 16.5 | 0          |
+|     |                           | next frame        | 33.2         | 29.6         | 24.6            | 22.4 | 8.3 to 33.2  | 108        |
+| 2   | 1.10 → 0.65               | observer callback | 15.4         | 10.2         | 7.5             | 5.1  | -7.2 to 15.4 | 0          |
+|     |                           | frame start       | 13.8         | 9.1          | 7.1             | 4.2  | -8.5 to 13.8 | 0          |
+|     |                           | next frame        | 30.5         | 25.7         | 23.1            | 20.8 | 8.2 to 30.5  | 118        |
+
+- The band can move up to about 8 ms **before** the heard barline. The audio clock's `currentTime`
+  advances in steps of one output buffer (512 frames, 10.7 ms), while the output timestamp moves
+  smoothly: read in the same callback, `currentTime` was up to 13.5 ms ahead of the anchor's
+  timeline. The band follows `currentTime`, so it can cross a barline a little early.
+- The next-frame figure is the observer figure plus one frame (16 ms on average), as expected:
+  the band moves in one animation frame and is painted at the end of it.
+
+**Main thread at 240 BPM, densest setting** (ms; the window from the Start click to 60 s into the
+running session, 16 engravings, the session still running at the end with phrase 17 readied):
+
+| Viewport    | Run | 1-min load before → after | Window (s) | Longest `longtask` | Tasks ≥ 50 ms | Longest long animation frame (top script) | Longest heartbeat gap |
+| ----------- | --- | ------------------------- | ---------- | ------------------ | ------------- | ----------------------------------------- | --------------------- |
+| 2560 × 1440 | 1   | 0.82 → 0.29 (both sizes)  | 62.3       | none ≥ 50          | 0             | none ≥ 50                                 | 40.1                  |
+| 1920 × 1080 | 1   |                           | 61.2       | none ≥ 50          | 0             | none ≥ 50                                 | 39.8                  |
+| 2560 × 1440 | 2   | 0.49 → 0.89 (both sizes)  | 62.2       | none ≥ 50          | 0             | none ≥ 50                                 | 42.6                  |
+| 1920 × 1080 | 2   |                           | 61.2       | none ≥ 50          | 0             | none ≥ 50                                 | 23.7                  |
+
+`longtask` and `long-animation-frame` report nothing under 50 ms, so the heartbeat gives the only
+figure below that: the longest wait any main-thread timer saw was 42.6 ms.
+
+### Verdicts (rolling display)
+
+**Playhead within 20 ms of the heard barline (item 6): met, for the moment the band's measure
+changes.** Over 300 barlines in two five-minute runs, the band's measure changed at most 17.2 ms
+after the heard barline (p95 14.0 ms) and at most 7.5 ms before it; none was more than 20 ms off.
+**Counted to the next animation frame, when the painted band can first reach the screen, it is not
+met:** 72-79 % of barlines were more than 20 ms late, at most 33.2 ms. That figure is one frame
+later by construction, and matches [The playhead](audio-transport.md#the-playhead)'s own bound,
+"at most one frame plus the time to draw it". Which of the two item 6 means is for the owner to
+settle; the first is how the build plan's bullet reads ("the playhead band's measure changes").
+
+**No main-thread task longer than the 200 ms scheduler window at 240 BPM, densest setting (item
+15): met, with wide room.** No task or animation frame reached 50 ms at either size in either run;
+the longest timer wait was 42.6 ms, about 157 ms inside the window. Limits: one desktop machine, a
+headless Chromium at 1× device pixel ratio, no controller (no MIDI or acknowledgement work), and
+audio muted by Playwright's `--mute-audio`.
 
 ## Validator-free fast enumeration on the reference machine (2026-09-30)
 

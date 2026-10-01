@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest'
 import ScorePanel from '@/components/workspace/ScorePanel.vue'
 import { createMixVolumePopover } from '@/components/workspace/mix-volume-popover'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
+import type { SessionStaff } from '@/components/notation/session-staff'
+import { NotationError } from '@/notation/notation-error'
 import { createFakeSessionController } from './fake-session-controller'
 import { reachTooManyNotesNotice } from './score-panel-harness'
 import { createTestWorkspace, PHRASE_SCORE_STUB, type TestWorkspace } from './test-workspace'
@@ -16,6 +18,7 @@ function mountPanel(workspace: TestWorkspace, controller: SessionController | nu
       pendingPhrase: null,
       handleEngraved: workspace.handleEngraved,
       handleNotationError: workspace.handleNotationError,
+      handleSessionStaffFailed: workspace.handleSessionStaffFailed,
       handleLayoutInputs: workspace.handleLayoutInputs,
       audio: workspace.audio,
       mixPopover: createMixVolumePopover('mix-volume-popover'),
@@ -57,6 +60,42 @@ describe('ScorePanel session cue row', () => {
     ;(wrapper.vm as unknown as { focusRoomNotice: () => void }).focusRoomNotice()
 
     expect(document.activeElement).toBe(wrapper.get('.room-notice').element)
+    wrapper.unmount()
+  })
+})
+
+// @test-link [[module_session_rolling_display]]
+// @test-link [[service_workspace_session_flow]]
+describe('ScorePanel session staff', () => {
+  // @test-link [[module_session_rolling_display]]
+  it('hands PhraseScore the session staff while a session runs, and none at Idle', async () => {
+    const fake = createFakeSessionController()
+    const wrapper = mountPanel(createTestWorkspace(), fake.controller)
+    const score = wrapper.getComponent({ name: 'PhraseScore' })
+    expect(score.props('session')).toBeNull()
+
+    const staff: SessionStaff = { layout: 'split', top: null, bottom: null, playhead: null }
+    fake.state.sessionStaff = staff
+    await flushPromises()
+    expect(score.props('session')).toEqual(staff)
+
+    fake.state.sessionStaff = null
+    await flushPromises()
+    expect(score.props('session')).toBeNull()
+    wrapper.unmount()
+  })
+
+  // @test-link [[rule_session_ends_when_staff_too_small]]
+  it('forwards a session staff failure to the session handler, never to Idle', async () => {
+    const workspace = createTestWorkspace()
+    const wrapper = mountPanel(workspace, createFakeSessionController().controller)
+    const error = new NotationError('notation_engraving_failed', 'failed', {})
+
+    wrapper.getComponent({ name: 'PhraseScore' }).vm.$emit('session-staff-failed', error)
+    await flushPromises()
+
+    expect(workspace.sessionStaffFailures).toEqual([error])
+    expect(workspace.session.state.notationError).toBeNull()
     wrapper.unmount()
   })
 })

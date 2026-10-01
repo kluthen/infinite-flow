@@ -7,7 +7,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { SessionEngineError, type SessionEndCause } from '@/session/session-types'
-import { SessionDriver, kinds, phraseOneFor, sessionSettings } from './session-harness'
+import { SessionDriver, kinds, phraseOneFor, sessionSettings, successFor } from './session-harness'
 
 const CAUSES: readonly SessionEndCause[] = ['stop', 'hidden-tab', 'staff-not-shown']
 
@@ -148,6 +148,35 @@ describe('a rolling session', () => {
       'carry-in',
       'carry-in',
     ])
+  })
+
+  // @test-link [[service_session_engine]]
+  it("asks to fit-check each attempt with that attempt's own intent, the standalone retry's included", () => {
+    const driver = fastDriver()
+    const first = driver.lastRequest()
+    expect(driver.succeed(0.1)).toEqual([
+      {
+        kind: 'check-fit',
+        attemptId: first.attemptId,
+        phraseNumber: 2,
+        outcome: successFor(first.intent),
+        intent: first.intent,
+      },
+    ])
+    driver.fit(0.1, false)
+    for (const at of [0.2, 0.3, 0.4]) driver.fail(at)
+    const standalone = driver.lastRequest()
+    expect(standalone.step).toBe('standalone')
+    expect(standalone.intent).not.toEqual(first.intent)
+    const [check] = driver.succeed(0.5)
+    expect(check).toEqual({
+      kind: 'check-fit',
+      attemptId: standalone.attemptId,
+      phraseNumber: 2,
+      outcome: successFor(standalone.intent),
+      intent: standalone.intent,
+    })
+    expect(check?.kind === 'check-fit' && check.intent).toBe(standalone.intent)
   })
 
   // @test-link [[service_session_engine]]

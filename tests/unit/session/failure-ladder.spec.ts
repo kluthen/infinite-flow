@@ -58,7 +58,13 @@ describe('failure ladder before the deadline', () => {
     const request = driver.lastRequest()
     const outcome = successFor(request.intent)
     expect(driver.succeed(0.1)).toEqual([
-      { kind: 'check-fit', attemptId: request.attemptId, phraseNumber: 2, outcome },
+      {
+        kind: 'check-fit',
+        attemptId: request.attemptId,
+        phraseNumber: 2,
+        outcome,
+        intent: request.intent,
+      },
     ])
     expect(driver.fit(0.2, true)).toEqual([
       {

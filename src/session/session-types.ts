@@ -104,8 +104,9 @@ export type SessionEvent =
 /**
  * What the engine asks its caller to do or tells it happened. `retry` counts the attempts made for
  * the phrase before this one: 0 for the first carry-in attempt, 1 to 3 for the carry-in retries
- * and 4 for the standalone retry. `phrase-ready` is the phrase to show next as read-ahead, repeats
- * included.
+ * and 4 for the standalone retry. `check-fit` carries the checked attempt's own intent, which can
+ * differ between attempts for the same phrase. `phrase-ready` is the phrase to show next as
+ * read-ahead, repeats included.
  */
 // @spec-link [[service_session_engine]]
 export type SessionOutput =
@@ -123,6 +124,7 @@ export type SessionOutput =
       readonly attemptId: number
       readonly phraseNumber: number
       readonly outcome: SuccessfulOutcome
+      readonly intent: GenerationIntent
     }
   | { readonly kind: 'phrase-ready'; readonly phrase: SessionPhrase }
   | { readonly kind: 'phrase-sounding'; readonly at: AudioTime; readonly phrase: SessionPhrase }

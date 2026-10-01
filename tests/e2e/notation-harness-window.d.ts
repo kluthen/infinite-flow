@@ -105,9 +105,10 @@ interface NotationHarnessState {
 // @test-link [[module_idle_fit_round]]
 interface NotationHarnessLayoutInputs {
   readonly containerWidthPx: number
-  readonly viewport:
-    | { readonly layout: 'one-system' }
-    | { readonly layout: 'split'; readonly heightBudgetPx: number }
+  readonly viewport: {
+    readonly layout: 'one-system' | 'split'
+    readonly heightBudgetPx: number | null
+  }
 }
 
 /** A key signature as the room check takes it (WrittenKey['signature'], serialisable). */
@@ -140,9 +141,89 @@ interface NotationHarnessChecks {
   ): Promise<{ readonly kind: string; readonly cause?: string }>
 }
 
+/** A system position's share of a phrase: bars 1-4, bars 1-2 or bars 3-4 (SystemPart). */
+type NotationHarnessSystemPart = 'whole' | 'opening' | 'closing'
+
+/** One drawn system SVG: its size, normalised markup, note ids and measure slots' indices. */
+// @test-link [[module_session_rolling_display]]
+interface NotationHarnessSvgSnapshot {
+  readonly width: string | null
+  readonly height: string | null
+  readonly viewBox: string | null
+  /** The SVG's markup with VexFlow's `autoN` element ids renamed in order of first appearance. */
+  readonly markup: string
+  /** The distinct `data-note-id` values tagged in the SVG, in document order. */
+  readonly noteIds: readonly string[]
+  /** Each `g.measure-slot`'s `data-measure-index`, in document order. */
+  readonly measureIndices: readonly number[]
+  /** Each `g.measure-slot`'s `data-system-index`, in document order. */
+  readonly systemIndices: readonly number[]
+}
+
+/** The geometry an engraving reports, shared by a whole phrase's and one system's. */
+interface NotationHarnessEngravedGeometry {
+  readonly staffSpacePx: number
+  readonly widthPx: number
+  readonly heightPx: number
+  readonly positionBlockPx: number
+  readonly requiredUnits: number
+  readonly measureBoxes: readonly { readonly x: number; readonly width: number }[]
+}
+
+/** A thrown value, serialisable: its name, its NotationError code (null otherwise) and message. */
+interface NotationHarnessThrown {
+  readonly name: string
+  readonly code: string | null
+  readonly message: string
+}
+
+/**
+ * The per-system engraving hook, on the real engraver module once its fonts are loaded: a fixture
+ * phrase drawn whole by `engraveWrittenPhrase` (each system's SVG snapshotted), or one system part
+ * drawn by `engravePhraseSystem` into one host; `engravePartFailure` draws into a host holding a
+ * sentinel child and reports what was thrown and what the host kept.
+ */
+// @test-link [[module_session_rolling_display]]
+// @test-link [[module_notation_layout_preflight]]
+interface NotationHarnessSystems {
+  engravePhrase(
+    fixtureName: string,
+    phraseNumber: number,
+    containerWidthPx: number,
+    viewport: NotationHarnessLayoutInputs['viewport'],
+  ): Promise<
+    NotationHarnessEngravedGeometry & { readonly svgs: readonly NotationHarnessSvgSnapshot[] }
+  >
+  engravePart(
+    fixtureName: string,
+    phraseNumber: number,
+    part: NotationHarnessSystemPart,
+    containerWidthPx: number,
+    viewport: NotationHarnessLayoutInputs['viewport'],
+  ): Promise<
+    NotationHarnessEngravedGeometry & {
+      readonly svg: NotationHarnessSvgSnapshot
+      readonly hostChildCount: number
+      readonly hostHoldsSvg: boolean
+    }
+  >
+  engravePartFailure(
+    fixtureName: string,
+    phraseNumber: number,
+    part: NotationHarnessSystemPart,
+    containerWidthPx: number,
+    viewport: NotationHarnessLayoutInputs['viewport'],
+  ): Promise<{
+    readonly thrown: NotationHarnessThrown | null
+    readonly hostChildCount: number
+    readonly sentinelKept: boolean
+  }>
+}
+
 interface Window {
   __notationHarness: NotationHarnessState
   /** Every `layout-inputs` event PhraseScore emitted since the page loaded, in order. */
   __notationLayoutInputs: NotationHarnessLayoutInputs[]
   __notationChecks: NotationHarnessChecks
+  __notationSystems: NotationHarnessSystems
 }

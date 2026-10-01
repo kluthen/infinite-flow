@@ -72,6 +72,7 @@ function fakeWorkspaceSession() {
     pendingPhrase: ref<WrittenPhrase | null>(null),
     handleEngraved: () => {},
     handleNotationError: () => {},
+    handleSessionStaffFailed: () => {},
     handleLayoutInputs: () => {},
     audio: transportRig().transport,
     createSessionController: async () => {

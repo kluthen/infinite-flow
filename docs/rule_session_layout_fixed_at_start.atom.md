@@ -8,6 +8,7 @@ parents:
   - [[req_rolling_practice_session]]
 dependents:
   - [[module_notation_layout_preflight]]
+  - [[module_session_rolling_display]]
   - [[rule_session_ends_when_staff_too_small]]
   - [[service_workspace_session_flow]]
 type: RULE

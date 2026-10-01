@@ -48,6 +48,7 @@ The session controller's pure pieces live here too, under the same boundary (see
 | `count-in-display.ts`         | `countInDisplayAt(startAt, tempo, now)`: each count-in beat's state, and when the display changes.   |
 | `session-agenda.ts`           | `createAudioTimeAgenda()`: actions due at audio times, fired when the clock reaches them.            |
 | `session-window.ts`           | The session window rule: the layout a session holds, and whether a window change ends it.            |
+| `rolling-display.ts`          | The rolling display as a pure plan: the playhead's measure, what each system shows, what waits.      |
 | `session-browser-ports.ts`    | The ports of the browser capabilities a session uses: the two screen locks, page visibility, window. |
 
 `createSessionEngine(deps, start)` takes the start time, the chosen settings and phrase 1 (its
@@ -71,7 +72,7 @@ Every event has an `at`, its audio time.
 | Output                                                                          | Meaning                                                                                                      |
 | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `request-generation { attemptId, phraseNumber, step, retry, intent, deadline }` | Generate this intent. `step` is `'carry-in'` or `'standalone'`; `retry` counts the attempts before this one. |
-| `check-fit { attemptId, phraseNumber, outcome }`                                | Check whether this generated phrase fits the staff.                                                          |
+| `check-fit { attemptId, phraseNumber, outcome, intent }`                        | Check whether this generated phrase fits the staff. `intent` is this attempt's own, which differs per rung.  |
 | `phrase-ready { phrase }`                                                       | The phrase to show next as read-ahead, repeats included.                                                     |
 | `phrase-sounding { at, phrase }`                                                | A phrase started sounding, with its full record.                                                             |
 | `struggling-notice { visible }`                                                 | Show or hide the struggling-generator notice.                                                                |
@@ -166,8 +167,11 @@ dependencies are `generate`, `checkFit`, `now`, `providers`, `viewport`, `onOutp
   `GenerationWorkerTransportError` becomes `generation-crashed` for that attempt: a failed attempt,
   handled by the ladder. Any other rejection is a programming error: it goes to `onError`, never
   swallowed and never counted as a failed attempt.
-- **Fit check.** Each `check-fit` runs through `checkFit`, a required seam with no default; its
-  answer comes back as a `fit-result` stamped with `now()`.
+- **Fit check.** Each `check-fit` runs through `checkFit(candidate, phraseNumber)`, a required
+  seam with no default. The candidate (`FitCandidate`) is the attempt's outcome with the intent it
+  was generated from, which together give the phrase as the staff would write it. The answer comes
+  back as a `fit-result` stamped with `now()`. The session controller answers it with the staff
+  planner (see [The rolling display](#the-rolling-display)).
 - **Clock.** `now` is the injected audio clock. The runner is the only place in `src/session/`
   that reads a time.
 - **Other outputs** go to `onOutput`. Ticks, `count-in-over`, `phrase-started-sounding` and every
@@ -294,7 +298,8 @@ one practice session at a time on the workspace, from the player's `Start sessio
 end. It drives the runner, the history, the audio transport and the screen locks; the screen binds
 to its reactive state and calls its actions (see
 [The session screen](phrase-workspace.md#the-session-screen) for the buttons, the cue row, the
-locks on screen and focus). It draws nothing. Its contract, `SessionController`, is in
+locks on screen and focus). It draws nothing itself: it hands the staff what to draw (see
+[The rolling display](#the-rolling-display)). Its contract, `SessionController`, is in
 `workspace-session-controller-types.ts`, and `WorkspaceSession.createSessionController()` builds
 it (see [Session wiring](phrase-workspace.md#session-wiring)).
 
@@ -305,12 +310,16 @@ it (see [Session wiring](phrase-workspace.md#session-wiring)).
 | `strugglingNotice`         | Whether the engine's latest `struggling-notice` shows it.                                                                         |
 | `sessionTempo`             | The running session's locked tempo, in BPM; `null` with no session.                                                               |
 | `heldLayout`               | The staff layout the running session holds, `'one-system'` or `'split'`; `null` with no session.                                  |
+| `sessionStaff`             | What the staff shows while a session runs (see [The rolling display](#the-rolling-display)); `null` with no session.              |
+| `latestReady`              | The highest phrase number the running session has readied, 1 until phrase 2 is; `null` with no session.                           |
 | `canStart`, `startBlocker` | Whether `Start session` may be clicked, and the first start condition that fails (`null` when none does).                         |
 | `lastEnd`                  | How the last session ended: `cause`, `phase` (`'count-in'` or `'running'`) and `soundedPhraseCount`.                              |
 | `lastHistory`              | The closed history of the last session that ended.                                                                                |
 
 `start()` throws a `SessionControllerError` while a start condition fails, and `stop()` when no
-session is running. `dispose()` ends a running session with the `stop` cause and stops reading
+session is running. `isPhraseOnScreen(n)` says whether any part of phrase `n` is on the staff
+now (`false` with no session); a phrase number that is not a positive integer throws. `dispose()`
+ends a running session with the `stop` cause and stops reading
 the window; `App.vue` calls it when it unmounts.
 
 ### Start conditions
@@ -342,9 +351,10 @@ screen locks only from the player's own gesture. In order, it:
 2. queues phrase 1's backing with the Idle phrase's harmony;
 3. locks the settings (the Idle controls and musical profile), chooses the held layout from the
    window's width alone (`sessionLayoutAtStart`: split below `bp-tablet-landscape`, one system
-   from it up), opens a history stamped with the wall clock, and starts a runner whose phrase 1 is
-   the Idle phrase;
-4. shows the count-in, starts the wake-up timer, and starts the end watchers.
+   from it up), opens a history stamped with the wall clock;
+4. shows the count-in and the session's staff (phrase 1, the very written phrase Idle shows, in
+   the held layout), starts the wake-up timer and the display's frame loop, then a runner whose
+   phrase 1 is the Idle phrase and whose fit check is the display's, and the end watchers.
 
 ### The audio-time agenda
 
@@ -357,9 +367,10 @@ due by then, earliest first, ties in scheduling order. The agenda holds:
   beats are muted, a beat is current from its click to the next, and the row empties when the
   count-in ends;
 - **the count-in's end:** the phase becomes `running`, and the runner gets `count-in-over`;
-- **each readied phrase's start.** On `phrase-ready` the controller queues that phrase's backing
-  with `audio.queueBacking` (a repeat included) and schedules `phrase-started-sounding` at
-  `audio.phraseStartsAt(n)`. Phrases must be readied in order; one out of order throws;
+- **each readied phrase's start.** On `phrase-ready` the controller hands the phrase to the
+  rolling display, queues its backing with `audio.queueBacking` (a repeat included) and
+  schedules `phrase-started-sounding` at `audio.phraseStartsAt(n)`. Phrases must be readied in
+  order; one out of order throws;
 - **each engine deadline:** on `wake-at`, a `tick` at that time.
 
 The wake-ups come from the controller's own timer, `SessionControllerClock.createWakeTimer`,
@@ -377,22 +388,90 @@ Every runner output is recorded in the session's history before the controller a
 [What it records](#what-it-records)). When the session ends, its closed history is kept as
 `lastHistory`.
 
+### The rolling display
+
+During a session the staff shows two systems, one above the other: the player reads one while the
+other, never the one being read, is refilled with what comes next. `createSessionDisplay(deps)`
+(`src/components/workspace/workspace-session-display.ts`) is one session's display, built at the
+start and stopped at teardown. It keeps the written phrases readied so far (phrase 1 is the very
+`WrittenPhrase` object Idle shows), the highest phrase number readied (`latestReady`) and the
+playhead, and publishes the controller's `sessionStaff` whenever one of them changes.
+
+What goes where is a pure plan in `src/session/rolling-display.ts`, which reads no time:
+
+- **The playhead.** `playheadAt(heardTime, firstPhraseStartsAt, measureSeconds)` gives the phrase
+  number and the measure (0 to 3) being played, or `null` before phrase 1's first barline, during
+  the count-in. Barline k lies at `firstPhraseStartsAt + k × measureSeconds`, computed by
+  multiplication, never by adding up measures, so no error builds up over a long session. Exactly
+  at a barline the playhead is already on the new measure.
+- **What each system shows.** `systemsAt(layout, playhead, latestReady)`. In the one-system layout
+  phrase n lives on the top system when n is odd and on the bottom one when it is even; the
+  phrase being played (phrase 1 during the count-in) shows in its system, and the other system
+  shows the next phrase once it is readied, so phrase 2 fades in below phrase 1 as soon as it is
+  ready, usually during the count-in. In the split layout, during measures 1 and 2 (and the
+  count-in) the phrase's opening (bars 1–2) is on top and its closing (bars 3–4) below; from
+  measure 3 the closing stays and the top system takes the next phrase's opening once it is
+  readied. Nothing further ahead is shown, and a system never changes while the playhead is in it.
+- **What waits.** `waitingMaterial(layout, playhead, latestReady)` lists every readied part not
+  shown yet and not yet played. The playhead runs on heard time, behind the audio clock the engine
+  runs on, so the phrase after next can be readied while the heard playhead is still in the
+  current phrase's last measure; it waits until the playhead reaches the phrase before it.
+  `phrasesShownOrWaiting` gives the phrase numbers shown or waiting: the material the window must
+  still hold.
+- **Read-ahead.** `readAheadMeasures` counts the measures on screen after the one being played.
+  The engine's deadline (the start of the sounding phrase's last measure) keeps it at one or more
+  in that last measure.
+- **On screen.** `isPhraseOnScreen(layout, playhead, latestReady, n)` says whether any part of
+  phrase n is shown. The controller exposes it as `isPhraseOnScreen(n)` for chunk 25.
+
+The display itself:
+
+- **The frame loop.** The playhead is read once per animation frame, through the frame port
+  `SessionControllerClock.frames` (the browser's `requestAnimationFrame` in the app, a fake in unit
+  tests), on heard time: `audio.now() - audio.outputLatency()`, against `audio.phraseStartsAt(1)`
+  and the session's measure length. The staff is published only when the position changes, and
+  the phrases the playhead has left behind are then forgotten, never a readied phrase at or ahead
+  of it. The loop runs from the start until teardown; a throw inside a frame goes to `fail`.
+- **Readied phrases.** Each `phrase-ready`, repeats included, adds its written phrase under its
+  number and publishes the staff. A phrase out of order throws.
+- **The fit check.** The display answers the runner's `checkFit`. It writes the attempt's phrase
+  from its outcome and that attempt's own intent, then runs the engraver's `planWrittenPhraseFit`
+  at the staff's latest layout inputs in the held viewport, `heldViewport(viewport, heldLayout)`:
+  the held layout in the window's height budget (see
+  [Pre-draw Checks](notation-engraving.md#pre-draw-checks)). Anything but `fits`, notes too wide
+  or no room, is a failed attempt, so the ladder climbs and the misfit is never drawn. The
+  planner is loaded with the engraver and its fonts (`loadSessionStaffFitPlanner` in
+  `session-staff-fixed-parts.ts`), outside the entry chunk. A check before the staff has reported
+  its inputs is a defect and throws.
+- **The material check.** `materialFits(inputs)` plans every phrase shown or waiting the same way,
+  for the material rule (see [Ends](#ends)).
+
+The screen gets `SessionStaff` (`src/components/notation/session-staff.ts`):
+`{ layout, top, bottom, playhead }`, each position a slot (a phrase number and a part, `whole`,
+`opening` or `closing`) with its written phrase, or `null` for a blank position. `ScorePanel`
+passes it to `PhraseScore`'s `session` prop (see
+[During a session](phrase-workspace.md#during-a-session)), and wires `PhraseScore`'s
+`session-staff-failed` event, through the Idle layout gate, to the session alone.
+
 ### Ends
 
 Every end takes one path. The runner gets `end { cause }` at the current audio time, and the
 engine's `ended` closes the history. Then the controller tears the session down: the agenda is
-emptied, the wake-up timer stopped, the transport stopped with its 0.1 s fade (unless an
-interruption has already halted it), both screen locks released, the state back to Idle, and,
+emptied, the wake-up timer stopped, the display's frame loop stopped, the transport stopped with
+its 0.1 s fade (unless an interruption has already halted it), both screen locks released, the
+state back to Idle (`sessionStaff` back to `null`, so the staff leaves its session mode), and,
 last, the end watchers stopped. `lastEnd` holds the summary. A session ends on:
 
-| What happens                                                                                  | Engine cause      |
-| --------------------------------------------------------------------------------------------- | ----------------- |
-| `Stop`, in the header or the phone's compact one                                              | `stop`            |
-| The browser interrupting the audio (`audio.onInterrupted`)                                    | `stop`            |
-| The page becoming hidden (`visibilitychange` to `hidden`)                                     | `hidden-tab`      |
-| A portrait-shaped window below `bp-desktop`                                                   | `staff-not-shown` |
-| A window too narrow for the held layout, or, below `bp-tablet-landscape`, too short for it    | `staff-not-shown` |
-| Phrase 1's staff failing to draw during the session (a redraw at a new size that throws, say) | `staff-not-shown` |
+| What happens                                                                                         | Engine cause      |
+| ---------------------------------------------------------------------------------------------------- | ----------------- |
+| `Stop`, in the header or the phone's compact one                                                     | `stop`            |
+| The browser interrupting the audio (`audio.onInterrupted`)                                           | `stop`            |
+| The page becoming hidden (`visibilitychange` to `hidden`)                                            | `hidden-tab`      |
+| A portrait-shaped window below `bp-desktop`                                                          | `staff-not-shown` |
+| A window too narrow for the held layout, or, below `bp-tablet-landscape`, too short for it           | `staff-not-shown` |
+| A staff layout report at which a phrase shown or waiting no longer fits the held layout              | `staff-not-shown` |
+| A notation error of phrase 1's Idle engraving reported during the session                            | `staff-not-shown` |
+| The staff failing to draw the session (`session-staff-failed`: a refill or a re-engrave that throws) | `staff-not-shown` |
 
 A second cause after the end does nothing. A programming error (a runner `onError`, or a throw
 inside a scheduled action) first ends the session with `stop`, so nothing keeps sounding, then
@@ -400,26 +479,38 @@ propagates uncaught.
 
 **The end watchers.** `watchSessionEnds` (`workspace-session-end-watchers.ts`) runs from the start
 to the end: it listens for the page becoming hidden, judges every window change and every staff
-layout report with the session window rule, and diverts the staff's reports from the Idle
-machinery (see [The Idle layout gate](#the-idle-layout-gate)).
+layout report with the session window rule, judges every staff layout report the window rule lets
+through with the material rule (below), and diverts the staff's reports from the Idle machinery
+(see [The Idle layout gate](#the-idle-layout-gate)). A session staff failure ends the session at
+once.
+
+**The material rule.** At a staff layout report measured for the window as it stands, the
+watchers ask the display whether every phrase shown or waiting (`phrasesShownOrWaiting`, see
+[The rolling display](#the-rolling-display)) still fits the held layout at the new inputs, with
+the staff planner's own fit check. Any misfit, notes too wide or no room, ends the session with
+`staff-not-shown`, exactly like Stop: a session never shows the notation error, and a phrase
+already shown or waiting is never swapped for another. A check that throws (the planner failing
+to load, say) is handled like a programming error: the session ends with `stop` and the error
+propagates.
 
 **The session window rule.** `windowEndsSession(input)` (`src/session/session-window.ts`) is pure
 arithmetic on sizes the caller measures. A portrait-shaped window (height at least the width, as
 CSS `orientation: portrait`) below `bp-desktop` ends the session, since the rotate-device notice
 then replaces the workspace. Otherwise it asks the staff planner's phrase-independent room check,
-at the legibility floor, about the **held** layout: the split layout's two system positions in
-the height budget, only while the window is below `bp-tablet-landscape`; then the held layout's
-width, with `planStaffWidthRoom` (`src/notation/notation-layout-policy.ts`), the staff container's
-width and phrase 1's fixed parts. Those fixed parts (the leading clef, key signature and time
+at the legibility floor, about the **held** layout: its two system positions in the window's
+height budget, whichever layout is held, only while the window is below `bp-tablet-landscape`
+(from it up the window gives no height budget); then the held layout's width, with
+`planStaffWidthRoom` (`src/notation/notation-layout-policy.ts`), the staff container's width and
+phrase 1's fixed parts. Those fixed parts (the leading clef, key signature and time
 signature, and the system padding) are measured once per session by the engraver's
 `measureStaffFixedParts`, for phrase 1's written key signature; until they are measured, only the
 portrait rule is judged. A split layout held across a `bp-tablet-landscape` crossing is still
-judged as split, and the held one-system layout, which has no height rule in the planner, can end
-only for being too narrow. Heights come from the small viewport height (`100svh`, browser toolbars
-showing), so a browser toolbar showing or hiding ends nothing. Right after a breakpoint crossing the
-staff's latest inputs were measured for the other layout, so they are skipped, and its next
-report is judged. Whether the phrase material on screen still fits at the new size is the
-per-phrase check, which this rule does not make.
+judged as split, and a one-system layout held into a window below it is judged in that window's
+height budget, so a short window ends it with `too_short`. Heights come from the small viewport
+height (`100svh`, browser toolbars showing), so a browser toolbar showing or hiding ends nothing.
+Right after a breakpoint crossing the staff's latest inputs were measured for the other layout,
+so they are skipped, and its next report is judged. Whether the phrase material on screen still
+fits at the new size is the material rule's question, which this rule does not ask.
 
 ### The Idle layout gate
 
@@ -427,30 +518,33 @@ per-phrase check, which this rule does not make.
 `PhraseScore`'s reports (its layout inputs and each drawing's outcome) and the Idle machinery, and
 always keeps the latest layout inputs. At Idle the reports go straight on. During a session the end
 watchers divert them, so the Idle fit retries, the room notice, the regeneration of a phrase a
-resize leaves too wide and the notation-error capture never act on phrase 1: a window change is
-judged by the session window rule alone. At the end the gate is released, and the latest layout
-inputs are re-applied to the Idle machinery, followed by the last drawing outcome held during the
-session. The Idle rules then decide in the layout the window gives afresh: with no room the
-workspace shows Needs more room; a phrase now too wide starts the Idle fresh-seed retries
-(Loading); a session end never leads to the notation-error state.
+resize leaves too wide and the notation-error capture never act on the session's staff: a window
+change is judged by the session window rule and the material rule alone. The staff's own session
+report, `session-staff-failed`, goes through the same gate to the diverting session only; with no
+session diverting, it is dropped, since the staff stops drawing a session when it ends, and an
+engraving of it still under way then belongs to no session. At the end the gate is released, and
+the latest layout inputs are re-applied to the Idle machinery, followed by the last drawing
+outcome held during the session. The Idle rules then decide in the layout the window gives
+afresh: with no room the workspace shows Needs more room; a phrase now too wide starts the Idle
+fresh-seed retries (Loading); a session end never leads to the notation-error state.
 
 ### The interim end after phrase 1 sounded
 
 An end during the count-in played nothing: the workspace is back at Ready with phrase 1 on screen,
 and a new session may start on it. An end once phrase 1 has sounded is different, because phrase 1
 of a session is never a phrase the previous session played. Until the Review exists, the
-workspace returns to Idle with the played phrase still on the staff and `Start session` disabled
-(`phrase_already_played`); the phrase action stays live and takes focus. Any new Idle result
-(Generate, Regenerate phrase, an instrument-profile switch that regenerates) replaces the played
-phrase and makes Start available again. Nothing is generated automatically at the end. Chunk 20
-replaces this interim end with the Review, which closes onto a freshly generated phrase.
+workspace returns to Idle with the played phrase back on the staff: the staff leaves its session
+mode, drops the later phrases and draws phrase 1 again in the layout the window now gives.
+`Start session` is disabled (`phrase_already_played`); the phrase action stays live and takes
+focus. Any new Idle result (Generate, Regenerate phrase, an instrument-profile switch that
+regenerates) replaces the played phrase and makes Start available again. Nothing is generated
+automatically at the end. Chunk 20 replaces this interim end with the Review, which closes onto a
+freshly generated phrase.
 
 ### Interim seams and open points
 
-- **Every look-ahead phrase fits, for now.** The runner's `checkFit` is `acceptEveryPhrase`, which
-  answers `true`. The staff keeps showing phrase 1 for the whole session and draws no look-ahead
-  phrase, so nothing can overflow. Chunk 16 replaces it with the staff planner's check in the held
-  layout.
+- **No acknowledgement yet.** The staff marks no acknowledged notes during a session until
+  chunk 17 passes the played notes; the overlays already take them per phrase.
 - **A dropped wake lock is not asked for again.** If the browser drops the wake lock mid-session
   (the page hidden, a low battery), nothing re-requests it; whether to ask again silently is open
   question O87.
@@ -470,8 +564,10 @@ replaces this interim end with the Review, which closes onto a freshly generated
   `count-in-over`, `phrase-started-sounding` and ticks on the audio clock; the backing queued
   phrase by phrase; the history fed from every runner output; and the `stop`, `hidden-tab` and
   `staff-not-shown` ends, an audio interruption ending with `stop`.
-- **Chunk 16:** the fit check behind `checkFit`, in the held layout, and the rolling staff that
-  re-engraves in the held layout when the window changes.
+- **Chunk 16 (built):** the rolling display (see [The rolling display](#the-rolling-display)): the
+  fit check behind `checkFit` in the held layout, the two systems refilled as the playhead moves,
+  the playhead stepping on heard time, the re-engrave in the held layout when the window changes,
+  and the material rule that ends a session whose shown or waiting phrases no longer fit.
 - **Chunk 17:** the MIDI end causes (silence timeout, controller lost), a session started by the
   starting note, and the acknowledgements and played notes in the history's records.
 - **Chunk 20:** the Review and the generated-notes export, built from the history (`lastHistory`),
@@ -565,3 +661,22 @@ The session controller's choices were made in chunk 15:
   the player it is the same as Stop: the sound has stopped.
 - **The window rule judges the held layout, not the one the width would pick.** A session never
   switches layout mid-run, so the question is whether the layout it holds still has room.
+
+The rolling display's choices were made in chunk 16:
+
+- **The height budget belongs to the window, not to the layout.** A `StaffViewport` is the layout
+  drawn plus the window's height budget (`null` from `bp-tablet-landscape` up). A held layout is
+  sized and judged in the window it is shown in, so a one-system layout held into a short phone
+  window has a height rule, as the split one does.
+- **The playhead reads heard time, the engine the audio clock.** The playhead must match what the
+  player hears, so it subtracts the output latency; the engine's deadlines are about scheduling
+  sound, so they do not. The plan therefore lets the phrase after next wait for a position.
+- **One frame loop, read on the audio clock.** The playhead is not put on the audio-time agenda:
+  the agenda's wake-ups come every 25 ms, while a frame read lands within one frame of the heard
+  barline, and the display can only change at a frame anyway.
+- **A misfit of the material shown or waiting ends the session.** A look-ahead attempt that does not
+  fit is just a failed attempt, but a phrase shown or waiting is never swapped for another, and a
+  session never shows the notation error, so a window change that leaves one unable to fit ends
+  the session like Stop.
+- **The entry chunk's budget rose from 212 KiB to 220 KiB** (`scripts/verify-boundaries.mjs`) for
+  `PhraseScore`'s session mode and its wiring, which must be in place when the first phrase shows.

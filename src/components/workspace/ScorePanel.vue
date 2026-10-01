@@ -10,6 +10,8 @@
  * staff's layout inputs to the workspace, whose pre-draw fit and room checks plan against them.
  * The toolbar also holds the audio mix (`MixControls`), which drives the session's audio transport.
  * Between the banner's position and the staff sits `SessionCueRow`, the practice session's cues.
+ * While a practice session runs, `PhraseScore` shows the controller's session staff instead of the
+ * Idle phrase, and its failure to show it is forwarded to the session, never to Idle.
  */
 import { computed, nextTick, ref, watch } from 'vue'
 
@@ -34,6 +36,8 @@ const props = withDefaults(
     pendingPhrase: WrittenPhrase | null
     handleEngraved: () => void
     handleNotationError: (error: NotationError) => void
+    /** The staff failing to show a running session; it ends the session, never reaching Idle. */
+    handleSessionStaffFailed: (error: NotationError) => void
     handleLayoutInputs: (inputs: StaffLayoutInputs) => void
     /** The session's audio transport, whose mix the toolbar's audio mix sets. */
     audio: AudioTransport
@@ -232,6 +236,14 @@ const notationErrorMessage = computed(() =>
 /** Intent: the notice's cause, for the markup: which sentence `room-notice` holds. */
 const roomNotice = computed(() => state.value.roomNotice)
 
+/**
+ * Intent: the running session's staff, which PhraseScore shows instead of the Idle phrase; null
+ * with no session (or no controller loaded yet), so it shows Idle.
+ */
+// @spec-link [[module_session_rolling_display]]
+// @spec-link [[service_workspace_session_flow]]
+const sessionStaff = computed(() => props.controller?.state.sessionStaff ?? null)
+
 /** Intent: the D29 alert-banner text, mapped by failure kind rather than a "Generation failed: " prefix concatenated onto the error's own message. */
 // @spec-link [[rule_generation_failure_alert_copy]]
 const generationErrorAlertText = computed(() =>
@@ -268,8 +280,10 @@ const generationErrorAlertText = computed(() =>
         <PhraseScore
           :phrase="pendingPhrase"
           :phrase-number="1"
+          :session="sessionStaff"
           @engraved="handleEngraved"
           @notation-error="handleNotationError"
+          @session-staff-failed="handleSessionStaffFailed"
           @layout-inputs="handleLayoutInputs"
         >
           <p v-if="showEmptyInstruction" class="staff-empty-copy">Generate a phrase to begin.</p>

@@ -70,7 +70,10 @@ export function createFakeStaffFit<TResult>(): FakeStaffFit<TResult> {
       room = verdict
     },
     report: (containerWidthPx) => {
-      const inputs: StaffLayoutInputs = { containerWidthPx, viewport: { layout: 'one-system' } }
+      const inputs: StaffLayoutInputs = {
+        containerWidthPx,
+        viewport: { layout: 'one-system', heightBudgetPx: null },
+      }
       for (const listener of [...listeners]) listener(inputs)
     },
     fitChecks,

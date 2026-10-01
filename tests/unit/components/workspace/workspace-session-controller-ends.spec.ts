@@ -194,7 +194,10 @@ describe('session controller: the other ends', () => {
     }
     const rig = controllerRig(undefined, () => new Promise((resolve) => (measured = resolve)))
     rig.controller.start()
-    rig.staff.layoutInputs({ containerWidthPx: 130, viewport: { layout: 'one-system' } })
+    rig.staff.layoutInputs({
+      containerWidthPx: 130,
+      viewport: { layout: 'one-system', heightBudgetPx: null },
+    })
     expect(rig.controller.state.phase).toBe('count-in')
     expect(rig.fixedPartsRequests()).toBe(1)
 
@@ -233,7 +236,10 @@ describe('session controller: window changes that end nothing', () => {
       expect(rig.controller.state.heldLayout).toBe('one-system')
 
       rig.browser.windowShape.resize({ widthPx: 1100, smallHeightPx: 700, remPx: 16 })
-      rig.staff.layoutInputs({ containerWidthPx: 1000, viewport: { layout: 'one-system' } })
+      rig.staff.layoutInputs({
+        containerWidthPx: 1000,
+        viewport: { layout: 'one-system', heightBudgetPx: null },
+      })
 
       expect(rig.controller.state.phase).toBe(phase)
       expect(rig.controller.state.heldLayout).toBe('one-system')
@@ -246,7 +252,10 @@ describe('session controller: window changes that end nothing', () => {
 
       rig.browser.windowShape.resize({ widthPx: 1200, smallHeightPx: 800, remPx: 16 })
       // Room for a split system (100 px) but not for one system (140 px).
-      rig.staff.layoutInputs({ containerWidthPx: 120, viewport: { layout: 'one-system' } })
+      rig.staff.layoutInputs({
+        containerWidthPx: 120,
+        viewport: { layout: 'one-system', heightBudgetPx: null },
+      })
 
       expect(rig.controller.state.phase).toBe(phase)
       expect(rig.controller.state.heldLayout).toBe('split')
@@ -273,7 +282,10 @@ describe('session controller: the Idle layout hand-off', () => {
   // @test-link [[rule_count_in_ending_returns_to_idle]]
   it('keeps every staff report from the Idle machinery during the session and re-applies the latest at its end', async () => {
     const rig = await sessionIn('count-in')
-    const resized = { containerWidthPx: 1000, viewport: { layout: 'one-system' } } as const
+    const resized = {
+      containerWidthPx: 1000,
+      viewport: { layout: 'one-system', heightBudgetPx: null },
+    } as const
 
     rig.browser.windowShape.resize({ widthPx: 1100, smallHeightPx: 700, remPx: 16 })
     rig.staff.layoutInputs(resized)

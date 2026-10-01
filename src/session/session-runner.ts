@@ -28,14 +28,25 @@ import type {
 } from './session-types'
 
 /**
- * The runner's seams. `generate` is the app's one generation worker seam; `checkFit` is required
- * and has no default; `now` is the audio clock; `onError` receives a programming error from
- * `generate` or `checkFit`, which the runner never swallows.
+ * What the fit check receives for one attempt: its successful outcome and the intent it was
+ * generated from, which together give the attempt's written phrase.
+ */
+// @spec-link [[service_session_runner]]
+export interface FitCandidate {
+  readonly outcome: SuccessfulOutcome
+  readonly intent: GenerationIntent
+}
+
+/**
+ * The runner's seams. `generate` is the app's one generation worker seam; `checkFit` is required,
+ * has no default and receives the attempt's outcome with its intent; `now` is the audio clock;
+ * `onError` receives a programming error from `generate` or `checkFit`, which the runner never
+ * swallows.
  */
 // @spec-link [[service_session_runner]]
 export interface SessionRunnerDependencies {
   readonly generate: (intent: GenerationIntent) => Promise<GenerationOutcome>
-  readonly checkFit: (outcome: SuccessfulOutcome, phraseNumber: number) => Promise<boolean>
+  readonly checkFit: (candidate: FitCandidate, phraseNumber: number) => Promise<boolean>
   readonly now: () => AudioTime
   readonly providers: GenerationIntentProviders
   readonly viewport: Pick<ViewportWidthProvider, 'isBelowTabletLandscape'>
@@ -90,7 +101,11 @@ export function createSessionRunner(
       deps.onOutput(output)
       if (output.kind === 'request-generation') requestGeneration(output.attemptId, output.intent)
       else if (output.kind === 'check-fit')
-        requestFitCheck(output.attemptId, output.outcome, output.phraseNumber)
+        requestFitCheck(
+          output.attemptId,
+          { outcome: output.outcome, intent: output.intent },
+          output.phraseNumber,
+        )
     }
   }
 
@@ -115,13 +130,9 @@ export function createSessionRunner(
     )
   }
 
-  /** Intent: fit-check one attempt's outcome and feed back whether it fits. */
-  function requestFitCheck(
-    attemptId: number,
-    outcome: SuccessfulOutcome,
-    phraseNumber: number,
-  ): void {
-    void deps.checkFit(outcome, phraseNumber).then(
+  /** Intent: fit-check one attempt's outcome with its intent and feed back whether it fits. */
+  function requestFitCheck(attemptId: number, candidate: FitCandidate, phraseNumber: number): void {
+    void deps.checkFit(candidate, phraseNumber).then(
       (fits) => feedBack({ kind: 'fit-result', at: deps.now(), attemptId, fits }),
       (error: unknown) => deps.onError(error),
     )

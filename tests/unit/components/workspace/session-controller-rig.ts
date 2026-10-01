@@ -3,9 +3,11 @@
  * audio clock, fake session browser ports, an Idle state the test edits by hand, and real session
  * runners whose generate seam the test scripts (real seeded successes, real failures). The
  * controller's wake-up timer is an extra fake timer on the same clock, so `advance` drives the
- * transport and the controller together. Every runner output and transport event is logged. The
- * staff's reports pass through a real Idle layout gate whose Idle side only logs what reaches it;
- * the staff reported a wide one-system layout before the controller was built.
+ * transport and the controller together; `playTo` also runs a frame of the display's stepped
+ * frame loop after each slice. Every runner output and transport event is logged. The staff's
+ * reports pass through a real Idle layout gate whose Idle side only logs what reaches it; the staff
+ * reported a wide one-system layout before the controller was built. Idle shows the written phrase
+ * of phrase 1, and the staff planner is a fake where every phrase fits until the test says otherwise.
  */
 import { shallowReactive } from 'vue'
 
@@ -26,6 +28,9 @@ import {
 } from '@/session/session-runner'
 import type { AudioTime, SessionOutput, SessionSettings } from '@/session/session-types'
 import type { AudioTransport } from '@/audio/audio-transport'
+import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
+import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { FakeAudioRig, FakeWakeTimer } from '../../audio/fake-audio'
 import { transportRig } from '../../audio/transport-rig'
 import {
@@ -41,6 +46,12 @@ import {
   sessionSettings,
   successFor,
 } from '../../session/session-harness'
+import {
+  createFakeFrames,
+  createFakePlanner,
+  type FakeFrames,
+  type FakePlanner,
+} from './fake-frames'
 
 /** Every session in these specs plays at 240 BPM: a beat is 0.25 s, a measure 1 s, a phrase 4 s. */
 export const RIG_TEMPO = 240
@@ -61,7 +72,7 @@ export const onlyStandaloneSucceeds: GenerateScript = (intent) =>
 /** The staff's layout inputs in a wide window: one system, plenty of width. */
 export const WIDE_STAFF: StaffLayoutInputs = {
   containerWidthPx: 1100,
-  viewport: { layout: 'one-system' },
+  viewport: { layout: 'one-system', heightBudgetPx: null },
 }
 
 /**
@@ -86,6 +97,12 @@ export interface ControllerRig {
   readonly idle: MutableGenerationSessionState<WorkspaceSessionResult>
   readonly settings: SessionSettings
   readonly phraseOne: WorkspaceSessionResult
+  /** The written phrase the staff shows at Idle: phrase 1's. */
+  readonly idleWritten: WrittenPhrase
+  /** The display's frame loop, stepped by `playTo` or by hand. */
+  readonly frames: FakeFrames
+  /** The staff planner the display checks fits with. */
+  readonly planner: FakePlanner
   /** The controller's own wake-up timer, once it asked for one. */
   readonly timers: FakeWakeTimer[]
   /** Every output of every runner, in order. */
@@ -112,14 +129,16 @@ export function flush(): Promise<void> {
 }
 
 /**
- * Intent: move the fake clock to `target` in quarter-second slices, letting promises settle after
- * each, so generation answers arrive between wake-ups as they would in a browser.
+ * Intent: move the fake clock to `target` in quarter-second slices, letting promises settle and
+ * then running one display frame after each, so generation answers arrive between wake-ups and
+ * the playhead follows as they would in a browser.
  */
 export async function playTo(rig: ControllerRig, target: AudioTime): Promise<void> {
   await flush()
   while (rig.audioRig.now() < target) {
     rig.audioRig.advanceTo(Math.min(target, rig.audioRig.now() + 0.25))
     await flush()
+    rig.frames.run()
   }
 }
 
@@ -136,6 +155,11 @@ export function controllerRig(
   const browser = createFakeSessionBrowser()
   const settings = sessionSettings({ tempo: RIG_TEMPO })
   const phraseOne: WorkspaceSessionResult = phraseOneFor(settings)
+  const idleWritten = transformToWrittenPhrase(
+    notationInputFromOutcome(phraseOne.outcome, phraseOne.intent),
+  )
+  const frames = createFakeFrames()
+  const planner = createFakePlanner()
   const idle = shallowReactive<MutableGenerationSessionState<WorkspaceSessionResult>>({
     controls: settings.controls,
     profileSelection: settings.musicalProfile,
@@ -197,6 +221,7 @@ export function controllerRig(
 
   const controller = createSessionController({
     idle: { state: idle },
+    idlePhrase: () => idleWritten,
     audio: transport,
     browser,
     createSessionRunner: createRunner,
@@ -207,12 +232,14 @@ export function controllerRig(
         return timer
       },
       wallClock: fixedWallClock,
+      frames: frames.port,
     },
     idleLayout: staff,
     staffFixedParts: () => {
       fixedPartsRequests += 1
       return fixedParts()
     },
+    staffFitPlanner: planner.load,
   })
   return {
     controller,
@@ -222,6 +249,9 @@ export function controllerRig(
     idle,
     settings,
     phraseOne,
+    idleWritten,
+    frames,
+    planner,
     timers,
     outputs,
     events,

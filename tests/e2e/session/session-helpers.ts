@@ -191,9 +191,10 @@ export interface PageBox {
   readonly height: number
 }
 
-/** Intent: every drawn measure's box on the staff, in page coordinates. */
-export function measureBoxes(page: Page): Promise<PageBox[]> {
-  return page.locator('.staff-frame g.measure-slot').evaluateAll((slots) =>
+/** Intent: every drawn measure's box of phrase `phraseNumber` on the staff, in page coordinates. */
+export function measureBoxes(page: Page, phraseNumber: number): Promise<PageBox[]> {
+  const slots = `.staff-frame [data-phrase-number="${phraseNumber}"] g.measure-slot`
+  return page.locator(slots).evaluateAll((slots) =>
     slots.map((slot) => {
       const box = slot.getBoundingClientRect()
       return {

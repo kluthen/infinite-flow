@@ -25,6 +25,8 @@
  * phrase is engraved with the overlays drawn on it. Every `layout-inputs` event PhraseScore emits
  * is appended to `window.__notationLayoutInputs`, and `window.__notationChecks` runs the engraver's
  * two pure pre-draw checks (a fixture's fit, a key signature's room) on the real engraver module.
+ * `window.__notationSystems` (./phrase-systems.ts) draws a fixture phrase whole or one system part
+ * at a time on the real engraver module, into scratch hosts, and snapshots what was drawn.
  */
 import { createApp, h, nextTick, ref, shallowRef, type Ref } from 'vue'
 
@@ -63,6 +65,7 @@ import { resolveGlyphIdentities } from '@/notation/note-identity'
 import { NO_SCORE_OVERLAYS, ScoreOverlayError, type ScoreOverlays } from '@/notation/score-overlays'
 import '@/styles/index.css'
 import { resolveFixture } from './fixtures'
+import { notationSystemsHook } from './phrase-systems'
 
 /** Extra fields the generated source publishes alongside every state transition; empty for a fixture. */
 type GeneratedExtras = Pick<NotationHarnessState, 'sourceSnapshot' | 'currentSnapshot'>
@@ -370,6 +373,7 @@ function applyThemeParam(params: URLSearchParams): void {
 window.__notationHarness = { state: 'pending' }
 window.__notationLayoutInputs = []
 window.__notationChecks = notationChecks
+window.__notationSystems = notationSystemsHook(readyEngraver)
 
 const params = new URLSearchParams(window.location.search)
 applyThemeParam(params)

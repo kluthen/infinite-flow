@@ -2,7 +2,8 @@
 id: rule_playhead_follows_audio_clock
 status: DRAFT
 tags: [v2, release-v2.0, session, audio]
-dependents: []
+dependents:
+  - [[module_session_rolling_display]]
 layer: BUSINESS
 version: 0.1
 priority: 1

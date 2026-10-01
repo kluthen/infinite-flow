@@ -4,14 +4,16 @@
  * widths, and draws one system's measures into its own SVG context. In the split layout the bottom
  * system repeats the clef and key signature but not the time signature, and its notes are forced
  * to start at the same x as the top system's, so bar 3 aligns under bar 1 and bar 4 under bar 2.
- * Each measure's group also records its playhead band rectangle. The caller,
- * ./vexflow-engraver.ts, owns the SVG roots, the ties, bounds checking and sizing.
+ * Each measure's group also records its playhead band rectangle. It also opens, sizes, finishes
+ * and bounds-checks a system's SVG root. The caller, ./vexflow-engraver.ts, owns the planning,
+ * which systems are drawn into which hosts, the ties and the note-identity tagging.
  * Together with ./vexflow-mapping.ts and ./vexflow-engraver.ts, this is the only trio of files
  * allowed to import 'vexflow'.
  */
 import {
   Barline,
   Formatter,
+  Renderer,
   Stave,
   StaveNote,
   type Beam,
@@ -20,7 +22,8 @@ import {
 } from 'vexflow/bravura'
 
 import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
-import { NOTATION_SYSTEM_POSITION_UNITS } from './notation-layout-policy'
+import { NotationError } from './notation-error'
+import { NOTATION_SYSTEM_POSITION_UNITS, type SystemLayoutPlan } from './notation-layout-policy'
 import type { StaffKeySignature } from './staff-fit-types'
 import { mapKeySpec } from './vexflow-mapping'
 
@@ -214,4 +217,72 @@ export function drawSystemMeasures(
     systemVoices,
   )
   return drawn.map((measure) => measure.box)
+}
+
+/** Tolerance, in CSS pixels, for drawn content touching the container's edges (sub-pixel rounding). */
+const BOUNDS_EPSILON_PX = 1.5
+
+/**
+ * Intent: check one system's drawn content lies within the container's width. The height needs no
+ * such check: the system position's height is fixed, and the staff is placed in it for the
+ * phrase's instrument so that every written pitch that instrument reaches, stems, beams and chord
+ * symbols included, stays inside (see NOTATION_SYSTEM_POSITION_UNITS and planStaffPlacement),
+ * and an SVG box could not measure it anyway, since every music glyph is `<text>` whose box is the
+ * font's whole line box rather than the glyph's ink.
+ */
+export function assertSystemWidthBounds(
+  svg: SVGSVGElement,
+  plan: SystemLayoutPlan,
+  containerWidthPx: number,
+): void {
+  const bbox = svg.getBBox()
+  const leftPx = bbox.x * plan.scale
+  const rightPx = (bbox.x + bbox.width) * plan.scale
+  if (leftPx < -BOUNDS_EPSILON_PX || rightPx > containerWidthPx + BOUNDS_EPSILON_PX) {
+    throw new NotationError(
+      'notation_bounds_exceeded',
+      'Engraved notation overflows the container width.',
+      { requiredWidthPx: rightPx - leftPx, containerWidthPx },
+    )
+  }
+}
+
+/** Intent: create one system's SVG in its host, sized to the container width and its position's height. */
+export function openSystemSvg(host: HTMLElement, plan: SystemLayoutPlan): Renderer {
+  const renderer = new Renderer(host as HTMLDivElement, Renderer.Backends.SVG)
+  renderer.resize(plan.systemWidthUnits * plan.scale, NOTATION_SYSTEM_POSITION_UNITS * plan.scale)
+  renderer.getContext().scale(plan.scale, plan.scale)
+  return renderer
+}
+
+/**
+ * Intent: fix the finished SVG's size and viewBox directly on the element (never re-invoking
+ * VexFlow's own resize/scale, which would re-derive the scale from itself and distort the drawn
+ * content), and mark it with the documented class the stylesheet recolours and its image role.
+ */
+export function finishSystemSvg(host: HTMLElement, plan: SystemLayoutPlan): SVGSVGElement {
+  const svg = host.querySelector('svg')
+  if (!svg) {
+    throw new NotationError(
+      'notation_container_unavailable',
+      'VexFlow did not create an SVG root.',
+      {},
+    )
+  }
+  const widthPx = plan.systemWidthUnits * plan.scale
+  const heightPx = NOTATION_SYSTEM_POSITION_UNITS * plan.scale
+  svg.setAttribute('class', 'staff-svg')
+  svg.setAttribute('role', 'img')
+  svg.setAttribute('width', String(widthPx))
+  svg.setAttribute('height', String(heightPx))
+  svg.style.width = `${widthPx}px`
+  svg.style.height = `${heightPx}px`
+  // A block box, so no inline line box adds a descender gap under the SVG inside its position.
+  svg.style.display = 'block'
+  // An inline SVG clips at its viewBox by default. The position's height holds every calibrated
+  // system with about a staff space to spare; should ink ever reach past it, it shows rather than
+  // being cut off silently.
+  svg.style.overflow = 'visible'
+  svg.setAttribute('viewBox', `0 0 ${plan.systemWidthUnits} ${NOTATION_SYSTEM_POSITION_UNITS}`)
+  return svg
 }

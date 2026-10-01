@@ -35,12 +35,20 @@ export interface EngravedPayload {
  * container width and the viewport) at its first measurement and whenever they really change,
  * with or without a phrase and before any engraving, so the workspace can check a phrase's fit or
  * the staff's room before it draws anything.
+ * Given a running session (`session`), it shows that instead, through the positions keeper
+ * (./session-staff-positions.ts): the slots the session places, refilled one position at a time,
+ * re-engraved in place on a resize, in the layout held for the session sized in the window's
+ * height budget. It then reports neither an engraving nor a notation error, which belong to Idle,
+ * only a session staff failure; entering or leaving a session drops any engraving under way, and
+ * leaving re-engraves the Idle phrase, which reports as usual. The layout inputs it reports stay
+ * the window's.
  */
 import { onMounted, onUnmounted, ref, useId, watch } from 'vue'
 
 import { describeWrittenPhrase, type ScoreDescription } from '@/domain/notation/score-description'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import {
+  heldViewport,
   NOTATION_PHONE_LAYOUT_MEDIA_QUERY,
   planStaffPositions,
   type StaffViewport,
@@ -53,10 +61,13 @@ import {
   type ScoreOverlays,
 } from '@/notation/score-overlays'
 import { loadVexflowEngraver, type VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
+import type { SessionStaff } from './session-staff'
+import { createStaffPositions } from './session-staff-positions'
 
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[module_notation_note_identity_overlays]]
 // @spec-link [[module_idle_fit_round]]
+// @spec-link [[module_session_rolling_display]]
 const props = withDefaults(
   defineProps<{
     phrase: WrittenPhrase | null
@@ -64,14 +75,18 @@ const props = withDefaults(
     phraseNumber: number
     /** What the session marks on the score; the idle score, with nothing drawn, by default. */
     overlays?: ScoreOverlays
+    /** The running session's staff, shown instead of `phrase`; null at Idle. */
+    session?: SessionStaff | null
   }>(),
-  { overlays: () => NO_SCORE_OVERLAYS },
+  { overlays: () => NO_SCORE_OVERLAYS, session: null },
 )
 
+// @spec-link [[module_session_rolling_display]]
 const emit = defineEmits<{
   engraved: [payload: EngravedPayload]
   'notation-error': [payload: NotationError]
   'layout-inputs': [inputs: StaffLayoutInputs]
+  'session-staff-failed': [error: NotationError]
 }>()
 
 type NotationState = 'empty' | 'pending' | 'ready' | 'error'
@@ -95,6 +110,10 @@ let lastReportedInputs: string | null = null
 /** Counts the checks that reached the engraver, so a superseded one never engraves or reports. */
 let latestCheck = 0
 let phoneLayoutQuery: MediaQueryList | null = null
+/** The phrase the hidden description describes, so it is described once. */
+let describedPhrase: WrittenPhrase | null = null
+/** Whether the positions show the session (entered from the `session` prop), not the Idle phrase. */
+let showsSession = false
 /** The system SVGs on screen, the phrase and phrase number they engrave, or null with none. */
 let shownScore: {
   readonly svgs: readonly SVGSVGElement[]
@@ -114,13 +133,16 @@ function staffFrame(root: HTMLElement): HTMLElement {
 }
 
 /**
- * Intent: read the viewport as the planner needs it. Below the breakpoint, the height budget is
+ * Intent: read the viewport as the planner needs it: from the breakpoint up, the one-system layout
+ * with no height budget; below it, the split layout in the window's height budget, which is
  * the frame's computed `max-block-size` (viewport units already resolved to CSS px) minus its
  * block padding and border; a frame without a maximum there means the stylesheet and the notation
  * layout disagree on the breakpoint, which is a defect, not a state to paper over.
  */
 function readViewport(frame: HTMLElement): StaffViewport {
-  if (!window.matchMedia(NOTATION_PHONE_LAYOUT_MEDIA_QUERY).matches) return { layout: 'one-system' }
+  if (!window.matchMedia(NOTATION_PHONE_LAYOUT_MEDIA_QUERY).matches) {
+    return { layout: 'one-system', heightBudgetPx: null }
+  }
   const style = getComputedStyle(frame)
   if (style.maxBlockSize === 'none') {
     throw new Error('staff-frame has no max-block-size below the tablet-landscape breakpoint.')
@@ -150,8 +172,9 @@ function reportLayoutInputs(inputs: StaffLayoutInputs): void {
 }
 
 /**
- * Intent: size both reserved positions for the viewport, whatever the phrase. With no room below
- * the breakpoint, the two positions share the whole budget, so the frame sits at its maximum.
+ * Intent: size both reserved positions for the viewport, whatever the phrase. With no room in the
+ * window's height budget, the two positions share the whole budget, so the frame sits at its
+ * maximum; only a height budget can leave no room for the positions.
  */
 function sizePositions(viewport: StaffViewport): void {
   const positions = planStaffPositions(viewport)
@@ -159,36 +182,24 @@ function sizePositions(viewport: StaffViewport): void {
     positionBlockPx.value = positions.positionBlockPx
     return
   }
-  const budget = viewport.layout === 'split' ? viewport.heightBudgetPx : 0
-  positionBlockPx.value = Math.max(0, budget) / 2
+  if (viewport.heightBudgetPx === null) {
+    throw new Error('staff positions have no room without a height budget.')
+  }
+  positionBlockPx.value = Math.max(0, viewport.heightBudgetPx) / 2
+}
+
+/** Intent: show the hidden description of a phrase (null: none), describing each phrase once. */
+function describe(phrase: WrittenPhrase | null): void {
+  if (phrase === describedPhrase) return
+  describedPhrase = phrase
+  description.value = phrase === null ? null : describeWrittenPhrase(phrase)
 }
 
 /** Intent: clear both positions, the staging hosts and the description together. */
 function clearScore(): void {
   shownScore = null
-  topPositionEl.value?.replaceChildren()
-  bottomPositionEl.value?.replaceChildren()
-  stagingEl.value?.replaceChildren()
-  description.value = null
-}
-
-/**
- * Intent: move one staged system into its position. A position already showing notes keeps its
- * `staff-content` unit and only its engraving changes, so a redraw never replays the unit's
- * entrance fade; a position that was blank gets a new unit; an empty staged host blanks it.
- */
-function swapIntoPosition(position: HTMLElement, staged: HTMLElement): void {
-  if (!staged.hasChildNodes()) {
-    position.replaceChildren()
-    return
-  }
-  let unit = position.querySelector<HTMLElement>(':scope > .staff-content')
-  if (!unit) {
-    unit = document.createElement('div')
-    unit.className = 'staff-content'
-    position.replaceChildren(unit)
-  }
-  unit.replaceChildren(...Array.from(staged.childNodes))
+  positions.clear()
+  describe(null)
 }
 
 /**
@@ -243,9 +254,9 @@ function engrave(phrase: WrittenPhrase, inputs: StaffLayoutInputs): void {
     )
     const summary = describeWrittenPhrase(phrase)
     labelSystems(result.svgs, summary.summary)
-    swapIntoPosition(top, stagedTop)
-    swapIntoPosition(bottom, stagedBottom)
+    positions.showIdle([stagedTop, stagedBottom], result.svgs, phrase, props.phraseNumber, inputs)
     staging.replaceChildren()
+    describedPhrase = phrase
     description.value = summary
     state.value = 'ready'
     shownScore = { svgs: result.svgs, phrase, phraseNumber: props.phraseNumber }
@@ -287,17 +298,55 @@ async function ensureEngraverReady(): Promise<NotationError | null> {
   }
 }
 
+/** Intent: the engraver module for a session engraving, or the typed failure of loading it. */
+async function sessionEngraver(): Promise<VexflowEngraverModule | NotationError> {
+  const loadFailure = await ensureEngraverReady()
+  if (loadFailure !== null) return loadFailure
+  if (engraverModule === null) throw new Error('The engraver module loaded but was not kept.')
+  return engraverModule
+}
+
+/**
+ * The positions' content, at Idle and during a session. A session's engraving failure is reported
+ * as a session staff failure only: no error state, no cleared staff, nothing Idle hears.
+ */
+// @spec-link [[module_session_rolling_display]]
+// @spec-link [[rule_session_ends_when_staff_too_small]]
+const positions = createStaffPositions({
+  hosts: () => {
+    const [top, bottom, staging] = [topPositionEl.value, bottomPositionEl.value, stagingEl.value]
+    return top && bottom && staging ? { top, bottom, staging } : null
+  },
+  inputs: readLayoutInputs,
+  engraver: sessionEngraver,
+  acknowledged: () => props.overlays.acknowledged,
+  descriptionId,
+  describe,
+  shown: () => {
+    state.value = 'ready'
+  },
+  failed: (error) => emit('session-staff-failed', error),
+})
+
 /**
  * Intent: report the layout inputs if they changed and resize the positions for the current
  * viewport, then engrave the phrase if it changed (`force`) or if the inputs it was last engraved
  * with did. With no phrase, clear the staff.
  * Only the latest check that got past the input comparison may engrave or report: an older one
- * still waiting for the engraver module gives way to it.
+ * still waiting for the engraver module gives way to it. During a session the positions are sized
+ * for the held layout in the window's budget and the session's systems re-engrave instead.
  */
 async function checkLayout(force: boolean): Promise<void> {
   const inputs = readLayoutInputs()
   if (!inputs) return
   reportLayoutInputs(inputs)
+  if (showsSession) {
+    // A session prop already gone is about to be left, with a forced check of its own.
+    if (props.session === null) return
+    sizePositions(heldViewport(inputs.viewport, props.session.layout))
+    positions.relayout()
+    return
+  }
   sizePositions(inputs.viewport)
   const phrase = props.phrase
   if (phrase === null) {
@@ -357,11 +406,48 @@ onMounted(async () => {
   phoneLayoutQuery = window.matchMedia(NOTATION_PHONE_LAYOUT_MEDIA_QUERY)
   phoneLayoutQuery.addEventListener('change', handleViewportSignal)
 
+  if (props.session !== null) {
+    showsSession = true
+    positions.enter(props.session)
+  }
   await checkLayout(true)
 })
 
+/**
+ * Intent: follow the session prop. Entering or leaving a session drops any engraving under way;
+ * entering redraws only what Idle does not already show, leaving re-engraves the Idle phrase as
+ * a forced check, which reports to Idle as usual.
+ */
+// @spec-link [[module_session_rolling_display]]
+// @spec-link [[rule_phrase_one_is_idle_phrase]]
+function followSession(next: SessionStaff | null, previous: SessionStaff | null): void {
+  if (next !== null && previous !== null) {
+    positions.update(next)
+    return
+  }
+  latestCheck += 1
+  showsSession = next !== null
+  if (next !== null) {
+    shownScore = null
+    positions.enter(next)
+    return
+  }
+  positions.leave()
+  scheduleCheck(true)
+}
+
+/**
+ * Intent: redraw the overlays on the score shown, the Idle phrase's or the session's; a session
+ * the staff has not entered yet draws them on entering.
+ */
+function redrawOverlays(): void {
+  if (showsSession) positions.redrawMarks()
+  else drawOverlays()
+}
+
 watch([() => props.phrase, () => props.phraseNumber], () => scheduleCheck(true))
-watch(() => props.overlays, drawOverlays, { deep: true })
+watch(() => props.overlays, redrawOverlays, { deep: true })
+watch(() => props.session, followSession)
 
 onUnmounted(() => {
   resizeObserver?.disconnect()

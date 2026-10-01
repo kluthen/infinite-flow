@@ -34,6 +34,7 @@ describe('loadVexflowEngraver', () => {
     importState.shouldFail = false
     const loaded = await loadVexflowEngraver()
     expect(typeof loaded.engraveWrittenPhrase).toBe('function')
+    expect(typeof loaded.engravePhraseSystem).toBe('function')
     expect(typeof loaded.ensureNotationFonts).toBe('function')
   })
 

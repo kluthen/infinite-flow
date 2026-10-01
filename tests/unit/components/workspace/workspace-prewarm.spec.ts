@@ -39,6 +39,7 @@ import { createFakeMidiAccess } from '../../midi/fake-midi-access'
 import { createMidiController } from '@/midi/midi-controller'
 import { createFakeSessionBrowser } from '../../session/fake-session-browser'
 import { fixedWallClock } from '../../session/session-harness'
+import { createFakeFrames } from './fake-frames'
 
 // The fit and room checks plan through the lazy engraver loader; a fake planner answers here.
 vi.mock(
@@ -67,7 +68,11 @@ function fakeAudioAndMidi(): Pick<
     audio: transport,
     midi,
     browser: createFakeSessionBrowser(),
-    sessionClock: { createWakeTimer: rig.createExtraWakeTimer, wallClock: fixedWallClock },
+    sessionClock: {
+      createWakeTimer: rig.createExtraWakeTimer,
+      wallClock: fixedWallClock,
+      frames: createFakeFrames().port,
+    },
   }
 }
 
@@ -123,7 +128,10 @@ function rhythmOf(intent: GenerationIntent): string {
  * the way a mounted `PhraseScore` would, so the whole Idle operation runs without a component tree.
  */
 function generateAndEngrave(workspace: WorkspaceSession): Promise<boolean> {
-  workspace.handleLayoutInputs({ containerWidthPx: 1100, viewport: { layout: 'one-system' } })
+  workspace.handleLayoutInputs({
+    containerWidthPx: 1100,
+    viewport: { layout: 'one-system', heightBudgetPx: null },
+  })
   const running = workspace.session.actions.generate()
   void vi
     .waitFor(() => {

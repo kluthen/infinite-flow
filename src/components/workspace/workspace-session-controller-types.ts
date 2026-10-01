@@ -14,8 +14,10 @@ import type { SessionHistory, WallClock } from '@/session/session-history'
 import type { SessionRunner } from '@/session/session-runner'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import type { SessionEndCause } from '@/session/session-types'
-import type { StaffLayout } from '@/notation/notation-layout-policy'
-import type { StaffFixedParts } from '@/notation/staff-fit-types'
+import type { StaffLayout, StaffViewport } from '@/notation/notation-layout-policy'
+import type { StaffFitVerdict, StaffFixedParts } from '@/notation/staff-fit-types'
+import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
+import type { SessionStaff } from '@/components/notation/session-staff'
 import type { WorkspaceSessionRunnerInput } from './create-workspace-session'
 import type { IdleLayoutPort } from './idle-layout-gate'
 
@@ -53,6 +55,13 @@ export interface SessionControllerState {
   readonly lastEnd: SessionEndSummary | null
   /** The closed history of the last session that ended, kept for the Review (chunk 20). */
   readonly lastHistory: SessionHistory | null
+  /**
+   * What the staff shows while a session runs, from its start (phrase 1, the very phrase Idle
+   * shows, in the held layout) to its end; null with no session, so the staff shows Idle.
+   */
+  readonly sessionStaff: SessionStaff | null
+  /** The highest phrase number the running session has readied (1 until phrase 2); null with none. */
+  readonly latestReady: number | null
 }
 
 /** The session controller a screen binds to. */
@@ -63,10 +72,16 @@ export interface SessionController {
   readonly start: () => void
   /**
    * End the running session (the player's Stop). Throws with no session running. A session also
-   * ends on its own, like Stop: the page hidden, the staff no longer shown (the window or the
-   * engraving of phrase 1), or the audio interrupted.
+   * ends on its own, like Stop: the page hidden, the staff no longer shown (the window, the
+   * engraving of phrase 1, a phrase shown or waiting that no longer fits, or the session staff
+   * failing), or the audio interrupted.
    */
   readonly stop: () => void
+  /**
+   * Whether any part of phrase `phraseNumber` is on the staff now; false with no session. Throws
+   * on a phrase number that is not a positive integer.
+   */
+  readonly isPhraseOnScreen: (phraseNumber: number) => boolean
   /**
    * End a running session, stop reading the window and dispose of the wake-up timer (its worker).
    * Throws if called twice.
@@ -75,31 +90,60 @@ export interface SessionController {
 }
 
 /**
- * The controller's time seams: `createWakeTimer` builds the timer that wakes it to read the audio
- * clock (called once, at the first start; disposed of with the controller), and `wallClock` stamps
- * each session's history.
+ * The display's frame loop: `request` runs `callback` once, at the next frame (the browser's
+ * animation frame in the app), and returns a handle `cancel` takes to drop it.
  */
-// @spec-link [[service_workspace_session_flow]]
-export interface SessionControllerClock {
-  readonly createWakeTimer: () => DisposableWakeTimer
-  readonly wallClock: WallClock
+// @spec-link [[module_session_rolling_display]]
+// @spec-link [[rule_playhead_follows_audio_clock]]
+export interface FramePort {
+  readonly request: (callback: () => void) => number
+  readonly cancel: (handle: number) => void
 }
 
 /**
- * What the controller drives: the Idle state, the audio, the browser, runners and its clock; the
- * gate of the staff's reports, which a session diverts from the Idle machinery while it runs; and
- * the measurement of phrase 1's staff fixed parts, which the session window rule needs.
+ * The controller's time seams: `createWakeTimer` builds the timer that wakes it to read the audio
+ * clock (called once, at the first start; disposed of with the controller), `wallClock` stamps
+ * each session's history, and `frames` paces the playhead, read on the audio clock once a frame.
+ */
+// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[rule_playhead_follows_audio_clock]]
+export interface SessionControllerClock {
+  readonly createWakeTimer: () => DisposableWakeTimer
+  readonly wallClock: WallClock
+  readonly frames: FramePort
+}
+
+/** The staff planner's fit check of a written phrase, drawing nothing; the engraver's own. */
+// @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
+export type StaffFitPlanner = (
+  phrase: WrittenPhrase,
+  containerWidthPx: number,
+  viewport: StaffViewport,
+) => StaffFitVerdict
+
+/**
+ * What the controller drives: the Idle state and the written phrase Idle shows (phrase 1, which a
+ * session's staff keeps showing as the very same object), the audio, the browser, runners and its
+ * clock; the gate of the staff's reports, which a session diverts from the Idle machinery while it
+ * runs; the measurement of phrase 1's staff fixed parts, which the session window rule needs; and
+ * the staff planner, loaded with the engraver, that checks a phrase's fit in the held layout.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[rule_session_ends_when_staff_too_small]]
+// @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
+// @spec-link [[rule_phrase_one_is_idle_phrase]]
 export interface SessionControllerDependencies {
   readonly idle: { readonly state: Readonly<GenerationSessionState<WorkspaceSessionResult>> }
+  /** The written phrase the staff shows at Idle; null when it shows none. */
+  readonly idlePhrase: () => WrittenPhrase | null
   readonly audio: AudioTransport
   readonly browser: SessionBrowserPorts
   readonly createSessionRunner: (input: WorkspaceSessionRunnerInput) => SessionRunner
   readonly clock: SessionControllerClock
   readonly idleLayout: IdleLayoutPort
   readonly staffFixedParts: (phrase: WorkspaceSessionResult) => Promise<StaffFixedParts>
+  /** The staff planner, once the engraver and its fonts are ready; a load failure rejects. */
+  readonly staffFitPlanner: () => Promise<StaffFitPlanner>
 }
 
 /** A caller broke the controller's contract: a start while blocked, a Stop with no session. */

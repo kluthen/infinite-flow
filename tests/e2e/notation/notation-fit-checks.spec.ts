@@ -11,7 +11,7 @@ import { expect, test, type Page } from '@playwright/test'
 test.use({ baseURL: 'http://127.0.0.1:4174' })
 
 const PHONE_VIEWPORT = { width: 740, height: 360 } as const
-const ONE_SYSTEM = { layout: 'one-system' } as const
+const ONE_SYSTEM = { layout: 'one-system', heightBudgetPx: null } as const
 
 /** C major: no accidentals. */
 const C_MAJOR_SIGNATURE: NotationHarnessKeySignature = {
@@ -91,7 +91,9 @@ test.describe('planWrittenPhraseFit: the fit check before drawing', () => {
       const checks = window.__notationChecks
       return {
         narrow: await Promise.all(
-          ['dense', 'simple'].map((name) => checks.planFit(name, 120, { layout: 'one-system' })),
+          ['dense', 'simple'].map((name) =>
+            checks.planFit(name, 120, { layout: 'one-system', heightBudgetPx: null }),
+          ),
         ),
         short: await Promise.all(
           ['dense', 'simple'].map((name) =>

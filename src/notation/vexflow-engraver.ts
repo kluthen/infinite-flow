@@ -4,14 +4,15 @@
  * the top position from the tablet-landscape breakpoint up, or, below it, bars 1-2 in the top
  * position and bars 3-4 in the bottom one. It maps the written model 1:1 through
  * ./vexflow-mapping.ts and never re-decides music, then tags every note glyph's own parts with the
- * identity of the attack it sounds as (./note-identity.ts, ./note-part-tags.ts). It also runs the
- * two pure pre-draw checks the idle workspace needs, through the same planning code drawing uses
- * and without touching the DOM: whether a phrase fits, and whether the window has room for the
- * staff with a given key signature at all. Together with
- * that file and ./vexflow-two-system-engraver.ts, this is the only trio of files allowed to
+ * identity of the attack it sounds as (./note-identity.ts, ./note-part-tags.ts). A running session
+ * draws one system part at a time instead, into the position its rolling display gives it, from
+ * the same whole-phrase plan. It also runs the two pure pre-draw checks the idle workspace needs,
+ * through the same planning code drawing uses and without touching the DOM: whether a phrase
+ * fits, and whether the window has room for the staff with a given key signature at all. Together
+ * with that file and ./vexflow-two-system-engraver.ts, this is the only trio of files allowed to
  * import 'vexflow'.
  */
-import { Formatter, Renderer, Stave, StaveNote, Voice, type Beam } from 'vexflow/bravura'
+import { Formatter, Stave, StaveNote, Voice, type Beam } from 'vexflow/bravura'
 
 import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
 import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
@@ -23,11 +24,13 @@ import {
   planStaffPlacement,
   planStaffRoom,
   planSystemLayout,
+  type StaffLayout,
   type StaffNoRoom,
   type StaffNotesTooWide,
   type StaffViewport,
   type SystemLayoutOutcome,
   type SystemLayoutPlan,
+  type SystemPart,
 } from './notation-layout-policy'
 import type {
   StaffFitVerdict,
@@ -45,8 +48,11 @@ import {
 } from './vexflow-mapping'
 import {
   addClefAndKey,
+  assertSystemWidthBounds,
   buildSystemStaves,
   drawSystemMeasures,
+  finishSystemSvg,
+  openSystemSvg,
   type MeasureBox,
 } from './vexflow-two-system-engraver'
 
@@ -69,6 +75,16 @@ export interface EngravedScore {
   readonly systemCount: 1 | 2
 }
 
+/** One system part's engraving: its SVG, and the geometry its whole phrase's plan gives it. */
+export interface EngravedSystem extends Pick<
+  EngravedScore,
+  'staffSpacePx' | 'widthPx' | 'heightPx' | 'positionBlockPx' | 'requiredUnits'
+> {
+  readonly svg: SVGSVGElement
+  /** This system's measures' boxes in phrase order, relative to its SVG. */
+  readonly measureBoxes: readonly MeasureBox[]
+}
+
 /** Where each system draws: the top position's host, then the bottom position's. */
 export type SystemTargets = readonly [HTMLElement, HTMLElement]
 
@@ -82,17 +98,27 @@ const SYSTEM_PADDING_UNITS = 60
 /** A wide scratch width (raw units) used only to measure the first stave's leading offset. */
 const LEADING_SCRATCH_WIDTH_UNITS = 1000
 
-/** Tolerance, in CSS pixels, for drawn content touching the container's edges (sub-pixel rounding). */
-const BOUNDS_EPSILON_PX = 1.5
+/** Each system part: the layout it belongs to, its stacking index in it and its phrase measures. */
+const SYSTEM_PARTS: Readonly<
+  Record<
+    SystemPart,
+    {
+      readonly layout: StaffLayout
+      readonly systemIndex: 0 | 1
+      readonly measures: readonly number[]
+    }
+  >
+> = {
+  whole: { layout: 'one-system', systemIndex: 0, measures: [0, 1, 2, 3] },
+  opening: { layout: 'split', systemIndex: 0, measures: [0, 1] },
+  closing: { layout: 'split', systemIndex: 1, measures: [2, 3] },
+}
 
-/** The phrase measures each system draws, in the order the systems are stacked. */
-const SYSTEM_MEASURES = {
-  'one-system': [[0, 1, 2, 3]],
-  split: [
-    [0, 1],
-    [2, 3],
-  ],
-} as const
+/** The parts each layout draws, in the order its systems are stacked. */
+const LAYOUT_PARTS: Readonly<Record<StaffLayout, readonly SystemPart[]>> = {
+  'one-system': ['whole'],
+  split: ['opening', 'closing'],
+}
 
 /**
  * Wait for the Bravura (music glyphs) and Academico (text) faces bundled by 'vexflow/bravura' to
@@ -278,84 +304,49 @@ function layoutFailureError(outcome: StaffNoRoom | StaffNotesTooWide): NotationE
 }
 
 /**
- * Intent: check one system's drawn content lies within the container's width. The height needs no
- * such check: the system position's height is fixed, and the staff is placed in it for the
- * phrase's instrument so that every written pitch that instrument reaches, stems, beams and chord
- * symbols included, stays inside (see NOTATION_SYSTEM_POSITION_UNITS and planStaffPlacement),
- * and an SVG box could not measure it anyway, since every music glyph is `<text>` whose box is the
- * font's whole line box rather than the glyph's ink.
+ * Intent: the half-open range, among the phrase's glyphs in phrase order, of the glyphs of the
+ * given consecutive measures (the range a system's ties are built over).
  */
-function assertSystemWidthBounds(
-  svg: SVGSVGElement,
-  plan: SystemLayoutPlan,
-  containerWidthPx: number,
-): void {
-  const bbox = svg.getBBox()
-  const leftPx = bbox.x * plan.scale
-  const rightPx = (bbox.x + bbox.width) * plan.scale
-  if (leftPx < -BOUNDS_EPSILON_PX || rightPx > containerWidthPx + BOUNDS_EPSILON_PX) {
-    throw new NotationError(
-      'notation_bounds_exceeded',
-      'Engraved notation overflows the container width.',
-      { requiredWidthPx: rightPx - leftPx, containerWidthPx },
-    )
-  }
+function glyphRange(phrase: WrittenPhrase, measures: readonly number[]): readonly [number, number] {
+  const start = phrase.measures
+    .slice(0, measures[0])
+    .reduce((count, measure) => count + measure.events.length, 0)
+  const end = measures.reduce(
+    (count, index) => count + phrase.measures[index]!.events.length,
+    start,
+  )
+  return [start, end]
 }
 
-/** Intent: create one system's SVG in its host, sized to the container width and its position's height. */
-function openSystemSvg(host: HTMLElement, plan: SystemLayoutPlan): Renderer {
-  const renderer = new Renderer(host as HTMLDivElement, Renderer.Backends.SVG)
-  renderer.resize(plan.systemWidthUnits * plan.scale, NOTATION_SYSTEM_POSITION_UNITS * plan.scale)
-  renderer.getContext().scale(plan.scale, plan.scale)
-  return renderer
+/** One system to draw: the part of the phrase it shows and the host it draws into. */
+interface SystemDraw {
+  readonly part: SystemPart
+  readonly host: HTMLElement
+}
+
+/** One drawn system: its finished SVG and its measures' boxes. */
+interface DrawnSystem {
+  readonly svg: SVGSVGElement
+  readonly measureBoxes: readonly MeasureBox[]
 }
 
 /**
- * Intent: fix the finished SVG's size and viewBox directly on the element (never re-invoking
- * VexFlow's own resize/scale, which would re-derive the scale from itself and distort the drawn
- * content), and mark it with the documented class the stylesheet recolours and its image role.
- */
-function finishSystemSvg(host: HTMLElement, plan: SystemLayoutPlan): SVGSVGElement {
-  const svg = host.querySelector('svg')
-  if (!svg) {
-    throw new NotationError(
-      'notation_container_unavailable',
-      'VexFlow did not create an SVG root.',
-      {},
-    )
-  }
-  const widthPx = plan.systemWidthUnits * plan.scale
-  const heightPx = NOTATION_SYSTEM_POSITION_UNITS * plan.scale
-  svg.setAttribute('class', 'staff-svg')
-  svg.setAttribute('role', 'img')
-  svg.setAttribute('width', String(widthPx))
-  svg.setAttribute('height', String(heightPx))
-  svg.style.width = `${widthPx}px`
-  svg.style.height = `${heightPx}px`
-  // A block box, so no inline line box adds a descender gap under the SVG inside its position.
-  svg.style.display = 'block'
-  // An inline SVG clips at its viewBox by default. The position's height holds every calibrated
-  // system with about a staff space to spare; should ink ever reach past it, it shows rather than
-  // being cut off silently.
-  svg.style.overflow = 'visible'
-  svg.setAttribute('viewBox', `0 0 ${plan.systemWidthUnits} ${NOTATION_SYSTEM_POSITION_UNITS}`)
-  return svg
-}
-
-/**
- * Draw the written phrase into its system hosts and report its engraved geometry. Split from
- * `engraveWrittenPhrase` so every unexpected throw during construction or drawing (VexFlow's own
- * `RuntimeError` included) is caught by that function's single wrapping try/catch, never partially
- * escaping as an untyped error.
+ * Draw the chosen systems of the written phrase, each into its own host, from the whole phrase's
+ * one plan, so every system shares its scale, its width and its measure columns whichever of them
+ * are drawn: the split layout's closing system aligns to the opening system's staves (built, with
+ * its time signature, whether drawn or not). Each system gets its staves, notes, chord symbols,
+ * beams and its own ties, is bounds-checked, and has its note parts tagged with their attacks'
+ * identities and its measures' playhead bands recorded. The callers' single wrapping try/catch
+ * turns every unexpected throw (VexFlow's own `RuntimeError` included) into a typed error.
  */
 // @spec-link [[module_notation_note_identity_overlays]]
-function drawWrittenPhrase(
-  targets: SystemTargets,
+function drawPhraseSystems(
+  draws: readonly SystemDraw[],
   phrase: WrittenPhrase,
   identities: GlyphIdentities,
   containerWidthPx: number,
   viewport: StaffViewport,
-): EngravedScore {
+): { readonly plan: SystemLayoutPlan; readonly systems: readonly DrawnSystem[] } {
   const { glyphs, beams, voices, leadingWidth, outcome } = planPhraseLayout(
     phrase,
     containerWidthPx,
@@ -365,7 +356,6 @@ function drawWrittenPhrase(
   const plan = outcome.plan
 
   const flatGlyphs = flattenGlyphs(phrase, glyphs)
-  const systems = SYSTEM_MEASURES[plan.layout]
   const staveSpec = {
     measureCount: plan.measuresPerSystem,
     leadingWidth,
@@ -376,13 +366,11 @@ function drawWrittenPhrase(
   const topStaves = buildSystemStaves(phrase, {
     ...staveSpec,
     withTimeSignature: true,
-    endsPhrase: systems.length === 1,
+    endsPhrase: plan.layout === 'one-system',
   })
 
-  const svgs: SVGSVGElement[] = []
-  const measureBoxes: MeasureBox[] = []
-  let glyphStart = 0
-  systems.forEach((measureIndices, systemIndex) => {
+  const systems = draws.map(({ part, host }): DrawnSystem => {
+    const { systemIndex, measures } = SYSTEM_PARTS[part]
     const staves =
       systemIndex === 0
         ? topStaves
@@ -392,45 +380,51 @@ function drawWrittenPhrase(
             endsPhrase: true,
             alignTo: topStaves,
           })
-    const host = targets[systemIndex]!
     const context = openSystemSvg(host, plan).getContext()
-    measureBoxes.push(
-      ...drawSystemMeasures(
-        context,
-        staves,
-        voices,
-        beams,
-        measureIndices,
-        systemIndex === 0 ? 0 : 1,
-        plan.scale,
-      ),
+    const measureBoxes = drawSystemMeasures(
+      context,
+      staves,
+      voices,
+      beams,
+      measures,
+      systemIndex,
+      plan.scale,
     )
-    const glyphEnd =
-      glyphStart +
-      measureIndices.reduce<number>(
-        (count, index) => count + phrase.measures[index]!.events.length,
-        0,
-      )
+    const [glyphStart, glyphEnd] = glyphRange(phrase, measures)
     for (const tie of buildSystemTies(flatGlyphs, glyphStart, glyphEnd)) {
       tie.setContext(context).draw()
     }
-    glyphStart = glyphEnd
 
     const svg = finishSystemSvg(host, plan)
     assertSystemWidthBounds(svg, plan, containerWidthPx)
-    tagSystemNoteParts(svg, systemNoteGlyphs(phrase, glyphs, identities, measureIndices))
-    svgs.push(svg)
+    tagSystemNoteParts(svg, systemNoteGlyphs(phrase, glyphs, identities, measures))
+    return { svg, measureBoxes }
   })
+  return { plan, systems }
+}
 
+/** Intent: the geometry every system of a phrase shares, from the phrase's plan. */
+function planGeometry(plan: SystemLayoutPlan): Omit<EngravedSystem, 'svg' | 'measureBoxes'> {
   return {
-    svgs,
     staffSpacePx: plan.staffSpacePx,
     widthPx: plan.systemWidthUnits * plan.scale,
     heightPx: NOTATION_SYSTEM_POSITION_UNITS * plan.scale,
     positionBlockPx: plan.positionBlockPx,
-    measureBoxes,
     requiredUnits: plan.requiredUnits,
-    systemCount: plan.systemCount,
+  }
+}
+
+/**
+ * Intent: clear the hosts, then draw into them; should drawing throw, clear them again rather than
+ * leave partial notation, and rethrow it as a typed NotationError (`asNotationError`).
+ */
+function drawIntoClearedHosts<T>(hosts: readonly HTMLElement[], draw: () => T): T {
+  for (const host of hosts) host.replaceChildren()
+  try {
+    return draw()
+  } catch (error) {
+    for (const host of hosts) host.replaceChildren()
+    throw asNotationError(error)
   }
 }
 
@@ -456,14 +450,65 @@ export function engraveWrittenPhrase(
   viewport: StaffViewport,
 ): EngravedScore {
   const identities = resolveGlyphIdentities(phrase, phraseNumber)
-  for (const target of targets) target.replaceChildren()
+  return drawIntoClearedHosts(targets, () => {
+    const draws = LAYOUT_PARTS[viewport.layout].map((part, index) => ({
+      part,
+      host: targets[index]!,
+    }))
+    const { plan, systems } = drawPhraseSystems(
+      draws,
+      phrase,
+      identities,
+      containerWidthPx,
+      viewport,
+    )
+    return {
+      svgs: systems.map((system) => system.svg),
+      ...planGeometry(plan),
+      measureBoxes: systems.flatMap((system) => system.measureBoxes),
+      systemCount: plan.systemCount,
+    }
+  })
+}
 
-  try {
-    return drawWrittenPhrase(targets, phrase, identities, containerWidthPx, viewport)
-  } catch (error) {
-    for (const target of targets) target.replaceChildren()
-    throw asNotationError(error)
+/**
+ * Engrave one system part of the written phrase, as phrase number `phraseNumber` of its session,
+ * into `host`: plans the whole phrase exactly as `engraveWrittenPhrase` does, so the split
+ * layout's two halves drawn separately share one scale, one system width and aligned measure
+ * columns, then draws only this part's system (its measures, its own ties, the time signature on
+ * the opening half, the final barline on the last), tags its note parts with their attacks'
+ * identities and records its measures' playhead bands; `data-system-index` stays the system's
+ * index within the phrase. The part must belong to the viewport's layout (`whole` iff one
+ * system): a mismatch is a caller error and throws before the host is touched, as an invalid
+ * phrase number or a malformed tie does (NoteIdentityError). Otherwise fails exactly as
+ * `engraveWrittenPhrase` does, leaving the host empty and throwing a typed NotationError.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_notation_note_identity_overlays]]
+export function engravePhraseSystem(
+  host: HTMLElement,
+  phrase: WrittenPhrase,
+  phraseNumber: number,
+  part: SystemPart,
+  containerWidthPx: number,
+  viewport: StaffViewport,
+): EngravedSystem {
+  if (SYSTEM_PARTS[part].layout !== viewport.layout) {
+    throw new Error(`The ${part} system part is not drawn in the ${viewport.layout} layout.`)
   }
+  const identities = resolveGlyphIdentities(phrase, phraseNumber)
+  return drawIntoClearedHosts([host], () => {
+    const { plan, systems } = drawPhraseSystems(
+      [{ part, host }],
+      phrase,
+      identities,
+      containerWidthPx,
+      viewport,
+    )
+    const system = systems[0]!
+    return { svg: system.svg, ...planGeometry(plan), measureBoxes: system.measureBoxes }
+  })
 }
 
 /**

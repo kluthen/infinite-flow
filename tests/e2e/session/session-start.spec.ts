@@ -2,14 +2,13 @@
  * v2.0 items 9 and 22, a session's start on screen at bp-tablet-landscape and up: the Start click
  * leaves focus on the session action, now `Stop`; the count-in shows in the cue row beat by beat,
  * each beat lit in time with its click on the (fake) audio clock, and the row empties after beat
- * 4; phrase 1's first measure is fully visible, and nothing on the staff moves or is engraved
- * again. A Stop during the count-in returns to Ready with focus on `Start session`. Runs against
- * the workspace harness (port 4175).
+ * 4; phrase 1's first measure is fully visible, and phrase 1 neither moves nor is engraved again
+ * (phrase 2 fading in below is the rolling display's). A Stop during the count-in returns to Ready
+ * with focus on `Start session`. Runs against the workspace harness (port 4175).
  */
 import { expect, test } from '@playwright/test'
 
 import { advanceAudioTo, audioNow } from '../audio/audio-harness-helpers'
-import { engravings } from '../release/harness-helpers'
 import {
   boxInside,
   countInClickTimes,
@@ -33,14 +32,17 @@ const AFTER = 0.03
 // @test-link [[rule_count_in_shown_on_screen]]
 // @test-link [[rule_session_layout_fixed_at_start]]
 // @test-link [[service_workspace_session_flow]]
-test('the count-in lights beat by beat with its clicks, and the staff never moves', async ({
+test('the count-in lights beat by beat with its clicks, and phrase 1 never moves', async ({
   page,
 }) => {
   await gotoSessionHarness(page)
   await readyToStart(page)
-  const boxesBefore = await measureBoxes(page)
-  const engravingsBefore = await engravings(page)
+  const boxesBefore = await measureBoxes(page, 1)
   expect(boxesBefore.length).toBeGreaterThan(0)
+  // Marks phrase 1's drawn systems: a redraw would replace them, dropping the mark.
+  const phraseOneSvgs = page.locator('.staff-frame [data-phrase-number="1"] svg')
+  await phraseOneSvgs.evaluateAll((svgs) => svgs.forEach((svg) => (svg.dataset.drawnAtIdle = '')))
+  const phraseOneSystems = await phraseOneSvgs.count()
 
   await startSession(page)
   await expect(sessionAction(page)).toBeFocused()
@@ -76,8 +78,10 @@ test('the count-in lights beat by beat with its clicks, and the staff never move
   const firstMeasure = page.locator('.staff-frame g.measure-slot[data-measure-index="0"]').first()
   expect(await whollyInViewport(firstMeasure)).toBe(true)
   expect(await boxInside(firstMeasure, page.locator('.staff-viewport'))).toBe(true)
-  expect(await measureBoxes(page)).toEqual(boxesBefore)
-  expect(await engravings(page)).toBe(engravingsBefore)
+  expect(await measureBoxes(page, 1)).toEqual(boxesBefore)
+  expect(
+    await phraseOneSvgs.evaluateAll((svgs) => svgs.map((svg) => 'drawnAtIdle' in svg.dataset)),
+  ).toEqual(Array.from({ length: phraseOneSystems }, () => true))
 
   await sessionAction(page).click()
   expect((await sessionState(page)).phase).toBe('idle')

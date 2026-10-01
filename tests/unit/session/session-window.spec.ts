@@ -7,8 +7,8 @@
  *
  * Fixture arithmetic, at the 5 px floor (scale 0.5) with a 60-unit leading width and 60-unit
  * padding: one system of four minimum measures needs (60 + 4 x 40 + 60) x 0.5 = 140 px of
- * container width, a split system of two needs (60 + 2 x 40 + 60) x 0.5 = 100 px, and the split
- * layout's two positions need 2 x 160 x 0.5 = 160 px of height budget. 1 rem is 16 px, so
+ * container width, a split system of two needs (60 + 2 x 40 + 60) x 0.5 = 100 px, and the two
+ * system positions, whichever layout is held, need 2 x 160 x 0.5 = 160 px of height budget. 1 rem is 16 px, so
  * bp-tablet-landscape is 1024 px and bp-desktop 1440 px.
  */
 
@@ -155,6 +155,20 @@ describe('a window too small for the held layout ends the session', () => {
   it('judges a one-system layout held across a crossing below bp-tablet-landscape as one system', () => {
     const crossed = { ...WIDE, widthPx: 900, heightBudgetPx: 250, containerWidthPx: 120 }
     expect(windowEndsSession(crossed)).toBe('too_narrow')
+  })
+
+  // @test-link [[rule_session_ends_when_staff_too_small]]
+  // @test-link [[rule_session_layout_fixed_at_start]]
+  it('ends a one-system layout held below bp-tablet-landscape when the window gets too short at the floor', () => {
+    const crossed = { ...WIDE, widthPx: 900, smallHeightPx: 300, containerWidthPx: 800 }
+    expect(windowEndsSession({ ...crossed, heightBudgetPx: 159 })).toBe('too_short')
+  })
+
+  // @test-link [[rule_session_ends_when_staff_too_small]]
+  // @test-link [[rule_session_layout_fixed_at_start]]
+  it('keeps a one-system layout held below bp-tablet-landscape while the window has the height at the floor', () => {
+    const crossed = { ...WIDE, widthPx: 900, smallHeightPx: 300, containerWidthPx: 800 }
+    expect(windowEndsSession({ ...crossed, heightBudgetPx: 160 })).toBeNull()
   })
 
   // @test-link [[rule_session_ends_when_staff_too_small]]

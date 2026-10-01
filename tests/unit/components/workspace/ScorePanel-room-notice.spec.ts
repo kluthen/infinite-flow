@@ -36,7 +36,10 @@ describe('ScorePanel room notice', () => {
   it("forwards PhraseScore's layout-inputs to the workspace", () => {
     const workspace = createTestWorkspace()
     const wrapper = mountHarness(workspace)
-    const inputs: StaffLayoutInputs = { containerWidthPx: 900, viewport: { layout: 'one-system' } }
+    const inputs: StaffLayoutInputs = {
+      containerWidthPx: 900,
+      viewport: { layout: 'one-system', heightBudgetPx: null },
+    }
 
     phraseScore(wrapper).$emit('layout-inputs', inputs)
 
