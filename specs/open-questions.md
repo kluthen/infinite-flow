@@ -70,7 +70,10 @@ resolved 2026-09-27 (D97). O24 was resolved 2026-09-27 (D108).
 - **O57 - Backing voicing and register** _(listening test, confirmed happening later)_: proposed
   default is bass in MIDI 36–47 and chords in close position with the top note at or below MIDI
   64 (E4), attacked per harmony event and per downbeat. Is that acceptable for v2.0, or should the
-  chords sit higher or comp rhythmically?
+  chords sit higher or comp rhythmically? Note (2026-10-01, owner, after hearing the chunk 11
+  backing in a session): the bass line is adequate. Still open: the chords' voicing and register,
+  the attack pattern and the timbre. Idea for later, not decided: Tone.js, mainly to add more
+  accompaniment voices (v2 synthesizes with raw Web Audio and bundles no audio library).
   [master-spec.md §6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo).
 - **O68 - Main-thread engraving vs audio scheduling** _(prototype needed)_: does engraving a
   phrase (VexFlow, main thread) ever block longer than the scheduler's look-ahead window (200 ms
