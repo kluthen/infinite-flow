@@ -31,6 +31,12 @@ import {
 import { transportRig } from '../../audio/transport-rig'
 import { createFakeMidiAccess, type FakeMidiAccess } from '../../midi/fake-midi-access'
 import { createMidiController } from '@/midi/midi-controller'
+import {
+  createFakeSessionBrowser,
+  type FakeSessionBrowser,
+} from '../../session/fake-session-browser'
+import { fixedWallClock } from '../../session/session-harness'
+import type { FakeWakeTimer } from '../../audio/fake-audio'
 import type { WorkspacePrewarmPolicy } from '@/components/workspace/prewarm-policy'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
@@ -92,6 +98,8 @@ function fakeDependencies(
   readonly prewarmMock: ReturnType<typeof vi.fn<(intent: GenerationIntent) => void>>
   readonly viewport: FakeViewportWidth
   readonly midiAccess: FakeMidiAccess
+  readonly browser: FakeSessionBrowser
+  readonly sessionTimers: FakeWakeTimer[]
 } {
   let seedCounter = 0
   let requestCounter = 0
@@ -103,8 +111,9 @@ function fakeDependencies(
   })
   const disposeMock = vi.fn()
   const prewarmMock = vi.fn<(intent: GenerationIntent) => void>()
-  const { transport } = transportRig()
+  const { rig, transport } = transportRig()
   const midiAccess = createFakeMidiAccess()
+  const sessionTimers: FakeWakeTimer[] = []
   return {
     providers: {
       nextRequestId: () => makeRequestId(`di-seam-request-${++requestCounter}`),
@@ -119,6 +128,16 @@ function fakeDependencies(
       provider: midiAccess,
       clock: { anchor: () => transport.clockAnchor() },
     }),
+    browser: createFakeSessionBrowser(),
+    sessionClock: {
+      createWakeTimer: () => {
+        const timer = rig.createExtraWakeTimer()
+        sessionTimers.push(timer)
+        return timer
+      },
+      wallClock: fixedWallClock,
+    },
+    sessionTimers,
     dispose: disposeMock,
     generateMock,
     disposeMock,
@@ -198,6 +217,28 @@ describe('composeWorkspaceSession', () => {
     expect(workspace.midi).toBe(deps.midi)
     expect(workspace.midi.state()).toEqual({ kind: 'not-requested' })
     expect(deps.midiAccess.requestCount()).toBe(0)
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[rule_session_start_conditions]]
+  it('builds session controllers over its Idle state, audio, browser ports and session clock', async () => {
+    const deps = fakeDependencies()
+    const workspace = composeWorkspaceSession(deps)
+    const controller = await workspace.createSessionController()
+    expect(controller.state.startBlocker).toBe('no_phrase')
+    expect(deps.sessionTimers).toEqual([])
+
+    expect(await generateAndEngrave(workspace)).toBe(true)
+    expect(controller.state.canStart).toBe(true)
+    controller.start()
+
+    expect(deps.audio.isRunning()).toBe(true)
+    expect(deps.browser.wakeLock.isHeld()).toBe(true)
+    expect(deps.sessionTimers.map((timer) => timer.running())).toEqual([true])
+    expect(deps.generateMock).toHaveBeenCalledTimes(2)
+    controller.dispose()
+    expect(deps.audio.isRunning()).toBe(false)
+    expect(controller.state.lastHistory?.phraseCount).toBe(0)
   })
 
   it('dispose() forwards to the injected teardown', () => {

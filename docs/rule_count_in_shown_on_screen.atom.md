@@ -9,7 +9,8 @@ parents:
   - [[rule_count_in_always_clicks]]
 layer: BUSINESS
 tags: [v2, release-v2.0, session, session-start]
-dependents: []
+dependents:
+  - [[service_workspace_session_flow]]
 ---
 
 # Count-In Shown on Screen

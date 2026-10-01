@@ -130,3 +130,12 @@ export interface WakeTimer {
   readonly start: (onWake: () => void) => void
   readonly stop: () => void
 }
+
+/**
+ * A wake-up timer its owner lets go of for good: `dispose`, while stopped, frees what backs it
+ * (production's Web Worker); the timer cannot start or be disposed again after it.
+ */
+// @spec-link [[rule_playhead_follows_audio_clock]]
+export interface DisposableWakeTimer extends WakeTimer {
+  readonly dispose: () => void
+}

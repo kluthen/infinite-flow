@@ -15,6 +15,7 @@ import {
   type BackingVoice,
   type ClickRoute,
   type MixGain,
+  type DisposableWakeTimer,
   type SessionBus,
   type WakeTimer,
 } from '../../../src/audio/audio-ports'
@@ -114,6 +115,11 @@ export interface FakeAudioRig {
   readonly createWakeTimer: () => WakeTimer
   /** Whether the timer is started. */
   readonly timerRunning: () => boolean
+  /**
+   * A further wake-up timer on the same clock, for a part of the app beside the transport (the
+   * session controller): a new one per call, woken after the transport's timer on every step.
+   */
+  readonly createExtraWakeTimer: () => FakeWakeTimer
   /** The fake clock's current time. */
   readonly now: () => AudioTime
   /** Move the clock forward by `seconds`, waking the timer after every step. */
@@ -140,20 +146,28 @@ export interface FakeAudioRig {
   readonly performanceTimeAt: (audioTime: AudioTime) => number
 }
 
-/** The fake timer plus the hook the clock uses to wake it. */
-interface FakeTimer extends WakeTimer {
-  readonly wake: () => void
+/** A fake wake-up timer, with whether it is started and how many times it was disposed. */
+export interface FakeWakeTimer extends DisposableWakeTimer {
   readonly running: () => boolean
+  readonly disposals: () => number
+}
+
+/** The fake timer plus the hook the clock uses to wake it. */
+interface FakeTimer extends FakeWakeTimer {
+  readonly wake: () => void
 }
 
 /**
  * Intent: a wake-up timer that fires only when the fake clock steps. It throws on a start while
- * started and on a stop while stopped, so a scheduler that loses track of it fails loudly.
+ * started, on a stop while stopped, on a dispose while started, and on any start or dispose once
+ * disposed, so an owner that loses track of it fails loudly.
  */
 function createFakeTimer(): FakeTimer {
   let onWake: (() => void) | null = null
+  let disposals = 0
   return {
     start: (listener) => {
+      if (disposals > 0) throw new Error('fake wake timer: start once disposed')
       if (onWake !== null) throw new Error('fake wake timer: start while already started')
       onWake = listener
     },
@@ -161,8 +175,14 @@ function createFakeTimer(): FakeTimer {
       if (onWake === null) throw new Error('fake wake timer: stop while not started')
       onWake = null
     },
+    dispose: () => {
+      if (disposals > 0) throw new Error('fake wake timer: disposed twice')
+      if (onWake !== null) throw new Error('fake wake timer: dispose while still started')
+      disposals += 1
+    },
     wake: () => onWake?.(),
     running: () => onWake !== null,
+    disposals: () => disposals,
   }
 }
 
@@ -311,6 +331,7 @@ export function createFakeAudioRig(options: FakeAudioRigOptions = {}): FakeAudio
   let openCalls = 0
   const interruptListeners: (() => void)[] = []
   const timer = createFakeTimer()
+  const extraTimers: FakeTimer[] = []
 
   /** Intent: the fake performance.now() time, in milliseconds, of audio time `audioTime`. */
   function performanceTimeAt(audioTime: AudioTime): number {
@@ -341,6 +362,7 @@ export function createFakeAudioRig(options: FakeAudioRigOptions = {}): FakeAudio
         current = target
       }
       timer.wake()
+      extraTimers.forEach((extra) => extra.wake())
     }
   }
 
@@ -354,6 +376,11 @@ export function createFakeAudioRig(options: FakeAudioRigOptions = {}): FakeAudio
     openOutputCalls: () => openCalls,
     createWakeTimer: () => timer,
     timerRunning: () => timer.running(),
+    createExtraWakeTimer: () => {
+      const extra = createFakeTimer()
+      extraTimers.push(extra)
+      return extra
+    },
     now: () => current,
     advance: (seconds) => {
       if (!(seconds >= 0)) throw new Error(`fake clock: cannot advance by ${seconds}`)

@@ -9,7 +9,7 @@
  * read by the harness page from its own session (no production hook).
  */
 import { readAudioMixDesign, type AudioMixDesign } from '../../../src/audio/audio-mix'
-import type { AudioOutput, WakeTimer } from '../../../src/audio/audio-ports'
+import type { AudioOutput, DisposableWakeTimer, WakeTimer } from '../../../src/audio/audio-ports'
 import {
   createAudioTransport,
   type AudioTransport,
@@ -33,11 +33,14 @@ import {
 
 /**
  * The harness's audio: the transport the workspace gets, the API published for specs, the Start
- * button's click handler, and the fake performance.now() time of an audio time, which stamps the
- * harness's fake MIDI messages (throws with `?audio=real`, whose clocks cannot be predicted).
+ * button's click handler, the fake performance.now() time of an audio time, which stamps the
+ * harness's fake MIDI messages (throws with `?audio=real`, whose clocks cannot be predicted), and
+ * the session controller's wake-up timer on the same clock: with the fake rig it is stepped by
+ * `advance` right after the transport's, with `?audio=real` it is a real wake-up Worker.
  */
 export interface HarnessAudio {
   readonly transport: AudioTransport
+  readonly createSessionWakeTimer: () => DisposableWakeTimer
   readonly api: WorkspaceHarnessAudioApi
   readonly startFromClick: () => void
   readonly performanceTimeAt: (audioTime: number) => number
@@ -47,6 +50,7 @@ export interface HarnessAudio {
 interface AudioModeParts {
   readonly openOutput: () => AudioOutput
   readonly createWakeTimer: () => WakeTimer
+  readonly createSessionWakeTimer: () => DisposableWakeTimer
   readonly events: () => readonly FakeAudioEvent[]
   readonly advance: (seconds: number) => void
   readonly performanceTimeAt: (audioTime: number) => number
@@ -67,6 +71,7 @@ function fakeModeParts(): AudioModeParts {
   return {
     openOutput: rig.openOutput,
     createWakeTimer: rig.createWakeTimer,
+    createSessionWakeTimer: rig.createExtraWakeTimer,
     events: rig.events,
     advance: rig.advance,
     performanceTimeAt: rig.performanceTimeAt,
@@ -85,6 +90,7 @@ function realModeParts(): AudioModeParts {
       return recorded.output
     },
     createWakeTimer: () => createWorkerWakeTimer(createBrowserWakeTimerWorker()),
+    createSessionWakeTimer: () => createWorkerWakeTimer(createBrowserWakeTimerWorker()),
     events: () => recorded?.events() ?? [],
     advance: () => {
       throw new Error('Workspace harness: advance() needs the fake audio clock, not ?audio=real')
@@ -164,6 +170,7 @@ export function createHarnessAudio(
     },
     backingNotes: () => parts.events().filter((e): e is FakeBackingEvent => e.kind === 'backing'),
     audibleBacking: () => audibleBackingOf(parts.events()),
+    mix: () => ({ ...transport.mix() }),
     setClickOn: (on) => transport.setClickOn(on),
     setClickVolume: (level) => transport.setClickVolume(level),
     setBackingOn: (on) => transport.setBackingOn(on),
@@ -174,7 +181,13 @@ export function createHarnessAudio(
       return { defaults: { ...defaults }, range: { ...range } }
     },
   }
-  return { transport, api, startFromClick, performanceTimeAt: parts.performanceTimeAt }
+  return {
+    transport,
+    createSessionWakeTimer: parts.createSessionWakeTimer,
+    api,
+    startFromClick,
+    performanceTimeAt: parts.performanceTimeAt,
+  }
 }
 
 /** Intent: make the harness's Start audio button, found by its data attribute, start audio. */

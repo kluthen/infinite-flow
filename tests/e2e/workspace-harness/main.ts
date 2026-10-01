@@ -11,8 +11,9 @@
  * - a generation gate (`holdGeneration`/`releaseGeneration`) the `generate` wrapper awaits before
  *   ever delegating to the real worker client, so a spec can assert concurrent-operation
  *   prevention deterministically;
- * - one-shot failure injection for generation (`failNextGeneration`, resolving with the real
- *   `GenerationOutcome` failure shape orchestration itself produces) and for notation
+ * - armed failure injection for generation (`failNextGeneration`, resolving one or more calls in a
+ *   row with the real `GenerationOutcome` failure shape orchestration itself produces, with a count
+ *   of the calls that have returned, `generationsSettled`) and one-shot injection for notation
  *   (`failNextNotation`, a retryable failure or one of the staff layout's two, armed through the
  *   `@/notation/vexflow-engraver-loader` alias configured in vite.workspace-harness.config.ts, which
  *   substitutes this directory's `vexflow-engraver-loader-seam.ts` for the real loader so
@@ -28,14 +29,22 @@
  * - the MIDI controller (midi-seams.ts): the production controller on a fake Web MIDI access by
  *   default, a fake browser without Web MIDI with `?midi=unsupported`, or the browser's own with
  *   `?midi=real`, reading the harness audio transport's clock, with its states and notes recorded;
+ * - the session browser ports (session-browser-seams.ts): fake wake and orientation locks whose
+ *   answers a spec chooses and whose requests and releases are recorded, and a fake page
+ *   visibility a spec hides; the window shape is the real adapter;
+ * - the session controller (session-controller-seams.ts): the workspace's own controller, kept as
+ *   the app builds it, its state read as plain JSON by `session.state()`;
+ * - the session clock: the session controller's wake-up timer on the audio seams' clock (stepped
+ *   by `audio.advance` right after the transport's on the fake rig, a real wake-up Worker with
+ *   `?audio=real`), and the real wall clock for session histories;
  * - the prewarm policy, read from the page URL exactly as production reads it (`?prewarm=off`
  *   disables it, on by default), with every prewarm forwarded to the real worker client and
  *   counted for `prewarmCount()`.
  *
- * The lazy VexFlow engraver, the real generation Worker, real notation, and the real `matchMedia`
- * window-width provider all run for real (a spec moves the window across `bp-tablet-landscape`
- * with `page.setViewportSize`); only randomness, timing, and fault injection are made
- * deterministic.
+ * The lazy VexFlow engraver, the real generation Worker, real notation, the real `matchMedia`
+ * window-width provider and the real window-shape probe all run for real (a spec moves the window
+ * across `bp-tablet-landscape`, or changes its shape, with `page.setViewportSize`); only
+ * randomness, timing, and fault injection are made deterministic.
  */
 import { createApp } from 'vue'
 
@@ -61,6 +70,8 @@ import { createBrowserViewportWidth } from '../../../src/components/workspace/br
 import { prewarmPolicyFromSearch } from '../../../src/components/workspace/prewarm-policy'
 import { bindHarnessAudioStart, createHarnessAudio, harnessAudioMode } from './audio-seams'
 import { createHarnessMidi, harnessMidiMode } from './midi-seams'
+import { createHarnessSessionBrowser } from './session-browser-seams'
+import { createHarnessSessionController } from './session-controller-seams'
 import {
   armNextNotationFailure,
   engravingCount,
@@ -136,17 +147,24 @@ const gate = createGenerationGate()
 let armedFailureCode: WorkspaceHarnessGenerationFailureCode | null = null
 /** How many gated `generate` calls still pass through before the armed failure applies. */
 let callsBeforeArmedFailure = 0
+/** How many calls in a row the armed failure still fails, once it applies. */
+let armedFailuresLeft = 0
+/** How many `generate` calls have returned, failed or answered, since the page loaded. */
+let generationsSettled = 0
 
 const harnessAudio = createHarnessAudio(harnessAudioMode(window.location.search), shownHarmony)
 bindHarnessAudioStart(document, harnessAudio.startFromClick)
 const harnessMidi = createHarnessMidi(harnessMidiMode(window.location.search), harnessAudio)
+const harnessBrowser = createHarnessSessionBrowser()
+const harnessSessionController = createHarnessSessionController()
 
 const port = createBrowserGenerationWorker()
 const client = createGenerationWorkerClient(port)
 
 /**
  * Intent: gate, then optionally fail with a real orchestration failure shape (once the armed
- * number of calls has passed through), then delegate for real.
+ * number of calls has passed through, for the armed number of calls in a row), then delegate for
+ * real; count every call that returns.
  */
 async function harnessGenerate(intent: GenerationIntent): Promise<GenerationOutcome> {
   await gate.wait()
@@ -154,10 +172,33 @@ async function harnessGenerate(intent: GenerationIntent): Promise<GenerationOutc
     callsBeforeArmedFailure -= 1
   } else if (armedFailureCode !== null) {
     const code = armedFailureCode
-    armedFailureCode = null
+    armedFailuresLeft -= 1
+    if (armedFailuresLeft === 0) armedFailureCode = null
+    generationsSettled += 1
     return { kind: 'generation_failure', code, diagnostics: EMPTY_DIAGNOSTICS }
   }
-  return client.generate(intent)
+  const outcome = await client.generate(intent)
+  generationsSettled += 1
+  return outcome
+}
+
+/** Intent: arm `count` forced failures in a row with `code`, after `skip` real calls. */
+function armGenerationFailures(
+  code: WorkspaceHarnessGenerationFailureCode,
+  skip: number,
+  count: number,
+): void {
+  if (!Number.isInteger(skip) || skip < 0) {
+    throw new Error(`Workspace harness: failNextGeneration skip ${skip} is not a whole number`)
+  }
+  if (!Number.isInteger(count) || count < 1) {
+    throw new Error(
+      `Workspace harness: failNextGeneration count ${count} is not a positive whole number`,
+    )
+  }
+  armedFailureCode = code
+  callsBeforeArmedFailure = skip
+  armedFailuresLeft = count
 }
 
 let prewarmsPosted = 0
@@ -219,10 +260,8 @@ window.__workspaceHarness = {
   queueSeeds: (seeds) => seedProvider.queueSeeds(seeds),
   holdGeneration: () => gate.hold(),
   releaseGeneration: () => gate.release(),
-  failNextGeneration: (code, skip = 0) => {
-    armedFailureCode = code
-    callsBeforeArmedFailure = skip
-  },
+  failNextGeneration: (code, skip = 0, count = 1) => armGenerationFailures(code, skip, count),
+  generationsSettled: () => generationsSettled,
   failNextNotation: (code) => armNextNotationFailure(code),
   queueFitVerdicts: (verdicts) => queueForcedFitVerdicts(verdicts),
   fitChecks: fitCheckCount,
@@ -233,11 +272,15 @@ window.__workspaceHarness = {
   prewarmCount: () => prewarmsPosted,
   audio: harnessAudio.api,
   midi: harnessMidi.api,
+  screenLocks: harnessBrowser.screenLocks,
+  page: harnessBrowser.page,
+  windowShape: harnessBrowser.windowShape,
+  session: harnessSessionController.api,
 }
 
 const app = createApp(App)
 app.provide(WORKSPACE_SESSION_FACTORY, () => {
-  workspace = composeWorkspaceSession({
+  const composed = composeWorkspaceSession({
     providers: { nextRequestId: requestIdProvider, nextSeed: seedProvider.nextSeed },
     viewport: createBrowserViewportWidth(),
     generate: harnessGenerate,
@@ -245,8 +288,17 @@ app.provide(WORKSPACE_SESSION_FACTORY, () => {
     prewarm: harnessPrewarm,
     audio: harnessAudio.transport,
     midi: harnessMidi.controller,
+    browser: harnessBrowser.ports,
+    sessionClock: {
+      createWakeTimer: harnessAudio.createSessionWakeTimer,
+      wallClock: () => Date.now(),
+    },
     dispose: client.dispose,
   })
+  workspace = {
+    ...composed,
+    createSessionController: harnessSessionController.wrap(composed.createSessionController),
+  }
   return workspace
 })
 app.mount('#app')

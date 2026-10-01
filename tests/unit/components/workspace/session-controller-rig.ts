@@ -1,0 +1,256 @@
+/**
+ * The session controller specs' shared rig: a controller over a real audio transport on the fake
+ * audio clock, fake session browser ports, an Idle state the test edits by hand, and real session
+ * runners whose generate seam the test scripts (real seeded successes, real failures). The
+ * controller's wake-up timer is an extra fake timer on the same clock, so `advance` drives the
+ * transport and the controller together. Every runner output and transport event is logged. The
+ * staff's reports pass through a real Idle layout gate whose Idle side only logs what reaches it;
+ * the staff reported a wide one-system layout before the controller was built.
+ */
+import { shallowReactive } from 'vue'
+
+import type { WorkspaceSessionRunnerInput } from '@/components/workspace/create-workspace-session'
+import { createSessionController } from '@/components/workspace/workspace-session-controller'
+import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
+import { createIdleLayoutGate, type IdleLayoutGate } from '@/components/workspace/idle-layout-gate'
+import type { NotationError } from '@/notation/notation-error'
+import type { StaffFixedParts, StaffLayoutInputs } from '@/notation/staff-fit-types'
+import type { MutableGenerationSessionState } from '@/composables/use-generation-session'
+import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import type { GenerationIntent } from '@/domain/generation/generation-intent'
+import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
+import {
+  createSessionRunner,
+  type SessionRunner,
+  type SessionTransportEvent,
+} from '@/session/session-runner'
+import type { AudioTime, SessionOutput, SessionSettings } from '@/session/session-types'
+import type { AudioTransport } from '@/audio/audio-transport'
+import type { FakeAudioRig, FakeWakeTimer } from '../../audio/fake-audio'
+import { transportRig } from '../../audio/transport-rig'
+import {
+  createFakeSessionBrowser,
+  type FakeSessionBrowser,
+} from '../../session/fake-session-browser'
+import {
+  failureOutcome,
+  fakeViewport,
+  fixedWallClock,
+  phraseOneFor,
+  queuedProviders,
+  sessionSettings,
+  successFor,
+} from '../../session/session-harness'
+
+/** Every session in these specs plays at 240 BPM: a beat is 0.25 s, a measure 1 s, a phrase 4 s. */
+export const RIG_TEMPO = 240
+
+/** The generate seam a spec scripts: from a request's intent to its outcome. */
+export type GenerateScript = (intent: GenerationIntent) => GenerationOutcome
+
+/** Intent: a script answering every request with the real seeded success of its intent. */
+export const alwaysSucceed: GenerateScript = (intent) => successFor(intent)
+
+/** Intent: a script answering every request with a real generation failure. */
+export const alwaysFail: GenerateScript = () => failureOutcome()
+
+/** Intent: a script failing every carry-in attempt and succeeding the standalone retry. */
+export const onlyStandaloneSucceeds: GenerateScript = (intent) =>
+  intent.carryIn === undefined ? successFor(intent) : failureOutcome()
+
+/** The staff's layout inputs in a wide window: one system, plenty of width. */
+export const WIDE_STAFF: StaffLayoutInputs = {
+  containerWidthPx: 1100,
+  viewport: { layout: 'one-system' },
+}
+
+/**
+ * The rig's staff fixed parts: 60 units of leading width and 60 of padding, so at the 5 px floor
+ * one system needs 140 px of container width, a split system 100 px, and the split layout's two
+ * positions 160 px of height budget.
+ */
+export const RIG_FIXED_PARTS: StaffFixedParts = { leadingWidth: 60, systemPadding: 60 }
+
+/** One staff report that reached the Idle machinery, in order. */
+export type IdleReport =
+  | { readonly kind: 'layout-inputs'; readonly inputs: StaffLayoutInputs }
+  | { readonly kind: 'engraved' }
+  | { readonly kind: 'notation-error'; readonly error: NotationError }
+
+/** A controller and every seam around it, in the test's hand. */
+export interface ControllerRig {
+  readonly controller: SessionController
+  readonly audioRig: FakeAudioRig
+  readonly transport: AudioTransport
+  readonly browser: FakeSessionBrowser
+  readonly idle: MutableGenerationSessionState<WorkspaceSessionResult>
+  readonly settings: SessionSettings
+  readonly phraseOne: WorkspaceSessionResult
+  /** The controller's own wake-up timer, once it asked for one. */
+  readonly timers: FakeWakeTimer[]
+  /** Every output of every runner, in order. */
+  readonly outputs: SessionOutput[]
+  /** Every transport event the controller dispatched, in order. */
+  readonly events: SessionTransportEvent[]
+  /** What the controller passed to each runner it created. */
+  readonly runnerInputs: WorkspaceSessionRunnerInput[]
+  /** Replace the generate script from the next request on. */
+  readonly setScript: (script: GenerateScript) => void
+  /** Make the runner throw on the next transport event of this kind, as a broken engine would. */
+  readonly breakDispatchOf: (kind: SessionTransportEvent['kind']) => void
+  /** The gate the staff reports through, as PhraseScore's events would reach it. */
+  readonly staff: IdleLayoutGate
+  /** Every staff report that reached the Idle machinery since the controller was built. */
+  readonly idleReports: IdleReport[]
+  /** How many times the controller asked for phrase 1's fixed parts. */
+  readonly fixedPartsRequests: () => number
+}
+
+/** Intent: let every pending promise (generation answers, fit checks, lock outcomes) settle. */
+export function flush(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 0))
+}
+
+/**
+ * Intent: move the fake clock to `target` in quarter-second slices, letting promises settle after
+ * each, so generation answers arrive between wake-ups as they would in a browser.
+ */
+export async function playTo(rig: ControllerRig, target: AudioTime): Promise<void> {
+  await flush()
+  while (rig.audioRig.now() < target) {
+    rig.audioRig.advanceTo(Math.min(target, rig.audioRig.now() + 0.25))
+    await flush()
+  }
+}
+
+/**
+ * Intent: a controller at Idle with a real, engraved phrase 1, every lock granting, the staff
+ * having reported `WIDE_STAFF`, and phrase 1's fixed parts measuring as `fixedParts` answers.
+ */
+// @test-link [[service_workspace_session_flow]]
+export function controllerRig(
+  script: GenerateScript = alwaysSucceed,
+  fixedParts: () => Promise<StaffFixedParts> = () => Promise.resolve(RIG_FIXED_PARTS),
+): ControllerRig {
+  const { rig: audioRig, transport } = transportRig()
+  const browser = createFakeSessionBrowser()
+  const settings = sessionSettings({ tempo: RIG_TEMPO })
+  const phraseOne: WorkspaceSessionResult = phraseOneFor(settings)
+  const idle = shallowReactive<MutableGenerationSessionState<WorkspaceSessionResult>>({
+    controls: settings.controls,
+    profileSelection: settings.musicalProfile,
+    presentation: { theme: 'System' },
+    latestIntent: phraseOne.intent,
+    result: phraseOne,
+    operation: 'idle',
+    generationError: null,
+    notationError: null,
+    resultEngraved: true,
+    noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
+    roomNotice: null,
+    retriesRunning: false,
+    roomNoticeAnnouncements: 0,
+  })
+  const timers: FakeWakeTimer[] = []
+  const outputs: SessionOutput[] = []
+  const events: SessionTransportEvent[] = []
+  const runnerInputs: WorkspaceSessionRunnerInput[] = []
+  let current = script
+  let broken: SessionTransportEvent['kind'] | null = null
+  const providers = queuedProviders(5000, 400)
+  const idleReports: IdleReport[] = []
+  const staff = createIdleLayoutGate({
+    layoutInputs: (inputs) => idleReports.push({ kind: 'layout-inputs', inputs }),
+    engraved: () => idleReports.push({ kind: 'engraved' }),
+    notationError: (error) => idleReports.push({ kind: 'notation-error', error }),
+  })
+  staff.layoutInputs(WIDE_STAFF)
+  idleReports.length = 0
+  let fixedPartsRequests = 0
+
+  /** Intent: a real runner on the scripted generate seam, logging what passes through it. */
+  function createRunner(input: WorkspaceSessionRunnerInput): SessionRunner {
+    runnerInputs.push(input)
+    const runner = createSessionRunner(
+      {
+        generate: (intent) => Promise.resolve(current(intent)),
+        checkFit: input.checkFit,
+        now: input.now,
+        providers,
+        viewport: fakeViewport(false),
+        onOutput: (output) => {
+          outputs.push(output)
+          input.onOutput(output)
+        },
+        onError: input.onError,
+      },
+      input.start,
+    )
+    return {
+      dispatch: (event) => {
+        events.push(event)
+        if (event.kind === broken) throw new Error(`${event.kind} broken`)
+        runner.dispatch(event)
+      },
+    }
+  }
+
+  const controller = createSessionController({
+    idle: { state: idle },
+    audio: transport,
+    browser,
+    createSessionRunner: createRunner,
+    clock: {
+      createWakeTimer: () => {
+        const timer = audioRig.createExtraWakeTimer()
+        timers.push(timer)
+        return timer
+      },
+      wallClock: fixedWallClock,
+    },
+    idleLayout: staff,
+    staffFixedParts: () => {
+      fixedPartsRequests += 1
+      return fixedParts()
+    },
+  })
+  return {
+    controller,
+    audioRig,
+    transport,
+    browser,
+    idle,
+    settings,
+    phraseOne,
+    timers,
+    outputs,
+    events,
+    runnerInputs,
+    setScript: (next) => {
+      current = next
+    },
+    breakDispatchOf: (kind) => {
+      broken = kind
+    },
+    staff,
+    idleReports,
+    fixedPartsRequests: () => fixedPartsRequests,
+  }
+}
+
+/** Intent: the outputs of one kind, narrowed. */
+export function outputsOf<K extends SessionOutput['kind']>(
+  rig: ControllerRig,
+  kind: K,
+): Extract<SessionOutput, { kind: K }>[] {
+  return rig.outputs.filter((output): output is Extract<SessionOutput, { kind: K }> => {
+    return output.kind === kind
+  })
+}
+
+/** Intent: the phrase numbers the controller told the runner started sounding, in order. */
+export function soundingEvents(rig: ControllerRig): number[] {
+  return rig.events.flatMap((event) =>
+    event.kind === 'phrase-started-sounding' ? [event.phraseNumber] : [],
+  )
+}

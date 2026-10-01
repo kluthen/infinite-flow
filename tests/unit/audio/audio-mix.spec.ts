@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest'
 import {
   mixGains,
   readAudioMixDesign,
+  readMixVolumeStep,
   validateBackingVolume,
   validateClickVolume,
   type AudioMixRange,
@@ -64,6 +65,19 @@ describe('reading the mix design', () => {
   ])('throws when %s = %s lies outside its range', (name, value) => {
     const tokens = { ...TOKENS, [name]: value }
     expect(() => readAudioMixDesign(styleOf(tokens))).toThrow(/range/)
+  })
+})
+
+// @test-link [[req_session_audio_mix]]
+describe('reading the volume sliders step', () => {
+  it('reads --mix-volume-step', () => {
+    expect(readMixVolumeStep(styleOf({ '--mix-volume-step': ' 0.05' }))).toBe(0.05)
+  })
+
+  it.each(['', 'abc', '0', '-0.05'])('throws on the step value "%s"', (value) => {
+    expect(() => readMixVolumeStep(styleOf({ '--mix-volume-step': value }))).toThrow(
+      /--mix-volume-step|step/,
+    )
   })
 })
 

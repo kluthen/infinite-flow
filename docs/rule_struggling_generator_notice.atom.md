@@ -10,6 +10,7 @@ parents:
 priority: 1
 dependents:
   - [[service_session_engine]]
+  - [[service_workspace_session_flow]]
 type: RULE
 notes: Revised 2026-09-30 in v2 chunk 8 (previous version 0.2) as a clarification of existing behaviour, accepted by the chunk owner under the owner standing rule to settle minor issues and record them; AWAITING THE OWNER ACCEPTANCE. States that the notice shows when the second repeat in a row is decided, at that phrase deadline, as the play-session flow diagram draws it, rather than the ambiguous after two consecutive repeated phrases.
 ---

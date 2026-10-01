@@ -37,18 +37,25 @@ export function releaseGeneration(page: Page): Promise<void> {
 }
 
 /**
- * Intent: arm exactly one forced generation failure with a real orchestration failure code, for
- * the generate() call after `skip` more (default 0) have gone through for real.
+ * Intent: arm forced generation failures with a real orchestration failure code, for the `count`
+ * (default 1) generate() calls in a row after `skip` more (default 0) have gone through for real.
  */
 export function failNextGeneration(
   page: Page,
   code: WorkspaceHarnessGenerationFailureCode,
   skip = 0,
+  count = 1,
 ): Promise<void> {
-  return page.evaluate(([c, n]) => window.__workspaceHarness.failNextGeneration(c, n), [
+  return page.evaluate(([c, n, k]) => window.__workspaceHarness.failNextGeneration(c, n, k), [
     code,
     skip,
+    count,
   ] as const)
+}
+
+/** Intent: how many generate() calls have returned (forced failures and answers) since load. */
+export function generationsSettled(page: Page): Promise<number> {
+  return page.evaluate(() => window.__workspaceHarness.generationsSettled())
 }
 
 /**

@@ -27,19 +27,26 @@ function fakeWorkerScope() {
   return { handle, intervals, cleared, posted }
 }
 
-/** Intent: a fake worker port recording what was posted, with a way to deliver a message back. */
+/**
+ * Intent: a fake worker port recording what was posted and how often it was terminated, with a
+ * way to deliver a message back.
+ */
 function fakeWakeTimerPort() {
   const posted: WakeTimerCommand[] = []
   const listeners: ((event: MessageEvent<WakeTimerEvent>) => void)[] = []
+  let terminations = 0
   const port: WakeTimerWorkerPort = {
     postMessage: (message) => posted.push(message),
     addEventListener: (_type, listener) => listeners.push(listener),
+    terminate: () => {
+      terminations += 1
+    },
   }
   const wake = () => {
     const event = new MessageEvent<WakeTimerEvent>('message', { data: { type: 'wake' } })
     listeners.forEach((listener) => listener(event))
   }
-  return { port, posted, wake }
+  return { port, posted, wake, terminations: () => terminations }
 }
 
 // @test-link [[rule_playhead_follows_audio_clock]]
@@ -131,5 +138,22 @@ describe('the main-thread wake-up timer', () => {
     timer.start(() => undefined)
     expect(() => timer.start(() => undefined)).toThrow(/already started/)
     expect(posted).toEqual([{ type: 'start', intervalMs: 25 }])
+  })
+
+  // @test-link [[rule_playhead_follows_audio_clock]]
+  it('terminates the worker once on dispose, and throws on any use after it or while started', () => {
+    const { port, posted, terminations } = fakeWakeTimerPort()
+    const timer = createWorkerWakeTimer(port)
+    timer.start(() => undefined)
+    expect(() => timer.dispose()).toThrow(/still started/)
+    timer.stop()
+
+    timer.dispose()
+
+    expect(terminations()).toBe(1)
+    expect(() => timer.dispose()).toThrow(/disposed/)
+    expect(() => timer.start(() => undefined)).toThrow(/disposed/)
+    expect(terminations()).toBe(1)
+    expect(posted).toEqual([{ type: 'start', intervalMs: 25 }, { type: 'stop' }])
   })
 })

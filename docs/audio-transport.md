@@ -17,14 +17,16 @@ the playhead and the session engine's events all read their time from it, as pla
   (see [Runtime Constraints](../README.md#runtime-constraints)).
 - **Created by `unlock()`.** Browsers let audio start only from a player's click, and a MIDI note
   does not count. `unlock()` must therefore run synchronously inside the player's Start or
-  "Connect controller" click handler (chunk 15 wires those). Nothing creates the context before.
+  "Connect controller" click handler: the session controller's `start()` calls it in the
+  `Start session` click, and chunk 13 will call it in the "Connect controller" click. Nothing
+  creates the context before.
 - **Never suspended or closed.** Once unlocked, the context runs until the page closes. An unlock
   from "Connect controller" therefore still holds when a MIDI note later starts a session.
 
 | File                         | Holds                                                                                                |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `audio-ports.ts`             | The contract: the clock, output, session bus and wake timer ports, the click and backing note types. |
-| `audio-mix.ts`               | The four mix controls, their design tokens, range checks and gain values.                            |
+| `audio-mix.ts`               | The four mix controls, their design tokens, the sliders' step, range checks and gain values.         |
 | `click-track.ts`             | The click and count-in as pure arithmetic on audio time, and `beatAt`, the beat grid.                |
 | `backing-track.ts`           | A phrase's rendered backing placed on the beat grid, as pure arithmetic on audio time.               |
 | `look-ahead-scheduler.ts`    | The scheduler that plans sound a fixed window ahead of the clock.                                    |
@@ -180,7 +182,8 @@ arithmetic on audio time and reads no clock.
   has no backing. The backing does not listen to the player: it keeps playing through their
   silence. Stop halts planning, and the fade on stop silences the notes already planned past it.
 
-**How chunk 15 wires it.** Right after `start`, the session screen queues phrase 1 with the idle
+**How the session controller wires it.** Right after `start`, the session controller (see
+[`docs/session-engine.md`](session-engine.md#the-session-controller)) queues phrase 1 with the idle
 phrase's harmony. Then, on each `phrase-ready` output of the session engine (see
 [`docs/session-engine.md`](session-engine.md)), it queues that phrase's number with
 `phrase.outcome.provenance.harmony.events`, a repeat included. Phrase 1 gets no `phrase-ready`,
@@ -231,6 +234,12 @@ clicks into the click route or the count-in route, the backing voices into the b
 - **The click is never silent.** The lowest click volume (`--mix-click-volume-min`, currently 0.2)
   must be above zero, which is checked when the tokens are read (v2.0 item 18). A click volume
   outside the range throws.
+- **The player sets it in the score toolbar.** `MixControls` (`src/components/workspace/`) holds
+  the `Backing` and `Click` toggles and the `Volume` popover's two sliders, whose step is the
+  `--mix-volume-step` token (`readMixVolumeStep`, which throws on a missing or non-positive step).
+  They call the transport's setters at Idle and during a session alike, and the levels live in the
+  transport, so they hold for the page and reset on reload (see
+  [The audio mix](phrase-workspace.md#the-audio-mix)).
 
 ## Stop
 
@@ -241,14 +250,17 @@ faded bus and stays silent, and the next
 session gets a fresh bus that the fade never touched. `stop` returns `fadeEndsAt`, when the fade
 reaches silence.
 
-A hidden tab ends the session exactly like Stop. Detecting it is chunk 15's job.
+A hidden tab ends the session exactly like Stop. The session controller detects it through its
+page-visibility port (see [Ends](session-engine.md#ends)).
 
 ## Interruption
 
 The app never stops the audio clock itself, but the browser can: a device change or an operating
 system interruption takes the context out of its running state. The output reports it through
-`onInterrupted`; the transport then halts the running session and tells its own listeners. Chunk
-15 ends the session at once.
+`onInterrupted`; the transport then halts the running session and tells its own listeners. The
+session controller, which listens from its first start, then ends the session at once, with the
+engine's cause `stop`: for the player it is the same as Stop (see
+[Ends](session-engine.md#ends)).
 
 **Known limit:** resuming the audio after such an interruption is not built. Nothing asks the
 browser to run the context again, so a later session may stay silent.
@@ -293,10 +305,12 @@ tests play a count-in and a short backing on the real `AudioContext`. See
 
 ## What later chunks add
 
-- **Chunk 15:** the Start and "Connect controller" calls to `unlock()`, the session runner's `now`
-  reading `WorkspaceSession.audio.now`, the count-in display, the mix controls, hidden-tab
-  detection, and the `queueBacking` calls (see
-  [How chunk 15 wires it](#the-transport-api)).
+- **Chunk 15 (built):** the `Start session` click's call to `unlock()`, the session runner's `now`
+  reading `WorkspaceSession.audio.now`, the count-in display, the mix controls in the score toolbar
+  (see [The audio mix](phrase-workspace.md#the-audio-mix)), hidden-tab detection, the end on an
+  interruption, and the `queueBacking` calls (see
+  [How the session controller wires it](#the-transport-api)).
+- **Chunk 13:** the "Connect controller" click's call to `unlock()`.
 - **Chunk 16:** the playhead, placed using `outputLatency`.
 - **Chunk 17:** played notes placed on the audio clock through `clockAnchor()` (chunk 12 built
   the mapping, see [`docs/midi-input.md`](midi-input.md)).

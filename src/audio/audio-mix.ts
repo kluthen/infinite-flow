@@ -110,6 +110,17 @@ export function readAudioMixDesign(style: DesignTokenSource): AudioMixDesign {
   return design
 }
 
+/**
+ * Intent: read the volume sliders' step from the `--mix-volume-step` design token. Throws when it
+ * is missing, not a number, or not above zero: a slider without a real step would guess one.
+ */
+// @spec-link [[req_session_audio_mix]]
+export function readMixVolumeStep(style: DesignTokenSource): number {
+  const step = readToken(style, '--mix-volume-step')
+  if (step <= 0) throw new Error(`audio mix: the volume step ${step} must be above 0`)
+  return step
+}
+
 /** Intent: reject a click volume outside [clickVolumeMin, volumeMax], so it never reaches silence. */
 // @spec-link [[rule_click_volume_never_silent]]
 export function validateClickVolume(level: number, range: AudioMixRange): void {

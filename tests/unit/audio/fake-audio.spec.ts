@@ -176,3 +176,24 @@ describe('the fake rig clock anchor', () => {
     }
   })
 })
+
+// @test-link [[rule_playhead_follows_audio_clock]]
+describe('the fake rig extra wake-up timers', () => {
+  // @test-link [[rule_playhead_follows_audio_clock]]
+  it('wakes each started extra timer after the transport timer on every clock step', () => {
+    const rig = createFakeAudioRig()
+    const order: string[] = []
+    const step = (): number => Math.round(rig.now() / 0.025)
+    rig.timer.start(() => order.push(`transport@${step()}`))
+    const extra = rig.createExtraWakeTimer()
+    extra.start(() => order.push(`extra@${step()}`))
+
+    rig.advance(0.05)
+    extra.stop()
+    rig.advance(0.025)
+
+    expect(order).toEqual(['transport@1', 'extra@1', 'transport@2', 'extra@2', 'transport@3'])
+    expect(extra.running()).toBe(false)
+    expect(() => extra.stop()).toThrow(/stop while not started/)
+  })
+})

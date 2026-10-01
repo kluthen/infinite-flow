@@ -4,7 +4,8 @@ This document records how `src/session/` decides what a running practice session
 and ends: its boundary, the timed events it takes and the outputs it answers with, the look-ahead
 deadlines, the failure ladder, the struggling-generator notice, the settings lock and note-density
 step-down, how tempo stays out of generation, the runner that connects the engine to the app's one
-generation Worker, the session history that records every phrase that sounded, what later chunks
+generation Worker, the session history that records every phrase that sounded, the session
+controller that runs a session on the workspace from the Start click to its end, what later chunks
 add, and the choices made while building it.
 
 A session plays one [phrase](music/lexicon.md#phrase) after another without stopping. Phrase 1 is
@@ -37,6 +38,17 @@ ahead of it (the read-ahead), so the player always sees what comes next.
 | `session-runner.ts`         | `createSessionRunner(deps, start)`: executes the engine's requests (see [The runner](#the-runner-and-the-one-worker-wiring)).   |
 | `session-history.ts`        | `createSessionHistory(settings, wallClock)`: records every phrase that sounded (see [Session history](#session-history)).       |
 | `session-history-export.ts` | The encoder inputs built from a recorded session (see [Handing a session to the encoders](#handing-a-session-to-the-encoders)). |
+
+The session controller's pure pieces live here too, under the same boundary (see
+[The session controller](#the-session-controller)):
+
+| File                          | Holds                                                                                                |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `session-start-conditions.ts` | `sessionStartBlocker(facts)`: the first start condition that fails, or `null`.                       |
+| `count-in-display.ts`         | `countInDisplayAt(startAt, tempo, now)`: each count-in beat's state, and when the display changes.   |
+| `session-agenda.ts`           | `createAudioTimeAgenda()`: actions due at audio times, fired when the clock reaches them.            |
+| `session-window.ts`           | The session window rule: the layout a session holds, and whether a window change ends it.            |
+| `session-browser-ports.ts`    | The ports of the browser capabilities a session uses: the two screen locks, page visibility, window. |
 
 `createSessionEngine(deps, start)` takes the start time, the chosen settings and phrase 1 (its
 intent and its successful outcome). It returns `outputsAtStart` and `handle(event)`, which returns
@@ -179,7 +191,8 @@ warm reuse of the memo is unchanged.
 `createSessionHistory(settings, wallClock)` in `src/session/session-history.ts` keeps an in-memory
 record of every phrase of one session that started sounding. The Review screen and the exports will
 be built from it. It never reads the system time, uses no browser API and stores nothing outside
-memory. Nothing creates a history on screen yet (chunk 15).
+memory. The session controller creates one at each start (see
+[The session controller](#the-session-controller)).
 
 `settings` are the session's locked settings, the same the engine got at start. The history takes
 the tempo from them. It trusts the settings it is given and only checks that the tempo is a
@@ -274,19 +287,195 @@ phrases (about 2 h 15 min at 60 BPM) must take under 250 ms. The unit test "a lo
 This figure is recorded here, not in [Generation Latency](generation-latency.md), because it
 measures no generation.
 
+## The session controller
+
+`createSessionController(deps)` in `src/components/workspace/workspace-session-controller.ts` runs
+one practice session at a time on the workspace, from the player's `Start session` click to its
+end. It drives the runner, the history, the audio transport and the screen locks; the screen binds
+to its reactive state and calls its actions (see
+[The session screen](phrase-workspace.md#the-session-screen) for the buttons, the cue row, the
+locks on screen and focus). It draws nothing. Its contract, `SessionController`, is in
+`workspace-session-controller-types.ts`, and `WorkspaceSession.createSessionController()` builds
+it (see [Session wiring](phrase-workspace.md#session-wiring)).
+
+| State field                | Holds                                                                                                                             |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `phase`                    | `'idle'` (no session), `'count-in'` or `'running'` (phrase 1 or a later phrase sounding).                                         |
+| `countIn`                  | While the count-in runs, one state per beat (`muted`, `current` or `past`) and the audio time it next changes; `null` outside it. |
+| `strugglingNotice`         | Whether the engine's latest `struggling-notice` shows it.                                                                         |
+| `sessionTempo`             | The running session's locked tempo, in BPM; `null` with no session.                                                               |
+| `heldLayout`               | The staff layout the running session holds, `'one-system'` or `'split'`; `null` with no session.                                  |
+| `canStart`, `startBlocker` | Whether `Start session` may be clicked, and the first start condition that fails (`null` when none does).                         |
+| `lastEnd`                  | How the last session ended: `cause`, `phase` (`'count-in'` or `'running'`) and `soundedPhraseCount`.                              |
+| `lastHistory`              | The closed history of the last session that ended.                                                                                |
+
+`start()` throws a `SessionControllerError` while a start condition fails, and `stop()` when no
+session is running. `dispose()` ends a running session with the `stop` cause and stops reading
+the window; `App.vue` calls it when it unmounts.
+
+### Start conditions
+
+`sessionStartBlocker(facts)` checks, in this order, and returns the first that fails:
+
+1. no session running, count-in included (`session_active`);
+2. a phrase shown: an Idle result, engraved (`no_phrase`);
+3. no Idle generation running: Generate, Regenerate phrase, the fit retries, or a drawing in
+   progress (`generation_running`);
+4. no notation error (`notation_error`) and no generation-failure banner (`generation_failure`);
+5. a rhythm combination that can form a phrase (`rhythm_unsupported`);
+6. the staff shown: no rotate-device notice, that is no portrait-shaped window below `bp-desktop`
+   (`orientation_notice`), and no room notice (`room_notice`);
+7. a phrase the last session did not play (`phrase_already_played`; see
+   [The interim end after phrase 1 sounded](#the-interim-end-after-phrase-1-sounded)).
+
+No MIDI fact is an input, so no MIDI state ever blocks a start. The controller builds the facts
+from the Idle state and from the window's shape, which it reads from its creation until `dispose`.
+
+### Starting
+
+`start()` runs synchronously inside the Start click, because a browser opens audio and grants
+screen locks only from the player's own gesture. In order, it:
+
+1. unlocks the audio, asks for the screen wake lock and the landscape orientation lock without
+   waiting for their answers (a refused or unsupported lock changes nothing and shows nothing),
+   and starts the transport at the locked tempo;
+2. queues phrase 1's backing with the Idle phrase's harmony;
+3. locks the settings (the Idle controls and musical profile), chooses the held layout from the
+   window's width alone (`sessionLayoutAtStart`: split below `bp-tablet-landscape`, one system
+   from it up), opens a history stamped with the wall clock, and starts a runner whose phrase 1 is
+   the Idle phrase;
+4. shows the count-in, starts the wake-up timer, and starts the end watchers.
+
+### The audio-time agenda
+
+A session reads the time only when it wakes up. `createAudioTimeAgenda()` holds actions due at
+audio times; at each wake-up the controller calls `fireDue(audio.now())`, which fires every action
+due by then, earliest first, ties in scheduling order. The agenda holds:
+
+- **each count-in display change.** `countInDisplayAt` takes each beat's time from the click
+  track's own `beatAt`, so a beat lights exactly when it clicks: before the first click all four
+  beats are muted, a beat is current from its click to the next, and the row empties when the
+  count-in ends;
+- **the count-in's end:** the phase becomes `running`, and the runner gets `count-in-over`;
+- **each readied phrase's start.** On `phrase-ready` the controller queues that phrase's backing
+  with `audio.queueBacking` (a repeat included) and schedules `phrase-started-sounding` at
+  `audio.phraseStartsAt(n)`. Phrases must be readied in order; one out of order throws;
+- **each engine deadline:** on `wake-at`, a `tick` at that time.
+
+The wake-ups come from the controller's own timer, `SessionControllerClock.createWakeTimer`,
+built once at the first start: in production a wake-up Worker timer of the same kind as the
+transport's scheduler uses, every 25 ms.
+
+**The engine time floor.** Every time the controller hands the engine is raised to the latest
+time it already handed it. A scheduled action carries its own due time, while a generation result
+is stamped with the clock's time when it arrives, so a deadline due at 4.000 s fired just after a
+result stamped at 4.010 s would otherwise go back in time, which the engine refuses.
+
+### The history
+
+Every runner output is recorded in the session's history before the controller acts on it (see
+[What it records](#what-it-records)). When the session ends, its closed history is kept as
+`lastHistory`.
+
+### Ends
+
+Every end takes one path. The runner gets `end { cause }` at the current audio time, and the
+engine's `ended` closes the history. Then the controller tears the session down: the agenda is
+emptied, the wake-up timer stopped, the transport stopped with its 0.1 s fade (unless an
+interruption has already halted it), both screen locks released, the state back to Idle, and,
+last, the end watchers stopped. `lastEnd` holds the summary. A session ends on:
+
+| What happens                                                                                  | Engine cause      |
+| --------------------------------------------------------------------------------------------- | ----------------- |
+| `Stop`, in the header or the phone's compact one                                              | `stop`            |
+| The browser interrupting the audio (`audio.onInterrupted`)                                    | `stop`            |
+| The page becoming hidden (`visibilitychange` to `hidden`)                                     | `hidden-tab`      |
+| A portrait-shaped window below `bp-desktop`                                                   | `staff-not-shown` |
+| A window too narrow for the held layout, or, below `bp-tablet-landscape`, too short for it    | `staff-not-shown` |
+| Phrase 1's staff failing to draw during the session (a redraw at a new size that throws, say) | `staff-not-shown` |
+
+A second cause after the end does nothing. A programming error (a runner `onError`, or a throw
+inside a scheduled action) first ends the session with `stop`, so nothing keeps sounding, then
+propagates uncaught.
+
+**The end watchers.** `watchSessionEnds` (`workspace-session-end-watchers.ts`) runs from the start
+to the end: it listens for the page becoming hidden, judges every window change and every staff
+layout report with the session window rule, and diverts the staff's reports from the Idle
+machinery (see [The Idle layout gate](#the-idle-layout-gate)).
+
+**The session window rule.** `windowEndsSession(input)` (`src/session/session-window.ts`) is pure
+arithmetic on sizes the caller measures. A portrait-shaped window (height at least the width, as
+CSS `orientation: portrait`) below `bp-desktop` ends the session, since the rotate-device notice
+then replaces the workspace. Otherwise it asks the staff planner's phrase-independent room check,
+at the legibility floor, about the **held** layout: the split layout's two system positions in
+the height budget, only while the window is below `bp-tablet-landscape`; then the held layout's
+width, with `planStaffWidthRoom` (`src/notation/notation-layout-policy.ts`), the staff container's
+width and phrase 1's fixed parts. Those fixed parts (the leading clef, key signature and time
+signature, and the system padding) are measured once per session by the engraver's
+`measureStaffFixedParts`, for phrase 1's written key signature; until they are measured, only the
+portrait rule is judged. A split layout held across a `bp-tablet-landscape` crossing is still
+judged as split, and the held one-system layout, which has no height rule in the planner, can end
+only for being too narrow. Heights come from the small viewport height (`100svh`, browser toolbars
+showing), so a browser toolbar showing or hiding ends nothing. Right after a breakpoint crossing the
+staff's latest inputs were measured for the other layout, so they are skipped, and its next
+report is judged. Whether the phrase material on screen still fits at the new size is the
+per-phrase check, which this rule does not make.
+
+### The Idle layout gate
+
+`createIdleLayoutGate` (`src/components/workspace/idle-layout-gate.ts`) stands between
+`PhraseScore`'s reports (its layout inputs and each drawing's outcome) and the Idle machinery, and
+always keeps the latest layout inputs. At Idle the reports go straight on. During a session the end
+watchers divert them, so the Idle fit retries, the room notice, the regeneration of a phrase a
+resize leaves too wide and the notation-error capture never act on phrase 1: a window change is
+judged by the session window rule alone. At the end the gate is released, and the latest layout
+inputs are re-applied to the Idle machinery, followed by the last drawing outcome held during the
+session. The Idle rules then decide in the layout the window gives afresh: with no room the
+workspace shows Needs more room; a phrase now too wide starts the Idle fresh-seed retries
+(Loading); a session end never leads to the notation-error state.
+
+### The interim end after phrase 1 sounded
+
+An end during the count-in played nothing: the workspace is back at Ready with phrase 1 on screen,
+and a new session may start on it. An end once phrase 1 has sounded is different, because phrase 1
+of a session is never a phrase the previous session played. Until the Review exists, the
+workspace returns to Idle with the played phrase still on the staff and `Start session` disabled
+(`phrase_already_played`); the phrase action stays live and takes focus. Any new Idle result
+(Generate, Regenerate phrase, an instrument-profile switch that regenerates) replaces the played
+phrase and makes Start available again. Nothing is generated automatically at the end. Chunk 20
+replaces this interim end with the Review, which closes onto a freshly generated phrase.
+
+### Interim seams and open points
+
+- **Every look-ahead phrase fits, for now.** The runner's `checkFit` is `acceptEveryPhrase`, which
+  answers `true`. The staff keeps showing phrase 1 for the whole session and draws no look-ahead
+  phrase, so nothing can overflow. Chunk 16 replaces it with the staff planner's check in the held
+  layout.
+- **A dropped wake lock is not asked for again.** If the browser drops the wake lock mid-session
+  (the page hidden, a low battery), nothing re-requests it; whether to ask again silently is open
+  question O87.
+- **The mix levels are placeholders.** The volume ranges and defaults come from the `--mix-*`
+  design tokens, whose values wait for the listening tests of ux Q31.
+
 ## What later chunks add
 
 - **Chunk 9 (built):** the session history, fed from the engine's outputs (see
   [Session history](#session-history)).
 - **Chunk 10 (built):** the audio clock is `WorkspaceSession.audio.now` (see
-  [the audio transport](audio-transport.md)), and chunk 15 passes it as the runner's `now`.
-- **Chunk 15:** the session screen, audio, count-in display and locks, and the transport that sends
-  `count-in-over`, `phrase-started-sounding`, ticks and the `stop`, `hidden-tab` and
-  `staff-not-shown` ends. It also feeds the runner's outputs to a session history.
-- **Chunk 16:** the fit check behind `checkFit`.
-- **Chunk 17:** the MIDI end causes (silence timeout, controller lost), and the acknowledgements and
-  played notes in the history's records.
-- **Chunk 20:** the Review and the generated-notes export, built from the history.
+  [the audio transport](audio-transport.md)), and the session controller passes it as the runner's
+  `now`.
+- **Chunk 15 (built):** the session controller and the session screen (see
+  [The session controller](#the-session-controller)): the Start click that unlocks the audio, asks
+  for the screen locks and starts the transport; the count-in display; the agenda that sends
+  `count-in-over`, `phrase-started-sounding` and ticks on the audio clock; the backing queued
+  phrase by phrase; the history fed from every runner output; and the `stop`, `hidden-tab` and
+  `staff-not-shown` ends, an audio interruption ending with `stop`.
+- **Chunk 16:** the fit check behind `checkFit`, in the held layout, and the rolling staff that
+  re-engraves in the held layout when the window changes.
+- **Chunk 17:** the MIDI end causes (silence timeout, controller lost), a session started by the
+  starting note, and the acknowledgements and played notes in the history's records.
+- **Chunk 20:** the Review and the generated-notes export, built from the history (`lastHistory`),
+  in place of the interim end after phrase 1 sounded.
 - **Chunk 24:** setting changes applied at a phrase boundary.
 
 ## Choices made while building it
@@ -328,7 +517,8 @@ measures no generation.
   Review and the exports use exactly what was shown, with no regeneration.
 - **The history's tempo comes from the session's locked settings, passed at creation, never from a
   default.** The history trusts the settings it is given: only a tempo that is not positive or not
-  finite throws. Chunk 15 passes the same locked settings to the engine and the history, so the
+  finite throws. The session controller passes the same locked settings to the engine and the
+  history, so the
   history plays back the tempo the engine ran at.
 - **The session's start time comes from an injected wall clock, read once at creation.** The
   history never reads the system time itself, so tests pass a fake clock, and a value read once
@@ -344,3 +534,34 @@ measures no generation.
 - **The export adapter takes the instrument from the records and refuses a mix.** Every intent
   names its instrument profile, and one session has one instrument, so records of two instruments
   can only come from a caller bug.
+
+The session controller's choices were made in chunk 15:
+
+- **The controller loads as its own chunk.** Its module, with the measurement of phrase 1's fixed
+  parts, is a dynamic import inside `WorkspaceSession.createSessionController()`, which `App.vue`
+  calls once at setup; `Start session` stays disabled until it has loaded. The entry chunk has a
+  size budget (`npm run verify:boundaries`), and the controller is not needed to show the first
+  phrase. The parts that must render at once (the header's session action, the cue row, the mix
+  controls, the Idle layout gate) stay in the entry chunk, whose budget rose from 200 KiB to
+  212 KiB for them. `start()` itself stays synchronous, so the Start click can unlock the audio.
+- **A separate wake-up Worker timer.** The transport gives no per-beat callback, and its
+  scheduler's timer is its own. The controller gets a second timer of the same kind, so the
+  transport's API stays as chunk 10 built it, and the session's wake-ups are not held back by long
+  main-thread tasks either. The workspace harness swaps it for a further fake timer stepped by the
+  fake audio clock.
+- **One agenda on the audio clock, not timers per event.** Every timed action (a count-in beat,
+  the count-in's end, a phrase starting, a deadline) is an entry fired when the clock reaches it,
+  so the display, the engine and the sound all read one clock, and a test moves them all by
+  advancing it.
+- **The engine time floor.** The engine refuses time going backwards, and the controller mixes two
+  sources of times: due times of scheduled actions and arrival times of results. Raising each to
+  the latest time already handed over keeps their order without changing the engine.
+- **The window's height is the small viewport height, read from a probe.** `innerHeight` changes
+  when a phone's browser toolbar shows or hides, which must end nothing. The browser adapter
+  (`browser-window-shape.ts`) measures one hidden, fixed `100svh` element instead, the same
+  `100svh` the phone staff budget is built on, and reads the rem media queries use from the same
+  element at `font-size: medium`.
+- **An audio interruption ends the session with `stop`.** The engine has no cause for it, and for
+  the player it is the same as Stop: the sound has stopped.
+- **The window rule judges the held layout, not the one the width would pick.** A session never
+  switches layout mid-run, so the question is whether the layout it holds still has room.

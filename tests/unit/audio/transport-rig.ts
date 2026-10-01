@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs'
 
 import { vi, type Mock } from 'vitest'
 
-import { readAudioMixDesign, type AudioMixDesign } from '@/audio/audio-mix'
+import { readAudioMixDesign, type AudioMixDesign, type DesignTokenSource } from '@/audio/audio-mix'
 import type { AudioTime } from '@/audio/audio-ports'
 import { createAudioTransport, type AudioTransport } from '@/audio/audio-transport'
 import { createFakeAudioRig, type FakeAudioEvent, type FakeAudioRig } from './fake-audio'
@@ -19,14 +19,19 @@ export const RIG_START = 5
 /** Seconds per beat at 120 BPM. */
 export const BEAT = 0.5
 
-/** Intent: the mix design read from the real stylesheet's `--mix-*` tokens. */
-export function themeDesign(): AudioMixDesign {
+/** Intent: the real stylesheet's `--mix-*` tokens, as a computed-style lookup would give them. */
+export function themeMixTokens(): DesignTokenSource {
   const css = readFileSync('src/styles/theme.css', 'utf8')
   const tokens = new Map<string, string>()
   for (const match of css.matchAll(/(--mix-[a-z-]+)\s*:\s*([^;]+);/g)) {
     tokens.set(match[1] ?? '', match[2] ?? '')
   }
-  return readAudioMixDesign({ getPropertyValue: (name) => tokens.get(name) ?? '' })
+  return { getPropertyValue: (name) => tokens.get(name) ?? '' }
+}
+
+/** Intent: the mix design read from the real stylesheet's `--mix-*` tokens. */
+export function themeDesign(): AudioMixDesign {
+  return readAudioMixDesign(themeMixTokens())
 }
 
 /** A transport on a fake rig, with the design reader spied on. */

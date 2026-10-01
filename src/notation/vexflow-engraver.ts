@@ -29,7 +29,12 @@ import {
   type SystemLayoutOutcome,
   type SystemLayoutPlan,
 } from './notation-layout-policy'
-import type { StaffFitVerdict, StaffKeySignature, StaffRoomVerdict } from './staff-fit-types'
+import type {
+  StaffFitVerdict,
+  StaffFixedParts,
+  StaffKeySignature,
+  StaffRoomVerdict,
+} from './staff-fit-types'
 import {
   attachMeasureChordSymbols,
   buildMeasureBeams,
@@ -483,6 +488,21 @@ export function planWrittenPhraseFit(
   }
   if (outcome.kind === 'no_room') return { kind: 'no_room', cause: outcome.cause }
   return { kind: outcome.kind }
+}
+
+/**
+ * Measure the staff's fixed parts for a key signature, exactly as the drawn staff carries them:
+ * the leading clef, key signature and 4/4 time signature, and the system padding, in engraving
+ * units at scale 1. A running session judges its held layout's room with them. Any unexpected
+ * non-NotationError throw is wrapped as `notation_engraving_failed`.
+ */
+// @spec-link [[rule_session_ends_when_staff_too_small]]
+export function measureStaffFixedParts(signature: StaffKeySignature): StaffFixedParts {
+  try {
+    return { leadingWidth: measureLeadingWidth(signature), systemPadding: SYSTEM_PADDING_UNITS }
+  } catch (error) {
+    throw asNotationError(error)
+  }
 }
 
 /**

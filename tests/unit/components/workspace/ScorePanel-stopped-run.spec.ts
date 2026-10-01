@@ -6,6 +6,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import ScorePanel from '@/components/workspace/ScorePanel.vue'
+import { createMixVolumePopover } from '@/components/workspace/mix-volume-popover'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
 import { TOO_WIDE } from '../../composables/fake-staff-fit'
@@ -50,6 +51,9 @@ function mountPanel(workspace: TestWorkspace) {
       handleEngraved: workspace.handleEngraved,
       handleNotationError: workspace.handleNotationError,
       handleLayoutInputs: workspace.handleLayoutInputs,
+      audio: workspace.audio,
+      mixPopover: createMixVolumePopover('mix-volume-popover'),
+      controller: null,
       matchesPhoneLayout: () => false,
     },
     global: { stubs: { PhraseScore: PHRASE_SCORE_STUB } },

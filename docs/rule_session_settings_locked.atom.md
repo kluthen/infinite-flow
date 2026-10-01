@@ -10,6 +10,7 @@ dependents:
   - [[rule_session_change_applies_at_phrase_boundary]]
   - [[service_session_engine]]
   - [[service_session_history]]
+  - [[service_workspace_session_flow]]
 type: RULE
 parents:
   - [[req_rolling_practice_session]]
