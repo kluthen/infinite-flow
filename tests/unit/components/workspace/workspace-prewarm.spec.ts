@@ -112,6 +112,7 @@ function prewarmRig(
     prewarmPolicy: policy,
     prewarm: (intent) => prewarms.push(intent),
     ...fakeAudioAndMidi(),
+    logPhraseReplayKey: vi.fn(),
     dispose: () => undefined,
   })
   return { workspace, viewport, prewarms, generated }
@@ -342,6 +343,7 @@ function workerRig(policy: WorkspacePrewarmPolicy): WorkerRig {
     prewarmPolicy: policy,
     prewarm: client.prewarm,
     ...fakeAudioAndMidi(),
+    logPhraseReplayKey: vi.fn(),
     dispose: client.dispose,
   })
   return { workspace, port }

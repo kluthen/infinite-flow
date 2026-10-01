@@ -2,7 +2,8 @@
  * A workspace session wired to fakes for the Idle fit-run specs: counted seed and request-id
  * providers, a fake window width, fake staff-fit seams, and a `generate` seam that returns the
  * intent it was given (so each result carries its own seed) unless the test takes over a call.
- * Every seam call lands in one ordered log, so a test can assert what happened in which order.
+ * Every seam call lands in one ordered log, so a test can assert what happened in which order,
+ * and every intent the fit run reports accepted lands in `accepted`.
  */
 import { createGenerationSession } from '@/composables/use-generation-session'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
@@ -55,6 +56,7 @@ export function createFitSession(options: FitSessionOptions = {}) {
   const counts = { id: 0, seed: 0 }
   const generated: GenerationIntent[] = []
   const notated: GenerationIntent[] = []
+  const accepted: GenerationIntent[] = []
   const session = createGenerationSession<GenerationIntent>({
     providers: {
       nextRequestId: () => makeRequestId(`fit-${++counts.id}`),
@@ -80,8 +82,11 @@ export function createFitSession(options: FitSessionOptions = {}) {
     clearPresentedPhrase: () => {
       log.push('clear')
     },
+    onPhraseAccepted: (intent) => {
+      accepted.push(intent)
+    },
   })
-  return { session, viewport, staff, log, counts, generated, notated }
+  return { session, viewport, staff, log, counts, generated, notated, accepted }
 }
 
 /** Intent: let every already-settled promise continuation run, so fire-and-forget work lands. */

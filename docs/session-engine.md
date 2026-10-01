@@ -83,6 +83,12 @@ The phrase record, `SessionPhrase`, is `{ phraseNumber, origin, intent, outcome,
 `origin` is `'idle'` (phrase 1), `'carry-in'`, `'standalone'` or `'repeat'`. The repeat mark is
 internal: no view shows it.
 
+Each `phrase-ready` phrase with origin `'carry-in'` or `'standalone'` prints its
+[phrase replay key](phrase-workspace.md#phrase-replay-key) to the developer console once, a
+look-ahead phrase readied but never sounded included. A repeat prints none, since it generates
+nothing new. The engine itself stays pure: the workspace composition root wraps the runner's
+output sink to print the key before forwarding the output unchanged.
+
 ## Timing
 
 A **measure** (also called a **bar**) is one group of [beats](music/lexicon.md#beat); the session

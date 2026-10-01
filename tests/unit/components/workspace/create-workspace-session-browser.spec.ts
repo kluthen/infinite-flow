@@ -84,6 +84,7 @@ describe('composeWorkspaceSession: the session browser ports', () => {
         wallClock: fixedWallClock,
         frames: createFakeFrames().port,
       },
+      logPhraseReplayKey: vi.fn(),
       dispose: () => undefined,
     })
 

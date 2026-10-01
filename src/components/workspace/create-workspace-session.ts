@@ -31,6 +31,7 @@ import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
 import { createGenerationWorkerClient } from '@/generation-worker/generation-worker-client'
+import { announcePhraseReplayKey } from '@/generation-worker/phrase-replay-key'
 import type { ViewportWidthProvider } from '@/composables/viewport-width'
 import {
   createSessionRunner,
@@ -49,6 +50,7 @@ import { createBrowserPageVisibility } from './browser-page-visibility'
 import { createBrowserOrientationLock, createBrowserScreenWakeLock } from './browser-screen-locks'
 import { createBrowserWindowShape } from './browser-window-shape'
 import { createIdleLayoutGate } from './idle-layout-gate'
+import { announcingSessionOutputs } from './phrase-replay-announcement'
 import type { WorkspacePrewarmPolicy } from './prewarm-policy'
 import type {
   SessionController,
@@ -173,6 +175,13 @@ export interface WorkspaceSessionDependencies {
    */
   // @spec-link [[service_workspace_session_flow]]
   readonly sessionClock: SessionControllerClock
+  /**
+   * The console sink each accepted phrase's single replay-key line is handed to: an Idle phrase
+   * the fit run publishes, and a session phrase readied with a carry-in or standalone. Production
+   * and the e2e harness write to `console.info`; a unit test records the lines.
+   */
+  // @spec-link [[module_phrase_replay_key]]
+  readonly logPhraseReplayKey: (line: string) => void
   readonly dispose: () => void
 }
 
@@ -214,6 +223,7 @@ function createRequestIdProvider(): () => ReturnType<typeof makeRequestId> {
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]
 // @spec-link [[module_idle_fit_round]]
+// @spec-link [[module_phrase_replay_key]]
 export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): WorkspaceSession {
   let session: GenerationSession<WorkspaceSessionResult> | null = null
 
@@ -243,6 +253,8 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     staffLayout: coordinator.staffLayout,
     clearPresentedPhrase: coordinator.clearPresentedPhrase,
     ...(deps.prewarmPolicy === 'enabled' ? { prewarm: deps.prewarm } : {}),
+    onPhraseAccepted: (intent) =>
+      announcePhraseReplayKey(intent, { source: 'workspace' }, deps.logPhraseReplayKey),
   })
   session = created
   const staffReports = createIdleLayoutGate({
@@ -251,7 +263,11 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     notationError: coordinator.handleNotationError,
   })
 
-  /** Intent: start a runner on the Idle flow's providers, width reading and `generate` seam. */
+  /**
+   * Intent: start a runner on the Idle flow's providers, width reading and `generate` seam, its
+   * outputs forwarded unchanged once each accepted session phrase has announced its replay key.
+   */
+  // @spec-link [[module_phrase_replay_key]]
   function startRunner(input: WorkspaceSessionRunnerInput): SessionRunner {
     return createSessionRunner(
       {
@@ -260,7 +276,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
         now: input.now,
         providers: deps.providers,
         viewport: deps.viewport,
-        onOutput: input.onOutput,
+        onOutput: announcingSessionOutputs(input.onOutput, deps.logPhraseReplayKey),
         onError: input.onError,
       },
       input.start,
@@ -303,6 +319,15 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
       deps.dispose()
     },
   }
+}
+
+/**
+ * Intent: write one accepted phrase's replay-key line to the developer console, production builds
+ * included, as information rather than a warning or an error.
+ */
+// @spec-link [[module_phrase_replay_key]]
+function logPhraseReplayKeyToConsole(line: string): void {
+  console.info(line)
 }
 
 /** What the production root chooses when it builds the workspace session. */
@@ -362,6 +387,7 @@ export function createWorkspaceSession(
         cancel: (handle) => cancelAnimationFrame(handle),
       },
     },
+    logPhraseReplayKey: logPhraseReplayKeyToConsole,
     dispose: client.dispose,
   })
 }

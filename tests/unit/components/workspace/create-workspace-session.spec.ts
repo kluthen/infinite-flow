@@ -22,7 +22,8 @@ import {
   DEFAULT_GENERATION_CONTROLS,
   DEFAULT_PROFILE_SELECTION,
 } from '@/domain/controls/profile-selection'
-import { makeSeed } from '@/domain/random/seed'
+import { encodeSeed, makeSeed } from '@/domain/random/seed'
+import { decodePhraseReplayKey } from '@/generation-worker/phrase-replay-key-decode'
 import type { SessionOutput } from '@/session/session-types'
 import {
   createFakeViewportWidth,
@@ -103,6 +104,8 @@ function fakeDependencies(
   readonly browser: FakeSessionBrowser
   readonly sessionTimers: FakeWakeTimer[]
   readonly sessionFrames: FakeFrames
+  /** Every replay-key line handed to the injected console sink, in order. */
+  readonly replayKeyLines: string[]
 } {
   let seedCounter = 0
   let requestCounter = 0
@@ -118,6 +121,7 @@ function fakeDependencies(
   const midiAccess = createFakeMidiAccess()
   const sessionTimers: FakeWakeTimer[] = []
   const sessionFrames = createFakeFrames()
+  const replayKeyLines: string[] = []
   return {
     providers: {
       nextRequestId: () => makeRequestId(`di-seam-request-${++requestCounter}`),
@@ -144,6 +148,10 @@ function fakeDependencies(
     },
     sessionTimers,
     sessionFrames,
+    logPhraseReplayKey: (line) => {
+      replayKeyLines.push(line)
+    },
+    replayKeyLines,
     dispose: disposeMock,
     generateMock,
     disposeMock,
@@ -459,6 +467,95 @@ describe('composeWorkspaceSession session runner', () => {
     expect(phraseTwoIntent.requestId).toBe('di-seam-request-2')
     expect(phraseTwoIntent.seed).toBe(2)
     expect(deps.prewarmMock).toHaveBeenCalledTimes(prewarmsBeforeRunner)
+  })
+})
+
+/** The single console line one accepted phrase announces, its context, seed and key captured. */
+const REPLAY_KEY_LINE =
+  /^\[Infinite Flow\] phrase replay key · (workspace phrase|session phrase \d+ \((?:carry-in|standalone)\)) · (seed1-[0-9a-f]{8}) · (ifk1\.[A-Za-z0-9_-]+)$/u
+
+/** Intent: split one replay-key line into its context, seed code and key, failing on any other line. */
+function parseReplayKeyLine(line: string) {
+  const match = REPLAY_KEY_LINE.exec(line)
+  if (match === null) throw new Error(`Not a phrase replay key line: ${line}`)
+  return { context: match[1]!, seed: match[2]!, key: match[3]! }
+}
+
+/** Intent: whether a runner output readies a phrase, narrowing it to that output. */
+function isPhraseReady(
+  output: SessionOutput,
+): output is Extract<SessionOutput, { kind: 'phrase-ready' }> {
+  return output.kind === 'phrase-ready'
+}
+
+// @test-link [[module_phrase_replay_key]]
+describe('composeWorkspaceSession phrase replay key', () => {
+  // @test-link [[module_phrase_replay_key]]
+  it('announces a generated Idle phrase once through the injected sink, its key decoding to the result intent', async () => {
+    const deps = fakeDependencies()
+    const workspace = composeWorkspaceSession(deps)
+
+    expect(await generateAndEngrave(workspace)).toBe(true)
+
+    const result = workspace.session.state.result!
+    expect(deps.replayKeyLines).toHaveLength(1)
+    const line = parseReplayKeyLine(deps.replayKeyLines[0]!)
+    expect(line.context).toBe('workspace phrase')
+    expect(line.seed).toBe(encodeSeed(result.intent.seed))
+    const decoded = decodePhraseReplayKey(line.key)
+    expect(decoded.intent).toEqual(result.intent)
+    expect(decoded.phraseNumber).toBe(1)
+  })
+
+  // @test-link [[module_phrase_replay_key]]
+  it('announces a readied carry-in session phrase, then forwards that output unchanged', async () => {
+    const deps = fakeDependencies()
+    deps.generateMock.mockImplementation(async (intent: GenerationIntent) => generatePhrase(intent))
+    const workspace = composeWorkspaceSession(deps)
+    chooseCheapControls(workspace)
+    expect(await generateAndEngrave(workspace)).toBe(true)
+    const idle = workspace.session.state.result!
+    const outputs: SessionOutput[] = []
+    const linesWhenForwarded: number[] = []
+
+    const runner = workspace.createSessionRunner({
+      start: {
+        at: 0,
+        settings: {
+          controls: workspace.session.state.controls,
+          musicalProfile: workspace.session.state.profileSelection,
+        },
+        phraseOne: { intent: idle.intent, outcome: idle.outcome },
+      },
+      checkFit: async () => true,
+      now: () => 0.1,
+      onOutput: (output) => {
+        outputs.push(output)
+        linesWhenForwarded.push(deps.replayKeyLines.length)
+      },
+      onError: (error) => {
+        throw error
+      },
+    })
+    await vi.waitFor(() => {
+      if (!outputs.some(isPhraseReady)) throw new Error('phrase 2 not readied yet')
+    })
+    runner.dispatch({ kind: 'end', at: 0.2, cause: 'stop' })
+
+    const readyIndex = outputs.findIndex(isPhraseReady)
+    const ready = outputs[readyIndex]!
+    if (!isPhraseReady(ready)) throw new Error('expected a phrase-ready output')
+    expect(ready.phrase).toMatchObject({ phraseNumber: 2, origin: 'carry-in' })
+    expect(ready.phrase.intent).toBe(deps.generateMock.mock.calls[1]![0])
+    expect(linesWhenForwarded[readyIndex]).toBe(2)
+    expect(deps.replayKeyLines).toHaveLength(2)
+    const line = parseReplayKeyLine(deps.replayKeyLines[1]!)
+    expect(line.context).toBe('session phrase 2 (carry-in)')
+    expect(line.seed).toBe(encodeSeed(ready.phrase.intent.seed))
+    const decoded = decodePhraseReplayKey(line.key)
+    expect(decoded.intent).toEqual(ready.phrase.intent)
+    expect(decoded.phraseNumber).toBe(2)
+    expect(outputs.at(-1)?.kind).toBe('ended')
   })
 })
 

@@ -6,6 +6,7 @@ tags: generation,orchestration,immutable-boundary
 dependents:
   - [[module_named_stream_pseudorandomness]]
   - [[module_register_intent_boundary]]
+  - [[service_headless_phrase_replay]]
 human_name: Generation Orchestration
 type: SERVICE
 version: 0.3

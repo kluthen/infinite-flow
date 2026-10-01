@@ -2,7 +2,8 @@
 id: module_notation_display_convention
 status: DRAFT
 version: 2.1
-dependents: []
+dependents:
+  - [[service_headless_phrase_replay]]
 human_name: Notation Written-Pitch Rendering
 layer: ARCHITECTURE
 priority: 1

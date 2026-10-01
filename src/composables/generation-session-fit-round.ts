@@ -41,6 +41,12 @@ export interface FitRunDependencies<TResult> {
   readonly isBlocked: () => boolean
   /** Show no phrase, as before a first one exists: phrase, notice and both errors all go. */
   readonly showEmpty: () => void
+  /**
+   * Told the intent of every attempt that ends published (drawn, or kept as a retryable notation
+   * error), once, after it is published; never for a too-wide, run-ending or superseded attempt.
+   */
+  // @spec-link [[module_phrase_replay_key]]
+  readonly onPublished: (intent: GenerationIntent) => void
 }
 
 /** The fit run's controls, for the session actions and the room-notice reactions. */
@@ -155,9 +161,23 @@ export function createFitRunner<TResult>(deps: FitRunDependencies<TResult>): Fit
     return 'published'
   }
 
-  /** Intent: run one attempt: one fresh intent, generated, checked, and drawn if it fits. */
+  /**
+   * Intent: run one attempt: one fresh intent, generated, checked, and drawn if it fits. An
+   * attempt that ends published is accepted, and `onPublished` is told its intent.
+   */
+  // @spec-link [[module_phrase_replay_key]]
   async function attempt(runToken: number): Promise<AttemptOutcome> {
     const intent = deps.freshIntent()
+    const outcome = await settleAttempt(runToken, intent)
+    if (outcome === 'published') deps.onPublished(intent)
+    return outcome
+  }
+
+  /** Intent: generate, check and draw one attempt's intent, and say how the attempt ended. */
+  async function settleAttempt(
+    runToken: number,
+    intent: GenerationIntent,
+  ): Promise<AttemptOutcome> {
     state.latestIntent = intent
     let result: TResult
     try {

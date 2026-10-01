@@ -33,6 +33,60 @@ test('regenerating replaces the score with a different phrase', async ({ page })
   expect(secondScore).not.toBe(firstScore)
 })
 
+/** One workspace phrase's replay-key console line, its seed code and key captured. */
+const WORKSPACE_REPLAY_KEY_LINE =
+  /^\[Infinite Flow\] phrase replay key · workspace phrase · (seed1-[0-9a-f]{8}) · (ifk1\.[A-Za-z0-9_-]+)$/
+
+/**
+ * Intent: read a version-1 replay key's 7-tuple Node-side (unpadded base64url of UTF-8 JSON), so
+ * the line's seed code can be checked against the seed the key itself holds.
+ */
+function replayKeyTuple(key: string): unknown[] {
+  const json = Buffer.from(key.slice('ifk1.'.length), 'base64url').toString('utf8')
+  const payload = JSON.parse(json) as unknown
+  if (!Array.isArray(payload)) throw new Error(`Replay key payload is not a tuple: ${key}`)
+  return payload
+}
+
+/**
+ * Intent: check one workspace replay-key line, its key holding the line's seed, phrase number 1
+ * and no carry-in, and return that key.
+ */
+function expectWorkspaceReplayKeyLine(line: string): string {
+  const match = WORKSPACE_REPLAY_KEY_LINE.exec(line)
+  if (match === null) throw new Error(`Not a workspace replay key line: ${line}`)
+  const seedCode = match[1]!
+  const key = match[2]!
+  const tuple = replayKeyTuple(key)
+  expect(tuple).toHaveLength(7)
+  expect(tuple[1]).toBe(Number.parseInt(seedCode.slice('seed1-'.length), 16))
+  expect(tuple[5]).toBe(1)
+  expect(tuple[6]).toBeNull()
+  return key
+}
+
+// @test-link [[module_phrase_replay_key]]
+test('announces one replay key line in the console per accepted phrase: Generate, then Regenerate', async ({
+  page,
+}) => {
+  const lines: string[] = []
+  page.on('console', (message) => {
+    if (message.type() === 'info' && message.text().includes('phrase replay key')) {
+      lines.push(message.text())
+    }
+  })
+  await gotoWorkspace(page)
+
+  await generateAndAwaitReady(page)
+  await expect.poll(() => lines.length).toBe(1)
+  const firstKey = expectWorkspaceReplayKeyLine(lines[0]!)
+
+  await generateAndAwaitReady(page)
+  await expect.poll(() => lines.length).toBe(2)
+  const secondKey = expectWorkspaceReplayKeyLine(lines[1]!)
+  expect(secondKey).not.toBe(firstKey)
+})
+
 // @test-link [[user_story_controlled_phrase_generation]]
 // @test-link [[rule_readonly_controls_keep_contrast]]
 test('controls stay read-only but focusable during generation: arrows move focus, not selection', async ({
