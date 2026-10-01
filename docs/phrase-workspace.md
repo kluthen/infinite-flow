@@ -214,6 +214,122 @@ session and one long-lived `Worker`:
   touches `self`/`postMessage` directly: the clock, the slice scheduler, the memo and the generator
   are injected, so both run in a plain Vitest environment.
 
+## Phrase replay key
+
+Every accepted phrase gets a **phrase replay key**: one self-contained text string holding exactly
+the inputs that reproduce it. The app prints the key in the developer console when the phrase is
+accepted, and `npm run replay:phrase` turns it back into the same generation request outside the
+app. It is a debugging aid for the generator.
+
+### When a key is printed
+
+One console line is printed per accepted phrase, in production builds too:
+
+```text
+[Infinite Flow] phrase replay key · <context> · seed1-xxxxxxxx · ifk1.…
+```
+
+`<context>` is `workspace phrase`, `session phrase N (carry-in)` or `session phrase N
+(standalone)`. The seed is shown in its `seed1-` text form (`encodeSeed`: the unsigned 32-bit seed
+as eight lowercase hex digits).
+
+- **Workspace.** A fit-run attempt that ends published (drawn, or kept as a retryable notation
+  error) prints its key, whatever started the run: Generate, Regenerate, Retry, a profile switch or
+  the room notice's replacement run. `useGenerationSession` reports it through its
+  `onPhraseAccepted` option. Attempts the run discards (too wide, no room, stale) print nothing.
+- **Session.** A phrase the session engine readies with origin `carry-in` or `standalone` prints
+  its key when its `phrase-ready` output passes through the composition root, a look-ahead phrase
+  readied but never sounded included (`announcingSessionOutputs`,
+  `src/components/workspace/phrase-replay-announcement.ts`). A failed attempt prints nothing, and
+  neither does a repeat: it generates nothing new, and the phrase it repeats already printed its
+  key. Phrase 1 is the Idle phrase, whose key the workspace printed when it was accepted.
+
+The sink is injected at the composition root as `WorkspaceSessionDependencies.logPhraseReplayKey`;
+production and the e2e workspace harness both pass `console.info`. The key is never sent over the
+network or stored.
+
+### Key format
+
+A key is the prefix `ifk1.` followed by the unpadded base64url encoding of the UTF-8 JSON of a
+7-tuple:
+
+```text
+[requestId, seed, controls, musicalProfile, isCustom, phraseNumber, carryIn]
+```
+
+- `requestId` is kept because it appears in the generation result, which a byte-identical replay
+  needs.
+- `seed` is the unsigned 32-bit integer.
+- `controls` is an array of the 14 generation controls in the fixed order
+  `PHRASE_REPLAY_KEY_CONTROL_ORDER`. Its tonal-center slot holds the **written** tonal center, the
+  form the generation intent takes as input; the concert tonal center is rebuilt from it.
+- `musicalProfile` and `isCustom` are the musical profile selection.
+- `phraseNumber` is replay context, not a generation input: 1 for a workspace phrase, the session
+  phrase number for a session phrase. It only serves to derive the phrase's carry-out. With a
+  carry-in it must equal the carry-in's own phrase number plus one.
+- `carryIn` is the phrase's carry-in, or `null`.
+
+The key stores only owning inputs: the instrument profile, register intent, concert tonal center,
+measure count and meter are rebuilt from them. It holds no played notes and nothing beyond the
+existing controls, no worker message id (replay always uses id 1, which never affects the
+outcome), and no app version or commit, so a later generator change may replay an older key
+differently.
+
+`encodePhraseReplayKey` and `announcePhraseReplayKey`
+(`src/generation-worker/phrase-replay-key.ts`) build the key and its console line; that module also
+owns the prefix, the control order and `PhraseReplayKeyError`.
+
+### Decoding
+
+`decodePhraseReplayKey` (`src/generation-worker/phrase-replay-key-decode.ts`) checks the prefix and
+version first, rejecting an unsupported version such as `ifk2.`. A payload that is not strict,
+canonical, unpadded base64url, not UTF-8, not JSON, or not the 7-tuple with the right slot types
+throws a typed `PhraseReplayKeyError`. The owning fields are then validated and the full
+`GenerationIntent` rebuilt by `rebuildGenerationWorkerIntent`, the same validation
+`parseGenerationWorkerIntent` runs on a `generate` message (see
+[Generation Worker protocol](#generation-worker-protocol)). There is no parallel schema and no
+default: a missing or invalid field, or a phrase number that does not follow its carry-in, is
+rejected, never repaired.
+
+### Replaying a key
+
+```sh
+npm run replay:phrase -- 'ifk1.…'
+npm run replay:phrase < console-line.txt   # the key, or a whole copied console line, on stdin
+```
+
+`scripts/replay-phrase.mjs` loads `src/generation-worker/phrase-replay.ts` through Vite's
+`runnerImport`, so replay adds no dependency. It picks the single `ifk<N>.` token out of its input
+(none, or more than one, is an error), decodes it, builds the envelope
+`{ type: 'generate', id: 1, intent }`, round-trips it through JSON as a worker message's structured
+clone would, and hands it to `createGenerationWorkerRuntime(...).handleMessage`: the same runtime,
+protocol parser, request handler and generator the browser worker runs, from a cold rhythm-domain
+memo, which gives the same result as a pre-warmed one. Replaying the same key twice prints the same
+JSON.
+
+It prints one JSON document `{ key, keyVersion, phraseNumber, input, output }`:
+
+- **`input`**: every intent field verbatim, plus readable additions: the seed in `seed1-` form, the
+  written and concert tonal centers with their key names, the instrument's concert range and the
+  register windows with note names, the carry-in with named pitches, and the exact worker envelope
+  replayed.
+- **`output`, phrase** (`kind: 'generation_success'`): the resolved request with its register and
+  register window; the bars numbered from 1, each with its chords (1-based start beat, duration,
+  concert and written chord symbols, roles) and every note and rest in order (1-based onset beat,
+  duration, concert and written pitch as MIDI number and name, ties); the selected harmony; the
+  ending (endpoint class, final chord, last sounding note); the carry-out derived with the key's
+  phrase number, or the reason there is none; the provenance; the diagnostics; and the raw outcome
+  verbatim. Written pitches and names come from the existing notation path, so they match what the
+  staff shows; replay adds no transposition of its own.
+- **`output`, generation failure** (`kind: 'generation_failure'`): the failure code, the
+  diagnostics and the raw outcome.
+- **`output`, crash** (`kind: 'crash'`): the crash response's id, error name and message.
+
+The exit code is `0` when the replay ran, whether it produced a phrase or a generation failure; `1`
+when no key was given, the key is malformed or unsupported (a one-line message on stderr, nothing
+on stdout, no generation run), or an unexpected internal error occurred; `2` when the worker path
+crashed, the JSON still being printed with output kind `crash`.
+
 ## Canonical rhythm-domain memo
 
 `src/domain/generation/orchestration/canonical-rhythm-domain.ts` memoizes the seed-independent

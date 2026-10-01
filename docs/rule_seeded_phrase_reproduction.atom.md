@@ -6,9 +6,11 @@ type: RULE
 layer: BUSINESS
 dependents:
   - [[module_named_stream_pseudorandomness]]
+  - [[module_phrase_replay_key]]
   - [[rule_no_carry_in_output_matches_v1]]
   - [[rule_session_history_keeps_timeline_and_inputs]]
   - [[rule_tempo_never_affects_generation]]
+  - [[service_headless_phrase_replay]]
 version: 0.1
 priority: 1
 tags: seed,determinism,regeneration

@@ -298,6 +298,8 @@ app.provide(WORKSPACE_SESSION_FACTORY, () => {
         cancel: (handle) => cancelAnimationFrame(handle),
       },
     },
+    // The same sink as production: each accepted phrase's replay-key line goes to console.info.
+    logPhraseReplayKey: (line) => console.info(line),
     dispose: client.dispose,
   })
   workspace = {

@@ -110,6 +110,7 @@ async function readyRig(): Promise<Rig> {
       wallClock: fixedWallClock,
       frames: createFakeFrames().port,
     },
+    logPhraseReplayKey: vi.fn(),
     dispose: () => undefined,
   })
   useCheapControls(workspace.session)

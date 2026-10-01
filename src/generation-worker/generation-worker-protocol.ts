@@ -170,24 +170,19 @@ const GENERATION_INTENT_ALLOWED_KEYS = new Set([
 ])
 
 /**
- * Intent: parse one untrusted wire GenerationIntent by re-validating its owning fields
- * (requestId, seed, controls, writtenTonalCenter, musicalProfile) through the existing domain
- * constructors and reconstructing the full intent via `makeGenerationIntent`, then asserting the
- * rebuilt intent deep-equals the received record field-for-field. `instrumentProfile` and
- * `registerIntent` are derived deterministically from those owning fields, so this both validates
- * them and proves the wire value was not tampered with or corrupted in transit. `makeGenerationIntent`
- * takes the player's written-pitch tonal center (never the wire's already-converted concert
- * `controls.tonalCenter`) and re-derives the concert value itself, so the rebuild must substitute
- * the wire's `writtenTonalCenter` back into the controls it reconstructs from. A `carryIn`, when
- * present, is parsed field by field (any fault is a CarryInError) and then checked against the
- * rebuilt intent by `makeGenerationIntent` itself; an intent without one must have no such field.
+ * Intent: validate the owning fields of an untrusted GenerationIntent record (requestId, seed,
+ * writtenTonalCenter, controls, musicalProfile and an optional carryIn) through the existing domain
+ * constructors and rebuild the full intent via `makeGenerationIntent`, with no default for a missing
+ * or invalid field. `makeGenerationIntent` takes the player's written-pitch tonal center (never the
+ * record's already-converted concert `controls.tonalCenter`) and re-derives the concert value
+ * itself, so the rebuild substitutes the record's `writtenTonalCenter` back into the controls. A
+ * `carryIn`, when present, is parsed field by field (any fault is a CarryInError) and then checked
+ * against the rebuilt intent by `makeGenerationIntent` itself. Shared by the worker request parser
+ * and the phrase replay key decoder so neither keeps a parallel schema.
  */
-// @spec-link [[service_workspace_session_flow]]
-// @spec-link [[entity_phrase_carry_in]]
-export function parseGenerationWorkerIntent(input: unknown): GenerationIntent {
-  const record = asPlainRecord(input, 'GenerationWorkerRequest.intent')
-  requireAllowedKeys(record, GENERATION_INTENT_ALLOWED_KEYS, 'GenerationWorkerRequest.intent')
-
+// @spec-link [[module_generation_worker_protocol]]
+// @spec-link [[module_phrase_replay_key]]
+export function rebuildGenerationWorkerIntent(record: Record<string, unknown>): GenerationIntent {
   if (typeof record.requestId !== 'string') {
     throw new GenerationWorkerProtocolError(
       `GenerationWorkerRequest.intent.requestId must be a string, got ${typeof record.requestId}.`,
@@ -215,13 +210,30 @@ export function parseGenerationWorkerIntent(input: unknown): GenerationIntent {
   const musicalProfile = parseProfileSelection(record.musicalProfile)
   const carryIn = 'carryIn' in record ? parseCarryIn(record.carryIn) : undefined
 
-  const rebuilt = makeGenerationIntent({
+  return makeGenerationIntent({
     requestId,
     seed,
     controls,
     musicalProfile,
     ...(carryIn === undefined ? {} : { carryIn }),
   })
+}
+
+/**
+ * Intent: parse one untrusted wire GenerationIntent by rejecting any unknown field, rebuilding the
+ * intent from its owning fields via `rebuildGenerationWorkerIntent`, then asserting the rebuilt
+ * intent deep-equals the received record field-for-field. `instrumentProfile` and `registerIntent`
+ * are derived deterministically from those owning fields, so this both validates them and proves
+ * the wire value was not tampered with or corrupted in transit; an intent without a carry-in must
+ * have no such field.
+ */
+// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[entity_phrase_carry_in]]
+export function parseGenerationWorkerIntent(input: unknown): GenerationIntent {
+  const record = asPlainRecord(input, 'GenerationWorkerRequest.intent')
+  requireAllowedKeys(record, GENERATION_INTENT_ALLOWED_KEYS, 'GenerationWorkerRequest.intent')
+
+  const rebuilt = rebuildGenerationWorkerIntent(record)
 
   if (!deepEqual(rebuilt, record)) {
     throw new GenerationWorkerProtocolError(

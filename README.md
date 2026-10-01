@@ -52,6 +52,7 @@ npm run test:notation              # Playwright: notation engraving, layout, and
 npm run measure:latency:browser    # Playwright: cold/warm generation latency measured in Chromium
 npm run measure:engraving          # Playwright: longest main-thread task while engraving, in Chromium
 npm run measure:rolling            # Playwright: rolling display's playhead and main thread on real audio, in Chromium (not in quality)
+npm run replay:phrase -- <key>     # Replay one phrase from its console replay key and print it as JSON
 npm run atd:lint                   # Validate ATD atom structure
 npm run atd:check                  # Check ATD source/test link coverage for the current diff
 npm run quality                    # The complete first-release quality gate (see the matrix below)
@@ -145,7 +146,9 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   note-off messages, the played-note tracker, the mapping of MIDI timestamps onto the audio clock,
   and the controller that picks one input and follows it through an unplug and back. See
   [`docs/midi-input.md`](docs/midi-input.md).
-- `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier.
+- `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier, and
+  `replay-phrase.mjs`, the headless phrase replay behind `npm run replay:phrase` (see
+  [Phrase replay key](docs/phrase-workspace.md#phrase-replay-key)).
 - `public/licenses/` — vendored full license texts for every runtime third-party component,
   copied into `dist/licenses/` at build time; see [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
 - `docs/` — ATD-linked business-intent atoms plus narrative docs (architecture, notation,

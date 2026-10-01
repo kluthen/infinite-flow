@@ -3,8 +3,10 @@ id: module_generation_worker_protocol
 status: DRAFT
 human_name: Generation Worker Protocol
 type: MODULE
-version: 0.3
-dependents: []
+version: 0.4
+dependents:
+  - [[module_phrase_replay_key]]
+  - [[service_headless_phrase_replay]]
 layer: ARCHITECTURE
 priority: 1
 tags: generation
@@ -25,7 +27,7 @@ The worker entry point listens for exactly two inbound message types and parses 
 On a prewarm the worker builds that intent's rhythm domain into the shared canonical rhythm-domain memo in interruptible slices of about 8 ms, each covering one or more whole gesture units, yielding between slices through a private MessageChannel, so a generate request that arrives meanwhile is served after at most about one slice. A newer prewarm replaces an unfinished one, whose unfinished work is discarded. A prewarm of a setting already in the memo, or of an intent whose harmony has no plan, builds nothing and still discards an unfinished prewarm. A build step that throws fails that prewarm for good: its partial work is discarded, no memo entry is written, and the exception is rethrown out of the slice so the worker reports it as an uncaught error instead of swallowing it; a later prewarm starts a fresh build. A generate request for the rhythm setting being prewarmed finishes the remaining work synchronously and uses it. A memo entry left by a completed prewarm is identical to the one an on-demand build of the same setting produces.
 
 ## TECHNICAL INTERFACE
-Callers parse an unknown inbound value into a validated worker-bound message, either a GenerationWorkerRequest (`type: 'generate'`, with an id) or a prewarm message (`type: 'prewarm'`, no id), or an unknown inbound value into a validated GenerationWorkerResponse, each throwing GenerationWorkerProtocolError on the first structurally or semantically invalid field. The worker script itself exposes no callable interface beyond its message-event listener; the pure handler accepts one parsed GenerationWorkerRequest and a phrase-generation dependency and returns one GenerationWorkerResponse. The main-thread client's prewarm(intent) posts a prewarm message fire-and-forget, consuming no request id and awaiting nothing, and does nothing once the worker is unusable, whose failure the next generate call reports.
+Callers parse an unknown inbound value into a validated worker-bound message, either a GenerationWorkerRequest (`type: 'generate'`, with an id) or a prewarm message (`type: 'prewarm'`, no id), or an unknown inbound value into a validated GenerationWorkerResponse, each throwing GenerationWorkerProtocolError on the first structurally or semantically invalid field. The worker script itself exposes no callable interface beyond its message-event listener; the pure handler accepts one parsed GenerationWorkerRequest and a phrase-generation dependency and returns one GenerationWorkerResponse. The main-thread client's prewarm(intent) posts a prewarm message fire-and-forget, consuming no request id and awaiting nothing, and does nothing once the worker is unusable, whose failure the next generate call reports. The intent rebuild the request parser uses is exported on its own as rebuildGenerationWorkerIntent, shared with the phrase replay key decoder: it validates an untrusted intent record's owning fields (request id, seed, written tonal center, controls, musical profile and an optional carry-in) and rebuilds the full intent with no default for a missing or invalid field, throwing on the first invalid one; the request parser adds the unknown-field rejection and the field-for-field equality check against the received record.
 
 ## EXPECTATION
 A request, prewarm, or response message that round-trips through this protocol's own construction and parsing always parses back to an equal value. Any message missing a required field, carrying a wrong discriminant, or otherwise malformed always throws GenerationWorkerProtocolError instead of producing a partially-parsed or best-effort result. The worker posts exactly one response message per generate request received and none per prewarm message. A generate request that arrives while a prewarm is building is served after at most about one slice of prewarm work. A phrase generated after a completed, replaced, or interrupted prewarm is identical to the phrase generated for the same request with no prewarm at all.

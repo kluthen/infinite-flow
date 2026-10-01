@@ -7,6 +7,7 @@ parents:
 layer: BUSINESS
 priority: 1
 dependents:
+  - [[module_phrase_replay_key]]
   - [[rule_repeat_phrase_marked_internally_only]]
   - [[rule_session_history_records_played_notes]]
   - [[service_session_history]]

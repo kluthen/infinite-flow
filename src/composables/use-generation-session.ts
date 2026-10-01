@@ -138,6 +138,14 @@ export interface CreateGenerationSessionOptions<TResult> {
    * its prewarm policy is disabled, and a caller with no generation worker has nothing to warm.
    */
   readonly prewarm?: PostPrewarm
+  /**
+   * Told the intent of every Idle phrase the fit run accepts (drawn, or kept as a retryable
+   * notation error), once, for its replay-key announcement. Absent means no announcement: the
+   * workspace composition root always supplies it, and a caller with no console sink has nothing
+   * to announce to.
+   */
+  // @spec-link [[module_phrase_replay_key]]
+  readonly onPhraseAccepted?: (intent: GenerationIntent) => void
 }
 
 /** A programming-usage error: a caller used a session action against its documented contract. */
@@ -470,6 +478,7 @@ export function createGenerationSession<TResult>(
     freshIntent: freshIntentFromControls,
     isBlocked: isBlockedByUnsupportedRhythm,
     showEmpty: clearPhrase,
+    onPublished: (intent) => options.onPhraseAccepted?.(intent),
   })
 
   const roomNotice = createRoomNoticeReactions<TResult>({

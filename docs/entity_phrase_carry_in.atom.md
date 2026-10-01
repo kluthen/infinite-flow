@@ -4,7 +4,8 @@ status: DRAFT
 version: 0.3
 parents:
   - [[rule_join_carry_in_limited]]
-dependents: []
+dependents:
+  - [[module_phrase_replay_key]]
 type: ENTITY
 layer: ARCHITECTURE
 human_name: Phrase Carry-In
