@@ -10,6 +10,18 @@ import type { AudioTime } from '../session/session-types'
 
 export type { AudioTime }
 
+/**
+ * One simultaneous reading of the audio clock and the performance.now() timeline: an audio time on
+ * the scheduling timeline, in seconds, and the performance.now() time it corresponds to, in
+ * milliseconds. It gives the offset that maps a MIDI event timestamp onto the audio clock.
+ */
+// @spec-link [[rule_playhead_follows_audio_clock]]
+// @spec-link [[rule_played_onset_latency_compensation]]
+export interface ClockAnchor {
+  readonly audioTime: AudioTime
+  readonly performanceTimeMs: number
+}
+
 /** The audio clock: the one master clock every sound and the playhead are scheduled against. */
 // @spec-link [[rule_playhead_follows_audio_clock]]
 export interface AudioClock {
@@ -20,6 +32,12 @@ export interface AudioClock {
    * can show what is heard rather than what is scheduled.
    */
   readonly outputLatency: () => number
+  /**
+   * The audio time on the scheduling timeline that corresponds to a performance.now() time, read
+   * together, so a MIDI timestamp (on the performance.now() timeline) can be mapped onto the audio
+   * clock.
+   */
+  readonly anchor: () => ClockAnchor
 }
 
 /**

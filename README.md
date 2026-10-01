@@ -131,14 +131,17 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
 - The notation harness (`tests/e2e/notation/`, `tests/e2e/notation-harness/`,
   `vite.notation-harness.config.ts`) isolates notation engraving, layout, and visual-baseline
   checks from the full workspace.
-- `src/midi/` — reserved for the Web MIDI code, and the only place allowed to use that API (see
-  Runtime Constraints). No code lives there yet.
+- `src/midi/` — MIDI input, and the only place allowed to use Web MIDI (see Runtime Constraints):
+  the browser adapter with the app's one `requestMIDIAccess` call, the parsing of note-on and
+  note-off messages, the played-note tracker, the mapping of MIDI timestamps onto the audio clock,
+  and the controller that picks one input and follows it through an unplug and back. See
+  [`docs/midi-input.md`](docs/midi-input.md).
 - `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier.
 - `public/licenses/` — vendored full license texts for every runtime third-party component,
   copied into `dist/licenses/` at build time; see [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
 - `docs/` — ATD-linked business-intent atoms plus narrative docs (architecture, notation,
-  generation latency, the phrase workspace, the session engine, the audio transport, and
-  `docs/release/*`).
+  generation latency, the phrase workspace, the session engine, the audio transport, MIDI input,
+  and `docs/release/*`).
 - `specs/` — the first-release master spec, implementation plan, generator architecture and
   contract, and roadmap/open-questions.
 - `ui_ux/` — the approved interaction/visual authority: each released version's design, frozen, in
@@ -198,6 +201,7 @@ UI (Vue components, props-in/events-out)
     -> session engine (src/session/: pure timed-event engine; its runner uses the same Worker)
     -> audio transport (src/audio/: the one AudioContext, look-ahead scheduler, click, backing, mix)
       -> backing renderer (src/domain/backing/: harmony -> bass and chord notes)
+    -> MIDI input (src/midi/: one controller, played notes on the audio clock)
     -> notation (lazy VexFlow engraver, loaded on demand)
 ```
 
@@ -238,6 +242,16 @@ UI (Vue components, props-in/events-out)
   the `--mix-*` design tokens, and Stop fades a per-session bus out over 0.1 s. The workspace
   session exposes it as `WorkspaceSession.audio`; nothing calls `unlock()` or `queueBacking` yet
   (chunk 15 will). See [`docs/audio-transport.md`](docs/audio-transport.md).
+- **MIDI input.** `src/midi/` reads one MIDI controller. Access is requested only by
+  `connect()`, which the "Connect controller" click will call; no Web MIDI, a refused permission
+  and no device are typed states, never errors. Only a note-on with non-zero velocity, on any
+  channel, is a played note; a note-off or a zero-velocity note-on ends it, and every other
+  message is ignored. The controller selects the only device present or the player's pick, by its
+  port id; when that port reports disconnected it is `away`, its held notes end, and the same
+  device coming back is reattached by itself. Each note's onset and release are mapped from the
+  MIDI timestamp onto the audio clock through the transport's `clockAnchor()`. The workspace
+  session exposes it as `WorkspaceSession.midi`; nothing calls `connect()` yet (chunk 13 will).
+  See [`docs/midi-input.md`](docs/midi-input.md).
 - **Web Worker.** Every generation request runs off the main thread in one long-lived module
   `Worker` behind a typed, correlated request/response protocol
   (`src/generation-worker/generation-worker-protocol.ts`), which re-validates every field crossing
@@ -269,7 +283,8 @@ UI (Vue components, props-in/events-out)
 - **Note acknowledgement.** `src/domain/acknowledgement/` decides, as pure logic, which expected
   notes of the phrase a player's notes acknowledge: exact concert pitch, inside a timing window on
   the audio clock, with the played onset corrected for latency. Its only output is a list of note
-  identities. Nothing calls it yet: MIDI input and the live session are still to come. See
+  identities. Nothing calls it yet: MIDI input exists (see above), but the live session that
+  passes it played notes is still to come. See
   [`docs/midi-acknowledgement.md`](docs/midi-acknowledgement.md).
 
 - **Export.** `encodeGeneratedNotesMusicXml` (`src/export/musicxml/`) turns a session's phrases,
@@ -286,7 +301,8 @@ See [`specs/generator-architecture.md`](specs/generator-architecture.md) for the
 architectural contract and [`docs/phrase-workspace.md`](docs/phrase-workspace.md) for the
 workspace's component tree, session wiring, state map, and Worker protocol in detail,
 [`docs/session-engine.md`](docs/session-engine.md) for the session engine, and
-[`docs/audio-transport.md`](docs/audio-transport.md) for the audio transport.
+[`docs/audio-transport.md`](docs/audio-transport.md) for the audio transport, and
+[`docs/midi-input.md`](docs/midi-input.md) for MIDI input.
 
 ## First-Release Verification Matrix
 
@@ -399,6 +415,8 @@ Notes for either variant:
 - [MIDI note acknowledgement](docs/midi-acknowledgement.md) — how played notes are matched to the
   phrase's expected notes: the window rule, the latency constants and their sources, and the
   identity-only output.
+- [MIDI input](docs/midi-input.md) — how the controller is read: the message rules, what
+  connected and lost mean, the same device reattaching, and MIDI timestamps on the audio clock.
 - [ATD documentation](docs/) — business-intent atoms with source/test traceability.
 - [Third-party licenses](THIRD_PARTY_LICENSES.md) and [`public/licenses/`](public/licenses/) —
   every runtime component shipped in `dist/`, with vendored full license text.

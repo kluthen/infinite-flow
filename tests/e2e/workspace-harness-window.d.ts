@@ -177,6 +177,95 @@ interface WorkspaceHarnessAudioApi {
   mixDesign: () => WorkspaceHarnessMixDesign
 }
 
+/**
+ * Where the harness's MIDI access comes from: a fake Web MIDI (the default), a fake browser
+ * without Web MIDI (`?midi=unsupported`), or the browser's own (`?midi=real`).
+ */
+type WorkspaceHarnessMidiMode = 'fake' | 'unsupported' | 'real'
+
+/** One MIDI input, as the controller shows it (src/midi/midi-controller-state.ts's `MidiDevice`). */
+interface WorkspaceHarnessMidiDevice {
+  readonly id: string
+  readonly name: string
+  readonly manufacturer: string
+}
+
+/** The controller's state (src/midi/midi-controller-state.ts's `MidiControllerState`). */
+type WorkspaceHarnessMidiState =
+  | {
+      readonly kind:
+        'unsupported' | 'not-requested' | 'requesting' | 'denied' | 'no-device' | 'choosing'
+    }
+  | {
+      readonly kind: 'opening' | 'connected' | 'away'
+      readonly device: WorkspaceHarnessMidiDevice
+    }
+
+/** One of the controller's state kinds. */
+type WorkspaceHarnessMidiStateKind = WorkspaceHarnessMidiState['kind']
+
+/** A note-on that counted as played: its concert pitch, velocity and audio-clock onset. */
+interface WorkspaceHarnessPlayedNote {
+  readonly pitch: number
+  readonly velocity: number
+  readonly onsetAt: number
+}
+
+/** A note that ended, with its full span on the audio clock. */
+interface WorkspaceHarnessEndedNote extends WorkspaceHarnessPlayedNote {
+  readonly releaseAt: number
+}
+
+/**
+ * The harness's MIDI controller, the one the workspace session holds. The fake-only controls throw
+ * with `?midi=real`; those taking an audio time need the fake audio clock and throw with
+ * `?audio=real`. Every value in and out is plain JSON.
+ */
+interface WorkspaceHarnessMidiApi {
+  mode: () => WorkspaceHarnessMidiMode
+  /**
+   * The "Connect controller" click's work: unlock the audio (fake audio clock), or require it
+   * already unlocked by a real click (`?audio=real`), then connect the controller.
+   */
+  connect: () => Promise<void>
+  select: (deviceId: string) => Promise<void>
+  state: () => WorkspaceHarnessMidiState
+  devices: () => readonly WorkspaceHarnessMidiDevice[]
+  /** Plug a fake device in (a known id comes back as the same port). Fake only. */
+  plug: (device: WorkspaceHarnessMidiDevice) => void
+  /** Unplug a fake device at this audio time. Fake only. */
+  unplug: (deviceId: string, atAudioTime: number) => void
+  /** Play a note-on on a fake device at this audio time (channel 0-15, default 0). Fake only. */
+  noteOn: (
+    deviceId: string,
+    pitch: number,
+    velocity: number,
+    atAudioTime: number,
+    channel?: number,
+  ) => void
+  /** Play a note-off on a fake device at this audio time (channel 0-15, default 0). Fake only. */
+  noteOff: (deviceId: string, pitch: number, atAudioTime: number, channel?: number) => void
+  /** Send raw message bytes from a fake device at this audio time. Fake only. */
+  send: (deviceId: string, bytes: readonly number[], atAudioTime: number) => void
+  /** Make the next MIDI access request denied. Fake only. */
+  denyNextRequest: () => void
+  /** Keep the next MIDI access request in flight until `releaseHeldRequest`. Fake only. */
+  holdNextRequest: () => void
+  /** Settle the held MIDI access request. Fake only. */
+  releaseHeldRequest: () => void
+  /** How many times MIDI access was requested since the page loaded. Fake only. */
+  requestCount: () => number
+  /** Every note the controller reported played, in order. */
+  playedNotes: () => readonly WorkspaceHarnessPlayedNote[]
+  /** Every note the controller reported ended, in order. */
+  endedNotes: () => readonly WorkspaceHarnessEndedNote[]
+  /**
+   * The controller's state kinds since the page loaded, in order: the first state, then each
+   * change of kind its subscribers heard.
+   */
+  stateLog: () => readonly WorkspaceHarnessMidiStateKind[]
+}
+
 interface WorkspaceHarnessApi {
   /** Append deterministic seeds to the queue `nextSeed()` draws from first, in call order. */
   queueSeeds: (seeds: readonly number[]) => void
@@ -216,6 +305,8 @@ interface WorkspaceHarnessApi {
   prewarmCount: () => number
   /** The audio transport's seams (see `WorkspaceHarnessAudioApi`). */
   audio: WorkspaceHarnessAudioApi
+  /** The MIDI controller's seams (see `WorkspaceHarnessMidiApi`). */
+  midi: WorkspaceHarnessMidiApi
 }
 
 interface Window {

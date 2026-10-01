@@ -12,6 +12,7 @@ tags: [v2, release-v2.0, midi]
 parents:
   - [[req_midi_controller_input]]
 type: RULE
+notes: Recorded 2026-10-01 in v2 chunk 12 (MIDI input); rule text unchanged. A selected input whose port is present but not open (for example, its open failed) is not attached, since attachment requires an open port; it is not lost either, since its port has not reported disconnected. Chunk 12 reads it as away with the selection kept, and the port's next input change (a replug) tries to open it again, a technical choice recorded in docs/midi-input.md AWAITING THE OWNER ACCEPTANCE. No screen shows the controller state yet.
 ---
 
 # When a Controller Counts as Attached or Lost

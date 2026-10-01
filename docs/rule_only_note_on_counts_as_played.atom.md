@@ -10,6 +10,7 @@ parents:
   - [[req_midi_controller_input]]
 dependents: []
 type: RULE
+notes: Recorded 2026-10-01 in v2 chunk 12 (MIDI input); rule text unchanged. A note-off, or a zero-velocity note-on, for a pitch that is not held ends nothing and is ignored, for example a key already down when the controller was connected. Since no note-off can follow, a held note also ends when its controller is lost (at the time its port reports the loss) or another input is selected (at the current audio time), and the controller can end every held note at the session end, which a later chunk wires; so every played note gets a release. Messages from the selected input keep their arrival order on the audio clock, so a release never lands before its onset.
 ---
 
 # Only Note-On Counts as a Played Note

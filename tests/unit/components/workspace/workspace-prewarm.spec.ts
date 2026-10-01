@@ -10,6 +10,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   composeWorkspaceSession,
   type WorkspaceSession,
+  type WorkspaceSessionDependencies,
 } from '@/components/workspace/create-workspace-session'
 import type { WorkspacePrewarmPolicy } from '@/components/workspace/prewarm-policy'
 import { PREWARM_REQUEST_ID, PREWARM_SEED } from '@/composables/generation-session-prewarm'
@@ -34,6 +35,8 @@ import {
   type FakeGenerationWorkerPort,
 } from '../../generation-worker/fake-generation-worker-port'
 import { resetFakeEngraver } from '../../notation/fake-vexflow-engraver-loader'
+import { createFakeMidiAccess } from '../../midi/fake-midi-access'
+import { createMidiController } from '@/midi/midi-controller'
 
 // The fit and room checks plan through the lazy engraver loader; a fake planner answers here.
 vi.mock(
@@ -44,6 +47,19 @@ vi.mock(
 beforeEach(() => {
   resetFakeEngraver()
 })
+
+/**
+ * Intent: a locked transport on a fake audio rig and a MIDI controller on a fake MIDI access that
+ * reads that transport's clock; prewarm never touches either.
+ */
+function fakeAudioAndMidi(): Pick<WorkspaceSessionDependencies, 'audio' | 'midi'> {
+  const { transport } = transportRig()
+  const midi = createMidiController({
+    provider: createFakeMidiAccess(),
+    clock: { anchor: () => transport.clockAnchor() },
+  })
+  return { audio: transport, midi }
+}
 
 /** A workspace over fake seams, with the prewarm and generate calls recorded. */
 interface PrewarmRig {
@@ -80,7 +96,7 @@ function prewarmRig(
     },
     prewarmPolicy: policy,
     prewarm: (intent) => prewarms.push(intent),
-    audio: transportRig().transport,
+    ...fakeAudioAndMidi(),
     dispose: () => undefined,
   })
   return { workspace, viewport, prewarms, generated }
@@ -307,7 +323,7 @@ function workerRig(policy: WorkspacePrewarmPolicy): WorkerRig {
     generate: client.generate,
     prewarmPolicy: policy,
     prewarm: client.prewarm,
-    audio: transportRig().transport,
+    ...fakeAudioAndMidi(),
     dispose: client.dispose,
   })
   return { workspace, port }

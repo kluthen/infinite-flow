@@ -18,6 +18,7 @@ import type { HarmonyEvent } from '../domain/harmony/harmony-types'
 import type {
   AudioOutput,
   AudioTime,
+  ClockAnchor,
   MixGain,
   ScheduledBackingNote,
   SessionBus,
@@ -74,6 +75,8 @@ export interface AudioTransport {
   readonly now: () => AudioTime
   /** The output's latency, in seconds. Throws before unlock. */
   readonly outputLatency: () => number
+  /** One simultaneous reading of the audio clock and performance.now(). Throws before unlock. */
+  readonly clockAnchor: () => ClockAnchor
   /** Start a session's count-in and click at `tempo` BPM. */
   readonly start: (options: { readonly tempo: number }) => TransportTimeline
   /**
@@ -269,6 +272,7 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
     isUnlocked: () => output !== null,
     now: () => unlockedOutput().now(),
     outputLatency: () => unlockedOutput().outputLatency(),
+    clockAnchor: () => unlockedOutput().anchor(),
     start,
     queueBacking,
     phraseStartsAt: (phraseNumber) => phraseStartsAt(runningSession().plan, phraseNumber),

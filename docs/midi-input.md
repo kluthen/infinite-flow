@@ -1,0 +1,263 @@
+# MIDI Input
+
+This document records how `src/midi/` reads the player's MIDI controller: the modules and the
+ports that keep them testable, which messages count as played notes, what "connected" and "lost"
+mean in code, how a lost controller comes back, how a MIDI timestamp is placed on the audio clock,
+how it is tested, and what later chunks add.
+
+## What it is
+
+MIDI input reads **one** MIDI controller at a time: a keyboard, a wind controller, or any device
+that sends MIDI notes. It turns what the player plays into played notes on the audio clock, each
+with its [concert pitch](music/lexicon.md#concert-pitch) (the note as it sounds) given as a
+[MIDI note number](music/lexicon.md#midi-note-number), its velocity (how hard the note was struck,
+1 to 127), its onset (when it started) and, once it ends, its release.
+
+- **Only `src/midi/` uses Web MIDI.** `requestMIDIAccess` is called in one place,
+  `web-midi-access.ts`. Both boundary checks enforce the directory (see
+  [Runtime Constraints](../README.md#runtime-constraints)).
+- **Asked for only by `connect()`.** Building the controller asks the browser for nothing. MIDI
+  permission is requested only when the player clicks "Connect controller" (chunk 13 wires that
+  click), never at page load.
+- **Every state is a normal state.** No Web MIDI, a refused permission, no device: each is a typed
+  state the app works in, never an exception that reaches the page, and none of them blocks a
+  session.
+- **No screen yet.** The workspace session holds the controller as `WorkspaceSession.midi`
+  (`src/components/workspace/create-workspace-session.ts`). Nothing calls it yet: chunk 13's
+  connection sheet will.
+
+The rules come from the master spec's
+[§8, MIDI input and note acknowledgement](../specs/versions/v2/master-spec.md#8-midi-input-and-note-acknowledgement)
+and the controller-connection flow's
+[What "connected" and "lost" mean](../ui_ux/flows/controller-connection/intent.md#what-connected-and-lost-mean).
+
+## The modules
+
+| File                       | Holds                                                                                                           |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `midi-message.ts`          | `parseMidiMessage(data)`: one raw message read as a note-on, a note-off or nothing. Pure.                       |
+| `played-note-tracker.ts`   | `createPlayedNoteTracker()`: the held notes, keyed by pitch, and the played and ended notes they give. Pure.    |
+| `midi-clock-mapping.ts`    | `midiTimestampToAudioTime(timestampMs, anchor)`: a MIDI timestamp placed on the audio clock. Pure.              |
+| `midi-access-port.ts`      | The port: the slice of Web MIDI the controller depends on, as plain structural types.                           |
+| `web-midi-access.ts`       | `createWebMidiAccessProvider(navigator)`: the port on the browser's Web MIDI, and the app's one access request. |
+| `midi-controller-state.ts` | The controller's public shapes: its states, the device snapshot, the change it reports, its typed failure.      |
+| `midi-controller.ts`       | `createMidiController({ provider, clock })`: the one controller, from the access request to the played notes.   |
+
+`createWorkspaceSession` builds the controller on `createWebMidiAccessProvider(navigator)` and on
+the audio transport's clock anchor (see [The audio clock](#the-audio-clock)).
+
+## The ports
+
+The controller talks to the browser only through `MidiAccessProvider` and `MidiAccessPort`,
+declared in `midi-access-port.ts`:
+
+- **Provider** (`MidiAccessProvider`): `isSupported()`, which answers without asking the player
+  anything, and `request()`, which asks for MIDI permission and resolves `granted` with the access,
+  `denied` or `unsupported`.
+- **Access** (`MidiAccessPort`): `inputs()`, the inputs present right now, and
+  `onInputStateChange(listener)`, called whenever a device is plugged or unplugged or a port
+  opens, with the change's timestamp.
+- **Input** (`MidiInputPort`): `id`, `name` and `manufacturer`; the live `state()` (`connected` or
+  `disconnected`) and `connection()` (`open`, `closed` or `pending`); `open()`; and
+  `listen(listener)`, which hands over every raw message with its timestamp.
+
+Why ports: a fake access makes every test deterministic. A test plugs and unplugs devices and
+plays notes at exact times, with no hardware and no permission prompt. The browser adapter reads
+Web MIDI through structural slices of its types, so the real objects fit them and hand-made fakes
+fit them too.
+
+**The browser adapter.** `createWebMidiAccessProvider(navigator)` maps Web MIDI onto the port:
+
+- `isSupported()` checks that `navigator.requestMIDIAccess` exists, without calling it.
+- `request()` makes the app's only `requestMIDIAccess` call, always with `{ sysex: false }`.
+  Without Web MIDI it resolves `unsupported` without calling.
+- A refusal is mapped by its name: `NotAllowedError` (the player refused) and `SecurityError` (the
+  browser refused) resolve `denied`; `NotSupportedError` (the browser can't give MIDI on this
+  system) resolves `unsupported`. Any other rejection is no known state, and throws a
+  `WebMidiAccessError` carrying the browser's own name and message.
+- Each browser input gets one wrapper, cached by the input object, so a port keeps its identity
+  across an unplug and a replug. Outputs are never exposed.
+- A `null` name or manufacturer (Web MIDI's "the system gives none") reads as an empty string.
+  Both are display only.
+
+## The message rules
+
+`parseMidiMessage(data)` reads one raw Web MIDI message:
+
+- **A note-on with velocity above 0 is a played note.** It is the only message that is.
+- **A note-off, or a note-on with velocity 0, ends a note.** Many keyboards send the second form
+  instead of a note-off. Either one is never a played note.
+- **Everything else is ignored:** control change (breath data included), pitch bend, channel and
+  polyphonic aftertouch (pressure on held keys), program change, SysEx and every system message.
+- **Every channel counts.** MIDI carries 16 channels. Input is omni: the channel is reported but
+  never filtered, and every pitch is read as concert pitch.
+- **A broken message throws.** Web MIDI delivers only complete messages. An empty message, one
+  that starts with a data byte, a note message that isn't exactly three bytes, or a data byte with
+  its top bit set throws a `MidiMessageError`.
+
+The played-note tracker turns those messages into played and ended notes:
+
+- **Held notes are keyed by pitch.** A note-on holds its pitch and is reported `played` at once.
+- **A note-off ends the held note** of that pitch, reported `ended` with its onset and release.
+- **A new note-on for a pitch still held** ends the earlier note at the new onset, then plays the
+  new one.
+- **A note-off for a pitch not held is ignored.** That is normal: a key already down when the
+  controller connected, for example.
+- **`releaseAll(at)`** ends every held note at `at`, in onset order: at the session's end, or when
+  the controller is lost.
+
+An ended note has chunk 9's `RecordedPlayedNote` shape (`src/session/session-history.ts`), so the
+session history can record it as it is. `toNoteOnOnAudioClock(note)` hands a played note to chunk
+14's latency compensation (`NoteOnOnAudioClock`), with its onset unchanged.
+
+## Connected, lost and back again
+
+A controller is **connected** once MIDI permission is granted, one input is selected (the
+player's pick, or the only device present) and that input's port is present and open. No note has
+to be played first. It is **lost** when that port reports it has disconnected. This is the one
+definition the header, the connection sheet and the session share (see
+[What "connected" and "lost" mean](../ui_ux/flows/controller-connection/intent.md#what-connected-and-lost-mean)).
+
+The controller's state is derived, after every change, from the permission, the selection and the
+selected port's own readings:
+
+| State           | Meaning                                                                                          |
+| --------------- | ------------------------------------------------------------------------------------------------ |
+| `unsupported`   | This browser has no Web MIDI. Known from the start, without asking the player.                   |
+| `not-requested` | MIDI access was never asked for.                                                                 |
+| `requesting`    | The permission request is in flight.                                                             |
+| `denied`        | The player or the browser refused MIDI access.                                                   |
+| `no-device`     | Access granted, nothing selected, no input present.                                              |
+| `choosing`      | Access granted, nothing selected, inputs present: the player must pick one.                      |
+| `opening`       | The selected input's port is being opened.                                                       |
+| `connected`     | The selected input's port is present and open: the controller is attached.                       |
+| `away`          | The selected input's port is disconnected (lost) or failed to open: not attached, kept selected. |
+
+The last three carry the selected device (`id`, `name`, `manufacturer`). `subscribe(listener)`
+hears every change of state or of the devices present; `onPlayedNote(listener)` hears every played
+and ended note.
+
+- **`connect()` is the only path to the request.** From `not-requested` or `denied` it asks for
+  access; once access is granted it asks no more. Then, with nothing selected, it selects the only
+  device present; with several it leaves the state at `choosing`. An existing selection is kept.
+  It throws from `unsupported` and from `requesting`.
+- **`select(id)`** selects a present input, replacing any selection, then listens to it and opens
+  it. Notes still held on the device it replaces end at once. Only the selected port is ever
+  opened or listened to: several inputs are never merged.
+- **Lost.** When the selected port reports disconnected, the state is `away` and the selection is
+  kept. Notes still held end at the unplug's time, placed on the audio clock.
+- **The same device comes back by itself.** When the selected port reports connected again, the
+  controller reattaches it with no action from the player and no check. If the browser left the
+  port closed, the controller reopens it.
+- **A different device is only listed.** A device plugged in while the selected one is away, or
+  while another is connected, appears in the device list and is never opened or picked up.
+- **`releaseHeld(at)`** ends every held note at `at`, for the session's end.
+
+## The audio clock
+
+A Web MIDI message carries a timestamp in milliseconds on the page's `performance.now()` timeline.
+The session runs on the audio clock, in seconds (see
+[`docs/audio-transport.md`](audio-transport.md#the-clock-anchor)). The two clocks run side by side
+but are not the same clock, so every played note is mapped from one to the other.
+
+- **A clock anchor.** `ClockAnchor` (`src/audio/audio-ports.ts`) is one simultaneous reading of
+  both clocks: an audio time and the `performance.now()` time it corresponds to. The transport
+  gives it as `clockAnchor()`; it throws before the audio is unlocked.
+- **The mapping.** `midiTimestampToAudioTime(timestampMs, anchor)` is
+  `anchor.audioTime + (timestampMs − anchor.performanceTimeMs) / 1000`. A timestamp before the
+  anchor maps to an earlier audio time. A value that isn't a finite number throws a
+  `MidiClockMappingError`.
+- **A fresh anchor per message.** The controller reads a new anchor for each message and each
+  unplug, so a slow drift between the two clocks never builds up over a long session.
+- **On the scheduling timeline.** The real anchor (`web-audio-output.ts`) reads the context's
+  `getOutputTimestamp()`: the audio frame heard at a given `performance.now()` time. It adds the
+  same output latency the playhead reads, which puts the anchor on the timeline the clicks, the
+  backing and the playhead are scheduled on. So the mapped time is the scheduling clock's time at
+  the moment the note was played.
+- **Latency is taken off later, once.** The mapping takes no latency off. Chunk 14's
+  `compensatePlayedNote` subtracts the output latency and the connection delay from the mapped
+  time (see [Latency](midi-acknowledgement.md#latency)), so the output latency is never counted
+  twice.
+- **A stopped audio clock.** Before the context runs, or while it is suspended, interrupted or
+  closed, or while its output timestamp still reads 0, the audio clock stands still. The anchor is
+  then `currentTime` at the page's `performance.now()`, read through an injected function. That is
+  the defined reading of a stopped clock, not a fallback.
+
+## Bluetooth MIDI
+
+USB is the tested path. A Bluetooth LE MIDI controller that the operating system exposes to
+Chromium is read through the same Web MIDI port, with nothing specific to it, but it is
+best-effort until the master spec's open question O71 is settled (see
+[open questions](../specs/versions/v2/master-spec.md#12-open-questions-carried-forward)). Its
+connection delay is one of chunk 14's latency constants.
+
+## How it's tested
+
+Unit tests drive the pure modules directly, and the controller through a fake MIDI access on the
+fake audio rig: every message, every connection state, the lost controller and its return, and the
+clock mapping with a known offset between the two clocks. The browser adapter is tested on
+hand-made fakes of the Web MIDI objects, and the real anchor on a recording fake audio context.
+The workspace harness injects the same fake access through its `midi` seams, and Playwright runs
+the connection states, the message rules and a lost controller on the fake audio clock, repeats a
+scripted run to the same recordings, checks that the production app asks for no MIDI access at
+startup, and runs a smoke test on real Chromium's Web MIDI. See
+[Fake MIDI access](testing.md#fake-midi-access) for how to drive them.
+
+**The real-Chromium smoke proves little.** Headless Chromium answers `denied` even with the `midi`
+permission granted, so the smoke only proves that the adapter turns the browser's answer into a
+typed state. Reading a real controller is checked by hand, with `npm run dev` and a USB device.
+
+## What later chunks add
+
+- **Chunk 13:** the connection sheet. Its "Connect controller" click handler calls
+  `WorkspaceSession.audio.unlock()` and then `midi.connect()`, in that order, and it drives
+  `select(id)` from its device picker. In `no-device`, a device plugged in only moves the state to
+  `choosing`; the sheet calls `connect()` again, which selects it if it is the only one.
+- **Chunks 14 and 17:** each played note is handed to `compensatePlayedNote` through
+  `toNoteOnOnAudioClock` before matching.
+- **Chunk 17:** MIDI in the session. It suspends reattaching for a session started while the
+  selected controller was away, so that session stays controller-less (`rule_start_while_controller_away`),
+  ends the held notes with `releaseHeld(at)` at the session's end, and records the ended notes in
+  the session history. It also decides whether the history and the played-notes export store the
+  raw onsets or the compensated ones: `documentalist` flagged this as open.
+
+## Technical choices made in chunk 12
+
+These were decided in the chunk and await the owner's acceptance:
+
+- **One input, picked by id.** The device's identity is its Web MIDI port id. Chromium keeps the
+  same port object and id when the same device is unplugged and plugged back in within a page, and
+  reopens a port that was open. There is no match on name or manufacturer, so two identical
+  keyboards stay two distinct devices.
+- **The selection lives in memory only.** It survives an unplug but not a page reload: v2 saves
+  nothing to browser storage.
+- **Only device present, picked by `connect()`.** With exactly one device and nothing selected,
+  `connect()` selects it, so the common case needs no pick. A device plugged in later is not
+  picked up on its own: the next `connect()` does it.
+- **Reattach with no check.** The same port coming back is reattached and, if needed, reopened at
+  once. The transposition check is not run again.
+- **Held notes end when they can't end otherwise.** On an unplug they end at the unplug's mapped
+  time; on a switch to another device, at the current audio time. So every played note gets a
+  release.
+- **A rejected access request is no state of its own.** When `request()` rejects for an unknown
+  reason, the controller goes back to the stage it started from and rethrows the same error, so a
+  later `connect()` can ask again.
+- **A stale open changes nothing.** An open that completes after a newer one started is ignored,
+  so a quick second pick always wins.
+- **A failed open is `away`.** When the selected port's open rejects, the state is `away` with the
+  selection kept and the error still reaches the caller, and the port's next input change (a
+  replug) opens it again.
+- **Message order beats clock jitter.** Web MIDI delivers a port's messages in order, so a
+  message's audio time is never earlier than the last one mapped from the same selection, which
+  keeps a quick release from landing before its onset when two anchors read a few milliseconds
+  apart disagree.
+- **No SysEx.** The request is always `{ sysex: false }`: SysEx is ignored anyway, and asking for
+  it prompts a stronger permission.
+- **`NotSupportedError` reads as `unsupported`.** For the player, a browser that can't give MIDI
+  on this system means the same as a browser without Web MIDI.
+- **One wrapper per browser input.** The adapter caches wrappers by the input object, so the
+  identity the controller relies on survives a replug.
+- **The anchor is on the scheduling timeline.** The output latency is added to the output
+  timestamp, so compensation subtracts it once and only once.
+- **A fresh anchor per message,** rather than one anchor read at unlock, so clock drift never
+  builds up.

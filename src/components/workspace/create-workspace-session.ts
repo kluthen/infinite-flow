@@ -40,6 +40,8 @@ import {
 import type { SessionStart } from '@/session/session-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { createBrowserAudioTransport } from '@/audio/browser-audio-transport'
+import { createMidiController, type MidiController } from '@/midi/midi-controller'
+import { createWebMidiAccessProvider } from '@/midi/web-midi-access'
 import { createBrowserViewportWidth } from './browser-viewport-width'
 import type { WorkspacePrewarmPolicy } from './prewarm-policy'
 
@@ -83,16 +85,25 @@ export interface WorkspaceSession {
   // @spec-link [[req_session_audio_mix]]
   // @spec-link [[rule_audio_unlocked_by_player_click]]
   readonly audio: AudioTransport
+  /**
+   * The app's one MIDI controller reading, its notes placed on `audio`'s clock. MIDI access is
+   * requested only by `midi.connect()`, which chunk 13's "Connect controller" click handler calls
+   * right after `audio.unlock()`; no screen uses it yet.
+   */
+  // @spec-link [[req_midi_controller_input]]
+  // @spec-link [[rule_controller_connects_between_sessions]]
+  readonly midi: MidiController
   readonly dispose: () => void
 }
 
 /**
  * The explicit dependency surface `composeWorkspaceSession` needs: identity/seed providers, the
  * window-width provider, the raw orchestration-outcome `generate` seam (plus its teardown), the
- * prewarm policy and seam, and the audio transport. Production supplies the cryptographic seed
- * provider, the `matchMedia` width provider, the real worker client and the Web Audio transport; a
- * harness supplies deterministic, gated, or failure-injecting equivalents that still call through
- * to the real worker, and a transport on a fake or a recorded real audio output.
+ * prewarm policy and seam, the audio transport and the MIDI controller. Production supplies the
+ * cryptographic seed provider, the `matchMedia` width provider, the real worker client, the Web
+ * Audio transport and the Web MIDI controller; a harness supplies deterministic, gated, or
+ * failure-injecting equivalents that still call through to the real worker, a transport on a fake
+ * or a recorded real audio output, and a controller on a fake or the real MIDI access.
  */
 // @spec-link [[service_workspace_session_flow]]
 export interface WorkspaceSessionDependencies {
@@ -107,6 +118,13 @@ export interface WorkspaceSessionDependencies {
   // @spec-link [[req_session_audio_mix]]
   // @spec-link [[rule_audio_unlocked_by_player_click]]
   readonly audio: AudioTransport
+  /**
+   * The MIDI controller, reading the clock of `audio`, passed through unchanged as
+   * `WorkspaceSession.midi`. Building the session never requests MIDI access.
+   */
+  // @spec-link [[req_midi_controller_input]]
+  // @spec-link [[rule_controller_connects_between_sessions]]
+  readonly midi: MidiController
   readonly dispose: () => void
 }
 
@@ -135,7 +153,8 @@ function createRequestIdProvider(): () => ReturnType<typeof makeRequestId> {
 
 /**
  * Intent: build one workspace session from explicit dependencies: the identity/seed providers,
- * the raw orchestration `generate` seam, its teardown, and the audio transport, exposed unchanged. Wires the same notation coordinator
+ * the raw orchestration `generate` seam, its teardown, and the audio transport and MIDI controller,
+ * both exposed unchanged. Wires the same notation coordinator
  * (which also answers the session's pre-draw fit and room checks from the staff's reported layout
  * inputs) and profile-switch policy production always uses, so the only thing a caller can vary is where
  * requests/seeds and generation outcomes come from. Session runners it starts share the Idle
@@ -199,6 +218,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
         input.start,
       ),
     audio: deps.audio,
+    midi: deps.midi,
     dispose: () => {
       created.dispose()
       deps.dispose()
@@ -216,16 +236,24 @@ export interface ProductionWorkspaceSessionOptions {
 /**
  * Intent: build the root workspace session used by `App.vue` in production: a real worker-backed
  * generation seam and its prewarm under the given policy, the cryptographic seed provider, a
- * monotonic request-id provider, the window's own `matchMedia` width provider, and the Web Audio
- * transport, still locked: no audio context exists until a player click unlocks it.
+ * monotonic request-id provider, the window's own `matchMedia` width provider, the Web Audio
+ * transport, still locked: no audio context exists until a player click unlocks it, and the Web
+ * MIDI controller on that transport's clock, which requests no MIDI access until `connect()`.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[rule_audio_unlocked_by_player_click]]
+// @spec-link [[rule_controller_connects_between_sessions]]
+// @spec-link [[rule_chromium_only_support]]
 export function createWorkspaceSession(
   options: ProductionWorkspaceSessionOptions,
 ): WorkspaceSession {
   const port = createBrowserGenerationWorker()
   const client = createGenerationWorkerClient(port)
+  const audio = createBrowserAudioTransport()
+  const midi = createMidiController({
+    provider: createWebMidiAccessProvider(navigator),
+    clock: { anchor: () => audio.clockAnchor() },
+  })
   return composeWorkspaceSession({
     providers: {
       nextRequestId: createRequestIdProvider(),
@@ -235,7 +263,8 @@ export function createWorkspaceSession(
     generate: client.generate,
     prewarmPolicy: options.prewarmPolicy,
     prewarm: client.prewarm,
-    audio: createBrowserAudioTransport(),
+    audio,
+    midi,
     dispose: client.dispose,
   })
 }
