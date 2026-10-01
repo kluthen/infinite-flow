@@ -429,6 +429,15 @@ Notes for either variant:
 - **Deploying an update:** `git pull && docker compose up -d --build` on the host; Caddy needs no
   change for an app-only update since it only ever proxies to the container.
 
+### Deploying to the VPS
+
+The production VPS is managed from a local checkout with [`scripts/vps.sh`](scripts/vps.sh), which
+only ever touches `~/infinite-flow` there: `update [ref]` ships a committed ref (default `HEAD`) via
+`git archive`, rebuilds and restarts; `rollback` returns to the previous image; `stop`, `start` and
+the read-only `status` do what they say. `update`, `start` and `rollback` end with a health and HTTP
+check of the app and the shared site; `stop` checks the shared site still answers. `VPS_HOST`
+overrides the SSH host alias (default `vps`).
+
 ## Product References
 
 - [First-release master specification](specs/first-release-master-spec.md) — the implementation
