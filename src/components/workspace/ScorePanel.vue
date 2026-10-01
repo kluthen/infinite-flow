@@ -8,6 +8,8 @@
  * `PhraseScore` so a later Retry notation can redraw the same instance rather than remounting it,
  * or the "staff needs more room" notice laid over the same reserved positions. It forwards the
  * staff's layout inputs to the workspace, whose pre-draw fit and room checks plan against them.
+ * The toolbar also holds the audio mix (`MixControls`), which drives the session's audio transport.
+ * Between the banner's position and the staff sits `SessionCueRow`, the practice session's cues.
  */
 import { computed, nextTick, ref, watch } from 'vue'
 
@@ -19,6 +21,11 @@ import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import { NOTATION_PHONE_LAYOUT_MEDIA_QUERY } from '@/notation/notation-layout-policy'
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
+import type { AudioTransport } from '@/audio/audio-transport'
+import MixControls from './MixControls.vue'
+import SessionCueRow from './SessionCueRow.vue'
+import type { MixVolumePopover } from './mix-volume-popover'
+import type { SessionController } from './workspace-session-controller-types'
 
 // @spec-link [[module_idle_fit_round]]
 const props = withDefaults(
@@ -28,6 +35,12 @@ const props = withDefaults(
     handleEngraved: () => void
     handleNotationError: (error: NotationError) => void
     handleLayoutInputs: (inputs: StaffLayoutInputs) => void
+    /** The session's audio transport, whose mix the toolbar's audio mix sets. */
+    audio: AudioTransport
+    /** The one volume popover, shared with the phone's compact `Volume` in the session cue row. */
+    mixPopover: MixVolumePopover
+    /** The session controller the cue row shows; null while its lazy chunk loads. */
+    controller: SessionController | null
     /**
      * Whether the notation layout's width query matches now, which is also the query the
      * stylesheet shows `room-notice-narrow` by; the window's own `matchMedia` by default.
@@ -38,7 +51,26 @@ const props = withDefaults(
   { matchesPhoneLayout: () => window.matchMedia(NOTATION_PHONE_LAYOUT_MEDIA_QUERY).matches },
 )
 
+const emit = defineEmits<{
+  /** The cue row's compact `Stop` was clicked. */
+  'stop-session': []
+}>()
+
 const state = computed(() => props.session.state)
+
+const roomNoticeElement = ref<HTMLElement | null>(null)
+
+/**
+ * Intent: move focus to `room-notice` (a session ended during its count-in into Needs more room);
+ * it must be on screen.
+ */
+// @spec-link [[rule_count_in_ending_returns_to_idle]]
+function focusRoomNotice(): void {
+  if (roomNoticeElement.value === null) throw new Error('score panel: room-notice is not shown')
+  roomNoticeElement.value.focus()
+}
+
+defineExpose({ focusRoomNotice })
 
 const statusText = ref('')
 
@@ -216,6 +248,7 @@ const generationErrorAlertText = computed(() =>
       <p class="generation-status" role="status" aria-live="polite" aria-atomic="true">
         {{ statusText }}
       </p>
+      <MixControls :audio="audio" :popover="mixPopover" />
       <p class="notation-status" role="status" aria-live="polite" aria-atomic="true">
         {{ notationStatusText }}
       </p>
@@ -223,6 +256,12 @@ const generationErrorAlertText = computed(() =>
     <p v-if="generationErrorAlertText !== null" class="inline-alert alert-error">
       {{ generationErrorAlertText }}
     </p>
+    <SessionCueRow
+      :controller="controller"
+      :audio="audio"
+      :mix-popover="mixPopover"
+      @stop="emit('stop-session')"
+    />
     <div class="staff-viewport">
       <div class="staff-frame" :class="staffFrameStateClass" aria-labelledby="score-panel-title">
         <!-- The idle phrase is the phrase a session starts with, phrase 1. -->
@@ -235,11 +274,21 @@ const generationErrorAlertText = computed(() =>
         >
           <p v-if="showEmptyInstruction" class="staff-empty-copy">Generate a phrase to begin.</p>
           <!-- The stylesheet shows one no-room sentence by the notation layout's width query. -->
-          <p v-if="roomNotice === 'no_room'" class="room-notice" tabindex="-1">
+          <p
+            v-if="roomNotice === 'no_room'"
+            ref="roomNoticeElement"
+            class="room-notice"
+            tabindex="-1"
+          >
             <span class="room-notice-wide">{{ ROOM_NOTICE_WIDE }}</span>
             <span class="room-notice-narrow">{{ ROOM_NOTICE_NARROW }}</span>
           </p>
-          <p v-else-if="roomNotice === 'notes_too_wide'" class="room-notice" tabindex="-1">
+          <p
+            v-else-if="roomNotice === 'notes_too_wide'"
+            ref="roomNoticeElement"
+            class="room-notice"
+            tabindex="-1"
+          >
             {{ ROOM_NOTICE_TOO_MANY_NOTES }}
           </p>
           <p v-if="notationErrorMessage !== null" class="inline-alert alert-error">

@@ -205,3 +205,8 @@ export function isAudioUnlocked(page: Page): Promise<boolean> {
 export function mixDesign(page: Page): Promise<WorkspaceHarnessMixDesign> {
   return page.evaluate(() => window.__workspaceHarness.audio.mixDesign())
 }
+
+/** Intent: the transport's mix now, as the toolbar's audio mix left it. */
+export function audioMix(page: Page): Promise<WorkspaceHarnessMixDesign['defaults']> {
+  return page.evaluate(() => window.__workspaceHarness.audio.mix())
+}

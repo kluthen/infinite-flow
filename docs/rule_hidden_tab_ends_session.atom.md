@@ -9,6 +9,7 @@ parents:
   - [[rule_stop_ends_session]]
 dependents:
   - [[service_session_engine]]
+  - [[service_workspace_session_flow]]
 layer: BUSINESS
 version: 0.1
 tags: [v2, release-v2.0, session, session-end]

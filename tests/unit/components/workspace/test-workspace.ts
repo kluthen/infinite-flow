@@ -14,12 +14,14 @@ import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
+import type { AudioTransport } from '@/audio/audio-transport'
 import { CHEAP_CONTROLS, buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
 import { createFakeStaffFit, type FakeStaffFit } from '../../composables/fake-staff-fit'
 import {
   createFakeViewportWidth,
   type FakeViewportWidth,
 } from '../../composables/fake-viewport-width'
+import { transportRig } from '../../audio/transport-rig'
 
 export interface TestWorkspace {
   readonly session: GenerationSession<WorkspaceSessionResult>
@@ -33,6 +35,8 @@ export interface TestWorkspace {
   readonly staff: FakeStaffFit<WorkspaceSessionResult>
   /** The fake window width the session reads: from `bp-tablet-landscape` up unless a test moves it. */
   readonly viewport: FakeViewportWidth
+  /** A real audio transport on the fake audio clock, its mix read from the stylesheet's tokens. */
+  readonly audio: AudioTransport
 }
 
 /** Intent: the default fake generate seam -- always the same cheap, real generation result. */
@@ -83,6 +87,7 @@ export function createTestWorkspace(
     layoutReports,
     staff,
     viewport,
+    audio: transportRig().transport,
   }
 }
 

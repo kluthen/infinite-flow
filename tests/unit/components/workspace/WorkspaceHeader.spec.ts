@@ -9,7 +9,9 @@ import {
   DEFAULT_PROFILE_SELECTION,
 } from '@/domain/controls/profile-selection'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
+import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
+import { createFakeSessionController } from './fake-session-controller'
 
 const UNSUPPORTED_CONTROLS: GenerationControls = {
   ...DEFAULT_GENERATION_CONTROLS,
@@ -58,8 +60,22 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
   return { session, actions }
 }
 
+/** Intent: mount the header over `session`, with no session controller loaded unless given. */
+function mountHeader(
+  session: GenerationSession<WorkspaceSessionResult>,
+  controller: SessionController | null = null,
+) {
+  return mount(WorkspaceHeader, { props: { session, controller }, attachTo: document.body })
+}
+
+/** Intent: the phrase action, the header's first action slot, whatever its emphasis. */
 function primaryButton(wrapper: ReturnType<typeof mount>) {
-  return wrapper.get('button.btn-primary')
+  return wrapper.get('.header-actions > button:not(.session-action)')
+}
+
+/** Intent: the session action, the header's second action slot. */
+function sessionAction(wrapper: ReturnType<typeof mount>) {
+  return wrapper.get('.header-actions > button.session-action')
 }
 
 // @test-link [[user_story_controlled_phrase_generation]]
@@ -67,28 +83,28 @@ function primaryButton(wrapper: ReturnType<typeof mount>) {
 describe('WorkspaceHeader', () => {
   it('renders the brand mark', () => {
     const { session } = fakeSession()
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     expect(wrapper.get('h1.brand-mark').text()).toBe('Infinite Flow')
   })
 
   it('labels the primary action "Generate phrase" with no prior result or errors', () => {
     const { session } = fakeSession()
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     expect(primaryButton(wrapper).text()).toBe('Generate phrase')
   })
 
   it('labels the primary action "Regenerate phrase" once a result exists', () => {
     const { session } = fakeSession({ result: buildWorkspaceSessionResult() })
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     expect(primaryButton(wrapper).text()).toBe('Regenerate phrase')
   })
 
   it('labels the primary action "Retry generation" after a generation error', () => {
     const { session } = fakeSession({ generationError: new Error('boom') })
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     expect(primaryButton(wrapper).text()).toBe('Retry generation')
   })
@@ -98,21 +114,21 @@ describe('WorkspaceHeader', () => {
       generationError: new Error('boom'),
       notationError: new Error('notation boom'),
     })
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     expect(primaryButton(wrapper).text()).toBe('Retry notation')
   })
 
   it('disables the primary action while an operation is running', () => {
     const { session } = fakeSession({ operation: 'generating' })
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     expect(primaryButton(wrapper).attributes('disabled')).toBeDefined()
   })
 
   it('disables Generate under an unsupported rhythm combination', () => {
     const { session } = fakeSession({ controls: UNSUPPORTED_CONTROLS })
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     expect(primaryButton(wrapper).attributes('disabled')).toBeDefined()
   })
@@ -131,12 +147,8 @@ describe('WorkspaceHeader', () => {
       noteDensityContext: { belowTabletLandscape: true, sessionSteppedDown: false },
     }).session
 
-    expect(
-      primaryButton(mount(WorkspaceHeader, { props: { session: wide } })).attributes('disabled'),
-    ).toBeDefined()
-    expect(
-      primaryButton(mount(WorkspaceHeader, { props: { session: narrow } })).attributes('disabled'),
-    ).toBeUndefined()
+    expect(primaryButton(mountHeader(wide)).attributes('disabled')).toBeDefined()
+    expect(primaryButton(mountHeader(narrow)).attributes('disabled')).toBeUndefined()
   })
 
   it('does not disable Retry notation for an unsupported rhythm combination', () => {
@@ -144,14 +156,14 @@ describe('WorkspaceHeader', () => {
       controls: UNSUPPORTED_CONTROLS,
       notationError: new Error('notation boom'),
     })
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     expect(primaryButton(wrapper).attributes('disabled')).toBeUndefined()
   })
 
   it('invokes generate() when the primary action is clicked in the generate state', async () => {
     const { session, actions } = fakeSession()
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     await primaryButton(wrapper).trigger('click')
 
@@ -160,7 +172,7 @@ describe('WorkspaceHeader', () => {
 
   it('invokes retryNotation() when the primary action is clicked in the retry-notation state', async () => {
     const { session, actions } = fakeSession({ notationError: new Error('notation boom') })
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     await primaryButton(wrapper).trigger('click')
 
@@ -169,7 +181,7 @@ describe('WorkspaceHeader', () => {
 
   it('never invokes any action when the primary action is clicked while disabled', async () => {
     const { session, actions } = fakeSession({ operation: 'generating' })
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     await primaryButton(wrapper).trigger('click')
 
@@ -181,7 +193,7 @@ describe('WorkspaceHeader', () => {
 
   it('calls setTheme on a theme selection, and never generate or notation-reporting actions', async () => {
     const { session, actions } = fakeSession()
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     const themeGroup = wrapper.get('[aria-label="Presentation theme"]')
     await themeGroup.findAll('button')[1]!.trigger('click')
@@ -194,7 +206,7 @@ describe('WorkspaceHeader', () => {
 
   it('has no independently selectable display-notation control', () => {
     const { session } = fakeSession()
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     expect(wrapper.find('[aria-label="Display notation"]').exists()).toBe(false)
   })
@@ -207,7 +219,7 @@ describe('WorkspaceHeader under the room notice', () => {
     'offers an enabled "Regenerate phrase" under the %s notice, which has no phrase behind it',
     async (roomNotice) => {
       const { session, actions } = fakeSession({ roomNotice, result: null })
-      const wrapper = mount(WorkspaceHeader, { props: { session } })
+      const wrapper = mountHeader(session)
 
       const action = primaryButton(wrapper)
       expect(action.text()).toBe('Regenerate phrase')
@@ -226,7 +238,7 @@ describe('WorkspaceHeader under the room notice', () => {
       result: null,
       generationError: new Error('boom'),
     })
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     const action = primaryButton(wrapper)
     expect(action.text()).toBe('Retry generation')
@@ -244,11 +256,140 @@ describe('WorkspaceHeader under the room notice', () => {
       operation: 'generating',
       retriesRunning: true,
     })
-    const wrapper = mount(WorkspaceHeader, { props: { session } })
+    const wrapper = mountHeader(session)
 
     const action = primaryButton(wrapper)
     expect(action.text()).toBe('Regenerate phrase')
     expect(action.attributes('disabled')).toBeDefined()
     expect(action.classes()).toContain('is-loading')
+  })
+})
+
+/** Ready: a phrase engraved on the staff, nothing running. */
+const READY = { result: buildWorkspaceSessionResult(), resultEngraved: true } as const
+
+// @test-link [[rule_session_start_conditions]]
+// @test-link [[rule_session_settings_locked]]
+// @test-link [[rule_stop_ends_session]]
+describe('WorkspaceHeader session action', () => {
+  it('follows the phrase action as `btn btn-lg session-action`, disabled until the controller loads', () => {
+    const wrapper = mountHeader(fakeSession(READY).session, null)
+
+    const buttons = wrapper.findAll('.header-actions > button')
+    expect(buttons).toHaveLength(2)
+    expect(buttons[1]!.classes()).toEqual(
+      expect.arrayContaining(['btn', 'btn-lg', 'session-action']),
+    )
+    expect(buttons[1]!.text()).toBe('Start session')
+    expect(buttons[1]!.attributes('disabled')).toBeDefined()
+  })
+
+  it('makes Start session the enabled primary action in Ready, the phrase action secondary', () => {
+    const wrapper = mountHeader(
+      fakeSession(READY).session,
+      createFakeSessionController().controller,
+    )
+
+    expect(sessionAction(wrapper).classes()).toContain('btn-primary')
+    expect(sessionAction(wrapper).attributes('disabled')).toBeUndefined()
+    expect(primaryButton(wrapper).classes()).not.toContain('btn-primary')
+    expect(primaryButton(wrapper).attributes('disabled')).toBeUndefined()
+  })
+
+  it('keeps Start session secondary and disabled in Empty, the phrase action primary', () => {
+    const controller = createFakeSessionController({ canStart: false, startBlocker: 'no_phrase' })
+    const wrapper = mountHeader(fakeSession().session, controller.controller)
+
+    expect(sessionAction(wrapper).classes()).not.toContain('btn-primary')
+    expect(sessionAction(wrapper).attributes('disabled')).toBeDefined()
+    expect(primaryButton(wrapper).classes()).toContain('btn-primary')
+  })
+
+  it('keeps Start session primary but disabled while a phrase loads', () => {
+    const controller = createFakeSessionController({
+      canStart: false,
+      startBlocker: 'generation_running',
+    })
+    const wrapper = mountHeader(
+      fakeSession({ ...READY, operation: 'generating' }).session,
+      controller.controller,
+    )
+
+    expect(sessionAction(wrapper).classes()).toContain('btn-primary')
+    expect(sessionAction(wrapper).attributes('disabled')).toBeDefined()
+    expect(primaryButton(wrapper).classes()).not.toContain('btn-primary')
+  })
+
+  it('keeps Start session disabled over the phrase the last session played (interim)', () => {
+    const controller = createFakeSessionController({
+      canStart: false,
+      startBlocker: 'phrase_already_played',
+    })
+    const wrapper = mountHeader(fakeSession(READY).session, controller.controller)
+
+    expect(sessionAction(wrapper).attributes('disabled')).toBeDefined()
+    expect(sessionAction(wrapper).classes()).not.toContain('btn-primary')
+    expect(primaryButton(wrapper).classes()).toContain('btn-primary')
+    expect(primaryButton(wrapper).attributes('disabled')).toBeUndefined()
+  })
+
+  it('asks for a session start on a click, and for nothing while disabled', async () => {
+    const ready = mountHeader(fakeSession(READY).session, createFakeSessionController().controller)
+    await sessionAction(ready).trigger('click')
+    expect(ready.emitted('start-session')).toHaveLength(1)
+
+    const empty = mountHeader(
+      fakeSession().session,
+      createFakeSessionController({ canStart: false, startBlocker: 'no_phrase' }).controller,
+    )
+    await sessionAction(empty).trigger('click')
+    expect(empty.emitted('start-session')).toBeUndefined()
+  })
+
+  // @test-link [[rule_session_settings_locked]]
+  it('reads Stop, primary, during a session, with the phrase action disabled and secondary', async () => {
+    const fake = createFakeSessionController()
+    const wrapper = mountHeader(fakeSession(READY).session, fake.controller)
+    fake.start()
+    await wrapper.vm.$nextTick()
+
+    expect(sessionAction(wrapper).text()).toBe('Stop')
+    expect(sessionAction(wrapper).classes()).toContain('btn-primary')
+    expect(sessionAction(wrapper).attributes('disabled')).toBeUndefined()
+    expect(primaryButton(wrapper).attributes('disabled')).toBeDefined()
+    expect(primaryButton(wrapper).classes()).not.toContain('btn-primary')
+    expect(primaryButton(wrapper).classes()).not.toContain('is-loading')
+
+    await sessionAction(wrapper).trigger('click')
+    expect(wrapper.emitted('stop-session')).toHaveLength(1)
+    expect(wrapper.emitted('start-session')).toBeUndefined()
+  })
+
+  // @test-link [[rule_session_settings_locked]]
+  it('shows the session tempo in tempo-readout during a session', async () => {
+    const fake = createFakeSessionController()
+    const wrapper = mountHeader(fakeSession(READY).session, fake.controller)
+    fake.start()
+    fake.state.sessionTempo = 132
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.get('.tempo-readout').text()).toBe('132 BPM')
+  })
+
+  it('moves focus to either action on request', () => {
+    const wrapper = mountHeader(
+      fakeSession(READY).session,
+      createFakeSessionController().controller,
+    )
+    const exposed = wrapper.vm as unknown as {
+      focusSessionAction: () => void
+      focusPhraseAction: () => void
+    }
+
+    exposed.focusSessionAction()
+    expect(document.activeElement).toBe(sessionAction(wrapper).element)
+    exposed.focusPhraseAction()
+    expect(document.activeElement).toBe(primaryButton(wrapper).element)
+    wrapper.unmount()
   })
 })

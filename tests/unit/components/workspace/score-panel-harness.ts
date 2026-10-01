@@ -8,6 +8,7 @@ import { expect } from 'vitest'
 import { defineComponent, h, type PropType } from 'vue'
 
 import ScorePanel from '@/components/workspace/ScorePanel.vue'
+import { createMixVolumePopover } from '@/components/workspace/mix-volume-popover'
 import { TOO_WIDE } from '../../composables/fake-staff-fit'
 import { PHRASE_SCORE_STUB, type TestWorkspace } from './test-workspace'
 
@@ -20,6 +21,7 @@ const ScorePanelHarness = defineComponent({
     matchesPhoneLayout: { type: Function as PropType<() => boolean>, required: true },
   },
   setup(props) {
+    const mixPopover = createMixVolumePopover('mix-volume-popover')
     return () =>
       h(ScorePanel, {
         session: (props.workspace as TestWorkspace).session,
@@ -27,6 +29,9 @@ const ScorePanelHarness = defineComponent({
         handleEngraved: (props.workspace as TestWorkspace).handleEngraved,
         handleNotationError: (props.workspace as TestWorkspace).handleNotationError,
         handleLayoutInputs: (props.workspace as TestWorkspace).handleLayoutInputs,
+        audio: (props.workspace as TestWorkspace).audio,
+        mixPopover,
+        controller: null,
         matchesPhoneLayout: props.matchesPhoneLayout,
       })
   },

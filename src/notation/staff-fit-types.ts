@@ -31,3 +31,14 @@ export type StaffRoomVerdict =
 
 /** The key signature the staff's fixed parts are measured with (it sets their width). */
 export type StaffKeySignature = WrittenKey['signature']
+
+/**
+ * The widths of the staff's fixed parts for one key signature, in engraving units at scale 1: the
+ * leading clef, key signature and time signature, and the system padding. With the container
+ * width, they are all the phrase-independent room check needs.
+ */
+// @spec-link [[rule_session_ends_when_staff_too_small]]
+export interface StaffFixedParts {
+  readonly leadingWidth: number
+  readonly systemPadding: number
+}

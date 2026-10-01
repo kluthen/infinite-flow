@@ -262,7 +262,7 @@ async function verifyBoundaries() {
    * targeted check. Every other JS chunk is expected to stay small; an unmatched chunk falls back to
    * the tightest budget so unexpected new chunks are still guarded.
    */
-  const entryChunkByteBudget = 200 * 1024
+  const entryChunkByteBudget = 212 * 1024 // chunk 15: session screen controls
   const generationWorkerChunkByteBudget = 150 * 1024
   const vexflowEngraverChunkByteBudget = 800 * 1024
   const defaultChunkByteBudget = 100 * 1024

@@ -168,6 +168,8 @@ interface WorkspaceHarnessAudioApi {
   backingNotes: () => readonly WorkspaceHarnessBackingNote[]
   /** The recorded backing notes that sound, with the gain they sound at. */
   audibleBacking: () => readonly WorkspaceHarnessAudibleBackingNote[]
+  /** The transport's mix now: the four controls the audio mix in the toolbar sets. */
+  mix: () => WorkspaceHarnessMixDesign['defaults']
   setClickOn: (on: boolean) => void
   setClickVolume: (level: number) => void
   setBackingOn: (on: boolean) => void
@@ -266,6 +268,96 @@ interface WorkspaceHarnessMidiApi {
   stateLog: () => readonly WorkspaceHarnessMidiStateKind[]
 }
 
+/** How the harness's fake browser answers the next requests for one screen lock. */
+type WorkspaceHarnessScreenLockBehaviour = 'grant' | 'refuse' | 'unsupported'
+
+/**
+ * One logged screen-lock event (tests/unit/session/fake-session-browser.ts's
+ * `FakeScreenLockEvent`): a request, the browser's answer to it (`grant`, `refuse`,
+ * `unsupported`), a release call, or the browser dropping a held lock on its own.
+ */
+type WorkspaceHarnessScreenLockEvent =
+  'request' | 'grant' | 'refuse' | 'unsupported' | 'release' | 'drop'
+
+/** One fake screen lock (the wake lock or the landscape orientation lock). */
+interface WorkspaceHarnessScreenLockApi {
+  /** Choose how every later request is answered; `grant` from page load. */
+  setBehaviour: (behaviour: WorkspaceHarnessScreenLockBehaviour) => void
+  /** How many requests the session made since the page loaded. */
+  requests: () => number
+  /** How many release calls the session made since the page loaded, holding a lock or not. */
+  releases: () => number
+  /** Whether the lock is held now. */
+  isHeld: () => boolean
+  /** Every event since the page loaded, in order. */
+  log: () => readonly WorkspaceHarnessScreenLockEvent[]
+  /** The browser drops the held lock on its own; throws if none is held. */
+  drop: () => void
+}
+
+/** The session's two screen locks, both fakes. */
+interface WorkspaceHarnessScreenLocksApi {
+  wake: WorkspaceHarnessScreenLockApi
+  orientation: WorkspaceHarnessScreenLockApi
+}
+
+/** The session's page visibility, a fake: the real document stays visible. */
+interface WorkspaceHarnessPageApi {
+  /** Hide or show the page; a change to hidden tells the session, as `visibilitychange` does. */
+  setHidden: (hidden: boolean) => void
+  isHidden: () => boolean
+}
+
+/** The window's shape in CSS px, as the session's real window-shape port reads it. */
+interface WorkspaceHarnessWindowShape {
+  readonly widthPx: number
+  /** The small viewport height (100svh). */
+  readonly smallHeightPx: number
+  /** The browser's initial font size, the rem media queries use. */
+  readonly remPx: number
+}
+
+/** One count-in beat as the cue row shows it. */
+type WorkspaceHarnessCountInBeat = 'muted' | 'current' | 'past'
+
+/** Why a session ended (src/session/session-types.ts's `SessionEndCause`). */
+type WorkspaceHarnessSessionEndCause = 'stop' | 'hidden-tab' | 'staff-not-shown'
+
+/**
+ * The session controller's state as plain JSON (src/components/workspace/
+ * workspace-session-controller-types.ts's `SessionControllerState`), its last closed history
+ * reduced to the number of phrases it recorded.
+ */
+interface WorkspaceHarnessSessionState {
+  readonly phase: 'idle' | 'count-in' | 'running'
+  /** The count-in row while the count-in runs: one state per beat, and when it next changes. */
+  readonly countIn: {
+    readonly beats: readonly WorkspaceHarnessCountInBeat[]
+    readonly nextChangeAt: number
+  } | null
+  readonly strugglingNotice: boolean
+  readonly sessionTempo: number | null
+  readonly heldLayout: 'one-system' | 'split' | null
+  readonly canStart: boolean
+  /** The first start condition that does not hold (`session-start-conditions.ts`), or null. */
+  readonly startBlocker: string | null
+  readonly lastEnd: {
+    readonly cause: WorkspaceHarnessSessionEndCause
+    readonly phase: 'count-in' | 'running'
+    readonly soundedPhraseCount: number
+  } | null
+  /** How many phrases the last ended session's history recorded; null before any end. */
+  readonly lastHistoryPhraseCount: number | null
+}
+
+/** The workspace's session controller, read only: a spec drives it through the app's buttons. */
+interface WorkspaceHarnessSessionApi {
+  /** Whether the controller's lazy chunk has loaded and the app holds it. */
+  loaded: () => boolean
+  /** The controller's state now. Throws before it has loaded. */
+  state: () => WorkspaceHarnessSessionState
+}
+
 interface WorkspaceHarnessApi {
   /** Append deterministic seeds to the queue `nextSeed()` draws from first, in call order. */
   queueSeeds: (seeds: readonly number[]) => void
@@ -274,10 +366,17 @@ interface WorkspaceHarnessApi {
   /** Release the current hold; every gated `generate` call resumes immediately. */
   releaseGeneration: () => void
   /**
-   * Arm exactly one forced generation failure using the given real orchestration failure code,
-   * applied to the `generate` call after `skip` more (default 0) have passed through for real.
+   * Arm forced generation failures using the given real orchestration failure code: the `count`
+   * (default 1) `generate` calls in a row after `skip` more (default 0) have passed through for
+   * real. Arming again replaces what is still armed.
    */
-  failNextGeneration: (code: WorkspaceHarnessGenerationFailureCode, skip?: number) => void
+  failNextGeneration: (
+    code: WorkspaceHarnessGenerationFailureCode,
+    skip?: number,
+    count?: number,
+  ) => void
+  /** How many `generate` calls have returned since the page loaded: forced failures and answers. */
+  generationsSettled: () => number
   /**
    * Arm exactly one forced notation failure on the next engraving (a draw or a redraw), with this
    * code: `notation_engraving_failed` (the default, retryable) or a staff layout failure.
@@ -307,6 +406,14 @@ interface WorkspaceHarnessApi {
   audio: WorkspaceHarnessAudioApi
   /** The MIDI controller's seams (see `WorkspaceHarnessMidiApi`). */
   midi: WorkspaceHarnessMidiApi
+  /** The session's screen locks (see `WorkspaceHarnessScreenLocksApi`). */
+  screenLocks: WorkspaceHarnessScreenLocksApi
+  /** The session's page visibility (see `WorkspaceHarnessPageApi`). */
+  page: WorkspaceHarnessPageApi
+  /** The window's shape, read now through the session's real window-shape port. */
+  windowShape: () => WorkspaceHarnessWindowShape
+  /** The session controller's state (see `WorkspaceHarnessSessionApi`). */
+  session: WorkspaceHarnessSessionApi
 }
 
 interface Window {

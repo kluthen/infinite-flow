@@ -10,7 +10,8 @@ human_name: Session Ends When the Staff No Longer Fits
 parents:
   - [[rule_session_layout_fixed_at_start]]
   - [[rule_stop_ends_session]]
-dependents: []
+dependents:
+  - [[service_workspace_session_flow]]
 ---
 
 # Session Ends When the Staff No Longer Fits

@@ -37,6 +37,8 @@ import {
 import { resetFakeEngraver } from '../../notation/fake-vexflow-engraver-loader'
 import { createFakeMidiAccess } from '../../midi/fake-midi-access'
 import { createMidiController } from '@/midi/midi-controller'
+import { createFakeSessionBrowser } from '../../session/fake-session-browser'
+import { fixedWallClock } from '../../session/session-harness'
 
 // The fit and room checks plan through the lazy engraver loader; a fake planner answers here.
 vi.mock(
@@ -49,16 +51,24 @@ beforeEach(() => {
 })
 
 /**
- * Intent: a locked transport on a fake audio rig and a MIDI controller on a fake MIDI access that
- * reads that transport's clock; prewarm never touches either.
+ * Intent: a locked transport on a fake audio rig, a MIDI controller on a fake MIDI access that
+ * reads that transport's clock, and fake session browser ports; prewarm never touches any of them.
  */
-function fakeAudioAndMidi(): Pick<WorkspaceSessionDependencies, 'audio' | 'midi'> {
-  const { transport } = transportRig()
+function fakeAudioAndMidi(): Pick<
+  WorkspaceSessionDependencies,
+  'audio' | 'midi' | 'browser' | 'sessionClock'
+> {
+  const { rig, transport } = transportRig()
   const midi = createMidiController({
     provider: createFakeMidiAccess(),
     clock: { anchor: () => transport.clockAnchor() },
   })
-  return { audio: transport, midi }
+  return {
+    audio: transport,
+    midi,
+    browser: createFakeSessionBrowser(),
+    sessionClock: { createWakeTimer: rig.createExtraWakeTimer, wallClock: fixedWallClock },
+  }
 }
 
 /** A workspace over fake seams, with the prewarm and generate calls recorded. */

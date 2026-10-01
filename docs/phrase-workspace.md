@@ -5,7 +5,8 @@ responsive, accessible screen a player generates and reads a four-measure phrase
 component tree and its props/events contracts, how the session is wired together at the
 application root, the state-to-UI map, the generation Worker protocol, the seed-independent
 canonical rhythm-domain memo, the unsupported-rhythm-settings block, the idle fit run and the room
-notice, accessibility behavior, and the styling source of truth.
+notice, the session screen (the session action, the cue row, the audio mix, the locks and focus),
+accessibility behavior, and the styling source of truth.
 
 ## Component tree
 
@@ -15,8 +16,14 @@ App.vue
     WorkspaceHeader.vue
       ThemeControl.vue
       SegmentedControl.vue        (notation-mode)
-      <button class="btn-primary">  (primary action)
+      <button class="btn">          (phrase action)
+      <button class="session-action">  (Start session / Stop)
     ScorePanel.vue
+      MixControls.vue
+        MixVolumeButton.vue       (toolbar Volume)
+          MixVolumePanel.vue      (the one volume popover)
+      SessionCueRow.vue
+        MixVolumeButton.vue       (compact Volume, phone, during a session)
       PhraseScore.vue
     ControlPanel.vue
       FoundationControls.vue
@@ -26,21 +33,25 @@ App.vue
     OrientationNotice.vue
 ```
 
-| Component                  | Responsibility                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Props in / events out                                                                                                                                                                             |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `App.vue`                  | Builds the one production `WorkspaceSession` for the tab's lifetime via `createWorkspaceSession`, applies the theme preference as a DOM side effect, and disposes the worker on unmount.                                                                                                                                                                                                                                                                                            | No props/events; it is the composition root.                                                                                                                                                      |
-| `WorkspaceShell.vue`       | Lays out header, score panel, control panel, and the portrait guard around one already-constructed session; forwards `ControlPanel`'s typed events onto the session's own actions.                                                                                                                                                                                                                                                                                                  | In: `session`, `pendingPhrase`, `handleEngraved`, `handleNotationError`, `handleLayoutInputs`. Out: none (it calls session actions directly).                                                     |
-| `WorkspaceHeader.vue`      | Brand mark, meter/tempo/notation-mode context, the theme override, and the single primary action (`Generate phrase` / `Regenerate phrase` / `Retry generation` / `Retry notation`), including that label's priority and disabled policy (`Regenerate phrase` under the room notice, unless a banner shows).                                                                                                                                                                         | In: `session`. Out: none (drives `session.actions` directly).                                                                                                                                     |
-| `ThemeControl.vue`         | The header's System/Light/Dark segmented control.                                                                                                                                                                                                                                                                                                                                                                                                                                   | In: `theme`. Out: `select` (a `ThemePreference`).                                                                                                                                                 |
-| `ScorePanel.vue`           | The score toolbar (title, the `generation-status` and `notation-status` live regions, and a generation-failure banner) plus the staff viewport, whose `staff-frame` always holds `PhraseScore` and with it the two reserved staff system positions: empty (the instruction laid over the blank positions), loading, ready, a notation-error panel layered over the still-mounted `PhraseScore`, or the "staff needs more room" notice (`room-notice`) laid over the same positions. | In: `session`, `pendingPhrase`, `handleEngraved`, `handleNotationError`, `handleLayoutInputs`. Out: none (mounts `PhraseScore` and wires its events, `layout-inputs` included, straight through). |
-| `ControlPanel.vue`         | The full below-score control sheet: Foundation, Rhythm, Melodic shape, and Character groups, each delegated to its own group component. Owns no control state; forwards every group's typed event upward unchanged.                                                                                                                                                                                                                                                                 | In: `controls`, `profileSelection`, `readonly`. Out: `set-control`, `select-instrument-profile`, `select-musical-profile`.                                                                        |
-| `FoundationControls.vue`   | Tempo, tonal center, collection, instrument profile (with its range summary), musical-profile preset (with its status region), harmonic motion, and tension.                                                                                                                                                                                                                                                                                                                        | In: `controls`, `profileSelection`, `readonly`. Out: `set-control`, `select-instrument-profile`, `select-musical-profile`.                                                                        |
-| `RhythmControls.vue`       | Note density, syncopation, silence density, plus the unsupported-rhythm-setting notice and its live region.                                                                                                                                                                                                                                                                                                                                                                         | In: `controls`, `readonly`. Out: `set-control`.                                                                                                                                                   |
-| `MelodicShapeControls.vue` | Contour, register, leapiness.                                                                                                                                                                                                                                                                                                                                                                                                                                                       | In: `controls`, `readonly`. Out: `set-control`.                                                                                                                                                   |
-| `CharacterControls.vue`    | Arpeggio chaos, inside the always-visible `character-static` wrapper.                                                                                                                                                                                                                                                                                                                                                                                                               | In: `controls`, `readonly`. Out: `set-control`.                                                                                                                                                   |
-| `SegmentedControl.vue`     | Generic presentational single-select radiogroup with roving tabindex; carries no domain or session knowledge.                                                                                                                                                                                                                                                                                                                                                                       | In: `label`, `options`, `modelValue`, `readonly`. Out: `update:modelValue`.                                                                                                                       |
-| `TempoStepper.vue`         | Generic presentational spinbutton stepper over a fixed ordered catalog.                                                                                                                                                                                                                                                                                                                                                                                                             | In: `modelValue`, `values`, `readonly`. Out: `update:modelValue`.                                                                                                                                 |
-| `OrientationNotice.vue`    | Static portrait-rotate copy; entirely CSS-driven (see Accessibility below), so it carries no responsive logic itself.                                                                                                                                                                                                                                                                                                                                                               | No props/events.                                                                                                                                                                                  |
+| Component                  | Responsibility                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Props in / events out                                                                                                                                                                                                                                                                                     |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `App.vue`                  | Builds the one production `WorkspaceSession` for the tab's lifetime via `createWorkspaceSession`, loads its session controller once (a lazy chunk; `controller` is `null` until it arrives), applies the theme preference as a DOM side effect, and on unmount disposes of the controller, then the worker.                                                                                                                                                                                                                                                                                                     | No props/events; it is the composition root.                                                                                                                                                                                                                                                              |
+| `WorkspaceShell.vue`       | Lays out header, score panel, control panel, and the portrait guard around one already-constructed session; forwards `ControlPanel`'s typed events onto the session's own actions. Runs the screen's side of a practice session: the Start click (popover closed, session started, the one jump), Stop, the musical controls locked while a session runs, and focus at its end. Builds the one volume popover.                                                                                                                                                                                                  | In: `session`, `pendingPhrase`, `handleEngraved`, `handleNotationError`, `handleLayoutInputs`, `audio`, `controller`, optional `jumpView`. Out: none (it calls session and controller actions directly).                                                                                                  |
+| `WorkspaceHeader.vue`      | Brand mark, meter/tempo/notation-mode context (the tempo readout shows the session's locked tempo during a session), the theme override, and two action slots: the phrase action (`Generate phrase` / `Regenerate phrase` / `Retry generation` / `Retry notation`), including that label's priority and disabled policy (`Regenerate phrase` under the room notice, unless a banner shows), then the session action (`Start session` / `Stop`), with both slots' disabled and emphasis policy.                                                                                                                  | In: `session`, `controller`. Out: `start-session`, `stop-session` (the phrase action drives `session.actions` directly). Exposes `focusSessionAction`, `focusPhraseAction`.                                                                                                                               |
+| `ThemeControl.vue`         | The header's System/Light/Dark segmented control.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | In: `theme`. Out: `select` (a `ThemePreference`).                                                                                                                                                                                                                                                         |
+| `ScorePanel.vue`           | The score toolbar (title, the `generation-status` and `notation-status` live regions, and a generation-failure banner) plus the staff viewport, whose `staff-frame` always holds `PhraseScore` and with it the two reserved staff system positions: empty (the instruction laid over the blank positions), loading, ready, a notation-error panel layered over the still-mounted `PhraseScore`, or the "staff needs more room" notice (`room-notice`) laid over the same positions. The toolbar also holds the audio mix (`MixControls`), and `SessionCueRow` sits between the banner's position and the staff. | In: `session`, `pendingPhrase`, `handleEngraved`, `handleNotationError`, `handleLayoutInputs`, `audio`, `mixPopover`, `controller`. Out: `stop-session` (the cue row's compact `Stop`); mounts `PhraseScore` and wires its events, `layout-inputs` included, straight through. Exposes `focusRoomNotice`. |
+| `MixControls.vue`          | The audio mix in the score toolbar: the `Backing` and `Click` toggle buttons and the toolbar's `Volume`. Never locked. See [The audio mix](#the-audio-mix).                                                                                                                                                                                                                                                                                                                                                                                                                                                     | In: `audio`, `popover`, optional `designTokens`. Out: none (calls the transport's mix setters).                                                                                                                                                                                                           |
+| `MixVolumeButton.vue`      | One `Volume` button in its anchor, the toolbar's or the phone's compact one; renders the volume popover while it has it open (the toolbar's holds it, hidden, while closed).                                                                                                                                                                                                                                                                                                                                                                                                                                    | In: `popover`, `opener` (`toolbar` or `compact`), `audio`, optional `designTokens`. Out: none.                                                                                                                                                                                                            |
+| `MixVolumePanel.vue`       | The one volume popover: the `Backing volume` and `Click volume` sliders, with ranges and step from the `--mix-*` tokens.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | In: `audio`, `popover`, `open`, optional `designTokens`. Out: none (calls the transport's volume setters).                                                                                                                                                                                                |
+| `SessionCueRow.vue`        | `session-cue-row`: one cue at a time, the count-in or the struggling notice, and on the phone during a session the compact `Stop` and `Volume`. See [The cue row](#the-cue-row).                                                                                                                                                                                                                                                                                                                                                                                                                                | In: `controller`, `audio`, `mixPopover`. Out: `stop`.                                                                                                                                                                                                                                                     |
+| `ControlPanel.vue`         | The full below-score control sheet: Foundation, Rhythm, Melodic shape, and Character groups, each delegated to its own group component. Owns no control state; forwards every group's typed event upward unchanged.                                                                                                                                                                                                                                                                                                                                                                                             | In: `controls`, `profileSelection`, `readonly`. Out: `set-control`, `select-instrument-profile`, `select-musical-profile`.                                                                                                                                                                                |
+| `FoundationControls.vue`   | Tempo, tonal center, collection, instrument profile (with its range summary), musical-profile preset (with its status region), harmonic motion, and tension.                                                                                                                                                                                                                                                                                                                                                                                                                                                    | In: `controls`, `profileSelection`, `readonly`. Out: `set-control`, `select-instrument-profile`, `select-musical-profile`.                                                                                                                                                                                |
+| `RhythmControls.vue`       | Note density, syncopation, silence density, plus the unsupported-rhythm-setting notice and its live region.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | In: `controls`, `readonly`. Out: `set-control`.                                                                                                                                                                                                                                                           |
+| `MelodicShapeControls.vue` | Contour, register, leapiness.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | In: `controls`, `readonly`. Out: `set-control`.                                                                                                                                                                                                                                                           |
+| `CharacterControls.vue`    | Arpeggio chaos, inside the always-visible `character-static` wrapper.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | In: `controls`, `readonly`. Out: `set-control`.                                                                                                                                                                                                                                                           |
+| `SegmentedControl.vue`     | Generic presentational single-select radiogroup with roving tabindex; carries no domain or session knowledge.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | In: `label`, `options`, `modelValue`, `readonly`. Out: `update:modelValue`.                                                                                                                                                                                                                               |
+| `TempoStepper.vue`         | Generic presentational spinbutton stepper over a fixed ordered catalog.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | In: `modelValue`, `values`, `readonly`. Out: `update:modelValue`.                                                                                                                                                                                                                                         |
+| `OrientationNotice.vue`    | Static portrait-rotate copy; entirely CSS-driven (see Accessibility below), so it carries no responsive logic itself.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | No props/events.                                                                                                                                                                                                                                                                                          |
 
 Every control-group component is props-in/events-out only: it re-validates whatever it emits
 against its own domain catalog (`validateControlValue`) before the event leaves, and it never
@@ -95,6 +106,24 @@ every settable control key except `instrumentProfileId`, which has its own dedic
   (`src/session/session-runner.ts`) bound to the same `deps.generate` the Idle flow uses, so a
   practice session's phrase 2 onward go through the one Worker that generated phrase 1 and reuse
   its warm rhythm-domain memo. See [`docs/session-engine.md`](session-engine.md).
+- **The staff's reports pass a gate.** `handleLayoutInputs`, `handleEngraved` and
+  `handleNotationError` are the handlers of an Idle layout gate (`createIdleLayoutGate`,
+  `idle-layout-gate.ts`) in front of the coordinator's own. At Idle they pass straight on; while a
+  practice session runs, the session diverts them, and gives the latest back at its end. See
+  [The Idle layout gate](session-engine.md#the-idle-layout-gate).
+- **Session browser ports.** `WorkspaceSession.browser` carries the four browser capabilities a
+  session uses (`src/session/session-browser-ports.ts`): the screen wake lock and the landscape
+  orientation lock (`browser-screen-locks.ts`, over `navigator.wakeLock` and
+  `screen.orientation`), the page becoming hidden (`browser-page-visibility.ts`, over
+  `visibilitychange`), and the window's shape (`browser-window-shape.ts`: `innerWidth`, plus the
+  small viewport height and the rem read from a hidden `100svh` probe element). Building them asks
+  for nothing and listens to nothing. A refused, unsupported or dropped lock is an outcome value,
+  never an error, and shows nothing; a lock granted after its release is given back at once.
+- **Session controller.** `WorkspaceSession.createSessionController()` loads the controller's
+  module as its own chunk and builds it over the Idle session, the audio transport, the browser
+  ports, the runner factory, the gate and the session clock (`sessionClock`: a wake-up Worker
+  timer, created at the first start, and `Date.now` as the wall clock that stamps a session's
+  history). See [The session controller](session-engine.md#the-session-controller).
 - **Pre-warm.** Unless the prewarm policy is `disabled`, the session also gets the same client's
   fire-and-forget `prewarm`, and posts it when it starts and whenever the rhythm setting a phrase
   would be generated with changes. See [Pre-warm](#pre-warm).
@@ -122,7 +151,7 @@ so a test can replace the whole factory and never spin a real `Worker` in jsdom.
 | `notationError`/`notationError` recovery (out-of-operation)         | A `PhraseScore` redraw that fires outside any session operation (a change of the container width, the height budget or the breakpoint; a browser toolbar showing or hiding changes none of them) reports through `reportNotationFailure`/`reportNotationRecovered` instead of settling a promise — this is how a later successful redraw clears a stale notation error without a new `notate()` call. A staff layout failure (`notation_no_room`, `notation_notes_too_wide`) reported this way, or by a Retry notation, never becomes a `notationError`: it goes to the room notice or to a replacement run (see [Layout failures outside a run](#layout-failures-outside-a-run)).                                                                                                                                                                                                                                                                                                                                                                             |
 | `profileSelection` switch outcomes                                  | `selectInstrumentProfile` resolves to `'retained'` (prior phrase kept, redrawn at its current notation mode — no new generation), `'regenerated'` (a full generation ran with a fresh seed and succeeded), `'regeneration_failed'` (that generation failed; the prior result is preserved exactly as any other generation failure does), or `'cleared_unsupported_rhythm'` (the switch would land on an unsupported rhythm setting: the profile switch still applies, but `clearPhrase()` discards the prior phrase — `state.result` and every field tied to it go back to null, and the presented phrase is dropped — instead of regenerating; `ScorePanel` shows its empty state and the unsupported-rhythm notice, and the primary action reads "Generate phrase"). `'applied'`/`'unchanged'`/`'rejected'` cover the no-prior-result, same-id, and mid-operation cases. The regeneration is a fit run. Under the room notice, the switch starts a round with the too-many-notes cause, and only changes the selection (`'applied'`) with the no-room cause. |
 | `roomNotice` (`'no_room' \| 'notes_too_wide' \| null`)              | Whether the "staff needs more room" notice shows, and why. `ScorePanel` gives `staff-frame` the `staff-no-room` class (with `staff-loading` too while a run under the notice is running, which dims it), lays `room-notice` over the reserved positions with the cause's sentence, hides the instruction and never shows the notation error under it. No phrase is shown while it is set. See [The room notice](#the-room-notice).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `retriesRunning` / `roomNoticeAnnouncements`                        | `retriesRunning` is true while a run's fresh-seed retries run; nothing on screen reads it yet. `roomNoticeAnnouncements` goes up each time the notice must be announced; `ScorePanel` then empties `notation-status` and sets the visible sentence again, so a screen reader hears the same sentence twice. See [State for the session screen](#state-for-the-session-screen).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `retriesRunning` / `roomNoticeAnnouncements`                        | `retriesRunning` is true while a run's fresh-seed retries run; the session controller reads it to block `Start session`. `roomNoticeAnnouncements` goes up each time the notice must be announced; `ScorePanel` then empties `notation-status` and sets the visible sentence again, so a screen reader hears the same sentence twice. See [State for the session screen](#state-for-the-session-screen).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `presentation.theme`                                                | In-memory only: `setTheme` never touches `result`, `latestIntent`, or any generation/notation field, and `applyThemePreference` is a pure DOM side effect (`data-theme` on `document.documentElement`) that never regenerates or redraws the phrase.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 Every `set-control`/`select-musical-profile`/`select-instrument-profile` request is rejected
@@ -533,8 +562,8 @@ longer idle, or the notice has changed meanwhile, so only the latest check acts.
 
 ### State for the session screen
 
-The session screen, still to come, will read three read-only fields to decide whether a session
-can start, so the state names them explicitly:
+The session screen reads these read-only fields (the first two to decide whether a session can
+start; see [The session screen](#the-session-screen)), so the state names them explicitly:
 
 - **`roomNotice`**: `'no_room'`, `'notes_too_wide'` or `null`.
 - **`retriesRunning`**: true from the first attempt found too wide, or from the start of a round
@@ -562,6 +591,122 @@ can start, so the state names them explicitly:
   meet it too.
 - **The empty instruction** ("Generate a phrase to begin.") shows whenever no phrase and no notice
   show, as in v1, a Loading with no score included.
+
+## The session screen
+
+A practice session runs on the workspace itself: the staff keeps showing phrase 1, the Idle
+phrase, and the header, the score toolbar and a cue row above the staff change. The session
+controller decides what happens (see
+[The session controller](session-engine.md#the-session-controller)); the components below only
+show its state and pass on the player's clicks. Its `controller` prop is `null` until the
+controller's lazy chunk has loaded, and no session can start then.
+
+### The session action
+
+- **The second header slot.** `button.btn.btn-lg.session-action`, right after the phrase action,
+  reads `Start session` at Idle and `Stop` during a session, count-in included. Its width is fixed
+  by the stylesheet, so the header doesn't shift when the label changes.
+- **Enabled.** `Start session` is enabled only once the controller has loaded and every start
+  condition holds (`controller.state.canStart`); `Stop` is always enabled. The phrase action is
+  disabled during a session.
+- **One primary slot.** `primaryHeaderAction` (`session-action-policy.ts`) gives the
+  `btn-primary` emphasis to exactly one slot, the next useful step: the session action during a
+  session, in Loading (disabled until the new phrase lands), in Needs more room without a banner
+  (disabled until the notice clears) and in Ready; the phrase action in Empty, under a
+  generation-failure banner or a notation error (its retry is the next step), and over the phrase
+  the last session played, which only a new phrase makes startable again.
+- **The Start click.** The header emits `start-session`, and `WorkspaceShell` handles it
+  synchronously, inside the click: it closes the volume popover, calls `controller.start()`, which
+  unlocks the audio and asks for the screen locks, then makes the start's one jump. Focus stays on
+  the session action, which now reads `Stop`.
+- **The jump.** Once, instantly, before the count-in's first click, `jumpForSessionStart`
+  (`session-start-jump.ts`) scrolls the page for the layout the session holds. From
+  `bp-tablet-landscape` up, it jumps to the top of the workspace only if the top edge of
+  `staff-viewport` is outside the viewport. Below it, it moves by the least distance that puts the
+  whole of `session-cue-row` and `staff-viewport` in view, never scrolling the cue row above the
+  viewport. `WorkspaceShell` takes the scroll and the viewport's height through its `jumpView`
+  prop (the window by default), so unit tests measure no real page.
+
+### The cue row
+
+`SessionCueRow.vue` renders `session-cue-row` between the generation-failure banner's position and
+`staff-viewport`, always present at one fixed height, so nothing below it moves when a cue comes
+or goes. It holds at most one cue, by priority: the count-in, then the struggling notice. (The
+controller-disconnect banner, above the count-in, and the starting-note line, below the notice,
+are chunk 17's.) It is not a live region, nothing in it is announced, and its content changes with
+no animation.
+
+- **The count-in.** `ol.count-in` of four `li.count-in-beat` reading `1 2 3 4`, all muted at
+  first. The beat clicking now takes `is-current` and the beats before it `is-past`, on the audio
+  clock (see [The audio-time agenda](session-engine.md#the-audio-time-agenda)); the row empties
+  when the count-in ends.
+- **The struggling notice.** `p.inline-alert.alert-notice.session-alert` holding
+  `span.session-alert-text`, reading exactly "The generator is struggling with these settings.",
+  while the controller's `strugglingNotice` is set and no count-in shows. It never blocks anything.
+- **The phone's actions.** From a session's start to its end, `session-cue-actions` at the row's
+  trailing end holds a compact `btn btn-primary` `Stop`, which does exactly what the header's
+  does, and the phone's compact `Volume`. The stylesheet shows them only below
+  `bp-tablet-landscape`.
+
+### The audio mix
+
+`MixControls.vue` sits in `score-toolbar`, after `generation-status`: on its own line below
+`bp-tablet-landscape`, at the toolbar's trailing end from it up. It is never locked, at Idle or
+during a session, and calls the audio transport's mix setters directly (see
+[The mix](audio-transport.md#the-mix)).
+
+- **Toggles.** `Backing` then `Click`, each a `btn toggle-button` with `aria-pressed` and an
+  `aria-hidden` `toggle-button-state` reading `on` or `off`. Both start on.
+- **The volume popover.** The toolbar's `Volume` button (`aria-expanded`, `aria-controls`) opens a
+  `popover` with the `Backing volume` and `Click volume` sliders (`range-input`). Their ranges,
+  step and first-load levels come from the `--mix-*` design tokens: backing from 0, click from
+  0.2 so the click is never silent, up to 1, in steps of 0.05, both at 0.8 at first. These values
+  are placeholders (ux Q31).
+- **One popover, two openers.** `createMixVolumePopover` (`mix-volume-popover.ts`), built once by
+  `WorkspaceShell`, holds which `Volume` opened the popover: the toolbar's, or the phone's compact
+  one in the cue row. The popover opens anchored under that button, and exactly one popover
+  element is ever in the page. Opening focuses the first slider. Escape closes it and returns focus
+  to the `Volume` that opened it; a pointer press outside, or Tab out of it, closes it and leaves
+  focus where it is; a click on the open `Volume` closes it.
+- **Sessions.** A session start closes the popover, returning focus to its `Volume` only if focus
+  was inside it, without scrolling. A session end closes a popover opened from the compact
+  `Volume`, which leaves the page with the session.
+- **Levels.** They live in the transport, so they hold for the page, survive closing and
+  reopening the popover, and reset on reload.
+
+### During a session
+
+- **Locks on screen.** `WorkspaceShell`'s `controlsReadonly` is true during a session, count-in
+  included, as during any Idle operation, so every musical control, tempo included, takes the
+  same read-only treatment through the existing `readonly` prop: `is-readonly`, `aria-readonly`,
+  still focusable, values at full contrast. The theme control stays interactive, `tempo-readout`
+  shows the session's locked tempo, and the phrase action is disabled. The mix and `Stop` stay
+  live.
+- **Screen locks.** The screen wake lock and the landscape orientation lock are asked for inside
+  the Start click and released at every end. A refusal, an unsupported browser or a lock the
+  browser drops shows nothing and changes nothing; a dropped wake lock is not asked for again (O87
+  is open).
+- **The staff.** It keeps showing phrase 1 as drawn at Idle; nothing on it moves or is drawn again
+  for the session. The Idle fit retries, the room notice and the resize regeneration do not act on
+  it (see [The Idle layout gate](session-engine.md#the-idle-layout-gate)).
+
+### Focus at the end
+
+`WorkspaceShell` watches the session end and, once the screen shows the Idle state it ends in,
+moves focus to the target `sessionEndFocusTarget` (`session-end-focus.ts`) names:
+
+- **`room-notice`** whenever the Idle rules show Needs more room, after any end;
+- **the phrase action** once phrase 1 has sounded (the interim end until the Review: the played
+  phrase stays on the staff and `Start session` waits for a new phrase);
+- **the session action**, now `Start session`, after an end during the count-in. When the Idle
+  rules regenerate phrase 1 there (Loading), the design names `controller-status`, which chunk 13
+  builds; the session action stands in until then.
+
+After a window end, the staff draws phrase 1 again in the layout the window now gives, and finding
+no room there can show Needs more room only after focus has moved. `awaitsLateRoomNotice` keeps
+watch: when the notice then lands, focus moves to it once, unless the player has moved focus since
+or an Idle operation has started. The same end closes a volume popover the compact `Volume`
+opened.
 
 ## E2E workspace harness and DI seam
 
@@ -639,7 +784,9 @@ production's `src/main.ts` does, and calls `app.provide(WORKSPACE_SESSION_FACTOR
 `tests/e2e/workspace-harness-window.d.ts` is the single ambient declaration of the published
 `window.__workspaceHarness` API (`queueSeeds`, `holdGeneration`, `releaseGeneration`,
 `failNextGeneration`, `failNextNotation`, `queueFitVerdicts`, the `seedsDrawn`/`fitChecks`/
-`engravings`/`roomChecks` counters, `snapshot`, `prewarmCount`, and the `audio` seams),
+`engravings`/`roomChecks` counters, `snapshot`, `prewarmCount`, and the `audio`, `midi`,
+`screenLocks`, `page`, `windowShape` and `session` seams, which
+[`docs/testing.md`](testing.md#the-workspace-harness) lists in full),
 shared by the harness page and every spec
 under `tests/e2e/release/` (via `tests/e2e/release/harness-helpers.ts`'s thin `page.evaluate`
 wrappers) and `tests/e2e/accessibility.spec.ts`'s harness-backed cases.
@@ -663,7 +810,7 @@ exists.
   "read-only but focusable" rule below.
 - **Read-only-but-focusable during operations.** `SegmentedControl` and `TempoStepper` render
   `aria-readonly="true"` and their `select()`/`moveTo()` handlers become no-ops while
-  `state.operation !== 'idle'` (each control group's wrapping `.field-group` carries a matching
+  `state.operation !== 'idle'` or a practice session runs (each control group's wrapping `.field-group` carries a matching
   `is-readonly` CSS class for the same condition) — but the control stays in the tab order and
   keeps its keyboard navigation, matching the "read-only but focusable" requirement rather than
   removing focusability outright.
@@ -683,6 +830,8 @@ exists.
   the notice clears. `RhythmControls`' unsupported-setting notice and `FoundationControls`'
   preset-status paragraph are each their own always-mounted, always-`aria-live="polite"` region
   (see Unsupported rhythm settings above and the preset-status copy in `FoundationControls.vue`).
+  The session cue row is deliberately not a live region: the count-in and the struggling notice
+  are never announced (see [The cue row](#the-cue-row)).
 - **44px targets.** `.segment`, `.stepper-button`, and `.btn` all set `min-block-size: 2.75rem`
   (44px), and `.segment` also sets `min-inline-size: 2.75rem` so a single-letter pitch-class
   segment stays a full-size target (`components.css`).
@@ -696,14 +845,16 @@ exists.
   hides `.layout-app` and reveals `.orientation-notice` instead; `OrientationNotice.vue` itself
   carries no responsive logic, only the static copy. A desktop-width portrait (≥90rem) is left
   usable rather than blocked, since the guard is a device-orientation problem, not a viewport-width
-  one.
+  one. The session controller applies the same condition in code (`isPortraitBelowDesktop`, with
+  `BREAKPOINT_DESKTOP_REM`): while the notice shows, a session cannot start, and a running one
+  ends.
 - **Theme via `data-theme`.** `applyThemePreference` sets/clears `document.documentElement.dataset.theme`
   (`'light'` / `'dark'` / removed for System); `theme.css` defines the full light/dark token
   palette under `[data-theme='dark']`, `[data-theme='light']`, and the `prefers-color-scheme: dark`
   media query scoped to `:root:not([data-theme])`, so an explicit choice always wins over the OS
   preference.
 - **Axe coverage in both themes.** `tests/e2e/accessibility.spec.ts` runs an `AxeBuilder` scan
-  against the running app. Workspace-specific Playwright coverage for the behaviors above —
+  against the running app, one of them with the audio mix's volume popover open. Workspace-specific Playwright coverage for the behaviors above —
   roving-tabindex navigation, read-only-but-focusable state, the tempo spinbutton, live-region
   announcements, 44px targets, focus visibility, reduced motion, the portrait notice, and axe scans
   in both themes — lives under `tests/e2e/workspace/` (a work in progress at the time of writing;

@@ -25,6 +25,19 @@ test('has no detectable axe violations in the empty shell', async ({ page }) => 
   expect(results.violations, describeViolations(results.violations)).toEqual([])
 })
 
+// @test-link [[req_session_audio_mix]]
+test('has no detectable axe violations with the audio mix Volume popover open', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Volume', exact: true }).click()
+  await expect(page.getByRole('slider', { name: 'Backing volume' })).toBeFocused()
+
+  const results = await new AxeBuilder({ page }).analyze()
+
+  expect(results.violations, describeViolations(results.violations)).toEqual([])
+})
+
 test('has no detectable axe violations after generation, in Light and Dark theme', async ({
   page,
 }) => {

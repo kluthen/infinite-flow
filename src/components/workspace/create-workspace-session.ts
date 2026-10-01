@@ -38,12 +38,22 @@ import {
   type SessionRunnerDependencies,
 } from '@/session/session-runner'
 import type { SessionStart } from '@/session/session-types'
+import type { SessionBrowserPorts } from '@/session/session-browser-ports'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { createBrowserAudioTransport } from '@/audio/browser-audio-transport'
 import { createMidiController, type MidiController } from '@/midi/midi-controller'
 import { createWebMidiAccessProvider } from '@/midi/web-midi-access'
+import { createBrowserWakeTimerWorker, createWorkerWakeTimer } from '@/audio/worker-wake-timer'
 import { createBrowserViewportWidth } from './browser-viewport-width'
+import { createBrowserPageVisibility } from './browser-page-visibility'
+import { createBrowserOrientationLock, createBrowserScreenWakeLock } from './browser-screen-locks'
+import { createBrowserWindowShape } from './browser-window-shape'
+import { createIdleLayoutGate } from './idle-layout-gate'
 import type { WorkspacePrewarmPolicy } from './prewarm-policy'
+import type {
+  SessionController,
+  SessionControllerClock,
+} from './workspace-session-controller-types'
 
 /**
  * What a caller supplies to start a session runner from the workspace: the session's start and the
@@ -66,7 +76,8 @@ export interface WorkspaceSession {
   /**
    * Wire to `PhraseScore`'s `@layout-inputs`: the staff's measured inputs, which the session's
    * pre-draw fit and room checks plan against. Until the staff reports once, every check fails as
-   * a retryable notation error.
+   * a retryable notation error. While a practice session runs, this and the two engraving handlers
+   * report to the session instead of the Idle machinery, which gets the latest back at its end.
    */
   // @spec-link [[module_idle_fit_round]]
   readonly handleLayoutInputs: (inputs: StaffLayoutInputs) => void
@@ -93,17 +104,37 @@ export interface WorkspaceSession {
   // @spec-link [[req_midi_controller_input]]
   // @spec-link [[rule_controller_connects_between_sessions]]
   readonly midi: MidiController
+  /**
+   * The browser capabilities a session uses around its run: the screen wake lock and the
+   * landscape orientation lock (requested in the Start click, released at every end), the page
+   * becoming hidden and the window's shape (both judged during a session). No screen uses them
+   * yet; building the session asks for no lock and listens to nothing.
+   */
+  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[rule_screen_wake_lock_during_session]]
+  readonly browser: SessionBrowserPorts
+  /**
+   * Build the controller of this workspace's practice sessions, over its Idle state, audio
+   * transport, browser ports and runners, woken by the session clock's timer. The screen builds
+   * one when it mounts and disposes of it when it unmounts; building it reads the window's shape.
+   * The controller's module is loaded on this call, as its own chunk, so the entry chunk stays
+   * within its size budget; the controller's `start` itself is synchronous, for the Start click.
+   */
+  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[rule_session_layout_fixed_at_start]]
+  readonly createSessionController: () => Promise<SessionController>
   readonly dispose: () => void
 }
 
 /**
  * The explicit dependency surface `composeWorkspaceSession` needs: identity/seed providers, the
  * window-width provider, the raw orchestration-outcome `generate` seam (plus its teardown), the
- * prewarm policy and seam, the audio transport and the MIDI controller. Production supplies the
- * cryptographic seed provider, the `matchMedia` width provider, the real worker client, the Web
- * Audio transport and the Web MIDI controller; a harness supplies deterministic, gated, or
- * failure-injecting equivalents that still call through to the real worker, a transport on a fake
- * or a recorded real audio output, and a controller on a fake or the real MIDI access.
+ * prewarm policy and seam, the audio transport, the MIDI controller, the session browser ports and
+ * the session controller's clock. Production supplies the cryptographic seed provider, the `matchMedia` width provider, the real
+ * worker client, the Web Audio transport, the Web MIDI controller and the browser adapters; a
+ * harness supplies deterministic, gated, or failure-injecting equivalents that still call through
+ * to the real worker, a transport on a fake or a recorded real audio output, a controller on a fake
+ * or the real MIDI access, and fake locks and page visibility beside the real window shape.
  */
 // @spec-link [[service_workspace_session_flow]]
 export interface WorkspaceSessionDependencies {
@@ -125,6 +156,16 @@ export interface WorkspaceSessionDependencies {
   // @spec-link [[req_midi_controller_input]]
   // @spec-link [[rule_controller_connects_between_sessions]]
   readonly midi: MidiController
+  /** The session browser ports, passed through unchanged as `WorkspaceSession.browser`. */
+  // @spec-link [[service_workspace_session_flow]]
+  readonly browser: SessionBrowserPorts
+  /**
+   * The session controller's time seams: the wake-up timer that has it read the audio clock
+   * (production: a Web Worker timer; the harness: a timer stepped by its fake audio clock) and the
+   * wall clock that stamps a session's history.
+   */
+  // @spec-link [[service_workspace_session_flow]]
+  readonly sessionClock: SessionControllerClock
   readonly dispose: () => void
 }
 
@@ -153,8 +194,8 @@ function createRequestIdProvider(): () => ReturnType<typeof makeRequestId> {
 
 /**
  * Intent: build one workspace session from explicit dependencies: the identity/seed providers,
- * the raw orchestration `generate` seam, its teardown, and the audio transport and MIDI controller,
- * both exposed unchanged. Wires the same notation coordinator
+ * the raw orchestration `generate` seam, its teardown, and the audio transport, MIDI controller and
+ * session browser ports, all exposed unchanged. Wires the same notation coordinator
  * (which also answers the session's pre-draw fit and room checks from the staff's reported layout
  * inputs) and profile-switch policy production always uses, so the only thing a caller can vary is where
  * requests/seeds and generation outcomes come from. Session runners it starts share the Idle
@@ -197,28 +238,53 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     ...(deps.prewarmPolicy === 'enabled' ? { prewarm: deps.prewarm } : {}),
   })
   session = created
+  const staffReports = createIdleLayoutGate({
+    layoutInputs: coordinator.handleLayoutInputs,
+    engraved: coordinator.handleEngraved,
+    notationError: coordinator.handleNotationError,
+  })
+
+  /** Intent: start a runner on the Idle flow's providers, width reading and `generate` seam. */
+  function startRunner(input: WorkspaceSessionRunnerInput): SessionRunner {
+    return createSessionRunner(
+      {
+        generate: deps.generate,
+        checkFit: input.checkFit,
+        now: input.now,
+        providers: deps.providers,
+        viewport: deps.viewport,
+        onOutput: input.onOutput,
+        onError: input.onError,
+      },
+      input.start,
+    )
+  }
 
   return {
     session: created,
     pendingPhrase: coordinator.pendingPhrase,
-    handleEngraved: coordinator.handleEngraved,
-    handleNotationError: coordinator.handleNotationError,
-    handleLayoutInputs: coordinator.handleLayoutInputs,
-    createSessionRunner: (input) =>
-      createSessionRunner(
-        {
-          generate: deps.generate,
-          checkFit: input.checkFit,
-          now: input.now,
-          providers: deps.providers,
-          viewport: deps.viewport,
-          onOutput: input.onOutput,
-          onError: input.onError,
-        },
-        input.start,
-      ),
+    handleEngraved: staffReports.engraved,
+    handleNotationError: staffReports.notationError,
+    handleLayoutInputs: staffReports.layoutInputs,
+    createSessionRunner: startRunner,
     audio: deps.audio,
     midi: deps.midi,
+    browser: deps.browser,
+    createSessionController: async () => {
+      const [{ createSessionController }, { measureSessionStaffFixedParts }] = await Promise.all([
+        import('./workspace-session-controller'),
+        import('./session-staff-fixed-parts'),
+      ])
+      return createSessionController({
+        idle: created,
+        audio: deps.audio,
+        browser: deps.browser,
+        createSessionRunner: startRunner,
+        clock: deps.sessionClock,
+        idleLayout: staffReports,
+        staffFixedParts: measureSessionStaffFixedParts,
+      })
+    },
     dispose: () => {
       created.dispose()
       deps.dispose()
@@ -237,8 +303,12 @@ export interface ProductionWorkspaceSessionOptions {
  * Intent: build the root workspace session used by `App.vue` in production: a real worker-backed
  * generation seam and its prewarm under the given policy, the cryptographic seed provider, a
  * monotonic request-id provider, the window's own `matchMedia` width provider, the Web Audio
- * transport, still locked: no audio context exists until a player click unlocks it, and the Web
- * MIDI controller on that transport's clock, which requests no MIDI access until `connect()`.
+ * transport, still locked: no audio context exists until a player click unlocks it, the Web
+ * MIDI controller on that transport's clock, which requests no MIDI access until `connect()`, and
+ * the browser adapters of the session's wake lock, orientation lock, page visibility and window
+ * shape, none of which asks or listens for anything until used, and the session clock: a wake-up
+ * Worker timer, created only when a session controller first starts a session, and the system's
+ * wall clock for session histories.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[rule_audio_unlocked_by_player_click]]
@@ -265,6 +335,16 @@ export function createWorkspaceSession(
     prewarm: client.prewarm,
     audio,
     midi,
+    browser: {
+      wakeLock: createBrowserScreenWakeLock(),
+      orientationLock: createBrowserOrientationLock(),
+      pageVisibility: createBrowserPageVisibility(),
+      windowShape: createBrowserWindowShape(),
+    },
+    sessionClock: {
+      createWakeTimer: () => createWorkerWakeTimer(createBrowserWakeTimerWorker()),
+      wallClock: () => Date.now(),
+    },
     dispose: client.dispose,
   })
 }

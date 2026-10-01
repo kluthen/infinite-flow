@@ -104,7 +104,7 @@ chunks in different sections; the second to merge rebases on the first.
 | 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 (done 2026-09-29), follow-up 3b Phone staff height (done 2026-09-29) · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation (done 2026-09-29) · 14 Note acknowledgement (done 2026-09-29) · 18 MusicXML encoding (done 2026-09-29) · 19 Generated-notes MIDI encoding (done 2026-09-29) | Chunk 0 (done). Start chunk 3 first (see the caveat). |
 | 2    | 5 Idle fit retries and the room notice (done 2026-09-30) · 6 Note identity and session overlays (done 2026-09-30) · 8 Session engine (done 2026-09-30) · 10 Audio transport (done 2026-09-30)                                                                                                                                                                                 | Wave 1. Chunk 1's verdict: given (2026-09-30).        |
 | 3    | 9 Session history (done 2026-09-30) · 11 Backing (done 2026-09-30) · 12 MIDI input (done 2026-10-01)                                                                                                                                                                                                                                                                          | Wave 2                                                |
-| 4    | 15 Session screen: start and end                                                                                                                                                                                                                                                                                                                                              | Wave 3                                                |
+| 4    | 15 Session screen: start and end (done 2026-10-01)                                                                                                                                                                                                                                                                                                                            | Wave 3                                                |
 | 5    | 13 Controller connection · 16 Rolling display                                                                                                                                                                                                                                                                                                                                 | Chunk 15                                              |
 | 6    | 17 MIDI in the session                                                                                                                                                                                                                                                                                                                                                        | Wave 5                                                |
 | 7    | 20 Review and generated-notes export                                                                                                                                                                                                                                                                                                                                          | Chunk 17                                              |
@@ -1536,7 +1536,58 @@ once per note, the earliest match first, and the latency correction of a played 
 
 ### Chunk 15 — Session screen: start and end
 
-**Release:** v2.0.
+**Release:** v2.0. **Done on 2026-10-01** on branch `v2-chunk-15` (not merged). The session
+controller (`src/components/workspace/workspace-session-controller.ts`, loaded as its own chunk)
+runs one session at a time. The `Start session` click unlocks the audio, asks for the screen wake
+lock and the landscape lock (a refusal changes nothing and shows nothing), starts the transport,
+queues phrase 1's backing, locks the settings, holds the staff layout the window's width selects,
+opens a history and starts a runner on the Idle phrase. An audio-time agenda
+(`src/session/session-agenda.ts`), woken by the controller's own wake-up Worker timer, lights the
+count-in beats on the click's own beat grid, sends `count-in-over`, `phrase-started-sounding` and
+the engine's ticks, and queues each readied phrase's backing; every runner output is recorded in
+the history, and an engine time floor keeps the times the engine gets in order.
+`sessionStartBlocker` (`src/session/session-start-conditions.ts`) judges item 22's conditions,
+with no MIDI input. A session ends like Stop on Stop, a hidden tab, an audio interruption (engine
+cause `stop`), a portrait-shaped view below `bp-desktop`, and a window too narrow or, below
+`bp-tablet-landscape`, too short for the held layout at the legibility floor
+(`src/session/session-window.ts`, with the new `planStaffWidthRoom` and the engraver's new
+`measureStaffFixedParts`), heights read from the small viewport height so a browser toolbar ends
+nothing. While a session runs, an Idle layout gate diverts the staff's reports from the Idle fit
+retries, room notice and regeneration, and at the end re-applies the latest of them, so the Idle
+rules decide in the layout the window gives afresh. On screen: the session action after the phrase
+action, with one primary slot at a time; the start's one instant jump; `session-cue-row` (the
+count-in, the struggling notice, and on the phone the compact `Stop` and `Volume`); the audio mix
+in the score toolbar (`Backing`, `Click` and the `Volume` popover); every musical control read-only
+at full contrast; and focus at each end. The workspace harness gained the `screenLocks`, `page`,
+`windowShape` and `session` seams, `audio.mix`, `generationsSettled` and a `count` for
+`failNextGeneration`. 40 Playwright tests in `tests/e2e/session/` and 14 in
+`tests/e2e/audio/mix-controls.spec.ts` run on the fake audio clock, and `test:a11y` scans the open
+volume popover. The entry chunk's size budget in `npm run verify:boundaries` rose from 200 KiB to
+212 KiB for the screen's controls. For [chunk 16](#chunk-16--rolling-display): replace the interim
+`checkFit` (`acceptEveryPhrase`: every look-ahead phrase fits, since none is drawn yet) with chunk
+3's planner in the held layout (`state.heldLayout`), re-engrave in the held layout on a resize,
+and add the "material waiting" window rule; the held one-system layout below
+`bp-tablet-landscape` has no height rule in the planner. For
+[chunk 17](#chunk-17--midi-in-the-session): the MIDI end causes, the starting note, the disconnect
+banner in the cue row's top slot (it outranks the count-in), and `WorkspaceSession.midi`, still
+unused. For [chunk 13](#chunk-13--controller-connection): focus `controller-status` after a
+count-in end that regenerates phrase 1 (the session action stands in until then), and call
+`audio.unlock()` in the "Connect controller" click. For
+[chunk 20](#chunk-20--review-and-generated-notes-export): the Review and item 28's fresh phrase
+replace the interim end after phrase 1 sounded. The closed history is `state.lastHistory`; the
+`phrase_already_played` start blocker goes; focus goes to `Close review` instead of the phrase
+action; and the start conditions gain "never while the Review shows". Technical choices:
+[`docs/session-engine.md`](../../../docs/session-engine.md#the-session-controller) and
+[`docs/phrase-workspace.md`](../../../docs/phrase-workspace.md#the-session-screen). Decided in the
+chunk, awaiting the owner's acceptance: until the Review exists, a session ended after phrase 1
+sounded leaves the played phrase on the staff with `Start session` disabled until a new Idle
+result, generates nothing by itself and sends focus to the phrase action; any running Idle
+generation blocks Start (generate, regenerate and the fit retries alike); the interim `checkFit`
+above; an audio interruption ends the session with the cause `stop`; during a session the Idle
+layout machinery never changes phrase 1, only the session window rule judges a window change, and
+the Idle layout inputs are re-applied at the end. Still open for the v2.0 gate: ux Q31 (the mix's
+ranges and default levels are placeholders) and O87 (a wake lock the browser drops mid-session is
+not asked for again).
 
 **Goal.** Put the session on the workspace: `Start session` and `Stop`, when a session can start,
 the session cue row with the count-in and the struggling notice, the locked settings, the audio
@@ -1602,7 +1653,7 @@ Session); [`motion.md`](../../../ui_ux/motion.md).
 
 **Blocked by:** in part, ux Q31: the audio mix's ranges and default levels are placeholders.
 §12's screen wake lock dropped mid-session (O87): the proposed default, asking again silently, is
-built only once confirmed.
+built only once confirmed. Still open after the chunk: both stay open for the v2.0 gate.
 
 ### Chunk 16 — Rolling display
 

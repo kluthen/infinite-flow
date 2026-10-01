@@ -11,9 +11,10 @@ dependents:
   - [[rule_controller_loss_mid_session]]
   - [[rule_hidden_tab_ends_session]]
   - [[service_session_engine]]
+  - [[service_workspace_session_flow]]
 type: RULE
 layer: BUSINESS
-notes: Recorded 2026-09-30 in v2 chunk 10 (audio transport); rule text unchanged. When the browser interrupts the audio clock (a device change or an operating-system interruption), the audio transport stops planning sound for the running session and notifies its listeners, so that the session can end rather than pause; ending the session on that notification is not built yet. Resuming the audio after such an interruption is not built either, so a later session may stay silent.
+notes: Recorded 2026-09-30 in v2 chunk 10 (audio transport); rule text unchanged. When the browser interrupts the audio clock (a device change or an operating-system interruption)
 ---
 
 # Session Never Pauses

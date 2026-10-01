@@ -6,7 +6,8 @@ parents:
   - [[req_rolling_practice_session]]
 type: RULE
 tags: [v2, release-v2.0, session]
-dependents: []
+dependents:
+  - [[service_workspace_session_flow]]
 layer: BUSINESS
 version: 0.1
 priority: 1

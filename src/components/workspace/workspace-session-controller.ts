@@ -1,0 +1,477 @@
+/**
+ * The session controller: it owns the one practice session the workspace runs at a time, from the
+ * player's Start click to its end, and exposes it to the screen as reactive state and two actions.
+ * Start unlocks the audio, asks for the screen locks and starts the transport inside the click;
+ * from then on everything is driven by the audio clock, through an injected wake-up timer that
+ * reads it: the count-in display, the count-in's end, each phrase starting to sound, and the
+ * engine's deadlines. Every runner output goes into the session's history. Besides Stop, a session
+ * ends on an audio interruption, and on what its end watchers report (the page hidden, the staff
+ * no longer shown); every end takes the same path. It draws nothing.
+ */
+import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
+
+import type { GenerationSessionState } from '@/composables/use-generation-session'
+import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import type { TransportTimeline } from '@/audio/audio-transport'
+import type { DisposableWakeTimer, WakeTimer } from '@/audio/audio-ports'
+import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
+import { countInDisplayAt } from '@/session/count-in-display'
+import { createAudioTimeAgenda, type AudioTimeAgenda } from '@/session/session-agenda'
+import type { WindowShapeReading } from '@/session/session-browser-ports'
+import { createSessionHistory, type SessionHistory } from '@/session/session-history'
+import type { SessionRunner } from '@/session/session-runner'
+import {
+  sessionStartBlocker,
+  type SessionStartBlocker,
+  type SessionStartFacts,
+} from '@/session/session-start-conditions'
+import type {
+  AudioTime,
+  SessionEndCause,
+  SessionOutput,
+  SessionSettings,
+  SessionStart,
+} from '@/session/session-types'
+import { isPortraitBelowDesktop, sessionLayoutAtStart } from '@/session/session-window'
+import type { StaffLayout } from '@/notation/notation-layout-policy'
+import { watchSessionEnds, type SessionEndWatch } from './workspace-session-end-watchers'
+import {
+  SessionControllerError,
+  type RunningCountIn,
+  type SessionController,
+  type SessionControllerDependencies,
+  type SessionControllerPhase,
+  type SessionEndSummary,
+} from './workspace-session-controller-types'
+
+/** The ended output, the one that closes a session. */
+type EndedOutput = Extract<SessionOutput, { kind: 'ended' }>
+
+/** The running session: its timeline, history, runner, agenda and audio-time floor. */
+interface ActiveSession {
+  readonly timeline: TransportTimeline
+  readonly tempo: number
+  readonly phraseOne: WorkspaceSessionResult
+  readonly history: SessionHistory
+  readonly agenda: AudioTimeAgenda
+  runner: SessionRunner | null
+  /** The latest time handed to the engine: its events must never go back in time. */
+  floor: AudioTime
+  /** The phrase number the next `phrase-ready` must carry. */
+  nextReady: number
+  ended: EndedOutput | null
+  /** The watchers of the session's other ends, once it is fully started. */
+  watch: SessionEndWatch | null
+}
+
+/**
+ * Intent: the interim fit check (decision D-C): every phrase fits. Chunk 16 replaces it with the
+ * staff planner's check in the layout the session holds; until then no look-ahead phrase is drawn,
+ * so nothing can overflow.
+ */
+// @spec-link [[service_workspace_session_flow]]
+function acceptEveryPhrase(): Promise<boolean> {
+  return Promise.resolve(true)
+}
+
+/**
+ * Intent: the start facts the Idle state, the window and the controller give. A phrase is shown
+ * once its result is engraved; any Idle generation (generate, regenerate, fit retries) or
+ * notation in progress counts as running; no MIDI fact exists.
+ */
+// @spec-link [[rule_session_start_conditions]]
+// @spec-link [[rule_midi_never_blocks_session]]
+function startFactsOf(
+  idle: Readonly<GenerationSessionState<WorkspaceSessionResult>>,
+  shape: WindowShapeReading,
+  sessionActive: boolean,
+  playedPhrase: WorkspaceSessionResult | null,
+): SessionStartFacts {
+  return {
+    phraseShown: idle.result !== null && idle.resultEngraved,
+    generationRunning: idle.operation !== 'idle' || idle.retriesRunning,
+    notationError: idle.notationError !== null,
+    generationFailureShown: idle.generationError !== null,
+    rhythmUnsupported: isRhythmSettingBlocked(idle.controls, idle.noteDensityContext),
+    orientationNoticeShown: isPortraitBelowDesktop(shape),
+    roomNoticeShown: idle.roomNotice !== null,
+    sessionActive,
+    phrasePlayedByLastSession: playedPhrase !== null && idle.result === playedPhrase,
+  }
+}
+
+/**
+ * Intent: build the session controller over the workspace's Idle state, audio transport, browser
+ * ports and runner factory. It reads the window's shape from creation (for the rotate-device start
+ * condition) until `dispose`; it asks for no lock and opens no audio until a start.
+ */
+// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[rule_session_start_conditions]]
+// @spec-link [[rule_midi_never_blocks_session]]
+// @spec-link [[rule_phrase_one_is_idle_phrase]]
+export function createSessionController(deps: SessionControllerDependencies): SessionController {
+  const { idle, audio, browser } = deps
+  const windowShape = shallowRef(browser.windowShape.read())
+  const stopReadingWindow = browser.windowShape.subscribe(() => {
+    windowShape.value = browser.windowShape.read()
+  })
+  const playedPhrase = shallowRef<WorkspaceSessionResult | null>(null)
+  /** The wake-up timer, built at the first start and disposed of with the controller. */
+  let timer: DisposableWakeTimer | null = null
+  /** The wake-up timer while it is started, from a start's wake-ups to that session's end. */
+  let startedTimer: WakeTimer | null = null
+  let active: ActiveSession | null = null
+  let disposed = false
+  let hearsInterruptions = false
+
+  const state = shallowReactive({
+    phase: 'idle' as SessionControllerPhase,
+    countIn: null as RunningCountIn | null,
+    strugglingNotice: false,
+    sessionTempo: null as number | null,
+    heldLayout: null as StaffLayout | null,
+    lastEnd: null as SessionEndSummary | null,
+    lastHistory: null as SessionHistory | null,
+    get canStart(): boolean {
+      return startBlocker.value === null
+    },
+    get startBlocker(): SessionStartBlocker | null {
+      return startBlocker.value
+    },
+  })
+  const startBlocker = computed(() =>
+    sessionStartBlocker(
+      startFactsOf(idle.state, windowShape.value, state.phase !== 'idle', playedPhrase.value),
+    ),
+  )
+
+  /** Intent: an audio time for the engine, never before one it already handled. */
+  function engineTime(session: ActiveSession, at: AudioTime): AudioTime {
+    session.floor = Math.max(session.floor, at)
+    return session.floor
+  }
+
+  /** Intent: the running session's runner; reaching here before it exists is a wiring defect. */
+  function runnerOf(session: ActiveSession): SessionRunner {
+    if (session.runner === null) throw new Error('session controller: the runner is not built yet')
+    return session.runner
+  }
+
+  /** Intent: send one transport event at `at` (raised to the floor) to the session's runner. */
+  function dispatchAt(
+    session: ActiveSession,
+    at: AudioTime,
+    event:
+      | { readonly kind: 'count-in-over' }
+      | { readonly kind: 'tick' }
+      | { readonly kind: 'phrase-started-sounding'; readonly phraseNumber: number },
+  ): void {
+    runnerOf(session).dispatch({ ...event, at: engineTime(session, at) })
+  }
+
+  /**
+   * Intent: show the count-in row as it stands at audio time `at`, and schedule its next change
+   * on the audio clock; the row empties once the count-in is over.
+   */
+  // @spec-link [[rule_count_in_shown_on_screen]]
+  function showCountIn(session: ActiveSession, at: AudioTime): void {
+    const display = countInDisplayAt(session.timeline.startAt, session.tempo, at)
+    if (display.over) {
+      state.countIn = null
+      return
+    }
+    state.countIn = display
+    session.agenda.schedule(display.nextChangeAt, () => showCountIn(session, display.nextChangeAt))
+  }
+
+  /** Intent: queue a readied phrase's backing and schedule the moment it starts sounding. */
+  function onPhraseReady(
+    session: ActiveSession,
+    output: Extract<SessionOutput, { kind: 'phrase-ready' }>,
+  ): void {
+    const { phraseNumber } = output.phrase
+    if (phraseNumber !== session.nextReady) {
+      throw new Error(
+        `session controller: phrase ${session.nextReady} must be readied next, got phrase ${phraseNumber}`,
+      )
+    }
+    session.nextReady += 1
+    audio.queueBacking(phraseNumber, output.phrase.outcome.provenance.harmony.events)
+    session.agenda.schedule(audio.phraseStartsAt(phraseNumber), () =>
+      dispatchAt(session, audio.phraseStartsAt(phraseNumber), {
+        kind: 'phrase-started-sounding',
+        phraseNumber,
+      }),
+    )
+  }
+
+  /** Intent: record one runner output in the history, then act on it. */
+  // @spec-link [[rule_struggling_generator_notice]]
+  function onOutput(session: ActiveSession, output: SessionOutput): void {
+    session.history.record(output)
+    if (output.kind === 'phrase-ready') onPhraseReady(session, output)
+    else if (output.kind === 'struggling-notice') state.strugglingNotice = output.visible
+    else if (output.kind === 'wake-at')
+      session.agenda.schedule(output.at, () => dispatchAt(session, output.at, { kind: 'tick' }))
+    else if (output.kind === 'ended') session.ended = output
+  }
+
+  /**
+   * Intent: undo everything a start set up: no more wake-ups or scheduled events, the audio
+   * faded out (unless the transport already ended its own session), both locks released, the
+   * session state back to Idle, and, last, the end watchers stopped, which hands the staff's
+   * reports back to the Idle machinery and re-applies the latest of them. A start that failed
+   * part-way passes the session only once it was built, and may not have started the timer or
+   * the watchers yet: only what was set up is undone.
+   */
+  // @spec-link [[rule_stop_ends_session]]
+  // @spec-link [[rule_screen_wake_lock_during_session]]
+  // @spec-link [[rule_landscape_lock_during_session]]
+  function tearDown(session: ActiveSession | null): void {
+    session?.agenda.clear()
+    startedTimer?.stop()
+    startedTimer = null
+    if (audio.isRunning()) audio.stop()
+    browser.wakeLock.release()
+    browser.orientationLock.unlock()
+    state.phase = 'idle'
+    state.countIn = null
+    state.strugglingNotice = false
+    state.sessionTempo = null
+    state.heldLayout = null
+    session?.watch?.stop()
+  }
+
+  /**
+   * Intent: end the running session for `cause`, the one path every end takes: the engine gets
+   * `end` (its `ended` output closes the history), then the session is torn down and summed up.
+   * The session is dropped first, so nothing can end it twice; ending with none running throws.
+   */
+  // @spec-link [[rule_stop_ends_session]]
+  // @spec-link [[rule_phrase_one_is_idle_phrase]]
+  function end(cause: SessionEndCause): void {
+    const session = active
+    if (session === null)
+      throw new SessionControllerError('session controller: no session is running')
+    active = null
+    try {
+      runnerOf(session).dispatch({ kind: 'end', cause, at: engineTime(session, audio.now()) })
+    } finally {
+      tearDown(session)
+    }
+    const ended = session.ended
+    if (ended === null) throw new Error('session controller: the engine did not report the end')
+    state.lastEnd = Object.freeze({
+      cause: ended.cause,
+      phase: ended.phase,
+      soundedPhraseCount: ended.soundedPhraseCount,
+    })
+    state.lastHistory = session.history
+    if (ended.soundedPhraseCount >= 1) playedPhrase.value = session.phraseOne
+  }
+
+  /**
+   * Intent: surface a programming error loudly, as the workspace does with any unexpected error
+   * (it propagates, uncaught): end `session` first if it is still the running one, so nothing keeps
+   * sounding, then throw. A late error from an earlier session never ends a later one.
+   */
+  // @spec-link [[service_workspace_session_flow]]
+  function failLoudly(session: ActiveSession, error: unknown): never {
+    if (active === session) {
+      try {
+        end('stop')
+      } catch (endError: unknown) {
+        throw new AggregateError(
+          [error, endError],
+          'session controller: failed, then failed to end',
+          { cause: endError },
+        )
+      }
+    }
+    throw error
+  }
+
+  /**
+   * Intent: undo a start that threw part-way, then throw its error on: a runner already built gets
+   * `end`, so its pending answers change nothing, and everything acquired is torn down as at any
+   * end; no end summary is recorded, as the session never fully started. A failure while undoing
+   * is thrown together with the start's.
+   */
+  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[rule_screen_wake_lock_during_session]]
+  // @spec-link [[rule_landscape_lock_during_session]]
+  function abandonStart(session: ActiveSession | null, error: unknown): never {
+    active = null
+    try {
+      try {
+        if (session !== null && session.runner !== null) {
+          session.runner.dispatch({
+            kind: 'end',
+            cause: 'stop',
+            at: engineTime(session, audio.now()),
+          })
+        }
+      } finally {
+        tearDown(session)
+      }
+    } catch (undoError: unknown) {
+      throw new AggregateError(
+        [error, undoError],
+        'session controller: a start failed, then failed to undo',
+        { cause: undoError },
+      )
+    }
+    throw error
+  }
+
+  /** Intent: end `session` for `cause` if it is still the running one; a later cause does nothing. */
+  function endIfRunning(session: ActiveSession, cause: SessionEndCause): void {
+    if (active === session) end(cause)
+  }
+
+  /**
+   * Intent: listen, once for the controller's life, for the browser interrupting the audio (the
+   * transport has no way to stop listening): it ends whichever session runs then, like Stop.
+   */
+  // @spec-link [[rule_stop_ends_session]]
+  // @spec-link [[rule_session_never_pauses]]
+  function hearInterruptions(): void {
+    if (hearsInterruptions) return
+    hearsInterruptions = true
+    audio.onInterrupted(() => {
+      if (active !== null) end('stop')
+    })
+  }
+
+  /**
+   * Intent: on each wake-up, fire every scheduled event the audio clock has reached. The timer is
+   * stopped at every end, so a wake-up with no session is one already in flight: it has nothing to do.
+   */
+  function onWake(): void {
+    const session = active
+    if (session === null) return
+    try {
+      session.agenda.fireDue(audio.now())
+    } catch (error: unknown) {
+      failLoudly(session, error)
+    }
+  }
+
+  /**
+   * Intent: start a session from the Idle phrase, synchronously, inside the player's Start click:
+   * unlock the audio, ask for the wake lock and the landscape lock (a refusal changes nothing, so
+   * their outcomes are ignored), start the transport and queue phrase 1's backing; then lock the
+   * current settings, hold the staff layout the window's width selects, open the history and
+   * start the runner, the count-in display, the wake-ups and the end watchers. Throws, touching
+   * nothing, while a start condition does not hold. Once the locks are asked for, it is all or
+   * nothing: a throw from any later step undoes what was set up and throws on (`abandonStart`).
+   */
+  // @spec-link [[rule_audio_unlocked_by_player_click]]
+  // @spec-link [[rule_screen_wake_lock_during_session]]
+  // @spec-link [[rule_landscape_lock_during_session]]
+  // @spec-link [[rule_count_in_shown_on_screen]]
+  // @spec-link [[rule_session_start_conditions]]
+  // @spec-link [[rule_session_layout_fixed_at_start]]
+  function start(): void {
+    if (disposed) throw new SessionControllerError('session controller: disposed')
+    const blocker = startBlocker.value
+    const phraseOne = idle.state.result
+    if (blocker !== null || phraseOne === null) {
+      throw new SessionControllerError(`session controller: a session cannot start: ${blocker}`)
+    }
+    const settings: SessionSettings = {
+      controls: idle.state.controls,
+      musicalProfile: idle.state.profileSelection,
+    }
+    const tempo = settings.controls.tempo
+    const shape = browser.windowShape.read()
+    const heldLayout = sessionLayoutAtStart(shape.widthPx, shape.remPx)
+    audio.unlock()
+    hearInterruptions()
+    let session: ActiveSession | null = null
+    try {
+      void browser.wakeLock.request()
+      void browser.orientationLock.lock()
+      const timeline = audio.start({ tempo })
+      audio.queueBacking(1, phraseOne.outcome.provenance.harmony.events)
+      session = {
+        timeline,
+        tempo,
+        phraseOne,
+        history: createSessionHistory(settings, deps.clock.wallClock),
+        agenda: createAudioTimeAgenda(),
+        runner: null,
+        floor: timeline.startAt,
+        nextReady: 2,
+        ended: null,
+        watch: null,
+      }
+      startSession(session, settings, heldLayout)
+    } catch (error: unknown) {
+      abandonStart(session, error)
+    }
+  }
+
+  /**
+   * Intent: the rest of a start, once the transport runs and phrase 1's backing is queued: make
+   * `session` the running one, show its count-in, schedule the count-in's end, start the wake-ups,
+   * the runner and the end watchers. `start` undoes it all if any of it throws.
+   */
+  // @spec-link [[rule_count_in_shown_on_screen]]
+  // @spec-link [[rule_session_layout_fixed_at_start]]
+  function startSession(
+    session: ActiveSession,
+    settings: SessionSettings,
+    heldLayout: StaffLayout,
+  ): void {
+    const { timeline, tempo, phraseOne } = session
+    active = session
+    state.phase = 'count-in'
+    state.sessionTempo = tempo
+    state.heldLayout = heldLayout
+    state.strugglingNotice = false
+    showCountIn(session, audio.now())
+    session.agenda.schedule(timeline.countInEndsAt, () => {
+      state.phase = 'running'
+      state.countIn = null
+      dispatchAt(session, timeline.countInEndsAt, { kind: 'count-in-over' })
+    })
+    timer ??= deps.clock.createWakeTimer()
+    timer.start(onWake)
+    startedTimer = timer
+    const sessionStart: SessionStart = {
+      at: timeline.startAt,
+      settings,
+      phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
+    }
+    session.runner = deps.createSessionRunner({
+      start: sessionStart,
+      checkFit: acceptEveryPhrase,
+      now: () => engineTime(session, audio.now()),
+      onOutput: (output) => onOutput(session, output),
+      onError: (error) => failLoudly(session, error),
+    })
+    session.watch = watchSessionEnds({
+      browser,
+      idleLayout: deps.idleLayout,
+      heldLayout,
+      fixedParts: deps.staffFixedParts(phraseOne),
+      end: (cause) => endIfRunning(session, cause),
+      fail: (error) => failLoudly(session, error),
+    })
+  }
+
+  return {
+    state: shallowReadonly(state),
+    start,
+    stop: () => end('stop'),
+    dispose: () => {
+      if (disposed) throw new SessionControllerError('session controller: disposed twice')
+      disposed = true
+      if (active !== null) end('stop')
+      stopReadingWindow()
+      // No timer exists when no session ever started: there is no worker to free then.
+      timer?.dispose()
+    },
+  }
+}

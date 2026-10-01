@@ -9,6 +9,7 @@ parents:
 dependents:
   - [[module_notation_layout_preflight]]
   - [[rule_session_ends_when_staff_too_small]]
+  - [[service_workspace_session_flow]]
 type: RULE
 layer: BUSINESS
 priority: 1

@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { reactive, ref } from 'vue'
 
@@ -15,6 +15,12 @@ import type {
 } from '../../src/composables/use-generation-session'
 
 let lastGenerate: ReturnType<typeof vi.fn> | null = null
+
+/** The fake session controller the next fake workspace's `createSessionController` resolves with. */
+let nextController: FakeSessionController | null = null
+
+/** Settles the next fake workspace's controller load: a test holds it to see the loading state. */
+let controllerLoad: { promise: Promise<void>; resolve: () => void } | null = null
 
 /**
  * Intent: a minimal idle-state session double so App.spec.ts never constructs the real
@@ -67,8 +73,24 @@ function fakeWorkspaceSession() {
     handleEngraved: () => {},
     handleNotationError: () => {},
     handleLayoutInputs: () => {},
+    audio: transportRig().transport,
+    createSessionController: async () => {
+      if (controllerLoad !== null) await controllerLoad.promise
+      nextController ??= createFakeSessionController()
+      return nextController.controller
+    },
     dispose: () => {},
   }
+}
+
+/** Intent: hold the next controller load until the returned function is called. */
+function holdControllerLoad(): () => void {
+  let resolve!: () => void
+  const promise = new Promise<void>((settle) => {
+    resolve = settle
+  })
+  controllerLoad = { promise, resolve }
+  return resolve
 }
 
 const { workspaceSessionFactoryKey } = vi.hoisted(() => ({
@@ -81,7 +103,12 @@ vi.mock('../../src/components/workspace/create-workspace-session', () => ({
 }))
 
 import App from '../../src/App.vue'
+import { transportRig } from './audio/transport-rig'
 import { PHRASE_SCORE_STUB } from './components/workspace/test-workspace'
+import {
+  createFakeSessionController,
+  type FakeSessionController,
+} from './components/workspace/fake-session-controller'
 
 /**
  * Stub PhraseScore, as every workspace component spec does: it is mounted in every state (it holds
@@ -92,6 +119,8 @@ const STUBS = { PhraseScore: PHRASE_SCORE_STUB }
 
 afterEach(() => {
   document.documentElement.removeAttribute('data-theme')
+  nextController = null
+  controllerLoad = null
 })
 
 describe('App', () => {
@@ -130,5 +159,45 @@ describe('App', () => {
 
     expect(injectedFactory).toHaveBeenCalledTimes(1)
     expect(wrapper.get('h1').text()).toBe('Infinite Flow')
+  })
+})
+
+// @test-link [[service_workspace_session_flow]]
+// @test-link [[rule_session_start_conditions]]
+describe('App session controller', () => {
+  it('keeps Start session disabled until the session controller has loaded', async () => {
+    const release = holdControllerLoad()
+    const wrapper = mount(App, { global: { stubs: STUBS } })
+    await flushPromises()
+
+    expect(wrapper.get('button.session-action').attributes('disabled')).toBeDefined()
+
+    release()
+    await flushPromises()
+    expect(wrapper.get('button.session-action').attributes('disabled')).toBeUndefined()
+  })
+
+  it('builds the controller once and disposes of it on unmount', async () => {
+    const fake = createFakeSessionController()
+    nextController = fake
+    const wrapper = mount(App, { global: { stubs: STUBS } })
+    await flushPromises()
+
+    wrapper.unmount()
+
+    expect(fake.dispose).toHaveBeenCalledOnce()
+  })
+
+  it('disposes of a controller that finishes loading after unmount', async () => {
+    const fake = createFakeSessionController()
+    nextController = fake
+    const release = holdControllerLoad()
+    const wrapper = mount(App, { global: { stubs: STUBS } })
+    wrapper.unmount()
+
+    release()
+    await flushPromises()
+
+    expect(fake.dispose).toHaveBeenCalledOnce()
   })
 })

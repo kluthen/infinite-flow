@@ -174,6 +174,22 @@ export const NOTATION_MIN_MEASURE_WIDTH_UNITS = 40
 // @spec-link [[module_notation_layout_preflight]]
 export const NOTATION_PHONE_LAYOUT_MEDIA_QUERY = '(max-width: 63.9375rem)'
 
+/**
+ * The same `--breakpoint-tablet-landscape` (src/styles/theme.css) as a number of rem, for pure
+ * code that judges a width it is given: a width below it selects the split layout, as
+ * `NOTATION_PHONE_LAYOUT_MEDIA_QUERY` does.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+export const BREAKPOINT_TABLET_LANDSCAPE_REM = 64
+
+/**
+ * `--breakpoint-desktop` (src/styles/theme.css) as a number of rem: below it, a portrait-shaped
+ * view hides the workspace behind the rotate-device notice (the portrait guard in
+ * src/styles/components.css, `(max-width: 89.9375rem) and (orientation: portrait)`).
+ */
+// @spec-link [[rule_session_ends_on_portrait_view]]
+export const BREAKPOINT_DESKTOP_REM = 90
+
 /** The two staff layouts: one system of four measures, or two systems of two measures each. */
 export type StaffLayout = 'one-system' | 'split'
 
@@ -213,6 +229,15 @@ export interface StaffRoomInput {
 
 /** Whether the window has room for the staff, whatever phrase it holds, and how its positions size. */
 export type StaffRoomOutcome = StaffPositionsOutcome
+
+/** The phrase-independent inputs of the width half of the room check, for one named layout. */
+export interface StaffWidthRoomInput {
+  readonly containerWidthPx: number
+  /** The leading clef, key signature and time signature width, in engraving units at scale 1. */
+  readonly leadingWidth: number
+  readonly systemPadding: number
+  readonly layout: StaffLayout
+}
 
 /** The exact budget inputs for a four-measure phrase, in engraving units at scale 1. */
 export interface SystemLayoutInput {
@@ -325,21 +350,39 @@ export function planStaffRoom(input: StaffRoomInput): StaffRoomOutcome {
   const positions = planStaffPositions(input.viewport)
   if (positions.kind === 'no_room') return positions
 
-  const measuresPerSystem = input.viewport.layout === 'one-system' ? 4 : 2
+  const tooNarrow = planStaffWidthRoom({
+    containerWidthPx: input.containerWidthPx,
+    leadingWidth: input.leadingWidth,
+    systemPadding: input.systemPadding,
+    layout: input.viewport.layout,
+  })
+  return tooNarrow ?? positions
+}
+
+/**
+ * The width half of `planStaffRoom`, for a layout named by the caller rather than selected by the
+ * viewport: whether the container can hold the layout's fixed parts (the leading clef, key
+ * signature and time signature, every measure at the minimum measure width, and the padding) at
+ * the legibility floor. Returns the too-narrow outcome, or null when the width has room. A session
+ * holding a layout across a breakpoint crossing judges its own layout's width with it.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+// @spec-link [[rule_session_ends_when_staff_too_small]]
+export function planStaffWidthRoom(input: StaffWidthRoomInput): StaffNoRoom | null {
+  assertContainerWidth(input.containerWidthPx)
+  const measuresPerSystem = input.layout === 'one-system' ? 4 : 2
   const fixedUnits =
     input.leadingWidth + measuresPerSystem * NOTATION_MIN_MEASURE_WIDTH_UNITS + input.systemPadding
-  if (input.containerWidthPx < fixedUnits * FLOOR_SCALE) {
-    return {
-      kind: 'no_room',
-      cause: 'too_narrow',
-      details: {
-        containerWidthPx: input.containerWidthPx,
-        requiredWidthPx: fixedUnits * FLOOR_SCALE,
-        floor: NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX,
-      },
-    }
+  if (input.containerWidthPx >= fixedUnits * FLOOR_SCALE) return null
+  return {
+    kind: 'no_room',
+    cause: 'too_narrow',
+    details: {
+      containerWidthPx: input.containerWidthPx,
+      requiredWidthPx: fixedUnits * FLOOR_SCALE,
+      floor: NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX,
+    },
   }
-  return positions
 }
 
 /**

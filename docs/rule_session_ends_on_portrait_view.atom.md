@@ -10,7 +10,8 @@ type: RULE
 layer: BUSINESS
 version: 0.1
 human_name: Portrait View Ends the Session
-dependents: []
+dependents:
+  - [[service_workspace_session_flow]]
 ---
 
 # Portrait View Ends the Session
