@@ -365,3 +365,47 @@ describe('WorkspaceShell session-end focus on controller-status', () => {
     expect(document.activeElement).toBe(controllerStatus(wrapper).element)
   })
 })
+
+// @test-link [[rule_controller_loss_mid_session]]
+// @test-link [[rule_controller_reconnection_window]]
+describe('WorkspaceShell controller lost in a session', () => {
+  it("shows the disconnected badge, disabled, while the lost controller's countdown runs", async () => {
+    const rig = createControllerRig({ devices: [KEYS_A] })
+    await rig.controller.connect()
+    const live = liveWorkspace()
+    const fake = createFakeSessionController()
+    const wrapper = mountShell(live, { midi: rig.controller, controller: fake.controller })
+    fake.start()
+    await nextTick()
+    expect(controllerStatus(wrapper).text()).toContain(KEYS_A.name)
+
+    fake.state.controllerLost = { secondsLeft: 30 }
+    await nextTick()
+    const badge = controllerStatus(wrapper)
+    expect(badge.text()).toBe('Controller disconnected')
+    expect(badge.classes()).toEqual(expect.arrayContaining(['is-badge', 'is-error']))
+    expect(badge.attributes('disabled')).toBeDefined()
+
+    fake.state.controllerLost = null
+    await nextTick()
+    expect(controllerStatus(wrapper).text()).toContain(KEYS_A.name)
+  })
+})
+
+// @test-link [[rule_controller_connects_between_sessions]]
+// @test-link [[rule_midi_starting_note]]
+describe('WorkspaceShell connection sheet flag', () => {
+  it('reports the sheet closed at setup, open inside the click, and closed again at once', async () => {
+    const rig = createControllerRig({ supported: false })
+    const live = liveWorkspace()
+    const wrapper = mountShell(live, { midi: rig.controller })
+    expect(wrapper.emitted('connection-sheet-open-change')).toEqual([[false]])
+
+    ;(controllerStatus(wrapper).element as HTMLButtonElement).click()
+    expect(wrapper.emitted('connection-sheet-open-change')).toEqual([[false], [true]])
+
+    await flushPromises()
+    ;(wrapper.get('.sheet-close').element as HTMLButtonElement).click()
+    expect(wrapper.emitted('connection-sheet-open-change')).toEqual([[false], [true], [false]])
+  })
+})

@@ -340,14 +340,63 @@ interface WorkspaceHarnessWindowShape {
 type WorkspaceHarnessCountInBeat = 'muted' | 'current' | 'past'
 
 /** Why a session ended (src/session/session-types.ts's `SessionEndCause`). */
-type WorkspaceHarnessSessionEndCause = 'stop' | 'hidden-tab' | 'staff-not-shown'
+type WorkspaceHarnessSessionEndCause =
+  'stop' | 'hidden-tab' | 'staff-not-shown' | 'silence-timeout' | 'controller-lost'
+
+/**
+ * Which note of the session a note is (src/domain/acknowledgement/expected-note.ts's
+ * `ExpectedNoteIdentity`): its phrase number, its measure (0-3) and the index of its attack among
+ * that measure's events, rests included. The staff tags the note's glyphs with
+ * `data-note-id="${phraseNumber}:${measureIndex}:${eventIndex}"`.
+ */
+interface WorkspaceHarnessNoteIdentity {
+  readonly phraseNumber: number
+  readonly measureIndex: number
+  readonly eventIndex: number
+}
+
+/**
+ * The note that would start a session if played now (src/session/starting-note.ts's
+ * `StartingNote`): which note it is, the concert pitch a played note must equal, and the label
+ * the start line names it by (the written spelling with its octave, for example `B♭4`).
+ */
+interface WorkspaceHarnessStartingNote {
+  readonly identity: WorkspaceHarnessNoteIdentity
+  readonly concertPitch: number
+  readonly label: string
+}
+
+/**
+ * A played note a session history recorded (src/session/session-history.ts's
+ * `RecordedPlayedNote`): concert pitch, velocity, and its latency-compensated onset and release on
+ * the audio clock (the USB correction is 0, so they equal the raw times).
+ */
+interface WorkspaceHarnessRecordedPlayedNote {
+  readonly pitch: number
+  readonly velocity: number
+  readonly onsetAt: number
+  readonly releaseAt: number
+}
+
+/**
+ * One phrase of the last ended session's history: its number, when it started sounding, its
+ * concert timeline (`JSON.stringify`, as `snapshot().timeline`), and the acknowledgements (in
+ * arrival order) and played notes (by onset) that fall inside it.
+ */
+interface WorkspaceHarnessHistoryPhrase {
+  readonly phraseNumber: number
+  readonly startedAt: number
+  readonly timeline: string
+  readonly acknowledgements: readonly WorkspaceHarnessNoteIdentity[]
+  readonly playedNotes: readonly WorkspaceHarnessRecordedPlayedNote[]
+}
 
 /**
  * The session controller's state as plain JSON (src/components/workspace/
  * workspace-session-controller-types.ts's `SessionControllerState`), its last closed history
- * reduced to the number of phrases it recorded, and its session staff reduced to the playhead and
- * the slot keys (`${phraseNumber}:${part}`, part `whole`, `opening` or `closing`) of src/session/
- * rolling-display.ts.
+ * reduced to its phrase count and, per phrase, its timeline, acknowledgements and played notes,
+ * and its session staff reduced to the playhead and the slot keys (`${phraseNumber}:${part}`,
+ * part `whole`, `opening` or `closing`) of src/session/rolling-display.ts.
  */
 interface WorkspaceHarnessSessionState {
   readonly phase: 'idle' | 'count-in' | 'running'
@@ -369,6 +418,19 @@ interface WorkspaceHarnessSessionState {
   } | null
   /** How many phrases the last ended session's history recorded; null before any end. */
   readonly lastHistoryPhraseCount: number | null
+  /** The last ended session's history, phrase by phrase; null before any end. */
+  readonly lastHistoryPhrases: readonly WorkspaceHarnessHistoryPhrase[] | null
+  /**
+   * The note that would start a session if played now: non-null exactly at Idle when Start may be
+   * clicked, the MIDI controller is connected and the connection sheet is closed.
+   */
+  readonly startingNote: WorkspaceHarnessStartingNote | null
+  /** A lost controller's countdown while it runs (whole seconds left, 30 down to 1); else null. */
+  readonly controllerLost: { readonly secondsLeft: number } | null
+  /** The running session's acknowledged notes, in acknowledgement order; empty at Idle. */
+  readonly acknowledged: readonly WorkspaceHarnessNoteIdentity[]
+  /** Whether the running session reads a controller (fixed at its start); null at Idle. */
+  readonly sessionHasController: boolean | null
   /** The measure being played (0-based, 0 to 3); null in the count-in and with no session. */
   readonly playhead: { readonly phraseNumber: number; readonly measureIndex: number } | null
   /** The slot key each system position shows; both null with no session, one null when blank. */
@@ -429,6 +491,11 @@ interface WorkspaceHarnessApi {
   roomChecks: () => number
   /** How many seeds the session has drawn from the seed provider since the page loaded. */
   seedsDrawn: () => number
+  /**
+   * The concert timeline (`JSON.stringify`, as `snapshot().timeline`) of every successful
+   * `generate` answer since the page loaded, Idle and session look-ahead alike, in return order.
+   */
+  generatedTimelines: () => readonly string[]
   /** The current workspace session snapshot. */
   snapshot: () => WorkspaceHarnessSnapshot
   /**

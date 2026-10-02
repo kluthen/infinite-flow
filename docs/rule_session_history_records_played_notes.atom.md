@@ -8,6 +8,7 @@ parents:
   - [[rule_session_history_keeps_timeline_and_inputs]]
 dependents:
   - [[service_session_history]]
+  - [[service_workspace_session_flow]]
 type: RULE
 layer: BUSINESS
 version: 0.1

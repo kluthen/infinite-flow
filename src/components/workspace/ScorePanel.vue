@@ -11,7 +11,8 @@
  * The toolbar also holds the audio mix (`MixControls`), which drives the session's audio transport.
  * Between the banner's position and the staff sits `SessionCueRow`, the practice session's cues.
  * While a practice session runs, `PhraseScore` shows the controller's session staff instead of the
- * Idle phrase, and its failure to show it is forwarded to the session, never to Idle.
+ * Idle phrase, and its failure to show it is forwarded to the session, never to Idle. It hands
+ * `PhraseScore` the controller's marks: the start marker at Idle, the acknowledged notes in a session.
  */
 import { computed, nextTick, ref, watch } from 'vue'
 
@@ -26,6 +27,7 @@ import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import MixControls from './MixControls.vue'
 import SessionCueRow from './SessionCueRow.vue'
+import { useScoreOverlays } from './use-score-overlays'
 import type { MixVolumePopover } from './mix-volume-popover'
 import type { SessionController } from './workspace-session-controller-types'
 
@@ -244,6 +246,9 @@ const roomNotice = computed(() => state.value.roomNotice)
 // @spec-link [[service_workspace_session_flow]]
 const sessionStaff = computed(() => props.controller?.state.sessionStaff ?? null)
 
+/** Intent: the controller's marks PhraseScore draws on the score; see useScoreOverlays. */
+const overlays = useScoreOverlays(() => props.controller)
+
 /** Intent: the D29 alert-banner text, mapped by failure kind rather than a "Generation failed: " prefix concatenated onto the error's own message. */
 // @spec-link [[rule_generation_failure_alert_copy]]
 const generationErrorAlertText = computed(() =>
@@ -281,6 +286,7 @@ const generationErrorAlertText = computed(() =>
           :phrase="pendingPhrase"
           :phrase-number="1"
           :session="sessionStaff"
+          :overlays="overlays"
           @engraved="handleEngraved"
           @notation-error="handleNotationError"
           @session-staff-failed="handleSessionStaffFailed"

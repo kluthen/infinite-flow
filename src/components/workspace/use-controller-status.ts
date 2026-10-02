@@ -2,7 +2,8 @@
  * The header's `controller-status` as reactive state: the controller's changes folded into the
  * status facts, the one form the header shows, and how many devices were seen this page session.
  * During a session the header keeps the form it showed when the session started, so the header
- * never changes shape while the player is reading; the live form shows again once it ends.
+ * never changes shape while the player is reading, except to show a controller lost in it; the live
+ * form shows again once it ends.
  */
 import { computed, onScopeDispose, shallowRef, watch, type ComputedRef } from 'vue'
 
@@ -17,7 +18,10 @@ import type { MidiController } from '@/midi/midi-controller-state'
 /** What the header and the connection sheet's host read; reactive. */
 // @spec-link [[rule_same_controller_reattaches]]
 export interface ControllerStatusView {
-  /** The form the header shows: the live one, or the one a running session started with. */
+  /**
+   * The form the header shows: the live one, or in a running session the one it started with, or
+   * `disconnected` while its controller is lost.
+   */
   readonly form: ComputedRef<ControllerStatusForm>
   /** How many distinct inputs were seen this page session. */
   readonly seenDeviceCount: ComputedRef<number>
@@ -25,16 +29,19 @@ export interface ControllerStatusView {
 
 /**
  * Intent: follow `midi` for as long as the calling scope lives (a component's setup), folding
- * every change it reports, the current one first. `sessionActive` is read reactively: the form is
- * frozen from its turning true until it turns false. No controller is lost in a session yet
- * (chunk 17 wires it), so the disconnected form never shows here.
+ * every change it reports, the current one first. `sessionActive` and `lostInSession` are read
+ * reactively: the form is frozen from `sessionActive` turning true until it turns false, except
+ * that `disconnected` shows through the freeze while `lostInSession` is true (the frozen form
+ * returns once the same device reattaches); outside a session `lostInSession` is not read.
  */
 // @spec-link [[rule_same_controller_reattaches]]
+// @spec-link [[rule_controller_loss_mid_session]]
 // @spec-link [[rule_controller_connects_between_sessions]]
 // @spec-link [[rule_midi_never_blocks_session]]
 export function useControllerStatus(
   midi: MidiController,
   sessionActive: () => boolean,
+  lostInSession: () => boolean,
 ): ControllerStatusView {
   const facts = shallowRef(
     foldControllerStatus(initialControllerStatusFacts(midi.state()), {
@@ -63,7 +70,11 @@ export function useControllerStatus(
   )
 
   return {
-    form: computed(() => sessionForm.value ?? liveForm.value),
+    form: computed(() => {
+      if (sessionForm.value === null) return liveForm.value
+      if (lostInSession()) return controllerStatusForm(facts.value, { lostInSession: true })
+      return sessionForm.value
+    }),
     seenDeviceCount: computed(() => facts.value.seenDeviceIds.length),
   }
 }

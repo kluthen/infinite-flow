@@ -9,7 +9,13 @@ import { describe, expect, it } from 'vitest'
 import { SessionEngineError, type SessionEndCause } from '@/session/session-types'
 import { SessionDriver, kinds, phraseOneFor, sessionSettings, successFor } from './session-harness'
 
-const CAUSES: readonly SessionEndCause[] = ['stop', 'hidden-tab', 'staff-not-shown']
+const CAUSES: readonly SessionEndCause[] = [
+  'stop',
+  'hidden-tab',
+  'staff-not-shown',
+  'silence-timeout',
+  'controller-lost',
+]
 
 /** Intent: a driver at 240 BPM (a 1 s measure) started at 0, so phrase 2's deadline is 1. */
 function fastDriver(): SessionDriver {
@@ -20,8 +26,12 @@ function fastDriver(): SessionDriver {
 // @test-link [[rule_count_in_ending_returns_to_idle]]
 // @test-link [[rule_stop_ends_session]]
 // @test-link [[rule_hidden_tab_ends_session]]
+// @test-link [[rule_silence_timeout_ends_session]]
+// @test-link [[rule_controller_reconnection_window]]
 describe('ending a session', () => {
   // @test-link [[rule_count_in_ending_returns_to_idle]]
+  // @test-link [[rule_silence_timeout_ends_session]]
+  // @test-link [[rule_controller_reconnection_window]]
   it.each(CAUSES)('ends during the count-in with no phrase sounded (%s)', (cause) => {
     const driver = fastDriver()
     expect(driver.end(0.5, cause)).toEqual([
@@ -31,6 +41,8 @@ describe('ending a session', () => {
 
   // @test-link [[rule_stop_ends_session]]
   // @test-link [[rule_hidden_tab_ends_session]]
+  // @test-link [[rule_silence_timeout_ends_session]]
+  // @test-link [[rule_controller_reconnection_window]]
   it.each(CAUSES)('ends while running with the phrases that sounded (%s)', (cause) => {
     const driver = fastDriver()
     driver.accept(0.5)

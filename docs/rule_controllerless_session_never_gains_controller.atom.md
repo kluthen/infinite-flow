@@ -10,7 +10,8 @@ parents:
   - [[req_midi_controller_input]]
   - [[req_rolling_practice_session]]
 tags: [v2, release-v2.0, midi, session]
-dependents: []
+dependents:
+  - [[service_workspace_session_flow]]
 ---
 
 # Session Without a Controller Stays Without One

@@ -1,8 +1,9 @@
 /**
  * The session history: an in-memory record of every phrase of a session that started sounding,
  * fed from the session engine's outputs in order. Each entry keeps the phrase as it was shown and
- * the inputs that reproduce it, with the tempo it played at and the internal repeat mark, and
- * leaves empty slots for the acknowledgements and played notes that played-note tracking fills.
+ * the inputs that reproduce it, with the tempo it played at and the internal repeat mark, and the
+ * acknowledgements and played notes that fall inside it, placed on read (see
+ * session-history-played-notes).
  * It also keeps when the session started, read once from an injected wall clock, and the instrument
  * profile of the locked settings. It never reads the system time, touches no browser API and stores
  * nothing outside memory.
@@ -13,6 +14,7 @@ import type { ConcertPitch } from '../domain/events/concert-pitch'
 import { deepFreeze } from '../domain/events/deep-freeze'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
 import type { InstrumentProfileId } from '../domain/profile/instrument-profiles'
+import { withPlayedNotes } from './session-history-played-notes'
 import type { AudioTime, SessionOutput, SessionSettings, SuccessfulOutcome } from './session-types'
 
 /** A note the player played during a phrase: its concert pitch, velocity and audio-clock span. */
@@ -28,8 +30,9 @@ export interface RecordedPlayedNote {
  * One phrase that started sounding. `outcome` is the phrase exactly as shown (its timeline and the
  * harmony its chord symbols come from); `intent` holds the resolved request with the density it
  * was generated with, the seed and the carry-in; `tempo` is the tempo it played at. `isRepeat` and
- * `repeatOf` are the internal repeat mark, which no view shows. `acknowledgements` and
- * `playedNotes` stay empty until played-note tracking fills them.
+ * `repeatOf` are the internal repeat mark, which no view shows. `acknowledgements` holds the
+ * acknowledged expected notes of the phrase, in arrival order; `playedNotes` the played notes whose
+ * onsets fall inside it, by onset.
  */
 // @spec-link [[service_session_history]]
 // @spec-link [[rule_session_history_keeps_timeline_and_inputs]]
@@ -48,14 +51,18 @@ export interface SessionHistoryRecord {
 }
 
 /**
- * A session's history: fed every engine output in order, read back as one ordered list, with the
- * session's start time (epoch milliseconds, read once from the wall clock at creation) and the
- * instrument profile id of its locked settings.
+ * A session's history: fed every engine output in order, every finished played note (onset and
+ * release already latency-compensated, in release order) and every acknowledgement, read back as
+ * one ordered list, with the session's start time (epoch milliseconds, read once from the wall
+ * clock at creation) and the instrument profile id of its locked settings.
  */
 // @spec-link [[service_session_history]]
 // @spec-link [[rule_session_settings_locked]]
+// @spec-link [[rule_session_history_records_played_notes]]
 export interface SessionHistory {
   record(output: SessionOutput): void
+  recordPlayedNote(note: RecordedPlayedNote): void
+  recordAcknowledgement(identity: ExpectedNoteIdentity): void
   phrases(): readonly SessionHistoryRecord[]
   readonly phraseCount: number
   readonly startedAt: number
@@ -184,6 +191,56 @@ function assertEndMatches(output: EndedOutput, recorded: number): void {
     )
 }
 
+/** The highest MIDI velocity; a played note's velocity is 1 to this. */
+const MAX_VELOCITY = 127
+
+/** The last measure of a four-measure phrase, counted from 0. */
+const LAST_MEASURE_INDEX = 3
+
+/**
+ * Intent: a deep-frozen copy of a finished played note, or a SessionHistoryError when its span is
+ * not finite, it releases before its onset, or its velocity is no MIDI note-on velocity.
+ */
+// @spec-link [[rule_session_history_records_played_notes]]
+function checkedPlayedNote(note: RecordedPlayedNote): RecordedPlayedNote {
+  const { pitch, velocity, onsetAt, releaseAt } = note
+  if (!Number.isFinite(onsetAt) || !Number.isFinite(releaseAt) || releaseAt < onsetAt)
+    throw new SessionHistoryError(
+      `A played note must release at or after its onset, got ${onsetAt} to ${releaseAt}.`,
+    )
+  if (!Number.isInteger(velocity) || velocity < 1 || velocity > MAX_VELOCITY)
+    throw new SessionHistoryError(`A played note's velocity must be 1 to 127, got ${velocity}.`)
+  return deepFreeze({ pitch, velocity, onsetAt, releaseAt })
+}
+
+/**
+ * Intent: a deep-frozen copy of an acknowledged note's identity and its key, or a
+ * SessionHistoryError when it names no possible note of the session.
+ */
+// @spec-link [[rule_session_history_records_played_notes]]
+function checkedAcknowledgement(identity: ExpectedNoteIdentity): {
+  readonly identity: ExpectedNoteIdentity
+  readonly key: string
+} {
+  const { phraseNumber, measureIndex, eventIndex } = identity
+  if (
+    !Number.isInteger(phraseNumber) ||
+    phraseNumber < 1 ||
+    !Number.isInteger(measureIndex) ||
+    measureIndex < 0 ||
+    measureIndex > LAST_MEASURE_INDEX ||
+    !Number.isInteger(eventIndex) ||
+    eventIndex < 0
+  )
+    throw new SessionHistoryError(
+      `An acknowledgement must name a note of the session, got phrase ${phraseNumber}, measure ${measureIndex}, event ${eventIndex}.`,
+    )
+  return {
+    identity: deepFreeze({ phraseNumber, measureIndex, eventIndex }),
+    key: `${phraseNumber}:${measureIndex}:${eventIndex}`,
+  }
+}
+
 /** Intent: the deep-frozen record of one sounded phrase at the session's tempo. */
 function recordOf(output: SoundingOutput, tempo: number): SessionHistoryRecord {
   const { phraseNumber, origin, intent, outcome, repeatOf } = output.phrase
@@ -204,9 +261,11 @@ function recordOf(output: SoundingOutput, tempo: number): SessionHistoryRecord {
  * Intent: an empty history for one session, created at its start from the settings locked at that
  * start and an injected wall clock, read exactly once here for the start time. `record` takes
  * every engine output in order: a phrase-sounding output adds the next record, `ended` closes the
- * history, and every other kind (read-ahead included) is ignored. An output after the end, a
- * phrase out of order or for another instrument profile, or an end that disagrees with the
- * records throws a SessionHistoryError.
+ * history, and every other kind (read-ahead included) is ignored. `recordPlayedNote` and
+ * `recordAcknowledgement` take the player's finished notes and acknowledgements, placed in the
+ * records on read. An output, note or acknowledgement after the end, a phrase out of order or for
+ * another instrument profile, an end that disagrees with the records, an invalid note or a repeated
+ * acknowledgement throws a SessionHistoryError.
  */
 // @spec-link [[service_session_history]]
 // @spec-link [[rule_session_history_keeps_timeline_and_inputs]]
@@ -220,8 +279,16 @@ export function createSessionHistory(
   const instrumentProfileId = sessionInstrumentProfileId(settings)
   const startedAt = sessionStartTime(wallClock)
   const records: SessionHistoryRecord[] = []
+  const playedNotes: RecordedPlayedNote[] = []
+  const acknowledgements: ExpectedNoteIdentity[] = []
+  const acknowledgedKeys = new Set<string>()
   let snapshot: readonly SessionHistoryRecord[] | undefined
   let ended = false
+
+  /** Intent: refuse anything the player does once the session ended; held notes come first. */
+  function assertOpen(what: string): void {
+    if (ended) throw new SessionHistoryError(`${what} arrived after the end.`)
+  }
 
   /** Intent: add the next sounded phrase; the read-back list is rebuilt on the next read. */
   function addSounding(output: SoundingOutput): void {
@@ -237,16 +304,38 @@ export function createSessionHistory(
     instrumentProfileId,
     /** Intent: take one engine output, in the order the engine gave it. */
     record(output: SessionOutput): void {
-      if (ended) throw new SessionHistoryError(`A ${output.kind} output arrived after the end.`)
+      assertOpen(`A ${output.kind} output`)
       if (output.kind === 'phrase-sounding') addSounding(output)
       else if (output.kind === 'ended') {
         assertEndMatches(output, records.length)
         ended = true
       }
     },
-    /** Intent: every recorded phrase in sounding order, as a list frozen until the next record. */
+    /** Intent: keep one finished played note; the read-back list is rebuilt on the next read. */
+    // @spec-link [[rule_session_history_records_played_notes]]
+    recordPlayedNote(note: RecordedPlayedNote): void {
+      assertOpen('A played note')
+      playedNotes.push(checkedPlayedNote(note))
+      snapshot = undefined
+    },
+    /** Intent: keep one acknowledgement, once; the read-back list is rebuilt on the next read. */
+    // @spec-link [[rule_session_history_records_played_notes]]
+    recordAcknowledgement(identity: ExpectedNoteIdentity): void {
+      assertOpen('An acknowledgement')
+      const checked = checkedAcknowledgement(identity)
+      if (acknowledgedKeys.has(checked.key))
+        throw new SessionHistoryError(`Note ${checked.key} was already acknowledged.`)
+      acknowledgedKeys.add(checked.key)
+      acknowledgements.push(checked.identity)
+      snapshot = undefined
+    },
+    /**
+     * Intent: every recorded phrase in sounding order with its acknowledgements and played notes,
+     * as a list frozen until the next record, note or acknowledgement.
+     */
+    // @spec-link [[rule_session_history_records_played_notes]]
     phrases(): readonly SessionHistoryRecord[] {
-      snapshot ??= Object.freeze([...records])
+      snapshot ??= Object.freeze(withPlayedNotes(records, playedNotes, acknowledgements))
       return snapshot
     },
     /** Intent: how many phrases have started sounding so far. */

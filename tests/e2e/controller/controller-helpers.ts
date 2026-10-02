@@ -176,6 +176,8 @@ export const FORM = {
   connected: (name: string) => ({ text: name, badge: true, error: false, dot: 'is-success' }),
   noController: { text: 'No controller', badge: true, error: false, dot: 'is-neutral' },
   blocked: { text: 'MIDI access blocked', badge: true, error: true, dot: 'is-error' },
+  /** The selected controller lost mid-session, while its 30-second countdown runs. */
+  disconnected: { text: 'Controller disconnected', badge: true, error: true, dot: 'is-error' },
 } as const
 
 /** Intent: the controller's state, read through the harness. */

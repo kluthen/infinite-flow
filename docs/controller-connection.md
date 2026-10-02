@@ -44,7 +44,7 @@ loads on demand as its own chunk, and the check's note is drawn by the lazy VexF
 | File                                                                  | Holds                                                                                                              | Chunk              |
 | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------ |
 | `src/midi/controller-status.ts`                                       | The status facts folded from every controller change, and the one header form read from them. Pure.                | Entry              |
-| `src/components/workspace/use-controller-status.ts`                   | The facts and the form as reactive state, the form frozen while a session runs.                                    | Entry              |
+| `src/components/workspace/use-controller-status.ts`                   | The facts and the form as reactive state, the form frozen while a session runs, save a controller lost in it.      | Entry              |
 | `src/components/workspace/ControllerStatus.vue`                       | The `controller-status` button: `Connect controller`, or a badge with a dot and one fixed-width label.             | Entry              |
 | `src/components/workspace/use-connection-sheet.ts`                    | The sheet's host: the click (audio unlock, permission read, request), where the sheet opens, its props, its close. | Entry              |
 | `src/components/workspace/sheet-close-focus.ts`                       | Where focus goes when the sheet closes. Pure.                                                                      | Entry              |
@@ -96,7 +96,8 @@ The order of the console lines is unchanged:
   exactly where it was before. A phrase accepted before that is queued, and announced as soon as
   the module loads, in acceptance order. In practice the module has loaded long before: a
   generation is a Worker round trip.
-- **Session phrases.** `createSessionController()` awaits the announcer's `loaded` together with
+- **Session phrases.** `WorkspaceSession.loadSessionRunner()` awaits the announcer's `loaded`
+  together with the runner's own module, and `createSessionController()` awaits that together with
   the controller's own chunk, so a session runner always starts with the module loaded and each
   session phrase is announced before its output is passed on. A runner asking for the announcing
   sink before the module loaded is a wiring defect and throws.
@@ -111,11 +112,17 @@ reactive status, the badge, the sheet's host and the close-focus rule. Everythin
 its reducer, the check and its copy, and the replay announcements) loads on demand. Without moving
 the replay announcements out, the entry chunk would have needed more.
 
+The budget is still 224 KiB. To give the entry chunk room for MIDI in the session, the session
+runner (the engine and its failure ladder) now loads with the session controller, through
+`WorkspaceSession.loadSessionRunner()`: the entry chunk went from 228,797 bytes to about
+210.7 kB (see
+[The runner and the one-Worker wiring](session-engine.md#the-runner-and-the-one-worker-wiring)).
+
 ## The header: `controller-status`
 
 ### Facts and forms
 
-`useControllerStatus(midi, sessionActive)` subscribes to the controller for the workspace's
+`useControllerStatus(midi, sessionActive, lostInSession)` subscribes to the controller for the workspace's
 lifetime and folds every change it reports, the current one first, into four facts
 (`foldControllerStatus`):
 
@@ -146,8 +153,13 @@ kept, and comes back as the connected badge by itself, with no check (see
 **Frozen during a session.** The form is taken synchronously when a session starts (count-in
 included) and kept until it ends; the live form then shows again. The header never changes shape
 while the player reads, and a refusal or a reattachment during a session shows once it ends.
-`lostInSession` is always false today: the controller lost mid-session is chunk 17's (see
-[What chunk 17 must know](midi-input.md#what-chunk-17-must-know)).
+
+**Except for a controller lost in it.** `WorkspaceShell` passes `lostInSession` as "the session
+controller's `controllerLost` countdown is running" (see
+[A lost controller](session-engine.md#a-lost-controller)). While it is true, the header shows the
+error-toned `disconnected` badge through the freeze; once the same device reattaches, the
+countdown clears and the frozen form returns. `lostInSession` is read only during a session. A
+session started without a controller never sets it, so its header keeps the form it started with.
 
 **The button.** `ControllerStatus.vue` is always one `btn controller-status` button, so focus can
 always land on it. Each badge has a decorative `status-dot` (`is-success`, `is-neutral` or
@@ -171,8 +183,13 @@ runs `useConnectionSheet`'s `open()` synchronously, inside the click:
   renders the component once loaded, with `sheetProps`. A load failure closes the sheet and
   propagates.
 - **`connectionSheetOpen`** is true from the click until the sheet closes, its loading included.
-  `WorkspaceShell` exposes it. Nothing reads it yet: chunk 17 uses it so that no MIDI note starts
-  a session, or its count-in, while the sheet is open.
+  `WorkspaceShell` exposes it, and reports every change, once at setup too (closed), as its
+  `connection-sheet-open-change` event, from a synchronous watcher: the event fires inside the
+  change itself. `App.vue` writes the value to `WorkspaceSession.connectionSheetOpen`, which the
+  session controller reads at each MIDI note and for its starting note. So no note starts a
+  session, or its count-in, while the sheet is open, a note arriving right after the click
+  included: a note played then reaches the sheet's check only, and the start line and the start
+  marker are hidden (see [The starting note](session-engine.md#the-starting-note)).
 
 ## The sheet
 
@@ -348,7 +365,8 @@ distance reads "{n} semitone(s)" below an octave, "{n} octave(s)" for a multiple
 **Still open.** The master spec's §12 asks which note a written middle C actually sends on the
 reference hardware at each device setting. That answer decides whether a manual
 input-transposition setting is also needed. The check is built; that verification closes before
-the v2.0 gate.
+the v2.0 gate, at the same sitting as the timing tuning (see
+[MIDI Tuning](midi-tuning.md#related-open-item-the-controller-check)).
 
 ## How it's tested
 

@@ -27,8 +27,8 @@ export interface MidiDevice {
  * - `opening`: the selected input's port is being opened.
  * - `connected`: the selected input's port is present and open (the controller is attached).
  * - `away`: the selected input's port reports disconnected (the controller is lost), or is
- *   present but its open failed (not attached; its next input change retries); the selection is
- *   kept.
+ *   present but its open failed (not attached; its next input change retries), or its
+ *   reattachment is held back; the selection is kept.
  */
 // @spec-link [[rule_controller_attached_definition]]
 // @spec-link [[rule_midi_never_blocks_session]]
@@ -68,13 +68,36 @@ export interface MidiController {
   readonly abandonConnect: () => void
   readonly select: (deviceId: string) => Promise<void>
   /**
-   * The player's Disconnect: end held notes, clear the selection; the old port is no longer read
-   * nor reattached by itself. Throws a MidiControllerError when nothing is selected.
+   * The player's Disconnect: end held notes, clear the selection (ending any reattachment hold);
+   * the old port is no longer read nor reattached by itself. Throws a MidiControllerError when
+   * nothing is selected.
    */
   // @spec-link [[req_midi_controller_input]]
   readonly disconnect: () => void
+  /**
+   * Hold back the away device's reattachment, for a session started without it: while held, the
+   * selected port coming back stays `away`, is never opened nor read; the selection is kept. Only
+   * while `away` and not already held, else throws a MidiControllerError.
+   */
+  // @spec-link [[rule_start_while_controller_away]]
+  // @spec-link [[rule_controllerless_session_never_gains_controller]]
+  readonly holdReattachment: () => void
+  /**
+   * End the hold: the selected port present now reattaches as on a replug (reopened if closed),
+   * else it reattaches when it comes back. Throws a MidiControllerError when nothing is held.
+   */
+  // @spec-link [[rule_start_while_controller_away]]
+  // @spec-link [[rule_same_controller_reattaches]]
+  readonly releaseReattachment: () => void
   readonly subscribe: (listener: (change: MidiControllerChange) => void) => () => void
   readonly onPlayedNote: (listener: (event: PlayedNoteEvent) => void) => () => void
+  /**
+   * End every held note and return the ended notes (also told to the note listeners). They end at
+   * `at`, or at the last time mapped from the current selection's messages when that is later:
+   * message order beats clock jitter, so a note pressed just before `at` never ends before its
+   * onset.
+   */
+  // @spec-link [[rule_only_note_on_counts_as_played]]
   readonly releaseHeld: (at: AudioTime) => PlayedNoteEvents
 }
 

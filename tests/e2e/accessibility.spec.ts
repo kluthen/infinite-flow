@@ -24,6 +24,13 @@ import {
   queueSeeds,
   releaseGeneration,
 } from './release/harness-helpers'
+import {
+  gotoSessionHarness,
+  readyToStart,
+  startSession,
+  toRunning,
+} from './session/session-helpers'
+import { connectDevice, unplugNow } from './session/session-midi-helpers'
 
 /** Intent: format axe violations into a readable failure message rather than a raw object dump. */
 function describeViolations(violations: readonly { id: string; help: string }[]): string {
@@ -255,6 +262,56 @@ for (const scan of SHEET_SCANS) {
 
       await scan.reach(page)
       await expect(sheet(page).locator('#sheet-title')).toHaveText(scan.title)
+      await page.waitForFunction(() =>
+        document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
+      )
+
+      const results = await new AxeBuilder({ page }).analyze()
+      expect(results.violations, describeViolations(results.violations)).toEqual([])
+    })
+  }
+}
+
+// The MIDI session states (chunk 17), on the workspace harness's fake MIDI access and fake audio
+// clock, in both themes: the start line with the start marker at Ready, and the disconnect banner
+// with the disconnected badge while a lost controller's countdown runs.
+
+/** One MIDI session state to scan: how to reach it from Ready with the keyboard connected. */
+interface MidiSessionScan {
+  readonly name: string
+  readonly reach: (page: Page) => Promise<void>
+}
+
+const MIDI_SESSION_SCANS: readonly MidiSessionScan[] = [
+  {
+    name: 'the start line at Ready',
+    reach: async (page) => {
+      await expect(page.locator('.session-cue-row p.start-note-line')).toBeVisible()
+      await expect(page.locator('.staff-frame .start-note-marker')).toHaveCount(1)
+    },
+  },
+  {
+    name: 'the disconnect banner mid-session',
+    reach: async (page) => {
+      await startSession(page)
+      await toRunning(page)
+      await unplugNow(page, KEYS)
+      await expect(page.locator('.session-cue-row .session-alert-countdown')).toHaveText('30 s')
+    },
+  },
+]
+
+for (const scan of MIDI_SESSION_SCANS) {
+  for (const theme of ['Light', 'Dark'] as const) {
+    // @test-link [[rule_starting_note_named]]
+    // @test-link [[rule_controller_loss_mid_session]]
+    test(`has no detectable axe violations with ${scan.name}, ${theme} theme`, async ({ page }) => {
+      await gotoSessionHarness(page)
+      await radio(page, 'Presentation theme', theme).click()
+      await connectDevice(page, KEYS)
+      await readyToStart(page)
+
+      await scan.reach(page)
       await page.waitForFunction(() =>
         document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
       )

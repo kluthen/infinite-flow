@@ -10,7 +10,8 @@ tags: [v2, release-v2.0, midi, session-end]
 parents:
   - [[req_midi_controller_input]]
   - [[rule_stop_ends_session]]
-dependents: []
+dependents:
+  - [[service_workspace_session_flow]]
 ---
 
 # Silence Timeout Ends a Session

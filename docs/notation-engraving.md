@@ -322,7 +322,7 @@ During a session (`PhraseScore`'s `session` prop) the playhead comes from the se
 - **One call per phrase on screen.** The systems shown are grouped by phrase number, and `applyScoreOverlays` runs once per phrase on that phrase's SVGs only, so every identity it validates carries that phrase's number.
 - **The band on the playhead's phrase only.** The phrase the playhead is in gets `playheadMeasure`; every other phrase on screen gets `null`. During the count-in there is no band.
 - **No start marker.** A session draws none.
-- **Acknowledged notes drawn on screen.** Of the acknowledged notes, each phrase gets only those whose key some part of its systems on screen carries, so a note of a half already refilled is not named. Until chunk 17 passes the played notes, the list is empty.
+- **Acknowledged notes drawn on screen.** Of the acknowledged notes, each phrase gets only those whose key some part of its systems on screen carries, so a note of a half already refilled is not named. The list is the session controller's `acknowledged`, empty in a session without a controller.
 - **Units fading out are unmarked.** A refilled position's old unit has every mark taken off (`NO_SCORE_OVERLAYS`) as its fade-out starts, so the band never sits on a unit leaving the screen, and that unit is `aria-hidden`.
 
 ### Placement

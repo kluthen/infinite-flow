@@ -207,6 +207,32 @@ describe('MidiController: message order is kept on the audio clock', () => {
   })
 
   // @test-link [[rule_only_note_on_counts_as_played]]
+  // @test-link [[rule_session_history_records_played_notes]]
+  it('ends held notes at the last mapped time when releaseHeld() is given an earlier one', async () => {
+    const { midi, controller, notes } = await rigWithSetAnchor()
+    midi.noteOn(KEYS_A.id, 60, 90, 1_500)
+    let ended: readonly PlayedNoteEvent[] = []
+    expect(() => {
+      ended = controller.releaseHeld(10.497)
+    }).not.toThrow()
+    const expected = [
+      { kind: 'ended', note: { pitch: C4, velocity: 90, onsetAt: 10.5, releaseAt: 10.5 } },
+    ]
+    expect(ended).toEqual(expected)
+    expect(notes.slice(1)).toEqual(expected)
+  })
+
+  // @test-link [[rule_only_note_on_counts_as_played]]
+  // @test-link [[rule_session_history_records_played_notes]]
+  it('keeps a releaseHeld() time later than the last mapped one as it is', async () => {
+    const { midi, controller } = await rigWithSetAnchor()
+    midi.noteOn(KEYS_A.id, 60, 90, 1_500)
+    expect(controller.releaseHeld(10.75)).toEqual([
+      { kind: 'ended', note: { pitch: C4, velocity: 90, onsetAt: 10.5, releaseAt: 10.75 } },
+    ])
+  })
+
+  // @test-link [[rule_only_note_on_counts_as_played]]
   it('starts the order afresh on a newly selected device', async () => {
     const { midi, controller, notes, setAnchor } = await rigWithSetAnchor()
     midi.noteOn(KEYS_A.id, 60, 90, 1_500)

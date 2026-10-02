@@ -8,8 +8,11 @@
  * reports pass through a real Idle layout gate whose Idle side only logs what reaches it; the staff
  * reported a wide one-system layout before the controller was built. Idle shows the written phrase
  * of phrase 1, and the staff planner is a fake where every phrase fits until the test says otherwise.
+ * The MIDI controller is a real one on a fake MIDI access, its notes placed on the same fake audio
+ * clock; nothing is plugged in and MIDI access was never asked for until a test connects. The
+ * connection sheet's open flag is the test's to set.
  */
-import { shallowReactive } from 'vue'
+import { shallowReactive, shallowRef, type ShallowRef } from 'vue'
 
 import type { WorkspaceSessionRunnerInput } from '@/components/workspace/create-workspace-session'
 import { createSessionController } from '@/components/workspace/workspace-session-controller'
@@ -28,6 +31,8 @@ import {
 } from '@/session/session-runner'
 import type { AudioTime, SessionOutput, SessionSettings } from '@/session/session-types'
 import type { AudioTransport } from '@/audio/audio-transport'
+import { createMidiController } from '@/midi/midi-controller'
+import type { MidiController } from '@/midi/midi-controller-state'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
@@ -46,6 +51,7 @@ import {
   sessionSettings,
   successFor,
 } from '../../session/session-harness'
+import { createFakeMidiAccess, type FakeMidiAccess } from '../../midi/fake-midi-access'
 import {
   createFakeFrames,
   createFakePlanner,
@@ -121,6 +127,12 @@ export interface ControllerRig {
   readonly idleReports: IdleReport[]
   /** How many times the controller asked for phrase 1's fixed parts. */
   readonly fixedPartsRequests: () => number
+  /** The fake MIDI access the controller's MIDI controller reads. */
+  readonly midiAccess: FakeMidiAccess
+  /** The real MIDI controller the session controller is built over. */
+  readonly midi: MidiController
+  /** Whether the connection sheet is open, as the shell would report it; false at first. */
+  readonly sheetOpen: ShallowRef<boolean>
 }
 
 /** Intent: let every pending promise (generation answers, fit checks, lock outcomes) settle. */
@@ -191,6 +203,14 @@ export function controllerRig(
   staff.layoutInputs(WIDE_STAFF)
   idleReports.length = 0
   let fixedPartsRequests = 0
+  const midiAccess = createFakeMidiAccess({
+    now: () => audioRig.performanceTimeAt(audioRig.now()),
+  })
+  const midi = createMidiController({
+    provider: midiAccess,
+    clock: { anchor: () => audioRig.output.anchor() },
+  })
+  const sheetOpen = shallowRef(false)
 
   /** Intent: a real runner on the scripted generate seam, logging what passes through it. */
   function createRunner(input: WorkspaceSessionRunnerInput): SessionRunner {
@@ -240,6 +260,8 @@ export function controllerRig(
       return fixedParts()
     },
     staffFitPlanner: planner.load,
+    midi,
+    connectionSheetOpen: () => sheetOpen.value,
   })
   return {
     controller,
@@ -265,6 +287,9 @@ export function controllerRig(
     staff,
     idleReports,
     fixedPartsRequests: () => fixedPartsRequests,
+    midiAccess,
+    midi,
+    sheetOpen,
   }
 }
 

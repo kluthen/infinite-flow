@@ -4,6 +4,7 @@ status: DRAFT
 dependents:
   - [[rule_starting_note_named]]
   - [[rule_starting_note_only_starts_count_in]]
+  - [[service_workspace_session_flow]]
 type: RULE
 priority: 1
 tags: [v2, release-v2.0, session, session-start, midi]

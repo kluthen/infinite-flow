@@ -95,10 +95,12 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   clock) into generation requests, fit checks, read-ahead phrases, the struggling notice and the
   end, plus the runner that executes those requests through the injected `generate` seam; the
   in-memory session history, which records every phrase that sounded with the inputs that
-  reproduce it; the adapter that turns a recorded session into the export encoders' inputs; and
-  the session screen's pure pieces: the start conditions, the count-in display, the audio-time
-  agenda, the session window rule, the rolling display's plan (where the playhead is and what
-  each staff system shows) and the browser ports a session uses. See
+  reproduce it, and the notes the player played; the adapter that turns a recorded session into
+  the export encoders' inputs; and the session screen's pure pieces: the start conditions, the
+  count-in display, the audio-time agenda, the session window rule, the rolling display's plan
+  (where the playhead is and what each staff system shows), the browser ports a session uses, the
+  starting note, a session's acknowledgement and its MIDI timers (silence timeout, reconnection
+  countdown). See
   [`docs/session-engine.md`](docs/session-engine.md).
 - `src/audio/` — the audio transport, and the only place allowed to use Web Audio (see Runtime
   Constraints): the app's one `AudioContext`, created on the player's click, the look-ahead
@@ -160,7 +162,7 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   copied into `dist/licenses/` at build time; see [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
 - `docs/` — ATD-linked business-intent atoms plus narrative docs (architecture, notation,
   generation latency, the phrase workspace, the session engine, the audio transport, MIDI input,
-  the controller connection, and `docs/release/*`).
+  MIDI tuning, the controller connection, and `docs/release/*`).
 - `specs/` — the first-release master spec, implementation plan, generator architecture and
   contract, and roadmap/open-questions.
 - `ui_ux/` — the approved interaction/visual authority: each released version's design, frozen, in
@@ -257,7 +259,11 @@ UI (Vue components, props-in/events-out)
   locks and starts the count-in; an audio-time agenda, woken by its own Worker timer, sends the
   engine its timed events and queues each phrase's backing; every output is recorded in the
   history; and Stop, a hidden tab, a window that no longer shows the staff or an audio
-  interruption ends the session the same way. The staff rolls: starting from phrase 1, the Idle
+  interruption ends the session the same way. With a MIDI controller connected, playing the
+  starting note named above the staff starts the session as `Start session` does; a session
+  started with the controller connected lights each expected note played in time, records the
+  played notes, and ends after 30 s without a note or 30 s after losing the controller (see
+  [MIDI side](docs/session-engine.md#the-session-controllers-midi-side)). The staff rolls: starting from phrase 1, the Idle
   phrase as drawn, its two systems are refilled one at a time as the playhead leaves them, each
   look-ahead phrase checked against the layout held for the session before it is accepted (a
   misfit is a failed attempt), and the playhead band steps from measure to measure on the heard
@@ -286,12 +292,14 @@ UI (Vue components, props-in/events-out)
   channel, is a played note; a note-off or a zero-velocity note-on ends it, and every other
   message is ignored. The controller selects the only device present or the player's pick, by its
   port id; when that port reports disconnected it is `away`, its held notes end, and the same
-  device coming back is reattached by itself. Each note's onset and release are mapped from the
+  device coming back is reattached by itself, unless a session started without it holds that
+  back until it ends. Each note's onset and release are mapped from the
   MIDI timestamp onto the audio clock through the transport's `clockAnchor()`. The workspace
   session exposes it as `WorkspaceSession.midi`. See [`docs/midi-input.md`](docs/midi-input.md).
 - **Controller connection.** Between sessions only, the header's `controller-status` shows the
   controller's status (`Connect controller`, the connected device's name, `No controller` or
-  `MIDI access blocked`), frozen while a session runs. Its click unlocks the audio, asks for MIDI
+  `MIDI access blocked`), frozen while a session runs, except for the disconnected badge while a
+  controller lost in the session counts down. Its click unlocks the audio, asks for MIDI
   access and opens the connection sheet, a lazily loaded modal dialog driven by a pure reducer:
   it says why it can't connect when it can't, lets the player pick one device, and runs the
   transposition check, which shows one written note of the instrument profile, engraved, and
@@ -330,9 +338,10 @@ UI (Vue components, props-in/events-out)
 - **Note acknowledgement.** `src/domain/acknowledgement/` decides, as pure logic, which expected
   notes of the phrase a player's notes acknowledge: exact concert pitch, inside a timing window on
   the audio clock, with the played onset corrected for latency. Its only output is a list of note
-  identities. Nothing calls it yet: MIDI input exists (see above), but the live session that
-  passes it played notes is still to come. See
-  [`docs/midi-acknowledgement.md`](docs/midi-acknowledgement.md).
+  identities. A session read from a controller calls it as each note arrives
+  (`src/session/session-acknowledgement.ts`). The timing constants are still to be tuned on the
+  reference hardware. See [`docs/midi-acknowledgement.md`](docs/midi-acknowledgement.md) and
+  [`docs/midi-tuning.md`](docs/midi-tuning.md).
 
 - **Export.** `encodeGeneratedNotesMusicXml` (`src/export/musicxml/`) turns a session's phrases,
   each with its number, its `WrittenPhrase` and its tempo, into one score-partwise 4.0 MusicXML

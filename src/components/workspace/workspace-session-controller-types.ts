@@ -8,11 +8,14 @@ import type { GenerationSessionState } from '@/composables/use-generation-sessio
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { DisposableWakeTimer } from '@/audio/audio-ports'
+import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
+import type { MidiController } from '@/midi/midi-controller-state'
 import type { CountInDisplay } from '@/session/count-in-display'
 import type { SessionBrowserPorts } from '@/session/session-browser-ports'
 import type { SessionHistory, WallClock } from '@/session/session-history'
 import type { SessionRunner } from '@/session/session-runner'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
+import type { StartingNote } from '@/session/starting-note'
 import type { SessionEndCause } from '@/session/session-types'
 import type { StaffLayout, StaffViewport } from '@/notation/notation-layout-policy'
 import type { StaffFitVerdict, StaffFixedParts } from '@/notation/staff-fit-types'
@@ -20,6 +23,7 @@ import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { SessionStaff } from '@/components/notation/session-staff'
 import type { WorkspaceSessionRunnerInput } from './create-workspace-session'
 import type { IdleLayoutPort } from './idle-layout-gate'
+import type { ControllerLostCountdown } from './workspace-session-midi'
 
 /** Where the session stands: no session, its count-in, or its phrases sounding. */
 // @spec-link [[service_workspace_session_flow]]
@@ -40,6 +44,7 @@ export interface SessionEndSummary {
 /** What the screen reads from the controller; every field is reactive. */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[rule_session_start_conditions]]
+// @spec-link [[rule_midi_starting_note]]
 export interface SessionControllerState {
   readonly phase: SessionControllerPhase
   /** The count-in row while the count-in runs, on the audio clock; null outside it. */
@@ -62,13 +67,28 @@ export interface SessionControllerState {
   readonly sessionStaff: SessionStaff | null
   /** The highest phrase number the running session has readied (1 until phrase 2); null with none. */
   readonly latestReady: number | null
+  /**
+   * The note that would start a session if played now: non-null exactly at Idle when Start may be
+   * clicked, the MIDI controller is connected, the connection sheet is closed and the staff shows
+   * Idle's phrase. The start line and the start marker are drawn from it.
+   */
+  readonly startingNote: StartingNote | null
+  /** A lost controller's countdown while it runs, count-in included; null otherwise. */
+  readonly controllerLost: ControllerLostCountdown | null
+  /** The running session's acknowledged notes, in acknowledgement order; empty at Idle. */
+  readonly acknowledged: readonly ExpectedNoteIdentity[]
+  /** Whether the running session reads a controller (fixed at its start); null at Idle. */
+  readonly sessionHasController: boolean | null
 }
 
 /** The session controller a screen binds to. */
 // @spec-link [[service_workspace_session_flow]]
 export interface SessionController {
   readonly state: SessionControllerState
-  /** Start a session; call it synchronously inside the player's Start click. Throws when blocked. */
+  /**
+   * Start a session; call it synchronously inside the player's Start click. Throws when blocked.
+   * Playing the starting note takes this same path.
+   */
   readonly start: () => void
   /**
    * End the running session (the player's Stop). Throws with no session running. A session also
@@ -83,8 +103,8 @@ export interface SessionController {
    */
   readonly isPhraseOnScreen: (phraseNumber: number) => boolean
   /**
-   * End a running session, stop reading the window and dispose of the wake-up timer (its worker).
-   * Throws if called twice.
+   * End a running session, stop reading the window and listening to the MIDI controller, and
+   * dispose of the wake-up timer (its worker). Throws if called twice.
    */
   readonly dispose: () => void
 }
@@ -125,13 +145,16 @@ export type StaffFitPlanner = (
  * What the controller drives: the Idle state and the written phrase Idle shows (phrase 1, which a
  * session's staff keeps showing as the very same object), the audio, the browser, runners and its
  * clock; the gate of the staff's reports, which a session diverts from the Idle machinery while it
- * runs; the measurement of phrase 1's staff fixed parts, which the session window rule needs; and
- * the staff planner, loaded with the engraver, that checks a phrase's fit in the held layout.
+ * runs; the measurement of phrase 1's staff fixed parts, which the session window rule needs; the
+ * staff planner, loaded with the engraver, that checks a phrase's fit in the held layout; and the
+ * MIDI controller, with whether the connection sheet is open, for the starting note and the notes
+ * a session reads.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[rule_session_ends_when_staff_too_small]]
 // @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
 // @spec-link [[rule_phrase_one_is_idle_phrase]]
+// @spec-link [[rule_midi_starting_note]]
 export interface SessionControllerDependencies {
   readonly idle: { readonly state: Readonly<GenerationSessionState<WorkspaceSessionResult>> }
   /** The written phrase the staff shows at Idle; null when it shows none. */
@@ -144,6 +167,10 @@ export interface SessionControllerDependencies {
   readonly staffFixedParts: (phrase: WorkspaceSessionResult) => Promise<StaffFixedParts>
   /** The staff planner, once the engraver and its fonts are ready; a load failure rejects. */
   readonly staffFitPlanner: () => Promise<StaffFitPlanner>
+  /** The app's one MIDI controller; the controller listens to it from its creation to `dispose`. */
+  readonly midi: MidiController
+  /** Whether the connection sheet is open, read reactively; no note starts a session while it is. */
+  readonly connectionSheetOpen: () => boolean
 }
 
 /** A caller broke the controller's contract: a start while blocked, a Stop with no session. */

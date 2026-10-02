@@ -1,9 +1,10 @@
 <script setup lang="ts">
 /**
  * `session-cue-row`: always present between the generation-failure banner's position and the
- * staff, at one fixed block size, holding at most one cue by priority: the count-in (its beats lit
- * on the audio clock by the session controller), then the struggling notice. (The disconnect
- * banner, above the count-in, and the starting-note line, below the notice, are chunk 17's.) Below
+ * staff, at one fixed block size, holding at most one cue by priority: the disconnect banner while
+ * a lost controller's countdown runs (a count-in under it keeps running, and shows again if the
+ * device reattaches before beat 4), then the count-in (its beats lit on the audio clock by the
+ * session controller), then the struggling notice, then the starting-note line. Below
  * bp-tablet-landscape, from a session's start to its end, `session-cue-actions` sits at its
  * trailing end: a compact `Stop` and the phone's `Volume`; the stylesheet shows them only there.
  * It is not a live region and nothing in it is announced; its content changes with no animation.
@@ -33,20 +34,37 @@ const sessionActive = computed(
   () => props.controller !== null && props.controller.state.phase !== 'idle',
 )
 
+/** Intent: a lost controller's countdown while it runs, null otherwise; it outranks every cue. */
+// @spec-link [[rule_controller_loss_mid_session]]
+// @spec-link [[rule_controller_reconnection_window]]
+const controllerLost = computed(() => props.controller?.state.controllerLost ?? null)
+
 /** Intent: the count-in row while the count-in runs, null otherwise; it outranks the notice. */
 // @spec-link [[rule_count_in_shown_on_screen]]
 const countIn = computed(() => props.controller?.state.countIn ?? null)
 
-/** Intent: show the struggling notice while the controller raises it and no count-in shows. */
+/** Intent: whether the controller raises the struggling notice; it outranks the start line. */
 // @spec-link [[rule_struggling_generator_notice]]
-const strugglingNoticeShown = computed(
-  () => countIn.value === null && props.controller?.state.strugglingNotice === true,
-)
+const strugglingNotice = computed(() => props.controller?.state.strugglingNotice === true)
+
+/** Intent: the note that would start a session if played now, for the start line; else null. */
+// @spec-link [[rule_starting_note_named]]
+// @spec-link [[rule_midi_starting_note]]
+const startingNote = computed(() => props.controller?.state.startingNote ?? null)
 </script>
 
 <template>
   <div class="session-cue-row">
-    <ol v-if="countIn !== null" class="count-in">
+    <!-- Below bp-tablet-landscape the stylesheet drops the clause: the phone's shorter wording. -->
+    <p v-if="controllerLost !== null" class="inline-alert alert-error session-alert">
+      <span class="session-alert-text"
+        >Controller disconnected<span class="session-alert-clause">
+          — plug it back in to keep playing</span
+        >. Session ends in
+        <span class="session-alert-countdown">{{ controllerLost.secondsLeft }} s</span>.</span
+      >
+    </p>
+    <ol v-else-if="countIn !== null" class="count-in">
       <li
         v-for="(beat, index) in countIn.beats"
         :key="index"
@@ -56,8 +74,11 @@ const strugglingNoticeShown = computed(
         {{ index + 1 }}
       </li>
     </ol>
-    <p v-else-if="strugglingNoticeShown" class="inline-alert alert-notice session-alert">
+    <p v-else-if="strugglingNotice" class="inline-alert alert-notice session-alert">
       <span class="session-alert-text">The generator is struggling with these settings.</span>
+    </p>
+    <p v-else-if="startingNote !== null" class="start-note-line">
+      Play this note to start: <strong>{{ startingNote.label }}</strong>
     </p>
     <div v-if="sessionActive" class="session-cue-actions">
       <button type="button" class="btn btn-primary" @click="emit('stop')">Stop</button>

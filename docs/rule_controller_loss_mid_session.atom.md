@@ -12,6 +12,7 @@ parents:
 priority: 1
 dependents:
   - [[rule_controller_reconnection_window]]
+  - [[service_workspace_session_flow]]
 ---
 
 # Lost Controller Is Shown While the Session Continues

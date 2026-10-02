@@ -331,8 +331,10 @@ tests play a count-in and a short backing on the real `AudioContext`. See
   `Connect controller` button or a badge other than the connected one).
 - **Chunk 16 (built):** the playhead, read once per frame on heard time, `now()` minus
   `outputLatency()` (see [The playhead](#the-playhead)).
-- **Chunk 17:** played notes placed on the audio clock through `clockAnchor()` (chunk 12 built
-  the mapping, see [`docs/midi-input.md`](midi-input.md)).
+- **Chunk 17 (built):** played notes placed on the audio clock through `clockAnchor()` (chunk 12
+  built the mapping, see [`docs/midi-input.md`](midi-input.md)) and read by a session, whose MIDI
+  timers run on the audio clock (see
+  [The session controller's MIDI side](session-engine.md#the-session-controllers-midi-side)).
 - **Chunk 20:** the MIDI export's backing track, from `renderBacking` for each recorded phrase's
   harmony, so the file and the audio play the same notes.
 

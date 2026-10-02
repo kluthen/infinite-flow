@@ -8,7 +8,8 @@
  * (./workspace-session-display.ts) gives the screen the staff to draw, checks each look-ahead
  * phrase's fit and moves the playhead once a frame. Besides Stop, a session ends on an audio
  * interruption, and on what its end watchers report (the page hidden, the staff no longer shown or
- * failing); every end takes the same path. It draws nothing itself.
+ * failing); every end takes the same path. Its MIDI side (./workspace-session-midi.ts) starts a
+ * session from the starting note and reads a session's controller. It draws nothing itself.
  */
 import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
 
@@ -38,8 +39,15 @@ import { isPortraitBelowDesktop, sessionLayoutAtStart } from '@/session/session-
 import type { StaffLayout } from '@/notation/notation-layout-policy'
 import type { SessionStaff } from '@/components/notation/session-staff'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
+import type { StartingNote } from '@/session/starting-note'
+import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import { createSessionDisplay, type SessionDisplay } from './workspace-session-display'
 import { watchSessionEnds, type SessionEndWatch } from './workspace-session-end-watchers'
+import {
+  createSessionMidi,
+  type ControllerLostCountdown,
+  type SessionMidiRun,
+} from './workspace-session-midi'
 import {
   SessionControllerError,
   type RunningCountIn,
@@ -69,6 +77,8 @@ interface ActiveSession {
   watch: SessionEndWatch | null
   /** The rolling display, from the start until the session is torn down. */
   display: SessionDisplay | null
+  /** The session's MIDI handling, from the start until the session is torn down. */
+  midi: SessionMidiRun | null
 }
 
 /**
@@ -100,7 +110,8 @@ function startFactsOf(
 /**
  * Intent: build the session controller over the workspace's Idle state, audio transport, browser
  * ports and runner factory. It reads the window's shape from creation (for the rotate-device start
- * condition) until `dispose`; it asks for no lock and opens no audio until a start.
+ * condition) and listens to the MIDI controller (for the starting note) until `dispose`; it asks
+ * for no lock and opens no audio until a start.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[rule_session_start_conditions]]
@@ -137,12 +148,33 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     get startBlocker(): SessionStartBlocker | null {
       return startBlocker.value
     },
+    get startingNote(): StartingNote | null {
+      return sessionMidi.startingNote()
+    },
+    get controllerLost(): ControllerLostCountdown | null {
+      return sessionMidi.controllerLost()
+    },
+    get acknowledged(): readonly ExpectedNoteIdentity[] {
+      return sessionMidi.acknowledged()
+    },
+    get sessionHasController(): boolean | null {
+      return sessionMidi.sessionHasController()
+    },
   })
   const startBlocker = computed(() =>
     sessionStartBlocker(
       startFactsOf(idle.state, windowShape.value, state.phase !== 'idle', playedPhrase.value),
     ),
   )
+  const sessionMidi = createSessionMidi({
+    midi: deps.midi,
+    audio,
+    connectionSheetOpen: deps.connectionSheetOpen,
+    canStart: () => startBlocker.value === null,
+    idleResult: () => idle.state.result,
+    idlePhrase: deps.idlePhrase,
+    start: () => start(),
+  })
 
   /** Intent: an audio time for the engine, never before one it already handled. */
   function engineTime(session: ActiveSession, at: AudioTime): AudioTime {
@@ -161,6 +193,12 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     if (session.display === null)
       throw new Error('session controller: the display is not built yet')
     return session.display
+  }
+
+  /** Intent: the running session's MIDI handling; reaching here before it exists is a wiring defect. */
+  function midiOf(session: ActiveSession): SessionMidiRun {
+    if (session.midi === null) throw new Error('session controller: the MIDI handling is not begun')
+    return session.midi
   }
 
   /** Intent: send one transport event at `at` (raised to the floor) to the session's runner. */
@@ -203,6 +241,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     }
     session.nextReady += 1
     audio.queueBacking(phraseNumber, output.phrase.outcome.provenance.harmony.events)
+    midiOf(session).phraseReady(phraseNumber, output.phrase.outcome.result.timeline)
     displayOf(session).phraseReady(output.phrase)
     session.agenda.schedule(audio.phraseStartsAt(phraseNumber), () =>
       dispatchAt(session, audio.phraseStartsAt(phraseNumber), {
@@ -226,7 +265,8 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   /**
    * Intent: undo everything a start set up: no more wake-ups or scheduled events, the audio
    * faded out (unless the transport already ended its own session), both locks released, the
-   * display's frame loop stopped and the staff left to Idle, the session state back to Idle, and,
+   * display's frame loop stopped and the staff left to Idle, the session state back to Idle, the
+   * session's MIDI handling stopped (an away device held back is free to reattach), and,
    * last, the end watchers stopped, which hands the staff's reports back to the Idle machinery and
    * re-applies the latest of them. A start that failed
    * part-way passes the session only once it was built, and may not have started the timer or
@@ -250,12 +290,14 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     state.heldLayout = null
     state.sessionStaff = null
     state.latestReady = null
+    session?.midi?.stop()
     session?.watch?.stop()
   }
 
   /**
-   * Intent: end the running session for `cause`, the one path every end takes: the engine gets
-   * `end` (its `ended` output closes the history), then the session is torn down and summed up.
+   * Intent: end the running session for `cause`, the one path every end takes: the notes still
+   * held end now and are recorded, the engine gets `end` (its `ended` output closes the history),
+   * then the session is torn down and summed up.
    * The session is dropped first, so nothing can end it twice; ending with none running throws.
    */
   // @spec-link [[rule_stop_ends_session]]
@@ -266,6 +308,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
       throw new SessionControllerError('session controller: no session is running')
     active = null
     try {
+      session.midi?.releaseHeld()
       runnerOf(session).dispatch({ kind: 'end', cause, at: engineTime(session, audio.now()) })
     } finally {
       tearDown(session)
@@ -315,6 +358,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     active = null
     try {
       try {
+        session?.midi?.releaseHeld()
         if (session !== null && session.runner !== null) {
           session.runner.dispatch({
             kind: 'end',
@@ -369,7 +413,8 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   }
 
   /**
-   * Intent: start a session from the Idle phrase, synchronously, inside the player's Start click:
+   * Intent: start a session from the Idle phrase, synchronously, inside the player's Start click
+   * (or the starting note's MIDI callback, once a Connect-controller click has unlocked the audio):
    * unlock the audio, ask for the wake lock and the landscape lock (a refusal changes nothing, so
    * their outcomes are ignored), start the transport and queue phrase 1's backing; then lock the
    * current settings, hold the staff layout the window's width selects, open the history and
@@ -419,6 +464,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
         ended: null,
         watch: null,
         display: null,
+        midi: null,
       }
       startSession(session, settings, heldLayout, idleWritten)
     } catch (error: unknown) {
@@ -428,8 +474,9 @@ export function createSessionController(deps: SessionControllerDependencies): Se
 
   /**
    * Intent: the rest of a start, once the transport runs and phrase 1's backing is queued: make
-   * `session` the running one, show its count-in and its staff (phrase 1, the very phrase Idle
-   * shows), schedule the count-in's end, start the wake-ups, the display's frame loop, the runner
+   * `session` the running one, begin its MIDI handling (with or without the controller, fixed now),
+   * show its count-in and its staff (phrase 1, the very phrase Idle shows), schedule the count-in's
+   * end, start the wake-ups, the display's frame loop, the runner
    * (checking fits through the display) and the end watchers. `start` undoes it all if any of it
    * throws.
    */
@@ -450,6 +497,14 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     state.sessionTempo = tempo
     state.heldLayout = heldLayout
     state.strugglingNotice = false
+    session.midi = sessionMidi.beginSession({
+      tempo,
+      phraseOne: phraseOne.outcome.result.timeline,
+      history: session.history,
+      agenda: session.agenda,
+      end: (cause) => endIfRunning(session, cause),
+      fail: (error) => failLoudly(session, error),
+    })
     showCountIn(session, audio.now())
     session.agenda.schedule(timeline.countInEndsAt, () => {
       state.phase = 'running'
@@ -512,6 +567,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
       disposed = true
       if (active !== null) end('stop')
       stopReadingWindow()
+      sessionMidi.dispose()
       // No timer exists when no session ever started: there is no worker to free then.
       timer?.dispose()
     },

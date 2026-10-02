@@ -13,7 +13,8 @@
  *   prevention deterministically;
  * - armed failure injection for generation (`failNextGeneration`, resolving one or more calls in a
  *   row with the real `GenerationOutcome` failure shape orchestration itself produces, with a count
- *   of the calls that have returned, `generationsSettled`) and one-shot injection for notation
+ *   of the calls that have returned, `generationsSettled`, and the timeline of every successful
+ *   answer, `generatedTimelines`, session look-ahead phrases included) and one-shot injection for notation
  *   (`failNextNotation`, a retryable failure or one of the staff layout's two, armed through the
  *   `@/notation/vexflow-engraver-loader` alias configured in vite.workspace-harness.config.ts, which
  *   substitutes this directory's `vexflow-engraver-loader-seam.ts` for the real loader so
@@ -151,6 +152,8 @@ let callsBeforeArmedFailure = 0
 let armedFailuresLeft = 0
 /** How many `generate` calls have returned, failed or answered, since the page loaded. */
 let generationsSettled = 0
+/** The concert timeline (JSON) of every successful `generate` answer, in return order. */
+const generatedTimelines: string[] = []
 
 const harnessAudio = createHarnessAudio(harnessAudioMode(window.location.search), shownHarmony)
 bindHarnessAudioStart(document, harnessAudio.startFromClick)
@@ -179,6 +182,9 @@ async function harnessGenerate(intent: GenerationIntent): Promise<GenerationOutc
   }
   const outcome = await client.generate(intent)
   generationsSettled += 1
+  if (outcome.kind === 'generation_success') {
+    generatedTimelines.push(JSON.stringify(outcome.result.timeline))
+  }
   return outcome
 }
 
@@ -268,6 +274,7 @@ window.__workspaceHarness = {
   engravings: engravingCount,
   roomChecks: roomCheckCount,
   seedsDrawn: seedProvider.seedsDrawn,
+  generatedTimelines: () => [...generatedTimelines],
   snapshot,
   prewarmCount: () => prewarmsPosted,
   audio: harnessAudio.api,
