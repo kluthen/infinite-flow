@@ -18,11 +18,18 @@ import type { GenerationOutcome } from '../domain/generation/orchestration/orche
 // @spec-link [[service_session_engine]]
 export type AudioTime = number
 
-/** Why a session ended: the player's Stop, the tab becoming hidden, or the staff no longer shown. */
+/**
+ * Why a session ended: the player's Stop, the tab becoming hidden, the staff no longer shown, more
+ * than 30 s without a played note while a controller is attached, or the selected controller lost
+ * and not back within 30 s.
+ */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_stop_ends_session]]
 // @spec-link [[rule_hidden_tab_ends_session]]
-export type SessionEndCause = 'stop' | 'hidden-tab' | 'staff-not-shown'
+// @spec-link [[rule_silence_timeout_ends_session]]
+// @spec-link [[rule_controller_reconnection_window]]
+export type SessionEndCause =
+  'stop' | 'hidden-tab' | 'staff-not-shown' | 'silence-timeout' | 'controller-lost'
 
 /**
  * Where a session phrase came from: the Idle phrase that became phrase 1, a generation with the

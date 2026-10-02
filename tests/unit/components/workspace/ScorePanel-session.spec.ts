@@ -5,7 +5,11 @@ import ScorePanel from '@/components/workspace/ScorePanel.vue'
 import { createMixVolumePopover } from '@/components/workspace/mix-volume-popover'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
 import type { SessionStaff } from '@/components/notation/session-staff'
+import { makeConcertPitch } from '@/domain/events/concert-pitch'
+import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import { NotationError } from '@/notation/notation-error'
+import type { ScoreOverlays } from '@/notation/score-overlays'
+import type { StartingNote } from '@/session/starting-note'
 import { createFakeSessionController } from './fake-session-controller'
 import { reachTooManyNotesNotice } from './score-panel-harness'
 import { createTestWorkspace, PHRASE_SCORE_STUB, type TestWorkspace } from './test-workspace'
@@ -97,5 +101,44 @@ describe('ScorePanel session staff', () => {
     expect(workspace.sessionStaffFailures).toEqual([error])
     expect(workspace.session.state.notationError).toBeNull()
     wrapper.unmount()
+  })
+})
+
+/** Intent: a starting note at `identity` (a fresh object each call, as the controller recomputes it). */
+function startingNoteAt(identity: ExpectedNoteIdentity): StartingNote {
+  return { identity: { ...identity }, concertPitch: makeConcertPitch(60), label: 'C4' }
+}
+
+const FIRST_NOTE: ExpectedNoteIdentity = { phraseNumber: 1, measureIndex: 0, eventIndex: 0 }
+const SECOND_NOTE: ExpectedNoteIdentity = { phraseNumber: 1, measureIndex: 0, eventIndex: 1 }
+
+// @test-link [[module_notation_note_identity_overlays]]
+describe('ScorePanel score overlays', () => {
+  /** Intent: the overlays the panel hands PhraseScore now. */
+  function overlaysOf(wrapper: ReturnType<typeof mountPanel>): ScoreOverlays {
+    return wrapper.getComponent({ name: 'PhraseScore' }).props('overlays') as ScoreOverlays
+  }
+
+  it('marks nothing before the controller has loaded', () => {
+    expect(overlaysOf(mountPanel(createTestWorkspace(), null))).toEqual({
+      startMarker: null,
+      playheadMeasure: null,
+      acknowledged: [],
+    })
+  })
+
+  // @test-link [[rule_starting_note_named]]
+  // @test-link [[rule_acknowledgement_highlights_expected_note_only]]
+  it("hands PhraseScore the controller's start marker, then its acknowledged notes", async () => {
+    const fake = createFakeSessionController({ startingNote: startingNoteAt(FIRST_NOTE) })
+    const wrapper = mountPanel(createTestWorkspace(), fake.controller)
+    expect(overlaysOf(wrapper).startMarker).toEqual(FIRST_NOTE)
+
+    const acknowledged = [FIRST_NOTE, SECOND_NOTE]
+    fake.state.startingNote = null
+    fake.state.acknowledged = acknowledged
+    await flushPromises()
+
+    expect(overlaysOf(wrapper)).toEqual({ startMarker: null, playheadMeasure: null, acknowledged })
   })
 })

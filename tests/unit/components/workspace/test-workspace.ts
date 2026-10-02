@@ -113,6 +113,6 @@ export function useCheapControls(session: GenerationSession<WorkspaceSessionResu
 export const PHRASE_SCORE_STUB = {
   name: 'PhraseScore',
   template: '<div class="phrase-score-stub"><slot /></div>',
-  props: ['phrase', 'session'],
+  props: ['phrase', 'session', 'overlays'],
   emits: ['engraved', 'notation-error', 'layout-inputs', 'session-staff-failed'],
 }

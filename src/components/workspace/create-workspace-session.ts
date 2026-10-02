@@ -5,7 +5,7 @@
  * can replace the whole factory, and `composeWorkspaceSession`'s seams individually, without ever
  * spinning a real browser `Worker` or touching `crypto` in a test or a harness.
  */
-import type { InjectionKey, Ref } from 'vue'
+import { shallowRef, type InjectionKey, type Ref, type ShallowRef } from 'vue'
 
 import {
   createGenerationSession,
@@ -32,11 +32,7 @@ import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
 import { createGenerationWorkerClient } from '@/generation-worker/generation-worker-client'
 import type { ViewportWidthProvider } from '@/composables/viewport-width'
-import {
-  createSessionRunner,
-  type SessionRunner,
-  type SessionRunnerDependencies,
-} from '@/session/session-runner'
+import type { SessionRunner, SessionRunnerDependencies } from '@/session/session-runner'
 import type { SessionStart } from '@/session/session-types'
 import type { SessionBrowserPorts } from '@/session/session-browser-ports'
 import type { AudioTransport } from '@/audio/audio-transport'
@@ -69,6 +65,11 @@ export interface WorkspaceSessionRunnerInput extends Pick<
   readonly start: SessionStart
 }
 
+/** Starts one session runner from the workspace, synchronously, once its module has loaded. */
+// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_runner]]
+export type WorkspaceSessionRunnerStarter = (input: WorkspaceSessionRunnerInput) => SessionRunner
+
 export interface WorkspaceSession {
   readonly session: GenerationSession<WorkspaceSessionResult>
   readonly pendingPhrase: Ref<WrittenPhrase | null>
@@ -89,12 +90,15 @@ export interface WorkspaceSession {
   // @spec-link [[module_idle_fit_round]]
   readonly handleLayoutInputs: (inputs: StaffLayoutInputs) => void
   /**
-   * Start a session runner bound to the same raw `generate` seam the Idle flow uses, and so the
-   * app's one generation worker. Phrase 2 is generated during the one-measure count-in (1 s at
-   * 240 BPM) and is on time only because phrase 1 already warmed the generator's rhythm-domain
-   * memo, which lives once per worker; a cold phrase 2 takes about 0.95 s.
+   * Load what starts a session runner bound to the same raw `generate` seam the Idle flow uses,
+   * and so the app's one generation worker. Phrase 2 is generated during the one-measure count-in
+   * (1 s at 240 BPM) and is on time only because phrase 1 already warmed the generator's
+   * rhythm-domain memo, which lives once per worker; a cold phrase 2 takes about 0.95 s. The
+   * runner's module is loaded on this call, as part of the session controller's chunk, so the
+   * entry chunk stays within its size budget; it settles only once the replay-key announcer has
+   * loaded too, and the returned starter is synchronous.
    */
-  readonly createSessionRunner: (input: WorkspaceSessionRunnerInput) => SessionRunner
+  readonly loadSessionRunner: () => Promise<WorkspaceSessionRunnerStarter>
   /**
    * The app's one audio transport, locked until a player click. Chunk 15's Start and "Connect
    * controller" click handlers call `audio.unlock()` synchronously, and a session runner's `now`
@@ -111,6 +115,12 @@ export interface WorkspaceSession {
   // @spec-link [[req_midi_controller_input]]
   // @spec-link [[rule_controller_connects_between_sessions]]
   readonly midi: MidiController
+  /**
+   * Whether the connection sheet is open: false at first, kept equal to the shell's own flag by the
+   * shell. Session controllers read it, so no MIDI note starts a session while the sheet is open.
+   */
+  // @spec-link [[rule_controller_connects_between_sessions]]
+  readonly connectionSheetOpen: ShallowRef<boolean>
   /**
    * The browser capabilities a session uses around its run: the screen wake lock and the
    * landscape orientation lock (requested in the Start click, released at every end), the page
@@ -243,6 +253,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     reportNotationRecovered: () => requireSession().actions.reportNotationRecovered(),
   })
 
+  const connectionSheetOpen = shallowRef(false)
   const created = createGenerationSession<WorkspaceSessionResult>({
     providers: deps.providers,
     viewport: deps.viewport,
@@ -263,23 +274,30 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   })
 
   /**
-   * Intent: start a runner on the Idle flow's providers, width reading and `generate` seam, its
-   * outputs forwarded unchanged once each accepted session phrase has announced its replay key.
+   * Intent: load the runner's module and, before settling, the replay-key announcer, then hand
+   * back a starter of runners on the Idle flow's providers, width reading and `generate` seam,
+   * their outputs forwarded unchanged once each accepted session phrase has announced its replay
+   * key. A load failure is not caught: it rejects the returned promise.
    */
   // @spec-link [[module_phrase_replay_key]]
-  function startRunner(input: WorkspaceSessionRunnerInput): SessionRunner {
-    return createSessionRunner(
-      {
-        generate: deps.generate,
-        checkFit: input.checkFit,
-        now: input.now,
-        providers: deps.providers,
-        viewport: deps.viewport,
-        onOutput: announcer.announcingSessionOutputs(input.onOutput),
-        onError: input.onError,
-      },
-      input.start,
-    )
+  async function loadSessionRunner(): Promise<WorkspaceSessionRunnerStarter> {
+    const [{ createSessionRunner }] = await Promise.all([
+      import('@/session/session-runner'),
+      announcer.loaded,
+    ])
+    return (input) =>
+      createSessionRunner(
+        {
+          generate: deps.generate,
+          checkFit: input.checkFit,
+          now: input.now,
+          providers: deps.providers,
+          viewport: deps.viewport,
+          onOutput: announcer.announcingSessionOutputs(input.onOutput),
+          onError: input.onError,
+        },
+        input.start,
+      )
   }
 
   return {
@@ -289,19 +307,22 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     handleNotationError: staffReports.notationError,
     handleSessionStaffFailed: staffReports.sessionStaffFailed,
     handleLayoutInputs: staffReports.layoutInputs,
-    createSessionRunner: startRunner,
+    loadSessionRunner,
     audio: deps.audio,
     midi: deps.midi,
+    connectionSheetOpen,
     browser: deps.browser,
     createSessionController: async () => {
-      // The replay-key announcer must have loaded before the controller starts any runner.
+      // The runner starter settles only once the replay-key announcer has loaded, so the
+      // announcer is ready before the controller starts any runner.
       const [
         { createSessionController },
         { measureSessionStaffFixedParts, loadSessionStaffFitPlanner },
+        startRunner,
       ] = await Promise.all([
         import('./workspace-session-controller'),
         import('./session-staff-fixed-parts'),
-        announcer.loaded,
+        loadSessionRunner(),
       ])
       return createSessionController({
         idle: created,
@@ -313,6 +334,8 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
         idleLayout: staffReports,
         staffFixedParts: measureSessionStaffFixedParts,
         staffFitPlanner: loadSessionStaffFitPlanner,
+        midi: deps.midi,
+        connectionSheetOpen: () => connectionSheetOpen.value,
       })
     },
     dispose: () => {

@@ -3,7 +3,9 @@
 This document records how `src/midi/` reads the player's MIDI controller: the modules and the
 ports that keep them testable, which messages count as played notes, what "connected" and "lost"
 mean in code, how a lost controller comes back, how a MIDI timestamp is placed on the audio clock,
-how it is tested, and what later chunks add.
+how it is tested, what later chunks add, and the choices made in each chunk. How the session uses
+the controller is in [Session Engine](session-engine.md#the-session-controllers-midi-side), and the
+timing constants still to tune on real hardware are in [MIDI Tuning](midi-tuning.md).
 
 ## What it is
 
@@ -131,17 +133,17 @@ definition the header, the connection sheet and the session share (see
 The controller's state is derived, after every change, from the permission, the selection and the
 selected port's own readings:
 
-| State           | Meaning                                                                                          |
-| --------------- | ------------------------------------------------------------------------------------------------ |
-| `unsupported`   | This browser has no Web MIDI. Known from the start, without asking the player.                   |
-| `not-requested` | MIDI access was never asked for.                                                                 |
-| `requesting`    | The permission request is in flight.                                                             |
-| `denied`        | The player or the browser refused MIDI access.                                                   |
-| `no-device`     | Access granted, nothing selected, no input present.                                              |
-| `choosing`      | Access granted, nothing selected, inputs present: the player must pick one.                      |
-| `opening`       | The selected input's port is being opened.                                                       |
-| `connected`     | The selected input's port is present and open: the controller is attached.                       |
-| `away`          | The selected input's port is disconnected (lost) or failed to open: not attached, kept selected. |
+| State           | Meaning                                                                                                                     |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `unsupported`   | This browser has no Web MIDI. Known from the start, without asking the player.                                              |
+| `not-requested` | MIDI access was never asked for.                                                                                            |
+| `requesting`    | The permission request is in flight.                                                                                        |
+| `denied`        | The player or the browser refused MIDI access.                                                                              |
+| `no-device`     | Access granted, nothing selected, no input present.                                                                         |
+| `choosing`      | Access granted, nothing selected, inputs present: the player must pick one.                                                 |
+| `opening`       | The selected input's port is being opened.                                                                                  |
+| `connected`     | The selected input's port is present and open: the controller is attached.                                                  |
+| `away`          | The selected input's port is disconnected (lost), failed to open, or its reattachment is held: not attached, kept selected. |
 
 The last three carry the selected device (`id`, `name`, `manufacturer`). `subscribe(listener)`
 hears every change of state or of the devices present; `onPlayedNote(listener)` hears every played
@@ -173,7 +175,21 @@ and ended note.
   port closed, the controller reopens it. Only the player's Disconnect clears the selection.
 - **A different device is only listed.** A device plugged in while the selected one is away, or
   while another is connected, appears in the device list and is never opened or picked up.
-- **`releaseHeld(at)`** ends every held note at `at`, for the session's end.
+- **`holdReattachment()`** holds back the reattachment, for a session started while the selected
+  controller is away (`rule_start_while_controller_away`). While held, the state stays `away`
+  whatever the port reads: the same device coming back is never opened nor read, and only the
+  device list changes. The selection is kept. `select(id)` rejects with a `MidiControllerError`
+  while held, so a session started without a controller never gains one. It throws unless the
+  state is `away` and nothing is held yet.
+- **`releaseReattachment()`** ends the hold, at the session's teardown. If the selected port is
+  present, it reattaches as on a replug (reopened if the browser left it closed); if not, it stays
+  `away` and reattaches when it comes back. It throws when nothing is held. The player's
+  `disconnect()` also ends a hold, with the selection it held.
+- **`releaseHeld(at)`** ends every held note at `at`, for the session's end. The session reads `at`
+  from the audio clock directly, which can be a few milliseconds behind the last time mapped from
+  the selected device's messages. Message order beats clock jitter: when the last mapped time is
+  later, the notes end at that time instead, so a note pressed just before Stop never ends before
+  its onset.
 
 ## The audio clock
 
@@ -211,7 +227,9 @@ USB is the tested path. A Bluetooth LE MIDI controller that the operating system
 Chromium is read through the same Web MIDI port, with nothing specific to it, but it is
 best-effort until the master spec's open question O71 is settled (see
 [open questions](../specs/versions/v2/master-spec.md#12-open-questions-carried-forward)). Its
-connection delay is one of chunk 14's latency constants.
+connection delay is one of chunk 14's latency constants, but a session cannot tell a Bluetooth
+device from a USB one, so it applies the USB correction to every controller (see
+[MIDI Tuning](midi-tuning.md#bluetooth)).
 
 ## How it's tested
 
@@ -240,14 +258,19 @@ typed state. Reading a real controller is checked by hand, with `npm run dev` an
   closed while the browser asks, and disconnects through `disconnect()`. In `no-device`, a device
   plugged in moves the controller to `choosing`, and the sheet resolves it as `Try again` would,
   with no new request.
-- **Chunks 14 and 17:** each played note is handed to `compensatePlayedNote` through
+- **Chunks 14 and 17 (built):** each played note is handed to `compensatePlayedNote` through
   `toNoteOnOnAudioClock` before matching.
-- **Chunk 17:** MIDI in the session. It suspends reattaching for a session started while the
-  selected controller was away, so that session stays controller-less (`rule_start_while_controller_away`),
-  ends the held notes with `releaseHeld(at)` at the session's end, and records the ended notes in
-  the session history. It also decides whether the history and the played-notes export store the
-  raw onsets or the compensated ones: `documentalist` flagged this as open. What chunk 13 left
-  for it is listed under [What chunk 17 must know](#what-chunk-17-must-know).
+- **Chunk 17 (built):** MIDI in the session (see
+  [The session controller's MIDI side](session-engine.md#the-session-controllers-midi-side)). The
+  starting note starts a session; a session reads the controller only if it is `connected` at the
+  start. For a session started while the selected controller was away, `holdReattachment()` keeps
+  it controller-less until the end. Every played note is acknowledged and every finished note
+  recorded in the session history; at the end, `releaseHeld(at)` ends the held notes before the
+  history closes. A controller lost in a session starts the 30-second countdown. **Raw or
+  compensated times:** the history stores the latency-compensated onsets and releases, so anything
+  built from it, the played-notes export included, gets compensated times (see
+  [Technical choices made in chunk 17](#technical-choices-made-in-chunk-17)). The timing constants
+  still to tune on real hardware are in [MIDI Tuning](midi-tuning.md).
 
 ## Technical choices made in chunk 12
 
@@ -321,6 +344,9 @@ choices were made in the chunk and await the owner's acceptance:
 
 ### What chunk 17 must know
 
+Chunk 17 has done all three; see
+[Technical choices made in chunk 17](#technical-choices-made-in-chunk-17).
+
 - **`connectionSheetOpen`.** `WorkspaceShell` exposes it, true from the `controller-status` click
   until the sheet closes, its loading included. Chunk 17 must read it so that no MIDI note starts
   a session or its count-in while the sheet is open, phrase 1's first note included. A note played
@@ -335,3 +361,49 @@ choices were made in the chunk and await the owner's acceptance:
   controller is away must stay without one (`rule_start_while_controller_away`); the controller
   still reattaches the same port by itself whenever it comes back. The frozen header already keeps
   showing `No controller` for such a session.
+
+## Technical choices made in chunk 17
+
+Chunk 17 wired MIDI into the session (see
+[The session controller's MIDI side](session-engine.md#the-session-controllers-midi-side)) and
+added `holdReattachment()` and `releaseReattachment()` to the controller. These choices were made
+in the chunk and await the owner's acceptance:
+
+- **The starting note arms the silence timer.** It is the first note played in the session, so
+  the 30 seconds count from its onset. A session started by the Start click arms the timer at the
+  first note played; a session in which no note is ever played never times out.
+- **A reattachment re-arms the silence timer from the reattachment's time, only if it was
+  armed:** if a note had been played before the loss, the 30 seconds count again from the
+  reattachment, however long the player was silent before the loss. If no note had been played
+  yet, the timer stays unarmed until the first note played.
+- **The history stores compensated times.** Each played note's onset and release are stored with
+  the latency correction taken off, the same total on both, and a played note's phrase is chosen
+  by its compensated onset. So the played notes line up with the generated notes the player
+  heard. With today's USB correction of 0 they equal the raw times.
+- **The USB correction for every controller.** Web MIDI does not say how a device is connected,
+  so a session applies `latencyCorrectionFor('usb')` to every controller. Bluetooth stays
+  best-effort until O71 is settled (see [Bluetooth MIDI](#bluetooth-midi) and
+  [MIDI Tuning](midi-tuning.md#bluetooth)).
+- **Two new end causes,** `silence-timeout` and `controller-lost`. A session ended by a lost
+  controller ends on screen exactly as a silence timeout does.
+- **The reattachment is held only when the selected controller is `away` at the start** of a
+  session without a controller. A session started while a port is still `opening` reads no note
+  either, since the mode is fixed at the start, but holds nothing: the device attaches afterwards,
+  outside the session. While held, `select(id)` rejects, and `disconnect()` ends the hold.
+- **Any state other than `connected` is a loss** during a session with a controller, `opening`
+  during a reopen included. The countdown runs from `audio.now()` at the change.
+- **A note due while the controller was away is passed over.** When the same device comes back,
+  every expected note whose onset fell between the loss and the reattachment is passed over
+  (`passDueBetween(lostAt, audio.now())` on the session's acknowledgement). It is never
+  acknowledged afterwards, even if its window is still open when the device returns (a long note
+  that started during the gap), and it never reaches the history's acknowledgements. The next
+  notes are acknowledged as usual.
+- **The session runner loads with the controller.** `WorkspaceSession.loadSessionRunner()` loads
+  the engine and its failure ladder as part of the controller's load, to give the entry chunk
+  room: it went from 228,797 bytes to about 210.7 kB. About 9 kB of shared domain code moved to a
+  separate chunk that the entry still loads at startup (see
+  [The runner and the one-Worker wiring](session-engine.md#the-runner-and-the-one-worker-wiring)).
+- **The connection-sheet flag reaches the controller through an event.** `WorkspaceShell` emits
+  `connection-sheet-open-change` from a synchronous watcher, and `App.vue` writes it to
+  `WorkspaceSession.connectionSheetOpen`, so a note that arrives right after the click already
+  sees the sheet open (see [The click](controller-connection.md#the-click)).

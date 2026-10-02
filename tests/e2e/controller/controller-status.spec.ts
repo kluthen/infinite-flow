@@ -2,7 +2,8 @@
  * v2.0 chunk 13, the header's `controller-status` (screens/phrase-workspace/handoff.md,
  * `controller-status`; flows/controller-connection/handoff.md, Routing rules and Between-session
  * unplug), on the workspace harness with the fake MIDI access: disabled during a session, a status
- * display at full strength; its form kept while a session runs and updated once it ends; a
+ * display at full strength; its form kept while a session runs and updated once it ends, except
+ * for the disconnected badge a controller lost mid-session shows during its countdown (chunk 17); a
  * controller unplugged at Idle keeping its selection and reattaching by itself (item 19); and the
  * forms' order and one width, the `Connect controller` button included (D146), which never moves
  * the rest of the header.
@@ -147,19 +148,30 @@ test.describe('during a session', () => {
 
   // @test-link [[rule_midi_never_blocks_session]]
   // @test-link [[rule_same_controller_reattaches]]
-  test('an unplug keeps the header form until the session ends', async ({ page }) => {
+  // @test-link [[rule_controller_loss_mid_session]]
+  test('an unplug shows the disconnected badge while the countdown runs, no-controller once it ends', async ({
+    page,
+  }) => {
     await gotoControllerHarness(page)
     await BADGE_SETUPS.connected(page)
     await readyToStart(page)
     await startSession(page)
     await toRunning(page)
+    await settled(page)
+    const runningLook = await statusLook(page)
+    const runningBoxes = await headerBoxes(page)
 
     await unplug(page, KEYS)
 
-    // The session runs on; the header does not change shape while the player reads. (Chunk 17
-    // adds the error-toned disconnected badge for a controller lost mid-session.)
+    // The session runs on with the countdown; the badge turns error-toned, still a status display
+    // at full strength, and its width never changes.
     await expect.poll(() => midiState(page)).toEqual({ kind: 'away', device: KEYS })
-    expect(await statusForm(page)).toEqual(FORM.connected(KEYS.name))
+    await expect.poll(() => statusForm(page)).toEqual(FORM.disconnected)
+    await expect(page.locator('.session-cue-row .session-alert-countdown')).toHaveText('30 s')
+    await expectStatusOnly(page)
+    await settled(page)
+    expect((await statusLook(page)).opacity).toBe(runningLook.opacity)
+    expect(await headerBoxes(page)).toEqual(runningBoxes)
     expect((await sessionState(page)).phase).toBe('running')
 
     await sessionAction(page).click()

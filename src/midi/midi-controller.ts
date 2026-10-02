@@ -5,8 +5,8 @@
  * merged, and every other port is never opened nor listened to. Its state is derived, on every
  * input change, from permission, selection and the selected port's own state; every state is a
  * normal, non-blocking one. The selection lives in memory only and survives an unplug: the same
- * port coming back is reattached by itself, and a different device is never picked up that way;
- * only the player's Disconnect clears it. Notes are read on every channel, mapped onto the audio clock through a fresh clock anchor per
+ * port coming back is reattached by itself (unless that is held back for a session started without
+ * it), and a different device is never picked up that way; only the player's Disconnect clears it. Notes are read on every channel, mapped onto the audio clock through a fresh clock anchor per
  * message, kept in the port's message order, and tracked into played and ended notes.
  */
 
@@ -58,7 +58,10 @@ type AccessPhase = 'unsupported' | 'not-requested' | 'requesting' | 'denied' | '
  *   connect() it belongs to selects nothing, unless a later connect() adopts it.
  * - select: selects a present input by id (replacing any selection), listens to it and opens it.
  * - disconnect: the player's Disconnect; ends held notes now and clears the selection.
- * - releaseHeld: ends every held note at `at` (the session end), and reports it.
+ * - holdReattachment / releaseReattachment: only while `away`, keep the selected port from
+ *   reattaching until released; the release reattaches it if present.
+ * - releaseHeld: ends every held note at `at` (the session end), or at the last time mapped from
+ *   the current selection when that is later (message order beats clock jitter), and reports it.
  * Subscribers hear every change of state or of the present devices; note listeners hear every
  * played and ended note. Both are called synchronously, in subscription order.
  */
@@ -79,13 +82,15 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   let openInFlight = false
   let connectAbandoned = false
   let connectInFlight: Promise<void> | undefined
+  let reattachmentHeld = false
   let lastMappedAt: AudioTime | undefined
   let lastReported = changeKey(snapshot())
 
   /**
    * Intent: derive the state from the access phase, the selection and the selected port. A selected
    * port that is present but not open with no open in flight (its open failed) is `away`, like an
-   * unplugged one: the controller is not attached, and the port's next input change retries.
+   * unplugged one: the controller is not attached, and the port's next input change retries. A
+   * held reattachment keeps it `away` whatever the port reads.
    */
   function state(): MidiControllerState {
     if (phase !== 'granted') return Object.freeze({ kind: phase })
@@ -93,7 +98,9 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
       return Object.freeze({ kind: devices().length === 0 ? 'no-device' : 'choosing' })
     }
     const device = toDevice(selected)
-    if (selected.state() === 'disconnected') return Object.freeze({ kind: 'away', device })
+    if (reattachmentHeld || selected.state() === 'disconnected') {
+      return Object.freeze({ kind: 'away', device })
+    }
     if (openInFlight) return Object.freeze({ kind: 'opening', device })
     if (selected.connection() !== 'open') return Object.freeze({ kind: 'away', device })
     return Object.freeze({ kind: 'connected', device })
@@ -125,9 +132,16 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     return events
   }
 
-  /** Intent: end every held note at `at`, and report the ended notes. */
+  /**
+   * Intent: end every held note at `at`, and report the ended notes. Message order beats clock
+   * jitter: `at` (read from the audio clock directly) can be a few milliseconds behind the last time
+   * mapped from this selection's messages, so the notes end at the later of the two, never before
+   * an onset; a later `at` is kept as it is.
+   */
+  // @spec-link [[rule_only_note_on_counts_as_played]]
   function releaseHeld(at: AudioTime): PlayedNoteEvents {
-    return emitNotes(tracker.releaseAll(at))
+    const releaseAt = lastMappedAt === undefined ? at : Math.max(at, lastMappedAt)
+    return emitNotes(tracker.releaseAll(releaseAt))
   }
 
   /** Intent: the browser's MIDI permission, as the provider reads it; never prompts, in any state. */
@@ -232,9 +246,14 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
 
   /**
    * Intent: select the present input with this id, replacing any selection. Notes still held on a
-   * previous device end now, on the audio clock. Listens to the port, then opens it.
+   * previous device end now, on the audio clock. Listens to the port, then opens it. Throws while
+   * the reattachment is held: a session started without a controller never gains one.
    */
+  // @spec-link [[rule_controllerless_session_never_gains_controller]]
   async function select(deviceId: string): Promise<void> {
+    if (reattachmentHeld) {
+      throw new MidiControllerError(`Cannot select "${deviceId}" while the reattachment is held.`)
+    }
     const port = grantedAccess('select a device')
       .inputs()
       .find((input) => input.id === deviceId)
@@ -254,7 +273,8 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
    * Intent: the player's Disconnect. Notes still held end now, on the audio clock, as on a device
    * switch; the selection clears, so the state is `choosing` or `no-device`. An open still in flight
    * no longer counts; the old port stays listened to but is never read (only the selected port is),
-   * and its coming back changes only the device list. Throws when nothing is selected.
+   * and its coming back changes only the device list. A held reattachment ends with the selection
+   * it held: there is nothing left to reattach. Throws when nothing is selected.
    */
   // @spec-link [[req_midi_controller_input]]
   // @spec-link [[rule_controller_attached_definition]]
@@ -264,9 +284,42 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     }
     if (tracker.held().length > 0) releaseHeld(clock.anchor().audioTime)
     selected = undefined
+    reattachmentHeld = false
     lastMappedAt = undefined
     openToken += 1
     openInFlight = false
+    report()
+  }
+
+  /**
+   * Intent: keep the away selected port from reattaching, for a session started without it: its
+   * coming back only changes the device list, it is never opened nor read. Throws unless `away`
+   * and not already held.
+   */
+  // @spec-link [[rule_start_while_controller_away]]
+  // @spec-link [[rule_controllerless_session_never_gains_controller]]
+  function holdReattachment(): void {
+    const kind = state().kind
+    if (kind !== 'away' || reattachmentHeld) {
+      const why = reattachmentHeld ? 'already held' : `the controller is ${kind}`
+      throw new MidiControllerError(`Cannot hold the reattachment: ${why}.`)
+    }
+    reattachmentHeld = true
+  }
+
+  /**
+   * Intent: end the hold. The selected port present now reattaches as on a replug (reopened if
+   * the browser left it closed); absent, it stays `away` and reattaches when it comes back. Throws
+   * when nothing is held.
+   */
+  // @spec-link [[rule_start_while_controller_away]]
+  // @spec-link [[rule_same_controller_reattaches]]
+  function releaseReattachment(): void {
+    if (!reattachmentHeld || selected === undefined) {
+      throw new MidiControllerError('Cannot release the reattachment: it is not held.')
+    }
+    reattachmentHeld = false
+    reopenIfBack(selected)
     report()
   }
 
@@ -307,9 +360,8 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
 
   /**
    * Intent: follow one input change. The selected port reporting disconnected is lost: its held
-   * notes end at the change's time. The selected port back and not open is reopened, with no
-   * player action (a failing reopen leaves it `away` and rejects unhandled: it is a broken port,
-   * never hidden; its next input change tries again). Any other port only changes the device list.
+   * notes end at the change's time. The selected port back is reattached unless that is held. Any
+   * other port only changes the device list.
    */
   // @spec-link [[rule_same_controller_reattaches]]
   function onInputStateChange(port: MidiInputPort, timestampMs: number): void {
@@ -319,11 +371,21 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
       if (port.state() === 'disconnected' && tracker.held().length > 0) {
         releaseHeld(inMessageOrder(timestampMs))
       }
-      if (port.state() === 'connected' && port.connection() !== 'open' && !openInFlight) {
-        void openSelected(port)
-      }
+      if (!reattachmentHeld) reopenIfBack(port)
     }
     report()
+  }
+
+  /**
+   * Intent: reopen the selected port when it is back but not open, with no player action (a
+   * failing reopen leaves it `away` and rejects unhandled: it is a broken port, never hidden; its
+   * next input change tries again).
+   */
+  // @spec-link [[rule_same_controller_reattaches]]
+  function reopenIfBack(port: MidiInputPort): void {
+    if (port.state() === 'connected' && port.connection() !== 'open' && !openInFlight) {
+      void openSelected(port)
+    }
   }
 
   /**
@@ -363,6 +425,8 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     abandonConnect,
     select,
     disconnect,
+    holdReattachment,
+    releaseReattachment,
     subscribe: changeListeners.add,
     onPlayedNote: noteListeners.add,
     releaseHeld,

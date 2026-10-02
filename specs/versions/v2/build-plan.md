@@ -106,7 +106,7 @@ chunks in different sections; the second to merge rebases on the first.
 | 3    | 9 Session history (done 2026-09-30) · 11 Backing (done 2026-09-30) · 12 MIDI input (done 2026-10-01)                                                                                                                                                                                                                                                                          | Wave 2                                                |
 | 4    | 15 Session screen: start and end (done 2026-10-01)                                                                                                                                                                                                                                                                                                                            | Wave 3                                                |
 | 5    | 13 Controller connection (done 2026-10-01) · 16 Rolling display (done 2026-10-01)                                                                                                                                                                                                                                                                                             | Chunk 15                                              |
-| 6    | 17 MIDI in the session                                                                                                                                                                                                                                                                                                                                                        | Wave 5                                                |
+| 6    | 17 MIDI in the session (done 2026-10-02)                                                                                                                                                                                                                                                                                                                                      | Wave 5                                                |
 | 7    | 20 Review and generated-notes export                                                                                                                                                                                                                                                                                                                                          | Chunk 17                                              |
 | 8    | 21 v2.0 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.0 chunk                                      |
 | 9    | 22 Played-notes MIDI encoding · 24 Settings-mutation engine (blocked in part)                                                                                                                                                                                                                                                                                                 | Chunks 4, 7, 8, 9 and 19; may start before v2.0 ships |
@@ -1823,7 +1823,75 @@ waiting), `rule_playhead_follows_audio_clock`, `rule_phrase_one_is_idle_phrase`;
 
 ### Chunk 17 — MIDI in the session
 
-**Release:** v2.0.
+**Release:** v2.0. **Done on 2026-10-02** on branch `v2-chunk-17` (not merged). The session
+controller's MIDI side, `src/components/workspace/workspace-session-midi.ts`, loads with the
+controller, outside the entry chunk. At Idle with a controller connected, only phrase 1's first
+attacked note at its exact concert pitch starts the session, through the same `start()` as the
+Start click; `startingNote` (the pure `src/session/starting-note.ts`) is non-null exactly when
+playing it would start one, and drives the cue row's `start-note-line` ("Play this note to start:
+B♭4", the written pitch spelled as on the staff) and the staff's start marker. Nothing starts while
+the connection sheet is open: the shell emits `connection-sheet-open-change` from a synchronous
+watcher, `App.vue` writes `WorkspaceSession.connectionSheetOpen`, and the controller reads it at
+each note; chunk 13's item-17 tests now assert it against a control in which the same note starts
+the count-in. The mode is fixed at the start: a session reads the controller only if it was
+connected then. A Start click with the selection away gives a controller-less session, and the
+MIDI controller's new `holdReattachment()` and `releaseReattachment()` keep the same device from
+reattaching until the session ends (items 10, 20). A controller session acknowledges played notes
+with chunk 14's matcher (the pure `src/session/session-acknowledgement.ts`, its windows re-placed
+as each phrase is readied, with the USB latency correction); matched notes take `note-ack` through
+`useScoreOverlays`, and a wrong note changes nothing on screen: a Playwright test compares
+byte-identical screenshots before and after (item 7). The history gained `recordPlayedNote` and
+`recordAcknowledgement`, placed into phrases by onset when it is read; the starting note and the
+count-in's notes are in no phrase; stored times are latency-compensated; and held notes are
+released (no earlier than the last mapped message) and recorded before the engine's end closes
+the history (item 18). More than 30 s after the latest played note ends the session
+(`silence-timeout`, §7); the starting note arms the count, and a session with no note played never
+times out. A controller lost mid-session shows the disconnect banner in `session-cue-row` with its
+countdown from 30, and the header's disconnected badge through the session freeze
+(`useControllerStatus` takes `lostInSession`); the same device back within 30 s clears both,
+restarts the silence count if it had begun, and leaves the notes that fell due during the gap
+unacknowledged; otherwise the session ends at 30 s (`controller-lost`) (item 16). The timers are
+pure, in `src/session/session-midi-timers.ts`. The session runner (the engine and the failure
+ladder) now loads lazily with the controller (`WorkspaceSession.loadSessionRunner`), so the entry
+chunk went from 228,797 B to 210,760 B; about 9 kB of shared domain code moved into a chunk the
+entry still preloads at startup, and the budget in `npm run verify:boundaries` stays at 224 KiB.
+Unit tests cover the reattachment hold, the history's placement, the starting note, the tracker,
+the timers, the controller's MIDI side and the components (4,235 unit tests pass). Six new
+Playwright specs, `tests/e2e/session/session-midi-*.spec.ts`, cover the start, the history, the
+acknowledgement, the silence, the controller's loss and the controller away; the workspace
+harness's `session.state()` gained `startingNote`, `controllerLost`, `acknowledged`,
+`sessionHasController` and `lastHistoryPhrases`, and the harness gained `generatedTimelines()`;
+`test:a11y` gained 4 scans (the start line and the banner, light and dark). The new
+[`docs/midi-tuning.md`](../../../docs/midi-tuning.md) lists the constants, where they live, a
+measurement procedure and an empty results table. Technical choices:
+[`docs/session-engine.md`](../../../docs/session-engine.md#the-session-controllers-midi-side) and
+[`docs/midi-input.md`](../../../docs/midi-input.md#technical-choices-made-in-chunk-17). Atoms:
+`documentalist` proposes REVIEW for most of the chunk's atoms, with the owner's agreement, and
+`service_workspace_session_flow` now describes the MIDI side. The owner's rulings are needed on
+`rule_silence_timeout_ends_session` and `rule_controller_reconnection_window` (whether the starting
+note counts as "in the session", and the re-arm on reattachment);
+`rule_played_onset_latency_compensation` stays blocked by the tuning and O71. Decided in the chunk,
+awaiting the owner's acceptance: the starting note arms the silence timer; a reattachment restarts
+the silence count only if a note had armed it; the history stores compensated times; the USB
+correction applies to every controller; the two end causes, `silence-timeout` and
+`controller-lost`; reattachment is held only when the selection is away at a controller-less
+start; and notes due during a loss are passed over even when their window is still open at the
+reattachment. Still open: the last Done-when item, tuning the windows and latency constants on the
+reference hardware (a breath controller over USB and a USB keyboard), could not be done here for
+want of the hardware; the procedure is in `docs/midi-tuning.md` for the owner. Bluetooth stays
+best-effort (O71), and §12's controller check on the reference hardware is still open for the v2.0
+gate.
+
+**Progress:**
+
+| Step               | State | Notes                                                                                                                                                                                               |
+| ------------------ | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. ATD preflight   | Done  | PROCEED-WITH-SIGNOFF-PENDING                                                                                                                                                                        |
+| 2. Tests first     | Done  | Unit specs for each pure module and the controller's MIDI side; six Playwright specs                                                                                                                |
+| 3. Implement       | Done  | The starting note, the acknowledgement, the history's played notes, the silence and loss timers, the reattachment hold, the lazy session runner and the harness seams                               |
+| 4. Verify          | Done  | `npm run quality` passes; the tuning on the reference hardware is still open                                                                                                                        |
+| 5. Documents       | Done  | `docs/midi-tuning.md` (new), `docs/session-engine.md`, `docs/midi-input.md`, `docs/midi-acknowledgement.md`, `docs/controller-connection.md`, `docs/phrase-workspace.md`, `docs/testing.md`, README |
+| 6. ATD stewardship | Done  | Tags checked; atoms await the owner                                                                                                                                                                 |
 
 **Goal.** Bring the controller into the session: the starting note and its line, live
 acknowledgement, played notes recorded in the history, the 30-second silence rule, a controller

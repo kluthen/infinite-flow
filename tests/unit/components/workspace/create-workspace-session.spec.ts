@@ -255,6 +255,24 @@ describe('composeWorkspaceSession', () => {
     expect(controller.state.lastHistory?.phraseCount).toBe(0)
   })
 
+  // @test-link [[rule_midi_starting_note]]
+  it('builds session controllers over its MIDI controller and connection-sheet flag, false at first', async () => {
+    const deps = fakeDependencies()
+    const workspace = composeWorkspaceSession(deps)
+    const controller = await workspace.createSessionController()
+    expect(await generateAndEngrave(workspace)).toBe(true)
+    expect(workspace.connectionSheetOpen.value).toBe(false)
+    deps.audio.unlock()
+    deps.midiAccess.plug({ id: 'keys', name: 'Keys 49', manufacturer: 'Acme' })
+    await workspace.midi.connect()
+    expect(controller.state.startingNote).not.toBeNull()
+
+    workspace.connectionSheetOpen.value = true
+
+    expect(controller.state.startingNote).toBeNull()
+    controller.dispose()
+  })
+
   // @test-link [[rule_phrase_one_is_idle_phrase]]
   // @test-link [[module_session_rolling_display]]
   it('gives a session the very phrase Idle shows and its frame loop, and ends it when its staff fails', async () => {
@@ -405,7 +423,8 @@ describe('composeWorkspaceSession session runner', () => {
     const outputs: SessionOutput[] = []
     const errors: unknown[] = []
 
-    const runner = workspace.createSessionRunner({
+    const startRunner = await workspace.loadSessionRunner()
+    const runner = startRunner({
       start: {
         at: 0,
         settings: {
@@ -444,7 +463,8 @@ describe('composeWorkspaceSession session runner', () => {
     const idle = workspace.session.state.result!
     const prewarmsBeforeRunner = deps.prewarmMock.mock.calls.length
 
-    const runner = workspace.createSessionRunner({
+    const startRunner = await workspace.loadSessionRunner()
+    const runner = startRunner({
       start: {
         at: 0,
         settings: {
@@ -518,7 +538,8 @@ describe('composeWorkspaceSession phrase replay key', () => {
     const outputs: SessionOutput[] = []
     const linesWhenForwarded: number[] = []
 
-    const runner = workspace.createSessionRunner({
+    const startRunner = await workspace.loadSessionRunner()
+    const runner = startRunner({
       start: {
         at: 0,
         settings: {

@@ -1,7 +1,8 @@
 ---
 id: rule_controller_reconnection_window
 status: DRAFT
-dependents: []
+dependents:
+  - [[service_workspace_session_flow]]
 type: RULE
 version: 0.1
 priority: 1

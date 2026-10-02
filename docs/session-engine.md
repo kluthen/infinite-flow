@@ -4,9 +4,10 @@ This document records how `src/session/` decides what a running practice session
 and ends: its boundary, the timed events it takes and the outputs it answers with, the look-ahead
 deadlines, the failure ladder, the struggling-generator notice, the settings lock and note-density
 step-down, how tempo stays out of generation, the runner that connects the engine to the app's one
-generation Worker, the session history that records every phrase that sounded, the session
-controller that runs a session on the workspace from the Start click to its end, what later chunks
-add, and the choices made while building it.
+generation Worker, the session history that records every phrase that sounded and the notes the
+player played, the session controller that runs a session on the workspace from the Start click
+(or the starting note) to its end, with its MIDI side, what later chunks add, and the choices made
+while building it.
 
 A session plays one [phrase](music/lexicon.md#phrase) after another without stopping. Phrase 1 is
 the phrase already on screen at Idle. While a phrase sounds, the next one is generated and shown
@@ -27,29 +28,33 @@ ahead of it (the read-ahead), so the player always sees what comes next.
 - **Caller bugs throw.** An event the engine cannot accept throws a typed `SessionEngineError`
   (see [Choices made while building it](#choices-made-while-building-it) for the list).
 
-| File                        | Holds                                                                                                                           |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `session-types.ts`          | The contract: `AudioTime`, `SessionEndCause`, `SessionPhrase`, `SessionStart`, `SessionEvent`, `SessionOutput`, the error.      |
-| `session-timing.ts`         | The measure length and the look-ahead deadlines, as plain arithmetic.                                                           |
-| `failure-ladder.ts`         | The ladder's rungs, the attempt in flight, the accepted phrase and the repeat.                                                  |
-| `session-intents.ts`        | The settings freeze and how each attempt's intent is built (density, register, carry-in).                                       |
-| `struggling-notice.ts`      | The struggling-generator notice as a pure reducer.                                                                              |
-| `session-engine.ts`         | `createSessionEngine(deps, start)`: the state machine that ties the others together.                                            |
-| `session-runner.ts`         | `createSessionRunner(deps, start)`: executes the engine's requests (see [The runner](#the-runner-and-the-one-worker-wiring)).   |
-| `session-history.ts`        | `createSessionHistory(settings, wallClock)`: records every phrase that sounded (see [Session history](#session-history)).       |
-| `session-history-export.ts` | The encoder inputs built from a recorded session (see [Handing a session to the encoders](#handing-a-session-to-the-encoders)). |
+| File                              | Holds                                                                                                                             |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `session-types.ts`                | The contract: `AudioTime`, `SessionEndCause`, `SessionPhrase`, `SessionStart`, `SessionEvent`, `SessionOutput`, the error.        |
+| `session-timing.ts`               | The measure length and the look-ahead deadlines, as plain arithmetic.                                                             |
+| `failure-ladder.ts`               | The ladder's rungs, the attempt in flight, the accepted phrase and the repeat.                                                    |
+| `session-intents.ts`              | The settings freeze and how each attempt's intent is built (density, register, carry-in).                                         |
+| `struggling-notice.ts`            | The struggling-generator notice as a pure reducer.                                                                                |
+| `session-engine.ts`               | `createSessionEngine(deps, start)`: the state machine that ties the others together.                                              |
+| `session-runner.ts`               | `createSessionRunner(deps, start)`: executes the engine's requests (see [The runner](#the-runner-and-the-one-worker-wiring)).     |
+| `session-history.ts`              | `createSessionHistory(settings, wallClock)`: records every phrase that sounded (see [Session history](#session-history)).         |
+| `session-history-played-notes.ts` | `withPlayedNotes(records, notes, acknowledgements)`: places the played notes and acknowledgements in the phrase records, on read. |
+| `session-history-export.ts`       | The encoder inputs built from a recorded session (see [Handing a session to the encoders](#handing-a-session-to-the-encoders)).   |
 
 The session controller's pure pieces live here too, under the same boundary (see
 [The session controller](#the-session-controller)):
 
-| File                          | Holds                                                                                                |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `session-start-conditions.ts` | `sessionStartBlocker(facts)`: the first start condition that fails, or `null`.                       |
-| `count-in-display.ts`         | `countInDisplayAt(startAt, tempo, now)`: each count-in beat's state, and when the display changes.   |
-| `session-agenda.ts`           | `createAudioTimeAgenda()`: actions due at audio times, fired when the clock reaches them.            |
-| `session-window.ts`           | The session window rule: the layout a session holds, and whether a window change ends it.            |
-| `rolling-display.ts`          | The rolling display as a pure plan: the playhead's measure, what each system shows, what waits.      |
-| `session-browser-ports.ts`    | The ports of the browser capabilities a session uses: the two screen locks, page visibility, window. |
+| File                          | Holds                                                                                                                       |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `session-start-conditions.ts` | `sessionStartBlocker(facts)`: the first start condition that fails, or `null`.                                              |
+| `count-in-display.ts`         | `countInDisplayAt(startAt, tempo, now)`: each count-in beat's state, and when the display changes.                          |
+| `session-agenda.ts`           | `createAudioTimeAgenda()`: actions due at audio times, fired when the clock reaches them.                                   |
+| `session-window.ts`           | The session window rule: the layout a session holds, and whether a window change ends it.                                   |
+| `rolling-display.ts`          | The rolling display as a pure plan: the playhead's measure, what each system shows, what waits.                             |
+| `session-browser-ports.ts`    | The ports of the browser capabilities a session uses: the two screen locks, page visibility, window.                        |
+| `starting-note.ts`            | `startingNoteOf(timeline, written)`: the note that starts a session from a MIDI controller, and its label.                  |
+| `session-acknowledgement.ts`  | `createSessionAcknowledgement(options)`: one session's acknowledgement, phrase by phrase, and its compensated played notes. |
+| `session-midi-timers.ts`      | The silence timeout and the reconnection countdown as pure arithmetic on the audio clock.                                   |
 
 `createSessionEngine(deps, start)` takes the start time, the chosen settings and phrase 1 (its
 intent and its successful outcome). It returns `outputsAtStart` and `handle(event)`, which returns
@@ -59,15 +64,15 @@ the outputs of that one event.
 
 Every event has an `at`, its audio time.
 
-| Event                                      | Meaning                                                                                                           |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| `count-in-over`                            | The count-in is over and phrase 1 starts sounding. Sent once.                                                     |
-| `phrase-started-sounding { phraseNumber }` | Phrase N (2 or more) starts sounding. It must be the next decided phrase.                                         |
-| `generation-result { attemptId, outcome }` | The generate seam answered an attempt with a `GenerationOutcome` (a success or a generation failure).             |
-| `generation-crashed { attemptId }`         | The generate seam rejected: a Worker crash on that one request, or a dead Worker. A failed attempt, never an end. |
-| `fit-result { attemptId, fits }`           | Whether an attempt's generated phrase fits the staff.                                                             |
-| `tick`                                     | Time has reached `at`; lets the engine see a deadline pass.                                                       |
-| `end { cause }`                            | The session ends: `'stop'` (the player's Stop), `'hidden-tab'` (the tab became hidden) or `'staff-not-shown'`.    |
+| Event                                      | Meaning                                                                                                                                                                                                                               |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `count-in-over`                            | The count-in is over and phrase 1 starts sounding. Sent once.                                                                                                                                                                         |
+| `phrase-started-sounding { phraseNumber }` | Phrase N (2 or more) starts sounding. It must be the next decided phrase.                                                                                                                                                             |
+| `generation-result { attemptId, outcome }` | The generate seam answered an attempt with a `GenerationOutcome` (a success or a generation failure).                                                                                                                                 |
+| `generation-crashed { attemptId }`         | The generate seam rejected: a Worker crash on that one request, or a dead Worker. A failed attempt, never an end.                                                                                                                     |
+| `fit-result { attemptId, fits }`           | Whether an attempt's generated phrase fits the staff.                                                                                                                                                                                 |
+| `tick`                                     | Time has reached `at`; lets the engine see a deadline pass.                                                                                                                                                                           |
+| `end { cause }`                            | The session ends: `'stop'` (the player's Stop), `'hidden-tab'` (the tab became hidden), `'staff-not-shown'`, `'silence-timeout'` (more than 30 s without a played note) or `'controller-lost'` (the controller not back within 30 s). |
 
 | Output                                                                          | Meaning                                                                                                      |
 | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
@@ -183,12 +188,23 @@ dependencies are `generate`, `checkFit`, `now`, `providers`, `viewport`, `onOutp
 - **Other outputs** go to `onOutput`. Ticks, `count-in-over`, `phrase-started-sounding` and every
   end cause come from the transport that drives the runner.
 
-`WorkspaceSession.createSessionRunner(...)`, built by `composeWorkspaceSession` in
-`src/components/workspace/create-workspace-session.ts`, binds the runner to the same
-`deps.generate` the Idle flow uses, and so to the app's one generation Worker (see
-[Session wiring](phrase-workspace.md#session-wiring)). Phrase 1 and phrase 2 therefore go through
-the one seam, and phrase 2 reuses the rhythm-domain memo that generating phrase 1 warmed (see
+`WorkspaceSession.loadSessionRunner()`, built by `composeWorkspaceSession` in
+`src/components/workspace/create-workspace-session.ts`, loads the runner's module and resolves to
+a synchronous starter, which binds each runner to the same `deps.generate` the Idle flow uses, and
+so to the app's one generation Worker (see [Session wiring](phrase-workspace.md#session-wiring)).
+Phrase 1 and phrase 2 therefore go through the one seam, and phrase 2 reuses the rhythm-domain memo
+that generating phrase 1 warmed (see
 [Canonical rhythm-domain memo](phrase-workspace.md#canonical-rhythm-domain-memo)).
+
+**Loaded with the controller.** The runner's module (the engine and its failure ladder) is not in
+the entry chunk. `createSessionController()` calls `loadSessionRunner()` together with the
+controller's own imports, so the runner arrives with the controller, before `Start session` is
+enabled. This gave the entry chunk room: it went from 228,797 bytes, just under its 224 KiB budget,
+to about 210.7 kB. About 9 kB of domain code shared by the entry and the lazy chunks moved to a
+separate chunk, which the entry still loads at startup. The starter settles only once the
+replay-key announcer has loaded too (see
+[The replay announcer behind a dynamic import](controller-connection.md#the-replay-announcer-behind-a-dynamic-import)).
+A load failure is not caught: it rejects, and the controller never loads.
 
 The runner posts no pre-warm of its own, but it shares the Worker and memo with the Idle flow's
 [pre-warm](phrase-workspace.md#pre-warm), so a rhythm setting pre-warmed at Idle is already built
@@ -231,21 +247,40 @@ The history is fed every engine output, in the order the engine gave it: the run
 - **`ended` closes the history.** A session ended during the count-in records nothing.
 - **Every other output** is ignored.
 
+The session controller's MIDI side also hands it what the player does, in a session read from a
+controller (see [The session controller's MIDI side](#the-session-controllers-midi-side)):
+
+- **`recordPlayedNote(note)`** keeps one finished played note: its
+  [concert pitch](music/lexicon.md#concert-pitch), velocity, onset and release. Both times arrive
+  with the latency correction already taken off (the same total on both), so the played notes line
+  up with the generated notes the player heard. With today's USB correction of 0 they equal the
+  raw times. Notes arrive in release order.
+- **`recordAcknowledgement(identity)`** keeps one acknowledged expected note, once.
+
+Both are placed in the records **on read**, by `withPlayedNotes`
+(`session-history-played-notes.ts`), from everything received so far, so the result is exact
+whatever order notes, acknowledgements and records arrive in. A played note belongs to the record
+whose span holds its compensated onset: the last phrase started at or before it, the last phrase
+taking every later onset. A note whose onset comes before phrase 1 started sounding (one played
+during the count-in, the starting note included) belongs to no phrase and appears nowhere. An
+acknowledgement belongs to the record of its phrase number.
+
 `phrases()` reads back every record in sounding order, and `phraseCount` says how many phrases have
 started sounding so far. Each record, `SessionHistoryRecord`, holds:
 
-| Field                             | Holds                                                                                                                                                                                                                                                                                              |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `phraseNumber`                    | The session phrase number: 1, 2, 3 … with no gap.                                                                                                                                                                                                                                                  |
-| `startedAt`                       | The audio time the phrase started sounding.                                                                                                                                                                                                                                                        |
-| `outcome`                         | The phrase exactly as shown: its timeline (its notes and rests in time order) and the [harmony](music/lexicon.md#harmony) (the chords under the melody) its [chord symbols](music/lexicon.md#chord-symbol) come from.                                                                              |
-| `intent`                          | What reproduces the phrase: the resolved request with the [note density](music/lexicon.md#note-density) it was actually generated with, its [seed](music/lexicon.md#seed) (the number that drives the generator's random choices) and its carry-in. A phrase stepped down to Eighth stores Eighth. |
-| `tempo`                           | The [tempo](music/lexicon.md#tempo) it played at, in BPM.                                                                                                                                                                                                                                          |
-| `isRepeat`, `repeatOf`            | The internal repeat mark: whether the failure ladder repeated the phrase before, and which phrase. No view and no export shows it.                                                                                                                                                                 |
-| `acknowledgements`, `playedNotes` | Empty today. Chunk 17 fills them with the notes the player played.                                                                                                                                                                                                                                 |
+| Field                  | Holds                                                                                                                                                                                                                                                                                              |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `phraseNumber`         | The session phrase number: 1, 2, 3 … with no gap.                                                                                                                                                                                                                                                  |
+| `startedAt`            | The audio time the phrase started sounding.                                                                                                                                                                                                                                                        |
+| `outcome`              | The phrase exactly as shown: its timeline (its notes and rests in time order) and the [harmony](music/lexicon.md#harmony) (the chords under the melody) its [chord symbols](music/lexicon.md#chord-symbol) come from.                                                                              |
+| `intent`               | What reproduces the phrase: the resolved request with the [note density](music/lexicon.md#note-density) it was actually generated with, its [seed](music/lexicon.md#seed) (the number that drives the generator's random choices) and its carry-in. A phrase stepped down to Eighth stores Eighth. |
+| `tempo`                | The [tempo](music/lexicon.md#tempo) it played at, in BPM.                                                                                                                                                                                                                                          |
+| `isRepeat`, `repeatOf` | The internal repeat mark: whether the failure ladder repeated the phrase before, and which phrase. No view and no export shows it.                                                                                                                                                                 |
+| `acknowledgements`     | The phrase's acknowledged expected notes, in arrival order. Empty in a session without a controller.                                                                                                                                                                                               |
+| `playedNotes`          | The played notes whose compensated onsets fall inside the phrase, by onset (equal onsets keep their arrival order). Empty in a session without a controller.                                                                                                                                       |
 
 Every record is deep-frozen. The list `phrases()` returns is frozen too, and rebuilt only on the
-first read after a new record, so reading it again costs nothing.
+first read after a new record, played note or acknowledgement, so reading it again costs nothing.
 
 Generation is a pure function of its intent, seed included, so `generatePhrase(record.intent)`
 gives back the timeline stored in `record.outcome`. A property test checks this over a whole seed
@@ -280,9 +315,14 @@ An output a session cannot produce throws a typed `SessionHistoryError`:
   session's;
 - a `phrase-sounding` that is not the next phrase, or that starts before the phrase before it;
 - a repeat that names no earlier phrase, or a phrase that is no repeat but names one;
-- any output after `ended`;
+- any output, played note or acknowledgement after `ended` (so held notes must be released and
+  recorded before the engine's `end`);
 - an `ended` in the count-in after a phrase was recorded, or whose count of sounded phrases
-  differs from the number of records.
+  differs from the number of records;
+- a played note whose times are not finite or that releases before its onset, or whose velocity
+  is not a MIDI note-on velocity (1 to 127);
+- an acknowledgement that names no possible note (a phrase number below 1, a measure outside 0 to
+  3, a negative event index), or one already recorded.
 
 ### A long session
 
@@ -321,12 +361,16 @@ it (see [Session wiring](phrase-workspace.md#session-wiring)).
 | `canStart`, `startBlocker` | Whether `Start session` may be clicked, and the first start condition that fails (`null` when none does).                         |
 | `lastEnd`                  | How the last session ended: `cause`, `phase` (`'count-in'` or `'running'`) and `soundedPhraseCount`.                              |
 | `lastHistory`              | The closed history of the last session that ended.                                                                                |
+| `startingNote`             | The note that would start a session if played now (its identity, concert pitch and label); `null` unless one may start it.        |
+| `controllerLost`           | While a lost controller's countdown runs, `{ secondsLeft }`, 30 down to 1, count-in included; `null` otherwise.                   |
+| `acknowledged`             | The running session's acknowledged notes, in acknowledgement order; empty at Idle.                                                |
+| `sessionHasController`     | Whether the running session reads a controller, fixed at its start; `null` at Idle. Nothing on screen reads it yet.               |
 
 `start()` throws a `SessionControllerError` while a start condition fails, and `stop()` when no
 session is running. `isPhraseOnScreen(n)` says whether any part of phrase `n` is on the staff
 now (`false` with no session); a phrase number that is not a positive integer throws. `dispose()`
-ends a running session with the `stop` cause and stops reading
-the window; `App.vue` calls it when it unmounts.
+ends a running session with the `stop` cause, stops reading the window and listening to the MIDI
+controller, and frees the wake-up timer; `App.vue` calls it when it unmounts.
 
 ### Start conditions
 
@@ -349,7 +393,9 @@ from the Idle state and from the window's shape, which it reads from its creatio
 ### Starting
 
 `start()` runs synchronously inside the Start click, because a browser opens audio and grants
-screen locks only from the player's own gesture. In order, it:
+screen locks only from the player's own gesture. Playing the starting note takes the very same
+`start()`, from the MIDI note's callback (see [The starting note](#the-starting-note)); the audio
+was already unlocked then by the `Connect controller` click. In order, it:
 
 1. unlocks the audio, asks for the screen wake lock and the landscape orientation lock without
    waiting for their answers (a refused or unsupported lock changes nothing and shows nothing),
@@ -358,7 +404,9 @@ screen locks only from the player's own gesture. In order, it:
 3. locks the settings (the Idle controls and musical profile), chooses the held layout from the
    window's width alone (`sessionLayoutAtStart`: split below `bp-tablet-landscape`, one system
    from it up), opens a history stamped with the wall clock;
-4. shows the count-in and the session's staff (phrase 1, the very written phrase Idle shows, in
+4. begins the session's MIDI side, with or without the controller, fixed now (see
+   [The session controller's MIDI side](#the-session-controllers-midi-side));
+5. shows the count-in and the session's staff (phrase 1, the very written phrase Idle shows, in
    the held layout), starts the wake-up timer and the display's frame loop, then a runner whose
    phrase 1 is the Idle phrase and whose fit check is the display's, and the end watchers.
 
@@ -373,11 +421,13 @@ due by then, earliest first, ties in scheduling order. The agenda holds:
   beats are muted, a beat is current from its click to the next, and the row empties when the
   count-in ends;
 - **the count-in's end:** the phase becomes `running`, and the runner gets `count-in-over`;
-- **each readied phrase's start.** On `phrase-ready` the controller hands the phrase to the
-  rolling display, queues its backing with `audio.queueBacking` (a repeat included) and
-  schedules `phrase-started-sounding` at `audio.phraseStartsAt(n)`. Phrases must be readied in
-  order; one out of order throws;
-- **each engine deadline:** on `wake-at`, a `tick` at that time.
+- **each readied phrase's start.** On `phrase-ready` the controller queues its backing with
+  `audio.queueBacking` (a repeat included), hands its expected notes to the MIDI side and the
+  phrase to the rolling display, and schedules `phrase-started-sounding` at
+  `audio.phraseStartsAt(n)`. Phrases must be readied in order; one out of order throws;
+- **each engine deadline:** on `wake-at`, a `tick` at that time;
+- **the MIDI side's timers:** the silence check and each change of a lost controller's countdown
+  (see [The session controller's MIDI side](#the-session-controllers-midi-side)).
 
 The wake-ups come from the controller's own timer, `SessionControllerClock.createWakeTimer`,
 built once at the first start: in production a wake-up Worker timer of the same kind as the
@@ -391,8 +441,9 @@ result stamped at 4.010 s would otherwise go back in time, which the engine refu
 ### The history
 
 Every runner output is recorded in the session's history before the controller acts on it (see
-[What it records](#what-it-records)). When the session ends, its closed history is kept as
-`lastHistory`.
+[What it records](#what-it-records)). In a session with a controller, the MIDI side records each
+finished played note and each acknowledgement as it comes. When the session ends, its closed
+history is kept as `lastHistory`.
 
 ### The rolling display
 
@@ -459,14 +510,128 @@ passes it to `PhraseScore`'s `session` prop (see
 [During a session](phrase-workspace.md#during-a-session)), and wires `PhraseScore`'s
 `session-staff-failed` event, through the Idle layout gate, to the session alone.
 
+### The session controller's MIDI side
+
+`createSessionMidi(deps)` (`src/components/workspace/workspace-session-midi.ts`) is the
+controller's MIDI side. It loads with the controller, never in the entry chunk. From the
+controller's creation to its `dispose` it follows the MIDI controller's state and every played
+note (`WorkspaceSession.midi`, see [`docs/midi-input.md`](midi-input.md)). Every time it handles is
+on the audio clock, and every timer it sets is on the session's agenda.
+
+#### The starting note
+
+At Idle, the **starting note** is phrase 1's first fresh attack (a note that is not the
+continuation of a [tie](music/lexicon.md#tie)): `startingNoteOf(timeline, written)` in
+`src/session/starting-note.ts` gives its identity, its concert pitch, and its label, the staff's
+own spelling in [written pitch](music/lexicon.md#written-pitch) with ♭ or ♯ and the
+[octave number](music/lexicon.md#octave-number) (octave 4 starts on middle C), for example `B♭4`.
+It throws a `StartingNoteError` on a phrase with no attack, or when the staff shows that attack at
+another pitch than its concert pitch under the phrase's transposition.
+
+`state.startingNote` is set exactly when all of these hold: `Start session` may be clicked
+(`canStart`), the MIDI controller is `connected`, the connection sheet is closed
+(`WorkspaceSession.connectionSheetOpen`, see
+[`docs/controller-connection.md`](controller-connection.md#the-click)), and the staff shows Idle's
+phrase. The cue row's start line and the score's start marker are drawn from it (see
+[The cue row](phrase-workspace.md#the-cue-row)).
+
+A played note at Idle starts a session only when `startingNote` is set and the note has exactly
+its concert pitch, [octave](music/lexicon.md#octave) included (`isStartingNote`). It then calls the
+controller's own `start()`, the path the Start click takes, so every start condition, lock and
+count-in is the same. Any other note, or the starting note while nothing is named, does nothing.
+The starting note is the first note played in the session: it arms the silence timer (below).
+
+#### With or without the controller, fixed at the start
+
+The session's mode is fixed at its start, by the MIDI controller's state at that moment:
+
+- **`connected`: a session with a controller.** It reads every note until it ends.
+- **Any other state: a session without a controller.** It reads no note and sets no timer for its
+  whole run, count-in included, even if a device attaches afterwards. When the selected
+  controller is `away` at the start, the MIDI side calls `midi.holdReattachment()`, so the same
+  device coming back stays `away` and is never opened nor read until the session ends; the
+  teardown calls `midi.releaseReattachment()`, and the device then reattaches by itself (see
+  [Connected, lost and back again](midi-input.md#connected-lost-and-back-again)). A session started
+  while a port is still `opening` holds nothing: it reads no note either, and the device attaches
+  afterwards, outside the session.
+
+#### Acknowledgement
+
+A session with a controller builds one `createSessionAcknowledgement({ tempo, correction })`
+(`src/session/session-acknowledgement.ts`), the stateful layer over the pure pipeline of
+[MIDI note acknowledgement](midi-acknowledgement.md):
+
+- **Phrases are added in order.** Phrase 1's expected notes from its first downbeat,
+  `audio.phraseStartsAt(1)`, at the start; each later phrase's from its own first downbeat when it
+  is readied. The windows are placed again over every expected note known so far, so a phrase's
+  last note is bounded by the next phrase's first.
+- **Each played note is matched once.** Its onset is latency-compensated with the USB correction,
+  `latencyCorrectionFor('usb')`, for every controller: Web MIDI does not say how a device is
+  connected. A match is recorded in the history (`recordAcknowledgement`) and published as
+  `state.acknowledged`, which the score lights (see
+  [During a session](phrase-workspace.md#during-a-session)). A note that matches nothing changes
+  nothing and leaves no trace.
+- **Each finished note is recorded,** onset and release both compensated by the same total
+  (`compensatedRecord`), through `recordPlayedNote`.
+- **Notes due while the controller was away are passed over.** `passDueBetween(from, to)` excludes
+  from matching every expected note known so far whose onset lies in `[from, to]`, both ends
+  included. Such a note is never acknowledged afterwards, never recorded as acknowledged, and not
+  in `acknowledged()`; a note already acknowledged stays so. A range that is not finite or runs
+  backwards throws a `SessionAcknowledgementError`.
+
+The values of the windows and of the correction, and how to tune them on real hardware, are in
+[MIDI Tuning](midi-tuning.md).
+
+#### The silence timer
+
+A session with a controller ends with `silence-timeout` after more than
+`SILENCE_TIMEOUT_SECONDS` (30 s) without a played note (`src/session/session-midi-timers.ts`).
+
+- **Armed by the first note played.** In a session the starting note started, that is the starting
+  note itself, from its onset. In a session the Start click started, it is the first note played
+  after it. A session in which no note is ever played never times out.
+- **Re-armed by every played note,** from its onset, whether it matches or not.
+- **Suspended while the controller is lost.** When it comes back, a timer that was armed is
+  re-armed from the reattachment's time, however long the player was silent before the loss; a
+  timer not yet armed stays unarmed until the first note played.
+- **Checked on the agenda.** A check falls due at the deadline; the session ends only once the
+  audio clock is strictly past it, and the check runs again just after otherwise.
+
+#### A lost controller
+
+During a session with a controller, any state other than `connected` counts as lost: `away`, and
+`opening` while the same device is being reopened.
+
+- **The countdown** runs from `audio.now()` at the change, for `RECONNECTION_WINDOW_SECONDS`
+  (30 s). `state.controllerLost` shows `{ secondsLeft }`: 30 at the loss, one less at each whole
+  second after it, 1 in the last second. Each change is scheduled on the agenda.
+- **The same device back** (`connected` again) clears the countdown and re-arms the silence
+  timer from then, if a note had armed it. First, every expected note whose onset fell between
+  the loss and the reattachment is passed over (`passDueBetween`, see
+  [Acknowledgement](#acknowledgement)): it stays unacknowledged even if its window is still open.
+- **At 0** the session ends with `controller-lost`, which on screen ends exactly as a silence
+  timeout does.
+- **A count-in keeps running** under the countdown. The cue row shows the disconnect banner over
+  it, and the header shows the disconnected badge through its freeze (see
+  [Facts and forms](controller-connection.md#facts-and-forms)).
+
+#### Errors
+
+A throw inside the MIDI side's handling of a note or of a state change is a programming error: it
+ends the session loudly, like any other (see [Ends](#ends)).
+
 ### Ends
 
-Every end takes one path. The runner gets `end { cause }` at the current audio time, and the
-engine's `ended` closes the history. Then the controller tears the session down: the agenda is
+Every end takes one path. First, the notes still held on the controller end now and are recorded
+(`midi.releaseHeld(audio.now())`, whose ended notes reach the history like any other): the history
+refuses anything after its end. Then the runner gets `end { cause }` at the current audio time, and
+the engine's `ended` closes the history. Then the controller tears the session down: the agenda is
 emptied, the wake-up timer stopped, the display's frame loop stopped, the transport stopped with
 its 0.1 s fade (unless an interruption has already halted it), both screen locks released, the
-state back to Idle (`sessionStaff` back to `null`, so the staff leaves its session mode), and,
-last, the end watchers stopped. `lastEnd` holds the summary. A session ends on:
+state back to Idle (`sessionStaff` back to `null`, so the staff leaves its session mode), the MIDI
+side stopped (its timers dropped, the countdown and the acknowledged notes cleared, a held
+reattachment released), and, last, the end watchers stopped. `lastEnd` holds the summary. A
+session ends on:
 
 | What happens                                                                                         | Engine cause      |
 | ---------------------------------------------------------------------------------------------------- | ----------------- |
@@ -478,6 +643,8 @@ last, the end watchers stopped. `lastEnd` holds the summary. A session ends on:
 | A staff layout report at which a phrase shown or waiting no longer fits the held layout              | `staff-not-shown` |
 | A notation error of phrase 1's Idle engraving reported during the session                            | `staff-not-shown` |
 | The staff failing to draw the session (`session-staff-failed`: a refill or a re-engrave that throws) | `staff-not-shown` |
+| More than 30 s without a played note, in a session with a controller                                 | `silence-timeout` |
+| A controller lost in a session and not back within 30 s                                              | `controller-lost` |
 
 A second cause after the end does nothing. A programming error (a runner `onError`, or a throw
 inside a scheduled action) first ends the session with `stop`, so nothing keeps sounding, then
@@ -549,8 +716,6 @@ freshly generated phrase.
 
 ### Interim seams and open points
 
-- **No acknowledgement yet.** The staff marks no acknowledged notes during a session until
-  chunk 17 passes the played notes; the overlays already take them per phrase.
 - **A dropped wake lock is not asked for again.** If the browser drops the wake lock mid-session
   (the page hidden, a low battery), nothing re-requests it; whether to ask again silently is open
   question O87.
@@ -574,10 +739,14 @@ freshly generated phrase.
   fit check behind `checkFit` in the held layout, the two systems refilled as the playhead moves,
   the playhead stepping on heard time, the re-engrave in the held layout when the window changes,
   and the material rule that ends a session whose shown or waiting phrases no longer fit.
-- **Chunk 17:** the MIDI end causes (silence timeout, controller lost), a session started by the
-  starting note (never while the connection sheet is open: see
-  [What chunk 17 must know](midi-input.md#what-chunk-17-must-know)), and the acknowledgements and
-  played notes in the history's records.
+- **Chunk 17 (built):** MIDI in the session (see
+  [The session controller's MIDI side](#the-session-controllers-midi-side)): a session started by
+  the starting note (never while the connection sheet is open), the session with or without a
+  controller fixed at its start, live acknowledgement, the `silence-timeout` and
+  `controller-lost` ends with the disconnect countdown, and the acknowledgements and played notes
+  in the history's records. The runner now loads with the controller. The choices it made are in
+  [Technical choices made in chunk 17](midi-input.md#technical-choices-made-in-chunk-17); the
+  hardware tuning it could not do is in [MIDI Tuning](midi-tuning.md).
 - **Chunk 20:** the Review and the generated-notes export, built from the history (`lastHistory`),
   in place of the interim end after phrase 1 sounded.
 - **Chunk 24:** setting changes applied at a phrase boundary.

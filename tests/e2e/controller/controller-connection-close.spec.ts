@@ -5,7 +5,7 @@
  * and where focus lands after it (the session action, else the phrase action, else
  * `controller-status`); a close while the browser's own prompt waits abandons the attempt; and
  * item 17: no note played while the sheet is open, phrase 1's first note included, starts a
- * session or changes the workspace.
+ * session or changes the workspace, though that same note starts one once the sheet is closed.
  */
 import { expect, test, type Page } from '@playwright/test'
 
@@ -91,6 +91,13 @@ async function expectNoSessionStarted(page: Page): Promise<void> {
   expect((await audioEvents(page)).filter((event) => event.kind === 'click')).toEqual([])
   expect(await page.evaluate(() => window.__workspaceHarness.audio.isRunning())).toBe(false)
   await expect(sessionAction(page)).toHaveText('Start session')
+}
+
+/** Intent: assert nothing names a starting note: no start line, no start marker. */
+async function expectNoStartingNote(page: Page): Promise<void> {
+  expect((await sessionState(page)).startingNote).toBeNull()
+  await expect(page.locator('.session-cue-row p.start-note-line')).toHaveCount(0)
+  await expect(page.locator('.staff-frame .start-note-marker')).toHaveCount(0)
 }
 
 // @test-link [[rule_controller_connects_between_sessions]]
@@ -220,13 +227,15 @@ test.describe('closing while the browser prompt waits abandons the attempt', () 
 })
 
 // @test-link [[rule_midi_starting_note]]
+// @test-link [[rule_starting_note_named]]
 // @test-link [[rule_controller_connects_between_sessions]]
 // @test-link [[rule_controller_transposition_check]]
 test.describe('item 17: notes played while the sheet is open', () => {
   // @test-link [[rule_midi_starting_note]]
+  // @test-link [[rule_starting_note_named]]
   // @test-link [[rule_controller_connects_between_sessions]]
   // @test-link [[rule_controller_transposition_check]]
-  test('neither the check note nor phrase 1 first note starts a session or changes anything', async ({
+  test('phrase 1 first note, which starts a session once the sheet is closed, starts nothing while it is open', async ({
     page,
   }) => {
     await gotoControllerHarness(page)
@@ -245,18 +254,29 @@ test.describe('item 17: notes played while the sheet is open', () => {
     expect(await page.evaluate(() => window.__workspaceHarness.midi.playedNotes().length)).toBe(4)
     await expectNoSessionStarted(page)
     expect(await workspaceState(page)).toEqual(before)
+    await expectNoStartingNote(page)
 
-    // At Connected: the same.
+    // At Connected, the controller connected: the same.
     await sheetAction(page, 'Continue').click()
     await expect(sheet(page).locator('#sheet-title')).toHaveText('Controller connected')
+    expect(await midiState(page)).toEqual({ kind: 'connected', device: KEYS })
     for (const pitch of [firstNote, firstNote - 1, firstNote]) await play(page, KEYS, pitch)
     expect(await page.evaluate(() => window.__workspaceHarness.midi.playedNotes().length)).toBe(7)
     await expect(sheet(page).locator('#sheet-title')).toHaveText('Controller connected')
     await expectNoSessionStarted(page)
     expect(await workspaceState(page)).toEqual(before)
+    await expectNoStartingNote(page)
 
     await sheetAction(page, 'Done').click()
     await expect(sessionAction(page)).toBeFocused()
     await expectNoSessionStarted(page)
+
+    // The control: with the sheet closed, the very same note starts the count-in.
+    await expect(page.locator('.session-cue-row p.start-note-line')).toBeVisible()
+    expect((await sessionState(page)).startingNote?.concertPitch).toBe(firstNote)
+    await play(page, KEYS, firstNote)
+    await expect(sessionAction(page)).toHaveText('Stop')
+    expect((await sessionState(page)).phase).toBe('count-in')
+    await sessionAction(page).click()
   })
 })

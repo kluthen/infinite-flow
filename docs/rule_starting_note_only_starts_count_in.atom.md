@@ -5,7 +5,8 @@ version: 0.1
 priority: 1
 parents:
   - [[rule_midi_starting_note]]
-dependents: []
+dependents:
+  - [[service_workspace_session_flow]]
 type: RULE
 layer: BUSINESS
 human_name: Starting Note Only Starts the Count-In

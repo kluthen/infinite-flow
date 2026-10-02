@@ -25,12 +25,12 @@ notes the player played, and returns the identities of the expected notes they a
 
 Four steps, one file each:
 
-| Step | File | What it does |
-| ---- | ---- | ------------ |
-| Expected notes | `expected-note.ts` | `deriveExpectedNotes(timeline, placement)` lists a phrase's fresh attacks in time order, each with its identity, concert pitch, onset and the end of its full sounding span (the attack plus every tie continuation after it, across barlines too). Rests have no expected note. |
-| Windows | `acknowledgement-window.ts` | `placeAcknowledgementWindows(notes)` gives every expected note its timing window. |
-| Played onset | `played-onset-latency.ts` | `compensatePlayedNote(noteOn, correction)` turns a note-on stamped on the audio clock into a played note whose onset has the latency taken off. |
-| Matching | `note-matching.ts` | `acknowledgePlayedNotes(expected, played)` and `acknowledgePlayedNote(expected, alreadyAcknowledged, played)` return the identities acknowledged. |
+| Step           | File                        | What it does                                                                                                                                                                                                                                                                     |
+| -------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Expected notes | `expected-note.ts`          | `deriveExpectedNotes(timeline, placement)` lists a phrase's fresh attacks in time order, each with its identity, concert pitch, onset and the end of its full sounding span (the attack plus every tie continuation after it, across barlines too). Rests have no expected note. |
+| Windows        | `acknowledgement-window.ts` | `placeAcknowledgementWindows(notes)` gives every expected note its timing window.                                                                                                                                                                                                |
+| Played onset   | `played-onset-latency.ts`   | `compensatePlayedNote(noteOn, correction)` turns a note-on stamped on the audio clock into a played note whose onset has the latency taken off.                                                                                                                                  |
+| Matching       | `note-matching.ts`          | `acknowledgePlayedNotes(expected, played)` and `acknowledgePlayedNote(expected, alreadyAcknowledged, played)` return the identities acknowledged.                                                                                                                                |
 
 `deriveExpectedNotes` takes a `PhrasePlacement`: the phrase number (1 for the session's first
 phrase), the audio-clock time of the phrase's first downbeat, and its tempo. In 4/4 a whole note
@@ -78,7 +78,8 @@ Technical choices:
 
 The two grace values are `EARLY_GRACE_SECONDS` (0.15) and `LATE_GRACE_SECONDS` (0.2) in
 `acknowledgement-window.ts`. They are the values the product owner set for the rule, to be
-confirmed by playing on the reference hardware (a breath controller over USB and a USB keyboard).
+confirmed by playing on the reference hardware (a breath controller over USB and a USB keyboard);
+the procedure is in [MIDI Tuning](midi-tuning.md).
 
 ## Latency
 
@@ -92,14 +93,16 @@ played onset used for matching is therefore:
 The values are hard-coded constants in `played-onset-latency.ts`: the product ships no calibration
 step for the player.
 
-| Constant | Value | Where the value comes from |
-| -------- | ----- | -------------------------- |
-| `OUTPUT_LATENCY_SECONDS` | 0 | Provisional: no correction until it is measured on the reference hardware. |
-| `CONNECTION_LATENCY_SECONDS.usb` | 0 | A wired USB connection adds a negligible delay. |
+| Constant                                     | Value  | Where the value comes from                                                         |
+| -------------------------------------------- | ------ | ---------------------------------------------------------------------------------- |
+| `OUTPUT_LATENCY_SECONDS`                     | 0      | Provisional: no correction until it is measured on the reference hardware.         |
+| `CONNECTION_LATENCY_SECONDS.usb`             | 0      | A wired USB connection adds a negligible delay.                                    |
 | `CONNECTION_LATENCY_SECONDS['bluetooth-le']` | 0.0125 | The middle of the 10 to 15 ms Bluetooth LE MIDI typically adds, before its jitter. |
 
-All three are starting points, tuned on the reference hardware once acknowledgement runs in a live
-session. `latencyCorrectionFor(connection)` builds the shipped correction from them.
+All three are starting points, still to be tuned on the reference hardware: see
+[MIDI Tuning](midi-tuning.md) for the procedure and the results. `latencyCorrectionFor(connection)`
+builds the shipped correction from them. A live session uses `latencyCorrectionFor('usb')` for
+every controller, since Web MIDI does not say how a device is connected.
 `compensatePlayedNote` takes the correction as an argument, so a test, or a later tuning step, can
 pass other values without touching the constants.
 
@@ -132,9 +135,15 @@ the identity or the return type. The type checker runs them as part of `npm run 
 - **Reading the controller**: which MIDI messages count as a played note, and mapping a MIDI
   timestamp onto the audio clock. The input here is a note-on already on the audio clock. Chunk
   12 built both in `src/midi/`: see [`docs/midi-input.md`](midi-input.md).
-- **Drawing the highlight** on the staff for an acknowledged identity.
+- **Drawing the highlight** on the staff for an acknowledged identity: `score-overlays.ts` in
+  `src/notation/` lights each acknowledged note (`note-ack`); see
+  [During a session](phrase-workspace.md#during-a-session).
 - **Wiring it into the session**: calling the matcher as notes arrive, placing windows again when
-  the next phrase is generated, and recording the played notes.
+  the next phrase is readied, and recording the played notes. Chunk 17 built it in
+  `src/session/session-acknowledgement.ts`, driven by the session controller's MIDI side
+  (`src/components/workspace/workspace-session-midi.ts`); see
+  [The session controller's MIDI side](session-engine.md#the-session-controllers-midi-side).
+- **Tuning the constants** on the reference hardware: see [MIDI Tuning](midi-tuning.md).
 
 ## Tests
 

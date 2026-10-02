@@ -9,7 +9,8 @@
  * the Start click (popover closed, session started, the one jump), Stop, the musical controls
  * locked while a session runs, and where focus goes when it ends. It also hosts the controller
  * connection: the header `controller-status` it feeds, the click that opens the lazily loaded
- * connection sheet, and where focus goes when the sheet closes.
+ * connection sheet, whether the sheet is open (reported to the workspace as it changes), and where
+ * focus goes when the sheet closes.
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -112,9 +113,23 @@ const sessionActive = computed(
 // @spec-link [[rule_readonly_controls_keep_contrast]]
 const controlsReadonly = computed(() => state.value.operation !== 'idle' || sessionActive.value)
 
-// The header's `controller-status`, frozen at its form while a session runs.
+const emit = defineEmits<{
+  /**
+   * The connection sheet opened or closed (also once at setup, closed), emitted synchronously
+   * inside the change, so the workspace's flag never lags the sheet, its load included.
+   */
+  'connection-sheet-open-change': [open: boolean]
+}>()
+
+// The header's `controller-status`, frozen at its form while a session runs, except that it shows
+// the disconnected badge while a lost controller's countdown runs.
 // @spec-link [[rule_same_controller_reattaches]]
-const controllerStatus = useControllerStatus(props.midi, () => sessionActive.value)
+// @spec-link [[rule_controller_loss_mid_session]]
+const controllerStatus = useControllerStatus(
+  props.midi,
+  () => sessionActive.value,
+  () => props.controller !== null && props.controller.state.controllerLost !== null,
+)
 
 // @spec-link [[rule_controller_connects_between_sessions]]
 const {
@@ -129,6 +144,17 @@ const {
   status: controllerStatus,
   profile: () => getInstrumentProfile(state.value.controls.instrumentProfileId),
   sessionActive: () => sessionActive.value,
+})
+
+/**
+ * Intent: report the sheet's open flag to the workspace at once, synchronously, at every change:
+ * a MIDI note can arrive right after the click, and none may start a session while it is open.
+ */
+// @spec-link [[rule_controller_connects_between_sessions]]
+// @spec-link [[rule_midi_starting_note]]
+watch(connectionSheetOpen, (open) => emit('connection-sheet-open-change', open), {
+  flush: 'sync',
+  immediate: true,
 })
 
 defineExpose({

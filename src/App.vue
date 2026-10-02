@@ -6,7 +6,8 @@
  * `provide(WORKSPACE_SESSION_FACTORY, ...)` a deterministic/gated/failure-injecting session
  * without ever branching this file on being under test. It also builds the workspace's one
  * session controller, whose module loads as its own chunk: until it has loaded, `Start session`
- * stays disabled. A load failure is not caught: it surfaces as the unhandled error it is.
+ * stays disabled. A load failure is not caught: it surfaces as the unhandled error it is. It
+ * keeps the workspace's connection-sheet flag in step with the shell's sheet.
  */
 import { inject, onUnmounted, shallowRef, watch } from 'vue'
 
@@ -42,6 +43,15 @@ void workspace.createSessionController().then((controller) => {
   else sessionController.value = controller
 })
 
+/**
+ * Intent: keep the workspace's connection-sheet flag, which the session controller reads, equal to
+ * the shell's sheet; the shell reports every change synchronously.
+ */
+// @spec-link [[rule_controller_connects_between_sessions]]
+function handleConnectionSheetOpenChange(open: boolean): void {
+  workspace.connectionSheetOpen.value = open
+}
+
 /** Intent: end any running session and stop the controller, then tear the workspace down. */
 // @spec-link [[service_workspace_session_flow]]
 onUnmounted(() => {
@@ -62,5 +72,6 @@ onUnmounted(() => {
     :audio="workspace.audio"
     :midi="workspace.midi"
     :controller="sessionController"
+    @connection-sheet-open-change="handleConnectionSheetOpenChange"
   />
 </template>

@@ -1,6 +1,6 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { reactive, ref } from 'vue'
+import { reactive, ref, shallowRef } from 'vue'
 
 import type { GenerationSession } from '../../src/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '../../src/composables/workspace-session-result'
@@ -76,6 +76,7 @@ function fakeWorkspaceSession() {
     handleLayoutInputs: () => {},
     audio: transportRig().transport,
     midi: createControllerRig().controller,
+    connectionSheetOpen: shallowRef(false),
     createSessionController: async () => {
       if (controllerLoad !== null) await controllerLoad.promise
       nextController ??= createFakeSessionController()
@@ -105,6 +106,7 @@ vi.mock('../../src/components/workspace/create-workspace-session', () => ({
 }))
 
 import App from '../../src/App.vue'
+import { loadConnectionSheet } from '../../src/components/controller-connection/load-connection-sheet'
 import { transportRig } from './audio/transport-rig'
 import { createControllerRig } from './midi/midi-controller-rig'
 import { PHRASE_SCORE_STUB } from './components/workspace/test-workspace'
@@ -202,5 +204,24 @@ describe('App session controller', () => {
     await flushPromises()
 
     expect(fake.dispose).toHaveBeenCalledOnce()
+  })
+})
+
+// @test-link [[rule_controller_connects_between_sessions]]
+// @test-link [[rule_midi_starting_note]]
+describe('App connection sheet flag', () => {
+  it("sets the workspace's flag inside the controller-status click, before the sheet loads", async () => {
+    const injected = fakeWorkspaceSession()
+    const wrapper = mount(App, {
+      global: { stubs: STUBS, provide: { [workspaceSessionFactoryKey]: () => injected } },
+    })
+    expect(injected.connectionSheetOpen.value).toBe(false)
+
+    ;(wrapper.get('button.controller-status').element as HTMLButtonElement).click()
+
+    expect(injected.connectionSheetOpen.value).toBe(true)
+    // Let the sheet's lazy chunk finish loading before the test environment goes.
+    await loadConnectionSheet()
+    wrapper.unmount()
   })
 })

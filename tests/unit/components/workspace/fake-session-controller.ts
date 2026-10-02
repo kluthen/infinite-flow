@@ -60,6 +60,10 @@ export function createFakeSessionController(
     lastHistory: null,
     sessionStaff: null,
     latestReady: null,
+    startingNote: null,
+    controllerLost: null,
+    acknowledged: [],
+    sessionHasController: null,
     ...overrides,
   })
   const start = vi.fn((): void => {
