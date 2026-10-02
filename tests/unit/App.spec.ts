@@ -64,6 +64,7 @@ function fakeWorkspaceSession() {
       retryNotation: async () => false,
       reportNotationFailure: () => false,
       reportNotationRecovered: () => false,
+      startFreshPhrase: async () => false,
     },
     dispose: () => {},
   }

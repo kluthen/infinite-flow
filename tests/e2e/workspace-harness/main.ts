@@ -37,7 +37,14 @@
  *   the app builds it, its state read as plain JSON by `session.state()`;
  * - the session clock: the session controller's wake-up timer on the audio seams' clock (stepped
  *   by `audio.advance` right after the transport's on the fake rig, a real wake-up Worker with
- *   `?audio=real`), and the real wall clock for session histories;
+ *   `?audio=real`), and the real wall clock for session histories unless a spec fixes it with
+ *   `setWallClock`, so the export's file names (from the history's start) are known in advance;
+ * - the Review's export (export-loader-seam.ts, through the `@/export/load-generated-notes-export`
+ *   alias): the real lazy export code, its built files counted (`exportsBuilt`) and the next one
+ *   failing when armed (`failNextExport`), so the Review's real export error shows; the real chunk
+ *   load can still be failed by aborting its request with Playwright routing;
+ * - the Review's history (session-controller-seams.ts): `session.inflateHistory` makes the Review
+ *   the app shows hold any number of phrases, for the long-Review specs;
  * - the prewarm policy, read from the page URL exactly as production reads it (`?prewarm=off`
  *   disables it, on by default), with every prewarm forwarded to the real worker client and
  *   counted for `prewarmCount()`.
@@ -73,6 +80,7 @@ import { bindHarnessAudioStart, createHarnessAudio, harnessAudioMode } from './a
 import { createHarnessMidi, harnessMidiMode } from './midi-seams'
 import { createHarnessSessionBrowser } from './session-browser-seams'
 import { createHarnessSessionController } from './session-controller-seams'
+import { armNextExportFailure, exportsBuilt } from './export-loader-seam'
 import {
   armNextNotationFailure,
   engravingCount,
@@ -208,6 +216,16 @@ function armGenerationFailures(
 }
 
 let prewarmsPosted = 0
+/** The wall clock a spec fixed, as epoch milliseconds; null reads the real one. */
+let fixedWallClock: number | null = null
+
+/** Intent: fix the session histories' wall clock at `epochMs`, or let it run again with null. */
+function setWallClock(epochMs: number | null): void {
+  if (epochMs !== null && !(Number.isFinite(epochMs) && epochMs >= 0)) {
+    throw new Error(`Workspace harness: setWallClock(${epochMs}) is no epoch time`)
+  }
+  fixedWallClock = epochMs
+}
 
 /** Intent: count one prewarm, then forward it to the real worker client unchanged. */
 // @test-link [[service_workspace_session_flow]]
@@ -275,6 +293,9 @@ window.__workspaceHarness = {
   roomChecks: roomCheckCount,
   seedsDrawn: seedProvider.seedsDrawn,
   generatedTimelines: () => [...generatedTimelines],
+  setWallClock,
+  failNextExport: armNextExportFailure,
+  exportsBuilt,
   snapshot,
   prewarmCount: () => prewarmsPosted,
   audio: harnessAudio.api,
@@ -298,7 +319,7 @@ app.provide(WORKSPACE_SESSION_FACTORY, () => {
     browser: harnessBrowser.ports,
     sessionClock: {
       createWakeTimer: harnessAudio.createSessionWakeTimer,
-      wallClock: () => Date.now(),
+      wallClock: () => fixedWallClock ?? Date.now(),
       // The browser's own frames, as in the app: the playhead is read on the harness's audio clock.
       frames: {
         request: (callback) => requestAnimationFrame(() => callback()),

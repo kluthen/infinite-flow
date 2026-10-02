@@ -3,9 +3,11 @@
  * staff's reports never reach the real Idle machinery; at its end the latest are re-applied, so the
  * Idle rules decide in the layout the window gives afresh (room: Ready with phrase 1; no room: the
  * room notice; phrase 1 too wide: fresh-seed retries), and never with a notation error. After an
- * end once phrase 1 sounded, the played phrase stays shown, nothing is generated, and Start waits
- * for a new Idle phrase. The real Idle machinery and coordinator run over a fake engraver planner
- * (every phrase fits, the staff has room, 60-unit fixed parts) and a transport on the fake clock.
+ * end once phrase 1 sounded, the Review shows, the played phrase leaves the staff at once and a fresh
+ * phrase is generated behind it (none while the staff has no room, until the notice clears); it is
+ * asked for with Idle at rest, or generating a replacement it supersedes, never drawing. The
+ * real Idle machinery and coordinator run over a fake engraver planner (every phrase fits, the staff
+ * has room, 60-unit fixed parts, unless a test says otherwise) and a transport on the fake clock.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -26,7 +28,7 @@ import type { FakeAudioRig } from '../../audio/fake-audio'
 import { transportRig } from '../../audio/transport-rig'
 import { createFakeViewportWidth } from '../../composables/fake-viewport-width'
 import { createFakeMidiAccess } from '../../midi/fake-midi-access'
-import { resetFakeEngraver } from '../../notation/fake-vexflow-engraver-loader'
+import { fakeEngraver, resetFakeEngraver } from '../../notation/fake-vexflow-engraver-loader'
 import {
   createFakeSessionBrowser,
   type FakeSessionBrowser,
@@ -225,33 +227,151 @@ describe('the workspace session: the Idle layout hand-off', () => {
   })
 })
 
-// @test-link [[rule_phrase_one_is_idle_phrase]]
-describe('the workspace session: the phrase a session played', () => {
-  // @test-link [[rule_phrase_one_is_idle_phrase]]
-  // @test-link [[rule_stop_ends_session]]
-  it('keeps the played phrase shown, generates nothing, and blocks Start until a new Idle phrase', async () => {
+/** Intent: play the count-in through and half a beat of phrase 1, then Stop. */
+async function stopOnceSounded(rig: Rig): Promise<void> {
+  while (rig.controller.state.phase !== 'running') {
+    rig.audioRig.advanceTo(rig.audioRig.now() + 0.25)
+    await flush()
+  }
+  rig.audioRig.advanceTo(rig.audioRig.now() + 0.5)
+  await flush()
+  rig.controller.stop()
+}
+
+/** Intent: let the fresh phrase's run reach its drawing, then engrave it as PhraseScore would. */
+async function engraveFreshPhrase(workspace: WorkspaceSession): Promise<void> {
+  await vi.waitFor(() => {
+    if (workspace.session.state.operation !== 'notating') throw new Error('not drawing yet')
+  })
+  workspace.handleEngraved()
+  await flush()
+}
+
+// @test-link [[rule_session_end_generates_next_phrase_one]]
+describe('the workspace session: the next phrase at a session end', () => {
+  // @test-link [[rule_session_end_generates_next_phrase_one]]
+  // @test-link [[req_last_session_review]]
+  it('drops the played phrase at once and generates a fresh one behind the Review', async () => {
     const rig = await inCountIn()
-    const shownPhrase = rig.workspace.pendingPhrase.value
+    const playedIntent = rig.workspace.session.state.latestIntent
+    const requestsBefore = rig.generate.mock.calls.length
+
+    await stopOnceSounded(rig)
+
+    expect(rig.controller.state.lastEnd).toMatchObject({ cause: 'stop', soundedPhraseCount: 1 })
+    expect(rig.controller.state.review?.showing).toBe(true)
+    expect(rig.workspace.session.state.result).toBeNull()
+    expect(rig.workspace.pendingPhrase.value).toBeNull()
+    expect(rig.controller.state.startBlocker).toBe('review_showing')
+
+    await engraveFreshPhrase(rig.workspace)
+
+    const fresh = rig.workspace.session.state.result
+    expect(fresh).not.toBeNull()
+    expect(fresh).not.toBe(rig.phraseOne)
+    expect(fresh?.intent.seed).not.toBe(playedIntent?.seed)
+    expect(fresh?.intent.carryIn).toBeUndefined()
+    expect(rig.generate.mock.calls.length).toBe(requestsBefore + 1)
+    expect(rig.controller.state.startBlocker).toBe('review_showing')
+
+    rig.controller.closeReview()
+
+    expect(rig.controller.state.canStart).toBe(true)
+    expect(rig.controller.state.lastHistory?.phraseCount).toBe(1)
+  })
+
+  // @test-link [[rule_session_end_generates_next_phrase_one]]
+  // @test-link [[rule_staff_notice_gives_way_to_new_phrase]]
+  it('generates nothing while the staff has no room, then a fresh phrase, not the played one, once the notice clears', async () => {
+    const rig = await inCountIn()
+    const requestsBefore = rig.generate.mock.calls.length
+    fakeEngraver.planStaffRoomForKey.mockReturnValue({ kind: 'no_room', cause: 'too_narrow' })
+
+    await stopOnceSounded(rig)
+    await flush()
+
+    expect(idleView(rig.workspace)).toMatchObject({
+      result: null,
+      roomNotice: 'no_room',
+      operation: 'idle',
+    })
+    expect(rig.generate.mock.calls.length).toBe(requestsBefore)
+
+    fakeEngraver.planStaffRoomForKey.mockReturnValue({ kind: 'room' })
+    rig.workspace.handleLayoutInputs({
+      containerWidthPx: 1000,
+      viewport: { layout: 'one-system', heightBudgetPx: null },
+    })
+    await engraveFreshPhrase(rig.workspace)
+
+    expect(rig.generate.mock.calls.length).toBe(requestsBefore + 1)
+    expect(rig.workspace.session.state.roomNotice).toBeNull()
+    expect(rig.workspace.session.state.result).not.toBeNull()
+    expect(rig.workspace.session.state.result).not.toBe(rig.phraseOne)
+  })
+
+  // @test-link [[rule_session_end_generates_next_phrase_one]]
+  // @test-link [[rule_session_start_conditions]]
+  it('asks for the fresh phrase with Idle at rest: nothing reaches the Idle machinery during the session', async () => {
+    const rig = await inCountIn()
+    const operations = recordFreshPhraseCalls(rig.workspace)
+
+    rig.workspace.handleLayoutInputs({
+      containerWidthPx: 1000,
+      viewport: { layout: 'one-system', heightBudgetPx: null },
+    })
+    rig.workspace.handleEngraved()
+    await stopOnceSounded(rig)
+
+    expect(operations).toEqual(['idle'])
+    expect(rig.controller.state.review?.showing).toBe(true)
+    await engraveFreshPhrase(rig.workspace)
+    expect(rig.workspace.session.state.result).not.toBe(rig.phraseOne)
+  })
+
+  // @test-link [[rule_session_end_generates_next_phrase_one]]
+  // @test-link [[rule_session_ends_when_staff_too_small]]
+  it('supersedes the replacement a held drawing failure starts as it is handed back, never meeting a drawing', async () => {
+    const rig = await inCountIn()
     while (rig.controller.state.phase !== 'running') {
       rig.audioRig.advanceTo(rig.audioRig.now() + 0.25)
       await flush()
     }
     rig.audioRig.advanceTo(rig.audioRig.now() + 0.5)
     await flush()
+    const operations = recordFreshPhraseCalls(rig.workspace)
+    const requestsBefore = rig.generate.mock.calls.length
 
-    rig.controller.stop()
-    const requestsAtEnd = rig.generate.mock.calls.length
-    await flush()
+    rig.workspace.handleNotationError(new NotationError('notation_notes_too_wide', 'too wide', {}))
 
-    expect(rig.controller.state.lastEnd).toMatchObject({ cause: 'stop', soundedPhraseCount: 1 })
-    expect(rig.generate.mock.calls.length).toBe(requestsAtEnd)
-    expect(rig.workspace.session.state.result).toBe(rig.phraseOne)
+    expect(rig.controller.state.lastEnd).toMatchObject({
+      cause: 'staff-not-shown',
+      soundedPhraseCount: 1,
+    })
+    expect(operations).toEqual(['generating'])
+    expect(rig.controller.state.review?.showing).toBe(true)
+    await engraveFreshPhrase(rig.workspace)
+
+    // The superseded replacement's request is answered but changes nothing.
+    expect(rig.generate.mock.calls.length).toBe(requestsBefore + 2)
+    const fresh = rig.workspace.session.state.result
+    expect(fresh?.intent.seed).toBe(rig.generate.mock.calls.at(-1)?.[0].seed)
     expect(rig.workspace.session.state.operation).toBe('idle')
-    expect(rig.workspace.pendingPhrase.value).toBe(shownPhrase)
-    expect(rig.controller.state.startBlocker).toBe('phrase_already_played')
-    expect(rig.controller.state.lastHistory?.phraseCount).toBe(1)
-
-    await generateAndEngrave(rig.workspace)
-    expect(rig.controller.state.canStart).toBe(true)
+    expect(rig.workspace.session.state.notationError).toBeNull()
   })
 })
+
+/**
+ * Intent: record the Idle operation each time the controller asks for a fresh phrase, the call
+ * going on to the real action.
+ */
+function recordFreshPhraseCalls(workspace: WorkspaceSession): string[] {
+  const operations: string[] = []
+  const actions = workspace.session.actions
+  const original = actions.startFreshPhrase
+  vi.spyOn(actions, 'startFreshPhrase').mockImplementation(() => {
+    operations.push(workspace.session.state.operation)
+    return original()
+  })
+  return operations
+}

@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.24 (2026-09-30). This is the consolidated, execution-ready specification for
+Status: master spec v1.25 (2026-10-02). This is the consolidated, execution-ready specification for
 v2, covering releases v2.0 through v2.3. It supersedes the individual v2 draft topic documents,
 which are kept in the archive as working history. Change in v1.6: the export is chosen by content,
 generated notes or played notes, and played notes come as a MIDI file of their own instead of an
@@ -91,7 +91,10 @@ note, the starting note included, and no note played there starts anything; leav
 keeps it
 reachable until the next session starts, and only that start discards it. The fresh phrase
 generated at the session end stands, and phrase 1 is the phrase on screen at Idle when the
-session starts (§4, §6, §7, §11).
+session starts (§4, §6, §7, §11). Change in v1.25, a correction that adds no new rule: the
+MusicXML export closes every phrase but the last with a double barline and the last with a final
+barline, as the product owner decided on 2026-09-29 while the MusicXML encoder was built; the
+text had kept a double barline for every phrase (§7).
 
 ## 1. Core concept
 
@@ -683,10 +686,11 @@ player choose the format:
 
 - **MusicXML** (score-partwise 4.0): one part, in the session's instrument's own written pitch
   with a `<transpose>` element carrying that transposition (omitted for a C instrument); chord
-  symbols always included; each phrase marked with a rehearsal mark and a double barline, with a
-  metronome mark at the start and at every tempo change. MusicXML only ever holds generated notes:
-  unquantized playing can't be faithfully engraved, and quantizing it would misrepresent what was
-  actually played.
+  symbols always included; each phrase marked with a rehearsal mark; every phrase but the last
+  closed by a double barline (two thin lines) and the last by a final barline (a thin line then a
+  thick one); a metronome mark at the start and at every tempo change. MusicXML only ever holds
+  generated notes: unquantized playing can't be faithfully engraved, and quantizing it would
+  misrepresent what was actually played.
 - **MIDI** (Standard MIDI File, type 1): the generated line at concert pitch on its own track, a
   full tempo map, one marker per phrase, and an optional backing track (off by default). It never
   holds played notes.

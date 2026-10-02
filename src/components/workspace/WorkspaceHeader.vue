@@ -2,11 +2,11 @@
 /**
  * The workspace header: brand mark, `controller-status`, live meter/tempo context, the theme
  * override, then its two action slots: the phrase action and the session action (`Start session` /
- * `Stop`). This is the
+ * `Stop`, or `Close review` while the last session's Review shows). This is the
  * one place the generate/regenerate/retry vocabulary, the session action's label and both slots'
  * disabled and emphasis policy live -- everything else reads the session's state directly. The
- * session action and `controller-status` only ask: the shell starts and stops the session and
- * opens the connection sheet. There is no independently
+ * session action and `controller-status` only ask: the shell starts and stops the session, closes
+ * the Review and opens the connection sheet. There is no independently
  * selectable display-notation control: the score is always shown in the active instrument
  * profile's own written pitch.
  */
@@ -18,7 +18,7 @@ import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-set
 import type { ControllerStatusForm } from '@/midi/controller-status'
 import ControllerStatus from './ControllerStatus.vue'
 import ThemeControl from './ThemeControl.vue'
-import { primaryHeaderAction } from './session-action-policy'
+import { phraseActionDisabled, primaryHeaderAction } from './session-action-policy'
 import { sheetCloseFocusTarget } from './sheet-close-focus'
 import type { SessionController } from './workspace-session-controller-types'
 
@@ -35,6 +35,8 @@ const emit = defineEmits<{
   'start-session': []
   /** `Stop` was clicked. */
   'stop-session': []
+  /** `Close review` was clicked; the shell closes the Review and moves focus. */
+  'close-review': []
   /** The enabled `controller-status` was clicked; the shell opens the sheet inside this click. */
   'open-connection-sheet': []
 }>()
@@ -94,21 +96,44 @@ const sessionActive = computed(
   () => props.controller !== null && props.controller.state.phase !== 'idle',
 )
 
-/** The phrase action is disabled while an operation runs, under an unsupported rhythm, and in a session. */
+/** True while the last session's Review shows, in place of the staff. */
+// @spec-link [[req_last_session_review]]
+const reviewShowing = computed(() => props.controller?.state.review?.showing === true)
+
+/**
+ * The phrase action is disabled while an operation runs, under an unsupported rhythm, in a
+ * session, and in place while the Review shows.
+ */
 // @spec-link [[rule_session_settings_locked]]
-const primaryActionDisabled = computed(
-  () => operationRunning.value || blockedByUnsupportedRhythm.value || sessionActive.value,
+// @spec-link [[req_last_session_review]]
+const primaryActionDisabled = computed(() =>
+  phraseActionDisabled({
+    operationRunning: operationRunning.value,
+    blockedByUnsupportedRhythm: blockedByUnsupportedRhythm.value,
+    sessionActive: sessionActive.value,
+    reviewShowing: reviewShowing.value,
+  }),
 )
 
 /**
  * Intent: `Start session` is enabled only once the controller has loaded and every start
- * condition holds; `Stop` is always enabled during a session.
+ * condition holds; `Stop` is always enabled during a session, and `Close review` while the
+ * Review shows.
  */
 // @spec-link [[rule_session_start_conditions]]
 // @spec-link [[rule_stop_ends_session]]
+// @spec-link [[req_last_session_review]]
 const sessionActionDisabled = computed(() => {
   if (props.controller === null) return true
-  return !sessionActive.value && !props.controller.state.canStart
+  if (sessionActive.value || reviewShowing.value) return false
+  return !props.controller.state.canStart
+})
+
+/** Intent: the session action's label: `Stop` in a session, `Close review` over the Review. */
+// @spec-link [[req_last_session_review]]
+const sessionActionLabel = computed(() => {
+  if (sessionActive.value) return 'Stop'
+  return reviewShowing.value ? 'Close review' : 'Start session'
 })
 
 /** Intent: which of the two slots carries the primary emphasis, by the handoff's action table. */
@@ -122,7 +147,7 @@ const sessionActionPrimary = computed(
       notationErrorShown: state.value.notationError !== null,
       roomNoticeShown: state.value.roomNotice !== null,
       phraseShown: state.value.result !== null,
-      phrasePlayedByLastSession: props.controller?.state.startBlocker === 'phrase_already_played',
+      reviewShowing: reviewShowing.value,
     }) === 'session',
 )
 
@@ -143,12 +168,17 @@ function handlePrimaryAction(): void {
   else void actions.retryNotation()
 }
 
-/** Intent: ask for a session start (`Start session`) or end (`Stop`), synchronously in the click. */
+/**
+ * Intent: ask for a session start (`Start session`), its end (`Stop`) or the Review's close
+ * (`Close review`), synchronously in the click.
+ */
 // @spec-link [[rule_session_start_conditions]]
 // @spec-link [[rule_stop_ends_session]]
+// @spec-link [[req_last_session_review]]
 function handleSessionAction(): void {
   if (sessionActionDisabled.value) return
   if (sessionActive.value) emit('stop-session')
+  else if (reviewShowing.value) emit('close-review')
   else emit('start-session')
 }
 
@@ -176,7 +206,8 @@ function focusControllerStatus(): void {
 
 /**
  * Intent: after the connection sheet closes, by any path, focus the first enabled of the session
- * action, the phrase action and `controller-status`.
+ * action, the phrase action and `controller-status`; while the Review shows, that is `Close
+ * review`, always enabled then.
  */
 // @spec-link [[rule_controller_connects_between_sessions]]
 function focusAfterConnectionSheet(): void {
@@ -190,11 +221,15 @@ function focusAfterConnectionSheet(): void {
 }
 
 defineExpose({
-  /** Focus the session action (a session end during the count-in). */
+  /** Whether the session action is enabled now (`Close review` focus order). */
+  sessionActionEnabled: computed(() => !sessionActionDisabled.value),
+  /** Whether the phrase action is enabled now (`Close review` focus order). */
+  phraseActionEnabled: computed(() => !primaryActionDisabled.value),
+  /** Focus the session action (a session end; `Close review` while it stays enabled). */
   focusSessionAction: () => focusButton(sessionActionButton.value),
-  /** Focus the phrase action (a session end once phrase 1 has sounded, interim D-A). */
+  /** Focus the phrase action (a `Close review` that leaves it the first enabled target). */
   focusPhraseAction: () => focusButton(phraseActionButton.value),
-  /** Focus `controller-status` (a count-in end that regenerates phrase 1). */
+  /** Focus `controller-status` (a count-in end that regenerates phrase 1, or a `Close review`). */
   focusControllerStatus,
   /** Focus where the connection sheet's close sends it. */
   focusAfterConnectionSheet,
@@ -241,7 +276,7 @@ function handleThemeSelect(theme: ThemePreference): void {
         :disabled="sessionActionDisabled"
         @click="handleSessionAction"
       >
-        {{ sessionActive ? 'Stop' : 'Start session' }}
+        {{ sessionActionLabel }}
       </button>
     </div>
   </header>

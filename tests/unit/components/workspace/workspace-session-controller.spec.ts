@@ -273,18 +273,18 @@ describe('session controller: Stop', () => {
     expect(rig.controller.state.lastHistory?.phrases().map((r) => r.phraseNumber)).toEqual([
       1, 2, 3,
     ])
-    expect(rig.controller.state.startBlocker).toBe('phrase_already_played')
+    expect(rig.controller.state.startBlocker).toBe('review_showing')
   })
 
-  // @test-link [[rule_phrase_one_is_idle_phrase]]
-  it('allows a start again once a new Idle phrase replaces the played one', async () => {
+  // @test-link [[req_last_session_review]]
+  it('allows a start again once the Review is closed', async () => {
     const rig = controllerRig()
     rig.controller.start()
     await playTo(rig, phraseStart(1) + 0.5)
     rig.controller.stop()
     expect(rig.controller.state.canStart).toBe(false)
 
-    rig.idle.result = { ...rig.phraseOne }
+    rig.controller.closeReview()
 
     expect(rig.controller.state.canStart).toBe(true)
   })

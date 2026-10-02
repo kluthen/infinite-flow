@@ -8,8 +8,10 @@
  * (./workspace-session-display.ts) gives the screen the staff to draw, checks each look-ahead
  * phrase's fit and moves the playhead once a frame. Besides Stop, a session ends on an audio
  * interruption, and on what its end watchers report (the page hidden, the staff no longer shown or
- * failing); every end takes the same path. Its MIDI side (./workspace-session-midi.ts) starts a
- * session from the starting note and reads a session's controller. It draws nothing itself.
+ * failing); every end takes the same path. An end once phrase 1 has sounded opens the Review
+ * (./session-review-state.ts) and asks Idle for the next phrase; the next start discards it. Its
+ * MIDI side (./workspace-session-midi.ts) starts a session from the starting note and reads a
+ * session's controller. It draws nothing itself.
  */
 import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
 
@@ -41,6 +43,7 @@ import type { SessionStaff } from '@/components/notation/session-staff'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { StartingNote } from '@/session/starting-note'
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
+import { closedReview, openedReview, shownReview } from './session-review-state'
 import { createSessionDisplay, type SessionDisplay } from './workspace-session-display'
 import { watchSessionEnds, type SessionEndWatch } from './workspace-session-end-watchers'
 import {
@@ -55,6 +58,7 @@ import {
   type SessionControllerDependencies,
   type SessionControllerPhase,
   type SessionEndSummary,
+  type SessionReview,
 } from './workspace-session-controller-types'
 
 /** The ended output, the one that closes a session. */
@@ -84,15 +88,17 @@ interface ActiveSession {
 /**
  * Intent: the start facts the Idle state, the window and the controller give. A phrase is shown
  * once its result is engraved; any Idle generation (generate, regenerate, fit retries) or
- * notation in progress counts as running; no MIDI fact exists.
+ * notation in progress counts as running; the Review blocks only while it shows; no MIDI fact
+ * exists.
  */
 // @spec-link [[rule_session_start_conditions]]
 // @spec-link [[rule_midi_never_blocks_session]]
+// @spec-link [[req_last_session_review]]
 function startFactsOf(
   idle: Readonly<GenerationSessionState<WorkspaceSessionResult>>,
   shape: WindowShapeReading,
   sessionActive: boolean,
-  playedPhrase: WorkspaceSessionResult | null,
+  review: SessionReview | null,
 ): SessionStartFacts {
   return {
     phraseShown: idle.result !== null && idle.resultEngraved,
@@ -103,7 +109,7 @@ function startFactsOf(
     orientationNoticeShown: isPortraitBelowDesktop(shape),
     roomNoticeShown: idle.roomNotice !== null,
     sessionActive,
-    phrasePlayedByLastSession: playedPhrase !== null && idle.result === playedPhrase,
+    reviewShowing: review?.showing === true,
   }
 }
 
@@ -123,7 +129,6 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   const stopReadingWindow = browser.windowShape.subscribe(() => {
     windowShape.value = browser.windowShape.read()
   })
-  const playedPhrase = shallowRef<WorkspaceSessionResult | null>(null)
   /** The wake-up timer, built at the first start and disposed of with the controller. */
   let timer: DisposableWakeTimer | null = null
   /** The wake-up timer while it is started, from a start's wake-ups to that session's end. */
@@ -140,6 +145,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     heldLayout: null as StaffLayout | null,
     lastEnd: null as SessionEndSummary | null,
     lastHistory: null as SessionHistory | null,
+    review: null as SessionReview | null,
     sessionStaff: null as SessionStaff | null,
     latestReady: null as number | null,
     get canStart(): boolean {
@@ -163,7 +169,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   })
   const startBlocker = computed(() =>
     sessionStartBlocker(
-      startFactsOf(idle.state, windowShape.value, state.phase !== 'idle', playedPhrase.value),
+      startFactsOf(idle.state, windowShape.value, state.phase !== 'idle', state.review),
     ),
   )
   const sessionMidi = createSessionMidi({
@@ -297,11 +303,14 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   /**
    * Intent: end the running session for `cause`, the one path every end takes: the notes still
    * held end now and are recorded, the engine gets `end` (its `ended` output closes the history),
-   * then the session is torn down and summed up.
+   * then the session is torn down and summed up. Once phrase 1 has sounded, the Review opens over
+   * the closed history and, the reports handed back to Idle, Idle is asked for the next phrase;
+   * an end during the count-in opens none and asks for nothing.
    * The session is dropped first, so nothing can end it twice; ending with none running throws.
    */
   // @spec-link [[rule_stop_ends_session]]
-  // @spec-link [[rule_phrase_one_is_idle_phrase]]
+  // @spec-link [[req_last_session_review]]
+  // @spec-link [[rule_session_end_generates_next_phrase_one]]
   function end(cause: SessionEndCause): void {
     const session = active
     if (session === null)
@@ -321,7 +330,9 @@ export function createSessionController(deps: SessionControllerDependencies): Se
       soundedPhraseCount: ended.soundedPhraseCount,
     })
     state.lastHistory = session.history
-    if (ended.soundedPhraseCount >= 1) playedPhrase.value = session.phraseOne
+    if (ended.soundedPhraseCount === 0) return
+    state.review = openedReview(session.history)
+    void idle.actions.startFreshPhrase()
   }
 
   /**
@@ -419,9 +430,11 @@ export function createSessionController(deps: SessionControllerDependencies): Se
    * their outcomes are ignored), start the transport and queue phrase 1's backing; then lock the
    * current settings, hold the staff layout the window's width selects, open the history and
    * start the runner, the count-in display, the wake-ups and the end watchers. Throws, touching
-   * nothing, while a start condition does not hold. Once the locks are asked for, it is all or
-   * nothing: a throw from any later step undoes what was set up and throws on (`abandonStart`).
+   * nothing, while a start condition does not hold. An accepted start first discards the kept
+   * Review, before anything else changes. Once the locks are asked for, it is all or nothing: a
+   * throw from any later step undoes what was set up and throws on (`abandonStart`).
    */
+  // @spec-link [[rule_new_session_discards_review]]
   // @spec-link [[rule_audio_unlocked_by_player_click]]
   // @spec-link [[rule_screen_wake_lock_during_session]]
   // @spec-link [[rule_landscape_lock_during_session]]
@@ -435,6 +448,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     if (blocker !== null || phraseOne === null) {
       throw new SessionControllerError(`session controller: a session cannot start: ${blocker}`)
     }
+    state.review = null
     const settings: SessionSettings = {
       controls: idle.state.controls,
       musicalProfile: idle.state.profileSelection,
@@ -552,6 +566,18 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     })
   }
 
+  /** Intent: `Close review`: the Review stops showing and is kept; throws unless it shows. */
+  // @spec-link [[req_last_session_review]]
+  function closeReview(): void {
+    state.review = closedReview(state.review)
+  }
+
+  /** Intent: `Review last session`: the kept Review shows again, only at Idle; else throws. */
+  // @spec-link [[req_last_session_review]]
+  function showReview(): void {
+    state.review = shownReview(state.review, state.phase)
+  }
+
   return {
     state: shallowReadonly(state),
     start,
@@ -562,6 +588,8 @@ export function createSessionController(deps: SessionControllerDependencies): Se
       }
       return active?.display?.isPhraseOnScreen(phraseNumber) ?? false
     },
+    closeReview,
+    showReview,
     dispose: () => {
       if (disposed) throw new SessionControllerError('session controller: disposed twice')
       disposed = true

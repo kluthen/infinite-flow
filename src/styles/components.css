@@ -48,6 +48,22 @@
     inline-size: 100%;
     min-inline-size: 0;
   }
+  /* v2 new -- States: shown (default), out of sight (`is-out-of-sight`). Out of sight while the
+     last-session Review shows: the staff keeps running its idle rules underneath (the next
+     phrase is engraved, the room and fit checks keep measuring), so it must stay laid out at its
+     normal inline size -- `display: none` (the `hidden` attribute) would zero the geometry the
+     notation layout reads (`getBBox`, `clientWidth`, the ResizeObserver, the frame's computed
+     `max-block-size`). The viewport takes no block space (it has no margin, padding or border,
+     and `score-panel` is plain block flow, so no gap is left above or below `review-panel`);
+     its content keeps its own block size, clipped. `visibility: hidden` takes it out of
+     painting, hit testing and the accessibility tree; the application also sets `inert` on it,
+     which keeps every descendant out of the tab order and unfocusable. No animation in or
+     out. Nothing inside may set `visibility: visible`. */
+  .staff-viewport.is-out-of-sight {
+    block-size: 0;
+    overflow: hidden;
+    visibility: hidden;
+  }
   .score-context,
   .control-summary,
   .profile-range-summary,
@@ -1088,9 +1104,12 @@
   /* v2 new -- from here to "end v2 new": the last-session Review (`review-panel` and its parts,
      `review-link` in the session cue row). While the Review shows, the header's session action
      reads `Close review` (`btn btn-primary btn-lg session-action`, no class of its own), and inside
-     `score-panel` the generation-failure banner, `session-cue-row`, `staff-viewport` and
-     `score-title` are hidden with the `hidden` attribute; `score-toolbar` (with the audio mix)
-     and `control-section` stay. */
+     `score-panel` the generation-failure banner, `session-cue-row` and `score-title` are hidden
+     with the `hidden` attribute (the preflight's `[hidden] { display: none !important }` wins over
+     `.session-cue-row`'s flex display), while `staff-viewport` takes `is-out-of-sight` and
+     `inert` instead, so the staff stays laid out for the idle rules running underneath (see
+     `.staff-viewport.is-out-of-sight`); `score-toolbar` (with the audio mix) and
+     `control-section` stay. */
   /* States: default, hover, focus-visible, active, disabled -- all from `.btn` (secondary
      emphasis only). "Review last session", at the trailing end of `session-cue-row`, rendered at
      idle while a Review exists and is not showing (after `Close review`), beside

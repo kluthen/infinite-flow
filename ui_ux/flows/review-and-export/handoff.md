@@ -37,16 +37,19 @@ flowchart TD
   end, and again after `Review last session`. Only one Review exists: the most recent session's. A
   session ended during its count-in opens none and does not restore an earlier one.
 - **Showing.** Inside `score-panel`, `review-panel` is rendered in place of the generation-failure
-  banner, `session-cue-row` and `staff-viewport`, which stay mounted with their state but hidden;
-  `score-toolbar` stays, its `score-title` not rendered (`review-title` heads the review) and
+  banner, `session-cue-row` and `staff-viewport`, which stay mounted with their state but out of
+  sight: the banner and `session-cue-row` hidden; `staff-viewport` kept laid out at its normal
+  inline size, so the idle machinery can still engrave and measure, but invisible, inert (out of
+  the accessibility tree and the tab order) and taking no block space (`is-out-of-sight` in the
+  token source); `score-toolbar` stays, its `score-title` not rendered (`review-title` heads the review) and
   `mix-controls` fully usable. `control-section` stays after `score-panel`, fully editable as at
   idle (tempo and every setting; a profile switch regenerates the hidden phrase as at idle). The
   header stays: `controller-status` interactive (the connection sheet opens and its transposition
   check works, since connecting is allowed between sessions), `theme-control` live,
   `tempo-readout` as at idle, the phrase action disabled in place, secondary, and the session
-  action reading `Close review`, primary. `generation-status` and `notation-status` stay silent
-  while the Review shows, as during a session; the hidden staff's state is what the player finds on
-  leaving.
+  action reading `Close review`, primary. `generation-status` and `notation-status` are emptied
+  when the Review opens and stay silent while it shows, as during a session; the hidden staff's
+  state is what the player finds on leaving.
 - **No start while showing.** No session starts while the Review shows: `Start session` is not
   offered (its slot reads `Close review`), and no MIDI note, the starting note included, starts a
   session. `start-note-line` and `start-note-marker` are hidden with the staff. Notes played into
@@ -56,7 +59,10 @@ flowchart TD
   carry-in, through the idle attempt budget (`flows/generate-phrase/handoff.md`, **Attempt
   budget**), as `Regenerate phrase` would. It lands in **Ready** (or **Needs more room**, **Initial
   generation error**, **Empty** with the unsupported-rhythm alert, as any such Loading can) out of
-  sight. If the staff has no room at that moment, nothing is generated: **Needs more room** with
+  sight, and silently: nothing is announced while the Review shows, nor when it closes (the player
+  sees the staff, and focus lands as **Close review** sets); a generation still running at
+  `Close review` is announced when it ends, as at idle. If the staff has no room at that
+  moment, nothing is generated: **Needs more room** with
   its no-room sentence, the phrase coming when the notice clears. Whatever the workspace holds when
   the player leaves the Review is what they see; it becomes the next session's phrase 1 only by the
   ordinary idle start.
@@ -67,11 +73,11 @@ flowchart TD
   instantly to its top, and adds
   `review-link` to `session-cue-row`. The session action takes its idle label and emphasis. Focus:
   stays on the session action if it is enabled (`Start session` in **Ready**); otherwise moves once
-  to `room-notice` in **Needs more room**, else to the phrase action if enabled, else to
+  to `room-notice` in **Needs more room**, whichever its cause, else to the phrase action if enabled, else to
   `controller-status`. The Review is kept, not discarded.
 - **Review last session** (`review-link`, idle only, while a Review exists and is not showing):
-  shows the Review again as above, scrolled to its top, with focus on `review-title`; the session
-  action reads `Close review` again.
+  shows the Review again as above, the page scrolled instantly to its top as on `Close review`,
+  then focus on `review-title`; the session action reads `Close review` again.
 - **Start conditions** after leaving: exactly those of the idle workspace
   (`flows/play-session/handoff.md`, Start conditions, No start while the staff is not shown,
   Starting note). A session start, by either kind of start, discards the kept Review:
@@ -79,12 +85,15 @@ flowchart TD
   does not restore it.
 - **Portrait.** Below `bp-desktop`, a portrait-shaped viewport hides the whole page, the Review
   included, behind `orientation-notice`; the Review stays showing (or kept) and returns in
-  landscape.
+  landscape. A session ended by that turn (once phrase 1 has sounded) finds the staff with no
+  width behind the notice: its fresh phrase takes the no-room path above, coming when the notice
+  clears, never a notation error.
 - **Export.** One action in v2.0, `Export generated notes`, with its format (`MusicXML` default, or
   `MIDI`) and, for MIDI only, `Backing track` (off by default). It delivers exactly one file, built
   from the session history, as a browser download. It never holds a played note. It works whatever
   the hidden workspace is doing, including while the next phrase loads and while the staff has no
-  room. Details in `screens/last-session-review/handoff.md`.
+  room. Any failure to build or hand over the file, a failed load of the export code included,
+  shows `review-export-error`. Details in `screens/last-session-review/handoff.md`.
 - **Privacy.** The Review and its data live in memory only. Nothing is written to browser storage
   and nothing is sent; the export is the only way anything leaves, and only when the player
   triggers it.

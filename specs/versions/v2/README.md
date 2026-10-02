@@ -1,6 +1,6 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27; master spec v1.24, 2026-09-30, D170). The
+Status: consolidated into the master spec (2026-09-27; master spec v1.25, 2026-10-02, D171). The
 individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
 ID-free description of v2.0 through v2.3, ready to hand to `coding-leader` and, later, `ux-writer`.
@@ -12,7 +12,7 @@ P3 gets session review and export; marking favorites is v3 (D130). See [personas
 
 | Document                         | Purpose                                                                                                        | Status            |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------- |
-| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.24 |
+| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.25 |
 | [build-plan.md](build-plan.md)   | The build plan: v2.0–v2.3 cut into ordered chunks, each with its atoms, tests and blockers                     | draft v0.3        |
 
 The original draft topic documents (highlights proposal, rolling phrase, audio and backing, MIDI
@@ -229,6 +229,10 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   starting a new session. While the Review shows, no session starts, by the Start click or any
   note, the starting note included; leaving keeps it reachable until the next session starts,
   and only that start discards it. Master spec v1.24.
+- **Corrected (D171, `spec-writer`, from the chunk 20 preflight, 2026-10-02):** the MusicXML
+  export closes every phrase but the last with a double barline and the last with a final
+  barline, as the owner decided on 2026-09-29; master spec §7 had kept a double barline for every
+  phrase. No new rule. Master spec v1.25.
 - Open: 13 questions across the register, including O87, O93, O98 and O99 (above);
   O86 (what makes a favorite "exported") is still open but now belongs to v3 (D130);
   none is currently flagged ★ (all 5 most-blocking ones are settled). See [open-questions.md](../../open-questions.md) and

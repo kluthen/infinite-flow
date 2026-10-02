@@ -1,0 +1,62 @@
+/**
+ * The workspace-harness-only substitute for `@/export/load-generated-notes-export`, wired in by
+ * `vite.workspace-harness.config.ts`'s `resolve.alias` so the Review's real export path (the
+ * shell's `browserReviewExportPorts`) resolves here instead -- never a test-only branch inside src/
+ * itself. It always delegates to the real loader and the real dynamic `import()` it performs (so a
+ * spec can still fail the real chunk load by aborting the `generated-notes-file` request with
+ * Playwright routing), and wraps the loaded module's `buildGeneratedNotesFile`:
+ *
+ * - one-shot failure `armNextExportFailure()` arms: the next file built throws instead, as an
+ *   encoder refusing the history would, so the Review's export error shows with nothing downloaded;
+ * - every file built is counted (`exportsBuilt()`), so a spec can tell how many files an action
+ *   made, failed ones excluded.
+ */
+import {
+  GeneratedNotesExportLoadError,
+  loadGeneratedNotesExport as loadRealGeneratedNotesExport,
+  type GeneratedNotesExportModule,
+} from '../../../src/export/load-generated-notes-export'
+
+export { GeneratedNotesExportLoadError }
+export type {
+  ExportFile,
+  ExportableHistory,
+  GeneratedNotesExportModule,
+  GeneratedNotesFormat,
+  GeneratedNotesRequest,
+} from '../../../src/export/load-generated-notes-export'
+
+let failureArmed = false
+let filesBuilt = 0
+
+/** Intent: make the next file the export builds throw instead; one shot. */
+export function armNextExportFailure(): void {
+  failureArmed = true
+}
+
+/** Intent: how many files the export has built since the page loaded. */
+export function exportsBuilt(): number {
+  return filesBuilt
+}
+
+/** Intent: the real module, its `buildGeneratedNotesFile` counted and failing when armed. */
+function wrapModule(real: GeneratedNotesExportModule): GeneratedNotesExportModule {
+  return {
+    ...real,
+    buildGeneratedNotesFile: (history, request) => {
+      if (failureArmed) {
+        failureArmed = false
+        throw new Error('Workspace harness: the armed export failure')
+      }
+      const file = real.buildGeneratedNotesFile(history, request)
+      filesBuilt += 1
+      return file
+    },
+  }
+}
+
+/** Intent: the real lazy load (its own memo and failure handling), with the module wrapped. */
+// @test-link [[req_session_export]]
+export async function loadGeneratedNotesExport(): Promise<GeneratedNotesExportModule> {
+  return wrapModule(await loadRealGeneratedNotesExport())
+}

@@ -1221,3 +1221,82 @@ generation` secondary; `Start session` primary.
   `inline-alert`", but a state reached by an unplug shows the device-change line above the
   state's own alert, as the Layout Tree already said; the wording now says so (at most one of the
   state's own, plus the device-change line). The implementation, which shows both, is right.
+
+- **D149 — The hidden staff stays laid out while the Review shows, and six build details of the
+  Review (2026-10-02; `ux-writer`'s calls under the owner's delegation of minor design issues,
+  from build-plan chunk 20; refines D144 and D145).** (1) **Out of sight, not `hidden`.** The
+  handoffs hid `staff-viewport` with the `hidden` attribute (`display: none`) while the Review
+  shows, yet relied on the idle rules running underneath: the next phrase engraved, the room and
+  fit checks running, `Start session` enabled in **Ready** when `Close review` is pressed so focus
+  can stay on it. In a `display: none` subtree the geometry the notation layout reads
+  (`getBBox`, `clientWidth`, the ResizeObserver, the frame's computed `max-block-size`) is zero,
+  so none of that could work. Now `staff-viewport` takes the state class `is-out-of-sight` (and
+  the application sets `inert` on it): new rule `.staff-viewport.is-out-of-sight { block-size: 0;
+  overflow: hidden; visibility: hidden; }`. It keeps its normal inline size and its content keeps
+  real geometry, but it paints nothing, is out of hit testing, the accessibility tree and the tab
+  order, and takes no block space. No companion rule is needed: `score-panel` is plain block flow
+  and `staff-viewport` has no margin, padding or border, so no gap is left beside `review-panel`.
+  The banner, `session-cue-row` and `score-title` keep the `hidden` attribute (Tailwind's
+  preflight `[hidden] { display: none !important }` beats `.session-cue-row`'s flex display).
+  Rejected: `position: absolute` off-screen (needs a positioned `score-panel` and an explicit
+  inline size to keep the width), and `opacity: 0` (stays in hit testing and takes block space).
+  (2) **`review-link`** scrolls the page instantly to its top, as `Close review` does, then
+  focuses `review-title`. (3) **Lazy engraving**: a phrase is engraved when its item comes within
+  one viewport height of the visible area and released (reserved space kept, blank) once more
+  than three viewport heights away; engravings run one at a time, nearest the visible area first.
+  (4) **Review engraving width**: each phrase is engraved at `review-staff`'s own content width
+  with the workspace staff's current viewport (layout and height budget); "This phrase needs a
+  wider window." is judged at that width. (5) **Announcements**: `generation-status` and
+  `notation-status` say nothing while the Review shows, and nothing is announced about the
+  hidden staff's state when it closes; the player sees the staff and focus lands per the flow.
+  (6) **Export failure**: any failure to build or hand over the file, a failed on-demand load of
+  the export code included, shows `review-export-error`. (7) **The review's `room-notice`**
+  follows the workspace staff's no-room state live while the Review shows (the staff stays laid
+  out, so its room check keeps running); only the no-room cause replaces the list, never the
+  too-many-notes cause. Items 2–7 settle details the handoffs left loose and contradict none.
+  Governs `flows/review-and-export/handoff.md`, `screens/last-session-review/handoff.md`,
+  `screens/phrase-workspace/handoff.md` (Layout Tree, **Review showing**) and the token source.
+
+- **D150 — Announcements and focus around the Review (2026-10-02; settled during the build of
+  build-plan chunk 20 by its implementers, under the owner's delegation of minor design issues;
+  recorded by `ux-writer`; applies D149 (5) and the flow's Close review rule).** (1) **Live
+  regions**: `generation-status` and `notation-status` are emptied when the Review opens, so no
+  stale message is re-read; a generation run that ends while the Review shows says nothing; a
+  run that ends after `Close review` is announced as at idle. (2) **Close review in Needs more
+  room**: focus goes to `room-notice` whichever cause the notice has (no room, or this phrase's
+  notes too wide). The full order is: the session action if enabled, else `room-notice`, else
+  the phrase action if enabled, else `controller-status`. (3) **A starting-note start while
+  `review-link` has focus**: the start removes the link and focus moves to the session action
+  (now `Stop`); focus anywhere else is left where it is. All three state what the handoffs
+  already implied; none contradicts them. Governs `flows/review-and-export/handoff.md`,
+  `screens/last-session-review/handoff.md` and `screens/phrase-workspace/handoff.md`.
+
+- **D151 — The Review's code loading, and the export choices' lifetime (2026-10-02; settled
+  during the build of build-plan chunk 20 by its implementers, under the owner's delegation;
+  recorded by `ux-writer`).** (1) **Review code fails to load** when the Review should show: no
+  designed state. The staff area's place stays empty, `Close review` works as usual, and the next
+  show tries the load again. Accepted because the code is precached with the app, so this
+  happens only with a broken deployment or offline before the app was first cached; in practice
+  the retry keeps failing until a reload (the browser caches a failed load for the page's life).
+  (2) **Code loading**: the Review's code is fetched ahead, at session start, so the Review never
+  waits on it; the export code is fetched on the first export, inside that export's `is-loading`
+  state, and a failed fetch shows `review-export-error` (D149 (6)). (3) **Format and Backing
+  track** keep their choice for the page session (across `Close review`, re-showing and later
+  sessions' Reviews), are never written to storage, and return to `MusicXML` and off on a reload,
+  in line with the Review's privacy rule. Governs `screens/last-session-review/handoff.md`.
+
+- **D152 — A session ended by turning to portrait gets its fresh phrase on return (2026-10-02;
+  settled during the build of build-plan chunk 20 by its implementers, under the owner's
+  delegation; recorded by `ux-writer`; applies the flow's "no room at that moment" rule).** When
+  a session ends because the viewport turned portrait-shaped below `bp-desktop` once phrase 1 has
+  sounded, the staff behind `orientation-notice` has no width, so the fresh phrase meets the
+  no-room cause: nothing is generated, the staff holds **Needs more room** with its no-room
+  sentence, and the phrase is generated when the notice clears on the return to landscape. It is
+  never a notation error. Governs `flows/review-and-export/handoff.md` (Portrait) and
+  `screens/phrase-workspace/handoff.md` (**Session end**).
+
+- **D153 — The phone's minimal Review, confirmed as built (2026-10-02; settled during the build
+  of build-plan chunk 20, under the owner's delegation; recorded by `ux-writer`).** Below
+  `bp-tablet-landscape` the Review shows `review-title`, `Close review` (the header's session
+  action) and the export group; no `review-summary`; each phrase in the split layout on two
+  system positions. This is the handoff's Responsive Behavior as written; no handoff change.

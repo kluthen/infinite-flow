@@ -19,6 +19,7 @@ import {
   seedsDrawn,
   settleFrames,
 } from '../release/harness-helpers'
+import { reviewPanel } from '../review/review-helpers'
 import {
   DESKTOP,
   PHONE,
@@ -214,6 +215,10 @@ test.describe('a window change the shown or waiting material cannot fit ends lik
     await resize(page, { width: 1000, height: 280 })
 
     await expectStaffEnd(page, 'running')
+    // Phrase 1 had sounded: the Review shows, its room notice standing in for its list, and the
+    // staff's own notice is there once it is closed.
+    await expect(reviewPanel(page).locator('p.room-notice')).toBeVisible()
+    await sessionAction(page).click()
     await expect(roomNotice(page)).toBeVisible()
   })
 })

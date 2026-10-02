@@ -4,7 +4,8 @@
  * each beat lit in time with its click on the (fake) audio clock, and the row empties after beat
  * 4; phrase 1's first measure is fully visible, and phrase 1 neither moves nor is engraved again
  * (phrase 2 fading in below is the rolling display's). A Stop during the count-in returns to Ready
- * with focus on `Start session`. Runs against the workspace harness (port 4175).
+ * with focus on `Start session`; a Stop once phrase 1 has sounded opens the last-session Review,
+ * with focus on `Close review`. Runs against the workspace harness (port 4175).
  */
 import { expect, test } from '@playwright/test'
 
@@ -108,8 +109,8 @@ test('Stop during the count-in returns to Ready, with focus on Start session', a
 })
 
 // @test-link [[rule_stop_ends_session]]
-// @test-link [[rule_phrase_one_is_idle_phrase]]
-test('Stop once phrase 1 has sounded returns to Idle with focus on the phrase action (interim)', async ({
+// @test-link [[req_last_session_review]]
+test('Stop once phrase 1 has sounded opens the Review, with focus on Close review', async ({
   page,
 }) => {
   await gotoSessionHarness(page)
@@ -121,14 +122,16 @@ test('Stop once phrase 1 has sounded returns to Idle with focus on the phrase ac
 
   await sessionAction(page).click()
 
+  await expect(page.locator('.review-panel h2.review-title')).toHaveText('Last session')
+  await expect(sessionAction(page)).toHaveText('Close review')
+  await expect(sessionAction(page)).toBeEnabled()
+  await expect(sessionAction(page)).toBeFocused()
   const phraseAction = page.locator('.header-actions > button:not(.session-action)')
-  await expect(phraseAction).toBeFocused()
-  await expect(phraseAction).toBeEnabled()
-  await expect(sessionAction(page)).toHaveText('Start session')
-  await expect(sessionAction(page)).toBeDisabled()
+  await expect(phraseAction).toBeDisabled()
   const state = await sessionState(page)
   expect(state.lastEnd).toEqual({ cause: 'stop', phase: 'running', soundedPhraseCount: 1 })
   expect(state.lastHistoryPhraseCount).toBe(1)
+  expect(state.review).toEqual({ showing: true, phraseCount: 1 })
 })
 
 // @test-link [[service_workspace_session_flow]]

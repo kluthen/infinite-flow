@@ -8,7 +8,10 @@ parents:
 type: RULE
 version: 0.2
 human_name: Session End Generates the Next Phrase 1
-dependents: []
+dependents:
+  - [[module_idle_fit_round]]
+  - [[module_session_rolling_display]]
+  - [[service_workspace_session_flow]]
 layer: BUSINESS
 ---
 

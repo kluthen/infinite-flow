@@ -4,7 +4,8 @@
 
 `review-panel` is the phrase-workspace page's review mode (`screens/phrase-workspace/`): while the
 Review shows, it is rendered inside `score-panel`, after `score-toolbar`, in place of the staff area
-(the generation-failure banner, `session-cue-row` and `staff-viewport`, hidden), with
+(the generation-failure banner and `session-cue-row` hidden; `staff-viewport` out of sight but
+still laid out, see the Layout Tree), with
 `control-section` still after it and `layout-header` unchanged except that its session action reads
 `Close review`. A Review exists from a session end once phrase 1 has sounded until the next
 session starts or the page closes; it shows at that session end and after `Review last session`,
@@ -19,7 +20,6 @@ layout-header                  (screens/phrase-workspace/; the session action re
 layout-workspace
   score-panel                  (screens/phrase-workspace/)
     score-toolbar              (stays; score-title not rendered while the Review shows; mix-controls usable)
-    (generation-failure banner, session-cue-row, staff-viewport: hidden while the Review shows; session-cue-row holds review-link while a Review exists and is not showing)
     review-panel               (section, aria-labelledby review-title; rendered only while the Review shows)
       review-header
         review-heading
@@ -50,6 +50,8 @@ layout-workspace
       room-notice                (p, no tabindex; in place of review-list while the staff has no room)
         room-notice-wide
         room-notice-narrow
+    (generation-failure banner, session-cue-row: hidden while the Review shows; session-cue-row holds review-link while a Review exists and is not showing)
+    staff-viewport is-out-of-sight (while the Review shows, also inert: laid out at its normal inline size so the staff still engraves and measures, but invisible, out of the accessibility tree and tab order, taking no block space)
   control-section              (screens/phrase-workspace/; stays, fully editable, while the Review shows)
 ```
 
@@ -67,10 +69,12 @@ layout-workspace
 - `review-export`:
   - **Format**: `field-group` with `field-label` "Format" and a `segmented-control` (radiogroup,
     roving tab stop, as every single-select control in the workspace) with `MusicXML` then `MIDI`.
-    `MusicXML` is checked at first; the choice holds for the page session.
+    `MusicXML` is checked at first; the choice holds for the page session (across `Close review`,
+    re-showing and later sessions' Reviews), is never stored, and a reload resets it.
   - **Backing track**: `btn toggle-button` reading "Backing track" with `toggle-button-state`
     "on"/"off" (`aria-pressed`; the accessible name is "Backing track" alone), rendered only while
-    `MIDI` is checked. Off at first; its state holds for the page session, including while hidden.
+    `MIDI` is checked. Off at first; its state holds for the page session, including while hidden,
+    as Format's does.
     It is independent of the audio mix's `Backing` toggle.
   - **Export**: `btn review-export-action` reading "Export generated notes". Secondary emphasis
     (never `btn-primary`): `Close review`, in the header, is the page's one primary action while
@@ -78,6 +82,7 @@ layout-workspace
     exactly one file from the session history and starts a browser download.
   - While the file is built the button takes `is-loading` and `disabled`; Format and Backing track
     stay live and apply to the next export. Focus stays on the button and returns to it enabled.
+    The first export of the page also loads the export code, within the same `is-loading` state.
   - No message on success: the browser's download is the confirmation. `generation-status` and
     `notation-status` say nothing about exports.
 - **File names.** `infinite-flow-{date}-{time}-generated.musicxml` for MusicXML and
@@ -90,7 +95,8 @@ layout-workspace
   per phrase, and the backing track only when `Backing track` is on). No played note is ever in
   either file.
 - `review-export-error`: `inline-alert alert-error` reading "The file couldn't be made. Try
-  again." It appears under `review-actions` after a failed build, is not a live region, moves no
+  again." It appears under `review-actions` after any failure to build or hand over the file (a
+  failed load of the export code included), is not a live region, moves no
   focus, and leaves when the next export starts.
 - `review-list` is an `ol`; each `review-phrase` is an `li`, in the order the phrases started
   sounding, one per phrase in the history. A failure-ladder repeat is an ordinary item with its own
@@ -102,7 +108,8 @@ layout-workspace
   shown: the session profile's written pitch, its key signature and chord symbols, treble clef, the
   Notation Contract of `screens/phrase-workspace/handoff.md` in full, except that nothing of the
   session is drawn (no `start-note-marker`, `playhead-band` or `note-ack`).
-  - **Layout** follows the current breakpoint, as the workspace staff does: from
+  - **Layout** follows the workspace staff's current viewport (its layout and height budget),
+    applied at `review-staff`'s own content width: from
     `bp-tablet-landscape` up, one system with four measures; below it, the split layout (bars 1–2,
     then bars 3–4, clef and key signature repeated, time signature on the first system only, measure
     columns aligned). Never scrolled horizontally, cut off, or split further.
@@ -112,13 +119,14 @@ layout-workspace
     its own content allows, never above the workspace staff's scale and never below the legibility
     floor, and placed for the session's profile (see the workspace Notation Contract, **System
     position size and staff placement**).
-  - **Lazy engraving.** A phrase is engraved when its item comes within about one viewport height
-    of the visible area, and may be released when far from it; its reserved size never changes, so
-    the scroll position never jumps. No fade: `staff-content` in the review takes no entrance or
+  - **Lazy engraving.** A phrase is engraved when its item comes within one viewport height of the
+    visible area, and released (its reserved space left blank) once it is more than three viewport
+    heights away. Engravings run one at a time, the item nearest the visible area first. The
+    reserved size never changes, so the scroll position never jumps. No fade: `staff-content` in the review takes no entrance or
     exit animation.
 - `review-phrase-note`, muted, centred in the reserved space, in place of `staff-content`:
   - "This phrase needs a wider window." when the staff has room but this phrase's notes do not fit
-    at the legibility floor in the current layout. It is drawn again, with no fade, once a viewport
+    at the legibility floor in the current layout at `review-staff`'s content width. It is drawn again, with no fade, once a viewport
     change gives it room.
   - "This phrase couldn't be drawn." when its engraving fails for any other reason. No action; the
     export does not depend on the engraving.
@@ -126,6 +134,8 @@ layout-workspace
   Notation Contract, **Room for the staff**, the no-room cause), `review-list` is not rendered and a
   `room-notice` stands in its place holding `room-notice-wide` and `room-notice-narrow`, shown by
   the same width-only query as in `staff-frame`. It carries no `tabindex` and is not announced.
+  It follows the workspace staff's no-room state live, since that staff stays laid out and keeps
+  checking its room while the Review shows; the too-many-notes cause does not replace the list.
   The list returns on the viewport change that gives the staff room.
 - `Close review` is the header's session action (`btn btn-primary btn-lg session-action`, same
   fixed inline size) with that label while the Review shows; see `screens/phrase-workspace/`,
@@ -133,7 +143,7 @@ layout-workspace
 - `review-link` (in `screens/phrase-workspace/`, `session-cue-row`): `btn review-link` reading
   "Review last session", at the row's trailing end, rendered at idle while a Review exists and is
   not showing, beside whatever else the row holds (`start-note-line`, or nothing). Activation shows
-  the Review again, scrolled to its top, and moves focus to `review-title`.
+  the Review again, scrolls the page instantly to its top, then moves focus to `review-title`.
 
 ## Focus and Keyboard
 
@@ -146,7 +156,12 @@ layout-workspace
   Review, focus stays on the session action, now `Start session`; Space starts the next session.
   No global shortcut closes the Review.
 - A session start (only from idle, the Review not showing) removes `review-link`; if it had focus
-  when the starting note started the session, focus moves to the session action.
+  when the starting note started the session, focus moves to the session action (now `Stop`);
+  focus anywhere else is left where it is.
+- `Close review` in **Needs more room** moves focus to `room-notice` whichever the notice's cause
+  (no room, or this phrase's notes too wide).
+- `generation-status` and `notation-status` are emptied when the Review opens and say nothing
+  while it shows; a generation that ends after `Close review` is announced as at idle.
 
 ## Responsive Behavior
 
@@ -179,6 +194,10 @@ layout-workspace
   spinner. Export building: `review-export-action` `is-loading`.
 - **Error:** per phrase, `review-phrase-note`; export, `review-export-error`. Neither blocks
   anything else.
+- **Review code not loaded:** the Review's code is fetched ahead at session start and cached with
+  the app, so a failed load means a broken deployment or offline before the app was first cached.
+  Then nothing is drawn in the staff area's place: no message, `Close review` works as usual, and
+  the next show tries the load again.
 - **No room:** `room-notice` in place of `review-list`; header and export unchanged.
 - **Portrait below `bp-desktop`:** hidden with the whole workspace behind `orientation-notice`,
   kept, shown again in landscape.

@@ -25,12 +25,26 @@ import {
   releaseGeneration,
 } from './release/harness-helpers'
 import {
+  DESKTOP,
   gotoSessionHarness,
   readyToStart,
+  sessionAction,
   startSession,
   toRunning,
 } from './session/session-helpers'
 import { connectDevice, unplugNow } from './session/session-midi-helpers'
+import {
+  backingTrackToggle,
+  exportButton,
+  exportError,
+  pickFormat,
+  reviewItems,
+  reviewLink,
+  sessionEndedAfter,
+} from './review/review-helpers'
+
+/** A tablet in landscape, at bp-tablet-landscape (64rem = 1024 px): the one-system layout. */
+const TABLET = { width: 1024, height: 768 } as const
 
 /** Intent: format axe violations into a readable failure message rather than a raw object dump. */
 function describeViolations(violations: readonly { id: string; help: string }[]): string {
@@ -310,6 +324,73 @@ for (const scan of MIDI_SESSION_SCANS) {
       await radio(page, 'Presentation theme', theme).click()
       await connectDevice(page, KEYS)
       await readyToStart(page)
+
+      await scan.reach(page)
+      await page.waitForFunction(() =>
+        document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
+      )
+
+      const results = await new AxeBuilder({ page }).analyze()
+      expect(results.violations, describeViolations(results.violations)).toEqual([])
+    })
+  }
+}
+
+// The last-session Review (chunk 20), on the workspace harness's fake audio clock, in both themes:
+// showing after a session end at desktop and tablet widths, with its export error, and closed,
+// with `review-link` in the cue row at Idle.
+
+/** One Review state to scan: the viewport, and how to reach it from a Review just opened. */
+interface ReviewScan {
+  readonly name: string
+  readonly size: { readonly width: number; readonly height: number }
+  readonly reach: (page: Page) => Promise<void>
+}
+
+const REVIEW_SCANS: readonly ReviewScan[] = [
+  { name: 'the Review showing at desktop width', size: DESKTOP, reach: async () => {} },
+  { name: 'the Review showing at tablet width', size: TABLET, reach: async () => {} },
+  {
+    name: 'the Review with MIDI and the backing track picked',
+    size: DESKTOP,
+    reach: async (page) => {
+      await pickFormat(page, 'MIDI')
+      await backingTrackToggle(page).click()
+      await expect(backingTrackToggle(page)).toHaveAttribute('aria-pressed', 'true')
+    },
+  },
+  {
+    name: 'the Review export error',
+    size: DESKTOP,
+    reach: async (page) => {
+      await page.evaluate(() => window.__workspaceHarness.failNextExport())
+      await exportButton(page).click()
+      await expect(exportError(page)).toBeVisible()
+    },
+  },
+  {
+    name: 'review-link at Idle',
+    size: DESKTOP,
+    reach: async (page) => {
+      await sessionAction(page).click()
+      await expect(reviewLink(page)).toBeVisible()
+      await expect(page.locator('.staff-frame')).toHaveClass(/staff-ready/, { timeout: 30_000 })
+    },
+  },
+]
+
+for (const scan of REVIEW_SCANS) {
+  for (const theme of ['Light', 'Dark'] as const) {
+    // @test-link [[req_last_session_review]]
+    // @test-link [[req_session_export]]
+    test(`has no detectable axe violations with ${scan.name}, ${theme} theme`, async ({ page }) => {
+      test.setTimeout(90_000)
+      await gotoSessionHarness(page, scan.size)
+      await radio(page, 'Presentation theme', theme).click()
+      await sessionEndedAfter(page, 2)
+      await expect(reviewItems(page).first().locator('.review-staff svg').first()).toBeAttached({
+        timeout: 30_000,
+      })
 
       await scan.reach(page)
       await page.waitForFunction(() =>

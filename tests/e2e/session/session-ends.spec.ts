@@ -3,8 +3,9 @@
  * once phrase 1 has sounded: the header's Stop, the phone's compact Stop, and the page hidden. Each
  * ends like Stop: the transport fades out, both screen locks are released and the controller is
  * back at idle. A count-in end returns to Ready with phrase 1 still on screen and focus on
- * `Start session`; a sounded end keeps the played phrase on the staff with `Start session` disabled
- * until the phrase action brings a new phrase (interim D-A). A browser toolbar showing or hiding,
+ * `Start session`, generating nothing; a sounded end opens the last-session Review with focus on
+ * `Close review`, while a fresh phrase is generated at Idle under it, so `Close review` leaves
+ * `Start session` enabled on a phrase the session never played. A browser toolbar showing or hiding,
  * and a resize that keeps the staff's room, end nothing. Runs against the workspace harness (port
  * 4175) on its fake audio clock.
  */
@@ -13,7 +14,6 @@ import { expect, test, type Page } from '@playwright/test'
 import {
   expectNoNotationError,
   harnessSnapshot,
-  queueSeeds,
   seedsDrawn,
   settleFrames,
 } from '../release/harness-helpers'
@@ -60,30 +60,45 @@ async function expectBackToReady(
 }
 
 /**
- * Intent: assert a sounded end: the engine's history closed with every phrase that sounded, the
- * played phrase kept on the staff with `Start session` disabled and focus on the phrase action;
- * then a new phrase from the phrase action enables `Start session`.
+ * Intent: assert a sounded end: the engine's history closed with every phrase that sounded and
+ * the Review opened over it, `Close review` focused and the phrase action disabled; under it a
+ * fresh phrase, never the played one, is generated (one more seed drawn at least, from
+ * `seedsBefore`, read before the end). `Close review` then leaves `Start session` enabled and
+ * focused on that phrase.
  */
-// @test-link [[rule_phrase_one_is_idle_phrase]]
+// @test-link [[rule_session_end_generates_next_phrase_one]]
+// @test-link [[req_last_session_review]]
 async function expectSoundedEnd(
   page: Page,
   before: Awaited<ReturnType<typeof shownPhrase>>,
+  seedsBefore: number,
 ): Promise<void> {
   const state = await sessionState(page)
   expect(state.lastEnd?.soundedPhraseCount).toBeGreaterThanOrEqual(1)
   expect(state.lastHistoryPhraseCount).toBe(state.lastEnd?.soundedPhraseCount)
-  expect(state.startBlocker).toBe('phrase_already_played')
-  await expect(sessionAction(page)).toHaveText('Start session')
-  await expect(sessionAction(page)).toBeDisabled()
-  await expect(phraseAction(page)).toBeEnabled()
-  await expect(phraseAction(page)).toBeFocused()
-  expect(await shownPhrase(page)).toEqual(before)
-  await expect(page.locator('.review-panel')).toHaveCount(0)
+  expect(state.review).toEqual({ showing: true, phraseCount: state.lastHistoryPhraseCount })
+  expect(state.startBlocker).toBe('review_showing')
+  await expect(page.locator('.review-panel h2.review-title')).toHaveText('Last session')
+  await expect(sessionAction(page)).toHaveText('Close review')
+  await expect(sessionAction(page)).toBeFocused()
+  await expect(phraseAction(page)).toBeDisabled()
 
-  await queueSeeds(page, [4242])
-  await phraseAction(page).click()
-  await expect.poll(async () => (await harnessSnapshot(page)).seed, { timeout: 30_000 }).toBe(4242)
-  await expect(sessionAction(page)).toBeEnabled({ timeout: 30_000 })
+  await expect
+    .poll(async () => (await harnessSnapshot(page)).operation, { timeout: 30_000 })
+    .toBe('idle')
+  await expect(page.locator('.staff-frame')).toHaveClass(/staff-ready/, { timeout: 30_000 })
+  expect(await seedsDrawn(page)).toBeGreaterThan(seedsBefore)
+  const fresh = await shownPhrase(page)
+  expect(fresh.requestId).not.toBe(before.requestId)
+  expect(fresh.seed).not.toBe(before.seed)
+
+  await sessionAction(page).click()
+  await expect(page.locator('.review-panel')).toHaveCount(0)
+  await expect(sessionAction(page)).toHaveText('Start session')
+  await expect(sessionAction(page)).toBeEnabled()
+  await expect(sessionAction(page)).toBeFocused()
+  await expect(phraseAction(page)).toBeEnabled()
+  expect(await shownPhrase(page)).toEqual(fresh)
 }
 
 /** Intent: land at `size`, make a phrase ready, start, and return the phrase shown. */
@@ -99,9 +114,9 @@ async function startFromReady(
 }
 
 /**
- * Intent: assert the Stop started no Idle generation: once the audio clock has moved on a little
- * and the screen has settled, no seed was drawn since `seedsBefore` (read before the Stop; every
- * generation, Idle or session, draws one) and the Idle state runs no operation.
+ * Intent: assert a count-in Stop started no Idle generation: once the audio clock has moved on a
+ * little and the screen has settled, no seed was drawn since `seedsBefore` (read before the Stop;
+ * every generation, Idle or session, draws one) and the Idle state runs no operation.
  */
 // @test-link [[rule_stop_ends_session]]
 async function expectNoIdleGeneration(page: Page, seedsBefore: number): Promise<void> {
@@ -128,7 +143,9 @@ test.describe('Stop', () => {
     await expectBackToReady(page, before)
   })
 
-  test('once phrase 1 has sounded: the history closes, Start waits for a new phrase', async ({
+  // @test-link [[rule_session_end_generates_next_phrase_one]]
+  // @test-link [[req_last_session_review]]
+  test('once phrase 1 has sounded: the history closes into the Review, a fresh phrase under it', async ({
     page,
   }) => {
     const before = await startFromReady(page)
@@ -138,10 +155,11 @@ test.describe('Stop', () => {
     await sessionAction(page).click()
 
     await expectEndedLikeStop(page, 'stop', 'running')
-    await expectNoIdleGeneration(page, seedsBefore)
-    await expectSoundedEnd(page, before)
+    await expectSoundedEnd(page, before, seedsBefore)
   })
 
+  // @test-link [[rule_session_end_generates_next_phrase_one]]
+  // @test-link [[req_last_session_review]]
   test('the compact Stop at 740x360, once phrase 1 has sounded, ends it the same way', async ({
     page,
   }) => {
@@ -153,9 +171,8 @@ test.describe('Stop', () => {
     await cueRow(page).locator('.session-cue-actions').getByRole('button', { name: 'Stop' }).click()
 
     await expectEndedLikeStop(page, 'stop', 'running')
-    await expectNoIdleGeneration(page, seedsBefore)
     await expect(cueRow(page).locator('.session-cue-actions')).toHaveCount(0)
-    await expectSoundedEnd(page, before)
+    await expectSoundedEnd(page, before, seedsBefore)
   })
 })
 
@@ -183,17 +200,20 @@ test.describe('the page hidden', () => {
     await expectBackToReady(page, before)
   })
 
-  test('once phrase 1 has sounded: ends like Stop, Start waits for a new phrase', async ({
+  // @test-link [[rule_session_end_generates_next_phrase_one]]
+  // @test-link [[req_last_session_review]]
+  test('once phrase 1 has sounded: ends like Stop into the Review, a fresh phrase under it', async ({
     page,
   }) => {
     const before = await startFromReady(page)
     await toRunning(page)
+    const seedsBefore = await seedsDrawn(page)
 
     await hidePage(page)
 
     await expectEndedLikeStop(page, 'hidden-tab', 'running')
     await showPage(page)
-    await expectSoundedEnd(page, before)
+    await expectSoundedEnd(page, before, seedsBefore)
   })
 })
 

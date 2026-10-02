@@ -2,7 +2,7 @@
 id: module_session_rolling_display
 status: DRAFT
 layer: ARCHITECTURE
-version: 0.2
+version: 0.3
 priority: 1
 dependents: []
 type: MODULE
@@ -14,6 +14,7 @@ parents:
   - [[rule_look_ahead_phrase_must_fit_staff]]
   - [[rule_phrase_one_is_idle_phrase]]
   - [[rule_playhead_follows_audio_clock]]
+  - [[rule_session_end_generates_next_phrase_one]]
   - [[rule_session_ends_when_staff_too_small]]
   - [[rule_session_layout_fixed_at_start]]
 ---
@@ -32,7 +33,7 @@ Refill. When a position's slot changes, that position alone is refilled: the not
 
 Fit. Every look-ahead phrase is checked, before it is readied, against the held viewport and the latest container width, with the intent of the attempt being checked, by the engraver's own staff planner, which the display loads through an injected loader once the engraver and its notation fonts are ready; a phrase that does not fit (notes too wide, or no room) is a failed attempt for the failure ladder and is never drawn. On every staff layout report during a session, after the session window rule has judged it, every phrase shown or waiting is checked again in the held viewport, and any misfit ends the session with the staff-not-shown cause, exactly like Stop.
 
-Engraving outcomes. While the staff shows a session, no engraving outcome reaches the Idle machinery: the staff reports neither a successful engraving nor a notation error, only a session staff failure, for any typed notation error met while engraving the session (a layout failure, the engraver or its fonts failing to load, an engraving-library failure), which ends the session with the staff-not-shown cause. That failure passes through the same gate as the staff's other reports and goes only to the session diverting them; with no session diverting, it is dropped. A failure never shows the notation error state and never clears the staff. Entering or leaving the session display drops any engraving still in flight, so it reports nowhere. Leaving it removes at once the units still fading out and every overlay mark, the playhead band included, from the systems that stay on screen, which remain until the Idle engraving replaces them; the staff then re-engraves the Idle phrase, phrase 1, in the layout the window then selects, and only that engraving reports to Idle as usual. This redraw at the end is interim, until the session review replaces it.
+Engraving outcomes. While the staff shows a session, no engraving outcome reaches the Idle machinery: the staff reports neither a successful engraving nor a notation error, only a session staff failure, for any typed notation error met while engraving the session (a layout failure, the engraver or its fonts failing to load, an engraving-library failure), which ends the session with the staff-not-shown cause. That failure passes through the same gate as the staff's other reports and goes only to the session diverting them; with no session diverting, it is dropped. A failure never shows the notation error state and never clears the staff. Entering or leaving the session display drops any engraving still in flight, so it reports nowhere. Leaving it removes at once the units still fading out and every overlay mark, the playhead band included, from the systems that stay on screen, which remain until the Idle engraving replaces or clears them; the staff then engraves the phrase Idle then shows, in the layout the window then selects, and only that engraving reports to Idle as usual. After an end during the count-in that is phrase 1 again. After an end once phrase 1 has sounded, Idle drops phrase 1 at once for the fresh phrase it generates, so the staff, kept laid out but out of sight under the last session's review, shows no phrase until that fresh phrase is drawn, and never again a phrase of the ended session.
 
 Overlays and assistive text. Overlays are applied phrase by phrase, each on that phrase's systems on screen only, never on an engraving that is fading out. The playhead band is drawn on the measure being played, on the systems of the phrase that owns the playhead. No start marker is drawn during a session. A phrase's acknowledged notes are marked only when a system of that phrase on screen draws them; an acknowledged note of a part not on screen is left out. Each phrase on screen is described once to assistive technology, on the first of its systems shown, its other system hidden from it; the hidden description follows the playhead's phrase, phrase 1 during the count-in.
 
@@ -48,4 +49,4 @@ The pure plan lives in `src/session/rolling-display.ts`: types `SystemSlot { phr
 - A look-ahead phrase that does not fit the held viewport is never drawn and counts as a failed attempt.
 - A resize that leaves a shown or waiting phrase misfit, or a session staff failure, ends the session with the staff-not-shown cause, like Stop; a session staff failure with no session running reaches nothing.
 - Starting a session redraws nothing, and no engraving outcome during a session reaches the Idle machinery.
-- During a session no start marker is drawn, the band shows only on the playhead's phrase, and only acknowledged notes drawn on screen are marked; at the end the band leaves at once and the staff redraws phrase 1 in the window's layout.
+- During a session no start marker is drawn, the band shows only on the playhead's phrase, and only acknowledged notes drawn on screen are marked; at the end the band leaves at once and the staff engraves the Idle phrase in the window's layout: phrase 1 after an end during the count-in, and after an end once phrase 1 has sounded no phrase of the ended session, only the fresh phrase Idle generates.

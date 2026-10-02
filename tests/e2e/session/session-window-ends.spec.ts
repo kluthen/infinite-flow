@@ -4,8 +4,11 @@
  * window too narrow for the layout the session holds, and, below bp-tablet-landscape, too short.
  * Each ends like Stop with the engine's `staff-not-shown` cause; the Idle rules then apply in the
  * layout the window gives afresh: the rotate-device notice, or Needs more room with focus on
- * `room-notice`, never the notation error. Runs against the workspace harness (port 4175) on its
- * fake audio clock, with real window sizes.
+ * `room-notice`, never the notation error. Once phrase 1 has sounded the end opens the
+ * last-session Review first (its own room notice standing in for its list while the staff has no
+ * room), and `Close review` leads to that idle state; the fresh phrase the end asks for comes once
+ * the staff has room again. Runs against the workspace harness (port 4175) on its fake audio
+ * clock, with real window sizes.
  */
 import { expect, test, type Page } from '@playwright/test'
 
@@ -15,6 +18,7 @@ import {
   roomNotice,
   settleFrames,
 } from '../release/harness-helpers'
+import { reviewPanel } from '../review/review-helpers'
 import {
   DESKTOP,
   PHONE,
@@ -75,8 +79,22 @@ async function expectWindowEnd(page: Page, phase: 'count-in' | 'running'): Promi
   expect(state.lastHistoryPhraseCount).toBe(state.lastEnd?.soundedPhraseCount)
 }
 
-/** Intent: assert the Idle rules show Needs more room, focused, with Start session disabled. */
-async function expectNeedsMoreRoomFocused(page: Page): Promise<void> {
+/**
+ * Intent: assert the Idle rules show Needs more room, focused, with Start session disabled; after
+ * a running end, through the Review, whose room notice stands in for its list, and `Close review`.
+ */
+async function expectNeedsMoreRoomFocused(
+  page: Page,
+  phase: 'count-in' | 'running',
+): Promise<void> {
+  if (phase === 'running') {
+    await expect(reviewPanel(page).locator('h2.review-title')).toHaveText('Last session')
+    await expect(reviewPanel(page).locator('p.room-notice')).toBeVisible()
+    await expect(reviewPanel(page).locator('ol.review-list')).toHaveCount(0)
+    await expect(sessionAction(page)).toHaveText('Close review')
+    await expect(sessionAction(page)).toBeFocused()
+    await sessionAction(page).click()
+  }
   await expect(roomNotice(page)).toBeVisible()
   await expect(roomNotice(page)).toBeFocused()
   await expect(page.locator('.staff-frame')).toHaveClass(/staff-no-room/)
@@ -88,6 +106,7 @@ async function expectNeedsMoreRoomFocused(page: Page): Promise<void> {
 for (const phase of ['count-in', 'running'] as const) {
   // @test-link [[rule_session_ends_on_portrait_view]]
   // @test-link [[rule_count_in_ending_returns_to_idle]]
+  // @test-link [[rule_session_end_generates_next_phrase_one]]
   test.describe(`a portrait-shaped view below bp-desktop, in the ${phase}`, () => {
     for (const [from, to] of [
       [DESKTOP, { width: 800, height: 1100 }],
@@ -106,17 +125,22 @@ for (const phase of ['count-in', 'running'] as const) {
         await expect(page.locator('.orientation-notice')).toBeVisible()
         await expect(page.locator('.layout-app')).toBeHidden()
 
-        // Turned back, the workspace shows again with a phrase; after a count-in end it can
-        // start again, while a phrase the session played cannot (interim D-A).
+        // Turned back, the workspace shows again: after a count-in end, Ready on phrase 1; after
+        // a running end, the Review, and once it is closed Ready on a phrase generated afresh,
+        // the hidden staff having had no room while turned.
         await resize(page, from)
         await expect(sessionAction(page)).toBeVisible()
+        if (phase === 'running') {
+          await expect(reviewPanel(page).locator('h2.review-title')).toHaveText('Last session')
+          await expect(sessionAction(page)).toHaveText('Close review')
+          await sessionAction(page).click()
+        }
         await expect(page.locator('.staff-frame')).toHaveClass(/staff-ready/, { timeout: 30_000 })
         await expectNoNotationError(page)
-        const { requestId } = await harnessSnapshot(page)
-        if (phase === 'count-in' || requestId !== shownBefore) {
-          await expect(sessionAction(page)).toBeEnabled({ timeout: 30_000 })
-        } else {
-          await expect(sessionAction(page)).toBeDisabled()
+        await expect(sessionAction(page)).toHaveText('Start session')
+        await expect(sessionAction(page)).toBeEnabled({ timeout: 30_000 })
+        if (phase === 'running') {
+          expect((await harnessSnapshot(page)).requestId).not.toBe(shownBefore)
         }
       })
     }
@@ -135,7 +159,7 @@ for (const phase of ['count-in', 'running'] as const) {
       await resize(page, TOO_NARROW_FOR_ONE_SYSTEM)
 
       await expectWindowEnd(page, phase)
-      await expectNeedsMoreRoomFocused(page)
+      await expectNeedsMoreRoomFocused(page, phase)
     })
 
     test('below bp-tablet-landscape, too short for the held split layout: Needs more room, focused', async ({
@@ -147,7 +171,7 @@ for (const phase of ['count-in', 'running'] as const) {
       await resize(page, TOO_SHORT_PHONE)
 
       await expectWindowEnd(page, phase)
-      await expectNeedsMoreRoomFocused(page)
+      await expectNeedsMoreRoomFocused(page, phase)
     })
   })
 }

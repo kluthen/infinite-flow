@@ -335,8 +335,9 @@ tests play a count-in and a short backing on the real `AudioContext`. See
   built the mapping, see [`docs/midi-input.md`](midi-input.md)) and read by a session, whose MIDI
   timers run on the audio clock (see
   [The session controller's MIDI side](session-engine.md#the-session-controllers-midi-side)).
-- **Chunk 20:** the MIDI export's backing track, from `renderBacking` for each recorded phrase's
-  harmony, so the file and the audio play the same notes.
+- **Chunk 20 (built):** the MIDI export's backing track, from `renderBacking` for each recorded
+  phrase's harmony, so the file and the audio play the same notes (see
+  [The file](export.md#the-file)).
 
 ## Choices made while building it
 
