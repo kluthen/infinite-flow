@@ -421,6 +421,12 @@ interface WorkspaceHarnessSessionState {
   /** The last ended session's history, phrase by phrase; null before any end. */
   readonly lastHistoryPhrases: readonly WorkspaceHarnessHistoryPhrase[] | null
   /**
+   * The last-session Review while one exists: whether it shows, and how many phrases its (real,
+   * never inflated) history holds; null before a session end once phrase 1 has sounded, and from
+   * the next session's start.
+   */
+  readonly review: { readonly showing: boolean; readonly phraseCount: number } | null
+  /**
    * The note that would start a session if played now: non-null exactly at Idle when Start may be
    * clicked, the MIDI controller is connected and the connection sheet is closed.
    */
@@ -447,6 +453,13 @@ interface WorkspaceHarnessSessionApi {
   loaded: () => boolean
   /** The controller's state now. Throws before it has loaded. */
   state: () => WorkspaceHarnessSessionState
+  /**
+   * From now on, the Review the app shows holds `phraseCount` phrases: the ended session's own,
+   * repeated in order and numbered 1 to `phraseCount`, everything else (start time, instrument)
+   * its own. Only the app's reading changes, at once, a Review already showing included; `state()`
+   * keeps the real history. A count that is not a positive whole number throws.
+   */
+  inflateHistory: (phraseCount: number) => void
 }
 
 interface WorkspaceHarnessApi {
@@ -496,6 +509,19 @@ interface WorkspaceHarnessApi {
    * `generate` answer since the page loaded, Idle and session look-ahead alike, in return order.
    */
   generatedTimelines: () => readonly string[]
+  /**
+   * Fix the wall clock the next session histories read their start time from (epoch
+   * milliseconds), so the export's file names are known in advance; `null` reads the real clock
+   * again. A value that is not a finite, non-negative number throws.
+   */
+  setWallClock: (epochMs: number | null) => void
+  /**
+   * Arm one export failure: the next file the Review's export builds throws instead, so the
+   * Review shows its export error and nothing is downloaded. One shot.
+   */
+  failNextExport: () => void
+  /** How many files the Review's export has built since the page loaded, failed ones excluded. */
+  exportsBuilt: () => number
   /** The current workspace session snapshot. */
   snapshot: () => WorkspaceHarnessSnapshot
   /**

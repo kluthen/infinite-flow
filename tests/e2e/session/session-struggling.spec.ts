@@ -76,14 +76,17 @@ async function lookAheadWith(page: Page, failures: number, phraseStarts: number)
 
 /**
  * Intent: assert nothing blocking shows: no failure banner or error alert, no notation error, and
- * neither live region announced anything since it was observed.
+ * neither live region announced anything since it was observed (a region emptied, as the Review
+ * opening at the end empties both, announces nothing).
  */
 // @test-link [[rule_generation_failure_alert_copy]]
 async function expectNothingBlocking(page: Page): Promise<void> {
   await expect(page.locator('.inline-alert.alert-error')).toHaveCount(0)
   await expectNoNotationError(page)
-  expect(await readLiveRegionLog(page, '.generation-status')).toEqual([])
-  expect(await readLiveRegionLog(page, '.notation-status')).toEqual([])
+  const announced = async (region: '.generation-status' | '.notation-status') =>
+    (await readLiveRegionLog(page, region)).filter((text) => text !== '')
+  expect(await announced('.generation-status')).toEqual([])
+  expect(await announced('.notation-status')).toEqual([])
 }
 
 /** Intent: assert the notice shows, exactly, in the cue row and in the controller's state. */

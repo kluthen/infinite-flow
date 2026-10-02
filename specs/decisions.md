@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.23
+Status: draft v2.24
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -596,8 +596,7 @@ fact in the live documents (see the [archive index](archive/README.md) and
   holds for D145's first retries, those that replace a phrase that stopped fitting before any
   notice shows, since D147 applies to every phrase generated; a crossing that makes the
   combination disallowed during them stops them the same way, with the outcome D156 gives a
-  phrase that stops fitting under such a combination. Master spec §2, §4, §5, §6, §11 (v2.0 item
-  26) and §12.
+  phrase that stops fitting under such a combination. Master spec §2, §4, §5, §6, §11 (v2.0 item 26) and §12.
 - **D156 (2026-09-29): at Idle, a phrase that stops fitting while the rhythm settings are
   disallowed gives way to no phrase.** `ux-writer`'s call under the owner's delegation (recorded
   on the UX side as ux D121, which closed ux Q62 with ux D120; the delegation is ux D119). Fills a
@@ -792,3 +791,11 @@ fact in the live documents (see the [archive index](archive/README.md) and
   D144, so the Review takes only the staff area's place; the mix, tempo, settings and controller
   connection stay usable while it shows (§5, §6, §8, §10), and only the session start is
   withheld.
+- **D171 (2026-10-02): the MusicXML export's last phrase closes with a final barline.**
+  `spec-writer`'s correction, from a non-blocking finding of the chunk 20 preflight. No new rule.
+  On 2026-09-29, while the MusicXML encoder was built (build plan chunk 18), the product owner
+  decided that every phrase but the last ends with a double barline (two thin lines) and the last
+  with a final barline (a thin line then a thick one); `rule_generated_notes_musicxml_export` v0.2
+  and the encoder already say so, but master spec §7 still read "a rehearsal mark and a double
+  barline" for each phrase. §7 now states both barlines. Master spec §7. Master spec v1.24 →
+  **v1.25**.

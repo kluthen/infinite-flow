@@ -12,6 +12,7 @@ dependents:
   - [[req_session_export]]
   - [[rule_new_session_discards_review]]
   - [[rule_review_played_notes_toggle]]
+  - [[service_workspace_session_flow]]
 type: REQUIREMENT
 ---
 

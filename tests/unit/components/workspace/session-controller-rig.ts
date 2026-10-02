@@ -10,13 +10,18 @@
  * of phrase 1, and the staff planner is a fake where every phrase fits until the test says otherwise.
  * The MIDI controller is a real one on a fake MIDI access, its notes placed on the same fake audio
  * clock; nothing is plugged in and MIDI access was never asked for until a test connects. The
- * connection sheet's open flag is the test's to set.
+ * connection sheet's open flag is the test's to set. The Idle side's fresh-phrase action only logs
+ * what the controller showed when it was asked: the Idle state stays as the test left it.
  */
 import { shallowReactive, shallowRef, type ShallowRef } from 'vue'
 
 import type { WorkspaceSessionRunnerInput } from '@/components/workspace/create-workspace-session'
 import { createSessionController } from '@/components/workspace/workspace-session-controller'
-import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
+import type {
+  SessionController,
+  SessionControllerPhase,
+  SessionReview,
+} from '@/components/workspace/workspace-session-controller-types'
 import { createIdleLayoutGate, type IdleLayoutGate } from '@/components/workspace/idle-layout-gate'
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffFixedParts, StaffLayoutInputs } from '@/notation/staff-fit-types'
@@ -94,6 +99,14 @@ export type IdleReport =
   | { readonly kind: 'engraved' }
   | { readonly kind: 'notation-error'; readonly error: NotationError }
 
+/** What the controller showed when it asked the Idle side for a fresh phrase. */
+export interface FreshPhraseRequest {
+  readonly phase: SessionControllerPhase
+  readonly review: SessionReview | null
+  /** How many staff reports had reached the Idle machinery by then. */
+  readonly idleReports: number
+}
+
 /** A controller and every seam around it, in the test's hand. */
 export interface ControllerRig {
   readonly controller: SessionController
@@ -133,6 +146,8 @@ export interface ControllerRig {
   readonly midi: MidiController
   /** Whether the connection sheet is open, as the shell would report it; false at first. */
   readonly sheetOpen: ShallowRef<boolean>
+  /** Every time the controller asked the Idle side for a fresh phrase, in order. */
+  readonly freshPhraseRequests: FreshPhraseRequest[]
 }
 
 /** Intent: let every pending promise (generation answers, fit checks, lock outcomes) settle. */
@@ -211,6 +226,19 @@ export function controllerRig(
     clock: { anchor: () => audioRig.output.anchor() },
   })
   const sheetOpen = shallowRef(false)
+  const freshPhraseRequests: FreshPhraseRequest[] = []
+  let built: SessionController | null = null
+
+  /** Intent: log what the controller shows when it asks for a fresh phrase; Idle stays as it is. */
+  function startFreshPhrase(): Promise<boolean> {
+    if (built === null) throw new Error('rig: a fresh phrase was asked for before the controller')
+    freshPhraseRequests.push({
+      phase: built.state.phase,
+      review: built.state.review,
+      idleReports: idleReports.length,
+    })
+    return Promise.resolve(true)
+  }
 
   /** Intent: a real runner on the scripted generate seam, logging what passes through it. */
   function createRunner(input: WorkspaceSessionRunnerInput): SessionRunner {
@@ -240,7 +268,7 @@ export function controllerRig(
   }
 
   const controller = createSessionController({
-    idle: { state: idle },
+    idle: { state: idle, actions: { startFreshPhrase } },
     idlePhrase: () => idleWritten,
     audio: transport,
     browser,
@@ -263,6 +291,7 @@ export function controllerRig(
     midi,
     connectionSheetOpen: () => sheetOpen.value,
   })
+  built = controller
   return {
     controller,
     audioRig,
@@ -290,6 +319,7 @@ export function controllerRig(
     midiAccess,
     midi,
     sheetOpen,
+    freshPhraseRequests,
   }
 }
 

@@ -4,7 +4,10 @@
  * it throws at a caller that breaks the contract. The controller itself is
  * `workspace-session-controller.ts`.
  */
-import type { GenerationSessionState } from '@/composables/use-generation-session'
+import type {
+  GenerationSessionActions,
+  GenerationSessionState,
+} from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { DisposableWakeTimer } from '@/audio/audio-ports'
@@ -41,6 +44,19 @@ export interface SessionEndSummary {
   readonly soundedPhraseCount: number
 }
 
+/**
+ * The last session's Review: its closed history and whether the player is in it. It exists from a
+ * session end once phrase 1 has sounded until the next session starts; each change replaces the
+ * frozen object, never mutates it.
+ */
+// @spec-link [[req_last_session_review]]
+// @spec-link [[rule_new_session_discards_review]]
+export interface SessionReview {
+  readonly history: SessionHistory
+  /** The Review shows, in place of the staff; false once closed, while it is kept. */
+  readonly showing: boolean
+}
+
 /** What the screen reads from the controller; every field is reactive. */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[rule_session_start_conditions]]
@@ -58,8 +74,10 @@ export interface SessionControllerState {
   /** The first start condition that does not hold, or null when Start may be clicked. */
   readonly startBlocker: SessionStartBlocker | null
   readonly lastEnd: SessionEndSummary | null
-  /** The closed history of the last session that ended, kept for the Review (chunk 20). */
+  /** The closed history of the last session that ended. */
   readonly lastHistory: SessionHistory | null
+  /** The last session's Review, showing or kept; null when none exists. */
+  readonly review: SessionReview | null
   /**
    * What the staff shows while a session runs, from its start (phrase 1, the very phrase Idle
    * shows, in the held layout) to its end; null with no session, so the staff shows Idle.
@@ -102,6 +120,13 @@ export interface SessionController {
    * on a phrase number that is not a positive integer.
    */
   readonly isPhraseOnScreen: (phraseNumber: number) => boolean
+  /** Stop showing the Review (`Close review`), keeping it. Throws unless the Review shows. */
+  readonly closeReview: () => void
+  /**
+   * Show the kept Review again (`Review last session`). Throws unless a Review exists, does not
+   * show, and no session runs.
+   */
+  readonly showReview: () => void
   /**
    * End a running session, stop reading the window and listening to the MIDI controller, and
    * dispose of the wake-up timer (its worker). Throws if called twice.
@@ -142,7 +167,8 @@ export type StaffFitPlanner = (
 ) => StaffFitVerdict
 
 /**
- * What the controller drives: the Idle state and the written phrase Idle shows (phrase 1, which a
+ * What the controller drives: the Idle state, its fresh-phrase action (a session end once phrase 1
+ * has sounded asks it for the next phrase), and the written phrase Idle shows (phrase 1, which a
  * session's staff keeps showing as the very same object), the audio, the browser, runners and its
  * clock; the gate of the staff's reports, which a session diverts from the Idle machinery while it
  * runs; the measurement of phrase 1's staff fixed parts, which the session window rule needs; the
@@ -155,8 +181,12 @@ export type StaffFitPlanner = (
 // @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
 // @spec-link [[rule_phrase_one_is_idle_phrase]]
 // @spec-link [[rule_midi_starting_note]]
+// @spec-link [[rule_session_end_generates_next_phrase_one]]
 export interface SessionControllerDependencies {
-  readonly idle: { readonly state: Readonly<GenerationSessionState<WorkspaceSessionResult>> }
+  readonly idle: {
+    readonly state: Readonly<GenerationSessionState<WorkspaceSessionResult>>
+    readonly actions: Pick<GenerationSessionActions, 'startFreshPhrase'>
+  }
   /** The written phrase the staff shows at Idle; null when it shows none. */
   readonly idlePhrase: () => WrittenPhrase | null
   readonly audio: AudioTransport
@@ -173,7 +203,10 @@ export interface SessionControllerDependencies {
   readonly connectionSheetOpen: () => boolean
 }
 
-/** A caller broke the controller's contract: a start while blocked, a Stop with no session. */
+/**
+ * A caller broke the controller's contract: a start while blocked, a Stop with no session, a
+ * Review closed or shown out of turn.
+ */
 // @spec-link [[service_workspace_session_flow]]
 export class SessionControllerError extends Error {
   constructor(message: string) {

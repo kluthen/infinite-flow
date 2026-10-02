@@ -1,9 +1,10 @@
 # Export
 
 This document records how Infinite Flow turns a finished session into export files: where the
-encoders live, what each one takes and writes, and the technical choices behind them. The encoders
-are pure functions from a session's phrases to the bytes of one file. The Review screen, the
-export action and the browser download are not built yet, so no screen calls the encoders today.
+encoders live, what each one takes and writes, the technical choices behind them, how the
+player's export action in the Review reaches a browser download, and the hand check of the
+downloaded files. The encoders are pure functions from a session's phrases to the bytes of one
+file.
 
 Two encoders exist so far: generated notes as MusicXML, and generated notes as MIDI. The
 played-notes MIDI encoder will be added to this document when it is built; it reuses the MIDI
@@ -11,22 +12,30 @@ time resolution and conductor track described below.
 
 ## Where the code lives
 
-`src/export/` holds the export encoders, one directory per format. Like `src/domain/`, it is pure
-and browser-free: no Vue, no DOM, no storage, no network. It reads the domain model and never
-writes to it.
+`src/export/` holds the export encoders, one directory per format, and the generated-notes file
+the Review downloads. Like `src/domain/`, the encoders and `generated-notes-file.ts` are pure and
+browser-free: no Vue, no DOM, no storage, no network. They read the domain model and never write
+to it. `browser-download.ts` is the one file that touches the page, and only through the document
+it is given.
 
-| File                                          | What it holds                                                                                                                                                  |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/export/musicxml/musicxml-export-input.ts` | The input types (`GeneratedNotesMusicXmlInput`, `MusicXmlSessionPhrase`), the typed `MusicXmlExportError`, and `validateMusicXmlExportInput`, the input check. |
-| `src/export/musicxml/musicxml-encoder.ts`      | `encodeGeneratedNotesMusicXml`, the entry point: the score header, the part, and the measures of every phrase in session order.                               |
-| `src/export/musicxml/musicxml-measure.ts`      | One written measure as MusicXML: notes, rests, ties, beams and chord symbols.                                                                                 |
-| `src/export/musicxml/musicxml-marks.ts`        | The opening attributes, a key change, the transposition, the rehearsal mark, the metronome mark, the double barline and the final barline.                    |
-| `src/export/musicxml/xml-text.ts`              | A small XML tree and its serializer: escaping, two-space indentation, a line feed after every line.                                                           |
-| `src/export/midi/midi-export-input.ts`         | The input types (`GeneratedNotesMidiInput`, `MidiSessionPhrase`, `MidiBackingPhrase`, `MidiBackingNote`), the typed `MidiExportError`, and `validateMidiExportInput`, the input check. |
-| `src/export/midi/midi-encoder.ts`              | `encodeGeneratedNotesMidi`, the entry point: the header and the two or three tracks.                                                                          |
-| `src/export/midi/midi-tracks.ts`               | The conductor track (time signature, tempo map, phrase markers), the generated line read from the concert timelines, the backing, and note-track ordering.      |
-| `src/export/midi/midi-time.ts`                 | The fixed time resolution (`MIDI_TICKS_PER_QUARTER_NOTE`), the phrase length in MIDI ticks, exact whole-note to MIDI-tick conversion, and the tempo value.     |
-| `src/export/midi/smf-writer.ts`                | The Standard MIDI File byte layer: variable-length quantities, header and track chunks, note and meta events.                                                  |
+| File                                           | What it holds                                                                                                                                                                                        |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/export/musicxml/musicxml-export-input.ts` | The input types (`GeneratedNotesMusicXmlInput`, `MusicXmlSessionPhrase`), the typed `MusicXmlExportError`, and `validateMusicXmlExportInput`, the input check.                                       |
+| `src/export/musicxml/musicxml-encoder.ts`      | `encodeGeneratedNotesMusicXml`, the entry point: the score header, the part, and the measures of every phrase in session order.                                                                      |
+| `src/export/musicxml/musicxml-measure.ts`      | One written measure as MusicXML: notes, rests, ties, beams and chord symbols.                                                                                                                        |
+| `src/export/musicxml/musicxml-marks.ts`        | The opening attributes, a key change, the transposition, the rehearsal mark, the metronome mark, the double barline and the final barline.                                                           |
+| `src/export/musicxml/xml-text.ts`              | A small XML tree and its serializer: escaping, two-space indentation, a line feed after every line.                                                                                                  |
+| `src/export/midi/midi-export-input.ts`         | The input types (`GeneratedNotesMidiInput`, `MidiSessionPhrase`, `MidiBackingPhrase`, `MidiBackingNote`), the typed `MidiExportError`, and `validateMidiExportInput`, the input check.               |
+| `src/export/midi/midi-encoder.ts`              | `encodeGeneratedNotesMidi`, the entry point: the header and the two or three tracks.                                                                                                                 |
+| `src/export/midi/midi-tracks.ts`               | The conductor track (time signature, tempo map, phrase markers), the generated line read from the concert timelines, the backing, and note-track ordering.                                           |
+| `src/export/midi/midi-time.ts`                 | The fixed time resolution (`MIDI_TICKS_PER_QUARTER_NOTE`), the phrase length in MIDI ticks, exact whole-note to MIDI-tick conversion, and the tempo value.                                           |
+| `src/export/midi/smf-writer.ts`                | The Standard MIDI File byte layer: variable-length quantities, header and track chunks, note and meta events.                                                                                        |
+| `src/export/generated-notes-file.ts`           | `buildGeneratedNotesFile`: the one file the player asked for (bytes, file name, MIME type), built from the session history; `generatedNotesFileName`; `backingForExport`, the backing track's notes. |
+| `src/export/load-generated-notes-export.ts`    | `loadGeneratedNotesExport`, the lazy-loading boundary of `generated-notes-file.ts`, and its typed `GeneratedNotesExportLoadError`.                                                                   |
+| `src/export/browser-download.ts`               | `downloadFile`: one export file handed to the browser as a download, and its typed `BrowserDownloadError`.                                                                                           |
+
+The Review's side of the export is in `src/components/workspace/review-export.ts` (see
+[From the Review to a download](#from-the-review-to-a-download)).
 
 ## Generated notes as MusicXML
 
@@ -129,8 +138,8 @@ The unit specs are in `tests/unit/export/musicxml/`:
   pass means something. `xmllint` (from libxml2) must be installed: a missing binary fails the spec
   rather than skipping it.
 
-[`docs/testing.md`](testing.md) lists the fixtures. Opening the files in MuseScore is a manual check
-that belongs to the export screen, once it can download them.
+[`docs/testing.md`](testing.md) lists the fixtures. Opening the files in MuseScore is done by hand,
+on files exactly as the app downloads them: see [Hand check](#hand-check).
 
 ## Generated notes as MIDI
 
@@ -146,8 +155,9 @@ that belongs to the export screen, once it can download them.
   for it, one entry per phrase, in the same order and with the same numbers, each holding that
   phrase's backing notes. A backing note has exactly a `pitch` (a concert MIDI note number), a
   `start` counted from the beginning of its phrase and a `duration`, both exact values in whole
-  notes. The encoder doesn't render the backing: the review screen passes it the backing
-  renderer's notes for each phrase. That renderer is `renderBacking` in
+  notes. The encoder doesn't render the backing: `backingForExport` in
+  `src/export/generated-notes-file.ts` passes it the backing renderer's notes for each phrase's
+  stored harmony, in 4/4 as the audio renders it. That renderer is `renderBacking` in
   `src/domain/backing/backing-renderer.ts`, the one the audio plays from (see
   [the backing](audio-transport.md#the-renderer)); its `BackingNote` has the same shape as
   `MidiBackingNote`, and its bass (MIDI 36 to 47) and chords (MIDI 53 to 64) never share a pitch.
@@ -271,5 +281,231 @@ The unit specs are in `tests/unit/export/midi/`:
   and shares no code with the encoder; `smf-reader.spec.ts` checks it on a file assembled by hand.
 
 [`docs/testing.md`](testing.md) lists the fixtures. Opening the files in a real MIDI tool, with the
-correct tempo map, is a manual check that belongs to the export screen, once it can download
-them.
+correct tempo map, is done by hand: see [Hand check](#hand-check).
+
+## From the Review to a download
+
+The player exports from the last session's Review (see
+[The last-session Review](phrase-workspace.md#the-last-session-review)), which opens when a
+session ends after phrase 1 has sounded and stays reachable until the next session starts. The
+Review builds the file from that session's history (see
+[Session history](session-engine.md#session-history)) and hands it to the browser.
+
+### The action
+
+`review-export`, in the Review's header, is one group named "Export generated notes":
+
+- **Format**: a segmented control, `MusicXML` (checked at first) or `MIDI`.
+- **Backing track**: a toggle button, shown only while `MIDI` is checked, off at first. It is
+  independent of the audio mix's `Backing` toggle.
+- **Export generated notes**: builds exactly one file and starts its download. One activation,
+  one file, one download.
+
+Both choices hold for the page session: `useReviewHost`
+(`src/components/workspace/use-review-host.ts`) keeps them in memory, across Reviews and
+sessions, and stores them nowhere, so a reload brings back MusicXML with the backing off. While
+the file is built, the button takes `is-loading` and is disabled; Format and Backing track stay
+live and apply to the next export. Success shows and announces nothing: the browser's download is
+the confirmation. Focus returns to the button.
+
+`exportGeneratedNotes(history, request, ports)` in `src/components/workspace/review-export.ts`
+runs one export: it loads the export code, builds the file and downloads it. Its two ports,
+`ReviewExportPorts` (`load` and `download`), are the page's own by default
+(`browserReviewExportPorts(document)`); `ScorePanel`'s `reviewExportPorts` prop lets a test or
+the harness replace them.
+
+### The file
+
+`buildGeneratedNotesFile(history, request)` builds the one file asked for. The request holds the
+format and `backingTrack`, which the Review sends as true only for MIDI with the toggle on.
+
+- **MusicXML**: `musicXmlInputFromHistory` then `encodeGeneratedNotesMusicXml`, as UTF-8 bytes,
+  with the MIME type `application/vnd.recordare.musicxml+xml`, in the session instrument
+  profile's [written pitch](music/lexicon.md#written-pitch).
+- **MIDI**: `midiInputFromHistory`, with `backingForExport`'s notes when the backing track is
+  asked for and `null` otherwise, then `encodeGeneratedNotesMidi`, with the MIME type
+  `audio/midi`, at [concert pitch](music/lexicon.md#concert-pitch).
+
+Nothing is regenerated: both read the stored phrases (see
+[Handing a session to the encoders](session-engine.md#handing-a-session-to-the-encoders)). The
+history has held the player's played notes since chunk 17, but neither encoder's input has a
+field for them, so no played note reaches either file.
+
+- **File names.** `infinite-flow-{YYYY-MM-DD}-{HHmmss}-generated.musicxml` or `.mid`
+  (`generatedNotesFileName`), from the session's start in the player's local time: the history's
+  `startedAt`, the wall clock read once when the Start click or the starting note started the
+  session, never the time of the export. For example, a session started at 14:30:05 on
+  2 October 2026 exports `infinite-flow-2026-10-02-143005-generated.mid`. The played-notes file of
+  v2.1 is to take the same stem with `-played.mid`, so a session's files sort together.
+- **The same bytes every time.** The same history and request always give the same bytes:
+  neither encoder writes a date or any other varying value, and the name comes from the recorded
+  start. Exporting twice downloads two identical files (the browser may add a number to the
+  second file's name).
+
+### Loading the export code
+
+The encoders and the backing renderer stay out of the entry chunk. `loadGeneratedNotesExport()`
+(`src/export/load-generated-notes-export.ts`) imports `generated-notes-file.ts` dynamically, into
+its own chunk, and keeps the promise, so later exports share one load. Nothing else may import
+that module statically. The code loads on the first export and is not warmed beforehand, unlike
+the Review panel's chunk, which a session's start warms (see
+[The last-session Review](phrase-workspace.md#the-last-session-review)). A failed import is
+wrapped as a `GeneratedNotesExportLoadError` and the kept promise is cleared, so the next export
+calls `import()` again rather than reusing the failed promise. Whether that call fetches the chunk
+again is up to the browser: Chromium keeps a failed module for the page's life, so there every
+later export fails the same way until the page is reloaded. The chunk is precached with every other
+built chunk, so exporting works offline, and a load can only fail when the app is used offline
+before the precache has finished or after a broken deploy; a reload recovers.
+
+### The download
+
+`downloadFile(file, document)` (`src/export/browser-download.ts`) makes a `Blob` of the bytes with
+the file's MIME type, takes an object URL for it, appends a hidden temporary `<a>` whose
+`download` attribute is the file name, clicks it once, then removes the anchor and revokes the URL
+at once, even if the click throws. Revoking right after the click doesn't cancel the download:
+the browser resolves a blob URL to its `Blob` when the link is followed, which `click()` does
+synchronously. A document with no window throws a `BrowserDownloadError`.
+
+### Failures
+
+Any failure rejects the export: the export code failing to load, the file failing to build (an
+encoder's or adapter's typed error), or the browser refusing the download. The Review then shows
+`review-export-error`, "The file couldn't be made. Try again.", under its actions. It is not a
+live region and moves no focus, and the next export removes it as it starts. A failure before the
+download downloads nothing. The export works whatever the hidden workspace is doing, including
+while the next phrase loads and while the staff has no room.
+
+### Privacy
+
+The history, the Review and the file live in memory only. Nothing is sent and nothing is stored,
+the format and backing-track choices included: the app has no server, and browser storage and the
+network are forbidden in `src/` (see [Runtime Constraints](../README.md#runtime-constraints)). The
+download, started by the player's click, is the only way a session's data leaves the page.
+
+### Verifying the download
+
+The unit specs:
+
+- `tests/unit/export/generated-notes-file.spec.ts`: each format's bytes are the encoder's output
+  for the history's adapter; MusicXML ignores the backing-track choice; the MIDI backing track is
+  `renderBacking`'s notes, phrase by phrase, only when asked for; the same bytes on a second
+  build; no played note in any format or backing setting; the file names, zero-padded, from the
+  recorded start in local time, not the time of the export, and refused for a start that is not a
+  finite time.
+- `tests/unit/export/load-generated-notes-export.spec.ts`: one shared load, a failed import as the
+  typed error, and a new `import()` call after a failure (Vitest's mocked import runs again; a
+  browser may not, see [Loading the export code](#loading-the-export-code)).
+- `tests/unit/export/browser-download.spec.ts`: one anchor named after the file on a blob URL of
+  its bytes and type, the URL revoked and the anchor removed (also when the click throws), and a
+  document with no window refused.
+- `tests/unit/components/workspace/review-export.spec.ts`: the backing track only when asked for,
+  a rejection with nothing downloaded when the code fails to load or the file fails to build, a
+  rejection when the browser can't take the download, and the file handed to the given document
+  only.
+- `tests/unit/export/export-hand-check-files.spec.ts`: the hand-check files below, rebuilt and
+  compared byte for byte, and the MusicXML ones validated against the MusicXML 4.0 schema.
+
+The browser-level checks (the Review's downloads, identical bytes, the export error, and the
+network and storage spy) are listed in [The Review specs](testing.md#the-review-specs), and the
+hand-check files below in [Export hand-check files](testing.md#export-hand-check-files).
+
+## Hand check
+
+Two things can't be checked by a test: that MuseScore, the notation program musicians use most,
+reads the MusicXML files as intended, and that a real MIDI tool reads the MIDI files' tempo map
+and markers. The owner checks them by hand and writes the results below.
+
+### The files
+
+[`tests/fixtures/export-hand-check/`](../tests/fixtures/export-hand-check/README.md) holds the
+generated-notes files of one seeded six-phrase session (24 measures, 100 BPM throughout, written
+key F major, Eighth note density), exactly as the app downloads them:
+
+| File                              | Instrument profile     | Format                               |
+| --------------------------------- | ---------------------- | ------------------------------------ |
+| `b-flat-tenor-saxophone.musicxml` | B-flat tenor saxophone | MusicXML, with `<transpose>`         |
+| `e-flat-alto-saxophone.musicxml`  | E-flat alto saxophone  | MusicXML, with `<transpose>`         |
+| `c-keyboard.musicxml`             | C MIDI keyboard        | MusicXML, without `<transpose>`      |
+| `generated.mid`                   | C MIDI keyboard        | MIDI, backing track off: two tracks  |
+| `generated-with-backing.mid`      | C MIDI keyboard        | MIDI, backing track on: three tracks |
+
+Its README gives the session's seeds and settings. `export-hand-check-files.spec.ts` rebuilds every
+file through the real session runner and `buildGeneratedNotesFile`, and fails unless the bytes
+are identical, so the files always match what the current code downloads. To rewrite them on
+purpose, after a change to the export:
+
+```sh
+UPDATE_EXPORT_HAND_CHECK=1 npx vitest run tests/unit/export/export-hand-check-files.spec.ts
+npx vitest run tests/unit/export/export-hand-check-files.spec.ts
+```
+
+Changed bytes mean the downloaded files changed: do the hand check again on the new files.
+
+### Checklist
+
+**MuseScore, each of the three MusicXML files.** Open the file (File > Open) and check:
+
+1. **It opens** with no error, as one part on a [treble clef](music/lexicon.md#treble-clef)
+   staff.
+2. **The instrument name.** The part is named after the instrument profile: "B-flat tenor
+   saxophone", "E-flat alto saxophone" or "C MIDI keyboard".
+3. **Written pitch.** With MuseScore's Concert pitch toggle off, the notes are the ones the app's
+   staff showed, in the instrument's [written pitch](music/lexicon.md#written-pitch), and the
+   [key signature](music/lexicon.md#key-signature) is F major, one flat, in all three files.
+4. **The transposition.** Turn Concert pitch on; the score should show
+   [concert pitch](music/lexicon.md#concert-pitch), the pitch that sounds:
+   - B-flat tenor saxophone ([transposing instrument](music/lexicon.md#transposing-instrument),
+     `<transpose>` with an octave change): every note a major ninth lower (an octave and a whole
+     step), in E-flat major, three flats;
+   - E-flat alto saxophone (`<transpose>`, no octave change): every note a major sixth lower, in
+     A-flat major, four flats;
+   - C MIDI keyboard (no `<transpose>`): nothing changes.
+
+   Turn Concert pitch off again.
+
+5. **The time signature.** [4/4](music/lexicon.md#time-signature), at the start only.
+6. **The measures.** 24 [measures](music/lexicon.md#measure), numbered 1 to 24, each holding
+   four beats, with no empty or extra measure; [ties](music/lexicon.md#tie) and beams as the app
+   drew them, a tie across a [bar line](music/lexicon.md#bar-line) included.
+7. **Phrase numbers.** Rehearsal marks 1 to 6, the session phrase numbers, above measures 1, 5,
+   9, 13, 17 and 21; a double bar line at the end of measures 4, 8, 12, 16 and 20, and a final
+   bar line (thin then thick) after measure 24.
+8. **The tempo.** One metronome mark, quarter note = 100, at measure 1, and none later; playback
+   runs at 100 BPM ([tempo](music/lexicon.md#tempo)).
+9. **Chord symbols.** One above each chord change, as the app showed them, spelled in written
+   pitch (so the saxophone files' symbols move with Concert pitch).
+
+**A MIDI tool, both MIDI files.** Open the file in a digital audio workstation (DAW) or a MIDI
+file viewer that shows the tempo map and markers, and check:
+
+1. **It opens** with no error.
+2. **The tracks.** `generated.mid`: two tracks, "Infinite Flow" (the conductor track, with no
+   notes) and "Generated notes" (channel 1). `generated-with-backing.mid`: the same two, plus
+   "Backing" (channel 2), with the bass and the chords.
+3. **The tempo map.** Exactly one tempo event, 100 BPM, at the start. A v2.0 session keeps one
+   tempo throughout, so its tempo map holds one tempo; the encoder adds one only at a phrase whose
+   tempo differs from the phrase before.
+4. **The time signature.** 4/4, once, at the start.
+5. **The markers.** "Phrase 1" to "Phrase 6", one at the start of every fourth measure (measures
+   1, 5, 9, 13, 17, 21; at 100 BPM, every 9.6 s: 0, 9.6, 19.2, 28.8, 38.4 and 48.0 s).
+6. **The length.** 24 measures, 57.6 s, every track ending there.
+7. **The notes.** At concert pitch: for the C MIDI keyboard, the pitches of `c-keyboard.musicxml`.
+   A tied note sounds as one held note. In `generated-with-backing.mid`, the backing's chord
+   changes fall where `c-keyboard.musicxml` shows its chord symbols, and the generated line plays
+   louder than the backing.
+
+The v2.0 release gate (build-plan chunk 21) asks for the same checks again on files downloaded
+from the running app.
+
+### Results
+
+Fill in one row per check when it is done: the tool and its version, the date, `pass` or `fail`,
+and anything seen in the notes.
+
+| Check                                                     | File                              | Tool and version | Date | Result       | Notes |
+| --------------------------------------------------------- | --------------------------------- | ---------------- | ---- | ------------ | ----- |
+| MuseScore opens it correctly, with `<transpose>`          | `b-flat-tenor-saxophone.musicxml` | —                | —    | open — owner |       |
+| MuseScore opens it correctly, with `<transpose>`          | `e-flat-alto-saxophone.musicxml`  | —                | —    | open — owner |       |
+| MuseScore opens it correctly, without `<transpose>`       | `c-keyboard.musicxml`             | —                | —    | open — owner |       |
+| A MIDI tool opens it with the right tempo map and markers | `generated.mid`                   | —                | —    | open — owner |       |
+| As above, plus the backing track                          | `generated-with-backing.mid`      | —                | —    | open — owner |       |

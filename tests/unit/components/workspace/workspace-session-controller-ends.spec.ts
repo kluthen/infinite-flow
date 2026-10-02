@@ -331,22 +331,25 @@ describe('session controller: the Idle layout hand-off', () => {
   })
 })
 
-// @test-link [[rule_phrase_one_is_idle_phrase]]
-describe('session controller: the phrase a session played', () => {
-  // @test-link [[rule_phrase_one_is_idle_phrase]]
-  it('blocks Start after any end once phrase 1 sounded, until a new Idle phrase replaces it', async () => {
-    const rig = await sessionIn('running')
+// @test-link [[req_last_session_review]]
+describe('session controller: what an end leaves behind', () => {
+  for (const sample of END_SAMPLES) {
+    // @test-link [[req_last_session_review]]
+    // @test-link [[rule_session_end_generates_next_phrase_one]]
+    it(`opens the Review and asks for a fresh phrase after ${sample.name} once phrase 1 sounded`, async () => {
+      const rig = await sessionIn('running', sample.before)
 
-    rig.browser.pageVisibility.setHidden(true)
+      sample.trigger(rig)
 
-    expect(rig.controller.state.startBlocker).toBe('phrase_already_played')
-    expect(rig.controller.state.lastHistory?.phrases().map((r) => r.phraseNumber)).toEqual([1])
-    rig.idle.result = { ...rig.phraseOne }
-    expect(rig.controller.state.canStart).toBe(true)
-  })
+      expect(rig.controller.state.startBlocker).toBe('review_showing')
+      expect(rig.controller.state.review?.showing).toBe(true)
+      expect(rig.controller.state.review?.history.phrases().map((r) => r.phraseNumber)).toEqual([1])
+      expect(rig.freshPhraseRequests).toHaveLength(1)
+    })
+  }
 
   // @test-link [[rule_count_in_ending_returns_to_idle]]
-  it('keeps phrase 1 startable after an end in the count-in', async () => {
+  it('keeps phrase 1 startable after an end in the count-in, with no Review and no fresh phrase', async () => {
     const rig = await sessionIn('count-in')
 
     rig.browser.pageVisibility.setHidden(true)
@@ -354,5 +357,7 @@ describe('session controller: the phrase a session played', () => {
     expect(rig.controller.state.lastEnd?.phase).toBe('count-in')
     expect(rig.controller.state.canStart).toBe(true)
     expect(rig.idle.result).toBe(rig.phraseOne)
+    expect(rig.controller.state.review).toBeNull()
+    expect(rig.freshPhraseRequests).toEqual([])
   })
 })

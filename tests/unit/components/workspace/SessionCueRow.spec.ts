@@ -8,7 +8,7 @@ import type { SessionController } from '@/components/workspace/workspace-session
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import type { StartingNote } from '@/session/starting-note'
 import { transportRig } from '../../audio/transport-rig'
-import { createFakeSessionController } from './fake-session-controller'
+import { createFakeSessionController, fakeReviewHistory } from './fake-session-controller'
 
 const STRUGGLING = 'The generator is struggling with these settings.'
 const BANNER_CLAUSE = ' — plug it back in to keep playing'
@@ -273,5 +273,74 @@ describe('SessionCueRow starting-note line', () => {
     await nextTick()
     expect(wrapper.find('.start-note-line').exists()).toBe(false)
     expect(wrapper.find('.session-alert.alert-notice').exists()).toBe(true)
+  })
+})
+
+/** A Review kept, not showing: after `Close review`. */
+const KEPT_REVIEW = { history: fakeReviewHistory(), showing: false } as const
+
+// @test-link [[req_last_session_review]]
+// @test-link [[rule_new_session_discards_review]]
+describe('SessionCueRow review-link', () => {
+  // @test-link [[req_last_session_review]]
+  it("offers Review last session, alone, at the row's trailing end while a Review is kept", () => {
+    const wrapper = mountRow(createFakeSessionController({ review: KEPT_REVIEW }).controller)
+
+    const link = wrapper.get('.session-cue-row > button.btn.review-link')
+    expect(link.text()).toBe('Review last session')
+    expect(link.attributes('type')).toBe('button')
+    expect(link.classes()).toEqual(['btn', 'review-link'])
+    expect(wrapper.get('.session-cue-row').element.lastElementChild).toBe(link.element)
+  })
+
+  // @test-link [[req_last_session_review]]
+  it('sits after the starting-note line', () => {
+    const wrapper = mountRow(
+      createFakeSessionController({ review: KEPT_REVIEW, startingNote: STARTING_NOTE }).controller,
+    )
+
+    const children = [...wrapper.get('.session-cue-row').element.children]
+    expect(children.map((child) => child.className)).toEqual(['start-note-line', 'btn review-link'])
+  })
+
+  // @test-link [[req_last_session_review]]
+  it('asks for the Review on a click', async () => {
+    const wrapper = mountRow(createFakeSessionController({ review: KEPT_REVIEW }).controller)
+
+    await wrapper.get('.review-link').trigger('click')
+
+    expect(wrapper.emitted('show-review')).toHaveLength(1)
+  })
+
+  // @test-link [[req_last_session_review]]
+  it('is absent with no Review, while the Review shows, and before the controller loads', () => {
+    expect(mountRow(createFakeSessionController().controller).find('.review-link').exists()).toBe(
+      false,
+    )
+    const showing = createFakeSessionController({
+      review: { history: fakeReviewHistory(), showing: true },
+    })
+    expect(mountRow(showing.controller).find('.review-link').exists()).toBe(false)
+    expect(mountRow(null).find('.review-link').exists()).toBe(false)
+  })
+
+  // @test-link [[rule_new_session_discards_review]]
+  it('goes when a session starts', async () => {
+    const fake = createFakeSessionController({ review: KEPT_REVIEW })
+    const wrapper = mountRow(fake.controller)
+
+    fake.start()
+    await nextTick()
+
+    expect(wrapper.find('.review-link').exists()).toBe(false)
+  })
+
+  // @test-link [[req_last_session_review]]
+  it('is never offered during a session, even with a Review kept', () => {
+    const wrapper = mountRow(
+      createFakeSessionController({ phase: 'running', review: KEPT_REVIEW }).controller,
+    )
+
+    expect(wrapper.find('.review-link').exists()).toBe(false)
   })
 })

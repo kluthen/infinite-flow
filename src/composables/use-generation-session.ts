@@ -105,6 +105,14 @@ export interface GenerationSessionActions {
   readonly retryNotation: () => Promise<boolean>
   readonly reportNotationFailure: (error: Error) => boolean
   readonly reportNotationRecovered: () => boolean
+  /**
+   * The phrase a session end asks for once phrase 1 has sounded: the phrase on screen leaves at
+   * once and a new one is generated from the current controls (fresh seed, no carry-in, the fit
+   * retries), unless the staff has no room (the no-room notice, until it clears) or the rhythm
+   * combination is blocked (no phrase). Resolves true when it leaves a phrase as the result.
+   */
+  // @spec-link [[rule_session_end_generates_next_phrase_one]]
+  readonly startFreshPhrase: () => Promise<boolean>
 }
 
 export interface GenerationSession<TResult> {
@@ -469,6 +477,21 @@ export function createGenerationSession<TResult>(
     options.clearPresentedPhrase()
   }
 
+  /**
+   * Intent: replace whatever the staff holds with a fresh phrase, as a session end once phrase 1
+   * has sounded asks: no phrase of the ended session may show again, so the phrase leaves at once,
+   * with no score shown meanwhile, and the room is checked before anything is generated. It may
+   * take over a run still generating (a replacement the end's hand-off started), never one drawing:
+   * a drawing in flight cannot be dropped, so that is a caller defect.
+   */
+  // @spec-link [[rule_session_end_generates_next_phrase_one]]
+  function startFreshPhrase(): Promise<boolean> {
+    if (state.operation === 'notating') {
+      throw new SessionUsageError('startFreshPhrase cannot drop a phrase still being drawn.')
+    }
+    return fitRunner.run('fresh')
+  }
+
   const fitRunner = createFitRunner<TResult>({
     state,
     generate: options.generate,
@@ -477,6 +500,7 @@ export function createGenerationSession<TResult>(
     clearPresentedPhrase: options.clearPresentedPhrase,
     freshIntent: freshIntentFromControls,
     isBlocked: isBlockedByUnsupportedRhythm,
+    checkRoom: () => options.checkRoom(currentKeySignature()),
     showEmpty: clearPhrase,
     onPublished: (intent) => options.onPhraseAccepted?.(intent),
   })
@@ -514,6 +538,7 @@ export function createGenerationSession<TResult>(
       retryNotation,
       reportNotationFailure,
       reportNotationRecovered,
+      startFreshPhrase,
     },
     dispose: () => {
       stopListeningForCrossings()

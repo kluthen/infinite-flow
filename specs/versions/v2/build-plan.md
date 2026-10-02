@@ -107,7 +107,7 @@ chunks in different sections; the second to merge rebases on the first.
 | 4    | 15 Session screen: start and end (done 2026-10-01)                                                                                                                                                                                                                                                                                                                            | Wave 3                                                |
 | 5    | 13 Controller connection (done 2026-10-01) · 16 Rolling display (done 2026-10-01)                                                                                                                                                                                                                                                                                             | Chunk 15                                              |
 | 6    | 17 MIDI in the session (done 2026-10-02)                                                                                                                                                                                                                                                                                                                                      | Wave 5                                                |
-| 7    | 20 Review and generated-notes export                                                                                                                                                                                                                                                                                                                                          | Chunk 17                                              |
+| 7    | 20 Review and generated-notes export (done 2026-10-02; hand checks open)                                                                                                                                                                                                                                                                                                      | Chunk 17                                              |
 | 8    | 21 v2.0 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.0 chunk                                      |
 | 9    | 22 Played-notes MIDI encoding · 24 Settings-mutation engine (blocked in part)                                                                                                                                                                                                                                                                                                 | Chunks 4, 7, 8, 9 and 19; may start before v2.0 ships |
 | 10   | 23 Review: played notes (blocked) · 25 Settings-mutation control (blocked)                                                                                                                                                                                                                                                                                                    | Wave 9, v2.0, and their designs                       |
@@ -2043,7 +2043,47 @@ notes, MIDI; played notes, lining up), item 12.
 
 ### Chunk 20 — Review and generated-notes export
 
-**Release:** v2.0.
+**Release:** v2.0. **Done on 2026-10-02** on branch `v2-chunk-20` (not merged). A session ended
+once phrase 1 has sounded opens the last-session Review in the staff area's place: every phrase
+that started sounding, in order, engraved from its stored timeline with its number and tempo. A
+phrase only ever drawn as read-ahead is absent, a repeat looks like any phrase, and no played note
+is shown. Engraving is lazy, a window around what is in view, so a 2 000-phrase history stays
+responsive: the reference measurement of 2026-10-02 opens it in 157 ms alone and 337 ms during the
+full `test:e2e` run
+([`docs/generation-latency.md`](../../../docs/generation-latency.md#last-session-review-chunk-20)),
+a reference that never gates. `Close review` leaves it, the `review-link` reopens it, and the next
+session start discards it without confirmation; a reload discards everything. While the Review
+shows, neither a click nor a note starts a session and no starting note is named. A fresh phrase
+is generated at every end once phrase 1 has sounded; the next session's phrase 1 is the phrase on
+screen at Idle. The generated-notes export lets the player pick MusicXML or MIDI (the backing track
+for MIDI off by default) and gives exactly one browser download, the same bytes when repeated, with
+no played note; the encoders load lazily in their own chunk, and any failure shows
+`review-export-error`. A network and storage spy across a MIDI session with played notes, the
+Review and every export sees no request and no write (item 13). One fix came from the e2e specs: a
+session ended by turning to portrait made the fresh phrase a notation error; now, in the fresh run
+only, a staff not laid out counts as no room (ux D152). Design details settled during the build
+are ux D149–D153 ([`ui_ux/decisions.md`](../../../ui_ux/decisions.md)). The entry chunk went from
+210,760 B to 217,837 B; the budget stays at 229,376 B. `npm run quality` passes: 4,406 unit tests
+in 250 files, 278 `test:e2e`, 43 `test:a11y` and 77 `test:notation` tests (plus 3 calibration
+skips). Atoms: `module_idle_fit_round`, `module_session_rolling_display` and
+`service_workspace_session_flow` are revised, the interim end after phrase 1 removed; `atd:lint`
+and `atd:check` pass. Still open, for the owner: the hand checks of the fourth Done-when item,
+MuseScore opening the three MusicXML templates (the B♭ tenor and E♭ alto saxophones with
+`<transpose>`, the C keyboard without) and a MIDI tool opening the MIDI files (tempo map,
+markers). The files are in `tests/fixtures/export-hand-check/`; the checklist and results table
+are in [`docs/export.md`](../../../docs/export.md#hand-check). No atom's status was advanced:
+`req_session_export` and the two generated-notes export rules wait for those checks.
+
+**Progress:**
+
+| Step               | State | Notes                                                                                                                                                                                    |
+| ------------------ | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. ATD preflight   | Done  | PROCEED; one non-blocking finding: master spec §7's barline wording, corrected as D171                                                                                                   |
+| 2. Tests first     | Done  | Unit specs for the Review state, its host and navigation, the export and the download; Playwright specs for the Review, the export and privacy                                           |
+| 3. Implement       | Done  | The Review, `Close review` and the review link, the fresh phrase at the session end, the lazy export and the download, and the harness seams                                             |
+| 4. Verify          | Done  | `npm run quality` passes; the MuseScore and MIDI-tool hand checks are still open, for the owner                                                                                          |
+| 5. Documents       | Done  | `docs/export.md`, `docs/generation-latency.md`, `docs/session-engine.md`, `docs/notation-engraving.md`, `docs/phrase-workspace.md`, `docs/audio-transport.md`, `docs/testing.md`, README |
+| 6. ATD stewardship | Done  | Tags checked; three atoms revised; status advances await the owner and the hand checks                                                                                                   |
 
 **Goal.** The last-session review: every phrase that sounded, in order, engraved as it was shown,
 with its number and tempo. The generated-notes export action, MusicXML or MIDI, as a browser

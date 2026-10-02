@@ -24,6 +24,12 @@ export default defineConfig({
       '@/notation/vexflow-engraver-loader': fileURLToPath(
         new URL('./tests/e2e/workspace-harness/vexflow-engraver-loader-seam.ts', import.meta.url),
       ),
+      // The harness-only substitute for the Review's lazy export loader: the real load, with the
+      // loaded module's file builder counted and able to fail once when armed (see
+      // export-loader-seam.ts), so `failNextExport()` shows the Review's real export error.
+      '@/export/load-generated-notes-export': fileURLToPath(
+        new URL('./tests/e2e/workspace-harness/export-loader-seam.ts', import.meta.url),
+      ),
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },

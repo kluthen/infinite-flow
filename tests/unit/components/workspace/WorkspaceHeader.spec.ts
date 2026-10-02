@@ -11,7 +11,9 @@ import {
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
 import type { ControllerStatusForm } from '@/midi/controller-status'
+import { createSessionHistory } from '@/session/session-history'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
+import { fixedWallClock, sessionSettings } from '../../session/session-harness'
 import { createFakeSessionController } from './fake-session-controller'
 
 const UNSUPPORTED_CONTROLS: GenerationControls = {
@@ -37,6 +39,7 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
     retryNotation: vi.fn(async () => true),
     reportNotationFailure: vi.fn(() => true),
     reportNotationRecovered: vi.fn(() => true),
+    startFreshPhrase: vi.fn(async () => true),
   }
   const session: GenerationSession<WorkspaceSessionResult> = {
     state: {
@@ -328,17 +331,20 @@ describe('WorkspaceHeader session action', () => {
     expect(primaryButton(wrapper).classes()).not.toContain('btn-primary')
   })
 
-  it('keeps Start session disabled over the phrase the last session played (interim)', () => {
+  // @test-link [[req_last_session_review]]
+  it('gives the session action the primary emphasis while the Review shows', () => {
     const controller = createFakeSessionController({
       canStart: false,
-      startBlocker: 'phrase_already_played',
+      startBlocker: 'review_showing',
     })
+    controller.state.review = {
+      history: createSessionHistory(sessionSettings(), fixedWallClock),
+      showing: true,
+    }
     const wrapper = mountHeader(fakeSession(READY).session, controller.controller)
 
-    expect(sessionAction(wrapper).attributes('disabled')).toBeDefined()
-    expect(sessionAction(wrapper).classes()).not.toContain('btn-primary')
-    expect(primaryButton(wrapper).classes()).toContain('btn-primary')
-    expect(primaryButton(wrapper).attributes('disabled')).toBeUndefined()
+    expect(sessionAction(wrapper).classes()).toContain('btn-primary')
+    expect(primaryButton(wrapper).classes()).not.toContain('btn-primary')
   })
 
   it('asks for a session start on a click, and for nothing while disabled', async () => {

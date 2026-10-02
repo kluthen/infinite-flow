@@ -18,6 +18,9 @@ import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
 import { themeMixTokens, transportRig } from '../../audio/transport-rig'
 import { createControllerRig } from '../../midi/midi-controller-rig'
 
+// A session end once phrase 1 has sounded opens the Review: its lazy panel is swapped for a stand-in.
+vi.mock('@/components/review/ReviewPanel.vue', () => import('./review-panel-stub'))
+
 const MOUNT_OPTIONS = { global: { stubs: { PhraseScore: PHRASE_SCORE_STUB } } }
 
 /** Intent: build a fake session double whose state/actions a test can override piecemeal. */
@@ -36,6 +39,7 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
     retryNotation: vi.fn(async () => true),
     reportNotationFailure: vi.fn(() => true),
     reportNotationRecovered: vi.fn(() => true),
+    startFreshPhrase: vi.fn(async () => true),
   }
   const session: GenerationSession<WorkspaceSessionResult> = {
     state: {
@@ -378,7 +382,8 @@ describe('WorkspaceShell session', () => {
   })
 
   // @test-link [[rule_stop_ends_session]]
-  it('moves focus to the phrase action once phrase 1 has sounded (interim)', async () => {
+  // @test-link [[req_last_session_review]]
+  it('moves focus to the session action, which closes the Review, once phrase 1 has sounded', async () => {
     const fake = createFakeSessionController()
     const wrapper = mountShell(fakeSession(READY).session, fake.controller)
     fake.start()
@@ -389,7 +394,7 @@ describe('WorkspaceShell session', () => {
     await nextTick()
     await nextTick()
 
-    expect(document.activeElement).toBe(phraseAction(wrapper).element)
+    expect(document.activeElement).toBe(sessionAction(wrapper).element)
   })
 
   /**
@@ -412,32 +417,50 @@ describe('WorkspaceShell session', () => {
 
   // @test-link [[rule_count_in_ending_returns_to_idle]]
   // @test-link [[rule_session_ends_when_staff_too_small]]
-  it.each(['count-in', 'running'] as const)(
-    'moves focus to room-notice when Needs more room lands after a window end in the %s',
-    async (phase) => {
-      const fake = createFakeSessionController()
-      const live = liveReadySession()
-      const wrapper = mountShell(live.session, fake.controller)
-      fake.start()
-      if (phase === 'running') fake.state.phase = 'running'
-      await nextTick()
+  it('moves focus to room-notice when Needs more room lands after a window end in the count-in', async () => {
+    const fake = createFakeSessionController()
+    const live = liveReadySession()
+    const wrapper = mountShell(live.session, fake.controller)
+    fake.start()
+    await nextTick()
 
-      endForWindow(fake)
-      await nextTick()
-      await nextTick()
-      const firstTarget = phase === 'running' ? phraseAction(wrapper) : sessionAction(wrapper)
-      expect(document.activeElement).toBe(firstTarget.element)
+    endForWindow(fake)
+    await nextTick()
+    await nextTick()
+    expect(document.activeElement).toBe(sessionAction(wrapper).element)
 
-      // The staff re-engraves at the new size after the end, and finds no room there.
-      live.state.roomNotice = 'no_room'
-      live.state.result = null
-      live.state.resultEngraved = false
-      await nextTick()
-      await nextTick()
+    // The staff re-engraves at the new size after the end, and finds no room there.
+    live.state.roomNotice = 'no_room'
+    live.state.result = null
+    live.state.resultEngraved = false
+    await nextTick()
+    await nextTick()
 
-      expect(document.activeElement).toBe(wrapper.get('.room-notice').element)
-    },
-  )
+    expect(document.activeElement).toBe(wrapper.get('.room-notice').element)
+  })
+
+  // @test-link [[req_last_session_review]]
+  it('leaves focus on the session action when Needs more room lands after a window end once phrase 1 has sounded', async () => {
+    const fake = createFakeSessionController()
+    const live = liveReadySession()
+    const wrapper = mountShell(live.session, fake.controller)
+    fake.start()
+    fake.state.phase = 'running'
+    await nextTick()
+
+    endForWindow(fake)
+    await nextTick()
+    await nextTick()
+    expect(document.activeElement).toBe(sessionAction(wrapper).element)
+
+    live.state.roomNotice = 'no_room'
+    live.state.result = null
+    live.state.resultEngraved = false
+    await nextTick()
+    await nextTick()
+
+    expect(document.activeElement).toBe(sessionAction(wrapper).element)
+  })
 
   // @test-link [[rule_count_in_ending_returns_to_idle]]
   // @test-link [[rule_session_ends_when_staff_too_small]]

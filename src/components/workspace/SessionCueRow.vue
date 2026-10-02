@@ -7,7 +7,10 @@
  * session controller), then the struggling notice, then the starting-note line. Below
  * bp-tablet-landscape, from a session's start to its end, `session-cue-actions` sits at its
  * trailing end: a compact `Stop` and the phone's `Volume`; the stylesheet shows them only there.
- * It is not a live region and nothing in it is announced; its content changes with no animation.
+ * At Idle, while the last session's Review is kept but not showing, `review-link` sits at the
+ * trailing end instead, beside the starting-note line or alone; it asks the shell to show the
+ * Review again. It is not a live region and nothing in it is announced; its content changes with
+ * no animation.
  */
 import { computed } from 'vue'
 
@@ -26,6 +29,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   /** The compact `Stop` was clicked: it does exactly what the header's `Stop` does. */
   stop: []
+  /** `Review last session` was clicked; the shell shows the Review and moves focus. */
+  'show-review': []
 }>()
 
 /** Intent: whether a session runs, count-in included. */
@@ -51,6 +56,20 @@ const strugglingNotice = computed(() => props.controller?.state.strugglingNotice
 // @spec-link [[rule_starting_note_named]]
 // @spec-link [[rule_midi_starting_note]]
 const startingNote = computed(() => props.controller?.state.startingNote ?? null)
+
+/**
+ * Intent: whether `review-link` is offered: at Idle, while a Review is kept and not showing. A
+ * start discards the Review, which removes it.
+ */
+// @spec-link [[req_last_session_review]]
+// @spec-link [[rule_new_session_discards_review]]
+const reviewKept = computed(
+  () =>
+    !sessionActive.value &&
+    props.controller !== null &&
+    props.controller.state.review !== null &&
+    !props.controller.state.review.showing,
+)
 </script>
 
 <template>
@@ -84,5 +103,13 @@ const startingNote = computed(() => props.controller?.state.startingNote ?? null
       <button type="button" class="btn btn-primary" @click="emit('stop')">Stop</button>
       <MixVolumeButton :popover="mixPopover" opener="compact" :audio="audio" />
     </div>
+    <button
+      v-else-if="reviewKept"
+      type="button"
+      class="btn review-link"
+      @click="emit('show-review')"
+    >
+      Review last session
+    </button>
   </div>
 </template>

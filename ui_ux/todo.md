@@ -388,7 +388,14 @@ three passes, confirmed by the user, committed 2026-09-27. Next, in this order:
    follows in the atoms, then the `ux-critic` pass the coordinator runs. **D145 (same day)**: the
    controls stay usable while the Review shows (spec D170 found D144 hid them against §5, §6,
    §10); the Review takes only the staff area's place. Build-plan chunk 20 can start from
-   these handoffs meanwhile.
+   these handoffs meanwhile. **D149 (2026-10-02, chunk 20 build):** `staff-viewport` stays laid
+   out while the Review shows (`is-out-of-sight` + `inert`, not `hidden`), plus six build
+   details (re-show scroll, lazy-engraving distances, review engraving width, silence, export
+   failure, live no-room); handoffs and token source updated. **D150–D153 (2026-10-02, settled
+   during the chunk 20 build, recorded):** live regions emptied at open and focus details
+   (D150), the Review's code loading and the export choices' page-session lifetime (D151), a
+   portrait session end's fresh phrase via the no-room path (D152), the phone's minimal Review
+   confirmed (D153); handoffs updated.
 
 **ux-critic plan read (2026-09-27), to weigh before continuing:**
 

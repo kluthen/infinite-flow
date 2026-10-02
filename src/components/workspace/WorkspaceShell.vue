@@ -10,7 +10,8 @@
  * locked while a session runs, and where focus goes when it ends. It also hosts the controller
  * connection: the header `controller-status` it feeds, the click that opens the lazily loaded
  * connection sheet, whether the sheet is open (reported to the workspace as it changes), and where
- * focus goes when the sheet closes.
+ * focus goes when the sheet closes. It also runs the last session's Review from the screen: `Close
+ * review` and `Review last session`, each scrolling the page to its top and moving focus.
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -32,10 +33,15 @@ import ScorePanel from './ScorePanel.vue'
 import OrientationNotice from './OrientationNotice.vue'
 import { createMixVolumePopover } from './mix-volume-popover'
 import { jumpForSessionStart, type SessionJumpView } from './session-start-jump'
-import { awaitsLateRoomNotice, sessionEndFocusTarget } from './session-end-focus'
+import {
+  awaitsLateRoomNotice,
+  sessionEndFocusTarget,
+  type SessionEndFocusTarget,
+} from './session-end-focus'
 import type { SessionController } from './workspace-session-controller-types'
 import { useConnectionSheet } from './use-connection-sheet'
 import { useControllerStatus } from './use-controller-status'
+import { useReviewNavigation } from './use-review-navigation'
 
 const props = withDefaults(
   defineProps<{
@@ -53,13 +59,17 @@ const props = withDefaults(
     controller: SessionController | null
     /** How the start's jump scrolls and measures the window; the window itself by default. */
     jumpView?: SessionJumpView
+    /** Scroll the page instantly to its top (leaving or reopening the Review); the window's own by default. */
+    scrollToPageTop?: () => void
   }>(),
-  // Default: the window's own instant scroll, measured against the layout viewport's height.
   {
+    // Default: the window's own instant scroll, measured against the layout viewport's height.
     jumpView: () => ({
       scrollBy: (options: Parameters<SessionJumpView['scrollBy']>[0]) => window.scrollBy(options),
       viewportBlockSize: () => document.documentElement.clientHeight,
     }),
+    // Default: the window's own instant scroll to its top (a function prop's default is itself).
+    scrollToPageTop: () => window.scrollTo({ top: 0, behavior: 'instant' }),
   },
 )
 
@@ -222,6 +232,15 @@ function focusParts(): {
   return { header: header.value, scorePanel: scorePanel.value }
 }
 
+/** Intent: move focus to the element a focus target names, in the mounted header or score panel. */
+function focusTarget(target: SessionEndFocusTarget): void {
+  const parts = focusParts()
+  if (target === 'room-notice') parts.scorePanel.focusRoomNotice()
+  else if (target === 'phrase-action') parts.header.focusPhraseAction()
+  else if (target === 'controller-status') parts.header.focusControllerStatus()
+  else parts.header.focusSessionAction()
+}
+
 /**
  * Intent: move focus where the session's end sends it, once the Idle rules have applied and the
  * screen shows the state they reached (called after the render, so the Idle state read here is
@@ -233,11 +252,7 @@ function focusAfterSessionEnd(): void {
   const end = requireController().state.lastEnd
   if (end === null) throw new Error('workspace shell: a session ended with no end summary')
   const target = sessionEndFocusTarget(end, state.value)
-  const parts = focusParts()
-  if (target === 'room-notice') parts.scorePanel.focusRoomNotice()
-  else if (target === 'phrase-action') parts.header.focusPhraseAction()
-  else if (target === 'controller-status') parts.header.focusControllerStatus()
-  else parts.header.focusSessionAction()
+  focusTarget(target)
   lateRoomNoticeFrom = awaitsLateRoomNotice(end, target) ? document.activeElement : null
 }
 
@@ -303,6 +318,17 @@ onBeforeUnmount(() => {
   stopSheetCloseFocusWatch()
 })
 
+// The Review's moves: `Close review`, `Review last session`, and a start from a focused review-link.
+const reviewNavigation = useReviewNavigation({
+  controller: requireController,
+  idle: () => state.value,
+  sessionActive: () => sessionActive.value,
+  header: () => focusParts().header,
+  scrollToPageTop: () => props.scrollToPageTop(),
+  focusReviewTitle: () => focusParts().scorePanel.focusReviewTitle(),
+  focusTarget,
+})
+
 /** Intent: an Idle operation starting settles the end's landing: no late notice takes focus. */
 watch(
   () => state.value.operation,
@@ -339,6 +365,7 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
       :controller-status="controllerStatus.form.value"
       @start-session="handleStartSession"
       @stop-session="handleStopSession"
+      @close-review="reviewNavigation.closeReview"
       @open-connection-sheet="openConnectionSheet"
     />
     <div class="layout-workspace">
@@ -354,6 +381,7 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         :mix-popover="mixPopover"
         :controller="controller"
         @stop-session="handleStopSession"
+        @show-review="reviewNavigation.showReview"
       />
       <ControlPanel
         :controls="state.controls"

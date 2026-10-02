@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.28
+Status: draft v0.29
 
 ## Status Snapshot
 
@@ -177,7 +177,11 @@ Status: draft v0.28
   Review shows, no session starts, by the Start click or any note, the starting note included;
   the player leaves it first. Leaving keeps it reachable until the next session starts, and only
   that start discards it. The fresh phrase at the session end stands. Nothing newly opened. The
-  v2 master spec is now v1.24.
+  v2 master spec became v1.24.
+- **The MusicXML export's last barline (2026-10-02, D171)**: a correction found by the chunk 20
+  preflight. Master spec §7 now says what the owner decided on 2026-09-29 and the encoder does:
+  every phrase but the last ends with a double barline, the last with a final barline. No new
+  rule; nothing newly opened. The v2 master spec is now v1.25.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.
@@ -207,7 +211,7 @@ Status: draft v0.28
   reattached during it, and it reattaches by itself once the session ends; a controller lost
   mid-session and still away at the end keeps its selection into the Review. The selection lives
   in memory only and does not survive a page reload (v2 saves nothing to browser storage). The
-  master spec was then at v1.5 (v1.24 since D170). The one gap left open then (**O84**: starting
+  master spec was then at v1.5 (v1.25 since D171). The one gap left open then (**O84**: starting
   a session from the Review) was closed 2026-09-30 (D169).
 - **Open:** 13 questions remain live: O86 (D129, a v3 question since D130), O87
   (D131), O93 (D150), O98 and O99 (D157–D163), plus the 8

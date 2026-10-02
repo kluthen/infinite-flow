@@ -5,7 +5,8 @@ priority: 1
 human_name: New Session Discards the Review Without Asking
 parents:
   - [[req_last_session_review]]
-dependents: []
+dependents:
+  - [[service_workspace_session_flow]]
 layer: BUSINESS
 version: 0.3
 tags: [v2, release-v2.0, review, session-start]

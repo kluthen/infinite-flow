@@ -89,7 +89,9 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   [`docs/notation-engraving.md`](docs/notation-engraving.md)).
 - `src/export/` — pure, browser-free encoders that turn a session's phrases into the bytes of one
   export file; `musicxml/` holds the generated-notes MusicXML encoder, `midi/` the generated-notes
-  MIDI encoder. See [`docs/export.md`](docs/export.md).
+  MIDI encoder; `generated-notes-file.ts` builds the one file the Review downloads (loaded on
+  demand through `load-generated-notes-export.ts`), and `browser-download.ts` hands it to the
+  browser. See [`docs/export.md`](docs/export.md).
 - `src/session/` — the session engine: pure, deterministic, Vue/browser-free logic that turns a
   running session's timed events (audio time in seconds, carried on each event, never read from a
   clock) into generation requests, fit checks, read-ahead phrases, the struggling notice and the
@@ -121,7 +123,10 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   included (see [`docs/phrase-workspace.md`](docs/phrase-workspace.md));
   `src/components/controller-connection/` holds the connection sheet, loaded as its own chunk
   (`load-connection-sheet.ts` is its sole importer), with its pure reducer, its view data and the
-  check note (see [`docs/controller-connection.md`](docs/controller-connection.md)).
+  check note (see [`docs/controller-connection.md`](docs/controller-connection.md));
+  `src/components/review/` holds the last session's Review, loaded as its own chunk
+  (`load-review-panel.ts` is its sole importer), with its lazy-engraving scheduler (see
+  [The last-session Review](docs/phrase-workspace.md#the-last-session-review)).
 - `src/styles/` — the production Tailwind 4 styling authority (`theme.css`, `components.css`,
   `index.css`, `fonts.css`), consumed by application code; `ui_ux/versions/v1/ui_common.css` is a frozen design
   reference, not buildable production styling.
@@ -137,6 +142,9 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   schema (with an XML catalog for offline validation); see [`docs/testing.md`](docs/testing.md).
 - `tests/fixtures/midi/` — the generated-notes MIDI export's golden files; see
   [`docs/testing.md`](docs/testing.md).
+- `tests/fixtures/export-hand-check/` — the generated-notes files of one seeded session, exactly as
+  the app downloads them, for the owner's hand check in MuseScore and a MIDI tool; see
+  [Hand check](docs/export.md#hand-check).
 - `tests/e2e/{workspace,release,session,controller,workspace-harness}` — Playwright suites:
   `workspace/` exercises the production preview build directly; `release/` exercises
   release-readiness journeys (determinism, errors/retry, concurrency, profile switch, theme
@@ -222,6 +230,7 @@ UI (Vue components, props-in/events-out)
       -> domain orchestration: harmony -> rhythm -> pitch -> validation
     -> session controller (Start/Stop, the audio-time agenda, screen locks, every end)
       -> session engine (src/session/: pure timed-event engine; its runner uses the same Worker)
+      -> last-session Review (lazy panel) -> export (lazy encoders) -> one browser download
     -> audio transport (src/audio/: the one AudioContext, look-ahead scheduler, click, backing, mix)
       -> backing renderer (src/domain/backing/: harmony -> bass and chord notes)
     -> MIDI input (src/midi/: one controller, played notes on the audio clock)
@@ -268,7 +277,9 @@ UI (Vue components, props-in/events-out)
   look-ahead phrase checked against the layout held for the session before it is accepted (a
   misfit is a failed attempt), and the playhead band steps from measure to measure on the heard
   audio clock. A window change that leaves a phrase shown or waiting unable to fit ends the
-  session like Stop. The Review is still to come. See
+  session like Stop. An end once phrase 1 has sounded opens the last session's Review in the
+  staff's place, every phrase that sounded engraved as it was shown, while a fresh phrase 1 is
+  generated behind it; no session starts while it shows, and the next start discards it. See
   [`docs/session-engine.md`](docs/session-engine.md#the-session-controller) and
   [`docs/phrase-workspace.md`](docs/phrase-workspace.md#the-session-screen).
 - **Audio transport.** `src/audio/` holds the app's one `AudioContext`, created only by `unlock()`
@@ -349,8 +360,11 @@ UI (Vue components, props-in/events-out)
   the same phrases, each with its number, its concert timeline and its tempo, plus the backing's
   notes when asked, into one type 1 Standard MIDI File at 960 MIDI ticks per quarter note: a
   conductor track (tempo map, one marker per phrase), the generated line at concert pitch, and the
-  optional backing track, whose notes `renderBacking` gives. Both are pure functions with no
-  caller yet: the Review screen and the download come later. See
+  optional backing track, whose notes `renderBacking` gives. Both are pure functions. The
+  Review's `Export generated notes` action builds one file from the session history, MusicXML or
+  MIDI (with the backing track only when asked, off by default), loads the export code on the
+  first export, and hands the file to the browser as one download named after the session's start;
+  the same session always gives the same bytes, and nothing is sent or stored. See
   [`docs/export.md`](docs/export.md).
 
 See [`specs/generator-architecture.md`](specs/generator-architecture.md) for the full seam-by-seam

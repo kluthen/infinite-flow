@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  phraseActionDisabled,
   primaryHeaderAction,
   type HeaderActionFacts,
+  type PhraseActionFacts,
 } from '@/components/workspace/session-action-policy'
 
 /** Ready: a phrase shown, nothing running, no error, no notice, no session. */
@@ -13,7 +15,7 @@ const READY: HeaderActionFacts = {
   notationErrorShown: false,
   roomNoticeShown: false,
   phraseShown: true,
-  phrasePlayedByLastSession: false,
+  reviewShowing: false,
 }
 
 // @test-link [[rule_session_start_conditions]]
@@ -38,12 +40,41 @@ describe('primaryHeaderAction (the handoff action table)', () => {
       'phrase',
     ],
     ['a session running', { sessionActive: true }, 'session'],
+    ['the Review showing over Ready', { reviewShowing: true }, 'session'],
+    ['the Review showing over Empty', { reviewShowing: true, phraseShown: false }, 'session'],
     [
-      'the phrase the last session played (interim D-A)',
-      { phrasePlayedByLastSession: true },
-      'phrase',
+      'the Review showing over a generation-failure banner',
+      { reviewShowing: true, phraseShown: false, generationErrorShown: true },
+      'session',
+    ],
+    [
+      'the Review showing over a notation error',
+      { reviewShowing: true, notationErrorShown: true },
+      'session',
     ],
   ])('%s (%o): the %s action carries the primary emphasis', (_state, facts, expected) => {
     expect(primaryHeaderAction({ ...READY, ...facts })).toBe(expected)
+  })
+})
+
+/** The phrase action's facts at Ready: nothing running, a supported rhythm, no session, no Review. */
+const PHRASE_READY: PhraseActionFacts = {
+  operationRunning: false,
+  blockedByUnsupportedRhythm: false,
+  sessionActive: false,
+  reviewShowing: false,
+}
+
+// @test-link [[req_last_session_review]]
+// @test-link [[rule_session_settings_locked]]
+describe('phraseActionDisabled', () => {
+  it.each<[string, Partial<PhraseActionFacts>, boolean]>([
+    ['Ready', {}, false],
+    ['an operation running', { operationRunning: true }, true],
+    ['an unsupported rhythm', { blockedByUnsupportedRhythm: true }, true],
+    ['a session running', { sessionActive: true }, true],
+    ['the Review showing', { reviewShowing: true }, true],
+  ])('%s (%o): disabled is %s', (_state, facts, expected) => {
+    expect(phraseActionDisabled({ ...PHRASE_READY, ...facts })).toBe(expected)
   })
 })

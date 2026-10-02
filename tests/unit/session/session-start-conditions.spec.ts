@@ -1,8 +1,8 @@
 /**
  * The start conditions at Idle: a phrase shown, no Idle generation running, no notation error, no
  * generation-failure banner, a supported rhythm combination, the staff shown (no rotate-device
- * notice, no room notice), no session running, and (interim decision D-A) a phrase the last
- * session did not play. No MIDI fact is an input.
+ * notice, no room notice), no session running, and the last session's Review not showing. No MIDI
+ * fact is an input.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -24,7 +24,7 @@ const READY: SessionStartFacts = {
   orientationNoticeShown: false,
   roomNoticeShown: false,
   sessionActive: false,
-  phrasePlayedByLastSession: false,
+  reviewShowing: false,
 }
 
 // @test-link [[rule_session_start_conditions]]
@@ -48,11 +48,7 @@ describe('when a session can start', () => {
     ['the rotate-device notice shows', { orientationNoticeShown: true }, 'orientation_notice'],
     ['the room notice shows', { roomNoticeShown: true }, 'room_notice'],
     ['a session is already running', { sessionActive: true }, 'session_active'],
-    [
-      'the last session played the phrase on screen',
-      { phrasePlayedByLastSession: true },
-      'phrase_already_played',
-    ],
+    ["the last session's Review shows", { reviewShowing: true }, 'review_showing'],
   ]
 
   for (const [condition, change, blocker] of blocking) {
@@ -63,6 +59,21 @@ describe('when a session can start', () => {
       expect(canStartSession(facts)).toBe(false)
     })
   }
+
+  // @test-link [[rule_session_start_conditions]]
+  // @test-link [[req_last_session_review]]
+  it('names the Review right after a running session, before every Idle condition', () => {
+    const everyIdleBlocker: SessionStartFacts = {
+      ...READY,
+      reviewShowing: true,
+      phraseShown: false,
+      generationRunning: true,
+      roomNoticeShown: true,
+      orientationNoticeShown: true,
+    }
+    expect(sessionStartBlocker(everyIdleBlocker)).toBe('review_showing')
+    expect(sessionStartBlocker({ ...everyIdleBlocker, sessionActive: true })).toBe('session_active')
+  })
 
   // @test-link [[rule_session_start_conditions]]
   it('does not start while a generation runs under a failure banner with the old phrase shown', () => {

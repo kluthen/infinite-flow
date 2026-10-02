@@ -6,7 +6,9 @@ canonical-rhythm-domain memo) versus warm (memo hit), and the signed-off latency
 numbers are checked against. It also records the first generation after a change to one setting,
 and the longest main-thread task while a phrase is engraved. The timing of a running session's
 rolling display (the playhead band against the heard barline, and the main thread at 240 BPM) is in
-[Rolling display (chunk 16)](#rolling-display-chunk-16). The newest generation figures are in
+[Rolling display (chunk 16)](#rolling-display-chunk-16), and a 2 000-phrase last-session Review's
+opening and closing in [Last-session Review (chunk 20)](#last-session-review-chunk-20). The newest
+generation figures are in
 [Validator-free fast enumeration on the reference machine (2026-09-30)](#validator-free-fast-enumeration-on-the-reference-machine-2026-09-30),
 after the [cold-generation speed-up](#cold-generation-speed-up-on-the-reference-machine-2026-09-30);
 the verdicts that gate the build plan were set in
@@ -219,6 +221,45 @@ settle; the first is how the build plan's bullet reads ("the playhead band's mea
 the longest timer wait was 42.6 ms, about 157 ms inside the window. Limits: one desktop machine, a
 headless Chromium at 1× device pixel ratio, no controller (no MIDI or acknowledgement work), and
 audio muted by Playwright's `--mute-audio`.
+
+## Last-session Review (chunk 20)
+
+A reference measurement of a 2 000-phrase last-session Review (about 2 h 15 min of session at
+60 BPM) opening, closing and reopening in Chromium. It is a reference only: no figure is asserted,
+and performance never gates.
+
+**Machine and date.** Measured on 2026-10-02, on branch `v2-chunk-20` (`main` at `a48295d` plus
+chunk 20's uncommitted work), on the reference machine described in
+[Rolling display (chunk 16)](#rolling-display-chunk-16), in the Playwright 1.63.0 headless
+Chromium.
+
+**Method.** `tests/e2e/review/review-long.spec.ts`, a correctness spec in `test:e2e` that logs
+these figures on the side (see [The Review specs](testing.md#the-review-specs)), on the workspace
+harness's fake audio clock at a desktop window of 1280 × 800. The history the Review reads is
+inflated to 2 000 phrases with `session.inflateHistory`; the session plays until phrase 1 sounds,
+then `Stop` opens the Review. The open, close and reopen times run from the click, stamped in the
+page, to the first animation frame showing the result (for an open, all 2 000 items with phrase 1
+engraved), on `performance.now()`. The longest task comes from the shared `longtask` probe; the
+task, script, layout and style times, the JS heap and the DOM node count from Chromium's
+`Performance.getMetrics`, through the DevTools protocol. The spec was run alone, then as part of
+the full `test:e2e` run.
+
+| Figure                                                | Run alone | During the full `test:e2e` run |
+| ----------------------------------------------------- | --------- | ------------------------------ |
+| Open: `Stop` click to all 2 000 items, phrase 1 drawn | 157 ms    | 337 ms                         |
+| Longest main-thread task while opening                | 114 ms    | 242 ms                         |
+| Task time while opening (`TaskDuration`)              | 202 ms    | 444 ms                         |
+| Script time while opening (`ScriptDuration`)          | 5 ms      | 6 ms                           |
+| Layout time while opening (`LayoutDuration`)          | 65 ms     | 130 ms                         |
+| Style time while opening (`RecalcStyleDuration`)      | 23 ms     | 47 ms                          |
+| JS heap, settled                                      | 26.6 MiB  | 26.6 MiB                       |
+| DOM nodes, settled                                    | 21 625    | 21 624                         |
+| `Close review`                                        | 17 ms     | 34 ms                          |
+| `Review last session` (reopen)                        | 117 ms    | 235 ms                         |
+
+The lazy window engraved 6 phrases at the top of the list and 7 at its end. With three
+Playwright workers running other specs alongside it, the open took 208-260 ms and the longest
+task while opening 160-193 ms.
 
 ## Validator-free fast enumeration on the reference machine (2026-09-30)
 

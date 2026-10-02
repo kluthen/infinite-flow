@@ -6,8 +6,8 @@ deadlines, the failure ladder, the struggling-generator notice, the settings loc
 step-down, how tempo stays out of generation, the runner that connects the engine to the app's one
 generation Worker, the session history that records every phrase that sounded and the notes the
 player played, the session controller that runs a session on the workspace from the Start click
-(or the starting note) to its end, with its MIDI side, what later chunks add, and the choices made
-while building it.
+(or the starting note) to its end, with its MIDI side and the Review that opens at the end, what
+later chunks add, and the choices made while building it.
 
 A session plays one [phrase](music/lexicon.md#phrase) after another without stopping. Phrase 1 is
 the phrase already on screen at Idle. While a phrase sounds, the next one is generated and shown
@@ -215,9 +215,10 @@ warm reuse of the memo is unchanged.
 ## Session history
 
 `createSessionHistory(settings, wallClock)` in `src/session/session-history.ts` keeps an in-memory
-record of every phrase of one session that started sounding. The Review screen and the exports will
-be built from it. It never reads the system time, uses no browser API and stores nothing outside
-memory. The session controller creates one at each start (see
+record of every phrase of one session that started sounding. The Review and the exports are built
+from it (see [The end once phrase 1 has sounded](#the-end-once-phrase-1-has-sounded) and
+[`docs/export.md`](export.md)). It never reads the system time, uses no browser API and stores
+nothing outside memory. The session controller creates one at each start (see
 [The session controller](#the-session-controller)).
 
 `settings` are the session's locked settings, the same the engine got at start. The history takes
@@ -301,8 +302,9 @@ matrix of real sessions (see [Determinism](testing.md#determinism)).
 
 Only those fields travel. The repeat mark never does, so a repeat encodes exactly like any other
 phrase. Both throw a typed `SessionHistoryExportError` on an empty history, which has nothing to
-export, and on records generated for two different instruments. Nothing calls them yet: the export
-action arrives with the Review (chunk 20).
+export, and on records generated for two different instruments. The Review's export action calls
+them through `buildGeneratedNotesFile` (see
+[From the Review to a download](export.md#from-the-review-to-a-download)).
 
 ### Outputs the history refuses
 
@@ -361,6 +363,7 @@ it (see [Session wiring](phrase-workspace.md#session-wiring)).
 | `canStart`, `startBlocker` | Whether `Start session` may be clicked, and the first start condition that fails (`null` when none does).                         |
 | `lastEnd`                  | How the last session ended: `cause`, `phase` (`'count-in'` or `'running'`) and `soundedPhraseCount`.                              |
 | `lastHistory`              | The closed history of the last session that ended.                                                                                |
+| `review`                   | The last session's Review, `{ history, showing }`, showing or kept; `null` when none exists.                                      |
 | `startingNote`             | The note that would start a session if played now (its identity, concert pitch and label); `null` unless one may start it.        |
 | `controllerLost`           | While a lost controller's countdown runs, `{ secondsLeft }`, 30 down to 1, count-in included; `null` otherwise.                   |
 | `acknowledged`             | The running session's acknowledged notes, in acknowledgement order; empty at Idle.                                                |
@@ -368,7 +371,10 @@ it (see [Session wiring](phrase-workspace.md#session-wiring)).
 
 `start()` throws a `SessionControllerError` while a start condition fails, and `stop()` when no
 session is running. `isPhraseOnScreen(n)` says whether any part of phrase `n` is on the staff
-now (`false` with no session); a phrase number that is not a positive integer throws. `dispose()`
+now (`false` with no session); a phrase number that is not a positive integer throws.
+`closeReview()` (`Close review`) and `showReview()` (`Review last session`) move the Review
+between showing and kept, and throw when asked out of turn (see
+[The end once phrase 1 has sounded](#the-end-once-phrase-1-has-sounded)). `dispose()`
 ends a running session with the `stop` cause, stops reading the window and listening to the MIDI
 controller, and frees the wake-up timer; `App.vue` calls it when it unmounts.
 
@@ -377,17 +383,18 @@ controller, and frees the wake-up timer; `App.vue` calls it when it unmounts.
 `sessionStartBlocker(facts)` checks, in this order, and returns the first that fails:
 
 1. no session running, count-in included (`session_active`);
-2. a phrase shown: an Idle result, engraved (`no_phrase`);
-3. no Idle generation running: Generate, Regenerate phrase, the fit retries, or a drawing in
+2. the last session's Review not showing (`review_showing`; see
+   [The end once phrase 1 has sounded](#the-end-once-phrase-1-has-sounded));
+3. a phrase shown: an Idle result, engraved (`no_phrase`);
+4. no Idle generation running: Generate, Regenerate phrase, the fit retries, or a drawing in
    progress (`generation_running`);
-4. no notation error (`notation_error`) and no generation-failure banner (`generation_failure`);
-5. a rhythm combination that can form a phrase (`rhythm_unsupported`);
-6. the staff shown: no rotate-device notice, that is no portrait-shaped window below `bp-desktop`
-   (`orientation_notice`), and no room notice (`room_notice`);
-7. a phrase the last session did not play (`phrase_already_played`; see
-   [The interim end after phrase 1 sounded](#the-interim-end-after-phrase-1-sounded)).
+5. no notation error (`notation_error`) and no generation-failure banner (`generation_failure`);
+6. a rhythm combination that can form a phrase (`rhythm_unsupported`);
+7. the staff shown: no rotate-device notice, that is no portrait-shaped window below `bp-desktop`
+   (`orientation_notice`), and no room notice (`room_notice`).
 
-No MIDI fact is an input, so no MIDI state ever blocks a start. The controller builds the facts
+A Review kept but not showing blocks nothing. No MIDI fact is an input, so no MIDI state ever
+blocks a start. The controller builds the facts
 from the Idle state and from the window's shape, which it reads from its creation until `dispose`.
 
 ### Starting
@@ -395,7 +402,9 @@ from the Idle state and from the window's shape, which it reads from its creatio
 `start()` runs synchronously inside the Start click, because a browser opens audio and grants
 screen locks only from the player's own gesture. Playing the starting note takes the very same
 `start()`, from the MIDI note's callback (see [The starting note](#the-starting-note)); the audio
-was already unlocked then by the `Connect controller` click. In order, it:
+was already unlocked then by the `Connect controller` click. A start that a condition blocks throws
+and touches nothing. An accepted start first discards the kept Review, if any, before anything
+else changes. Then, in order, it:
 
 1. unlocks the audio, asks for the screen wake lock and the landscape orientation lock without
    waiting for their answers (a refused or unsupported lock changes nothing and shows nothing),
@@ -630,8 +639,11 @@ emptied, the wake-up timer stopped, the display's frame loop stopped, the transp
 its 0.1 s fade (unless an interruption has already halted it), both screen locks released, the
 state back to Idle (`sessionStaff` back to `null`, so the staff leaves its session mode), the MIDI
 side stopped (its timers dropped, the countdown and the acknowledged notes cleared, a held
-reattachment released), and, last, the end watchers stopped. `lastEnd` holds the summary. A
-session ends on:
+reattachment released), and, last, the end watchers stopped. `lastEnd` holds the summary and
+`lastHistory` the closed history. An end once phrase 1 has sounded then opens the Review and asks
+Idle for the next phrase (see
+[The end once phrase 1 has sounded](#the-end-once-phrase-1-has-sounded)); an end during the
+count-in does neither. A session ends on:
 
 | What happens                                                                                         | Engine cause      |
 | ---------------------------------------------------------------------------------------------------- | ----------------- |
@@ -701,18 +713,55 @@ outcome held during the session. The Idle rules then decide in the layout the wi
 afresh: with no room the workspace shows Needs more room; a phrase now too wide starts the Idle
 fresh-seed retries (Loading); a session end never leads to the notation-error state.
 
-### The interim end after phrase 1 sounded
+### The end once phrase 1 has sounded
 
-An end during the count-in played nothing: the workspace is back at Ready with phrase 1 on screen,
-and a new session may start on it. An end once phrase 1 has sounded is different, because phrase 1
-of a session is never a phrase the previous session played. Until the Review exists, the
-workspace returns to Idle with the played phrase back on the staff: the staff leaves its session
-mode, drops the later phrases and draws phrase 1 again in the layout the window now gives.
-`Start session` is disabled (`phrase_already_played`); the phrase action stays live and takes
-focus. Any new Idle result (Generate, Regenerate phrase, an instrument-profile switch that
-regenerates) replaces the played phrase and makes Start available again. Nothing is generated
-automatically at the end. Chunk 20 replaces this interim end with the Review, which closes onto a
-freshly generated phrase.
+An end during the count-in played nothing: the workspace is back at Idle with phrase 1 on screen,
+the Idle rules deciding in the layout the window now gives, and a new session may start on it. An
+end once phrase 1 has sounded is different, because phrase 1 of a session is never a phrase the
+previous session played. After the teardown above, `end` does two more things, in this order:
+
+1. **The Review opens.** `state.review` becomes `{ history, showing: true }` over the session's
+   closed history. The screen shows the Review in place of the staff (see
+   [The last-session Review](phrase-workspace.md#the-last-session-review)).
+2. **Idle is asked for the next phrase.** `idle.actions.startFreshPhrase()`, which the
+   controller gets with the Idle state (`SessionControllerDependencies.idle.actions`), starts the
+   Idle fit runner with the `'fresh'` start (`generation-session-fit-round.ts`): the played phrase
+   leaves the staff at once, with no score shown meanwhile, then the staff's room is checked with
+   the next phrase's key signature before anything is generated. With room, a phrase is generated
+   from the current controls with a fresh seed and no carry-in, through the Idle attempt budget
+   (the first attempt and up to three fresh-seed retries), as `Regenerate phrase` would. With no
+   room, nothing is generated: the no-room notice shows (one already showing stays), and the
+   phrase comes when the notice clears, by the usual room-notice rules. A too-many-notes notice
+   is dropped. Under an unsupported rhythm combination no phrase shows and nothing is generated.
+   The call is not awaited: whatever the run ends on (Ready, the no-room notice, the initial
+   generation error, Empty) is what the player finds on leaving the Review. That phrase becomes
+   the next session's phrase 1 only by the ordinary Idle start.
+
+**Why the fresh phrase never meets a drawing in flight.** `startFreshPhrase` throws a
+`SessionUsageError` if Idle is `notating`: a phrase already being drawn can't be dropped, so such
+a call is a caller defect. The end can't meet one. A session starts only with no Idle generation
+running (start condition 4), and while it runs the Idle layout gate diverts every staff report, so
+no Idle run starts during it. At the end the gate hands the latest reports back synchronously, and
+a held drawing failure may start a replacement run there, but that run is still `generating`: it
+must wait for a generation result before it can draw. `startFreshPhrase` runs right after,
+synchronously, and supersedes it through the run token, so its late answer changes nothing.
+
+**While the Review shows.** No session starts: `canStart` is false with the `review_showing`
+blocker, so neither the Start click nor any MIDI note starts one, the starting note included, and
+`startingNote` stays `null`, so no starting note is named. The hidden staff keeps running the Idle
+rules underneath (the fresh phrase is engraved, the room and fit checks keep measuring), so
+leaving the Review finds the workspace in the Idle state those rules reached.
+
+**Leaving and coming back.** `closeReview()` (`Close review`) keeps the Review with
+`showing: false`; it throws unless the Review shows. `showReview()` (`Review last session`) shows
+it again; it throws when no Review exists, when it already shows, or during a session. Each
+change replaces the frozen `SessionReview` object (`session-review-state.ts`), never mutates it.
+
+**Discarded by the next start or a reload.** A session start, by the Start click or the starting
+note, discards the kept Review (`state.review` back to `null`) without confirmation, before
+anything else changes; a session ended during that one's count-in does not restore it. The Review,
+its history and `lastHistory` live in memory only, so reloading or closing the page discards
+everything.
 
 ### Interim seams and open points
 
@@ -747,8 +796,10 @@ freshly generated phrase.
   in the history's records. The runner now loads with the controller. The choices it made are in
   [Technical choices made in chunk 17](midi-input.md#technical-choices-made-in-chunk-17); the
   hardware tuning it could not do is in [MIDI Tuning](midi-tuning.md).
-- **Chunk 20:** the Review and the generated-notes export, built from the history (`lastHistory`),
-  in place of the interim end after phrase 1 sounded.
+- **Chunk 20 (built):** the Review and the generated-notes export, built from the history (see
+  [The end once phrase 1 has sounded](#the-end-once-phrase-1-has-sounded) and
+  [`docs/export.md`](export.md)). It replaced an interim end that kept the played phrase on the
+  staff and blocked `Start session` until a new Idle phrase.
 - **Chunk 24:** setting changes applied at a phrase boundary.
 
 ## Choices made while building it

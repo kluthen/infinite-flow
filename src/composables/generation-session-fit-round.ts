@@ -9,7 +9,7 @@
 
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { NotationError } from '@/notation/notation-error'
-import type { StaffFitVerdict } from '@/notation/staff-fit-types'
+import type { StaffFitVerdict, StaffRoomVerdict } from '@/notation/staff-fit-types'
 import type { MutableGenerationSessionState } from './use-generation-session'
 
 /** Every attempt budget a run has: the first attempt plus up to three fresh-seed retries. */
@@ -22,10 +22,14 @@ export type RoomNoticeCause = 'no_room' | 'notes_too_wide'
 /**
  * How a run treats what the staff shows when it starts: `keep_screen` leaves it (a phrase kept on
  * screen, a notice kept dimmed for a round under it, or nothing); `no_score` drops the phrase and
- * any notice first, for the replacement of a phrase left too wide and the no-room clearing.
+ * any notice first, for the replacement of a phrase left too wide and the no-room clearing;
+ * `fresh` drops the phrase and a too-many-notes notice (a no-room notice stays), then checks the
+ * staff's room before any attempt, for the phrase a session end asks for: with no room it shows
+ * the no-room notice and generates nothing.
  */
 // @spec-link [[module_idle_fit_round]]
-export type FitRunStart = 'keep_screen' | 'no_score'
+// @spec-link [[rule_session_end_generates_next_phrase_one]]
+export type FitRunStart = 'keep_screen' | 'no_score' | 'fresh'
 
 /** The dependency surface the fit run needs from the root session composable. */
 // @spec-link [[module_idle_fit_round]]
@@ -39,6 +43,8 @@ export interface FitRunDependencies<TResult> {
   readonly freshIntent: () => GenerationIntent
   /** Whether the current rhythm combination blocks generation at the width now. */
   readonly isBlocked: () => boolean
+  /** Whether the staff has room at all, whatever the notes, with the next phrase's key signature. */
+  readonly checkRoom: () => Promise<StaffRoomVerdict>
   /** Show no phrase, as before a first one exists: phrase, notice and both errors all go. */
   readonly showEmpty: () => void
   /**
@@ -84,6 +90,8 @@ export function createFitRunner<TResult>(deps: FitRunDependencies<TResult>): Fit
   const { state } = deps
   let token = 0
   let running = false
+  /** The token of the fresh run, while it is the latest run; 0 with none. */
+  let freshToken = 0
 
   /** Intent: drop the phrase the staff shows, and the result it stands for. */
   function dropScore(): void {
@@ -109,9 +117,31 @@ export function createFitRunner<TResult>(deps: FitRunDependencies<TResult>): Fit
     return published
   }
 
-  /** Intent: route a draw failure: a layout failure fails the attempt, anything else is retryable. */
-  function routeDrawFailure(error: Error): AttemptOutcome {
+  /**
+   * Intent: whether `error` says the staff is not laid out (it has no width, as behind the
+   * rotate-device notice) during the fresh run `runToken`, which then counts it as no room: the
+   * phrase comes once the notice clears, never as a notation error.
+   */
+  // @spec-link [[module_idle_fit_round]]
+  // @spec-link [[rule_session_end_generates_next_phrase_one]]
+  function staffNotLaidOutInFreshRun(runToken: number, error: unknown): boolean {
+    return (
+      runToken === freshToken &&
+      error instanceof NotationError &&
+      error.code === 'notation_container_unavailable'
+    )
+  }
+
+  /**
+   * Intent: route a draw failure: a layout failure fails the attempt, a fresh run's staff not laid
+   * out shows the no-room notice, anything else is retryable.
+   */
+  function routeDrawFailure(runToken: number, error: Error): AttemptOutcome {
     state.resultEngraved = false
+    if (staffNotLaidOutInFreshRun(runToken, error)) {
+      showNotice('no_room')
+      return 'ended'
+    }
     if (error instanceof NotationError && error.code === 'notation_notes_too_wide') {
       dropScore()
       state.operation = 'generating'
@@ -135,7 +165,7 @@ export function createFitRunner<TResult>(deps: FitRunDependencies<TResult>): Fit
       await deps.notate(result)
     } catch (error: unknown) {
       if (runToken !== token) return 'stale'
-      return routeDrawFailure(toError(error))
+      return routeDrawFailure(runToken, toError(error))
     }
     if (runToken !== token) return 'stale'
     state.resultEngraved = true
@@ -151,9 +181,16 @@ export function createFitRunner<TResult>(deps: FitRunDependencies<TResult>): Fit
     return 'ended' as const
   }
 
-  /** Intent: keep an attempt whose fit check itself failed as a retryable notation error. */
-  function keepCheckFailure(result: TResult, error: unknown): AttemptOutcome {
+  /**
+   * Intent: keep an attempt whose fit check itself failed as a retryable notation error; a fresh
+   * run's staff not laid out shows the no-room notice instead.
+   */
+  function keepCheckFailure(runToken: number, result: TResult, error: unknown): AttemptOutcome {
     if (!(error instanceof NotationError)) throw error
+    if (staffNotLaidOutInFreshRun(runToken, error)) {
+      showNotice('no_room')
+      return 'ended'
+    }
     state.result = result
     state.resultEngraved = false
     state.notationError = error
@@ -193,7 +230,7 @@ export function createFitRunner<TResult>(deps: FitRunDependencies<TResult>): Fit
       verdict = await deps.checkFit(result)
     } catch (error: unknown) {
       if (runToken !== token) return 'stale'
-      return keepCheckFailure(result, error)
+      return keepCheckFailure(runToken, result, error)
     }
     if (runToken !== token) return 'stale'
     return afterVerdict(runToken, result, verdict)
@@ -223,23 +260,50 @@ export function createFitRunner<TResult>(deps: FitRunDependencies<TResult>): Fit
   }
 
   /**
+   * Intent: a fresh run's first step, before any attempt: a blocked rhythm combination ends it on
+   * Empty and no room (a staff not laid out included) ends it on the no-room notice, nothing
+   * generated in either case; null lets the attempts go on, a boolean is the run's own result.
+   */
+  // @spec-link [[module_idle_fit_round]]
+  // @spec-link [[rule_session_end_generates_next_phrase_one]]
+  // @spec-link [[rule_unsupported_rhythm_gives_way_to_no_phrase]]
+  async function roomFirst(runToken: number): Promise<boolean | null> {
+    if (deps.isBlocked()) return endOnEmpty(runToken)
+    let hasRoom: boolean
+    try {
+      hasRoom = (await deps.checkRoom()).kind === 'room'
+    } catch (error: unknown) {
+      if (runToken !== token) return false
+      if (!staffNotLaidOutInFreshRun(runToken, error)) throw error
+      hasRoom = false
+    }
+    if (runToken !== token) return false
+    if (hasRoom) return null
+    showNotice('no_room')
+    return finish(runToken, false)
+  }
+
+  /**
    * Intent: run one fit run. It clears both errors as it starts; a run started under the
    * too-many-notes notice is a round, with retries running from its start. A programming error
    * from a seam still ends the run before it propagates, so the session never stays busy.
    */
   async function run(start: FitRunStart): Promise<boolean> {
     const runToken = ++token
+    freshToken = start === 'fresh' ? runToken : 0
     running = true
     state.operation = 'generating'
     state.generationError = null
     state.notationError = null
-    if (start === 'no_score') {
+    if (start !== 'keep_screen') {
       dropScore()
-      state.roomNotice = null
+      if (start === 'no_score' || state.roomNotice === 'notes_too_wide') state.roomNotice = null
     }
     const underNotice = state.roomNotice !== null
     state.retriesRunning = state.roomNotice === 'notes_too_wide'
     try {
+      const ended = start === 'fresh' ? await roomFirst(runToken) : null
+      if (ended !== null) return ended
       return await runAttempts(runToken, underNotice)
     } catch (error: unknown) {
       finish(runToken, false)
