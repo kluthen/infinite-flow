@@ -9,7 +9,7 @@ parents:
 human_name: Generation Control Catalog
 layer: ARCHITECTURE
 priority: 1
-version: 1.2
+version: 1.3
 dependents:
   - [[module_generation_request_construction]]
 ---
@@ -21,7 +21,7 @@ dependents:
 Define the closed player-selectable generation controls and their canonical first-load configuration.
 
 ## THE RULE / LOGIC
-The pure catalog boundary owns the closed selectable values for generation controls, literal first-load values, and tempo validation and normalization. First load uses 90 BPM, written C Ionian on the B-flat tenor instrument profile (concert B-flat Ionian), Neutral, Slightly varied rhythmic variety, Lift, Shaped, and Predictable arpeggio chaos; Neutral supplies every other profile-controlled default. The catalog exposes immutable Neutral and Jazz bundles, each containing the seven profile-controlled values: harmonic motion, note density, rhythmic variety, syncopation, silence density, contour, and register. Catalog definitions and bundles are immutable and contain no browser, session, presentation, or generation-result state.
+The pure catalog boundary owns the closed selectable values for generation controls, literal first-load values, and tempo validation and normalization. First load uses 90 BPM, written C Ionian on the B-flat tenor instrument profile (concert B-flat Ionian), Neutral, Slightly varied rhythmic variety, Lift, Shaped, and Varied arpeggio chaos; Neutral supplies every other profile-controlled default. The catalog exposes immutable Neutral and Jazz bundles, each containing the seven profile-controlled values: harmonic motion, note density, rhythmic variety, syncopation, silence density, contour, and register. Catalog definitions and bundles are immutable and contain no browser, session, presentation, or generation-result state.
 
 Note density keeps its three catalog values, Quarter, Eighth and Sixteenth, at every window width: below the tablet-landscape layout's width Sixteenth cannot be newly chosen, but a chosen Sixteenth stays the chosen value. What the window changes is the density a phrase is generated with. The catalog boundary owns that resolution as a pure function of three plain inputs: the chosen density, whether the window is below the tablet-landscape layout's width when the phrase is generated, and whether the running session has already stepped its density down. A chosen Sixteenth resolves to Eighth when the window is below that width or the session has stepped down; every other case resolves to the chosen value. The resolution reads no browser or session state itself: the caller supplies both inputs, so the catalog stays free of either.
 

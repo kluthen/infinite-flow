@@ -71,7 +71,7 @@ describe('generation control catalogs and normalization', () => {
       collection: 'Ionian',
       tension: 'Lift',
       leapiness: 'Shaped',
-      arpeggioChaos: 'Predictable',
+      arpeggioChaos: 'Varied',
       instrumentProfileId: 'bb-tenor',
       ...PROFILE_BUNDLES.Neutral,
     })
