@@ -37,6 +37,12 @@
 >   Review in the staff's place until the player closes it, the controls still usable, and a
 >   button above the staff that brings it back
 >   ([After a Session](#after-a-session))
+> - _New:_ the three options that act only during a session, together in one group at the end of
+>   the controls, and why rising tempo needs a controller
+>   ([The Session Options](#the-session-options))
+> - _New:_ how the controls follow the music during a session, and what returns at its end
+>   ([The Rest of the Workspace During a Session](#the-rest-of-the-workspace-during-a-session),
+>   [The Session Options](#the-session-options))
 > - _Removed:_ nothing
 
 ## Focal Point and Header
@@ -112,6 +118,16 @@ When the player plays an expected note, the note itself lights in the acknowledg
 ## The Rest of the Workspace During a Session
 
 **[v2 new]** During a session the workspace keeps its shape and changes only its behaviour. The musical controls below the score stay visible, at full strength, but read-only, with the same read-only ring they take while a phrase is generating: a session plays the settings it started with, and a control that looked editable but did nothing would be a lie. When the app itself changes a value during a session, the new value simply shows, with no highlight, because a highlight below the staff would pull the eyes off it. The theme control stays live, since it changes presentation only, and so does the audio mix. The header's controller status becomes a display only, because a controller connects only between sessions.
+
+**[v2 new]** Once the player opts into a session option that changes things by itself (see The Session Options), the controls follow the music rather than the app's plans. A setting the app varies shows its new value at the moment the first phrase built with it starts sounding, and a rising tempo shows in the header at the moment the faster phrase starts: the controls never run ahead of what the player hears, and any phrase in the review maps to one set of values. Each change is a value quietly replaced in place, with nothing that lights, moves or speaks, because the player's eyes are on the staff, reading ahead. That calls for a little care in the layout. A few texts change length with the values they report: the one-line settings summary, the musical profile's status line, the tempo. Each keeps a fixed size whatever it says, so a change never pushes the fields below it, even out of sight. The status line pays for that with a blank line under its shorter text in a narrow column, between sessions too; a control section that never shifts is worth it.
+
+## The Session Options
+
+**[v2 new]** Three options act only while a session runs: a tempo that rises on its own, a tension that builds and settles over four phrases instead of within one, and settings that drift a step at a time. The rising tempo is mainly for the Speed Builder (P2), who wants fresh material at a steadily higher tempo (P2.S1); the other two serve the Curious Improviser (P1), whose vocabulary grows by exposure (P1.G1), with longer musical shapes and a wider spread of settings than one sitting at one setup would bring. They sit together at the end of the controls, in one group headed "During a session", rather than each beside the field it touches. A player looking for "what will the app do by itself once I start" finds all of it in one place, and the varying settings, which touch nearly every field, would have had nowhere to go. Each is a plain `Off`/`On` choice, like every other setting in the section, with one line underneath saying what it does in everyday words; all three start off, because anything that adapts to the player is opt-in and visible. They are chosen between sessions, like every setting, and shown read-only during one.
+
+Rising tempo needs a connected controller, a product rule; without one the `On` choice is unavailable and a line says so: "Needs a connected controller." The choice the player made is kept, and comes back as soon as a controller is attached, the way the phone keeps a stored `Sixteenth`. During a session the control does not change if the controller is lost: the rise simply pauses, and the disconnect banner already says what matters. The rise itself shows in one place only, the tempo, in the header and in the stepper, which can then read a value the stepper's own steps would never give, such as 95 BPM. When the session ends, the tempo goes back to where the player started it; the review keeps each phrase's tempo. After a session that ran it, a quiet line under the tempo stepper says "Last session reached 135 BPM.": past tense, no colour, no target. It sits by the tempo because that is where the player decides the next session's starting tempo, and it stays until the next session ends, so nothing in the controls changes when a session starts.
+
+The tension option leaves the Tension control showing the player's own choice, even while each phrase in the group of four steps around it: the control says what the player chose, not what one phrase happened to get. The varying settings are different: they really change the settings, so the controls show each change, Tension included, and the four-phrase steps then go around the new value, and every changed setting returns to the player's own value when the session ends, as the tempo does. A player who switches the option on for one session should not have to undo its drift by hand afterwards.
 
 ## The Phone and the Window During a Session
 

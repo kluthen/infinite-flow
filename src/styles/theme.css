@@ -121,6 +121,24 @@
      one width in both states. */
   --toggle-button-state-inline-size: 3ch;
   /* end v2 new */
+  /* v2 new -- from here to "end v2 new": the tempo value's fixed width and the review's
+     played-notes lane (v2.1, v2.2). */
+  /* The fixed inline size of a tempo shown as "{tempo} BPM": the header's `tempo-readout` and
+     the tempo stepper's `input-stepper-value`, both with tabular digits. Sized in `ch` of their
+     own font for the widest value, "240 BPM" (7 characters, the capitals of "BPM" wider than a
+     digit), plus one character of slack. Fixed, so a two- or three-digit tempo, and a rising
+     tempo's off-list values during a session ("95 BPM"), never move anything beside them. */
+  --tempo-value-inline-size: 8ch;
+  /* The block size of one played-notes lane in the review (v2.1): the strip under each staff
+     system where the notes the player played are drawn as bars. The same at every breakpoint;
+     only its inline size follows the staff above it. Reserved for every phrase while
+     `Played notes` is on, so drawing phrases lazily never moves the page. */
+  --played-notes-lane-block-size: 3rem;
+  /* One played note's bar: its thickness, and the narrowest it is ever drawn, so a very short
+     note stays visible. */
+  --played-note-block-size: var(--spacing-1);
+  --played-note-min-inline-size: var(--spacing-1);
+  /* end v2 new */
 
   --shadow-panel: 0 0.5rem 1.5rem rgb(31 29 24 / 0.12);
   --shadow-focus: 0 0 0 0.1875rem var(--color-focus-ring);
@@ -186,6 +204,11 @@
      acknowledgement colour 3.78:1 (light) and 3.45:1 (dark). */
   --color-playhead-band: #ebe2cf;
   /* end v2 new */
+  /* v2 new -- the review's played notes (v2.1): one neutral colour for every played-note bar,
+     matched or not, never green (acknowledgement) or red (error). An alias of the muted ink, so it
+     switches with the theme: 6.2:1 against the review panel's surface in light, 9.4:1 in dark,
+     well above the 3:1 a graphical object needs. */
+  --color-played-note: var(--color-text-muted);
 }
 
 @layer base {

@@ -1300,3 +1300,285 @@ generation` secondary; `Start session` primary.
   `bp-tablet-landscape` the Review shows `review-title`, `Close review` (the header's session
   action) and the export group; no `review-summary`; each phrase in the split layout on two
   system positions. This is the handoff's Responsive Behavior as written; no handoff change.
+
+- **D154 — Unit 9 leaves v2; the hardware checks are v2.4's (2026-10-03; housekeeping after spec
+  D173, D174 and D180).** The end-of-measure chord-fit check left v2 for v3 as an uncommitted
+  nice-to-have (spec D174), so interface unit 9, its presentation, is no longer v2 work: it moves
+  out of the v2 list in `todo.md`, marked v3, not committed, its notes kept. The real-hardware and
+  real-program checks moved to a new release, v2.4 (spec D173, D180). No tier document said they
+  gated v2.0 or v2.1; only `todo.md`'s "covering v2.0–v2.3" was stale, and is corrected.
+
+- **D155 — The session options share one control group, "During a session" (2026-10-03;
+  `ux-writer`'s call under the owner's delegation of minor design issues; units 8, 10 and 11).**
+  The three opt-in behaviours that act only during a session (master spec §3, §5, §10) sit
+  together in one new `control-group`, the last in `control-group-row`, headed "During a session":
+  `Rising tempo` (v2.2), `Tension across phrases` (v2.2), `Vary settings` (v2.1), in that order
+  (from the narrowest effect to the widest). Each is a `segmented-control` with two segments,
+  `Off` then `On`, `Off` checked at page load, followed by a `field-note` saying in one plain
+  line what it does. A segmented control rather than a `toggle-button`: every discrete setting in
+  `control-section` is one, and its read-only treatment (a `radiogroup` takes `aria-readonly`, a
+  `button` cannot) already exists. Like every control there: editable at idle and while the Review
+  shows, read-only (the **Loading** treatment) during a generation and for the whole session.
+  None of them is a setting the phrase is generated from at idle, so changing one starts nothing:
+  no regeneration, no round under the too-many-notes notice. Choices last for the page session
+  and reset on a reload, like every setting. From `bp-tablet-landscape` up the group takes a row
+  of its own, its fields in columns of `--control-group-min-inline-size`; below it, it stacks
+  like the other groups. Rejected: a switch beside the field each acts on (tempo, tension), which
+  spreads one kind of behaviour over two groups and leaves `Vary settings` with no field to sit
+  beside; a separate settings panel (a second place to look, for three switches). Governs
+  `screens/phrase-workspace/` (Layout Tree, Components and Content, States) and the token source.
+
+- **D156 — How an automatic change shows during a session (2026-10-03; `ux-writer`'s call under
+  the owner's delegation; unit 10, applies master spec §5 and spec D176, D181).** (1) **When.**
+  During a session the read-only controls, and the header's `tempo-readout`, show what the phrase
+  now sounding was generated with and plays at. A change made by `Vary settings` (or, in v2.2, a
+  tempo rise) appears in the controls at the instant the first phrase generated with it starts
+  sounding, on the audio clock, not when it is decided: the controls never run ahead of the music
+  heard, and a phrase number in the Review maps to one set of values. A mutation landing on a
+  phrase that ends up a repeat therefore shows from the next generated phrase. Before that, the
+  read-ahead may already show the new key signature on the staff; that is the music, not a
+  control. (2) **How.** The new value simply replaces the old: no highlight, animation, scroll,
+  focus move or announcement. A mutated profile-controlled value clears the musical profile
+  preset's checked segment and turns `preset-status` to its custom text, exactly as a manual edit
+  does (spec D181), and `control-summary` follows; a flip of the musical profile (Neutral ↔ Jazz)
+  only changes the grammar word, with every control kept. `preset-status` is a polite live region,
+  so its announcement is turned off from the session start to its end. (3) **No shift.** No
+  automatic change may move anything. The values change inside fixed boxes (a checked segment
+  moves within its control), and the texts that change length get fixed boxes: `control-summary`
+  stays on one line (`white-space: nowrap`, an ellipsis as a guard it does not need at any
+  supported width); `preset-status` holds both its texts stacked in one grid cell, the one not in
+  use kept invisible, so its block size is that of the longer text at every width and never
+  changes when one text replaces the other (the `is-custom` modifier moves to the custom text);
+  the tempo stepper's value and `tempo-readout` take a fixed inline size with tabular digits
+  (`--tempo-value-inline-size`). The two `preset-status` and `control-summary` rules hold at idle
+  too, at the cost of a blank line under the shorter `preset-status` text in narrow columns.
+  Governs `screens/phrase-workspace/`, `flows/play-session/` and the token source.
+
+- **D157 — Settings changed during a session return to the player's own at its end (2026-10-03;
+  `ux-writer`'s recommendation, pending the owner: Q64).** When a session ends, however it ends,
+  every setting `Vary settings` changed returns to the value it had at the session start, with
+  the profile preset's state and `Varying` register included, silently (the Review is showing, or,
+  after an end during the count-in, nothing had changed yet). The fresh phrase generated at the
+  session end uses the restored values. Reasons: a session's other automatic changes already end
+  with it (the rising tempo goes back to the starting tempo, master spec §10; a stepped-down note
+  density goes back to the chosen one, §5); a player who chose a key to practise finds it again;
+  and switching the flag on for one session never leaves a lasting drift to undo by hand. The
+  alternative, keeping the values the session ended on, lets each session start where the last
+  one wandered to; it is the one the owner may prefer for variety. Not settled by the spec (§5
+  says nothing of the end). Designed as recommended, marked `(proposed)` in the tier documents,
+  and passed to `spec-writer` once the owner answers.
+
+- **D158 — Rising tempo: availability and what it shows (2026-10-03; `ux-writer`'s call under the
+  owner's delegation; unit 8, applies master spec §10 and spec D179).** Field-label
+  "Rising tempo"; note "Adds 5 BPM every 2 phrases, up to 240 BPM. The tempo goes back to your
+  setting when the session ends." (1) **Unavailable** whenever no controller is attached (any
+  `controller-status` form but the connected badge, a selected controller that is away
+  included): the `On` segment is disabled (native `disabled`), `Off` is shown checked, and a
+  second `field-note`, "Needs a connected controller.", follows the first, named by the disabled
+  segment's `aria-describedby`. The player's own choice is kept and shown again once a controller
+  attaches, as Note density's `Sixteenth` is on a phone. Availability is judged at idle and in the
+  Review only: during a session the control stays as it was at the start, so a controller lost
+  mid-session changes nothing in it (the rise pauses, master spec §10, with nothing shown beyond
+  the disconnect banner). (2) **During a session** the header's `tempo-readout` and the read-only
+  tempo stepper show the tempo the phrase now sounding plays at, off the stepper's 10-BPM list
+  included (e.g. "95 BPM"), changing with no animation at the instant that phrase starts (D156).
+  The count-in plays at the starting tempo. Nothing else shows the rise: whether it is on is
+  shown by the read-only control below the staff, and nothing about performance is shown. (3)
+  **At the session end** both return to the starting tempo (master spec §10), silently; the
+  Review's per-phrase tempos record the tempo reached. Governs `screens/phrase-workspace/` and
+  `flows/play-session/`.
+
+- **D159 — The "reached tempo" note (2026-10-03; `ux-writer`'s call under ux D46; unit 8).** A
+  muted `field-note` in the tempo `field-group`, after the stepper: "Last session reached {n}
+  BPM.", `{n}` being the tempo of the last phrase that started sounding. It appears at a session
+  end, once phrase 1 has sounded, when that session ran rising tempo (on, with a controller
+  attached at the start); the next such end replaces it, and an end of a session that did not run
+  it removes it. A session start leaves it as it is, since it still describes the last session,
+  so nothing in `control-section` moves at the start; a session ended during its count-in leaves
+  it as it is too; a reload removes it. It sits by the tempo control because that is where the
+  player sets the next session's starting tempo. Past tense, no comparison, no target, no
+  colour, never phrased as an invitation (D46). Rejected: the cue row (already holding the
+  starting-note line and `review-link`, and too narrow on a phone) and the header (fixed widths).
+
+- **D160 — Tension across phrases (2026-10-03; `ux-writer`'s call under the owner's delegation;
+  unit 11, applies master spec §3 and spec D178).** Field-label "Tension across phrases"; note
+  "In groups of 4 phrases: your Tension, one step more, your Tension, one step less." The Tension
+  control keeps showing the player's choice throughout a session (spec D178): the per-phrase
+  steps are never shown anywhere, so the control never moves on its own because of this option
+  (it can still change by `Vary settings`, D156). Phrase 1, generated at idle, is as chosen.
+
+- **D161 — Played notes in the Review (2026-10-03; `ux-writer`'s call under the owner's
+  direction for the Review, D135; unit 7, applies master spec §7 and spec D66, D68).** (1)
+  **The switch.** A `Played notes` `toggle-button` (state "on"/"off", `aria-pressed`), off at
+  first, its state kept for the page session like Format's, in a new `review-view` row under the
+  header's title and export row, just above the phrases it changes, at every breakpoint, the phone
+  included. It is not rendered when the session holds no played note. (2) **The form.** When on,
+  each phrase shows, under each of its staff systems, a played-notes lane: a short strip spanning
+  the same measures, where every note the player played whose onset falls in that phrase is a
+  thin bar, its left end at its onset, its length its duration (onset to release, cut at the
+  phrase's end), its height in the lane by pitch, higher notes higher. Time maps linearly onto
+  each measure's own extent (`measure-slot`), so the bars line up with the measures above;
+  pitch maps onto the range the session's played notes span, at least an octave, the same scale
+  for every phrase. Thin vertical lines mark the barlines. One neutral colour,
+  `--color-played-note`; no colour, mark or label for any note, matched or not, and nothing
+  drawn on the staff itself. Unquantized by construction: the bars sit where the notes were
+  played. Rejected: noteheads on the staff (an unquantized note cannot be engraved without
+  misplacing it, and a played note drawn beside the written one is a mismatch signal in all but
+  name); marking matched notes, which the spec allows ("possibly") but which turns a static page
+  into a tally of lit and unlit notes; a separate played-notes view (a second place to look). (3)
+  **Space.** While the switch is on, every phrase reserves its lanes' block size, engraved or
+  not, so lazy drawing still never moves the page; switching changes every phrase's size at once,
+  and the browser's scroll anchoring keeps the phrase at the top of the view where it was. (4)
+  Nothing changes on the generated staff (no `note-ack`), and an empty lane (a phrase in which
+  nothing was played) is just an empty lane, with no text. Governs `screens/last-session-review/`,
+  `flows/review-and-export/`, `strategy.md` and the token source.
+
+- **D162 — The played-notes export (2026-10-03; `ux-writer`'s call under D135; unit 7, applies
+  master spec §7 and D141).** `Export played notes`, a secondary `btn review-export-action`, sits in
+  `review-actions` after the generated-notes group, separated from it by a wider gap so the
+  Format and Backing track choices read as the generated group's own; it takes no options (played
+  notes are MIDI only). Not rendered when the session holds no played note in any phrase (the
+  owner's direction: hide it; notes played only before phrase 1, such as the starting note, are
+  never exported, so they do not count), so a controller-less session's Review is exactly
+  v2.0's. It builds one file,
+  `infinite-flow-{date}-{time}-played.mid` (D141's stem), with the same `is-loading` and failure
+  behaviour as the generated-notes export; the one `review-export-error` line serves both and
+  leaves when either export next starts. The two exports are independent: one may build while the
+  other is used. Governs `screens/last-session-review/handoff.md`, `flows/review-and-export/` and
+  the token source.
+
+- **D163 — The played-notes lane's time axis follows the written notes (2026-10-03; `ux-writer`'s
+  call under the owner's delegation; unit 7, `ux-critic` finding; refines D161 (2)).** D161 mapped
+  each measure's time linearly onto its whole `measure-slot` extent. That extent includes the clef,
+  key and time signatures on a system's first measure, and the engraver spaces notes by layout, not
+  by time, so a note played exactly on time would sit under the clef or beside its notehead: an
+  apparent early/late offset, which is a mismatch signal in all but name. Now every written note and
+  rest of the system is an anchor (its beat, at its notehead's or rest's inline start), the system's
+  closing barline the last one, and time maps linearly between consecutive anchors, across barlines
+  too. A note played on a written note's beat starts under it. Rejected: linear over each measure's
+  note area (the playhead band's extent), which fixes the clef but not the layout spacing. Dividers
+  sit at the engraved barlines. Governs `screens/last-session-review/` (handoff, intent) and the
+  `.played-note` comment in the token source.
+
+- **D164 — No `aria-controls` on the `Played notes` switch (2026-10-03; `ux-writer`'s call; unit 7,
+  `ux-critic` finding; amends D161 (1)).** While the staff has no room, `review-list` is replaced by
+  `room-notice` and the switch stays, so `aria-controls` naming `review-list` would point at a
+  missing element. The switch carries `aria-pressed` only; the lanes appear right under it. Governs
+  `screens/last-session-review/handoff.md`.
+
+- **D165 — Tier 1 wording brought in line with unit 7 (2026-10-03; `ux-writer`; unit 7, `ux-critic`
+  findings).** `strategy.md`, Optional MIDI: the played note is never drawn on the staff during a
+  session, and appears afterwards only in the review, on request, in its own lane (it said "never
+  rendered", contradicting D161). `strategy.md`, The review, and the token source's phone-review
+  comment: the phone's minimum is the phrases, the notes played (on request) and the export(s), as
+  the owner set for the Review (D135).
+
+- **D166 — Barlines anchor the played-notes lane's time axis (2026-10-03; `ux-writer`'s call;
+  unit 7, `ux-critic` confirmation finding; refines D163).** D163 mapped time linearly across a
+  barline, from a measure's last written note to the next measure's first notehead, so a note
+  released at a measure's end drew past the barline's divider, reading as late. Now every
+  measure's end is an anchor at its closing barline (where its divider stands), time is linear
+  inside each measure from its first note to that barline, and the space between a barline and the
+  next measure's first note takes no time: a downbeat release ends at the barline, a downbeat onset
+  starts under the first note, a held note spans the gap as one bar. Governs
+  `screens/last-session-review/` (handoff, intent).
+
+- **D167 — The owner confirms: settings varied during a session return at its end (2026-10-03;
+  the owner's answer, closes Q64; spec D182).** The owner answered yes: when a session ends, every
+  setting `Vary settings` changed goes back to the player's own value, just as the rising tempo
+  goes back to the starting tempo. This confirms D157's rule as written (D157 stays as recorded);
+  the `(proposed)` marks tied to it are removed from `screens/phrase-workspace/` (intent, handoff:
+  change block, the `Vary settings` field-note, States, **Session end**), `flows/play-session/`
+  (intent, handoff: End) and `strategy.md` (edge-case policy, automatic changes during a session).
+  `spec-writer` records the rule as spec D182.
+
+- **D168 — A musical-profile flip by `Vary settings` shows as customized (2026-10-03;
+  `ux-writer`, unit 10, `ux-critic` finding; corrects D156 (2) to master spec §5 and spec
+  D181).** D156 said a Neutral ↔ Jazz flip only changes the grammar word, every control kept. The
+  spec also marks the profile customized, so, built as written, a flip from a selected preset
+  would leave the old preset checked and its "preset applied" text standing for a bundle never
+  applied. Now the flip takes the manual-edit path: the preset's checked segment is cleared,
+  `preset-status` shows its custom text with the new grammar word, `control-summary` reads
+  `Custom ({grammar} grammar)`; a flip while already custom changes only the grammar word. Every
+  control keeps its value. The lexicon's "Vary settings" entry says the same in plain words (and
+  its key-signature parenthesis now says "usually", the sharps/flats count not holding at the
+  F-sharp/G-flat to C-sharp/D-flat step). Governs `screens/phrase-workspace/handoff.md`,
+  Components and Content, **Automatic changes during a session**.
+
+- **D169 — How `preset-status` goes quiet during a session (2026-10-03; `ux-writer`, unit 10,
+  `ux-critic` finding; makes D156 (2) buildable).** At the session start, before the count-in,
+  the `preset-status` element takes `aria-live="off"`, keeping `role="status"`; at the session
+  end it returns to `aria-live="polite"` only after the values restored at the end (D157, D167)
+  have rendered, so neither an automatic change nor the return is announced. Governs
+  `screens/phrase-workspace/handoff.md`, same item.
+
+- **D170 — The note-density step-down follows the same timing rule (2026-10-03; `ux-writer`, unit
+  10, `ux-critic` findings).** The read-only Note density control shows `Eighth` after a session's
+  step down from the instant the first phrase generated with `Eighth` starts sounding, as D156 (1)
+  sets for every value the app changes. `strategy.md`'s edge-case policy, Automatic changes during
+  a session, now names that step-down as the one change during a session the player did not opt
+  into (a product rule, master spec §5). The Layout Tree's tempo stepper, whose parts v1 did not
+  list, is marked `v2 changed`. Governs `screens/phrase-workspace/handoff.md` (Note density,
+  During a session; Layout Tree) and `strategy.md`.
+
+- **D171 — After a flip, the grammar word is the flipped-to profile (2026-10-03; `ux-writer`, unit
+  10, `ux-critic` confirmation finding; refines D168).** The manual-edit rule picks the custom
+  text's grammar word from the preset last applied; after a `Vary settings` flip the profile in
+  effect is the flipped-to one (spec D181). So from a flip to the session's end the grammar word
+  is the profile the flip set, and a later automatic change to a profile-controlled value keeps
+  it. Stated in the v2 item, **Automatic changes during a session**, leaving the v1 manual-edit
+  rule as it was. Governs `screens/phrase-workspace/handoff.md`.
+
+- **D172 — A raised tempo shows with the first phrase that plays at it, a repeat included
+  (2026-10-03; `ux-writer`, unit 8, `ux-critic` finding; corrects D156 (1) for the tempo, applies
+  master spec §6 and §10, spec D179).** D156 (1) tied every automatic change to "the first phrase
+  generated with it", so a rise landing on a phrase that ends up a repeat would have shown only
+  with the next generated phrase. But the tempo is never part of what is generated (§6): a repeat
+  plays at the tempo then in effect, and it counts toward the next rise (D179). So `tempo-readout`
+  and the read-only stepper show a raised tempo at the instant the first phrase that plays at it
+  starts sounding, repeats included, still on the audio clock. The repeat clause stays for the
+  settings `Vary settings` changes (D156, D170 unchanged). Governs
+  `screens/phrase-workspace/handoff.md` (Components and Content, **Automatic changes during a
+  session**), `flows/play-session/handoff.md` (What the controls show) and `intent.md`,
+  `motion.md` (Rules) and `strategy.md` (Edge-Case Policy).
+
+- **D173 — An unavailable `Rising tempo`: its shown `Off` changes nothing (2026-10-03;
+  `ux-writer`, unit 8, `ux-critic` finding; refines D158 (1)).** While `On` is disabled for want of
+  a controller, `Off` is shown checked; choosing it, already checked, changes nothing, so a stored
+  `On` stays and shows again once a controller attaches, exactly as Note density's shown `Eighth`
+  keeps a stored `Sixteenth` on a phone. A player who wants it off turns it off once it is
+  available. Governs `screens/phrase-workspace/handoff.md` (Components and Content, During a
+  session, **Rising tempo**).
+
+- **D174 — Lexicon and token-source comments brought in line with unit 8 (2026-10-03;
+  `ux-writer`, unit 8, `ux-critic` findings).** The lexicon's "Rising tempo" entry now says the
+  rise waits while an unplugged controller is away and carries on once it is back (master spec
+  §10, spec D179); the "Tempo" control entry drops its stale v1 line ("the app plays no sound")
+  for the v2 facts: the tempo never changes the notes, a session plays at it, and a rising tempo
+  goes back to the player's setting at the end. The `.field-note` comment in the token source now
+  names its three uses (an unavailable option's reason, a session option's description, the
+  reached-tempo line). No design change.
+
+- **D175 — The Tension control shows the tension in effect, never a step across phrases
+  (2026-10-03; `ux-writer`, unit 11, `ux-critic` finding; clarifies D160 against D156 (1), applies
+  master spec §3 and spec D178, D181).** Two display rules each claimed too much: the
+  `Tension across phrases` item said the Tension control shows the player's own choice in every
+  state, which is wrong once `Vary settings` moves Tension; the general rule said the read-only
+  controls show what the phrase now sounding was generated with, which, read literally, would show
+  each phrase's tension step. Now the Tension control shows the tension in effect: the player's
+  own choice or, after `Vary settings` has moved it, the value it set (under the D156/D170 timing
+  rule, returned at the session end per D167); the four-phrase steps go around that value and are
+  never shown, so the option never moves the control by itself. The general rule names this as its
+  one exception. Governs `screens/phrase-workspace/` (handoff: **Tension across phrases**,
+  **Automatic changes during a session**; intent: The Session Options), `flows/play-session/handoff.md`
+  (What the controls show) and `strategy.md` (Edge-Case Policy).
+
+- **D176 — Lexicon entries brought in line with spec D181 and ux D175 (2026-10-03; `ux-writer`,
+  `ux-critic` findings; applies master spec §3, §5 and spec D178, D181).** "Vary settings": the
+  entry said a step means one place along a control's list. Contour has no order (any other shape
+  is one step), and Register steps among Low, Middle and High only, never onto Varying, stepping
+  from the session's resolved window when set to Varying. The entry now says a step is usually one
+  place along a list with no wrap, then lists each control that steps its own way (Contour,
+  Register, Written key, Collection, Musical profile preset) in plain words. "Tension across
+  phrases": the Tension control shows the player's choice or the value `Vary settings` set, never
+  a step (D175). No design change.

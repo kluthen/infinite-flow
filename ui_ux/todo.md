@@ -18,7 +18,7 @@
 ## In Progress
 
 - **v2 (Rolling Phrase) UI/UX — review/kickoff started 2026-09-27.** `specs/versions/v2/master-spec.md`
-  (the sole, self-sufficient v2 handoff artifact, covering v2.0–v2.3) has been read in full against
+  (the sole, self-sufficient v2 handoff artifact, covering v2.0, v2.1, v2.2 and v2.4; v2.3 was emptied by spec D174, and the real-hardware checks are v2.4's, spec D173, D180) has been read in full against
   the existing v1.0 `ui_ux/` tree. D45 (`decisions.md`) fixes the information architecture: v2
   session mode extends the existing `screens/phrase-workspace/` screen and `flows/generate-phrase/`
   flow rather than forking a new top-level screen. No flow or screen documents have been written
@@ -258,25 +258,63 @@ Units below are not yet started. None is blocked on anything **except** where no
    chunk 20 needs the session's start time (local wall clock) and instrument profile from the
    session history (chunk 9) for the file name and the summary line. `ux-critic` validation:
    see the Next Unit list.
-7. **Review v2.1 additions**: played-notes toggle and the export-time played-notes opt-in checkbox
-   (§7). Fully specified; extends unit 6.
-8. **Adaptive tempo UI** (§10, v2.2). Mostly specified (unavailable-with-reason when no controller;
-   flat schedule; ceiling; reset-on-end). **Q22 resolved (ux D46)**: the Idle screen carries a quiet,
-   non-comparative "reached tempo" reference from the previous session when adaptive tempo was
-   used; placement, copy, and the empty case are this unit's own to settle when written up.
-9. **End-of-measure chord-fit check presentation** (§9, v2.3). Master spec explicitly hands this
-   presentation decision to `ux-writer` ("a UI/UX design decision, not specified here") — fully
-   ours to design, sequenced last since it ships in v2.3.
-10. **Settings-mutation flag UI** (§5, v2.1). Scope, magnitude, and invalid-combination handling are
-    settled; the flag's own on/off control and locked-sheet behavior are covered by unit 3. **Q19
-    resolved** — this was already answered in `master-spec.md` §5 itself (the settings panel just
-    reflects the new value, unannounced, with no highlight/scroll/shift): no affordance beyond the
-    plain toggle to design. Still blocked on the master spec's own still-open cadence/default-state
-    item (§12) for copy that mentions cadence.
-11. **Multi-phrase tension arc** (§3, v2.2). **Q21 resolved (spec D110): yes, it gets a visible on/off
-    control**, on the same footing as the settings-mutation flag and adaptive tempo. No longer
-    blocked on whether a surface exists — the open design task is now the control's placement, copy,
-    and presentation, which is entirely ours to settle when this unit is written up.
+7. **Review v2.1 additions** (§7; feeds build-plan chunk 23). **Written 2026-10-03** (branch
+   `ux-v21-v22`, uncommitted), ux D161, D162: `Played notes` toggle in a new `review-view` row
+   (absent when no played note in a phrase), a played-notes lane under each staff system (neutral
+   bars, unquantized, no match marking), `Export played notes` after the generated group in
+   `review-actions` (absent when nothing played; `-played.mid`). Touched
+   `screens/last-session-review/` (intent, handoff), `flows/review-and-export/` (intent,
+   handoff), `strategy.md`, `motion.md`, token source (`--played-notes-lane-block-size`,
+   `--played-note-block-size`, `--played-note-min-inline-size`, `--color-played-note`;
+   `.review-view`, `.played-notes-lane`, `.played-notes-divider`, `.played-note`,
+   `.review-actions` column gap). **`ux-critic` 2026-10-03: DRIFT (4 findings), fixed (ux D163
+   lane time axis anchored to the written notes, D164 no `aria-controls` on the switch, D165
+   Tier 1 wording); confirmation DRIFT (inner barlines), fixed (D166); final confirmation
+   ALIGNED.** Not yet owner-confirmed.
+8. **Adaptive tempo UI** (§10, v2.2; feeds chunk 28). **Written 2026-10-03** (uncommitted), ux
+   D155, D156, D158, D159: `Rising tempo` Off/On in the "During a session" group, `On` disabled
+   with "Needs a connected controller." when no controller is attached (stored choice kept),
+   frozen during a session; header `tempo-readout` and the read-only stepper show the sounding
+   phrase's exact tempo (fixed width, `--tempo-value-inline-size`, new class
+   `input-stepper-value`); reset at session end; "Last session reached {n} BPM." `field-note`
+   under the stepper. Touched `screens/phrase-workspace/` (intent, handoff),
+   `flows/play-session/` (intent, handoff), `strategy.md`, `motion.md`, token source. **`ux-critic`
+   2026-10-03: DRIFT (4 findings), fixed (ux D172 a raised tempo shows with the first phrase that
+   plays at it, a repeat included; D173 the shown `Off` of an unavailable `Rising tempo` changes
+   nothing; D174 lexicon "Rising tempo" pause and "Tempo" v2 wording, `.field-note` comment);
+   confirmation DRIFT, its only finding one missed sentence in `flows/play-session/intent.md`
+   ("nothing else needs work"), fixed as specified; final confirmation (run with unit 11's pass,
+   2026-10-03) ALIGNED: the fix closes the finding, no regression; the lexicon's "Rising tempo"
+   pause wording checked against §10 and spec D179, correct.** Not yet owner-confirmed.
+9. **Moved out of v2 (ux D154, spec D174): v3, not committed.** End-of-measure chord-fit check
+   presentation (§9). Kept notes: the master spec hands this presentation to `ux-writer` ("a UI/UX
+   design decision, not specified here"); positive-only and quiet, distinct from the per-note
+   highlight. Design only if v3 schedules it.
+10. **Settings-mutation flag UI** (§5, v2.1; feeds chunk 25). **Written 2026-10-03**
+    (uncommitted), ux D155, D156, D157: `Vary settings` Off/On in the new "During a session"
+    `control-group-session` (last in `control-group-row`, own row from `bp-tablet-landscape`);
+    controls follow the phrase now sounding, changes silent and shift-free (`control-summary`
+    one line; `preset-status` two stacked texts, `preset-status-text` / `is-reserve`, `is-custom`
+    moved to the text; `preset-status` announcement off during a session); mutated settings
+    return to the player's own at session end (Q64 closed by the owner 2026-10-03: yes, ux D167,
+    spec D182). Touched `screens/phrase-workspace/`, `flows/play-session/`,
+    `flows/generate-phrase/handoff.md` (session options start no round), `strategy.md`,
+    `motion.md`, token source; lexicon "Vary settings" entry corrected. **`ux-critic`
+    2026-10-03: BLOCKED (profile flip not shown as customized, against spec D181) plus 4 minor
+    findings, fixed (ux D168 flip takes the custom path, D169 `aria-live="off"` during a session,
+    back to polite after the end's restore, D170 density step-down timing and Tier 1 wording);
+    confirmation DRIFT (grammar word after a flip), fixed (D171); final confirmation ALIGNED.**
+    Not yet owner-confirmed.
+11. **Multi-phrase tension arc** (§3, v2.2; feeds chunk 30). **Written 2026-10-03**
+    (uncommitted), ux D155, D160: `Tension across phrases` Off/On in the "During a session"
+    group; the Tension control shows the tension in effect (the player's choice, or a value
+    `Vary settings` set), never a per-phrase step. Touched `screens/phrase-workspace/` (handoff,
+    intent), `flows/play-session/handoff.md`, `strategy.md`; lexicon "Tension across phrases"
+    and "Vary settings" entries. **`ux-critic` 2026-10-03: DRIFT (the Tension item and the
+    general "controls show what the sounding phrase was generated with" rule each claimed too
+    much), fixed (ux D175); lexicon DRIFT (Vary settings step wording against spec D181), fixed
+    (D176); confirmation: unit 11 ALIGNED; lexicon wording refined (D176), final lexicon check
+    ALIGNED.** Not yet owner-confirmed.
 
 - **`strategy.md` persona alignment** (found by `ux-critic`, 2026-09-27): the strategy predates
   `specs/personas.md` and cites no persona or goal. Its problem-alignment, context-of-use and
@@ -396,6 +434,19 @@ three passes, confirmed by the user, committed 2026-09-27. Next, in this order:
    (D150), the Review's code loading and the export choices' page-session lifetime (D151), a
    portrait session end's fresh phrase via the no-room path (D152), the phone's minimal Review
    confirmed (D153); handoffs updated.
+
+5. **v2.1 and v2.2 units 7, 10, 8, 11, 2026-10-03** (branch `ux-v21-v22`, worktree
+   `../infinite_flow-ux-v21-v22`, all uncommitted; session handed over mid-way at the owner's
+   request). Done: decisions ux D154–D162 and Q64 logged; all four units written up in the tier
+   docs and the token source; housekeeping (unit 9 to v3, the v2.0–v2.3 wording). Then, all
+   done 2026-10-03: lexicon entries "Rising tempo", "Tension across phrases", "Vary settings"
+   (with `related` links from Tempo and Tension); README map lines; the owner answered Q64 (yes,
+   ux D167, spec D182); `ux-critic` validation, each unit ALIGNED: 7 (ux D163–D166), 10
+   (ux D168–D171), 8 (ux D172–D174), 11 and the lexicon entries (ux D175, D176);
+   `npm run lint:links` passes. **Next:** the coordinator commits; then the owner's confirmation
+   of units 7, 10, 8, 11. Handoff note for `coding-leader`: chunk 23 must place played notes on
+   the ux D163/D166 time axis (aligned to the written notes, each measure ending at its barline),
+   not D161's measure-box mapping.
 
 **ux-critic plan read (2026-09-27), to weigh before continuing:**
 

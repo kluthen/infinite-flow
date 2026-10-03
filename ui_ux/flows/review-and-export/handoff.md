@@ -8,7 +8,9 @@ flowchart TD
   RV -.->|"Meanwhile, hidden: session systems cleared; next phrase generated from the current controls (fresh seed, no carry-in, idle fit retries), or none while the staff has no room"| RV
   RV -->|"Start session is not offered; no MIDI note starts a session"| RV
   RV -->|"Format: MusicXML or MIDI; Backing track (MIDI only)"| RV
+  RV -->|"Played notes on or off (v2.1; only when the session holds a played note): a lane under each staff system, or none"| RV
   RV -->|Export generated notes| X[Build one file from the session history: review-export-action is-loading]
+  RV -->|"Export played notes (v2.1; only when the session holds a played note)"| X
   X -->|Built| DL[Browser download starts; no message]
   X -->|Fails| XE["review-export-error: 'The file couldn't be made. Try again.'"]
   DL --> RV
@@ -88,15 +90,24 @@ flowchart TD
   landscape. A session ended by that turn (once phrase 1 has sounded) finds the staff with no
   width behind the notice: its fresh phrase takes the no-room path above, coming when the notice
   clears, never a notation error.
-- **Export.** One action in v2.0, `Export generated notes`, with its format (`MusicXML` default, or
-  `MIDI`) and, for MIDI only, `Backing track` (off by default). It delivers exactly one file, built
-  from the session history, as a browser download. It never holds a played note. It works whatever
-  the hidden workspace is doing, including while the next phrase loads and while the staff has no
-  room. Any failure to build or hand over the file, a failed load of the export code included,
-  shows `review-export-error`. Details in `screens/last-session-review/handoff.md`.
+- **Export.** `Export generated notes`, with its format (`MusicXML` default, or `MIDI`) and, for
+  MIDI only, `Backing track` (off by default), and, from v2.1, `Export played notes` (MIDI only,
+  no options), rendered only when the session holds a played note in a phrase. Each delivers
+  exactly one file, built from the session history, as a browser download; the generated-notes
+  file never holds a played note, the played-notes file never holds the backing. Both together
+  are two separate files whose names share the session's stem (`-generated`, `-played`). Each
+  works whatever the hidden workspace is doing, including while the next phrase loads and while
+  the staff has no room. Any failure to build or hand over a file, a failed load of the export
+  code included, shows `review-export-error`. Details in `screens/last-session-review/handoff.md`.
+- **Played notes (v2.1).** When the session holds a played note in a phrase, a `Played notes`
+  switch (off at first, kept for the page session) shows or hides a lane under each staff system
+  of every phrase, with a neutral bar for each note the player played there, unquantized; nothing
+  is ever coloured or marked, matched or not, and the generated staff never changes. Details in
+  `screens/last-session-review/handoff.md`.
 - **Privacy.** The Review and its data live in memory only. Nothing is written to browser storage
   and nothing is sent; the export is the only way anything leaves, and only when the player
   triggers it.
-- **v2.1 (not built in v2.0).** A played-notes toggle joins `review-header` and an
-  `Export played notes` action joins `review-actions` beside the generated-notes group, at every
-  breakpoint, the phone included. Designed in unit 7.
+- **v2.1, at every breakpoint, the phone included.** `Export played notes` joins `review-actions`
+  after the generated-notes group, and the `Played notes` switch takes a row of its own
+  (`review-view`) under them; neither is rendered when the session holds no played note in a
+  phrase, so such a Review is exactly v2.0's.
