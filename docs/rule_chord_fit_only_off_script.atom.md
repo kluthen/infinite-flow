@@ -1,7 +1,7 @@
 ---
 id: rule_chord_fit_only_off_script
 status: DRAFT
-version: 0.1
+version: 0.2
 priority: 1
 parents:
   - [[req_chord_fit_acknowledgement]]
@@ -9,7 +9,7 @@ dependents: []
 type: RULE
 layer: BUSINESS
 human_name: Chord-Fit Check Runs Only Off-Script
-tags: [v2, release-v2.3, acknowledgement, midi, harmony]
+tags: [v3, nice-to-have, acknowledgement, midi, harmony]
 ---
 
 # Chord-Fit Check Runs Only Off-Script
@@ -19,6 +19,8 @@ Reserve the chord-fit acknowledgement for measures where the player departed fro
 
 ## THE RULE / LOGIC
 The chord-fit check only ever runs on a measure where what the player actually played differs from the written phrase for that measure. A measure played exactly as written never triggers it; it only ever gets the per-note highlight. The two acknowledgement signals therefore never double up on the same measure, and the check stays specifically a reward for departing from the page.
+
+Not committed scope: like the chord-fit acknowledgement it belongs to, this rule is part of a nice-to-have for v3, not of v2, recorded for when that acknowledgement is scheduled.
 
 ## TECHNICAL INTERFACE
 Each measure is compared with the written phrase before any chord-fit judgement is made.

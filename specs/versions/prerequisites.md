@@ -1,6 +1,6 @@
 # Prerequisites — Building Blocks Later Versions Need
 
-Status: draft v0.1 (2026-09-25). Preliminary analysis, not a decision document.
+Status: draft v0.1 (2026-09-25; the chord-fit check's placement updated 2026-10-03, D174). Preliminary analysis, not a decision document.
 
 The user asked for "preliminary work of seeking what's necessary to build prior some items
 proposed for later version to occur". This document maps each planned capability (v1.0 through
@@ -31,7 +31,7 @@ Reading rules:
 | Rhythmic variety, Mixed retired (D59, D60)                                                                 | v1.0    | M, I                                                  | Partly: density-keyed cell catalogs; variety concept absent                                     | M (pending the ISS-004 feasibility review) |
 | Rolling phrase continuing its own output (D51, D65)                                                        | v2      | A, B, E, N, plus a latency budget                     | No: fixed four-measure one-shot generation, no prior-context input                              | L                                          |
 | MIDI input, expected-note acknowledgement (D52)                                                            | v2      | C, B, H, L                                            | No MIDI code; no event identity through notation                                                | M–L                                        |
-| End-of-measure chord-fit check (D108, ships v2.3)                                                          | v2      | C, D, B                                               | Partly: chord events per measure and an internal chord-tone fact exist                          | S–M, now that D108 has settled the rule    |
+| End-of-measure chord-fit check (D108; a v3 nice-to-have since D174, not v2)                                | v3      | C, D, B                                               | Partly: chord events per measure and an internal chord-tone fact exist                          | S–M, now that D108 has settled the rule    |
 | Backing audio: bass, block chords, click (D63, D70)                                                        | v2      | B, D                                                  | No audio code at all                                                                            | M–L                                        |
 | Session model, last-session review (D62, D67)                                                              | v2      | E, C, N                                               | No: the session holds one result, no history                                                    | M                                          |
 | MusicXML / MIDI export (D62, D67)                                                                          | v2      | G, E                                                  | No                                                                                              | M                                          |
@@ -172,7 +172,8 @@ future accompaniment.
     fails the app's own line) is now settled (D108): yes — the check fires only when the player's
     played notes deviate from the written phrase, never on a measure played exactly as written.
 
-**Earliest version.** v2.3 (D104, D108). The gap is small and no longer blocked; see
+**Earliest version.** v3, as a nice-to-have, not committed scope (D174; it was v2.3 under D104 and
+D108). The gap is small and no longer blocked; see
 [v2/master-spec.md §9](v2/master-spec.md#9-the-end-of-measure-chord-fit-check).
 
 ### E. Session model with phrase history

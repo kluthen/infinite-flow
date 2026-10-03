@@ -1,9 +1,10 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27; master spec v1.25, 2026-10-02, D171). The
-individual topic documents that were
+Status: consolidated into the master spec (2026-09-27; master spec v1.26, 2026-10-03, D173–D180).
+The individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
-ID-free description of v2.0 through v2.3, ready to hand to `coding-leader` and, later, `ux-writer`.
+ID-free description of v2.0, v2.1, v2.2 and v2.4 (v2.3 is empty since D174), ready to hand to
+`coding-leader` and, later, `ux-writer`.
 
 **Serves:** P2, the Speed Builder, first. P1 gets its real-time goal (reading notes as they come).
 P3 gets session review and export; marking favorites is v3 (D130). See [personas](../../personas.md).
@@ -12,8 +13,8 @@ P3 gets session review and export; marking favorites is v3 (D130). See [personas
 
 | Document                         | Purpose                                                                                                        | Status            |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------- |
-| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.3: concept, scope, mechanics, definition of done, open items | master spec v1.25 |
-| [build-plan.md](build-plan.md)   | The build plan: v2.0–v2.3 cut into ordered chunks, each with its atoms, tests and blockers                     | draft v0.3        |
+| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.4: concept, scope, mechanics, definition of done, open items | master spec v1.26 |
+| [build-plan.md](build-plan.md)   | The build plan: v2.0–v2.4 cut into ordered chunks, each with its atoms, tests and blockers                     | draft v0.4        |
 
 The original draft topic documents (highlights proposal, rolling phrase, audio and backing, MIDI
 and acknowledgement, sessions/review/export, adaptive tempo, definition of done,
@@ -64,7 +65,8 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   setting except instrument selection and tempo is eligible; each mutation shifts one by at most
   one grade in either direction; landing on an unsupported combination re-mutates until a
   supported one is found. Still open: the exact cadence ("every few phrases") and whether the
-  flag defaults on or off.
+  flag defaults on or off. _Settled 2026-10-03 (D176): every 2 to 4 phrases at random, seeded;
+  off by default._
 - **Settled (D92): O42, played pitch in the live view.** On a successfully matched note, the
   **expected note** lights up (theme colour, e.g. green), with no other decoration. The played
   pitch itself is never rendered — this keeps the no-mismatch-hint principle (D22/D52) intact.
@@ -85,7 +87,9 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   "blue"/passing chromatic notes that don't resolve onto a chord tone get no signal, by design;
   and it fires **only** when the player deviates from the written phrase in that measure — never
   on a measure played exactly as written. It ships in its own release, **v2.3**, after played-note
-  review/export and the O77 flag (v2.1) and adaptive tempo (v2.2).
+  review/export and the O77 flag (v2.1) and adaptive tempo (v2.2). _Its release placement is
+  replaced by D174 (2026-10-03): the check left v2 and is a v3 nice-to-have; the definition
+  stands._
 - **Settled (D107): O77's release is v2.1.**
 - **Settled (D109, from `ux-writer`'s design kickoff): a failure-ladder repeat phrase is never
   visibly marked in the review**, though it's still recorded internally.
@@ -233,9 +237,26 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   export closes every phrase but the last with a double barline and the last with a final
   barline, as the owner decided on 2026-09-29; master spec §7 had kept a double barline for every
   phrase. No new rule. Master spec v1.25.
-- Open: 13 questions across the register, including O87, O93, O98 and O99 (above);
-  O86 (what makes a favorite "exported") is still open but now belongs to v3 (D130);
-  none is currently flagged ★ (all 5 most-blocking ones are settled). See [open-questions.md](../../open-questions.md) and
+- **Replanned (D173–D174, the owner's decisions, 2026-10-03).** The real-hardware checks leave
+  the v2.0 gate for a new release, **v2.4** "real-hardware checks", placed after v2.2: the
+  controller check on the reference hardware, tuning the acknowledgement windows (150/200 ms) and
+  latency on it, opening real exports in MuseScore and a MIDI tool, and the playhead and
+  main-thread measurements in real Chromium (former v2.0 items 6, 9 and 15, and part of 12).
+  **v2.0 can ship before them**, with its timing constants untuned; the rest of the v2.0 gate
+  stays (D173). The end-of-measure chord-fit check leaves v2: **v2.3 is empty**, its number not
+  reused, and the check is a v3 nice-to-have, not committed scope (D174). **O104** (whether the v2.1
+  and v2.2 gates' own real checks follow) was opened and answered the same day: yes, the v2.1
+  gate's DAW and reference-machine checks move to v2.4 too (D180). Master spec v1.26.
+- **Settled (D176–D179, the owner's answers, 2026-10-03): O77, O93, O98 and O99 closed.** The
+  settings-mutation flag mutates every 2 to 4 phrases at random, from a seeded source, and starts
+  off (D176). A note-density mutation steps from the density generated with, and `Sixteenth` is
+  unavailable to it whenever the session generates with `Eighth` (D177). The multi-phrase tension
+  arc repeats every four phrases, as chosen, tenser, as chosen, calmer, and its toggle starts off
+  (D178). Adaptive tempo pauses while the controller is away, does not run in a session started
+  without it, and starts off (D179, O99's alternative). Master spec v1.26.
+- Open: 13 questions across the register, including O87 (above), and O100–O103, the
+  v3 rhythm candidates (D175); O86 (what makes a favorite "exported") is still open but belongs
+  to v3 (D130); none is currently flagged ★. See [open-questions.md](../../open-questions.md) and
   [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
 
 ## Settled scope
@@ -249,13 +270,12 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   - A MIDI controller is supported.
   - The app acknowledges a played note **only when it is the expected note**. There is no
     mismatch hint.
-  - The app keeps track of everything played. When a measure's time is up, it checks whether
-    what was played fits that measure's chord, and if so acknowledges that the player kept that
-    part of the contract.
-  - Embellishing and trying out improvisation are welcome, as long as the notes suit the chord.
-    What "fits" means, judged per measure by pitch class, is settled (D108; see
-    [master-spec.md §9](master-spec.md#9-the-end-of-measure-chord-fit-check)); it ships in v2.3
-    and fires only when the player deviates from the written phrase.
+  - The app keeps track of everything played.
+  - Not v2 (D174): the end-of-measure check of whether what was played fits the measure's chord,
+    acknowledging an embellishing or improvising player. It is a v3 nice-to-have, not committed
+    scope; what "fits" means, judged per measure by pitch class and only when the player deviates
+    from the written phrase, stays settled (D108; see
+    [master-spec.md §9](master-spec.md#9-the-end-of-measure-chord-fit-check)).
 - **Backing playback.** This is the product's first audio.
   - It plays a bass line and block chords that follow the generated harmony, in pitch and on the
     beat, with an optional click and a mute/volume control. Rudimentary is acceptable.
@@ -288,6 +308,7 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   - While it is on, the BPM rises on a flat, unconditional schedule — +5 BPM every 2 phrases,
     up to 240 — independent of what the player plays (D101). It no longer depends on O24; a
     performance-linked version is deferred to v3+.
+  - It starts off, and pauses while a controller lost mid-session is away (D179).
 - **Guiding principle** (product-wide; see [far vision](../../vision/far-vision.md)): acknowledge
   and encourage, never penalize, grade, rank or score. Anything adaptive is opt-in and visible.
 
@@ -341,8 +362,8 @@ through an export the player triggers (D64, D69).
 - **O47, O48, O49** are governance/later-version questions, unrelated to v2's own scope. Full
   text is in the [register](../../open-questions.md).
 - **O57, O68, O69, O71** are the remaining research-track questions. **O77** (settings-mutation
-  flag) is narrowed by D103, and its release is settled at v2.1 (D107) — but its cadence and
-  default state are still open. Full text is in
+  flag) was settled on 2026-10-03 (D176), with O93 (D177). **O104** (whether the v2.1 and v2.2
+  gates' own real checks move to v2.4, D173) was answered yes the same day (D180). Full text is in
   [open-questions.md](../../open-questions.md) and [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
 - **O84** (starting a session from the Review) was settled 2026-09-30 (D169, from ux D137); its
   start from the Review was replaced the same day by the owner (D170).
@@ -356,9 +377,8 @@ through an export the player triggers (D64, D69).
   day too (D139).
 - **O97** (a session's last phrase ending with a leap recovery or a tense note owed) was settled
   by the owner on 2026-09-29 (D167). **O98** (the multi-phrase tension arc's mechanics and
-  default) and **O99** (adaptive tempo while the controller is lost, and its default) block only
-  those v2.2 behaviours. Both are carried in
-  [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
+  default) and **O99** (adaptive tempo while the controller is lost, and its default) were settled
+  by the owner on 2026-10-03 (D178, D179).
 - Every other question originally registered here (O10, O24, O33, O35–O39, O41–O46, O50–O56,
   O58–O67, O70, O72–O76) is now **settled** — see the status snapshot above and the
   [decisions log](../../decisions.md).
@@ -390,7 +410,8 @@ One canonical term per concept. "Flow mode", used in the highlights proposal, me
 - **Note acknowledgement:** the quiet positive signal that a played note matched an expected
   note.
 - **Chord-fit acknowledgement:** the end-of-measure positive signal that what was played fit the
-  harmony, fired only when the player deviated from the written phrase (D108, v2.3).
+  harmony, fired only when the player deviated from the written phrase (D108). Not in v2: a v3
+  nice-to-have since D174.
 - **Harmony span:** the part of a measure governed by one harmony event (a whole bar, or half a
   bar when `startBeat` is 2).
 - **Backing:** the bass and block chords rendered from the harmony. It is not a generated voice.

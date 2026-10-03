@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.29
+Status: draft v0.30
 
 ## Status Snapshot
 
@@ -181,16 +181,40 @@ Status: draft v0.29
 - **The MusicXML export's last barline (2026-10-02, D171)**: a correction found by the chunk 20
   preflight. Master spec §7 now says what the owner decided on 2026-09-29 and the encoder does:
   every phrase but the last ends with a double barline, the last with a final barline. No new
-  rule; nothing newly opened. The v2 master spec is now v1.25.
+  rule; nothing newly opened. The v2 master spec became v1.25.
 - **Livelier defaults (2026-10-03, D172, owner)**: the Neutral preset's harmonic motion is now
   `Gentle diatonic` instead of `Static`, and the first-load arpeggio chaos is `Varied` instead of
   `Predictable`, because the default phrase had collapsed to about two repeated pitches. Arpeggio
   chaos stays out of the presets, Jazz is unchanged, and no control value changes what it does.
   Nothing newly opened.
+- **v2 replanned (2026-10-03, D173–D174)**, the owner's decisions. The real-hardware checks leave
+  the v2.0 gate for a new release, **v2.4** "real-hardware checks", after v2.2: the controller
+  check on the reference hardware, tuning the acknowledgement windows (150/200 ms) and latency on
+  it, opening real exports in MuseScore and a MIDI tool, and the playhead and main-thread
+  measurements in real Chromium. v2.0 can ship before them, its timing constants untuned; the rest
+  of the v2.0 gate stays (D173). The end-of-measure chord-fit check (v2.3, build plan chunks
+  32–34) leaves v2 and is a v3 nice-to-have, not committed scope; v2.3 is empty and its number is
+  not reused (D174). **O104**, opened by it, was answered the same day (D180): the v2.1 gate's
+  checks in a real DAW and on the reference machine move to v2.4 too.
+- **v3 rhythm candidates (2026-10-03, D175)**, the owner's ideas, not committed: rhythm ratios,
+  a rhythm editor and a rhythm lock, all reached by a new note-density value, Custom; the
+  settings-mutation flag never moves density into Custom, may alter the ratios under it, and
+  cannot durably alter a locked rhythm
+  ([v3](versions/v3/README.md#rhythm-candidates-custom-note-density-candidates-not-committed)).
+  Opened **O100–O103**.
+- **Four v2.1/v2.2 questions answered (2026-10-03, D176–D179)**, by the owner. **O77:** the
+  settings-mutation flag mutates every 2 to 4 phrases at random, seeded so a session replays, and
+  starts off (D176). **O93:** a note-density mutation steps from the density generated with, and
+  `Sixteenth` is unavailable to it whenever the session generates with `Eighth` (D177). **O98:**
+  the multi-phrase tension arc repeats every four phrases (as chosen, tenser, as chosen, calmer)
+  and its toggle starts off (D178). **O99:** adaptive tempo pauses while the controller is away,
+  O99's alternative, and starts off (D179). The v2 master spec is now v1.26, and the build plan
+  v0.4.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.
-  - **v3:** MIDI-seeded continuation, "my instrument", local persistence and favorites.
+  - **v3:** MIDI-seeded continuation, "my instrument", local persistence and favorites; the
+    chord-fit check as a nice-to-have (D174).
   - **v4:** accompaniment with roles.
   - **v5+:** a library, microphone input and a staff-only session view.
   - **Endgame:** a rhythm RPG.
@@ -219,8 +243,9 @@ Status: draft v0.29
   master spec was then at v1.5 (v1.25 since D171). The one gap left open then (**O84**: starting
   a session from the Review) was closed 2026-09-30 (D169).
 - **Open:** 13 questions remain live: O86 (D129, a v3 question since D130), O87
-  (D131), O93 (D150), O98 and O99 (D157–D163), plus the 8
-  older ones this bullet goes on to describe. None is flagged ★. The 5 most-blocking ones
+  (D131) and O100–O103 (D175, v3 rhythm candidates), plus the 7
+  older ones this bullet goes on to describe; O77, which it also describes, was settled on
+  2026-10-03 (D176). None is flagged ★. The 5 most-blocking ones
   settled first (**D104** O75 v2.0 cut line is the full loop; **D105** O34 continuation boundary;
   **D76** O54 audio unlock; **D77** O55 controller check ships; **D78** O41 acknowledgement
   window), then two large 2026-09-27 batches closed nearly everything else (**D80–D88**:
@@ -249,8 +274,8 @@ Status: draft v0.29
   open. The rest of what's open is verification/research work, not a design decision: O47,
   O48, O49 (later/governance, outside v2's own scope), and O57, O68, O69, O71 (listening test,
   prototype, measurement, and Bluetooth-MIDI research). **D79** notes that v3's "my instrument"
-  should inherit the controller check's detected offset. **The v2 spec (v2.0–v2.3) is now
-  consolidated** into [versions/v2/master-spec.md](versions/v2/master-spec.md); the draft topic
+  should inherit the controller check's detected offset. **The v2 spec (v2.0–v2.3 then; v2.0,
+  v2.1, v2.2 and v2.4 since D173–D174) is now consolidated** into [versions/v2/master-spec.md](versions/v2/master-spec.md); the draft topic
   documents that fed it, including the original questions-for-user, are archived at
   [archive/v2/](archive/v2/README.md). See the live [register](open-questions.md) for what
   remains open.

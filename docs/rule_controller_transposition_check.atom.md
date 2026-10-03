@@ -3,10 +3,10 @@ id: rule_controller_transposition_check
 status: DRAFT
 priority: 1
 human_name: Controller-Transposition Check
-tags: [v2, release-v2.0, midi]
+tags: [v2, release-v2.0, v2.4-check, midi]
 type: RULE
 layer: BUSINESS
-version: 0.1
+version: 0.2
 parents:
   - [[rule_controller_connects_between_sessions]]
 dependents: []
@@ -26,3 +26,4 @@ The connection step shows one written note and reports the played note's constan
 ## EXPECTATION
 - The check correctly reports a match, a constant octave offset or a constant semitone offset for injected test offsets.
 - It can be re-run only between sessions, and no note played during it starts a session.
+- Its verification on the reference hardware is a check of the later real-hardware release, v2.4, and does not block v2.0: with the device's own transpose setting at each of C, B♭ tenor and E♭ alto, confirm which MIDI note a written middle C actually sends, whether an octave setting changes it, and what note-on velocity it uses.

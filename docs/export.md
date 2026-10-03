@@ -494,8 +494,10 @@ file viewer that shows the tempo map and markers, and check:
    changes fall where `c-keyboard.musicxml` shows its chord symbols, and the generated line plays
    louder than the backing.
 
-The v2.0 release gate (build-plan chunk 21) asks for the same checks again on files downloaded
-from the running app.
+The v2.4 release gate, the real-hardware checks
+([build-plan chunk 35](../specs/versions/v2/build-plan.md#chunk-35--v24-release-gate-real-hardware-checks)),
+asks for the same checks again on files downloaded from the running app. They moved there from
+the v2.0 gate on 2026-10-03, so v2.0 ships without them.
 
 ### Results
 

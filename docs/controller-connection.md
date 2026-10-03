@@ -364,8 +364,9 @@ distance reads "{n} semitone(s)" below an octave, "{n} octave(s)" for a multiple
 
 **Still open.** The master spec's §12 asks which note a written middle C actually sends on the
 reference hardware at each device setting. That answer decides whether a manual
-input-transposition setting is also needed. The check is built; that verification closes before
-the v2.0 gate, at the same sitting as the timing tuning (see
+input-transposition setting is also needed. The check is built; that verification belongs to the
+v2.4 release gate, the real-hardware checks (build-plan chunk 35), not the v2.0 gate, and happens
+at the same sitting as the timing tuning (see
 [MIDI Tuning](midi-tuning.md#related-open-item-the-controller-check)).
 
 ## How it's tested

@@ -1,7 +1,8 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.25 (2026-10-02). This is the consolidated, execution-ready specification for
-v2, covering releases v2.0 through v2.3. It supersedes the individual v2 draft topic documents,
+Status: master spec v1.26 (2026-10-03). This is the consolidated, execution-ready specification for
+v2, covering releases v2.0, v2.1, v2.2 and v2.4 (v2.3 was emptied, and its number is not reused).
+It supersedes the individual v2 draft topic documents,
 which are kept in the archive as working history. Change in v1.6: the export is chosen by content,
 generated notes or played notes, and played notes come as a MIDI file of their own instead of an
 opt-in track inside the generated MIDI file (§2, §7, §8, §11–§13). Change in v1.7: marking
@@ -94,7 +95,18 @@ generated at the session end stands, and phrase 1 is the phrase on screen at Idl
 session starts (§4, §6, §7, §11). Change in v1.25, a correction that adds no new rule: the
 MusicXML export closes every phrase but the last with a double barline and the last with a final
 barline, as the product owner decided on 2026-09-29 while the MusicXML encoder was built; the
-text had kept a double barline for every phrase (§7).
+text had kept a double barline for every phrase (§7). Change in v1.26, the product owner's
+decisions of 2026-10-03: the checks that need the reference hardware or real programs leave the
+v2.0 definition of done for a new release, v2.4, placed after v2.2, so v2.0 can ship before them
+with its timing constants at their starting values (the controller check on the reference
+hardware, tuning the acknowledgement windows and latency, opening real exports in MuseScore and a
+MIDI tool, and the playhead and main-thread measurements in real Chromium); the end-of-measure
+chord-fit check leaves v2 and becomes a nice-to-have for v3, its definition kept in §9; and four
+items left open are settled: the settings-mutation flag mutates every 2 to 4 phrases at random,
+seeded, and starts off; a note-density mutation steps from the density generated with; the
+multi-phrase tension arc repeats every four phrases and starts off; and adaptive tempo pauses
+while the controller is away and starts off; and the v2.1 release's checks in a real DAW and on
+the reference machine move to v2.4 as well (§2, §3, §5, §6, §8, §9, §10, §11, §12).
 
 ## 1. Core concept
 
@@ -115,7 +127,7 @@ from a played motif, "my instrument," and local persistence across sessions) is 
 
 ## 2. Scope
 
-### In scope for v2 (v2.0 through v2.3)
+### In scope for v2 (v2.0 to v2.4)
 
 - A rolling sequence of phrases within a session, joined so the ear does not notice a seam.
 - A simple, deterministic backing track (bass and block chords) with an optional metronome click
@@ -124,12 +136,12 @@ from a played motif, "my instrument," and local persistence across sessions) is 
   server-side state.
 - Reading a MIDI controller and acknowledging notes the player gets right, plus a one-time check
   that catches a controller/instrument-template transposition mismatch.
-- A quiet, per-measure "did what you played fit the harmony" acknowledgement for players who
-  embellish or improvise rather than playing the generated line exactly.
 - A review of the last session, and exporting the whole session: the generated notes to MusicXML
   or MIDI, and the notes the player played to MIDI, each through its own export action.
 - An opt-in, visible flag that lets the app quietly vary its own generation settings over the
   course of a session, and a separate opt-in flag that raises the tempo on a fixed schedule.
+- Checking the timing, the controller check and the exported files on the reference hardware and
+  in real programs, as a release of its own, v2.4 (§11).
 
 ### Explicitly out of scope for v2
 
@@ -144,6 +156,9 @@ from a played motif, "my instrument," and local persistence across sessions) is 
 - Reviewing any session other than the most recent one — v3.
 - Editing, cutting, splicing or otherwise manipulating generated material in the review — out of
   scope entirely; the v2 review has no per-phrase action at all.
+- A quiet, per-measure "did what you played fit the harmony" acknowledgement for players who
+  embellish or improvise rather than playing the generated line exactly (the end-of-measure
+  chord-fit check) — a nice-to-have for v3, not committed scope; §9 keeps its definition.
 - Accompaniment with musical roles (harmonizing, contrasting, responding to the player) — v4.
 - A staff-only session view, hiding everything but the staff and Stop while a session runs —
   v5. In v2 the audio mix stays reachable throughout a session (§5).
@@ -235,8 +250,14 @@ is deferred to v3 entirely).
   instead; it is confirmed as v2.2 scope, but is not considered urgent for that release. Unlike
   the always-on single-phrase arc, this is a player-facing control with its own visible on/off
   toggle, on the same footing as the settings-mutation flag (§5) and adaptive tempo (§10) —
-  presentation is a UI/UX design decision, not specified here. How the longer arc runs, and
-  whether the toggle starts on or off, are still open (§12).
+  presentation is a UI/UX design decision, not specified here. The toggle starts off. While it
+  is on, the arc runs in groups of four phrases (16 measures), counted from phrase 1: the first
+  phrase of each group is generated with the chosen tension arc (so phrase 1, generated at Idle,
+  already fits), the second one step tenser, the third as chosen again, and the fourth one step
+  calmer, in the order Settled, Lift, Build, Edge, with no step past either end. The tension-arc
+  setting keeps showing the player's choice; only what each phrase is generated with changes.
+  When the settings-mutation flag (§5) changes the tension arc, the longer arc steps around
+  whatever value is then in effect.
 
 ## 4. Look-ahead and failure handling
 
@@ -326,13 +347,13 @@ opt-in flag:
 - **The settings-mutation flag.** When turned on, it lets an eligible setting drift by at most one
   grade, in either direction, every few phrases. Eligible settings are everything **except**
   instrument selection and tempo (tempo has its own, separate adaptive-tempo flag, described in
-  §6). If a mutation would land on a setting combination the generator doesn't support, it
+  §10). If a mutation would land on a setting combination the generator doesn't support, it
   re-mutates — rerolling again — until it lands on a supported combination; an unsupported
-  combination is never applied, and the mutation cycle is never silently skipped. **Still open,
-  left for implementation to settle with the product owner:** the exact cadence (how many phrases
-  between mutations, and whether that count is fixed or randomized within a range), and whether
-  the flag defaults on or off when a session starts. This flag ships in **v2.1**.
-- **Adaptive tempo,** described fully in §6, ships in **v2.2**.
+  combination is never applied, and the mutation cycle is never silently skipped. The number of
+  phrases between two mutations, and before the first one from the session's start, is drawn at
+  random from 2 to 4, from a seeded source, so a session's mutations can be replayed from its
+  stored inputs. The flag is opt-in: it starts off. This flag ships in **v2.1**.
+- **Adaptive tempo,** described fully in §10, ships in **v2.2**.
 
 Neither source exists in v2.0, so nothing can change a setting during a v2.0 session. Applying a
 change at a phrase boundary, as follows, ships with the first source that needs it, the
@@ -387,8 +408,9 @@ decision.
   never back up, and no combination v1 disallows uses `Eighth`.
 - **The settings-mutation flag** (v2.1) treats `Sixteenth` as unavailable below that width: a
   mutation that would land on it mutates again, as for a combination the generator does not
-  support. How the flag treats note density in a session generating with `Eighth` under this rule
-  is otherwise still open (§12).
+  support. A note-density mutation steps from the density a phrase is actually generated with,
+  and `Sixteenth` counts as unavailable to a mutation whenever the session generates with
+  `Eighth` under this rule, whatever the window's width.
 
 ## 6. Backing, click, count-in and tempo
 
@@ -533,7 +555,7 @@ decision.
   values, and a later opt-in link between density and tempo is a possible v3+ idea, not a v2
   requirement.
 - **The audio clock is the one master clock** for the backing, the click, the on-screen playhead
-  and the chord-fit check (§9): everything is scheduled and read against it, not against wall-clock
+  and the matching of played notes (§8): everything is scheduled and read against it, not against wall-clock
   time, so the playhead and the audio it represents never visibly drift apart. A muted backing
   does not stop this clock — muting is implemented as silencing the sound, never as suspending the
   clock itself.
@@ -844,7 +866,7 @@ as follows:
   a session's last phrase, the last expected note's window is not cut short on its account.
 
 A played note acknowledges an expected note only if it matches that note's **exact concert pitch,
-octave included** (this is deliberately strict on octave, unlike the chord-fit check in §9, because
+octave included** (this is deliberately strict on octave, unlike the chord-fit check §9 describes for later, because
 it's meant to train reading — including which octave is written — and the controller check above
 already catches a simple constant-octave mismatch). Each expected note can be acknowledged at most
 once, matched by the earliest unacknowledged expected note whose window contains the played note and
@@ -862,7 +884,9 @@ is ever marked.
 **Latency.** The played onset used for matching is the controller's timestamp mapped onto the
 audio clock, minus the output latency (the delay between scheduling a sound and it actually
 reaching the speakers) and a small constant for the connection type (USB is negligible; Bluetooth
-LE is roughly 10–15 ms plus jitter). v2.0 ships these as tuned, hard-coded constants only; a
+LE is roughly 10–15 ms plus jitter). These are hard-coded constants only. v2.0 ships them, and the
+windows above, at their starting values; they are tuned on the reference hardware in v2.4 (§11),
+the windows' 150 ms and 200 ms changing only with the product owner's sign-off. A
 player-facing calibration step that measures and remembers a specific controller's actual latency
 is deferred to v3, where it pairs naturally with "my instrument" persistence.
 
@@ -870,8 +894,12 @@ is deferred to v3, where it pairs naturally with "my instrument" persistence.
 
 Beyond matching individual expected notes exactly, the app also acknowledges a player who
 **embellishes or improvises** on the written line, as long as what they played still makes musical
-sense over the harmony. This check ships as its own release, **v2.3**, after the played-note review
-and the settings-mutation flag (v2.1) and adaptive tempo (v2.2).
+sense over the harmony.
+
+**Not v2 scope.** This check was planned as its own release, v2.3. It has left v2 and is a
+**nice-to-have for v3, not committed scope**. The definition below is kept as the starting point
+for when it is scheduled, with its acceptance criterion at the end of this section; nothing in it
+binds v2.
 
 **When it runs at all.** The check only ever runs on a measure where what the player actually
 played **differs from the written phrase** for that measure. A measure played exactly as written —
@@ -924,6 +952,11 @@ chord's scale rather than the phrase's single scale — not a v2 concern.
 **Presentation** (exactly what this looks like on screen, distinct from the note-level highlight
 in §8, but still positive-only and quiet) is a UI/UX design decision, not specified here.
 
+**Acceptance criterion, kept for when it is scheduled:** for every seed and supported-settings
+combination, playing the app's own generated phrase exactly, with its own timing, never triggers
+the chord-fit acknowledgement — only the per-note highlight from v2.0 ever appears on a
+script-perfect measure. This is checked as a property test over the existing fixture set.
+
 ## 10. Adaptive tempo
 
 A separate opt-in feature from the settings-mutation flag in §5, ships in **v2.2**, aimed at
@@ -947,8 +980,12 @@ players deliberately building reading and playing speed:
   tempo on a value outside that list; during the session the exact value in effect is shown. At the
   end of the session (Stop, or the next Start), the control resets to the tempo the player actually
   started that session from, while the review records the tempo the session actually reached.
-- **Still open** (§12): what the rise does while a controller lost mid-session is away, and
-  whether adaptive tempo starts on or off.
+- While a controller lost mid-session is away (§8), the tempo does not rise: the phrases that
+  start sounding meanwhile do not count toward the next rise, and counting resumes where it
+  stopped when the controller reconnects. A session started while the selected controller is
+  away has no controller, so adaptive tempo does not run in it.
+- Adaptive tempo starts off when the page loads. The player's choice is then kept from one
+  session to the next for as long as the page stays open, since v2 saves nothing across a reload.
 
 ## 11. Definition of done
 
@@ -959,9 +996,15 @@ players deliberately building reading and playing speed:
 | **v2.0** | The full core loop: rolling phrases with carry-in (§3–§4), backing/click/count-in (§6), sessions (§7), MIDI expected-note acknowledgement and the controller check (§8), last-session review and export of the generated notes to MusicXML or MIDI (§7), generation settings locked for the whole session (§5).          |
 | **v2.1** | Played notes become visible in the review (the v2.0 session history already records them, §7, but the v2.0 review does not show them) and exportable by choice, through their own export action, as their own MIDI file (§7); the settings-mutation flag, with setting changes applied at the next phrase boundary (§5). |
 | **v2.2** | Adaptive tempo (§10); the multi-phrase tension arc noted in §3.                                                                                                                                                                                                                                                          |
-| **v2.3** | The end-of-measure chord-fit check (§9).                                                                                                                                                                                                                                                                                 |
+| **v2.3** | Nothing. The end-of-measure chord-fit check (§9) left v2 for v3, as a nice-to-have; the number is not reused.                                                                                                                                                                                                            |
+| **v2.4** | The real-hardware checks: the controller check, the acknowledgement windows and latency tuned on the reference hardware (§8), real exports opened in MuseScore and a MIDI tool (§7), the playhead and main-thread measurements in real Chromium.                                                                         |
 
 Count-in is part of v2.0 because starting the session on a MIDI note needs it.
+
+v2.0 can ship before v2.4. It ships with its timing constants at their starting values, untuned:
+the acknowledgement windows and the latency constants of §8, as they are before any measurement. The checks that need the reference
+hardware, the reference machine or a real program other than the browser are v2.4's; the v2.0 items
+they replace keep their numbers below, so references to them stay valid.
 
 ### Prerequisites that must already be in place
 
@@ -971,7 +1014,8 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
 - Generation latency must be re-measured after that rhythmic-variety rework, including a cold run
   triggered by a mid-session control change (from v2.1, when the settings-mutation flag can cause
   one), to confirm the look-ahead deadline in §4 still has comfortable headroom at the fastest
-  supported tempo.
+  supported tempo. That cold run, re-measured on the v2.1 code on the reference machine, is a
+  v2.4 check (§11).
 
 ### v2.0 is done when all of the following hold
 
@@ -992,16 +1036,15 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
    and the audio mix stay reachable throughout (§5).
 5. The backing stays in pitch and on the beat; muting it never affects timing; nothing plays before
    the player has clicked, either Start or "Connect controller", which unlocks audio.
-6. The on-screen playhead stays within 20 ms of the actual audio output position over a five-minute
-   session in Chromium.
+6. _Moved to v2.4 (below): the playhead measured against the audio output in real Chromium._
 7. Acknowledgement is exact and positive-only: only the exact expected pitch inside its window is
    ever acknowledged, and the live view never renders a played pitch under any circumstance.
    Every expected note's window contains its own onset (§8), so a note played exactly on time at
    the exact pitch is acknowledged at every supported tempo and note density, sixteenth notes at
    240 BPM included, and across a join between two phrases.
 8. The controller check correctly reports a match or a constant offset for injected test offsets.
-9. The acknowledgement windows and latency constants are tuned and documented against the actual
-   reference hardware (a breath controller over USB, and a USB keyboard).
+9. _Moved to v2.4 (below): tuning the acknowledgement windows and latency constants on the
+   reference hardware._
 10. A session works with no MIDI at all — permission denied or API unsupported — without ever
     blocking Start. A session started without a controller runs until Stop and cannot gain a
     controller mid-session.
@@ -1011,11 +1054,12 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
     of window never brings a running session onto a disallowed combination, since its density can
     only step from `Sixteenth` down to `Eighth` (item 27) and no combination v1 disallows uses
     `Eighth`.
-12. The review and export are complete, exact, and reproducible from stored inputs; MusicXML opens
-    correctly in a real notation program (MuseScore) for each of the three instrument templates:
-    the B♭ tenor and E♭ alto saxophones, the two transposing ones, with their `<transpose>`
-    element, and the C keyboard, which does not transpose, without one (§7); MIDI opens correctly
-    in a real tool with the correct tempo map. Every export covers the whole session. In v2.0
+12. The review and export are complete, exact, and reproducible from stored inputs: the MusicXML
+    file carries each of the three instrument templates correctly, the B♭ tenor and E♭ alto
+    saxophones, the two transposing ones, with their `<transpose>` element, and the C keyboard,
+    which does not transpose, without one (§7), and the MIDI file carries the correct tempo map,
+    as automated tests check. Opening the files in real programs is a v2.4 check (below). Every
+    export covers the whole session. In v2.0
     only the generated-notes export action exists, and no exported file holds a played note. The
     review has no favorites. No session starts while the review shows; once the player leaves
     it, it stays reachable until the next session starts, which discards it without any
@@ -1026,8 +1070,7 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
     rules, Chromium-only support, and offline use after first load with no additional audio assets.
     The only changes to v1's behaviour at Idle are those of items 26 and 27; no partial or
     substitute staff is ever drawn.
-15. The re-signed latency budget holds: no main-thread task ever runs longer than the audio
-    scheduler's own look-ahead window during a 240 BPM session.
+15. _Moved to v2.4 (below): the main-thread measurement in real Chromium._
 16. A controller lost mid-session (its port reports disconnected) is clearly visible to the
     player. If the same device comes back within 30 seconds of the loss, it is reattached
     automatically without re-running the transposition check, and the session carries on; if not,
@@ -1161,21 +1204,51 @@ Count-in is part of v2.0 because starting the session on a MIDI note needs it.
   - no generated-notes file, MusicXML or MIDI, ever holds a played note;
   - each export action delivers exactly one file; exporting both contents takes both actions and
     gives two separate files;
-  - imported together into a real DAW, the played-notes file and the generated-notes MIDI file
-    of the same session line up phrase by phrase, with the same tempo map and markers;
+  - the played-notes file and the generated-notes MIDI file of the same session share the same
+    tempo map and markers, as automated tests check; importing both into a real DAW is a v2.4
+    check (below);
   - the played-notes action is unavailable when the session holds no played note;
   - privacy still holds under the network and storage spy of v2.0 item 13;
   - a setting changed by the settings-mutation flag is only ever visible starting at the first
     phrase that hasn't begun sounding, or at the phrase after it when that phrase is already
     partly drawn as read-ahead or less than a measure remains before its deadline; no note already
-    on screen ever changes (§5).
+    on screen ever changes (§5);
+  - the settings-mutation flag starts off; with it on, mutations come 2 to 4 phrases apart, and
+    the same stored inputs give the same mutations; a note-density mutation in a session
+    generating with `Eighth` steps from `Eighth` and never lands on `Sixteenth` (§5).
 - **v2.2:** adaptive tempo meets its own acceptance criteria in §10 (flat, unconditional schedule;
-  never decreases automatically; resets correctly at session end; generation itself is provably
-  unaffected by whether it's on).
-- **v2.3:** for every seed and supported-settings combination, playing the app's own generated
-  phrase exactly, with its own timing, never triggers the chord-fit acknowledgement — only the
-  per-note highlight from v2.0 ever appears on a script-perfect measure. This is checked as a
-  property test over the existing fixture set.
+  no rise while the controller is away, counting resuming where it stopped; never decreases
+  automatically; resets correctly at session end; starts off; generation itself is provably
+  unaffected by whether it's on). The multi-phrase tension arc follows §3: its toggle starts off;
+  with it off, every phrase is generated as before; with it on, each group of four phrases is
+  generated as chosen, one step tenser, as chosen, one step calmer, never past Settled or Edge,
+  and the same seeds give the same session.
+- **v2.4, the real-hardware checks:** v2.0's items 6, 9 and 15 and the real-program part of item
+  12, and the controller check on the reference hardware (§12), all on the reference machine and
+  hardware:
+  - **Item 6:** the on-screen playhead stays within 20 ms of the actual audio output position over a
+    five-minute session in Chromium.
+  - **Item 9:** the acknowledgement windows and latency constants are tuned and documented against
+    the actual reference hardware (a breath controller over USB, and a USB keyboard). A window
+    value other than 150 ms early and 200 ms late needs the product owner's sign-off.
+  - **Item 12, in real programs:** MusicXML exports open correctly in a real notation program
+    (MuseScore) for each of the three instrument templates, the two saxophones with their
+    `<transpose>` element and the C keyboard without one; MIDI exports open correctly in a real
+    tool with the correct tempo map.
+  - **Item 15:** the re-signed latency budget holds: no main-thread task ever runs longer than the
+    audio scheduler's own look-ahead window during a 240 BPM session.
+  - **The controller check on the reference hardware:** its verification as §12 describes, which
+    decides whether a manual input-transposition setting is needed.
+  - **From v2.1, in a real program:** imported together into a real DAW, the played-notes file and
+    the generated-notes MIDI file of the same session line up phrase by phrase, with the same
+    tempo map and markers.
+  - **From v2.1, on the reference machine:** the first generation after an automatic setting
+    change (the cold run of the latency prerequisite) is re-measured on the code v2.4 checks, and
+    the look-ahead deadline keeps its headroom at 240 BPM.
+
+  v2.1 and v2.2, like v2.0, can ship before v2.4; their automated tests still gate them.
+
+  The earlier releases' tests all still pass on the code v2.4 checks.
 
 ## 12. Open questions carried forward
 
@@ -1183,10 +1256,6 @@ These are consciously left for implementation (or a later, focused conversation 
 owner) to resolve. None of them is silently dropped. None of the items in this first list blocks
 starting v2.0 implementation:
 
-- **The settings-mutation flag's exact cadence and default state** (§5): how many phrases typically
-  pass between mutations, whether that count is fixed or randomized within a range, and whether the
-  flag is on or off by default when a session starts. Scope, magnitude and the invalid-combination
-  handling are already fully settled (§5); only these tuning parameters remain.
 - **Backing voicing and register** (§6): the proposed default is bass in MIDI 36–47 (roughly C2–B2)
   and chords in close position with the top note at or below E4, attacked on each chord change and
   each downbeat. This needs a listening-test pass, already agreed to happen later, before being
@@ -1201,12 +1270,13 @@ starting v2.0 implementation:
   jitter it measurably has. USB is the guaranteed-tested path regardless of this outcome.
 - **Re-measuring generation latency** after the rhythmic-variety rework mentioned under
   Prerequisites, including a cold-generation run triggered specifically by a mid-session control
-  change, to reconfirm the look-ahead deadline in §4 has enough headroom at 240 BPM.
+  change, to reconfirm the look-ahead deadline in §4 has enough headroom at 240 BPM. Its
+  re-measurement on the v2.1 code, on the reference machine, is a v2.4 check (§11).
 - **The controller-transposition check's own verification on the reference hardware** (§8): with
   the device's own transpose setting at each of C, B♭ tenor and E♭ alto, confirming which MIDI note
   a written middle C actually sends, whether an octave setting changes it, and what note-on
   velocity it uses. This determines whether an additional manual "input transposition" setting is
-  needed beyond the check itself.
+  needed beyond the check itself. It is a v2.4 check (§11) and does not block shipping v2.0.
 - **The screen wake lock dropped mid-session** (§6): a browser may release the lock by itself
   while the session is still running (for example to save battery). Whether the app asks for it
   again is undecided. Proposed, not yet confirmed by the product owner: it asks again, silently,
@@ -1216,43 +1286,8 @@ One item left v2 when favorites moved to v3, and is not a v2 gap: **what makes a
 as exported**, which only mattered for asking before discarding unexported favorites. It stays
 open and is settled with favorites in v3, together with marking itself.
 
-One item came up with the note-density rule and the "staff needs more room" notice (§2). It
-blocks only the behaviour it names:
-
-- **The settings-mutation flag in a session generating with `Eighth`** (§5, v2.1). When a chosen
-  `Sixteenth` generates as `Eighth`, it is undecided which of the two a note-density mutation
-  steps from: from the chosen `Sixteenth`, a step down to `Eighth` changes nothing generated. It
-  is also undecided whether `Sixteenth` counts as unavailable in a session that stepped down to
-  `Eighth` and whose window is now wide enough, where landing on it would change nothing
-  generated either. Proposed, not yet confirmed by the product owner: a mutation steps from the
-  density generated with, and `Sixteenth` counts as unavailable whenever the session generates
-  with `Eighth` under this rule, whatever the window's width.
-
-Two items came up when the spec was checked against the business rules drawn from it. Each
-blocks only the v2.2 behaviour it names:
-
-- **How the multi-phrase tension arc runs, and its default** (§3, v2.2). Tension here is the
-  unsettled sound of a note that clashes with the chord before it settles; the tension-arc setting
-  (Settled, Lift, Build or Edge) decides how much of it a phrase has and where. How the longer arc
-  moves that across phrases is undecided, and so is whether its toggle starts on or off. Proposed,
-  not yet confirmed by the product owner: the arc repeats every four phrases (16 measures), counted
-  from phrase 1. The first phrase of each group is generated with the chosen tension arc (so phrase
-  1, generated at Idle, already fits), the second one step tenser, the third as chosen again, and
-  the fourth one step calmer, in the order Settled, Lift, Build, Edge, with no step past either end.
-  The tension-arc setting keeps showing the player's choice; only what each phrase is generated with
-  changes. The toggle starts off.
-- **Adaptive tempo when the controller is lost, and its default** (§10, v2.2). Adaptive tempo is
-  only available with a controller attached, but a controller can be lost mid-session and come back
-  within 30 seconds. Proposed, not yet confirmed by the product owner: the rise carries on its
-  schedule while the controller is away, since it never depends on what or whether the player plays,
-  so a reconnected player may find the tempo a little higher (at most 15 BPM, at a fast tempo). A
-  session started while the selected controller is away has no controller, so adaptive tempo does
-  not run in it. The alternative is to pause the rise while the controller is away. Adaptive tempo
-  starts off when the page loads; the player's choice is then kept from one session to the next for
-  as long as the page stays open, since v2 saves nothing across a reload.
-
 Two further items are noted as direction for v2 or later, without being scoped precisely enough to
-build yet, and are **not** part of the v2.0–v2.3 definition of done above:
+build yet, and are **not** part of the v2 definition of done above:
 
 - **Embellishment/style-figure flags** that let the player ask the generator itself to lean into
   more ornamented, idiomatic figures — likely v2.2 or v3, and may end up overlapping with or

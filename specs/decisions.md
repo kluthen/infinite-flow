@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.24
+Status: draft v2.25
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -811,3 +811,105 @@ fact in the live documents (see the [archive index](archive/README.md) and
   reference pitch context is no longer called the default), phrase-workspace handoff and doc,
   lexicon, and the atoms `rule_profile_presets_apply_defined_controls` and
   `module_generation_control_catalog`.
+- **D173 (2026-10-03): the real-hardware checks leave the v2.0 gate for a new release, v2.4
+  "real-hardware checks", placed after v2.2.** The product owner's decision, through the
+  coordinator. Four sets of checks move out of the v2.0 gate (build plan chunk 21, master spec
+  §11 and §12) into v2.4:
+  - the controller check verified on the reference hardware (master spec §12: with the device's
+    own transpose setting at C, B♭ tenor and E♭ alto, which MIDI note a written middle C sends,
+    whether an octave setting changes it, and the note-on velocity; it decides whether a manual
+    input-transposition setting is needed);
+  - tuning the acknowledgement windows (150 ms early, 200 ms late) and the latency constants on
+    the reference hardware, by the procedure in `docs/midi-tuning.md` (v2.0 item 9);
+  - the hand checks of real exports: the MusicXML files opened in MuseScore for the three
+    instrument templates, and the MIDI files opened in a MIDI tool (the real-program part of
+    v2.0 item 12; `docs/export.md#hand-check`, `tests/fixtures/export-hand-check/`);
+  - the measurements in real Chromium on the reference machine and hardware: v2.0 items 6 (the
+    playhead within 20 ms of the audio over five minutes), 9 and 15 (no main-thread task longer
+    than the audio scheduler's look-ahead at 240 BPM).
+
+  Everything else in the v2.0 gate stays there: O57's listening test, the audio mix levels (ux
+  Q31), Bluetooth MIDI (O71), the screen wake lock dropped mid-session (O87), the owner's rulings
+  on the silence timer and the reconnection window left by chunk 17, the VISION v0.4 sign-off,
+  the atoms' status, the seed-matrix sweep of item 1, the v1 regression and offline checks, the
+  privacy spy, the done-items table and the tag. **v2.0 can ship before the hardware checks.** It
+  ships with the timing constants at their starting values, untuned: the 150 ms and 200 ms
+  windows the owner approved as rule text, and the latency constants at their starting values
+  (today no correction over USB). The definition-of-done
+  items keep their numbers; items 6, 9 and 15 and item 12's real-program part are now listed
+  under v2.4. v2.3 is left empty by D174 and the number is not reused: nothing is renumbered.
+  Consequences, not new rules: if the controller check on the reference hardware shows that a
+  manual input-transposition setting is needed, that setting arrives after v2.0 has shipped; if
+  the tuning calls for another window value, `rule_expected_note_window` is still revised first,
+  with the owner's sign-off. Opened **O104** (whether the v2.1 and v2.2 gates' own checks in real
+  programs or on the reference machine follow). Master spec status line, §2, §11 and §12; build
+  plan §1, chunks 17, 20 and 21, new chunk 35; v2 README; roadmap; versions index.
+
+- **D174 (2026-10-03): the end-of-measure chord-fit check leaves v2 and becomes a v3
+  nice-to-have.** The product owner's decision, through the coordinator. The v2.3 release
+  (build plan chunks 32–34) is removed from v2's release sequence and waves; v2 ships as v2.0,
+  v2.1, v2.2 and v2.4. The check is recorded in v3 as a nice-to-have, **not committed scope**.
+  This replaces only D108's release placement (v2.3): D108's definition of the check (kept;
+  judged per measure by pitch class; fires only on a measure where the player went off-script;
+  "blue" and passing chromatic notes that don't resolve get no signal) is kept as the design
+  starting point, in master spec §9, which stays in place marked as outside v2, and the build
+  plan keeps chunks 32–34 as notes, out of every wave. The per-note acknowledgement of v2.0 is
+  unchanged; with no chord-fit check, a player who embellishes gets no measure-level signal in
+  v2. Interface unit 9 (the chord-fit presentation, `ui_ux/todo.md`) is no longer v2 work; that
+  is `ux-writer`'s tree to update. Master spec status line, §2, §9, §11 and §12; build plan §1
+  and chunks 32–34; v2 README; v3 README; roadmap; versions index.
+- **D175 (2026-10-03): three rhythm features recorded as v3 candidates, reachable through a new
+  note-density value, Custom.** The product owner's ideas, recorded as **candidates, not
+  committed scope**. All three sit in the rhythm category of the settings and are reachable only
+  when note density is set to a new value, **Custom** (working name):
+  - **Rhythm ratios:** the player sets how likely each note value is to appear, from the whole
+    note down to the sixteenth note.
+  - **Rhythm editor:** either copy the rhythm of one of the bars, or enter a rhythm by hand.
+  - **Rhythm lock:** when set, the rhythm does not change. Generation may bend that rule a
+    little, to create tension and release, but the rhythm stays stable across the session.
+
+  With the settings-mutation flag (v2.1): a mutation can never move note density into Custom;
+  while Custom is set, a mutation may alter the ratios; while the lock is set, a mutation cannot
+  alter the rhythm durably, a temporary bend being the only latitude. Opened **O100**–**O103**
+  for what this leaves undecided. v3 README; roadmap.
+
+- **D176 (2026-10-03): the settings-mutation flag fires at a random interval of 2 to 4 phrases,
+  and starts off.** The product owner's answer to **O77**. The number of phrases between two
+  mutations is drawn at random, from 2 to 4, from a seeded source, so a session's mutations can
+  be replayed from its stored inputs. The flag is opt-in: it starts off. With D103 and D107, O77
+  is closed. The count before the first mutation is drawn the same way, counted from the
+  session's start (confirmed by the owner the same day). Master spec §5 and §12; build
+  plan chunks 24 and 25.
+- **D177 (2026-10-03): in a session generating with `Eighth`, a note-density mutation steps from
+  the density generated with.** The product owner's answer to **O93**, with its proposal. A
+  mutation steps from the note density a phrase is actually generated with, and `Sixteenth`
+  counts as unavailable to a mutation whenever the session generates with `Eighth` under D146,
+  whatever the window's width. Extends D150. Master spec §5 and §12; build plan chunk 24.
+- **D178 (2026-10-03): the multi-phrase tension arc repeats every four phrases, and its toggle
+  starts off.** The product owner's answer to **O98**, with its proposal. Counted from phrase 1,
+  in groups of four phrases (16 measures): the first phrase of each group is generated with the
+  chosen tension arc (so phrase 1, generated at Idle, already fits), the second one step tenser,
+  the third as chosen, the fourth one step calmer, in the order Settled, Lift, Build, Edge, with
+  no step past either end. The tension-arc setting keeps showing the player's choice; only what
+  each phrase is generated with changes. The toggle starts off. When the settings-mutation flag
+  changes the tension arc, the longer arc steps around whatever value is in effect. Master spec
+  §3 and §12; build plan chunks 29 and 30.
+- **D179 (2026-10-03): adaptive tempo pauses while the controller is away.** The product owner's
+  answer to **O99**, choosing its alternative over its proposal. While a controller lost
+  mid-session is away, the tempo does not rise; the rise resumes when the controller reconnects.
+  A session started while the selected controller is away has no controller (D126), so adaptive
+  tempo does not run in it. Adaptive tempo starts off when the page loads, and the player's
+  choice is kept from one session to the next for as long as the page stays open. The phrases
+  that start sounding while the controller is away do not count toward the next rise, and
+  counting resumes where it stopped (confirmed by the owner the same day).
+  Rejected: the rise carrying on its schedule while the controller is away. Master spec §10 and
+  §12; build plan chunks 27 and 28.
+- **D180 (2026-10-03): the v2.1 and v2.2 gates' checks in a real program or on the reference
+  machine move to v2.4 too.** The product owner's answer to **O104**, with its proposal ("yes").
+  Extends D173 to the later gates: the played-notes MIDI file and the generated-notes MIDI file of
+  one session lining up when imported together into a real DAW (v2.1), and the first generation
+  after an automatic setting change re-measured on the reference machine on the v2.1 code (the
+  latency prerequisite's cold run) are checked in v2.4, not in the v2.1 gate. So v2.1 and v2.2,
+  like v2.0, can ship before the hardware checks; their automated tests still gate them. v2.4
+  runs every moved check on the code it ships with. The v2.2 gate had no such check of its own.
+  Master spec §11 and §12; build plan chunks 26, 31 and 35.
