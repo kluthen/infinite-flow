@@ -1,7 +1,7 @@
 # Infinite Flow v2 — Build Plan
 
 Status: draft v0.4 (2026-10-03). Chunk 0 is done. Build plan for v2.0, v2.1, v2.2 and v2.4,
-written from [master spec v1.20](master-spec.md) and kept in step with it since (v1.26). Not yet
+written from [master spec v1.20](master-spec.md) and kept in step with it since (v1.27). Not yet
 approved for execution. Change in v0.3: the spec gaps are resolved, so the phrase-boundary change
 and the key change's harmonic drop move from chunks 7 and 8 to chunk 24 in v2.1, and each chunk is
 blocked only by what is still open. Change in v0.4, the owner's decisions of 2026-10-03 (spec
@@ -117,7 +117,7 @@ chunks in different sections; the second to merge rebases on the first.
 | 6    | 17 MIDI in the session (done 2026-10-02)                                                                                                                                                                                                                                                                                                                                      | Wave 5                                                              |
 | 7    | 20 Review and generated-notes export (done 2026-10-02; hand checks moved to chunk 35)                                                                                                                                                                                                                                                                                         | Chunk 17                                                            |
 | 8    | 21 v2.0 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.0 chunk                                                    |
-| 9    | 22 Played-notes MIDI encoding (done 2026-10-03) · 24 Settings-mutation engine                                                                                                                                                                                                                                                                                                 | Chunks 4, 7, 8, 9 and 19; may start before v2.0 ships               |
+| 9    | 22 Played-notes MIDI encoding (done 2026-10-03) · 24 Settings-mutation engine (done 2026-10-03)                                                                                                                                                                                                                                                                               | Chunks 4, 7, 8, 9 and 19; may start before v2.0 ships               |
 | 10   | 23 Review: played notes (blocked) · 25 Settings-mutation control (blocked)                                                                                                                                                                                                                                                                                                    | Wave 9, v2.0, and their designs                                     |
 | 11   | 26 v2.1 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.1 chunk                                                    |
 | 12   | 27 Adaptive tempo engine · 29 Multi-phrase tension arc                                                                                                                                                                                                                                                                                                                        | v2.0 chunks, and chunk 24 for chunk 29; may start before v2.1 ships |
@@ -2280,7 +2280,12 @@ notes, both contents), [§11, v2.1](master-spec.md#added-by-v21-and-later).
 
 ### Chunk 24 — Settings-mutation engine
 
-**Release:** v2.1.
+**Release:** v2.1. **Done on 2026-10-03.**
+The owner accepted the scale of one grade per setting proposed while this chunk was built (spec
+D181, master spec v1.27). The latency item is accepted as it stands (D181, D180): the 250 ms cold
+target is a goal, not a gate; `rule_look_ahead_deadline` is the gate, and it holds because a
+mutation always has 3 measures before its deadline. The re-measurement on real hardware is a v2.4
+check: [chunk 35](#chunk-35--v24-release-gate-real-hardware-checks).
 
 **Goal.** The logic of the settings-mutation flag, and of applying a setting change at a phrase
 boundary, which the flag is the first thing to need: every few phrases, one eligible setting moves

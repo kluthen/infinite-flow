@@ -1,8 +1,10 @@
 /**
- * How the session builds the intent of each generation attempt: always from the settings frozen
- * at start, with the note density resolved at the moment the request is built (and the session's
- * step-down memory updated from it), and for a standalone retry with the register fixed to the
- * window the session already resolved, so a Varying register is resolved once per session.
+ * How the session builds the intent of each generation attempt: from the settings in effect when
+ * the request is built (the chosen ones, frozen at start, until a change at a phrase boundary),
+ * with the note density resolved at that moment (and the session's step-down memory updated from
+ * it), and for a standalone attempt with its register given explicitly: the window the session
+ * already resolved, so a Varying register is resolved once per session, or Varying after a change
+ * to it, so the window is resolved again.
  */
 
 import { makeGenerationControls } from '../domain/controls/generation-controls'
@@ -11,6 +13,7 @@ import { deepFreeze } from '../domain/events/deep-freeze'
 import type { CarryIn } from '../domain/generation/carry-in/carry-in'
 import { makeGenerationIntent, type GenerationIntent } from '../domain/generation/generation-intent'
 import type { RegisterId } from '../domain/profile/register-id'
+import type { RegisterChoice } from '../domain/profile/register-intent'
 import type { RegisterWindowCandidate } from '../domain/profile/register-window-derivation'
 import {
   SessionEngineError,
@@ -18,21 +21,19 @@ import {
   type SessionSettings,
 } from './session-types'
 
-/** Everything an attempt's intent is built from, besides what the ladder decides. */
+/** The seams an attempt's intent reads: request identities and seeds, and the window width. */
 // @spec-link [[service_session_engine]]
-export interface IntentSeams extends SessionEngineDependencies {
-  readonly settings: SessionSettings
-}
+export type IntentSeams = Pick<SessionEngineDependencies, 'providers' | 'viewport'>
 
-/** What one attempt asks for: its ladder step, the carry-in it keeps, and the register windows. */
+/**
+ * What one attempt asks for: a carry-in attempt keeps the carry-in it is given; a standalone one
+ * has none and fixes the register it is given.
+ */
 // @spec-link [[service_session_engine]]
-export interface AttemptPlan {
-  readonly step: 'carry-in' | 'standalone'
-  /** The carry-in of the phrase before; a standalone attempt reads only its register window. */
-  readonly carryIn: CarryIn
-  /** The instrument's register windows, as the phrase before resolved them. */
-  readonly candidates: readonly RegisterWindowCandidate[]
-}
+// @spec-link [[rule_varying_register_once_per_session]]
+export type AttemptPlan =
+  | { readonly step: 'carry-in'; readonly carryIn: CarryIn }
+  | { readonly step: 'standalone'; readonly register: RegisterChoice }
 
 /** A built intent and the step-down memory after building it. */
 // @spec-link [[rule_session_density_only_steps_down]]
@@ -78,32 +79,32 @@ export function resolvedRegister(
 }
 
 /**
- * Intent: build one attempt's intent from the frozen settings with a fresh request id and seed.
- * The note density comes from the chosen one, the window reading now and the step-down memory;
- * building it as Eighth for a chosen Sixteenth sets the memory, whatever the attempt's fate. A
- * carry-in attempt keeps the carry-in; a standalone one drops it and fixes the resolved register.
+ * Intent: build one attempt's intent from the settings in effect with a fresh request id and seed.
+ * The note density comes from the density in effect, the window reading now and the step-down
+ * memory; building it as Eighth for a Sixteenth in effect sets the memory, whatever the attempt's
+ * fate. A carry-in attempt keeps its carry-in; a standalone one drops it and fixes its register.
  */
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[rule_session_density_only_steps_down]]
 // @spec-link [[rule_varying_register_once_per_session]]
 export function buildAttemptIntent(
   seams: IntentSeams,
+  settings: SessionSettings,
   plan: AttemptPlan,
   steppedDown: boolean,
 ): BuiltIntent {
-  const chosen = seams.settings.controls
+  const chosen = settings.controls
   const noteDensity = resolveGeneratedNoteDensity(chosen.noteDensity, {
     belowTabletLandscape: seams.viewport.isBelowTabletLandscape(),
     sessionSteppedDown: steppedDown,
   })
-  const standalone = plan.step === 'standalone'
-  const register = standalone ? resolvedRegister(plan.carryIn, plan.candidates) : chosen.register
+  const register = plan.step === 'standalone' ? plan.register : chosen.register
   const intent = makeGenerationIntent({
     requestId: seams.providers.nextRequestId(),
     seed: seams.providers.nextSeed(),
     controls: { ...chosen, noteDensity, register },
-    musicalProfile: seams.settings.musicalProfile,
-    ...(standalone ? {} : { carryIn: plan.carryIn }),
+    musicalProfile: settings.musicalProfile,
+    ...(plan.step === 'carry-in' ? { carryIn: plan.carryIn } : {}),
   })
   return { intent, steppedDown: steppedDown || noteDensity !== chosen.noteDensity }
 }

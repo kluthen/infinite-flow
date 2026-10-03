@@ -30,6 +30,7 @@ import {
   buildIntent,
   carryInAfter,
   generateSuccess,
+  keyChangeIntent,
 } from '../domain/generation/carry-in/carry-in-fixture'
 
 /** Generous per-test timeout: each case generates the same phrase three times. */
@@ -216,6 +217,23 @@ describe('replayPhraseKey reproduces generation', () => {
         expect(JSON.stringify(output.carryOut?.carryIn)).toBe(JSON.stringify(expected))
         expect(output.carryOutAbsentReason).toBeNull()
         expect(output.request.carryIn).toEqual(carryIn)
+      }
+    },
+    TIMEOUT_MS,
+  )
+
+  // @test-link [[rule_key_change_drops_harmonic_carry_in]]
+  // @test-link [[module_phrase_replay_key]]
+  it(
+    'replays a phrase whose carry-in dropped its harmony after a key change identically',
+    () => {
+      for (const seed of [12, 13]) {
+        const intent = keyChangeIntent(seed, 'replay-key-change')
+        const report = replayPhraseKey(encodePhraseReplayKey(intent, 2))
+        expectReplayEqualsGeneration(report, intent)
+        expectCompleteInput(report, intent)
+        expect(report.input.carryInNames?.finalChord).toBeNull()
+        expect(successOf(report).request.carryIn).toEqual(intent.carryIn)
       }
     },
     TIMEOUT_MS,

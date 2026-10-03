@@ -6,6 +6,7 @@ version: 0.2
 priority: 1
 dependents:
   - [[rule_repeat_phrase_marked_internally_only]]
+  - [[rule_setting_change_rechecks_pitch_carry_in]]
   - [[rule_struggling_generator_notice]]
   - [[service_session_engine]]
   - [[service_session_runner]]
@@ -20,9 +21,11 @@ notes: Revised 2026-09-30 in v2 chunk 8 (previous version 0.1) as a clarificatio
 # Session Generation Failure Ladder
 
 ## INTENT
+
 Keep a session running through a generation failure without ever blocking or penalizing the player.
 
 ## THE RULE / LOGIC
+
 During a session the player never sees a blocking generation-failure alert. A failed attempt is a generation that found no phrase, a generation request that was rejected because the generator crashed on it or had stopped working, or a phrase that does not fit the staff; each counts the same way. When an attempt for the next phrase fails, the app:
 
 1. retries silently, up to three times, with a fresh seed and the same carry-in, while the deadline still allows it;
@@ -32,9 +35,11 @@ During a session the player never sees a blocking generation-failure alert. A fa
 A phrase is repeated only when no attempt has produced a valid phrase by the deadline, and the repeat is recorded the same way whichever kind of failure led to it. A generation failure never stops the session: stopping would penalize the player for something they did not cause, while repeating a phrase is musically harmless.
 
 ## TECHNICAL INTERFACE
+
 Failure handling runs silently behind a session; its only visible outcomes are a shown phrase, a repeated phrase, or the struggling-generator notice.
 
 ## EXPECTATION
+
 - Through any generation failure, a rejected generation request included, the session keeps running and no blocking alert appears.
 - Each next phrase is a successful retry with carry-in, a standalone phrase in the session's register window, or a repeat of the previous phrase recorded in the history.
 - A repeat happens only when no attempt produced a valid phrase by the deadline, and is decided at the deadline.

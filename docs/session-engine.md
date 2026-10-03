@@ -3,7 +3,8 @@
 This document records how `src/session/` decides what a running practice session asks for, shows
 and ends: its boundary, the timed events it takes and the outputs it answers with, the look-ahead
 deadlines, the failure ladder, the struggling-generator notice, the settings lock and note-density
-step-down, how tempo stays out of generation, the runner that connects the engine to the app's one
+step-down, the settings-mutation engine and settings changes at a phrase boundary, how tempo stays
+out of generation, the runner that connects the engine to the app's one
 generation Worker, the session history that records every phrase that sounded and the notes the
 player played, the session controller that runs a session on the workspace from the Start click
 (or the starting note) to its end, with its MIDI side and the Review that opens at the end, what
@@ -21,8 +22,10 @@ ahead of it (the read-ahead), so the player always sees what comes next.
   clock, the way `src/domain/acknowledgement/acknowledgement-window.ts` takes it. The engine never
   asks what time it is; the runner (below) stamps each result it feeds back.
 - **No browser API, no Vue.** Its only seams are the request-id and seed providers
-  (`GenerationIntentProviders`) and the window-width reading
-  (`Pick<ViewportWidthProvider, 'isBelowTabletLandscape'>`).
+  (`GenerationIntentProviders`), the window-width reading
+  (`Pick<ViewportWidthProvider, 'isBelowTabletLandscape'>`) and the display reading
+  (`SessionDisplayReading`, read only for a settings change; see
+  [Settings changes at a phrase boundary](#settings-changes-at-a-phrase-boundary)).
 - **Immutable outputs.** Every output is deep-frozen, and attempt ids are unique per engine,
   increasing from 1.
 - **Caller bugs throw.** An event the engine cannot accept throws a typed `SessionEngineError`
@@ -36,6 +39,12 @@ ahead of it (the read-ahead), so the player always sees what comes next.
 | `session-intents.ts`              | The settings freeze and how each attempt's intent is built (density, register, carry-in).                                         |
 | `struggling-notice.ts`            | The struggling-generator notice as a pure reducer.                                                                                |
 | `session-engine.ts`               | `createSessionEngine(deps, start)`: the state machine that ties the others together.                                              |
+| `session-engine-state.ts`         | The engine's state between events, and the decided phrase a settings change can take back.                                        |
+| `settings-mutation-scales.ts`     | `MUTATION_SCALES`: the scale of every mutable setting, as data, and `scaleNeighbours`.                                            |
+| `settings-mutation.ts`            | The pure seeded mutation: the cadence, `mutationCandidates`, `mutateSettings` and the flag.                                       |
+| `session-mutation-step.ts`        | `landingMutation`: whether a mutation lands on the phrase about to be requested, and its output.                                  |
+| `session-settings-change.ts`      | A look-ahead's basis, each rung's attempt after a change, and the discard rule of a settings change.                              |
+| `carry-in-adaptation.ts`          | `adaptCarryIn`: a carry-in adapted to settings that changed at the join, or a standalone phrase.                                  |
 | `session-runner.ts`               | `createSessionRunner(deps, start)`: executes the engine's requests (see [The runner](#the-runner-and-the-one-worker-wiring)).     |
 | `session-history.ts`              | `createSessionHistory(settings, wallClock)`: records every phrase that sounded (see [Session history](#session-history)).         |
 | `session-history-played-notes.ts` | `withPlayedNotes(records, notes, acknowledgements)`: places the played notes and acknowledgements in the phrase records, on read. |
@@ -56,8 +65,8 @@ The session controller's pure pieces live here too, under the same boundary (see
 | `session-acknowledgement.ts`  | `createSessionAcknowledgement(options)`: one session's acknowledgement, phrase by phrase, and its compensated played notes. |
 | `session-midi-timers.ts`      | The silence timeout and the reconnection countdown as pure arithmetic on the audio clock.                                   |
 
-`createSessionEngine(deps, start)` takes the start time, the chosen settings and phrase 1 (its
-intent and its successful outcome). It returns `outputsAtStart` and `handle(event)`, which returns
+`createSessionEngine(deps, start)` takes the start time, the chosen settings, phrase 1 (its
+intent and its successful outcome) and the settings-mutation flag (`SessionStart.mutation`). It returns `outputsAtStart` and `handle(event)`, which returns
 the outputs of that one event.
 
 ## Events and outputs
@@ -71,18 +80,21 @@ Every event has an `at`, its audio time.
 | `generation-result { attemptId, outcome }` | The generate seam answered an attempt with a `GenerationOutcome` (a success or a generation failure).                                                                                                                                 |
 | `generation-crashed { attemptId }`         | The generate seam rejected: a Worker crash on that one request, or a dead Worker. A failed attempt, never an end.                                                                                                                     |
 | `fit-result { attemptId, fits }`           | Whether an attempt's generated phrase fits the staff.                                                                                                                                                                                 |
+| `settings-change { settings }`             | New complete settings, in effect from now, from an automatic source other than the engine's own mutations (see [Settings changes at a phrase boundary](#settings-changes-at-a-phrase-boundary)). Nothing sends it before chunk 25.    |
 | `tick`                                     | Time has reached `at`; lets the engine see a deadline pass.                                                                                                                                                                           |
 | `end { cause }`                            | The session ends: `'stop'` (the player's Stop), `'hidden-tab'` (the tab became hidden), `'staff-not-shown'`, `'silence-timeout'` (more than 30 s without a played note) or `'controller-lost'` (the controller not back within 30 s). |
 
-| Output                                                                          | Meaning                                                                                                      |
-| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `request-generation { attemptId, phraseNumber, step, retry, intent, deadline }` | Generate this intent. `step` is `'carry-in'` or `'standalone'`; `retry` counts the attempts before this one. |
-| `check-fit { attemptId, phraseNumber, outcome, intent }`                        | Check whether this generated phrase fits the staff. `intent` is this attempt's own, which differs per rung.  |
-| `phrase-ready { phrase }`                                                       | The phrase to show next as read-ahead, repeats included.                                                     |
-| `phrase-sounding { at, phrase }`                                                | A phrase started sounding, with its full record.                                                             |
-| `struggling-notice { visible }`                                                 | Show or hide the struggling-generator notice.                                                                |
-| `wake-at { at }`                                                                | Send a `tick` at this time: the next deadline.                                                               |
-| `ended { at, cause, phase, soundedPhraseCount }`                                | The session ended, during the `'count-in'` or while `'running'`, after this many phrases started sounding.   |
+| Output                                                                          | Meaning                                                                                                          |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `request-generation { attemptId, phraseNumber, step, retry, intent, deadline }` | Generate this intent. `step` is `'carry-in'` or `'standalone'`; `retry` counts the attempts before this one.     |
+| `check-fit { attemptId, phraseNumber, outcome, intent }`                        | Check whether this generated phrase fits the staff. `intent` is this attempt's own, which differs per rung.      |
+| `phrase-ready { phrase }`                                                       | The phrase to show next as read-ahead, repeats included.                                                         |
+| `phrase-sounding { at, phrase }`                                                | A phrase started sounding, with its full record.                                                                 |
+| `struggling-notice { visible }`                                                 | Show or hide the struggling-generator notice.                                                                    |
+| `wake-at { at }`                                                                | Send a `tick` at this time: the next deadline.                                                                   |
+| `ended { at, cause, phase, soundedPhraseCount }`                                | The session ended, during the `'count-in'` or while `'running'`, after this many phrases started sounding.       |
+| `settings-changed { phraseNumber, settings, cause, … }`                         | New settings apply from this phrase on. `cause` is `'mutation'` (with `setting`, `from`, `to`) or `'automatic'`. |
+| `phrase-discarded { phraseNumber }`                                             | A decided look-ahead phrase, not yet on screen, was dropped and is requested again with the new settings.        |
 
 The phrase record, `SessionPhrase`, is `{ phraseNumber, origin, intent, outcome, repeatOf? }`.
 `origin` is `'idle'` (phrase 1), `'carry-in'`, `'standalone'` or `'repeat'`. The repeat mark is
@@ -150,7 +162,10 @@ The engine counts repeats in a row, in the order phrases are decided.
 
 - **Locked settings.** The chosen settings (`controls` and `musicalProfile`, with the written tonal
   center) are copied and deep-frozen at start. Every attempt's intent is built from that copy, so a
-  change the caller makes to its own objects later cannot reach the session.
+  change the caller makes to its own objects later cannot reach the session. The player cannot
+  edit them during a session. From v2.1 the settings in effect can still change, but only at a
+  phrase boundary, through the engine's own mutations or a `settings-change` event (see
+  [Settings mutation and changes at a phrase boundary](#settings-mutation-and-changes-at-a-phrase-boundary)).
 - **Density only steps down.** [Note density](music/lexicon.md#note-density) is the main note
   length of the phrase. Sixteenth notes are not generated below the tablet-landscape width (see
   [Note density below `bp-tablet-landscape`](phrase-workspace.md#note-density-below-bp-tablet-landscape)), so each
@@ -783,6 +798,198 @@ everything.
 - **The mix levels are placeholders.** The volume ranges and defaults come from the `--mix-*`
   design tokens, whose values wait for the listening tests of ux Q31.
 
+## Settings mutation and changes at a phrase boundary
+
+From v2.1 the settings in effect can change during a session, though the player still cannot edit
+them. Two sources exist. The engine's own **settings mutations**, behind the settings-mutation flag
+(off by default, spec D176), move one setting by one grade every two to four phrases. A
+`settings-change` event gives complete new settings from any other automatic source; nothing sends
+one before chunk 25. Both apply at a phrase boundary: every phrase is generated under one set of
+settings, and the event says from which phrase the new ones apply.
+
+### The scale table
+
+`MUTATION_SCALES` (`settings-mutation-scales.ts`) holds one entry per mutable setting: every
+generation control except tempo and the instrument, plus the musical profile's identity
+(`MutableSetting`). An entry is data: its scale, the value a step starts from (`from`) and how a
+step is applied (`apply`). Its type, `MutationScaleTable`, makes a missing or extra setting a type
+error. A scale is one of four kinds:
+
+- **ordered:** a list with no wrap, so a value at either end has one neighbour;
+- **circular:** a list stepped `step` places either way, wrapping;
+- **separate:** ordered groups that are never crossed;
+- **nominal:** no order, so every other value is one grade away.
+
+`scaleNeighbours(scale, value)` gives the values one grade away, lower first. A new value is
+therefore a table edit, not new code: a future `Custom` note density (D175) is one more entry in
+the note-density catalog the scale reads.
+
+| Setting                        | Scale                                                                                     | Status  |
+| ------------------------------ | ----------------------------------------------------------------------------------------- | ------- |
+| Harmonic motion                | ordered: Static, Gentle diatonic, Active diatonic                                         | settled |
+| Tension arc                    | ordered: Settled, Lift, Build, Edge                                                       | settled |
+| Note density                   | ordered: Quarter, Eighth, Sixteenth, from the density generated with (D177)               | settled |
+| Rhythmic variety               | ordered: Strict, Slightly varied, Heavily varied                                          | settled |
+| Syncopation                    | ordered: Straight, Occasional offbeats, Active displacement                               | settled |
+| Silence density                | ordered: Sparse, Conversational, Breath-heavy                                             | settled |
+| Leapiness                      | ordered: Smooth, Shaped, Leaping, Angular                                                 | settled |
+| Arpeggio chaos                 | ordered: Predictable, Varied, Chaotic                                                     | settled |
+| Tonal center (the written key) | circular, step 7 semitones: one step around the circle of fifths                          | D181    |
+| Collection                     | separate: Major and Minor; the modes from brightest to darkest, Lydian to Locrian         | D181    |
+| Contour                        | nominal: Rising, Falling, Arch, Wandering                                                 | D181    |
+| Register                       | ordered: Low, Middle, High, never Varying; from Varying, steps from the resolved register | D181    |
+| Musical profile                | nominal: Neutral and Jazz flip; every control kept, no bundle applied, marked customized  | D181    |
+
+The **circle of fifths** orders the keys a perfect fifth (seven semitones) apart, so two keys next
+to one another differ by one sharp or flat in the
+[key signature](music/lexicon.md#key-signature). A **mode** is one of the seven scales built from
+the notes of the major scale, each starting on a different one of them. On the same tonic, ordered
+from brightest (Lydian) to darkest (Locrian), each mode differs from the next by one note.
+
+The scales marked D181 were proposed by the coding leader and accepted by the owner on
+2026-10-03 (spec D181): `rule_mutation_setting_scales` (tonal center, collection, contour,
+register), `rule_mutation_profile_flip_keeps_controls` and `rule_mutation_marks_profile_customized`.
+A step of a value the musical profile controls marks the profile customized; a step of a value it
+does not control leaves the mark as it was. `rule_mutation_sixteenth_blocked_after_step_down`
+(below) was accepted with them.
+
+### The draw
+
+`mutateSettings(settings, context, seed, k)` (`settings-mutation.ts`) decides mutation k, purely.
+The context (`MutationContext`) is what the settings do not say: whether the window is below
+`bp-tablet-landscape`, whether the session has stepped down from Sixteenth, and the register it
+resolved.
+
+- `mutationCandidates(settings, context)` lists every step, setting by setting in
+  `MUTABLE_SETTINGS` order, each with the settings it lands on and whether the generator supports
+  them. A step is unsupported when its rhythm setting is blocked, judged on the density generated
+  with, or when it is a note-density step to Sixteenth while Sixteenth is unavailable: below the
+  width, or at any point after the session stepped down (D177).
+- `drawMutation` draws one setting uniformly among those with a step, then one of its steps
+  uniformly, and draws both again from the same stream while the step is unsupported. No cycle is
+  skipped. With no supported candidate it throws at once rather than loop.
+- Settings that are unsupported to begin with are a caller bug and throw.
+
+### The seeded cadence
+
+The flag is `SettingsMutationFlag`: `{ kind: 'off' }` (`SETTINGS_MUTATION_OFF`, also
+`SETTINGS_MUTATION_DEFAULT`), or `{ kind: 'on', seed }`. Every random choice of the mutation
+engine comes from an indexed stream, `deriveIndexedStream(seed, label, k)`
+(`src/domain/random/streams.ts`), whose state depends only on the seed, the label and k:
+
+- **The gaps.** `mutationGap(seed, k)`, from the `settings-mutation-gap` stream, is the number of
+  phrases before mutation k: from `MUTATION_GAP_MIN` (2) to `MUTATION_GAP_MAX` (4).
+  `mutationPhrase(seed, k)` is 1 plus the first k gaps, so the first mutation lands on phrase 3, 4
+  or 5, and never on phrase 1 or 2. `mutationIndexLandingOn(seed, phraseNumber)` is the reverse.
+- **The draw.** Mutation k draws from the `settings-mutation` stream for (seed, k).
+
+No stream is shared, so mutation k never depends on what an earlier mutation consumed, nor on how
+many attempts any phrase took: the same mutations land on the same phrases whatever happens to
+the attempts.
+
+### Where a mutation lands
+
+`landingMutation` (`session-mutation-step.ts`) runs when phrase N is about to be requested, that
+is when phrase N−1 starts sounding. If mutation k lands on N, it is decided then, from the settings
+in effect, the window read now, the step-down memory and the register whose window the carry-in
+holds. The `settings-changed` output (`cause: 'mutation'`, with `setting`, `from` and `to`) comes
+just before phrase N's first `request-generation`, and the new settings are in effect for it.
+
+- **No discard.** No phrase N has been generated under the old settings at that moment, so a
+  mutation never discards anything.
+- **A repeat.** A mutation landing on a phrase that ends up a repeat still counts. The repeat is
+  the phrase before, under its own settings, and the phrase after it uses the new settings.
+- **Flag off.** With the flag off the context is never read, and the engine's requests are those
+  of chunk 8.
+
+### Settings changes at a phrase boundary
+
+A `settings-change { at, settings }` event gives complete settings. A change of tempo or instrument
+throws (`changedSettings`): tempo has its own source, and the instrument never changes. A
+`settings-change` after the end throws too. The **pending phrase** is the phrase that would show
+next: the look-ahead not yet decided, or the decided phrase not yet sounding, which the engine
+keeps for this case (`DecidedPhrase` in `session-engine-state.ts`).
+
+`discardsPendingPhrase` discards the pending phrase only when both hold:
+
+- **A measure left.** At least one measure (`240 / tempo` s) remains before its deadline. Exactly
+  one measure still discards. The test comes first, so the display is read only when the time
+  allows a discard.
+- **Nothing on screen.** `display.isPhraseOnScreen(phraseNumber)` is false. The display reading
+  (`SessionDisplayReading`) is a seam of the engine; chunk 25 connects it to the rolling display.
+
+On a discard, a decided phrase is taken back (`undecide`): the phrase before is the latest decided
+again, and the struggling notice is as it was before the decision. The outputs are
+`phrase-discarded` (for a decided phrase only), `settings-changed` (`cause: 'automatic'`) naming
+the pending phrase, and a new `request-generation` from the first rung, with the same phrase before
+and the same deadline. An attempt still in flight is superseded, so its late result is dropped.
+Otherwise the pending phrase stays as it is, its ladder on its own settings, and the
+`settings-changed` output names the phrase after it. During the count-in phrase 2 is the pending
+phrase; phrase 1 is never discarded.
+
+The one-measure test is there so a regenerated phrase still has a chance to be ready: one measure
+is 1 s at 240 BPM, the window the
+[latency figures](generation-latency.md#settings-mutation-transitions-chunk-24-2026-10-03) are
+judged against.
+
+### The carry-in after a change
+
+Each look-ahead now has a **basis** (`LookAheadBasis` in `failure-ladder.ts`): the settings its
+attempts are built from, the settings the phrase before was generated under (a repeat's are those
+of the phrase it repeats), and its **source**. `lookAheadBasis` keeps the carry-in as it is when
+the two settings are the same object, and otherwise asks `adaptCarryIn`
+(`carry-in-adaptation.ts`):
+
+- **Nothing relevant changed** (only note density, rhythmic variety, syncopation, silence density,
+  contour, leapiness or arpeggio chaos): the same carry-in.
+- **A change to Varying:** no carry-in; the phrase is standalone with Varying, resolved again.
+- **A change to a fixed register:** the carried window becomes the new register's.
+- **A key or collection change:** the harmonic part is dropped. `CarryIn.finalHarmony` is then an
+  explicit `null`; a missing field is still refused.
+- **A harmonic motion, tension or profile change:** the carried chord is dropped when the new
+  settings never end a phrase on it with that endpoint class
+  (`rule_harmony_change_drops_unfit_harmonic_carry_in`, accepted by the owner, spec D181).
+- **The pitch part is then re-checked:** the carried pitch must lie in the window, and what it owes
+  (a leap to recover, a tense note while a chord is carried) must be payable under the new
+  settings. If not, the phrase is standalone, pinned to the new fixed register, or to the
+  session's resolved register while Varying stays selected.
+
+The checks are the same predicates the intent's own carry-in check uses (`carry-in-fit.ts`), so an
+adapted carry-in is never refused. With the harmony dropped, a carried pitch off the old chord is
+no longer a tense note owed a step; the leap-recovery checks stay.
+
+`attemptPlan` maps the ladder onto the source. With a carry-in source, the carry-in rungs use the
+adapted carry-in and the standalone rung pins the register whose window it carries, as in
+[Failure ladder](#failure-ladder). With a standalone source every rung is standalone, with the
+source's register.
+
+### Replay from the inputs
+
+`SessionStart.mutation` holds the flag with the seed the caller drew and stores. The engine has no
+randomness of its own: attempt seeds come from the providers, and every mutation from that stored
+seed. With the same providers, a session therefore replays from its start and its event list
+alone, mutations included.
+A phrase requested after a key or collection change carries `finalHarmony: null` in its
+[phrase replay key](phrase-workspace.md#key-format). The `ifk1.` format is unchanged: a key
+encoded before chunk 24, with a full carried harmony, still decodes to the same intent and
+re-encodes to the same key.
+
+### Until chunk 25
+
+`startWorkspaceSessionRunner` (`src/components/workspace/workspace-session-runner.ts`) starts
+every workspace session's runner: the starter that `loadSessionRunner()` resolves to calls it (see
+[The runner and the one-Worker wiring](#the-runner-and-the-one-worker-wiring)). It holds the three
+points chunk 25 connects:
+
+- **The flag is off.** Its start (`WorkspaceSessionStart`) has no `mutation`; it always passes
+  `SETTINGS_MUTATION_OFF`. Chunk 25 takes the flag from the player's on/off control, with a drawn
+  and stored mutation seed.
+- **The display is not connected.** `DISPLAY_NOT_CONNECTED` throws when read. Nothing sends a
+  `settings-change`, the only event that reads it.
+- **The new outputs are refused.** `settings-changed` and `phrase-discarded` throw
+  (`refusingSettingsChangeOutputs`) rather than being ignored silently by a controller that has no
+  handling for them yet.
+
 ## What later chunks add
 
 - **Chunk 9 (built):** the session history, fed from the engine's outputs (see
@@ -812,7 +1019,12 @@ everything.
   [The end once phrase 1 has sounded](#the-end-once-phrase-1-has-sounded) and
   [`docs/export.md`](export.md)). It replaced an interim end that kept the played phrase on the
   staff and blocked `Start session` until a new Idle phrase.
-- **Chunk 24:** setting changes applied at a phrase boundary.
+- **Chunk 24 (built):** the settings-mutation engine and setting changes applied at a phrase
+  boundary (see
+  [Settings mutation and changes at a phrase boundary](#settings-mutation-and-changes-at-a-phrase-boundary)),
+  with the flag off in the workspace.
+- **Chunk 25:** the flag's control, the display reading from the rolling display, and the
+  handling of `settings-changed` and `phrase-discarded`.
 
 ## Choices made while building it
 
@@ -901,6 +1113,22 @@ The session controller's choices were made in chunk 15:
   the player it is the same as Stop: the sound has stopped.
 - **The window rule judges the held layout, not the one the width would pick.** A session never
   switches layout mid-run, so the question is whether the layout it holds still has room.
+
+The settings-mutation choices were made in chunk 24:
+
+- **One indexed stream per mutation, not one stream for the session.** Mutation k's landing
+  phrase and draw depend only on (seed, k), so failures, retries and repeats cannot shift a later
+  mutation, and a test can state where mutations land without running a session.
+- **A mutation lands on the phrase about to be requested,** when the phrase before it starts
+  sounding. Nothing has been generated for that phrase yet, so a mutation never needs the discard
+  rule.
+- **Unsupported steps are listed, then redrawn** from the same stream, so a redraw is as
+  reproducible as the first draw, and a mutation is never skipped.
+- **The decided phrase is kept until it sounds,** with the notice before its decision, so a
+  settings change can take the decision back cleanly.
+- **The workspace refuses what it cannot handle yet.** A `settings-changed` or `phrase-discarded`
+  output, or a display read, throws in the workspace runner until chunk 25, rather than being
+  dropped.
 
 The rolling display's choices were made in chunk 16:
 

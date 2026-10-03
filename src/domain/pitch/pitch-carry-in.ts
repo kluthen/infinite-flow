@@ -8,7 +8,7 @@
  */
 
 import { deepFreeze } from '../events/deep-freeze'
-import type { CarryIn } from '../generation/carry-in/carry-in'
+import { carriedPitchOnCarriedChord, type CarryIn } from '../generation/carry-in/carry-in'
 import { INITIAL_MOTION_STATE, type MotionNote, type MotionState } from './pitch-motion'
 
 /**
@@ -22,28 +22,24 @@ export const BEFORE_JOIN_POSITION = -1
 /** A skip: the smallest interval that opens or continues a wide chain. */
 const WIDE = 3
 
-/** Intent: true when the carried pitch is a tone of the carried final chord. */
-function carriedChordTone(carryIn: CarryIn): boolean {
-  const pitchClass = ((carryIn.lastPitch.midi % 12) + 12) % 12
-  return (carryIn.finalHarmony.triad.pitchClasses as readonly number[]).includes(pitchClass)
-}
-
 /**
  * Intent: the motion state a phrase's pitch search starts from: the empty first-release state
  * without carry-in, or, with one, the carried pitch as prior note with its open chain and any owed
  * recovery due on the first note. The note before the carried pitch is represented only by its
  * pitch and its place before the join; whether it was a chord tone is unknown and never read,
- * because a chain holding it spans the join and so can never form a run.
+ * because a chain holding it spans the join and so can never form a run. A carry-in whose harmony
+ * was dropped has no carried chord, so its pitch is a tone of none; its leap state crosses as is.
  */
 // @spec-link [[rule_no_carry_in_output_matches_v1]]
 // @spec-link [[rule_join_inherits_leap_recovery]]
 // @spec-link [[rule_join_interval_obeys_phrase_rules]]
+// @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 export function carriedMotionState(carryIn: CarryIn | undefined): MotionState {
   if (carryIn === undefined) return INITIAL_MOTION_STATE
   const { midi, arrivingInterval, recovery } = carryIn.lastPitch
   const carried: MotionNote = {
     midi,
-    chordTone: carriedChordTone(carryIn),
+    chordTone: carriedPitchOnCarriedChord(carryIn),
     harmonyIndex: BEFORE_JOIN_POSITION,
     barIndex: BEFORE_JOIN_POSITION,
   }

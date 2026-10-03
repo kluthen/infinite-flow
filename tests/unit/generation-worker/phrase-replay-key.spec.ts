@@ -23,6 +23,7 @@ import {
   buildIntent,
   carryInAfter,
   generateSuccess,
+  keyChangeIntent,
 } from '../domain/generation/carry-in/carry-in-fixture'
 
 /** Intent: a real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
@@ -130,6 +131,53 @@ describe('phrase replay key round trip', () => {
     const decoded = decodePhraseReplayKey(rawKey(validTuple()))
     expect(decoded.intent).toEqual(buildIntent({ seed: 5, label: 'tuple' }))
     expect('carryIn' in decoded.intent).toBe(false)
+  })
+})
+
+/**
+ * A key encoded before a carry-in could drop its harmony: phrase 2 of `carryInIntent()`, whose
+ * carry-in holds the full carried harmony (G major, open arrival). It is frozen here, never
+ * regenerated, so the decoder is proven to read every older key unchanged.
+ */
+const PRE_NULL_HARMONY_KEY = [
+  'ifk1.WyJyZXBsYXktMTIiLDEyLFs5MCwiQyIsIk1ham9yIiwiR2VudGxlIGRpYXRvbmljIiwiU2V0dGxlZCIsIlF',
+  '1YXJ0ZXIiLCJTbGlnaHRseSB2YXJpZWQiLCJTdHJhaWdodCIsIlNwYXJzZSIsIldhbmRlcmluZyIsIk1pZGRsZSI',
+  'sIkxlYXBpbmciLCJQcmVkaWN0YWJsZSIsImMta2V5Ym9hcmQiXSwiTmV1dHJhbCIsdHJ1ZSwyLHsibGFzdFBpdGN',
+  'oIjp7Im1pZGkiOjU5LCJhcnJpdmluZ0ludGVydmFsIjowLCJyZWNvdmVyeSI6eyJraW5kIjoic2V0dGxlZCJ9fSw',
+  'icmVnaXN0ZXJXaW5kb3ciOnsia2luZCI6IlJlZ2lzdGVyV2luZG93IiwibWluTWlkaSI6NTQsIm1heE1pZGkiOjY',
+  '2fSwiZmluYWxIYXJtb255Ijp7InRyaWFkIjp7ImRlZ3JlZSI6NSwicGl0Y2hDbGFzc2VzIjpbNywxMSwyXSwicXV',
+  'hbGl0eSI6Im1ham9yIn0sInJvbGUiOiJvcGVuX2Fycml2YWwiLCJlbmRwb2ludCI6eyJraW5kIjoidG9uYWxfZGV',
+  'ncmVlX2ZpdmVfY2hvcmRfdG9uZSIsImRlZ3JlZSI6NX19LCJwaHJhc2VOdW1iZXIiOjF9XQ',
+].join('')
+
+// @test-link [[rule_key_change_drops_harmonic_carry_in]]
+// @test-link [[module_phrase_replay_key]]
+describe('phrase replay key with a carry-in whose harmony was dropped', () => {
+  it('round-trips the explicit null harmony and its phrase number', () => {
+    const intent = keyChangeIntent(12, 'replay')
+    expect(intent.carryIn?.finalHarmony).toBeNull()
+    expectRoundTrip(intent, 2)
+    expect(decodePhraseReplayKey(encodePhraseReplayKey(intent, 2)).intent.carryIn).toStrictEqual(
+      intent.carryIn,
+    )
+  })
+
+  it('rejects a key whose carry-in has no harmony field at all', () => {
+    const tuple = tupleOf(keyChangeIntent(12, 'replay'), 2)
+    const carryIn = { ...(tuple[6] as Record<string, unknown>) }
+    delete carryIn.finalHarmony
+    tuple[6] = carryIn
+    expect(() => decodePhraseReplayKey(rawKey(tuple))).toThrow(CarryInError)
+  })
+
+  it('still decodes a key encoded with the full carried harmony, unchanged', () => {
+    const decoded = decodePhraseReplayKey(PRE_NULL_HARMONY_KEY)
+    const intent = carryInIntent()
+    expect(decoded.phraseNumber).toBe(2)
+    expect(decoded.intent).toEqual(intent)
+    expect(JSON.stringify(decoded.intent)).toBe(JSON.stringify(intent))
+    expect(decoded.intent.carryIn?.finalHarmony?.triad.degree).toBe(5)
+    expect(encodePhraseReplayKey(decoded.intent, 2)).toBe(PRE_NULL_HARMONY_KEY)
   })
 })
 

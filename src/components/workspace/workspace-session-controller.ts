@@ -35,7 +35,6 @@ import type {
   SessionEndCause,
   SessionOutput,
   SessionSettings,
-  SessionStart,
 } from '@/session/session-types'
 import { isPortraitBelowDesktop, sessionLayoutAtStart } from '@/session/session-window'
 import type { StaffLayout } from '@/notation/notation-layout-policy'
@@ -561,13 +560,12 @@ export function createSessionController(deps: SessionControllerDependencies): Se
       fail: (error) => failLoudly(session, error),
     })
     session.display = display
-    const sessionStart: SessionStart = {
-      at: timeline.startAt,
-      settings,
-      phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
-    }
     session.runner = deps.createSessionRunner({
-      start: sessionStart,
+      start: {
+        at: timeline.startAt,
+        settings,
+        phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
+      },
       checkFit: display.checkFit,
       now: () => engineTime(session, audio.now()),
       onOutput: (output) => onOutput(session, output),

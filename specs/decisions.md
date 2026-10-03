@@ -913,3 +913,25 @@ fact in the live documents (see the [archive index](archive/README.md) and
   like v2.0, can ship before the hardware checks; their automated tests still gate them. v2.4
   runs every moved check on the code it ships with. The v2.2 gate had no such check of its own.
   Master spec §11 and §12; build plan chunks 26, 31 and 35.
+- **D181 (2026-10-03): the settings-mutation flag's scale of one grade per setting.** The product
+  owner accepted the scale the coding leader proposed while building chunk 24:
+  - **Ordered settings** step along their catalog order, with no wrap: harmonic motion, tension
+    arc, note density, rhythmic variety, syncopation, silence density, leapiness, arpeggio chaos.
+  - **Key** (the written tonal center) steps one place around the circle of fifths, wrapping.
+  - **Collection** steps within two separate groups that never cross: Major ↔ Minor, and the
+    modes by brightness, Lydian, Ionian, Mixolydian, Dorian, Aeolian, Phrygian, Locrian, with no
+    wrap.
+  - **Contour** has no order: any other contour is one step.
+  - **Register** steps Low, Middle, High, with no wrap, and never lands on Varying. From Varying it
+    steps from the register the session resolved, then holds that concrete register.
+  - **Musical profile** flips Neutral ↔ Jazz as an identity change only: the controls are kept, the
+    profile is marked customized, and the preset bundle is never applied.
+  - Mutating a profile-controlled value marks the profile customized.
+  - The harmonic part of carry-in also drops when it no longer fits a new harmonic-motion (or
+    other harmony) setting, not only after a key or collection change.
+  - `Sixteenth` stays unavailable to mutations for the rest of a session once it has stepped down.
+
+  The owner also accepted chunk 24's latency figure as it stands: the 250 ms cold target is a
+  goal, not a gate; `rule_look_ahead_deadline` is the gate, and it holds because a mutation always
+  has 3 measures before its deadline. The re-measurement on real hardware is a v2.4 check (D180).
+  Master spec §5; build plan chunk 24.

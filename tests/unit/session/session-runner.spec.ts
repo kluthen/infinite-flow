@@ -20,8 +20,10 @@ import {
   type SessionRunner,
 } from '@/session/session-runner'
 import { SessionEngineError, type SessionOutput, type SessionStart } from '@/session/session-types'
+import { SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
 import {
   SessionDriver,
+  UNREAD_DISPLAY,
   failureOutcome,
   fakeViewport,
   kinds,
@@ -63,7 +65,7 @@ interface Rig {
 /** Intent: the start every rig and every reference driver shares: 240 BPM, at 0, a real phrase 1. */
 function fastStart(): SessionStart {
   const settings = sessionSettings({ tempo: 240 })
-  return { at: 0, settings, phraseOne: phraseOneFor(settings) }
+  return { at: 0, settings, phraseOne: phraseOneFor(settings), mutation: SETTINGS_MUTATION_OFF }
 }
 
 /** Intent: build a runner whose generate and fit-check calls wait until the test answers them. */
@@ -93,6 +95,7 @@ function rig(): Rig {
       now: () => clock.at,
       providers: queuedProviders(),
       viewport: fakeViewport(false),
+      display: UNREAD_DISPLAY,
       onOutput: (output) => log.push(output),
       onError: (error) => errors.push(error),
     },

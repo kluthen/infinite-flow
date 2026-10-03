@@ -52,7 +52,7 @@ function reshaped(donor: CarryIn, midi: number, leap: Partial<CarryIn['lastPitch
  */
 function owedCarryIn(controls: Partial<GenerationControls>, leapDirection: -1 | 1): CarryIn {
   const donor = donorCarryIn(controls)
-  const chord = donor.finalHarmony.triad.pitchClasses as readonly number[]
+  const chord = donor.finalHarmony!.triad.pitchClasses as readonly number[]
   const tonic = windowMidis(donor, (pc) => C_MAJOR_TONIC_TRIAD.includes(pc))
   const settleable = windowMidis(donor, (pc) => chord.includes(pc)).filter((midi) =>
     tonic.some((to) => Math.sign(to - midi) === -leapDirection && Math.abs(to - midi) <= 4),
@@ -67,7 +67,7 @@ function owedCarryIn(controls: Partial<GenerationControls>, leapDirection: -1 | 
 /** Intent: a tense carried note (a C-major scale tone off the carried chord) reached by a step. */
 function tenseCarryIn(controls: Partial<GenerationControls>): CarryIn {
   const donor = donorCarryIn(controls)
-  const chord = donor.finalHarmony.triad.pitchClasses as readonly number[]
+  const chord = donor.finalHarmony!.triad.pitchClasses as readonly number[]
   const tonic = windowMidis(donor, (pc) => C_MAJOR_TONIC_TRIAD.includes(pc))
   const tense = windowMidis(donor, (pc) => C_MAJOR.includes(pc) && !chord.includes(pc)).filter(
     (midi) =>

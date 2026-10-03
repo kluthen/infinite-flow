@@ -102,7 +102,10 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   count-in display, the audio-time agenda, the session window rule, the rolling display's plan
   (where the playhead is and what each staff system shows), the browser ports a session uses, the
   starting note, a session's acknowledgement and its MIDI timers (silence timeout, reconnection
-  countdown). See
+  countdown); and the settings-mutation engine (`settings-mutation.ts` with its scale table
+  `settings-mutation-scales.ts`), the settings change at a phrase boundary
+  (`session-settings-change.ts`, `session-mutation-step.ts`, `session-engine-state.ts`) and the
+  carry-in adapted to a change (`carry-in-adaptation.ts`). See
   [`docs/session-engine.md`](docs/session-engine.md).
 - `src/audio/` — the audio transport, and the only place allowed to use Web Audio (see Runtime
   Constraints): the app's one `AudioContext`, created on the player's click, the look-ahead
@@ -118,7 +121,8 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
 - `src/components/**` — Vue presentation components, props-in/events-out; `src/components/workspace/`
   holds the root session composition (`create-workspace-session.ts`, with the `matchMedia` width
   provider in `browser-viewport-width.ts` and the session's browser adapters in `browser-*.ts`),
-  the session controller (`workspace-session-controller.ts`, loaded as its own chunk) and the
+  the session controller (`workspace-session-controller.ts`, loaded as its own chunk, with
+  `workspace-session-runner.ts`, its runner starter, mutation flag off until chunk 25) and the
   workspace component tree, the session action, cue row, audio mix and header `controller-status`
   included (see [`docs/phrase-workspace.md`](docs/phrase-workspace.md));
   `src/components/controller-connection/` holds the connection sheet, loaded as its own chunk
@@ -258,7 +262,9 @@ UI (Vue components, props-in/events-out)
   requests, shows and ends, from timed events that each carry their audio time: phrase 2 requested
   at start and due when the count-in ends, each later phrase due at the start of the last measure
   of the one sounding, the failure ladder (three carry-in retries, one standalone retry, then a
-  repeat of the phrase before), the struggling-generator notice, and settings locked at start.
+  repeat of the phrase before), the struggling-generator notice, and settings locked at start,
+  changed only at a phrase boundary by a seeded settings mutation (flag off in the workspace) or
+  a settings change.
   `createSessionRunner` executes its requests; `composeWorkspaceSession` binds it to the same
   `generate` seam, and so the same Worker, the Idle flow uses. `createSessionHistory` records, in
   memory, every phrase that started sounding: the phrase as shown and the inputs that reproduce

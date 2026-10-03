@@ -8,6 +8,7 @@
  * a large leap's recovery or a tense note's resolution that its own next phrase can settle.
  */
 
+import { carriedPitchIsTense, carriedPitchOnCarriedChord } from '../../generation/carry-in/carry-in'
 import {
   owedRecoveryCanSettle,
   phraseEndingDebtAllowance,
@@ -39,18 +40,21 @@ export interface JoinLead {
   readonly owedLeapDirection?: -1 | 1
 }
 
-/** Intent: the carried pitch as the note before the first attack; undefined without carry-in. */
+/**
+ * Intent: the carried pitch as the note before the first attack; undefined without carry-in. With
+ * the carried harmony dropped the pitch is a tone of no chord, and its leap state still applies.
+ */
 // @spec-link [[rule_join_interval_obeys_phrase_rules]]
+// @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 export function joinLead(facts: PhraseFacts): JoinLead | undefined {
   const carryIn = facts.context.request.carryIn
   if (carryIn === undefined) return undefined
   const { midi, arrivingInterval, recovery } = carryIn.lastPitch
-  const chord = carryIn.finalHarmony.triad.pitchClasses as readonly number[]
   const chainOpen = arrivingInterval !== null && Math.abs(arrivingInterval) >= 3
   return {
     note: {
       midi,
-      chordTone: chord.includes(((midi % 12) + 12) % 12),
+      chordTone: carriedPitchOnCarriedChord(carryIn),
       harmony: BEFORE_JOIN_HARMONY,
       barIndex: -1,
     },
@@ -111,16 +115,16 @@ export function isOwedTenseEnding(facts: PhraseFacts, attack: SoundingFact): boo
 
 /**
  * Intent: a tense carried pitch (outside the carried chord) must be resolved by the first attack:
- * a step onto a tone of the chord sounding there. Reported at attack 0 otherwise.
+ * a step onto a tone of the chord sounding there. Reported at attack 0 otherwise. A carry-in whose
+ * harmony was dropped carries no tense pitch, so nothing is owed.
  */
 // @spec-link [[rule_join_tense_note_resolution]]
+// @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 export function carriedTensionFailures(facts: PhraseFacts): readonly PitchValidationFailure[] {
   const carryIn = facts.context.request.carryIn
   const first = facts.attacks[0]
-  if (carryIn === undefined || first === undefined) return []
+  if (carryIn === undefined || first === undefined || !carriedPitchIsTense(carryIn)) return []
   const { midi } = carryIn.lastPitch
-  const carriedChord = carryIn.finalHarmony.triad.pitchClasses as readonly number[]
-  if (carriedChord.includes(((midi % 12) + 12) % 12)) return []
   const resolved = resolvesOnto(
     midi,
     first.midi,

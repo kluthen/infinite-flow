@@ -1,7 +1,8 @@
 /**
  * Shared builders for the session engine tests: deterministic queued identity and seed providers,
- * a window-width reading the test moves by hand, real phrase 1 intents and outcomes, real failure
- * outcomes, and a driver that feeds timed events to one engine and keeps every output it returned.
+ * a window-width reading and a display reading the test moves by hand, real phrase 1 intents and
+ * outcomes, real failure outcomes, and a driver that feeds timed events to one engine and keeps
+ * every output it returned.
  */
 
 import { expect } from 'vitest'
@@ -15,14 +16,17 @@ import type {
   GenerationIntentProviders,
 } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
+import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type {
   GenerationFailureCode,
   GenerationOutcome,
 } from '@/domain/generation/orchestration/orchestration-types'
 import { makeSeed } from '@/domain/random/seed'
 import { createSessionEngine } from '@/session/session-engine'
+import { SETTINGS_MUTATION_OFF, type SettingsMutationFlag } from '@/session/settings-mutation'
 import type {
   AudioTime,
+  SessionDisplayReading,
   SessionEndCause,
   SessionEngine,
   SessionEvent,
@@ -89,6 +93,35 @@ export function fakeViewport(below: boolean): FakeViewport {
   return viewport
 }
 
+/** A display reading the test moves by hand, with every phrase number it was asked about. */
+export interface FakeDisplay extends SessionDisplayReading {
+  onScreen: boolean
+  readonly asked: number[]
+}
+
+/** Intent: a display reading that answers `onScreen` for every phrase and logs each question. */
+export function fakeDisplay(onScreen = false): FakeDisplay {
+  const display: FakeDisplay = {
+    onScreen,
+    asked: [],
+    isPhraseOnScreen: (phraseNumber) => {
+      display.asked.push(phraseNumber)
+      return display.onScreen
+    },
+  }
+  return display
+}
+
+/**
+ * A display reading for runs that never send a settings change, the only event that reads it:
+ * a read is a test bug and throws.
+ */
+export const UNREAD_DISPLAY: SessionDisplayReading = Object.freeze({
+  isPhraseOnScreen(phraseNumber: number): boolean {
+    throw new Error(`The display was read for phrase ${phraseNumber} with no settings change.`)
+  },
+})
+
 /** Intent: chosen session settings: the base carry-in controls with the given overrides. */
 export function sessionSettings(overrides: Partial<GenerationControls> = {}): SessionSettings {
   return {
@@ -146,6 +179,21 @@ export function successFor(intent: GenerationIntent): SuccessfulOutcome {
   return outcome
 }
 
+const outcomeCache = new Map<string, GenerationOutcome>()
+
+/**
+ * Intent: the real outcome of an intent, a success or a failure, cached by the intent's content,
+ * so two runs of the same session share each generation.
+ */
+export function realOutcomeFor(intent: GenerationIntent): GenerationOutcome {
+  const key = JSON.stringify(intent)
+  const cached = outcomeCache.get(key)
+  if (cached !== undefined) return cached
+  const outcome = generatePhrase(intent)
+  outcomeCache.set(key, outcome)
+  return outcome
+}
+
 /** Intent: an intent without its tempo, for comparing intents built at different tempos. */
 export function withoutTempo(intent: GenerationIntent): unknown {
   const { tempo, ...controls } = intent.controls
@@ -159,7 +207,9 @@ export interface DriverOptions {
   readonly settings?: SessionSettings
   readonly phraseOne?: SessionStart['phraseOne']
   readonly viewport?: FakeViewport
+  readonly display?: FakeDisplay
   readonly providers?: QueuedProviders
+  readonly mutation?: SettingsMutationFlag
 }
 
 /** Feeds timed events to one engine and keeps every output it returned, in order. */
@@ -170,7 +220,9 @@ export class SessionDriver {
   readonly settings: SessionSettings
   readonly phraseOne: SessionStart['phraseOne']
   readonly viewport: FakeViewport
+  readonly display: FakeDisplay
   readonly providers: QueuedProviders
+  readonly start: SessionStart
   readonly startOutputs: readonly SessionOutput[]
 
   /** Intent: start one engine from the options, keeping its start outputs. */
@@ -178,10 +230,17 @@ export class SessionDriver {
     this.settings = options.settings ?? sessionSettings()
     this.phraseOne = options.phraseOne ?? phraseOneFor(this.settings)
     this.viewport = options.viewport ?? fakeViewport(false)
+    this.display = options.display ?? fakeDisplay(false)
     this.providers = options.providers ?? queuedProviders()
+    this.start = {
+      at: options.at ?? 0,
+      settings: this.settings,
+      phraseOne: this.phraseOne,
+      mutation: options.mutation ?? SETTINGS_MUTATION_OFF,
+    }
     this.engine = createSessionEngine(
-      { providers: this.providers, viewport: this.viewport },
-      { at: options.at ?? 0, settings: this.settings, phraseOne: this.phraseOne },
+      { providers: this.providers, viewport: this.viewport, display: this.display },
+      this.start,
     )
     this.startOutputs = this.engine.outputsAtStart
     this.log.push(...this.startOutputs)
@@ -243,6 +302,23 @@ export class SessionDriver {
     return [...this.succeed(at), ...this.fit(at, true)]
   }
 
+  /**
+   * Intent: answer every attempt of the latest requested phrase at the given time with its real
+   * outcome, a success fitting, until the phrase is decided or its ladder is exhausted.
+   */
+  settle(at: AudioTime): void {
+    for (;;) {
+      const { attemptId, intent } = this.lastRequest()
+      const outcome = realOutcomeFor(intent)
+      const outputs = this.send({ kind: 'generation-result', at, attemptId, outcome })
+      if (outcome.kind === 'generation_success') {
+        this.fit(at, true, attemptId)
+        return
+      }
+      if (!outputs.some((output) => output.kind === 'request-generation')) return
+    }
+  }
+
   /** Intent: fail every remaining rung of the latest phrase's ladder at the given time. */
   exhaust(at: AudioTime): void {
     const phraseNumber = this.lastRequest().phraseNumber
@@ -263,6 +339,11 @@ export class SessionDriver {
   /** Intent: phrase N (2 or more) starts sounding. */
   sounding(at: AudioTime, phraseNumber: number): readonly SessionOutput[] {
     return this.send({ kind: 'phrase-started-sounding', at, phraseNumber })
+  }
+
+  /** Intent: a settings change puts these settings in effect. */
+  change(at: AudioTime, settings: SessionSettings): readonly SessionOutput[] {
+    return this.send({ kind: 'settings-change', at, settings })
   }
 
   /** Intent: the session ends for the given cause. */

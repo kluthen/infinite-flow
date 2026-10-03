@@ -29,10 +29,16 @@ import { validateGenerationResult } from '@/domain/validation/generation-result-
 import { attackMidis, carryInAfter, type SuccessOutcome } from './carry-in-fixture'
 import { buildMatrix, type MatrixCell } from './carry-in-matrix'
 
-/** Intent: true when the carried pitch is not a tone of the carried chord: a tense note. */
+/**
+ * Intent: true when the carried pitch is not a tone of the carried chord: a tense note. A carry-in
+ * whose harmony was dropped carries no chord, so its pitch is never tense.
+ */
 function carriesTenseNote(carryIn: CarryIn): boolean {
-  return !(carryIn.finalHarmony.triad.pitchClasses as readonly number[]).includes(
-    carryIn.lastPitch.midi % 12,
+  return (
+    carryIn.finalHarmony !== null &&
+    !(carryIn.finalHarmony.triad.pitchClasses as readonly number[]).includes(
+      carryIn.lastPitch.midi % 12,
+    )
   )
 }
 

@@ -177,11 +177,13 @@ const GENERATION_INTENT_ALLOWED_KEYS = new Set([
  * record's already-converted concert `controls.tonalCenter`) and re-derives the concert value
  * itself, so the rebuild substitutes the record's `writtenTonalCenter` back into the controls. A
  * `carryIn`, when present, is parsed field by field (any fault is a CarryInError) and then checked
- * against the rebuilt intent by `makeGenerationIntent` itself. Shared by the worker request parser
- * and the phrase replay key decoder so neither keeps a parallel schema.
+ * against the rebuilt intent by `makeGenerationIntent` itself; its `finalHarmony` is a carried
+ * chord or an explicit null (dropped by a key or collection change), never missing. Shared by the
+ * worker request parser and the phrase replay key decoder so neither keeps a parallel schema.
  */
 // @spec-link [[module_generation_worker_protocol]]
 // @spec-link [[module_phrase_replay_key]]
+// @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 export function rebuildGenerationWorkerIntent(record: Record<string, unknown>): GenerationIntent {
   if (typeof record.requestId !== 'string') {
     throw new GenerationWorkerProtocolError(

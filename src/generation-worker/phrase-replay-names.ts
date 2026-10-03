@@ -1,8 +1,9 @@
 /**
  * Readable names for the headless phrase replay report: concert pitches and pitch classes spelled
  * in the phrase's concert key, written pitches read back from the notation path's own spelling,
- * and the carry-in restated with named pitches. Every name comes from the notation pitch-spelling
- * helpers; this module holds no transposition logic of its own.
+ * and the carry-in restated with named pitches (and its carried chord, when one was carried).
+ * Every name comes from the notation pitch-spelling helpers; this module holds no transposition
+ * logic of its own.
  */
 
 import {
@@ -11,6 +12,7 @@ import {
   type PitchClass,
 } from '../domain/controls/generation-controls'
 import type { CarryIn } from '../domain/generation/carry-in/carry-in'
+import type { CarriedHarmony } from '../domain/harmony/harmony-join'
 import type { DiatonicTriad, PitchClassNumber } from '../domain/harmony/harmony-types'
 import { CHORD_SUFFIX_BY_TRIAD_QUALITY } from '../domain/notation/notation-input'
 import {
@@ -46,17 +48,19 @@ export interface NamedCarriedChord {
   readonly quality: DiatonicTriad['quality']
   readonly pitchClasses: readonly number[]
   readonly pitchClassNames: readonly string[]
-  readonly role: CarryIn['finalHarmony']['role']
-  readonly endpointClass: CarryIn['finalHarmony']['endpoint']['kind']
+  readonly role: CarriedHarmony['role']
+  readonly endpointClass: CarriedHarmony['endpoint']['kind']
 }
 
 /** The readable additions placed beside a verbatim carry-in. */
 // @spec-link [[service_headless_phrase_replay]]
+// @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 export interface CarryInNames {
   readonly phraseNumber: number
   readonly lastPitch: NamedPitch
   readonly registerWindow: NamedMidiRange
-  readonly finalChord: NamedCarriedChord
+  /** The carried chord named; null when a key or collection change dropped the harmony. */
+  readonly finalChord: NamedCarriedChord | null
 }
 
 /**
@@ -126,22 +130,32 @@ export function triadSymbolInKey(triad: DiatonicTriad, key: WrittenKey): string 
   return `${pitchClassNameInKey(triad.pitchClasses[0], key)}${CHORD_SUFFIX_BY_TRIAD_QUALITY[triad.quality]}`
 }
 
-/** Intent: restate a carry-in readably (named last pitch, window bounds and final chord). */
+/** Intent: restate a carried chord readably: its symbol and pitch classes spelled in the key. */
+function namedCarriedChord(harmony: CarriedHarmony, concertKey: WrittenKey): NamedCarriedChord {
+  const { triad, role, endpoint } = harmony
+  return {
+    symbol: triadSymbolInKey(triad, concertKey),
+    degree: triad.degree,
+    quality: triad.quality,
+    pitchClasses: triad.pitchClasses,
+    pitchClassNames: triad.pitchClasses.map((pc) => pitchClassNameInKey(pc, concertKey)),
+    role,
+    endpointClass: endpoint.kind,
+  }
+}
+
+/**
+ * Intent: restate a carry-in readably (named last pitch, window bounds and final chord); a dropped
+ * harmony stays an explicit null chord.
+ */
 // @spec-link [[service_headless_phrase_replay]]
+// @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 export function carryInNames(carryIn: CarryIn, concertKey: WrittenKey): CarryInNames {
-  const { triad, role, endpoint } = carryIn.finalHarmony
   return {
     phraseNumber: carryIn.phraseNumber,
     lastPitch: namedPitchInKey(carryIn.lastPitch.midi, concertKey),
     registerWindow: namedRange(carryIn.registerWindow, concertKey),
-    finalChord: {
-      symbol: triadSymbolInKey(triad, concertKey),
-      degree: triad.degree,
-      quality: triad.quality,
-      pitchClasses: triad.pitchClasses,
-      pitchClassNames: triad.pitchClasses.map((pc) => pitchClassNameInKey(pc, concertKey)),
-      role,
-      endpointClass: endpoint.kind,
-    },
+    finalChord:
+      carryIn.finalHarmony === null ? null : namedCarriedChord(carryIn.finalHarmony, concertKey),
   }
 }

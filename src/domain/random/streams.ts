@@ -69,3 +69,67 @@ export function deriveNamedStream(seed: Seed, label: StreamLabel): NamedStream {
     nextFloat: generator.nextFloat,
   }
 }
+
+/**
+ * Intent: version the indexed-stream mixing scheme on its own, so a change to it is explicit and
+ * never shifts the named streams above, nor they it.
+ */
+// @spec-link [[module_named_stream_pseudorandomness]]
+// @spec-link [[module_settings_mutation]]
+export const INDEXED_STREAM_REGISTRY_VERSION = 1
+
+/**
+ * Intent: the closed, versioned registry of indexed stream labels: streams drawn once per numbered
+ * event of a session (mutation k), so the k-th one is known without replaying the ones before.
+ */
+// @spec-link [[module_named_stream_pseudorandomness]]
+// @spec-link [[module_settings_mutation]]
+export const INDEXED_STREAM_LABELS = ['settings-mutation', 'settings-mutation-gap'] as const
+
+/** The closed union of registered indexed-stream labels. */
+// @spec-link [[module_named_stream_pseudorandomness]]
+export type IndexedStreamLabel = (typeof INDEXED_STREAM_LABELS)[number]
+
+/** One indexed, independently-seeded pseudorandom stream. */
+// @spec-link [[module_named_stream_pseudorandomness]]
+export interface IndexedStream {
+  readonly label: IndexedStreamLabel
+  readonly index: number
+  /** Intent: produce the next value from this stream as an unsigned 32-bit integer. */
+  readonly next: () => number
+  /** Intent: produce the next value from this stream as a float in [0, 1). */
+  readonly nextFloat: () => number
+}
+
+/** Typed failure for an index that cannot name an indexed stream. */
+// @spec-link [[module_named_stream_pseudorandomness]]
+export class IndexedStreamError extends Error {
+  readonly kind = 'IndexedStreamError' as const
+
+  constructor(message: string) {
+    super(message)
+    this.name = 'IndexedStreamError'
+  }
+}
+
+/**
+ * Intent: derive the independent pseudorandom stream for a registered indexed label and a
+ * non-negative integer index under a seed. The label and index are mixed with the seed the same
+ * way a named stream's label is, so each (seed, label, index) starts from its own deterministic
+ * state and no other stream's consumption shifts it. A non-integer or negative index is rejected.
+ */
+// @spec-link [[module_named_stream_pseudorandomness]]
+// @spec-link [[module_settings_mutation]]
+export function deriveIndexedStream(
+  seed: Seed,
+  label: IndexedStreamLabel,
+  index: number,
+): IndexedStream {
+  if (!Number.isSafeInteger(index) || index < 0)
+    throw new IndexedStreamError(`An indexed stream index must be an integer ≥ 0, got ${index}.`)
+  const labelHash = fnv1a32(
+    `indexed-stream-registry-v${INDEXED_STREAM_REGISTRY_VERSION}:${label}:${index}`,
+  )
+  const generator = createMulberry32(((seed >>> 0) ^ labelHash) >>> 0)
+  return { label, index, next: generator.nextUint32, nextFloat: generator.nextFloat }
+}

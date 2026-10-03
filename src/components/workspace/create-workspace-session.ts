@@ -53,8 +53,9 @@ import type {
 } from './workspace-session-controller-types'
 
 /**
- * What a caller supplies to start a session runner from the workspace: the session's start and the
- * seams the workspace does not own (fit check, audio clock, output and error sinks).
+ * What a caller supplies to start a session runner from the workspace: the session's start, whose
+ * settings-mutation flag the starter sets (off until chunk 25), and the seams the workspace does
+ * not own (fit check, audio clock, output and error sinks).
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]
@@ -62,7 +63,7 @@ export interface WorkspaceSessionRunnerInput extends Pick<
   SessionRunnerDependencies,
   'checkFit' | 'now' | 'onOutput' | 'onError'
 > {
-  readonly start: SessionStart
+  readonly start: Omit<SessionStart, 'mutation'>
 }
 
 /** Starts one session runner from the workspace, synchronously, once its module has loaded. */
@@ -277,16 +278,19 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
    * Intent: load the runner's module and, before settling, the replay-key announcer, then hand
    * back a starter of runners on the Idle flow's providers, width reading and `generate` seam,
    * their outputs forwarded unchanged once each accepted session phrase has announced its replay
-   * key. A load failure is not caught: it rejects the returned promise.
+   * key. The workspace runner keeps the settings-mutation flag off and leaves the display reading
+   * and the settings change outputs for chunk 25 to connect. A load failure is not caught: it
+   * rejects the returned promise.
    */
   // @spec-link [[module_phrase_replay_key]]
+  // @spec-link [[req_settings_mutation_flag]]
   async function loadSessionRunner(): Promise<WorkspaceSessionRunnerStarter> {
-    const [{ createSessionRunner }] = await Promise.all([
-      import('@/session/session-runner'),
+    const [{ startWorkspaceSessionRunner }] = await Promise.all([
+      import('./workspace-session-runner'),
       announcer.loaded,
     ])
     return (input) =>
-      createSessionRunner(
+      startWorkspaceSessionRunner(
         {
           generate: deps.generate,
           checkFit: input.checkFit,

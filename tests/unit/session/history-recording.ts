@@ -26,7 +26,14 @@ import { measureSeconds } from '@/session/session-timing'
 import type { SessionSettings, SessionStart, SuccessfulOutcome } from '@/session/session-types'
 import { buildIntent, generateSuccess } from '../domain/generation/carry-in/carry-in-fixture'
 import type { MatrixCell } from '../domain/generation/carry-in/carry-in-matrix'
-import { fakeViewport, fixedWallClock, queuedProviders, type FakeViewport } from './session-harness'
+import { SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
+import {
+  UNREAD_DISPLAY,
+  fakeViewport,
+  fixedWallClock,
+  queuedProviders,
+  type FakeViewport,
+} from './session-harness'
 
 /** Intent: the settings a session of one seed-matrix cell starts from. */
 export function settingsForCell(cell: MatrixCell): SessionSettings {
@@ -95,10 +102,11 @@ export async function recordRunnerSession(
       now: () => clock.at,
       providers: queuedProviders(options.firstSeed),
       viewport: options.viewport ?? fakeViewport(false),
+      display: UNREAD_DISPLAY,
       onOutput: (output) => history.record(output),
       onError: (error) => errors.push(error),
     },
-    { at: 0, settings, phraseOne },
+    { at: 0, settings, phraseOne, mutation: SETTINGS_MUTATION_OFF },
   )
   await settle()
   const measure = measureSeconds(settings.controls.tempo)

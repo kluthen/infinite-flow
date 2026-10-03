@@ -21,6 +21,7 @@ import {
 import { createSessionEngine } from './session-engine'
 import type {
   AudioTime,
+  SessionDisplayReading,
   SessionEvent,
   SessionOutput,
   SessionStart,
@@ -40,8 +41,8 @@ export interface FitCandidate {
 /**
  * The runner's seams. `generate` is the app's one generation worker seam; `checkFit` is required,
  * has no default and receives the attempt's outcome with its intent; `now` is the audio clock;
- * `onError` receives a programming error from `generate` or `checkFit`, which the runner never
- * swallows.
+ * `display` tells the engine whether any of a phrase is on screen; `onError` receives a
+ * programming error from `generate` or `checkFit`, which the runner never swallows.
  */
 // @spec-link [[service_session_runner]]
 export interface SessionRunnerDependencies {
@@ -50,6 +51,7 @@ export interface SessionRunnerDependencies {
   readonly now: () => AudioTime
   readonly providers: GenerationIntentProviders
   readonly viewport: Pick<ViewportWidthProvider, 'isBelowTabletLandscape'>
+  readonly display: SessionDisplayReading
   readonly onOutput: (output: SessionOutput) => void
   readonly onError: (error: unknown) => void
 }
@@ -93,7 +95,8 @@ export function createSessionRunner(
   deps: SessionRunnerDependencies,
   start: SessionStart,
 ): SessionRunner {
-  const engine = createSessionEngine({ providers: deps.providers, viewport: deps.viewport }, start)
+  const { providers, viewport, display } = deps
+  const engine = createSessionEngine({ providers, viewport, display }, start)
 
   /** Intent: forward each output in order, executing the requests and fit checks among them. */
   function run(outputs: readonly SessionOutput[]): void {

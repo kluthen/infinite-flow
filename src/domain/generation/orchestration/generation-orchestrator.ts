@@ -13,7 +13,11 @@
 import { deepFreeze } from '../../events/deep-freeze'
 import { makeHarmonyCandidateDomain, isNoLegalHarmonyPlan } from '../../harmony/harmony-planner'
 import { candidatesFollowingCarriedHarmony } from '../../harmony/harmony-join'
-import type { HarmonyCandidate, HarmonyPlanResult } from '../../harmony/harmony-types'
+import type {
+  HarmonyCandidate,
+  HarmonyCandidateDomain,
+  HarmonyPlanResult,
+} from '../../harmony/harmony-types'
 import { isNoLegalRhythmPlan } from '../../rhythm/rhythm-planner'
 import type { RhythmExpansionInput } from '../../rhythm/rhythm-types'
 import type { RegisterId } from '../../profile/register-id'
@@ -194,10 +198,28 @@ function resolveOutcomeKind(
 }
 
 /**
+ * Intent: the harmony candidates the phrase may use, in domain order. Without a carry-in, or with
+ * one whose harmony a key or collection change dropped (null), the whole domain is open, exactly
+ * as for a phrase with no carried chord; otherwise only the candidates that follow the carried
+ * chord.
+ */
+// @spec-link [[service_generation_orchestration]]
+// @spec-link [[rule_key_change_drops_harmonic_carry_in]]
+function harmonyCandidatesAfterCarryIn(
+  harmonyDomain: HarmonyCandidateDomain,
+  intent: GenerationIntent,
+): readonly HarmonyCandidate[] {
+  const carryIn = intent.carryIn
+  if (carryIn === undefined || carryIn.finalHarmony === null) return harmonyDomain.candidates
+  return candidatesFollowingCarriedHarmony(harmonyDomain, carryIn.finalHarmony)
+}
+
+/**
  * Intent: generate one four-measure phrase for one outer GenerationIntent: expand and rank the
  * structural harmony and rhythm domains once, resolve the intent's one-or-three core requests,
  * search every window independently, and resolve the documented outcome precedence among them.
- * With a carry-in, the harmony starts from the carried chord and the one carried window is searched.
+ * With a carry-in, the harmony starts from the carried chord (if one was carried) and the one
+ * carried window is searched.
  * `options.searchPolicy`/`options.deps` default to the production search policy and collaborators;
  * only these injectable collaborators are defaulted, never any domain data derived from `intent`.
  */
@@ -230,10 +252,7 @@ export function generatePhrase(
     return deepFreeze(outcome)
   }
 
-  const harmonyCandidates =
-    intent.carryIn === undefined
-      ? harmonyDomain.candidates
-      : candidatesFollowingCarriedHarmony(harmonyDomain, intent.carryIn.finalHarmony)
+  const harmonyCandidates = harmonyCandidatesAfterCarryIn(harmonyDomain, intent)
   const rankedHarmony = rankHarmonyCandidates(harmonyCandidates, intent.seed)
   const rankedRhythm = rankMaterializedRhythmCandidates(
     rhythmDomain.grammarVersion,

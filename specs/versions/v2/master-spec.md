@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.26 (2026-10-03). This is the consolidated, execution-ready specification for
+Status: master spec v1.27 (2026-10-03). This is the consolidated, execution-ready specification for
 v2, covering releases v2.0, v2.1, v2.2 and v2.4 (v2.3 was emptied, and its number is not reused).
 It supersedes the individual v2 draft topic documents,
 which are kept in the archive as working history. Change in v1.6: the export is chosen by content,
@@ -106,7 +106,12 @@ items left open are settled: the settings-mutation flag mutates every 2 to 4 phr
 seeded, and starts off; a note-density mutation steps from the density generated with; the
 multi-phrase tension arc repeats every four phrases and starts off; and adaptive tempo pauses
 while the controller is away and starts off; and the v2.1 release's checks in a real DAW and on
-the reference machine move to v2.4 as well (§2, §3, §5, §6, §8, §9, §10, §11, §12).
+the reference machine move to v2.4 as well (§2, §3, §5, §6, §8, §9, §10, §11, §12). Change in
+v1.27, the product owner's acceptance on 2026-10-03 of the scale proposed while the
+settings-mutation engine was built: what one grade means for each setting, a mutated
+profile-controlled value marking the profile customized, a harmony change dropping harmonic
+carry-in that no longer fits, and `Sixteenth` staying unavailable to mutations once a session has
+stepped down (§5).
 
 ## 1. Core concept
 
@@ -352,7 +357,17 @@ opt-in flag:
   combination is never applied, and the mutation cycle is never silently skipped. The number of
   phrases between two mutations, and before the first one from the session's start, is drawn at
   random from 2 to 4, from a seeded source, so a session's mutations can be replayed from its
-  stored inputs. The flag is opt-in: it starts off. This flag ships in **v2.1**.
+  stored inputs. The flag is opt-in: it starts off. This flag ships in **v2.1**. One grade
+  means: the ordered settings (harmonic motion, tension arc, note density, rhythmic
+  variety, syncopation, silence density, leapiness, arpeggio chaos) step one place along their
+  catalog order, with no wrap; the key steps one place around the circle of fifths, wrapping; a
+  collection steps within one of two groups it never leaves, Major ↔ Minor, or the modes by
+  brightness (Lydian, Ionian, Mixolydian, Dorian, Aeolian, Phrygian, Locrian), with no wrap; any
+  other contour is one grade away; register steps Low, Middle, High, with no wrap, and never lands
+  on Varying: from Varying it steps from the register the session resolved, and the session then
+  holds that concrete register; the musical profile flips Neutral ↔ Jazz as an identity change
+  only, keeping every control, marking the profile customized and never applying the preset
+  bundle. Mutating a value the musical profile controls marks the profile customized.
 - **Adaptive tempo,** described fully in §10, ships in **v2.2**.
 
 Neither source exists in v2.0, so nothing can change a setting during a v2.0 session. Applying a
@@ -366,7 +381,9 @@ provided at least one measure remains before its deadline. Otherwise, when some 
 drawn as read-ahead or less than a measure remains, it stays as it is, and the change applies from
 the phrase after it. No note already on screen ever changes because of a setting change. A key or
 collection change drops the harmonic part of carry-in (the pitch part still applies, re-checked
-against the new range and register window); a register change re-resolves "Varying." When an
+against the new range and register window), and so does a change to harmonic motion or another
+harmony setting when the harmonic part no longer fits it; a register change re-resolves
+"Varying." When an
 automatic change lands, the settings UI updates to stay truthful about what's currently in effect,
 but with **no highlight, scroll, or screen shift** — the player's attention stays on what's coming,
 not on what just changed behind them.
@@ -410,7 +427,8 @@ decision.
   mutation that would land on it mutates again, as for a combination the generator does not
   support. A note-density mutation steps from the density a phrase is actually generated with,
   and `Sixteenth` counts as unavailable to a mutation whenever the session generates with
-  `Eighth` under this rule, whatever the window's width.
+  `Eighth` under this rule, whatever the window's width; once the session has stepped down, it
+  stays unavailable to mutations until the session ends.
 
 ## 6. Backing, click, count-in and tempo
 

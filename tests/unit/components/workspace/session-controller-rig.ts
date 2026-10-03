@@ -16,6 +16,7 @@
 import { shallowReactive, shallowRef, type ShallowRef } from 'vue'
 
 import type { WorkspaceSessionRunnerInput } from '@/components/workspace/create-workspace-session'
+import { startWorkspaceSessionRunner } from '@/components/workspace/workspace-session-runner'
 import { createSessionController } from '@/components/workspace/workspace-session-controller'
 import type {
   SessionController,
@@ -29,11 +30,7 @@ import type { MutableGenerationSessionState } from '@/composables/use-generation
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
-import {
-  createSessionRunner,
-  type SessionRunner,
-  type SessionTransportEvent,
-} from '@/session/session-runner'
+import type { SessionRunner, SessionTransportEvent } from '@/session/session-runner'
 import type { AudioTime, SessionOutput, SessionSettings } from '@/session/session-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { createMidiController } from '@/midi/midi-controller'
@@ -240,10 +237,13 @@ export function controllerRig(
     return Promise.resolve(true)
   }
 
-  /** Intent: a real runner on the scripted generate seam, logging what passes through it. */
+  /**
+   * Intent: a real workspace runner (the flag off, the display reading not yet connected) on the
+   * scripted generate seam, logging what passes through it.
+   */
   function createRunner(input: WorkspaceSessionRunnerInput): SessionRunner {
     runnerInputs.push(input)
-    const runner = createSessionRunner(
+    const runner = startWorkspaceSessionRunner(
       {
         generate: (intent) => Promise.resolve(current(intent)),
         checkFit: input.checkFit,

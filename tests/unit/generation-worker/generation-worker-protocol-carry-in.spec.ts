@@ -18,6 +18,7 @@ import {
   buildIntent,
   carryInAfter,
   generateSuccess,
+  keyChangeIntent,
 } from '../domain/generation/carry-in/carry-in-fixture'
 
 /** Intent: a real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
@@ -102,5 +103,38 @@ describe('generation worker protocol with a carry-in', () => {
     expect(() =>
       parseGenerationWorkerRequest({ ...wire, intent: { ...wire.intent, sessionId: 'x' } }),
     ).toThrow(GenerationWorkerProtocolError)
+  })
+})
+
+// @test-link [[rule_key_change_drops_harmonic_carry_in]]
+// @test-link [[module_generation_worker_protocol]]
+describe('generation worker protocol with a carry-in whose harmony was dropped', () => {
+  it('round-trips an intent whose carry-in has an explicit null harmony', () => {
+    const intent = keyChangeIntent(12)
+    expect(intent.carryIn?.finalHarmony).toBeNull()
+    const parsed = parseGenerationWorkerRequest(
+      structuredClone({ type: 'generate', id: 7, intent }),
+    )
+    expect(parsed.intent).toStrictEqual(intent)
+  })
+
+  it('refuses a posted carry-in whose harmony field is missing', () => {
+    const wire = structuredClone({ type: 'generate', id: 7, intent: keyChangeIntent(12) })
+    const carryIn: Record<string, unknown> = { ...wire.intent.carryIn }
+    delete carryIn.finalHarmony
+    expect(() =>
+      parseGenerationWorkerRequest({ ...wire, intent: { ...wire.intent, carryIn } }),
+    ).toThrow(CarryInError)
+  })
+
+  it('round-trips the outcome whose retained request carries the null harmony', () => {
+    const intent = keyChangeIntent(12)
+    const response = handleGenerationWorkerMessage(
+      structuredClone({ type: 'generate', id: 8, intent }),
+    )
+    if (response.type !== 'outcome' || response.outcome.kind !== 'generation_success')
+      throw new Error('Expected a successful outcome.')
+    expect(response.outcome.request.carryIn).toStrictEqual(intent.carryIn)
+    expect(parseGenerationWorkerResponse(structuredClone(response))).toStrictEqual(response)
   })
 })
