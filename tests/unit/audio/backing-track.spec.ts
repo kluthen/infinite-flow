@@ -8,7 +8,13 @@ import { describe, expect, it } from 'vitest'
 
 import type { ScheduledBackingNote } from '@/audio/audio-ports'
 import { backingNotesBetween, phraseStartsAt, scheduleBacking } from '@/audio/backing-track'
-import { clicksBetween, countInEndsAt, createClickPlan, type ClickPlan } from '@/audio/click-track'
+import {
+  clicksBetween,
+  countInEndsAt,
+  createClickPlan,
+  withTempoFrom,
+  type ClickPlan,
+} from '@/audio/click-track'
 import { renderBacking, type RenderedBacking } from '@/domain/backing/backing-renderer'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { FOUR_FOUR_METER } from '@/domain/generation/generation-request'
@@ -88,6 +94,51 @@ describe('placing a phrase on the beat grid', () => {
     expect(() => scheduleBacking(plan, 1, offBeat(1, 2))).toThrow(/whole beat/)
     expect(() => scheduleBacking(plan, 1, offBeat(2, 1))).toThrow(/whole beat/)
     expect(scheduleBacking(plan, 1, offBeat(2, 4))).toHaveLength(1)
+  })
+})
+
+// @test-link [[req_session_backing_track]]
+// @test-link [[service_workspace_session_flow]]
+describe('placing a phrase at its own tempo', () => {
+  // @test-link [[req_session_backing_track]]
+  // @test-link [[service_workspace_session_flow]]
+  it('starts and sizes every note of a risen phrase at that phrase tempo', () => {
+    const plan = withTempoFrom(withTempoFrom(createClickPlan(5.1, 90), 20, 95), 36, 100)
+    const rendered = renderBacking(twoPhraseHarmonies()[0], FOUR_FOUR_METER)
+    const phraseTwoAt = 5.1 + (20 * 60) / 90
+    const phraseThreeAt = phraseTwoAt + (16 * 60) / 95
+    expect(phraseStartsAt(plan, 2)).toBe(phraseTwoAt)
+    expect(phraseStartsAt(plan, 3)).toBe(phraseThreeAt)
+    expect(phraseStartsAt(plan, 4)).toBeCloseTo(phraseThreeAt + (16 * 60) / 100, 12)
+    const attacks = renderedAttacks(twoPhraseHarmonies()[0])
+    for (const [phraseNumber, startsAt, tempo] of [
+      [2, phraseTwoAt, 95],
+      [3, phraseThreeAt, 100],
+    ] as const) {
+      const notes = scheduleBacking(plan, phraseNumber, rendered)
+      const expected = attacks
+        .map((attack) => ({
+          voice: attack.voice,
+          pitch: attack.pitch,
+          at: startsAt + (attack.startBeat * 60) / tempo,
+          until: startsAt + (attack.endBeat * 60) / tempo,
+        }))
+        .sort((a, b) => a.at - b.at)
+      expect(notes).toHaveLength(expected.length)
+      notes.forEach((note, index) => {
+        expect(note).toMatchObject({ voice: expected[index]!.voice, pitch: expected[index]!.pitch })
+        expect(note.at).toBeCloseTo(expected[index]!.at, 12)
+        expect(note.until).toBeCloseTo(expected[index]!.until, 12)
+      })
+    }
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it('throws on a phrase whose tempo changes inside it', () => {
+    const plan = withTempoFrom(createClickPlan(5.1, 90), 25, 95)
+    const rendered = renderBacking(twoPhraseHarmonies()[0], FOUR_FOUR_METER)
+    expect(() => scheduleBacking(plan, 2, rendered)).toThrow(/tempo/)
+    expect(scheduleBacking(plan, 1, rendered).length).toBeGreaterThan(0)
   })
 })
 

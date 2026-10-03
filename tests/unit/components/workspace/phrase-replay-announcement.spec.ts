@@ -82,7 +82,12 @@ describe('session phrase replay-key announcement', () => {
     const others: SessionOutput[] = [
       readied(3, 'repeat', CARRY_IN_INTENT),
       readied(1, 'idle', PHRASE_ONE_INTENT),
-      { kind: 'phrase-sounding', at: 1, phrase: sessionPhrase(2, 'carry-in', CARRY_IN_INTENT) },
+      {
+        kind: 'phrase-sounding',
+        at: 1,
+        phrase: sessionPhrase(2, 'carry-in', CARRY_IN_INTENT),
+        tempo: CARRY_IN_INTENT.controls.tempo,
+      },
       {
         kind: 'request-generation',
         attemptId: 1,

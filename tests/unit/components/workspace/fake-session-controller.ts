@@ -60,6 +60,7 @@ export function fakeReviewHistory(
     recordPlayedNote: closed,
     recordAcknowledgement: closed,
     phrases: () => records,
+    tempoReached: () => records.at(-1)?.tempo ?? null,
     phraseCount: records.length,
     startedAt: SESSION_START_EPOCH_MS,
     instrumentProfileId,
@@ -99,6 +100,8 @@ export function createFakeSessionController(
     controllerLost: null,
     acknowledged: [],
     sessionHasController: null,
+    adaptiveTempo: false,
+    adaptiveTempoAvailable: false,
     ...overrides,
   })
   /** Intent: show `review`, which blocks a start, as the real start conditions do. */
@@ -127,12 +130,13 @@ export function createFakeSessionController(
     state.canStart = true
     state.startBlocker = null
     state.lastEnd = { cause: 'stop', phase, soundedPhraseCount: phase === 'running' ? 1 : 0 }
-    if (phase === 'running') showing({ history: fakeReviewHistory(), showing: true })
+    if (phase === 'running')
+      showing({ history: fakeReviewHistory(), showing: true, tempoReached: 90 })
   })
   const dispose = vi.fn((): void => {})
   const closeReview = vi.fn((): void => {
     if (state.review?.showing !== true) throw new Error('fake controller: no Review shows')
-    state.review = { history: state.review.history, showing: false }
+    state.review = { ...state.review, showing: false }
     if (state.startBlocker === 'review_showing') {
       state.canStart = true
       state.startBlocker = null
@@ -140,11 +144,23 @@ export function createFakeSessionController(
   })
   const showReview = vi.fn((): void => {
     if (state.review === null) throw new Error('fake controller: no Review exists')
-    showing({ history: state.review.history, showing: true })
+    showing({ ...state.review, showing: true })
   })
   const isPhraseOnScreen = (phraseNumber: number): boolean => staffShows(state, phraseNumber)
+  const setAdaptiveTempo = (on: boolean): void => {
+    state.adaptiveTempo = on
+  }
   return {
-    controller: { state, start, stop, isPhraseOnScreen, dispose, closeReview, showReview },
+    controller: {
+      state,
+      start,
+      stop,
+      isPhraseOnScreen,
+      dispose,
+      closeReview,
+      showReview,
+      setAdaptiveTempo,
+    },
     state,
     start,
     stop,

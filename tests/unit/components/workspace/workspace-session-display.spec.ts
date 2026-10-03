@@ -18,6 +18,9 @@ import type { StaffLayout } from '@/notation/notation-layout-policy'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import { slotKey } from '@/session/rolling-display'
 import type { SessionPhrase } from '@/session/session-types'
+import { measureSeconds } from '@/session/session-timing'
+import { phraseFirstBeat, phraseStartsAt } from '@/audio/backing-track'
+import { createClickPlan, withTempoFrom } from '@/audio/click-track'
 import { FIT_NO_ROOM, FITS, TOO_WIDE } from '../../composables/fake-staff-fit'
 import { phraseOneFor, sessionSettings } from '../../session/session-harness'
 import { createFakeFrames, createFakePlanner } from './fake-frames'
@@ -42,8 +45,27 @@ function writtenOf(phrase: Pick<SessionPhrase, 'intent' | 'outcome'>): WrittenPh
   return transformToWrittenPhrase(notationInputFromOutcome(phrase.outcome, phrase.intent))
 }
 
+/** The session timing a display rig reads: its starting tempo and the transport's phrase starts. */
+interface RigTiming {
+  readonly startingTempo: number
+  readonly phraseStartsAt: (phraseNumber: number) => number
+}
+
+/** At 240 BPM, phrase 1's first barline at 6.1 s; no other phrase's start is asked for. */
+const AT_240: RigTiming = {
+  startingTempo: 240,
+  phraseStartsAt: (n) => {
+    if (n !== 1) throw new Error(`only phrase 1's start is asked for, not ${n}`)
+    return FIRST_BARLINE
+  },
+}
+
 /** Intent: a display over a hand-set clock, stepped frames and a fake planner. */
-function displayRig(heldLayout: StaffLayout = 'one-system', outputLatency = 0) {
+function displayRig(
+  heldLayout: StaffLayout = 'one-system',
+  outputLatency = 0,
+  timing: RigTiming = AT_240,
+) {
   let now = 5.1
   let inputs: StaffLayoutInputs | null = WIDE
   const frames = createFakeFrames()
@@ -55,13 +77,10 @@ function displayRig(heldLayout: StaffLayout = 'one-system', outputLatency = 0) {
     audio: {
       now: () => now,
       outputLatency: () => outputLatency,
-      phraseStartsAt: (n) => {
-        if (n !== 1) throw new Error(`only phrase 1's start is asked for, not ${n}`)
-        return FIRST_BARLINE
-      },
+      phraseStartsAt: timing.phraseStartsAt,
     },
     frames: frames.port,
-    tempo: 240,
+    startingTempo: timing.startingTempo,
     heldLayout,
     phraseOne,
     latestInputs: () => inputs,
@@ -170,6 +189,52 @@ describe('session display: the playhead', () => {
     expect(rig.published).toHaveLength(before + 3)
     expect(rig.frames.pending()).toBe(1)
     expect(rig.failures).toEqual([])
+  })
+
+  // @test-link [[rule_playhead_follows_audio_clock]]
+  // @test-link [[module_session_rolling_display]]
+  it("follows the transport's tempo map: phrases 1 and 2 at 90 BPM, phrase 3 on at 95", () => {
+    const counted = createClickPlan(1, 90)
+    const plan = withTempoFrom(counted, phraseFirstBeat(counted, 3), 95)
+    const rig = displayRig('one-system', 0, {
+      startingTempo: 90,
+      phraseStartsAt: (n) => phraseStartsAt(plan, n),
+    })
+    rig.readyThrough(3)
+    rig.display.phraseTempo(2, 90)
+    rig.display.phraseTempo(3, 95)
+    const [one, three] = [phraseStartsAt(plan, 1), phraseStartsAt(plan, 3)]
+    const playheadAtTime = (t: number) => {
+      rig.frameAt(t)
+      return rig.staff().playhead
+    }
+
+    expect(playheadAtTime(one - 1e-9)).toBeNull()
+    expect(playheadAtTime(one)).toEqual({ phraseNumber: 1, measureIndex: 0 })
+    expect(playheadAtTime(one + 4 * measureSeconds(90))).toEqual({
+      phraseNumber: 2,
+      measureIndex: 0,
+    })
+    expect(playheadAtTime(three - 1e-9)).toEqual({ phraseNumber: 2, measureIndex: 3 })
+    expect(playheadAtTime(three)).toEqual({ phraseNumber: 3, measureIndex: 0 })
+    expect(playheadAtTime(three + measureSeconds(95) - 1e-9)).toEqual({
+      phraseNumber: 3,
+      measureIndex: 0,
+    })
+    expect(playheadAtTime(three + measureSeconds(95))).toEqual({ phraseNumber: 3, measureIndex: 1 })
+    expect(playheadAtTime(three + 3 * measureSeconds(95))).toEqual({
+      phraseNumber: 3,
+      measureIndex: 3,
+    })
+    expect(rig.failures).toEqual([])
+  })
+
+  // @test-link [[module_session_rolling_display]]
+  it('throws on a phrase tempo out of order', () => {
+    const rig = displayRig()
+    expect(() => rig.display.phraseTempo(3, 240)).toThrow(/phrase 2/)
+    rig.display.phraseTempo(2, 240)
+    expect(() => rig.display.phraseTempo(2, 240)).toThrow(/phrase 3/)
   })
 
   // @test-link [[rule_playhead_follows_audio_clock]]

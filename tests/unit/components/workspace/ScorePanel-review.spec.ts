@@ -89,7 +89,11 @@ function showingReview(): FakeSessionController {
   return createFakeSessionController({
     canStart: false,
     startBlocker: 'review_showing',
-    review: { history: fakeReviewHistory(recordedRecords(), 'eb-alto'), showing: true },
+    review: {
+      history: fakeReviewHistory(recordedRecords(), 'eb-alto'),
+      showing: true,
+      tempoReached: 90,
+    },
   })
 }
 
@@ -260,7 +264,11 @@ describe('ScorePanel while the Review shows', () => {
       notation: 'Notation error. Try again.',
     })
 
-    fake.state.review = { history: fakeReviewHistory(recordedRecords()), showing: true }
+    fake.state.review = {
+      history: fakeReviewHistory(recordedRecords()),
+      showing: true,
+      tempoReached: 90,
+    }
     await nextTick()
     expect(liveRegions(wrapper)).toEqual({ generation: '', notation: '' })
 

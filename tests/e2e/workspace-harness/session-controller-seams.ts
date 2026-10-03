@@ -1,13 +1,15 @@
 /**
  * The workspace harness's session controller seam: it wraps the workspace's own
  * `createSessionController` to keep the controller the app built, and publishes
- * `window.__workspaceHarness.session`, a plain-JSON reading of its state. Nothing is driven
- * through it: a spec starts and stops sessions by clicking the app's own buttons, or by playing
- * the starting note on the fake MIDI access. The one thing it may change is what the app reads as
- * the Review's history: once `inflateHistory(n)` is called, the app is handed the controller with
- * a view of its state whose Review holds `n` phrases (the ended session's own, repeated in order
- * and numbered 1 to n), so a spec can show a long Review without playing hours of session; the
- * controller itself, its actions and `state()` keep the real history.
+ * `window.__workspaceHarness.session`, a plain-JSON reading of its state. A spec starts and stops
+ * sessions by clicking the app's own buttons, or by playing the starting note on the fake MIDI
+ * access; the one action driven through it is the adaptive-tempo flag, which has no control on
+ * screen yet (`setAdaptiveTempo`, the controller's own action). The one thing it may change is
+ * what the app reads as the Review's history: once `inflateHistory(n)` is called, the app is
+ * handed the controller with a view of its state whose Review holds `n` phrases (the ended
+ * session's own, repeated in order and numbered 1 to n), so a spec can show a long Review without
+ * playing hours of session; the controller itself, its actions and `state()` keep the real
+ * history.
  */
 import { shallowRef } from 'vue'
 
@@ -85,6 +87,7 @@ function inflatedHistory(real: SessionHistory, phraseCount: number): SessionHist
     recordPlayedNote: closed,
     recordAcknowledgement: closed,
     phrases: () => inflated,
+    tempoReached: () => inflated.at(-1)!.tempo,
     phraseCount,
     startedAt: real.startedAt,
     instrumentProfileId: real.instrumentProfileId,
@@ -111,8 +114,8 @@ function inflatingStateView(
       let view = inflated.get(review)
       if (view === undefined || view.history.phraseCount !== count) {
         view = Object.freeze({
+          ...review,
           history: inflatedHistory(review.history, count),
-          showing: review.showing,
         })
         inflated.set(review, view)
       }
@@ -163,6 +166,8 @@ function snapshotOf(state: SessionControllerState): WorkspaceHarnessSessionState
       state.controllerLost === null ? null : { secondsLeft: state.controllerLost.secondsLeft },
     acknowledged: state.acknowledged.map(identityOf),
     sessionHasController: state.sessionHasController,
+    adaptiveTempo: state.adaptiveTempo,
+    adaptiveTempoAvailable: state.adaptiveTempoAvailable,
     ...rollingDisplayOf(state),
     latestReady: state.latestReady,
   }
@@ -175,8 +180,18 @@ function snapshotOf(state: SessionControllerState): WorkspaceHarnessSessionState
  */
 // @test-link [[service_workspace_session_flow]]
 // @test-link [[req_last_session_review]]
+// @test-link [[req_adaptive_tempo]]
 export function createHarnessSessionController(): HarnessSessionController {
   let controller: SessionController | null = null
+
+  /** Intent: the controller the app holds; reaching here before it loaded is a spec error. */
+  function controllerFor(call: string): SessionController {
+    if (controller === null) {
+      throw new Error(`Workspace harness: session.${call}() before the controller loaded`)
+    }
+    return controller
+  }
+
   // Reactive, so a Review already showing re-renders with the inflated history.
   const inflateTo = shallowRef<number | null>(null)
   return {
@@ -193,12 +208,8 @@ export function createHarnessSessionController(): HarnessSessionController {
         }
         inflateTo.value = phraseCount
       },
-      state: () => {
-        if (controller === null) {
-          throw new Error('Workspace harness: session.state() before the controller loaded')
-        }
-        return snapshotOf(controller.state)
-      },
+      state: () => snapshotOf(controllerFor('state').state),
+      setAdaptiveTempo: (on) => controllerFor('setAdaptiveTempo').setAdaptiveTempo(on),
     },
   }
 }

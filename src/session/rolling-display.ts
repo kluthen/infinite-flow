@@ -44,35 +44,93 @@ const PART_MEASURES: Readonly<
   closing: { first: 2, last: 3 },
 }
 
-/** Intent: the time of barline k, by multiplication so no error accumulates over a session. */
-function barlineAt(firstPhraseStartsAt: AudioTime, measureSeconds: number, k: number): AudioTime {
-  return firstPhraseStartsAt + k * measureSeconds
+/**
+ * One tempo segment of the session as the playhead reads it: from phrase `phraseNumber`'s first
+ * barline, at `startsAt` on the audio clock (the transport's start of that phrase), every measure
+ * lasts `measureSeconds` until the next segment's phrase.
+ */
+// @spec-link [[module_session_rolling_display]]
+// @spec-link [[rule_playhead_follows_audio_clock]]
+export interface PlayheadTempoSegment {
+  readonly phraseNumber: number
+  readonly startsAt: AudioTime
+  readonly measureSeconds: number
+}
+
+/**
+ * The transport's tempo map as the playhead reads it: one segment from phrase 1, then one from each
+ * phrase whose tempo differs from the phrase before, in rising phrase and time order. The last
+ * segment runs on past the phrases known so far.
+ */
+// @spec-link [[module_session_rolling_display]]
+// @spec-link [[rule_playhead_follows_audio_clock]]
+export type PlayheadTempoMap = readonly PlayheadTempoSegment[]
+
+/** Intent: reject a tempo map no session has: a caller bug. */
+function assertTempoMap(map: PlayheadTempoMap): void {
+  if (map[0]?.phraseNumber !== 1) {
+    throw new Error('rolling display: a tempo map must start with phrase 1')
+  }
+  map.forEach((segment, position) => {
+    const { phraseNumber, startsAt, measureSeconds } = segment
+    if (!Number.isFinite(startsAt)) {
+      throw new Error(`rolling display: phrase ${phraseNumber}'s start ${startsAt} is not finite`)
+    }
+    if (!(Number.isFinite(measureSeconds) && measureSeconds > 0)) {
+      throw new Error(`rolling display: measure length ${measureSeconds} is not a positive number`)
+    }
+    const before = map[position - 1]
+    if (
+      before !== undefined &&
+      !(
+        Number.isInteger(phraseNumber) &&
+        phraseNumber > before.phraseNumber &&
+        startsAt > before.startsAt
+      )
+    ) {
+      throw new Error(`rolling display: tempo segment of phrase ${phraseNumber} out of order`)
+    }
+  })
+}
+
+/** Intent: the index of measure `k` (counted from phrase 1's first) where `segment` begins. */
+function firstMeasureOf(segment: PlayheadTempoSegment): number {
+  return (segment.phraseNumber - 1) * PHRASE_MEASURE_COUNT
+}
+
+/**
+ * Intent: the time of barline k (counted from phrase 1's first) inside `segment`, by
+ * multiplication from the segment's start so no error accumulates over a session.
+ */
+function barlineAt(segment: PlayheadTempoSegment, k: number): AudioTime {
+  return segment.startsAt + (k - firstMeasureOf(segment)) * segment.measureSeconds
 }
 
 /**
  * Intent: the measure being played at a heard time, or null before phrase 1's first barline (the
- * count-in). Barline k lies at `firstPhraseStartsAt + k * measureSeconds`; the floor estimate is
- * corrected against those very barline times, so exactly at a barline the playhead is on the new
- * measure whatever the rounding. Throws on non-finite inputs or a measure length that is not
- * positive.
+ * count-in), through the session's tempo map: in the segment the time falls in, barline k lies at
+ * the segment's start plus its measures since then at its own length, and a segment's first
+ * barline is its very start. The floor estimate is corrected against those very barline times,
+ * never past the next segment's first measure, so exactly at a barline the playhead is on the new
+ * measure whatever the rounding. At one tempo this is phrase 1's start plus k measures. Throws on
+ * a non-finite time or a broken tempo map.
  */
 // @spec-link [[module_session_rolling_display]]
 // @spec-link [[rule_playhead_follows_audio_clock]]
-export function playheadAt(
-  heardTime: AudioTime,
-  firstPhraseStartsAt: AudioTime,
-  measureSeconds: number,
-): PlayheadPosition | null {
-  if (!Number.isFinite(heardTime) || !Number.isFinite(firstPhraseStartsAt)) {
-    throw new Error(`rolling display: time ${heardTime} or start ${firstPhraseStartsAt} not finite`)
-  }
-  if (!(Number.isFinite(measureSeconds) && measureSeconds > 0)) {
-    throw new Error(`rolling display: measure length ${measureSeconds} is not a positive number`)
-  }
-  if (heardTime < firstPhraseStartsAt) return null
-  let k = Math.max(0, Math.floor((heardTime - firstPhraseStartsAt) / measureSeconds))
-  while (k > 0 && barlineAt(firstPhraseStartsAt, measureSeconds, k) > heardTime) k -= 1
-  while (barlineAt(firstPhraseStartsAt, measureSeconds, k + 1) <= heardTime) k += 1
+export function playheadAt(heardTime: AudioTime, map: PlayheadTempoMap): PlayheadPosition | null {
+  if (!Number.isFinite(heardTime)) throw new Error(`rolling display: time ${heardTime} not finite`)
+  assertTempoMap(map)
+  let position = map.length - 1
+  while (position >= 0 && map[position]!.startsAt > heardTime) position -= 1
+  if (position < 0) return null
+  const segment = map[position]!
+  const first = firstMeasureOf(segment)
+  const next = map[position + 1]
+  const last = next === undefined ? Number.POSITIVE_INFINITY : firstMeasureOf(next) - 1
+  let k = first + Math.floor((heardTime - segment.startsAt) / segment.measureSeconds)
+  k = Math.min(Math.max(first, k), last)
+  while (k > first && barlineAt(segment, k) > heardTime) k -= 1
+  while (k < last && barlineAt(segment, k + 1) <= heardTime) k += 1
   return {
     phraseNumber: 1 + Math.floor(k / PHRASE_MEASURE_COUNT),
     measureIndex: (k % PHRASE_MEASURE_COUNT) as MeasureIndex,

@@ -11,10 +11,19 @@ import {
   type SessionReview,
 } from './workspace-session-controller-types'
 
-/** Intent: the Review a session end opens, showing, over that session's closed history. */
+/**
+ * Intent: the Review a session end opens, showing, over that session's closed history, with the
+ * tempo it reached (its last sounded phrase's); a history in which no phrase sounded opens none
+ * and throws.
+ */
 // @spec-link [[req_last_session_review]]
+// @spec-link [[rule_adaptive_tempo_resets_after_session]]
 export function openedReview(history: SessionHistory): SessionReview {
-  return Object.freeze({ history, showing: true })
+  const tempoReached = history.tempoReached()
+  if (tempoReached === null) {
+    throw new Error('session review: no phrase sounded, so no Review opens')
+  }
+  return Object.freeze({ history, showing: true, tempoReached })
 }
 
 /** Intent: the Review `Close review` leaves: kept, not showing; closing one not showing throws. */
@@ -24,7 +33,7 @@ export function closedReview(review: SessionReview | null): SessionReview {
   if (review === null || !review.showing) {
     throw new SessionControllerError('session controller: no Review shows')
   }
-  return Object.freeze({ history: review.history, showing: false })
+  return Object.freeze({ ...review, showing: false })
 }
 
 /**
@@ -42,5 +51,5 @@ export function shownReview(
   if (phase !== 'idle') {
     throw new SessionControllerError('session controller: no Review shows during a session')
   }
-  return Object.freeze({ history: review.history, showing: true })
+  return Object.freeze({ ...review, showing: true })
 }

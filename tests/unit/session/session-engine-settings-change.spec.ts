@@ -92,7 +92,8 @@ describe('a settings change and the pending look-ahead phrase', () => {
     expect(request.intent.carryIn).toEqual(carryFromTwo(driver))
     expect(driver.display.asked).toEqual([3])
     driver.accept(soundingAt(2) + 1.5)
-    const [sounding] = driver.sounding(soundingAt(3), 3)
+    const [fixed, sounding] = driver.sounding(soundingAt(3), 3)
+    expect(fixed).toEqual({ kind: 'phrase-tempo', phraseNumber: 3, tempo: FAST_TEMPO })
     expect(sounding).toMatchObject({ kind: 'phrase-sounding', phrase: { phraseNumber: 3 } })
     expect(sounding?.kind === 'phrase-sounding' && sounding.phrase.intent).toBe(request.intent)
   })
@@ -106,7 +107,10 @@ describe('a settings change and the pending look-ahead phrase', () => {
     ])
     expect(driver.display.asked).toEqual([3])
     const outputs = driver.sounding(soundingAt(3), 3)
-    expect(outputs[0]).toEqual({ kind: 'phrase-sounding', at: soundingAt(3), phrase: decided })
+    expect(outputs.slice(0, 2)).toEqual([
+      { kind: 'phrase-tempo', phraseNumber: 3, tempo: FAST_TEMPO },
+      { kind: 'phrase-sounding', at: soundingAt(3), phrase: decided, tempo: FAST_TEMPO },
+    ])
     expect(requestIn(outputs).intent.controls).toEqual(SHAPED.controls)
     expect(driver.all('phrase-discarded')).toEqual([])
   })
@@ -191,6 +195,7 @@ describe('a settings change and the pending look-ahead phrase', () => {
     expect(driver.tick(PHRASE_THREE_DEADLINE)).toEqual([
       expect.objectContaining({ kind: 'phrase-ready' }),
       { kind: 'struggling-notice', visible: true },
+      { kind: 'phrase-tempo', phraseNumber: 3, tempo: FAST_TEMPO },
     ])
   })
 })

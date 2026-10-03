@@ -210,6 +210,7 @@ export interface DriverOptions {
   readonly display?: FakeDisplay
   readonly providers?: QueuedProviders
   readonly mutation?: SettingsMutationFlag
+  readonly adaptiveTempo?: boolean
 }
 
 /** Feeds timed events to one engine and keeps every output it returned, in order. */
@@ -237,6 +238,7 @@ export class SessionDriver {
       settings: this.settings,
       phraseOne: this.phraseOne,
       mutation: options.mutation ?? SETTINGS_MUTATION_OFF,
+      adaptiveTempo: options.adaptiveTempo ?? false,
     }
     this.engine = createSessionEngine(
       { providers: this.providers, viewport: this.viewport, display: this.display },
@@ -344,6 +346,11 @@ export class SessionDriver {
   /** Intent: a settings change puts these settings in effect. */
   change(at: AudioTime, settings: SessionSettings): readonly SessionOutput[] {
     return this.send({ kind: 'settings-change', at, settings })
+  }
+
+  /** Intent: a controller lost mid-session goes away, or reconnects. */
+  controller(at: AudioTime, attached: boolean): readonly SessionOutput[] {
+    return this.send({ kind: 'controller', at, attached })
   }
 
   /** Intent: the session ends for the given cause. */

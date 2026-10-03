@@ -9,8 +9,11 @@ version: 0.2
 priority: 1
 tags: [v2, release-v2.2, session, tempo]
 dependents:
+  - [[module_session_rolling_display]]
   - [[rule_adaptive_tempo_flat_schedule]]
   - [[rule_adaptive_tempo_resets_after_session]]
+  - [[service_session_engine]]
+  - [[service_workspace_session_flow]]
 type: REQUIREMENT
 ---
 

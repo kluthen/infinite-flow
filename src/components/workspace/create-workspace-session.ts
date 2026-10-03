@@ -33,7 +33,6 @@ import { createBrowserGenerationWorker } from '@/generation-worker/browser-gener
 import { createGenerationWorkerClient } from '@/generation-worker/generation-worker-client'
 import type { ViewportWidthProvider } from '@/composables/viewport-width'
 import type { SessionRunner, SessionRunnerDependencies } from '@/session/session-runner'
-import type { SessionStart } from '@/session/session-types'
 import type { SessionBrowserPorts } from '@/session/session-browser-ports'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { createBrowserAudioTransport } from '@/audio/browser-audio-transport'
@@ -47,15 +46,16 @@ import { createBrowserWindowShape } from './browser-window-shape'
 import { createIdleLayoutGate } from './idle-layout-gate'
 import { createPhraseReplayAnnouncer } from './phrase-replay-announcer'
 import type { WorkspacePrewarmPolicy } from './prewarm-policy'
+import type { WorkspaceSessionStart } from './workspace-session-runner'
 import type {
   SessionController,
   SessionControllerClock,
 } from './workspace-session-controller-types'
 
 /**
- * What a caller supplies to start a session runner from the workspace: the session's start, whose
- * settings-mutation flag the starter sets (off until chunk 25), and the seams the workspace does
- * not own (fit check, audio clock, output and error sinks).
+ * What a caller supplies to start a session runner from the workspace: the session's start, its
+ * adaptive-tempo choice included, whose settings-mutation flag (off until chunk 25) the starter
+ * sets, and the seams the workspace does not own (fit check, audio clock, output and error sinks).
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]
@@ -63,7 +63,7 @@ export interface WorkspaceSessionRunnerInput extends Pick<
   SessionRunnerDependencies,
   'checkFit' | 'now' | 'onOutput' | 'onError'
 > {
-  readonly start: Omit<SessionStart, 'mutation'>
+  readonly start: WorkspaceSessionStart
 }
 
 /** Starts one session runner from the workspace, synchronously, once its module has loaded. */

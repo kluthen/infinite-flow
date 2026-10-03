@@ -340,6 +340,7 @@ describe('WorkspaceHeader session action', () => {
     controller.state.review = {
       history: createSessionHistory(sessionSettings(), fixedWallClock),
       showing: true,
+      tempoReached: 90,
     }
     const wrapper = mountHeader(fakeSession(READY).session, controller.controller)
 

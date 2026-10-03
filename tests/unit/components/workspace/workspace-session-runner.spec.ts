@@ -66,7 +66,7 @@ describe('the workspace session runner before its settings-change connections', 
         onOutput: (output) => outputs.push(output),
         onError: (error) => errors.push(error),
       },
-      { at: 0, settings, phraseOne: phraseOneFor(settings) },
+      { at: 0, settings, phraseOne: phraseOneFor(settings), adaptiveTempo: false },
     )
     await settle()
     clock.at = 1

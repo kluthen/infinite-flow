@@ -16,7 +16,10 @@ import {
 import type { SessionDisplayReading, SessionOutput, SessionStart } from '@/session/session-types'
 import { SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
 
-/** A workspace session's start: the engine's start without the mutation flag, which stays off. */
+/**
+ * A workspace session's start: the engine's start without the mutation flag, which stays off. Its
+ * `adaptiveTempo` is the session controller's: the page's flag on and a controller at the start.
+ */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[req_settings_mutation_flag]]
 export type WorkspaceSessionStart = Omit<SessionStart, 'mutation'>
@@ -53,8 +56,8 @@ export function refusingSettingsChangeOutputs(
 }
 
 /**
- * Intent: start a workspace session runner with the settings-mutation flag off, the display
- * reading not yet connected, and the settings change outputs refused.
+ * Intent: start a workspace session runner with the settings-mutation flag off, adaptive tempo as
+ * the start says, the display reading not yet connected, and the settings change outputs refused.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]

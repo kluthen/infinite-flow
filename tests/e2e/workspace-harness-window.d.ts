@@ -170,8 +170,9 @@ interface WorkspaceHarnessAudioApi {
   /**
    * Queue the running session's phrase `phraseNumber` (1, 2, 3… in order) with the harmony of the
    * phrase the workspace currently shows (`outcome.provenance.harmony.events`), through the
-   * transport's own `queueBacking`, and return that harmony. Throws with no phrase shown, and
-   * whenever the transport's `queueBacking` throws (no session, out of order, too late).
+   * transport's own `queueBacking` at the tempo the last session started at, and return that
+   * harmony. Throws with no phrase shown or no session ever started, and whenever the transport's
+   * `queueBacking` throws (no session, out of order, too late).
    */
   queueBacking: (phraseNumber: number) => readonly WorkspaceHarnessQueuedHarmonyEvent[]
   /** Every scheduled backing note, in call order. */
@@ -437,6 +438,10 @@ interface WorkspaceHarnessSessionState {
   readonly acknowledged: readonly WorkspaceHarnessNoteIdentity[]
   /** Whether the running session reads a controller (fixed at its start); null at Idle. */
   readonly sessionHasController: boolean | null
+  /** The page's adaptive-tempo flag: off at page load, kept from one session to the next. */
+  readonly adaptiveTempo: boolean
+  /** Whether adaptive tempo may be turned on: exactly while a controller is attached. */
+  readonly adaptiveTempoAvailable: boolean
   /** The measure being played (0-based, 0 to 3); null in the count-in and with no session. */
   readonly playhead: { readonly phraseNumber: number; readonly measureIndex: number } | null
   /** The slot key each system position shows; both null with no session, one null when blank. */
@@ -447,7 +452,10 @@ interface WorkspaceHarnessSessionState {
   readonly latestReady: number | null
 }
 
-/** The workspace's session controller, read only: a spec drives it through the app's buttons. */
+/**
+ * The workspace's session controller, read only but for the adaptive-tempo flag, which has no
+ * control on screen yet: a spec drives sessions through the app's buttons.
+ */
 interface WorkspaceHarnessSessionApi {
   /** Whether the controller's lazy chunk has loaded and the app holds it. */
   loaded: () => boolean
@@ -460,6 +468,12 @@ interface WorkspaceHarnessSessionApi {
    * keeps the real history. A count that is not a positive whole number throws.
    */
   inflateHistory: (phraseCount: number) => void
+  /**
+   * Turn the page's adaptive-tempo flag on or off through the controller's own action: at Idle
+   * only, and on only with a controller attached; otherwise it throws, as the controller does.
+   * Throws before the controller has loaded.
+   */
+  setAdaptiveTempo: (on: boolean) => void
 }
 
 interface WorkspaceHarnessApi {

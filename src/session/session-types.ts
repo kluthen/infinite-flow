@@ -73,9 +73,11 @@ export interface SessionPhrase {
 }
 
 /**
- * What a session starts from: the moment the count-in starts, the chosen settings, phrase 1 and
- * the settings-mutation flag, with the mutation seed the caller drew and stores, so the session
- * replays from its start and its event list alone.
+ * What a session starts from: the moment the count-in starts, the chosen settings, phrase 1, the
+ * settings-mutation flag, with the mutation seed the caller drew and stores, so the session
+ * replays from its start and its event list alone, and whether adaptive tempo runs in it: only
+ * when the page's adaptive-tempo flag is on and the session has a controller at its start. The
+ * chosen settings' tempo is the starting tempo.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[req_settings_mutation_flag]]
@@ -84,6 +86,7 @@ export interface SessionStart {
   readonly settings: SessionSettings
   readonly phraseOne: { readonly intent: GenerationIntent; readonly outcome: SuccessfulOutcome }
   readonly mutation: SettingsMutationFlag
+  readonly adaptiveTempo: boolean
 }
 
 /**
@@ -91,7 +94,9 @@ export interface SessionStart {
  * `phrase-started-sounding` is sent for phrase 2 onward; `generation-crashed` is a rejected
  * generate request (a worker crash on that request, or a dead worker), which counts as a failed
  * attempt; `settings-change` gives the complete settings in effect from then on, from an automatic
- * source other than the engine's own mutations; `tick` lets the engine see a deadline pass.
+ * source other than the engine's own mutations; `controller` tells that a controller lost
+ * mid-session goes away (`attached` false) or reconnects, sent only in a session that started with
+ * a controller; `tick` lets the engine see a deadline pass.
  */
 // @spec-link [[service_session_engine]]
 export type SessionEvent =
@@ -115,6 +120,7 @@ export type SessionEvent =
       readonly fits: boolean
     }
   | { readonly kind: 'settings-change'; readonly at: AudioTime; readonly settings: SessionSettings }
+  | { readonly kind: 'controller'; readonly at: AudioTime; readonly attached: boolean }
   | { readonly kind: 'tick'; readonly at: AudioTime }
   | { readonly kind: 'end'; readonly at: AudioTime; readonly cause: SessionEndCause }
 
@@ -123,8 +129,10 @@ export type SessionEvent =
  * the phrase before this one: 0 for the first carry-in attempt, 1 to 3 for the carry-in retries
  * and 4 for the standalone retry. `check-fit` carries the checked attempt's own intent, which can
  * differ between attempts for the same phrase. `phrase-ready` is the phrase to show next as
- * read-ahead, repeats included. `settings-changed` names the first phrase new settings apply to,
- * and `phrase-discarded` a look-ahead phrase dropped to be requested again with new settings.
+ * read-ahead, repeats included; `phrase-sounding` carries the tempo that phrase plays at.
+ * `settings-changed` names the first phrase new settings apply to, and `phrase-discarded` a
+ * look-ahead phrase dropped to be requested again with new settings. `phrase-tempo` gives the
+ * tempo of a phrase from 2 on, output once, when it is fixed at that phrase's look-ahead deadline.
  */
 // @spec-link [[service_session_engine]]
 export type SessionOutput =
@@ -145,7 +153,12 @@ export type SessionOutput =
       readonly intent: GenerationIntent
     }
   | { readonly kind: 'phrase-ready'; readonly phrase: SessionPhrase }
-  | { readonly kind: 'phrase-sounding'; readonly at: AudioTime; readonly phrase: SessionPhrase }
+  | {
+      readonly kind: 'phrase-sounding'
+      readonly at: AudioTime
+      readonly phrase: SessionPhrase
+      readonly tempo: number
+    }
   | { readonly kind: 'struggling-notice'; readonly visible: boolean }
   | { readonly kind: 'wake-at'; readonly at: AudioTime }
   | {
@@ -157,6 +170,7 @@ export type SessionOutput =
     }
   | SettingsChangedOutput
   | { readonly kind: 'phrase-discarded'; readonly phraseNumber: number }
+  | { readonly kind: 'phrase-tempo'; readonly phraseNumber: number; readonly tempo: number }
 
 /**
  * New settings in effect from a phrase on: from the engine's own mutation, which names the one

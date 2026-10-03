@@ -8,13 +8,7 @@ import { describe, expect, it } from 'vitest'
 
 import { deriveCarryIn } from '@/domain/generation/carry-in/carry-in-derivation'
 import type { SessionOutput } from '@/session/session-types'
-import {
-  SessionDriver,
-  kinds,
-  phraseOneFor,
-  sessionSettings,
-  withoutTempo,
-} from './session-harness'
+import { SessionDriver, phraseOneFor, sessionSettings, withoutTempo } from './session-harness'
 
 // @test-link [[rule_phrase_one_is_idle_phrase]]
 // @test-link [[service_session_engine]]
@@ -48,6 +42,7 @@ describe('phrase 1 is the Idle phrase', () => {
           intent: driver.phraseOne.intent,
           outcome: driver.phraseOne.outcome,
         },
+        tempo: driver.settings.controls.tempo,
       },
     ])
     expect(outputs[0]!.kind === 'phrase-sounding' && outputs[0]!.phrase.intent).toBe(
@@ -75,7 +70,10 @@ describe('look-ahead deadlines', () => {
       { kind: 'wake-at', at: t0 + m },
     ])
     driver.accept(t0 + 0.1 * m)
-    expect(kinds(driver.countInOver(t0 + m))).toEqual(['phrase-sounding'])
+    expect(driver.countInOver(t0 + m)).toEqual([
+      { kind: 'phrase-tempo', phraseNumber: 2, tempo },
+      expect.objectContaining({ kind: 'phrase-sounding', tempo }),
+    ])
 
     const phraseTwoAt = t0 + 5 * m
     const atPhraseTwo = driver.sounding(phraseTwoAt, 2)

@@ -144,7 +144,9 @@ describe('a rolling session', () => {
     driver.countInOver(1)
     for (let phraseNumber = 2; phraseNumber <= 5; phraseNumber += 1) {
       const at = 1 + 4 * (phraseNumber - 1)
+      // Phrase 2's tempo was fixed at the count-in's end; each later one when it starts sounding.
       expect(kinds(driver.sounding(at, phraseNumber))).toEqual([
+        ...(phraseNumber > 2 ? ['phrase-tempo'] : []),
         'phrase-sounding',
         'request-generation',
         'wake-at',

@@ -9,7 +9,8 @@ human_name: Adaptive Tempo Flat Schedule
 tags: [v2, release-v2.2, session, tempo]
 parents:
   - [[req_adaptive_tempo]]
-dependents: []
+dependents:
+  - [[service_session_engine]]
 ---
 
 # Adaptive Tempo Flat Schedule

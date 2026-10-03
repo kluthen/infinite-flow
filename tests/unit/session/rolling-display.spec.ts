@@ -18,10 +18,13 @@ import {
   systemsAt,
   waitingMaterial,
   type PlayheadPosition,
+  type PlayheadTempoMap,
   type RollingSystems,
   type SystemSlot,
 } from '@/session/rolling-display'
 import { measureSeconds } from '@/session/session-timing'
+import { phraseFirstBeat, phraseStartsAt } from '@/audio/backing-track'
+import { createClickPlan, withTempoFrom, type ClickPlan } from '@/audio/click-track'
 
 const PHRASES = 8
 const START = 7.3
@@ -300,6 +303,28 @@ function barline(ms: number, k: number): number {
   return START + k * ms
 }
 
+/** Intent: a tempo map of one tempo for the whole session, from phrase 1's first barline. */
+function oneTempo(startsAt: number, ms: number): PlayheadTempoMap {
+  return [{ phraseNumber: 1, startsAt, measureSeconds: ms }]
+}
+
+/**
+ * Intent: the transport's click plan from `START - one measure` at 90 BPM, with phrase 3 on at 95
+ * BPM, and the playhead's tempo map over it: phrase 1 from its start at 90 BPM, phrase 3 from its
+ * start at 95 BPM.
+ */
+function risenAtPhraseThree(): { readonly plan: ClickPlan; readonly map: PlayheadTempoMap } {
+  const counted = createClickPlan(START - measureSeconds(90), 90)
+  const plan = withTempoFrom(counted, phraseFirstBeat(counted, 3), 95)
+  return {
+    plan,
+    map: [
+      { phraseNumber: 1, startsAt: phraseStartsAt(plan, 1), measureSeconds: measureSeconds(90) },
+      { phraseNumber: 3, startsAt: phraseStartsAt(plan, 3), measureSeconds: measureSeconds(95) },
+    ],
+  }
+}
+
 // @test-link [[module_session_rolling_display]]
 // @test-link [[rule_playhead_follows_audio_clock]]
 describe('playheadAt', () => {
@@ -311,21 +336,79 @@ describe('playheadAt', () => {
       const count = Math.floor(300 / ms)
       for (let k = 0; k <= count; k += 1) {
         const expected = { phraseNumber: 1 + Math.floor(k / 4), measureIndex: k % 4 }
-        expect(playheadAt(barline(ms, k), START, ms)).toEqual(expected)
-        expect(playheadAt(barline(ms, k) + ms / 2, START, ms)).toEqual(expected)
+        expect(playheadAt(barline(ms, k), oneTempo(START, ms))).toEqual(expected)
+        expect(playheadAt(barline(ms, k) + ms / 2, oneTempo(START, ms))).toEqual(expected)
         if (k === 0) continue
         const previous = { phraseNumber: 1 + Math.floor((k - 1) / 4), measureIndex: (k - 1) % 4 }
-        expect(playheadAt(barline(ms, k) - 1e-6, START, ms)).toEqual(previous)
+        expect(playheadAt(barline(ms, k) - 1e-6, oneTempo(START, ms))).toEqual(previous)
       }
     },
   )
 
   // @test-link [[rule_playhead_follows_audio_clock]]
+  // @test-link [[module_session_rolling_display]]
+  it('maps heard time through a tempo change: phrases 1 and 2 at 90 BPM, phrase 3 on at 95', () => {
+    const { plan, map } = risenAtPhraseThree()
+    const slow = measureSeconds(90)
+    const fast = measureSeconds(95)
+    const phraseOneAt = phraseStartsAt(plan, 1)
+    const phraseThreeAt = phraseStartsAt(plan, 3)
+    for (let k = 0; k < 8; k += 1) {
+      const expected = { phraseNumber: 1 + Math.floor(k / 4), measureIndex: k % 4 }
+      expect(playheadAt(phraseOneAt + k * slow, map)).toEqual(expected)
+      expect(playheadAt(phraseOneAt + (k + 0.5) * slow, map)).toEqual(expected)
+      if (k > 0) expect(playheadAt(phraseOneAt + k * slow - 1e-6, map)).not.toEqual(expected)
+    }
+    expect(playheadAt(phraseThreeAt - 1e-6, map)).toEqual({ phraseNumber: 2, measureIndex: 3 })
+    expect(playheadAt(phraseThreeAt, map)).toEqual({ phraseNumber: 3, measureIndex: 0 })
+    for (let m = 1; m < 8; m += 1) {
+      const expected = { phraseNumber: 3 + Math.floor(m / 4), measureIndex: m % 4 }
+      const previous = { phraseNumber: 3 + Math.floor((m - 1) / 4), measureIndex: (m - 1) % 4 }
+      expect(playheadAt(phraseThreeAt + m * fast, map)).toEqual(expected)
+      expect(playheadAt(phraseThreeAt + m * fast - 1e-6, map)).toEqual(previous)
+    }
+    // At 90 BPM phrase 3's second measure would only start 4 * 60 / 90 s after its start.
+    expect(playheadAt(phraseThreeAt + (fast + slow) / 2, map)).toEqual({
+      phraseNumber: 3,
+      measureIndex: 1,
+    })
+  })
+
+  // @test-link [[rule_playhead_follows_audio_clock]]
+  // @test-link [[module_session_rolling_display]]
+  it("starts each tempo segment exactly at the transport's phrase start, whatever the rounding", () => {
+    for (const startingTempo of [61, 90, 97, 113, 235]) {
+      let plan = createClickPlan(START, startingTempo)
+      const map: PlayheadTempoMap[number][] = [
+        {
+          phraseNumber: 1,
+          startsAt: phraseStartsAt(plan, 1),
+          measureSeconds: measureSeconds(startingTempo),
+        },
+      ]
+      for (let n = 2; n <= 30; n += 1) {
+        const tempo = startingTempo + n - 1
+        if (tempo > 240) break
+        plan = withTempoFrom(plan, phraseFirstBeat(plan, n), tempo)
+        map.push({
+          phraseNumber: n,
+          startsAt: phraseStartsAt(plan, n),
+          measureSeconds: measureSeconds(tempo),
+        })
+        expect(playheadAt(phraseStartsAt(plan, n), map)).toEqual({
+          phraseNumber: n,
+          measureIndex: 0,
+        })
+      }
+    }
+  })
+
+  // @test-link [[rule_playhead_follows_audio_clock]]
   it('is null in the count-in, before phrase 1 first barline', () => {
     const ms = measureSeconds(120)
-    expect(playheadAt(START - ms, START, ms)).toBeNull()
-    expect(playheadAt(START - 1e-9, START, ms)).toBeNull()
-    expect(playheadAt(START, START, ms)).toEqual({ phraseNumber: 1, measureIndex: 0 })
+    expect(playheadAt(START - ms, oneTempo(START, ms))).toBeNull()
+    expect(playheadAt(START - 1e-9, oneTempo(START, ms))).toBeNull()
+    expect(playheadAt(START, oneTempo(START, ms))).toEqual({ phraseNumber: 1, measureIndex: 0 })
   })
 })
 
@@ -348,12 +431,24 @@ describe('isPhraseOnScreen', () => {
 // @test-link [[module_session_rolling_display]]
 describe('caller errors', () => {
   // @test-link [[rule_playhead_follows_audio_clock]]
-  it('playheadAt throws on non-finite times and a non-positive measure length', () => {
-    expect(() => playheadAt(Number.NaN, 0, 2)).toThrow()
-    expect(() => playheadAt(1, Number.POSITIVE_INFINITY, 2)).toThrow()
-    expect(() => playheadAt(1, 0, Number.NaN)).toThrow()
-    expect(() => playheadAt(1, 0, 0)).toThrow()
-    expect(() => playheadAt(1, 0, -2)).toThrow()
+  it('playheadAt throws on non-finite times, a non-positive measure length or a broken map', () => {
+    expect(() => playheadAt(Number.NaN, oneTempo(0, 2))).toThrow()
+    expect(() => playheadAt(1, oneTempo(Number.POSITIVE_INFINITY, 2))).toThrow()
+    expect(() => playheadAt(1, oneTempo(0, Number.NaN))).toThrow()
+    expect(() => playheadAt(1, oneTempo(0, 0))).toThrow()
+    expect(() => playheadAt(1, oneTempo(0, -2))).toThrow()
+    expect(() => playheadAt(1, [])).toThrow()
+    expect(() => playheadAt(1, [{ phraseNumber: 2, startsAt: 0, measureSeconds: 2 }])).toThrow()
+    const first = { phraseNumber: 1, startsAt: 0, measureSeconds: 2 }
+    expect(() =>
+      playheadAt(1, [first, { phraseNumber: 1, startsAt: 8, measureSeconds: 1 }]),
+    ).toThrow()
+    expect(() =>
+      playheadAt(1, [first, { phraseNumber: 3, startsAt: 0, measureSeconds: 1 }]),
+    ).toThrow()
+    expect(() =>
+      playheadAt(1, [first, { phraseNumber: 2.5, startsAt: 8, measureSeconds: 1 }]),
+    ).toThrow()
   })
 
   // @test-link [[module_session_rolling_display]]

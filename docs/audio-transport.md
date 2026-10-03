@@ -93,6 +93,11 @@ The window size is still "proposed" in the master spec's
 - **Times are multiplied, never added up.** A [beat](music/lexicon.md#beat) lasts `60 / tempo`
   seconds. Beat `k` falls at `startAt + k × 60 / tempo`, one multiplication from the start, so a
   long session never drifts.
+- **A tempo map.** The session's click plan is a tempo map: the starting tempo from beat 0, then
+  one tempo change on the first beat of each phrase queued at another tempo. Beat `k` is placed by
+  one multiplication from the start of the tempo segment it falls in, so the clicks and the backing
+  switch tempo exactly on that phrase's first beat, with no gap or doubled beat, and a session
+  rising for hours still does not drift. The count-in always runs at the starting tempo.
 - **Just ahead of `start`.** The first click falls `START_DELAY_SECONDS` (0.1 s) after `start`, so
   it too is planned ahead.
 - **A one-measure count-in.** The count-in is `COUNT_IN_MEASURES` (1, from
@@ -172,26 +177,31 @@ arithmetic on audio time and reads no clock.
 
 ### The transport API
 
-- **`queueBacking(phraseNumber, harmony)`** renders a phrase's backing from its harmony events and
-  queues it. Phrases must come in order, 1, 2, 3 …, and each before planning has reached its
-  start. It throws, leaving the queue as it was, when no session is running, when the phrase is
-  not the next one due, and when planning has already passed the phrase's start (queued too late).
+- **`queueBacking(phraseNumber, harmony, tempo)`** renders a phrase's backing from its harmony
+  events, queues it, and puts the phrase at `tempo` on the tempo map: from its first beat on, the
+  clicks and the backing run at that tempo until a later phrase changes it. Phrases must come in
+  order, 1, 2, 3 …, and each before planning has reached its start; phrase 1 must be at the
+  starting tempo. It throws, leaving the queue and the map as they were, when no session is
+  running, when the phrase is not the next one due, when phrase 1 is at another tempo, and when
+  planning has already passed the phrase's start (queued too late).
 - **A phrase never queued stays silent.** The transport can't tell a phrase is missing until the
   next `queueBacking` call, which then throws: out of order, or too late.
 - **`phraseStartsAt(phraseNumber)`** gives when the running session's phrase starts sounding: the
-  count-in's end plus (N − 1) phrases. It throws when no session is running.
+  count-in's end plus the phrases before it, each at its own tempo, so it is known up to the phrase
+  after the last queued. It throws when no session is running, and for a later phrase.
 - **Only after the count-in, until stop.** Phrase 1 starts when the count-in ends, so the count-in
   has no backing. The backing does not listen to the player: it keeps playing through their
   silence. Stop halts planning, and the fade on stop silences the notes already planned past it.
 
 **How the session controller wires it.** Right after `start`, the session controller (see
 [`docs/session-engine.md`](session-engine.md#the-session-controller)) queues phrase 1 with the idle
-phrase's harmony. Then, on each `phrase-ready` output of the session engine (see
-[`docs/session-engine.md`](session-engine.md)), it queues that phrase's number with
-`phrase.outcome.provenance.harmony.events`, a repeat included. Phrase 1 gets no `phrase-ready`,
-which is why it is queued at start. The engine readies each later phrase by its deadline, at the
-latest the start of the last measure of the phrase before, so it is queued at least a measure
-before it starts, well ahead of the 200 ms window.
+phrase's harmony at the starting tempo. Then, on each `phrase-tempo` output of the session engine
+(see [`docs/session-engine.md`](session-engine.md)), it queues that phrase's number with the
+harmony of the phrase its `phrase-ready` gave, `phrase.outcome.provenance.harmony.events` (a
+repeat included), at the tempo the engine fixed for it. Phrase 1 gets neither output, which is why
+it is queued at start. The engine fixes each later phrase's tempo at its deadline, the start of the
+last measure of the phrase before, so it is queued a measure before it starts, well ahead of the
+200 ms window.
 
 ### The voices
 
@@ -276,8 +286,9 @@ for it to stay within 20 ms of the actual audio output.
 The session's rolling display (see
 [The rolling display](session-engine.md#the-rolling-display)) reads the playhead once per
 animation frame, on **heard time**, `now() - outputLatency()`, and finds the measure that time
-falls in from `phraseStartsAt(1)` and the measure length: barline k at
-`phraseStartsAt(1) + k × 240 / tempo`. Exactly at a barline the playhead is on the new measure.
+falls in from each phrase's start and its own tempo: barline k of phrase n at
+`phraseStartsAt(n) + k × 240 / tempo`, with phrase n's tempo. Exactly at a barline the playhead is
+on the new measure.
 The band (`rect.playhead-band`) moves only when the measure changes, in one step with no
 transition, so it lags the heard barline by at most one frame (about 17 ms at 60 frames per
 second) plus the time to draw it. The scheduler and the engine's deadlines keep reading `now()`

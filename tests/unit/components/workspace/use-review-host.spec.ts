@@ -49,7 +49,11 @@ describe('useReviewHost', () => {
   // @test-link [[req_last_session_review]]
   it('gives the phrases and instrument of the Review only while it shows, not while kept', () => {
     const fake = createFakeSessionController({
-      review: { history: fakeReviewHistory(recordedRecords(), 'c-keyboard'), showing: true },
+      review: {
+        history: fakeReviewHistory(recordedRecords(), 'c-keyboard'),
+        showing: true,
+        tempoReached: 90,
+      },
     })
     const { built, stop } = host(fake)
 

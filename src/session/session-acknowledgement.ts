@@ -40,20 +40,20 @@ export class SessionAcknowledgementError extends Error {
 }
 
 /**
- * What a session's acknowledgement needs once, at its start: the session's tempo in BPM and the
- * latency correction for the attached controller (the caller picks it, e.g.
- * `latencyCorrectionFor('usb')`).
+ * What a session's acknowledgement needs once, at its start: the latency correction for the
+ * attached controller (the caller picks it, e.g. `latencyCorrectionFor('usb')`). Tempo is per
+ * phrase, given with each phrase added.
  */
 // @spec-link [[rule_played_onset_latency_compensation]]
 export interface SessionAcknowledgementOptions {
-  readonly tempo: number
   readonly correction: LatencyCorrection
 }
 
 /**
  * The acknowledgement state of one session.
  * - addPhrase: add the next phrase (1, 2, 3… strictly in order) with its first downbeat on the
- *   audio clock; the windows are placed again over every expected note known so far.
+ *   audio clock and its own tempo in BPM; the windows are placed again over every expected note
+ *   known so far.
  * - notePlayed: match one note-on on the audio clock; returns the identity it newly acknowledges
  *   (a list of one), or an empty list. Nothing is ever returned for a note that matches nothing.
  * - acknowledged: every identity acknowledged so far, in acknowledgement order.
@@ -69,7 +69,12 @@ export interface SessionAcknowledgementOptions {
 // @spec-link [[rule_played_onset_latency_compensation]]
 // @spec-link [[rule_no_grading_or_mismatch_signal]]
 export interface SessionAcknowledgement {
-  addPhrase(phraseNumber: number, timeline: ConcertEventTimeline, firstDownbeatAt: AudioTime): void
+  addPhrase(
+    phraseNumber: number,
+    timeline: ConcertEventTimeline,
+    firstDownbeatAt: AudioTime,
+    tempo: number,
+  ): void
   notePlayed(noteOn: NoteOnOnAudioClock): readonly ExpectedNoteIdentity[]
   acknowledged(): readonly ExpectedNoteIdentity[]
   // @spec-link [[rule_controller_loss_mid_session]]
@@ -78,11 +83,12 @@ export interface SessionAcknowledgement {
 }
 
 /**
- * Intent: an empty acknowledgement for one session at its tempo, with its latency correction.
- * Rejects a tempo that is not a positive finite BPM and a correction with a negative or non-finite
- * delay, before any note arrives. A phrase out of order, or one whose notes do not follow the
- * previous phrase's in time, throws and leaves the state unchanged. Passed-over notes are excluded
- * from matching as if taken, but kept apart from the acknowledged ones.
+ * Intent: an empty acknowledgement for one session, with its latency correction. Rejects a
+ * correction with a negative or non-finite delay, before any note arrives. Each phrase's expected
+ * notes are placed at that phrase's own tempo from its own first downbeat. A phrase out of order,
+ * at a tempo that is not a positive finite BPM, or whose notes do not follow the previous phrase's
+ * in time, throws and leaves the state unchanged. Passed-over notes are excluded from matching as
+ * if taken, but kept apart from the acknowledged ones.
  */
 // @spec-link [[rule_acknowledgement_highlights_expected_note_only]]
 // @spec-link [[rule_expected_note_window]]
@@ -92,10 +98,7 @@ export interface SessionAcknowledgement {
 export function createSessionAcknowledgement(
   options: SessionAcknowledgementOptions,
 ): SessionAcknowledgement {
-  const { tempo, correction } = options
-  if (!Number.isFinite(tempo) || tempo <= 0) {
-    throw new SessionAcknowledgementError(`The session tempo must be a positive BPM, got ${tempo}.`)
-  }
+  const { correction } = options
   assertCorrection(correction)
   let expected: readonly ExpectedNote[] = []
   let windowed: readonly WindowedExpectedNote[] = []
@@ -105,10 +108,20 @@ export function createSessionAcknowledgement(
   let phraseCount = 0
 
   return Object.freeze({
-    addPhrase(phraseNumber: number, timeline: ConcertEventTimeline, firstDownbeatAt: AudioTime) {
+    addPhrase(
+      phraseNumber: number,
+      timeline: ConcertEventTimeline,
+      firstDownbeatAt: AudioTime,
+      tempo: number,
+    ) {
       if (phraseNumber !== phraseCount + 1) {
         throw new SessionAcknowledgementError(
           `Phrase ${phraseNumber} was added; phrase ${phraseCount + 1} was next.`,
+        )
+      }
+      if (!Number.isFinite(tempo) || tempo <= 0) {
+        throw new SessionAcknowledgementError(
+          `Phrase ${phraseNumber}'s tempo must be a positive BPM, got ${tempo}.`,
         )
       }
       const phraseNotes = deriveExpectedNotes(timeline, {

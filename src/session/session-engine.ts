@@ -40,6 +40,14 @@ import {
   registerCandidates,
   reopenedLookAhead,
 } from './session-settings-change'
+import {
+  countSoundingPhrase,
+  fixDueTempo,
+  onController,
+  soundingTempo,
+  startSessionTempo,
+  tempoOfPhrase,
+} from './session-tempo-step'
 import { deadlineReached, nextPhraseDeadline, phraseTwoDeadline } from './session-timing'
 import {
   SessionEngineError,
@@ -225,12 +233,16 @@ function onFitResult(
   return decide(state, acceptedPhrase(lookAheadOf(state), attempt))
 }
 
-/** Intent: the count-in is over: phrase 1 starts sounding and nothing new is requested. */
+/**
+ * Intent: the count-in is over: phrase 1 starts sounding at the starting tempo, the schedule may
+ * count it, and nothing new is requested.
+ */
 function onCountInOver(context: EngineContext, state: EngineState, at: AudioTime): Step {
   if (state.phase !== 'count-in') throw new SessionEngineError('The count-in is already over.')
+  const tempo = tempoOfPhrase(state.tempo, 1)
   return {
-    state: { ...state, phase: 'running', soundedCount: 1 },
-    outputs: [{ kind: 'phrase-sounding', at, phrase: context.phraseOne }],
+    state: { ...state, phase: 'running', soundedCount: 1, tempo: countSoundingPhrase(state.tempo) },
+    outputs: [{ kind: 'phrase-sounding', at, phrase: context.phraseOne, tempo }],
   }
 }
 
@@ -252,9 +264,9 @@ function assertNextToSound(state: EngineState, phraseNumber: number): void {
 }
 
 /**
- * Intent: phrase N (2 or more) starts sounding: it must be the next decided phrase. A shown notice
- * clears if it is a generated phrase, and phrase N+1 is requested with its deadline at the start
- * of N's last measure.
+ * Intent: phrase N (2 or more) starts sounding: it must be the next decided phrase, its tempo
+ * fixed, and the schedule may count it. A shown notice clears if it is a generated phrase, and
+ * phrase N+1 is requested with its deadline at the start of N's last measure, at N's tempo.
  */
 function onPhraseStartedSounding(
   context: EngineContext,
@@ -264,27 +276,33 @@ function onPhraseStartedSounding(
 ): Step {
   assertNextToSound(state, phraseNumber)
   const phrase = state.lastDecided
+  const tempo = tempoOfPhrase(state.tempo, phraseNumber)
   const cleared = noticeOnSounding(state.notice, phrase.origin)
   const sounded = {
     ...state,
     soundedCount: phraseNumber,
     notice: cleared.notice,
     decided: undefined,
+    tempo: countSoundingPhrase(state.tempo),
   }
-  const deadline = nextPhraseDeadline(at, state.settings.controls.tempo)
-  const requested = requestNextPhrase(context, sounded, deadline)
+  const requested = requestNextPhrase(context, sounded, nextPhraseDeadline(at, tempo))
   return {
     state: requested.state,
-    outputs: [{ kind: 'phrase-sounding', at, phrase }, ...cleared.outputs, ...requested.outputs],
+    outputs: [
+      { kind: 'phrase-sounding', at, phrase, tempo },
+      ...cleared.outputs,
+      ...requested.outputs,
+    ],
   }
 }
 
 /**
  * Intent: put a settings change in effect at `at`. The pending phrase (the undecided look-ahead,
- * or the decided phrase not yet sounding) is discarded when at least a measure remains before its
- * deadline and none of it is on screen: a decided one is undecided again, and either way it is
- * requested again from the first rung with the new settings, same phrase before and deadline, its
- * attempt in flight superseded. Otherwise the change applies from the phrase after it.
+ * or the decided phrase not yet sounding) is discarded when at least a measure, at the sounding
+ * phrase's tempo, remains before its deadline and none of it is on screen: a decided one is
+ * undecided again, and either way it is requested again from the first rung with the new
+ * settings, same phrase before and deadline, its attempt in flight superseded. Otherwise the
+ * change applies from the phrase after it.
  */
 function onSettingsChange(
   context: EngineContext,
@@ -295,7 +313,7 @@ function onSettingsChange(
   const settings = changedSettings(state.settings, next)
   const pending = state.lookAhead ?? decidedOf(state).lookAhead
   const { phraseNumber } = pending
-  if (!discardsPendingPhrase(at, pending, settings.controls.tempo, context.display))
+  if (!discardsPendingPhrase(at, pending, soundingTempo(state), context.display))
     return { state: { ...state, settings }, outputs: [automaticChange(phraseNumber + 1, settings)] }
   const undecided = state.lookAhead === undefined ? undecide(state) : state
   const lookAhead = reopenedLookAhead(pending, settings)
@@ -325,13 +343,17 @@ function onEnd(state: EngineState, event: Extract<SessionEvent, { kind: 'end' }>
   }
 }
 
-/** Intent: after the end, late results and ticks are dropped; any other event is a caller bug. */
+/**
+ * Intent: after the end, late results, ticks and controller events (a loss can race the end) are
+ * dropped; any other event is a caller bug.
+ */
 function afterEnd(state: EngineState, event: SessionEvent): Step {
   const dropped: readonly SessionEvent['kind'][] = [
     'generation-result',
     'generation-crashed',
     'fit-result',
     'tick',
+    'controller',
   ]
   if (!dropped.includes(event.kind))
     throw new SessionEngineError(`The session has ended; "${event.kind}" cannot follow.`)
@@ -353,6 +375,8 @@ function dispatch(context: EngineContext, state: EngineState, event: SessionEven
       return onFitResult(context, state, event.attemptId, event.fits)
     case 'settings-change':
       return onSettingsChange(context, state, event.at, event.settings)
+    case 'controller':
+      return onController(state, event.attached)
     case 'tick':
       return { state, outputs: [] }
     case 'end':
@@ -361,9 +385,19 @@ function dispatch(context: EngineContext, state: EngineState, event: SessionEven
 }
 
 /**
+ * Intent: what is due by `at`: the deadline logic, then the pending phrase's tempo, fixed once
+ * its deadline is reached, so a repeat decided at that deadline is decided first.
+ */
+function runDue(state: EngineState, at: AudioTime): Step {
+  const decided = runDeadline(state, at)
+  const fixed = fixDueTempo(decided.state, at)
+  return { state: fixed.state, outputs: [...decided.outputs, ...fixed.outputs] }
+}
+
+/**
  * Intent: handle one timed event. Time never runs backwards. Before the end, any event other than
- * `end` first runs the deadline logic for its time, so a result at or after the deadline is too
- * late; `end` decides nothing more.
+ * `end` first runs what is due by its time, so a result at or after the deadline is too late;
+ * `end` decides nothing more.
  */
 function handleEvent(context: EngineContext, state: EngineState, event: SessionEvent): Step {
   assertAudioTime(event.at)
@@ -371,17 +405,18 @@ function handleEvent(context: EngineContext, state: EngineState, event: SessionE
   if (event.at < state.lastAt)
     throw new SessionEngineError(`Time ran backwards: ${event.at} s after ${state.lastAt} s.`)
   const timed = { ...state, lastAt: event.at }
-  const due = event.kind === 'end' ? { state: timed, outputs: [] } : runDeadline(timed, event.at)
+  const due = event.kind === 'end' ? { state: timed, outputs: [] } : runDue(timed, event.at)
   const handled = dispatch(context, due.state, event)
   return { state: handled.state, outputs: [...due.outputs, ...handled.outputs] }
 }
 
 /**
- * Intent: start a session from its start time, chosen settings, phrase 1 (the Idle phrase) and
- * mutation flag: freeze the settings as the settings in effect, keep phrase 1 as the `idle`
- * record, and request phrase 2 at once with its deadline at the end of the count-in. Returns the
- * start outputs and the handler of every later event; every output is deep-frozen, and attempt
- * ids increase from 1.
+ * Intent: start a session from its start time, chosen settings, phrase 1 (the Idle phrase),
+ * mutation flag and adaptive-tempo choice: freeze the settings as the settings in effect, whose
+ * tempo stays the starting tempo, keep phrase 1 as the `idle` record at the starting tempo, and
+ * request phrase 2 at once with its deadline at the end of the count-in. Returns the start outputs
+ * and the handler of every later event; every output is deep-frozen, and attempt ids increase
+ * from 1.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[req_settings_mutation_flag]]
@@ -420,6 +455,7 @@ export function createSessionEngine(
     steppedDown: false,
     notice: NOTICE_AT_START,
     nextAttemptId: 1,
+    tempo: startSessionTempo(settings, start.adaptiveTempo),
   }
   const phraseTwoDue = phraseTwoDeadline(start.at, settings.controls.tempo)
   const started = requestNextPhrase(context, initial, phraseTwoDue)
