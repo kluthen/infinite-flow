@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.26
+Status: draft v0.27
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -37,6 +37,11 @@ a crossing that makes the rhythm combination disallowed stops the round. O97–O
 2026-09-29 while correcting the gaps `documentalist` found in the v2 master spec (D157–D163). O97
 was answered by the owner the same day (D167): the carry-over between phrases is kept, and a
 session's last phrase may end with a leap recovery or a tense note's resolution still owed.
+On 2026-10-03 the owner answered O77 (D176), O93 (D177) and O98 (D178) with their proposals, or
+for O77 with a cadence of 2 to 4 phrases and the flag starting off, and O99 with its alternative
+(D179): adaptive tempo pauses while the controller is away. The same day, O100–O103 were opened
+by the v3 rhythm candidates (D175), and O104 by moving the real-hardware checks to v2.4 (D173);
+O104 was answered the same day (D180).
 
 ### Registered from the v2 proposal and the prerequisites analysis (2026-09-25)
 
@@ -58,15 +63,9 @@ Raised on 2026-09-26 while drafting the v2 topic documents, since consolidated i
 [versions/v2/master-spec.md §12](versions/v2/master-spec.md#12-open-questions-carried-forward)
 (plain-language form, no IDs) and the archived
 [questions-for-user.md](archive/v2/questions-for-user.md) (full working history). O52 was
-resolved 2026-09-27 (D97). O24 was resolved 2026-09-27 (D108).
+resolved 2026-09-27 (D97). O24 was resolved 2026-09-27 (D108). O77 was resolved 2026-10-03
+(D176).
 
-- **O77 - The settings-mutation flag's cadence and default** _(2026-09-27; scope, magnitude, the
-  invalid-combination rule and release settled — D103, D107, ships v2.1)_: an opt-in that lets
-  every eligible setting (everything except instrument selection and tempo) drift by at most one
-  grade every few phrases, re-mutating on an unsupported combination rather than applying or
-  skipping it. Still open: the exact cadence (how many phrases between mutations, fixed or
-  randomized within a range), and whether the flag defaults on or off when a session starts.
-  [master-spec.md §5](versions/v2/master-spec.md#5-control-changes-during-a-session).
 - **O57 - Backing voicing and register** _(listening test, confirmed happening later)_: proposed
   default is bass in MIDI 36–47 and chords in close position with the top note at or below MIDI
   64 (E4), attacked per harmony event and per downbeat. Is that acceptable for v2.0, or should the
@@ -78,7 +77,9 @@ resolved 2026-09-27 (D97). O24 was resolved 2026-09-27 (D108).
 - **O68 - Main-thread engraving vs audio scheduling** _(prototype needed)_: does engraving a
   phrase (VexFlow, main thread) ever block longer than the scheduler's look-ahead window (200 ms
   proposed)? The v2 prototype should measure the longest main-thread task during a session at 240
-  BPM. [master-spec.md §6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo).
+  BPM. Note (2026-10-03, D173): the final check on the reference machine is v2.0's former item
+  15, which moved to the v2.4 real-hardware checks.
+  [master-spec.md §6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo).
 - **O71 - Bluetooth MIDI** _(research on the owner's setup)_: is USB the tested path for v2.0,
   with BLE best-effort (proposed)? Depends on whether the owner's OS exposes the reference
   controller's BLE MIDI to Chromium, and its measured jitter. Note (2026-09-28, D127): the owner
@@ -138,45 +139,53 @@ while recording those answers. O94 was settled with its proposal the same day (u
 D151). O95 was opened while recording ux D116 (spec D152), and settled the same day against its
 proposal, with the alternative it named (ux D117, spec D153). O96 was opened 2026-09-29 while
 recording ux D118 (spec D154), and settled the same day with its proposal by `ux-writer` under
-the owner's delegation of minor calls (ux D120 and ux D119, spec D155). O93 does not block
-starting v2.0 implementation; it blocks only the behaviour it names.
-
-- **O93 - The settings-mutation flag in a session generating with `Eighth`** _(D150, D147, D148;
-  v2.1, with O77)_: when a chosen `Sixteenth` generates as `Eighth`, which of the two does a
-  note-density mutation step from? From the chosen `Sixteenth`, a step down to `Eighth` changes
-  nothing generated. And does `Sixteenth` count as unavailable in a session that stepped down to
-  `Eighth` (D148) and whose window is now wide enough, where landing on it would change nothing
-  generated either? D150 covers only "below the width". Proposed, not confirmed by the owner: a
-  mutation steps from the density generated with, and `Sixteenth` counts as unavailable whenever
-  the session generates with `Eighth` under D146, whatever the window's width.
-  [master-spec.md §5](versions/v2/master-spec.md#5-control-changes-during-a-session).
+the owner's delegation of minor calls (ux D120 and ux D119, spec D155). O93 was resolved
+2026-10-03 with its proposal (D177). No question of this section is open.
 
 ## v2 gaps from the atom ingestion (O97+)
 
 Opened 2026-09-29 by `spec-writer` while correcting the gaps `documentalist` found when it drew
 ATD atoms from master spec v1.18 (D157–D163). They are product decisions, left for the owner. O97
-was answered by the owner on 2026-09-29 with its proposal (D167). O98 and O99 block only the v2.2
-behaviour they name.
+was answered by the owner on 2026-09-29 with its proposal (D167). On 2026-10-03 the owner
+answered O98 with its proposal (D178) and O99 with its alternative (D179). No question of this
+section is open.
 
-- **O98 - How the multi-phrase tension arc runs, and its default** _(D99, D110; v2.2; gap 8)_: the
-  tension-arc setting (Settled, Lift, Build, Edge) decides how much melodic tension (a note that
-  clashes with the chord before settling onto a chord note) a phrase has and where. D110 makes the
-  longer arc a visible toggle; how it moves tension across phrases, and whether the toggle starts
-  on or off, are undecided. Proposed, not confirmed by the owner: the arc repeats every four
-  phrases (16 measures), counted from phrase 1: the first phrase of each group is generated with
-  the chosen tension arc (so phrase 1, generated at Idle, already fits), the second one step
-  tenser, the third as chosen, the fourth one step calmer, in the order Settled, Lift, Build,
-  Edge, with no step past either end. The setting keeps showing the player's choice. The toggle
-  starts off. Its interaction with the settings-mutation flag (O77), which may change the tension
-  arc itself, follows: the arc steps around whatever value is in effect.
-  [master-spec.md §3](versions/v2/master-spec.md#3-the-generation-unit-and-how-phrases-join).
-- **O99 - Adaptive tempo when the controller is lost, and its default** _(D101, D114; v2.2; gap
-  9)_: adaptive tempo is available only with a controller attached, but a controller lost
-  mid-session may come back within 30 seconds (D114). Does the rise carry on meanwhile, and does
-  the flag start on or off? Proposed, not confirmed by the owner: the rise carries on its schedule,
-  since it never depends on what or whether the player plays (D101), so a reconnected player may
-  find the tempo up to 15 BPM higher at a fast tempo; a session started while the selected
-  controller is away (D126) has no controller, so adaptive tempo does not run in it. Alternative:
-  pause the rise while the controller is away. Adaptive tempo starts off when the page loads, and
-  the player's choice is kept between sessions for as long as the page stays open.
-  [master-spec.md §10](versions/v2/master-spec.md#10-adaptive-tempo).
+## v2.4 real-hardware checks (O104)
+
+O104 was opened 2026-10-03 while recording D173 and answered by the owner the same day with its
+proposal (D180): the v2.1 gate's checks in a real DAW and on the reference machine move to v2.4
+too. No question of this section is open.
+
+## v3 rhythm candidates (O100+)
+
+Opened 2026-10-03 by `spec-writer` while recording the owner's v3 candidates in the rhythm
+category (D175): rhythm ratios, the rhythm editor and the rhythm lock, all reached through a new
+note-density value, Custom. They are candidates, not committed scope, so none of these blocks
+anything planned. Lexicon terms: [note density](../docs/music/lexicon.md#note-density),
+[rhythmic variety](../docs/music/lexicon.md#rhythmic-variety),
+[syncopation](../docs/music/lexicon.md#syncopation-1),
+[silence density](../docs/music/lexicon.md#silence-density),
+[unsupported rhythm combination](../docs/music/lexicon.md#unsupported-rhythm-combination).
+
+- **O100 - Custom and the other rhythm settings** _(D175; v3 candidate)_: under Custom, do
+  rhythmic variety, syncopation and silence density still apply on top of the custom rhythm,
+  apply only to the ratios, or step aside? Which combinations does the rhythm grammar block under
+  Custom, since the blocked list is keyed today by a note-density value? And does the narrow-window
+  rule (no `Sixteenth` below the tablet-landscape width, D146) cap the sixteenth-note ratio there?
+- **O101 - What the rhythm ratios hold, and what a mutation does to them** _(D175, D176; v3
+  candidate)_: which note values get a ratio (whole, half, quarter, eighth and sixteenth notes;
+  dotted values; rests, or are rests silence density's job), and how finely a ratio is set? What
+  is one step of a mutation on the ratios, by analogy with "one grade" (D103)? And can a mutation
+  move note density out of Custom, back to a fixed value (D175 only forbids moving into it)?
+- **O102 - The rhythm editor's source and limits** _(D175; v3 candidate)_: "one of the bars" of
+  which phrase, the one on screen at Idle or one in the last session's review? Is a rhythm one
+  bar long, reused for all four bars, or four bars long? Must a rhythm entered by hand or copied
+  pass the rhythm grammar's feasibility rules (every measure keeps a note sounding on beat 1 or
+  3, no fully silent measure, no rest longer than half a measure), and if it does not, is it
+  refused, adjusted, or allowed as the player's own choice?
+- **O103 - What the rhythm lock holds, and how far it bends** _(D175, D176; v3 candidate)_: is
+  "this rhythm" the editor's rhythm only, or whatever rhythm is in effect when the lock is set,
+  including one drawn from the ratios? What is "a little bending" for tension and release: how
+  often, how far from the locked rhythm, always returning to it, and is a bend shown? With the
+  mutation flag on, is a mutation's temporary bend the same thing as generation's own bend, or a
+  separate one?

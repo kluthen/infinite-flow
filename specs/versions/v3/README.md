@@ -2,7 +2,8 @@
 
 Status: direction (2026-09-25; review-tooling candidates added 2026-09-28, D128;
 session-keeping candidates added 2026-09-28, D129; favorites moved here from v2 2026-09-28, D130;
-a note on saving note density added 2026-09-28, D146).
+a note on saving note density added 2026-09-28, D146; the end-of-measure chord-fit check moved
+here from v2 as a nice-to-have 2026-10-03, D174; rhythm candidates added 2026-10-03, D175).
 Not yet specced.
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
@@ -105,6 +106,76 @@ version is open: this is not a v3 placement.**
 v2 already stores each phrase's generated timeline and reproduction inputs in memory, which is
 what a kept session would need
 ([v2 master spec §7](../v2/master-spec.md#7-sessions-review-export-and-privacy)).
+
+## End-of-measure chord-fit check (nice-to-have, not committed)
+
+Moved here from v2 on 2026-10-03 (D174). It was v2's release v2.3 (build plan chunks 32–34); the
+owner took it out of v2 and recorded it as a **nice-to-have for v3, not committed scope**. Nothing
+in v3 depends on it.
+
+- **What it is.** Beyond acknowledging the exact expected note (v2.0), the app would also
+  acknowledge a player who embellishes or improvises on the written line, at the end of a measure,
+  when what they played fits the harmony. It is positive-only: a measure that doesn't fit, or
+  where nothing was played, shows nothing.
+- **Its definition is settled and kept** (D108, from O24): judged per measure by pitch class; it
+  runs only on a measure the player played differently from the written phrase; a measure fits
+  when one played note is a chord tone of the chord sounding at its onset and every other is in
+  the phrase's scale or a chromatic note resolving by a half step onto a chord tone within the
+  player's next two notes; "blue" notes and passing chromatic notes that don't resolve get no
+  signal, by design. Full text, with its acceptance criterion, in
+  [v2 master spec §9](../v2/master-spec.md#9-the-end-of-measure-chord-fit-check).
+- **The build notes are kept** in the v2 build plan: the
+  [engine](../v2/build-plan.md#chunk-32--chord-fit-engine) (pure logic, sixteenth-note grid
+  assignment, the property test that the app's own line never triggers it), the
+  [presentation](../v2/build-plan.md#chunk-33--chord-fit-presentation) (not designed; interface
+  unit 9 in `ui_ux/todo.md`) and a [gate](../v2/build-plan.md#chunk-34--v23-release-gate).
+- **Caveat carried with it** (master spec §9): the rule relies on one scale per phrase. If harmony
+  leaves the phrase's scale before it is built (secondary dominants, borrowed chords), each
+  measure must be judged against its own chord's scale.
+
+## Rhythm candidates: Custom note density (candidates, not committed)
+
+Recorded 2026-10-03 (D175), the owner's ideas. **The version is open: this is not a v3
+placement**; they sit here as v3 is the next version to be specced. All three belong to the rhythm
+category of the settings, and are reachable only when
+[note density](../../../docs/music/lexicon.md#note-density) is set to a new value, **Custom**
+(working name). Today note density has three values: quarter notes, eighth notes and sixteenth
+notes.
+
+- **Rhythm ratios.** The player sets how likely each note value is to appear, from the
+  [whole note](../../../docs/music/lexicon.md#whole-note) down to the
+  [sixteenth note](../../../docs/music/lexicon.md#sixteenth-note). (A note value is how long a
+  note lasts as written: whole, half, quarter, eighth, sixteenth.)
+- **Rhythm editor.** Two ways to give the rhythm: copy the rhythm of one of the bars, or enter a
+  rhythm by hand.
+- **Rhythm lock.** When set, the rhythm does not change. Generation may bend that rule a little
+  to create [tension and release](../../../docs/music/lexicon.md#tension-and-resolution), but the
+  rhythm stays stable across the session.
+
+**With the settings-mutation flag** (v2.1, master spec §5):
+
+- a mutation can never move note density **into** Custom;
+- while Custom is set, a mutation may alter the ratios;
+- while the lock is set, a mutation cannot alter the rhythm durably: a temporary bend is the only
+  latitude.
+
+**Open, in the [register](../../open-questions.md#v3-rhythm-candidates-o100):**
+
+- **O100:** how Custom meets [rhythmic variety](../../../docs/music/lexicon.md#rhythmic-variety),
+  [syncopation](../../../docs/music/lexicon.md#syncopation-1) and
+  [silence density](../../../docs/music/lexicon.md#silence-density), which combinations the
+  rhythm grammar blocks under Custom, and the narrow-window rule for sixteenth notes.
+- **O101:** which note values get a ratio (dotted values, rests), how finely, what one mutation
+  step on the ratios is, and whether a mutation can move density out of Custom.
+- **O102:** which bar the editor copies from, how long an entered rhythm is, and whether it must
+  pass the rhythm grammar's feasibility rules
+  ([unsupported rhythm combination](../../../docs/music/lexicon.md#unsupported-rhythm-combination)).
+- **O103:** what the lock holds (the editor's rhythm, or any rhythm in effect), what "a little
+  bending" means, and whether a bend is shown.
+
+They may overlap with the embellishment and style-figure flags of the
+[v2 direction](../v2/README.md#direction-not-yet-scoped), which may turn rhythmic variety into
+selective rates; the two should be settled together.
 
 ## Depends on
 

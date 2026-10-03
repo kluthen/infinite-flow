@@ -1,6 +1,6 @@
 # Versions
 
-Status: draft v0.2
+Status: draft v0.3 (v2 and v3 rows updated 2026-10-03, D173–D175)
 
 The scope of each planned version of Infinite Flow is kept in its own folder. The ordered
 timeline is in the [roadmap](../roadmap.md). The product-wide principles are in the
@@ -21,11 +21,11 @@ timeline is in the [roadmap](../roadmap.md). The product-wide principles are in 
 
 ## Index
 
-| Version                         | Status                          | Headline                                                                  |
-| ------------------------------- | ------------------------------- | ------------------------------------------------------------------------- |
-| [v1](v1/README.md)              | Released as `v1.0`; gate closed | Finite four-measure phrase generator                                      |
-| [v2](v2/README.md)              | Direction settled; next to spec | Rolling phrase, MIDI acknowledgement, backing, last-session review/export |
-| [v3](v3/README.md)              | Direction                       | Player-seeded continuation, "my instrument", earlier sessions             |
-| [v4](v4/README.md)              | Direction                       | Accompaniment with roles, whole-file seed (proposed)                      |
-| [v5+](v5-plus/README.md)        | Direction                       | Library and snippet seeds, microphone input                               |
-| [Endgame](../vision/endgame.md) | Direction only                  | Rhythm RPG built on the v2 loop                                           |
+| Version                         | Status                          | Headline                                                                                                                                       |
+| ------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| [v1](v1/README.md)              | Released as `v1.0`; gate closed | Finite four-measure phrase generator                                                                                                           |
+| [v2](v2/README.md)              | Specced; being built            | Rolling phrase, MIDI acknowledgement, backing, last-session review/export; releases v2.0, v2.1, v2.2, then v2.4 real-hardware checks (no v2.3) |
+| [v3](v3/README.md)              | Direction                       | Player-seeded continuation, "my instrument", earlier sessions; chord-fit check as a nice-to-have                                               |
+| [v4](v4/README.md)              | Direction                       | Accompaniment with roles, whole-file seed (proposed)                                                                                           |
+| [v5+](v5-plus/README.md)        | Direction                       | Library and snippet seeds, microphone input                                                                                                    |
+| [Endgame](../vision/endgame.md) | Direction only                  | Rhythm RPG built on the v2 loop                                                                                                                |

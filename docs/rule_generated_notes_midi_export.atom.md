@@ -7,9 +7,9 @@ parents:
 dependents: []
 layer: BUSINESS
 priority: 1
-tags: [v2, release-v2.0, export]
+tags: [v2, release-v2.0, v2.4-check, export]
 type: RULE
-version: 0.1
+version: 0.2
 ---
 
 # Generated Notes MIDI Export
@@ -24,5 +24,6 @@ The generated-notes MIDI export (Standard MIDI File, type 1) holds the generated
 The generated-notes export in MIDI format produces one type 1 Standard MIDI File, with an option to include the backing.
 
 ## EXPECTATION
-- The MIDI file opens correctly in a real MIDI tool with the correct tempo map and one marker per phrase.
+- The MIDI file carries the correct tempo map and one marker per phrase, as automated tests check.
+- Opening the file in a real MIDI tool, and finding the correct tempo map there, is a check of the later real-hardware release, v2.4.
 - The backing track is present only when the player opts in; played notes are never present.
