@@ -16,7 +16,7 @@ import type { MidiController } from '@/midi/midi-controller-state'
 import type { CountInDisplay } from '@/session/count-in-display'
 import type { SessionBrowserPorts } from '@/session/session-browser-ports'
 import type { SessionHistory, WallClock } from '@/session/session-history'
-import type { SessionRunner } from '@/session/session-runner'
+import type { SessionRunner, SessionTransportEvent } from '@/session/session-runner'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import type { StartingNote } from '@/session/starting-note'
 import type { SessionEndCause } from '@/session/session-types'
@@ -32,6 +32,10 @@ import type { ControllerLostCountdown } from './workspace-session-midi'
 // @spec-link [[service_workspace_session_flow]]
 export type SessionControllerPhase = 'idle' | 'count-in' | 'running'
 
+/** A transport event without its time, which the controller raises to the engine's time floor. */
+// @spec-link [[service_workspace_session_flow]]
+export type UntimedEvent<E = SessionTransportEvent> = E extends unknown ? Omit<E, 'at'> : never
+
 /** The count-in row while the count-in runs: one state per beat. */
 // @spec-link [[rule_count_in_shown_on_screen]]
 export type RunningCountIn = Extract<CountInDisplay, { over: false }>
@@ -45,9 +49,9 @@ export interface SessionEndSummary {
 }
 
 /**
- * The last session's Review: its closed history and whether the player is in it. It exists from a
- * session end once phrase 1 has sounded until the next session starts; each change replaces the
- * frozen object, never mutates it.
+ * The last session's Review: its closed history, whether the player is in it, and the tempo the
+ * session reached. It exists from a session end once phrase 1 has sounded until the next session
+ * starts; each change replaces the frozen object, never mutates it.
  */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[rule_new_session_discards_review]]
@@ -55,6 +59,8 @@ export interface SessionReview {
   readonly history: SessionHistory
   /** The Review shows, in place of the staff; false once closed, while it is kept. */
   readonly showing: boolean
+  /** The last sounded phrase's tempo, in BPM: the highest the session reached. */
+  readonly tempoReached: number
 }
 
 /** What the screen reads from the controller; every field is reactive. */
@@ -66,7 +72,10 @@ export interface SessionControllerState {
   /** The count-in row while the count-in runs, on the audio clock; null outside it. */
   readonly countIn: RunningCountIn | null
   readonly strugglingNotice: boolean
-  /** The running session's locked tempo, in BPM; null with no session. */
+  /**
+   * The exact tempo in effect in the running session, in BPM: the starting tempo until a phrase
+   * at another tempo starts sounding, then that phrase's; null with no session.
+   */
   readonly sessionTempo: number | null
   /** The staff layout the running session holds, chosen at its start; null with no session. */
   readonly heldLayout: StaffLayout | null
@@ -97,6 +106,14 @@ export interface SessionControllerState {
   readonly acknowledged: readonly ExpectedNoteIdentity[]
   /** Whether the running session reads a controller (fixed at its start); null at Idle. */
   readonly sessionHasController: boolean | null
+  /**
+   * The page's adaptive-tempo flag: off at page load, kept from one session to the next, held in
+   * memory only. A session runs adaptive tempo when it is on and the session has a controller at
+   * its start.
+   */
+  readonly adaptiveTempo: boolean
+  /** Whether adaptive tempo may be turned on: exactly while a controller is attached. */
+  readonly adaptiveTempoAvailable: boolean
 }
 
 /** The session controller a screen binds to. */
@@ -127,6 +144,11 @@ export interface SessionController {
    * show, and no session runs.
    */
   readonly showReview: () => void
+  /**
+   * Turn the page's adaptive-tempo flag on or off, at Idle only: throws during the count-in or a
+   * running session, and when turning it on with no controller attached.
+   */
+  readonly setAdaptiveTempo: (on: boolean) => void
   /**
    * End a running session, stop reading the window and listening to the MIDI controller, and
    * dispose of the wake-up timer (its worker). Throws if called twice.
@@ -205,7 +227,8 @@ export interface SessionControllerDependencies {
 
 /**
  * A caller broke the controller's contract: a start while blocked, a Stop with no session, a
- * Review closed or shown out of turn.
+ * Review closed or shown out of turn, adaptive tempo changed during a session or turned on with
+ * no controller attached.
  */
 // @spec-link [[service_workspace_session_flow]]
 export class SessionControllerError extends Error {

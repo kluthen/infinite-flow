@@ -60,28 +60,35 @@ export interface SessionMidiDependencies {
 }
 
 /**
- * What one session gives its MIDI side at its start: its tempo, phrase 1's concert timeline, its
- * history and agenda, how it ends for a cause (nothing once it has ended), and how a programming
- * error ends it loudly.
+ * What one session gives its MIDI side at its start: its starting tempo (phrase 1's), phrase 1's
+ * concert timeline, its history and agenda, how it ends for a cause (nothing once it has ended),
+ * how a programming error ends it loudly, and where the controller's presence goes in a session
+ * started with it: away at the loss that starts the countdown, back at its reattachment.
  */
 // @spec-link [[rule_session_history_records_played_notes]]
+// @spec-link [[rule_controller_loss_mid_session]]
 export interface SessionMidiSeams {
-  readonly tempo: number
+  readonly startingTempo: number
   readonly phraseOne: ConcertEventTimeline
   readonly history: SessionHistory
   readonly agenda: AudioTimeAgenda
   readonly end: (cause: SessionEndCause) => void
   readonly fail: (error: unknown) => never
+  readonly controllerPresence: (attached: boolean) => void
 }
 
 /**
- * One session's MIDI handling: `phraseReady` adds a readied phrase's expected notes,
- * `releaseHeld` ends every held note now (call it before the engine's end closes the history), and
+ * One session's MIDI handling: `phraseReady` adds a phrase's expected notes at its tempo, once the
+ * engine has fixed that tempo, `releaseHeld` ends every held note now (call it before the engine's end closes the history), and
  * `stop` ends the handling at the teardown.
  */
 // @spec-link [[rule_acknowledgement_highlights_expected_note_only]]
 export interface SessionMidiRun {
-  readonly phraseReady: (phraseNumber: number, timeline: ConcertEventTimeline) => void
+  readonly phraseReady: (
+    phraseNumber: number,
+    timeline: ConcertEventTimeline,
+    tempo: number,
+  ) => void
   readonly releaseHeld: () => void
   readonly stop: () => void
 }
@@ -89,6 +96,8 @@ export interface SessionMidiRun {
 /** The MIDI side's reactive readings and its session hand-over. */
 // @spec-link [[rule_midi_starting_note]]
 export interface SessionMidi {
+  /** The MIDI controller's state now. */
+  readonly controllerState: () => MidiControllerState
   readonly startingNote: () => StartingNote | null
   readonly controllerLost: () => ControllerLostCountdown | null
   readonly acknowledged: () => readonly ExpectedNoteIdentity[]
@@ -186,6 +195,7 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
   }
 
   return {
+    controllerState: () => midiState.value,
     startingNote: () => startingNote.value,
     controllerLost: () => controllerLost.value,
     acknowledged: () => acknowledged.value,
@@ -226,8 +236,8 @@ interface ControllerSessionPorts {
 }
 
 /**
- * Intent: one session with a controller. Phrase 1's notes are expected from its first downbeat and
- * each readied phrase's from its own. A played note re-arms the silence timer from its onset and
+ * Intent: one session with a controller. Phrase 1's notes are expected from its first downbeat at
+ * the starting tempo and each later phrase's from its own, at its own tempo. A played note re-arms the silence timer from its onset and
  * is matched once: a match is recorded and shown, anything else changes nothing; each finished
  * note is recorded latency-compensated (the USB correction). The silence timer is armed by the
  * starting note when it started the session, else by the first note played; before that, silence
@@ -248,11 +258,8 @@ function beginWithController(
   ports: ControllerSessionPorts,
 ): { readonly listeners: SessionListeners; readonly run: SessionMidiRun } {
   const { audio, midi } = ports
-  const acknowledgement = createSessionAcknowledgement({
-    tempo: seams.tempo,
-    correction: latencyCorrectionFor('usb'),
-  })
-  acknowledgement.addPhrase(1, seams.phraseOne, audio.phraseStartsAt(1))
+  const acknowledgement = createSessionAcknowledgement({ correction: latencyCorrectionFor('usb') })
+  acknowledgement.addPhrase(1, seams.phraseOne, audio.phraseStartsAt(1), seams.startingTempo)
   /** Bumped at each re-arm, suspension and stop: a check scheduled before it does nothing. */
   let silenceToken = 0
   /** Bumped at each loss, reattachment and stop: a countdown change scheduled before it does nothing. */
@@ -294,7 +301,8 @@ function beginWithController(
   /**
    * Intent: follow the controller: lost when it stops being connected, back when it is again. Back,
    * every note that fell due between the loss and now is passed over before the silence re-arms:
-   * it stays unacknowledged even if its window is still open.
+   * it stays unacknowledged even if its window is still open. Each loss and return is reported
+   * through `controllerPresence`, once the countdown is shown or cleared.
    */
   // @spec-link [[rule_controller_loss_mid_session]]
   function stateChanged(state: MidiControllerState): void {
@@ -305,11 +313,13 @@ function beginWithController(
       lossToken += 1
       ports.controllerLost.value = null
       if (silenceArmed) armSilence(audio.now())
+      seams.controllerPresence(true)
     } else if (lostAt === null) {
       lostAt = audio.now()
       lossToken += 1
       silenceToken += 1
       showCountdown(lossToken, lostAt)
+      seams.controllerPresence(false)
     }
   }
 
@@ -341,8 +351,13 @@ function beginWithController(
   return {
     listeners: { note: guarded(note), stateChanged: guarded(stateChanged) },
     run: {
-      phraseReady: (phraseNumber, timeline) =>
-        acknowledgement.addPhrase(phraseNumber, timeline, audio.phraseStartsAt(phraseNumber)),
+      phraseReady: (phraseNumber, timeline, tempo) =>
+        acknowledgement.addPhrase(
+          phraseNumber,
+          timeline,
+          audio.phraseStartsAt(phraseNumber),
+          tempo,
+        ),
       releaseHeld: () => {
         midi.releaseHeld(audio.now())
       },

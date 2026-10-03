@@ -4,8 +4,8 @@
  * injected fit-check seam; every result comes back to the engine as an event stamped with the
  * injected audio clock's time, the only time the session layer reads. Every engine output, those
  * produced by fed-back results included, reaches the output callback in the order the engine gave
- * it. Transport events (count-in over, phrase started sounding, ticks, the end) come from the
- * caller through `dispatch`.
+ * it. Transport events (count-in over, phrase started sounding, the controller going away or
+ * reconnecting, ticks, the end) come from the caller through `dispatch`.
  */
 
 import type { ViewportWidthProvider } from '../composables/viewport-width'
@@ -56,11 +56,14 @@ export interface SessionRunnerDependencies {
   readonly onError: (error: unknown) => void
 }
 
-/** The events the transport sends a running session; results are the runner's own to feed. */
+/**
+ * The events the transport sends a running session, the controller event included; results are
+ * the runner's own to feed.
+ */
 // @spec-link [[service_session_runner]]
 export type SessionTransportEvent = Extract<
   SessionEvent,
-  { kind: 'count-in-over' | 'phrase-started-sounding' | 'tick' | 'end' }
+  { kind: 'count-in-over' | 'phrase-started-sounding' | 'controller' | 'tick' | 'end' }
 >
 
 /** A running session, driven by its transport's events. */

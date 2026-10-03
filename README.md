@@ -105,8 +105,9 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   countdown); and the settings-mutation engine (`settings-mutation.ts` with its scale table
   `settings-mutation-scales.ts`), the settings change at a phrase boundary
   (`session-settings-change.ts`, `session-mutation-step.ts`, `session-engine-state.ts`) and the
-  carry-in adapted to a change (`carry-in-adaptation.ts`). See
-  [`docs/session-engine.md`](docs/session-engine.md).
+  carry-in adapted to a change (`carry-in-adaptation.ts`); and adaptive tempo, its pure schedule
+  (`adaptive-tempo.ts`) and each phrase's tempo fixed at its deadline (`session-tempo-step.ts`).
+  See [`docs/session-engine.md`](docs/session-engine.md).
 - `src/audio/` — the audio transport, and the only place allowed to use Web Audio (see Runtime
   Constraints): the app's one `AudioContext`, created on the player's click, the look-ahead
   scheduler and its Web Worker wake-up timer, the click and count-in, the backing's timing and

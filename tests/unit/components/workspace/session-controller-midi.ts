@@ -62,15 +62,19 @@ export function rigStartingNote(rig: ControllerRig): StartingNote {
   return startingNoteOf(rig.phraseOne.outcome.result.timeline, rig.idleWritten)
 }
 
-/** Intent: phrase `phraseNumber`'s expected notes, from where the transport starts it. */
+/**
+ * Intent: phrase `phraseNumber`'s expected notes at `tempo` (the rig's tempo unless given), from
+ * where the transport starts it.
+ */
 export function expectedNotesOf(
   rig: ControllerRig,
   phraseNumber: number,
   timeline: ConcertEventTimeline,
+  tempo = RIG_TEMPO,
 ): readonly ExpectedNote[] {
   return deriveExpectedNotes(timeline, {
     phraseNumber,
     startSeconds: rig.transport.phraseStartsAt(phraseNumber),
-    tempoBpm: RIG_TEMPO,
+    tempoBpm: tempo,
   })
 }

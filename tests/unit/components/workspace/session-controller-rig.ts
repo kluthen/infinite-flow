@@ -1,8 +1,9 @@
 /**
  * The session controller specs' shared rig: a controller over a real audio transport on the fake
  * audio clock, fake session browser ports, an Idle state the test edits by hand, and real session
- * runners whose generate seam the test scripts (real seeded successes, real failures). The
- * controller's wake-up timer is an extra fake timer on the same clock, so `advance` drives the
+ * runners whose generate seam the test scripts (real seeded successes, real failures): the
+ * workspace's own, adaptive tempo running as the controller's start decides. The controller's
+ * wake-up timer is an extra fake timer on the same clock, so `advance` drives the
  * transport and the controller together; `playTo` also runs a frame of the display's stepped
  * frame loop after each slice. Every runner output and transport event is logged. The staff's
  * reports pass through a real Idle layout gate whose Idle side only logs what reaches it; the staff
@@ -61,8 +62,16 @@ import {
   type FakePlanner,
 } from './fake-frames'
 
-/** Every session in these specs plays at 240 BPM: a beat is 0.25 s, a measure 1 s, a phrase 4 s. */
+/**
+ * Every session in these specs starts at 240 BPM unless a spec asks for another starting tempo:
+ * a beat is 0.25 s, a measure 1 s, a phrase 4 s.
+ */
 export const RIG_TEMPO = 240
+
+/** A rig's session options: its starting tempo. */
+export interface ControllerRigOptions {
+  readonly tempo?: number
+}
 
 /** The generate seam a spec scripts: from a request's intent to its outcome. */
 export type GenerateScript = (intent: GenerationIntent) => GenerationOutcome
@@ -145,6 +154,8 @@ export interface ControllerRig {
   readonly sheetOpen: ShallowRef<boolean>
   /** Every time the controller asked the Idle side for a fresh phrase, in order. */
   readonly freshPhraseRequests: FreshPhraseRequest[]
+  /** Hand the latest runner's output sink an output no real engine would give, as a broken one. */
+  readonly injectOutput: (output: SessionOutput) => void
 }
 
 /** Intent: let every pending promise (generation answers, fit checks, lock outcomes) settle. */
@@ -174,10 +185,11 @@ export async function playTo(rig: ControllerRig, target: AudioTime): Promise<voi
 export function controllerRig(
   script: GenerateScript = alwaysSucceed,
   fixedParts: () => Promise<StaffFixedParts> = () => Promise.resolve(RIG_FIXED_PARTS),
+  options: ControllerRigOptions = {},
 ): ControllerRig {
   const { rig: audioRig, transport } = transportRig()
   const browser = createFakeSessionBrowser()
-  const settings = sessionSettings({ tempo: RIG_TEMPO })
+  const settings = sessionSettings({ tempo: options.tempo ?? RIG_TEMPO })
   const phraseOne: WorkspaceSessionResult = phraseOneFor(settings)
   const idleWritten = transformToWrittenPhrase(
     notationInputFromOutcome(phraseOne.outcome, phraseOne.intent),
@@ -320,6 +332,11 @@ export function controllerRig(
     midi,
     sheetOpen,
     freshPhraseRequests,
+    injectOutput: (output) => {
+      const input = runnerInputs.at(-1)
+      if (input === undefined) throw new Error('rig: no runner to inject an output through')
+      input.onOutput(output)
+    },
   }
 }
 

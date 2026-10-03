@@ -64,7 +64,7 @@ function showingReview(
   const fake = createFakeSessionController({
     canStart: false,
     startBlocker: 'review_showing',
-    review: { history: fakeReviewHistory(), showing: true },
+    review: { history: fakeReviewHistory(), showing: true, tempoReached: 90 },
   })
   const close = fake.closeReview.getMockImplementation()
   fake.closeReview.mockImplementation(() => {

@@ -9,7 +9,7 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 
-import { controllerRig, playTo, type ControllerRig } from './session-controller-rig'
+import { controllerRig, playTo, RIG_TEMPO, type ControllerRig } from './session-controller-rig'
 import { connectKeys, lift, press, rigStartingNote } from './session-controller-midi'
 
 /** Intent: a rig whose first session sounded `phrases` phrases, then ended by Stop. */
@@ -49,7 +49,11 @@ describe('session controller: the Review opens at a session end', () => {
     const rig = await afterSoundedEnd(3)
 
     const { review } = rig.controller.state
-    expect(review).toEqual({ history: rig.controller.state.lastHistory, showing: true })
+    expect(review).toEqual({
+      history: rig.controller.state.lastHistory,
+      showing: true,
+      tempoReached: RIG_TEMPO,
+    })
     expect(review?.history.phrases().map((record) => record.phraseNumber)).toEqual([1, 2, 3])
     expect(Object.isFrozen(review)).toBe(true)
   })
@@ -166,14 +170,14 @@ describe('session controller: closing and showing the Review again', () => {
     rig.controller.closeReview()
 
     const kept = rig.controller.state.review
-    expect(kept).toEqual({ history, showing: false })
+    expect(kept).toEqual({ history, showing: false, tempoReached: RIG_TEMPO })
     expect(kept).not.toBe(shown)
     expect(Object.isFrozen(kept)).toBe(true)
     expect(shown?.showing).toBe(true)
 
     rig.controller.showReview()
 
-    expect(rig.controller.state.review).toEqual({ history, showing: true })
+    expect(rig.controller.state.review).toEqual({ history, showing: true, tempoReached: RIG_TEMPO })
     expect(rig.controller.state.startBlocker).toBe('review_showing')
   })
 

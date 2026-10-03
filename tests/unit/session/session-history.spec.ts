@@ -24,6 +24,7 @@ import {
   successFor,
   type OutputOf,
 } from './session-harness'
+import { driveTempoSession, phraseStartAt, tempoDriver, tempoMap } from './tempo-session'
 
 /** Intent: a driver at 240 BPM (a 1 s measure) started at 0, so phrase 2's deadline is 1. */
 function fastDriver(): SessionDriver {
@@ -269,7 +270,7 @@ function renumbered(
   at: number,
 ): SessionOutput {
   const phrase: SessionPhrase = { ...output.phrase, phraseNumber }
-  return { kind: 'phrase-sounding', at, phrase }
+  return { kind: 'phrase-sounding', at, phrase, tempo: output.tempo }
 }
 
 // @test-link [[service_session_history]]
@@ -319,8 +320,80 @@ describe('outputs the history refuses', () => {
       kind: 'phrase-sounding',
       at: soundingTwo!.at,
       phrase: { ...soundingTwo!.phrase, origin: 'repeat' },
+      tempo: soundingTwo!.tempo,
     }
     expect(() => history.record(unnamed)).toThrow(SessionHistoryError)
+  })
+})
+
+/**
+ * Intent: an adaptive-tempo session from 90 BPM driven until phrase 6 sounds, then Stop, so its
+ * phrases rise 5 BPM every two phrases: 90, 90, 95, 95, 100, 100.
+ */
+function risingSession(): SessionDriver {
+  const driver = tempoDriver({ tempo: 90, adaptiveTempo: true })
+  driveTempoSession(driver, 6)
+  driver.end(phraseStartAt(driver, 7) - 0.01)
+  return driver
+}
+
+// @test-link [[service_session_history]]
+describe("each phrase's tempo", () => {
+  // @test-link [[service_session_history]]
+  it('records each phrase at the tempo its phrase-sounding output carries, not the starting one', () => {
+    const driver = risingSession()
+    const records = historyOf(driver).phrases()
+
+    expect(driver.settings.controls.tempo).toBe(90)
+    expect(records.map((record) => record.tempo)).toEqual(soundings(driver).map((o) => o.tempo))
+    expect(records.map((record) => record.tempo)).toEqual([90, 90, 95, 95, 100, 100])
+    expect(records.map((record) => record.tempo)).toEqual(tempoMap(driver, 6))
+  })
+
+  // @test-link [[service_session_history]]
+  it('refuses a phrase-sounding output whose tempo is not a positive BPM', () => {
+    const [soundingOne] = soundings(sessionWithReadAheadAtStop())
+    for (const tempo of [0, -5, Number.NaN, Number.POSITIVE_INFINITY]) {
+      const history = createSessionHistory(sessionSettings({ tempo: 240 }), fixedWallClock)
+      expect(() => history.record({ ...soundingOne!, tempo })).toThrow(SessionHistoryError)
+      expect(history.phraseCount).toBe(0)
+    }
+  })
+
+  // @test-link [[service_session_history]]
+  it('refuses settings whose starting tempo no session runs at', () => {
+    const settings = sessionSettings({ tempo: 240 })
+    for (const tempo of [0, Number.NaN]) {
+      const unusable = { ...settings, controls: { ...settings.controls, tempo } }
+      expect(() => createSessionHistory(unusable, fixedWallClock)).toThrow(SessionHistoryError)
+    }
+  })
+})
+
+// @test-link [[service_session_history]]
+// @test-link [[rule_adaptive_tempo_resets_after_session]]
+describe('the tempo reached', () => {
+  // @test-link [[service_session_history]]
+  // @test-link [[rule_adaptive_tempo_resets_after_session]]
+  it("is the last sounded phrase's tempo, none before phrase 1, and stays at the end", () => {
+    const driver = risingSession()
+    const history = createSessionHistory(driver.settings, fixedWallClock)
+    const reached: (number | null)[] = [history.tempoReached()]
+    for (const output of driver.log) {
+      history.record(output)
+      if (output.kind === 'phrase-sounding') reached.push(history.tempoReached())
+    }
+
+    expect(reached).toEqual([null, 90, 90, 95, 95, 100, 100])
+    expect(history.tempoReached()).toBe(100)
+  })
+
+  // @test-link [[rule_adaptive_tempo_resets_after_session]]
+  it('is the starting tempo when no phrase rose, and none for an end in the count-in', () => {
+    expect(historyOf(sessionWithReadAheadAtStop()).tempoReached()).toBe(240)
+    const driver = fastDriver()
+    driver.end(0.5)
+    expect(historyOf(driver).tempoReached()).toBeNull()
   })
 })
 

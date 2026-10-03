@@ -4,14 +4,16 @@
  * Start unlocks the audio, asks for the screen locks and starts the transport inside the click;
  * from then on everything is driven by the audio clock, through an injected wake-up timer that
  * reads it: the count-in display, the count-in's end, each phrase starting to sound, and the
- * engine's deadlines. Every runner output goes into the session's history. Its rolling display
- * (./workspace-session-display.ts) gives the screen the staff to draw, checks each look-ahead
- * phrase's fit and moves the playhead once a frame. Besides Stop, a session ends on an audio
- * interruption, and on what its end watchers report (the page hidden, the staff no longer shown or
- * failing); every end takes the same path. An end once phrase 1 has sounded opens the Review
- * (./session-review-state.ts) and asks Idle for the next phrase; the next start discards it. Its
- * MIDI side (./workspace-session-midi.ts) starts a session from the starting note and reads a
- * session's controller. It draws nothing itself.
+ * engine's deadlines. Every runner output goes into the session's history; phrases from 2 on are
+ * shown at `phrase-ready` and scheduled at their own tempo at `phrase-tempo`
+ * (./workspace-session-phrases.ts). Its rolling display (./workspace-session-display.ts) gives the
+ * screen the staff to draw, checks each look-ahead phrase's fit and moves the playhead once a
+ * frame. Besides Stop, a session ends on an audio interruption, and on what its end watchers
+ * report (the page hidden, the staff no longer shown or failing); every end takes the same path.
+ * An end once phrase 1 has sounded opens the Review (./session-review-state.ts) and asks Idle for
+ * the next phrase; the next start discards it. Its MIDI side (./workspace-session-midi.ts) starts
+ * a session from the starting note and reads a session's controller, whose presence its
+ * adaptive-tempo side (./workspace-adaptive-tempo.ts, the page's flag) hands the engine.
  */
 import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
 
@@ -44,6 +46,8 @@ import type { StartingNote } from '@/session/starting-note'
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import { closedReview, openedReview, shownReview } from './session-review-state'
 import { createSessionDisplay, type SessionDisplay } from './workspace-session-display'
+import { createSessionPhrases, type SessionPhrases } from './workspace-session-phrases'
+import { createAdaptiveTempoFlag, forwardPresence } from './workspace-adaptive-tempo'
 import { watchSessionEnds, type SessionEndWatch } from './workspace-session-end-watchers'
 import {
   createSessionMidi,
@@ -58,23 +62,27 @@ import {
   type SessionControllerPhase,
   type SessionEndSummary,
   type SessionReview,
+  type UntimedEvent,
 } from './workspace-session-controller-types'
 
 /** The ended output, the one that closes a session. */
 type EndedOutput = Extract<SessionOutput, { kind: 'ended' }>
 
-/** The running session: its timeline, history, runner, agenda, display and audio-time floor. */
+/**
+ * The running session: its timeline, starting tempo (phrase 1's and the count-in's, which its
+ * settings keep), history, runner, agenda, display, phrase steps and audio-time floor.
+ */
 interface ActiveSession {
   readonly timeline: TransportTimeline
-  readonly tempo: number
+  readonly startingTempo: number
   readonly phraseOne: WorkspaceSessionResult
   readonly history: SessionHistory
   readonly agenda: AudioTimeAgenda
   runner: SessionRunner | null
   /** The latest time handed to the engine: its events must never go back in time. */
   floor: AudioTime
-  /** The phrase number the next `phrase-ready` must carry. */
-  nextReady: number
+  /** The steps of phrases 2 on, from the start until the session is torn down. */
+  phrases: SessionPhrases | null
   ended: EndedOutput | null
   /** The watchers of the session's other ends, once it is fully started. */
   watch: SessionEndWatch | null
@@ -165,6 +173,12 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     get sessionHasController(): boolean | null {
       return sessionMidi.sessionHasController()
     },
+    get adaptiveTempo(): boolean {
+      return adaptiveTempo.on()
+    },
+    get adaptiveTempoAvailable(): boolean {
+      return adaptiveTempo.available()
+    },
   })
   const startBlocker = computed(() =>
     sessionStartBlocker(
@@ -180,6 +194,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     idlePhrase: deps.idlePhrase,
     start: () => start(),
   })
+  const adaptiveTempo = createAdaptiveTempoFlag(sessionMidi.controllerState, () => state.phase)
 
   /** Intent: an audio time for the engine, never before one it already handled. */
   function engineTime(session: ActiveSession, at: AudioTime): AudioTime {
@@ -193,28 +208,14 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     return session.runner
   }
 
-  /** Intent: the running session's display; reaching here before it exists is a wiring defect. */
-  function displayOf(session: ActiveSession): SessionDisplay {
-    if (session.display === null)
-      throw new Error('session controller: the display is not built yet')
-    return session.display
-  }
-
-  /** Intent: the running session's MIDI handling; reaching here before it exists is a wiring defect. */
-  function midiOf(session: ActiveSession): SessionMidiRun {
-    if (session.midi === null) throw new Error('session controller: the MIDI handling is not begun')
-    return session.midi
+  /** Intent: the running session's phrase steps; reaching here before they exist is a wiring defect. */
+  function phrasesOf(session: ActiveSession): SessionPhrases {
+    if (session.phrases === null) throw new Error('session controller: no phrase steps yet')
+    return session.phrases
   }
 
   /** Intent: send one transport event at `at` (raised to the floor) to the session's runner. */
-  function dispatchAt(
-    session: ActiveSession,
-    at: AudioTime,
-    event:
-      | { readonly kind: 'count-in-over' }
-      | { readonly kind: 'tick' }
-      | { readonly kind: 'phrase-started-sounding'; readonly phraseNumber: number },
-  ): void {
+  function dispatchAt(session: ActiveSession, at: AudioTime, event: UntimedEvent): void {
     runnerOf(session).dispatch({ ...event, at: engineTime(session, at) })
   }
 
@@ -224,36 +225,13 @@ export function createSessionController(deps: SessionControllerDependencies): Se
    */
   // @spec-link [[rule_count_in_shown_on_screen]]
   function showCountIn(session: ActiveSession, at: AudioTime): void {
-    const display = countInDisplayAt(session.timeline.startAt, session.tempo, at)
+    const display = countInDisplayAt(session.timeline.startAt, session.startingTempo, at)
     if (display.over) {
       state.countIn = null
       return
     }
     state.countIn = display
     session.agenda.schedule(display.nextChangeAt, () => showCountIn(session, display.nextChangeAt))
-  }
-
-  /** Intent: queue a readied phrase's backing and schedule the moment it starts sounding. */
-  function onPhraseReady(
-    session: ActiveSession,
-    output: Extract<SessionOutput, { kind: 'phrase-ready' }>,
-  ): void {
-    const { phraseNumber } = output.phrase
-    if (phraseNumber !== session.nextReady) {
-      throw new Error(
-        `session controller: phrase ${session.nextReady} must be readied next, got phrase ${phraseNumber}`,
-      )
-    }
-    session.nextReady += 1
-    audio.queueBacking(phraseNumber, output.phrase.outcome.provenance.harmony.events)
-    midiOf(session).phraseReady(phraseNumber, output.phrase.outcome.result.timeline)
-    displayOf(session).phraseReady(output.phrase)
-    session.agenda.schedule(audio.phraseStartsAt(phraseNumber), () =>
-      dispatchAt(session, audio.phraseStartsAt(phraseNumber), {
-        kind: 'phrase-started-sounding',
-        phraseNumber,
-      }),
-    )
   }
 
   /**
@@ -271,14 +249,20 @@ export function createSessionController(deps: SessionControllerDependencies): Se
 
   /**
    * Intent: record one runner output in the history, a sounding phrase at its scheduled start,
-   * then act on it.
+   * then act on it: a phrase is shown when ready and scheduled at its tempo; the tempo shown
+   * becomes each sounding phrase's own, the exact tempo in effect, while the Idle tempo control is
+   * never written, so it shows the starting tempo again at the end.
    */
   // @spec-link [[rule_struggling_generator_notice]]
   // @spec-link [[rule_session_history_records_played_notes]]
   // @spec-link [[rule_played_notes_export_unquantized_timing]]
+  // @spec-link [[service_workspace_session_flow]]
   function onOutput(session: ActiveSession, output: SessionOutput): void {
     session.history.record(historyOutput(output))
-    if (output.kind === 'phrase-ready') onPhraseReady(session, output)
+    if (output.kind === 'phrase-ready') phrasesOf(session).phraseReady(output.phrase)
+    else if (output.kind === 'phrase-tempo')
+      phrasesOf(session).phraseTempo(output.phraseNumber, output.tempo)
+    else if (output.kind === 'phrase-sounding') state.sessionTempo = output.tempo
     else if (output.kind === 'struggling-notice') state.strugglingNotice = output.visible
     else if (output.kind === 'wake-at')
       session.agenda.schedule(output.at, () => dispatchAt(session, output.at, { kind: 'tick' }))
@@ -335,7 +319,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     active = null
     try {
       session.midi?.releaseHeld()
-      runnerOf(session).dispatch({ kind: 'end', cause, at: engineTime(session, audio.now()) })
+      dispatchAt(session, audio.now(), { kind: 'end', cause })
     } finally {
       tearDown(session)
     }
@@ -387,13 +371,8 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     try {
       try {
         session?.midi?.releaseHeld()
-        if (session !== null && session.runner !== null) {
-          session.runner.dispatch({
-            kind: 'end',
-            cause: 'stop',
-            at: engineTime(session, audio.now()),
-          })
-        }
+        if (session !== null && session.runner !== null)
+          dispatchAt(session, audio.now(), { kind: 'end', cause: 'stop' })
       } finally {
         tearDown(session)
       }
@@ -482,16 +461,16 @@ export function createSessionController(deps: SessionControllerDependencies): Se
       void browser.wakeLock.request()
       void browser.orientationLock.lock()
       const timeline = audio.start({ tempo })
-      audio.queueBacking(1, phraseOne.outcome.provenance.harmony.events)
+      audio.queueBacking(1, phraseOne.outcome.provenance.harmony.events, tempo)
       session = {
         timeline,
-        tempo,
+        startingTempo: tempo,
         phraseOne,
         history: createSessionHistory(settings, deps.clock.wallClock),
         agenda: createAudioTimeAgenda(),
         runner: null,
         floor: timeline.startAt,
-        nextReady: 2,
+        phrases: null,
         ended: null,
         watch: null,
         display: null,
@@ -522,19 +501,20 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     heldLayout: StaffLayout,
     idleWritten: WrittenPhrase,
   ): void {
-    const { timeline, tempo, phraseOne } = session
+    const { timeline, startingTempo, phraseOne } = session
     active = session
     state.phase = 'count-in'
-    state.sessionTempo = tempo
+    state.sessionTempo = startingTempo
     state.heldLayout = heldLayout
     state.strugglingNotice = false
     session.midi = sessionMidi.beginSession({
-      tempo,
+      startingTempo,
       phraseOne: phraseOne.outcome.result.timeline,
       history: session.history,
       agenda: session.agenda,
       end: (cause) => endIfRunning(session, cause),
       fail: (error) => failLoudly(session, error),
+      controllerPresence: forwardPresence(audio.now, (at, event) => dispatchAt(session, at, event)),
     })
     showCountIn(session, audio.now())
     session.agenda.schedule(timeline.countInEndsAt, () => {
@@ -548,7 +528,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     const display = createSessionDisplay({
       audio,
       frames: deps.clock.frames,
-      tempo,
+      startingTempo,
       heldLayout,
       phraseOne: idleWritten,
       latestInputs: deps.idleLayout.latestInputs,
@@ -560,11 +540,20 @@ export function createSessionController(deps: SessionControllerDependencies): Se
       fail: (error) => failLoudly(session, error),
     })
     session.display = display
+    session.phrases = createSessionPhrases({
+      audio,
+      display,
+      midi: session.midi,
+      agenda: session.agenda,
+      startedSounding: (phraseNumber, at) =>
+        dispatchAt(session, at, { kind: 'phrase-started-sounding', phraseNumber }),
+    })
     session.runner = deps.createSessionRunner({
       start: {
         at: timeline.startAt,
         settings,
         phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
+        adaptiveTempo: adaptiveTempo.forSession(state.sessionHasController),
       },
       checkFit: display.checkFit,
       now: () => engineTime(session, audio.now()),
@@ -606,6 +595,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     },
     closeReview,
     showReview,
+    setAdaptiveTempo: adaptiveTempo.set,
     dispose: () => {
       if (disposed) throw new SessionControllerError('session controller: disposed twice')
       disposed = true

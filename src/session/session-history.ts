@@ -1,9 +1,10 @@
 /**
  * The session history: an in-memory record of every phrase of a session that started sounding,
  * fed from the session engine's outputs in order. Each entry keeps the phrase as it was shown and
- * the inputs that reproduce it, with the tempo it played at and the internal repeat mark, and the
- * acknowledgements and played notes that fall inside it, placed on read (see
- * session-history-played-notes).
+ * the inputs that reproduce it, with the tempo it played at (its phrase-sounding output's) and the
+ * internal repeat mark, and the acknowledgements and played notes that fall inside it, placed on
+ * read (see session-history-played-notes). The tempo the session reached is the last recorded
+ * phrase's.
  * It also keeps when the session started, read once from an injected wall clock, and the instrument
  * profile of the locked settings. It never reads the system time, touches no browser API and stores
  * nothing outside memory.
@@ -29,7 +30,8 @@ export interface RecordedPlayedNote {
 /**
  * One phrase that started sounding. `outcome` is the phrase exactly as shown (its timeline and the
  * harmony its chord symbols come from); `intent` holds the resolved request with the density it
- * was generated with, the seed and the carry-in; `tempo` is the tempo it played at. `isRepeat` and
+ * was generated with, the seed and the carry-in; `tempo` is the tempo it played at, from its
+ * phrase-sounding output. `isRepeat` and
  * `repeatOf` are the internal repeat mark, which no view shows. `acknowledgements` holds the
  * acknowledged expected notes of the phrase, in arrival order; `playedNotes` the played notes whose
  * onsets fall inside it, by onset.
@@ -53,8 +55,9 @@ export interface SessionHistoryRecord {
 /**
  * A session's history: fed every engine output in order, every finished played note (onset and
  * release already latency-compensated, in release order) and every acknowledgement, read back as
- * one ordered list, with the session's start time (epoch milliseconds, read once from the wall
- * clock at creation) and the instrument profile id of its locked settings.
+ * one ordered list, with the tempo the session reached (the last recorded phrase's, null before
+ * phrase 1 sounds), the session's start time (epoch milliseconds, read once from the wall clock at
+ * creation) and the instrument profile id of its locked settings.
  */
 // @spec-link [[service_session_history]]
 // @spec-link [[rule_session_settings_locked]]
@@ -64,6 +67,8 @@ export interface SessionHistory {
   recordPlayedNote(note: RecordedPlayedNote): void
   recordAcknowledgement(identity: ExpectedNoteIdentity): void
   phrases(): readonly SessionHistoryRecord[]
+  // @spec-link [[rule_adaptive_tempo_resets_after_session]]
+  tempoReached(): number | null
   readonly phraseCount: number
   readonly startedAt: number
   readonly instrumentProfileId: InstrumentProfileId
@@ -90,15 +95,10 @@ type SoundingOutput = Extract<SessionOutput, { kind: 'phrase-sounding' }>
 /** An ended output, which closes the history. */
 type EndedOutput = Extract<SessionOutput, { kind: 'ended' }>
 
-/**
- * Intent: the session's tempo, from the settings locked at start: a finite positive BPM, or the
- * caller handed settings no session can run at.
- */
-function sessionTempo(settings: SessionSettings): number {
-  const tempo = settings.controls.tempo
+/** Intent: refuse a tempo that is not a finite positive BPM, which no session runs at. */
+function assertTempo(tempo: number, what: string): void {
   if (!Number.isFinite(tempo) || tempo <= 0)
-    throw new SessionHistoryError(`The session tempo must be a positive BPM, got ${tempo}.`)
-  return tempo
+    throw new SessionHistoryError(`${what} must be a positive BPM, got ${tempo}.`)
 }
 
 /**
@@ -241,15 +241,16 @@ function checkedAcknowledgement(identity: ExpectedNoteIdentity): {
   }
 }
 
-/** Intent: the deep-frozen record of one sounded phrase at the session's tempo. */
-function recordOf(output: SoundingOutput, tempo: number): SessionHistoryRecord {
+/** Intent: the deep-frozen record of one sounded phrase at the tempo its output carries. */
+// @spec-link [[service_session_history]]
+function recordOf(output: SoundingOutput): SessionHistoryRecord {
   const { phraseNumber, origin, intent, outcome, repeatOf } = output.phrase
   return deepFreeze({
     phraseNumber,
     startedAt: output.at,
     outcome,
     intent,
-    tempo,
+    tempo: output.tempo,
     isRepeat: origin === 'repeat',
     ...(repeatOf === undefined ? {} : { repeatOf }),
     acknowledgements: [],
@@ -259,13 +260,14 @@ function recordOf(output: SoundingOutput, tempo: number): SessionHistoryRecord {
 
 /**
  * Intent: an empty history for one session, created at its start from the settings locked at that
- * start and an injected wall clock, read exactly once here for the start time. `record` takes
- * every engine output in order: a phrase-sounding output adds the next record, `ended` closes the
+ * start (whose tempo, the starting tempo, must be usable but is never a record's) and an injected
+ * wall clock, read exactly once here for the start time. `record` takes every engine output in
+ * order: a phrase-sounding output adds the next record at its own tempo, `ended` closes the
  * history, and every other kind (read-ahead included) is ignored. `recordPlayedNote` and
  * `recordAcknowledgement` take the player's finished notes and acknowledgements, placed in the
- * records on read. An output, note or acknowledgement after the end, a phrase out of order or for
- * another instrument profile, an end that disagrees with the records, an invalid note or a repeated
- * acknowledgement throws a SessionHistoryError.
+ * records on read. An output, note or acknowledgement after the end, a phrase out of order, for
+ * another instrument profile or at an unusable tempo, an end that disagrees with the records, an
+ * invalid note or a repeated acknowledgement throws a SessionHistoryError.
  */
 // @spec-link [[service_session_history]]
 // @spec-link [[rule_session_history_keeps_timeline_and_inputs]]
@@ -275,7 +277,7 @@ export function createSessionHistory(
   settings: SessionSettings,
   wallClock: WallClock,
 ): SessionHistory {
-  const tempo = sessionTempo(settings)
+  assertTempo(settings.controls.tempo, 'The starting tempo')
   const instrumentProfileId = sessionInstrumentProfileId(settings)
   const startedAt = sessionStartTime(wallClock)
   const records: SessionHistoryRecord[] = []
@@ -295,7 +297,8 @@ export function createSessionHistory(
     assertNextSounding(output, records.at(-1))
     assertRepeatMark(output)
     assertSessionProfile(output, instrumentProfileId)
-    records.push(recordOf(output, tempo))
+    assertTempo(output.tempo, `Phrase ${output.phrase.phraseNumber}'s tempo`)
+    records.push(recordOf(output))
     snapshot = undefined
   }
 
@@ -337,6 +340,15 @@ export function createSessionHistory(
     phrases(): readonly SessionHistoryRecord[] {
       snapshot ??= Object.freeze(withPlayedNotes(records, playedNotes, acknowledgements))
       return snapshot
+    },
+    /**
+     * Intent: the tempo the session reached: the last recorded phrase's, also its highest, since
+     * a session's tempo never goes down; null before phrase 1 sounds.
+     */
+    // @spec-link [[service_session_history]]
+    // @spec-link [[rule_adaptive_tempo_resets_after_session]]
+    tempoReached(): number | null {
+      return records.at(-1)?.tempo ?? null
     },
     /** Intent: how many phrases have started sounding so far. */
     get phraseCount(): number {

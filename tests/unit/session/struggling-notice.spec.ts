@@ -44,16 +44,17 @@ describe('struggling-generator notice', () => {
   // @test-link [[rule_struggling_generator_notice]]
   it('shows at the second repeat in a row, stays through a third, clears when a generated phrase sounds', () => {
     const driver = fastDriver()
-    expect(repeatPhrase(driver, 2)).toEqual(['phrase-ready'])
+    expect(repeatPhrase(driver, 2)).toEqual(['phrase-ready', 'phrase-tempo'])
     sound(driver, 1)
     sound(driver, 2)
-    expect(repeatPhrase(driver, 3)).toEqual(['phrase-ready', 'struggling-notice'])
+    expect(repeatPhrase(driver, 3)).toEqual(['phrase-ready', 'struggling-notice', 'phrase-tempo'])
     expect(driver.all('struggling-notice')).toEqual([{ kind: 'struggling-notice', visible: true }])
     sound(driver, 3)
-    expect(repeatPhrase(driver, 4)).toEqual(['phrase-ready'])
+    expect(repeatPhrase(driver, 4)).toEqual(['phrase-ready', 'phrase-tempo'])
     expect(sound(driver, 4)).toEqual(['phrase-sounding', 'request-generation', 'wake-at'])
     expect(kinds(driver.accept(soundsAt(4) + 0.5))).toEqual(['check-fit', 'phrase-ready'])
     expect(sound(driver, 5)).toEqual([
+      'phrase-tempo',
       'phrase-sounding',
       'struggling-notice',
       'request-generation',
@@ -91,7 +92,7 @@ describe('struggling-generator notice', () => {
     sound(driver, 2)
     driver.accept(soundsAt(2) + 0.5)
     sound(driver, 3)
-    expect(repeatPhrase(driver, 4)).toEqual(['phrase-ready'])
+    expect(repeatPhrase(driver, 4)).toEqual(['phrase-ready', 'phrase-tempo'])
     sound(driver, 4)
     driver.end(soundsAt(4) + 1)
     expect(driver.all('struggling-notice')).toEqual([])

@@ -14,6 +14,7 @@ import {
   onlyStandaloneSucceeds,
   outputsOf,
   playTo,
+  RIG_TEMPO,
   soundingEvents,
   type ControllerRig,
   type GenerateScript,
@@ -44,7 +45,11 @@ describe('session controller: phrases', () => {
     await playTo(rig, phraseStart(2) - 0.05)
     const ready = outputsOf(rig, 'phrase-ready').map((o) => o.phrase)
     expect(ready.map((phrase) => phrase.phraseNumber)).toEqual([2])
-    expect(queueBacking.mock.calls[1]).toEqual([2, ready[0]!.outcome.provenance.harmony.events])
+    expect(queueBacking.mock.calls[1]).toEqual([
+      2,
+      ready[0]!.outcome.provenance.harmony.events,
+      RIG_TEMPO,
+    ])
     expect(soundingEvents(rig)).toEqual([])
 
     await playTo(rig, phraseStart(2))
@@ -57,7 +62,11 @@ describe('session controller: phrases', () => {
     await playTo(rig, phraseStart(3))
     const third = outputsOf(rig, 'phrase-ready')[1]!.phrase
     expect(third.phraseNumber).toBe(3)
-    expect(queueBacking.mock.calls[2]).toEqual([3, third.outcome.provenance.harmony.events])
+    expect(queueBacking.mock.calls[2]).toEqual([
+      3,
+      third.outcome.provenance.harmony.events,
+      RIG_TEMPO,
+    ])
     expect(soundingEvents(rig)).toEqual([2, 3])
     expect(rig.events.at(-1)).toMatchObject({ at: phraseStart(3), phraseNumber: 3 })
   })
@@ -87,7 +96,11 @@ describe('session controller: phrases', () => {
 
     const repeat = outputsOf(rig, 'phrase-ready')[0]!.phrase
     expect(repeat).toMatchObject({ phraseNumber: 2, origin: 'repeat', repeatOf: 1 })
-    expect(queueBacking.mock.calls[1]).toEqual([2, rig.phraseOne.outcome.provenance.harmony.events])
+    expect(queueBacking.mock.calls[1]).toEqual([
+      2,
+      rig.phraseOne.outcome.provenance.harmony.events,
+      RIG_TEMPO,
+    ])
     expect(soundingEvents(rig)).toEqual([2])
   })
 })

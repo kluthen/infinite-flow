@@ -4,7 +4,7 @@ This document records how `src/session/` decides what a running practice session
 and ends: its boundary, the timed events it takes and the outputs it answers with, the look-ahead
 deadlines, the failure ladder, the struggling-generator notice, the settings lock and note-density
 step-down, the settings-mutation engine and settings changes at a phrase boundary, how tempo stays
-out of generation, the runner that connects the engine to the app's one
+out of generation, adaptive tempo, the runner that connects the engine to the app's one
 generation Worker, the session history that records every phrase that sounded and the notes the
 player played, the session controller that runs a session on the workspace from the Start click
 (or the starting note) to its end, with its MIDI side and the Review that opens at the end, what
@@ -45,6 +45,8 @@ ahead of it (the read-ahead), so the player always sees what comes next.
 | `session-mutation-step.ts`        | `landingMutation`: whether a mutation lands on the phrase about to be requested, and its output.                                  |
 | `session-settings-change.ts`      | A look-ahead's basis, each rung's attempt after a change, and the discard rule of a settings change.                              |
 | `carry-in-adaptation.ts`          | `adaptCarryIn`: a carry-in adapted to settings that changed at the join, or a standalone phrase.                                  |
+| `adaptive-tempo.ts`               | The pure adaptive-tempo schedule: +5 BPM every two counted phrases, never past 240 (see [Adaptive tempo](#adaptive-tempo)).       |
+| `session-tempo-step.ts`           | Where the engine meets the schedule: `fixDueTempo`, `soundingTempo`, `onController` and each phrase's fixed tempo.                |
 | `session-runner.ts`               | `createSessionRunner(deps, start)`: executes the engine's requests (see [The runner](#the-runner-and-the-one-worker-wiring)).     |
 | `session-history.ts`              | `createSessionHistory(settings, wallClock)`: records every phrase that sounded (see [Session history](#session-history)).         |
 | `session-history-played-notes.ts` | `withPlayedNotes(records, notes, acknowledgements)`: places the played notes and acknowledgements in the phrase records, on read. |
@@ -66,8 +68,9 @@ The session controller's pure pieces live here too, under the same boundary (see
 | `session-midi-timers.ts`      | The silence timeout and the reconnection countdown as pure arithmetic on the audio clock.                                   |
 
 `createSessionEngine(deps, start)` takes the start time, the chosen settings, phrase 1 (its
-intent and its successful outcome) and the settings-mutation flag (`SessionStart.mutation`). It returns `outputsAtStart` and `handle(event)`, which returns
-the outputs of that one event.
+intent and its successful outcome), the settings-mutation flag (`SessionStart.mutation`) and
+whether adaptive tempo runs (`SessionStart.adaptiveTempo`; see [Adaptive tempo](#adaptive-tempo)).
+It returns `outputsAtStart` and `handle(event)`, which returns the outputs of that one event.
 
 ## Events and outputs
 
@@ -81,6 +84,7 @@ Every event has an `at`, its audio time.
 | `generation-crashed { attemptId }`         | The generate seam rejected: a Worker crash on that one request, or a dead Worker. A failed attempt, never an end.                                                                                                                     |
 | `fit-result { attemptId, fits }`           | Whether an attempt's generated phrase fits the staff.                                                                                                                                                                                 |
 | `settings-change { settings }`             | New complete settings, in effect from now, from an automatic source other than the engine's own mutations (see [Settings changes at a phrase boundary](#settings-changes-at-a-phrase-boundary)). Nothing sends it before chunk 25.    |
+| `controller { attached }`                  | A controller lost mid-session goes away (`attached` false) or reconnects (see [Adaptive tempo](#adaptive-tempo)).                                                                                                                     |
 | `tick`                                     | Time has reached `at`; lets the engine see a deadline pass.                                                                                                                                                                           |
 | `end { cause }`                            | The session ends: `'stop'` (the player's Stop), `'hidden-tab'` (the tab became hidden), `'staff-not-shown'`, `'silence-timeout'` (more than 30 s without a played note) or `'controller-lost'` (the controller not back within 30 s). |
 
@@ -89,12 +93,13 @@ Every event has an `at`, its audio time.
 | `request-generation { attemptId, phraseNumber, step, retry, intent, deadline }` | Generate this intent. `step` is `'carry-in'` or `'standalone'`; `retry` counts the attempts before this one.     |
 | `check-fit { attemptId, phraseNumber, outcome, intent }`                        | Check whether this generated phrase fits the staff. `intent` is this attempt's own, which differs per rung.      |
 | `phrase-ready { phrase }`                                                       | The phrase to show next as read-ahead, repeats included.                                                         |
-| `phrase-sounding { at, phrase }`                                                | A phrase started sounding, with its full record.                                                                 |
+| `phrase-sounding { at, phrase, tempo }`                                         | A phrase started sounding, with its full record and the tempo it plays at.                                       |
 | `struggling-notice { visible }`                                                 | Show or hide the struggling-generator notice.                                                                    |
 | `wake-at { at }`                                                                | Send a `tick` at this time: the next deadline.                                                                   |
 | `ended { at, cause, phase, soundedPhraseCount }`                                | The session ended, during the `'count-in'` or while `'running'`, after this many phrases started sounding.       |
 | `settings-changed { phraseNumber, settings, cause, … }`                         | New settings apply from this phrase on. `cause` is `'mutation'` (with `setting`, `from`, `to`) or `'automatic'`. |
 | `phrase-discarded { phraseNumber }`                                             | A decided look-ahead phrase, not yet on screen, was dropped and is requested again with the new settings.        |
+| `phrase-tempo { phraseNumber, tempo }`                                          | The tempo phrase N (2 or more) plays at, fixed at its look-ahead deadline. Output once per phrase.               |
 
 The phrase record, `SessionPhrase`, is `{ phraseNumber, origin, intent, outcome, repeatOf? }`.
 `origin` is `'idle'` (phrase 1), `'carry-in'`, `'standalone'` or `'repeat'`. The repeat mark is
@@ -119,10 +124,11 @@ of clicks before phrase 1 starts, so the player can feel the tempo.
 - **When phrase 1 starts sounding** (`count-in-over`), nothing new is requested: phrase 2 already
   was.
 - **When phrase N (2 or more) starts sounding** at time `s`, phrase N+1 is requested with its
-  deadline at `s` plus three measures: the start of phrase N's last measure, which leaves at least
-  one measure of read-ahead on screen.
-- **Every event except `end`** first runs the deadline check for its time. A result that arrives
-  at or after the deadline is too late.
+  deadline at `s` plus three measures at phrase N's own tempo: the start of phrase N's last
+  measure, which leaves at least one measure of read-ahead on screen.
+- **Every event except `end`** first runs the deadline check for its time, then fixes the pending
+  phrase's tempo once its deadline is reached (see [Adaptive tempo](#adaptive-tempo)). A result
+  that arrives at or after the deadline is too late.
 - The engine outputs `wake-at` once per deadline, so its caller can send a `tick` then even when
   nothing else happens.
 
@@ -181,6 +187,83 @@ The engine counts repeats in a row, in the order phrases are decided.
 Tempo only sets the times of the measure grid; it never reaches an intent's musical content. The
 same event list scaled to 60, 120 and 240 BPM gives identical request intents, compared without
 `controls.tempo` (tempo is a field of `GenerationControls`, so it travels in the intent unchanged).
+
+## Adaptive tempo
+
+Adaptive tempo lets a session speed up on its own, on a flat schedule that never looks at what the
+player plays. Chunk 27 builds the engine side; no control turns the page's flag on before chunk 28
+(see [The session controller](#the-session-controller)).
+
+### The schedule
+
+`adaptive-tempo.ts` is the schedule as pure values with no time (`AdaptiveTempoSchedule`): whether
+it runs, the tempo of the latest phrase whose tempo is fixed, how many counted phrases have started
+since the last rise, and whether the controller is attached.
+
+- **A counted phrase** is one that starts sounding while the schedule runs and the controller is
+  attached.
+- **A rise.** Once two counted phrases (`PHRASES_PER_RISE`) have started since the last rise, the
+  next phrase whose tempo is fixed while the controller is attached plays `ADAPTIVE_TEMPO_STEP`
+  (5) BPM faster, and the count restarts at 0. A rise due while the controller is away waits for
+  the next fixing after it is back.
+- **Never past 240, never down.** `ADAPTIVE_TEMPO_CEILING` is the tempo control's ceiling, 240 BPM:
+  220 rises to 225, 230, 235, 240 and stays, and a session started at 240 never moves. Nothing
+  lowers the tempo.
+
+From 90 BPM the phrases play at 90, 90, 95, 95, 100, 100 …: phrase 3's tempo is fixed after
+phrases 1 and 2 have both started sounding.
+
+### In the engine
+
+- **Whether it runs.** `SessionStart.adaptiveTempo` is true only when the page's flag is on and the
+  session has a controller at its start; the session controller decides it (see
+  [Starting](#starting)). `startSessionTempo` (`session-tempo-step.ts`) builds the engine's tempo
+  state, `SessionTempo`: the schedule, and the tempo fixed for each phrase so far, phrase 1's being
+  the starting tempo (the chosen settings' tempo). Without adaptive tempo every phrase is fixed at
+  the starting tempo, through the same steps.
+- **The `controller` event.** `controller { at, attached }` says that a controller lost
+  mid-session went away (`false`) or came back (`true`); the session controller sends it only in a
+  session that started with one (see [A lost controller](#a-lost-controller)). `onController`
+  records the presence, during the count-in or while running, with or without adaptive tempo, after
+  running what is due by its time like any other event. It throws `SessionEngineError` when it does
+  not change the presence (away twice, or back while attached, a session starting attached) and
+  when its time runs backwards. After the end it is dropped, since a loss can race the end.
+- **Counting at a phrase's start.** `count-in-over` and `phrase-started-sounding` count the phrase
+  that starts, so a phrase starting while the controller is away does not count, and counting
+  resumes where it stopped once it is back.
+- **The tempo lock at the deadline.** On every event but `end`, after the deadline logic (so a
+  repeat decided at that deadline is decided first), `fixDueTempo` fixes the pending phrase's
+  tempo once its look-ahead deadline is reached, and outputs `phrase-tempo { phraseNumber, tempo }`,
+  once per phrase from phrase 2 on; phrase 2's is fixed at the end of the count-in. A
+  `phrase-started-sounding` for a phrase whose tempo is not fixed throws.
+- **Why the deadline.** The audio is scheduled ahead: on `phrase-tempo` the session controller
+  queues the phrase's backing at that tempo on the transport's
+  [tempo map](audio-transport.md#the-click-and-count-in), a measure before it starts. And after its
+  deadline the phrase can no longer be discarded, so nothing about it changes again. The
+  consequence: a loss in the last measure before a boundary does not stop that boundary's rise,
+  already fixed; the phrase starting then just does not count.
+- **Each phrase at its own tempo.** `phrase-sounding` carries the phrase's fixed tempo (`tempo`,
+  the starting tempo for phrase 1), which the history records (see
+  [What it records](#what-it-records)). Phrase N+1's deadline is three measures at phrase N's tempo
+  after phrase N starts, and the discard guard of a settings change measures its measure left at
+  the sounding phrase's tempo (`soundingTempo`: phrase 1's during the count-in).
+
+### Not a settings change
+
+Tempo is never part of the session settings or of any generation intent (see
+[Tempo is transport-only](#tempo-is-transport-only); rule `rule_tempo_never_affects_generation`,
+and spec D103 leaves tempo out of the settings mutations). Adaptive tempo therefore deliberately
+does not use chunk 24's `settings-change` path or its discard rule:
+
+- the settings in effect keep the starting tempo, and `changedSettings` still throws on a tempo
+  change;
+- a rise outputs no `settings-changed`, and never discards or regenerates a look-ahead phrase;
+- every intent keeps the starting tempo, so the requests, the readied phrases and their
+  [replay keys](phrase-workspace.md#phrase-replay-key) are the same with adaptive tempo on or off.
+
+`adaptive-tempo.spec.ts` tests the pure schedule. `session-engine-adaptive-tempo.spec.ts` and
+`session-engine-adaptive-tempo-generation.spec.ts` drive whole sessions that follow their own tempo
+map (`tests/unit/session/tempo-session.ts`, on the [session driver](testing.md#the-session-driver)).
 
 ## The runner and the one-Worker wiring
 
@@ -290,7 +373,7 @@ started sounding so far. Each record, `SessionHistoryRecord`, holds:
 | `startedAt`            | The audio time the phrase started sounding. The session controller passes the phrase's scheduled start on the transport, so the records sit exactly back to back (see [The history](#the-history)).                                                                                                |
 | `outcome`              | The phrase exactly as shown: its timeline (its notes and rests in time order) and the [harmony](music/lexicon.md#harmony) (the chords under the melody) its [chord symbols](music/lexicon.md#chord-symbol) come from.                                                                              |
 | `intent`               | What reproduces the phrase: the resolved request with the [note density](music/lexicon.md#note-density) it was actually generated with, its [seed](music/lexicon.md#seed) (the number that drives the generator's random choices) and its carry-in. A phrase stepped down to Eighth stores Eighth. |
-| `tempo`                | The [tempo](music/lexicon.md#tempo) it played at, in BPM.                                                                                                                                                                                                                                          |
+| `tempo`                | The [tempo](music/lexicon.md#tempo) it played at, in BPM, from its `phrase-sounding` output; the starting tempo for phrase 1. `tempoReached()` reads the last record's: the tempo the session reached, `null` before phrase 1 sounds.                                                              |
 | `isRepeat`, `repeatOf` | The internal repeat mark: whether the failure ladder repeated the phrase before, and which phrase. No view and no export shows it.                                                                                                                                                                 |
 | `acknowledgements`     | The phrase's acknowledged expected notes, in arrival order. Empty in a session without a controller.                                                                                                                                                                                               |
 | `playedNotes`          | The played notes whose compensated onsets fall inside the phrase, by onset (equal onsets keep their arrival order). Empty in a session without a controller.                                                                                                                                       |
@@ -370,23 +453,25 @@ locks on screen and focus). It draws nothing itself: it hands the staff what to 
 `workspace-session-controller-types.ts`, and `WorkspaceSession.createSessionController()` builds
 it (see [Session wiring](phrase-workspace.md#session-wiring)).
 
-| State field                | Holds                                                                                                                             |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `phase`                    | `'idle'` (no session), `'count-in'` or `'running'` (phrase 1 or a later phrase sounding).                                         |
-| `countIn`                  | While the count-in runs, one state per beat (`muted`, `current` or `past`) and the audio time it next changes; `null` outside it. |
-| `strugglingNotice`         | Whether the engine's latest `struggling-notice` shows it.                                                                         |
-| `sessionTempo`             | The running session's locked tempo, in BPM; `null` with no session.                                                               |
-| `heldLayout`               | The staff layout the running session holds, `'one-system'` or `'split'`; `null` with no session.                                  |
-| `sessionStaff`             | What the staff shows while a session runs (see [The rolling display](#the-rolling-display)); `null` with no session.              |
-| `latestReady`              | The highest phrase number the running session has readied, 1 until phrase 2 is; `null` with no session.                           |
-| `canStart`, `startBlocker` | Whether `Start session` may be clicked, and the first start condition that fails (`null` when none does).                         |
-| `lastEnd`                  | How the last session ended: `cause`, `phase` (`'count-in'` or `'running'`) and `soundedPhraseCount`.                              |
-| `lastHistory`              | The closed history of the last session that ended.                                                                                |
-| `review`                   | The last session's Review, `{ history, showing }`, showing or kept; `null` when none exists.                                      |
-| `startingNote`             | The note that would start a session if played now (its identity, concert pitch and label); `null` unless one may start it.        |
-| `controllerLost`           | While a lost controller's countdown runs, `{ secondsLeft }`, 30 down to 1, count-in included; `null` otherwise.                   |
-| `acknowledged`             | The running session's acknowledged notes, in acknowledgement order; empty at Idle.                                                |
-| `sessionHasController`     | Whether the running session reads a controller, fixed at its start; `null` at Idle. Nothing on screen reads it yet.               |
+| State field                | Holds                                                                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `phase`                    | `'idle'` (no session), `'count-in'` or `'running'` (phrase 1 or a later phrase sounding).                                            |
+| `countIn`                  | While the count-in runs, one state per beat (`muted`, `current` or `past`) and the audio time it next changes; `null` outside it.    |
+| `strugglingNotice`         | Whether the engine's latest `struggling-notice` shows it.                                                                            |
+| `sessionTempo`             | The exact tempo in effect, in BPM: the starting tempo, then each sounding phrase's own; `null` with no session.                      |
+| `heldLayout`               | The staff layout the running session holds, `'one-system'` or `'split'`; `null` with no session.                                     |
+| `sessionStaff`             | What the staff shows while a session runs (see [The rolling display](#the-rolling-display)); `null` with no session.                 |
+| `latestReady`              | The highest phrase number the running session has readied, 1 until phrase 2 is; `null` with no session.                              |
+| `canStart`, `startBlocker` | Whether `Start session` may be clicked, and the first start condition that fails (`null` when none does).                            |
+| `lastEnd`                  | How the last session ended: `cause`, `phase` (`'count-in'` or `'running'`) and `soundedPhraseCount`.                                 |
+| `lastHistory`              | The closed history of the last session that ended.                                                                                   |
+| `review`                   | The last session's Review, `{ history, showing, tempoReached }`, showing or kept; `null` when none exists.                           |
+| `startingNote`             | The note that would start a session if played now (its identity, concert pitch and label); `null` unless one may start it.           |
+| `controllerLost`           | While a lost controller's countdown runs, `{ secondsLeft }`, 30 down to 1, count-in included; `null` otherwise.                      |
+| `acknowledged`             | The running session's acknowledged notes, in acknowledgement order; empty at Idle.                                                   |
+| `sessionHasController`     | Whether the running session reads a controller, fixed at its start; `null` at Idle. Nothing on screen reads it yet.                  |
+| `adaptiveTempo`            | The page's adaptive-tempo flag: off at page load, kept from one session to the next, in memory only. Nothing on screen reads it yet. |
+| `adaptiveTempoAvailable`   | Whether the flag may be turned on: exactly while a controller is attached (the MIDI controller `connected`).                         |
 
 `start()` throws a `SessionControllerError` while a start condition fails, and `stop()` when no
 session is running. `isPhraseOnScreen(n)` says whether any part of phrase `n` is on the staff
@@ -396,6 +481,16 @@ between showing and kept, and throw when asked out of turn (see
 [The end once phrase 1 has sounded](#the-end-once-phrase-1-has-sounded)). `dispose()`
 ends a running session with the `stop` cause, stops reading the window and listening to the MIDI
 controller, and frees the wake-up timer; `App.vue` calls it when it unmounts.
+
+`setAdaptiveTempo(on)` turns the page's adaptive-tempo flag on or off. It throws a
+`SessionControllerError` during the count-in or a running session (the settings are locked then),
+and when turning it on with no controller attached; turning it off at Idle is always allowed. The
+flag lives in `workspace-adaptive-tempo.ts`, built with the controller and held only in memory:
+`App.vue` builds the page's one controller at setup and disposes of it only when the app unmounts,
+so the flag lasts exactly as long as the page, and no session's start or end resets it. A
+controller unplugged at Idle leaves it on, only unavailable. No control sets it until chunk 28;
+the workspace harness sets it through `session.setAdaptiveTempo` (see
+[The workspace harness](testing.md#the-workspace-harness)).
 
 ### Start conditions
 
@@ -436,7 +531,10 @@ else changes. Then, in order, it:
    [The session controller's MIDI side](#the-session-controllers-midi-side));
 5. shows the count-in and the session's staff (phrase 1, the very written phrase Idle shows, in
    the held layout), starts the wake-up timer and the display's frame loop, then a runner whose
-   phrase 1 is the Idle phrase and whose fit check is the display's, and the end watchers.
+   phrase 1 is the Idle phrase and whose fit check is the display's, and the end watchers. The
+   runner runs adaptive tempo when the flag is on and step 4 found the controller attached
+   (`sessionHasController`); a session started with the selected controller away, or with none,
+   runs without it.
 
 ### The audio-time agenda
 
@@ -449,10 +547,16 @@ due by then, earliest first, ties in scheduling order. The agenda holds:
   beats are muted, a beat is current from its click to the next, and the row empties when the
   count-in ends;
 - **the count-in's end:** the phase becomes `running`, and the runner gets `count-in-over`;
-- **each readied phrase's start.** On `phrase-ready` the controller queues its backing with
-  `audio.queueBacking` (a repeat included), hands its expected notes to the MIDI side and the
-  phrase to the rolling display, and schedules `phrase-started-sounding` at
-  `audio.phraseStartsAt(n)`. Phrases must be readied in order; one out of order throws;
+- **each phrase's start, at its own tempo.** The phrase steps
+  (`src/components/workspace/workspace-session-phrases.ts`) take phrases 2 on in two steps. On
+  `phrase-ready` the phrase goes to the rolling display as read-ahead and is kept. On
+  `phrase-tempo`, once the engine has fixed its tempo, the kept phrase's backing is queued with
+  `audio.queueBacking(n, harmony, tempo)` (a repeat included), its expected notes go to the MIDI
+  side at that tempo, the display's playhead takes the tempo, and `phrase-started-sounding` is
+  scheduled at `audio.phraseStartsAt(n)`. Both steps must come in order; one out of order, or a
+  tempo for a phrase never readied, throws. On `phrase-sounding` the controller's `sessionTempo`
+  becomes that phrase's tempo; the session never writes the Idle tempo control, and the settings
+  keep the starting tempo;
 - **each engine deadline:** on `wake-at`, a `tick` at that time;
 - **the MIDI side's timers:** the silence check and each change of a lost controller's countdown
   (see [The session controller's MIDI side](#the-session-controllers-midi-side)).
@@ -492,11 +596,14 @@ playhead, and publishes the controller's `sessionStaff` whenever one of them cha
 
 What goes where is a pure plan in `src/session/rolling-display.ts`, which reads no time:
 
-- **The playhead.** `playheadAt(heardTime, firstPhraseStartsAt, measureSeconds)` gives the phrase
-  number and the measure (0 to 3) being played, or `null` before phrase 1's first barline, during
-  the count-in. Barline k lies at `firstPhraseStartsAt + k × measureSeconds`, computed by
-  multiplication, never by adding up measures, so no error builds up over a long session. Exactly
-  at a barline the playhead is already on the new measure.
+- **The playhead.** `playheadAt(heardTime, tempoMap)` gives the phrase number and the measure (0
+  to 3) being played, or `null` before phrase 1's first barline, during the count-in. The tempo
+  map mirrors the transport's click plan: one segment from phrase 1 at the starting tempo, then
+  one from each phrase whose tempo differs from the phrase before, starting exactly at the
+  transport's `phraseStartsAt(n)`. In a segment, barline k lies at the segment's start plus its
+  measures since then × its measure length, computed by multiplication, never by adding up
+  measures, so no error builds up over a long session; at one tempo this is phrase 1's start plus
+  k measures. Exactly at a barline the playhead is already on the new measure.
 - **What each system shows.** `systemsAt(layout, playhead, latestReady)`. In the one-system layout
   phrase n lives on the top system when n is odd and on the bottom one when it is even; the
   phrase being played (phrase 1 during the count-in) shows in its system, and the other system
@@ -521,8 +628,8 @@ The display itself:
 
 - **The frame loop.** The playhead is read once per animation frame, through the frame port
   `SessionControllerClock.frames` (the browser's `requestAnimationFrame` in the app, a fake in unit
-  tests), on heard time: `audio.now() - audio.outputLatency()`, against `audio.phraseStartsAt(1)`
-  and the session's measure length. The staff is published only when the position changes, and
+  tests), on heard time: `audio.now() - audio.outputLatency()`, through its tempo map, built from
+  the starting tempo and each `phraseTempo(n, tempo)` the phrase steps give it. The staff is published only when the position changes, and
   the phrases the playhead has left behind are then forgotten, never a readied phrase at or ahead
   of it. The loop runs from the start until teardown; a throw inside a frame goes to `fail`.
 - **Readied phrases.** Each `phrase-ready`, repeats included, adds its written phrase under its
@@ -593,13 +700,14 @@ The session's mode is fixed at its start, by the MIDI controller's state at that
 
 #### Acknowledgement
 
-A session with a controller builds one `createSessionAcknowledgement({ tempo, correction })`
+A session with a controller builds one `createSessionAcknowledgement({ correction })`
 (`src/session/session-acknowledgement.ts`), the stateful layer over the pure pipeline of
 [MIDI note acknowledgement](midi-acknowledgement.md):
 
-- **Phrases are added in order.** Phrase 1's expected notes from its first downbeat,
-  `audio.phraseStartsAt(1)`, at the start; each later phrase's from its own first downbeat when it
-  is readied. The windows are placed again over every expected note known so far, so a phrase's
+- **Phrases are added in order, each at its own tempo.** Phrase 1's expected notes from its first
+  downbeat, `audio.phraseStartsAt(1)`, at the starting tempo, at the start; each later phrase's
+  from its own first downbeat at its own tempo, once the engine has fixed that tempo
+  (`addPhrase(n, timeline, startsAt, tempo)`). The windows are placed again over every expected note known so far, so a phrase's
   last note is bounded by the next phrase's first.
 - **Each played note is matched once.** Its onset is latency-compensated with the USB correction,
   `latencyCorrectionFor('usb')`, for every controller: Web MIDI does not say how a device is
@@ -650,6 +758,12 @@ During a session with a controller, any state other than `connected` counts as l
 - **A count-in keeps running** under the countdown. The cue row shows the disconnect banner over
   it, and the header shows the disconnected badge through its freeze (see
   [Facts and forms](controller-connection.md#facts-and-forms)).
+- **The engine hears it too.** The loss and the return are each handed to the controller's
+  `controllerPresence` seam, which `workspace-adaptive-tempo.ts` (`forwardPresence`) turns into
+  the engine's `controller` event, `attached` false then true, at `audio.now()` raised to the
+  engine's time floor. Adaptive tempo follows it: a phrase whose tempo is fixed while the
+  controller is away does not rise, and a phrase that starts sounding then does not count. A
+  session started without a controller never sends one.
 
 #### Errors
 
@@ -747,8 +861,8 @@ the Idle rules deciding in the layout the window now gives, and a new session ma
 end once phrase 1 has sounded is different, because phrase 1 of a session is never a phrase the
 previous session played. After the teardown above, `end` does two more things, in this order:
 
-1. **The Review opens.** `state.review` becomes `{ history, showing: true }` over the session's
-   closed history. The screen shows the Review in place of the staff (see
+1. **The Review opens.** `state.review` becomes `{ history, showing: true, tempoReached }` over
+   the session's closed history, `tempoReached` being its last sounded phrase's tempo. The screen shows the Review in place of the staff (see
    [The last-session Review](phrase-workspace.md#the-last-session-review)).
 2. **Idle is asked for the next phrase.** `idle.actions.startFreshPhrase()`, which the
    controller gets with the Idle state (`SessionControllerDependencies.idle.actions`), starts the
@@ -905,14 +1019,16 @@ just before phrase N's first `request-generation`, and the new settings are in e
 ### Settings changes at a phrase boundary
 
 A `settings-change { at, settings }` event gives complete settings. A change of tempo or instrument
-throws (`changedSettings`): tempo has its own source, and the instrument never changes. A
+throws (`changedSettings`): tempo has its own source (see [Adaptive tempo](#adaptive-tempo)), and
+the instrument never changes. A
 `settings-change` after the end throws too. The **pending phrase** is the phrase that would show
 next: the look-ahead not yet decided, or the decided phrase not yet sounding, which the engine
 keeps for this case (`DecidedPhrase` in `session-engine-state.ts`).
 
 `discardsPendingPhrase` discards the pending phrase only when both hold:
 
-- **A measure left.** At least one measure (`240 / tempo` s) remains before its deadline. Exactly
+- **A measure left.** At least one measure (`240 / tempo` s, at the sounding phrase's tempo)
+  remains before its deadline. Exactly
   one measure still discards. The test comes first, so the display is read only when the time
   allows a discard.
 - **Nothing on screen.** `display.isPhraseOnScreen(phraseNumber)` is false. The display reading
@@ -1025,6 +1141,9 @@ points chunk 25 connects:
   with the flag off in the workspace.
 - **Chunk 25:** the flag's control, the display reading from the rolling display, and the
   handling of `settings-changed` and `phrase-discarded`.
+- **Chunk 27 (built):** adaptive tempo's engine side, each phrase at its own tempo on the
+  transport's tempo map, and the page's flag (see [Adaptive tempo](#adaptive-tempo)).
+- **Chunk 28:** the adaptive-tempo control.
 
 ## Choices made while building it
 
@@ -1063,11 +1182,10 @@ points chunk 25 connects:
 - **A history record stores the whole shown outcome as well as the intent.** The intent is what
   reproduces the phrase; the outcome carries the harmony the chord symbols need, and lets the
   Review and the exports use exactly what was shown, with no regeneration.
-- **The history's tempo comes from the session's locked settings, passed at creation, never from a
-  default.** The history trusts the settings it is given: only a tempo that is not positive or not
-  finite throws. The session controller passes the same locked settings to the engine and the
-  history, so the
-  history plays back the tempo the engine ran at.
+- **Each history record's tempo comes from its `phrase-sounding` output, never from a default.**
+  The history trusts the tempo it is given: only one that is not positive or not finite throws, the
+  starting tempo of the settings passed at creation included. The record therefore plays back the
+  tempo the engine fixed for that phrase (see [Adaptive tempo](#adaptive-tempo)).
 - **The session's start time comes from an injected wall clock, read once at creation.** The
   history never reads the system time itself, so tests pass a fake clock, and a value read once
   cannot drift during the session. Chunk 20 uses it for the export file names and the Review's

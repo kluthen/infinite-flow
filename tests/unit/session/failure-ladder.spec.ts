@@ -72,7 +72,7 @@ describe('failure ladder before the deadline', () => {
         phrase: { phraseNumber: 2, origin: 'carry-in', intent: request.intent, outcome },
       },
     ])
-    expect(driver.tick(4)).toEqual([])
+    expect(driver.tick(4)).toEqual([{ kind: 'phrase-tempo', phraseNumber: 2, tempo: 60 }])
   })
 
   // @test-link [[rule_session_generation_failure_ladder]]
@@ -120,10 +120,13 @@ describe('repeat at the deadline', () => {
       outcome: driver.phraseOne.outcome,
       repeatOf: 1,
     }
-    expect(driver.tick(4)).toEqual([{ kind: 'phrase-ready', phrase: repeat }])
+    expect(driver.tick(4)).toEqual([
+      { kind: 'phrase-ready', phrase: repeat },
+      { kind: 'phrase-tempo', phraseNumber: 2, tempo: 60 },
+    ])
     driver.countInOver(4)
     const atTwo = driver.sounding(20, 2)
-    expect(atTwo[0]).toEqual({ kind: 'phrase-sounding', at: 20, phrase: repeat })
+    expect(atTwo[0]).toEqual({ kind: 'phrase-sounding', at: 20, phrase: repeat, tempo: 60 })
     expect(driver.lastRequest()).toMatchObject({ phraseNumber: 3, step: 'carry-in', retry: 0 })
     expect(driver.lastRequest().intent.carryIn).toEqual(
       deriveCarryIn({ ...driver.phraseOne, phraseNumber: 2 }),
@@ -135,7 +138,7 @@ describe('repeat at the deadline', () => {
   it('drops an attempt still in flight at the deadline, and its later result', () => {
     const driver = varyingDriver()
     driver.fail(0.1)
-    expect(kinds(driver.tick(4))).toEqual(['phrase-ready'])
+    expect(kinds(driver.tick(4))).toEqual(['phrase-ready', 'phrase-tempo'])
     expect(driver.succeed(4.5)).toEqual([])
     expect(driver.requests(2)).toHaveLength(2)
   })
@@ -149,6 +152,7 @@ describe('repeat at the deadline', () => {
         kind: 'phrase-ready',
         phrase: expect.objectContaining({ origin: 'repeat', repeatOf: 1 }),
       }),
+      { kind: 'phrase-tempo', phraseNumber: 2, tempo: 60 },
     ])
   })
 
@@ -156,7 +160,7 @@ describe('repeat at the deadline', () => {
   it('retries no more once the deadline has passed with a fit check pending', () => {
     const driver = varyingDriver()
     driver.succeed(3.9)
-    expect(kinds(driver.fit(4.2, false))).toEqual(['phrase-ready'])
+    expect(kinds(driver.fit(4.2, false))).toEqual(['phrase-ready', 'phrase-tempo'])
     expect(driver.requests(2)).toHaveLength(1)
   })
 
@@ -173,6 +177,7 @@ describe('repeat at the deadline', () => {
         phrase: expect.objectContaining({ phraseNumber: 3, origin: 'repeat', repeatOf: 2 }),
       }),
       { kind: 'struggling-notice', visible: true },
+      { kind: 'phrase-tempo', phraseNumber: 3, tempo: 60 },
     ])
   })
 })

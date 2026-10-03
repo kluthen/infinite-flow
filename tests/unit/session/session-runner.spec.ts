@@ -65,7 +65,13 @@ interface Rig {
 /** Intent: the start every rig and every reference driver shares: 240 BPM, at 0, a real phrase 1. */
 function fastStart(): SessionStart {
   const settings = sessionSettings({ tempo: 240 })
-  return { at: 0, settings, phraseOne: phraseOneFor(settings), mutation: SETTINGS_MUTATION_OFF }
+  return {
+    at: 0,
+    settings,
+    phraseOne: phraseOneFor(settings),
+    mutation: SETTINGS_MUTATION_OFF,
+    adaptiveTempo: false,
+  }
 }
 
 /** Intent: build a runner whose generate and fit-check calls wait until the test answers them. */
@@ -218,10 +224,10 @@ describe('session runner', () => {
     const r = rig()
     await succeedAt(r, 1.2)
     expect(r.checkFit).not.toHaveBeenCalled()
-    expect(r.log.at(-1)).toMatchObject({
-      kind: 'phrase-ready',
-      phrase: { phraseNumber: 2, origin: 'repeat', repeatOf: 1 },
-    })
+    expect(r.log.slice(-2)).toMatchObject([
+      { kind: 'phrase-ready', phrase: { phraseNumber: 2, origin: 'repeat', repeatOf: 1 } },
+      { kind: 'phrase-tempo', phraseNumber: 2, tempo: 240 },
+    ])
   })
 
   // @test-link [[rule_session_generation_failure_ladder]]
@@ -308,6 +314,20 @@ describe('session runner', () => {
     expect(() =>
       r.runner.dispatch({ kind: 'phrase-started-sounding', at: 5, phraseNumber: 3 }),
     ).toThrow(SessionEngineError)
+    expect(r.log).toEqual(before)
+    expect(r.errors).toEqual([])
+  })
+
+  // @test-link [[service_session_runner]]
+  it('dispatches the controller event to the engine, which refuses one that changes nothing', () => {
+    const r = rig()
+    const before = [...r.log]
+    r.runner.dispatch({ kind: 'controller', at: 0.1, attached: false })
+    expect(r.log).toEqual(before)
+    expect(() => r.runner.dispatch({ kind: 'controller', at: 0.2, attached: false })).toThrow(
+      SessionEngineError,
+    )
+    r.runner.dispatch({ kind: 'controller', at: 0.3, attached: true })
     expect(r.log).toEqual(before)
     expect(r.errors).toEqual([])
   })

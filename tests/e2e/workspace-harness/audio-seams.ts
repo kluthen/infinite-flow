@@ -122,7 +122,8 @@ function queuedHarmonyView(harmony: readonly HarmonyEvent[]): WorkspaceHarnessQu
  * Intent: build the harness's audio in `mode`: a transport on that mode's seams, and the API a
  * spec drives it through. `start` is not on the API: only the harness's Start button starts a
  * session, from a real click, at the tempo `armStart` set beforehand. `shownHarmony` reads the
- * harmony of the phrase the workspace shows, which `queueBacking` hands to the transport.
+ * harmony of the phrase the workspace shows, which `queueBacking` hands to the transport at the
+ * tempo the last session started at.
  */
 // @test-link [[rule_audio_unlocked_by_player_click]]
 // @test-link [[rule_playhead_follows_audio_clock]]
@@ -138,6 +139,7 @@ export function createHarnessAudio(
     readMixDesign: pageMixDesign,
   })
   let armedTempo: number | null = null
+  let startedTempo: number | null = null
   let timeline: TransportTimeline | null = null
 
   /** Intent: the Start click: unlock, then start at the armed tempo, synchronously. One shot. */
@@ -149,6 +151,15 @@ export function createHarnessAudio(
     armedTempo = null
     transport.unlock()
     timeline = transport.start({ tempo })
+    startedTempo = tempo
+  }
+
+  /** Intent: the tempo the Start click last started a session at; throws before any start. */
+  function sessionTempo(): number {
+    if (startedTempo === null) {
+      throw new Error('Workspace harness: audio.queueBacking() needs a session started first')
+    }
+    return startedTempo
   }
 
   const api: WorkspaceHarnessAudioApi = {
@@ -168,7 +179,7 @@ export function createHarnessAudio(
     audibleClicks: () => audibleClicksOf(parts.events()),
     queueBacking: (phraseNumber) => {
       const harmony = shownHarmony()
-      transport.queueBacking(phraseNumber, harmony)
+      transport.queueBacking(phraseNumber, harmony, sessionTempo())
       return queuedHarmonyView(harmony)
     },
     backingNotes: () => parts.events().filter((e): e is FakeBackingEvent => e.kind === 'backing'),

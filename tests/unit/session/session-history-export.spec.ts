@@ -23,7 +23,9 @@ import {
   musicXmlInputFromHistory,
   playedNotesMidiInputFromHistory,
 } from '@/session/session-history-export'
-import { notesOf, rawChunks, readSmf } from '../export/midi/smf-reader'
+import { phraseFirstBeat, phraseStartsAt } from '@/audio/backing-track'
+import { createClickPlan, withTempoFrom } from '@/audio/click-track'
+import { notesOf, rawChunks, readSmf, tempoMap } from '../export/midi/smf-reader'
 import {
   idlePhraseOne,
   recordRunnerSession,
@@ -32,6 +34,7 @@ import {
   regeneratedMusicXml,
 } from './history-recording'
 import { SessionDriver, fixedWallClock, phraseOneFor, sessionSettings } from './session-harness'
+import { driveTempoSession, phraseStartAt, phraseTempoOf, tempoDriver } from './tempo-session'
 
 /** Intent: the recorded phrases of a driven session, fed every output the driver logged. */
 function recordedPhrases(driver: SessionDriver): readonly SessionHistoryRecord[] {
@@ -235,6 +238,111 @@ describe('the played-notes input a history hands over', () => {
       [64, 60, 19200, 23040],
       [65, 70, 44160, 46080],
     ])
+  })
+})
+
+/**
+ * Intent: the history of an adaptive-tempo session from 90 BPM (phrases at 90, 90, 95, 95, then
+ * 100 BPM) ended after `phraseCount` phrases, each phrase recorded at its start on the
+ * transport's click plan with the same rises, as the controller hands it in, with one played note
+ * 0.1 s into each phrase.
+ */
+function risenRecords(phraseCount = 4): readonly SessionHistoryRecord[] {
+  const driver = tempoDriver({ tempo: 90, adaptiveTempo: true })
+  driveTempoSession(driver, phraseCount)
+  driver.end(phraseStartAt(driver, phraseCount + 1) - 0.01)
+  let plan = createClickPlan(driver.start.at, 90)
+  for (let n = 2; n <= phraseCount; n += 1)
+    plan = withTempoFrom(plan, phraseFirstBeat(plan, n), phraseTempoOf(driver, n))
+  const history = createSessionHistory(driver.settings, fixedWallClock)
+  for (const output of driver.log) {
+    if (output.kind !== 'phrase-sounding') {
+      history.record(output)
+      continue
+    }
+    const at = phraseStartsAt(plan, output.phrase.phraseNumber)
+    history.recordPlayedNote({
+      pitch: makeConcertPitch(60 + output.phrase.phraseNumber),
+      velocity: 64,
+      onsetAt: at + 0.1,
+      releaseAt: at + 0.3,
+    })
+    history.record({ ...output, at })
+  }
+  return history.phrases()
+}
+
+/** One quarter note in MIDI ticks, and one four-measure phrase. */
+const TICKS_PER_QUARTER = 960
+const PHRASE_TICKS = 16 * TICKS_PER_QUARTER
+
+// @test-link [[service_session_history]]
+// @test-link [[rule_generated_notes_midi_export]]
+// @test-link [[rule_played_notes_export_aligns_with_generated_midi]]
+// @test-link [[rule_generated_notes_musicxml_export]]
+describe('an export from a session whose tempo rose', () => {
+  // @test-link [[service_session_history]]
+  // @test-link [[rule_generated_notes_midi_export]]
+  it("gives the generated-notes MIDI input each phrase's own tempo, which the file's tempo map carries", () => {
+    const records = risenRecords()
+
+    const input = midiInputFromHistory(records, null)
+    const conductor = readSmf(encodeGeneratedNotesMidi(input)).tracks[0]!
+
+    expect(input.phrases.map((phrase) => phrase.tempo)).toEqual([90, 90, 95, 95])
+    const changes = tempoMap(conductor).filter(
+      (event, index, all) =>
+        all[index - 1]?.microsecondsPerQuarter !== event.microsecondsPerQuarter,
+    )
+    expect(changes).toEqual([
+      { tick: 0, microsecondsPerQuarter: Math.round(60_000_000 / 90) },
+      { tick: 2 * PHRASE_TICKS, microsecondsPerQuarter: Math.round(60_000_000 / 95) },
+    ])
+  })
+
+  // @test-link [[service_session_history]]
+  // @test-link [[rule_played_notes_export_aligns_with_generated_midi]]
+  it("gives the played-notes MIDI input each phrase's own tempo and transport start, back to back", () => {
+    const records = risenRecords()
+
+    const input = playedNotesMidiInputFromHistory(records)
+    const played = encodePlayedNotesMidi(input)
+    const generated = encodeGeneratedNotesMidi(midiInputFromHistory(records, null))
+
+    expect(input.phrases.map((phrase) => phrase.tempo)).toEqual([90, 90, 95, 95])
+    expect(input.phrases.map((phrase) => phrase.startedAt)).toEqual(
+      records.map((record) => record.startedAt),
+    )
+    expect(rawChunks(played).tracks[0]).toEqual(rawChunks(generated).tracks[0])
+    // 0.1 s into a phrase is 144 ticks at 90 BPM and 152 at 95 BPM.
+    expect(notesOf(readSmf(played).tracks[1]!).map((note) => note.startTick)).toEqual([
+      144,
+      PHRASE_TICKS + 144,
+      2 * PHRASE_TICKS + 152,
+      3 * PHRASE_TICKS + 152,
+    ])
+  })
+
+  // @test-link [[rule_generated_notes_musicxml_export]]
+  it("gives the MusicXML input each phrase's own tempo, with a metronome mark only where it changes", () => {
+    const records = risenRecords(5)
+
+    const input = musicXmlInputFromHistory(records)
+    const xml = encodeGeneratedNotesMusicXml(input)
+    const document = new DOMParser().parseFromString(xml, 'application/xml')
+
+    expect(document.getElementsByTagName('parsererror')).toHaveLength(0)
+    expect(input.phrases.map((phrase) => phrase.tempo)).toEqual([90, 90, 95, 95, 100])
+    // Each phrase is four measures, so phrases 1, 3 and 5 open measures 1, 9 and 17.
+    const marks = Array.from(document.querySelectorAll('direction'))
+      .filter((direction) => direction.querySelector('metronome') !== null)
+      .map(
+        (direction) =>
+          `${direction.closest('measure')!.getAttribute('number')}:` +
+          `${direction.querySelector('per-minute')!.textContent}:` +
+          `${direction.querySelector('sound')!.getAttribute('tempo')}`,
+      )
+    expect(marks).toEqual(['1:90:90', '9:95:95', '17:100:100'])
   })
 })
 

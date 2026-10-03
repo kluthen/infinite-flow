@@ -277,7 +277,7 @@ describe('SessionCueRow starting-note line', () => {
 })
 
 /** A Review kept, not showing: after `Close review`. */
-const KEPT_REVIEW = { history: fakeReviewHistory(), showing: false } as const
+const KEPT_REVIEW = { history: fakeReviewHistory(), showing: false, tempoReached: 90 } as const
 
 // @test-link [[req_last_session_review]]
 // @test-link [[rule_new_session_discards_review]]
@@ -318,7 +318,7 @@ describe('SessionCueRow review-link', () => {
       false,
     )
     const showing = createFakeSessionController({
-      review: { history: fakeReviewHistory(), showing: true },
+      review: { history: fakeReviewHistory(), showing: true, tempoReached: 90 },
     })
     expect(mountRow(showing.controller).find('.review-link').exists()).toBe(false)
     expect(mountRow(null).find('.review-link').exists()).toBe(false)

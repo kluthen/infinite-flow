@@ -4,6 +4,7 @@
  * more than one kind of event needs.
  */
 
+import type { AdaptiveTempoSchedule } from './adaptive-tempo'
 import type { LookAhead } from './failure-ladder'
 import type { IntentSeams } from './session-intents'
 import {
@@ -37,11 +38,24 @@ export interface DecidedPhrase {
 }
 
 /**
+ * The engine's tempo state: the adaptive-tempo schedule, and the tempo fixed for phrases 1, 2, ...
+ * in order, phrase 1's being the starting tempo. It is never part of the settings in effect, which
+ * keep the starting tempo, so no intent ever sees it.
+ */
+// @spec-link [[service_session_engine]]
+// @spec-link [[rule_tempo_never_affects_generation]]
+export interface SessionTempo {
+  readonly schedule: AdaptiveTempoSchedule
+  readonly fixed: readonly number[]
+}
+
+/**
  * The engine's state between events. `settings` are the settings in effect; `lastDecided` is the
  * latest decided phrase (phrase 1 at start), generated under `lastDecidedSettings` (a repeat's are
  * those of the phrase it repeats); `lookAhead` is the phrase after it while undecided, and
  * `decided` its record once decided until it starts sounding; `soundedCount` is how many phrases
- * have started sounding.
+ * have started sounding; `tempo` is the adaptive-tempo schedule and each phrase's fixed tempo,
+ * kept apart from the settings.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
@@ -57,6 +71,7 @@ export interface EngineState {
   readonly steppedDown: boolean
   readonly notice: StrugglingNotice
   readonly nextAttemptId: number
+  readonly tempo: SessionTempo
 }
 
 /** A new state and the outputs that produced it. */

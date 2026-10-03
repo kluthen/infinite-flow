@@ -3,7 +3,8 @@
  * readied so far (phrase 1 being the very phrase Idle shows), the highest phrase number readied and
  * the playhead, and publishes the staff the screen draws whenever one of them changes. The playhead
  * is read on heard time (the audio clock minus the output latency) once a frame, through an
- * injected frame loop, from the session's start until `stop`. It also answers the runner's fit
+ * injected frame loop, from the session's start until `stop`, and mapped to a measure through the
+ * transport's tempo map: each phrase at the tempo the engine fixed for it. It also answers the runner's fit
  * check of each look-ahead phrase and the material check a staff layout report needs, both in the
  * viewport the session holds, and whether a phrase is on screen. Reads no time but the audio clock.
  */
@@ -20,6 +21,7 @@ import {
   playheadAt,
   systemsAt,
   type PlayheadPosition,
+  type PlayheadTempoSegment,
   type SystemSlot,
 } from '@/session/rolling-display'
 import type { FitCandidate } from '@/session/session-runner'
@@ -30,11 +32,14 @@ import type { FramePort, StaffFitPlanner } from './workspace-session-controller-
 /** What one session's display is built from. */
 // @spec-link [[module_session_rolling_display]]
 export interface SessionDisplayDependencies {
-  /** The audio clock, its output latency, and phrase 1's start, queued before the display is built. */
+  /**
+   * The audio clock, its output latency, and the phrases' starts: phrase 1's, queued before the
+   * display is built, and each later one's once its tempo is queued.
+   */
   readonly audio: Pick<AudioTransport, 'now' | 'outputLatency' | 'phraseStartsAt'>
   readonly frames: FramePort
-  /** The session's locked tempo, in BPM. */
-  readonly tempo: number
+  /** The session's starting tempo, phrase 1's, in BPM. */
+  readonly startingTempo: number
   readonly heldLayout: StaffLayout
   /** The written phrase Idle shows, phrase 1, kept as the very same object. */
   readonly phraseOne: WrittenPhrase
@@ -54,6 +59,11 @@ export interface SessionDisplay {
   readonly checkFit: (candidate: FitCandidate, phraseNumber: number) => Promise<boolean>
   /** Take the next readied phrase (repeats included); throws when out of order. */
   readonly phraseReady: (phrase: SessionPhrase) => void
+  /**
+   * Take the next phrase's tempo (2, 3… in order), once the transport has it queued; the playhead
+   * reads that phrase at it. Throws when out of order.
+   */
+  readonly phraseTempo: (phraseNumber: number, tempo: number) => void
   /** Whether every phrase shown or waiting fits the held viewport at these layout inputs. */
   readonly materialFits: (inputs: StaffLayoutInputs) => Promise<boolean>
   readonly isPhraseOnScreen: (phraseNumber: number) => boolean
@@ -81,8 +91,15 @@ function samePosition(a: PlayheadPosition | null, b: PlayheadPosition | null): b
 // @spec-link [[rule_session_layout_fixed_at_start]]
 export function createSessionDisplay(deps: SessionDisplayDependencies): SessionDisplay {
   const { audio, frames, heldLayout } = deps
-  const firstPhraseStartsAt = audio.phraseStartsAt(1)
-  const seconds = measureSeconds(deps.tempo)
+  const tempoMap: PlayheadTempoSegment[] = [
+    {
+      phraseNumber: 1,
+      startsAt: audio.phraseStartsAt(1),
+      measureSeconds: measureSeconds(deps.startingTempo),
+    },
+  ]
+  let lastTempo = deps.startingTempo
+  let nextTempo = 2
   const readied = new Map<number, WrittenPhrase>([[1, deps.phraseOne]])
   let latestReady = 1
   let playhead: PlayheadPosition | null = null
@@ -132,7 +149,7 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
     frame = null
     try {
       const heard = audio.now() - audio.outputLatency()
-      const next = playheadAt(heard, firstPhraseStartsAt, seconds)
+      const next = playheadAt(heard, tempoMap)
       if (!samePosition(next, playhead)) {
         playhead = next
         prune()
@@ -197,12 +214,37 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
     publish()
   }
 
+  /**
+   * Intent: take the next phrase's tempo: a phrase at a tempo other than the one before starts a
+   * new segment of the playhead's tempo map at the transport's start of that phrase, as the click
+   * plan's own tempo segment does; at the same tempo the segment before runs on.
+   */
+  // @spec-link [[rule_playhead_follows_audio_clock]]
+  // @spec-link [[module_session_rolling_display]]
+  function phraseTempo(phraseNumber: number, tempo: number): void {
+    if (phraseNumber !== nextTempo) {
+      throw new Error(
+        `session display: phrase ${nextTempo}'s tempo must come next, got phrase ${phraseNumber}'s`,
+      )
+    }
+    if (tempo !== lastTempo) {
+      tempoMap.push({
+        phraseNumber,
+        startsAt: audio.phraseStartsAt(phraseNumber),
+        measureSeconds: measureSeconds(tempo),
+      })
+    }
+    lastTempo = tempo
+    nextTempo += 1
+  }
+
   publish()
   frame = frames.request(onFrame)
 
   return {
     checkFit,
     phraseReady,
+    phraseTempo,
     materialFits,
     isPhraseOnScreen: (phraseNumber) =>
       isPhraseOnScreen(heldLayout, playhead, latestReady, phraseNumber),

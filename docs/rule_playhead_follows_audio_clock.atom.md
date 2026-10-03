@@ -4,6 +4,7 @@ status: DRAFT
 tags: [v2, release-v2.0, v2.4-check, session, audio]
 dependents:
   - [[module_session_rolling_display]]
+  - [[service_workspace_session_flow]]
 layer: BUSINESS
 version: 0.2
 priority: 1

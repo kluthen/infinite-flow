@@ -24,8 +24,19 @@ import type {
   SessionBus,
   WakeTimer,
 } from './audio-ports'
-import { backingNotesBetween, phraseStartsAt, scheduleBacking } from './backing-track'
-import { clicksBetween, countInEndsAt, createClickPlan, type ClickPlan } from './click-track'
+import {
+  backingNotesBetween,
+  phraseFirstBeat,
+  phraseStartsAt,
+  scheduleBacking,
+} from './backing-track'
+import {
+  clicksBetween,
+  countInEndsAt,
+  createClickPlan,
+  withTempoFrom,
+  type ClickPlan,
+} from './click-track'
 import {
   createLookAheadScheduler,
   LOOK_AHEAD_SECONDS,
@@ -81,10 +92,20 @@ export interface AudioTransport {
   readonly start: (options: { readonly tempo: number }) => TransportTimeline
   /**
    * Queue the backing of the running session's phrase `phraseNumber` (1, 2, 3… in order) from its
-   * harmony. Throws with no session running, out of order, or too late to play all of it.
+   * harmony, at `tempo` BPM, the phrase's tempo: the click runs at it from the phrase's first beat.
+   * Throws with no session running, out of order, too late to play all of it, on phrase 1 at a
+   * tempo other than the starting tempo, and on a later tempo that is not a whole 60..240 BPM.
    */
-  readonly queueBacking: (phraseNumber: number, harmony: readonly HarmonyEvent[]) => void
-  /** When the running session's phrase `phraseNumber` (from 1) starts sounding. */
+  readonly queueBacking: (
+    phraseNumber: number,
+    harmony: readonly HarmonyEvent[],
+    tempo: number,
+  ) => void
+  /**
+   * When the running session's phrase `phraseNumber` (from 1) starts sounding, for any phrase up
+   * to the one after the last queued: it depends only on the tempos of the phrases before it.
+   * Throws for a later phrase.
+   */
   readonly phraseStartsAt: (phraseNumber: number) => AudioTime
   /** Fade the running session out and stop planning its sound. */
   readonly stop: () => TransportStop
@@ -108,12 +129,14 @@ const MIX_GAIN_ORDER: readonly MixGain[] = [
 ]
 
 /**
- * A running session: its bus, its click plan, the backing notes queued but not yet planned (in
- * time order), the phrase the next backing must be for, and how far planning has reached.
+ * A running session: its bus, its click plan (replaced by a new tempo map as each phrase is
+ * queued at its tempo), the backing notes queued but not yet planned (in time order), the phrase
+ * the next backing must be for, and how far planning has reached.
  */
+// @spec-link [[service_workspace_session_flow]]
 interface RunningSession {
   readonly bus: SessionBus
-  readonly plan: ClickPlan
+  plan: ClickPlan
   pendingBacking: readonly ScheduledBackingNote[]
   nextPhrase: number
   plannedUntil: AudioTime
@@ -228,14 +251,42 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
   }
 
   /**
-   * Intent: render phrase `phraseNumber`'s backing from its harmony and queue it, so the
-   * scheduler plays it on the session's beat grid. Phrases must come 1, 2, 3… in order, each
-   * before planning reaches its start; otherwise this throws and the queue is left as it was.
-   * A phrase never queued simply leaves silence: the transport can't tell it is missing until
-   * the next call, which then throws (out of order, or too late).
+   * Intent: the running session's click plan with phrase `phraseNumber` at `tempo` BPM from its
+   * first beat. Phrase 1 must be at the starting tempo (the count-in's), so its plan is unchanged.
+   */
+  // @spec-link [[service_workspace_session_flow]]
+  function planWithPhraseTempo(
+    running: RunningSession,
+    phraseNumber: number,
+    tempo: number,
+  ): ClickPlan {
+    if (phraseNumber === 1) {
+      if (tempo !== running.plan.tempo) {
+        throw new Error(
+          `audio transport: phrase 1 must be at the starting tempo ${running.plan.tempo}, got ${tempo}`,
+        )
+      }
+      return running.plan
+    }
+    return withTempoFrom(running.plan, phraseFirstBeat(running.plan, phraseNumber), tempo)
+  }
+
+  /**
+   * Intent: render phrase `phraseNumber`'s backing from its harmony and queue it at `tempo`, so
+   * the click runs at that tempo from the phrase's first beat and the scheduler plays the backing
+   * on the session's beat grid. Phrases must come 1, 2, 3… in order, each before planning reaches
+   * its start, so no click of the phrase was planned at the old tempo; otherwise, or on a refused
+   * tempo, this throws and the queue and the tempo map are left as they were. A phrase never
+   * queued simply leaves silence: the transport can't tell it is missing until the next call,
+   * which then throws (out of order, or too late).
    */
   // @spec-link [[req_session_backing_track]]
-  function queueBacking(phraseNumber: number, harmony: readonly HarmonyEvent[]): void {
+  // @spec-link [[service_workspace_session_flow]]
+  function queueBacking(
+    phraseNumber: number,
+    harmony: readonly HarmonyEvent[],
+    tempo: number,
+  ): void {
     const running = runningSession()
     if (phraseNumber !== running.nextPhrase) {
       throw new Error(
@@ -248,10 +299,28 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
         `audio transport: phrase ${phraseNumber}'s backing is queued too late: it starts at ${startsAt}, planning has reached ${running.plannedUntil}`,
       )
     }
+    const plan = planWithPhraseTempo(running, phraseNumber, tempo)
     const rendered = renderBacking(harmony, FOUR_FOUR_METER)
-    const notes = scheduleBacking(running.plan, phraseNumber, rendered)
+    const notes = scheduleBacking(plan, phraseNumber, rendered)
+    running.plan = plan
     running.pendingBacking = [...running.pendingBacking, ...notes]
     running.nextPhrase += 1
+  }
+
+  /**
+   * Intent: when the running session's phrase `phraseNumber` starts sounding. Only phrases up to
+   * the one after the last queued are known: a later start depends on a tempo not queued yet.
+   */
+  // @spec-link [[req_session_backing_track]]
+  // @spec-link [[service_workspace_session_flow]]
+  function runningPhraseStartsAt(phraseNumber: number): AudioTime {
+    const running = runningSession()
+    if (phraseNumber > running.nextPhrase) {
+      throw new Error(
+        `audio transport: phrase ${phraseNumber}'s start is not known yet: phrase ${running.nextPhrase} is the next to queue`,
+      )
+    }
+    return phraseStartsAt(running.plan, phraseNumber)
   }
 
   /** Intent: fade the running session's bus out from now and stop planning its sound. */
@@ -275,7 +344,7 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
     clockAnchor: () => unlockedOutput().anchor(),
     start,
     queueBacking,
-    phraseStartsAt: (phraseNumber) => phraseStartsAt(runningSession().plan, phraseNumber),
+    phraseStartsAt: runningPhraseStartsAt,
     stop,
     isRunning: () => session !== null,
     mix: () => ({ ...currentMix() }),

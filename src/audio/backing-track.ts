@@ -20,17 +20,22 @@ function assertPhraseNumber(phraseNumber: number): void {
 
 /**
  * Intent: the session beat phrase `phraseNumber` starts on, just after the count-in for phrase 1.
+ * Throws on a phrase number that is not a whole number from 1.
  */
-function phraseFirstBeat(plan: ClickPlan, phraseNumber: number): number {
+// @spec-link [[req_session_backing_track]]
+// @spec-link [[service_workspace_session_flow]]
+export function phraseFirstBeat(plan: ClickPlan, phraseNumber: number): number {
   assertPhraseNumber(phraseNumber)
   return plan.countInBeats + (phraseNumber - 1) * PHRASE_MEASURE_COUNT * plan.beatsPerMeasure
 }
 
 /**
  * Intent: when phrase `phraseNumber` (from 1) starts sounding: phrase 1 when the count-in ends,
- * each next one four measures later. Throws on a phrase number that is not a whole number from 1.
+ * each next one four measures later, at the tempo map's tempos, so it depends only on the tempos
+ * of the phrases before it. Throws on a phrase number that is not a whole number from 1.
  */
 // @spec-link [[req_session_backing_track]]
+// @spec-link [[service_workspace_session_flow]]
 export function phraseStartsAt(plan: ClickPlan, phraseNumber: number): AudioTime {
   return beatAt(plan, phraseFirstBeat(plan, phraseNumber))
 }
@@ -66,19 +71,37 @@ function placeNote(
 }
 
 /**
+ * Intent: throw unless the tempo is constant across the phrase starting on `firstBeat`: no tempo
+ * change of the plan falls after its first beat and before the next phrase's.
+ */
+// @spec-link [[service_workspace_session_flow]]
+function assertOneTempoAcross(plan: ClickPlan, phraseNumber: number, firstBeat: number): void {
+  const nextFirstBeat = firstBeat + PHRASE_MEASURE_COUNT * plan.beatsPerMeasure
+  const inside = plan.tempoChanges.find((c) => c.beat > firstBeat && c.beat < nextFirstBeat)
+  if (inside !== undefined) {
+    throw new Error(
+      `backing track: phrase ${phraseNumber}'s tempo changes inside it, at beat ${inside.beat}`,
+    )
+  }
+}
+
+/**
  * Intent: phrase `phraseNumber`'s rendered backing as notes on the audio clock, ordered by start
  * (the bass before the chord on a shared beat). Each start and end is the time of its session
- * beat, computed exactly as that beat's click. Throws on a phrase number that is not a whole
- * number from 1, or on a note that does not start and end on a whole beat.
+ * beat, computed exactly as that beat's click, so the notes start and last at the tempo in effect
+ * for the phrase. Throws on a phrase number that is not a whole number from 1, on a tempo change
+ * inside the phrase, or on a note that does not start and end on a whole beat.
  */
 // @spec-link [[req_session_backing_track]]
 // @spec-link [[rule_playhead_follows_audio_clock]]
+// @spec-link [[service_workspace_session_flow]]
 export function scheduleBacking(
   plan: ClickPlan,
   phraseNumber: number,
   backing: RenderedBacking,
 ): ScheduledBackingNote[] {
   const firstBeat = phraseFirstBeat(plan, phraseNumber)
+  assertOneTempoAcross(plan, phraseNumber, firstBeat)
   const notes = [
     ...backing.bass.map((note) => placeNote(plan, firstBeat, 'bass', note)),
     ...backing.chords.map((note) => placeNote(plan, firstBeat, 'chord', note)),

@@ -43,9 +43,9 @@ function tracker(
   correction: LatencyCorrection = NO_CORRECTION,
   withPhraseTwo = false,
 ): SessionAcknowledgement {
-  const acknowledgement = createSessionAcknowledgement({ tempo: TEMPO, correction })
-  acknowledgement.addPhrase(1, PHRASE_ONE, PHRASE_ONE_AT)
-  if (withPhraseTwo) acknowledgement.addPhrase(2, PHRASE_TWO, PHRASE_TWO_AT)
+  const acknowledgement = createSessionAcknowledgement({ correction })
+  acknowledgement.addPhrase(1, PHRASE_ONE, PHRASE_ONE_AT, TEMPO)
+  if (withPhraseTwo) acknowledgement.addPhrase(2, PHRASE_TWO, PHRASE_TWO_AT, TEMPO)
   return acknowledgement
 }
 
@@ -98,10 +98,7 @@ describe('session acknowledgement: matching', () => {
 
   // @test-link [[rule_no_grading_or_mismatch_signal]]
   it('returns nothing before any phrase is added', () => {
-    const acknowledgement = createSessionAcknowledgement({
-      tempo: TEMPO,
-      correction: NO_CORRECTION,
-    })
+    const acknowledgement = createSessionAcknowledgement({ correction: NO_CORRECTION })
     expect(play(acknowledgement, 60, 1)).toEqual([])
   })
 })
@@ -112,7 +109,7 @@ describe('session acknowledgement: windows over the session sequence', () => {
   it('matches nothing in phrase 2 until phrase 2 is added', () => {
     const acknowledgement = tracker()
     expect(play(acknowledgement, 67, 9)).toEqual([])
-    acknowledgement.addPhrase(2, PHRASE_TWO, PHRASE_TWO_AT)
+    acknowledgement.addPhrase(2, PHRASE_TWO, PHRASE_TWO_AT, TEMPO)
     expect(play(acknowledgement, 67, 9.01)).toEqual([id(2, 0, 0)])
   })
 
@@ -129,24 +126,26 @@ describe('session acknowledgement: windows over the session sequence', () => {
   it('keeps every acknowledgement when the windows are placed again', () => {
     const acknowledgement = tracker()
     play(acknowledgement, 60, 1)
-    acknowledgement.addPhrase(2, PHRASE_TWO, PHRASE_TWO_AT)
+    acknowledgement.addPhrase(2, PHRASE_TWO, PHRASE_TWO_AT, TEMPO)
     expect(acknowledgement.acknowledged()).toEqual([id(1, 0, 0)])
     expect(play(acknowledgement, 60, 1)).toEqual([])
   })
 
   // @test-link [[rule_expected_note_window]]
   it('throws on a phrase out of order, and keeps its state', () => {
-    const fresh = createSessionAcknowledgement({ tempo: TEMPO, correction: NO_CORRECTION })
-    expect(() => fresh.addPhrase(2, PHRASE_TWO, PHRASE_TWO_AT)).toThrow(SessionAcknowledgementError)
+    const fresh = createSessionAcknowledgement({ correction: NO_CORRECTION })
+    expect(() => fresh.addPhrase(2, PHRASE_TWO, PHRASE_TWO_AT, TEMPO)).toThrow(
+      SessionAcknowledgementError,
+    )
     const acknowledgement = tracker()
-    expect(() => acknowledgement.addPhrase(1, PHRASE_ONE, PHRASE_ONE_AT)).toThrow(
+    expect(() => acknowledgement.addPhrase(1, PHRASE_ONE, PHRASE_ONE_AT, TEMPO)).toThrow(
       SessionAcknowledgementError,
     )
-    expect(() => acknowledgement.addPhrase(3, PHRASE_TWO, PHRASE_TWO_AT)).toThrow(
+    expect(() => acknowledgement.addPhrase(3, PHRASE_TWO, PHRASE_TWO_AT, TEMPO)).toThrow(
       SessionAcknowledgementError,
     )
-    expect(() => acknowledgement.addPhrase(2, PHRASE_TWO, 8)).toThrow()
-    acknowledgement.addPhrase(2, PHRASE_TWO, PHRASE_TWO_AT)
+    expect(() => acknowledgement.addPhrase(2, PHRASE_TWO, 8, TEMPO)).toThrow()
+    acknowledgement.addPhrase(2, PHRASE_TWO, PHRASE_TWO_AT, TEMPO)
     expect(play(acknowledgement, 67, 9)).toEqual([id(2, 0, 0)])
   })
 })
@@ -156,8 +155,8 @@ const WHOLES = phraseFromBars(['w', 'w', 'w', 'w'], [60, 62, 64, 65])
 
 /** Intent: a tracker holding the whole-note phrase as phrase 1. */
 function wholesTracker(): SessionAcknowledgement {
-  const acknowledgement = createSessionAcknowledgement({ tempo: TEMPO, correction: NO_CORRECTION })
-  acknowledgement.addPhrase(1, WHOLES, PHRASE_ONE_AT)
+  const acknowledgement = createSessionAcknowledgement({ correction: NO_CORRECTION })
+  acknowledgement.addPhrase(1, WHOLES, PHRASE_ONE_AT, TEMPO)
   return acknowledgement
 }
 
@@ -237,15 +236,65 @@ describe('session acknowledgement: latency compensation', () => {
   })
 
   // @test-link [[rule_played_onset_latency_compensation]]
-  it('rejects a tempo or a correction no session can use', () => {
-    expect(() => createSessionAcknowledgement({ tempo: 0, correction: NO_CORRECTION })).toThrow(
-      SessionAcknowledgementError,
-    )
+  it('rejects a correction no session can use', () => {
     expect(() =>
       createSessionAcknowledgement({
-        tempo: TEMPO,
         correction: { outputLatencySeconds: -0.01, connectionLatencySeconds: 0 },
       }),
     ).toThrow(SessionAcknowledgementError)
+  })
+})
+
+/** At 90 BPM a quarter lasts 2/3 s, so phrase 1 from 1 s ends, and phrase 2 starts, at 1 + 32/3 s. */
+const SLOW_TEMPO = 90
+const RISEN_TEMPO = 95
+const RISEN_PHRASE_TWO_AT = PHRASE_ONE_AT + (16 * 60) / SLOW_TEMPO
+
+/** Intent: a tracker holding phrase 1 at 90 BPM and phrase 2 at 95 BPM, right after it. */
+function risenTracker(): SessionAcknowledgement {
+  const acknowledgement = createSessionAcknowledgement({ correction: NO_CORRECTION })
+  acknowledgement.addPhrase(1, PHRASE_ONE, PHRASE_ONE_AT, SLOW_TEMPO)
+  acknowledgement.addPhrase(2, PHRASE_TWO, RISEN_PHRASE_TWO_AT, RISEN_TEMPO)
+  return acknowledgement
+}
+
+// @test-link [[rule_expected_note_window]]
+// @test-link [[service_workspace_session_flow]]
+describe('session acknowledgement: each phrase at its own tempo', () => {
+  // @test-link [[rule_expected_note_window]]
+  // @test-link [[service_workspace_session_flow]]
+  it('places a phrase at 95 BPM after one at 90 BPM, each from its own first downbeat', () => {
+    const acknowledgement = risenTracker()
+    // Phrase 1's fourth quarter (F4) at 90 BPM: 1 + 3 * 2/3 = 3 s.
+    expect(play(acknowledgement, 65, PHRASE_ONE_AT + (3 * 60) / SLOW_TEMPO)).toEqual([id(1, 0, 3)])
+    // Phrase 2's ninth quarter (G4, measure 2) at 95 BPM, 0.14 s early. At 90 BPM it would sit
+    // 0.28 s later, so this onset would fall before its window.
+    const ninthAt95 = RISEN_PHRASE_TWO_AT + (8 * 60) / RISEN_TEMPO
+    expect(play(acknowledgement, 67, ninthAt95 - 0.14)).toEqual([id(2, 2, 0)])
+    // Its last quarter (A4) at 95 BPM.
+    expect(play(acknowledgement, 69, RISEN_PHRASE_TWO_AT + (15 * 60) / RISEN_TEMPO)).toEqual([
+      id(2, 3, 3),
+    ])
+  })
+
+  // @test-link [[rule_expected_note_window]]
+  it("bounds phrase 1's last note at 90 BPM by phrase 2's first at 95 BPM", () => {
+    // Phrase 1's last F4 starts at 1 + 15 * 2/3 = 11 s; phrase 2 starts at 11.667 s, so the
+    // shared boundary is 0.15 s earlier.
+    const boundary = RISEN_PHRASE_TWO_AT - 0.15
+    expect(play(risenTracker(), 65, boundary)).toEqual([id(1, 3, 3)])
+    expect(play(risenTracker(), 65, boundary + 0.01)).toEqual([])
+  })
+
+  // @test-link [[rule_expected_note_window]]
+  it('rejects a phrase tempo no session can use, and keeps its state', () => {
+    const acknowledgement = createSessionAcknowledgement({ correction: NO_CORRECTION })
+    for (const tempo of [0, -90, Number.NaN, Number.POSITIVE_INFINITY]) {
+      expect(() => acknowledgement.addPhrase(1, PHRASE_ONE, PHRASE_ONE_AT, tempo)).toThrow(
+        SessionAcknowledgementError,
+      )
+    }
+    acknowledgement.addPhrase(1, PHRASE_ONE, PHRASE_ONE_AT, SLOW_TEMPO)
+    expect(play(acknowledgement, 60, PHRASE_ONE_AT)).toEqual([id(1, 0, 0)])
   })
 })
