@@ -1,9 +1,9 @@
 /**
  * The session controller's running session, on the fake audio clock at 240 BPM from 5 s (phrase N
  * starts sounding at 6.1 + 4 (N - 1) s, and phrase N + 1's deadline is one measure earlier): each
- * phrase the engine readies gets its backing queued and starts sounding on time, a session with no
- * controller and no MIDI keeps running, the struggling notice follows the engine, and the same
- * seeds and script give the same session twice.
+ * phrase the engine readies gets its backing queued and starts sounding on time, the history keeps
+ * each phrase at its scheduled start, a session with no controller and no MIDI keeps running, the
+ * struggling notice follows the engine, and the same seeds and script give the same session twice.
  */
 import { describe, expect, it, vi } from 'vitest'
 
@@ -89,6 +89,36 @@ describe('session controller: phrases', () => {
     expect(repeat).toMatchObject({ phraseNumber: 2, origin: 'repeat', repeatOf: 1 })
     expect(queueBacking.mock.calls[1]).toEqual([2, rig.phraseOne.outcome.provenance.harmony.events])
     expect(soundingEvents(rig)).toEqual([2])
+  })
+})
+
+// @test-link [[rule_session_history_records_played_notes]]
+describe("session controller: the history's phrase starts", () => {
+  // @test-link [[rule_session_history_records_played_notes]]
+  it('records each phrase at its scheduled start when the engine time passed it before the wake-up', async () => {
+    const rig = controllerRig()
+    const transportStart = vi.spyOn(rig.transport, 'start')
+    // Off the wake-up grid by 10 ms, so every phrase starts between two wake-ups.
+    rig.audioRig.advanceTo(rig.audioRig.now() + 0.01)
+    // Created before the controller's own timer, it wakes first on every step: the runner reads
+    // its clock there, as when a generation or fit result resolves just before the wake-up.
+    const early = rig.audioRig.createExtraWakeTimer()
+    early.start(() => rig.runnerInputs[0]?.now())
+    rig.controller.start()
+    await playTo(rig, phraseStart(3) + 0.1)
+    const starts = [1, 2, 3].map((n) => rig.transport.phraseStartsAt(n))
+    const timeline = transportStart.mock.results[0]!.value
+    rig.controller.stop()
+    early.stop()
+
+    expect(starts[0]).toBe(timeline.countInEndsAt)
+    const engineAt = rig.events.flatMap((event) =>
+      event.kind === 'count-in-over' || event.kind === 'phrase-started-sounding' ? [event.at] : [],
+    )
+    expect(engineAt).toHaveLength(3)
+    engineAt.forEach((at, index) => expect(at).toBeGreaterThan(starts[index]!))
+    const recorded = rig.controller.state.lastHistory?.phrases().map((record) => record.startedAt)
+    expect(recorded).toEqual(starts)
   })
 })
 

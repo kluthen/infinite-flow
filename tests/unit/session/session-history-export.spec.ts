@@ -8,10 +8,12 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { encodeGeneratedNotesMidi } from '@/export/midi/midi-encoder'
 import type { GeneratedNotesMidiInput } from '@/export/midi/midi-export-input'
+import { encodePlayedNotesMidi } from '@/export/midi/played-notes-midi-encoder'
 import { encodeGeneratedNotesMusicXml } from '@/export/musicxml/musicxml-encoder'
 import type { GeneratedNotesMusicXmlInput } from '@/export/musicxml/musicxml-export-input'
 import { createSessionHistory, type SessionHistoryRecord } from '@/session/session-history'
@@ -19,7 +21,9 @@ import {
   SessionHistoryExportError,
   midiInputFromHistory,
   musicXmlInputFromHistory,
+  playedNotesMidiInputFromHistory,
 } from '@/session/session-history-export'
+import { notesOf, rawChunks, readSmf } from '../export/midi/smf-reader'
 import {
   idlePhraseOne,
   recordRunnerSession,
@@ -143,6 +147,94 @@ describe('the encoder inputs a history hands over', () => {
 
     expect(() => musicXmlInputFromHistory(mixed)).toThrow(SessionHistoryExportError)
     expect(() => midiInputFromHistory(mixed, null)).toThrow(SessionHistoryExportError)
+  })
+})
+
+/**
+ * Intent: the records of the three-phrase session (phrases at 1, 5 and 9 s, 4 s each) with five
+ * played notes: one in the count-in, one in each phrase (the last held past the end at 13 s), and
+ * one after the end, which the history gives the last phrase.
+ */
+function playedThreePhraseRecords(): readonly SessionHistoryRecord[] {
+  const driver = threePhraseSession()
+  const history = createSessionHistory(driver.settings, fixedWallClock)
+  const played: readonly (readonly [number, number, number, number])[] = [
+    [60, 40, 0.5, 0.75],
+    [62, 50, 1.25, 1.5],
+    [64, 60, 6, 7],
+    [65, 70, 12.5, 14],
+    [67, 80, 13.5, 13.75],
+  ]
+  for (const [pitch, velocity, onsetAt, releaseAt] of played)
+    history.recordPlayedNote({ pitch: makeConcertPitch(pitch), velocity, onsetAt, releaseAt })
+  for (const output of driver.log) history.record(output)
+  return history.phrases()
+}
+
+// @test-link [[service_session_history]]
+// @test-link [[req_played_notes_export]]
+// @test-link [[rule_session_history_records_played_notes]]
+describe('the played-notes input a history hands over', () => {
+  // @test-link [[service_session_history]]
+  // @test-link [[req_played_notes_export]]
+  // @test-link [[rule_session_history_records_played_notes]]
+  it("gives each phrase its record's number, tempo, start and played notes, and nothing else", () => {
+    const records = playedThreePhraseRecords()
+
+    const input = playedNotesMidiInputFromHistory(records)
+
+    expect(Object.keys(input)).toEqual(['phrases'])
+    expect(input.phrases).toHaveLength(3)
+    records.forEach((record, position) => {
+      const phrase = input.phrases[position]!
+      expect(Object.keys(phrase).sort()).toEqual(['number', 'playedNotes', 'startedAt', 'tempo'])
+      expect([phrase.number, phrase.tempo, phrase.startedAt]).toEqual([
+        record.phraseNumber,
+        240,
+        record.startedAt,
+      ])
+      expect(phrase.playedNotes).toEqual(record.playedNotes)
+      phrase.playedNotes.forEach((note) =>
+        expect(Object.keys(note).sort()).toEqual(['onsetAt', 'pitch', 'releaseAt', 'velocity']),
+      )
+    })
+    expect(input.phrases.map((phrase) => phrase.startedAt)).toEqual([1, 5, 9])
+    expect(input.phrases.map((phrase) => phrase.playedNotes.map((note) => note.pitch))).toEqual([
+      [62],
+      [64],
+      [65, 67],
+    ])
+  })
+
+  // @test-link [[service_session_history]]
+  // @test-link [[req_played_notes_export]]
+  it('refuses an empty history, which has nothing to export', () => {
+    expect(() => playedNotesMidiInputFromHistory([])).toThrow(SessionHistoryExportError)
+  })
+
+  // @test-link [[req_played_notes_export]]
+  // @test-link [[rule_played_notes_export_aligns_with_generated_midi]]
+  it("encodes to a file whose conductor track is the generated-notes file's, byte for byte", () => {
+    const records = playedThreePhraseRecords()
+
+    const played = encodePlayedNotesMidi(playedNotesMidiInputFromHistory(records))
+    const generated = encodeGeneratedNotesMidi(midiInputFromHistory(records, null))
+
+    expect(rawChunks(played).division).toBe(rawChunks(generated).division)
+    expect(rawChunks(played).tracks[0]).toEqual(rawChunks(generated).tracks[0])
+    // At 240 BPM one second is 3840 MIDI ticks; each phrase is 15360.
+    expect(
+      notesOf(readSmf(played).tracks[1]!).map((note) => [
+        note.pitch,
+        note.velocity,
+        note.startTick,
+        note.endTick,
+      ]),
+    ).toEqual([
+      [62, 50, 960, 1920],
+      [64, 60, 19200, 23040],
+      [65, 70, 44160, 46080],
+    ])
   })
 })
 

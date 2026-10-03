@@ -257,10 +257,28 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     )
   }
 
-  /** Intent: record one runner output in the history, then act on it. */
+  /**
+   * Intent: an output as the history keeps it: a phrase starting to sound is placed at its
+   * scheduled start on the transport, where the phrases sit exactly back to back, not at the
+   * engine's time, which the floor may have raised past it before the wake-up fired; every other
+   * output is kept as it is.
+   */
+  // @spec-link [[rule_session_history_records_played_notes]]
+  // @spec-link [[rule_played_notes_export_unquantized_timing]]
+  function historyOutput(output: SessionOutput): SessionOutput {
+    if (output.kind !== 'phrase-sounding') return output
+    return { ...output, at: audio.phraseStartsAt(output.phrase.phraseNumber) }
+  }
+
+  /**
+   * Intent: record one runner output in the history, a sounding phrase at its scheduled start,
+   * then act on it.
+   */
   // @spec-link [[rule_struggling_generator_notice]]
+  // @spec-link [[rule_session_history_records_played_notes]]
+  // @spec-link [[rule_played_notes_export_unquantized_timing]]
   function onOutput(session: ActiveSession, output: SessionOutput): void {
-    session.history.record(output)
+    session.history.record(historyOutput(output))
     if (output.kind === 'phrase-ready') onPhraseReady(session, output)
     else if (output.kind === 'struggling-notice') state.strugglingNotice = output.visible
     else if (output.kind === 'wake-at')

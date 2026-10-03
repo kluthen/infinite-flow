@@ -89,9 +89,9 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   [`docs/notation-engraving.md`](docs/notation-engraving.md)).
 - `src/export/` — pure, browser-free encoders that turn a session's phrases into the bytes of one
   export file; `musicxml/` holds the generated-notes MusicXML encoder, `midi/` the generated-notes
-  MIDI encoder; `generated-notes-file.ts` builds the one file the Review downloads (loaded on
-  demand through `load-generated-notes-export.ts`), and `browser-download.ts` hands it to the
-  browser. See [`docs/export.md`](docs/export.md).
+  and played-notes MIDI encoders; `generated-notes-file.ts` builds the one file the Review
+  downloads (loaded on demand through `load-generated-notes-export.ts`), and `browser-download.ts`
+  hands it to the browser. See [`docs/export.md`](docs/export.md).
 - `src/session/` — the session engine: pure, deterministic, Vue/browser-free logic that turns a
   running session's timed events (audio time in seconds, carried on each event, never read from a
   clock) into generation requests, fit checks, read-ahead phrases, the struggling notice and the
@@ -140,7 +140,7 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   scan them as if they were in `src/`.
 - `tests/fixtures/musicxml/` — the MusicXML export's golden files and the vendored MusicXML 4.0
   schema (with an XML catalog for offline validation); see [`docs/testing.md`](docs/testing.md).
-- `tests/fixtures/midi/` — the generated-notes MIDI export's golden files; see
+- `tests/fixtures/midi/` — the MIDI export's golden files, generated notes and played notes; see
   [`docs/testing.md`](docs/testing.md).
 - `tests/fixtures/export-hand-check/` — the generated-notes files of one seeded session, exactly as
   the app downloads them, for the owner's hand check in MuseScore and a MIDI tool; see

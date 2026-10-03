@@ -23,7 +23,9 @@ export const MIDI_TICKS_PER_QUARTER_NOTE = 960
 const QUARTER_NOTES_PER_WHOLE_NOTE = 4
 const MIDI_TICKS_PER_WHOLE_NOTE = MIDI_TICKS_PER_QUARTER_NOTE * QUARTER_NOTES_PER_WHOLE_NOTE
 const MEASURES_PER_PHRASE = 4
+const QUARTER_NOTES_PER_PHRASE = QUARTER_NOTES_PER_WHOLE_NOTE * MEASURES_PER_PHRASE
 const MICROSECONDS_PER_MINUTE = 60_000_000
+const SECONDS_PER_MINUTE = 60
 
 /** The length of one four-measure 4/4 phrase in MIDI ticks: 15360. */
 // @spec-link [[rule_generated_notes_midi_export]]
@@ -53,4 +55,24 @@ export function midiTicksOfWholeNotes(value: Rational): number {
 // @spec-link [[rule_generated_notes_midi_export]]
 export function microsecondsPerQuarterNote(bpm: number): number {
   return Math.round(MICROSECONDS_PER_MINUTE / bpm)
+}
+
+/**
+ * Intent: how long one four-measure 4/4 phrase lasts on the audio clock at a tempo in quarter
+ * notes per minute: 16 quarter notes, in seconds.
+ */
+// @spec-link [[rule_played_notes_export_unquantized_timing]]
+export function phraseSeconds(bpm: number): number {
+  return (QUARTER_NOTES_PER_PHRASE * SECONDS_PER_MINUTE) / bpm
+}
+
+/**
+ * Intent: a span of audio-clock seconds, played at a tempo in quarter notes per minute, as MIDI
+ * ticks, rounded to the nearest tick and nothing coarser: no grid, no snapping. At 960 ticks per
+ * quarter note the rounding moves a time by at most half a tick, under 1 ms at every tempo the
+ * export accepts.
+ */
+// @spec-link [[rule_played_notes_export_unquantized_timing]]
+export function midiTicksOfSeconds(seconds: number, bpm: number): number {
+  return Math.round(((seconds * bpm) / SECONDS_PER_MINUTE) * MIDI_TICKS_PER_QUARTER_NOTE)
 }

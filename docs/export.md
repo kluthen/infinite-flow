@@ -6,9 +6,11 @@ player's export action in the Review reaches a browser download, and the hand ch
 downloaded files. The encoders are pure functions from a session's phrases to the bytes of one
 file.
 
-Two encoders exist so far: generated notes as MusicXML, and generated notes as MIDI. The
-played-notes MIDI encoder will be added to this document when it is built; it reuses the MIDI
-time resolution and conductor track described below.
+Three encoders exist: generated notes as MusicXML, generated notes as MIDI, and played notes as
+MIDI. The played-notes encoder reuses the generated-notes MIDI file's time resolution and
+conductor track, so the two MIDI files of one session line up. The Review downloads only the
+generated-notes files so far; the played-notes file's name and export action come with chunk 23
+of the v2 build plan.
 
 ## Where the code lives
 
@@ -18,21 +20,24 @@ browser-free: no Vue, no DOM, no storage, no network. They read the domain model
 to it. `browser-download.ts` is the one file that touches the page, and only through the document
 it is given.
 
-| File                                           | What it holds                                                                                                                                                                                        |
-| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/export/musicxml/musicxml-export-input.ts` | The input types (`GeneratedNotesMusicXmlInput`, `MusicXmlSessionPhrase`), the typed `MusicXmlExportError`, and `validateMusicXmlExportInput`, the input check.                                       |
-| `src/export/musicxml/musicxml-encoder.ts`      | `encodeGeneratedNotesMusicXml`, the entry point: the score header, the part, and the measures of every phrase in session order.                                                                      |
-| `src/export/musicxml/musicxml-measure.ts`      | One written measure as MusicXML: notes, rests, ties, beams and chord symbols.                                                                                                                        |
-| `src/export/musicxml/musicxml-marks.ts`        | The opening attributes, a key change, the transposition, the rehearsal mark, the metronome mark, the double barline and the final barline.                                                           |
-| `src/export/musicxml/xml-text.ts`              | A small XML tree and its serializer: escaping, two-space indentation, a line feed after every line.                                                                                                  |
-| `src/export/midi/midi-export-input.ts`         | The input types (`GeneratedNotesMidiInput`, `MidiSessionPhrase`, `MidiBackingPhrase`, `MidiBackingNote`), the typed `MidiExportError`, and `validateMidiExportInput`, the input check.               |
-| `src/export/midi/midi-encoder.ts`              | `encodeGeneratedNotesMidi`, the entry point: the header and the two or three tracks.                                                                                                                 |
-| `src/export/midi/midi-tracks.ts`               | The conductor track (time signature, tempo map, phrase markers), the generated line read from the concert timelines, the backing, and note-track ordering.                                           |
-| `src/export/midi/midi-time.ts`                 | The fixed time resolution (`MIDI_TICKS_PER_QUARTER_NOTE`), the phrase length in MIDI ticks, exact whole-note to MIDI-tick conversion, and the tempo value.                                           |
-| `src/export/midi/smf-writer.ts`                | The Standard MIDI File byte layer: variable-length quantities, header and track chunks, note and meta events.                                                                                        |
-| `src/export/generated-notes-file.ts`           | `buildGeneratedNotesFile`: the one file the player asked for (bytes, file name, MIME type), built from the session history; `generatedNotesFileName`; `backingForExport`, the backing track's notes. |
-| `src/export/load-generated-notes-export.ts`    | `loadGeneratedNotesExport`, the lazy-loading boundary of `generated-notes-file.ts`, and its typed `GeneratedNotesExportLoadError`.                                                                   |
-| `src/export/browser-download.ts`               | `downloadFile`: one export file handed to the browser as a download, and its typed `BrowserDownloadError`.                                                                                           |
+| File                                           | What it holds                                                                                                                                                                                                                                                                                                                                                            |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/export/musicxml/musicxml-export-input.ts` | The input types (`GeneratedNotesMusicXmlInput`, `MusicXmlSessionPhrase`), the typed `MusicXmlExportError`, and `validateMusicXmlExportInput`, the input check.                                                                                                                                                                                                           |
+| `src/export/musicxml/musicxml-encoder.ts`      | `encodeGeneratedNotesMusicXml`, the entry point: the score header, the part, and the measures of every phrase in session order.                                                                                                                                                                                                                                          |
+| `src/export/musicxml/musicxml-measure.ts`      | One written measure as MusicXML: notes, rests, ties, beams and chord symbols.                                                                                                                                                                                                                                                                                            |
+| `src/export/musicxml/musicxml-marks.ts`        | The opening attributes, a key change, the transposition, the rehearsal mark, the metronome mark, the double barline and the final barline.                                                                                                                                                                                                                               |
+| `src/export/musicxml/xml-text.ts`              | A small XML tree and its serializer: escaping, two-space indentation, a line feed after every line.                                                                                                                                                                                                                                                                      |
+| `src/export/midi/midi-export-input.ts`         | The input types (`GeneratedNotesMidiInput`, `MidiSessionPhrase`, `MidiBackingPhrase`, `MidiBackingNote`), the typed `MidiExportError`, `validateMidiExportInput`, the input check, and the shared checks both MIDI inputs use (`assertExactKeys`, `assertNumberedInOrder`, `assertTempo`).                                                                               |
+| `src/export/midi/midi-encoder.ts`              | `encodeGeneratedNotesMidi`, the entry point: the header and the two or three tracks.                                                                                                                                                                                                                                                                                     |
+| `src/export/midi/midi-tracks.ts`               | The conductor track (time signature, tempo map, phrase markers) and its name `MIDI_FILE_NAME`, shared by both MIDI encoders; the generated line read from the concert timelines; the backing; and note tracks: `voicedNoteTrackEvents` (each note with its own channel and velocity, `VoicedNote`) and `noteTrackEvents` (one channel and velocity for all, through it). |
+| `src/export/midi/midi-time.ts`                 | The fixed time resolution (`MIDI_TICKS_PER_QUARTER_NOTE`), the phrase length in MIDI ticks and in seconds (`phraseSeconds`), exact whole-note to MIDI-tick conversion, seconds to the nearest MIDI tick (`midiTicksOfSeconds`), and the tempo value.                                                                                                                     |
+| `src/export/midi/played-notes-midi-input.ts`   | The played-notes input types (`PlayedNotesMidiInput`, `PlayedNotesMidiPhrase`, `MidiPlayedNote`) and `validatePlayedNotesMidiInput`, its input check.                                                                                                                                                                                                                    |
+| `src/export/midi/played-notes-placement.ts`    | `playedTrackNotes`: each played note's phrase, its MIDI ticks and its channel.                                                                                                                                                                                                                                                                                           |
+| `src/export/midi/played-notes-midi-encoder.ts` | `encodePlayedNotesMidi`, the entry point: the header, the conductor track and the played track.                                                                                                                                                                                                                                                                          |
+| `src/export/midi/smf-writer.ts`                | The Standard MIDI File byte layer: variable-length quantities, header and track chunks, note and meta events.                                                                                                                                                                                                                                                            |
+| `src/export/generated-notes-file.ts`           | `buildGeneratedNotesFile`: the one file the player asked for (bytes, file name, MIME type), built from the session history; `generatedNotesFileName`; `backingForExport`, the backing track's notes.                                                                                                                                                                     |
+| `src/export/load-generated-notes-export.ts`    | `loadGeneratedNotesExport`, the lazy-loading boundary of `generated-notes-file.ts`, and its typed `GeneratedNotesExportLoadError`.                                                                                                                                                                                                                                       |
+| `src/export/browser-download.ts`               | `downloadFile`: one export file handed to the browser as a download, and its typed `BrowserDownloadError`.                                                                                                                                                                                                                                                               |
 
 The Review's side of the export is in `src/components/workspace/review-export.ts` (see
 [From the Review to a download](#from-the-review-to-a-download)).
@@ -239,9 +244,9 @@ Most tempos have no exact value (70 BPM is 857,142.86 µs), so it is rounded to 
 microsecond. That moves a quarter note by under 0.5 µs, a whole phrase by under 8 µs, so within
 one phrase it is far below the 1 ms bound. Over a very long session the difference adds up
 (about 1 ms per 2000 quarter notes at worst), so a DAW's clock can drift that much from the app's
-audio clock. The played-notes file is to be built from
-the same tempo events and to place each note from its phrase's start, so the two files never
-drift apart from each other.
+audio clock. The played-notes file is built from the same tempo events and places each note from
+its phrase's start, so the two files never drift apart from each other (see
+[Played notes as MIDI](#played-notes-as-midi)).
 
 ### Choices, and why
 
@@ -249,9 +254,9 @@ drift apart from each other.
   engraving, only sounding notes, so the encoder reads the concert-pitch timeline the generator
   produced, the same notes the review engraves.
 - **A conductor track of its own.** The tempo map and markers sit on track 1, apart from any
-  notes, which is where DAWs look for them. The played-notes encoder, once built, makes the same track from
-  the same function, `conductorTrackEvents`, so the two files share their tempo map and markers
-  byte for byte.
+  notes, which is where DAWs look for them. The played-notes encoder makes the same track from the
+  same function, `conductorTrackEvents`, with the same name, `MIDI_FILE_NAME`, so the two files
+  share their tempo map and markers byte for byte.
 - **Backing notes as input, not harmony.** The encoder writes notes; the backing renderer decides
   them. Taking its output keeps one source for what the backing plays, so the file and the audio
   can't disagree.
@@ -260,6 +265,104 @@ drift apart from each other.
   General MIDI drum channel and is avoided.
 - **A hand-written byte writer, not a library.** The file is small and fixed in shape. About 150
   lines keep the bytes fully determined by the code and add no dependency to the bundle.
+
+## Played notes as MIDI
+
+### Input
+
+`encodePlayedNotesMidi(input)` takes `phrases`: every phrase that sounded, in session order. Each
+has exactly four fields:
+
+- `number`: its session phrase number;
+- `tempo`: its tempo in quarter notes per minute (BPM);
+- `startedAt`: the audio time, in seconds, it started sounding;
+- `playedNotes`: the notes the player played whose onsets fall in it. Each has exactly a `pitch`
+  (the [concert pitch](music/lexicon.md#concert-pitch) as received), a `velocity` (the original
+  note-on velocity), an `onsetAt` and a `releaseAt`, both audio times in seconds.
+
+`playedNotesMidiInputFromHistory(records)` in `src/session/session-history-export.ts` builds it
+from the session history (see
+[Handing a session to the encoders](session-engine.md#handing-a-session-to-the-encoders)). The
+history has already placed each played note in the phrase whose span holds its onset, left out
+the count-in and the starting note, and taken the latency correction off both times.
+
+There is no field for generated notes or the backing, and none can be added:
+`validatePlayedNotesMidiInput` rejects any extra or missing field on the input, on a phrase or on
+a played note. The check also rejects, each with a `MidiExportError`:
+
+- an empty session;
+- phrase numbers that don't run 1, 2, 3 … in order;
+- a tempo that isn't a whole number from 60 to 240 BPM;
+- a phrase start that isn't a finite time, or phrases that aren't back to back on the audio clock
+  within 1 ms: each phrase must start where the one before ends, 16 quarter notes at its tempo
+  later;
+- a pitch that isn't a whole number from 0 to 127, or a velocity that isn't one from 1 to 127;
+- a time that isn't finite, or a release before its onset;
+- an onset before its phrase's start, or at or after the next phrase's start (the last phrase may
+  hold any later onset, as the history gives it every later note);
+- a session in which nothing was played.
+
+### Output
+
+One Standard MIDI File, type 1, as a `Uint8Array`, with two tracks:
+
+- **Track 1, the conductor track**, exactly the generated-notes file's for the same phrase numbers
+  and tempos: the same name, "Infinite Flow", the 4/4 time signature, the tempo map and one
+  marker per phrase, ending where the last phrase ends (see
+  [Generated notes as MIDI](#generated-notes-as-midi)).
+- **Track 2, the played notes**, named "Played notes": every played note, at its concert pitch as
+  received and its original note-on velocity, on MIDI channel 1, or a later channel when the same
+  pitch is still sounding (see below). Every note-off has the neutral release velocity 64.
+- **Event order**, as in the generated-notes file: time order, every release before every attack
+  at the same MIDI tick; then by channel, then by pitch, lowest first.
+- **Nothing else.** No generated note, no backing, no program change, no controller. The file
+  holds no date or other varying value, so the same session always gives the same bytes.
+
+### Time
+
+Every played note is placed from its own phrase's start, never from the session's:
+
+- **Membership on the audio clock.** A note belongs to the phrase its onset falls in, decided in
+  seconds, not in MIDI ticks. Any other phrase keeps every onset before the next phrase's start,
+  even one in the up-to-1 ms gap after its own end. Only the last phrase is cut at its own end (16
+  quarter notes after its start): a note with an onset at or after it is left out of the file.
+- **The onset.** Its time since its phrase's start, converted to MIDI ticks at that phrase's tempo
+  (`midiTicksOfSeconds`) and rounded to the nearest tick, with no other quantization. Rounding moves
+  it by at most half a tick: about 0.52 ms at 60 BPM, less at any faster tempo (see
+  [Time resolution and the 1 ms bound](#time-resolution-and-the-1-ms-bound)).
+- **The release** is converted the same way, in the phrase that holds the release time, which may
+  be a later phrase at another tempo. A release after the last phrase's end stops at the file's
+  end, so a note still held when the session ended stops there.
+- **At least one tick.** A note released at its onset, or rounded to no length, lasts one MIDI
+  tick, so it still sounds.
+- **The end.** The conductor track ends where the last phrase ends. The played track ends there
+  too, or one tick later when a note played just before the end rounds onto it and gets its one
+  tick.
+
+### Choices, and why
+
+- **One conductor track for both files.** Both encoders build track 1 with `conductorTrackEvents`
+  and the same name, `MIDI_FILE_NAME`, so the tempo map, the markers and the end are byte for byte
+  identical, and the two files line up phrase by phrase when imported together into a DAW.
+- **Phrases must be back to back within 1 ms.** Every note is placed from its phrase's recorded
+  start. A session whose phrases don't follow each other exactly on the audio clock can't be
+  placed on the file's grid without moving notes, so it is refused rather than repaired.
+- **Each phrase's own tempo.** Converting each time at the tempo of the phrase that holds it keeps
+  notes in place across a tempo change, as the file's tempo map plays it.
+- **Another channel for an overlapping attack of one pitch.** One MIDI channel can't sound the same
+  pitch twice at once, and the generated-notes file refuses such backing notes, but a played note
+  is not the app's to refuse. Each note goes on the lowest channel where its pitch is not still
+  sounding (a note may start exactly where another ends), so both attacks survive. Channel 10, the
+  General MIDI drum channel, is skipped; more than fifteen notes of one pitch at once is a
+  `MidiExportError`.
+- **A session with no played note gives no file.** The encoder refuses it with a
+  `MidiExportError`. Chunk 23, which adds the Review's played-notes action, makes it unavailable
+  for such a session.
+- **The history records each phrase at its scheduled start.** The session controller records a
+  sounding phrase at the transport's scheduled start, `audio.phraseStartsAt(n)`, not at the
+  engine's time, which the engine time floor can raise past it (see
+  [The history](session-engine.md#the-history)). A late recorded start would shift every note of
+  the phrase and break the 1 ms contiguity check.
 
 ## Verifying the MIDI
 
@@ -274,14 +377,35 @@ The unit specs are in `tests/unit/export/midi/`:
 - `midi-export-input.spec.ts` checks the input contract: no field for played notes, in the type
   and at run time, and every rejection listed above.
 - `midi-time.spec.ts` checks the resolution, the 1 ms bound, exact conversion and the tempo value.
-- `midi-golden.spec.ts` compares the encoder's output, byte for byte, with two golden files: the
-  same three-phrase session with a tempo change and a tie across a barline, with the backing off
-  and on.
+- `midi-golden.spec.ts` compares each encoder's output, byte for byte, with golden files: for the
+  generated notes, the same three-phrase session with a tempo change and a tie across a barline,
+  with the backing off and on; for the played notes, the reference played session on the same
+  phrases and tempos, also read back to its tempo map, markers and notes worked out by hand.
+- `played-notes-midi-input.spec.ts` checks the played-notes input contract: no field for the
+  backing or a generated note, in the type and at run time, and every rejection listed above.
+- `played-notes-midi-encoder.spec.ts` checks which notes the file holds (pitch and velocity as
+  played, an onset at the last phrase's end left out), how long they last (a note held at the end,
+  a zero-length note, a release across a tempo change), the channels, and the same bytes for the
+  same session.
+- `played-notes-midi-timing.spec.ts` is a seeded property test: 500 random sessions of two to
+  four phrases, with random tempos (at least one change) and random onsets and releases, from a
+  fixed-seed generator (mulberry32), so every run checks the same cases. Each file is read back
+  and every onset converted to seconds from its phrase's marker through the file's own tempo map,
+  independently of the encoder's arithmetic. No onset may be more than 1 ms from where it was
+  played.
+- `played-notes-midi-alignment.spec.ts` encodes the same session as both files and compares their
+  division and whole conductor track byte for byte, over several tempo maps, the slowest and
+  fastest tempos included.
+- `tests/unit/session/session-history-export.spec.ts` checks `playedNotesMidiInputFromHistory`,
+  and that a recorded session's two MIDI files share their conductor track.
 - `smf-reader.ts` is the Standard MIDI File reader these specs use. It is written for the tests
   and shares no code with the encoder; `smf-reader.spec.ts` checks it on a file assembled by hand.
+  Its `rawChunks` splits a file into its raw chunks for the byte-for-byte track comparison.
 
 [`docs/testing.md`](testing.md) lists the fixtures. Opening the files in a real MIDI tool, with the
-correct tempo map, is done by hand: see [Hand check](#hand-check).
+correct tempo map, is done by hand: see [Hand check](#hand-check). The hand check of a downloaded
+played-notes file, lined up with its generated-notes file in a DAW, belongs to chunk 23, which
+adds its download, and to the v2.1 release gate.
 
 ## From the Review to a download
 
@@ -335,8 +459,9 @@ field for them, so no played note reaches either file.
   (`generatedNotesFileName`), from the session's start in the player's local time: the history's
   `startedAt`, the wall clock read once when the Start click or the starting note started the
   session, never the time of the export. For example, a session started at 14:30:05 on
-  2 October 2026 exports `infinite-flow-2026-10-02-143005-generated.mid`. The played-notes file of
-  v2.1 is to take the same stem with `-played.mid`, so a session's files sort together.
+  2 October 2026 exports `infinite-flow-2026-10-02-143005-generated.mid`. The played-notes file,
+  whose download chunk 23 adds, is to take the same stem with `-played.mid`, so a session's files
+  sort together.
 - **The same bytes every time.** The same history and request always give the same bytes:
   neither encoder writes a date or any other varying value, and the name comes from the recorded
   start. Exporting twice downloads two identical files (the browser may add a number to the

@@ -203,3 +203,27 @@ export function notesOf(track: readonly SmfEvent[]): SmfNote[] {
   if (sounding.size > 0) throw new Error('SMF: a note is still sounding at the end of the track.')
   return notes.sort((a, b) => a.startTick - b.startTick || a.pitch - b.pitch)
 }
+
+/** A file's raw chunks: the header's division and each track chunk's whole bytes. */
+interface RawChunks {
+  readonly division: number
+  readonly tracks: readonly Uint8Array[]
+}
+
+/**
+ * Intent: split a Standard MIDI File into its raw chunks without interpreting any event, so two
+ * files' chunks can be compared byte for byte.
+ */
+// @test-link [[rule_played_notes_export_aligns_with_generated_midi]]
+export function rawChunks(bytes: Uint8Array): RawChunks {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  const division = view.getUint16(12)
+  const tracks: Uint8Array[] = []
+  let position = 14
+  while (position < bytes.length) {
+    const length = view.getUint32(position + 4)
+    tracks.push(bytes.slice(position, position + 8 + length))
+    position += 8 + length
+  }
+  return { division, tracks }
+}

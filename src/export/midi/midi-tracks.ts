@@ -35,7 +35,23 @@ export interface SoundingNote {
   readonly endTick: number
 }
 
+/** A sounding note with its own zero-based MIDI channel and note-on velocity. */
+// @spec-link [[req_played_notes_export]]
+export interface VoicedNote extends SoundingNote {
+  readonly channel: number
+  readonly velocity: number
+}
+
+/**
+ * The name the conductor track of every MIDI file of a session carries, so the files of one
+ * session share their first track byte for byte.
+ */
+// @spec-link [[rule_played_notes_export_aligns_with_generated_midi]]
+export const MIDI_FILE_NAME = 'Infinite Flow'
+
 /** Intent: the MIDI tick at which a phrase starts: phrase 1 at zero, phrases back to back. */
+// @spec-link [[rule_generated_notes_midi_export]]
+// @spec-link [[rule_played_notes_export_aligns_with_generated_midi]]
 export function phraseStartTick(phraseNumber: number): number {
   return (phraseNumber - 1) * MIDI_TICKS_PER_PHRASE
 }
@@ -43,11 +59,12 @@ export function phraseStartTick(phraseNumber: number): number {
 /**
  * Intent: the conductor track's events: the file's name and the 4/4 time signature at time zero,
  * then, at each phrase's start, a tempo event when the tempo is the first or differs from the
- * phrase before, and a marker "Phrase n". The played-notes file of the same session will be built
- * from the same events, so the two files share their tempo map and markers exactly.
+ * phrase before, and a marker "Phrase n". The played-notes file of the same session is built from
+ * the same events, so the two files share their tempo map and markers exactly.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
 // @spec-link [[req_session_export]]
+// @spec-link [[rule_played_notes_export_aligns_with_generated_midi]]
 export function conductorTrackEvents(
   phrases: readonly ConductorPhrase[],
   fileName: string,
@@ -119,9 +136,42 @@ export function backingNotes(phrase: MidiBackingPhrase): SoundingNote[] {
 
 /**
  * Intent: a note track's events: its name at time zero, then every note's note-on and note-off in
- * time order. At the same tick every release comes before every attack, so a pitch that ends one
- * note and starts the next is released before it sounds again; ties among releases or among
- * attacks go by pitch, lowest first, so the same notes always give the same bytes.
+ * time order, each on its own channel and the note-on at its own velocity. At the same tick every
+ * release comes before every attack, so a pitch that ends one note and starts the next is released
+ * before it sounds again; ties among releases or among attacks go by channel, then by pitch, lowest
+ * first, so the same notes always give the same bytes.
+ */
+// @spec-link [[req_played_notes_export]]
+// @spec-link [[rule_generated_notes_midi_export]]
+export function voicedNoteTrackEvents(
+  name: string,
+  notes: readonly VoicedNote[],
+): TimedMidiEvent[] {
+  const changes = notes.flatMap((note) => [
+    { tick: note.startTick, release: false, note },
+    { tick: note.endTick, release: true, note },
+  ])
+  changes.sort(
+    (a, b) =>
+      a.tick - b.tick ||
+      Number(b.release) - Number(a.release) ||
+      a.note.channel - b.note.channel ||
+      a.note.pitch - b.note.pitch,
+  )
+  return [
+    { tick: 0, bytes: trackNameEvent(name) },
+    ...changes.map(({ tick, release, note }) => ({
+      tick,
+      bytes: release
+        ? noteOffEvent(note.channel, note.pitch)
+        : noteOnEvent(note.channel, note.pitch, note.velocity),
+    })),
+  ]
+}
+
+/**
+ * Intent: a note track whose notes all share one channel and one velocity, as the generated line
+ * and the backing are written: the same events as voicedNoteTrackEvents gives those notes.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
 export function noteTrackEvents(
@@ -130,20 +180,8 @@ export function noteTrackEvents(
   channel: number,
   velocity: number,
 ): TimedMidiEvent[] {
-  const changes = notes.flatMap((note) => [
-    { tick: note.startTick, release: false, pitch: note.pitch },
-    { tick: note.endTick, release: true, pitch: note.pitch },
-  ])
-  changes.sort(
-    (a, b) => a.tick - b.tick || Number(b.release) - Number(a.release) || a.pitch - b.pitch,
+  return voicedNoteTrackEvents(
+    name,
+    notes.map((note) => ({ ...note, channel, velocity })),
   )
-  return [
-    { tick: 0, bytes: trackNameEvent(name) },
-    ...changes.map((change) => ({
-      tick: change.tick,
-      bytes: change.release
-        ? noteOffEvent(channel, change.pitch)
-        : noteOnEvent(channel, change.pitch, velocity),
-    })),
-  ]
 }

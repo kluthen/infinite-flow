@@ -12,13 +12,13 @@ import {
   backingNotes,
   conductorTrackEvents,
   generatedLineNotes,
+  MIDI_FILE_NAME,
   noteTrackEvents,
   phraseStartTick,
 } from './midi-tracks'
 import { MIDI_TICKS_PER_QUARTER_NOTE } from './midi-time'
 import { trackChunk, typeOneHeaderChunk } from './smf-writer'
 
-const FILE_NAME = 'Infinite Flow'
 const GENERATED_TRACK_NAME = 'Generated notes'
 const BACKING_TRACK_NAME = 'Backing'
 
@@ -44,7 +44,7 @@ export function encodeGeneratedNotesMidi(input: GeneratedNotesMidiInput): Uint8A
   validateMidiExportInput(input)
   const endTick = phraseStartTick(input.phrases.length + 1)
   const tracks = [
-    conductorTrackEvents(input.phrases, FILE_NAME),
+    conductorTrackEvents(input.phrases, MIDI_FILE_NAME),
     noteTrackEvents(
       GENERATED_TRACK_NAME,
       input.phrases.flatMap((phrase) => generatedLineNotes(phrase.timeline, phrase.number)),
