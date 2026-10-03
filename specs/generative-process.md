@@ -458,7 +458,7 @@ endpoint validation by returning a trivially "solved" empty plan.
   Node across every supported setting. Bounded-prefix ranking and precomputed domains remain
   unexplored options; neither is needed for the current budget.
 - **Resolved: six note-density/silence-density/syncopation/tension-arc combinations used to have
-  no legal pitch plan in the workspace's fixed default pitch context** (C Major, Gentle diatonic,
+  no legal pitch plan in the workspace's fixed reference pitch context** (C Major, Gentle diatonic,
   Middle register, B-flat tenor, Arch, Shaped, Predictable, tempo 90): Eighth/Breath-heavy/
   Straight/Edge; Eighth/Breath-heavy/Occasional offbeats/Build and /Edge; Eighth/Breath-heavy/
   Active displacement/Build and /Edge; Mixed/Breath-heavy/Active displacement/Edge. The cause was

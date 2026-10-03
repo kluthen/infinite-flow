@@ -182,6 +182,11 @@ Status: draft v0.29
   preflight. Master spec §7 now says what the owner decided on 2026-09-29 and the encoder does:
   every phrase but the last ends with a double barline, the last with a final barline. No new
   rule; nothing newly opened. The v2 master spec is now v1.25.
+- **Livelier defaults (2026-10-03, D172, owner)**: the Neutral preset's harmonic motion is now
+  `Gentle diatonic` instead of `Static`, and the first-load arpeggio chaos is `Varied` instead of
+  `Predictable`, because the default phrase had collapsed to about two repeated pitches. Arpeggio
+  chaos stays out of the presets, Jazz is unchanged, and no control value changes what it does.
+  Nothing newly opened.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.

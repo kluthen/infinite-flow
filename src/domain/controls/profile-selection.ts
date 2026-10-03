@@ -49,7 +49,7 @@ export const MUSICAL_PROFILE_CAPABILITIES: Readonly<
 export const PROFILE_BUNDLES: Readonly<Record<MusicalProfile, ProfileControlledValues>> =
   deepFreeze({
     Neutral: {
-      harmonicMotion: 'Static',
+      harmonicMotion: 'Gentle diatonic',
       noteDensity: 'Quarter',
       rhythmicVariety: 'Slightly varied',
       syncopation: 'Straight',
@@ -80,7 +80,7 @@ export function applyMusicalProfile(
   ])
 }
 
-/** First-load defaults: Neutral bundle plus C Ionian, 90 BPM, Lift, Shaped, B-flat tenor, Predictable. */
+/** First-load defaults: Neutral bundle plus C Ionian, 90 BPM, Lift, Shaped, B-flat tenor, Varied. */
 // @spec-link [[module_generation_control_catalog]]
 export const DEFAULT_GENERATION_CONTROLS: GenerationControls = makeGenerationControls({
   tempo: 90,
@@ -88,7 +88,7 @@ export const DEFAULT_GENERATION_CONTROLS: GenerationControls = makeGenerationCon
   collection: 'Ionian',
   tension: 'Lift',
   leapiness: 'Shaped',
-  arpeggioChaos: 'Predictable',
+  arpeggioChaos: 'Varied',
   instrumentProfileId: 'bb-tenor',
   ...PROFILE_BUNDLES.Neutral,
 })

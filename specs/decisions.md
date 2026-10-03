@@ -799,3 +799,15 @@ fact in the live documents (see the [archive index](archive/README.md) and
   and the encoder already say so, but master spec §7 still read "a rehearsal mark and a double
   barline" for each phrase. §7 now states both barlines. Master spec §7. Master spec v1.24 →
   **v1.25**.
+- **D172 (2026-10-03): Neutral moves its harmony gently and first load varies its arpeggios.**
+  The product owner's decision. The Neutral preset's harmonic motion changes from `Static` to
+  `Gentle diatonic`, and the first-load arpeggio chaos from `Predictable` to `Varied`. Arpeggio
+  chaos stays out of every preset bundle; Jazz is unchanged; what each control value does is
+  unchanged, only the values Neutral and first load pick. Why: with `Static` (one tonic chord for
+  all four bars) and `Predictable` (the nearest chord tone wins, so repeating the same note ranks
+  first), the default phrase collapsed to about two repeated pitches. Phrase replay keys carry
+  every control explicitly, so old keys replay unchanged. First-release master spec (header and
+  musical profile preset), generator contract and architecture, generative process (the fixed
+  reference pitch context is no longer called the default), phrase-workspace handoff and doc,
+  lexicon, and the atoms `rule_profile_presets_apply_defined_controls` and
+  `module_generation_control_catalog`.

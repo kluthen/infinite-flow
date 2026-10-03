@@ -130,9 +130,9 @@ test('a regenerate-branch profile switch that itself fails to generate replaces 
 }) => {
   await gotoWorkspaceHarness(page)
   await radio(page, 'Register', 'Low').click()
-  // seed 9 yields a pitch of 48, below E-flat alto saxophone's active-range floor of 51 -- the same
-  // fixture profile-switch.spec.ts uses to force the regenerate branch. The second seed is drawn as
-  // the profile switch's fresh seed but is never actually consumed by a generation, since that
+  // seed 9 generates a phrase under the defaults plus Register Low. Its pitches do not matter here:
+  // a profile switch always regenerates while a phrase is shown. The second seed is drawn as the
+  // profile switch's fresh seed but is never actually consumed by a generation, since that
   // generation is itself forced to fail below.
   await queueSeeds(page, [9, 12345])
   await generateAndAwaitReady(page)

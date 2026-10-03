@@ -13,7 +13,9 @@ import { gotoWorkspaceHarness, harnessSnapshot, queueSeeds } from './harness-hel
 // The two documented seeds below were chosen empirically against the default controls (C Ionian,
 // Neutral preset, B-flat tenor, Register Middle): both are cheap enough to generate well within
 // the poll timeout, and 4243's timeline was confirmed (by a throwaway harness probe during this
-// spec's authoring) to differ from 4242's rather than coincidentally match it.
+// spec's authoring) to differ from 4242's rather than coincidentally match it. Both facts were
+// re-confirmed after D172 changed the defaults to Gentle diatonic harmonic motion and Varied
+// arpeggio chaos.
 const REPRODUCIBLE_SEED = 4242
 const DIFFERENT_SEED = 4243
 

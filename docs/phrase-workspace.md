@@ -503,7 +503,7 @@ to one on a cold memo.
   is supported, so assistive technology reliably hears the transition in and out of the blocked
   state rather than missing an element that was never mounted.
 * **Presets never land on them.** Neutral and Jazz are frozen replacement bundles
-  (`Static/Quarter/Straight/Sparse/Arch/Middle` and
+  (`Gentle diatonic/Quarter/Straight/Sparse/Arch/Middle` and
   `Gentle diatonic/Eighth/Occasional offbeats/Conversational/Wandering/Varying` respectively); by
   construction neither preset's density/silence/syncopation triple is in
   `UNSUPPORTED_RHYTHM_SETTINGS`.

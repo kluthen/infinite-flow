@@ -99,6 +99,11 @@ test('the empty workspace shows the spec-default control summary and empty-state
     'aria-checked',
     'true',
   )
+  await expect(radio(page, 'Harmonic motion', 'Gentle diatonic')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await expect(radio(page, 'Arpeggio chaos', 'Varied')).toHaveAttribute('aria-checked', 'true')
 })
 
 for (const groupLabel of RADIOGROUP_LABELS) {
@@ -152,10 +157,14 @@ test('the Neutral preset sets its seven controlled values', async ({ page }) => 
   await gotoWorkspace(page)
 
   await radio(page, 'Musical profile preset', 'Jazz').click()
+  await radio(page, 'Harmonic motion', 'Active diatonic').click()
   await radio(page, 'Rhythmic variety', 'Heavily varied').click()
   await radio(page, 'Musical profile preset', 'Neutral').click()
 
-  await expect(radio(page, 'Harmonic motion', 'Static')).toHaveAttribute('aria-checked', 'true')
+  await expect(radio(page, 'Harmonic motion', 'Gentle diatonic')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
   await expect(radio(page, 'Note density', 'Quarter notes')).toHaveAttribute('aria-checked', 'true')
   await expect(radio(page, 'Rhythmic variety', 'Slightly varied')).toHaveAttribute(
     'aria-checked',
@@ -172,6 +181,7 @@ test('the Neutral preset sets its seven controlled values', async ({ page }) => 
 test('the Jazz preset sets its seven controlled values', async ({ page }) => {
   await gotoWorkspace(page)
 
+  await radio(page, 'Harmonic motion', 'Active diatonic').click()
   await radio(page, 'Rhythmic variety', 'Strict').click()
   await radio(page, 'Musical profile preset', 'Jazz').click()
 

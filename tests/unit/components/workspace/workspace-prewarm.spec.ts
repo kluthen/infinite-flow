@@ -215,7 +215,7 @@ describe('workspace prewarm: policy and triggers', () => {
     actions.setControl('tonalCenter', 'F')
     actions.setControl('tempo', 140)
     actions.setControl('contour', 'Wandering')
-    actions.setControl('harmonicMotion', 'Gentle diatonic')
+    actions.setControl('harmonicMotion', 'Active diatonic')
     actions.setControl('noteDensity', 'Quarter')
 
     expect(prewarms).toHaveLength(1)
