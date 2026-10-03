@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
 import { makeSeed } from '@/domain/random/seed'
-import { STREAM_LABELS, STREAM_REGISTRY_VERSION, deriveNamedStream } from '@/domain/random/streams'
+import {
+  INDEXED_STREAM_LABELS,
+  INDEXED_STREAM_REGISTRY_VERSION,
+  IndexedStreamError,
+  STREAM_LABELS,
+  STREAM_REGISTRY_VERSION,
+  deriveIndexedStream,
+  deriveNamedStream,
+} from '@/domain/random/streams'
 
 // @test-link [[module_named_stream_pseudorandomness]]
 describe('STREAM_LABELS registry', () => {
@@ -96,5 +104,49 @@ describe('stream isolation', () => {
     const firstValueOfThirdDerivation = thirdDerivation.next()
 
     expect(firstValueOfSecondDerivation).toBe(firstValueOfThirdDerivation)
+  })
+})
+
+// @test-link [[module_named_stream_pseudorandomness]]
+// @test-link [[module_settings_mutation]]
+describe('deriveIndexedStream', () => {
+  const draw = (seed: number, label: (typeof INDEXED_STREAM_LABELS)[number], index: number) => {
+    const stream = deriveIndexedStream(makeSeed(seed), label, index)
+    return Array.from({ length: 6 }, () => stream.next())
+  }
+
+  it('is a closed, versioned registry holding the settings-mutation streams', () => {
+    expect(INDEXED_STREAM_LABELS).toStrictEqual(['settings-mutation', 'settings-mutation-gap'])
+    expect(INDEXED_STREAM_REGISTRY_VERSION).toBe(1)
+  })
+
+  it('reproduces the same sequence for the same seed, label and index', () => {
+    expect(draw(0xdeadbeef, 'settings-mutation', 3)).toStrictEqual(
+      draw(0xdeadbeef, 'settings-mutation', 3),
+    )
+  })
+
+  it('gives distinct sequences for distinct indexes, labels and seeds', () => {
+    const reference = draw(42, 'settings-mutation', 1)
+    expect(draw(42, 'settings-mutation', 2)).not.toStrictEqual(reference)
+    expect(draw(42, 'settings-mutation-gap', 1)).not.toStrictEqual(reference)
+    expect(draw(43, 'settings-mutation', 1)).not.toStrictEqual(reference)
+  })
+
+  it('never shifts the named streams under the same seed', () => {
+    const seed = makeSeed(0x1234)
+    const reference = deriveNamedStream(seed, 'harmony').next()
+    const indexed = deriveIndexedStream(seed, 'settings-mutation', 1)
+    for (let i = 0; i < 50; i += 1) indexed.next()
+    expect(deriveNamedStream(seed, 'harmony').next()).toBe(reference)
+  })
+
+  it('rejects an index that is negative or not an integer', () => {
+    expect(() => deriveIndexedStream(makeSeed(1), 'settings-mutation', -1)).toThrow(
+      IndexedStreamError,
+    )
+    expect(() => deriveIndexedStream(makeSeed(1), 'settings-mutation', 1.5)).toThrow(
+      IndexedStreamError,
+    )
   })
 })

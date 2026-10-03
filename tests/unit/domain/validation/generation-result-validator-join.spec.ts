@@ -58,7 +58,7 @@ function windowMidis(carryIn: CarryIn, keep: (pitchClass: number) => boolean): r
 
 /** Intent: the carried-chord tones inside the carried window, lowest first. */
 function chordTones(carryIn: CarryIn): readonly number[] {
-  const chord = carryIn.finalHarmony.triad.pitchClasses as readonly number[]
+  const chord = carryIn.finalHarmony!.triad.pitchClasses as readonly number[]
   return windowMidis(carryIn, (pc) => chord.includes(pc))
 }
 
@@ -145,7 +145,7 @@ describe('whole-result validation of a debt carried across the join', () => {
 
   it('reports a tense carried note the first note does not resolve', () => {
     const { donor, first, validateWith } = scenario('Shaped')
-    const chord = donor.finalHarmony.triad.pitchClasses as readonly number[]
+    const chord = donor.finalHarmony!.triad.pitchClasses as readonly number[]
     const tonic = windowMidis(donor, (pc) => C_MAJOR_TONIC_TRIAD.includes(pc))
     const tense = windowMidis(donor, (pc) => C_MAJOR.includes(pc) && !chord.includes(pc)).filter(
       (midi) =>
@@ -166,5 +166,29 @@ describe('whole-result validation of a debt carried across the join', () => {
       validateWith(carryIn, { registerWindow: makeRegisterWindow(48, 60) }),
     )
     expect(failures.map((failure) => failure.code)).toContain('carry_in_register_window_mismatch')
+  })
+})
+
+// @test-link [[rule_key_change_drops_harmonic_carry_in]]
+describe('whole-result validation of a join whose carry-in dropped its harmony', () => {
+  it('owes no resolution for a pitch off the old chord once the harmony is dropped', () => {
+    const { donor, first, validateWith } = scenario('Shaped')
+    const chord = donor.finalHarmony!.triad.pitchClasses as readonly number[]
+    const tonic = windowMidis(donor, (pc) => C_MAJOR_TONIC_TRIAD.includes(pc))
+    const tense = windowMidis(donor, (pc) => C_MAJOR.includes(pc) && !chord.includes(pc)).filter(
+      (midi) =>
+        Math.abs(midi - first) >= 3 &&
+        tonic.some((to) => Math.abs(to - midi) >= 1 && Math.abs(to - midi) <= 2),
+    )
+    expect(tense.length).toBeGreaterThan(0)
+    const carried = reshaped(donor, tense[0]!, { arrivingInterval: 2 })
+    expect(failuresOf(validateWith(carried))).toContainEqual({
+      code: 'pitch_rule_violation',
+      detail: 'carried_tension_unresolved@0',
+    })
+    const verdict = validateWith(makeCarryIn({ ...carried, finalHarmony: null }))
+    const failures = verdict.kind === 'invalid_generation_result' ? verdict.failures : []
+    expect(failures.map((failure) => failure.detail)).not.toContain('carried_tension_unresolved@0')
+    expect(failures.map((failure) => failure.code)).not.toContain('harmony_join_invalid')
   })
 })

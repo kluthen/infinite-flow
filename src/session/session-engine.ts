@@ -2,8 +2,10 @@
  * The session engine: a pure, deterministic state machine that decides what a running session
  * requests, shows and ends, from timed events alone. It keeps immutable state in a closure, never
  * reads a clock (every event carries its audio time) and touches no browser API: its only seams
- * are the identity and seed providers and the window-width reading. The same event list always
- * gives the same outputs.
+ * are the identity and seed providers, the window-width reading and the display reading. The
+ * settings in effect start as the chosen ones and change only at phrase boundaries, through its
+ * own seeded mutations or a settings change event. The same start and event list always give the
+ * same outputs.
  */
 
 import { deepFreeze } from '../domain/events/deep-freeze'
@@ -11,15 +13,33 @@ import type { GenerationOutcome } from '../domain/generation/orchestration/orche
 import {
   LADDER,
   acceptedPhrase,
+  carryInAfter,
   currentAttempt,
   nextRung,
   openLookAhead,
   repeatedPhrase,
   type Attempt,
   type LadderRung,
-  type LookAhead,
 } from './failure-ladder'
-import { buildAttemptIntent, freezeSessionSettings, type IntentSeams } from './session-intents'
+import { buildAttemptIntent, freezeSessionSettings, resolvedRegister } from './session-intents'
+import {
+  decidedOf,
+  lookAheadOf,
+  undecide,
+  type EngineContext,
+  type EngineState,
+  type Step,
+} from './session-engine-state'
+import { landingMutation } from './session-mutation-step'
+import {
+  attemptPlan,
+  automaticChange,
+  changedSettings,
+  discardsPendingPhrase,
+  lookAheadBasis,
+  registerCandidates,
+  reopenedLookAhead,
+} from './session-settings-change'
 import { deadlineReached, nextPhraseDeadline, phraseTwoDeadline } from './session-timing'
 import {
   SessionEngineError,
@@ -29,6 +49,7 @@ import {
   type SessionEvent,
   type SessionOutput,
   type SessionPhrase,
+  type SessionSettings,
   type SessionStart,
 } from './session-types'
 import {
@@ -36,62 +57,25 @@ import {
   noticeAtEnd,
   noticeOnDecision,
   noticeOnSounding,
-  type StrugglingNotice,
 } from './struggling-notice'
-
-/** Everything fixed for the whole session: the seams, the frozen settings and phrase 1. */
-interface EngineContext extends IntentSeams {
-  readonly phraseOne: SessionPhrase
-}
-
-/**
- * The engine's state between events. `lastDecided` is the latest decided phrase (phrase 1 at
- * start); `lookAhead` is the phrase after it while undecided; `soundedCount` is how many phrases
- * have started sounding.
- */
-interface EngineState {
-  readonly phase: 'count-in' | 'running' | 'ended'
-  readonly lastAt: AudioTime
-  readonly soundedCount: number
-  readonly lastDecided: SessionPhrase
-  readonly lookAhead: LookAhead | undefined
-  readonly steppedDown: boolean
-  readonly notice: StrugglingNotice
-  readonly nextAttemptId: number
-}
-
-/** A new state and the outputs that produced it. */
-interface Step {
-  readonly state: EngineState
-  readonly outputs: readonly SessionOutput[]
-}
 
 /** Intent: refuse a time that is not a finite number of seconds. */
 function assertAudioTime(at: AudioTime): void {
   if (!Number.isFinite(at)) throw new SessionEngineError(`Audio time must be finite, got ${at}.`)
 }
 
-/** Intent: the look-ahead of a state, which the caller has established exists. */
-function lookAheadOf(state: EngineState): LookAhead {
-  if (state.lookAhead === undefined)
-    throw new SessionEngineError('No phrase is being looked ahead.')
-  return state.lookAhead
-}
-
 /**
- * Intent: request one rung for the look-ahead phrase: build its intent now (the window read now,
- * the step-down memory updated), give it the next attempt id, and make it the attempt in flight.
+ * Intent: request one rung for the look-ahead phrase: build its intent now from the look-ahead's
+ * basis (the window read now, the step-down memory updated), give it the next attempt id, and make
+ * it the attempt in flight.
  */
 function requestRung(context: EngineContext, state: EngineState, rung: LadderRung): Step {
   const lookAhead = lookAheadOf(state)
-  const plan = {
-    step: rung.step,
-    carryIn: lookAhead.carryIn,
-    candidates: lookAhead.previous.intent.registerIntent.candidates,
-  }
-  const { intent, steppedDown } = buildAttemptIntent(context, plan, state.steppedDown)
+  const { settings, source } = lookAhead.basis
+  const plan = attemptPlan(rung, source, registerCandidates(lookAhead.previous))
+  const { intent, steppedDown } = buildAttemptIntent(context, settings, plan, state.steppedDown)
   const attemptId = state.nextAttemptId
-  const attempt: Attempt = { attemptId, rung, intent, stage: 'generating' }
+  const attempt: Attempt = { attemptId, rung, step: plan.step, intent, stage: 'generating' }
   return {
     state: {
       ...state,
@@ -104,7 +88,7 @@ function requestRung(context: EngineContext, state: EngineState, rung: LadderRun
         kind: 'request-generation',
         attemptId,
         phraseNumber: lookAhead.phraseNumber,
-        step: rung.step,
+        step: plan.step,
         retry: rung.retry,
         intent,
         deadline: lookAhead.deadline,
@@ -113,23 +97,59 @@ function requestRung(context: EngineContext, state: EngineState, rung: LadderRun
   }
 }
 
-/** Intent: open the look-ahead for the phrase after the latest decided one and request it. */
+/**
+ * Intent: open the look-ahead for the phrase after the latest decided one and request it. A
+ * mutation scheduled on that phrase is decided first, from the window read now, the step-down
+ * memory and the register whose window the carry-in holds, and is in effect for its request.
+ */
 function requestNextPhrase(context: EngineContext, state: EngineState, deadline: AudioTime): Step {
   if (state.lookAhead !== undefined)
     throw new SessionEngineError('A phrase is requested while another is still undecided.')
-  const opened = { ...state, lookAhead: openLookAhead(state.lastDecided, deadline) }
-  const requested = requestRung(context, opened, LADDER[0]!)
+  const previous = state.lastDecided
+  const carryIn = carryInAfter(previous)
+  const landing = landingMutation(
+    context.mutation,
+    previous.phraseNumber + 1,
+    state.settings,
+    () => ({
+      belowTabletLandscape: context.viewport.isBelowTabletLandscape(),
+      sessionSteppedDown: state.steppedDown,
+      resolvedRegister: resolvedRegister(carryIn, registerCandidates(previous)),
+    }),
+  )
+  const settings = landing?.settings ?? state.settings
+  const basis = lookAheadBasis(previous, state.lastDecidedSettings, settings, carryIn)
+  const lookAhead = openLookAhead(previous, carryIn, basis, deadline)
+  const requested = requestRung(context, { ...state, settings, lookAhead }, LADDER[0]!)
   return {
     state: requested.state,
-    outputs: [...requested.outputs, { kind: 'wake-at', at: deadline }],
+    outputs: [
+      ...(landing === undefined ? [] : [landing.output]),
+      ...requested.outputs,
+      { kind: 'wake-at', at: deadline },
+    ],
   }
 }
 
-/** Intent: decide the look-ahead phrase: it is the next one to show, and the notice learns of it. */
+/**
+ * Intent: decide the look-ahead phrase: it is the next one to show, generated under its basis's
+ * settings (a repeat under those of the phrase it repeats), and the notice learns of it. Its
+ * look-ahead and the notice before are kept until it sounds, for a settings change to discard it.
+ */
 function decide(state: EngineState, phrase: SessionPhrase): Step {
+  const lookAhead = lookAheadOf(state)
   const { notice, outputs } = noticeOnDecision(state.notice, phrase.origin)
+  const lastDecidedSettings =
+    phrase.origin === 'repeat' ? state.lastDecidedSettings : lookAhead.basis.settings
   return {
-    state: { ...state, lookAhead: undefined, lastDecided: phrase, notice },
+    state: {
+      ...state,
+      lookAhead: undefined,
+      decided: { lookAhead: { ...lookAhead, attempt: undefined }, notice: state.notice },
+      lastDecided: phrase,
+      lastDecidedSettings,
+      notice,
+    },
     outputs: [{ kind: 'phrase-ready', phrase }, ...outputs],
   }
 }
@@ -245,12 +265,46 @@ function onPhraseStartedSounding(
   assertNextToSound(state, phraseNumber)
   const phrase = state.lastDecided
   const cleared = noticeOnSounding(state.notice, phrase.origin)
-  const sounded = { ...state, soundedCount: phraseNumber, notice: cleared.notice }
-  const deadline = nextPhraseDeadline(at, context.settings.controls.tempo)
+  const sounded = {
+    ...state,
+    soundedCount: phraseNumber,
+    notice: cleared.notice,
+    decided: undefined,
+  }
+  const deadline = nextPhraseDeadline(at, state.settings.controls.tempo)
   const requested = requestNextPhrase(context, sounded, deadline)
   return {
     state: requested.state,
     outputs: [{ kind: 'phrase-sounding', at, phrase }, ...cleared.outputs, ...requested.outputs],
+  }
+}
+
+/**
+ * Intent: put a settings change in effect at `at`. The pending phrase (the undecided look-ahead,
+ * or the decided phrase not yet sounding) is discarded when at least a measure remains before its
+ * deadline and none of it is on screen: a decided one is undecided again, and either way it is
+ * requested again from the first rung with the new settings, same phrase before and deadline, its
+ * attempt in flight superseded. Otherwise the change applies from the phrase after it.
+ */
+function onSettingsChange(
+  context: EngineContext,
+  state: EngineState,
+  at: AudioTime,
+  next: SessionSettings,
+): Step {
+  const settings = changedSettings(state.settings, next)
+  const pending = state.lookAhead ?? decidedOf(state).lookAhead
+  const { phraseNumber } = pending
+  if (!discardsPendingPhrase(at, pending, settings.controls.tempo, context.display))
+    return { state: { ...state, settings }, outputs: [automaticChange(phraseNumber + 1, settings)] }
+  const undecided = state.lookAhead === undefined ? undecide(state) : state
+  const lookAhead = reopenedLookAhead(pending, settings)
+  const requested = requestRung(context, { ...undecided, settings, lookAhead }, LADDER[0]!)
+  const discarded: readonly SessionOutput[] =
+    state.lookAhead === undefined ? [{ kind: 'phrase-discarded', phraseNumber }] : []
+  return {
+    state: requested.state,
+    outputs: [...discarded, automaticChange(phraseNumber, settings), ...requested.outputs],
   }
 }
 
@@ -297,6 +351,8 @@ function dispatch(context: EngineContext, state: EngineState, event: SessionEven
       return onGenerationCrashed(context, state, event.attemptId)
     case 'fit-result':
       return onFitResult(context, state, event.attemptId, event.fits)
+    case 'settings-change':
+      return onSettingsChange(context, state, event.at, event.settings)
     case 'tick':
       return { state, outputs: [] }
     case 'end':
@@ -321,12 +377,16 @@ function handleEvent(context: EngineContext, state: EngineState, event: SessionE
 }
 
 /**
- * Intent: start a session from its start time, chosen settings and phrase 1 (the Idle phrase):
- * freeze the settings, keep phrase 1 as the `idle` record, and request phrase 2 at once with its
- * deadline at the end of the count-in. Returns the start outputs and the handler of every later
- * event; every output is deep-frozen, and attempt ids increase from 1.
+ * Intent: start a session from its start time, chosen settings, phrase 1 (the Idle phrase) and
+ * mutation flag: freeze the settings as the settings in effect, keep phrase 1 as the `idle`
+ * record, and request phrase 2 at once with its deadline at the end of the count-in. Returns the
+ * start outputs and the handler of every later event; every output is deep-frozen, and attempt
+ * ids increase from 1.
  */
 // @spec-link [[service_session_engine]]
+// @spec-link [[req_settings_mutation_flag]]
+// @spec-link [[rule_mutation_lands_on_scheduled_phrase]]
+// @spec-link [[rule_session_change_applies_at_phrase_boundary]]
 // @spec-link [[req_rolling_practice_session]]
 // @spec-link [[rule_session_never_pauses]]
 // @spec-link [[rule_phrase_one_is_idle_phrase]]
@@ -345,14 +405,18 @@ export function createSessionEngine(
     intent: start.phraseOne.intent,
     outcome: start.phraseOne.outcome,
   })
-  const { providers, viewport } = deps
-  const context: EngineContext = { providers, viewport, settings, phraseOne }
+  const { providers, viewport, display } = deps
+  const mutation = deepFreeze({ ...start.mutation })
+  const context: EngineContext = { providers, viewport, display, mutation, phraseOne }
   const initial: EngineState = {
     phase: 'count-in',
     lastAt: start.at,
     soundedCount: 0,
+    settings,
     lastDecided: phraseOne,
+    lastDecidedSettings: settings,
     lookAhead: undefined,
+    decided: undefined,
     steppedDown: false,
     notice: NOTICE_AT_START,
     nextAttemptId: 1,

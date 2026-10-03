@@ -13,6 +13,7 @@ import type {
   GenerationIntentProviders,
 } from '../domain/generation/generation-intent'
 import type { GenerationOutcome } from '../domain/generation/orchestration/orchestration-types'
+import type { MutableSetting, SettingsMutationFlag } from './settings-mutation'
 
 /** Seconds on the audio clock. */
 // @spec-link [[service_session_engine]]
@@ -45,8 +46,9 @@ export type SessionPhraseOrigin = 'idle' | 'carry-in' | 'standalone' | 'repeat'
 export type SuccessfulOutcome = Extract<GenerationOutcome, { kind: 'generation_success' }>
 
 /**
- * The settings the player chose when the session started, locked for its whole length. The
- * controls are the chosen ones, with the written tonal center and the chosen note density.
+ * Session settings: those the player chose when the session started, which the player cannot edit
+ * during it, or those an automatic source put in effect at a phrase boundary since. The controls
+ * hold the written tonal center and the chosen note density.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_session_settings_locked]]
@@ -70,19 +72,26 @@ export interface SessionPhrase {
   readonly repeatOf?: number
 }
 
-/** What a session starts from: the moment the count-in starts, the chosen settings and phrase 1. */
+/**
+ * What a session starts from: the moment the count-in starts, the chosen settings, phrase 1 and
+ * the settings-mutation flag, with the mutation seed the caller drew and stores, so the session
+ * replays from its start and its event list alone.
+ */
 // @spec-link [[service_session_engine]]
+// @spec-link [[req_settings_mutation_flag]]
 export interface SessionStart {
   readonly at: AudioTime
   readonly settings: SessionSettings
   readonly phraseOne: { readonly intent: GenerationIntent; readonly outcome: SuccessfulOutcome }
+  readonly mutation: SettingsMutationFlag
 }
 
 /**
  * A timed event of a running session. `count-in-over` is the moment phrase 1 starts sounding;
  * `phrase-started-sounding` is sent for phrase 2 onward; `generation-crashed` is a rejected
  * generate request (a worker crash on that request, or a dead worker), which counts as a failed
- * attempt; `tick` lets the engine see a deadline pass.
+ * attempt; `settings-change` gives the complete settings in effect from then on, from an automatic
+ * source other than the engine's own mutations; `tick` lets the engine see a deadline pass.
  */
 // @spec-link [[service_session_engine]]
 export type SessionEvent =
@@ -105,6 +114,7 @@ export type SessionEvent =
       readonly attemptId: number
       readonly fits: boolean
     }
+  | { readonly kind: 'settings-change'; readonly at: AudioTime; readonly settings: SessionSettings }
   | { readonly kind: 'tick'; readonly at: AudioTime }
   | { readonly kind: 'end'; readonly at: AudioTime; readonly cause: SessionEndCause }
 
@@ -113,7 +123,8 @@ export type SessionEvent =
  * the phrase before this one: 0 for the first carry-in attempt, 1 to 3 for the carry-in retries
  * and 4 for the standalone retry. `check-fit` carries the checked attempt's own intent, which can
  * differ between attempts for the same phrase. `phrase-ready` is the phrase to show next as
- * read-ahead, repeats included.
+ * read-ahead, repeats included. `settings-changed` names the first phrase new settings apply to,
+ * and `phrase-discarded` a look-ahead phrase dropped to be requested again with new settings.
  */
 // @spec-link [[service_session_engine]]
 export type SessionOutput =
@@ -144,12 +155,49 @@ export type SessionOutput =
       readonly phase: 'count-in' | 'running'
       readonly soundedPhraseCount: number
     }
+  | SettingsChangedOutput
+  | { readonly kind: 'phrase-discarded'; readonly phraseNumber: number }
 
-/** The engine's injected seams: request identities and seeds, and the window-width reading. */
+/**
+ * New settings in effect from a phrase on: from the engine's own mutation, which names the one
+ * setting it stepped and the values it stepped from and to, or from an automatic settings change.
+ */
+// @spec-link [[service_session_engine]]
+// @spec-link [[rule_session_change_applies_at_phrase_boundary]]
+// @spec-link [[rule_mutation_lands_on_scheduled_phrase]]
+export type SettingsChangedOutput =
+  | {
+      readonly kind: 'settings-changed'
+      readonly phraseNumber: number
+      readonly settings: SessionSettings
+      readonly cause: 'mutation'
+      readonly setting: MutableSetting
+      readonly from: string
+      readonly to: string
+    }
+  | {
+      readonly kind: 'settings-changed'
+      readonly phraseNumber: number
+      readonly settings: SessionSettings
+      readonly cause: 'automatic'
+    }
+
+/** Whether any of a session phrase is drawn on screen, as read-ahead or sounding. */
+// @spec-link [[service_session_engine]]
+// @spec-link [[rule_session_change_applies_at_phrase_boundary]]
+export interface SessionDisplayReading {
+  isPhraseOnScreen(phraseNumber: number): boolean
+}
+
+/**
+ * The engine's injected seams: request identities and seeds, the window-width reading and the
+ * display reading.
+ */
 // @spec-link [[service_session_engine]]
 export interface SessionEngineDependencies {
   readonly providers: GenerationIntentProviders
   readonly viewport: Pick<ViewportWidthProvider, 'isBelowTabletLandscape'>
+  readonly display: SessionDisplayReading
 }
 
 /** A started session: the outputs of its start, and the handler of every later event. */

@@ -289,7 +289,12 @@ A key is the prefix `ifk1.` followed by the unpadded base64url encoding of the U
 - `phraseNumber` is replay context, not a generation input: 1 for a workspace phrase, the session
   phrase number for a session phrase. It only serves to derive the phrase's carry-out. With a
   carry-in it must equal the carry-in's own phrase number plus one.
-- `carryIn` is the phrase's carry-in, or `null`.
+- `carryIn` is the phrase's carry-in, or `null`. Its `finalHarmony` is the carried chord, or an
+  explicit `null` when a settings change dropped the harmonic part: a key or collection change,
+  or a chord the new harmony settings never end a phrase on (see
+  [The carry-in after a change](session-engine.md#the-carry-in-after-a-change)). A carry-in
+  without the field is refused. The format stays `ifk1.`: a key encoded before chunk 24, which
+  always holds a chord, still decodes to the same intent.
 
 The key stores only owning inputs: the instrument profile, register intent, concert tonal center,
 measure count and meter are rebuilt from them. It holds no played notes and nothing beyond the

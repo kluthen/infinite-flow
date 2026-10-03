@@ -32,7 +32,7 @@ function realCarryIn(): { carryIn: CarryIn; outcome: SuccessOutcome } {
  * a scale tone of C major but not a tone of the carried chord: a tense note.
  */
 function tenseNeighbour(carryIn: CarryIn): number {
-  const chord = carryIn.finalHarmony.triad.pitchClasses as readonly number[]
+  const chord = carryIn.finalHarmony!.triad.pitchClasses as readonly number[]
   const cMajor = [0, 2, 4, 5, 7, 9, 11]
   const midi = carryIn.lastPitch.midi
   const tense = [midi + 1, midi - 1, midi + 2, midi - 2].find(
@@ -63,10 +63,10 @@ describe('carry-in value', () => {
       'registerWindow',
     ])
     expect(Object.keys(carryIn.lastPitch).sort()).toEqual(['arrivingInterval', 'midi', 'recovery'])
-    expect(Object.keys(carryIn.finalHarmony).sort()).toEqual(['endpoint', 'role', 'triad'])
+    expect(Object.keys(carryIn.finalHarmony!).sort()).toEqual(['endpoint', 'role', 'triad'])
     expect(Object.isFrozen(carryIn)).toBe(true)
     expect(Object.isFrozen(carryIn.lastPitch)).toBe(true)
-    expect(Object.isFrozen(carryIn.finalHarmony.triad)).toBe(true)
+    expect(Object.isFrozen(carryIn.finalHarmony!.triad)).toBe(true)
   })
 
   it('refuses a pitch outside the carried register window', () => {
@@ -112,7 +112,7 @@ describe('carry-in value', () => {
 
   it('refuses a carried chord whose pitch classes do not form a diatonic triad shape', () => {
     const { carryIn } = realCarryIn()
-    const triad = { ...carryIn.finalHarmony.triad, pitchClasses: [0, 4, 13] }
+    const triad = { ...carryIn.finalHarmony!.triad, pitchClasses: [0, 4, 13] }
     expect(() =>
       makeCarryIn({
         ...carryIn,
@@ -218,7 +218,7 @@ describe('a carry-in checked against the intent that receives it', () => {
 
   it('refuses a tense carried pitch outside the receiving collection', () => {
     const { carryIn } = realCarryIn()
-    const chord = carryIn.finalHarmony.triad.pitchClasses as readonly number[]
+    const chord = carryIn.finalHarmony!.triad.pitchClasses as readonly number[]
     const midi = carryIn.lastPitch.midi
     const chromatic = [midi + 1, midi - 1].find(
       (candidate) =>

@@ -2,9 +2,11 @@
  * The carry-in: the only data one session phrase hands forward to the phrase generated after it.
  * Exactly four items cross a join: the last sounding concert pitch with its leap state, the
  * resolved register window, the final harmony event (chord and role) with its endpoint class, and
- * the phrase's ordinal in the session. Tempo, seeds, settings and every other fact of the phrase
- * stay behind. A carry-in is always constructed valid and deep-frozen, and an untrusted wire value
- * is parsed through the same constructor, rejecting any missing, extra or malformed field.
+ * the phrase's ordinal in the session. After a mid-session key or collection change the harmonic
+ * part is dropped: `finalHarmony` is then an explicit null, never a missing field. Tempo, seeds,
+ * settings and every other fact of the phrase stay behind. A carry-in is always constructed valid
+ * and deep-frozen, and an untrusted wire value is parsed through the same constructor, rejecting
+ * any missing, extra or malformed field.
  */
 
 import { makeConcertPitch, type ConcertPitch } from '../../events/concert-pitch'
@@ -45,10 +47,12 @@ export interface CarriedPitch {
 /** The four items that cross a join, and nothing else. */
 // @spec-link [[rule_join_carry_in_limited]]
 // @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 export interface CarryIn {
   readonly lastPitch: CarriedPitch
   readonly registerWindow: RegisterWindow
-  readonly finalHarmony: CarriedHarmony
+  /** The carried chord; null when a key or collection change dropped the harmonic part. */
+  readonly finalHarmony: CarriedHarmony | null
   /** Ordinal of the phrase that just ended, counted from 1 in its session. */
   readonly phraseNumber: number
 }
@@ -88,6 +92,30 @@ const ENDPOINT_KINDS: readonly HarmonyEndpoint['kind'][] = [
 /** Intent: the pitch class of a MIDI value. */
 function pitchClassOf(midi: number): number {
   return ((midi % 12) + 12) % 12
+}
+
+/**
+ * Intent: true when the carried pitch is a tone of the carried chord. With the harmonic part
+ * dropped there is no carried chord, so the pitch is a tone of none.
+ */
+// @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[rule_key_change_drops_harmonic_carry_in]]
+export function carriedPitchOnCarriedChord(
+  carryIn: Pick<CarryIn, 'lastPitch' | 'finalHarmony'>,
+): boolean {
+  if (carryIn.finalHarmony === null) return false
+  const pitchClasses = carryIn.finalHarmony.triad.pitchClasses as readonly number[]
+  return pitchClasses.includes(pitchClassOf(carryIn.lastPitch.midi))
+}
+
+/**
+ * Intent: true when the carried pitch is a tense note the next phrase must resolve: a pitch off
+ * the carried chord. With the harmonic part dropped nothing is tense, so no resolution is owed.
+ */
+// @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[rule_key_change_drops_harmonic_carry_in]]
+export function carriedPitchIsTense(carryIn: Pick<CarryIn, 'lastPitch' | 'finalHarmony'>): boolean {
+  return carryIn.finalHarmony !== null && !carriedPitchOnCarriedChord(carryIn)
 }
 
 /** Intent: validate the arriving interval and the recovery it may still owe. */
@@ -139,11 +167,13 @@ function assertCarriedHarmony(harmony: CarriedHarmony): void {
 
 /**
  * Intent: build one immutable carry-in from its four items, refusing a pitch outside the carried
- * window, an inconsistent leap state, a malformed chord, or an ordinal that is not a positive
- * whole number. A carried pitch off the carried chord is a tense note and must have been reached
- * by a step.
+ * window, an inconsistent leap state, a malformed chord, a harmony that is neither a chord nor an
+ * explicit null, or an ordinal that is not a positive whole number. A carried pitch off the
+ * carried chord is a tense note and must have been reached by a step; without a carried chord
+ * there is no tense note, and only the leap-recovery state is checked.
  */
 // @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 export function makeCarryIn(input: CarryIn): CarryIn {
   try {
     return buildCarryIn(input)
@@ -160,16 +190,16 @@ function buildCarryIn(input: CarryIn): CarryIn {
     throw new CarryInError(
       `The carried pitch ${midi} lies outside the carried window ${input.registerWindow.minMidi}-${input.registerWindow.maxMidi}.`,
     )
-  assertCarriedHarmony(input.finalHarmony)
-  const tense = !(input.finalHarmony.triad.pitchClasses as readonly number[]).includes(
-    pitchClassOf(midi),
-  )
-  assertLeapState(input.lastPitch, tense)
+  if (input.finalHarmony === undefined)
+    throw new CarryInError(
+      'The carried harmony is missing: give the carried chord, or null when it was dropped.',
+    )
+  if (input.finalHarmony !== null) assertCarriedHarmony(input.finalHarmony)
+  assertLeapState(input.lastPitch, carriedPitchIsTense(input))
   if (!Number.isInteger(input.phraseNumber) || input.phraseNumber < 1)
     throw new CarryInError(
       `The phrase number must be a positive whole number, got ${input.phraseNumber}.`,
     )
-  const { triad, role, endpoint } = input.finalHarmony
   return deepFreeze({
     lastPitch: {
       midi,
@@ -180,17 +210,23 @@ function buildCarryIn(input: CarryIn): CarryIn {
           : { kind: 'settled' as const },
     },
     registerWindow: makeRegisterWindow(input.registerWindow.minMidi, input.registerWindow.maxMidi),
-    finalHarmony: {
-      triad: {
-        degree: triad.degree,
-        pitchClasses: [...triad.pitchClasses] as unknown as DiatonicTriad['pitchClasses'],
-        quality: triad.quality,
-      },
-      role,
-      endpoint: { kind: endpoint.kind, degree: endpoint.degree },
-    },
+    finalHarmony: input.finalHarmony === null ? null : copyCarriedHarmony(input.finalHarmony),
     phraseNumber: input.phraseNumber,
   })
+}
+
+/** Intent: a plain copy of a validated carried harmony, ready to be frozen with its carry-in. */
+function copyCarriedHarmony(harmony: CarriedHarmony): CarriedHarmony {
+  const { triad, role, endpoint } = harmony
+  return {
+    triad: {
+      degree: triad.degree,
+      pitchClasses: [...triad.pitchClasses] as unknown as DiatonicTriad['pitchClasses'],
+      quality: triad.quality,
+    },
+    role,
+    endpoint: { kind: endpoint.kind, degree: endpoint.degree },
+  }
 }
 
 /** Intent: narrow an untrusted value to a plain record holding exactly the expected keys. */
@@ -278,10 +314,12 @@ function parseCarriedWindow(input: unknown): RegisterWindow {
 /**
  * Intent: parse an untrusted wire value (a structured clone, which drops freezing) into a
  * carry-in, rejecting any missing or extra field at every level, then re-validating it through
- * `makeCarryIn`. Never fills in a default.
+ * `makeCarryIn`. The harmony is a carried chord or an explicit null; a missing or undefined one
+ * is refused. Never fills in a default.
  */
 // @spec-link [[entity_phrase_carry_in]]
 // @spec-link [[module_generation_worker_protocol]]
+// @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 export function parseCarryIn(input: unknown): CarryIn {
   const record = exactRecord(
     input,
@@ -293,7 +331,7 @@ export function parseCarryIn(input: unknown): CarryIn {
   return makeCarryIn({
     lastPitch: parseCarriedPitch(record.lastPitch),
     registerWindow: parseCarriedWindow(record.registerWindow),
-    finalHarmony: parseCarriedHarmony(record.finalHarmony),
+    finalHarmony: record.finalHarmony === null ? null : parseCarriedHarmony(record.finalHarmony),
     phraseNumber: record.phraseNumber,
   })
 }

@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.30
+Status: draft v0.31
 
 ## Status Snapshot
 
@@ -210,6 +210,16 @@ Status: draft v0.30
   and its toggle starts off (D178). **O99:** adaptive tempo pauses while the controller is away,
   O99's alternative, and starts off (D179). The v2 master spec is now v1.26, and the build plan
   v0.4.
+- **Settings-mutation scales (2026-10-03, D181)**, the owner's acceptance of chunk 24's proposal.
+  One grade per setting: ordered settings step along their catalog order without wrapping; the
+  key steps one place around the circle of fifths, wrapping; a collection steps within Major ↔
+  Minor or within the modes by brightness, never across; any other contour is one step; register
+  steps Low, Middle, High, never onto Varying; the musical profile flips Neutral ↔ Jazz as an
+  identity change only. A mutated profile-controlled value marks the profile customized, a harmony
+  change drops harmonic carry-in that no longer fits, and `Sixteenth` stays unavailable once the
+  session has stepped down. The 250 ms cold latency target is a goal, not a gate: the look-ahead
+  deadline is, and a mutation has 3 measures before it; real hardware re-measures in v2.4 (D180).
+  Master spec v1.27. Nothing newly opened.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.

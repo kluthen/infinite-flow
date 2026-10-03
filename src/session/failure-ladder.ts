@@ -2,13 +2,15 @@
  * The failure ladder of one look-ahead phrase, as immutable values: the rungs an attempt climbs
  * (a first carry-in attempt, three carry-in retries, one standalone retry), the one attempt in
  * flight, and the phrase record the ladder ends with: the accepted phrase, or a repeat of the
- * phrase before when no valid phrase exists at the deadline.
+ * phrase before when no valid phrase exists at the deadline. A phrase whose carry-in a settings
+ * change left unusable climbs the same rungs, every attempt standalone.
  */
 
 import { deriveCarryIn } from '../domain/generation/carry-in/carry-in-derivation'
 import type { CarryIn } from '../domain/generation/carry-in/carry-in'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
-import type { AudioTime, SessionPhrase, SuccessfulOutcome } from './session-types'
+import type { CarryInAdaptation } from './carry-in-adaptation'
+import type { AudioTime, SessionPhrase, SessionSettings, SuccessfulOutcome } from './session-types'
 
 /** One rung of the ladder: its step and how many attempts for the phrase came before it. */
 // @spec-link [[rule_session_generation_failure_ladder]]
@@ -37,21 +39,38 @@ export type Attempt =
   | {
       readonly attemptId: number
       readonly rung: LadderRung
+      /** The step actually taken: the rung's, or standalone for every rung of a standalone phrase. */
+      readonly step: 'carry-in' | 'standalone'
       readonly intent: GenerationIntent
       readonly stage: 'generating'
     }
   | {
       readonly attemptId: number
       readonly rung: LadderRung
+      readonly step: 'carry-in' | 'standalone'
       readonly intent: GenerationIntent
       readonly stage: 'fitting'
       readonly outcome: SuccessfulOutcome
     }
 
 /**
+ * What every attempt of one look-ahead phrase is built from: the settings in effect when it was
+ * opened, the settings its phrase before was generated under, and its source: the carry-in, as
+ * adapted to the change between the two, or a standalone generation with this register.
+ */
+// @spec-link [[rule_session_generation_failure_ladder]]
+// @spec-link [[rule_setting_change_rechecks_pitch_carry_in]]
+// @spec-link [[service_session_engine]]
+export interface LookAheadBasis {
+  readonly settings: SessionSettings
+  readonly previousSettings: SessionSettings
+  readonly source: CarryInAdaptation
+}
+
+/**
  * The phrase being looked ahead for, not yet decided: its number, its deadline, the phrase before
- * and the carry-in derived from it, and the attempt in flight, if any (none once the ladder is
- * exhausted).
+ * and the carry-in derived from it, what its attempts are built from, and the attempt in flight,
+ * if any (none once the ladder is exhausted).
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
 // @spec-link [[service_session_engine]]
@@ -60,25 +79,37 @@ export interface LookAhead {
   readonly deadline: AudioTime
   readonly previous: SessionPhrase
   readonly carryIn: CarryIn
+  readonly basis: LookAheadBasis
   readonly attempt: Attempt | undefined
 }
 
 /**
- * Intent: open the look-ahead for the phrase after `previous`, carrying in from that record's
- * intent and outcome with its own phrase number, whatever its origin (a standalone or a repeat
- * included).
+ * Intent: the carry-in of the phrase after `previous`, from that record's intent and outcome with
+ * its own phrase number, whatever its origin (a standalone or a repeat included).
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
-export function openLookAhead(previous: SessionPhrase, deadline: AudioTime): LookAhead {
+export function carryInAfter(previous: SessionPhrase): CarryIn {
+  return deriveCarryIn({
+    intent: previous.intent,
+    outcome: previous.outcome,
+    phraseNumber: previous.phraseNumber,
+  })
+}
+
+/** Intent: open the look-ahead for the phrase after `previous`, with its carry-in and basis. */
+// @spec-link [[rule_session_generation_failure_ladder]]
+export function openLookAhead(
+  previous: SessionPhrase,
+  carryIn: CarryIn,
+  basis: LookAheadBasis,
+  deadline: AudioTime,
+): LookAhead {
   return {
     phraseNumber: previous.phraseNumber + 1,
     deadline,
     previous,
-    carryIn: deriveCarryIn({
-      intent: previous.intent,
-      outcome: previous.outcome,
-      phraseNumber: previous.phraseNumber,
-    }),
+    carryIn,
+    basis,
     attempt: undefined,
   }
 }
@@ -110,7 +141,7 @@ export function acceptedPhrase(
 ): SessionPhrase {
   return {
     phraseNumber: lookAhead.phraseNumber,
-    origin: attempt.rung.step,
+    origin: attempt.step,
     intent: attempt.intent,
     outcome: attempt.outcome,
   }

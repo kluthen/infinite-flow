@@ -1,4 +1,5 @@
 import type { ConcertPitch } from '../events/concert-pitch'
+import { carriedPitchIsTense } from '../generation/carry-in/carry-in'
 import { phraseEndingDebtAllowance } from '../generation/carry-in/phrase-ending-debt'
 import { deepFreeze } from '../events/deep-freeze'
 import { buildCandidateDomains } from './pitch-candidates'
@@ -86,14 +87,13 @@ export function isOpenEndpointMidi(
 
 /**
  * The carried pitch when it is a tense note: a pitch outside the carried final chord, which the
- * new phrase's first attack must resolve.
+ * new phrase's first attack must resolve. A carry-in whose harmony was dropped owes no resolution.
  */
+// @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 function carriedTenseMidi(input: BoundPitchPlannerInput): number | undefined {
   const carryIn = input.request.carryIn
-  if (carryIn === undefined) return undefined
-  const pitchClass = ((carryIn.lastPitch.midi % 12) + 12) % 12
-  const chord = carryIn.finalHarmony.triad.pitchClasses as readonly number[]
-  return chord.includes(pitchClass) ? undefined : carryIn.lastPitch.midi
+  if (carryIn === undefined || !carriedPitchIsTense(carryIn)) return undefined
+  return carryIn.lastPitch.midi
 }
 
 /** Distinct MIDI values of one candidate domain, in first-seen canonical order. */

@@ -10,7 +10,7 @@ import {
 } from '@/domain/controls/generation-controls'
 import type { Measure } from '@/domain/events/measure'
 import { deriveCarryIn } from '@/domain/generation/carry-in/carry-in-derivation'
-import type { CarryIn } from '@/domain/generation/carry-in/carry-in'
+import { makeCarryIn, type CarryIn } from '@/domain/generation/carry-in/carry-in'
 import {
   createGenerationIntent,
   type GenerationIntent,
@@ -75,6 +75,26 @@ export function carryInAfter(
   phraseNumber: number,
 ): CarryIn {
   return deriveCarryIn({ intent, outcome, phraseNumber })
+}
+
+/**
+ * Intent: a real intent for phrase 2 of a session whose key and collection changed after phrase 1:
+ * a C Ionian phrase 1 (seed 11) hands forward its carry-in with the harmony dropped (null), and an
+ * F# Dorian intent with the given seed receives it.
+ */
+export function keyChangeIntent(seed: number, label = 'key-change'): GenerationIntent {
+  const firstIntent = buildIntent({
+    seed: 11,
+    controls: { tonalCenter: 'C', collection: 'Ionian' },
+    label,
+  })
+  const carryIn = carryInAfter(firstIntent, generateSuccess(firstIntent), 1)
+  return buildIntent({
+    seed,
+    controls: { tonalCenter: 'F#', collection: 'Dorian' },
+    label,
+    carryIn: makeCarryIn({ ...carryIn, finalHarmony: null }),
+  })
 }
 
 /** Intent: every chronological attack (non-tie-continuation note) MIDI pitch of a timeline. */

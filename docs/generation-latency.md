@@ -7,8 +7,10 @@ numbers are checked against. It also records the first generation after a change
 and the longest main-thread task while a phrase is engraved. The timing of a running session's
 rolling display (the playhead band against the heard barline, and the main thread at 240 BPM) is in
 [Rolling display (chunk 16)](#rolling-display-chunk-16), and a 2 000-phrase last-session Review's
-opening and closing in [Last-session Review (chunk 20)](#last-session-review-chunk-20). The newest
-generation figures are in
+opening and closing in [Last-session Review (chunk 20)](#last-session-review-chunk-20). The first
+generation after each step a settings mutation can take is in
+[Settings-mutation transitions (chunk 24, 2026-10-03)](#settings-mutation-transitions-chunk-24-2026-10-03).
+The newest whole-catalog generation figures are in
 [Validator-free fast enumeration on the reference machine (2026-09-30)](#validator-free-fast-enumeration-on-the-reference-machine-2026-09-30),
 after the [cold-generation speed-up](#cold-generation-speed-up-on-the-reference-machine-2026-09-30);
 the verdicts that gate the build plan were set in
@@ -45,26 +47,39 @@ silence density, syncopation, tension arc). A generation is **cold** when its rh
 yet in the memo, so the memo first builds that setting's whole rhythm domain; that is the expensive
 step. No other control (tonal center, register, contour and so on) enters the key.
 
-**First generation after a change to one setting.** From v2.1 a settings mutation can move one
-setting by one grade in the middle of a session, and the look-ahead phrase is then regenerated with
-the new setting. The same harness measures that case in a second test, run after the first in the
-same process. It models the generation Worker, which keeps one memo for the whole page and so for
-the whole session:
+**First generation after a settings mutation.** From v2.1 a settings mutation can move one
+setting by one grade in the middle of a session (see
+[Settings mutation](session-engine.md#settings-mutation-and-changes-at-a-phrase-boundary)), and
+the next phrase is then generated with the new setting. The same harness measures that case in a
+second test, run after the first in the same process. It models the generation Worker, which
+keeps one memo for the whole page and so for the whole session:
 
-- For each of the 324 rhythm settings (the "starting setting"), with every other control as above,
-  it creates one fresh memo and warms it with one generation (seed 1). A starting setting that
-  cannot generate is skipped, since a session can never be playing it: 284 starting settings
-  remain.
-- Against that same memo, it then generates once (seed 2) for every one-step neighbour of the
-  starting setting and times that call. A one-step neighbour moves exactly one control by one grade
-  in its catalog order, as a mutation does: each of the five rhythm controls (for example Eighth →
-  Sixteenth, or Lift → Build), plus two non-rhythm controls, tonal center (one semitone up or down:
-  C → C# and C → B) and register (Middle → Low and Middle → High).
-- Every neighbour differs from the starting setting and from every other neighbour, so each
-  rhythm-control change is a memo miss (the harness checks this by the memo's size) and each
-  tonal-center or register change is a memo hit.
-- Targets that are unsupported rhythm settings fail fast (under 100 ms) and are left out of the
-  statistics: a mutation that lands on one is re-rolled, never applied.
+- **Starting settings.** Each of the 324 rhythm settings is one starting setting. Since chunk 24 its
+  other controls are not fixed: tonal center, collection, harmonic motion, contour, register
+  (Low, Middle or High), leapiness, arpeggio chaos and musical profile are drawn for it from a
+  fixed seed (mulberry32, seed 24). Each control's catalog is dealt out in order over a seeded
+  shuffle of the 324 starting settings, so every value starts equally often (to within one), and
+  no two controls, nor a control and the rhythm order, move together. The profile is always
+  marked customized, as after any mutation. Tempo stays 90 BPM and the instrument `bb-tenor`.
+- **Warm-up.** For each starting setting the harness creates one fresh memo and warms it with one
+  generation (seed 1). A starting setting that is blocked, or cannot generate, is skipped, since a
+  session can never be playing it: 284 starting settings remain.
+- **Transitions.** Against that same memo it then generates once (seed 2) for every step a
+  mutation could take from the starting setting, and times that call. The steps are the session's
+  own: `mutationCandidates` (`src/session/settings-mutation.ts`), which reads the scales in
+  `MUTATION_SCALES`, for a wide window and a session that has not stepped down. So every mutable
+  setting is covered: tonal center a fifth up or down around the circle of fifths, collection
+  within Major/Minor or along the modes, harmonic motion, contour (every other contour), register,
+  leapiness, arpeggio chaos, the profile flip, and the five rhythm settings. No sampling is needed:
+  about 20 steps per starting setting, 5,544 transitions in all.
+- **Memo.** Every step differs from the starting setting and from every other step, so each
+  rhythm-setting step is a memo miss (the harness checks this by the memo's size) and every other
+  step keeps the rhythm memo key and is a memo hit.
+- **Unsupported steps.** A step that lands on an unsupported setting is counted but not generated:
+  a mutation re-rolls it, never applies it.
+- **Not measured.** The harness passes no carry-in, so the cold phrase after a key or collection
+  change, whose carry-in has its harmony dropped, is timed only as a generation without carry-in.
+  Nor does it model the deadline of a regeneration with one measure left.
 
 `LATENCY_OUT` and `LATENCY_TRANSITIONS_OUT` name JSON files for the full per-setting and
 per-transition results.
@@ -264,6 +279,78 @@ the full `test:e2e` run.
 The lazy window engraved 6 phrases at the top of the list and 7 at its end. With three
 Playwright workers running other specs alongside it, the open took 208-260 ms and the longest
 task while opening 160-193 ms.
+
+## Settings-mutation transitions (chunk 24, 2026-10-03)
+
+A reference run, recorded for the record only. It gates nothing: the budgets are checked by the
+owner before the release gate that names them (see
+[the build plan's workflow](../specs/versions/v2/build-plan.md#3-workflow-for-every-chunk)).
+
+**Machine and date.** Measured on 2026-10-03, 18:17-18:19 CEST, on branch `v2-chunk-24` (`main` at
+`da58652` plus chunk 24's uncommitted work), on the reference machine: AMD Ryzen 5 PRO 8640HS
+(6 cores, 12 threads), 11 GiB RAM, bare metal, Debian 13 (Linux 6.12.107), Node v22.23.2. One
+`npm run measure:latency` run, alone, in 112 s; the 1-minute load average was 1.27 before and
+2.69 after (the harness itself keeps one core busy). The owner's desktop session stayed open.
+
+**Node, 284 settings (ms).** The first test is unchanged; 40 settings fail fast (at most 29.1 ms).
+
+| Node, 284 settings (ms) | median | p90  | p95   | max   |
+| ----------------------- | ------ | ---- | ----- | ----- |
+| Cold                    | 11.9   | 78.0 | 119.1 | 297.9 |
+| Warm                    | 1.8    | 9.9  | 12.5  | 41.8  |
+
+4 settings take longer than 250 ms cold, all Sixteenth / Heavily varied / Sparse: Straight / Build
+297.9 ms, Straight / Edge 296.4 ms, Active displacement / Build 285.2 ms, Active displacement /
+Edge 273.1 ms.
+
+**First generation after a settings mutation** (5,544 transitions from 284 starting settings; 7
+fail with a generation failure, which the ladder would retry, and are left out):
+
+| Changed setting (ms) | n     | memo misses | median | p90   | p95   | max   |
+| -------------------- | ----- | ----------- | ------ | ----- | ----- | ----- |
+| Any rhythm setting   | 1,839 | 1,839       | 13.0   | 96.7  | 138.6 | 682.9 |
+| Note density         | 351   | 351         | 14.3   | 86.1  | 137.0 | 373.0 |
+| Rhythmic variety     | 351   | 351         | 10.8   | 80.1  | 134.8 | 682.9 |
+| Silence density      | 360   | 360         | 15.3   | 92.6  | 125.7 | 594.4 |
+| Syncopation          | 352   | 352         | 12.1   | 113.3 | 145.8 | 608.7 |
+| Tension arc          | 425   | 425         | 11.6   | 109.1 | 142.5 | 333.7 |
+| Any other setting    | 3,698 | 0           | 2.1    | 12.4  | 17.7  | 502.7 |
+| Tonal center         | 567   | 0           | 2.3    | 12.3  | 19.1  | 502.7 |
+| Collection           | 439   | 0           | 2.0    | 12.1  | 15.3  | 434.7 |
+| Harmonic motion      | 380   | 0           | 2.0    | 12.8  | 16.6  | 269.3 |
+| Contour              | 852   | 0           | 2.1    | 12.7  | 18.5  | 336.7 |
+| Register             | 378   | 0           | 2.1    | 13.9  | 20.9  | 74.3  |
+| Leapiness            | 420   | 0           | 2.0    | 11.1  | 16.5  | 180.8 |
+| Arpeggio chaos       | 378   | 0           | 2.0    | 11.6  | 16.7  | 449.2 |
+| Musical profile      | 284   | 0           | 2.0    | 13.0  | 17.2  | 127.5 |
+
+- **Rhythm steps.** 32 of 1,839 (1.7 %) take longer than 250 ms, 4 longer than 500 ms, none
+  longer than 1 s. The slowest is B Dorian, Sixteenth / Slightly varied / Sparse / Active
+  displacement / Build, rhythmic variety Slightly varied → Heavily varied: 682.9 ms.
+- **Other steps.** These keep the rhythm memo, but 21 of 3,698 still take longer than 100 ms, all
+  from a Sixteenth or Eighth setting. The 7 over 250 ms all start from a Sixteenth setting with
+  Active diatonic harmonic motion; the rhythm domain is already built there, so the time goes to
+  the rest of the generation: A Ionian → D Ionian 502.7 ms, arpeggio chaos Varied → Chaotic from
+  G Mixolydian 449.2 ms.
+- **Failures.** The 7 failed transitions took 467-592 ms each, all from Sixteenth or Eighth
+  settings with Edge or Lift tension and Active or Gentle diatonic motion.
+- **Not comparable with earlier runs.** Before chunk 24 every starting setting was C Major,
+  Gentle diatonic, Arch, Middle, Shaped, Predictable, Neutral, and only the five rhythm controls,
+  tonal center (by a semitone) and register moved. The rhythm steps' median and p90 are close to
+  the [validator-free run](#validator-free-fast-enumeration-on-the-reference-machine-2026-09-30)'s
+  (12.8 and 82.5 ms); the higher tail comes from the varied keys, modes and harmonic motions.
+
+**Against the windows** (Node, before the Worker round trip and engraving):
+
+- **A mutation: 3 measures.** A mutation lands on the phrase requested when the phrase before it
+  starts sounding, so it never discards a phrase, and its deadline is three measures away: 3 s at
+  240 BPM. The slowest step, 0.68 s, plus a failed attempt (up to 0.59 s) and a warm retry, stays
+  well inside it.
+- **A regenerated look-ahead with one measure left: 1 s at 240 BPM.** Only a settings change from
+  another source (none before chunk 25) can discard a phrase, and only with at least one measure
+  left. The slowest step fits on its first attempt (0.68 s); a failed first attempt followed by a
+  retry may not. This harness does not measure that case end to end, and the 250 ms working goal
+  is judged in Chromium, which this run did not measure.
 
 ## Validator-free fast enumeration on the reference machine (2026-09-30)
 

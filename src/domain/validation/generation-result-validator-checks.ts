@@ -105,10 +105,12 @@ export function resolvedRequestFailures(
 /**
  * A join made with carry-in: the intent and the resolved request must hold the same carry-in (or
  * neither one), the resolved window must be the carried window, and the phrase's harmony must
- * start from the carried chord, opening on the tonic.
+ * start from the carried chord, opening on the tonic. A carry-in whose harmony was dropped has no
+ * carried chord, so no harmony join is checked.
  */
 // @spec-link [[service_generation_result_validation]]
 // @spec-link [[rule_varying_register_once_per_session]]
+// @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 export function carryInFailures(
   intent: GenerationIntent,
   request: GenerationRequest,
@@ -128,7 +130,10 @@ export function carryInFailures(
       code: 'carry_in_register_window_mismatch',
       detail: `request=${request.registerWindow.minMidi}-${request.registerWindow.maxMidi} carried=${carried.minMidi}-${carried.maxMidi}`,
     })
-  if (!harmonyJoinFollows(carryIn.finalHarmony, provenance.harmony))
+  if (
+    carryIn.finalHarmony !== null &&
+    !harmonyJoinFollows(carryIn.finalHarmony, provenance.harmony)
+  )
     failures.push({ code: 'harmony_join_invalid', detail: provenance.harmony.identity })
   return failures
 }
