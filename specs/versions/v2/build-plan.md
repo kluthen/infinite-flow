@@ -117,7 +117,7 @@ chunks in different sections; the second to merge rebases on the first.
 | 6    | 17 MIDI in the session (done 2026-10-02)                                                                                                                                                                                                                                                                                                                                      | Wave 5                                                              |
 | 7    | 20 Review and generated-notes export (done 2026-10-02; hand checks moved to chunk 35)                                                                                                                                                                                                                                                                                         | Chunk 17                                                            |
 | 8    | 21 v2.0 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.0 chunk                                                    |
-| 9    | 22 Played-notes MIDI encoding · 24 Settings-mutation engine                                                                                                                                                                                                                                                                                                                   | Chunks 4, 7, 8, 9 and 19; may start before v2.0 ships               |
+| 9    | 22 Played-notes MIDI encoding (done 2026-10-03) · 24 Settings-mutation engine                                                                                                                                                                                                                                                                                                 | Chunks 4, 7, 8, 9 and 19; may start before v2.0 ships               |
 | 10   | 23 Review: played notes (blocked) · 25 Settings-mutation control (blocked)                                                                                                                                                                                                                                                                                                    | Wave 9, v2.0, and their designs                                     |
 | 11   | 26 v2.1 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.1 chunk                                                    |
 | 12   | 27 Adaptive tempo engine · 29 Multi-phrase tension arc                                                                                                                                                                                                                                                                                                                        | v2.0 chunks, and chunk 24 for chunk 29; may start before v2.1 ships |
@@ -2202,7 +2202,17 @@ session's last phrase may end with it still owed. Nothing here waits for the ref
 
 ### Chunk 22 — Played-notes MIDI encoding
 
-**Release:** v2.1.
+**Release:** v2.1. **Done on 2026-10-03.**
+`encodePlayedNotesMidi` writes the history's played notes, through
+`playedNotesMidiInputFromHistory`, as a two-track MIDI file: the generated-notes file's conductor
+track, byte for byte, then the played notes at their concert pitch and original velocity, each
+onset placed from its phrase's start at that phrase's tempo, unquantized; a seeded property test
+over 500 random sessions finds no onset more than 1 ms off. One source fix came with it: the
+session controller now records each sounding phrase in the history at the transport's scheduled
+start, not at the engine's floored time, which could be 25 ms or more late and would have shifted
+the played notes and broken the 1 ms rule. The played-notes file's name and its export action are
+chunk 23's; the check of the two files in a real DAW is chunk 35's (D180)
+([`docs/export.md`](../../../docs/export.md#played-notes-as-midi)). No atom's status was advanced.
 
 **Goal.** A pure encoder from the history's played notes to one MIDI file that lines up with the
 generated-notes MIDI file of the same session.

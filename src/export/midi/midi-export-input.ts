@@ -13,6 +13,7 @@ import { addRational, compareRational, makeRational, type Rational } from '@/dom
 
 /** Typed failure for an encoder input that breaks the encoder's contract; never repaired. */
 // @spec-link [[rule_generated_notes_midi_export]]
+// @spec-link [[req_played_notes_export]]
 export class MidiExportError extends Error {
   readonly kind = 'MidiExportError' as const
 
@@ -85,7 +86,9 @@ const BACKING_PHRASE_KEYS: readonly string[] = ['number', 'notes']
 const BACKING_NOTE_KEYS: readonly string[] = ['pitch', 'start', 'duration']
 
 /** Intent: crash early unless `value` has exactly the named own keys, no more and no fewer. */
-function assertExactKeys(value: object, expected: readonly string[], what: string): void {
+// @spec-link [[rule_generated_notes_midi_export]]
+// @spec-link [[req_played_notes_export]]
+export function assertExactKeys(value: object, expected: readonly string[], what: string): void {
   const actual = Object.keys(value).sort()
   const wanted = [...expected].sort()
   if (actual.length !== wanted.length || actual.some((key, index) => key !== wanted[index])) {
@@ -96,7 +99,12 @@ function assertExactKeys(value: object, expected: readonly string[], what: strin
 }
 
 /** Intent: crash early unless a list's session numbers run 1, 2, 3 … in order. */
-function assertNumberedInOrder(items: readonly { readonly number: number }[], what: string): void {
+// @spec-link [[rule_generated_notes_midi_export]]
+// @spec-link [[req_played_notes_export]]
+export function assertNumberedInOrder(
+  items: readonly { readonly number: number }[],
+  what: string,
+): void {
   items.forEach((item, position) => {
     if (item.number !== position + 1) {
       throw new MidiExportError(
@@ -108,7 +116,9 @@ function assertNumberedInOrder(items: readonly { readonly number: number }[], wh
 }
 
 /** Intent: crash early unless a phrase's tempo is a whole number of BPM in the accepted range. */
-function assertTempo(phrase: MidiSessionPhrase): void {
+// @spec-link [[rule_generated_notes_midi_export]]
+// @spec-link [[req_played_notes_export]]
+export function assertTempo(phrase: { readonly number: number; readonly tempo: number }): void {
   const { tempo } = phrase
   if (!Number.isInteger(tempo) || tempo < SLOWEST_BPM || tempo > FASTEST_BPM) {
     throw new MidiExportError(

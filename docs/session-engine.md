@@ -272,7 +272,7 @@ started sounding so far. Each record, `SessionHistoryRecord`, holds:
 | Field                  | Holds                                                                                                                                                                                                                                                                                              |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `phraseNumber`         | The session phrase number: 1, 2, 3 … with no gap.                                                                                                                                                                                                                                                  |
-| `startedAt`            | The audio time the phrase started sounding.                                                                                                                                                                                                                                                        |
+| `startedAt`            | The audio time the phrase started sounding. The session controller passes the phrase's scheduled start on the transport, so the records sit exactly back to back (see [The history](#the-history)).                                                                                                |
 | `outcome`              | The phrase exactly as shown: its timeline (its notes and rests in time order) and the [harmony](music/lexicon.md#harmony) (the chords under the melody) its [chord symbols](music/lexicon.md#chord-symbol) come from.                                                                              |
 | `intent`               | What reproduces the phrase: the resolved request with the [note density](music/lexicon.md#note-density) it was actually generated with, its [seed](music/lexicon.md#seed) (the number that drives the generator's random choices) and its carry-in. A phrase stepped down to Eighth stores Eighth. |
 | `tempo`                | The [tempo](music/lexicon.md#tempo) it played at, in BPM.                                                                                                                                                                                                                                          |
@@ -289,8 +289,9 @@ matrix of real sessions (see [Determinism](testing.md#determinism)).
 
 ### Handing a session to the encoders
 
-`src/session/session-history-export.ts` builds the inputs of the two generated-notes encoders (see
-[Export](export.md)) from the stored records. It never regenerates a phrase.
+`src/session/session-history-export.ts` builds the inputs of the two generated-notes encoders and
+of the played-notes encoder (see [Export](export.md)) from the stored records. It never
+regenerates a phrase.
 
 - `musicXmlInputFromHistory(records)` gives the session's instrument and, for each record, its
   phrase number, its stored phrase written as the staff showed it (in the instrument's
@@ -299,12 +300,15 @@ matrix of real sessions (see [Determinism](testing.md#determinism)).
 - `midiInputFromHistory(records, backing)` gives, for each record, its phrase number, its stored
   timeline in [concert pitch](music/lexicon.md#concert-pitch) (the pitch you actually hear) and
   its tempo, with the backing the caller passes (`null` when the backing is left off).
+- `playedNotesMidiInputFromHistory(records)` gives, for each record, its phrase number, its tempo,
+  its `startedAt` and its played notes, each as its pitch, velocity, onset and release.
 
 Only those fields travel. The repeat mark never does, so a repeat encodes exactly like any other
-phrase. Both throw a typed `SessionHistoryExportError` on an empty history, which has nothing to
-export, and on records generated for two different instruments. The Review's export action calls
-them through `buildGeneratedNotesFile` (see
-[From the Review to a download](export.md#from-the-review-to-a-download)).
+phrase. All three throw a typed `SessionHistoryExportError` on an empty history, which has nothing
+to export, and on records generated for two different instruments. The Review's export action
+calls the first two through `buildGeneratedNotesFile` (see
+[From the Review to a download](export.md#from-the-review-to-a-download)); nothing calls the
+played-notes one yet, until chunk 23 adds its export action.
 
 ### Outputs the history refuses
 
@@ -450,9 +454,17 @@ result stamped at 4.010 s would otherwise go back in time, which the engine refu
 ### The history
 
 Every runner output is recorded in the session's history before the controller acts on it (see
-[What it records](#what-it-records)). In a session with a controller, the MIDI side records each
-finished played note and each acknowledgement as it comes. When the session ends, its closed
-history is kept as `lastHistory`.
+[What it records](#what-it-records)). A `phrase-sounding` is recorded at the phrase's scheduled
+start on the transport, `audio.phraseStartsAt(n)`, not at the time the engine was handed. The
+engine time floor ([above](#the-audio-time-agenda)) can raise that time past the scheduled start,
+by up to a wake-up period (25 ms) or more, when the runner read the clock just before the wake-up
+fired. A recorded start that late would shift every played note the history places in the phrase,
+and the played-notes export, which needs phrases back to back within 1 ms, would refuse the
+session (see [Played notes as MIDI](export.md#played-notes-as-midi)). The engine itself still
+gets the floored time.
+
+In a session with a controller, the MIDI side records each finished played note and each
+acknowledgement as it comes. When the session ends, its closed history is kept as `lastHistory`.
 
 ### The rolling display
 

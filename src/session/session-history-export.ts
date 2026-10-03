@@ -1,16 +1,18 @@
 /**
- * What the session history hands the generated-notes encoders: the MusicXML input and the MIDI
- * input of a recorded session, built from the stored shown phrases and never from a regenerated
- * one. Each phrase carries only its phrase number, its shown phrase (the written phrase for
- * MusicXML, the concert timeline for MIDI) and the tempo it played at; the internal repeat mark
- * never travels, so a repeat encodes exactly like any other phrase. Pure: no browser API, no
- * storage, no network.
+ * What the session history hands the export encoders: the generated-notes MusicXML and MIDI
+ * inputs of a recorded session, built from the stored shown phrases and never from a regenerated
+ * one, and its played-notes MIDI input. Each generated-notes phrase carries only its phrase number,
+ * its shown phrase (the written phrase for MusicXML, the concert timeline for MIDI) and the tempo
+ * it played at; the internal repeat mark never travels, so a repeat encodes exactly like any other
+ * phrase. Each played-notes phrase carries only its phrase number, tempo, start on the audio clock
+ * and the played notes placed in it. Pure: no browser API, no storage, no network.
  */
 
 import { notationInputFromOutcome } from '../domain/notation/notation-input'
 import { transformToWrittenPhrase } from '../domain/notation/written-phrase'
 import type { InstrumentProfile } from '../domain/profile/instrument-profile'
 import type { GeneratedNotesMidiInput, MidiBackingPhrase } from '../export/midi/midi-export-input'
+import type { PlayedNotesMidiInput } from '../export/midi/played-notes-midi-input'
 import type { GeneratedNotesMusicXmlInput } from '../export/musicxml/musicxml-export-input'
 import type { SessionHistoryRecord } from './session-history'
 
@@ -86,5 +88,33 @@ export function midiInputFromHistory(
       tempo: record.tempo,
     })),
     backing,
+  }
+}
+
+/**
+ * Intent: the played-notes MIDI encoder input of a recorded session: for every record in order,
+ * its phrase number, its tempo, the audio-clock time it started sounding and the played notes the
+ * history placed in it, each as its pitch, velocity, onset and release, and nothing else. Throws a
+ * SessionHistoryExportError on an empty history or records of two instruments.
+ */
+// @spec-link [[service_session_history]]
+// @spec-link [[req_played_notes_export]]
+// @spec-link [[rule_session_history_records_played_notes]]
+export function playedNotesMidiInputFromHistory(
+  records: readonly SessionHistoryRecord[],
+): PlayedNotesMidiInput {
+  sessionInstrument(records)
+  return {
+    phrases: records.map((record) => ({
+      number: record.phraseNumber,
+      tempo: record.tempo,
+      startedAt: record.startedAt,
+      playedNotes: record.playedNotes.map(({ pitch, velocity, onsetAt, releaseAt }) => ({
+        pitch,
+        velocity,
+        onsetAt,
+        releaseAt,
+      })),
+    })),
   }
 }
