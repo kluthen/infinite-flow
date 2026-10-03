@@ -935,3 +935,15 @@ fact in the live documents (see the [archive index](archive/README.md) and
   goal, not a gate; `rule_look_ahead_deadline` is the gate, and it holds because a mutation always
   has 3 measures before its deadline. The re-measurement on real hardware is a v2.4 check (D180).
   Master spec §5; build plan chunk 24.
+
+- **D182 (2026-10-03): settings changed by the settings-mutation flag return to the player's
+  choice when the session ends.** The product owner's decision, from ux Q64. When a session ends,
+  however it ends, every setting the flag changed during it returns to the value the player had
+  chosen before the session started, just as adaptive tempo resets the tempo control to the
+  starting tempo (master spec §10). Settled with it, as consequences of the rule: the "profile
+  customized" marking that a mutation set (D181) returns to what it was before the session; a
+  register mutated from Varying returns to Varying; the restore does not touch the flag's own
+  on/off choice; and the fresh phrase the app generates at a session end is generated from the
+  restored settings. The session engine (build plan chunk 24) only reports each change; the
+  restore belongs to the session controller (chunk 25). Master spec §5 and §11; build plan
+  chunk 25.

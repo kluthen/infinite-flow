@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.31
+Status: draft v0.32
 
 ## Status Snapshot
 
@@ -220,6 +220,12 @@ Status: draft v0.31
   session has stepped down. The 250 ms cold latency target is a goal, not a gate: the look-ahead
   deadline is, and a mutation has 3 measures before it; real hardware re-measures in v2.4 (D180).
   Master spec v1.27. Nothing newly opened.
+- **Mutated settings return at the session end (2026-10-03, D182)**, the owner's decision from ux
+  Q64. When a session ends, every setting the settings-mutation flag changed returns to the value
+  the player chose before the session, as adaptive tempo resets to the starting tempo; the
+  "profile customized" marking a mutation set returns too, and the fresh phrase generated at the
+  end uses the restored settings. The session controller restores them (build plan chunk 25), not
+  the engine. Master spec v1.28. Nothing newly opened.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.

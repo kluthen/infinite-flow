@@ -9,6 +9,7 @@ dependents:
   - [[rule_mutation_marks_profile_customized]]
   - [[rule_mutation_profile_flip_keeps_controls]]
   - [[rule_mutation_rerolls_unsupported_combination]]
+  - [[rule_mutation_reverts_at_session_end]]
   - [[rule_mutation_setting_scales]]
   - [[service_session_engine]]
 layer: BUSINESS

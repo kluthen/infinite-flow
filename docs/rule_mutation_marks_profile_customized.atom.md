@@ -12,7 +12,7 @@ human_name: Mutating a Profile-Controlled Value Marks the Profile Customized
 dependents:
   - [[module_settings_mutation]]
 type: RULE
-version: 0.1
+version: 0.2
 ---
 
 # Mutating a Profile-Controlled Value Marks the Profile Customized
@@ -22,14 +22,13 @@ version: 0.1
 Keep the profile's customized mark truthful when a mutation changes a value the profile controls.
 
 ## THE RULE / LOGIC
-
-A mutation of a value the selected musical profile controls (harmonic motion, note density, rhythmic variety, syncopation, silence density, contour or register) marks the profile customized, exactly as a manual edit of that value does. The profile identity stays the same.
+A mutation of a value the selected musical profile controls (harmonic motion, note density, rhythmic variety, syncopation, silence density, contour or register) marks the profile customized, exactly as a manual edit of that value does. The profile identity stays the same. Like the mutation itself, the mark lasts only for the session: when the session ends, the customized marking returns to what it was before the session started.
 
 ## TECHNICAL INTERFACE
 
 A mutation of a profile-controlled value leaves the profile identity as it is and marks the profile customized.
 
 ## EXPECTATION
-
 - After a mutation of a profile-controlled value, the profile identity is unchanged and the profile is marked customized.
 - A mutation of a setting the profile does not control leaves the customized mark as it was.
+- After the session ends, the customized marking is what it was before the session started.

@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.27 (2026-10-03). This is the consolidated, execution-ready specification for
+Status: master spec v1.28 (2026-10-03). This is the consolidated, execution-ready specification for
 v2, covering releases v2.0, v2.1, v2.2 and v2.4 (v2.3 was emptied, and its number is not reused).
 It supersedes the individual v2 draft topic documents,
 which are kept in the archive as working history. Change in v1.6: the export is chosen by content,
@@ -111,7 +111,11 @@ v1.27, the product owner's acceptance on 2026-10-03 of the scale proposed while 
 settings-mutation engine was built: what one grade means for each setting, a mutated
 profile-controlled value marking the profile customized, a harmony change dropping harmonic
 carry-in that no longer fits, and `Sixteenth` staying unavailable to mutations once a session has
-stepped down (§5).
+stepped down (§5). Change in v1.28, the product owner's decision of 2026-10-03: when a session
+ends, every setting the settings-mutation flag changed returns to the value the player chose
+before the session, the musical profile's "customized" marking included, as adaptive tempo resets
+to the starting tempo, and the fresh phrase generated at the end uses the restored settings
+(§5, §11).
 
 ## 1. Core concept
 
@@ -368,6 +372,13 @@ opt-in flag:
   holds that concrete register; the musical profile flips Neutral ↔ Jazz as an identity change
   only, keeping every control, marking the profile customized and never applying the preset
   bundle. Mutating a value the musical profile controls marks the profile customized.
+  A mutation lasts only for its session. When the session ends, however it ends, every setting the
+  flag changed during it returns to the value the player had chosen before the session started,
+  just as adaptive tempo resets the tempo control to the starting tempo (§10): a register mutated
+  from Varying returns to Varying, and the musical profile's "customized" marking returns to what
+  it was before the session. The restore does not touch the flag's own on/off choice. It happens
+  as the session ends, so the fresh phrase generated at the end (§4, §7) is generated from the
+  restored settings.
 - **Adaptive tempo,** described fully in §10, ships in **v2.2**.
 
 Neither source exists in v2.0, so nothing can change a setting during a v2.0 session. Applying a
@@ -1233,7 +1244,10 @@ they replace keep their numbers below, so references to them stay valid.
     on screen ever changes (§5);
   - the settings-mutation flag starts off; with it on, mutations come 2 to 4 phrases apart, and
     the same stored inputs give the same mutations; a note-density mutation in a session
-    generating with `Eighth` steps from `Eighth` and never lands on `Sixteenth` (§5).
+    generating with `Eighth` steps from `Eighth` and never lands on `Sixteenth` (§5);
+  - when a session ends, however it ends, every setting the flag changed is back at the value the
+    player chose before the session, the musical profile's "customized" marking included, and the
+    fresh phrase generated at the end uses those settings (§5).
 - **v2.2:** adaptive tempo meets its own acceptance criteria in §10 (flat, unconditional schedule;
   no rise while the controller is away, counting resuming where it stopped; never decreases
   automatically; resets correctly at session end; starts off; generation itself is provably

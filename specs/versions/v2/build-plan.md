@@ -1,7 +1,7 @@
 # Infinite Flow v2 — Build Plan
 
 Status: draft v0.4 (2026-10-03). Chunk 0 is done. Build plan for v2.0, v2.1, v2.2 and v2.4,
-written from [master spec v1.20](master-spec.md) and kept in step with it since (v1.27). Not yet
+written from [master spec v1.20](master-spec.md) and kept in step with it since (v1.28). Not yet
 approved for execution. Change in v0.3: the spec gaps are resolved, so the phrase-boundary change
 and the key change's harmonic drop move from chunks 7 and 8 to chunk 24 in v2.1, and each chunk is
 blocked only by what is still open. Change in v0.4, the owner's decisions of 2026-10-03 (spec
@@ -2373,6 +2373,19 @@ the flag running in the real session: chunk 24's engine connected to the rolling
   drawn as read-ahead: that phrase stays as drawn and the change first shows in the phrase after
   it. No note on screen changes (the v2.1 criterion of §11).
 - The control starts off (spec D176).
+- When a session ends, by any of its causes, every setting the flag changed returns to the value
+  the player chose before the session, as adaptive tempo resets to the starting tempo (spec D182):
+  a register mutated from `Varying` is `Varying` again, the musical profile's "customized" marking
+  is back to what it was before the session (one a mutation set is cleared, one already there
+  stays), and the flag's own on/off choice is untouched. The restore happens before the end asks
+  Idle for its fresh phrase, so that phrase is generated from the restored settings.
+  Workspace-harness scenarios end a session after a mutation by Stop and by a hidden tab, and
+  check the controls and the fresh phrase's settings.
+- The restore is this chunk's to build, in the session controller. Chunk 24's engine only reports
+  each change as a `settings-changed` output carrying the complete new settings; it never writes
+  the player's controls, so nothing restores them until the controller keeps the settings chosen
+  at the start and puts them back at the end
+  ([`docs/session-engine.md`](../../../docs/session-engine.md#until-chunk-25)).
 
 **Blocked by:** design: the settings-mutation flag UI, unit 10 in `ui_ux/todo.md`. (O77, its
 cadence and default, was answered on 2026-10-03: spec D176.)
