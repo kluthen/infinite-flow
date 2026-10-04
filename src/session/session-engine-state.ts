@@ -18,12 +18,17 @@ import {
 import type { SettingsMutationFlag } from './settings-mutation'
 import type { StrugglingNotice } from './struggling-notice'
 
-/** Everything fixed for the whole session: the seams, the mutation flag and phrase 1. */
+/**
+ * Everything fixed for the whole session: the seams, the mutation flag, the multi-phrase tension
+ * arc flag and phrase 1.
+ */
 // @spec-link [[service_session_engine]]
 // @spec-link [[req_settings_mutation_flag]]
+// @spec-link [[req_multi_phrase_tension_arc]]
 export interface EngineContext extends IntentSeams {
   readonly display: SessionDisplayReading
   readonly mutation: SettingsMutationFlag
+  readonly multiPhraseTensionArc: boolean
   readonly phraseOne: SessionPhrase
 }
 
@@ -50,9 +55,10 @@ export interface SessionTempo {
 }
 
 /**
- * The engine's state between events. `settings` are the settings in effect; `lastDecided` is the
- * latest decided phrase (phrase 1 at start), generated under `lastDecidedSettings` (a repeat's are
- * those of the phrase it repeats); `lookAhead` is the phrase after it while undecided, and
+ * The engine's state between events. `settings` are the settings in effect, never carrying a
+ * tension-arc cycle step; `lastDecided` is the latest decided phrase (phrase 1 at start),
+ * generated under `lastDecidedSettings`, its step included (a repeat's are those of the phrase it
+ * repeats); `lookAhead` is the phrase after it while undecided, and
  * `decided` its record once decided until it starts sounding; `soundedCount` is how many phrases
  * have started sounding; `tempo` is the adaptive-tempo schedule and each phrase's fixed tempo,
  * kept apart from the settings.

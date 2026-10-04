@@ -13,6 +13,7 @@ version: 1.3
 dependents:
   - [[module_generation_request_construction]]
   - [[module_settings_mutation]]
+  - [[module_tension_arc_cycle]]
 ---
 
 # Generation Control Catalog

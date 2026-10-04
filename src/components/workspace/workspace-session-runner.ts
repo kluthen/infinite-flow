@@ -1,7 +1,8 @@
 /**
  * The workspace's session runner as v2.1's engine stands before its control exists: the
  * settings-mutation flag is always off and nothing sends a settings change, so no setting changes
- * during a workspace session. Chunk 25 connects the three seams marked here: the flag (from the
+ * during a workspace session. The multi-phrase tension arc is off too, until its player-facing
+ * toggle exists. Chunk 25 connects the three seams marked here: the flag (from the
  * player's on/off control, with a drawn and stored mutation seed), the display reading (from the
  * rolling display) and the two outputs a settings change produces (to the settings panel and the
  * display). Until then, reading the display or receiving either output is a wiring defect and
@@ -17,12 +18,14 @@ import type { SessionDisplayReading, SessionOutput, SessionStart } from '@/sessi
 import { SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
 
 /**
- * A workspace session's start: the engine's start without the mutation flag, which stays off. Its
- * `adaptiveTempo` is the session controller's: the page's flag on and a controller at the start.
+ * A workspace session's start: the engine's start without the mutation flag or the multi-phrase
+ * tension arc flag, which both stay off. Its `adaptiveTempo` is the session controller's: the
+ * page's flag on and a controller at the start.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[req_settings_mutation_flag]]
-export type WorkspaceSessionStart = Omit<SessionStart, 'mutation'>
+// @spec-link [[req_multi_phrase_tension_arc]]
+export type WorkspaceSessionStart = Omit<SessionStart, 'mutation' | 'multiPhraseTensionArc'>
 
 /**
  * The display reading before chunk 25 connects it to the rolling display: the engine reads it only
@@ -56,12 +59,14 @@ export function refusingSettingsChangeOutputs(
 }
 
 /**
- * Intent: start a workspace session runner with the settings-mutation flag off, adaptive tempo as
- * the start says, the display reading not yet connected, and the settings change outputs refused.
+ * Intent: start a workspace session runner with the settings-mutation flag and the multi-phrase
+ * tension arc off, adaptive tempo as the start says, the display reading not yet connected, and
+ * the settings change outputs refused.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]
 // @spec-link [[req_settings_mutation_flag]]
+// @spec-link [[req_multi_phrase_tension_arc]]
 export function startWorkspaceSessionRunner(
   deps: Omit<SessionRunnerDependencies, 'display'>,
   start: WorkspaceSessionStart,
@@ -72,6 +77,6 @@ export function startWorkspaceSessionRunner(
       display: DISPLAY_NOT_CONNECTED,
       onOutput: refusingSettingsChangeOutputs(deps.onOutput),
     },
-    { ...start, mutation: SETTINGS_MUTATION_OFF },
+    { ...start, mutation: SETTINGS_MUTATION_OFF, multiPhraseTensionArc: false },
   )
 }

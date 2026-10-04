@@ -76,8 +76,9 @@ export interface SessionPhrase {
  * What a session starts from: the moment the count-in starts, the chosen settings, phrase 1, the
  * settings-mutation flag, with the mutation seed the caller drew and stores, so the session
  * replays from its start and its event list alone, and whether adaptive tempo runs in it: only
- * when the page's adaptive-tempo flag is on and the session has a controller at its start. The
- * chosen settings' tempo is the starting tempo.
+ * when the page's adaptive-tempo flag is on and the session has a controller at its start, and
+ * whether the multi-phrase tension arc runs in it. The chosen settings' tempo is the starting
+ * tempo.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[req_settings_mutation_flag]]
@@ -87,6 +88,8 @@ export interface SessionStart {
   readonly phraseOne: { readonly intent: GenerationIntent; readonly outcome: SuccessfulOutcome }
   readonly mutation: SettingsMutationFlag
   readonly adaptiveTempo: boolean
+  /** Whether each phrase is generated with its four-phrase cycle step around the tension arc. */
+  readonly multiPhraseTensionArc: boolean
 }
 
 /**

@@ -3,12 +3,12 @@
 This document records how `src/session/` decides what a running practice session asks for, shows
 and ends: its boundary, the timed events it takes and the outputs it answers with, the look-ahead
 deadlines, the failure ladder, the struggling-generator notice, the settings lock and note-density
-step-down, the settings-mutation engine and settings changes at a phrase boundary, how tempo stays
-out of generation, adaptive tempo, the runner that connects the engine to the app's one
-generation Worker, the session history that records every phrase that sounded and the notes the
-player played, the session controller that runs a session on the workspace from the Start click
-(or the starting note) to its end, with its MIDI side and the Review that opens at the end, what
-later chunks add, and the choices made while building it.
+step-down, the settings-mutation engine and settings changes at a phrase boundary, the
+multi-phrase tension arc, how tempo stays out of generation, adaptive tempo, the runner that
+connects the engine to the app's one generation Worker, the session history that records every
+phrase that sounded and the notes the player played, the session controller that runs a session on
+the workspace from the Start click (or the starting note) to its end, with its MIDI side and the
+Review that opens at the end, what later chunks add, and the choices made while building it.
 
 A session plays one [phrase](music/lexicon.md#phrase) after another without stopping. Phrase 1 is
 the phrase already on screen at Idle. While a phrase sounds, the next one is generated and shown
@@ -45,6 +45,7 @@ ahead of it (the read-ahead), so the player always sees what comes next.
 | `session-mutation-step.ts`        | `landingMutation`: whether a mutation lands on the phrase about to be requested, and its output.                                  |
 | `session-settings-change.ts`      | A look-ahead's basis, each rung's attempt after a change, and the discard rule of a settings change.                              |
 | `carry-in-adaptation.ts`          | `adaptCarryIn`: a carry-in adapted to settings that changed at the join, or a standalone phrase.                                  |
+| `tension-arc-cycle.ts`            | The multi-phrase tension arc: a phrase's cycle step, and the settings it is generated under.                                      |
 | `adaptive-tempo.ts`               | The pure adaptive-tempo schedule: +5 BPM every two counted phrases, never past 240 (see [Adaptive tempo](#adaptive-tempo)).       |
 | `session-tempo-step.ts`           | Where the engine meets the schedule: `fixDueTempo`, `soundingTempo`, `onController` and each phrase's fixed tempo.                |
 | `session-runner.ts`               | `createSessionRunner(deps, start)`: executes the engine's requests (see [The runner](#the-runner-and-the-one-worker-wiring)).     |
@@ -68,8 +69,10 @@ The session controller's pure pieces live here too, under the same boundary (see
 | `session-midi-timers.ts`      | The silence timeout and the reconnection countdown as pure arithmetic on the audio clock.                                   |
 
 `createSessionEngine(deps, start)` takes the start time, the chosen settings, phrase 1 (its
-intent and its successful outcome), the settings-mutation flag (`SessionStart.mutation`) and
-whether adaptive tempo runs (`SessionStart.adaptiveTempo`; see [Adaptive tempo](#adaptive-tempo)).
+intent and its successful outcome), the settings-mutation flag (`SessionStart.mutation`),
+whether adaptive tempo runs (`SessionStart.adaptiveTempo`; see [Adaptive tempo](#adaptive-tempo))
+and whether the multi-phrase tension arc runs (`SessionStart.multiPhraseTensionArc`; see
+[Multi-phrase tension arc](#multi-phrase-tension-arc)).
 It returns `outputsAtStart` and `handle(event)`, which returns the outputs of that one event.
 
 ## Events and outputs
@@ -1106,6 +1109,82 @@ points chunk 25 connects:
   (`refusingSettingsChangeOutputs`) rather than being ignored silently by a controller that has no
   handling for them yet.
 
+## Multi-phrase tension arc
+
+The [multi-phrase tension arc](music/lexicon.md#tension-across-phrases) (spec D178) shapes a
+longer stretch of a session: instead of generating every phrase with the one
+[tension arc](music/lexicon.md#tension) in effect, it raises and then lowers the tension over each
+group of four phrases. Chunk 29 builds the engine side; no control turns it on before chunk 30.
+
+### The cycle
+
+`tension-arc-cycle.ts` holds the cycle as pure functions, with no seed stream, clock or session
+state. The step of session phrase n comes from its number alone, through its position
+(n − 1) mod 4 in its group of four (`tensionArcCycleStep`):
+
+| Position | Phrases    | Step                            |
+| -------- | ---------- | ------------------------------- |
+| 0        | 1, 5, 9 …  | none: the tension arc in effect |
+| 1        | 2, 6, 10 … | one step tenser                 |
+| 2        | 3, 7, 11 … | none                            |
+| 3        | 4, 8, 12 … | one step calmer                 |
+
+A step moves along `TENSION_ARCS`, Settled, Lift, Build, Edge, calmest first, and is clamped at
+both ends (`steppedTensionArc`). From Lift the phrases go Lift, Build, Lift, Settled, Lift …; from
+Settled, Settled, Lift, Settled, Settled …; from Edge, Edge, Edge, Edge, Build … Phrase 1,
+generated at Idle, is at position 0, so it is generated as chosen.
+
+### Settings in effect and settings generated under
+
+`settingsGeneratedUnder(flag, phraseNumber, settingsInEffect)` gives the settings a phrase is
+generated under: the settings in effect themselves, the same object, when the flag is off or the
+clamped step changes nothing; otherwise a frozen copy with only `controls.tension` replaced.
+
+The engine keeps the two apart. The step never reaches `state.settings`, the settings in effect:
+a mutation draws from them and every `settings-changed` output reports them, so the tension-arc
+control keeps showing the player's choice, and the arc itself outputs no `settings-changed`. Only
+the look-ahead basis, from which every attempt's intent is built, takes the stepped settings.
+
+### Where it applies
+
+- **A phrase about to be requested** (`requestNextPhrase`): the step is applied after any mutation
+  landing on that phrase, so the cycle steps around the value then in effect. A tension mutation
+  from Lift to Build puts Build in effect, and the phrases from then on step around Build.
+- **A phrase requested again after a settings change** (`onSettingsChange`): it is stepped by the
+  pending phrase's own number, around the new settings. A change that applies only from the phrase
+  after reaches the step when that phrase is requested.
+- **Every rung** of a phrase, the standalone retry included, uses that phrase's step.
+- **A repeat** is the phrase before exactly as it was generated, its step included. The cycle still
+  counts by session phrase number, so the phrase after a repeat takes its own number's step.
+
+### The carry-in across a step
+
+The settings the phrase before was generated under, its step included (`lastDecidedSettings`),
+are the `before` side of `lookAheadBasis`. A step between two phrases therefore goes through
+`adaptCarryIn` like any tension change (see
+[The carry-in after a change](#the-carry-in-after-a-change)): the carried harmony is dropped when
+the stepped tension never ends a phrase on it, and the pitch part is then re-checked, the phrase
+going standalone when it cannot be paid. These are the intent's own carry-in checks, so every join
+stays valid. Applying the two adaptation rules, worded for a setting change, across a step awaits
+the owner's sign-off on their extended wording (`module_tension_arc_cycle` stays DRAFT).
+
+### Replay and the flag
+
+- **Replay.** The stepped value is the intent's own `controls.tension`, so a phrase's
+  [replay key](phrase-workspace.md#phrase-replay-key) holds it, with no change to the `ifk1.`
+  format, and replays the phrase as it was generated. The step adds no randomness: the same start,
+  providers and events give the same session.
+- **The flag.** `SessionStart.multiPhraseTensionArc` is checked by `createSessionEngine` at start
+  (`requireTensionArcFlag`: anything but a boolean, a missing flag included, throws a
+  `SessionEngineError`) and kept in the engine context for the whole session. Off, every phrase is
+  generated under the settings in effect themselves, so the session is exactly the one without the
+  flag. `startWorkspaceSessionRunner` passes `false` (its `WorkspaceSessionStart` omits the flag)
+  until chunk 30 builds the control.
+
+`tension-arc-cycle.spec.ts` tests the pure cycle. `session-engine-tension-arc.spec.ts` and
+`session-engine-tension-arc-generation.spec.ts` drive whole sessions on the
+[session driver](testing.md#the-session-driver).
+
 ## What later chunks add
 
 - **Chunk 9 (built):** the session history, fed from the engine's outputs (see
@@ -1144,6 +1223,9 @@ points chunk 25 connects:
 - **Chunk 27 (built):** adaptive tempo's engine side, each phrase at its own tempo on the
   transport's tempo map, and the page's flag (see [Adaptive tempo](#adaptive-tempo)).
 - **Chunk 28:** the adaptive-tempo control.
+- **Chunk 29 (built):** the multi-phrase tension arc's engine side, with the flag off in the
+  workspace (see [Multi-phrase tension arc](#multi-phrase-tension-arc)).
+- **Chunk 30:** the multi-phrase tension arc's control.
 
 ## Choices made while building it
 
@@ -1247,6 +1329,19 @@ The settings-mutation choices were made in chunk 24:
 - **The workspace refuses what it cannot handle yet.** A `settings-changed` or `phrase-discarded`
   output, or a display read, throws in the workspace runner until chunk 25, rather than being
   dropped.
+
+The multi-phrase tension arc's choices were made in chunk 29:
+
+- **A pure module outside the engine.** The cycle and the settings a phrase is generated under
+  live in `tension-arc-cycle.ts`; the engine only calls `settingsGeneratedUnder` where it builds a
+  look-ahead basis. `session-engine.ts` thus stays under the file-size warning of 400 effective
+  lines ([`CODING_RULE.md`](../CODING_RULE.md)), and the cycle is tested without a session.
+- **The step comes from the phrase number, with no seed stream.** The cycle is fixed (spec D178),
+  so there is nothing to draw and nothing to store for replay, and failures, retries, repeats and
+  discards cannot shift it.
+- **The step never becomes the settings in effect.** Otherwise a mutation would draw from a
+  stepped value, `settings-changed` would report a tension the player never chose, and every step
+  would be a settings change, with its discard rule.
 
 The rolling display's choices were made in chunk 16:
 

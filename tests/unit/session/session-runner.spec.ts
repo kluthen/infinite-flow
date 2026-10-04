@@ -71,6 +71,7 @@ function fastStart(): SessionStart {
     phraseOne: phraseOneFor(settings),
     mutation: SETTINGS_MUTATION_OFF,
     adaptiveTempo: false,
+    multiPhraseTensionArc: false,
   }
 }
 
