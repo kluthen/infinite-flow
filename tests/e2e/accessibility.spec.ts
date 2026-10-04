@@ -37,9 +37,12 @@ import {
   backingTrackToggle,
   exportButton,
   exportError,
+  exportPlayedButton,
   pickFormat,
+  playedNotesToggle,
   reviewItems,
   reviewLink,
+  reviewOfSession,
   sessionEndedAfter,
 } from './review/review-helpers'
 
@@ -401,4 +404,37 @@ for (const scan of REVIEW_SCANS) {
       expect(results.violations, describeViolations(results.violations)).toEqual([])
     })
   }
+}
+
+// The Review of a session with played notes (v2.1), in both themes: `Export played notes` after
+// the generated-notes group, and the `Played notes` switch on its own row, switched on, with the
+// played-notes lanes it shows.
+for (const theme of ['Light', 'Dark'] as const) {
+  // @test-link [[req_last_session_review]]
+  // @test-link [[req_played_notes_export]]
+  // @test-link [[module_review_played_notes_lane]]
+  test(`has no detectable axe violations with the Review's played-notes tools, ${theme} theme`, async ({
+    page,
+  }) => {
+    test.setTimeout(120_000)
+    await reviewOfSession(page, true)
+    await radio(page, 'Presentation theme', theme).click()
+    await expect(reviewItems(page).first().locator('.review-staff svg').first()).toBeAttached({
+      timeout: 30_000,
+    })
+    await expect(exportPlayedButton(page)).toBeVisible()
+    await playedNotesToggle(page).click()
+    await expect(playedNotesToggle(page)).toHaveAttribute('aria-pressed', 'true')
+    // The lanes are scanned too: one under each phrase's system, phrase 1's with its bars.
+    await expect(reviewItems(page).locator('.played-notes-lane')).toHaveCount(2)
+    await expect(reviewItems(page).first().locator('.played-notes-lane .played-note')).toHaveCount(
+      2,
+    )
+    await page.waitForFunction(() =>
+      document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
+    )
+
+    const results = await new AxeBuilder({ page }).analyze()
+    expect(results.violations, describeViolations(results.violations)).toEqual([])
+  })
 }

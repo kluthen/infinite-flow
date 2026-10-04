@@ -1,14 +1,18 @@
 <script setup lang="ts">
 /**
  * The last-session Review, shown in the staff area's place: its title and summary, the
- * generated-notes export (Format, Backing track for MIDI, and the export button), and the list of
- * the session's phrases in order, each engraved lazily as it comes near the visible area (see
- * ./review-engraving-window.ts) in positions reserved at the workspace staff's size, so a review
- * of any length stays responsive and never moves the page as phrases are drawn. While the
- * workspace staff has no room, the room notice stands in for the list. Everything it shows comes
- * from the session history it is given; it holds the export's state only while a file is built.
+ * generated-notes export (Format, Backing track for MIDI, and the export button), and, when the
+ * session holds a played note, the played-notes export button and the Played notes switch (its
+ * state held by the page; while on, each phrase draws its played-notes lanes on one session-wide
+ * pitch scale), then the list of the session's phrases in order, each engraved lazily
+ * as it comes near the visible area (see ./review-engraving-window.ts) in positions reserved at
+ * the workspace staff's size, so a review of any length stays responsive and never moves the page
+ * as phrases are drawn. While the workspace staff has no room, the room notice stands in for the
+ * list. Everything it shows comes from the session history it is given; it holds each export's
+ * state only while its file is built (see ./use-review-export-action.ts), the two exports running
+ * independently and sharing one error.
  */
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 
 import SegmentedControl from '@/components/controls/SegmentedControl.vue'
 import type { SegmentedControlOption } from '@/components/controls/segmented-control-option'
@@ -18,12 +22,14 @@ import { planStaffPositions, type StaffViewport } from '@/notation/notation-layo
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
 import type { SessionHistoryRecord } from '@/session/session-history'
 import ReviewPhrase from './ReviewPhrase.vue'
+import { playedNotesPitchScale } from './played-notes-lane-geometry'
 import {
   createReviewEngravingWindow,
   type ReviewEngravingOutcome,
   type ReviewEngravingWindow,
 } from './review-engraving-window'
 import { distanceFromVisibleArea, observeReviewList } from './review-list-observers'
+import { useReviewExportAction } from './use-review-export-action'
 import type {
   ExportRequest,
   GeneratedNotesFormat,
@@ -48,11 +54,18 @@ const props = defineProps<{
   backingTrack: boolean
   /** Build one file from the session history and hand it to the browser; rejects on failure. */
   exportFile: (request: ExportRequest) => Promise<void>
+  /** The session history holds a played note in a phrase: the played-notes tools show. */
+  holdsPlayedNote: boolean
+  /** Whether the Played notes switch is on, held by the page for its session. */
+  playedNotesShown: boolean
+  /** Build the played-notes file and hand it to the browser; rejects on failure. */
+  exportPlayedNotes: () => Promise<void>
 }>()
 
 const emit = defineEmits<{
   'update:format': [format: GeneratedNotesFormat]
   'update:backingTrack': [on: boolean]
+  'update:playedNotesShown': [on: boolean]
 }>()
 
 const titleId = useId()
@@ -105,9 +118,9 @@ const FORMAT_OPTIONS: readonly SegmentedControlOption[] = [
 ]
 
 const exportButtonEl = ref<HTMLButtonElement | null>(null)
-const exporting = ref(false)
+const playedExportButtonEl = ref<HTMLButtonElement | null>(null)
+/** The Review's one export error, after a failed export of either content. */
 const exportFailed = ref(false)
-let unmounted = false
 
 /** Intent: ask the page for the picked format, refusing a value the control does not offer. */
 // @spec-link [[req_session_export]]
@@ -125,43 +138,43 @@ function toggleBackingTrack(): void {
 }
 
 /**
- * Intent: once the export ends, give focus back to the enabled button if it was there, or fell to
- * the page while the button was disabled; focus the player moved elsewhere stays there.
+ * Intent: build one generated-notes file in the chosen format (the backing track applying to MIDI
+ * only), Format and Backing track staying live while it is built.
  */
-function returnFocusToExport(): void {
-  const button = exportButtonEl.value
-  if (button === null) return
-  const active = document.activeElement
-  if (active === null || active === document.body || active === button) button.focus()
+// @spec-link [[req_session_export]]
+const { running: exporting, start: startExport } = useReviewExportAction({
+  button: exportButtonEl,
+  failed: exportFailed,
+  build: () =>
+    props.exportFile({
+      format: props.format,
+      backingTrack: props.format === 'midi' && props.backingTrack,
+    }),
+})
+
+/** Intent: build the session's played-notes file, independently of the generated-notes export. */
+// @spec-link [[req_played_notes_export]]
+const { running: exportingPlayed, start: startPlayedExport } = useReviewExportAction({
+  button: playedExportButtonEl,
+  failed: exportFailed,
+  build: () => props.exportPlayedNotes(),
+})
+
+/** Intent: ask the page to switch the played-notes lanes on or off; focus stays on the switch. */
+// @spec-link [[rule_review_played_notes_toggle]]
+// @spec-link [[module_review_played_notes_lane]]
+function togglePlayedNotes(): void {
+  emit('update:playedNotesShown', !props.playedNotesShown)
 }
 
 /**
- * Intent: build one file in the chosen format (the backing track applying to MIDI only), the
- * button loading and disabled meanwhile while Format and Backing track stay live. A failure shows
- * the static error, which the next export removes as it starts; success says nothing, the
- * browser's download being the confirmation.
+ * Intent: the lanes' one pitch scale for the whole session, from every phrase's played notes; and
+ * whether the lanes show: only while the switch is on and shown, so a session without a played
+ * note shows none, whatever the page's switch state.
  */
-// @spec-link [[req_session_export]]
-async function startExport(): Promise<void> {
-  if (exporting.value) return
-  exportFailed.value = false
-  exporting.value = true
-  const request: ExportRequest = {
-    format: props.format,
-    backingTrack: props.format === 'midi' && props.backingTrack,
-  }
-  try {
-    await props.exportFile(request)
-  } catch {
-    // The failure is the player's to see: the error stays until the next export starts.
-    exportFailed.value = true
-  } finally {
-    exporting.value = false
-  }
-  if (unmounted) return
-  await nextTick()
-  returnFocusToExport()
-}
+// @spec-link [[module_review_played_notes_lane]]
+const pitchScale = computed(() => playedNotesPitchScale(props.records))
+const lanesShown = computed(() => props.holdsPlayedNote && props.playedNotesShown)
 
 // ---- Lazy engraving ----
 
@@ -284,10 +297,7 @@ watch(
   { flush: 'post' },
 )
 
-onBeforeUnmount(() => {
-  unmounted = true
-  stopEngraving()
-})
+onBeforeUnmount(stopEngraving)
 </script>
 
 <template>
@@ -332,10 +342,34 @@ onBeforeUnmount(() => {
             Export generated notes
           </button>
         </div>
+        <button
+          v-if="holdsPlayedNote"
+          ref="playedExportButtonEl"
+          type="button"
+          class="btn review-export-action"
+          :class="{ 'is-loading': exportingPlayed }"
+          :disabled="exportingPlayed"
+          @click="startPlayedExport"
+        >
+          Export played notes
+        </button>
       </div>
       <p v-if="exportFailed" class="inline-alert alert-error review-export-error">
         The file couldn't be made. Try again.
       </p>
+      <div v-if="holdsPlayedNote" class="review-view">
+        <button
+          type="button"
+          class="btn toggle-button"
+          :aria-pressed="playedNotesShown ? 'true' : 'false'"
+          @click="togglePlayedNotes"
+        >
+          Played notes
+          <span class="toggle-button-state" aria-hidden="true">{{
+            playedNotesShown ? 'on' : 'off'
+          }}</span>
+        </button>
+      </div>
     </div>
     <ol v-if="!noRoom" ref="listEl" class="review-list">
       <ReviewPhrase
@@ -345,6 +379,8 @@ onBeforeUnmount(() => {
         :record="record"
         :viewport="viewport"
         :reservation="reservation"
+        :played-notes-shown="lanesShown"
+        :pitch-scale="pitchScale"
       />
     </ol>
     <!-- The stylesheet shows one no-room sentence by the notation layout's width query. -->

@@ -42,6 +42,11 @@ function mountPanel(options: PanelOptions = {}) {
       format: options.format ?? 'musicxml',
       backingTrack: options.backingTrack ?? false,
       exportFile: options.exportFile ?? (() => Promise.resolve()),
+      // The played-notes tools and lanes are covered in ReviewPanel-played-notes.spec.ts and
+      // ReviewPhrase-played-notes.spec.ts; here they are not rendered.
+      holdsPlayedNote: false,
+      playedNotesShown: false,
+      exportPlayedNotes: () => Promise.resolve(),
     },
     attachTo: document.body,
   })

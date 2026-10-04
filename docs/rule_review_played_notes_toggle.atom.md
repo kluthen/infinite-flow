@@ -5,7 +5,9 @@ type: RULE
 priority: 1
 parents:
   - [[req_last_session_review]]
-dependents: []
+dependents:
+  - [[module_notation_engraving_anchors]]
+  - [[module_review_played_notes_lane]]
 layer: BUSINESS
 version: 0.1
 human_name: Played Notes in the Review on a Toggle

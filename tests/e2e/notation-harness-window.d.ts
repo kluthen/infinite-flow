@@ -158,6 +158,21 @@ interface NotationHarnessSvgSnapshot {
   readonly measureIndices: readonly number[]
   /** Each `g.measure-slot`'s `data-system-index`, in document order. */
   readonly systemIndices: readonly number[]
+  /**
+   * Per `g.measure-slot`, in document order: the drawn `x` (SVG user units) of each of its
+   * `g.vf-stavenote` groups' notehead (or rest) glyph text, in drawing order.
+   */
+  // @test-link [[module_notation_engraving_anchors]]
+  readonly noteheadXs: readonly (readonly number[])[]
+}
+
+/** One drawn measure's reported time-axis anchors (MeasureAnchors), in CSS px. */
+// @test-link [[module_notation_engraving_anchors]]
+interface NotationHarnessMeasureAnchors {
+  readonly measureIndex: number
+  readonly systemIndex: 0 | 1
+  readonly eventStartsPx: readonly number[]
+  readonly barlinePx: number
 }
 
 /** The geometry an engraving reports, shared by a whole phrase's and one system's. */
@@ -168,6 +183,9 @@ interface NotationHarnessEngravedGeometry {
   readonly positionBlockPx: number
   readonly requiredUnits: number
   readonly measureBoxes: readonly { readonly x: number; readonly width: number }[]
+  readonly measureAnchors: readonly NotationHarnessMeasureAnchors[]
+  /** The fixture phrase's event count (notes and rests) per measure, in phrase order. */
+  readonly measureEventCounts: readonly number[]
 }
 
 /** A thrown value, serialisable: its name, its NotationError code (null otherwise) and message. */

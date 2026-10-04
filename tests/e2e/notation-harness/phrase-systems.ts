@@ -5,9 +5,12 @@
  * `engravePhraseSystem` into one host, and returns serialisable snapshots of what was drawn: the
  * reported geometry, and each SVG's size, normalised markup (VexFlow's per-element `autoN` ids
  * renamed in order of appearance, since they count every element ever created on the page), note
- * ids and measure-slot indices. Hosts are scratch elements laid out on the page, so the engraver's
- * bounds check can measure them, and removed once read.
+ * ids, measure-slot indices and each slot's drawn notehead x positions, plus the reported measure
+ * anchors and the fixture's event count per measure. Hosts are scratch elements laid out on the
+ * page, so the engraver's bounds check can measure them, and removed once read.
  */
+import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
+import type { MeasureAnchors } from '@/notation/engraving-anchors'
 import { NotationError } from '@/notation/notation-error'
 import type { VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 import { resolveFixture } from './fixtures'
@@ -47,7 +50,37 @@ function svgSnapshot(svg: SVGSVGElement): NotationHarnessSvgSnapshot {
     ],
     measureIndices: slots.map((slot) => Number(slot.getAttribute('data-measure-index'))),
     systemIndices: slots.map((slot) => Number(slot.getAttribute('data-system-index'))),
+    noteheadXs: slots.map(noteheadXs),
   }
+}
+
+/**
+ * Intent: the drawn `x` of each stave note's notehead (or rest) glyph in one measure slot, in
+ * drawing order: the first text of its `g.vf-notehead` group, which VexFlow draws first.
+ */
+// @test-link [[module_notation_engraving_anchors]]
+function noteheadXs(slot: Element): number[] {
+  return [...slot.querySelectorAll('g.vf-stavenote')].map((note) => {
+    const text = note.querySelector('g.vf-notehead text')
+    if (text === null) throw new Error('A drawn stave note has no notehead text.')
+    return Number(text.getAttribute('x'))
+  })
+}
+
+/** Intent: snapshot reported measure anchors in a serialisable form. */
+// @test-link [[module_notation_engraving_anchors]]
+function anchorsSnapshot(anchors: readonly MeasureAnchors[]): NotationHarnessMeasureAnchors[] {
+  return anchors.map(({ measureIndex, systemIndex, eventStartsPx, barlinePx }) => ({
+    measureIndex,
+    systemIndex,
+    eventStartsPx: [...eventStartsPx],
+    barlinePx,
+  }))
+}
+
+/** Intent: a phrase's event count (notes and rests) per measure, in phrase order. */
+function eventCounts(phrase: WrittenPhrase): number[] {
+  return phrase.measures.map((measure) => measure.events.length)
 }
 
 /** Intent: describe a thrown value in a serialisable form, keeping a NotationError's code. */
@@ -68,10 +101,11 @@ export function notationSystemsHook(
     async engravePhrase(fixtureName, phraseNumber, containerWidthPx, viewport) {
       const engraver = await readyEngraver()
       const hosts = [scratchHost(), scratchHost()] as const
+      const phrase = resolveFixture(fixtureName)
       try {
         const score = engraver.engraveWrittenPhrase(
           hosts,
-          resolveFixture(fixtureName),
+          phrase,
           phraseNumber,
           containerWidthPx,
           viewport,
@@ -83,6 +117,8 @@ export function notationSystemsHook(
           positionBlockPx: score.positionBlockPx,
           requiredUnits: score.requiredUnits,
           measureBoxes: score.measureBoxes.map((box) => ({ x: box.x, width: box.width })),
+          measureAnchors: anchorsSnapshot(score.measureAnchors),
+          measureEventCounts: eventCounts(phrase),
           svgs: score.svgs.map(svgSnapshot),
         }
       } finally {
@@ -92,10 +128,11 @@ export function notationSystemsHook(
     async engravePart(fixtureName, phraseNumber, part, containerWidthPx, viewport) {
       const engraver = await readyEngraver()
       const host = scratchHost()
+      const phrase = resolveFixture(fixtureName)
       try {
         const system = engraver.engravePhraseSystem(
           host,
-          resolveFixture(fixtureName),
+          phrase,
           phraseNumber,
           part,
           containerWidthPx,
@@ -108,6 +145,8 @@ export function notationSystemsHook(
           positionBlockPx: system.positionBlockPx,
           requiredUnits: system.requiredUnits,
           measureBoxes: system.measureBoxes.map((box) => ({ x: box.x, width: box.width })),
+          measureAnchors: anchorsSnapshot(system.measureAnchors),
+          measureEventCounts: eventCounts(phrase),
           svg: svgSnapshot(system.svg),
           hostChildCount: host.childElementCount,
           hostHoldsSvg: host.contains(system.svg),

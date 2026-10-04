@@ -10,7 +10,7 @@ dependents: []
 type: RULE
 parents:
   - [[req_midi_controller_input]]
-notes: Revised 2026-09-29 by v2 spec ingestion for release v2.0 (previous version 0.1). Version 0.1 stated the first-release boundary that the app has no MIDI controller connection, input or feedback at all; v2 lifts that exclusion, so this rule now states how played MIDI input stays private. Since v2 chunk 17 played notes exist, in memory only, in the session history. The lint and boundary-script bans on network and storage enforce its never-sent/never-stored half; no test yet runs the network and storage spy across a session with played notes that its expectation calls for, and the played-notes export is not built (release v2.1).
+notes: Revised 2026-09-29 by v2 spec ingestion for release v2.0 (previous version 0.1). Version 0.1 stated the first-release boundary that the app has no MIDI controller connection, input or feedback at all; v2 lifts that exclusion, so this rule now states how played MIDI input stays private. Since v2 chunk 17 played notes exist, in memory only, in the session history. The lint and boundary-script bans on network and storage enforce its never-sent/never-stored half. Since v2 chunk 23 (release v2.1) the played-notes export is built. The review privacy end-to-end test runs the network and storage spy across a session with played notes, its review, every generated-notes export, the played-notes export and the Played notes switch, and checks that every generated-notes file is byte-identical to the file of the same session played silently. The LOGIC clause about the time before the played-notes action exists is now moot; dropping it is a business edit pending owner sign-off.
 ---
 
 # Optional MIDI Privacy

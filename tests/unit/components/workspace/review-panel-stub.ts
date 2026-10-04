@@ -25,8 +25,11 @@ const ReviewPanelStub = defineComponent({
       type: Function as PropType<(request: ExportRequest) => Promise<void>>,
       required: true,
     },
+    holdsPlayedNote: { type: Boolean, required: true },
+    playedNotesShown: { type: Boolean, required: true },
+    exportPlayedNotes: { type: Function as PropType<() => Promise<void>>, required: true },
   },
-  emits: ['update:format', 'update:backingTrack'],
+  emits: ['update:format', 'update:backingTrack', 'update:playedNotesShown'],
   setup(_props, { expose }) {
     const title = ref<HTMLElement | null>(null)
     expose({

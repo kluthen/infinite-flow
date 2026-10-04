@@ -6,11 +6,16 @@
  * exporting twice gives identical bytes; neither file holds a played note (a session with played
  * notes exports the very bytes of the same session played silently); and any failure, the export
  * code's chunk failing to load or the file failing to build, shows the export error with nothing
- * downloaded, the next export starting afresh.
+ * downloaded, the next export starting afresh. From v2.1, a session with played notes also
+ * exports them, as a MIDI file of its own (the same name stem, `-played.mid`) holding exactly the
+ * played notes as received, beside the generated-notes files and never merged into them; a
+ * session without one shows neither `Export played notes` nor the `Played notes` switch; and a
+ * failed played-notes export shows the same export error, which the next export of either
+ * content removes.
  */
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
-import { gotoSessionHarness, sessionAction } from '../session/session-helpers'
+import { gotoSessionHarness, sessionAction, sessionState } from '../session/session-helpers'
 import {
   STEM,
   backingTrackToggle,
@@ -19,14 +24,19 @@ import {
   exportEach,
   exportError,
   exportOnce,
+  exportPlayedButton,
   exportsBuilt,
   fixWallClock,
   formatOption,
+  pickFormat,
+  playedNotesToggle,
   reviewLink,
   reviewOfSession,
+  reviewPanel,
   sessionEndedAfter,
   type Downloads,
 } from './review-helpers'
+import { smfNoteOns } from './smf-note-ons'
 
 // The file names are the session's start in the player's local time: fix the zone.
 test.use({ timezoneId: 'Europe/Paris' })
@@ -59,12 +69,14 @@ test.describe('exporting the generated notes', () => {
   // @test-link [[rule_generated_notes_musicxml_export]]
   // @test-link [[rule_generated_notes_midi_export]]
   // @test-link [[rule_no_grading_or_mismatch_signal]]
+  // @test-link [[req_played_notes_export]]
   test('one named file per export, the same bytes twice, and no played note in either format', async ({
     page,
   }) => {
     test.setTimeout(120_000)
     const downloads = collectDownloads(page)
     await reviewOfSession(page, true)
+    await expect(exportPlayedButton(page)).toHaveText('Export played notes')
 
     const played = await exportEach(page, downloads)
 
@@ -86,6 +98,10 @@ test.describe('exporting the generated notes', () => {
     // The same session played silently exports the very same bytes: no played note is in them.
     const silentDownloads = collectDownloads(page)
     await reviewOfSession(page, false)
+    // Nothing was played in a phrase: neither played-notes tool is rendered.
+    await expect(exportPlayedButton(page)).toHaveCount(0)
+    await expect(reviewPanel(page).locator('.review-view')).toHaveCount(0)
+    await expect(playedNotesToggle(page)).toHaveCount(0)
     const silent = await exportEach(page, silentDownloads)
     expect(silent.musicXml.equals(played.musicXml), 'MusicXML').toBe(true)
     expect(silent.midi.equals(played.midi), 'MIDI').toBe(true)
@@ -93,14 +109,75 @@ test.describe('exporting the generated notes', () => {
   })
 })
 
-/** Intent: click `Export generated notes` and wait for the failed export to settle. */
-async function failedExport(page: Page, downloads: Downloads): Promise<void> {
+// @test-link [[req_played_notes_export]]
+// @test-link [[rule_export_contents_never_merged]]
+test.describe('exporting the played notes', () => {
+  // @test-link [[req_played_notes_export]]
+  // @test-link [[rule_export_contents_never_merged]]
+  test('a MIDI file of its own holding the played notes, beside the generated MIDI file with none', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000)
+    const downloads = collectDownloads(page)
+    await reviewOfSession(page, true)
+    await expect(playedNotesToggle(page)).toHaveAttribute('aria-pressed', 'false')
+
+    const played = await exportOnce(page, downloads, exportPlayedButton(page))
+    expect(played.fileName).toBe(`${STEM}-played.mid`)
+    expect(downloads.all).toHaveLength(1)
+    await expect(exportPlayedButton(page)).toBeFocused()
+
+    await pickFormat(page, 'MIDI')
+    const generated = await exportOnce(page, downloads)
+    expect(generated.fileName).toBe(`${STEM}-generated.mid`)
+    expect(downloads.all).toHaveLength(2)
+
+    // The played file holds every played note, at concert pitch as received, with its velocity.
+    const recorded = ((await sessionState(page)).lastHistoryPhrases ?? [])
+      .flatMap((phrase) => phrase.playedNotes)
+      .toSorted((a, b) => a.onsetAt - b.onsetAt)
+    expect(recorded).toHaveLength(3)
+    expect(played.bytes.subarray(0, 4).toString('latin1')).toBe('MThd')
+    const playedNotes = smfNoteOns(played.bytes)
+    expect(playedNotes.map((note) => [note.pitch, note.velocity])).toEqual(
+      recorded.map((note) => [note.pitch, note.velocity]),
+    )
+    // The generated file holds none of them: the low note played in phrase 2 is not in it.
+    const generatedPitches = smfNoteOns(generated.bytes).map((note) => note.pitch)
+    expect(generatedPitches.length).toBeGreaterThan(0)
+    expect(generatedPitches).not.toContain(30)
+  })
+
+  // @test-link [[req_played_notes_export]]
+  test('a failed played-notes export shows the export error, which the next export removes', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000)
+    const downloads = collectDownloads(page)
+    await reviewOfSession(page, true)
+    await page.evaluate(() => window.__workspaceHarness.failNextExport())
+
+    await failedExport(page, downloads, exportPlayedButton(page))
+
+    const file = await exportOnce(page, downloads)
+    await expect(exportError(page)).toHaveCount(0)
+    expect(file.fileName).toBe(`${STEM}-generated.musicxml`)
+    expect(downloads.all).toHaveLength(1)
+  })
+})
+
+/** Intent: click `button` (`Export generated notes` by default) and wait for the failed export. */
+async function failedExport(
+  page: Page,
+  downloads: Downloads,
+  button: Locator = exportButton(page),
+): Promise<void> {
   const builtBefore = await exportsBuilt(page)
-  await exportButton(page).click()
+  await button.click()
   await expect(exportError(page)).toHaveText("The file couldn't be made. Try again.")
   await expect(exportError(page)).toHaveClass(/inline-alert alert-error/)
-  await expect(exportButton(page)).toBeEnabled()
-  await expect(exportButton(page)).toBeFocused()
+  await expect(button).toBeEnabled()
+  await expect(button).toBeFocused()
   expect(await exportsBuilt(page)).toBe(builtBefore)
   expect(downloads.all).toHaveLength(0)
 }
@@ -143,7 +220,7 @@ test.describe('an export that fails', () => {
 
     const file = await exportOnce(page, downloads)
     await expect(exportError(page)).toHaveCount(0)
-    expect(file.fileName).toBe(`${STEM}.musicxml`)
+    expect(file.fileName).toBe(`${STEM}-generated.musicxml`)
     expect(downloads.all).toHaveLength(1)
   })
 })

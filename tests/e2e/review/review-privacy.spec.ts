@@ -16,17 +16,23 @@
  *   property assignment the wrappers cannot see) is caught by the end state: both Storage areas
  *   empty, no IndexedDB database, no Cache Storage cache, no cookie, no service worker.
  * - **Played notes** (rule_optional_midi_privacy). They were recorded (the history holds three),
- *   yet none is sent or stored, and the only files that leave the machine are the downloads the
- *   player triggered, one per export click; none carries a played note: each is byte for byte the
- *   file of the same session played silently.
+ *   shown and hidden with the Review's `Played notes` switch, yet none is sent or stored, and the
+ *   only files that leave the machine are the downloads the player triggered, one per export
+ *   click. Only the played-notes file the player asked for carries them; no generated-notes file
+ *   does: each is byte for byte the file of the same session played silently, whose Review offers
+ *   no played-notes export.
  */
 import { expect, test, type BrowserContext, type Page, type Request } from '@playwright/test'
 
 import { watchPageErrors } from '../controller/controller-helpers'
 import { sessionState } from '../session/session-helpers'
 import {
+  STEM,
   collectDownloads,
   exportEach,
+  exportOnce,
+  exportPlayedButton,
+  playedNotesToggle,
   reviewItems,
   reviewOfSession,
   type Downloads,
@@ -270,8 +276,15 @@ test.describe('a session under a network and storage spy', () => {
     await expect(reviewItems(page).first().locator('.review-staff svg').first()).toBeAttached({
       timeout: 30_000,
     })
-    // Every export: MusicXML, MIDI and MIDI with the backing track, each twice.
+    // Every export: MusicXML, MIDI and MIDI with the backing track, each twice, then the played
+    // notes once; and the Played notes switch on, then off.
     const played = await exportEach(page, downloads)
+    const playedFile = await exportOnce(page, downloads, exportPlayedButton(page))
+    expect(playedFile.fileName).toBe(`${STEM}-played.mid`)
+    for (const pressed of ['true', 'false']) {
+      await playedNotesToggle(page).click()
+      await expect(playedNotesToggle(page)).toHaveAttribute('aria-pressed', pressed)
+    }
     await expectNothingSentOrStored(page)
     expect(
       (await sessionState(page)).lastHistoryPhrases?.flatMap((p) => p.playedNotes),
@@ -280,6 +293,8 @@ test.describe('a session under a network and storage spy', () => {
     // The same session played silently, on a fresh page under the same spies.
     const silentDownloads = collectDownloads(page)
     await reviewOfSession(page, false)
+    await expect(exportPlayedButton(page)).toHaveCount(0)
+    await expect(playedNotesToggle(page)).toHaveCount(0)
     const silent = await exportEach(page, silentDownloads)
     await expectNothingSentOrStored(page)
 
@@ -297,10 +312,16 @@ test.describe('a session under a network and storage spy', () => {
     })
     expect(await context.cookies()).toEqual([])
 
-    // The only files that left: one download per export click (six per session), and none holds
-    // a played note: each is the very file of the same session played silently.
-    expect(downloads.all).toHaveLength(12)
+    // The only files that left: one download per export click (six generated-notes files per
+    // session, and the one played-notes file the player asked for), and no generated-notes file
+    // holds a played note: each is the very file of the same session played silently.
+    expect(downloads.all).toHaveLength(13)
     expect(silentDownloads.all).toHaveLength(6)
+    expect(downloads.all.map((download) => download.suggestedFilename()).sort()).toEqual([
+      ...Array.from({ length: 8 }, () => `${STEM}-generated.mid`),
+      ...Array.from({ length: 4 }, () => `${STEM}-generated.musicxml`),
+      `${STEM}-played.mid`,
+    ])
     expect(silent.musicXml.equals(played.musicXml), 'MusicXML').toBe(true)
     expect(silent.midi.equals(played.midi), 'MIDI').toBe(true)
     expect(silent.midiWithBacking.equals(played.midiWithBacking), 'MIDI with backing').toBe(true)

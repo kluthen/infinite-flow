@@ -3,8 +3,10 @@
  * its stand-in) takes the staff area's place after the toolbar; the generation-failure banner, the
  * cue row and the score title are hidden, and the staff viewport stays laid out, out of sight and
  * inert; the panel is given the session's phrases, its instrument, the staff's viewport and
- * no-room state live, the page-session export choices and the export action; both live regions
- * stay silent while it shows and when it closes; a session's start warms the panel's chunk.
+ * no-room state live, the page-session export choices, the export action, and the played-notes
+ * tools (whether the session holds a played note, the Played notes switch held for the page
+ * session and the played-notes export); both live regions stay silent while it shows and when it
+ * closes; a session's start warms the panel's chunk.
  */
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -213,6 +215,34 @@ describe('ScorePanel while the Review shows', () => {
     await flushPromises()
 
     expect(reviewPanel(wrapper).props()).toMatchObject({ format: 'midi', backingTrack: true })
+  })
+
+  // @test-link [[req_played_notes_export]]
+  // @test-link [[rule_review_played_notes_toggle]]
+  // @test-link [[rule_export_contents_never_merged]]
+  it('gives the played-notes tools: the switch held across a close and a reopening, the played file its own', async () => {
+    const { ports, downloads } = recordingPorts()
+    const fake = showingReview()
+    const wrapper = mountPanel(fakeGenerationSession(readyState()).session, fake, ports)
+    await flushPromises()
+    expect(reviewPanel(wrapper).props()).toMatchObject({
+      holdsPlayedNote: true,
+      playedNotesShown: false,
+    })
+
+    reviewPanel(wrapper).vm.$emit('update:playedNotesShown', true)
+    await nextTick()
+    fake.controller.closeReview()
+    await nextTick()
+    fake.controller.showReview()
+    await flushPromises()
+    expect(reviewPanel(wrapper).props('playedNotesShown')).toBe(true)
+
+    const exportPlayedNotes = reviewPanel(wrapper).props('exportPlayedNotes') as () => Promise<void>
+    await exportPlayedNotes()
+    expect(downloads.map((file) => file.fileName)).toEqual([
+      expect.stringMatching(/^infinite-flow-\d{4}-\d{2}-\d{2}-\d{6}-played\.mid$/),
+    ])
   })
 
   // @test-link [[req_session_export]]
