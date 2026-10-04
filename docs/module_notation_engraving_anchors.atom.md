@@ -1,6 +1,6 @@
 ---
 id: module_notation_engraving_anchors
-status: DRAFT
+status: REVIEW
 tags: [v2, release-v2.1, notation, review]
 parents:
   - [[rule_review_played_notes_toggle]]

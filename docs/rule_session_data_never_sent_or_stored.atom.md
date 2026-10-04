@@ -1,6 +1,6 @@
 ---
 id: rule_session_data_never_sent_or_stored
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 human_name: Session Data Never Sent or Stored
 version: 0.1
