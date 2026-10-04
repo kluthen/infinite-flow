@@ -54,9 +54,10 @@ export type Attempt =
     }
 
 /**
- * What every attempt of one look-ahead phrase is built from: the settings in effect when it was
- * opened, the settings its phrase before was generated under, and its source: the carry-in, as
- * adapted to the change between the two, or a standalone generation with this register.
+ * What every attempt of one look-ahead phrase is built from: the settings it is generated under
+ * (those in effect when it was opened, with its multi-phrase tension arc step), the settings its
+ * phrase before was generated under, and its source: the carry-in, as adapted to the change
+ * between the two, or a standalone generation with this register.
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
 // @spec-link [[rule_setting_change_rechecks_pitch_carry_in]]

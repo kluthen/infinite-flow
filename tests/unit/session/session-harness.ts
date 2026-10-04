@@ -211,6 +211,7 @@ export interface DriverOptions {
   readonly providers?: QueuedProviders
   readonly mutation?: SettingsMutationFlag
   readonly adaptiveTempo?: boolean
+  readonly multiPhraseTensionArc?: boolean
 }
 
 /** Feeds timed events to one engine and keeps every output it returned, in order. */
@@ -239,6 +240,7 @@ export class SessionDriver {
       phraseOne: this.phraseOne,
       mutation: options.mutation ?? SETTINGS_MUTATION_OFF,
       adaptiveTempo: options.adaptiveTempo ?? false,
+      multiPhraseTensionArc: options.multiPhraseTensionArc ?? false,
     }
     this.engine = createSessionEngine(
       { providers: this.providers, viewport: this.viewport, display: this.display },

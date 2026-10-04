@@ -4,8 +4,9 @@
  * reads a clock (every event carries its audio time) and touches no browser API: its only seams
  * are the identity and seed providers, the window-width reading and the display reading. The
  * settings in effect start as the chosen ones and change only at phrase boundaries, through its
- * own seeded mutations or a settings change event. The same start and event list always give the
- * same outputs.
+ * own seeded mutations or a settings change event; under the multi-phrase tension arc each phrase
+ * is generated with its cycle step, which never reaches them. The same start and event list
+ * always give the same outputs.
  */
 
 import { deepFreeze } from '../domain/events/deep-freeze'
@@ -66,6 +67,7 @@ import {
   noticeOnDecision,
   noticeOnSounding,
 } from './struggling-notice'
+import { requireTensionArcFlag, settingsGeneratedUnder } from './tension-arc-cycle'
 
 /** Intent: refuse a time that is not a finite number of seconds. */
 function assertAudioTime(at: AudioTime): void {
@@ -108,25 +110,24 @@ function requestRung(context: EngineContext, state: EngineState, rung: LadderRun
 /**
  * Intent: open the look-ahead for the phrase after the latest decided one and request it. A
  * mutation scheduled on that phrase is decided first, from the window read now, the step-down
- * memory and the register whose window the carry-in holds, and is in effect for its request.
+ * memory and the register whose window the carry-in holds, and is in effect for its request; the
+ * phrase is generated under those settings with its tension-arc cycle step, which never reaches
+ * the settings in effect.
  */
 function requestNextPhrase(context: EngineContext, state: EngineState, deadline: AudioTime): Step {
   if (state.lookAhead !== undefined)
     throw new SessionEngineError('A phrase is requested while another is still undecided.')
   const previous = state.lastDecided
+  const phraseNumber = previous.phraseNumber + 1
   const carryIn = carryInAfter(previous)
-  const landing = landingMutation(
-    context.mutation,
-    previous.phraseNumber + 1,
-    state.settings,
-    () => ({
-      belowTabletLandscape: context.viewport.isBelowTabletLandscape(),
-      sessionSteppedDown: state.steppedDown,
-      resolvedRegister: resolvedRegister(carryIn, registerCandidates(previous)),
-    }),
-  )
+  const landing = landingMutation(context.mutation, phraseNumber, state.settings, () => ({
+    belowTabletLandscape: context.viewport.isBelowTabletLandscape(),
+    sessionSteppedDown: state.steppedDown,
+    resolvedRegister: resolvedRegister(carryIn, registerCandidates(previous)),
+  }))
   const settings = landing?.settings ?? state.settings
-  const basis = lookAheadBasis(previous, state.lastDecidedSettings, settings, carryIn)
+  const under = settingsGeneratedUnder(context.multiPhraseTensionArc, phraseNumber, settings)
+  const basis = lookAheadBasis(previous, state.lastDecidedSettings, under, carryIn)
   const lookAhead = openLookAhead(previous, carryIn, basis, deadline)
   const requested = requestRung(context, { ...state, settings, lookAhead }, LADDER[0]!)
   return {
@@ -301,8 +302,9 @@ function onPhraseStartedSounding(
  * or the decided phrase not yet sounding) is discarded when at least a measure, at the sounding
  * phrase's tempo, remains before its deadline and none of it is on screen: a decided one is
  * undecided again, and either way it is requested again from the first rung with the new
- * settings, same phrase before and deadline, its attempt in flight superseded. Otherwise the
- * change applies from the phrase after it.
+ * settings (generated under them with its own tension-arc cycle step), same phrase before and
+ * deadline, its attempt in flight superseded. Otherwise the change applies from the phrase after
+ * it. The settings in effect and the settings-changed output never carry the step.
  */
 function onSettingsChange(
   context: EngineContext,
@@ -316,7 +318,8 @@ function onSettingsChange(
   if (!discardsPendingPhrase(at, pending, soundingTempo(state), context.display))
     return { state: { ...state, settings }, outputs: [automaticChange(phraseNumber + 1, settings)] }
   const undecided = state.lookAhead === undefined ? undecide(state) : state
-  const lookAhead = reopenedLookAhead(pending, settings)
+  const under = settingsGeneratedUnder(context.multiPhraseTensionArc, phraseNumber, settings)
+  const lookAhead = reopenedLookAhead(pending, under)
   const requested = requestRung(context, { ...undecided, settings, lookAhead }, LADDER[0]!)
   const discarded: readonly SessionOutput[] =
     state.lookAhead === undefined ? [{ kind: 'phrase-discarded', phraseNumber }] : []
@@ -412,11 +415,11 @@ function handleEvent(context: EngineContext, state: EngineState, event: SessionE
 
 /**
  * Intent: start a session from its start time, chosen settings, phrase 1 (the Idle phrase),
- * mutation flag and adaptive-tempo choice: freeze the settings as the settings in effect, whose
- * tempo stays the starting tempo, keep phrase 1 as the `idle` record at the starting tempo, and
- * request phrase 2 at once with its deadline at the end of the count-in. Returns the start outputs
- * and the handler of every later event; every output is deep-frozen, and attempt ids increase
- * from 1.
+ * mutation flag, adaptive-tempo choice and multi-phrase tension arc flag (a non-boolean throws):
+ * freeze the settings as the settings in effect, whose tempo stays the starting tempo, keep
+ * phrase 1 as the `idle` record at the starting tempo, and request phrase 2 at once with its
+ * deadline at the end of the count-in. Returns the start outputs and the handler of every later
+ * event; every output is deep-frozen, and attempt ids increase from 1.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[req_settings_mutation_flag]]
@@ -426,6 +429,7 @@ function handleEvent(context: EngineContext, state: EngineState, event: SessionE
 // @spec-link [[rule_session_never_pauses]]
 // @spec-link [[rule_phrase_one_is_idle_phrase]]
 // @spec-link [[rule_count_in_ending_returns_to_idle]]
+// @spec-link [[module_tension_arc_cycle]]
 export function createSessionEngine(
   deps: SessionEngineDependencies,
   start: SessionStart,
@@ -442,7 +446,8 @@ export function createSessionEngine(
   })
   const { providers, viewport, display } = deps
   const mutation = deepFreeze({ ...start.mutation })
-  const context: EngineContext = { providers, viewport, display, mutation, phraseOne }
+  const arcFlag = { multiPhraseTensionArc: requireTensionArcFlag(start.multiPhraseTensionArc) }
+  const context: EngineContext = { providers, viewport, display, mutation, phraseOne, ...arcFlag }
   const initial: EngineState = {
     phase: 'count-in',
     lastAt: start.at,

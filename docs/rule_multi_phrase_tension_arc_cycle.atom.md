@@ -1,7 +1,8 @@
 ---
 id: rule_multi_phrase_tension_arc_cycle
 status: DRAFT
-dependents: []
+dependents:
+  - [[module_tension_arc_cycle]]
 type: RULE
 layer: BUSINESS
 priority: 1

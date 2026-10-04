@@ -106,7 +106,14 @@ export async function recordRunnerSession(
       onOutput: (output) => history.record(output),
       onError: (error) => errors.push(error),
     },
-    { at: 0, settings, phraseOne, mutation: SETTINGS_MUTATION_OFF, adaptiveTempo: false },
+    {
+      at: 0,
+      settings,
+      phraseOne,
+      mutation: SETTINGS_MUTATION_OFF,
+      adaptiveTempo: false,
+      multiPhraseTensionArc: false,
+    },
   )
   await settle()
   const measure = measureSeconds(settings.controls.tempo)
