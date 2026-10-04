@@ -1,6 +1,6 @@
 ---
 id: module_review_played_notes_lane
-status: DRAFT
+status: REVIEW
 notes: Captured 2026-10-04 before code in v2 chunk 23 (pre-code architecture capture).
 dependents: []
 layer: ARCHITECTURE

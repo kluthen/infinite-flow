@@ -1,6 +1,6 @@
 ---
 id: rule_export_contents_never_merged
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.1
 tags: [v2, release-v2.1, export]

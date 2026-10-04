@@ -118,10 +118,10 @@ chunks in different sections; the second to merge rebases on the first.
 | 7    | 20 Review and generated-notes export (done 2026-10-02; hand checks moved to chunk 35)                                                                                                                                                                                                                                                                                         | Chunk 17                                                            |
 | 8    | 21 v2.0 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.0 chunk                                                    |
 | 9    | 22 Played-notes MIDI encoding (done 2026-10-03) · 24 Settings-mutation engine (done 2026-10-03)                                                                                                                                                                                                                                                                               | Chunks 4, 7, 8, 9 and 19; may start before v2.0 ships               |
-| 10   | 23 Review: played notes (blocked) · 25 Settings-mutation control (blocked)                                                                                                                                                                                                                                                                                                    | Wave 9, v2.0, and their designs                                     |
+| 10   | 23 Review: played notes (done 2026-10-04) · 25 Settings-mutation control                                                                                                                                                                                                                                                                                                      | Wave 9, v2.0, and their designs                                     |
 | 11   | 26 v2.1 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.1 chunk                                                    |
-| 12   | 27 Adaptive tempo engine · 29 Multi-phrase tension arc                                                                                                                                                                                                                                                                                                                        | v2.0 chunks, and chunk 24 for chunk 29; may start before v2.1 ships |
-| 13   | 28 Adaptive tempo control (blocked) · 30 Tension arc control (blocked)                                                                                                                                                                                                                                                                                                        | Wave 12, v2.1, and their designs                                    |
+| 12   | 27 Adaptive tempo engine (done 2026-10-03) · 29 Multi-phrase tension arc (done 2026-10-04)                                                                                                                                                                                                                                                                                    | v2.0 chunks, and chunk 24 for chunk 29; may start before v2.1 ships |
+| 13   | 28 Adaptive tempo control · 30 Tension arc control                                                                                                                                                                                                                                                                                                                            | Wave 12, v2.1, and their designs                                    |
 | 14   | 31 v2.2 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.2 chunk                                                    |
 | 15   | 35 v2.4 release gate: real-hardware checks                                                                                                                                                                                                                                                                                                                                    | Chunk 31 (v2.2), and the reference hardware                         |
 
@@ -2245,7 +2245,13 @@ generated-notes MIDI file of the same session.
 
 ### Chunk 23 — Review: played notes
 
-**Release:** v2.1.
+**Release:** v2.1. **Done on 2026-10-04.** The Review gains a `Played notes` switch and an
+`Export played notes` action, both hidden when the session holds no played note. With the switch
+on, a lane under each staff line draws one neutral bar per played note, unquantized, on a time
+axis anchored to the written notes, rests and barlines (ux D163, D166); nothing marks a note
+matched or unmatched (ux D161). The action downloads one `-played.mid` file from chunk 22's
+encoder, sharing the session's file stem with the generated-notes files. The privacy spy still
+sees nothing. The real-DAW import check stays with chunk 35.
 
 **Goal.** Played notes in the review, behind a toggle, unquantized and neutral, and the
 played-notes export action beside the generated-notes one.
@@ -2253,8 +2259,9 @@ played-notes export action beside the generated-notes one.
 **Spec sections:** [§7](master-spec.md#7-sessions-review-export-and-privacy) (the review, played
 notes, both contents), [§11, v2.1](master-spec.md#added-by-v21-and-later).
 
-**Design docs:** not designed yet: the Review's v2.1 additions, unit 7 in
-[`ui_ux/todo.md`](../../../ui_ux/todo.md).
+**Design docs:** the Review's v2.1 additions, unit 7 in [`ui_ux/todo.md`](../../../ui_ux/todo.md)
+(ux D161–D166), in [`ui_ux/screens/last-session-review/`](../../../ui_ux/screens/last-session-review/)
+and [`ui_ux/flows/review-and-export/`](../../../ui_ux/flows/review-and-export/).
 
 **Atoms:** `rule_review_played_notes_toggle`, `req_played_notes_export`,
 `rule_export_contents_never_merged`, `rule_no_grading_or_mismatch_signal`,
@@ -2276,7 +2283,7 @@ notes, both contents), [§11, v2.1](master-spec.md#added-by-v21-and-later).
   [chunk 35](#chunk-35--v24-release-gate-real-hardware-checks) (spec D180).
 - The privacy spy of item 13 still sees nothing.
 
-**Blocked by:** design: the Review's v2.1 additions, unit 7 in `ui_ux/todo.md`.
+**Blocked by:** nothing (design unit 7 done, merged 2026-10-04).
 
 ### Chunk 24 — Settings-mutation engine
 

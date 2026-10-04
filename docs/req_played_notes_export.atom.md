@@ -1,6 +1,6 @@
 ---
 id: req_played_notes_export
-status: DRAFT
+status: REVIEW
 type: REQUIREMENT
 layer: BUSINESS
 version: 0.1
