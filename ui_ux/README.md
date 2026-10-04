@@ -35,12 +35,12 @@ on `spec-writer`.
 - `motion.md` defines the limited motion policy.
 - `versions/v1/mockups/` contains the interactive v1 phrase-workspace review prototype, styled from the frozen `versions/v1/ui_common.css` reference.
 - `flows/generate-phrase/` specifies the four-measure generation journey between sessions: the phrase the player asks for, the replacements the app makes when a phrase does not fit the window, and every idle state on the way to a phrase a session can start from.
-- `screens/phrase-workspace/` specifies the shared workspace screen.
+- `screens/phrase-workspace/` specifies the shared workspace screen, including the options a session runs with (rising tempo, tension across phrases, varying settings), set before a session and only shown during it.
 - `flows/controller-connection/` specifies the MIDI controller connection and transposition-check journey.
 - `screens/controller-connection/` specifies the connection sheet screen that flow traverses.
 - `flows/play-session/` specifies the continuous session: starting (Start or the starting note), the count-in, the rolling two-system display, acknowledgement, the audio mix, and every way a session ends, up to the review opening. It runs on `screens/phrase-workspace/`, whose session states it names.
-- `flows/review-and-export/` specifies what follows a session once its first phrase has sounded: the review of the last session, the export of its generated notes, the fresh phrase the staff gets for the next session, leaving the review, and starting again.
-- `screens/last-session-review/` specifies the **Last session** review, which takes the staff's place after a session until the player closes it, the controls staying usable; no session starts while it shows.
+- `flows/review-and-export/` specifies what follows a session once its first phrase has sounded: the review of the last session, the export of its generated notes and of the notes the player played, the fresh phrase the staff gets for the next session, leaving the review, and starting again.
+- `screens/last-session-review/` specifies the **Last session** review, which takes the staff's place after a session until the player closes it, with the notes the player played shown under each staff on request, the controls staying usable; no session starts while it shows.
 - `open-questions.md`, `decisions.md`, and `todo.md` are working registers. Read `todo.md` before extending this set.
 - `archive/v1/` holds the closed first-release (v1.0) working record: the complete decision log,
   the closed question that record answers, and the finished work tracker. The live registers above

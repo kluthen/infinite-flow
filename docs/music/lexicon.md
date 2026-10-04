@@ -1125,6 +1125,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `control-note-density`, `rhythm`, `dotted-note`, `unsupported-rhythm-combination`
 - **sources:** ui_ux/screens/phrase-workspace/handoff.md, docs/module_rhythm_variety_grammar.atom.md, src/domain/controls/unsupported-rhythm-settings.ts
 
+### Rising tempo
+
+- **id:** `control-rising-tempo`
+- **aliases:** adaptive tempo
+- **popup:** Speeds a session up a little at a time: 5 BPM faster every 2 phrases, up to 240 BPM. Needs a connected controller.
+- **definition:** Rising tempo is the app's own name for a habit musicians use to build reading and playing speed: play the same kind of material a little faster each time. When it is on, the tempo of a session goes up by itself on a fixed schedule, whatever and however you play. It never slows down on its own. The project's documents call it "adaptive tempo".
+- **in_infinite_flow:** **Off** (default) or **On**, in the "During a session" group. While on, the tempo starts from your Tempo and goes up by 5 BPM every 2 phrases, stopping at 240 BPM. If your controller comes unplugged during the session, the rise waits: the tempo stays where it is until you plug it back in, then carries on. The rise never depends on how you play, and nothing about your playing is shown. It can only be turned on while a MIDI controller is connected; otherwise `On` is unavailable, with the note "Needs a connected controller.", and your choice comes back when a controller connects. During the session the page header and the Tempo control show the exact tempo now sounding, such as 95 BPM. When the session ends, Tempo goes back to the value you started from, a note under it says how fast the last session got, and the Review keeps each phrase's tempo. Changing the option never regenerates the phrase on screen; the choice lasts until you reload the page.
+- **related:** `control-tempo`, `tempo`, `control-vary-settings`
+- **sources:** specs/versions/v2/master-spec.md, ui_ux/screens/phrase-workspace/handoff.md
+
 ### Silence density
 
 - **id:** `control-silence-density`
@@ -1151,8 +1161,8 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** BPM, speed
 - **popup:** How fast to practice the phrase, in beats per minute (BPM). Higher numbers are faster.
 - **definition:** Tempo sets your practice speed in beats per minute, in the standard sense, counting quarter notes as beats. A good habit is to start slow enough to play the phrase cleanly and then raise the tempo a step at a time.
-- **in_infinite_flow:** A stepper with minus and plus buttons, from 60 to 240 BPM in steps of 10; default 90 BPM. The value also shows in the page header. In v1 the app plays no sound, and the tempo does not change which notes are generated: it is your target practice speed.
-- **related:** `tempo`, `beat`, `quarter-note`
+- **in_infinite_flow:** A stepper with minus and plus buttons, from 60 to 240 BPM in steps of 10; default 90 BPM. The value also shows in the page header. The tempo never changes which notes are generated: the same settings give the same kind of phrase at any tempo. In a session the count-in, the click, the backing and the phrases all play at it, and with Rising tempo on it can climb during the session, then goes back to your setting when the session ends.
+- **related:** `tempo`, `beat`, `quarter-note`, `control-rising-tempo`
 - **sources:** ui_ux/screens/phrase-workspace/handoff.md, src/domain/controls/generation-controls.ts
 
 ### Tension
@@ -1162,8 +1172,28 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** How much melodic tension the phrase builds, and where: none needed, a light lift, a clear build, or a late edge.
 - **definition:** Tension chooses how much melodic tension the phrase contains and where it happens. Here, tension means short melodic figures: notes that clash with the chord and then resolve onto a chord note. Musicians would speak of tension and release, or of non-chord tones. The project's documents call the control "Tension arc".
 - **in_infinite_flow:** The control schedules at most one tension figure: a note outside the chord, placed on purpose and resolved by step onto a chord tone before the phrase's last note. **Settled**: no figure required; if one occurs (a passing tone, neighbor tone or appoggiatura, in measures 1-3), it resolves by the next beat 1 or 3. **Lift** (default): at most one figure of those kinds, in measure 2 or 3, resolving by the next beat. **Build**: exactly one figure is required, and it must be a two-note stepwise approach into a chord tone, in measure 2 or 3. **Edge**: exactly one passing tone, neighbor tone or appoggiatura, in measure 3, resolving as late as allowed. Plain passing and neighbor tones can still appear anywhere except the first and last note; they don't count as the tension figure, and neither do Jazz's chromatic approaches and enclosures. The tense scale tone a session phrase generated from the phrase before it may end on, resolved by the next phrase's first note, is a separate case: not a passing or neighbor tone on the last note, and not the tension figure. Tension works inside what the other controls allow; it never changes them.
-- **related:** `tension-and-resolution`, `non-chord-tone`, `appoggiatura`, `approach-note`, `cadence`
+- **related:** `tension-and-resolution`, `non-chord-tone`, `appoggiatura`, `approach-note`, `cadence`, `control-tension-across-phrases`
 - **sources:** ui_ux/screens/phrase-workspace/handoff.md, docs/music/harmony-planner-policy.md, docs/music/melodic-control-models.md, src/domain/generation/carry-in/phrase-ending-debt.ts
+
+### Tension across phrases
+
+- **id:** `control-tension-across-phrases`
+- **aliases:** multi-phrase tension arc
+- **popup:** Shapes tension over groups of 4 phrases: your Tension, one step more, your Tension again, one step less.
+- **definition:** Musicians often shape a longer passage the way they shape a single phrase: build up, then ease off. Tension across phrases does this over four phrases in a row, raising and then lowering the melodic tension each phrase gets, so a long session rises and settles instead of staying at one level. The project's documents call it the "multi-phrase tension arc".
+- **in_infinite_flow:** **Off** (default) or **On**, in the "During a session" group. While on, a session runs in groups of 4 phrases (16 measures), counted from the first phrase: the first is generated with your Tension, the second one step tenser, the third with your Tension again, the fourth one step calmer. Steps follow the order Settled, Lift, Build, Edge and never go past either end, so with Edge chosen the second phrase stays at Edge. The Tension control never shows these steps: it shows your own choice or, if Vary settings moves Tension, the new value, and the steps then go around that value. Only what each phrase is generated with changes. Changing the option never regenerates the phrase on screen; the choice lasts until you reload the page.
+- **related:** `control-tension`, `tension-and-resolution`, `phrase`, `control-vary-settings`
+- **sources:** specs/versions/v2/master-spec.md, ui_ux/screens/phrase-workspace/handoff.md
+
+### Vary settings
+
+- **id:** `control-vary-settings`
+- **aliases:** settings-mutation flag
+- **popup:** Every 2 to 4 phrases, one setting moves one step, so a long session keeps changing. Never the instrument or the tempo.
+- **definition:** Vary settings is the app's own name for an option that keeps a long session fresh. Instead of every phrase being built from the same settings, one setting at a time drifts by a small step, up or down, every few phrases, while you keep playing. The project's documents call it the "settings-mutation flag".
+- **in_infinite_flow:** **Off** (default) or **On**, in the "During a session" group. While on, every 2 to 4 phrases (the gap is picked at random) one setting moves one step, in either direction. Any setting can move except Instrument profile and Tempo, which has Rising tempo instead. A step usually means one place along a control's list, never jumping from one end to the other. Some controls step their own way: Contour, whose shapes have no order, can change to any other shape; Register moves only among Low, Middle and High, never to Varying (from Varying it starts from the window the session was using, then keeps a fixed one); Written key moves one place around the circle of fifths (usually one sharp or flat more or fewer in the key signature); Collection moves one place at a time and stays among major and minor, or among the modes; Musical profile preset only switches its name between Neutral and Jazz, keeping every control, and then shows as a custom setup. A step never lands on an unsupported rhythm combination: the app picks again instead. During the session the controls show the settings the phrase now sounding was built from, changing quietly when a phrase built with a new value starts. When the session ends, every setting goes back to your own. Changing the option never regenerates the phrase on screen; the choice lasts until you reload the page.
+- **related:** `control-rising-tempo`, `control-tension-across-phrases`, `control-musical-profile-preset`, `unsupported-rhythm-combination`
+- **sources:** specs/versions/v2/master-spec.md, ui_ux/screens/phrase-workspace/handoff.md
 
 ### Written key
 

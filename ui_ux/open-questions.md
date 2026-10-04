@@ -27,7 +27,7 @@ Numbering continues from Q17. Q17 is a self-directed design question — `ux-wri
 a future session, no `spec-writer` input needed. Q18–Q21 were routed to `spec-writer`; Q22 was
 `ux-writer`'s own presentation call. All five were answered 2026-09-27 (see spec D109–D110 in
 [`specs/decisions.md`](../specs/decisions.md), ux D46 in this tree's `decisions.md`, and the
-master-spec passages cited below). Q17, Q25 and Q27 are closed in place in this section; Q26 and Q28–Q30 are closed, at the end of this file.
+master-spec passages cited below). Q17, Q25 and Q27 are closed in place in this section; Q26 and Q28–Q30 are closed, at the end of this file. Q64 is closed in place. Still open: Q16 and Q31.
 
 - **Q17 — how the rolling display actually presents the phrase sequence on screen.** The master
   spec requires at least one measure of the next phrase visible as read-ahead at all times
@@ -220,6 +220,17 @@ starting-note line). Entries kept verbatim below.
   rules, between sessions).
   **Closed 2026-09-27 by ux D58** (`ux-writer`'s own interaction call within spec D125; the
   proposed default above is refined, not taken as is).
+
+- **Q64 — after a session in which `Vary settings` changed some settings, do the controls return
+  to the player's own values, or keep the ones the session ended on?** Found 2026-10-03 designing
+  unit 10 (v2.1). Master spec §5 says what happens during a session, not at its end. Recommended
+  (ux D157): they return to the values they had at the session start, silently, as the rising
+  tempo and a stepped-down note density already do; the fresh phrase for the next session uses
+  them. The alternative keeps the drifted values, so each session starts where the last one
+  wandered to. A product rule for the owner, then `spec-writer`. Designed as recommended, marked
+  `(proposed)`: see `screens/phrase-workspace/handoff.md`, States, **Session end**, and
+  `flows/play-session/handoff.md`, End.
+  **Closed 2026-10-03 by ux D167** (the owner answered yes, as recommended; spec D182).
 
 - **Q31 — the balance between backing, click and the player's own instrument.** The product owner
   confirms backing volume is a real problem (an acoustic tenor is loud in the room; a Travel Sax or

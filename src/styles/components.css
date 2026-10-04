@@ -403,11 +403,14 @@
     font-size: var(--text-sm);
     font-weight: 700;
   }
-  /* v2 new -- States: shown, absent. A short static line after a field's control giving the
-     reason one of its options is unavailable (Note density's `Sixteenth` below
-     bp-tablet-landscape). Plain text, not a live region, at full muted contrast whatever state
-     the option it explains is in; the disabled option names it with `aria-describedby`.
-     Informational, so hover/focus-visible/active/disabled do not apply. */
+  /* v2 new -- States: shown, absent. A short static line after a field's control, of one of
+     three kinds: the reason one of its options is unavailable (Note density's `Sixteenth`
+     below bp-tablet-landscape, `Rising tempo`'s `On` with no controller; the disabled option
+     names it with `aria-describedby`); what a "During a session" option does (its
+     `radiogroup` names it with `aria-describedby`); or a past fact, the tempo the last
+     session reached, under the tempo stepper. Plain text, never a live region, at full muted
+     contrast whatever state the control it sits by is in. Informational, so
+     hover/focus-visible/active/disabled do not apply. */
   .field-note {
     color: var(--color-text-muted);
     font-size: var(--text-sm);
@@ -476,14 +479,33 @@
     opacity: 0.55;
   }
 
-  /* States: default, loading, error. Custom feedback is informational, not interactive. */
+  /* States: default, loading, error. Custom feedback is informational, not interactive.
+     v2 changed -- the status holds both of its texts in one grid cell: `preset-status-text` (the
+     text in use) and `preset-status-text is-reserve` (the other text, invisible and
+     `aria-hidden`), so its block size is the longer text's at every width and never changes when
+     a manual edit, a preset choice or, during a session, an automatic change swaps them. The
+     custom emphasis (`is-custom`) moves from the status to the custom text, so the reserve copy
+     is measured in the weight it would be shown in. */
   .preset-status {
     color: var(--color-text-muted);
+    display: grid;
     font-size: var(--text-sm);
   }
+  /* Interim: the v1 markup (one text, `is-custom` on the status) until chunk 25 builds the
+     two-text status; remove this rule with it. */
   .preset-status.is-custom {
     color: var(--color-text);
     font-weight: 700;
+  }
+  .preset-status-text {
+    grid-area: 1 / 1;
+  }
+  .preset-status-text.is-custom {
+    color: var(--color-text);
+    font-weight: 700;
+  }
+  .preset-status-text.is-reserve {
+    visibility: hidden;
   }
 
   /* States: ready, loading, error. These semantic statuses are visually hidden but remain
@@ -1278,7 +1300,7 @@
   }
   /* Below bp-tablet-landscape (width-only, the same query as the notation layout's split
      layout): the header stacks and the summary is not rendered -- the phone's review is the
-     phrases and the export, nothing else. */
+     phrases, the notes played (on request) and the exports, nothing else. */
   @media (max-width: 63.9375rem) {
     .review-header {
       align-items: stretch;
@@ -1287,6 +1309,95 @@
     .review-summary {
       display: none;
     }
+  }
+  /* end v2 new */
+
+  /* v2 new -- from here to "end v2 new": the session options (v2.1, v2.2), the fixed-size texts
+     an automatic change can rewrite during a session, and the review's played notes (v2.1). */
+  /* Layout only: the "During a session" control group, last in `control-group-row`. Below
+     bp-tablet-landscape it stacks like every group (no rule needed). From bp-tablet-landscape up
+     it takes a row of its own, its heading across the top and its fields in columns of at least
+     `--control-group-min-inline-size` (see the bp-tablet-landscape block below), so an `Off`/`On`
+     control keeps a field's usual width instead of stretching across the row. Each field carries
+     its own states (a `segmented-control` and its `field-note`s). */
+  .control-group-session > h3 {
+    grid-column: 1 / -1;
+  }
+  /* States: none (static text). The tempo as "{tempo} BPM", in the header's `tempo-readout` and
+     the stepper's `input-stepper-value`: one fixed width with tabular digits, so no tempo, a
+     rising tempo's off-list values included, ever moves the stepper's buttons or the header. */
+  .tempo-readout,
+  .input-stepper-value {
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+    inline-size: var(--tempo-value-inline-size);
+    white-space: nowrap;
+  }
+  .input-stepper-value {
+    text-align: center;
+  }
+  /* The settings summary stays on one line, so a change of its text (by the player, or by an
+     automatic change during a session) never changes its block size. The ellipsis is a guard:
+     the longest summary fits on one line at every supported width. */
+  .control-summary {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* Layout only, the gap between the review's whole-session tools: wider between groups (the
+     generated-notes `review-export`, then `Export played notes`) than inside one, so Format and
+     Backing track read as the generated notes' own. */
+  .review-actions {
+    column-gap: var(--spacing-5);
+  }
+  /* Layout only: the row under the review's heading and export holding the `Played notes`
+     `toggle-button` (which carries its own states), aligned to the inline start, on a line of its
+     own at every breakpoint. Rendered only when the session holds a played note. */
+  .review-view {
+    align-items: center;
+    display: flex;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+  }
+  /* States: blank (reserved: its phrase not engraved, or replaced by `review-phrase-note`),
+     drawn (dividers and bars), empty (dividers only: nothing played in that part of the phrase).
+     The played-notes lane under one staff system of a review phrase, while `Played notes` is on.
+     Not interactive (`role="img"`): no hover, focus, active or disabled state. Its block size is
+     fixed, so its phrase's reserved space is known before drawing. Appears, goes and is drawn
+     with no animation. */
+  .played-notes-lane {
+    block-size: var(--played-notes-lane-block-size);
+    margin-block-start: var(--spacing-2);
+    min-inline-size: 0;
+    overflow: hidden;
+    position: relative;
+  }
+  /* A hairline at each barline between the lane's measures, at the inline position the review
+     drawing gives it (the boundary between two `measure-slot` extents above). */
+  .played-notes-divider {
+    border-inline-start: 1px solid var(--color-border);
+    inline-size: 0;
+    inset-block: 0;
+    position: absolute;
+  }
+  /* States: shown only (one look for every note: never coloured, marked or labelled for matching
+     or not matching, and no velocity shading). One played note: the review drawing sets its
+     inline start and inline size (onset and release placed against the written notes above) and
+     `--played-note-pitch`, from 0 for the session's lowest played note to 1 for its highest; the
+     rule below centres the bar on that height, keeping the lowest and highest bars inside the
+     lane. Higher notes sit higher. */
+  .played-note {
+    background: var(--color-played-note);
+    block-size: var(--played-note-block-size);
+    border-radius: var(--radius-sm);
+    inset-block-start: calc(
+      var(--played-note-block-size) / 2 + (1 - var(--played-note-pitch, 0)) *
+        (100% - var(--played-note-block-size))
+    );
+    min-inline-size: var(--played-note-min-inline-size);
+    position: absolute;
+    translate: 0 -50%;
   }
   /* end v2 new */
 
@@ -1336,6 +1447,17 @@
       flex-direction: row;
       flex-wrap: wrap;
       justify-content: flex-end;
+    }
+    /* v2 new -- the "During a session" group takes a row of its own: the whole flex line here,
+       the whole grid row at bp-desktop (`grid-column`), its fields side by side. The doubled class
+       outweighs the `.control-group-row > .control-group` flex rule above. */
+    .control-group-row > .control-group.control-group-session {
+      align-items: start;
+      column-gap: var(--spacing-4);
+      display: grid;
+      flex: 1 1 100%;
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(auto-fill, minmax(var(--control-group-min-inline-size), 1fr));
     }
   }
   /* bp-desktop (90rem) keeps all control groups horizontal when the full workspace width is
