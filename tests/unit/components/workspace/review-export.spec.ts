@@ -1,14 +1,17 @@
 /**
- * The Review's generated-notes export as the page wires it: the export code is loaded on demand,
- * the one file asked for is built from the session history and handed to the browser as one
- * download; exporting twice gives identical bytes; and every failure, a failed load of the export
- * code included, rejects so the Review can show its error, with nothing downloaded.
+ * The Review's exports as the page wires them: the export code is loaded on demand, the one file
+ * asked for (generated notes or played notes) is built from the session history and handed to the
+ * browser as one download; exporting twice gives identical bytes; every failure, a failed load of
+ * the export code included, rejects so the Review can show its error, with nothing downloaded; and
+ * the played-notes action is offered only for a history that holds a played note.
  */
 import { describe, expect, it, vi } from 'vitest'
 
 import {
   browserReviewExportPorts,
   exportGeneratedNotes,
+  exportPlayedNotes,
+  historyHoldsPlayedNote,
   type ReviewExportPorts,
 } from '@/components/workspace/review-export'
 import { BrowserDownloadError } from '@/export/browser-download'
@@ -18,6 +21,7 @@ import {
   loadGeneratedNotesExport,
   type ExportableHistory,
 } from '@/export/load-generated-notes-export'
+import { MidiExportError } from '@/export/midi/midi-export-input'
 import { recordedRecords } from '../review/review-fixtures'
 import { SESSION_START_EPOCH_MS } from '../../session/session-harness'
 
@@ -142,5 +146,70 @@ describe('the Review export', () => {
     await expect(
       exportGeneratedNotes(history(), { format: 'musicxml', backingTrack: false }, ports),
     ).rejects.toBeInstanceOf(BrowserDownloadError)
+  })
+})
+
+/** Intent: the recorded session's history with every played note taken out. */
+function silentHistory(): ExportableHistory {
+  const records = recordedRecords().map((record) => ({ ...record, playedNotes: [] }))
+  return { phrases: () => records, startedAt: SESSION_START_EPOCH_MS }
+}
+
+// @test-link [[req_played_notes_export]]
+describe('the Review played-notes export', () => {
+  // @test-link [[req_played_notes_export]]
+  // @test-link [[rule_session_data_never_sent_or_stored]]
+  it('downloads exactly one MIDI file, named from the session start', async () => {
+    const { ports, downloads } = recordingPorts()
+
+    await exportPlayedNotes(history(), ports)
+
+    expect(downloads).toHaveLength(1)
+    expect(downloads[0]).toMatchObject({
+      fileName: `infinite-flow-${localStamp(SESSION_START_EPOCH_MS)}-played.mid`,
+      mimeType: 'audio/midi',
+    })
+    expect(downloads[0]?.bytes.byteLength).toBeGreaterThan(0)
+  })
+
+  // @test-link [[req_played_notes_export]]
+  it('gives identical bytes when exported twice', async () => {
+    const { ports, downloads } = recordingPorts()
+
+    await exportPlayedNotes(history(), ports)
+    await exportPlayedNotes(history(), ports)
+
+    expect(downloads).toHaveLength(2)
+    expect([...(downloads[1]?.bytes ?? [])]).toEqual([...(downloads[0]?.bytes ?? [])])
+  })
+
+  // @test-link [[req_played_notes_export]]
+  it('rejects, downloading nothing, when the export code fails to load', async () => {
+    const failure = new GeneratedNotesExportLoadError('chunk failed to fetch', new Error('offline'))
+    const { ports, downloads } = recordingPorts(() => Promise.reject(failure))
+
+    await expect(exportPlayedNotes(history(), ports)).rejects.toBe(failure)
+    expect(downloads).toEqual([])
+  })
+
+  // @test-link [[req_played_notes_export]]
+  it('rejects, downloading nothing, when the file cannot be built', async () => {
+    const { ports, downloads } = recordingPorts()
+
+    await expect(exportPlayedNotes(silentHistory(), ports)).rejects.toBeInstanceOf(MidiExportError)
+    await expect(exportPlayedNotes(history(Number.NaN), ports)).rejects.toMatchObject({
+      kind: 'GeneratedNotesFileError',
+    })
+    expect(downloads).toEqual([])
+  })
+
+  // @test-link [[req_played_notes_export]]
+  it('holds a played note only when some record does', () => {
+    expect(historyHoldsPlayedNote(recordedRecords())).toBe(true)
+    expect(historyHoldsPlayedNote(silentHistory().phrases())).toBe(false)
+    expect(historyHoldsPlayedNote([])).toBe(false)
+    expect(historyHoldsPlayedNote([...silentHistory().phrases(), recordedRecords().at(-1)!])).toBe(
+      true,
+    )
   })
 })

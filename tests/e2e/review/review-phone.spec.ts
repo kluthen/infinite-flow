@@ -93,14 +93,14 @@ test.describe('the Review on a landscape phone', () => {
     await expectNoHorizontalOverflow(page)
 
     const musicXml = await exportOnce(page, downloads)
-    expect(musicXml.fileName).toBe(`${STEM}.musicxml`)
+    expect(musicXml.fileName).toBe(`${STEM}-generated.musicxml`)
 
     await pickFormat(page, 'MIDI')
     await backingTrackToggle(page).click()
     await expect(backingTrackToggle(page)).toHaveAttribute('aria-pressed', 'true')
     await expectNoHorizontalOverflow(page)
     const midi = await exportOnce(page, downloads)
-    expect(midi.fileName).toBe(`${STEM}.mid`)
+    expect(midi.fileName).toBe(`${STEM}-generated.mid`)
     expect(midi.bytes.subarray(0, 4).toString('latin1')).toBe('MThd')
     expect(downloads.all).toHaveLength(2)
 

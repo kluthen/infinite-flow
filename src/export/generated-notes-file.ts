@@ -4,13 +4,21 @@
  * and the two encoders, never by re-encoding anything here. The MIDI backing track is the backing
  * renderer's output for each phrase's harmony, in the meter the audio transport renders it in, so
  * the file holds what sounded. Pure: no DOM, no clock read, no storage, no network. The shell loads
- * this module on demand through `load-generated-notes-export.ts`, outside the entry chunk.
+ * this module on demand through `load-generated-notes-export.ts`, outside the entry chunk; it
+ * re-exports the played-notes file builder (`played-notes-file.ts`), so that one lazy chunk holds
+ * every session export file.
  */
 
 import { renderBacking } from '../domain/backing/backing-renderer'
 import { FOUR_FOUR_METER } from '../domain/generation/generation-request'
 import { midiInputFromHistory, musicXmlInputFromHistory } from '../session/session-history-export'
-import type { SessionHistory, SessionHistoryRecord } from '../session/session-history'
+import type { SessionHistoryRecord } from '../session/session-history'
+import {
+  GeneratedNotesFileError,
+  exportFileStem,
+  type ExportFile,
+  type ExportableHistory,
+} from './export-file'
 import { encodeGeneratedNotesMidi } from './midi/midi-encoder'
 import type { MidiBackingPhrase } from './midi/midi-export-input'
 import { encodeGeneratedNotesMusicXml } from './musicxml/musicxml-encoder'
@@ -29,28 +37,14 @@ export interface GeneratedNotesRequest {
   readonly backingTrack: boolean
 }
 
-/** One file ready to hand to the browser: its name, its MIME type and its bytes. */
-// @spec-link [[req_session_export]]
-export interface ExportFile {
-  readonly fileName: string
-  readonly mimeType: string
-  readonly bytes: Uint8Array<ArrayBuffer>
-}
+export { GeneratedNotesFileError, exportFileStem, type ExportFile, type ExportableHistory }
 
-/** The session history as the export reads it: its phrases and its start time. */
-// @spec-link [[req_session_export]]
-export type ExportableHistory = Pick<SessionHistory, 'phrases' | 'startedAt'>
-
-/** Typed failure for an export request or start time no file can be made from; never repaired. */
-// @spec-link [[req_session_export]]
-export class GeneratedNotesFileError extends Error {
-  readonly kind = 'GeneratedNotesFileError' as const
-
-  constructor(message: string) {
-    super(message)
-    this.name = 'GeneratedNotesFileError'
-  }
-}
+/**
+ * The played-notes file rides in this module's lazy chunk: re-exported here, so the one load
+ * through `load-generated-notes-export.ts` yields both builders.
+ */
+// @spec-link [[req_played_notes_export]]
+export { buildPlayedNotesFile, playedNotesFileName } from './played-notes-file'
 
 const MUSICXML_MIME_TYPE = 'application/vnd.recordare.musicxml+xml'
 const MIDI_MIME_TYPE = 'audio/midi'
@@ -60,27 +54,15 @@ const FILE_EXTENSIONS: Readonly<Record<GeneratedNotesFormat, string>> = {
   midi: 'mid',
 }
 
-/** Intent: a whole number as text, zero-padded on the left to `width` digits. */
-function padded(value: number, width: number): string {
-  return String(value).padStart(width, '0')
-}
-
 /**
  * Intent: the file name of a session's generated-notes file,
- * `infinite-flow-{YYYY-MM-DD}-{HHmmss}-generated.musicxml` or `.mid`, from the session's start in
- * the player's local time. Reads no clock: the time is the one the history recorded at start.
+ * `infinite-flow-{YYYY-MM-DD}-{HHmmss}-generated.musicxml` or `.mid`: the session's export stem
+ * (its start in the player's local time), shared with the played-notes file. Reads no clock.
  * Throws a GeneratedNotesFileError on a start time that is not finite epoch milliseconds.
  */
 // @spec-link [[req_session_export]]
 export function generatedNotesFileName(startedAtMs: number, format: GeneratedNotesFormat): string {
-  if (!Number.isFinite(startedAtMs))
-    throw new GeneratedNotesFileError(
-      `The session start must be finite epoch milliseconds, got ${startedAtMs}.`,
-    )
-  const start = new Date(startedAtMs)
-  const date = `${padded(start.getFullYear(), 4)}-${padded(start.getMonth() + 1, 2)}-${padded(start.getDate(), 2)}`
-  const time = `${padded(start.getHours(), 2)}${padded(start.getMinutes(), 2)}${padded(start.getSeconds(), 2)}`
-  return `infinite-flow-${date}-${time}-generated.${FILE_EXTENSIONS[format]}`
+  return `${exportFileStem(startedAtMs)}-generated.${FILE_EXTENSIONS[format]}`
 }
 
 /**

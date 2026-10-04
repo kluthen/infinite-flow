@@ -4,7 +4,9 @@
  * near the visible area and released far from it, so a 2 000-phrase review engraves (and writes
  * out) only the phrases near the window; a phrase that cannot be drawn shows its note, the
  * "wider window" one retried on a width change; a repeat looks like any other phrase; and nothing
- * of the session (start marker, playhead, acknowledged or played notes) is ever drawn.
+ * of the session (start marker, playhead, acknowledged or played notes) is ever drawn on the staff
+ * or handed to the engraver, even with the played-notes lanes on (the lanes themselves are covered
+ * in ReviewPhrase-played-notes.spec.ts).
  */
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -37,10 +39,14 @@ const SPLIT: StaffViewport = { layout: 'split', heightBudgetPx: 300 }
 
 const mounted: VueWrapper[] = []
 
-/** Intent: mount the panel on the given records and viewport, attached to the document. */
+/**
+ * Intent: mount the panel on the given records and viewport, attached to the document, its
+ * played-notes tools shown when the records hold a played note and its lanes off unless asked.
+ */
 function mountPanel(
   records: readonly SessionHistoryRecord[],
   viewport: StaffViewport | null = ONE_SYSTEM,
+  playedNotesShown = false,
 ) {
   const wrapper = mount(ReviewPanel, {
     props: {
@@ -51,6 +57,9 @@ function mountPanel(
       format: 'musicxml',
       backingTrack: false,
       exportFile: () => Promise.resolve(),
+      holdsPlayedNote: records.some((record) => record.playedNotes.length > 0),
+      playedNotesShown,
+      exportPlayedNotes: () => Promise.resolve(),
     },
     attachTo: document.body,
   })
@@ -298,15 +307,16 @@ describe('what the review never shows', () => {
 
   // @test-link [[rule_no_grading_or_mismatch_signal]]
   // @test-link [[rule_optional_midi_privacy]]
-  it('draws no start marker, playhead, acknowledgement or played note, though the records hold them', async () => {
+  it('draws no start marker, playhead, acknowledgement or played note on the staff, nor hands them to the engraver, though the records hold them and the lanes are on', async () => {
     const records = recordedRecords()
     expect(records.every((record) => record.acknowledgements.length > 0)).toBe(true)
     expect(records.every((record) => record.playedNotes.length > 0)).toBe(true)
-    const wrapper = mountPanel(records)
+    const wrapper = mountPanel(records, ONE_SYSTEM, true)
     deliverIntersections()
     await settle()
 
     expect(wrapper.findAll('.staff-svg')).toHaveLength(3)
+    expect(wrapper.findAll('.played-notes-lane')).toHaveLength(3)
     expect(wrapper.find('.start-note-marker, .playhead-band, .note-ack').exists()).toBe(false)
     // The engraver is handed the stored phrase only, never the played notes or acknowledgements.
     fakePhraseEngraver.engraveWrittenPhrase.mock.calls.forEach((call) =>
@@ -315,7 +325,9 @@ describe('what the review never shows', () => {
       ),
     )
     expect(transformSpy.mock.calls.every((call) => !('playedNotes' in call[0]))).toBe(true)
-    expect(wrapper.html()).not.toMatch(/played|velocity|acknowledg/iu)
+    const staffMarkup = wrapper.findAll('.staff-content').map((content) => content.html())
+    expect(staffMarkup).toHaveLength(3)
+    staffMarkup.forEach((html) => expect(html).not.toMatch(/played|velocity|acknowledg/iu))
   })
 })
 

@@ -1,9 +1,9 @@
 /**
  * Shared helpers for the last-session Review specs (chunk 20), on the workspace harness (port
  * 4175) with its fake audio clock and fake MIDI access: the Review's parts, a session run to a
- * given phrase and ended with Stop, the phrase the hidden staff holds at Idle, the export's
- * downloads, and one fixed MIDI session (with or without played notes, on a fixed wall clock)
- * exported in every format.
+ * given phrase and ended with Stop, the phrase the hidden staff holds at Idle, the exports'
+ * downloads (the generated notes and, from v2.1, the played notes), and one fixed MIDI session
+ * (with or without played notes, on a fixed wall clock) exported in every format.
  */
 import { readFile } from 'node:fs/promises'
 
@@ -57,9 +57,24 @@ export function staffViewport(page: Page): Locator {
   return page.locator('.score-panel > .staff-viewport')
 }
 
-/** Intent: the Review's `Export generated notes` button. */
+/** Intent: the Review's `Export generated notes` button, in the generated-notes group. */
 export function exportButton(page: Page): Locator {
-  return reviewPanel(page).locator('button.review-export-action')
+  return reviewPanel(page).locator('.review-export > button.review-export-action')
+}
+
+/**
+ * Intent: the Review's `Export played notes` button, after the generated-notes group (rendered
+ * only when the session holds a played note).
+ */
+export function exportPlayedButton(page: Page): Locator {
+  return reviewPanel(page).locator('.review-actions > button.review-export-action')
+}
+
+/** Intent: the Review's `Played notes` switch (rendered only with a played note in the session). */
+export function playedNotesToggle(page: Page): Locator {
+  return reviewPanel(page)
+    .locator('.review-view')
+    .getByRole('button', { name: 'Played notes', exact: true })
 }
 
 /** Intent: the Review's export error. */
@@ -158,17 +173,22 @@ export interface DownloadedFile {
 }
 
 /**
- * Intent: click `Export generated notes` once and wait for the action to finish: exactly one
- * file built by the export and exactly one download started, read back whole.
+ * Intent: click `button`, `Export generated notes` unless another is given, once and wait for the
+ * action to finish: exactly one file built by the export and exactly one download started, read
+ * back whole.
  */
-export async function exportOnce(page: Page, downloads: Downloads): Promise<DownloadedFile> {
+export async function exportOnce(
+  page: Page,
+  downloads: Downloads,
+  button: Locator = exportButton(page),
+): Promise<DownloadedFile> {
   const builtBefore = await exportsBuilt(page)
   const downloadsBefore = downloads.all.length
   const download = page.waitForEvent('download')
-  await exportButton(page).click()
+  await button.click()
   const started = await download
-  await expect(exportButton(page)).toBeEnabled()
-  await expect(exportButton(page)).not.toHaveClass(/is-loading/)
+  await expect(button).toBeEnabled()
+  await expect(button).not.toHaveClass(/is-loading/)
   expect(await exportsBuilt(page)).toBe(builtBefore + 1)
   expect(downloads.all.length).toBe(downloadsBefore + 1)
   const path = await started.path()
@@ -182,8 +202,11 @@ export function exportsBuilt(page: Page): Promise<number> {
 
 /** The session's start on the wall clock: 2026-10-02 14:03:05 UTC, 16:03:05 in Paris. */
 export const STARTED_AT = Date.UTC(2026, 9, 2, 14, 3, 5)
-/** The export files' name stem for `STARTED_AT`, in a spec run with `timezoneId: 'Europe/Paris'`. */
-export const STEM = 'infinite-flow-2026-10-02-160305-generated'
+/**
+ * The export files' name stem for `STARTED_AT`, in a spec run with `timezoneId: 'Europe/Paris'`:
+ * every file of the session starts with it, then names its content (`-generated`, `-played`).
+ */
+export const STEM = 'infinite-flow-2026-10-02-160305'
 
 /** Intent: fix the wall clock the next session's history reads its start from, at `STARTED_AT`. */
 export function fixWallClock(page: Page): Promise<void> {
@@ -191,12 +214,17 @@ export function fixWallClock(page: Page): Promise<void> {
 }
 
 /**
- * Intent: on a fresh page with the keyboard connected and the wall clock fixed, run the same
- * session (phrase 1 seeded 7, Start clicked, Stop once phrase 2 sounds), playing notes into it
- * (one right, two wrong) or none; the Review shows.
+ * Intent: on a fresh page (at `size`, the desktop one unless given) with the keyboard connected
+ * and the wall clock fixed, run the same session (phrase 1 seeded 7, Start clicked, Stop once
+ * phrase 2 sounds), playing notes into it (one right, two wrong, the first two each exactly on a
+ * written note's onset) or none; the Review shows.
  */
-export async function reviewOfSession(page: Page, playNotes: boolean): Promise<void> {
-  await gotoSessionHarness(page)
+export async function reviewOfSession(
+  page: Page,
+  playNotes: boolean,
+  size?: { readonly width: number; readonly height: number },
+): Promise<void> {
+  await gotoSessionHarness(page, size)
   await fixWallClock(page)
   await connectDevice(page, KEYS)
   await readyToStart(page, 7)
@@ -249,14 +277,14 @@ export async function exportEach(page: Page, downloads: Downloads): Promise<Expo
     expect(second.bytes.equals(first.bytes), `${fileName} exported twice`).toBe(true)
     return first.bytes
   }
-  const musicXml = await twice(`${STEM}.musicxml`)
+  const musicXml = await twice(`${STEM}-generated.musicxml`)
 
   await pickFormat(page, 'MIDI')
   await expect(backingTrackToggle(page)).toHaveAttribute('aria-pressed', 'false')
-  const midi = await twice(`${STEM}.mid`)
+  const midi = await twice(`${STEM}-generated.mid`)
 
   await backingTrackToggle(page).click()
   await expect(backingTrackToggle(page)).toHaveAttribute('aria-pressed', 'true')
-  const midiWithBacking = await twice(`${STEM}.mid`)
+  const midiWithBacking = await twice(`${STEM}-generated.mid`)
   return { musicXml, midi, midiWithBacking }
 }

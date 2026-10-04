@@ -90,7 +90,11 @@ const review = useReviewHost({
   exportPorts: () => props.reviewExportPorts,
 })
 const reviewShowing = review.showing
-const { format: reviewFormat, backingTrack: reviewBackingTrack } = review
+const {
+  format: reviewFormat,
+  backingTrack: reviewBackingTrack,
+  playedNotesShown: reviewPlayedNotesShown,
+} = review
 
 const roomNoticeElement = ref<HTMLElement | null>(null)
 
@@ -357,8 +361,12 @@ const generationErrorAlertText = computed(() =>
       :format="reviewFormat"
       :backing-track="reviewBackingTrack"
       :export-file="review.exportFile"
+      :holds-played-note="review.holdsPlayedNote.value"
+      :played-notes-shown="reviewPlayedNotesShown"
+      :export-played-notes="review.exportPlayedNotes"
       @update:format="reviewFormat = $event"
       @update:backing-track="reviewBackingTrack = $event"
+      @update:played-notes-shown="reviewPlayedNotesShown = $event"
     />
     <p
       v-if="generationErrorAlertText !== null"

@@ -4,11 +4,13 @@
  * holding the font wait and the two drawing functions PhraseScore calls, each a spy. Instead of
  * VexFlow they draw a bare `svg.staff-svg` per system with one `g.measure-slot` per measure (its
  * band rectangle recorded) holding one tagged notehead, enough for the score overlays to draw on.
+ * A whole phrase's engraving also reports measure anchors laid out by `fakeMeasureAnchors`.
  */
 import { vi } from 'vitest'
 
 import type { MeasureIndex } from '@/domain/events/measure'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
+import type { MeasureAnchors } from '@/notation/engraving-anchors'
 import type { StaffViewport, SystemPart } from '@/notation/notation-layout-policy'
 import type { VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 
@@ -45,6 +47,31 @@ function fakeSystemSvg(phraseNumber: number, part: SystemPart): SVGSVGElement {
   return svg
 }
 
+/** A fake measure's inline size, in CSS px; its first one starts at FAKE_SYSTEM_START_PX. */
+export const FAKE_MEASURE_PX = 200
+export const FAKE_SYSTEM_START_PX = 20
+
+/**
+ * Intent: the anchors of a fake engraving: each system's measures side by side from
+ * FAKE_SYSTEM_START_PX, FAKE_MEASURE_PX wide, each event 10 px into its measure plus its start
+ * tick's share of 180 px, and each barline at its measure's end.
+ */
+export function fakeMeasureAnchors(phrase: WrittenPhrase, parts: readonly SystemPart[]) {
+  return parts.flatMap((part, systemIndex) =>
+    PART_MEASURES[part].map((measureIndex, local): MeasureAnchors => {
+      const startPx = FAKE_SYSTEM_START_PX + local * FAKE_MEASURE_PX
+      return {
+        measureIndex,
+        systemIndex: systemIndex === 0 ? 0 : 1,
+        eventStartsPx: phrase.measures[measureIndex]!.events.map(
+          (event) => startPx + 10 + (180 * event.startTick) / 16,
+        ),
+        barlinePx: startPx + FAKE_MEASURE_PX,
+      }
+    }),
+  )
+}
+
 /** Intent: the fixed geometry every fake engraving reports. */
 function fakeGeometry(viewport: StaffViewport) {
   return {
@@ -54,12 +81,13 @@ function fakeGeometry(viewport: StaffViewport) {
     positionBlockPx: 80,
     requiredUnits: viewport.layout === 'split' ? 200 : 400,
     measureBoxes: [],
+    measureAnchors: [],
   }
 }
 
 /** Intent: draw a whole phrase as the real engraver lays it out: one system, or two halves. */
 function fakeEngraveWrittenPhrase(
-  ...[targets, , phraseNumber, , viewport]: Parameters<
+  ...[targets, phrase, phraseNumber, , viewport]: Parameters<
     VexflowEngraverModule['engraveWrittenPhrase']
   >
 ): ReturnType<VexflowEngraverModule['engraveWrittenPhrase']> {
@@ -71,7 +99,12 @@ function fakeEngraveWrittenPhrase(
     targets[index]!.appendChild(svg)
     return svg
   })
-  return { svgs, systemCount: parts.length === 2 ? 2 : 1, ...fakeGeometry(viewport) }
+  return {
+    svgs,
+    systemCount: parts.length === 2 ? 2 : 1,
+    ...fakeGeometry(viewport),
+    measureAnchors: fakeMeasureAnchors(phrase, parts),
+  }
 }
 
 /** Intent: draw one system part of a phrase into its host, as the real engraver does. */

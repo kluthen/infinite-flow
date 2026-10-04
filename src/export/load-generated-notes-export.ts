@@ -1,8 +1,9 @@
 /**
- * Lazy-loading boundary for the generated-notes export (./generated-notes-file.ts), which pulls in
- * both encoders and the backing renderer. The export runs only when the player asks for a file, so
- * nothing may import './generated-notes-file' statically outside this file: the shell reaches it
- * through `loadGeneratedNotesExport()`, which dynamically imports it into its own chunk, outside
+ * Lazy-loading boundary for the session export (./generated-notes-file.ts, which re-exports the
+ * played-notes file builder of ./played-notes-file.ts), pulling in every encoder and the backing
+ * renderer. The export runs only when the player asks for a file, so nothing outside src/export/
+ * may import either module statically: the shell reaches them through
+ * `loadGeneratedNotesExport()`, which dynamically imports them into one chunk of their own, outside
  * the entry chunk, and memoizes the module promise so later exports share one load. A rejected
  * import (a lazy chunk failing to fetch, most plausibly) is wrapped as a typed
  * GeneratedNotesExportLoadError and the memoized promise is cleared before rethrowing, so the next
@@ -41,12 +42,14 @@ function errorMessage(error: unknown): string {
 }
 
 /**
- * Intent: dynamically import the generated-notes export module, memoizing the in-flight or settled
- * load so repeat exports never fetch the chunk twice; on a failed import, clear the memo and throw
- * a GeneratedNotesExportLoadError, so a later call runs `import()` again. A browser that keeps the
+ * Intent: dynamically import the export module, with both the generated-notes and the
+ * played-notes file builders, memoizing the in-flight or settled load so repeat exports never
+ * fetch the chunk twice; on a failed import, clear the memo and throw a
+ * GeneratedNotesExportLoadError, so a later call runs `import()` again. A browser that keeps the
  * failed module, as Chromium does, keeps failing until a reload.
  */
 // @spec-link [[req_session_export]]
+// @spec-link [[req_played_notes_export]]
 export function loadGeneratedNotesExport(): Promise<GeneratedNotesExportModule> {
   if (modulePromise === null) {
     modulePromise = import('./generated-notes-file').catch((cause: unknown) => {

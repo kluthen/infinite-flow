@@ -17,6 +17,7 @@ import { Formatter, Stave, StaveNote, Voice, type Beam } from 'vexflow/bravura'
 
 import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
 import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
+import { systemMeasureAnchors, type MeasureAnchors } from './engraving-anchors'
 import { NotationError } from './notation-error'
 import { resolveGlyphIdentities } from './note-identity'
 import { tagSystemNoteParts, type TaggedNoteGlyph } from './note-part-tags'
@@ -72,6 +73,9 @@ export interface EngravedScore {
   readonly positionBlockPx: number
   /** The four measures' boxes in phrase order, each relative to its own system's SVG. */
   readonly measureBoxes: readonly MeasureBox[]
+  /** Every drawn measure's event starts and closing barline, in phrase order, across its systems. */
+  // @spec-link [[module_notation_engraving_anchors]]
+  readonly measureAnchors: readonly MeasureAnchors[]
   /** Raw engraving units (scale 1) one system of this layout requires for this phrase. */
   readonly requiredUnits: number
   /** One staff system (four measures) or the split layout's two (two measures each). */
@@ -81,7 +85,7 @@ export interface EngravedScore {
 /** One system part's engraving: its SVG, and the geometry its whole phrase's plan gives it. */
 export interface EngravedSystem extends Pick<
   EngravedScore,
-  'staffSpacePx' | 'widthPx' | 'heightPx' | 'positionBlockPx' | 'requiredUnits'
+  'staffSpacePx' | 'widthPx' | 'heightPx' | 'positionBlockPx' | 'requiredUnits' | 'measureAnchors'
 > {
   readonly svg: SVGSVGElement
   /** This system's measures' boxes in phrase order, relative to its SVG. */
@@ -327,11 +331,8 @@ interface SystemDraw {
   readonly host: HTMLElement
 }
 
-/** One drawn system: its finished SVG and its measures' boxes. */
-interface DrawnSystem {
-  readonly svg: SVGSVGElement
-  readonly measureBoxes: readonly MeasureBox[]
-}
+/** One drawn system: its finished SVG, its measures' boxes and their anchors. */
+type DrawnSystem = Pick<EngravedSystem, 'svg' | 'measureBoxes' | 'measureAnchors'>
 
 /**
  * Draw the chosen systems of the written phrase, each into its own host, from the whole phrase's
@@ -401,13 +402,15 @@ function drawPhraseSystems(
     const svg = finishSystemSvg(host, plan)
     assertSystemWidthBounds(svg, plan, containerWidthPx)
     tagSystemNoteParts(svg, systemNoteGlyphs(phrase, glyphs, identities, measures))
-    return { svg, measureBoxes }
+    // @spec-link [[module_notation_engraving_anchors]]
+    const anchors = systemMeasureAnchors(glyphs, SYSTEM_PARTS[part], measureBoxes, plan.scale)
+    return { svg, measureBoxes, measureAnchors: anchors }
   })
   return { plan, systems }
 }
 
 /** Intent: the geometry every system of a phrase shares, from the phrase's plan. */
-function planGeometry(plan: SystemLayoutPlan): Omit<EngravedSystem, 'svg' | 'measureBoxes'> {
+function planGeometry(plan: SystemLayoutPlan): Omit<EngravedSystem, keyof DrawnSystem> {
   return {
     staffSpacePx: plan.staffSpacePx,
     widthPx: plan.systemWidthUnits * plan.scale,
@@ -469,6 +472,7 @@ export function engraveWrittenPhrase(
       svgs: systems.map((system) => system.svg),
       ...planGeometry(plan),
       measureBoxes: systems.flatMap((system) => system.measureBoxes),
+      measureAnchors: systems.flatMap((system) => system.measureAnchors),
       systemCount: plan.systemCount,
     }
   })
@@ -509,8 +513,7 @@ export function engravePhraseSystem(
       containerWidthPx,
       viewport,
     )
-    const system = systems[0]!
-    return { svg: system.svg, ...planGeometry(plan), measureBoxes: system.measureBoxes }
+    return { ...systems[0]!, ...planGeometry(plan) }
   })
 }
 
