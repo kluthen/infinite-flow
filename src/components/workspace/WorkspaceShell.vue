@@ -15,7 +15,8 @@
  * session runs, the read-only controls show what the controller says the phrase now sounding was
  * generated with, and the preset status announces nothing; at the end they show the player's own
  * choices again, and the status announces again once those have rendered. The page's `Vary
- * settings` and `Rising tempo` choices go to the controller; during a session the tempo control
+ * settings`, `Tension across phrases` and `Rising tempo` choices go to the controller; the Tension
+ * control never shows a phrase's step across phrases. During a session the tempo control
  * shows the exact tempo in effect, and the tempo field notes the tempo a rising-tempo session
  * reached (./use-rising-tempo-control.ts).
  */
@@ -141,6 +142,13 @@ const sessionOptionsReadonly = computed(() => controlsReadonly.value || props.co
 /** The page's `Vary settings` flag, off while the controller loads (as it is at page load). */
 // @spec-link [[req_settings_mutation_flag]]
 const varySettings = computed(() => props.controller?.state.varySettings ?? false)
+
+/**
+ * The page's `Tension across phrases` flag, off while the controller loads (as it is at page
+ * load). It only says whether the arc runs: the Tension control never shows a phrase's step.
+ */
+// @spec-link [[req_multi_phrase_tension_arc]]
+const tensionAcrossPhrases = computed(() => props.controller?.state.tensionAcrossPhrases ?? false)
 
 /** The `Rising tempo` control and the reached-tempo note, read from the controller. */
 // @spec-link [[req_adaptive_tempo]]
@@ -420,6 +428,14 @@ function handleSetRisingTempo(on: boolean): void {
   requireController().setAdaptiveTempo(on)
 }
 
+/**
+ * Intent: forward the player's `Tension across phrases` choice to the controller, which holds it.
+ */
+// @spec-link [[req_multi_phrase_tension_arc]]
+function handleSetTensionAcrossPhrases(on: boolean): void {
+  requireController().setTensionAcrossPhrases(on)
+}
+
 /** Intent: forward the player's `Vary settings` choice to the controller, which holds it. */
 // @spec-link [[req_settings_mutation_flag]]
 function handleSetVarySettings(on: boolean): void {
@@ -467,6 +483,7 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         :rising-tempo="risingTempo.on.value"
         :rising-tempo-available="risingTempo.available.value"
         :last-session-reached-tempo="risingTempo.lastSessionReachedTempo.value"
+        :tension-across-phrases="tensionAcrossPhrases"
         :vary-settings="varySettings"
         :session-options-readonly="sessionOptionsReadonly"
         :preset-status-live="presetStatusLive"
@@ -474,6 +491,7 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         @select-instrument-profile="handleSelectInstrumentProfile"
         @select-musical-profile="handleSelectMusicalProfile"
         @set-rising-tempo="handleSetRisingTempo"
+        @set-tension-across-phrases="handleSetTensionAcrossPhrases"
         @set-vary-settings="handleSetVarySettings"
       />
     </div>

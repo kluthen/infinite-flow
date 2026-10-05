@@ -8,6 +8,7 @@ tags: [v2, release-v2.2, session, tension]
 dependents:
   - [[module_tension_arc_cycle]]
   - [[rule_multi_phrase_tension_arc_cycle]]
+  - [[service_workspace_session_flow]]
 type: REQUIREMENT
 human_name: Multi-Phrase Tension Arc
 parents:

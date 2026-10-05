@@ -172,6 +172,7 @@ function snapshotOf(state: SessionControllerState): WorkspaceHarnessSessionState
     adaptiveTempoAvailable: state.adaptiveTempoAvailable,
     lastSessionReachedTempo: state.lastSessionReachedTempo,
     varySettings: state.varySettings,
+    tensionAcrossPhrases: state.tensionAcrossPhrases,
     shownSettings:
       state.shownSettings === null
         ? null

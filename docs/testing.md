@@ -57,14 +57,15 @@ a layer, a script, a harness seam, a fake or a fixture updates this document in 
 specs in `tests/e2e/controller/` (`controller-connection-states.spec.ts`,
 `controller-connection-check.spec.ts`, `controller-connection-devices.spec.ts`,
 `controller-connection-close.spec.ts`, `controller-connection-layout.spec.ts` and
-`controller-status.spec.ts`), the nineteen session screen specs in
+`controller-status.spec.ts`), the twenty session screen specs in
 `tests/e2e/session/` (`session-start-conditions.spec.ts`, `session-start.spec.ts`,
 `session-locks.spec.ts`, `session-phone.spec.ts`, `session-long-run.spec.ts`,
 `session-ends.spec.ts`, `session-window-ends.spec.ts`, `session-struggling.spec.ts`, the six MIDI
 session specs `session-midi-start.spec.ts`, `session-midi-history.spec.ts`,
 `session-midi-acknowledgement.spec.ts`, `session-midi-silence.spec.ts`,
 `session-midi-controller-loss.spec.ts` and `session-midi-controller-away.spec.ts`,
-`session-adaptive-tempo.spec.ts`, `session-vary-settings.spec.ts`, `rolling-display-barlines.spec.ts`, `rolling-display-resize.spec.ts` and
+`session-adaptive-tempo.spec.ts`, `session-vary-settings.spec.ts`,
+`session-tension-across-phrases.spec.ts`, `rolling-display-barlines.spec.ts`, `rolling-display-resize.spec.ts` and
 `rolling-display-fit.spec.ts`), the seven Review specs in `tests/e2e/review/`
 (`review-opens.spec.ts`, `review-navigation.spec.ts`, `review-no-start.spec.ts`,
 `review-export.spec.ts`, `review-privacy.spec.ts`, `review-long.spec.ts` and
@@ -432,6 +433,7 @@ keeps the errors recorded outside Idle).
 | `session-ends.spec.ts`             | Stop, the compact Stop and the page hidden, in the count-in (back to Ready on phrase 1, nothing generated) and once running (the Review opens with `Close review` focused, a fresh phrase is generated under it with a new seed, and `Close review` leaves `Start session` enabled on that phrase); window changes that leave the staff shown end nothing.                                                                                                                                                                    |
 | `session-window-ends.spec.ts`      | A portrait-shaped view below `bp-desktop`, and a window too narrow or too short for the held layout, in the count-in and running; a running end opens the Review first, its room notice standing in for its list, and `Close review` leads to Needs more room; the fresh phrase comes once the staff has room again.                                                                                                                                                                                                          |
 | `session-vary-settings.spec.ts`    | Chunk 25: `Vary settings` off at load, set at Idle and in the Review, read-only in a session; a queued mutation seed flips the profile on phrase 3, shown at its first beat with no box in the control section moving and the preset status silent; a hidden tab restores the player's settings and the fresh phrase uses them; a register stepped from `Varying` is `Varying` again after Stop; a `session.changeSettings` while phrase 3 is partly drawn (split layout) leaves it as drawn and first shows in phrase 4. |
+| `session-tension-across-phrases.spec.ts` | Chunk 30: `Tension across phrases` off at load, between `Rising tempo` and `Vary settings`, its note its description; set at Idle with nothing regenerated, read-only in a session; a session with it on at the default Lift requests phrases 2 to 6 at Build, Lift, Settled, Lift, Build (the engine got the flag) while the Tension control and `shownSettings` stay at Lift; after Stop the fresh phrase is requested at Lift and the control, still on, is editable in the Review. |
 | `session-struggling.spec.ts`       | The struggling notice from the second repeat in a row, through a third, cleared by a new phrase, never blocking, gone at the end; neither live region announces anything (the Review opening at the end empties both, which announces nothing).                                                                                                                                                                                                                                                                               |
 | `rolling-display-barlines.spec.ts` | In each layout (one system at `DESKTOP`, split at `PHONE`), eight phrases checked at every barline: each position shows what the rolling plan gives, one band in the measure being played, at least one measure of read-ahead; a drawn note never changes until its system is refilled; in the split layout, a look-ahead phrase late past its deadline still leaves a measure of read-ahead; the system the playhead leaves fades out at once, then refills.                                                                 |
 | `rolling-display-fit.spec.ts`      | A look-ahead phrase too wide for the held layout is never drawn and counts as a failed attempt, its retry drawn instead; a window change that leaves a phrase shown (count-in, one system) or checked and waiting (running, split) unable to fit, or the held one-system layout below `bp-tablet-landscape` too short for its systems, ends the session like Stop with no notation error shown and no band left; once phrase 1 has sounded, the Review shows its own room notice, and the staff's is there once it is closed. |
@@ -1171,6 +1173,11 @@ into the flag (its seed drawn first, none when off) and reads the display it is 
 controller over real runners: the flag, the settings the controls show, the end dropping them
 before the fresh phrase, and a settings change sent with the rig's `changeSettings` while the
 next phrase is drawn (kept) or, in the split layout, not yet drawn (discarded and readied again).
+`workspace-session-runner.spec.ts` also checks that the multi-phrase tension arc flag is passed
+on, and `workspace-session-controller-tension-across-phrases.spec.ts` drives the page's
+`Tension across phrases` flag through the controller: off at load, changed only outside a session,
+carried by each session's start, every phrase requested at its step while `shownSettings` keeps
+the player's tension.
 
 **Driving the tension arc.** A spec builds a `SessionDriver` with `multiPhraseTensionArc: true`
 and runs it with `driveSession`. `tension-arc-cycle.spec.ts` tests the pure cycle: the step of each

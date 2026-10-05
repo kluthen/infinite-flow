@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
  * The "During a session" control group (`control-group-session`), last in the control section:
- * `Rising tempo` then `Vary settings`, each `Off` or `On`, with the note that says what it does,
- * which the radiogroup names with `aria-describedby`. They are session options, not settings a
- * phrase is generated from: choosing one regenerates nothing. `Rising tempo` is unavailable while
+ * `Rising tempo`, `Tension across phrases` then `Vary settings`, each `Off` or `On`, with the note
+ * that says what it does, which the radiogroup names with `aria-describedby`. They are session
+ * options, not settings a phrase is generated from: choosing one regenerates nothing. `Rising tempo` is unavailable while
  * the parent says no controller is attached: its `On` is disabled, `Off` shows checked, and a
  * second note gives the reason; the player's own choice is kept and shows again once it is
  * available. Props-in/events-out only; the parent makes the group read-only during a generation
@@ -17,12 +17,14 @@ import type { SegmentedControlOption } from './segmented-control-option'
 const props = defineProps<{
   risingTempo: boolean
   risingTempoAvailable: boolean
+  tensionAcrossPhrases: boolean
   varySettings: boolean
   readonly: boolean
 }>()
 
 const emit = defineEmits<{
   'set-rising-tempo': [on: boolean]
+  'set-tension-across-phrases': [on: boolean]
   'set-vary-settings': [on: boolean]
 }>()
 
@@ -39,12 +41,17 @@ const RISING_TEMPO_NOTE =
 /** Why `Rising tempo` cannot be turned on, shown while no controller is attached. */
 const RISING_TEMPO_UNAVAILABLE_NOTE = 'Needs a connected controller.'
 
+/** The `Tension across phrases` note, as the phrase-workspace handoff words it. */
+const TENSION_ACROSS_PHRASES_NOTE =
+  'In groups of 4 phrases: your Tension, one step more, your Tension, one step less.'
+
 /** The `Vary settings` note, as the phrase-workspace handoff words it. */
 const VARY_SETTINGS_NOTE =
   'Every 2 to 4 phrases, one setting moves one step. Never the instrument or the tempo. Your settings come back when the session ends.'
 
 const risingTempoNoteId = useId()
 const risingTempoUnavailableNoteId = useId()
+const tensionAcrossPhrasesNoteId = useId()
 const varySettingsNoteId = useId()
 
 /** Intent: map a segment's value to on/off, refusing a value that is no segment. */
@@ -84,6 +91,15 @@ function handleRisingTempo(value: string): void {
   emit('set-rising-tempo', on)
 }
 
+/**
+ * Intent: report the player's `Tension across phrases` choice, refusing a value that is no
+ * segment.
+ */
+// @spec-link [[req_multi_phrase_tension_arc]]
+function handleTensionAcrossPhrases(value: string): void {
+  emit('set-tension-across-phrases', isOn('Tension across phrases', value))
+}
+
 /** Intent: report the player's `Vary settings` choice, refusing a value that is no segment. */
 // @spec-link [[req_settings_mutation_flag]]
 function handleVarySettings(value: string): void {
@@ -110,6 +126,19 @@ function handleVarySettings(value: string): void {
       <p v-if="!risingTempoAvailable" :id="risingTempoUnavailableNoteId" class="field-note">
         {{ RISING_TEMPO_UNAVAILABLE_NOTE }}
       </p>
+    </div>
+    <!-- @spec-link [[req_multi_phrase_tension_arc]] -->
+    <div class="field-group" :class="{ 'is-readonly': readonly }">
+      <span class="field-label">Tension across phrases</span>
+      <SegmentedControl
+        label="Tension across phrases"
+        :options="OFF_ON_OPTIONS"
+        :model-value="tensionAcrossPhrases ? 'on' : 'off'"
+        :readonly="readonly"
+        :described-by="tensionAcrossPhrasesNoteId"
+        @update:model-value="handleTensionAcrossPhrases"
+      />
+      <p :id="tensionAcrossPhrasesNoteId" class="field-note">{{ TENSION_ACROSS_PHRASES_NOTE }}</p>
     </div>
     <div class="field-group" :class="{ 'is-readonly': readonly }">
       <span class="field-label">Vary settings</span>

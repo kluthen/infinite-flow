@@ -28,6 +28,7 @@ function mountPanel(
       risingTempoAvailable: false,
       lastSessionReachedTempo: null,
       varySettings: false,
+      tensionAcrossPhrases: false,
       sessionOptionsReadonly: readonly,
       presetStatusLive: 'polite',
     },
@@ -68,6 +69,7 @@ describe('ControlPanel', () => {
       'Leapiness',
       'Arpeggio chaos',
       'Rising tempo',
+      'Tension across phrases',
       'Vary settings',
     ])
   })
@@ -234,6 +236,7 @@ describe('ControlPanel', () => {
         risingTempoAvailable: false,
         lastSessionReachedTempo: null,
         varySettings: false,
+        tensionAcrossPhrases: false,
         sessionOptionsReadonly: true,
         presetStatusLive: 'off',
       },

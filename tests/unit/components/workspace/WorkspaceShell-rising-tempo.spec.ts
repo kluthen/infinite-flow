@@ -124,7 +124,7 @@ describe('WorkspaceShell: the Rising tempo control', () => {
     const labels = wrapper
       .findAll('.control-group-session .field-label')
       .map((label) => label.text())
-    expect(labels).toEqual(['Rising tempo', 'Vary settings'])
+    expect(labels).toEqual(['Rising tempo', 'Tension across phrases', 'Vary settings'])
     expect(checked(wrapper)).toBe('Off')
     expect(wrapper.get(`#${group(wrapper).attributes('aria-describedby')}`).text()).toBe(NOTE)
     expect(segment(wrapper, 'On').attributes('disabled')).toBeDefined()

@@ -124,7 +124,8 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   holds the root session composition (`create-workspace-session.ts`, with the `matchMedia` width
   provider in `browser-viewport-width.ts` and the session's browser adapters in `browser-*.ts`),
   the session controller (`workspace-session-controller.ts`, loaded as its own chunk, with
-  `workspace-session-runner.ts`, its runner starter, with the player's `Vary settings` choice) and the
+  `workspace-session-runner.ts`, its runner starter, with the player's `Vary settings` and
+  `Tension across phrases` choices) and the
   workspace component tree, the session action, cue row, audio mix and header `controller-status`
   included (see [`docs/phrase-workspace.md`](docs/phrase-workspace.md));
   `src/components/controller-connection/` holds the connection sheet, loaded as its own chunk
