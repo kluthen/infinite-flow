@@ -143,8 +143,8 @@ export function validateBackingVolume(level: number, range: AudioMixRange): void
 
 /**
  * Intent: the value of every gain stage for a mix: each switch sets its enable gain to 1 or 0,
- * and each volume sets its volume gain. The gain equals the level, linearly: a placeholder
- * mapping until the listening tests settle a loudness curve.
+ * and each volume sets its volume gain. The gain equals the level, linearly, as accepted by ear
+ * for v2.0.
  */
 // @spec-link [[req_session_audio_mix]]
 export function mixGains(mix: AudioMix): Readonly<Record<MixGain, number>> {
