@@ -1,6 +1,6 @@
 ---
 id: rule_neutral_profile_diatonic_pitches
-status: DRAFT
+status: REVIEW
 human_name: Neutral Profile Diatonic Pitches
 type: RULE
 layer: BUSINESS

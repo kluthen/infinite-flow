@@ -1,6 +1,6 @@
 ---
 id: rule_profile_control_customization
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: profile,controls,customization
 type: RULE

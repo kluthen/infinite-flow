@@ -1,6 +1,6 @@
 ---
 id: rule_tension_arc_settled
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 tags: tension,melody,harmony,controls
 human_name: Tension Arc: Settled

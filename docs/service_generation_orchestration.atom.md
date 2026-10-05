@@ -1,6 +1,6 @@
 ---
 id: service_generation_orchestration
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: generation,orchestration,immutable-boundary
 dependents:

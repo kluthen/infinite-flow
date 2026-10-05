@@ -1,6 +1,6 @@
 ---
 id: rule_unsupported_rhythm_settings_block_generation
-status: DRAFT
+status: REVIEW
 human_name: Unsupported Rhythm Settings Block Generation
 layer: BUSINESS
 version: 0.4

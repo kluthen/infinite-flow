@@ -1,6 +1,6 @@
 ---
 id: rule_preserve_metrical_anchor
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.2

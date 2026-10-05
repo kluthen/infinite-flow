@@ -1,6 +1,6 @@
 ---
 id: module_register_window_resolution_primitives
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 priority: 1
 version: 0.1

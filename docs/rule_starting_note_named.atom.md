@@ -1,6 +1,6 @@
 ---
 id: rule_starting_note_named
-status: DRAFT
+status: REVIEW
 version: 0.3
 human_name: Starting Note Named Neutrally
 tags: [v2, release-v2.0, session, session-start, midi]

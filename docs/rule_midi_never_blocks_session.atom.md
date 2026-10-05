@@ -1,6 +1,6 @@
 ---
 id: rule_midi_never_blocks_session
-status: DRAFT
+status: REVIEW
 tags: [v2, release-v2.0, midi, session-start]
 dependents:
   - [[service_session_midi]]

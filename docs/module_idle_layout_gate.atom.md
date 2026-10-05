@@ -1,6 +1,6 @@
 ---
 id: module_idle_layout_gate
-status: DRAFT
+status: REVIEW
 human_name: Idle Layout Gate
 tags: workspace,session,notation
 parents:

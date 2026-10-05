@@ -1,13 +1,13 @@
 ---
 id: rule_mutation_profile_flip_keeps_controls
-status: DRAFT
+status: STABLE
 type: RULE
 layer: BUSINESS
 version: 0.1
 human_name: Profile Mutation Changes the Profile Identity Only
 notes: Captured 2026-10-03 before code in v2 chunk 24 (pre-code capture) from the coding leader plan. Proposed by the coding leader and accepted by the owner on 2026-10-03 (D181).
 priority: 1
-tags: [v2, release-v2.1, session, player-controls]
+tags: [v2, release-v2.0, part-v2.1, session, player-controls]
 parents:
   - [[req_settings_mutation_flag]]
   - [[rule_profile_control_customization]]

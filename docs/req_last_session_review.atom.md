@@ -1,6 +1,6 @@
 ---
 id: req_last_session_review
-status: DRAFT
+status: REVIEW
 version: 0.4
 priority: 1
 human_name: Last-Session Review

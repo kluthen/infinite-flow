@@ -1,6 +1,6 @@
 ---
 id: rule_silence_timeout_ends_session
-status: DRAFT
+status: STABLE
 type: RULE
 version: 0.1
 human_name: Silence Timeout Ends a Session
@@ -13,6 +13,7 @@ parents:
 dependents:
   - [[module_session_silence_timeout]]
   - [[service_workspace_session_flow]]
+notes: Text unchanged. The product owner accepted on 2026-10-05 (spec D184) the silence timer as v2 chunk 17 built it, which this rule already states - the starting note arms it as the first played note, and after a reattachment it counts again from the reconnection once a played note has armed it.
 ---
 
 # Silence Timeout Ends a Session

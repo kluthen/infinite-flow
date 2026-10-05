@@ -1,6 +1,6 @@
 ---
 id: rule_key_change_drops_harmonic_carry_in
-status: DRAFT
+status: STABLE
 version: 0.2
 human_name: Key Change Drops Harmonic Carry-In
 parents:
@@ -13,7 +13,7 @@ dependents:
 type: RULE
 layer: BUSINESS
 priority: 1
-tags: [v2, release-v2.1, session, phrase-join]
+tags: [v2, release-v2.0, part-v2.1, session, phrase-join]
 notes: Revised 2026-10-03 before code in v2 chunk 24 (previous version 0.1) at the coding leader request, narrowed to its one rule. The pitch-part re-check moved to rule_setting_change_rechecks_pitch_carry_in, which now also says what happens when it fails, and the register sentence moved to rule_register_change_replaces_carried_window. The harmonic-part drop itself is unchanged. The narrowing was accepted by the owner on 2026-10-03 (D181).
 ---
 

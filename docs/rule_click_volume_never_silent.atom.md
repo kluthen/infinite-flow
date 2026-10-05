@@ -1,6 +1,6 @@
 ---
 id: rule_click_volume_never_silent
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 priority: 1
 type: RULE

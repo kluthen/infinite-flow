@@ -1,6 +1,6 @@
 ---
 id: rule_expected_note_window
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.3
 priority: 1

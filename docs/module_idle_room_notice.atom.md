@@ -1,6 +1,6 @@
 ---
 id: module_idle_room_notice
-status: DRAFT
+status: REVIEW
 type: MODULE
 layer: ARCHITECTURE
 priority: 1

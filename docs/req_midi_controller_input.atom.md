@@ -1,6 +1,6 @@
 ---
 id: req_midi_controller_input
-status: DRAFT
+status: REVIEW
 human_name: MIDI Controller Input
 parents:
   - [[req_rolling_practice_session]]

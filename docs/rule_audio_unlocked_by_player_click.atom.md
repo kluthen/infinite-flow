@@ -1,6 +1,6 @@
 ---
 id: rule_audio_unlocked_by_player_click
-status: DRAFT
+status: REVIEW
 type: RULE
 version: 0.1
 human_name: Audio Starts Only After a Player Click

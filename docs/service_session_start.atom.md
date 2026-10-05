@@ -1,6 +1,6 @@
 ---
 id: service_session_start
-status: DRAFT
+status: REVIEW
 tags: workspace,session,start
 parents:
   - [[rule_audio_unlocked_by_player_click]]

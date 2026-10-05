@@ -1,6 +1,6 @@
 ---
 id: module_register_intent_boundary
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 human_name: Register Intent Boundary
 version: 0.3

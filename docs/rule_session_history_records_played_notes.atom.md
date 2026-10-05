@@ -1,6 +1,6 @@
 ---
 id: rule_session_history_records_played_notes
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Session History Records Played Notes
 tags: [v2, release-v2.0, session, history, midi]

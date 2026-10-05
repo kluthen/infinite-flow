@@ -1,6 +1,6 @@
 ---
 id: module_session_transport_tempo_map
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Session Transport Tempo Map
 parents:

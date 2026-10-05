@@ -1,8 +1,8 @@
 ---
 id: rule_mutation_reverts_at_session_end
-status: DRAFT
+status: REVIEW
 priority: 1
-tags: [v2, release-v2.1, session, session-end, player-controls]
+tags: [v2, release-v2.0, part-v2.1, session, session-end, player-controls]
 parents:
   - [[req_settings_mutation_flag]]
   - [[rule_session_end_generates_next_phrase_one]]

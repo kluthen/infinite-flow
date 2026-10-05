@@ -1,8 +1,8 @@
 ---
 id: rule_mutation_marks_profile_customized
-status: DRAFT
+status: STABLE
 priority: 1
-tags: [v2, release-v2.1, session, player-controls]
+tags: [v2, release-v2.0, part-v2.1, session, player-controls]
 parents:
   - [[req_settings_mutation_flag]]
   - [[rule_profile_control_customization]]

@@ -1,6 +1,6 @@
 ---
 id: rule_tension_arc_build
-status: DRAFT
+status: REVIEW
 version: 0.1
 human_name: Tension Arc: Build
 type: RULE

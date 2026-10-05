@@ -1,6 +1,6 @@
 ---
 id: rule_count_in_always_clicks
-status: DRAFT
+status: REVIEW
 version: 0.1
 parents:
   - [[req_rolling_practice_session]]

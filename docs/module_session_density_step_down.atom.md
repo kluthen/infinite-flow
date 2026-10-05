@@ -1,6 +1,6 @@
 ---
 id: module_session_density_step_down
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 version: 0.1
 priority: 1

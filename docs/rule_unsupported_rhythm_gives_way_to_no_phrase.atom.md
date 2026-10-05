@@ -1,6 +1,6 @@
 ---
 id: rule_unsupported_rhythm_gives_way_to_no_phrase
-status: DRAFT
+status: REVIEW
 human_name: Unsupported Rhythm Settings Give Way to No Phrase
 dependents:
   - [[module_idle_fit_round]]

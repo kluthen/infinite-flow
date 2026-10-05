@@ -1,6 +1,6 @@
 ---
 id: rule_arpeggio_chaos_respects_constraints
-status: DRAFT
+status: REVIEW
 version: 0.1
 priority: 2
 tags: arpeggio,control,constraints

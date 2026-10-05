@@ -1,6 +1,6 @@
 ---
 id: rule_start_while_controller_away
-status: DRAFT
+status: REVIEW
 type: RULE
 version: 0.1
 priority: 1

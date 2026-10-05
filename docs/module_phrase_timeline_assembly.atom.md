@@ -1,6 +1,6 @@
 ---
 id: module_phrase_timeline_assembly
-status: DRAFT
+status: REVIEW
 type: MODULE
 layer: ARCHITECTURE
 priority: 1

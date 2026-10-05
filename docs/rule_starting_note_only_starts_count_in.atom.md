@@ -1,6 +1,6 @@
 ---
 id: rule_starting_note_only_starts_count_in
-status: DRAFT
+status: REVIEW
 version: 0.1
 priority: 1
 parents:

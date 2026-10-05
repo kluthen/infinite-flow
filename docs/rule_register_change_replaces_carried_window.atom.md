@@ -1,7 +1,7 @@
 ---
 id: rule_register_change_replaces_carried_window
-status: DRAFT
-tags: [v2, release-v2.1, session, phrase-join, register]
+status: REVIEW
+tags: [v2, release-v2.0, part-v2.1, session, phrase-join, register]
 parents:
   - [[rule_join_carry_in_limited]]
   - [[rule_session_change_applies_at_phrase_boundary]]

@@ -1,12 +1,12 @@
 ---
 id: rule_played_notes_export_unquantized_timing
-status: DRAFT
+status: REVIEW
 human_name: Played Notes Export Keeps Unquantized Timing
 dependents: []
 layer: BUSINESS
 version: 0.1
 priority: 1
-tags: [v2, release-v2.1, export, midi]
+tags: [v2, release-v2.0, part-v2.1, export, midi]
 parents:
   - [[req_played_notes_export]]
 type: RULE

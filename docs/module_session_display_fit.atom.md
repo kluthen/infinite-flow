@@ -1,6 +1,6 @@
 ---
 id: module_session_display_fit
-status: DRAFT
+status: REVIEW
 tags: session,notation,display,fit
 notes: Split out on 2026-10-05 from module_session_rolling_display (version 0.5) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 dependents: []

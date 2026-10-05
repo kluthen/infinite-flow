@@ -1,6 +1,6 @@
 ---
 id: rule_tension_resolution_delay_permits_rests
-status: DRAFT
+status: REVIEW
 type: RULE
 tags: tension,melody,harmony,rhythm,controls
 parents:

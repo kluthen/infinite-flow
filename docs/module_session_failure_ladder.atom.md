@@ -1,6 +1,6 @@
 ---
 id: module_session_failure_ladder
-status: DRAFT
+status: REVIEW
 dependents: []
 layer: ARCHITECTURE
 version: 0.1

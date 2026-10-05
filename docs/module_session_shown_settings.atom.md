@@ -1,6 +1,6 @@
 ---
 id: module_session_shown_settings
-status: DRAFT
+status: REVIEW
 human_name: Session Shown Settings
 parents:
   - [[req_settings_mutation_flag]]

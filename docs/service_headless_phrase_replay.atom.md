@@ -1,6 +1,6 @@
 ---
 id: service_headless_phrase_replay
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 version: 0.1
 priority: 1

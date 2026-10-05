@@ -1,6 +1,6 @@
 ---
 id: rule_mutation_sixteenth_blocked_after_step_down
-status: DRAFT
+status: STABLE
 layer: BUSINESS
 version: 0.1
 priority: 1
@@ -11,7 +11,7 @@ parents:
 dependents:
   - [[module_settings_mutation]]
 type: RULE
-tags: [v2, release-v2.1, session, rhythm]
+tags: [v2, release-v2.0, part-v2.1, session, rhythm]
 notes: Captured 2026-10-03 before code in v2 chunk 24 (pre-code capture). A coding leader reading of whenever the session generates with Eighth because a chosen Sixteenth stepped down, read as once the session has stepped down at any point, consistent with a session density that only steps down under the window-width rule. Proposed by the coding leader and accepted by the owner on 2026-10-03 (D181).
 ---
 

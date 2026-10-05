@@ -1,6 +1,6 @@
 ---
 id: rule_too_dense_notice_retry_rounds
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 human_name: Too-Dense Notice Starts New Retry Rounds
 tags: [v2, release-v2.0, idle, notation, v1-change]

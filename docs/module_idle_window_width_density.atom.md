@@ -1,6 +1,6 @@
 ---
 id: module_idle_window_width_density
-status: DRAFT
+status: REVIEW
 dependents: []
 type: MODULE
 layer: ARCHITECTURE

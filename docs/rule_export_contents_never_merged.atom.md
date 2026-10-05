@@ -3,7 +3,7 @@ id: rule_export_contents_never_merged
 status: REVIEW
 layer: BUSINESS
 version: 0.1
-tags: [v2, release-v2.1, export]
+tags: [v2, release-v2.0, part-v2.1, export]
 parents:
   - [[req_session_export]]
 dependents:

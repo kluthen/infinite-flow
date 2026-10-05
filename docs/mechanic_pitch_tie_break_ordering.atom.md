@@ -1,6 +1,6 @@
 ---
 id: mechanic_pitch_tie_break_ordering
-status: DRAFT
+status: REVIEW
 type: MECHANIC
 parents:
   - [[entity_pitch_candidate_domain]]

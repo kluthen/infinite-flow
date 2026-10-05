@@ -1,6 +1,6 @@
 ---
 id: module_session_mutation_step
-status: DRAFT
+status: REVIEW
 type: MODULE
 version: 0.1
 human_name: Session Settings Mutation Step

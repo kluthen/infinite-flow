@@ -1,6 +1,6 @@
 ---
 id: rule_look_ahead_deadline
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 priority: 1
@@ -16,7 +16,7 @@ dependents:
   - [[service_session_runner]]
 version: 0.2
 human_name: One-Phrase Look-Ahead Deadline
-notes: Revised 2026-09-30 in v2 chunk 8 (previous version 0.1) as a clarification of existing behaviour, accepted by the chunk owner under the owner standing rule to settle minor issues and record them; AWAITING THE OWNER ACCEPTANCE. The EXPECTATION now allows for the failure ladder repeat decided at the deadline, which the ladder rule already required; the rule itself is unchanged.
+notes: Revised 2026-09-30 in v2 chunk 8 (previous version 0.1) as a clarification of existing behaviour, accepted by the chunk owner under the owner standing rule to settle minor issues and record them; the product owner accepted it on 2026-10-05 (spec D186). The EXPECTATION now allows for the failure ladder repeat decided at the deadline, which the ladder rule already required; the rule itself is unchanged.
 ---
 
 # One-Phrase Look-Ahead Deadline

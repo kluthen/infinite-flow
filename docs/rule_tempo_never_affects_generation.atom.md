@@ -1,6 +1,6 @@
 ---
 id: rule_tempo_never_affects_generation
-status: DRAFT
+status: STABLE
 type: RULE
 priority: 1
 human_name: Tempo Never Affects Generated Material
@@ -8,11 +8,12 @@ tags: [v2, release-v2.0, determinism, audio]
 parents:
   - [[rule_seeded_phrase_reproduction]]
 layer: BUSINESS
-version: 0.1
+version: 0.2
 dependents:
   - [[module_session_adaptive_tempo_schedule]]
   - [[module_session_look_ahead_timing]]
   - [[service_session_engine]]
+notes: Revised 2026-10-05 (previous version 0.1) with the wording v2 chunk 27 proposed and the product owner accepted (spec D186). The technical interface no longer says tempo never reaches the generation request, since the request carries the locked starting tempo; generation never reads it, and adaptive tempo never reaches the request.
 ---
 
 # Tempo Never Affects Generated Material
@@ -24,7 +25,7 @@ Keep the tempo out of what gets generated.
 Tempo is transport only: it is never part of what is generated, so the same seed and settings always produce the same material at any tempo. The known consequence, a very fast note density becoming hard to play at a very high tempo, is accepted: the player chose both values.
 
 ## TECHNICAL INTERFACE
-Tempo reaches the audio scheduling and playhead, never the generation request.
+Tempo reaches the audio scheduling and the playhead. The generation request carries only the session's locked starting tempo, which generation never reads.
 
 ## EXPECTATION
 - For every complete request and seed, the generated phrase is identical at every tempo.

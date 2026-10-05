@@ -1,6 +1,6 @@
 ---
 id: module_session_staff_refill
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Session Staff Refill
 tags: session,notation,display

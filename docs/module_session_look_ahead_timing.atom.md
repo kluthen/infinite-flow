@@ -1,6 +1,6 @@
 ---
 id: module_session_look_ahead_timing
-status: DRAFT
+status: REVIEW
 version: 0.1
 notes: Split out on 2026-10-05 from service_session_engine (version 0.5) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 dependents: []

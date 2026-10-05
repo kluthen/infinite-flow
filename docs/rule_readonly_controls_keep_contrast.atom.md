@@ -1,6 +1,6 @@
 ---
 id: rule_readonly_controls_keep_contrast
-status: DRAFT
+status: REVIEW
 human_name: Readonly Controls Keep Contrast
 version: 0.2
 dependents: []

@@ -1,6 +1,6 @@
 ---
 id: rule_session_ends_when_staff_too_small
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 tags: [v2, release-v2.0, session, session-end, notation]

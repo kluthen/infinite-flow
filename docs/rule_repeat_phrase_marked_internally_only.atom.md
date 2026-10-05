@@ -1,6 +1,6 @@
 ---
 id: rule_repeat_phrase_marked_internally_only
-status: DRAFT
+status: STABLE
 type: RULE
 layer: BUSINESS
 priority: 1
@@ -14,7 +14,7 @@ dependents:
   - [[service_session_history]]
 version: 0.2
 tags: [v2, release-v2.0, session, history]
-notes: Revised 2026-09-30 in v2 chunk 8 (previous version 0.1) as a clarification of existing behaviour, accepted by the chunk owner under the owner standing rule to settle minor issues and record them; AWAITING THE OWNER ACCEPTANCE. Adds a rejected generation request to the kinds of failure a marked repeat can follow.
+notes: Revised 2026-09-30 in v2 chunk 8 (previous version 0.1) as a clarification of existing behaviour, accepted by the chunk owner under the owner standing rule to settle minor issues and record them; the product owner accepted it on 2026-10-05 (spec D186). Adds a rejected generation request to the kinds of failure a marked repeat can follow.
 ---
 
 # Repeated Phrase Marked Only Internally

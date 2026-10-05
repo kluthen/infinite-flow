@@ -1,6 +1,6 @@
 ---
 id: mechanic_pitch_contour_forward_check
-status: DRAFT
+status: REVIEW
 human_name: Pitch Contour Forward Check
 type: MECHANIC
 priority: 1

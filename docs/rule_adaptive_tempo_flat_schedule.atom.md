@@ -1,12 +1,12 @@
 ---
 id: rule_adaptive_tempo_flat_schedule
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.2
 priority: 1
 human_name: Adaptive Tempo Flat Schedule
-tags: [v2, release-v2.2, session, tempo]
+tags: [v2, release-v2.0, part-v2.2, session, tempo]
 parents:
   - [[req_adaptive_tempo]]
 dependents:

@@ -1,6 +1,6 @@
 ---
 id: rule_complete_four_four_measures
-status: DRAFT
+status: REVIEW
 human_name: Complete Four-Four Measures
 type: RULE
 layer: BUSINESS

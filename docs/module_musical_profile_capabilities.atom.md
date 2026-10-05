@@ -1,6 +1,6 @@
 ---
 id: module_musical_profile_capabilities
-status: DRAFT
+status: REVIEW
 human_name: Musical Profile Capabilities
 layer: ARCHITECTURE
 version: 0.1

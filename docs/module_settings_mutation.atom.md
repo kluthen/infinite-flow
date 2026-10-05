@@ -1,10 +1,10 @@
 ---
 id: module_settings_mutation
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 version: 0.1
 priority: 1
-tags: [v2, release-v2.1, session, player-controls]
+tags: [v2, release-v2.0, part-v2.1, session, player-controls]
 notes: Captured 2026-10-03 before code in v2 chunk 24 (pre-code architecture capture) from the coding leader plan. The scales it encodes for tonal center, collection, contour, register and musical profile, and the profile customized marking, were proposed by the coding leader and accepted by the owner on 2026-10-03 (D181). Aligned with the code in the same chunk post-task sync: the scale table in its own file, the mutation and gap drawn from indexed streams of (seed, k), the mutation context, the landing-phrase helpers and the refusals. Status stays DRAFT.
 dependents:
   - [[module_session_mutation_step]]

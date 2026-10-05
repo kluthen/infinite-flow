@@ -1,6 +1,6 @@
 ---
 id: rule_jazz_chromatic_resolution
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: jazz-profile,chromatic,resolution
 human_name: Jazz Chromatic Resolution

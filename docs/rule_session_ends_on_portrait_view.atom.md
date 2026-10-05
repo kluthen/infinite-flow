@@ -1,6 +1,6 @@
 ---
 id: rule_session_ends_on_portrait_view
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: [v2, release-v2.0, session, session-end, orientation]
 parents:

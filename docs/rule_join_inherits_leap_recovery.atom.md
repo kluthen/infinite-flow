@@ -1,6 +1,6 @@
 ---
 id: rule_join_inherits_leap_recovery
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.2
 priority: 1

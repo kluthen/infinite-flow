@@ -1,6 +1,6 @@
 ---
 id: rule_automatic_change_updates_controls_quietly
-status: DRAFT
+status: REVIEW
 parents:
   - [[rule_session_change_applies_at_phrase_boundary]]
 dependents: []
@@ -9,7 +9,7 @@ layer: BUSINESS
 priority: 1
 version: 0.1
 human_name: Automatic Setting Changes Update the Controls Quietly
-tags: [v2, release-v2.1, session, player-controls]
+tags: [v2, release-v2.0, part-v2.1, session, player-controls]
 ---
 
 # Automatic Setting Changes Update the Controls Quietly

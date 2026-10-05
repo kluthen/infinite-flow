@@ -1,6 +1,6 @@
 ---
 id: module_generation_request_envelope
-status: DRAFT
+status: REVIEW
 human_name: Generation Request Envelope
 layer: ARCHITECTURE
 tags: generation

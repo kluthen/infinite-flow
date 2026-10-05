@@ -1,6 +1,6 @@
 ---
 id: rule_click_track
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Metronome Click
 tags: [v2, release-v2.0, session, audio]

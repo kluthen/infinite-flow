@@ -1,6 +1,6 @@
 ---
 id: module_idle_fit_round
-status: DRAFT
+status: REVIEW
 type: MODULE
 layer: ARCHITECTURE
 parents:

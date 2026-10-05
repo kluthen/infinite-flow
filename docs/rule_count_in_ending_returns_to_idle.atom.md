@@ -1,6 +1,6 @@
 ---
 id: rule_count_in_ending_returns_to_idle
-status: DRAFT
+status: REVIEW
 version: 0.1
 priority: 1
 human_name: Session Ended During the Count-In Returns to Idle

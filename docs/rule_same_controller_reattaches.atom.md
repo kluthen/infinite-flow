@@ -1,6 +1,6 @@
 ---
 id: rule_same_controller_reattaches
-status: DRAFT
+status: REVIEW
 parents:
   - [[rule_controller_attached_definition]]
 layer: BUSINESS

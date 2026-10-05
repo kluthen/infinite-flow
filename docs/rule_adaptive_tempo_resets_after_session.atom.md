@@ -1,6 +1,6 @@
 ---
 id: rule_adaptive_tempo_resets_after_session
-status: DRAFT
+status: REVIEW
 version: 0.1
 priority: 1
 parents:
@@ -10,7 +10,7 @@ dependents:
   - [[service_session_history]]
   - [[service_workspace_session_flow]]
 human_name: Adaptive Tempo Resets After the Session
-tags: [v2, release-v2.2, session, tempo]
+tags: [v2, release-v2.0, part-v2.2, session, tempo]
 type: RULE
 layer: BUSINESS
 ---

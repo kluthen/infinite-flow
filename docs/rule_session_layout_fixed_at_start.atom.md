@@ -1,6 +1,6 @@
 ---
 id: rule_session_layout_fixed_at_start
-status: DRAFT
+status: REVIEW
 version: 0.1
 human_name: Session Staff Layout Fixed at Start
 parents:

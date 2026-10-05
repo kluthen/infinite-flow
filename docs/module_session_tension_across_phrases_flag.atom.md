@@ -1,6 +1,6 @@
 ---
 id: module_session_tension_across_phrases_flag
-status: DRAFT
+status: REVIEW
 version: 0.1
 priority: 1
 human_name: Tension-Across-Phrases Flag

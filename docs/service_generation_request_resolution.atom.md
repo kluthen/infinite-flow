@@ -1,6 +1,6 @@
 ---
 id: service_generation_request_resolution
-status: DRAFT
+status: REVIEW
 priority: 1
 version: 0.2
 tags: generation,orchestration,immutable-boundary

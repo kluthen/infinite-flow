@@ -1,6 +1,6 @@
 ---
 id: rule_landscape_lock_during_session
-status: DRAFT
+status: REVIEW
 priority: 1
 dependents:
   - [[service_session_start]]

@@ -1,10 +1,10 @@
 ---
 id: req_multi_phrase_tension_arc
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.2
 priority: 1
-tags: [v2, release-v2.2, session, tension]
+tags: [v2, release-v2.0, part-v2.2, session, tension]
 dependents:
   - [[module_session_tension_across_phrases_flag]]
   - [[module_session_tension_arc_step]]

@@ -1,6 +1,6 @@
 ---
 id: rule_only_note_on_counts_as_played
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.1
 priority: 1

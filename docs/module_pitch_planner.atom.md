@@ -1,6 +1,6 @@
 ---
 id: module_pitch_planner
-status: DRAFT
+status: REVIEW
 priority: 1
 version: 1.1
 layer: ARCHITECTURE

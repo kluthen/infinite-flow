@@ -1,6 +1,6 @@
 ---
 id: rule_controller_loss_mid_session
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.1

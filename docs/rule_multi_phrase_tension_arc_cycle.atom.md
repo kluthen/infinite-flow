@@ -1,12 +1,12 @@
 ---
 id: rule_multi_phrase_tension_arc_cycle
-status: DRAFT
+status: REVIEW
 dependents:
   - [[module_tension_arc_cycle]]
 type: RULE
 layer: BUSINESS
 priority: 1
-tags: [v2, release-v2.2, session, tension]
+tags: [v2, release-v2.0, part-v2.2, session, tension]
 parents:
   - [[req_multi_phrase_tension_arc]]
 version: 0.1

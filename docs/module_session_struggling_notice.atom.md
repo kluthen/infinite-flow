@@ -1,6 +1,6 @@
 ---
 id: module_session_struggling_notice
-status: DRAFT
+status: REVIEW
 type: MODULE
 layer: ARCHITECTURE
 human_name: Session Struggling Notice

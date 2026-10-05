@@ -1,9 +1,9 @@
 ---
 id: rule_mutation_lands_on_scheduled_phrase
-status: DRAFT
+status: REVIEW
 type: RULE
 version: 0.1
-tags: [v2, release-v2.1, session, player-controls]
+tags: [v2, release-v2.0, part-v2.1, session, player-controls]
 dependents:
   - [[module_session_mutation_step]]
   - [[module_settings_mutation]]

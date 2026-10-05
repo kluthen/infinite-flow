@@ -1,6 +1,6 @@
 ---
 id: module_phrase_generation_profile_policy
-status: DRAFT
+status: REVIEW
 type: MODULE
 layer: ARCHITECTURE
 tags: phrase-generation,instrument-profile,active-range,register-policy

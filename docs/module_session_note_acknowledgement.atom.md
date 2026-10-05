@@ -1,6 +1,6 @@
 ---
 id: module_session_note_acknowledgement
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Session Note Acknowledgement
 tags: workspace,session,midi,acknowledgement

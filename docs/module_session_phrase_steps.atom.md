@@ -1,6 +1,6 @@
 ---
 id: module_session_phrase_steps
-status: DRAFT
+status: REVIEW
 type: MODULE
 parents:
   - [[req_adaptive_tempo]]

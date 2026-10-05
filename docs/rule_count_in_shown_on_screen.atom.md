@@ -1,6 +1,6 @@
 ---
 id: rule_count_in_shown_on_screen
-status: DRAFT
+status: REVIEW
 type: RULE
 version: 0.1
 priority: 1

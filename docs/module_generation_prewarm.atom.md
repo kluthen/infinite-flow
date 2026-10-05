@@ -1,6 +1,6 @@
 ---
 id: module_generation_prewarm
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 version: 0.1
 human_name: Generation Prewarm

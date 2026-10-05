@@ -1,6 +1,6 @@
 ---
 id: rule_midi_starting_note
-status: DRAFT
+status: REVIEW
 dependents:
   - [[module_session_starting_note]]
   - [[rule_starting_note_named]]

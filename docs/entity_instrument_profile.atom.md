@@ -1,6 +1,6 @@
 ---
 id: entity_instrument_profile
-status: DRAFT
+status: REVIEW
 tags: instrument-profile,range-policy,register-policy,declarative
 version: 1.4
 dependents:

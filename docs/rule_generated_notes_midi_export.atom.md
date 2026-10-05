@@ -1,6 +1,6 @@
 ---
 id: rule_generated_notes_midi_export
-status: DRAFT
+status: REVIEW
 human_name: Generated Notes MIDI Export
 parents:
   - [[req_session_export]]
@@ -10,7 +10,8 @@ layer: BUSINESS
 priority: 1
 tags: [v2, release-v2.0, v2.4-check, export]
 type: RULE
-version: 0.2
+version: 0.3
+notes: Revised 2026-10-05 (previous version 0.2) for spec D183 - v2 ships as one release, v2.0, and the real-hardware check this atom names is part of its single release gate rather than of a later release; the check itself is unchanged.
 ---
 
 # Generated Notes MIDI Export
@@ -26,5 +27,5 @@ The generated-notes export in MIDI format produces one type 1 Standard MIDI File
 
 ## EXPECTATION
 - The MIDI file carries the correct tempo map and one marker per phrase, as automated tests check.
-- Opening the file in a real MIDI tool, and finding the correct tempo map there, is a check of the later real-hardware release, v2.4.
+- Opening the file in a real MIDI tool, and finding the correct tempo map there, is one of the real-hardware checks of the v2.0 release gate.
 - The backing track is present only when the player opts in; played notes are never present.

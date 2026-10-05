@@ -1,6 +1,6 @@
 ---
 id: module_session_staff_overlays
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: session,notation,display,overlays
 dependents: []

@@ -1,6 +1,6 @@
 ---
 id: mechanic_syncopation_enumeration
-status: DRAFT
+status: REVIEW
 human_name: Syncopation Enumeration
 layer: ARCHITECTURE
 priority: 1

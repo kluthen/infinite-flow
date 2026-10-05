@@ -1,6 +1,6 @@
 ---
 id: module_ranked_candidate_ordering
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 human_name: Ranked Candidate Ordering
 type: MODULE

@@ -1,9 +1,9 @@
 ---
 id: rule_density_mutation_steps_from_generated_density
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.1
-tags: [v2, release-v2.1, session, rhythm]
+tags: [v2, release-v2.0, part-v2.1, session, rhythm]
 parents:
   - [[req_settings_mutation_flag]]
 dependents:

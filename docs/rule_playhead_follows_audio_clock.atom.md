@@ -1,6 +1,6 @@
 ---
 id: rule_playhead_follows_audio_clock
-status: DRAFT
+status: REVIEW
 tags: [v2, release-v2.0, v2.4-check, session, audio]
 dependents:
   - [[module_session_rolling_display]]
@@ -8,12 +8,13 @@ dependents:
   - [[service_session_controller]]
   - [[service_workspace_session_flow]]
 layer: BUSINESS
-version: 0.2
+version: 0.3
 priority: 1
 human_name: Playhead Follows the Audio Clock
 parents:
   - [[req_rolling_practice_session]]
 type: RULE
+notes: Revised 2026-10-05 (previous version 0.2) for spec D183 - v2 ships as one release, v2.0, and the real-hardware check this atom names is part of its single release gate rather than of a later release; the check itself is unchanged.
 ---
 
 # Playhead Follows the Audio Clock
@@ -28,5 +29,5 @@ The audio clock is the one master clock for the backing, the click, the on-scree
 Backing, click, playhead and acknowledgement timing all read one shared audio clock.
 
 ## EXPECTATION
-- The on-screen playhead stays within 20 ms of the actual audio output position over a five-minute session in Chromium. This is measured in real Chromium on the reference machine, a check of the later real-hardware release, v2.4.
+- The on-screen playhead stays within 20 ms of the actual audio output position over a five-minute session in Chromium. This is measured in real Chromium on the reference machine, one of the real-hardware checks of the v2.0 release gate.
 - Muting the backing never affects timing.

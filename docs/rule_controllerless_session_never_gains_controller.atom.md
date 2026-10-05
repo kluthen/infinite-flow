@@ -1,6 +1,6 @@
 ---
 id: rule_controllerless_session_never_gains_controller
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.1

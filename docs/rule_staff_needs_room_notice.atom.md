@@ -1,6 +1,6 @@
 ---
 id: rule_staff_needs_room_notice
-status: DRAFT
+status: REVIEW
 tags: [v2, release-v2.0, idle, notation, v1-change]
 parents:
   - [[req_landscape_phrase_workspace]]

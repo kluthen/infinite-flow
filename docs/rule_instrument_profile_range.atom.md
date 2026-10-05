@@ -2,7 +2,7 @@
 id: rule_instrument_profile_range
 status: STABLE
 type: RULE
-version: 0.2
+version: 0.3
 priority: 1
 tags: range,instrument-profile,hard-constraint
 dependents:
@@ -15,6 +15,7 @@ human_name: Instrument Profile Range
 layer: BUSINESS
 parents:
   - [[req_four_measure_phrase]]
+notes: Revised 2026-10-05 (previous version 0.2). The used-only-by clause on the instrument transposition now names every v2 use of it, the conversion between written and concert pitch in the controller transposition check, the starting note and the MusicXML export added to the notation and the tonal-center conversion; proposed in v2 chunk 13 and accepted by the product owner (spec D186). The guarantee itself is unchanged.
 ---
 
 # Instrument Profile Range
@@ -24,13 +25,11 @@ parents:
 Keep every generated source pitch inside the selected first-release instrument profile's active concert range and resolved whole-phrase register window.
 
 ## THE RULE / LOGIC
-
-The validated first-release profiles use inclusive active concert ranges and contained overlapping windows: C MIDI keyboard 48-72 with Low 48-60, Middle 54-66, High 60-72; B-flat tenor saxophone 46-70 with Low 46-58, Middle 52-64, High 58-70; and E-flat alto saxophone 51-75 with Low 51-63, Middle 57-69, High 63-75. Varying deterministically selects one feasible Low, Middle, or High window before planning the complete phrase and never changes it mid-phrase. The instrument profile's own concert-to-written transposition, used only by notation and by the request's written-to-concert tonal-center conversion, never changes the active concert range or the source events.
+The validated first-release profiles use inclusive active concert ranges and contained overlapping windows: C MIDI keyboard 48-72 with Low 48-60, Middle 54-66, High 60-72; B-flat tenor saxophone 46-70 with Low 46-58, Middle 52-64, High 58-70; and E-flat alto saxophone 51-75 with Low 51-63, Middle 57-69, High 63-75. Varying deterministically selects one feasible Low, Middle, or High window before planning the complete phrase and never changes it mid-phrase. The instrument profile's own concert-to-written transposition, used only to convert between written and concert pitch (in the notation, the request's written-to-concert tonal-center conversion, the controller transposition check, the starting note and the MusicXML export), never changes the active concert range or the source events.
 
 ## TECHNICAL INTERFACE
 
 The generation request includes a selected validated profile's active concert range and resolved register window; the result contains concert-pitch events.
 
 ## EXPECTATION
-
-Every generated concert event falls inside the selected profile's active range and resolved whole-phrase register window. The instrument profile's own concert-to-written transposition, used only by notation and by the request's written-to-concert tonal-center conversion, never alters those source events or generation constraints.
+Every generated concert event falls inside the selected profile's active range and resolved whole-phrase register window. The instrument profile's own concert-to-written transposition, used only to convert between written and concert pitch (in the notation, the request's written-to-concert tonal-center conversion, the controller transposition check, the starting note and the MusicXML export), never alters those source events or generation constraints.

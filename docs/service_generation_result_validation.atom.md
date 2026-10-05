@@ -1,6 +1,6 @@
 ---
 id: service_generation_result_validation
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 type: SERVICE
 priority: 1

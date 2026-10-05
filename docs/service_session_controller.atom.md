@@ -1,6 +1,6 @@
 ---
 id: service_session_controller
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 human_name: Practice Session Controller
 tags: workspace,session,session-state

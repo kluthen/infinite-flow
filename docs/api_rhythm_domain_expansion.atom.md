@@ -1,6 +1,6 @@
 ---
 id: api_rhythm_domain_expansion
-status: DRAFT
+status: REVIEW
 human_name: Rhythm Domain Expansion
 layer: ARCHITECTURE
 priority: 1

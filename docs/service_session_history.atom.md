@@ -1,6 +1,6 @@
 ---
 id: service_session_history
-status: DRAFT
+status: REVIEW
 human_name: Session History
 type: SERVICE
 layer: ARCHITECTURE

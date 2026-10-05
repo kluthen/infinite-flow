@@ -1,6 +1,6 @@
 ---
 id: mechanic_syncopation_translation
-status: DRAFT
+status: REVIEW
 type: MECHANIC
 priority: 1
 tags: rhythm,syncopation,metrical-anchor,step6

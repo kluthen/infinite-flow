@@ -1,9 +1,9 @@
 ---
 id: rule_mutation_setting_scales
-status: DRAFT
+status: STABLE
 type: RULE
 priority: 1
-tags: [v2, release-v2.1, session, player-controls]
+tags: [v2, release-v2.0, part-v2.1, session, player-controls]
 parents:
   - [[req_settings_mutation_flag]]
 notes: Captured 2026-10-03 before code in v2 chunk 24 (pre-code capture) from the coding leader plan. The ordered scales follow the catalog order the settings controls show. The tonal center, collection, contour and register scales were proposed by the coding leader and accepted by the owner on 2026-10-03 (D181).

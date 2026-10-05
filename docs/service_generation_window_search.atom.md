@@ -1,6 +1,6 @@
 ---
 id: service_generation_window_search
-status: DRAFT
+status: REVIEW
 human_name: Generation Window Search
 layer: ARCHITECTURE
 priority: 1

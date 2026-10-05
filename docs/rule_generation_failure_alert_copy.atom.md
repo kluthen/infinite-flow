@@ -1,6 +1,6 @@
 ---
 id: rule_generation_failure_alert_copy
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 priority: 2
 tags: error-handling,alert-copy,accessibility

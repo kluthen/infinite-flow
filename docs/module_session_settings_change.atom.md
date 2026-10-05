@@ -1,6 +1,6 @@
 ---
 id: module_session_settings_change
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Session Settings Change
 tags: session,look-ahead,settings-change

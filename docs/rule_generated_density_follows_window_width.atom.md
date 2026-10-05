@@ -1,6 +1,6 @@
 ---
 id: rule_generated_density_follows_window_width
-status: DRAFT
+status: REVIEW
 parents:
   - [[rule_sixteenth_unavailable_below_tablet_width]]
 priority: 1

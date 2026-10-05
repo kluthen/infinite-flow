@@ -1,6 +1,6 @@
 ---
 id: rule_tension_arc_lift
-status: DRAFT
+status: REVIEW
 dependents:
   - [[module_harmony_candidate_domain]]
 human_name: Tension Arc: Lift

@@ -1,6 +1,6 @@
 ---
 id: module_rhythm_skeleton_allocator
-status: DRAFT
+status: REVIEW
 priority: 1
 version: 0.1
 dependents: []

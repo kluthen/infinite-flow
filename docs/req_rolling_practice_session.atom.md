@@ -1,6 +1,6 @@
 ---
 id: req_rolling_practice_session
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.4
 tags: [v2, release-v2.0, session]

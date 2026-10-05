@@ -1,6 +1,6 @@
 ---
 id: rule_leapiness_interval_budget
-status: DRAFT
+status: REVIEW
 priority: 1
 parents:
   - [[req_four_measure_phrase]]

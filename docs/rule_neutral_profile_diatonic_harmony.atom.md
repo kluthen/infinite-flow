@@ -1,6 +1,6 @@
 ---
 id: rule_neutral_profile_diatonic_harmony
-status: DRAFT
+status: REVIEW
 human_name: Neutral Profile Diatonic Harmony
 layer: BUSINESS
 tags: neutral-profile,harmony,diatonic

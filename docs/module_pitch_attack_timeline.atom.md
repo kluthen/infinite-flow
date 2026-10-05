@@ -1,6 +1,6 @@
 ---
 id: module_pitch_attack_timeline
-status: DRAFT
+status: REVIEW
 human_name: Pitch Attack Timeline
 type: MODULE
 priority: 1

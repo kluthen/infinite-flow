@@ -1,6 +1,6 @@
 ---
 id: rule_join_interval_obeys_phrase_rules
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Joins Obey In-Phrase Interval and Register Rules
 tags: [v2, release-v2.0, session, phrase-join]

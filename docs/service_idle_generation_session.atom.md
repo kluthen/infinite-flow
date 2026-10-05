@@ -1,6 +1,6 @@
 ---
 id: service_idle_generation_session
-status: DRAFT
+status: REVIEW
 type: SERVICE
 layer: ARCHITECTURE
 human_name: Idle Generation Session

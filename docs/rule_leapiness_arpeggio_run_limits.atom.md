@@ -1,6 +1,6 @@
 ---
 id: rule_leapiness_arpeggio_run_limits
-status: DRAFT
+status: REVIEW
 tags: melody,leapiness,arpeggio,hard-constraint
 parents:
   - [[req_four_measure_phrase]]

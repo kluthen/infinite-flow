@@ -1,6 +1,6 @@
 ---
 id: rule_hidden_tab_ends_session
-status: DRAFT
+status: REVIEW
 type: RULE
 priority: 1
 human_name: Hidden Tab Ends the Session

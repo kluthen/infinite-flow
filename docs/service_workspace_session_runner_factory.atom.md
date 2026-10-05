@@ -1,6 +1,6 @@
 ---
 id: service_workspace_session_runner_factory
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: workspace,session,generation-worker
 dependents: []

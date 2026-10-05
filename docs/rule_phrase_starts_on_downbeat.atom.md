@@ -1,6 +1,6 @@
 ---
 id: rule_phrase_starts_on_downbeat
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.1

@@ -1,6 +1,6 @@
 ---
 id: module_pitch_search_context
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: pitch,search-context
 parents:

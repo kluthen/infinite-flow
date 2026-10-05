@@ -1,6 +1,6 @@
 ---
 id: rule_controller_connects_between_sessions
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.1
 tags: [v2, release-v2.0, midi]

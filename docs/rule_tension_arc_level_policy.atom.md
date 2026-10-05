@@ -1,6 +1,6 @@
 ---
 id: rule_tension_arc_level_policy
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: tension,melody,harmony,controls
 human_name: Tension Arc Level Policy

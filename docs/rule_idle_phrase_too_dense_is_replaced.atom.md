@@ -1,6 +1,6 @@
 ---
 id: rule_idle_phrase_too_dense_is_replaced
-status: DRAFT
+status: REVIEW
 type: RULE
 tags: [v2, release-v2.0, idle, notation, v1-change]
 parents:

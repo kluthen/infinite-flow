@@ -1,6 +1,6 @@
 ---
 id: module_phrase_replay_key
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 notes: Captured 2026-10-01 before code (branch replay-key, pre-code architecture capture). Owner decisions, recorded as rationale - the key excludes the app version and commit, so a later generator change may replay a key differently, which is accepted; the key is a debugging basis for the generator. Revised 2026-10-03 before code in v2 chunk 24 (pre-code architecture capture) for the settings-mutation engine (previous version 0.1) - the carry-in final harmony may be null, the key stays ifk1. and every older key still decodes. Status stays DRAFT.
 human_name: Phrase Replay Key

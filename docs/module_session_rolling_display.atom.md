@@ -1,6 +1,6 @@
 ---
 id: module_session_rolling_display
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 version: 0.6
 priority: 1

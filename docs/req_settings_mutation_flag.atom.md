@@ -1,6 +1,6 @@
 ---
 id: req_settings_mutation_flag
-status: DRAFT
+status: REVIEW
 dependents:
   - [[module_session_mutation_step]]
   - [[module_session_settings_change]]
@@ -20,7 +20,7 @@ dependents:
 layer: BUSINESS
 version: 0.2
 human_name: Settings-Mutation Flag
-tags: [v2, release-v2.1, session, player-controls]
+tags: [v2, release-v2.0, part-v2.1, session, player-controls]
 parents:
   - [[req_rolling_practice_session]]
 type: REQUIREMENT

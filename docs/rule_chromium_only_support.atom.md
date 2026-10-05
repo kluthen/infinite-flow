@@ -1,6 +1,6 @@
 ---
 id: rule_chromium_only_support
-status: DRAFT
+status: REVIEW
 tags: [v2, release-v2.0, browser, midi]
 parents:
   - [[req_browser_only_first_release]]

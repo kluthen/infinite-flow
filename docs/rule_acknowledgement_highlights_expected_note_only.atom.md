@@ -1,6 +1,6 @@
 ---
 id: rule_acknowledgement_highlights_expected_note_only
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.1

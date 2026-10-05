@@ -1,6 +1,6 @@
 ---
 id: module_session_controller_loss
-status: DRAFT
+status: REVIEW
 type: MODULE
 layer: ARCHITECTURE
 version: 0.1

@@ -1,6 +1,6 @@
 ---
 id: rule_controller_reconnection_window
-status: DRAFT
+status: STABLE
 dependents:
   - [[module_session_controller_loss]]
   - [[service_workspace_session_flow]]
@@ -12,6 +12,7 @@ parents:
   - [[rule_controller_loss_mid_session]]
 layer: BUSINESS
 human_name: 30-Second Controller Reconnection Window
+notes: Text unchanged. The product owner accepted on 2026-10-05 (spec D184) the silence timer as v2 chunk 17 built it, which this rule already states - the starting note arms it as the first played note, and after a reattachment it counts again from the reconnection once a played note has armed it.
 ---
 
 # 30-Second Controller Reconnection Window

@@ -1,6 +1,6 @@
 ---
 id: rule_acknowledgement_exact_pitch
-status: DRAFT
+status: REVIEW
 human_name: Acknowledgement Requires the Exact Pitch
 version: 0.1
 tags: [v2, release-v2.0, midi, acknowledgement]

@@ -1,6 +1,6 @@
 ---
 id: module_pitch_search_transition
-status: DRAFT
+status: REVIEW
 human_name: Pitch Search Transition
 type: MODULE
 layer: ARCHITECTURE

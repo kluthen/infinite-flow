@@ -1,6 +1,6 @@
 ---
 id: rule_session_change_applies_at_phrase_boundary
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 human_name: Mid-Session Setting Changes Apply at a Phrase Boundary
@@ -17,7 +17,7 @@ dependents:
   - [[service_session_engine]]
 version: 0.2
 priority: 1
-tags: [v2, release-v2.1, session, player-controls]
+tags: [v2, release-v2.0, part-v2.1, session, player-controls]
 parents:
   - [[rule_session_settings_locked]]
 ---

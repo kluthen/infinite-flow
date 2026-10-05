@@ -1,6 +1,6 @@
 ---
 id: rule_screen_wake_lock_during_session
-status: DRAFT
+status: REVIEW
 human_name: Screen Stays Awake During a Session
 parents:
   - [[req_rolling_practice_session]]

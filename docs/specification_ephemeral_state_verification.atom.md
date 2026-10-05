@@ -1,6 +1,6 @@
 ---
 id: specification_ephemeral_state_verification
-status: DRAFT
+status: REVIEW
 human_name: Ephemeral State Verification
 priority: 1
 type: SPECIFICATION

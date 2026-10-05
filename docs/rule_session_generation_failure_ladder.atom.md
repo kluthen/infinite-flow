@@ -1,6 +1,6 @@
 ---
 id: rule_session_generation_failure_ladder
-status: DRAFT
+status: STABLE
 type: RULE
 version: 0.2
 priority: 1
@@ -16,7 +16,7 @@ human_name: Session Generation Failure Ladder
 tags: [v2, release-v2.0, session, look-ahead, error-handling]
 parents:
   - [[rule_look_ahead_deadline]]
-notes: Revised 2026-09-30 in v2 chunk 8 (previous version 0.1) as a clarification of existing behaviour, accepted by the chunk owner under the owner standing rule to settle minor issues and record them; AWAITING THE OWNER ACCEPTANCE. Adds a rejected generation request (a generator crash on that request, or a generator that stopped working) as a failed attempt like no phrase found; states that the standalone retry gets a fresh seed and keeps the session register window; states that the repeat is decided at the deadline.
+notes: Revised 2026-09-30 in v2 chunk 8 (previous version 0.1) as a clarification of existing behaviour, accepted by the chunk owner under the owner standing rule to settle minor issues and record them; the product owner accepted it on 2026-10-05 (spec D186). Adds a rejected generation request (a generator crash on that request, or a generator that stopped working) as a failed attempt like no phrase found; states that the standalone retry gets a fresh seed and keeps the session register window; states that the repeat is decided at the deadline.
 ---
 
 # Session Generation Failure Ladder

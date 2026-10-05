@@ -1,6 +1,6 @@
 ---
 id: entity_phrase_carry_in
-status: DRAFT
+status: REVIEW
 version: 0.4
 parents:
   - [[rule_harmony_change_drops_unfit_harmonic_carry_in]]

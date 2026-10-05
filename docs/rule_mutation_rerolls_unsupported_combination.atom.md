@@ -1,6 +1,6 @@
 ---
 id: rule_mutation_rerolls_unsupported_combination
-status: DRAFT
+status: REVIEW
 type: RULE
 version: 0.2
 priority: 1
@@ -11,7 +11,7 @@ dependents:
   - [[module_settings_mutation]]
   - [[rule_mutation_sixteenth_blocked_after_step_down]]
 layer: BUSINESS
-tags: [v2, release-v2.1, session, rhythm]
+tags: [v2, release-v2.0, part-v2.1, session, rhythm]
 ---
 
 # Mutation Never Lands on an Unsupported Combination

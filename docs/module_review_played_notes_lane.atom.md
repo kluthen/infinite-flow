@@ -11,7 +11,7 @@ parents:
 type: MODULE
 priority: 1
 human_name: Review Played Notes Lane
-tags: [v2, release-v2.1, review, midi, non-scoring]
+tags: [v2, release-v2.0, part-v2.1, review, midi, non-scoring]
 ---
 
 # Review Played Notes Lane

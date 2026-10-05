@@ -1,6 +1,6 @@
 ---
 id: rule_phrase_one_is_idle_phrase
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 human_name: Phrase on Screen Becomes Phrase 1
 parents:

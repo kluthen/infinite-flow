@@ -1,6 +1,6 @@
 ---
 id: specification_browser_only_operation_verification
-status: DRAFT
+status: REVIEW
 tags: [verification, browser-only, release-gate, v2, release-v2.0, revised-for-v2]
 dependents: []
 layer: ARCHITECTURE

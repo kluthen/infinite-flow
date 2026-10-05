@@ -1,6 +1,6 @@
 ---
 id: module_generation_worker_protocol
-status: DRAFT
+status: REVIEW
 human_name: Generation Worker Protocol
 type: MODULE
 version: 0.5

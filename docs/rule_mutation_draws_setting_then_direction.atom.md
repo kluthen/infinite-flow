@@ -1,11 +1,11 @@
 ---
 id: rule_mutation_draws_setting_then_direction
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.1
 priority: 1
 human_name: Mutation Draws a Setting
-tags: [v2, release-v2.1, session, player-controls]
+tags: [v2, release-v2.0, part-v2.1, session, player-controls]
 parents:
   - [[req_settings_mutation_flag]]
 type: RULE

@@ -1,6 +1,6 @@
 ---
 id: rule_new_session_discards_review
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: New Session Discards the Review Without Asking
 parents:

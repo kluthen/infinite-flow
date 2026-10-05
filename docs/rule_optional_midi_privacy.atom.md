@@ -1,6 +1,6 @@
 ---
 id: rule_optional_midi_privacy
-status: REVIEW
+status: STABLE
 human_name: Optional MIDI Privacy
 layer: BUSINESS
 version: 0.2

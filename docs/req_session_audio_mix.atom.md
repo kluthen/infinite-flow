@@ -1,6 +1,6 @@
 ---
 id: req_session_audio_mix
-status: DRAFT
+status: REVIEW
 dependents:
   - [[rule_click_track]]
   - [[rule_click_volume_never_silent]]

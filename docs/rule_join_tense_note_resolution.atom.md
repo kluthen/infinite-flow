@@ -1,6 +1,6 @@
 ---
 id: rule_join_tense_note_resolution
-status: DRAFT
+status: REVIEW
 dependents: []
 type: RULE
 version: 0.2

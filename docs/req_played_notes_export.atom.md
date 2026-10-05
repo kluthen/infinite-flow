@@ -12,7 +12,7 @@ dependents:
   - [[rule_played_notes_export_unquantized_timing]]
 priority: 1
 human_name: Played Notes MIDI Export
-tags: [v2, release-v2.1, export, midi]
+tags: [v2, release-v2.0, part-v2.1, export, midi]
 ---
 
 # Played Notes MIDI Export

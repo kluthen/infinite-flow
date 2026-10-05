@@ -1,6 +1,6 @@
 ---
 id: module_session_vary_settings_flag
-status: DRAFT
+status: REVIEW
 type: MODULE
 layer: ARCHITECTURE
 version: 0.1

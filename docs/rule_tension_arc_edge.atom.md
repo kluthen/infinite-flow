@@ -1,6 +1,6 @@
 ---
 id: rule_tension_arc_edge
-status: DRAFT
+status: REVIEW
 human_name: Tension Arc: Edge
 priority: 1
 tags: tension,melody,harmony,controls

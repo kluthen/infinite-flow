@@ -1,6 +1,6 @@
 ---
 id: module_harmony_candidate_domain
-status: DRAFT
+status: REVIEW
 human_name: Harmony Candidate Domain
 layer: ARCHITECTURE
 parents:

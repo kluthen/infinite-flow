@@ -1,6 +1,6 @@
 ---
 id: rule_look_ahead_phrase_must_fit_staff
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 priority: 1

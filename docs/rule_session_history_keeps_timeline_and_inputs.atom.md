@@ -1,6 +1,6 @@
 ---
 id: rule_session_history_keeps_timeline_and_inputs
-status: DRAFT
+status: REVIEW
 parents:
   - [[req_rolling_practice_session]]
   - [[rule_seeded_phrase_reproduction]]

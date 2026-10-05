@@ -1,6 +1,6 @@
 ---
 id: rule_selectable_generative_profiles
-status: DRAFT
+status: REVIEW
 human_name: Selectable Generative Profiles
 priority: 1
 parents:

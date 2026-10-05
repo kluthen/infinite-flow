@@ -1,6 +1,6 @@
 ---
 id: rule_leap_recovery
-status: DRAFT
+status: STABLE
 human_name: Leap Recovery
 layer: BUSINESS
 parents:

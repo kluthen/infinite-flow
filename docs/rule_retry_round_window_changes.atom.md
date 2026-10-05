@@ -1,6 +1,6 @@
 ---
 id: rule_retry_round_window_changes
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.1

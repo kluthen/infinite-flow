@@ -1,6 +1,6 @@
 ---
 id: rule_no_grading_or_mismatch_signal
-status: DRAFT
+status: REVIEW
 type: RULE
 version: 0.1
 human_name: No Grading or Mismatch Signal

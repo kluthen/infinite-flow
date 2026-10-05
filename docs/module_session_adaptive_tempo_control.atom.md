@@ -1,6 +1,6 @@
 ---
 id: module_session_adaptive_tempo_control
-status: DRAFT
+status: REVIEW
 type: MODULE
 priority: 1
 human_name: Adaptive Tempo Control

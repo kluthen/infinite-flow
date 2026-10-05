@@ -1,6 +1,6 @@
 ---
 id: rule_stop_ends_session
-status: DRAFT
+status: REVIEW
 version: 0.1
 priority: 1
 tags: [v2, release-v2.0, session, session-end]

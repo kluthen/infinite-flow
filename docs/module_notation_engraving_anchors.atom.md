@@ -1,7 +1,7 @@
 ---
 id: module_notation_engraving_anchors
 status: REVIEW
-tags: [v2, release-v2.1, notation, review]
+tags: [v2, release-v2.0, part-v2.1, notation, review]
 parents:
   - [[rule_review_played_notes_toggle]]
 dependents: []

@@ -1,6 +1,6 @@
 ---
 id: rule_session_settings_locked
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.1
 priority: 1

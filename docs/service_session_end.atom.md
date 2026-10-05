@@ -1,6 +1,6 @@
 ---
 id: service_session_end
-status: DRAFT
+status: REVIEW
 type: SERVICE
 version: 0.1
 priority: 1

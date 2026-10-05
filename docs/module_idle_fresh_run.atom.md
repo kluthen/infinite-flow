@@ -1,6 +1,6 @@
 ---
 id: module_idle_fresh_run
-status: DRAFT
+status: REVIEW
 type: MODULE
 layer: ARCHITECTURE
 version: 0.1

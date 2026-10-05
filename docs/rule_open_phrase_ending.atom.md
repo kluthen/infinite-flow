@@ -1,6 +1,6 @@
 ---
 id: rule_open_phrase_ending
-status: DRAFT
+status: STABLE
 human_name: Open Phrase Ending
 type: RULE
 version: 0.3

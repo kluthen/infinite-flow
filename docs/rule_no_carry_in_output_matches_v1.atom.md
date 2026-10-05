@@ -1,6 +1,6 @@
 ---
 id: rule_no_carry_in_output_matches_v1
-status: DRAFT
+status: REVIEW
 version: 0.1
 tags: [v2, release-v2.0, session, determinism]
 dependents: []

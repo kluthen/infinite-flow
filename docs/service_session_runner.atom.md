@@ -1,6 +1,6 @@
 ---
 id: service_session_runner
-status: DRAFT
+status: REVIEW
 type: SERVICE
 layer: ARCHITECTURE
 priority: 1

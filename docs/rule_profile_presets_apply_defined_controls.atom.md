@@ -1,6 +1,6 @@
 ---
 id: rule_profile_presets_apply_defined_controls
-status: DRAFT
+status: REVIEW
 type: RULE
 priority: 1
 dependents: []

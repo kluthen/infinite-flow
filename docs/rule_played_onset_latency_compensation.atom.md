@@ -1,6 +1,6 @@
 ---
 id: rule_played_onset_latency_compensation
-status: DRAFT
+status: REVIEW
 type: RULE
 version: 0.2
 human_name: Latency-Compensated Played Onset

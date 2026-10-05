@@ -1,6 +1,6 @@
 ---
 id: module_pitch_search_inspection
-status: DRAFT
+status: REVIEW
 type: MODULE
 tags: pitch
 parents:

@@ -1,6 +1,6 @@
 ---
 id: module_session_adaptive_tempo_schedule
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Session Adaptive Tempo Schedule
 parents:

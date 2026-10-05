@@ -1,13 +1,13 @@
 ---
 id: req_adaptive_tempo
-status: DRAFT
+status: REVIEW
 human_name: Adaptive Tempo
 parents:
   - [[req_rolling_practice_session]]
 layer: BUSINESS
 version: 0.2
 priority: 1
-tags: [v2, release-v2.2, session, tempo]
+tags: [v2, release-v2.0, part-v2.2, session, tempo]
 dependents:
   - [[module_session_adaptive_tempo_control]]
   - [[module_session_adaptive_tempo_schedule]]

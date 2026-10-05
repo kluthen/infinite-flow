@@ -1,6 +1,6 @@
 ---
 id: rule_session_start_conditions
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 priority: 1

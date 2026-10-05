@@ -1,6 +1,6 @@
 ---
 id: rule_session_density_only_steps_down
-status: DRAFT
+status: STABLE
 priority: 1
 parents:
   - [[req_rolling_practice_session]]
@@ -14,7 +14,7 @@ layer: BUSINESS
 version: 0.3
 human_name: Session Note Density Only Steps Down
 tags: [v2, release-v2.0, session, rhythm]
-notes: Revised 2026-09-30 in v2 chunk 8 (previous version 0.1) as a clarification of existing behaviour, accepted by the chunk owner under the owner standing rule to settle minor issues and record them; AWAITING THE OWNER ACCEPTANCE. The step-down is now stated to happen when a phrase request is built with Eighth for a chosen Sixteenth, a failed attempt included, instead of when a phrase is generated with Eighth, so a retry cannot step back up onto a blocked combination. Revised 2026-10-03 in v2 chunk 24 (previous version 0.2) to follow the owner decision of 2026-10-03 (D177, with D181) on note-density mutations; after the step-down a chosen Sixteenth keeps generating as Eighth for the rest of the session, and the rule covers the window-width step-down only, not a settings mutation, which steps from the Eighth generated (to Quarter) and never lands on Sixteenth after a step-down. Resolves the conflict with the chunk 24 mutation atoms.
+notes: Revised 2026-09-30 in v2 chunk 8 (previous version 0.1) as a clarification of existing behaviour, accepted by the chunk owner under the owner standing rule to settle minor issues and record them; the product owner accepted it on 2026-10-05 (spec D186). The step-down is now stated to happen when a phrase request is built with Eighth for a chosen Sixteenth, a failed attempt included, instead of when a phrase is generated with Eighth, so a retry cannot step back up onto a blocked combination. Revised 2026-10-03 in v2 chunk 24 (previous version 0.2) to follow the owner decision of 2026-10-03 (D177, with D181) on note-density mutations; after the step-down a chosen Sixteenth keeps generating as Eighth for the rest of the session, and the rule covers the window-width step-down only, not a settings mutation, which steps from the Eighth generated (to Quarter) and never lands on Sixteenth after a step-down. Resolves the conflict with the chunk 24 mutation atoms.
 ---
 
 # Session Note Density Only Steps Down

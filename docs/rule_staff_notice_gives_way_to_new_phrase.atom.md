@@ -1,6 +1,6 @@
 ---
 id: rule_staff_notice_gives_way_to_new_phrase
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 human_name: Staff Notice Gives Way Only to a New Phrase
 parents:

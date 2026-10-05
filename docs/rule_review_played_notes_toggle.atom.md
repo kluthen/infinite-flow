@@ -1,6 +1,6 @@
 ---
 id: rule_review_played_notes_toggle
-status: REVIEW
+status: STABLE
 type: RULE
 priority: 1
 parents:
@@ -11,7 +11,7 @@ dependents:
 layer: BUSINESS
 version: 0.1
 human_name: Played Notes in the Review on a Toggle
-tags: [v2, release-v2.1, review, midi, non-scoring]
+tags: [v2, release-v2.0, part-v2.1, review, midi, non-scoring]
 ---
 
 # Played Notes in the Review on a Toggle

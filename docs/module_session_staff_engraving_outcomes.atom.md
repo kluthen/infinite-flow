@@ -1,6 +1,6 @@
 ---
 id: module_session_staff_engraving_outcomes
-status: DRAFT
+status: REVIEW
 type: MODULE
 version: 0.1
 priority: 1
