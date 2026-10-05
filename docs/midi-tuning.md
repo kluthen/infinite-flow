@@ -3,10 +3,10 @@
 This document lists the timing constants that decide when a played note counts, says where each
 one lives and where its value comes from, and gives the procedure to measure and tune them on the
 reference hardware: a breath controller over USB, and a USB keyboard. The master spec asks for
-this tuning in v2.4, the real-hardware checks (see
+this tuning in the real-hardware checks of the v2.0 release gate (see
 [Added by v2.1 and later](../specs/versions/v2/master-spec.md#added-by-v21-and-later), item 9,
-and [build plan chunk 35](../specs/versions/v2/build-plan.md#chunk-35--v24-release-gate-real-hardware-checks)).
-v2.0 ships with the starting values below, untuned.
+and [build plan chunk 21](../specs/versions/v2/build-plan.md#chunk-21--v20-release-gate)).
+Until that sitting, the app runs with the starting values below, untuned.
 
 **Nothing is tuned yet.** The reference hardware was not available when MIDI was wired into the
 session. Every value below is still its starting value, and the results table is empty.

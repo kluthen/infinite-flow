@@ -141,10 +141,9 @@ generation. `ENGRAVING_OUT` names a JSON file for the full report.
 Two timing checks of a running session in real Chromium, for chunk 16's done-when (see
 [the build plan](../specs/versions/v2/build-plan.md#chunk-16--rolling-display)): the playhead
 band against the heard barline (v2.0 item 6), and the main thread at 240 BPM with the densest
-setting against the scheduler's window (item 15). Since 2026-10-03 both items are checked in the
-v2.4 release gate, the real-hardware checks
-([build-plan chunk 35](../specs/versions/v2/build-plan.md#chunk-35--v24-release-gate-real-hardware-checks)),
-not the v2.0 gate; the figures below are an earlier reading on the same machine, and which
+setting against the scheduler's window (item 15). Both items are checked with the real-hardware
+checks of the v2.0 release gate
+([build-plan chunk 21](../specs/versions/v2/build-plan.md#chunk-21--v20-release-gate)); the figures below are an earlier reading on the same machine, and which
 reading of item 6 counts is settled there.
 
 **Machine and date.** Measured on 2026-10-01, 13:49-14:05 CEST, on branch `v2-chunk-16` (`main` at

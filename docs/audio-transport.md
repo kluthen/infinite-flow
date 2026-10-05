@@ -79,8 +79,8 @@ machine (see [the verdicts of the v2 re-run](generation-latency.md#verdicts-refe
 The worst main-thread block was 90 ms (103.5 ms by the heartbeat), against the 200 ms window. A
 Worker's timer is not throttled like a main-thread timer, but its wake-up still runs on the main
 thread, so a long task delays it. That is enough as long as every main-thread task stays shorter
-than the window: the master spec's former v2.0 item 15, which the v2.4 release gate (the
-real-hardware checks, build-plan chunk 35) checks on the reference machine.
+than the window: the master spec's former v2.0 item 15, which the v2.0 release gate (build-plan chunk 21, which
+holds the real-hardware checks since spec D183) checks on the reference machine.
 
 The window size is still "proposed" in the master spec's
 [open questions](../specs/versions/v2/master-spec.md#12-open-questions-carried-forward).
