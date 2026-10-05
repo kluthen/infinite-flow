@@ -190,7 +190,7 @@ export async function playTo(rig: ControllerRig, target: AudioTime): Promise<voi
  * Intent: a controller at Idle with a real, engraved phrase 1, every lock granting, the staff
  * having reported `WIDE_STAFF`, and phrase 1's fixed parts measuring as `fixedParts` answers.
  */
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 export function controllerRig(
   script: GenerateScript = alwaysSucceed,
   fixedParts: () => Promise<StaffFixedParts> = () => Promise.resolve(RIG_FIXED_PARTS),

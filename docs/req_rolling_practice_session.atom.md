@@ -11,7 +11,9 @@ priority: 1
 human_name: Rolling Practice Session
 dependents:
   - [[module_notation_note_identity_overlays]]
+  - [[module_session_phrase_steps]]
   - [[module_session_rolling_display]]
+  - [[module_session_staff_refill]]
   - [[req_adaptive_tempo]]
   - [[req_last_session_review]]
   - [[req_midi_controller_input]]
@@ -36,6 +38,7 @@ dependents:
   - [[rule_session_settings_locked]]
   - [[rule_session_start_conditions]]
   - [[rule_stop_ends_session]]
+  - [[service_session_controller]]
   - [[service_session_engine]]
 ---
 

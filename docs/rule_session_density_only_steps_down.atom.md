@@ -6,6 +6,7 @@ parents:
   - [[req_rolling_practice_session]]
   - [[rule_generated_density_follows_window_width]]
 dependents:
+  - [[module_session_density_step_down]]
   - [[rule_mutation_sixteenth_blocked_after_step_down]]
   - [[service_session_engine]]
 type: RULE

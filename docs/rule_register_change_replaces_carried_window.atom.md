@@ -11,6 +11,7 @@ layer: BUSINESS
 version: 0.1
 dependents:
   - [[module_register_intent_boundary]]
+  - [[module_session_carry_in_after_change]]
   - [[service_session_engine]]
 type: RULE
 priority: 1

@@ -13,7 +13,7 @@ export const REPEATS_BEFORE_NOTICE = 2
 
 /** The notice's state: the current run of consecutive repeats, and whether it is shown. */
 // @spec-link [[rule_struggling_generator_notice]]
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_struggling_notice]]
 export interface StrugglingNotice {
   readonly consecutiveRepeats: number
   readonly visible: boolean

@@ -8,6 +8,7 @@ parents:
   - [[rule_key_change_drops_harmonic_carry_in]]
 dependents:
   - [[module_phrase_replay_key]]
+  - [[module_session_carry_in_after_change]]
 type: ENTITY
 layer: ARCHITECTURE
 human_name: Phrase Carry-In

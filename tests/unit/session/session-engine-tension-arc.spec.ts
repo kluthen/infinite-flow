@@ -107,6 +107,7 @@ function driveUntilAnswered(driver: SessionDriver, last: number): void {
 }
 
 // @test-link [[req_multi_phrase_tension_arc]]
+// @test-link [[module_session_tension_arc_step]]
 describe('a session with the multi-phrase tension arc off', () => {
   // @test-link [[req_multi_phrase_tension_arc]]
   it.each(CHOSEN_ARCS)(
@@ -128,6 +129,7 @@ describe('a session with the multi-phrase tension arc off', () => {
 // @test-link [[rule_multi_phrase_tension_arc_cycle]]
 // @test-link [[req_multi_phrase_tension_arc]]
 // @test-link [[module_tension_arc_cycle]]
+// @test-link [[module_session_tension_arc_step]]
 describe('a session with the multi-phrase tension arc on', () => {
   // @test-link [[rule_multi_phrase_tension_arc_cycle]]
   // @test-link [[module_tension_arc_cycle]]
@@ -158,6 +160,7 @@ describe('a session with the multi-phrase tension arc on', () => {
 
 // @test-link [[rule_multi_phrase_tension_arc_cycle]]
 // @test-link [[module_tension_arc_cycle]]
+// @test-link [[module_session_tension_arc_step]]
 describe('the tension-arc setting under the multi-phrase tension arc', () => {
   // @test-link [[rule_multi_phrase_tension_arc_cycle]]
   // @test-link [[module_tension_arc_cycle]]

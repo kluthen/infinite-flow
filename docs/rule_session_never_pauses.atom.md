@@ -8,8 +8,10 @@ tags: [v2, release-v2.0, session]
 parents:
   - [[req_rolling_practice_session]]
 dependents:
+  - [[module_session_failure_ladder]]
   - [[rule_controller_loss_mid_session]]
   - [[rule_hidden_tab_ends_session]]
+  - [[service_session_controller]]
   - [[service_session_engine]]
   - [[service_workspace_session_flow]]
 type: RULE

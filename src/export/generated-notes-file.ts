@@ -61,6 +61,7 @@ const FILE_EXTENSIONS: Readonly<Record<GeneratedNotesFormat, string>> = {
  * Throws a GeneratedNotesFileError on a start time that is not finite epoch milliseconds.
  */
 // @spec-link [[req_session_export]]
+// @spec-link [[module_review_export_pipeline]]
 export function generatedNotesFileName(startedAtMs: number, format: GeneratedNotesFormat): string {
   return `${exportFileStem(startedAtMs)}-generated.${FILE_EXTENSIONS[format]}`
 }
@@ -109,6 +110,7 @@ function midiBytes(
  * bytes. The encoders' and adapters' typed errors propagate unchanged.
  */
 // @spec-link [[req_session_export]]
+// @spec-link [[module_review_export_pipeline]]
 export function buildGeneratedNotesFile(
   history: ExportableHistory,
   request: GeneratedNotesRequest,

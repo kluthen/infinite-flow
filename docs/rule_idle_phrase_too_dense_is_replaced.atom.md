@@ -8,6 +8,7 @@ parents:
   - [[user_story_controlled_phrase_generation]]
 dependents:
   - [[module_idle_fit_round]]
+  - [[module_idle_room_notice]]
   - [[rule_retry_round_window_changes]]
 layer: BUSINESS
 version: 0.1

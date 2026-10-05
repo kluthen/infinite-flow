@@ -142,9 +142,9 @@ function generateAndEngrave(workspace: WorkspaceSession): Promise<boolean> {
   return running
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_generation_prewarm]]
 describe('workspace prewarm: policy and triggers', () => {
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_generation_prewarm]]
   it('posts nothing at all with the policy disabled, whatever changes', () => {
     const { workspace, viewport, prewarms } = prewarmRig('disabled')
     const { actions } = workspace.session
@@ -157,7 +157,7 @@ describe('workspace prewarm: policy and triggers', () => {
     expect(prewarms).toEqual([])
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_generation_prewarm]]
   it('posts one prewarm at start for the current controls, under the fixed prewarm identity', () => {
     const { workspace, prewarms } = prewarmRig('enabled')
 
@@ -174,7 +174,7 @@ describe('workspace prewarm: policy and triggers', () => {
     )
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_generation_prewarm]]
   // @test-link [[rule_generated_density_follows_window_width]]
   it('prewarms the width-resolved density: a chosen Sixteenth below the width is warmed as Eighth', () => {
     const { workspace, prewarms } = prewarmRig('enabled', { belowTabletLandscape: true })
@@ -186,7 +186,7 @@ describe('workspace prewarm: policy and triggers', () => {
     expect(prewarms.map((intent) => intent.controls.noteDensity)).toEqual(['Quarter', 'Eighth'])
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_generation_prewarm]]
   it('posts one prewarm per rhythm-control change made through setControl', () => {
     const { workspace, prewarms } = prewarmRig('enabled')
     const { actions } = workspace.session
@@ -207,7 +207,7 @@ describe('workspace prewarm: policy and triggers', () => {
     ])
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_generation_prewarm]]
   it('posts nothing for a non-rhythm edit or a same-value rhythm edit', () => {
     const { workspace, prewarms } = prewarmRig('enabled')
     const { actions } = workspace.session
@@ -221,7 +221,7 @@ describe('workspace prewarm: policy and triggers', () => {
     expect(prewarms).toHaveLength(1)
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_generation_prewarm]]
   it('posts one prewarm for a profile switch that changes the rhythm setting, none otherwise', () => {
     const { workspace, prewarms } = prewarmRig('enabled')
     const { actions } = workspace.session
@@ -238,7 +238,7 @@ describe('workspace prewarm: policy and triggers', () => {
     expect(prewarms[1]!.musicalProfile).toEqual({ musicalProfile: 'Jazz', isCustom: false })
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_generation_prewarm]]
   // @test-link [[rule_generated_density_follows_window_width]]
   it('posts one prewarm for a width crossing that changes the generated density, none otherwise', () => {
     const { workspace, viewport, prewarms } = prewarmRig('enabled')
@@ -260,7 +260,7 @@ describe('workspace prewarm: policy and triggers', () => {
     ])
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_generation_prewarm]]
   it('never posts while a generation is running, since no control can change then', async () => {
     const { workspace, prewarms } = prewarmRig('enabled')
 
@@ -295,9 +295,9 @@ async function walkThroughWorkspace(rig: PrewarmRig): Promise<string[]> {
   return rig.generated.map((intent) => `${intent.requestId}#${intent.seed}`)
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_generation_prewarm]]
 describe('workspace prewarm: generation identity is untouched', () => {
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_generation_prewarm]]
   it('draws the same queued seeds and request ids for generation with and without prewarm', async () => {
     const enabled = prewarmRig('enabled', { seeds: [101, 202] })
     const disabled = prewarmRig('disabled', { seeds: [101, 202] })
@@ -379,10 +379,10 @@ async function generatedOutcome(rig: WorkerRig): Promise<GenerationOutcome> {
   return rig.workspace.session.state.result!.outcome
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_generation_prewarm]]
 // @test-link [[module_generation_worker_protocol]]
 describe('workspace prewarm: the generated phrase is the same with prewarm on or off', () => {
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_generation_prewarm]]
   it('matches when prewarms were replaced mid-build and the last one only partly ran', async () => {
     const off = workerRig('disabled')
     await chooseComparisonSetting(off, 0)
@@ -404,7 +404,7 @@ describe('workspace prewarm: the generated phrase is the same with prewarm on or
     ])
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_generation_prewarm]]
   it('matches after the prewarm of the setting ran to completion', async () => {
     const off = workerRig('disabled')
     await chooseComparisonSetting(off, 0)

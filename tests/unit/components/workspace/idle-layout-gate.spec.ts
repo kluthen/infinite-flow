@@ -43,9 +43,9 @@ function reportAll(reports: StaffReports, error: NotationError): void {
   reports.notationError(error)
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_idle_layout_gate]]
 describe('idle layout gate', () => {
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_idle_layout_gate]]
   it('passes every report straight to the Idle machinery and keeps the latest inputs', () => {
     const idle = spiedReports()
     const gate = createIdleLayoutGate(idle)
@@ -85,7 +85,7 @@ describe('idle layout gate', () => {
     expect(session.engraved).toHaveBeenCalledOnce()
   })
 
-  // @test-link [[module_session_rolling_display]]
+  // @test-link [[module_session_staff_engraving_outcomes]]
   it('sends a session staff failure to the diverting session only, and nowhere once released', () => {
     const idle = spiedReports()
     const session = spiedReports()
@@ -103,7 +103,7 @@ describe('idle layout gate', () => {
     expect(idle.notationError).not.toHaveBeenCalled()
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_idle_layout_gate]]
   it('throws on a second diversion and on a second release', () => {
     const gate = createIdleLayoutGate(spiedReports())
     const release = gate.divert(spiedReports())

@@ -38,6 +38,7 @@ export class SessionMidiTimerError extends Error {
  * reconnection): the session ends once the audio clock is strictly past it.
  */
 // @spec-link [[rule_silence_timeout_ends_session]]
+// @spec-link [[module_session_silence_timeout]]
 export function silenceDeadline(lastActivityAt: AudioTime): AudioTime {
   assertFinite('last activity', lastActivityAt)
   return lastActivityAt + SILENCE_TIMEOUT_SECONDS
@@ -48,6 +49,7 @@ export function silenceDeadline(lastActivityAt: AudioTime): AudioTime {
  * against silenceDeadline itself so a timer scheduled on the deadline and this check agree.
  */
 // @spec-link [[rule_silence_timeout_ends_session]]
+// @spec-link [[module_session_silence_timeout]]
 export function silenceExpired(lastActivityAt: AudioTime, now: AudioTime): boolean {
   assertOrdered('last activity', lastActivityAt, now)
   return now > silenceDeadline(lastActivityAt)
@@ -59,6 +61,7 @@ export function silenceExpired(lastActivityAt: AudioTime, now: AudioTime): boole
  */
 // @spec-link [[rule_controller_loss_mid_session]]
 // @spec-link [[rule_controller_reconnection_window]]
+// @spec-link [[module_session_controller_loss]]
 export function countdownSecondsLeft(lostAt: AudioTime, now: AudioTime): number {
   assertOrdered('controller loss', lostAt, now)
   return RECONNECTION_WINDOW_SECONDS - secondEdgesPassed(lostAt, now)
@@ -66,6 +69,7 @@ export function countdownSecondsLeft(lostAt: AudioTime, now: AudioTime): number 
 
 /** Intent: whether the reconnection window has run out: 30 s or more since the loss. */
 // @spec-link [[rule_controller_reconnection_window]]
+// @spec-link [[module_session_controller_loss]]
 export function reconnectionExpired(lostAt: AudioTime, now: AudioTime): boolean {
   assertOrdered('controller loss', lostAt, now)
   return secondEdgesPassed(lostAt, now) === RECONNECTION_WINDOW_SECONDS

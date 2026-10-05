@@ -6,6 +6,7 @@ priority: 1
 parents:
   - [[rule_midi_starting_note]]
 dependents:
+  - [[module_session_starting_note]]
   - [[service_workspace_session_flow]]
 type: RULE
 layer: BUSINESS

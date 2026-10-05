@@ -11,6 +11,7 @@ layer: BUSINESS
 version: 0.1
 human_name: Portrait View Ends the Session
 dependents:
+  - [[service_session_end]]
   - [[service_workspace_session_flow]]
 ---
 

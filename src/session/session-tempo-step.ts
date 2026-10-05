@@ -20,7 +20,7 @@ import { SessionEngineError, type AudioTime, type SessionSettings } from './sess
  * Intent: the tempo state at a session's start: phrase 1 fixed at the chosen settings' tempo, the
  * starting tempo, and the schedule running only when the start says adaptive tempo runs.
  */
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_adaptive_tempo_schedule]]
 // @spec-link [[rule_tempo_never_affects_generation]]
 export function startSessionTempo(settings: SessionSettings, adaptiveTempo: boolean): SessionTempo {
   if (typeof adaptiveTempo !== 'boolean')
@@ -32,7 +32,7 @@ export function startSessionTempo(settings: SessionSettings, adaptiveTempo: bool
 }
 
 /** Intent: the tempo phrase N plays at; asking before it is fixed is an engine bug and throws. */
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_adaptive_tempo_schedule]]
 export function tempoOfPhrase(tempo: SessionTempo, phraseNumber: number): number {
   const fixed = tempo.fixed[phraseNumber - 1]
   if (fixed === undefined)
@@ -41,14 +41,14 @@ export function tempoOfPhrase(tempo: SessionTempo, phraseNumber: number): number
 }
 
 /** Intent: the tempo of the phrase sounding now; in the count-in, phrase 1's, the starting one. */
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_adaptive_tempo_schedule]]
 // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
 export function soundingTempo(state: EngineState): number {
   return tempoOfPhrase(state.tempo, Math.max(state.soundedCount, 1))
 }
 
 /** Intent: a phrase starts sounding, which the schedule may count toward the next rise. */
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_adaptive_tempo_schedule]]
 export function countSoundingPhrase(tempo: SessionTempo): SessionTempo {
   return { ...tempo, schedule: phraseStartedSounding(tempo.schedule) }
 }
@@ -57,7 +57,7 @@ export function countSoundingPhrase(tempo: SessionTempo): SessionTempo {
  * Intent: a controller lost mid-session goes away or reconnects; an event that does not change
  * its presence throws.
  */
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_adaptive_tempo_schedule]]
 export function onController(state: EngineState, attached: boolean): Step {
   const schedule = controllerPresence(state.tempo.schedule, attached)
   return { state: { ...state, tempo: { ...state.tempo, schedule } }, outputs: [] }
@@ -69,7 +69,7 @@ export function onController(state: EngineState, attached: boolean): Step {
  * discarded, so its tempo applies at its phrase boundary; it must be decided by then.
  */
 // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_adaptive_tempo_schedule]]
 export function fixDueTempo(state: EngineState, at: AudioTime): Step {
   const { phraseNumber, deadline } = state.lookAhead ?? decidedOf(state).lookAhead
   const { fixed } = state.tempo

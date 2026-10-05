@@ -16,13 +16,13 @@ import type { FitRunner } from './generation-session-fit-round'
 import type { MutableGenerationSessionState } from './use-generation-session'
 
 /** The staff's layout-input reports, as PhraseScore forwards them on every layout change. */
-// @spec-link [[module_idle_fit_round]]
+// @spec-link [[module_idle_room_notice]]
 export interface StaffLayoutReports {
   readonly subscribe: (listener: (inputs: StaffLayoutInputs) => void) => () => void
 }
 
 /** The dependency surface the notice reactions need from the root session composable. */
-// @spec-link [[module_idle_fit_round]]
+// @spec-link [[module_idle_room_notice]]
 export interface RoomNoticeDependencies<TResult> {
   readonly state: MutableGenerationSessionState<TResult>
   readonly checkRoom: (signature: StaffKeySignature) => Promise<StaffRoomVerdict>
@@ -55,7 +55,7 @@ export interface RoomNoticeReactions {
  * only give the notice its no-room cause. Under a blocked rhythm combination, each of these shows
  * no phrase instead of running. While a run is active a report only updates the reference width.
  */
-// @spec-link [[module_idle_fit_round]]
+// @spec-link [[module_idle_room_notice]]
 // @spec-link [[rule_too_dense_notice_retry_rounds]]
 // @spec-link [[rule_staff_notice_gives_way_to_new_phrase]]
 // @spec-link [[rule_unsupported_rhythm_gives_way_to_no_phrase]]

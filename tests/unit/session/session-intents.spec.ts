@@ -89,7 +89,7 @@ describe('settings locked at start', () => {
 })
 
 // @test-link [[rule_session_density_only_steps_down]]
-// @test-link [[service_session_engine]]
+// @test-link [[module_session_density_step_down]]
 describe('session density only steps down', () => {
   // @test-link [[rule_session_density_only_steps_down]]
   it('keeps Eighth for every phrase after a narrow start, even once the window widens', () => {

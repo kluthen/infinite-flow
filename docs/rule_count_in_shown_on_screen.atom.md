@@ -10,6 +10,7 @@ parents:
 layer: BUSINESS
 tags: [v2, release-v2.0, session, session-start]
 dependents:
+  - [[service_session_start]]
   - [[service_workspace_session_flow]]
 ---
 

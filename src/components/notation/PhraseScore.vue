@@ -81,7 +81,7 @@ const props = withDefaults(
   { overlays: () => NO_SCORE_OVERLAYS, session: null },
 )
 
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_staff_engraving_outcomes]]
 const emit = defineEmits<{
   engraved: [payload: EngravedPayload]
   'notation-error': [payload: NotationError]
@@ -310,7 +310,7 @@ async function sessionEngraver(): Promise<VexflowEngraverModule | NotationError>
  * The positions' content, at Idle and during a session. A session's engraving failure is reported
  * as a session staff failure only: no error state, no cleared staff, nothing Idle hears.
  */
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_staff_refill]]
 // @spec-link [[rule_session_ends_when_staff_too_small]]
 const positions = createStaffPositions({
   hosts: () => {
@@ -418,7 +418,7 @@ onMounted(async () => {
  * entering redraws only what Idle does not already show, leaving re-engraves the Idle phrase as
  * a forced check, which reports to Idle as usual.
  */
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_staff_engraving_outcomes]]
 // @spec-link [[rule_phrase_one_is_idle_phrase]]
 function followSession(next: SessionStaff | null, previous: SessionStaff | null): void {
   if (next !== null && previous !== null) {

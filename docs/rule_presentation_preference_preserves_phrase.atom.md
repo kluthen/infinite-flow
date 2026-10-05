@@ -4,6 +4,7 @@ status: REVIEW
 priority: 2
 dependents:
   - [[module_generation_request_construction]]
+  - [[service_idle_generation_session]]
   - [[service_workspace_session_flow]]
 human_name: Presentation Preference Preserves Phrase
 layer: BUSINESS

@@ -187,7 +187,7 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
    * Intent: the runner's fit check: the attempt's written phrase against the held viewport at the
    * layout inputs current once the planner is ready; notes too wide or no room is a failed attempt.
    */
-  // @spec-link [[module_session_rolling_display]]
+  // @spec-link [[module_session_display_fit]]
   // @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
   async function checkFit(candidate: FitCandidate): Promise<boolean> {
     requireInputs()
@@ -200,7 +200,7 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
    * Intent: whether every phrase shown or waiting, as the display stands once the planner is
    * ready, fits the held viewport at `inputs`.
    */
-  // @spec-link [[module_session_rolling_display]]
+  // @spec-link [[module_session_display_fit]]
   // @spec-link [[rule_session_ends_when_staff_too_small]]
   async function materialFits(inputs: StaffLayoutInputs): Promise<boolean> {
     const plan = await deps.loadPlanner()

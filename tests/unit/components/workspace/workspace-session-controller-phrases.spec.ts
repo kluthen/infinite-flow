@@ -33,9 +33,9 @@ async function noticeAround(rig: ControllerRig, n: number): Promise<[boolean, bo
   return [before, rig.controller.state.strugglingNotice]
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_session_phrase_steps]]
 describe('session controller: phrases', () => {
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_phrase_steps]]
   // @test-link [[req_session_backing_track]]
   it('queues each readied phrase and sends it as started sounding at its start, in order', async () => {
     const rig = controllerRig()
@@ -183,9 +183,9 @@ describe('session controller: the struggling notice', () => {
   })
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 describe('session controller: determinism', () => {
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_controller]]
   it('gives the same outputs and events twice for the same seeds and script', async () => {
     const runs: ControllerRig[] = []
     for (let run = 0; run < 2; run += 1) {

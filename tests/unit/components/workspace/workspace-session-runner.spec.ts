@@ -80,7 +80,7 @@ async function playTo(rig: ReturnType<typeof runnerRig>, last: number): Promise<
   }
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_workspace_session_runner_factory]]
 // @test-link [[req_settings_mutation_flag]]
 // @test-link [[req_multi_phrase_tension_arc]]
 describe('the workspace session runner', () => {

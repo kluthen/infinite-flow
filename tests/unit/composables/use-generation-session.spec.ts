@@ -29,7 +29,7 @@ function trackedProviders() {
   }
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_idle_generation_session]]
 // @test-link [[user_story_controlled_phrase_generation]]
 describe('createGenerationSession', () => {
   it('creates isolated readonly state and does not generate implicitly', () => {
@@ -353,7 +353,7 @@ describe('createGenerationSession', () => {
     expect(session.state.presentation).toEqual({ theme: 'Dark' })
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_idle_generation_session]]
   describe('resultEngraved (D34)', () => {
     it('is false initially, true after a successful engrave, false after a failing one, and true again after a successful redraw', async () => {
       const tracked = trackedProviders()

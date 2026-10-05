@@ -26,7 +26,7 @@ export function measureSeconds(tempo: number): number {
  * phrase 2 is ready as read-ahead from the moment phrase 1 starts sounding.
  */
 // @spec-link [[rule_look_ahead_deadline]]
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_look_ahead_timing]]
 export function phraseTwoDeadline(startAt: AudioTime, tempo: number): AudioTime {
   return startAt + COUNT_IN_MEASURES * measureSeconds(tempo)
 }
@@ -36,7 +36,7 @@ export function phraseTwoDeadline(startAt: AudioTime, tempo: number): AudioTime 
  * start of phrase N's last measure, which leaves at least one measure of read-ahead on screen.
  */
 // @spec-link [[rule_look_ahead_deadline]]
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_look_ahead_timing]]
 export function nextPhraseDeadline(soundingAt: AudioTime, tempo: number): AudioTime {
   return soundingAt + (PHRASE_MEASURE_COUNT - 1) * measureSeconds(tempo)
 }

@@ -169,7 +169,7 @@ export class SessionUsageError extends Error {
  * consumers, but this module owns the fields and must be able to replace them. Exported so the
  * sibling profile-switch module can share the same reactive state object.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_idle_generation_session]]
 export type MutableGenerationSessionState<TResult> = {
   -readonly [K in keyof GenerationSessionState<TResult>]: GenerationSessionState<TResult>[K]
 }
@@ -191,7 +191,7 @@ const NON_NOTE_CONTROL_KEYS = new Set<keyof GenerationControls>(['tempo'])
  * Root composition boundary: call once from application bootstrap and pass the returned readonly
  * state/actions to components. This owns no hidden singleton, storage, browser, or engraving state.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_idle_generation_session]]
 export function createGenerationSession<TResult>(
   options: CreateGenerationSessionOptions<TResult>,
 ): GenerationSession<TResult> {
@@ -224,7 +224,7 @@ export function createGenerationSession<TResult>(
    * generation has no session behind it, so it never counts as stepped down.
    */
   // @spec-link [[rule_generated_density_follows_window_width]]
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[service_idle_generation_session]]
   function readNoteDensityContext(): NoteDensityContext {
     const belowTabletLandscape = options.viewport.isBelowTabletLandscape()
     if (belowTabletLandscape !== state.noteDensityContext.belowTabletLandscape) {
@@ -241,7 +241,7 @@ export function createGenerationSession<TResult>(
    * width, when that rhythm setting differs from the last one posted (the trigger dedupes). Never
    * draws a seed or request id, and changes no session state beyond the width read.
    */
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[service_idle_generation_session]]
   function prewarmCurrentRhythmSetting(): void {
     if (rhythmPrewarm === undefined) return
     rhythmPrewarm(
@@ -278,7 +278,7 @@ export function createGenerationSession<TResult>(
    * notice, an edit to a setting the phrase is generated from (tempo excluded) reacts to it.
    */
   // @spec-link [[module_profile_control_customization]]
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[service_idle_generation_session]]
   function setControl<K extends keyof GenerationControls>(
     key: K,
     value: GenerationControls[K],
@@ -320,7 +320,7 @@ export function createGenerationSession<TResult>(
    * under the room notice the switch reacts to it as a generation-setting change.
    */
   // @spec-link [[module_generative_profile_selection]]
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[service_idle_generation_session]]
   function selectMusicalProfile(profile: MusicalProfile): boolean {
     if (!canChangeConfiguration()) return false
     const [controls, profileSelection] = applyMusicalProfile(state.controls, profile)
@@ -343,7 +343,7 @@ export function createGenerationSession<TResult>(
    * inputs. A layout failure is routed as one of the phrase on screen; the operation is idle by
    * then, so the replacement run it may start owns the operation.
    */
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[service_idle_generation_session]]
   // @spec-link [[module_idle_fit_round]]
   async function runNotation(result: TResult): Promise<boolean> {
     if (state.operation !== 'idle') return false
@@ -367,7 +367,7 @@ export function createGenerationSession<TResult>(
    * density, never the width itself, while `state.controls` keeps the chosen value.
    */
   // @spec-link [[rule_generated_density_follows_window_width]]
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[service_idle_generation_session]]
   function freshIntentFromControls(): GenerationIntent {
     return createGenerationIntent({
       requestId: options.providers.nextRequestId(),
@@ -413,7 +413,7 @@ export function createGenerationSession<TResult>(
    * `state.latestIntent` to be present, and applies the same unsupported-rhythm-settings block as
    * `generate()`/`regenerate()`, since it starts a new generation from current controls.
    */
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[service_idle_generation_session]]
   function retryGeneration(): Promise<boolean> {
     if (state.operation !== 'idle' || state.generationError === null) {
       return Promise.resolve(false)
@@ -423,7 +423,7 @@ export function createGenerationSession<TResult>(
   }
 
   /** Retry the retained failed notation request against its original result. */
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[service_idle_generation_session]]
   function retryNotation(): Promise<boolean> {
     if (state.operation !== 'idle' || state.result === null || state.notationError === null) {
       return Promise.resolve(false)
@@ -451,7 +451,7 @@ export function createGenerationSession<TResult>(
 
   /** Clear a previously reported outside-operation notation failure once a later redraw succeeds. */
   // @spec-link [[module_notation_layout_preflight]]
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[service_idle_generation_session]]
   function reportNotationRecovered(): boolean {
     if (state.operation !== 'idle' || state.result === null) return false
     state.notationError = null

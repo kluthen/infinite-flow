@@ -122,7 +122,7 @@ export function createSessionEnds(
    * (it propagates, uncaught): end `session` first if it is still the running one, so nothing keeps
    * sounding, then throw. A late error from an earlier session never ends a later one.
    */
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[service_session_end]]
   function failLoudly(session: ActiveSession, error: unknown): never {
     if (core.active === session) {
       try {
@@ -144,7 +144,7 @@ export function createSessionEnds(
    * end; no end summary is recorded, as the session never fully started. A failure while undoing
    * is thrown together with the start's.
    */
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[service_session_start]]
   // @spec-link [[rule_screen_wake_lock_during_session]]
   // @spec-link [[rule_landscape_lock_during_session]]
   function abandonStart(session: ActiveSession | null, error: unknown): never {

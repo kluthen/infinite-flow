@@ -8,7 +8,7 @@
  * Whether the workspace posts rhythm-domain prewarms to its generation worker: `enabled` in
  * production, `disabled` for tests and latency measurements that need cold generation.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_generation_prewarm]]
 export type WorkspacePrewarmPolicy = 'enabled' | 'disabled'
 
 /**
@@ -17,7 +17,7 @@ export type WorkspacePrewarmPolicy = 'enabled' | 'disabled'
  * measurement URL never silently measures the wrong mode. This is the latency measurement seam:
  * the only way to load the production page with cold generation.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_generation_prewarm]]
 export function prewarmPolicyFromSearch(search: string): WorkspacePrewarmPolicy {
   const value = new URLSearchParams(search).get('prewarm')
   if (value === null || value === 'on') return 'enabled'

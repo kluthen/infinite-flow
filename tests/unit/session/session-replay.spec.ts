@@ -39,10 +39,10 @@ function mutationSeries(driver: SessionDriver): readonly unknown[] {
 
 // @test-link [[rule_mutation_lands_on_scheduled_phrase]]
 // @test-link [[req_settings_mutation_flag]]
-// @test-link [[service_session_engine]]
+// @test-link [[module_session_mutation_step]]
 describe('a session replayed from its inputs', () => {
   // @test-link [[rule_mutation_lands_on_scheduled_phrase]]
-  // @test-link [[service_session_engine]]
+  // @test-link [[module_session_mutation_step]]
   it(
     `gives deep-equal outputs for the same start and events (${REPLAYED_SEEDS} mutation seeds)`,
     () => {

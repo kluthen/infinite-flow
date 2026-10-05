@@ -21,7 +21,7 @@ function prewarmCount(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.prewarmCount())
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_generation_prewarm]]
 test('posts a prewarm at start and per rhythm change, none for other edits, and still generates', async ({
   page,
 }) => {
@@ -41,7 +41,7 @@ test('posts a prewarm at start and per rhythm change, none for other edits, and 
   expect((await harnessSnapshot(page)).seed).toBe(3101)
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_generation_prewarm]]
 test('posts no prewarm with ?prewarm=off and still generates', async ({ page }) => {
   await gotoHarnessWith(page, '?prewarm=off')
   await queueSeeds(page, [3102])

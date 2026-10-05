@@ -11,6 +11,7 @@ priority: 1
 tags: [v2, release-v2.0, session, session-start]
 dependents:
   - [[module_session_rolling_display]]
+  - [[module_session_staff_refill]]
   - [[service_session_engine]]
   - [[service_workspace_session_flow]]
 ---

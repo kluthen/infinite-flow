@@ -30,14 +30,14 @@ import type {
 } from './workspace-session-controller-types'
 
 /** The ended output, the one that closes a session. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_end]]
 export type EndedOutput = Extract<SessionOutput, { kind: 'ended' }>
 
 /**
  * The running session: its timeline, starting tempo (phrase 1's and the count-in's, which its
  * settings keep), history, runner, agenda, display, phrase steps and audio-time floor.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 export interface ActiveSession {
   readonly timeline: TransportTimeline
   readonly startingTempo: number
@@ -75,7 +75,7 @@ type WritableStateKey =
   | 'shownSettings'
 
 /** The controller's reactive state as its parts write it. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 export type SessionControllerWritableState = {
   -readonly [K in WritableStateKey]: SessionControllerState[K]
 }
@@ -86,7 +86,7 @@ export type SessionControllerWritableState = {
  * with the controller), that timer while it is started (from a start's wake-ups to that session's
  * end), and whether the controller is disposed of.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 export interface SessionControllerCore {
   readonly deps: SessionControllerDependencies
   readonly state: SessionControllerWritableState
@@ -97,7 +97,7 @@ export interface SessionControllerCore {
 }
 
 /** The sides the controller builds once for its life and every session reads. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 export interface SessionControllerSides {
   readonly sessionMidi: SessionMidi
   readonly adaptiveTempo: AdaptiveTempoFlag
@@ -106,7 +106,7 @@ export interface SessionControllerSides {
 }
 
 /** Intent: an audio time for the engine, never before one it already handled. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 export function engineTime(session: ActiveSession, at: AudioTime): AudioTime {
   session.floor = Math.max(session.floor, at)
   return session.floor
@@ -125,7 +125,7 @@ export function phrasesOf(session: ActiveSession): SessionPhrases {
 }
 
 /** Intent: send one transport event at `at` (raised to the floor) to the session's runner. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 export function dispatchAt(session: ActiveSession, at: AudioTime, event: UntimedEvent): void {
   runnerOf(session).dispatch({ ...event, at: engineTime(session, at) })
 }

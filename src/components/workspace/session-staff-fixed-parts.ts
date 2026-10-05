@@ -32,7 +32,7 @@ export async function measureSessionStaffFixedParts(
  * loader's or the font wait's own NotationError.
  */
 // @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_display_fit]]
 export async function loadSessionStaffFitPlanner(): Promise<StaffFitPlanner> {
   const engraver = await loadVexflowEngraver()
   await engraver.ensureNotationFonts()

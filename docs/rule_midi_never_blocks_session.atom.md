@@ -3,6 +3,7 @@ id: rule_midi_never_blocks_session
 status: DRAFT
 tags: [v2, release-v2.0, midi, session-start]
 dependents:
+  - [[service_session_midi]]
   - [[service_workspace_session_flow]]
 type: RULE
 version: 0.1

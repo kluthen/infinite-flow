@@ -8,6 +8,7 @@ tags: [v2, release-v2.0, session, look-ahead]
 parents:
   - [[req_rolling_practice_session]]
 dependents:
+  - [[module_session_look_ahead_timing]]
   - [[module_session_rolling_display]]
   - [[rule_look_ahead_phrase_must_fit_staff]]
   - [[rule_session_generation_failure_ladder]]

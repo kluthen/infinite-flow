@@ -382,7 +382,7 @@ describe('PhraseScore in session mode', () => {
     expect(unit('top').dataset.phraseNumber).toBe('1')
   })
 
-  // @test-link [[module_session_rolling_display]]
+  // @test-link [[module_session_staff_engraving_outcomes]]
   it('leaving session mode removes the playhead band at once', async () => {
     const { score, setSession } = await mountScore()
     await setSession(
@@ -401,6 +401,7 @@ describe('PhraseScore in session mode', () => {
   })
 
   // @test-link [[module_notation_note_identity_overlays]]
+  // @test-link [[module_session_staff_overlays]]
   it('draws the playhead band only on the phrase that owns the playhead', async () => {
     windowState.phone = true
     const { unit, setSession, overlays } = await mountScore()
@@ -445,6 +446,7 @@ describe('PhraseScore in session mode', () => {
     expect(unit('bottom').querySelectorAll('.note-ack')).toHaveLength(1)
   })
 
+  // @test-link [[module_session_staff_overlays]]
   it('names each phrase on screen once and describes the playhead phrase', async () => {
     windowState.phone = true
     const { score, unit, setSession } = await mountScore()

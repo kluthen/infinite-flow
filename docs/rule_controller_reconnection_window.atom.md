@@ -2,6 +2,7 @@
 id: rule_controller_reconnection_window
 status: DRAFT
 dependents:
+  - [[module_session_controller_loss]]
   - [[service_workspace_session_flow]]
 type: RULE
 version: 0.1

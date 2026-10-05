@@ -56,7 +56,7 @@ function expectDeepFrozen(value: unknown): void {
   }
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_workspace_session_runner_factory]]
 describe('createGenerationWorkerClient', () => {
   // @test-link [[rule_seeded_phrase_reproduction]]
   it('resolves generate() with an outcome deep-equal to a direct generatePhrase call, fully frozen', async () => {

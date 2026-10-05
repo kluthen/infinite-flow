@@ -27,6 +27,7 @@ interface PendingChange {
 
 /** One session's shown settings, fed the engine's outputs. */
 // @spec-link [[rule_automatic_change_updates_controls_quietly]]
+// @spec-link [[module_session_shown_settings]]
 export interface SessionShownSettings {
   /** The settings shown now. */
   readonly current: () => SessionSettings
@@ -46,6 +47,7 @@ export interface SessionShownSettings {
  */
 // @spec-link [[rule_automatic_change_updates_controls_quietly]]
 // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
+// @spec-link [[module_session_shown_settings]]
 export function createSessionShownSettings(start: SessionSettings): SessionShownSettings {
   let shown = start
   let pending: PendingChange[] = []
@@ -70,6 +72,7 @@ export function createSessionShownSettings(start: SessionSettings): SessionShown
 
 /** The page's `Vary settings` flag: `on` is a reactive reading; `set` is the player's on/off. */
 // @spec-link [[req_settings_mutation_flag]]
+// @spec-link [[module_session_vary_settings_flag]]
 export interface VarySettingsFlag {
   readonly on: () => boolean
   readonly set: (on: boolean) => void
@@ -80,6 +83,7 @@ export interface VarySettingsFlag {
  * on/off.
  */
 // @spec-link [[req_multi_phrase_tension_arc]]
+// @spec-link [[module_session_tension_across_phrases_flag]]
 export interface TensionAcrossPhrasesFlag {
   readonly on: () => boolean
   readonly set: (on: boolean) => void
@@ -95,6 +99,7 @@ export interface TensionAcrossPhrasesFlag {
 // @spec-link [[req_settings_mutation_flag]]
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[rule_ephemeral_session_state]]
+// @spec-link [[module_session_vary_settings_flag]]
 export function createVarySettingsFlag(phase: () => SessionControllerPhase): VarySettingsFlag {
   const on = shallowRef(SETTINGS_MUTATION_DEFAULT.kind === 'on')
   return {
@@ -118,6 +123,7 @@ export function createVarySettingsFlag(phase: () => SessionControllerPhase): Var
 // @spec-link [[req_multi_phrase_tension_arc]]
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[rule_ephemeral_session_state]]
+// @spec-link [[module_session_tension_across_phrases_flag]]
 export function createTensionAcrossPhrasesFlag(
   phase: () => SessionControllerPhase,
 ): TensionAcrossPhrasesFlag {

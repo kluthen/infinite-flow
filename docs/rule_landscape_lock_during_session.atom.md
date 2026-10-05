@@ -3,6 +3,7 @@ id: rule_landscape_lock_during_session
 status: DRAFT
 priority: 1
 dependents:
+  - [[service_session_start]]
   - [[service_workspace_session_flow]]
 layer: BUSINESS
 human_name: Landscape Lock During a Session

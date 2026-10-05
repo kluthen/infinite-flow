@@ -7,6 +7,7 @@ human_name: Latency-Compensated Played Onset
 parents:
   - [[rule_expected_note_window]]
 dependents:
+  - [[module_session_note_acknowledgement]]
   - [[service_workspace_session_flow]]
 layer: BUSINESS
 priority: 1

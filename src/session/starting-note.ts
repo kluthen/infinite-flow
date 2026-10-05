@@ -53,6 +53,7 @@ export interface StartingNote {
  */
 // @spec-link [[rule_midi_starting_note]]
 // @spec-link [[rule_starting_note_named]]
+// @spec-link [[module_session_starting_note]]
 export function startingNoteOf(
   timeline: ConcertEventTimeline,
   written: WrittenPhrase,
@@ -78,6 +79,7 @@ export function startingNoteOf(
  * Intent: whether a played note is the starting note: exactly its concert pitch, octave included.
  */
 // @spec-link [[rule_midi_starting_note]]
+// @spec-link [[module_session_starting_note]]
 export function isStartingNote(
   note: { readonly pitch: ConcertPitch },
   starting: StartingNote,

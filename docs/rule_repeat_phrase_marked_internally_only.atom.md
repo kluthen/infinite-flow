@@ -9,6 +9,7 @@ parents:
   - [[rule_session_generation_failure_ladder]]
   - [[rule_session_history_keeps_timeline_and_inputs]]
 dependents:
+  - [[module_session_failure_ladder]]
   - [[service_session_engine]]
   - [[service_session_history]]
 version: 0.2

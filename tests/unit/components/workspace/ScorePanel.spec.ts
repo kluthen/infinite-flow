@@ -130,7 +130,7 @@ describe('ScorePanel', () => {
     expect(wrapper.get('.staff-frame .alert-error').text()).toContain('Notation error')
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_idle_generation_session]]
   it('D33: the notation-status live region exists and is empty initially', () => {
     const workspace = createTestWorkspace()
     const wrapper = mountHarness(workspace)
@@ -142,7 +142,7 @@ describe('ScorePanel', () => {
     expect(notationStatus.text()).toBe('')
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_idle_generation_session]]
   it('D33: a fresh generation whose own engraving fails announces "Notation error. Try again." in notation-status, leaving generation-status silent', async () => {
     const workspace = createTestWorkspace()
     useCheapControls(workspace.session)
@@ -160,7 +160,7 @@ describe('ScorePanel', () => {
     expect(wrapper.get('.generation-status').text()).toBe('')
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_idle_generation_session]]
   it('D33: a successful Retry notation silently empties notation-status', async () => {
     const workspace = createTestWorkspace()
     useCheapControls(workspace.session)
@@ -184,7 +184,7 @@ describe('ScorePanel', () => {
     expect(wrapper.get('.notation-status').text()).toBe('')
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_idle_generation_session]]
   it('D33: an out-of-band notation-error with no pending request announces the same text', async () => {
     const workspace = createTestWorkspace()
     useCheapControls(workspace.session)
@@ -208,7 +208,7 @@ describe('ScorePanel', () => {
     expect(wrapper.get('.notation-status').text()).toBe('Notation error. Try again.')
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_idle_generation_session]]
   it('D33: a regenerate whose own engraving fails announces the same text', async () => {
     const workspace = createTestWorkspace()
     useCheapControls(workspace.session)
@@ -231,7 +231,7 @@ describe('ScorePanel', () => {
     expect(wrapper.get('.notation-status').text()).toBe('Notation error. Try again.')
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_idle_generation_session]]
   it('D34: a retained unengraved result after a failed regenerate falls back to staff-error with no notation-error text, showing the generation-failure banner instead', async () => {
     let call = 0
     const workspace = createTestWorkspace(async (intent) => {
@@ -266,7 +266,7 @@ describe('ScorePanel', () => {
     expect(wrapper.get('.inline-alert.alert-error').text().length).toBeGreaterThan(0)
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_idle_generation_session]]
   it("D34: no staff-error flash during an ordinary regenerate's own engraving step", async () => {
     const workspace = createTestWorkspace()
     useCheapControls(workspace.session)

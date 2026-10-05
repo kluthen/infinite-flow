@@ -21,7 +21,7 @@ import {
 
 // @test-link [[req_landscape_phrase_workspace]]
 // @test-link [[rule_stop_ends_session]]
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_start]]
 test('on a landscape phone the jump shows cue row and staff, and the compact Stop ends the session', async ({
   page,
 }) => {

@@ -11,14 +11,14 @@ import {
 } from '@/domain/generation/orchestration/orchestration-types'
 
 /** The real per-session generation result: the successful outcome plus the intent that produced it. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_idle_generation_session]]
 export interface WorkspaceSessionResult {
   readonly outcome: Extract<GenerationOutcome, { kind: 'generation_success' }>
   readonly intent: GenerationIntent
 }
 
 /** Typed failure surfaced by the workspace `generate` seam when orchestration could not produce a phrase. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_idle_generation_session]]
 export class GenerationFailedError extends Error {
   readonly code: GenerationFailureCode
 
@@ -35,7 +35,7 @@ export class GenerationFailedError extends Error {
  * early as a typed `GenerationFailedError` carrying the orchestration's failure code, rather than
  * defaulting to an empty or partial result.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_idle_generation_session]]
 export function createWorkspaceGenerate(
   generateOutcome: (intent: GenerationIntent) => Promise<GenerationOutcome>,
 ): (intent: GenerationIntent) => Promise<WorkspaceSessionResult> {

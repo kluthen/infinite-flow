@@ -69,7 +69,7 @@ function expectEndedLikeStop(rig: ControllerRig, at: number): void {
 }
 
 // @test-link [[module_session_rolling_display]]
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 describe('session controller: the rolling display', () => {
   // @test-link [[rule_phrase_one_is_idle_phrase]]
   // @test-link [[rule_session_layout_fixed_at_start]]

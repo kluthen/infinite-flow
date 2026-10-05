@@ -260,7 +260,7 @@ describe('session display: the playhead', () => {
   })
 })
 
-// @test-link [[module_session_rolling_display]]
+// @test-link [[module_session_display_fit]]
 describe('session display: fit', () => {
   // @test-link [[rule_look_ahead_phrase_must_fit_staff]]
   // @test-link [[rule_session_layout_fixed_at_start]]

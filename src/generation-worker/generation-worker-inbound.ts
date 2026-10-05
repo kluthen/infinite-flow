@@ -145,7 +145,7 @@ export function rebuildGenerationWorkerIntent(record: Record<string, unknown>): 
  * the wire value was not tampered with or corrupted in transit; an intent without a carry-in must
  * have no such field.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_workspace_session_runner_factory]]
 // @spec-link [[entity_phrase_carry_in]]
 export function parseGenerationWorkerIntent(input: unknown): GenerationIntent {
   const record = asPlainRecord(input, 'GenerationWorkerRequest.intent')

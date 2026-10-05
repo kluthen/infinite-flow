@@ -30,7 +30,7 @@ export type IntentSeams = Pick<SessionEngineDependencies, 'providers' | 'viewpor
  * What one attempt asks for: a carry-in attempt keeps the carry-in it is given; a standalone one
  * has none and fixes the register it is given.
  */
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_failure_ladder]]
 // @spec-link [[rule_varying_register_once_per_session]]
 export type AttemptPlan =
   | { readonly step: 'carry-in'; readonly carryIn: CarryIn }
@@ -38,6 +38,7 @@ export type AttemptPlan =
 
 /** A built intent and the step-down memory after building it. */
 // @spec-link [[rule_session_density_only_steps_down]]
+// @spec-link [[module_session_density_step_down]]
 export interface BuiltIntent {
   readonly intent: GenerationIntent
   readonly steppedDown: boolean
@@ -88,6 +89,7 @@ export function resolvedRegister(
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[rule_session_density_only_steps_down]]
 // @spec-link [[rule_varying_register_once_per_session]]
+// @spec-link [[module_session_density_step_down]]
 export function buildAttemptIntent(
   seams: IntentSeams,
   settings: SessionSettings,

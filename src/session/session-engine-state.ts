@@ -47,7 +47,7 @@ export interface DecidedPhrase {
  * in order, phrase 1's being the starting tempo. It is never part of the settings in effect, which
  * keep the starting tempo, so no intent ever sees it.
  */
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_adaptive_tempo_schedule]]
 // @spec-link [[rule_tempo_never_affects_generation]]
 export interface SessionTempo {
   readonly schedule: AdaptiveTempoSchedule

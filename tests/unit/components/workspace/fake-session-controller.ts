@@ -82,7 +82,7 @@ export const COUNT_IN_MUTED = {
  * the Review and enters the count-in at tempo 90 in the one-system layout; `stop` ends it, opening
  * the Review if phrase 1 had sounded (the test moved the phase to `running`).
  */
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 export function createFakeSessionController(
   overrides: Partial<FakeSessionControllerState> = {},
 ): FakeSessionController {

@@ -4,6 +4,9 @@ status: DRAFT
 human_name: Unsupported Rhythm Settings Give Way to No Phrase
 dependents:
   - [[module_idle_fit_round]]
+  - [[module_idle_fresh_run]]
+  - [[module_idle_room_notice]]
+  - [[module_idle_window_width_density]]
 type: RULE
 tags: [v2, release-v2.0, idle, rhythm, v1-change]
 parents:

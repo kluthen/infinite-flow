@@ -7,6 +7,7 @@ version: 0.1
 parents:
   - [[req_session_export]]
 dependents:
+  - [[module_review_export_pipeline]]
   - [[rule_played_notes_export_aligns_with_generated_midi]]
   - [[rule_played_notes_export_unquantized_timing]]
 priority: 1

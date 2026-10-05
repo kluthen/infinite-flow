@@ -133,7 +133,7 @@ const MIX_GAIN_ORDER: readonly MixGain[] = [
  * queued at its tempo), the backing notes queued but not yet planned (in time order), the phrase
  * the next backing must be for, and how far planning has reached.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_transport_tempo_map]]
 interface RunningSession {
   readonly bus: SessionBus
   plan: ClickPlan
@@ -254,7 +254,7 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
    * Intent: the running session's click plan with phrase `phraseNumber` at `tempo` BPM from its
    * first beat. Phrase 1 must be at the starting tempo (the count-in's), so its plan is unchanged.
    */
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[module_session_transport_tempo_map]]
   function planWithPhraseTempo(
     running: RunningSession,
     phraseNumber: number,
@@ -281,7 +281,7 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
    * which then throws (out of order, or too late).
    */
   // @spec-link [[req_session_backing_track]]
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[module_session_transport_tempo_map]]
   function queueBacking(
     phraseNumber: number,
     harmony: readonly HarmonyEvent[],
@@ -312,7 +312,7 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
    * the one after the last queued are known: a later start depends on a tempo not queued yet.
    */
   // @spec-link [[req_session_backing_track]]
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[module_session_transport_tempo_map]]
   function runningPhraseStartsAt(phraseNumber: number): AudioTime {
     const running = runningSession()
     if (phraseNumber > running.nextPhrase) {

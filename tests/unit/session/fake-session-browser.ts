@@ -191,7 +191,7 @@ export interface FakeSessionBrowser extends SessionBrowserPorts {
 }
 
 /** Intent: a full set of fake session browser ports: locks granted, page visible, desktop window. */
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 export function createFakeSessionBrowser(): FakeSessionBrowser {
   return {
     wakeLock: createFakeScreenWakeLock(),

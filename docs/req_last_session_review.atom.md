@@ -9,9 +9,11 @@ parents:
 layer: BUSINESS
 tags: [v2, release-v2.0, review]
 dependents:
+  - [[module_review_export_pipeline]]
   - [[req_session_export]]
   - [[rule_new_session_discards_review]]
   - [[rule_review_played_notes_toggle]]
+  - [[service_session_end]]
   - [[service_workspace_session_flow]]
 type: REQUIREMENT
 ---

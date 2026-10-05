@@ -190,7 +190,7 @@ function snapshotOf(state: SessionControllerState): WorkspaceHarnessSessionState
  * workspace's own, keeps it and hands the app the same controller with its state read through
  * the inflating view; the app calls it once, at setup.
  */
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 // @test-link [[req_last_session_review]]
 // @test-link [[req_adaptive_tempo]]
 export function createHarnessSessionController(): HarnessSessionController {

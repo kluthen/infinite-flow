@@ -13,6 +13,7 @@ parents:
   - [[rule_multi_phrase_tension_arc_cycle]]
 notes: Captured 2026-10-04 before code in v2 chunk 29 (pre-code architecture capture) from the coding leader plan. Completed 2026-10-04 in the v2 chunk 29 post-task sync: the interface names filled in as built. Related architecture - service_session_engine (applies it in the look-ahead basis and carry-in adaptation), module_settings_mutation (the cycle steps around a mutated tension arc), module_phrase_replay_key (unchanged format). Pending owner sign-off - running the carry-in adaptation across an arc step between two phrases needs the wording of rule_harmony_change_drops_unfit_harmonic_carry_in, rule_setting_change_rechecks_pitch_carry_in (both worded for a setting change) and rule_join_carry_in_limited (nothing else crosses the join) extended. Status stays DRAFT.
 dependents:
+  - [[module_session_tension_arc_step]]
   - [[service_session_engine]]
 ---
 

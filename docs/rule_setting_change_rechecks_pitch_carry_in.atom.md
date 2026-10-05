@@ -2,6 +2,7 @@
 id: rule_setting_change_rechecks_pitch_carry_in
 status: DRAFT
 dependents:
+  - [[module_session_carry_in_after_change]]
   - [[service_session_engine]]
 type: RULE
 layer: BUSINESS

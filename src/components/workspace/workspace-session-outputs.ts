@@ -39,7 +39,7 @@ function historyOutput(
  * repeat before it) appearing now, with nothing else on screen moving.
  */
 // @spec-link [[rule_automatic_change_updates_controls_quietly]]
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 function onSounding(
   state: SessionControllerWritableState,
   session: ActiveSession,
@@ -58,7 +58,7 @@ function onSounding(
 // @spec-link [[rule_session_history_records_played_notes]]
 // @spec-link [[rule_played_notes_export_unquantized_timing]]
 // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 export function onSessionOutput(
   audio: Pick<AudioTransport, 'phraseStartsAt'>,
   state: SessionControllerWritableState,

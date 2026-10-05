@@ -154,6 +154,7 @@ describe('startingNoteOf', () => {
 })
 
 // @test-link [[rule_midi_starting_note]]
+// @test-link [[module_session_starting_note]]
 describe('isStartingNote', () => {
   const starting = startingNoteFor(60, C_KEYBOARD_PROFILE)
 

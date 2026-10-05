@@ -40,7 +40,7 @@ test('every control group is read-only, and the primary action is disabled, whil
   await expect(statusRegion(page)).toHaveText('Phrase ready', { timeout: 30_000 })
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_idle_generation_session]]
 test('a second click while a generation is gated never starts a second request', async ({
   page,
 }) => {

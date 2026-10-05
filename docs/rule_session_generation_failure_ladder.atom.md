@@ -5,6 +5,7 @@ type: RULE
 version: 0.2
 priority: 1
 dependents:
+  - [[module_session_failure_ladder]]
   - [[rule_repeat_phrase_marked_internally_only]]
   - [[rule_setting_change_rechecks_pitch_carry_in]]
   - [[rule_struggling_generator_notice]]

@@ -30,7 +30,7 @@ function recordTexts(element: Element): string[] {
 }
 
 // @test-link [[rule_staff_needs_room_notice]]
-// @test-link [[module_idle_fit_round]]
+// @test-link [[module_idle_room_notice]]
 describe('ScorePanel room notice', () => {
   // @test-link [[module_idle_fit_round]]
   it("forwards PhraseScore's layout-inputs to the workspace", () => {
@@ -218,7 +218,7 @@ describe('ScorePanel room notice', () => {
     expect(announced).toEqual(['Generating phrase', ''])
   })
 
-  // @test-link [[module_idle_fit_round]]
+  // @test-link [[module_idle_room_notice]]
   // @test-link [[rule_idle_phrase_too_dense_is_replaced]]
   it('shows a Loading with no score and no notice when the phrase on screen stops fitting', async () => {
     let call = 0

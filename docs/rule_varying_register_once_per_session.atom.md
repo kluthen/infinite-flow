@@ -8,6 +8,8 @@ parents:
   - [[rule_join_carry_in_limited]]
 human_name: Varying Register Resolved Once per Session
 dependents:
+  - [[module_session_carry_in_after_change]]
+  - [[module_session_failure_ladder]]
   - [[rule_register_change_replaces_carried_window]]
   - [[service_session_engine]]
 type: RULE

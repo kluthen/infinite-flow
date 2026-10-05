@@ -64,6 +64,7 @@ function noteWithAnOpenWindow(rig: ControllerRig): {
 }
 
 // @test-link [[rule_silence_timeout_ends_session]]
+// @test-link [[module_session_silence_timeout]]
 describe('session controller: the silence timeout', () => {
   it('ends a session after more than 30 s from the starting note, not at 30 s', async () => {
     const rig = await startedByTheStartingNote()
@@ -117,6 +118,7 @@ describe('session controller: the silence timeout', () => {
 
 // @test-link [[rule_controller_loss_mid_session]]
 // @test-link [[rule_controller_reconnection_window]]
+// @test-link [[module_session_controller_loss]]
 describe('session controller: a controller lost mid-session', () => {
   it('counts down 30 s from the loss, then ends the session, the device still selected', async () => {
     const rig = await startedByTheStartingNote()
@@ -217,6 +219,7 @@ describe('session controller: a controller lost mid-session', () => {
 
 // @test-link [[rule_start_while_controller_away]]
 // @test-link [[rule_controllerless_session_never_gains_controller]]
+// @test-link [[service_session_midi]]
 describe('session controller: a start while the selected controller is away', () => {
   it('runs without the controller, the device coming back ignored, then reattaches it at the end', async () => {
     const rig = controllerRig()

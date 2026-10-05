@@ -41,7 +41,7 @@ function tempos(
 }
 
 // @test-link [[rule_adaptive_tempo_flat_schedule]]
-// @test-link [[service_session_engine]]
+// @test-link [[module_session_adaptive_tempo_schedule]]
 describe('the adaptive-tempo schedule', () => {
   // @test-link [[rule_adaptive_tempo_flat_schedule]]
   it('starts at the starting tempo, attached, with nothing counted', () => {
@@ -129,7 +129,7 @@ describe('the adaptive-tempo schedule', () => {
     expect(controllerPresence(away, true).attached).toBe(true)
   })
 
-  // @test-link [[service_session_engine]]
+  // @test-link [[module_session_adaptive_tempo_schedule]]
   it('throws on a controller event that does not change its presence', () => {
     const attached = startAdaptiveTempo(100, true)
     expect(() => controllerPresence(attached, true)).toThrow(SessionEngineError)
@@ -137,7 +137,7 @@ describe('the adaptive-tempo schedule', () => {
     expect(() => controllerPresence(away, false)).toThrow(SessionEngineError)
   })
 
-  // @test-link [[service_session_engine]]
+  // @test-link [[module_session_adaptive_tempo_schedule]]
   it('throws on a starting tempo that is not a positive finite number', () => {
     for (const tempo of [0, -60, Number.NaN, Number.POSITIVE_INFINITY])
       expect(() => startAdaptiveTempo(tempo, true)).toThrow(SessionEngineError)

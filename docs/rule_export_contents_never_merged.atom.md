@@ -6,7 +6,8 @@ version: 0.1
 tags: [v2, release-v2.1, export]
 parents:
   - [[req_session_export]]
-dependents: []
+dependents:
+  - [[module_review_export_pipeline]]
 type: RULE
 priority: 1
 human_name: Export Contents Never Merged

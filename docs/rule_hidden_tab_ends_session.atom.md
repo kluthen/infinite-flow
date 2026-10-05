@@ -8,6 +8,7 @@ parents:
   - [[rule_session_never_pauses]]
   - [[rule_stop_ends_session]]
 dependents:
+  - [[service_session_end]]
   - [[service_session_engine]]
   - [[service_workspace_session_flow]]
 layer: BUSINESS

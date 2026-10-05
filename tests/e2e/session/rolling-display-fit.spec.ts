@@ -102,7 +102,7 @@ async function phraseTwoOfSession(
   return result
 }
 
-// @test-link [[module_session_rolling_display]]
+// @test-link [[module_session_display_fit]]
 // @test-link [[rule_look_ahead_phrase_must_fit_staff]]
 test('a look-ahead phrase too wide for the held layout is never drawn: its retry is', async ({
   page,
@@ -150,7 +150,7 @@ async function expectStaffEnd(page: Page, phase: 'count-in' | 'running'): Promis
   await expect(page.locator('.staff-frame rect.playhead-band')).toHaveCount(0)
 }
 
-// @test-link [[module_session_rolling_display]]
+// @test-link [[module_session_display_fit]]
 // @test-link [[rule_session_ends_when_staff_too_small]]
 // @test-link [[rule_session_layout_fixed_at_start]]
 test.describe('a window change the shown or waiting material cannot fit ends like Stop', () => {

@@ -106,6 +106,7 @@ const VARYING_SEED = 1
 // @test-link [[rule_key_change_drops_harmonic_carry_in]]
 // @test-link [[rule_harmony_change_drops_unfit_harmonic_carry_in]]
 // @test-link [[rule_register_change_replaces_carried_window]]
+// @test-link [[module_session_carry_in_after_change]]
 describe('adapting a carry-in when no relevant setting changed', () => {
   it('returns the very same carry-in for the same settings', () => {
     const phrase = phraseOne(MIDDLE_HIGH_PITCH_SEED, MIDDLE)
@@ -128,6 +129,7 @@ describe('adapting a carry-in when no relevant setting changed', () => {
 
 // @test-link [[rule_key_change_drops_harmonic_carry_in]]
 // @test-link [[rule_setting_change_rechecks_pitch_carry_in]]
+// @test-link [[module_session_carry_in_after_change]]
 describe('adapting a carry-in after a key or collection change', () => {
   it('drops the harmony and keeps the pitch after a key and collection change', () => {
     const before = settings({ tonalCenter: 'C', collection: 'Ionian' })
@@ -155,6 +157,7 @@ describe('adapting a carry-in after a key or collection change', () => {
 })
 
 // @test-link [[rule_harmony_change_drops_unfit_harmonic_carry_in]]
+// @test-link [[module_session_carry_in_after_change]]
 describe('adapting a carry-in after a harmony setting change', () => {
   it('drops a chord the new harmonic motion never ends a phrase on', () => {
     // Gentle diatonic in C Major ends on the open arrival V with the degree-5 chord-tone
@@ -180,6 +183,7 @@ describe('adapting a carry-in after a harmony setting change', () => {
 
 // @test-link [[rule_register_change_replaces_carried_window]]
 // @test-link [[rule_setting_change_rechecks_pitch_carry_in]]
+// @test-link [[module_session_carry_in_after_change]]
 describe('adapting a carry-in after a register change', () => {
   it('replaces the window and keeps the pitch when it lies inside the new window', () => {
     const after = settings({ register: 'High' })
@@ -235,6 +239,7 @@ describe('adapting a carry-in after a register change', () => {
 // @test-link [[rule_varying_register_once_per_session]]
 // @test-link [[rule_setting_change_rechecks_pitch_carry_in]]
 // @test-link [[rule_key_change_drops_harmonic_carry_in]]
+// @test-link [[module_session_carry_in_after_change]]
 describe('adapting a carry-in while the register stays Varying', () => {
   it('keeps the window resolved for phrase 1 after a key change', () => {
     const after = settings({ register: 'Varying', tonalCenter: 'G' })

@@ -11,6 +11,8 @@ version: 0.3
 tags: [v2, release-v2.0, session, session-start]
 dependents:
   - [[rule_midi_starting_note]]
+  - [[service_session_controller]]
+  - [[service_session_start]]
   - [[service_workspace_session_flow]]
 ---
 

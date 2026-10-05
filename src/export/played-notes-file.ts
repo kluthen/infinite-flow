@@ -23,6 +23,7 @@ const MIDI_MIME_TYPE = 'audio/midi'
  */
 // @spec-link [[req_played_notes_export]]
 // @spec-link [[rule_export_contents_never_merged]]
+// @spec-link [[module_review_export_pipeline]]
 export function playedNotesFileName(startedAtMs: number): string {
   return `${exportFileStem(startedAtMs)}-played.mid`
 }
@@ -34,6 +35,7 @@ export function playedNotesFileName(startedAtMs: number): string {
  * encoder's typed errors (an empty history, a history with no played note) propagate unchanged.
  */
 // @spec-link [[req_played_notes_export]]
+// @spec-link [[module_review_export_pipeline]]
 export function buildPlayedNotesFile(history: ExportableHistory): ExportFile {
   const fileName = playedNotesFileName(history.startedAt)
   const bytes = encodePlayedNotesMidi(playedNotesMidiInputFromHistory(history.phrases()))

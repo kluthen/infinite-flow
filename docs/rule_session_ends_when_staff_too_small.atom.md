@@ -11,7 +11,10 @@ parents:
   - [[rule_session_layout_fixed_at_start]]
   - [[rule_stop_ends_session]]
 dependents:
+  - [[module_session_display_fit]]
   - [[module_session_rolling_display]]
+  - [[module_session_staff_engraving_outcomes]]
+  - [[service_session_end]]
   - [[service_workspace_session_flow]]
 ---
 

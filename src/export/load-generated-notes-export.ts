@@ -50,6 +50,7 @@ function errorMessage(error: unknown): string {
  */
 // @spec-link [[req_session_export]]
 // @spec-link [[req_played_notes_export]]
+// @spec-link [[module_review_export_pipeline]]
 export function loadGeneratedNotesExport(): Promise<GeneratedNotesExportModule> {
   if (modulePromise === null) {
     modulePromise = import('./generated-notes-file').catch((cause: unknown) => {

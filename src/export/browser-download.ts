@@ -29,6 +29,7 @@ export class BrowserDownloadError extends Error {
 // @spec-link [[req_session_export]]
 // @spec-link [[rule_optional_midi_privacy]]
 // @spec-link [[rule_session_data_never_sent_or_stored]]
+// @spec-link [[module_review_export_pipeline]]
 export function downloadFile(file: ExportFile, doc: Document): void {
   const view = doc.defaultView
   if (view === null) throw new BrowserDownloadError('The document has no window to download in.')

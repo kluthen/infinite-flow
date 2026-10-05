@@ -38,6 +38,7 @@ function changed(n: number, settings: SessionSettings): SettingsChangedOutput {
 }
 
 // @test-link [[rule_automatic_change_updates_controls_quietly]]
+// @test-link [[module_session_shown_settings]]
 describe('session shown settings', () => {
   // @test-link [[rule_automatic_change_updates_controls_quietly]]
   it('shows the start settings until the phrase a change applies to starts sounding', () => {
@@ -74,6 +75,7 @@ describe('session shown settings', () => {
 })
 
 // @test-link [[req_settings_mutation_flag]]
+// @test-link [[module_session_vary_settings_flag]]
 describe('the Vary settings flag', () => {
   // @test-link [[req_settings_mutation_flag]]
   // @test-link [[rule_session_settings_locked]]
@@ -95,6 +97,7 @@ describe('the Vary settings flag', () => {
 })
 
 // @test-link [[req_multi_phrase_tension_arc]]
+// @test-link [[module_session_tension_across_phrases_flag]]
 describe('the Tension across phrases flag', () => {
   // @test-link [[req_multi_phrase_tension_arc]]
   // @test-link [[rule_session_settings_locked]]

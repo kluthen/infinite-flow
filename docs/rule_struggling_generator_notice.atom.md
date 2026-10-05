@@ -9,6 +9,7 @@ parents:
   - [[rule_session_generation_failure_ladder]]
 priority: 1
 dependents:
+  - [[module_session_struggling_notice]]
   - [[service_session_engine]]
   - [[service_workspace_session_flow]]
 type: RULE

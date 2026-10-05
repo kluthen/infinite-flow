@@ -95,6 +95,7 @@ export interface SessionAcknowledgement {
 // @spec-link [[rule_played_onset_latency_compensation]]
 // @spec-link [[rule_no_grading_or_mismatch_signal]]
 // @spec-link [[rule_controller_loss_mid_session]]
+// @spec-link [[module_session_note_acknowledgement]]
 export function createSessionAcknowledgement(
   options: SessionAcknowledgementOptions,
 ): SessionAcknowledgement {

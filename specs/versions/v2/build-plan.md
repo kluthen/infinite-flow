@@ -2436,7 +2436,13 @@ D180).
 
 ### Chunk 27 — Adaptive tempo engine
 
-**Release:** v2.2.
+**Release:** v2.2. **Done on 2026-10-03.** The session engine runs the flat schedule: +5 BPM every
+two counted phrases, up to 240 BPM, never down, back to the starting tempo when the session ends; a
+phrase counts when it starts sounding with the controller attached, and while the controller is away
+a due rise waits. Each phrase's tempo is fixed at its look-ahead deadline, and the click, the
+backing, the phrase starts, the playhead, note acknowledgement, the session history and the exports
+follow a per-phrase tempo map. Generation and replay keys only see the locked starting tempo; the
+control that turns the schedule on is chunk 28.
 
 **Goal.** The flat tempo schedule: +5 BPM every two phrases, up to 240 BPM, never down, reset to
 the starting tempo when the session ends. Generation never sees it.
@@ -2509,7 +2515,12 @@ on 2026-10-05, in [`ui_ux/screens/phrase-workspace/`](../../../ui_ux/screens/phr
 
 ### Chunk 29 — Multi-phrase tension arc
 
-**Release:** v2.2.
+**Release:** v2.2. **Done on 2026-10-04.** Behind a session-start flag, off by default, each phrase
+is generated under a four-phrase cycle of its tension: as chosen, one step tenser, as chosen, one
+step calmer, clamped along Settled, Lift, Build and Edge. The step never reaches the settings in
+effect, the mutation draws or the settings-changed output; it rides in the phrase's intent, so
+replay keys need no format change, and the join between two phrases treats a step as a tension
+change. The control that turns it on is chunk 30.
 
 **Goal.** An opt-in tension arc that rises and falls across several phrases, instead of each
 phrase's own arc. [Tension](../../../docs/music/lexicon.md#tension) is the app's setting for how

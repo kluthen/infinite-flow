@@ -10,6 +10,8 @@ parents:
 layer: BUSINESS
 version: 0.1
 dependents:
+  - [[module_session_adaptive_tempo_schedule]]
+  - [[module_session_look_ahead_timing]]
   - [[service_session_engine]]
 ---
 

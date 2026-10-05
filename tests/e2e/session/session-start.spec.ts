@@ -32,7 +32,7 @@ const AFTER = 0.03
 
 // @test-link [[rule_count_in_shown_on_screen]]
 // @test-link [[rule_session_layout_fixed_at_start]]
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_start]]
 test('the count-in lights beat by beat with its clicks, and phrase 1 never moves', async ({
   page,
 }) => {
@@ -134,7 +134,7 @@ test('Stop once phrase 1 has sounded opens the Review, with focus on Close revie
   expect(state.review).toEqual({ showing: true, phraseCount: 1 })
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_start]]
 // @test-link [[req_landscape_phrase_workspace]]
 test('a Start with the staff top scrolled out of view jumps once, instantly, to the workspace top', async ({
   page,

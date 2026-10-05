@@ -7,6 +7,7 @@ tags: [v2, release-v2.0, session, audio]
 parents:
   - [[req_session_audio_mix]]
 dependents:
+  - [[module_session_transport_tempo_map]]
   - [[service_workspace_session_flow]]
 type: RULE
 layer: BUSINESS

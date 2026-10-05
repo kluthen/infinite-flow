@@ -35,7 +35,7 @@ export interface GenerationWorkerClient {
  * Typed rejection for a `crash` response: the worker's own `generatePhrase` call (or request
  * parsing on the worker side) threw, carrying that error's original name/message.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_workspace_session_runner_factory]]
 export class GenerationWorkerCrashError extends Error {
   readonly kind = 'GenerationWorkerCrashError' as const
 
@@ -54,7 +54,7 @@ export class GenerationWorkerCrashError extends Error {
  * with this error, and every subsequent `generate` call rejects immediately with it too, without
  * posting to the port.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_workspace_session_runner_factory]]
 export class GenerationWorkerTransportError extends Error {
   readonly kind = 'GenerationWorkerTransportError' as const
 
@@ -74,7 +74,7 @@ interface PendingRequest {
  * responsible for creating exactly one `port` per session and keeping it alive across every
  * `generate` call, since the worker's rhythm-domain memo only pays off when reused.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_workspace_session_runner_factory]]
 export function createGenerationWorkerClient(port: GenerationWorkerPort): GenerationWorkerClient {
   const pending = new Map<number, PendingRequest>()
   let nextId = 1

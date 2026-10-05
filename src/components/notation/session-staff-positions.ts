@@ -133,7 +133,7 @@ function showsAt(shown: ShownSystem, system: SessionSystem, inputsKey: string): 
 /**
  * Intent: create the positions' content keeper for one PhraseScore.
  */
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_staff_refill]]
 export function createStaffPositions(env: StaffPositionsEnvironment): StaffPositions {
   const positions: Record<StaffPosition, PositionState> = {
     top: { shown: null, target: null, refills: 0, refilling: false, fading: new Map() },
@@ -304,7 +304,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
    * nothing at all.
    */
   // @spec-link [[rule_session_ends_when_staff_too_small]]
-  // @spec-link [[module_session_rolling_display]]
+  // @spec-link [[module_session_staff_refill]]
   async function sync(): Promise<void> {
     const ticket = ++syncs
     const atEpoch = epoch
@@ -339,7 +339,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
    * Intent: start a unit's fade-out: it keeps no mark and is hidden from assistive technology,
    * and it is removed once its animations finish (at once with none, as under reduced motion).
    */
-  // @spec-link [[module_session_rolling_display]]
+  // @spec-link [[module_session_staff_refill]]
   function fadeOut(state: PositionState, shown: ShownSystem): void {
     const { unit } = shown
     unmarkSystem(shown)
@@ -381,7 +381,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
    * meanwhile, and enters as a new unit once every fade there has finished. A blank slot leaves
    * the position empty. A newer refill, or the session's end, drops this one.
    */
-  // @spec-link [[module_session_rolling_display]]
+  // @spec-link [[module_session_staff_refill]]
   async function refill(position: StaffPosition, next: SessionSystem | null): Promise<void> {
     const state = positions[position]
     const ticket = ++state.refills
@@ -446,7 +446,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
    * Intent: follow the session's new state: refill each position whose slot changed, and redraw
    * the marks for the new playhead. The held layout never changes during a session.
    */
-  // @spec-link [[module_session_rolling_display]]
+  // @spec-link [[module_session_staff_refill]]
   // @spec-link [[rule_session_layout_fixed_at_start]]
   function update(next: SessionStaff): void {
     if (requireStaff().layout !== next.layout) {
@@ -462,7 +462,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
   }
 
   /** Intent: re-engrave in place what the current inputs made stale. */
-  // @spec-link [[module_session_rolling_display]]
+  // @spec-link [[module_session_staff_refill]]
   function relayout(): void {
     requireStaff()
     void sync()
@@ -478,7 +478,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
    * fading out leave at once, and the settled ones lose the session's marks (the band included) at
    * once but stay until the Idle engraving replaces them.
    */
-  // @spec-link [[module_session_rolling_display]]
+  // @spec-link [[module_session_staff_engraving_outcomes]]
   function leave(): void {
     requireStaff()
     epoch += 1

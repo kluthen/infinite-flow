@@ -259,10 +259,10 @@ function risenTracker(): SessionAcknowledgement {
 }
 
 // @test-link [[rule_expected_note_window]]
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_session_note_acknowledgement]]
 describe('session acknowledgement: each phrase at its own tempo', () => {
   // @test-link [[rule_expected_note_window]]
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_note_acknowledgement]]
   it('places a phrase at 95 BPM after one at 90 BPM, each from its own first downbeat', () => {
     const acknowledgement = risenTracker()
     // Phrase 1's fourth quarter (F4) at 90 BPM: 1 + 3 * 2/3 = 3 s.

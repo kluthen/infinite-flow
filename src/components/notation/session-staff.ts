@@ -53,7 +53,7 @@ const IDLE_PARTS: Readonly<
  * Intent: the slot a position shows at Idle: the phrase on the top system in the one-system
  * layout (the bottom position blank), or its opening above its closing in the split layout.
  */
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_staff_refill]]
 // @spec-link [[rule_phrase_one_is_idle_phrase]]
 export function idleSlot(
   phraseNumber: number,
@@ -68,13 +68,13 @@ export function idleSlot(
  * Intent: the comparison key of the inputs a system is engraved with: the container width and the
  * viewport drawn in, so an Idle engraving and a session's, in the same layout, compare equal.
  */
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_staff_refill]]
 export function engravingKey(containerWidthPx: number, viewport: StaffViewport): string {
   return `${containerWidthPx}|${viewport.layout}|${viewport.heightBudgetPx ?? 'none'}`
 }
 
 /** Intent: the key of the slot a position shows, or null for a blank position. */
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_staff_refill]]
 export function positionKey(slot: SystemSlot | null): string | null {
   return slot === null ? null : slotKey(slot)
 }
@@ -84,7 +84,7 @@ export function positionKey(slot: SystemSlot | null): string | null {
  * the top system's during the count-in (null with a blank top). A playhead whose phrase no
  * position shows is the caller's error.
  */
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_staff_overlays]]
 export function describedSessionSystem(staff: SessionStaff): SessionSystem | null {
   if (staff.playhead === null) return staff.top
   const phraseNumber = staff.playhead.phraseNumber
@@ -100,7 +100,7 @@ export function describedSessionSystem(staff: SessionStaff): SessionSystem | nul
  * the playhead band only when the playhead is in this phrase, and the acknowledged notes the
  * caller found on its systems.
  */
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_staff_overlays]]
 // @spec-link [[module_notation_note_identity_overlays]]
 export function sessionPhraseOverlays(
   phraseNumber: number,

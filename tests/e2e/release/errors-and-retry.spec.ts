@@ -17,7 +17,7 @@ import {
   queueSeeds,
 } from './harness-helpers'
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_idle_generation_error_recovery]]
 test('an initial generation failure shows the empty workspace with an error, and Retry generation builds a fresh request with a new seed', async ({
   page,
 }) => {
@@ -45,7 +45,7 @@ test('an initial generation failure shows the empty workspace with an error, and
   expect(snap.seed).not.toBe(42)
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_idle_generation_error_recovery]]
 test('a later generation failure keeps the prior valid phrase visible', async ({ page }) => {
   await gotoWorkspaceHarness(page)
   await queueSeeds(page, [77])

@@ -7,7 +7,9 @@ tags: [v2, release-v2.0, session, history, midi]
 parents:
   - [[rule_session_history_keeps_timeline_and_inputs]]
 dependents:
+  - [[module_session_note_acknowledgement]]
   - [[service_session_history]]
+  - [[service_session_midi]]
   - [[service_workspace_session_flow]]
 type: RULE
 layer: BUSINESS

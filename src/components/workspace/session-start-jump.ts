@@ -9,7 +9,7 @@
 import type { StaffLayout } from '@/notation/notation-layout-policy'
 
 /** The page's geometry at the Start click, in viewport pixels (block axis). */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_start]]
 export interface SessionJumpGeometry {
   readonly viewportBlockSize: number
   /** The top of the phrase workspace (the app's layout root). */
@@ -20,14 +20,14 @@ export interface SessionJumpGeometry {
 }
 
 /** The window as the jump uses it: its instant scroll and the viewport's block size. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_start]]
 export interface SessionJumpView {
   readonly scrollBy: (options: ScrollToOptions) => void
   readonly viewportBlockSize: () => number
 }
 
 /** The elements the jump measures. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_start]]
 export interface SessionJumpParts {
   readonly workspace: Element
   readonly cueRow: Element
@@ -39,7 +39,7 @@ export interface SessionJumpParts {
  * holds. Below bp-tablet-landscape the cue row is never scrolled above the viewport, whatever the
  * staff's height (the phone scale rule guarantees both fit together).
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_start]]
 // @spec-link [[req_landscape_phrase_workspace]]
 export function sessionStartJumpDelta(layout: StaffLayout, geometry: SessionJumpGeometry): number {
   const { viewportBlockSize, cueRowTop, staffViewportTop, staffViewportBottom } = geometry
@@ -55,7 +55,7 @@ export function sessionStartJumpDelta(layout: StaffLayout, geometry: SessionJump
 }
 
 /** Intent: measure the page and make the start's one jump, instantly; no scroll when none is needed. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_start]]
 export function jumpForSessionStart(
   view: SessionJumpView,
   parts: SessionJumpParts,

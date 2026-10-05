@@ -10,8 +10,12 @@ version: 0.2
 human_name: Session End Generates the Next Phrase 1
 dependents:
   - [[module_idle_fit_round]]
+  - [[module_idle_fresh_run]]
+  - [[module_idle_layout_gate]]
   - [[module_session_rolling_display]]
+  - [[module_session_staff_engraving_outcomes]]
   - [[rule_mutation_reverts_at_session_end]]
+  - [[service_session_end]]
   - [[service_workspace_session_flow]]
 layer: BUSINESS
 ---

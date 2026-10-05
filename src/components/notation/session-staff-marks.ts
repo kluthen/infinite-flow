@@ -46,7 +46,7 @@ function svgsByPhrase(shown: readonly MarkedSystem[]): Map<number, SVGSVGElement
 }
 
 /** Intent: the acknowledged notes of phrase `phraseNumber` that its systems on screen draw. */
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_staff_overlays]]
 // @spec-link [[module_notation_note_identity_overlays]]
 function acknowledgedOnScreen(
   svgs: readonly SVGSVGElement[],
@@ -64,7 +64,7 @@ function acknowledgedOnScreen(
  * Intent: name each phrase on screen once, on its first system shown, its other system hidden from
  * assistive technology; the described phrase's name points at the description.
  */
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_staff_overlays]]
 function labelPhrases(
   shown: readonly MarkedSystem[],
   described: number | null,
@@ -90,7 +90,7 @@ function labelPhrases(
  * hidden description is to follow. Overlays are applied per phrase with that phrase's systems
  * only; a band naming a measure its phrase's systems on screen lack is a defect, and throws.
  */
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_staff_overlays]]
 // @spec-link [[module_notation_note_identity_overlays]]
 export function drawSessionMarks(
   shown: readonly MarkedSystem[],
@@ -115,7 +115,7 @@ export function drawSessionMarks(
  * Intent: take every overlay mark off a system leaving the screen, so a unit fading out never
  * carries the band.
  */
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_staff_overlays]]
 // @spec-link [[module_notation_note_identity_overlays]]
 export function unmarkSystem(marked: MarkedSystem): void {
   applyScoreOverlays([marked.svg], marked.system.phraseNumber, NO_SCORE_OVERLAYS)
