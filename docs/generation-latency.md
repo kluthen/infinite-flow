@@ -347,7 +347,7 @@ fail with a generation failure, which the ladder would retry, and are left out):
   240 BPM. The slowest step, 0.68 s, plus a failed attempt (up to 0.59 s) and a warm retry, stays
   well inside it.
 - **A regenerated look-ahead with one measure left: 1 s at 240 BPM.** Only a settings change from
-  another source (none before chunk 25) can discard a phrase, and only with at least one measure
+  another source (none in the app yet) can discard a phrase, and only with at least one measure
   left. The slowest step fits on its first attempt (0.68 s); a failed first attempt followed by a
   retry may not. This harness does not measure that case end to end, and the 250 ms working goal
   is judged in Chromium, which this run did not measure.

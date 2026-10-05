@@ -86,7 +86,7 @@ Every event has an `at`, its audio time.
 | `generation-result { attemptId, outcome }` | The generate seam answered an attempt with a `GenerationOutcome` (a success or a generation failure).                                                                                                                                 |
 | `generation-crashed { attemptId }`         | The generate seam rejected: a Worker crash on that one request, or a dead Worker. A failed attempt, never an end.                                                                                                                     |
 | `fit-result { attemptId, fits }`           | Whether an attempt's generated phrase fits the staff.                                                                                                                                                                                 |
-| `settings-change { settings }`             | New complete settings, in effect from now, from an automatic source other than the engine's own mutations (see [Settings changes at a phrase boundary](#settings-changes-at-a-phrase-boundary)). Nothing sends it before chunk 25.    |
+| `settings-change { settings }`             | New complete settings, in effect from now, from an automatic source other than the engine's own mutations (see [Settings changes at a phrase boundary](#settings-changes-at-a-phrase-boundary)). No part of the app sends it yet.     |
 | `controller { attached }`                  | A controller lost mid-session goes away (`attached` false) or reconnects (see [Adaptive tempo](#adaptive-tempo)).                                                                                                                     |
 | `tick`                                     | Time has reached `at`; lets the engine see a deadline pass.                                                                                                                                                                           |
 | `end { cause }`                            | The session ends: `'stop'` (the player's Stop), `'hidden-tab'` (the tab became hidden), `'staff-not-shown'`, `'silence-timeout'` (more than 30 s without a played note) or `'controller-lost'` (the controller not back within 30 s). |
@@ -625,7 +625,8 @@ What goes where is a pure plan in `src/session/rolling-display.ts`, which reads 
   The engine's deadline (the start of the sounding phrase's last measure) keeps it at one or more
   in that last measure.
 - **On screen.** `isPhraseOnScreen(layout, playhead, latestReady, n)` says whether any part of
-  phrase n is shown. The controller exposes it as `isPhraseOnScreen(n)` for chunk 25.
+  phrase n is shown. The controller exposes it as `isPhraseOnScreen(n)`, and hands the engine the
+  display's own answer as its display reading (see [In the workspace](#in-the-workspace)).
 
 The display itself:
 
@@ -920,8 +921,8 @@ everything.
 From v2.1 the settings in effect can change during a session, though the player still cannot edit
 them. Two sources exist. The engine's own **settings mutations**, behind the settings-mutation flag
 (off by default, spec D176), move one setting by one grade every two to four phrases. A
-`settings-change` event gives complete new settings from any other automatic source; nothing sends
-one before chunk 25. Both apply at a phrase boundary: every phrase is generated under one set of
+`settings-change` event gives complete new settings from any other automatic source; no part of
+the app sends one yet. Both apply at a phrase boundary: every phrase is generated under one set of
 settings, and the event says from which phrase the new ones apply.
 
 ### The scale table
@@ -1035,7 +1036,8 @@ keeps for this case (`DecidedPhrase` in `session-engine-state.ts`).
   one measure still discards. The test comes first, so the display is read only when the time
   allows a discard.
 - **Nothing on screen.** `display.isPhraseOnScreen(phraseNumber)` is false. The display reading
-  (`SessionDisplayReading`) is a seam of the engine; chunk 25 connects it to the rolling display.
+  (`SessionDisplayReading`) is a seam of the engine; the workspace answers it from the rolling
+  display.
 
 On a discard, a decided phrase is taken back (`undecide`): the phrase before is the latest decided
 again, and the struggling notice is as it was before the decision. The outputs are
@@ -1093,21 +1095,51 @@ A phrase requested after a key or collection change carries `finalHarmony: null`
 encoded before chunk 24, with a full carried harmony, still decodes to the same intent and
 re-encodes to the same key.
 
-### Until chunk 25
+### In the workspace
 
 `startWorkspaceSessionRunner` (`src/components/workspace/workspace-session-runner.ts`) starts
 every workspace session's runner: the starter that `loadSessionRunner()` resolves to calls it (see
-[The runner and the one-Worker wiring](#the-runner-and-the-one-worker-wiring)). It holds the three
-points chunk 25 connects:
+[The runner and the one-Worker wiring](#the-runner-and-the-one-worker-wiring)). Chunk 25 connected
+the engine's three points to the app:
 
-- **The flag is off.** Its start (`WorkspaceSessionStart`) has no `mutation`; it always passes
-  `SETTINGS_MUTATION_OFF`. Chunk 25 takes the flag from the player's on/off control, with a drawn
-  and stored mutation seed.
-- **The display is not connected.** `DISPLAY_NOT_CONNECTED` throws when read. Nothing sends a
-  `settings-change`, the only event that reads it.
-- **The new outputs are refused.** `settings-changed` and `phrase-discarded` throw
-  (`refusingSettingsChangeOutputs`) rather than being ignored silently by a controller that has no
-  handling for them yet.
+- **The flag.** `WorkspaceSessionStart` carries the player's `Vary settings` choice
+  (`varySettings`) in place of `mutation`. `mutationFlagFor` turns it into the flag: off, or on
+  with a seed drawn from the workspace's seed provider before the engine asks for any attempt
+  seed. With the choice off no seed is drawn, so such a session draws the seeds it drew before the
+  flag existed. The seed is kept in the session's start, so the session replays from its inputs.
+- **The display reading.** The controller hands the runner its rolling display's
+  `isPhraseOnScreen` for the held layout. The engine reads it only for a `settings-change`, which
+  no part of the app sends yet: the engine's own mutations land on a phrase not yet requested, and
+  never read it. The workspace harness sends one (`session.changeSettings`) to test the rule end
+  to end.
+- **The outputs.** A `phrase-discarded` takes the discarded look-ahead back from the phrase steps
+  and the display, before its tempo is fixed, so the same number is readied again. A
+  `settings-changed` goes to the settings the controls show (below).
+
+**The page's flag.** The controller holds `Vary settings` in memory for the page's life
+(`createVarySettingsFlag`, `src/components/workspace/workspace-session-settings.ts`): off at load
+(`SETTINGS_MUTATION_DEFAULT`, spec D176), kept from one session to the next, changed with
+`setVarySettings(on)` only outside a session (at Idle or while the Review shows); a change during
+the count-in or a running session throws. The "During a session" group shows it
+(`SessionOptionsControls.vue`), read-only during a generation, a session, or while the controller
+loads.
+
+**What the controls show.** `state.shownSettings` is what the read-only controls show while a
+session runs (`createSessionShownSettings`): the start settings, the player's own, during the
+count-in, then what the phrase now sounding was generated with. A `settings-changed` output is
+kept until a generated phrase it applies to starts sounding, on the audio clock, and shows from
+that instant; a repeat shows nothing new, so a change landing on a repeat first shows with the next
+generated phrase. When several are due at once the latest reported wins. The shell renders the
+controls from it, and from the player's Idle settings when it is null.
+
+**The restore at the end (spec D182).** The session never writes the player's Idle controls or
+profile selection: it reads them at its start and changes only what it shows. Every end's teardown
+sets `shownSettings` back to null, before the end asks Idle for its fresh phrase, so the controls
+show the player's own settings again, a `Varying` register and the profile's customized marking
+included, and the fresh phrase is generated from them. The flag's own choice is untouched. The
+preset status's live region is `aria-live="off"` from the start, before the count-in renders, and
+polite again only once the player's values have rendered back, so neither a change nor the return
+is announced.
 
 ## Multi-phrase tension arc
 
@@ -1326,9 +1358,9 @@ The settings-mutation choices were made in chunk 24:
   reproducible as the first draw, and a mutation is never skipped.
 - **The decided phrase is kept until it sounds,** with the notice before its decision, so a
   settings change can take the decision back cleanly.
-- **The workspace refuses what it cannot handle yet.** A `settings-changed` or `phrase-discarded`
-  output, or a display read, throws in the workspace runner until chunk 25, rather than being
-  dropped.
+- **The workspace refused what it could not handle yet.** Until chunk 25 connected them, a
+  `settings-changed` or `phrase-discarded` output, or a display read, threw in the workspace
+  runner rather than being dropped.
 
 The multi-phrase tension arc's choices were made in chunk 29:
 
@@ -1361,3 +1393,24 @@ The rolling display's choices were made in chunk 16:
   the session like Stop.
 - **The entry chunk's budget rose from 212 KiB to 220 KiB** (`scripts/verify-boundaries.mjs`) for
   `PhraseScore`'s session mode and its wiring, which must be in place when the first phrase shows.
+
+The settings-mutation control's choices were made in chunk 25:
+
+- **The session shows its settings; it never writes the player's.** The controls render from the
+  controller's `shownSettings` while a session runs, and the Idle controls and profile selection
+  are never touched. The restore at the end (spec D182) is then the teardown dropping what the
+  session showed: nothing can be left half-restored, a `Varying` register and the profile's
+  customized marking come back as they were, and the fresh phrase reads the player's settings
+  because they never changed. The tempo control already worked this way.
+- **A change shows at the phrase that sounds with it, not when it is decided.** The engine reports
+  a mutation one phrase ahead; the controller keeps it until that phrase, or a later generated one
+  after a repeat, starts sounding on the audio clock (ux D157, D170).
+- **The flag lives in the controller,** beside the adaptive-tempo flag, for the page's life. The
+  control is read-only while the controller's chunk loads, since nothing could hold the choice.
+- **The mutation seed is drawn first, from the workspace's seed provider,** only when the flag is
+  on, so a session without it draws exactly the seeds it drew before, and the harness can queue a
+  seed that gives a known mutation.
+- **A settings change from the harness only.** No part of the app sends a `settings-change`: the
+  mutations never discard. The runner's `dispatch` accepts one, and the workspace harness sends it
+  through a substitute of the runner module, so the discard rule is tested end to end against the
+  real rolling display.

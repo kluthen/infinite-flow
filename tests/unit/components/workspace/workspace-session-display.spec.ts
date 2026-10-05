@@ -356,3 +356,40 @@ describe('session display: fit', () => {
     expect(() => rig.display.isPhraseOnScreen(0)).toThrow()
   })
 })
+
+// @test-link [[module_session_rolling_display]]
+// @test-link [[rule_session_change_applies_at_phrase_boundary]]
+describe('session display: a discarded look-ahead phrase', () => {
+  // @test-link [[rule_session_change_applies_at_phrase_boundary]]
+  it('takes back a readied phrase none of which is on screen, and readies its number again', () => {
+    const rig = displayRig('split')
+    rig.readyThrough(2)
+    const before = rig.staff()
+    expect(rig.display.isPhraseOnScreen(2)).toBe(false)
+
+    rig.display.phraseDiscarded(2)
+    expect(rig.published.at(-1)!.latestReady).toBe(1)
+    expect(keys(rig.staff())).toEqual(keys(before))
+    expect(rig.staff().top?.phrase).toBe(before.top?.phrase)
+
+    const regenerated = phraseOneFor(SETTINGS, { seed: 999 })
+    const again: SessionPhrase = { ...sessionPhrase(2), ...regenerated }
+    rig.display.phraseReady(again)
+    rig.frameAt(FIRST_BARLINE + 2)
+    expect(keys(rig.staff())).toEqual(['2:opening', '1:closing'])
+    expect(rig.staff().top?.phrase).toEqual(writtenOf(again))
+  })
+
+  // @test-link [[rule_session_change_applies_at_phrase_boundary]]
+  it('refuses to discard a phrase on screen, phrase 1, or one that is not the latest readied', () => {
+    const shown = displayRig('one-system')
+    shown.readyThrough(2)
+    expect(() => shown.display.phraseDiscarded(2)).toThrow(/on screen/)
+    expect(() => shown.display.phraseDiscarded(1)).toThrow(/cannot be discarded/)
+
+    const split = displayRig('split')
+    split.readyThrough(3)
+    expect(() => split.display.phraseDiscarded(2)).toThrow(/cannot be discarded/)
+    expect(split.published.at(-1)!.latestReady).toBe(3)
+  })
+})

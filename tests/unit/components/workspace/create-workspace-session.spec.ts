@@ -433,9 +433,11 @@ describe('composeWorkspaceSession session runner', () => {
         },
         phraseOne: { intent: idle!.intent, outcome: idle!.outcome },
         adaptiveTempo: false,
+        varySettings: false,
       },
       checkFit: async () => true,
       now: () => 0.1,
+      display: { isPhraseOnScreen: () => false },
       onOutput: (output) => outputs.push(output),
       onError: (error) => errors.push(error),
     })
@@ -474,9 +476,11 @@ describe('composeWorkspaceSession session runner', () => {
         },
         phraseOne: { intent: idle.intent, outcome: idle.outcome },
         adaptiveTempo: false,
+        varySettings: false,
       },
       checkFit: async () => true,
       now: () => 0.1,
+      display: { isPhraseOnScreen: () => false },
       onOutput: () => undefined,
       onError: (error) => {
         throw error
@@ -550,9 +554,11 @@ describe('composeWorkspaceSession phrase replay key', () => {
         },
         phraseOne: { intent: idle.intent, outcome: idle.outcome },
         adaptiveTempo: false,
+        varySettings: false,
       },
       checkFit: async () => true,
       now: () => 0.1,
+      display: { isPhraseOnScreen: () => false },
       onOutput: (output) => {
         outputs.push(output)
         linesWhenForwarded.push(deps.replayKeyLines.length)

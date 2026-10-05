@@ -2353,7 +2353,13 @@ spec D176 (cadence and default) and D177 (the flag with `Eighth`).
 
 ### Chunk 25 — Settings-mutation control
 
-**Release:** v2.1.
+**Release:** v2.1. **Done on 2026-10-05.** `Vary settings`, `Off` at load, sits in a new "During a
+session" control group, settable at Idle and in the Review and read-only during a session; on, a
+session runs chunk 24's mutations from a seed drawn at its start. The locked controls show what the
+sounding phrase was generated with, changing at its first beat inside fixed boxes, with the preset
+status silent; the player's own settings are never written, so every end shows them again before
+the fresh phrase is generated from them. The engine reads the rolling display for a settings
+change, which only the workspace harness sends, since a mutation never lands on a drawn phrase.
 
 **Goal.** The flag's on/off control, the settings panel quietly showing each automatic change, and
 the flag running in the real session: chunk 24's engine connected to the rolling display.
@@ -2361,8 +2367,10 @@ the flag running in the real session: chunk 24's engine connected to the rolling
 **Spec sections:** [§5](master-spec.md#5-control-changes-during-a-session),
 [§11, v2.1](master-spec.md#added-by-v21-and-later).
 
-**Design docs:** not designed yet: the settings-mutation flag UI, unit 10 in
-[`ui_ux/todo.md`](../../../ui_ux/todo.md).
+**Design docs:** the settings-mutation flag UI, `Vary settings`, unit 10 in
+[`ui_ux/todo.md`](../../../ui_ux/todo.md) (ux D155–D157, D167–D171), owner-confirmed on 2026-10-05,
+in [`ui_ux/screens/phrase-workspace/`](../../../ui_ux/screens/phrase-workspace/) and
+[`ui_ux/flows/play-session/`](../../../ui_ux/flows/play-session/).
 
 **Atoms:** `req_settings_mutation_flag`, `rule_automatic_change_updates_controls_quietly`,
 `rule_session_settings_locked`, `rule_session_change_applies_at_phrase_boundary`; v1:
@@ -2392,10 +2400,10 @@ the flag running in the real session: chunk 24's engine connected to the rolling
   each change as a `settings-changed` output carrying the complete new settings; it never writes
   the player's controls, so nothing restores them until the controller keeps the settings chosen
   at the start and puts them back at the end
-  ([`docs/session-engine.md`](../../../docs/session-engine.md#until-chunk-25)).
+  ([`docs/session-engine.md`](../../../docs/session-engine.md#in-the-workspace)).
 
-**Blocked by:** design: the settings-mutation flag UI, unit 10 in `ui_ux/todo.md`. (O77, its
-cadence and default, was answered on 2026-10-03: spec D176.)
+**Blocked by:** nothing (design unit 10 done, owner-confirmed 2026-10-05). O77, its cadence and
+default, was answered on 2026-10-03: spec D176.
 
 ### Chunk 26 — v2.1 release gate
 

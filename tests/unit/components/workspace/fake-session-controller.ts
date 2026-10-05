@@ -32,6 +32,7 @@ export interface FakeSessionController {
   readonly dispose: Mock<() => void>
   readonly closeReview: Mock<() => void>
   readonly showReview: Mock<() => void>
+  readonly setVarySettings: Mock<(on: boolean) => void>
 }
 
 /** Intent: whether the fake's session staff shows any part of phrase `phraseNumber`. */
@@ -102,6 +103,8 @@ export function createFakeSessionController(
     sessionHasController: null,
     adaptiveTempo: false,
     adaptiveTempoAvailable: false,
+    varySettings: false,
+    shownSettings: null,
     ...overrides,
   })
   /** Intent: show `review`, which blocks a start, as the real start conditions do. */
@@ -127,6 +130,7 @@ export function createFakeSessionController(
     state.heldLayout = null
     state.sessionStaff = null
     state.latestReady = null
+    state.shownSettings = null
     state.canStart = true
     state.startBlocker = null
     state.lastEnd = { cause: 'stop', phase, soundedPhraseCount: phase === 'running' ? 1 : 0 }
@@ -150,6 +154,10 @@ export function createFakeSessionController(
   const setAdaptiveTempo = (on: boolean): void => {
     state.adaptiveTempo = on
   }
+  const setVarySettings = vi.fn((on: boolean): void => {
+    if (state.phase !== 'idle') throw new Error('fake controller: vary settings during a session')
+    state.varySettings = on
+  })
   return {
     controller: {
       state,
@@ -160,6 +168,7 @@ export function createFakeSessionController(
       closeReview,
       showReview,
       setAdaptiveTempo,
+      setVarySettings,
     },
     state,
     start,
@@ -167,5 +176,6 @@ export function createFakeSessionController(
     dispose,
     closeReview,
     showReview,
+    setVarySettings,
   }
 }

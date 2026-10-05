@@ -218,7 +218,7 @@ test('manually editing a preset-controlled value clears the preset selection to 
 
   const presetGroup = page.getByRole('radiogroup', { name: 'Musical profile preset' })
   await expect(presetGroup.getByRole('radio', { checked: true })).toHaveCount(0)
-  await expect(page.locator('.preset-status')).toHaveText(
+  await expect(page.locator('.preset-status-text:not(.is-reserve)')).toHaveText(
     'Custom configuration - Neutral grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
   )
   await expect(page.locator('.control-summary')).toHaveText(

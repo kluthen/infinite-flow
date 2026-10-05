@@ -19,7 +19,7 @@ import type { SessionHistory, WallClock } from '@/session/session-history'
 import type { SessionRunner, SessionTransportEvent } from '@/session/session-runner'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import type { StartingNote } from '@/session/starting-note'
-import type { SessionEndCause } from '@/session/session-types'
+import type { SessionEndCause, SessionSettings } from '@/session/session-types'
 import type { StaffLayout, StaffViewport } from '@/notation/notation-layout-policy'
 import type { StaffFitVerdict, StaffFixedParts } from '@/notation/staff-fit-types'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
@@ -114,6 +114,17 @@ export interface SessionControllerState {
   readonly adaptiveTempo: boolean
   /** Whether adaptive tempo may be turned on: exactly while a controller is attached. */
   readonly adaptiveTempoAvailable: boolean
+  /**
+   * The page's `Vary settings` flag: off at page load, kept from one session to the next, held in
+   * memory only. A session started with it on runs the engine's settings mutations.
+   */
+  readonly varySettings: boolean
+  /**
+   * What the read-only controls show while a session runs: its start settings during the
+   * count-in, then the settings the phrase now sounding was generated with; null with no session,
+   * when the controls show the player's own choices, which a session never writes.
+   */
+  readonly shownSettings: SessionSettings | null
 }
 
 /** The session controller a screen binds to. */
@@ -149,6 +160,11 @@ export interface SessionController {
    * running session, and when turning it on with no controller attached.
    */
   readonly setAdaptiveTempo: (on: boolean) => void
+  /**
+   * Turn the page's `Vary settings` flag on or off, at Idle or while the Review shows only:
+   * throws during the count-in or a running session.
+   */
+  readonly setVarySettings: (on: boolean) => void
   /**
    * End a running session, stop reading the window and listening to the MIDI controller, and
    * dispose of the wake-up timer (its worker). Throws if called twice.
@@ -228,7 +244,7 @@ export interface SessionControllerDependencies {
 /**
  * A caller broke the controller's contract: a start while blocked, a Stop with no session, a
  * Review closed or shown out of turn, adaptive tempo changed during a session or turned on with
- * no controller attached.
+ * no controller attached, `Vary settings` changed during a session.
  */
 // @spec-link [[service_workspace_session_flow]]
 export class SessionControllerError extends Error {

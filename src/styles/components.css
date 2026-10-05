@@ -491,12 +491,6 @@
     display: grid;
     font-size: var(--text-sm);
   }
-  /* Interim: the v1 markup (one text, `is-custom` on the status) until chunk 25 builds the
-     two-text status; remove this rule with it. */
-  .preset-status.is-custom {
-    color: var(--color-text);
-    font-weight: 700;
-  }
   .preset-status-text {
     grid-area: 1 / 1;
   }

@@ -30,6 +30,12 @@ export default defineConfig({
       '@/export/load-generated-notes-export': fileURLToPath(
         new URL('./tests/e2e/workspace-harness/export-loader-seam.ts', import.meta.url),
       ),
+      // The harness-only substitute for the workspace's session runner module: the real runner,
+      // the latest one kept so `session.changeSettings()` can send it an automatic settings change
+      // (see session-runner-seam.ts), which no part of the app sends yet.
+      '@/components/workspace/workspace-session-runner': fileURLToPath(
+        new URL('./tests/e2e/workspace-harness/session-runner-seam.ts', import.meta.url),
+      ),
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },

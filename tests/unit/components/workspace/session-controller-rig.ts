@@ -12,7 +12,8 @@
  * The MIDI controller is a real one on a fake MIDI access, its notes placed on the same fake audio
  * clock; nothing is plugged in and MIDI access was never asked for until a test connects. The
  * connection sheet's open flag is the test's to set. The Idle side's fresh-phrase action only logs
- * what the controller showed when it was asked: the Idle state stays as the test left it.
+ * what the controller showed when it was asked: the Idle state stays as the test left it. A test
+ * can send the latest runner an automatic settings change, which no part of the app sends yet.
  */
 import { shallowReactive, shallowRef, type ShallowRef } from 'vue'
 
@@ -31,7 +32,11 @@ import type { MutableGenerationSessionState } from '@/composables/use-generation
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
-import type { SessionRunner, SessionTransportEvent } from '@/session/session-runner'
+import type {
+  SessionRunner,
+  SessionRunnerEvent,
+  SessionTransportEvent,
+} from '@/session/session-runner'
 import type { AudioTime, SessionOutput, SessionSettings } from '@/session/session-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { createMidiController } from '@/midi/midi-controller'
@@ -111,6 +116,8 @@ export interface FreshPhraseRequest {
   readonly review: SessionReview | null
   /** How many staff reports had reached the Idle machinery by then. */
   readonly idleReports: number
+  /** The settings the controls showed then: null once the session's were dropped. */
+  readonly shownSettings: SessionSettings | null
 }
 
 /** A controller and every seam around it, in the test's hand. */
@@ -132,8 +139,8 @@ export interface ControllerRig {
   readonly timers: FakeWakeTimer[]
   /** Every output of every runner, in order. */
   readonly outputs: SessionOutput[]
-  /** Every transport event the controller dispatched, in order. */
-  readonly events: SessionTransportEvent[]
+  /** Every event a runner was sent (transport events, a test's settings changes), in order. */
+  readonly events: SessionRunnerEvent[]
   /** What the controller passed to each runner it created. */
   readonly runnerInputs: WorkspaceSessionRunnerInput[]
   /** Replace the generate script from the next request on. */
@@ -156,6 +163,8 @@ export interface ControllerRig {
   readonly freshPhraseRequests: FreshPhraseRequest[]
   /** Hand the latest runner's output sink an output no real engine would give, as a broken one. */
   readonly injectOutput: (output: SessionOutput) => void
+  /** Send the latest runner an automatic settings change at the audio clock's time now. */
+  readonly changeSettings: (settings: SessionSettings) => void
 }
 
 /** Intent: let every pending promise (generation answers, fit checks, lock outcomes) settle. */
@@ -213,7 +222,7 @@ export function controllerRig(
   })
   const timers: FakeWakeTimer[] = []
   const outputs: SessionOutput[] = []
-  const events: SessionTransportEvent[] = []
+  const events: SessionRunnerEvent[] = []
   const runnerInputs: WorkspaceSessionRunnerInput[] = []
   let current = script
   let broken: SessionTransportEvent['kind'] | null = null
@@ -237,6 +246,7 @@ export function controllerRig(
   const sheetOpen = shallowRef(false)
   const freshPhraseRequests: FreshPhraseRequest[] = []
   let built: SessionController | null = null
+  const runners: SessionRunner[] = []
 
   /** Intent: log what the controller shows when it asks for a fresh phrase; Idle stays as it is. */
   function startFreshPhrase(): Promise<boolean> {
@@ -245,13 +255,14 @@ export function controllerRig(
       phase: built.state.phase,
       review: built.state.review,
       idleReports: idleReports.length,
+      shownSettings: built.state.shownSettings,
     })
     return Promise.resolve(true)
   }
 
   /**
-   * Intent: a real workspace runner (the flag off, the display reading not yet connected) on the
-   * scripted generate seam, logging what passes through it.
+   * Intent: a real workspace runner (the mutation flag as the controller's start says, the display
+   * reading the controller's) on the scripted generate seam, logging what passes through it.
    */
   function createRunner(input: WorkspaceSessionRunnerInput): SessionRunner {
     runnerInputs.push(input)
@@ -262,6 +273,7 @@ export function controllerRig(
         now: input.now,
         providers,
         viewport: fakeViewport(false),
+        display: input.display,
         onOutput: (output) => {
           outputs.push(output)
           input.onOutput(output)
@@ -270,13 +282,15 @@ export function controllerRig(
       },
       input.start,
     )
-    return {
+    const logged: SessionRunner = {
       dispatch: (event) => {
         events.push(event)
         if (event.kind === broken) throw new Error(`${event.kind} broken`)
         runner.dispatch(event)
       },
     }
+    runners.push(logged)
+    return logged
   }
 
   const controller = createSessionController({
@@ -336,6 +350,11 @@ export function controllerRig(
       const input = runnerInputs.at(-1)
       if (input === undefined) throw new Error('rig: no runner to inject an output through')
       input.onOutput(output)
+    },
+    changeSettings: (settings) => {
+      const runner = runners.at(-1)
+      if (runner === undefined) throw new Error('rig: no runner to send a settings change to')
+      runner.dispatch({ kind: 'settings-change', at: audioRig.now(), settings })
     },
   }
 }

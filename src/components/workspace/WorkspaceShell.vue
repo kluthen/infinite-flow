@@ -11,7 +11,11 @@
  * connection: the header `controller-status` it feeds, the click that opens the lazily loaded
  * connection sheet, whether the sheet is open (reported to the workspace as it changes), and where
  * focus goes when the sheet closes. It also runs the last session's Review from the screen: `Close
- * review` and `Review last session`, each scrolling the page to its top and moving focus.
+ * review` and `Review last session`, each scrolling the page to its top and moving focus. While a
+ * session runs, the read-only controls show what the controller says the phrase now sounding was
+ * generated with, and the preset status announces nothing; at the end they show the player's own
+ * choices again, and the status announces again once those have rendered. The page's `Vary
+ * settings` choice goes to the controller.
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -122,6 +126,54 @@ const sessionActive = computed(
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[rule_readonly_controls_keep_contrast]]
 const controlsReadonly = computed(() => state.value.operation !== 'idle' || sessionActive.value)
+
+/**
+ * The "During a session" options take the same read-only treatment, and stay read-only while the
+ * controller, which holds them, is still loading.
+ */
+// @spec-link [[req_settings_mutation_flag]]
+// @spec-link [[rule_readonly_controls_keep_contrast]]
+const sessionOptionsReadonly = computed(() => controlsReadonly.value || props.controller === null)
+
+/** The page's `Vary settings` flag, off while the controller loads (as it is at page load). */
+// @spec-link [[req_settings_mutation_flag]]
+const varySettings = computed(() => props.controller?.state.varySettings ?? false)
+
+/**
+ * The settings the controls show: during a session, those the controller says the phrase now
+ * sounding was generated with; otherwise the player's own, which a session never writes.
+ */
+// @spec-link [[rule_automatic_change_updates_controls_quietly]]
+// @spec-link [[rule_mutation_reverts_at_session_end]]
+const shownSettings = computed(() => {
+  const session = props.controller?.state.shownSettings ?? null
+  return session === null
+    ? { controls: state.value.controls, profileSelection: state.value.profileSelection }
+    : { controls: session.controls, profileSelection: session.musicalProfile }
+})
+
+/**
+ * The preset status's live announcement: off from a session's start, before its count-in renders
+ * (a sync watcher), so no automatic change is announced; polite again only once the screen has
+ * rendered the player's own values back at its end (a post-flush watcher), so neither is the
+ * return.
+ */
+// @spec-link [[rule_automatic_change_updates_controls_quietly]]
+const presetStatusLive = ref<'polite' | 'off'>('polite')
+watch(
+  sessionActive,
+  (active) => {
+    if (active) presetStatusLive.value = 'off'
+  },
+  { flush: 'sync' },
+)
+watch(
+  sessionActive,
+  (active, wasActive) => {
+    if (!active && wasActive) presetStatusLive.value = 'polite'
+  },
+  { flush: 'post' },
+)
 
 const emit = defineEmits<{
   /**
@@ -350,6 +402,12 @@ function handleSelectInstrumentProfile(id: GenerationControls['instrumentProfile
   void props.session.actions.selectInstrumentProfile(id)
 }
 
+/** Intent: forward the player's `Vary settings` choice to the controller, which holds it. */
+// @spec-link [[req_settings_mutation_flag]]
+function handleSetVarySettings(on: boolean): void {
+  requireController().setVarySettings(on)
+}
+
 /** Intent: forward a musical-profile preset selection onto the session's own action. */
 function handleSelectMusicalProfile(profile: MusicalProfile): void {
   props.session.actions.selectMusicalProfile(profile)
@@ -384,13 +442,17 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         @show-review="reviewNavigation.showReview"
       />
       <ControlPanel
-        :controls="state.controls"
-        :profile-selection="state.profileSelection"
+        :controls="shownSettings.controls"
+        :profile-selection="shownSettings.profileSelection"
         :readonly="controlsReadonly"
         :note-density-context="state.noteDensityContext"
+        :vary-settings="varySettings"
+        :session-options-readonly="sessionOptionsReadonly"
+        :preset-status-live="presetStatusLive"
         @set-control="handleSetControl"
         @select-instrument-profile="handleSelectInstrumentProfile"
         @select-musical-profile="handleSelectMusicalProfile"
+        @set-vary-settings="handleSetVarySettings"
       />
     </div>
   </main>

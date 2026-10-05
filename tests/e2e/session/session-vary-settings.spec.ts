@@ -1,0 +1,240 @@
+/**
+ * v2.1 chunk 25, `Vary settings` through the whole app on the workspace harness's fake audio
+ * clock (port 4175). The control starts off, is set at Idle and in the Review, and is read-only
+ * during a session. With it on, a mutation shows in the locked controls at the instant the phrase
+ * generated with it starts sounding, with nothing in the control section moving; at the session's
+ * end, by a hidden tab or by Stop, the controls show the player's own settings again (the profile's
+ * customized marking and a `Varying` register included) and the fresh phrase is generated from
+ * them. A settings change made while the next phrase is partly drawn as read-ahead leaves that
+ * phrase as drawn and first shows in the phrase after it.
+ *
+ * Each session's mutation seed is the first seed drawn at its start, queued here: seed 12 flips
+ * the musical profile on phrase 3, seed 25 steps the register on phrase 3 (spec D181 scales).
+ */
+import { expect, test, type Locator, type Page } from '@playwright/test'
+
+import { clockTo } from './session-midi-helpers'
+import { drawnKeys, settledStaff, toBarline, untilReady } from './rolling-helpers'
+import {
+  BEAT,
+  DESKTOP,
+  PHONE,
+  gotoSessionHarness,
+  readyToStart,
+  sessionAction,
+  sessionState,
+  sessionTimeline,
+  startSession,
+} from './session-helpers'
+
+/** One measure at the default 90 BPM, in seconds. */
+const MEASURE = 4 * BEAT
+
+/** The mutation seed that flips the musical profile on phrase 3. */
+const FLIP_ON_PHRASE_3 = 12
+/** The mutation seed that steps the register on phrase 3. */
+const REGISTER_ON_PHRASE_3 = 25
+
+/** Intent: a radiogroup of the control section by its accessible name. */
+function radiogroup(page: Page, name: string): Locator {
+  return page.getByRole('radiogroup', { name })
+}
+
+/** Intent: the label of a radiogroup's checked segment, or null when none is checked. */
+async function checkedIn(page: Page, name: string): Promise<string | null> {
+  const checked = radiogroup(page, name).locator('[role="radio"][aria-checked="true"]')
+  return (await checked.count()) === 0 ? null : checked.innerText()
+}
+
+/** Intent: the preset status's text in use. */
+function presetStatus(page: Page): Locator {
+  return page.locator('.preset-status-text:not(.is-reserve)')
+}
+
+/** Intent: turn `Vary settings` on with a click on its `On` segment. */
+async function turnVarySettingsOn(page: Page): Promise<void> {
+  await radiogroup(page, 'Vary settings').getByRole('radio', { name: 'On' }).click()
+  expect(await checkedIn(page, 'Vary settings')).toBe('On')
+}
+
+/** Intent: when phrase `n` starts sounding, at the default 90 BPM. */
+async function phraseStart(page: Page, n: number): Promise<number> {
+  return (await sessionTimeline(page)).countInEndsAt + 4 * (n - 1) * MEASURE
+}
+
+/**
+ * Intent: the box of every element of the control section, in document order (its classes may
+ * change, its geometry may not), the page's scroll and the animations running in the section,
+ * read in one task.
+ */
+function controlSectionLayout(page: Page) {
+  return page.evaluate(() => {
+    const section = document.querySelector('.control-section')
+    if (section === null) throw new Error('no control section')
+    return {
+      boxes: [section, ...section.querySelectorAll('*')].map((element) => {
+        const box = element.getBoundingClientRect()
+        return `${element.tagName} ${box.x},${box.y} ${box.width}x${box.height}`
+      }),
+      scrollY: window.scrollY,
+      animations: section.getAnimations({ subtree: true }).length,
+    }
+  })
+}
+
+/** Intent: the settings of the latest `generate` call made after `count` earlier ones. */
+async function requestAfter(page: Page, count: number): Promise<WorkspaceHarnessGenerationRequest> {
+  let latest: WorkspaceHarnessGenerationRequest | undefined
+  await expect
+    .poll(async () => {
+      const requests = await page.evaluate(() => window.__workspaceHarness.generationRequests())
+      latest = requests.length > count ? requests.at(-1) : undefined
+      return latest !== undefined
+    })
+    .toBe(true)
+  return latest!
+}
+
+/** Intent: how many `generate` calls the page has made. */
+async function requestCount(page: Page): Promise<number> {
+  return (await page.evaluate(() => window.__workspaceHarness.generationRequests())).length
+}
+
+// @test-link [[req_settings_mutation_flag]]
+// @test-link [[rule_automatic_change_updates_controls_quietly]]
+// @test-link [[rule_mutation_reverts_at_session_end]]
+// @test-link [[rule_mutation_profile_flip_keeps_controls]]
+// @test-link [[rule_mutation_marks_profile_customized]]
+test('a profile flip shows in place at its phrase with nothing moving, and a hidden tab restores it', async ({
+  page,
+}) => {
+  test.setTimeout(90_000)
+  await gotoSessionHarness(page, DESKTOP)
+  expect(await checkedIn(page, 'Vary settings')).toBe('Off')
+  await expect(radiogroup(page, 'Vary settings')).toHaveAccessibleDescription(
+    'Every 2 to 4 phrases, one setting moves one step. Never the instrument or the tempo. Your settings come back when the session ends.',
+  )
+  await readyToStart(page)
+  const idleRequest = (
+    await page.evaluate(() => window.__workspaceHarness.generationRequests())
+  ).at(-1)!
+  await turnVarySettingsOn(page)
+
+  await page.evaluate((seed) => window.__workspaceHarness.queueSeeds([seed]), FLIP_ON_PHRASE_3)
+  await startSession(page)
+  await expect(radiogroup(page, 'Vary settings')).toHaveAttribute('aria-readonly', 'true')
+  await expect(page.locator('.preset-status')).toHaveAttribute('aria-live', 'off')
+
+  const phraseThree = await phraseStart(page, 3)
+  await clockTo(page, phraseThree - 0.1)
+  await expect(presetStatus(page)).toHaveText(/^Neutral preset applied/)
+  expect(await checkedIn(page, 'Musical profile preset')).toBe('Neutral')
+  const before = await controlSectionLayout(page)
+
+  await clockTo(page, phraseThree + 0.1)
+  await expect(presetStatus(page)).toHaveText(
+    'Custom configuration - Jazz grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
+  )
+  await expect(page.locator('.control-summary')).toHaveText(
+    'C Ionian · Custom (Jazz grammar) · Lift · Shaped',
+  )
+  expect(await checkedIn(page, 'Musical profile preset')).toBeNull()
+  expect(await checkedIn(page, 'Leapiness')).toBe('Shaped')
+  const after = await controlSectionLayout(page)
+  expect(after).toEqual(before)
+  expect(after.animations).toBe(0)
+  await expect(page.locator('.preset-status')).toHaveAttribute('aria-live', 'off')
+
+  const requestsAtEnd = await requestCount(page)
+  await page.evaluate(() => window.__workspaceHarness.page.setHidden(true))
+  expect((await sessionState(page)).lastEnd?.cause).toBe('hidden-tab')
+  await expect(presetStatus(page)).toHaveText(/^Neutral preset applied/)
+  expect(await checkedIn(page, 'Musical profile preset')).toBe('Neutral')
+  await expect(page.locator('.control-summary')).toHaveText('C Ionian · Neutral · Lift · Shaped')
+  await expect(page.locator('.preset-status')).toHaveAttribute('aria-live', 'polite')
+  expect(await checkedIn(page, 'Vary settings')).toBe('On')
+
+  const fresh = await requestAfter(page, requestsAtEnd)
+  expect(fresh.musicalProfile).toEqual(idleRequest.musicalProfile)
+  expect(fresh.controls).toEqual(idleRequest.controls)
+  expect(fresh.carryIn).toBe(false)
+})
+
+// @test-link [[req_settings_mutation_flag]]
+// @test-link [[rule_mutation_reverts_at_session_end]]
+// @test-link [[rule_varying_register_once_per_session]]
+test('a register stepped from Varying is Varying again after Stop, and the flag is set in the Review', async ({
+  page,
+}) => {
+  test.setTimeout(90_000)
+  await gotoSessionHarness(page, DESKTOP)
+  await radiogroup(page, 'Musical profile preset').getByRole('radio', { name: 'Jazz' }).click()
+  await readyToStart(page)
+  expect(await checkedIn(page, 'Register')).toBe('Varying')
+  await turnVarySettingsOn(page)
+
+  await page.evaluate((seed) => window.__workspaceHarness.queueSeeds([seed]), REGISTER_ON_PHRASE_3)
+  await startSession(page)
+  await clockTo(page, (await phraseStart(page, 3)) + 0.1)
+  await expect.poll(async () => checkedIn(page, 'Register')).toMatch(/^(Low|Middle|High)$/)
+  await expect(presetStatus(page)).toHaveText(/^Custom configuration - Jazz grammar retained/)
+
+  const requestsAtEnd = await requestCount(page)
+  await sessionAction(page).click()
+  expect((await sessionState(page)).lastEnd?.cause).toBe('stop')
+  expect(await checkedIn(page, 'Register')).toBe('Varying')
+  expect(await checkedIn(page, 'Musical profile preset')).toBe('Jazz')
+  await expect(presetStatus(page)).toHaveText(/^Jazz preset applied/)
+  const fresh = await requestAfter(page, requestsAtEnd)
+  expect(fresh.controls.register).toBe('Varying')
+  expect(fresh.musicalProfile).toEqual({ musicalProfile: 'Jazz', isCustom: false })
+
+  expect((await sessionState(page)).review?.showing).toBe(true)
+  await expect(radiogroup(page, 'Vary settings')).not.toHaveAttribute('aria-readonly', 'true')
+  await radiogroup(page, 'Vary settings').getByRole('radio', { name: 'Off' }).click()
+  expect(await checkedIn(page, 'Vary settings')).toBe('Off')
+  expect((await sessionState(page)).varySettings).toBe(false)
+})
+
+// @test-link [[rule_session_change_applies_at_phrase_boundary]]
+// @test-link [[module_session_rolling_display]]
+test('a change while the next phrase is partly drawn leaves it as drawn and shows from the phrase after', async ({
+  page,
+}) => {
+  test.setTimeout(90_000)
+  await gotoSessionHarness(page, PHONE)
+  await readyToStart(page)
+  await startSession(page)
+  expect((await sessionState(page)).heldLayout).toBe('split')
+
+  await toBarline(page, 2, 2)
+  await untilReady(page, 3)
+  const drawn = await settledStaff(page)
+  expect(drawnKeys(drawn)).toEqual({ top: '3:opening', bottom: '2:closing' })
+  const requestsBefore = await requestCount(page)
+
+  await page.evaluate(() =>
+    window.__workspaceHarness.session.changeSettings({ leapiness: 'Angular' }),
+  )
+
+  const unchanged = await settledStaff(page)
+  expect(unchanged.state.latestReady).toBe(3)
+  expect(unchanged.top).toEqual(drawn.top)
+  expect(await checkedIn(page, 'Leapiness')).toBe('Shaped')
+
+  await clockTo(page, (await phraseStart(page, 3)) + 0.1)
+  const sounding = await settledStaff(page)
+  expect(sounding.top?.key).toBe('3:opening')
+  expect(sounding.top?.notes).toEqual(drawn.top?.notes)
+  expect(await checkedIn(page, 'Leapiness')).toBe('Shaped')
+  expect((await sessionState(page)).shownSettings?.controls.leapiness).toBe('Shaped')
+
+  await clockTo(page, (await phraseStart(page, 4)) + 0.1)
+  await expect.poll(async () => checkedIn(page, 'Leapiness')).toBe('Angular')
+  const requests = await page.evaluate(() => window.__workspaceHarness.generationRequests())
+  const afterChange = requests.slice(requestsBefore)
+  expect(afterChange.length).toBeGreaterThan(0)
+  for (const request of afterChange) expect(request.controls.leapiness).toBe('Angular')
+  for (const request of requests.slice(0, requestsBefore))
+    expect(request.controls.leapiness).toBe('Shaped')
+})

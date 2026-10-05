@@ -442,6 +442,13 @@ interface WorkspaceHarnessSessionState {
   readonly adaptiveTempo: boolean
   /** Whether adaptive tempo may be turned on: exactly while a controller is attached. */
   readonly adaptiveTempoAvailable: boolean
+  /** The page's `Vary settings` flag: off at page load, kept from one session to the next. */
+  readonly varySettings: boolean
+  /**
+   * What the read-only controls show while a session runs (its start settings in the count-in,
+   * then those the phrase now sounding was generated with); null with no session.
+   */
+  readonly shownSettings: WorkspaceHarnessSettings | null
   /** The measure being played (0-based, 0 to 3); null in the count-in and with no session. */
   readonly playhead: { readonly phraseNumber: number; readonly measureIndex: number } | null
   /** The slot key each system position shows; both null with no session, one null when blank. */
@@ -474,6 +481,30 @@ interface WorkspaceHarnessSessionApi {
    * Throws before the controller has loaded.
    */
   setAdaptiveTempo: (on: boolean) => void
+  /**
+   * Send the running session an automatic settings change now, through its runner's own
+   * `dispatch`: the settings in effect with `controls` overriding some controls by name (written
+   * key, never tempo or instrument). No part of the app sends one yet. Throws with no runner, on
+   * an unknown value, and as the engine does (a tempo or instrument change, an ended session).
+   */
+  changeSettings: (controls: Readonly<Record<string, string>>) => void
+}
+
+/** Session settings as plain JSON: the generation controls and the musical profile selection. */
+interface WorkspaceHarnessSettings {
+  readonly controls: Readonly<Record<string, string | number>>
+  readonly musicalProfile: { readonly musicalProfile: string; readonly isCustom: boolean }
+}
+
+/** The settings one `generate` call was made with, as plain JSON. */
+interface WorkspaceHarnessGenerationRequest {
+  /** The player's written tonal center the intent was built from. */
+  readonly writtenTonalCenter: string
+  /** The intent's controls (its tonal center in concert pitch). */
+  readonly controls: Readonly<Record<string, string | number>>
+  readonly musicalProfile: { readonly musicalProfile: string; readonly isCustom: boolean }
+  /** Whether the request carried a carry-in (a session look-ahead joining the phrase before). */
+  readonly carryIn: boolean
 }
 
 interface WorkspaceHarnessApi {
@@ -523,6 +554,8 @@ interface WorkspaceHarnessApi {
    * `generate` answer since the page loaded, Idle and session look-ahead alike, in return order.
    */
   generatedTimelines: () => readonly string[]
+  /** The settings of every `generate` call since the page loaded, in call order. */
+  generationRequests: () => readonly WorkspaceHarnessGenerationRequest[]
   /**
    * Fix the wall clock the next session histories read their start time from (epoch
    * milliseconds), so the export's file names are known in advance; `null` reads the real clock

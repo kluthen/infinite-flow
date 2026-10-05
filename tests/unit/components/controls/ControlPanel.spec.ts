@@ -24,6 +24,9 @@ function mountPanel(
       profileSelection,
       readonly,
       noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
+      varySettings: false,
+      sessionOptionsReadonly: readonly,
+      presetStatusLive: 'polite',
     },
   })
 }
@@ -32,7 +35,13 @@ describe('ControlPanel', () => {
   it('renders the four control groups with their handoff headings', () => {
     const wrapper = mountPanel()
     const headings = wrapper.findAll('.control-group h3').map((h) => h.text())
-    expect(headings).toEqual(['Foundation', 'Rhythm', 'Melodic shape', 'Character'])
+    expect(headings).toEqual([
+      'Foundation',
+      'Rhythm',
+      'Melodic shape',
+      'Character',
+      'During a session',
+    ])
   })
 
   // @test-link [[module_generation_control_catalog]]
@@ -55,6 +64,7 @@ describe('ControlPanel', () => {
       'Register',
       'Leapiness',
       'Arpeggio chaos',
+      'Vary settings',
     ])
   })
 
@@ -109,10 +119,11 @@ describe('ControlPanel', () => {
   // @test-link [[rule_profile_presets_apply_defined_controls]]
   it('shows the applied-preset status text by default', () => {
     const wrapper = mountPanel()
-    expect(wrapper.get('.preset-status').text()).toBe(
+    const inUse = wrapper.get('.preset-status-text:not(.is-reserve)')
+    expect(inUse.text()).toBe(
       'Neutral preset applied. All seven preset-controlled values were replaced.',
     )
-    expect(wrapper.get('.preset-status').classes()).not.toContain('is-custom')
+    expect(inUse.classes()).not.toContain('is-custom')
   })
 
   it('shows the retained-grammar custom status text and clears the preset selection', () => {
@@ -120,10 +131,11 @@ describe('ControlPanel', () => {
       musicalProfile: 'Jazz',
       isCustom: true,
     })
-    expect(wrapper.get('.preset-status').text()).toBe(
+    const inUse = wrapper.get('.preset-status-text:not(.is-reserve)')
+    expect(inUse.text()).toBe(
       'Custom configuration - Jazz grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
     )
-    expect(wrapper.get('.preset-status').classes()).toContain('is-custom')
+    expect(inUse.classes()).toContain('is-custom')
     const presetGroup = wrapper
       .findAll('[role="radiogroup"]')
       .find((g) => g.attributes('aria-label') === 'Musical profile preset')!
@@ -180,5 +192,46 @@ describe('ControlPanel', () => {
     for (const fieldGroup of fieldGroups) {
       expect(fieldGroup.classes()).toContain('is-readonly')
     }
+  })
+
+  // @test-link [[rule_automatic_change_updates_controls_quietly]]
+  it('holds both preset status texts in one cell, the other one invisible, emphasis on the custom one', () => {
+    const preset = mountPanel()
+    const presetReserve = preset.get('.preset-status-text.is-reserve')
+    expect(presetReserve.attributes('aria-hidden')).toBe('true')
+    expect(presetReserve.text()).toBe(
+      'Custom configuration - Neutral grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
+    )
+    expect(presetReserve.classes()).toContain('is-custom')
+    expect(preset.get('.preset-status').classes()).not.toContain('is-custom')
+
+    const custom = mountPanel(DEFAULT_GENERATION_CONTROLS, {
+      musicalProfile: 'Jazz',
+      isCustom: true,
+    })
+    const customReserve = custom.get('.preset-status-text.is-reserve')
+    expect(customReserve.text()).toBe(
+      'Jazz preset applied. All seven preset-controlled values were replaced.',
+    )
+    expect(customReserve.classes()).not.toContain('is-custom')
+    expect(custom.findAll('.preset-status-text')).toHaveLength(2)
+  })
+
+  // @test-link [[rule_automatic_change_updates_controls_quietly]]
+  it('announces the preset status politely, or not at all when told so', () => {
+    expect(mountPanel().get('.preset-status').attributes('aria-live')).toBe('polite')
+    const quiet = mount(ControlPanel, {
+      props: {
+        controls: DEFAULT_GENERATION_CONTROLS,
+        profileSelection: DEFAULT_PROFILE_SELECTION,
+        readonly: true,
+        noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
+        varySettings: false,
+        sessionOptionsReadonly: true,
+        presetStatusLive: 'off',
+      },
+    })
+    expect(quiet.get('.preset-status').attributes('aria-live')).toBe('off')
+    expect(quiet.get('.preset-status').attributes('role')).toBe('status')
   })
 })

@@ -4,7 +4,9 @@
  * `window.__workspaceHarness.session`, a plain-JSON reading of its state. A spec starts and stops
  * sessions by clicking the app's own buttons, or by playing the starting note on the fake MIDI
  * access; the one action driven through it is the adaptive-tempo flag, which has no control on
- * screen yet (`setAdaptiveTempo`, the controller's own action). The one thing it may change is
+ * screen yet (`setAdaptiveTempo`, the controller's own action), and it sends the running session
+ * an automatic settings change through the runner seam (`changeSettings`), which no part of the
+ * app sends yet. The one thing it may change is
  * what the app reads as the Review's history: once `inflateHistory(n)` is called, the app is
  * handed the controller with a view of its state whose Review holds `n` phrases (the ended
  * session's own, repeated in order and numbered 1 to n), so a spec can show a long Review without
@@ -21,6 +23,7 @@ import type {
 import type { ExpectedNoteIdentity } from '../../../src/domain/acknowledgement/expected-note'
 import type { SessionHistory, SessionHistoryRecord } from '../../../src/session/session-history'
 import { slotKey, waitingMaterial } from '../../../src/session/rolling-display'
+import { changeSettings } from './session-runner-seam'
 
 /** Intent: a note identity as plain JSON. */
 function identityOf(identity: ExpectedNoteIdentity): WorkspaceHarnessNoteIdentity {
@@ -168,6 +171,14 @@ function snapshotOf(state: SessionControllerState): WorkspaceHarnessSessionState
     sessionHasController: state.sessionHasController,
     adaptiveTempo: state.adaptiveTempo,
     adaptiveTempoAvailable: state.adaptiveTempoAvailable,
+    varySettings: state.varySettings,
+    shownSettings:
+      state.shownSettings === null
+        ? null
+        : {
+            controls: { ...state.shownSettings.controls },
+            musicalProfile: { ...state.shownSettings.musicalProfile },
+          },
     ...rollingDisplayOf(state),
     latestReady: state.latestReady,
   }
@@ -210,6 +221,7 @@ export function createHarnessSessionController(): HarnessSessionController {
       },
       state: () => snapshotOf(controllerFor('state').state),
       setAdaptiveTempo: (on) => controllerFor('setAdaptiveTempo').setAdaptiveTempo(on),
+      changeSettings,
     },
   }
 }

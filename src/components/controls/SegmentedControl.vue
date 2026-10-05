@@ -6,7 +6,8 @@
  * `modelValue` renders the group with no checked segment (the custom musical-preset state), with
  * its first option acting as the roving tab stop until a selection exists. An option can be marked
  * unavailable (`disabled`): natively disabled, named by the element that says why, never checked,
- * and skipped by keyboard selection.
+ * and skipped by keyboard selection. The group can name an element describing it as a whole
+ * (`describedBy`), such as a session option's note.
  */
 import { computed, ref, watch } from 'vue'
 
@@ -17,6 +18,8 @@ const props = defineProps<{
   options: readonly SegmentedControlOption[]
   modelValue: string | null
   readonly: boolean
+  /** The id of an element describing the whole group, named by its `aria-describedby`. */
+  describedBy?: string
 }>()
 
 const emit = defineEmits<{
@@ -133,6 +136,7 @@ function focusOption(index: number): void {
     role="radiogroup"
     :aria-label="label"
     :aria-readonly="readonly ? 'true' : undefined"
+    :aria-describedby="describedBy"
   >
     <button
       v-for="(option, index) in options"
