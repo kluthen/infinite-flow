@@ -1,6 +1,6 @@
 ---
 id: module_notation_display_convention
-status: DRAFT
+status: REVIEW
 version: 2.1
 dependents:
   - [[service_headless_phrase_replay]]
@@ -11,6 +11,7 @@ tags: notation
 parents:
   - [[rule_notation_display_preserves_phrase]]
 type: MODULE
+notes: 2026-10-05: code and tests checked against the version 2.1 text after the ISS-006 stem-direction fix (which leaves written pitch untouched); promoted DRAFT to REVIEW under the owner's 2026-10-05 allowance.
 ---
 
 # Notation Written-Pitch Rendering

@@ -1,10 +1,10 @@
 ---
 id: module_notation_stem_direction
-status: DRAFT
+status: REVIEW
 type: MODULE
 human_name: Notation Stem Direction
 tags: notation
-notes: Captured 2026-10-05 before code (pre-code architecture capture). DRAFT pending review.
+notes: Captured 2026-10-05 before code (pre-code architecture capture). Implemented by the ISS-006 fix (39ac8ed, merged aee62af); code and tests checked against the text and promoted DRAFT to REVIEW the same day under the owner's 2026-10-05 allowance.
 layer: ARCHITECTURE
 parents:
   - [[rule_notation_display_preserves_phrase]]
