@@ -123,8 +123,8 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
 - `src/components/**` — Vue presentation components, props-in/events-out; `src/components/workspace/`
   holds the root session composition (`create-workspace-session.ts`, with the `matchMedia` width
   provider in `browser-viewport-width.ts` and the session's browser adapters in `browser-*.ts`),
-  the session controller (`workspace-session-controller.ts`, loaded as its own chunk, with
-  `workspace-session-runner.ts`, its runner starter, with the player's `Vary settings` and
+  the session controller (`workspace-session-controller.ts`, loaded as its own chunk together
+  with the sibling modules it is split into, with `workspace-session-runner.ts`, its runner starter, with the player's `Vary settings` and
   `Tension across phrases` choices) and the
   workspace component tree, the session action, cue row, audio mix and header `controller-status`
   included (see [`docs/phrase-workspace.md`](docs/phrase-workspace.md));
