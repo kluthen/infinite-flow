@@ -25,5 +25,5 @@
     "tests/e2e/workspace-harness/**/*.ts",
     "tests/e2e/workspace-harness-window.d.ts"
   ],
-  "exclude": ["tests/unit/boundaries/**"]
+  "exclude": ["tests/unit/boundaries/**", "tests/unit/code-health/**"]
 }

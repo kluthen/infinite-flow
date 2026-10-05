@@ -77,7 +77,7 @@ The seven non-negotiables. Each is **MUST/NEVER**, not a preference.
 
 ## 6. Code health — zero-error standard
 
-Enforced by `scripts/code_health_check.py`; treat its errors as blocking.
+Enforced by `scripts/code-health-check.mjs`; treat its errors as blocking.
 
 - **File size:** warn >400 effective LOC, error >600. Split along domain seams before trimming.
 - **Nesting depth:** ≤4 levels; refactor beyond.
