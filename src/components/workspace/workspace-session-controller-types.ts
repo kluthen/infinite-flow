@@ -1,32 +1,26 @@
 /**
  * The session controller's contract with the screen that binds to it and with the workspace that
- * builds it: the reactive state it exposes, its actions, the seams it is built from, and the error
- * it throws at a caller that breaks the contract. The controller itself is
- * `workspace-session-controller.ts`.
+ * builds it: the reactive state it exposes, its actions, and the error it throws at a caller that
+ * breaks the contract. The seams it is built from live in `workspace-session-controller-seams.ts`
+ * and are re-exported here; the controller itself is `workspace-session-controller.ts`.
  */
-import type {
-  GenerationSessionActions,
-  GenerationSessionState,
-} from '@/composables/use-generation-session'
-import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
-import type { AudioTransport } from '@/audio/audio-transport'
-import type { DisposableWakeTimer } from '@/audio/audio-ports'
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
-import type { MidiController } from '@/midi/midi-controller-state'
 import type { CountInDisplay } from '@/session/count-in-display'
-import type { SessionBrowserPorts } from '@/session/session-browser-ports'
-import type { SessionHistory, WallClock } from '@/session/session-history'
-import type { SessionRunner, SessionTransportEvent } from '@/session/session-runner'
+import type { SessionHistory } from '@/session/session-history'
+import type { SessionTransportEvent } from '@/session/session-runner'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import type { StartingNote } from '@/session/starting-note'
 import type { SessionEndCause, SessionSettings } from '@/session/session-types'
-import type { StaffLayout, StaffViewport } from '@/notation/notation-layout-policy'
-import type { StaffFitVerdict, StaffFixedParts } from '@/notation/staff-fit-types'
-import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
+import type { StaffLayout } from '@/notation/notation-layout-policy'
 import type { SessionStaff } from '@/components/notation/session-staff'
-import type { WorkspaceSessionRunnerInput } from './create-workspace-session'
-import type { IdleLayoutPort } from './idle-layout-gate'
 import type { ControllerLostCountdown } from './workspace-session-midi'
+
+export type {
+  FramePort,
+  SessionControllerClock,
+  SessionControllerDependencies,
+  StaffFitPlanner,
+} from './workspace-session-controller-seams'
 
 /** Where the session stands: no session, its count-in, or its phrases sounding. */
 // @spec-link [[service_session_controller]]
@@ -188,75 +182,6 @@ export interface SessionController {
    * dispose of the wake-up timer (its worker). Throws if called twice.
    */
   readonly dispose: () => void
-}
-
-/**
- * The display's frame loop: `request` runs `callback` once, at the next frame (the browser's
- * animation frame in the app), and returns a handle `cancel` takes to drop it.
- */
-// @spec-link [[module_session_rolling_display]]
-// @spec-link [[rule_playhead_follows_audio_clock]]
-export interface FramePort {
-  readonly request: (callback: () => void) => number
-  readonly cancel: (handle: number) => void
-}
-
-/**
- * The controller's time seams: `createWakeTimer` builds the timer that wakes it to read the audio
- * clock (called once, at the first start; disposed of with the controller), `wallClock` stamps
- * each session's history, and `frames` paces the playhead, read on the audio clock once a frame.
- */
-// @spec-link [[service_session_controller]]
-// @spec-link [[rule_playhead_follows_audio_clock]]
-export interface SessionControllerClock {
-  readonly createWakeTimer: () => DisposableWakeTimer
-  readonly wallClock: WallClock
-  readonly frames: FramePort
-}
-
-/** The staff planner's fit check of a written phrase, drawing nothing; the engraver's own. */
-// @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
-export type StaffFitPlanner = (
-  phrase: WrittenPhrase,
-  containerWidthPx: number,
-  viewport: StaffViewport,
-) => StaffFitVerdict
-
-/**
- * What the controller drives: the Idle state, its fresh-phrase action (a session end once phrase 1
- * has sounded asks it for the next phrase), and the written phrase Idle shows (phrase 1, which a
- * session's staff keeps showing as the very same object), the audio, the browser, runners and its
- * clock; the gate of the staff's reports, which a session diverts from the Idle machinery while it
- * runs; the measurement of phrase 1's staff fixed parts, which the session window rule needs; the
- * staff planner, loaded with the engraver, that checks a phrase's fit in the held layout; and the
- * MIDI controller, with whether the connection sheet is open, for the starting note and the notes
- * a session reads.
- */
-// @spec-link [[service_session_controller]]
-// @spec-link [[rule_session_ends_when_staff_too_small]]
-// @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
-// @spec-link [[rule_phrase_one_is_idle_phrase]]
-// @spec-link [[rule_midi_starting_note]]
-// @spec-link [[rule_session_end_generates_next_phrase_one]]
-export interface SessionControllerDependencies {
-  readonly idle: {
-    readonly state: Readonly<GenerationSessionState<WorkspaceSessionResult>>
-    readonly actions: Pick<GenerationSessionActions, 'startFreshPhrase'>
-  }
-  /** The written phrase the staff shows at Idle; null when it shows none. */
-  readonly idlePhrase: () => WrittenPhrase | null
-  readonly audio: AudioTransport
-  readonly browser: SessionBrowserPorts
-  readonly createSessionRunner: (input: WorkspaceSessionRunnerInput) => SessionRunner
-  readonly clock: SessionControllerClock
-  readonly idleLayout: IdleLayoutPort
-  readonly staffFixedParts: (phrase: WorkspaceSessionResult) => Promise<StaffFixedParts>
-  /** The staff planner, once the engraver and its fonts are ready; a load failure rejects. */
-  readonly staffFitPlanner: () => Promise<StaffFitPlanner>
-  /** The app's one MIDI controller; the controller listens to it from its creation to `dispose`. */
-  readonly midi: MidiController
-  /** Whether the connection sheet is open, read reactively; no note starts a session while it is. */
-  readonly connectionSheetOpen: () => boolean
 }
 
 /**

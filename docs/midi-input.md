@@ -25,9 +25,10 @@ with its [concert pitch](music/lexicon.md#concert-pitch) (the note as it sounds)
   state the app works in, never an exception that reaches the page, and none of them blocks a
   session.
 - **The connection sheet drives it.** The workspace session holds the controller as
-  `WorkspaceSession.midi` (`src/components/workspace/create-workspace-session.ts`). The header's
-  `controller-status` shows its status, and the connection sheet connects, selects and
-  disconnects it (see [`docs/controller-connection.md`](controller-connection.md)).
+  `WorkspaceSession.midi` (`src/components/workspace/workspace-session-types.ts`, built by
+  `create-workspace-session.ts`). The header's `controller-status` shows its status, and the
+  connection sheet connects, selects and disconnects it (see
+  [`docs/controller-connection.md`](controller-connection.md)).
 
 The rules come from the master spec's
 [§8, MIDI input and note acknowledgement](../specs/versions/v2/master-spec.md#8-midi-input-and-note-acknowledgement)
@@ -404,6 +405,6 @@ in the chunk and await the owner's acceptance:
   separate chunk that the entry still loads at startup (see
   [The runner and the one-Worker wiring](session-engine.md#the-runner-and-the-one-worker-wiring)).
 - **The connection-sheet flag reaches the controller through an event.** `WorkspaceShell` emits
-  `connection-sheet-open-change` from a synchronous watcher, and `App.vue` writes it to
-  `WorkspaceSession.connectionSheetOpen`, so a note that arrives right after the click already
-  sees the sheet open (see [The click](controller-connection.md#the-click)).
+  `connection-sheet-open-change` from a synchronous watcher (`useControllerConnection`), and
+  `App.vue` writes it to `WorkspaceSession.connectionSheetOpen`, so a note that arrives right after
+  the click already sees the sheet open (see [The click](controller-connection.md#the-click)).

@@ -68,6 +68,42 @@ function densityMutations(
 
 const SEEDS: readonly Seed[] = Array.from({ length: 300 }, (_, index) => makeSeed(index * 7919))
 
+/** Intent: every chosen rhythm setting the four rhythm controls can form, note density outermost. */
+function everyChosenRhythmSetting() {
+  return NOTE_DENSITIES.flatMap((noteDensity) =>
+    RHYTHMIC_VARIETIES.flatMap((rhythmicVariety) =>
+      SILENCE_DENSITIES.flatMap((silenceDensity) =>
+        SYNCOPATIONS.map((syncopation) => ({
+          noteDensity,
+          rhythmicVariety,
+          silenceDensity,
+          syncopation,
+        })),
+      ),
+    ),
+  )
+}
+
+/**
+ * Intent: from one supported starting setting, mutations k = 1 and k = 4 on the first three seeds
+ * all land on a supported combination, and never on Sixteenth while it is unavailable.
+ */
+function expectMutationsLandSupported(
+  settings: SessionSettings,
+  context: MutationContext,
+  settingLabel: string,
+): void {
+  const sixteenthUnavailable = context.belowTabletLandscape || context.sessionSteppedDown
+  for (const seed of SEEDS.slice(0, 3))
+    for (const k of [1, 4]) {
+      const label = `${settingLabel} ${JSON.stringify(context)} ${seed}/${k}`
+      const result = mutateSettings(settings, context, seed, k)
+      expect(isRhythmSettingBlocked(result.settings.controls, context), label).toBe(false)
+      if (sixteenthUnavailable && result.setting === 'noteDensity')
+        expect(result.to, label).not.toBe('Sixteenth')
+    }
+}
+
 // @test-link [[rule_mutation_draws_setting_then_direction]]
 // @test-link [[module_settings_mutation]]
 describe('mutateSettings draw', () => {
@@ -167,31 +203,18 @@ describe('mutateSettings support property', () => {
   it('always lands on a supported combination, and never on an unavailable Sixteenth', () => {
     let startsWithUnsupportedCandidates = 0
     for (const context of CONTEXTS) {
-      const sixteenthUnavailable = context.belowTabletLandscape || context.sessionSteppedDown
-      for (const noteDensity of NOTE_DENSITIES)
-        for (const rhythmicVariety of RHYTHMIC_VARIETIES)
-          for (const silenceDensity of SILENCE_DENSITIES)
-            for (const syncopation of SYNCOPATIONS) {
-              const settings = settingsWith({
-                noteDensity,
-                rhythmicVariety,
-                silenceDensity,
-                syncopation,
-              })
-              if (isRhythmSettingBlocked(settings.controls, context)) continue
-              if (mutationCandidates(settings, context).some((c) => !c.supported))
-                startsWithUnsupportedCandidates += 1
-              for (const seed of SEEDS.slice(0, 3))
-                for (const k of [1, 4]) {
-                  const label = `${noteDensity}/${rhythmicVariety}/${silenceDensity}/${syncopation} ${JSON.stringify(context)} ${seed}/${k}`
-                  const result = mutateSettings(settings, context, seed, k)
-                  expect(isRhythmSettingBlocked(result.settings.controls, context), label).toBe(
-                    false,
-                  )
-                  if (sixteenthUnavailable && result.setting === 'noteDensity')
-                    expect(result.to, label).not.toBe('Sixteenth')
-                }
-            }
+      for (const rhythm of everyChosenRhythmSetting()) {
+        const settings = settingsWith(rhythm)
+        if (isRhythmSettingBlocked(settings.controls, context)) continue
+        if (mutationCandidates(settings, context).some((c) => !c.supported))
+          startsWithUnsupportedCandidates += 1
+        const { noteDensity, rhythmicVariety, silenceDensity, syncopation } = rhythm
+        expectMutationsLandSupported(
+          settings,
+          context,
+          `${noteDensity}/${rhythmicVariety}/${silenceDensity}/${syncopation}`,
+        )
+      }
     }
     expect(startsWithUnsupportedCandidates).toBeGreaterThan(0)
   })

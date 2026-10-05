@@ -257,6 +257,59 @@ function widthGrid(): readonly Readonly<Record<string, string>>[] {
   )
 }
 
+/**
+ * Intent: every (leapiness, contour, arpeggio chaos, density, seed, profile) combination of the
+ * height sweep for one register, as harness controls.
+ */
+function heightGrid(register: (typeof REGISTERS)[number]) {
+  return LEAPINESS.flatMap((leapiness) =>
+    CONTOURS.flatMap((contour) =>
+      ARPEGGIO_CHAOS.flatMap((chaos) =>
+        DENSITIES.flatMap((density) =>
+          HEIGHT_SEEDS.flatMap((seed) =>
+            PROFILES.map((profile) => ({
+              register,
+              leapiness,
+              contour,
+              chaos,
+              density,
+              profile,
+              seed: String(seed),
+            })),
+          ),
+        ),
+      ),
+    ),
+  )
+}
+
+/** The height sweep's running extremes for one profile and register, in engraving units. */
+interface Extremes {
+  top: number
+  bottom: number
+  markerTop: number
+  topLine: number
+  positionUnits: number
+  n: number
+  atEdge: number
+}
+
+/**
+ * Intent: widen one profile and register's extremes by one ready combination's system extents,
+ * counting the systems whose ink touches the SVG's first or last row.
+ */
+function recordExtents(entry: Extremes, extents: readonly SystemExtent[]): void {
+  for (const extent of extents) {
+    entry.top = Math.min(entry.top, extent.top)
+    entry.bottom = Math.max(entry.bottom, extent.bottom)
+    if (extent.markerTop !== null) entry.markerTop = Math.min(entry.markerTop, extent.markerTop)
+    entry.topLine = extent.topLine
+    entry.positionUnits = extent.positionUnits
+    // Ink on the SVG's first or last row may continue past the position's edge.
+    if (extent.top <= 0.5 || extent.bottom >= extent.positionUnits - 0.5) entry.atEdge += 1
+  }
+}
+
 const STAFF_SPACES_PX = [7, 6, 5, 4.5] as const
 
 // @test-link [[module_notation_layout_preflight]]
@@ -314,69 +367,31 @@ test('reports how far each system reaches above and below its staff, per profile
   test.setTimeout(40 * 60 * 1000)
   // Wide enough for every phrase at the maximum scale, and narrow enough to screenshot in one go.
   await page.setViewportSize({ width: 2600, height: 900 })
-  interface Extremes {
-    top: number
-    bottom: number
-    markerTop: number
-    topLine: number
-    positionUnits: number
-    n: number
-    atEdge: number
-  }
   const extremes = new Map<string, Extremes>()
   const failures: string[] = []
 
   for (const register of REGISTERS) {
-    for (const leapiness of LEAPINESS) {
-      for (const contour of CONTOURS) {
-        for (const chaos of ARPEGGIO_CHAOS) {
-          for (const density of DENSITIES) {
-            for (const seed of HEIGHT_SEEDS) {
-              for (const profile of PROFILES) {
-                const controls = {
-                  register,
-                  leapiness,
-                  contour,
-                  chaos,
-                  density,
-                  profile,
-                  seed: String(seed),
-                }
-                const result = await runCombo(page, comboUrl(controls, INK_FRAME_WIDTH_PX), true)
-                if (!result.ok) {
-                  failures.push(
-                    `${JSON.stringify(controls)}: ${result.code} ${JSON.stringify(result.details ?? {})}`,
-                  )
-                  continue
-                }
-                const key = `${profile}/${register}`
-                const entry = extremes.get(key) ?? {
-                  top: Infinity,
-                  bottom: -Infinity,
-                  markerTop: Infinity,
-                  topLine: 0,
-                  positionUnits: 0,
-                  n: 0,
-                  atEdge: 0,
-                }
-                for (const extent of result.extents) {
-                  entry.top = Math.min(entry.top, extent.top)
-                  entry.bottom = Math.max(entry.bottom, extent.bottom)
-                  if (extent.markerTop !== null)
-                    entry.markerTop = Math.min(entry.markerTop, extent.markerTop)
-                  entry.topLine = extent.topLine
-                  entry.positionUnits = extent.positionUnits
-                  // Ink on the SVG's first or last row may continue past the position's edge.
-                  if (extent.top <= 0.5 || extent.bottom >= extent.positionUnits - 0.5)
-                    entry.atEdge += 1
-                }
-                entry.n += 1
-                extremes.set(key, entry)
-              }
-            }
-          }
-        }
+    for (const controls of heightGrid(register)) {
+      const result = await runCombo(page, comboUrl(controls, INK_FRAME_WIDTH_PX), true)
+      if (!result.ok) {
+        failures.push(
+          `${JSON.stringify(controls)}: ${result.code} ${JSON.stringify(result.details ?? {})}`,
+        )
+        continue
       }
+      const key = `${controls.profile}/${register}`
+      const entry = extremes.get(key) ?? {
+        top: Infinity,
+        bottom: -Infinity,
+        markerTop: Infinity,
+        topLine: 0,
+        positionUnits: 0,
+        n: 0,
+        atEdge: 0,
+      }
+      recordExtents(entry, result.extents)
+      entry.n += 1
+      extremes.set(key, entry)
     }
     console.log(`height sweep: register ${register} done, ${failures.length} failures so far`)
   }

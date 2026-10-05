@@ -1,3 +1,5 @@
+// @lint-ignore-atd event-payload plumbing: the typed set-control event shared by control components; no business rule
+
 /**
  * The shared typed `set-control` event payload every control-group component and ControlPanel
  * itself emits: one key from `GenerationControls`, excluding `instrumentProfileId` (which has its

@@ -84,12 +84,17 @@ export function useReviewNavigation(deps: ReviewNavigationDependencies): ReviewN
    * Run before the render, while `review-link` is still there to hold focus.
    */
   // @spec-link [[rule_new_session_discards_review]]
-  watch(deps.sessionActive, async (active, wasActive) => {
+  async function focusSessionActionWhenReviewLinkLeaves(
+    active: boolean,
+    wasActive: boolean,
+  ): Promise<void> {
     if (!active || wasActive) return
     if (document.activeElement?.classList.contains('review-link') !== true) return
     await nextTick()
     deps.focusTarget('session-action')
-  })
+  }
+
+  watch(deps.sessionActive, focusSessionActionWhenReviewLinkLeaves)
 
   return { closeReview, showReview }
 }

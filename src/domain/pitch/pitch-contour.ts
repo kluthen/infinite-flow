@@ -232,6 +232,27 @@ export function contourComplete(plan: ContourPlan, state: ContourState): boolean
 }
 
 /**
+ * One forward step of `contourAssignable`: the (value, tag) pairs reachable at checkpoint `step`
+ * from each value in `values`, given the pairs reachable at the previous checkpoint. A value with
+ * no legal arrival is left out.
+ */
+function advanceContourFrontier(
+  contour: Contour,
+  step: number,
+  values: readonly number[],
+  frontier: ReadonlyMap<number, ReadonlySet<number>>,
+): Map<number, Set<number>> {
+  const next = new Map<number, Set<number>>()
+  for (const value of values)
+    for (const [prior, tags] of frontier)
+      for (const tag of tags) {
+        const after = contourStep(contour, step, Math.sign(value - prior), tag)
+        if (after !== undefined) next.set(value, (next.get(value) ?? new Set()).add(after))
+      }
+  return next
+}
+
+/**
  * Pure contour feasibility over fixed or open checkpoint values, ignoring motion reach: a forward
  * set of reachable (value, tag) pairs, linear in checkpoints rather than a Cartesian product.
  */
@@ -244,14 +265,7 @@ export function contourAssignable(
   let frontier = new Map<number, Set<number>>()
   for (const value of choices[0]!) frontier.set(value, new Set([initialContourTag(contour)]))
   for (let step = 1; step < CHECKPOINT_COUNT; step += 1) {
-    const next = new Map<number, Set<number>>()
-    for (const value of choices[step]!)
-      for (const [prior, tags] of frontier)
-        for (const tag of tags) {
-          const after = contourStep(contour, step, Math.sign(value - prior), tag)
-          if (after !== undefined) next.set(value, (next.get(value) ?? new Set()).add(after))
-        }
-    frontier = next
+    frontier = advanceContourFrontier(contour, step, choices[step]!, frontier)
   }
   return [...frontier.values()].some((tags) =>
     [...tags].some((tag) => contourAccepts(contour, tag)),

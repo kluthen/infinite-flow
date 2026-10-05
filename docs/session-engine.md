@@ -486,7 +486,9 @@ to its reactive state and calls its actions (see
 [The session screen](phrase-workspace.md#the-session-screen) for the buttons, the cue row, the
 locks on screen and focus). It draws nothing itself: it hands the staff what to draw (see
 [The rolling display](#the-rolling-display)). Its contract, `SessionController`, is in
-`workspace-session-controller-types.ts`, and `WorkspaceSession.createSessionController()` builds
+`workspace-session-controller-types.ts`, which re-exports the seams it is built from
+(`SessionControllerDependencies`, `SessionControllerClock`, in
+`workspace-session-controller-seams.ts`), and `WorkspaceSession.createSessionController()` builds
 it (see [Session wiring](phrase-workspace.md#session-wiring)). The controller file holds its state,
 its start conditions, the Review actions and the page's flags; its parts are sibling modules in the
 same lazy chunk, sharing one core (`SessionControllerCore`, with the running session's record, in

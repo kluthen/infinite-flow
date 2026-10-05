@@ -214,6 +214,11 @@ export class PitchPlannerInputError extends Error {
   }
 }
 
+/**
+ * Validate and freeze the pitch planner's input, stamping its kind and the search policy version,
+ * so the planner only ever runs with a positive whole search fuel and a policy it implements.
+ * Throws PitchPlannerInputError otherwise.
+ */
 // @spec-link [[entity_pitch_candidate_domain]]
 export function makeBoundPitchPlannerInput(
   input: Omit<BoundPitchPlannerInput, 'kind' | 'searchPolicyVersion'>,

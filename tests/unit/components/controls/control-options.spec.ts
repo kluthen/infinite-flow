@@ -7,6 +7,7 @@ import {
 } from '@/domain/controls/profile-selection'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 
+// @test-link [[module_generation_control_catalog]]
 describe('controlSummaryText', () => {
   it('reads the default load as tonal center, collection, Neutral, tension, leapiness', () => {
     expect(controlSummaryText(DEFAULT_GENERATION_CONTROLS, DEFAULT_PROFILE_SELECTION)).toBe(

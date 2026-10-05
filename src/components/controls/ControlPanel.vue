@@ -79,7 +79,11 @@ function forwardVarySettings(on: boolean): void {
   emit('set-vary-settings', on)
 }
 
-/** Intent: the muted control-summary line per D25, recomputed on every relevant control change. */
+/**
+ * Intent: the muted control-summary line, restating the chosen tonal center, collection, profile
+ * state, tension arc and leapiness at a glance, recomputed on every relevant control change.
+ */
+// @spec-link [[module_generation_control_catalog]]
 const controlSummary = computed(() => controlSummaryText(props.controls, props.profileSelection))
 </script>
 

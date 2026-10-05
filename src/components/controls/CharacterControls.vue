@@ -23,6 +23,7 @@ const emit = defineEmits<{
 }>()
 
 /** Intent: report an arpeggio-chaos change, re-validating against its catalog. */
+// @spec-link [[module_generation_control_catalog]]
 function handleArpeggioChaos(value: string): void {
   emit('set-control', {
     key: 'arpeggioChaos',

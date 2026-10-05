@@ -143,6 +143,7 @@ function* derive(
 
 /** The candidates of one gesture, over every answer list, in canonical order: one gesture unit. */
 // @spec-link [[api_rhythm_domain_expansion]]
+// @spec-link [[module_rhythm_variety_grammar]]
 function* gestureCandidates(
   context: DeriveContext,
   gesture: GestureDerivation,
@@ -153,7 +154,6 @@ function* gestureCandidates(
     gesture.bars.some((bar) => attackBandViolated(bar, input.noteDensity, input.rhythmicVariety))
   )
     return
-  // @spec-link [[module_rhythm_variety_grammar]]
   if (!exact && gestureCannotReachShare(gesture.bars, input.noteDensity, input.rhythmicVariety))
     return
   if (

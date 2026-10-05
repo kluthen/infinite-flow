@@ -73,6 +73,15 @@ there. `set-control-event.ts` defines the one shared `SetControlPayload` union (
 every settable control key except `instrumentProfileId`, which has its own dedicated
 `select-instrument-profile` event).
 
+`WorkspaceShell.vue` keeps the layout and the wiring; the screen-side parts of its script are
+composables beside it: `useShownSettings` (`use-shown-settings.ts`: whether the musical controls
+are read-only, the settings they show, whether the preset status announces), `useSessionOptions`
+(`use-session-options.ts`: the "During a session" options), `useControllerConnection`
+(`use-controller-connection.ts`: the `controller-status` form, the connection sheet and its open
+flag, over `useControllerStatus` and `useConnectionSheet`), `useWorkspaceFocus`
+(`use-workspace-focus.ts`: focus after a session end, a late room notice and the sheet's close)
+and `useReviewNavigation`.
+
 ## Session wiring
 
 `src/components/workspace/create-workspace-session.ts` builds the root-created
@@ -157,12 +166,17 @@ every settable control key except `instrumentProfileId`, which has its own dedic
   from `onUnmounted`.
 
 `create-workspace-session.ts` is isolated in its own module — rather than inlined in `App.vue` —
-so a test can replace the whole factory and never spin a real `Worker` in jsdom.
+so a test can replace the whole factory and never spin a real `Worker` in jsdom. What its builder
+takes (`WorkspaceSessionDependencies`) and the `WorkspaceSession` it returns are declared in the
+type-only `workspace-session-dependencies.ts` and `workspace-session-types.ts`, which it re-exports.
 
 ## State map
 
 `createGenerationSession` (`src/composables/use-generation-session.ts`) owns one
-`shallowReactive` state object with these fields, each driving specific UI:
+`shallowReactive` state object with these fields, each driving specific UI. Its types, the state's
+included, live in `generation-session-types.ts`, which `use-generation-session.ts` re-exports; the
+control actions (`generation-session-control-actions.ts`) and the drawing of the phrase on screen
+(`generation-session-notation.ts`) are sibling modules that read and write the same state object.
 
 | State field                                                         | UI it drives                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -850,13 +864,13 @@ during a session, and calls the audio transport's mix setters directly (see
 
 ### During a session
 
-- **Locks on screen.** `WorkspaceShell`'s `controlsReadonly` is true during a session, count-in
-  included, as during any Idle operation, so every musical control, tempo included, takes the
-  same read-only treatment through the existing `readonly` prop: `is-readonly`, `aria-readonly`,
-  still focusable, values at full contrast. The theme control stays interactive, `tempo-readout`
-  shows the exact tempo in effect (the controller's `sessionTempo`: the starting tempo, then each
-  sounding phrase's own), and the phrase action is disabled. The mix and `Stop` stay
-  live. The "During a session" options, `Rising tempo`, `Tension across phrases` and
+- **Locks on screen.** `WorkspaceShell`'s `controlsReadonly` (`use-shown-settings.ts`) is true
+  during a session, count-in included, as during any Idle operation, so every musical control, tempo
+  included, takes the same read-only treatment through the existing `readonly` prop: `is-readonly`,
+  `aria-readonly`, still focusable, values at full contrast. The theme control stays interactive,
+  `tempo-readout` shows the exact tempo in effect (the controller's `sessionTempo`: the starting
+  tempo, then each sounding phrase's own), and the phrase action is disabled. The mix and `Stop`
+  stay live. The "During a session" options, `Rising tempo`, `Tension across phrases` and
   `Vary settings`, take the same read-only treatment; `Rising tempo` keeps the availability the
   session started with (see [On screen](session-engine.md#on-screen)).
 - **What the controls show.** The shell renders them from the controller's `shownSettings`: the
@@ -947,8 +961,9 @@ during a session, and calls the audio transport's mix setters directly (see
 
 ### Focus at the end
 
-`WorkspaceShell` watches the session end and, once the screen shows the Idle state it ends in,
-moves focus to the target `sessionEndFocusTarget` (`session-end-focus.ts`) names:
+`WorkspaceShell` watches the session end (`useWorkspaceFocus`, `use-workspace-focus.ts`) and, once
+the screen shows the Idle state it ends in, moves focus to the target `sessionEndFocusTarget`
+(`session-end-focus.ts`) names:
 
 - **the session action**, now `Close review`, once phrase 1 has sounded: the Review shows,
   whatever the hidden Idle state (its room notice is hidden with the staff);

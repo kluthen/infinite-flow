@@ -23,11 +23,13 @@ const emit = defineEmits<{
 }>()
 
 /** Intent: report a contour change, re-validating against its catalog. */
+// @spec-link [[module_generation_control_catalog]]
 function handleContour(value: string): void {
   emit('set-control', { key: 'contour', value: validateControlValue(CONTOURS, value, 'Contour') })
 }
 
 /** Intent: report a register change, re-validating against its catalog. */
+// @spec-link [[module_generation_control_catalog]]
 function handleRegister(value: string): void {
   emit('set-control', {
     key: 'register',
@@ -36,6 +38,7 @@ function handleRegister(value: string): void {
 }
 
 /** Intent: report a leapiness change, re-validating against its catalog. */
+// @spec-link [[module_generation_control_catalog]]
 function handleLeapiness(value: string): void {
   emit('set-control', {
     key: 'leapiness',

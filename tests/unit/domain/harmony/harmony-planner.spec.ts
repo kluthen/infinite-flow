@@ -28,6 +28,50 @@ function domainFor(input: Partial<HarmonyPlannerInput>): HarmonyCandidateDomain 
   return result
 }
 
+/**
+ * Intent: one swept harmony setting gives the same domain under both profiles, with candidates
+ * indexed in order, serializable and frozen, events starting in the first measure with whole
+ * half-measure durations, and at most one bar role per outer bar and two per inner bar.
+ */
+function expectStructurallySound(
+  setting: Pick<
+    HarmonyPlannerInput,
+    'tonalCenter' | 'collection' | 'harmonicMotion' | 'tensionArc'
+  >,
+): void {
+  const { tonalCenter, collection, harmonicMotion, tensionArc } = setting
+  const neutral = domainFor({ tonalCenter, collection, harmonicMotion, tensionArc })
+  const jazz = makeHarmonyCandidateDomain({
+    tonalCenter,
+    collection,
+    harmonicMotion,
+    tensionArc,
+    profile: 'Jazz',
+  })
+
+  expect(jazz).toEqual(neutral)
+  expect(neutral.candidates.map((candidate) => candidate.candidateIndex)).toEqual(
+    neutral.candidates.map((_, index) => index),
+  )
+  expect(JSON.parse(JSON.stringify(neutral))).toEqual(neutral)
+  expect(Object.isFrozen(neutral)).toBe(true)
+  for (const candidate of neutral.candidates) {
+    expect(Object.isFrozen(candidate.events)).toBe(true)
+    expect(candidate.events.every((event) => event.startBeat >= 0 && event.startBeat < 4)).toBe(
+      true,
+    )
+    expect(
+      candidate.events.every((event) => event.durationBeats > 0 && event.durationBeats % 2 === 0),
+    ).toBe(true)
+    for (const barIndex of [0, 1, 2, 3]) {
+      const roles = candidate.events
+        .flatMap((event) => event.barRoles)
+        .filter((role) => role.barIndex === barIndex)
+      expect(roles.length).toBeLessThanOrEqual(barIndex === 1 || barIndex === 2 ? 2 : 1)
+    }
+  }
+}
+
 // @test-link [[module_harmony_candidate_domain]]
 describe('harmony candidate domain: policy expansion', () => {
   // @test-link [[rule_neutral_profile_diatonic_harmony]]
@@ -157,38 +201,7 @@ describe('harmony candidate domain: structural invariants', () => {
       for (const collection of COLLECTIONS) {
         for (const harmonicMotion of HARMONIC_MOTIONS) {
           for (const tensionArc of TENSION_ARCS) {
-            const neutral = domainFor({ tonalCenter, collection, harmonicMotion, tensionArc })
-            const jazz = makeHarmonyCandidateDomain({
-              tonalCenter,
-              collection,
-              harmonicMotion,
-              tensionArc,
-              profile: 'Jazz',
-            })
-
-            expect(jazz).toEqual(neutral)
-            expect(neutral.candidates.map((candidate) => candidate.candidateIndex)).toEqual(
-              neutral.candidates.map((_, index) => index),
-            )
-            expect(JSON.parse(JSON.stringify(neutral))).toEqual(neutral)
-            expect(Object.isFrozen(neutral)).toBe(true)
-            for (const candidate of neutral.candidates) {
-              expect(Object.isFrozen(candidate.events)).toBe(true)
-              expect(
-                candidate.events.every((event) => event.startBeat >= 0 && event.startBeat < 4),
-              ).toBe(true)
-              expect(
-                candidate.events.every(
-                  (event) => event.durationBeats > 0 && event.durationBeats % 2 === 0,
-                ),
-              ).toBe(true)
-              for (const barIndex of [0, 1, 2, 3]) {
-                const roles = candidate.events
-                  .flatMap((event) => event.barRoles)
-                  .filter((role) => role.barIndex === barIndex)
-                expect(roles.length).toBeLessThanOrEqual(barIndex === 1 || barIndex === 2 ? 2 : 1)
-              }
-            }
+            expectStructurallySound({ tonalCenter, collection, harmonicMotion, tensionArc })
           }
         }
       }
