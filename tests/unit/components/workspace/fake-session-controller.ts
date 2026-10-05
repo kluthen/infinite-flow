@@ -34,6 +34,7 @@ export interface FakeSessionController {
   readonly showReview: Mock<() => void>
   readonly setAdaptiveTempo: Mock<(on: boolean) => void>
   readonly setVarySettings: Mock<(on: boolean) => void>
+  readonly setTensionAcrossPhrases: Mock<(on: boolean) => void>
 }
 
 /** Intent: whether the fake's session staff shows any part of phrase `phraseNumber`. */
@@ -106,6 +107,7 @@ export function createFakeSessionController(
     adaptiveTempoAvailable: false,
     lastSessionReachedTempo: null,
     varySettings: false,
+    tensionAcrossPhrases: false,
     shownSettings: null,
     ...overrides,
   })
@@ -162,6 +164,11 @@ export function createFakeSessionController(
     if (state.phase !== 'idle') throw new Error('fake controller: vary settings during a session')
     state.varySettings = on
   })
+  const setTensionAcrossPhrases = vi.fn((on: boolean): void => {
+    if (state.phase !== 'idle')
+      throw new Error('fake controller: tension across phrases during a session')
+    state.tensionAcrossPhrases = on
+  })
   return {
     controller: {
       state,
@@ -173,6 +180,7 @@ export function createFakeSessionController(
       showReview,
       setAdaptiveTempo,
       setVarySettings,
+      setTensionAcrossPhrases,
     },
     state,
     start,
@@ -182,5 +190,6 @@ export function createFakeSessionController(
     showReview,
     setAdaptiveTempo,
     setVarySettings,
+    setTensionAcrossPhrases,
   }
 }

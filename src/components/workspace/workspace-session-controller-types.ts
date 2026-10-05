@@ -127,6 +127,12 @@ export interface SessionControllerState {
    */
   readonly varySettings: boolean
   /**
+   * The page's `Tension across phrases` flag: off at page load, kept from one session to the
+   * next, held in memory only. A session started with it on runs the engine's multi-phrase tension
+   * arc; the steps it gives the phrases never reach `shownSettings`.
+   */
+  readonly tensionAcrossPhrases: boolean
+  /**
    * What the read-only controls show while a session runs: its start settings during the
    * count-in, then the settings the phrase now sounding was generated with; null with no session,
    * when the controls show the player's own choices, which a session never writes.
@@ -172,6 +178,11 @@ export interface SessionController {
    * throws during the count-in or a running session.
    */
   readonly setVarySettings: (on: boolean) => void
+  /**
+   * Turn the page's `Tension across phrases` flag on or off, at Idle or while the Review shows
+   * only: throws during the count-in or a running session.
+   */
+  readonly setTensionAcrossPhrases: (on: boolean) => void
   /**
    * End a running session, stop reading the window and listening to the MIDI controller, and
    * dispose of the wake-up timer (its worker). Throws if called twice.

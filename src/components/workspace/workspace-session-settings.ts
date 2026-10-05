@@ -7,8 +7,8 @@
  * it played again, generated with the settings already shown, so it shows nothing new, and a
  * change landing on it first shows with the next generated phrase. Nothing here writes the
  * player's own controls: the session's end drops what this shows, and the controls show the
- * player's choices again. It also holds the page's `Vary settings` flag, which a session reads at
- * its start.
+ * player's choices again. It also holds the page's `Vary settings` and `Tension across phrases`
+ * flags, which a session reads at its start.
  */
 import { shallowRef } from 'vue'
 
@@ -76,6 +76,16 @@ export interface VarySettingsFlag {
 }
 
 /**
+ * The page's `Tension across phrases` flag: `on` is a reactive reading; `set` is the player's
+ * on/off.
+ */
+// @spec-link [[req_multi_phrase_tension_arc]]
+export interface TensionAcrossPhrasesFlag {
+  readonly on: () => boolean
+  readonly set: (on: boolean) => void
+}
+
+/**
  * Intent: build the page's `Vary settings` flag, at the engine's default (off, spec D176), over
  * the session's phase, read reactively. It is held in memory for the controller's life, the
  * page's: no session's start or end resets it, and the restore at a session's end never touches
@@ -92,6 +102,33 @@ export function createVarySettingsFlag(phase: () => SessionControllerPhase): Var
     set: (next) => {
       if (phase() !== 'idle')
         throw new SessionControllerError('vary settings: it cannot change during a session')
+      on.value = next
+    },
+  }
+}
+
+/**
+ * Intent: build the page's `Tension across phrases` flag, off (spec D178), over the session's
+ * phase, read reactively. Like `Vary settings` it is held in memory for the controller's life, the
+ * page's, never reset by a session's start or end, and changes only outside a session; any change
+ * during the count-in or a running session throws. A session's start carries it as the engine's
+ * multi-phrase tension arc flag. Nothing here shows the step it gives a phrase: the engine never
+ * reports one as a settings change, so the Tension control keeps showing the tension in effect.
+ */
+// @spec-link [[req_multi_phrase_tension_arc]]
+// @spec-link [[rule_session_settings_locked]]
+// @spec-link [[rule_ephemeral_session_state]]
+export function createTensionAcrossPhrasesFlag(
+  phase: () => SessionControllerPhase,
+): TensionAcrossPhrasesFlag {
+  const on = shallowRef(false)
+  return {
+    on: () => on.value,
+    set: (next) => {
+      if (phase() !== 'idle')
+        throw new SessionControllerError(
+          'tension across phrases: it cannot change during a session',
+        )
       on.value = next
     },
   }

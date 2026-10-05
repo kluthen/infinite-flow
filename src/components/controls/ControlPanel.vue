@@ -30,6 +30,8 @@ const props = defineProps<{
   risingTempoAvailable: boolean
   /** The tempo the last session that ran rising tempo reached, for the tempo field's note. */
   lastSessionReachedTempo: number | null
+  /** The page's `Tension across phrases` flag. */
+  tensionAcrossPhrases: boolean
   /** The page's `Vary settings` flag. */
   varySettings: boolean
   /** Whether the "During a session" options are read-only. */
@@ -43,6 +45,7 @@ const emit = defineEmits<{
   'select-instrument-profile': [id: GenerationControls['instrumentProfileId']]
   'select-musical-profile': [profile: ProfileSelection['musicalProfile']]
   'set-rising-tempo': [on: boolean]
+  'set-tension-across-phrases': [on: boolean]
   'set-vary-settings': [on: boolean]
 }>()
 
@@ -64,6 +67,11 @@ function forwardMusicalProfile(profile: ProfileSelection['musicalProfile']): voi
 /** Intent: forward the player's `Rising tempo` choice upward unchanged. */
 function forwardRisingTempo(on: boolean): void {
   emit('set-rising-tempo', on)
+}
+
+/** Intent: forward the player's `Tension across phrases` choice upward unchanged. */
+function forwardTensionAcrossPhrases(on: boolean): void {
+  emit('set-tension-across-phrases', on)
 }
 
 /** Intent: forward the player's `Vary settings` choice upward unchanged. */
@@ -113,9 +121,11 @@ const controlSummary = computed(() => controlSummaryText(props.controls, props.p
       <SessionOptionsControls
         :rising-tempo="risingTempo"
         :rising-tempo-available="risingTempoAvailable"
+        :tension-across-phrases="tensionAcrossPhrases"
         :vary-settings="varySettings"
         :readonly="sessionOptionsReadonly"
         @set-rising-tempo="forwardRisingTempo"
+        @set-tension-across-phrases="forwardTensionAcrossPhrases"
         @set-vary-settings="forwardVarySettings"
       />
     </div>

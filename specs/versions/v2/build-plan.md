@@ -2546,14 +2546,20 @@ multi-phrase tension arc).
 
 ### Chunk 30 — Tension arc control
 
-**Release:** v2.2.
+**Release:** v2.2. **Done on 2026-10-05.** `Tension across phrases`, `Off` at load, sits between
+`Rising tempo` and `Vary settings` in the "During a session" group, settable at Idle and in the
+Review and read-only during a session; changing it regenerates nothing. Each session's start
+carries it to the engine unchanged as `multiPhraseTensionArc`, so the phrases from 2 on step around
+the tension in effect, while the Tension control keeps showing that tension, never a step.
 
 **Goal.** The multi-phrase arc's on/off control.
 
 **Spec sections:** [§3](master-spec.md#3-the-generation-unit-and-how-phrases-join).
 
-**Design docs:** not designed yet: the tension-arc control, unit 11 in
-[`ui_ux/todo.md`](../../../ui_ux/todo.md).
+**Design docs:** the tension-arc control, `Tension across phrases`, unit 11 in
+[`ui_ux/todo.md`](../../../ui_ux/todo.md) (ux D155, D160, D175, D176), owner-confirmed on
+2026-10-05, in [`ui_ux/screens/phrase-workspace/`](../../../ui_ux/screens/phrase-workspace/) and
+[`ui_ux/flows/play-session/`](../../../ui_ux/flows/play-session/).
 
 **Atoms:** `req_multi_phrase_tension_arc`, `rule_session_settings_locked`.
 
@@ -2565,8 +2571,8 @@ multi-phrase tension arc).
   off (spec D178).
 - Its state reaches the session engine; a workspace-harness test runs a session with it on.
 
-**Blocked by:** design: the tension-arc control, unit 11 in `ui_ux/todo.md`. (O98 was answered on
-2026-10-03: spec D178.)
+**Blocked by:** nothing (design unit 11 done, owner-confirmed 2026-10-05). O98 was answered on
+2026-10-03: spec D178.
 
 ### Chunk 31 — v2.2 release gate
 

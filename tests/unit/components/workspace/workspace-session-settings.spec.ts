@@ -1,13 +1,15 @@
 /**
- * The session's shown settings and the page's `Vary settings` flag, on their own. A reported
+ * The session's shown settings and the page's `Vary settings` and `Tension across phrases` flags,
+ * on their own. A reported
  * change shows when a generated phrase it applies to starts sounding; a repeat shows nothing new,
  * so a change landing on a repeat first shows with the next generated phrase; when several are
- * due, the latest reported wins. The flag starts off and changes only at Idle.
+ * due, the latest reported wins. Each flag starts off and changes only at Idle.
  */
 import { describe, expect, it } from 'vitest'
 
 import {
   createSessionShownSettings,
+  createTensionAcrossPhrasesFlag,
   createVarySettingsFlag,
 } from '@/components/workspace/workspace-session-settings'
 import { SessionControllerError } from '@/components/workspace/workspace-session-controller-types'
@@ -78,6 +80,27 @@ describe('the Vary settings flag', () => {
   it('starts off and changes at Idle only', () => {
     let phase: SessionControllerPhase = 'idle'
     const flag = createVarySettingsFlag(() => phase)
+    expect(flag.on()).toBe(false)
+    flag.set(true)
+    expect(flag.on()).toBe(true)
+    for (const running of ['count-in', 'running'] as const) {
+      phase = running
+      expect(() => flag.set(false)).toThrow(SessionControllerError)
+    }
+    expect(flag.on()).toBe(true)
+    phase = 'idle'
+    flag.set(false)
+    expect(flag.on()).toBe(false)
+  })
+})
+
+// @test-link [[req_multi_phrase_tension_arc]]
+describe('the Tension across phrases flag', () => {
+  // @test-link [[req_multi_phrase_tension_arc]]
+  // @test-link [[rule_session_settings_locked]]
+  it('starts off and changes at Idle only', () => {
+    let phase: SessionControllerPhase = 'idle'
+    const flag = createTensionAcrossPhrasesFlag(() => phase)
     expect(flag.on()).toBe(false)
     flag.set(true)
     expect(flag.on()).toBe(true)

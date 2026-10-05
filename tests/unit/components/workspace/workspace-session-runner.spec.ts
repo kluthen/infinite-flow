@@ -1,9 +1,9 @@
 /**
  * The workspace's session runner: the player's `Vary settings` choice becomes the engine's
  * settings-mutation flag, its seed drawn from the workspace's seed provider before any attempt
- * seed (and none drawn when it is off); the display reading the caller passes is the one the
- * engine reads for a settings change; every output, a settings change's included, reaches the
- * caller.
+ * seed (and none drawn when it is off); the multi-phrase tension arc flag is passed on as it is;
+ * the display reading the caller passes is the one the engine reads for a settings change; every
+ * output, a settings change's included, reaches the caller.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -35,8 +35,11 @@ function phraseStart(phraseNumber: number): number {
   return 1 + 4 * (phraseNumber - 1)
 }
 
-/** Intent: a 240 BPM workspace runner on real generation, its outputs and errors logged. */
-function runnerRig(varySettings: boolean, display = UNREAD_DISPLAY) {
+/**
+ * Intent: a 240 BPM workspace runner on real generation, its outputs and errors logged, with the
+ * multi-phrase tension arc as `multiPhraseTensionArc` says (off unless given).
+ */
+function runnerRig(varySettings: boolean, display = UNREAD_DISPLAY, multiPhraseTensionArc = false) {
   const settings = sessionSettings({ tempo: 240 })
   const clock = { at: 0 }
   const outputs: SessionOutput[] = []
@@ -53,7 +56,14 @@ function runnerRig(varySettings: boolean, display = UNREAD_DISPLAY) {
       onOutput: (output) => outputs.push(output),
       onError: (error) => errors.push(error),
     },
-    { at: 0, settings, phraseOne: phraseOneFor(settings), adaptiveTempo: false, varySettings },
+    {
+      at: 0,
+      settings,
+      phraseOne: phraseOneFor(settings),
+      adaptiveTempo: false,
+      varySettings,
+      multiPhraseTensionArc,
+    },
   )
   return { runner, settings, clock, outputs, errors, providers }
 }
@@ -72,6 +82,7 @@ async function playTo(rig: ReturnType<typeof runnerRig>, last: number): Promise<
 
 // @test-link [[service_workspace_session_flow]]
 // @test-link [[req_settings_mutation_flag]]
+// @test-link [[req_multi_phrase_tension_arc]]
 describe('the workspace session runner', () => {
   // @test-link [[req_settings_mutation_flag]]
   it('maps the choice to the flag, drawing a seed only when it is on', () => {
@@ -93,6 +104,25 @@ describe('the workspace session runner', () => {
     for (const request of requests) expect(request.intent.controls).toEqual(rig.settings.controls)
     expect(rig.outputs.some((output) => output.kind === 'settings-changed')).toBe(false)
     expect(requests[0]!.intent.seed).toBe(rig.providers.seedsHandedOut[0])
+  })
+
+  // @test-link [[req_multi_phrase_tension_arc]]
+  it('passes the multi-phrase tension arc on: each phrase requested at its step, no setting changed', async () => {
+    const rig = runnerRig(false, UNREAD_DISPLAY, true)
+    expect(rig.settings.controls.tension).toBe('Settled')
+    await playTo(rig, 5)
+    expect(rig.errors).toEqual([])
+    const requests = rig.outputs.filter((output) => output.kind === 'request-generation')
+    const tensionOf = (phraseNumber: number) =>
+      requests.find((request) => request.phraseNumber === phraseNumber)!.intent.controls.tension
+    expect([2, 3, 4, 5, 6].map(tensionOf)).toEqual([
+      'Lift',
+      'Settled',
+      'Settled',
+      'Settled',
+      'Lift',
+    ])
+    expect(rig.outputs.some((output) => output.kind === 'settings-changed')).toBe(false)
   })
 
   // @test-link [[req_settings_mutation_flag]]

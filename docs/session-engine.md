@@ -1179,7 +1179,9 @@ is announced.
 The [multi-phrase tension arc](music/lexicon.md#tension-across-phrases) (spec D178) shapes a
 longer stretch of a session: instead of generating every phrase with the one
 [tension arc](music/lexicon.md#tension) in effect, it raises and then lowers the tension over each
-group of four phrases. Chunk 29 builds the engine side; no control turns it on before chunk 30.
+group of four phrases. Chunk 29 built the engine side; chunk 30 built its control,
+`Tension across phrases` (see
+[The Tension across phrases control](#the-tension-across-phrases-control)).
 
 ### The cycle
 
@@ -1243,8 +1245,31 @@ the owner's sign-off on their extended wording (`module_tension_arc_cycle` stays
   (`requireTensionArcFlag`: anything but a boolean, a missing flag included, throws a
   `SessionEngineError`) and kept in the engine context for the whole session. Off, every phrase is
   generated under the settings in effect themselves, so the session is exactly the one without the
-  flag. `startWorkspaceSessionRunner` passes `false` (its `WorkspaceSessionStart` omits the flag)
-  until chunk 30 builds the control.
+  flag. `startWorkspaceSessionRunner` passes on the start's flag, the player's
+  `Tension across phrases` choice (below).
+
+### The Tension across phrases control
+
+The player calls it **Tension across phrases** (the lexicon's word for the multi-phrase tension
+arc).
+
+- **The control.** `Tension across phrases`, `Off` or `On`, sits between `Rising tempo` and
+  `Vary settings` in the "During a session" group (`SessionOptionsControls.vue`), with its note:
+  "In groups of 4 phrases: your Tension, one step more, your Tension, one step less." It sets the
+  page's flag through `setTensionAcrossPhrases`, at Idle and while the Review shows; it is
+  read-only during a generation, a session, and while the controller loads. Changing it
+  regenerates nothing.
+- **The page's flag.** The controller holds it in memory for the page's life
+  (`createTensionAcrossPhrasesFlag`, `src/components/workspace/workspace-session-settings.ts`):
+  off at load (spec D178), kept from one session to the next, and changed only outside a session;
+  a change during the count-in or a running session throws a `SessionControllerError`. Each
+  session's start carries it as `multiPhraseTensionArc`, so the engine runs the cycle for that
+  whole session.
+- **Never a step on screen.** The read-only Tension control shows the tension in effect, the
+  player's own or the value `Vary settings` set, never the step a phrase was generated with:
+  `state.shownSettings` changes only on `settings-changed` outputs, and the engine never reports a
+  step as one (see
+  [Settings in effect and settings generated under](#settings-in-effect-and-settings-generated-under)).
 
 `tension-arc-cycle.spec.ts` tests the pure cycle. `session-engine-tension-arc.spec.ts` and
 `session-engine-tension-arc-generation.spec.ts` drive whole sessions on the
@@ -1283,15 +1308,16 @@ the owner's sign-off on their extended wording (`module_tension_arc_cycle` stays
   boundary (see
   [Settings mutation and changes at a phrase boundary](#settings-mutation-and-changes-at-a-phrase-boundary)),
   with the flag off in the workspace.
-- **Chunk 25:** the flag's control, the display reading from the rolling display, and the
-  handling of `settings-changed` and `phrase-discarded`.
+- **Chunk 25 (built):** the flag's control, the display reading from the rolling display, and the
+  handling of `settings-changed` and `phrase-discarded` (see [In the workspace](#in-the-workspace)).
 - **Chunk 27 (built):** adaptive tempo's engine side, each phrase at its own tempo on the
   transport's tempo map, and the page's flag (see [Adaptive tempo](#adaptive-tempo)).
 - **Chunk 28 (built):** the adaptive-tempo control, `Rising tempo`, the exact tempo in effect on
   screen and the reached-tempo note (see [On screen](#on-screen)).
 - **Chunk 29 (built):** the multi-phrase tension arc's engine side, with the flag off in the
   workspace (see [Multi-phrase tension arc](#multi-phrase-tension-arc)).
-- **Chunk 30:** the multi-phrase tension arc's control.
+- **Chunk 30 (built):** the multi-phrase tension arc's control, `Tension across phrases` (see
+  [The Tension across phrases control](#the-tension-across-phrases-control)).
 
 ## Choices made while building it
 
@@ -1408,6 +1434,18 @@ The multi-phrase tension arc's choices were made in chunk 29:
 - **The step never becomes the settings in effect.** Otherwise a mutation would draw from a
   stepped value, `settings-changed` would report a tension the player never chose, and every step
   would be a settings change, with its discard rule.
+
+The tension-across-phrases control's choices were made in chunk 30:
+
+- **The engine's own boolean.** `WorkspaceSessionStart` now keeps the engine's
+  `multiPhraseTensionArc` as it is, the player's choice: the cycle is fixed and draws nothing, so
+  unlike `Vary settings` there is no seed to add and nothing to translate.
+- **A flag of its own beside `Vary settings`.** `createTensionAcrossPhrasesFlag` has the same shape
+  and lock as `createVarySettingsFlag` but is a separate factory, so the settings-mutation flag's
+  code and default (`SETTINGS_MUTATION_DEFAULT`) stay untouched; the controller only wires it.
+- **Nothing new to hide.** The rule that the Tension control never shows a step needs no code in
+  the screen: the controls already render from `shownSettings`, which only `settings-changed`
+  outputs move. A controller spec and the e2e spec pin it while the steps run.
 
 The rolling display's choices were made in chunk 16:
 

@@ -446,6 +446,8 @@ interface WorkspaceHarnessSessionState {
   readonly lastSessionReachedTempo: number | null
   /** The page's `Vary settings` flag: off at page load, kept from one session to the next. */
   readonly varySettings: boolean
+  /** The page's `Tension across phrases` flag: off at page load, kept from one session to the next. */
+  readonly tensionAcrossPhrases: boolean
   /**
    * What the read-only controls show while a session runs (its start settings in the count-in,
    * then those the phrase now sounding was generated with); null with no session.

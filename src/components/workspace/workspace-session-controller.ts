@@ -14,10 +14,11 @@
  * the next phrase; the next start discards it. Its MIDI side (./workspace-session-midi.ts) starts
  * a session from the starting note and reads a session's controller, whose presence its
  * adaptive-tempo side (./workspace-adaptive-tempo.ts, the page's flag) hands the engine. Its
- * settings side (./workspace-session-settings.ts) holds the page's `Vary settings` flag, which
- * turns the engine's settings mutations on for a session, and the settings the read-only controls
- * show while a session runs; the engine reads the rolling display to know whether a phrase is on
- * screen. The player's own controls are never written, so every end shows them again.
+ * settings side (./workspace-session-settings.ts) holds the page's `Vary settings` and `Tension
+ * across phrases` flags, which turn the engine's settings mutations and multi-phrase tension arc
+ * on for a session, and the settings the read-only controls show while a session runs; the engine
+ * reads the rolling display to know whether a phrase is on screen. The player's own controls are
+ * never written, so every end shows them again.
  */
 import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
 
@@ -54,6 +55,7 @@ import { createSessionPhrases, type SessionPhrases } from './workspace-session-p
 import { createAdaptiveTempoFlag, forwardPresence } from './workspace-adaptive-tempo'
 import {
   createSessionShownSettings,
+  createTensionAcrossPhrasesFlag,
   createVarySettingsFlag,
   type SessionShownSettings,
 } from './workspace-session-settings'
@@ -197,6 +199,9 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     get varySettings(): boolean {
       return varySettings.on()
     },
+    get tensionAcrossPhrases(): boolean {
+      return tensionAcrossPhrases.on()
+    },
   })
   const startBlocker = computed(() =>
     sessionStartBlocker(
@@ -214,6 +219,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   })
   const adaptiveTempo = createAdaptiveTempoFlag(sessionMidi.controllerState, () => state.phase)
   const varySettings = createVarySettingsFlag(() => state.phase)
+  const tensionAcrossPhrases = createTensionAcrossPhrasesFlag(() => state.phase)
 
   /** Intent: an audio time for the engine, never before one it already handled. */
   function engineTime(session: ActiveSession, at: AudioTime): AudioTime {
@@ -599,6 +605,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
         phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
         adaptiveTempo: adaptiveTempo.forSession(state.sessionHasController),
         varySettings: varySettings.on(),
+        multiPhraseTensionArc: tensionAcrossPhrases.on(),
       },
       checkFit: display.checkFit,
       display: { isPhraseOnScreen: display.isPhraseOnScreen },
@@ -643,6 +650,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     showReview,
     setAdaptiveTempo: adaptiveTempo.set,
     setVarySettings: varySettings.set,
+    setTensionAcrossPhrases: tensionAcrossPhrases.set,
     dispose: () => {
       if (disposed) throw new SessionControllerError('session controller: disposed twice')
       disposed = true
