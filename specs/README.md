@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.32
+Status: draft v0.33
 
 ## Status Snapshot
 
@@ -226,6 +226,21 @@ Status: draft v0.32
   "profile customized" marking a mutation set returns too, and the fresh phrase generated at the
   end uses the restored settings. The session controller restores them (build plan chunk 25), not
   the engine. Master spec v1.28. Nothing newly opened.
+- **One v2.0 release (2026-10-05, D183)**, the owner's decision. v2.1, v2.2 and v2.4 are compacted
+  into one official release, v2.0, with one release gate: build plan chunk 21 absorbs chunks 26,
+  31 and 35. The real-hardware checks are part of the v2.0 gate again, so v2.0 no longer ships
+  before them (D173 and D180 superseded on that point); the owner runs them when they have time.
+  The labels v2.1, v2.2 and v2.4 stay as names for parts of v2.0; v2.3 stays empty (D174). The
+  atoms' release tags are `documentalist`'s to merge or keep. Opened **O105**: whether the
+  real-program export checks block the v2.0 tag (proposed: no, they may follow as a v2.0.x
+  hand-check note; the controller check and the windows and latency tuning block it). Master spec
+  v1.29, build plan v0.5.
+- **Owner rulings of 2026-10-05 (D184–D186).** The silence timer is armed by the starting note,
+  and counts again from a reattachment, as chunk 17 built it, with the chunk's other choices
+  (D184). **O57 closed:** the backing's voicing, register, attack pattern and timbre stay as built;
+  Tone.js is noted as an undecided idea for later (D185). The atom wording left open by chunks 8,
+  13, 20, 27 and 29 is accepted, for `documentalist` to apply (D186). Still open: O71, O87, the
+  audio mix levels (ux Q31) and the VISION sign-off.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.
@@ -259,9 +274,9 @@ Status: draft v0.32
   master spec was then at v1.5 (v1.25 since D171). The one gap left open then (**O84**: starting
   a session from the Review) was closed 2026-09-30 (D169).
 - **Open:** 13 questions remain live: O86 (D129, a v3 question since D130), O87
-  (D131) and O100–O103 (D175, v3 rhythm candidates), plus the 7
+  (D131), O100–O103 (D175, v3 rhythm candidates) and O105 (D183, the v2.0 tag), plus the 6
   older ones this bullet goes on to describe; O77, which it also describes, was settled on
-  2026-10-03 (D176). None is flagged ★. The 5 most-blocking ones
+  2026-10-03 (D176), and O57 on 2026-10-05 (D185). None is flagged ★. The 5 most-blocking ones
   settled first (**D104** O75 v2.0 cut line is the full loop; **D105** O34 continuation boundary;
   **D76** O54 audio unlock; **D77** O55 controller check ships; **D78** O41 acknowledgement
   window), then two large 2026-09-27 batches closed nearly everything else (**D80–D88**:
@@ -288,10 +303,11 @@ Status: draft v0.32
   one grade in either direction, and landing on an unsupported combination re-mutates until a
   supported one is found — but the exact cadence and the flag's default on/off state are still
   open. The rest of what's open is verification/research work, not a design decision: O47,
-  O48, O49 (later/governance, outside v2's own scope), and O57, O68, O69, O71 (listening test,
-  prototype, measurement, and Bluetooth-MIDI research). **D79** notes that v3's "my instrument"
+  O48, O49 (later/governance, outside v2's own scope), and O68, O69, O71 (prototype,
+  measurement, and Bluetooth-MIDI research); O57, the backing's listening test, was settled on
+  2026-10-05 (D185). **D79** notes that v3's "my instrument"
   should inherit the controller check's detected offset. **The v2 spec (v2.0–v2.3 then; v2.0,
-  v2.1, v2.2 and v2.4 since D173–D174) is now consolidated** into [versions/v2/master-spec.md](versions/v2/master-spec.md); the draft topic
+  v2.1, v2.2 and v2.4 since D173–D174, one v2.0 release since D183) is now consolidated** into [versions/v2/master-spec.md](versions/v2/master-spec.md); the draft topic
   documents that fed it, including the original questions-for-user, are archived at
   [archive/v2/](archive/v2/README.md). See the live [register](open-questions.md) for what
   remains open.

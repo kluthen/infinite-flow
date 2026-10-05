@@ -5,7 +5,8 @@ added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keepin
 export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
 session view placed in v5 2026-09-28, D133; v2 replanned 2026-10-03: real-hardware checks as
 v2.4, D173, and the chord-fit check moved to v3 as a nice-to-have, D174; v3 rhythm candidates
-added, D175)
+added, D175; v2.1, v2.2 and v2.4 compacted into one v2.0 release 2026-10-05, D183; Tone.js noted
+as a candidate, D185)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -46,13 +47,15 @@ is archived verbatim as [2026-09-25-roadmap-pre-vision.md](archive/2026-09-25-pe
   - last-session review with export of the whole session: the generated notes as MusicXML or
     MIDI, the played notes as MIDI, each by its own action (D129, D130); no favorites (v3, D130);
   - adaptive tempo as an opt-in (nice to have).
-- **Releases:** v2.0 (the core loop), v2.1 (played notes in the review and their export, the
-  settings-mutation flag), v2.2 (adaptive tempo, the multi-phrase tension arc), then **v2.4,
-  real-hardware checks**: the controller check, the acknowledgement windows and latency tuned on
-  the reference hardware, real exports opened in MuseScore and a MIDI tool, and the playhead and
-  main-thread measurements in real Chromium (D173), plus the v2.1 gate's real-DAW and
-  reference-machine checks (D180). v2.0, v2.1 and v2.2 can ship before them. v2.3 is empty
-  since the chord-fit check left for v3 (D174); the number is not reused.
+- **Release:** one release, **v2.0** (D183), with one release gate. It holds the core loop and
+  the parts first planned as releases of their own: v2.1 (played notes in the review and their
+  export, the settings-mutation flag), v2.2 (adaptive tempo, the multi-phrase tension arc) and
+  v2.4, the real-hardware checks: the controller check, the acknowledgement windows and latency
+  tuned on the reference hardware, real exports opened in MuseScore, a MIDI tool and a DAW, the
+  playhead and main-thread measurements in real Chromium, and the cold run re-measured on the
+  reference machine (D173, D180). v2.0 does not ship before those checks; whether the
+  real-program export checks may follow the tag is O105. v2.3 is empty since the chord-fit check
+  left for v3 (D174); the number is not reused.
 - **Depends on:** the v1.0 gate (instrument transposition as data); the first audio and timing
   foundation; **O10** once continuation reuses earlier material. (O24, what "fits the chord"
   means, is resolved — see D108.)
@@ -143,6 +146,9 @@ The owner's ideas, recorded so they are not lost. None of them is scope for any 
   little for tension and release), all reached by a new note-density value, Custom. Recorded in
   [v3](versions/v3/README.md#rhythm-candidates-custom-note-density-candidates-not-committed);
   that is not a v3 placement. Open: O100–O103.
+- **Tone.js for the backing (version open; D185).** Using the Tone.js audio library, mainly to add
+  more accompaniment voices; v2 synthesizes its backing with plain Web Audio and bundles no audio
+  library. An idea for later, not decided; more voices are v4's accompaniment with roles.
 - **Cross-device review by export, then import (no earlier than v6; D128).** A player exports a
   phone session and reopens it for review on a larger screen. It serves P3. Recorded in
   [v5+](versions/v5-plus/README.md#candidates-not-committed).

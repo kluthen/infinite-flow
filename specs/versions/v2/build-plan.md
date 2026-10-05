@@ -1,6 +1,7 @@
 # Infinite Flow v2 — Build Plan
 
-Status: draft v0.4 (2026-10-03). Chunk 0 is done. Build plan for v2.0, v2.1, v2.2 and v2.4,
+Status: draft v0.5 (2026-10-05). Chunk 0 is done. Build plan for v2, released as one v2.0 since
+spec D183, its parts still labelled v2.0, v2.1, v2.2 and v2.4,
 written from [master spec v1.20](master-spec.md) and kept in step with it since (v1.28). Not yet
 approved for execution. Change in v0.3: the spec gaps are resolved, so the phrase-boundary change
 and the key change's harmonic drop move from chunks 7 and 8 to chunk 24 in v2.1, and each chunk is
@@ -9,7 +10,10 @@ D173–D180): the real-hardware checks leave the v2.0 and v2.1 gates (chunks 21 
 new release, v2.4, with its own gate, [chunk 35](#chunk-35--v24-release-gate-real-hardware-checks); the chord-fit check
 (chunks 32–34, the former v2.3) leaves v2 for v3 as a nice-to-have, and its chunks stay below as
 notes, out of every wave; and the answers to O77, O93, O98 and O99 unblock chunks 24, 25 and
-27–30, apart from their designs.
+27–30, apart from their designs. Change in v0.5, the owner's decisions of 2026-10-05 (spec
+D183–D186): v2.1, v2.2 and v2.4 are compacted into one release, v2.0, with one gate,
+[chunk 21](#chunk-21--v20-release-gate), which absorbs chunks 26, 31 and 35, the real-hardware
+checks included; the backing (O57) and chunk 17's silence-timer choices are accepted as built.
 
 This plan cuts v2 into chunks that one owner can build, test and document at a time, and puts
 them in order. It adds no behaviour. What the app does is in the [master spec](master-spec.md);
@@ -28,23 +32,23 @@ appear, with a link to the project [lexicon](../../../docs/music/lexicon.md) whe
 
 ### Release sequence
 
-v2 ships in four releases, in this order: v2.0, v2.1, v2.2 and v2.4. Each ends with a release-gate
-chunk that checks its part of the [definition of done](master-spec.md#11-definition-of-done).
-v2.3 is empty: the chord-fit check it held is a v3 nice-to-have (spec D174), and the number is not
-reused. v2.0 can ship before v2.4's real-hardware checks (spec D173).
+v2 ships as one release, v2.0 (spec D183). It was planned as four releases, v2.0, v2.1, v2.2 and
+v2.4, each with its own gate; on 2026-10-05 the owner compacted them into one.
+[Chunk 21](#chunk-21--v20-release-gate) is the single release gate. It checks the whole
+[definition of done](master-spec.md#11-definition-of-done), the real-hardware checks included,
+and chunks 26, 31 and 35, the former gates of v2.1, v2.2 and v2.4, are folded into it. The labels
+v2.1, v2.2 and v2.4 stay on the chunks below, in master spec §11 and in the atoms' tags, as names
+for parts of v2.0's scope; none is a release. v2.3 is empty: the chord-fit check it held is a v3
+nice-to-have (spec D174), and the number is not reused.
 
-| Release | Delivers                                                                                                                                                                                                                                                                                          | Chunks    |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| v2.0    | The core loop: phrases that keep coming and join smoothly, backing, click and count-in, sessions, MIDI note acknowledgement and the controller check, the last-session review, and the export of the generated notes. Settings are locked during a session. Also the three changes to v1 at Idle. | 0–21 (22) |
-| v2.1    | The played notes in the review, with their own MIDI export. The settings-mutation flag, with its changes applied at the next phrase boundary.                                                                                                                                                     | 22–26 (5) |
-| v2.2    | Adaptive tempo. The multi-phrase tension arc.                                                                                                                                                                                                                                                     | 27–31 (5) |
-| v2.4    | The real-hardware checks: the controller check, the windows and latency tuned on the reference hardware, real exports opened in MuseScore and a MIDI tool, the playhead and main-thread measurements in real Chromium.                                                                            | 35 (1)    |
+| Release | Delivers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Chunks                  |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| v2.0    | The core loop (chunks 0–20): phrases that keep coming and join smoothly, backing, click and count-in, sessions, MIDI note acknowledgement and the controller check, the last-session review, the export of the generated notes, settings locked during a session, and the three changes to v1 at Idle. Part v2.1 (22–25): the played notes in the review, with their own MIDI export; the settings-mutation flag. Part v2.2 (27–30): adaptive tempo; the multi-phrase tension arc. Part v2.4: the real-hardware checks. One gate, chunk 21, absorbing the former gates 26, 31 and 35. | 0–35 without 32–34 (33) |
 
 Chunks 0 and 1 are prerequisites. They are counted in v2.0.
 
-A later release's logic chunk may start before the earlier release ships, once the chunks it
-depends on have merged: pure logic changes nothing on screen. Its interface chunk waits for its
-own release.
+With one release, no chunk waits for a release to ship: each waits for the chunks it depends on
+and, for an interface chunk, its design. Every chunk but the gate is done.
 
 ### Prerequisites
 
@@ -106,28 +110,27 @@ one wave touch different source files, so separate owners can build them side by
 its own worktree. Shared documents (the README, a doc under `docs/`) may be touched by several
 chunks in different sections; the second to merge rebases on the first.
 
-| Wave | Chunks                                                                                                                                                                                                                                                                                                                                                                        | Waits for                                                           |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29), follow-up Performance: cold generation (done 2026-09-30)                                                                                                                                                                                                                                             | Nothing                                                             |
-| 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 (done 2026-09-29), follow-up 3b Phone staff height (done 2026-09-29) · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation (done 2026-09-29) · 14 Note acknowledgement (done 2026-09-29) · 18 MusicXML encoding (done 2026-09-29) · 19 Generated-notes MIDI encoding (done 2026-09-29) | Chunk 0 (done). Start chunk 3 first (see the caveat).               |
-| 2    | 5 Idle fit retries and the room notice (done 2026-09-30) · 6 Note identity and session overlays (done 2026-09-30) · 8 Session engine (done 2026-09-30) · 10 Audio transport (done 2026-09-30)                                                                                                                                                                                 | Wave 1. Chunk 1's verdict: given (2026-09-30).                      |
-| 3    | 9 Session history (done 2026-09-30) · 11 Backing (done 2026-09-30) · 12 MIDI input (done 2026-10-01)                                                                                                                                                                                                                                                                          | Wave 2                                                              |
-| 4    | 15 Session screen: start and end (done 2026-10-01)                                                                                                                                                                                                                                                                                                                            | Wave 3                                                              |
-| 5    | 13 Controller connection (done 2026-10-01) · 16 Rolling display (done 2026-10-01)                                                                                                                                                                                                                                                                                             | Chunk 15                                                            |
-| 6    | 17 MIDI in the session (done 2026-10-02)                                                                                                                                                                                                                                                                                                                                      | Wave 5                                                              |
-| 7    | 20 Review and generated-notes export (done 2026-10-02; hand checks moved to chunk 35)                                                                                                                                                                                                                                                                                         | Chunk 17                                                            |
-| 8    | 21 v2.0 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.0 chunk                                                    |
-| 9    | 22 Played-notes MIDI encoding (done 2026-10-03) · 24 Settings-mutation engine (done 2026-10-03)                                                                                                                                                                                                                                                                               | Chunks 4, 7, 8, 9 and 19; may start before v2.0 ships               |
-| 10   | 23 Review: played notes (done 2026-10-04) · 25 Settings-mutation control                                                                                                                                                                                                                                                                                                      | Wave 9, v2.0, and their designs                                     |
-| 11   | 26 v2.1 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.1 chunk                                                    |
-| 12   | 27 Adaptive tempo engine (done 2026-10-03) · 29 Multi-phrase tension arc (done 2026-10-04)                                                                                                                                                                                                                                                                                    | v2.0 chunks, and chunk 24 for chunk 29; may start before v2.1 ships |
-| 13   | 28 Adaptive tempo control · 30 Tension arc control                                                                                                                                                                                                                                                                                                                            | Wave 12, v2.1, and their designs                                    |
-| 14   | 31 v2.2 release gate                                                                                                                                                                                                                                                                                                                                                          | Every v2.2 chunk                                                    |
-| 15   | 35 v2.4 release gate: real-hardware checks                                                                                                                                                                                                                                                                                                                                    | Chunk 31 (v2.2), and the reference hardware                         |
+| Wave | Chunks                                                                                                                                                                                                                                                                                                                                                                        | Waits for                                                                     |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| 0    | 0 ATD ingestion (done 2026-09-29) · 1 Baseline checks (done 2026-09-29), follow-up Performance: cold generation (done 2026-09-30)                                                                                                                                                                                                                                             | Nothing                                                                       |
+| 1    | 2 Browser boundaries (done 2026-09-29) · 3 Notation layout v2 (done 2026-09-29), follow-up 3b Phone staff height (done 2026-09-29) · 4 Note density on small screens (done 2026-09-29) · 7 Generator continuation (done 2026-09-29) · 14 Note acknowledgement (done 2026-09-29) · 18 MusicXML encoding (done 2026-09-29) · 19 Generated-notes MIDI encoding (done 2026-09-29) | Chunk 0 (done). Start chunk 3 first (see the caveat).                         |
+| 2    | 5 Idle fit retries and the room notice (done 2026-09-30) · 6 Note identity and session overlays (done 2026-09-30) · 8 Session engine (done 2026-09-30) · 10 Audio transport (done 2026-09-30)                                                                                                                                                                                 | Wave 1. Chunk 1's verdict: given (2026-09-30).                                |
+| 3    | 9 Session history (done 2026-09-30) · 11 Backing (done 2026-09-30) · 12 MIDI input (done 2026-10-01)                                                                                                                                                                                                                                                                          | Wave 2                                                                        |
+| 4    | 15 Session screen: start and end (done 2026-10-01)                                                                                                                                                                                                                                                                                                                            | Wave 3                                                                        |
+| 5    | 13 Controller connection (done 2026-10-01) · 16 Rolling display (done 2026-10-01)                                                                                                                                                                                                                                                                                             | Chunk 15                                                                      |
+| 6    | 17 MIDI in the session (done 2026-10-02)                                                                                                                                                                                                                                                                                                                                      | Wave 5                                                                        |
+| 7    | 20 Review and generated-notes export (done 2026-10-02; its hand checks are in chunk 21)                                                                                                                                                                                                                                                                                       | Chunk 17                                                                      |
+| 8    | 22 Played-notes MIDI encoding (done 2026-10-03) · 24 Settings-mutation engine (done 2026-10-03)                                                                                                                                                                                                                                                                               | Chunks 4, 7, 8, 9 and 19                                                      |
+| 9    | 23 Review: played notes (done 2026-10-04) · 25 Settings-mutation control (done 2026-10-05)                                                                                                                                                                                                                                                                                    | Wave 8, waves 0–7, and their designs                                          |
+| 10   | 27 Adaptive tempo engine (done 2026-10-03) · 29 Multi-phrase tension arc (done 2026-10-04)                                                                                                                                                                                                                                                                                    | Waves 0–7, and chunk 24 for chunk 29                                          |
+| 11   | 28 Adaptive tempo control (done 2026-10-05) · 30 Tension arc control (done 2026-10-05)                                                                                                                                                                                                                                                                                        | Wave 10, wave 9, and their designs                                            |
+| 12   | 21 v2.0 release gate, the single gate: it absorbs the former gates 26 (v2.1), 31 (v2.2) and 35 (v2.4, the real-hardware checks)                                                                                                                                                                                                                                               | Every other v2 chunk, and the reference hardware for the real-hardware checks |
 
 The chord-fit chunks 32–34 are in no wave: they left v2 (spec D174) and are kept below as notes
-for v3. The critical path of v2.0 runs through chunks 0, 7, 8, 9, 15, 16, 17, 20 and 21. The graph below
-shows the v2.0 dependencies; each chunk's **Depends on** line is the reference.
+for v3. The gate waves of the four planned releases (former waves 8, 11, 14 and 15) are now the
+one final wave, 12 (spec D183), and the waves between them are renumbered 8–11. The core loop's critical path ran through chunks 0, 7, 8, 9, 15,
+16, 17, 20 and 21; every chunk but the gate is done. The graph below shows the core loop's
+dependencies; each chunk's **Depends on** line is the reference.
 
 ```mermaid
 flowchart LR
@@ -321,6 +324,8 @@ chunk isn't finished until step 6 is done.**
 Each chunk names its release, what it builds, where that is specified and designed, the atoms it
 touches, what it waits for, how to tell it is done, and what blocks it.
 
+- Since spec D183, a chunk's **Release** line names the part of v2.0 it belongs to (v2.0, v2.1,
+  v2.2 or v2.4); every part ships in the one v2.0 release, through chunk 21's gate.
 - **Atoms** are named by id; the file is `docs/<id>.atom.md`. "v1" marks an atom that existed
   before v2: the chunk changes the code it governs or must keep it true.
 - "Item _n_" is item _n_ of the
@@ -1296,7 +1301,8 @@ late queue throws, a phrase never queued stays silent until the next queue call 
 renderer in `src/domain/backing/` for the export to reuse; `verify:boundaries` gained explicit
 no-audio-asset and no-sample-API rules. Still open for the v2.0 gate: O57's listening test (the
 voicing, register, attack pattern and timbre) and ux Q31 (the backing volume's range and default,
-and the linear volume-to-gain mapping).
+and the linear volume-to-gain mapping). _On 2026-10-05 the owner accepted the backing as built,
+closing O57 (spec D185); ux Q31 is still open._
 
 **Progress:**
 
@@ -1889,7 +1895,9 @@ want of the hardware; the procedure is in `docs/midi-tuning.md` for the owner. B
 best-effort (O71), and §12's controller check on the reference hardware is still open for the v2.0
 gate. _Since 2026-10-03 (spec D173), the tuning on the reference hardware and the controller check
 there belong to the v2.4 gate, [chunk 35](#chunk-35--v24-release-gate-real-hardware-checks), not
-the v2.0 gate; the owner's rulings above stay in the v2.0 gate._
+the v2.0 gate; the owner's rulings above stay in the v2.0 gate. Since 2026-10-05 (spec D183)
+chunk 35 is folded into [chunk 21](#chunk-21--v20-release-gate), so these checks are in the v2.0
+gate again; the owner accepted the rulings above as built (spec D184)._
 
 **Progress:**
 
@@ -2083,7 +2091,9 @@ markers). The files are in `tests/fixtures/export-hand-check/`; the checklist an
 are in [`docs/export.md`](../../../docs/export.md#hand-check). No atom's status was advanced:
 `req_session_export` and the two generated-notes export rules wait for those checks. _Since
 2026-10-03 (spec D173), these hand checks belong to the v2.4 gate,
-[chunk 35](#chunk-35--v24-release-gate-real-hardware-checks); they no longer hold up v2.0._
+[chunk 35](#chunk-35--v24-release-gate-real-hardware-checks); they no longer hold up v2.0. Since
+2026-10-05 (spec D183) chunk 35 is folded into [chunk 21](#chunk-21--v20-release-gate): they are
+in the v2.0 gate again, and whether they block its tag is O105._
 
 **Progress:**
 
@@ -2132,7 +2142,8 @@ and its design.
 - MuseScore opens the MusicXML correctly for each of the three instrument templates: the B♭ tenor
   and E♭ alto saxophones, which transpose, with their `<transpose>` element, and the C keyboard
   without one. A MIDI tool opens the MIDI file with the right tempo map and markers. The checks
-  are done by hand and written down. _Moved to the v2.4 gate, chunk 35 (spec D173)._
+  are done by hand and written down. _Moved to the v2.4 gate, chunk 35 (spec D173), and with it
+  into the v2.0 gate, chunk 21 (spec D183)._
 - At every session end once phrase 1 has sounded, a fresh phrase is generated; phrase 1 of the
   next session is the phrase on screen at Idle when it starts (item 28). While the review shows,
   neither the Start click nor any note starts a session, the starting note included, and no
@@ -2147,58 +2158,110 @@ carry the session's start time and instrument profile, for the export file names
 
 ### Chunk 21 — v2.0 release gate
 
-**Release:** v2.0.
+**Release:** v2.0, its single release gate (spec D183). The former gates of v2.1
+([chunk 26](#chunk-26--v21-release-gate)), v2.2 ([chunk 31](#chunk-31--v22-release-gate)) and v2.4
+([chunk 35](#chunk-35--v24-release-gate-real-hardware-checks), the real-hardware checks) are
+folded into this one; their criteria are below.
 
-**Goal.** Check the whole v2.0 definition of done on the merged code, close what the earlier
-chunks left open, and get the owner's go.
+**Goal.** Check the whole definition of done on the merged code, its v2.1, v2.2 and v2.4 parts
+included, run the real-hardware checks, close what the earlier chunks left open, and get the
+owner's go.
 
 **Spec sections:** [§11](master-spec.md#11-definition-of-done),
-[§12](master-spec.md#12-open-questions-carried-forward).
+[§12](master-spec.md#12-open-questions-carried-forward), [§10](master-spec.md#10-adaptive-tempo),
+[§8](master-spec.md#8-midi-input-and-note-acknowledgement) (the windows and latency).
 
-**Design docs:** every v2.0 handoff above.
+**Design docs:** every handoff above.
 
-**Atoms:** every atom tagged `release-v2.0`; v1: `vision_infinite_flow_first_release`,
+**Atoms:** every atom tagged `release-v2.0`, `release-v2.1`, `release-v2.2` or `v2.4-check`, under
+whatever tags `documentalist` settles on when it merges or keeps those tags (spec D183). Among
+them, the real-hardware checks govern `rule_played_onset_latency_compensation`,
+`rule_expected_note_window`, `rule_playhead_follows_audio_clock`,
+`rule_generated_notes_musicxml_export`, `rule_generated_notes_midi_export`,
+`rule_controller_transposition_check` and `req_session_export`; no atom states item 15's
+main-thread budget yet. v1: `vision_infinite_flow_first_release`,
 `specification_behavioral_quality_gates`, `specification_browser_only_operation_verification`,
 `specification_ephemeral_state_verification`, `contract_infinite_flow_first_release`.
 
-**Depends on:** every v2.0 chunk (0–20).
+**Depends on:** every other v2 chunk (0–20, 22–25 and 27–30). For the real-hardware checks, the
+reference hardware: a breath controller over USB, a USB keyboard, and the owner's reference
+machine.
 
 **Done when** (all hold):
 
-- Every one of items 1–28 has a named test or a written hand check, listed in one table in the
-  release notes under `docs/release/`. Items 6, 9 and 15, and item 12's opening of real files in
-  MuseScore and a MIDI tool, are listed there as v2.4 checks
-  ([chunk 35](#chunk-35--v24-release-gate-real-hardware-checks), spec D173).
+The definition of done, on the merged code:
+
+- Every one of items 1–28, and every v2.1 and v2.2 criterion of §11, has a named test or a written
+  hand check, listed in one table in the release notes under `docs/release/`. Items 6, 9 and 15,
+  and item 12's opening of real files, are checked by the real-hardware checks below.
 - Item 1: a sweep over the seed matrix and every supported combination at 60, 120 and 240 BPM, on
   the fake clock, meets every deadline and survives injected failures.
 - Item 2: the property tests of chunk 7 check every join made with carry-in, and a join into the
   standalone phrase or into a repeat is held to no join rule. Item 3: the standalone phrase's
   output is v1's.
-- Items 12 and 13: the export tests of chunks 18–20 pass; the privacy spy runs across a session,
-  the review and export.
+- Items 12 and 13: the export tests of chunks 18–20 and 22 pass; the privacy spy runs across a
+  session, the review and both exports, and sees nothing.
 - Item 14: every v1 release test still passes; offline use after first load works with no audio
   asset added.
-- The open items that §12 lets implementation start without are closed or carried forward by the
-  owner: backing voicing (O57's listening test: the voicing, register, attack pattern and timbre
-  chunk 11 built as placeholders), Bluetooth MIDI (O71), and the wake lock dropped mid-session
-  (O87). (Starting from the Review is settled: spec D170, no session starts while it shows. The
-  controller check on the reference hardware is a v2.4 check: chunk 35.) The audio mix's levels
-  are set (ux Q31: the click and backing volumes' ranges and defaults, and the volume-to-gain
-  mapping, linear for now).
-- The owner has ruled on what chunk 17 left for acceptance: `rule_silence_timeout_ends_session`
-  and `rule_controller_reconnection_window` (whether the starting note counts as "in the
-  session", and the re-arm on reattachment), and the choices made in the chunk.
-- The owner has answered what a session's last phrase may owe. Chunk 7's carry-over criteria hold
-  under that answer, and `documentalist` has given `rule_leap_recovery` and
-  `rule_open_phrase_ending` their v2 scope.
-- The owner has signed off VISION v0.4, and `documentalist` has advanced the v2.0 atoms' status
-  with the owner's agreement. An atom whose last check is a v2.4 one keeps that part open.
-- The owner decides the tag. v2.0 ships with the timing constants at their starting values,
-  untuned (spec D173).
+- Part v2.1 (from chunk 26): a setting changed by the settings-mutation flag first shows at the
+  first phrase that hasn't begun sounding, or at the phrase after it, and no note on screen ever
+  changes.
+- Part v2.2 (from chunk 31): adaptive tempo meets §10, with a flat, unconditional schedule, never
+  an automatic decrease, the correct reset at the session's end, and generation provably
+  unaffected; the multi-phrase tension arc meets the criteria its settled spec gives (§3, §11).
 
-**Blocked by:** every open item above, until closed. O97, which item 2's check depended on, was
-answered on 2026-09-29 (D167): a join made with carry-in settles what the phrase before owed, and a
-session's last phrase may end with it still owed. Nothing here waits for the reference hardware.
+The real-hardware checks, part v2.4 (from chunk 35), on the reference machine and hardware:
+
+- Item 9: the windows and latency constants are measured and tuned on the reference hardware by
+  the procedure in [`docs/midi-tuning.md`](../../../docs/midi-tuning.md#measuring-on-the-reference-hardware),
+  one results row per device. A window value other than 150 ms early and 200 ms late has the
+  owner's sign-off, and `rule_expected_note_window` was revised first.
+- The controller check on the reference hardware: with the device's transpose setting at C, B♭
+  tenor and E♭ alto, the MIDI note a written middle C sends, whether an octave setting changes it,
+  and the note-on velocity, are written down
+  ([`docs/controller-connection.md`](../../../docs/controller-connection.md#the-verdict)). The
+  owner decides from them whether a manual input-transposition setting is needed; if it is, it is
+  new scope, specced on its own. Bluetooth MIDI (O71) is tried at the same sitting.
+- Item 12, in real programs: MuseScore opens real MusicXML exports for the three instrument
+  templates, the two saxophones with `<transpose>` and the C keyboard without; a MIDI tool opens
+  real MIDI exports with the right tempo map and markers. The checklist and results table are in
+  [`docs/export.md`](../../../docs/export.md#hand-check); the files are regenerated from the code
+  the gate checks, as in `tests/fixtures/export-hand-check/`. Whether this blocks the tag is O105.
+- Items 6 and 15, measured in real Chromium on the reference machine and hardware: the playhead
+  stays within 20 ms of the audio output over five minutes, and no main-thread task runs longer
+  than the audio scheduler's look-ahead window during a 240 BPM session.
+- Part v2.1, in a real program: imported together into a real DAW, the played-notes and
+  generated-notes MIDI files of one session line up phrase by phrase, with the same tempo map and
+  markers. Whether this blocks the tag is O105.
+- Part v2.1, on the reference machine: the first generation after an automatic setting change
+  (the latency prerequisite's cold run, as in [chunk 1](#chunk-1--baseline-checks)) is
+  re-measured on the code the gate checks, and the look-ahead deadline keeps its headroom at
+  240 BPM. It is written down.
+- Every automated test of the gate still passes with any tuned constant.
+
+What the earlier chunks left open:
+
+- Settled on 2026-10-05: the backing as chunk 11 built it, O57's listening test (spec D185); the
+  owner's rulings on what chunk 17 left for acceptance, the starting note arming the silence timer
+  and the silence count starting again at a reattachment, with the chunk's other choices (spec
+  D184); and the atom wording chunks 8, 13, 20, 27 and 29 left open (spec D186). Starting from
+  the Review was settled earlier: spec D170, no session starts while it shows.
+- Closed or carried forward by the owner: Bluetooth MIDI (O71), tried at the hardware sitting;
+  the wake lock dropped mid-session (O87); and the audio mix's levels (ux Q31: the click and
+  backing volumes' ranges and defaults, and the volume-to-gain mapping, linear for now).
+- The owner has answered what a session's last phrase may owe (spec D167). Chunk 7's carry-over
+  criteria hold under that answer, and `documentalist` has given `rule_leap_recovery` and
+  `rule_open_phrase_ending` their v2 scope.
+- The owner has signed off VISION v0.4. `documentalist` has settled the release tags of the
+  v2.1, v2.2 and v2.4 atoms (merged into `release-v2.0` or kept as history, spec D183) and
+  advanced the atoms' status with the owner's agreement.
+- The owner decides the tag. v2.0 ships with the timing constants tuned on the reference hardware.
+  Proposed, not settled (O105): the real-program export checks may follow the tag as a v2.0.x
+  hand-check note, while the controller check and the windows and latency tuning block it.
+
+**Blocked by:** every open item above, until closed: O71, O87, ux Q31, the VISION sign-off and
+O105. The real-hardware checks wait for the reference hardware to be at hand; the owner runs them
+when they have time. O97, which item 2's check depended on, was answered on 2026-09-29 (D167).
 
 ### Chunk 22 — Played-notes MIDI encoding
 
@@ -2407,32 +2470,13 @@ default, was answered on 2026-10-03: spec D176.
 
 ### Chunk 26 — v2.1 release gate
 
-**Release:** v2.1.
-
-**Goal.** Check v2.1's definition of done and v2.0's still holding, and get the owner's go.
-
-**Spec sections:** [§11, v2.1](master-spec.md#added-by-v21-and-later).
-
-**Design docs:** the v2.1 handoffs.
-
-**Atoms:** every atom tagged `release-v2.1`.
-
-**Depends on:** every v2.1 chunk (22–25).
-
-**Done when** (all hold):
-
-- Each v2.1 criterion of §11 has a named test or a written hand check, in the release notes. The
-  DAW line-up of the two MIDI files and the cold run re-measured on the reference machine are
-  listed there as v2.4 checks ([chunk 35](#chunk-35--v24-release-gate-real-hardware-checks), spec
-  D180).
-- The privacy spy still sees nothing.
-- A setting changed by the flag first shows at the first phrase that hasn't begun sounding, or at
-  the phrase after it, and no note on screen ever changes.
-- The v2.0 gate's tests all still pass.
-- `documentalist` has advanced the v2.1 atoms with the owner's agreement. The owner decides the tag.
-
-**Blocked by:** what blocks chunks 23–25. Nothing here waits for the reference hardware (spec
-D180).
+**Release:** v2.1. **Folded into [chunk 21](#chunk-21--v20-release-gate) on 2026-10-05 (spec
+D183):** v2.1 is a part of v2.0, not a release, and has no gate of its own. Its criteria are
+checked there: each v2.1 criterion of §11 with a named test or a written hand check, the privacy
+spy, a setting changed by the flag showing only from the first phrase that hasn't begun sounding,
+and the v2.1 atoms advanced with the owner's agreement. Its two checks in a real program or on
+the reference machine (the DAW line-up of the two MIDI files and the cold run, spec D180) are
+among chunk 21's real-hardware checks.
 
 ### Chunk 27 — Adaptive tempo engine
 
@@ -2531,7 +2575,8 @@ multi-phrase tension arc).
 
 **Design docs:** none.
 
-**Atoms:** `req_multi_phrase_tension_arc`; v1: `rule_tension_arc_level_policy`,
+**Atoms:** `req_multi_phrase_tension_arc`, `rule_multi_phrase_tension_arc_cycle`; v1:
+`rule_tension_arc_level_policy`,
 `rule_tension_arc_settled`, `rule_tension_arc_lift`, `rule_tension_arc_build`,
 `rule_tension_arc_edge`, `rule_tension_ranking_respects_constraints`.
 
@@ -2587,31 +2632,12 @@ the tension in effect, while the Tension control keeps showing that tension, nev
 
 ### Chunk 31 — v2.2 release gate
 
-**Release:** v2.2.
-
-**Goal.** Check v2.2's definition of done and the earlier releases' still holding, and get the
-owner's go.
-
-**Spec sections:** [§10](master-spec.md#10-adaptive-tempo),
-[§11, v2.2](master-spec.md#added-by-v21-and-later).
-
-**Design docs:** the v2.2 handoffs.
-
-**Atoms:** every atom tagged `release-v2.2`.
-
-**Depends on:** every v2.2 chunk (27–30).
-
-**Done when** (all hold):
-
-- Adaptive tempo meets §10: a flat, unconditional schedule; never an automatic decrease; the
-  correct reset at the session's end; generation provably unaffected.
-- The tension arc meets the criteria its settled spec gives.
-- The v2.0 and v2.1 gates' tests all still pass.
-- `documentalist` has advanced the v2.2 atoms with the owner's agreement. The owner decides the tag.
-
-**Blocked by:** what blocks chunks 27–30. The v2.2 gate has no check of its own on the reference
-hardware or in a real program; the earlier gates' ones are in
-[chunk 35](#chunk-35--v24-release-gate-real-hardware-checks) (spec D173, D180).
+**Release:** v2.2. **Folded into [chunk 21](#chunk-21--v20-release-gate) on 2026-10-05 (spec
+D183):** v2.2 is a part of v2.0, not a release, and has no gate of its own. Its criteria are
+checked there: adaptive tempo meeting §10 (a flat, unconditional schedule, never an automatic
+decrease, the correct reset at the session's end, generation provably unaffected), the tension arc
+meeting its settled criteria, and the v2.2 atoms advanced with the owner's agreement. It never had
+a check of its own on the reference hardware or in a real program.
 
 > **Chunks 32–34 left v2 on 2026-10-03 (spec D174).** The end-of-measure chord-fit check, the
 > former v2.3, is a v3 nice-to-have, not committed scope
@@ -2705,61 +2731,19 @@ owner's go.
 **Done when** (all hold):
 
 - The v2.3 property test passes over the fixture set.
-- The v2.0, v2.1 and v2.2 gates' tests all still pass.
+- The v2.0 gate's tests all still pass (one gate since spec D183).
 - `documentalist` has advanced the v2.3 atoms with the owner's agreement. The owner decides the tag.
 
 **Blocked by:** what blocks chunk 33.
 
 ### Chunk 35 — v2.4 release gate: real-hardware checks
 
-**Release:** v2.4.
-
-**Goal.** Run the checks that need the reference hardware, the reference machine or a real program
-other than the browser, which left the v2.0 and v2.1 gates on 2026-10-03 (spec D173, D180), and
-get the owner's go. v2.0, v2.1 and v2.2 have shipped without them.
-
-**Spec sections:** [§11, v2.4](master-spec.md#added-by-v21-and-later),
-[§12](master-spec.md#12-open-questions-carried-forward) (the controller check on the reference
-hardware), [§8](master-spec.md#8-midi-input-and-note-acknowledgement) (the windows and latency).
-
-**Design docs:** none.
-
-**Atoms:** `rule_played_onset_latency_compensation`, `rule_expected_note_window`,
-`rule_playhead_follows_audio_clock`, `rule_generated_notes_musicxml_export`,
-`rule_generated_notes_midi_export`, `rule_controller_transposition_check` (each tagged
-`v2.4-check`), `req_session_export`, and the v2.1 atoms tagged `v2.4-check` for the DAW
-line-up and the cold run (spec D180). No atom states item 15's main-thread budget yet.
-
-**Depends on:** [chunk 31](#chunk-31--v22-release-gate), and the reference hardware: a breath
-controller over USB, a USB keyboard, and the owner's reference machine.
-
-**Done when** (all hold):
-
-- Item 9: the windows and latency constants are measured and tuned on the reference hardware by
-  the procedure in [`docs/midi-tuning.md`](../../../docs/midi-tuning.md#measuring-on-the-reference-hardware),
-  one results row per device. A window value other than 150 ms early and 200 ms late has the
-  owner's sign-off, and `rule_expected_note_window` was revised first.
-- The controller check on the reference hardware: with the device's transpose setting at C, B♭
-  tenor and E♭ alto, the MIDI note a written middle C sends, whether an octave setting changes it,
-  and the note-on velocity, are written down
-  ([`docs/controller-connection.md`](../../../docs/controller-connection.md#the-verdict)). The
-  owner decides from them whether a manual input-transposition setting is needed; if it is, it is
-  new scope, specced on its own.
-- Item 12, in real programs: MuseScore opens real MusicXML exports for the three instrument
-  templates, the two saxophones with `<transpose>` and the C keyboard without; a MIDI tool opens
-  real MIDI exports with the right tempo map and markers. The checklist and results table are in
-  [`docs/export.md`](../../../docs/export.md#hand-check); the files are regenerated from the code
-  v2.4 checks, as in `tests/fixtures/export-hand-check/`.
-- Items 6 and 15, measured in real Chromium on the reference machine and hardware: the playhead
-  stays within 20 ms of the audio output over five minutes, and no main-thread task runs longer
-  than the audio scheduler's look-ahead window during a 240 BPM session.
-- From v2.1: imported together into a real DAW, the played-notes and generated-notes MIDI files of
-  one session line up phrase by phrase, with the same tempo map and markers; and the first
-  generation after an automatic setting change (the latency prerequisite's cold run, as in
-  [chunk 1](#chunk-1--baseline-checks)) is re-measured on the reference machine on the code v2.4
-  checks, and the look-ahead deadline keeps its headroom at 240 BPM. Both are written down.
-- The v2.0, v2.1 and v2.2 gates' tests all still pass, with any tuned constant.
-- `documentalist` has advanced the atoms whose last check was one of these, with the owner's
-  agreement. The owner decides the tag.
-
-**Blocked by:** the reference hardware being at hand.
+**Release:** v2.4. **Folded into [chunk 21](#chunk-21--v20-release-gate) on 2026-10-05 (spec
+D183):** the real-hardware checks are part of the v2.0 gate again, and v2.0 no longer ships before
+them (superseding spec D173 and D180 on that point). The checklist this chunk held is in chunk 21,
+under "The real-hardware checks": item 9's tuning of the windows and latency constants, the
+controller check on the reference hardware, item 12 in real programs, items 6 and 15 in real
+Chromium, the DAW line-up of the two MIDI files and the cold run re-measured on the reference
+machine. Whether the real-program export checks block the v2.0 tag is O105. They still wait for
+the reference hardware: a breath controller over USB, a USB keyboard, and the owner's reference
+machine.

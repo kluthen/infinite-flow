@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.25
+Status: draft v2.26
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -947,3 +947,57 @@ fact in the live documents (see the [archive index](archive/README.md) and
   restored settings. The session engine (build plan chunk 24) only reports each change; the
   restore belongs to the session controller (chunk 25). Master spec §5 and §11; build plan
   chunk 25.
+
+- **D183 (2026-10-05): v2.1, v2.2 and v2.4 are compacted into one release, v2.0.** The product
+  owner's decision, through the coordinator. v2 ships as one official release, v2.0, with one
+  release gate instead of four. Its definition of done is everything master spec §11 lists: the
+  v2.0 items, the v2.1 and v2.2 criteria and the real-hardware checks. The labels v2.1, v2.2 and
+  v2.4 stay as names for parts of that scope, as the build plan's chunks and the atoms' tags use
+  them; none is a release of its own. Build plan chunk 21 becomes the single v2.0 gate and absorbs
+  the done-when criteria of chunks 26 (v2.1), 31 (v2.2) and 35 (v2.4, the real-hardware checks),
+  which stay in the plan as headings saying they were folded into it. With one release, no chunk
+  waits for an earlier release to ship: each waits for the chunks it depends on and, for an
+  interface chunk, its design.
+
+  **Supersedes D173 and D180 on one point:** v2.0 no longer ships before the real-hardware checks.
+  They are part of the v2.0 gate, and the owner runs them when they have time. What D173 and D180
+  put among those checks is unchanged: the controller check on the reference hardware, the
+  acknowledgement windows and latency constants tuned on it, real exports opened in MuseScore and
+  a MIDI tool, the playhead and main-thread measurements in real Chromium, the played-notes and
+  generated-notes MIDI files of one session lined up in a real DAW, and the cold run re-measured
+  on the reference machine. So are the definition-of-done item numbers. v2.3 stays empty (D174):
+  the chord-fit check is a v3 nice-to-have. The atoms' release tags (`release-v2.1`,
+  `release-v2.2`, `v2.4-check` and the like) are `documentalist`'s to handle: it decides whether
+  to merge them into `release-v2.0` or keep them as history. Opened **O105** (whether the
+  real-program export checks block the v2.0 tag). Master spec status line, §2, §11 and §12; build
+  plan §1 and chunks 21, 26, 31 and 35; v2 README; roadmap; versions index.
+
+- **D184 (2026-10-05): the silence timer around the starting note and a reattachment, accepted as
+  chunk 17 built it.** The product owner's rulings on what build plan chunk 17 left for
+  acceptance. The starting note arms the silence timer: it is the session's first played note.
+  After the controller reattaches mid-session, the silence timer counts again from the
+  reconnection, once a played note has armed it; before a session's first played note, silence
+  never ends it. Both match `rule_silence_timeout_ends_session`,
+  `rule_controller_reconnection_window` and `module_session_silence_timeout` as they stand, so no
+  rule changes. The owner also accepts chunk 17's other choices: the session history stores
+  latency-compensated times; the USB correction applies to every controller; a session has two
+  MIDI end causes, `silence-timeout` and `controller-lost`; reattachment is held only when the
+  selection is away at a controller-less start; and expected notes that fell due during a loss are
+  passed over, even when their window is still open at the reattachment. Build plan chunks 17 and 21.
+- **D185 (2026-10-05): the backing is accepted as built; O57 is closed.** The product owner's
+  answer to **O57**, after listening to the backing in sessions. The chords' voicing, register,
+  attack pattern and timbre stay as build plan chunk 11 built them: the bass plays the chord's root
+  in MIDI 36–47 (C2–B2), with the fifth on beats 3 and 4 of a measure under one chord, kept in the
+  same band; the chords are the highest close-position triad whose top note is at or below E4,
+  attacked on each chord change and each downbeat, never on beat 3; the voices are simple
+  oscillators synthesized in the app. The bass line had already been judged adequate on
+  2026-10-01. Not part of this answer: the audio mix's levels (ux Q31), still open. Kept as an
+  undecided idea for later, not scope: Tone.js, mainly to add more accompaniment voices. Master
+  spec §6 and §12; build plan chunk 21; roadmap.
+- **D186 (2026-10-05): the atom wording left open by the v2 chunks is accepted.** The product
+  owner agrees, as a whole, with the wording proposals that build plan chunks 8, 13, 20, 27 and 29
+  left open in their atoms. `documentalist` applies them and may advance those atoms' status with
+  this agreement. On the spec side, chunk 29's Atoms line gains
+  `rule_multi_phrase_tension_arc_cycle`, the rule its cycle implements. Not covered, since it adds
+  a rule rather than rewording one: chunk 13's question whether a Disconnect rule is added, which
+  `documentalist` raises with a proposal if it is still wanted. Build plan chunks 21 and 29.

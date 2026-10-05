@@ -1,7 +1,8 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.28 (2026-10-03). This is the consolidated, execution-ready specification for
-v2, covering releases v2.0, v2.1, v2.2 and v2.4 (v2.3 was emptied, and its number is not reused).
+Status: master spec v1.29 (2026-10-05). This is the consolidated, execution-ready specification for
+v2, which ships as one release, v2.0, whose parts keep the labels v2.0, v2.1, v2.2 and v2.4 (v2.3
+was emptied, and its number is not reused).
 It supersedes the individual v2 draft topic documents,
 which are kept in the archive as working history. Change in v1.6: the export is chosen by content,
 generated notes or played notes, and played notes come as a MIDI file of their own instead of an
@@ -115,7 +116,13 @@ stepped down (§5). Change in v1.28, the product owner's decision of 2026-10-03:
 ends, every setting the settings-mutation flag changed returns to the value the player chose
 before the session, the musical profile's "customized" marking included, as adaptive tempo resets
 to the starting tempo, and the fresh phrase generated at the end uses the restored settings
-(§5, §11).
+(§5, §11). Change in v1.29, the product owner's decisions of 2026-10-05: v2.1, v2.2 and v2.4 are
+compacted into one release, v2.0, with one definition of done and one release gate, so the
+real-hardware checks are part of v2.0 again and v2.0 no longer ships before them; the labels
+v2.1, v2.2 and v2.4 remain as names for parts of v2.0's scope; whether the checks of exports in
+real programs must pass before v2.0 is tagged is left open; and the backing's voicing, register,
+attack pattern and timbre are settled as built, after listening to them in sessions (§2, §6, §8,
+§11, §12).
 
 ## 1. Core concept
 
@@ -150,7 +157,7 @@ from a played motif, "my instrument," and local persistence across sessions) is 
 - An opt-in, visible flag that lets the app quietly vary its own generation settings over the
   course of a session, and a separate opt-in flag that raises the tempo on a fixed schedule.
 - Checking the timing, the controller check and the exported files on the reference hardware and
-  in real programs, as a release of its own, v2.4 (§11).
+  in real programs: the v2.4 part of v2.0's definition of done (§11).
 
 ### Explicitly out of scope for v2
 
@@ -447,9 +454,14 @@ decision.
   harmony — in pitch, and on the beat. It is a pure, deterministic renderer over the harmony (not
   a generated voice with its own seed): the bass plays the chord's root at each harmony event and
   on every beat 1 (adding the fifth on beat 3 for a four-beat event); the chords play a
-  close-position triad, similarly re-attacked. It is synthesized in-app with plain Web Audio
-  nodes — no sample libraries, so it stays fully offline-safe with no extra download and no
-  licensing entanglement. It plays only while a session is running, and keeps playing through the
+  close-position triad, similarly re-attacked. The voicing, register, attack pattern and timbre
+  are settled as built, after the product owner listened to them in sessions: the bass plays roots
+  in MIDI 36–47 (roughly C2–B2), and the fifth it adds on beat 3 stays in that band, even below
+  the root; the chords are the highest close-position triad whose top note is at or below E4,
+  attacked on each chord change and each downbeat, never on beat 3. It is synthesized in-app with
+  plain Web Audio nodes — no sample libraries, so it stays fully offline-safe with no extra
+  download and no licensing
+  entanglement. It plays only while a session is running, and keeps playing through the
   player's silences. There is no generated lead-line playback, and no accompaniment with musical
   roles (harmonizing, responding, contrasting) — that is v4.
 - **Click:** on by default, quarter notes with beat 1 accented — it's what makes the tempo
@@ -913,9 +925,10 @@ is ever marked.
 **Latency.** The played onset used for matching is the controller's timestamp mapped onto the
 audio clock, minus the output latency (the delay between scheduling a sound and it actually
 reaching the speakers) and a small constant for the connection type (USB is negligible; Bluetooth
-LE is roughly 10–15 ms plus jitter). These are hard-coded constants only. v2.0 ships them, and the
-windows above, at their starting values; they are tuned on the reference hardware in v2.4 (§11),
-the windows' 150 ms and 200 ms changing only with the product owner's sign-off. A
+LE is roughly 10–15 ms plus jitter). These are hard-coded constants only. They and the windows
+above are built at their starting values, then tuned on the reference hardware by the
+real-hardware checks, before v2.0 ships (§11), the windows' 150 ms and 200 ms changing only with
+the product owner's sign-off. A
 player-facing calibration step that measures and remembers a specific controller's actual latency
 is deferred to v3, where it pairs naturally with "my instrument" persistence.
 
@@ -1020,7 +1033,14 @@ players deliberately building reading and playing speed:
 
 ### Release sequence
 
-| Release  | Delivers                                                                                                                                                                                                                                                                                                                 |
+v2 ships as one release, v2.0. It was planned as four releases, v2.0, v2.1, v2.2 and v2.4, each
+with its own release gate; the product owner compacted them into one on 2026-10-05. The
+definition of done is everything in this section: the v2.0 items below, the v2.1 and v2.2
+criteria, and the real-hardware checks listed as v2.4, all checked by one release gate. The labels
+v2.1, v2.2 and v2.4 remain, here and elsewhere in this spec, as names for parts of v2.0's scope;
+none is a release of its own.
+
+| Part     | Delivers                                                                                                                                                                                                                                                                                                                 |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **v2.0** | The full core loop: rolling phrases with carry-in (§3–§4), backing/click/count-in (§6), sessions (§7), MIDI expected-note acknowledgement and the controller check (§8), last-session review and export of the generated notes to MusicXML or MIDI (§7), generation settings locked for the whole session (§5).          |
 | **v2.1** | Played notes become visible in the review (the v2.0 session history already records them, §7, but the v2.0 review does not show them) and exportable by choice, through their own export action, as their own MIDI file (§7); the settings-mutation flag, with setting changes applied at the next phrase boundary (§5). |
@@ -1030,10 +1050,13 @@ players deliberately building reading and playing speed:
 
 Count-in is part of v2.0 because starting the session on a MIDI note needs it.
 
-v2.0 can ship before v2.4. It ships with its timing constants at their starting values, untuned:
-the acknowledgement windows and the latency constants of §8, as they are before any measurement. The checks that need the reference
-hardware, the reference machine or a real program other than the browser are v2.4's; the v2.0 items
-they replace keep their numbers below, so references to them stay valid.
+v2.0 does not ship before the real-hardware checks. The checks that need the reference hardware,
+the reference machine or a real program other than the browser are listed under v2.4; the v2.0
+items they replace keep their numbers below, so references to them stay valid. The timing
+constants (the acknowledgement windows and the latency constants of §8) are built at their
+starting values and ship tuned by those checks. Whether the checks of exports in real programs
+must pass before v2.0 is tagged, or may follow it as a hand-check note on a v2.0.x update, is
+still open (§12).
 
 ### Prerequisites that must already be in place
 
@@ -1278,9 +1301,8 @@ they replace keep their numbers below, so references to them stay valid.
     change (the cold run of the latency prerequisite) is re-measured on the code v2.4 checks, and
     the look-ahead deadline keeps its headroom at 240 BPM.
 
-  v2.1 and v2.2, like v2.0, can ship before v2.4; their automated tests still gate them.
-
-  The earlier releases' tests all still pass on the code v2.4 checks.
+  These checks are part of v2.0's release gate, run on the code it ships; every automated test of
+  the other parts still passes on that code, with any tuned constant.
 
 ## 12. Open questions carried forward
 
@@ -1288,10 +1310,6 @@ These are consciously left for implementation (or a later, focused conversation 
 owner) to resolve. None of them is silently dropped. None of the items in this first list blocks
 starting v2.0 implementation:
 
-- **Backing voicing and register** (§6): the proposed default is bass in MIDI 36–47 (roughly C2–B2)
-  and chords in close position with the top note at or below E4, attacked on each chord change and
-  each downbeat. This needs a listening-test pass, already agreed to happen later, before being
-  locked in.
 - **Main-thread engraving vs. the audio scheduler's look-ahead window** (§6): whether engraving a
   phrase on the main thread can ever run long enough to threaten the proposed 200 ms scheduling
   window needs a small prototype/measurement pass to confirm; the default assumption is that moving
@@ -1308,11 +1326,20 @@ starting v2.0 implementation:
   the device's own transpose setting at each of C, B♭ tenor and E♭ alto, confirming which MIDI note
   a written middle C actually sends, whether an octave setting changes it, and what note-on
   velocity it uses. This determines whether an additional manual "input transposition" setting is
-  needed beyond the check itself. It is a v2.4 check (§11) and does not block shipping v2.0.
+  needed beyond the check itself. It is one of the real-hardware checks (§11), part of v2.0's
+  definition of done.
 - **The screen wake lock dropped mid-session** (§6): a browser may release the lock by itself
   while the session is still running (for example to save battery). Whether the app asks for it
   again is undecided. Proposed, not yet confirmed by the product owner: it asks again, silently,
   while the session runs and the page is visible; nothing is shown either way.
+- **Whether the checks of exports in real programs block the v2.0 tag** (§11): the MusicXML files
+  opened in MuseScore, the MIDI files opened in a MIDI tool, and the played-notes and
+  generated-notes MIDI files of one session lined up in a real DAW. Proposed, not yet confirmed by
+  the product owner: they do not block it, and may follow as a hand-check note on a v2.0.x update,
+  while the controller-transposition check and the tuning of the acknowledgement windows and
+  latency constants on the reference hardware do block it.
+
+The backing's voicing and register, once in this list, are settled (§6).
 
 One item left v2 when favorites moved to v3, and is not a v2 gap: **what makes a favorite count
 as exported**, which only mattered for asking before discarding unexported favorites. It stays

@@ -1,9 +1,10 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27; master spec v1.27, 2026-10-03, D173–D181).
+Status: consolidated into the master spec (2026-09-27; master spec v1.29, 2026-10-05, D183–D185).
 The individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
-ID-free description of v2.0, v2.1, v2.2 and v2.4 (v2.3 is empty since D174), ready to hand to
+ID-free description of v2, which ships as one release, v2.0, since D183 (its parts keep the
+labels v2.0, v2.1, v2.2 and v2.4; v2.3 is empty since D174), ready to hand to
 `coding-leader` and, later, `ux-writer`.
 
 **Serves:** P2, the Speed Builder, first. P1 gets its real-time goal (reading notes as they come).
@@ -11,10 +12,10 @@ P3 gets session review and export; marking favorites is v3 (D130). See [personas
 
 ## Documents
 
-| Document                         | Purpose                                                                                                        | Status            |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------- |
-| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0–v2.4: concept, scope, mechanics, definition of done, open items | master spec v1.27 |
-| [build-plan.md](build-plan.md)   | The build plan: v2.0–v2.4 cut into ordered chunks, each with its atoms, tests and blockers                     | draft v0.4        |
+| Document                         | Purpose                                                                                                                 | Status            |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0 and its parts: concept, scope, mechanics, definition of done, open items | master spec v1.29 |
+| [build-plan.md](build-plan.md)   | The build plan: v2.0 cut into ordered chunks, each with its atoms, tests and blockers, and one release gate             | draft v0.5        |
 
 The original draft topic documents (highlights proposal, rolling phrase, audio and backing, MIDI
 and acknowledgement, sessions/review/export, adaptive tempo, definition of done,
@@ -260,7 +261,18 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   brightness, any other contour, register among Low, Middle and High, the musical profile as an
   identity flip only. A harmony change also drops harmonic carry-in that no longer fits, and
   `Sixteenth` stays unavailable once the session has stepped down. Master spec v1.27.
-- Open: 13 questions across the register, including O87 (above), and O100–O103, the
+- **Compacted into one release (D183, the owner's decision, 2026-10-05).** v2.1, v2.2 and v2.4
+  ship together as **v2.0**, with one release gate, build plan chunk 21, which absorbs chunks 26,
+  31 and 35. The real-hardware checks are part of the v2.0 gate again: v2.0 no longer ships before
+  them (superseding D173 and D180 on that point). The labels v2.1, v2.2 and v2.4 stay as names for
+  parts of v2.0's scope. **O105** opened: whether the real-program export checks block the v2.0
+  tag (proposed: no). Master spec v1.29, build plan v0.5.
+- **Settled (D184–D186, the owner, 2026-10-05).** The starting note arms the silence timer, and
+  after a reattachment the silence timer counts again from the reconnection, as chunk 17 built
+  them, with the chunk's other choices (D184). **O57 closed:** the backing's voicing, register,
+  attack pattern and timbre stay as built (D185). The atom wording left open by chunks 8, 13, 20,
+  27 and 29 is accepted (D186).
+- Open: 13 questions across the register, including O87 (above), O105 (above), and O100–O103, the
   v3 rhythm candidates (D175); O86 (what makes a favorite "exported") is still open but belongs
   to v3 (D130); none is currently flagged ★. See [open-questions.md](../../open-questions.md) and
   [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
@@ -367,7 +379,10 @@ through an export the player triggers (D64, D69).
 
 - **O47, O48, O49** are governance/later-version questions, unrelated to v2's own scope. Full
   text is in the [register](../../open-questions.md).
-- **O57, O68, O69, O71** are the remaining research-track questions. **O77** (settings-mutation
+- **O68, O69, O71** are the remaining research-track questions; O71 is tried at the
+  real-hardware sitting of the v2.0 gate. **O57** (backing voicing) was settled on 2026-10-05:
+  the backing stays as built (D185). **O105** (whether the real-program export checks block the
+  v2.0 tag, D183) is open. **O77** (settings-mutation
   flag) was settled on 2026-10-03 (D176), with O93 (D177). **O104** (whether the v2.1 and v2.2
   gates' own real checks move to v2.4, D173) was answered yes the same day (D180). Full text is in
   [open-questions.md](../../open-questions.md) and [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
