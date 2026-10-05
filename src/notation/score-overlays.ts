@@ -211,7 +211,7 @@ function attackBeam(stavenote: Element, key: string, head: InkBox): Element | nu
 /**
  * Intent: place the start marker over an attack, from the ink drawn now. The reference edge is the
  * higher of the note's own ink (notehead, stem, flag, accidental, dot, its ledger lines, and the
- * beam group over its stem) and the staff's top line. The marker's lowest point, its apex, sits
+ * beam group on its stem) and the staff's top line. The marker's lowest point, its apex, sits
  * half a space above that edge; over a chord symbol, only where the gap from that edge up to the
  * chord symbol's bottom is at least 2 spaces, and otherwise half a space above the chord symbol's
  * top. Centred on the notehead's ink. The chord symbol is never moved.
