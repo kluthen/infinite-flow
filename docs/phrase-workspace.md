@@ -200,12 +200,15 @@ session and one long-lived `Worker`:
   resolves or rejects exactly the pending request with the matching `id`, and an unmatched id is
   a thrown `GenerationWorkerProtocolError`.
 - **Boundary re-validation and deep-freeze.** `structuredClone` (the `postMessage` transport)
-  strips branding and freezing but preserves plain-object/array shape. `generation-worker-protocol.ts`
-  re-validates every field crossing the wire in both directions through the same domain
-  constructors/parsers the orchestrator itself uses wherever one exists (`makeRequestId`,
-  `makeSeed`, `makeGenerationControls`, `parseGenerationRequest`, `parseConcertEventTimeline`), and
-  reconstructs the `GenerationIntent` via `makeGenerationIntent` before asserting the rebuilt value
-  deep-equals the received record field-for-field. `GenerationProvenance` and
+  strips branding and freezing but preserves plain-object/array shape. The protocol re-validates
+  every field crossing the wire in both directions through the same domain constructors/parsers
+  the orchestrator itself uses wherever one exists (`makeRequestId`, `makeSeed`,
+  `makeGenerationControls`, `parseGenerationRequest`, `parseConcertEventTimeline`). The
+  worker-bound side (`generation-worker-inbound.ts`) reconstructs the `GenerationIntent` via
+  `makeGenerationIntent`, or `makeCarryInGenerationIntent` when it holds a carry-in, before
+  asserting the rebuilt value deep-equals the received record field-for-field. The response side
+  stays in `generation-worker-protocol.ts`, the only half the main thread loads at start-up, so the
+  carry-in checks the worker-bound side needs stay out of the entry chunk. `GenerationProvenance` and
   `GenerationDiagnostics` have no existing boundary parser (nothing upstream ever accepted them as
   untrusted input before this worker boundary existed), so they get a minimal structural check
   instead. A parsed outcome is deep-frozen before being returned to the session.

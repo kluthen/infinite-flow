@@ -11,6 +11,7 @@ import { makeGenerationControls } from '../domain/controls/generation-controls'
 import { resolveGeneratedNoteDensity } from '../domain/controls/generated-note-density'
 import { deepFreeze } from '../domain/events/deep-freeze'
 import type { CarryIn } from '../domain/generation/carry-in/carry-in'
+import { makeCarryInGenerationIntent } from '../domain/generation/carry-in/carry-in-intent'
 import { makeGenerationIntent, type GenerationIntent } from '../domain/generation/generation-intent'
 import type { RegisterId } from '../domain/profile/register-id'
 import type { RegisterChoice } from '../domain/profile/register-intent'
@@ -99,12 +100,15 @@ export function buildAttemptIntent(
     sessionSteppedDown: steppedDown,
   })
   const register = plan.step === 'standalone' ? plan.register : chosen.register
-  const intent = makeGenerationIntent({
+  const input = {
     requestId: seams.providers.nextRequestId(),
     seed: seams.providers.nextSeed(),
     controls: { ...chosen, noteDensity, register },
     musicalProfile: settings.musicalProfile,
-    ...(plan.step === 'carry-in' ? { carryIn: plan.carryIn } : {}),
-  })
+  }
+  const intent =
+    plan.step === 'carry-in'
+      ? makeCarryInGenerationIntent({ ...input, carryIn: plan.carryIn })
+      : makeGenerationIntent(input)
   return { intent, steppedDown: steppedDown || noteDensity !== chosen.noteDensity }
 }

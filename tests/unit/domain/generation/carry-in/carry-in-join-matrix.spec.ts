@@ -18,6 +18,7 @@ import { describe, expect, it } from 'vitest'
 
 import { makeGenerationControls, type Leapiness } from '@/domain/controls/generation-controls'
 import type { CarryIn } from '@/domain/generation/carry-in/carry-in'
+import { makeCarryInGenerationIntent } from '@/domain/generation/carry-in/carry-in-intent'
 import {
   createGenerationIntent,
   type GenerationIntent,
@@ -60,7 +61,7 @@ const MATRIX = buildMatrix()
 /** Intent: the real intent of one cell's phrase `phraseNumber`, with its own seed. */
 function phraseIntent(cell: MatrixCell, phraseNumber: number, carryIn?: CarryIn): GenerationIntent {
   const seed = cell.seed + 1000 * (phraseNumber - 1)
-  return createGenerationIntent({
+  const input = {
     requestId: makeRequestId(`join-${cell.label}-phrase-${phraseNumber}`),
     seed: makeSeed(seed),
     controls: makeGenerationControls({
@@ -69,8 +70,10 @@ function phraseIntent(cell: MatrixCell, phraseNumber: number, carryIn?: CarryIn)
       instrumentProfileId: cell.instrumentProfileId,
     }),
     musicalProfile: { musicalProfile: cell.set.musicalProfile, isCustom: true },
-    ...(carryIn === undefined ? {} : { carryIn }),
-  })
+  }
+  return carryIn === undefined
+    ? createGenerationIntent(input)
+    : makeCarryInGenerationIntent({ ...input, carryIn })
 }
 
 /**

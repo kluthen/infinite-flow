@@ -11,6 +11,7 @@ import {
   parseCarryIn,
   type CarryIn,
 } from '@/domain/generation/carry-in/carry-in'
+import { GenerationIntentError, makeGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRegisterWindow } from '@/domain/profile/register-window'
 import {
   attackMidis,
@@ -179,6 +180,31 @@ describe('a carry-in checked against the intent that receives it', () => {
   it('is kept on the intent unchanged', () => {
     const { carryIn } = realCarryIn()
     expect(buildIntent({ seed: 12, carryIn }).carryIn).toStrictEqual(carryIn)
+  })
+
+  it('is the plain intent of the same input with the carry-in added as its last field', () => {
+    const { carryIn } = realCarryIn()
+    const received = buildIntent({ seed: 12, carryIn })
+    const { carryIn: kept, ...rest } = received
+    expect(kept).toBe(carryIn)
+    expect(rest).toStrictEqual(buildIntent({ seed: 12 }))
+    expect(Object.keys(received).at(-1)).toBe('carryIn')
+    expect(Object.isFrozen(received)).toBe(true)
+  })
+
+  it('is refused by the plain intent factory, never silently dropped', () => {
+    const { carryIn } = realCarryIn()
+    const plain = buildIntent({ seed: 12 })
+    const input = {
+      requestId: plain.requestId,
+      seed: plain.seed,
+      controls: { ...plain.controls, tonalCenter: plain.writtenTonalCenter },
+      musicalProfile: plain.musicalProfile,
+    }
+    expect(makeGenerationIntent(input)).toStrictEqual(plain)
+    expect(() => makeGenerationIntent(Object.assign({}, input, { carryIn }))).toThrow(
+      GenerationIntentError,
+    )
   })
 
   it('refuses a window the register choice does not offer', () => {
