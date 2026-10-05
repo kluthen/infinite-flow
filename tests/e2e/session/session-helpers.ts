@@ -1,9 +1,9 @@
 /**
  * Shared helpers for the session screen specs: the workspace harness (port 4175) with its fake
  * audio clock, a phrase made ready to start from, the header's session action, the cue row, the
- * session controller's state through `window.__workspaceHarness.session` (and its adaptive-tempo
- * flag, set through it), the count-in clicks on the audio clock, and the staff's measure boxes in
- * page coordinates.
+ * session controller's state through `window.__workspaceHarness.session`, the `Rising tempo`
+ * control, the count-in clicks on the audio clock, and the staff's measure boxes in page
+ * coordinates.
  */
 import { expect, type Locator, type Page } from '@playwright/test'
 
@@ -30,13 +30,23 @@ export function sessionState(page: Page): Promise<WorkspaceHarnessSessionState> 
   return page.evaluate(() => window.__workspaceHarness.session.state())
 }
 
+/** Intent: a segment of the `Rising tempo` control, `Off` or `On`. */
+export function risingTempoSegment(page: Page, label: 'Off' | 'On'): Locator {
+  return page
+    .getByRole('radiogroup', { name: 'Rising tempo' })
+    .getByRole('radio', { name: label, exact: true })
+}
+
 /**
- * Intent: turn the page's adaptive-tempo flag on or off through the harness (it has no control on
- * screen yet); throws as the controller does, during a session or on with no controller attached.
+ * Intent: turn rising tempo (the page's adaptive-tempo flag) on or off with a click on its
+ * control, and wait until the controller holds the choice.
  */
 // @test-link [[req_adaptive_tempo]]
-export async function setAdaptiveTempo(page: Page, on: boolean): Promise<void> {
-  await page.evaluate((value) => window.__workspaceHarness.session.setAdaptiveTempo(value), on)
+export async function setRisingTempo(page: Page, on: boolean): Promise<void> {
+  await risingTempoSegment(page, on ? 'On' : 'Off').click()
+  await expect
+    .poll(() => page.evaluate(() => window.__workspaceHarness.session.state().adaptiveTempo))
+    .toBe(on)
 }
 
 /** Intent: land on the harness at `size`, and wait for the session controller to load. */

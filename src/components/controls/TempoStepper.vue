@@ -3,7 +3,10 @@
  * A generic, presentational stepper for a value drawn from a fixed, ordered catalog (tempo's
  * only first-release use). Props-in/events-out only. Read-only keeps the control focusable and
  * announced but suppresses every value change, matching the read-only behavior every other
- * generation control follows while a request is in flight.
+ * generation control follows while a request is in flight. Read-only, it may also show a value
+ * between the catalog's bounds that is not one of its entries: during a session the tempo in
+ * effect, which a rising tempo can put off the list. Its value sits in `input-stepper-value`, one
+ * fixed width, so no value ever moves the buttons.
  */
 import { computed } from 'vue'
 
@@ -17,19 +20,26 @@ const emit = defineEmits<{
   'update:modelValue': [value: number]
 }>()
 
-/** Intent: crash early when the current value is absent from its own catalog. */
-const currentIndex = computed(() => {
+const min = computed(() => props.values[0]!)
+const max = computed(() => props.values[props.values.length - 1]!)
+
+/**
+ * Intent: the value shown and its catalog index, crashing early on a value the stepper cannot
+ * show: absent from its own catalog while editable, or, read-only, outside the catalog's bounds.
+ * A read-only off-list value has no index (null); no step starts from it, since read-only
+ * suppresses every change. The template reads it, so the check runs at every render.
+ */
+// @spec-link [[rule_adaptive_tempo_resets_after_session]]
+const shown = computed((): { readonly bpm: number; readonly index: number | null } => {
   const index = props.values.indexOf(props.modelValue)
-  if (index === -1) {
-    throw new Error(`TempoStepper value ${props.modelValue} is not one of its catalog values.`)
-  }
-  return index
+  if (index !== -1) return { bpm: props.modelValue, index }
+  if (props.readonly && props.modelValue >= min.value && props.modelValue <= max.value)
+    return { bpm: props.modelValue, index: null }
+  throw new Error(`TempoStepper value ${props.modelValue} is not one of its catalog values.`)
 })
 
-const min = computed(() => props.values[0])
-const max = computed(() => props.values[props.values.length - 1])
-const atMin = computed(() => currentIndex.value === 0)
-const atMax = computed(() => currentIndex.value === props.values.length - 1)
+const atMin = computed(() => shown.value.index === 0)
+const atMax = computed(() => shown.value.index === props.values.length - 1)
 
 /** Intent: move to the value at `index` unless read-only or the index is out of catalog bounds. */
 function moveTo(index: number): void {
@@ -41,12 +51,14 @@ function moveTo(index: number): void {
 
 /** Intent: step the current value toward the previous catalog entry. */
 function decrement(): void {
-  moveTo(currentIndex.value - 1)
+  const { index } = shown.value
+  if (index !== null) moveTo(index - 1)
 }
 
 /** Intent: step the current value toward the next catalog entry. */
 function increment(): void {
-  moveTo(currentIndex.value + 1)
+  const { index } = shown.value
+  if (index !== null) moveTo(index + 1)
 }
 
 /** Intent: spinbutton keyboard support -- Arrow keys step by one, Home/End jump to the bounds. */
@@ -73,10 +85,10 @@ function handleKeydown(event: KeyboardEvent): void {
     role="spinbutton"
     tabindex="0"
     aria-label="Tempo"
-    :aria-valuenow="modelValue"
+    :aria-valuenow="shown.bpm"
     :aria-valuemin="min"
     :aria-valuemax="max"
-    :aria-valuetext="`${modelValue} BPM`"
+    :aria-valuetext="`${shown.bpm} BPM`"
     :aria-readonly="readonly ? 'true' : undefined"
     @keydown="handleKeydown"
   >
@@ -91,7 +103,7 @@ function handleKeydown(event: KeyboardEvent): void {
     >
       &minus;
     </button>
-    <span>{{ modelValue }} BPM</span>
+    <span class="input-stepper-value">{{ shown.bpm }} BPM</span>
     <button
       class="stepper-button"
       type="button"

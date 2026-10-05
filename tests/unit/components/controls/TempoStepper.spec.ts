@@ -73,4 +73,26 @@ describe('TempoStepper', () => {
     await wrapper.get('[aria-label="Decrease tempo"]').trigger('click')
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
   })
+
+  // @test-link [[rule_adaptive_tempo_resets_after_session]]
+  it('read-only: shows a value off its list within its bounds, in the fixed-width value box', async () => {
+    const wrapper = mountStepper(95, true)
+    const value = wrapper.get('.input-stepper-value')
+    expect(value.text()).toBe('95 BPM')
+    const spin = wrapper.get('[role="spinbutton"]')
+    expect(spin.attributes('aria-valuenow')).toBe('95')
+    expect(spin.attributes('aria-valuetext')).toBe('95 BPM')
+    await spin.trigger('keydown', { key: 'ArrowUp' })
+    await spin.trigger('keydown', { key: 'End' })
+    await wrapper.get('[aria-label="Increase tempo"]').trigger('click')
+    await wrapper.get('[aria-label="Decrease tempo"]').trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+  })
+
+  // @test-link [[rule_adaptive_tempo_resets_after_session]]
+  it('throws on an off-list value when editable, and on one outside its bounds when read-only', () => {
+    expect(() => mountStepper(95)).toThrow(/not one of its catalog values/)
+    expect(() => mountStepper(105, true)).toThrow(/not one of its catalog values/)
+    expect(() => mountStepper(55, true)).toThrow(/not one of its catalog values/)
+  })
 })

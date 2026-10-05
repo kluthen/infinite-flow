@@ -24,6 +24,9 @@ function mountPanel(
       profileSelection,
       readonly,
       noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
+      risingTempo: false,
+      risingTempoAvailable: false,
+      lastSessionReachedTempo: null,
       varySettings: false,
       sessionOptionsReadonly: readonly,
       presetStatusLive: 'polite',
@@ -64,6 +67,7 @@ describe('ControlPanel', () => {
       'Register',
       'Leapiness',
       'Arpeggio chaos',
+      'Rising tempo',
       'Vary settings',
     ])
   })
@@ -226,6 +230,9 @@ describe('ControlPanel', () => {
         profileSelection: DEFAULT_PROFILE_SELECTION,
         readonly: true,
         noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
+        risingTempo: false,
+        risingTempoAvailable: false,
+        lastSessionReachedTempo: null,
         varySettings: false,
         sessionOptionsReadonly: true,
         presetStatusLive: 'off',

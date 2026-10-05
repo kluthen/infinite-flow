@@ -6,13 +6,16 @@
  * runs from 5.1 s to 7.1 s, phrase 1 from 7.1 s, phrase 2 from 15.1 s, phrase 3's tempo is fixed at
  * 21.1 s, the start of phrase 2's last measure). A session started without the flag, or without a
  * controller (the selected one away, or none selected), keeps the starting tempo, and its
- * controller's comings and goings never reach the engine.
+ * controller's comings and goings never reach the engine. The tempo the last session that ran
+ * adaptive tempo reached is kept for the screen's note: set or cleared by an end once phrase 1 has
+ * sounded, left by a start and by an end during the count-in, and the same whatever the player
+ * plays.
  */
 import { describe, expect, it } from 'vitest'
 
 import { SessionControllerError } from '@/components/workspace/workspace-session-controller-types'
 import { controllerRig, playTo, type ControllerRig } from './session-controller-rig'
-import { connectKeys, KEYS, replugKeys, unplugKeys } from './session-controller-midi'
+import { connectKeys, KEYS, lift, press, replugKeys, unplugKeys } from './session-controller-midi'
 
 /** The starting tempo of every session here. */
 const START_TEMPO = 120
@@ -200,5 +203,95 @@ describe('session controller: the controller lost across a due rise', () => {
     expect(controllerEvents(rig)).toEqual([false, true])
     const lost = rig.events.find((event) => event.kind === 'controller')
     expect(lost?.at).toBe(lostAt)
+  })
+})
+
+/** Intent: run the started session `seconds` more of audio, then stop it. */
+async function runAndStop(rig: ControllerRig, seconds: number): Promise<void> {
+  await playTo(rig, rig.audioRig.now() + seconds)
+  rig.controller.stop()
+}
+
+// @test-link [[rule_adaptive_tempo_resets_after_session]]
+// @test-link [[rule_no_grading_or_mismatch_signal]]
+describe("session controller: the last session's reached tempo", () => {
+  // @test-link [[rule_adaptive_tempo_resets_after_session]]
+  it('is none at page load, then the tempo a session that ran adaptive tempo reached', async () => {
+    const rig = await flagOnWithKeys()
+    expect(rig.controller.state.lastSessionReachedTempo).toBeNull()
+    rig.controller.start()
+
+    await runAndStop(rig, 40)
+
+    expect(rig.controller.state.lastSessionReachedTempo).toBe(130)
+    expect(rig.controller.state.review?.tempoReached).toBe(130)
+  })
+
+  // @test-link [[rule_adaptive_tempo_resets_after_session]]
+  it('is left as it is by a session start and by an end during the count-in', async () => {
+    const rig = await flagOnWithKeys()
+    rig.controller.start()
+    await runAndStop(rig, 40)
+    rig.controller.closeReview()
+
+    rig.controller.start()
+    expect(rig.controller.state.phase).toBe('count-in')
+    expect(rig.controller.state.lastSessionReachedTempo).toBe(130)
+    rig.controller.stop()
+
+    expect(rig.controller.state.lastEnd?.phase).toBe('count-in')
+    expect(rig.controller.state.lastSessionReachedTempo).toBe(130)
+  })
+
+  // @test-link [[rule_adaptive_tempo_resets_after_session]]
+  it('is replaced by the next such end, and cleared by an end of a session that did not run it', async () => {
+    const rig = await flagOnWithKeys()
+    rig.controller.start()
+    await runAndStop(rig, 40)
+    rig.controller.closeReview()
+    rig.controller.start()
+    await runAndStop(rig, 12)
+    expect(rig.controller.state.lastSessionReachedTempo).toBe(120)
+    rig.controller.closeReview()
+
+    // On, but the controller away at the start: that session does not run adaptive tempo.
+    rig.controller.start()
+    await runAndStop(rig, 40)
+    rig.controller.closeReview()
+    expect(rig.controller.state.lastSessionReachedTempo).toBe(130)
+    unplugKeys(rig)
+    rig.controller.start()
+    await runAndStop(rig, 12)
+
+    expect(rig.controller.state.lastSessionReachedTempo).toBeNull()
+    expect(rig.controller.state.adaptiveTempo).toBe(true)
+  })
+
+  // @test-link [[rule_no_grading_or_mismatch_signal]]
+  // @test-link [[rule_adaptive_tempo_flat_schedule]]
+  it('is the same whether or not the player plays', async () => {
+    const silent = await flagOnWithKeys()
+    silent.controller.start()
+    await runAndStop(silent, 40)
+
+    const playing = await flagOnWithKeys()
+    playing.controller.start()
+    for (let at = 8; at < 40; at += 2) {
+      await playTo(playing, at)
+      press(playing, 61)
+      await playTo(playing, at + 0.5)
+      lift(playing, 61)
+    }
+    await runAndStop(playing, 0)
+
+    expect(
+      playing.controller.state.lastHistory?.phrases().some((p) => p.playedNotes.length > 0),
+    ).toBe(true)
+    expect(playing.controller.state.lastSessionReachedTempo).toBe(
+      silent.controller.state.lastSessionReachedTempo,
+    )
+    expect(playing.controller.state.lastHistory?.phrases().map((p) => p.tempo)).toEqual(
+      silent.controller.state.lastHistory?.phrases().map((p) => p.tempo),
+    )
   })
 })

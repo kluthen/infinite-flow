@@ -2474,15 +2474,23 @@ controller is away.
 
 ### Chunk 28 — Adaptive tempo control
 
-**Release:** v2.2.
+**Release:** v2.2. **Done on 2026-10-05.** `Rising tempo`, `Off` at load, comes first in the
+"During a session" group, settable at Idle and in the Review and read-only during a session;
+without an attached controller its `On` is disabled with "Needs a connected controller.", the
+player's choice kept, and a session keeps the availability it started with. During a session the
+header and the read-only tempo stepper show the sounding phrase's exact tempo, off the stepper's
+list included, and after a session that ran it the tempo field notes "Last session reached {n}
+BPM.", held in memory only; nothing about performance is shown, stored or exported.
 
 **Goal.** The flag's control, shown as unavailable with its reason when no controller is attached,
 the exact tempo during a session, and the quiet "reached tempo" note at Idle.
 
 **Spec sections:** [§10](master-spec.md#10-adaptive-tempo).
 
-**Design docs:** not designed yet: the adaptive-tempo UI, unit 8 in
-[`ui_ux/todo.md`](../../../ui_ux/todo.md).
+**Design docs:** the adaptive-tempo UI, `Rising tempo`, unit 8 in
+[`ui_ux/todo.md`](../../../ui_ux/todo.md) (ux D155, D156, D158, D159, D172–D174), owner-confirmed
+on 2026-10-05, in [`ui_ux/screens/phrase-workspace/`](../../../ui_ux/screens/phrase-workspace/) and
+[`ui_ux/flows/play-session/`](../../../ui_ux/flows/play-session/).
 
 **Atoms:** `req_adaptive_tempo`, `rule_adaptive_tempo_resets_after_session`,
 `rule_no_grading_or_mismatch_signal`.
@@ -2496,8 +2504,8 @@ the exact tempo during a session, and the quiet "reached tempo" note at Idle.
 - During a session the exact tempo in effect is shown, even off the control's list.
 - Nothing about performance is shown, stored or exported.
 
-**Blocked by:** design: the adaptive-tempo UI, unit 8 in `ui_ux/todo.md`. (O99 was answered on
-2026-10-03: spec D179.)
+**Blocked by:** nothing (design unit 8 done, owner-confirmed 2026-10-05). O99 was answered on
+2026-10-03: spec D179.
 
 ### Chunk 29 — Multi-phrase tension arc
 

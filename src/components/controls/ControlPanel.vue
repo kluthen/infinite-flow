@@ -24,6 +24,12 @@ const props = defineProps<{
   profileSelection: ProfileSelection
   readonly: boolean
   noteDensityContext: NoteDensityContext
+  /** The page's `Rising tempo` choice, kept even while it is unavailable. */
+  risingTempo: boolean
+  /** Whether `Rising tempo` may be turned on: a controller is attached. */
+  risingTempoAvailable: boolean
+  /** The tempo the last session that ran rising tempo reached, for the tempo field's note. */
+  lastSessionReachedTempo: number | null
   /** The page's `Vary settings` flag. */
   varySettings: boolean
   /** Whether the "During a session" options are read-only. */
@@ -36,6 +42,7 @@ const emit = defineEmits<{
   'set-control': [payload: SetControlPayload]
   'select-instrument-profile': [id: GenerationControls['instrumentProfileId']]
   'select-musical-profile': [profile: ProfileSelection['musicalProfile']]
+  'set-rising-tempo': [on: boolean]
   'set-vary-settings': [on: boolean]
 }>()
 
@@ -52,6 +59,11 @@ function forwardInstrumentProfile(id: GenerationControls['instrumentProfileId'])
 /** Intent: forward the preset group's selection event upward unchanged. */
 function forwardMusicalProfile(profile: ProfileSelection['musicalProfile']): void {
   emit('select-musical-profile', profile)
+}
+
+/** Intent: forward the player's `Rising tempo` choice upward unchanged. */
+function forwardRisingTempo(on: boolean): void {
+  emit('set-rising-tempo', on)
 }
 
 /** Intent: forward the player's `Vary settings` choice upward unchanged. */
@@ -77,6 +89,7 @@ const controlSummary = computed(() => controlSummaryText(props.controls, props.p
         :profile-selection="profileSelection"
         :readonly="readonly"
         :preset-status-live="presetStatusLive"
+        :last-session-reached-tempo="lastSessionReachedTempo"
         @set-control="forwardSetControl"
         @select-instrument-profile="forwardInstrumentProfile"
         @select-musical-profile="forwardMusicalProfile"
@@ -98,8 +111,11 @@ const controlSummary = computed(() => controlSummaryText(props.controls, props.p
         @set-control="forwardSetControl"
       />
       <SessionOptionsControls
+        :rising-tempo="risingTempo"
+        :rising-tempo-available="risingTempoAvailable"
         :vary-settings="varySettings"
         :readonly="sessionOptionsReadonly"
+        @set-rising-tempo="forwardRisingTempo"
         @set-vary-settings="forwardVarySettings"
       />
     </div>

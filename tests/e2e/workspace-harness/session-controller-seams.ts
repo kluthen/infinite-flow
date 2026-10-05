@@ -3,8 +3,7 @@
  * `createSessionController` to keep the controller the app built, and publishes
  * `window.__workspaceHarness.session`, a plain-JSON reading of its state. A spec starts and stops
  * sessions by clicking the app's own buttons, or by playing the starting note on the fake MIDI
- * access; the one action driven through it is the adaptive-tempo flag, which has no control on
- * screen yet (`setAdaptiveTempo`, the controller's own action), and it sends the running session
+ * access, and sets the session options through their controls; it sends the running session
  * an automatic settings change through the runner seam (`changeSettings`), which no part of the
  * app sends yet. The one thing it may change is
  * what the app reads as the Review's history: once `inflateHistory(n)` is called, the app is
@@ -171,6 +170,7 @@ function snapshotOf(state: SessionControllerState): WorkspaceHarnessSessionState
     sessionHasController: state.sessionHasController,
     adaptiveTempo: state.adaptiveTempo,
     adaptiveTempoAvailable: state.adaptiveTempoAvailable,
+    lastSessionReachedTempo: state.lastSessionReachedTempo,
     varySettings: state.varySettings,
     shownSettings:
       state.shownSettings === null
@@ -220,7 +220,6 @@ export function createHarnessSessionController(): HarnessSessionController {
         inflateTo.value = phraseCount
       },
       state: () => snapshotOf(controllerFor('state').state),
-      setAdaptiveTempo: (on) => controllerFor('setAdaptiveTempo').setAdaptiveTempo(on),
       changeSettings,
     },
   }

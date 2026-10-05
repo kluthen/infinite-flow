@@ -6,7 +6,8 @@
  * this component receives, and every change is reported upward rather than applied locally. The
  * preset status holds both of its texts, the one in use and the other one invisible, so a change
  * between them never moves the fields below; whether it announces is the parent's to say (off for
- * the whole of a session).
+ * the whole of a session). Under the tempo stepper, after a session that ran rising tempo, a
+ * quiet note states the tempo that session reached.
  */
 import { computed } from 'vue'
 
@@ -44,6 +45,8 @@ const props = defineProps<{
   readonly: boolean
   /** The preset status's live announcement: `polite`, or `off` while a session runs. */
   presetStatusLive: 'polite' | 'off'
+  /** The tempo the last session that ran rising tempo reached, in BPM; null shows no note. */
+  lastSessionReachedTempo: number | null
 }>()
 
 const emit = defineEmits<{
@@ -51,6 +54,18 @@ const emit = defineEmits<{
   'select-instrument-profile': [id: GenerationControls['instrumentProfileId']]
   'select-musical-profile': [profile: (typeof MUSICAL_PROFILES)[number]]
 }>()
+
+/**
+ * Intent: the "reached tempo" note: a past fact in plain words, with no comparison, no target and
+ * nothing about how the player played; none when no session that ran rising tempo is the last.
+ */
+// @spec-link [[rule_adaptive_tempo_resets_after_session]]
+// @spec-link [[rule_no_grading_or_mismatch_signal]]
+const reachedTempoNote = computed(() =>
+  props.lastSessionReachedTempo === null
+    ? null
+    : `Last session reached ${props.lastSessionReachedTempo} BPM.`,
+)
 
 /** Intent: report a tempo change, re-validating against the tempo catalog before it leaves. */
 function handleTempo(value: number): void {
@@ -175,6 +190,7 @@ const profileRangeSummaryText = computed(() => {
         :readonly="readonly"
         @update:model-value="handleTempo"
       />
+      <p v-if="reachedTempoNote !== null" class="field-note">{{ reachedTempoNote }}</p>
     </div>
     <div class="field-group" :class="{ 'is-readonly': readonly }">
       <span class="field-label">Written key</span>

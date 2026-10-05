@@ -1,10 +1,12 @@
 /**
  * The session controller's adaptive-tempo side: the page's adaptive-tempo flag, whether it is
- * available, what a session's engine is told at its start, and the controller's presence the
- * engine follows during a session. The flag is held in memory only, for the controller's life,
- * which is the page's (App.vue builds the one controller at setup and disposes of it at unmount);
- * no session's start or end resets it. Nothing on screen shows or sets it yet: chunk 28 builds
- * the control. Loaded with the controller, never in the entry chunk.
+ * available, what a session's engine is told at its start, the tempo the last session that ran it
+ * reached, and the controller's presence the engine follows during a session. The flag and the
+ * reached tempo are held in memory only, for the controller's life, which is the page's (App.vue
+ * builds the one controller at setup and disposes of it at unmount); no session's start or end
+ * resets the flag. The "During a session" group's `Rising tempo` control shows and sets the flag;
+ * the tempo field's "Last session reached {n} BPM." note shows the reached tempo. Loaded with the
+ * controller, never in the entry chunk.
  */
 import { shallowRef } from 'vue'
 
@@ -16,16 +18,25 @@ import {
 } from './workspace-session-controller-types'
 
 /**
- * The page's flag: `on` and `available` are reactive readings; `set` is the player's on/off;
- * `forSession` is the engine's `adaptiveTempo` for a session starting now.
+ * The page's flag: `on`, `available` and `lastSessionReachedTempo` are reactive readings; `set` is
+ * the player's on/off; `forSession` is the engine's `adaptiveTempo` for a session starting now,
+ * which it also keeps for that session's end; `sessionEnded` is told the tempo reached by a session
+ * that ended once phrase 1 had sounded.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[req_adaptive_tempo]]
+// @spec-link [[rule_adaptive_tempo_resets_after_session]]
 export interface AdaptiveTempoFlag {
   readonly on: () => boolean
   readonly available: () => boolean
   readonly set: (on: boolean) => void
   readonly forSession: (sessionHasController: boolean | null) => boolean
+  readonly sessionEnded: (tempoReached: number) => void
+  /**
+   * The tempo the last session that ran adaptive tempo reached, in BPM: null before any, and after
+   * an end, once phrase 1 has sounded, of a session that did not run it.
+   */
+  readonly lastSessionReachedTempo: () => number | null
 }
 
 /** A controller event, its time left to the dispatcher, which raises it to the engine's floor. */
@@ -61,16 +72,34 @@ export function createAdaptiveTempoFlag(
 ): AdaptiveTempoFlag {
   const on = shallowRef(false)
   const available = (): boolean => isControllerAttached(controllerState())
+  /** Whether the session started last runs adaptive tempo; null before the first start. */
+  let lastSessionRuns: boolean | null = null
+  const reached = shallowRef<number | null>(null)
 
   /**
    * Intent: a session runs adaptive tempo when the flag is on and the session reads a controller,
    * fixed at its start; one started with the selected controller away, or none selected, has no
-   * controller and so no adaptive tempo.
+   * controller and so no adaptive tempo. The answer is kept for that session's end.
    */
   // @spec-link [[req_adaptive_tempo]]
   // @spec-link [[rule_controller_attached_definition]]
   function forSession(sessionHasController: boolean | null): boolean {
-    return on.value && sessionHasController === true
+    lastSessionRuns = on.value && sessionHasController === true
+    return lastSessionRuns
+  }
+
+  /**
+   * Intent: a session ended once phrase 1 had sounded, at `tempoReached`, the tempo of its last
+   * phrase to start sounding: the reached tempo becomes it when that session ran adaptive tempo,
+   * and none when it did not. A start and an end during the count-in never come here, so they
+   * leave it as it is. Only the tempo is kept, never anything about the player's playing.
+   */
+  // @spec-link [[rule_adaptive_tempo_resets_after_session]]
+  // @spec-link [[rule_no_grading_or_mismatch_signal]]
+  function sessionEnded(tempoReached: number): void {
+    if (lastSessionRuns === null)
+      throw new SessionControllerError('adaptive tempo: a session ended that never started')
+    reached.value = lastSessionRuns ? tempoReached : null
   }
 
   return {
@@ -84,6 +113,8 @@ export function createAdaptiveTempoFlag(
       on.value = next
     },
     forSession,
+    sessionEnded,
+    lastSessionReachedTempo: () => reached.value,
   }
 }
 
