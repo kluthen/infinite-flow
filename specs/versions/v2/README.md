@@ -1,6 +1,6 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27; master spec v1.29, 2026-10-05, D183–D185).
+Status: consolidated into the master spec (2026-09-27; master spec v1.30, 2026-10-05, D183–D187).
 The individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
 ID-free description of v2, which ships as one release, v2.0, since D183 (its parts keep the
@@ -14,8 +14,8 @@ P3 gets session review and export; marking favorites is v3 (D130). See [personas
 
 | Document                         | Purpose                                                                                                                 | Status            |
 | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------- |
-| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0 and its parts: concept, scope, mechanics, definition of done, open items | master spec v1.29 |
-| [build-plan.md](build-plan.md)   | The build plan: v2.0 cut into ordered chunks, each with its atoms, tests and blockers, and one release gate             | draft v0.5        |
+| [master-spec.md](master-spec.md) | The consolidated, ID-free master spec for v2.0 and its parts: concept, scope, mechanics, definition of done, open items | master spec v1.30 |
+| [build-plan.md](build-plan.md)   | The build plan: v2.0 cut into ordered chunks, each with its atoms, tests and blockers, and one release gate             | draft v0.6        |
 
 The original draft topic documents (highlights proposal, rolling phrase, audio and backing, MIDI
 and acknowledgement, sessions/review/export, adaptive tempo, definition of done,
@@ -272,7 +272,12 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   them, with the chunk's other choices (D184). **O57 closed:** the backing's voicing, register,
   attack pattern and timbre stay as built (D185). The atom wording left open by chunks 8, 13, 20,
   27 and 29 is accepted (D186).
-- Open: 13 questions across the register, including O87 (above), O105 (above), and O100–O103, the
+- **Settled (D187–D189, the owner, 2026-10-05).** **O87 closed:** a wake lock the browser drops
+  while a session runs and the page is visible is asked for again, silently; a small v2.0 code
+  unit adds it after the ISS-006 fix (D187). **ux Q31 closed:** the audio mix as built is final
+  for v2.0 (D188). The CONTRACT 1.3, chunk 29's carry-in rules and a Disconnect rule are approved
+  (D189).
+- Open: 12 questions across the register, including O105 (above), and O100–O103, the
   v3 rhythm candidates (D175); O86 (what makes a favorite "exported") is still open but belongs
   to v3 (D130); none is currently flagged ★. See [open-questions.md](../../open-questions.md) and
   [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
@@ -390,8 +395,8 @@ through an export the player triggers (D64, D69).
   start from the Review was replaced the same day by the owner (D170).
   **O86** (what makes a
   favorite "exported", opened by D129) moved to v3 with favorites (D130).
-- **O87** (the screen wake lock dropped mid-session, D131) is a small v2 gap, carried in
-  [master-spec.md §12](master-spec.md#12-open-questions-carried-forward); it does not block v2.0.
+- **O87** (the screen wake lock dropped mid-session, D131) was settled on 2026-10-05 (D187): the
+  app asks for the lock again, silently.
   **O88** (the click volume during the count-in, D132) was settled the same day (D134).
 - **O89** (a portrait-shaped view without turning the device, D137) was settled the same day
   (D138). **O90** (starting a session while the staff is not shown, D138) was settled the same

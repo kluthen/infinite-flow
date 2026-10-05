@@ -27,7 +27,7 @@ Numbering continues from Q17. Q17 is a self-directed design question — `ux-wri
 a future session, no `spec-writer` input needed. Q18–Q21 were routed to `spec-writer`; Q22 was
 `ux-writer`'s own presentation call. All five were answered 2026-09-27 (see spec D109–D110 in
 [`specs/decisions.md`](../specs/decisions.md), ux D46 in this tree's `decisions.md`, and the
-master-spec passages cited below). Q17, Q25 and Q27 are closed in place in this section; Q26 and Q28–Q30 are closed, at the end of this file. Q64 is closed in place. Still open: Q16 and Q31.
+master-spec passages cited below). Q17, Q25 and Q27 are closed in place in this section; Q26 and Q28–Q30 are closed, at the end of this file. Q64 and Q31 are closed in place. Still open: Q16.
 
 - **Q17 — how the rolling display actually presents the phrase sequence on screen.** The master
   spec requires at least one measure of the next phrase visible as read-ahead at all times
@@ -238,6 +238,8 @@ starting-note line). Entries kept verbatim below.
   yet. Needs listening tests before the audio-mix controls' defaults and ranges are designed. Not
   blocking the strategy pass; blocks the audio-mix part of the session screen. See
   `strategy.md`, context of use.
+  **Closed 2026-10-05 by spec D188** (the owner accepted the audio mix as built, by ear: its
+  volume ranges, defaults and linear volume-to-gain mapping are final for v2.0).
 
 - **Q32 — the tablet on the music stand is an iPad, and iPads cannot connect a controller.** Every
   browser on iPadOS runs on WebKit, which has no Web MIDI; spec v2 is Chromium-only for that

@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.33
+Status: draft v0.34
 
 ## Status Snapshot
 
@@ -241,6 +241,13 @@ Status: draft v0.33
   Tone.js is noted as an undecided idea for later (D185). The atom wording left open by chunks 8,
   13, 20, 27 and 29 is accepted, for `documentalist` to apply (D186). Still open: O71, O87, the
   audio mix levels (ux Q31) and the VISION sign-off.
+- **More owner rulings of 2026-10-05 (D187–D189).** **O87 closed:** a wake lock the browser drops
+  while a session runs and the page is visible is asked for again, silently; the code does not do
+  it yet, and a small v2.0 code unit adds it after the ISS-006 fix (D187). **ux Q31 closed:** the
+  audio mix as built, its volume ranges, defaults and linear gain mapping, is final for v2.0
+  (D188). The CONTRACT 1.3, chunk 29's three carry-in rules and the new
+  `rule_disconnect_forgets_controller` are approved (D189). Still open for the v2.0 gate: O71, the
+  VISION sign-off and O105.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.
@@ -273,10 +280,9 @@ Status: draft v0.33
   in memory only and does not survive a page reload (v2 saves nothing to browser storage). The
   master spec was then at v1.5 (v1.25 since D171). The one gap left open then (**O84**: starting
   a session from the Review) was closed 2026-09-30 (D169).
-- **Open:** 13 questions remain live: O86 (D129, a v3 question since D130), O87
-  (D131), O100–O103 (D175, v3 rhythm candidates) and O105 (D183, the v2.0 tag), plus the 6
+- **Open:** 12 questions remain live: O86 (D129, a v3 question since D130), O100–O103 (D175, v3 rhythm candidates) and O105 (D183, the v2.0 tag), plus the 6
   older ones this bullet goes on to describe; O77, which it also describes, was settled on
-  2026-10-03 (D176), and O57 on 2026-10-05 (D185). None is flagged ★. The 5 most-blocking ones
+  2026-10-03 (D176), O57 on 2026-10-05 (D185), and O87 the same day (D187). None is flagged ★. The 5 most-blocking ones
   settled first (**D104** O75 v2.0 cut line is the full loop; **D105** O34 continuation boundary;
   **D76** O54 audio unlock; **D77** O55 controller check ships; **D78** O41 acknowledgement
   window), then two large 2026-09-27 batches closed nearly everything else (**D80–D88**:

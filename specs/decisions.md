@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.26
+Status: draft v2.27
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1001,3 +1001,26 @@ fact in the live documents (see the [archive index](archive/README.md) and
   `rule_multi_phrase_tension_arc_cycle`, the rule its cycle implements. Not covered, since it adds
   a rule rather than rewording one: chunk 13's question whether a Disconnect rule is added, which
   `documentalist` raises with a proposal if it is still wanted. Build plan chunks 21 and 29.
+- **D187 (2026-10-05): O87 closed: a screen wake lock the browser drops mid-session is asked for
+  again.** The product owner's answer to **O87**, with its proposal. While the session runs and
+  the page is visible, the app asks again, silently, for a wake lock the browser has dropped;
+  nothing is shown either way, whether the new lock is granted or refused. A hidden tab already
+  ends a session (master spec §6), so the case is a lock dropped while the page stays visible, for
+  example by power saving. The code does not do this yet: `createHeldLock` in
+  `src/components/workspace/browser-screen-locks.ts` never asks again for a lock the browser has
+  dropped. It is a small v2.0 code unit, scheduled after the ISS-006 fix, and
+  `rule_screen_wake_lock_during_session` is updated with it. Master spec §6, §11 item 21 and §12;
+  build plan chunks 15 and 21.
+- **D188 (2026-10-05): ux Q31 closed: the audio mix as built is final for v2.0.** The product
+  owner's acceptance, by ear, after hearing the backing in sessions: the click and backing volume
+  ranges and default levels, and the linear mapping from a volume setting to its gain, stay as
+  built. Build plan chunk 21's item on the audio mix's levels is thereby met. `documentalist` has
+  advanced `req_session_audio_mix` and `rule_click_volume_never_silent` to STABLE with this
+  acceptance. Build plan chunks 10, 11, 15 and 21.
+- **D189 (2026-10-05): the CONTRACT 1.3, chunk 29's carry-in rules and a Disconnect rule are
+  approved.** The product owner approved the CONTRACT's version 1.2 and its 1.3 (now STABLE);
+  the three carry-in rules chunk 29 reworded, `rule_join_carry_in_limited`,
+  `rule_harmony_change_drops_unfit_harmonic_carry_in` and
+  `rule_setting_change_rechecks_pitch_carry_in` (STABLE); and a new rule,
+  `rule_disconnect_forgets_controller`, which closes build plan chunk 13's question whether a
+  Disconnect rule is added (left open by D186). Build plan chunks 13 and 29.

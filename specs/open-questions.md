@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.28
+Status: draft v0.29
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -19,6 +19,8 @@ same day (D126). O86 was opened 2026-09-28 by the export-by-content change (D129
 to v3 the same day, when favorites moved there (D130). O87 and O88 were opened 2026-09-28 while
 recording the screen wake lock (D131) and the count-in that always clicks (D132). O88 was
 resolved the same day (D134): the count-in plays at the click volume, which never reaches silence.
+O87 was resolved 2026-10-05 (D187): a wake lock the browser drops mid-session is asked for again,
+silently.
 O89 was opened 2026-09-28 while recording the landscape lock and the portrait rule (D137), and
 resolved the same day (D138): a session ends whenever the staff can no longer be shown, whether or
 not the device was turned. O90 was opened while recording D138, and resolved the same day (D139):
@@ -114,16 +116,9 @@ day (D170, ux D143). No question of this section is open.
 
 Opened 2026-09-28 by `spec-writer` while recording owner decisions from the `ux-writer` unit-2
 session core-loop review, and later that day from `ux-writer`'s play-session decisions. O88 was
-resolved the same day (D134), O89 too (D138), and O90 too (D139). O87 does not block starting
-v2.0 implementation.
-
-- **O87 - The screen wake lock dropped mid-session** _(D131, from ux D73)_: the app holds a
-  screen wake lock for the whole session, and a refused or missing lock is silent. A browser may
-  also release a granted lock by itself while the session is still running (for example to save
-  battery). Does the app ask for it again? Proposed default, not confirmed by the owner: it asks
-  again, silently, while the session runs and the page is visible; nothing is shown either way.
-  Note (2026-10-05): the owner has answered; the answer is being clarified before it is recorded.
-  [master-spec.md §6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo).
+resolved the same day (D134), O89 too (D138), and O90 too (D139). O87 was resolved 2026-10-05
+(D187): the app asks again, silently, for a wake lock the browser drops while the session runs and
+the page is visible. No question of this section is open.
 
 ## v2 changes to v1 at Idle (O91+)
 

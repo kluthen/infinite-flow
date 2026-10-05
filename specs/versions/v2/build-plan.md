@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Build Plan
 
-Status: draft v0.5 (2026-10-05). Chunk 0 is done. Build plan for v2, released as one v2.0 since
+Status: draft v0.6 (2026-10-05). Chunk 0 is done. Build plan for v2, released as one v2.0 since
 spec D183, its parts still labelled v2.0, v2.1, v2.2 and v2.4,
 written from [master spec v1.20](master-spec.md) and kept in step with it since (v1.28). Not yet
 approved for execution. Change in v0.3: the spec gaps are resolved, so the phrase-boundary change
@@ -14,6 +14,9 @@ notes, out of every wave; and the answers to O77, O93, O98 and O99 unblock chunk
 D183–D186): v2.1, v2.2 and v2.4 are compacted into one release, v2.0, with one gate,
 [chunk 21](#chunk-21--v20-release-gate), which absorbs chunks 26, 31 and 35, the real-hardware
 checks included; the backing (O57) and chunk 17's silence-timer choices are accepted as built.
+Change in v0.6 (spec D187–D189): chunk 21 gains the wake lock asked for again when the browser
+drops it mid-session (O87), a code unit after the ISS-006 fix; the audio mix is final as built
+(ux Q31).
 
 This plan cuts v2 into chunks that one owner can build, test and document at a time, and puts
 them in order. It adds no behaviour. What the app does is in the [master spec](master-spec.md);
@@ -1199,7 +1202,8 @@ through the click volume, so it sounds with the click off, even when it is turne
 count-in. On/off and volume are gains, and muting never touches the clock. Stop fades the
 session's own bus out over 0.1 s. The click volume's range and default are ux-writer's
 placeholder design tokens (`--mix-*` in `src/styles/theme.css`), read at unlock; the lowest, 0.2,
-is checked to be above zero. ux Q31 must settle the real values before the gate. The workspace
+is checked to be above zero. ux Q31 must settle the real values before the gate; it did on
+2026-10-05: they are final as built (spec D188). The workspace
 session exposes the transport as `WorkspaceSession.audio`. A fake audio clock and output
 (`tests/unit/audio/fake-audio.ts`) back the unit tests and the workspace harness's `audio` seams
 (`?audio=real` for the real context). Playwright scripts a count-in and eight bars at 120 BPM on
@@ -1261,7 +1265,8 @@ audio clock, starting audio, a hidden tab), items 5, 6, 15 and 18.
   checks the click's scheduled times against the audio clock.
 
 **Blocked by:** in part, ux Q31: the click volume's range and default level are placeholders. Build
-with them; the gate needs the real values.
+with them; the gate needs the real values. Closed on 2026-10-05: they are final as built (spec
+D188).
 
 ### Chunk 11 — Backing
 
@@ -1302,7 +1307,7 @@ renderer in `src/domain/backing/` for the export to reuse; `verify:boundaries` g
 no-audio-asset and no-sample-API rules. Still open for the v2.0 gate: O57's listening test (the
 voicing, register, attack pattern and timbre) and ux Q31 (the backing volume's range and default,
 and the linear volume-to-gain mapping). _On 2026-10-05 the owner accepted the backing as built,
-closing O57 (spec D185); ux Q31 is still open._
+closing O57 (spec D185), and the audio mix as built, closing ux Q31 (spec D188)._
 
 **Progress:**
 
@@ -1348,7 +1353,7 @@ items 5 and 14.
 
 **Blocked by:** in part, §12's backing voicing and register (O57): build the proposed default; the
 listening test must settle it before the v2.0 gate. ux Q31: the backing level's range and default
-are placeholders.
+are placeholders. Both closed on 2026-10-05 (spec D185, D188).
 
 ### Chunk 12 — MIDI input
 
@@ -1666,7 +1671,9 @@ above; an audio interruption ends the session with the cause `stop`; during a se
 layout machinery never changes phrase 1, only the session window rule judges a window change, and
 the Idle layout inputs are re-applied at the end. Still open for the v2.0 gate: ux Q31 (the mix's
 ranges and default levels are placeholders) and O87 (a wake lock the browser drops mid-session is
-not asked for again).
+not asked for again). Both closed on 2026-10-05: the mix is final as built (spec D188), and a
+dropped wake lock is to be asked for again, in a code unit after the ISS-006 fix (spec D187,
+[chunk 21](#chunk-21--v20-release-gate)).
 
 **Goal.** Put the session on the workspace: `Start session` and `Stop`, when a session can start,
 the session cue row with the count-in and the struggling notice, the locked settings, the audio
@@ -1732,7 +1739,8 @@ Session); [`motion.md`](../../../ui_ux/motion.md).
 
 **Blocked by:** in part, ux Q31: the audio mix's ranges and default levels are placeholders.
 §12's screen wake lock dropped mid-session (O87): the proposed default, asking again silently, is
-built only once confirmed. Still open after the chunk: both stay open for the v2.0 gate.
+built only once confirmed. Still open after the chunk: both stay open for the v2.0 gate. Both
+closed on 2026-10-05 (spec D187, D188).
 
 ### Chunk 16 — Rolling display
 
@@ -2203,6 +2211,11 @@ The definition of done, on the merged code:
   session, the review and both exports, and sees nothing.
 - Item 14: every v1 release test still passes; offline use after first load works with no audio
   asset added.
+- Item 21: a wake lock the browser drops while the session runs and the page is visible is asked
+  for again, silently, and nothing shows whether it is granted or refused; tests fake the drop
+  (spec D187). The code does not do this yet: a small code unit, after the ISS-006 fix, adds it to
+  `createHeldLock` (`src/components/workspace/browser-screen-locks.ts`) and updates
+  `rule_screen_wake_lock_during_session`.
 - Part v2.1 (from chunk 26): a setting changed by the settings-mutation flag first shows at the
   first phrase that hasn't begun sounding, or at the phrase after it, and no note on screen ever
   changes.
@@ -2246,9 +2259,10 @@ What the earlier chunks left open:
   and the silence count starting again at a reattachment, with the chunk's other choices (spec
   D184); and the atom wording chunks 8, 13, 20, 27 and 29 left open (spec D186). Starting from
   the Review was settled earlier: spec D170, no session starts while it shows.
-- Closed or carried forward by the owner: Bluetooth MIDI (O71), tried at the hardware sitting;
-  the wake lock dropped mid-session (O87); and the audio mix's levels (ux Q31: the click and
-  backing volumes' ranges and defaults, and the volume-to-gain mapping, linear for now).
+- Closed or carried forward by the owner: Bluetooth MIDI (O71), tried at the hardware sitting.
+  Closed on 2026-10-05: the wake lock dropped mid-session (O87), asked for again, as item 21's
+  criterion above (spec D187); and the audio mix's levels (ux Q31): the click and backing volumes'
+  ranges and defaults, and the linear volume-to-gain mapping, are final as built (spec D188).
 - The owner has answered what a session's last phrase may owe (spec D167). Chunk 7's carry-over
   criteria hold under that answer, and `documentalist` has given `rule_leap_recovery` and
   `rule_open_phrase_ending` their v2 scope.
@@ -2259,8 +2273,7 @@ What the earlier chunks left open:
   Proposed, not settled (O105): the real-program export checks may follow the tag as a v2.0.x
   hand-check note, while the controller check and the windows and latency tuning block it.
 
-**Blocked by:** every open item above, until closed: O71, O87, ux Q31, the VISION sign-off and
-O105. The real-hardware checks wait for the reference hardware to be at hand; the owner runs them
+**Blocked by:** every open item above, until closed: O71, the VISION sign-off and O105. The real-hardware checks wait for the reference hardware to be at hand; the owner runs them
 when they have time. O97, which item 2's check depended on, was answered on 2026-09-29 (D167).
 
 ### Chunk 22 — Played-notes MIDI encoding

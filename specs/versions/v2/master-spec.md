@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.29 (2026-10-05). This is the consolidated, execution-ready specification for
+Status: master spec v1.30 (2026-10-05). This is the consolidated, execution-ready specification for
 v2, which ships as one release, v2.0, whose parts keep the labels v2.0, v2.1, v2.2 and v2.4 (v2.3
 was emptied, and its number is not reused).
 It supersedes the individual v2 draft topic documents,
@@ -122,7 +122,8 @@ real-hardware checks are part of v2.0 again and v2.0 no longer ships before them
 v2.1, v2.2 and v2.4 remain as names for parts of v2.0's scope; whether the checks of exports in
 real programs must pass before v2.0 is tagged is left open; and the backing's voicing, register,
 attack pattern and timbre are settled as built, after listening to them in sessions (§2, §6, §8,
-§11, §12).
+§11, §12). Change in v1.30, the product owner's decision of 2026-10-05: a screen wake lock the
+browser drops while a session is running is asked for again, silently (§6, §11, §12).
 
 ## 1. Core concept
 
@@ -612,8 +613,9 @@ decision.
   the moment the session starts (the Start click or the starting note, so the count-in is covered)
   until the session ends, however it ends, and releases it then. If the browser refuses the lock
   or does not support it, the session runs as normal and nothing is shown: a message is not worth
-  pulling the player's eyes off the staff. **Still open** (§12): what the app does if the browser
-  drops the lock while the session is still running.
+  pulling the player's eyes off the staff. A browser may also drop a granted lock by itself while
+  the session is still running, for example to save power; while the session runs and the page is
+  visible, the app then asks for the lock again, silently, and shows nothing either way.
 - **A hidden browser tab ends the session immediately**, exactly like a manual Stop — the backing
   and click fade out over about 100 ms, and the review opens (or, during the count-in, the app
   goes back to Idle, §7). Browsers already throttle timers in hidden tabs, so a paused-and-resumed
@@ -1161,7 +1163,9 @@ still open (§12).
 21. From the moment a session starts, by a Start click or the starting note, until it ends, by
     any means, the app holds a screen wake lock, and it releases the lock when the session ends.
     When the browser refuses the lock or does not support it, the session starts and runs exactly
-    as it otherwise would, and nothing is shown about the lock.
+    as it otherwise would, and nothing is shown about the lock. When the browser drops the lock
+    while the session runs and the page is visible, the app asks for it again, and nothing is
+    shown whether it is granted or refused.
 22. At Idle, neither a Start click nor any MIDI note starts a session, and no starting note is
     named, while: no phrase has been generated yet; a new phrase is being generated, including
     the retries that replace a phrase whose notes do not fit (item 26); the phrase cannot be drawn
@@ -1328,10 +1332,6 @@ starting v2.0 implementation:
   velocity it uses. This determines whether an additional manual "input transposition" setting is
   needed beyond the check itself. It is one of the real-hardware checks (§11), part of v2.0's
   definition of done.
-- **The screen wake lock dropped mid-session** (§6): a browser may release the lock by itself
-  while the session is still running (for example to save battery). Whether the app asks for it
-  again is undecided. Proposed, not yet confirmed by the product owner: it asks again, silently,
-  while the session runs and the page is visible; nothing is shown either way.
 - **Whether the checks of exports in real programs block the v2.0 tag** (§11): the MusicXML files
   opened in MuseScore, the MIDI files opened in a MIDI tool, and the played-notes and
   generated-notes MIDI files of one session lined up in a real DAW. Proposed, not yet confirmed by
@@ -1339,7 +1339,8 @@ starting v2.0 implementation:
   while the controller-transposition check and the tuning of the acknowledgement windows and
   latency constants on the reference hardware do block it.
 
-The backing's voicing and register, once in this list, are settled (§6).
+The backing's voicing and register, and the screen wake lock dropped mid-session, once in this
+list, are settled (§6).
 
 One item left v2 when favorites moved to v3, and is not a v2 gap: **what makes a favorite count
 as exported**, which only mattered for asking before discarding unexported favorites. It stays
