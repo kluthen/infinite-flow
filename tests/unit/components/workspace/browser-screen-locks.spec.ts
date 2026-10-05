@@ -3,6 +3,8 @@
  * `navigator.wakeLock` and `screen.orientation`: a granted lock is held until released, a refused,
  * throwing or missing API is an outcome value and never an error, a release with nothing held does
  * nothing, and a lock granted after its release is given back at once, so no lock outlives an end.
+ * A wake lock the browser drops on its own while the session's lock is open and the page visible
+ * is asked for again, silently.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -10,6 +12,7 @@ import {
   createWebOrientationLock,
   createWebScreenWakeLock,
   type ScreenOrientationLike,
+  type VisibilityDocumentLike,
   type WakeLockNavigatorLike,
   type WakeLockSentinelLike,
 } from '@/components/workspace/browser-screen-locks'
@@ -32,21 +35,51 @@ function deferred<T>(): Deferred<T> {
   return { promise, resolve, reject }
 }
 
-/** A stand-in wake lock sentinel that counts its releases. */
+/** A stand-in wake lock sentinel that counts its releases and can be dropped by the browser. */
 interface StandInSentinel extends WakeLockSentinelLike {
   readonly releases: () => number
+  /** The browser drops the lock on its own: the sentinel fires `release`. */
+  readonly drop: () => void
 }
 
-/** Intent: a sentinel the browser would hand out, counting `release()` calls. */
+/**
+ * Intent: a sentinel the browser would hand out, counting `release()` calls. Like a real one, it
+ * fires `release` to its listeners when released, whether by the app or dropped by the browser.
+ */
 function standInSentinel(): StandInSentinel {
   let releases = 0
+  const listeners = new Set<() => void>()
+  const fireRelease = (): void => {
+    for (const listener of [...listeners]) listener()
+  }
   return {
     release: () => {
       releases += 1
+      fireRelease()
       return Promise.resolve()
     },
+    addEventListener: (_type, listener) => {
+      listeners.add(listener)
+    },
+    removeEventListener: (_type, listener) => {
+      listeners.delete(listener)
+    },
     releases: () => releases,
+    drop: fireRelease,
   }
+}
+
+/** Intent: a page whose visibility the test sets, visible to begin with. */
+function standInDocument(): { visibilityState: DocumentVisibilityState } {
+  return { visibilityState: 'visible' }
+}
+
+/** A visible page, for the tests where visibility plays no part. */
+const visiblePage: VisibilityDocumentLike = { visibilityState: 'visible' }
+
+/** Intent: let every browser answer already given reach the adapter. */
+function settleAnswers(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
 /** A stand-in navigator with a wake lock that answers each request with `answer()`. */
@@ -77,7 +110,7 @@ describe('createWebScreenWakeLock', () => {
   it('asks for a screen lock within the request call, holds it, and releases it once', async () => {
     const sentinel = standInSentinel()
     const browser = wakeLockNavigator(() => Promise.resolve(sentinel))
-    const wakeLock = createWebScreenWakeLock(browser.navigator)
+    const wakeLock = createWebScreenWakeLock(browser.navigator, visiblePage)
 
     const outcome = wakeLock.request()
     expect(browser.requests).toEqual(['screen'])
@@ -94,7 +127,7 @@ describe('createWebScreenWakeLock', () => {
     const browser = wakeLockNavigator(() =>
       Promise.reject(new DOMException('battery saver', 'NotAllowedError')),
     )
-    const wakeLock = createWebScreenWakeLock(browser.navigator)
+    const wakeLock = createWebScreenWakeLock(browser.navigator, visiblePage)
 
     expect(await wakeLock.request()).toEqual({ kind: 'refused', reason: 'NotAllowedError' })
     expect(() => wakeLock.release()).not.toThrow()
@@ -102,7 +135,7 @@ describe('createWebScreenWakeLock', () => {
 
   // @test-link [[rule_screen_wake_lock_during_session]]
   it('reads a browser without the Wake Lock API as unsupported, asking nothing', async () => {
-    const wakeLock = createWebScreenWakeLock({})
+    const wakeLock = createWebScreenWakeLock({}, visiblePage)
 
     expect(await wakeLock.request()).toEqual({ kind: 'unsupported' })
     expect(() => wakeLock.release()).not.toThrow()
@@ -111,7 +144,7 @@ describe('createWebScreenWakeLock', () => {
   // @test-link [[rule_screen_wake_lock_during_session]]
   it('does nothing on a release with no lock requested', () => {
     const browser = wakeLockNavigator(() => Promise.resolve(standInSentinel()))
-    const wakeLock = createWebScreenWakeLock(browser.navigator)
+    const wakeLock = createWebScreenWakeLock(browser.navigator, visiblePage)
 
     expect(() => wakeLock.release()).not.toThrow()
     expect(browser.requests).toEqual([])
@@ -121,7 +154,10 @@ describe('createWebScreenWakeLock', () => {
   it('gives back at once a lock granted after its release, so it is not held after the end', async () => {
     const answer = deferred<WakeLockSentinelLike>()
     const sentinel = standInSentinel()
-    const wakeLock = createWebScreenWakeLock(wakeLockNavigator(() => answer.promise).navigator)
+    const wakeLock = createWebScreenWakeLock(
+      wakeLockNavigator(() => answer.promise).navigator,
+      visiblePage,
+    )
 
     const outcome = wakeLock.request()
     wakeLock.release()
@@ -135,7 +171,7 @@ describe('createWebScreenWakeLock', () => {
   // @test-link [[rule_screen_wake_lock_during_session]]
   it('throws on a second request before a release, and asks again after one', async () => {
     const browser = wakeLockNavigator(() => Promise.resolve(standInSentinel()))
-    const wakeLock = createWebScreenWakeLock(browser.navigator)
+    const wakeLock = createWebScreenWakeLock(browser.navigator, visiblePage)
 
     await wakeLock.request()
     expect(() => wakeLock.request()).toThrow(/requested again before it was released/)
@@ -143,6 +179,101 @@ describe('createWebScreenWakeLock', () => {
 
     expect(await wakeLock.request()).toEqual({ kind: 'held' })
     expect(browser.requests).toEqual(['screen', 'screen'])
+  })
+  // @test-link [[rule_screen_wake_lock_during_session]]
+  it('asks again, silently, for a lock the browser drops while the page is visible', async () => {
+    const sentinels = [standInSentinel(), standInSentinel(), standInSentinel()]
+    let asked = 0
+    const browser = wakeLockNavigator(() => Promise.resolve(sentinels[asked++]!))
+    const wakeLock = createWebScreenWakeLock(browser.navigator, standInDocument())
+
+    expect(await wakeLock.request()).toEqual({ kind: 'held' })
+    sentinels[0]!.drop()
+    expect(browser.requests).toEqual(['screen', 'screen'])
+    await settleAnswers()
+
+    sentinels[1]!.drop()
+    expect(browser.requests).toEqual(['screen', 'screen', 'screen'])
+    await settleAnswers()
+
+    wakeLock.release()
+    expect(sentinels.map((sentinel) => sentinel.releases())).toEqual([0, 0, 1])
+    expect(browser.requests).toHaveLength(3)
+  })
+
+  // @test-link [[rule_screen_wake_lock_during_session]]
+  it('does not ask again for a lock the browser drops while the page is hidden', async () => {
+    const sentinel = standInSentinel()
+    const browser = wakeLockNavigator(() => Promise.resolve(sentinel))
+    const page = standInDocument()
+    const wakeLock = createWebScreenWakeLock(browser.navigator, page)
+
+    await wakeLock.request()
+    page.visibilityState = 'hidden'
+    sentinel.drop()
+    await settleAnswers()
+
+    expect(browser.requests).toEqual(['screen'])
+    wakeLock.release()
+    expect(sentinel.releases()).toBe(0)
+  })
+
+  // @test-link [[rule_screen_wake_lock_during_session]]
+  it('does not ask again once the app has released the lock', async () => {
+    const sentinel = standInSentinel()
+    const browser = wakeLockNavigator(() => Promise.resolve(sentinel))
+    const wakeLock = createWebScreenWakeLock(browser.navigator, standInDocument())
+
+    await wakeLock.request()
+    wakeLock.release()
+    sentinel.drop()
+    await settleAnswers()
+
+    expect(sentinel.releases()).toBe(1)
+    expect(browser.requests).toEqual(['screen'])
+  })
+
+  // @test-link [[rule_screen_wake_lock_during_session]]
+  it('takes a refused second ask silently, and does not ask a third time', async () => {
+    const sentinel = standInSentinel()
+    const answers = [
+      () => Promise.resolve<WakeLockSentinelLike>(sentinel),
+      () => Promise.reject(new DOMException('battery saver', 'NotAllowedError')),
+    ]
+    let asked = 0
+    const browser = wakeLockNavigator(() => answers[asked++]!())
+    const wakeLock = createWebScreenWakeLock(browser.navigator, standInDocument())
+
+    await wakeLock.request()
+    sentinel.drop()
+    await settleAnswers()
+
+    expect(browser.requests).toEqual(['screen', 'screen'])
+    expect(() => wakeLock.release()).not.toThrow()
+    expect(sentinel.releases()).toBe(0)
+  })
+
+  // @test-link [[rule_screen_wake_lock_during_session]]
+  it('gives back at once a lock asked for again and granted after the release', async () => {
+    const first = standInSentinel()
+    const second = standInSentinel()
+    const lateAnswer = deferred<WakeLockSentinelLike>()
+    const answers = [() => Promise.resolve<WakeLockSentinelLike>(first), () => lateAnswer.promise]
+    let asked = 0
+    const browser = wakeLockNavigator(() => answers[asked++]!())
+    const wakeLock = createWebScreenWakeLock(browser.navigator, standInDocument())
+
+    await wakeLock.request()
+    first.drop()
+    wakeLock.release()
+    lateAnswer.resolve(second)
+    await settleAnswers()
+
+    expect(browser.requests).toEqual(['screen', 'screen'])
+    expect(second.releases()).toBe(1)
+    second.drop()
+    await settleAnswers()
+    expect(browser.requests).toHaveLength(2)
   })
 })
 
@@ -260,5 +391,15 @@ describe('createWebOrientationLock', () => {
     expect(await fresh).toEqual({ kind: 'held' })
 
     expect(browser.calls).toEqual(['lock landscape', 'unlock', 'lock landscape'])
+  })
+  // @test-link [[rule_landscape_lock_during_session]]
+  it('never asks again for a held orientation lock on its own', async () => {
+    const browser = standInOrientation(() => Promise.resolve())
+    const lock = createWebOrientationLock({ orientation: browser.orientation })
+
+    expect(await lock.lock()).toEqual({ kind: 'held' })
+    await settleAnswers()
+
+    expect(browser.calls).toEqual(['lock landscape'])
   })
 })

@@ -41,19 +41,25 @@ function stubWideWindow(): void {
   )
 }
 
-/** Intent: give jsdom's navigator a stand-in `wakeLock` whose requests are recorded. */
-function stubWakeLock(): { readonly requests: string[] } {
+/**
+ * Intent: give jsdom's navigator a stand-in `wakeLock` whose requests are recorded. Each granted
+ * sentinel is an `EventTarget`, as a real `WakeLockSentinel` is, so a test can fire `release`.
+ */
+function stubWakeLock(): { readonly requests: string[]; readonly sentinels: EventTarget[] } {
   const requests: string[] = []
+  const sentinels: EventTarget[] = []
   Object.defineProperty(navigator, 'wakeLock', {
     configurable: true,
     value: {
       request: (type: string) => {
         requests.push(type)
-        return Promise.resolve({ release: () => Promise.resolve() })
+        const sentinel = Object.assign(new EventTarget(), { release: () => Promise.resolve() })
+        sentinels.push(sentinel)
+        return Promise.resolve(sentinel)
       },
     },
   })
-  return { requests }
+  return { requests, sentinels }
 }
 
 // @test-link [[service_session_controller]]
@@ -116,6 +122,21 @@ describe('createWorkspaceSession: the browser adapters', () => {
 
     expect(await workspace.browser.wakeLock.request()).toEqual({ kind: 'held' })
     expect(browser.requests).toEqual(['screen'])
+    workspace.browser.wakeLock.release()
+    workspace.dispose()
+  })
+
+  // @test-link [[rule_screen_wake_lock_during_session]]
+  it("asks again for a wake lock the browser drops while the page's document is visible", async () => {
+    stubWideWindow()
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' })
+    const browser = stubWakeLock()
+    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
+
+    await workspace.browser.wakeLock.request()
+    browser.sentinels[0]!.dispatchEvent(new Event('release'))
+
+    expect(browser.requests).toEqual(['screen', 'screen'])
     workspace.browser.wakeLock.release()
     workspace.dispose()
   })
