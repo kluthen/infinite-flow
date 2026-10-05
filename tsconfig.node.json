@@ -27,6 +27,7 @@
     "vite.notation-harness.config.ts",
     "vite.workspace-harness.config.ts",
     "scripts/**/*.mjs",
-    "tests/unit/boundaries/**/*.ts"
+    "tests/unit/boundaries/**/*.ts",
+    "tests/unit/code-health/**/*.ts"
   ]
 }
