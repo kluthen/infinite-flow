@@ -41,23 +41,31 @@ function carriedFrom(candidate: HarmonyCandidate): CarriedHarmony {
   return { triad: final.triad, role: final.role, endpoint: candidate.endpoint }
 }
 
+/**
+ * Intent: after each chord a candidate of `domain` ends on, every candidate of `domain` is kept in
+ * order and follows that carried chord from a tonic opening.
+ */
+function expectEveryCandidateFollowsItsOwnEndings(domain: HarmonyCandidateDomain): void {
+  for (const candidate of domain.candidates) {
+    const carried = carriedFrom(candidate)
+    expect(candidatesFollowingCarriedHarmony(domain, carried)).toEqual(domain.candidates)
+    for (const next of domain.candidates) {
+      expect(harmonyJoinFollows(carried, next)).toBe(true)
+      expect(next.events[0]!.triad.degree).toBe(1)
+    }
+  }
+}
+
 // @test-link [[rule_join_carry_in_limited]]
 // @test-link [[module_harmony_candidate_domain]]
 describe('harmony starting from the carried chord', () => {
   it('keeps every candidate, in order, after a chord the same settings end on', () => {
     for (const collection of COLLECTIONS)
       for (const harmonicMotion of HARMONIC_MOTIONS)
-        for (const tensionArc of TENSION_ARCS) {
-          const domain = domainFor({ collection, harmonicMotion, tensionArc })
-          for (const candidate of domain.candidates) {
-            const carried = carriedFrom(candidate)
-            expect(candidatesFollowingCarriedHarmony(domain, carried)).toEqual(domain.candidates)
-            for (const next of domain.candidates) {
-              expect(harmonyJoinFollows(carried, next)).toBe(true)
-              expect(next.events[0]!.triad.degree).toBe(1)
-            }
-          }
-        }
+        for (const tensionArc of TENSION_ARCS)
+          expectEveryCandidateFollowsItsOwnEndings(
+            domainFor({ collection, harmonicMotion, tensionArc }),
+          )
   })
 
   it('refuses a carried chord the receiving settings never end a phrase on', () => {

@@ -3,9 +3,13 @@
  * (`composeWorkspaceSession`) and the production entry (`createWorkspaceSession`) that supplies
  * its real dependencies. Isolated in its own module (rather than inlined in `App.vue`) so a caller
  * can replace the whole factory, and `composeWorkspaceSession`'s seams individually, without ever
- * spinning a real browser `Worker` or touching `crypto` in a test or a harness.
+ * spinning a real browser `Worker` or touching `crypto` in a test or a harness. The types both
+ * take and return live in type-only modules (`workspace-session-dependencies.ts`,
+ * `workspace-session-types.ts`), re-exported here. The builders, and so the session's lazy
+ * `import()` calls, stay in this module beside the entry's own static imports: moved to a module
+ * of their own, they made the bundler split shared modules out of the entry into an extra chunk.
  */
-import { shallowRef, type InjectionKey, type Ref, type ShallowRef } from 'vue'
+import { shallowRef, type InjectionKey } from 'vue'
 
 import {
   createGenerationSession,
@@ -20,23 +24,11 @@ import {
   type WorkspaceSessionResult,
 } from '@/composables/workspace-session-result'
 import { makeRequestId } from '@/domain/generation/generation-request'
-import type {
-  GenerationIntent,
-  GenerationIntentProviders,
-} from '@/domain/generation/generation-intent'
-import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { makeSeed } from '@/domain/random/seed'
-import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
-import type { NotationError } from '@/notation/notation-error'
-import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
 import { createGenerationWorkerClient } from '@/generation-worker/generation-worker-client'
-import type { ViewportWidthProvider } from '@/composables/viewport-width'
-import type { SessionRunner, SessionRunnerDependencies } from '@/session/session-runner'
-import type { SessionBrowserPorts } from '@/session/session-browser-ports'
-import type { AudioTransport } from '@/audio/audio-transport'
 import { createBrowserAudioTransport } from '@/audio/browser-audio-transport'
-import { createMidiController, type MidiController } from '@/midi/midi-controller'
+import { createMidiController } from '@/midi/midi-controller'
 import { createWebMidiAccessProvider } from '@/midi/web-midi-access'
 import { createBrowserWakeTimerWorker, createWorkerWakeTimer } from '@/audio/worker-wake-timer'
 import { createBrowserViewportWidth } from './browser-viewport-width'
@@ -46,156 +38,18 @@ import { createBrowserWindowShape } from './browser-window-shape'
 import { createIdleLayoutGate } from './idle-layout-gate'
 import { createPhraseReplayAnnouncer } from './phrase-replay-announcer'
 import type { WorkspacePrewarmPolicy } from './prewarm-policy'
-import type { WorkspaceSessionStart } from '@/components/workspace/workspace-session-runner'
 import type {
-  SessionController,
-  SessionControllerClock,
-} from './workspace-session-controller-types'
+  WorkspaceSessionDependencies,
+  WorkspaceSessionRunnerStarter,
+} from './workspace-session-dependencies'
+import type { WorkspaceSession } from './workspace-session-types'
 
-/**
- * What a caller supplies to start a session runner from the workspace: the session's start, its
- * adaptive-tempo and `Vary settings` choices included (the starter turns the latter into the
- * settings-mutation flag, drawing its seed), and the seams the workspace does not own (fit check,
- * audio clock, the display reading of whether a phrase is on screen, output and error sinks).
- */
-// @spec-link [[service_workspace_session_flow]]
-// @spec-link [[service_session_runner]]
-// @spec-link [[req_settings_mutation_flag]]
-export interface WorkspaceSessionRunnerInput extends Pick<
-  SessionRunnerDependencies,
-  'checkFit' | 'now' | 'display' | 'onOutput' | 'onError'
-> {
-  readonly start: WorkspaceSessionStart
-}
-
-/** Starts one session runner from the workspace, synchronously, once its module has loaded. */
-// @spec-link [[service_workspace_session_flow]]
-// @spec-link [[service_session_runner]]
-export type WorkspaceSessionRunnerStarter = (input: WorkspaceSessionRunnerInput) => SessionRunner
-
-export interface WorkspaceSession {
-  readonly session: GenerationSession<WorkspaceSessionResult>
-  readonly pendingPhrase: Ref<WrittenPhrase | null>
-  readonly handleEngraved: () => void
-  readonly handleNotationError: (error: NotationError) => void
-  /**
-   * Wire to `PhraseScore`'s `@session-staff-failed`: the staff failing to show a running session,
-   * which ends it; it goes to the session alone, never to the Idle machinery.
-   */
-  // @spec-link [[module_session_staff_engraving_outcomes]]
-  readonly handleSessionStaffFailed: (error: NotationError) => void
-  /**
-   * Wire to `PhraseScore`'s `@layout-inputs`: the staff's measured inputs, which the session's
-   * pre-draw fit and room checks plan against. Until the staff reports once, every check fails as
-   * a retryable notation error. While a practice session runs, this and the two engraving handlers
-   * report to the session instead of the Idle machinery, which gets the latest back at its end.
-   */
-  // @spec-link [[module_idle_fit_round]]
-  readonly handleLayoutInputs: (inputs: StaffLayoutInputs) => void
-  /**
-   * Load what starts a session runner bound to the same raw `generate` seam the Idle flow uses,
-   * and so the app's one generation worker. Phrase 2 is generated during the one-measure count-in
-   * (1 s at 240 BPM) and is on time only because phrase 1 already warmed the generator's
-   * rhythm-domain memo, which lives once per worker; a cold phrase 2 takes about 0.95 s. The
-   * runner's module is loaded on this call, as part of the session controller's chunk, so the
-   * entry chunk stays within its size budget; it settles only once the replay-key announcer has
-   * loaded too, and the returned starter is synchronous.
-   */
-  readonly loadSessionRunner: () => Promise<WorkspaceSessionRunnerStarter>
-  /**
-   * The app's one audio transport, locked until a player click. Chunk 15's Start and "Connect
-   * controller" click handlers call `audio.unlock()` synchronously, and a session runner's `now`
-   * reads `audio.now`, the audio clock.
-   */
-  // @spec-link [[req_session_audio_mix]]
-  // @spec-link [[rule_audio_unlocked_by_player_click]]
-  readonly audio: AudioTransport
-  /**
-   * The app's one MIDI controller reading, its notes placed on `audio`'s clock. MIDI access is
-   * requested only by `midi.connect()`, which the header's `controller-status` click calls right
-   * after `audio.unlock()` (see use-connection-sheet.ts).
-   */
-  // @spec-link [[req_midi_controller_input]]
-  // @spec-link [[rule_controller_connects_between_sessions]]
-  readonly midi: MidiController
-  /**
-   * Whether the connection sheet is open: false at first, kept equal to the shell's own flag by the
-   * shell. Session controllers read it, so no MIDI note starts a session while the sheet is open.
-   */
-  // @spec-link [[rule_controller_connects_between_sessions]]
-  readonly connectionSheetOpen: ShallowRef<boolean>
-  /**
-   * The browser capabilities a session uses around its run: the screen wake lock and the
-   * landscape orientation lock (requested in the Start click, released at every end), the page
-   * becoming hidden and the window's shape (both judged during a session). No screen uses them
-   * yet; building the session asks for no lock and listens to nothing.
-   */
-  // @spec-link [[service_workspace_session_flow]]
-  // @spec-link [[rule_screen_wake_lock_during_session]]
-  readonly browser: SessionBrowserPorts
-  /**
-   * Build the controller of this workspace's practice sessions, over its Idle state, audio
-   * transport, browser ports and runners, woken by the session clock's timer. The screen builds
-   * one when it mounts and disposes of it when it unmounts; building it reads the window's shape.
-   * The controller's module is loaded on this call, as its own chunk, so the entry chunk stays
-   * within its size budget; the controller's `start` itself is synchronous, for the Start click.
-   */
-  // @spec-link [[service_workspace_session_flow]]
-  // @spec-link [[rule_session_layout_fixed_at_start]]
-  readonly createSessionController: () => Promise<SessionController>
-  readonly dispose: () => void
-}
-
-/**
- * The explicit dependency surface `composeWorkspaceSession` needs: identity/seed providers, the
- * window-width provider, the raw orchestration-outcome `generate` seam (plus its teardown), the
- * prewarm policy and seam, the audio transport, the MIDI controller, the session browser ports and
- * the session controller's clock. Production supplies the cryptographic seed provider, the `matchMedia` width provider, the real
- * worker client, the Web Audio transport, the Web MIDI controller and the browser adapters; a
- * harness supplies deterministic, gated, or failure-injecting equivalents that still call through
- * to the real worker, a transport on a fake or a recorded real audio output, a controller on a fake
- * or the real MIDI access, and fake locks and page visibility beside the real window shape.
- */
-// @spec-link [[service_workspace_session_flow]]
-export interface WorkspaceSessionDependencies {
-  readonly providers: GenerationIntentProviders
-  readonly viewport: ViewportWidthProvider
-  readonly generate: (intent: GenerationIntent) => Promise<GenerationOutcome>
-  /** Whether `prewarm` is ever called; `disabled` posts nothing at all. */
-  readonly prewarmPolicy: WorkspacePrewarmPolicy
-  /** The same worker's fire-and-forget rhythm-domain prewarm (the client's `prewarm`). */
-  readonly prewarm: (intent: GenerationIntent) => void
-  /** The audio transport, passed through unchanged as `WorkspaceSession.audio`. */
-  // @spec-link [[req_session_audio_mix]]
-  // @spec-link [[rule_audio_unlocked_by_player_click]]
-  readonly audio: AudioTransport
-  /**
-   * The MIDI controller, reading the clock of `audio`, passed through unchanged as
-   * `WorkspaceSession.midi`. Building the session never requests MIDI access.
-   */
-  // @spec-link [[req_midi_controller_input]]
-  // @spec-link [[rule_controller_connects_between_sessions]]
-  readonly midi: MidiController
-  /** The session browser ports, passed through unchanged as `WorkspaceSession.browser`. */
-  // @spec-link [[service_workspace_session_flow]]
-  readonly browser: SessionBrowserPorts
-  /**
-   * The session controller's time seams: the wake-up timer that has it read the audio clock
-   * (production: a Web Worker timer; the harness: a timer stepped by its fake audio clock), the
-   * wall clock that stamps a session's history, and the frame loop its playhead is read in (the
-   * browser's animation frames).
-   */
-  // @spec-link [[service_workspace_session_flow]]
-  readonly sessionClock: SessionControllerClock
-  /**
-   * The console sink each accepted phrase's single replay-key line is handed to: an Idle phrase
-   * the fit run publishes, and a session phrase readied with a carry-in or standalone. Production
-   * and the e2e harness write to `console.info`; a unit test records the lines.
-   */
-  // @spec-link [[module_phrase_replay_key]]
-  readonly logPhraseReplayKey: (line: string) => void
-  readonly dispose: () => void
-}
+export type {
+  WorkspaceSessionDependencies,
+  WorkspaceSessionRunnerInput,
+  WorkspaceSessionRunnerStarter,
+} from './workspace-session-dependencies'
+export type { WorkspaceSession } from './workspace-session-types'
 
 /**
  * Injection key for the whole session factory, so `App.vue` can accept a caller-supplied
@@ -206,19 +60,6 @@ export interface WorkspaceSessionDependencies {
 export const WORKSPACE_SESSION_FACTORY: InjectionKey<() => WorkspaceSession> = Symbol(
   'workspace-session-factory',
 )
-
-/** Intent: draw one fresh 32-bit unsigned seed from the browser's cryptographic RNG. */
-function nextCryptoSeed(): ReturnType<typeof makeSeed> {
-  const buffer = new Uint32Array(1)
-  crypto.getRandomValues(buffer)
-  return makeSeed(buffer[0]!)
-}
-
-/** Intent: build a monotonically increasing request-id provider, unique for this session's lifetime. */
-function createRequestIdProvider(): () => ReturnType<typeof makeRequestId> {
-  let counter = 0
-  return () => makeRequestId(`workspace-request-${++counter}`)
-}
 
 /**
  * Intent: build one workspace session from explicit dependencies: the identity/seed providers,
@@ -350,6 +191,19 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
       deps.dispose()
     },
   }
+}
+
+/** Intent: draw one fresh 32-bit unsigned seed from the browser's cryptographic RNG. */
+function nextCryptoSeed(): ReturnType<typeof makeSeed> {
+  const buffer = new Uint32Array(1)
+  crypto.getRandomValues(buffer)
+  return makeSeed(buffer[0]!)
+}
+
+/** Intent: build a monotonically increasing request-id provider, unique for this session's lifetime. */
+function createRequestIdProvider(): () => ReturnType<typeof makeRequestId> {
+  let counter = 0
+  return () => makeRequestId(`workspace-request-${++counter}`)
 }
 
 /**

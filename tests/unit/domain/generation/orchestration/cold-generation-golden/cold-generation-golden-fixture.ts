@@ -76,14 +76,21 @@ export function parseSettingKey(key: string): RhythmSetting {
 
 /** Intent: every one of the 324 rhythm settings, in the latency harness's fixed nesting order. */
 export function allRhythmSettings(): readonly RhythmSetting[] {
-  const settings: RhythmSetting[] = []
-  for (const noteDensity of NOTE_DENSITIES)
-    for (const rhythmicVariety of RHYTHMIC_VARIETIES)
-      for (const silenceDensity of SILENCE_DENSITIES)
-        for (const syncopation of SYNCOPATIONS)
-          for (const tensionArc of TENSION_ARCS)
-            settings.push({ noteDensity, rhythmicVariety, silenceDensity, syncopation, tensionArc })
-  return settings
+  return NOTE_DENSITIES.flatMap((noteDensity) =>
+    RHYTHMIC_VARIETIES.flatMap((rhythmicVariety) =>
+      SILENCE_DENSITIES.flatMap((silenceDensity) =>
+        SYNCOPATIONS.flatMap((syncopation) =>
+          TENSION_ARCS.map((tensionArc): RhythmSetting => ({
+            noteDensity,
+            rhythmicVariety,
+            silenceDensity,
+            syncopation,
+            tensionArc,
+          })),
+        ),
+      ),
+    ),
+  )
 }
 
 /** The catalog seeds: seed 1 is each setting's cold call, seeds 2..10 reuse its warm memo. */

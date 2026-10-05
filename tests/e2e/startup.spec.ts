@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 
+// @test-link [[user_story_controlled_phrase_generation]]
 test('serves the browser client shell from the production build', async ({ page }) => {
   const consoleErrors: string[] = []
   page.on('console', (message) => {

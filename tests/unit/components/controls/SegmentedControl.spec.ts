@@ -79,6 +79,7 @@ describe('SegmentedControl', () => {
     expect(wrapper.emitted('update:modelValue')![1]).toEqual(['a'])
   })
 
+  // @test-link [[rule_readonly_controls_keep_contrast]]
   it('marks a read-only group with aria-readonly and the is-readonly class', () => {
     const wrapper = mountControl('a', true)
     const group = wrapper.get('[role="radiogroup"]')
@@ -86,12 +87,14 @@ describe('SegmentedControl', () => {
     expect(group.classes()).toContain('is-readonly')
   })
 
+  // @test-link [[rule_readonly_controls_keep_contrast]]
   it('read-only: clicking a different option does not emit', async () => {
     const wrapper = mountControl('a', true)
     await wrapper.findAll('[role="radio"]')[2]!.trigger('click')
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
   })
 
+  // @test-link [[rule_readonly_controls_keep_contrast]]
   it('read-only: arrow keys still move focus but never emit', async () => {
     const wrapper = mountControl('a', true)
     const radios = wrapper.findAll('[role="radio"]')

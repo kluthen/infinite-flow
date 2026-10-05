@@ -67,6 +67,7 @@ function restBudget(candidate: UnindexedRhythmCandidate): readonly [number, numb
 /** Independently report every applicable invariant failure in policy-defined stable order. */
 // @spec-link [[module_rhythm_domain_validation]]
 // @spec-link [[rule_phrase_starts_on_downbeat]]
+// @spec-link [[module_rhythm_variety_grammar]]
 export function validateRhythmCandidate(
   candidate: UnindexedRhythmCandidate,
 ): readonly RhythmValidationCode[] {
@@ -126,7 +127,6 @@ export function validateRhythmCandidate(
     failures.add('silence_shape_violation')
   if (events.some((event) => event.kind === 'rest' && event.durationTicks > 8))
     failures.add('rest_duration_limit_violation')
-  // @spec-link [[module_rhythm_variety_grammar]]
   if (varietyViolated(candidate)) failures.add('rhythmic_variety_violation')
   if (!hasValidNominalProvenance(candidate)) failures.add('invalid_nominal_provenance')
   const syncopationDescriptors = candidate.transforms.filter((descriptor) =>

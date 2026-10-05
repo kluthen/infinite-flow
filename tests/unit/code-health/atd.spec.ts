@@ -81,6 +81,14 @@ describe('atd scope: business behaviour only', () => {
     expect(atdOf(path, unlinkedSuite)).toEqual([])
   })
 
+  it.each([
+    'tests/e2e/workspace/focus-visibility.spec.ts',
+    'tests/e2e/workspace/reduced-motion.spec.ts',
+    'tests/e2e/workspace/target-size.spec.ts',
+  ])('exempts the accessibility conformance check %s', (path) => {
+    expect(atdOf(path, unlinkedSuite)).toEqual([])
+  })
+
   it('keeps specs of business behaviour and source files in scope', () => {
     expect(atdOf('tests/unit/a.spec.ts', unlinkedSuite)).toEqual(noLink)
     expect(atdOf('tests/e2e/session/play.spec.ts', unlinkedSuite)).toEqual(noLink)

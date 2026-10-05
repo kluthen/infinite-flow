@@ -155,23 +155,39 @@ function measureSetting(
   }
 }
 
-/** Intent: every one of the 324 rhythm settings the harness measures, in a fixed, stable order. */
+/**
+ * Intent: every one of the 324 rhythm settings, in the harness's fixed, stable order: note density
+ * outermost, then rhythmic variety, silence density, syncopation and tension arc innermost.
+ */
+function rhythmSettingGrid(): ControlSetting[] {
+  return NOTE_DENSITIES.flatMap((noteDensity) =>
+    RHYTHMIC_VARIETIES.flatMap((rhythmicVariety) =>
+      SILENCE_DENSITIES.flatMap((silenceDensity) =>
+        SYNCOPATIONS.flatMap((syncopation) =>
+          TENSION_ARCS.map((tensionArc) => ({
+            noteDensity,
+            rhythmicVariety,
+            silenceDensity,
+            syncopation,
+            tensionArc,
+          })),
+        ),
+      ),
+    ),
+  )
+}
+
+/** Intent: measure every one of the 324 rhythm settings, in `rhythmSettingGrid` order. */
 function allSettings(): SettingMeasurement[] {
-  const results: SettingMeasurement[] = []
-  for (const noteDensity of NOTE_DENSITIES) {
-    for (const rhythmicVariety of RHYTHMIC_VARIETIES) {
-      for (const silenceDensity of SILENCE_DENSITIES) {
-        for (const syncopation of SYNCOPATIONS) {
-          for (const tensionArc of TENSION_ARCS) {
-            results.push(
-              measureSetting(noteDensity, rhythmicVariety, silenceDensity, syncopation, tensionArc),
-            )
-          }
-        }
-      }
-    }
-  }
-  return results
+  return rhythmSettingGrid().map((setting) =>
+    measureSetting(
+      setting.noteDensity,
+      setting.rhythmicVariety,
+      setting.silenceDensity,
+      setting.syncopation,
+      setting.tensionArc,
+    ),
+  )
 }
 
 /** Intent: the given percentile (0-100) of a numeric sample, nearest-rank, sorted ascending. */
@@ -305,18 +321,15 @@ function allStartSettings(): SessionSettings[] {
   const rhythms: Pick<
     GenerationControls,
     'noteDensity' | 'rhythmicVariety' | 'silenceDensity' | 'syncopation' | 'tension'
-  >[] = []
-  for (const noteDensity of NOTE_DENSITIES) {
-    for (const rhythmicVariety of RHYTHMIC_VARIETIES) {
-      for (const silenceDensity of SILENCE_DENSITIES) {
-        for (const syncopation of SYNCOPATIONS) {
-          for (const tension of TENSION_ARCS) {
-            rhythms.push({ noteDensity, rhythmicVariety, silenceDensity, syncopation, tension })
-          }
-        }
-      }
-    }
-  }
+  >[] = rhythmSettingGrid().map(
+    ({ noteDensity, rhythmicVariety, silenceDensity, syncopation, tensionArc }) => ({
+      noteDensity,
+      rhythmicVariety,
+      silenceDensity,
+      syncopation,
+      tension: tensionArc,
+    }),
+  )
   const count = rhythms.length
   const random = createMulberry32(START_DRAW_SEED)
   const tonalCenters = balancedDraw(PITCH_CLASSES, count, random)

@@ -160,6 +160,51 @@ function validatorAccepts(
   return !failures.some((failure) => failure.code === 'tension_binding_invalid')
 }
 
+/**
+ * Every figure kind and start attack on which the planner and the validator disagree for one
+ * rhythm and delay grid, in figure-kind then start order.
+ */
+function figureMismatches(
+  harmony: HarmonyCandidate,
+  rhythm: RhythmCandidate,
+  rhythmLabel: string,
+  delay: AbstractTensionRequirement['maximumResolutionDelay'],
+): Mismatch[] {
+  const attackCount = soundingSpans(rhythm).length
+  const mismatches: Mismatch[] = []
+  for (const figureKind of ALL_KINDS) {
+    const figureLength = figureKind === 'two_note_diatonic_approach' ? 2 : 1
+    for (let start = 0; start + figureLength < attackCount; start += 1) {
+      const attackIndices = Array.from({ length: figureLength }, (_, i) => start + i)
+      const targetAttackIndex = start + figureLength
+      const plannerOffered = plannerOffers(
+        harmony,
+        rhythm,
+        figureKind,
+        attackIndices,
+        targetAttackIndex,
+      )
+      const validatorAccepted = validatorAccepts(
+        harmony,
+        rhythm,
+        figureKind,
+        attackIndices,
+        targetAttackIndex,
+      )
+      if (plannerOffered !== validatorAccepted)
+        mismatches.push({
+          rhythmLabel,
+          delay,
+          figureKind,
+          start,
+          plannerOffered,
+          validatorAccepted,
+        })
+    }
+  }
+  return mismatches
+}
+
 // @test-link [[mechanic_pitch_search_policy]]
 // @test-link [[module_pitch_domain_validation]]
 describe('planner/validator agreement: tension binding structure', () => {
@@ -170,7 +215,6 @@ describe('planner/validator agreement: tension binding structure', () => {
 
     for (const [rhythmLabel, bars] of RHYTHM_TABLE) {
       const rhythm: RhythmCandidate = { ...rhythmBase, bars }
-      const attackCount = soundingSpans(rhythm).length
       for (const delay of DELAYS) {
         const harmony: HarmonyCandidate = {
           ...base,
@@ -182,36 +226,7 @@ describe('planner/validator agreement: tension binding structure', () => {
             allowedBars: [0, 1, 2],
           },
         }
-        for (const figureKind of ALL_KINDS) {
-          const figureLength = figureKind === 'two_note_diatonic_approach' ? 2 : 1
-          for (let start = 0; start + figureLength < attackCount; start += 1) {
-            const attackIndices = Array.from({ length: figureLength }, (_, i) => start + i)
-            const targetAttackIndex = start + figureLength
-            const plannerOffered = plannerOffers(
-              harmony,
-              rhythm,
-              figureKind,
-              attackIndices,
-              targetAttackIndex,
-            )
-            const validatorAccepted = validatorAccepts(
-              harmony,
-              rhythm,
-              figureKind,
-              attackIndices,
-              targetAttackIndex,
-            )
-            if (plannerOffered !== validatorAccepted)
-              mismatches.push({
-                rhythmLabel,
-                delay,
-                figureKind,
-                start,
-                plannerOffered,
-                validatorAccepted,
-              })
-          }
-        }
+        mismatches.push(...figureMismatches(harmony, rhythm, rhythmLabel, delay))
       }
     }
 

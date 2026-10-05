@@ -23,6 +23,7 @@ const THEME_OPTIONS: readonly SegmentedControlOption[] = [
 ]
 
 /** Intent: forward a theme segment selection, re-validated against the closed theme catalog. */
+// @spec-link [[rule_presentation_preference_preserves_phrase]]
 function handleSelect(value: string): void {
   const option = THEME_OPTIONS.find((candidate) => candidate.value === value)
   if (!option) throw new Error(`Unknown theme preference "${value}".`)

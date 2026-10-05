@@ -24,26 +24,23 @@ import { isNoLegalRhythmPlan, makeRhythmCandidateDomain } from '@/domain/rhythm/
 // @test-link [[rule_unsupported_rhythm_settings_block_generation]]
 describe('unsupported rhythm settings', () => {
   it('matches the rhythm planner no-legal-plan result across every control combination', () => {
-    for (const noteDensity of NOTE_DENSITIES)
-      for (const rhythmicVariety of RHYTHMIC_VARIETIES)
-        for (const silenceDensity of SILENCE_DENSITIES)
-          for (const syncopation of SYNCOPATIONS) {
-            const setting = { noteDensity, rhythmicVariety, silenceDensity, syncopation }
-            const expectedUnsupported = isUnsupportedRhythmSetting(setting)
-            for (const tensionArc of TENSION_ARCS) {
-              const result = makeRhythmCandidateDomain({
-                noteDensity,
-                rhythmicVariety,
-                silenceDensity,
-                syncopation,
-                tensionArc,
-              })
-              expect(
-                isNoLegalRhythmPlan(result),
-                `${noteDensity}/${rhythmicVariety}/${silenceDensity}/${syncopation}/${tensionArc}`,
-              ).toBe(expectedUnsupported)
-            }
-          }
+    for (const setting of everyRhythmSetting()) {
+      const { noteDensity, rhythmicVariety, silenceDensity, syncopation } = setting
+      const expectedUnsupported = isUnsupportedRhythmSetting(setting)
+      for (const tensionArc of TENSION_ARCS) {
+        const result = makeRhythmCandidateDomain({
+          noteDensity,
+          rhythmicVariety,
+          silenceDensity,
+          syncopation,
+          tensionArc,
+        })
+        expect(
+          isNoLegalRhythmPlan(result),
+          `${noteDensity}/${rhythmicVariety}/${silenceDensity}/${syncopation}/${tensionArc}`,
+        ).toBe(expectedUnsupported)
+      }
+    }
   }, 120_000)
 
   it('has exactly 10 unique entries: 6 Strict, 4 Slightly varied, 0 Heavily varied', () => {

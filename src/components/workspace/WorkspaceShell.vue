@@ -20,7 +20,7 @@
  * shows the exact tempo in effect, and the tempo field notes the tempo a rising-tempo session
  * reached (./use-rising-tempo-control.ts).
  */
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
@@ -31,7 +31,6 @@ import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
-import { loadConnectionSheet } from '@/components/controller-connection/load-connection-sheet'
 import { getInstrumentProfile } from '@/domain/generation/generation-intent'
 import type { MidiController } from '@/midi/midi-controller-state'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
@@ -40,16 +39,13 @@ import ScorePanel from './ScorePanel.vue'
 import OrientationNotice from './OrientationNotice.vue'
 import { createMixVolumePopover } from './mix-volume-popover'
 import { jumpForSessionStart, type SessionJumpView } from './session-start-jump'
-import {
-  awaitsLateRoomNotice,
-  sessionEndFocusTarget,
-  type SessionEndFocusTarget,
-} from './session-end-focus'
+import type { SessionEndFocusTarget } from './session-end-focus'
 import type { SessionController } from './workspace-session-controller-types'
-import { useConnectionSheet } from './use-connection-sheet'
-import { useControllerStatus } from './use-controller-status'
+import { useControllerConnection } from './use-controller-connection'
 import { useReviewNavigation } from './use-review-navigation'
-import { useRisingTempoControl } from './use-rising-tempo-control'
+import { useSessionOptions } from './use-session-options'
+import { useShownSettings } from './use-shown-settings'
+import { useWorkspaceFocus } from './use-workspace-focus'
 
 const props = withDefaults(
   defineProps<{
@@ -101,99 +97,34 @@ onMounted(() => {
   void loadVexflowEngraver().catch(() => {})
 })
 
-/**
- * Warm the lazy connection sheet chunk once the workspace mounts, so a `controller-status` click
- * opens it without waiting on its fetch. A failure here is not reported: the click retries the same
- * memoized loader, and a failure then propagates.
- */
-onMounted(() => {
-  void loadConnectionSheet().catch(() => {})
-})
-
-/**
- * The element a window end moved focus to, while Needs more room may still land late (see
- * `awaitsLateRoomNotice`); null otherwise. Cleared when the notice lands, at the next start, and
- * when an Idle operation starts.
- */
-let lateRoomNoticeFrom: Element | null = null
-
 /** True while a session runs, count-in included. */
 // @spec-link [[service_session_controller]]
 const sessionActive = computed(
   () => props.controller !== null && props.controller.state.phase !== 'idle',
 )
 
-/**
- * Every musical control, tempo included, is read-only for the whole lifetime of any Idle
- * operation and of a session, through the same read-only treatment (values at full contrast).
- */
-// @spec-link [[rule_session_settings_locked]]
-// @spec-link [[rule_readonly_controls_keep_contrast]]
-const controlsReadonly = computed(() => state.value.operation !== 'idle' || sessionActive.value)
-
-/**
- * The "During a session" options take the same read-only treatment, and stay read-only while the
- * controller, which holds them, is still loading.
- */
-// @spec-link [[req_settings_mutation_flag]]
-// @spec-link [[rule_readonly_controls_keep_contrast]]
-const sessionOptionsReadonly = computed(() => controlsReadonly.value || props.controller === null)
-
-/** The page's `Vary settings` flag, off while the controller loads (as it is at page load). */
-// @spec-link [[req_settings_mutation_flag]]
-const varySettings = computed(() => props.controller?.state.varySettings ?? false)
-
-/**
- * The page's `Tension across phrases` flag, off while the controller loads (as it is at page
- * load). It only says whether the arc runs: the Tension control never shows a phrase's step.
- */
-// @spec-link [[req_multi_phrase_tension_arc]]
-const tensionAcrossPhrases = computed(() => props.controller?.state.tensionAcrossPhrases ?? false)
-
-/** The `Rising tempo` control and the reached-tempo note, read from the controller. */
-// @spec-link [[req_adaptive_tempo]]
-const risingTempo = useRisingTempoControl(() => props.controller)
-
-/**
- * The settings the controls show: during a session, those the controller says the phrase now
- * sounding was generated with, at the exact tempo in effect (off the tempo control's list once a
- * rising tempo has moved it); otherwise the player's own, which a session never writes, so every
- * end shows the starting tempo again.
- */
-// @spec-link [[rule_automatic_change_updates_controls_quietly]]
-// @spec-link [[rule_mutation_reverts_at_session_end]]
-// @spec-link [[rule_adaptive_tempo_resets_after_session]]
-const shownSettings = computed(() => {
-  const session = props.controller?.state.shownSettings ?? null
-  if (session === null)
-    return { controls: state.value.controls, profileSelection: state.value.profileSelection }
-  const tempo = props.controller?.state.sessionTempo ?? null
-  if (tempo === null) throw new Error('workspace shell: a session shows settings but no tempo')
-  return { controls: { ...session.controls, tempo }, profileSelection: session.musicalProfile }
+// What the musical controls show, and the preset status's announcement. Its watchers of a
+// session's start and end are registered first, so each runs before the others of its flush.
+const { controlsReadonly, shownSettings, presetStatusLive } = useShownSettings({
+  idle: () => state.value,
+  controller: () => props.controller,
+  sessionActive: () => sessionActive.value,
 })
 
-/**
- * The preset status's live announcement: off from a session's start, before its count-in renders
- * (a sync watcher), so no automatic change is announced; polite again only once the screen has
- * rendered the player's own values back at its end (a post-flush watcher), so neither is the
- * return.
- */
-// @spec-link [[rule_automatic_change_updates_controls_quietly]]
-const presetStatusLive = ref<'polite' | 'off'>('polite')
-watch(
-  sessionActive,
-  (active) => {
-    if (active) presetStatusLive.value = 'off'
-  },
-  { flush: 'sync' },
-)
-watch(
-  sessionActive,
-  (active, wasActive) => {
-    if (!active && wasActive) presetStatusLive.value = 'polite'
-  },
-  { flush: 'post' },
-)
+// The "During a session" options and the player's changes to them.
+const {
+  sessionOptionsReadonly,
+  varySettings,
+  tensionAcrossPhrases,
+  risingTempo,
+  setRisingTempo: handleSetRisingTempo,
+  setTensionAcrossPhrases: handleSetTensionAcrossPhrases,
+  setVarySettings: handleSetVarySettings,
+} = useSessionOptions({
+  controller: () => props.controller,
+  requireController,
+  controlsReadonly: () => controlsReadonly.value,
+})
 
 const emit = defineEmits<{
   /**
@@ -203,40 +134,21 @@ const emit = defineEmits<{
   'connection-sheet-open-change': [open: boolean]
 }>()
 
-// The header's `controller-status`, frozen at its form while a session runs, except that it shows
-// the disconnected badge while a lost controller's countdown runs.
-// @spec-link [[rule_same_controller_reattaches]]
-// @spec-link [[rule_controller_loss_mid_session]]
-const controllerStatus = useControllerStatus(
-  props.midi,
-  () => sessionActive.value,
-  () => props.controller !== null && props.controller.state.controllerLost !== null,
-)
-
-// @spec-link [[rule_controller_connects_between_sessions]]
+// The header's `controller-status` and the connection sheet it opens.
 const {
+  controllerStatus,
   connectionSheetOpen,
   sheetComponent,
   sheetProps,
   open: openConnectionSheet,
   close: closeConnectionSheet,
-} = useConnectionSheet({
+} = useControllerConnection({
   midi: props.midi,
   audio: props.audio,
-  status: controllerStatus,
   profile: () => getInstrumentProfile(state.value.controls.instrumentProfileId),
   sessionActive: () => sessionActive.value,
-})
-
-/**
- * Intent: report the sheet's open flag to the workspace at once, synchronously, at every change:
- * a MIDI note can arrive right after the click, and none may start a session while it is open.
- */
-// @spec-link [[rule_controller_connects_between_sessions]]
-// @spec-link [[rule_midi_starting_note]]
-watch(connectionSheetOpen, (open) => emit('connection-sheet-open-change', open), {
-  flush: 'sync',
-  immediate: true,
+  controllerLost: () => props.controller !== null && props.controller.state.controllerLost !== null,
+  onOpenChange: (open) => emit('connection-sheet-open-change', open),
 })
 
 defineExpose({
@@ -268,7 +180,7 @@ function workspacePart(selector: string): Element {
 function handleStartSession(): void {
   const controller = requireController()
   mixPopover.closeForSessionStart()
-  lateRoomNoticeFrom = null
+  workspaceFocus.clearLateRoomNotice()
   controller.start()
   const layout = controller.state.heldLayout
   if (layout === null) throw new Error('workspace shell: a started session holds no staff layout')
@@ -292,7 +204,7 @@ function handleStopSession(): void {
 
 /**
  * Intent: the mounted header and score panel the focus moves reach. Their refs are only null once
- * the shell unmounts, and the focus watchers below stop before that (see `onBeforeUnmount`), so a
+ * the shell unmounts, and the focus watchers stop before that (see `useWorkspaceFocus`), so a
  * missing one here is a defect.
  */
 function focusParts(): {
@@ -313,81 +225,17 @@ function focusTarget(target: SessionEndFocusTarget): void {
   else parts.header.focusSessionAction()
 }
 
-/**
- * Intent: move focus where the session's end sends it, once the Idle rules have applied and the
- * screen shows the state they reached (called after the render, so the Idle state read here is
- * the one on screen); after a window end, remember where it went, for a room notice that lands
- * late.
- */
-// @spec-link [[rule_count_in_ending_returns_to_idle]]
-function focusAfterSessionEnd(): void {
-  const end = requireController().state.lastEnd
-  if (end === null) throw new Error('workspace shell: a session ended with no end summary')
-  const target = sessionEndFocusTarget(end, state.value)
-  focusTarget(target)
-  lateRoomNoticeFrom = awaitsLateRoomNotice(end, target) ? document.activeElement : null
-}
-
-/**
- * Intent: at every session end, close a volume popover the compact `Volume` opened, then, once
- * the screen has rendered the Idle state it ends in (a post-flush watcher), move focus.
- */
-// @spec-link [[rule_stop_ends_session]]
-const stopEndFocusWatch = watch(
-  sessionActive,
-  (active, wasActive) => {
-    if (active || !wasActive) return
-    mixPopover.closeIfOpenedBy('compact')
-    focusAfterSessionEnd()
-  },
-  { flush: 'post' },
-)
-
-/**
- * Intent: when Needs more room lands, rendered, after a window end's focus move, move focus once
- * to `room-notice`, unless the player has moved it since (it is still where the end put it, or
- * lost to the page because the notice disabled that button).
- */
-// @spec-link [[rule_count_in_ending_returns_to_idle]]
-// @spec-link [[rule_session_ends_when_staff_too_small]]
-const stopLateNoticeWatch = watch(
-  () => state.value.roomNotice,
-  (notice) => {
-    const from = lateRoomNoticeFrom
-    if (notice === null || from === null) return
-    lateRoomNoticeFrom = null
-    const active = document.activeElement
-    if (active !== from && active !== document.body && active !== null) return
-    focusParts().scorePanel.focusRoomNotice()
-  },
-  { flush: 'post' },
-)
-
-/**
- * Intent: once the connection sheet has closed, by any path, and the page has rendered without
- * it, move focus to the first enabled of the session action, the phrase action and
- * `controller-status`.
- */
-// @spec-link [[rule_controller_connects_between_sessions]]
-const stopSheetCloseFocusWatch = watch(
-  connectionSheetOpen,
-  (open, wasOpen) => {
-    if (open || !wasOpen) return
-    focusParts().header.focusAfterConnectionSheet()
-  },
-  { flush: 'post' },
-)
-
-/**
- * Intent: a session that ends, a room notice that lands, or a sheet that closes while the shell
- * unmounts moves no focus: the page it would go to is going away. The focus watchers stop here,
- * while the header and score panel are still mounted (Vue would stop them a step later anyway;
- * stopping them here makes it explicit), so none ever runs without them.
- */
-onBeforeUnmount(() => {
-  stopEndFocusWatch()
-  stopLateNoticeWatch()
-  stopSheetCloseFocusWatch()
+// Where focus goes at a session's end, when a late room notice lands, and when the sheet closes.
+// Its watcher of a session's end is registered after the preset status's, so it runs after it.
+const workspaceFocus = useWorkspaceFocus({
+  controller: requireController,
+  idle: () => state.value,
+  sessionActive: () => sessionActive.value,
+  connectionSheetOpen: () => connectionSheetOpen.value,
+  mixPopover,
+  focusTarget,
+  focusRoomNotice: () => focusParts().scorePanel.focusRoomNotice(),
+  focusAfterConnectionSheet: () => focusParts().header.focusAfterConnectionSheet(),
 })
 
 // The Review's moves: `Close review`, `Review last session`, and a start from a focused review-link.
@@ -405,7 +253,7 @@ const reviewNavigation = useReviewNavigation({
 watch(
   () => state.value.operation,
   (operation) => {
-    if (operation !== 'idle') lateRoomNoticeFrom = null
+    if (operation !== 'idle') workspaceFocus.clearLateRoomNotice()
   },
 )
 
@@ -420,26 +268,6 @@ function handleSetControl<K extends SettableControlKey>(payload: {
 /** Intent: forward an instrument-profile selection onto the session's dedicated action. */
 function handleSelectInstrumentProfile(id: GenerationControls['instrumentProfileId']): void {
   void props.session.actions.selectInstrumentProfile(id)
-}
-
-/** Intent: forward the player's `Rising tempo` choice to the controller, which holds it. */
-// @spec-link [[req_adaptive_tempo]]
-function handleSetRisingTempo(on: boolean): void {
-  requireController().setAdaptiveTempo(on)
-}
-
-/**
- * Intent: forward the player's `Tension across phrases` choice to the controller, which holds it.
- */
-// @spec-link [[req_multi_phrase_tension_arc]]
-function handleSetTensionAcrossPhrases(on: boolean): void {
-  requireController().setTensionAcrossPhrases(on)
-}
-
-/** Intent: forward the player's `Vary settings` choice to the controller, which holds it. */
-// @spec-link [[req_settings_mutation_flag]]
-function handleSetVarySettings(on: boolean): void {
-  requireController().setVarySettings(on)
 }
 
 /** Intent: forward a musical-profile preset selection onto the session's own action. */

@@ -369,6 +369,10 @@ function makeCandidate(
   })
 }
 
+/**
+ * Narrow a harmony planning result to the empty-domain outcome, so callers can stop before rhythm
+ * and pitch work when no structural harmony plan is legal for the input.
+ */
 export function isNoLegalHarmonyPlan(
   result: HarmonyPlanResult | { readonly kind: string },
 ): result is NoLegalHarmonyPlan {

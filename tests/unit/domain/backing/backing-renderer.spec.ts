@@ -185,6 +185,21 @@ function harmonyDomain(
   return result
 }
 
+/**
+ * Intent: how many of a phrase's four measures change chord on their beat 3 (two chords) and how
+ * many hold one chord throughout.
+ */
+function measureChordCounts(harmony: readonly HarmonyEvent[]): {
+  oneChord: number
+  twoChord: number
+} {
+  const measureStarts = [0, 4, 8, 12]
+  const twoChord = measureStarts.filter((measure) =>
+    harmony.some((harmonyEvent) => eventStart(harmonyEvent) === measure + 2),
+  ).length
+  return { oneChord: measureStarts.length - twoChord, twoChord }
+}
+
 /** C, A minor, F, G: one chord per measure. */
 const ONE_CHORD_MEASURES = [
   event(0, 0, 4, C_MAJOR),
@@ -305,13 +320,9 @@ describe('renderBacking: real harmony from the planner', () => {
           for (const candidate of domain.candidates) {
             const rendered = renderBacking(candidate.events, FOUR_FOUR_METER)
             expectBackingFollowsHarmony(candidate.events, rendered, domain.collection.pitchClasses)
-            for (const measure of [0, 4, 8, 12]) {
-              const changesMidMeasure = candidate.events.some(
-                (harmonyEvent) => eventStart(harmonyEvent) === measure + 2,
-              )
-              if (changesMidMeasure) twoChordMeasures += 1
-              else oneChordMeasures += 1
-            }
+            const counts = measureChordCounts(candidate.events)
+            oneChordMeasures += counts.oneChord
+            twoChordMeasures += counts.twoChord
           }
         }
       }

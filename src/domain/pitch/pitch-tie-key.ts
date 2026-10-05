@@ -18,6 +18,11 @@ export function pitchTieKey(subject: PitchTieSubject): number {
   )
 }
 
+/**
+ * Total order between two equally ranked pitch candidates: their seeded tie keys compared as
+ * unsigned 32-bit values, then MIDI, then enumeration index, so a seed reorders ties
+ * deterministically and two distinct candidates never compare equal.
+ */
 // @spec-link [[mechanic_pitch_tie_break_ordering]]
 export function compareUnsignedPitchTie(
   left: PitchTieSubject,

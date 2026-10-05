@@ -88,6 +88,17 @@ function diatonicNonChord(facts: DomainFacts, attack: PitchAttack): readonly num
 }
 
 /**
+ * Playable first members of a two-note approach through `tone` to `goal`, ascending: a collection
+ * step into `tone` in the same direction as the step from `tone` to `goal`.
+ */
+function twoNoteApproachStarts(facts: DomainFacts, tone: number, goal: number): readonly number[] {
+  return facts.playable.filter(
+    (first) =>
+      isCollectionStep(facts, first, tone) && Math.sign(tone - first) === Math.sign(goal - tone),
+  )
+}
+
+/**
  * Concrete paths for the selected binding. Single-member figures step 1-2 semitones from a
  * diatonic non-chord member to a chord-tone target; a two-note approach is two same-direction
  * collection steps whose second member is a non-chord tone.
@@ -114,16 +125,12 @@ function boundPaths(facts: DomainFacts): readonly FigurePath[] {
       else if (binding.figureKind === 'diatonic_passing_or_neighbor')
         paths.push({ ...base, roles: ['passing_or_neighbor'], midis: [tone, goal] })
       else
-        for (const first of facts.playable)
-          if (
-            isCollectionStep(facts, first, tone) &&
-            Math.sign(tone - first) === Math.sign(goal - tone)
-          )
-            paths.push({
-              ...base,
-              roles: ['diatonic_approach_two', 'diatonic_approach_one'],
-              midis: [first, tone, goal],
-            })
+        for (const first of twoNoteApproachStarts(facts, tone, goal))
+          paths.push({
+            ...base,
+            roles: ['diatonic_approach_two', 'diatonic_approach_one'],
+            midis: [first, tone, goal],
+          })
     }
   return paths
 }

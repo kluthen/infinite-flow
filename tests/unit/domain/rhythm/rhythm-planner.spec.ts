@@ -36,6 +36,28 @@ function domainFor(
   return result
 }
 
+/**
+ * Intent: every one of the 324 rhythm settings, note density outermost, then rhythmic variety,
+ * silence density, syncopation and tension arc innermost.
+ */
+function everyRhythmSetting() {
+  return NOTE_DENSITIES.flatMap((noteDensity) =>
+    RHYTHMIC_VARIETIES.flatMap((rhythmicVariety) =>
+      SILENCE_DENSITIES.flatMap((silenceDensity) =>
+        SYNCOPATIONS.flatMap((syncopation) =>
+          TENSION_ARCS.map((tensionArc) => ({
+            noteDensity,
+            rhythmicVariety,
+            silenceDensity,
+            syncopation,
+            tensionArc,
+          })),
+        ),
+      ),
+    ),
+  )
+}
+
 // @test-link [[api_rhythm_domain_expansion]]
 describe('rhythm candidate domain', () => {
   it('replays immutable, canonical candidates with contiguous indices and no seed dependencies', () => {
@@ -92,67 +114,71 @@ describe('rhythm candidate domain', () => {
   )
 
   it('covers all 324 settings with a complete domain or a typed, evidenced no-plan result', () => {
-    for (const noteDensity of NOTE_DENSITIES)
-      for (const rhythmicVariety of RHYTHMIC_VARIETIES)
-        for (const silenceDensity of SILENCE_DENSITIES)
-          for (const syncopation of SYNCOPATIONS)
-            for (const tensionArc of TENSION_ARCS) {
-              const result = makeRhythmCandidateDomain({
-                noteDensity,
-                rhythmicVariety,
-                silenceDensity,
-                syncopation,
-                tensionArc,
-              })
-              if (isNoLegalRhythmPlan(result)) {
-                expect(result.codes.length).toBeGreaterThan(0)
-                continue
-              }
-              const domain = result
-              const candidates = [...domain.candidates()]
-              expect(candidates).not.toHaveLength(0)
-              expect(
-                candidates.every((candidate) => validateRhythmCandidate(candidate).length === 0),
-              ).toBe(true)
-            }
+    for (const {
+      noteDensity,
+      rhythmicVariety,
+      silenceDensity,
+      syncopation,
+      tensionArc,
+    } of everyRhythmSetting()) {
+      const result = makeRhythmCandidateDomain({
+        noteDensity,
+        rhythmicVariety,
+        silenceDensity,
+        syncopation,
+        tensionArc,
+      })
+      if (isNoLegalRhythmPlan(result)) {
+        expect(result.codes.length).toBeGreaterThan(0)
+        continue
+      }
+      const domain = result
+      const candidates = [...domain.candidates()]
+      expect(candidates).not.toHaveLength(0)
+      expect(candidates.every((candidate) => validateRhythmCandidate(candidate).length === 0)).toBe(
+        true,
+      )
+    }
   }, 600_000)
 
   // @test-link [[rule_phrase_starts_on_downbeat]]
   it('opens every legal control combination on a fresh downbeat note, including the tight combos', () => {
     let noPlanCount = 0
-    for (const noteDensity of NOTE_DENSITIES)
-      for (const rhythmicVariety of RHYTHMIC_VARIETIES)
-        for (const silenceDensity of SILENCE_DENSITIES)
-          for (const syncopation of SYNCOPATIONS)
-            for (const tensionArc of TENSION_ARCS) {
-              const label = `${noteDensity}|${rhythmicVariety}|${silenceDensity}|${syncopation}|${tensionArc}`
-              const setting = { noteDensity, rhythmicVariety, silenceDensity, syncopation }
-              const result = makeRhythmCandidateDomain({
-                noteDensity,
-                rhythmicVariety,
-                silenceDensity,
-                syncopation,
-                tensionArc,
-              })
-              if (isNoLegalRhythmPlan(result)) {
-                noPlanCount += 1
-                // Every no-plan combination must be a documented, blocked rhythm setting -- not a
-                // fresh grammar gap introduced by the downbeat rule or by rhythmic variety.
-                expect(isUnsupportedRhythmSetting(setting), label).toBe(true)
-                continue
-              }
-              expect(isUnsupportedRhythmSetting(setting), label).toBe(false)
-              let sampled = 0
-              for (const candidate of result.candidates()) {
-                const first = candidate.bars[0]?.events[0]
-                expect(first?.kind, label).toBe('note')
-                expect(first?.startTick, label).toBe(0)
-                expect(first?.tieContinuation, label).toBeFalsy()
-                sampled += 1
-                if (sampled >= 50) break
-              }
-              expect(sampled, label).toBeGreaterThan(0)
-            }
+    for (const {
+      noteDensity,
+      rhythmicVariety,
+      silenceDensity,
+      syncopation,
+      tensionArc,
+    } of everyRhythmSetting()) {
+      const label = `${noteDensity}|${rhythmicVariety}|${silenceDensity}|${syncopation}|${tensionArc}`
+      const setting = { noteDensity, rhythmicVariety, silenceDensity, syncopation }
+      const result = makeRhythmCandidateDomain({
+        noteDensity,
+        rhythmicVariety,
+        silenceDensity,
+        syncopation,
+        tensionArc,
+      })
+      if (isNoLegalRhythmPlan(result)) {
+        noPlanCount += 1
+        // Every no-plan combination must be a documented, blocked rhythm setting -- not a
+        // fresh grammar gap introduced by the downbeat rule or by rhythmic variety.
+        expect(isUnsupportedRhythmSetting(setting), label).toBe(true)
+        continue
+      }
+      expect(isUnsupportedRhythmSetting(setting), label).toBe(false)
+      let sampled = 0
+      for (const candidate of result.candidates()) {
+        const first = candidate.bars[0]?.events[0]
+        expect(first?.kind, label).toBe('note')
+        expect(first?.startTick, label).toBe(0)
+        expect(first?.tieContinuation, label).toBeFalsy()
+        sampled += 1
+        if (sampled >= 50) break
+      }
+      expect(sampled, label).toBeGreaterThan(0)
+    }
     // The blocked set is 6 Strict + 4 Slightly varied + 0 Heavily varied settings, each blocked on
     // all 4 tension arcs (ISS-004 feasibility review §4).
     expect(noPlanCount).toBe(40)
@@ -162,35 +188,36 @@ describe('rhythm candidate domain', () => {
     const manifest = JSON.parse(
       readFileSync('tests/unit/domain/rhythm/fixtures/rhythm-mvp-v2-manifest.json', 'utf8'),
     ) as { readonly entries: Readonly<Record<string, Record<string, unknown>>> }
-    for (const noteDensity of NOTE_DENSITIES)
-      for (const rhythmicVariety of RHYTHMIC_VARIETIES)
-        for (const silenceDensity of SILENCE_DENSITIES)
-          for (const syncopation of SYNCOPATIONS)
-            for (const tensionArc of TENSION_ARCS) {
-              const result = makeRhythmCandidateDomain({
-                noteDensity,
-                rhythmicVariety,
-                silenceDensity,
-                syncopation,
-                tensionArc,
-              })
-              const entry =
-                manifest.entries[
-                  `${noteDensity}|${rhythmicVariety}|${silenceDensity}|${syncopation}|${tensionArc}`
-                ]
-              if (isNoLegalRhythmPlan(result))
-                expect(entry).toEqual({ kind: result.kind, codes: result.codes })
-              else {
-                const candidates = [...result.candidates()]
-                const identitySequence =
-                  candidates.map((candidate) => candidate.identity).join('\n') + '\n'
-                expect(entry).toEqual({
-                  kind: result.kind,
-                  count: candidates.length,
-                  sha256: createHash('sha256').update(identitySequence, 'utf8').digest('hex'),
-                })
-              }
-            }
+    for (const {
+      noteDensity,
+      rhythmicVariety,
+      silenceDensity,
+      syncopation,
+      tensionArc,
+    } of everyRhythmSetting()) {
+      const result = makeRhythmCandidateDomain({
+        noteDensity,
+        rhythmicVariety,
+        silenceDensity,
+        syncopation,
+        tensionArc,
+      })
+      const entry =
+        manifest.entries[
+          `${noteDensity}|${rhythmicVariety}|${silenceDensity}|${syncopation}|${tensionArc}`
+        ]
+      if (isNoLegalRhythmPlan(result))
+        expect(entry).toEqual({ kind: result.kind, codes: result.codes })
+      else {
+        const candidates = [...result.candidates()]
+        const identitySequence = candidates.map((candidate) => candidate.identity).join('\n') + '\n'
+        expect(entry).toEqual({
+          kind: result.kind,
+          count: candidates.length,
+          sha256: createHash('sha256').update(identitySequence, 'utf8').digest('hex'),
+        })
+      }
+    }
   }, 600_000)
 
   /**

@@ -2,69 +2,26 @@
  * A settings change during a session, on timed events at 240 BPM (a 1 s measure): the pending
  * look-ahead phrase is discarded and requested again only when none of it is on screen and at
  * least a measure remains before its deadline, otherwise the change applies from the phrase after
- * it; the carry-in of the first phrase requested under the new settings is adapted to them; and a
- * change the session cannot accept throws.
+ * it; and a change the session cannot accept throws. The carry-in of the first phrase requested
+ * under the new settings is covered by session-engine-settings-carry-in.spec.ts.
  */
 
 import { describe, expect, it } from 'vitest'
 
-import { deriveCarryIn } from '@/domain/generation/carry-in/carry-in-derivation'
-import type { CarryIn } from '@/domain/generation/carry-in/carry-in'
-import type { GenerationControls } from '@/domain/controls/generation-controls'
-import { registerWindowContainsPitch } from '@/domain/profile/register-window'
 import { SessionEngineError } from '@/session/session-types'
-import {
-  fakeDisplay,
-  kinds,
-  sessionSettings,
-  successFor,
-  type GenerationRequestOutput,
-  type SessionDriver,
-} from './session-harness'
+import { fakeDisplay, kinds } from './session-harness'
 import { FAST_TEMPO, fastDriver, soundingAt } from './scripted-session'
+import {
+  SHAPED,
+  carryFromTwo,
+  requestIn,
+  settingsWith,
+  threeDecided,
+  threeRequested,
+} from './settings-change-session'
 
 /** Phrase 3's deadline: the start of phrase 2's last measure. */
 const PHRASE_THREE_DEADLINE = soundingAt(2) + 3
-
-/** Intent: fast-session settings with the given overrides. */
-function settingsWith(overrides: Partial<GenerationControls>): ReturnType<typeof sessionSettings> {
-  return sessionSettings({ tempo: FAST_TEMPO, ...overrides })
-}
-
-/** Settings that differ from the chosen ones in one control the carry-in never depends on. */
-const SHAPED = settingsWith({ leapiness: 'Shaped' })
-
-/** Intent: a fast session with phrase 2 sounding and phrase 3 requested, still undecided. */
-function threeRequested(onScreen = false): SessionDriver {
-  const driver = fastDriver({ display: fakeDisplay(onScreen) })
-  driver.accept(0.5)
-  driver.countInOver(soundingAt(1))
-  driver.sounding(soundingAt(2), 2)
-  return driver
-}
-
-/** Intent: a fast session with phrase 2 sounding and phrase 3 decided, not yet sounding. */
-function threeDecided(onScreen = false): SessionDriver {
-  const driver = threeRequested(onScreen)
-  driver.accept(soundingAt(2) + 0.5)
-  return driver
-}
-
-/** Intent: the carry-in phrase 3 receives from the phrase 2 a driver decided. */
-function carryFromTwo(driver: SessionDriver): CarryIn {
-  const two = driver.all('phrase-ready')[0]!.phrase
-  return deriveCarryIn({ intent: two.intent, outcome: two.outcome, phraseNumber: 2 })
-}
-
-/** Intent: the request among some outputs, failing the assertion when there is none. */
-function requestIn(outputs: readonly unknown[]): GenerationRequestOutput {
-  const request = outputs.find(
-    (output): output is GenerationRequestOutput =>
-      (output as { kind: string }).kind === 'request-generation',
-  )
-  expect(request, 'a request among the outputs').toBeDefined()
-  return request!
-}
 
 // @test-link [[rule_session_change_applies_at_phrase_boundary]]
 // @test-link [[module_session_settings_change]]
@@ -217,80 +174,5 @@ describe('settings changes the session refuses', () => {
     const driver = threeDecided(false)
     driver.end(6)
     expect(() => driver.change(6.5, SHAPED)).toThrow(SessionEngineError)
-  })
-})
-
-// @test-link [[rule_setting_change_rechecks_pitch_carry_in]]
-// @test-link [[rule_key_change_drops_harmonic_carry_in]]
-// @test-link [[rule_register_change_replaces_carried_window]]
-describe('the carry-in after a settings change', () => {
-  /** Intent: discard the undecided phrase 3 for a change to these settings, and its new request. */
-  function changedRequest(overrides: Partial<GenerationControls>): {
-    readonly driver: SessionDriver
-    readonly request: GenerationRequestOutput
-    readonly carry: CarryIn
-  } {
-    const driver = threeRequested(false)
-    const request = requestIn(driver.change(soundingAt(2) + 1, settingsWith(overrides)))
-    return { driver, request, carry: carryFromTwo(driver) }
-  }
-
-  // @test-link [[rule_key_change_drops_harmonic_carry_in]]
-  it('drops the harmonic part after a key change and keeps the pitch part', () => {
-    const { request, carry } = changedRequest({ tonalCenter: 'G' })
-    expect(carry.finalHarmony).not.toBeNull()
-    expect(request.step).toBe('carry-in')
-    expect(request.intent.carryIn?.finalHarmony).toBeNull()
-    expect(request.intent.carryIn?.lastPitch).toEqual(carry.lastPitch)
-    expect(request.intent.carryIn?.registerWindow).toEqual(carry.registerWindow)
-  })
-
-  // @test-link [[rule_register_change_replaces_carried_window]]
-  it("replaces the carried window with the new register's after a register change", () => {
-    const { request, carry } = changedRequest({ register: 'High' })
-    const high = request.intent.registerIntent.candidates.find((entry) => entry.id === 'High')
-    expect(carry.registerWindow).not.toEqual(high?.window)
-    expect(request.step).toBe('carry-in')
-    expect(request.intent.carryIn?.registerWindow).toEqual(high?.window)
-    expect(request.intent.carryIn?.lastPitch).toEqual(carry.lastPitch)
-  })
-
-  // @test-link [[rule_setting_change_rechecks_pitch_carry_in]]
-  it('requests every rung standalone, pinned to the new register, when the pitch no longer fits', () => {
-    const { driver, request, carry } = changedRequest({ register: 'Low' })
-    const low = request.intent.registerIntent.candidates.find((entry) => entry.id === 'Low')!
-    expect(registerWindowContainsPitch(low.window, carry.lastPitch.midi)).toBe(false)
-    for (let retry = 0; retry < 5; retry += 1) {
-      const attempt = driver.lastRequest()
-      expect(attempt).toMatchObject({ phraseNumber: 3, step: 'standalone', retry })
-      expect(attempt.intent.carryIn).toBeUndefined()
-      expect(attempt.intent.controls.register).toBe('Low')
-      if (retry < 4) driver.fail(soundingAt(2) + 1.1 + retry / 10)
-    }
-    const [, ready] = driver.accept(soundingAt(2) + 1.6)
-    expect(ready).toMatchObject({ kind: 'phrase-ready', phrase: { origin: 'standalone' } })
-  })
-
-  // @test-link [[rule_register_change_replaces_carried_window]]
-  // @test-link [[rule_varying_register_once_per_session]]
-  it('requests a standalone Varying phrase after a change to Varying, and carries in from it next', () => {
-    const { driver, request } = changedRequest({ register: 'Varying' })
-    expect(request).toMatchObject({ step: 'standalone', retry: 0 })
-    expect(request.intent.carryIn).toBeUndefined()
-    expect(request.intent.controls.register).toBe('Varying')
-    const outcome = successFor(request.intent)
-    driver.send({
-      kind: 'generation-result',
-      at: soundingAt(2) + 1.1,
-      attemptId: request.attemptId,
-      outcome,
-    })
-    driver.fit(soundingAt(2) + 1.1, true)
-    const next = requestIn(driver.sounding(soundingAt(3), 3))
-    expect(next.step).toBe('carry-in')
-    expect(next.intent.controls.register).toBe('Varying')
-    expect(next.intent.carryIn?.registerWindow).toEqual(
-      deriveCarryIn({ intent: request.intent, outcome, phraseNumber: 3 }).registerWindow,
-    )
   })
 })
