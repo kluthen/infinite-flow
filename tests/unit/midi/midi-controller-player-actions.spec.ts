@@ -182,6 +182,7 @@ async function connectedToKeysWithPad() {
 
 // @test-link [[req_midi_controller_input]]
 // @test-link [[rule_controller_attached_definition]]
+// @test-link [[rule_disconnect_forgets_controller]]
 describe('MidiController: disconnect()', () => {
   it('clears the selection: choosing among the present devices, and reports it', async () => {
     const { controller, changes } = await connectedToKeysWithPad()

@@ -278,6 +278,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
    */
   // @spec-link [[req_midi_controller_input]]
   // @spec-link [[rule_controller_attached_definition]]
+  // @spec-link [[rule_disconnect_forgets_controller]]
   function disconnect(): void {
     if (selected === undefined) {
       throw new MidiControllerError('Cannot disconnect: no controller is selected.')

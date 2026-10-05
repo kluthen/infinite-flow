@@ -1,6 +1,6 @@
 ---
 id: rule_join_carry_in_limited
-status: REVIEW
+status: STABLE
 version: 0.2
 tags: [v2, release-v2.0, session, phrase-join]
 parents:
@@ -20,7 +20,7 @@ type: RULE
 layer: BUSINESS
 priority: 1
 human_name: Limited Forward Carry-In Across Phrase Joins
-notes: Revised 2026-10-05 (previous version 0.1) for the multi-phrase tension arc built in v2 chunk 29: the tension a phrase is generated with may be stepped from its own position in the session, and a step between two phrases goes through the same carry-in adaptation as a setting change, which may drop or replace parts of the carry-in but never adds to it. Proposed in the chunk 29 post-task sync and accepted by the product owner (spec D186).
+notes: Revised 2026-10-05 (previous version 0.1) for the multi-phrase tension arc built in v2 chunk 29: the tension a phrase is generated with may be stepped from its own position in the session, and a step between two phrases goes through the same carry-in adaptation as a setting change, which may drop or replace parts of the carry-in but never adds to it. Proposed in the chunk 29 post-task sync and accepted by the product owner (spec D186). Promoted to STABLE 2026-10-05: the product owner accepted the version 0.2 wording as written; nothing in it depends on the real-hardware checks.
 ---
 
 # Limited Forward Carry-In Across Phrase Joins

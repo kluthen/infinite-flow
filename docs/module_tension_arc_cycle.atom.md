@@ -1,6 +1,6 @@
 ---
 id: module_tension_arc_cycle
-status: REVIEW
+status: STABLE
 version: 0.2
 priority: 1
 tags: [v2, release-v2.0, part-v2.2, session, tension]
@@ -11,7 +11,7 @@ parents:
   - [[module_generation_control_catalog]]
   - [[req_multi_phrase_tension_arc]]
   - [[rule_multi_phrase_tension_arc_cycle]]
-notes: Captured 2026-10-04 before code in v2 chunk 29 (pre-code architecture capture) from the coding leader plan. Completed 2026-10-04 in the v2 chunk 29 post-task sync, the interface names filled in as built. Related architecture - service_session_engine (applies it in the look-ahead basis and carry-in adaptation), module_settings_mutation (the cycle steps around a mutated tension arc), module_phrase_replay_key (unchanged format). The carry-in adaptation across an arc step is now stated by rule_harmony_change_drops_unfit_harmonic_carry_in, rule_setting_change_rechecks_pitch_carry_in and rule_join_carry_in_limited, extended on 2026-10-05 with the product owner acceptance (spec D186). Revised 2026-10-05 (previous version 0.1) to the as-built flag source since v2 chunk 30, the player-facing Tension across phrases toggle, in place of the always-off interim.
+notes: Captured 2026-10-04 before code in v2 chunk 29 (pre-code architecture capture) from the coding leader plan. Completed 2026-10-04 in the v2 chunk 29 post-task sync, the interface names filled in as built. Related architecture - service_session_engine (applies it in the look-ahead basis and carry-in adaptation), module_settings_mutation (the cycle steps around a mutated tension arc), module_phrase_replay_key (unchanged format). The carry-in adaptation across an arc step is now stated by rule_harmony_change_drops_unfit_harmonic_carry_in, rule_setting_change_rechecks_pitch_carry_in and rule_join_carry_in_limited, extended on 2026-10-05 with the product owner acceptance (spec D186). Revised 2026-10-05 (previous version 0.1) to the as-built flag source since v2 chunk 30, the player-facing Tension across phrases toggle, in place of the always-off interim. Promoted to STABLE 2026-10-05: the product owner accepted the version 0.2 wording as written; nothing in it depends on the real-hardware checks.
 dependents:
   - [[module_session_tension_arc_step]]
   - [[service_session_engine]]

@@ -221,6 +221,7 @@ test.describe('Connected', () => {
 
   // @test-link [[rule_controller_connects_between_sessions]]
   // @test-link [[rule_controller_attached_definition]]
+  // @test-link [[rule_disconnect_forgets_controller]]
   test('Disconnect releases the device and shows the no-controller badge', async ({ page }) => {
     await gotoControllerHarness(page)
     await connectThroughSheet(page, [KEYS])

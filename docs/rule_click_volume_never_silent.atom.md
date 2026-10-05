@@ -1,6 +1,6 @@
 ---
 id: rule_click_volume_never_silent
-status: REVIEW
+status: STABLE
 layer: BUSINESS
 priority: 1
 type: RULE
@@ -10,7 +10,7 @@ tags: [v2, release-v2.0, session, audio]
 parents:
   - [[req_session_audio_mix]]
 dependents: []
-notes: Recorded 2026-09-30 in v2 chunk 10 (audio transport); rule text unchanged. The lowest click volume is the interface design token --mix-click-volume-min, currently 0.2, and a floor at or below silence is rejected when the design tokens are read. The floor value is a placeholder until listening tests settle the mix levels.
+notes: Recorded 2026-09-30 in v2 chunk 10 (audio transport); rule text unchanged. The lowest click volume is the interface design token --mix-click-volume-min, currently 0.2, and a floor at or below silence is rejected when the design tokens are read. The floor value is a placeholder until listening tests settle the mix levels. On 2026-10-05 the product owner accepted as final for v2.0 (closing the mix-level part of ux Q31) the click volume range and default as built, floor 0.2 included: no longer a placeholder. Promoted to STABLE that day; rule text unchanged.
 ---
 
 # Click Volume Never Reaches Silence

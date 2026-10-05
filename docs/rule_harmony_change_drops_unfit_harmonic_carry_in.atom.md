@@ -1,6 +1,6 @@
 ---
 id: rule_harmony_change_drops_unfit_harmonic_carry_in
-status: REVIEW
+status: STABLE
 dependents:
   - [[entity_phrase_carry_in]]
   - [[module_session_carry_in_after_change]]
@@ -9,7 +9,7 @@ human_name: Unfit Harmony Drops Harmonic Carry-In
 parents:
   - [[rule_join_carry_in_limited]]
   - [[rule_session_change_applies_at_phrase_boundary]]
-notes: Captured 2026-10-03 before code in v2 chunk 24 (pre-code capture) from the coding leader plan, as an extension of the key-change rule. Proposed by the coding leader and accepted by the owner on 2026-10-03 (D181). Revised 2026-10-05 (previous version 0.1) to cover a multi-phrase tension arc step between two phrases as well as a setting change, as v2 chunk 29 built it; the extension was proposed in the chunk 29 post-task sync and accepted by the product owner (spec D186).
+notes: Captured 2026-10-03 before code in v2 chunk 24 (pre-code capture) from the coding leader plan, as an extension of the key-change rule. Proposed by the coding leader and accepted by the owner on 2026-10-03 (D181). Revised 2026-10-05 (previous version 0.1) to cover a multi-phrase tension arc step between two phrases as well as a setting change, as v2 chunk 29 built it; the extension was proposed in the chunk 29 post-task sync and accepted by the product owner (spec D186). Promoted to STABLE 2026-10-05: the product owner accepted the version 0.2 wording as written; nothing in it depends on the real-hardware checks.
 type: RULE
 layer: BUSINESS
 version: 0.2
