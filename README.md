@@ -530,7 +530,6 @@ detection, scoring, and the rolling continuation flow remain outside this releas
 
 ## Open Issues
 
-| Ref                                                              | Severity | Summary                                                                                                                |
-| ---------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
-| [ISS-007](issues/Ref_20260930_ledger_lines_keep_vexflow_grey.md) | Medium   | Ledger lines keep VexFlow's own `#444` stroke, so they ignore the staff colour and have low contrast in the dark theme |
-| [ISS-006](issues/Ref_20260929_every_stem_drawn_up.md)            | Medium   | Every stem is drawn up, high notes included, which also makes each staff system about two spaces taller                |
+| Ref                                                   | Severity | Summary                                                                                                 |
+| ----------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| [ISS-006](issues/Ref_20260929_every_stem_drawn_up.md) | Medium   | Every stem is drawn up, high notes included, which also makes each staff system about two spaces taller |

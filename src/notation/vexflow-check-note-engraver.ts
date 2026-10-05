@@ -146,19 +146,7 @@ function drawCheckNote(target: HTMLElement, pitch: SpelledPitch): CheckNoteBox {
   const context = renderer.getContext()
   stave.setContext(context).draw()
   voice.draw(context, stave)
-  clearLedgerLineColour(target)
   return box
-}
-
-/**
- * Intent: drop the colour VexFlow writes on each ledger line (a whole note's only bare path in its
- * note group), so the line inherits the staff colour the stylesheet sets, as every other shape
- * does, in both themes.
- */
-function clearLedgerLineColour(target: HTMLElement): void {
-  for (const ledgerLine of target.querySelectorAll('g.vf-stavenote > path')) {
-    ledgerLine.removeAttribute('stroke')
-  }
 }
 
 /**

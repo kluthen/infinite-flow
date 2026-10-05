@@ -148,12 +148,17 @@ test.describe('acknowledgement lights only the note’s own parts', () => {
       const colours = await readColours(page, key)
       expect(colours.ack).not.toBe(colours.staff)
       for (const colour of colours.lit) expect(colour).toBe(colours.ack)
-      for (const colour of [...colours.beams, ...colours.ties, ...colours.chords]) {
+      // Ledger lines carry no colour of their own: like the beams, ties and chord symbols, they
+      // keep the staff ink, unchanged by the acknowledgement.
+      expect(colours.ledgers).toEqual(coloursBefore.ledgers)
+      for (const colour of [
+        ...colours.beams,
+        ...colours.ties,
+        ...colours.chords,
+        ...colours.ledgers,
+      ]) {
         expect(colour).toBe(colours.staff)
       }
-      // Ledger lines keep whatever ink they had before (VexFlow draws them with their own stroke).
-      expect(colours.ledgers).toEqual(coloursBefore.ledgers)
-      for (const colour of colours.ledgers) expect(colour).not.toBe(colours.ack)
       if (viewport === PHONE_VIEWPORT) {
         const systems = await page.$$eval(
           `svg.staff-svg`,

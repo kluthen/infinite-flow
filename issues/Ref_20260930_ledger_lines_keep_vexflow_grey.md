@@ -4,7 +4,7 @@
 **Ref:** `ISS-007`
 **Date:** 2026-09-30
 **Severity:** Medium
-**Status:** Open
+**Status:** Resolved
 **Component:** `src/notation/vexflow-engraver.ts`
 **Affects:** `src/styles/components.css` (the staff recolouring), `src/notation/vexflow-two-system-engraver.ts`, `src/notation/vexflow-mapping.ts`, the notation visual baselines, every phrase with a note above or below the staff
 
@@ -118,3 +118,26 @@ acknowledgement never lights, were seen to keep `#444` rather than the staff ink
 - `src/styles/components.css`
 - `src/notation/vexflow-engraver.ts`
 - `tests/e2e/notation/notation-overlays.spec.ts`
+
+---
+
+## Change Log
+
+- **2026-10-05**: Resolved. `buildStaveNote` (`src/notation/vexflow-mapping.ts`), which builds every
+  engraved note (the Idle score, the session's rolling staff, the Review and the controller check
+  note), now gives each note the ledger line style `{ strokeStyle: '', lineWidth: 2 }`. The short-term
+  fix proposed above (`stave.setDefaultLedgerLineStyle({ lineWidth: 2 })`) would not have worked:
+  `Stave.getDefaultLedgerLineStyle()` merges the stave's own style, whose stroke is VexFlow's
+  `#999999`, under the ledger line style, so the lines would have carried `#999999` instead of
+  `#444`. VexFlow then merges the note's ledger line style over the stave's, and the empty stroke
+  style overrides both greys. `Element.applyStyle` skips an empty stroke style, so no stroke
+  attribute is written, and the ledger lines inherit `--color-staff` like every other shape. The
+  width stays 2. The check-note engraver's post-draw stripping (`clearLedgerLineColour`) became
+  redundant and was removed, so one mechanism covers every engraver. Covered by
+  `tests/e2e/notation/notation-ledger-lines.spec.ts`: no own stroke, computed stroke equal to
+  `--color-staff` and width 2, in the light and dark themes, on the Idle staff, the session staff
+  and the Review. `notation-overlays.spec.ts` now requires the ledger lines to keep the staff ink
+  through an acknowledgement. Three dark-theme overlay baselines were updated, each differing only
+  at its ledger lines: `start-marker-desktop-dark`, `band-and-acks-desktop-dark` and
+  `band-and-system-break-tie-phone-dark`. The light-theme and system-scheme baselines still match
+  within Playwright's colour tolerance (`#444` against `#171613`).

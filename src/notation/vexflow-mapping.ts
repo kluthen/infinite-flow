@@ -85,10 +85,31 @@ const ACCIDENTAL_CODES: Readonly<Record<DisplayedAccidental, string>> = {
   'double-sharp': '##',
 }
 
+/** VexFlow's own ledger line width, in engraving units, kept so ledger lines draw as wide as ever. */
+const LEDGER_LINE_WIDTH_UNITS = 2
+
+/**
+ * Intent: give a note's ledger lines no colour of their own, so they inherit the staff colour the
+ * stylesheet sets, like every other drawn shape, in both themes. VexFlow builds a note's ledger
+ * line style from its stave's own style (stroke #999999), then the stave's default ledger line
+ * style (stroke #444, width 2), then the note's own, and writes the resulting stroke as an
+ * attribute on every ledger line path; the stylesheet colours the score by inheritance only, which
+ * never overrides an attribute the shape carries itself. An empty stroke style overrides both
+ * greys and is skipped when VexFlow applies the style, so the drawing context keeps the stroke it
+ * already had; VexFlow's SVG context writes a stroke attribute only when it differs from the
+ * enclosing group's, and here it matches, so none is written. A note given its own style (through
+ * setStyle) would lend that colour to its ledger lines; no note is given one.
+ */
+// @spec-link [[module_notation_note_identity_overlays]]
+function inheritStaffColourOnLedgerLines(note: StaveNote): void {
+  note.setLedgerLineStyle({ strokeStyle: '', lineWidth: LEDGER_LINE_WIDTH_UNITS })
+}
+
 /**
  * Build one StaveNote glyph for a written note or rest event verbatim: pitch/rest position,
  * duration and dot come straight from the model; the displayed accidental (if any) is attached
- * as-is, never recomputed.
+ * as-is, never recomputed. Every engraved note, the score's and the check note's, is built here, so
+ * every ledger line inherits the staff colour.
  */
 // @spec-link [[module_notation_display_convention]]
 export function buildStaveNote(event: WrittenEvent): StaveNote {
@@ -98,6 +119,7 @@ export function buildStaveNote(event: WrittenEvent): StaveNote {
     duration: mapDurationCode(event.duration, isRest),
   }
   const note = new StaveNote(struct)
+  inheritStaffColourOnLedgerLines(note)
 
   if (event.kind === 'note' && event.accidental !== null) {
     note.addModifier(new Accidental(ACCIDENTAL_CODES[event.accidental]))
