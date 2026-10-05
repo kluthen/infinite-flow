@@ -20,6 +20,7 @@ import {
   spellWrittenKey,
 } from './pitch-spelling'
 import { beamGroupsFor, segmentMeasure, type RhythmSegment } from './rhythm-notation'
+import { assignStemDirections, type UnstemmedWrittenNote } from './stem-direction'
 import { createAccidentalState, nextDisplayedAccidental } from './written-accidentals'
 import {
   NotationInputError,
@@ -29,7 +30,6 @@ import {
   type WrittenEvent,
   type WrittenKey,
   type WrittenMeasure,
-  type WrittenNote,
   type WrittenPhrase,
   type WrittenRest,
 } from './written-phrase-types'
@@ -87,17 +87,18 @@ function forcedBoundariesFor(
 
 /**
  * Intent: render one measure's rhythm segments into written glyphs, spelling each note's written
- * pitch in the display key and deciding its displayed accidental from fresh per-measure state.
+ * pitch in the display key and deciding its displayed accidental from fresh per-measure state;
+ * stem directions are decided afterwards, once the measure's beam groups are known.
  */
 function buildWrittenEvents(
   measure: Measure,
   segments: readonly RhythmSegment[],
   key: WrittenKey,
   transposition: InstrumentTransposition,
-): readonly WrittenEvent[] {
+): readonly (UnstemmedWrittenNote | WrittenRest)[] {
   const accidentalState = createAccidentalState()
 
-  return segments.map((segment): WrittenEvent => {
+  return segments.map((segment): UnstemmedWrittenNote | WrittenRest => {
     if (segment.kind === 'rest') {
       const rest: WrittenRest = {
         kind: 'rest',
@@ -118,7 +119,7 @@ function buildWrittenEvents(
     const pitch = spellMidiInKey(writtenMidi, key)
     const accidental = nextDisplayedAccidental(accidentalState, pitch, key, segment.tieFromPrevious)
 
-    const note: WrittenNote = {
+    const note: UnstemmedWrittenNote = {
       kind: 'note',
       startTick: segment.startTick,
       duration: segment.duration,
@@ -167,7 +168,10 @@ function assertChordsAlignToGlyphs(
   }
 }
 
-/** Intent: render one measure of the phrase into its written glyphs, beam groups, and chords. */
+/**
+ * Intent: render one measure of the phrase into its written glyphs (stem directions included),
+ * beam groups, and chords.
+ */
 function buildWrittenMeasure(
   input: NotationPhraseInput,
   measureIndex: MeasureIndex,
@@ -181,8 +185,11 @@ function buildWrittenMeasure(
   const nextTie = nextMeasureStartsWithTie(input.timeline, measureIndex)
   const segments = segmentMeasure(measure, forcedBoundaryTicks, nextTie)
 
-  const events = buildWrittenEvents(measure, segments, key, transposition)
   const beamGroups = beamGroupsFor(segments)
+  const events = assignStemDirections(
+    buildWrittenEvents(measure, segments, key, transposition),
+    beamGroups,
+  )
   const chords = input.chords
     .filter((chord) => chord.measureIndex === measureIndex)
     .map((chord) => respellChord(chord, transposition, key))
@@ -203,6 +210,7 @@ function buildWrittenMeasure(
  */
 // @spec-link [[module_notation_display_convention]]
 // @spec-link [[rule_notation_display_preserves_phrase]]
+// @spec-link [[module_notation_stem_direction]]
 export function transformToWrittenPhrase(input: NotationPhraseInput): WrittenPhrase {
   validateNotationPhraseInput(input)
 

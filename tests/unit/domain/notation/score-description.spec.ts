@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import { describeWrittenPhrase } from '@/domain/notation/score-description'
+import { noteStemDirection } from '@/domain/notation/stem-direction'
 import type {
   WrittenChordSymbol,
   WrittenEvent,
@@ -29,6 +30,7 @@ function note(
     tieFromPrevious: false,
     tieToNext: false,
     sourceEventIndex: 0,
+    stemDirection: noteStemDirection({ letter, alter, octave }),
     ...overrides,
   })
 }

@@ -124,12 +124,18 @@ export interface NotatedDuration {
   readonly ticks: number
 }
 
+/** The side of the notehead a note's stem is drawn on: 'up' to its right, 'down' to its left. */
+export type StemDirection = 'up' | 'down'
+
 /**
  * One notated note glyph. A source note may split into several tied glyphs; `sourceEventIndex`
  * is the index of the concert event within its measure. `tieFromPrevious` marks a glyph whose
  * attack is tied from the previous glyph (inside or across a barline); `tieToNext` mirrors it.
+ * `stemDirection` is decided by the written phrase (shared by every note of a beam group), never
+ * by the engraver; a whole note carries one too, though it draws no stem.
  */
 // @spec-link [[module_notation_display_convention]]
+// @spec-link [[module_notation_stem_direction]]
 export interface WrittenNote {
   readonly kind: 'note'
   readonly startTick: number
@@ -139,6 +145,7 @@ export interface WrittenNote {
   readonly tieFromPrevious: boolean
   readonly tieToNext: boolean
   readonly sourceEventIndex: number
+  readonly stemDirection: StemDirection
 }
 
 /** One notated rest glyph. */

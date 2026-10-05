@@ -2,9 +2,10 @@
  * Pure 1:1 mapping helpers from the written-phrase model to VexFlow objects: pitch/duration
  * spelling into VexFlow key/duration codes, and the construction of individual StaveNote,
  * Accidental, Dot, ChordSymbol, Beam and StaveTie instances from the model's own fields. Nothing
- * here re-decides music (no auto-accidentals, no auto-beaming): every glyph, accidental, beam
- * group and tie is taken verbatim from the WrittenPhrase. It also reports where a drawn note's own
- * parts are, for the note-identity tagging (./note-part-tags.ts). Together with
+ * here re-decides music (no auto-accidentals, no auto-beaming, no auto-stemming): every glyph,
+ * accidental, stem direction, beam group and tie is taken verbatim from the WrittenPhrase. It
+ * also reports where a drawn note's own parts are, for the note-identity tagging
+ * (./note-part-tags.ts). Together with
  * ./vexflow-engraver.ts, ./vexflow-two-system-engraver.ts and ./vexflow-check-note-engraver.ts,
  * this is one of the only four files allowed to import 'vexflow'.
  */
@@ -15,6 +16,7 @@ import {
   Dot,
   StaveNote,
   StaveTie,
+  Stem,
   type StaveNoteStruct,
 } from 'vexflow/bravura'
 
@@ -107,16 +109,21 @@ function inheritStaffColourOnLedgerLines(note: StaveNote): void {
 
 /**
  * Build one StaveNote glyph for a written note or rest event verbatim: pitch/rest position,
- * duration and dot come straight from the model; the displayed accidental (if any) is attached
- * as-is, never recomputed. Every engraved note, the score's and the check note's, is built here, so
- * every ledger line inherits the staff colour.
+ * duration, dot and a note's stem direction come straight from the model; the displayed accidental
+ * (if any) is attached as-is, never recomputed. The stem direction is set in the constructor
+ * struct, never by `autoStem` and never later through `setStemDirection` (which would drop a beam
+ * already attached), so `new Beam(...)` finds it preset. A rest gets no stem direction. Every
+ * engraved note, the score's and the check note's, is built here, so every ledger line inherits
+ * the staff colour.
  */
 // @spec-link [[module_notation_display_convention]]
+// @spec-link [[module_notation_stem_direction]]
 export function buildStaveNote(event: WrittenEvent): StaveNote {
   const isRest = event.kind === 'rest'
   const struct: StaveNoteStruct = {
     keys: [isRest ? restKey(event.duration) : mapPitchKey(event.pitch)],
     duration: mapDurationCode(event.duration, isRest),
+    ...(isRest ? {} : { stemDirection: event.stemDirection === 'down' ? Stem.DOWN : Stem.UP }),
   }
   const note = new StaveNote(struct)
   inheritStaffColourOnLedgerLines(note)
@@ -172,7 +179,12 @@ export function attachMeasureChordSymbols(
   }
 }
 
-/** Intent: build one Beam per written beam group, from the glyphs at its listed event indices. */
+/**
+ * Intent: build one Beam per written beam group, from the glyphs at its listed event indices. No
+ * `autoStem`: each beam keeps the stem direction its notes were built with, which the written
+ * phrase made the same for the whole group.
+ */
+// @spec-link [[module_notation_stem_direction]]
 export function buildMeasureBeams(measure: WrittenMeasure, glyphs: readonly StaveNote[]): Beam[] {
   return measure.beamGroups.map((group) => new Beam(group.map((index) => glyphs[index]!)))
 }

@@ -61,12 +61,6 @@ interface NotationHarnessState {
    */
   staffTopLineUnits?: number
   /**
-   * The index, among the top system's note and rest glyphs in drawing order, of phrase 1's first
-   * attacked note (the one the start marker points at), or null for a phrase of rests only;
-   * published with every ready state.
-   */
-  firstAttackGlyphIndex?: number | null
-  /**
    * Every glyph's note identity, measure by measure in written-event order (the attack's identity
    * for a tie continuation, null for a rest), for the harness's phrase number; published with
    * every ready state.

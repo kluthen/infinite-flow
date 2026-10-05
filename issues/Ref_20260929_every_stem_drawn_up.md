@@ -4,7 +4,7 @@
 **Ref:** `ISS-006`
 **Date:** 2026-09-29
 **Severity:** Medium
-**Status:** Open
+**Status:** Resolved
 **Component:** `src/notation/vexflow-mapping.ts`
 **Affects:** `src/notation/vexflow-engraver.ts`, `src/notation/vexflow-two-system-engraver.ts`, `src/notation/notation-layout-policy.ts` (the staff placement's measured ink reach), the notation visual baselines
 
@@ -117,3 +117,26 @@ first attacks measured across the three profiles and three registers).
 ## Change Log
 
 - **2026-09-30**: Extra Data gains the start marker placement measured once the marker is drawn.
+- **2026-10-05**: Resolved. The written phrase now decides stem directions, following standard
+  practice: a note on or above the middle line (B4 in treble clef) is stemmed down, a note below it
+  up. A beam group shares one direction, set by its note farthest from the middle line; on a tie,
+  by the side with more notes; failing that, down. (VexFlow's own beam auto-stem sums the notes'
+  offsets from the middle line instead; the project does not use it.) `WrittenPhrase` carries the
+  direction, `src/notation/vexflow-mapping.ts` passes it to VexFlow as `stemDirection`, and the
+  adapter never auto-stems. Recalibration: the saxophones' highest ink is now a chord symbol about
+  4.2 spaces above the top line (was about 7.2), but down-stemmed beam groups now reach about 7.5
+  spaces below it (F4 in [F4 F5]). A chord symbol over an up-stemmed note inside a beam group still
+  sits on that note's own stem tip, never over the beam (VexFlow places chord symbols that way); it
+  reaches about 4.7 spaces above the top line for the saxophones and about 3.7 for the keyboard (5.2
+  with the start marker). The worst ink a range can produce therefore spans about 14.4 spaces
+  (keyboard) and about 13.7 (saxophones). A 15-space position would leave only about 0.3 space at
+  each end, so the system position stays at 16 spaces and a landscape phone's minimum
+  small-viewport height stays at about 286 px. The staff placement in
+  `src/notation/notation-layout-policy.ts` now covers those cases: the saxophones' top line moves
+  from 95 to 73.5 units, the keyboard's stays at 60. The calibration sweep
+  (`tests/e2e/notation/notation-calibration.spec.ts`) now varies arpeggio chaos and measures the
+  drawn start marker. Updated visual baselines: `bflat-tenor`, `eflat-alto` and
+  `two-system-phone-staff-frame` (`notation-visual.spec.ts`), and all six overlay baselines
+  (`notation-overlays.spec.ts`), each differing only in stem directions, beam, tie and chord-symbol
+  positions and the saxophones' staff height. The chord symbol drawn through a rising up-stemmed
+  beam, which predates this fix, is tracked as ISS-008.

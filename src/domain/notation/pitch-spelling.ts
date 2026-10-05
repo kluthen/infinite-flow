@@ -79,6 +79,19 @@ export function naturalPitchClassOf(letter: Letter): PitchClassNumber {
   return NATURAL_PC[letter]
 }
 
+/** The treble staff's middle line, B4, as a diatonic step count from C0 (6 + 7 × 4). */
+const MIDDLE_LINE_STEP = 6 + 7 * 4
+
+/**
+ * Intent: the staff position of a written pitch as diatonic steps from the treble staff's middle
+ * line (B4): 0 on it, positive above, negative below. Read from the written letter and octave, so
+ * the accidental never moves it (B♯3 sits below C4, C♭5 above B4).
+ */
+// @spec-link [[module_notation_stem_direction]]
+export function staffStepsFromMiddleLine(pitch: SpelledPitch): number {
+  return LETTERS.indexOf(pitch.letter) + 7 * pitch.octave - MIDDLE_LINE_STEP
+}
+
 /** Intent: render one spelled pitch class as 'F♯', 'B♭', 'C', 'D𝄪', 'E𝄫'. */
 // @spec-link [[module_notation_display_convention]]
 export function pitchClassText(p: SpelledPitchClass): string {

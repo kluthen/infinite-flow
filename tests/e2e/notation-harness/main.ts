@@ -34,6 +34,7 @@ import { createApp, h, nextTick, ref, shallowRef, type Ref } from 'vue'
 
 import {
   makeGenerationControls,
+  ARPEGGIO_CHAOS_VALUES,
   CONTOURS,
   LEAPINESS_VALUES,
   PITCH_CLASSES,
@@ -146,17 +147,6 @@ function settleEngraveWaiter(error: NotationError | null): void {
 }
 
 /**
- * Intent: the index, among the phrase's glyphs in drawing order, of its first attacked note (not
- * a rest, not a tied continuation), or null when every glyph is a rest.
- */
-function firstAttackGlyphIndex(phrase: WrittenPhrase): number | null {
-  const index = phrase.measures
-    .flatMap((measure) => measure.events)
-    .findIndex((event) => event.kind === 'note' && !event.tieFromPrevious)
-  return index < 0 ? null : index
-}
-
-/**
  * Intent: the written facts of every glyph, measure by measure, that decide which tagged parts
  * its engraving must carry (a stem unless whole, a flag if unbeamed and flagged, its accidental,
  * its dot).
@@ -206,7 +196,6 @@ function mountPhraseScore(
               engraveCount,
               layoutInputsBeforeEngrave: window.__notationLayoutInputs.length,
               staffTopLineUnits: planStaffPlacement(engravedPhrase.writtenRange).staffTopLineUnits,
-              firstAttackGlyphIndex: firstAttackGlyphIndex(engravedPhrase),
               glyphIdentities: resolveGlyphIdentities(engravedPhrase, phraseNumberRef.value),
               glyphFacts: glyphFacts(engravedPhrase),
               setOverlays,
@@ -244,7 +233,8 @@ function mountPhraseScore(
 
 /**
  * Intent: read an optional URL parameter that has a documented harness default (used only for the
- * contour and leapiness the calibration sweep varies; every other control is required).
+ * contour, leapiness and arpeggio chaos the calibration sweep varies; every other control is
+ * required).
  */
 function optionalParam(params: URLSearchParams, name: string, harnessDefault: string): string {
   return params.get(name) ?? harnessDefault
@@ -252,7 +242,8 @@ function optionalParam(params: URLSearchParams, name: string, harnessDefault: st
 
 /**
  * Intent: build the explicit, cheap-controls-free GenerationIntent for the harness's generated
- * source. Contour and leapiness default to `Arch` and `Shaped` unless the URL sets them.
+ * source. Contour, leapiness and arpeggio chaos default to `Arch`, `Shaped` and `Predictable`
+ * unless the URL sets them (`contour`, `leapiness`, `chaos`).
  */
 function buildHarnessIntent(params: URLSearchParams): GenerationIntent {
   const controls = makeGenerationControls({
@@ -284,7 +275,11 @@ function buildHarnessIntent(params: URLSearchParams): GenerationIntent {
       optionalParam(params, 'leapiness', 'Shaped'),
       'leapiness',
     ),
-    arpeggioChaos: 'Predictable',
+    arpeggioChaos: validateControlValue(
+      ARPEGGIO_CHAOS_VALUES,
+      optionalParam(params, 'chaos', 'Predictable'),
+      'chaos',
+    ),
     instrumentProfileId: validateControlValue(
       INSTRUMENT_PROFILE_IDS,
       requireParam(params, 'profile'),
