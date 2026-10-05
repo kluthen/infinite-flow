@@ -168,7 +168,7 @@ describe('App', () => {
   })
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 // @test-link [[rule_session_start_conditions]]
 describe('App session controller', () => {
   it('keeps Start session disabled until the session controller has loaded', async () => {

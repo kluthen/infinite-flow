@@ -7,7 +7,7 @@
 import type { AudioTime } from './session-types'
 
 /** Actions due at audio times, fired once the clock reaches them. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 export interface AudioTimeAgenda {
   /** Add `action`, due at audio time `at`. Throws on a time that is not finite. */
   readonly schedule: (at: AudioTime, action: () => void) => void
@@ -41,7 +41,7 @@ function firesBefore(a: AgendaEntry, b: AgendaEntry): boolean {
 }
 
 /** Intent: an empty agenda. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 export function createAudioTimeAgenda(): AudioTimeAgenda {
   let entries: AgendaEntry[] = []
   let scheduled = 0

@@ -28,7 +28,7 @@ export const PHRASES_PER_RISE = 2
  * whether or not the schedule runs.
  */
 // @spec-link [[rule_adaptive_tempo_flat_schedule]]
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_adaptive_tempo_schedule]]
 export interface AdaptiveTempoSchedule {
   readonly runs: boolean
   readonly tempo: number
@@ -57,7 +57,7 @@ export function startAdaptiveTempo(startingTempo: number, runs: boolean): Adapti
  * (away twice, back while attached) is a caller bug and throws.
  */
 // @spec-link [[rule_adaptive_tempo_flat_schedule]]
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_adaptive_tempo_schedule]]
 export function controllerPresence(
   schedule: AdaptiveTempoSchedule,
   attached: boolean,
@@ -88,7 +88,7 @@ export function phraseStartedSounding(schedule: AdaptiveTempoSchedule): Adaptive
  * otherwise it stays as the phrase before's, and a due rise waits for the next fixing.
  */
 // @spec-link [[rule_adaptive_tempo_flat_schedule]]
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_adaptive_tempo_schedule]]
 export function nextPhraseTempo(schedule: AdaptiveTempoSchedule): AdaptiveTempoSchedule {
   const { runs, attached, counted, tempo } = schedule
   if (!runs || !attached || counted < PHRASES_PER_RISE || tempo >= ADAPTIVE_TEMPO_CEILING)

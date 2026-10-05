@@ -17,6 +17,7 @@ import {
 } from '@/session/session-midi-timers'
 
 // @test-link [[rule_silence_timeout_ends_session]]
+// @test-link [[module_session_silence_timeout]]
 describe('silence timeout', () => {
   // @test-link [[rule_silence_timeout_ends_session]]
   it('is 30 seconds', () => {
@@ -50,6 +51,7 @@ describe('silence timeout', () => {
 
 // @test-link [[rule_controller_reconnection_window]]
 // @test-link [[rule_controller_loss_mid_session]]
+// @test-link [[module_session_controller_loss]]
 describe('reconnection window', () => {
   // @test-link [[rule_controller_reconnection_window]]
   it('is 30 seconds and expires at exactly 30 seconds after the loss', () => {

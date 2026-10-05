@@ -12,7 +12,7 @@ import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 
 /** What the staff reports: its layout inputs and the outcome of each engraving. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_idle_layout_gate]]
 export interface StaffReports {
   readonly layoutInputs: (inputs: StaffLayoutInputs) => void
   readonly engraved: () => void
@@ -20,14 +20,14 @@ export interface StaffReports {
 }
 
 /** What a session hears from the staff: the Idle reports plus its own staff's failure. */
-// @spec-link [[service_workspace_session_flow]]
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_idle_layout_gate]]
+// @spec-link [[module_session_staff_engraving_outcomes]]
 export interface SessionStaffReports extends StaffReports {
   readonly sessionStaffFailed: (error: NotationError) => void
 }
 
 /** What a session uses of the gate: the latest inputs, the diversion, and the Idle handlers. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_idle_layout_gate]]
 // @spec-link [[rule_session_layout_fixed_at_start]]
 export interface IdleLayoutPort {
   /** The staff's latest layout inputs, whoever received them; null before it reported any. */
@@ -50,8 +50,8 @@ export interface IdleLayoutGate extends SessionStaffReports, IdleLayoutPort {}
  * the staff stops showing a session when it ends, so an engraving of it still in flight then
  * belongs to no session and reports nowhere.
  */
-// @spec-link [[service_workspace_session_flow]]
-// @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_idle_layout_gate]]
+// @spec-link [[module_session_staff_engraving_outcomes]]
 export function createIdleLayoutGate(idle: StaffReports): IdleLayoutGate {
   let latest: StaffLayoutInputs | null = null
   let diverted: SessionStaffReports | null = null

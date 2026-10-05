@@ -35,7 +35,7 @@ export class NotationCoordinatorUsageError extends Error {
 }
 
 /** The session-facing report actions this coordinator routes unsolicited PhraseScore events to. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_idle_generation_session]]
 export interface NotationCoordinatorSessionReporter {
   readonly reportNotationFailure: (error: Error) => boolean
   readonly reportNotationRecovered: () => boolean
@@ -123,7 +123,7 @@ export function createNotationCoordinator(
    * With no phrase ever published (or one since cleared) there is no mounted PhraseScore to have
    * redrawn anything, so there is nothing to report.
    */
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[service_idle_generation_session]]
   function handleEngraved(): void {
     if (awaiting !== null) {
       const request = awaiting
@@ -139,7 +139,7 @@ export function createNotationCoordinator(
    * Intent: settle a pending notate() request on failure, or report an outside-operation failure,
    * under the same no-published-phrase guard as `handleEngraved`.
    */
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[service_idle_generation_session]]
   function handleNotationError(error: NotationError): void {
     if (awaiting !== null) {
       const request = awaiting

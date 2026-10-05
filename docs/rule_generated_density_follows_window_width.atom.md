@@ -6,6 +6,8 @@ parents:
 priority: 1
 dependents:
   - [[module_generation_control_catalog]]
+  - [[module_idle_window_width_density]]
+  - [[module_session_density_step_down]]
   - [[rule_session_density_only_steps_down]]
 type: RULE
 layer: BUSINESS

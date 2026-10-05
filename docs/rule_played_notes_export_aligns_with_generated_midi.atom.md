@@ -8,7 +8,8 @@ human_name: Played Notes Export Lines Up With Generated MIDI
 tags: [v2, release-v2.1, v2.4-check, export, midi]
 parents:
   - [[req_played_notes_export]]
-dependents: []
+dependents:
+  - [[module_review_export_pipeline]]
 priority: 1
 ---
 

@@ -11,6 +11,7 @@ parents:
   - [[req_midi_controller_input]]
   - [[rule_stop_ends_session]]
 dependents:
+  - [[module_session_silence_timeout]]
   - [[service_workspace_session_flow]]
 ---
 

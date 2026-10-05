@@ -29,7 +29,7 @@ export interface MutationLanding {
 // @spec-link [[req_settings_mutation_flag]]
 // @spec-link [[rule_density_mutation_steps_from_generated_density]]
 // @spec-link [[rule_mutation_sixteenth_blocked_after_step_down]]
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_mutation_step]]
 export function landingMutation(
   flag: SettingsMutationFlag,
   phraseNumber: number,

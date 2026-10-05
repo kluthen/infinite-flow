@@ -128,6 +128,7 @@ async function expectNoIdleGeneration(page: Page, seedsBefore: number): Promise<
 
 // @test-link [[rule_stop_ends_session]]
 // @test-link [[rule_count_in_ending_returns_to_idle]]
+// @test-link [[service_session_end]]
 test.describe('Stop', () => {
   test('in the count-in: back to Ready with phrase 1 and focus on Start session', async ({
     page,
@@ -188,6 +189,7 @@ async function showPage(page: Page): Promise<void> {
 
 // @test-link [[rule_hidden_tab_ends_session]]
 // @test-link [[rule_count_in_ending_returns_to_idle]]
+// @test-link [[service_session_end]]
 test.describe('the page hidden', () => {
   test('in the count-in: ends like Stop, back to Ready with phrase 1', async ({ page }) => {
     const before = await startFromReady(page)

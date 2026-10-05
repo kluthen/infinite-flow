@@ -6,6 +6,7 @@ priority: 1
 parents:
   - [[req_adaptive_tempo]]
 dependents:
+  - [[module_session_adaptive_tempo_control]]
   - [[service_session_history]]
   - [[service_workspace_session_flow]]
 human_name: Adaptive Tempo Resets After the Session

@@ -10,6 +10,7 @@ parents:
 layer: BUSINESS
 priority: 1
 dependents:
+  - [[service_session_start]]
   - [[service_workspace_session_flow]]
   - [[specification_browser_only_operation_verification]]
 ---

@@ -9,7 +9,9 @@ type: REQUIREMENT
 version: 0.1
 priority: 1
 tags: [v2, release-v2.0, session, audio]
-dependents: []
+dependents:
+  - [[module_session_phrase_steps]]
+  - [[module_session_transport_tempo_map]]
 notes: Recorded 2026-09-30 in v2 chunk 11 (backing); requirement text unchanged. Each phrase backing is rendered from its harmony by a pure function and scheduled on the session audio clock, on the beat grid of the click, from the end of the count-in; it is synthesized from oscillators and gains only, and the boundary check rejects sampled or decoded audio calls in the source and audio or sample files in the build output. Readings the chunk made, AWAITING THE OWNER ACCEPTANCE. (1) A four-beat harmony event is read as every full measure held under one chord, so a chord held for two measures gets the fifth in each and a four-beat chord starting on beat 3 gets none. (2) The chords are attacked only at chord changes and on downbeats and are held through beat 3, whereas re-attacked in the same way can also be read as re-attacking them with the bass fifth on beat 3. (3) The chord voicing is the close-position stack whose top note is the highest at or below E4. (4) The bass plays in MIDI 36 to 47 (C2 to B2) with the fifth in the same band as the root, so the fifth can sound below the root. The register is a placeholder until a listening test. The backing is not yet wired to the running session of the app; only the workspace harness queues it.
 ---
 

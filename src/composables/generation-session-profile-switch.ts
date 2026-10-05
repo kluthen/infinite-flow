@@ -10,7 +10,7 @@ import { type InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { MutableGenerationSessionState } from './use-generation-session'
 
 /** Every outcome `selectInstrumentProfile` can resolve to. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_idle_generation_session]]
 export type ProfileSelectionOutcome =
   | 'rejected'
   | 'unchanged'
@@ -41,7 +41,7 @@ export interface ProfileSwitchDependencies<TResult> {
  * (judged on the note density a phrase would be generated with at the window's current width)
  * clears the phrase and any notice instead, and the switch still applies.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_idle_generation_session]]
 // @spec-link [[rule_profile_switch_validates_phrase]]
 // @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
 // @spec-link [[rule_too_dense_notice_retry_rounds]]

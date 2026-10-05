@@ -94,7 +94,7 @@ function endState(rig: ControllerRig): unknown {
   }
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 // @test-link [[rule_session_start_conditions]]
 describe('session controller: start', () => {
   // @test-link [[rule_audio_unlocked_by_player_click]]
@@ -326,9 +326,9 @@ describe('session controller: Stop', () => {
   })
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 describe('session controller: failures and disposal', () => {
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_controller]]
   it('ends the session on a runner programming error and throws that error on', () => {
     const rig = controllerRig()
     rig.controller.start()
@@ -347,7 +347,7 @@ describe('session controller: failures and disposal', () => {
     expect(rig.events.filter((event) => event.kind === 'end')).toHaveLength(1)
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_controller]]
   it('throws a late error from an earlier session on without ending the next one', () => {
     const rig = controllerRig()
     rig.controller.start()
@@ -362,7 +362,7 @@ describe('session controller: failures and disposal', () => {
     rig.controller.stop()
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_controller]]
   it('ends the session and throws from the wake-up when a scheduled event fails', async () => {
     const rig = controllerRig()
     rig.controller.start()
@@ -399,7 +399,7 @@ describe('session controller: failures and disposal', () => {
     expect(() => rig.controller.start()).toThrow(/disposed/)
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_controller]]
   it('disposes its wake-up timer on dispose, with a session running or not, and none if never started', async () => {
     const running = controllerRig()
     running.controller.start()
@@ -419,7 +419,7 @@ describe('session controller: failures and disposal', () => {
   })
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 // @test-link [[rule_screen_wake_lock_during_session]]
 // @test-link [[rule_landscape_lock_during_session]]
 describe('session controller: a start that fails part-way', () => {
@@ -441,7 +441,7 @@ describe('session controller: a start that fails part-way', () => {
     expect(rig.controller.state.canStart).toBe(true)
   }
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_controller]]
   // @test-link [[rule_screen_wake_lock_during_session]]
   // @test-link [[rule_landscape_lock_during_session]]
   it("undoes the start and throws on when phrase 1's backing fails to queue; a later start works", async () => {
@@ -464,7 +464,7 @@ describe('session controller: a start that fails part-way', () => {
     expect(rig.controller.state.lastEnd?.phase).toBe('running')
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_controller]]
   it('undoes the start, ending its runner, when the end watchers fail to start; a later start works', async () => {
     let measures = 0
     const failure = new Error('fixed parts exploded')

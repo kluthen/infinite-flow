@@ -8,7 +8,7 @@
  */
 
 /** Where the window stands against `bp-tablet-landscape`, read now or on each crossing. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_idle_window_width_density]]
 // @spec-link [[rule_generated_density_follows_window_width]]
 export interface ViewportWidthProvider {
   /** Whether the window is narrower than `bp-tablet-landscape` right now. */

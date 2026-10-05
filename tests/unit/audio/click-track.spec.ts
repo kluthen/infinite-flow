@@ -139,12 +139,12 @@ function closedFormBeat(startAt: number, tempos: readonly number[], k: number): 
 }
 
 // @test-link [[rule_click_track]]
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_session_transport_tempo_map]]
 describe('click track over a tempo map', () => {
   const TEMPOS = [90, 95, 100] as const
 
   // @test-link [[rule_click_track]]
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('puts every beat across 90 → 95 → 100 at the closed-form sum of its segments', () => {
     const plan = phrasePlan(2.3, TEMPOS)
     for (let k = 0; k <= phraseBeat(4) + 3; k += 1) {
@@ -153,7 +153,7 @@ describe('click track over a tempo map', () => {
   })
 
   // @test-link [[rule_click_track]]
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('never moves the change beat itself, nor any beat before it, when a change is added', () => {
     const before = phrasePlan(2.3, [90, 95])
     const after = withTempoFrom(before, phraseBeat(3), 100)
@@ -162,7 +162,7 @@ describe('click track over a tempo map', () => {
   })
 
   // @test-link [[rule_click_track]]
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('keeps the count-in at the starting tempo', () => {
     const plan = phrasePlan(1, TEMPOS)
     expect(countInEndsAt(plan)).toBe(countInEndsAt(createClickPlan(1, 90)))
@@ -172,7 +172,7 @@ describe('click track over a tempo map', () => {
   })
 
   // @test-link [[rule_click_track]]
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('inverts beatAt across the changes, with firstBeatFrom', () => {
     const plan = phrasePlan(0.4, TEMPOS)
     for (let k = 0; k <= phraseBeat(4) + 3; k += 1) {
@@ -183,7 +183,7 @@ describe('click track over a tempo map', () => {
   })
 
   // @test-link [[rule_click_track]]
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('clicks through a change with no gap or double, its spacing switching at the change beat', () => {
     const plan = phrasePlan(0.1, TEMPOS)
     const end = beatAt(plan, phraseBeat(4)) - 0.01
@@ -206,7 +206,7 @@ describe('click track over a tempo map', () => {
   })
 
   // @test-link [[rule_click_track]]
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('reads the tempo in effect at each beat', () => {
     const plan = phrasePlan(0, TEMPOS)
     expect(tempoAtBeat(plan, 0)).toBe(90)
@@ -217,7 +217,7 @@ describe('click track over a tempo map', () => {
   })
 
   // @test-link [[rule_click_track]]
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('refuses a change not after the last, inside the count-in, or off a whole 60..240 BPM', () => {
     const plan = phrasePlan(0, TEMPOS)
     expect(() => withTempoFrom(plan, phraseBeat(3), 110)).toThrow(/after/)
@@ -246,7 +246,7 @@ describe('click track over a tempo map', () => {
   })
 
   // @test-link [[rule_click_track]]
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('keeps 20 phrases rising +5 from 60 to 160 BPM within 1e-9 s of the closed form', () => {
     const tempos = Array.from({ length: 21 }, (_, index) => 60 + 5 * index)
     const plan = phrasePlan(7.25, tempos)

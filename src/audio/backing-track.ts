@@ -23,7 +23,7 @@ function assertPhraseNumber(phraseNumber: number): void {
  * Throws on a phrase number that is not a whole number from 1.
  */
 // @spec-link [[req_session_backing_track]]
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_transport_tempo_map]]
 export function phraseFirstBeat(plan: ClickPlan, phraseNumber: number): number {
   assertPhraseNumber(phraseNumber)
   return plan.countInBeats + (phraseNumber - 1) * PHRASE_MEASURE_COUNT * plan.beatsPerMeasure
@@ -35,7 +35,7 @@ export function phraseFirstBeat(plan: ClickPlan, phraseNumber: number): number {
  * of the phrases before it. Throws on a phrase number that is not a whole number from 1.
  */
 // @spec-link [[req_session_backing_track]]
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_transport_tempo_map]]
 export function phraseStartsAt(plan: ClickPlan, phraseNumber: number): AudioTime {
   return beatAt(plan, phraseFirstBeat(plan, phraseNumber))
 }
@@ -74,7 +74,7 @@ function placeNote(
  * Intent: throw unless the tempo is constant across the phrase starting on `firstBeat`: no tempo
  * change of the plan falls after its first beat and before the next phrase's.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_transport_tempo_map]]
 function assertOneTempoAcross(plan: ClickPlan, phraseNumber: number, firstBeat: number): void {
   const nextFirstBeat = firstBeat + PHRASE_MEASURE_COUNT * plan.beatsPerMeasure
   const inside = plan.tempoChanges.find((c) => c.beat > firstBeat && c.beat < nextFirstBeat)
@@ -94,7 +94,7 @@ function assertOneTempoAcross(plan: ClickPlan, phraseNumber: number, firstBeat: 
  */
 // @spec-link [[req_session_backing_track]]
 // @spec-link [[rule_playhead_follows_audio_clock]]
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_transport_tempo_map]]
 export function scheduleBacking(
   plan: ClickPlan,
   phraseNumber: number,

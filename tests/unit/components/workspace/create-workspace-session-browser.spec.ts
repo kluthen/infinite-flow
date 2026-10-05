@@ -56,7 +56,7 @@ function stubWakeLock(): { readonly requests: string[] } {
   return { requests }
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 describe('composeWorkspaceSession: the session browser ports', () => {
   // @test-link [[rule_screen_wake_lock_during_session]]
   // @test-link [[rule_hidden_tab_ends_session]]
@@ -97,7 +97,7 @@ describe('composeWorkspaceSession: the session browser ports', () => {
   })
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 describe('createWorkspaceSession: the browser adapters', () => {
   afterEach(() => {
     vi.unstubAllGlobals()

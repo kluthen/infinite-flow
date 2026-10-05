@@ -29,6 +29,7 @@ export interface ReviewExportPorts {
 /** Intent: the page's own ports: the lazy export code, and a download made through `doc`. */
 // @spec-link [[req_session_export]]
 // @spec-link [[rule_session_data_never_sent_or_stored]]
+// @spec-link [[module_review_export_pipeline]]
 export function browserReviewExportPorts(doc: Document): ReviewExportPorts {
   return { load: loadGeneratedNotesExport, download: (file) => downloadFile(file, doc) }
 }
@@ -41,6 +42,7 @@ export function browserReviewExportPorts(doc: Document): ReviewExportPorts {
 // @spec-link [[req_session_export]]
 // @spec-link [[rule_generated_notes_musicxml_export]]
 // @spec-link [[rule_generated_notes_midi_export]]
+// @spec-link [[module_review_export_pipeline]]
 export async function exportGeneratedNotes(
   history: ExportableHistory,
   request: ExportRequest,
@@ -58,6 +60,7 @@ export async function exportGeneratedNotes(
  */
 // @spec-link [[req_played_notes_export]]
 // @spec-link [[rule_session_data_never_sent_or_stored]]
+// @spec-link [[module_review_export_pipeline]]
 export async function exportPlayedNotes(
   history: ExportableHistory,
   ports: ReviewExportPorts,
@@ -74,6 +77,7 @@ export async function exportPlayedNotes(
  * included), so a note played only before the first phrase never shows the action.
  */
 // @spec-link [[req_played_notes_export]]
+// @spec-link [[module_review_export_pipeline]]
 export function historyHoldsPlayedNote(
   records: readonly Pick<SessionHistoryRecord, 'playedNotes'>[],
 ): boolean {

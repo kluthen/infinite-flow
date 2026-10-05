@@ -53,7 +53,7 @@ async function readStaffFrameClassLog(page: Page): Promise<string[]> {
   return page.evaluate(() => window.__staffFrameClassLog ?? [])
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_idle_generation_session]]
 test('a fresh generation whose own engraving fails announces through notation-status, and Retry notation recovers silently', async ({
   page,
 }) => {
@@ -85,7 +85,7 @@ test('a fresh generation whose own engraving fails announces through notation-st
   await expect(status).toHaveText('')
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_idle_generation_session]]
 test('an out-of-band redraw (a viewport resize) recovers a prior engraving failure without touching the phrase identity', async ({
   page,
 }) => {
@@ -124,7 +124,7 @@ test('an out-of-band redraw (a viewport resize) recovers a prior engraving failu
   expect(after.seed).toBe(before.seed)
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_idle_generation_error_recovery]]
 test('a regenerate-branch profile switch that itself fails to generate replaces a retained notation error with the generation-failure banner', async ({
   page,
 }) => {

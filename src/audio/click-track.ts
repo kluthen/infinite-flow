@@ -19,7 +19,7 @@ const MAX_CHANGE_TEMPO = 240
  * own start by one multiplication, so every later beat time is drift-free.
  */
 // @spec-link [[rule_click_track]]
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_transport_tempo_map]]
 export interface TempoChange {
   readonly beat: number
   readonly tempo: number
@@ -31,7 +31,7 @@ export interface TempoChange {
  * count-in's length, and the tempo changes after it, in strictly rising beat order.
  */
 // @spec-link [[rule_click_track]]
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_transport_tempo_map]]
 export interface ClickPlan {
   readonly startAt: AudioTime
   readonly tempo: number
@@ -94,7 +94,7 @@ function segmentAtTime(plan: ClickPlan, time: AudioTime): TempoChange {
  * the count-in or is not after the last change, and on a tempo that is not a whole 60..240 BPM.
  */
 // @spec-link [[rule_click_track]]
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_transport_tempo_map]]
 export function withTempoFrom(plan: ClickPlan, beat: number, tempo: number): ClickPlan {
   if (!Number.isInteger(beat)) throw new Error(`click track: beat ${beat} is not a whole number`)
   if (beat < plan.countInBeats) {
@@ -117,7 +117,7 @@ export function withTempoFrom(plan: ClickPlan, beat: number, tempo: number): Cli
 
 /** Intent: the tempo in effect on session beat `k`, in BPM: the one its beat length follows. */
 // @spec-link [[rule_click_track]]
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_transport_tempo_map]]
 export function tempoAtBeat(plan: ClickPlan, k: number): number {
   return segmentAtBeat(plan, k).tempo
 }
@@ -130,7 +130,7 @@ export function tempoAtBeat(plan: ClickPlan, k: number): number {
  */
 // @spec-link [[rule_click_track]]
 // @spec-link [[rule_playhead_follows_audio_clock]]
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_transport_tempo_map]]
 export function beatAt(plan: ClickPlan, k: number): AudioTime {
   const segment = segmentAtBeat(plan, k)
   return segment.at + ((k - segment.beat) * 60) / segment.tempo
@@ -141,7 +141,7 @@ export function beatAt(plan: ClickPlan, k: number): AudioTime {
  * in, is corrected with `beatAt` itself, so the half-open rule holds exactly for the times
  * `clicksBetween` compares, across a tempo change too.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_transport_tempo_map]]
 function firstBeatFrom(plan: ClickPlan, from: AudioTime): number {
   const segment = segmentAtTime(plan, from)
   let k = Math.max(0, segment.beat + Math.ceil(((from - segment.at) * segment.tempo) / 60))

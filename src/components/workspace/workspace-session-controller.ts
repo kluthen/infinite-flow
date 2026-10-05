@@ -94,7 +94,7 @@ function startFactsOf(
  * condition) and listens to the MIDI controller (for the starting note) until `dispose`; it asks
  * for no lock and opens no audio until a start.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 // @spec-link [[rule_session_start_conditions]]
 // @spec-link [[rule_midi_never_blocks_session]]
 // @spec-link [[rule_phrase_one_is_idle_phrase]]

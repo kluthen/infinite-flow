@@ -7,9 +7,9 @@ import { describe, expect, it } from 'vitest'
 
 import { createAudioTimeAgenda } from '@/session/session-agenda'
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 describe('createAudioTimeAgenda', () => {
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_controller]]
   it('fires only the actions due by now, in time order, ties in scheduling order', () => {
     const agenda = createAudioTimeAgenda()
     const fired: string[] = []
@@ -28,7 +28,7 @@ describe('createAudioTimeAgenda', () => {
     expect(agenda.size()).toBe(0)
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_controller]]
   it('fires, in the same call, an action a fired action schedules for a time already reached', () => {
     const agenda = createAudioTimeAgenda()
     const fired: number[] = []
@@ -44,7 +44,7 @@ describe('createAudioTimeAgenda', () => {
     expect(agenda.size()).toBe(1)
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_controller]]
   it('fires nothing more once cleared, even from inside a fired action', () => {
     const agenda = createAudioTimeAgenda()
     const fired: number[] = []
@@ -60,7 +60,7 @@ describe('createAudioTimeAgenda', () => {
     expect(agenda.size()).toBe(0)
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_controller]]
   it('refuses a time that is not finite', () => {
     const agenda = createAudioTimeAgenda()
 

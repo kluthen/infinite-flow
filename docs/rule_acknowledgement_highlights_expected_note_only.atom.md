@@ -8,6 +8,8 @@ priority: 1
 tags: [v2, release-v2.0, midi, acknowledgement, non-scoring]
 dependents:
   - [[module_notation_note_identity_overlays]]
+  - [[module_session_note_acknowledgement]]
+  - [[module_session_staff_overlays]]
   - [[service_workspace_session_flow]]
 human_name: Only the Matched Expected Note Lights Up
 parents:

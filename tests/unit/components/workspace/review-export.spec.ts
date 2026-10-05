@@ -47,6 +47,7 @@ function localStamp(epochMs: number): string {
 }
 
 // @test-link [[req_session_export]]
+// @test-link [[module_review_export_pipeline]]
 describe('the Review export', () => {
   // @test-link [[req_session_export]]
   // @test-link [[rule_generated_notes_musicxml_export]]
@@ -156,6 +157,7 @@ function silentHistory(): ExportableHistory {
 }
 
 // @test-link [[req_played_notes_export]]
+// @test-link [[module_review_export_pipeline]]
 describe('the Review played-notes export', () => {
   // @test-link [[req_played_notes_export]]
   // @test-link [[rule_session_data_never_sent_or_stored]]

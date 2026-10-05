@@ -11,6 +11,8 @@ parents:
   - [[rule_session_never_pauses]]
 priority: 1
 dependents:
+  - [[module_session_adaptive_tempo_schedule]]
+  - [[module_session_controller_loss]]
   - [[rule_controller_reconnection_window]]
   - [[service_session_engine]]
   - [[service_workspace_session_flow]]

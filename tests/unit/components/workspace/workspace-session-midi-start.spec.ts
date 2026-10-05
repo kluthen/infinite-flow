@@ -56,6 +56,7 @@ const BLOCKERS: readonly BlockerSample[] = [
 
 // @test-link [[rule_midi_starting_note]]
 // @test-link [[rule_starting_note_only_starts_count_in]]
+// @test-link [[module_session_starting_note]]
 describe('session controller: the starting note starts the session', () => {
   // @test-link [[rule_starting_note_named]]
   it('names the starting note only once a controller is attached at Ready', async () => {

@@ -32,7 +32,7 @@ let latest: LatestRunner | null = null
  * Intent: start the real workspace runner, keeping it as the latest, and follow the settings in
  * effect through its outputs before forwarding each unchanged.
  */
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_workspace_session_runner_factory]]
 export function startWorkspaceSessionRunner(
   deps: SessionRunnerDependencies,
   start: WorkspaceSessionStart,

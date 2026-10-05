@@ -5,6 +5,8 @@ version: 0.1
 priority: 1
 human_name: Session Ended During the Count-In Returns to Idle
 dependents:
+  - [[module_session_staff_engraving_outcomes]]
+  - [[service_session_end]]
   - [[service_session_engine]]
   - [[service_workspace_session_flow]]
 tags: [v2, release-v2.0, session, session-end]

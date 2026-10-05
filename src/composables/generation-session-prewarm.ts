@@ -41,7 +41,7 @@ export type RhythmPrewarmTrigger = (
  * rhythm-domain memo is keyed by (`rhythmDomainInputOf` in generation-orchestrator.ts, not imported
  * here so the page bundle never pulls in the generator; a unit test pins the two together).
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_generation_prewarm]]
 export function rhythmSettingKeyOf(intent: GenerationIntent): string {
   const { noteDensity, rhythmicVariety, silenceDensity, syncopation, tension } = intent.controls
   return JSON.stringify({
@@ -58,7 +58,7 @@ export function rhythmSettingKeyOf(intent: GenerationIntent): string {
  * from the last one it posted (the first call always posts), so a non-rhythm edit (tonal center,
  * tempo, contour...) and a width crossing that leaves the generated density unchanged post nothing.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_generation_prewarm]]
 export function createRhythmPrewarmTrigger(post: PostPrewarm): RhythmPrewarmTrigger {
   let lastPostedKey: string | undefined
   return (generatedControls, musicalProfile) => {

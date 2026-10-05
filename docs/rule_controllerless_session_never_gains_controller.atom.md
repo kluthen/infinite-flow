@@ -11,6 +11,7 @@ parents:
   - [[req_rolling_practice_session]]
 tags: [v2, release-v2.0, midi, session]
 dependents:
+  - [[service_session_midi]]
   - [[service_workspace_session_flow]]
 ---
 

@@ -39,7 +39,7 @@ function createDeferred<T>() {
   return { promise, resolve, reject }
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_idle_generation_session]]
 // @test-link [[user_story_controlled_phrase_generation]]
 describe('generation session workspace flow', () => {
   describe('post-generation notation', () => {
@@ -416,7 +416,7 @@ describe('generation session workspace flow', () => {
       await pending
     })
 
-    // @test-link [[service_workspace_session_flow]]
+    // @test-link [[service_idle_generation_session]]
     it('sets notationError and clears resultEngraved on failure, then clears notationError and restores resultEngraved on recovery (D34)', async () => {
       const { providers } = trackedProviders()
       const session = createGenerationSession<StubResult>({

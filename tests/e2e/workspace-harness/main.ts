@@ -241,7 +241,7 @@ function setWallClock(epochMs: number | null): void {
 }
 
 /** Intent: count one prewarm, then forward it to the real worker client unchanged. */
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_generation_prewarm]]
 function harnessPrewarm(intent: GenerationIntent): void {
   prewarmsPosted += 1
   client.prewarm(intent)

@@ -18,6 +18,7 @@ dependents:
   - [[rule_only_note_on_counts_as_played]]
   - [[rule_optional_midi_privacy]]
   - [[rule_silence_timeout_ends_session]]
+  - [[service_session_midi]]
 type: REQUIREMENT
 layer: BUSINESS
 ---

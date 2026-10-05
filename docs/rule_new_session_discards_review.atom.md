@@ -6,6 +6,8 @@ human_name: New Session Discards the Review Without Asking
 parents:
   - [[req_last_session_review]]
 dependents:
+  - [[service_session_end]]
+  - [[service_session_start]]
   - [[service_workspace_session_flow]]
 layer: BUSINESS
 version: 0.3

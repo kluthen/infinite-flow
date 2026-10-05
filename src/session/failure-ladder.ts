@@ -61,7 +61,7 @@ export type Attempt =
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
 // @spec-link [[rule_setting_change_rechecks_pitch_carry_in]]
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_carry_in_after_change]]
 export interface LookAheadBasis {
   readonly settings: SessionSettings
   readonly previousSettings: SessionSettings
@@ -74,7 +74,7 @@ export interface LookAheadBasis {
  * if any (none once the ladder is exhausted).
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_failure_ladder]]
 export interface LookAhead {
   readonly phraseNumber: number
   readonly deadline: AudioTime

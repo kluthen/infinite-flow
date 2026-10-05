@@ -67,7 +67,7 @@ function requestIn(outputs: readonly unknown[]): GenerationRequestOutput {
 }
 
 // @test-link [[rule_session_change_applies_at_phrase_boundary]]
-// @test-link [[service_session_engine]]
+// @test-link [[module_session_settings_change]]
 describe('a settings change and the pending look-ahead phrase', () => {
   // @test-link [[rule_session_change_applies_at_phrase_boundary]]
   it('discards a decided phrase with nothing on screen and a measure left, and requests it again', () => {
@@ -201,7 +201,7 @@ describe('a settings change and the pending look-ahead phrase', () => {
 })
 
 // @test-link [[rule_session_settings_locked]]
-// @test-link [[service_session_engine]]
+// @test-link [[module_session_settings_change]]
 describe('settings changes the session refuses', () => {
   // @test-link [[rule_session_settings_locked]]
   it('throws on a change of the tempo or of the instrument', () => {
@@ -212,7 +212,7 @@ describe('settings changes the session refuses', () => {
     )
   })
 
-  // @test-link [[service_session_engine]]
+  // @test-link [[module_session_settings_change]]
   it('throws on a change after the end', () => {
     const driver = threeDecided(false)
     driver.end(6)

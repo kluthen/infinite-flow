@@ -23,7 +23,7 @@ import {
  * which it also keeps for that session's end; `sessionEnded` is told the tempo reached by a session
  * that ended once phrase 1 had sounded.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_adaptive_tempo_control]]
 // @spec-link [[req_adaptive_tempo]]
 // @spec-link [[rule_adaptive_tempo_resets_after_session]]
 export interface AdaptiveTempoFlag {
@@ -40,7 +40,7 @@ export interface AdaptiveTempoFlag {
 }
 
 /** A controller event, its time left to the dispatcher, which raises it to the engine's floor. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_controller_loss]]
 export interface ControllerPresenceEvent {
   readonly kind: 'controller'
   readonly attached: boolean
@@ -65,7 +65,7 @@ export function isControllerAttached(state: MidiControllerState): boolean {
  */
 // @spec-link [[req_adaptive_tempo]]
 // @spec-link [[rule_ephemeral_session_state]]
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_adaptive_tempo_control]]
 export function createAdaptiveTempoFlag(
   controllerState: () => MidiControllerState,
   phase: () => SessionControllerPhase,

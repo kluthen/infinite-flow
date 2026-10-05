@@ -6,9 +6,12 @@ version: 0.2
 priority: 1
 tags: [v2, release-v2.2, session, tension]
 dependents:
+  - [[module_session_tension_across_phrases_flag]]
+  - [[module_session_tension_arc_step]]
   - [[module_tension_arc_cycle]]
   - [[rule_multi_phrase_tension_arc_cycle]]
   - [[service_workspace_session_flow]]
+  - [[service_workspace_session_runner_factory]]
 type: REQUIREMENT
 human_name: Multi-Phrase Tension Arc
 parents:

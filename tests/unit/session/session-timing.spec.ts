@@ -57,7 +57,7 @@ function measureAt(tempo: number): number {
 }
 
 // @test-link [[rule_look_ahead_deadline]]
-// @test-link [[service_session_engine]]
+// @test-link [[module_session_look_ahead_timing]]
 describe('look-ahead deadlines', () => {
   // @test-link [[rule_look_ahead_deadline]]
   it.each([60, 120, 240])('places every deadline on the measure grid at %i BPM', (tempo) => {
@@ -132,7 +132,7 @@ function runScriptAt(
 }
 
 // @test-link [[rule_tempo_never_affects_generation]]
-// @test-link [[service_session_engine]]
+// @test-link [[module_session_look_ahead_timing]]
 describe('tempo only sets the times', () => {
   // @test-link [[rule_tempo_never_affects_generation]]
   it('builds identical request intents at 60, 120 and 240 BPM, tempo aside', () => {

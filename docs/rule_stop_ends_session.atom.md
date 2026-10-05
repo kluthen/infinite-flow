@@ -15,6 +15,7 @@ dependents:
   - [[rule_session_ends_on_portrait_view]]
   - [[rule_session_ends_when_staff_too_small]]
   - [[rule_silence_timeout_ends_session]]
+  - [[service_session_end]]
   - [[service_session_engine]]
   - [[service_workspace_session_flow]]
 notes: Recorded 2026-09-30 in v2 chunk 10 (audio transport); rule text unchanged. A Stop during the count-in also fades the click out over about 100 ms before the app returns to Idle. The rule states the fade for every Stop, while its expectation states it only for a Stop after phrase 1 has started sounding; the chunk applies it to both. AWAITING THE OWNER ACCEPTANCE. Chunk 11 (backing, 2026-09-30) fades the backing out with the click over the same 100 ms, and plans no backing after the Stop.

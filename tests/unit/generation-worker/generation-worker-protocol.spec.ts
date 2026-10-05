@@ -102,7 +102,7 @@ describe('parseGenerationWorkerResponse: retained request round trip', () => {
 })
 
 // @test-link [[module_generation_worker_protocol]]
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_workspace_session_runner_factory]]
 describe('parseGenerationWorkerRequest: writtenTonalCenter is required, valid, and untampered', () => {
   it('parses a valid, structured-cloned request', () => {
     const wire = requestFixture()

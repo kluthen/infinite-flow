@@ -39,7 +39,7 @@ function sound(driver: SessionDriver, phraseNumber: number): readonly string[] {
 }
 
 // @test-link [[rule_struggling_generator_notice]]
-// @test-link [[service_session_engine]]
+// @test-link [[module_session_struggling_notice]]
 describe('struggling-generator notice', () => {
   // @test-link [[rule_struggling_generator_notice]]
   it('shows at the second repeat in a row, stays through a third, clears when a generated phrase sounds', () => {

@@ -9,7 +9,9 @@ tags: [v2, release-v2.0, session, look-ahead, notation]
 parents:
   - [[rule_look_ahead_deadline]]
 dependents:
+  - [[module_session_display_fit]]
   - [[module_session_rolling_display]]
+  - [[service_session_controller]]
   - [[service_session_engine]]
 version: 0.1
 ---

@@ -34,7 +34,7 @@ function mountPanel(workspace: TestWorkspace, controller: SessionController | nu
   })
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 // @test-link [[rule_stop_ends_session]]
 describe('ScorePanel session cue row', () => {
   it('places session-cue-row after the banner position and right before staff-viewport', () => {
@@ -69,7 +69,7 @@ describe('ScorePanel session cue row', () => {
 })
 
 // @test-link [[module_session_rolling_display]]
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 describe('ScorePanel session staff', () => {
   // @test-link [[module_session_rolling_display]]
   it('hands PhraseScore the session staff while a session runs, and none at Idle', async () => {

@@ -23,7 +23,7 @@ import type { Seed } from '@/domain/random/seed'
  * choice; its `adaptiveTempo` is the session controller's: the page's flag on and a controller at
  * the start.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_workspace_session_runner_factory]]
 // @spec-link [[req_settings_mutation_flag]]
 // @spec-link [[req_multi_phrase_tension_arc]]
 export interface WorkspaceSessionStart extends Omit<SessionStart, 'mutation'> {
@@ -46,7 +46,7 @@ export function mutationFlagFor(varySettings: boolean, nextSeed: () => Seed): Se
  * gives (its seed drawn before the engine asks for any attempt seed), the multi-phrase tension arc
  * and adaptive tempo as the start says, and the display reading and output sink the caller passes.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_workspace_session_runner_factory]]
 // @spec-link [[service_session_runner]]
 // @spec-link [[req_settings_mutation_flag]]
 // @spec-link [[req_multi_phrase_tension_arc]]

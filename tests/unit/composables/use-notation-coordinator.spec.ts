@@ -33,7 +33,7 @@ function buildCoordinator() {
 }
 
 // @test-link [[module_notation_layout_preflight]]
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_idle_generation_session]]
 describe('createNotationCoordinator', () => {
   it('publishes the transformed phrase and resolves once PhraseScore reports it engraved', async () => {
     const { coordinator, reportNotationFailure, reportNotationRecovered } = buildCoordinator()
@@ -87,7 +87,7 @@ describe('createNotationCoordinator', () => {
     expect(reportNotationFailure).not.toHaveBeenCalled()
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_idle_generation_session]]
   it('routes an unsolicited engraved event to reportNotationRecovered once a phrase has settled', async () => {
     const { coordinator, reportNotationRecovered } = buildCoordinator()
     const result = buildWorkspaceSessionResult()
@@ -101,7 +101,7 @@ describe('createNotationCoordinator', () => {
     expect(reportNotationRecovered).toHaveBeenCalledExactlyOnceWith()
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_idle_generation_session]]
   it('routes an unsolicited notation-error event to reportNotationFailure once a phrase has settled', async () => {
     const { coordinator, reportNotationFailure } = buildCoordinator()
     const result = buildWorkspaceSessionResult()
@@ -116,7 +116,7 @@ describe('createNotationCoordinator', () => {
     expect(reportNotationFailure).toHaveBeenCalledExactlyOnceWith(error)
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_idle_generation_session]]
   it('keeps reporting on the latest notate() even when that request was itself rejected', async () => {
     const { coordinator, reportNotationFailure, reportNotationRecovered } = buildCoordinator()
     const result = buildWorkspaceSessionResult()
@@ -143,7 +143,7 @@ describe('createNotationCoordinator', () => {
     expect(reportNotationRecovered).toHaveBeenCalledExactlyOnceWith()
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_idle_generation_session]]
   it('reports nothing for an unsolicited event after clearPresentedPhrase() drops the published phrase', async () => {
     const { coordinator, reportNotationFailure, reportNotationRecovered } = buildCoordinator()
     const result = buildWorkspaceSessionResult()

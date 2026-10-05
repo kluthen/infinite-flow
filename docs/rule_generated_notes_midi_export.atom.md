@@ -4,7 +4,8 @@ status: DRAFT
 human_name: Generated Notes MIDI Export
 parents:
   - [[req_session_export]]
-dependents: []
+dependents:
+  - [[module_review_export_pipeline]]
 layer: BUSINESS
 priority: 1
 tags: [v2, release-v2.0, v2.4-check, export]

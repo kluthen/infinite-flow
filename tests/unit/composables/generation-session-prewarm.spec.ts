@@ -13,9 +13,9 @@ import {
   buildCatalogIntent,
 } from '../domain/generation/orchestration/cold-generation-golden/cold-generation-golden-fixture'
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_generation_prewarm]]
 describe('rhythmSettingKeyOf', () => {
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_generation_prewarm]]
   it("is the worker memo's rhythm input for every rhythm setting, and tells them all apart", () => {
     const settings = allRhythmSettings()
     const keys = new Set<string>()
@@ -29,9 +29,9 @@ describe('rhythmSettingKeyOf', () => {
   })
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_generation_prewarm]]
 describe('prewarmPolicyFromSearch', () => {
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_generation_prewarm]]
   it('enables prewarm by default and with ?prewarm=on, disables it with ?prewarm=off', () => {
     expect(prewarmPolicyFromSearch('')).toBe('enabled')
     expect(prewarmPolicyFromSearch('?audio=real')).toBe('enabled')
@@ -39,7 +39,7 @@ describe('prewarmPolicyFromSearch', () => {
     expect(prewarmPolicyFromSearch('?audio=real&prewarm=off')).toBe('disabled')
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_generation_prewarm]]
   it('throws on any other prewarm value instead of guessing a mode', () => {
     expect(() => prewarmPolicyFromSearch('?prewarm=of')).toThrow(/Unknown prewarm mode "of"/)
     expect(() => prewarmPolicyFromSearch('?prewarm=')).toThrow(/Unknown prewarm mode ""/)

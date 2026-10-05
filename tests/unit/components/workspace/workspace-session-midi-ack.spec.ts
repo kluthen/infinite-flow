@@ -44,6 +44,7 @@ async function startedByTheStartingNote(): Promise<ControllerRig> {
 
 // @test-link [[rule_acknowledgement_highlights_expected_note_only]]
 // @test-link [[rule_session_history_records_played_notes]]
+// @test-link [[module_session_note_acknowledgement]]
 describe('session controller: played notes in a session with a controller', () => {
   // @test-link [[rule_played_onset_latency_compensation]]
   it('acknowledges a matching note and records it in its phrase, the starting note in none', async () => {
@@ -131,6 +132,7 @@ describe('session controller: played notes in a session with a controller', () =
 })
 
 // @test-link [[rule_controllerless_session_never_gains_controller]]
+// @test-link [[service_session_midi]]
 describe('session controller: a session without a controller', () => {
   it('reads no controller and acknowledges nothing', async () => {
     const rig = controllerRig()

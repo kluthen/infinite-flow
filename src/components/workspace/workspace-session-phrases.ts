@@ -20,7 +20,7 @@ import type { SessionMidiRun } from './workspace-session-midi'
  * session's MIDI handling, its audio-time agenda, and how a phrase's starting to sound reaches the
  * runner.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_phrase_steps]]
 export interface SessionPhrasesDependencies {
   readonly audio: Pick<AudioTransport, 'queueBacking' | 'phraseStartsAt'>
   readonly display: Pick<SessionDisplay, 'phraseReady' | 'phraseTempo' | 'phraseDiscarded'>
@@ -30,7 +30,7 @@ export interface SessionPhrasesDependencies {
 }
 
 /** One session's phrase steps, fed the engine's `phrase-ready` and `phrase-tempo` outputs. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_phrase_steps]]
 export interface SessionPhrases {
   /**
    * Show the next readied phrase (2, 3… in order, a discarded number again) as read-ahead and keep
@@ -55,7 +55,7 @@ export interface SessionPhrases {
  * number, the latest one readied under it, until its tempo schedules it. Every caller bug throws
  * before anything changes.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[module_session_phrase_steps]]
 // @spec-link [[req_session_backing_track]]
 export function createSessionPhrases(deps: SessionPhrasesDependencies): SessionPhrases {
   const { audio, display, midi, agenda } = deps
@@ -65,7 +65,7 @@ export function createSessionPhrases(deps: SessionPhrasesDependencies): SessionP
   let nextTempo = 2
 
   /** Intent: show the next readied phrase as read-ahead and keep it for its tempo. */
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[module_session_phrase_steps]]
   function phraseReady(phrase: SessionPhrase): void {
     const { phraseNumber } = phrase
     if (phraseNumber !== nextReady) {
@@ -83,7 +83,7 @@ export function createSessionPhrases(deps: SessionPhrasesDependencies): SessionP
    * then on the transport knows when it starts), then add its expected notes at that tempo, give
    * the display's playhead its tempo, and schedule its starting to sound at its transport start.
    */
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[module_session_phrase_steps]]
   // @spec-link [[req_session_backing_track]]
   function phraseTempo(phraseNumber: number, tempo: number): void {
     if (phraseNumber !== nextTempo) {
@@ -109,7 +109,7 @@ export function createSessionPhrases(deps: SessionPhrasesDependencies): SessionP
    * was fixed: drop it, take it back from the display, and ready that number again next. Nothing
    * of it reached the audio, the acknowledgement or the agenda, which act only at its tempo.
    */
-  // @spec-link [[service_workspace_session_flow]]
+  // @spec-link [[module_session_phrase_steps]]
   // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
   function phraseDiscarded(phraseNumber: number): void {
     if (phraseNumber !== nextReady - 1 || !kept.has(phraseNumber)) {

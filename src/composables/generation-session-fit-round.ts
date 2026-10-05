@@ -122,7 +122,7 @@ export function createFitRunner<TResult>(deps: FitRunDependencies<TResult>): Fit
    * rotate-device notice) during the fresh run `runToken`, which then counts it as no room: the
    * phrase comes once the notice clears, never as a notation error.
    */
-  // @spec-link [[module_idle_fit_round]]
+  // @spec-link [[module_idle_fresh_run]]
   // @spec-link [[rule_session_end_generates_next_phrase_one]]
   function staffNotLaidOutInFreshRun(runToken: number, error: unknown): boolean {
     return (
@@ -264,7 +264,7 @@ export function createFitRunner<TResult>(deps: FitRunDependencies<TResult>): Fit
    * Empty and no room (a staff not laid out included) ends it on the no-room notice, nothing
    * generated in either case; null lets the attempts go on, a boolean is the run's own result.
    */
-  // @spec-link [[module_idle_fit_round]]
+  // @spec-link [[module_idle_fresh_run]]
   // @spec-link [[rule_session_end_generates_next_phrase_one]]
   // @spec-link [[rule_unsupported_rhythm_gives_way_to_no_phrase]]
   async function roomFirst(runToken: number): Promise<boolean | null> {

@@ -38,7 +38,7 @@ async function atReady(options: FitSessionOptions = {}) {
 }
 
 // @test-link [[rule_session_end_generates_next_phrase_one]]
-// @test-link [[module_idle_fit_round]]
+// @test-link [[module_idle_fresh_run]]
 describe('a fresh phrase at a session end', () => {
   // @test-link [[rule_session_end_generates_next_phrase_one]]
   it('drops the phrase on screen at once, then draws a new one with a fresh seed and no carry-in', async () => {
@@ -97,7 +97,7 @@ describe('a fresh phrase at a session end', () => {
 
   // @test-link [[rule_session_end_generates_next_phrase_one]]
   // @test-link [[rule_staff_notice_gives_way_to_new_phrase]]
-  // @test-link [[module_idle_fit_round]]
+  // @test-link [[module_idle_fresh_run]]
   it('treats a staff not laid out (behind the rotate-device notice) as no room, at each step', async () => {
     const notLaidOut = () =>
       Promise.reject(new NotationError('notation_container_unavailable', 'no width', {}))
@@ -130,7 +130,7 @@ describe('a fresh phrase at a session end', () => {
   })
 
   // @test-link [[rule_session_end_generates_next_phrase_one]]
-  // @test-link [[module_idle_fit_round]]
+  // @test-link [[module_idle_fresh_run]]
   it('keeps an unmeasurable staff a retryable notation error outside a fresh phrase', async () => {
     const built = await atReady({
       checkFit: (result) =>

@@ -6,6 +6,7 @@ version: 0.1
 priority: 1
 human_name: Starting While the Selected Controller Is Away
 dependents:
+  - [[service_session_midi]]
   - [[service_workspace_session_flow]]
 layer: BUSINESS
 tags: [v2, release-v2.0, midi, session-start]

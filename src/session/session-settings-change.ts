@@ -40,7 +40,7 @@ export function registerCandidates(previous: SessionPhrase): readonly RegisterWi
 // @spec-link [[rule_setting_change_rechecks_pitch_carry_in]]
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 // @spec-link [[rule_register_change_replaces_carried_window]]
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_carry_in_after_change]]
 export function lookAheadBasis(
   previous: SessionPhrase,
   previousSettings: SessionSettings,
@@ -100,7 +100,7 @@ export function attemptPlan(
  * is a caller bug and throws.
  */
 // @spec-link [[rule_session_settings_locked]]
-// @spec-link [[service_session_engine]]
+// @spec-link [[module_session_settings_change]]
 export function changedSettings(inEffect: SessionSettings, next: SessionSettings): SessionSettings {
   const settings = freezeSessionSettings(next)
   const { instrumentProfileId, tempo } = inEffect.controls

@@ -7,7 +7,8 @@ layer: BUSINESS
 priority: 1
 parents:
   - [[req_session_export]]
-dependents: []
+dependents:
+  - [[module_review_export_pipeline]]
 type: RULE
 version: 0.3
 notes: Revised 2026-09-29 on an owner decision of 2026-09-29 (previous version 0.1). Version 0.1 closed every phrase with a double barline; the last phrase of the export now closes with a final barline instead, and a phrase whose written key differs from the previous phrase's opens with a new key signature. Still DRAFT.

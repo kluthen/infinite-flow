@@ -16,8 +16,10 @@ dependents:
   - [[mechanic_syncopation_enumeration]]
   - [[mechanic_syncopation_translation]]
   - [[module_generation_control_catalog]]
+  - [[module_generation_prewarm]]
   - [[module_generation_request_construction]]
   - [[module_harmony_candidate_domain]]
+  - [[module_idle_generation_error_recovery]]
   - [[module_rhythm_skeleton_allocator]]
   - [[module_rhythm_variety_grammar]]
   - [[rule_idle_phrase_too_dense_is_replaced]]
@@ -25,6 +27,7 @@ dependents:
   - [[rule_session_settings_locked]]
   - [[rule_sixteenth_unavailable_below_tablet_width]]
   - [[rule_unsupported_rhythm_settings_block_generation]]
+  - [[service_idle_generation_session]]
   - [[service_workspace_session_flow]]
   - [[specification_behavioral_quality_gates]]
 ---

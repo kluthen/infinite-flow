@@ -20,6 +20,7 @@ function varyingDriver(): SessionDriver {
 // @test-link [[rule_session_generation_failure_ladder]]
 // @test-link [[rule_look_ahead_phrase_must_fit_staff]]
 // @test-link [[rule_varying_register_once_per_session]]
+// @test-link [[module_session_failure_ladder]]
 describe('failure ladder before the deadline', () => {
   // @test-link [[rule_session_generation_failure_ladder]]
   // @test-link [[rule_varying_register_once_per_session]]
@@ -106,6 +107,7 @@ describe('failure ladder before the deadline', () => {
 // @test-link [[rule_session_generation_failure_ladder]]
 // @test-link [[rule_repeat_phrase_marked_internally_only]]
 // @test-link [[rule_session_never_pauses]]
+// @test-link [[module_session_failure_ladder]]
 describe('repeat at the deadline', () => {
   // @test-link [[rule_session_generation_failure_ladder]]
   // @test-link [[rule_repeat_phrase_marked_internally_only]]
@@ -183,6 +185,7 @@ describe('repeat at the deadline', () => {
 })
 
 // @test-link [[rule_session_generation_failure_ladder]]
+// @test-link [[module_session_failure_ladder]]
 describe('stale results', () => {
   // @test-link [[rule_session_generation_failure_ladder]]
   it('drops results and fit checks for superseded or unknown attempts', () => {

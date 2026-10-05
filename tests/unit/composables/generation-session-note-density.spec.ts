@@ -44,6 +44,7 @@ function densitySession(initiallyBelowTabletLandscape: boolean) {
 
 // @test-link [[rule_generated_density_follows_window_width]]
 // @test-link [[rule_sixteenth_unavailable_below_tablet_width]]
+// @test-link [[module_idle_window_width_density]]
 describe('generation session: the density a phrase is generated with', () => {
   it('generates a chosen Sixteenth as Eighth below bp-tablet-landscape and keeps it chosen', async () => {
     const { session, intents } = densitySession(true)

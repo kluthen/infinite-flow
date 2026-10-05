@@ -36,7 +36,7 @@ let unmounted = false
  * Intent: load the session controller once, at setup; one that arrives after unmount is disposed
  * of at once, so nothing it reads outlives the app.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 // @spec-link [[rule_session_start_conditions]]
 void workspace.createSessionController().then((controller) => {
   if (unmounted) controller.dispose()
@@ -53,7 +53,7 @@ function handleConnectionSheetOpenChange(open: boolean): void {
 }
 
 /** Intent: end any running session and stop the controller, then tear the workspace down. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 onUnmounted(() => {
   unmounted = true
   sessionController.value?.dispose()

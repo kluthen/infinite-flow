@@ -7,9 +7,13 @@ parents:
   - [[req_landscape_phrase_workspace]]
   - [[req_rolling_practice_session]]
 dependents:
+  - [[module_idle_layout_gate]]
   - [[module_notation_layout_preflight]]
+  - [[module_session_display_fit]]
   - [[module_session_rolling_display]]
   - [[rule_session_ends_when_staff_too_small]]
+  - [[service_session_controller]]
+  - [[service_session_start]]
   - [[service_workspace_session_flow]]
 type: RULE
 layer: BUSINESS

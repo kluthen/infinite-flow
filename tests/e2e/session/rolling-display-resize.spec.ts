@@ -129,7 +129,7 @@ const RESIZES = [
 ] as const
 
 for (const { name, from, to, layout, keys } of RESIZES) {
-  // @test-link [[module_session_rolling_display]]
+  // @test-link [[module_session_staff_refill]]
   // @test-link [[rule_session_layout_fixed_at_start]]
   test(`${name}: both systems re-engrave in place, in the held layout`, async ({ page }) => {
     test.setTimeout(120_000)

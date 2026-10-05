@@ -42,9 +42,9 @@ function phrasesRig() {
   return { phrases, calls, scheduled }
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_session_phrase_steps]]
 describe('session phrase steps', () => {
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_phrase_steps]]
   it('shows a phrase at ready and schedules it all at its tempo, in that order', () => {
     const rig = phrasesRig()
     const two = sessionPhrase(2)
@@ -63,7 +63,7 @@ describe('session phrase steps', () => {
     expect(rig.calls.at(-1)).toEqual(['startedSounding', 2, 20])
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_phrase_steps]]
   it('keeps several readied phrases until each one tempo schedules it', () => {
     const rig = phrasesRig()
     const [two, three] = [sessionPhrase(2), sessionPhrase(3)]
@@ -80,7 +80,7 @@ describe('session phrase steps', () => {
     ])
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_phrase_steps]]
   it('throws on a tempo before its phrase is ready, or out of order, changing nothing', () => {
     const rig = phrasesRig()
     expect(() => rig.phrases.phraseTempo(2, 90)).toThrow(/before it was ready/)
@@ -94,7 +94,7 @@ describe('session phrase steps', () => {
     expect(() => rig.phrases.phraseTempo(2, 90)).toThrow(/phrase 3's tempo must come next/)
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_phrase_steps]]
   // @test-link [[rule_session_change_applies_at_phrase_boundary]]
   it('takes a discarded phrase back and readies the same number again, scheduling only the new one', () => {
     const rig = phrasesRig()
@@ -121,7 +121,7 @@ describe('session phrase steps', () => {
     ])
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_phrase_steps]]
   it('throws on a discard of a phrase that is not the latest kept one, changing nothing', () => {
     const rig = phrasesRig()
     expect(() => rig.phrases.phraseDiscarded(2)).toThrow(/cannot be discarded/)

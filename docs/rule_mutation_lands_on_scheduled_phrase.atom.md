@@ -5,6 +5,7 @@ type: RULE
 version: 0.1
 tags: [v2, release-v2.1, session, player-controls]
 dependents:
+  - [[module_session_mutation_step]]
   - [[module_settings_mutation]]
   - [[service_session_engine]]
 layer: BUSINESS

@@ -8,6 +8,7 @@ parents:
   - [[rule_session_change_applies_at_phrase_boundary]]
 dependents:
   - [[entity_phrase_carry_in]]
+  - [[module_session_carry_in_after_change]]
   - [[service_session_engine]]
 type: RULE
 layer: BUSINESS

@@ -3,6 +3,7 @@ id: rule_harmony_change_drops_unfit_harmonic_carry_in
 status: DRAFT
 dependents:
   - [[entity_phrase_carry_in]]
+  - [[module_session_carry_in_after_change]]
   - [[service_session_engine]]
 human_name: Unfit Harmony Drops Harmonic Carry-In
 parents:

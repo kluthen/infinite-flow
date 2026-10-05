@@ -31,6 +31,7 @@ export interface ReviewExportAction {
  */
 // @spec-link [[req_session_export]]
 // @spec-link [[req_played_notes_export]]
+// @spec-link [[module_review_export_pipeline]]
 export function useReviewExportAction(options: ReviewExportActionOptions): ReviewExportAction {
   const running = ref(false)
   let unmounted = false

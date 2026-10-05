@@ -8,6 +8,7 @@ priority: 1
 human_name: Window Changes During an Idle Retry Round
 dependents:
   - [[module_idle_fit_round]]
+  - [[module_idle_room_notice]]
 tags: [v2, release-v2.0, idle, notation, v1-change]
 parents:
   - [[rule_idle_phrase_too_dense_is_replaced]]

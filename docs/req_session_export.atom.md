@@ -10,6 +10,7 @@ version: 0.1
 priority: 1
 tags: [v2, release-v2.0, export]
 dependents:
+  - [[module_review_export_pipeline]]
   - [[req_played_notes_export]]
   - [[rule_export_contents_never_merged]]
   - [[rule_generated_notes_midi_export]]

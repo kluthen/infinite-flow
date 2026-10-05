@@ -43,6 +43,7 @@ function padded(value: number, width: number): string {
  */
 // @spec-link [[req_session_export]]
 // @spec-link [[req_played_notes_export]]
+// @spec-link [[module_review_export_pipeline]]
 export function exportFileStem(startedAtMs: number): string {
   if (!Number.isFinite(startedAtMs))
     throw new GeneratedNotesFileError(

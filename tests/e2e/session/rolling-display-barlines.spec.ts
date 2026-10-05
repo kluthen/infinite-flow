@@ -143,7 +143,7 @@ for (const { layout, size } of LAYOUTS) {
     expect(await sessionNotationErrors(page)).toEqual([])
   })
 
-  // @test-link [[module_session_rolling_display]]
+  // @test-link [[module_session_staff_refill]]
   test(`${layout}: a drawn note never changes until its system is refilled`, async ({ page }) => {
     test.setTimeout(180_000)
     await startIn(page, size, layout)
@@ -249,7 +249,7 @@ const REFILLS = [
 ] as const
 
 for (const { layout, size, at, left, band, next } of REFILLS) {
-  // @test-link [[module_session_rolling_display]]
+  // @test-link [[module_session_staff_refill]]
   test(`${layout}: the system the playhead leaves fades out at once, then refills`, async ({
     page,
   }) => {

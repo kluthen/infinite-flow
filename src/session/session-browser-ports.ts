@@ -87,7 +87,7 @@ export interface WindowShape {
 }
 
 /** Every session browser port, as `WorkspaceSession` carries them. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 export interface SessionBrowserPorts {
   readonly wakeLock: ScreenWakeLock
   readonly orientationLock: OrientationLock

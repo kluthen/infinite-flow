@@ -44,7 +44,7 @@ function showCountIn(core: SessionControllerCore, session: ActiveSession, at: Au
  * Intent: on each wake-up, fire every scheduled event the audio clock has reached. The timer is
  * stopped at every end, so a wake-up with no session is one already in flight: it has nothing to do.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 function onWake(core: SessionControllerCore, ends: SessionEnds): void {
   const session = core.active
   if (session === null) return

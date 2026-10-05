@@ -10,6 +10,7 @@ tags: [v2, release-v2.2, session, tempo]
 parents:
   - [[req_adaptive_tempo]]
 dependents:
+  - [[module_session_adaptive_tempo_schedule]]
   - [[service_session_engine]]
 ---
 

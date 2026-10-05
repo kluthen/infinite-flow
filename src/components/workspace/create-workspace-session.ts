@@ -82,7 +82,7 @@ export interface WorkspaceSession {
    * Wire to `PhraseScore`'s `@session-staff-failed`: the staff failing to show a running session,
    * which ends it; it goes to the session alone, never to the Idle machinery.
    */
-  // @spec-link [[module_session_rolling_display]]
+  // @spec-link [[module_session_staff_engraving_outcomes]]
   readonly handleSessionStaffFailed: (error: NotationError) => void
   /**
    * Wire to `PhraseScore`'s `@layout-inputs`: the staff's measured inputs, which the session's

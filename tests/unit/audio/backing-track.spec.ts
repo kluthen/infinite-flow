@@ -98,10 +98,10 @@ describe('placing a phrase on the beat grid', () => {
 })
 
 // @test-link [[req_session_backing_track]]
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_session_transport_tempo_map]]
 describe('placing a phrase at its own tempo', () => {
   // @test-link [[req_session_backing_track]]
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('starts and sizes every note of a risen phrase at that phrase tempo', () => {
     const plan = withTempoFrom(withTempoFrom(createClickPlan(5.1, 90), 20, 95), 36, 100)
     const rendered = renderBacking(twoPhraseHarmonies()[0], FOUR_FOUR_METER)
@@ -133,7 +133,7 @@ describe('placing a phrase at its own tempo', () => {
     }
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('throws on a phrase whose tempo changes inside it', () => {
     const plan = withTempoFrom(createClickPlan(5.1, 90), 25, 95)
     const rendered = renderBacking(twoPhraseHarmonies()[0], FOUR_FOUR_METER)

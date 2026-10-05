@@ -5,6 +5,9 @@ type: RULE
 layer: BUSINESS
 human_name: Mid-Session Setting Changes Apply at a Phrase Boundary
 dependents:
+  - [[module_session_phrase_steps]]
+  - [[module_session_settings_change]]
+  - [[module_session_shown_settings]]
   - [[rule_automatic_change_updates_controls_quietly]]
   - [[rule_harmony_change_drops_unfit_harmonic_carry_in]]
   - [[rule_key_change_drops_harmonic_carry_in]]

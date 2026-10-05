@@ -40,7 +40,7 @@ function scheduleOf(
 }
 
 // @test-link [[rule_adaptive_tempo_flat_schedule]]
-// @test-link [[service_session_engine]]
+// @test-link [[module_session_adaptive_tempo_schedule]]
 describe('the adaptive-tempo schedule in a session', () => {
   // @test-link [[rule_adaptive_tempo_flat_schedule]]
   it('rises by 5 BPM every two phrases over ten phrases, the controller always attached', () => {
@@ -68,7 +68,7 @@ describe('the adaptive-tempo schedule in a session', () => {
     expect(new Set(tempoMap(driver, 10))).toEqual(new Set([240]))
   })
 
-  // @test-link [[service_session_engine]]
+  // @test-link [[module_session_adaptive_tempo_schedule]]
   it('carries each phrase’s tempo on its phrase-sounding output, phrase 1 at the starting tempo', () => {
     const driver = adaptive()
     driveTempoSession(driver, 9)
@@ -81,7 +81,7 @@ describe('the adaptive-tempo schedule in a session', () => {
     })
   })
 
-  // @test-link [[service_session_engine]]
+  // @test-link [[module_session_look_ahead_timing]]
   // @test-link [[rule_adaptive_tempo_flat_schedule]]
   it('sets each deadline from the tempo of the phrase sounding when it is requested', () => {
     const driver = adaptive()
@@ -133,7 +133,7 @@ describe('a session without adaptive tempo', () => {
 })
 
 // @test-link [[rule_session_change_applies_at_phrase_boundary]]
-// @test-link [[service_session_engine]]
+// @test-link [[module_session_adaptive_tempo_schedule]]
 describe('when a phrase’s tempo is fixed', () => {
   // @test-link [[rule_session_change_applies_at_phrase_boundary]]
   it('outputs phrase 2’s tempo once, at the end of the count-in, and none for phrase 1', () => {
@@ -190,7 +190,7 @@ describe('when a phrase’s tempo is fixed', () => {
     expect(driver.display.asked).toEqual([])
   })
 
-  // @test-link [[service_session_engine]]
+  // @test-link [[module_session_adaptive_tempo_schedule]]
   it('refuses a phrase that starts sounding before its tempo is fixed', () => {
     const driver = adaptive()
     driveTempoSession(driver, 1)
@@ -222,7 +222,7 @@ describe('when a phrase’s tempo is fixed', () => {
 })
 
 // @test-link [[rule_session_change_applies_at_phrase_boundary]]
-// @test-link [[service_session_engine]]
+// @test-link [[module_session_settings_change]]
 describe('the settings-change discard guard after a rise', () => {
   /** Intent: a 60 BPM adaptive session with phrase 3 (at 65 BPM) sounding, phrase 4 undecided. */
   function fourRequested(): { readonly driver: SessionDriver; readonly deadline: number } {
@@ -257,7 +257,7 @@ describe('the settings-change discard guard after a rise', () => {
 })
 
 // @test-link [[rule_adaptive_tempo_flat_schedule]]
-// @test-link [[service_session_engine]]
+// @test-link [[module_session_adaptive_tempo_schedule]]
 describe('adaptive tempo while the controller is away', () => {
   // @test-link [[rule_adaptive_tempo_flat_schedule]]
   it('holds a due rise across a loss and applies it at the first fixing after reconnecting', () => {
@@ -320,9 +320,9 @@ describe('adaptive tempo while the controller is away', () => {
   })
 })
 
-// @test-link [[service_session_engine]]
+// @test-link [[module_session_adaptive_tempo_schedule]]
 describe('the controller event', () => {
-  // @test-link [[service_session_engine]]
+  // @test-link [[module_session_adaptive_tempo_schedule]]
   it('throws when it does not change the controller’s presence', () => {
     const attached = adaptive()
     expect(() => attached.controller(0.1, true)).toThrow(SessionEngineError)
@@ -333,7 +333,7 @@ describe('the controller event', () => {
     expect(() => off.controller(0.1, true)).toThrow(SessionEngineError)
   })
 
-  // @test-link [[service_session_engine]]
+  // @test-link [[module_session_adaptive_tempo_schedule]]
   it('is accepted during the count-in and while running, with or without adaptive tempo', () => {
     for (const adaptiveTempo of [true, false]) {
       const driver = adaptive(T, adaptiveTempo)
@@ -346,7 +346,7 @@ describe('the controller event', () => {
     }
   })
 
-  // @test-link [[service_session_engine]]
+  // @test-link [[module_session_look_ahead_timing]]
   it('runs the deadline logic for its time first', () => {
     const driver = adaptive()
     const outputs = driver.controller(measureSeconds(T), false)
@@ -361,7 +361,7 @@ describe('the controller event', () => {
     expect(() => driver.controller(0.5, false)).toThrow(SessionEngineError)
   })
 
-  // @test-link [[service_session_engine]]
+  // @test-link [[module_session_adaptive_tempo_schedule]]
   it('is dropped after the end, as a loss can race it', () => {
     const driver = adaptive()
     driver.end(0.5)

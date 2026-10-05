@@ -7,7 +7,10 @@ parents:
 layer: BUSINESS
 version: 0.1
 dependents:
+  - [[module_session_tension_across_phrases_flag]]
+  - [[module_session_vary_settings_flag]]
   - [[rule_session_data_never_sent_or_stored]]
+  - [[service_idle_generation_session]]
   - [[service_workspace_session_flow]]
   - [[specification_ephemeral_state_verification]]
 human_name: Ephemeral Session State

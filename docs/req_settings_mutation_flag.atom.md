@@ -2,6 +2,10 @@
 id: req_settings_mutation_flag
 status: DRAFT
 dependents:
+  - [[module_session_mutation_step]]
+  - [[module_session_settings_change]]
+  - [[module_session_shown_settings]]
+  - [[module_session_vary_settings_flag]]
   - [[module_settings_mutation]]
   - [[rule_density_mutation_steps_from_generated_density]]
   - [[rule_mutation_draws_setting_then_direction]]
@@ -12,6 +16,7 @@ dependents:
   - [[rule_mutation_reverts_at_session_end]]
   - [[rule_mutation_setting_scales]]
   - [[service_session_engine]]
+  - [[service_workspace_session_runner_factory]]
 layer: BUSINESS
 version: 0.2
 human_name: Settings-Mutation Flag

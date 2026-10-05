@@ -61,9 +61,9 @@ function deadlineAfter(rig: ControllerRig, phraseNumber: number): number {
   return rig.transport.phraseStartsAt(phraseNumber) + 3 * measureSeconds(tempo)
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_session_phrase_steps]]
 describe('session controller: each phrase at its own tempo', () => {
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_phrase_steps]]
   // @test-link [[req_session_backing_track]]
   it('queues a phrase at its phrase-tempo output, at that tempo, never at phrase-ready', async () => {
     const rig = await risingRig()
@@ -93,7 +93,7 @@ describe('session controller: each phrase at its own tempo', () => {
     })
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_phrase_steps]]
   it("sends each phrase as started sounding at the transport's start for it, at the tempos before it", async () => {
     const rig = await risingRig()
     rig.controller.start()
@@ -113,7 +113,7 @@ describe('session controller: each phrase at its own tempo', () => {
     })
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_phrase_steps]]
   // @test-link [[rule_acknowledgement_highlights_expected_note_only]]
   it("acknowledges phrase 3's notes where they fall at its own tempo, 125 BPM", async () => {
     const rig = await risingRig()
@@ -141,7 +141,7 @@ describe('session controller: each phrase at its own tempo', () => {
     expect(rig.controller.state.acknowledged).toContainEqual(note.identity)
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_phrase_steps]]
   it('throws on a phrase tempo before its phrase is ready, or out of order, queuing nothing', async () => {
     // Every generation fails, so phrase 2 is only decided, as a repeat, at the count-in's end.
     const rig = controllerRig(alwaysFail)
@@ -192,7 +192,7 @@ describe('session controller: each phrase at its own tempo', () => {
   })
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_session_adaptive_tempo_control]]
 // @test-link [[rule_adaptive_tempo_resets_after_session]]
 describe('session controller: the tempo shown and the Idle tempo control', () => {
   // @test-link [[rule_adaptive_tempo_resets_after_session]]

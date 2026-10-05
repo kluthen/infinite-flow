@@ -203,7 +203,7 @@ watch(
  * the error itself rather than any call site, except out of sight under the Review. Recovery stays
  * silent: a cleared error only empties the region, never announces.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_idle_generation_session]]
 watch(
   () => state.value.notationError,
   (next) => {
@@ -267,7 +267,7 @@ watch(
  * idle, since every ordinary generation assigns a not-yet-engraved result just before its own
  * engraving step runs.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_idle_generation_session]]
 // @spec-link [[rule_staff_needs_room_notice]]
 const staffFrameStateClass = computed(() => {
   // The notice holds the frame through a round under it, dimmed as the Loading it is.
@@ -315,7 +315,6 @@ const roomNotice = computed(() => state.value.roomNotice)
  * with no session (or no controller loaded yet), so it shows Idle.
  */
 // @spec-link [[module_session_rolling_display]]
-// @spec-link [[service_workspace_session_flow]]
 const sessionStaff = computed(() => props.controller?.state.sessionStaff ?? null)
 
 /** Intent: the controller's marks PhraseScore draws on the score; see useScoreOverlays. */

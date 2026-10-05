@@ -8,6 +8,7 @@ parents:
   - [[rule_staff_needs_room_notice]]
 dependents:
   - [[module_idle_fit_round]]
+  - [[module_idle_room_notice]]
   - [[rule_retry_round_window_changes]]
 type: RULE
 version: 0.1

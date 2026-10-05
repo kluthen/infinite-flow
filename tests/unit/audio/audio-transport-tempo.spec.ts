@@ -44,11 +44,11 @@ function closedFormStart(startAt: number, tempos: readonly number[], n: number):
 }
 
 // @test-link [[rule_click_track]]
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_session_transport_tempo_map]]
 describe('the transport over a tempo map', () => {
   const TEMPOS = [90, 95, 100] as const
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('shifts the starts of the phrases after a risen phrase exactly', () => {
     const { transport, startAt } = queuedAt(TEMPOS)
     for (const n of [1, 2, 3, 4]) {
@@ -58,7 +58,7 @@ describe('the transport over a tempo map', () => {
   })
 
   // @test-link [[req_session_backing_track]]
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('places and sizes the backing of each risen phrase at its own tempo', () => {
     const { rig, transport } = queuedAt(TEMPOS)
     rig.advanceTo(transport.phraseStartsAt(4) + 0.5)
@@ -86,7 +86,7 @@ describe('the transport over a tempo map', () => {
   })
 
   // @test-link [[rule_click_track]]
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('plans the clicks through each phrase boundary at the new tempo, with no gap or double', () => {
     const { rig, transport, startAt } = queuedAt(TEMPOS)
     rig.advanceTo(transport.phraseStartsAt(4))
@@ -103,7 +103,7 @@ describe('the transport over a tempo map', () => {
     })
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('keeps 20 phrases rising +5 from 60 to 160 BPM within 1e-9 s of the closed form', () => {
     const tempos = Array.from({ length: 21 }, (_, index) => 60 + 5 * index)
     const { transport, startAt } = queuedAt(tempos)
@@ -119,10 +119,10 @@ describe('the transport over a tempo map', () => {
 })
 
 // @test-link [[req_session_backing_track]]
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[module_session_transport_tempo_map]]
 describe('queueing a phrase at its tempo', () => {
   // @test-link [[req_session_backing_track]]
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('refuses a risen phrase queued too late, keeping the plan at the old tempo', () => {
     const { rig, transport } = transportRig()
     const [first, second] = twoPhraseHarmonies()
@@ -138,7 +138,7 @@ describe('queueing a phrase at its tempo', () => {
     expect(clicks.at(-1)!.at - clicks.at(-2)!.at).toBeCloseTo(60 / 90, 9)
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('refuses phrase 1 at a tempo other than the starting tempo', () => {
     const { transport } = transportRig()
     const [first] = twoPhraseHarmonies()
@@ -149,7 +149,7 @@ describe('queueing a phrase at its tempo', () => {
     expect(() => transport.queueBacking(2, first, 90)).not.toThrow()
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('refuses a tempo off a whole 60..240 BPM and keeps the queue', () => {
     const { transport } = transportRig()
     const [first, second] = twoPhraseHarmonies()
@@ -167,7 +167,7 @@ describe('queueing a phrase at its tempo', () => {
     )
   })
 
-  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[module_session_transport_tempo_map]]
   it('gives a phrase start only up to the phrase after the last one queued', () => {
     const { transport } = transportRig()
     const [first] = twoPhraseHarmonies()

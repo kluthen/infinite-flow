@@ -68,7 +68,7 @@ describe('ending a session', () => {
     expect(() => driver.end(9)).toThrow(SessionEngineError)
   })
 
-  // @test-link [[service_session_engine]]
+  // @test-link [[module_session_look_ahead_timing]]
   // @test-link [[rule_stop_ends_session]]
   it('decides no repeat when the end arrives after a passed deadline with nothing ready', () => {
     const driver = fastDriver()
@@ -78,7 +78,7 @@ describe('ending a session', () => {
     expect(driver.all('phrase-ready')).toEqual([])
   })
 
-  // @test-link [[service_session_engine]]
+  // @test-link [[module_session_struggling_notice]]
   // @test-link [[rule_stop_ends_session]]
   it('only clears a shown notice when the end arrives after a passed deadline with nothing ready', () => {
     const driver = fastDriver()

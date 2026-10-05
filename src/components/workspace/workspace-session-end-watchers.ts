@@ -22,7 +22,7 @@ import {
 import type { IdleLayoutPort, SessionStaffReports } from './idle-layout-gate'
 
 /** What the watchers need: the ports, the session's held layout and how to end or fail it. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_end]]
 export interface SessionEndWatchDependencies {
   readonly browser: SessionBrowserPorts
   readonly idleLayout: IdleLayoutPort
@@ -100,7 +100,7 @@ function windowEndsNow(
 // @spec-link [[rule_session_ends_on_portrait_view]]
 // @spec-link [[rule_session_ends_when_staff_too_small]]
 // @spec-link [[rule_count_in_ending_returns_to_idle]]
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_end]]
 export function watchSessionEnds(deps: SessionEndWatchDependencies): SessionEndWatch {
   const { browser, idleLayout } = deps
   let parts: StaffFixedParts | null = null
@@ -126,7 +126,7 @@ export function watchSessionEnds(deps: SessionEndWatchDependencies): SessionEndW
    * fits the held layout at them; any misfit ends the session like Stop. A check failure is loud.
    */
   // @spec-link [[rule_session_ends_when_staff_too_small]]
-  // @spec-link [[module_session_rolling_display]]
+  // @spec-link [[module_session_display_fit]]
   function judgeReport(inputs: StaffLayoutInputs): void {
     if (judgeWindow() || stopped) return
     if (!inputsMatchWindow(inputs, browser.windowShape.read())) return

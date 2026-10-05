@@ -118,7 +118,7 @@ onMounted(() => {
 let lateRoomNoticeFrom: Element | null = null
 
 /** True while a session runs, count-in included. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 const sessionActive = computed(
   () => props.controller !== null && props.controller.state.phase !== 'idle',
 )

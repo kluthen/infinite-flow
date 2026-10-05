@@ -36,7 +36,7 @@ function cheapIntent(
   })
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_idle_generation_session]]
 describe('createWorkspaceGenerate', () => {
   it('resolves the outcome and intent together on generation_success', async () => {
     const intent = cheapIntent()

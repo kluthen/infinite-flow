@@ -7,6 +7,7 @@ parents:
 type: RULE
 tags: [v2, release-v2.0, session]
 dependents:
+  - [[service_session_start]]
   - [[service_workspace_session_flow]]
 layer: BUSINESS
 version: 0.1

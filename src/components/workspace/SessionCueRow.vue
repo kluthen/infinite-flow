@@ -34,7 +34,7 @@ const emit = defineEmits<{
 }>()
 
 /** Intent: whether a session runs, count-in included. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 const sessionActive = computed(
   () => props.controller !== null && props.controller.state.phase !== 'idle',
 )

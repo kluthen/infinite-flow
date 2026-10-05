@@ -4,6 +4,8 @@ status: DRAFT
 tags: [v2, release-v2.0, v2.4-check, session, audio]
 dependents:
   - [[module_session_rolling_display]]
+  - [[module_session_staff_overlays]]
+  - [[service_session_controller]]
   - [[service_workspace_session_flow]]
 layer: BUSINESS
 version: 0.2

@@ -14,6 +14,7 @@ parents:
   - [[user_story_controlled_phrase_generation]]
 dependents:
   - [[module_named_stream_pseudorandomness]]
+  - [[service_idle_generation_session]]
   - [[service_workspace_session_flow]]
 ---
 

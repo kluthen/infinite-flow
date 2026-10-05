@@ -15,7 +15,7 @@ const DESKTOP_IN_VIEW: SessionJumpGeometry = {
   staffViewportBottom: 700,
 }
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_start]]
 // @test-link [[req_landscape_phrase_workspace]]
 describe('sessionStartJumpDelta from bp-tablet-landscape up (one-system layout)', () => {
   it('does not jump while the top edge of staff-viewport is in the viewport', () => {
@@ -37,7 +37,7 @@ describe('sessionStartJumpDelta from bp-tablet-landscape up (one-system layout)'
   })
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_start]]
 // @test-link [[req_landscape_phrase_workspace]]
 describe('sessionStartJumpDelta below bp-tablet-landscape (split layout)', () => {
   const PHONE: SessionJumpGeometry = {
@@ -68,7 +68,7 @@ describe('sessionStartJumpDelta below bp-tablet-landscape (split layout)', () =>
   })
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_start]]
 describe('jumpForSessionStart', () => {
   /** Intent: an element whose bounding box has this top and bottom. */
   function boxed(top: number, bottom: number): HTMLElement {

@@ -29,11 +29,11 @@ import type { IdleLayoutPort } from './idle-layout-gate'
 import type { ControllerLostCountdown } from './workspace-session-midi'
 
 /** Where the session stands: no session, its count-in, or its phrases sounding. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 export type SessionControllerPhase = 'idle' | 'count-in' | 'running'
 
 /** A transport event without its time, which the controller raises to the engine's time floor. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 export type UntimedEvent<E = SessionTransportEvent> = E extends unknown ? Omit<E, 'at'> : never
 
 /** The count-in row while the count-in runs: one state per beat. */
@@ -64,7 +64,7 @@ export interface SessionReview {
 }
 
 /** What the screen reads from the controller; every field is reactive. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 // @spec-link [[rule_session_start_conditions]]
 // @spec-link [[rule_midi_starting_note]]
 export interface SessionControllerState {
@@ -141,7 +141,7 @@ export interface SessionControllerState {
 }
 
 /** The session controller a screen binds to. */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 export interface SessionController {
   readonly state: SessionControllerState
   /**
@@ -206,7 +206,7 @@ export interface FramePort {
  * clock (called once, at the first start; disposed of with the controller), `wallClock` stamps
  * each session's history, and `frames` paces the playhead, read on the audio clock once a frame.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 // @spec-link [[rule_playhead_follows_audio_clock]]
 export interface SessionControllerClock {
   readonly createWakeTimer: () => DisposableWakeTimer
@@ -232,7 +232,7 @@ export type StaffFitPlanner = (
  * MIDI controller, with whether the connection sheet is open, for the starting note and the notes
  * a session reads.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 // @spec-link [[rule_session_ends_when_staff_too_small]]
 // @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
 // @spec-link [[rule_phrase_one_is_idle_phrase]]
@@ -264,7 +264,7 @@ export interface SessionControllerDependencies {
  * Review closed or shown out of turn, adaptive tempo changed during a session or turned on with
  * no controller attached, `Vary settings` changed during a session.
  */
-// @spec-link [[service_workspace_session_flow]]
+// @spec-link [[service_session_controller]]
 export class SessionControllerError extends Error {
   constructor(message: string) {
     super(message)

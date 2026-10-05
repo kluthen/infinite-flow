@@ -285,7 +285,7 @@ Units below are not yet started. None is blocked on anything **except** where no
    confirmation DRIFT, its only finding one missed sentence in `flows/play-session/intent.md`
    ("nothing else needs work"), fixed as specified; final confirmation (run with unit 11's pass,
    2026-10-03) ALIGNED: the fix closes the finding, no regression; the lexicon's "Rising tempo"
-   pause wording checked against §10 and spec D179, correct.** Not yet owner-confirmed.
+   pause wording checked against §10 and spec D179, correct.** Owner-confirmed 2026-10-05.
 9. **Moved out of v2 (ux D154, spec D174): v3, not committed.** End-of-measure chord-fit check
    presentation (§9). Kept notes: the master spec hands this presentation to `ux-writer` ("a UI/UX
    design decision, not specified here"); positive-only and quiet, distinct from the per-note
@@ -304,7 +304,7 @@ Units below are not yet started. None is blocked on anything **except** where no
     findings, fixed (ux D168 flip takes the custom path, D169 `aria-live="off"` during a session,
     back to polite after the end's restore, D170 density step-down timing and Tier 1 wording);
     confirmation DRIFT (grammar word after a flip), fixed (D171); final confirmation ALIGNED.**
-    Not yet owner-confirmed.
+    Owner-confirmed 2026-10-05.
 11. **Multi-phrase tension arc** (§3, v2.2; feeds chunk 30). **Written 2026-10-03**
     (uncommitted), ux D155, D160: `Tension across phrases` Off/On in the "During a session"
     group; the Tension control shows the tension in effect (the player's choice, or a value
@@ -314,7 +314,7 @@ Units below are not yet started. None is blocked on anything **except** where no
     general "controls show what the sounding phrase was generated with" rule each claimed too
     much), fixed (ux D175); lexicon DRIFT (Vary settings step wording against spec D181), fixed
     (D176); confirmation: unit 11 ALIGNED; lexicon wording refined (D176), final lexicon check
-    ALIGNED.** Not yet owner-confirmed.
+    ALIGNED.** Owner-confirmed 2026-10-05.
 
 - **`strategy.md` persona alignment** (found by `ux-critic`, 2026-09-27): the strategy predates
   `specs/personas.md` and cites no persona or goal. Its problem-alignment, context-of-use and

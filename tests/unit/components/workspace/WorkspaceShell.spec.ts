@@ -282,7 +282,7 @@ afterEach(() => {
   document.documentElement.removeAttribute('style')
 })
 
-// @test-link [[service_workspace_session_flow]]
+// @test-link [[service_session_controller]]
 // @test-link [[rule_session_settings_locked]]
 // @test-link [[rule_readonly_controls_keep_contrast]]
 describe('WorkspaceShell session', () => {
