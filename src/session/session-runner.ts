@@ -5,7 +5,8 @@
  * injected audio clock's time, the only time the session layer reads. Every engine output, those
  * produced by fed-back results included, reaches the output callback in the order the engine gave
  * it. Transport events (count-in over, phrase started sounding, the controller going away or
- * reconnecting, ticks, the end) come from the caller through `dispatch`.
+ * reconnecting, ticks, the end) come from the caller through `dispatch`, and so does a settings
+ * change from an automatic source other than the engine's own mutations.
  */
 
 import type { ViewportWidthProvider } from '../composables/viewport-width'
@@ -66,10 +67,21 @@ export type SessionTransportEvent = Extract<
   { kind: 'count-in-over' | 'phrase-started-sounding' | 'controller' | 'tick' | 'end' }
 >
 
-/** A running session, driven by its transport's events. */
+/**
+ * The events a caller sends a running session: its transport's, and a settings change giving the
+ * complete settings in effect from the next phrase boundary on, from an automatic source other
+ * than the engine's own mutations. The app has no such source yet; the engine reads the display
+ * for it alone.
+ */
+// @spec-link [[service_session_runner]]
+// @spec-link [[rule_session_change_applies_at_phrase_boundary]]
+export type SessionRunnerEvent =
+  SessionTransportEvent | Extract<SessionEvent, { kind: 'settings-change' }>
+
+/** A running session, driven by its transport's events and any automatic settings change. */
 // @spec-link [[service_session_runner]]
 export interface SessionRunner {
-  dispatch(event: SessionTransportEvent): void
+  dispatch(event: SessionRunnerEvent): void
 }
 
 /**
@@ -89,7 +101,7 @@ function isWorkerFailure(error: unknown): boolean {
  * with `now()`. A generate rejection that is a worker crash or a transport error becomes a
  * `generation-crashed` event, a failed attempt that never ends the session; any other rejection,
  * a fit-check rejection, or an error while handling a fed-back result goes to `onError` and
- * nothing is fed back. A transport event the engine refuses throws from `dispatch`.
+ * nothing is fed back. An event the engine refuses throws from `dispatch`.
  */
 // @spec-link [[service_session_runner]]
 // @spec-link [[rule_session_generation_failure_ladder]]
@@ -146,7 +158,7 @@ export function createSessionRunner(
 
   run(engine.outputsAtStart)
   return Object.freeze({
-    dispatch(event: SessionTransportEvent): void {
+    dispatch(event: SessionRunnerEvent): void {
       run(engine.handle(event))
     },
   })

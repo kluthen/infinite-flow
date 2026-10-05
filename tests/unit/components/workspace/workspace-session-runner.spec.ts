@@ -1,23 +1,28 @@
 /**
- * The workspace's session runner before chunk 25: the settings-mutation flag stays off, the
- * display reading is not connected and throws when read, and the two outputs a settings change
- * produces are refused rather than silently ignored.
+ * The workspace's session runner: the player's `Vary settings` choice becomes the engine's
+ * settings-mutation flag, its seed drawn from the workspace's seed provider before any attempt
+ * seed (and none drawn when it is off); the display reading the caller passes is the one the
+ * engine reads for a settings change; every output, a settings change's included, reaches the
+ * caller.
  */
 
 import { describe, expect, it } from 'vitest'
 
 import {
-  DISPLAY_NOT_CONNECTED,
-  refusingSettingsChangeOutputs,
+  mutationFlagFor,
   startWorkspaceSessionRunner,
 } from '@/components/workspace/workspace-session-runner'
-import type { SessionOutput } from '@/session/session-types'
+import { makeSeed } from '@/domain/random/seed'
+import type { SessionOutput, SessionSettings } from '@/session/session-types'
+import { mutationPhrase, SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
 import {
+  fakeDisplay,
   fakeViewport,
   phraseOneFor,
   queuedProviders,
   realOutcomeFor,
   sessionSettings,
+  UNREAD_DISPLAY,
 } from '../../session/session-harness'
 
 /** Intent: let every settled seam promise run its continuation. */
@@ -25,60 +30,113 @@ function settle(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
+/** Phrase n's start on a 240 BPM session whose count-in ends at 1 s: a phrase is 4 s. */
+function phraseStart(phraseNumber: number): number {
+  return 1 + 4 * (phraseNumber - 1)
+}
+
+/** Intent: a 240 BPM workspace runner on real generation, its outputs and errors logged. */
+function runnerRig(varySettings: boolean, display = UNREAD_DISPLAY) {
+  const settings = sessionSettings({ tempo: 240 })
+  const clock = { at: 0 }
+  const outputs: SessionOutput[] = []
+  const errors: unknown[] = []
+  const providers = queuedProviders()
+  const runner = startWorkspaceSessionRunner(
+    {
+      generate: (intent) => Promise.resolve(realOutcomeFor(intent)),
+      checkFit: () => Promise.resolve(true),
+      now: () => clock.at,
+      providers,
+      viewport: fakeViewport(false),
+      display,
+      onOutput: (output) => outputs.push(output),
+      onError: (error) => errors.push(error),
+    },
+    { at: 0, settings, phraseOne: phraseOneFor(settings), adaptiveTempo: false, varySettings },
+  )
+  return { runner, settings, clock, outputs, errors, providers }
+}
+
+/** Intent: play phrases 1 to `last` on the rig's clock, letting each request settle. */
+async function playTo(rig: ReturnType<typeof runnerRig>, last: number): Promise<void> {
+  await settle()
+  rig.clock.at = 1
+  rig.runner.dispatch({ kind: 'count-in-over', at: rig.clock.at })
+  for (let phraseNumber = 2; phraseNumber <= last; phraseNumber += 1) {
+    rig.clock.at = phraseStart(phraseNumber)
+    rig.runner.dispatch({ kind: 'phrase-started-sounding', at: rig.clock.at, phraseNumber })
+    await settle()
+  }
+}
+
 // @test-link [[service_workspace_session_flow]]
 // @test-link [[req_settings_mutation_flag]]
-describe('the workspace session runner before its settings-change connections', () => {
-  // @test-link [[service_workspace_session_flow]]
-  it('throws when the display reading is read', () => {
-    expect(() => DISPLAY_NOT_CONNECTED.isPhraseOnScreen(3)).toThrow(/not connected until chunk 25/u)
-  })
-
-  // @test-link [[service_workspace_session_flow]]
-  it('forwards every output but the two a settings change produces, which throw', () => {
-    const forwarded: SessionOutput[] = []
-    const onOutput = refusingSettingsChangeOutputs((output) => forwarded.push(output))
-    onOutput({ kind: 'wake-at', at: 1 })
-    expect(() => onOutput({ kind: 'phrase-discarded', phraseNumber: 3 })).toThrow(/chunk 25/u)
-    expect(() =>
-      onOutput({
-        kind: 'settings-changed',
-        phraseNumber: 3,
-        settings: sessionSettings(),
-        cause: 'automatic',
-      }),
-    ).toThrow(/chunk 25/u)
-    expect(forwarded).toEqual([{ kind: 'wake-at', at: 1 }])
+describe('the workspace session runner', () => {
+  // @test-link [[req_settings_mutation_flag]]
+  it('maps the choice to the flag, drawing a seed only when it is on', () => {
+    const seeds = [41, 42]
+    const nextSeed = () => makeSeed(seeds.shift()!)
+    expect(mutationFlagFor(false, nextSeed)).toBe(SETTINGS_MUTATION_OFF)
+    expect(seeds).toEqual([41, 42])
+    expect(mutationFlagFor(true, nextSeed)).toEqual({ kind: 'on', seed: 41 })
+    expect(seeds).toEqual([42])
   })
 
   // @test-link [[req_settings_mutation_flag]]
-  it('runs a long session with the flag off: no setting changes and no error', async () => {
-    const settings = sessionSettings({ tempo: 240 })
-    const clock = { at: 0 }
-    const outputs: SessionOutput[] = []
-    const errors: unknown[] = []
-    const runner = startWorkspaceSessionRunner(
-      {
-        generate: (intent) => Promise.resolve(realOutcomeFor(intent)),
-        checkFit: () => Promise.resolve(true),
-        now: () => clock.at,
-        providers: queuedProviders(),
-        viewport: fakeViewport(false),
-        onOutput: (output) => outputs.push(output),
-        onError: (error) => errors.push(error),
-      },
-      { at: 0, settings, phraseOne: phraseOneFor(settings), adaptiveTempo: false },
-    )
-    await settle()
-    clock.at = 1
-    runner.dispatch({ kind: 'count-in-over', at: clock.at })
-    for (let phraseNumber = 2; phraseNumber <= 12; phraseNumber += 1) {
-      clock.at = 1 + 4 * (phraseNumber - 1)
-      runner.dispatch({ kind: 'phrase-started-sounding', at: clock.at, phraseNumber })
-      await settle()
-    }
-    expect(errors).toEqual([])
-    const requests = outputs.filter((output) => output.kind === 'request-generation')
+  it('runs a long session with the flag off: no setting changes, no seed for mutations', async () => {
+    const rig = runnerRig(false)
+    await playTo(rig, 12)
+    expect(rig.errors).toEqual([])
+    const requests = rig.outputs.filter((output) => output.kind === 'request-generation')
     expect(requests.map((request) => request.phraseNumber).at(-1)).toBe(13)
-    for (const request of requests) expect(request.intent.controls).toEqual(settings.controls)
+    for (const request of requests) expect(request.intent.controls).toEqual(rig.settings.controls)
+    expect(rig.outputs.some((output) => output.kind === 'settings-changed')).toBe(false)
+    expect(requests[0]!.intent.seed).toBe(rig.providers.seedsHandedOut[0])
+  })
+
+  // @test-link [[req_settings_mutation_flag]]
+  // @test-link [[rule_mutation_lands_on_scheduled_phrase]]
+  it('with the flag on, draws the mutation seed first and mutates on the phrase it schedules', async () => {
+    const rig = runnerRig(true)
+    const mutationSeed = rig.providers.seedsHandedOut[0]!
+    const requests = () => rig.outputs.filter((output) => output.kind === 'request-generation')
+    expect(requests()[0]!.intent.seed).toBe(rig.providers.seedsHandedOut[1])
+    const landsOn = mutationPhrase(makeSeed(mutationSeed), 1)
+
+    await playTo(rig, landsOn)
+
+    expect(rig.errors).toEqual([])
+    const changes = rig.outputs.filter((output) => output.kind === 'settings-changed')
+    expect(changes).toHaveLength(1)
+    expect(changes[0]).toMatchObject({ phraseNumber: landsOn, cause: 'mutation' })
+    const changed: SessionSettings = changes[0]!.settings
+    const mutated = requests().find((request) => request.phraseNumber === landsOn)!
+    const before = requests().find((request) => request.phraseNumber === landsOn - 1)!
+    expect(rig.outputs.indexOf(changes[0]!)).toBe(rig.outputs.indexOf(mutated) - 1)
+    const writtenControls = (request: typeof mutated) => ({
+      ...request.intent.controls,
+      tonalCenter: request.intent.writtenTonalCenter,
+    })
+    expect(writtenControls(mutated)).toEqual(changed.controls)
+    expect(mutated.intent.musicalProfile).toEqual(changed.musicalProfile)
+    expect(writtenControls(before)).toEqual(rig.settings.controls)
+    expect(changed).not.toEqual(rig.settings)
+  })
+
+  // @test-link [[rule_session_change_applies_at_phrase_boundary]]
+  it('reads the display it is given for a settings change and forwards both outputs', async () => {
+    const display = fakeDisplay(false)
+    const rig = runnerRig(false, display)
+    await playTo(rig, 2)
+    const changed = sessionSettings({ tempo: 240, leapiness: 'Angular' })
+
+    rig.clock.at = phraseStart(2) + 0.5
+    rig.runner.dispatch({ kind: 'settings-change', at: rig.clock.at, settings: changed })
+
+    expect(display.asked).toEqual([3])
+    const kinds = rig.outputs.slice(-3).map((output) => output.kind)
+    expect(kinds).toEqual(['phrase-discarded', 'settings-changed', 'request-generation'])
+    expect(rig.outputs.at(-2)).toMatchObject({ phraseNumber: 3, cause: 'automatic' })
   })
 })

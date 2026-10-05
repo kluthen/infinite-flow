@@ -13,7 +13,11 @@
  * An end once phrase 1 has sounded opens the Review (./session-review-state.ts) and asks Idle for
  * the next phrase; the next start discards it. Its MIDI side (./workspace-session-midi.ts) starts
  * a session from the starting note and reads a session's controller, whose presence its
- * adaptive-tempo side (./workspace-adaptive-tempo.ts, the page's flag) hands the engine.
+ * adaptive-tempo side (./workspace-adaptive-tempo.ts, the page's flag) hands the engine. Its
+ * settings side (./workspace-session-settings.ts) holds the page's `Vary settings` flag, which
+ * turns the engine's settings mutations on for a session, and the settings the read-only controls
+ * show while a session runs; the engine reads the rolling display to know whether a phrase is on
+ * screen. The player's own controls are never written, so every end shows them again.
  */
 import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
 
@@ -48,6 +52,11 @@ import { closedReview, openedReview, shownReview } from './session-review-state'
 import { createSessionDisplay, type SessionDisplay } from './workspace-session-display'
 import { createSessionPhrases, type SessionPhrases } from './workspace-session-phrases'
 import { createAdaptiveTempoFlag, forwardPresence } from './workspace-adaptive-tempo'
+import {
+  createSessionShownSettings,
+  createVarySettingsFlag,
+  type SessionShownSettings,
+} from './workspace-session-settings'
 import { watchSessionEnds, type SessionEndWatch } from './workspace-session-end-watchers'
 import {
   createSessionMidi,
@@ -90,6 +99,8 @@ interface ActiveSession {
   display: SessionDisplay | null
   /** The session's MIDI handling, from the start until the session is torn down. */
   midi: SessionMidiRun | null
+  /** The settings its read-only controls show, from its start settings on. */
+  readonly shown: SessionShownSettings
 }
 
 /**
@@ -155,6 +166,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     review: null as SessionReview | null,
     sessionStaff: null as SessionStaff | null,
     latestReady: null as number | null,
+    shownSettings: null as SessionSettings | null,
     get canStart(): boolean {
       return startBlocker.value === null
     },
@@ -179,6 +191,9 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     get adaptiveTempoAvailable(): boolean {
       return adaptiveTempo.available()
     },
+    get varySettings(): boolean {
+      return varySettings.on()
+    },
   })
   const startBlocker = computed(() =>
     sessionStartBlocker(
@@ -195,6 +210,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     start: () => start(),
   })
   const adaptiveTempo = createAdaptiveTempoFlag(sessionMidi.controllerState, () => state.phase)
+  const varySettings = createVarySettingsFlag(() => state.phase)
 
   /** Intent: an audio time for the engine, never before one it already handled. */
   function engineTime(session: ActiveSession, at: AudioTime): AudioTime {
@@ -248,21 +264,40 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   }
 
   /**
+   * Intent: a phrase started sounding: the tempo shown becomes its own, the exact tempo in effect,
+   * while the Idle tempo control is never written, so it shows the starting tempo again at the
+   * end; the controls show the settings it was generated with, a change reported for it (or for a
+   * repeat before it) appearing now, with nothing else on screen moving.
+   */
+  // @spec-link [[rule_automatic_change_updates_controls_quietly]]
+  // @spec-link [[service_workspace_session_flow]]
+  function onSounding(
+    session: ActiveSession,
+    output: Extract<SessionOutput, { kind: 'phrase-sounding' }>,
+  ): void {
+    state.sessionTempo = output.tempo
+    state.shownSettings = session.shown.phraseSounding(output.phrase)
+  }
+
+  /**
    * Intent: record one runner output in the history, a sounding phrase at its scheduled start,
-   * then act on it: a phrase is shown when ready and scheduled at its tempo; the tempo shown
-   * becomes each sounding phrase's own, the exact tempo in effect, while the Idle tempo control is
-   * never written, so it shows the starting tempo again at the end.
+   * then act on it: a phrase is shown when ready and scheduled at its tempo, and a discarded one
+   * taken back before its tempo; a settings change is kept until the phrase it applies to sounds.
    */
   // @spec-link [[rule_struggling_generator_notice]]
   // @spec-link [[rule_session_history_records_played_notes]]
   // @spec-link [[rule_played_notes_export_unquantized_timing]]
+  // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
   // @spec-link [[service_workspace_session_flow]]
   function onOutput(session: ActiveSession, output: SessionOutput): void {
     session.history.record(historyOutput(output))
     if (output.kind === 'phrase-ready') phrasesOf(session).phraseReady(output.phrase)
     else if (output.kind === 'phrase-tempo')
       phrasesOf(session).phraseTempo(output.phraseNumber, output.tempo)
-    else if (output.kind === 'phrase-sounding') state.sessionTempo = output.tempo
+    else if (output.kind === 'phrase-discarded')
+      phrasesOf(session).phraseDiscarded(output.phraseNumber)
+    else if (output.kind === 'settings-changed') session.shown.settingsChanged(output)
+    else if (output.kind === 'phrase-sounding') onSounding(session, output)
     else if (output.kind === 'struggling-notice') state.strugglingNotice = output.visible
     else if (output.kind === 'wake-at')
       session.agenda.schedule(output.at, () => dispatchAt(session, output.at, { kind: 'tick' }))
@@ -277,7 +312,8 @@ export function createSessionController(deps: SessionControllerDependencies): Se
    * last, the end watchers stopped, which hands the staff's reports back to the Idle machinery and
    * re-applies the latest of them. A start that failed
    * part-way passes the session only once it was built, and may not have started the timer or
-   * the watchers yet: only what was set up is undone.
+   * the watchers yet: only what was set up is undone. The shown settings go with the session, so
+   * the controls show the player's own choices again, before anything asks Idle for a phrase.
    */
   // @spec-link [[rule_stop_ends_session]]
   // @spec-link [[rule_screen_wake_lock_during_session]]
@@ -297,6 +333,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     state.heldLayout = null
     state.sessionStaff = null
     state.latestReady = null
+    state.shownSettings = null
     session?.midi?.stop()
     session?.watch?.stop()
   }
@@ -475,6 +512,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
         watch: null,
         display: null,
         midi: null,
+        shown: createSessionShownSettings(settings),
       }
       startSession(session, settings, heldLayout, idleWritten)
     } catch (error: unknown) {
@@ -486,10 +524,11 @@ export function createSessionController(deps: SessionControllerDependencies): Se
    * Intent: the rest of a start, once the transport runs and phrase 1's backing is queued: make
    * `session` the running one, begin its MIDI handling (with or without the controller, fixed now),
    * show its count-in and its staff (phrase 1, the very phrase Idle shows), schedule the count-in's
-   * end, start the wake-ups, the display's frame loop, the runner
-   * (checking fits through the display) and the end watchers. `start` undoes it all if any of it
-   * throws.
+   * end, start the wake-ups, the display's frame loop, the runner (checking fits through the
+   * display, reading it for what is on screen, with the page's `Vary settings` choice) and the end
+   * watchers; the controls show the start settings. `start` undoes it all if any of it throws.
    */
+  // @spec-link [[req_settings_mutation_flag]]
   // @spec-link [[rule_count_in_shown_on_screen]]
   // @spec-link [[rule_session_layout_fixed_at_start]]
   // @spec-link [[rule_phrase_one_is_idle_phrase]]
@@ -507,6 +546,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     state.sessionTempo = startingTempo
     state.heldLayout = heldLayout
     state.strugglingNotice = false
+    state.shownSettings = session.shown.current()
     session.midi = sessionMidi.beginSession({
       startingTempo,
       phraseOne: phraseOne.outcome.result.timeline,
@@ -554,8 +594,10 @@ export function createSessionController(deps: SessionControllerDependencies): Se
         settings,
         phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
         adaptiveTempo: adaptiveTempo.forSession(state.sessionHasController),
+        varySettings: varySettings.on(),
       },
       checkFit: display.checkFit,
+      display: { isPhraseOnScreen: display.isPhraseOnScreen },
       now: () => engineTime(session, audio.now()),
       onOutput: (output) => onOutput(session, output),
       onError: (error) => failLoudly(session, error),
@@ -596,6 +638,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     closeReview,
     showReview,
     setAdaptiveTempo: adaptiveTempo.set,
+    setVarySettings: varySettings.set,
     dispose: () => {
       if (disposed) throw new SessionControllerError('session controller: disposed twice')
       disposed = true

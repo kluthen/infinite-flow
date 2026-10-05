@@ -3,7 +3,10 @@
  * The "Foundation" control group: tempo, tonal center, collection, instrument profile (with its
  * range summary), musical profile preset (with its status region), harmonic motion, and tension.
  * Props-in/events-out only; every value shown is exactly the `controls`/`profileSelection` props
- * this component receives, and every change is reported upward rather than applied locally.
+ * this component receives, and every change is reported upward rather than applied locally. The
+ * preset status holds both of its texts, the one in use and the other one invisible, so a change
+ * between them never moves the fields below; whether it announces is the parent's to say (off for
+ * the whole of a session).
  */
 import { computed } from 'vue'
 
@@ -39,6 +42,8 @@ const props = defineProps<{
   controls: GenerationControls
   profileSelection: ProfileSelection
   readonly: boolean
+  /** The preset status's live announcement: `polite`, or `off` while a session runs. */
+  presetStatusLive: 'polite' | 'off'
 }>()
 
 const emit = defineEmits<{
@@ -110,13 +115,27 @@ const presetModelValue = computed<string | null>(() =>
   props.profileSelection.isCustom ? null : props.profileSelection.musicalProfile,
 )
 
-/** Intent: the polite, always-visible preset status copy for the currently applied/custom state. */
-const presetStatusText = computed(() => {
-  const { musicalProfile, isCustom } = props.profileSelection
-  if (isCustom) {
-    return `Custom configuration - ${musicalProfile} grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.`
-  }
+/** Intent: the preset status's custom copy, naming the grammar retained. */
+function customStatusText(musicalProfile: (typeof MUSICAL_PROFILES)[number]): string {
+  return `Custom configuration - ${musicalProfile} grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.`
+}
+
+/** Intent: the preset status's applied-preset copy. */
+function presetStatusCopy(musicalProfile: (typeof MUSICAL_PROFILES)[number]): string {
   return `${musicalProfile} preset applied. All seven preset-controlled values were replaced.`
+}
+
+/**
+ * Intent: the preset status's two texts for the current state, with the same profile name: the
+ * one in use (the custom text, emphasized, during the custom state; the preset text otherwise)
+ * and the other one, kept invisible so the status always takes the longer one's block size.
+ */
+// @spec-link [[rule_automatic_change_updates_controls_quietly]]
+const presetStatusTexts = computed(() => {
+  const { musicalProfile, isCustom } = props.profileSelection
+  const custom = customStatusText(musicalProfile)
+  const preset = presetStatusCopy(musicalProfile)
+  return isCustom ? { inUse: custom, reserve: preset } : { inUse: preset, reserve: custom }
 })
 
 const activeInstrumentProfile = computed(() =>
@@ -197,13 +216,16 @@ const profileRangeSummaryText = computed(() => {
         :readonly="readonly"
         @update:model-value="handleMusicalProfile"
       />
-      <p
-        class="preset-status"
-        :class="{ 'is-custom': profileSelection.isCustom }"
-        role="status"
-        aria-live="polite"
-      >
-        {{ presetStatusText }}
+      <p class="preset-status" role="status" :aria-live="presetStatusLive">
+        <span class="preset-status-text" :class="{ 'is-custom': profileSelection.isCustom }">{{
+          presetStatusTexts.inUse
+        }}</span
+        ><span
+          class="preset-status-text is-reserve"
+          :class="{ 'is-custom': !profileSelection.isCustom }"
+          aria-hidden="true"
+          >{{ presetStatusTexts.reserve }}</span
+        >
       </p>
     </div>
     <div class="field-group" :class="{ 'is-readonly': readonly }">

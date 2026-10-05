@@ -92,6 +92,7 @@ describe('session controller: the next phrase at a session end', () => {
       phase: 'idle',
       review: rig.controller.state.review,
       idleReports: 1,
+      shownSettings: null,
     })
     expect(rig.freshPhraseRequests[0]?.review?.showing).toBe(true)
   })

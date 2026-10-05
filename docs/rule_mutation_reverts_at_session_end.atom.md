@@ -10,7 +10,7 @@ dependents: []
 human_name: Mutated Settings Return to the Player's Choice at Session End
 type: RULE
 layer: BUSINESS
-notes: Ingested 2026-10-03 from the settled master spec (D182, from ux Q64), a product owner decision. Not built yet: the session engine only reports each settings change, and the restore is planned for the session controller (v2 build plan chunk 25); no code implements this rule.
+notes: Ingested 2026-10-03 from the settled master spec (D182, from ux Q64), a product owner decision. Built 2026-10-05 in v2 chunk 25: the session never writes the player's Idle controls or profile selection; during a session the controls show the controller's shownSettings, and every end's teardown drops them before the fresh phrase is asked for, so the player's settings show again and the fresh phrase is generated from them.
 version: 0.1
 ---
 

@@ -2,7 +2,8 @@
  * A session's phrase steps on their own, over logging fakes: a readied phrase is shown at once and
  * kept; its tempo then queues its backing at that tempo, adds its expected notes at that tempo,
  * gives the display its tempo and schedules its starting to sound at the transport's start for it,
- * in that order. Every step out of order throws before anything changes.
+ * in that order. A phrase the engine discards before its tempo is taken back from the display and
+ * readied again under the same number. Every step out of order throws before anything changes.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -30,6 +31,7 @@ function phrasesRig() {
     display: {
       phraseReady: (phrase) => calls.push(['display.phraseReady', phrase.phraseNumber]),
       phraseTempo: (n, tempo) => calls.push(['display.phraseTempo', n, tempo]),
+      phraseDiscarded: (n) => calls.push(['display.phraseDiscarded', n]),
     },
     midi: {
       phraseReady: (n, timeline, tempo) => calls.push(['midi.phraseReady', n, timeline, tempo]),
@@ -90,5 +92,45 @@ describe('session phrase steps', () => {
 
     rig.phrases.phraseTempo(2, 90)
     expect(() => rig.phrases.phraseTempo(2, 90)).toThrow(/phrase 3's tempo must come next/)
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[rule_session_change_applies_at_phrase_boundary]]
+  it('takes a discarded phrase back and readies the same number again, scheduling only the new one', () => {
+    const rig = phrasesRig()
+    const [two, three, threeAgain] = [sessionPhrase(2), sessionPhrase(3), sessionPhrase(3, 777)]
+    rig.phrases.phraseReady(two)
+    rig.phrases.phraseTempo(2, 90)
+    rig.phrases.phraseReady(three)
+
+    rig.phrases.phraseDiscarded(3)
+    rig.phrases.phraseReady(threeAgain)
+    rig.phrases.phraseTempo(3, 90)
+
+    expect(rig.calls.filter((call) => String(call[0]).startsWith('display.phrase'))).toEqual([
+      ['display.phraseReady', 2],
+      ['display.phraseTempo', 2, 90],
+      ['display.phraseReady', 3],
+      ['display.phraseDiscarded', 3],
+      ['display.phraseReady', 3],
+      ['display.phraseTempo', 3, 90],
+    ])
+    expect(rig.calls.filter((call) => call[0] === 'queueBacking')).toEqual([
+      ['queueBacking', 2, two.outcome.provenance.harmony.events, 90],
+      ['queueBacking', 3, threeAgain.outcome.provenance.harmony.events, 90],
+    ])
+  })
+
+  // @test-link [[service_workspace_session_flow]]
+  it('throws on a discard of a phrase that is not the latest kept one, changing nothing', () => {
+    const rig = phrasesRig()
+    expect(() => rig.phrases.phraseDiscarded(2)).toThrow(/cannot be discarded/)
+    rig.phrases.phraseReady(sessionPhrase(2))
+    rig.phrases.phraseReady(sessionPhrase(3))
+    expect(() => rig.phrases.phraseDiscarded(2)).toThrow(/cannot be discarded/)
+    rig.phrases.phraseTempo(2, 90)
+    rig.phrases.phraseTempo(3, 90)
+    expect(() => rig.phrases.phraseDiscarded(3)).toThrow(/cannot be discarded/)
+    expect(rig.calls.some((call) => call[0] === 'display.phraseDiscarded')).toBe(false)
   })
 })

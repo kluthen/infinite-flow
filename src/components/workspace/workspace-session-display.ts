@@ -6,7 +6,9 @@
  * injected frame loop, from the session's start until `stop`, and mapped to a measure through the
  * transport's tempo map: each phrase at the tempo the engine fixed for it. It also answers the runner's fit
  * check of each look-ahead phrase and the material check a staff layout report needs, both in the
- * viewport the session holds, and whether a phrase is on screen. Reads no time but the audio clock.
+ * viewport the session holds, and whether a phrase is on screen: the engine's display reading. A
+ * look-ahead phrase the engine discards, none of it on screen, is taken back so its number can be
+ * readied again. Reads no time but the audio clock.
  */
 import type { SessionStaff, SessionSystem } from '@/components/notation/session-staff'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
@@ -64,6 +66,11 @@ export interface SessionDisplay {
    * reads that phrase at it. Throws when out of order.
    */
   readonly phraseTempo: (phraseNumber: number, tempo: number) => void
+  /**
+   * Take back the latest readied phrase, discarded before its tempo is fixed and with none of it
+   * on screen, so the same number is readied next. Throws for any other phrase.
+   */
+  readonly phraseDiscarded: (phraseNumber: number) => void
   /** Whether every phrase shown or waiting fits the held viewport at these layout inputs. */
   readonly materialFits: (inputs: StaffLayoutInputs) => Promise<boolean>
   readonly isPhraseOnScreen: (phraseNumber: number) => boolean
@@ -238,6 +245,30 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
     nextTempo += 1
   }
 
+  /**
+   * Intent: take back the latest readied phrase the engine discarded for a settings change. The
+   * engine discards only a phrase none of which is on screen and whose tempo is not fixed yet, so
+   * anything else is a defect and throws before anything changes. Nothing on screen changes; the
+   * staff is published again for the waiting material it drops.
+   */
+  // @spec-link [[module_session_rolling_display]]
+  // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
+  function phraseDiscarded(phraseNumber: number): void {
+    if (phraseNumber !== latestReady || phraseNumber === 1 || phraseNumber < nextTempo) {
+      throw new Error(
+        `session display: phrase ${phraseNumber} cannot be discarded (latest readied ${latestReady}, next tempo ${nextTempo})`,
+      )
+    }
+    if (isPhraseOnScreen(heldLayout, playhead, latestReady, phraseNumber)) {
+      throw new Error(
+        `session display: phrase ${phraseNumber} is on screen and cannot be discarded`,
+      )
+    }
+    readied.delete(phraseNumber)
+    latestReady = phraseNumber - 1
+    publish()
+  }
+
   publish()
   frame = frames.request(onFrame)
 
@@ -245,6 +276,7 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
     checkFit,
     phraseReady,
     phraseTempo,
+    phraseDiscarded,
     materialFits,
     isPhraseOnScreen: (phraseNumber) =>
       isPhraseOnScreen(heldLayout, playhead, latestReady, phraseNumber),

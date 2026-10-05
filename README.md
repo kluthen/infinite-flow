@@ -124,7 +124,7 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   holds the root session composition (`create-workspace-session.ts`, with the `matchMedia` width
   provider in `browser-viewport-width.ts` and the session's browser adapters in `browser-*.ts`),
   the session controller (`workspace-session-controller.ts`, loaded as its own chunk, with
-  `workspace-session-runner.ts`, its runner starter, mutation flag off until chunk 25) and the
+  `workspace-session-runner.ts`, its runner starter, with the player's `Vary settings` choice) and the
   workspace component tree, the session action, cue row, audio mix and header `controller-status`
   included (see [`docs/phrase-workspace.md`](docs/phrase-workspace.md));
   `src/components/controller-connection/` holds the connection sheet, loaded as its own chunk
@@ -248,7 +248,7 @@ UI (Vue components, props-in/events-out)
   `createWorkspaceSession` (or, in a test/harness, via the injected `WORKSPACE_SESSION_FACTORY`
   seam), and loads its session controller once, as a lazy chunk. `WorkspaceShell`,
   `WorkspaceHeader` (with `controller-status`), `ScorePanel` (with the audio mix and the session
-  cue row), `ControlPanel` and its four control groups are props-in/events-out around that one
+  cue row), `ControlPanel` and its five control groups are props-in/events-out around that one
   session and its controller. The connection sheet loads as its own chunk when
   `controller-status` is clicked (see below).
 - **Session composables.** `createGenerationSession` owns the session's state machine (`idle` /

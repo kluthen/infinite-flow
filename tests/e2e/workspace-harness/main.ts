@@ -35,6 +35,11 @@
  *   visibility a spec hides; the window shape is the real adapter;
  * - the session controller (session-controller-seams.ts): the workspace's own controller, kept as
  *   the app builds it, its state read as plain JSON by `session.state()`;
+ * - the session runner (session-runner-seam.ts, through the
+ *   `@/components/workspace/workspace-session-runner` alias): the real runner, the latest kept so
+ *   `session.changeSettings()` can send it an automatic settings change;
+ * - every `generate` call's settings (`generationRequests`), in call order, so a spec can tell
+ *   which settings a phrase was generated with;
  * - the session clock: the session controller's wake-up timer on the audio seams' clock (stepped
  *   by `audio.advance` right after the transport's on the fake rig, a real wake-up Worker with
  *   `?audio=real`), and the real wall clock for session histories unless a spec fixes it with
@@ -162,6 +167,8 @@ let armedFailuresLeft = 0
 let generationsSettled = 0
 /** The concert timeline (JSON) of every successful `generate` answer, in return order. */
 const generatedTimelines: string[] = []
+/** The settings of every `generate` call, in call order. */
+const generationRequests: WorkspaceHarnessGenerationRequest[] = []
 
 const harnessAudio = createHarnessAudio(harnessAudioMode(window.location.search), shownHarmony)
 bindHarnessAudioStart(document, harnessAudio.startFromClick)
@@ -178,6 +185,12 @@ const client = createGenerationWorkerClient(port)
  * real; count every call that returns.
  */
 async function harnessGenerate(intent: GenerationIntent): Promise<GenerationOutcome> {
+  generationRequests.push({
+    writtenTonalCenter: intent.writtenTonalCenter,
+    controls: { ...intent.controls },
+    musicalProfile: { ...intent.musicalProfile },
+    carryIn: intent.carryIn !== undefined,
+  })
   await gate.wait()
   if (armedFailureCode !== null && callsBeforeArmedFailure > 0) {
     callsBeforeArmedFailure -= 1
@@ -293,6 +306,7 @@ window.__workspaceHarness = {
   roomChecks: roomCheckCount,
   seedsDrawn: seedProvider.seedsDrawn,
   generatedTimelines: () => [...generatedTimelines],
+  generationRequests: () => [...generationRequests],
   setWallClock,
   failNextExport: armNextExportFailure,
   exportsBuilt,

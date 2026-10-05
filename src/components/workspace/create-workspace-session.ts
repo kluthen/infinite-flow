@@ -46,7 +46,7 @@ import { createBrowserWindowShape } from './browser-window-shape'
 import { createIdleLayoutGate } from './idle-layout-gate'
 import { createPhraseReplayAnnouncer } from './phrase-replay-announcer'
 import type { WorkspacePrewarmPolicy } from './prewarm-policy'
-import type { WorkspaceSessionStart } from './workspace-session-runner'
+import type { WorkspaceSessionStart } from '@/components/workspace/workspace-session-runner'
 import type {
   SessionController,
   SessionControllerClock,
@@ -54,14 +54,16 @@ import type {
 
 /**
  * What a caller supplies to start a session runner from the workspace: the session's start, its
- * adaptive-tempo choice included, whose settings-mutation flag (off until chunk 25) the starter
- * sets, and the seams the workspace does not own (fit check, audio clock, output and error sinks).
+ * adaptive-tempo and `Vary settings` choices included (the starter turns the latter into the
+ * settings-mutation flag, drawing its seed), and the seams the workspace does not own (fit check,
+ * audio clock, the display reading of whether a phrase is on screen, output and error sinks).
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]
+// @spec-link [[req_settings_mutation_flag]]
 export interface WorkspaceSessionRunnerInput extends Pick<
   SessionRunnerDependencies,
-  'checkFit' | 'now' | 'onOutput' | 'onError'
+  'checkFit' | 'now' | 'display' | 'onOutput' | 'onError'
 > {
   readonly start: WorkspaceSessionStart
 }
@@ -276,17 +278,17 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
 
   /**
    * Intent: load the runner's module and, before settling, the replay-key announcer, then hand
-   * back a starter of runners on the Idle flow's providers, width reading and `generate` seam,
+   * back a starter of runners on the Idle flow's providers (the mutation seed of a session with
+   * `Vary settings` on included), width reading and `generate` seam, reading the caller's display,
    * their outputs forwarded unchanged once each accepted session phrase has announced its replay
-   * key. The workspace runner keeps the settings-mutation flag off and leaves the display reading
-   * and the settings change outputs for chunk 25 to connect. A load failure is not caught: it
-   * rejects the returned promise.
+   * key. The runner's module is imported by its `@/` path, the one a test harness may substitute.
+   * A load failure is not caught: it rejects the returned promise.
    */
   // @spec-link [[module_phrase_replay_key]]
   // @spec-link [[req_settings_mutation_flag]]
   async function loadSessionRunner(): Promise<WorkspaceSessionRunnerStarter> {
     const [{ startWorkspaceSessionRunner }] = await Promise.all([
-      import('./workspace-session-runner'),
+      import('@/components/workspace/workspace-session-runner'),
       announcer.loaded,
     ])
     return (input) =>
@@ -297,6 +299,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
           now: input.now,
           providers: deps.providers,
           viewport: deps.viewport,
+          display: input.display,
           onOutput: announcer.announcingSessionOutputs(input.onOutput),
           onError: input.onError,
         },
