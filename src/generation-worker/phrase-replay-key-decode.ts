@@ -6,7 +6,7 @@
  */
 
 import type { GenerationIntent } from '../domain/generation/generation-intent'
-import { rebuildGenerationWorkerIntent } from './generation-worker-protocol'
+import { rebuildGenerationWorkerIntent } from './generation-worker-inbound'
 import {
   bytesToBase64Url,
   PHRASE_REPLAY_KEY_CONTROL_ORDER,

@@ -6,10 +6,12 @@ import { GenerationRequestError, makeRequestId } from '@/domain/generation/gener
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { makeSeed } from '@/domain/random/seed'
 import {
-  GenerationWorkerProtocolError,
   parseGenerationWorkerInboundMessage,
   parseGenerationWorkerPrewarm,
   parseGenerationWorkerRequest,
+} from '@/generation-worker/generation-worker-inbound'
+import {
+  GenerationWorkerProtocolError,
   parseGenerationWorkerResponse,
 } from '@/generation-worker/generation-worker-protocol'
 

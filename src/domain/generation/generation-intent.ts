@@ -11,7 +11,6 @@ import type { InstrumentProfile } from '../profile/instrument-profile'
 import { buildRegisterIntent, type RegisterIntent } from '../profile/register-intent'
 import type { Seed } from '../random/seed'
 import type { CarryIn } from './carry-in/carry-in'
-import { assertCarryInFitsIntent } from './carry-in/carry-in-fit'
 import {
   FOUR_FOUR_METER,
   PHRASE_MEASURE_COUNT,
@@ -39,13 +38,16 @@ export interface GenerationIntent {
   readonly carryIn?: CarryIn
 }
 
-/** `controls.tonalCenter` here is the player's written-pitch selection, not concert pitch. */
+/**
+ * `controls.tonalCenter` here is the player's written-pitch selection, not concert pitch. It holds
+ * no carry-in: an intent that receives one is built by `makeCarryInGenerationIntent`, which checks
+ * the carry-in against the intent.
+ */
 export interface GenerationIntentInput {
   readonly requestId: RequestId
   readonly seed: Seed
   readonly controls: GenerationControls
   readonly musicalProfile: ProfileSelection
-  readonly carryIn?: CarryIn
 }
 
 // @spec-link [[module_generation_request_construction]]
@@ -95,15 +97,21 @@ export function writtenToConcertTonalCenter(
 }
 
 /**
- * Create an immutable, serializable outer intent. This deliberately does not construct the
- * resolved GenerationRequest: fixed-register resolution and Varying feasibility are Step 7 work.
- * The caller's `controls.tonalCenter` is read as the player's written-pitch selection and
- * converted to concert pitch here; the generator downstream only ever sees concert pitch. A
- * carry-in, when given, is checked against the finished intent and kept unchanged; without one the
- * intent has no `carryIn` field at all.
+ * Create an immutable, serializable outer intent without a carry-in: the intent has no `carryIn`
+ * field at all. This deliberately does not construct the resolved GenerationRequest: fixed-register
+ * resolution and Varying feasibility are Step 7 work. The caller's `controls.tonalCenter` is read
+ * as the player's written-pitch selection and converted to concert pitch here; the generator
+ * downstream only ever sees concert pitch. An input that still holds a carry-in is a caller bug
+ * and is refused, never silently dropped: such an intent is built by `makeCarryInGenerationIntent`,
+ * which checks the carry-in against it.
  */
 // @spec-link [[module_generation_request_construction]]
 export function makeGenerationIntent(input: GenerationIntentInput): GenerationIntent {
+  if ('carryIn' in input && input.carryIn !== undefined) {
+    throw new GenerationIntentError(
+      'makeGenerationIntent builds an intent without a carry-in; use makeCarryInGenerationIntent.',
+    )
+  }
   const writtenControls = makeGenerationControls(input.controls)
   const instrumentProfile = getInstrumentProfile(writtenControls.instrumentProfileId)
   const writtenTonalCenter = writtenControls.tonalCenter
@@ -112,12 +120,6 @@ export function makeGenerationIntent(input: GenerationIntentInput): GenerationIn
     tonalCenter: writtenToConcertTonalCenter(writtenTonalCenter, instrumentProfile),
   }
   const registerIntent = buildRegisterIntent(instrumentProfile, controls.register)
-  if (input.carryIn !== undefined)
-    assertCarryInFitsIntent(input.carryIn, {
-      controls,
-      musicalProfile: input.musicalProfile,
-      registerIntent,
-    })
 
   return deepFreeze({
     requestId: input.requestId,
@@ -129,7 +131,6 @@ export function makeGenerationIntent(input: GenerationIntentInput): GenerationIn
     musicalProfile: { ...input.musicalProfile },
     instrumentProfile,
     registerIntent,
-    ...(input.carryIn === undefined ? {} : { carryIn: input.carryIn }),
   })
 }
 

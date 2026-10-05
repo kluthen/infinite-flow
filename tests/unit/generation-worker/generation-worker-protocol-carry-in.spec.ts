@@ -8,9 +8,9 @@ import { describe, expect, it } from 'vitest'
 
 import { GenerationRequestError } from '@/domain/generation/generation-request'
 import { CarryInError } from '@/domain/generation/carry-in/carry-in'
+import { parseGenerationWorkerRequest } from '@/generation-worker/generation-worker-inbound'
 import {
   GenerationWorkerProtocolError,
-  parseGenerationWorkerRequest,
   parseGenerationWorkerResponse,
 } from '@/generation-worker/generation-worker-protocol'
 import { handleGenerationWorkerMessage } from '@/generation-worker/generation-worker-handler'

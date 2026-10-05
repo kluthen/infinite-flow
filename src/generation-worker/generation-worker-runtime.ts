@@ -14,10 +14,8 @@ import {
 import { generatePhrase } from '../domain/generation/orchestration/generation-orchestrator'
 import { beginRhythmDomainPrewarm } from '../domain/generation/orchestration/rhythm-domain-prewarm'
 import { handleGenerationWorkerRequest, type GeneratePhraseFn } from './generation-worker-handler'
-import {
-  parseGenerationWorkerInboundMessage,
-  type GenerationWorkerResponse,
-} from './generation-worker-protocol'
+import { parseGenerationWorkerInboundMessage } from './generation-worker-inbound'
+import type { GenerationWorkerResponse } from './generation-worker-protocol'
 
 /** The default time budget of one prewarm slice, in milliseconds. */
 export const DEFAULT_PREWARM_SLICE_BUDGET_MS = 8

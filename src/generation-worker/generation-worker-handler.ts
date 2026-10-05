@@ -8,10 +8,10 @@
 import type { GenerationIntent } from '../domain/generation/generation-intent'
 import { generatePhrase } from '../domain/generation/orchestration/generation-orchestrator'
 import type { GenerationOutcome } from '../domain/generation/orchestration/orchestration-types'
-import {
-  parseGenerationWorkerRequest,
-  type GenerationWorkerRequest,
-  type GenerationWorkerResponse,
+import { parseGenerationWorkerRequest } from './generation-worker-inbound'
+import type {
+  GenerationWorkerRequest,
+  GenerationWorkerResponse,
 } from './generation-worker-protocol'
 
 /** The phrase-generation dependency the handler calls for one parsed request. */
