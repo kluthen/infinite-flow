@@ -2173,9 +2173,9 @@ owner's go.
 
 **Design docs:** every handoff above.
 
-**Atoms:** every atom tagged `release-v2.0`, `release-v2.1`, `release-v2.2` or `v2.4-check`, under
-whatever tags `documentalist` settles on when it merges or keeps those tags (spec D183). Among
-them, the real-hardware checks govern `rule_played_onset_latency_compensation`,
+**Atoms:** every atom tagged `release-v2.0` (since spec D183 this includes the former v2.1 and
+v2.2 atoms, which also carry `part-v2.1` or `part-v2.2`). The tag `v2.4-check` marks the atoms
+whose last check is a real-hardware one: the real-hardware checks govern `rule_played_onset_latency_compensation`,
 `rule_expected_note_window`, `rule_playhead_follows_audio_clock`,
 `rule_generated_notes_musicxml_export`, `rule_generated_notes_midi_export`,
 `rule_controller_transposition_check` and `req_session_export`; no atom states item 15's

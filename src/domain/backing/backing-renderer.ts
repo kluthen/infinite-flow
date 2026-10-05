@@ -41,7 +41,7 @@ export class BackingRenderError extends Error {
   }
 }
 
-/** O57's proposed default register, a placeholder until the listening test. */
+/** The backing's register: bass in MIDI 36–47, chord tops at or below E4 (64), as accepted by ear. */
 // @spec-link [[req_session_backing_track]]
 export const BACKING_REGISTER = { bassLowest: 36, bassHighest: 47, chordTopHighest: 64 } as const
 
