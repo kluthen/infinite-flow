@@ -442,6 +442,8 @@ interface WorkspaceHarnessSessionState {
   readonly adaptiveTempo: boolean
   /** Whether adaptive tempo may be turned on: exactly while a controller is attached. */
   readonly adaptiveTempoAvailable: boolean
+  /** The tempo the last session that ran adaptive tempo reached; null before any, or after one that did not. */
+  readonly lastSessionReachedTempo: number | null
   /** The page's `Vary settings` flag: off at page load, kept from one session to the next. */
   readonly varySettings: boolean
   /**
@@ -460,8 +462,8 @@ interface WorkspaceHarnessSessionState {
 }
 
 /**
- * The workspace's session controller, read only but for the adaptive-tempo flag, which has no
- * control on screen yet: a spec drives sessions through the app's buttons.
+ * The workspace's session controller, read only: a spec drives sessions and their options through
+ * the app's own controls.
  */
 interface WorkspaceHarnessSessionApi {
   /** Whether the controller's lazy chunk has loaded and the app holds it. */
@@ -475,12 +477,6 @@ interface WorkspaceHarnessSessionApi {
    * keeps the real history. A count that is not a positive whole number throws.
    */
   inflateHistory: (phraseCount: number) => void
-  /**
-   * Turn the page's adaptive-tempo flag on or off through the controller's own action: at Idle
-   * only, and on only with a controller attached; otherwise it throws, as the controller does.
-   * Throws before the controller has loaded.
-   */
-  setAdaptiveTempo: (on: boolean) => void
   /**
    * Send the running session an automatic settings change now, through its runner's own
    * `dispatch`: the settings in effect with `controls` overriding some controls by name (written

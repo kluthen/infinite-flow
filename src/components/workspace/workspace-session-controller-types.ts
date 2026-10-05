@@ -115,6 +115,13 @@ export interface SessionControllerState {
   /** Whether adaptive tempo may be turned on: exactly while a controller is attached. */
   readonly adaptiveTempoAvailable: boolean
   /**
+   * The tempo the last session that ran adaptive tempo reached (its last sounded phrase's), in
+   * BPM, held in memory only: set by an end once phrase 1 has sounded of a session that ran it,
+   * null after such an end of one that did not and before any; a start and an end during the
+   * count-in leave it as it is.
+   */
+  readonly lastSessionReachedTempo: number | null
+  /**
    * The page's `Vary settings` flag: off at page load, kept from one session to the next, held in
    * memory only. A session started with it on runs the engine's settings mutations.
    */

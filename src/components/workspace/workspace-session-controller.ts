@@ -191,6 +191,9 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     get adaptiveTempoAvailable(): boolean {
       return adaptiveTempo.available()
     },
+    get lastSessionReachedTempo(): number | null {
+      return adaptiveTempo.lastSessionReachedTempo()
+    },
     get varySettings(): boolean {
       return varySettings.on()
     },
@@ -370,6 +373,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     state.lastHistory = session.history
     if (ended.soundedPhraseCount === 0) return
     state.review = openedReview(session.history)
+    adaptiveTempo.sessionEnded(state.review.tempoReached)
     void idle.actions.startFreshPhrase()
   }
 

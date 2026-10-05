@@ -32,6 +32,7 @@ export interface FakeSessionController {
   readonly dispose: Mock<() => void>
   readonly closeReview: Mock<() => void>
   readonly showReview: Mock<() => void>
+  readonly setAdaptiveTempo: Mock<(on: boolean) => void>
   readonly setVarySettings: Mock<(on: boolean) => void>
 }
 
@@ -103,6 +104,7 @@ export function createFakeSessionController(
     sessionHasController: null,
     adaptiveTempo: false,
     adaptiveTempoAvailable: false,
+    lastSessionReachedTempo: null,
     varySettings: false,
     shownSettings: null,
     ...overrides,
@@ -151,9 +153,11 @@ export function createFakeSessionController(
     showing({ ...state.review, showing: true })
   })
   const isPhraseOnScreen = (phraseNumber: number): boolean => staffShows(state, phraseNumber)
-  const setAdaptiveTempo = (on: boolean): void => {
+  const setAdaptiveTempo = vi.fn((on: boolean): void => {
+    if (state.phase !== 'idle') throw new Error('fake controller: adaptive tempo during a session')
+    if (on && !state.adaptiveTempoAvailable) throw new Error('fake controller: no controller')
     state.adaptiveTempo = on
-  }
+  })
   const setVarySettings = vi.fn((on: boolean): void => {
     if (state.phase !== 'idle') throw new Error('fake controller: vary settings during a session')
     state.varySettings = on
@@ -176,6 +180,7 @@ export function createFakeSessionController(
     dispose,
     closeReview,
     showReview,
+    setAdaptiveTempo,
     setVarySettings,
   }
 }

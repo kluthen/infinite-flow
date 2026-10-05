@@ -15,7 +15,9 @@
  * session runs, the read-only controls show what the controller says the phrase now sounding was
  * generated with, and the preset status announces nothing; at the end they show the player's own
  * choices again, and the status announces again once those have rendered. The page's `Vary
- * settings` choice goes to the controller.
+ * settings` and `Rising tempo` choices go to the controller; during a session the tempo control
+ * shows the exact tempo in effect, and the tempo field notes the tempo a rising-tempo session
+ * reached (./use-rising-tempo-control.ts).
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -46,6 +48,7 @@ import type { SessionController } from './workspace-session-controller-types'
 import { useConnectionSheet } from './use-connection-sheet'
 import { useControllerStatus } from './use-controller-status'
 import { useReviewNavigation } from './use-review-navigation'
+import { useRisingTempoControl } from './use-rising-tempo-control'
 
 const props = withDefaults(
   defineProps<{
@@ -139,17 +142,26 @@ const sessionOptionsReadonly = computed(() => controlsReadonly.value || props.co
 // @spec-link [[req_settings_mutation_flag]]
 const varySettings = computed(() => props.controller?.state.varySettings ?? false)
 
+/** The `Rising tempo` control and the reached-tempo note, read from the controller. */
+// @spec-link [[req_adaptive_tempo]]
+const risingTempo = useRisingTempoControl(() => props.controller)
+
 /**
  * The settings the controls show: during a session, those the controller says the phrase now
- * sounding was generated with; otherwise the player's own, which a session never writes.
+ * sounding was generated with, at the exact tempo in effect (off the tempo control's list once a
+ * rising tempo has moved it); otherwise the player's own, which a session never writes, so every
+ * end shows the starting tempo again.
  */
 // @spec-link [[rule_automatic_change_updates_controls_quietly]]
 // @spec-link [[rule_mutation_reverts_at_session_end]]
+// @spec-link [[rule_adaptive_tempo_resets_after_session]]
 const shownSettings = computed(() => {
   const session = props.controller?.state.shownSettings ?? null
-  return session === null
-    ? { controls: state.value.controls, profileSelection: state.value.profileSelection }
-    : { controls: session.controls, profileSelection: session.musicalProfile }
+  if (session === null)
+    return { controls: state.value.controls, profileSelection: state.value.profileSelection }
+  const tempo = props.controller?.state.sessionTempo ?? null
+  if (tempo === null) throw new Error('workspace shell: a session shows settings but no tempo')
+  return { controls: { ...session.controls, tempo }, profileSelection: session.musicalProfile }
 })
 
 /**
@@ -402,6 +414,12 @@ function handleSelectInstrumentProfile(id: GenerationControls['instrumentProfile
   void props.session.actions.selectInstrumentProfile(id)
 }
 
+/** Intent: forward the player's `Rising tempo` choice to the controller, which holds it. */
+// @spec-link [[req_adaptive_tempo]]
+function handleSetRisingTempo(on: boolean): void {
+  requireController().setAdaptiveTempo(on)
+}
+
 /** Intent: forward the player's `Vary settings` choice to the controller, which holds it. */
 // @spec-link [[req_settings_mutation_flag]]
 function handleSetVarySettings(on: boolean): void {
@@ -446,12 +464,16 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         :profile-selection="shownSettings.profileSelection"
         :readonly="controlsReadonly"
         :note-density-context="state.noteDensityContext"
+        :rising-tempo="risingTempo.on.value"
+        :rising-tempo-available="risingTempo.available.value"
+        :last-session-reached-tempo="risingTempo.lastSessionReachedTempo.value"
         :vary-settings="varySettings"
         :session-options-readonly="sessionOptionsReadonly"
         :preset-status-live="presetStatusLive"
         @set-control="handleSetControl"
         @select-instrument-profile="handleSelectInstrumentProfile"
         @select-musical-profile="handleSelectMusicalProfile"
+        @set-rising-tempo="handleSetRisingTempo"
         @set-vary-settings="handleSetVarySettings"
       />
     </div>

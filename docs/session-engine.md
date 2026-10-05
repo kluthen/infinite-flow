@@ -194,8 +194,9 @@ same event list scaled to 60, 120 and 240 BPM gives identical request intents, c
 ## Adaptive tempo
 
 Adaptive tempo lets a session speed up on its own, on a flat schedule that never looks at what the
-player plays. Chunk 27 builds the engine side; no control turns the page's flag on before chunk 28
-(see [The session controller](#the-session-controller)).
+player plays. Chunk 27 built the engine side and the page's flag (see
+[The session controller](#the-session-controller)); chunk 28 built its control, `Rising tempo`, and
+what the screen shows of it (see [On screen](#on-screen)).
 
 ### The schedule
 
@@ -267,6 +268,38 @@ does not use chunk 24's `settings-change` path or its discard rule:
 `adaptive-tempo.spec.ts` tests the pure schedule. `session-engine-adaptive-tempo.spec.ts` and
 `session-engine-adaptive-tempo-generation.spec.ts` drive whole sessions that follow their own tempo
 map (`tests/unit/session/tempo-session.ts`, on the [session driver](testing.md#the-session-driver)).
+
+### On screen
+
+The player calls it **Rising tempo** (the lexicon's word for adaptive tempo).
+
+- **The control.** `Rising tempo`, `Off` or `On`, comes first in the "During a session" group
+  (`SessionOptionsControls.vue`), with its note: "Adds 5 BPM every 2 phrases, up to 240 BPM. The
+  tempo goes back to your setting when the session ends." It sets the page's flag through
+  `setAdaptiveTempo`, at Idle and while the Review shows; it is read-only during a generation, a
+  session, and while the controller loads.
+- **Unavailable.** While no controller is attached (`adaptiveTempoAvailable` false), `On` is
+  natively disabled, `Off` shows checked, and a second note, "Needs a connected controller.",
+  names the reason (the disabled segment's `aria-describedby`). The player's own choice is kept:
+  a click on that `Off` changes nothing, and a kept `On` shows again once a controller attaches.
+  During a session the control keeps the availability the session started with, whether the
+  session has a controller (`sessionHasController`), so a controller lost or attached mid-session
+  changes nothing in it; `use-rising-tempo-control.ts` reads all this for the shell.
+- **The tempo in effect.** During a session the header's `tempo-readout` and the read-only tempo
+  stepper show `sessionTempo`, the tempo of the phrase now sounding, from the instant it starts on
+  the audio clock, a repeat included; the shell puts it into the settings it shows. A rise can put
+  it off the stepper's 10-BPM list ("95 BPM"): `TempoStepper` shows such a value only while
+  read-only and inside its bounds, and throws otherwise. Both values sit in fixed-width boxes, so a
+  change moves nothing. At the end both show the player's own tempo again, which no session
+  writes.
+- **The reached tempo.** The controller keeps `lastSessionReachedTempo`, in memory only (the flag's
+  `sessionEnded`, in `workspace-adaptive-tempo.ts`): an end once phrase 1 has sounded sets it to
+  the Review's `tempoReached` when that session ran adaptive tempo and clears it when it did not;
+  a start and an end during the count-in leave it as it is. While it is set the tempo field shows a
+  muted note under the stepper, "Last session reached {n} BPM.": a past fact, never compared,
+  never a live region.
+- **Nothing about performance.** The control, the readout and the note show only the flag and a
+  tempo. Whatever the player plays, the tempos and the reached tempo are the same.
 
 ## The runner and the one-Worker wiring
 
@@ -491,9 +524,9 @@ and when turning it on with no controller attached; turning it off at Idle is al
 flag lives in `workspace-adaptive-tempo.ts`, built with the controller and held only in memory:
 `App.vue` builds the page's one controller at setup and disposes of it only when the app unmounts,
 so the flag lasts exactly as long as the page, and no session's start or end resets it. A
-controller unplugged at Idle leaves it on, only unavailable. No control sets it until chunk 28;
-the workspace harness sets it through `session.setAdaptiveTempo` (see
-[The workspace harness](testing.md#the-workspace-harness)).
+controller unplugged at Idle leaves it on, only unavailable. The `Rising tempo` control sets it
+(see [On screen](#on-screen)). `state.lastSessionReachedTempo` is the tempo the last session that
+ran adaptive tempo reached, for the tempo field's note.
 
 ### Start conditions
 
@@ -1254,7 +1287,8 @@ the owner's sign-off on their extended wording (`module_tension_arc_cycle` stays
   handling of `settings-changed` and `phrase-discarded`.
 - **Chunk 27 (built):** adaptive tempo's engine side, each phrase at its own tempo on the
   transport's tempo map, and the page's flag (see [Adaptive tempo](#adaptive-tempo)).
-- **Chunk 28:** the adaptive-tempo control.
+- **Chunk 28 (built):** the adaptive-tempo control, `Rising tempo`, the exact tempo in effect on
+  screen and the reached-tempo note (see [On screen](#on-screen)).
 - **Chunk 29 (built):** the multi-phrase tension arc's engine side, with the flag off in the
   workspace (see [Multi-phrase tension arc](#multi-phrase-tension-arc)).
 - **Chunk 30:** the multi-phrase tension arc's control.
