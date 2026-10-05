@@ -19,8 +19,12 @@ The seven non-negotiables. Each is **MUST/NEVER**, not a preference.
 - **One CONTRACT + one VISION atom per project** — not size-constrained, settled *before* any
   business atom of that project changes. A project never holds `contract_x` + `contract_y`; if two
   things need separate contracts, they are two projects.
-- Every source file carries ≥1 ATD link (`@spec-link`/`@test-link`), atop the exact function/type —
-  never on package/file headers. Test files use `@test-link` only. No phantom links.
+- Every source file that carries business behaviour carries ≥1 ATD link (`@spec-link`/`@test-link`),
+  atop the exact function/type — never on package/file headers. Test files use `@test-link` only.
+  No phantom links.
+- **ATD is for business behaviour only.** Tooling, scripts, debug, logging, diagnostics, app
+  bootstrap and test plumbing (fixtures, harnesses, shared helpers) stand outside it: they get no
+  atoms and need no links. They still follow every other rule in this file.
 - **Games never import games.** Cross-game influence flows only through platform state, shared
   vocabularies (item/effects/events), or the event bus — enforced by the import-boundary lint.
 
@@ -79,8 +83,8 @@ Enforced by `scripts/code_health_check.py`; treat its errors as blocking.
 - **Nesting depth:** ≤4 levels; refactor beyond.
 - **Doc density:** every function has an intent comment; missing docs on exported functions is an
   error. Match the surrounding file's comment density and idiom.
-- **ATD density:** ≥1 link/file, ≤10 distinct atoms (warn >5 distinct); repeated links to the same
-  atom count once. Bypass tokens (`@lint-ignore-*`) are for genuine exceptions (third-party/generated
+- **ATD density:** ≥1 link per business file, ≤10 distinct atoms (warn >5 distinct); repeated links
+  to the same atom count once. Files outside ATD scope (§1) are exempt. Bypass tokens (`@lint-ignore-*`) are for genuine exceptions (third-party/generated
   code), not for silencing your own.
 
 ## 7. Change discipline
