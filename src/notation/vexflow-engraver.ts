@@ -168,8 +168,8 @@ function buildMeasureVoices(glyphs: readonly (readonly StaveNote[])[]): readonly
 /**
  * Intent: build every measure's beams from the phrase's written beam groups. `new Beam(...)` calls
  * `note.setBeam()` on every grouped note, which is what suppresses that note's individual flag; this
- * must therefore run before the notes are formatted or drawn (formatting can also consult beam
- * membership for stem direction), not after.
+ * must therefore run before the notes are formatted or drawn, not after. Each beam keeps the stem
+ * direction its notes were built with (decided by the written phrase), never recomputing one.
  */
 function buildPhraseBeams(
   phrase: WrittenPhrase,

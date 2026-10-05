@@ -426,7 +426,7 @@ describe("planStaffPlacement: the staff placed in its position by the profile's 
     )
     expect(writtenRangeOf(ADOPTED_INSTRUMENT_PROFILES[0]!)).toEqual({ minMidi: 48, maxMidi: 72 })
     expect(writtenRangeOf(ADOPTED_INSTRUMENT_PROFILES[1]!)).toEqual({ minMidi: 60, maxMidi: 84 })
-    expect(tenor!.staffTopLineUnits).toBeCloseTo(95, 10)
+    expect(tenor!.staffTopLineUnits).toBeCloseTo(73.5, 10)
     expect(alto).toEqual(tenor)
     expect(keyboard!.staffTopLineUnits).toBeCloseTo(60, 10)
   })
@@ -434,7 +434,8 @@ describe("planStaffPlacement: the staff placed in its position by the profile's 
   it('derives the placement from the range alone: a range reaching higher gets more room above the staff', () => {
     const base = planStaffPlacement({ minMidi: 60, maxMidi: 84 })
     const higher = planStaffPlacement({ minMidi: 60, maxMidi: 88 })
-    const lower = planStaffPlacement({ minMidi: 55, maxMidi: 84 })
+    // Written E3: low enough that its ledger lines, not a down-stemmed beam, set the lowest ink.
+    const lower = planStaffPlacement({ minMidi: 52, maxMidi: 84 })
     expect(higher.staffTopLineUnits).toBeGreaterThan(base.staffTopLineUnits)
     expect(lower.staffTopLineUnits).toBeLessThan(base.staffTopLineUnits)
   })
@@ -444,6 +445,67 @@ describe("planStaffPlacement: the staff placed in its position by the profile's 
     expect(planStaffPlacement({ minMidi: 61, maxMidi: 82 })).toEqual(
       planStaffPlacement({ minMidi: 60, maxMidi: 83 }),
     )
+  })
+})
+
+/**
+ * Staff positions of written notes, in engraving units below the staff's top line (written F5;
+ * negative above it): a diatonic step is half a staff space.
+ */
+const POSITION = { E5: 5, C5: 15, B4: 20, F4: 35 } as const
+/** A stem's measured length, and a chord symbol's top over its own note's unextended up stem tip. */
+const STEM = 35
+const CHORD_OVER_UP_STEM_TIP = 16.7
+/** The measured reach of a down-stemmed beam under its lowest note's stem tip (slope and stroke). */
+const DOWN_BEAM_UNDER_TIP = 5
+/** The start marker's top over the ink under it: one staff space tall, half a space clear. */
+const MARKER_OVER_INK = 15
+
+/**
+ * Intent: the placement of a profile's written range, by profile id, with the margins its
+ * estimated ink leaves at both ends of the system position.
+ */
+function placementOf(profileId: string) {
+  const profile = ADOPTED_INSTRUMENT_PROFILES.find((entry) => entry.id === profileId)!
+  return planStaffPlacement(writtenRangeOf(profile))
+}
+
+// @test-link [[module_notation_layout_preflight]]
+describe("planStaffPlacement: the estimated ink covers the beam groups a profile's phrases can hold", () => {
+  it("covers the saxophones' down-stemmed beam group bottoming at written F4 (as [F4 E5]), at least 0.8 space inside the position", () => {
+    for (const profileId of ['bb-tenor', 'eb-alto']) {
+      const placement = placementOf(profileId)
+      const beamBottom = placement.staffTopLineUnits + POSITION.F4 + STEM + DOWN_BEAM_UNDER_TIP
+      expect(placement.inkBottomUnits, profileId).toBeGreaterThanOrEqual(beamBottom)
+      expect(NOTATION_SYSTEM_POSITION_UNITS - beamBottom, profileId).toBeGreaterThanOrEqual(
+        0.8 * SPACE,
+      )
+    }
+  })
+
+  it("covers the start marker over the keyboard's chord symbol over an up-stemmed note inside a beam group (written C5 in [C5 G4]), at least 0.8 space inside the position", () => {
+    const placement = placementOf('c-keyboard')
+    const markerTop =
+      placement.staffTopLineUnits + POSITION.C5 - STEM - CHORD_OVER_UP_STEM_TIP - MARKER_OVER_INK
+    expect(placement.inkTopUnits).toBeLessThanOrEqual(markerTop)
+    expect(markerTop).toBeGreaterThanOrEqual(0.8 * SPACE)
+  })
+
+  it("covers the start marker over the saxophones' chord symbol over an up-stemmed note inside a beam group (written E5 in [E5 E4], the highest any can be)", () => {
+    const placement = placementOf('bb-tenor')
+    const markerTop =
+      placement.staffTopLineUnits + POSITION.E5 - STEM - CHORD_OVER_UP_STEM_TIP - MARKER_OVER_INK
+    expect(placement.inkTopUnits).toBeLessThanOrEqual(markerTop)
+    expect(markerTop).toBeGreaterThanOrEqual(0.8 * SPACE)
+  })
+
+  it("covers a lone down stem from written B4, which reaches below the staff's bottom line, for every adopted profile", () => {
+    for (const profile of ADOPTED_INSTRUMENT_PROFILES) {
+      const placement = planStaffPlacement(writtenRangeOf(profile))
+      expect(placement.inkBottomUnits, profile.id).toBeGreaterThanOrEqual(
+        placement.staffTopLineUnits + POSITION.B4 + STEM,
+      )
+    }
   })
 })
 

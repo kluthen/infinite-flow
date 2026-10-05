@@ -530,6 +530,6 @@ detection, scoring, and the rolling continuation flow remain outside this releas
 
 ## Open Issues
 
-| Ref                                                   | Severity | Summary                                                                                                 |
-| ----------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
-| [ISS-006](issues/Ref_20260929_every_stem_drawn_up.md) | Medium   | Every stem is drawn up, high notes included, which also makes each staff system about two spaces taller |
+| Ref                                                                | Severity | Summary                                                                                                                        |
+| ------------------------------------------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| [ISS-008](issues/Ref_20261005_chord_symbol_through_rising_beam.md) | Medium   | A rising up-stemmed beam can run through the chord symbol on its first note, which VexFlow places from the unextended stem tip |

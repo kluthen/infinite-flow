@@ -677,9 +677,9 @@ reads its height budget from `staff-frame`'s computed `max-block-size`.
 - With `source=fixture`: `fixture`, one of the named fixtures listed below.
 - With `source=generated`: `seed`, `tonal`, `collection`, `density`, `variety`, `syncopation`,
   `silence`, `register` and `profile`, each validated against the domain catalogs, and optionally
-  `contour` (default Arch) and `leapiness` (default Shaped), which the calibration sweep varies.
-  The other controls are fixed (tempo 90, Gentle diatonic motion, Settled tension, Predictable
-  arpeggio chaos, Neutral musical profile). The phrase is generated on the
+  `contour` (default Arch), `leapiness` (default Shaped) and `chaos`, the arpeggio chaos (default
+  Predictable), which the calibration sweep varies. The other controls are fixed (tempo 90, Gentle
+  diatonic motion, Settled tension, Neutral musical profile). The phrase is generated on the
   page's main thread with `generatePhrase`, and engraved in the chosen instrument's written pitch. A
   generation failure throws as a page error; no state is published for it.
 - `phrase` (optional, default 1): the phrase number `PhraseScore` engraves the phrase as, which
@@ -1314,10 +1314,13 @@ engraved staff: `concert`, `bflat-tenor` and `eflat-alto` (generated source, see
 `simple` at 700 px in a 740 × 360 viewport, split over two systems at idle). They are rewritten
 with `npx playwright test tests/e2e/notation/notation-visual.spec.ts --update-snapshots`, and must
 then pass again unchanged. Font rendering differs between machines and container images, so
-baselines are recorded on the same setup that checks them. The current four were recorded in the
+baselines are recorded on the same setup that checks them. The four were first recorded in the
 cloud container on 2026-09-29, when chunk 3b made the system positions 16 staff spaces tall and
 placed the staff in them by instrument profile. On 2026-09-30 all four also passed unchanged on the
-owner's machine, so they stand as recorded.
+owner's machine. On 2026-10-05 the stem-direction change re-recorded `bflat-tenor`, `eflat-alto` and
+`two-system-phone-staff-frame` on the owner's machine: the written phrase now decides stem
+directions, and the saxophones' staff sits higher in its system position. `concert` stands as
+recorded.
 
 `tests/e2e/notation/notation-overlays.spec.ts-snapshots/` holds six more Chromium-on-Linux PNGs:
 three overlay cases, each in a `-light` and a `-dark` variant (the harness's `theme` parameter):
@@ -1332,7 +1335,8 @@ three overlay cases, each in a `-light` and a `-dark` variant (the harness's `th
   across the system break lit in both systems.
 
 They are rewritten with `npx playwright test tests/e2e/notation/notation-overlays.spec.ts
---update-snapshots`, under the same rules as the four above.
+--update-snapshots`, under the same rules as the four above. All six were re-recorded on
+2026-10-05, when the written phrase began deciding stem directions.
 
 Every baseline spec calls `waitForStaffFadeSettled` (`tests/e2e/notation/staff-fade-settle.ts`)
 just before its screenshot: it waits until every animation on the page, the staff's entrance fade

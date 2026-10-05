@@ -10,15 +10,18 @@
  * `transformToWrittenPhrase` display transform (Open transposition / spelling-risk coverage) over
  * an explicit concert timeline, so the harness engraves whatever that transform actually produces
  * for a test-only instrument transposition or a written/concert spelling-divergent key, with no
- * production code change.
+ * production code change. The `stemDirections` fixture runs the same transform over notes on both
+ * sides of the staff's middle line, single and beamed. Hand-built notes get their stem directions
+ * from the real domain rule (`assignStemDirections`), never hard-coded.
  */
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { makeMeasure, type Measure, type MeasureIndex } from '@/domain/events/measure'
-import { makeNoteEvent } from '@/domain/events/measure-event'
+import { makeNoteEvent, type MeasureEvent } from '@/domain/events/measure-event'
 import { makeConcertEventTimeline } from '@/domain/events/timeline'
 import { makeRational } from '@/domain/time/rational'
 import { BB_TENOR_PROFILE, EB_ALTO_PROFILE } from '@/domain/profile/instrument-profiles'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
+import { assignStemDirections, type UnstemmedWrittenNote } from '@/domain/notation/stem-direction'
 import type {
   ConcertChordSymbol,
   DisplayedAccidental,
@@ -30,6 +33,7 @@ import type {
   WrittenKey,
   WrittenMeasure,
   WrittenPhrase,
+  WrittenRest,
 } from '@/domain/notation/written-phrase-types'
 import type { Collection, PitchClass } from '@/domain/controls/generation-controls'
 
@@ -113,6 +117,19 @@ function keyDFlatMajor(): WrittenKey {
   }
 }
 
+/** A hand-built measure whose notes carry no stem direction yet. */
+type UnstemmedMeasure = Omit<WrittenMeasure, 'events'> & {
+  readonly events: readonly (UnstemmedWrittenNote | WrittenRest)[]
+}
+
+/**
+ * Intent: complete a hand-built measure with the stem directions the real domain rule gives its
+ * notes (beam groups included), so no fixture hard-codes a direction.
+ */
+function stemmedMeasure(measure: UnstemmedMeasure): WrittenMeasure {
+  return { ...measure, events: assignStemDirections(measure.events, measure.beamGroups) }
+}
+
 const SIXTEENTH: NotatedDuration = { value: 'sixteenth', dots: 0, ticks: 1 }
 
 /** Intent: build one full-sixteenth-grid measure with a few displayed accidentals and two chords. */
@@ -145,7 +162,7 @@ function denseMeasure(
     bass: null,
     text: 'G7',
   }
-  return {
+  return stemmedMeasure({
     index: measureIndex,
     events,
     beamGroups: [
@@ -155,7 +172,7 @@ function denseMeasure(
       [12, 13, 14, 15],
     ],
     chords: [chordAtStart, chordMid],
-  }
+  })
 }
 
 /** Intent: build the dense fixture -- 16 sixteenths per measure, accidentals, a mid-bar chord change. */
@@ -220,7 +237,7 @@ function buildSimplePhrase(): WrittenPhrase {
     { startTick: 0, root, suffix: '', bass: null, text },
   ]
 
-  const m0: WrittenMeasure = {
+  const m0: WrittenMeasure = stemmedMeasure({
     index: 0,
     events: [
       {
@@ -242,9 +259,9 @@ function buildSimplePhrase(): WrittenPhrase {
     ],
     beamGroups: [],
     chords: chordAt({ letter: 'C', alter: 0 }, 'C'),
-  }
+  })
 
-  const m1: WrittenMeasure = {
+  const m1: WrittenMeasure = stemmedMeasure({
     index: 1,
     events: [
       {
@@ -300,9 +317,9 @@ function buildSimplePhrase(): WrittenPhrase {
     ],
     beamGroups: [[2, 3]],
     chords: chordAt({ letter: 'D', alter: 0 }, 'Dm'),
-  }
+  })
 
-  const m2: WrittenMeasure = {
+  const m2: WrittenMeasure = stemmedMeasure({
     index: 2,
     events: [
       {
@@ -334,9 +351,9 @@ function buildSimplePhrase(): WrittenPhrase {
     ],
     beamGroups: [],
     chords: chordAt({ letter: 'G', alter: 0 }, 'G'),
-  }
+  })
 
-  const m3: WrittenMeasure = {
+  const m3: WrittenMeasure = stemmedMeasure({
     index: 3,
     events: [
       {
@@ -352,7 +369,7 @@ function buildSimplePhrase(): WrittenPhrase {
     ],
     beamGroups: [],
     chords: chordAt({ letter: 'C', alter: 0 }, 'C'),
-  }
+  })
 
   return {
     transposition: CONCERT_TRANSPOSITION,
@@ -392,7 +409,7 @@ function buildDensePhraseWithCrossLineTie(): WrittenPhrase {
 
 /** Intent: build one whole-note-on-tonic measure for a key-signature-heavy fixture. */
 function keySignatureMeasure(index: 0 | 1 | 2 | 3, key: WrittenKey): WrittenMeasure {
-  return {
+  return stemmedMeasure({
     index,
     events: [
       {
@@ -408,7 +425,7 @@ function keySignatureMeasure(index: 0 | 1 | 2 | 3, key: WrittenKey): WrittenMeas
     ],
     beamGroups: [],
     chords: [{ startTick: 0, root: key.tonic, suffix: '', bass: null, text: key.label }],
-  }
+  })
 }
 
 /** Intent: build a minimal single-whole-note-per-measure phrase for a given written key. */
@@ -511,6 +528,48 @@ function buildWrittenFlatSideEbAltoPhrase(): WrittenPhrase {
   return buildTransformedPhrase(64, 'C#', 'Major', EB_ALTO_PROFILE)
 }
 
+/** Intent: one concert note event of `ticks` sixteenths, never a tie continuation. */
+function concertNote(pitch: number, ticks: number): MeasureEvent {
+  return makeNoteEvent({
+    duration: makeRational(ticks, 16),
+    pitch: makeConcertPitch(pitch),
+    tieContinuation: false,
+  })
+}
+
+/**
+ * Intent: engrave, through the real display transform at concert pitch in C major, notes on both
+ * sides of the middle line (B4), single and beamed, so the drawn stems can be checked against the
+ * stem-direction rule. Measure 0: quarter D4, quarter D5, eighths E5 F5, eighths E4 F4. Measure 1:
+ * sixteenths A5 G4 F4 E4 (the far A5 stems the group down), sixteenths D5 E5 F5 C4 (the far C4
+ * stems it up), half C4. Measures 2-3: whole B4.
+ */
+function buildStemDirectionsPhrase(): WrittenPhrase {
+  const timeline = makeConcertEventTimeline([
+    makeMeasure(
+      0,
+      [62, 74]
+        .map((pitch) => concertNote(pitch, 4))
+        .concat([76, 77, 64, 65].map((pitch) => concertNote(pitch, 2))),
+    ),
+    makeMeasure(
+      1,
+      [81, 67, 65, 64, 74, 76, 77, 60]
+        .map((pitch) => concertNote(pitch, 1))
+        .concat([concertNote(60, 8)]),
+    ),
+    makeMeasure(2, [concertNote(71, 16)]),
+    makeMeasure(3, [concertNote(71, 16)]),
+  ])
+  return transformToWrittenPhrase({
+    timeline,
+    tonalContext: { tonalCenter: 'C', collection: 'Major' },
+    chords: tonicChordEachMeasure(),
+    transposition: CONCERT_TRANSPOSITION,
+    concertRange: FIXTURE_WRITTEN_RANGE,
+  })
+}
+
 /** The closed set of harness fixture names, selected via the page's `fixture` URL parameter. */
 export type FixtureName =
   | 'dense'
@@ -522,6 +581,7 @@ export type FixtureName =
   | 'testProfilePlus21Plus12'
   | 'writtenSharpSideBbTenor'
   | 'writtenFlatSideEbAlto'
+  | 'stemDirections'
 
 /** Intent: resolve a harness fixture name to its WrittenPhrase, crashing on an unknown name. */
 // @test-link [[module_notation_layout_preflight]]
@@ -545,6 +605,8 @@ export function resolveFixture(name: string): WrittenPhrase {
       return buildWrittenSharpSideBbTenorPhrase()
     case 'writtenFlatSideEbAlto':
       return buildWrittenFlatSideEbAltoPhrase()
+    case 'stemDirections':
+      return buildStemDirectionsPhrase()
     default:
       throw new Error(`Unknown notation harness fixture: ${name}`)
   }

@@ -39,50 +39,133 @@ export const NOTATION_MAX_STAFF_SPACE_PX = 12
  * The block size of one system position, in engraving units at scale 1: 16 staff spaces, the same
  * for both positions and every instrument profile, so a position's size depends on the scale
  * alone, never on a phrase or a profile. It holds the tallest ink any one profile's written range
- * can produce, start marker included (see `planStaffPlacement`), with about one staff space clear
- * at each end: the saxophones' ink, from the start marker over a chord symbol over written C6 down
- * to written C4, and the C MIDI keyboard's, from the start marker over a chord symbol over written
- * C5 down to written C3, each span about 14.4 spaces. It is not sized for one profile's highest
- * ink stacked over another's lowest, which no phrase can reach: that would take about 20 spaces,
- * too tall for two systems on a landscape phone with its browser toolbar showing. Two positions at
- * the 5 px legibility floor take 160 px. A future profile whose ink needs more makes this one size
- * larger for every profile.
+ * can produce, start marker included (see `planStaffPlacement`), with at least 0.8 staff space
+ * clear at each end. The tallest is the C MIDI keyboard's (written C3 to C5), about 14.4 spaces:
+ * from the start marker over the chord symbol over an up-stemmed written C5 inside a beam group,
+ * down to written C3. The saxophones' (written C4 to C6) spans about 13.7: from the start marker
+ * over the chord symbol over an up-stemmed written E5 inside a beam group, down to the beam under a
+ * down-stemmed group reaching written F4. 15 spaces would leave about 0.3 space at each end for
+ * the keyboard and 0.65 for the saxophones; 16 leaves 0.8 and 1.15. 16 is also the most that keeps two systems on a landscape phone with its browser
+ * toolbar showing: two positions at the 5 px legibility floor take 160 px. A future profile whose
+ * ink needs more makes this one size larger for every profile.
  */
 // @spec-link [[module_notation_layout_preflight]]
 export const NOTATION_SYSTEM_POSITION_UNITS = 160
 
+/** Engraving units per diatonic step: a line to the next space is half a staff space. */
+const UNITS_PER_DIATONIC_STEP = NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE / 2
+/** Semitones above C of the seven natural letters, C to B. */
+const NATURAL_SEMITONES = [0, 2, 4, 5, 7, 9, 11] as const
+/** The treble staff's top line, written F5, as a diatonic step count (octave × 7 + letter). */
+const TREBLE_TOP_LINE_STEP = 5 * 7 + 3
 /**
- * The staff's own reach, in engraving units from its top line, for ink any phrase can draw
- * whatever its range: chord symbols over notes that sit within the staff reach about 3.2 spaces
- * above the top line; below, a note on the bottom line reaches half a space under it. Measured on
- * real engraved phrases.
+ * The treble staff's middle line, written B4, as a diatonic step count: a note on or above it has
+ * its stem down, one below it up, and a beam group's stems point away from its note farthest from it.
+ */
+// @spec-link [[module_notation_stem_direction]]
+const TREBLE_MIDDLE_LINE_STEP = 4 * 7 + 6
+
+/**
+ * A stem's length, in engraving units from its notehead's centre to its tip: 3.5 staff spaces,
+ * VexFlow's default, up or down. Measured on real engraved phrases.
  */
 // @spec-link [[module_notation_layout_preflight]]
-export const NOTATION_STAFF_INK_ABOVE_TOP_LINE_UNITS = 32
+export const NOTATION_STEM_LENGTH_UNITS = 35
+
+/**
+ * How far a chord symbol's ink reaches above the tip of its own note's up stem: about 1.7 staff
+ * spaces. VexFlow sets a chord symbol 5 units (half a space) over its note's stem tip, 10 over its
+ * notehead's centre, or at the staff's text line (one space above the top line), whichever is
+ * highest, and its ink rises about 12 units over that (12 to 12.8 measured). The stem tip is the
+ * note's own, at the stem's unextended length: a beam lengthens stems only when it is drawn, after
+ * the chord symbol is placed, so a chord symbol never sits over a beam, and a rising up-stemmed
+ * beam can run through the chord symbol of a lower note in its group.
+ */
 // @spec-link [[module_notation_layout_preflight]]
-export const NOTATION_STAFF_INK_BELOW_TOP_LINE_UNITS = 45
+export const NOTATION_CHORD_SYMBOL_OVER_STEM_TIP_UNITS = 17
+
+/**
+ * How far the beam of a down-stemmed beam group reaches below its lowest note's stem tip: about
+ * half a staff space for the beam's slope and stroke. Measured on real engraved phrases.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+export const NOTATION_DOWN_BEAM_BELOW_STEM_TIP_UNITS = 5
+
+/**
+ * The widest a generated beam group ever spans, in diatonic steps: 7, one octave. Every phrase's
+ * notes stay inside one register window of 12 semitones (the first-release window policy's
+ * 12-semitone span, `src/domain/profile/instrument-profiles.ts`, applied to every pitch candidate
+ * in `src/domain/pitch/pitch-candidates.ts`), a phrase spells each pitch class with one letter
+ * (`src/domain/notation/pitch-spelling.ts`), and a beam group lies inside one phrase. So a beam
+ * group's notes on the side of the middle line its stems point towards (above it for an
+ * up-stemmed group, below it for a down-stemmed one) sit at most 3 steps from the line: the
+ * group's farthest note, on the other side, is at least as far, and the two span at most 7 steps.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+// @spec-link [[module_notation_stem_direction]]
+export const NOTATION_BEAM_GROUP_MAX_SPAN_STEPS = 7
 
 /**
  * How far ink reaches beyond a range's outermost written notes, in engraving units from that
- * note's staff position (its notehead's centre). Above the highest note, about 5.2 spaces: the
- * engraver gives every stem the upward direction (it sets none of its own), so the note's stem
- * rises 3.5 spaces over it, and its chord symbol sits over the stem's tip. Below the lowest note,
- * about 0.7 space: the notehead's lower half and the stroke of its ledger line (the stem points
- * up, away from it). Measured on real engraved phrases.
+ * note's staff position (its notehead's centre). Above the highest note, about 2.2 spaces: a lone
+ * note above the middle line has its stem down, away from its chord symbol, which sits one space
+ * over the notehead's centre and is about 1.2 spaces tall. Below the lowest note, about 0.7 space:
+ * the notehead's lower half and the stroke of its ledger line, its stem pointing up, away from it.
+ * A beam group can turn a note's stem towards its chord symbol or under it; `planStaffPlacement`
+ * counts those reaches on their own. Measured on real engraved phrases.
  */
 // @spec-link [[module_notation_layout_preflight]]
-export const NOTATION_HIGH_NOTE_INK_ABOVE_UNITS = 52
+export const NOTATION_HIGH_NOTE_INK_ABOVE_UNITS = 22
 // @spec-link [[module_notation_layout_preflight]]
 export const NOTATION_LOW_NOTE_INK_BELOW_UNITS = 7
+
+/** Intent: how far a diatonic step sits above the staff's top line, in engraving units (below: negative). */
+function unitsAboveTopLine(step: number): number {
+  return (step - TREBLE_TOP_LINE_STEP) * UNITS_PER_DIATONIC_STEP
+}
+
+/**
+ * Intent: how far above the top line the ink of the chord symbol on an up-stemmed note on `step`
+ * reaches: over that note's own stem tip, at the stem's unextended length, beamed or not.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+function upStemChordReach(step: number): number {
+  return (
+    unitsAboveTopLine(step) + NOTATION_STEM_LENGTH_UNITS + NOTATION_CHORD_SYMBOL_OVER_STEM_TIP_UNITS
+  )
+}
+
+/** Intent: how far below the top line the tip of a down stem from a note on `step` reaches. */
+// @spec-link [[module_notation_layout_preflight]]
+function downStemReach(step: number): number {
+  return -unitsAboveTopLine(step) + NOTATION_STEM_LENGTH_UNITS
+}
+
+/**
+ * The staff's own reach, in engraving units from its top line, for ink a phrase can draw whatever
+ * its range. Above: the chord symbol on the highest note whose stem is up by its own position,
+ * written A4, one step under the middle line; its stem tip is one space above the top line, so the
+ * chord symbol sits half a space over that and its ink reaches about 2.7 spaces (a chord symbol on
+ * a down-stemmed note within the staff sits at the staff's text line and reaches about 2.2). Below: the tip of the lowest lone down stem, from written B4 on the
+ * middle line, 5.5 spaces.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+// @spec-link [[module_notation_stem_direction]]
+export const NOTATION_STAFF_INK_ABOVE_TOP_LINE_UNITS = upStemChordReach(TREBLE_MIDDLE_LINE_STEP - 1)
+// @spec-link [[module_notation_layout_preflight]]
+// @spec-link [[module_notation_stem_direction]]
+export const NOTATION_STAFF_INK_BELOW_TOP_LINE_UNITS = downStemReach(TREBLE_MIDDLE_LINE_STEP)
 
 /**
  * The room, in engraving units, kept above the highest ink for the start marker, the small
  * triangle drawn over phrase 1's first attacked note at idle: the marker itself, one staff space
  * tall, and half a space clear of the ink under it. The marker sits between the note's own ink
- * and its chord symbol where they leave room for it, and above the chord symbol only where they do
- * not; over a high first note the note's up-stem fills the room under its chord symbol, so a
- * phrase starting on the range's highest note puts the marker over its highest chord symbol. The
- * placement keeps this room for every phrase, since it never depends on a phrase's notes.
+ * and its chord symbol where they leave 2 spaces for it, and above the chord symbol where they do
+ * not, which on real phrases is every time: VexFlow sets a chord symbol less than a space over an
+ * up stem's tip, else about one space over the notehead's centre or the staff, whichever is
+ * higher. A phrase starting on the note whose chord symbol is the highest ink so puts the marker
+ * over it. The placement keeps this room for every phrase, since it never depends on a phrase's
+ * notes.
  */
 // @spec-link [[module_notation_layout_preflight]]
 export const NOTATION_START_MARKER_RESERVE_UNITS = 15
@@ -96,16 +179,9 @@ export interface StaffPlacement {
   readonly staffTopLineUnits: number
   /** The highest ink the range can produce: the start marker's room over its highest chord symbols. */
   readonly inkTopUnits: number
-  /** The lowest ink the range can produce: its lowest notes' noteheads and ledger lines. */
+  /** The lowest ink the range can produce: its lowest notes with their ledger lines, or a down stem or beam. */
   readonly inkBottomUnits: number
 }
-
-/** Engraving units per diatonic step: a line to the next space is half a staff space. */
-const UNITS_PER_DIATONIC_STEP = NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE / 2
-/** Semitones above C of the seven natural letters, C to B. */
-const NATURAL_SEMITONES = [0, 2, 4, 5, 7, 9, 11] as const
-/** The treble staff's top line, written F5, as a diatonic step count (octave × 7 + letter). */
-const TREBLE_TOP_LINE_STEP = 5 * 7 + 3
 
 /**
  * Intent: the diatonic step (octave × 7 + letter index, C4 = 28) of a MIDI note's natural
@@ -122,32 +198,63 @@ function naturalStep(midi: number, direction: 'down' | 'up'): number {
 }
 
 /**
- * Place the staff inside its system position for an instrument's written range, derived from the
- * range alone and never from a phrase's notes, so a refill or a new phrase never moves a staff
- * line and only a profile switch can. The ink the range can produce reaches above the top line by
- * the more of the staff's own chord-symbol reach and the reach over its highest note, plus the
- * start marker's room, and below by the more of the staff's own reach and its lowest note's; the
- * staff is placed so that this ink sits centred in the position, with equal room above and below.
- * A range that reaches high (the saxophones, written C4 to C6) so gets more room above the staff,
- * one that reaches low (the C MIDI keyboard, written C3 to C5) more room below. The outer notes
- * are placed by their natural spelling, a black key by its natural neighbour outward. The
- * first-release ranges all end on C, which no written key respells one letter further out (B♯
- * needs seven sharps, and the fewest-accidental key spelling never uses seven).
+ * Intent: how far from the middle line, in diatonic steps, a beam group's note can sit on the side
+ * its stems point towards, for a range from `lowestStep` to `highestStep`. Inside a beam group a
+ * note on or above the middle line can carry an up stem (as C5 in [C5 G4]), whose chord symbol
+ * then sits over that note's own stem tip, and a note below it a down stem, which the group's beam
+ * extends under. At most half the widest group span, rounded down (the group's farthest note, on
+ * the other side, is at least as far), and only as far as the range reaches on both sides; 0 when
+ * it does not cross the line.
  */
 // @spec-link [[module_notation_layout_preflight]]
+// @spec-link [[module_notation_stem_direction]]
+function beamGroupReachTowardStems(lowestStep: number, highestStep: number): number {
+  return Math.max(
+    0,
+    Math.min(
+      Math.floor(NOTATION_BEAM_GROUP_MAX_SPAN_STEPS / 2),
+      highestStep - TREBLE_MIDDLE_LINE_STEP,
+      TREBLE_MIDDLE_LINE_STEP - lowestStep,
+    ),
+  )
+}
+
+/**
+ * Place the staff inside its system position for an instrument's written range, derived from the
+ * range alone (and the widest beam group span any phrase can produce) and never from a phrase's
+ * notes, so a refill or a new phrase never moves a staff line and only a profile switch can. Stems
+ * follow the written phrase's rule: down on or above the middle line, up below it, a beam group's
+ * all one way. The ink the range can produce reaches above the top line by the most of the staff's
+ * own reach, the chord symbol on its highest note (stem down, away from it), and the chord symbol
+ * on the highest up-stemmed note a beam group can hold, set over that note's own stem tip (the
+ * highest chord reach of all: up to written E5, 3 steps over the middle line), plus the start
+ * marker's room; and below by the most of its lowest
+ * note's ink, the staff's own down-stem reach, and the beam under the lowest note a down-stemmed
+ * beam group can hold. The staff is placed so that this ink sits centred in the position, with
+ * equal room above and below. A range that reaches high (the saxophones, written C4 to C6) so gets
+ * more room above the staff, one that reaches low (the C MIDI keyboard, written C3 to C5) more
+ * room below. The outer notes are placed by their natural spelling, a black key by its natural
+ * neighbour outward. The first-release ranges all end on C, which no written key respells one
+ * letter further out (B♯ needs seven sharps, and the fewest-accidental key spelling never uses
+ * seven).
+ */
+// @spec-link [[module_notation_layout_preflight]]
+// @spec-link [[module_notation_stem_direction]]
 export function planStaffPlacement(range: InstrumentMidiRange): StaffPlacement {
-  const highestAboveTopLine =
-    (naturalStep(range.maxMidi, 'up') - TREBLE_TOP_LINE_STEP) * UNITS_PER_DIATONIC_STEP
-  const lowestBelowTopLine =
-    (TREBLE_TOP_LINE_STEP - naturalStep(range.minMidi, 'down')) * UNITS_PER_DIATONIC_STEP
+  const highestStep = naturalStep(range.maxMidi, 'up')
+  const lowestStep = naturalStep(range.minMidi, 'down')
+  const groupStepsTowardStems = beamGroupReachTowardStems(lowestStep, highestStep)
   const inkAbove =
     Math.max(
       NOTATION_STAFF_INK_ABOVE_TOP_LINE_UNITS,
-      highestAboveTopLine + NOTATION_HIGH_NOTE_INK_ABOVE_UNITS,
+      unitsAboveTopLine(highestStep) + NOTATION_HIGH_NOTE_INK_ABOVE_UNITS,
+      upStemChordReach(TREBLE_MIDDLE_LINE_STEP + groupStepsTowardStems),
     ) + NOTATION_START_MARKER_RESERVE_UNITS
   const inkBelow = Math.max(
+    -unitsAboveTopLine(lowestStep) + NOTATION_LOW_NOTE_INK_BELOW_UNITS,
     NOTATION_STAFF_INK_BELOW_TOP_LINE_UNITS,
-    lowestBelowTopLine + NOTATION_LOW_NOTE_INK_BELOW_UNITS,
+    downStemReach(TREBLE_MIDDLE_LINE_STEP - groupStepsTowardStems) +
+      NOTATION_DOWN_BEAM_BELOW_STEM_TIP_UNITS,
   )
   const inkTopUnits = (NOTATION_SYSTEM_POSITION_UNITS - inkAbove - inkBelow) / 2
   return {

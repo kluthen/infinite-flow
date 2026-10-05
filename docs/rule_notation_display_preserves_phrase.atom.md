@@ -10,6 +10,7 @@ parents:
 dependents:
   - [[module_notation_display_convention]]
   - [[module_notation_layout_preflight]]
+  - [[module_notation_stem_direction]]
 layer: BUSINESS
 version: 1.0
 notes: User sign-off 2026-09-24 (relayed by coordinator): approved promotion DRAFT to REVIEW; rule text unchanged. Re-confirmed 2026-09-26 against current (after the written-pitch key change) text: promotion DRAFT to REVIEW approved, verified against code as merged on main.

@@ -15,6 +15,7 @@ import {
   spellMidiInKey,
   spellWrittenKey,
 } from '../domain/notation/pitch-spelling'
+import { noteStemDirection } from '../domain/notation/stem-direction'
 import type { Alter, SpelledPitch, WrittenNote } from '../domain/notation/written-phrase-types'
 import { TICKS_PER_BAR } from '../domain/time/ticks'
 import { NotationError } from './notation-error'
@@ -90,7 +91,10 @@ function checkNoteLabel(pitch: SpelledPitch): string {
   return `Written note ${pitch.letter}${ALTER_WORDS[pitch.alter]} ${pitch.octave}`
 }
 
-/** Intent: the written model of the check's one note: a whole note, its accidental drawn if any. */
+/**
+ * Intent: the written model of the check's one note: a whole note, its accidental drawn if any,
+ * stemmed by the same rule as a phrase's single note (a whole note draws no stem).
+ */
 function checkNoteEvent(pitch: SpelledPitch): WrittenNote {
   return {
     kind: 'note',
@@ -101,6 +105,7 @@ function checkNoteEvent(pitch: SpelledPitch): WrittenNote {
     tieFromPrevious: false,
     tieToNext: false,
     sourceEventIndex: 0,
+    stemDirection: noteStemDirection(pitch),
   }
 }
 
