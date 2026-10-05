@@ -879,8 +879,10 @@ during a session, and calls the audio transport's mix setters directly (see
   [Facts and forms](controller-connection.md#facts-and-forms)).
 - **Screen locks.** The screen wake lock and the landscape orientation lock are asked for inside
   the Start click (or the starting note's start) and released at every end. A refusal, an unsupported browser or a lock the
-  browser drops shows nothing and changes nothing; a dropped wake lock is not asked for again (O87
-  is open).
+  browser drops shows nothing and changes nothing. A wake lock the browser drops while the session
+  runs and the page is visible (power saving, for example) is asked for again, silently, whatever
+  the answer; a refused second ask is final until the browser drops a granted lock again (spec
+  D187). The orientation lock is never asked for again.
 - **The staff.** It rolls: `PhraseScore` takes the controller's `sessionStaff` through its
   `session` prop and, while it is set, draws that instead of the Idle phrase, in the layout held
   for the session (what goes where is in

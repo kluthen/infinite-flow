@@ -565,7 +565,12 @@ else changes. Then, in order, it:
 
 1. unlocks the audio, asks for the screen wake lock and the landscape orientation lock without
    waiting for their answers (a refused or unsupported lock changes nothing and shows nothing),
-   and starts the transport at the locked tempo;
+   and starts the transport at the locked tempo. A wake lock the browser drops while the session
+   runs and the page stays visible (power saving, for example) is asked for again at once,
+   silently, whatever the answer; a refusal is final until the browser drops a granted lock again,
+   and a lock granted after the end is given back on arrival (spec D187). A hidden page already
+   ends the session, so a drop then is not followed up. The orientation lock is never asked for
+   again;
 2. queues phrase 1's backing with the Idle phrase's harmony;
 3. locks the settings (the Idle controls and musical profile), chooses the held layout from the
    window's width alone (`sessionLayoutAtStart`: split below `bp-tablet-landscape`, one system
@@ -950,9 +955,6 @@ everything.
 
 ### Interim seams and open points
 
-- **A dropped wake lock is not asked for again.** If the browser drops the wake lock mid-session
-  (the page hidden, a low battery), nothing re-requests it; whether to ask again silently is open
-  question O87.
 - **The mix levels are placeholders.** The volume ranges and defaults come from the `--mix-*`
   design tokens, whose values wait for the listening tests of ux Q31.
 
