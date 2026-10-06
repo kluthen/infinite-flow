@@ -1,6 +1,6 @@
 # MIDI controller hardware checklist (v2.0 gate)
 
-Untracked working file: fill it in as you go, then tell Claude it's done. Claude turns the
+Working file: fill it in as you go, then tell Claude it's done. Claude turns the
 results into the tuned constants, `docs/midi-tuning.md` results rows, the controller-check
 verdict in `docs/controller-connection.md`, and the answer to O71 (Bluetooth).
 
@@ -139,21 +139,44 @@ console.log('base', probe.baseLatency * 1000, 'output', probe.outputLatency * 10
 
 ### B2. Playing on the click (3 min)
 
-- [ ] Tempo 60 BPM, click on. Start a session.
-- [ ] From the first beat after the count-in, play one short note exactly on every click for
+- [x] Tempo 60 BPM, click on. Start a session.
+- [x] From the first beat after the count-in, play one short note exactly on every click for
       about 2 minutes, ignoring the staff (any note; play at least every 30 s or the session
       ends by itself).
-- [ ] Click `Stop`, then paste the readout (below). Note the **median** of `beatOffsetMs`
-      (positive = late) and how widely it spreads: median ______ ms, spread ______ to ______ ms.
+- [x] Click `Stop`, then paste the readout (below). Note the **median** of `beatOffsetMs`
+      (positive = late) and how widely it spreads:
+  - run 1 (90 BPM, 32 notes): median **+9 ms**, middle 80 % −19 to +61 ms, extremes −29 to +79 ms;
+  - run 2 (42 notes): median **+2 ms**, middle 80 % −48 to +28 ms, extremes −246 to +36 ms (one
+    stray early note).
+
+Verdict: over USB the played notes already land on the click as the app hears them, so the delay
+constants stay as they are. `OUTPUT_LATENCY_SECONDS` stays 0 although B1 read 32 ms: players
+anticipate a click, and on this setup the two cancel out (a 32 ms correction would move the
+medians to about −25 ms).
 
 ### B3. Playing the phrases (5 min)
 
-- [ ] Tempo 100 or 120 BPM. Start a session.
-- [ ] A few phrases on time (each note you play right should turn the "acknowledged" colour),
+- [x] Tempo 100 or 120 BPM. Start a session. (Run at 60 BPM: reading and playing at 120 was too
+      fast for now; the windows are in milliseconds, so the tempo doesn't change the test.)
+- [x] A few phrases on time (each note you play right should turn the "acknowledged" colour),
       then a few phrases a little early, then a few a little late.
-- [ ] `Stop`, paste the readout. Look at `noteOffsetMs` and `nearestLit`:
-  - notes you felt were in time but stayed unlit: ______
-  - notes clearly early or late that still lit: ______
+- [x] `Stop`, paste the readout. Look at `noteOffsetMs` and `lit`:
+  - notes you felt were in time but stayed unlit: **a few, by feel; none in the data.** Every
+    played note of the right pitch inside −150/+200 ms lit. The surprising unlit notes were pitch
+    slips the controller sent (75 for 63: the octave key; 59 or 57 for 58: a finger off by a
+    semitone). A note lights only on its exact pitch, octave included.
+  - notes clearly early or late that still lit: **early: none** (a note 331 ms early stayed
+    unlit). **Late: up to about +530 ms** at 60 BPM. That is the approved rule: a note's late
+    edge is the later of +200 ms and the end of its written length, cut at the next note's
+    window. Long notes at slow tempos keep their window open longer.
+  - The owner's feel (2026-10-06): the feedback wasn't a problem; misses were mostly the playing.
+    New exercise (reading at tempo while managing breath on a controller without blow
+    resistance), so some misses are the player, not the app.
+
+Stray notes: the Travel Sax often sends short in-between notes while the fingers change position
+(here pitches 50, 51, 55, often in pairs at velocity 127). The app ignores them for lighting
+(wrong pitch), but they reach the review screen's played-notes view and the played-notes MIDI
+export.
 
 Don't change the 150 ms early / 200 ms late windows yourself: they are rule text you approved.
 Just report what you saw.
@@ -162,6 +185,7 @@ Just report what you saw.
 
 ```js
 const { deriveExpectedNotes } = await import('/src/domain/acknowledgement/expected-note.ts')
+const { placeAcknowledgementWindows } = await import('/src/domain/acknowledgement/acknowledgement-window.ts')
 const key = (id) => `${id.phraseNumber}:${id.measureIndex}:${id.eventIndex}`
 const rows = []
 for (const record of app.sessionController.state.lastHistory.phrases()) {
@@ -170,43 +194,66 @@ for (const record of app.sessionController.state.lastHistory.phrases()) {
     phraseNumber: record.phraseNumber, startSeconds: record.startedAt, tempoBpm: record.tempo,
   })
   const lit = new Set(record.acknowledgements.map(key))
+  const windows = placeAcknowledgementWindows(expected)
   for (const note of record.playedNotes) {
     const sincePhrase = note.onsetAt - record.startedAt
     const nearest = expected.filter((c) => c.pitch === note.pitch)
       .sort((a, b) => Math.abs(a.onsetSeconds - note.onsetAt) - Math.abs(b.onsetSeconds - note.onsetAt))[0]
+    // The expected note whose window holds this onset, if any; else the nearest of that pitch.
+    const holder = windows.find((c) => c.pitch === note.pitch
+      && c.window.opensAtSeconds <= note.onsetAt && note.onsetAt <= c.window.closesAtSeconds)
+    const target = holder ?? nearest
     rows.push({
       phrase: record.phraseNumber, pitch: note.pitch, velocity: note.velocity,
       beatOffsetMs: Math.round((sincePhrase - Math.round(sincePhrase / beat) * beat) * 1000),
-      noteOffsetMs: nearest ? Math.round((note.onsetAt - nearest.onsetSeconds) * 1000) : null,
-      nearestLit: nearest ? lit.has(key(nearest.identity)) : false,
+      noteOffsetMs: target ? Math.round((note.onsetAt - target.onsetSeconds) * 1000) : null,
+      inWindow: Boolean(holder),
+      lit: holder ? lit.has(key(holder.identity)) : false,
     })
   }
 }
 console.table(rows)
 const offsets = rows.map((r) => r.beatOffsetMs).sort((a, b) => a - b)
 const at = (q) => offsets[Math.min(offsets.length - 1, Math.floor(q * offsets.length))]
-console.log(`B2: ${offsets.length} notes, median ${at(0.5)} ms,`,
+console.log(`Click offsets: ${offsets.length} notes, median ${at(0.5)} ms,`,
   `middle 80 % from ${at(0.1)} to ${at(0.9)} ms, extremes ${offsets[0]} to ${offsets.at(-1)} ms`)
 ```
 
-The last line printed under the table is the B2 summary: the median and spread to write down.
-The table holds one row per note, for B3. Tip: right-click the table → "Copy object", or just
-screenshot it, and give it to Claude.
+The last line printed under the table is the B2 summary: the median and spread to write down
+(meaningful for B2 only, where every note is played on a click). The table holds one row per
+note, for B3: `noteOffsetMs` is measured from the expected note whose window holds the played
+note (else the nearest one of that pitch), `inWindow` says whether any window held it, and `lit`
+whether that expected note lit. Tip: right-click the table → "Copy object", or just screenshot
+it, and give it to Claude.
 
 ### Results
 
 | Device           | Output delay (B1) | Median click offset (B2) | Spread (B2) | Unlit-but-in-time / lit-but-off (B3) | Notes |
 | ---------------- | ----------------- | ------------------------ | ----------- | ------------------------------------ | ----- |
-| Breath ctrl, USB | 32 ms (base 10.7)  | +9 ms (90 BPM, 32 notes) | −19 to +61 ms (middle 80 %), extremes −29 to +79 | | B2 2026-10-06, Debian Chrome: no change to the delay constants |
-| USB keyboard     |                   |                          |             |                                      |       |
+| Breath ctrl, USB | 32 ms (base 10.7)  | +9 ms (run 1, 90 BPM), +2 ms (run 2) | −19 to +61 / −48 to +28 ms (middle 80 %) | none unlit in the data; late notes lit up to ~+530 ms on long notes (by rule) | 2026-10-06, Debian Chrome: no change to the delay constants |
+| Breath ctrl, Bluetooth LE | — | ~+80 ms (first 5 single-pitch notes) | coarse: notes arrive in batches | not run | 2026-10-06, Debian Chrome; see part C |
+| USB keyboard     |                   |                          |             |                                      | pending: no USB keyboard at hand yet |
 
 ---
 
 ## C. Bluetooth MIDI (O71) (15 min)
 
-- [ ] **Computer:** pair the breath controller over Bluetooth in the system settings. Does it
-      appear under `Connect controller` in Chrome? ______
+- [x] **Computer:** pair the breath controller over Bluetooth in the system settings. Does it
+      appear under `Connect controller` in Chrome? **Yes** (2026-10-06, Travel Sax over
+      Bluetooth LE, Debian's Chrome on the Linux machine). It connects and the right notes light.
   - If yes: run B2 over Bluetooth and add a row; the spread shows the jitter.
+    - Run: 35 notes at 60 BPM. The first 5 were one pitch on the click: +80, +164, +32, +26,
+      +82 ms (median **+80 ms**, against +2 to +9 ms over USB). After that the staff was
+      followed, so off-beat notes blur the summary (median 131 ms, middle 80 % −16 to +309 ms).
+    - Notes arrive in batches: notes played close together carry the exact same time
+      (three at 32 ms; pairs at 447, 285, 131 and 204 ms). Over USB the same pairs arrived about
+      11 ms apart. So Bluetooth adds roughly 70–80 ms here, and its timing is coarse.
+    - The app can't tell Bluetooth from USB (Web MIDI exposes no transport), so it always applies
+      the USB correction; `CONNECTION_LATENCY_SECONDS['bluetooth-le']` (12.5 ms) is never used.
+    - The owner's feel: workable; the looser feedback wasn't a problem.
+    - Outcome: O71 answered (USB is the tested path for v2.0, Bluetooth best-effort). The
+      owner's idea, a voluntary "Bluetooth" checkbox in the device dialog that gives a little
+      more grace, is recorded in the spec decisions.
   - If no: note what you tried.
 - [ ] **Android phone (Chrome):** Web MIDI only works on a secure (https) page. The deployed
       site needs the current main, which includes the server-header fix that lets MIDI through:
@@ -222,15 +269,17 @@ screenshot it, and give it to Claude.
 
 ## D. Session sanity with the real controller (10 min)
 
-- [ ] Start a session by playing the starting note on the controller.
-- [ ] **240 BPM**, busiest settings, a few phrases: any late or stuttering sound, or a phrase
-      that arrives late? ______
-- [ ] Mid-session, unplug the controller → the app reports it lost; plug it back within 30 s
-      → the session carries on. ______
-- [ ] Unplug and wait more than 30 s → the session ends. ______
-- [ ] Play, then stay silent more than 30 s → the session ends (silence timeout). ______
-- [ ] Between sessions, `Disconnect` → the device is forgotten; a new session starts without
-      a controller until you connect again. ______
+All checked 2026-10-06, Travel Sax over USB, Debian's Chrome on the Linux machine.
+
+- [x] Start a session by playing the starting note on the controller.
+- [x] **240 BPM**, busiest settings, a few phrases: any late or stuttering sound, or a phrase
+      that arrives late? **None.**
+- [x] Mid-session, unplug the controller → the app reports it lost; plug it back within 30 s
+      → the session carries on. **Yes: countdown shown, session recovered.**
+- [x] Unplug and wait more than 30 s → the session ends. **Yes.**
+- [x] Play, then stay silent more than 30 s → the session ends (silence timeout). **Yes.**
+- [x] Between sessions, `Disconnect` → the device is forgotten; a new session starts without
+      a controller until you connect again. **Yes.**
 
 ---
 
@@ -245,6 +294,9 @@ Run each and give Claude the output (or let Claude run them while you're away):
 ---
 
 ## F. Optional (only if O105 says these block the tag)
+
+Deferred (2026-10-06): the owner has no MuseScore account or DAW at hand. These two checks are to
+be validated at a later date and do not block the v2.0 tag (O105).
 
 - [ ] Open a MusicXML export in MuseScore for each instrument (saxophones transposed, keyboard not).
 - [ ] Open a generated-notes MIDI and a played-notes MIDI of the same session in a DAW: do the
