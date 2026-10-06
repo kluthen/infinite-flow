@@ -96,9 +96,7 @@ const VALUE_OF: Readonly<Record<keyof typeof NON_RHYTHM_DIMENSIONS, (c: SweepCas
   tensionAcrossPhrases: (c) => c.tensionAcrossPhrases,
 }
 
-// @test-link [[rule_look_ahead_deadline]]
 describe('look-ahead deadline sweep cases', () => {
-  // @test-link [[rule_look_ahead_deadline]]
   it('cover every supported rhythm setting with every seed, and every other value at least once', () => {
     const cases = sweepCases()
     const settings = supportedRhythmSettings()
@@ -117,6 +115,7 @@ describe('look-ahead deadline sweep cases', () => {
   })
 })
 
+// @test-link [[rule_look_ahead_deadline]]
 // @test-link [[rule_session_generation_failure_ladder]]
 describe('look-ahead deadline sweep with injected failures, a slice of the cases at 60, 120 and 240 BPM', () => {
   it('takes every sweep case whose index is a multiple of the slice step', () => {
@@ -166,6 +165,7 @@ describe('look-ahead deadline sweep with injected failures, a slice of the cases
   )
 
   // @test-link [[rule_session_generation_failure_ladder]]
+  // @test-link [[rule_struggling_generator_notice]]
   it.each(SWEEP_TEMPOS)(
     'shows the struggling notice at the second repeat in a row until a generated phrase sounds at %i BPM',
     async (tempo) => {
