@@ -133,7 +133,7 @@ await new Promise((done) => setTimeout(done, 1000))
 console.log('base', probe.baseLatency * 1000, 'output', probe.outputLatency * 1000); await probe.close()
 ```
 
-→ base ______ ms, output ______ ms
+→ base 10.7 ms, output 32 ms (2026-10-06, Chrome on Windows, wired output)
 
 ### B2. Playing on the click (3 min)
 
@@ -189,7 +189,7 @@ Tip: right-click the table → "Copy object", or just screenshot it, and give it
 
 | Device           | Output delay (B1) | Median click offset (B2) | Spread (B2) | Unlit-but-in-time / lit-but-off (B3) | Notes |
 | ---------------- | ----------------- | ------------------------ | ----------- | ------------------------------------ | ----- |
-| Breath ctrl, USB |                   |                          |             |                                      |       |
+| Breath ctrl, USB | 32 ms (base 10.7)  |                          |             |                                      |       |
 | USB keyboard     |                   |                          |             |                                      |       |
 
 ---
