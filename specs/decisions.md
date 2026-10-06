@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.29
+Status: draft v2.30
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1063,3 +1063,31 @@ fact in the live documents (see the [archive index](archive/README.md) and
   check on the reference hardware, the tuning of the acknowledgement windows and latency
   constants, the playhead and main-thread measurements in real Chromium, and the cold run
   re-measured on the reference machine. Master spec §11 and §12; build plan chunks 20 and 21.
+- **D194 (2026-10-06): the machine measurements of the v2.0 gate are met; O68 is closed.** Run
+  on 2026-10-06 on the owner's Linux reference machine, Chromium 153, while the machine was partly
+  busy (one-minute load 1.4–1.8 on 12 threads), which can only make the figures worse (hardware
+  checklist part E). **O68 is answered:** engraving a phrase on the main thread never comes near
+  the scheduler's 200 ms look-ahead window. The longest main-thread block while engraving was
+  49.3 ms (2560 × 1440) and 52.8 ms (1920 × 1080, the first generation), against 90 ms in
+  September; at 240 BPM on the densest setting, over 60 s, no task or animation frame lasted
+  50 ms or more, and the longest timer wait was 36.1 ms and 33.5 ms. So master spec §11's item 15
+  is met. **Item 6 is met when it is judged at the moment the playhead band's measure changes:**
+  at 120 BPM, over 150 barlines in five minutes, it changes at most 14.5 ms after the heard
+  barline (median 6.7 ms, 95th percentile 12.1 ms) and at most 11.2 ms before it, none over
+  20 ms. Counted to the next animation frame, when the painted band can first reach the screen
+  and so one frame later by construction, it is not met, as in the 2026-10-01 runs: at most
+  30.4 ms, 94 of 150 barlines over 20 ms. Which of the two item 6 means was left for the owner by
+  build plan chunk 16 without a register entry; it is now **O106**, opened while recording this.
+  Master spec §11 and §12; build plan chunks 16 and 21.
+- **D195 (2026-10-06): O69 is closed as measured: the cold worst case is narrowly over its
+  250 ms goal, which is not a gate.** Same run as D194. The cold worst case (Sixteenth, Heavily
+  varied, Sparse, Active displacement, Build) takes 277 ms in the page (321 ms from the click),
+  against 829–951 ms in September; Straight with Edge takes 255 ms cold, the default settings
+  42 ms cold, and warm generations 38–77 ms. The first generation after a one-control change into
+  the worst case takes 206–229 ms in the page (317–326 ms from the click). So the answer to O69's
+  question is no, by 27 ms. That does not block anything: the owner made the 250 ms target a goal
+  to aim for, not a gate, on 2026-09-30, and accepted it again in D181; the gate is the
+  look-ahead deadline, which these figures meet with wide headroom at 240 BPM (one measure is
+  1 s, and a mutation has 3 measures before its deadline). So the v2.1 cold-run check of master
+  spec §11 is met. Recorded by `spec-writer` from the measurements; it needs no new ruling from
+  the owner, since it applies D181. Master spec §11 and §12; build plan chunk 21.

@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.30
+Status: draft v0.31
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -47,7 +47,10 @@ O104 was answered the same day (D180). On 2026-10-05 the owner answered O57 (D18
 stays as built. O105 was opened the same day by compacting v2.1, v2.2 and v2.4 into one v2.0
 release (D183). On 2026-10-06 the owner answered O71 (D191) and O105 (D193) with their proposals:
 USB is the tested path for v2.0 and Bluetooth MIDI is best-effort; the real-program export checks
-do not block the v2.0 tag.
+do not block the v2.0 tag. The same day, the machine measurements of the v2.0 gate answered O68
+(D194): engraving never comes near the look-ahead window; and O69 was closed as measured (D195):
+the cold worst case is 277 ms, narrowly over its 250 ms goal, which is not a gate. O106 was opened
+while recording D194: which moment the playhead's 20 ms check (item 6) is measured to.
 
 ### Registered from the v2 proposal and the prerequisites analysis (2026-09-25)
 
@@ -72,19 +75,10 @@ Raised on 2026-09-26 while drafting the v2 topic documents, since consolidated i
 resolved 2026-09-27 (D97). O24 was resolved 2026-09-27 (D108). O77 was resolved 2026-10-03
 (D176). O57 was resolved 2026-10-05 (D185): the backing's voicing, register, attack pattern and
 timbre stay as built. O71 was resolved 2026-10-06 (D191): USB is the tested path for v2.0, and
-Bluetooth MIDI is best-effort.
-
-- **O68 - Main-thread engraving vs audio scheduling** _(prototype needed)_: does engraving a
-  phrase (VexFlow, main thread) ever block longer than the scheduler's look-ahead window (200 ms
-  proposed)? The v2 prototype should measure the longest main-thread task during a session at 240
-  BPM. Note (2026-10-03, D173): the final check on the reference machine is v2.0's former item
-  15, which moved to the v2.4 real-hardware checks. Since 2026-10-05 (D183) those checks are part
-  of the single v2.0 gate.
-  [master-spec.md §6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo).
-- **O69 - Latency after ISS-004** _(measurement)_: re-run the latency harness after ISS-004,
-  including cold runs after a mid-session control change. Does the cold worst case stay under a
-  quarter of the one-bar deadline at 240 BPM (250 ms in Chromium)?
-  [master-spec.md §11](versions/v2/master-spec.md#11-definition-of-done).
+Bluetooth MIDI is best-effort. O68 was resolved the same day (D194): the longest main-thread block
+while engraving is about 50 ms, against the 200 ms window. O69 was closed the same day as measured
+(D195): the cold worst case is 277 ms in the page, over the 250 ms goal, which is not a gate, and
+the look-ahead deadline holds. No question of this section is open.
 
 ## v2 controller connection and session start (O78+)
 
@@ -145,12 +139,29 @@ proposal (D180): the v2.1 gate's checks in a real DAW and on the reference machi
 too. No question of this section is open. Since 2026-10-05 the real-hardware checks are part of
 the single v2.0 gate (D183).
 
-## v2.0 release gate (O105)
+## v2.0 release gate (O105+)
 
-Opened 2026-10-05 by `spec-writer` while recording the compaction of v2.1, v2.2 and v2.4 into one
-v2.0 release (D183). O105 was answered by the owner on 2026-10-06 with its proposal (D193): the
-real-program export checks do not block the v2.0 tag, and are validated later as a v2.0.x
-hand-check note. No question of this section is open.
+O105 was opened 2026-10-05 by `spec-writer` while recording the compaction of v2.1, v2.2 and v2.4
+into one v2.0 release (D183). It was answered by the owner on 2026-10-06 with its proposal (D193):
+the real-program export checks do not block the v2.0 tag, and are validated later as a v2.0.x
+hand-check note. O106 was opened 2026-10-06 by `spec-writer` while recording the machine
+measurements (D194); build plan chunk 16 had left it for the owner since 2026-10-01 without a
+register entry.
+
+- **O106 - What the playhead's 20 ms is measured to** _(D194; owner; blocks the v2.0 tag, as
+  item 6 does)_: master spec §11's item 6 asks that the playhead stay within 20 ms of the audio
+  output. Measured on the reference machine on 2026-10-06, at 120 BPM over 150 barlines: the
+  moment the playhead band's measure changes is at most 14.5 ms after the heard barline (met);
+  the next animation frame, when the painted band can first reach the screen, is up to 30.4 ms
+  after it, with 94 of 150 barlines over 20 ms (not met). The second is one frame later by
+  construction (about 17 ms at 60 frames a second), and matches the playhead's documented bound,
+  "at most one frame plus the time to draw it"
+  ([audio-transport.md](../docs/audio-transport.md#the-playhead)). Which one does item 6 mean?
+  Proposed default, not confirmed by the owner: the band's measure change, which is how build
+  plan chunk 16's criterion reads, so item 6 is met. The alternative, the painted frame, makes
+  item 6 unmet as built, and needs either a looser bound or a change to how the playhead is
+  drawn.
+  [build-plan.md chunk 21](versions/v2/build-plan.md#chunk-21--v20-release-gate).
 
 ## v3 rhythm candidates (O100+)
 

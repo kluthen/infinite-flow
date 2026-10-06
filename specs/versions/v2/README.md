@@ -1,6 +1,6 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27; master spec v1.31, 2026-10-06, D183–D193).
+Status: consolidated into the master spec (2026-09-27; master spec v1.32, 2026-10-06, D183–D195).
 The individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
 ID-free description of v2, which ships as one release, v2.0, since D183 (its parts keep the
@@ -287,7 +287,16 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   connection sheet is recorded as a candidate, version open, in
   [v3](../v3/README.md#controller-connection-candidates-not-committed) (D192). Master spec v1.31,
   build plan v0.7.
-- Open: 10 questions across the register, including O100–O103, the
+- **Measured (D194, D195, 2026-10-06), the machine measurements of the v2.0 gate.** **O68
+  closed:** the longest main-thread block while engraving is about 50 ms, and at 240 BPM no task
+  reaches 50 ms, against the 200 ms look-ahead window, so item 15 is met. The playhead's measure
+  changes at most 14.5 ms after the heard barline, but the next painted frame is up to 30.4 ms
+  after it; **O106** opened: which of the two item 6's 20 ms means (proposed: the first, so item
+  6 is met) (D194). **O69 closed as
+  measured:** the cold worst case is 277 ms in the page, narrowly over the 250 ms goal, which is
+  not a gate (D181); the look-ahead deadline holds with wide headroom, so the cold-run check is
+  met (D195). Master spec v1.32, build plan v0.8.
+- Open: 9 questions across the register, including O106 (above) and O100–O103, the
   v3 rhythm candidates (D175); O86 (what makes a favorite "exported") is still open but belongs
   to v3 (D130); none is currently flagged ★. See [open-questions.md](../../open-questions.md) and
   [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
@@ -394,7 +403,9 @@ through an export the player triggers (D64, D69).
 
 - **O47, O48, O49** are governance/later-version questions, unrelated to v2's own scope. Full
   text is in the [register](../../open-questions.md).
-- **O68, O69** are the remaining research-track questions. **O71** (Bluetooth MIDI) was settled
+- No research-track question is left. **O68** (main-thread engraving) and **O69** (latency after
+  ISS-004) were closed on 2026-10-06 by the machine measurements of the v2.0 gate (D194, D195).
+  **O71** (Bluetooth MIDI) was settled
   on 2026-10-06: USB is the tested path, Bluetooth best-effort (D191). **O57** (backing voicing)
   was settled on 2026-10-05: the backing stays as built (D185). **O105** (whether the
   real-program export checks block the v2.0 tag, D183) was settled on 2026-10-06: they do not

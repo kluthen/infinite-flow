@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.31 (2026-10-06). This is the consolidated, execution-ready specification for
+Status: master spec v1.32 (2026-10-06). This is the consolidated, execution-ready specification for
 v2, which ships as one release, v2.0, whose parts keep the labels v2.0, v2.1, v2.2 and v2.4 (v2.3
 was emptied, and its number is not reused).
 It supersedes the individual v2 draft topic documents,
@@ -127,7 +127,10 @@ browser drops while a session is running is asked for again, silently (§6, §11
 v1.31, the product owner's decisions of 2026-10-06, after trying the reference hardware: USB is
 the tested controller connection and Bluetooth MIDI is best-effort, with the USB correction
 applied to every controller; and the checks of exports in real programs do not block the v2.0
-tag, and follow it as a hand-check note on a v2.0.x update (§8, §11, §12).
+tag, and follow it as a hand-check note on a v2.0.x update (§8, §11, §12). Change in v1.32, the
+machine measurements of 2026-10-06 on the reference machine: the main-thread and cold-run checks
+are met, the two measurement items of §12 are settled, and which moment the playhead check is
+measured to is added to §12 (§11, §12).
 
 ## 1. Core concept
 
@@ -1295,7 +1298,10 @@ pass before v2.0 is tagged.
   12, and the controller check on the reference hardware (§12), all on the reference machine and
   hardware:
   - **Item 6:** the on-screen playhead stays within 20 ms of the actual audio output position over a
-    five-minute session in Chromium.
+    five-minute session in Chromium. Measured on 2026-10-06 at 120 BPM over 150 barlines: the
+    playhead band's measure changes at most 14.5 ms after the heard barline; the next painted
+    frame, one frame later by construction, comes up to 30.4 ms after it. Which of the two this
+    item is measured to is still open (§12).
   - **Item 9:** the acknowledgement windows and latency constants are tuned and documented against
     the actual reference hardware (a breath controller over USB, and a USB keyboard). A window
     value other than 150 ms early and 200 ms late needs the product owner's sign-off.
@@ -1304,7 +1310,9 @@ pass before v2.0 is tagged.
     instrument templates, the two saxophones with their `<transpose>` element and the C keyboard
     without one; MIDI exports open correctly in a real tool with the correct tempo map.
   - **Item 15:** the re-signed latency budget holds: no main-thread task ever runs longer than the
-    audio scheduler's own look-ahead window during a 240 BPM session.
+    audio scheduler's own look-ahead window during a 240 BPM session. Met on 2026-10-06: no task
+    reached 50 ms at 240 BPM, and the longest block while engraving was about 50 ms, against the
+    200 ms window.
   - **The controller check on the reference hardware:** its verification as §12 describes, which
     decides whether a manual input-transposition setting is needed.
   - **From v2.1, in a real program** (may follow the tag, as a v2.0.x hand-check note): imported
@@ -1312,7 +1320,10 @@ pass before v2.0 is tagged.
     session line up phrase by phrase, with the same tempo map and markers.
   - **From v2.1, on the reference machine:** the first generation after an automatic setting
     change (the cold run of the latency prerequisite) is re-measured on the code v2.4 checks, and
-    the look-ahead deadline keeps its headroom at 240 BPM.
+    the look-ahead deadline keeps its headroom at 240 BPM. Met on 2026-10-06: the first
+    generation after a one-control change into the slowest settings took 206–229 ms, and the
+    slowest cold generation 277 ms, against a deadline of at least one measure (1 s at 240 BPM).
+    The 250 ms cold target is a goal to aim for, not a condition of this check.
 
   These checks are part of v2.0's release gate, run on the code it ships; every automated test of
   the other parts still passes on that code, with any tuned constant.
@@ -1323,26 +1334,24 @@ These are consciously left for implementation (or a later, focused conversation 
 owner) to resolve. None of them is silently dropped. None of the items in this first list blocks
 starting v2.0 implementation:
 
-- **Main-thread engraving vs. the audio scheduler's look-ahead window** (§6): whether engraving a
-  phrase on the main thread can ever run long enough to threaten the proposed 200 ms scheduling
-  window needs a small prototype/measurement pass to confirm; the default assumption is that moving
-  the scheduler's own wake-up timer into a Web Worker is enough headroom.
-- **Re-measuring generation latency** after the rhythmic-variety rework mentioned under
-  Prerequisites, including a cold-generation run triggered specifically by a mid-session control
-  change, to reconfirm the look-ahead deadline in §4 has enough headroom at 240 BPM. Its
-  re-measurement on the v2.1 code, on the reference machine, is a v2.4 check (§11).
 - **The controller-transposition check's own verification on the reference hardware** (§8): with
   the device's own transpose setting at each of C, B♭ tenor and E♭ alto, confirming which MIDI note
   a written middle C actually sends, whether an octave setting changes it, and what note-on
   velocity it uses. This determines whether an additional manual "input transposition" setting is
   needed beyond the check itself. It is one of the real-hardware checks (§11), part of v2.0's
   definition of done.
+- **What the playhead's 20 ms is measured to** (§11, item 6): the moment the playhead band's
+  measure changes, which meets it (at most 14.5 ms after the heard barline), or the next painted
+  frame, which does not (up to 30.4 ms, one frame later by construction). Proposed, not yet
+  confirmed by the product owner: the band's measure change. Item 6 blocks the v2.0 tag, so this
+  does too.
 
 The backing's voicing and register, and the screen wake lock dropped mid-session, once in this
 list, are settled (§6). So are Bluetooth MIDI, best-effort with USB the tested connection (§8),
-and whether the checks of exports in real programs block the v2.0 tag: they do not (§11). Not
-blocking anything: Bluetooth MIDI on the product owner's Android phone, in Chrome, is still to
-try.
+and whether the checks of exports in real programs block the v2.0 tag: they do not (§11); and
+the main-thread engraving against the look-ahead window and the re-measured generation latency,
+measured on the reference machine, which meet their checks (§11). Not blocking anything:
+Bluetooth MIDI on the product owner's Android phone, in Chrome, is still to try.
 
 One item left v2 when favorites moved to v3, and is not a v2 gap: **what makes a favorite count
 as exported**, which only mattered for asking before discarding unexported favorites. It stays
