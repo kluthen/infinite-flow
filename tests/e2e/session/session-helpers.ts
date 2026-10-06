@@ -2,12 +2,17 @@
  * Shared helpers for the session screen specs: the workspace harness (port 4175) with its fake
  * audio clock, a phrase made ready to start from, the header's session action, the cue row, the
  * session controller's state through `window.__workspaceHarness.session`, the `Rising tempo`
- * control, the count-in clicks on the audio clock, and the staff's measure boxes in page
- * coordinates.
+ * control, the count-in clicks on the audio clock and the count-in's beats checked against them,
+ * and the staff's measure boxes in page coordinates.
  */
 import { expect, type Locator, type Page } from '@playwright/test'
 
-import { advanceAudio, audioEvents, generateShownPhrase } from '../audio/audio-harness-helpers'
+import {
+  advanceAudio,
+  advanceAudioTo,
+  audioEvents,
+  generateShownPhrase,
+} from '../audio/audio-harness-helpers'
 import { gotoWorkspaceHarness } from '../release/harness-helpers'
 
 /** At and above bp-tablet-landscape (64rem = 1024 px): the one-system layout. */
@@ -247,4 +252,52 @@ export async function boxInside(inner: Locator, outer: Locator): Promise<boolean
   return (
     a.x >= b.x && a.y >= b.y && a.x + a.width <= b.x + b.width && a.y + a.height <= b.y + b.height
   )
+}
+
+/** Past a scheduled time by a little more than one 25 ms wake-up step. */
+const PAST_CLICK = 0.03
+
+/** Intent: assert phrase 1's whole first measure is in the viewport and in the staff's own. */
+async function expectFirstMeasureInView(page: Page, when: string): Promise<void> {
+  const firstMeasure = page.locator('.staff-frame g.measure-slot[data-measure-index="0"]').first()
+  expect(await whollyInViewport(firstMeasure), `${when}: in the viewport`).toBe(true)
+  expect(
+    await boxInside(firstMeasure, page.locator('.staff-viewport')),
+    `${when}: in the staff viewport`,
+  ).toBe(true)
+}
+
+/**
+ * Intent: with a count-in just started (by either kind of start), step the fake audio clock through
+ * it and assert it shows in time with its click: every beat muted before the first click, then
+ * each beat lit just after its click with the earlier ones past, and phrase 1's whole first
+ * measure fully visible at every step; after beat 4 the row empties and phrase 1 runs. Returns the
+ * first click's time.
+ */
+// @test-link [[rule_count_in_shown_on_screen]]
+export async function expectCountInWithClicks(page: Page): Promise<number> {
+  const [firstClick] = await countInClickTimes(page)
+  if (firstClick === undefined) throw new Error('the start scheduled no count-in click')
+  expect(await audioClock(page)).toBeLessThan(firstClick)
+  expect(await shownBeats(page)).toEqual(['muted', 'muted', 'muted', 'muted'])
+  await expectFirstMeasureInView(page, 'before the first click')
+
+  for (let beat = 0; beat < 4; beat += 1) {
+    const clickAt = firstClick + beat * BEAT
+    await advanceAudioTo(page, clickAt + PAST_CLICK)
+    const clicks = await countInClickTimes(page)
+    expect(clicks[beat]).toBeCloseTo(clickAt, 6)
+    const expected = ['muted', 'muted', 'muted', 'muted'].map((_, k) => {
+      if (k < beat) return 'past'
+      return k === beat ? 'current' : 'muted'
+    })
+    expect(await shownBeats(page)).toEqual(expected)
+    await expectFirstMeasureInView(page, `at beat ${beat + 1}`)
+  }
+
+  await advanceAudioTo(page, firstClick + 4 * BEAT + PAST_CLICK)
+  await expect(cueRow(page).locator('.count-in')).toHaveCount(0)
+  expect((await sessionState(page)).phase).toBe('running')
+  await expectFirstMeasureInView(page, 'as phrase 1 starts')
+  return firstClick
 }
