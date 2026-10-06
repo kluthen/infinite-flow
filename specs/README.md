@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.37
+Status: draft v0.38
 
 ## Status Snapshot
 
@@ -270,6 +270,9 @@ Status: draft v0.37
   first generation after a one-control change takes 206–229 ms, well inside the look-ahead
   deadline, so the cold-run check is met (D195). Still open for the v2.0 gate: O106, the VISION
   sign-off, and the real-hardware checks not yet run.
+- **O106 closed (2026-10-06, D197)**, the owner's answer with its proposal: item 6's 20 ms is
+  measured to the moment the playhead band's measure changes, so item 6 is met. Still open for
+  the v2.0 gate: the VISION sign-off, and the real-hardware checks not yet run.
 - **Stray notes from controllers (2026-10-06, D196)**, the owner's ruling. Short in-between notes
   a controller sends while the fingers change position are a generic matter: nothing is built for
   one device, v2 changes nothing, and acknowledgement needs no change (they light nothing unless
@@ -309,10 +312,11 @@ Status: draft v0.37
   in memory only and does not survive a page reload (v2 saves nothing to browser storage). The
   master spec was then at v1.5 (v1.25 since D171). The one gap left open then (**O84**: starting
   a session from the Review) was closed 2026-09-30 (D169).
-- **Open:** 9 questions remain live: O86 (D129, a v3 question since D130), O100–O103 (D175, v3 rhythm candidates) and O106 (D194, item 6's measure), plus the 3
+- **Open:** 8 questions remain live: O86 (D129, a v3 question since D130) and O100–O103 (D175, v3 rhythm candidates), plus the 3
   older ones this bullet goes on to describe; O77, which it also describes, was settled on
   2026-10-03 (D176), O57 on 2026-10-05 (D185), O87 the same day (D187), O71 and O105 on
-  2026-10-06 (D191, D193), and O68 and O69 the same day (D194, D195). None is flagged ★. The 5 most-blocking ones
+  2026-10-06 (D191, D193), O68 and O69 the same day (D194, D195), and O106, opened with them,
+  the same day too (D197). None is flagged ★. The 5 most-blocking ones
   settled first (**D104** O75 v2.0 cut line is the full loop; **D105** O34 continuation boundary;
   **D76** O54 audio unlock; **D77** O55 controller check ships; **D78** O41 acknowledgement
   window), then two large 2026-09-27 batches closed nearly everything else (**D80–D88**:

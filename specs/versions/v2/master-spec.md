@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.33 (2026-10-06). This is the consolidated, execution-ready specification for
+Status: master spec v1.34 (2026-10-06). This is the consolidated, execution-ready specification for
 v2, which ships as one release, v2.0, whose parts keep the labels v2.0, v2.1, v2.2 and v2.4 (v2.3
 was emptied, and its number is not reused).
 It supersedes the individual v2 draft topic documents,
@@ -132,7 +132,8 @@ machine measurements of 2026-10-06 on the reference machine: the main-thread and
 are met, the two measurement items of §12 are settled, and which moment the playhead check is
 measured to is added to §12 (§11, §12). Change in v1.33, the product owner's ruling of
 2026-10-06: a second caveat for the end-of-measure chord-fit check, on the short stray notes a
-controller can send (§9).
+controller can send (§9). Change in v1.34, the product owner's decision of 2026-10-06: the
+playhead check is measured to the moment the playhead's measure changes, so it is met (§11, §12).
 
 ## 1. Core concept
 
@@ -1308,10 +1309,10 @@ pass before v2.0 is tagged.
   12, and the controller check on the reference hardware (§12), all on the reference machine and
   hardware:
   - **Item 6:** the on-screen playhead stays within 20 ms of the actual audio output position over a
-    five-minute session in Chromium. Measured on 2026-10-06 at 120 BPM over 150 barlines: the
-    playhead band's measure changes at most 14.5 ms after the heard barline; the next painted
-    frame, one frame later by construction, comes up to 30.4 ms after it. Which of the two this
-    item is measured to is still open (§12).
+    five-minute session in Chromium, measured to the moment the playhead band's measure changes
+    (not to the next painted frame, which comes one frame later by construction). Met on
+    2026-10-06: at 120 BPM over 150 barlines, the band's measure changed at most 14.5 ms after
+    the heard barline.
   - **Item 9:** the acknowledgement windows and latency constants are tuned and documented against
     the actual reference hardware (a breath controller over USB, and a USB keyboard). A window
     value other than 150 ms early and 200 ms late needs the product owner's sign-off.
@@ -1350,17 +1351,13 @@ starting v2.0 implementation:
   velocity it uses. This determines whether an additional manual "input transposition" setting is
   needed beyond the check itself. It is one of the real-hardware checks (§11), part of v2.0's
   definition of done.
-- **What the playhead's 20 ms is measured to** (§11, item 6): the moment the playhead band's
-  measure changes, which meets it (at most 14.5 ms after the heard barline), or the next painted
-  frame, which does not (up to 30.4 ms, one frame later by construction). Proposed, not yet
-  confirmed by the product owner: the band's measure change. Item 6 blocks the v2.0 tag, so this
-  does too.
 
 The backing's voicing and register, and the screen wake lock dropped mid-session, once in this
 list, are settled (§6). So are Bluetooth MIDI, best-effort with USB the tested connection (§8),
 and whether the checks of exports in real programs block the v2.0 tag: they do not (§11); and
 the main-thread engraving against the look-ahead window and the re-measured generation latency,
-measured on the reference machine, which meet their checks (§11). Not blocking anything:
+measured on the reference machine, which meet their checks (§11); and what the playhead's 20 ms
+is measured to: the moment its measure changes, which meets it (§11). Not blocking anything:
 Bluetooth MIDI on the product owner's Android phone, in Chrome, is still to try.
 
 One item left v2 when favorites moved to v3, and is not a v2 gap: **what makes a favorite count

@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.31
+Status: draft v2.32
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1116,3 +1116,11 @@ fact in the live documents (see the [archive index](archive/README.md) and
     export that prunes notes shorter than a threshold
     ([v3](versions/v3/README.md#stray-notes-from-controllers-candidates-not-committed)).
   Master spec §9; v3 direction.
+- **D197 (2026-10-06): O106 closed: the playhead's 20 ms is measured to the moment its measure
+  changes; item 6 is met.** The product owner's answer to **O106**, with its proposal ("let's go
+  with a"). Master spec §11's item 6 is judged at the moment the playhead band's measure changes,
+  against the heard barline, as build plan chunk 16's criterion reads, not at the next painted
+  frame, which comes one frame later by construction. On the reference machine on 2026-10-06
+  (D194), at 120 BPM over 150 barlines, the band's measure changed at most 14.5 ms after the
+  heard barline and at most 11.2 ms before it, none over 20 ms, so item 6 is met. Master spec §11
+  and §12; build plan chunks 16 and 21.

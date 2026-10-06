@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.31
+Status: draft v0.32
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -50,7 +50,9 @@ USB is the tested path for v2.0 and Bluetooth MIDI is best-effort; the real-prog
 do not block the v2.0 tag. The same day, the machine measurements of the v2.0 gate answered O68
 (D194): engraving never comes near the look-ahead window; and O69 was closed as measured (D195):
 the cold worst case is 277 ms, narrowly over its 250 ms goal, which is not a gate. O106 was opened
-while recording D194: which moment the playhead's 20 ms check (item 6) is measured to.
+while recording D194: which moment the playhead's 20 ms check (item 6) is measured to. The owner
+answered it the same day with its proposal (D197): the moment the playhead's measure changes, so
+item 6 is met.
 
 ### Registered from the v2 proposal and the prerequisites analysis (2026-09-25)
 
@@ -146,22 +148,9 @@ into one v2.0 release (D183). It was answered by the owner on 2026-10-06 with it
 the real-program export checks do not block the v2.0 tag, and are validated later as a v2.0.x
 hand-check note. O106 was opened 2026-10-06 by `spec-writer` while recording the machine
 measurements (D194); build plan chunk 16 had left it for the owner since 2026-10-01 without a
-register entry.
-
-- **O106 - What the playhead's 20 ms is measured to** _(D194; owner; blocks the v2.0 tag, as
-  item 6 does)_: master spec §11's item 6 asks that the playhead stay within 20 ms of the audio
-  output. Measured on the reference machine on 2026-10-06, at 120 BPM over 150 barlines: the
-  moment the playhead band's measure changes is at most 14.5 ms after the heard barline (met);
-  the next animation frame, when the painted band can first reach the screen, is up to 30.4 ms
-  after it, with 94 of 150 barlines over 20 ms (not met). The second is one frame later by
-  construction (about 17 ms at 60 frames a second), and matches the playhead's documented bound,
-  "at most one frame plus the time to draw it"
-  ([audio-transport.md](../docs/audio-transport.md#the-playhead)). Which one does item 6 mean?
-  Proposed default, not confirmed by the owner: the band's measure change, which is how build
-  plan chunk 16's criterion reads, so item 6 is met. The alternative, the painted frame, makes
-  item 6 unmet as built, and needs either a looser bound or a change to how the playhead is
-  drawn.
-  [build-plan.md chunk 21](versions/v2/build-plan.md#chunk-21--v20-release-gate).
+register entry. The owner answered it the same day with its proposal (D197): item 6's 20 ms is
+measured to the moment the playhead band's measure changes, so item 6 is met. No question of this
+section is open.
 
 ## v3 rhythm candidates (O100+)
 

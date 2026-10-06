@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Build Plan
 
-Status: draft v0.8 (2026-10-06). Chunk 0 is done. Build plan for v2, released as one v2.0 since
+Status: draft v0.9 (2026-10-06). Chunk 0 is done. Build plan for v2, released as one v2.0 since
 spec D183, its parts still labelled v2.0, v2.1, v2.2 and v2.4,
 written from [master spec v1.20](master-spec.md) and kept in step with it since (v1.28). Not yet
 approved for execution. Change in v0.3: the spec gaps are resolved, so the phrase-boundary change
@@ -21,7 +21,8 @@ drops it mid-session (O87), a code unit after the ISS-006 fix; the audio mix is 
 export checks follow the v2.0 tag as a v2.0.x hand-check note instead of blocking it (O105).
 Change in v0.8 (spec D194, D195): chunk 21's machine measurements ran on 2026-10-06 and are met,
 item 15 and the cold run; item 6 is met at the band's measure change, and which moment it is
-measured to is now O106. O68 and O69 are closed.
+measured to is now O106. O68 and O69 are closed. Change in v0.9 (spec D197): O106 is answered,
+item 6 is judged at the band's measure change, so it is met, and chunk 21 no longer waits on it.
 
 This plan cuts v2 into chunks that one owner can build, test and document at a time, and puts
 them in order. It adds no behaviour. What the app does is in the [master spec](master-spec.md);
@@ -1799,7 +1800,8 @@ phrase after next while the band is still in the last measure, and that phrase c
 material; a session-mode engraving failure ends the session like Stop; and no start marker is
 drawn in session mode. Still open for the v2.0 gate: whether item 6's 20 ms is judged at the
 band's change (met) or at the painted frame (not met: about one frame later by construction).
-_Registered as O106 on 2026-10-06 (spec D194), with the chunk 21 re-measurement._
+_Registered as O106 on 2026-10-06 (spec D194), with the chunk 21 re-measurement, and answered
+by the owner the same day (spec D197): it is judged at the band's change, so item 6 is met._
 
 **Goal.** Make the staff roll. Two systems alternate: the player reads one while the other is
 refilled. The playhead band follows the audio clock. Each look-ahead phrase is checked against the
@@ -2258,7 +2260,8 @@ The real-hardware checks, part v2.4 (from chunk 35), on the reference machine an
   240 BPM no task reaches 50 ms, and the longest block while engraving is 49.3–52.8 ms. Item 6:
   over 150 barlines at 120 BPM the playhead band's measure changes at most 14.5 ms after the heard
   barline (met), and the next painted frame is up to 30.4 ms after it (not met, one frame later
-  by construction); which one item 6 means is O106, for the owner (proposed: the first).
+  by construction). Item 6 is judged at the band's measure change (O106, spec D197), so it is
+  met.
 - Part v2.1, in a real program: imported together into a real DAW, the played-notes and
   generated-notes MIDI files of one session line up phrase by phrase, with the same tempo map and
   markers. This does not block the tag (spec D193): it may follow it, written down as a v2.0.x
@@ -2284,9 +2287,9 @@ What the earlier chunks left open:
   Closed on 2026-10-05: the wake lock dropped mid-session (O87), asked for again, as item 21's
   criterion above (spec D187); and the audio mix's levels (ux Q31): the click and backing volumes'
   ranges and defaults, and the linear volume-to-gain mapping, are final as built (spec D188).
-- Open, for the owner (O106, spec D194): whether item 6's 20 ms is measured to the moment the
-  playhead band's measure changes (met) or to the next painted frame (not met), left open by
-  chunk 16. Proposed: the band's measure change.
+- Closed on 2026-10-06 (O106, spec D197): item 6's 20 ms is measured to the moment the playhead
+  band's measure changes, not to the next painted frame, as chunk 16 left for the owner; item 6
+  is met.
 - The owner has answered what a session's last phrase may owe (spec D167). Chunk 7's carry-over
   criteria hold under that answer, and `documentalist` has given `rule_leap_recovery` and
   `rule_open_phrase_ending` their v2 scope.
@@ -2298,8 +2301,9 @@ What the earlier chunks left open:
   the DAW line-up) follow the tag as a v2.0.x hand-check note; the controller check, the windows
   and latency tuning, the playhead and main-thread measurements and the cold run block it.
 
-**Blocked by:** every open item above, until closed: O106, the VISION sign-off, and the real-hardware
-checks that block the tag (O71 and O105 were closed on 2026-10-06, spec D191 and D193). The real-hardware checks wait for the reference hardware to be at hand; the owner runs them
+**Blocked by:** every open item above, until closed: the VISION sign-off, and the real-hardware
+checks that block the tag (O71, O105 and O106 were closed on 2026-10-06, spec D191, D193 and
+D197). The real-hardware checks wait for the reference hardware to be at hand; the owner runs them
 when they have time. O97, which item 2's check depended on, was answered on 2026-09-29 (D167).
 
 ### Chunk 22 — Played-notes MIDI encoding

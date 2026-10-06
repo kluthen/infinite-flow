@@ -1,6 +1,6 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27; master spec v1.32, 2026-10-06, D183–D195).
+Status: consolidated into the master spec (2026-09-27; master spec v1.34, 2026-10-06, D183–D197).
 The individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
 ID-free description of v2, which ships as one release, v2.0, since D183 (its parts keep the
@@ -296,7 +296,10 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   measured:** the cold worst case is 277 ms in the page, narrowly over the 250 ms goal, which is
   not a gate (D181); the look-ahead deadline holds with wide headroom, so the cold-run check is
   met (D195). Master spec v1.32, build plan v0.8.
-- Open: 9 questions across the register, including O106 (above) and O100–O103, the
+- **Settled (D197, the owner, 2026-10-06).** **O106 closed** with its proposal: item 6's 20 ms is
+  measured to the moment the playhead band's measure changes, so item 6 is met. Master spec v1.34,
+  build plan v0.9.
+- Open: 8 questions across the register, including O100–O103, the
   v3 rhythm candidates (D175); O86 (what makes a favorite "exported") is still open but belongs
   to v3 (D130); none is currently flagged ★. See [open-questions.md](../../open-questions.md) and
   [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
