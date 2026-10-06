@@ -1176,8 +1176,10 @@ and `carry-in-null-harmony.spec.ts` the generator's side of a carry-in without i
 `workspace-session-runner.spec.ts` checks that the workspace's runner turns the player's choice
 into the flag (its seed drawn first, none when off) and reads the display it is given.
 `workspace-session-controller-vary-settings.spec.ts` drives the same rules through the session
-controller over real runners: the flag, the settings the controls show, the end dropping them
-before the fresh phrase, and a settings change sent with the rig's `changeSettings` while the
+controller over real runners: the flag, the settings the controls show, every way a session ends
+(Stop, each shared end, a session staff failure, the silence timeout and a controller away for
+30 s) dropping them before the fresh phrase, the profile's customized marking back as the
+player left it, and a settings change sent with the rig's `changeSettings` while the
 next phrase is drawn (kept) or, in the split layout, not yet drawn (discarded and readied again).
 `workspace-session-runner.spec.ts` also checks that the multi-phrase tension arc flag is passed
 on, and `workspace-session-controller-tension-across-phrases.spec.ts` drives the page's
@@ -1195,7 +1197,8 @@ change reports the tension arc as set, never stepped, while the phrases requeste
 around the new settings, and that a flag that is not a boolean throws at start.
 `session-engine-tension-arc-generation.spec.ts` runs both flags together over 40 mutation seeds
 (each phrase steps around the tension arc then in effect, and the same seeds give deep-equal
-logs), round-trips stepped phrases through their replay keys, and property-tests the joins (see
+logs), checks that the arc alone, the mutation flag off, also gives deep-equal logs for the same
+seeds, round-trips stepped phrases through their replay keys, and property-tests the joins (see
 [Determinism](#determinism)).
 
 `tests/unit/session/history-recording.ts` holds the shared builders of the session history

@@ -12,11 +12,15 @@
 import { describe, expect, it } from 'vitest'
 
 import { SessionControllerError } from '@/components/workspace/workspace-session-controller-types'
+import { applyMusicalProfile } from '@/domain/controls/profile-selection'
 import { makeSeed } from '@/domain/random/seed'
+import { NotationError } from '@/notation/notation-error'
 import { mutationPhrase } from '@/session/settings-mutation'
-import type { SessionSettings } from '@/session/session-types'
+import type { SessionEndCause, SessionSettings } from '@/session/session-types'
 import { sessionSettings } from '../../session/session-harness'
+import { connectKeys, lift, press, rigStartingNote, unplugKeys } from './session-controller-midi'
 import { controllerRig, outputsOf, playTo, type ControllerRig } from './session-controller-rig'
+import { END_SAMPLES } from './session-end-samples'
 
 /** Intent: when phrase `n` of a 240 BPM rig session starts sounding. */
 function phraseStart(n: number): number {
@@ -24,11 +28,15 @@ function phraseStart(n: number): number {
 }
 
 /**
- * Intent: a rig with `Vary settings` on and a session started: the phrase its first mutation lands
- * on, from the mutation seed, the seed drawn just before phrase 2's first attempt seed.
+ * Intent: a rig with `Vary settings` on and a session started, after `before` set the rig up: the
+ * phrase its first mutation lands on, from the mutation seed, the seed drawn just before phrase 2's
+ * first attempt seed.
  */
-function startedVarying(): { readonly rig: ControllerRig; readonly landsOn: number } {
+async function startedVarying(
+  before?: (rig: ControllerRig) => void | Promise<void>,
+): Promise<{ readonly rig: ControllerRig; readonly landsOn: number }> {
   const rig = controllerRig()
+  await before?.(rig)
   rig.controller.setVarySettings(true)
   rig.controller.start()
   const mutationSeed = outputsOf(rig, 'request-generation')[0]!.intent.seed - 1
@@ -43,6 +51,73 @@ function withLeapiness(rig: ControllerRig): SessionSettings {
     musicalProfile: rig.settings.musicalProfile,
   }
 }
+
+/**
+ * Intent: the player picked the Neutral profile at Idle and changed nothing since, so the profile
+ * is not marked customized; the rig's phrase 1 stays as it is.
+ */
+function playerChoseNeutral(rig: ControllerRig): void {
+  const [controls, profileSelection] = applyMusicalProfile(rig.idle.controls, 'Neutral')
+  rig.idle.controls = controls
+  rig.idle.profileSelection = profileSelection
+}
+
+/** Intent: tap one note (not the starting note's pitch) now. */
+function tap(rig: ControllerRig): void {
+  const pitch = rigStartingNote(rig).concertPitch + 1
+  press(rig, pitch)
+  lift(rig, pitch)
+}
+
+/** One way a varied session ends once its first mutation sounds. */
+interface VariedEnd {
+  readonly name: string
+  readonly cause: SessionEndCause
+  /** Set the rig up before the start: the window and staff, or a controller plugged in. */
+  readonly before?: (rig: ControllerRig) => void | Promise<void>
+  readonly trigger: (rig: ControllerRig) => void | Promise<void>
+}
+
+/**
+ * Every way a session ends: Stop, each end the session-end specs share, a session staff failure,
+ * more than 30 s without a played note, and a controller away for 30 s.
+ */
+const VARIED_ENDS: readonly VariedEnd[] = [
+  {
+    name: 'Stop',
+    cause: 'stop',
+    /** Intent: the player presses Stop. */
+    trigger: (rig) => rig.controller.stop(),
+  },
+  ...END_SAMPLES,
+  {
+    name: 'the session staff failing to engrave',
+    cause: 'staff-not-shown',
+    /** Intent: the session staff reports that it failed to engrave. */
+    trigger: (rig) =>
+      rig.staff.sessionStaffFailed(new NotationError('notation_engraving_failed', 'failed', {})),
+  },
+  {
+    name: 'more than 30 s without a played note',
+    cause: 'silence-timeout',
+    before: connectKeys,
+    /** Intent: one note arms the silence timer, then nothing is played for over 30 s. */
+    trigger: async (rig) => {
+      tap(rig)
+      await playTo(rig, rig.audioRig.now() + 30.25)
+    },
+  },
+  {
+    name: 'the controller away for 30 s',
+    cause: 'controller-lost',
+    before: connectKeys,
+    /** Intent: the keyboard is unplugged and stays away past its 30-second countdown. */
+    trigger: async (rig) => {
+      unplugKeys(rig)
+      await playTo(rig, rig.audioRig.now() + 30.25)
+    },
+  },
+]
 
 // @test-link [[req_settings_mutation_flag]]
 // @test-link [[rule_ephemeral_session_state]]
@@ -80,7 +155,7 @@ describe('session controller: the Vary settings flag', () => {
   // @test-link [[req_settings_mutation_flag]]
   // @test-link [[rule_mutation_lands_on_scheduled_phrase]]
   it('draws the mutation seed from the seed provider first, so its mutations replay from it', async () => {
-    const { rig, landsOn } = startedVarying()
+    const { rig, landsOn } = await startedVarying()
     await playTo(rig, phraseStart(6))
     const changes = outputsOf(rig, 'settings-changed')
     expect(changes[0]).toMatchObject({ phraseNumber: landsOn, cause: 'mutation' })
@@ -93,7 +168,7 @@ describe('session controller: the settings the controls show', () => {
   // @test-link [[rule_automatic_change_updates_controls_quietly]]
   it('shows the start settings from the start, and a mutation only once its phrase starts sounding', async () => {
     expect(controllerRig().controller.state.shownSettings).toBeNull()
-    const { rig, landsOn } = startedVarying()
+    const { rig, landsOn } = await startedVarying()
     const playersControls = rig.idle.controls
     expect(rig.controller.state.shownSettings).toEqual(rig.settings)
 
@@ -108,27 +183,30 @@ describe('session controller: the settings the controls show', () => {
 
   // @test-link [[rule_mutation_reverts_at_session_end]]
   // @test-link [[rule_session_end_generates_next_phrase_one]]
-  it.each([
-    ['Stop', (rig: ControllerRig) => rig.controller.stop()],
-    ['a hidden tab', (rig: ControllerRig) => rig.browser.pageVisibility.setHidden(true)],
-  ])(
-    'drops the varied settings at an end by %s, before Idle is asked for its fresh phrase',
-    async (_cause, endSession) => {
-      const { rig, landsOn } = startedVarying()
+  it.each(VARIED_ENDS.map((end) => [end.name, end] as const))(
+    "gives the player's settings back at an end by %s, the customized marking included, before Idle is asked for its fresh phrase",
+    async (_name, { cause, before, trigger }) => {
+      const { rig, landsOn } = await startedVarying(async (rig) => {
+        playerChoseNeutral(rig)
+        await before?.(rig)
+      })
       const playersControls = rig.idle.controls
       const playersProfile = rig.idle.profileSelection
       await playTo(rig, phraseStart(landsOn) + 0.05)
       const change = outputsOf(rig, 'settings-changed')[0]!
       expect(rig.controller.state.shownSettings).toEqual(change.settings)
+      expect(change.settings.musicalProfile.isCustom).toBe(true)
 
-      endSession(rig)
+      await trigger(rig)
 
+      expect(rig.controller.state.lastEnd?.cause).toBe(cause)
       expect(rig.controller.state.phase).toBe('idle')
       expect(rig.controller.state.shownSettings).toBeNull()
       expect(rig.freshPhraseRequests).toHaveLength(1)
-      expect(rig.freshPhraseRequests[0]!.shownSettings).toBeNull()
+      expect(rig.freshPhraseRequests[0]).toMatchObject({ phase: 'idle', shownSettings: null })
       expect(rig.idle.controls).toBe(playersControls)
       expect(rig.idle.profileSelection).toBe(playersProfile)
+      expect(rig.idle.profileSelection).toEqual({ musicalProfile: 'Neutral', isCustom: false })
       expect(rig.controller.state.varySettings).toBe(true)
     },
   )

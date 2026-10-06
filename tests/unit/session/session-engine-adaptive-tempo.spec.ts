@@ -10,7 +10,13 @@ import { describe, expect, it } from 'vitest'
 
 import { measureSeconds } from '@/session/session-timing'
 import { SessionEngineError } from '@/session/session-types'
-import { fakeDisplay, kinds, sessionSettings, type SessionDriver } from './session-harness'
+import {
+  fakeDisplay,
+  kinds,
+  queuedProviders,
+  sessionSettings,
+  type SessionDriver,
+} from './session-harness'
 import {
   driveTempoSession,
   phraseStartAt,
@@ -18,6 +24,7 @@ import {
   tempoDriver,
   tempoMap,
   type ControllerStep,
+  type TempoScript,
 } from './tempo-session'
 
 /** The starting tempo of most tests: 100 BPM, a 2.4 s measure. */
@@ -111,6 +118,118 @@ describe('the adaptive-tempo schedule in a session', () => {
     ).toEqual(new Set([T]))
     expect(driver.all('settings-changed')).toEqual([])
   })
+})
+
+/** The first seed of each property session's queued providers. */
+const PROPERTY_PROVIDER_SEEDS = [3000, 4100, 5200] as const
+
+/** The starting tempos the property runs over, 230 BPM the control value just below 240. */
+const PROPERTY_TEMPOS = [60, 120, 200, 230, 240] as const
+
+/** How many phrases each property session sounds. */
+const PROPERTY_SOUNDED = 16
+
+/** Intent: a phrase-number predicate true for every `n`th phrase number, at `remainder`. */
+function everyNth(n: number, remainder: number): (phraseNumber: number) => boolean {
+  return (phraseNumber) => phraseNumber % n === remainder
+}
+
+/** The controller lost and reattached three times, once during the count-in. */
+const LOSSES_AND_REATTACHMENTS: readonly ControllerStep[] = [
+  { during: 0, measures: 0.25, attached: false },
+  { during: 1, measures: 1, attached: true },
+  { during: 4, measures: 3.5, attached: false },
+  { during: 6, measures: 1, attached: true },
+  { during: 9, measures: 2, attached: false },
+  { during: 12, measures: 0.5, attached: true },
+]
+
+/** The property's scripted sessions: smooth, with failures and repeats, with losses, and both. */
+const PROPERTY_SCRIPTS: readonly { readonly name: string; readonly script: TempoScript }[] = [
+  { name: 'smooth', script: {} },
+  {
+    name: 'failures and repeats',
+    script: { failFirst: everyNth(3, 0), exhaust: everyNth(5, 0) },
+  },
+  { name: 'losses and reattachments', script: { controller: LOSSES_AND_REATTACHMENTS } },
+  {
+    name: 'failures, repeats, losses and reattachments',
+    script: {
+      failFirst: everyNth(4, 2),
+      exhaust: everyNth(7, 3),
+      controller: LOSSES_AND_REATTACHMENTS,
+    },
+  },
+]
+
+/** What the property counts over its sessions, to show it met what it checks. */
+interface PropertyCounts {
+  rises: number
+  repeats: number
+  atCeiling: number
+}
+
+/**
+ * Intent: check one session's tempo map: phrase 1 at the starting tempo, each later phrase at the
+ * tempo before or 5 BPM above it and never above 240 BPM, each phrase sounding at its fixed tempo;
+ * adds its rises, repeats and whether it ended at 240 BPM to `counts`.
+ */
+function checkNeverDecreases(
+  driver: SessionDriver,
+  tempo: number,
+  label: string,
+  counts: PropertyCounts,
+): void {
+  const tempos = tempoMap(driver, PROPERTY_SOUNDED + 1)
+  const sounded = driver.all('phrase-sounding').map((output) => output.tempo)
+  expect(sounded, label).toEqual(tempos.slice(0, PROPERTY_SOUNDED))
+  expect(tempos[0], label).toBe(tempo)
+  for (let phrase = 2; phrase <= tempos.length; phrase += 1) {
+    const step = tempos[phrase - 1]! - tempos[phrase - 2]!
+    expect([0, 5], `${label}, phrase ${phrase}`).toContain(step)
+    expect(tempos[phrase - 1]!, `${label}, phrase ${phrase}`).toBeLessThanOrEqual(240)
+    if (step > 0) counts.rises += 1
+  }
+  if (tempos.at(-1) === 240) counts.atCeiling += 1
+  const ready = driver.all('phrase-ready')
+  counts.repeats += ready.filter((output) => output.phrase.origin === 'repeat').length
+}
+
+/** Generous timeout for the property, which generates whole sessions. */
+const PROPERTY_TIMEOUT_MS = 60_000
+
+// @test-link [[rule_adaptive_tempo_flat_schedule]]
+// @test-link [[req_adaptive_tempo]]
+describe('the adaptive-tempo schedule over seeded sessions', () => {
+  // @test-link [[rule_adaptive_tempo_flat_schedule]]
+  it(
+    'never lowers the tempo from one phrase to the next and never passes 240 BPM',
+    () => {
+      const counts: PropertyCounts = { rises: 0, repeats: 0, atCeiling: 0 }
+      for (const [index, firstSeed] of PROPERTY_PROVIDER_SEEDS.entries()) {
+        for (const tempo of PROPERTY_TEMPOS) {
+          for (const { name, script } of PROPERTY_SCRIPTS) {
+            const label = `seed ${firstSeed}, ${tempo} BPM, ${name}`
+            const driver = tempoDriver({
+              tempo,
+              adaptiveTempo: true,
+              display: fakeDisplay(false),
+              providers: queuedProviders(firstSeed, 200),
+              phraseOneSeed: 11 + index,
+            })
+            driveTempoSession(driver, PROPERTY_SOUNDED, script)
+            checkNeverDecreases(driver, tempo, label, counts)
+          }
+        }
+      }
+      expect(counts.rises).toBeGreaterThan(0)
+      expect(counts.repeats).toBeGreaterThan(0)
+      expect(counts.atCeiling).toBeGreaterThan(
+        PROPERTY_PROVIDER_SEEDS.length * PROPERTY_SCRIPTS.length,
+      )
+    },
+    PROPERTY_TIMEOUT_MS,
+  )
 })
 
 // @test-link [[req_adaptive_tempo]]

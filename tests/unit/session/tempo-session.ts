@@ -2,8 +2,8 @@
  * A scripted session that follows its own tempo map, for the adaptive-tempo tests: each phrase
  * starts four measures of the phrase before after it, at that phrase's own tempo, read from the
  * engine's phrase-tempo outputs; every phrase is answered with real outcomes half a measure after
- * it is requested, the clock reaches each deadline, and controller events land where the script
- * places them.
+ * it is requested (its first attempt or its whole ladder failed where the script says), the clock
+ * reaches each deadline, and controller events land where the script places them.
  */
 
 import { measureSeconds } from '@/session/session-timing'
@@ -20,9 +20,13 @@ export interface ControllerStep {
   readonly attached: boolean
 }
 
-/** What a scripted tempo session does besides answering every phrase. */
+/**
+ * What a scripted tempo session does besides answering every phrase: fail a phrase's first
+ * attempt, fail its whole ladder so it is repeated, and attach or lose the controller.
+ */
 export interface TempoScript {
   readonly failFirst?: (phraseNumber: number) => boolean
+  readonly exhaust?: (phraseNumber: number) => boolean
   readonly controller?: readonly ControllerStep[]
 }
 
@@ -58,9 +62,16 @@ export function phraseStartAt(driver: SessionDriver, phraseNumber: number): Audi
   return at
 }
 
-/** Intent: answer the latest requested phrase, failing its first attempt if the script says so. */
-function answer(driver: SessionDriver, at: AudioTime, failFirst: boolean): void {
-  if (failFirst) driver.fail(at)
+/**
+ * Intent: answer the latest requested phrase as the script says for it: every rung failed (a
+ * repeat), or its first attempt failed and the next one settled, or settled at once.
+ */
+function answer(driver: SessionDriver, at: AudioTime, script: TempoScript, phrase: number): void {
+  if (script.exhaust?.(phrase) === true) {
+    driver.exhaust(at)
+    return
+  }
+  if (script.failFirst?.(phrase) === true) driver.fail(at)
   driver.settle(at)
 }
 
@@ -102,13 +113,12 @@ export function driveTempoSession(
   lastSounding: number,
   script: TempoScript = {},
 ): void {
-  const failFirst = script.failFirst ?? (() => false)
   const countInAt = driver.start.at
   const countIn = measureSeconds(driver.settings.controls.tempo)
   runInOrder([
     {
       at: countInAt + countIn / 2,
-      run: () => answer(driver, countInAt + countIn / 2, failFirst(2)),
+      run: () => answer(driver, countInAt + countIn / 2, script, 2),
     },
     ...controllerActions(driver, script, 0, countInAt, countIn),
     { at: countInAt + countIn, run: () => void driver.tick(countInAt + countIn) },
@@ -123,7 +133,7 @@ export function driveTempoSession(
         ? [
             {
               at: at + measure / 2,
-              run: () => answer(driver, at + measure / 2, failFirst(phraseNumber + 1)),
+              run: () => answer(driver, at + measure / 2, script, phraseNumber + 1),
             },
             { at: at + 3 * measure, run: () => void driver.tick(at + 3 * measure) },
           ]
