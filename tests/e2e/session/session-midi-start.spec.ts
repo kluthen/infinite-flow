@@ -2,7 +2,8 @@
  * v2.0 chunk 17, item 17: the starting note, on the workspace harness's fake audio clock and fake
  * MIDI access. At Ready with a controller connected, the start line names phrase 1's first
  * attacked note in the profile's written pitch (as the staff spells it), and playing that note at
- * its exact concert pitch starts the count-in, as Start does. Any other pitch, the same pitch an
+ * its exact concert pitch starts the count-in, as Start does, shown beat by beat with its clicks
+ * and phrase 1's first measure in view throughout. Any other pitch, the same pitch an
  * octave off, a note with no controller attached (never connected, or away), and the note played
  * in the item-22 states (a generation running, the generation-failure banner, a notation error,
  * the room notice) start nothing and change nothing, and the line is absent in each.
@@ -29,6 +30,7 @@ import {
   roomNotice,
 } from '../release/harness-helpers'
 import {
+  expectCountInWithClicks,
   gotoSessionHarness,
   phraseAction,
   readyToStart,
@@ -211,6 +213,25 @@ test.describe('the starting note at Ready with a controller connected', () => {
 
     await expect(startLine(page)).toBeVisible()
   })
+})
+
+// @test-link [[rule_count_in_shown_on_screen]]
+// @test-link [[rule_midi_starting_note]]
+test('a count-in started by the starting note lights beat by beat with its clicks, phrase 1 in view', async ({
+  page,
+}) => {
+  await gotoSessionHarness(page)
+  await connectDevice(page, KEYS)
+  await readyToStart(page)
+  const first = await firstAttack(page)
+
+  await tap(page, KEYS, first.pitch)
+
+  await expect(sessionAction(page)).toHaveText('Stop')
+  expect((await sessionState(page)).phase).toBe('count-in')
+  await expectCountInWithClicks(page)
+  await sessionAction(page).click()
+  expect((await sessionState(page)).phase).toBe('idle')
 })
 
 // @test-link [[rule_midi_starting_note]]

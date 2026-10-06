@@ -6,6 +6,7 @@
  * repeat looks like any other phrase, and no played note is drawn although the history holds
  * them. Meanwhile the hidden staff stays laid out (ux D149) and a fresh phrase is generated at
  * Idle, which the next session starts with. A Review inflated to 2 000 phrases lists them all.
+ * Nothing in the Review, control or text, favorites, stars or saves a phrase for later.
  */
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
@@ -40,6 +41,7 @@ import {
   expectIdleReady,
   expectReviewShowing,
   playUntilPhrase,
+  playedNotesToggle,
   reviewItems,
   reviewPanel,
   sessionEndedAfter,
@@ -286,4 +288,44 @@ test('a Review inflated to 2 000 phrases lists every one, numbered in order', as
   await untilEngraved(page, 1)
   // Only the controller's view is inflated: its history is the session's own.
   expect((await sessionState(page)).review).toEqual({ showing: true, phraseCount: 1 })
+})
+
+/** A favorite in any wording: favorite or favourite, a star, a bookmark, a save for later. */
+const FAVORITE = /favou?rite|\bstar(?:red|s)?\b|\bbookmark|save[ -](?:it )?for[ -]later/i
+
+/** The roles a favorite control could take. */
+const CONTROL_ROLES = [
+  'button',
+  'link',
+  'checkbox',
+  'switch',
+  'radio',
+  'menuitem',
+  'tab',
+  'option',
+  'img',
+] as const
+
+// @test-link [[req_last_session_review]]
+test('the Review has no favorites: no control or text to favorite, star or save a phrase', async ({
+  page,
+}) => {
+  test.setTimeout(90_000)
+  await gotoSessionHarness(page)
+  await connectDevice(page, KEYS)
+  // A played note too, so the Review renders every control it can offer.
+  await sessionEndedAfter(page, 2, 7, async () => {
+    await tap(page, KEYS, 60)
+  })
+  await untilEngraved(page, 2)
+  // The Review does offer controls, the played-notes ones included: the absence below is real.
+  expect(await reviewPanel(page).getByRole('button').count()).toBeGreaterThan(0)
+  await expect(playedNotesToggle(page)).toBeVisible()
+
+  for (const role of CONTROL_ROLES) {
+    await expect(page.getByRole(role, { name: FAVORITE }), role).toHaveCount(0)
+  }
+  await expect(page.getByText(FAVORITE)).toHaveCount(0)
+  await expect(page.getByTitle(FAVORITE)).toHaveCount(0)
+  expect(await reviewPanel(page).innerText()).not.toMatch(FAVORITE)
 })

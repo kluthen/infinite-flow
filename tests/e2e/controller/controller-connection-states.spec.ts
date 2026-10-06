@@ -4,10 +4,18 @@
  * workspace harness with the fake MIDI access: Requesting access in both sub-states, Unsupported
  * browser, Permission denied (and Check again), No device found (and Try again), the device
  * picker and its roving keys, and the focus trap. The `Connect controller` click also unlocks the
- * audio. The check and Connected are in controller-connection-check.spec.ts.
+ * audio. With MIDI permission denied or Web MIDI unsupported, a Start click still begins a
+ * session. The check and Connected are in controller-connection-check.spec.ts.
  */
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
+import {
+  readyToStart,
+  sessionAction,
+  sessionState,
+  startSession,
+  toRunning,
+} from '../session/session-helpers'
 import {
   CONTINUE_WITHOUT,
   FORM,
@@ -199,6 +207,47 @@ test('a refused request shows Permission denied and the MIDI-blocked badge; Chec
   await expectSheet(page, CHECK_PROMPT, sheetClose(page))
   expect(await requestCount(page)).toBe(3)
   await expect.poll(() => statusForm(page)).toEqual(FORM.connected(KEYS.name))
+})
+
+/**
+ * Intent: from Ready, click `Start session` and assert a session with no controller begins: the
+ * count-in shows, then phrase 1 runs; Stop ends it.
+ */
+async function expectStartWithoutMidi(page: Page): Promise<void> {
+  await readyToStart(page)
+
+  await startSession(page)
+
+  await expect(page.locator('ol.count-in')).toBeVisible()
+  expect((await sessionState(page)).sessionHasController).toBe(false)
+  await toRunning(page)
+  await sessionAction(page).click()
+  await expect.poll(async () => (await sessionState(page)).phase).toBe('idle')
+}
+
+// @test-link [[rule_midi_never_blocks_session]]
+test.describe('Start with no MIDI at all', () => {
+  // @test-link [[rule_midi_never_blocks_session]]
+  test('with MIDI permission denied, a Start click begins a session', async ({ page }) => {
+    await gotoControllerHarness(page)
+    await page.evaluate(() => window.__workspaceHarness.midi.denyNextRequest())
+    await clickControllerStatus(page)
+    await expect(sheet(page).locator('#sheet-title')).toHaveText('MIDI access is blocked')
+    await sheetAction(page, CONTINUE_WITHOUT).click()
+    await expect(sheet(page)).toBeHidden()
+    expect(await midiState(page)).toEqual({ kind: 'denied' })
+    await expect.poll(() => statusForm(page)).toEqual(FORM.blocked)
+
+    await expectStartWithoutMidi(page)
+  })
+
+  // @test-link [[rule_midi_never_blocks_session]]
+  test('with the Web MIDI API unsupported, a Start click begins a session', async ({ page }) => {
+    await gotoControllerHarness(page, { midi: 'unsupported' })
+    expect(await midiState(page)).toEqual({ kind: 'unsupported' })
+
+    await expectStartWithoutMidi(page)
+  })
 })
 
 // @test-link [[rule_controller_connects_between_sessions]]

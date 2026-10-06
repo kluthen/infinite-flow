@@ -5,23 +5,31 @@
  * within 30 s clears both with no check, notes are acknowledged again (the ones due while it was
  * away stay unmatched) and the silence rule counts from the reattachment; with no replug the
  * session ends at 30 s from the unplug and the header shows the no-controller badge; a different
- * device plugged in meanwhile changes nothing. A loss in the count-in shows the banner while the
- * count-in keeps clicking, and a replug before beat 4 brings the count-in row back.
+ * device plugged in meanwhile changes nothing. Through the countdown and after the replug the
+ * phrases keep their start times and the click its beat. A loss in the count-in shows the banner
+ * while the count-in keeps clicking, and a replug before beat 4 brings the count-in row back. A
+ * controller still away when the session ends, by the 30-second rule or by Stop, keeps its
+ * selection into the Review and reattaches there by itself when the same device returns.
  */
 import { expect, test, type Page } from '@playwright/test'
 
+import { audioEvents, audioNow } from '../audio/audio-harness-helpers'
 import {
   FORM,
   controllerStatus,
+  midiState,
   sheet,
   statusForm,
   watchPageErrors,
 } from '../controller/controller-helpers'
+import { expectReviewShowing, reviewPanel } from '../review/review-helpers'
+import { MEASURE, toBarline, untilReady } from './rolling-helpers'
 import {
   BEAT,
   countInClickTimes,
   gotoSessionHarness,
   readyToStart,
+  sessionAction,
   sessionState,
   sessionTimeline,
   shownBeats,
@@ -87,6 +95,77 @@ async function readyWithKeys(page: Page): Promise<void> {
   await gotoSessionHarness(page)
   await connectDevice(page, KEYS)
   await readyToStart(page)
+}
+
+/** Intent: the running session's phrase grid: when phrase 1 starts, and how long a phrase lasts. */
+async function phraseGrid(page: Page): Promise<{ origin: number; length: number }> {
+  const origin = await phraseStartsAt(page, 1)
+  return { origin, length: (await phraseStartsAt(page, 2)) - origin }
+}
+
+/**
+ * Intent: assert the session still plays at its tempo: every phrase begun so far started on
+ * `grid`, every click sounded since `since` falls on phrase 1's beat grid with no beat missing,
+ * and every phrase begun since then opened with its backing on its first beat.
+ */
+async function expectAtTempo(
+  page: Page,
+  grid: { readonly origin: number; readonly length: number },
+  since: number,
+): Promise<void> {
+  const sounding = (await sessionState(page)).playhead?.phraseNumber
+  if (sounding === undefined) throw new Error('no phrase is sounding')
+  const now = await audioNow(page)
+  const events = await audioEvents(page)
+  const backingAts = events.flatMap((e) => (e.kind === 'backing' ? [e.at] : []))
+  for (let n = 1; n <= sounding; n += 1) {
+    const start = await phraseStartsAt(page, n)
+    expect(start, `phrase ${n}'s start`).toBeCloseTo(grid.origin + (n - 1) * grid.length, 6)
+    if (start > since) {
+      expect(
+        backingAts.some((at) => Math.abs(at - start) < 1e-6),
+        `phrase ${n}'s backing`,
+      ).toBe(true)
+    }
+  }
+  const clicks = events
+    .flatMap((e) => (e.kind === 'click' && e.route === 'click' ? [e.at] : []))
+    .filter((at) => at > since && at <= now)
+    .sort((a, b) => a - b)
+  const firstBeat = Math.floor((since - grid.origin) / BEAT) + 1
+  const lastBeat = Math.floor((now - grid.origin) / BEAT)
+  expect(clicks).toHaveLength(lastBeat - firstBeat + 1)
+  clicks.forEach((at, k) => expect(at).toBeCloseTo(grid.origin + (firstBeat + k) * BEAT, 6))
+}
+
+/**
+ * Intent: assert the session has ended into the Review with the lost controller still selected
+ * and away: no banner, the no-controller badge, no connection sheet.
+ */
+async function expectAwayInReview(page: Page): Promise<void> {
+  const { lastEnd } = await sessionState(page)
+  expect(lastEnd?.soundedPhraseCount).toBeGreaterThanOrEqual(1)
+  await expectReviewShowing(page, lastEnd?.soundedPhraseCount ?? 0)
+  await expect(disconnectBanner(page)).toHaveCount(0)
+  expect(await midiState(page)).toEqual({ kind: 'away', device: KEYS })
+  await expect.poll(() => statusForm(page)).toEqual(FORM.noController)
+  await expect(sheet(page)).toHaveCount(0)
+}
+
+/**
+ * Intent: assert the same device, plugged back in, reattached by itself in the Review: connected,
+ * no connection sheet, the Review still showing and no session started.
+ */
+async function expectReattachedInReview(page: Page): Promise<void> {
+  const { review } = await sessionState(page)
+  await expect.poll(() => statusForm(page)).toEqual(FORM.connected(KEYS.name))
+  expect(await midiState(page)).toEqual({ kind: 'connected', device: KEYS })
+  await expect(sheet(page)).toHaveCount(0)
+  await expect(reviewPanel(page)).toBeVisible()
+  await expect(sessionAction(page)).toHaveText('Close review')
+  const state = await sessionState(page)
+  expect(state.phase).toBe('idle')
+  expect(state.review).toEqual(review)
 }
 
 // @test-link [[rule_controller_loss_mid_session]]
@@ -199,6 +278,97 @@ test.describe('a controller lost while the session runs', () => {
     for (const away of [dueAway1, dueAway2]) {
       expect(await ackedNoteIds(page)).not.toContain(noteKey(away.identity))
     }
+  })
+
+  // @test-link [[rule_controller_loss_mid_session]]
+  // @test-link [[rule_controller_reconnection_window]]
+  test('the phrase keeps playing at tempo through the countdown and after the same device is back', async ({
+    page,
+  }) => {
+    test.setTimeout(90_000)
+    await readyWithKeys(page)
+    await startSession(page)
+    await untilReady(page, 2)
+    await toRunning(page)
+    const { sessionTempo } = await sessionState(page)
+    // Phrases 1 and 2 are scheduled before the loss: four 4/4 measures apart at the tempo.
+    const grid = await phraseGrid(page)
+    expect(grid.length).toBeCloseTo(4 * MEASURE, 6)
+
+    const lostAt = await unplugNow(page, KEYS)
+    await expectLost(page, 30)
+
+    // Through the countdown: phrase 2 starts on time and the beat goes on.
+    await toBarline(page, 2, 0)
+    await expect(disconnectBanner(page)).toBeVisible()
+    await expectAtTempo(page, grid, lostAt)
+    await toBarline(page, 2, 2)
+    await expect(disconnectBanner(page)).toBeVisible()
+    await expectStillRunning(page, 'mid-countdown')
+    await expectAtTempo(page, grid, lostAt)
+
+    await plugIn(page, KEYS)
+
+    await expect.poll(() => midiKind(page)).toBe('connected')
+    await expectBack(page)
+    await untilReady(page, 3)
+    await toBarline(page, 3, 0)
+    await toBarline(page, 3, 2)
+    await expectStillRunning(page, 'after the replug')
+    await expectAtTempo(page, grid, lostAt)
+    expect((await sessionState(page)).sessionTempo).toBe(sessionTempo)
+  })
+})
+
+// @test-link [[rule_start_while_controller_away]]
+// @test-link [[rule_same_controller_reattaches]]
+test.describe('a controller lost mid-session and still away when the session ends', () => {
+  // @test-link [[rule_start_while_controller_away]]
+  // @test-link [[rule_same_controller_reattaches]]
+  // @test-link [[rule_controller_reconnection_window]]
+  test('ended by the 30-second rule: still selected in the Review, it reattaches there when back', async ({
+    page,
+  }) => {
+    test.setTimeout(90_000)
+    await readyWithKeys(page)
+    await startSession(page)
+    await untilReady(page, 2)
+    await toRunning(page)
+    const lostAt = await unplugNow(page, KEYS)
+    await expectLost(page, 30)
+
+    await clockTo(page, lostAt + 30.05)
+
+    await expectEndedBetween(page, 'controller-lost', lostAt + 30, lostAt + 30.05)
+    await expectAwayInReview(page)
+
+    await plugIn(page, KEYS)
+
+    await expectReattachedInReview(page)
+  })
+
+  // @test-link [[rule_start_while_controller_away]]
+  // @test-link [[rule_same_controller_reattaches]]
+  test('ended by Stop during the countdown: still selected in the Review, it reattaches there when back', async ({
+    page,
+  }) => {
+    test.setTimeout(90_000)
+    await readyWithKeys(page)
+    await startSession(page)
+    await untilReady(page, 2)
+    await toRunning(page)
+    const lostAt = await unplugNow(page, KEYS)
+    await clockTo(page, lostAt + 5)
+    await expectLost(page, 25)
+
+    await sessionAction(page).click()
+
+    expect((await sessionState(page)).lastEnd).toMatchObject({ cause: 'stop', phase: 'running' })
+    await expectAwayInReview(page)
+
+    await plugIn(page, KEYS)
+
+    await expectReattachedInReview(page)
   })
 })
 

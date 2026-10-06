@@ -9,19 +9,17 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { advanceAudioTo, audioNow } from '../audio/audio-harness-helpers'
+import { advanceAudioTo } from '../audio/audio-harness-helpers'
 import {
-  boxInside,
   countInClickTimes,
   cueRow,
+  expectCountInWithClicks,
   gotoSessionHarness,
   measureBoxes,
   readyToStart,
   sessionAction,
   sessionState,
-  shownBeats,
   startSession,
-  whollyInViewport,
 } from './session-helpers'
 
 /** The default tempo's beat, in seconds (90 BPM). */
@@ -50,35 +48,12 @@ test('the count-in lights beat by beat with its clicks, and phrase 1 never moves
   await expect(sessionAction(page)).toHaveClass(/btn-primary/)
   expect((await sessionState(page)).heldLayout).toBe('one-system')
 
-  // Before the first click every beat is muted.
-  const [firstClick] = await countInClickTimes(page)
-  if (firstClick === undefined) throw new Error('the Start click scheduled no count-in click')
-  expect(await audioNow(page)).toBeLessThan(firstClick)
-  expect(await shownBeats(page)).toEqual(['muted', 'muted', 'muted', 'muted'])
-
-  for (let beat = 0; beat < 4; beat += 1) {
-    const clickAt = firstClick + beat * BEAT
-    await advanceAudioTo(page, clickAt + AFTER)
-    const clicks = await countInClickTimes(page)
-    expect(clicks[beat]).toBeCloseTo(clickAt, 6)
-    const expected = ['muted', 'muted', 'muted', 'muted'].map((_, k) => {
-      if (k < beat) return 'past'
-      return k === beat ? 'current' : 'muted'
-    })
-    expect(await shownBeats(page)).toEqual(expected)
-  }
-
-  // After beat 4 the row empties and phrase 1 runs.
-  await advanceAudioTo(page, firstClick + 4 * BEAT + AFTER)
-  await expect(cueRow(page).locator('.count-in')).toHaveCount(0)
+  // Beat by beat with the clicks, phrase 1's first measure in view throughout; then phrase 1 runs.
+  await expectCountInWithClicks(page)
   await expect(cueRow(page).locator('.session-alert')).toHaveCount(0)
   // The phone's compact Stop and Volume never show from bp-tablet-landscape up.
   await expect(cueRow(page).locator('.session-cue-actions')).toBeHidden()
-  expect((await sessionState(page)).phase).toBe('running')
 
-  const firstMeasure = page.locator('.staff-frame g.measure-slot[data-measure-index="0"]').first()
-  expect(await whollyInViewport(firstMeasure)).toBe(true)
-  expect(await boxInside(firstMeasure, page.locator('.staff-viewport'))).toBe(true)
   expect(await measureBoxes(page, 1)).toEqual(boxesBefore)
   expect(
     await phraseOneSvgs.evaluateAll((svgs) => svgs.map((svg) => 'drawnAtIdle' in svg.dataset)),
