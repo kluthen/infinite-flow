@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.27
+Status: draft v2.28
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1024,3 +1024,11 @@ fact in the live documents (see the [archive index](archive/README.md) and
   `rule_setting_change_rechecks_pitch_carry_in` (STABLE); and a new rule,
   `rule_disconnect_forgets_controller`, which closes build plan chunk 13's question whether a
   Disconnect rule is added (left open by D186). Build plan chunks 13 and 29.
+
+- **D190 (2026-10-06): a one-step profile switch from the transposition check, a v3 candidate.**
+  The product owner's idea, after running the check on the reference breath controller. When the
+  check finds that the controller, as it is set, matches another instrument profile, the check
+  already names that profile in its copy ("choose the E-flat alto saxophone instrument profile
+  instead"); the idea is to offer that switch as an action in the check itself, so the player
+  changes profile without leaving the connection sheet. Not committed, version open; recorded with
+  the v3 candidates ([v3](versions/v3/README.md#controller-connection-candidates-not-committed)).

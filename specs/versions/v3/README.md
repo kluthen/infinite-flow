@@ -3,7 +3,8 @@
 Status: direction (2026-09-25; review-tooling candidates added 2026-09-28, D128;
 session-keeping candidates added 2026-09-28, D129; favorites moved here from v2 2026-09-28, D130;
 a note on saving note density added 2026-09-28, D146; the end-of-measure chord-fit check moved
-here from v2 as a nice-to-have 2026-10-03, D174; rhythm candidates added 2026-10-03, D175).
+here from v2 as a nice-to-have 2026-10-03, D174; rhythm candidates added 2026-10-03, D175; a controller-connection candidate added
+2026-10-06, D190).
 Not yet specced.
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
@@ -176,6 +177,18 @@ notes.
 They may overlap with the embellishment and style-figure flags of the
 [v2 direction](../v2/README.md#direction-not-yet-scoped), which may turn rhythmic variety into
 selective rates; the two should be settled together.
+
+## Controller connection candidates (not committed)
+
+Recorded 2026-10-06 (D190), the owner's idea. **The version is open: this is not a v3
+placement**; it sits here as v3 is the next version to be specced.
+
+- **Switch profile from the check.** When the transposition check finds that the controller, as
+  it is set, matches another [instrument profile](../../../docs/music/lexicon.md#instrument-profile),
+  the check already names that profile in its copy. The candidate turns that line into an action:
+  one control in the check that switches to the matching profile, so the player does not have to
+  leave the connection sheet. Example: a breath controller set to sound like an E-flat alto
+  saxophone, checked against the B-flat tenor saxophone profile.
 
 ## Depends on
 
