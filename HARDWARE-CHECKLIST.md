@@ -82,7 +82,7 @@ The app expects (a match):
 | −9                       | B♭ tenor sax   | 51 (computed)  |          | "7 semitones lower … transpose 7 semitones higher" (correct) | not tested |
 | −14                      | B♭ tenor sax   | 46 (computed)  |          | "1 octave lower … octave setting 1 octave higher" (correct) | not tested |
 | +3                       | B♭ tenor sax   | 63 (computed)  |          | "5 semitones higher … transpose 5 semitones lower", and suggests the E♭ alto profile (correct: alto expects 63) | not tested |
-| E♭ setting               | E♭ alto sax    | not tested     |          |                                                        |                          |
+| +3                       | E♭ alto sax    | 63 (computed)  |          | **match** ("Nothing to change — you're ready to play.") | not tested               |
 
 Results, 2026-10-06, TravelSax2 (port name "TravelSax2 MIDI 1"), over USB, Chrome on Windows:
 
@@ -92,15 +92,15 @@ Results, 2026-10-06, TravelSax2 (port name "TravelSax2 MIDI 1"), over USB, Chrom
   down. −2 adds the whole step that makes it a B♭ tenor. For the E♭ alto profile (expects 63),
   the same reasoning predicts +3 at the device, or −9 with the octave raised by one. At +3 the
   tenor check said "5 semitones higher" and suggested the alto profile, which confirms 63; the
-  check run with the alto profile itself is not done yet (expected: match).
+  check run with the alto profile itself then said **match**.
 - At −9 and −14 with the tenor profile, the app's verdicts (7 semitones lower; 1 octave lower)
   agree with a default of 60 for written C5, so the Travel Sax's built-in octave drop is
   confirmed, and the checker's transpose and octave advice both read correctly. −14 (the
   textbook tenor value) and −9 (the textbook alto value) each land an octave low on this device,
   because its 0 already sounds an octave down.
 - The device's own transpose setting was enough to reach a match: no manual input-transposition
-  setting in the app was needed for the tenor. (The octave-setting step and the alto setting
-  were not tested.)
+  setting in the app was needed for the tenor, nor for the alto (+3). (Only the octave-setting
+  step was not tried.)
 - Other notes played during the check: 59, 53, 58, 55, 57, 55, 53, 55, 57.
 
 - [x] Velocity: the Travel Sax had a fixed-velocity option on, sending 127 on every note. With it
