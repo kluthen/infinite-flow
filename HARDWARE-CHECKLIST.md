@@ -13,8 +13,11 @@ Total time: about 1 h 15 min. Parts A–D need the controllers; part E doesn't.
 - [ ] The machine you practise on, with the **wired** speakers or headphones you practise with
       (Bluetooth headphones add a lot of output delay and would skew part B).
 - [ ] Nothing heavy running (no build, no tests).
-- [ ] Use the **dev server**, not the deployed site: the console lines below only work on a
-      development build, and the deployed site blocks MIDI until its server header is fixed.
+- [ ] Use the **dev server**, not the Docker image or the deployed site: the console lines below
+      only work on a development build. (The Docker image also blocked MIDI through its server
+      header until the `midi=(self)` fix; once that fix is on main, `docker compose up -d --build`
+      rebuilds it, and then the app itself, part A's verdicts included, works there too. Part B's
+      readout still needs the dev server.)
 - [ ] In the VS Code terminal (connected to the Linux machine), run `npm run dev`. VS Code
       forwards port 5173 to Windows (check the **Ports** panel; add 5173 there if it isn't
       listed).
