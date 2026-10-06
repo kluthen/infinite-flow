@@ -81,6 +81,7 @@ The app expects (a match):
 | −2 (B♭)                  | B♭ tenor sax   | 58             | 80       | **match**                                              | not tested               |
 | −9                       | B♭ tenor sax   | 51 (computed)  |          | "7 semitones lower … transpose 7 semitones higher" (correct) | not tested |
 | −14                      | B♭ tenor sax   | 46 (computed)  |          | "1 octave lower … octave setting 1 octave higher" (correct) | not tested |
+| +3                       | B♭ tenor sax   | 63 (computed)  |          | "5 semitones higher … transpose 5 semitones lower", and suggests the E♭ alto profile (correct: alto expects 63) | not tested |
 | E♭ setting               | E♭ alto sax    | not tested     |          |                                                        |                          |
 
 Results, 2026-10-06, TravelSax2 (port name "TravelSax2 MIDI 1"), over USB, Chrome on Windows:
@@ -89,7 +90,9 @@ Results, 2026-10-06, TravelSax2 (port name "TravelSax2 MIDI 1"), over USB, Chrom
   (written C5) sent MIDI 58, and the app said **match**. So at 0 the Travel Sax sends the
   fingered written note **one octave lower** (written C5 → C4, 60): a C instrument an octave
   down. −2 adds the whole step that makes it a B♭ tenor. For the E♭ alto profile (expects 63),
-  the same reasoning predicts +3 at the device, or −9 with the octave raised by one; not tested.
+  the same reasoning predicts +3 at the device, or −9 with the octave raised by one. At +3 the
+  tenor check said "5 semitones higher" and suggested the alto profile, which confirms 63; the
+  check run with the alto profile itself is not done yet (expected: match).
 - At −9 and −14 with the tenor profile, the app's verdicts (7 semitones lower; 1 octave lower)
   agree with a default of 60 for written C5, so the Travel Sax's built-in octave drop is
   confirmed, and the checker's transpose and octave advice both read correctly. −14 (the
