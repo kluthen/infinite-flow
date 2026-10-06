@@ -141,9 +141,9 @@ translating:
   profile expects) and **names the current profile**, because "transposed by 14" alone does not
   tell anyone which way to turn a setting or which profile the app was assuming.
 - The distance is given in semitones (the smallest step between two notes, one piano key to the
-  next). When it is 12 or more, the octave breakdown is added — "14 semitones (1 octave and 2)" —
-  because an octave is 12 semitones and a player setting a controller often has a separate octave
-  switch. An exact whole number of octaves is described only in octaves.
+  next). When it is 12 or more, the octave breakdown is added — "14 semitones (1 octave and 2
+  semitones)" — because an octave is 12 semitones and a player setting a controller often has a
+  separate octave switch. An exact whole number of octaves is described only in octaves.
 - The first suggestion is always the controller's own setting: its transpose setting for a
   semitone offset, its octave setting for a whole-octave one. That is the fix for the most common
   cause.
