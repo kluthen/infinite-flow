@@ -1,15 +1,15 @@
 ---
 id: vision_infinite_flow_first_release
-status: DRAFT
+status: STABLE
 layer: BUSINESS
-version: 0.6
+version: 0.7
 parents: []
 dependents: []
 human_name: Infinite Flow Product Scope
 type: VISION
 priority: 1
 tags: [scope, first-release, v2]
-notes: Revised 2026-09-29 by v2 spec ingestion (previous version 0.3, titled Infinite Flow First-Release Scope, scoped the first release only and excluded MIDI controller input, match feedback, backing, and continuous generation, all of which v2 brings in), then revised 2026-10-03 from version 0.4 to 0.5 on the owner decisions of 2026-10-03 (the real-hardware checks move to a new release v2.4; the chord-fit check leaves v2 for v3 as an uncommitted nice-to-have). Both revisions are PENDING OWNER SIGN-OFF. Revised 2026-10-05 from version 0.5 to 0.6 on spec D183 only: v2 ships as one release, v2.0, and v2.1, v2.2 and v2.4 name parts of its scope, so the statement that v2.0 can ship before a later v2.4 release is gone; nothing else changed. Still PENDING OWNER SIGN-OFF of the whole vision.
+notes: Accepted for v2.0 as it stands by the product owner on 2026-10-06 (spec D198) - status DRAFT to STABLE at version 0.7; the owner plans to rewrite the vision entirely later, a rewrite not yet scheduled that blocks nothing. Revised in the same change from version 0.6, on spec D193 and D199 only - the v2.4 line now says which real-hardware checks block the v2.0 tag (the controller-transposition check on the reference breath controller, the windows and latency tuned with it, the playhead and main-thread timing) and which follow it as v2.0.x hand checks (the same checks with a USB keyboard, and real exports opened in a notation program, a MIDI tool and a DAW); nothing else changed. Earlier history - Revised 2026-09-29 by v2 spec ingestion (previous version 0.3, titled Infinite Flow First-Release Scope, scoped the first release only and excluded MIDI controller input, match feedback, backing, and continuous generation, all of which v2 brings in), then revised 2026-10-03 from version 0.4 to 0.5 on the owner decisions of 2026-10-03 (the real-hardware checks move to a new release v2.4; the chord-fit check leaves v2 for v3 as an uncommitted nice-to-have). Both revisions are PENDING OWNER SIGN-OFF. Revised 2026-10-05 from version 0.5 to 0.6 on spec D183 only: v2 ships as one release, v2.0, and v2.1, v2.2 and v2.4 name parts of its scope, so the statement that v2.0 can ship before a later v2.4 release is gone; nothing else changed. Still PENDING OWNER SIGN-OFF of the whole vision.
 ---
 
 # Infinite Flow Product Scope
@@ -25,7 +25,7 @@ Version 2, delivered as one release, v2.0, whose scope is named in the parts bel
 - v2.0 core: a rolling sequence of phrases joined so the ear does not notice a seam; a simple, deterministic backing track (bass and block chords) with a metronome click and a one-measure count-in; sessions that start, run, and stop or time out; reading one MIDI controller and acknowledging only the notes the player gets right, with a one-time controller-transposition check; a review of the last session; export of the session's generated notes to MusicXML or MIDI.
 - v2.1: played notes shown in the review on a toggle and exportable as their own MIDI file; an opt-in, visible settings-mutation flag that lets the app quietly vary its own generation settings during a session.
 - v2.2: opt-in adaptive tempo rising on a fixed schedule; an opt-in multi-phrase tension arc.
-- v2.4: the checks that need the reference hardware or real programs: the controller-transposition check on the reference hardware, the acknowledgement windows and latency tuned there, real exports opened in a notation program and a MIDI tool, and the playhead and main-thread timing measured in a real Chromium browser.
+- v2.4: the checks that need the reference hardware or real programs, which block the v2.0 tag: the controller-transposition check on the reference breath controller, the acknowledgement windows and latency tuned with it, and the playhead and main-thread timing measured in a real Chromium browser. The same checks with a USB keyboard, and real exports opened in a notation program, a MIDI tool and a digital audio workstation, follow the tag as v2.0.x hand checks.
 
 Anything that adapts during a session is opt-in and visible. A session continues only from the app's own generated material.
 
