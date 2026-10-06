@@ -127,15 +127,15 @@ serial worker that keeps computing a dropped attempt. That is the `test:sweep` s
 `gate-sweep-density`, not merged. The machine was not idle: load average 2 to 4. Real costs change
 which phrases repeat, and so which requests follow, and more cases miss a deadline:
 
-| Case | Tempos       | Phrases repeated at their deadline | Slow attempts                                                                      |
-| ---- | ------------ | ---------------------------------- | ---------------------------------------------------------------------------------- |
-| #344 | 60, 120, 240 | 6                                  | 12.25 s, `search_limit_exceeded`                                                   |
-| #349 | 60, 120, 240 | 3 to 6                             | 5.8 s and 2.7 s `no_legal_pitch_plan`, then 12.3 to 14.6 s `search_limit_exceeded` |
-| #354 | 60, 120, 240 | 6                                  | 5.8 to 6.7 s, `no_legal_pitch_plan`                                                |
-| #498 | 60; 120, 240 | 3 and 4; 3 to 6                    | one attempt of 27.96 s, `search_limit_exceeded`                                    |
-| #527 | 60, 120, 240 | 5 and 6                            | 6.2 to 6.5 s, `no_legal_pitch_plan`                                                |
-| #466 | 120, 240     | 4 to 6                             | 2.1 to 6.1 s, `no_legal_pitch_plan`                                                |
-| #474 | 240          | 4                                  | three of 0.84 to 0.92 s, `search_limit_exceeded`, over the 3 s window              |
+| Case | Tempos       | Phrase numbers repeated at their deadline | Slow attempts                                                                      |
+| ---- | ------------ | ----------------------------------------- | ---------------------------------------------------------------------------------- |
+| #344 | 60, 120, 240 | 6                                         | 12.25 s, `search_limit_exceeded`                                                   |
+| #349 | 60, 120, 240 | 3 to 6                                    | 5.8 s and 2.7 s `no_legal_pitch_plan`, then 12.3 to 14.6 s `search_limit_exceeded` |
+| #354 | 60, 120, 240 | 6                                         | 5.8 to 6.7 s, `no_legal_pitch_plan`                                                |
+| #498 | 60; 120, 240 | 3 and 4; 3 to 6                           | one attempt of 27.96 s, `search_limit_exceeded`                                    |
+| #527 | 60, 120, 240 | 5 and 6                                   | 6.2 to 6.5 s, `no_legal_pitch_plan`                                                |
+| #466 | 120, 240     | 4 to 6                                    | 2.1 to 6.1 s, `no_legal_pitch_plan`                                                |
+| #474 | 240          | 4                                         | three of 0.84 to 0.92 s, `search_limit_exceeded`, over the 3 s window              |
 
 Every Quarter case met every deadline at every tempo. Seven of the 568 cases miss at least one
 deadline, all at Eighth or Sixteenth density.
