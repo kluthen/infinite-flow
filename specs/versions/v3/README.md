@@ -3,8 +3,8 @@
 Status: direction (2026-09-25; review-tooling candidates added 2026-09-28, D128;
 session-keeping candidates added 2026-09-28, D129; favorites moved here from v2 2026-09-28, D130;
 a note on saving note density added 2026-09-28, D146; the end-of-measure chord-fit check moved
-here from v2 as a nice-to-have 2026-10-03, D174; rhythm candidates added 2026-10-03, D175; a controller-connection candidate added
-2026-10-06, D190).
+here from v2 as a nice-to-have 2026-10-03, D174; rhythm candidates added 2026-10-03, D175; two controller-connection candidates added
+2026-10-06, D190 and D192).
 Not yet specced.
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
@@ -180,8 +180,8 @@ selective rates; the two should be settled together.
 
 ## Controller connection candidates (not committed)
 
-Recorded 2026-10-06 (D190), the owner's idea. **The version is open: this is not a v3
-placement**; it sits here as v3 is the next version to be specced.
+Recorded 2026-10-06 (D190, D192), the owner's ideas. **The version is open: this is not a v3
+placement**; they sit here as v3 is the next version to be specced.
 
 - **Switch profile from the check.** When the transposition check finds that the controller, as
   it is set, matches another [instrument profile](../../../docs/music/lexicon.md#instrument-profile),
@@ -189,6 +189,28 @@ placement**; it sits here as v3 is the next version to be specced.
   one control in the check that switches to the matching profile, so the player does not have to
   leave the connection sheet. Example: a breath controller set to sound like an E-flat alto
   saxophone, checked against the B-flat tenor saxophone profile.
+- **A voluntary "Bluetooth" checkbox (D192).** The owner's words: "We may add a volontary
+  checkbox (bluetooth) in the device dialog that will extend grace period a slight bit." The
+  device dialog is the connection sheet. The player ticks the box when the controller is connected
+  over Bluetooth, and played notes then get a little more timing tolerance. Why: v2.0 makes
+  Bluetooth MIDI best-effort (D191). On the reference breath controller, Bluetooth LE adds roughly
+  70–80 ms over USB and delivers notes in batches, and since Web MIDI does not say how a
+  controller is connected, the app applies the USB correction to every controller. For whoever
+  designs it:
+  - The plumbing for a correction per connection already exists: the code has a connection type,
+    `'usb' | 'bluetooth-le'`, with a constant for each (`CONNECTION_LATENCY_SECONDS` and
+    `latencyCorrectionFor` in `src/domain/acknowledgement/played-onset-latency.ts`); the session
+    always asks for the USB one today (`src/components/workspace/workspace-session-midi.ts`). The
+    Bluetooth constant there (12.5 ms) predates the measurement and is far below it.
+  - Two ways to give the tolerance, left open: shift the played onset back by the Bluetooth delay,
+    which keeps the expected note's early edge as strict as over USB; or widen the expected note's
+    timing window, which is closer to the owner's wording ("extend grace period") but also lets
+    notes count that were played earlier than over USB.
+  - It needs a design pass before it is scheduled: it touches the expected-note timing window
+    (`rule_expected_note_window`), the latency compensation of the played onset
+    (`rule_played_onset_latency_compensation`), and v2's stance that there is no player-facing
+    calibration step (v2's master spec defers such a step to v3, where it pairs with "my
+    instrument").
 
 ## Depends on
 

@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Build Plan
 
-Status: draft v0.6 (2026-10-05). Chunk 0 is done. Build plan for v2, released as one v2.0 since
+Status: draft v0.7 (2026-10-06). Chunk 0 is done. Build plan for v2, released as one v2.0 since
 spec D183, its parts still labelled v2.0, v2.1, v2.2 and v2.4,
 written from [master spec v1.20](master-spec.md) and kept in step with it since (v1.28). Not yet
 approved for execution. Change in v0.3: the spec gaps are resolved, so the phrase-boundary change
@@ -16,7 +16,9 @@ D183–D186): v2.1, v2.2 and v2.4 are compacted into one release, v2.0, with one
 checks included; the backing (O57) and chunk 17's silence-timer choices are accepted as built.
 Change in v0.6 (spec D187–D189): chunk 21 gains the wake lock asked for again when the browser
 drops it mid-session (O87), a code unit after the ISS-006 fix; the audio mix is final as built
-(ux Q31).
+(ux Q31). Change in v0.7 (spec D191, D193), the owner's answers after the hardware sitting of
+2026-10-06: Bluetooth MIDI is best-effort and USB the tested path (O71), and the real-program
+export checks follow the v2.0 tag as a v2.0.x hand-check note instead of blocking it (O105).
 
 This plan cuts v2 into chunks that one owner can build, test and document at a time, and puts
 them in order. It adds no behaviour. What the app does is in the [master spec](master-spec.md);
@@ -1393,8 +1395,8 @@ only device present, and a device plugged in later is picked up only by the next
 notes end on an unplug (at its mapped time) and on a switch of device (at the current audio time);
 a request that rejects for an unknown reason restores the stage it started from and rethrows; a
 stale open changes nothing; `NotSupportedError` reads as `unsupported`; the anchor adds the output
-latency, so compensation takes it off exactly once; a fresh anchor per message. Still open for the
-v2.0 gate: O71, Bluetooth MIDI (below).
+latency, so compensation takes it off exactly once; a fresh anchor per message. Bluetooth MIDI
+(O71) was settled on 2026-10-06 (spec D191): USB is the tested path, Bluetooth best-effort.
 
 **Progress:**
 
@@ -1440,8 +1442,8 @@ and [A controller unplugged between sessions](../../../ui_ux/flows/controller-co
 - The fake MIDI access can plug, unplug and play notes at given times. It is injected in the
   workspace harness, and `docs/testing.md` says how to drive it.
 
-**Blocked by:** in part, §12's Bluetooth MIDI item (O71): USB is the tested path; Bluetooth stays
-best-effort until it is settled. Still open after the chunk: it stays open for the v2.0 gate.
+**Blocked by:** nothing. Bluetooth MIDI (O71) was settled on 2026-10-06 (spec D191): USB is the
+tested path, and Bluetooth stays best-effort, with the USB correction applied to every controller.
 
 ### Chunk 13 — Controller connection
 
@@ -1905,7 +1907,9 @@ gate. _Since 2026-10-03 (spec D173), the tuning on the reference hardware and th
 there belong to the v2.4 gate, [chunk 35](#chunk-35--v24-release-gate-real-hardware-checks), not
 the v2.0 gate; the owner's rulings above stay in the v2.0 gate. Since 2026-10-05 (spec D183)
 chunk 35 is folded into [chunk 21](#chunk-21--v20-release-gate), so these checks are in the v2.0
-gate again; the owner accepted the rulings above as built (spec D184)._
+gate again; the owner accepted the rulings above as built (spec D184). Since 2026-10-06 (spec
+D191) O71 is closed: USB is the tested path and Bluetooth best-effort, so
+`rule_played_onset_latency_compensation` waits only for the tuning._
 
 **Progress:**
 
@@ -1973,8 +1977,8 @@ and [intent: A controller lost during a session](../../../ui_ux/flows/controller
   latency constants are tuned and documented in a new MIDI document under `docs/`, with the
   measurements (item 9).
 
-**Blocked by:** in part, §12's Bluetooth MIDI item (O71) and the controller check on the reference
-hardware: the tuning covers USB; Bluetooth stays best-effort until settled.
+**Blocked by:** in part, the controller check on the reference hardware. The tuning covers USB;
+Bluetooth is best-effort, with no tuning of its own (O71, settled 2026-10-06, spec D191).
 
 ### Chunk 18 — MusicXML encoding
 
@@ -2101,7 +2105,8 @@ are in [`docs/export.md`](../../../docs/export.md#hand-check). No atom's status 
 2026-10-03 (spec D173), these hand checks belong to the v2.4 gate,
 [chunk 35](#chunk-35--v24-release-gate-real-hardware-checks); they no longer hold up v2.0. Since
 2026-10-05 (spec D183) chunk 35 is folded into [chunk 21](#chunk-21--v20-release-gate): they are
-in the v2.0 gate again, and whether they block its tag is O105._
+in the v2.0 gate again, and whether they block its tag is O105. Since 2026-10-06 (spec D193) they
+do not: they follow the tag, as a v2.0.x hand-check note._
 
 **Progress:**
 
@@ -2234,18 +2239,21 @@ The real-hardware checks, part v2.4 (from chunk 35), on the reference machine an
   and the note-on velocity, are written down
   ([`docs/controller-connection.md`](../../../docs/controller-connection.md#the-verdict)). The
   owner decides from them whether a manual input-transposition setting is needed; if it is, it is
-  new scope, specced on its own. Bluetooth MIDI (O71) is tried at the same sitting.
+  new scope, specced on its own. Bluetooth MIDI (O71) was tried at the same sitting, on
+  2026-10-06, and settled (spec D191): USB is the tested path, Bluetooth best-effort.
 - Item 12, in real programs: MuseScore opens real MusicXML exports for the three instrument
   templates, the two saxophones with `<transpose>` and the C keyboard without; a MIDI tool opens
   real MIDI exports with the right tempo map and markers. The checklist and results table are in
   [`docs/export.md`](../../../docs/export.md#hand-check); the files are regenerated from the code
-  the gate checks, as in `tests/fixtures/export-hand-check/`. Whether this blocks the tag is O105.
+  the gate checks, as in `tests/fixtures/export-hand-check/`. This does not block the tag (spec
+  D193): it may follow it, written down as a v2.0.x hand-check note.
 - Items 6 and 15, measured in real Chromium on the reference machine and hardware: the playhead
   stays within 20 ms of the audio output over five minutes, and no main-thread task runs longer
   than the audio scheduler's look-ahead window during a 240 BPM session.
 - Part v2.1, in a real program: imported together into a real DAW, the played-notes and
   generated-notes MIDI files of one session line up phrase by phrase, with the same tempo map and
-  markers. Whether this blocks the tag is O105.
+  markers. This does not block the tag (spec D193): it may follow it, written down as a v2.0.x
+  hand-check note.
 - Part v2.1, on the reference machine: the first generation after an automatic setting change
   (the latency prerequisite's cold run, as in [chunk 1](#chunk-1--baseline-checks)) is
   re-measured on the code the gate checks, and the look-ahead deadline keeps its headroom at
@@ -2259,7 +2267,8 @@ What the earlier chunks left open:
   and the silence count starting again at a reattachment, with the chunk's other choices (spec
   D184); and the atom wording chunks 8, 13, 20, 27 and 29 left open (spec D186). Starting from
   the Review was settled earlier: spec D170, no session starts while it shows.
-- Closed or carried forward by the owner: Bluetooth MIDI (O71), tried at the hardware sitting.
+- Closed on 2026-10-06: Bluetooth MIDI (O71), tried at the hardware sitting: USB is the tested
+  path, Bluetooth best-effort, and Android Chrome is still to try, not blocking (spec D191).
   Closed on 2026-10-05: the wake lock dropped mid-session (O87), asked for again, as item 21's
   criterion above (spec D187); and the audio mix's levels (ux Q31): the click and backing volumes'
   ranges and defaults, and the linear volume-to-gain mapping, are final as built (spec D188).
@@ -2270,10 +2279,12 @@ What the earlier chunks left open:
   v2.1, v2.2 and v2.4 atoms (merged into `release-v2.0` or kept as history, spec D183) and
   advanced the atoms' status with the owner's agreement.
 - The owner decides the tag. v2.0 ships with the timing constants tuned on the reference hardware.
-  Proposed, not settled (O105): the real-program export checks may follow the tag as a v2.0.x
-  hand-check note, while the controller check and the windows and latency tuning block it.
+  Settled on 2026-10-06 (O105, spec D193): the real-program export checks (MuseScore, a MIDI tool,
+  the DAW line-up) follow the tag as a v2.0.x hand-check note; the controller check, the windows
+  and latency tuning, the playhead and main-thread measurements and the cold run block it.
 
-**Blocked by:** every open item above, until closed: O71, the VISION sign-off and O105. The real-hardware checks wait for the reference hardware to be at hand; the owner runs them
+**Blocked by:** every open item above, until closed: the VISION sign-off, and the real-hardware
+checks that block the tag (O71 and O105 were closed on 2026-10-06, spec D191 and D193). The real-hardware checks wait for the reference hardware to be at hand; the owner runs them
 when they have time. O97, which item 2's check depended on, was answered on 2026-09-29 (D167).
 
 ### Chunk 22 — Played-notes MIDI encoding
@@ -2757,6 +2768,6 @@ them (superseding spec D173 and D180 on that point). The checklist this chunk he
 under "The real-hardware checks": item 9's tuning of the windows and latency constants, the
 controller check on the reference hardware, item 12 in real programs, items 6 and 15 in real
 Chromium, the DAW line-up of the two MIDI files and the cold run re-measured on the reference
-machine. Whether the real-program export checks block the v2.0 tag is O105. They still wait for
+machine. The real-program export checks do not block the v2.0 tag (spec D193). They still wait for
 the reference hardware: a breath controller over USB, a USB keyboard, and the owner's reference
 machine.

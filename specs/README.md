@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.34
+Status: draft v0.35
 
 ## Status Snapshot
 
@@ -248,6 +248,17 @@ Status: draft v0.34
   (D188). The CONTRACT 1.3, chunk 29's three carry-in rules and the new
   `rule_disconnect_forgets_controller` are approved (D189). Still open for the v2.0 gate: O71, the
   VISION sign-off and O105.
+- **Owner rulings of 2026-10-06 (D190–D193), after the hardware sitting.** **O71 closed:** USB is
+  the tested path for v2.0 and Bluetooth MIDI is best-effort; on the reference breath controller,
+  Bluetooth LE pairs and works in Chrome on Linux but adds roughly 70–80 ms and delivers notes in
+  batches, and the app applies the USB correction to every controller; Android Chrome is still to
+  try, not blocking (D191). **O105 closed:** the real-program export checks (MuseScore, a MIDI
+  tool, a DAW) do not block the v2.0 tag and are validated later as a v2.0.x hand-check note; the
+  other real-hardware checks still block it (D193). Two controller-connection candidates, not
+  committed, version open, are recorded in [v3](versions/v3/README.md#controller-connection-candidates-not-committed):
+  switching profile from the transposition check (D190), and a voluntary "Bluetooth" checkbox in
+  the connection sheet giving a little more timing tolerance, which needs a design pass (D192).
+  Still open for the v2.0 gate: the VISION sign-off, and the real-hardware checks not yet run.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.
@@ -280,9 +291,10 @@ Status: draft v0.34
   in memory only and does not survive a page reload (v2 saves nothing to browser storage). The
   master spec was then at v1.5 (v1.25 since D171). The one gap left open then (**O84**: starting
   a session from the Review) was closed 2026-09-30 (D169).
-- **Open:** 12 questions remain live: O86 (D129, a v3 question since D130), O100–O103 (D175, v3 rhythm candidates) and O105 (D183, the v2.0 tag), plus the 6
+- **Open:** 10 questions remain live: O86 (D129, a v3 question since D130) and O100–O103 (D175, v3 rhythm candidates), plus the 5
   older ones this bullet goes on to describe; O77, which it also describes, was settled on
-  2026-10-03 (D176), O57 on 2026-10-05 (D185), and O87 the same day (D187). None is flagged ★. The 5 most-blocking ones
+  2026-10-03 (D176), O57 on 2026-10-05 (D185), O87 the same day (D187), and O71 and O105 on
+  2026-10-06 (D191, D193). None is flagged ★. The 5 most-blocking ones
   settled first (**D104** O75 v2.0 cut line is the full loop; **D105** O34 continuation boundary;
   **D76** O54 audio unlock; **D77** O55 controller check ships; **D78** O41 acknowledgement
   window), then two large 2026-09-27 batches closed nearly everything else (**D80–D88**:
@@ -309,9 +321,9 @@ Status: draft v0.34
   one grade in either direction, and landing on an unsupported combination re-mutates until a
   supported one is found — but the exact cadence and the flag's default on/off state are still
   open. The rest of what's open is verification/research work, not a design decision: O47,
-  O48, O49 (later/governance, outside v2's own scope), and O68, O69, O71 (prototype,
-  measurement, and Bluetooth-MIDI research); O57, the backing's listening test, was settled on
-  2026-10-05 (D185). **D79** notes that v3's "my instrument"
+  O48, O49 (later/governance, outside v2's own scope), and O68, O69 (prototype and
+  measurement); O57, the backing's listening test, was settled on 2026-10-05 (D185), and O71, the
+  Bluetooth-MIDI research, on 2026-10-06 (D191). **D79** notes that v3's "my instrument"
   should inherit the controller check's detected offset. **The v2 spec (v2.0–v2.3 then; v2.0,
   v2.1, v2.2 and v2.4 since D173–D174, one v2.0 release since D183) is now consolidated** into [versions/v2/master-spec.md](versions/v2/master-spec.md); the draft topic
   documents that fed it, including the original questions-for-user, are archived at

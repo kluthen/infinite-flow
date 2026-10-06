@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.28
+Status: draft v2.29
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1032,3 +1032,34 @@ fact in the live documents (see the [archive index](archive/README.md) and
   instead"); the idea is to offer that switch as an action in the check itself, so the player
   changes profile without leaving the connection sheet. Not committed, version open; recorded with
   the v3 candidates ([v3](versions/v3/README.md#controller-connection-candidates-not-committed)).
+- **D191 (2026-10-06): O71 closed: USB is the tested path for v2.0; Bluetooth MIDI is
+  best-effort.** The product owner's answer to **O71**, with its proposal, after trying the
+  reference breath controller (Travel Sax 2) over Bluetooth LE in Debian's Chrome on their Linux
+  machine (hardware checklist part C, 2026-10-06). It pairs, appears under Connect controller, and
+  the right notes light. Measured on the click: Bluetooth adds roughly 70–80 ms over USB (median
+  +80 ms on single-pitch notes, against +2 and +9 ms over USB), and it delivers notes in batches,
+  so its timing is coarse. Web MIDI does not say how a controller is connected, so the app applies
+  the USB correction to every controller (as accepted in D184); the Bluetooth LE constant in the
+  code is never used. The owner's feel: workable; the looser feedback was not a problem. So v2.0
+  tests and tunes USB only, and a Bluetooth controller works as it is, with no Bluetooth-specific
+  correction or tuning. Still to try, not blocking anything: the controller on the owner's Android
+  phone in Chrome, which needs a deploy of the current main to the server. Master spec §8 and §12;
+  build plan chunks 12, 17 and 21.
+- **D192 (2026-10-06): a voluntary "Bluetooth" checkbox in the connection sheet, a candidate.**
+  The product owner's idea, after the Bluetooth trial (D191): "We may add a volontary checkbox
+  (bluetooth) in the device dialog that will extend grace period a slight bit." The player ticks
+  it when the controller is connected over Bluetooth, and the app then gives played notes a little
+  more timing tolerance. Not committed, version open; recorded with the controller-connection
+  candidates ([v3](versions/v3/README.md#controller-connection-candidates-not-committed)). It
+  needs a design pass first: it touches the expected-note timing window, the latency compensation
+  of the played onset, and v2's stance that there is no player-facing calibration step.
+- **D193 (2026-10-06): O105 closed: the real-program export checks do not block the v2.0 tag.**
+  The product owner's answer to **O105**, with its proposal. The checks of exports in real
+  programs, the MusicXML files opened in MuseScore for the three instrument templates, the MIDI
+  files opened in a MIDI tool, and the played-notes and generated-notes MIDI files of one session
+  lined up in a real DAW, may follow the tag: the owner has no MuseScore account or DAW at hand,
+  so they are validated at a later date and written down as a v2.0.x hand-check note. The other
+  real-hardware checks still block the tag, as D183 placed them: the controller-transposition
+  check on the reference hardware, the tuning of the acknowledgement windows and latency
+  constants, the playhead and main-thread measurements in real Chromium, and the cold run
+  re-measured on the reference machine. Master spec §11 and §12; build plan chunks 20 and 21.

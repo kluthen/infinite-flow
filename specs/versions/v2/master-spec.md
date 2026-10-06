@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.30 (2026-10-05). This is the consolidated, execution-ready specification for
+Status: master spec v1.31 (2026-10-06). This is the consolidated, execution-ready specification for
 v2, which ships as one release, v2.0, whose parts keep the labels v2.0, v2.1, v2.2 and v2.4 (v2.3
 was emptied, and its number is not reused).
 It supersedes the individual v2 draft topic documents,
@@ -123,7 +123,11 @@ v2.1, v2.2 and v2.4 remain as names for parts of v2.0's scope; whether the check
 real programs must pass before v2.0 is tagged is left open; and the backing's voicing, register,
 attack pattern and timbre are settled as built, after listening to them in sessions (§2, §6, §8,
 §11, §12). Change in v1.30, the product owner's decision of 2026-10-05: a screen wake lock the
-browser drops while a session is running is asked for again, silently (§6, §11, §12).
+browser drops while a session is running is asked for again, silently (§6, §11, §12). Change in
+v1.31, the product owner's decisions of 2026-10-06, after trying the reference hardware: USB is
+the tested controller connection and Bluetooth MIDI is best-effort, with the USB correction
+applied to every controller; and the checks of exports in real programs do not block the v2.0
+tag, and follow it as a hand-check note on a v2.0.x update (§8, §11, §12).
 
 ## 1. Core concept
 
@@ -926,8 +930,12 @@ is ever marked.
 
 **Latency.** The played onset used for matching is the controller's timestamp mapped onto the
 audio clock, minus the output latency (the delay between scheduling a sound and it actually
-reaching the speakers) and a small constant for the connection type (USB is negligible; Bluetooth
-LE is roughly 10–15 ms plus jitter). These are hard-coded constants only. They and the windows
+reaching the speakers) and a small constant for a USB connection. The browser does not say how a
+controller is connected (Web MIDI exposes no transport), so the USB constant applies to every
+controller. USB is the tested connection. **Bluetooth MIDI is best-effort:** a Bluetooth LE
+controller works as it is, with no correction or tuning of its own; on the reference breath
+controller it adds roughly 70–80 ms over USB and delivers notes in batches, so its timing is
+coarse, and the product owner found it workable. These are hard-coded constants only. They and the windows
 above are built at their starting values, then tuned on the reference hardware by the
 real-hardware checks, before v2.0 ships (§11), the windows' 150 ms and 200 ms changing only with
 the product owner's sign-off. A
@@ -1056,9 +1064,10 @@ v2.0 does not ship before the real-hardware checks. The checks that need the ref
 the reference machine or a real program other than the browser are listed under v2.4; the v2.0
 items they replace keep their numbers below, so references to them stay valid. The timing
 constants (the acknowledgement windows and the latency constants of §8) are built at their
-starting values and ship tuned by those checks. Whether the checks of exports in real programs
-must pass before v2.0 is tagged, or may follow it as a hand-check note on a v2.0.x update, is
-still open (§12).
+starting values and ship tuned by those checks. The checks of exports in real programs (item 12
+in real programs and the DAW line-up from v2.1, below) do not block the v2.0 tag: they may follow
+it, written down as a hand-check note on a v2.0.x update. Every other real-hardware check must
+pass before v2.0 is tagged.
 
 ### Prerequisites that must already be in place
 
@@ -1290,17 +1299,17 @@ still open (§12).
   - **Item 9:** the acknowledgement windows and latency constants are tuned and documented against
     the actual reference hardware (a breath controller over USB, and a USB keyboard). A window
     value other than 150 ms early and 200 ms late needs the product owner's sign-off.
-  - **Item 12, in real programs:** MusicXML exports open correctly in a real notation program
-    (MuseScore) for each of the three instrument templates, the two saxophones with their
-    `<transpose>` element and the C keyboard without one; MIDI exports open correctly in a real
-    tool with the correct tempo map.
+  - **Item 12, in real programs** (may follow the tag, as a v2.0.x hand-check note): MusicXML
+    exports open correctly in a real notation program (MuseScore) for each of the three
+    instrument templates, the two saxophones with their `<transpose>` element and the C keyboard
+    without one; MIDI exports open correctly in a real tool with the correct tempo map.
   - **Item 15:** the re-signed latency budget holds: no main-thread task ever runs longer than the
     audio scheduler's own look-ahead window during a 240 BPM session.
   - **The controller check on the reference hardware:** its verification as §12 describes, which
     decides whether a manual input-transposition setting is needed.
-  - **From v2.1, in a real program:** imported together into a real DAW, the played-notes file and
-    the generated-notes MIDI file of the same session line up phrase by phrase, with the same
-    tempo map and markers.
+  - **From v2.1, in a real program** (may follow the tag, as a v2.0.x hand-check note): imported
+    together into a real DAW, the played-notes file and the generated-notes MIDI file of the same
+    session line up phrase by phrase, with the same tempo map and markers.
   - **From v2.1, on the reference machine:** the first generation after an automatic setting
     change (the cold run of the latency prerequisite) is re-measured on the code v2.4 checks, and
     the look-ahead deadline keeps its headroom at 240 BPM.
@@ -1318,10 +1327,6 @@ starting v2.0 implementation:
   phrase on the main thread can ever run long enough to threaten the proposed 200 ms scheduling
   window needs a small prototype/measurement pass to confirm; the default assumption is that moving
   the scheduler's own wake-up timer into a Web Worker is enough headroom.
-- **Bluetooth MIDI as a genuinely supported connection**, versus USB being the only actively tested
-  path with Bluetooth left best-effort: depends on whether the product owner's own operating system
-  actually exposes their reference controller's Bluetooth MIDI connection to Chromium, and how much
-  jitter it measurably has. USB is the guaranteed-tested path regardless of this outcome.
 - **Re-measuring generation latency** after the rhythmic-variety rework mentioned under
   Prerequisites, including a cold-generation run triggered specifically by a mid-session control
   change, to reconfirm the look-ahead deadline in §4 has enough headroom at 240 BPM. Its
@@ -1332,15 +1337,12 @@ starting v2.0 implementation:
   velocity it uses. This determines whether an additional manual "input transposition" setting is
   needed beyond the check itself. It is one of the real-hardware checks (§11), part of v2.0's
   definition of done.
-- **Whether the checks of exports in real programs block the v2.0 tag** (§11): the MusicXML files
-  opened in MuseScore, the MIDI files opened in a MIDI tool, and the played-notes and
-  generated-notes MIDI files of one session lined up in a real DAW. Proposed, not yet confirmed by
-  the product owner: they do not block it, and may follow as a hand-check note on a v2.0.x update,
-  while the controller-transposition check and the tuning of the acknowledgement windows and
-  latency constants on the reference hardware do block it.
 
 The backing's voicing and register, and the screen wake lock dropped mid-session, once in this
-list, are settled (§6).
+list, are settled (§6). So are Bluetooth MIDI, best-effort with USB the tested connection (§8),
+and whether the checks of exports in real programs block the v2.0 tag: they do not (§11). Not
+blocking anything: Bluetooth MIDI on the product owner's Android phone, in Chrome, is still to
+try.
 
 One item left v2 when favorites moved to v3, and is not a v2 gap: **what makes a favorite count
 as exported**, which only mattered for asking before discarding unexported favorites. It stays

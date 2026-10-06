@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.29
+Status: draft v0.30
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -45,7 +45,9 @@ for O77 with a cadence of 2 to 4 phrases and the flag starting off, and O99 with
 by the v3 rhythm candidates (D175), and O104 by moving the real-hardware checks to v2.4 (D173);
 O104 was answered the same day (D180). On 2026-10-05 the owner answered O57 (D185): the backing
 stays as built. O105 was opened the same day by compacting v2.1, v2.2 and v2.4 into one v2.0
-release (D183).
+release (D183). On 2026-10-06 the owner answered O71 (D191) and O105 (D193) with their proposals:
+USB is the tested path for v2.0 and Bluetooth MIDI is best-effort; the real-program export checks
+do not block the v2.0 tag.
 
 ### Registered from the v2 proposal and the prerequisites analysis (2026-09-25)
 
@@ -69,7 +71,8 @@ Raised on 2026-09-26 while drafting the v2 topic documents, since consolidated i
 [questions-for-user.md](archive/v2/questions-for-user.md) (full working history). O52 was
 resolved 2026-09-27 (D97). O24 was resolved 2026-09-27 (D108). O77 was resolved 2026-10-03
 (D176). O57 was resolved 2026-10-05 (D185): the backing's voicing, register, attack pattern and
-timbre stay as built.
+timbre stay as built. O71 was resolved 2026-10-06 (D191): USB is the tested path for v2.0, and
+Bluetooth MIDI is best-effort.
 
 - **O68 - Main-thread engraving vs audio scheduling** _(prototype needed)_: does engraving a
   phrase (VexFlow, main thread) ever block longer than the scheduler's look-ahead window (200 ms
@@ -78,14 +81,6 @@ timbre stay as built.
   15, which moved to the v2.4 real-hardware checks. Since 2026-10-05 (D183) those checks are part
   of the single v2.0 gate.
   [master-spec.md §6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo).
-- **O71 - Bluetooth MIDI** _(research on the owner's setup)_: is USB the tested path for v2.0,
-  with BLE best-effort (proposed)? Depends on whether the owner's OS exposes the reference
-  controller's BLE MIDI to Chromium, and its measured jitter. Note (2026-09-28, D127): the owner
-  also plays occasionally on an Android phone with the Travel Sax, so "the owner's OS" covers
-  Android Chrome as well as the main computer. How the controller connects to the phone
-  (Bluetooth or USB) is not known. Note (2026-10-05): the owner has not tried it yet; it is
-  tried at the same sitting as the real-hardware checks of the v2.0 gate (D183).
-  [master-spec.md §12](versions/v2/master-spec.md#12-open-questions-carried-forward).
 - **O69 - Latency after ISS-004** _(measurement)_: re-run the latency harness after ISS-004,
   including cold runs after a mid-session control change. Does the cold worst case stay under a
   quarter of the one-bar deadline at 240 BPM (250 ms in Chromium)?
@@ -153,19 +148,9 @@ the single v2.0 gate (D183).
 ## v2.0 release gate (O105)
 
 Opened 2026-10-05 by `spec-writer` while recording the compaction of v2.1, v2.2 and v2.4 into one
-v2.0 release (D183).
-
-- **O105 - Real-program export checks and the v2.0 tag** _(D183; owner)_: the real-hardware
-  checks are part of the v2.0 gate (build plan chunk 21). Must the checks of exports in real
-  programs pass before v2.0 is tagged: the MusicXML files opened in MuseScore for the three
-  instrument templates, the MIDI files opened in a MIDI tool, and the played-notes and
-  generated-notes MIDI files of one session lined up in a real DAW? Proposed default, not
-  confirmed by the owner: no; they may follow the tag, written down as a v2.0.x hand-check note,
-  while the controller-transposition check on the reference hardware and the tuning of the MIDI
-  windows and latency constants block the tag. The proposal leaves the other real-hardware checks
-  blocking, as D183 places them: the playhead and main-thread measurements in real Chromium, and
-  the cold run re-measured on the reference machine.
-  [build-plan.md chunk 21](versions/v2/build-plan.md#chunk-21--v20-release-gate).
+v2.0 release (D183). O105 was answered by the owner on 2026-10-06 with its proposal (D193): the
+real-program export checks do not block the v2.0 tag, and are validated later as a v2.0.x
+hand-check note. No question of this section is open.
 
 ## v3 rhythm candidates (O100+)
 

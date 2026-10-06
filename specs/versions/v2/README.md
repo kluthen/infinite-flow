@@ -1,6 +1,6 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27; master spec v1.30, 2026-10-05, D183–D187).
+Status: consolidated into the master spec (2026-09-27; master spec v1.31, 2026-10-06, D183–D193).
 The individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
 ID-free description of v2, which ships as one release, v2.0, since D183 (its parts keep the
@@ -277,7 +277,17 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   unit adds it after the ISS-006 fix (D187). **ux Q31 closed:** the audio mix as built is final
   for v2.0 (D188). The CONTRACT 1.3, chunk 29's carry-in rules and a Disconnect rule are approved
   (D189).
-- Open: 12 questions across the register, including O105 (above), and O100–O103, the
+- **Settled (D191, D193, the owner, 2026-10-06, after the hardware sitting).** **O71 closed:** USB
+  is the tested path for v2.0 and Bluetooth MIDI is best-effort. The reference breath controller
+  works over Bluetooth LE in Chrome on Linux, adding roughly 70–80 ms and delivering notes in
+  batches; the app applies the USB correction to every controller, since Web MIDI does not say how
+  a controller is connected. Android Chrome is still to try, not blocking (D191). **O105 closed:**
+  the real-program export checks (MuseScore, a MIDI tool, a DAW) do not block the v2.0 tag; they
+  are validated later, as a v2.0.x hand-check note (D193). A voluntary "Bluetooth" checkbox in the
+  connection sheet is recorded as a candidate, version open, in
+  [v3](../v3/README.md#controller-connection-candidates-not-committed) (D192). Master spec v1.31,
+  build plan v0.7.
+- Open: 10 questions across the register, including O100–O103, the
   v3 rhythm candidates (D175); O86 (what makes a favorite "exported") is still open but belongs
   to v3 (D130); none is currently flagged ★. See [open-questions.md](../../open-questions.md) and
   [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
@@ -384,10 +394,11 @@ through an export the player triggers (D64, D69).
 
 - **O47, O48, O49** are governance/later-version questions, unrelated to v2's own scope. Full
   text is in the [register](../../open-questions.md).
-- **O68, O69, O71** are the remaining research-track questions; O71 is tried at the
-  real-hardware sitting of the v2.0 gate. **O57** (backing voicing) was settled on 2026-10-05:
-  the backing stays as built (D185). **O105** (whether the real-program export checks block the
-  v2.0 tag, D183) is open. **O77** (settings-mutation
+- **O68, O69** are the remaining research-track questions. **O71** (Bluetooth MIDI) was settled
+  on 2026-10-06: USB is the tested path, Bluetooth best-effort (D191). **O57** (backing voicing)
+  was settled on 2026-10-05: the backing stays as built (D185). **O105** (whether the
+  real-program export checks block the v2.0 tag, D183) was settled on 2026-10-06: they do not
+  (D193). **O77** (settings-mutation
   flag) was settled on 2026-10-03 (D176), with O93 (D177). **O104** (whether the v2.1 and v2.2
   gates' own real checks move to v2.4, D173) was answered yes the same day (D180). Full text is in
   [open-questions.md](../../open-questions.md) and [master-spec.md §12](master-spec.md#12-open-questions-carried-forward).
