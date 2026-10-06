@@ -83,6 +83,7 @@ The app expects (a match):
 | −14                      | B♭ tenor sax   | 46 (computed)  |          | "1 octave lower … octave setting 1 octave higher" (correct) | not tested |
 | +3                       | B♭ tenor sax   | 63 (computed)  |          | "5 semitones higher … transpose 5 semitones lower", and suggests the E♭ alto profile (correct: alto expects 63) | not tested |
 | +3                       | E♭ alto sax    | 63 (computed)  |          | **match** ("Nothing to change — you're ready to play.") | not tested               |
+| +12                      | B♭ tenor sax   | 72 (computed)  |          | "14 semitones (1 octave and 2) higher … transpose 14 semitones lower", and suggests the C MIDI keyboard profile (correct: at +12 the device plays at written pitch) | — |
 
 Results, 2026-10-06, TravelSax2 (port name "TravelSax2 MIDI 1"), over USB, Chrome on Windows:
 
@@ -99,8 +100,11 @@ Results, 2026-10-06, TravelSax2 (port name "TravelSax2 MIDI 1"), over USB, Chrom
   textbook tenor value) and −9 (the textbook alto value) each land an octave low on this device,
   because its 0 already sounds an octave down.
 - The device's own transpose setting was enough to reach a match: no manual input-transposition
-  setting in the app was needed for the tenor, nor for the alto (+3). (Only the octave-setting
-  step was not tried.)
+  setting in the app was needed for the tenor, nor for the alto (+3). At +12 the device plays at
+  written pitch (72 for written C5), one octave above its default, so an octave shift moves the
+  note by 12 as expected; checked through the transpose setting, not the octave setting itself.
+- Copy nit: "14 semitones (1 octave and 2)" lacks the unit after the remainder; it should read
+  "1 octave and 2 semitones" (check result copy).
 - Other notes played during the check: 59, 53, 58, 55, 57, 55, 53, 55, 57.
 
 - [x] Velocity: the Travel Sax had a fixed-velocity option on, sending 127 on every note. With it
