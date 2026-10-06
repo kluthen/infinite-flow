@@ -183,9 +183,15 @@ for (const record of app.sessionController.state.lastHistory.phrases()) {
   }
 }
 console.table(rows)
+const offsets = rows.map((r) => r.beatOffsetMs).sort((a, b) => a - b)
+const at = (q) => offsets[Math.min(offsets.length - 1, Math.floor(q * offsets.length))]
+console.log(`B2: ${offsets.length} notes, median ${at(0.5)} ms,`,
+  `middle 80 % from ${at(0.1)} to ${at(0.9)} ms, extremes ${offsets[0]} to ${offsets.at(-1)} ms`)
 ```
 
-Tip: right-click the table → "Copy object", or just screenshot it, and give it to Claude.
+The last line printed under the table is the B2 summary: the median and spread to write down.
+The table holds one row per note, for B3. Tip: right-click the table → "Copy object", or just
+screenshot it, and give it to Claude.
 
 ### Results
 
