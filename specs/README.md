@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.38
+Status: draft v0.39
 
 ## Status Snapshot
 
@@ -273,6 +273,13 @@ Status: draft v0.38
 - **O106 closed (2026-10-06, D197)**, the owner's answer with its proposal: item 6's 20 ms is
   measured to the moment the playhead band's measure changes, so item 6 is met. Still open for
   the v2.0 gate: the VISION sign-off, and the real-hardware checks not yet run.
+- **VISION accepted; USB keyboard checks after the tag (2026-10-06, D198–D199)**, the owner's
+  rulings. The vision is accepted for v2.0 as it stands (version 0.6); the owner plans a full
+  rewrite later, not scheduled, listed in the [roadmap](roadmap.md)'s carry-overs (D198). The
+  checks that need a USB keyboard follow the v2.0 tag as v2.0.x hand checks, like the
+  real-program export checks; the breath controller's results stand for the tuning and the
+  controller check, which calls for no manual input-transposition setting (D199). Chunk 21 is now
+  blocked only by its own remaining work. Nothing newly opened.
 - **Stray notes from controllers (2026-10-06, D196)**, the owner's ruling. Short in-between notes
   a controller sends while the fingers change position are a generic matter: nothing is built for
   one device, v2 changes nothing, and acknowledgement needs no change (they light nothing unless

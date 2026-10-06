@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Build Plan
 
-Status: draft v0.9 (2026-10-06). Chunk 0 is done. Build plan for v2, released as one v2.0 since
+Status: draft v0.10 (2026-10-06). Chunk 0 is done. Build plan for v2, released as one v2.0 since
 spec D183, its parts still labelled v2.0, v2.1, v2.2 and v2.4,
 written from [master spec v1.20](master-spec.md) and kept in step with it since (v1.28). Not yet
 approved for execution. Change in v0.3: the spec gaps are resolved, so the phrase-boundary change
@@ -23,6 +23,9 @@ Change in v0.8 (spec D194, D195): chunk 21's machine measurements ran on 2026-10
 item 15 and the cold run; item 6 is met at the band's measure change, and which moment it is
 measured to is now O106. O68 and O69 are closed. Change in v0.9 (spec D197): O106 is answered,
 item 6 is judged at the band's measure change, so it is met, and chunk 21 no longer waits on it.
+Change in v0.10 (spec D198, D199): the owner accepts the VISION for v2.0 as it stands, and the USB
+keyboard checks follow the v2.0 tag as v2.0.x hand checks, so chunk 21 is blocked only by its own
+remaining work.
 
 This plan cuts v2 into chunks that one owner can build, test and document at a time, and puts
 them in order. It adds no behaviour. What the app does is in the [master spec](master-spec.md);
@@ -385,7 +388,8 @@ atoms' EXPECTATION sections, except item 15 (the main-thread budget), which is t
 **What stays for the build.**
 
 - **The owner's sign-off on VISION v0.4** (`vision_infinite_flow_first_release`). It is needed
-  before the v2.0 gate, [chunk 21](#chunk-21--v20-release-gate), at the latest.
+  before the v2.0 gate, [chunk 21](#chunk-21--v20-release-gate), at the latest. _Given on
+  2026-10-06 for the vision as it then stood, version 0.6 (spec D198)._
 - **Drift between the code and the new atoms.** The code still states v1 rules in places. Each
   item is fixed in step 6 of the chunk that changes that code:
 
@@ -1983,8 +1987,9 @@ and [intent: A controller lost during a session](../../../ui_ux/flows/controller
   latency constants are tuned and documented in a new MIDI document under `docs/`, with the
   measurements (item 9).
 
-**Blocked by:** in part, the controller check on the reference hardware. The tuning covers USB;
-Bluetooth is best-effort, with no tuning of its own (O71, settled 2026-10-06, spec D191).
+**Blocked by:** nothing. The tuning was done for the breath controller over USB on 2026-10-06,
+and the USB keyboard's follows the v2.0 tag (spec D199). Bluetooth is best-effort, with no tuning
+of its own (O71, settled 2026-10-06, spec D191).
 
 ### Chunk 18 — MusicXML encoding
 
@@ -2239,13 +2244,18 @@ The real-hardware checks, part v2.4 (from chunk 35), on the reference machine an
 - Item 9: the windows and latency constants are measured and tuned on the reference hardware by
   the procedure in [`docs/midi-tuning.md`](../../../docs/midi-tuning.md#measuring-on-the-reference-hardware),
   one results row per device. A window value other than 150 ms early and 200 ms late has the
-  owner's sign-off, and `rule_expected_note_window` was revised first.
+  owner's sign-off, and `rule_expected_note_window` was revised first. Done for the breath
+  controller over USB on 2026-10-06: the latency constants were kept, the windows unchanged. The
+  USB keyboard's row follows the tag as a v2.0.x hand check (spec D199): the owner has no USB
+  keyboard yet.
 - The controller check on the reference hardware: with the device's transpose setting at C, B♭
   tenor and E♭ alto, the MIDI note a written middle C sends, whether an octave setting changes it,
   and the note-on velocity, are written down
   ([`docs/controller-connection.md`](../../../docs/controller-connection.md#the-verdict)). The
   owner decides from them whether a manual input-transposition setting is needed; if it is, it is
-  new scope, specced on its own. Bluetooth MIDI (O71) was tried at the same sitting, on
+  new scope, specced on its own. Done for the breath controller on 2026-10-06: its own transpose
+  setting reached a match for every profile tried, so none is called for (spec D199). The USB
+  keyboard's check follows the tag as a v2.0.x hand check (spec D199). Bluetooth MIDI (O71) was tried at the same sitting, on
   2026-10-06, and settled (spec D191): USB is the tested path, Bluetooth best-effort.
 - Item 12, in real programs: MuseScore opens real MusicXML exports for the three instrument
   templates, the two saxophones with `<transpose>` and the C keyboard without; a MIDI tool opens
@@ -2293,18 +2303,21 @@ What the earlier chunks left open:
 - The owner has answered what a session's last phrase may owe (spec D167). Chunk 7's carry-over
   criteria hold under that answer, and `documentalist` has given `rule_leap_recovery` and
   `rule_open_phrase_ending` their v2 scope.
-- The owner has signed off VISION v0.4. `documentalist` has settled the release tags of the
+- The owner accepted the VISION for v2.0 as it stands on 2026-10-06 (spec D198), version 0.6
+  then; a full rewrite by the owner comes later, not scheduled. `documentalist` applies the status
+  change and D193's correction to its line on the real-hardware checks. `documentalist` has settled the release tags of the
   v2.1, v2.2 and v2.4 atoms (merged into `release-v2.0` or kept as history, spec D183) and
   advanced the atoms' status with the owner's agreement.
 - The owner decides the tag. v2.0 ships with the timing constants tuned on the reference hardware.
   Settled on 2026-10-06 (O105, spec D193): the real-program export checks (MuseScore, a MIDI tool,
   the DAW line-up) follow the tag as a v2.0.x hand-check note; the controller check, the windows
-  and latency tuning, the playhead and main-thread measurements and the cold run block it.
+  and latency tuning, the playhead and main-thread measurements and the cold run block it. The
+  USB keyboard's checks follow the tag too (spec D199); the breath controller's results stand for
+  the tuning and the controller check.
 
-**Blocked by:** every open item above, until closed: the VISION sign-off, and the real-hardware
-checks that block the tag (O71, O105 and O106 were closed on 2026-10-06, spec D191, D193 and
-D197). The real-hardware checks wait for the reference hardware to be at hand; the owner runs them
-when they have time. O97, which item 2's check depended on, was answered on 2026-09-29 (D167).
+**Blocked by:** nothing outside the gate's own remaining work. O71, O105 and O106 were closed on
+2026-10-06 (spec D191, D193 and D197); the VISION was accepted (spec D198); and the real-hardware
+checks still waiting on hardware, the USB keyboard's, follow the tag (spec D199). O97, which item 2's check depended on, was answered on 2026-09-29 (D167).
 
 ### Chunk 22 — Played-notes MIDI encoding
 

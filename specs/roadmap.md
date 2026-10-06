@@ -1,13 +1,14 @@
 # Infinite Flow Roadmap
 
-Status: draft v1.6 (rewritten 2026-09-25 after the persona and vision session; browser scope
+Status: draft v1.7 (rewritten 2026-09-25 after the persona and vision session; browser scope
 added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keeping candidates and
 export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
 session view placed in v5 2026-09-28, D133; v2 replanned 2026-10-03: real-hardware checks as
 v2.4, D173, and the chord-fit check moved to v3 as a nice-to-have, D174; v3 rhythm candidates
 added, D175; v2.1, v2.2 and v2.4 compacted into one v2.0 release 2026-10-05, D183; Tone.js noted
 as a candidate, D185; real-program export checks after the v2.0 tag and Bluetooth MIDI
-best-effort 2026-10-06, D191, D193)
+best-effort 2026-10-06, D191, D193; USB keyboard checks after the v2.0 tag and the vision
+rewrite carry-over 2026-10-06, D198, D199)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -56,8 +57,8 @@ is archived verbatim as [2026-09-25-roadmap-pre-vision.md](archive/2026-09-25-pe
   playhead and main-thread measurements in real Chromium, and the cold run re-measured on the
   reference machine (D173, D180). v2.0 does not ship before those checks, apart from the
   real-program export checks (MuseScore, a MIDI tool, a DAW), which may follow the tag as a v2.0.x
-  hand-check note (D193). USB is the tested controller connection; Bluetooth MIDI is best-effort
-  (D191). v2.3 is empty since the chord-fit check
+  hand-check note (D193), and the checks that need a USB keyboard, which follow it the same way
+  (D199). USB is the tested controller connection; Bluetooth MIDI is best-effort (D191). v2.3 is empty since the chord-fit check
   left for v3 (D174); the number is not reused.
 - **Depends on:** the v1.0 gate (instrument transposition as data); the first audio and timing
   foundation; **O10** once continuation reuses earlier material. (O24, what "fits the chord"
@@ -108,6 +109,11 @@ is archived verbatim as [2026-09-25-roadmap-pre-vision.md](archive/2026-09-25-pe
 - **Direction only:** [vision/endgame.md](vision/endgame.md).
 
 ## Engineering carry-overs (not tied to one version)
+
+- **Rewriting the product vision.** The owner accepted the vision
+  ([`vision_infinite_flow_first_release`](../docs/vision_infinite_flow_first_release.atom.md))
+  for v2.0 as it stands, and plans to sit down later and rewrite it entirely (D198). Not
+  scheduled; it blocks nothing.
 
 - **O10, planner authority:** can a later planner stage revise an earlier one without
   recoupling them? See the [register](open-questions.md).

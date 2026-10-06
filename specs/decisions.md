@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.32
+Status: draft v2.33
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1124,3 +1124,23 @@ fact in the live documents (see the [archive index](archive/README.md) and
   (D194), at 120 BPM over 150 barlines, the band's measure changed at most 14.5 ms after the
   heard barline and at most 11.2 ms before it, none over 20 ms, so item 6 is met. Master spec §11
   and §12; build plan chunks 16 and 21.
+- **D198 (2026-10-06): the VISION is accepted for v2.0 as it stands; a full rewrite comes
+  later.** The product owner's sign-off: "i'll accept the vision for now, but i'll need to sit
+  down at some point and rewrite it entirely, haha." The product vision
+  (`vision_infinite_flow_first_release`, version 0.6 today) is accepted for v2.0 as it stands, so
+  its sign-off no longer holds up build plan chunk 21. `documentalist` applies the status change,
+  and D193's correction to the vision's line on the real-hardware checks (the real-program export
+  checks follow the v2.0 tag). The owner plans to rewrite the vision entirely later; the rewrite is
+  not scheduled and blocks nothing, and is listed with the roadmap's carry-overs. Build plan
+  chunks 0 and 21; roadmap.
+- **D199 (2026-10-06): the USB keyboard checks do not block the v2.0 tag.** The product owner's
+  ruling: "keyboard isn't blocking for the version tag." The owner has no USB keyboard at hand
+  yet. The checks that need one, the transposition check with the C MIDI keyboard profile
+  (hardware checklist part A's keyboard row) and the output delay, the playing on the click and
+  the playing of phrases for the keyboard (B1–B3), follow the tag as v2.0.x hand checks, as D193's
+  real-program export checks do. The breath controller's results of 2026-10-06, over USB, stand
+  as the evidence for the v2.0 tag: for the tuning of the acknowledgement windows and latency
+  constants (item 9), which kept the latency constants and left the 150 ms and 200 ms windows unchanged,
+  and for the controller check on the reference hardware, where the device's own transpose
+  setting reached a match for every profile tried, so no manual input-transposition setting is
+  called for. Master spec §11 and §12; build plan chunks 17 and 21.

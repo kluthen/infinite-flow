@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.34 (2026-10-06). This is the consolidated, execution-ready specification for
+Status: master spec v1.35 (2026-10-06). This is the consolidated, execution-ready specification for
 v2, which ships as one release, v2.0, whose parts keep the labels v2.0, v2.1, v2.2 and v2.4 (v2.3
 was emptied, and its number is not reused).
 It supersedes the individual v2 draft topic documents,
@@ -134,6 +134,10 @@ measured to is added to §12 (§11, §12). Change in v1.33, the product owner's 
 2026-10-06: a second caveat for the end-of-measure chord-fit check, on the short stray notes a
 controller can send (§9). Change in v1.34, the product owner's decision of 2026-10-06: the
 playhead check is measured to the moment the playhead's measure changes, so it is met (§11, §12).
+Change in v1.35, the product owner's ruling of 2026-10-06: the checks that need a USB keyboard do
+not block the v2.0 tag and follow it as hand checks on a v2.0.x update; the breath controller's
+results stand for the tuning and the controller check, which calls for no manual
+input-transposition setting (§11, §12).
 
 ## 1. Core concept
 
@@ -1080,8 +1084,10 @@ items they replace keep their numbers below, so references to them stay valid. T
 constants (the acknowledgement windows and the latency constants of §8) are built at their
 starting values and ship tuned by those checks. The checks of exports in real programs (item 12
 in real programs and the DAW line-up from v2.1, below) do not block the v2.0 tag: they may follow
-it, written down as a hand-check note on a v2.0.x update. Every other real-hardware check must
-pass before v2.0 is tagged.
+it, written down as a hand-check note on a v2.0.x update. So may the checks that need a USB
+keyboard (the controller check and the timing measurements with the keyboard, item 9 below): the
+breath controller's results stand for v2.0. Every other real-hardware check must pass before v2.0
+is tagged.
 
 ### Prerequisites that must already be in place
 
@@ -1306,7 +1312,7 @@ pass before v2.0 is tagged.
   generated as chosen, one step tenser, as chosen, one step calmer, never past Settled or Edge,
   and the same seeds give the same session.
 - **v2.4, the real-hardware checks:** v2.0's items 6, 9 and 15 and the real-program part of item
-  12, and the controller check on the reference hardware (§12), all on the reference machine and
+  12, and the controller check on the reference hardware (§8), all on the reference machine and
   hardware:
   - **Item 6:** the on-screen playhead stays within 20 ms of the actual audio output position over a
     five-minute session in Chromium, measured to the moment the playhead band's measure changes
@@ -1315,7 +1321,10 @@ pass before v2.0 is tagged.
     the heard barline.
   - **Item 9:** the acknowledgement windows and latency constants are tuned and documented against
     the actual reference hardware (a breath controller over USB, and a USB keyboard). A window
-    value other than 150 ms early and 200 ms late needs the product owner's sign-off.
+    value other than 150 ms early and 200 ms late needs the product owner's sign-off. Done for
+    the breath controller on 2026-10-06: the latency constants were kept, and the windows stay at
+    150 ms and 200 ms. The USB keyboard's measurements may follow the tag, as a v2.0.x hand
+    check.
   - **Item 12, in real programs** (may follow the tag, as a v2.0.x hand-check note): MusicXML
     exports open correctly in a real notation program (MuseScore) for each of the three
     instrument templates, the two saxophones with their `<transpose>` element and the C keyboard
@@ -1324,8 +1333,13 @@ pass before v2.0 is tagged.
     audio scheduler's own look-ahead window during a 240 BPM session. Met on 2026-10-06: no task
     reached 50 ms at 240 BPM, and the longest block while engraving was about 50 ms, against the
     200 ms window.
-  - **The controller check on the reference hardware:** its verification as §12 describes, which
-    decides whether a manual input-transposition setting is needed.
+  - **The controller check on the reference hardware:** with the device's own transpose setting
+    at C, B♭ tenor and E♭ alto, which MIDI note the check's written note sends, whether an octave
+    setting changes it, and what note-on velocity it uses; this decides whether a manual
+    input-transposition setting is needed. Done for the breath controller on 2026-10-06: the
+    device's own transpose setting reached a match for every profile tried, so no manual
+    input-transposition setting is called for. The USB keyboard's check may follow the tag, as a
+    v2.0.x hand check.
   - **From v2.1, in a real program** (may follow the tag, as a v2.0.x hand-check note): imported
     together into a real DAW, the played-notes file and the generated-notes MIDI file of the same
     session line up phrase by phrase, with the same tempo map and markers.
@@ -1342,17 +1356,13 @@ pass before v2.0 is tagged.
 ## 12. Open questions carried forward
 
 These are consciously left for implementation (or a later, focused conversation with the product
-owner) to resolve. None of them is silently dropped. None of the items in this first list blocks
-starting v2.0 implementation:
+owner) to resolve. None of them is silently dropped. No item of v2's own scope is left open
+here.
 
-- **The controller-transposition check's own verification on the reference hardware** (§8): with
-  the device's own transpose setting at each of C, B♭ tenor and E♭ alto, confirming which MIDI note
-  a written middle C actually sends, whether an octave setting changes it, and what note-on
-  velocity it uses. This determines whether an additional manual "input transposition" setting is
-  needed beyond the check itself. It is one of the real-hardware checks (§11), part of v2.0's
-  definition of done.
-
-The backing's voicing and register, and the screen wake lock dropped mid-session, once in this
+The controller-transposition check's verification on the reference hardware, once in this list,
+is settled: the breath controller's own transpose setting reaches a match, so no manual
+input-transposition setting is needed; the USB keyboard's check follows the v2.0 tag (§11). The
+backing's voicing and register, and the screen wake lock dropped mid-session, once in this
 list, are settled (§6). So are Bluetooth MIDI, best-effort with USB the tested connection (§8),
 and whether the checks of exports in real programs block the v2.0 tag: they do not (§11); and
 the main-thread engraving against the look-ahead window and the re-measured generation latency,

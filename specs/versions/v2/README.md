@@ -1,6 +1,6 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27; master spec v1.34, 2026-10-06, D183–D197).
+Status: consolidated into the master spec (2026-09-27; master spec v1.35, 2026-10-06, D183–D199).
 The individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
 ID-free description of v2, which ships as one release, v2.0, since D183 (its parts keep the
@@ -299,6 +299,12 @@ Settled scope is below and unchanged. The topic documents mark each item settled
 - **Settled (D197, the owner, 2026-10-06).** **O106 closed** with its proposal: item 6's 20 ms is
   measured to the moment the playhead band's measure changes, so item 6 is met. Master spec v1.34,
   build plan v0.9.
+- **Settled (D198, D199, the owner, 2026-10-06).** The VISION is accepted for v2.0 as it stands;
+  a full rewrite by the owner comes later, not scheduled (D198). The USB keyboard checks follow
+  the v2.0 tag as v2.0.x hand checks; the breath controller's results stand for the tuning and the
+  controller check, which calls for no manual input-transposition setting (D199). The v2.0 gate,
+  build plan chunk 21, is blocked only by its own remaining work. Master spec v1.35, build plan
+  v0.10.
 - Open: 8 questions across the register, including O100–O103, the
   v3 rhythm candidates (D175); O86 (what makes a favorite "exported") is still open but belongs
   to v3 (D130); none is currently flagged ★. See [open-questions.md](../../open-questions.md) and
