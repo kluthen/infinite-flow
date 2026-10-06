@@ -13,12 +13,23 @@ Total time: about 1 h 15 min. Parts A–D need the controllers; part E doesn't.
 - [ ] The machine you practise on, with the **wired** speakers or headphones you practise with
       (Bluetooth headphones add a lot of output delay and would skew part B).
 - [ ] Nothing heavy running (no build, no tests).
-- [ ] `npm run dev`, open the printed address in Chrome/Chromium (desktop window, not a phone).
-- [ ] Plug the breath controller in over USB. Click `Connect controller`, allow MIDI, pick it.
+- [ ] Use the **dev server**, not the deployed site: the console lines below only work on a
+      development build, and the deployed site blocks MIDI until its server header is fixed.
+- [ ] In the VS Code terminal (connected to the Linux machine), run `npm run dev`. VS Code
+      forwards port 5173 to Windows (check the **Ports** panel; add 5173 there if it isn't
+      listed).
+- [ ] In Chrome on Windows, open **`http://localhost:5173`**, exactly that: Web MIDI only works
+      on `https://` or `localhost` pages, so the Linux machine's IP address won't work.
+- [ ] Plug the controllers into the **Windows** PC (Chrome reads the MIDI devices of the
+      machine it runs on).
+- [ ] Click `Connect controller`; Chrome asks for MIDI access, allow it; pick the breath
+      controller.
 - [ ] Open DevTools → Console and paste, once per page load:
 
 ```js
-const app = document.querySelector('#app').__vue_app__._instance.setupState
+const root = document.querySelector('#app')?.__vue_app__?._instance
+if (!root) throw new Error('Not the dev server: open http://localhost:5173 after npm run dev')
+const app = root.setupState
 ```
 
 - [ ] Paste this listener too. It prints the raw MIDI note number and velocity of every note
@@ -157,10 +168,11 @@ Tip: right-click the table → "Copy object", or just screenshot it, and give it
       appear under `Connect controller` in Chrome? ______
   - If yes: run B2 over Bluetooth and add a row; the spread shows the jitter.
   - If no: note what you tried.
-- [ ] **Android phone (Chrome):** Web MIDI only works on a secure (https) page, and the VPS
-      still runs an old build. Either ask Claude to prepare a deploy of the current main (you run
-      `scripts/vps.sh`), or use Chrome's USB port forwarding (`chrome://inspect`) to open the
-      dev server as `localhost` on the phone. Then note:
+- [ ] **Android phone (Chrome):** Web MIDI only works on a secure (https) page. The deployed
+      site needs the current main, which includes the server-header fix that lets MIDI through:
+      ask Claude to prepare the deploy (you run `scripts/vps.sh`). Alternatively, use Chrome's
+      USB port forwarding (`chrome://inspect`) to open the dev server as `localhost` on the
+      phone. Then note:
   - connected over Bluetooth or USB (OTG)? ______
   - did Chrome see the controller (some phones need the controller's own app or a MIDI-BLE
     connector app first)? ______
