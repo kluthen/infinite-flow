@@ -75,8 +75,8 @@ describe('ConnectionSheet check result', () => {
     await play(rig, checkWrittenNote(BB_TENOR_PROFILE))
 
     expect(resultLines(wrapper)).toEqual([
-      'Your controller sounds 14 semitones (1 octave and 2) higher than the B-flat tenor saxophone profile expects.',
-      "Change your controller's transpose setting so it plays 14 semitones (1 octave and 2) lower, then run the check again.",
+      'Your controller sounds 14 semitones (1 octave and 2 semitones) higher than the B-flat tenor saxophone profile expects.',
+      "Change your controller's transpose setting so it plays 14 semitones (1 octave and 2 semitones) lower, then run the check again.",
       'If you actually play the C MIDI keyboard, choose the C MIDI keyboard instrument profile instead — no controller change needed.',
     ])
     expect(actionLabels(wrapper)).toEqual(['Continue', 'Run check again'])

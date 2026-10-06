@@ -21,8 +21,8 @@ const OFFSET_WORDING: ReadonlyArray<readonly [number, string, string, string, st
   [-12, '1 octave', 'lower', 'higher', 'octave'],
   [2, '2 semitones', 'higher', 'lower', 'transpose'],
   [-2, '2 semitones', 'lower', 'higher', 'transpose'],
-  [14, '14 semitones (1 octave and 2)', 'higher', 'lower', 'transpose'],
-  [-14, '14 semitones (1 octave and 2)', 'lower', 'higher', 'transpose'],
+  [14, '14 semitones (1 octave and 2 semitones)', 'higher', 'lower', 'transpose'],
+  [-14, '14 semitones (1 octave and 2 semitones)', 'lower', 'higher', 'transpose'],
   [9, '9 semitones', 'higher', 'lower', 'transpose'],
   [-9, '9 semitones', 'lower', 'higher', 'transpose'],
   [5, '5 semitones', 'higher', 'lower', 'transpose'],
@@ -102,9 +102,9 @@ describe('transpositionCheckCopy', () => {
       ),
     ).toEqual({
       result:
-        'Your controller sounds 14 semitones (1 octave and 2) higher than the B-flat tenor saxophone profile expects.',
+        'Your controller sounds 14 semitones (1 octave and 2 semitones) higher than the B-flat tenor saxophone profile expects.',
       suggestion:
-        "Change your controller's transpose setting so it plays 14 semitones (1 octave and 2) lower, then run the check again.",
+        "Change your controller's transpose setting so it plays 14 semitones (1 octave and 2 semitones) lower, then run the check again.",
       profileSuggestion:
         'If you actually play the C MIDI keyboard, choose the C MIDI keyboard instrument profile instead — no controller change needed.',
     })
@@ -121,10 +121,10 @@ describe('transpositionCheckCopy', () => {
       'Your controller sounds 2 octaves higher than the C MIDI keyboard profile expects.',
     )
     expect(copyFor(C_KEYBOARD_PROFILE, 13).result).toBe(
-      'Your controller sounds 13 semitones (1 octave and 1) higher than the C MIDI keyboard profile expects.',
+      'Your controller sounds 13 semitones (1 octave and 1 semitone) higher than the C MIDI keyboard profile expects.',
     )
     expect(copyFor(C_KEYBOARD_PROFILE, -27).result).toBe(
-      'Your controller sounds 27 semitones (2 octaves and 3) lower than the C MIDI keyboard profile expects.',
+      'Your controller sounds 27 semitones (2 octaves and 3 semitones) lower than the C MIDI keyboard profile expects.',
     )
   })
 })

@@ -32,7 +32,7 @@ function distanceWording(offset: number): string {
   const octaves = Math.floor(semitones / OCTAVE)
   const remainder = semitones % OCTAVE
   if (remainder === 0) return count(octaves, 'octave')
-  return `${semitones} semitones (${count(octaves, 'octave')} and ${remainder})`
+  return `${semitones} semitones (${count(octaves, 'octave')} and ${count(remainder, 'semitone')})`
 }
 
 /** Intent: the result and suggestion lines for a controller that is `offset` semitones off. */

@@ -360,7 +360,7 @@ profile table. A played value that is not an integer from 0 to 127 throws.
 [Check result copy](../ui_ux/screens/controller-connection/handoff.md#check-result-copy), word for
 word: the result line, the suggestion line, and the other-profile line when there is one. The
 distance reads "{n} semitone(s)" below an octave, "{n} octave(s)" for a multiple of 12, and
-"{n} semitones ({octaves} octave(s) and {remainder})" otherwise.
+"{n} semitones ({octaves} octave(s) and {remainder} semitone(s))" otherwise.
 
 **On the reference hardware (2026-10-06).** The check was run on the reference breath controller,
 a Travel Sax 2 (MIDI port `TravelSax2 MIDI 1`), over USB, in Debian's Chrome on the Linux machine,
@@ -387,7 +387,8 @@ It is one of the real-hardware checks of the v2.0 release gate (build-plan chunk
   hand yet.
 - **A copy nit** found on the way: the +12 result reads "14 semitones (1 octave and 2)", where
   the remainder lacks its unit; "1 octave and 2 semitones" would read better. The wording is
-  fixed by the screen handoff's Check result copy, so a change starts there.
+  fixed by the screen handoff's Check result copy, so a change starts there. Since fixed: it now
+  reads "14 semitones (1 octave and 2 semitones)".
 
 ## How it's tested
 

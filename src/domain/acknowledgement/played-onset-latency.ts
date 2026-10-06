@@ -14,19 +14,20 @@ export type ControllerConnection = 'usb' | 'bluetooth-le'
 
 /**
  * The delay between scheduling a sound on the audio clock and hearing it from the speakers.
- * Provisional value: zero, which applies no correction. No measurement exists yet to set it from;
- * it is measured and fixed on the reference hardware (a breath controller over USB and a USB
- * keyboard) once acknowledgement runs in a live session. It is a hard-coded constant, because the
- * product ships no calibration step for the player.
+ * Zero, which applies no correction: on the reference hardware (a USB breath controller in
+ * Chromium on Linux) the output delay read 32 ms, but players anticipate the click and their
+ * played notes already landed on it (medians +2 to +9 ms). It is a hard-coded constant, because
+ * the product ships no calibration step for the player.
  */
 // @spec-link [[rule_played_onset_latency_compensation]]
 export const OUTPUT_LATENCY_SECONDS = 0
 
 /**
- * The extra delay each connection type adds before a note-on reaches the app. USB: zero, since
- * a wired USB connection adds a negligible delay. Bluetooth LE: 12.5 ms, the middle of the 10 to
- * 15 ms that Bluetooth LE MIDI typically adds, before its jitter. Both are starting points, tuned
- * on the reference hardware alongside the output latency above.
+ * The extra delay each connection type adds before a note-on reaches the app. Web MIDI does not
+ * say how a device is connected, so the USB entry (zero, a negligible delay) applies to every
+ * controller. The Bluetooth LE entry is not used today: Bluetooth is best-effort, measured
+ * roughly 70 to 80 ms later than USB with notes delivered in batches; the entry is kept for a
+ * possible opt-in Bluetooth setting.
  */
 // @spec-link [[rule_played_onset_latency_compensation]]
 export const CONNECTION_LATENCY_SECONDS: Readonly<Record<ControllerConnection, number>> =

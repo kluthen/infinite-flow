@@ -151,8 +151,8 @@ saxophone`, and let *d* be the played concert pitch minus the expected concert p
 turns it "lower"; *d* < 0 → "lower", and the suggestion turns it "higher".
 
 - **Distance wording.** |*d*| below 12: "{|*d*|} semitone(s)". |*d*| of 12 or more and not a
-  multiple of 12: "{|*d*|} semitones ({octaves} octave(s) and {remainder})". A multiple of 12:
-  "{|*d*|/12} octave(s)". Singular for 1: "1 semitone", "1 octave".
+  multiple of 12: "{|*d*|} semitones ({octaves} octave(s) and {remainder} semitone(s))". A
+  multiple of 12: "{|*d*|/12} octave(s)". Singular for 1: "1 semitone", "1 octave".
 - **Match** (*d* = 0): "Your controller matches the {profile} profile." / "Nothing to change —
   you're ready to play."
 - **Whole octaves** (*d* a non-zero multiple of 12): "Your controller sounds {distance}
@@ -178,11 +178,11 @@ turns it "lower"; *d* < 0 → "lower", and the suggestion turns it "higher".
   | C MIDI keyboard | −9 | E-flat alto saxophone |
 
 - **Worked example.** B-flat tenor saxophone profile, controller sending the written note
-  untransposed (*d* = +14): "Your controller sounds 14 semitones (1 octave and 2) higher than the
-  B-flat tenor saxophone profile expects." / "Change your controller's transpose setting so it
-  plays 14 semitones (1 octave and 2) lower, then run the check again." / "If you actually play
-  the C MIDI keyboard, choose the C MIDI keyboard instrument profile instead — no controller change
-  needed."
+  untransposed (*d* = +14): "Your controller sounds 14 semitones (1 octave and 2 semitones)
+  higher than the B-flat tenor saxophone profile expects." / "Change your controller's transpose
+  setting so it plays 14 semitones (1 octave and 2 semitones) lower, then run the check again." /
+  "If you actually play the C MIDI keyboard, choose the C MIDI keyboard instrument profile instead
+  — no controller change needed."
 
 ## Device changes while the sheet is open
 

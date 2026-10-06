@@ -60,9 +60,9 @@ with this sheet, it usually is.
 The result names the current instrument profile and says which way the controller is off, because
 a player cannot act on "transposed by 14" without knowing whether to turn a setting up or down, or
 which profile the app assumed. Distances are in semitones, the smallest step between two notes; at
-12 or more, the octave breakdown follows in brackets — "14 semitones (1 octave and 2)" — since an
-octave is 12 semitones and many controllers have a separate octave switch. A shift of exactly one
-or more whole octaves is described only in octaves.
+12 or more, the octave breakdown follows in brackets — "14 semitones (1 octave and 2 semitones)"
+— since an octave is 12 semitones and many controllers have a separate octave switch. A shift of
+exactly one or more whole octaves is described only in octaves.
 
 The first suggestion is always the controller's own setting, because a controller left at its
 default is the most common cause. A different instrument profile is suggested only when one of the
