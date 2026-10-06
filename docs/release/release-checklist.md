@@ -93,8 +93,10 @@ and smoke-test it independently of step 2's host-side gate.
       `/manifest.webmanifest` (`Content-Type: application/manifest+json`, `Cache-Control: no-cache`),
       and `/sw.js` (`Content-Type: text/javascript`, `Cache-Control: no-cache`). Confirm every
       response carries the security headers (`Content-Security-Policy`, `X-Content-Type-Options`,
-      `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`), and that a missing `/assets/*`
-      file 404s rather than falling back to `index.html`.
+      `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`), that `Permissions-Policy` reads
+      `midi=(self)` (any other value blocks every MIDI controller on the deployed site) with every
+      other listed capability at `()`, and that a missing `/assets/*` file 404s rather than falling
+      back to `index.html`.
 - [ ] Load the container's URL in Chromium, click Generate, confirm the score engraves, and switch
       through every instrument profile. Confirm zero `securitypolicyviolation` events and zero
       console/page errors (open DevTools → Console, or drive it with Playwright as documented in the

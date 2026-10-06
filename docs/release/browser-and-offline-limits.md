@@ -68,6 +68,20 @@ HTTPS termination in front of the app (a reverse proxy such as Caddy — see
 [`README.md`](../../README.md#deploying-behind-a-reverse-proxy-caddy) — or equivalent); this is
 infrastructure, not something `vite-plugin-pwa` or the container image can provide on their own.
 
+## Permissions-Policy of the production container
+
+The container's nginx sends a `Permissions-Policy` header on every response
+([`docker/security-headers.conf`](../../docker/security-headers.conf)). It allows Web MIDI for the
+app's own origin (`midi=(self)`): `midi=()` would block every MIDI controller on the deployed site,
+whatever site permission the player gives in the browser. Bluetooth MIDI controllers reach the
+browser through the operating system's MIDI ports, so they need no Web Bluetooth. The header
+disables the capabilities the app never uses: microphone, camera, geolocation, USB, serial,
+Bluetooth and the Payment Request API. It names neither the screen wake lock nor fullscreen (which
+some browsers require before the landscape orientation lock), so both keep their browser default,
+allowed for the app's own origin; Web Audio has no Permissions-Policy feature.
+[`tests/unit/deployment/permissions-policy.spec.ts`](../../tests/unit/deployment/permissions-policy.spec.ts)
+checks the header's value.
+
 ## Web Worker requirement
 
 Phrase generation runs off the main thread in a module Web Worker
