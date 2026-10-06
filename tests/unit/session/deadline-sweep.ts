@@ -4,9 +4,10 @@
  * both values of each session flag assigned to them deterministically) and a timed session run.
  *
  * A timed run drives the real session runner, with the real `generatePhrase` behind its generate
- * seam, on a fake audio clock that only this module moves. Every generate call costs a fixed
- * modelled time on one serial generator (the app's single generation worker), so a deadline is met
- * or missed by the model, never by the speed of the machine running the tests. The transport plays
+ * seam, on a fake audio clock that only this module moves. Every generate call keeps one serial
+ * generator (the app's single generation worker) busy for the time its cost model charges: by
+ * default a fixed modelled time, so a deadline is met or missed by the model, never by the speed of
+ * the machine running the tests; a run can charge another cost instead. The transport plays
  * the session in time: the count-in, each phrase starting to sound on the measure grid at the
  * session's tempo, a tick at every deadline the engine asks to be woken at, and Stop once the last
  * planned phrase has sounded in full. Every output is kept with the fake time it came out at.
@@ -37,7 +38,12 @@ import { makeSeed } from '@/domain/random/seed'
 import { GenerationWorkerCrashError } from '@/generation-worker/generation-worker-client'
 import { createSessionRunner, type SessionRunnerEvent } from '@/session/session-runner'
 import { COUNT_IN_MEASURES, measureSeconds } from '@/session/session-timing'
-import type { AudioTime, SessionOutput, SessionSettings } from '@/session/session-types'
+import type {
+  AudioTime,
+  SessionOutput,
+  SessionSettings,
+  SessionStart,
+} from '@/session/session-types'
 import { SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
 import { SEEDS } from '../domain/generation/carry-in/carry-in-matrix'
 import {
@@ -45,7 +51,7 @@ import {
   settingKey,
   type RhythmSetting,
 } from '../domain/generation/orchestration/cold-generation-golden/cold-generation-golden-fixture'
-import { idlePhraseOne } from './history-recording'
+import { buildIntent } from '../domain/generation/carry-in/carry-in-fixture'
 import {
   UNREAD_DISPLAY,
   failureOutcome,
@@ -66,6 +72,12 @@ import {
  */
 const ATTEMPT_COST_SECONDS = 0.35
 
+/**
+ * The most times phrase 1 is generated at Idle, each with the next seed, before a case is given up
+ * as broken.
+ */
+const IDLE_GENERATIONS = 5
+
 /** The tempos the sweep runs every case at: the slowest, a middle and the fastest, in BPM. */
 export const SWEEP_TEMPOS: readonly number[] = [60, 120, 240]
 
@@ -80,7 +92,7 @@ export interface SweepCase {
   readonly index: number
   readonly label: string
   readonly rhythm: RhythmSetting
-  /** The seed-matrix seed phrase 1 is generated with at Idle. */
+  /** The seed-matrix seed phrase 1 is first generated with at Idle. */
   readonly seed: number
   /** The first seed the session hands out, for phrase 2's first attempt. */
   readonly firstSessionSeed: number
@@ -176,21 +188,30 @@ function caseSettings(sweepCase: SweepCase, tempo: number): SessionSettings {
   }
 }
 
+/** A real outcome, with the wall time in seconds `generatePhrase` took to produce it here. */
+interface TimedOutcome {
+  readonly outcome: GenerationOutcome
+  readonly seconds: number
+}
+
 /**
  * The real outcomes of the intents a sweep generates, shared by the runs of one case at its three
- * tempos: tempo never reaches generation, so an intent's outcome is keyed without its tempo.
+ * tempos: tempo never reaches generation, so an intent's outcome is keyed without its tempo. Each
+ * intent is generated and timed once; its later runs reuse the outcome and the time recorded.
  */
 export class OutcomeCache {
-  private readonly outcomes = new Map<string, GenerationOutcome>()
+  private readonly outcomes = new Map<string, TimedOutcome>()
 
-  /** Intent: the real outcome of an intent, generated once per intent content, tempo aside. */
-  of(intent: GenerationIntent): GenerationOutcome {
+  /** Intent: the real outcome of an intent and its generation time, once per intent content. */
+  of(intent: GenerationIntent): TimedOutcome {
     const key = JSON.stringify(withoutTempo(intent))
     const cached = this.outcomes.get(key)
     if (cached !== undefined) return cached
+    const startedAt = performance.now()
     const outcome = generatePhrase(intent)
-    this.outcomes.set(key, outcome)
-    return outcome
+    const timed = { outcome, seconds: (performance.now() - startedAt) / 1000 }
+    this.outcomes.set(key, timed)
+    return timed
   }
 }
 
@@ -199,6 +220,15 @@ type AttemptAnswer = 'generate' | 'fail' | 'crash'
 
 /** The injected-failure script: how to answer each requested attempt. */
 export type AttemptScript = (request: GenerationRequestOutput) => AttemptAnswer
+
+/**
+ * How long one attempt keeps the serial generator busy, in seconds of audio time, given its real
+ * outcome, or undefined when the script answers it with an injected failure or crash.
+ */
+export type AttemptCost = (generated: TimedOutcome | undefined) => number
+
+/** Intent: the default cost model: every attempt costs the same modelled time. */
+const flatAttemptCost: AttemptCost = () => ATTEMPT_COST_SECONDS
 
 /** One output of a timed run, with the fake audio time it came out at. */
 interface TimedOutput {
@@ -263,15 +293,41 @@ function writtenPhraseFits(candidate: {
 }
 
 /**
+ * Intent: phrase 1 as the player gets it at Idle, before Start. As in v1, a phrase 1 that fails at
+ * Idle is no phrase to start from, and the player generates again; the sweep does the same
+ * deterministically, with the next seed each time (the case's seed, then seed + 1, seed + 2, ...),
+ * and gives the case up as broken after `IDLE_GENERATIONS` failures.
+ */
+function phraseOneAtIdle(
+  sweepCase: SweepCase,
+  settings: SessionSettings,
+  outcomes: OutcomeCache,
+): SessionStart['phraseOne'] {
+  for (let seed = sweepCase.seed; seed < sweepCase.seed + IDLE_GENERATIONS; seed++) {
+    const intent = buildIntent({
+      controls: settings.controls,
+      musicalProfile: settings.musicalProfile.musicalProfile,
+      seed,
+      label: 'sweep-phrase-1',
+    })
+    const { outcome } = outcomes.of(intent)
+    if (outcome.kind === 'generation_success') return { intent, outcome }
+  }
+  throw new Error(`${sweepCase.label}: phrase 1 failed at Idle with ${IDLE_GENERATIONS} seeds`)
+}
+
+/**
  * Intent: play one case's session at a tempo through the real runner on the fake clock, answering
- * each attempt as the script says after its modelled cost on the serial generator, and keep every
- * output with its time. The run stops at Stop, or at the first event the engine refuses.
+ * each attempt as the script says once the serial generator has spent the attempt's cost on it,
+ * and keep every output with its time. The run stops at Stop, or at the first event the engine
+ * refuses.
  */
 export async function runTimedSession(
   sweepCase: SweepCase,
   tempo: number,
   outcomes: OutcomeCache,
   script: AttemptScript,
+  cost: AttemptCost = flatAttemptCost,
 ): Promise<TimedSession> {
   const settings = caseSettings(sweepCase, tempo)
   const clock = { at: 0 }
@@ -288,15 +344,20 @@ export async function runTimedSession(
     due.sort((a, b) => a.at - b.at || a.order - b.order)
   }
 
-  /** Intent: answer one attempt once the serial generator has spent the modelled cost on it. */
+  /**
+   * Intent: answer one attempt once the serial generator has spent its cost on it. The generator
+   * stays busy for the whole cost even when the engine drops the attempt at its deadline, as the
+   * app's worker keeps computing a dropped attempt.
+   */
   function generate(intent: GenerationIntent): Promise<GenerationOutcome> {
     const answer = script(latestRequest!)
-    const doneAt = Math.max(clock.at, generatorFreeAt) + ATTEMPT_COST_SECONDS
+    const generated = answer === 'generate' ? outcomes.of(intent) : undefined
+    const doneAt = Math.max(clock.at, generatorFreeAt) + cost(generated)
     generatorFreeAt = doneAt
     return new Promise((resolve, reject) =>
       schedule(doneAt, () => {
         if (answer === 'crash') reject(new GenerationWorkerCrashError('Error', 'injected crash'))
-        else resolve(answer === 'fail' ? failureOutcome() : outcomes.of(intent))
+        else resolve(generated === undefined ? failureOutcome() : generated.outcome)
       }),
     )
   }
@@ -320,7 +381,7 @@ export async function runTimedSession(
     {
       at: 0,
       settings,
-      phraseOne: idlePhraseOne(settings, sweepCase.seed),
+      phraseOne: phraseOneAtIdle(sweepCase, settings, outcomes),
       mutation: sweepCase.varySettings
         ? { kind: 'on', seed: makeSeed(sweepCase.firstSessionSeed + 99) }
         : SETTINGS_MUTATION_OFF,
