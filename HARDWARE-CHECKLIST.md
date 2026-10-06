@@ -77,14 +77,29 @@ The app expects (a match):
 
 | Device transpose setting | App profile    | MIDI note sent | Velocity | App verdict (match / octaves / semitones + suggestion) | Note after octave change |
 | ------------------------ | -------------- | -------------- | -------- | ------------------------------------------------------ | ------------------------ |
-| C                        | C keyboard     |                |          |                                                        |                          |
-| B♭                       | B♭ tenor sax   |                |          |                                                        |                          |
-| E♭                       | E♭ alto sax    |                |          |                                                        |                          |
+| 0 (C), the default       | B♭ tenor sax   | 60 (inferred, not played: 58 + 2) | — | expected "2 semitones" (not played) | not tested |
+| −2 (B♭)                  | B♭ tenor sax   | 58             | 80       | **match**                                              | not tested               |
+| E♭ setting               | E♭ alto sax    | not tested     |          |                                                        |                          |
 
-- [ ] Velocity: play the same note very softly, then hard. Does the velocity change, or is it
-      fixed? Range seen: ______
+Results, 2026-10-06, TravelSax2 (port name "TravelSax2 MIDI 1"), over USB, Chrome on Windows:
+
+- With the device's transpose at −2 (semitones), the B♭ tenor saxophone profile's check note
+  (written C5) sent MIDI 58, and the app said **match**. So at 0 the Travel Sax sends the
+  fingered written note **one octave lower** (written C5 → C4, 60): a C instrument an octave
+  down. −2 adds the whole step that makes it a B♭ tenor. For the E♭ alto profile (expects 63),
+  the same reasoning predicts +3 at the device, or −9 with the octave raised by one; not tested.
+- The device's own transpose setting was enough to reach a match: no manual input-transposition
+  setting in the app was needed for the tenor. (The octave-setting step and the alto setting
+  were not tested.)
+- Other notes played during the check: 59, 53, 58, 55, 57, 55, 53, 55, 57.
+
+- [x] Velocity: the Travel Sax had a fixed-velocity option on, sending 127 on every note. With it
+      unchecked, velocity follows the attack: range seen 80–116 on normal notes, plus one stray
+      note at velocity 4 (note 59, likely a very soft breath attack; the app counts any velocity
+      above 0 as a played note). A note is sent once at its start: breath changes during the note
+      do not send a new note (they travel as control messages, which the app doesn't read).
 - [ ] USB keyboard: profile `C MIDI keyboard`, play the shown middle C → expect 60 and "match".
-      Result: ______
+      Result: **pending, no USB keyboard at hand yet.**
 
 ---
 
@@ -95,7 +110,7 @@ Do B1–B3 with the breath controller, then again with the USB keyboard.
 ### B1. Output delay (1 min)
 
 - [ ] After `Connect controller`, in the console: `app.workspace.audio.outputLatency() * 1000`
-      → ______ ms
+      → 32 ms
 - [ ] Second opinion:
 
 ```js
