@@ -10,8 +10,8 @@ parents:
 dependents:
   - [[module_review_export_pipeline]]
 type: RULE
-version: 0.4
-notes: Revised 2026-09-29 on an owner decision of 2026-09-29 (previous version 0.1). Version 0.1 closed every phrase with a double barline; the last phrase of the export now closes with a final barline instead, and a phrase whose written key differs from the previous phrase's opens with a new key signature. Still DRAFT. Revised 2026-10-05 (previous version 0.3) for spec D183 - v2 ships as one release, v2.0, and the real-hardware check this atom names is part of its single release gate rather than of a later release; the check itself is unchanged.
+version: 0.5
+notes: Revised 2026-10-06 (previous version 0.4) on spec D193, the product owner answer to O105 - the checks of exports in real programs do not block the v2.0 tag; they follow it and are validated at a later date as v2.0.x hand checks, because the owner has no MuseScore account or DAW at hand (hardware checklist part F, 2026-10-06). The automated checks and the rest of the rule are unchanged; still part of release v2.0. Revised 2026-09-29 on an owner decision of 2026-09-29 (previous version 0.1). Version 0.1 closed every phrase with a double barline; the last phrase of the export now closes with a final barline instead, and a phrase whose written key differs from the previous phrase's opens with a new key signature. Still DRAFT. Revised 2026-10-05 (previous version 0.3) for spec D183 - v2 ships as one release, v2.0, and the real-hardware check this atom names is part of its single release gate rather than of a later release; the check itself is unchanged.
 ---
 
 # Generated Notes MusicXML Export
@@ -27,7 +27,7 @@ The generated-notes export in MusicXML format produces one score-partwise 4.0 fi
 
 ## EXPECTATION
 - The MusicXML file carries each of the three instrument templates correctly, as automated tests check: the B♭ tenor and E♭ alto saxophones, which transpose, with their transpose element, and the C keyboard, which does not transpose, without one.
-- Opening the file in a real notation program (MuseScore) for each of the three instrument templates, and finding it correct there, is one of the real-hardware checks of the v2.0 release gate.
+- Opening the file in a real notation program (MuseScore) for each of the three instrument templates, and finding it correct there, is a hand check that follows the v2.0 tag, validated later as a v2.0.x hand check; it does not block the tag.
 - It shows written pitch, chord symbols, one rehearsal mark per phrase, a double barline (two thin lines) closing every phrase but the last, a final barline (a thin line then a thick one) closing the last phrase, and metronome marks at the start and at every tempo change.
 - A phrase whose written key differs from the previous phrase's opens with a new key signature.
 - It never contains played notes.

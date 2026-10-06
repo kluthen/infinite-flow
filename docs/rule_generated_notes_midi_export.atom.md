@@ -10,8 +10,8 @@ layer: BUSINESS
 priority: 1
 tags: [v2, release-v2.0, v2.4-check, export]
 type: RULE
-version: 0.3
-notes: Revised 2026-10-05 (previous version 0.2) for spec D183 - v2 ships as one release, v2.0, and the real-hardware check this atom names is part of its single release gate rather than of a later release; the check itself is unchanged.
+version: 0.4
+notes: Revised 2026-10-06 (previous version 0.3) on spec D193, the product owner answer to O105 - the checks of exports in real programs do not block the v2.0 tag; they follow it and are validated at a later date as v2.0.x hand checks, because the owner has no MuseScore account or DAW at hand (hardware checklist part F, 2026-10-06). The automated checks and the rest of the rule are unchanged; still part of release v2.0. Revised 2026-10-05 (previous version 0.2) for spec D183 - v2 ships as one release, v2.0, and the real-hardware check this atom names is part of its single release gate rather than of a later release; the check itself is unchanged.
 ---
 
 # Generated Notes MIDI Export
@@ -27,5 +27,5 @@ The generated-notes export in MIDI format produces one type 1 Standard MIDI File
 
 ## EXPECTATION
 - The MIDI file carries the correct tempo map and one marker per phrase, as automated tests check.
-- Opening the file in a real MIDI tool, and finding the correct tempo map there, is one of the real-hardware checks of the v2.0 release gate.
+- Opening the file in a real MIDI tool, and finding the correct tempo map there, is a hand check that follows the v2.0 tag, validated later as a v2.0.x hand check; it does not block the tag.
 - The backing track is present only when the player opts in; played notes are never present.

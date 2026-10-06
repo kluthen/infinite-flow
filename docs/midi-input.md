@@ -225,12 +225,11 @@ but are not the same clock, so every played note is mapped from one to the other
 ## Bluetooth MIDI
 
 USB is the tested path. A Bluetooth LE MIDI controller that the operating system exposes to
-Chromium is read through the same Web MIDI port, with nothing specific to it, but it is
-best-effort until the master spec's open question O71 is settled (see
-[open questions](../specs/versions/v2/master-spec.md#12-open-questions-carried-forward)). Its
-connection delay is one of chunk 14's latency constants, but a session cannot tell a Bluetooth
-device from a USB one, so it applies the USB correction to every controller (see
-[MIDI Tuning](midi-tuning.md#bluetooth)).
+Chromium is read through the same Web MIDI port, with nothing specific to it, and is best-effort:
+the owner's answer to the master spec's open question O71, after a 2026-10-06 trial where the
+reference breath controller connected over Bluetooth LE and lit the right notes, about 70 to 80 ms
+later than over USB and in batches. A session cannot tell a Bluetooth device from a USB one, so it
+applies the USB correction to every controller (see [MIDI Tuning](midi-tuning.md#bluetooth)).
 
 ## How it's tested
 
@@ -382,8 +381,8 @@ in the chunk and await the owner's acceptance:
   by its compensated onset. So the played notes line up with the generated notes the player
   heard. With today's USB correction of 0 they equal the raw times.
 - **The USB correction for every controller.** Web MIDI does not say how a device is connected,
-  so a session applies `latencyCorrectionFor('usb')` to every controller. Bluetooth stays
-  best-effort until O71 is settled (see [Bluetooth MIDI](#bluetooth-midi) and
+  so a session applies `latencyCorrectionFor('usb')` to every controller. Bluetooth is
+  best-effort (see [Bluetooth MIDI](#bluetooth-midi) and
   [MIDI Tuning](midi-tuning.md#bluetooth)).
 - **Two new end causes,** `silence-timeout` and `controller-lost`. A session ended by a lost
   controller ends on screen exactly as a silence timeout does.

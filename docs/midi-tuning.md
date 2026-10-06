@@ -6,10 +6,12 @@ reference hardware: a breath controller over USB, and a USB keyboard. The master
 this tuning in the real-hardware checks of the v2.0 release gate (see
 [Added by v2.1 and later](../specs/versions/v2/master-spec.md#added-by-v21-and-later), item 9,
 and [build plan chunk 21](../specs/versions/v2/build-plan.md#chunk-21--v20-release-gate)).
-Until that sitting, the app runs with the starting values below, untuned.
 
-**Nothing is tuned yet.** The reference hardware was not available when MIDI was wired into the
-session. Every value below is still its starting value, and the results table is empty.
+**Tuned for the breath controller on 2026-10-06; the USB keyboard is still to come.** The
+reference breath controller (Travel Sax 2) was measured over USB on 2026-10-06, and every constant
+kept its starting value: the played notes already land on the click as the app hears them, and the
+windows behave as their rule says (see [Results](#results)). The USB keyboard run is pending: the
+owner has none at hand yet.
 
 How the constants are used is described in [MIDI note acknowledgement](midi-acknowledgement.md)
 (the windows and the latency) and [Session Engine](session-engine.md#the-session-controllers-midi-side)
@@ -24,7 +26,8 @@ How the constants are used is described in [MIDI note acknowledgement](midi-ackn
   of the speakers. The player plays along with what they hear, so their notes arrive that much
   late.
 - **Connection delay**: the extra time a controller's note-on takes to reach the app. Negligible
-  over USB; about 10 to 15 ms, plus some jitter (small random variation), over Bluetooth LE.
+  over USB. Over Bluetooth LE, the reference breath controller's notes came roughly 70 to 80 ms
+  later than over USB, and in batches (see [Bluetooth](#bluetooth)).
 - **Window**: the stretch of time around an expected onset in which a played note at the right
   pitch counts. See [The window rule](midi-acknowledgement.md#the-window-rule).
 - **Click**: the metronome tick the app plays on every [beat](music/lexicon.md#beat).
@@ -33,11 +36,11 @@ How the constants are used is described in [MIDI note acknowledgement](midi-ackn
 
 | Constant                                     | Value  | File                                                   | Where the value comes from                                                                                                                            |
 | -------------------------------------------- | ------ | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `EARLY_GRACE_SECONDS`                        | 0.15   | `src/domain/acknowledgement/acknowledgement-window.ts` | Owner-approved rule text: a window opens 150 ms before its onset (`rule_expected_note_window`, version 0.2). To be confirmed by playing.              |
-| `LATE_GRACE_SECONDS`                         | 0.2    | `src/domain/acknowledgement/acknowledgement-window.ts` | Owner-approved rule text: a window stays open at least 200 ms after its onset (`rule_expected_note_window`, version 0.2). To be confirmed by playing. |
-| `OUTPUT_LATENCY_SECONDS`                     | 0      | `src/domain/acknowledgement/played-onset-latency.ts`   | Provisional: no correction until it is measured on the reference hardware.                                                                            |
-| `CONNECTION_LATENCY_SECONDS.usb`             | 0      | `src/domain/acknowledgement/played-onset-latency.ts`   | A wired USB connection adds a negligible delay. To be confirmed.                                                                                      |
-| `CONNECTION_LATENCY_SECONDS['bluetooth-le']` | 0.0125 | `src/domain/acknowledgement/played-onset-latency.ts`   | The middle of the 10 to 15 ms Bluetooth LE MIDI typically adds (`rule_played_onset_latency_compensation`). Best-effort, see [Bluetooth](#bluetooth).  |
+| `EARLY_GRACE_SECONDS`                        | 0.15   | `src/domain/acknowledgement/acknowledgement-window.ts` | Owner-approved rule text: a window opens 150 ms before its onset (`rule_expected_note_window`, version 0.2). Played on 2026-10-06: kept.              |
+| `LATE_GRACE_SECONDS`                         | 0.2    | `src/domain/acknowledgement/acknowledgement-window.ts` | Owner-approved rule text: a window stays open at least 200 ms after its onset (`rule_expected_note_window`, version 0.2). Played on 2026-10-06: kept. |
+| `OUTPUT_LATENCY_SECONDS`                     | 0      | `src/domain/acknowledgement/played-onset-latency.ts`   | Measured on 2026-10-06 (breath controller, USB): kept at 0. The browser reports 32 ms, but the player's anticipation of the click cancels it.        |
+| `CONNECTION_LATENCY_SECONDS.usb`             | 0      | `src/domain/acknowledgement/played-onset-latency.ts`   | A wired USB connection adds a negligible delay. Measured on 2026-10-06 (breath controller): kept at 0.                                                |
+| `CONNECTION_LATENCY_SECONDS['bluetooth-le']` | 0.0125 | `src/domain/acknowledgement/played-onset-latency.ts`   | Unused: no session applies a Bluetooth-specific correction (`rule_played_onset_latency_compensation`, version 0.3). See [Bluetooth](#bluetooth).         |
 | `SILENCE_TIMEOUT_SECONDS`                    | 30     | `src/session/session-midi-timers.ts`                   | Product rule (`rule_silence_timeout_ends_session`). Not tuned.                                                                                        |
 | `RECONNECTION_WINDOW_SECONDS`                | 30     | `src/session/session-midi-timers.ts`                   | Product rule (`rule_controller_reconnection_window`). Not tuned.                                                                                      |
 
@@ -48,8 +51,10 @@ What may change without the owner, and what may not:
   and the rule is revised first.
 - **The output latency and the USB delay are free to tune.** The rule only says they are tuned,
   hard-coded constants.
-- **The Bluetooth delay is free within 10 to 15 ms.** A value outside that range changes
-  `rule_played_onset_latency_compensation`, which states it.
+- **There is no Bluetooth correction to tune.** `rule_played_onset_latency_compensation` (version
+  0.3) gives every controller the USB correction and makes Bluetooth best-effort. A
+  Bluetooth-specific correction, or extra tolerance for Bluetooth, would change that rule: it needs
+  the owner's decision first.
 - **The two 30-second timers are product rules,** not hardware tuning. They are listed here only
   because they are timing constants of the same session.
 
@@ -129,7 +134,8 @@ pair of Bluetooth headphones adds far more output latency than wired ones.
 3. Play a few phrases deliberately a little early, then a few a little late, as a player who is
    slightly ahead or behind would.
 4. Click `Stop` and paste the readout. Its `noteOffsetMs` column is how far each played note fell
-   from the nearest expected note of the same pitch, and `nearestLit` says whether that note was
+   from the expected note whose window holds it (else from the nearest expected note of the same
+   pitch), `inWindow` says whether any window held it, and `lit` whether that expected note was
    acknowledged.
 5. Look for two things:
    - a note you felt was in time but that was not lit: the window is too tight there, or the
@@ -149,11 +155,14 @@ acknowledged notes (`acknowledgements`). Played times are stored with the latenc
 already taken off, so they line up with the expected onsets. Notes played during the count-in
 belong to no phrase and do not appear.
 
-This readout prints one row per played note. It loads the app's own expected-note code through the
-development server:
+This readout prints one row per played note, then a summary of the click offsets. It loads the
+app's own expected-note and window code through the development server:
 
 ```js
 const { deriveExpectedNotes } = await import('/src/domain/acknowledgement/expected-note.ts')
+const { placeAcknowledgementWindows } = await import(
+  '/src/domain/acknowledgement/acknowledgement-window.ts'
+)
 const key = (id) => `${id.phraseNumber}:${id.measureIndex}:${id.eventIndex}`
 const rows = []
 for (const record of app.sessionController.state.lastHistory.phrases()) {
@@ -164,6 +173,7 @@ for (const record of app.sessionController.state.lastHistory.phrases()) {
     tempoBpm: record.tempo,
   })
   const lit = new Set(record.acknowledgements.map(key))
+  const windows = placeAcknowledgementWindows(expected)
   for (const note of record.playedNotes) {
     const sincePhrase = note.onsetAt - record.startedAt
     const nearest = expected
@@ -171,21 +181,40 @@ for (const record of app.sessionController.state.lastHistory.phrases()) {
       .sort(
         (a, b) => Math.abs(a.onsetSeconds - note.onsetAt) - Math.abs(b.onsetSeconds - note.onsetAt),
       )[0]
+    // The expected note whose window holds this onset, if any; else the nearest of that pitch.
+    const holder = windows.find(
+      (candidate) =>
+        candidate.pitch === note.pitch &&
+        candidate.window.opensAtSeconds <= note.onsetAt &&
+        note.onsetAt <= candidate.window.closesAtSeconds,
+    )
+    const target = holder ?? nearest
     rows.push({
       phrase: record.phraseNumber,
       pitch: note.pitch,
+      velocity: note.velocity,
       beatOffsetMs: Math.round((sincePhrase - Math.round(sincePhrase / beat) * beat) * 1000),
-      noteOffsetMs: nearest ? Math.round((note.onsetAt - nearest.onsetSeconds) * 1000) : null,
-      nearestLit: nearest ? lit.has(key(nearest.identity)) : false,
+      noteOffsetMs: target ? Math.round((note.onsetAt - target.onsetSeconds) * 1000) : null,
+      inWindow: Boolean(holder),
+      lit: holder ? lit.has(key(holder.identity)) : false,
     })
   }
 }
 console.table(rows)
+const offsets = rows.map((row) => row.beatOffsetMs).sort((a, b) => a - b)
+const at = (q) => offsets[Math.min(offsets.length - 1, Math.floor(q * offsets.length))]
+console.log(
+  `Click offsets: ${offsets.length} notes, median ${at(0.5)} ms,`,
+  `middle 80 % from ${at(0.1)} to ${at(0.9)} ms, extremes ${offsets[0]} to ${offsets.at(-1)} ms`,
+)
 ```
 
 `pitch` is the [MIDI note number](music/lexicon.md#midi-note-number) of the
 [concert pitch](music/lexicon.md#concert-pitch) (60 is [middle C](music/lexicon.md#middle-c)).
-`nearestLit` can be true because another played note lit that expected note.
+The last line is the click summary for the output-latency run, where every note is played on a
+click; in the windows run, off-beat notes make it meaningless. Matching the window that holds the
+note, not the nearest note of its pitch, matters for repeated pitches: a played note can fall in
+the window of the previous note of the same pitch, and light that one.
 
 ### What to do with the numbers
 
@@ -194,7 +223,7 @@ console.table(rows)
    to say where the value now comes from: the device, the date and the measurement.
 3. Update the latency table in [MIDI note acknowledgement](midi-acknowledgement.md#latency) to
    match.
-4. A window value or a Bluetooth value outside 10 to 15 ms needs the owner's sign-off and its rule
+4. A window value, or any Bluetooth-specific correction, needs the owner's sign-off and its rule
    revised first (see [The constants](#the-constants)). Do not change them on your own.
 5. The unit tests pin today's values (`played-onset-latency.spec.ts`,
    `acknowledgement-window.spec.ts`); update them with the constant. Then run `npm run quality`.
@@ -202,31 +231,58 @@ console.table(rows)
 
 ## Results
 
-One row per device and run. Times in milliseconds.
+One row per device and run. Times in milliseconds. The click offset is the readout's summary line
+from the output-latency run: positive is late, after today's correction of 0.
 
-| Device | Connection | Date | Machine | Browser version | Output latency measured | Connection delay measured | Early / late misses observed | Values chosen | Notes |
-| ------ | ---------- | ---- | ------- | --------------- | ----------------------- | ------------------------- | ---------------------------- | ------------- | ----- |
-|        |            |      |         |                 |                         |                           |                              |               |       |
+All the 2026-10-06 rows: the reference breath controller, a Travel Sax 2 (MIDI port
+`TravelSax2 MIDI 1`), on the Linux machine with the speakers the owner practises with, in Debian's
+Chrome (version not recorded) on the dev server at `localhost`.
+
+| Device       | Connection   | Date       | Output latency measured                                    | Click offset (median; middle 80 %; extremes)                                                         | Early / late misses observed                                                                                                                                                                     | Values chosen                                                    | Notes                                                                                                                                                       |
+| ------------ | ------------ | ---------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Travel Sax 2 | USB          | 2026-10-06 | 32 (`baseLatency` 10.7), from the app and a probe context | +9; −19 to +61; −29 to +79 (run 1, 90 BPM, 32 notes)                                                 | —                                                                                                                                                                                                | `OUTPUT_LATENCY_SECONDS` 0, `CONNECTION_LATENCY_SECONDS.usb` 0 | Unchanged. Players anticipate a click, and here that cancels the 32 ms: a 32 ms correction would move the medians to about −25.                         |
+| Travel Sax 2 | USB          | 2026-10-06 | —                                                          | +2; −48 to +28; −246 to +36 (run 2, 42 notes, one stray early note)                                  | —                                                                                                                                                                                                | Unchanged                                                        | Confirms run 1.                                                                                                                                             |
+| Travel Sax 2 | USB          | 2026-10-06 | —                                                          | —                                                                                                    | Windows run at 60 BPM. No note of the right pitch inside −150 / +200 ms stayed unlit. Early: none lit beyond 150 ms (one 331 ms early stayed unlit). Late: lit up to about +530 on long notes. | Windows unchanged: 150 early, 200 late                           | The late lighting follows the rule: a late edge is the later of +200 ms and the end of the note's written length, cut at the next note's window.             |
+| Travel Sax 2 | Bluetooth LE | 2026-10-06 | —                                                          | About +80 (+80, +164, +32, +26 and +82 on the first 5 single-pitch notes, against +2 and +9 over USB) | Not run.                                                                                                                                                                                         | None: no Bluetooth-specific correction                           | Notes arrive in batches. Best-effort, see [Bluetooth](#bluetooth).                                                                                          |
+| USB keyboard | USB          | Pending    |                                                            |                                                                                                      |                                                                                                                                                                                                  |                                                                  | Not measured yet: the owner has no USB keyboard at hand.                                                                                                    |
+
+What the windows run showed beyond the figures:
+
+- **The notes that felt in time but stayed unlit were pitch slips.** The controller sent 75 for
+  63 (the octave key) or 59 and 57 for 58 (a finger off by a semitone). A note lights only on its
+  exact pitch, octave included.
+- **In-between notes.** While the fingers change position, the Travel Sax often sends short
+  notes between the two (here pitches 50, 51 and 55, often in pairs at velocity 127). They light
+  nothing, being the wrong pitch, but they reach the review's played-notes view and the
+  played-notes MIDI export.
+- **The owner's feel:** the feedback was not a problem; misses were mostly the playing, on a new
+  exercise (reading at tempo while managing breath on a controller with no blow resistance).
 
 ## Bluetooth
 
-Bluetooth LE MIDI is best-effort until the master spec's open question O71 is settled (see
-[open questions](../specs/versions/v2/master-spec.md#12-open-questions-carried-forward)): it
-depends on whether the operating system exposes the reference controller's Bluetooth MIDI to
-Chromium, and on how much jitter it has. The app reads such a controller through the same Web MIDI
-port, and the session applies the USB correction to it, since Web MIDI does not say how a device
-is connected. `CONNECTION_LATENCY_SECONDS['bluetooth-le']` exists and is tested, but nothing in a
-session uses it today.
+Bluetooth LE MIDI is best-effort, and USB is the tested path for v2.0: that is the owner's answer
+to the master spec's open question O71 (spec decision D191 in
+[the decisions log](../specs/decisions.md)), after the 2026-10-06 trial.
 
-If a Bluetooth connection works, run the same procedure over it and record it as its own row.
-The spread of `beatOffsetMs` (not just its median) shows the jitter. A connection delay above
-the USB one would need a way to tell the connection apart before the session could use it.
+- **It works.** Paired in the system settings, the Travel Sax appears under
+  `Connect controller` in Debian's Chrome on the Linux machine, connects, and the right notes
+  light.
+- **It is later and coarser.** On the click, its notes came about 80 ms late (median of the first
+  5 single-pitch notes), against +2 and +9 ms over USB: Bluetooth adds roughly 70 to 80 ms here.
+  Notes played close together arrive in batches with the exact same time, where over USB the same
+  pairs arrived about 11 ms apart.
+- **No Bluetooth correction.** Web MIDI does not say how a device is connected, so the session
+  applies the USB correction to every controller. `CONNECTION_LATENCY_SECONDS['bluetooth-le']`
+  (12.5 ms) exists and is tested, but nothing in a session uses it.
+- **The owner's feel:** workable; the looser feedback was not a problem.
+- **Still to try, blocking nothing:** the controller on an Android phone in Chrome, which needs a
+  deploy of the current main.
 
-## Related open item: the controller check
+A voluntary "Bluetooth" choice in the connection sheet that gives played notes a little more
+timing tolerance is a candidate the owner raised, not committed (spec decision D192).
 
-The master spec's §12 also asks for the transposition check to be verified on the reference
-hardware: with the device's own transpose setting at C, B♭ tenor and E♭ alto, which MIDI note a
-written middle C sends, whether an octave setting changes it, and what note-on velocity it uses.
-That answer decides whether a manual input-transposition setting is needed. It is not a timing
-constant, but it is checked on the same hardware, at the same sitting. See
-[The verdict](controller-connection.md#the-verdict).
+## The controller check
+
+The transposition check was verified on the same hardware, at the same sitting, on 2026-10-06:
+the device's own transpose setting is enough, and no manual input-transposition setting is needed
+for the breath controller. See [The verdict](controller-connection.md#the-verdict).

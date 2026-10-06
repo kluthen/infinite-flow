@@ -77,9 +77,10 @@ Technical choices:
   `AcknowledgementWindowError`, since the earliest-first rule depends on it.
 
 The two grace values are `EARLY_GRACE_SECONDS` (0.15) and `LATE_GRACE_SECONDS` (0.2) in
-`acknowledgement-window.ts`. They are the values the product owner set for the rule, to be
-confirmed by playing on the reference hardware (a breath controller over USB and a USB keyboard);
-the procedure is in [MIDI Tuning](midi-tuning.md).
+`acknowledgement-window.ts`. They are the values the product owner set for the rule. Played on the
+reference breath controller over USB on 2026-10-06, they behaved as the rule says and were kept;
+the USB keyboard is still to be played. The procedure and the results are in
+[MIDI Tuning](midi-tuning.md).
 
 ## Latency
 
@@ -95,14 +96,17 @@ step for the player.
 
 | Constant                                     | Value  | Where the value comes from                                                         |
 | -------------------------------------------- | ------ | ---------------------------------------------------------------------------------- |
-| `OUTPUT_LATENCY_SECONDS`                     | 0      | Provisional: no correction until it is measured on the reference hardware.         |
-| `CONNECTION_LATENCY_SECONDS.usb`             | 0      | A wired USB connection adds a negligible delay.                                    |
-| `CONNECTION_LATENCY_SECONDS['bluetooth-le']` | 0.0125 | The middle of the 10 to 15 ms Bluetooth LE MIDI typically adds, before its jitter. |
+| `OUTPUT_LATENCY_SECONDS`                     | 0      | Measured on the reference breath controller over USB (2026-10-06): kept at 0.      |
+| `CONNECTION_LATENCY_SECONDS.usb`             | 0      | A wired USB connection adds a negligible delay. Kept at 0 on 2026-10-06.           |
+| `CONNECTION_LATENCY_SECONDS['bluetooth-le']` | 0.0125 | Unused: a session never applies a Bluetooth-specific correction.                   |
 
-All three are starting points, still to be tuned on the reference hardware: see
-[MIDI Tuning](midi-tuning.md) for the procedure and the results. `latencyCorrectionFor(connection)`
-builds the shipped correction from them. A live session uses `latencyCorrectionFor('usb')` for
-every controller, since Web MIDI does not say how a device is connected.
+The two USB values were checked on the reference breath controller on 2026-10-06 and kept: the
+browser reports 32 ms of output latency, but the player's anticipation of the click cancels it on
+that setup. The USB keyboard is still to be measured. See [MIDI Tuning](midi-tuning.md) for the
+procedure and the results. `latencyCorrectionFor(connection)` builds the shipped correction from
+them. A live session uses `latencyCorrectionFor('usb')` for every controller, since Web MIDI does
+not say how a device is connected; a Bluetooth controller is best-effort and gets that same
+correction (see [Bluetooth](midi-tuning.md#bluetooth)).
 `compensatePlayedNote` takes the correction as an argument, so a test, or a later tuning step, can
 pass other values without touching the constants.
 

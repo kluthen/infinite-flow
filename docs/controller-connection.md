@@ -362,12 +362,32 @@ word: the result line, the suggestion line, and the other-profile line when ther
 distance reads "{n} semitone(s)" below an octave, "{n} octave(s)" for a multiple of 12, and
 "{n} semitones ({octaves} octave(s) and {remainder})" otherwise.
 
-**Still open.** The master spec's §12 asks which note a written middle C actually sends on the
-reference hardware at each device setting. That answer decides whether a manual
-input-transposition setting is also needed. The check is built; that verification is one of the
-real-hardware checks of the v2.0 release gate (build-plan chunk 21, spec D183), and happens
-at the same sitting as the timing tuning (see
-[MIDI Tuning](midi-tuning.md#related-open-item-the-controller-check)).
+**On the reference hardware (2026-10-06).** The check was run on the reference breath controller,
+a Travel Sax 2 (MIDI port `TravelSax2 MIDI 1`), over USB, in Debian's Chrome on the Linux machine,
+at the same sitting as the timing tuning (see [MIDI Tuning](midi-tuning.md#the-controller-check)).
+It is one of the real-hardware checks of the v2.0 release gate (build-plan chunk 21, spec D183).
+
+- **Every verdict and suggestion was correct.** With the B-flat tenor saxophone profile (check
+  note written C5, expected 58), the device's transpose setting at −2 gave a match; at −9 the
+  check said 7 semitones lower and advised transposing 7 semitones higher; at −14, 1 octave
+  lower, with the octave setting 1 octave higher; at +3, 5 semitones higher, and it named the
+  E-flat alto saxophone profile, which then matched; at +12, 14 semitones higher, and it named
+  the C MIDI keyboard profile.
+- **The device's own transpose setting always reaches a match:** −2 for the tenor, +3 for the
+  alto, and +12 to play at written pitch (the keyboard profile). No manual input-transposition
+  setting is needed in the app.
+- **At 0, the Travel Sax sends written pitch an octave down:** written C5 sends 60, not 72. So
+  the textbook values, −14 for a tenor and −9 for an alto, each land an octave low on this
+  device, and the check says so.
+- **Velocity** follows the attack (80 to 116 on normal notes) once the device's fixed-velocity
+  option, which sends 127 on every note, is off. Any velocity above 0 counts as a played note.
+- **Not played:** the 0 setting itself (its 60 is inferred from the other rows) and the device's
+  octave setting (an octave shift was checked through the transpose setting, at +12). The USB
+  keyboard's check (middle C, expect 60 and a match) is pending: the owner has no USB keyboard at
+  hand yet.
+- **A copy nit** found on the way: the +12 result reads "14 semitones (1 octave and 2)", where
+  the remainder lacks its unit; "1 octave and 2 semitones" would read better. The wording is
+  fixed by the screen handoff's Check result copy, so a change starts there.
 
 ## How it's tested
 

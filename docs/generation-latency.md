@@ -6,7 +6,9 @@ canonical-rhythm-domain memo) versus warm (memo hit), and the signed-off latency
 numbers are checked against. It also records the first generation after a change to one setting,
 and the longest main-thread task while a phrase is engraved. The timing of a running session's
 rolling display (the playhead band against the heard barline, and the main thread at 240 BPM) is in
-[Rolling display (chunk 16)](#rolling-display-chunk-16), and a 2 000-phrase last-session Review's
+[Rolling display (chunk 16)](#rolling-display-chunk-16); the v2.0 release gate's re-run of those
+two checks, the engraving and the browser generation latency is in
+[2026-10-06 run (v2.0 gate)](#2026-10-06-run-v20-gate). A 2 000-phrase last-session Review's
 opening and closing in [Last-session Review (chunk 20)](#last-session-review-chunk-20). The first
 generation after each step a settings mutation can take is in
 [Settings-mutation transitions (chunk 24, 2026-10-03)](#settings-mutation-transitions-chunk-24-2026-10-03).
@@ -135,6 +137,95 @@ workspace default. It runs at two large desktop viewports, 2560 × 1440 and 1920
 one fresh page each, one first generation, then 12 regenerations (each with a new random seed),
 then 10 re-engravings of the last phrase caused by a 16-pixel width change alone, with no
 generation. `ENGRAVING_OUT` names a JSON file for the full report.
+
+## 2026-10-06 run (v2.0 gate)
+
+The machine measurements among the real-hardware checks of the v2.0 release gate
+([build-plan chunk 21](../specs/versions/v2/build-plan.md#chunk-21--v20-release-gate)): the
+playhead and the main thread in a running session, the main thread while engraving, and the
+browser generation latency with its cold run. They need no controller.
+
+**Machine and date.** Run by Claude on 2026-10-06, from 10:45 to about 10:53, on `main` during the
+hardware session, on the Linux machine of the earlier reference runs (12 threads, Debian 13),
+Chromium 153.0.8010.12 (the Playwright 1.63.0 headless shell, audio muted), with the methods
+described in [Rolling display (chunk 16)](#rolling-display-chunk-16) and
+[Method](#method). Each command ran once.
+
+**Machine load.** The machine was partly busy: the 1-minute load average was 1.38, 1.47 and 1.78
+at the start of the three commands (1.4 to 1.8 on 12 threads), and another program held one core
+throughout. A busy machine can only make these figures worse, not better.
+
+**Playhead band against the heard barline** (`npm run measure:rolling`; ms; 120 BPM, 150 barlines
+over five minutes; only the figures below were recorded from this run):
+
+| Run        | 1-min load before → after | Band time         | max \|diff\| | p95 \|diff\| | median \|diff\| | mean          | range         | over 20 ms |
+| ---------- | ------------------------- | ----------------- | ------------ | ------------ | --------------- | ------------- | ------------- | ---------- |
+| 2026-10-06 | 1.38 → not recorded       | observer callback | 14.5         | 12.1         | 6.7             | not recorded  | -11.2 to 14.5 | 0          |
+|            |                           | frame start       | not recorded | not recorded | not recorded    | not recorded  | not recorded  | not recorded |
+|            |                           | next frame        | 30.4         | not recorded | not recorded    | not recorded  | not recorded  | 94         |
+
+**Main thread at 240 BPM, densest setting** (same command; ms; the window from the Start click to
+60 s into the running session; at 1920 × 1080, 16 engravings, the session still running at the
+end with phrase 17 readied, audio output latency 40 ms as read during the run):
+
+| Viewport    | Run        | 1-min load before → after | Window (s)   | Longest `longtask` | Tasks ≥ 50 ms | Longest long animation frame (top script) | Longest heartbeat gap |
+| ----------- | ---------- | ------------------------- | ------------ | ------------------ | ------------- | ----------------------------------------- | --------------------- |
+| 2560 × 1440 | 2026-10-06 | 1.38 → 1.47 (whole command) | not recorded | none ≥ 50          | 0             | none ≥ 50                                 | 36.1                  |
+| 1920 × 1080 | 2026-10-06 |                           | 61.2         | none ≥ 50          | 0             | none ≥ 50                                 | 33.5                  |
+
+**Main-thread engraving** (`npm run measure:engraving`; the densest setting, 64 notes and rests on
+the staff; ms):
+
+| Viewport (staff size)        | First generation: longest task (heartbeat gap) | 12 regenerations: tasks ≥ 50 ms | Engraving callback, max                     | Heartbeat gap, max (median) | 10 resize redraws: heartbeat gap, max (median) |
+| ---------------------------- | ---------------------------------------------- | ------------------------------- | ------------------------------------------- | --------------------------- | ---------------------------------------------- |
+| 2560 × 1440 (2,462 × 192 px) | under 50 (49.3)                                | none                            | under 50                                    | 27.2 (25.1)                 | 21.7 (17.1)                                    |
+| 1920 × 1080 (1,822 × 192 px) | under 50 (52.8)                                | none                            | under 50 (25, in the first generation)      | 28.2 (22.3)                 | 21.6 (15.4)                                    |
+
+The click-to-ready cycle was 59.1 and 61.5 ms for the first generation, and at most 49.1 and
+47.2 ms (median 44.3 and 44.1) for the regenerations.
+
+**Chromium generation latency** (`npm run measure:latency:browser`, prewarm on, run once). Click to
+"Phrase ready", in-page figures, with the wall-clock figure in brackets; both include the Worker
+round trip and the engraving.
+
+| Scenario                                                                       | Cold (ms)    | Warm (ms)   |
+| ------------------------------------------------------------------------------ | ------------ | ----------- |
+| Default (Quarter / Slightly varied / Straight / Sparse / Lift)                 | 42.1 (145)   | 37.6 (71)   |
+| Worst case (Sixteenth / Heavily varied / Sparse / Active displacement / Build) | 277.2 (321)  | 77.3 (111)  |
+| Straight / Edge (Sixteenth / Heavily varied / Sparse / Straight / Edge)        | 254.5 (318)  | 63.2 (110)  |
+
+During the worst-case cold generation a click on the theme control applied in 36 ms.
+
+| Starting setting → worst case (control changed)          | Warm-up (ms)  | After the change (ms) |
+| -------------------------------------------------------- | ------------- | --------------------- |
+| Note density: Eighth → Sixteenth                         | 143.1 (217)   | 228.7 (317)           |
+| Rhythmic variety: Slightly varied → Heavily varied       | 101.3 (138)   | 210.0 (326)           |
+| Silence density: Conversational → Sparse                 | 77.9 (114)    | 208.2 (321)           |
+| Syncopation: Occasional offbeats → Active displacement   | 237.9 (317)   | 206.7 (320)           |
+| Tension: Lift → Build                                    | 133.1 (218)   | 229.4 (318)           |
+| Register: Middle → High (worst-case rhythm kept)         | 245.2 (311)   | 61.1 (112)            |
+| Written key: C → C-sharp/D-flat (worst-case rhythm kept) | 229.0 (317)   | 59.4 (122)            |
+
+### Verdicts (v2.0 gate)
+
+- **Playhead within 20 ms of the heard barline: met.** The band's measure changed at most 14.5 ms
+  after the heard barline (p95 12.1 ms, median 6.7 ms) and at most 11.2 ms before it; none of the
+  150 barlines was more than 20 ms off. Counted to the next animation frame, which is one frame
+  later by construction, it reached 30.4 ms, with 94 of 150 barlines over 20 ms, as in the
+  [chunk 16 runs](#verdicts-rolling-display).
+- **No main-thread task longer than the 200 ms scheduler window at 240 BPM: met.** No task or
+  animation frame reached 50 ms at either size; the longest timer wait was 36.1 ms.
+- **Main-thread engraving against the 200 ms scheduler window: met.** The longest main-thread
+  block was 52.8 ms (the first generation at 1920 × 1080), down from 90 ms in the
+  [September reference run](#verdicts-reference-machine).
+- **Cold worst case against the 250 ms working target: 277 ms, just over it.** The target is a
+  goal, not a gate (owner, 2026-09-30). The cold worst case took 277.2 ms in the page (321 ms from
+  the click), down from 829 to 951 ms in the
+  [September reference run](#v2-re-run-on-the-reference-machine-2026-09-30); Straight / Edge took
+  254.5 ms. The first generation after a one-control change into the worst case took at most
+  229.4 ms (up to 842 ms in September), and warm generations at most 77.3 ms.
+- **Limits:** one run of each command on a partly busy machine, a headless Chromium at 1× device
+  pixel ratio with audio muted, and no controller (no MIDI or acknowledgement work).
 
 ## Rolling display (chunk 16)
 
