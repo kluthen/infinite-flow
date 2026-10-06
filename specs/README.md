@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.36
+Status: draft v0.37
 
 ## Status Snapshot
 
@@ -270,6 +270,13 @@ Status: draft v0.36
   first generation after a one-control change takes 206–229 ms, well inside the look-ahead
   deadline, so the cold-run check is met (D195). Still open for the v2.0 gate: O106, the VISION
   sign-off, and the real-hardware checks not yet run.
+- **Stray notes from controllers (2026-10-06, D196)**, the owner's ruling. Short in-between notes
+  a controller sends while the fingers change position are a generic matter: nothing is built for
+  one device, v2 changes nothing, and acknowledgement needs no change (they light nothing unless
+  one has an expected note's exact pitch). Recorded with
+  [v3](versions/v3/README.md#stray-notes-from-controllers-candidates-not-committed), version open:
+  a candidate option pruning short notes from the played-notes export, and a note that the
+  chord-fit check likely needs a minimum note duration first. Nothing newly opened.
 - **Timeline** ([roadmap](roadmap.md)):
   - **v2:** a rolling phrase, MIDI acknowledgement, backing, sessions, and last-session review
     with export.

@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.30
+Status: draft v2.31
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1091,3 +1091,28 @@ fact in the live documents (see the [archive index](archive/README.md) and
   1 s, and a mutation has 3 measures before its deadline). So the v2.1 cold-run check of master
   spec §11 is met. Recorded by `spec-writer` from the measurements; it needs no new ruling from
   the owner, since it applies D181. Master spec §11 and §12; build plan chunk 21.
+- **D196 (2026-10-06): stray notes from a controller are a generic matter, handled later if at
+  all.** The product owner's ruling, after the hardware sitting. A controller can send short
+  "stray" notes while the fingers change position: in-between notes a real instrument would
+  swallow. The reference breath controller (Travel Sax 2) sends them often, at in-between pitches,
+  often in pairs at velocity 127 (hardware checklist, part B3). The owner's words: "don't work
+  specifically for the travel sax. The only true problem with these stray notes are: played notes
+  gets bloated with nothing; futur chord recognition may fail due to this. we might work on
+  something if a note doesn't last 'long enough' to be considered. but that's a future stuff
+  (maybe annotate the problem with chord identification feature, as it will probably be
+  impacted). we might add a prunning option to played note export to removed such notes, but
+  that's either v3 or later feature." So:
+  - The problem is treated as generic to controllers: nothing is built for one device.
+  - v2 changes nothing. Stray notes are recorded as played notes like any other, so they show in
+    the review's played notes and go into the played-notes MIDI export.
+  - Acknowledgement needs no change, and must not be "fixed" for them: an expected note lights
+    only when a played note has exactly its pitch inside its window, and a note that does not
+    match changes nothing on screen (master spec §8). Being in-between pitches, stray notes
+    normally light nothing.
+  - The end-of-measure chord-fit check, a v3 nice-to-have, is annotated: a stray note outside
+    the phrase's scale would make a measure fail its "every other note" condition, so a minimum
+    duration for a played note to count is a likely prerequisite. Not committed.
+  - A new candidate, not committed, version open (v3 or later): an option on the played-notes
+    export that prunes notes shorter than a threshold
+    ([v3](versions/v3/README.md#stray-notes-from-controllers-candidates-not-committed)).
+  Master spec §9; v3 direction.

@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.32 (2026-10-06). This is the consolidated, execution-ready specification for
+Status: master spec v1.33 (2026-10-06). This is the consolidated, execution-ready specification for
 v2, which ships as one release, v2.0, whose parts keep the labels v2.0, v2.1, v2.2 and v2.4 (v2.3
 was emptied, and its number is not reused).
 It supersedes the individual v2 draft topic documents,
@@ -130,7 +130,9 @@ applied to every controller; and the checks of exports in real programs do not b
 tag, and follow it as a hand-check note on a v2.0.x update (§8, §11, §12). Change in v1.32, the
 machine measurements of 2026-10-06 on the reference machine: the main-thread and cold-run checks
 are met, the two measurement items of §12 are settled, and which moment the playhead check is
-measured to is added to §12 (§11, §12).
+measured to is added to §12 (§11, §12). Change in v1.33, the product owner's ruling of
+2026-10-06: a second caveat for the end-of-measure chord-fit check, on the short stray notes a
+controller can send (§9).
 
 ## 1. Core concept
 
@@ -1003,6 +1005,14 @@ not something that needs separate verification against the exact written line.
 per phrase, which holds for all v1/v2 harmony. If a later version introduces out-of-scale harmony
 (secondary dominants, borrowed chords), this rule would need to judge each measure against its own
 chord's scale rather than the phrase's single scale — not a v2 concern.
+
+**A second caveat for later versions: stray notes.** A controller can send short in-between notes
+while the player's fingers change position, notes a real instrument would swallow. One such note
+outside the phrase's scale makes a measure fail the "every other note" condition above. A minimum
+duration for a played note to count toward this check is a likely prerequisite, not yet decided.
+Stray notes need no handling in v2: they are recorded as played notes like any other, and they
+light nothing in §8's acknowledgement unless one happens to have an expected note's exact pitch
+inside its window.
 
 **Presentation** (exactly what this looks like on screen, distinct from the note-level highlight
 in §8, but still positive-only and quiet) is a UI/UX design decision, not specified here.

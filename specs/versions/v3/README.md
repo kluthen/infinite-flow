@@ -4,7 +4,8 @@ Status: direction (2026-09-25; review-tooling candidates added 2026-09-28, D128;
 session-keeping candidates added 2026-09-28, D129; favorites moved here from v2 2026-09-28, D130;
 a note on saving note density added 2026-09-28, D146; the end-of-measure chord-fit check moved
 here from v2 as a nice-to-have 2026-10-03, D174; rhythm candidates added 2026-10-03, D175; two controller-connection candidates added
-2026-10-06, D190 and D192).
+2026-10-06, D190 and D192; stray notes from controllers, a played-notes pruning candidate and a
+note on the chord-fit check added 2026-10-06, D196).
 Not yet specced.
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
@@ -108,6 +109,32 @@ v2 already stores each phrase's generated timeline and reproduction inputs in me
 what a kept session would need
 ([v2 master spec §7](../v2/master-spec.md#7-sessions-review-export-and-privacy)).
 
+## Stray notes from controllers (candidates, not committed)
+
+Recorded 2026-10-06 (D196), the owner's ruling after the hardware sitting. **The version is
+open: v3 or later.**
+
+A controller can send short "stray" notes while the fingers change position: in-between notes a
+real instrument would swallow. The reference breath controller sends them often, at in-between
+pitches, often in pairs at velocity 127. The owner's ruling: this is a **generic controller
+matter**, so nothing is built for one device.
+
+- **What they cost today.** Played notes are bloated with notes the player never meant: stray
+  notes show in the review's played notes and go into the played-notes MIDI export. v2 changes
+  nothing about this.
+- **What they do not cost: acknowledgement.** An expected note lights only when a played note has
+  exactly its pitch inside its window, and a note that does not match changes nothing on screen
+  (v2 master spec §8). Stray notes, being in-between pitches, normally light nothing. Do not add
+  a filter there for them.
+- **What they would cost later:** the
+  [end-of-measure chord-fit check](#end-of-measure-chord-fit-check-nice-to-have-not-committed)
+  and any later chord recognition from played notes, which a stray out-of-scale note can fail.
+  The owner's idea: a note that does not last "long enough" would not be considered; the
+  threshold is not decided.
+- **Candidate: prune short notes from the played-notes export.** An option on the played-notes
+  export that removes notes shorter than a threshold. Whether the threshold is fixed or set by the
+  player, and whether the review's played notes follow the same option, are not decided.
+
 ## End-of-measure chord-fit check (nice-to-have, not committed)
 
 Moved here from v2 on 2026-10-03 (D174). It was v2's release v2.3 (build plan chunks 32–34); the
@@ -133,6 +160,14 @@ in v3 depends on it.
 - **Caveat carried with it** (master spec §9): the rule relies on one scale per phrase. If harmony
   leaves the phrase's scale before it is built (secondary dominants, borrowed chords), each
   measure must be judged against its own chord's scale.
+- **Stray notes would likely break it** (D196). Controllers can send short in-between notes while
+  the fingers change position (see
+  [stray notes from controllers](#stray-notes-from-controllers-candidates-not-committed)). One
+  stray note outside the phrase's scale makes a measure fail the condition that every other note
+  is in the scale or a resolving chromatic note, so an embellishing player would miss the
+  acknowledgement for a note they never meant to play. A minimum duration for a played note to
+  count is a likely prerequisite; how long, and whether it applies to this check only, is not
+  decided.
 
 ## Rhythm candidates: Custom note density (candidates, not committed)
 
