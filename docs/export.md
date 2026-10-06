@@ -621,8 +621,9 @@ file viewer that shows the tempo map and markers, and check:
 
 The real-hardware checks of the v2.0 release gate
 ([build-plan chunk 21](../specs/versions/v2/build-plan.md#chunk-21--v20-release-gate)),
-ask for the same checks again on files downloaded from the running app. Whether they must pass
-before the v2.0 tag is an open question (O105 in the specs' open-questions register).
+ask for the same checks again on files downloaded from the running app. They do not block the
+v2.0 tag: settled on 2026-10-06 (spec D193), they follow it, written down as a hand-check note on
+a v2.0.x update.
 
 ### Results
 

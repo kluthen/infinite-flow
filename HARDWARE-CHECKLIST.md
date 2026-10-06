@@ -313,7 +313,7 @@ figures worse.
 
 ---
 
-## F. Optional (only if O105 says these block the tag)
+## F. Optional (after the tag, as a v2.0.x hand-check note: spec D193)
 
 Deferred (2026-10-06): the owner has no MuseScore account or DAW at hand. These two checks are to
 be validated at a later date and do not block the v2.0 tag (O105).
