@@ -533,6 +533,7 @@ detection, scoring, and the rolling continuation flow remain outside this releas
 
 ## Open Issues
 
-| Ref                                                                | Severity | Summary                                                                                                                        |
-| ------------------------------------------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| [ISS-008](issues/Ref_20261005_chord_symbol_through_rising_beam.md) | Medium   | A rising up-stemmed beam can run through the chord symbol on its first note, which VexFlow places from the unextended stem tip |
+| Name                                                                                                                                  | Date       | Status | Severity | Oneliner                                                                         |
+| ------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------ | -------- | -------------------------------------------------------------------------------- |
+| [A failed carry-in attempt can take 6 to 13 seconds, and its retries repeat it](issues/Ref_20261006_failed_carry_in_attempts_slow.md) | 2026-10-06 | Open   | High     | During a session, a carry-in generation attempt that fails can run for 6 to 1... |
+| [A rising up-stemmed beam can run through a chord symbol](issues/Ref_20261005_chord_symbol_through_rising_beam.md)                    | 2026-10-05 | Open   | Medium   | In a beam group stemmed up whose beam rises above the staff's text line, the ... |
