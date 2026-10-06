@@ -18,7 +18,9 @@ Total time: about 1 h 15 min. Parts A–D need the controllers; part E doesn't.
       header until the `midi=(self)` fix; once that fix is on main, `docker compose up -d --build`
       rebuilds it, and then the app itself, part A's verdicts included, works there too. Part B's
       readout still needs the dev server.)
-- [ ] In the VS Code terminal (connected to the Linux machine), run `npm run dev`. VS Code
+- [ ] On the Linux machine itself (Debian's Chrome): `npm run dev`, open `http://localhost:5173`,
+      plug the controllers into that machine. That is how the results below were taken.
+- [ ] From Windows instead: in the VS Code terminal (connected to the Linux machine), run `npm run dev`. VS Code
       forwards port 5173 to Windows (check the **Ports** panel; add 5173 there if it isn't
       listed).
 - [ ] In Chrome on Windows, open **`http://localhost:5173`**, exactly that: Web MIDI only works
@@ -85,7 +87,7 @@ The app expects (a match):
 | +3                       | E♭ alto sax    | 63 (computed)  |          | **match** ("Nothing to change — you're ready to play.") | not tested               |
 | +12                      | B♭ tenor sax   | 72 (computed)  |          | "14 semitones (1 octave and 2) higher … transpose 14 semitones lower", and suggests the C MIDI keyboard profile (correct: at +12 the device plays at written pitch) | — |
 
-Results, 2026-10-06, TravelSax2 (port name "TravelSax2 MIDI 1"), over USB, Chrome on Windows:
+Results, 2026-10-06, TravelSax2 (port name "TravelSax2 MIDI 1"), over USB, Debian's Chrome on the Linux machine (dev server on localhost):
 
 - With the device's transpose at −2 (semitones), the B♭ tenor saxophone profile's check note
   (written C5) sent MIDI 58, and the app said **match**. So at 0 the Travel Sax sends the
@@ -133,7 +135,7 @@ await new Promise((done) => setTimeout(done, 1000))
 console.log('base', probe.baseLatency * 1000, 'output', probe.outputLatency * 1000); await probe.close()
 ```
 
-→ base 10.7 ms, output 32 ms (2026-10-06, Chrome on Windows, wired output)
+→ base 10.7 ms, output 32 ms (2026-10-06, Debian's Chrome on the Linux machine)
 
 ### B2. Playing on the click (3 min)
 
