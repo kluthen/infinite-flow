@@ -197,7 +197,7 @@ screenshot it, and give it to Claude.
 
 | Device           | Output delay (B1) | Median click offset (B2) | Spread (B2) | Unlit-but-in-time / lit-but-off (B3) | Notes |
 | ---------------- | ----------------- | ------------------------ | ----------- | ------------------------------------ | ----- |
-| Breath ctrl, USB | 32 ms (base 10.7)  |                          |             |                                      |       |
+| Breath ctrl, USB | 32 ms (base 10.7)  | +9 ms (90 BPM, 32 notes) | −19 to +61 ms (middle 80 %), extremes −29 to +79 | | B2 2026-10-06, Debian Chrome: no change to the delay constants |
 | USB keyboard     |                   |                          |             |                                      |       |
 
 ---
