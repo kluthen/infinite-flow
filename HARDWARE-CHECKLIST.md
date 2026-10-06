@@ -285,11 +285,31 @@ All checked 2026-10-06, Travel Sax over USB, Debian's Chrome on the Linux machin
 
 ## E. Machine measurements (no controller; any time the machine is idle; about 10 min)
 
-Run each and give Claude the output (or let Claude run them while you're away):
+Run each and give Claude the output (or let Claude run them while you're away).
 
-- [ ] `npm run measure:rolling` (playhead against the audio clock, main-thread blocks)
-- [ ] `npm run measure:engraving` (longest main-thread task while engraving)
-- [ ] `npm run measure:latency:browser` (generation times, cold run included)
+Run by Claude 2026-10-06 on the Linux machine, Chromium 153, with the machine partly busy (1-min
+load 1.4–1.8 on 12 threads; another program held one core). A busy machine can only make the
+figures worse.
+
+- [x] `npm run measure:rolling` (playhead against the audio clock, main-thread blocks)
+  - Playhead at 120 BPM, 150 barlines over 5 min: the band's measure changes at most 14.5 ms
+    after the heard barline (p95 12.1, median 6.7, at most 11.2 ms before it), none over 20 ms:
+    **met**. Counted to the next animation frame, one frame later by construction: max 30.4 ms,
+    94 of 150 over 20 ms, as in the September runs.
+  - Main thread at 240 BPM, densest setting, 60 s: no task or animation frame of 50 ms or more;
+    longest timer wait 36.1 ms (2560 × 1440) and 33.5 ms (1920 × 1080), against the 200 ms
+    scheduler window: **met**.
+- [x] `npm run measure:engraving` (longest main-thread task while engraving)
+  - Longest main-thread block 49.3 ms (2560 × 1440) and 52.8 ms (1920 × 1080, the first
+    generation), against 200 ms: **met** (September: 90 ms).
+- [x] `npm run measure:latency:browser` (generation times, cold run included)
+  - Cold worst case (Sixteenth / Heavily varied / Sparse / Active displacement / Build):
+    **277 ms** in the page (321 ms from the click), against the 250 ms working target, which is
+    a goal, not a gate (owner, 2026-09-30). September: 829–951 ms. Straight / Edge cold 255 ms;
+    default cold 42 ms; warm 38–77 ms.
+  - First generation after a one-control change into the worst case: 206–229 ms in the page
+    (317–326 ms from the click); warm-ups 78–245 ms.
+  - The theme control answered within 36 ms during the worst-case cold run.
 
 ---
 
