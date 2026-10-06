@@ -2,7 +2,8 @@
 /**
  * The multi-phrase tension arc with real generation, over seeded sessions: with the
  * settings-mutation flag on too, each phrase steps around the tension arc then in effect while
- * every settings-changed output keeps the unstepped value; the same seeds give the same session;
+ * every settings-changed output keeps the unstepped value; the same seeds give the same session,
+ * with the settings-mutation flag on or off;
  * a stepped phrase round-trips through its replay key and replays identically; and every join
  * across a step stays valid, its carried harmony kept only when it fits the stepped tension arc.
  */
@@ -135,6 +136,32 @@ describe('the multi-phrase tension arc with the settings-mutation flag on', () =
         const run = { tension: tensionFor(seed), mutation: mutationOn(seed) }
         expect(arcSession(run).log, `seed ${seed}`).toEqual(arcSession(run).log)
       }
+    },
+    SESSIONS_TIMEOUT_MS,
+  )
+})
+
+// @test-link [[rule_multi_phrase_tension_arc_cycle]]
+// @test-link [[module_tension_arc_cycle]]
+// @test-link [[req_multi_phrase_tension_arc]]
+describe('the multi-phrase tension arc with the settings-mutation flag off', () => {
+  // @test-link [[rule_multi_phrase_tension_arc_cycle]]
+  // @test-link [[module_tension_arc_cycle]]
+  it(
+    'gives deep-equal outputs for the same seeds and events, the arc alone',
+    () => {
+      let stepped = 0
+      for (const [index, firstSeed] of JOIN_PROVIDER_SEEDS.slice(0, 6).entries()) {
+        const seed = MUTATION_SEEDS[index]!
+        const run = { tension: tensionFor(seed), mutation: SETTINGS_MUTATION_OFF, firstSeed }
+        const first = arcSession(run)
+        expect(first.log, `seed ${seed}`).toEqual(arcSession(run).log)
+        expect(settingsChanges(first), `seed ${seed}`).toEqual([])
+        stepped += first
+          .requests()
+          .filter((request) => request.intent.controls.tension !== run.tension).length
+      }
+      expect(stepped).toBeGreaterThan(0)
     },
     SESSIONS_TIMEOUT_MS,
   )
