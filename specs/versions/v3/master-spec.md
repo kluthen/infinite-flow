@@ -4,7 +4,11 @@ Status: master spec v1.2 (2026-10-07). Change in v1.1: the player's Disconnect a
 remembered controller (§7.3). Change in v1.2: behaviours the v3.0 design settled, written in:
 when settings are read and saved, what Delete everything leaves, which sessions a save deletes,
 favorites and unpinning, the played-notes switch on the session that just ended, my instrument's
-written range, and how the remembered controller is reattached (§4, §5, §6, §7, §13, §14). Consolidated from the approved v3.0 drafts for handoff to
+written range, and how the remembered controller is reattached (§4, §5, §6, §7, §13, §14).
+Change in v1.3, from the build plan's review: how a transposition is spelled (§7.1); which
+changes discard pre-generated phrases, and what "the same phrases" means when an attempt would
+have failed (§8, item 20); persistent storage is asked for once per visit (§4.5, item 13); an
+outdated tab offers no Delete everything (§4.3, item 14). Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. It covers **v3.0 only**.
 v3.1 (embellishment flags and presets) and v3.2 (Jam) are still being specified and will be added
 as their own parts. The draft topic documents stay in `specs/versions/v3/` as working material;
@@ -128,8 +132,11 @@ during a session (§5.1).
 - **Every stored record carries a data version and the app version that wrote it.** A new app
   version that changes the stored shape migrates the data when it opens the database.
 - **An outdated tab stops saving.** The app updates itself silently, so an old open tab can meet
-  data written by a newer version. That tab keeps working in memory, saves nothing more, and shows
-  a notice asking for a reload, outside a running session.
+  data written by a newer version. That tab keeps working in memory, saves and deletes nothing
+  more (Delete everything included: the notice asks for a reload first), and shows a notice asking
+  for a reload, outside a running session. It reads what it can: records written by the newer
+  version are left unread (a kept session saved by a newer version is listed as such and does not
+  open).
 
 ### 4.4 Loading saved settings
 
@@ -145,8 +152,10 @@ loading needs its own tolerant step before them.)
 ### 4.5 Keeping the data safe from the browser
 
 A site's storage is "best-effort" by default: the browser may delete it under storage pressure,
-without warning. The app asks the browser to make it persistent the first time the player keeps
-something they would miss: pins a session, marks a favorite, or saves "my instrument". Chrome and
+without warning. Once per visit, the first time the player keeps something they would miss
+(pins a session, marks a favorite, or saves "my instrument"), the app asks the browser to make the
+storage persistent, unless it already is. Asking again on a later visit is harmless and gives the
+browser another chance to grant it. Chrome and
 Edge grant or refuse this silently, without asking the player. "Your data" says whether the
 storage is protected; the app promises nothing it cannot keep.
 
@@ -251,7 +260,14 @@ in the session list. It is never written into the MusicXML or MIDI exports.
   - its **range**, lowest and highest note, in written pitch: the written range is what the player
     sets and keeps, and the concert range follows from it and the transposition, so changing the
     transposition (by hand or through §7.2) keeps the written range;
-  - its **transposition**, any constant interval between written and sounding pitch.
+  - its **transposition**, the interval between written and sounding pitch, chosen by name from a
+    list: unison, minor second, major second, minor third, major third, perfect fourth, augmented
+    fourth, perfect fifth, minor sixth, major sixth, minor seventh or major seventh, plus a number
+    of octaves, written above or below sounding pitch. Each name fixes both the number of
+    semitones and the number of letter-name steps (a major ninth is 14 semitones and 8 steps, as
+    for the tenor saxophone), which is how notes, the key signature and chord symbols are spelled
+    in written pitch, exactly as for the built-in profiles. The tritone (6 semitones) is always
+    spelled as an augmented fourth.
 - **The rules every profile already obeys apply:** whole-number endpoints, a span of at least two
   octaves (24 semitones), and the Low, Middle and High register windows derived by the same
   algorithm as the built-in profiles, never set by hand. A range under two octaves is refused, with
@@ -269,7 +285,8 @@ v2's check compares what the controller sends with what the selected instrument 
 a constant offset: a match, whole octaves, or a number of semitones.
 
 - When the result is not a match, the check offers one action: **use this for my instrument**. It
-  sets "my instrument"'s transposition so the written notes match what the controller plays,
+  sets "my instrument"'s transposition so the written notes match what the controller plays (the
+  offset in semitones maps to the named interval of §7.1, octaves included),
   creating "my instrument" from the selected profile if there is none yet. The player confirms it
   once; it is then saved, and the check need not be redone in later visits.
 - **The app still applies no offset to played notes.** They are compared at the exact concert
@@ -305,7 +322,9 @@ instrument inline when it is not a built-in profile; `ifk1.` keys keep decoding 
   phrase 1 again.
 - **Changes before Start.** Anything that replaces phrase 1 or changes a setting phrases are
   generated from (a control, the profile, the instrument, a regeneration) discards every
-  pre-generated phrase and starts again after the new phrase 1. A change of window size that
+  pre-generated phrase and starts again after the new phrase 1. So do the two session options that
+  shape later phrases, Vary settings and Tension across phrases. The tempo and Rising tempo do not:
+  tempo never affects generation. A change of window size that
   changes the note density phrases are generated with, or the staff layout a session would hold,
   re-checks them: one that no longer fits is discarded with every phrase after it.
 - **The player comes first.** Pre-generation runs after v2's prewarm, on the same generation
@@ -317,9 +336,12 @@ instrument inline when it is not a built-in profile; `ifk1.` keys keep decoding 
   its starting note, and does not run while a review is shown.
 - **The same phrases either way.** A pre-generated phrase is exactly the phrase the session would
   have generated at that place: the same request and seed, the same mutation schedule, tension arc
-  and density step-down. So a session's phrases never depend on whether pre-generation ran, only on
-  which attempts succeeded in time. This requires the session's seeds and schedules to be fixed,
-  from phrase 1, before Start.
+  and density step-down. Where the session's own attempt at that place would have succeeded in
+  time, the phrase is identical with or without pre-generation. Where it would have failed or
+  fallen back (phrase 2 at the fastest tempos is generated without the join in v2), the
+  pre-generated phrase is the one a successful attempt would have produced; that difference is the
+  point of pre-generation. This requires the session's seeds and schedules to be fixed, from
+  phrase 1, before Start.
 - **Never saved:** pre-generated phrases are gone on reload.
 
 ## 9. Stray notes
@@ -449,10 +471,10 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
     kept session opens, pins, unpins and deletes; the comment is kept, limited to 500 characters,
     and absent from every exported file.
 12. **Delete everything** leaves no saved item behind, the remembered controller included.
-13. **Persistent storage** is requested on the first pin, favorite or saved instrument, and "Your
-    data" reports whether it was granted.
-14. **Outdated tab.** A tab opened by an older version, facing newer saved data, saves nothing and
-    shows the reload notice outside a running session.
+13. **Persistent storage** is requested once per visit, on the first pin, favorite or saved
+    instrument, unless already granted, and "Your data" reports whether it was granted.
+14. **Outdated tab.** A tab opened by an older version, facing newer saved data, saves and deletes
+    nothing, offers no Delete everything, and shows the reload notice outside a running session.
 15. **Failed save.** A refused save never interrupts or delays a session, and the player is told
     after the session.
 16. **My instrument.** A range under two octaves is refused; a valid instrument generates phrases
@@ -467,9 +489,10 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
     starting note starts nothing before the page's first click, tap or key press.
 19. **Replay keys.** An `ifk2.` key reproduces a phrase made with "my instrument"; every `ifk1.`
     key still decodes to the same phrase as in v2.
-20. **Pre-generation.** A session's phrases are identical with pre-generation on or off for the
-    same inputs; any player request at Idle cancels a background attempt; Start never waits; a
-    settings change discards pre-generated phrases. The share of 240 BPM sessions whose phrase 2
+20. **Pre-generation.** Each pre-generated phrase is identical to the phrase the session produces
+    at that place when its own attempt succeeds in time, for the same inputs; any player request
+    at Idle cancels a background attempt; Start never waits; a settings change, Vary settings or
+    Tension across phrases discards pre-generated phrases, and the tempo or Rising tempo does not. The share of 240 BPM sessions whose phrase 2
     joins phrase 1 smoothly is measured and recorded.
 21. **Stray notes.** The threshold is set from recordings of the reference controller and stays
     well under 62.5 ms; very short notes are absent from the `Played notes` lane and, by default,
@@ -489,6 +512,7 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
   instrument" counts toward the staff's shared height, so an unusually wide or high range would
   make the staff taller for every instrument. A bound on the written range, settled with that
   check, would avoid it.
+- **Measured, for information:** the battery cost of pre-generation at Idle on a tablet (§8).
 - **Open, needs the owner:** the explicit confirmation of the three contract changes in §10. The
   owner approved this spec; that approval is not the contract confirmation.
 - **Design, for `ux-writer`:** where "Your data", the session list, favorites, the comment, the

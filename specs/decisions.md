@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.48
+Status: draft v2.49
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D220**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D221**.
 
 ## Decision Log
 
@@ -253,3 +253,18 @@ fact in the live documents (see the [archive index](archive/README.md) and
   added to the build plan's open range check. Two items `ux-writer` raised are the owner's, not
   the spec's: ux Q66, a `ux-writer` pass on `src/styles/theme.css` and `components.css`, and a
   stale version-mark line in `ui_ux/flows/generate-phrase/handoff.md`.
+
+- **D220 (2026-10-07): five gaps the v3.0 build plan found, settled in the master spec (v1.3).**
+  spec-writer's calls, for the owner's final review. (1) Pre-generation's "same phrases either
+  way" contradicted itself where a session's own attempt would fail in time (phrase 2 at 240 BPM):
+  a pre-generated phrase equals the session's phrase wherever the session's attempt succeeds, and
+  is what a successful attempt would have produced elsewhere. (2) My instrument's transposition is
+  chosen by interval name plus octaves and direction, each name fixing semitones and letter-name
+  steps, so written notes, key signature and chord symbols are spelled as for the built-in
+  profiles; the tritone is spelled as an augmented fourth; the check's semitone offset maps to the
+  same names. (3) Vary settings and Tension across phrases discard pre-generated phrases; the tempo
+  and Rising tempo do not, since tempo never affects generation. (4) Persistent storage is asked
+  for once per visit, on the first keep, unless already granted (the design's choice; the spec
+  said "the first time"). (5) An outdated tab saves and deletes nothing and offers no Delete
+  everything (the design offered it; the spec wins, so the UI/UX documents need that one change).
+  The build plan is [build-plan.md](versions/v3/build-plan.md), draft v1.
