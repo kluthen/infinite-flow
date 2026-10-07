@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.45
+Status: draft v0.46
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -16,7 +16,7 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 
 Open on 2026-10-07, after the owner's overall review of v3 (D216): O10 (planner authority, for
 Jam), O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor), O103 (the rest
-of the v3.2 rhythm lock), O114 (Jam and the rhythm controls), O115 and O116 (v3.x learning). None
+of the v3.2 rhythm lock), O114 (Jam and the rhythm controls), O115 and O116 (v3.x learning), O126 (v3.1 presets). None
 of them blocks anything planned.
 
 ## Later and governance (O47–O49)
@@ -100,3 +100,13 @@ are strawmen, not decisions.
   persistence, opt-in like played notes). Proposed: off by default, one visible switch, a reset,
   and nothing kept across sessions without the player's opt-in.
 
+## v3.1 presets (O126+)
+
+- **O126 - May a preset set the collection?** _(D217; v3.1)_: the
+  [preset catalogue](../docs/music/preset-catalogue.md) finds that a style mostly lives in its
+  collection (the scale or mode: Dorian for modal jazz, Mixolydian for a reel), which today's
+  presets cannot set; they set the grammar and seven other controls. Setting it would change the
+  mode the player chose, which the app otherwise treats as the player's (the key and mode
+  suggestion never changes it on its own); choosing a preset is the player's own act, though.
+  Proposed: a preset may set the collection, never the key (tonal center), and the player's
+  explicit choice of preset is what changes it; to settle with the rest of v3.1's presets.
