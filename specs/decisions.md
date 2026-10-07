@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.46
+Status: draft v2.47
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D218**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D219**.
 
 ## Decision Log
 
@@ -226,3 +226,12 @@ fact in the live documents (see the [archive index](archive/README.md) and
   "gimmicks and more specific rhythm patterns we don't store right now", but those belong to later
   features, along with storing rhythms and "favorites cues" (the owner's words); none is v3
   scope.
+
+- **D218 (2026-10-07): the player's Disconnect also forgets the remembered controller.** A gap
+  `documentalist` found while ingesting the v3.0 master spec: v2's Disconnect forgets the
+  controller for the page, and the spec did not say what it does to the controller v3.0
+  remembers across reloads. spec-writer's call, for the owner's final review: it forgets it too,
+  so a reload never reconnects a controller the player chose to disconnect. Master spec v1.1 §7.3
+  and done item 18. The intent change set `documentalist` prepared is
+  `docs/release/v3.0-intent-change-set.md`: its Part A (three STABLE guarantees narrowed, contract
+  1.8 to 2.0) awaits the owner's explicit confirmation.

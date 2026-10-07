@@ -1,6 +1,7 @@
 # Infinite Flow v3 — Master Spec: v3.0, Storage
 
-Status: master spec v1.0 (2026-10-07). Consolidated from the approved v3.0 drafts for handoff to
+Status: master spec v1.1 (2026-10-07). Change in v1.1: the player's Disconnect also forgets the
+remembered controller (§7.3). Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. It covers **v3.0 only**.
 v3.1 (embellishment flags and presets) and v3.2 (Jam) are still being specified and will be added
 as their own parts. The draft topic documents stay in `specs/versions/v3/` as working material;
@@ -264,8 +265,10 @@ a constant offset: a match, whole octaves, or a number of semitones.
 
 The app remembers the last controller the player chose and reselects it when the app loads, as
 soon as that controller is connected, matching it the way v2 already recognises a controller that
-comes back within a page. v2 forgot the choice on reload; v3.0 deliberately keeps it. Deleting
-"my instrument" does not forget the controller; Delete everything does.
+comes back within a page. v2 forgot the choice on reload; v3.0 deliberately keeps it. The
+player's **Disconnect** action, which in v2 forgets the controller for the page, also forgets the
+remembered one, so a reload never reconnects a controller the player chose to disconnect.
+Deleting "my instrument" does not forget the controller; Delete everything does.
 
 ### 7.4 Phrase replay key
 
@@ -441,7 +444,8 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
 17. **The check feeds my instrument.** "Use this for my instrument" sets the transposition so the
     written notes match the controller, after one confirmation, and the result survives a reload.
     Played notes are still compared at the pitch received.
-18. **The controller is remembered** and reselected at load when connected.
+18. **The controller is remembered** and reselected at load when connected; after the player's
+    Disconnect, a reload reselects nothing.
 19. **Replay keys.** An `ifk2.` key reproduces a phrase made with "my instrument"; every `ifk1.`
     key still decodes to the same phrase as in v2.
 20. **Pre-generation.** A session's phrases are identical with pre-generation on or off for the
