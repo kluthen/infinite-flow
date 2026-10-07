@@ -145,7 +145,9 @@ describe('session controller: the rolling display', () => {
   // @test-link [[rule_look_ahead_phrase_must_fit_staff]]
   it('counts a misfit attempt as failed, and never shows it', async () => {
     for (const misfit of [TOO_WIDE, FIT_NO_ROOM]) {
-      const rig = controllerRig()
+      // At 120 BPM phrase 2's deadline leaves time for a carry-in retry; at 240 BPM its
+      // standalone attempt goes first, with no rung after it.
+      const rig = controllerRig(undefined, undefined, { tempo: 120 })
       rig.planner.queue(misfit)
       rig.controller.start()
 

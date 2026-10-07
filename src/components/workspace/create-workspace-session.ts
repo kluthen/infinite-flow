@@ -224,7 +224,8 @@ export interface ProductionWorkspaceSessionOptions {
 
 /**
  * Intent: build the root workspace session used by `App.vue` in production: a real worker-backed
- * generation seam and its prewarm under the given policy, the cryptographic seed provider, a
+ * generation seam, one browser worker at a time replaced on a session's cancellation and then
+ * re-warmed under the given prewarm policy, and its prewarm under that policy, the cryptographic seed provider, a
  * monotonic request-id provider, the window's own `matchMedia` width provider, the Web Audio
  * transport, still locked: no audio context exists until a player click unlocks it, the Web
  * MIDI controller on that transport's clock, which requests no MIDI access until `connect()`, and
@@ -237,11 +238,13 @@ export interface ProductionWorkspaceSessionOptions {
 // @spec-link [[rule_audio_unlocked_by_player_click]]
 // @spec-link [[rule_controller_connects_between_sessions]]
 // @spec-link [[rule_chromium_only_support]]
+// @spec-link [[module_generation_worker_cancellation]]
 export function createWorkspaceSession(
   options: ProductionWorkspaceSessionOptions,
 ): WorkspaceSession {
-  const port = createBrowserGenerationWorker()
-  const client = createGenerationWorkerClient(port)
+  const client = createGenerationWorkerClient(createBrowserGenerationWorker, {
+    prewarmEnabled: options.prewarmPolicy === 'enabled',
+  })
   const audio = createBrowserAudioTransport()
   const midi = createMidiController({
     provider: createWebMidiAccessProvider(navigator),

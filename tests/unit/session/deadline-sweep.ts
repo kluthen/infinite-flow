@@ -7,7 +7,9 @@
  * seam, on a fake audio clock that only this module moves. Every generate call keeps one serial
  * generator (the app's single generation worker) busy for the time its cost model charges: by
  * default a fixed modelled time, so a deadline is met or missed by the model, never by the speed of
- * the machine running the tests; a run can charge another cost instead. The transport plays
+ * the machine running the tests; a run can charge another cost instead. An attempt the engine
+ * cancels while it runs frees the generator at the cancel plus the worker's restart cost, and is
+ * never answered; one cancelled while still queued leaves the queue at no cost. The transport plays
  * the session in time: the count-in, each phrase starting to sound on the measure grid at the
  * session's tempo, a tick at every deadline the engine asks to be woken at, and Stop once the last
  * planned phrase has sounded in full. Every output is kept with the fake time it came out at.
@@ -35,9 +37,12 @@ import type { GenerationOutcome } from '@/domain/generation/orchestration/orches
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { makeSeed } from '@/domain/random/seed'
-import { GenerationWorkerCrashError } from '@/generation-worker/generation-worker-client'
+import {
+  GenerationCancelledError,
+  GenerationWorkerCrashError,
+} from '@/generation-worker/generation-worker-client'
 import { createSessionRunner, type SessionRunnerEvent } from '@/session/session-runner'
-import { COUNT_IN_MEASURES, measureSeconds } from '@/session/session-timing'
+import { COUNT_IN_MEASURES, WORKER_RESPAWN_SECONDS, measureSeconds } from '@/session/session-timing'
 import type {
   AudioTime,
   SessionOutput,
@@ -70,7 +75,7 @@ import {
  * covers the slowest generation plus the longest engraving block on top, and is charged to every
  * attempt alike, warm ones and failed ones included.
  */
-const ATTEMPT_COST_SECONDS = 0.35
+export const ATTEMPT_COST_SECONDS = 0.35
 
 /**
  * The most times phrase 1 is generated at Idle, each with the next seed, before a case is given up
@@ -82,7 +87,7 @@ const IDLE_GENERATIONS = 5
 export const SWEEP_TEMPOS: readonly number[] = [60, 120, 240]
 
 /** How many phrases each swept session plays before Stop, phrase 1 included. */
-const SWEEP_PHRASE_COUNT = 6
+export const SWEEP_PHRASE_COUNT = 6
 
 /** The window every swept session runs in: at or above the tablet-landscape width. */
 const WIDE_WINDOW = { belowTabletLandscape: false, sessionSteppedDown: false }
@@ -223,25 +228,62 @@ export type AttemptScript = (request: GenerationRequestOutput) => AttemptAnswer
 
 /**
  * How long one attempt keeps the serial generator busy, in seconds of audio time, given its real
- * outcome, or undefined when the script answers it with an injected failure or crash.
+ * outcome (undefined when the script answers it with an injected failure or crash) and the request
+ * it answers.
  */
-export type AttemptCost = (generated: TimedOutcome | undefined) => number
+export type AttemptCost = (
+  generated: TimedOutcome | undefined,
+  request: GenerationRequestOutput,
+) => number
 
 /** Intent: the default cost model: every attempt costs the same modelled time. */
 const flatAttemptCost: AttemptCost = () => ATTEMPT_COST_SECONDS
 
 /** One output of a timed run, with the fake audio time it came out at. */
-interface TimedOutput {
+export interface TimedOutput {
   readonly at: AudioTime
   readonly output: SessionOutput
 }
 
-/** A finished timed run: every output in order, and every error the runner or engine raised. */
+/**
+ * What the serial generator did with one requested attempt: when it started on it (undefined when
+ * it never did), and when it was answered or cancelled (undefined when neither happened by the end
+ * of the run).
+ */
+export interface GeneratorRecord {
+  readonly attemptId: number
+  readonly phraseNumber: number
+  readonly step: 'carry-in' | 'standalone'
+  readonly requestedAt: AudioTime
+  readonly startedAt: AudioTime | undefined
+  readonly answeredAt: AudioTime | undefined
+  readonly cancelledAt: AudioTime | undefined
+}
+
+/**
+ * A finished timed run: every output in order, what the generator did with each attempt, in
+ * request order, and every error the runner or engine raised.
+ */
 export interface TimedSession {
   readonly tempo: number
   readonly outputs: readonly TimedOutput[]
+  readonly generations: readonly GeneratorRecord[]
   readonly errors: readonly unknown[]
 }
+
+/** One attempt handed to the serial generator, with how it is answered and what it costs. */
+interface GeneratorJob {
+  readonly request: GenerationRequestOutput
+  readonly answer: AttemptAnswer
+  readonly generated: TimedOutcome | undefined
+  readonly cost: number
+  readonly resolve: (outcome: GenerationOutcome) => void
+  readonly reject: (error: Error) => void
+  readonly record: OpenGeneratorRecord
+}
+
+/** A generator record still being filled in during its run. */
+type OpenGeneratorRecord = { -readonly [K in keyof GeneratorRecord]: GeneratorRecord[K] }
 
 /** One thing due on the fake clock: a generate call finishing, or a transport event. */
 interface DueItem {
@@ -319,7 +361,7 @@ function phraseOneAtIdle(
 /**
  * Intent: play one case's session at a tempo through the real runner on the fake clock, answering
  * each attempt as the script says once the serial generator has spent the attempt's cost on it,
- * and keep every output with its time. The run stops at Stop, or at the first event the engine
+ * unless the engine cancels it first, and keep every output with its time. The run stops at Stop, or at the first event the engine
  * refuses.
  */
 export async function runTimedSession(
@@ -327,39 +369,98 @@ export async function runTimedSession(
   tempo: number,
   outcomes: OutcomeCache,
   script: AttemptScript,
-  cost: AttemptCost = flatAttemptCost,
+  attemptCost: AttemptCost = flatAttemptCost,
 ): Promise<TimedSession> {
   const settings = caseSettings(sweepCase, tempo)
   const clock = { at: 0 }
   const due: DueItem[] = []
   const outputs: TimedOutput[] = []
   const errors: unknown[] = []
+  const generations: OpenGeneratorRecord[] = []
+  /** The jobs waiting for the generator, in request order. */
+  const waiting: GeneratorJob[] = []
+  /** The job the generator is on, with the due item that answers it. */
+  let current: { readonly job: GeneratorJob; readonly answer: DueItem } | undefined
+  /** The earliest moment the generator can start a job: after the last one, or after a restart. */
   let generatorFreeAt = 0
   let queued = 0
   let latestRequest: GenerationRequestOutput | undefined
 
   /** Intent: queue work for a moment on the fake clock, after anything already queued for it. */
-  function schedule(at: AudioTime, run: () => void): void {
-    due.push({ at, order: queued++, run })
+  function schedule(at: AudioTime, run: () => void): DueItem {
+    const item = { at, order: queued++, run }
+    due.push(item)
     due.sort((a, b) => a.at - b.at || a.order - b.order)
+    return item
+  }
+
+  /** Intent: take a due item off the fake clock, so it never runs. */
+  function unschedule(item: DueItem): void {
+    due.splice(due.indexOf(item), 1)
+  }
+
+  /** Intent: once the generator is idle, start the next waiting job, as soon as it is free. */
+  function startNext(): void {
+    const job = waiting.shift()
+    if (job === undefined) return
+    const startAt = Math.max(clock.at, generatorFreeAt)
+    job.record.startedAt = startAt
+    current = { job, answer: schedule(startAt + job.cost, () => finish(job)) }
+  }
+
+  /** Intent: answer the current job as the script says, then move on to the next one. */
+  function finish(job: GeneratorJob): void {
+    current = undefined
+    generatorFreeAt = clock.at
+    job.record.answeredAt = clock.at
+    if (job.answer === 'crash')
+      job.reject(new GenerationWorkerCrashError('Error', 'injected crash'))
+    else job.resolve(job.generated === undefined ? failureOutcome() : job.generated.outcome)
+    startNext()
   }
 
   /**
-   * Intent: answer one attempt once the serial generator has spent its cost on it. The generator
-   * stays busy for the whole cost even when the engine drops the attempt at its deadline, as the
-   * app's worker keeps computing a dropped attempt.
+   * Intent: cancel a job, never answering it. The job the generator runs frees it at the cancel
+   * plus the worker's restart cost; a job not started yet (still waiting, or waiting for a restart
+   * to end) leaves at no cost; a job already answered or cancelled is left alone.
    */
-  function generate(intent: GenerationIntent): Promise<GenerationOutcome> {
-    const answer = script(latestRequest!)
+  function cancel(job: GeneratorJob): void {
+    if (current?.job === job) {
+      unschedule(current.answer)
+      current = undefined
+      if (job.record.startedAt! <= clock.at) generatorFreeAt = clock.at + WORKER_RESPAWN_SECONDS
+    } else if (waiting.includes(job)) waiting.splice(waiting.indexOf(job), 1)
+    else return
+    job.record.cancelledAt = clock.at
+    job.reject(new GenerationCancelledError())
+    if (current === undefined) startNext()
+  }
+
+  /**
+   * Intent: hand one attempt to the serial generator, answered as the script says once the
+   * generator has spent its cost on it, unless its signal cancels it first.
+   */
+  function generate(intent: GenerationIntent, signal?: AbortSignal): Promise<GenerationOutcome> {
+    const request = latestRequest!
+    const answer = script(request)
     const generated = answer === 'generate' ? outcomes.of(intent) : undefined
-    const doneAt = Math.max(clock.at, generatorFreeAt) + cost(generated)
-    generatorFreeAt = doneAt
-    return new Promise((resolve, reject) =>
-      schedule(doneAt, () => {
-        if (answer === 'crash') reject(new GenerationWorkerCrashError('Error', 'injected crash'))
-        else resolve(generated === undefined ? failureOutcome() : generated.outcome)
-      }),
-    )
+    return new Promise((resolve, reject) => {
+      const record: OpenGeneratorRecord = {
+        attemptId: request.attemptId,
+        phraseNumber: request.phraseNumber,
+        step: request.step,
+        requestedAt: clock.at,
+        startedAt: undefined,
+        answeredAt: undefined,
+        cancelledAt: undefined,
+      }
+      generations.push(record)
+      const cost = attemptCost(generated, request)
+      const job: GeneratorJob = { request, answer, generated, cost, resolve, reject, record }
+      waiting.push(job)
+      signal?.addEventListener('abort', () => cancel(job), { once: true })
+      if (current === undefined) startNext()
+    })
   }
 
   const runner = createSessionRunner(
@@ -402,7 +503,7 @@ export async function runTimedSession(
     }
     await drainContinuations()
   }
-  return { tempo, outputs, errors }
+  return { tempo, outputs, generations, errors }
 }
 
 /** What became of one phrase slot after phrase 1 in a timed run. */

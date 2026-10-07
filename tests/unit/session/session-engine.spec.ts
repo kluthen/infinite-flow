@@ -17,10 +17,15 @@ const CAUSES: readonly SessionEndCause[] = [
   'controller-lost',
 ]
 
+/** Intent: a driver at a tempo started at 0, so phrase 2's deadline is one measure later. */
+function driverAt(tempo: number): SessionDriver {
+  const settings = sessionSettings({ tempo })
+  return new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
+}
+
 /** Intent: a driver at 240 BPM (a 1 s measure) started at 0, so phrase 2's deadline is 1. */
 function fastDriver(): SessionDriver {
-  const settings = sessionSettings({ tempo: 240 })
-  return new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
+  return driverAt(240)
 }
 
 // @test-link [[rule_count_in_ending_returns_to_idle]]
@@ -34,7 +39,9 @@ describe('ending a session', () => {
   // @test-link [[rule_controller_reconnection_window]]
   it.each(CAUSES)('ends during the count-in with no phrase sounded (%s)', (cause) => {
     const driver = fastDriver()
+    const { attemptId } = driver.lastRequest()
     expect(driver.end(0.5, cause)).toEqual([
+      { kind: 'cancel-generation', attemptId },
       { kind: 'ended', at: 0.5, cause, phase: 'count-in', soundedPhraseCount: 0 },
     ])
   })
@@ -48,7 +55,9 @@ describe('ending a session', () => {
     driver.accept(0.5)
     driver.countInOver(1)
     driver.sounding(5, 2)
+    const { attemptId } = driver.lastRequest()
     expect(driver.end(6, cause)).toEqual([
+      { kind: 'cancel-generation', attemptId },
       { kind: 'ended', at: 6, cause, phase: 'running', soundedPhraseCount: 2 },
     ])
   })
@@ -73,6 +82,7 @@ describe('ending a session', () => {
   it('decides no repeat when the end arrives after a passed deadline with nothing ready', () => {
     const driver = fastDriver()
     expect(driver.end(1.5)).toEqual([
+      { kind: 'cancel-generation', attemptId: driver.lastRequest().attemptId },
       { kind: 'ended', at: 1.5, cause: 'stop', phase: 'count-in', soundedPhraseCount: 0 },
     ])
     expect(driver.all('phrase-ready')).toEqual([])
@@ -90,6 +100,7 @@ describe('ending a session', () => {
     expect(driver.all('struggling-notice')).toEqual([{ kind: 'struggling-notice', visible: true }])
     const readyBefore = driver.all('phrase-ready').length
     expect(driver.end(12.5)).toEqual([
+      { kind: 'cancel-generation', attemptId: driver.lastRequest().attemptId },
       { kind: 'struggling-notice', visible: false },
       { kind: 'ended', at: 12.5, cause: 'stop', phase: 'running', soundedPhraseCount: 3 },
     ])
@@ -145,18 +156,21 @@ describe('a rolling session', () => {
     for (let phraseNumber = 2; phraseNumber <= 5; phraseNumber += 1) {
       const at = 1 + 4 * (phraseNumber - 1)
       // Phrase 2's tempo was fixed at the count-in's end; each later one when it starts sounding.
+      // Each carry-in request asks to be woken at its cutover time, then at its deadline.
       expect(kinds(driver.sounding(at, phraseNumber))).toEqual([
         ...(phraseNumber > 2 ? ['phrase-tempo'] : []),
         'phrase-sounding',
         'request-generation',
+        'wake-at',
         'wake-at',
       ])
       driver.accept(at + 0.5)
     }
     expect(driver.requests().map((request) => request.phraseNumber)).toEqual([2, 3, 4, 5, 6])
     expect(driver.requests().map((request) => request.attemptId)).toEqual([1, 2, 3, 4, 5])
+    // Phrase 2's one-measure deadline at 240 BPM is within the standalone reserve.
     expect(driver.all('phrase-ready').map((ready) => ready.phrase.origin)).toEqual([
-      'carry-in',
+      'standalone',
       'carry-in',
       'carry-in',
       'carry-in',
@@ -166,7 +180,7 @@ describe('a rolling session', () => {
 
   // @test-link [[service_session_engine]]
   it("asks to fit-check each attempt with that attempt's own intent, the standalone retry's included", () => {
-    const driver = fastDriver()
+    const driver = driverAt(60)
     const first = driver.lastRequest()
     expect(driver.succeed(0.1)).toEqual([
       {

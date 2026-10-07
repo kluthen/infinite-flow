@@ -332,6 +332,7 @@ describe('when a phrase’s tempo is fixed', () => {
       'phrase-discarded',
       'settings-changed',
       'request-generation',
+      'wake-at',
     ])
     driver.settle(at + 3)
     const deadline = at + 3 * measureSeconds(T + 5)
@@ -360,8 +361,13 @@ describe('the settings-change discard guard after a rise', () => {
     // 3.8 s is more than a measure at 65 BPM (3.69 s) but less than one at 60 BPM (4 s).
     const { driver, deadline } = fourRequested()
     const outputs = driver.change(deadline - 3.8, changed)
-    expect(kinds(outputs)).toEqual(['settings-changed', 'request-generation'])
-    expect(outputs[0]).toMatchObject({ phraseNumber: 4 })
+    expect(kinds(outputs)).toEqual([
+      'cancel-generation',
+      'settings-changed',
+      'request-generation',
+      'wake-at',
+    ])
+    expect(outputs[1]).toMatchObject({ phraseNumber: 4 })
     expect(driver.display.asked).toEqual([4])
   })
 
@@ -469,8 +475,8 @@ describe('the controller event', () => {
   it('runs the deadline logic for its time first', () => {
     const driver = adaptive()
     const outputs = driver.controller(measureSeconds(T), false)
-    expect(kinds(outputs)).toEqual(['phrase-ready', 'phrase-tempo'])
-    expect(outputs[0]).toMatchObject({ phrase: { phraseNumber: 2, origin: 'repeat' } })
+    expect(kinds(outputs)).toEqual(['cancel-generation', 'phrase-ready', 'phrase-tempo'])
+    expect(outputs[1]).toMatchObject({ phrase: { phraseNumber: 2, origin: 'repeat' } })
   })
 
   // @test-link [[service_session_engine]]

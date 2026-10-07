@@ -42,24 +42,24 @@ describe('the carry-in after a settings change', () => {
 
   // @test-link [[rule_register_change_replaces_carried_window]]
   it("replaces the carried window with the new register's after a register change", () => {
-    const { request, carry } = changedRequest({ register: 'High' })
-    const high = request.intent.registerIntent.candidates.find((entry) => entry.id === 'High')
-    expect(carry.registerWindow).not.toEqual(high?.window)
+    const { request, carry } = changedRequest({ register: 'Low' })
+    const low = request.intent.registerIntent.candidates.find((entry) => entry.id === 'Low')
+    expect(carry.registerWindow).not.toEqual(low?.window)
     expect(request.step).toBe('carry-in')
-    expect(request.intent.carryIn?.registerWindow).toEqual(high?.window)
+    expect(request.intent.carryIn?.registerWindow).toEqual(low?.window)
     expect(request.intent.carryIn?.lastPitch).toEqual(carry.lastPitch)
   })
 
   // @test-link [[rule_setting_change_rechecks_pitch_carry_in]]
   it('requests every rung standalone, pinned to the new register, when the pitch no longer fits', () => {
-    const { driver, request, carry } = changedRequest({ register: 'Low' })
-    const low = request.intent.registerIntent.candidates.find((entry) => entry.id === 'Low')!
-    expect(registerWindowContainsPitch(low.window, carry.lastPitch.midi)).toBe(false)
+    const { driver, request, carry } = changedRequest({ register: 'High' })
+    const high = request.intent.registerIntent.candidates.find((entry) => entry.id === 'High')!
+    expect(registerWindowContainsPitch(high.window, carry.lastPitch.midi)).toBe(false)
     for (let retry = 0; retry < 5; retry += 1) {
       const attempt = driver.lastRequest()
       expect(attempt).toMatchObject({ phraseNumber: 3, step: 'standalone', retry })
       expect(attempt.intent.carryIn).toBeUndefined()
-      expect(attempt.intent.controls.register).toBe('Low')
+      expect(attempt.intent.controls.register).toBe('High')
       if (retry < 4) driver.fail(soundingAt(2) + 1.1 + retry / 10)
     }
     const [, ready] = driver.accept(soundingAt(2) + 1.6)

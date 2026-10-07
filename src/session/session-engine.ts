@@ -10,26 +10,15 @@
  */
 
 import { deepFreeze } from '../domain/events/deep-freeze'
-import type { GenerationOutcome } from '../domain/generation/orchestration/orchestration-types'
 import {
-  LADDER,
   acceptedPhrase,
   carryInAfter,
   currentAttempt,
   openLookAhead,
   repeatedPhrase,
-  rungAfterFailure,
-  rungsSkipped,
   type Attempt,
-  type AttemptFailure,
-  type LadderRung,
 } from './failure-ladder'
-import {
-  buildAttemptIntent,
-  discardSkippedRungs,
-  freezeSessionSettings,
-  resolvedRegister,
-} from './session-intents'
+import { freezeSessionSettings, resolvedRegister } from './session-intents'
 import {
   decidedOf,
   lookAheadOf,
@@ -38,9 +27,9 @@ import {
   type EngineState,
   type Step,
 } from './session-engine-state'
+import { cancelDropped, climb, requestFirstRung, runCutover } from './session-ladder-step'
 import { landingMutation } from './session-mutation-step'
 import {
-  attemptPlan,
   automaticChange,
   changedSettings,
   discardsPendingPhrase,
@@ -82,46 +71,19 @@ function assertAudioTime(at: AudioTime): void {
 }
 
 /**
- * Intent: request one rung for the look-ahead phrase: build its intent now from the look-ahead's
- * basis (the window read now, the step-down memory updated), give it the next attempt id, and make
- * it the attempt in flight.
- */
-function requestRung(context: EngineContext, state: EngineState, rung: LadderRung): Step {
-  const lookAhead = lookAheadOf(state)
-  const { settings, source } = lookAhead.basis
-  const plan = attemptPlan(rung, source, registerCandidates(lookAhead.previous))
-  const { intent, steppedDown } = buildAttemptIntent(context, settings, plan, state.steppedDown)
-  const attemptId = state.nextAttemptId
-  const attempt: Attempt = { attemptId, rung, step: plan.step, intent, stage: 'generating' }
-  return {
-    state: {
-      ...state,
-      steppedDown,
-      nextAttemptId: attemptId + 1,
-      lookAhead: { ...lookAhead, attempt },
-    },
-    outputs: [
-      {
-        kind: 'request-generation',
-        attemptId,
-        phraseNumber: lookAhead.phraseNumber,
-        step: plan.step,
-        retry: rung.retry,
-        intent,
-        deadline: lookAhead.deadline,
-      },
-    ],
-  }
-}
-
-/**
- * Intent: open the look-ahead for the phrase after the latest decided one and request it. A
+ * Intent: open the look-ahead for the phrase after the latest decided one at `at` and request its
+ * first rung, the standalone one when that attempt is already due, and wake at its deadline. A
  * mutation scheduled on that phrase is decided first, from the window read now, the step-down
  * memory and the register whose window the carry-in holds, and is in effect for its request; the
  * phrase is generated under those settings with its tension-arc cycle step, which never reaches
  * the settings in effect.
  */
-function requestNextPhrase(context: EngineContext, state: EngineState, deadline: AudioTime): Step {
+function requestNextPhrase(
+  context: EngineContext,
+  state: EngineState,
+  at: AudioTime,
+  deadline: AudioTime,
+): Step {
   if (state.lookAhead !== undefined)
     throw new SessionEngineError('A phrase is requested while another is still undecided.')
   const previous = state.lastDecided
@@ -136,7 +98,7 @@ function requestNextPhrase(context: EngineContext, state: EngineState, deadline:
   const under = settingsGeneratedUnder(context.multiPhraseTensionArc, phraseNumber, settings)
   const basis = lookAheadBasis(previous, state.lastDecidedSettings, under, carryIn)
   const lookAhead = openLookAhead(previous, carryIn, basis, deadline)
-  const requested = requestRung(context, { ...state, settings, lookAhead }, LADDER[0]!)
+  const requested = requestFirstRung(context, { ...state, settings, lookAhead }, at)
   return {
     state: requested.state,
     outputs: [
@@ -172,48 +134,31 @@ function decide(state: EngineState, phrase: SessionPhrase): Step {
 
 /**
  * Intent: at or after the look-ahead's deadline with no valid phrase, repeat the phrase before;
- * any attempt still in flight is dropped with it. Before the deadline nothing happens.
+ * any attempt still in flight is dropped with it, and cancelled first while still generating.
+ * Before the deadline nothing happens.
  */
+// @spec-link [[rule_dropped_attempt_cancelled]]
 function runDeadline(state: EngineState, at: AudioTime): Step {
   const { lookAhead } = state
   if (lookAhead === undefined || !deadlineReached(at, lookAhead.deadline))
     return { state, outputs: [] }
-  return decide(state, repeatedPhrase(lookAhead))
-}
-
-/**
- * Intent: after a failed attempt, request the rung its failure leads to, or wait for the deadline
- * once the ladder is exhausted. Rungs skipped on the way create no attempt, but their request ids
- * and seeds are drawn and discarded first, so the rung requested is built as if they had failed.
- */
-function climb(
-  context: EngineContext,
-  state: EngineState,
-  attempt: Attempt,
-  failure: AttemptFailure,
-): Step {
-  const rung = rungAfterFailure(attempt, failure)
-  if (rung !== undefined) {
-    discardSkippedRungs(context, rungsSkipped(attempt.rung, rung))
-    return requestRung(context, state, rung)
-  }
-  const exhausted = { ...lookAheadOf(state), attempt: undefined }
-  return { state: { ...state, lookAhead: exhausted }, outputs: [] }
+  const repeated = decide(state, repeatedPhrase(lookAhead))
+  return { state: repeated.state, outputs: [...cancelDropped(lookAhead), ...repeated.outputs] }
 }
 
 /** Intent: a generation result: a success goes to its fit check, a failure climbs the ladder. */
 function onGenerationResult(
   context: EngineContext,
   state: EngineState,
-  attemptId: number,
-  outcome: GenerationOutcome,
+  event: Extract<SessionEvent, { kind: 'generation-result' }>,
 ): Step {
+  const { at, attemptId, outcome } = event
   const attempt = currentAttempt(state.lookAhead, attemptId)
   if (attempt === undefined) return { state, outputs: [] }
   if (attempt.stage !== 'generating')
     throw new SessionEngineError(`Attempt ${attemptId} already has its generation result.`)
   if (outcome.kind !== 'generation_success')
-    return climb(context, state, attempt, { kind: 'generation-failure', code: outcome.code })
+    return climb(context, state, attempt, { kind: 'generation-failure', code: outcome.code }, at)
   const lookAhead = lookAheadOf(state)
   const fitting: Attempt = { ...attempt, stage: 'fitting', outcome }
   return {
@@ -231,26 +176,31 @@ function onGenerationResult(
 }
 
 /** Intent: a rejected generate request is a failed attempt, which climbs the ladder. */
-function onGenerationCrashed(context: EngineContext, state: EngineState, attemptId: number): Step {
+function onGenerationCrashed(
+  context: EngineContext,
+  state: EngineState,
+  at: AudioTime,
+  attemptId: number,
+): Step {
   const attempt = currentAttempt(state.lookAhead, attemptId)
   if (attempt === undefined) return { state, outputs: [] }
   if (attempt.stage !== 'generating')
     throw new SessionEngineError(`Attempt ${attemptId} crashed after its generation result.`)
-  return climb(context, state, attempt, { kind: 'crash' })
+  return climb(context, state, attempt, { kind: 'crash' }, at)
 }
 
 /** Intent: a fit result: a phrase that fits is decided, one that does not climbs the ladder. */
 function onFitResult(
   context: EngineContext,
   state: EngineState,
-  attemptId: number,
-  fits: boolean,
+  event: Extract<SessionEvent, { kind: 'fit-result' }>,
 ): Step {
+  const { at, attemptId, fits } = event
   const attempt = currentAttempt(state.lookAhead, attemptId)
   if (attempt === undefined) return { state, outputs: [] }
   if (attempt.stage !== 'fitting')
     throw new SessionEngineError(`Attempt ${attemptId} has a fit result before its outcome.`)
-  if (!fits) return climb(context, state, attempt, { kind: 'not-fitting' })
+  if (!fits) return climb(context, state, attempt, { kind: 'not-fitting' }, at)
   return decide(state, acceptedPhrase(lookAheadOf(state), attempt))
 }
 
@@ -306,7 +256,7 @@ function onPhraseStartedSounding(
     decided: undefined,
     tempo: countSoundingPhrase(state.tempo),
   }
-  const requested = requestNextPhrase(context, sounded, nextPhraseDeadline(at, tempo))
+  const requested = requestNextPhrase(context, sounded, at, nextPhraseDeadline(at, tempo))
   return {
     state: requested.state,
     outputs: [
@@ -321,11 +271,13 @@ function onPhraseStartedSounding(
  * Intent: put a settings change in effect at `at`. The pending phrase (the undecided look-ahead,
  * or the decided phrase not yet sounding) is discarded when at least a measure, at the sounding
  * phrase's tempo, remains before its deadline and none of it is on screen: a decided one is
- * undecided again, and either way it is requested again from the first rung with the new
- * settings (generated under them with its own tension-arc cycle step), same phrase before and
- * deadline, its attempt in flight superseded. Otherwise the change applies from the phrase after
- * it. The settings in effect and the settings-changed output never carry the step.
+ * undecided again, and either way it is requested again from its first rung (the standalone one
+ * once that attempt is due) with the new settings (generated under them with its own tension-arc cycle step), same phrase before and
+ * deadline, its attempt in flight superseded, and cancelled first while still generating.
+ * Otherwise the change applies from the phrase after it. The settings in effect and the
+ * settings-changed output never carry the step.
  */
+// @spec-link [[rule_dropped_attempt_cancelled]]
 function onSettingsChange(
   context: EngineContext,
   state: EngineState,
@@ -340,20 +292,30 @@ function onSettingsChange(
   const undecided = state.lookAhead === undefined ? undecide(state) : state
   const under = settingsGeneratedUnder(context.multiPhraseTensionArc, phraseNumber, settings)
   const lookAhead = reopenedLookAhead(pending, under)
-  const requested = requestRung(context, { ...undecided, settings, lookAhead }, LADDER[0]!)
+  const requested = requestFirstRung(context, { ...undecided, settings, lookAhead }, at)
   const discarded: readonly SessionOutput[] =
     state.lookAhead === undefined ? [{ kind: 'phrase-discarded', phraseNumber }] : []
   return {
     state: requested.state,
-    outputs: [...discarded, automaticChange(phraseNumber, settings), ...requested.outputs],
+    outputs: [
+      ...cancelDropped(state.lookAhead),
+      ...discarded,
+      automaticChange(phraseNumber, settings),
+      ...requested.outputs,
+    ],
   }
 }
 
-/** Intent: end the session: drop the look-ahead, clear a shown notice and report the end. */
+/**
+ * Intent: end the session: drop the look-ahead, cancelling its attempt while still generating,
+ * clear a shown notice and report the end.
+ */
+// @spec-link [[rule_dropped_attempt_cancelled]]
 function onEnd(state: EngineState, event: Extract<SessionEvent, { kind: 'end' }>): Step {
   return {
     state: { ...state, phase: 'ended', lookAhead: undefined },
     outputs: [
+      ...cancelDropped(state.lookAhead),
       ...noticeAtEnd(state.notice),
       {
         kind: 'ended',
@@ -391,11 +353,11 @@ function dispatch(context: EngineContext, state: EngineState, event: SessionEven
     case 'phrase-started-sounding':
       return onPhraseStartedSounding(context, state, event.at, event.phraseNumber)
     case 'generation-result':
-      return onGenerationResult(context, state, event.attemptId, event.outcome)
+      return onGenerationResult(context, state, event)
     case 'generation-crashed':
-      return onGenerationCrashed(context, state, event.attemptId)
+      return onGenerationCrashed(context, state, event.at, event.attemptId)
     case 'fit-result':
-      return onFitResult(context, state, event.attemptId, event.fits)
+      return onFitResult(context, state, event)
     case 'settings-change':
       return onSettingsChange(context, state, event.at, event.settings)
     case 'controller':
@@ -420,7 +382,9 @@ function runDue(state: EngineState, at: AudioTime): Step {
 /**
  * Intent: handle one timed event. Time never runs backwards. Before the end, any event other than
  * `end` first runs what is due by its time, so a result at or after the deadline is too late;
- * `end` decides nothing more.
+ * `end` decides nothing more. Once the event is handled, the look-ahead's carry-in attempt still
+ * generating is cut over to the standalone attempt when that attempt is due, so a carry-in result
+ * arriving at or after the cutover time is handled first.
  */
 function handleEvent(context: EngineContext, state: EngineState, event: SessionEvent): Step {
   assertAudioTime(event.at)
@@ -430,7 +394,11 @@ function handleEvent(context: EngineContext, state: EngineState, event: SessionE
   const timed = { ...state, lastAt: event.at }
   const due = event.kind === 'end' ? { state: timed, outputs: [] } : runDue(timed, event.at)
   const handled = dispatch(context, due.state, event)
-  return { state: handled.state, outputs: [...due.outputs, ...handled.outputs] }
+  const cutover = runCutover(context, handled.state, event.at)
+  return {
+    state: cutover.state,
+    outputs: [...due.outputs, ...handled.outputs, ...cutover.outputs],
+  }
 }
 
 /**
@@ -483,7 +451,7 @@ export function createSessionEngine(
     tempo: startSessionTempo(settings, start.adaptiveTempo),
   }
   const phraseTwoDue = phraseTwoDeadline(start.at, settings.controls.tempo)
-  const started = requestNextPhrase(context, initial, phraseTwoDue)
+  const started = requestNextPhrase(context, initial, start.at, phraseTwoDue)
   let state = started.state
   return Object.freeze({
     outputsAtStart: deepFreeze([...started.outputs]),

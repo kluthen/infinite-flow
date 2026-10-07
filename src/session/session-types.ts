@@ -136,6 +136,8 @@ export type SessionEvent =
  * `settings-changed` names the first phrase new settings apply to, and `phrase-discarded` a
  * look-ahead phrase dropped to be requested again with new settings. `phrase-tempo` gives the
  * tempo of a phrase from 2 on, output once, when it is fixed at that phrase's look-ahead deadline.
+ * `cancel-generation` names an attempt dropped while still generating, to be stopped where it
+ * runs; it comes before any `request-generation` of the same event.
  */
 // @spec-link [[service_session_engine]]
 export type SessionOutput =
@@ -174,6 +176,7 @@ export type SessionOutput =
   | SettingsChangedOutput
   | { readonly kind: 'phrase-discarded'; readonly phraseNumber: number }
   | { readonly kind: 'phrase-tempo'; readonly phraseNumber: number; readonly tempo: number }
+  | { readonly kind: 'cancel-generation'; readonly attemptId: number }
 
 /**
  * New settings in effect from a phrase on: from the engine's own mutation, which names the one

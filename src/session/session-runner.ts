@@ -6,7 +6,8 @@
  * produced by fed-back results included, reaches the output callback in the order the engine gave
  * it. Transport events (count-in over, phrase started sounding, the controller going away or
  * reconnecting, ticks, the end) come from the caller through `dispatch`, and so does a settings
- * change from an automatic source other than the engine's own mutations.
+ * change from an automatic source other than the engine's own mutations. Each attempt gets its own
+ * abort signal, aborted when the engine cancels that attempt.
  */
 
 import type { ViewportWidthProvider } from '../composables/viewport-width'
@@ -40,14 +41,15 @@ export interface FitCandidate {
 }
 
 /**
- * The runner's seams. `generate` is the app's one generation worker seam; `checkFit` is required,
- * has no default and receives the attempt's outcome with its intent; `now` is the audio clock;
- * `display` tells the engine whether any of a phrase is on screen; `onError` receives a
- * programming error from `generate` or `checkFit`, which the runner never swallows.
+ * The runner's seams. `generate` is the app's one generation worker seam, given each attempt's own
+ * abort signal; `checkFit` is required, has no default and receives the attempt's outcome with its
+ * intent; `now` is the audio clock; `display` tells the engine whether any of a phrase is on
+ * screen; `onError` receives a programming error from `generate` or `checkFit`, which the runner
+ * never swallows.
  */
 // @spec-link [[service_session_runner]]
 export interface SessionRunnerDependencies {
-  readonly generate: (intent: GenerationIntent) => Promise<GenerationOutcome>
+  readonly generate: (intent: GenerationIntent, signal?: AbortSignal) => Promise<GenerationOutcome>
   readonly checkFit: (candidate: FitCandidate, phraseNumber: number) => Promise<boolean>
   readonly now: () => AudioTime
   readonly providers: GenerationIntentProviders
@@ -101,23 +103,28 @@ function isWorkerFailure(error: unknown): boolean {
  * with `now()`. A generate rejection that is a worker crash or a transport error becomes a
  * `generation-crashed` event, a failed attempt that never ends the session; any other rejection,
  * a fit-check rejection, or an error while handling a fed-back result goes to `onError` and
- * nothing is fed back. An event the engine refuses throws from `dispatch`.
+ * nothing is fed back. A `cancel-generation` output aborts that attempt's signal, and whatever the
+ * aborted attempt then settles with is dropped. An event the engine refuses throws from `dispatch`.
  */
 // @spec-link [[service_session_runner]]
 // @spec-link [[rule_session_generation_failure_ladder]]
 // @spec-link [[rule_look_ahead_deadline]]
+// @spec-link [[rule_dropped_attempt_cancelled]]
 export function createSessionRunner(
   deps: SessionRunnerDependencies,
   start: SessionStart,
 ): SessionRunner {
   const { providers, viewport, display } = deps
   const engine = createSessionEngine({ providers, viewport, display }, start)
+  /** The abort controller of each attempt whose generate request has not settled yet. */
+  const inFlight = new Map<number, AbortController>()
 
   /** Intent: forward each output in order, executing the requests and fit checks among them. */
   function run(outputs: readonly SessionOutput[]): void {
     for (const output of outputs) {
       deps.onOutput(output)
       if (output.kind === 'request-generation') requestGeneration(output.attemptId, output.intent)
+      else if (output.kind === 'cancel-generation') inFlight.get(output.attemptId)?.abort()
       else if (output.kind === 'check-fit')
         requestFitCheck(
           output.attemptId,
@@ -136,11 +143,25 @@ export function createSessionRunner(
     }
   }
 
-  /** Intent: generate one attempt and feed back its outcome, or its worker failure. */
+  /**
+   * Intent: generate one attempt under its own abort signal and feed back its outcome, or its
+   * worker failure; once the attempt is cancelled, whatever it settles with is dropped.
+   */
+  // @spec-link [[rule_dropped_attempt_cancelled]]
+  // @spec-link [[module_generation_worker_cancellation]]
   function requestGeneration(attemptId: number, intent: GenerationIntent): void {
-    void deps.generate(intent).then(
-      (outcome) => feedBack({ kind: 'generation-result', at: deps.now(), attemptId, outcome }),
+    const controller = new AbortController()
+    inFlight.set(attemptId, controller)
+    const { signal } = controller
+    void deps.generate(intent, signal).then(
+      (outcome) => {
+        inFlight.delete(attemptId)
+        if (signal.aborted) return
+        feedBack({ kind: 'generation-result', at: deps.now(), attemptId, outcome })
+      },
       (error: unknown) => {
+        inFlight.delete(attemptId)
+        if (signal.aborted) return
         if (isWorkerFailure(error))
           feedBack({ kind: 'generation-crashed', at: deps.now(), attemptId })
         else deps.onError(error)

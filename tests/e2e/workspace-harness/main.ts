@@ -78,7 +78,10 @@ import type {
 } from '../../../src/domain/generation/orchestration/orchestration-types'
 import { makeSeed, type Seed } from '../../../src/domain/random/seed'
 import { createBrowserGenerationWorker } from '../../../src/generation-worker/browser-generation-worker'
-import { createGenerationWorkerClient } from '../../../src/generation-worker/generation-worker-client'
+import {
+  GenerationCancelledError,
+  createGenerationWorkerClient,
+} from '../../../src/generation-worker/generation-worker-client'
 import { createBrowserViewportWidth } from '../../../src/components/workspace/browser-viewport-width'
 import { prewarmPolicyFromSearch } from '../../../src/components/workspace/prewarm-policy'
 import { bindHarnessAudioStart, createHarnessAudio, harnessAudioMode } from './audio-seams'
@@ -163,7 +166,10 @@ let armedFailureCode: WorkspaceHarnessGenerationFailureCode | null = null
 let callsBeforeArmedFailure = 0
 /** How many calls in a row the armed failure still fails, once it applies. */
 let armedFailuresLeft = 0
-/** How many `generate` calls have returned, failed or answered, since the page loaded. */
+/**
+ * How many `generate` calls have returned, failed, answered or been cancelled, since the page
+ * loaded.
+ */
 let generationsSettled = 0
 /** The concert timeline (JSON) of every successful `generate` answer, in return order. */
 const generatedTimelines: string[] = []
@@ -176,15 +182,20 @@ const harnessMidi = createHarnessMidi(harnessMidiMode(window.location.search), h
 const harnessBrowser = createHarnessSessionBrowser()
 const harnessSessionController = createHarnessSessionController()
 
-const port = createBrowserGenerationWorker()
-const client = createGenerationWorkerClient(port)
+const harnessPrewarmPolicy = prewarmPolicyFromSearch(window.location.search)
+const client = createGenerationWorkerClient(createBrowserGenerationWorker, {
+  prewarmEnabled: harnessPrewarmPolicy === 'enabled',
+})
 
 /**
  * Intent: gate, then optionally fail with a real orchestration failure shape (once the armed
  * number of calls has passed through, for the armed number of calls in a row), then delegate for
- * real; count every call that returns.
+ * real with the caller's abort signal; count every call that returns or is cancelled.
  */
-async function harnessGenerate(intent: GenerationIntent): Promise<GenerationOutcome> {
+async function harnessGenerate(
+  intent: GenerationIntent,
+  signal?: AbortSignal,
+): Promise<GenerationOutcome> {
   generationRequests.push({
     writtenTonalCenter: intent.writtenTonalCenter,
     controls: { ...intent.controls },
@@ -201,7 +212,10 @@ async function harnessGenerate(intent: GenerationIntent): Promise<GenerationOutc
     generationsSettled += 1
     return { kind: 'generation_failure', code, diagnostics: EMPTY_DIAGNOSTICS }
   }
-  const outcome = await client.generate(intent)
+  const outcome = await client.generate(intent, signal).catch((error: unknown) => {
+    if (error instanceof GenerationCancelledError) generationsSettled += 1
+    throw error
+  })
   generationsSettled += 1
   if (outcome.kind === 'generation_success') {
     generatedTimelines.push(JSON.stringify(outcome.result.timeline))
@@ -326,7 +340,7 @@ app.provide(WORKSPACE_SESSION_FACTORY, () => {
     providers: { nextRequestId: requestIdProvider, nextSeed: seedProvider.nextSeed },
     viewport: createBrowserViewportWidth(),
     generate: harnessGenerate,
-    prewarmPolicy: prewarmPolicyFromSearch(window.location.search),
+    prewarmPolicy: harnessPrewarmPolicy,
     prewarm: harnessPrewarm,
     audio: harnessAudio.transport,
     midi: harnessMidi.controller,

@@ -5,7 +5,11 @@
  *
  * The result depends on the machine and on its load: run the sweep on an idle machine, like the
  * `measure:*` scripts. The serial single-worker model of deadline-sweep.ts still holds: an attempt
- * the engine dropped at its deadline keeps the generator busy until it finishes.
+ * the engine cancels while it runs is charged the time it ran plus the worker's restart cost.
+ *
+ * Each density's sweep also counts, per tempo, how its look-ahead phrases (2 to 6) were produced,
+ * and prints the counts as `SWEEP-SKIPS` lines, so how often the ladder's time rule gave up carry-in
+ * can be read from the sweep's log.
  */
 
 import {
@@ -16,7 +20,14 @@ import {
   type AttemptScript,
   type OutcomeCache,
   type SweepCase,
+  type TimedSession,
 } from '../unit/session/deadline-sweep'
+import {
+  PHRASE_PRODUCTIONS,
+  TIME_RULE_PRODUCTIONS,
+  phraseProductions,
+  type PhraseProduction,
+} from '../unit/session/deadline-sweep-productions'
 
 /**
  * What an attempt costs on top of its `generatePhrase` time, in seconds: the generation worker's
@@ -42,7 +53,52 @@ const measuredAttemptCost: AttemptCost = (generated) => {
 }
 
 /**
- * Intent: play one case's session at a tempo with every attempt at its measured cost, and return
+ * How the look-ahead phrases of the runs of one density at one tempo were produced: per production,
+ * a count per phrase number; and how many cases lost carry-in to the ladder's time rule on at least
+ * one phrase, and on at least one phrase after phrase 2.
+ */
+export class ProductionTally {
+  private readonly counts = new Map<PhraseProduction, number[]>(
+    PHRASE_PRODUCTIONS.map((production) => [production, [0, 0, 0, 0, 0]]),
+  )
+  private cases = 0
+  private casesLosingCarryIn = 0
+  private casesLosingCarryInAfterPhraseTwo = 0
+
+  /** Intent: count the productions of one run's phrases 2 to 6. */
+  add(run: TimedSession): void {
+    const productions = phraseProductions(run)
+    productions.forEach((production, offset) => {
+      const counts = this.counts.get(production)!
+      counts[offset] = counts[offset]! + 1
+    })
+    const lost = productions.map((production) => TIME_RULE_PRODUCTIONS.has(production))
+    this.cases++
+    if (lost.includes(true)) this.casesLosingCarryIn++
+    if (lost.slice(1).includes(true)) this.casesLosingCarryInAfterPhraseTwo++
+  }
+
+  /**
+   * Intent: the counts as `SWEEP-SKIPS` lines under a label: one per production with its count
+   * for phrases 2 to 6 and its total, then the case counts.
+   */
+  lines(label: string): readonly string[] {
+    const prefix = `SWEEP-SKIPS ${label}`
+    const rows = PHRASE_PRODUCTIONS.map((production) => {
+      const counts = this.counts.get(production)!
+      const total = counts.reduce((sum, count) => sum + count, 0)
+      return `${prefix} ${production.padEnd(37)} p2-p6 ${counts.map((c) => String(c).padStart(4)).join(' ')} total ${total}`
+    })
+    return [
+      ...rows,
+      `${prefix} cases ${this.cases}, losing carry-in to the time rule ${this.casesLosingCarryIn}, after phrase 2 ${this.casesLosingCarryInAfterPhraseTwo}`,
+    ]
+  }
+}
+
+/**
+ * Intent: play one case's session at a tempo with every attempt at its measured cost, count how
+ * its look-ahead phrases were produced in `tally`, and return
  * every way it missed the look-ahead deadline, as readable lines (none when it held): an error, a
  * phrase after the first not ready strictly before its deadline, a phrase off the measure grid, a
  * session short of its planned end, and every repeat. A standalone phrase counts as generated.
@@ -51,6 +107,7 @@ export async function deadlineShortfalls(
   sweepCase: SweepCase,
   tempo: number,
   outcomes: OutcomeCache,
+  tally: ProductionTally,
 ): Promise<readonly string[]> {
   const run = await runTimedSession(
     sweepCase,
@@ -59,6 +116,7 @@ export async function deadlineShortfalls(
     generateEveryAttempt,
     measuredAttemptCost,
   )
+  tally.add(run)
   const where = `${sweepCase.label} at ${tempo} BPM`
   const shortfalls = [...sessionBreaks(sweepCase, run)]
   for (const slot of phraseSlots(run))

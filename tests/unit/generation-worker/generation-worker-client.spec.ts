@@ -1,51 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  makeGenerationControls,
-  type GenerationControls,
-} from '@/domain/controls/generation-controls'
-import {
-  createGenerationIntent,
-  type GenerationIntent,
-} from '@/domain/generation/generation-intent'
-import { makeRequestId } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
-import { makeSeed } from '@/domain/random/seed'
 import {
   GenerationWorkerCrashError,
   GenerationWorkerTransportError,
   createGenerationWorkerClient,
+  type GenerationWorkerClient,
+  type GenerationWorkerPort,
 } from '@/generation-worker/generation-worker-client'
 import { GenerationWorkerProtocolError } from '@/generation-worker/generation-worker-protocol'
 
+import { buildIntent } from './client-intents'
 import { createFakeGenerationWorkerPort } from './fake-generation-worker-port'
-
-const CHEAP_CONTROLS: GenerationControls = makeGenerationControls({
-  tempo: 90,
-  tonalCenter: 'C',
-  collection: 'Major',
-  harmonicMotion: 'Gentle diatonic',
-  tension: 'Settled',
-  noteDensity: 'Quarter',
-  rhythmicVariety: 'Strict',
-  syncopation: 'Straight',
-  silenceDensity: 'Sparse',
-  contour: 'Arch',
-  register: 'Middle',
-  leapiness: 'Shaped',
-  arpeggioChaos: 'Predictable',
-  instrumentProfileId: 'c-keyboard',
-})
-
-/** Intent: build one real cheap-to-search GenerationIntent, distinguished by requestId/seed. */
-function buildIntent(requestId: string, seed: number): GenerationIntent {
-  return createGenerationIntent({
-    requestId: makeRequestId(requestId),
-    seed: makeSeed(seed),
-    controls: CHEAP_CONTROLS,
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
-  })
-}
 
 /** Intent: recursively sample every reachable plain object/array from `value` and assert it is frozen. */
 function expectDeepFrozen(value: unknown): void {
@@ -56,13 +22,18 @@ function expectDeepFrozen(value: unknown): void {
   }
 }
 
+/** Intent: a client over the one fake `port`, re-warming a replacement worker. */
+function clientOver(port: GenerationWorkerPort): GenerationWorkerClient {
+  return createGenerationWorkerClient(() => port, { prewarmEnabled: true })
+}
+
 // @test-link [[service_workspace_session_runner_factory]]
 describe('createGenerationWorkerClient', () => {
   // @test-link [[rule_seeded_phrase_reproduction]]
   it('resolves generate() with an outcome deep-equal to a direct generatePhrase call, fully frozen', async () => {
     const intent = buildIntent('client-success', 11)
     const expected = generatePhrase(intent)
-    const client = createGenerationWorkerClient(createFakeGenerationWorkerPort())
+    const client = clientOver(createFakeGenerationWorkerPort())
 
     const outcome = await client.generate(intent)
 
@@ -75,7 +46,7 @@ describe('createGenerationWorkerClient', () => {
     const intentB = buildIntent('client-concurrent-b', 22)
     const expectedA = generatePhrase(intentA)
     const expectedB = generatePhrase(intentB)
-    const client = createGenerationWorkerClient(createFakeGenerationWorkerPort())
+    const client = clientOver(createFakeGenerationWorkerPort())
 
     const [outcomeA, outcomeB] = await Promise.all([
       client.generate(intentA),
@@ -92,7 +63,7 @@ describe('createGenerationWorkerClient', () => {
       const record = data as { id: number }
       return { type: 'crash', id: record.id, name: 'RangeError', message: 'boom' }
     })
-    const client = createGenerationWorkerClient(port)
+    const client = clientOver(port)
 
     await expect(client.generate(intent)).rejects.toBeInstanceOf(GenerationWorkerCrashError)
     await expect(client.generate(intent)).rejects.toMatchObject({
@@ -103,7 +74,7 @@ describe('createGenerationWorkerClient', () => {
 
   it('rejects all pending requests and every later call once an "error" event fires', async () => {
     const port = createFakeGenerationWorkerPort(null)
-    const client = createGenerationWorkerClient(port)
+    const client = clientOver(port)
     const intent = buildIntent('client-error-event', 41)
 
     const pending = client.generate(intent)
@@ -115,7 +86,7 @@ describe('createGenerationWorkerClient', () => {
 
   it('rejects all pending requests and every later call once a "messageerror" event fires', async () => {
     const port = createFakeGenerationWorkerPort(null)
-    const client = createGenerationWorkerClient(port)
+    const client = clientOver(port)
     const intent = buildIntent('client-messageerror-event', 42)
 
     const pending = client.generate(intent)
@@ -127,7 +98,7 @@ describe('createGenerationWorkerClient', () => {
 
   it('throws on a malformed response instead of silently ignoring it', () => {
     const port = createFakeGenerationWorkerPort()
-    createGenerationWorkerClient(port)
+    clientOver(port)
 
     expect(() => port.dispatchMessageSync({ type: 'nonsense' })).toThrow(
       GenerationWorkerProtocolError,
@@ -136,7 +107,7 @@ describe('createGenerationWorkerClient', () => {
 
   it('throws when a response arrives for an id with no matching pending request', () => {
     const port = createFakeGenerationWorkerPort()
-    createGenerationWorkerClient(port)
+    clientOver(port)
 
     expect(() =>
       port.dispatchMessageSync({
@@ -159,7 +130,7 @@ describe('createGenerationWorkerClient', () => {
 
   it('dispose() terminates the port and rejects every pending request', async () => {
     const port = createFakeGenerationWorkerPort(null)
-    const client = createGenerationWorkerClient(port)
+    const client = clientOver(port)
     const intent = buildIntent('client-dispose', 51)
 
     const pending = client.generate(intent)
@@ -174,7 +145,7 @@ describe('createGenerationWorkerClient', () => {
 describe('createGenerationWorkerClient: prewarm', () => {
   it('posts one id-less prewarm message and consumes no correlation id', async () => {
     const port = createFakeGenerationWorkerPort()
-    const client = createGenerationWorkerClient(port)
+    const client = clientOver(port)
     const intent = buildIntent('client-prewarm', 61)
 
     expect(client.prewarm(intent)).toBeUndefined()
@@ -189,7 +160,7 @@ describe('createGenerationWorkerClient: prewarm', () => {
 
   it('gets no response for a prewarm, and its queued slice then completes quietly', async () => {
     const port = createFakeGenerationWorkerPort()
-    const client = createGenerationWorkerClient(port)
+    const client = clientOver(port)
     client.prewarm(buildIntent('client-prewarm-quiet', 62))
     await Promise.resolve()
 
@@ -200,7 +171,7 @@ describe('createGenerationWorkerClient: prewarm', () => {
 
   it('posts nothing once the worker is unusable', () => {
     const port = createFakeGenerationWorkerPort(null)
-    const client = createGenerationWorkerClient(port)
+    const client = clientOver(port)
     port.emitError()
 
     client.prewarm(buildIntent('client-prewarm-broken', 63))
