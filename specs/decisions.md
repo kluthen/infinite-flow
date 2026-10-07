@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.59
+Status: draft v2.60
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D231**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D232**.
 
 ## Decision Log
 
@@ -369,3 +369,15 @@ fact in the live documents (see the [archive index](archive/README.md) and
   does not break the rule that the app never switches key and mode on its own (D209). Which
   allowed key and mode the selection moves to is left to the v3.1 draft (proposed: the preset's
   first listed). Still conditional on D229's cost check.
+
+- **D231 (2026-10-07): a preset's key and mode restriction guides, never blocks (refines D230).**
+  The owner: when a preset restricted to some keys and modes is selected, the key and mode
+  controls **highlight** the keys and modes for which the preset is valid; **nothing is
+  prevented**, every key and mode stays selectable. Choosing one outside the restriction is
+  opting out: the preset is **no longer the selected one**, exactly as today when a change to
+  Jazz's settings leaves Jazz ("nothing actually really changed beside the new setting"; the
+  selection then reads Custom, every other setting untouched). With D230, selecting the preset
+  still moves an outside key and mode inside. The highlight is the owner's direction for
+  `ux-writer`. Still conditional on D229's cost check. Proposed by spec-writer, to confirm in the
+  v3.1 draft: Vary settings, when it moves key and mode under a restricted preset, stays inside
+  the restriction, so the app never opts the player out of their preset by itself.
