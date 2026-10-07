@@ -96,14 +96,14 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   separate files). This replaces the opt-in played-notes track inside the one MIDI file. v2.0
   exports generated notes only; played notes and "both" arrive in v2.1. Opens **O86** (what makes
   a favorite "exported"). Keeping sessions stays later than v2 (ux D67): see
-  [v3](../../versions/v3/README.md#keeping-sessions-candidates-not-committed).
+  [v3](../../versions/v3/README.md#keeping-sessions).
 - **Changed (D130, owner via `ux-writer`, ux D68, ux D69): favorites move to v3, one export
   action per content.** The review has no favorites; every export covers the whole session;
   starting a new session from the review asks no confirmation (closing or reloading still
   discards everything without asking). The review offers one export action for the generated
   notes (MusicXML or MIDI) and one for the played notes (MIDI), one file each; "both" means using
   both. The played-notes action is unavailable when the session holds no played note. **O86**
-  is deferred to v3 with favorites ([v3](../../versions/v3/README.md#favorites-v3-scope-to-be-settled)).
+  is deferred to v3 with favorites ([v3](../../versions/v3/README.md#favorites)).
 - **Settled (D131–D133, owner via `ux-writer`'s unit-2 session review, ux D72–D74).** The app
   holds a screen wake lock for the whole session and releases it at the end; a refused or missing
   lock is silent (D131, v2.0). The count-in always clicks, even with the click turned off; the
@@ -268,7 +268,7 @@ Settled scope is below and unchanged. The topic documents mark each item settled
   the real-program export checks (MuseScore, a MIDI tool, a DAW) do not block the v2.0 tag; they
   are validated later, as a v2.0.x hand-check note (D193). A voluntary "Bluetooth" checkbox in the
   connection sheet is recorded as a candidate, version open, in
-  [v3](../../versions/v3/README.md#controller-connection-candidates-not-committed) (D192). Master spec v1.31,
+  [v3](../../versions/v3/README.md#controller-connection-ideas) (D192). Master spec v1.31,
   build plan v0.7.
 - **Measured (D194, D195, 2026-10-06), the machine measurements of the v2.0 gate.** **O68
   closed:** the longest main-thread block while engraving is about 50 ms, and at 240 BPM no task

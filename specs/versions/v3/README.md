@@ -1,222 +1,83 @@
 # v3 — Player Material and "My Instrument"
 
-Status: direction (2026-09-25; review-tooling candidates added 2026-09-28, D128;
-session-keeping candidates added 2026-09-28, D129; favorites moved here from v2 2026-09-28, D130;
-a note on saving note density added 2026-09-28, D146; the end-of-measure chord-fit check moved
-here from v2 as a nice-to-have 2026-10-03, D174; rhythm candidates added 2026-10-03, D175; two controller-connection candidates added
-2026-10-06, D190 and D192; stray notes from controllers, a played-notes pruning candidate and a
-note on the chord-fit check added 2026-10-06, D196; pre-generating phrases at Idle added as a
-candidate 2026-10-07, D206; MIDI-seeded continuation named Jam and made v3's lead feature, with
-a key and mode suggestion, the rhythm candidates tied to it and learning from positive signals as
-candidates, 2026-10-07, D209; embellishment flags and player-made presets added as v3 scope,
-2026-10-07, D210).
-Not yet specced.
+Status: direction, split into releases (2026-10-07, D211; v3.0.1 merged into v3.0, D212). Not yet specced. The items and
+candidates gathered here from 2026-09-25 on are recorded in the decisions log: D128–D130, D146,
+D174, D175, D190, D192, D196, D206, D209 and D210. D211 places each of them in a release, moves
+two to v4 and drops four. D212 merges v3.0.1 into v3.0.
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
 Also every tester on an instrument v1 doesn't ship. See [personas](../../personas.md).
 
-## Settled direction
+## Releases (D211)
 
-- **Jam: MIDI-seeded continuation** (working name Jam, D209; v3's lead feature and its most
-  complex part).
-  - The player plays a motif or gimmick, and the generator continues it.
-  - This extends v2's continuation from the app's own material to material the player plays.
-  - The player-selected key and mode stay authoritative. **Amended by D209:** "automatic key
-    detection is not planned" no longer holds. A key and mode suggestion that the player confirms
-    is now a candidate; the app never switches the key on its own. See
-    [Jam](#jam-growing-the-players-doodle) below.
-- **"My instrument" configuration, saved locally.**
-  - A small interface lets the player describe their instrument: the input kind (MIDI
-    controller now; the microphone much later, see [v5+](../v5-plus/README.md)), the expected
-    range and the transposition.
-  - It builds on v1.0's instrument templates, where transposition is open data.
-  - **Feeds from v2's controller check (D79):** v2.0's controller check (D77) detects a constant
-    pitch offset between the controller and the selected template — octave, semitone, or any
-    other constant delta — but only for the session (D77: no persistence in v2). Once "my
-    instrument" exists, the same check's result should populate or update the saved template
-    automatically, instead of asking the player to redo or re-enter it every session.
-  - The instrument will eventually belong to a user profile. Switching instrument is expected to
-    be rare.
-  - A Concert-display override, absent from v1.0, may return here if someone needs it.
-- **Local persistence (first in the product).**
-  - This deliberately departs from v1's ephemeral sessions.
-  - Data stays on the player's system: local storage, or a file export the player triggers.
-  - **Feeds from v2's narrow-window density rule (D146):** below the tablet-landscape width, v2
-    generates with `Eighth` while keeping a `Sixteenth` the player chose, in memory only. If v3
-    saves settings, it saves the chosen value, not the one generated with.
-- **Review of earlier sessions.**
-  - This extends v2's last-session review through persistence.
-  - Keeping played notes across sessions requires the player's explicit opt-in and a way to
-    delete them.
-- **Embellishment flags** (D210). The player chooses which decorating figures the generator may
-  use, and how much it favors each. See [embellishment flags](#embellishment-flags-v3-scope-to-be-settled).
-- **Presets, including the player's own** (D210). A few more built-in presets, and, with local
-  persistence, presets the player creates and saves. The owner: "last but not least". See
-  [presets](#presets-v3-scope-to-be-settled).
+| Release    | Theme                         | Scope                                                                                                                                                      |
+| ---------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **v3.0**   | Storage, and follow-ups (D212) | [Local persistence](#local-persistence), ["my instrument"](#my-instrument), [review of earlier sessions](#review-of-earlier-sessions), [favorites](#favorites), [keeping sessions](#keeping-sessions); [pre-generating phrases at Idle](#pre-generating-phrases-at-idle), [stray notes from controllers](#stray-notes-from-controllers) |
+| **v3.1**   | Generation choices            | [Embellishment flags](#embellishment-flags), [presets](#presets)                                                                                           |
+| **v3.2**   | Jam                           | [Jam](#jam-growing-the-players-doodle), the [key and mode suggestion](#key-and-mode-suggestion), the [rhythm lock and mutation](#rhythm-lock-and-mutation) |
+| **v3.x**   | Kept, likely to move or go    | [Learning from positive signals](#v3x--learning-from-positive-signals)                                                                                          |
 
-## Jam: growing the player's doodle
+- **v3.0 drafts** (2026-10-07, draft v1, recommendations tagged (proposed) for the owner's
+  overall review): [persistence](persistence.md), [kept sessions and favorites](kept-sessions.md),
+  [my instrument](my-instrument.md), [pre-generation at Idle](pre-generation.md),
+  [stray notes](stray-notes.md).
+- **Research:** [storage grounding](storage-grounding.md), [Jam grounding](jam-grounding.md);
+  music research in `docs/music/`: [embellishment catalogue](../../../docs/music/embellishment-catalogue.md),
+  [mutation catalogue](../../../docs/music/mutation-catalogue.md),
+  [played-pattern recognition](../../../docs/music/played-pattern-recognition.md),
+  [key and mode estimation](../../../docs/music/key-and-mode-estimation.md); their sources and
+  terms are merged into `research-sources.md` and the lexicon.
+- **Moved to v4:** the [rhythm ratios and the rhythm editor](#moved-to-v4-rhythm-ratios-and-the-rhythm-editor).
+- **Dropped:** the [two controller-connection ideas](#controller-connection-ideas),
+  [review tooling](#review-tooling) and the
+  [end-of-measure chord-fit check](#end-of-measure-chord-fit-check). See [Dropped](#dropped-d211).
+- **v3.0.1 is merged into v3.0** (D212), the owner: "v3.0.1 could very well be just included
+  into v3.0". This also settles where keeping sessions goes: with the review of earlier sessions
+  that needs it.
 
-Recorded 2026-10-07 (D209), the owner's insight, in their words: "I've a doodle in mind, but I'm
-not good enough to iterate on it. I give it to the app, and it generates matching phrases." This
-is the settled MIDI-seeded continuation above, named and given its purpose. **The core is v3
-scope; the three extensions below are candidates, not committed, and not designed.**
+## v3.0 — Storage
 
-- **Name.** "Jam" (working name), proposed by the owner along with "improvisation". Jam is
-  preferred: in music, improvisation means the player inventing on the spot, while here the app
-  develops the player's idea; and "the Curious Improviser" is already P1's name
-  ([personas](../../personas.md)). Musicians call the doodle a **motif**, and building on it
-  (repeating, varying, moving it to other notes, changing its rhythm) **developing a motif**.
-- **The core.** The doodle feeds the generator its [rhythm](../../../docs/music/lexicon.md#rhythm),
-  its [contour](../../../docs/music/lexicon.md#contour) and its
-  [interval](../../../docs/music/lexicon.md#interval) character, as the
-  [product foundation](../../product-foundation.md) planned for the second deliverable; the
-  generated phrases match it. It serves P3's C3, "grow an idea"
-  ([personas](../../personas.md#p3--the-fledgling-composer-secondary-d61)).
-- **Prerequisite: stray notes.** A stray note from the controller would distort the doodle and
-  every signal below, so a minimum duration for a played note to count
-  ([stray notes](#stray-notes-from-controllers-candidates-not-committed)) is likely needed first.
+Everything that needs the app to keep something on the player's device. Presets are excluded,
+though they are saved too: they ship with the embellishment flags in v3.1.
 
-### Candidate: key and mode suggestion
+### Local persistence
 
-The owner's proposal, aware that "it's highly possible to have multiple valid replies depending on
-the size and content of the snippet". It reverses the earlier "automatic key detection is not
-planned" (D209).
+- The first thing in the product that survives a page reload. This deliberately departs from v1's
+  and v2's ephemeral sessions.
+- Data stays on the player's system: local storage, or a file export the player triggers.
+- **Feeds from v2's narrow-window density rule (D146):** below the tablet-landscape width, v2
+  generates with `Eighth` while keeping a `Sixteenth` the player chose, in memory only. If v3
+  saves settings, it saves the chosen value, not the one generated with.
 
-- **Why several answers are valid.** The app's seven modes (Ionian to Locrian, with Major and
-  Minor as other names for Ionian and Aeolian) share the same seven notes, each starting on a
-  different one. Detection has two steps of very different difficulty:
-  1. **Which set of notes.** Fairly easy: a doodle with five or more different notes usually fits
-     only one of the 12 sets.
-  2. **Which note is home** (the [tonic](../../../docs/music/lexicon.md#tonic), which decides the
-     [mode](../../../docs/music/lexicon.md#mode)). Hard: the same notes are C Ionian or D Dorian
-     depending on where the doodle settles. The clues are the first and last notes, the longest
-     notes and the notes on strong beats, and a short doodle often doesn't decide.
-- **Proposed shape (strawman, not decided):**
-  - The app suggests a key and mode, maybe with one or two alternatives; the player confirms or
-    keeps their setting. The player's choice stays authoritative.
-  - When the doodle fits the selected key and mode, nothing is suggested.
-  - When too many answers fit equally well, nothing is suggested rather than a guess.
-  - Very short notes are ignored (the stray-notes prerequisite above).
-  - The suggestion is deterministic: the same doodle always gives the same suggestion, so a
-    phrase replay key still reproduces a session.
-- **Scheduling.** It makes Jam bigger, not easier; it may follow the core as its own step.
+### My instrument
 
-### Candidate: Jam and the rhythm controls
+- A small interface lets the player describe their instrument: the input kind (MIDI controller
+  now; the microphone much later, see [v5+](../v5-plus/README.md)), the expected range and the
+  transposition.
+- It builds on v1.0's instrument templates, where transposition is open data.
+- **Feeds from v2's controller check (D79):** v2.0's controller check (D77) detects a constant
+  pitch offset between the controller and the selected template — octave, semitone, or any other
+  constant delta — but only for the session (D77: no persistence in v2). Once "my instrument"
+  exists, the same check's result should populate or update the saved template automatically,
+  instead of asking the player to redo or re-enter it every session.
+- The instrument will eventually belong to a user profile. Switching instrument is expected to be
+  rare.
+- A Concert-display override, absent from v1.0, may return here if someone needs it.
 
-The owner expects Jam to "heavily link" with the
-[rhythm candidates](#rhythm-candidates-custom-note-density-candidates-not-committed) (lock,
-mutation, Custom note density). They may be best designed as one feature:
+### Review of earlier sessions
 
-- the doodle's rhythm could be what the rhythm lock holds, which would answer part of O102 (which
-  rhythm the editor takes) and O103 (what the lock holds);
-- mutation could become how far the phrases may drift from the doodle, from close variations to
-  looser ones.
+- This extends v2's last-session review through persistence.
+- Keeping played notes across sessions requires the player's explicit opt-in and a way to delete
+  them.
+- Reviewing an earlier session needs it to be kept: [keeping sessions](#keeping-sessions) ships
+  in the same release (D212).
 
-### Candidate: learning from how the player plays
+### Favorites
 
-The owner's idea: infer "silent approval" from how the player follows, or leaves, the phrases the
-app provides. The owner's own caveat: players may "simply fail at following the phrase". The
-personas sharpen it: P1 "can already play" and is a beginner at improvisation, but struggles to
-read and play at speed ([personas](../../personas.md#p1--the-curious-improviser-primary-d48)), so
-a miss most likely means "too fast or too hard to read", not "I don't like it".
-
-- **Proposed rule (strawman, not decided): learn taste from positive signals only; a miss never
-  counts against a phrase.**
-  - **Positive: a deliberate departure that still fits.** The player leaves the written line but
-    stays in the scale, fits the chords and keeps the pulse: an embellishment, a sign of
-    engagement. This is what the
-    [end-of-measure chord-fit check](#end-of-measure-chord-fit-check-nice-to-have-not-committed)
-    already defines, positive-only; Jam would give it a second use, as a taste signal.
-  - **Positive: the player repeats a fragment of a phrase, or comes back to their doodle.**
-  - **Explicit: a [favorite](#favorites-v3-scope-to-be-settled)** is a clean "more like this". It
-    is marked after the session, since a running session never asks the player for anything.
-  - **Difficulty, not taste: misses, late notes, silence on dense passages.** These could only
-    ever adjust difficulty (tempo, density), never taste. The tempo that reacts to how the player
-    plays was deferred from v2 to v3+ (D101; see [personas](../../personas.md)).
-- **Bounds.** The guiding principle holds: acknowledge, never score; adaptation is opt-in and
-  visible ([far vision](../../vision/far-vision.md)). Learning would be switched on by the player,
-  show what it leans toward, and never reshape a jam because of mistakes. The permanent constraint
-  of no wrong-note signal, grading or scoring
-  ([v2 master spec §2](../v2/master-spec.md#2-scope)) applies.
-
-**Open, in the [register](../../open-questions.md#v3-jam-o112):** O112–O116.
-
-## Embellishment flags (v3 scope, to be settled)
-
-Recorded 2026-10-07 (D210), the owner's request: "embellishments flags for generators … many ways
-to support or alter in minor ways what's expected to be played", for example passing notes,
-"spiked notes" (most likely [neighbor tones](../../../docs/music/lexicon.md#neighbor-tone), or
-[appoggiaturas](../../../docs/music/lexicon.md#appoggiatura)) and surrounding a note with one note
-above and one below (an [enclosure](../../../docs/music/lexicon.md#enclosure)). It was already
-expected "in v2 or v3" ([v2 direction](../v2/README.md#direction-not-yet-scoped)); D210 places it
-in v3. **Scope is v3; the design is not settled; a true spec session will follow.**
-
-- **What exists today.** The generator already writes
-  [passing tones](../../../docs/music/lexicon.md#passing-tone), neighbor tones and appoggiaturas
-  in every profile, and [chromatic approaches](../../../docs/music/lexicon.md#chromatic-approach)
-  and enclosures in the Jazz profile (`src/domain/pitch/pitch-figures.ts`). They are allowed, not
-  weighted: the player cannot switch one off or ask for more of it. The feature exposes that
-  control and extends the set.
-- **The shape.** Per figure: allowed or not, and a weight for how often it appears. **Weights are
-  preferences, not quotas** ("ish", the owner's word): the generator tries a favored figure first
-  rather than having to reach a share of them. A quota can make a phrase impossible or slow to
-  find; the pitch search is the generator's most expensive step (ISS-009).
-- **Two families, very different costs.**
-  1. **Figures written as ordinary notes** (passing and neighbor tones, appoggiaturas, enclosures,
-     chromatic approaches, and others the catalogue finds). They fit the current rhythm grid and
-     notation, and are acknowledged like any expected note. Proposed first.
-  2. **Ornaments written as symbols or small notes** (grace notes, mordents, trills, turns). They
-     do not fit the quarter, eighth and sixteenth grid, need new notation, have no
-     acknowledgement rule, and touch both exports. This is open question O47 (ornament
-     representation, [register](../../open-questions.md)). The owner accepts the clash with the
-     rhythm representation as not an issue in itself; it makes this family the larger piece.
-- **A catalogue first.** Before the spec session, a researcher prepares a catalogue of
-  embellishments: one entry per figure with its name and plain definition, a small staff example,
-  the styles it is typical of, its family (notes or symbol), what it needs from the rhythm, its
-  harmonic rule (where it starts and must land), what a player would play for it to be
-  acknowledged, and whether the generator has it today. New terms go to the
-  [lexicon](../../../docs/music/lexicon.md). Not started.
-- **Ties.**
-  - [Presets](#presets-v3-scope-to-be-settled): Neutral and Jazz are, in effect, two fixed
-    figure sets; a preset would carry a starting set of flags and weights.
-  - [Jam](#jam-growing-the-players-doodle): figures found in the doodle could be favored, and
-    learning from positive signals could nudge a figure's weight.
-  - The settings-mutation flag could shift weights a little during a session.
-  - The [rhythm candidates](#rhythm-candidates-custom-note-density-candidates-not-committed): the
-    v2 direction already expected embellishment flags to overlap with rhythmic variety, which may
-    become selective rates.
-- **Later, not v3:** writing whole sequences with a rhythm grammar set up front, with specific
-  requirements such as doubling beat 1 of every third measure; the owner expects it in v4, v5 or
-  v6 ([roadmap](../../roadmap.md#candidates-not-committed)).
-
-## Presets (v3 scope, to be settled)
-
-Recorded 2026-10-07 (D210), the owner: "Presets! that's the last but not least feature of v3."
-**Scope is v3; the design is not settled.**
-
-- **Today.** The [musical profile preset](../../../docs/music/lexicon.md#musical-profile-preset)
-  has two fixed values, Neutral and Jazz. Each sets the note vocabulary (which figures are
-  allowed) and seven other controls; changing one of those seven afterward shows "Custom".
-  Nothing is saved.
-- **v3.**
-  - **A few more built-in presets.** Which ones is open; the embellishment catalogue may suggest
-    styles.
-  - **Presets the player creates**, saved with local persistence: the player names a set of
-    settings and gets it back later. Today's "Custom" state is a natural starting point: save it
-    as a preset.
-- **To settle at the spec session:** what a preset holds (the generation settings only, or also
-  tempo, the audio mix, embellishment flags and weights, the instrument); whether built-in
-  presets can be edited or only copied; renaming and deleting; how a player preset is exported or
-  shared, if at all; and how presets meet [my instrument](#settled-direction), which is saved
-  separately.
-
-## Favorites (v3 scope, to be settled)
-
-Moved here from v2 on 2026-09-28 (D130, from ux D69). The owner: "favorite and the like will be
-decided in v3". **This is a v3 placement**, unlike the candidates below: marking favorites is v3
-scope, and how it works is settled when v3 is specced. v2's review has no favorites, every v2
-export covers the whole session, and starting a new session from the v2 review asks no
-confirmation ([v2 master spec §7](../v2/master-spec.md#7-sessions-review-export-and-privacy)).
+Moved here from v2 on 2026-09-28 (D130, from ux D69); in v3.0 since D211. v2's review has no
+favorites, every v2 export covers the whole session, and starting a new session from the v2
+review asks no confirmation
+([v2 master spec §7](../v2/master-spec.md#7-sessions-review-export-and-privacy)).
 
 - **Serves P3's C1 and C2** ([personas](../../personas.md#p3--the-fledgling-composer-secondary-d61)):
   marking the parts the player liked, and exporting the marked material. v2 serves C1 by looking
@@ -226,204 +87,24 @@ confirmation ([v2 master spec §7](../v2/master-spec.md#7-sessions-review-export
   phrase keeping its session phrase number; played notes exported with favorites are those of the
   favorite phrases, and a note held past a favorite phrase stops at its end when the next phrase
   is not exported; starting a new session asks for confirmation when the review holds unexported
-  favorites. Marking a bar range instead of a whole phrase was already noted as a v3 idea, tied
-  to seeding a continuation.
+  favorites. Marking a bar range instead of a whole phrase was already noted as a v3 idea, tied to
+  seeding a continuation.
 - **Open: O86**, what makes a favorite "exported" ([register](../../open-questions.md)). It only
   matters if v3 keeps a confirmation before discarding unexported favorites. With local
   persistence, a favorite may survive the session, which could change the question.
-- **Meets the candidates below.** Pinning a session (keeping sessions) and selecting a passage
-  (review tooling) are also ways of marking what the player liked. How favorites relate to them
-  is part of settling favorites.
+- **Meets [keeping sessions](#keeping-sessions).** Pinning a session is also a way of marking what
+  the player liked; how favorites relate to it is part of settling favorites.
 
-## Later review tooling (candidates, not committed)
+### Follow-ups merged into v3.0
 
-Recorded 2026-09-28 (D128, from ux D64). They sit here because v3 is where the review next
-evolves. The owner gave no version, so **this is not a v3 placement: the version is open.**
+D211 placed the next three items in a v3.0.1 of "quick fixes"; D212 merges them into v3.0. All
+three were candidates before D211.
 
-- **Tablet and desktop only.** On the phone the Review stays the plain baseline: the functions
-  the spec gives it on every device, and nothing more
-  ([context of use](../../personas.md#context-of-use)).
-- **Select a passage to replay.** Note: the v2 review has no playback at all
-  ([v2 master spec §7](../v2/master-spec.md#7-sessions-review-export-and-privacy)), so this
-  candidate also means adding review playback.
-- **Expected against played, on the same measure.** Show what the phrase expected next to what
-  the player played. **Bounded by a permanent product constraint**
-  ([v2 master spec §2](../v2/master-spec.md#2-scope)): no wrong-note signal, grading or scoring,
-  in any view. v2 already shows played notes only on a toggle, neutrally colored, with no
-  coloring for a note that didn't match (§7). Any comparison view has to stay inside that
-  constraint.
+### Pre-generating phrases at Idle
 
-## Keeping sessions (candidates, not committed)
-
-Recorded 2026-09-28 (D129, from ux D67). v2 stays ephemeral: nothing survives a reload
-([v2 master spec §7](../v2/master-spec.md#7-sessions-review-export-and-privacy)). The owner's
-ideas for later sit here, next to the review-tooling candidates above, for the same reason. **The
-version is open: this is not a v3 placement.**
-
-- **Store more than one session only when the player asks for it**, for example by pinning a
-  session.
-  - It meets **local persistence** above, and would answer a question v3's direction leaves open:
-    whether sessions are kept automatically or only on request. Pinning is "only on request".
-  - It fits the opt-in already required for **keeping played notes across sessions**. Whether
-    pinning a session also counts as that opt-in, or the two stay separate choices, is not
-    decided.
-  - A pinned session needs a way to unpin and delete it, as v3 already requires for played notes.
-- **Suitable access to older sessions.** It meets **review of earlier sessions** above: how the
-  player finds and opens a kept session.
-- **An optional comment on a session.** New player-written data stored with a kept session. It
-  lives only where the session lives: on the player's system, under local persistence. Whether a
-  comment travels in an export is not decided.
-
-v2 already stores each phrase's generated timeline and reproduction inputs in memory, which is
-what a kept session would need
-([v2 master spec §7](../v2/master-spec.md#7-sessions-review-export-and-privacy)).
-
-## Stray notes from controllers (candidates, not committed)
-
-Recorded 2026-10-06 (D196), the owner's ruling after the hardware sitting. **The version is
-open: v3 or later.**
-
-A controller can send short "stray" notes while the fingers change position: in-between notes a
-real instrument would swallow. The reference breath controller sends them often, at in-between
-pitches, often in pairs at velocity 127. The owner's ruling: this is a **generic controller
-matter**, so nothing is built for one device.
-
-- **What they cost today.** Played notes are bloated with notes the player never meant: stray
-  notes show in the review's played notes and go into the played-notes MIDI export. v2 changes
-  nothing about this.
-- **What they do not cost: acknowledgement.** An expected note lights only when a played note has
-  exactly its pitch inside its window, and a note that does not match changes nothing on screen
-  (v2 master spec §8). Stray notes, being in-between pitches, normally light nothing. Do not add
-  a filter there for them.
-- **What they would cost later:** the
-  [end-of-measure chord-fit check](#end-of-measure-chord-fit-check-nice-to-have-not-committed)
-  and any later chord recognition from played notes, which a stray out-of-scale note can fail.
-  The owner's idea: a note that does not last "long enough" would not be considered; the
-  threshold is not decided.
-- **Candidate: prune short notes from the played-notes export.** An option on the played-notes
-  export that removes notes shorter than a threshold. Whether the threshold is fixed or set by the
-  player, and whether the review's played notes follow the same option, are not decided.
-
-## End-of-measure chord-fit check (nice-to-have, not committed)
-
-Moved here from v2 on 2026-10-03 (D174). It was v2's release v2.3 (build plan chunks 32–34); the
-owner took it out of v2 and recorded it as a **nice-to-have for v3, not committed scope**. Nothing
-in v3 depends on it. Jam's learning candidate would give it a second use, as a taste signal (D209;
-see [Jam](#candidate-learning-from-how-the-player-plays)).
-
-- **What it is.** Beyond acknowledging the exact expected note (v2.0), the app would also
-  acknowledge a player who embellishes or improvises on the written line, at the end of a measure,
-  when what they played fits the harmony. It is positive-only: a measure that doesn't fit, or
-  where nothing was played, shows nothing.
-- **Its definition is settled and kept** (D108, from O24): judged per measure by pitch class; it
-  runs only on a measure the player played differently from the written phrase; a measure fits
-  when one played note is a chord tone of the chord sounding at its onset and every other is in
-  the phrase's scale or a chromatic note resolving by a half step onto a chord tone within the
-  player's next two notes; "blue" notes and passing chromatic notes that don't resolve get no
-  signal, by design. Full text, with its acceptance criterion, in
-  [v2 master spec §9](../v2/master-spec.md#9-the-end-of-measure-chord-fit-check).
-- **The build notes are kept** in the v2 build plan: the
-  [engine](../v2/build-plan.md#chunk-32--chord-fit-engine) (pure logic, sixteenth-note grid
-  assignment, the property test that the app's own line never triggers it), the
-  [presentation](../v2/build-plan.md#chunk-33--chord-fit-presentation) (not designed; interface
-  unit 9 in `ui_ux/todo.md`) and a [gate](../v2/build-plan.md#chunk-34--v23-release-gate).
-- **Caveat carried with it** (master spec §9): the rule relies on one scale per phrase. If harmony
-  leaves the phrase's scale before it is built (secondary dominants, borrowed chords), each
-  measure must be judged against its own chord's scale.
-- **Stray notes would likely break it** (D196). Controllers can send short in-between notes while
-  the fingers change position (see
-  [stray notes from controllers](#stray-notes-from-controllers-candidates-not-committed)). One
-  stray note outside the phrase's scale makes a measure fail the condition that every other note
-  is in the scale or a resolving chromatic note, so an embellishing player would miss the
-  acknowledgement for a note they never meant to play. A minimum duration for a played note to
-  count is a likely prerequisite; how long, and whether it applies to this check only, is not
-  decided.
-
-## Rhythm candidates: Custom note density (candidates, not committed)
-
-Recorded 2026-10-03 (D175), the owner's ideas. **The version is open: this is not a v3
-placement**; they sit here as v3 is the next version to be specced. All three belong to the rhythm
-category of the settings, and are reachable only when
-[note density](../../../docs/music/lexicon.md#note-density) is set to a new value, **Custom**
-(working name). Today note density has three values: quarter notes, eighth notes and sixteenth
-notes.
-
-- **Rhythm ratios.** The player sets how likely each note value is to appear, from the
-  [whole note](../../../docs/music/lexicon.md#whole-note) down to the
-  [sixteenth note](../../../docs/music/lexicon.md#sixteenth-note). (A note value is how long a
-  note lasts as written: whole, half, quarter, eighth, sixteenth.)
-- **Rhythm editor.** Two ways to give the rhythm: copy the rhythm of one of the bars, or enter a
-  rhythm by hand.
-- **Rhythm lock.** When set, the rhythm does not change. Generation may bend that rule a little
-  to create [tension and release](../../../docs/music/lexicon.md#tension-and-resolution), but the
-  rhythm stays stable across the session.
-
-**With the settings-mutation flag** (v2.1, master spec §5):
-
-- a mutation can never move note density **into** Custom;
-- while Custom is set, a mutation may alter the ratios;
-- while the lock is set, a mutation cannot alter the rhythm durably: a temporary bend is the only
-  latitude.
-
-**Open, in the [register](../../open-questions.md#v3-rhythm-candidates-o100):**
-
-- **O100:** how Custom meets [rhythmic variety](../../../docs/music/lexicon.md#rhythmic-variety),
-  [syncopation](../../../docs/music/lexicon.md#syncopation-1) and
-  [silence density](../../../docs/music/lexicon.md#silence-density), which combinations the
-  rhythm grammar blocks under Custom, and the narrow-window rule for sixteenth notes.
-- **O101:** which note values get a ratio (dotted values, rests), how finely, what one mutation
-  step on the ratios is, and whether a mutation can move density out of Custom.
-- **O102:** which bar the editor copies from, how long an entered rhythm is, and whether it must
-  pass the rhythm grammar's feasibility rules
-  ([unsupported rhythm combination](../../../docs/music/lexicon.md#unsupported-rhythm-combination)).
-- **O103:** what the lock holds (the editor's rhythm, or any rhythm in effect), what "a little
-  bending" means, and whether a bend is shown.
-
-They may overlap with the embellishment and style-figure flags of the
-[v2 direction](../v2/README.md#direction-not-yet-scoped), which may turn rhythmic variety into
-selective rates; the two should be settled together. The owner also expects them to link closely
-with Jam, whose doodle could supply the rhythm the lock holds (D209; see
-[Jam and the rhythm controls](#candidate-jam-and-the-rhythm-controls)).
-
-## Controller connection candidates (not committed)
-
-Recorded 2026-10-06 (D190, D192), the owner's ideas. **The version is open: this is not a v3
-placement**; they sit here as v3 is the next version to be specced.
-
-- **Switch profile from the check.** When the transposition check finds that the controller, as
-  it is set, matches another [instrument profile](../../../docs/music/lexicon.md#instrument-profile),
-  the check already names that profile in its copy. The candidate turns that line into an action:
-  one control in the check that switches to the matching profile, so the player does not have to
-  leave the connection sheet. Example: a breath controller set to sound like an E-flat alto
-  saxophone, checked against the B-flat tenor saxophone profile.
-- **A voluntary "Bluetooth" checkbox (D192).** The owner's words: "We may add a volontary
-  checkbox (bluetooth) in the device dialog that will extend grace period a slight bit." The
-  device dialog is the connection sheet. The player ticks the box when the controller is connected
-  over Bluetooth, and played notes then get a little more timing tolerance. Why: v2.0 makes
-  Bluetooth MIDI best-effort (D191). On the reference breath controller, Bluetooth LE adds roughly
-  70–80 ms over USB and delivers notes in batches, and since Web MIDI does not say how a
-  controller is connected, the app applies the USB correction to every controller. For whoever
-  designs it:
-  - The plumbing for a correction per connection already exists: the code has a connection type,
-    `'usb' | 'bluetooth-le'`, with a constant for each (`CONNECTION_LATENCY_SECONDS` and
-    `latencyCorrectionFor` in `src/domain/acknowledgement/played-onset-latency.ts`); the session
-    always asks for the USB one today (`src/components/workspace/workspace-session-midi.ts`). The
-    Bluetooth constant there (12.5 ms) predates the measurement and is far below it.
-  - Two ways to give the tolerance, left open: shift the played onset back by the Bluetooth delay,
-    which keeps the expected note's early edge as strict as over USB; or widen the expected note's
-    timing window, which is closer to the owner's wording ("extend grace period") but also lets
-    notes count that were played earlier than over USB.
-  - It needs a design pass before it is scheduled: it touches the expected-note timing window
-    (`rule_expected_note_window`), the latency compensation of the played onset
-    (`rule_played_onset_latency_compensation`), and v2's stance that there is no player-facing
-    calibration step (v2's master spec defers such a step to v3, where it pairs with "my
-    instrument").
-
-## Pre-generating phrases at Idle (candidate, not committed)
-
-Recorded 2026-10-07 (D206), the owner's proposal for the next version, in their words: "while
-start session isn't pushed have background generate a few phrases in advance (no more than 4)
-that give us some time ahead." **A v3 candidate, not committed scope and not designed.**
+Recorded 2026-10-07 (D206), the owner's proposal, in their words: "while start session isn't
+pushed have background generate a few phrases in advance (no more than 4) that give us some time
+ahead." Not designed.
 
 - **What it is.** While the app is Idle, before Start, the app generates in the background up to 4
   look-ahead phrases following the phrase on screen, so a session starts with time in hand.
@@ -446,10 +127,330 @@ that give us some time ahead." **A v3 candidate, not committed scope and not des
   - O111: whether a pre-generated phrase must be exactly the phrase the session would have
     generated there (mutations, tension arc, density step-down, seeds).
 
+### Stray notes from controllers
+
+Recorded 2026-10-06 (D196), the owner's ruling after the hardware sitting; in v3.0 since D211 and D212.
+
+A controller can send short "stray" notes while the fingers change position: in-between notes a
+real instrument would swallow. The reference breath controller sends them often, at in-between
+pitches, often in pairs at velocity 127. The owner's ruling: this is a **generic controller
+matter**, so nothing is built for one device.
+
+- **What they cost today.** Played notes are bloated with notes the player never meant: stray
+  notes show in the review's played notes and go into the played-notes MIDI export.
+- **What they do not cost: acknowledgement.** An expected note lights only when a played note has
+  exactly its pitch inside its window, and a note that does not match changes nothing on screen
+  (v2 master spec §8). Stray notes, being in-between pitches, normally light nothing. Do not add a
+  filter there for them.
+- **What they would cost later:** [Jam](#jam-growing-the-players-doodle) (v3.2) reads the doodle's
+  notes, and the [key and mode suggestion](#key-and-mode-suggestion) reads its pitch classes; a
+  stray note distorts both. The owner's idea: a note that does not last "long enough" would not be
+  considered; the threshold is not decided. Placing the filter in v3.0 means it exists before
+  Jam needs it.
+- **Prune short notes from the played-notes export** (part of the D196 idea). An option on the
+  played-notes export that removes notes shorter than a threshold. Whether the threshold is fixed
+  or set by the player, and whether the review's played notes follow the same option, are not
+  decided.
+
+### Keeping sessions
+
+Recorded 2026-09-28 (D129, from ux D67) as candidates; in v3.0 since D211 and D212. v2 stays ephemeral:
+nothing survives a reload
+([v2 master spec §7](../v2/master-spec.md#7-sessions-review-export-and-privacy)).
+
+- **Store more than one session only when the player asks for it**, for example by pinning a
+  session.
+  - Pinning answers a question [local persistence](#local-persistence) leaves open: whether
+    sessions are kept automatically or only on request. Pinning is "only on request".
+  - It fits the opt-in already required for keeping played notes across sessions. Whether pinning
+    a session also counts as that opt-in, or the two stay separate choices, is not decided.
+  - A pinned session needs a way to unpin and delete it, as v3 already requires for played notes.
+- **Suitable access to older sessions.** It meets [review of earlier sessions](#review-of-earlier-sessions):
+  how the player finds and opens a kept session.
+- **An optional comment on a session.** New player-written data stored with a kept session. It
+  lives only where the session lives: on the player's system. Whether a comment travels in an
+  export is not decided.
+
+v2 already stores each phrase's generated timeline and reproduction inputs in memory, which is what
+a kept session would need
+([v2 master spec §7](../v2/master-spec.md#7-sessions-review-export-and-privacy)).
+
+## v3.1 — Embellishment flags and presets
+
+### Embellishment flags
+
+Recorded 2026-10-07 (D210), the owner's request: "embellishments flags for generators … many ways
+to support or alter in minor ways what's expected to be played", for example passing notes,
+"spiked notes" (most likely [neighbor tones](../../../docs/music/lexicon.md#neighbor-tone), or
+[appoggiaturas](../../../docs/music/lexicon.md#appoggiatura)) and surrounding a note with one note
+above and one below (an [enclosure](../../../docs/music/lexicon.md#enclosure)). It was already
+expected "in v2 or v3" ([v2 direction](../v2/README.md#direction-not-yet-scoped)). **The design is
+not settled; a true spec session will follow.**
+
+- **What exists today.** The generator already writes
+  [passing tones](../../../docs/music/lexicon.md#passing-tone), neighbor tones and appoggiaturas
+  in every profile, and [chromatic approaches](../../../docs/music/lexicon.md#chromatic-approach)
+  and enclosures in the Jazz profile (`src/domain/pitch/pitch-figures.ts`). They are allowed, not
+  weighted: the player cannot switch one off or ask for more of it. The feature exposes that
+  control and extends the set.
+- **The shape.** Per figure: allowed or not, and a weight for how often it appears. **Weights are
+  preferences, not quotas** ("ish", the owner's word): the generator tries a favored figure first
+  rather than having to reach a share of them. A quota can make a phrase impossible or slow to
+  find; the pitch search is the generator's most expensive step (ISS-009).
+- **Two families, very different costs.**
+  1. **Figures written as ordinary notes** (passing and neighbor tones, appoggiaturas, enclosures,
+     chromatic approaches, and others the catalogue finds). They fit the current rhythm grid and
+     notation, and are acknowledged like any expected note. Proposed first.
+  2. **Ornaments written as symbols or small notes** (grace notes, mordents, trills, turns). They
+     do not fit the quarter, eighth and sixteenth grid, need new notation, have no
+     acknowledgement rule, and touch both exports. This is open question O47 (ornament
+     representation, [register](../../open-questions.md)); the catalogue leans toward symbols,
+     with only the main note checked for acknowledgement. The owner accepts the clash with the
+     rhythm representation as not an issue in itself; it makes this family the larger piece.
+- **A catalogue first.** Before the spec session, a researcher prepares a catalogue of
+  embellishments: one entry per figure with its name and plain definition, a small staff example,
+  the styles it is typical of, its family (notes or symbol), what it needs from the rhythm, its
+  harmonic rule (where it starts and must land), what a player would play for it to be
+  acknowledged, and whether the generator has it today. New terms go to the
+  [lexicon](../../../docs/music/lexicon.md). **Done 2026-10-07:**
+  [embellishment catalogue](../../../docs/music/embellishment-catalogue.md), 31 figures (22
+  written as ordinary notes, 9 ornaments). What it found in the generator:
+  - **"Allowed" is not "favored" today.** The pitch search tries chord tones first, so a decorating
+    note appears only when the chord-tone path fails: in about 5,200 sampled phrases, free passing
+    tones were in 1–6 % of phrases and Jazz chromatic approaches in 4–20 %. Weights are what would
+    make figures audible.
+  - **The appoggiatura never appeared** in the sample, though the rules allow it.
+  - **Two decorating notes in a row are rejected** unless they form one written figure, which
+    blocks diatonic enclosures, double neighbors and scale runs today.
+  - **Weights as ordering** (the order the search tries candidates in) keep the cost close to
+    today's; each new figure enlarges every search, and quotas would add whole searches (the
+    ISS-009 risk). This supports "weights are preferences, not quotas".
+- **Ties.**
+  - [Presets](#presets): Neutral and Jazz are, in effect, two fixed figure sets; a preset would
+    carry a starting set of flags and weights.
+  - [Jam](#jam-growing-the-players-doodle) (v3.2): figures found in the doodle could be favored.
+  - The settings-mutation flag could shift weights a little during a session.
+- **Later, not v3:** writing whole sequences with a rhythm grammar set up front, with specific
+  requirements such as doubling beat 1 of every third measure; the owner expects it in v4, v5 or
+  v6 ([roadmap](../../roadmap.md#candidates-not-committed)).
+
+### Presets
+
+Recorded 2026-10-07 (D210), the owner: "Presets! that's the last but not least feature of v3."
+Placed with the embellishment flags in v3.1 (D211). **The design is not settled.**
+
+- **Today.** The [musical profile preset](../../../docs/music/lexicon.md#musical-profile-preset)
+  has two fixed values, Neutral and Jazz. Each sets the note vocabulary (which figures are
+  allowed) and seven other controls; changing one of those seven afterward shows "Custom".
+  Nothing is saved.
+- **v3.1.**
+  - **A few more built-in presets.** Which ones is open; the embellishment catalogue may suggest
+    styles.
+  - **Presets the player creates**, saved with v3.0's local persistence: the player names a set of
+    settings and gets it back later. Today's "Custom" state is a natural starting point: save it
+    as a preset.
+- **To settle at the spec session:** what a preset holds (the generation settings only, or also
+  tempo, the audio mix, embellishment flags and weights, the instrument); whether built-in presets
+  can be edited or only copied; renaming and deleting; how a player preset is exported or shared,
+  if at all; and how presets meet [my instrument](#my-instrument), which is saved separately.
+
+## v3.2 — Jam and the rhythm lock
+
+### Jam: growing the player's doodle
+
+Recorded 2026-10-07 (D209), the owner's insight, in their words: "I've a doodle in mind, but I'm
+not good enough to iterate on it. I give it to the app, and it generates matching phrases." This
+is MIDI-seeded continuation (D53), named and given its purpose: v3's most complex part.
+
+- **Name.** "Jam" (working name), proposed by the owner along with "improvisation". Jam is
+  preferred: in music, improvisation means the player inventing on the spot, while here the app
+  develops the player's idea; and "the Curious Improviser" is already P1's name
+  ([personas](../../personas.md)). Musicians call the doodle a **motif**, and building on it
+  (repeating, varying, moving it to other notes, changing its rhythm) **developing a motif**.
+- **The core.** The player plays a motif, and the generator continues it. This extends v2's
+  continuation from the app's own material to material the player plays. The doodle feeds the
+  generator its [rhythm](../../../docs/music/lexicon.md#rhythm), its
+  [contour](../../../docs/music/lexicon.md#contour) and its
+  [interval](../../../docs/music/lexicon.md#interval) character, as the
+  [product foundation](../../product-foundation.md) planned for the second deliverable; the
+  generated phrases match it. It serves P3's C3, "grow an idea"
+  ([personas](../../personas.md#p3--the-fledgling-composer-secondary-d61)).
+- **The player-selected key and mode stay authoritative.** The app never switches them on its own
+  (D209).
+- **Prerequisite: stray notes.** A stray note from the controller would distort the doodle, so a
+  minimum duration for a played note to count is needed first; it ships in v3.0
+  ([stray notes](#stray-notes-from-controllers)).
+- **When the generator starts** (D215). The doodle is one to four measures: it ends when the
+  player leaves a whole measure silent, or when four measures have been played. At least one
+  measure then passes before the first generated phrase sounds ("hopefully that's enough to begin
+  something", the owner). A silent measure needs a measure grid, so the doodle is played over a
+  pulse; at 240 BPM one measure is 1 s, a tight budget for the first generation.
+- **The tempo is open** (O125, raised by the owner): the doodle's tempo sets the measure grid and
+  how played notes become written rhythm. Recommended: the player plays over the app's pulse at
+  the selected tempo; working the tempo out from a freely played doodle is a later candidate.
+- **Open:** O112, the rest of what the doodle is ([register](../../open-questions.md#v3-jam-o112)).
+
+### Key and mode suggestion
+
+The owner's proposal (D209), aware that "it's highly possible to have multiple valid replies
+depending on the size and content of the snippet". It reverses the earlier "automatic key
+detection is not planned". **Placed in v3.2 (D211); the owner confirmed it is what they had in mind
+(D212), with one change: when several answers fit, the app picks one by a weighted draw instead
+of staying silent.**
+
+- **Why several answers are valid.** The app's seven modes (Ionian to Locrian, with Major and
+  Minor as other names for Ionian and Aeolian) share the same seven notes, each starting on a
+  different one. Detection has two steps of very different difficulty:
+  1. **Which set of notes.** Easier, but less than first thought: with five different notes, only
+     10 of the 21 possible note groups fit a single set; with six, 5 of 7 do
+     ([research](../../../docs/music/key-and-mode-estimation.md#step-1-which-set-of-notes)).
+  2. **Which note is home** (the [tonic](../../../docs/music/lexicon.md#tonic), which decides the
+     [mode](../../../docs/music/lexicon.md#mode)). Hard: the same notes are C Ionian or D Dorian
+     depending on where the doodle settles. The clues are the first and last notes, the longest
+     notes and the notes on strong beats, and a short doodle often doesn't decide.
+- **Proposed shape (strawman, not decided):**
+  - The app suggests a key and mode, maybe with one or two alternatives; the player confirms or
+    keeps their setting. The player's choice stays authoritative.
+  - When the doodle fits the selected key and mode, nothing is suggested.
+  - **Amended by D212.** When several answers fit, the app rates them and "casts a dice": a
+    weighted draw among the most probable, so the likeliest answer comes up most often. The
+    owner: "it's a jam so, in the end it's only so much important." The draw is seeded
+    (proposed), so the same doodle in the same session gives the same suggestion. Whether the
+    player still confirms the drawn answer is O113.
+  - Very short notes are ignored (the stray-notes filter, v3.0).
+  - The suggestion is deterministic: the same doodle always gives the same suggestion, so a
+    phrase replay key still reproduces a session.
+- **Research done:** [key and mode estimation](../../../docs/music/key-and-mode-estimation.md).
+  No published method covers all seven modes on short melodies; the best on short single lines
+  (Temperley's probabilistic model) picks among 24 major and minor keys. Recommended method
+  (proposed): score all 84 key and mode pairs from note roles weighted by length, with a bonus
+  for a home first or last note; keep at most 3 candidates within half of the best; draw among
+  them with a seeded draw in integers only (`Math.exp` can differ between browsers); compute in
+  concert pitch and name the answer in written pitch. Reimplemented in TypeScript: Essentia is
+  AGPL, music21 is Python.
+- **Open:** O113, its details.
+
+### Rhythm lock and mutation
+
+Recorded 2026-10-03 (D175) as candidates reached through a new note-density value, Custom. D211
+splits them: **the rhythm lock and its mutation option are v3.2**, designed with Jam, as the owner
+expected them to "heavily link" (D209); the rhythm ratios and the rhythm editor, the "fine tuning
+of rhythm", [move to v4](#moved-to-v4-rhythm-ratios-and-the-rhythm-editor).
+
+- **Rhythm lock.** When set, the rhythm does not change. Generation may bend that rule a little to
+  create [tension and release](../../../docs/music/lexicon.md#tension-and-resolution), but the
+  rhythm stays stable across the session.
+  - The doodle's rhythm could be what the lock holds, which would answer part of O103 (what the
+    lock holds) (O114).
+  - Without the editor and the ratios, the lock no longer needs the Custom note density to be
+    reached (proposed): it can be a switch of its own. Custom and O100 go to v4 with the ratios.
+- **Mutation, with a list of allowed mutations** (D211, the owner's words: "rhythm lock/mutation
+  option (with a list of allowed mutations)"). Mutation could become how far the phrases may drift
+  from the doodle, from close variations to looser ones (D209). What "a list of allowed mutations"
+  lists is open: O118. The owner wants it researched like the embellishment catalogue (D212);
+  research done: [mutation catalogue](../../../docs/music/mutation-catalogue.md).
+- **Already settled with the settings-mutation flag** (D175; the flag is v2's, master spec §5):
+  while the lock is set, a mutation cannot alter the rhythm durably; a temporary bend is the only
+  latitude.
+- **Open:** O103 (what the lock holds, how far it bends), O114 (Jam and the rhythm controls),
+  O118 (the list of allowed mutations), in the [register](../../open-questions.md).
+
+## v3.x — Learning from positive signals
+
+The owner (D211): "would be great, but probably difficult to implement". It stays in v3 for now,
+and will probably be removed entirely or moved to a later version. Not committed and not designed.
+
+The owner's idea (D209): infer "silent approval" from how the player follows, or leaves, the
+phrases the app provides. The owner's own caveat: players may "simply fail at following the
+phrase". The personas sharpen it: P1 "can already play" and is a beginner at improvisation, but
+struggles to read and play at speed
+([personas](../../personas.md#p1--the-curious-improviser-primary-d48)), so a miss most likely
+means "too fast or too hard to read", not "I don't like it".
+
+- **Proposed rule (strawman, not decided): learn taste from positive signals only; a miss never
+  counts against a phrase.**
+  - **Positive: a deliberate departure that still fits.** The player leaves the written line but
+    stays in the scale, fits the chords and keeps the pulse. This borrowed the definition of the
+    end-of-measure chord-fit check, which D211 drops; learning would need that definition back
+    (it stays in [v2 master spec §9](../v2/master-spec.md#9-the-end-of-measure-chord-fit-check)).
+  - **Positive: the player repeats a fragment of a phrase, or comes back to their doodle.**
+  - **Explicit: a [favorite](#favorites)** is a clean "more like this". It is marked after the
+    session, since a running session never asks the player for anything.
+  - **Difficulty, not taste: misses, late notes, silence on dense passages.** These could only
+    ever adjust difficulty (tempo, density), never taste. The tempo that reacts to how the player
+    plays was deferred from v2 to v3+ (D101; see [personas](../../personas.md)).
+- **Tie-in: recognising played signals** (D212, D213, D214). The owner: "recognising specific
+  pattern (we could very well have a 'now it's your turn' pattern or 'i disapprove' pattern that
+  could be played and recognised)". Defined by D213: the player plays a specific bar, never
+  displayed, and the app reads it as a message, not as notes of the phrase. It triggers an effect:
+  approval, disapproval, or "that's my contribution, now generate the follow-up". Musicians call such a figure a **cue**; the spec
+  says **played signal**, since the app already has a session cue row where the app speaks to the
+  player (D214). A back-and-forth of "your turn" exchanges is **call and response**.
+  - **Mandatory for the [endgame](../../vision/endgame.md)**, whose fights are call-and-response
+    exchanges; "but it's maybe too early": v3.x, "maybe not even v3 at all" (D213).
+  - **It refines the positive-only rule** (D213). Implicit signals stay positive-only and a miss
+    never counts; a played signal is the player deliberately judging or steering, never the app
+    judging the player, so a disapproval signal is allowed.
+  - **Meets Jam.** The hand-off signal is one way to end a doodle (O112); without played signals,
+    v3.2 needs another. The research recommends a pause or a fixed length there anyway (D214).
+  - **Must not start a session:** at Idle, the starting note starts one (v2 master spec §6).
+  - Research: [played-pattern recognition](../../../docs/music/played-pattern-recognition.md).
+- **Bounds.** The guiding principle holds: acknowledge, never score; adaptation is opt-in and
+  visible ([far vision](../../vision/far-vision.md)). Learning would be switched on by the player,
+  show what it leans toward, and never reshape a jam because of mistakes. The permanent constraint
+  of no wrong-note signal, grading or scoring
+  ([v2 master spec §2](../v2/master-spec.md#2-scope)) applies.
+- **Open:** O115, O116 ([register](../../open-questions.md#v3-jam-o112)).
+
+## Moved to v4: rhythm ratios and the rhythm editor
+
+D211 moves them to [v4](../v4/README.md#placed-here-proposed), with the Custom note density that
+reaches them. Their content, as recorded in D175:
+
+- **Rhythm ratios.** The player sets how likely each note value is to appear, from the
+  [whole note](../../../docs/music/lexicon.md#whole-note) down to the
+  [sixteenth note](../../../docs/music/lexicon.md#sixteenth-note).
+- **Rhythm editor.** Two ways to give the rhythm: copy the rhythm of one of the bars, or enter a
+  rhythm by hand.
+- **Custom** (working name), a new [note density](../../../docs/music/lexicon.md#note-density)
+  value, reached only through these; a mutation can never move note density into Custom, and
+  while Custom is set a mutation may alter the ratios.
+- **Open:** O100, O101, O102, now v4 questions.
+
+## Dropped (D211)
+
+The owner dropped these entirely on 2026-10-07. They are kept here so their old links still say
+what happened to them.
+
+### Controller connection ideas
+
+Both from the 2026-10-06 hardware sitting. Bluetooth MIDI stays best-effort (D191).
+
+- **Switch profile from the check** (D190): one control in the transposition check that switches
+  to the instrument profile the controller matches.
+- **A voluntary "Bluetooth" checkbox** (D192) in the connection sheet, giving played notes a little
+  more timing tolerance over Bluetooth. The code's per-connection latency constants
+  (`CONNECTION_LATENCY_SECONDS` in `src/domain/acknowledgement/played-onset-latency.ts`) stay as
+  they are.
+
+### Review tooling
+
+From D128 (ux D64): selecting a passage to replay (which would also have meant adding review
+playback), and showing what the phrase expected next to what the player played. The review stays
+as v2 built it, extended to earlier sessions in v3.0.
+
+### End-of-measure chord-fit check
+
+Moved from v2 to v3 as a nice-to-have (D174); dropped by D211. Its definition (D108) and its
+acceptance criterion stay in [v2 master spec §9](../v2/master-spec.md#9-the-end-of-measure-chord-fit-check)
+and its build notes in the v2 build plan (chunks 32–34), as the record of a design that was never
+built. The [learning candidate](#v3x--learning-from-positive-signals) borrowed its definition.
+
 ## Depends on
 
 - v2's session model, played-note tracking, review and export.
 - v2's continuation mechanism.
-- **O10 (planner authority)**, before any change that couples planner stages. See the
-  [register](../../open-questions.md).
+- **O10 (planner authority)**, before any change that couples planner stages; settled for v2
+  only by D83 and reopened for Jam. See the [register](../../open-questions.md#v3-jam-o112).
+- Code grounding for Jam: [jam-grounding.md](jam-grounding.md).
 - Early building blocks: [prerequisites.md](../prerequisites.md), being drafted.

@@ -35,7 +35,7 @@ section that now carries its content.
   [master-spec.md §11](master-spec.md#11-definition-of-done); none blocks the tag (D193, D199).
 - **Kept as shipped:** at 240 BPM phrase 2 is always generated standalone, so its join to phrase 1
   is never smoothed (D205). Winning that back is a v3 candidate:
-  [pre-generating phrases at Idle](../v3/README.md#pre-generating-phrases-at-idle-candidate-not-committed).
+  [pre-generating phrases at Idle](../v3/README.md#pre-generating-phrases-at-idle).
 - The status snapshot this README kept while v2 was designed and built (2026-09-27 to 2026-10-07)
   is archived verbatim at
   [archive/v2/v2-readme-status-snapshot.md](../../archive/v2/v2-readme-status-snapshot.md).

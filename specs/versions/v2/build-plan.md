@@ -2784,7 +2784,7 @@ a check of its own on the reference hardware or in a real program.
 
 > **Chunks 32–34 left v2 on 2026-10-03 (spec D174).** The end-of-measure chord-fit check, the
 > former v2.3, is a v3 nice-to-have, not committed scope
-> ([v3](../v3/README.md#end-of-measure-chord-fit-check-nice-to-have-not-committed)). These three
+> ([v3](../v3/README.md#end-of-measure-chord-fit-check)). These three
 > chunks are kept as notes for when it is scheduled. They are in no wave and no v2 gate, and
 > nothing in v2 waits for them. The v2.0 chunks they name are their dependencies then.
 

@@ -1,6 +1,6 @@
 # Endgame — Infinite Flow as a Rhythm RPG
 
-Status: draft v0.1 (direction only; nothing here is scoped or committed; D71)
+Status: draft v0.2 (direction only; nothing here is scoped or committed; D71; pattern recognition noted 2026-10-07, D212)
 
 This is the user's description from 2026-09-25, lightly structured. The inspiration is _Final Fantasy Theatrhythm_. Infinite Flow is the "music factory" behind it.
 
@@ -57,5 +57,10 @@ Their exact behavior is not defined.
   - Today the display is a pure, faithful redraw: the contract says display "never alters" the phrase.
   - Effects such as blindness change what the player *sees*, not what is generated.
   - That calls for a deliberate, explicit display-effect layer, not a change to the faithfulness rule.
+- **Exchanges need the app to recognise what the player plays** (D212). A call-and-response
+  fight needs the app to tell a played answer, or a played signal such as "now it's your turn",
+  from ordinary playing. The owner calls this pattern recognition mandatory for the endgame; it
+  is first explored as a v3.x tie-in to learning
+  ([v3](../versions/v3/README.md#v3x--learning-from-positive-signals)).
 - **The app moves from one line to several voices.** v1 is monophonic on a single staff. Multiple system voices (companions, antagonists) require multi-voice generation and playback, and possibly display. v4's accompaniment with roles (D70) is the first step.
 - **Turn-based exchanges build on continuation.** A fight is continuation (D65) with alternating speakers. The antagonist "responds" to the player's phrase, just as v3 continues a played motif.

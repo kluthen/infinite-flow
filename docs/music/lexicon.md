@@ -1,8 +1,8 @@
 # Music Lexicon
 
-Status: v1.0
+Status: v1.1 (v3 research terms merged)
 
-Date: 2026-09-26
+Date: 2026-10-07
 
 ## How to use
 
@@ -34,17 +34,27 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 
 ## Category index
 
-1. [Basics](#basics): half step, interval, note, octave, phrase, pitch, rest, tie, whole step.
-2. [Pitch and notation](#pitch-and-notation): the staff, clefs, note names and the signs written on the staff.
-3. [Rhythm and meter](#rhythm-and-meter): beats, note values, meter, syncopation, tempo.
-4. [Melody](#melody): melodic motion, shape and the decorating notes the app uses.
+1. [Basics](#basics): cue, half step, interval, note, octave, phrase, pitch, rest, tie, whole step.
+2. [Pitch and notation](#pitch-and-notation): the staff, clefs, note names and the signs written on the staff, including ornaments and jazz articulations.
+3. [Rhythm and meter](#rhythm-and-meter): beats, note values, meter, syncopation, tempo, and rhythmic changes such as anticipation, augmentation and metric displacement.
+4. [Melody](#melody): melodic motion, shape, decorating notes (embellishments), motifs and the ways musicians develop them.
 5. [Harmony](#harmony): chords, their roles, cadences, tension and resolution.
-6. [Scales and modes](#scales-and-modes): scales, keys and the seven modes.
+6. [Scales and modes](#scales-and-modes): scales, keys, the seven modes and how a key is found from a melody.
 7. [Instruments and transposition](#instruments-and-transposition): concert and written pitch, B-flat and E-flat instruments, range.
 8. [App controls](#app-controls): one entry per control label, with every option explained.
 9. [Internal (no popup)](#internal-no-popup): project terms used in docs and code, never shown in the UI.
 
 ## Basics
+
+### Cue
+
+- **id:** `cue`
+- **aliases:** musical cue, cue notes
+- **popup:** A signal telling a musician when to come in or what happens next: a gesture, a written hint or a sound.
+- **definition:** A cue is a signal that helps musicians stay together. It can be a gesture (a nod, a raised hand), a written hint in a part (small "cue notes" showing what another instrument plays just before an entrance after a long rest), or something played, such as a drum pattern announcing a break. Cues matter most after long silences and at changes in the music.
+- **in_infinite_flow:** The app uses the word for its session cue row, where the app speaks to the player: the starting-note line, the count-in and notices. A pattern the player plays to steer the app is called a played signal instead (spec decision D214), so the two directions stay apart.
+- **related:** `played-signal`, `call-and-response`, `rest`
+- **sources:** S82, S84, S86, src/components/workspace/SessionCueRow.vue, specs/decisions.md
 
 ### Half step
 
@@ -166,6 +176,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `treble-clef`, `staff`, `ledger-line`
 - **sources:** S14
 
+### Doit
+
+- **id:** `doit`
+- **aliases:** none
+- **popup:** A jazz effect: the pitch flicks upward at the end of a note, to no particular note.
+- **definition:** A doit (said "doyt") is a jazz articulation where the player bends the pitch upward as the note ends, trailing off without landing on a definite note. It is written as a short curved or straight line rising from the note head. It is common in big-band brass and saxophone parts.
+- **in_infinite_flow:** Not used. If adopted, the proposed rule is that only the note itself is expected; the doit is the player's choice to add.
+- **related:** `fall`, `scoop`, `jazz-articulation`, `ornament`
+- **sources:** S31, S33
+
 ### Double sharp and double flat
 
 - **id:** `double-sharp-and-double-flat`
@@ -186,6 +206,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `sharp`, `flat`, `note-name`, `key-signature`, `control-written-key`
 - **sources:** S14
 
+### Fall
+
+- **id:** `fall`
+- **aliases:** falloff, fall-off
+- **popup:** A jazz effect: the pitch drops away at the end of a note, to no particular note.
+- **definition:** A fall is a jazz articulation where the pitch slides downward as the note ends, without landing on a definite note. It is written as a line curving down from the note head; longer lines mean longer falls. It often ends a phrase in big-band and soul horn parts.
+- **in_infinite_flow:** Not used. If adopted, the proposed rule is that only the note itself is expected; a MIDI keyboard player can simply ignore the fall.
+- **related:** `doit`, `scoop`, `jazz-articulation`, `ornament`
+- **sources:** S31, S33
+
 ### Flat
 
 - **id:** `flat`
@@ -194,6 +224,36 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** A flat lowers a note by one half step, so B-flat is the key just below B on a keyboard. In a key signature, a flat applies to that letter in every octave for the whole piece. Written as an accidental in front of one note, it lasts to the end of the measure. It also appears in instrument names such as "B-flat tenor saxophone": the instrument's written C sounds as a B-flat.
 - **related:** `sharp`, `natural`, `accidental`, `key-signature`, `b-flat-instrument`
 - **sources:** S14
+
+### Glissando
+
+- **id:** `glissando`
+- **aliases:** gliss., glide
+- **popup:** A glide from one note to another, sweeping through the pitches in between.
+- **definition:** A glissando connects two written notes by sliding through everything between them. On a keyboard it sounds as a rapid sweep of separate keys; on a voice, trombone or saxophone it can be a smooth slide. It is written as a straight or wavy line between the two notes, often labelled "gliss."
+- **in_infinite_flow:** Not used. If adopted, the proposed rule is that both end notes are expected as usual and the notes between are ignored.
+- **related:** `slide`, `scoop`, `jazz-articulation`, `ornament`
+- **sources:** S38
+
+### Grace note
+
+- **id:** `grace-note`
+- **aliases:** acciaccatura, crushed note
+- **popup:** A tiny extra note written small, played very quickly just before the main note.
+- **definition:** A grace note is printed smaller than the other notes to show that it only decorates the note after it. The common quick kind, the acciaccatura, has a slash through its stem and is squeezed in just before the main note, taking almost no time. Over a C chord, a tiny D-sharp right before E is a grace note. It does not count in the bar's rhythm.
+- **in_infinite_flow:** Not used. If adopted, the proposed rule is that only the main note is expected; playing the grace note is optional.
+- **related:** `ornament`, `appoggiatura`, `note`, `half-step`
+- **sources:** S30, S37
+
+### Jazz articulation
+
+- **id:** `jazz-articulation`
+- **aliases:** brass articulation, jazz ornament
+- **popup:** Small jazz signs that bend a note's pitch at its start or end: scoops, plops, falls and doits.
+- **definition:** Jazz articulations are signs that tell the player to bend into or out of a note rather than play it plainly. Scoops and plops slide into the note from below or above; falls and doits slide away from it, down or up, at its end. Unlike staccato or accents, they change pitch, not length or attack, so notation programs often treat them as ornaments.
+- **in_infinite_flow:** Not used. The embellishment research proposes them as ornaments written as signs, with only the main note expected; ornaments are part of the embellishment flags planned for v3 (not built).
+- **related:** `fall`, `doit`, `scoop`, `plop`, `glissando`, `ornament`
+- **sources:** S31, S33, docs/music/embellishment-catalogue.md
 
 ### Key signature
 
@@ -235,6 +295,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `octave-number`, `ledger-line`, `midi-note-number`, `pitch`
 - **sources:** S14, S13
 
+### Mordent
+
+- **id:** `mordent`
+- **aliases:** upper mordent, lower mordent, pralltriller, inverted mordent
+- **popup:** A quick flick from the main note to its neighbor and back, written as a small zigzag sign above the note.
+- **definition:** A mordent is a fast three-note ornament: the main note, the scale note above or below it, and the main note again. The upper kind goes up (E, F, E); the lower kind goes down (E, D, E) and is usually marked with a short vertical line through the sign. The names are confusing: different periods and programs call opposite forms "inverted".
+- **in_infinite_flow:** Not used. If adopted, the app would label them only "upper" and "lower", and only the main note would be expected.
+- **related:** `ornament`, `trill`, `turn`, `neighbor-tone`
+- **sources:** S29, S34
+
 ### Natural
 
 - **id:** `natural`
@@ -264,6 +334,36 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `middle-c`, `octave`, `midi-note-number`, `note-name`
 - **sources:** S14, S13
 
+### Ornament
+
+- **id:** `ornament`
+- **aliases:** ornamentation, grace
+- **popup:** A decoration written as a small sign or small notes, which the player turns into a few quick extra notes.
+- **definition:** An ornament is a decoration that the score shows in shorthand, as a sign above a note or as small notes, rather than writing every note out. Trills, mordents, turns and grace notes are the classic ornaments; jazz adds bends such as scoops and falls. How exactly to play one depends on the style and period.
+- **in_infinite_flow:** None are written today. Ornaments are the second, larger part of the embellishment flags planned for v3 (not built); how to represent them is open question O47.
+- **related:** `embellishment`, `grace-note`, `mordent`, `trill`, `turn`, `jazz-articulation`
+- **sources:** S29, S34, specs/open-questions.md, docs/music/embellishment-catalogue.md
+
+### Plop
+
+- **id:** `plop`
+- **aliases:** drop
+- **popup:** A jazz effect: sliding down into a note from somewhere above it.
+- **definition:** A plop is a jazz articulation where the player falls into the written note from an unspecified higher pitch, instead of starting it cleanly. It is shown as a line curving down into the note head from the upper left. It is the downward counterpart of the scoop.
+- **in_infinite_flow:** Not used. If adopted, only the written note would be expected.
+- **related:** `scoop`, `fall`, `jazz-articulation`
+- **sources:** S31, S33
+
+### Scoop
+
+- **id:** `scoop`
+- **aliases:** lift, bend into
+- **popup:** A jazz effect: sliding up into a note from a little below it.
+- **definition:** A scoop starts a note slightly under its written pitch and slides up into it. It is written as a small curved line rising into the note head from the left. Blues and jazz singers and horn players use it constantly, especially on accented notes.
+- **in_infinite_flow:** Not used. If adopted, only the written note would be expected.
+- **related:** `plop`, `slide`, `jazz-articulation`, `blue-note`
+- **sources:** S31, S33
+
 ### Sharp
 
 - **id:** `sharp`
@@ -272,6 +372,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** A sharp raises a note by one half step, so F-sharp is the key just above F on a keyboard. In a key signature, a sharp applies to that letter in every octave for the whole piece. As an accidental in front of one note, it lasts to the end of the measure. Keys with sharps and keys with flats are equally normal; which one a piece uses depends on its key.
 - **related:** `flat`, `natural`, `accidental`, `key-signature`
 - **sources:** S14
+
+### Slide
+
+- **id:** `slide`
+- **aliases:** slide into
+- **popup:** A short glide into a note, usually from just below it.
+- **definition:** A slide moves smoothly into a note from a nearby pitch, usually from below, instead of starting it cleanly. The word is used loosely: in folk music it can mean a quick grace-note lift into the note; in blues it is close to a scoop; between two written notes it becomes a glissando.
+- **in_infinite_flow:** Not used. If adopted, it would share one flag with the scoop.
+- **related:** `scoop`, `glissando`, `grace-note`
+- **sources:** S32, S33
 
 ### Staff
 
@@ -293,7 +403,47 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `clef`, `staff`, `ledger-line`, `middle-c`
 - **sources:** S14
 
+### Trill
+
+- **id:** `trill`
+- **aliases:** shake, tr
+- **popup:** A rapid back-and-forth between a note and the note just above it, for the whole length of the note.
+- **definition:** A trill alternates very quickly between the written note and its upper neighbor, a half or whole step above, for as long as the note lasts. It is written "tr", often followed by a wavy line. In baroque music it usually starts on the upper note; from the late classical period on, on the written note. It often ends with a quick dip to the note below.
+- **in_infinite_flow:** Not used. If adopted, only the main note would be expected, and only long notes would carry one.
+- **related:** `ornament`, `mordent`, `turn`, `neighbor-tone`
+- **sources:** S35
+
+### Turn
+
+- **id:** `turn`
+- **aliases:** gruppetto, inverted turn
+- **popup:** Four quick notes circling the main note: above, the note itself, below, the note itself.
+- **definition:** A turn wraps a main note in its neighbors: the note above, the main note, the note below, then the main note again. Over E, that is F, E, D, E. It is written as a sideways S above the note; placed between two notes, it is played after the first one. The inverted turn starts from below.
+- **in_infinite_flow:** Not used. If adopted, only the main note would be expected.
+- **related:** `ornament`, `mordent`, `neighbor-tone`, `enclosure`
+- **sources:** S36
+
 ## Rhythm and meter
+
+### Anticipation
+
+- **id:** `anticipation`
+- **aliases:** push, anticipatory syncopation
+- **popup:** A note that arrives a little early: it starts just before the beat or the chord it belongs to.
+- **definition:** The word has two linked meanings. In rhythm, an anticipation is a note that starts shortly before a strong beat, an eighth or a sixteenth early, and is held over it, giving a forward push; pop, rock and jazz use it constantly. In harmony, it is a note of the coming chord sounded just before that chord arrives, then usually repeated or held when it does. Moving from a G chord to a C chord, a C on the last offbeat of the G bar, then C again on beat 1, anticipates the C chord. The two often happen together.
+- **in_infinite_flow:** Not written today. Under Active displacement the app can start a note just before beat 2, 3 or 4, but not as a held push, and never into the next measure's first beat. The harmonic kind is ruled out too: a tie may cross a chord change only on a note both chords share. A candidate for the embellishment flags planned for v3 (not built).
+- **related:** `syncopation`, `offbeat`, `tie`, `non-chord-tone`, `chord`, `metric-displacement`
+- **sources:** S21, S44, S25, S46, docs/music/rhythm-phrase-structure.md
+
+### Augmentation
+
+- **id:** `augmentation`
+- **aliases:** rhythmic augmentation
+- **popup:** Playing a musical idea with every note twice as long, so it keeps its shape but moves at half the speed.
+- **definition:** Augmentation restates a melody or rhythm with every duration lengthened by the same factor, usually doubled: four eighth notes become four quarter notes. The idea stays recognizable because its proportions are kept, but it sounds broader and calmer. Its opposite, diminution, shortens every value. The same word also names an augmented interval, an unrelated meaning.
+- **in_infinite_flow:** Not generated yet. Doubling every length halves the notes per measure, so it would normally need a lower Note density at the same time.
+- **related:** `diminution`, `rhythm`, `motivic-development`, `control-note-density`
+- **sources:** S51, S41
 
 ### Beat
 
@@ -304,6 +454,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** In the app's 4/4 phrases one beat is a quarter note, which is four ticks.
 - **related:** `tempo`, `meter`, `measure`, `strong-and-weak-beats`, `subdivision`, `offbeat`
 - **sources:** S14, S15, S8
+
+### Diminution
+
+- **id:** `diminution`
+- **aliases:** rhythmic diminution
+- **popup:** Playing a musical idea with every note half as long, so it keeps its shape but goes twice as fast.
+- **definition:** Diminution restates a melody or rhythm with every duration shortened by the same factor, usually halved: four quarter notes become four eighth notes. It is the opposite of augmentation. It makes an idea sound more urgent, and it is one way a phrase seems to speed up toward its end. Older music also uses the word for decorating a melody with many quick notes.
+- **in_infinite_flow:** Not generated yet. Halving lengths doubles the notes per measure, and a sixteenth note cannot be halved on the app's grid.
+- **related:** `augmentation`, `rhythm`, `sixteenth-note`, `tick`
+- **sources:** S51, S41
 
 ### Dotted note
 
@@ -354,6 +514,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The app uses 4/4 only. It makes sure every measure keeps a note sounding on beat 1 or beat 3 (a metrical anchor), so the meter stays clear even with syncopation.
 - **related:** `time-signature`, `beat`, `strong-and-weak-beats`, `measure`, `metrical-anchor`
 - **sources:** S14, S15, S8
+
+### Metric displacement
+
+- **id:** `metric-displacement`
+- **aliases:** displacement, rhythmic displacement, displacement dissonance
+- **popup:** The same rhythm started a little later or earlier, so its notes fall on different parts of the beat and it feels new.
+- **definition:** Metric displacement shifts a whole rhythm in time by a fixed amount, such as an eighth note, while the beat underneath stays put. Every note then lands on a different part of the beat, so a familiar pattern suddenly sounds off-balance. Theorists call the amount of the shift the displacement index. When one part is displaced against others that are not, the clash is called displacement dissonance.
+- **in_infinite_flow:** The Syncopation control displaces single notes, never a whole motif. Displacing a whole measure would usually break the rule that beat 1 or beat 3 has a sounding note.
+- **related:** `syncopation`, `offbeat`, `metrical-anchor`, `strong-and-weak-beats`
+- **sources:** S47, docs/music/rhythm-phrase-structure.md
 
 ### Offbeat
 
@@ -455,6 +625,15 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `meter`, `beat`, `measure`, `quarter-note`
 - **sources:** S14, S15, S8a
 
+### Trading fours
+
+- **id:** `trading-fours`
+- **aliases:** trading eights, trading twos, trading bars, fours
+- **popup:** Taking turns improvising short solos of a fixed length, four measures each, like a quick musical conversation.
+- **definition:** Trading fours is a jazz habit in which players take turns improvising solos of four measures each, often a soloist alternating with the drummer. Each answer can echo or contrast the one before. The length varies: players also trade eights, twos, single measures or whole choruses. Nobody signals the change of turn: everyone counts the measures, so the form itself hands over the turn.
+- **related:** `call-and-response`, `measure`, `phrase`
+- **sources:** S81, S84
+
 ### Whole note
 
 - **id:** `whole-note`
@@ -467,15 +646,25 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 
 ## Melody
 
+### Accented passing tone
+
+- **id:** `accented-passing-tone`
+- **aliases:** strong-beat passing tone
+- **popup:** A passing note placed on a strong beat, so its clash with the chord is heard before it moves on.
+- **definition:** A passing tone usually sits on a weak part of the beat, between two chord notes. When it falls on the strong part instead, the out-of-chord note arrives exactly where the ear expects a stable note, which makes it sound tense and expressive. It still moves on by step in the same direction. Over a C chord, G, then F on beat 1, then E, makes F an accented passing tone.
+- **in_infinite_flow:** The generator can write one by chance, but never aims for it: it ranks other notes first on beat 1 and at a chord change. A separate embellishment flag for it is planned for v3 (not built).
+- **related:** `passing-tone`, `non-chord-tone`, `strong-and-weak-beats`, `appoggiatura`
+- **sources:** S25, src/domain/pitch/pitch-ranking.ts, docs/music/embellishment-catalogue.md
+
 ### Appoggiatura
 
 - **id:** `appoggiatura`
 - **aliases:** none
 - **popup:** A note that clashes with the chord, reached by a jump and placed on a strong beat, then slipping one step to a note that fits.
 - **definition:** An appoggiatura is a tense note, outside the chord, that is entered by leap, usually lands on a strong beat, and then resolves by step to a chord tone. Because it arrives where the ear expects stability, it creates a clear, expressive tension, which the stepwise move then releases. Example over a C major chord: leap from G up to D on beat 1, then step down to C.
-- **in_infinite_flow:** The app's strongest diatonic tension figure, used only as the one figure the Tension control schedules (Settled, Lift or Edge): a collection note outside the chord, entered by a jump of 3 or more half steps (a skip or a leap in the app's terms), starting on beat 1 or 3, then resolving by one collection step to a chord tone. Both presets use it.
+- **in_infinite_flow:** The app's strongest diatonic tension figure, allowed only as the one figure the Tension control schedules (Settled, Lift or Edge): a collection note outside the chord, entered by a jump of 3 or more half steps (a skip or a leap in the app's terms), starting on beat 1 or 3, then resolving by one collection step to a chord tone. The rules of both presets allow it, but the generator's search tries chord tones first, and other choices for the Tension figure before it, so in practice it rarely or never appears: a sample of about 5,200 phrases had none.
 - **related:** `non-chord-tone`, `chord-tone`, `leap`, `step`, `tension-and-resolution`, `strong-and-weak-beats`
-- **sources:** S6, S4, S14
+- **sources:** S6, S4, S14, docs/music/embellishment-catalogue.md
 
 ### Approach note
 
@@ -497,6 +686,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `chord`, `chord-tone`, `triad`, `run`, `control-arpeggio-chaos`, `control-leapiness`
 - **sources:** S14
 
+### Call and response
+
+- **id:** `call-and-response`
+- **aliases:** call-and-response, question and answer, antiphony, trading
+- **popup:** Music as a conversation: one musician plays a phrase, and another answers it.
+- **definition:** Call and response makes music as a dialogue. One player, singer or group offers a phrase (the call) and another answers it (the response), echoing it, varying it or completing it. It is rooted in African musical traditions, where a leader's call organizes a group, and it runs through blues, gospel, jazz, soul and hip hop. In classical music the same idea between groups of players is called antiphony, and jazz musicians "trade" short solos in the same spirit.
+- **in_infinite_flow:** Jam, planned for v3 (not built), would work this way: the player's doodle is the call and the generated phrases answer it. The endgame vision describes fights as exchanges of short phrases. Inside one phrase, the rhythm plan's gesture and answer is a small, rhythm-only cousin of the idea.
+- **related:** `gesture-and-answer`, `phrase`, `motif`, `trading-fours`, `riff`
+- **sources:** S52, S80, S57, specs/vision/endgame.md, docs/music/rhythm-phrase-structure.md
+
 ### Chord tone
 
 - **id:** `chord-tone`
@@ -517,6 +716,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `approach-note`, `enclosure`, `chromatic`, `chord-tone`, `control-musical-profile-preset`
 - **sources:** S5, S9, S14, docs/music/jazz-profile.md
 
+### Chromatic passing tone
+
+- **id:** `chromatic-passing-tone`
+- **aliases:** chromatic passing note
+- **popup:** A note from outside the key that fills a whole step with two half steps, like F-sharp between F and G.
+- **definition:** A chromatic passing tone is a passing tone taken from outside the key. It splits a whole step into two half steps, so the melody slides through it on its way to a chord note. In C major, F, F-sharp, G uses F-sharp this way. It is usually short and on a weak position, and it does not change the chord.
+- **in_infinite_flow:** Jazz only, and by chance: a chromatic approach whose previous note is a step away in the same direction. The Neutral preset never writes it. An embellishment flag for it is planned for v3 (not built).
+- **related:** `passing-tone`, `chromatic`, `chromatic-approach`, `half-step`
+- **sources:** S5, S26, src/domain/pitch/pitch-candidates.ts
+
 ### Contour
 
 - **id:** `contour`
@@ -526,6 +735,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Contour is also an app control with four shapes (Rising, Falling, Arch, Wandering). See the Contour entry under App controls.
 - **related:** `control-contour`, `melody`, `register`, `phrase`
 - **sources:** S7, S14
+
+### Double neighbor
+
+- **id:** `double-neighbor`
+- **aliases:** changing tones, neighbor group
+- **popup:** A main note decorated by the note above and the note below in turn, before coming back to it.
+- **definition:** A double neighbor leaves a main note, visits its upper neighbor and its lower neighbor one after the other (either order), then returns to the main note. Over a C chord, E, F, D, E is a double neighbor around E. Jazz players use the same shape, without the first main note, as an enclosure.
+- **in_infinite_flow:** Not written in its scale-note form: the generator never places two outside notes in a row on its own. Its half-step form appears in the Jazz preset when an enclosure follows its own target.
+- **related:** `neighbor-tone`, `enclosure`, `non-chord-tone`, `step`
+- **sources:** S20, src/domain/pitch/pitch-figures.ts
+
+### Embellishment
+
+- **id:** `embellishment`
+- **aliases:** decoration, embellishing figure
+- **popup:** A note or small group of notes that decorates a more important note without changing the chord.
+- **definition:** An embellishment adds interest to a melody around its main notes: passing and neighbor notes, approach notes, enclosures, or ornaments such as trills and grace notes. Take it away and the tune's outline and its harmony stay the same. Some are written as ordinary notes; others are written as a sign or a small note and left to the player to perform.
+- **in_infinite_flow:** Today the Neutral and Jazz presets fix which embellishments the generator may write. Embellishment flags are planned for v3 (not built): per figure, allowed or not, plus a weight. Weights would be preferences, not quotas.
+- **related:** `non-chord-tone`, `passing-tone`, `neighbor-tone`, `enclosure`, `ornament`
+- **sources:** S25, specs/versions/v3/README.md, docs/music/embellishment-catalogue.md
 
 ### Enclosure
 
@@ -537,6 +766,35 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `chromatic-approach`, `approach-note`, `neighbor-tone`, `chromatic`, `chord-tone`
 - **sources:** S9, S14, docs/music/jazz-profile.md
 
+### Escape tone
+
+- **id:** `escape-tone`
+- **aliases:** échappée, escape note
+- **popup:** A note that steps away from a chord note, then jumps back the other way instead of stepping on.
+- **definition:** An escape tone is a short note outside the chord. The melody reaches it by one step from a chord note, then leaves it with a jump in the opposite direction onto another chord note. Over a C chord, E stepping up to F, then jumping down to C, makes F an escape tone. It usually sits on a weak part of the beat, often just before a cadence.
+- **in_infinite_flow:** Not written today: the generator makes every outside note leave by step. A candidate for the embellishment flags planned for v3 (not built).
+- **related:** `non-chord-tone`, `neighbor-tone`, `appoggiatura`, `step`, `leap`
+- **sources:** S19, S25
+
+### Fragmentation
+
+- **id:** `fragmentation`
+- **aliases:** fragment, truncation
+- **popup:** Using only a piece of a musical idea, often its first few notes, and repeating that piece on its own.
+- **definition:** Fragmentation breaks a motif into smaller pieces and develops a piece on its own, usually repeating it in shorter and shorter units. Because the units get shorter, the music seems to speed up and push toward an ending, even at the same tempo. It is a typical move in the second half of a classical phrase, after the opening idea has been stated twice. Truncation, cutting off a motif's end, is the simplest kind.
+- **in_infinite_flow:** Not generated yet. The rhythm grammar's recurrence already copies one beat of measure 1 into measure 2, a small step in this direction.
+- **related:** `motif`, `motivic-development`, `phrase`, `gesture-and-answer`
+- **sources:** S42, S45
+
+### Head
+
+- **id:** `head`
+- **aliases:** head in, head out, the tune
+- **popup:** In jazz, the tune's main melody, played at the start and again at the end, with solos in between.
+- **definition:** In jazz the head is the main theme of a tune: its melody over its chords. A typical performance plays the head once ("head in"), then lets players improvise solos over the same chords, then plays the head again to finish ("head out"). At a jam session, a player patting the top of their head is asking the band to go back to the head.
+- **related:** `melody`, `chord-progression`, `riff`, `lick`
+- **sources:** S83, S84
+
 ### Leap
 
 - **id:** `leap`
@@ -546,6 +804,35 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The app uses its own half-step classes: a leap is 5-6 half steps (a fourth or a tritone) and a large leap 7-12 (a fifth up to an octave). A large leap must be balanced by a small move back in the opposite direction (see Recovery).
 - **related:** `step`, `skip`, `interval`, `recovery`, `control-leapiness`
 - **sources:** S7, S14, S15
+
+### Leitmotif
+
+- **id:** `leitmotif`
+- **aliases:** signature motif
+- **popup:** A short tune tied to a character, place or idea, so that hearing it brings them to mind.
+- **definition:** A leitmotif is a motif linked to something outside the music: a person, a place, an object or a feeling. Each time it returns, sometimes changed in key, rhythm or speed, the listener is reminded of what it stands for. Opera and film scores use leitmotifs heavily, and so do many video game soundtracks, where a hero or a villain has their own short tune.
+- **in_infinite_flow:** The endgame vision gives each character "a signature motif or gimmick": a leitmotif in musical terms. Nothing in the app uses it yet.
+- **related:** `motif`, `melody`, `phrase`
+- **sources:** S82, specs/vision/endgame.md
+
+### Lick
+
+- **id:** `lick`
+- **aliases:** none
+- **popup:** A short ready-made phrase a player has learned and drops into solos, like a favourite expression.
+- **definition:** A lick is a short melodic phrase that a player keeps in their vocabulary and reuses when improvising, often adapted to the chords of the moment. Players learn licks by copying other musicians, then mix and vary them. Unlike a riff, a lick is not usually repeated over and over to hold a song together; it is a phrase used once here and there.
+- **related:** `riff`, `motif`, `phrase`, `melody`
+- **sources:** S83
+
+### Melodic inversion
+
+- **id:** `melodic-inversion`
+- **aliases:** inversion, mirror
+- **popup:** A melody turned upside down: every move up becomes the same move down, and every move down becomes a move up.
+- **definition:** Melodic inversion flips a melody's direction while keeping the size of each move: up a step becomes down a step, down a third becomes up a third. An exact (real) inversion keeps every interval's exact size; a tonal inversion stays in the key and lets sizes adjust. Do not confuse it with a chord inversion, which is about which note of a chord is lowest, or with an interval inversion, which turns a third into a sixth.
+- **in_infinite_flow:** Not generated yet. It keeps a melody's leap sizes but flips its contour, so a Rising melody would become Falling.
+- **related:** `contour`, `interval`, `retrograde`, `retrograde-inversion`, `motivic-development`
+- **sources:** S41, S48, S53
 
 ### Melody
 
@@ -557,15 +844,35 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `phrase`, `contour`, `rhythm`, `harmony`
 - **sources:** S14, S15
 
+### Motif
+
+- **id:** `motif`
+- **aliases:** motive, figure, musical idea, doodle (Jam's working word)
+- **popup:** A short musical idea, a few notes long, that you can recognize when it comes back, even changed.
+- **definition:** A motif is the smallest piece of music that sounds like an idea of its own: a handful of notes with a recognizable rhythm and shape. Composers and improvisers build longer music by bringing a motif back, sometimes as it was, often changed: higher or lower, faster or slower, decorated, upside down or cut short. The opening four notes of Beethoven's Fifth Symphony are a famous motif. Both spellings, motif and motive, are correct.
+- **in_infinite_flow:** In Jam, planned for v3 (not built), the short idea the player plays for the app to continue and develop; the specs call it the doodle. A played signal would also be a motif, one used to steer the app instead of as music.
+- **related:** `motivic-development`, `phrase`, `rhythm`, `contour`, `interval`, `riff`, `leitmotif`, `played-signal`
+- **sources:** S40, S82, S14, specs/versions/v3/README.md
+
+### Motivic development
+
+- **id:** `motivic-development`
+- **aliases:** developing a motif, motive development, melodic alteration
+- **popup:** Growing a short idea into longer music by repeating it with changes: moving it, flipping it, stretching it or decorating it.
+- **definition:** Motivic development is the craft of making music from a small idea by changing some of its features while keeping others, so each new version sounds both fresh and related. The usual tools are repetition, sequence (the idea moved higher or lower), inversion (upside down), changes of rhythm, augmentation and diminution (slower or faster), fragmentation (using only a piece of it) and ornamentation (added decorating notes). Change too much and the link to the original is lost.
+- **in_infinite_flow:** What Jam, planned for v3 (not built), would do to the player's doodle. The mutation catalogue (docs/music/mutation-catalogue.md) lists the tools and how far each one drifts from the original.
+- **related:** `motif`, `sequence`, `melodic-inversion`, `fragmentation`, `augmentation`
+- **sources:** S41, S49, docs/music/mutation-catalogue.md
+
 ### Neighbor tone
 
 - **id:** `neighbor-tone`
 - **aliases:** neighbor note, auxiliary note, neighbour tone
 - **popup:** A decorating note one step above or below a main note, which then steps straight back to the main note.
 - **definition:** A neighbor tone decorates a stable note by stepping away from it, up or down, and then stepping straight back. The pattern is main note, neighbor, main note, as in E-F-E over a C major chord. An upper neighbor sits above the main note, a lower neighbor below. Like a passing tone, it usually falls on a weaker beat and adds only gentle tension.
-- **in_infinite_flow:** A collection note outside the current chord, one collection step away from a chord tone, that steps straight back to that same chord tone. Both presets use it anywhere except the phrase's first and last note, and it can also be the one figure the Tension control schedules. The tense scale tone a session phrase generated from the phrase before it may end on, resolved by the next phrase's first note, is a separate case, not a neighbor tone on the last note.
+- **in_infinite_flow:** A collection note outside the current chord, one collection step away from a chord tone, that steps straight back to that same chord tone. The rules of both presets allow it anywhere except the phrase's first and last note, and it can also be the one figure the Tension control schedules. The generator's search tries chord tones first, so a neighbor tone appears only when chord tones lead to a dead end: it is the app's most common outside note, yet most phrases have none (about 1 in 7 at Neutral's defaults) unless the Edge tension setting requires a figure. The tense scale tone a session phrase generated from the phrase before it may end on, resolved by the next phrase's first note, is a separate case, not a neighbor tone on the last note.
 - **related:** `passing-tone`, `non-chord-tone`, `chord-tone`, `step`, `enclosure`
-- **sources:** S4, S14, src/domain/generation/carry-in/phrase-ending-debt.ts
+- **sources:** S4, S14, S18, src/domain/generation/carry-in/phrase-ending-debt.ts, docs/music/embellishment-catalogue.md
 
 ### Non-chord tone
 
@@ -577,15 +884,25 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `chord-tone`, `passing-tone`, `neighbor-tone`, `appoggiatura`, `chromatic-approach`, `tension-and-resolution`
 - **sources:** S4, S14, src/domain/generation/carry-in/phrase-ending-debt.ts
 
+### Octave displacement
+
+- **id:** `octave-displacement`
+- **aliases:** pivoting
+- **popup:** Moving one note of a line up or down an octave and carrying on from there, to turn a smooth line into a jumpy one.
+- **definition:** Octave displacement keeps a line's note names but moves one of them into another octave, and the line continues in the new octave. A falling G, F, E, D, C can become G, F, E, then a high D and C. The notes are the same; the contour gets a sudden jump. Jazz players often place the moved note on an offbeat and jump against the line's direction.
+- **in_infinite_flow:** Not used as a figure. Its jump counts as a large leap: allowed only under Leaping or Angular, followed by a recovery, and inside the one-octave register window.
+- **related:** `octave`, `leap`, `contour`, `recovery`, `register-window`, `control-leapiness`
+- **sources:** S27, docs/music/melodic-control-models.md
+
 ### Passing tone
 
 - **id:** `passing-tone`
 - **aliases:** passing note
 - **popup:** A note that fills the gap between two chord notes by step, like D between C and E.
 - **definition:** A passing tone is a note outside the chord that links two other notes by step while moving in one direction: a stepwise note between two pitches, going the same way on both sides. Over a C major chord, the line C-D-E uses D as a passing tone. It usually falls on a weaker beat and sounds natural and unforced.
-- **in_infinite_flow:** A collection note outside the current chord that moves by step and resolves by one collection step into a chord tone. Both presets use it.
-- **related:** `neighbor-tone`, `non-chord-tone`, `chord-tone`, `step`
-- **sources:** S5, S4, S14
+- **in_infinite_flow:** A collection note outside the current chord that moves by step and resolves by one collection step into a chord tone. The rules of both presets allow it, but the generator's search tries chord tones first, so it rarely appears: in about 1 phrase in 100 at Neutral's defaults, a few more at high Leapiness, or as the Tension figure that the Edge setting requires.
+- **related:** `neighbor-tone`, `non-chord-tone`, `chord-tone`, `step`, `accented-passing-tone`, `chromatic-passing-tone`
+- **sources:** S5, S4, S14, docs/music/embellishment-catalogue.md
 
 ### Register
 
@@ -596,6 +913,65 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Register is also an app control that picks a one-octave window of the instrument's range for the whole phrase. See the Register entry under App controls.
 - **related:** `control-register`, `instrument-range`, `octave`, `register-window`
 - **sources:** S15, S14
+
+### Retardation
+
+- **id:** `retardation`
+- **aliases:** upward suspension
+- **popup:** A note held over from the previous chord that clashes with the new chord, then rises one step to fit.
+- **definition:** A retardation works like a suspension but resolves upward. A note that fits the old chord is held while the chord changes; it clashes with the new chord on the strong beat, then moves up one step. Moving from a G chord to a C chord, B held over into the C bar and then rising to C is a retardation.
+- **in_infinite_flow:** Not written today: a tie may cross a chord change only on a note both chords share. A candidate for the embellishment flags planned for v3 (not built).
+- **related:** `suspension`, `tie`, `non-chord-tone`, `tension-and-resolution`
+- **sources:** S23, S25
+
+### Retrograde
+
+- **id:** `retrograde`
+- **aliases:** backwards, cancrizans, crab
+- **popup:** A melody played backwards, from its last note to its first.
+- **definition:** A retrograde plays the notes of a melody in reverse order. Composers sometimes reverse the rhythm along with the pitches, sometimes only the pitches. It is common in twelve-tone music and in puzzle canons, and rare in ordinary tonal melodies, partly because listeners find a backwards melody hard to recognize: the ear follows a melody forwards.
+- **in_infinite_flow:** Not generated, and not proposed for Jam's first list of changes: it is one of the hardest to hear.
+- **related:** `melodic-inversion`, `retrograde-inversion`, `motif`
+- **sources:** S41, S48, S53
+
+### Retrograde inversion
+
+- **id:** `retrograde-inversion`
+- **aliases:** RI
+- **popup:** A melody turned upside down and played backwards at the same time.
+- **definition:** A retrograde inversion combines the two mirror operations: the melody is flipped upside down and its notes are played in reverse order. It is one of the four basic forms of a twelve-tone row, together with the original, the inversion and the retrograde. Of the three changed forms it is the hardest for listeners to recognize as related to the original.
+- **in_infinite_flow:** Not generated, and not proposed for Jam.
+- **related:** `melodic-inversion`, `retrograde`
+- **sources:** S48, S53
+
+### Riff
+
+- **id:** `riff`
+- **aliases:** ostinato
+- **popup:** A short catchy phrase repeated again and again, often the backbone of a song.
+- **definition:** A riff is a short melodic or rhythmic phrase that repeats many times in a row, so that it becomes the thing a listener remembers. Rock, blues, funk, jazz and Latin music all use riffs; swing-era big bands passed riffs back and forth between sections like a call and response. Classical music calls a figure repeated this way an ostinato.
+- **related:** `lick`, `motif`, `call-and-response`, `phrase`
+- **sources:** S83
+
+### Scale run
+
+- **id:** `scale-run`
+- **aliases:** scalar run, fill
+- **popup:** A quick string of notes going straight up or down a scale.
+- **definition:** A scale run moves through several scale notes in a row by step, in one direction, usually in short notes. Many of its notes are outside the chord; they pass by so quickly that the ear hears the whole run as a sweep toward its last note. Players often use runs to fill a gap between two phrases. Over a C chord, C, D, E, F, G, A, B, C is a scale run.
+- **in_infinite_flow:** Partly possible: the generator can alternate chord and outside notes by step, but not place two outside notes in a row. Different from the internal term run, which means a three-note arpeggio.
+- **related:** `scale`, `step`, `passing-tone`, `run`, `sixteenth-note`
+- **sources:** S25, src/domain/pitch/pitch-figures.ts
+
+### Sequence
+
+- **id:** `sequence`
+- **aliases:** melodic sequence, diatonic sequence, tonal sequence, real sequence
+- **popup:** The same short pattern played again, starting higher or lower, usually two or three times in a row.
+- **definition:** A sequence repeats a melodic pattern at a different pitch, step after step in the same direction, like walking up a staircase with the same stride. In a diatonic (or tonal) sequence the copy stays in the key, so a whole step may become a half step. In a real sequence every interval is copied exactly, which brings in notes from outside the key. Sequences rarely go beyond three or four statements before the music moves on.
+- **in_infinite_flow:** Not generated. Proposed for Jam, planned for v3 (not built), as a diatonic sequence only, since the Neutral profile never uses notes outside the key.
+- **related:** `motif`, `motivic-development`, `transposition`, `diatonic`, `chromatic`
+- **sources:** S50, S43, S45
 
 ### Skip
 
@@ -616,6 +992,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The app counts a move of 1 or 2 half steps as a step. Its diatonic figures resolve by one step within the chosen collection.
 - **related:** `half-step`, `whole-step`, `skip`, `leap`, `passing-tone`
 - **sources:** S14, S15, S7
+
+### Suspension
+
+- **id:** `suspension`
+- **aliases:** none
+- **popup:** A note held over from the previous chord that clashes with the new chord, then falls one step to fit.
+- **definition:** A suspension keeps a note of one chord sounding while the harmony moves to the next. On the new chord's strong beat the held note clashes, then it drops one step to a note that fits. Theory names the three stages preparation, suspension and resolution. Moving from an F chord to a C chord, F held over the bar line and then falling to E is a suspension.
+- **in_infinite_flow:** Not written today: a tie may cross a chord change only on a note both chords share. A candidate for the embellishment flags planned for v3 (not built).
+- **related:** `retardation`, `tie`, `non-chord-tone`, `tension-and-resolution`, `strong-and-weak-beats`
+- **sources:** S22, S25
+
+### Transposition
+
+- **id:** `transposition`
+- **aliases:** transposing, shifting
+- **popup:** Moving music higher or lower while keeping its shape, so it sounds the same, only starting on another note.
+- **definition:** To transpose music is to move every note up or down by the same interval. The melody keeps its exact shape and sounds the same apart from its height, which is why a song can be sung in a key that suits the singer. Moving a melody within its key instead, so that some intervals change size to fit the scale, is a diatonic shift rather than an exact transposition.
+- **in_infinite_flow:** The app transposes only to draw the score for saxophones, in written pitch. A real sequence would transpose a motif inside a phrase; not generated yet.
+- **related:** `transposing-instrument`, `written-pitch`, `sequence`, `interval`
+- **sources:** S16, S50, S14
 
 ## Harmony
 
@@ -811,6 +1207,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `minor`, `mode`, `ionian`, `dorian`, `control-collection`
 - **sources:** S14
 
+### Bebop scale
+
+- **id:** `bebop-scale`
+- **aliases:** bebop dominant scale
+- **popup:** A jazz scale with one extra in-between note added, so that chord notes fall on the beats when you play even eighth notes.
+- **definition:** A bebop scale is a seven-note scale with one extra chromatic note, making eight. With eight notes, a line of eighth notes that starts on a chord note on the beat keeps landing chord notes on the beats. The best-known form, for dominant seventh chords, is Mixolydian plus the major seventh: over G7, G, F-sharp, F, E, D, C, B, A, with F-sharp as the added note.
+- **in_infinite_flow:** Not used as a scale. The Jazz preset can produce its passing note by chance, as a chromatic approach. The app's chords are triads, while bebop lines usually target seventh chords.
+- **related:** `scale`, `mixolydian`, `chromatic`, `passing-tone`, `eighth-note`
+- **sources:** S9
+
+### Blue note
+
+- **id:** `blue-note`
+- **aliases:** blues note, blue third, blue fifth
+- **popup:** A note played a little lower than the scale expects, usually the third, fifth or seventh, that gives blues and jazz their crying sound.
+- **definition:** Blue notes are notes lowered from the major scale and played against major-sounding chords: mainly the third and the fifth, often the seventh too. In C they lean toward E-flat, G-flat and B-flat. Voices, guitars and saxophones often bend into them, landing between two keyboard keys, or slide off them, and may hold them without resolving; a keyboard plays the nearest half step instead. The blues scale is built around them.
+- **in_infinite_flow:** Not used as such. The Jazz preset can write one only as a brief chromatic approach that resolves at once (E-flat to E over C). A MIDI controller sends whole half steps, so a played blue note arrives as a flattened note outside the collection; the key and mode suggestion planned for v3 (not built) would tolerate a few such notes.
+- **related:** `chromatic`, `half-step`, `chromatic-approach`, `scoop`, `mixolydian`, `dorian`, `swing`
+- **sources:** S9, S78, docs/music/key-and-mode-estimation.md
+
 ### Characteristic note
 
 - **id:** `characteristic-note`
@@ -831,6 +1247,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `mode`, `aeolian`, `minor`, `characteristic-note`, `control-collection`
 - **sources:** S14, S9
 
+### Final
+
+- **id:** `final`
+- **aliases:** final note, finalis
+- **popup:** The last note of a melody. In modal music it is usually the home note, so it helps tell which mode is used.
+- **definition:** The final is a melody's last note. In medieval modal theory it named the mode's home note: a chant ending on D was in a D mode, and its range then told which of the two D modes. Many folk and popular melodies also end on their home note, so the last note is a strong clue to the key. It is only a clue: a melody can stop anywhere, especially a short improvised one.
+- **in_infinite_flow:** The key and mode suggestion planned for v3 (not built) would give a small bonus to candidates whose home note is the doodle's last note. The app's own generated phrases never end on the home note.
+- **related:** `tonic`, `tonal-center`, `mode`, `cadence`, `key-finding`, `open-ending`
+- **sources:** S71, S63, S69
+
+### Harmonic minor
+
+- **id:** `harmonic-minor`
+- **aliases:** harmonic minor scale
+- **popup:** A minor scale with its seventh note raised a half step, which pulls strongly toward home.
+- **definition:** Harmonic minor is the natural minor scale with the seventh note raised by a half step: A, B, C, D, E, F, G-sharp in A harmonic minor. The raised note sits just below the home note and leans into it, which classical music likes before a cadence. It leaves a wide gap of three half steps between the sixth and seventh notes, which gives the scale its exotic sound.
+- **in_infinite_flow:** Not one of the app's collections; the app's Minor is natural minor. The key and mode suggestion planned for v3 (not built) would treat a raised seventh as an outside note and suggest the closest mode, usually Aeolian.
+- **related:** `minor`, `aeolian`, `scale`, `half-step`, `control-collection`
+- **sources:** S78, S14, docs/music/harmony-planner-policy.md
+
 ### Ionian
 
 - **id:** `ionian`
@@ -850,6 +1286,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The app splits the key into two controls: Written key picks the home note and Collection picks the scale or mode. Both are chosen in your instrument's written pitch.
 - **related:** `tonal-center`, `scale`, `key-signature`, `control-written-key`, `control-collection`
 - **sources:** S14, S15
+
+### Key finding
+
+- **id:** `key-finding`
+- **aliases:** key detection, key estimation, key and mode suggestion
+- **popup:** Working out which key a piece of music is in by looking at its notes.
+- **definition:** Key finding means guessing the key of some music from its notes alone. Most methods count how much each of the 12 note names is used and compare that count with the typical pattern of each key, where the home note and its fifth and third stand out. The key whose pattern matches best wins. The first and last notes help too. A short melody often matches several keys almost equally, so a single answer can be uncertain.
+- **in_infinite_flow:** Planned for v3 (not built), with Jam: the app would read the player's doodle, rate every key and mode, and may suggest one by a weighted draw among the likeliest. It would never change the Written key or Collection on its own.
+- **related:** `key`, `mode`, `tonic`, `key-profile`, `relative-keys`, `control-written-key`, `control-collection`
+- **sources:** S60, S63, S73, docs/music/key-and-mode-estimation.md
+
+### Key profile
+
+- **id:** `key-profile`
+- **aliases:** tonal hierarchy, pitch-class profile
+- **popup:** A list of 12 numbers saying how well each note name fits a key. The home note scores highest.
+- **definition:** A key profile gives each of the 12 note names a number for how well it belongs to a key. The first profiles came from listeners rating how well a note fit after a passage in a key; later ones count how often each note appears in real music. In every profile the home note scores highest, then the fifth and third notes of the scale, then the other scale notes, with notes outside the scale far behind.
+- **in_infinite_flow:** The key and mode suggestion planned for v3 (not built) would use one simple profile per mode, built from these roles, rather than a measured one.
+- **related:** `key-finding`, `key`, `tonic`, `scale-degree`, `scale`
+- **sources:** S60, S63, S65, S73
 
 ### Locrian
 
@@ -911,6 +1367,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `scale`, `ionian`, `dorian`, `phrygian`, `lydian`, `mixolydian`, `aeolian`, `locrian`, `characteristic-note`
 - **sources:** S14, S9
 
+### Parallel keys
+
+- **id:** `parallel-keys`
+- **aliases:** parallel major, parallel minor, parallel modes
+- **popup:** Two keys or modes with the same home note but a different set of notes, like C major and C minor.
+- **definition:** Parallel keys share their home note but not their notes. C major and C minor both rest on C, but C minor has three flats. Modes can be parallel too: D Dorian and D Aeolian both rest on D and differ by one note, B in Dorian and B-flat in Aeolian. Switching between parallels keeps the same home and changes the color.
+- **in_infinite_flow:** When a doodle never plays the one note that separates two parallel modes, the key and mode suggestion planned for v3 (not built) could not tell them apart and might offer either.
+- **related:** `relative-keys`, `key`, `mode`, `major`, `minor`, `characteristic-note`
+- **sources:** S78
+
 ### Phrygian
 
 - **id:** `phrygian`
@@ -920,6 +1386,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Its color degree in the app is 2, the lowered 2nd.
 - **related:** `mode`, `aeolian`, `locrian`, `characteristic-note`, `control-collection`
 - **sources:** S14
+
+### Relative keys
+
+- **id:** `relative-keys`
+- **aliases:** relative major, relative minor, relative modes
+- **popup:** Two keys or modes that use the very same notes but rest on a different home note, like C major and A minor.
+- **definition:** Relative keys share all their notes but not their home note. C major and A minor both use only the white keys; C sounds like home in one and A in the other, and they share a key signature. The idea extends to modes: C Ionian, D Dorian, E Phrygian, F Lydian, G Mixolydian, A Aeolian and B Locrian are all relatives. Which one you hear depends on where the melody settles.
+- **in_infinite_flow:** Telling relatives apart is the hard part of the key and mode suggestion planned for v3 (not built): a doodle's notes can fit seven relatives, and only clues such as the first, last and longest notes point to one.
+- **related:** `parallel-keys`, `key`, `mode`, `key-signature`, `tonal-center`, `key-finding`
+- **sources:** S78
 
 ### Scale
 
@@ -1091,7 +1567,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** preset, style
 - **popup:** A starting style: Neutral (stays in the key) or Jazz (adds short out-of-key notes). It also sets seven other controls at once.
 - **definition:** The musical profile preset picks a style and loads a matching set of starting values. It does two jobs. It sets the note vocabulary, which the app calls the grammar: which decorating figures are allowed. And it fills in seven other controls at once, which you can then change. "Preset" and "profile" are app words, not music-theory terms.
-- **in_infinite_flow:** **Neutral** (default): only notes of the collection, decorated with passing tones, neighbors, appoggiaturas and diatonic approaches. It sets Harmonic motion Gentle diatonic, Note density Quarter notes, Rhythmic variety Slightly varied, Syncopation Straight, Silence density Sparse, Contour Arch, Register Middle. **Jazz**: adds chromatic approaches and enclosures; chords are the same as Neutral, with no seventh chords and no swing. It sets Gentle diatonic, Eighth notes, Slightly varied, Occasional offbeats, Conversational space, Wandering, Varying. Changing any of those seven afterward shows "Custom", and the status says which grammar is kept. Choosing Neutral or Jazz again replaces all seven.
+- **in_infinite_flow:** **Neutral** (default): only notes of the collection, which the rules allow to decorate with passing tones, neighbors, appoggiaturas and diatonic approaches; because the search tries chord tones first, decorations are rare in practice and appoggiaturas almost never appear (see the [embellishment catalogue](embellishment-catalogue.md)). It sets Harmonic motion Gentle diatonic, Note density Quarter notes, Rhythmic variety Slightly varied, Syncopation Straight, Silence density Sparse, Contour Arch, Register Middle. **Jazz**: adds chromatic approaches and enclosures; chords are the same as Neutral, with no seventh chords and no swing. It sets Gentle diatonic, Eighth notes, Slightly varied, Occasional offbeats, Conversational space, Wandering, Varying. Changing any of those seven afterward shows "Custom", and the status says which grammar is kept. Choosing Neutral or Jazz again replaces all seven.
 - **related:** `grammar`, `chromatic-approach`, `enclosure`, `approach-note`, `passing-tone`, `swing`, `control-harmonic-motion`
 - **sources:** ui_ux/screens/phrase-workspace/handoff.md, src/domain/controls/profile-selection.ts, docs/music/neutral-profile.md, docs/music/jazz-profile.md
 
@@ -1246,6 +1722,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Major/Minor with Gentle or Active motion: the final chord is on degree 5 and the final sounding note is a tone of that chord (in Minor this is the minor v, without claiming dominant pull). Major/Minor with Static motion: the chord stays I and the final note is degree 5. Modes: the final chord is the home chord and the final note is any of its tones except the home note, so its 3rd or 5th, with no preference between them. Degree 1 is never the final note. The one tension figure resolves before the final note; plain passing and neighbor tones may resolve onto it. A session phrase generated from the phrase before it may instead end on a scale tone outside its final chord, reached by step, which the next phrase's first note resolves; that note is still never degree 1. A trailing rest is allowed.
 - **related:** `cadence`, `phrase`, `dominant`, `scale-degree`
 - **sources:** S3, docs/music/harmony-planner-policy.md, src/domain/pitch/pitch-context.ts, src/domain/generation/carry-in/phrase-ending-debt.ts
+
+### Played signal
+
+- **id:** `played-signal`
+- **aliases:** signal pattern, played command, cue (the owner's word, D213)
+- **popup:** Internal: a short pattern the player plays on purpose to tell the app something, such as "your turn".
+- **definition:** A played signal is a short motif the player plays not as music but to steer the app: for example to end a Jam doodle or to say "less like this" about a phrase. It is recognised from the played notes (their intervals, and possibly a loose rhythm), framed so that ordinary playing does not trigger it, and either recognised or ignored: there is no "almost".
+- **in_infinite_flow:** Not built: a research proposal (docs/music/played-pattern-recognition.md), placed in v3.x at the earliest. Spec decision D214 makes "played signal" the spec's word for it, because "cue" already names the session cue row. The one played signal the app has today is the starting note, which starts a session from Idle.
+- **related:** `motif`, `cue`, `interval`, `contour`
+- **sources:** docs/music/played-pattern-recognition.md, specs/decisions.md, specs/versions/v2/master-spec.md
 
 ### Recovery
 

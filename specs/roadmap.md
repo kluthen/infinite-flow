@@ -11,7 +11,9 @@ best-effort 2026-10-06, D191, D193; USB keyboard checks after the v2.0 tag and t
 rewrite carry-over 2026-10-06, D198, D199; pre-generating phrases at Idle added as a v3
 candidate 2026-10-07, D206; v1.0 and v2.0 marked released 2026-10-07, D208; MIDI-seeded
 continuation named Jam, with three candidates, 2026-10-07, D209; embellishment flags and
-player-made presets in v3, sequence writing as a later candidate, 2026-10-07, D210)
+player-made presets in v3, sequence writing as a later candidate, 2026-10-07, D210; v3 split
+into releases, rhythm ratios and editor moved to v4, four candidates dropped, 2026-10-07, D211;
+v3.0.1 merged into v3.0 and played signal patterns tied to learning, D212)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -82,18 +84,21 @@ record is archived at [archive/v2/](archive/v2/README.md).
 ### 2. v3 — Player material and "my instrument"
 
 - **Intent:** the Fledgling Composer's release: grow the player's own ideas.
-- **Headline scope:**
-  - Jam: MIDI-seeded continuation from a played motif (D209), with a key and mode suggestion,
-    ties to the rhythm candidates and learning from positive signals as candidates;
-  - embellishment flags: which decorating figures the generator may use, with weights as
-    preferences (D210);
-  - presets: a few more built-in ones, and presets the player creates and saves (D210);
-  - a "my instrument" configuration (input kind, range, transposition);
-  - first local persistence;
-  - review of earlier sessions, with opt-in retention of played notes;
-  - favorites: marking the phrases the player liked and exporting them, moved from v2 and settled
-    here (D130);
-  - nice-to-have, not committed: the end-of-measure chord-fit check, moved from v2's v2.3 (D174).
+- **Releases (D211):**
+  - **v3.0, storage:** first local persistence; a "my instrument" configuration (input kind,
+    range, transposition); review of earlier sessions, with opt-in retention of played notes;
+    favorites, marking the phrases the player liked and exporting them (D130); keeping sessions
+    (D129). With them, merged from a v3.0.1 (D212): pre-generating phrases at Idle (D206) and the
+    stray-note filter (D196).
+  - **v3.1:** embellishment flags, with weights as preferences, and presets, built-in and
+    player-made (D210).
+  - **v3.2:** Jam, MIDI-seeded continuation from a played motif (D209), with the key and mode
+    suggestion (a weighted draw when several answers fit, D212), and the rhythm lock with a
+    mutation option (O118).
+  - **v3.x:** learning from positive signals, tied to recognising played signal patterns (cues,
+    D212; mandatory for the endgame); kept for now, likely to be removed or moved later.
+  - Dropped (D211): the end-of-measure chord-fit check, review tooling, and the two
+    controller-connection ideas.
 - **Depends on:** v2's continuation, sessions, review and export; **O10** before planner stages
   couple.
 - **Folder:** [versions/v3](versions/v3/README.md).
@@ -154,35 +159,17 @@ record is archived at [archive/v2/](archive/v2/README.md).
 
 The owner's ideas, recorded so they are not lost. None of them is scope for any version.
 
-- **Richer review tooling, tablet and desktop only (version open; D128).** Selecting a passage to
-  replay, and showing what was expected against what was played on the same measure. The phone's
-  Review stays the plain baseline (ux D64). The comparison view is bounded by the permanent "no
-  wrong-note signal, grading or scoring" constraint. Recorded in
-  [v3](versions/v3/README.md#later-review-tooling-candidates-not-committed), next to the review of
-  earlier sessions; that is not a v3 placement.
-- **Keeping sessions (version open; D129).** Storing more than one session only when the player
-  asks for it (for example by pinning it), suitable access to older sessions, and an optional
-  comment on a session. v2 stays ephemeral (ux D67). Recorded in
-  [v3](versions/v3/README.md#keeping-sessions-candidates-not-committed), where they meet the
-  planned local persistence and review of earlier sessions; that is not a v3 placement.
-- **Rhythm through a Custom note density (version open; D175).** Rhythm ratios (how likely each
-  note value is, from the whole note to the sixteenth note), a rhythm editor (copy a bar's rhythm,
-  or enter one by hand) and a rhythm lock (the rhythm stays stable across the session, bent only a
-  little for tension and release), all reached by a new note-density value, Custom. Recorded in
-  [v3](versions/v3/README.md#rhythm-candidates-custom-note-density-candidates-not-committed);
-  that is not a v3 placement. Open: O100–O103.
-- **Pre-generating phrases at Idle (v3 candidate; D206).** Before Start, the app generates up to
-  4 look-ahead phrases in the background, so a session starts with time in hand and phrase 2 can
-  carry in from phrase 1 again at fast tempos, which v2 gives up at 240 BPM (D205). Recorded in
-  [v3](versions/v3/README.md#pre-generating-phrases-at-idle-candidate-not-committed). Open:
-  O107–O111.
+- **Rhythm ratios and the rhythm editor (v4 since D211; D175).** How likely each note value is,
+  from the whole note to the sixteenth note, and a rhythm editor (copy a bar's rhythm, or enter
+  one by hand), reached by a new note-density value, Custom. The rhythm lock, recorded with them,
+  is v3.2. Recorded in [v4](versions/v4/README.md#placed-here-proposed). Open: O100–O102.
 - **Tone.js for the backing (version open; D185).** Using the Tone.js audio library, mainly to add
   more accompaniment voices; v2 synthesizes its backing with plain Web Audio and bundles no audio
   library. An idea for later, not decided; more voices are v4's accompaniment with roles.
 - **Sequence writing with an up-front rhythm grammar (v4, v5 or v6; D210).** Writing whole
   sequences from requirements set before generation, for example "double beat 1 of every third
   measure". Beyond v3's embellishment weights, which stay preferences. Noted in
-  [v3](versions/v3/README.md#embellishment-flags-v3-scope-to-be-settled).
+  [v3](versions/v3/README.md#embellishment-flags).
 - **Cross-device review by export, then import (no earlier than v6; D128).** A player exports a
   phone session and reopens it for review on a larger screen. It serves P3. Recorded in
   [v5+](versions/v5-plus/README.md#candidates-not-committed).

@@ -126,8 +126,8 @@ a release event; it has no live home.
 | D111–D116, D118–D126 | Controller loss and reattachment, the 30 s rule, the starting note, the transposition check, the click that unlocks audio | §6, §7, §8 |
 | D117 | Blind and screen-reader users are not a target | [personas.md](../../personas.md#who-is-not-a-target) |
 | D127 | Context of use; no iPad in v2; wider browser support at v4 or v5 | [personas.md](../../personas.md#context-of-use), [roadmap](../../roadmap.md#engineering-carry-overs-not-tied-to-one-version) |
-| D128 | The phone's Review is the baseline; review candidates | §2, §7; [personas.md](../../personas.md#context-of-use), [v3](../../versions/v3/README.md#later-review-tooling-candidates-not-committed), [v5+](../../versions/v5-plus/README.md#candidates-not-committed), [roadmap](../../roadmap.md#candidates-not-committed) |
-| D129, D130 | Export by content, one action each; favorites and keeping sessions in v3 | §2, §7, §11, §13; [v3](../../versions/v3/README.md#favorites-v3-scope-to-be-settled) |
+| D128 | The phone's Review is the baseline; review candidates | §2, §7; [personas.md](../../personas.md#context-of-use), [v3](../../versions/v3/README.md#review-tooling), [v5+](../../versions/v5-plus/README.md#candidates-not-committed), [roadmap](../../roadmap.md#candidates-not-committed) |
+| D129, D130 | Export by content, one action each; favorites and keeping sessions in v3 | §2, §7, §11, §13; [v3](../../versions/v3/README.md#favorites) |
 | D131, D132, D134, D187 | Wake lock, asked for again after a drop; the count-in always clicks, at the click volume | §6 |
 | D133 | A staff-only session view in v5 | §2; [v5+](../../versions/v5-plus/README.md#settled-direction) |
 | D135–D141 | When a session can start and when it ends: generation failure, count-in, landscape, the staff shown and fitting | §4, §6, §7 |
@@ -142,23 +142,23 @@ a release event; it has no live home.
 | D169, D170 | The next session's phrase 1; leave the Review before starting | §4, §6, §7 |
 | D171 | The MusicXML export's final barline | §7 |
 | D172 | Neutral's gentle harmony and varied first-load arpeggios | [first-release master spec](../../first-release-master-spec.md), [generator architecture](../../generator-architecture.md), [generative process](../../generative-process.md) |
-| D174 | The chord-fit check leaves v2, a v3 nice-to-have | §9; [v3](../../versions/v3/README.md#end-of-measure-chord-fit-check-nice-to-have-not-committed) |
-| D175 | v3 rhythm candidates under Custom (O100–O103 open) | [v3](../../versions/v3/README.md#rhythm-candidates-custom-note-density-candidates-not-committed) |
+| D174 | The chord-fit check leaves v2, a v3 nice-to-have | §9; [v3](../../versions/v3/README.md#end-of-measure-chord-fit-check) |
+| D175 | v3 rhythm candidates under Custom (O100–O103 open) | [v3](../../versions/v3/README.md#rhythm-lock-and-mutation) |
 | D176, D177, D181, D182 | The settings-mutation flag: cadence, density step, one grade per setting, restored at the end | §5 |
 | D179 | Adaptive tempo pauses while the controller is away | §10 |
 | D183 | v2.1, v2.2 and v2.4 compacted into one release, v2.0 | §2, §11; [roadmap](../../roadmap.md) |
 | D184 | The silence timer around the starting note and a reattachment | §7, §8 |
 | D185 | The backing as built; Tone.js an idea for later | §6; [roadmap](../../roadmap.md#candidates-not-committed) |
 | D188 | The audio mix as built is final for v2.0 | [personas.md](../../personas.md#context-of-use); `ui_ux/` (ux Q31) |
-| D190, D192 | Profile switch from the check; a "Bluetooth" checkbox (candidates) | [v3](../../versions/v3/README.md#controller-connection-candidates-not-committed) |
+| D190, D192 | Profile switch from the check; a "Bluetooth" checkbox (candidates) | [v3](../../versions/v3/README.md#controller-connection-ideas) |
 | D191 | USB tested, Bluetooth MIDI best-effort; Android Chrome still to try | §8, §12 |
 | D194, D195, D197 | The machine measurements: main thread, cold latency, the playhead's 20 ms | §11 |
-| D196 | Stray controller notes; a pruning candidate | §9; [v3](../../versions/v3/README.md#stray-notes-from-controllers-candidates-not-committed) |
+| D196 | Stray controller notes; a pruning candidate | §9; [v3](../../versions/v3/README.md#stray-notes-from-controllers) |
 | D198 | The VISION accepted for v2.0; a rewrite later | [roadmap](../../roadmap.md#engineering-carry-overs-not-tied-to-one-version) |
 | D200, D203, D205 | The failure ladder: skipped retries, the carry-in allowance, time-aware cancellation, phrase 2 standalone at 240 BPM | §4 |
 | D202 | §11 items 4 and 12 aligned with what v2.0 ships | §11 |
 | D204 | Locale-independent candidate order (ISS-010, Resolved) | §11 item 3 |
-| D206 | Pre-generating phrases at Idle, a v3 candidate (O107–O111 open) | [v3](../../versions/v3/README.md#pre-generating-phrases-at-idle-candidate-not-committed) |
+| D206 | Pre-generating phrases at Idle, a v3 candidate (O107–O111 open) | [v3](../../versions/v3/README.md#pre-generating-phrases-at-idle) |
 | D162 | v2.0 records played notes without showing them | History: superseded by D183, which ships the played-notes review in v2.0 (§7) |
 | D166 | The v2 README's session start follows §6 | History: a correction |
 | D173, D180 | The real-hardware checks as a separate release, v2.4 | History: superseded by D183; the checks themselves are in §11 |

@@ -1,6 +1,7 @@
 # v4 — Accompaniment with Roles
 
-Status: direction (2026-09-25). Not yet specced. "v4+" is the user's placement.
+Status: direction (2026-09-25; the rhythm ratios and the rhythm editor moved here from v3
+2026-10-07, D211). Not yet specced. "v4+" is the user's placement.
 
 ## Settled direction
 
@@ -17,6 +18,17 @@ Status: direction (2026-09-25). Not yet specced. "v4+" is the user's placement.
   - The whole file is used: there is no preview, cutting or editing. Infinite Flow is not a DAW.
   - The user said it "shouldn't be too difficult" but gave no version. v4 is a proposed
     placement, after v3's played-motif seed.
+
+- **Rhythm ratios and the rhythm editor** _(moved from v3, D211; recorded 2026-10-03, D175)_.
+  - **Rhythm ratios:** the player sets how likely each note value is to appear, from the whole
+    note down to the sixteenth note.
+  - **Rhythm editor:** copy the rhythm of one of the bars, or enter a rhythm by hand.
+  - Both are reached through a new note-density value, **Custom** (working name). A mutation can
+    never move note density into Custom; while Custom is set, a mutation may alter the ratios.
+  - The rhythm lock recorded with them stays in v3.2, with Jam
+    ([v3](../v3/README.md#rhythm-lock-and-mutation)). Their full record is in
+    [v3](../v3/README.md#moved-to-v4-rhythm-ratios-and-the-rhythm-editor).
+  - Open: O100, O101, O102 ([register](../../open-questions.md#v3-rhythm-candidates-o100)).
 
 - **A software sound library (Tone.js, or a comparable one) for the system voices** _(owner,
   2026-10-01; proposed, to be settled by a spike at the start of v4)_.

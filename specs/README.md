@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.43
+Status: draft v0.45
 
 ## Status Snapshot
 
@@ -22,11 +22,28 @@ Status: draft v0.43
 - **Personas:** P1, the Curious Improviser (primary); P2, the Speed Builder; P3, the Fledgling
   Composer. A shared [context of use](personas.md#context-of-use) covers all three: a laptop or
   desktop in Chrome or Edge first, at music-stand distance, no click while playing.
-- **Next:** v3, player material and "my instrument", is direction with candidates, not committed
-  scope ([v3](versions/v3/README.md)); see the [roadmap](roadmap.md).
-- **Open:** 13 questions, none blocking anything planned: O47, O48 and O49 (later and
-  governance), O86 (favorites, v3), O100–O103 (v3 rhythm candidates) and O107–O111 (v3
-  pre-generation at Idle). See the [register](open-questions.md).
+- **Next: v3**, player material and "my instrument", in direction, not yet specced; its
+  release plan is settled (D211, D212, [v3](versions/v3/README.md#releases-d211)):
+  - **v3.0, storage:** local persistence, "my instrument", review of earlier sessions, favorites,
+    keeping sessions, plus pre-generating phrases at Idle and the stray-note filter;
+  - **v3.1:** embellishment flags and presets (the embellishment catalogue is not started);
+  - **v3.2:** Jam, the key and mode suggestion (a weighted draw when several answers fit), the
+    rhythm lock and its mutation option;
+  - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
+    likely to move or go;
+  - v3.0 is drafted for the owner's overall review: [persistence](versions/v3/persistence.md),
+    [kept sessions and favorites](versions/v3/kept-sessions.md), [my instrument](versions/v3/my-instrument.md),
+    [pre-generation](versions/v3/pre-generation.md), [stray notes](versions/v3/stray-notes.md);
+  - research done (D212): embellishment and mutation catalogues, key and mode estimation,
+    played-pattern recognition (in `docs/music/`); storage and Jam grounding (in
+    `specs/versions/v3/`);
+  - rhythm ratios and the editor moved to v4; the chord-fit check, review tooling and the two
+    controller-connection ideas dropped.
+- **Open:** 25 questions, none blocking: O10 (planner authority, for Jam), O47, O48 and O49 (later and governance), O86 (v3.0
+  favorites), O100–O102 (v4 rhythm) and O103 (v3.2 rhythm lock), O107–O111 (v3.0
+  pre-generation), O112–O116 and O125 (v3.2 Jam, v3.x learning), O118 (mutation list), O121 (Vary settings and the
+  key) and O122–O124 (v3.0 storage). O86 and O107–O111 carry recommendations to close.
+  See the [register](open-questions.md).
 - The snapshot this index kept through v2's design and build is archived verbatim at
   [archive/v2/readme-status-snapshot.md](archive/v2/readme-status-snapshot.md).
 

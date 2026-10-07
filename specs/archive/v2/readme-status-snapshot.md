@@ -40,13 +40,13 @@
   in a DAW), or both as two files, replacing the opt-in played-notes track. It opened **O86**
   (what makes a favorite "exported"). v2 stays ephemeral; pinning sessions, access to older
   sessions and session comments are candidates, version open
-  ([v3](../../versions/v3/README.md#keeping-sessions-candidates-not-committed)).
+  ([v3](../../versions/v3/README.md#keeping-sessions)).
 - **Favorites move to v3; one export action per content (2026-09-28, D130)**, from the owner via
   `ux-writer` (ux D68, ux D69). A v2 scope change: the review has no favorites, every export
   covers the whole session, and starting a new session from the review asks no confirmation.
   The review has one export action for the generated notes (MusicXML or MIDI) and one for the
   played notes (MIDI), one file each. Favorites are v3 scope, to be settled there, and **O86**
-  moves with them ([v3](../../versions/v3/README.md#favorites-v3-scope-to-be-settled)). P3's C1 is
+  moves with them ([v3](../../versions/v3/README.md#favorites)). P3's C1 is
   served in v2 by looking back at the last session. The v2 master spec became v1.7.
 - **Wake lock, count-in click, staff-only view (2026-09-28, D131–D133)**, from the owner via
   `ux-writer`'s unit-2 session review (ux D72–D74). The app holds a screen wake lock for the whole
@@ -203,7 +203,7 @@
   a rhythm editor and a rhythm lock, all reached by a new note-density value, Custom; the
   settings-mutation flag never moves density into Custom, may alter the ratios under it, and
   cannot durably alter a locked rhythm
-  ([v3](../../versions/v3/README.md#rhythm-candidates-custom-note-density-candidates-not-committed)).
+  ([v3](../../versions/v3/README.md#rhythm-lock-and-mutation)).
   Opened **O100–O103**.
 - **Four v2.1/v2.2 questions answered (2026-10-03, D176–D179)**, by the owner. **O77:** the
   settings-mutation flag mutates every 2 to 4 phrases at random, seeded so a session replays, and
@@ -258,7 +258,7 @@
   try, not blocking (D191). **O105 closed:** the real-program export checks (MuseScore, a MIDI
   tool, a DAW) do not block the v2.0 tag and are validated later as a v2.0.x hand-check note; the
   other real-hardware checks still block it (D193). Two controller-connection candidates, not
-  committed, version open, are recorded in [v3](../../versions/v3/README.md#controller-connection-candidates-not-committed):
+  committed, version open, are recorded in [v3](../../versions/v3/README.md#controller-connection-ideas):
   switching profile from the transposition check (D190), and a voluntary "Bluetooth" checkbox in
   the connection sheet giving a little more timing tolerance, which needs a design pass (D192).
   Still open for the v2.0 gate: the VISION sign-off, and the real-hardware checks not yet run.
@@ -315,7 +315,7 @@
   for v2** and turned down a look-ahead-only budget of 0.675 s (D205; master spec v1.38 §4,
   build plan v0.13 chunk 21). The owner's proposal for the next version, **pre-generating up to 4
   look-ahead phrases at Idle before Start**, is recorded as a
-  [v3 candidate](../../versions/v3/README.md#pre-generating-phrases-at-idle-candidate-not-committed)
+  [v3 candidate](../../versions/v3/README.md#pre-generating-phrases-at-idle)
   (D206), opening **O107–O111**. `rule_dropped_attempt_cancelled` is approved as its own STABLE
   rule, with `module_generation_worker_cancellation`, the rule joining the CONTRACT, for
   `documentalist` (D207).
@@ -323,7 +323,7 @@
   a controller sends while the fingers change position are a generic matter: nothing is built for
   one device, v2 changes nothing, and acknowledgement needs no change (they light nothing unless
   one has an expected note's exact pitch). Recorded with
-  [v3](../../versions/v3/README.md#stray-notes-from-controllers-candidates-not-committed), version open:
+  [v3](../../versions/v3/README.md#stray-notes-from-controllers), version open:
   a candidate option pruning short notes from the played-notes export, and a note that the
   chord-fit check likely needs a minimum note duration first. Nothing newly opened.
 - **Timeline** ([roadmap](../../roadmap.md)):

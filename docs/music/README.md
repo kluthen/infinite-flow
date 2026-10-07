@@ -32,6 +32,15 @@ These three documents are implementation policy derived from the [master specifi
 - [Register-window research](Saxophone%20profile%20ranges/register-windows.md): derivation, deterministic Varying policy, and labelled superseded placeholders.
 - [Notation-transposition research](Saxophone%20profile%20ranges/notation-transposition.md): concert-to-written transforms and spelling evidence.
 
+## v3 research (2026-10-07)
+
+- [Embellishment catalogue](embellishment-catalogue.md): decorating figures and ornaments, what the generator writes today and how often, groundwork for the v3 embellishment flags.
+- [Mutation catalogue](mutation-catalogue.md): rhythm mutations and motif-development changes, ranked by distance, groundwork for Jam's allowed-mutation list.
+- [Key and mode estimation](key-and-mode-estimation.md): methods for guessing key and mode from a short melody, and the proposed ranking and seeded draw for Jam's suggestion.
+- [Played-pattern recognition](played-pattern-recognition.md): musicians' words, game and system precedent, and matching approaches for played signals.
+
+These are research, not settled policy: their proposals wait for the v3 spec sessions. Their sources are in [research sources](research-sources.md) and their terms in the [lexicon](lexicon.md).
+
 ## Shared Principles
 
 - A generated result is a short phrase, not a sequence of independently random bars.

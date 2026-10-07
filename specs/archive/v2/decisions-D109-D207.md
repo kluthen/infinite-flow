@@ -173,7 +173,7 @@
   sessions, which is where review next evolves; the owner gave no version, so this is not a v3
   placement. The expected-versus-played idea is bounded by the permanent constraint of
   master-spec §2: no wrong-note signal, grading or scoring in any view. See
-  [v3](../../versions/v3/README.md#later-review-tooling-candidates-not-committed). (3) **Cross-device
+  [v3](../../versions/v3/README.md#review-tooling). (3) **Cross-device
   review by export, then import**, placed no earlier than v6 (the owner: "a maybe, but not prior
   v6", "mostly composer stuff", so it serves P3's C1). No version plans it today: v4's whole-file
   seed feeds a continuation, not a review. See
@@ -211,7 +211,7 @@
   owner's ideas are recorded as candidates, version open, not committed: storing more than one
   session only when the player asks (for example by pinning it), suitable access to older
   sessions, and an optional comment on a session. They sit next to D128's review-tooling
-  candidates in [v3](../../versions/v3/README.md#keeping-sessions-candidates-not-committed), where they
+  candidates in [v3](../../versions/v3/README.md#keeping-sessions), where they
   meet v3's planned local persistence and review of earlier sessions. No open question is
   registered for their placement, following D127's and D128's precedent.
 - **D130 (2026-09-28): favorites move from v2 to v3; the review offers one export action per
@@ -226,7 +226,7 @@
   favorites-scope rules (played notes of the favorite phrases, a held note stopping at its
   phrase's end). Favorites are **v3 scope, to be settled there**, not a candidate with an open
   version; D88's defaults are kept in
-  [v3](../../versions/v3/README.md#favorites-v3-scope-to-be-settled) as a starting point, not binding.
+  [v3](../../versions/v3/README.md#favorites) as a starting point, not binding.
   **O86** (what makes a favorite "exported") stays open, re-scoped to v3. P3's C1 is served in
   v2 by looking back at the last session; marking is v3. C2 is served in v2 by exporting the
   whole session; exporting only the marked material comes with marking. O84's proposed default
@@ -1024,7 +1024,7 @@
   already names that profile in its copy ("choose the E-flat alto saxophone instrument profile
   instead"); the idea is to offer that switch as an action in the check itself, so the player
   changes profile without leaving the connection sheet. Not committed, version open; recorded with
-  the v3 candidates ([v3](../../versions/v3/README.md#controller-connection-candidates-not-committed)).
+  the v3 candidates ([v3](../../versions/v3/README.md#controller-connection-ideas)).
 - **D191 (2026-10-06): O71 closed: USB is the tested path for v2.0; Bluetooth MIDI is
   best-effort.** The product owner's answer to **O71**, with its proposal, after trying the
   reference breath controller (Travel Sax 2) over Bluetooth LE in Debian's Chrome on their Linux
@@ -1043,7 +1043,7 @@
   (bluetooth) in the device dialog that will extend grace period a slight bit." The player ticks
   it when the controller is connected over Bluetooth, and the app then gives played notes a little
   more timing tolerance. Not committed, version open; recorded with the controller-connection
-  candidates ([v3](../../versions/v3/README.md#controller-connection-candidates-not-committed)). It
+  candidates ([v3](../../versions/v3/README.md#controller-connection-ideas)). It
   needs a design pass first: it touches the expected-note timing window, the latency compensation
   of the played onset, and v2's stance that there is no player-facing calibration step.
 - **D193 (2026-10-06): O105 closed: the real-program export checks do not block the v2.0 tag.**
@@ -1107,7 +1107,7 @@
     duration for a played note to count is a likely prerequisite. Not committed.
   - A new candidate, not committed, version open (v3 or later): an option on the played-notes
     export that prunes notes shorter than a threshold
-    ([v3](../../versions/v3/README.md#stray-notes-from-controllers-candidates-not-committed)).
+    ([v3](../../versions/v3/README.md#stray-notes-from-controllers)).
   Master spec §9; v3 direction.
 - **D197 (2026-10-06): O106 closed: the playhead's 20 ms is measured to the moment its measure
   changes; item 6 is met.** The product owner's answer to **O106**, with its proposal ("let's go
@@ -1295,7 +1295,7 @@
   - It is not v2's prewarm (`module_generation_prewarm`), which only warms the generator's rhythm
     memo for the current settings and produces no phrase.
   - Opened O107–O111, with proposals, in the [register](../../open-questions.md#v3-pre-generation-at-idle-o107)
-    and recorded in [v3](../../versions/v3/README.md#pre-generating-phrases-at-idle-candidate-not-committed).
+    and recorded in [v3](../../versions/v3/README.md#pre-generating-phrases-at-idle).
 - **D207 (2026-10-07): `rule_dropped_attempt_cancelled` becomes its own STABLE rule and joins the
   CONTRACT.** The product owner's approval. `rule_dropped_attempt_cancelled` is promoted to STABLE
   as a rule of its own, beside `rule_session_generation_failure_ladder`, together with

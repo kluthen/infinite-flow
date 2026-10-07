@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.39
+Status: draft v2.44
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D211**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D216**.
 
 ## Decision Log
 
@@ -60,6 +60,95 @@ fact in the live documents (see the [archive index](archive/README.md) and
   more built-in presets, and presets the player creates and saves with local persistence. Also
   recorded, as a candidate for v4, v5 or v6: sequence writing with a rhythm grammar whose
   requirements are set before generation (for example, doubling beat 1 of every third measure).
-  Recorded in [v3](versions/v3/README.md#embellishment-flags-v3-scope-to-be-settled) and the
+  Recorded in [v3](versions/v3/README.md#embellishment-flags) and the
   [roadmap](roadmap.md#candidates-not-committed). No question was opened; the spec session will
   open them.
+
+- **D211 (2026-10-07): v3 is split into releases; two items move to v4; four are dropped.** The
+  owner's plan for v3, at the start of the v3 spec session:
+  - **v3.0, storage:** everything related to storage — local persistence, "my instrument",
+    review of earlier sessions and favorites. Presets are saved too but are excluded from v3.0.
+  - **v3.0.1, quick follow-ups:** pre-generating phrases at Idle (D206), the stray-note filter
+    with its export-pruning idea (D196), and keeping sessions (D129). All three were candidates;
+    they are now v3 scope.
+  - **v3.1:** embellishment flags and presets (D210).
+  - **v3.2:** Jam (D209) and, "if that's what I believe it is", the key and mode suggestion
+    (O119 checks the description against the owner's intent); with the rhythm lock and a mutation
+    option carrying "a list of allowed mutations" (O118), designed with Jam.
+  - **v3.x:** learning from positive signals stays for now, "would be great, but probably
+    difficult to implement"; it will probably be removed entirely or moved to a later version.
+  - **Moved to v4:** the rhythm editor and the rhythm ratios (the "fine tuning of rhythm"), with
+    the Custom note density that reaches them (D175); O100–O102 become v4 questions.
+  - **Dropped entirely:** the two controller-connection ideas (switching profile from the check,
+    D190; the "Bluetooth" checkbox, D192), the review tooling (D128) and the end-of-measure
+    chord-fit check (D174; its D108 definition stays in the v2 master spec §9 as the record of a
+    design never built). Bluetooth MIDI stays best-effort (D191).
+
+  Consequences recorded with it: the stray-note filter now lands before Jam needs it; learning
+  loses the chord-fit check, whose definition gave it its main positive signal; the rhythm lock no
+  longer needs the Custom note density (proposed). Opened O117 (v3.0's review of earlier sessions
+  before keeping sessions, v3.0.1), O118 and O119. Recorded in [v3](versions/v3/README.md#releases-d211),
+  the [v4 folder](versions/v4/README.md) and the [roadmap](roadmap.md).
+
+- **D212 (2026-10-07): v3.0.1 merges into v3.0; the key and mode suggestion is confirmed, with a
+  weighted draw; mutations get a researched catalogue; played signal patterns join learning.**
+  The owner's answers on the D211 plan:
+  - **v3.0.1 merges into v3.0** ("v3.0.1 could very well be just included into v3.0"). v3.0 now
+    holds local persistence, "my instrument", review of earlier sessions, favorites, keeping
+    sessions, pre-generating phrases at Idle and the stray-note filter. Closes **O117**: keeping
+    sessions ships with the review of earlier sessions that needs it.
+  - **The key and mode suggestion is what the owner meant** ("we're mostly agreeing"). Closes
+    **O119**. One change: when several answers fit, the app no longer stays silent; it rates
+    them and "casts a dice", a weighted draw among the most probable ("it's a jam so, in the end
+    it's only so much important"). The draw is seeded (proposed) to keep sessions reproducible;
+    whether the player still confirms the drawn answer stays in O113.
+  - **O118 stays open:** the owner wants a researcher to build the list of mutations, as for the
+    embellishments, before deciding.
+  - **Learning gains a tie-in: recognising played signal patterns** ("cues"), such as a "now it's
+    your turn" or an "I disapprove" figure the player plays and the app recognises. The owner:
+    mandatory for the endgame, "but it's maybe too early, so we will see". It stays with learning
+    in v3.x. An "I disapprove" cue is a negative signal, which the positive-only proposal did not
+    allow; opened **O120**.
+  - **The UI/UX todo list will be reworked** against v3's needs once this spec session is
+    finished (the owner), which covers the chord-fit presentation unit D211 orphaned.
+  - **Where research goes:** music research for v3 lives in `docs/music/`, the project's
+    established home for music evidence, with its sources added to
+    [research-sources.md](../docs/music/research-sources.md) and new terms to the
+    [lexicon](../docs/music/lexicon.md); research into this codebase lives with the version, in
+    `specs/versions/v3/`. Launched the same day: the embellishment catalogue, the mutation
+    catalogue, key and mode estimation, played-pattern recognition, storage grounding and Jam
+    grounding.
+
+- **D213 (2026-10-07): a cue is a specific bar the player plays, never displayed, that triggers an
+  effect; an explicit cue may be negative.** Closes **O120**. The owner: the cue is "the player
+  playing a specific (not displayed) bar that should trigger an effect on the system", for example
+  approval, disapproval, or "that's my contribution, now generate the follow-up". The proposed
+  reading stands: implicit signals stay positive-only and a miss never counts; a cue is the player
+  deliberately judging or steering, never the app judging the player, so a disapproval cue is
+  allowed inside the "no wrong-note signal, grading or scoring" constraint. Placement unchanged:
+  v3.x, "maybe not even v3 at all". The hand-off cue would be one way to end a Jam doodle (O112);
+  without cues, v3.2's doodle needs another way to end.
+
+- **D214 (2026-10-07): the spec's term for D213's cue is "played signal".** A spec-writer
+  terminology call, for the owner's overall review. "Cue" is the musicians' word, but the app
+  already uses it for the session cue row, where the app speaks to the player (starting-note line,
+  count-in, notices); calling the player's message a cue too would mix the two directions. Found
+  by the [played-pattern research](../docs/music/played-pattern-recognition.md), which also
+  recommends, for Jam's "your turn" (O112), a natural marker such as a pause or a fixed length
+  over a played signal, keeping played signals for meanings music has no marker for, such as "I
+  disapprove". It notes that a played signal at Idle could start a session through the starting
+  note (v2 master spec §6), a conflict any design must avoid.
+
+- **D215 (2026-10-07): a Jam doodle ends on a silent bar or after four bars of notes; the generator
+  gets at least one bar.** Answers the main part of O112. The owner: the most probable signals for
+  the Jam generator to start are "either a silent bar or a full phrase completed (so 4 bar of
+  notes)", and "we will allow the generator at least one bar worth of time to do its generation
+  (hopefully that's enough to begin something)". So a doodle is one to four measures long; it ends
+  when the player leaves a whole measure silent, or when four measures have been played; then at
+  least one measure passes before the first generated phrase sounds. This replaces spec-writer's
+  earlier proposal of one or two measures, and agrees with the played-pattern research (D214): a
+  natural marker, not a played signal. Consequences, left open in O112: a "silent bar" needs a
+  measure grid while the player doodles, so capture runs over a pulse (a click or the backing) at
+  a tempo, which v2's Idle does not have; and one measure is 1 s at 240 BPM, about the time v2's
+  ladder keeps for a single standalone attempt (D205), so Jam's first generation has to fit a
+  budget that tight, or the wait grows with the tempo.
