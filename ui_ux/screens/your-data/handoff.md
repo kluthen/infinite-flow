@@ -90,7 +90,9 @@ sheet-backdrop
   what you want to be sure to keep." While being checked: "Checking…". When the browser can't say,
   the second.
 - **Delete everything:** `btn btn-error` "Delete everything", shown in every state but an
-  outdated tab, which deletes nothing until it is reloaded (see States).
+  outdated tab, which deletes nothing until it is reloaded (see States). A visit started from the
+  defaults after a failed read is an outdated tab too once data written by a newer version is
+  known.
 - **`Done`:** `btn btn-primary`, closes the sheet.
 
 ### Confirmations
@@ -162,18 +164,27 @@ The second paragraph is always "This can't be undone."
   remembered.", "No sessions kept yet." and "None kept."; `Delete every session` and
   `Delete all played notes` absent; `Delete everything` shown.
 - **Saving off this visit:** an outdated tab, or a visit started from the defaults because the
-  saved data couldn't be read. Under the intro, `inline-alert alert-notice`, then Space used and
-  Protection; the other five sections are absent.
+  saved data couldn't be read, or not within the start-up wait. Under the intro,
+  `inline-alert alert-notice`, then Space used and Protection; the other five sections are
+  absent.
   - *Outdated tab:* "A newer version of the app saved this data, so it isn't listed here, and
     nothing can be deleted until the page is reloaded. Reload the page to see it."
     `sheet-actions-destructive` is absent: an outdated tab saves and deletes nothing and offers
     no deletion of any kind, and the reload comes first (master spec §4.3).
-  - *Becoming outdated while the sheet is open* (a newer version writes): the Overview takes the
-    outdated tab's form in place; an open Confirmation gives way to it, deleting nothing, and
-    focus goes to `Done`.
-  - *Data couldn't be read:* "Your saved data couldn't be read in this visit, so it isn't listed
-    here. Reload the page to try again, or delete everything to start afresh."
-    `Delete everything` follows, the way back to a working app if the data is damaged for good.
+  - *Outdated tab, in a visit started from the defaults* (the read failed or was too slow, and
+    data written by a newer version is known, at load or since): "Your saved data couldn't be
+    read in this visit, so it isn't listed here. A newer version of the app has also saved data
+    on this device, so nothing can be deleted until the page is reloaded. Reload the page to use
+    the newer version." `sheet-actions-destructive` is absent, as in any outdated tab (master spec
+    §4.4).
+  - *Becoming outdated while the sheet is open* (a newer version writes, or a read that finished
+    late reveals its data): the Overview takes the matching outdated form in place, losing
+    `Delete everything` if it had it; an open Confirmation gives way to it, deleting nothing, and
+    focus goes to `Done`. A deletion already running is not interrupted.
+  - *Data couldn't be read* (failed or too slow, nothing newer known): "Your saved data couldn't
+    be read in this visit, so it isn't listed here. Reload the page to try again, or delete
+    everything to start afresh." `Delete everything` follows: the way out when reloading does not
+    help, whether the data is unreadable or only slow to read.
 - **Confirmation:** one of four, above.
 - **Loading:** the space and protection lines while measured; a confirming action's
   `is-loading` while its deletion runs.

@@ -13,7 +13,7 @@ flowchart LR
   %% v3 new
   L0["Page load: saved settings read before the first draw, at most the start-up wait"] -->|"Read: the workspace is drawn with the saved values"| A
   %% v3 new
-  L0 -->|"Unreadable, unusable or too slow: drawn from the defaults, nothing saved, the unusable-data notice (flows/saved-data/)"| A
+  L0 -->|"Unreadable, unusable or too slow: drawn from the defaults, nothing saved, the unusable-data notice, or the outdated-tab notice when data from a newer version is known too (flows/saved-data/)"| A
   A[phrase-workspace: empty] -->|Edit musical controls| A
   A -->|Select instrument or musical profile| A
   A -->|Generate complete phrase| B[Build complete generation request]

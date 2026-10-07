@@ -88,6 +88,13 @@ v3.0, after the units above:
   links it (spec D223's change), so nothing else waits.
 - **Q68:** closed by ux D221 (spec D223): an outdated tab offers no deletion of any kind;
   applied to the kept-sessions, review and saved-data flows and their screens.
+- **spec D225** (newer data wins over a failed read): applied by ux D222 to `flows/saved-data/`,
+  `screens/your-data/`, `flows/kept-sessions/`, the load lines of `flows/generate-phrase/` and
+  `screens/phrase-workspace/`, and `strategy.md`. Not yet passed by `ux-critic`; a narrow pass on
+  those edits is due before the owner's next review of v3.0.
+- **Q69** (`open-questions.md`), for `spec-writer`: whether a visit with unreadable saved data
+  offers the review's in-memory deletions; §4.4 says `Delete everything` only, the design offers
+  them. Apply the answer to `flows/kept-sessions/` and `screens/last-session-review/`.
 - **Deferred inside v3.0's spec, no design needed now:** the stray-note threshold and a stricter
   range check for my instrument (master spec §14) are build-plan measurements; a stricter range
   rule, if one comes, only changes the refusal's wording.

@@ -71,3 +71,16 @@ through the header of [`decisions.md`](decisions.md).
   alternative, a deletion that only hides the session for this visit, would show the player a
   result the device does not hold. Pin, favorites and comments already apply in memory only
   while saving is off, which the notice says.
+- **Q69 — In a visit whose saved data couldn't be read, are the review's in-memory deletions
+  offered?** For `spec-writer`. Master spec v1.4 §4.4 says `Delete everything` "is the only
+  deletion it offers", and spec D224 records that as what the design already does. It is not
+  quite: such a visit holds the session that just ended in memory, as after a failed save
+  (`flows/kept-sessions/handoff.md`, Keeping at a Session's End), and that session's review
+  offers `Delete session` (removing it from memory) and, once `Keep my played notes` is turned on
+  there, `Delete played notes` (`screens/last-session-review/handoff.md`, States;
+  `flows/kept-sessions/handoff.md`, Deleting a Session). Neither touches anything kept on the
+  device. Recommended: absent in such a visit, as in an outdated tab (ux D221 removed them there,
+  the session held in memory included), so that §4.4's wording holds literally and the two
+  saving-off visits differ only by `Delete everything`. The alternative, keeping them because
+  they delete nothing kept, needs §4.4 to say "the only deletion of saved data". Not applied
+  until `spec-writer` settles it. (Raised with ux D222.)

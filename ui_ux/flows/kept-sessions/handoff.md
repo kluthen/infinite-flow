@@ -181,7 +181,9 @@ opacity transition (`motion.md`).
 
 A tab a newer version has outdated saves and deletes nothing, and offers no deletion of any kind
 (master spec §4.3); the workspace's notice and its `Reload` are the way forward
-(`flows/saved-data/handoff.md`, Notices). From the moment the tab is outdated:
+(`flows/saved-data/handoff.md`, Notices). A visit started from the defaults after a failed or
+too-slow read is an outdated tab too, from the moment data written by a newer version is known
+(master spec §4.4). From the moment the tab is outdated:
 
 - **The session list** has no `Delete` on any row; a row keeps `Pin` or `Unpin` when it has one
   (a row saved by a newer version has neither, so it has no `session-row-actions`). A row whose
@@ -192,10 +194,11 @@ A tab a newer version has outdated saves and deletes nothing, and offers no dele
   played notes are kept, and turning it off opens no confirmation.
 - **Pin, Unpin, favorites and the comment** work as usual, in memory only for the visit, as the
   notice says. `Your data` offers no deletion either (`screens/your-data/`, States).
-- **When the tab becomes outdated while the page is open** (a newer version writes), the deletion
-  buttons leave at that moment, as the notice appears. A deletion confirmation open then closes,
-  deleting nothing. Focus that was on a button that left, or in that confirmation, goes to
-  `review-title` in a review and to the list's title in the list.
+- **When the tab becomes outdated while the page is open** (a newer version writes, or a read
+  that finished after the start-up wait reveals its data), the deletion buttons leave at that
+  moment, as the notice appears or takes its outdated wording. A deletion confirmation open then
+  closes, deleting nothing. Focus that was on a button that left, or in that confirmation, goes
+  to `review-title` in a review and to the list's title in the list.
 
 ## Deletions Made Elsewhere
 

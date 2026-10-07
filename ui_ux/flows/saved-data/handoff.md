@@ -36,15 +36,26 @@ in that time); the tempo a
 Rising-tempo session reached; pre-generated phrases; the export scope; `Include very short notes`.
 
 **Saving is off for the whole visit** in an outdated tab (from the moment it is outdated) and in
-a visit started from the defaults because the saved data couldn't be read (see Load). Every save
+a visit started from the defaults because the saved data couldn't be read, or not within the
+start-up wait (see Load). Every save
 above is then skipped: the app keeps working in memory, and the notice already showing says so.
 A session ending in such a visit is not saved; its review's keep line reads as for a failed save.
 An outdated tab also deletes nothing and offers no deletion of any kind: Your data has no
 `Delete everything` (the reload comes first), the session list and the review offer no `Delete`,
 `Delete session` or `Delete played notes`, and turning `Keep my played notes` off there changes
 it for the visit only and opens no confirmation (`flows/kept-sessions/handoff.md`, In an Outdated
-Tab). A visit started from the defaults keeps `Delete everything`, as the way back from data
-damaged for good (`screens/your-data/`, States).
+Tab). A visit started from the defaults keeps `Delete everything`, the way out when reloading
+does not help, whether the data is unreadable or only slow to read (`screens/your-data/`,
+States), until data written by a newer version is known to exist.
+
+**Newer data wins over a failed read.** A tab is outdated from the moment data written by a newer
+version is known to exist, whether the saved data was read or not: found at load, revealed by a
+read that finished after the start-up wait, or written by a newer version while the tab is open.
+A visit started from the defaults becomes an outdated tab in every respect at that moment: its
+`Delete everything` goes with every other deletion, an open deletion confirmation closes
+deleting nothing, and its notice takes the outdated tab's wording for a visit started from the
+defaults (Notices). No deletion starts once newer data is known; one already running is not
+interrupted, and its outcome is told as usual (master spec §4.4).
 
 **Asking for protection.** At the first pin, favorite or saved instrument of each visit, while
 the storage is not already protected, the app asks the browser to make it persistent. Nothing is
@@ -60,11 +71,15 @@ flowchart TD
   READ -->|Read within the start-up wait| CHECK[Check each saved value on its own]
   CHECK -->|Data written by a newer version| NEWER["Use what can be read; saving off; outdated-tab notice"]
   CHECK -->|Otherwise| OK["Use the saved values; an invalid one loads as its default, silently"]
-  READ -->|"Read fails, or start-up wait ends first"| BAD["Start from the defaults, in memory; saving off; unusable-data notice"]
+  READ -->|"Read fails, or start-up wait ends first"| BAD["Start from the defaults, in memory; saving off"]
+  BAD -->|"Data written by a newer version also known"| BADNEWER["Outdated tab: no deletion of any kind; outdated-tab notice, defaults wording"]
+  BAD -->|Otherwise| BADONLY["Delete everything the only deletion in Your data; unusable-data notice"]
+  BADONLY -->|"Later in the visit, data written by a newer version becomes known"| BADNEWER
   DEF --> DRAW
   NEWER --> DRAW
   OK --> DRAW
-  BAD --> DRAW
+  BADNEWER --> DRAW
+  BADONLY --> DRAW
   DRAW["phrase-workspace drawn in its load state, Empty: saved theme applied, controls at their loaded values; nothing generated until the player asks"]
 ```
 
@@ -73,7 +88,13 @@ flowchart TD
   default); the workspace is then drawn once, already in its loaded theme and values. No control
   changes value after it is drawn.
 - **A read that finishes after the wait** is ignored for that visit: the visit keeps its
-  defaults and saving stays off. `Reload` in the notice tries again.
+  defaults and saving stays off. `Reload` in the notice tries again. The one thing such a read
+  still changes: if it reveals data written by a newer version, the tab becomes outdated (see
+  Newer data wins over a failed read, above).
+- **Newer data with a failed read at load.** A read can fail and still make a newer version
+  known, for example when the database refuses to open because a newer version has upgraded it.
+  The visit starts from the defaults, saving off, as for any failed read, and is an outdated tab
+  from its first frame: no deletion anywhere, the outdated-tab notice in its defaults wording.
 - **Each value is checked on its own:** unknown or no longer valid, it loads as that setting's
   default; every other value is kept. No notice. A saved instrument selection naming my
   instrument when my instrument cannot be loaded falls back to the default profile. My instrument
@@ -96,13 +117,15 @@ Drawn in `app-notice-row`, at the top of `layout-workspace` before `score-panel`
 | --- | --- | --- | --- | --- |
 | Save failed | A save other than a session's own fails for any cause but full storage | "Something couldn't be saved on this device. The app keeps working, but this change may be lost when the page closes." | `Dismiss` | Until dismissed or the page closes. |
 | Storage full | Any save, a session's own included, is refused because storage is full | "This device has no room left for the app's data, so something couldn't be saved. Deleting sessions you no longer need frees space." | `Your data`, `Dismiss` | Until dismissed or the page closes. |
-| Outdated tab | Data written by a newer version is found at load, or a newer version writes while this tab is open | "A newer version of Infinite Flow has saved data on this device. Reload this page to use it; until then, nothing here is saved." | `Reload` | Until the page reloads. |
+| Outdated tab | Data written by a newer version is known to exist: found at load, revealed by a read that finished after the start-up wait, or written by a newer version while this tab is open | Saved data read: "A newer version of Infinite Flow has saved data on this device. Reload this page to use it; until then, nothing here is saved." Visit started from the defaults after a failed or too-slow read: "Your saved data couldn't be read, and a newer version of Infinite Flow has saved data on this device. This visit started from the defaults and saves nothing. Reload this page to use the newer version." | `Reload` | Until the page reloads. |
 | Unusable data | The saved data couldn't be read at load, or not within the start-up wait | "Your saved data couldn't be read, so this visit started from the defaults and saves nothing. Reloading may fix it." | `Reload` | Until the page reloads. |
 
 - **One notice at a time.** Save failed and Storage full are one save-problem notice in two
   wordings: a new failure while it shows switches it to the latest cause's wording in place, never
   adds a second. Outdated tab and Unusable data replace a save-problem notice. Unusable data, set
-  at load, is never replaced (with saving off, nothing else can arise).
+  at load, gives way to one notice only: the outdated tab's defaults wording, in place, when data
+  written by a newer version becomes known later in the visit (with saving off, nothing else can
+  arise). Outdated tab is never replaced.
 - **After `Dismiss`,** the save-problem notice comes back only when a save fails again after a
   save has succeeded since; a run of refusals with no success between them shows it once.
 - **A session's own save** that fails is told by the review's keep line ("Not saved on this
@@ -113,7 +136,10 @@ Drawn in `app-notice-row`, at the top of `layout-workspace` before `score-panel`
   save happens during a session) is held and shown when the session ends, as the review opens or
   the workspace returns to idle. A notice already showing at Start stays, unchanged and in place,
   for the whole session; its buttons take `btn`'s disabled look, like every control, and become
-  enabled again at the session's end.
+  enabled again at the session's end. So an unusable-data notice showing at Start keeps its
+  wording until the session ends, even when a newer version is detected during it, and takes the
+  outdated tab's defaults wording then; the tab is outdated from the detection on, and the review
+  that opens offers no deletion.
 - **No focus, no announcement.** A notice appearing, changing wording or leaving moves no focus;
   `app-notice` is not a live region and has no `role="alert"`. It appears and leaves with no
   animation.
@@ -143,6 +169,7 @@ flowchart TD
   CP -->|"Cancel, Escape, backdrop, Close"| OV
   CK -->|"Keep them, Escape, backdrop, Close"| OV
   CE -->|"Cancel, Escape, backdrop, Close"| OV
+  CS & CP & CK & CE -->|"The tab becomes outdated: nothing deleted, focus to Done"| OV
   CE -->|"Delete everything: done"| RELOAD["Page reloads into its first visit"]
   CS -->|Deletion fails| CS
   CP -->|Deletion fails| CP

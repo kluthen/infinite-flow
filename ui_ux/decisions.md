@@ -380,3 +380,34 @@ leaves open; they are listed together in Q67 for `spec-writer`.
   outdated form in place). The focus rule after a row's deletion drops "that row's `Delete` when
   it cannot be opened", a case that can no longer occur. Pin, unpin, favorites and the comment
   still work in memory only, unchanged.
+- **D222 — Newer data wins over a failed read (2026-10-07; applies spec D225, master spec v1.4
+  §4.4).** Checked, no change needed: the unusable-data notice already tells the player, outside
+  a running session, that the saved data couldn't be read, that the visit saves nothing and that
+  reloading may fix it; a read slower than the start-up wait is already treated as a failed one,
+  `Delete everything` included; no copy calls the data "damaged" (the reason given in
+  `screens/your-data/` and `flows/saved-data/` is reworded from "damaged for good" to "the way out
+  when reloading does not help, whether the data is unreadable or only slow to read"). Changed:
+  the old rule "Unusable data, set at load, is never replaced" goes. A visit started from the
+  defaults after a failed or too-slow read becomes an outdated tab in every respect the moment
+  data written by a newer version is known to exist: found at load (for example a database a
+  newer version upgraded, refusing to open), revealed by a read that finished after the start-up
+  wait, or written by a newer version while the tab is open. Its `Delete everything` goes with
+  every other deletion (ux D221's In an Outdated Tab rules apply as written: an open deletion
+  confirmation closes deleting nothing, focus to `Done` in Your data). Settled here, as a minor
+  design issue (D119's standing rule): **which notice shows** — the outdated-tab notice, in a
+  second wording for a visit started from the defaults: "Your saved data couldn't be read, and a
+  newer version of Infinite Flow has saved data on this device. This visit started from the
+  defaults and saves nothing. Reload this page to use the newer version." It replaces the
+  unusable-data notice in place (held to the session's end if detected during one, like any
+  notice), and is used from the first frame when both are found at load. Rejected: keeping the
+  unusable-data notice alone (it would leave the missing `Delete everything` unexplained and not
+  ask for the reload as an outdated tab's notice must, §4.3); switching to the plain outdated-tab
+  notice (it would leave the reset controls unexplained and drop §4.4's "couldn't be read"). Your
+  data's sheet notice gets the matching third wording. Also settled: no deletion starts once
+  newer data is known; one already running is not interrupted and its outcome is told as usual.
+  Applied to `flows/saved-data/` (handoff: Saving off, a new "Newer data wins" paragraph, the
+  load diagram, the late read, the notices table and one-at-a-time rule, the session-hold rule,
+  the Your Data diagram; intent), `screens/your-data/` (handoff and intent),
+  `flows/kept-sessions/handoff.md` (In an Outdated Tab), `flows/generate-phrase/handoff.md` and
+  `screens/phrase-workspace/handoff.md` (the notice at load), and `strategy.md` (Edge-Case
+  Policy). Logged Q69 for the one spec contradiction found.

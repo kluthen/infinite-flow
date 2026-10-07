@@ -96,11 +96,13 @@ place the answer shows, because it is the one place the advice "export it" makes
 
 ## When the Data Can't Be Listed
 
-In a visit that started from the defaults because the saved data couldn't be read, and in a tab
-older than the data it found, the sheet cannot honestly list what is kept. It says why and that a
-reload is the cure, and keeps only what still works: the space and the protection, and, after
-unreadable data, `Delete everything`. Keeping that last one there matters: if the saved data is
-damaged for good, deleting it is the player's way back to a working app.
+In a visit that started from the defaults because the saved data couldn't be read, or not within
+a short wait, and in a tab older than the data it found, the sheet cannot honestly list what is
+kept. It says why and that a reload is the cure, and keeps only what still works: the space and
+the protection, and, after a failed or slow read, `Delete everything`. Keeping that last one there
+matters: when reloading does not help, deleting the data is the player's way back to a working
+app. The player cannot tell data that will never read from data that is only slow to read, so
+both are offered the same way out, behind the same confirmation as everywhere.
 
 An outdated tab offers no `Delete everything`. It deletes nothing at all until it is reloaded
 (master spec §4.3): the data belongs to the newer version now, and wiping it from a tab that
@@ -108,6 +110,13 @@ cannot read it would destroy what the newer version just saved, on the word of a
 longer knows what is there. The reload is one press away in the workspace's notice, and after it
 the newer version's own Your data offers every deletion. The sheet's notice says so, so the
 missing button reads as a reason, not an omission.
+
+Newer data wins over a failed read. A visit that couldn't read the saved data becomes an outdated
+tab the moment the app knows a newer version has saved data, at load or later, and its
+`Delete everything` goes, in place if the sheet is open: wiping a database the tab cannot read is
+acceptable only while nothing newer can be in it (master spec §4.4). The sheet's notice then says
+both things, that the data couldn't be read and that a newer version has saved some, so the
+player sees why the button that was there a moment ago has gone.
 
 ## On a Phone
 

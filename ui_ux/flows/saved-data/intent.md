@@ -103,6 +103,19 @@ each value checked as above, saves nothing, and says that a reload brings the ne
 same holds when a newer version writes while an older tab is open: that tab stops saving from
 that moment and says so.
 
+The two cases can meet, and then the newer data wins (master spec §4.4). A visit that could not
+read the saved data still offers `Delete everything`, because when reloading does not help it is
+the player's only way back to a working app, and nothing newer is at risk. But once the app knows
+that a newer version has saved data, whether it learns it at load (a database a newer version
+has upgraded may refuse to open at all) or later in the visit, deleting from this tab could
+destroy what the newer version just saved, on the word of a page that cannot read it. From that
+moment the visit is an outdated tab in every respect, `Delete everything` included. Its notice
+says both things, since both are true and the player needs both: the saved data couldn't be read
+and the visit runs on the defaults, which is why every control looks reset, and a newer version
+has saved data, which is why the reload is the cure. Keeping the unusable-data notice alone would
+leave the missing `Delete everything` unexplained; switching to the plain outdated-tab notice
+would leave the reset controls unexplained.
+
 ## Telling a saving problem
 
 Saving never gets in the way of playing (master spec §4.1): a failed save leaves the app working
@@ -132,8 +145,12 @@ Four notices, each saying what happened, what it means, and the one thing the pl
   data, no session or played-notes deletion in the list or a review, and turning
   `Keep my played notes` off asks nothing. It stays, because every change made in this tab is now
   at risk.
-- **Data that couldn't be read at load.** This visit started from the defaults and saves nothing;
-  a reload may fix it. It stays for the same reason.
+- **Data that couldn't be read at load,** or not within the start-up wait: the player cannot
+  tell data that will never read from data that is only slow to read, so both are told the same
+  way. This visit started from the defaults and saves nothing; a reload may fix it, and
+  `Delete everything`, in Your data, is the way out when it does not. It stays for the same
+  reason. If a newer version turns out to
+  have saved data, it gives way to the outdated tab's notice, worded for a visit on the defaults.
 
 The row holds one notice at a time. The two that stay are the more serious and already imply that
 nothing is being saved, so they replace a save-failure notice rather than sit beside it. Repeated
