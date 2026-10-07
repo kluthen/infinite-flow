@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.40
+Status: draft v0.41
 
 ## Status Snapshot
 
@@ -292,6 +292,18 @@ Status: draft v0.40
   items 4 and 12 now match what v2.0 ships, the two session flags and the played-notes export
   included (D202). Chunk 21 stays open until item 1 passes; the milestone is not archived before
   then. Nothing newly opened.
+- **Later owner rulings of 2026-10-07 (D203–D204).** After a byte-identical speed-up of the pitch
+  search and D200's (a) and (b), at 160,000 units per carry-in window, the real-cost sweep still
+  fails 4 of 568 cases: their carry-in attempts stop on the search allowance and keep their three
+  retries, about 2 to 2.5 s each. **The failure ladder becomes time-aware** (D203): when the time
+  left before the deadline falls below what the standalone attempt needs, the carry-in attempt
+  running on the worker is cancelled and the standalone attempt, with the seed it would have had
+  after three retries, is requested at once. Generation time is then bounded whatever the
+  generator does; the cancellation is no longer optional; the standalone time budget and the
+  worker's restart cost are constants the coding team measures (master spec v1.37 §4). **The
+  candidate order stops depending on the browser's locale** (D204, ISS-010): plain code-unit
+  order, with v1's output proven byte-identical against the goldens and the identity harness, or
+  the coding team stops and reports (§11 item 3). Both come before the tag. Nothing newly opened.
 - **Stray notes from controllers (2026-10-06, D196)**, the owner's ruling. Short in-between notes
   a controller sends while the fingers change position are a generic matter: nothing is built for
   one device, v2 changes nothing, and acknowledgement needs no change (they light nothing unless

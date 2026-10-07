@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.36 (2026-10-07). This is the consolidated, execution-ready specification for
+Status: master spec v1.37 (2026-10-07). This is the consolidated, execution-ready specification for
 v2, which ships as one release, v2.0, whose parts keep the labels v2.0, v2.1, v2.2 and v2.4 (v2.3
 was emptied, and its number is not reused).
 It supersedes the individual v2 draft topic documents,
@@ -143,7 +143,12 @@ candidate, an attempt with carry-in searches under a smaller allowance than v1's
 dropped at its deadline is cancelled, so failed attempts no longer make phrases miss their
 deadlines (§4); and items 4 and 12 of the definition of done are aligned with what v2.0 ships,
 the settings-mutation flag, the multi-phrase tension arc and the played-notes export included
-(§11).
+(§11). Change in v1.37, the product owner's rulings of 2026-10-07: the failure ladder keeps
+time for the standalone attempt, cancelling a carry-in attempt and requesting the standalone one
+at once when the deadline gets too close, so generation time is bounded whatever the generator
+does; an attempt dropped at its deadline is always cancelled; the search allowance with carry-in
+is 160,000 units, with the evidence of the full sweep (§4); and the generator's candidate order
+no longer depends on the browser's locale, with v1's output kept byte-identical (§11 item 3).
 
 ## 1. Core concept
 
@@ -350,12 +355,13 @@ before.
 
 If generation fails, the player never sees a v1-style blocking alert during a session. Instead:
 
-1. retry silently, up to three times, with a fresh seed and the same carry-in, while the deadline
-   still allows it. A carry-in attempt that failed because its search covered every candidate
-   without finding a phrase is not retried with carry-in: the generator's candidates do not
-   depend on the seed, which only orders them, so every retry would fail the same way, and the
-   ladder goes straight to step 2. An attempt stopped by its search allowance (below), or a phrase
-   that does not fit the staff, is still retried;
+1. retry silently, up to three times, with a fresh seed and the same carry-in, while the time left
+   before the deadline still leaves the standalone attempt of step 2 the time it needs (below). A
+   carry-in attempt that failed because its search covered every candidate without finding a
+   phrase is not retried with carry-in: the generator's candidates do not depend on the seed,
+   which only orders them, so every retry would fail the same way, and the ladder goes straight to
+   step 2. An attempt stopped by its search allowance (below), or a phrase that does not fit the
+   staff, is still retried while the time allows;
 2. if that keeps failing, retry once more **without** carry-in, as a standalone phrase — the join
    isn't smoothed (§3), but a valid phrase is shown;
 3. if the deadline passes regardless, **repeat the previous phrase** as the next one, and record
@@ -371,24 +377,34 @@ only when no attempt has produced a valid phrase by the deadline, and the repeat
 way whichever kind of failure led to it (§7).
 
 **Failed attempts must not use up the deadline.** A failed attempt can take far longer than a
-successful one, so the ladder is held to three more rules:
+successful one, so the ladder is held to four more rules:
 
-- When step 1 skips its carry-in retries, the standalone attempt of step 2 is generated with the
-  same request and seed it would have had after three failed retries, so skipping changes which
-  attempts run, never what the standalone attempt generates.
-- **Search allowance.** An attempt with carry-in searches under a smaller allowance than v1's,
-  set with a margin above every successful attempt measured (at most 71,551 of v1's 250,000
-  units on 2026-10-06) and documented with that evidence. Every attempt without carry-in
-  keeps v1's allowance, so its output for a given request and seed stays byte-identical to v1
-  (§11 item 3): a session's first phrase, the standalone attempt of step 2, every attempt of a
-  phrase whose carry-in a settings change left unusable, and every phrase at Idle. A carry-in
-  attempt that reaches its allowance fails like any other attempt and climbs the ladder. The
-  allowance counts search steps, not time, so it does not by itself bound how long an attempt
-  takes; §11 item 1 is the measure.
+- **The ladder keeps time for the standalone attempt.** When the time left before the deadline
+  falls below what the standalone attempt of step 2 needs, the attempt with carry-in running at
+  that moment is cancelled where it runs, and the standalone attempt is requested at once. No
+  carry-in attempt starts once that point is reached; when the deadline is that close from the
+  moment the phrase is requested, as a one-measure deadline can be at a fast tempo, the
+  standalone attempt is the first one made. This bounds the time generation takes whatever the
+  generator does. The time a standalone attempt needs, and the time cancelling an attempt costs
+  where it runs, are constants the build measures and documents with their evidence. Which
+  attempt produces a phrase can therefore depend on the machine's speed, as whether a phrase is
+  repeated already could; what each attempt generates for its request and seed never does.
+- When step 1 skips or cuts short its carry-in retries, for either reason above, the standalone
+  attempt of step 2 is generated with the same request and seed it would have had after three
+  failed retries, so skipping changes which attempts run, never what the standalone attempt
+  generates.
+- **Search allowance.** An attempt with carry-in searches under a smaller allowance than v1's:
+  160,000 units per window, against v1's 250,000. In the full sweep of 2026-10-07 the largest
+  successful attempt with carry-in used 131,137 units (3,366 successful attempts with carry-in;
+  99.9th percentile 73,646). Every attempt without carry-in keeps v1's allowance of 250,000, so
+  its output for a given request and seed stays byte-identical to v1 (§11 item 3): a session's
+  first phrase, the standalone attempt of step 2, every attempt of a phrase whose carry-in a
+  settings change left unusable, and every phrase at Idle. A carry-in attempt that reaches its
+  allowance fails like any other attempt and climbs the ladder. The allowance counts search
+  steps, not time, so it does not by itself bound how long an attempt takes; the first rule
+  above does.
 - **A dropped attempt is cancelled.** The attempt still in flight at the deadline is cancelled
-  where it runs, so a later request never waits behind it. The build may leave this rule out only
-  if §11 item 1 is met with margin without it, with every attempt timed at its real cost, and it
-  then records why.
+  where it runs, so a later request never waits behind it.
 
 ## 5. Control changes during a session
 
@@ -1143,7 +1159,12 @@ is tagged.
    (§3). The register stays stable across a whole session.
 3. With no carry-in at all (a session's first phrase, the failure ladder's standalone phrase, or
    the phrase at Idle), the output for a given request and seed is byte-identical to v1. At Idle,
-   only which request and seed end up shown can differ from v1 (items 26 and 27).
+   only which request and seed end up shown can differ from v1 (items 26 and 27). The generator's
+   output for a given request and seed never depends on the browser's language or locale
+   settings: it orders its candidates by plain code-unit order, never by a locale-aware
+   comparison. Moving to that order is proven to keep v1's output byte-identical, against v1's
+   golden outputs and its identity harness; if any output differed, v1's goldens would not be
+   re-recorded.
 4. Every generation setting is locked from the moment a session starts until it ends: the player
    can change none of them during a session, while Stop and the audio mix stay reachable
    throughout (§5). With the settings-mutation flag ("Vary settings") and the multi-phrase tension

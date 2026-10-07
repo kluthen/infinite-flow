@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Build Plan
 
-Status: draft v0.11 (2026-10-07). Chunk 0 is done. Build plan for v2, released as one v2.0 since
+Status: draft v0.12 (2026-10-07). Chunk 0 is done. Build plan for v2, released as one v2.0 since
 spec D183, its parts still labelled v2.0, v2.1, v2.2 and v2.4,
 written from [master spec v1.20](master-spec.md) and kept in step with it since (v1.28). Not yet
 approved for execution. Change in v0.3: the spec gaps are resolved, so the phrase-boundary change
@@ -28,7 +28,11 @@ keyboard checks follow the v2.0 tag as v2.0.x hand checks, so chunk 21 is blocke
 remaining work. Change in v0.11 (spec D200–D202), the owner's rulings of 2026-10-07: ISS-009 is
 fixed before the tag, and item 1 is met only when the real-cost sweep shows 0 of 568 cases
 repeating at their deadline; the atoms' promotions are approved; items 4 and 12 of §11 are aligned
-with what v2.0 ships.
+with what v2.0 ships. Change in v0.12 (spec D203, D204), the owner's later rulings of 2026-10-07:
+the failure ladder becomes time-aware, cancelling a carry-in attempt on the worker and requesting
+the standalone attempt at once when the deadline gets too close, so the cancellation is no longer
+optional; and the candidate order stops depending on the browser's locale (ISS-010), with v1's
+output proven byte-identical, before the tag.
 
 This plan cuts v2 into chunks that one owner can build, test and document at a time, and puts
 them in order. It adds no behaviour. What the app does is in the [master spec](master-spec.md);
@@ -2227,9 +2231,15 @@ The definition of done, on the merged code:
   settings × seeds 7 and 13, six-phrase sessions, one serial worker, each attempt charged its
   measured generation time plus the worker round trip and engraving), shows **0 of 568** cases
   repeating a phrase at its deadline, at 60, 120 and 240 BPM (spec D200). The machine's load
-  during the run is written down with the result. **Not met on 2026-10-06:** 7 of 568 cases, all
-  at Eighth or Sixteenth density, repeat phrases at their deadline (ISS-009,
-  `issues/Ref_20261006_failed_carry_in_attempts_slow.md`).
+  during the run is written down with the result. Under the time-aware ladder (spec D203), the
+  sweep charges a cancelled attempt the time it ran plus the worker's measured restart cost.
+  **Not met on 2026-10-06:** 7 of 568 cases, all at Eighth or Sixteenth density, repeat phrases at
+  their deadline (ISS-009, `issues/Ref_20261006_failed_carry_in_attempts_slow.md`). **Not met on
+  2026-10-07,** after the pitch search speed-up (byte-identical; failed carry-in searches 4 to 6
+  times faster) and fixes (a) and (b) of spec D200 at 160,000 units: 4 of 568 cases (#344, #349,
+  #354, #498). Their carry-in attempts stop on the search allowance, so they keep their three
+  retries, at about 2 to 2.5 s each, over the 3 s deadline at 240 BPM and the 6 s deadline at
+  120 BPM. The time-aware ladder (spec D203) is the owner's answer.
 - Item 2: the property tests of chunk 7 check every join made with carry-in, and a join into the
   standalone phrase or into a repeat is held to no join rule. Item 3: the standalone phrase's
   output is v1's.
@@ -2308,7 +2318,23 @@ What the earlier chunks left open:
   `rule_session_generation_failure_ladder`, a STABLE atom, is revised by `documentalist` before
   the code changes. Item 1 is met only when the real-cost sweep shows 0 of 568; it stands as
   written, with no known-gap note on `rule_look_ahead_deadline`. The milestone is not archived
-  before then.
+  before then. Shipped on 2026-10-07: a byte-identical speed-up of the pitch search, (a), and (b)
+  at 160,000 units per carry-in window; 4 of 568 cases still fail (item 1 above).
+- **The time-aware failure ladder, before the tag (spec D203).** It replaces the escape clause on
+  the cancellation: (a) and (b) did not pass, so (c) is built. When the time left before a
+  phrase's deadline falls below what the standalone attempt needs, the session cancels the
+  carry-in attempt running on the worker and requests the standalone attempt at once, with the
+  same request and seed it would have had after three failed retries; when the deadline is that
+  close from the request, the standalone attempt comes first. The attempt still in flight at the
+  deadline is cancelled too. The standalone attempt's time budget and the worker's restart cost
+  (about 0.3 s, still to be measured in Chromium) are implementation constants, measured and
+  documented with their evidence. `documentalist` revises `rule_session_generation_failure_ladder`
+  for it before the code changes.
+- **ISS-010, the locale-independent candidate order, before the tag (spec D204).** The pitch
+  candidates' canonical order stops using `localeCompare` / the default `Intl.Collator` and uses
+  plain code-unit order. Done when v1's output is proven byte-identical against the goldens and
+  the identity harness (629 intents, 101,484 compiled contexts). If any output differs, the
+  coding team stops and reports to the owner; v1's goldens are never re-recorded for it.
 
 - Settled on 2026-10-05: the backing as chunk 11 built it, O57's listening test (spec D185); the
   owner's rulings on what chunk 17 left for acceptance, the starting note arming the silence timer
@@ -2343,7 +2369,7 @@ What the earlier chunks left open:
   the tuning and the controller check.
 
 **Blocked by:** nothing outside the gate's own remaining work, which includes the ISS-009 fix
-(spec D200). O71, O105 and O106 were closed on
+with the time-aware ladder (spec D200, D203) and ISS-010 (spec D204). O71, O105 and O106 were closed on
 2026-10-06 (spec D191, D193 and D197); the VISION was accepted (spec D198); and the real-hardware
 checks still waiting on hardware, the USB keyboard's, follow the tag (spec D199). O97, which item 2's check depended on, was answered on 2026-09-29 (D167).
 

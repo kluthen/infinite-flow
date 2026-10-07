@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.34
+Status: draft v2.35
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1212,3 +1212,56 @@ fact in the live documents (see the [archive index](archive/README.md) and
   No criterion is added or removed. The release notes' reading notes on items 4 and 12 are no
   longer needed; whoever owns the notes updates them. Archived files
   keep their wording. Master spec §11.
+- **D203 (2026-10-07): the failure ladder becomes time-aware, so generation time is bounded
+  whatever the generator does.** The product owner's ruling on what is left of ISS-009
+  (`issues/Ref_20261006_failed_carry_in_attempts_slow.md`) after D200's first fixes. Shipped so
+  far: a byte-identical speed-up of the pitch search, which makes failed carry-in searches 4 to 6
+  times faster; direction (a); and direction (b) at 160,000 fuel units per carry-in window (every
+  intent without carry-in keeps v1's 250,000 and byte-identical output). The real-cost sweep
+  (`npm run test:sweep`) still fails 4 of 568 cases, #344, #349, #354 and #498. Their carry-in
+  attempts stop on the search allowance (`search_limit_exceeded`), so under D200 they keep their
+  three retries, and each takes about 2 to 2.5 s: that overruns the 3 s deadline at 240 BPM and the
+  6 s deadline at 120 BPM. Direction (c) alone cannot fix it, since the attempts that run too long
+  are the ones the ladder itself asks for. Decided:
+  - When the time left before a phrase's look-ahead deadline falls below what a standalone attempt
+    needs, the session cancels the carry-in attempt running on the worker (direction (c)) and
+    requests the standalone attempt at once. The standalone attempt is the one the phrase would
+    have had after three failed carry-in retries: the same request and seed, as with (a) under
+    D200. The rule bounds generation time whatever the generator does.
+  - What a standalone attempt needs, its time budget, and the cost of restarting the worker to
+    cancel an attempt (about 0.3 s, still to be measured in Chromium) are implementation
+    constants, measured and documented by the coding team with their evidence.
+  - Chosen over three alternatives: also skipping the carry-in retries after a stop on the search
+    allowance; a carry-in allowance of about 40,000 units, which loses successful carry-in
+    attempts; and a faster candidate sort alone, which would not bound the time.
+  - The fuel evidence in master spec §4 is updated: in the full sweep of 2026-10-07, the largest
+    successful carry-in attempt used 131,137 units (3,366 successful carry-in attempts; 99.9th
+    percentile 73,646), and carry-in attempts search under 160,000 units. Without carry-in the
+    allowance stays 250,000.
+  - Settled by `spec-writer` as consequences of the ruling, under the owner's standing delegation:
+    - D200's clause letting the build leave out (c) no longer applies. (a) and (b) did not pass
+      the sweep, and the time-aware ladder needs the cancellation, so an attempt still in flight
+      at the deadline is cancelled too.
+    - The rule applies from the moment the request is made. When the deadline is too close for
+      any carry-in attempt to leave the standalone attempt its time, as phrase 2's one-measure
+      deadline may be at fast tempos, the standalone attempt is requested first.
+    - Which attempt produces a phrase can depend on the machine's speed, as whether a phrase is
+      repeated already could. What each attempt generates for its request and seed never does.
+    - The real-cost sweep charges a cancelled attempt the time it ran plus the worker's restart
+      cost, so item 1 is measured on what the ladder really costs.
+    - Idle has no deadline and no carry-in, so nothing changes there.
+  - The ladder's STABLE atom `rule_session_generation_failure_ladder` is revised by
+    `documentalist` before the code changes, as under D200.
+  Master spec §4; build plan chunk 21.
+- **D204 (2026-10-07): the generator orders its candidates the same way whatever the browser's
+  locale, before the v2.0 tag.** The product owner's ruling. Today the pitch candidates' canonical
+  order compares strings with `localeCompare` / the default `Intl.Collator`
+  (`src/domain/pitch/pitch-candidates.ts`), so it depends in principle on the browser's locale: a
+  phrase could then differ from its replay under an unusual language setting. Decided:
+  - The order becomes plain code-unit order, with no locale-aware comparison. It is also about
+    twice as fast on searches that cannot succeed.
+  - v1's byte-identical output (master spec §11 item 3) must be proven against the golden outputs
+    and the identity harness (629 intents, 101,484 compiled contexts). If any output differs, the
+    coding team stops and reports instead of re-recording v1's goldens.
+  - It is done before the v2.0 tag and tracked as a new issue, ISS-010.
+  Master spec §11 item 3; build plan chunk 21.
