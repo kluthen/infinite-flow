@@ -98,10 +98,11 @@ async function exerciseCurrentInteractions(page: Page): Promise<void> {
   await radio(page, 'Presentation theme', 'Dark').click()
 }
 
-// Today no Start or "Connect controller" button exists, so no interaction may create an audio
-// context or request MIDI access. The chunks that add those buttons add their cases here: a
-// context is created only after the Start click, and MIDI access is requested only after the
-// "Connect controller" click.
+// This test drives every current interaction except clicking Start and "Connect controller", and
+// none of them creates an audio context or requests MIDI access or the microphone. What those two
+// clicks do is covered elsewhere: the audio context in tests/e2e/audio/* and
+// tests/e2e/controller/controller-connection-states.spec.ts, MIDI access in 'the production app
+// asks for no MIDI access at startup' (tests/e2e/midi/midi-input.spec.ts).
 // @test-link [[rule_audio_unlocked_by_player_click]]
 // @test-link [[specification_browser_only_operation_verification]]
 test('no audio context, MIDI access or microphone request happens across every current interaction', async ({
@@ -154,6 +155,7 @@ test('no request leaves the page origin, and none is XHR, fetch, WebSocket or SS
 // allowed: v2 adds one.
 // @test-link [[req_four_measure_phrase]]
 // @test-link [[rule_no_grading_or_mismatch_signal]]
+// @test-link [[specification_browser_only_operation_verification]]
 test('no playback or scoring control is ever rendered', async ({ page }) => {
   await gotoWorkspace(page)
   await exerciseCurrentInteractions(page)
