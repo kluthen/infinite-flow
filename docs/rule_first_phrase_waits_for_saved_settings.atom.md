@@ -7,6 +7,7 @@ parents:
   - [[rule_settings_saved_on_change]]
 dependents:
   - [[rule_failed_read_offers_only_delete_everything]]
+  - [[rule_failed_read_told_to_player]]
 version: 0.1
 priority: 1
 human_name: First Phrase Waits for Saved Settings
