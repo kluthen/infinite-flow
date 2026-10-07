@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.39
+Status: draft v0.40
 
 ## Status Snapshot
 
@@ -280,6 +280,18 @@ Status: draft v0.39
   real-program export checks; the breath controller's results stand for the tuning and the
   controller check, which calls for no manual input-transposition setting (D199). Chunk 21 is now
   blocked only by its own remaining work. Nothing newly opened.
+- **Owner rulings of 2026-10-07 (D200–D202), on the v2.0 gate's findings.** **ISS-009 is fixed
+  before the tag** (D200): §11 item 1 was not met, as failed carry-in attempts take 6 to 28 s, the
+  failure ladder repeats the same failing search three times, and the worker keeps computing a
+  dropped attempt (7 of 568 cases repeat phrases at their deadline at real cost). The ladder now
+  skips the carry-in retries after a search that covered every candidate, gives carry-in attempts
+  a smaller search allowance (attempts without carry-in keep v1's and its output), and cancels an
+  attempt dropped at its deadline, unless the sweep passes with margin without that (master spec
+  v1.36 §4). Item 1 stands as written, and is met only when the real-cost sweep shows 0 of 568.
+  The gate's atom promotions are approved with CONTRACT 1.5, for `documentalist` (D201). §11
+  items 4 and 12 now match what v2.0 ships, the two session flags and the played-notes export
+  included (D202). Chunk 21 stays open until item 1 passes; the milestone is not archived before
+  then. Nothing newly opened.
 - **Stray notes from controllers (2026-10-06, D196)**, the owner's ruling. Short in-between notes
   a controller sends while the fingers change position are a generic matter: nothing is built for
   one device, v2 changes nothing, and acknowledgement needs no change (they light nothing unless

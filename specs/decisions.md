@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.33
+Status: draft v2.34
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1144,3 +1144,71 @@ fact in the live documents (see the [archive index](archive/README.md) and
   and for the controller check on the reference hardware, where the device's own transpose
   setting reached a match for every profile tried, so no manual input-transposition setting is
   called for. Master spec §11 and §12; build plan chunks 17 and 21.
+- **D200 (2026-10-07): ISS-009 is fixed before the v2.0 tag; the failure ladder stops repeating
+  a search that cannot succeed.** The product owner's ruling on the v2.0 gate's finding (build plan
+  chunk 21) that master spec §11 item 1 is not met. ISS-009
+  (`issues/Ref_20261006_failed_carry_in_attempts_slow.md`): a failed carry-in attempt takes 6 to
+  28 s, while its window is searched to exhaustion or its search allowance (250,000 fuel units)
+  runs out, against at most 280 ms and 71,551 units for every success measured; the failure ladder
+  repeats the same failing carry-in search three times; and the single generation worker keeps
+  computing an attempt the engine dropped at its deadline, so later requests queue behind it. A
+  sweep timing every attempt at its real cost shows 7 of 568 cases repeating phrases at their
+  deadline, all at Eighth or Sixteenth density (release notes, `docs/release/v2.0-release-notes.md`).
+  Decided:
+  - v2.0 is not tagged with this as a known limitation: the fix comes first.
+  - Three fix directions are approved. They change the failure ladder (master spec §4) and its
+    STABLE atom `rule_session_generation_failure_ladder`, which `documentalist` revises before the
+    code changes:
+    - (a) once a carry-in attempt's search covered every candidate without finding a phrase, the
+      remaining carry-in retries are skipped and the ladder goes to the standalone attempt. The
+      same carry-in would fail the same way: the generator's candidates do not depend on the seed,
+      which only breaks ties in their order (generative process §9, checked in
+      `generation-orchestrator.ts`). An attempt cut off by its allowance
+      (`search_limit_exceeded`), which proves nothing, and a phrase that does not fit the staff
+      are still retried.
+    - (b) attempts with carry-in get a smaller search allowance, with a margin above every success
+      observed, chosen and documented by the coding team with its evidence. Every attempt without
+      carry-in, at Idle and in a session (its first phrase, the standalone attempt, a phrase whose
+      carry-in a settings change left unusable), keeps v1's allowance and byte-identical output
+      (§11 item 3). A carry-in attempt that would have needed more than the new allowance now
+      fails and climbs the ladder; none was observed, and carry-in output has no v1 identity to
+      keep.
+    - (c) an attempt dropped at its deadline is cancelled on the worker, so later requests do not
+      queue behind it. The coding team may drop (c) if (a) and (b) make the full real-cost sweep
+      pass with margin, and must say why.
+  - Settled by `spec-writer` as a minor design matter under the owner's standing delegation: when
+    (a) skips the carry-in retries, the standalone attempt is generated with the same request and
+    seed it would have had after three failed retries, so skipping changes which attempts run,
+    never what the standalone attempt generates.
+  - Item 1 is met only when the full real-cost sweep (568 cases, at 60, 120 and 240 BPM) shows
+    **0 of 568** cases repeating a phrase at its deadline. So the question of which reading of
+    item 1 governs is moot: `rule_look_ahead_deadline` gets no known-gap note, and §11 item 1
+    stands as written. Chunk 21 stays open, and the milestone is not archived, until item 1
+    passes.
+  Master spec §4 and §11; build plan chunk 21.
+- **D201 (2026-10-07): the gate's atom promotions are approved, with CONTRACT 1.5.** The product
+  owner approves promoting to STABLE, with the CONTRACT at version 1.5:
+  `rule_controller_loss_mid_session`, `rule_start_while_controller_away`,
+  `rule_same_controller_reattaches`, `rule_count_in_shown_on_screen`,
+  `rule_midi_never_blocks_session`, `rule_midi_starting_note`, `req_last_session_review`,
+  `specification_browser_only_operation_verification`, `rule_mutation_reverts_at_session_end`,
+  `rule_adaptive_tempo_flat_schedule` and `rule_multi_phrase_tension_arc_cycle`; and
+  `req_browser_only_first_release` from DRAFT to REVIEW. The owner also gives the go-ahead to
+  revise the v1-only wording of `specification_behavioral_quality_gates`. `documentalist` applies
+  all of it in `docs/`; nothing in `specs/` changes beyond this record. Build plan chunk 21.
+- **D202 (2026-10-07): §11 items 4 and 12 are aligned with what v2.0 ships.** The product owner's
+  ruling. Both items were written for the v2.0 of before the compaction (D183) and went stale
+  when v2.1 and v2.2 were folded into v2.0; the release notes' "Reading notes" explained them
+  instead. They now say what was built and decided:
+  - Item 4: the player can change no generation setting during a session, and Stop and the audio
+    mix stay reachable. With the settings-mutation flag ("Vary settings") and the multi-phrase
+    tension arc ("Tension across phrases") off, as at page load, nothing changes what is generated
+    during a session except item 27's note-density rule; with either on, its changes are the only
+    others, held to their own criteria. Adaptive tempo changes the tempo, never what is
+    generated.
+  - Item 12: the generated-notes export action has the played-notes action beside it, and no
+    generated-notes file, MusicXML or MIDI, ever holds a played note. "In v2.0 only the
+    generated-notes export action exists" is gone.
+  No criterion is added or removed. The release notes' reading notes on items 4 and 12 are no
+  longer needed; whoever owns the notes updates them. Archived files
+  keep their wording. Master spec §11.

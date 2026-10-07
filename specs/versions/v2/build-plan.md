@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Build Plan
 
-Status: draft v0.10 (2026-10-06). Chunk 0 is done. Build plan for v2, released as one v2.0 since
+Status: draft v0.11 (2026-10-07). Chunk 0 is done. Build plan for v2, released as one v2.0 since
 spec D183, its parts still labelled v2.0, v2.1, v2.2 and v2.4,
 written from [master spec v1.20](master-spec.md) and kept in step with it since (v1.28). Not yet
 approved for execution. Change in v0.3: the spec gaps are resolved, so the phrase-boundary change
@@ -25,7 +25,10 @@ measured to is now O106. O68 and O69 are closed. Change in v0.9 (spec D197): O10
 item 6 is judged at the band's measure change, so it is met, and chunk 21 no longer waits on it.
 Change in v0.10 (spec D198, D199): the owner accepts the VISION for v2.0 as it stands, and the USB
 keyboard checks follow the v2.0 tag as v2.0.x hand checks, so chunk 21 is blocked only by its own
-remaining work.
+remaining work. Change in v0.11 (spec D200–D202), the owner's rulings of 2026-10-07: ISS-009 is
+fixed before the tag, and item 1 is met only when the real-cost sweep shows 0 of 568 cases
+repeating at their deadline; the atoms' promotions are approved; items 4 and 12 of §11 are aligned
+with what v2.0 ships.
 
 This plan cuts v2 into chunks that one owner can build, test and document at a time, and puts
 them in order. It adds no behaviour. What the app does is in the [master spec](master-spec.md);
@@ -2219,7 +2222,14 @@ The definition of done, on the merged code:
   hand check, listed in one table in the release notes under `docs/release/`. Items 6, 9 and 15,
   and item 12's opening of real files, are checked by the real-hardware checks below.
 - Item 1: a sweep over the seed matrix and every supported combination at 60, 120 and 240 BPM, on
-  the fake clock, meets every deadline and survives injected failures.
+  the fake clock, meets every deadline and survives injected failures. And the full sweep with
+  every attempt timed at its real cost, as in ISS-009 (568 cases: the 284 supported rhythm
+  settings × seeds 7 and 13, six-phrase sessions, one serial worker, each attempt charged its
+  measured generation time plus the worker round trip and engraving), shows **0 of 568** cases
+  repeating a phrase at its deadline, at 60, 120 and 240 BPM (spec D200). The machine's load
+  during the run is written down with the result. **Not met on 2026-10-06:** 7 of 568 cases, all
+  at Eighth or Sixteenth density, repeat phrases at their deadline (ISS-009,
+  `issues/Ref_20261006_failed_carry_in_attempts_slow.md`).
 - Item 2: the property tests of chunk 7 check every join made with carry-in, and a join into the
   standalone phrase or into a repeat is held to no join rule. Item 3: the standalone phrase's
   output is v1's.
@@ -2286,6 +2296,20 @@ The real-hardware checks, part v2.4 (from chunk 35), on the reference machine an
 
 What the earlier chunks left open:
 
+- **ISS-009, fixed before the tag (spec D200).** Failed carry-in attempts take 6 to 28 s, the
+  failure ladder repeats the same failing carry-in search three times, and the single worker keeps
+  computing an attempt the engine dropped. The owner's ruling of 2026-10-07: v2.0 is not tagged
+  with this as a known limitation. The fix follows master spec §4's three rules: no carry-in retry
+  after a search that covered every candidate, the standalone attempt keeping the seed it would
+  have had; a smaller search allowance for attempts with carry-in, with a margin above every
+  measured success, every attempt without carry-in keeping v1's allowance and v1-identical output;
+  and an attempt dropped at its deadline cancelled on the worker, which the coding team may leave
+  out only if the first two pass the real-cost sweep above with margin, saying why.
+  `rule_session_generation_failure_ladder`, a STABLE atom, is revised by `documentalist` before
+  the code changes. Item 1 is met only when the real-cost sweep shows 0 of 568; it stands as
+  written, with no known-gap note on `rule_look_ahead_deadline`. The milestone is not archived
+  before then.
+
 - Settled on 2026-10-05: the backing as chunk 11 built it, O57's listening test (spec D185); the
   owner's rulings on what chunk 17 left for acceptance, the starting note arming the silence timer
   and the silence count starting again at a reattachment, with the chunk's other choices (spec
@@ -2307,7 +2331,10 @@ What the earlier chunks left open:
   then; a full rewrite by the owner comes later, not scheduled. `documentalist` applies the status
   change and D193's correction to its line on the real-hardware checks. `documentalist` has settled the release tags of the
   v2.1, v2.2 and v2.4 atoms (merged into `release-v2.0` or kept as history, spec D183) and
-  advanced the atoms' status with the owner's agreement.
+  advanced the atoms' status with the owner's agreement. On 2026-10-07 the owner approved the
+  last promotions the gate asked for, with CONTRACT 1.5, and the revision of
+  `specification_behavioral_quality_gates`' v1-only wording (spec D201); `documentalist` applies
+  them.
 - The owner decides the tag. v2.0 ships with the timing constants tuned on the reference hardware.
   Settled on 2026-10-06 (O105, spec D193): the real-program export checks (MuseScore, a MIDI tool,
   the DAW line-up) follow the tag as a v2.0.x hand-check note; the controller check, the windows
@@ -2315,7 +2342,8 @@ What the earlier chunks left open:
   USB keyboard's checks follow the tag too (spec D199); the breath controller's results stand for
   the tuning and the controller check.
 
-**Blocked by:** nothing outside the gate's own remaining work. O71, O105 and O106 were closed on
+**Blocked by:** nothing outside the gate's own remaining work, which includes the ISS-009 fix
+(spec D200). O71, O105 and O106 were closed on
 2026-10-06 (spec D191, D193 and D197); the VISION was accepted (spec D198); and the real-hardware
 checks still waiting on hardware, the USB keyboard's, follow the tag (spec D199). O97, which item 2's check depended on, was answered on 2026-09-29 (D167).
 

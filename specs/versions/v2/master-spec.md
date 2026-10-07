@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.35 (2026-10-06). This is the consolidated, execution-ready specification for
+Status: master spec v1.36 (2026-10-07). This is the consolidated, execution-ready specification for
 v2, which ships as one release, v2.0, whose parts keep the labels v2.0, v2.1, v2.2 and v2.4 (v2.3
 was emptied, and its number is not reused).
 It supersedes the individual v2 draft topic documents,
@@ -137,7 +137,13 @@ playhead check is measured to the moment the playhead's measure changes, so it i
 Change in v1.35, the product owner's ruling of 2026-10-06: the checks that need a USB keyboard do
 not block the v2.0 tag and follow it as hand checks on a v2.0.x update; the breath controller's
 results stand for the tuning and the controller check, which calls for no manual
-input-transposition setting (§11, §12).
+input-transposition setting (§11, §12). Change in v1.36, the product owner's rulings of
+2026-10-07: the failure ladder no longer retries with carry-in after a search that covered every
+candidate, an attempt with carry-in searches under a smaller allowance than v1's, and an attempt
+dropped at its deadline is cancelled, so failed attempts no longer make phrases miss their
+deadlines (§4); and items 4 and 12 of the definition of done are aligned with what v2.0 ships,
+the settings-mutation flag, the multi-phrase tension arc and the played-notes export included
+(§11).
 
 ## 1. Core concept
 
@@ -345,7 +351,11 @@ before.
 If generation fails, the player never sees a v1-style blocking alert during a session. Instead:
 
 1. retry silently, up to three times, with a fresh seed and the same carry-in, while the deadline
-   still allows it;
+   still allows it. A carry-in attempt that failed because its search covered every candidate
+   without finding a phrase is not retried with carry-in: the generator's candidates do not
+   depend on the seed, which only orders them, so every retry would fail the same way, and the
+   ladder goes straight to step 2. An attempt stopped by its search allowance (below), or a phrase
+   that does not fit the staff, is still retried;
 2. if that keeps failing, retry once more **without** carry-in, as a standalone phrase — the join
    isn't smoothed (§3), but a valid phrase is shown;
 3. if the deadline passes regardless, **repeat the previous phrase** as the next one, and record
@@ -359,6 +369,26 @@ cause, and repeating a phrase is musically harmless. "Generation failure" here c
 failed attempt: no phrase found, or a phrase that does not fit the staff. A phrase is repeated
 only when no attempt has produced a valid phrase by the deadline, and the repeat is recorded in the session history the same
 way whichever kind of failure led to it (§7).
+
+**Failed attempts must not use up the deadline.** A failed attempt can take far longer than a
+successful one, so the ladder is held to three more rules:
+
+- When step 1 skips its carry-in retries, the standalone attempt of step 2 is generated with the
+  same request and seed it would have had after three failed retries, so skipping changes which
+  attempts run, never what the standalone attempt generates.
+- **Search allowance.** An attempt with carry-in searches under a smaller allowance than v1's,
+  set with a margin above every successful attempt measured (at most 71,551 of v1's 250,000
+  units on 2026-10-06) and documented with that evidence. Every attempt without carry-in
+  keeps v1's allowance, so its output for a given request and seed stays byte-identical to v1
+  (§11 item 3): a session's first phrase, the standalone attempt of step 2, every attempt of a
+  phrase whose carry-in a settings change left unusable, and every phrase at Idle. A carry-in
+  attempt that reaches its allowance fails like any other attempt and climbs the ladder. The
+  allowance counts search steps, not time, so it does not by itself bound how long an attempt
+  takes; §11 item 1 is the measure.
+- **A dropped attempt is cancelled.** The attempt still in flight at the deadline is cancelled
+  where it runs, so a later request never waits behind it. The build may leave this rule out only
+  if §11 item 1 is met with margin without it, with every attempt timed at its real cost, and it
+  then records why.
 
 ## 5. Control changes during a session
 
@@ -1114,9 +1144,14 @@ is tagged.
 3. With no carry-in at all (a session's first phrase, the failure ladder's standalone phrase, or
    the phrase at Idle), the output for a given request and seed is byte-identical to v1. At Idle,
    only which request and seed end up shown can differ from v1 (items 26 and 27).
-4. Every generation setting is locked from the moment a session starts until it ends, so nothing
-   changes what is generated during a v2.0 session except the note-density rule of item 27; Stop
-   and the audio mix stay reachable throughout (§5).
+4. Every generation setting is locked from the moment a session starts until it ends: the player
+   can change none of them during a session, while Stop and the audio mix stay reachable
+   throughout (§5). With the settings-mutation flag ("Vary settings") and the multi-phrase tension
+   arc ("Tension across phrases") both off, as they are when the page loads, nothing changes what
+   is generated during a session except the note-density rule of item 27. With either of them on,
+   the changes it makes are the only others, and they are held to their own criteria under
+   "Added by v2.1 and later" below. Adaptive tempo changes the tempo only, never what is
+   generated (§10).
 5. The backing stays in pitch and on the beat; muting it never affects timing; nothing plays before
    the player has clicked, either Start or "Connect controller", which unlocks audio.
 6. _Moved to v2.4 (below): the playhead measured against the audio output in real Chromium._
@@ -1142,9 +1177,10 @@ is tagged.
     saxophones, the two transposing ones, with their `<transpose>` element, and the C keyboard,
     which does not transpose, without one (§7), and the MIDI file carries the correct tempo map,
     as automated tests check. Opening the files in real programs is a v2.4 check (below). Every
-    export covers the whole session. In v2.0
-    only the generated-notes export action exists, and no exported file holds a played note. The
-    review has no favorites. No session starts while the review shows; once the player leaves
+    export covers the whole session. The generated-notes export action has the played-notes
+    export action beside it (its criteria are under "Added by v2.1 and later" below), and no
+    generated-notes file, MusicXML or MIDI, ever holds a played note. The review has no
+    favorites. No session starts while the review shows; once the player leaves
     it, it stays reachable until the next session starts, which discards it without any
     confirmation, and closing or reloading the page discards everything without asking.
 13. Privacy holds absolutely (verified with a network/storage spy across a full session, review and
