@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.54
+Status: draft v2.55
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D226**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D227**.
 
 ## Decision Log
 
@@ -318,3 +318,12 @@ fact in the live documents (see the [archive index](archive/README.md) and
   included, since it could destroy what the newer version saved. This changes one design rule:
   "Unusable data, set at load, is never replaced" may keep its notice, but its Delete everything
   must go once a newer version is detected (`ux-writer` to apply; which notice shows is its call).
+
+- **D226 (2026-10-07): a failed-read visit offers no deletion in the review either (answers ux
+  Q69; master spec v1.4 §4.4).** spec-writer's call, following `ux-writer`'s recommendation. D224
+  said Delete everything is the only deletion such a visit offers, but the review of the session
+  it holds in memory still offered Delete session and Delete played notes, which touch only
+  memory. Both are removed there, as in an outdated tab: one rule for every visit that saves
+  nothing, and no deletion that looks permanent while nothing is kept. Rejected: rewording §4.4 to
+  "the only deletion of saved data", which would keep two different sets of review controls for
+  the two saving-off states.

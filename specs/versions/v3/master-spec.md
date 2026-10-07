@@ -150,8 +150,9 @@ The first phrase waits for the saved settings to be read. If reading fails, or t
 a short start-up wait, the app starts from the defaults and saves nothing for the rest of that
 visit, so a failed read never overwrites what is kept. The player is told, outside a running
 session, that the saved data could not be read, that this visit saves nothing, and that reloading
-may fix it. Delete everything stays offered in that visit, and is the only deletion it offers: it
-is the way out when reloading does not help, whether the data is damaged or only slow to read; it
+may fix it. Delete everything stays offered in that visit, and is the only deletion it offers (the review
+of a session held in memory offers neither Delete session nor Delete played notes, as in an
+outdated tab): it is the way out when reloading does not help, whether the data is damaged or only slow to read; it
 asks for confirmation as everywhere. Whenever saved data written by a newer version is known to
 exist, at load or later in the visit, the outdated-tab rule (§4.3) wins: no deletion of any kind
 is offered, Delete everything included, since deleting could destroy what the newer version
