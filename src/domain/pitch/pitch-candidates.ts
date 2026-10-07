@@ -18,6 +18,8 @@ interface RawCandidate {
   readonly role: PitchRole
   readonly midi: number
   readonly obligation: string
+  /** A short stand-in for the obligation, used only to guess the canonical order. */
+  readonly orderHint?: string
   readonly reservation?: PitchReservation
 }
 
@@ -30,6 +32,32 @@ interface FigurePath {
   readonly roles: readonly PitchRole[]
   /** Member MIDI values followed by the target MIDI value. */
   readonly midis: readonly number[]
+}
+
+/**
+ * Canonical domains of free attacks (outside the bound figure), shared by every harmony/rhythm
+ * pair searched under one request, collection and chromatic capability. Beyond those, such a
+ * domain reads only a few facts of its attack and its neighbours, which `freeDomainKey` spells
+ * out.
+ */
+export interface FreeDomainStore {
+  readonly request: BoundPitchPlannerInput['request']
+  readonly collection: readonly number[]
+  readonly allowsChromaticApproach: boolean
+  readonly playable: readonly number[]
+  /** Domains by `freeDomainKey`. */
+  readonly domains: Map<string, readonly PitchCandidate[]>
+}
+
+/**
+ * The free-attack domains of one phrase's attacks, kept for reuse across its tension bindings: a
+ * fast index over the shared store, valid only for the same `attacks` object.
+ */
+export interface CandidateDomainMemo {
+  readonly attacks: readonly PitchAttack[]
+  readonly store: FreeDomainStore
+  /** Domains by `domainMemoKey`. */
+  readonly domains: Map<number, readonly PitchCandidate[]>
 }
 
 /** Shared read-only facts for enumerating one phrase. */
@@ -174,35 +202,72 @@ function enclosurePaths(facts: DomainFacts, group: readonly PitchAttack[]) {
   return paths
 }
 
+/** True when the attack at `index` is not a member of the bound figure. */
+function isFree(facts: DomainFacts, index: number): boolean {
+  return !facts.boundAttacks.has(index)
+}
+
 /**
- * Chromatic approach and enclosure ornament paths at every attack whose members are free of the
- * bound figure, sound back to back with their target under one harmony event, and last no longer
- * than the target. Offered only when the active profile declares the capability.
+ * True when a chromatic approach from the attack at `index` onto the next attack is offered: the
+ * member is free of the bound figure, sounds back to back with its target under one harmony
+ * event, and lasts no longer than the target.
+ */
+function approachOffered(facts: DomainFacts, index: number): boolean {
+  const member = facts.attacks[index]
+  const next = facts.attacks[index + 1]
+  return (
+    member !== undefined &&
+    next !== undefined &&
+    isFree(facts, index) &&
+    tight([member, next]) &&
+    member.durationTicks <= next.durationTicks
+  )
+}
+
+/**
+ * True when a chromatic enclosure with members at `index` and `index + 1` around the attack after
+ * them is offered: both members are free of the bound figure, all three sound back to back under
+ * one harmony event, and neither member lasts longer than the target.
+ */
+function enclosureOffered(facts: DomainFacts, index: number): boolean {
+  const member = facts.attacks[index]
+  const next = facts.attacks[index + 1]
+  const target = facts.attacks[index + 2]
+  return (
+    member !== undefined &&
+    next !== undefined &&
+    target !== undefined &&
+    isFree(facts, index) &&
+    isFree(facts, index + 1) &&
+    tight([member, next, target]) &&
+    member.durationTicks <= target.durationTicks &&
+    next.durationTicks <= target.durationTicks
+  )
+}
+
+/**
+ * Chromatic approach and enclosure ornament paths whose first member's attack index lies in
+ * `first..last`, in attack order: at every such attack whose members are free of the bound
+ * figure, sound back to back with their target under one harmony event, and last no longer than
+ * the target. Offered only when the active profile declares the capability.
  */
 // @spec-link [[rule_jazz_chromatic_resolution]]
 // @spec-link [[module_musical_profile_capabilities]]
-function chromaticApproachPaths(facts: DomainFacts): readonly FigurePath[] {
+function chromaticApproachPaths(
+  facts: DomainFacts,
+  first: number,
+  last: number,
+): readonly FigurePath[] {
   if (!facts.input.policy.capabilities.allowsChromaticApproach) return []
   const paths: FigurePath[] = []
-  const { attacks, boundAttacks } = facts
-  const free = (attack: PitchAttack) => !boundAttacks.has(attack.attackIndex)
-  const short = (member: PitchAttack, target: PitchAttack) =>
-    member.durationTicks <= target.durationTicks
-  for (const [index, member] of attacks.entries()) {
-    const next = attacks[index + 1]
-    const target = attacks[index + 2]
-    if (next && free(member) && tight([member, next]) && short(member, next))
-      paths.push(...approachPaths(facts, member, next))
-    if (
-      next &&
-      target &&
-      free(member) &&
-      free(next) &&
-      tight([member, next, target]) &&
-      short(member, target) &&
-      short(next, target)
-    )
-      paths.push(...enclosurePaths(facts, [member, next, target]))
+  const { attacks } = facts
+  for (let index = Math.max(first, 0); index <= last; index += 1) {
+    if (approachOffered(facts, index))
+      paths.push(...approachPaths(facts, attacks[index]!, attacks[index + 1]!))
+    if (enclosureOffered(facts, index))
+      paths.push(
+        ...enclosurePaths(facts, [attacks[index]!, attacks[index + 1]!, attacks[index + 2]!]),
+      )
   }
   return paths
 }
@@ -210,7 +275,12 @@ function chromaticApproachPaths(facts: DomainFacts): readonly FigurePath[] {
 /** Stable path identity: kind, binding, attacks, and the complete MIDI path. */
 function pathIdentity(path: FigurePath): string {
   const prefix = path.bindingIdentity === undefined ? '' : `${path.bindingIdentity}/`
-  return `${prefix}${path.kind}/${path.attackIndices.join('-')}/${path.targetAttackIndex}/${path.midis.join('.')}`
+  return `${prefix}${pathIdentityTail(path)}`
+}
+
+/** A path identity without its binding: kind, attacks, and the complete MIDI path. */
+function pathIdentityTail(path: FigurePath): string {
+  return `${path.kind}/${path.attackIndices.join('-')}/${path.targetAttackIndex}/${path.midis.join('.')}`
 }
 
 /** Spread every path into one reserved raw candidate per member attack. */
@@ -218,6 +288,7 @@ function pathCandidates(paths: readonly FigurePath[]): Map<number, RawCandidate[
   const byAttack = new Map<number, RawCandidate[]>()
   for (const path of paths) {
     const identity = pathIdentity(path)
+    const orderHint = pathIdentityTail(path)
     path.attackIndices.forEach((attackIndex, memberPosition) => {
       const reservation: PitchReservation = {
         identity,
@@ -234,6 +305,7 @@ function pathCandidates(paths: readonly FigurePath[]): Map<number, RawCandidate[
         role: path.roles[memberPosition]!,
         midi: path.midis[memberPosition]!,
         obligation: identity,
+        orderHint,
         reservation,
       })
       byAttack.set(attackIndex, list)
@@ -281,15 +353,57 @@ function ordinaryCandidates(facts: DomainFacts, attack: PitchAttack): readonly R
   return [...chord, ...free]
 }
 
-/** Freeze candidates in canonical order: role, obligation, pitch class, octave. */
-function canonical(raw: readonly RawCandidate[]): readonly PitchCandidate[] {
-  const sorted = [...raw].sort(
+/**
+ * The default-locale collator. `a.localeCompare(b)` with no locale or options is specified as a
+ * fresh default collator's `compare(a, b)`, so this one shared instance orders identically.
+ */
+const DEFAULT_COLLATOR = new Intl.Collator()
+
+/** Collator order of two strings; equal strings, the common case, skip the collator. */
+function collate(a: string, b: string): number {
+  return a === b ? 0 : DEFAULT_COLLATOR.compare(a, b)
+}
+
+/** The canonical order: role, then obligation, both collated, then pitch class, then MIDI. */
+function compareCanonical(a: RawCandidate, b: RawCandidate): number {
+  return (
+    collate(a.role, b.role) ||
+    collate(a.obligation, b.obligation) ||
+    pc(a.midi) - pc(b.midi) ||
+    a.midi - b.midi
+  )
+}
+
+/** Plain code-unit order of two strings. */
+function codeUnitOrder(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0
+}
+
+/**
+ * Sort candidates by `compareCanonical`. A cheap code-unit guess orders them first; when the
+ * canonical comparator then finds every adjacent pair strictly in order, the guess is the only
+ * order the comparator allows, so a full sort would return it too, and the collator runs only
+ * once per adjacent pair. Any other guess falls back to the full canonical sort.
+ */
+function canonicalOrder(raw: readonly RawCandidate[]): readonly RawCandidate[] {
+  /** The string the guess orders obligations by. */
+  const hint = (candidate: RawCandidate) => candidate.orderHint ?? candidate.obligation
+  const guess = [...raw].sort(
     (a, b) =>
-      a.role.localeCompare(b.role) ||
-      a.obligation.localeCompare(b.obligation) ||
+      codeUnitOrder(a.role, b.role) ||
+      codeUnitOrder(hint(a), hint(b)) ||
       pc(a.midi) - pc(b.midi) ||
       a.midi - b.midi,
   )
+  const confirmed = guess.every(
+    (candidate, index) => index === 0 || compareCanonical(guess[index - 1]!, candidate) < 0,
+  )
+  return confirmed ? guess : [...raw].sort(compareCanonical)
+}
+
+/** Freeze candidates in canonical order: role, obligation, pitch class, octave. */
+function canonical(raw: readonly RawCandidate[]): readonly PitchCandidate[] {
+  const sorted = canonicalOrder(raw)
   return deepFreeze(
     sorted.map((value, enumerationIndex) => {
       const octaveIndex = Math.floor(value.midi / 12)
@@ -308,6 +422,91 @@ function canonical(raw: readonly RawCandidate[]): readonly PitchCandidate[] {
 }
 
 /**
+ * A copy of a free domain for the shared store, in candidate objects of its own. Kept domains and
+ * the short-lived bound domains would otherwise come from one object literal; V8, seeing most of
+ * that literal's objects survive, would then allocate the short-lived ones straight into old
+ * space, which multiplies garbage-collection work for every later search in the process.
+ */
+function retainedDomain(domain: readonly PitchCandidate[]): readonly PitchCandidate[] {
+  return deepFreeze(domain.map((candidate) => ({ ...candidate })))
+}
+
+/** A fresh, empty free-domain store for one input's request, collection and capability. */
+export function makeFreeDomainStore(
+  input: BoundPitchPlannerInput,
+  collection: readonly number[],
+): FreeDomainStore {
+  return {
+    request: input.request,
+    collection,
+    allowsChromaticApproach: input.policy.capabilities.allowsChromaticApproach,
+    playable: playableMidis(input),
+    domains: new Map(),
+  }
+}
+
+/** A fresh, empty domain memo for one phrase's attacks over a shared free-domain store. */
+export function makeCandidateDomainMemo(
+  attacks: readonly PitchAttack[],
+  store: FreeDomainStore,
+): CandidateDomainMemo {
+  return { attacks, store, domains: new Map() }
+}
+
+/** True when `memo` was made for exactly these attacks, collection, request and capability. */
+function memoFits(
+  memo: CandidateDomainMemo,
+  input: BoundPitchPlannerInput,
+  attacks: readonly PitchAttack[],
+  collection: readonly number[],
+): boolean {
+  const { store } = memo
+  return (
+    memo.attacks === attacks &&
+    store.collection === collection &&
+    store.request === input.request &&
+    store.allowsChromaticApproach === input.policy.capabilities.allowsChromaticApproach
+  )
+}
+
+/**
+ * Index of a free attack's domain within one phrase: its attack index and, when chromatic
+ * ornaments are offered, whether the attacks before and after it are bound, the only binding
+ * facts its ornament members depend on.
+ */
+function domainMemoKey(facts: DomainFacts, attackIndex: number): number {
+  if (!facts.input.policy.capabilities.allowsChromaticApproach) return attackIndex * 4
+  const before = facts.boundAttacks.has(attackIndex - 1) ? 1 : 0
+  const after = facts.boundAttacks.has(attackIndex + 1) ? 2 : 0
+  return attackIndex * 4 + before + after
+}
+
+/**
+ * Key of a free attack's domain across phrases: every fact its candidates read beyond the store's
+ * request, collection and capability. That is the attack's index, identity, finality and chord;
+ * which chromatic ornaments land on it (an enclosure from the attack before, an approach or an
+ * enclosure from itself); and the chords of the targets those ornaments resolve to.
+ */
+function freeDomainKey(facts: DomainFacts, attack: PitchAttack): string {
+  const index = attack.attackIndex
+  /** The chord pitch classes of the attack at `at`, as key text. */
+  const chord = (at: number) => facts.attacks[at]!.chordPitchClasses.join(',')
+  const jazz = facts.input.policy.capabilities.allowsChromaticApproach
+  const enclosedFromBefore = jazz && enclosureOffered(facts, index - 1)
+  const approach = jazz && approachOffered(facts, index)
+  const enclosure = jazz && enclosureOffered(facts, index)
+  return [
+    index,
+    attack.identity,
+    Number(attack.isFinal),
+    chord(index),
+    `${Number(enclosedFromBefore)}${Number(approach)}${Number(enclosure)}`,
+    enclosedFromBefore || approach ? chord(index + 1) : '',
+    enclosure ? chord(index + 2) : '',
+  ].join('|')
+}
+
+/**
  * Enumerate every attack's canonical candidate domain. Bound member attacks hold only concrete
  * bound-path members; other attacks hold chord tones, free diatonic tones, and Jazz ornament
  * members. Every MIDI value lies inside both the active range and the register window.
@@ -318,23 +517,45 @@ export function buildCandidateDomains(
   input: BoundPitchPlannerInput,
   attacks: readonly PitchAttack[],
   collection: readonly number[],
+  memo?: CandidateDomainMemo,
 ): readonly (readonly PitchCandidate[])[] {
+  const memoized =
+    memo && memoFits(memo, input, attacks, collection)
+      ? memo
+      : makeCandidateDomainMemo(attacks, makeFreeDomainStore(input, collection))
+  const { store } = memoized
   const facts: DomainFacts = {
     input,
     attacks,
     collection,
-    playable: playableMidis(input),
+    playable: store.playable,
     boundAttacks: new Set(input.tensionBinding.attackIndices),
   }
   const bound = pathCandidates(boundPaths(facts))
-  const jazz = pathCandidates(chromaticApproachPaths(facts))
-  return deepFreeze(
+  /** A free attack's domain: from this phrase's memo, else the shared store, else built and kept. */
+  const freeDomain = (attack: PitchAttack): readonly PitchCandidate[] => {
+    const index = attack.attackIndex
+    const slot = domainMemoKey(facts, index)
+    const known = memoized.domains.get(slot)
+    if (known) return known
+    const key = freeDomainKey(facts, attack)
+    let domain = store.domains.get(key)
+    if (!domain) {
+      const jazz = pathCandidates(chromaticApproachPaths(facts, index - 1, index))
+      domain = retainedDomain(
+        canonical([...ordinaryCandidates(facts, attack), ...(jazz.get(index) ?? [])]),
+      )
+      store.domains.set(key, domain)
+    }
+    memoized.domains.set(slot, domain)
+    return domain
+  }
+  // Every domain is already deep-frozen, so freezing the outer array completes a deep freeze.
+  return Object.freeze(
     attacks.map((attack) =>
-      canonical(
-        facts.boundAttacks.has(attack.attackIndex)
-          ? (bound.get(attack.attackIndex) ?? [])
-          : [...ordinaryCandidates(facts, attack), ...(jazz.get(attack.attackIndex) ?? [])],
-      ),
+      facts.boundAttacks.has(attack.attackIndex)
+        ? canonical(bound.get(attack.attackIndex) ?? [])
+        : freeDomain(attack),
     ),
   )
 }

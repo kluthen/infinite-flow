@@ -156,12 +156,13 @@ export function compileContourPlan(input: {
                 suffix[k + 1]!,
               )
     }
+  // Rows hold only numbers, so a shallow freeze is already deep; deepFreeze then skips them.
   return deepFreeze({
     contour: input.contour,
     impossible: count !== CHECKPOINT_COUNT,
     checkpointAttackIndices: input.checkpointAttackIndices,
     domains: input.domains,
-    suffix,
+    suffix: suffix.map((row) => Object.freeze(row)),
     finalAttackIndex: input.finalAttackIndex,
     finalMidis: input.finalMidis,
   })
