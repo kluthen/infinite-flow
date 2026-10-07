@@ -5,7 +5,8 @@ session-keeping candidates added 2026-09-28, D129; favorites moved here from v2 
 a note on saving note density added 2026-09-28, D146; the end-of-measure chord-fit check moved
 here from v2 as a nice-to-have 2026-10-03, D174; rhythm candidates added 2026-10-03, D175; two controller-connection candidates added
 2026-10-06, D190 and D192; stray notes from controllers, a played-notes pruning candidate and a
-note on the chord-fit check added 2026-10-06, D196).
+note on the chord-fit check added 2026-10-06, D196; pre-generating phrases at Idle added as a
+candidate 2026-10-07, D206).
 Not yet specced.
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
@@ -246,6 +247,33 @@ placement**; they sit here as v3 is the next version to be specced.
     (`rule_played_onset_latency_compensation`), and v2's stance that there is no player-facing
     calibration step (v2's master spec defers such a step to v3, where it pairs with "my
     instrument").
+
+## Pre-generating phrases at Idle (candidate, not committed)
+
+Recorded 2026-10-07 (D206), the owner's proposal for the next version, in their words: "while
+start session isn't pushed have background generate a few phrases in advance (no more than 4)
+that give us some time ahead." **A v3 candidate, not committed scope and not designed.**
+
+- **What it is.** While the app is Idle, before Start, the app generates in the background up to 4
+  look-ahead phrases following the phrase on screen, so a session starts with time in hand.
+- **Why.** In v2 the failure ladder keeps 1.075 s for the standalone attempt, more than one
+  measure at 240 BPM, so at 240 BPM phrase 2 is always generated standalone and its join to phrase
+  1 is never smoothed; the owner keeps that for v2 (D205). Generated before Start, with no
+  deadline, phrase 2 could carry in from phrase 1 again at fast tempos. It serves P2, the Speed
+  Builder, who reads and plays at the fastest tempos ([personas](../../personas.md)).
+- **What it changes in v2.** Idle has no deadline and generates no phrase with carry-in (D203);
+  pre-generated phrases would be phrases with carry-in, generated at Idle.
+- **Not v2's prewarm.** The prewarm (`module_generation_prewarm`) only warms the generator's
+  rhythm memo for the current settings on the one generation worker, and produces no phrase.
+- **Open, with proposals,** in the [register](../../open-questions.md#v3-pre-generation-at-idle-o107):
+  - O107: how many, and whether the session keeps them ahead or only spends them;
+  - O108: what happens to them when the player changes a setting, switches profile, regenerates
+    phrase 1, or resizes the window before Start;
+  - O109: how it relates to the prewarm, and a regeneration at Idle that must not wait behind it;
+  - O110: the starting note, and whether a pre-generation in progress keeps a session from
+    starting;
+  - O111: whether a pre-generated phrase must be exactly the phrase the session would have
+    generated there (mutations, tension arc, density step-down, seeds).
 
 ## Depends on
 

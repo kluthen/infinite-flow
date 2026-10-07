@@ -1,6 +1,6 @@
 # Infinite Flow Roadmap
 
-Status: draft v1.7 (rewritten 2026-09-25 after the persona and vision session; browser scope
+Status: draft v1.8 (rewritten 2026-09-25 after the persona and vision session; browser scope
 added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keeping candidates and
 export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
 session view placed in v5 2026-09-28, D133; v2 replanned 2026-10-03: real-hardware checks as
@@ -8,7 +8,8 @@ v2.4, D173, and the chord-fit check moved to v3 as a nice-to-have, D174; v3 rhyt
 added, D175; v2.1, v2.2 and v2.4 compacted into one v2.0 release 2026-10-05, D183; Tone.js noted
 as a candidate, D185; real-program export checks after the v2.0 tag and Bluetooth MIDI
 best-effort 2026-10-06, D191, D193; USB keyboard checks after the v2.0 tag and the vision
-rewrite carry-over 2026-10-06, D198, D199)
+rewrite carry-over 2026-10-06, D198, D199; pre-generating phrases at Idle added as a v3
+candidate 2026-10-07, D206)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -155,6 +156,11 @@ The owner's ideas, recorded so they are not lost. None of them is scope for any 
   little for tension and release), all reached by a new note-density value, Custom. Recorded in
   [v3](versions/v3/README.md#rhythm-candidates-custom-note-density-candidates-not-committed);
   that is not a v3 placement. Open: O100–O103.
+- **Pre-generating phrases at Idle (v3 candidate; D206).** Before Start, the app generates up to
+  4 look-ahead phrases in the background, so a session starts with time in hand and phrase 2 can
+  carry in from phrase 1 again at fast tempos, which v2 gives up at 240 BPM (D205). Recorded in
+  [v3](versions/v3/README.md#pre-generating-phrases-at-idle-candidate-not-committed). Open:
+  O107–O111.
 - **Tone.js for the backing (version open; D185).** Using the Tone.js audio library, mainly to add
   more accompaniment voices; v2 synthesizes its backing with plain Web Audio and bundles no audio
   library. An idea for later, not decided; more voices are v4's accompaniment with roles.

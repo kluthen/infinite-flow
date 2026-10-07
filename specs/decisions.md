@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.35
+Status: draft v2.36
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1265,3 +1265,49 @@ fact in the live documents (see the [archive index](archive/README.md) and
     coding team stops and reports instead of re-recording v1's goldens.
   - It is done before the v2.0 tag and tracked as a new issue, ISS-010.
   Master spec §11 item 3; build plan chunk 21.
+- **D205 (2026-10-07): the phrase-2 join at 240 BPM is locked as shipped for v2.** The product
+  owner's ruling ("Lock it as is for now") on the measured consequence of D203, which shipped in
+  `5a587bb`. The build measured the time-aware ladder's two constants in Chromium
+  (`docs/generation-latency.md`, "Failure-ladder reserve constants (2026-10-07)"): the worker's
+  restart cost, median 49 ms and maximum 80 ms, gives `WORKER_RESPAWN_SECONDS` = 0.125 s; the
+  standalone attempt's maximum of 618.6 ms, with a ×1.5 margin, gives
+  `STANDALONE_BUDGET_SECONDS` = 0.95 s. Their sum, the standalone reserve of 1.075 s, is longer
+  than one measure at 240 BPM (1 s), which is the whole of phrase 2's deadline. So at 240 BPM
+  phrase 2 is always requested standalone first and never carries in from phrase 1 (568 of 568
+  sweep cases): that join is never smoothed (master spec §3). Every later phrase, with a
+  three-measure deadline, starts with its carry-in attempts. At 60 and 120 BPM the time rule drops
+  carry-in only 1 to 2 times in 2,840 joins (once at 60 BPM, twice at 120 BPM). The real-cost
+  sweep shows 0 of 568 cases repeating a phrase at 60, 120 and 240 BPM (load 1.08 → 3.00), so §11
+  item 1 is met. Decided:
+  - v2 keeps this as shipped: no constant is retuned to win back phrase 2's carry-in at 240 BPM.
+  - Turned down: a look-ahead-only standalone budget, a reserve of 0.675 s, which would leave
+    phrase 2 a carry-in window of 0.33 s at 240 BPM, at the cost of a tail risk: a standalone
+    attempt near its fuel cap could outrun that budget.
+  - Winning carry-in back at fast tempos is left to the owner's v3 candidate (D206).
+  - Settled by `spec-writer` as consequences, under the owner's standing delegation: master spec
+    §4 states the measured consequence and that it is kept for v2; build plan chunk 21 marks item
+    1 met and the ISS-009 and time-aware-ladder items shipped. Closing ISS-009 in `issues/` is the
+    coding team's.
+  Master spec §4; build plan chunk 21.
+- **D206 (2026-10-07): pre-generating phrases at Idle is a candidate for v3.** The product
+  owner's proposal for the next version, in their words: "while start session isn't pushed have
+  background generate a few phrases in advance (no more than 4) that give us some time ahead."
+  Recorded as a v3 candidate, not committed scope and not designed:
+  - While the app is Idle, before Start, the app generates in the background up to 4 look-ahead
+    phrases following the phrase on screen, so a session starts with time in hand.
+  - Why: phrase 2 would be generated before Start, with no deadline, so it could carry in from
+    phrase 1 again at fast tempos, which D205 gives up for v2.
+  - It changes a settled v2 fact: Idle has no deadline and generates no phrase with carry-in
+    (D203). Pre-generated phrases would be phrases with carry-in, generated at Idle.
+  - It is not v2's prewarm (`module_generation_prewarm`), which only warms the generator's rhythm
+    memo for the current settings and produces no phrase.
+  - Opened O107–O111, with proposals, in the [register](open-questions.md#v3-pre-generation-at-idle-o107)
+    and recorded in [v3](versions/v3/README.md#pre-generating-phrases-at-idle-candidate-not-committed).
+- **D207 (2026-10-07): `rule_dropped_attempt_cancelled` becomes its own STABLE rule and joins the
+  CONTRACT.** The product owner's approval. `rule_dropped_attempt_cancelled` is promoted to STABLE
+  as a rule of its own, beside `rule_session_generation_failure_ladder`, together with
+  `module_generation_worker_cancellation`, and the rule joins the CONTRACT's surface
+  (`contract_infinite_flow_first_release`, version 1.7 at this date). Only the approval is
+  recorded here: `documentalist` applies it in `docs/`, under its own rules for promotion and for
+  what the CONTRACT lists (it lists no ARCHITECTURE-layer module today). Nothing in `specs/`
+  changes beyond this record. Build plan chunk 21.

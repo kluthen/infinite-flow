@@ -1,6 +1,6 @@
 # v2 — Rolling Phrase
 
-Status: consolidated into the master spec (2026-09-27; master spec v1.35, 2026-10-06, D183–D199).
+Status: consolidated into the master spec (2026-09-27; master spec v1.38, 2026-10-07, D183–D205).
 The individual topic documents that were
 drafted 2026-09-26 are archived; [master-spec.md](master-spec.md) is now the authoritative,
 ID-free description of v2, which ships as one release, v2.0, since D183 (its parts keep the

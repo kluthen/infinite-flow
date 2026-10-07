@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.41
+Status: draft v0.42
 
 ## Status Snapshot
 
@@ -304,6 +304,18 @@ Status: draft v0.41
   candidate order stops depending on the browser's locale** (D204, ISS-010): plain code-unit
   order, with v1's output proven byte-identical against the goldens and the identity harness, or
   the coding team stops and reports (§11 item 3). Both come before the tag. Nothing newly opened.
+- **Owner rulings of 2026-10-07 after the time-aware ladder shipped (D205–D207).** **§11 item 1
+  is met**: with the time-aware ladder and the worker cancellation (`5a587bb`), the real-cost
+  sweep shows 0 of 568 at 60, 120 and 240 BPM. The measured standalone reserve, 1.075 s (0.95 s
+  budget + 0.125 s worker restart), is longer than one measure at 240 BPM, so there phrase 2 is
+  always standalone and its join to phrase 1 never smoothed; the owner **locks this as shipped
+  for v2** and turned down a look-ahead-only budget of 0.675 s (D205; master spec v1.38 §4,
+  build plan v0.13 chunk 21). The owner's proposal for the next version, **pre-generating up to 4
+  look-ahead phrases at Idle before Start**, is recorded as a
+  [v3 candidate](versions/v3/README.md#pre-generating-phrases-at-idle-candidate-not-committed)
+  (D206), opening **O107–O111**. `rule_dropped_attempt_cancelled` is approved as its own STABLE
+  rule, with `module_generation_worker_cancellation`, the rule joining the CONTRACT, for
+  `documentalist` (D207).
 - **Stray notes from controllers (2026-10-06, D196)**, the owner's ruling. Short in-between notes
   a controller sends while the fingers change position are a generic matter: nothing is built for
   one device, v2 changes nothing, and acknowledgement needs no change (they light nothing unless
@@ -343,7 +355,7 @@ Status: draft v0.41
   in memory only and does not survive a page reload (v2 saves nothing to browser storage). The
   master spec was then at v1.5 (v1.25 since D171). The one gap left open then (**O84**: starting
   a session from the Review) was closed 2026-09-30 (D169).
-- **Open:** 8 questions remain live: O86 (D129, a v3 question since D130) and O100–O103 (D175, v3 rhythm candidates), plus the 3
+- **Open:** 13 questions remain live: O86 (D129, a v3 question since D130), O100–O103 (D175, v3 rhythm candidates) and O107–O111 (D206, v3 pre-generation at Idle), plus the 3
   older ones this bullet goes on to describe; O77, which it also describes, was settled on
   2026-10-03 (D176), O57 on 2026-10-05 (D185), O87 the same day (D187), O71 and O105 on
   2026-10-06 (D191, D193), O68 and O69 the same day (D194, D195), and O106, opened with them,

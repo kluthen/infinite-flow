@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.37 (2026-10-07). This is the consolidated, execution-ready specification for
+Status: master spec v1.38 (2026-10-07). This is the consolidated, execution-ready specification for
 v2, which ships as one release, v2.0, whose parts keep the labels v2.0, v2.1, v2.2 and v2.4 (v2.3
 was emptied, and its number is not reused).
 It supersedes the individual v2 draft topic documents,
@@ -149,6 +149,9 @@ at once when the deadline gets too close, so generation time is bounded whatever
 does; an attempt dropped at its deadline is always cancelled; the search allowance with carry-in
 is 160,000 units, with the evidence of the full sweep (§4); and the generator's candidate order
 no longer depends on the browser's locale, with v1's output kept byte-identical (§11 item 3).
+Change in v1.38, the product owner's ruling of 2026-10-07: the measured cost of keeping time for
+the standalone attempt is stated, and kept as is for v2: at 240 BPM phrase 2 is always a
+standalone phrase, its join to phrase 1 not smoothed (§4).
 
 ## 1. Core concept
 
@@ -389,6 +392,18 @@ successful one, so the ladder is held to four more rules:
   where it runs, are constants the build measures and documents with their evidence. Which
   attempt produces a phrase can therefore depend on the machine's speed, as whether a phrase is
   repeated already could; what each attempt generates for its request and seed never does.
+  **Measured, and kept as is for v2.** The build measured, in Chromium, a standalone attempt at
+  up to 618.6 ms and the worker's restart at up to 80 ms (median 49 ms), and keeps 0.95 s and
+  0.125 s for them, margins included: 1.075 s in all. That is longer than one measure at 240 BPM
+  (1 s), the whole of phrase 2's deadline, so at 240 BPM phrase 2 is always requested as a
+  standalone phrase first: it never carries in from phrase 1, and that join is never smoothed
+  (§3). Every later phrase, with a three-measure deadline, starts with its carry-in attempts. At
+  60 and 120 BPM the rule rarely drops carry-in: in the full sweep of 2026-10-07, once at 60 BPM
+  and twice at 120 BPM, out of 2,840 joins at each tempo. The product owner keeps this as shipped for
+  v2. A smaller standalone budget, covering look-ahead attempts only, would have left phrase 2 a
+  short carry-in window at 240 BPM, at the risk of a standalone attempt near its search allowance
+  outrunning it; it was turned down. Generating phrases ahead before Start, which would let
+  phrase 2 carry in again at fast tempos, is a candidate for v3.
 - When step 1 skips or cuts short its carry-in retries, for either reason above, the standalone
   attempt of step 2 is generated with the same request and seed it would have had after three
   failed retries, so skipping changes which attempts run, never what the standalone attempt

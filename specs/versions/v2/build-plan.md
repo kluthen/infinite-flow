@@ -1,6 +1,6 @@
 # Infinite Flow v2 — Build Plan
 
-Status: draft v0.12 (2026-10-07). Chunk 0 is done. Build plan for v2, released as one v2.0 since
+Status: draft v0.13 (2026-10-07). Chunk 0 is done. Build plan for v2, released as one v2.0 since
 spec D183, its parts still labelled v2.0, v2.1, v2.2 and v2.4,
 written from [master spec v1.20](master-spec.md) and kept in step with it since (v1.28). Not yet
 approved for execution. Change in v0.3: the spec gaps are resolved, so the phrase-boundary change
@@ -32,7 +32,11 @@ with what v2.0 ships. Change in v0.12 (spec D203, D204), the owner's later rulin
 the failure ladder becomes time-aware, cancelling a carry-in attempt on the worker and requesting
 the standalone attempt at once when the deadline gets too close, so the cancellation is no longer
 optional; and the candidate order stops depending on the browser's locale (ISS-010), with v1's
-output proven byte-identical, before the tag.
+output proven byte-identical, before the tag. Change in v0.13 (spec D205–D207), the owner's
+rulings of 2026-10-07: item 1 is met, 0 of 568 at 60, 120 and 240 BPM with the time-aware ladder,
+and phrase 2 always standalone at 240 BPM is locked as shipped for v2; ISS-009 is fixed;
+`rule_dropped_attempt_cancelled` and `module_generation_worker_cancellation` are approved for
+STABLE, the rule joining the CONTRACT.
 
 This plan cuts v2 into chunks that one owner can build, test and document at a time, and puts
 them in order. It adds no behaviour. What the app does is in the [master spec](master-spec.md);
@@ -2239,7 +2243,14 @@ The definition of done, on the merged code:
   times faster) and fixes (a) and (b) of spec D200 at 160,000 units: 4 of 568 cases (#344, #349,
   #354, #498). Their carry-in attempts stop on the search allowance, so they keep their three
   retries, at about 2 to 2.5 s each, over the 3 s deadline at 240 BPM and the 6 s deadline at
-  120 BPM. The time-aware ladder (spec D203) is the owner's answer.
+  120 BPM. The time-aware ladder (spec D203) is the owner's answer. **Met on 2026-10-07**
+  (`5a587bb`, spec D205): with the time-aware ladder and the worker cancellation, the full
+  real-cost sweep shows **0 of 568** cases repeating a phrase at their deadline at 60, 120 and
+  240 BPM; machine load 1.08 → 3.00 during the run. The measured reserve, 1.075 s, is longer than
+  one measure at 240 BPM, so there phrase 2 is always requested standalone first (568 of 568
+  cases); at 60 and 120 BPM the time rule drops carry-in once and twice in 2,840 joins. The owner
+  locks this as shipped for v2 (spec D205); evidence in
+  [`docs/generation-latency.md`](../../../docs/generation-latency.md#failure-ladder-reserve-constants-2026-10-07).
 - Item 2: the property tests of chunk 7 check every join made with carry-in, and a join into the
   standalone phrase or into a repeat is held to no join rule. Item 3: the standalone phrase's
   output is v1's.
@@ -2319,7 +2330,9 @@ What the earlier chunks left open:
   the code changes. Item 1 is met only when the real-cost sweep shows 0 of 568; it stands as
   written, with no known-gap note on `rule_look_ahead_deadline`. The milestone is not archived
   before then. Shipped on 2026-10-07: a byte-identical speed-up of the pitch search, (a), and (b)
-  at 160,000 units per carry-in window; 4 of 568 cases still fail (item 1 above).
+  at 160,000 units per carry-in window; 4 of 568 cases still fail (item 1 above). **Fixed on
+  2026-10-07** by the time-aware ladder below (`5a587bb`): item 1 is met, 0 of 568. Closing the
+  issue in `issues/` is the coding team's.
 - **The time-aware failure ladder, before the tag (spec D203).** It replaces the escape clause on
   the cancellation: (a) and (b) did not pass, so (c) is built. When the time left before a
   phrase's deadline falls below what the standalone attempt needs, the session cancels the
@@ -2329,7 +2342,12 @@ What the earlier chunks left open:
   deadline is cancelled too. The standalone attempt's time budget and the worker's restart cost
   (about 0.3 s, still to be measured in Chromium) are implementation constants, measured and
   documented with their evidence. `documentalist` revises `rule_session_generation_failure_ladder`
-  for it before the code changes.
+  for it before the code changes. **Shipped on 2026-10-07** (`5a587bb`): the constants were
+  measured in Chromium, `STANDALONE_BUDGET_SECONDS` 0.95 s and `WORKER_RESPAWN_SECONDS` 0.125 s,
+  a reserve of 1.075 s; at 240 BPM phrase 2 is therefore always standalone, which the owner keeps
+  for v2 (spec D205). The owner approves `rule_dropped_attempt_cancelled` as its own STABLE rule,
+  with `module_generation_worker_cancellation`, the rule joining the CONTRACT (spec D207), for
+  `documentalist` to apply.
 - **ISS-010, the locale-independent candidate order, before the tag (spec D204).** The pitch
   candidates' canonical order stops using `localeCompare` / the default `Intl.Collator` and uses
   plain code-unit order. Done when v1's output is proven byte-identical against the goldens and

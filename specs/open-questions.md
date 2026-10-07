@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.32
+Status: draft v0.33
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -52,7 +52,8 @@ do not block the v2.0 tag. The same day, the machine measurements of the v2.0 ga
 the cold worst case is 277 ms, narrowly over its 250 ms goal, which is not a gate. O106 was opened
 while recording D194: which moment the playhead's 20 ms check (item 6) is measured to. The owner
 answered it the same day with its proposal (D197): the moment the playhead's measure changes, so
-item 6 is met.
+item 6 is met. O107–O111 were opened 2026-10-07 by the owner's v3 candidate of pre-generating up
+to 4 look-ahead phrases at Idle (D206).
 
 ### Registered from the v2 proposal and the prerequisites analysis (2026-09-25)
 
@@ -185,3 +186,46 @@ anything planned. Lexicon terms: [note density](../docs/music/lexicon.md#note-de
   often, how far from the locked rhythm, always returning to it, and is a bend shown? With the
   mutation flag on, is a mutation's temporary bend the same thing as generation's own bend, or a
   separate one?
+
+## v3 pre-generation at Idle (O107+)
+
+Opened 2026-10-07 by `spec-writer` while recording the owner's v3 candidate of pre-generating up
+to 4 look-ahead phrases at Idle, before Start (D206; recorded in
+[v3](versions/v3/README.md#pre-generating-phrases-at-idle-candidate-not-committed)). It is a
+candidate, not committed scope, so none of these blocks anything planned. The proposals are
+`spec-writer`'s strawmen, not decisions. Section numbers (§) are those of the
+[v2 master spec](versions/v2/master-spec.md).
+
+- **O107 - How many, and whether the session keeps them ahead** _(D206; v3 candidate)_: "no more
+  than 4": always up to 4, or only as many as the tempo needs? Are they only generated at Idle and
+  spent by the session, which then goes back to looking one phrase ahead, or does the session keep
+  topping them up? Proposed: up to 4, at Idle only, spent by the session. Topping up during a
+  session would change v2's one-phrase look-ahead (§4) and where a setting change lands at
+  a phrase boundary (§5), so it would be a decision of its own.
+- **O108 - Changes before Start** _(D206; v3 candidate)_: what happens to the pre-generated
+  phrases when, before Start, the player changes a generation setting, switches profile,
+  regenerates phrase 1 by hand, or the window changes size, which can change the note density
+  phrases are generated with (§6) and the staff layout a session holds from Start (§4)? Proposed:
+  anything that replaces phrase 1 or changes a setting a phrase is generated from discards every
+  pre-generated phrase and starts again from phrase 1; a change to the window's size re-checks
+  them against the layout the session would hold, and one that no longer fits is discarded with
+  every phrase after it.
+- **O109 - Pre-generation and the prewarm** _(D206; v3 candidate)_: v2's prewarm
+  (`module_generation_prewarm`) warms the generator's rhythm memo on the one generation worker
+  and produces no phrase. Does pre-generation follow the prewarm, replace it, or make it
+  unneeded? On that one worker, a regeneration at Idle must not wait behind a pre-generated phrase:
+  is the background attempt cancelled, as a dropped attempt is in a session? And is background
+  work at Idle acceptable on a tablet on battery? Proposed: pre-generation runs after the prewarm
+  on the same worker, and any request the player makes at Idle cancels it.
+- **O110 - The starting note and when a session can start** _(D206; v3 candidate)_: phrase 1 is
+  the phrase on screen and its first note is the starting note (§6), so pre-generation chains from
+  phrase 1 and never changes the starting note. But no session starts while a new phrase is being
+  generated (§6): does a background pre-generation count? Does it run while the review shows, or
+  only once the player is back at Idle? Proposed: it does not count, Start never waits for it, and
+  the session takes whatever is ready and generates the rest under its deadlines as v2 does; it
+  runs only at Idle, with a phrase 1 on screen that a session could start from.
+- **O111 - What only a session decides** _(D206; v3 candidate)_: the settings-mutation flag, the
+  multi-phrase tension arc, the session's note-density step-down and the seeds a session draws all
+  shape phrases 2 onward. Must a pre-generated phrase be the phrase the session would have
+  generated at that place, the same request and seed, so a session's phrases do not depend on
+  whether pre-generation ran, only on which attempts succeeded in time? Proposed: yes.
