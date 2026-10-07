@@ -5,7 +5,8 @@ type: RULE
 layer: BUSINESS
 parents:
   - [[rule_settings_saved_on_change]]
-dependents: []
+dependents:
+  - [[rule_failed_read_offers_only_delete_everything]]
 version: 0.1
 priority: 1
 human_name: First Phrase Waits for Saved Settings

@@ -10,7 +10,8 @@ human_name: Delete Everything
 parents:
   - [[req_your_data]]
 notes: Revised 2026-10-07 to version 0.2 (still DRAFT) by the re-sync to the v3.0 master spec v1.3, approved by the product owner: after deleting, the page reloads into its first-visit state. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls outside the vision as it stands (STABLE, scoped through v2) until the proposed v3 revision of the vision is confirmed.
-dependents: []
+dependents:
+  - [[rule_failed_read_offers_only_delete_everything]]
 ---
 
 # Delete Everything
