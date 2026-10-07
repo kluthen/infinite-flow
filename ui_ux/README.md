@@ -6,15 +6,16 @@ for a C MIDI keyboard, B-flat tenor saxophone, or E-flat alto saxophone profile;
 product, controls support it, and notation receives the largest share of space at every supported
 landscape viewport. v2 ("Rolling Phrase," `specs/versions/v2/master-spec.md`) turns that static
 phrase into a continuous, MIDI-acknowledged session with backing audio and a review/export step,
-built as an extension of the same screen and flow rather than a new top-level IA. v2 design work is
-in progress; see `todo.md` for exactly what is written, what is designable now, and what is blocked
-on `spec-writer`.
+built as an extension of the same screen and flow rather than a new top-level IA. v2 shipped as
+version 2.0.0, and its design is frozen in `versions/v2/`. Design work on the next version has not
+started; see `todo.md` for what is pending.
 
 ## Released versions and work in progress
 
 - `versions/<version>/` holds each released version's design exactly as it shipped, frozen, with a
-  `README.md` summarizing the decisions worth keeping. `versions/v1/` is the first release.
-- Everything outside `versions/` and `archive/` is work in progress toward the next version. It
+  `README.md` summarizing the decisions worth keeping. `versions/v1/` is the first release;
+  `versions/v2/` is v2 (Rolling Phrase), released as version 2.0.0.
+- Everything outside `versions/` and `archive/` is work in progress toward the next version, v3. It
   covers the whole interface, not only what the next version adds: a screen the next version
   extends is specified here in full, old behavior included. When a version's design is approved,
   a copy of it goes into `versions/<version>/`, and the work at the root continues toward the one
@@ -26,7 +27,8 @@ on `spec-writer`.
   annotation or comment). Removals are listed only in that block, pointing to the old wording in
   `versions/`. A document new in v2 says so under its title. `grep -rn "v2 new\|v2 changed"`
   finds every mark. The marks stay until design work on the version after starts; the copy in
-  `versions/` keeps them.
+  `versions/` keeps them. v2 has shipped, so the root still carries its v2 marks; they are cleared
+  in one pass when design work on v3 starts, before its first edit.
 
 ## Map
 
@@ -42,9 +44,13 @@ on `spec-writer`.
 - `flows/review-and-export/` specifies what follows a session once its first phrase has sounded: the review of the last session, the export of its generated notes and of the notes the player played, the fresh phrase the staff gets for the next session, leaving the review, and starting again.
 - `screens/last-session-review/` specifies the **Last session** review, which takes the staff's place after a session until the player closes it, with the notes the player played shown under each staff on request, the controls staying usable; no session starts while it shows.
 - `open-questions.md`, `decisions.md`, and `todo.md` are working registers. Read `todo.md` before extending this set.
+- `versions/v2/` holds the v2 design as it shipped in version 2.0.0, frozen, with a summary of the
+  decisions worth keeping.
 - `archive/v1/` holds the closed first-release (v1.0) working record: the complete decision log,
-  the closed question that record answers, and the finished work tracker. The live registers above
-  stay current; the archive is kept verbatim and is never edited further.
+  the closed question that record answers, and the finished work tracker. `archive/v2/` holds the
+  v2 working record the same way: its decision log, its closed questions and its finished work
+  tracker. The live registers above stay current; the archive is kept verbatim and is never
+  edited further.
 
 ## How future UI changes flow
 
