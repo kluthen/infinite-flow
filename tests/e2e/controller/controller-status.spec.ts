@@ -4,9 +4,9 @@
  * unplug), on the workspace harness with the fake MIDI access: disabled during a session, a status
  * display at full strength; its form kept while a session runs and updated once it ends, except
  * for the disconnected badge a controller lost mid-session shows during its countdown (chunk 17); a
- * controller unplugged at Idle keeping its selection and reattaching by itself (item 19); and the
- * forms' order and one width, the `Connect controller` button included (D146), which never moves
- * the rest of the header.
+ * controller unplugged at Idle keeping its selection and reattaching by itself, a selection a page
+ * reload forgets (item 19); and the forms' order and one width, the `Connect controller` button
+ * included (D146), which never moves the rest of the header.
  */
 import { expect, test, type Page } from '@playwright/test'
 
@@ -246,6 +246,28 @@ test.describe('item 19: unplugged at Idle', () => {
     expect(await midiState(page)).toEqual({ kind: 'connected', device: KEYS })
     await expect(sheet(page)).toHaveCount(0)
     expect(await requestCount(page)).toBe(1)
+  })
+
+  // @test-link [[rule_same_controller_reattaches]]
+  test('after a page reload no controller is remembered: plugging the same device back in attaches nothing', async ({
+    page,
+  }) => {
+    await gotoControllerHarness(page)
+    await BADGE_SETUPS.connected(page)
+    await expect.poll(() => statusForm(page)).toEqual(FORM.connected(KEYS.name))
+
+    await page.reload()
+    await page.waitForFunction(() => window.__workspaceHarness?.session.loaded() === true)
+    await plug(page, KEYS)
+
+    // Back to Connect controller: nothing asked the browser for MIDI access, so nothing attached.
+    await expect.poll(() => statusForm(page)).toEqual(FORM.connect)
+    expect(await midiState(page)).toEqual({ kind: 'not-requested' })
+    expect(await page.evaluate(() => window.__workspaceHarness.midi.stateLog())).toEqual([
+      'not-requested',
+    ])
+    expect(await requestCount(page)).toBe(0)
+    await expect(sheet(page)).toHaveCount(0)
   })
 })
 
