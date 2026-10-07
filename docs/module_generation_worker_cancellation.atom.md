@@ -1,6 +1,6 @@
 ---
 id: module_generation_worker_cancellation
-status: DRAFT
+status: STABLE
 priority: 1
 version: 0.1
 human_name: Generation Worker Cancellation
@@ -12,7 +12,7 @@ parents:
   - [[rule_dropped_attempt_cancelled]]
   - [[rule_session_generation_failure_ladder]]
   - [[service_workspace_session_runner_factory]]
-notes: Synced 2026-10-07 after the code landed (post-task sync, same version 0.1): two behaviours the code has were added to the logic, a signal already aborted at the call and a failed creation of the fresh worker; the mechanism is unchanged. Status stays DRAFT: owner-pending, with rule_dropped_attempt_cancelled. Earlier: Created 2026-10-07 before code (pre-code architecture capture) for rule_dropped_attempt_cancelled: the main-thread generation worker client cancels one pending request by replacing its worker. Revised the same day, before code, to serve the owner-approved failure ladder version 0.4 too (spec D203): the same cancellation stops a carry-in attempt the ladder cuts over to the standalone attempt, so rule_session_generation_failure_ladder joins its parents; the mechanism is unchanged. Status DRAFT until the code lands.
+notes: Status DRAFT to STABLE on 2026-10-07 with the product owner's approval, which also put this module on the CONTRACT surface (1.8 MINOR bump), together with rule_dropped_attempt_cancelled. Backed by the code of 5a587bb (src/generation-worker/generation-worker-client.ts, built by src/components/workspace/create-workspace-session.ts with createBrowserGenerationWorker as the factory) and its linked tests (tests/unit/generation-worker/generation-worker-client-cancel.spec.ts), and the session runner aborts a cancelled attempt's signal (src/session/session-runner.ts). Earlier: Synced 2026-10-07 after the code landed (post-task sync, same version 0.1): two behaviours the code has were added to the logic, a signal already aborted at the call and a failed creation of the fresh worker; the mechanism is unchanged. Status stays DRAFT: owner-pending, with rule_dropped_attempt_cancelled. Earlier: Created 2026-10-07 before code (pre-code architecture capture) for rule_dropped_attempt_cancelled: the main-thread generation worker client cancels one pending request by replacing its worker. Revised the same day, before code, to serve the owner-approved failure ladder version 0.4 too (spec D203): the same cancellation stops a carry-in attempt the ladder cuts over to the standalone attempt, so rule_session_generation_failure_ladder joins its parents; the mechanism is unchanged. Status DRAFT until the code lands.
 ---
 
 # Generation Worker Cancellation

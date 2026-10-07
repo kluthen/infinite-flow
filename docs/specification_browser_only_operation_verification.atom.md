@@ -1,6 +1,6 @@
 ---
 id: specification_browser_only_operation_verification
-status: REVIEW
+status: STABLE
 tags: [verification, browser-only, release-gate, v2, release-v2.0, revised-for-v2]
 dependents: []
 layer: ARCHITECTURE
@@ -12,6 +12,7 @@ parents:
 human_name: Browser-Only Operation Verification
 type: SPECIFICATION
 version: 0.2
+notes: Status REVIEW to STABLE on 2026-10-07 with the product owner's approval, which also put it on the CONTRACT surface (1.8 MINOR bump). Approved earlier the same day but held at REVIEW until every clause of its expectation had a test linked to the atom; the last one, lead-line playback and scoring never used, came in 57a254f (tests/e2e/release/optional-scope-absence.spec.ts, no playback or scoring control is ever rendered). Also backed by the linked tests for no audio context or MIDI access before a click and no request leaving the page origin (tests/e2e/release/optional-scope-absence.spec.ts), offline operation (tests/e2e/release/offline-and-fonts.spec.ts) and the source boundaries (tests/unit/boundaries/).
 ---
 
 # Browser-Only Operation Verification

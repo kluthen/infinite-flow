@@ -1,6 +1,6 @@
 ---
 id: mechanic_pitch_search_policy
-status: DRAFT
+status: REVIEW
 dependents: []
 layer: ARCHITECTURE
 priority: 1
@@ -12,7 +12,7 @@ version: 1.1
 human_name: Pitch Search Policy
 type: MECHANIC
 tags: pitch
-notes: Revised 2026-10-07 before code (previous version 1.0, pre-code architecture capture) for the owner-approved failure ladder version 0.3 and its search allowance (spec D200-D202): a second policy version, generation-search-carry-in-v1 with 160,000 units per window, for generations with carry-in, documented with the 2026-10-07 sweep evidence; generation-search-v1 is unchanged. Parents rule_session_generation_failure_ladder and rule_no_carry_in_output_matches_v1 added, the business rules the two allowances serve. Status DRAFT until the code lands.
+notes: Status DRAFT to REVIEW on 2026-10-07 (post-task sync, same version 1.1): the code landed in 888b548 (merged in eb70983): src/domain/generation/orchestration/search-ledger.ts builds generation-search-v1 (250,000 units per window) and generation-search-carry-in-v1 (160,000), with linked tests (tests/unit/domain/generation/orchestration/generation-search-policy-choice.spec.ts, search-ledger.spec.ts); the later pitch-search speed-ups (11336a5, 3911d03) left fuel accounting and outputs unchanged. Earlier: Revised 2026-10-07 before code (previous version 1.0, pre-code architecture capture) for the owner-approved failure ladder version 0.3 and its search allowance (spec D200-D202): a second policy version, generation-search-carry-in-v1 with 160,000 units per window, for generations with carry-in, documented with the 2026-10-07 sweep evidence; generation-search-v1 is unchanged. Parents rule_session_generation_failure_ladder and rule_no_carry_in_output_matches_v1 added, the business rules the two allowances serve. Status DRAFT until the code lands.
 ---
 
 # Pitch Search Policy

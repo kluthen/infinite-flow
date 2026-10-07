@@ -1,6 +1,6 @@
 ---
 id: rule_same_controller_reattaches
-status: REVIEW
+status: STABLE
 parents:
   - [[rule_controller_attached_definition]]
 layer: BUSINESS
@@ -11,6 +11,7 @@ tags: [v2, release-v2.0, midi]
 dependents:
   - [[rule_start_while_controller_away]]
 type: RULE
+notes: Status REVIEW to STABLE on 2026-10-07 with the product owner's approval, together with the matching CONTRACT 1.8 MINOR bump. Approved earlier the same day but held at REVIEW until every clause of its expectation had a test linked to the atom; the last one, a page reload forgetting the selection, came in 57a254f (tests/e2e/controller/controller-status.spec.ts, after a page reload no controller is remembered: plugging the same device back in attaches nothing). Also backed by the linked tests for a controller unplugged at Idle (tests/e2e/controller/controller-status.spec.ts), in the review (tests/e2e/review/review-no-start.spec.ts, tests/e2e/session/session-midi-controller-loss.spec.ts) and a different device never picked up (tests/e2e/midi/midi-input.spec.ts).
 ---
 
 # Same Controller Reattaches by Itself
