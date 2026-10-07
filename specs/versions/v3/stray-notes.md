@@ -1,7 +1,7 @@
 # v3.0 — Stray Notes from Controllers
 
-Status: draft v1 (2026-10-07). Everything tagged (proposed) is spec-writer's recommendation,
-awaiting the owner's overall review (D212).
+Status: draft v2 (2026-10-07). spec-writer's recommendations, approved by the owner at the
+overall review (D216).
 
 Recorded by D196; in v3.0 since D211 and D212. Background:
 [v3 README](README.md#stray-notes-from-controllers).
@@ -19,7 +19,7 @@ for one device (D196).
 - They would distort Jam's doodle and the key and mode suggestion (v3.2), which is why the filter
   comes first.
 
-## 2. Rules (proposed)
+## 2. Rules
 
 - **A very short note** is a played note whose length, from note-on to note-off, is under a fixed
   threshold.
@@ -43,4 +43,4 @@ for one device (D196).
 
 ## 4. Open
 
-The proposals above close at the owner's overall review. No question is registered for them.
+None. The threshold is measured before the v3.0 gate (§3).

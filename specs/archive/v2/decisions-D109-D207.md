@@ -1294,7 +1294,7 @@
     (D203). Pre-generated phrases would be phrases with carry-in, generated at Idle.
   - It is not v2's prewarm (`module_generation_prewarm`), which only warms the generator's rhythm
     memo for the current settings and produces no phrase.
-  - Opened O107–O111, with proposals, in the [register](../../open-questions.md#v3-pre-generation-at-idle-o107)
+  - Opened O107–O111, with proposals, in the [register](../../decisions.md)
     and recorded in [v3](../../versions/v3/README.md#pre-generating-phrases-at-idle).
 - **D207 (2026-10-07): `rule_dropped_attempt_cancelled` becomes its own STABLE rule and joins the
   CONTRACT.** The product owner's approval. `rule_dropped_attempt_cancelled` is promoted to STABLE

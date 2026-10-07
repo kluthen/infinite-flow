@@ -3,7 +3,8 @@
 Status: direction, split into releases (2026-10-07, D211; v3.0.1 merged into v3.0, D212). Not yet specced. The items and
 candidates gathered here from 2026-09-25 on are recorded in the decisions log: D128–D130, D146,
 D174, D175, D190, D192, D196, D206, D209 and D210. D211 places each of them in a release, moves
-two to v4 and drops four. D212 merges v3.0.1 into v3.0.
+two to v4 and drops four. D212 merges v3.0.1 into v3.0. D216 approves spec-writer's
+recommendations at the owner's overall review: v3.0 is drafted, and Jam's main questions are settled.
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
 Also every tester on an instrument v1 doesn't ship. See [personas](../../personas.md).
@@ -17,8 +18,7 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
 | **v3.2**   | Jam                           | [Jam](#jam-growing-the-players-doodle), the [key and mode suggestion](#key-and-mode-suggestion), the [rhythm lock and mutation](#rhythm-lock-and-mutation) |
 | **v3.x**   | Kept, likely to move or go    | [Learning from positive signals](#v3x--learning-from-positive-signals)                                                                                          |
 
-- **v3.0 drafts** (2026-10-07, draft v1, recommendations tagged (proposed) for the owner's
-  overall review): [persistence](persistence.md), [kept sessions and favorites](kept-sessions.md),
+- **v3.0 drafts** (2026-10-07, draft v2, approved at the owner's overall review, D216): [persistence](persistence.md), [kept sessions and favorites](kept-sessions.md),
   [my instrument](my-instrument.md), [pre-generation at Idle](pre-generation.md),
   [stray notes](stray-notes.md).
 - **Research:** [storage grounding](storage-grounding.md), [Jam grounding](jam-grounding.md);
@@ -89,11 +89,8 @@ review asks no confirmation
   is not exported; starting a new session asks for confirmation when the review holds unexported
   favorites. Marking a bar range instead of a whole phrase was already noted as a v3 idea, tied to
   seeding a continuation.
-- **Open: O86**, what makes a favorite "exported" ([register](../../open-questions.md)). It only
-  matters if v3 keeps a confirmation before discarding unexported favorites. With local
-  persistence, a favorite may survive the session, which could change the question.
-- **Meets [keeping sessions](#keeping-sessions).** Pinning a session is also a way of marking what
-  the player liked; how favorites relate to it is part of settling favorites.
+- **Settled by D216** ([kept-sessions.md](kept-sessions.md)): marking a favorite pins its session,
+  so a new session never asks for confirmation and O86 is closed as moot.
 
 ### Follow-ups merged into v3.0
 
@@ -117,15 +114,7 @@ ahead." Not designed.
   pre-generated phrases would be phrases with carry-in, generated at Idle.
 - **Not v2's prewarm.** The prewarm (`module_generation_prewarm`) only warms the generator's
   rhythm memo for the current settings on the one generation worker, and produces no phrase.
-- **Open, with proposals,** in the [register](../../open-questions.md#v3-pre-generation-at-idle-o107):
-  - O107: how many, and whether the session keeps them ahead or only spends them;
-  - O108: what happens to them when the player changes a setting, switches profile, regenerates
-    phrase 1, or resizes the window before Start;
-  - O109: how it relates to the prewarm, and a regeneration at Idle that must not wait behind it;
-  - O110: the starting note, and whether a pre-generation in progress keeps a session from
-    starting;
-  - O111: whether a pre-generated phrase must be exactly the phrase the session would have
-    generated there (mutations, tension arc, density step-down, seeds).
+- **Settled by D216** (O107–O111 closed): [pre-generation.md](pre-generation.md).
 
 ### Stray notes from controllers
 
@@ -203,9 +192,9 @@ not settled; a true spec session will follow.**
      notation, and are acknowledged like any expected note. Proposed first.
   2. **Ornaments written as symbols or small notes** (grace notes, mordents, trills, turns). They
      do not fit the quarter, eighth and sixteenth grid, need new notation, have no
-     acknowledgement rule, and touch both exports. This is open question O47 (ornament
-     representation, [register](../../open-questions.md)); the catalogue leans toward symbols,
-     with only the main note checked for acknowledgement. The owner accepts the clash with the
+     acknowledgement rule, and touch both exports. This was open question O47 (ornament
+     representation); settled by D216: ornaments are notated symbols with playback expansion,
+     and only the main note is checked for acknowledgement. The owner accepts the clash with the
      rhythm representation as not an issue in itself; it makes this family the larger piece.
 - **A catalogue first.** Before the spec session, a researcher prepares a catalogue of
   embellishments: one entry per figure with its name and plain definition, a small staff example,
@@ -285,10 +274,15 @@ is MIDI-seeded continuation (D53), named and given its purpose: v3's most comple
   measure then passes before the first generated phrase sounds ("hopefully that's enough to begin
   something", the owner). A silent measure needs a measure grid, so the doodle is played over a
   pulse; at 240 BPM one measure is 1 s, a tight budget for the first generation.
-- **The tempo is open** (O125, raised by the owner): the doodle's tempo sets the measure grid and
-  how played notes become written rhythm. Recommended: the player plays over the app's pulse at
-  the selected tempo; working the tempo out from a freely played doodle is a later candidate.
-- **Open:** O112, the rest of what the doodle is ([register](../../open-questions.md#v3-jam-o112)).
+- **Tempo** (O125, raised by the owner; settled by D216): the doodle is played over the app's
+  pulse at the selected tempo, and the phrases after it keep that tempo. Working the tempo out
+  from a freely played doodle is a later candidate.
+- **The rest of the doodle** (O112, settled by D216): the silent measure that ends a doodle
+  doubles as the generation measure (generation starts when a measure begins with no note
+  sounding, and is dropped if the player plays again inside it); when a phrase is not ready, the
+  wait extends measure by measure with the pulse going on, and v2's standalone fallback applies;
+  the doodle is continued, not repeated. It steers the generator's ranking rather than imposing
+  hard constraints ([Jam grounding](jam-grounding.md)).
 
 ### Key and mode suggestion
 
@@ -308,27 +302,28 @@ of staying silent.**
      [mode](../../../docs/music/lexicon.md#mode)). Hard: the same notes are C Ionian or D Dorian
      depending on where the doodle settles. The clues are the first and last notes, the longest
      notes and the notes on strong beats, and a short doodle often doesn't decide.
-- **Proposed shape (strawman, not decided):**
+- **Shape** (settled by D212 and D216):
   - The app suggests a key and mode, maybe with one or two alternatives; the player confirms or
     keeps their setting. The player's choice stays authoritative.
   - When the doodle fits the selected key and mode, nothing is suggested.
   - **Amended by D212.** When several answers fit, the app rates them and "casts a dice": a
     weighted draw among the most probable, so the likeliest answer comes up most often. The
-    owner: "it's a jam so, in the end it's only so much important." The draw is seeded
-    (proposed), so the same doodle in the same session gives the same suggestion. Whether the
-    player still confirms the drawn answer is O113.
+    owner: "it's a jam so, in the end it's only so much important." The draw is seeded, so the
+    same doodle in the same session gives the same suggestion. The player confirms the drawn
+    answer (D216).
   - Very short notes are ignored (the stray-notes filter, v3.0).
   - The suggestion is deterministic: the same doodle always gives the same suggestion, so a
     phrase replay key still reproduces a session.
 - **Research done:** [key and mode estimation](../../../docs/music/key-and-mode-estimation.md).
   No published method covers all seven modes on short melodies; the best on short single lines
-  (Temperley's probabilistic model) picks among 24 major and minor keys. Recommended method
-  (proposed): score all 84 key and mode pairs from note roles weighted by length, with a bonus
+  (Temperley's probabilistic model) picks among 24 major and minor keys. The method (D216,
+  closing O113): score all 84 key and mode pairs from note roles weighted by length, with a bonus
   for a home first or last note; keep at most 3 candidates within half of the best; draw among
   them with a seeded draw in integers only (`Math.exp` can differ between browsers); compute in
   concert pitch and name the answer in written pitch. Reimplemented in TypeScript: Essentia is
-  AGPL, music21 is Python.
-- **Open:** O113, its details.
+  AGPL, music21 is Python. At least 5 pitch classes, 6 notes and 2 beats of sounding time are
+  needed; nothing is suggested when the selection is among the candidates, or when under 80 % of
+  the doodle fits the winner.
 
 ### Rhythm lock and mutation
 
@@ -340,20 +335,24 @@ of rhythm", [move to v4](#moved-to-v4-rhythm-ratios-and-the-rhythm-editor).
 - **Rhythm lock.** When set, the rhythm does not change. Generation may bend that rule a little to
   create [tension and release](../../../docs/music/lexicon.md#tension-and-resolution), but the
   rhythm stays stable across the session.
-  - The doodle's rhythm could be what the lock holds, which would answer part of O103 (what the
-    lock holds) (O114).
-  - Without the editor and the ratios, the lock no longer needs the Custom note density to be
-    reached (proposed): it can be a switch of its own. Custom and O100 go to v4 with the ratios.
+  - **What it holds** (D216): the note starts on beats 1 and 3 and the number of notes in each
+    measure. A bend is one Close mutation, or one Near mutation in one measure, dropped at the
+    next phrase. Whether a bend is shown, and whether the lock can hold the doodle's own rhythm,
+    stay open (O103, O114).
+  - It is a switch of its own, not reached through the Custom note density (D216). Custom and
+    O100 go to v4 with the ratios.
 - **Mutation, with a list of allowed mutations** (D211, the owner's words: "rhythm lock/mutation
   option (with a list of allowed mutations)"). Mutation could become how far the phrases may drift
-  from the doodle, from close variations to looser ones (D209). What "a list of allowed mutations"
-  lists is open: O118. The owner wants it researched like the embellishment catalogue (D212);
-  research done: [mutation catalogue](../../../docs/music/mutation-catalogue.md).
+  from the doodle, from close variations to looser ones (D209). Settled by D216 (O118) from the
+  [mutation catalogue](../../../docs/music/mutation-catalogue.md): both readings, kept apart.
+  Vary settings gets a player-chosen allowed list, offered as six groups, checked for a legal move
+  before it is accepted; under Jam, a **drift** control with three or four positions unlocks the
+  catalogue's mutations up to a distance, closest first. Vary settings keeps mutating key and mode
+  when the player turns it on; D209's rule governs the suggestion only (O121).
 - **Already settled with the settings-mutation flag** (D175; the flag is v2's, master spec §5):
   while the lock is set, a mutation cannot alter the rhythm durably; a temporary bend is the only
   latitude.
-- **Open:** O103 (what the lock holds, how far it bends), O114 (Jam and the rhythm controls),
-  O118 (the list of allowed mutations), in the [register](../../open-questions.md).
+- **Open:** the rest of O103 and O114, in the [register](../../open-questions.md).
 
 ## v3.x — Learning from positive signals
 

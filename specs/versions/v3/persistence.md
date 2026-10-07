@@ -1,8 +1,7 @@
 # v3.0 — Local Persistence
 
-Status: draft v1 (2026-10-07). Everything tagged (proposed) is spec-writer's recommendation,
-awaiting the owner's overall review (the owner, D212: "I'll tentatively bow to your
-recommendations first and we will do an overall review afterward").
+Status: draft v2 (2026-10-07). spec-writer's recommendations, approved by the owner at the
+overall review (D216).
 
 The first time Infinite Flow keeps anything across a page reload. The facts about today's code
 come from [storage-grounding.md](storage-grounding.md); its sources are cited there as W1–W17.
@@ -15,18 +14,18 @@ Related documents: [kept sessions and favorites](kept-sessions.md), [my instrume
 - **Everything stays on the player's device.** Nothing is sent anywhere: the network rules of v2
   stay as they are (`connect-src 'self'`, no `fetch` of player data). Data leaves the device only
   through an export the player triggers.
-- **Saved by construction, one place only** (proposed). Storage code lives in one directory, on the
+- **Saved by construction, one place only**. Storage code lives in one directory, on the
   model already used for Web Audio (`src/audio/`) and Web MIDI (`src/midi/`); the ban on storage
   APIs stays everywhere else. The session history and the export modules stay storage-free, so
   their "touches no storage" test keeps holding; a separate layer saves what they produce.
-- **The player can see and delete what is kept** (proposed): one place, "Your data", lists what
+- **The player can see and delete what is kept**: one place, "Your data", lists what
   the app keeps, how much space it uses, whether the browser protects it (§5), and offers
   **Delete everything**. Per-item deletion is specified with each item.
 - **Saving never gets in the way of playing.** A failed save (storage full, browser refusal) never
   stops or delays a session. The app keeps working in memory and says so outside a running
   session (a running session never asks the player for anything; v2 rule).
 
-## 2. What is saved automatically (proposed)
+## 2. What is saved automatically
 
 Settings come back as the player left them:
 
@@ -43,7 +42,7 @@ Settings come back as the player left them:
 Not saved: the tempo an adaptive-tempo session reached (it belongs to that session), pre-generated
 phrases ([pre-generation.md](pre-generation.md)), and anything in a running session's state.
 
-## 3. Where and how (proposed)
+## 3. Where and how
 
 - **IndexedDB**, one database for the app. `localStorage` is capped at about 5 MiB, synchronous
   and string-only; kept sessions need more (storage grounding §B1).
@@ -55,11 +54,11 @@ phrases ([pre-generation.md](pre-generation.md)), and anything in a running sess
   memory).
 - **Upgrades migrate.** A new app version that changes the schema migrates the stored data when it
   opens the database.
-- **An outdated tab stops saving** (proposed): the app updates silently (service worker,
+- **An outdated tab stops saving**: the app updates silently (service worker,
   `autoUpdate`), so an old tab can meet a newer database. That tab keeps working in memory and
   shows a notice asking for a reload, outside a running session.
 
-## 4. Loading saved settings (proposed)
+## 4. Loading saved settings
 
 - Each saved setting is checked on its own. A value that is unknown or no longer valid falls back
   to that setting's default; every other saved setting is kept. No notice: the player sees the
@@ -67,7 +66,7 @@ phrases ([pre-generation.md](pre-generation.md)), and anything in a running sess
 - Today the controls' builders throw on any unknown value, with no fallback (storage grounding
   §A1), so loading needs its own tolerant step in front of them.
 
-## 5. Keeping the data safe from the browser (proposed)
+## 5. Keeping the data safe from the browser
 
 - By default a site's storage is "best-effort": the browser may delete it under storage pressure
   without warning (W1, W4).
@@ -81,12 +80,12 @@ phrases ([pre-generation.md](pre-generation.md)), and anything in a running sess
 Saved data belongs to one origin (scheme, host and port, W15). Data saved while using the dev
 server never appears on the deployed site, and the reverse. Testers should know this.
 
-## 7. A full backup file (proposed: not in v3.0)
+## 7. A full backup file (not in v3.0)
 
 A file holding everything the app keeps, to move it to another browser or restore it. The
 MusicXML and MIDI exports are one-way: they carry no seeds, intents or app version, so a backup
 needs a new, app-specific file format (storage grounding §A1). Proposed: not v3.0; recorded as a
-candidate. Open: O124.
+candidate (O124, closed by D216).
 
 ## 8. What v3.0 changes in v2's guarantees
 
@@ -110,5 +109,5 @@ when v3's master spec is ingested (the full list, with test names, is in storage
 
 ## 9. Open
 
-- O124, a full backup file ([register](../../open-questions.md#v30-storage-o122)).
-- O86 is recommended closed by [kept-sessions.md](kept-sessions.md) §4.
+None: O124 was closed by D216 (no backup file in v3.0; a candidate), and O86 as moot
+([kept-sessions.md](kept-sessions.md) §4).

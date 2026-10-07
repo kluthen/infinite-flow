@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.45
+Status: draft v0.46
 
 ## Status Snapshot
 
@@ -31,7 +31,7 @@ Status: draft v0.45
     rhythm lock and its mutation option;
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go;
-  - v3.0 is drafted for the owner's overall review: [persistence](versions/v3/persistence.md),
+  - v3.0 is drafted and approved (D216): [persistence](versions/v3/persistence.md),
     [kept sessions and favorites](versions/v3/kept-sessions.md), [my instrument](versions/v3/my-instrument.md),
     [pre-generation](versions/v3/pre-generation.md), [stray notes](versions/v3/stray-notes.md);
   - research done (D212): embellishment and mutation catalogues, key and mode estimation,
@@ -39,10 +39,9 @@ Status: draft v0.45
     `specs/versions/v3/`);
   - rhythm ratios and the editor moved to v4; the chord-fit check, review tooling and the two
     controller-connection ideas dropped.
-- **Open:** 25 questions, none blocking: O10 (planner authority, for Jam), O47, O48 and O49 (later and governance), O86 (v3.0
-  favorites), O100–O102 (v4 rhythm) and O103 (v3.2 rhythm lock), O107–O111 (v3.0
-  pre-generation), O112–O116 and O125 (v3.2 Jam, v3.x learning), O118 (mutation list), O121 (Vary settings and the
-  key) and O122–O124 (v3.0 storage). O86 and O107–O111 carry recommendations to close.
+- **Open:** 10 questions, none blocking: O10 (planner authority, for Jam), O48 and O49 (later and
+  governance), O100–O102 (v4 rhythm), the rest of O103 and O114 (v3.2 rhythm lock and Jam), O115
+  and O116 (v3.x learning). D216 approved spec-writer's v3 recommendations and closed the rest.
   See the [register](open-questions.md).
 - The snapshot this index kept through v2's design and build is archived verbatim at
   [archive/v2/readme-status-snapshot.md](archive/v2/readme-status-snapshot.md).

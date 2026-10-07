@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.44
+Status: draft v2.45
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D216**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D217**.
 
 ## Decision Log
 
@@ -152,3 +152,60 @@ fact in the live documents (see the [archive index](archive/README.md) and
   a tempo, which v2's Idle does not have; and one measure is 1 s at 240 BPM, about the time v2's
   ladder keeps for a single standalone attempt (D205), so Jam's first generation has to fit a
   budget that tight, or the wait grows with the tempo.
+
+- **D216 (2026-10-07): the owner approves spec-writer's v3 recommendations as presented.** At the
+  overall review promised in D212, spec-writer presented 34 recommendations; the owner: "seems
+  pretty straight forward thus presented". What is now settled:
+  - **v3.0, saving** ([persistence.md](versions/v3/persistence.md)): IndexedDB behind one storage
+    directory, the ban kept everywhere else, nothing sent; what is saved automatically and what is
+    not; per-setting fallback to the default on load; persistent storage asked for the first time
+    the player keeps something; "Your data" with Delete everything; an outdated tab stops saving.
+    **O124 closed:** no full backup file in v3.0; a candidate.
+  - **v3.0, kept sessions and favorites** ([kept-sessions.md](versions/v3/kept-sessions.md)): the
+    most recent session kept automatically; pinning keeps a session; marking a favorite pins its
+    session; only what the review and export read is kept, never acknowledgements; "Keep my
+    played notes", off by default and separate from pinning; a session list on every device; a
+    comment of at most 500 characters, never exported. **O86 closed** as moot: a new session never
+    asks for confirmation.
+  - **v3.0, my instrument** ([my-instrument.md](versions/v3/my-instrument.md)): a template plus
+    the player's name, range (at least two octaves) and transposition, as a fourth choice; a replay
+    key version `ifk2.`. **O122 closed:** the check offers "use this for my instrument" with one
+    confirmation (D79's direction, accepted despite its overlap with D190, which D211 dropped), and
+    the app remembers the last controller. **O123 closed:** any range the code's rules allow is
+    accepted, and the generator's success on narrow and extreme ranges is measured before the
+    v3.0 gate.
+  - **v3.0, pre-generation** ([pre-generation.md](versions/v3/pre-generation.md)): **O107–O111
+    closed** as proposed there.
+  - **v3.0, stray notes** ([stray-notes.md](versions/v3/stray-notes.md)): a fixed threshold, to be
+    measured, well under 62.5 ms; never applied to acknowledgement; stored raw, filtered on reading;
+    the played-notes export leaves them out by default, with an option to include them.
+  - **v3.1:** embellishment weights order the search, never quotas; figures written as ordinary
+    notes come first. **O47 closed:** ornaments are notated symbols with playback expansion, and
+    only the main note is checked for acknowledgement. Presets are still to be drafted.
+  - **v3.2, Jam:** **O125 closed:** the doodle is played over the app's pulse at the selected
+    tempo, and the phrases after it keep that tempo; inferring the tempo from free playing is a
+    later candidate. **O112 closed:** with D215, the silent measure that ends a doodle doubles as
+    the generation measure (generation starts when a measure begins with no note sounding, and is
+    dropped if the player plays again inside it); when a phrase is not ready, the wait extends
+    measure by measure with the pulse going on, and v2's standalone fallback applies; the doodle is
+    continued, not repeated. The doodle steers the generator's ranking rather than imposing hard
+    constraints (Jam grounding). **O113 closed:** suggest only, the player confirms; at least 5
+    pitch classes, 6 notes and 2 beats of sounding time; at most 3 candidates within half of the
+    best in a seeded integer draw; nothing suggested when the selection is among them, or when
+    under 80 % of the doodle fits the winner; computed in concert pitch, named in written pitch.
+  - **v3.2, rhythm lock and mutations:** the lock is its own switch, not under Custom; it holds the
+    note starts on beats 1 and 3 and the number of notes in each measure; a bend is one Close
+    mutation, or one Near mutation in one measure, dropped at the next phrase (answers part of
+    O103). **O118 closed:** both readings, kept apart: Vary settings gets a player-chosen allowed
+    list offered as six groups, checked for a legal move before it is accepted; under Jam, a drift
+    control with three or four positions unlocks the
+    [mutation catalogue](../docs/music/mutation-catalogue.md) up to a distance, closest first.
+    **O121 closed:** D209's "never switches the key or mode on its own" governs the suggestion
+    only; Vary settings keeps mutating key and mode when the player turns it on.
+  - **Still needed at handoff:** v3.0 reverses three STABLE contract guarantees
+    (`req_last_session_review`, `rule_optional_midi_privacy`, `rule_same_controller_reattaches`);
+    each needs a MAJOR contract version and the owner's explicit confirmation when `documentalist`
+    ingests the v3 master spec. This approval is of the spec, not that confirmation.
+
+  Still open: O10 (planner authority, for Jam), O48, O49, O100–O102 (v4), the rest of O103,
+  O114, O115 and O116.

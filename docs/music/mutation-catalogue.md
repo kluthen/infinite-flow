@@ -11,7 +11,7 @@ stable across the session, bent only a little for tension and release) and a **m
 "with a list of allowed mutations"** (the owner's words, D211;
 [v3 README](../../specs/versions/v3/README.md#rhythm-lock-and-mutation)).
 
-[O118](../../specs/open-questions.md#v3-release-plan-o117) asks what that list lists: (a) which
+[O118](../../specs/decisions.md) asks what that list lists: (a) which
 settings v2's settings-mutation flag may change, or (b) which kinds of rhythm change are allowed
 while the rhythm lock holds. This catalogue serves both readings and adds a third family, the
 motif-development transformations, since Jam develops the player's motif:

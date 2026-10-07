@@ -1,7 +1,7 @@
 # v3.0 — Kept Sessions, Review of Earlier Sessions and Favorites
 
-Status: draft v1 (2026-10-07). Everything tagged (proposed) is spec-writer's recommendation,
-awaiting the owner's overall review (D212).
+Status: draft v2 (2026-10-07). spec-writer's recommendations, approved by the owner at the
+overall review (D216).
 
 Serves P3, the Fledgling Composer: C1 "review a session" and C2 "take it out"
 ([personas](../../personas.md#p3--the-fledgling-composer-secondary-d61)). Built on v2's
@@ -11,19 +11,19 @@ last-session review and export
 
 ## 1. Which sessions are kept
 
-- **The most recent session is kept automatically** (proposed). It survives a reload, so the
+- **The most recent session is kept automatically**. It survives a reload, so the
   review the player had is still there tomorrow. This keeps D129's rule, "store more than one
   session only when the player asks for it": one is kept without asking.
 - **Pinning keeps a session for good** (D129). When a new session ends, the previous session is
   deleted unless it is pinned. A pinned session stays until the player unpins or deletes it.
-- **Marking a favorite pins its session** (proposed), so a favorite is never lost by starting a
+- **Marking a favorite pins its session**, so a favorite is never lost by starting a
   new session. Unpinning a session that holds favorites asks for confirmation, since its
   favorites go with it at the next session's end.
-- **No limit on the number of pinned sessions** (proposed). "Your data" shows the space used. If
+- **No limit on the number of pinned sessions**. "Your data" shows the space used. If
   the browser refuses a save because storage is full, nothing is deleted automatically; the app
   says so after the session.
 
-## 2. What a kept session holds (proposed)
+## 2. What a kept session holds
 
 Only what the review and the exports read, plus what identifies the session:
 
@@ -42,7 +42,7 @@ Only what the review and the exports read, plus what identifies the session:
 Played-note times are kept relative to the session's start: today they are seconds on the page's
 audio clock, which mean nothing after a reload.
 
-## 3. Played notes: opt-in and deletion (proposed)
+## 3. Played notes: opt-in and deletion
 
 - **One switch, "Keep my played notes", off by default.** Off: played notes exist in memory only,
   for the current page, exactly as in v2; after a reload the kept session has no played notes.
@@ -53,7 +53,7 @@ audio clock, which mean nothing after a reload.
   deleting the sessions. Turning the switch off offers to delete played notes already kept.
 - Stray notes are stored as received and filtered on read ([stray-notes.md](stray-notes.md)).
 
-## 4. Favorites (proposed, from v2's earlier design, D88, D129)
+## 4. Favorites(from v2's earlier design, D88, D129)
 
 - **A favorite marks a whole phrase**, in the review of any kept session. Marking it again removes
   it. Marking a range of measures is not v3.0 (it was tied to seeding a continuation; Jam is v3.2).
@@ -61,15 +61,15 @@ audio clock, which mean nothing after a reload.
   order, each phrase keeping its session phrase number. A played note held past the end of a
   favorite phrase stops there when the next phrase is not exported.
 - **Starting a new session never asks for confirmation.** Favorites live in a pinned session
-  (§1), so nothing is lost. This makes **O86** (what makes a favorite "exported") moot: the
-  confirmation it served is gone. Recommended: close O86.
+  (§1), so nothing is lost. This made **O86** (what makes a favorite "exported") moot: the
+  confirmation it served is gone (closed by D216).
 
-## 5. A comment on a session (proposed)
+## 5. A comment on a session
 
 Optional plain text, at most 500 characters, written and edited in the session's review. Shown in
 the session list. Not written into the MusicXML or MIDI exports.
 
-## 6. Reaching older sessions (proposed)
+## 6. Reaching older sessions
 
 - **A list of kept sessions**, newest first: date and time, length, number of phrases, profile
   and instrument, pinned or not, number of favorites, the start of the comment.
@@ -90,5 +90,4 @@ the session list. Not written into the MusicXML or MIDI exports.
 
 ## 8. Open
 
-- O86, recommended closed (§4).
-- Everything tagged (proposed) above, at the owner's overall review.
+None: O86 was closed as moot by D216 ([decisions](../../decisions.md)).

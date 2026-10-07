@@ -1,7 +1,7 @@
 # v3.0 — Pre-generating Phrases at Idle
 
-Status: draft v1 (2026-10-07). Everything tagged (proposed) is spec-writer's recommendation,
-awaiting the owner's overall review (D212). The proposals adopt the strawmen of O107–O111.
+Status: draft v2 (2026-10-07). spec-writer's recommendations, approved by the owner at the
+overall review (D216).
 
 Recorded by D206, in the owner's words: "while start session isn't pushed have background
 generate a few phrases in advance (no more than 4) that give us some time ahead." In v3.0 since
@@ -15,12 +15,12 @@ In v2 the failure ladder keeps 1.075 s for a standalone attempt, more than one m
 so at 240 BPM phrase 2 is always generated standalone and its join to phrase 1 is never smoothed
 (D205). Generated before Start, with no deadline, phrase 2 can carry in from phrase 1 again.
 
-## 2. Rules (proposed)
+## 2. Rules
 
 - **How many (O107):** up to 4 phrases after phrase 1, generated one after another at Idle. They
   are generated at Idle only and spent by the session, which then looks one phrase ahead as v2
   does. Topping them up during a session would change v2's look-ahead and where a setting change
-  lands, and is not proposed.
+  lands, and is not part of v3.0.
 - **Changes before Start (O108):** anything that replaces phrase 1 or changes a setting phrases
   are generated from (a control, the profile, the instrument, a regeneration) discards every
   pre-generated phrase and starts again from phrase 1. A change of window size that changes the
@@ -50,5 +50,4 @@ so at 240 BPM phrase 2 is always generated standalone and its join to phrase 1 i
 
 ## 4. Open
 
-O107–O111 carry these proposals ([register](../../open-questions.md#v3-pre-generation-at-idle-o107)).
-They close at the owner's overall review.
+None: O107–O111 were closed as written here by D216 ([decisions](../../decisions.md)).

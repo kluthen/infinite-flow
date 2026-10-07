@@ -15,7 +15,7 @@ It feeds three places in the specs:
 
 - the v3.x candidate [learning from positive signals](../../specs/versions/v3/README.md#v3x--learning-from-positive-signals),
   and open questions O115, O116 and O120 in the
-  [register](../../specs/open-questions.md#v3-release-plan-o117). O120 already proposes that an
+  [register](../../specs/decisions.md). O120 already proposes that an
   explicit cue the player plays is "the player judging a phrase, never the app judging the player";
 - [Jam](../../specs/versions/v3/README.md#jam-growing-the-players-doodle) (v3.2), where the player
   hands the app a short idea and the app must know when that idea has ended;
@@ -294,7 +294,7 @@ Everything in this section is the author's proposal for discussion.
 
 | Where                | What a signal could do                                                                                     | Collisions to handle                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | -------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Idle**             | Start or end a Jam doodle; "your turn"; "a new phrase, please" (regenerate).                               | The starting note: any signal whose first note is phrase 1's first note would start a session ([§6](../../specs/versions/v2/master-spec.md#6-backing-click-count-in-and-tempo)). Since the starting note changes with every phrase, a signal cannot simply avoid it. Options: frame signals outside the instrument range, or revisit the start rule (O110, [register](../../specs/open-questions.md#v3-pre-generation-at-idle-o107)). |
+| **Idle**             | Start or end a Jam doodle; "your turn"; "a new phrase, please" (regenerate).                               | The starting note: any signal whose first note is phrase 1's first note would start a session ([§6](../../specs/versions/v2/master-spec.md#6-backing-click-count-in-and-tempo)). Since the starting note changes with every phrase, a signal cannot simply avoid it. Options: frame signals outside the instrument range, or revisit the start rule (O110, [register](../../specs/decisions.md)). |
 | **During a session** | "I disapprove of this phrase" (learning, v3.x); in a call-and-response mode, "your turn".                  | The player is meant to be playing the phrase; a signal is time taken from it. Expected notes keep falling due and simply go unacknowledged, which v2 already treats as normal ([§7](../../specs/versions/v2/master-spec.md#7-sessions-review-export-and-privacy)).                                                                                                                                                                    |
 | **Jam (v3.2)**       | Mark the end of the doodle ("your turn").                                                                  | The doodle's notes are the material: a signal's notes must be cut out of it, or they would shape the continuation and the key suggestion.                                                                                                                                                                                                                                                                                             |
 | **Review**           | Little. The hands are free between sessions ([personas](../../specs/personas.md)), so a click does better. | No note starts anything there ([§6](../../specs/versions/v2/master-spec.md#6-backing-click-count-in-and-tempo)), so it is collision-free if ever needed.                                                                                                                                                                                                                                                                              |
@@ -340,7 +340,7 @@ scores the player. Anything that adapts to how you play is opt-in and visible"
 1. **The judgment goes from the player to the phrase.** The player tells the app "less like this".
    The app judges nothing about the player. GenJam's mentor saying "bad" is the precedent (S95).
    This is the line O120 already draws
-   ([register](../../specs/open-questions.md#v3-release-plan-o117)).
+   ([register](../../specs/decisions.md)).
 2. **Recognition is positive-only.** A signal is recognised or nothing happens. There is no "almost",
    no "try again", no mark for a signal played badly: the same "only a positive catch is ever
    marked" rule as acknowledgement

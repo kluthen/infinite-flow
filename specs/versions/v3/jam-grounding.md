@@ -314,7 +314,7 @@ Facts that shape the choice:
   - _A doodle-specific rhythm domain_ (new grammar path): a memo miss per doodle, a cold build up
     to ~0.8 s in the browser for the worst setting; it could be prewarmed when the doodle is
     accepted, at Idle, before Start.
-- **Pre-generation at Idle** (v3.0.1, [O107–O111](../../open-questions.md#v3-pre-generation-at-idle-o107))
+- **Pre-generation at Idle** (v3.0.1, [O107–O111](../../decisions.md))
   would remove deadline pressure from the first Jam phrases: a doodle recorded at Idle could be
   continued with no deadline before Start.
 

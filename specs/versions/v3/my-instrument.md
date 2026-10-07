@@ -1,7 +1,7 @@
 # v3.0 — My Instrument
 
-Status: draft v1 (2026-10-07). Everything tagged (proposed) is spec-writer's recommendation,
-awaiting the owner's overall review (D212).
+Status: draft v2 (2026-10-07). spec-writer's recommendations, approved by the owner at the
+overall review (D216).
 
 Serves every tester on an instrument v1 doesn't ship, and P1 and P2, who play a real instrument
 or a controller set to sound like one ([personas](../../personas.md)). Code facts:
@@ -18,7 +18,7 @@ or a controller set to sound like one ([personas](../../personas.md)). Code fact
 - Switching instrument is expected to be rare. The instrument will eventually belong to a user
   profile.
 
-## 2. What "my instrument" is (proposed)
+## 2. What "my instrument" is
 
 - **One saved instrument, made from a template.** The player starts from one of the three
   built-in profiles (C MIDI keyboard, B-flat tenor saxophone, E-flat alto saxophone) and may
@@ -43,7 +43,7 @@ instrument has to cross the worker boundary, enter the replay key and the sessio
 data. Proposed: a new replay-key version, `ifk2.`, carries the instrument inline when it is not a
 built-in; `ifk1.` keys keep decoding.
 
-## 3. The transposition check feeds it (proposed)
+## 3. The transposition check feeds it
 
 The check compares what the controller sends with what the selected instrument expects, and finds
 a constant offset: a match, whole octaves, or some number of semitones (v2 master spec §8).
@@ -57,18 +57,19 @@ a constant offset: a match, whole octaves, or some number of semitones (v2 maste
   received, as in v2. Changing the instrument's transposition is what makes the written part match
   the controller. This was enough on the reference breath controller, whose own setting covers
   every case (2026-10-06 hardware sitting).
-- **Overlap with a dropped idea, to confirm:** D211 dropped "switch profile from the check" (D190),
+- **Overlap with a dropped idea:** D211 dropped "switch profile from the check" (D190),
   a one-control switch to the built-in profile the controller matches. The action above is the
   same idea aimed at "my instrument", and it is what D79 asked for. It is kept here because D79 is
-  settled v3 direction; the owner decides at the review. Open: O122.
+  settled v3 direction; the owner accepted it (D216, closing O122).
 
-## 4. Remembering the controller (proposed)
+## 4. Remembering the controller
 
 The input kind leads naturally to remembering which controller the player uses: the app reselects
 the last chosen controller at load when it is connected. This changes the STABLE contract atom
 `rule_same_controller_reattaches` ("does not survive a page reload"), so it needs the owner's
 explicit confirmation and a MAJOR contract version ([persistence.md](persistence.md) §8). If the
-owner declines, the controller is chosen each visit, as in v2. Open: O122.
+owner had declined, the controller would be chosen each visit, as in v2. Accepted by D216
+(O122); the contract change still needs the owner's explicit confirmation at handoff.
 
 ## 5. Deleting
 
@@ -77,8 +78,5 @@ made from. Deleting everything ([persistence.md](persistence.md) §1) deletes it
 
 ## 6. Open
 
-- **O122**, the check's action and remembering the controller
-  ([register](../../open-questions.md#v30-storage-o122)).
-- **O123**, whether a range that the generator struggles with should be refused
-  ([register](../../open-questions.md#v30-storage-o122)): two octaves is the code's floor today,
-  and only the three built-in ranges have been tested against the generator's feasibility.
+None: O122 and O123 were closed by D216 ([decisions](../../decisions.md)). The generator's
+success on narrow and extreme ranges is measured before the v3.0 gate.
