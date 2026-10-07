@@ -39,6 +39,9 @@ Rising-tempo session reached; pre-generated phrases; the export scope; `Include 
 a visit started from the defaults because the saved data couldn't be read (see Load). Every save
 above is then skipped: the app keeps working in memory, and the notice already showing says so.
 A session ending in such a visit is not saved; its review's keep line reads as for a failed save.
+An outdated tab also deletes nothing: Your data offers it no `Delete everything` (the reload
+comes first), while a visit started from the defaults keeps it, as the way back from data
+damaged for good (`screens/your-data/`, States).
 
 **Asking for protection.** At the first pin, favorite or saved instrument of each visit, while
 the storage is not already protected, the app asks the browser to make it persistent. Nothing is
@@ -129,7 +132,7 @@ flowchart TD
   OV -->|Delete every session| CS[Confirm: Delete every session?]
   OV -->|Delete all played notes| CP[Confirm: Delete all played notes?]
   OV -->|"Keep my played notes turned off, some kept"| CK[Confirm: Delete the played notes already kept?]
-  OV -->|Delete everything| CE[Confirm: Delete everything?]
+  OV -->|"Delete everything (not in an outdated tab)"| CE[Confirm: Delete everything?]
   CS -->|"Delete every session: done"| OV
   CP -->|"Delete all played notes: done"| OV
   CK -->|"Delete them: done"| OV

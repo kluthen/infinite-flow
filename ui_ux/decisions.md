@@ -323,3 +323,39 @@ leaves open; they are listed together in Q67 for `spec-writer`.
   three places fix (1) had missed were corrected the same way (the review flow's keep-line bullet,
   the review intent's keep-line paragraph, the review handoff's change block). The v3.0 set is
   validated for the owner's review.
+
+## v3.0 owner review and token-source pass, 2026-10-07
+
+- **D218 — The owner approves the v3.0 design (2026-10-07; spec D221).** At his final review of
+  v3.0 the owner approved every v3.0 design decision, D178-D217, as presented. His three explicit
+  answers that touch this tree: ux Q66 is allowed (one `ux-writer` pass on
+  `src/styles/theme.css` and `components.css`, build plan chunk 1; see D220), closing Q66; the
+  stale `%% end v2 new` line in `flows/generate-phrase/handoff.md` is removed, completing D178;
+  and the behaviours listed in Q67, written into the master spec by `spec-writer` (spec D219,
+  master spec v1.2), are approved with the rest, closing Q67.
+- **D219 — An outdated tab offers no Delete everything (2026-10-07; applies spec D220 (5), master
+  spec v1.3 §4.3 and done item 14).** The design offered `Delete everything` in both visits where
+  saving is off (D211). The spec, which wins, has an outdated tab save and delete nothing, Delete
+  everything included, the notice asking for a reload first. `screens/your-data/` now drops
+  `sheet-actions-destructive` in an outdated tab and says in the sheet's notice that nothing can
+  be deleted until the page is reloaded; a visit started from the defaults after unreadable data
+  keeps `Delete everything`, its way back from data damaged for good. `flows/saved-data/` says the
+  same. The rest of §4.3's outdated-tab rule (it reads what it can; a kept session saved by a
+  newer version is listed as such and does not open) was already designed. Whether the other
+  deletions are offered in an outdated tab is Q68.
+- **D220 — The token-source pass (2026-10-07; build plan chunk 1, allowed by the owner, D218).**
+  Applied on branch `v3-c1-token-source` (worktree `infinite_flow-v3-c1`), one commit, for the
+  owner to merge: every token and class of `token-source-v3.md` is in `src/styles/theme.css` and
+  `components.css` under `v3 new` / `v3 changed` comments; the `v2 new` / `v2 changed` comments
+  are cleared (D178); the audio-mix comment says the levels were set by ear and are final (D177).
+  Details settled while writing it, none visible as a design change: `textarea` joins the base
+  rule that makes form controls inherit the page font; the panel rows of `review-panel` and
+  `sessions-panel` are spaced by one rule on the panels' children, so `review-header` loses its
+  own bottom margin (the v2 review's header-to-list space goes from `--spacing-4` to
+  `--spacing-3` until the v3 markup lands); `sessions-header` wraps on the phone rather than
+  stacking, per `screens/session-list/`; `favorite-toggle`'s word is the button's one `span`
+  (hidden below `bp-tablet-landscape`) and the star's outline or fill is set by the class, so one
+  SVG serves both states; field groups inside `sheet-section` and `review-comment` drop their
+  bottom margin, the container's gap spacing them. `token-source-v3.md` stays until the branch is
+  merged: deleting it then, and pointing `README.md` and the four handoffs that cite it at the
+  token source alone, needs the build plan's two links to it repointed by `spec-writer` first.

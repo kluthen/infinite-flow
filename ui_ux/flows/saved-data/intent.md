@@ -128,7 +128,8 @@ Four notices, each saying what happened, what it means, and the one thing the pl
   automatically to make room (master spec §5.1): the app never decides which of the player's
   sessions are worth less.
 - **An outdated tab.** A newer version has saved data; a reload brings it in, and until then this
-  tab saves nothing. It stays, because every change made in this tab is now at risk.
+  tab saves and deletes nothing, so Your data offers it no `Delete everything`. It stays, because
+  every change made in this tab is now at risk.
 - **Data that couldn't be read at load.** This visit started from the defaults and saves nothing;
   a reload may fix it. It stays for the same reason.
 

@@ -35,13 +35,15 @@
 not specified yet). Started 2026-10-07; the root's v2 marks are cleared (ux D178) and v3's are
 marked from the first edit. The owner asked for the whole v3.0 design in one pass and reviews it
 once at the end: every settled recommendation is in `decisions.md` (ux D178-D217), and what needs
-the owner or `spec-writer` is in `open-questions.md` (Q66, Q67).
+the owner or `spec-writer` was in `open-questions.md` (Q66, Q67, both closed). **Approved by the
+owner on 2026-10-07 (ux D218)**; the outdated tab was then aligned with master spec v1.3 (ux
+D219).
 
 - **Unit V0 — Tier 1 and Tier 2.** `strategy.md` (v3 changes), `token-source-v3.md` (new),
   `README.md`. Written.
 - Units V1-V4 below: written 2026-10-07 by delegates (details they settled: ux D210-D213).
 - All of V0-V4 validated by `ux-critic` on 2026-10-07: DRIFT with five findings, all fixed (ux
-  D215, D216), recheck clean (ux D217). Not done until the owner's review confirms it.
+  D215, D216), recheck clean (ux D217). Approved by the owner (ux D218).
 - **Unit V1 — Kept sessions and the review.** `flows/kept-sessions/` and `screens/session-list/`
   (new); `flows/review-and-export/` and `screens/last-session-review/` (changed: any kept
   session, favorites, export scope, comment, pin and delete, "Keep my played notes", per-session
@@ -79,16 +81,12 @@ Standing working rules (ux D119, D135, archived; still in force):
 
 v3.0, after the units above:
 
-- **Owner review** of the v3.0 design as a whole: ux D178-D217, Q66, Q67.
-- **Token-source pass** (blocked on Q66): write `token-source-v3.md` into `src/styles/theme.css`
-  and `components.css`, clear their `v2 new` / `v2 changed` comments (ux D178), correct the
-  audio-mix comment (ux D177), then delete `token-source-v3.md` and point the README at the token
-  source alone.
-- **The `%% end v2 new` line** left in `flows/generate-phrase/handoff.md`'s diagram (ux D178):
-  its removal was refused by this session's permission check; the owner decides whether to
-  remove it.
-- **`spec-writer` clarifications** (Q67), once the owner has reviewed them; revalidate only if
-  one comes back changed.
+- **Token-source pass** (build plan chunk 1, ux D220): applied on branch `v3-c1-token-source`,
+  waiting for the owner's merge. After the merge: delete `token-source-v3.md` and point
+  `README.md` and the handoffs that cite it (`screens/session-list/`, `your-data/`,
+  `my-instrument/`, `last-session-review/`) at the token source alone, once `spec-writer` has
+  repointed the build plan's two links to it.
+- **Q68:** whether a session's deletions are offered in an outdated tab (recommended: absent).
 - **Deferred inside v3.0's spec, no design needed now:** the stray-note threshold and a stricter
   range check for my instrument (master spec §14) are build-plan measurements; a stricter range
   rule, if one comes, only changes the refusal's wording.

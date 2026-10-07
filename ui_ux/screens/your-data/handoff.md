@@ -36,7 +36,7 @@ sheet-backdrop
           h3, p
         sheet-section (Protection)
           h3, p
-        sheet-actions-destructive
+        sheet-actions-destructive (absent in an outdated tab -- see States)
           btn btn-error (Delete everything)
       -- Confirmation (one of four)
         p (what goes)
@@ -89,7 +89,8 @@ sheet-backdrop
   or "Not protected. The browser may clear this data if the device runs short of space. Export
   what you want to be sure to keep." While being checked: "Checking…". When the browser can't say,
   the second.
-- **Delete everything:** `btn btn-error` "Delete everything", always shown.
+- **Delete everything:** `btn btn-error` "Delete everything", shown in every state but an
+  outdated tab, which deletes nothing until it is reloaded (see States).
 - **`Done`:** `btn btn-primary`, closes the sheet.
 
 ### Confirmations
@@ -161,11 +162,15 @@ The second paragraph is always "This can't be undone."
   remembered.", "No sessions kept yet." and "None kept."; `Delete every session` and
   `Delete all played notes` absent; `Delete everything` shown.
 - **Saving off this visit:** an outdated tab, or a visit started from the defaults because the
-  saved data couldn't be read. Under the intro, `inline-alert alert-notice`: outdated tab, "A newer
-  version of the app saved this data, so it isn't listed here. Reload the page to see it."; data
-  couldn't be read, "Your saved data couldn't be read in this visit, so it isn't listed here.
-  Reload the page to try again, or delete everything to start afresh." Only Space used,
-  Protection and `Delete everything` follow; the other five sections are absent.
+  saved data couldn't be read. Under the intro, `inline-alert alert-notice`, then Space used and
+  Protection; the other five sections are absent.
+  - *Outdated tab:* "A newer version of the app saved this data, so it isn't listed here, and
+    nothing can be deleted until the page is reloaded. Reload the page to see it."
+    `sheet-actions-destructive` is absent: an outdated tab saves and deletes nothing, Delete
+    everything included, and the reload comes first (master spec §4.3).
+  - *Data couldn't be read:* "Your saved data couldn't be read in this visit, so it isn't listed
+    here. Reload the page to try again, or delete everything to start afresh."
+    `Delete everything` follows, the way back to a working app if the data is damaged for good.
 - **Confirmation:** one of four, above.
 - **Loading:** the space and protection lines while measured; a confirming action's
   `is-loading` while its deletion runs.

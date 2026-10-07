@@ -98,9 +98,16 @@ place the answer shows, because it is the one place the advice "export it" makes
 
 In a visit that started from the defaults because the saved data couldn't be read, and in a tab
 older than the data it found, the sheet cannot honestly list what is kept. It says why and that a
-reload is the cure, and keeps only what still works: the space, the protection, and
-`Delete everything`. Keeping that last one matters: if the saved data is damaged for good, deleting
-it is the player's way back to a working app.
+reload is the cure, and keeps only what still works: the space and the protection, and, after
+unreadable data, `Delete everything`. Keeping that last one there matters: if the saved data is
+damaged for good, deleting it is the player's way back to a working app.
+
+An outdated tab offers no `Delete everything`. It deletes nothing at all until it is reloaded
+(master spec §4.3): the data belongs to the newer version now, and wiping it from a tab that
+cannot read it would destroy what the newer version just saved, on the word of a page that no
+longer knows what is there. The reload is one press away in the workspace's notice, and after it
+the newer version's own Your data offers every deletion. The sheet's notice says so, so the
+missing button reads as a reason, not an omission.
 
 ## On a Phone
 

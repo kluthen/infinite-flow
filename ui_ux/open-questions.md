@@ -27,7 +27,8 @@ through the header of [`decisions.md`](decisions.md).
   can occur after all; ux D100 handles it as a failed generation attempt (retried, never a
   notation-error display), so Q16 stays Idle-only.
 
-- **Q66 — May `ux-writer` apply v3.0's token-source pass to `src/styles/`?** The token source
+- **Q66 — May `ux-writer` apply v3.0's token-source pass to `src/styles/`?** **Closed
+  2026-10-07 by ux D218** (the owner allows it; applied as build plan chunk 1, ux D220). The token source
   (`src/styles/theme.css`, `components.css`) is this tree's to maintain, but the v3.0 design pass
   was barred from application files. v3.0's new classes and tokens are therefore specified in
   `token-source-v3.md` (ux D179), and three earlier token-source chores wait with them: clearing
@@ -35,6 +36,8 @@ through the header of [`decisions.md`](decisions.md).
   the owner's go-ahead for one `ux-writer` pass that edits those two files only; until then the
   build of v3.0's screens cannot style its new components.
 - **Q67 — Behaviours the v3.0 master spec leaves open, settled here for `spec-writer` to confirm.**
+  **Closed 2026-10-07 by ux D218** (confirmed into the master spec, spec D219, and approved by
+  the owner, spec D221).
   Each is a recommendation the design is built on; the owner reviews them, and `spec-writer`
   writes the confirmed ones into the master spec:
   - ux D183: every unpinned session, not only the previous most recent one, is deleted when the
@@ -57,3 +60,12 @@ through the header of [`decisions.md`](decisions.md).
   - ux D202: after a load, the starting note starts nothing until the page's first click, tap or
     key press, because browsers do not let a page play sound before one (§7.3 meets v2's
     audio-unlock rule).
+- **Q68 — Are a session's deletions offered in an outdated tab?** An outdated tab deletes nothing
+  (master spec §4.3). Your data now offers it no deletion (ux D219), but the session list's
+  `Delete`, the review's `Delete session` and `Delete played notes`, and the confirmation that
+  turning `Keep my played notes` off can open still appear there (`screens/session-list/`,
+  `screens/last-session-review/`, `flows/kept-sessions/`). Recommended: absent in an outdated
+  tab, like `Delete everything`, the workspace's notice already asking for a reload; the
+  alternative, a deletion that only hides the session for this visit, would show the player a
+  result the device does not hold. Pin, favorites and comments already apply in memory only
+  while saving is off, which the notice says.
