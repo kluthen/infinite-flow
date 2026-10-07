@@ -3,7 +3,8 @@
  * (a first carry-in attempt, three carry-in retries, one standalone retry), the one attempt in
  * flight, and the phrase record the ladder ends with: the accepted phrase, or a repeat of the
  * phrase before when no valid phrase exists at the deadline. A phrase whose carry-in a settings
- * change left unusable climbs the same rungs, every attempt standalone.
+ * change left unusable climbs the same rungs, every attempt standalone. The ladder keeps time for
+ * the standalone attempt, but reads none: whether that attempt is due reaches it as a boolean.
  */
 
 import { deriveCarryIn } from '../domain/generation/carry-in/carry-in-derivation'
@@ -122,6 +123,19 @@ export function nextRung(rung: LadderRung): LadderRung | undefined {
   return LADDER[LADDER.indexOf(rung) + 1]
 }
 
+/** The standalone rung, the last of the ladder. */
+const STANDALONE_RUNG: LadderRung = LADDER[LADDER.length - 1]!
+
+/**
+ * Intent: the first rung requested for a phrase: the first carry-in rung, or the standalone rung
+ * when the standalone attempt is already due, as a close deadline at a fast tempo can make it.
+ */
+// @spec-link [[rule_session_generation_failure_ladder]]
+// @spec-link [[module_session_failure_ladder]]
+export function firstRung(standaloneDue: boolean): LadderRung {
+  return standaloneDue ? STANDALONE_RUNG : LADDER[0]!
+}
+
 /**
  * Why an attempt failed: a generation that found no phrase, with its failure code; a generate
  * request that was rejected, by a worker crash on it or a dead worker; or a phrase that does not
@@ -158,18 +172,34 @@ function exhaustedCarryInSearch(failed: FailedRung, failure: AttemptFailure): bo
 
 /**
  * Intent: the rung after a failed attempt, or undefined once the standalone retry has failed. A
- * carry-in attempt that exhausted its search goes straight to the standalone rung; every other
- * failure (a search allowance cutoff, a validation failure, a crash, a phrase that does not fit,
- * and any failure of a standalone attempt) goes to the next rung.
+ * carry-in attempt goes straight to the standalone rung when the standalone attempt is due or when
+ * it exhausted its search; every other failure (a search allowance cutoff, a validation failure, a
+ * crash, a phrase that does not fit, and any failure of a standalone attempt) goes to the next rung.
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
 // @spec-link [[module_session_failure_ladder]]
 export function rungAfterFailure(
   failed: FailedRung,
   failure: AttemptFailure,
+  standaloneDue: boolean,
 ): LadderRung | undefined {
-  if (exhaustedCarryInSearch(failed, failure)) return LADDER[LADDER.length - 1]
+  if (failed.step === 'carry-in' && standaloneDue) return STANDALONE_RUNG
+  if (exhaustedCarryInSearch(failed, failure)) return STANDALONE_RUNG
   return nextRung(failed.rung)
+}
+
+/**
+ * Intent: the rung an attempt in flight is cut over to: the standalone rung for a carry-in attempt
+ * still generating once the standalone attempt is due, and none otherwise. An attempt in its fit
+ * check is not cut over, nor is a standalone one, even on a carry-in rung of a phrase whose every
+ * attempt is standalone.
+ */
+// @spec-link [[rule_session_generation_failure_ladder]]
+// @spec-link [[module_session_failure_ladder]]
+export function cutoverRung(attempt: Attempt, standaloneDue: boolean): LadderRung | undefined {
+  if (!standaloneDue || attempt.step !== 'carry-in' || attempt.stage !== 'generating')
+    return undefined
+  return STANDALONE_RUNG
 }
 
 /** Intent: how many rungs lie strictly between a failed rung and the rung requested after it. */
@@ -180,7 +210,7 @@ export function rungsSkipped(failed: LadderRung, next: LadderRung): number {
 
 /**
  * Intent: the attempt in flight when it has this id; undefined for any other id, which is a
- * superseded, dropped or unknown attempt whose late result the worker could not cancel.
+ * superseded, dropped or unknown attempt, whose late result is ignored.
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
 export function currentAttempt(

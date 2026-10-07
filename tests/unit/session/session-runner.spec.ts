@@ -62,9 +62,12 @@ interface Rig {
   readonly start: SessionStart
 }
 
-/** Intent: the start every rig and every reference driver shares: 240 BPM, at 0, a real phrase 1. */
-function fastStart(): SessionStart {
-  const settings = sessionSettings({ tempo: 240 })
+/**
+ * Intent: the start every rig and every reference driver shares: 240 BPM unless told otherwise,
+ * at 0, a real phrase 1.
+ */
+function fastStart(tempo = 240): SessionStart {
+  const settings = sessionSettings({ tempo })
   return {
     at: 0,
     settings,
@@ -75,8 +78,11 @@ function fastStart(): SessionStart {
   }
 }
 
-/** Intent: build a runner whose generate and fit-check calls wait until the test answers them. */
-function rig(): Rig {
+/**
+ * Intent: build a runner at `tempo` (240 BPM by default) whose generate and fit-check calls wait
+ * until the test answers them.
+ */
+function rig(tempo = 240): Rig {
   const clock = { at: 0 }
   const log: SessionOutput[] = []
   const errors: unknown[] = []
@@ -94,7 +100,7 @@ function rig(): Rig {
         fits.push({ candidate, phraseNumber, resolve, reject })
       }),
   )
-  const start = fastStart()
+  const start = fastStart(tempo)
   const runner = createSessionRunner(
     {
       generate,
@@ -110,6 +116,12 @@ function rig(): Rig {
   )
   return { runner, clock, log, errors, generations, fits, generate, checkFit, start }
 }
+
+/**
+ * A tempo whose phrase 2 deadline (2 s) leaves time for carry-in retries; at 240 BPM phrase 2's
+ * standalone attempt goes first.
+ */
+const SLOW_TEMPO = 120
 
 /** Intent: let every settled seam promise run its continuation. */
 function settle(): Promise<void> {
@@ -168,7 +180,7 @@ describe('session runner', () => {
     const request = requests(r)[0]!
     expect(request.phraseNumber).toBe(2)
     expect(r.generate).toHaveBeenCalledTimes(1)
-    expect(r.generate).toHaveBeenCalledWith(request.intent)
+    expect(r.generate).toHaveBeenCalledWith(request.intent, expect.any(AbortSignal))
   })
 
   // @test-link [[service_session_runner]]
@@ -182,13 +194,14 @@ describe('session runner', () => {
     await fitAt(r, 0.5, true)
     const ready = r.log.at(-1)
     expect(ready?.kind).toBe('phrase-ready')
-    expect(ready).toMatchObject({ phrase: { phraseNumber: 2, origin: 'carry-in' } })
+    // Phrase 2's one-measure deadline at 240 BPM is within the standalone reserve.
+    expect(ready).toMatchObject({ phrase: { phraseNumber: 2, origin: 'standalone' } })
     expect(r.errors).toEqual([])
   })
 
   // @test-link [[service_session_runner]]
   it("hands the fit-check seam the attempt's outcome with that attempt's own intent", async () => {
-    const r = rig()
+    const r = rig(SLOW_TEMPO)
     r.clock.at = 0.2
     r.generations[0]!.resolve(failureOutcome())
     await settle()
@@ -233,7 +246,7 @@ describe('session runner', () => {
 
   // @test-link [[rule_session_generation_failure_ladder]]
   it('requests the next rung after a generation failure, and accepts its success', async () => {
-    const r = rig()
+    const r = rig(SLOW_TEMPO)
     r.clock.at = 0.2
     r.generations[0]!.resolve(failureOutcome())
     await settle()
@@ -249,7 +262,7 @@ describe('session runner', () => {
     ['a worker crash on the request', new GenerationWorkerCrashError('RangeError', 'boom')],
     ['a dead worker', new GenerationWorkerTransportError('The worker is gone.')],
   ])('turns %s into a failed attempt; the session keeps going', async (_label, error) => {
-    const r = rig()
+    const r = rig(SLOW_TEMPO)
     await rejectAt(r, 0.2, error)
     expect(r.errors).toEqual([])
     expect(r.generate).toHaveBeenCalledTimes(2)

@@ -30,7 +30,8 @@ function phraseStart(n: number): number {
 /**
  * Intent: a rig with `Vary settings` on and a session started, after `before` set the rig up: the
  * phrase its first mutation lands on, from the mutation seed, the seed drawn just before phrase 2's
- * first attempt seed.
+ * first attempt seed and the seeds of the rungs that attempt skipped (its retry: at 240 BPM its
+ * standalone attempt goes first).
  */
 async function startedVarying(
   before?: (rig: ControllerRig) => void | Promise<void>,
@@ -39,7 +40,8 @@ async function startedVarying(
   await before?.(rig)
   rig.controller.setVarySettings(true)
   rig.controller.start()
-  const mutationSeed = outputsOf(rig, 'request-generation')[0]!.intent.seed - 1
+  const first = outputsOf(rig, 'request-generation')[0]!
+  const mutationSeed = first.intent.seed - 1 - first.retry
   return { rig, landsOn: mutationPhrase(makeSeed(mutationSeed), 1) }
 }
 

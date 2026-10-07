@@ -103,7 +103,10 @@ describe('the workspace session runner', () => {
     expect(requests.map((request) => request.phraseNumber).at(-1)).toBe(13)
     for (const request of requests) expect(request.intent.controls).toEqual(rig.settings.controls)
     expect(rig.outputs.some((output) => output.kind === 'settings-changed')).toBe(false)
-    expect(requests[0]!.intent.seed).toBe(rig.providers.seedsHandedOut[0])
+    // At 240 BPM phrase 2's standalone attempt goes first, after drawing and discarding the
+    // seeds of the four carry-in rungs it skips: no other seed is drawn before them.
+    expect(requests[0]).toMatchObject({ phraseNumber: 2, step: 'standalone', retry: 4 })
+    expect(requests[0]!.intent.seed).toBe(rig.providers.seedsHandedOut[4])
   })
 
   // @test-link [[req_multi_phrase_tension_arc]]
@@ -131,7 +134,9 @@ describe('the workspace session runner', () => {
     const rig = runnerRig(true)
     const mutationSeed = rig.providers.seedsHandedOut[0]!
     const requests = () => rig.outputs.filter((output) => output.kind === 'request-generation')
-    expect(requests()[0]!.intent.seed).toBe(rig.providers.seedsHandedOut[1])
+    // Phrase 2's standalone attempt goes first at 240 BPM, after the four skipped rungs' seeds.
+    expect(requests()[0]).toMatchObject({ phraseNumber: 2, step: 'standalone', retry: 4 })
+    expect(requests()[0]!.intent.seed).toBe(rig.providers.seedsHandedOut[5])
     const landsOn = mutationPhrase(makeSeed(mutationSeed), 1)
 
     await playTo(rig, landsOn)
@@ -165,8 +170,8 @@ describe('the workspace session runner', () => {
     rig.runner.dispatch({ kind: 'settings-change', at: rig.clock.at, settings: changed })
 
     expect(display.asked).toEqual([3])
-    const kinds = rig.outputs.slice(-3).map((output) => output.kind)
-    expect(kinds).toEqual(['phrase-discarded', 'settings-changed', 'request-generation'])
-    expect(rig.outputs.at(-2)).toMatchObject({ phraseNumber: 3, cause: 'automatic' })
+    const kinds = rig.outputs.slice(-4).map((output) => output.kind)
+    expect(kinds).toEqual(['phrase-discarded', 'settings-changed', 'request-generation', 'wake-at'])
+    expect(rig.outputs.at(-3)).toMatchObject({ phraseNumber: 3, cause: 'automatic' })
   })
 })

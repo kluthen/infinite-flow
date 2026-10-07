@@ -5,13 +5,14 @@
  * through the real session runner and the real generator at 60, 120 and 240 BPM, on the fake clock
  * where every attempt costs its measured time (deadline-sweep-measured.ts). Every phrase after the
  * first must be generated, with or without carry-in, strictly before its deadline, with no repeat,
- * and the session must reach its planned end. The result depends on the machine: run it idle.
+ * and the session must reach its planned end. Each tempo prints how its look-ahead phrases were
+ * produced as `SWEEP-SKIPS` lines. The result depends on the machine: run it idle.
  */
 
 import { describe, expect, it } from 'vitest'
 
 import { OutcomeCache, SWEEP_TEMPOS, sweepCases } from '../unit/session/deadline-sweep'
-import { deadlineShortfalls } from './deadline-sweep-measured'
+import { ProductionTally, deadlineShortfalls } from './deadline-sweep-measured'
 
 /** The sweep cases of this note density. */
 const CASES = sweepCases().filter((sweepCase) => sweepCase.rhythm.noteDensity === 'Quarter')
@@ -26,8 +27,10 @@ describe('look-ahead deadline sweep, Quarter note density, every supported setti
     'generates every phrase after the first before its deadline, each attempt at its measured cost, at %i BPM',
     async (tempo) => {
       const shortfalls: string[] = []
+      const tally = new ProductionTally()
       for (const sweepCase of CASES)
-        shortfalls.push(...(await deadlineShortfalls(sweepCase, tempo, outcomes)))
+        shortfalls.push(...(await deadlineShortfalls(sweepCase, tempo, outcomes, tally)))
+      console.log(tally.lines(`Quarter ${tempo} BPM`).join('\n'))
       expect(shortfalls).toEqual([])
     },
   )

@@ -212,9 +212,15 @@ test('split: a look-ahead phrase late past its deadline leaves a measure of read
   expect(readAhead(atDeadline, 2, 3)).toBe(2)
   expect(atDeadline.state.latestReady).toBe(3)
 
-  // The held attempt, released late, is dropped: phrase 3 stays the repeat.
+  // Both held attempts, released late, are dropped as cancelled: the carry-in attempt, cut over
+  // at the standalone reserve before the deadline, and the standalone attempt requested then,
+  // cancelled at the deadline. Phrase 3 stays the repeat.
+  const carryIns = await page.evaluate(() =>
+    window.__workspaceHarness.generationRequests().map((request) => request.carryIn),
+  )
+  expect(carryIns.slice(-2)).toEqual([true, false])
   await releaseGeneration(page)
-  await expect.poll(() => generationsSettled(page), { timeout: 30_000 }).toBe(settledBefore + 1)
+  await expect.poll(() => generationsSettled(page), { timeout: 30_000 }).toBe(settledBefore + 2)
   expect((await sessionState(page)).latestReady).toBe(3)
 
   // Phrase 3 plays as usual, and phrase 4 is looked ahead again.

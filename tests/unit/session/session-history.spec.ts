@@ -100,7 +100,10 @@ describe('what the session history records', () => {
     expect(two!.outcome.result.timeline).toBe(soundingTwo!.phrase.outcome.result.timeline)
     expect(two!.outcome.provenance.harmony).toBe(soundingTwo!.phrase.outcome.provenance.harmony)
     expect(two!.intent.seed).toBe(driver.requests(2)[0]!.intent.seed)
-    expect(two!.intent.carryIn).toBeDefined()
+    // At 240 BPM phrase 2's one-measure deadline is within the standalone reserve, so its
+    // standalone attempt goes first: the record keeps that request's own intent, without carry-in.
+    expect(two!.intent).toBe(driver.requests(2)[0]!.intent)
+    expect(two!.intent.carryIn).toBeUndefined()
     expect([one!.tempo, two!.tempo]).toEqual([240, 240])
   })
 

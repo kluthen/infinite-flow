@@ -331,7 +331,9 @@ function workerRig(policy: WorkspacePrewarmPolicy): WorkerRig {
     now: () => tick++,
     memo: createCanonicalRhythmDomainMemo(),
   })
-  const client = createGenerationWorkerClient(port)
+  const client = createGenerationWorkerClient(() => port, {
+    prewarmEnabled: policy === 'enabled',
+  })
   let counter = 0
   const workspace = composeWorkspaceSession({
     providers: {

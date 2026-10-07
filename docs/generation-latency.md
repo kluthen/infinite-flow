@@ -8,8 +8,10 @@ and the longest main-thread task while a phrase is engraved. The timing of a run
 rolling display (the playhead band against the heard barline, and the main thread at 240 BPM) is in
 [Rolling display (chunk 16)](#rolling-display-chunk-16); the v2.0 release gate's re-run of those
 two checks, the engraving and the browser generation latency is in
-[2026-10-06 run (v2.0 gate)](#2026-10-06-run-v20-gate). A 2 000-phrase last-session Review's
-opening and closing in [Last-session Review (chunk 20)](#last-session-review-chunk-20). The first
+[2026-10-06 run (v2.0 gate)](#2026-10-06-run-v20-gate). The constants of the failure ladder's
+standalone reserve are measured in
+[Failure-ladder reserve constants (2026-10-07)](#failure-ladder-reserve-constants-2026-10-07). A
+2 000-phrase last-session Review's opening and closing in [Last-session Review (chunk 20)](#last-session-review-chunk-20). The first
 generation after each step a settings mutation can take is in
 [Settings-mutation transitions (chunk 24, 2026-10-03)](#settings-mutation-transitions-chunk-24-2026-10-03).
 The newest whole-catalog generation figures are in
@@ -137,6 +139,50 @@ workspace default. It runs at two large desktop viewports, 2560 × 1440 and 1920
 one fresh page each, one first generation, then 12 regenerations (each with a new random seed),
 then 10 re-engravings of the last phrase caused by a 16-pixel width change alone, with no
 generation. `ENGRAVING_OUT` names a JSON file for the full report.
+
+## Failure-ladder reserve constants (2026-10-07)
+
+The two measured constants of the time-aware failure ladder (spec D203): the session keeps their
+sum, the standalone reserve, before each look-ahead deadline, and from the deadline minus that
+reserve it cancels a carry-in attempt still running and requests the standalone attempt at once
+(see [Session engine](session-engine.md)). The constants and this evidence are also in
+`src/session/session-timing.ts`.
+
+**Machine and date.** Run by Claude on 2026-10-07 on the Linux machine of the earlier reference
+runs (12 threads, Debian 13): Node through Vitest, and Chromium 153.0.8010.12 headless on the
+production build. **Machine load:** 1-minute load average 0.85 to 2.9 during the runs (1.18 at
+the start of the Node run).
+
+**Worker respawn cost** (Chromium, 40 repetitions): from `terminate()` on a busy, warmed
+generation worker until a fresh worker answers a small Quarter / Strict generate request, minus
+that request's own warm time (median 3.9 ms).
+
+| Extra cost of the respawn | Median | p95  | Max  | × 1.5 margin | Constant                         |
+| ------------------------- | ------ | ---- | ---- | ------------ | -------------------------------- |
+| ms                        | 49.3   | 65.7 | 80.4 | 121          | `WORKER_RESPAWN_SECONDS` 0.125 s |
+
+**Standalone attempt** (request to written phrase; ms):
+
+| Population                                                                                                                                   | Runs  | Median | p95 | p99 | Max               |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------ | --- | --- | ----------------- |
+| Node, every standalone success: 568 phrase-1 intents at Idle, 41 standalones of real ladders, 6,246 of forced ladders at 60, 120 and 240 BPM | 6,852 | 12.5   | —   | 258 | 610.5 (case #516) |
+| Node, look-ahead standalones only                                                                                                            | —     | —      | —   | —   | 349.4             |
+| Chromium, cold worker, request to phrase ready (fit check and engraving included, at most 17.7 ms), on the 43 slowest intents                | 121   | 245    | 493 | —   | 618.6 (case #516) |
+
+Case #516 is Sixteenth / Heavily varied / Sparse / Active displacement / Build, seed 7; it used
+186,154 of its 250,000 fuel units (the slowest look-ahead standalone used 135,271). A generation
+took about 0.8 times as long in Chromium as in Node (median ratio). With a 1.5 margin on the
+Chromium maximum, 928 ms: `STANDALONE_BUDGET_SECONDS` is 0.95 s.
+
+### Verdicts (failure-ladder reserve)
+
+- **Standalone reserve: 1.075 s** (0.95 + 0.125). It exceeds phrase 2's one-measure deadline at
+  240 BPM (1 s), so at 240 BPM phrase 2's standalone attempt is requested first, as D203 provides
+  for a deadline that close; from 120 BPM down, and for every later phrase (a three-measure
+  deadline), the carry-in attempts run first.
+- **Limits:** one run on a partly busy machine, headless Chromium; the respawn was measured on a
+  small request, so a heavier request after a respawn pays its own cold cost, which the standalone
+  budget already covers.
 
 ## 2026-10-06 run (v2.0 gate)
 

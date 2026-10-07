@@ -7,6 +7,13 @@
 import { describe, expect, it } from 'vitest'
 
 import { deriveCarryIn } from '@/domain/generation/carry-in/carry-in-derivation'
+import {
+  STANDALONE_BUDGET_SECONDS,
+  STANDALONE_RESERVE_SECONDS,
+  WORKER_RESPAWN_SECONDS,
+  cutoverAt,
+  standaloneDue,
+} from '@/session/session-timing'
 import type { SessionOutput } from '@/session/session-types'
 import { SessionDriver, phraseOneFor, sessionSettings, withoutTempo } from './session-harness'
 
@@ -65,8 +72,17 @@ describe('look-ahead deadlines', () => {
     const t0 = 10
     const settings = sessionSettings({ tempo })
     const driver = new SessionDriver({ at: t0, settings, phraseOne: phraseOneFor(settings) })
+    // A carry-in request also wakes at its cutover; at 240 BPM phrase 2's one-measure deadline is
+    // within the standalone reserve, so its standalone attempt is requested first, with no cutover.
+    const phraseTwoCarriesIn = m > STANDALONE_RESERVE_SECONDS
     expect(driver.startOutputs).toEqual([
-      expect.objectContaining({ kind: 'request-generation', phraseNumber: 2, deadline: t0 + m }),
+      expect.objectContaining({
+        kind: 'request-generation',
+        phraseNumber: 2,
+        step: phraseTwoCarriesIn ? 'carry-in' : 'standalone',
+        deadline: t0 + m,
+      }),
+      ...(phraseTwoCarriesIn ? [{ kind: 'wake-at', at: cutoverAt(t0 + m) }] : []),
       { kind: 'wake-at', at: t0 + m },
     ])
     driver.accept(t0 + 0.1 * m)
@@ -84,6 +100,7 @@ describe('look-ahead deadlines', () => {
         phraseNumber: 3,
         deadline: phraseTwoAt + 3 * m,
       }),
+      { kind: 'wake-at', at: cutoverAt(phraseTwoAt + 3 * m) },
       { kind: 'wake-at', at: phraseTwoAt + 3 * m },
     ])
     driver.accept(phraseTwoAt + 0.1 * m)
@@ -92,8 +109,11 @@ describe('look-ahead deadlines', () => {
     driver.sounding(phraseThreeAt, 3)
     expect(driver.lastRequest()).toMatchObject({ phraseNumber: 4, deadline: phraseThreeAt + 3 * m })
     expect(driver.all('wake-at').map((wake) => wake.at)).toEqual([
+      ...(phraseTwoCarriesIn ? [cutoverAt(t0 + m)] : []),
       t0 + m,
+      cutoverAt(phraseTwoAt + 3 * m),
       phraseTwoAt + 3 * m,
+      cutoverAt(phraseThreeAt + 3 * m),
       phraseThreeAt + 3 * m,
     ])
   })
@@ -135,8 +155,10 @@ function runScriptAt(
 // @test-link [[module_session_look_ahead_timing]]
 describe('tempo only sets the times', () => {
   // @test-link [[rule_tempo_never_affects_generation]]
-  it('builds identical request intents at 60, 120 and 240 BPM, tempo aside', () => {
-    const runs = [60, 120, 240].map((tempo) => runScriptAt(tempo))
+  it('builds identical request intents at 60, 120 and 180 BPM, tempo aside', () => {
+    // At 240 BPM phrase 2's standalone attempt goes first; that it then generates what it would
+    // after three failed carry-in retries is covered in session-engine-cutover.spec.ts.
+    const runs = [60, 120, 180].map((tempo) => runScriptAt(tempo))
     const reference = runs[0]!.map((request) => withoutTempo(request.intent))
     expect(reference).toHaveLength(6)
     for (const run of runs) {
@@ -145,6 +167,38 @@ describe('tempo only sets the times', () => {
         runs[0]!.map(({ phraseNumber, step, retry }) => ({ phraseNumber, step, retry })),
       )
     }
-    expect(runs.map((run) => run[0]!.intent.controls.tempo)).toEqual([60, 120, 240])
+    expect(runs.map((run) => run[0]!.intent.controls.tempo)).toEqual([60, 120, 180])
+  })
+})
+
+// @test-link [[rule_session_generation_failure_ladder]]
+// @test-link [[module_session_look_ahead_timing]]
+describe('the standalone reserve before each deadline', () => {
+  // @test-link [[module_session_look_ahead_timing]]
+  it('reserves the standalone budget plus the worker respawn cost', () => {
+    expect(STANDALONE_BUDGET_SECONDS).toBe(0.95)
+    expect(WORKER_RESPAWN_SECONDS).toBe(0.125)
+    expect(STANDALONE_RESERVE_SECONDS).toBe(STANDALONE_BUDGET_SECONDS + WORKER_RESPAWN_SECONDS)
+    expect(STANDALONE_RESERVE_SECONDS).toBeCloseTo(1.075, 12)
+    expect(cutoverAt(10)).toBe(10 - STANDALONE_RESERVE_SECONDS)
+  })
+
+  // @test-link [[rule_session_generation_failure_ladder]]
+  it('makes the standalone attempt due from the cutover time on, the cutover included', () => {
+    const deadline = 10
+    const cutover = cutoverAt(deadline)
+    expect(standaloneDue(cutover - 1e-9, deadline)).toBe(false)
+    expect(standaloneDue(0, deadline)).toBe(false)
+    expect(standaloneDue(cutover, deadline)).toBe(true)
+    expect(standaloneDue(cutover + 0.5, deadline)).toBe(true)
+    expect(standaloneDue(deadline, deadline)).toBe(true)
+  })
+
+  // @test-link [[rule_session_generation_failure_ladder]]
+  it("is already due at phrase 2's request at 240 BPM, and not at 60 or 120 BPM", () => {
+    expect(standaloneDue(0, measureAt(240))).toBe(true)
+    expect(standaloneDue(0, measureAt(120))).toBe(false)
+    expect(standaloneDue(0, measureAt(60))).toBe(false)
+    expect(standaloneDue(0, 3 * measureAt(240))).toBe(false)
   })
 })

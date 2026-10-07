@@ -53,7 +53,8 @@ export type WorkspaceSessionRunnerStarter = (input: WorkspaceSessionRunnerInput)
 export interface WorkspaceSessionDependencies {
   readonly providers: GenerationIntentProviders
   readonly viewport: ViewportWidthProvider
-  readonly generate: (intent: GenerationIntent) => Promise<GenerationOutcome>
+  /** The one generation seam; a session runner passes each attempt's abort signal, Idle none. */
+  readonly generate: (intent: GenerationIntent, signal?: AbortSignal) => Promise<GenerationOutcome>
   /** Whether `prewarm` is ever called; `disabled` posts nothing at all. */
   readonly prewarmPolicy: WorkspacePrewarmPolicy
   /** The same worker's fire-and-forget rhythm-domain prewarm (the client's `prewarm`). */

@@ -30,7 +30,12 @@ describe('a settings change and the pending look-ahead phrase', () => {
   it('discards a decided phrase with nothing on screen and a measure left, and requests it again', () => {
     const driver = threeDecided(false)
     const outputs = driver.change(soundingAt(2) + 1, SHAPED)
-    expect(kinds(outputs)).toEqual(['phrase-discarded', 'settings-changed', 'request-generation'])
+    expect(kinds(outputs)).toEqual([
+      'phrase-discarded',
+      'settings-changed',
+      'request-generation',
+      'wake-at',
+    ])
     expect(outputs[0]).toEqual({ kind: 'phrase-discarded', phraseNumber: 3 })
     expect(outputs[1]).toEqual({
       kind: 'settings-changed',
@@ -101,8 +106,14 @@ describe('a settings change and the pending look-ahead phrase', () => {
     const driver = threeRequested(false)
     const old = driver.lastRequest()
     const outputs = driver.change(soundingAt(2) + 1, SHAPED)
-    expect(kinds(outputs)).toEqual(['settings-changed', 'request-generation'])
-    expect(outputs[0]).toMatchObject({ phraseNumber: 3, cause: 'automatic' })
+    expect(kinds(outputs)).toEqual([
+      'cancel-generation',
+      'settings-changed',
+      'request-generation',
+      'wake-at',
+    ])
+    expect(outputs[0]).toEqual({ kind: 'cancel-generation', attemptId: old.attemptId })
+    expect(outputs[1]).toMatchObject({ phraseNumber: 3, cause: 'automatic' })
     const renewed = requestIn(outputs)
     expect(renewed).toMatchObject({ phraseNumber: 3, retry: 0, deadline: PHRASE_THREE_DEADLINE })
     expect(renewed.attemptId).toBeGreaterThan(old.attemptId)
@@ -118,9 +129,13 @@ describe('a settings change and the pending look-ahead phrase', () => {
   // @test-link [[rule_session_change_applies_at_phrase_boundary]]
   it("keeps an undecided phrase's ladder on its own settings with less than a measure left", () => {
     const driver = threeRequested(false)
-    expect(kinds(driver.change(PHRASE_THREE_DEADLINE - 0.8, SHAPED))).toEqual(['settings-changed'])
-    driver.fail(PHRASE_THREE_DEADLINE - 0.7)
-    expect(driver.lastRequest()).toMatchObject({ phraseNumber: 3, retry: 1 })
+    const before = driver.lastRequest()
+    const outputs = driver.change(PHRASE_THREE_DEADLINE - 0.8, SHAPED)
+    // At 240 BPM less than a measure is within the standalone reserve, so the change's event also
+    // cuts the carry-in attempt over to the standalone one, built on the phrase's own settings.
+    expect(kinds(outputs)).toEqual(['settings-changed', 'cancel-generation', 'request-generation'])
+    expect(outputs[1]).toEqual({ kind: 'cancel-generation', attemptId: before.attemptId })
+    expect(driver.lastRequest()).toMatchObject({ phraseNumber: 3, step: 'standalone', retry: 4 })
     expect(driver.lastRequest().intent.controls).toEqual(driver.settings.controls)
     driver.accept(PHRASE_THREE_DEADLINE - 0.6)
     expect(requestIn(driver.sounding(soundingAt(3), 3)).intent.controls).toEqual(SHAPED.controls)
@@ -135,8 +150,19 @@ describe('a settings change and the pending look-ahead phrase', () => {
     ])
     expect(late.display.asked).toEqual([])
     const early = fastDriver({ display: fakeDisplay(false) })
-    expect(kinds(early.change(0, SHAPED))).toEqual(['settings-changed', 'request-generation'])
-    expect(early.lastRequest()).toMatchObject({ phraseNumber: 2, retry: 0, deadline: 1 })
+    expect(kinds(early.change(0, SHAPED))).toEqual([
+      'cancel-generation',
+      'settings-changed',
+      'request-generation',
+    ])
+    // Phrase 2's one-measure deadline at 240 BPM is within the standalone reserve: it is
+    // requested again standalone first.
+    expect(early.lastRequest()).toMatchObject({
+      phraseNumber: 2,
+      step: 'standalone',
+      retry: 4,
+      deadline: 1,
+    })
     expect(early.display.asked).toEqual([2])
   })
 
@@ -150,6 +176,7 @@ describe('a settings change and the pending look-ahead phrase', () => {
     driver.change(soundingAt(2) + 1, SHAPED)
     driver.exhaust(soundingAt(2) + 1.5)
     expect(driver.tick(PHRASE_THREE_DEADLINE)).toEqual([
+      { kind: 'cancel-generation', attemptId: driver.lastRequest().attemptId },
       expect.objectContaining({ kind: 'phrase-ready' }),
       { kind: 'struggling-notice', visible: true },
       { kind: 'phrase-tempo', phraseNumber: 3, tempo: FAST_TEMPO },
