@@ -26,3 +26,34 @@ through the header of [`decisions.md`](decisions.md).
   about the pre-session, Idle-only static workspace. **Updated 2026-09-28:** an in-session misfit
   can occur after all; ux D100 handles it as a failed generation attempt (retried, never a
   notation-error display), so Q16 stays Idle-only.
+
+- **Q66 — May `ux-writer` apply v3.0's token-source pass to `src/styles/`?** The token source
+  (`src/styles/theme.css`, `components.css`) is this tree's to maintain, but the v3.0 design pass
+  was barred from application files. v3.0's new classes and tokens are therefore specified in
+  `token-source-v3.md` (ux D179), and three earlier token-source chores wait with them: clearing
+  the `v2 new` / `v2 changed` comments (ux D178), and the audio-mix comment fix (ux D177). Needs
+  the owner's go-ahead for one `ux-writer` pass that edits those two files only; until then the
+  build of v3.0's screens cannot style its new components.
+- **Q67 — Behaviours the v3.0 master spec leaves open, settled here for `spec-writer` to confirm.**
+  Each is a recommendation the design is built on; the owner reviews them, and `spec-writer`
+  writes the confirmed ones into the master spec:
+  - ux D183: every unpinned session, not only the previous most recent one, is deleted when the
+    next session is saved (§5.1).
+  - ux D185: removing a session's last favorite never unpins it (§6).
+  - ux D191: switching "Keep my played notes" on while reviewing the session that just ended keeps
+    that session's played notes too (§5.3).
+  - ux D195: `Delete everything` reloads the page into its first-visit state (§4.1).
+  - ux D197: the first phrase waits for the saved settings; a read that fails or exceeds a short
+    start-up wait starts from the defaults and saves nothing for that visit (§4.4).
+  - ux D199: changing my instrument's transposition keeps its written range (§7.1, §7.2).
+  - ux D201: the remembered controller is reattached at load only when the browser already allows
+    MIDI access, never with a prompt (§7.3).
+  - ux D214: my instrument's written range counts toward the staff's shared height; a bound on
+    that range, with §14's stricter range check, would spare every instrument a taller staff
+    (§7.1).
+  - ux D209: `Disconnect` also forgets the remembered controller (§7.3).
+  - ux D216: theme and audio-mix changes made during a session are saved at its end (§4.2 meets
+    §13 item 7).
+  - ux D202: after a load, the starting note starts nothing until the page's first click, tap or
+    key press, because browsers do not let a page play sound before one (§7.3 meets v2's
+    audio-unlock rule).

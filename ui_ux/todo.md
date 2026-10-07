@@ -26,12 +26,42 @@
   [`archive/v2/open-questions-Q17-Q64.md`](archive/v2/open-questions-Q17-Q64.md).
 - v2.0 milestone archive (2026-10-07, after the spec tree's, spec D208): the v2 record moved to
   `archive/v2/` (index: [`archive/v2/README.md`](archive/v2/README.md)), `versions/v2/` taken from
-  the root, and ux Q31's resolution applied to the tier documents first (D177). The root keeps
-  its v2 change marks until design work on the next version starts.
+  the root, and ux Q31's resolution applied to the tier documents first (D177). The root's v2
+  change marks were cleared when v3 design started (D178).
 
 ## In Progress
 
-Nothing. Design work on the next version has not started.
+**v3.0 (Storage) design**, from `specs/versions/v3/master-spec.md` (v3.0 only; v3.1 and v3.2 are
+not specified yet). Started 2026-10-07; the root's v2 marks are cleared (ux D178) and v3's are
+marked from the first edit. The owner asked for the whole v3.0 design in one pass and reviews it
+once at the end: every settled recommendation is in `decisions.md` (ux D178-D217), and what needs
+the owner or `spec-writer` is in `open-questions.md` (Q66, Q67).
+
+- **Unit V0 — Tier 1 and Tier 2.** `strategy.md` (v3 changes), `token-source-v3.md` (new),
+  `README.md`. Written.
+- Units V1-V4 below: written 2026-10-07 by delegates (details they settled: ux D210-D213).
+- All of V0-V4 validated by `ux-critic` on 2026-10-07: DRIFT with five findings, all fixed (ux
+  D215, D216), recheck clean (ux D217). Not done until the owner's review confirms it.
+- **Unit V1 — Kept sessions and the review.** `flows/kept-sessions/` and `screens/session-list/`
+  (new); `flows/review-and-export/` and `screens/last-session-review/` (changed: any kept
+  session, favorites, export scope, comment, pin and delete, "Keep my played notes", per-session
+  played-notes deletion, very short notes, the keep line). Governing decisions: ux D180-D193,
+  D196, D204, D205.
+- **Unit V2 — Saved data.** `flows/saved-data/` and `screens/your-data/` (new): what is kept
+  without asking, loading, the notices, the Your data sheet and its deletions. Governing: ux
+  D191, D192, D194-D197.
+- **Unit V3 — My instrument and the controller.** `flows/my-instrument/` and
+  `screens/my-instrument/` (new); `flows/controller-connection/` and
+  `screens/controller-connection/` (changed: "Use this for my instrument", the remembered
+  controller). Governing: ux D198-D202, D206.
+- **Unit V4 — The workspace.** `screens/phrase-workspace/` (changed: the instrument control's
+  fourth choice and its button, the cue row's two links, the notice row, the footer, the load
+  wait, the starting-note line before the first click, pre-generation's absence of UI, saved
+  settings), `flows/play-session/` and `flows/generate-phrase/` (the save at a session's end, the
+  first phrase waiting for saved settings, pre-generation), `motion.md`. Governing: ux D181,
+  D194, D196, D197, D198, D202, D203, D206.
+- **Validation.** Done (ux D215-D217), the phone staff-height check carried from v2 included:
+  that text is unchanged from v2 apart from its cleared tags.
 
 ## Remaining
 
@@ -40,44 +70,48 @@ Standing working rules (ux D119, D135, archived; still in force):
 - Minor design issues, including `ux-critic` findings that change no flow, no product rule and
   nothing the player sees of a session's behaviour, are `ux-writer`'s to settle and record in
   `decisions.md` without asking the owner. The phone is not a main customer: the simplest
-  acceptable phone behaviour is enough, and the larger screen wins a conflict. During a session
+  acceptable phone behaviour is enough, and the larger screen wins a conflict; every device still
+  gets the review's functions, the phone's review being their plain baseline. During a session
   the player is never expected to act; any problem ends it as Stop does, after the 30-second
   window if it can be put right, at once if not.
-- The Review stays simple: the phone keeps the minimum; larger screens get no side tools yet,
-  with room left inside the Review for later ones (replay, use as a seed).
+- The Review stays simple: no side tools; per-phrase tools at the end of each phrase's line,
+  whole-session tools beside the export.
+
+v3.0, after the units above:
+
+- **Owner review** of the v3.0 design as a whole: ux D178-D217, Q66, Q67.
+- **Token-source pass** (blocked on Q66): write `token-source-v3.md` into `src/styles/theme.css`
+  and `components.css`, clear their `v2 new` / `v2 changed` comments (ux D178), correct the
+  audio-mix comment (ux D177), then delete `token-source-v3.md` and point the README at the token
+  source alone.
+- **The `%% end v2 new` line** left in `flows/generate-phrase/handoff.md`'s diagram (ux D178):
+  its removal was refused by this session's permission check; the owner decides whether to
+  remove it.
+- **`spec-writer` clarifications** (Q67), once the owner has reviewed them; revalidate only if
+  one comes back changed.
+- **Deferred inside v3.0's spec, no design needed now:** the stray-note threshold and a stricter
+  range check for my instrument (master spec §14) are build-plan measurements; a stricter range
+  rule, if one comes, only changes the refusal's wording.
 
 Carried forward from v2 (see the addendum of [`archive/v2/todo.md`](archive/v2/todo.md)):
 
 - **Unit 7's owner confirmation.** The design of the Review's played notes and their export (ux
-  D161-D166) never got the owner's explicit confirmation; it was built in build plan chunk 23 and
-  its criteria passed the v2.0 gate. Ask with the owner's approval of the `v2.0.0` tag, or take
-  that approval as the confirmation. A correction it brings is made at the root and, where it
-  changes what v2.0.0 shipped, recorded and applied to `versions/v2/` too.
-- **A narrow `ux-critic` pass on the phone staff-height edits** (ux D127-D129,
-  `screens/phrase-workspace/handoff.md`, Notation Contract) has no recorded result. The design is
-  built and through the gate; run it with the next validation of `screens/phrase-workspace/`.
-- **Token-source comment.** The audio-mix block's comment in `src/styles/theme.css` still calls
-  the levels proposed and not final (ux D177); correct it at the next edit of the token source.
+  D161-D166) was built and passed the v2.0 gate; take the owner's approval of the `v2.0.0` tag
+  as the confirmation unless the final v3.0 review says otherwise.
+- **The narrow `ux-critic` pass on the phone staff-height edits** (ux D127-D129): done in the
+  v3.0 validation, no finding.
 
-Design units and items not yet scheduled:
+Not scheduled:
 
-9. **Moved out of v2 (ux D154, spec D174): v3, not committed.** End-of-measure chord-fit check
-   presentation (§9). Kept notes: the master spec hands this presentation to `ux-writer` ("a UI/UX
-   design decision, not specified here"); positive-only and quiet, distinct from the per-note
-   highlight. Design only if v3 schedules it.
+- **Q16** (`open-questions.md`): a generation action reachable from the notation-error states,
+  replacing the undiscoverable instrument-profile-switch escape. Idle-only, lower priority.
+- v3.1 (embellishment flags, presets) and v3.2 (Jam) are designed once `spec-writer` adds their
+  parts to the master spec.
 
-- Revalidate only if a specification refinement changes settled UI behavior, controls, or states.
-- **Q16** (`open-questions.md`): design a generation action reachable from the notation-error states
-  themselves, replacing the undiscoverable instrument-profile-switch escape. Stands alone — it does
-  **not** intersect with Q20 (Q20 is resolved: an in-session notation failure structurally cannot
-  occur, so there is nothing to reconcile against). Still open, still lower priority, still about
-  the Idle-only static workspace.
+Dropped (ux D207): the end-of-measure chord-fit presentation (old unit 9), since master spec §2
+drops the check.
 
 ## Next Unit
 
-None scheduled. When design work on the next version (v3) starts: first clear the root's v2
-change marks in one pass (every **Changes since v1** block, every **[v2 new]** / **[v2 changed]**
-tag, the `v2 new` / `v2 changed` comments in `src/styles/theme.css` and `components.css`), then
-mark that version's changes from its first edit, per D60 and D61 (archived, see
-[`README.md`](README.md), "Released versions and work in progress"). Unit 9 above is the one v3
-design unit already named.
+The owner's review of the whole v3.0 design (ux D178-D217, Q66, Q67); then the token-source pass
+if Q66 allows it.

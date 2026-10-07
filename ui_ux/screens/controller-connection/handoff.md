@@ -1,6 +1,20 @@
 # Controller Connection Handoff
 
-> **New in v2.**
+> **Changes since v2**
+>
+> - _New:_ the **Use for my instrument** confirmation and its actions ([Layout Tree](#layout-tree),
+>   [Named actions](#named-actions), [Focus Management](#focus-management), [States](#states))
+> - _New:_ the check's copy when my instrument is selected, and the confirmation's copy
+>   ([Check result copy](#check-result-copy))
+> - _New:_ the device being checked unplugged during the confirmation
+>   ([Device changes while the sheet is open](#device-changes-while-the-sheet-is-open))
+> - _Changed:_ a result that is not a match adds `Use this for my instrument`; **Requesting
+>   access** goes straight to **Connected** for the remembered controller; **Connected** gains its
+>   two optional lines; `Disconnect` also forgets the remembered controller; the check note comes
+>   from my instrument's range when it is selected ([States](#states),
+>   [Named actions](#named-actions), [Components and Content](#components-and-content))
+> - _Removed:_ "Layout and actions are identical for every result; only the text differs." (v2 in
+>   the [frozen copy](../../versions/v2/screens/controller-connection/handoff.md#states))
 
 ## Layout Tree
 
@@ -22,7 +36,11 @@ sheet-backdrop
       -- Transposition check
         check-note (the engraved written note)
         prompt text, or exactly one result inline-alert alert-notice
+      -- Use for my instrument (v3 new; a confirmation in the sheet's own place, see States)
+        paragraphs stating the change
       -- Connected
+        status line ("{device name} is connected.")
+        one optional line (v3 new): "{name} now matches your controller.", or the remembered-controller sheet-hint
     sheet-actions (state-specific buttons, primary first -- see States)
 ```
 
@@ -46,6 +64,9 @@ sheet-backdrop
 - `check-note` shows the one written note on a short staff, engraved by the same notation pipeline
   as the score (treble clef, the current instrument profile's written pitch, `--font-music`,
   `--color-staff`), never as a letter name in text.
+- **[v3 new]** "The current instrument profile" includes my instrument: when it is selected, the
+  check note is a written note from its range, in its written pitch, and the result compares
+  against its transposition.
 - `device-picker` is a group of `device-option` buttons, one per input the browser currently
   reports, labeled with the device's name, in the order the browser reports them; a device plugged
   in while the list is showing is appended at the end. Keyboard: one roving tab stop — the first
@@ -73,19 +94,32 @@ sheet-backdrop
   access**.
 - `Try again` — on **No device found**; returns to **Requesting access**.
 - `Continue` — on a check result; advances to **Connected**.
+- **[v3 new]** `Use this for my instrument` — on a check result that is not a match, after
+  `Continue`; opens **Use for my instrument**. Absent on a match, and absent in the one case where
+  the instrument it would make would sound outside the MIDI note range (see the flow handoff).
+- **[v3 new]** `Use for my instrument` — on **Use for my instrument**; saves and selects my
+  instrument with the new transposition (creating it first if there is none) and advances to
+  **Connected**.
+- **[v3 new]** `Back` — on **Use for my instrument**; returns to the check result, nothing changed.
 - `Run check again` — on a check result and on **Connected**; returns to the check's *Prompt*
   sub-state for the same device, with no permission request or device resolution.
 - `Choose a different device` — on **Connected**, only when more than one input has been seen this
   page session; opens **Multi-device picker**.
-- `Disconnect` — on **Connected**; releases the device, closes the sheet, and sets the header
-  `controller-status` to the no-controller badge.
+- **[v3 changed]** `Disconnect` — on **Connected**; releases the device, forgets it as the
+  remembered controller, closes the sheet, and sets the header `controller-status` to the
+  no-controller badge.
 - `Done` — on **Connected**; closes the sheet, keeping the connection.
-- `Close` (`sheet-close`), Escape, backdrop click — close the sheet from any state.
+- **[v3 changed]** `Close` (`sheet-close`), Escape, backdrop click — close the sheet from any
+  state but **Use for my instrument**, where they do what `Back` does.
 
 ## Focus Management
 
 - On open and on every state change, focus moves to the new state's main action, named per state
   below. States with no labeled action send focus to `sheet-close`.
+- **[v3 new]** On **Use for my instrument**, focus goes to `Back`, never to `Use for my
+  instrument`. Returning to the result by `Back`, Escape, the backdrop or `Close` puts focus on
+  `Use this for my instrument`. After `Use for my instrument`, **Connected** takes focus on
+  `Done`, its main action.
 - While the sheet is open, focus is trapped in `sheet`: Tab and Shift+Tab cycle through
   `sheet-close`, any `sheet-body` control, and the `sheet-actions` buttons.
 - On close, by any path, focus moves to the first enabled of, in order: the workspace's session
@@ -97,9 +131,10 @@ sheet-backdrop
 
 ## States
 
-- **Requesting access** — two sub-states, both resolving on their own into **Unsupported
-  browser**, **Permission denied**, **No device found**, **Transposition check** (exactly one
-  input), or **Multi-device picker** (two or more). No labeled action; focus on `sheet-close`.
+- **[v3 changed]** **Requesting access** — two sub-states, both resolving on their own into
+  **Unsupported browser**, **Permission denied**, **No device found**, **Connected** (the
+  remembered controller among the inputs, however many there are), **Transposition check**
+  (otherwise, exactly one input), or **Multi-device picker** (otherwise, two or more). No labeled action; focus on `sheet-close`.
   - *Checking:* shown while the request resolves without a browser prompt. `sheet-title`
     "Connecting…"; body "Looking for your controller…".
   - *Waiting for your browser:* shown while the browser's own permission prompt is waiting for an
@@ -134,12 +169,32 @@ sheet-backdrop
     Body "Play this note on your controller." plus `sheet-hint` "Playing it here won't start a
     session." No labeled action; focus on `sheet-close`. The first note-on with non-zero velocity
     from the chosen input is the played note; any other input is ignored.
-  - *Result:* `check-note` stays; below it one `inline-alert alert-notice` with a result sentence
-    and its suggestion (see Check result copy). `sheet-actions`: `Continue` (`btn btn-primary`,
-    main action), `Run check again` (`btn`). Layout and actions are identical for every result;
-    only the text differs.
-- **Connected** — `sheet-title` "Controller connected". Body: `status-dot is-success` followed by
-  "{device name} is connected." `sheet-actions`: `Done` (`btn btn-primary`, main action), `Run
+  - **[v3 changed]** *Result:* `check-note` stays; below it one `inline-alert alert-notice` with
+    a result sentence and its suggestion (see Check result copy). `sheet-actions` on a match:
+    `Continue` (`btn btn-primary`, main action), `Run check again` (`btn`). On every other
+    result: `Continue` (`btn btn-primary`, main action), `Use this for my instrument` (`btn`),
+    `Run check again` (`btn`). The layout is the same for every result; only the text and that
+    one action differ.
+- **[v3 new]** **Use for my instrument** — a confirmation in the sheet's own place, from a check
+  result. `check-note` and the result leave; the header keeps the connected badge. `sheet-title`
+  "Use this for my instrument?". Body, plain paragraphs:
+  - "A written C4 will sound as {note}.", `{note}` being the note a written C4 sounds as under the
+    new transposition, spelled as in `screens/my-instrument/handoff.md` (C4, B♭2, E♭3…).
+  - With no my instrument yet: "My instrument will be made from the {profile} profile, named My
+    instrument, with that profile's range: {low} to {high} in written notes." then `sheet-hint`
+    "You can change it later with Edit my instrument."
+  - With my instrument, not selected: "{name} keeps its range, {low} to {high} in written notes,
+    and becomes the selected instrument."
+  - With my instrument selected: "{name} keeps its range, {low} to {high} in written notes."
+
+  `sheet-actions`: `Use for my instrument` (`btn btn-primary`), `Back` (`btn`). Focus on `Back`.
+  No MIDI note does anything here.
+- **[v3 changed]** **Connected** — `sheet-title` "Controller connected". Body: `status-dot
+  is-success` followed by "{device name} is connected.", then at most one more line: after
+  `Use for my instrument`, the paragraph "{name} now matches your controller."; when reached
+  straight from **Requesting access** for the remembered controller, the `sheet-hint` "This is the
+  controller you chose last time. Run the check again if you have changed its settings." Either
+  line leaves at the next state change. `sheet-actions`: `Done` (`btn btn-primary`, main action), `Run
   check again` (`btn`), `Choose a different device` (`btn`, conditional, see Named actions),
   `Disconnect` (`btn`).
 
@@ -184,6 +239,21 @@ turns it "lower"; *d* < 0 → "lower", and the suggestion turns it "higher".
   "If you actually play the C MIDI keyboard, choose the C MIDI keyboard instrument profile instead
   — no controller change needed."
 
+- **[v3 new]** **My instrument selected.** Wherever the copy above names "the {profile} profile",
+  it reads "your instrument, {name}," instead: "Your controller matches your instrument, {name}."
+  / "Your controller sounds {distance} {direction} than your instrument, {name}, expects." Every
+  other sentence is unchanged. The profile suggestion then considers the three built-in profiles:
+  with my instrument's transposition expressed as above (semitones from concert to written
+  pitch, so 14 for a part that sounds 14 lower), a built-in profile matches when its
+  transposition equals my instrument's minus *d*. My instrument is never the suggested profile.
+- **[v3 new]** **Worked example, using the result.** No my instrument yet, B-flat tenor saxophone profile, a
+  controller sending the written note untransposed (*d* = +14): the result reads as in the worked
+  example above, with `Use this for my instrument` after `Continue`. The confirmation reads "A
+  written C4 will sound as C4." / "My instrument will be made from the B-flat tenor saxophone
+  profile, named My instrument, with that profile's range: C4 to C6 in written notes." After
+  `Use for my instrument`, **Connected** reads "My instrument now matches your controller.", and
+  the instrument control shows My instrument selected.
+
 ## Device changes while the sheet is open
 
 The sheet follows the inputs the browser currently reports.
@@ -205,6 +275,10 @@ back follows its own rule, further down.
   none → **No device found**. Either state then opens with the device-change line,
   `inline-alert alert-notice` reading "{device name} was unplugged.", above its own body. The sheet
   never switches to a different device by itself.
+- **[v3 new]** **Use for my instrument, the chosen device unplugged:** handled as during the
+  check: the connection ends, nothing is saved, and the sheet goes to **Multi-device picker** or
+  **No device found** with the device-change line. Plugged back in, the device returns to the
+  check's *Prompt*, as a device unplugged mid-check does.
 - **The unplugged device plugged back in while the sheet is still open:** if it had already
   reached **Connected**, it reattaches with no new check and the sheet returns to **Connected**;
   if it was unplugged during the **Transposition check**, the check starts again for it. Either

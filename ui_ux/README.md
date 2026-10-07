@@ -7,8 +7,12 @@ product, controls support it, and notation receives the largest share of space a
 landscape viewport. v2 ("Rolling Phrase," `specs/versions/v2/master-spec.md`) turns that static
 phrase into a continuous, MIDI-acknowledged session with backing audio and a review/export step,
 built as an extension of the same screen and flow rather than a new top-level IA. v2 shipped as
-version 2.0.0, and its design is frozen in `versions/v2/`. Design work on the next version has not
-started; see `todo.md` for what is pending.
+version 2.0.0, and its design is frozen in `versions/v2/`. The root now works toward v3.0
+("Storage," `specs/versions/v3/master-spec.md`), the first version that keeps things on the
+player's device: settings, the last session and pinned sessions with their favorites and comments,
+the player's own instrument, the remembered controller and, on request, the notes the player
+played. It extends the same screen again: kept sessions live inside the review, "Your data" and
+"My instrument" are sheets. See `todo.md` for where the work stands.
 
 ## Released versions and work in progress
 
@@ -21,14 +25,13 @@ started; see `todo.md` for what is pending.
   a copy of it goes into `versions/<version>/`, and the work at the root continues toward the one
   after.
 - What the version in progress adds, changes and removes is marked, so the unchanged part never
-  has to be read to find it. A document that differs from its copy in `versions/` opens with a
-  **Changes since v1** block, one line per item linking to where it sits; the spot itself carries
-  a **[v2 new]** or **[v2 changed]** tag (in a code block or stylesheet, the same words as an
+  has to be read to find it. A document that differs from its copy in `versions/v2/` opens with a
+  **Changes since v2** block, one line per item linking to where it sits; the spot itself carries
+  a **[v3 new]** or **[v3 changed]** tag (in a code block or stylesheet, the same words as an
   annotation or comment). Removals are listed only in that block, pointing to the old wording in
-  `versions/`. A document new in v2 says so under its title. `grep -rn "v2 new\|v2 changed"`
+  `versions/`. A document new in v3 says so under its title. `grep -rn "v3 new\|v3 changed"`
   finds every mark. The marks stay until design work on the version after starts; the copy in
-  `versions/` keeps them. v2 has shipped, so the root still carries its v2 marks; they are cleared
-  in one pass when design work on v3 starts, before its first edit.
+  `versions/` keeps them, so `versions/v2/` still shows what v2 changed from v1.
 
 ## Map
 
@@ -42,7 +45,18 @@ started; see `todo.md` for what is pending.
 - `screens/controller-connection/` specifies the connection sheet screen that flow traverses.
 - `flows/play-session/` specifies the continuous session: starting (Start or the starting note), the count-in, the rolling two-system display, acknowledgement, the audio mix, and every way a session ends, up to the review opening. It runs on `screens/phrase-workspace/`, whose session states it names.
 - `flows/review-and-export/` specifies what follows a session once its first phrase has sounded: the review of the last session, the export of its generated notes and of the notes the player played, the fresh phrase the staff gets for the next session, leaving the review, and starting again.
-- `screens/last-session-review/` specifies the **Last session** review, which takes the staff's place after a session until the player closes it, with the notes the player played shown under each staff on request, the controls staying usable; no session starts while it shows.
+- `screens/last-session-review/` specifies the review of a session, the one that just ended or any kept one (still named after v2's **Last session** review), which takes the staff's place after a session until the player closes it, with the notes the player played shown under each staff on request, the controls staying usable; no session starts while it shows.
+- `flows/kept-sessions/` specifies reaching the sessions kept on this device: the two links above
+  the staff, the session list inside the review, opening a kept session, and pinning, unpinning
+  and deleting from the list. `screens/session-list/` specifies the list.
+- `flows/saved-data/` specifies what is kept without asking and how it comes back at load, the
+  notices about saving problems, and the **Your data** sheet with its deletions.
+  `screens/your-data/` specifies the sheet.
+- `flows/my-instrument/` specifies making, selecting, changing and deleting the player's own
+  instrument, and `screens/my-instrument/` the sheet it is made in. The transposition check's
+  way into it is in `flows/controller-connection/`.
+- `token-source-v3.md` specifies v3.0's new tokens and component classes until they are written
+  into `src/styles/theme.css` and `components.css`; the handoffs cite them by name.
 - `open-questions.md`, `decisions.md`, and `todo.md` are working registers. Read `todo.md` before extending this set.
 - `versions/v2/` holds the v2 design as it shipped in version 2.0.0, frozen, with a summary of the
   decisions worth keeping.
