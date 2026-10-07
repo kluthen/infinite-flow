@@ -1033,8 +1033,12 @@ Data), [`screens/your-data/handoff.md`](../../../ui_ux/screens/your-data/handoff
   workspace is in its first-visit state, and Your data shows the empty overview.
 - An injected deletion failure keeps the confirmation with its error line.
 - Openers disabled during a session; no MIDI note starts a session while the sheet is open.
+- An injected failed or slow read: Your data offers Delete everything and no other deletion; once
+  newer data is detected (at load, or written later by a stubbed newer version), no deletion is
+  offered and an open confirmation closes without deleting (master spec §4.4, v1.4).
 
-**Items covered:** 9 (all-sessions deletion), 12, 13 (the report).
+**Items covered:** 9 (all-sessions deletion), 12, 13 (the report), 14 (no deletion once newer data
+is known).
 
 **Verification:** `npm run quality`; entry chunk size recorded (the sheet is lazy).
 
@@ -1569,3 +1573,8 @@ Master spec v1.4 (2026-10-07) only fixes two wordings the chunk 0 re-sync found,
 changes: the starting note waiting for the page's first click, tap or key press widens v2's
 audio-unlock rule (§7.3, §10; chunk 22 already uses any first gesture), and
 item 6 deletes every unpinned kept session, as §5.1 says (chunk 10 already does).
+
+Later the same day, v1.4 also settled three behaviours, and only chunk 15's tests change. An
+outdated tab offers no deletion of any kind (§4.3, item 14). A visit whose read failed or was slow
+offers Delete everything and nothing else (§4.4). Newer data wins over a failed read (§4.4).
+Chunks 11 to 15 build the outdated tab's missing deletions, as `ui_ux/` now specifies.
