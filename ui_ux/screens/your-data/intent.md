@@ -102,7 +102,9 @@ kept. It says why and that a reload is the cure, and keeps only what still works
 the protection, and, after a failed or slow read, `Delete everything`. Keeping that last one there
 matters: when reloading does not help, deleting the data is the player's way back to a working
 app. The player cannot tell data that will never read from data that is only slow to read, so
-both are offered the same way out, behind the same confirmation as everywhere.
+both are offered the same way out, behind the same confirmation as everywhere. It is the only
+deletion such a visit offers anywhere: the review of the session it holds in memory offers none,
+as in an outdated tab.
 
 An outdated tab offers no `Delete everything`. It deletes nothing at all until it is reloaded
 (master spec §4.3): the data belongs to the newer version now, and wiping it from a tab that

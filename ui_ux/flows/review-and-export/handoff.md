@@ -42,9 +42,9 @@ flowchart TD
   RV -->|"favorite-toggle on a phrase; the first favorite pins the session"| RV
   RV -->|"Pin; Unpin (with favorites: confirmation)"| RV
   RV -->|"Add a comment / Edit comment, then Done, leaving the field, or leaving the review: saved"| RV
-  RV -->|"Delete session, confirmed (never in an outdated tab)"| SLE["session-list, its empty state included; focus on its title"]
-  RV -->|"Keep my played notes on; off (with kept notes, not in an outdated tab: confirmation, Delete them or Keep them)"| RV
-  RV -->|"Delete played notes, confirmed (never in an outdated tab): lane, view row and played-notes export leave"| RV
+  RV -->|"Delete session, confirmed (never while saving is off)"| SLE["session-list, its empty state included; focus on its title"]
+  RV -->|"Keep my played notes on; off (with kept notes, not while saving is off: confirmation, Delete them or Keep them)"| RV
+  RV -->|"Delete played notes, confirmed (never while saving is off): lane, view row and played-notes export leave"| RV
   %% v3 changed: saved choices; v3 new: scope, very short notes
   RV -->|"Format: MusicXML or MIDI; Backing track (MIDI only); saved"| RV
   RV -->|"Export scope: Whole session or Favorites only; Include very short notes"| RV
@@ -185,8 +185,9 @@ flowchart TD
 - **Delete session.** `review-session-tools`; the confirmation and what follows are in
   `flows/kept-sessions/handoff.md`, Deleting a Session: the list replaces the Review, its empty
   state included, focus on the list's title. Deleting the session that just ended also removes it
-  from memory, and `review-link` with it. Absent in an outdated tab
-  (`flows/kept-sessions/handoff.md`, In an Outdated Tab).
+  from memory, and `review-link` with it. Absent while saving is off,
+  in an outdated tab or a visit whose saved data couldn't be read
+  (`flows/kept-sessions/handoff.md`, While Saving Is Off).
 - **All sessions.** `review-nav`: the list replaces the Review, focus on that session's
   `session-row-open` (`flows/kept-sessions/handoff.md`).
 
@@ -232,12 +233,12 @@ flowchart TD
   it off saves the setting; when played notes are kept with any session, the confirmation
   "Delete the played notes already kept?" opens (`screens/last-session-review/handoff.md`):
   `Delete them` deletes every kept played note, `Keep them` keeps them; the switch is off either
-  way. The same setting as in `Your data`. In an outdated tab it changes for the visit only:
+  way. The same setting as in `Your data`. While saving is off it changes for the visit only:
   nothing is saved or kept, and turning it off opens no confirmation.
 - **[v3 new]** **Delete played notes** (`review-view`, only when this session's played notes are
   kept): after a confirmation, this session's played notes are deleted, in memory too; the lane,
   `review-view` and the played-notes export leave the Review at once, focus on `review-title`.
-  The session, its favorites and its comment stay. Never shown in an outdated tab.
+  The session, its favorites and its comment stay. Never shown while saving is off.
 
 ## Privacy
 

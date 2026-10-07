@@ -148,9 +148,11 @@ Four notices, each saying what happened, what it means, and the one thing the pl
 - **Data that couldn't be read at load,** or not within the start-up wait: the player cannot
   tell data that will never read from data that is only slow to read, so both are told the same
   way. This visit started from the defaults and saves nothing; a reload may fix it, and
-  `Delete everything`, in Your data, is the way out when it does not. It stays for the same
-  reason. If a newer version turns out to
-  have saved data, it gives way to the outdated tab's notice, worded for a visit on the defaults.
+  `Delete everything`, in Your data, is the way out when it does not. The notice stays for the
+  same reason as the outdated tab's. `Delete everything` is the only deletion such a visit
+  offers: the review of the session held in memory has no deletion, as in an outdated tab, so no
+  deletion looks permanent while nothing is kept. If a newer version turns out to have saved
+  data, the notice gives way to the outdated tab's, worded for a visit on the defaults.
 
 The row holds one notice at a time. The two that stay are the more serious and already imply that
 nothing is being saved, so they replace a save-failure notice rather than sit beside it. Repeated
@@ -189,7 +191,7 @@ what goes, saying it can't be undone, with the way back focused. Three of them a
 
 Turning `Keep my played notes` off, from here or from a review, keeps nothing new and, when some
 played notes are already kept, asks whether to delete them, with keeping them as the way back
-(an outdated tab, which may delete nothing, never asks). The
+(a visit that saves nothing switches it for the visit only and never asks). The
 switch is off either way: turning off a privacy setting should never be held hostage by a
 question. Turning it on keeps the played notes of the session that just ended too, while they are
 still in memory: the player who switches "keep" on, after a session, expects that session's notes

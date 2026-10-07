@@ -132,8 +132,8 @@ After deleting from a row, focus moves to the next row's title, or the previous 
 last row went, so a player clearing several sessions keeps their place. After deleting from a
 review, the list shows, since the review has nothing left to show; when that was the last kept
 session, the list shows its empty state. Deleting the session that just ended also removes it
-from memory, and `Review last session` goes with it: deleted means gone. An outdated tab offers
-no deletion (see At the Edges).
+from memory, and `Review last session` goes with it: deleted means gone. A visit that saves
+nothing offers no deletion here (see At the Edges).
 
 ## At the Edges
 
@@ -159,7 +159,13 @@ no deletion (see At the Edges).
   try again; nothing else on the page changes.
 - **Saved data that cannot be used this visit.** Nothing kept can be shown, so the link to the
   list is not shown, and the list, if reached from a review, says the kept sessions cannot be
-  read in this visit rather than claiming there are none.
+  read in this visit rather than claiming there are none. Such a visit saves nothing, and, like
+  an outdated tab, offers no deletion in a review: the session that ended in it is held in
+  memory, and its review has neither `Delete session` nor `Delete played notes`, while turning
+  `Keep my played notes` off asks nothing. One rule for every visit that saves nothing, so no
+  deletion looks permanent while nothing is kept. The way out when a reload does not help is
+  `Delete everything`, in Your data, the one deletion such a visit offers
+  ([`flows/saved-data/`](../saved-data/intent.md)).
 
 ## On a Phone
 

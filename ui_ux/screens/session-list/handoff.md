@@ -75,7 +75,7 @@ layout-workspace
 - **`Delete`.** A plain `btn` reading "Delete"; accessible name "Delete session {session date}".
   It opens the confirmation; it is never `btn-error` itself (`btn-error` is the confirmation's
   deleting action only). Behaviour: `flows/kept-sessions/handoff.md`, Deleting a Session. Absent
-  on every row in an outdated tab (`flows/kept-sessions/handoff.md`, In an Outdated Tab).
+  on every row in an outdated tab (`flows/kept-sessions/handoff.md`, While Saving Is Off).
 - `sessions-empty`: "No sessions are kept. Your next session will be kept here." When saved data
   cannot be used this visit: "Kept sessions can't be read in this visit."
 - No row, line or count shows how the player played.
@@ -125,7 +125,7 @@ layout-workspace
   read); a row whose opening failed (`session-row-note`, the title enabled).
 - **Outdated tab:** every row without `Delete`, from the moment the tab is outdated; the rest of
   each row as in its own state. Focus on a `Delete` that leaves, or in its open confirmation, goes
-  to the list's title (`flows/kept-sessions/handoff.md`, In an Outdated Tab).
+  to the list's title (`flows/kept-sessions/handoff.md`, While Saving Is Off).
 - **Error, the whole list:** saved data that cannot be used this visit: the empty state with its
   second sentence (see Components and Content).
 - **A confirmation open:** the list stays under the sheet's backdrop, unchanged.

@@ -411,3 +411,27 @@ leaves open; they are listed together in Q67 for `spec-writer`.
   `flows/kept-sessions/handoff.md` (In an Outdated Tab), `flows/generate-phrase/handoff.md` and
   `screens/phrase-workspace/handoff.md` (the notice at load), and `strategy.md` (Edge-Case
   Policy). Logged Q69 for the one spec contradiction found.
+- **D223 — A visit that couldn't read its saved data offers no deletion in the review (2026-10-07;
+  closes Q69; applies spec D226, master spec v1.4 §4.4).** As recommended in Q69: in a visit
+  started from the defaults because the saved data couldn't be read, or not within the start-up
+  wait, the review of the session held in memory offers neither `Delete session` nor
+  `Delete played notes`, as in an outdated tab, and turning `Keep my played notes` on or off
+  there applies to the visit only and opens no confirmation. `Delete everything`, in Your data,
+  stays that visit's only deletion until data written by a newer version is known (ux D222).
+  Settled here, as a minor design issue (D119's standing rule): one shared rule for both
+  saving-off visits. `flows/kept-sessions/handoff.md`'s section In an Outdated Tab becomes While
+  Saving Is Off, covering both visits and stating their one difference (`Delete everything`);
+  every handoff that cited the old section now cites the new one, and every "absent in an
+  outdated tab" about the list's and the review's deletions reads "while saving is off".
+  Rejected: a second section for the failed-read visit, which would repeat every rule but one.
+  Applied to `flows/kept-sessions/` (handoff: the diagram, Deleting a Session, While Saving Is
+  Off; intent: Deleting, At the Edges), `screens/last-session-review/` (handoff: the layout
+  tree, the session tools, `Keep my played notes`, `Delete played notes`, the Saving off state,
+  which replaces Outdated tab, and the change block, which now lists that state; intent),
+  `flows/review-and-export/` (handoff: the diagram, Delete session, the played-notes rules;
+  intent), `flows/saved-data/` (handoff: Saving off and the load diagram; intent: the
+  unusable-data notice, the played-notes switch), `screens/your-data/intent.md`,
+  `screens/session-list/handoff.md` (its two citations) and `strategy.md` (Edge-Case Policy:
+  loading saved settings). Also fixed in `strategy.md`, a leftover of ux D221: a session this
+  version cannot read is no longer said to be deletable from the list; it can be neither opened
+  nor deleted from the outdated tab that meets it.

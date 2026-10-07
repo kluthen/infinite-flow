@@ -72,7 +72,8 @@ through the header of [`decisions.md`](decisions.md).
   result the device does not hold. Pin, favorites and comments already apply in memory only
   while saving is off, which the notice says.
 - **Q69 — In a visit whose saved data couldn't be read, are the review's in-memory deletions
-  offered?** For `spec-writer`. Master spec v1.4 §4.4 says `Delete everything` "is the only
+  offered?** **Closed 2026-10-07 by ux D223** (spec D226, master spec v1.4 §4.4: absent, as
+  recommended). For `spec-writer`. Master spec v1.4 §4.4 says `Delete everything` "is the only
   deletion it offers", and spec D224 records that as what the design already does. It is not
   quite: such a visit holds the session that just ended in memory, as after a failed save
   (`flows/kept-sessions/handoff.md`, Keeping at a Session's End), and that session's review

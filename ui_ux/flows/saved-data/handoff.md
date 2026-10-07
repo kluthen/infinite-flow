@@ -40,13 +40,14 @@ a visit started from the defaults because the saved data couldn't be read, or no
 start-up wait (see Load). Every save
 above is then skipped: the app keeps working in memory, and the notice already showing says so.
 A session ending in such a visit is not saved; its review's keep line reads as for a failed save.
-An outdated tab also deletes nothing and offers no deletion of any kind: Your data has no
-`Delete everything` (the reload comes first), the session list and the review offer no `Delete`,
-`Delete session` or `Delete played notes`, and turning `Keep my played notes` off there changes
-it for the visit only and opens no confirmation (`flows/kept-sessions/handoff.md`, In an Outdated
-Tab). A visit started from the defaults keeps `Delete everything`, the way out when reloading
-does not help, whether the data is unreadable or only slow to read (`screens/your-data/`,
-States), until data written by a newer version is known to exist.
+Neither visit offers a deletion in the session list or a review: no `Delete`, `Delete session`
+or `Delete played notes`, the session held in memory included, and turning
+`Keep my played notes` off changes it for the visit only and opens no confirmation
+(`flows/kept-sessions/handoff.md`, While Saving Is Off). An outdated tab also deletes nothing
+and offers no deletion of any kind: Your data has no `Delete everything` (the reload comes
+first). A visit started from the defaults keeps `Delete everything`, the only deletion it offers
+and the way out when reloading does not help, whether the data is unreadable or only slow to
+read (`screens/your-data/`, States), until data written by a newer version is known to exist.
 
 **Newer data wins over a failed read.** A tab is outdated from the moment data written by a newer
 version is known to exist, whether the saved data was read or not: found at load, revealed by a
@@ -73,7 +74,7 @@ flowchart TD
   CHECK -->|Otherwise| OK["Use the saved values; an invalid one loads as its default, silently"]
   READ -->|"Read fails, or start-up wait ends first"| BAD["Start from the defaults, in memory; saving off"]
   BAD -->|"Data written by a newer version also known"| BADNEWER["Outdated tab: no deletion of any kind; outdated-tab notice, defaults wording"]
-  BAD -->|Otherwise| BADONLY["Delete everything the only deletion in Your data; unusable-data notice"]
+  BAD -->|Otherwise| BADONLY["Delete everything, in Your data, the only deletion offered; unusable-data notice"]
   BADONLY -->|"Later in the visit, data written by a newer version becomes known"| BADNEWER
   DEF --> DRAW
   NEWER --> DRAW

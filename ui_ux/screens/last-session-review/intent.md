@@ -90,10 +90,13 @@ the whole session, so they sit with its title, not with the export. They are two
 with words, not a switch and an icon: each names what happens when pressed. Deleting asks first;
 pinning never does; unpinning asks only when favorites would go with the session.
 
-**[v3 new]** In a tab that a newer version of the app has outdated, `Delete session` is not
-there, and neither is `Delete played notes`: that tab saves and deletes nothing until it is
-reloaded, and the notice above the workspace asks for the reload. A missing button is honest; a
-deletion that only hid the session for this visit would come back at the next reload.
+**[v3 new]** In a visit that saves nothing, `Delete session` is not there, and neither is
+`Delete played notes`. That is a tab a newer version of the app has outdated, which deletes
+nothing until it is reloaded, and a visit that started from the defaults because the saved data
+couldn't be read, whose review shows the session held in memory. The notice above the workspace
+says why in both. A missing button is honest; a deletion that only hid the session for this visit
+would come back at the next reload, and one that removed a session held in memory only would
+look permanent while nothing is kept. One rule for both visits keeps the review the same in each.
 
 ## What Is Deliberately Left Out
 
@@ -202,8 +205,8 @@ the device with their sessions. It starts off, because those notes are the most 
 app holds. It sits here, as well as in `Your data`, because this is where the player sees their
 notes and can judge whether they want them kept; switching it on while looking at the session that
 just ended keeps that session's notes too. Switching it off asks whether to delete the notes
-already kept, and never deletes without asking. In an outdated tab it switches for the visit
-only and asks nothing, since that tab may delete nothing.
+already kept, and never deletes without asking. In a visit that saves nothing it switches for
+the visit only and asks nothing, since such a visit offers no deletion here.
 
 **[v3 new]** When this session's played notes are kept, `Delete played notes` follows in the same
 row. After a confirmation, the lane, both switches' row and the played-notes export leave the

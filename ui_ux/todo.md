@@ -92,9 +92,9 @@ v3.0, after the units above:
   `screens/your-data/`, `flows/kept-sessions/`, the load lines of `flows/generate-phrase/` and
   `screens/phrase-workspace/`, and `strategy.md`. Not yet passed by `ux-critic`; a narrow pass on
   those edits is due before the owner's next review of v3.0.
-- **Q69** (`open-questions.md`), for `spec-writer`: whether a visit with unreadable saved data
-  offers the review's in-memory deletions; §4.4 says `Delete everything` only, the design offers
-  them. Apply the answer to `flows/kept-sessions/` and `screens/last-session-review/`.
+- **Q69:** closed by ux D223 (spec D226): a visit whose saved data couldn't be read offers no
+  deletion in the review either; one "While Saving Is Off" rule for both saving-off visits,
+  applied to the kept-sessions, review and saved-data flows, their screens and `strategy.md`.
 - **Deferred inside v3.0's spec, no design needed now:** the stray-note threshold and a stricter
   range check for my instrument (master spec §14) are build-plan measurements; a stricter range
   rule, if one comes, only changes the refusal's wording.
