@@ -48,7 +48,7 @@
     inline-size: 100%;
     min-inline-size: 0;
   }
-  /* v2 new -- States: shown (default), out of sight (`is-out-of-sight`). Out of sight while the
+  /* States: shown (default), out of sight (`is-out-of-sight`). Out of sight while the
      last-session Review shows: the staff keeps running its idle rules underneath (the next
      phrase is engraved, the room and fit checks keep measuring), so it must stay laid out at its
      normal inline size -- `display: none` (the `hidden` attribute) would zero the geometry the
@@ -147,14 +147,14 @@
     margin: 0 0 var(--spacing-3);
   }
 
-  /* States: default, loading, ready, fading-out, error, no-room (`staff-no-room`, v2 new: the
+  /* States: default, loading, ready, fading-out, error, no-room (`staff-no-room`: the
      staff has no room and `room-notice` replaces the score). Hover/focus/active are not
      applicable to the static staff container. */
-  /* v2 changed -- the border and padding now read the named `--staff-frame-border-width` and
-     `--staff-frame-padding` (the same values as v1), because the phone staff budget subtracts
-     them. v1's fixed minimum block size now holds from bp-tablet-landscape up only: below it,
-     the phone block right after this rule removes it, takes the smaller phone block padding and
-     caps the frame at the phone staff budget (see `--staff-systems-phone-block-budget` in
+  /* The border and padding read the named `--staff-frame-border-width` and
+     `--staff-frame-padding`, because the phone staff budget subtracts them. The fixed minimum
+     block size holds from bp-tablet-landscape up only: below it, the phone block right after
+     this rule removes it, takes the smaller phone block padding and caps the frame at the phone
+     staff budget (see `--staff-systems-phone-block-budget` in
      theme.css). */
   .staff-frame,
   .staff-ready {
@@ -165,7 +165,7 @@
     min-block-size: 24rem;
     padding: var(--staff-frame-padding);
   }
-  /* v2 new -- below bp-tablet-landscape, the staff area is sized by the engraving scale, not by
+  /* Below bp-tablet-landscape, the staff area is sized by the engraving scale, not by
      a fixed minimum. The query is width-only, the same as the notation layout's
      NOTATION_PHONE_LAYOUT_MEDIA_QUERY (src/notation/notation-layout-policy.ts), so the CSS and
      the engraver always agree on which side of the breakpoint they are. There the engraving
@@ -198,7 +198,7 @@
     display: grid;
     justify-items: center;
   }
-  /* v2 new -- the staff has no room: the window is too narrow for the staff layout at the
+  /* The staff has no room: the window is too narrow for the staff layout at the
      legibility floor, or, below bp-tablet-landscape, too short for it, or every attempt at a
      phrase that fits has failed. `room-notice` replaces the score, centred. The frame keeps its
      usual sizing: from bp-tablet-landscape up its minimum block size; below it, the phone
@@ -258,7 +258,6 @@
     stroke: none;
   }
 
-  /* v2 changed -- `.btn` becomes a bordered neutral button with its full state matrix. */
   /* States: default, hover, focus-visible, active, disabled, loading, error (`btn-error`).
      A plain `.btn` is the neutral secondary button (e.g. `Connect controller`, `Continue without
      a controller`): a bordered surface, so it reads as a button on both the canvas and a sheet.
@@ -313,10 +312,23 @@
     cursor: wait;
     opacity: 0.55;
   }
+  /* v3 changed -- `btn-error` gains its own feedback states. States: default, hover,
+     focus-visible, active, disabled, loading. Hover and active take the darker (light theme) or
+     lighter (dark theme) `--color-error-hover` fill and border; active also moves the button
+     down one pixel, as `btn-primary` does; focus-visible, disabled and loading are `.btn`'s. Used
+     only for an action that deletes saved data, and only inside a confirmation or as the last
+     action of a sheet (`sheet-actions-destructive`): never as a page's primary action. */
   .btn-error {
     background: var(--color-error);
     border-color: var(--color-error);
     color: var(--color-accent-text);
+  }
+  .btn-error:where(:hover:not(:disabled), :active:not(:disabled)) {
+    background: var(--color-error-hover);
+    border-color: var(--color-error-hover);
+  }
+  .btn-error:active {
+    transform: translateY(1px);
   }
   .btn-lg {
     min-block-size: 3rem;
@@ -359,7 +371,7 @@
   .segmented-control.is-loading {
     opacity: 0.55;
   }
-  /* v2 changed -- a disabled segment reads "not available here" and takes no hover feedback. It
+  /* A disabled segment reads "not available here" and takes no hover feedback. It
      is never the checked segment. Its reason is always given in words, in the field's
      `field-note`, which the segment names with `aria-describedby`, so the dimmed label is never
      the only signal. Native `disabled` takes it out of the roving tab stop and out of arrow-key
@@ -403,7 +415,7 @@
     font-size: var(--text-sm);
     font-weight: 700;
   }
-  /* v2 new -- States: shown, absent. A short static line after a field's control, of one of
+  /* States: shown, absent. A short static line after a field's control, of one of
      three kinds: the reason one of its options is unavailable (Note density's `Sixteenth`
      below bp-tablet-landscape, `Rising tempo`'s `On` with no controller; the disabled option
      names it with `aria-describedby`); what a "During a session" option does (its
@@ -480,11 +492,11 @@
   }
 
   /* States: default, loading, error. Custom feedback is informational, not interactive.
-     v2 changed -- the status holds both of its texts in one grid cell: `preset-status-text` (the
+     The status holds both of its texts in one grid cell: `preset-status-text` (the
      text in use) and `preset-status-text is-reserve` (the other text, invisible and
      `aria-hidden`), so its block size is the longer text's at every width and never changes when
      a manual edit, a preset choice or, during a session, an automatic change swaps them. The
-     custom emphasis (`is-custom`) moves from the status to the custom text, so the reserve copy
+     custom emphasis (`is-custom`) sits on the custom text, not on the status, so the reserve copy
      is measured in the weight it would be shown in. */
   .preset-status {
     color: var(--color-text-muted);
@@ -536,14 +548,14 @@
     border-color: var(--color-accent);
     color: var(--color-text);
   }
-  /* v2 changed -- states comment added; `room-notice` below is its sibling. States: absent
+  /* `room-notice` below is its sibling. States: absent
      (default), shown (portrait-shaped below bp-desktop, where it replaces `layout-app`; see the
      portrait guard at the end of this file). Plain centred copy with no action, cleared by the
      viewport alone; not interactive, so hover/focus-visible/active/disabled do not apply. */
   .orientation-notice {
     display: none;
   }
-  /* v2 new -- States: absent (default: not rendered), shown (inside `staff-frame
+  /* States: absent (default: not rendered), shown (inside `staff-frame
      staff-no-room`, replacing the score), focused (`:focus-visible`). The `orientation-notice`
      pattern -- one plain centred sentence, no action, cleared by itself: by the viewport change
      that gives the staff room (no-room cause), or by the first phrase that fits (too-many-notes
@@ -564,7 +576,7 @@
     box-shadow: var(--shadow-focus);
     outline: none;
   }
-  /* v2 new -- States: shown, absent (not rendered, `display: none`, so assistive technology reads
+  /* States: shown, absent (not rendered, `display: none`, so assistive technology reads
      only the sentence on screen). The two sentences of the no-room cause, inline spans inside
      `room-notice`, which holds both: `room-notice-wide`, "The staff needs more room. Make the
      window larger.", shown from bp-tablet-landscape up; `room-notice-narrow`, "This screen is too
@@ -586,10 +598,6 @@
     }
   }
 
-  /* v2 new -- from here to "end v2 new": connection sheet, device picker, transposition-check
-     note, controller status, session action, session cue row (starting-note line, count-in,
-     session notices), start marker, playhead band, note acknowledgement, audio mix
-     (toggle buttons, Volume popover, range inputs). */
   /* States: default, entering/leaving (opacity transition only -- no spatial motion, per
      `motion.md`'s "communicates ... immediate interaction feedback" rule). Not itself an
      interactive control (its dismiss-on-click is handled by script), so hover/focus-visible/
@@ -1115,9 +1123,8 @@
     cursor: not-allowed;
     opacity: 0.55;
   }
-  /* end v2 new */
 
-  /* v2 new -- from here to "end v2 new": the last-session Review (`review-panel` and its parts,
+  /* The last-session Review (`review-panel` and its parts,
      `review-link` in the session cue row). While the Review shows, the header's session action
      reads `Close review` (`btn btn-primary btn-lg session-action`, no class of its own), and inside
      `score-panel` the generation-failure banner, `session-cue-row` and `score-title` are hidden
@@ -1140,7 +1147,10 @@
      surface panel like `control-section`. Not
      interactive itself: hover/focus-visible/active/disabled do not apply. Appears and goes with no
      animation. Full inline size at every breakpoint: no side rail. */
-  .review-panel {
+  /* v3 changed -- `sessions-panel`, the session list's panel, shares this surface. States:
+     absent, shown. */
+  .review-panel,
+  .sessions-panel {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
@@ -1148,16 +1158,18 @@
     min-inline-size: 0;
     padding: var(--spacing-4);
   }
-  /* Layout only: `review-heading` at the inline start, `review-actions` at the inline end,
-     wrapping under the heading when they do not fit; stacked below bp-tablet-landscape (the
-     width-only block after these rules). */
-  .review-header {
+  /* v3 changed -- Layout only: the heading row. `review-heading` at the inline start and
+     `review-session-tools` at the inline end, wrapping under the heading when they do not fit;
+     stacked below bp-tablet-landscape (the width-only block after these rules). `sessions-header`
+     takes the same layout, with the list's title and `Your data`. No bottom margin: the panel's
+     rows are spaced by the row rule in the v3 block below. */
+  .review-header,
+  .sessions-header {
     align-items: flex-end;
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-3) var(--spacing-5);
     justify-content: space-between;
-    margin-block-end: var(--spacing-4);
   }
   .review-heading {
     display: grid;
@@ -1183,23 +1195,26 @@
     font-size: var(--text-sm);
     margin: 0;
   }
-  /* Layout only: whole-session tools, the generated-notes export in v2.0 (the played-notes
-     export joins it in v2.1). Each child carries its own states. */
+  /* v3 changed -- Layout only: the whole-session tools, a row of its own after `review-comment`:
+     `review-scope`, the generated-notes `review-export`, then `review-export-played`. Each child
+     carries its own states. */
   .review-actions,
-  .review-export {
+  .review-export,
+  .review-export-played {
     align-items: flex-end;
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-3);
     min-inline-size: 0;
   }
-  /* Inside the export row the Format field keeps its natural width (the bp-mobile-landscape
-     rule that stretches workspace segmented controls to the field's width does not apply here)
-     and drops the field's bottom margin, so the row's controls align on one baseline. */
-  .review-export .field-group {
+  /* v3 changed -- inside the whole-session tools every field (`review-scope`, Format) keeps its
+     natural width (the bp-mobile-landscape rule that stretches workspace segmented controls to
+     the field's width does not apply here) and drops the field's bottom margin, so the row's
+     controls align on one baseline. */
+  .review-actions .field-group {
     margin-block-end: 0;
   }
-  .review-export .field-group > .segmented-control {
+  .review-actions .field-group > .segmented-control {
     inline-size: auto;
   }
   /* States: default, hover, focus-visible, active, disabled, loading -- all from `.btn`
@@ -1223,7 +1238,8 @@
     padding: 0;
   }
   /* States: not yet engraved (its `review-staff` reserved and blank), engraved, note
-     (`review-phrase-note` in place of the engraving). Not interactive in v2.0. */
+     (`review-phrase-note` in place of the engraving). Not interactive itself; its header holds
+     `favorite-toggle` (v3 changed). */
   .review-phrase {
     border-block-start: 1px solid var(--color-border);
     min-inline-size: 0;
@@ -1233,7 +1249,8 @@
     border-block-start: 0;
     padding-block-start: 0;
   }
-  /* Layout only: the phrase's number and tempo on one line; later per-phrase tools take its
+  /* v3 changed -- Layout only: the phrase's number and tempo on one line, then `favorite-toggle`
+     at its trailing end; it wraps below bp-tablet-landscape if needed, the star staying at the
      trailing end. */
   .review-phrase-header {
     align-items: baseline;
@@ -1292,9 +1309,9 @@
   .review-panel > .room-notice {
     padding-block: var(--spacing-6);
   }
-  /* Below bp-tablet-landscape (width-only, the same query as the notation layout's split
-     layout): the header stacks and the summary is not rendered -- the phone's review is the
-     phrases, the notes played (on request) and the exports, nothing else. */
+  /* v3 changed -- below bp-tablet-landscape (width-only, the same query as the notation layout's
+     split layout): the heading row stacks (the title, then `review-session-tools`) and the
+     summary is not rendered. Every control of the larger screens stays on the phone. */
   @media (max-width: 63.9375rem) {
     .review-header {
       align-items: stretch;
@@ -1304,10 +1321,6 @@
       display: none;
     }
   }
-  /* end v2 new */
-
-  /* v2 new -- from here to "end v2 new": the session options (v2.1, v2.2), the fixed-size texts
-     an automatic change can rewrite during a session, and the review's played notes (v2.1). */
   /* Layout only: the "During a session" control group, last in `control-group-row`. Below
      bp-tablet-landscape it stacks like every group (no rule needed). From bp-tablet-landscape up
      it takes a row of its own, its heading across the top and its fields in columns of at least
@@ -1338,15 +1351,17 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  /* Layout only, the gap between the review's whole-session tools: wider between groups (the
-     generated-notes `review-export`, then `Export played notes`) than inside one, so Format and
-     Backing track read as the generated notes' own. */
+  /* v3 changed -- Layout only, the gap between the review's whole-session tools: wider between
+     groups (`review-scope`, the generated-notes `review-export`, then `review-export-played`)
+     than inside one, so each control reads as its own group's. */
   .review-actions {
     column-gap: var(--spacing-5);
   }
-  /* Layout only: the row under the review's heading and export holding the `Played notes`
-     `toggle-button` (which carries its own states), aligned to the inline start, on a line of its
-     own at every breakpoint. Rendered only when the session holds a played note. */
+  /* v3 changed -- Layout only: the panel row after the whole-session tools holding the
+     `Played notes` and `Keep my played notes` `toggle-button`s and, while this session's played
+     notes are kept, `Delete played notes` (each carries its own states), aligned to the inline
+     start, wrapping, on a line of its own at every breakpoint. Rendered only when the session
+     holds a played note. */
   .review-view {
     align-items: center;
     display: flex;
@@ -1393,7 +1408,425 @@
     position: absolute;
     translate: 0 -50%;
   }
-  /* end v2 new */
+
+  /* v3 new -- from here to "end v3 new": wide sheets and their sections, text fields, app
+     notices, the page footer, the session list, the review's additions (row spacing, navigation,
+     keeping state, session tools, comment, export scope, played-notes export, favorites), the
+     cue row's links and labels, and my instrument (actions, note steppers, range row and
+     alert). Every interactive class here is composed with `btn`, `segmented-control`,
+     `input-stepper` or `toggle-button`, or is a native form field, so its hover, focus-visible,
+     active and disabled states are those classes' own unless its comment says otherwise. */
+
+  /* States: none of its own (layout only). Modifier on `sheet` for the My instrument and Your
+     data sheets, whose rows hold a label, a value and an action, or two steppers side by side.
+     Below bp-tablet-landscape it behaves as `sheet` does: the inline size the backdrop's padding
+     leaves. */
+  .sheet-wide {
+    max-inline-size: var(--sheet-wide-max-inline-size);
+  }
+  /* States: default only (static). A titled group inside `sheet-body`: an `h3` then its rows,
+     `--spacing-3` apart. Every section but the first opens with a `--color-border` hairline, with
+     `--spacing-5` above it (the body's `--spacing-3` gap plus this margin) and below it. Its
+     field groups drop their own bottom margin: the section's gap spaces them. */
+  .sheet-section {
+    display: grid;
+    gap: var(--spacing-3);
+  }
+  .sheet-section + .sheet-section {
+    border-block-start: 1px solid var(--color-border);
+    margin-block-start: calc(var(--spacing-5) - var(--spacing-3));
+    padding-block-start: var(--spacing-5);
+  }
+  .sheet-section > h3 {
+    font-size: var(--text-md);
+    font-weight: 700;
+    margin: 0;
+  }
+  .sheet-section .field-group {
+    margin-block-end: 0;
+  }
+  /* States: none of its own (layout only). The row at the end of `sheet-body`, after every
+     section, holding one `btn btn-error`, aligned to the inline start and `--spacing-6` below
+     the section above (the body's `--spacing-3` gap plus this margin), so a deleting action
+     never sits beside `Done` or `Save`. */
+  .sheet-actions-destructive {
+    display: flex;
+    justify-content: flex-start;
+    margin-block-start: calc(var(--spacing-6) - var(--spacing-3));
+  }
+
+  /* States: default, hover, focus-visible, disabled, read-only. `text-input` is a native
+     single-line `input`, full width up to `--text-input-max-inline-size`; `text-area` a native
+     `textarea` with the same box, full width of its container, at least
+     `--comment-field-min-block-size` tall, resizable on the block axis only and growing with its
+     content. Hover: the accent border. Focus: `--shadow-focus` on `:focus-visible` and on
+     `:focus`, since a text field is always entered by keyboard once focused. Disabled: as
+     `.btn`. Read-only: the dashed `--readonly-ring`, full colour, as `segmented-control`'s
+     read-only state. No error state: the name field never refuses a value (an empty name falls
+     back to a default) and the comment's length limit is the field's own `maxlength`. The
+     44px minimum block size is the `btn`'s. */
+  .text-input,
+  .text-area {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    font-family: var(--font-ui);
+    font-size: var(--text-md);
+    inline-size: 100%;
+    min-block-size: 2.75rem;
+    padding: var(--spacing-2) var(--spacing-3);
+    transition: border-color var(--duration-feedback) var(--ease-out-fast);
+  }
+  .text-input {
+    max-inline-size: var(--text-input-max-inline-size);
+  }
+  .text-area {
+    field-sizing: content;
+    line-height: var(--leading-base);
+    min-block-size: var(--comment-field-min-block-size);
+    resize: block;
+  }
+  .text-input:hover:not(:disabled, [readonly]),
+  .text-area:hover:not(:disabled, [readonly]) {
+    border-color: var(--color-accent);
+  }
+  .text-input:focus,
+  .text-input:focus-visible,
+  .text-area:focus,
+  .text-area:focus-visible {
+    box-shadow: var(--shadow-focus);
+    outline: none;
+  }
+  .text-input:disabled,
+  .text-area:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  .text-input[readonly],
+  .text-area[readonly] {
+    outline: var(--readonly-ring);
+    outline-offset: var(--spacing-1);
+  }
+  /* States: default only. The live character count after a `text-area` ("{n}/500"): the type
+     and colour of `field-note`, tabular digits, aligned to the inline end. Not a live region
+     (the field's own `maxlength` is announced by the browser). */
+  .field-count {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+    margin: 0;
+    text-align: end;
+  }
+
+  /* States: absent (not rendered when it holds no notice), shown. The stack of `app-notice`
+     items at the top of `layout-workspace`, before `score-panel`, full width. */
+  .app-notice-row {
+    display: grid;
+    gap: var(--spacing-2);
+  }
+  /* States: shown; its buttons carry `.btn`'s states. Composed as `inline-alert alert-notice
+     app-notice`: one sentence or two, then at most one action `btn` and, when the notice can be
+     dismissed, a `btn` reading "Dismiss", as one row that wraps, the buttons at the inline end.
+     Never error-toned: a saving problem is not the player's fault. Not a live region. Appears
+     and leaves with no animation. */
+  .app-notice {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2) var(--spacing-3);
+  }
+  .app-notice > p {
+    flex: 1 1 var(--control-group-min-inline-size);
+    margin: 0;
+    min-inline-size: 0;
+  }
+  .app-notice > .btn {
+    flex: 0 0 auto;
+  }
+
+  /* States: default only; its button carries `.btn`'s states, disabled during a session
+     included. The page's last block, after `control-section` inside `layout-app`: one wrapping
+     row holding `footer-note`, then one `btn` ("Your data"). */
+  .layout-footer {
+    align-items: center;
+    color: var(--color-text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--text-sm);
+    gap: var(--spacing-2) var(--spacing-3);
+    padding-block: var(--spacing-4);
+  }
+  /* Static: the footer's one-line note. */
+  .footer-note {
+    margin: 0;
+  }
+
+  /* The rows of `review-panel` (`review-nav`, `review-header`, `review-comment`,
+     `review-actions`, `review-export-error`, `review-view`, then `review-list` or `room-notice`)
+     and of `sessions-panel` (`sessions-header`, `sessions-intro`, then `session-list` or
+     `sessions-empty`) are `--spacing-3` apart. `sessions-panel` takes its title from
+     `review-title`; no class of its own. */
+  .review-panel > * + *,
+  .sessions-panel > * + * {
+    margin-block-start: var(--spacing-3);
+  }
+  /* States: static. One muted line under the session list's title. */
+  .sessions-intro {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+  /* States: default, empty (replaced by `sessions-empty`). An `ol` of `session-row`s with no
+     markers. */
+  .session-list {
+    display: grid;
+    gap: var(--spacing-3);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  /* States: default, opening (its `session-row-open` takes `is-loading`), unreadable (its
+     `session-row-note` in place of the comment, `session-row-open` disabled). One kept session:
+     a surface block with a hairline under it, the text column at the inline start and
+     `session-row-actions` at the inline end; below bp-tablet-landscape the actions drop under
+     the text (the width-only block below). Not interactive itself: no hover on the row, no
+     row-wide click target. */
+  .session-row {
+    align-items: start;
+    background: var(--color-surface);
+    border-block-end: 1px solid var(--color-border);
+    display: grid;
+    gap: var(--spacing-2) var(--spacing-4);
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-block: var(--spacing-3);
+  }
+  .session-row h3 {
+    margin: 0;
+  }
+  /* States: default, hover (underlined), focus-visible, active, disabled (unreadable row),
+     loading (`is-loading`). The row's title, composed as `btn session-row-open` and styled as
+     text: no border or fill, bold, the `btn`'s minimum block size and focus ring. */
+  .session-row-open {
+    background: transparent;
+    border-color: transparent;
+    color: var(--color-text);
+    font-size: var(--text-md);
+    font-weight: 700;
+    justify-content: flex-start;
+    padding-inline: 0;
+    text-align: start;
+  }
+  .session-row-open:hover:not(:disabled) {
+    border-color: transparent;
+    text-decoration: underline;
+  }
+  .session-row-open:active:not(:disabled) {
+    background: var(--color-surface-muted);
+  }
+  /* Static. The row's detail line and status line, each one line that wraps. */
+  .session-row-meta {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+  /* Static; absent when the session has no comment. The comment's first line, cut with an
+     ellipsis. */
+  .session-row-comment {
+    color: var(--color-text);
+    font-size: var(--text-sm);
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* Static. In place of the comment when the row cannot be opened. */
+  .session-row-note {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+  /* States: none of its own (layout only). `Pin`/`Unpin` and `Delete`, two plain `btn`s. */
+  .session-row-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+  }
+  /* Static. The list's empty state: one muted paragraph, centred. */
+  .sessions-empty {
+    color: var(--color-text-muted);
+    font-size: var(--text-md);
+    margin: 0;
+    padding-block: var(--spacing-8);
+    text-align: center;
+  }
+
+  /* States: none of its own (layout only). The row before `review-header` holding one `btn`
+     ("All sessions"), at the inline start. */
+  .review-nav {
+    display: flex;
+    justify-content: flex-start;
+  }
+  /* Static; its text changes in place, with no animation. The session's keeping state in
+     words, one muted line under `review-summary`. */
+  .review-keep-line {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+  /* States: none of its own (layout only). `Pin`/`Unpin` and `Delete session`, two plain
+     `btn`s at the inline end of the heading row, wrapping under the heading with it. */
+  .review-session-tools {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+  }
+  /* States: collapsed-empty (a `btn`, "Add a comment"), collapsed-filled (the comment, then a
+     `btn`, "Edit comment"), editing (a `field-group`: `field-label`, `text-area`, `field-count`,
+     a `btn`, "Done"). The comment wraps and keeps its line breaks; it is never cut. Its field
+     group drops its bottom margin (the panel's row spacing places it), and its buttons keep
+     their natural width. */
+  .review-comment {
+    display: grid;
+    gap: var(--spacing-2);
+    justify-items: start;
+  }
+  .review-comment > p {
+    color: var(--color-text);
+    font-size: var(--text-md);
+    margin: 0;
+    white-space: pre-line;
+  }
+  .review-comment .field-group {
+    justify-self: stretch;
+    margin-block-end: 0;
+  }
+  .review-comment .field-group > .btn {
+    justify-self: start;
+  }
+  /* States: none of its own; its segments carry `segment`'s, the disabled `Favorites only`
+     included. The export scope, composed as `field-group review-scope`, first in
+     `review-actions`. */
+  .review-scope {
+    flex: 0 0 auto;
+  }
+  /* The played-notes export's `field-note` (shown while `Export played notes` is disabled)
+     takes a line of its own under the group's buttons. */
+  .review-export-played > .field-note {
+    flex: 1 1 100%;
+  }
+  /* States: default (off), on (`aria-pressed='true'`), hover, focus-visible, active, from
+     `.btn`; never disabled. Composed as `btn favorite-toggle`, at the trailing end of
+     `review-phrase-header`: the star, an inline SVG drawn in `currentColor` at
+     `--favorite-icon-size`, then the word "Favorite" as the button's one `span`, rendered from
+     bp-tablet-landscape up; below it the star alone, with the `btn`'s minimum square target.
+     Off: an outline star in muted ink. On: a filled star in the accent, with the accent border.
+     Shape, not colour, carries the state. It changes with `.btn`'s usual feedback, no other
+     animation. */
+  .favorite-toggle {
+    flex: 0 0 auto;
+    gap: var(--spacing-2);
+    margin-inline-start: auto;
+  }
+  .favorite-toggle svg {
+    block-size: var(--favorite-icon-size);
+    color: var(--color-text-muted);
+    fill: none;
+    flex: 0 0 auto;
+    inline-size: var(--favorite-icon-size);
+    stroke: currentColor;
+  }
+  .favorite-toggle[aria-pressed='true'] {
+    border-color: var(--color-accent);
+  }
+  .favorite-toggle[aria-pressed='true'] svg {
+    color: var(--color-accent);
+    fill: currentColor;
+  }
+
+  /* States: shown (bp-tablet-landscape and up), absent (below it). The two labels of
+     `review-link`, "Review last session" (`cue-label-wide`) and "Last session"
+     (`cue-label-narrow`), never both, as `room-notice-wide` and `room-notice-narrow` are; and
+     `cue-clause`, an inline run inside `start-note-line` shown from bp-tablet-landscape up only,
+     leaving the shorter phone wording without it. Absent is `display: none`, so assistive
+     technology reads what is shown. Static. */
+  .cue-label-wide,
+  .cue-clause {
+    display: inline;
+  }
+  .cue-label-narrow {
+    display: none;
+  }
+  /* States: `.btn`'s own; absent during a session and while the review shows. The cue row's
+     second link ("All sessions"), composed as `btn sessions-link`. Shown alone it takes the
+     row's trailing end; after `review-link`, which keeps that place, it sits `--spacing-2` after
+     it (the row's `--spacing-3` gap less this margin). */
+  .sessions-link {
+    flex: 0 0 auto;
+    margin-inline-start: auto;
+  }
+  .review-link + .sessions-link {
+    margin-inline-start: calc(var(--spacing-2) - var(--spacing-3));
+  }
+
+  /* States: none of its own (layout only); its `btn` is disabled during a session, like every
+     control. The row after `profile-range-summary` holding `Create my instrument` or `Edit my
+     instrument`. */
+  .instrument-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+  }
+  /* States: `input-stepper`'s own (default, hover, focus-visible, active, disabled, read-only),
+     and a disabled `stepper-button` at the stepper's own bound. Composed as `input-stepper
+     note-stepper`: the lowest note, the highest note and the transposition, its readout a note
+     name with its octave number or a transposition in words, at one fixed width. */
+  .note-stepper .input-stepper-value {
+    inline-size: var(--instrument-stepper-value-inline-size);
+  }
+  /* States: none of its own (layout only). The two range `note-stepper` field groups side by
+     side from bp-tablet-landscape up, stacked below it (the width-only block below). */
+  .range-row {
+    display: grid;
+    gap: var(--spacing-4);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  /* States: absent, shown. Composed as `inline-alert alert-notice range-alert`, under
+     `range-row`: the refusal of a range under two octaves, a polite live region
+     (`role="status"`). */
+  .range-alert {
+    margin: 0;
+  }
+
+  /* Below bp-tablet-landscape (width-only, the same query as the notation layout's split
+     layout): a session row's actions drop under its text, the cue row's links and the start
+     line take their shorter wording, the favorite star stands alone in a square target, and
+     the range steppers stack. */
+  @media (max-width: 63.9375rem) {
+    .session-row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .cue-label-wide,
+    .cue-clause {
+      display: none;
+    }
+    .cue-label-narrow {
+      display: inline;
+    }
+    .favorite-toggle {
+      min-inline-size: 2.75rem;
+      padding-inline: var(--spacing-2);
+    }
+    .favorite-toggle > span {
+      display: none;
+    }
+    .range-row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  /* end v3 new */
 
   @keyframes staff-fade-in {
     from {
@@ -1435,14 +1868,14 @@
     .control-group-row > .control-group {
       flex: 1 1 var(--control-group-min-inline-size);
     }
-    /* v2 new -- from bp-tablet-landscape up, sheet actions sit in one row aligned to the end (the
+    /* From bp-tablet-landscape up, sheet actions sit in one row aligned to the end (the
        narrower default above stacks them full-width). */
     .sheet-actions {
       flex-direction: row;
       flex-wrap: wrap;
       justify-content: flex-end;
     }
-    /* v2 new -- the "During a session" group takes a row of its own: the whole flex line here,
+    /* The "During a session" group takes a row of its own: the whole flex line here,
        the whole grid row at bp-desktop (`grid-column`), its fields side by side. The doubled class
        outweighs the `.control-group-row > .control-group` flex rule above. */
     .control-group-row > .control-group.control-group-session {
