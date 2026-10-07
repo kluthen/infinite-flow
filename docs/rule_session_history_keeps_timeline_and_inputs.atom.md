@@ -8,13 +8,15 @@ layer: BUSINESS
 priority: 1
 dependents:
   - [[module_phrase_replay_key]]
+  - [[rule_kept_session_content]]
   - [[rule_repeat_phrase_marked_internally_only]]
   - [[rule_session_history_records_played_notes]]
   - [[service_session_history]]
 type: RULE
 version: 0.1
 human_name: Session History Keeps Timeline and Reproduction Inputs
-tags: [v2, release-v2.0, session, history, determinism]
+tags: [v2, release-v2.0, session, history, determinism, changes-in-v3.0]
+notes: v3.0 change pending (2026-10-07, v3.0 spec ingestion): the approved v3.0 scope, not yet built, changes this atom. The in-memory history itself stays as it is, but from v3.0 a separate layer saves part of it at the session's end as a kept session (rule_kept_session_content); its closing sentence should then say that the history is held in memory while the session runs and is saved only through that layer. The reproduction inputs gain a player-made instrument (req_my_instrument). Text and status unchanged on purpose: it still describes the running v2.0 code. Revise it in the change that builds the v3.0 behaviour, per docs/release/v3.0-intent-change-set.md.
 ---
 
 # Session History Keeps Timeline and Reproduction Inputs

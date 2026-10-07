@@ -22,6 +22,7 @@ dependents:
   - [[module_idle_generation_error_recovery]]
   - [[module_rhythm_skeleton_allocator]]
   - [[module_rhythm_variety_grammar]]
+  - [[req_my_instrument]]
   - [[rule_idle_phrase_too_dense_is_replaced]]
   - [[rule_selectable_generative_profiles]]
   - [[rule_session_settings_locked]]

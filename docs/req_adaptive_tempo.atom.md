@@ -7,7 +7,7 @@ parents:
 layer: BUSINESS
 version: 0.2
 priority: 1
-tags: [v2, release-v2.0, part-v2.2, session, tempo]
+tags: [v2, release-v2.0, part-v2.2, session, tempo, changes-in-v3.0]
 dependents:
   - [[module_session_adaptive_tempo_control]]
   - [[module_session_adaptive_tempo_schedule]]
@@ -20,6 +20,7 @@ dependents:
   - [[service_workspace_session_flow]]
   - [[service_workspace_session_runner_factory]]
 type: REQUIREMENT
+notes: v3.0 change pending (2026-10-07, v3.0 spec ingestion): the approved v3.0 scope, not yet built, changes this atom. From v3.0 the player's Rising tempo choice is saved and comes back after a reload (rule_settings_saved_on_change); the tempo a session reached is still never kept (rule_saved_setting_is_players_choice). Text and status unchanged on purpose: it still describes the running v2.0 code. Revise it in the change that builds the v3.0 behaviour, per docs/release/v3.0-intent-change-set.md.
 ---
 
 # Adaptive Tempo

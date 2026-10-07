@@ -2,7 +2,7 @@
 id: rule_chord_fit_measure_assignment
 status: DRAFT
 human_name: Chord-Fit Measure Assignment
-tags: [v3, nice-to-have, acknowledgement, midi, harmony]
+tags: [v3, nice-to-have, dropped-in-v3, acknowledgement, midi, harmony]
 layer: BUSINESS
 priority: 1
 parents:
@@ -10,6 +10,7 @@ parents:
 dependents: []
 type: RULE
 version: 0.2
+notes: Dropped by the v3 scope (2026-10-07, v3.0 spec ingestion): the approved v3 scope drops the end-of-measure chord-fit check, so this nice-to-have is no longer a candidate for any v3 release. Not deleted yet: the vision as it stands (STABLE) still names it as a v3 nice-to-have, so its retirement is proposed together with the vision revision in docs/release/v3.0-intent-change-set.md. No code or test links it.
 ---
 
 # Chord-Fit Measure Assignment

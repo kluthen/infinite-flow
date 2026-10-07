@@ -13,6 +13,7 @@ dependents:
   - [[module_notation_note_identity_overlays]]
   - [[module_review_played_notes_lane]]
   - [[rule_acknowledgement_highlights_expected_note_only]]
+  - [[rule_kept_session_holds_no_acknowledgements]]
 ---
 
 # No Grading or Mismatch Signal

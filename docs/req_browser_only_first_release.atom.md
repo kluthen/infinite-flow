@@ -3,6 +3,7 @@ id: req_browser_only_first_release
 status: REVIEW
 tags: [browser, delivery, first-release, v2, release-v2.0, revised-for-v2]
 dependents:
+  - [[req_on_device_storage]]
   - [[rule_chromium_only_support]]
   - [[rule_session_data_never_sent_or_stored]]
   - [[rule_single_local_user]]

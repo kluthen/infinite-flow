@@ -1,0 +1,29 @@
+---
+id: rule_outdated_tab_stops_saving
+status: DRAFT
+tags: [v3, release-v3.0, storage]
+parents:
+  - [[req_on_device_storage]]
+notes: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls outside the vision as it stands (STABLE, scoped through v2) until the proposed v3 revision of the vision is confirmed.
+dependents: []
+type: RULE
+version: 0.1
+priority: 1
+human_name: An Outdated Tab Stops Saving
+layer: BUSINESS
+---
+
+# An Outdated Tab Stops Saving
+
+## INTENT
+Never let an old open tab damage data a newer version of the app wrote.
+
+## THE RULE / LOGIC
+The app updates itself silently, so a tab left open on an older version can meet data saved by a newer one. From v3.0, such a tab keeps working from memory, saves nothing more, and shows a notice asking the player to reload; the notice is shown only outside a running session.
+
+## TECHNICAL INTERFACE
+A tab whose version is older than the saved data stops writing and shows a reload notice outside a running session.
+
+## EXPECTATION
+- A tab opened by an older version, facing newer saved data, writes nothing.
+- It shows the reload notice, never during a running session.

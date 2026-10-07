@@ -13,11 +13,14 @@ dependents:
   - [[rule_controller_connects_between_sessions]]
   - [[rule_controllerless_session_never_gains_controller]]
   - [[rule_expected_note_window]]
+  - [[rule_last_controller_remembered]]
   - [[rule_midi_never_blocks_session]]
   - [[rule_midi_starting_note]]
   - [[rule_only_note_on_counts_as_played]]
   - [[rule_optional_midi_privacy]]
+  - [[rule_played_notes_kept_only_after_opt_in]]
   - [[rule_silence_timeout_ends_session]]
+  - [[rule_stray_note_definition]]
   - [[service_session_midi]]
 type: REQUIREMENT
 layer: BUSINESS

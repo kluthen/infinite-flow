@@ -7,6 +7,7 @@ tags: [v2, release-v2.0, midi]
 dependents:
   - [[rule_controller_transposition_check]]
   - [[rule_disconnect_forgets_controller]]
+  - [[rule_transposition_check_sets_my_instrument]]
 type: RULE
 priority: 1
 human_name: Controller Connects Only Between Sessions

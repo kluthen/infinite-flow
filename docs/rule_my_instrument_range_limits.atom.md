@@ -1,0 +1,30 @@
+---
+id: rule_my_instrument_range_limits
+status: DRAFT
+type: RULE
+version: 0.1
+parents:
+  - [[req_my_instrument]]
+dependents: []
+layer: BUSINESS
+priority: 1
+human_name: My Instrument Obeys the Profile Range Rules
+tags: [v3, release-v3.0, instrument-profile, range]
+notes: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls outside the vision as it stands (STABLE, scoped through v2) until the proposed v3 revision of the vision is confirmed.
+---
+
+# My Instrument Obeys the Profile Range Rules
+
+## INTENT
+Hold a player-made instrument to the same rules as the built-in profiles, so it cannot break phrase generation.
+
+## THE RULE / LOGIC
+From v3.0, My instrument obeys the rules every instrument profile already obeys. Its range endpoints are whole-number pitches, and it spans at least two octaves (24 semitones); a range under two octaves is refused, with the reason. Its Low, Middle and High register windows are derived from its range by the same method as the built-in profiles', never set by hand. Every generated pitch stays inside its range and the register window chosen for the phrase, exactly as for a built-in profile, and its transposition only converts between written and concert pitch.
+
+## TECHNICAL INTERFACE
+Saving My instrument validates its range and derives its three register windows from it.
+
+## EXPECTATION
+- A range under two octaves is refused, with the reason.
+- My instrument's register windows are derived from its range, never entered.
+- Every phrase generated for My instrument stays inside its range and the phrase's register window.

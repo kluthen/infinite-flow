@@ -4,7 +4,7 @@ status: REVIEW
 layer: BUSINESS
 version: 0.2
 priority: 1
-tags: [v2, release-v2.0, part-v2.2, session, tension]
+tags: [v2, release-v2.0, part-v2.2, session, tension, changes-in-v3.0]
 dependents:
   - [[module_session_tension_across_phrases_flag]]
   - [[module_session_tension_arc_step]]
@@ -17,6 +17,7 @@ human_name: Multi-Phrase Tension Arc
 parents:
   - [[req_rolling_practice_session]]
   - [[rule_tension_arc_level_policy]]
+notes: v3.0 change pending (2026-10-07, v3.0 spec ingestion): the approved v3.0 scope, not yet built, changes this atom. From v3.0 the toggle is saved: it starts off on a first visit and otherwise comes back as the player left it (rule_settings_saved_on_change); its start-off clause then reads as the default. Text and status unchanged on purpose: it still describes the running v2.0 code. Revise it in the change that builds the v3.0 behaviour, per docs/release/v3.0-intent-change-set.md.
 ---
 
 # Multi-Phrase Tension Arc

@@ -8,12 +8,14 @@ human_name: When a Session Can Start
 parents:
   - [[req_rolling_practice_session]]
 version: 0.3
-tags: [v2, release-v2.0, session, session-start]
+tags: [v2, release-v2.0, session, session-start, changes-in-v3.0]
 dependents:
   - [[rule_midi_starting_note]]
+  - [[rule_start_never_waits_for_pregeneration]]
   - [[service_session_controller]]
   - [[service_session_start]]
   - [[service_workspace_session_flow]]
+notes: v3.0 change pending (2026-10-07, v3.0 spec ingestion): the approved v3.0 scope, not yet built, changes this atom. From v3.0 a background pre-generation at Idle does not count as a new phrase being generated under its second condition (rule_start_never_waits_for_pregeneration). Text and status unchanged on purpose: it still describes the running v2.0 code. Revise it in the change that builds the v3.0 behaviour, per docs/release/v3.0-intent-change-set.md.
 ---
 
 # When a Session Can Start

@@ -3,7 +3,7 @@ id: req_rolling_practice_session
 status: REVIEW
 layer: BUSINESS
 version: 0.4
-tags: [v2, release-v2.0, session]
+tags: [v2, release-v2.0, session, changes-in-v3.0]
 parents:
   - [[req_four_measure_phrase]]
 type: REQUIREMENT
@@ -15,6 +15,8 @@ dependents:
   - [[module_session_rolling_display]]
   - [[module_session_staff_refill]]
   - [[req_adaptive_tempo]]
+  - [[req_idle_pregeneration]]
+  - [[req_kept_sessions]]
   - [[req_last_session_review]]
   - [[req_midi_controller_input]]
   - [[req_multi_phrase_tension_arc]]
@@ -41,6 +43,7 @@ dependents:
   - [[service_session_controller]]
   - [[service_session_engine]]
   - [[specification_behavioral_quality_gates]]
+notes: v3.0 change pending (2026-10-07, v3.0 spec ingestion): the approved v3.0 scope, not yet built, changes this atom. Its last clause, that nothing about a session survives a page reload, no longer holds from v3.0: the most recent session and pinned sessions are kept (req_kept_sessions). Text and status unchanged on purpose: it still describes the running v2.0 code. Revise it in the change that builds the v3.0 behaviour, per docs/release/v3.0-intent-change-set.md.
 ---
 
 # Rolling Practice Session
