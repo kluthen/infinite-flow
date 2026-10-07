@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.57
+Status: draft v2.58
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D229**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D230**.
 
 ## Decision Log
 
@@ -348,3 +348,13 @@ fact in the live documents (see the [archive index](archive/README.md) and
   with gimmicks, preferred rhythm cues, and restrictions on range, notes, key and mode; they
   become integral to the endgame, where each character (protagonist, antagonist), location or
   event has its own preset, including an instrument preference and a tone.
+
+- **D229 (2026-10-07): a key and mode restriction joins v3.1 presets, if it is cheap (amends
+  D228).** The owner: "if key and mode restriction are easy to handle for v3.1 then add it (so
+  that it preserve current selection)". A preset may carry a restriction on which keys and modes
+  are allowed; selecting the preset **never changes the player's current key and mode**. Still a
+  preset never *sets* the key or mode (D228). Conditional on a cost check against the code
+  (the v3.1 draft does it); if it is not cheap, it stays with the later, richer presets. Read by
+  spec-writer as (proposed, to confirm): the restriction bounds what the app itself picks (Vary
+  settings' key and mode moves; in v3.2, the key and mode suggestion's candidates); what happens
+  when the current selection is already outside the restriction is open (O127).
