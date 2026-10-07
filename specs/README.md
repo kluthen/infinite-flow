@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.46
+Status: draft v0.47
 
 ## Status Snapshot
 
@@ -31,7 +31,8 @@ Status: draft v0.46
     rhythm lock and its mutation option;
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go;
-  - v3.0 is drafted and approved (D216): [persistence](versions/v3/persistence.md),
+  - v3.0's [master spec](versions/v3/master-spec.md) is consolidated (D217) and with
+    `documentalist` and `ux-writer`; a build plan follows the design. Drafts, approved (D216): [persistence](versions/v3/persistence.md),
     [kept sessions and favorites](versions/v3/kept-sessions.md), [my instrument](versions/v3/my-instrument.md),
     [pre-generation](versions/v3/pre-generation.md), [stray notes](versions/v3/stray-notes.md);
   - research done (D212): embellishment and mutation catalogues, key and mode estimation,

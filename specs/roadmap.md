@@ -166,6 +166,9 @@ The owner's ideas, recorded so they are not lost. None of them is scope for any 
 - **Tone.js for the backing (version open; D185).** Using the Tone.js audio library, mainly to add
   more accompaniment voices; v2 synthesizes its backing with plain Web Audio and bundles no audio
   library. An idea for later, not decided; more voices are v4's accompaniment with roles.
+- **Presets that carry gimmicks and stored rhythm patterns (later; D217).** The owner expects
+  most presets to carry gimmicks and specific rhythm patterns the app does not store today, and
+  mentions storing rhythms and "favorites cues"; later features, not v3.
 - **Sequence writing with an up-front rhythm grammar (v4, v5 or v6; D210).** Writing whole
   sequences from requirements set before generation, for example "double beat 1 of every third
   measure". Beyond v3's embellishment weights, which stay preferences. Noted in

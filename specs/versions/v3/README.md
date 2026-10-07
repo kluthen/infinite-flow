@@ -18,6 +18,8 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
 | **v3.2**   | Jam                           | [Jam](#jam-growing-the-players-doodle), the [key and mode suggestion](#key-and-mode-suggestion), the [rhythm lock and mutation](#rhythm-lock-and-mutation) |
 | **v3.x**   | Kept, likely to move or go    | [Learning from positive signals](#v3x--learning-from-positive-signals)                                                                                          |
 
+- **v3.0 master spec:** [master-spec.md](master-spec.md) (D217), consolidated from the approved
+  drafts; handed to `documentalist` and `ux-writer`, a build plan to follow the design.
 - **v3.0 drafts** (2026-10-07, draft v2, approved at the owner's overall review, D216): [persistence](persistence.md), [kept sessions and favorites](kept-sessions.md),
   [my instrument](my-instrument.md), [pre-generation at Idle](pre-generation.md),
   [stray notes](stray-notes.md).
@@ -238,6 +240,10 @@ Placed with the embellishment flags in v3.1 (D211). **The design is not settled.
   - **Presets the player creates**, saved with v3.0's local persistence: the player names a set of
     settings and gets it back later. Today's "Custom" state is a natural starting point: save it
     as a preset.
+- **Scoped down (D217).** The owner: "I might have been hasty here". Player-made presets and a
+  few more built-in ones stay; a researcher proposes the built-in ones. Most presets would later
+  carry gimmicks and specific rhythm patterns the app does not store today; those, storing
+  rhythms and "favorites cues" are later features, not v3.
 - **To settle at the spec session:** what a preset holds (the generation settings only, or also
   tempo, the audio mix, embellishment flags and weights, the instrument); whether built-in presets
   can be edited or only copied; renaming and deleting; how a player preset is exported or shared,

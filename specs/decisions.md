@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.45
+Status: draft v2.46
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D217**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D218**.
 
 ## Decision Log
 
@@ -209,3 +209,20 @@ fact in the live documents (see the [archive index](archive/README.md) and
 
   Still open: O10 (planner authority, for Jam), O48, O49, O100–O102 (v4), the rest of O103,
   O114, O115 and O116.
+
+- **D217 (2026-10-07): v3.0 is consolidated into a master spec and handed to `documentalist` and
+  `ux-writer`; presets are scoped down, with research on built-in ones.** The owner asked for
+  `documentalist` to digest v3.0 and for `ux-writer` to design it, both delegating and following
+  recommendations, with the owner's full review at the end, and for a v3.0 build plan once the
+  design comes back. spec-writer consolidated the approved drafts into the
+  [v3.0 master spec](versions/v3/master-spec.md). Calls spec-writer made while consolidating, for
+  the owner's final review: the most recent session is saved when it ends, never during it, so a
+  session cut short by closing the page is lost as in v2; a setting is saved when it changes; the
+  favorites-only scope is unavailable, saying why, when a session has no favorite; "use this for my
+  instrument" creates "my instrument" from the selected profile when there is none; deleting "my
+  instrument" keeps the remembered controller, Delete everything forgets it. **Presets:** the
+  owner: "I might have been hasty here". Player-made presets and a few more built-in ones stay
+  v3.1 scope; a researcher proposes the built-in ones. The owner expects most presets to carry
+  "gimmicks and more specific rhythm patterns we don't store right now", but those belong to later
+  features, along with storing rhythms and "favorites cues" (the owner's words); none is v3
+  scope.
