@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.58
+Status: draft v2.59
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D230**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D231**.
 
 ## Decision Log
 
@@ -358,3 +358,14 @@ fact in the live documents (see the [archive index](archive/README.md) and
   spec-writer as (proposed, to confirm): the restriction bounds what the app itself picks (Vary
   settings' key and mode moves; in v3.2, the key and mode suggestion's candidates); what happens
   when the current selection is already outside the restriction is open (O160).
+
+- **D230 (2026-10-07): a preset may change the current key and mode (amends D228 and D229; closes
+  O160).** The owner: "i will allow the preset to change current mode and key". This reverses
+  D229's "selecting the preset never changes the player's current key and mode" and D228's "key
+  and mode are out" as far as the restriction goes. Read by spec-writer as: when the player
+  selects a preset whose key and mode restriction excludes the current selection, the selection
+  moves inside the restriction; a restriction to one key and one mode therefore sets them; a
+  current selection already inside is kept. Choosing a preset is the player's own act, so this
+  does not break the rule that the app never switches key and mode on its own (D209). Which
+  allowed key and mode the selection moves to is left to the v3.1 draft (proposed: the preset's
+  first listed). Still conditional on D229's cost check.
