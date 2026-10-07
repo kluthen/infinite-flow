@@ -1,6 +1,6 @@
 # Infinite Flow v3 — Master Spec: v3.0, Storage
 
-Status: master spec v1.2 (2026-10-07). Change in v1.1: the player's Disconnect also forgets the
+Status: master spec v1.3 (2026-10-07), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
 remembered controller (§7.3). Change in v1.2: behaviours the v3.0 design settled, written in:
 when settings are read and saved, what Delete everything leaves, which sessions a save deletes,
 favorites and unpinning, the played-notes switch on the session that just ended, my instrument's

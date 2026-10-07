@@ -1,9 +1,10 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: draft v1 (2026-10-07)
+Status: v1 (2026-10-07), approved by the product owner; Gate A and the token-source pass (Q66)
+confirmed the same day
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) and the v3.0 design
-in [`ui_ux/`](../../../ui_ux/README.md). Not yet approved for execution. It adds no behaviour:
+in [`ui_ux/`](../../../ui_ux/README.md). Approved for execution. It adds no behaviour:
 what the app does is in the master spec, what the interface looks like is in the design set, and
 where this plan disagrees with either, they win and the plan is corrected. The code facts it
 relies on are in [storage-grounding.md](storage-grounding.md); the generation-worker facts that
