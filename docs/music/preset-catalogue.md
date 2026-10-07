@@ -470,105 +470,12 @@ only partly (proposed).
 
 ## Proposed lexicon entries
 
-New terms used above, in the [lexicon](lexicon.md)'s entry template, for merging later. Suggested
-categories: Pentatonic scale and Blues scale under Scales and modes; Twelve-bar blues, Vamp, Reel
-and Bossa nova under Harmony or a new "Styles" group; Built-in preset, Player preset and Signature
-figure under App controls or Internal.
-
-### Pentatonic scale
-
-- **id:** `pentatonic-scale`
-- **aliases:** pentatonic, major pentatonic, minor pentatonic
-- **popup:** A five-note scale with no half steps. It is easy to improvise with because almost every note fits the chords.
-- **definition:** A pentatonic scale has five notes per octave instead of seven. The two common ones leave out the two notes of the major or minor scale that form half steps: C major pentatonic is C, D, E, G, A, and A minor pentatonic is A, C, D, E, G, the same notes from another starting point. With no half steps, few notes clash with the chords, which is why blues, rock, folk and pop players often learn to improvise with it first.
-- **in_infinite_flow:** Not available. Every collection in the app has seven notes; Dorian and Aeolian contain all of the minor pentatonic, and Major and Mixolydian all of the major pentatonic, plus two more notes.
-- **related:** `scale`, `blues-scale`, `dorian`, `mixolydian`, `control-collection`
-- **sources:** S100, src/domain/controls/generation-controls.ts
-
-### Blues scale
-
-- **id:** `blues-scale`
-- **aliases:** none
-- **popup:** The minor pentatonic scale plus one extra note, the lowered 5th. A favorite scale for blues and rock solos.
-- **definition:** The blues scale adds one note to the minor pentatonic scale: the lowered 5th, a half step between the 4th and the 5th. In C it is C, E-flat, F, G-flat, G, B-flat. Its lowered 3rd and lowered 5th are blue notes, and players use the scale over the major-sounding chords of a blues, where those notes rub on purpose.
-- **in_infinite_flow:** Not available as a collection. The Jazz preset can only pass through its notes as brief chromatic approaches.
-- **related:** `pentatonic-scale`, `blue-note`, `scale`, `twelve-bar-blues`
-- **sources:** S9, S100
-
-### Twelve-bar blues
-
-- **id:** `twelve-bar-blues`
-- **aliases:** blues progression, 12-bar blues
-- **popup:** The standard chord pattern of the blues: twelve measures built from three chords, I, IV and V.
-- **definition:** The twelve-bar blues is a chord pattern that repeats every twelve measures. In its basic form it stays on I for four measures, moves to IV for two, back to I for two, then V, IV and I. The chords are usually seventh chords. Its melody often follows an AAB shape: a line, the same line again, then an answer.
-- **in_infinite_flow:** Not possible. Every phrase is four measures, chords are triads, and degree 5 only appears at the end of a phrase.
-- **related:** `chord-progression`, `seventh-chord`, `blue-note`, `call-and-response`, `blues-scale`
-- **sources:** S101, docs/music/harmony-planner-policy.md
-
-### Vamp
-
-- **id:** `vamp`
-- **aliases:** groove, ostinato (for a repeated melodic figure)
-- **popup:** A short chord pattern, often just one or two chords, repeated again and again under a solo.
-- **definition:** A vamp is a short pattern of one or two chords that keeps repeating, giving a soloist an open-ended bed to play over. Because the chords barely move, the mode or scale becomes the main color. A minor chord moving to a major chord a fourth higher, i to IV, is a classic Dorian vamp.
-- **in_infinite_flow:** Closest today: Static harmonic motion (one chord) or a modal Gentle plan, which returns home after one color chord. The backing does not loop a vamp across phrases.
-- **related:** `chord-progression`, `dorian`, `mode`, `control-harmonic-motion`, `riff`
-- **sources:** S104, S105, docs/music/harmony-planner-policy.md
-
-### Reel
-
-- **id:** `reel`
-- **aliases:** none
-- **popup:** A fast folk dance tune from Ireland and Scotland, made of running eighth notes played evenly.
-- **definition:** A reel is a dance tune in 4/4 or 2/2 from the Irish and Scottish traditions. It runs mostly in eighth notes, played evenly rather than swung, with accents on beats 1 and 3. A tune usually has two eight-bar parts, each played twice, and players decorate it freely with short ornaments such as cuts and rolls.
-- **in_infinite_flow:** The proposed Folk reel preset imitates its running eighths and four-bar phrases; the ornaments and the two-part form are not available.
-- **related:** `eighth-note`, `phrase`, `mixolydian`, `dorian`, `ornament`
-- **sources:** S106, S107, S108
-
-### Bossa nova
-
-- **id:** `bossa-nova`
-- **aliases:** bossa
-- **popup:** A gentle, syncopated Brazilian style from the late 1950s, played without swing, with rich jazz-like chords.
-- **definition:** Bossa nova is a Brazilian style that began in Rio de Janeiro in the late 1950s. Its guitar pattern plays bass notes on the beats while the chords fall partly between them, giving a light, swaying syncopation. Unlike jazz, its eighth notes are played evenly, without swing, and its chords are often sevenths and richer.
-- **in_infinite_flow:** The proposed Bossa preset can imitate its syncopation and even eighths; its rhythm pattern and chords are not available.
-- **related:** `syncopation`, `swing`, `seventh-chord`, `anticipation`
-- **sources:** S112
-
-### Built-in preset
-
-- **id:** `built-in-preset`
-- **aliases:** style preset
-- **popup:** A ready-made set of settings that ships with the app, such as Neutral or Jazz.
-- **definition:** A built-in preset is a named group of starting settings provided by the app. Choosing one fills in several controls at once, so a player can try a style or a practice purpose with one choice and then adjust from there. It is an app term, not a music-theory one.
-- **in_infinite_flow:** Today the two built-in presets are the musical profile presets Neutral and Jazz. v3.1 plans a few more, proposed in docs/music/preset-catalogue.md; what they may hold is a spec question.
-- **related:** `control-musical-profile-preset`, `player-preset`, `grammar`
-- **sources:** src/domain/controls/profile-selection.ts, specs/versions/v3/README.md
-
-### Player preset
-
-- **id:** `player-preset`
-- **aliases:** saved preset, custom preset
-- **popup:** A set of settings you named and saved yourself, to get them back later.
-- **definition:** A player preset is a group of settings the player saves under a name of their own, so the same setup can be recalled in one step instead of being rebuilt control by control. Musicians do the same with the presets of a synthesizer or an effects unit. It is an app term.
-- **in_infinite_flow:** Planned for v3.1, saved with v3.0's local persistence. The "Custom" state shown after changing a preset's controls is its natural starting point. Not built.
-- **related:** `built-in-preset`, `control-musical-profile-preset`
-- **sources:** specs/versions/v3/README.md
-
-### Signature figure
-
-- **id:** `signature-figure`
-- **aliases:** gimmick (the owner's word), hook, lick, riff
-- **popup:** A short melodic idea that marks a style or a song, like a famous riff or a typical blues bend.
-- **definition:** A signature figure is a short melodic or rhythmic idea that listeners associate with a style, a player or a song: a riff, a hook, a stock lick, a characteristic ornament. Musicians build a personal or stylistic vocabulary partly from such figures and reuse them, varied, in new phrases.
-- **in_infinite_flow:** Internal word for what the owner calls a "gimmick". The app cannot store one today; later presets may carry a few, and Jam (v3.2) grows a player's own idea. Not built.
-- **related:** `riff`, `lick`, `motif`, `played-signal`
-- **sources:** specs/versions/v3/README.md, specs/personas.md
+Merged into the [lexicon](lexicon.md) on 2026-10-07: [Pentatonic scale](lexicon.md#pentatonic-scale), [Blues scale](lexicon.md#blues-scale), [Twelve-bar blues](lexicon.md#twelve-bar-blues), [Vamp](lexicon.md#vamp), [Reel](lexicon.md#reel), [Bossa nova](lexicon.md#bossa-nova), [Built-in preset](lexicon.md#built-in-preset), [Player preset](lexicon.md#player-preset), [Signature figure](lexicon.md#signature-figure).
 
 ## Sources
 
 New sources for this catalogue use the reserved block S100–S115, in the format of
-[research-sources.md](research-sources.md), to be merged there later. They are reference only: no
+[research-sources.md](research-sources.md) (merged on 2026-10-07; S116–S119 were reserved and not used). They are reference only: no
 text is copied or closely paraphrased. Wikipedia pages are used as pointers for widely documented
 genre facts. Already in research-sources.md and cited above: S9 (jazz scales, blues and bebop
 scales) and S46 (rhythm and meter in pop music, the 3 + 3 + 2 grouping and early "pushes").

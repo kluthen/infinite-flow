@@ -17,7 +17,7 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 Open on 2026-10-07, after the owner's overall review of v3 (D216): O10 (planner authority, for
 Jam), O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor), O103 (the rest
 of the v3.2 rhythm lock), O114 (Jam and the rhythm controls), O115 and O116 (v3.x learning). O126 closed by D228. Since then the v3.1 and v3.2 drafts opened
-O127–O139 and O140–O156. None
+O127–O139, O161–O162 and O140–O156. None
 of them blocks anything planned.
 
 ## Later and governance (O47–O49)
@@ -101,7 +101,7 @@ are strawmen, not decisions.
   persistence, opt-in like played notes). Proposed: off by default, one visible switch, a reset,
   and nothing kept across sessions without the player's opt-in.
 
-## v3.1 drafts (O127–O139)
+## v3.1 drafts (O127–O139, O161–O162)
 
 Opened 2026-10-07 by the v3.1 drafts (D228–D231). Each question's full text and proposal lives in
 its draft's Open section; IDs are listed here so none is lost. O160 was closed by D230.
@@ -119,6 +119,8 @@ its draft's Open section; IDs are listed here so none is lost. O160 was closed b
 - **O137 - Managing player presets**: full text and proposal in [presets.md](versions/v3/presets.md#11-open).
 - **O138 - Custom and loading**: full text and proposal in [presets.md](versions/v3/presets.md#11-open).
 - **O139 - What records a preset**: full text and proposal in [presets.md](versions/v3/presets.md#11-open).
+- **O161 - How a restriction is written, and where choosing a preset moves the key and mode**: full text and proposal in [presets.md](versions/v3/presets.md#11-open).
+- **O162 - The restriction under Custom, in Vary settings and when a player preset is saved**: full text and proposal in [presets.md](versions/v3/presets.md#11-open).
 
 ## v3.2 drafts (O140–O156)
 
