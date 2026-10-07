@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.34
+Status: draft v0.35
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -15,8 +15,8 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 [v2 archive index](archive/v2/README.md) says where each answer now lives.
 
 Open on 2026-10-07: O47, O48 and O49 (later and governance), O86 (favorites, v3), O100–O103 (v3
-rhythm candidates) and O107–O111 (v3 pre-generation at Idle). None of them blocks anything
-planned.
+rhythm candidates), O107–O111 (v3 pre-generation at Idle) and O112–O116 (v3 Jam). None of
+them blocks anything planned.
 
 ## Later and governance (O47–O49)
 
@@ -117,3 +117,36 @@ candidate, not committed scope, so none of these blocks anything planned. The pr
   shape phrases 2 onward. Must a pre-generated phrase be the phrase the session would have
   generated at that place, the same request and seed, so a session's phrases do not depend on
   whether pre-generation ran, only on which attempts succeeded in time? Proposed: yes.
+
+## v3 Jam (O112+)
+
+Opened 2026-10-07 while recording the owner's Jam insight (D209; recorded in
+[v3](versions/v3/README.md#jam-growing-the-players-doodle)). The core is v3 scope; the questions
+below are about it and its three candidates, so none of them blocks anything planned. Proposals
+are strawmen, not decisions.
+
+- **O112 - What the doodle is** _(D209; v3)_: how the player gives it (played at Idle, during a
+  session, a fixed number of bars, or until they stop), how long it may be, and whether the first
+  generated phrase repeats it or only continues it. Proposed: played at Idle, one or two measures,
+  continued rather than repeated.
+- **O113 - The key and mode suggestion** _(D209; v3 candidate)_: suggest only, or also an "auto"
+  setting? How many different notes or measures before a suggestion is allowed? Does it work in
+  written or concert pitch, given that the controller sends concert pitch and the key is chosen in
+  written pitch (D56)? What happens to a doodle whose notes fit none of the app's modes (blue
+  notes, harmonic minor): the closest fit, or nothing? Proposed: suggest only; nothing below five
+  different pitch classes; computed in written pitch after the instrument's transposition; nothing
+  when no mode fits.
+- **O114 - Jam and the rhythm controls** _(D209, D175; v3 candidate)_: is the doodle's rhythm what
+  the rhythm lock holds, and does that settle part of O102 and O103? Is "how far phrases drift
+  from the doodle" the mutation flag, a new setting, or the rhythm ratios? Proposed: design Jam and
+  the rhythm candidates together.
+- **O115 - Which signals count as approval** _(D209; v3 candidate)_: which positive signals are
+  read (a fitting departure as defined by the chord-fit check, a repeated fragment, a return to
+  the doodle, a favorite), over what span, and what each one changes in generation. Proposed:
+  positive signals only, favorites weighted most, each change small and reversible.
+- **O116 - Taste, difficulty and visibility** _(D209, D101; v3 candidate)_: how misses, late
+  notes and silence adjust difficulty without ever counting against taste; whether this is where
+  the performance-linked tempo deferred by D101 lands; how the player turns learning on, sees what
+  it leans toward, and resets it; whether what it learned is kept across sessions (local
+  persistence, opt-in like played notes). Proposed: off by default, one visible switch, a reset,
+  and nothing kept across sessions without the player's opt-in.

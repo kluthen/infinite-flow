@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.37
+Status: draft v2.38
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D209**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D210**.
 
 ## Decision Log
 
@@ -30,3 +30,22 @@ fact in the live documents (see the [archive index](archive/README.md) and
   contract for the running code, and `docs/` and `ui_ux/` link into the build plan. D117, which
   the log alone carried, is now stated in [personas.md](personas.md#who-is-not-a-target). No open
   question was decided; O47–O49, O86, O100–O103 and O107–O111 stay live.
+
+- **D209 (2026-10-07): v3's MIDI-seeded continuation is named Jam and becomes v3's lead feature;
+  three candidates are attached to it.** The owner: "I've a doodle in mind, but I'm not good
+  enough to iterate on it. I give it to the app, and it generates matching phrases." The core
+  (the player's motif feeds the generator its rhythm, contour and interval character) stays v3
+  scope, as D53 placed it; "Jam" is a working name, preferred over the owner's other proposal,
+  "improvisation", which names what the player does and is already P1's name. Three candidates,
+  not committed and not designed, are recorded in
+  [v3](versions/v3/README.md#jam-growing-the-players-doodle): (1) a key and mode suggestion the
+  player confirms, which **reverses** the earlier "automatic key detection is not planned" (v3
+  README; the second deliverable in [product-foundation.md](product-foundation.md) said the
+  player's motif would "initially" not trigger it); the player-selected key and mode stay
+  authoritative, and the app never switches them on its own; (2) the rhythm candidates of D175
+  tied to the doodle (the lock holding its rhythm, mutation as drift from it); (3) learning the
+  player's taste from how they play, from positive signals only, with misses counting toward
+  difficulty and never against a phrase, opt-in and visible, inside the permanent "no wrong-note
+  signal, grading or scoring" constraint. Opened O112–O116. Also recorded here, since D208 was
+  written before it happened: the owner approved the tag, and `v2.0.0` was tagged at `f6bcefe`
+  and deployed on 2026-10-07.

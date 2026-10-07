@@ -6,7 +6,9 @@ a note on saving note density added 2026-09-28, D146; the end-of-measure chord-f
 here from v2 as a nice-to-have 2026-10-03, D174; rhythm candidates added 2026-10-03, D175; two controller-connection candidates added
 2026-10-06, D190 and D192; stray notes from controllers, a played-notes pruning candidate and a
 note on the chord-fit check added 2026-10-06, D196; pre-generating phrases at Idle added as a
-candidate 2026-10-07, D206).
+candidate 2026-10-07, D206; MIDI-seeded continuation named Jam and made v3's lead feature, with
+a key and mode suggestion, the rhythm candidates tied to it and learning from positive signals as
+candidates, 2026-10-07, D209).
 Not yet specced.
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
@@ -14,10 +16,14 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
 
 ## Settled direction
 
-- **MIDI-seeded continuation.**
+- **Jam: MIDI-seeded continuation** (working name Jam, D209; v3's lead feature and its most
+  complex part).
   - The player plays a motif or gimmick, and the generator continues it.
   - This extends v2's continuation from the app's own material to material the player plays.
-  - The player-selected key and mode stay authoritative. Automatic key detection is not planned.
+  - The player-selected key and mode stay authoritative. **Amended by D209:** "automatic key
+    detection is not planned" no longer holds. A key and mode suggestion that the player confirms
+    is now a candidate; the app never switches the key on its own. See
+    [Jam](#jam-growing-the-players-doodle) below.
 - **"My instrument" configuration, saved locally.**
   - A small interface lets the player describe their instrument: the input kind (MIDI
     controller now; the microphone much later, see [v5+](../v5-plus/README.md)), the expected
@@ -41,6 +47,93 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
   - This extends v2's last-session review through persistence.
   - Keeping played notes across sessions requires the player's explicit opt-in and a way to
     delete them.
+
+## Jam: growing the player's doodle
+
+Recorded 2026-10-07 (D209), the owner's insight, in their words: "I've a doodle in mind, but I'm
+not good enough to iterate on it. I give it to the app, and it generates matching phrases." This
+is the settled MIDI-seeded continuation above, named and given its purpose. **The core is v3
+scope; the three extensions below are candidates, not committed, and not designed.**
+
+- **Name.** "Jam" (working name), proposed by the owner along with "improvisation". Jam is
+  preferred: in music, improvisation means the player inventing on the spot, while here the app
+  develops the player's idea; and "the Curious Improviser" is already P1's name
+  ([personas](../../personas.md)). Musicians call the doodle a **motif**, and building on it
+  (repeating, varying, moving it to other notes, changing its rhythm) **developing a motif**.
+- **The core.** The doodle feeds the generator its [rhythm](../../../docs/music/lexicon.md#rhythm),
+  its [contour](../../../docs/music/lexicon.md#contour) and its
+  [interval](../../../docs/music/lexicon.md#interval) character, as the
+  [product foundation](../../product-foundation.md) planned for the second deliverable; the
+  generated phrases match it. It serves P3's C3, "grow an idea"
+  ([personas](../../personas.md#p3--the-fledgling-composer-secondary-d61)).
+- **Prerequisite: stray notes.** A stray note from the controller would distort the doodle and
+  every signal below, so a minimum duration for a played note to count
+  ([stray notes](#stray-notes-from-controllers-candidates-not-committed)) is likely needed first.
+
+### Candidate: key and mode suggestion
+
+The owner's proposal, aware that "it's highly possible to have multiple valid replies depending on
+the size and content of the snippet". It reverses the earlier "automatic key detection is not
+planned" (D209).
+
+- **Why several answers are valid.** The app's seven modes (Ionian to Locrian, with Major and
+  Minor as other names for Ionian and Aeolian) share the same seven notes, each starting on a
+  different one. Detection has two steps of very different difficulty:
+  1. **Which set of notes.** Fairly easy: a doodle with five or more different notes usually fits
+     only one of the 12 sets.
+  2. **Which note is home** (the [tonic](../../../docs/music/lexicon.md#tonic), which decides the
+     [mode](../../../docs/music/lexicon.md#mode)). Hard: the same notes are C Ionian or D Dorian
+     depending on where the doodle settles. The clues are the first and last notes, the longest
+     notes and the notes on strong beats, and a short doodle often doesn't decide.
+- **Proposed shape (strawman, not decided):**
+  - The app suggests a key and mode, maybe with one or two alternatives; the player confirms or
+    keeps their setting. The player's choice stays authoritative.
+  - When the doodle fits the selected key and mode, nothing is suggested.
+  - When too many answers fit equally well, nothing is suggested rather than a guess.
+  - Very short notes are ignored (the stray-notes prerequisite above).
+  - The suggestion is deterministic: the same doodle always gives the same suggestion, so a
+    phrase replay key still reproduces a session.
+- **Scheduling.** It makes Jam bigger, not easier; it may follow the core as its own step.
+
+### Candidate: Jam and the rhythm controls
+
+The owner expects Jam to "heavily link" with the
+[rhythm candidates](#rhythm-candidates-custom-note-density-candidates-not-committed) (lock,
+mutation, Custom note density). They may be best designed as one feature:
+
+- the doodle's rhythm could be what the rhythm lock holds, which would answer part of O102 (which
+  rhythm the editor takes) and O103 (what the lock holds);
+- mutation could become how far the phrases may drift from the doodle, from close variations to
+  looser ones.
+
+### Candidate: learning from how the player plays
+
+The owner's idea: infer "silent approval" from how the player follows, or leaves, the phrases the
+app provides. The owner's own caveat: players may "simply fail at following the phrase". The
+personas sharpen it: P1 "can already play" and is a beginner at improvisation, but struggles to
+read and play at speed ([personas](../../personas.md#p1--the-curious-improviser-primary-d48)), so
+a miss most likely means "too fast or too hard to read", not "I don't like it".
+
+- **Proposed rule (strawman, not decided): learn taste from positive signals only; a miss never
+  counts against a phrase.**
+  - **Positive: a deliberate departure that still fits.** The player leaves the written line but
+    stays in the scale, fits the chords and keeps the pulse: an embellishment, a sign of
+    engagement. This is what the
+    [end-of-measure chord-fit check](#end-of-measure-chord-fit-check-nice-to-have-not-committed)
+    already defines, positive-only; Jam would give it a second use, as a taste signal.
+  - **Positive: the player repeats a fragment of a phrase, or comes back to their doodle.**
+  - **Explicit: a [favorite](#favorites-v3-scope-to-be-settled)** is a clean "more like this". It
+    is marked after the session, since a running session never asks the player for anything.
+  - **Difficulty, not taste: misses, late notes, silence on dense passages.** These could only
+    ever adjust difficulty (tempo, density), never taste. The tempo that reacts to how the player
+    plays was deferred from v2 to v3+ (D101; see [personas](../../personas.md)).
+- **Bounds.** The guiding principle holds: acknowledge, never score; adaptation is opt-in and
+  visible ([far vision](../../vision/far-vision.md)). Learning would be switched on by the player,
+  show what it leans toward, and never reshape a jam because of mistakes. The permanent constraint
+  of no wrong-note signal, grading or scoring
+  ([v2 master spec §2](../v2/master-spec.md#2-scope)) applies.
+
+**Open, in the [register](../../open-questions.md#v3-jam-o112):** O112–O116.
 
 ## Favorites (v3 scope, to be settled)
 
@@ -140,7 +233,8 @@ matter**, so nothing is built for one device.
 
 Moved here from v2 on 2026-10-03 (D174). It was v2's release v2.3 (build plan chunks 32–34); the
 owner took it out of v2 and recorded it as a **nice-to-have for v3, not committed scope**. Nothing
-in v3 depends on it.
+in v3 depends on it. Jam's learning candidate would give it a second use, as a taste signal (D209;
+see [Jam](#candidate-learning-from-how-the-player-plays)).
 
 - **What it is.** Beyond acknowledging the exact expected note (v2.0), the app would also
   acknowledge a player who embellishes or improvises on the written line, at the end of a measure,
@@ -212,7 +306,9 @@ notes.
 
 They may overlap with the embellishment and style-figure flags of the
 [v2 direction](../v2/README.md#direction-not-yet-scoped), which may turn rhythmic variety into
-selective rates; the two should be settled together.
+selective rates; the two should be settled together. The owner also expects them to link closely
+with Jam, whose doodle could supply the rhythm the lock holds (D209; see
+[Jam and the rhythm controls](#candidate-jam-and-the-rhythm-controls)).
 
 ## Controller connection candidates (not committed)
 

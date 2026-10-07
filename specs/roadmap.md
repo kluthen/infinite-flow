@@ -9,7 +9,8 @@ added, D175; v2.1, v2.2 and v2.4 compacted into one v2.0 release 2026-10-05, D18
 as a candidate, D185; real-program export checks after the v2.0 tag and Bluetooth MIDI
 best-effort 2026-10-06, D191, D193; USB keyboard checks after the v2.0 tag and the vision
 rewrite carry-over 2026-10-06, D198, D199; pre-generating phrases at Idle added as a v3
-candidate 2026-10-07, D206; v1.0 and v2.0 marked released 2026-10-07, D208)
+candidate 2026-10-07, D206; v1.0 and v2.0 marked released 2026-10-07, D208; MIDI-seeded
+continuation named Jam, with three candidates, 2026-10-07, D209)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -81,7 +82,8 @@ record is archived at [archive/v2/](archive/v2/README.md).
 
 - **Intent:** the Fledgling Composer's release: grow the player's own ideas.
 - **Headline scope:**
-  - MIDI-seeded continuation from a played motif;
+  - Jam: MIDI-seeded continuation from a played motif (D209), with a key and mode suggestion,
+    ties to the rhythm candidates and learning from positive signals as candidates;
   - a "my instrument" configuration (input kind, range, transposition);
   - first local persistence;
   - review of earlier sessions, with opt-in retention of played notes;
