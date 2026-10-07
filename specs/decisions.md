@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.47
+Status: draft v2.48
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D219**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D220**.
 
 ## Decision Log
 
@@ -235,3 +235,21 @@ fact in the live documents (see the [archive index](archive/README.md) and
   and done item 18. The intent change set `documentalist` prepared is
   `docs/release/v3.0-intent-change-set.md`: its Part A (three STABLE guarantees narrowed, contract
   1.8 to 2.0) awaits the owner's explicit confirmation.
+
+- **D219 (2026-10-07): the behaviours the v3.0 design settled are written into the master spec.**
+  `ux-writer` designed v3.0 (UI/UX commit 29b2ff8) and listed, as ux Q67, behaviours the master
+  spec left open that the design is built on. spec-writer checked each against the spec and
+  confirms them, for the owner's final review (master spec v1.2): every unpinned session is
+  deleted when the next session is saved (ux D183); removing a session's last favorite never
+  unpins it (ux D185); switching "Keep my played notes" on while reviewing the session that just
+  ended keeps its played notes (ux D191); Delete everything reloads into the first-visit state
+  (ux D195); the first phrase waits for the saved settings, and a failed or slow read starts from
+  the defaults and saves nothing that visit (ux D197); my instrument keeps its written range when
+  its transposition changes (ux D199); the remembered controller is reattached only when MIDI
+  access is already allowed, never with a prompt (ux D201), and the starting note needs the
+  page's first click, tap or key press after a load (ux D202); Disconnect forgets the remembered
+  controller (ux D209, as D218); theme and audio-mix changes made during a session are saved at
+  its end (ux D216). ux D214 (my instrument's written range raises the staff's shared height) is
+  added to the build plan's open range check. Two items `ux-writer` raised are the owner's, not
+  the spec's: ux Q66, a `ux-writer` pass on `src/styles/theme.css` and `components.css`, and a
+  stale version-mark line in `ui_ux/flows/generate-phrase/handoff.md`.

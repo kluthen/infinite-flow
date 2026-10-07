@@ -1,7 +1,10 @@
 # Infinite Flow v3 — Master Spec: v3.0, Storage
 
-Status: master spec v1.1 (2026-10-07). Change in v1.1: the player's Disconnect also forgets the
-remembered controller (§7.3). Consolidated from the approved v3.0 drafts for handoff to
+Status: master spec v1.2 (2026-10-07). Change in v1.1: the player's Disconnect also forgets the
+remembered controller (§7.3). Change in v1.2: behaviours the v3.0 design settled, written in:
+when settings are read and saved, what Delete everything leaves, which sessions a save deletes,
+favorites and unpinning, the played-notes switch on the session that just ended, my instrument's
+written range, and how the remembered controller is reattached (§4, §5, §6, §7, §13, §14). Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. It covers **v3.0 only**.
 v3.1 (embellishment flags and presets) and v3.2 (Jam) are still being specified and will be added
 as their own parts. The draft topic documents stay in `specs/versions/v3/` as working material;
@@ -91,7 +94,8 @@ wait.
 - **The player can see and delete what is kept.** One place, called "Your data" here (its name and
   place are a design choice), lists what the app keeps, how much space it uses and whether the
   browser protects it (§4.5), and offers **Delete everything**, which removes every saved item at
-  once after a confirmation. Each item's own deletion is specified with it.
+  once after a confirmation and then reloads the page into its first-visit state. Each item's own
+  deletion is specified with it.
 
 ### 4.2 What is saved automatically
 
@@ -108,7 +112,9 @@ wait.
 **Not saved:** the tempo a Rising-tempo session reached (it belongs to that session), pre-generated
 phrases (§8), and anything belonging to a session while it runs.
 
-A setting is saved when the player changes it.
+A setting is saved when the player changes it, except during a session: a change made while a
+session runs (the theme, the audio mix) is saved when that session ends, since nothing is written
+during a session (§5.1).
 
 ### 4.3 Where and how
 
@@ -126,6 +132,10 @@ A setting is saved when the player changes it.
   a notice asking for a reload, outside a running session.
 
 ### 4.4 Loading saved settings
+
+The first phrase waits for the saved settings to be read. If reading fails, or takes longer than
+a short start-up wait, the app starts from the defaults and saves nothing for the rest of that
+visit, so a failed read never overwrites what is kept.
 
 Each saved setting is checked on its own when the app loads. A value that is unknown or no longer
 valid falls back to that setting's default; every other saved setting is kept. No notice is
@@ -153,8 +163,8 @@ server never appears on the deployed site, and the reverse.
   opens, and it survives a reload. A session that ends during its count-in produces no review, as
   in v2, and changes nothing that is kept. A session cut short by closing or reloading the page is
   lost, as in v2: saving happens at the session's end, never during it.
-- **Pinning keeps a session for good.** When a new session is saved, the previous most recent
-  session is deleted unless it is pinned. A pinned session stays until the player unpins or
+- **Pinning keeps a session for good.** When a new session is saved, every session that is not
+  pinned is deleted, including one the player unpinned earlier. A pinned session stays until the player unpins or
   deletes it. Only one session is ever kept without the player asking.
 - **Marking a favorite pins its session**, so a favorite is never lost by starting a new session.
   Unpinning a session that holds favorites asks for confirmation first, since the session and its
@@ -189,7 +199,9 @@ the generator may produce different phrases from the same inputs.
 
 - **One switch, "Keep my played notes", off by default.** While it is off, played notes exist in
   memory only, exactly as in v2: the review of the session that just ended shows them, and after a
-  reload the kept session has none. While it is on, they are saved with the session.
+  reload the kept session has none. While it is on, they are saved with the session. Switching it
+  on while reviewing the session that just ended keeps that session's played notes too, since they
+  are still in memory.
 - **Pinning and keeping played notes are separate choices.** Pinning keeps the music; the switch
   decides whether the player's own notes are kept.
 - **Deleting:** the played notes of one session, or of every session, can be deleted without
@@ -219,7 +231,8 @@ in the session list. It is never written into the MusicXML or MIDI exports.
 
 - **A favorite marks a whole phrase**, in the review of any kept session, including the session
   that just ended. Marking it again removes it.
-- **Marking a favorite pins the session** (§5.1).
+- **Marking a favorite pins the session** (§5.1). Removing a session's last favorite never unpins
+  it; the player unpins it explicitly.
 - **Exporting favorites only.** Next to "whole session", the exports offer a favorites-only scope,
   for the generated notes (MusicXML or MIDI) and for the played notes (MIDI). The exported phrases
   come in session order, each keeping its session phrase number. A played note held past the end
@@ -235,7 +248,9 @@ in the session list. It is never written into the MusicXML or MIDI exports.
 - **One saved instrument, made from a template.** The player starts from one of the three built-in
   profiles (C MIDI keyboard, B-flat tenor saxophone, E-flat alto saxophone) and may change:
   - its **name**;
-  - its **range**, lowest and highest note, entered in written pitch and stored in concert pitch;
+  - its **range**, lowest and highest note, in written pitch: the written range is what the player
+    sets and keeps, and the concert range follows from it and the transposition, so changing the
+    transposition (by hand or through §7.2) keeps the written range;
   - its **transposition**, any constant interval between written and sounding pitch.
 - **The rules every profile already obeys apply:** whole-number endpoints, a span of at least two
   octaves (24 semitones), and the Low, Middle and High register windows derived by the same
@@ -265,7 +280,10 @@ a constant offset: a match, whole octaves, or a number of semitones.
 
 The app remembers the last controller the player chose and reselects it when the app loads, as
 soon as that controller is connected, matching it the way v2 already recognises a controller that
-comes back within a page. v2 forgot the choice on reload; v3.0 deliberately keeps it. The
+comes back within a page. It does so only when the browser already allows MIDI access, never with
+a permission prompt; otherwise the player connects as in v2. After a load, the starting note
+starts nothing until the page's first click, tap or key press, because browsers do not let a page
+play sound before one; the remembered controller does not change v2's audio-unlock rule. v2 forgot the choice on reload; v3.0 deliberately keeps it. The
 player's **Disconnect** action, which in v2 forgets the controller for the page, also forgets the
 remembered one, so a reload never reconnects a controller the player chose to disconnect.
 Deleting "my instrument" does not forget the controller; Delete everything does.
@@ -444,8 +462,9 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
 17. **The check feeds my instrument.** "Use this for my instrument" sets the transposition so the
     written notes match the controller, after one confirmation, and the result survives a reload.
     Played notes are still compared at the pitch received.
-18. **The controller is remembered** and reselected at load when connected; after the player's
-    Disconnect, a reload reselects nothing.
+18. **The controller is remembered** and reselected at load when connected and MIDI access is
+    already allowed, with no prompt; after the player's Disconnect, a reload reselects nothing; the
+    starting note starts nothing before the page's first click, tap or key press.
 19. **Replay keys.** An `ifk2.` key reproduces a phrase made with "my instrument"; every `ifk1.`
     key still decodes to the same phrase as in v2.
 20. **Pre-generation.** A session's phrases are identical with pre-generation on or off for the
@@ -463,9 +482,13 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
 
 ## 14. Deferred and open
 
-- **Open, for the build plan:** the exact stray-note threshold, set by measurement (§9); whether
-  "my instrument" needs a stricter range check than the two-octave rule once the generator's
-  success rate on narrow and extreme ranges is known (§7.1, item 16).
+- **Open, for the build plan:** the exact stray-note threshold, set by measurement (§9); the
+  length of the start-up wait for saved settings (§4.4); whether "my instrument" needs a stricter
+  range check than the two-octave rule once the generator's success rate on narrow and extreme
+  ranges is known (§7.1, item 16). The design adds a reason for a bound: the written range of "my
+  instrument" counts toward the staff's shared height, so an unusually wide or high range would
+  make the staff taller for every instrument. A bound on the written range, settled with that
+  check, would avoid it.
 - **Open, needs the owner:** the explicit confirmation of the three contract changes in §10. The
   owner approved this spec; that approval is not the contract confirmation.
 - **Design, for `ux-writer`:** where "Your data", the session list, favorites, the comment, the
