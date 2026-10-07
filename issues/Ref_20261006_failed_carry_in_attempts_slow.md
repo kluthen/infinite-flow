@@ -4,7 +4,7 @@
 **Ref:** `ISS-009`
 **Date:** 2026-10-06
 **Severity:** High
-**Status:** Open
+**Status:** Resolved
 **Component:** `src/session/failure-ladder.ts`
 **Affects:** `src/domain/generation/orchestration/generation-orchestrator.ts`,
 `src/domain/generation/orchestration/search-ledger.ts`, `src/session/session-engine.ts`,
@@ -149,3 +149,39 @@ deadline, all at Eighth or Sixteenth density.
 - `tests/unit/session/session-deadline-sweep-failures.spec.ts`, the injected-failure ladder at 60,
   120 and 240 BPM.
 - `docs/generation-latency.md`: the timing of successful generations.
+
+---
+
+## Change Log
+
+- **2026-10-07**: Resolved. Definition-of-done item 1 now holds in the full real-cost sweep.
+  - **Before:** on `main` 6df1b4e (2026-10-06), `npm run test:sweep` had 7 of the 568 cases
+    repeat a phrase at its deadline (39 repeat lines), all at Eighth or Sixteenth density. The
+    slowest failed attempt took 23.5 s; successes took 280 ms at most.
+  - **The fix, in four merges:**
+    - 11336a5: the pitch search reuses the facts that do not depend on the binding, so a failed
+      carry-in search runs 4 to 6 times faster; the output is byte-identical.
+    - eb70983: (a) after a carry-in search found exhausted, the remaining carry-in retries are
+      skipped and the standalone attempt comes next; (b) carry-in attempts get a search allowance
+      of 160,000 fuel units, above the 131,137 units of the largest successful carry-in attempt.
+      Standalone and Idle generation keep the 250,000-unit allowance. With these two merges the
+      sweep was down to 4 cases (8 repeat lines).
+    - 3911d03 (merge of 8ace526, ISS-010): candidates, transforms and failure details are ordered
+      by code unit, independent of the locale; the output is byte-identical (1,197 of 1,197).
+    - d128d78 (merge of 5a587bb, spec D203): the failure ladder is time-aware. Carry-in retries
+      give way to the standalone attempt when the time left before the deadline falls below what
+      the standalone attempt needs: the standalone reserve, 1.075 s (worker respawn 0.125 s +
+      standalone budget 0.95 s). An attempt the session drops, or cuts over from, is cancelled on
+      the generation worker, so it no longer delays the next request.
+  - **After:** on `main` d128d78, `npm run test:sweep` passed, 9 of 9 tests in the 3 files
+    `tests/sweep/session-deadline-sweep-{eighth,sixteenth,quarter}.spec.ts`, in 98 s: 0 of the 568
+    cases repeat a phrase at 60, 120 or 240 BPM. Run on 2026-10-07 from 13:01:53 to 13:03:31; the
+    1-minute load average was 1.08 at the start and 3.00 at the end. The time rule took carry-in
+    away from 1 phrase at 60 BPM, 2 at 120 BPM and 568 at 240 BPM. At 240 BPM these are every
+    case's phrase 2, requested standalone first; at 60 and 120 BPM they are later phrases (phrase 3
+    or 6) whose carry-in attempt was cut over and cancelled.
+  - **Consequence, locked as shipped for v2.0 (owner ruling 2026-10-07):** the standalone reserve,
+    1.075 s, is longer than one measure at 240 BPM (1 s), so at 240 BPM phrase 2 is always requested
+    standalone first, also when a settings change during the count-in requests it again. At
+    240 BPM the join from phrase 1 to phrase 2 is therefore not smoothed by a carry-in. Later
+    phrases keep their carry-in attempts while more than the reserve remains.
