@@ -27,6 +27,11 @@ import { compareUnsignedPitchTie } from '@/domain/pitch/pitch-tie-key'
 import type { BoundPitchPlannerInput } from '@/domain/pitch/pitch-types'
 import { validatePitchPhrase } from '@/domain/pitch/validation/pitch-phrase-validator'
 
+/** Plain UTF-16 code-unit order of two strings, independent of the runtime's locale. */
+function codeUnitOrder(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0
+}
+
 function input(seed = 1, profile: 'Neutral' | 'Jazz' = 'Neutral', fuel = 20_000) {
   const harmony = makeHarmonyCandidateDomain({
     tonalCenter: 'C',
@@ -371,8 +376,8 @@ describe('pitch planner slice A', () => {
     expect(candidates).toEqual(
       [...candidates].sort(
         (left, right) =>
-          left.role.localeCompare(right.role) ||
-          left.obligationIdentity.localeCompare(right.obligationIdentity) ||
+          codeUnitOrder(left.role, right.role) ||
+          codeUnitOrder(left.obligationIdentity, right.obligationIdentity) ||
           left.pitchClass - right.pitchClass ||
           left.octaveIndex - right.octaveIndex,
       ),

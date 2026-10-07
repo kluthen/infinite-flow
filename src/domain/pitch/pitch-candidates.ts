@@ -18,8 +18,6 @@ interface RawCandidate {
   readonly role: PitchRole
   readonly midi: number
   readonly obligation: string
-  /** A short stand-in for the obligation, used only to guess the canonical order. */
-  readonly orderHint?: string
   readonly reservation?: PitchReservation
 }
 
@@ -275,12 +273,7 @@ function chromaticApproachPaths(
 /** Stable path identity: kind, binding, attacks, and the complete MIDI path. */
 function pathIdentity(path: FigurePath): string {
   const prefix = path.bindingIdentity === undefined ? '' : `${path.bindingIdentity}/`
-  return `${prefix}${pathIdentityTail(path)}`
-}
-
-/** A path identity without its binding: kind, attacks, and the complete MIDI path. */
-function pathIdentityTail(path: FigurePath): string {
-  return `${path.kind}/${path.attackIndices.join('-')}/${path.targetAttackIndex}/${path.midis.join('.')}`
+  return `${prefix}${path.kind}/${path.attackIndices.join('-')}/${path.targetAttackIndex}/${path.midis.join('.')}`
 }
 
 /** Spread every path into one reserved raw candidate per member attack. */
@@ -288,7 +281,6 @@ function pathCandidates(paths: readonly FigurePath[]): Map<number, RawCandidate[
   const byAttack = new Map<number, RawCandidate[]>()
   for (const path of paths) {
     const identity = pathIdentity(path)
-    const orderHint = pathIdentityTail(path)
     path.attackIndices.forEach((attackIndex, memberPosition) => {
       const reservation: PitchReservation = {
         identity,
@@ -305,7 +297,6 @@ function pathCandidates(paths: readonly FigurePath[]): Map<number, RawCandidate[
         role: path.roles[memberPosition]!,
         midi: path.midis[memberPosition]!,
         obligation: identity,
-        orderHint,
         reservation,
       })
       byAttack.set(attackIndex, list)
@@ -353,57 +344,24 @@ function ordinaryCandidates(facts: DomainFacts, attack: PitchAttack): readonly R
   return [...chord, ...free]
 }
 
-/**
- * The default-locale collator. `a.localeCompare(b)` with no locale or options is specified as a
- * fresh default collator's `compare(a, b)`, so this one shared instance orders identically.
- */
-const DEFAULT_COLLATOR = new Intl.Collator()
-
-/** Collator order of two strings; equal strings, the common case, skip the collator. */
-function collate(a: string, b: string): number {
-  return a === b ? 0 : DEFAULT_COLLATOR.compare(a, b)
+/** Plain UTF-16 code-unit order of two strings, independent of the runtime's locale. */
+function codeUnitOrder(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0
 }
 
-/** The canonical order: role, then obligation, both collated, then pitch class, then MIDI. */
+/** The canonical order: role, then obligation, both by code unit, then pitch class, then MIDI. */
 function compareCanonical(a: RawCandidate, b: RawCandidate): number {
   return (
-    collate(a.role, b.role) ||
-    collate(a.obligation, b.obligation) ||
+    codeUnitOrder(a.role, b.role) ||
+    codeUnitOrder(a.obligation, b.obligation) ||
     pc(a.midi) - pc(b.midi) ||
     a.midi - b.midi
   )
 }
 
-/** Plain code-unit order of two strings. */
-function codeUnitOrder(a: string, b: string): number {
-  return a < b ? -1 : a > b ? 1 : 0
-}
-
-/**
- * Sort candidates by `compareCanonical`. A cheap code-unit guess orders them first; when the
- * canonical comparator then finds every adjacent pair strictly in order, the guess is the only
- * order the comparator allows, so a full sort would return it too, and the collator runs only
- * once per adjacent pair. Any other guess falls back to the full canonical sort.
- */
-function canonicalOrder(raw: readonly RawCandidate[]): readonly RawCandidate[] {
-  /** The string the guess orders obligations by. */
-  const hint = (candidate: RawCandidate) => candidate.orderHint ?? candidate.obligation
-  const guess = [...raw].sort(
-    (a, b) =>
-      codeUnitOrder(a.role, b.role) ||
-      codeUnitOrder(hint(a), hint(b)) ||
-      pc(a.midi) - pc(b.midi) ||
-      a.midi - b.midi,
-  )
-  const confirmed = guess.every(
-    (candidate, index) => index === 0 || compareCanonical(guess[index - 1]!, candidate) < 0,
-  )
-  return confirmed ? guess : [...raw].sort(compareCanonical)
-}
-
 /** Freeze candidates in canonical order: role, obligation, pitch class, octave. */
 function canonical(raw: readonly RawCandidate[]): readonly PitchCandidate[] {
-  const sorted = canonicalOrder(raw)
+  const sorted = [...raw].sort(compareCanonical)
   return deepFreeze(
     sorted.map((value, enumerationIndex) => {
       const octaveIndex = Math.floor(value.midi / 12)
