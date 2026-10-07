@@ -1564,3 +1564,8 @@ All seven points found while planning were settled in master spec v1.3 (2026-10-
 6. An outdated tab reads what it can; records written by a newer version are left unread, and a
    kept session saved by a newer version is listed as such and does not open (§4.3).
 7. Pre-generation's battery cost is measured for information (§14; M4, H6).
+
+Master spec v1.4 (2026-10-07) only fixes two wordings the chunk 0 re-sync found, and no chunk
+changes: the starting note waiting for the page's first click, tap or key press widens v2's
+audio-unlock rule (§7.3, §10; chunk 22 already uses any first gesture), and
+item 6 deletes every unpinned kept session, as §5.1 says (chunk 10 already does).

@@ -1,6 +1,6 @@
 # Infinite Flow v3 — Master Spec: v3.0, Storage
 
-Status: master spec v1.3 (2026-10-07), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
+Status: master spec v1.4 (2026-10-07), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
 remembered controller (§7.3). Change in v1.2: behaviours the v3.0 design settled, written in:
 when settings are read and saved, what Delete everything leaves, which sessions a save deletes,
 favorites and unpinning, the played-notes switch on the session that just ended, my instrument's
@@ -8,7 +8,9 @@ written range, and how the remembered controller is reattached (§4, §5, §6, �
 Change in v1.3, from the build plan's review: how a transposition is spelled (§7.1); which
 changes discard pre-generated phrases, and what "the same phrases" means when an attempt would
 have failed (§8, item 20); persistent storage is asked for once per visit (§4.5, item 13); an
-outdated tab offers no Delete everything (§4.3, item 14). Consolidated from the approved v3.0 drafts for handoff to
+outdated tab offers no Delete everything (§4.3, item 14). Change in v1.4, two wording fixes
+from the intent re-sync: the audio-unlock rule is said to widen, not stay (§7.3, §10); item 6
+matches §5.1, a save deleting every unpinned session. Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. It covers **v3.0 only**.
 v3.1 (embellishment flags and presets) and v3.2 (Jam) are still being specified and will be added
 as their own parts. The draft topic documents stay in `specs/versions/v3/` as working material;
@@ -300,7 +302,10 @@ soon as that controller is connected, matching it the way v2 already recognises 
 comes back within a page. It does so only when the browser already allows MIDI access, never with
 a permission prompt; otherwise the player connects as in v2. After a load, the starting note
 starts nothing until the page's first click, tap or key press, because browsers do not let a page
-play sound before one; the remembered controller does not change v2's audio-unlock rule. v2 forgot the choice on reload; v3.0 deliberately keeps it. The
+play sound before one. This widens v2's audio-unlock rule, where only a Start or Connect
+controller click unlocked sound and a starting note worked only after Connect controller: with a
+remembered controller there is no Connect click, so any first click, tap or key press on the page
+unlocks sound, and a Start click still does. v2 forgot the choice on reload; v3.0 deliberately keeps it. The
 player's **Disconnect** action, which in v2 forgets the controller for the page, also forgets the
 remembered one, so a reload never reconnects a controller the player chose to disconnect.
 Deleting "my instrument" does not forget the controller; Delete everything does.
@@ -377,6 +382,9 @@ below is intended.
     (`rule_optional_midi_privacy`) — v3.0 stores them after the player opts in, and never otherwise;
   - "the selected controller is kept in memory only and does not survive a reload"
     (`rule_same_controller_reattaches`) — v3.0 remembers it.
+- **The audio-unlock rule widens** (not a contract guarantee): v2 unlocked sound only on a Start
+  or Connect controller click; v3.0 unlocks it on the page's first click, tap or key press, since a
+  remembered controller reattaches without a Connect click (§7.3).
 - **About fifteen declared-intent entries under review** say "never persisted", led by the rule
   that session state is ephemeral; the vision's "out of scope through v2" list needs a v3
   revision.
@@ -458,7 +466,7 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
    touch no storage.
 5. **Nothing is sent.** No network request carries player data, with storage in use.
 6. **The most recent session survives a reload** and opens in the same review; a new session's save
-   deletes the previous unpinned session and keeps every pinned one.
+   deletes every unpinned kept session, one unpinned earlier included, and keeps every pinned one.
 7. **No save during a session.** No storage write happens between Start and the session's end.
 8. **A kept session holds only §5.2's content**: no acknowledgements, provenance or diagnostics.
 9. **Played notes are stored only after opt-in.** With "Keep my played notes" off, no played note

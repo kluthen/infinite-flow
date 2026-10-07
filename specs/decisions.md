@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.50
+Status: draft v2.51
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D222**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D223**.
 
 ## Decision Log
 
@@ -279,3 +279,14 @@ fact in the live documents (see the [archive index](archive/README.md) and
   v3.0 design decisions in `ui_ux/decisions.md`, and the
   [v3.0 build plan](versions/v3/build-plan.md), whose per-chunk workflow and waves stand as
   written. The master spec is v1.3, approved.
+
+- **D222 (2026-10-07): two wording fixes from `documentalist`'s chunk 0 re-sync (master spec
+  v1.4).** spec-writer's calls, within the approved behaviour; nothing the owner decided changes.
+  (1) §7.3 said the remembered controller "does not change v2's audio-unlock rule", while saying
+  the starting note waits for any first click, tap or key press. v2 unlocked sound only on a Start
+  or Connect controller click; with a remembered controller there is no Connect click, so the rule
+  does widen, as the design (`ui_ux/flows/play-session/`, "Before the first click") and the atoms
+  already have it. §7.3 and §10 now say so; the rule is not a contract guarantee. (2) Definition
+  of done item 6 said a save deletes "the previous unpinned session"; §5.1, the design and the
+  atoms say every unpinned kept session, one unpinned earlier included. Item 6 and
+  `kept-sessions.md` §1 now match §5.1.

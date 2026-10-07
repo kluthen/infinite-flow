@@ -14,8 +14,8 @@ last-session review and export
 - **The most recent session is kept automatically**. It survives a reload, so the
   review the player had is still there tomorrow. This keeps D129's rule, "store more than one
   session only when the player asks for it": one is kept without asking.
-- **Pinning keeps a session for good** (D129). When a new session ends, the previous session is
-  deleted unless it is pinned. A pinned session stays until the player unpins or deletes it.
+- **Pinning keeps a session for good** (D129). When a new session is saved, every session that is
+  not pinned is deleted (master spec §5.1). A pinned session stays until the player unpins or deletes it.
 - **Marking a favorite pins its session**, so a favorite is never lost by starting a
   new session. Unpinning a session that holds favorites asks for confirmation, since its
   favorites go with it at the next session's end.
