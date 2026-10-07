@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.49
+Status: draft v2.50
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D221**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D222**.
 
 ## Decision Log
 
@@ -268,3 +268,14 @@ fact in the live documents (see the [archive index](archive/README.md) and
   said "the first time"). (5) An outdated tab saves and deletes nothing and offers no Delete
   everything (the design offered it; the spec wins, so the UI/UX documents need that one change).
   The build plan is [build-plan.md](versions/v3/build-plan.md), draft v1.
+
+- **D221 (2026-10-07): the owner's final review of v3.0: approved, with three explicit answers.**
+  (1) **Contract change set, part A: confirmed.** The three STABLE guarantees are narrowed as
+  `docs/release/v3.0-intent-change-set.md` words them, and the contract goes from 1.8 to 2.0;
+  `documentalist` applies it (the build plan's Gate A). (2) **ux Q66: allowed.** One `ux-writer`
+  pass edits `src/styles/theme.css` and `components.css` (build plan chunk 1). (3) **The stale
+  `%% end v2 new` line** in `ui_ux/flows/generate-phrase/handoff.md`: remove it. Everything else
+  is approved as presented ("otherwise I globally agree"): spec-writer's calls D217–D220, the
+  v3.0 design decisions in `ui_ux/decisions.md`, and the
+  [v3.0 build plan](versions/v3/build-plan.md), whose per-chunk workflow and waves stand as
+  written. The master spec is v1.3, approved.
