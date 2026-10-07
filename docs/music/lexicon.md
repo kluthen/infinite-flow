@@ -1,6 +1,6 @@
 # Music Lexicon
 
-Status: v1.1 (v3 research terms merged)
+Status: v1.2 (v3 research terms merged; preset catalogue terms merged 2026-10-07)
 
 Date: 2026-10-07
 
@@ -38,11 +38,12 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 2. [Pitch and notation](#pitch-and-notation): the staff, clefs, note names and the signs written on the staff, including ornaments and jazz articulations.
 3. [Rhythm and meter](#rhythm-and-meter): beats, note values, meter, syncopation, tempo, and rhythmic changes such as anticipation, augmentation and metric displacement.
 4. [Melody](#melody): melodic motion, shape, decorating notes (embellishments), motifs and the ways musicians develop them.
-5. [Harmony](#harmony): chords, their roles, cadences, tension and resolution.
+5. [Harmony](#harmony): chords, their roles, cadences, tension and resolution, and common chord patterns such as the twelve-bar blues and the vamp.
 6. [Scales and modes](#scales-and-modes): scales, keys, the seven modes and how a key is found from a melody.
-7. [Instruments and transposition](#instruments-and-transposition): concert and written pitch, B-flat and E-flat instruments, range.
-8. [App controls](#app-controls): one entry per control label, with every option explained.
-9. [Internal (no popup)](#internal-no-popup): project terms used in docs and code, never shown in the UI.
+7. [Styles](#styles): styles of music the presets refer to, such as the reel and bossa nova.
+8. [Instruments and transposition](#instruments-and-transposition): concert and written pitch, B-flat and E-flat instruments, range.
+9. [App controls](#app-controls): one entry per control label, with every option explained, and the kinds of preset.
+10. [Internal (no popup)](#internal-no-popup): project terms used in docs and code, never shown in the UI.
 
 ## Basics
 
@@ -1195,6 +1196,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `chord`, `root`, `chord-quality`, `seventh-chord`, `diatonic`
 - **sources:** S14, S15
 
+### Twelve-bar blues
+
+- **id:** `twelve-bar-blues`
+- **aliases:** blues progression, 12-bar blues
+- **popup:** The standard chord pattern of the blues: twelve measures built from three chords, I, IV and V.
+- **definition:** The twelve-bar blues is a chord pattern that repeats every twelve measures. In its basic form it stays on I for four measures, moves to IV for two, back to I for two, then V, IV and I. The chords are usually seventh chords. Its melody often follows an AAB shape: a line, the same line again, then an answer.
+- **in_infinite_flow:** Not possible. Every phrase is four measures, chords are triads, and degree 5 only appears at the end of a phrase.
+- **related:** `chord-progression`, `seventh-chord`, `blue-note`, `call-and-response`, `blues-scale`
+- **sources:** S101, docs/music/harmony-planner-policy.md
+
+### Vamp
+
+- **id:** `vamp`
+- **aliases:** groove, ostinato (for a repeated melodic figure)
+- **popup:** A short chord pattern, often just one or two chords, repeated again and again under a solo.
+- **definition:** A vamp is a short pattern of one or two chords that keeps repeating, giving a soloist an open-ended bed to play over. Because the chords barely move, the mode or scale becomes the main color. A minor chord moving to a major chord a fourth higher, i to IV, is a classic Dorian vamp.
+- **in_infinite_flow:** Closest today: Static harmonic motion (one chord) or a modal Gentle plan, which returns home after one color chord. The backing does not loop a vamp across phrases.
+- **related:** `chord-progression`, `dorian`, `mode`, `control-harmonic-motion`, `riff`
+- **sources:** S104, S105, docs/music/harmony-planner-policy.md
+
 ## Scales and modes
 
 ### Aeolian
@@ -1226,6 +1247,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Not used as such. The Jazz preset can write one only as a brief chromatic approach that resolves at once (E-flat to E over C). A MIDI controller sends whole half steps, so a played blue note arrives as a flattened note outside the collection; the key and mode suggestion planned for v3 (not built) would tolerate a few such notes.
 - **related:** `chromatic`, `half-step`, `chromatic-approach`, `scoop`, `mixolydian`, `dorian`, `swing`
 - **sources:** S9, S78, docs/music/key-and-mode-estimation.md
+
+### Blues scale
+
+- **id:** `blues-scale`
+- **aliases:** none
+- **popup:** The minor pentatonic scale plus one extra note, the lowered 5th. A favorite scale for blues and rock solos.
+- **definition:** The blues scale adds one note to the minor pentatonic scale: the lowered 5th, a half step between the 4th and the 5th. In C it is C, E-flat, F, G-flat, G, B-flat. Its lowered 3rd and lowered 5th are blue notes, and players use the scale over the major-sounding chords of a blues, where those notes rub on purpose.
+- **in_infinite_flow:** Not available as a collection. The Jazz preset can only pass through its notes as brief chromatic approaches.
+- **related:** `pentatonic-scale`, `blue-note`, `scale`, `twelve-bar-blues`
+- **sources:** S9, S100
 
 ### Characteristic note
 
@@ -1377,6 +1408,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `relative-keys`, `key`, `mode`, `major`, `minor`, `characteristic-note`
 - **sources:** S78
 
+### Pentatonic scale
+
+- **id:** `pentatonic-scale`
+- **aliases:** pentatonic, major pentatonic, minor pentatonic
+- **popup:** A five-note scale with no half steps. It is easy to improvise with because almost every note fits the chords.
+- **definition:** A pentatonic scale has five notes per octave instead of seven. The two common ones leave out the two notes of the major or minor scale that form half steps: C major pentatonic is C, D, E, G, A, and A minor pentatonic is A, C, D, E, G, the same notes from another starting point. With no half steps, few notes clash with the chords, which is why blues, rock, folk and pop players often learn to improvise with it first.
+- **in_infinite_flow:** Not available. Every collection in the app has seven notes; Dorian and Aeolian contain all of the minor pentatonic, and Major and Mixolydian all of the major pentatonic, plus two more notes.
+- **related:** `scale`, `blues-scale`, `dorian`, `mixolydian`, `control-collection`
+- **sources:** S100, src/domain/controls/generation-controls.ts
+
 ### Phrygian
 
 - **id:** `phrygian`
@@ -1426,6 +1467,28 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The Written key control sets it, in your instrument's written pitch; the app converts it to concert pitch before generating. Written C on tenor saxophone, for example, means a concert B-flat tonal center.
 - **related:** `tonic`, `key`, `concert-pitch`, `written-pitch`, `control-written-key`
 - **sources:** S14
+
+## Styles
+
+### Bossa nova
+
+- **id:** `bossa-nova`
+- **aliases:** bossa
+- **popup:** A gentle, syncopated Brazilian style from the late 1950s, played without swing, with rich jazz-like chords.
+- **definition:** Bossa nova is a Brazilian style that began in Rio de Janeiro in the late 1950s. Its guitar pattern plays bass notes on the beats while the chords fall partly between them, giving a light, swaying syncopation. Unlike jazz, its eighth notes are played evenly, without swing, and its chords are often sevenths and richer.
+- **in_infinite_flow:** Not a preset in v3.1: without its rhythm pattern and chords, settings alone give only a thin imitation (docs/music/preset-catalogue.md). Its syncopation and even eighths are within reach of the controls.
+- **related:** `syncopation`, `swing`, `seventh-chord`, `anticipation`
+- **sources:** S112
+
+### Reel
+
+- **id:** `reel`
+- **aliases:** none
+- **popup:** A fast folk dance tune from Ireland and Scotland, made of running eighth notes played evenly.
+- **definition:** A reel is a dance tune in 4/4 or 2/2 from the Irish and Scottish traditions. It runs mostly in eighth notes, played evenly rather than swung, with accents on beats 1 and 3. A tune usually has two eight-bar parts, each played twice, and players decorate it freely with short ornaments such as cuts and rolls.
+- **in_infinite_flow:** A proposed built-in preset imitates its running eighths and four-bar phrases; the mode stays the player's choice (Mixolydian, Dorian and Major are typical), and the ornaments and the two-part form are not available.
+- **related:** `eighth-note`, `phrase`, `mixolydian`, `dorian`, `ornament`
+- **sources:** S106, S107, S108
 
 ## Instruments and transposition
 
@@ -1511,6 +1574,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `arpeggio`, `chord-tone`, `control-leapiness`, `run`, `seed`
 - **sources:** src/domain/pitch/pitch-ranking.ts, ui_ux/screens/phrase-workspace/handoff.md
 
+### Built-in preset
+
+- **id:** `built-in-preset`
+- **aliases:** style preset
+- **popup:** A ready-made set of settings that ships with the app, such as Neutral or Jazz.
+- **definition:** A built-in preset is a named group of starting settings provided by the app. Choosing one fills in several controls at once, so a player can try a style or a practice purpose with one choice and then adjust from there. It is an app term, not a music-theory one.
+- **in_infinite_flow:** Today the two built-in presets are the musical profile presets Neutral and Jazz. v3.1 plans a few more (proposed in docs/music/preset-catalogue.md). A preset holds generation settings only: never the instrument, tempo, written key or collection, so it never changes the scale or mode (spec decision D228). A built-in preset can be changed and saved as a player preset, but never overwritten.
+- **related:** `control-musical-profile-preset`, `player-preset`, `grammar`
+- **sources:** src/domain/controls/profile-selection.ts, specs/versions/v3/README.md, specs/decisions.md
+
 ### Collection
 
 - **id:** `control-collection`
@@ -1580,6 +1653,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** **Quarter notes**: 2-4 notes per measure. **Eighth notes**: 4-8. **Sixteenth**: 8-16. These counts are for Strict rhythmic variety; the varied settings widen them a little. The chosen value makes up all the notes under Strict, at least three quarters under Slightly varied, and at least half under Heavily varied. Default Quarter notes (Neutral) or Eighth notes (Jazz).
 - **related:** `quarter-note`, `eighth-note`, `sixteenth-note`, `subdivision`, `control-rhythmic-variety`, `unsupported-rhythm-combination`
 - **sources:** ui_ux/screens/phrase-workspace/handoff.md, docs/music/rhythm-phrase-structure.md, docs/module_rhythm_variety_grammar.atom.md
+
+### Player preset
+
+- **id:** `player-preset`
+- **aliases:** saved preset, custom preset
+- **popup:** A set of settings you named and saved yourself, to get them back later.
+- **definition:** A player preset is a group of settings the player saves under a name of their own, so the same setup can be recalled in one step instead of being rebuilt control by control. Musicians do the same with the presets of a synthesizer or an effects unit. It is an app term.
+- **in_infinite_flow:** Planned for v3.1, saved with v3.0's local persistence: the player selects a preset, changes settings (the selection then shows "Custom") and saves the result under a name (spec decision D228). It holds the same settings as a built-in preset, never the instrument, tempo, written key or collection. Not built.
+- **related:** `built-in-preset`, `control-musical-profile-preset`
+- **sources:** specs/versions/v3/README.md, specs/decisions.md
 
 ### Register
 
@@ -1772,6 +1855,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The seed breaks ties among equally good choices, picks the Varying register window, and orders chord tones under Varied arpeggio chaos. It never overrides a control.
 - **related:** `control-arpeggio-chaos`, `register-window`
 - **sources:** src/composables/use-generation-session.ts, docs/music/harmony-planner-policy.md
+
+### Signature figure
+
+- **id:** `signature-figure`
+- **aliases:** gimmick (the owner's word), hook, lick, riff
+- **popup:** Internal: a short melodic idea that marks a style or a song, like a famous riff or a typical blues bend.
+- **definition:** A signature figure is a short melodic or rhythmic idea that listeners associate with a style, a player or a song: a riff, a hook, a stock lick, a characteristic ornament. Musicians build a personal or stylistic vocabulary partly from such figures and reuse them, varied, in new phrases.
+- **in_infinite_flow:** Internal word for what the owner calls a "gimmick". The app cannot store one today; later presets may carry a few (spec decision D228 places them after v3), and Jam (v3.2) grows a player's own idea. Not built.
+- **related:** `riff`, `lick`, `motif`, `played-signal`
+- **sources:** specs/versions/v3/README.md, specs/personas.md
 
 ### Tick
 

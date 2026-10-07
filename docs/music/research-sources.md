@@ -1,6 +1,6 @@
 # Music Research Sources
 
-Status: draft v0.2 (v3 research sources S18-S99 merged 2026-10-07)
+Status: draft v0.3 (v3 research sources S18-S99 and S100-S115 merged 2026-10-07)
 
 ## How To Use This Record
 
@@ -350,4 +350,57 @@ These back [played-pattern recognition](played-pattern-recognition.md), research
   - Useful for: rhythm-only pattern matching learned from 12 examples, with genuine and imposter success rates.
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): tempo-invariant rhythm matching, player-defined signals.
 
-Licence note: Music Theory for the 21st-Century Classroom (S1-S7, S9-S10, S18-S24, S40-S44) is © 2017 Robert Hutchinson and distributed under the GNU Free Documentation License, version 1.2 or later. Open Music Theory (S8, S8a, S14, S25, S45-S48) is CC BY-SA. The project cites both for verification and does not reproduce their text.
+## Presets (v3)
+
+These back the [preset catalogue](preset-catalogue.md), research for the v3.1 built-in presets, and its lexicon entries. Wikipedia pages are used as pointers for widely documented genre facts. Reference only; no text copied. S116-S119 were reserved for this block and are unused.
+
+- **S100 - Pentatonic scale.** Wikipedia: https://en.wikipedia.org/wiki/Pentatonic_scale
+  - Useful for: major and minor pentatonic contents; the minor pentatonic as the basis of the blues scale and of blues and rock soloing; its use in Scottish, Irish and Appalachian folk; why it suits improvisers.
+  - Applied in: [preset catalogue](preset-catalogue.md): [What no setting can express today](preset-catalogue.md#what-no-setting-can-express-today), Blues, Considered, the pentatonic-scale and blues-scale lexicon drafts.
+- **S101 - Twelve-bar blues.** Wikipedia: https://en.wikipedia.org/wiki/Twelve-bar_blues
+  - Useful for: the I–IV–V twelve-bar pattern, seventh-chord variants, the AAB melodic shape.
+  - Applied in: [preset catalogue](preset-catalogue.md): Blues, the twelve-bar-blues lexicon draft.
+- **S102 - Swing.** Wikipedia: https://en.wikipedia.org/wiki/Swing_(jazz_performance_style)
+  - Useful for: unequal eighths, the triplet (2:1) approximation, the ratio narrowing at faster tempos, the styles that swing.
+  - Applied in: [preset catalogue](preset-catalogue.md): What no setting can express today (swing, acknowledgement of swung notes), Bebop, Blues.
+- **S103 - Bebop.** Wikipedia: https://en.wikipedia.org/wiki/Bebop
+  - Useful for: fast tempos, quick and complex chord changes, angular lines, extended and altered chords; early-1940s origin with Parker and Gillespie.
+  - Applied in: [preset catalogue](preset-catalogue.md): Bebop, What no setting can express today.
+- **S104 - Modal jazz.** Wikipedia: https://en.wikipedia.org/wiki/Modal_jazz
+  - Useful for: modes in front instead of changing chords; "So What" and _Kind of Blue_ (1959); D Dorian in "So What"; chords voiced in fourths.
+  - Applied in: [preset catalogue](preset-catalogue.md): Modal (Dorian), the vamp lexicon draft.
+- **S105 - "Oye Como Va".** Ethan Hein, blog post: https://ethanhein.com/wp/2021/oye-como-va/
+  - Useful for: a whole tune in A Dorian on a two-chord i–IV vamp, and the raised 6th as the source of its color.
+  - Applied in: [preset catalogue](preset-catalogue.md): Modal (Dorian), the vamp lexicon draft. A practitioner blog, used for one well-known example.
+- **S106 - Reel.** Wikipedia: https://en.wikipedia.org/wiki/Reel_(dance)
+  - Useful for: 4/4 or 2/2; mostly eighth-note movement accented on beats 1 and 3; played even, without swing; eight-bar parts divisible into four-bar phrases; AABB form.
+  - Applied in: [preset catalogue](preset-catalogue.md): Folk reel, the reel lexicon draft.
+- **S107 - Modes in Irish and Scottish music.** John Chambers, "A Brief Tutorial on Musical Modes", ABC notation pages at MIT: https://trillian.mit.edu/~jc/doc/abc/Modes.html
+  - Useful for: Dorian and Mixolydian as very common in Irish and Scottish tunes; a "minor" tune often being Dorian.
+  - Applied in: [preset catalogue](preset-catalogue.md): Folk reel.
+- **S108 - Irish ornamentation.** The Celtic Room, "Irish music ornamentation": https://thecelticroom.org/playing-irish-music/irish-music-ornamentation.html
+  - Useful for: the cut (a grace note above), the tap or strike (below), the long and short roll, the cran; ornaments varied freely by the player.
+  - Applied in: [preset catalogue](preset-catalogue.md): Folk reel, the reel lexicon draft. A practitioner page, cross-checked against the ornament entries of the [embellishment catalogue](embellishment-catalogue.md).
+- **S109 - Fortspinnung.** Wikipedia: https://en.wikipedia.org/wiki/Fortspinnung
+  - Useful for: "spinning out" a motif through sequences, repetition and variation; the opening–development–cadence shape; Baroque usage.
+  - Applied in: [preset catalogue](preset-catalogue.md): Baroque.
+- **S110 - Sequence.** Wikipedia: https://en.wikipedia.org/wiki/Sequence_(music)
+  - Useful for: a passage restated at another pitch level; the descending-fifths sequence; its strong association with Baroque music and Vivaldi.
+  - Applied in: [preset catalogue](preset-catalogue.md): Baroque.
+- **S111 - Ornament (music).** Wikipedia: https://en.wikipedia.org/wiki/Ornament_(music)
+  - Useful for: Baroque performers improvising trills, mordents and appoggiaturas; most Baroque ornaments falling on the beat.
+  - Applied in: [preset catalogue](preset-catalogue.md): Baroque.
+- **S112 - Bossa nova.** Wikipedia: https://en.wikipedia.org/wiki/Bossa_nova
+  - Useful for: late-1950s Rio de Janeiro origin (Gilberto, Jobim); the guitar pattern and clave-like percussion; syncopation; played without swing; complex chords; usual 2/4 notation.
+  - Applied in: [preset catalogue](preset-catalogue.md): Bossa, What no setting can express today, the bossa-nova lexicon draft.
+- **S113 - Four-chord schemas.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.09%3A_Four-Chord_Schemas
+  - Useful for: I, IV, V and vi as pop's most common chords; the doo-wop schema I–vi–IV–V (1950s–60s) and the singer/songwriter schema I–V–vi–IV (from the mid-1990s).
+  - Applied in: [preset catalogue](preset-catalogue.md): Pop song.
+- **S114 - Melody and phrasing in pop music.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.03%3A_Melody_and_Phrasing
+  - Useful for: a pop phrase typically lasting four bars; the SRDC (statement, response, departure, conclusion) sentence form.
+  - Applied in: [preset catalogue](preset-catalogue.md): Pop song.
+- **S115 - Minimal music.** Wikipedia: https://en.wikipedia.org/wiki/Minimal_music
+  - Useful for: repetition, process, steady pulse, consonant diatonic harmony with slow harmonic rhythm.
+  - Applied in: [preset catalogue](preset-catalogue.md): Considered, not proposed.
+
+Licence note: Music Theory for the 21st-Century Classroom (S1-S7, S9-S10, S18-S24, S40-S44) is © 2017 Robert Hutchinson and distributed under the GNU Free Documentation License, version 1.2 or later. Open Music Theory (S8, S8a, S14, S25, S45-S48, S113-S114) is CC BY-SA. The project cites both for verification and does not reproduce their text.
