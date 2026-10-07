@@ -459,7 +459,9 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   saved data couldn't be read, or not within the start-up wait. No deletion is offered: no
   `Delete session`, no `Delete played notes`, whichever session the Review shows, the session
   held in memory included, and turning `Keep my played notes` off opens no confirmation. Every
-  other control works, in memory for the visit. When the tab becomes outdated while the Review
+  other control works, in memory for the visit: no change made there tries a save. A session
+  that ended in such a visit is not saved, so its `review-keep-line` reads "Not saved on this
+  device: export it to keep it.", as in **Not saved**. When the tab becomes outdated while the Review
   shows, those buttons leave at once; focus on one of them, or in a deletion confirmation then
   open, goes to `review-title` (`flows/kept-sessions/handoff.md`, While Saving Is Off).
 - **[v3 new]** **A change not saved:** a favorite, pin, comment or `Keep my played notes` change

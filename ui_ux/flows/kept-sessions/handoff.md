@@ -175,7 +175,9 @@ opacity transition (`motion.md`).
   saved; it has no row.
 - While saving is off (an outdated tab, or a visit started from the defaults because the saved
   data couldn't be read; `flows/saved-data/handoff.md`), a session's end saves and deletes
-  nothing: the session is held in memory as after a failed save, and every kept session stays.
+  nothing: the session is held in memory as after a failed save, its keep line saying it is not
+  saved, and every kept session stays. Unlike after a failed save, no change made in its review
+  tries the save again (see While Saving Is Off).
 
 ## While Saving Is Off
 

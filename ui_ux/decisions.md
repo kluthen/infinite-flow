@@ -435,3 +435,17 @@ leaves open; they are listed together in Q67 for `spec-writer`.
   loading saved settings). Also fixed in `strategy.md`, a leftover of ux D221: a session this
   version cannot read is no longer said to be deletable from the list; it can be neither opened
   nor deleted from the outdated tab that meets it.
+- **D224 — No save retried while saving is off (2026-10-07; `ux-critic`'s narrow pass on ux
+  D221-D223).** The pass found the edits aligned with master spec v1.4 §4.3 and §4.4 (spec D223,
+  D225, D226) and one low gap: a session held in memory because saving is off was said to be held
+  "as after a failed save", and a session whose save failed retries its save at each change, so
+  a builder could read that a pin or favorite in an outdated tab tries a save, which §4.3
+  forbids. Fixed: the review's Saving off state (`screens/last-session-review/handoff.md`) says
+  no change made there tries a save and that the keep line reads "Not saved on this device:
+  export it to keep it."; `flows/kept-sessions/handoff.md`, Keeping at a Session's End, says the
+  same; the retry rule in `flows/review-and-export/handoff.md`, Saving the Session, applies while
+  saving is on. A cross-reference to `flows/saved-data/handoff.md`'s existing "every save is
+  skipped", not a new rule. Also corrected: D223 says every "absent in an outdated tab" about the
+  list's deletions now reads "while saving is off"; `screens/session-list/` rightly keeps "in an
+  outdated tab", since a failed-read visit's list has no rows, and only its two citations of the
+  renamed section changed.

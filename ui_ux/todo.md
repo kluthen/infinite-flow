@@ -90,8 +90,9 @@ v3.0, after the units above:
   applied to the kept-sessions, review and saved-data flows and their screens.
 - **spec D225** (newer data wins over a failed read): applied by ux D222 to `flows/saved-data/`,
   `screens/your-data/`, `flows/kept-sessions/`, the load lines of `flows/generate-phrase/` and
-  `screens/phrase-workspace/`, and `strategy.md`. Not yet passed by `ux-critic`; a narrow pass on
-  those edits is due before the owner's next review of v3.0.
+  `screens/phrase-workspace/`, and `strategy.md`. The narrow `ux-critic` pass on ux D221-D223
+  ran on 2026-10-07: DRIFT, one low finding, fixed (ux D224); one build-plan scoping note handed
+  to `spec-writer` (chunk 15's tests and done item 14 do not name spec D226's review change).
 - **Q69:** closed by ux D223 (spec D226): a visit whose saved data couldn't be read offers no
   deletion in the review either; one "While Saving Is Off" rule for both saving-off visits,
   applied to the kept-sessions, review and saved-data flows, their screens and `strategy.md`.

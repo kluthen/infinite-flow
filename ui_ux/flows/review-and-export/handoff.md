@@ -161,7 +161,8 @@ flowchart TD
   when the session is pinned or unpinned. Below `bp-tablet-landscape` it is rendered only in its
   "Not saved" form.
 - **A session whose save failed** stays in memory as the most recent session; its Review works in
-  full. A favorite, a pin, an unpin or a comment changed in it tries the save again; when that
+  full. While saving is on, a favorite, a pin, an unpin or a comment changed in it tries the save
+  again; when that
   succeeds, the keep line takes its pinned or not-pinned wording. A failed retry changes nothing
   shown.
 - **Changes made in any Review** (a favorite, pin, unpin, the comment, `Keep my played notes`) are
