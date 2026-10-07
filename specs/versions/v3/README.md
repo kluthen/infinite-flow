@@ -168,6 +168,13 @@ a kept session would need
 
 ## v3.1 — Embellishment flags and presets
 
+**Drafted 2026-10-07 (draft v1, proposals for the owner):** [embellishment flags](embellishment-flags.md)
+and [presets](presets.md), built on D228's frame for presets. They propose ornaments written as
+symbols for a later release, seven figures with one four-step level each, a new replay key
+version `ifk3.`, six built-in presets (Neutral, Jazz, Gentle, Speed drill, Reel, Bebop) holding
+ten controls and the figure levels, and player presets saved with v3.0's storage. Open: O127–O139.
+The notes below are the background those drafts start from.
+
 ### Embellishment flags
 
 Recorded 2026-10-07 (D210), the owner's request: "embellishments flags for generators … many ways
@@ -175,8 +182,8 @@ to support or alter in minor ways what's expected to be played", for example pas
 "spiked notes" (most likely [neighbor tones](../../../docs/music/lexicon.md#neighbor-tone), or
 [appoggiaturas](../../../docs/music/lexicon.md#appoggiatura)) and surrounding a note with one note
 above and one below (an [enclosure](../../../docs/music/lexicon.md#enclosure)). It was already
-expected "in v2 or v3" ([v2 direction](../v2/README.md#direction-not-yet-scoped)). **The design is
-not settled; a true spec session will follow.**
+expected "in v2 or v3" ([v2 direction](../v2/README.md#direction-not-yet-scoped)). **Drafted in
+[embellishment-flags.md](embellishment-flags.md)** (draft v1, O127–O134).
 
 - **What exists today.** The generator already writes
   [passing tones](../../../docs/music/lexicon.md#passing-tone), neighbor tones and appoggiaturas
@@ -228,7 +235,8 @@ not settled; a true spec session will follow.**
 ### Presets
 
 Recorded 2026-10-07 (D210), the owner: "Presets! that's the last but not least feature of v3."
-Placed with the embellishment flags in v3.1 (D211). **The design is not settled.**
+Placed with the embellishment flags in v3.1 (D211). **Drafted in [presets.md](presets.md)** (draft v1,
+O135–O139), within D228's frame.
 
 - **Today.** The [musical profile preset](../../../docs/music/lexicon.md#musical-profile-preset)
   has two fixed values, Neutral and Jazz. Each sets the note vocabulary (which figures are
@@ -252,12 +260,20 @@ Placed with the embellishment flags in v3.1 (D211). **The design is not settled.
   today; without it only Gentle and Speed drill keep their character (O126, closed by D228: a preset never sets the collection). And until weights
   exist, Jazz-grammar chromatic notes are only about 1–1.5 % of notes, so jazz-flavoured presets
   sound nearly diatonic.
-- **To settle at the spec session:** what a preset holds (the generation settings only, or also
+- **Settled by D228 or proposed in [presets.md](presets.md):** what a preset holds (the generation settings only, or also
   tempo, the audio mix, embellishment flags and weights, the instrument); whether built-in presets
   can be edited or only copied; renaming and deleting; how a player preset is exported or shared,
   if at all; and how presets meet [my instrument](#my-instrument), which is saved separately.
 
 ## v3.2 — Jam and the rhythm lock
+
+**Drafts** (2026-10-07, draft v1, spec-writer's proposals awaiting the owner's review):
+[Jam](jam.md), [key and mode suggestion](key-and-mode-suggestion.md),
+[rhythm lock, Vary settings' allowed list and Jam's drift](rhythm-lock.md). They propose answers to
+O10, O103 and O114, open O140–O156, and surface the conflicts with settled decisions (privacy of
+the doodle, the suggestion against "a running session never asks", the time budget at 240 BPM, the
+seed of the draw, and D216's wording on what the lock holds). The sections below are the record
+the drafts start from.
 
 ### Jam: growing the player's doodle
 
