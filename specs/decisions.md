@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.53
+Status: draft v2.54
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D225**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D226**.
 
 ## Decision Log
 
@@ -305,3 +305,16 @@ fact in the live documents (see the [archive index](archive/README.md) and
   design already does (ux D211, D219): the spec said such a visit saves nothing but not whether it
   may delete. Delete everything is the way out of saved data damaged for good; unlike an outdated
   tab, nothing newer is at risk. Raised by `ux-writer` with Q68 (ux D221).
+
+- **D225 (2026-10-07): a failed read, three gaps closed (master spec v1.4 §4.4).** spec-writer's
+  calls, raised by `documentalist`'s v1.4 re-sync. (1) **The player is told** a failed or slow
+  read happened, that the visit saves nothing and that reloading may fix it, outside a running
+  session: the design's "Unusable data" notice already does; the spec now says so. (2) **A slow
+  read is treated like a failed one**, Delete everything included: the player cannot tell the two
+  apart, the notice points to reloading first, and Delete everything asks for confirmation; the
+  reason is reworded from "damaged for good" to "the way out when reloading does not help".
+  (3) **Newer data wins over a failed read:** whenever data written by a newer version is known to
+  exist, at load or later in the visit, no deletion of any kind is offered, Delete everything
+  included, since it could destroy what the newer version saved. This changes one design rule:
+  "Unusable data, set at load, is never replaced" may keep its notice, but its Delete everything
+  must go once a newer version is detected (`ux-writer` to apply; which notice shows is its call).
