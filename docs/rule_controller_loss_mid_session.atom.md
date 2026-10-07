@@ -1,6 +1,6 @@
 ---
 id: rule_controller_loss_mid_session
-status: REVIEW
+status: STABLE
 type: RULE
 layer: BUSINESS
 version: 0.1
@@ -16,6 +16,7 @@ dependents:
   - [[rule_controller_reconnection_window]]
   - [[service_session_engine]]
   - [[service_workspace_session_flow]]
+notes: Status REVIEW to STABLE on 2026-10-07 with the product owner's approval, together with the matching CONTRACT 1.5 MINOR bump. Backed by the v2.0 gate tests linked to it, among them tests/e2e/session/session-midi-controller-loss.spec.ts (the phrase keeps playing at tempo through the loss and after the same device is back, added in eab0519; notes due while away stay unmatched, those played after the reconnection are acknowledged) and tests/unit/session/session-acknowledgement.spec.ts.
 ---
 
 # Lost Controller Is Shown While the Session Continues

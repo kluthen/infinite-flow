@@ -1,6 +1,6 @@
 ---
 id: rule_mutation_reverts_at_session_end
-status: REVIEW
+status: STABLE
 priority: 1
 tags: [v2, release-v2.0, part-v2.1, session, session-end, player-controls]
 parents:
@@ -10,7 +10,7 @@ dependents: []
 human_name: Mutated Settings Return to the Player's Choice at Session End
 type: RULE
 layer: BUSINESS
-notes: Ingested 2026-10-03 from the settled master spec (D182, from ux Q64), a product owner decision. Built 2026-10-05 in v2 chunk 25: the session never writes the player's Idle controls or profile selection; during a session the controls show the controller's shownSettings, and every end's teardown drops them before the fresh phrase is asked for, so the player's settings show again and the fresh phrase is generated from them.
+notes: Status REVIEW to STABLE on 2026-10-07 with the product owner's approval, together with the matching CONTRACT 1.5 MINOR bump. Backed by the v2.0 gate tests linked to it, among them tests/unit/components/workspace/workspace-session-controller-vary-settings.spec.ts (the player's settings, the customized marking included, back at every kind of session end before the fresh phrase is asked for, the flag left on; added in 4dbf0e2) and tests/e2e/session/session-vary-settings.spec.ts (a register stepped from Varying is Varying again after Stop). Ingested 2026-10-03 from the settled master spec (D182, from ux Q64), a product owner decision. Built 2026-10-05 in v2 chunk 25: the session never writes the player's Idle controls or profile selection; during a session the controls show the controller's shownSettings, and every end's teardown drops them before the fresh phrase is asked for, so the player's settings show again and the fresh phrase is generated from them.
 version: 0.1
 ---
 

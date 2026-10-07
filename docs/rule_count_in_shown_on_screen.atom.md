@@ -1,6 +1,6 @@
 ---
 id: rule_count_in_shown_on_screen
-status: REVIEW
+status: STABLE
 type: RULE
 version: 0.1
 priority: 1
@@ -12,6 +12,7 @@ tags: [v2, release-v2.0, session, session-start]
 dependents:
   - [[service_session_start]]
   - [[service_workspace_session_flow]]
+notes: Status REVIEW to STABLE on 2026-10-07 with the product owner's approval, together with the matching CONTRACT 1.5 MINOR bump. Backed by the v2.0 gate tests linked to it, among them tests/e2e/session/session-start.spec.ts (the count-in after a Start click) and tests/e2e/session/session-midi-start.spec.ts (the count-in started by the starting note, beat by beat with its clicks, phrase 1 in view; added in eab0519), with tests/unit/session/count-in-display.spec.ts.
 ---
 
 # Count-In Shown on Screen

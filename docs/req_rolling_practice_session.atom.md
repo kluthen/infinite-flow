@@ -40,6 +40,7 @@ dependents:
   - [[rule_stop_ends_session]]
   - [[service_session_controller]]
   - [[service_session_engine]]
+  - [[specification_behavioral_quality_gates]]
 ---
 
 # Rolling Practice Session

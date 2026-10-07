@@ -1,6 +1,6 @@
 ---
 id: req_last_session_review
-status: REVIEW
+status: STABLE
 version: 0.4
 priority: 1
 human_name: Last-Session Review
@@ -16,6 +16,7 @@ dependents:
   - [[service_session_end]]
   - [[service_workspace_session_flow]]
 type: REQUIREMENT
+notes: Status REVIEW to STABLE on 2026-10-07 with the product owner's approval, together with the matching CONTRACT 1.5 MINOR bump. Backed by the v2.0 gate tests linked to it, among them tests/e2e/review/review-opens.spec.ts (the phrases that sounded, in order with number and tempo, never the read-ahead one; a 2 000-phrase Review; no favorites, added in eab0519), tests/e2e/review/review-long.spec.ts and tests/e2e/review/review-navigation.spec.ts (leaving and reopening the Review).
 ---
 
 # Last-Session Review

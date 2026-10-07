@@ -1,6 +1,6 @@
 ---
 id: rule_multi_phrase_tension_arc_cycle
-status: REVIEW
+status: STABLE
 dependents:
   - [[module_tension_arc_cycle]]
 type: RULE
@@ -11,6 +11,7 @@ parents:
   - [[req_multi_phrase_tension_arc]]
 version: 0.1
 human_name: Multi-Phrase Tension Arc Four-Phrase Cycle
+notes: Status REVIEW to STABLE on 2026-10-07 with the product owner's approval, together with the matching CONTRACT 1.5 MINOR bump. Backed by the v2.0 gate tests linked to it, among them tests/unit/session/tension-arc-cycle.spec.ts (the group-of-four cycle, never past Settled or Edge), tests/unit/session/session-engine-tension-arc-generation.spec.ts (the cycle around a mutated tension arc, and same seeds giving the same session with the flag alone, added in 4dbf0e2) and tests/e2e/session/session-tension-across-phrases.spec.ts (the Tension control keeps showing the choice).
 ---
 
 # Multi-Phrase Tension Arc Four-Phrase Cycle

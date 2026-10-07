@@ -1,6 +1,6 @@
 ---
 id: rule_midi_starting_note
-status: REVIEW
+status: STABLE
 dependents:
   - [[module_session_starting_note]]
   - [[rule_starting_note_named]]
@@ -15,6 +15,7 @@ parents:
 layer: BUSINESS
 version: 0.3
 human_name: Only Phrase 1's First Note Starts a Session From MIDI
+notes: Status REVIEW to STABLE on 2026-10-07 with the product owner's approval, together with the matching CONTRACT 1.5 MINOR bump. Backed by the v2.0 gate tests linked to it, among them tests/e2e/session/session-midi-start.spec.ts (only phrase 1 first note at its exact pitch, octave included, starts the count-in; the count-in it starts is checked in eab0519), tests/e2e/controller/controller-connection-close.spec.ts (notes during the connection step and the transposition check start nothing) and tests/unit/components/workspace/workspace-session-controller-review.spec.ts (nothing starts while the Review shows).
 ---
 
 # Only Phrase 1's First Note Starts a Session From MIDI
