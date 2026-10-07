@@ -23,6 +23,7 @@
     "vite.config.ts",
     "vitest.config.ts",
     "vitest.perf.config.ts",
+    "vitest.sweep.config.ts",
     "playwright.config.ts",
     "vite.notation-harness.config.ts",
     "vite.workspace-harness.config.ts",
