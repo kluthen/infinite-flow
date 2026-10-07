@@ -1,6 +1,6 @@
 ---
 id: rule_dropped_attempt_cancelled
-status: DRAFT
+status: STABLE
 human_name: Dropped Attempt Is Cancelled
 dependents:
   - [[module_generation_prewarm]]
@@ -13,7 +13,7 @@ priority: 1
 tags: [v2, release-v2.0, session, look-ahead, error-handling]
 parents:
   - [[rule_session_generation_failure_ladder]]
-notes: Created 2026-10-07 at DRAFT during pre-code architecture capture, from the product owner's rulings of 2026-10-07 (spec D200, master spec section 4). Revised the same day to version 0.2 (previous version 0.1, never committed) for the owner's ruling approving the time-aware ladder (spec D203, master spec v1.37 section 4): the cancellation is now required, no longer something the build may leave out, and covers the standalone attempt as well as a carry-in one. Kept as its own rule rather than merged into rule_session_generation_failure_ladder: the ladder rule holds when the ladder gives up a carry-in attempt for the standalone one (and cancels it), while this rule holds that whatever attempt is still running at the deadline, after the ladder has run out of time, is cancelled where it runs, a separate guarantee about the generator staying free for the next phrase. The owner may confirm it (it would then join the CONTRACT surface with a MINOR bump) or ask for it to be merged into the ladder rule.
+notes: Status DRAFT to STABLE on 2026-10-07 with the product owner's approval, kept as its own rule rather than merged into rule_session_generation_failure_ladder, together with the matching CONTRACT 1.8 MINOR bump. Backed by the code of 5a587bb (the engine's cancel-generation output, the runner aborting that attempt's signal, the worker client replacing the worker) and its linked tests (tests/unit/session/session-engine-cancel.spec.ts, session-engine-cutover.spec.ts, session-runner-cancel.spec.ts, tests/unit/generation-worker/generation-worker-client-cancel.spec.ts), and by the real-cost deadline sweep of the same commit: 568 cases at 60, 120 and 240 BPM, no repeat and no undecided phrase. Earlier: Created 2026-10-07 at DRAFT during pre-code architecture capture, from the product owner's rulings of 2026-10-07 (spec D200, master spec section 4). Revised the same day to version 0.2 (previous version 0.1, never committed) for the owner's ruling approving the time-aware ladder (spec D203, master spec v1.37 section 4): the cancellation is now required, no longer something the build may leave out, and covers the standalone attempt as well as a carry-in one. Kept as its own rule rather than merged into rule_session_generation_failure_ladder: the ladder rule holds when the ladder gives up a carry-in attempt for the standalone one (and cancels it), while this rule holds that whatever attempt is still running at the deadline, after the ladder has run out of time, is cancelled where it runs, a separate guarantee about the generator staying free for the next phrase. The owner may confirm it (it would then join the CONTRACT surface with a MINOR bump) or ask for it to be merged into the ladder rule.
 type: RULE
 version: 0.2
 ---

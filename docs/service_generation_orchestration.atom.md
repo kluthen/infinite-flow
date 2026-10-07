@@ -1,6 +1,6 @@
 ---
 id: service_generation_orchestration
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: generation,orchestration,immutable-boundary
 dependents:
@@ -13,7 +13,7 @@ version: 0.4
 parents:
   - [[entity_concert_event_timeline]]
 layer: ARCHITECTURE
-notes: Revised 2026-10-07 before code (previous version 0.3, pre-code architecture capture) for the owner-approved failure ladder version 0.3 and its search allowance (spec D200-D202): orchestration picks the search policy from the intent, generation-search-carry-in-v1 (160,000 units per window) with a carry-in and generation-search-v1 (250,000, unchanged) without; only an explicit options.searchPolicy overrides it. Status DRAFT until the code lands.
+notes: Status DRAFT to REVIEW on 2026-10-07 (post-task sync, same version 0.4): the code landed in 888b548 (merged in eb70983): generatePhrase in src/domain/generation/orchestration/generation-orchestrator.ts picks the policy from the intent's carry-in, with options.searchPolicy as the only override, with linked tests (tests/unit/domain/generation/orchestration/generation-search-policy-choice.spec.ts). Earlier: Revised 2026-10-07 before code (previous version 0.3, pre-code architecture capture) for the owner-approved failure ladder version 0.3 and its search allowance (spec D200-D202): orchestration picks the search policy from the intent, generation-search-carry-in-v1 (160,000 units per window) with a carry-in and generation-search-v1 (250,000, unchanged) without; only an explicit options.searchPolicy overrides it. Status DRAFT until the code lands.
 ---
 
 # Generation Orchestration
