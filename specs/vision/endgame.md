@@ -1,6 +1,6 @@
 # Endgame — Infinite Flow as a Rhythm RPG
 
-Status: draft v0.2 (direction only; nothing here is scoped or committed; D71; pattern recognition noted 2026-10-07, D212)
+Status: draft v0.2 (direction only; nothing here is scoped or committed; D71; pattern recognition noted 2026-10-07, D212; presets for locations and events, D228)
 
 This is the user's description from 2026-09-25, lightly structured. The inspiration is _Final Fantasy Theatrhythm_. Infinite Flow is the "music factory" behind it.
 
@@ -25,6 +25,11 @@ What a character preset needs to express, as read from these examples:
 - ornament preferences, such as trills;
 - a signature motif or gimmick;
 - register tendencies, including sparse register "spikes".
+
+The owner, 2026-10-07 (D228): not only characters (protagonist, antagonist) but **locations and
+events** have their own preset, which then also carries an **instrument preference and a tone**.
+v3.1's presets are the modest first step (generation settings only); preferred rhythm cues and
+range, note, key and mode restrictions come in later versions.
 
 ## Fights are exchanges of short phrases
 

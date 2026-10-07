@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.56
+Status: draft v2.57
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D228**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D229**.
 
 ## Decision Log
 
@@ -333,3 +333,18 @@ fact in the live documents (see the [archive index](archive/README.md) and
   Item 14 now adds that such a visit starts from the defaults, tells the player, writes nothing
   (no change retries a save, ux D224), and offers Delete everything and no other deletion, and
   none once newer data is known. The build plan names the tests (chunks 12, 14, 15).
+
+- **D228 (2026-10-07): v3.1 presets are generator configuration, kept modest (closes O126).** The
+  owner: presets are "mostly generator configuration", and "a bit cheap" for now, as Neutral and
+  Jazz already are. (1) **What a preset holds:** the generation settings only. Instrument, tempo,
+  key and mode are out, so **a preset never sets the collection** (the scale or mode control),
+  answering O126 against spec-writer's proposal; built-in presets lean on the other settings
+  (and, once v3.1 has them, embellishment weights). (2) **Built-ins are ours:** the project
+  provides its own configurations for various presets; the player may customize them. (3) **How
+  a player makes one:** select a preset, change settings (as with Neutral and Jazz today, which
+  shows "Custom"), then save it under a name. (4) **The preset selector becomes a combo box and
+  moves higher in the controls** (the owner's direction for `ux-writer`). (5) **Presets do not
+  intersect with "my instrument"** at all, for now. (6) **Later, not v3:** presets grow richer
+  with gimmicks, preferred rhythm cues, and restrictions on range, notes, key and mode; they
+  become integral to the endgame, where each character (protagonist, antagonist), location or
+  event has its own preset, including an instrument preference and a tone.

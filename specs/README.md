@@ -42,7 +42,7 @@ Status: draft v0.47
     controller-connection ideas dropped.
 - **Open:** 10 questions, none blocking: O10 (planner authority, for Jam), O48 and O49 (later and
   governance), O100–O102 (v4 rhythm), the rest of O103 and O114 (v3.2 rhythm lock and Jam), O115
-  and O116 (v3.x learning), O126 (v3.1 presets). D216 approved spec-writer's v3 recommendations and closed the rest.
+  and O116 (v3.x learning); O126 closed by D228. D216 approved spec-writer's v3 recommendations and closed the rest.
   See the [register](open-questions.md).
 - The snapshot this index kept through v2's design and build is archived verbatim at
   [archive/v2/readme-status-snapshot.md](archive/v2/readme-status-snapshot.md).

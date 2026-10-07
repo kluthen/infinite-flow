@@ -249,7 +249,7 @@ Placed with the embellishment flags in v3.1 (D211). **The design is not settled.
   Folk reel, Pop song, Modal (Dorian); Bebop once embellishment weights exist; Blues, Bossa and
   Baroque later (no swing, seventh chords, pentatonic scale or harmonic minor today). Main
   finding: a style mostly needs a **collection** (the scale or mode), which no preset can set
-  today; without it only Gentle and Speed drill keep their character (O126). And until weights
+  today; without it only Gentle and Speed drill keep their character (O126, closed by D228: a preset never sets the collection). And until weights
   exist, Jazz-grammar chromatic notes are only about 1–1.5 % of notes, so jazz-flavoured presets
   sound nearly diatonic.
 - **To settle at the spec session:** what a preset holds (the generation settings only, or also
