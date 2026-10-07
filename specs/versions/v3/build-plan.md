@@ -362,7 +362,7 @@ interface chunk can style its components without inventing a value.
 
 **Scope.** `ux-writer`, not a coding executor. Edits `src/styles/theme.css` and
 `src/styles/components.css` only: everything in
-[`token-source-v3.md`](../../../ui_ux/token-source-v3.md) (`--color-error-hover`,
+`ui_ux/token-source-v3.md` (deleted by this chunk once merged) (`--color-error-hover`,
 `--sheet-wide-max-inline-size`, the stepper, text-input, comment-field and favorite-icon sizes, and
 the new classes such as `sheet-wide`, `app-notice-row`, `layout-footer`, `sessions-panel`,
 `session-row*`, `favorite-toggle`, `review-comment`, `review-scope`, `note-stepper`,
@@ -370,7 +370,7 @@ the new classes such as `sheet-wide`, `app-notice-row`, `layout-footer`, `sessio
 audio-mix comment; then deletes `token-source-v3.md` and points `ui_ux/README.md` and the
 handoffs at the token source alone.
 
-**Design docs:** [`token-source-v3.md`](../../../ui_ux/token-source-v3.md),
+**Design docs:** `ui_ux/token-source-v3.md`,
 [`ui_ux/README.md`](../../../ui_ux/README.md).
 
 **Atoms:** none (styling is not business behaviour).

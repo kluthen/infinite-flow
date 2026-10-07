@@ -8,9 +8,10 @@ written range, and how the remembered controller is reattached (§4, §5, §6, �
 Change in v1.3, from the build plan's review: how a transposition is spelled (§7.1); which
 changes discard pre-generated phrases, and what "the same phrases" means when an attempt would
 have failed (§8, item 20); persistent storage is asked for once per visit (§4.5, item 13); an
-outdated tab offers no Delete everything (§4.3, item 14). Change in v1.4, two wording fixes
-from the intent re-sync: the audio-unlock rule is said to widen, not stay (§7.3, §10); item 6
-matches §5.1, a save deleting every unpinned session. Consolidated from the approved v3.0 drafts for handoff to
+outdated tab offers no Delete everything (§4.3, item 14). Change in v1.4, wording fixes from the intent re-sync
+and the design pass: the audio-unlock rule is said to widen, not stay (§7.3, §10); item 6
+matches §5.1, a save deleting every unpinned session; an outdated tab offers no deletion of any
+kind (§4.3, item 14). Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. It covers **v3.0 only**.
 v3.1 (embellishment flags and presets) and v3.2 (Jam) are still being specified and will be added
 as their own parts. The draft topic documents stay in `specs/versions/v3/` as working material;
@@ -135,7 +136,9 @@ during a session (§5.1).
   version that changes the stored shape migrates the data when it opens the database.
 - **An outdated tab stops saving.** The app updates itself silently, so an old open tab can meet
   data written by a newer version. That tab keeps working in memory, saves and deletes nothing
-  more (Delete everything included: the notice asks for a reload first), and shows a notice asking
+  more, and offers no deletion of any kind (Delete everything, a kept session's Delete, deleting
+  played notes, including the offer that turning "Keep my played notes" off makes: the notice asks
+  for a reload first), and shows a notice asking
   for a reload, outside a running session. It reads what it can: records written by the newer
   version are left unread (a kept session saved by a newer version is listed as such and does not
   open).
@@ -482,7 +485,7 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
 13. **Persistent storage** is requested once per visit, on the first pin, favorite or saved
     instrument, unless already granted, and "Your data" reports whether it was granted.
 14. **Outdated tab.** A tab opened by an older version, facing newer saved data, saves and deletes
-    nothing, offers no Delete everything, and shows the reload notice outside a running session.
+    nothing, offers no deletion of any kind, and shows the reload notice outside a running session.
 15. **Failed save.** A refused save never interrupts or delays a session, and the player is told
     after the session.
 16. **My instrument.** A range under two octaves is refused; a valid instrument generates phrases

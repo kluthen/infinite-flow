@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.51
+Status: draft v2.52
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D223**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D224**.
 
 ## Decision Log
 
@@ -290,3 +290,12 @@ fact in the live documents (see the [archive index](archive/README.md) and
   of done item 6 said a save deletes "the previous unpinned session"; §5.1, the design and the
   atoms say every unpinned kept session, one unpinned earlier included. Item 6 and
   `kept-sessions.md` §1 now match §5.1.
+
+- **D223 (2026-10-07): an outdated tab offers no deletion of any kind (answers ux Q68; master spec
+  v1.4).** spec-writer's call, already implied by the approved rule that an outdated tab "saves
+  and deletes nothing". The session list's `Delete`, the review's `Delete session` and
+  `Delete played notes`, and the offer to delete kept played notes that turning
+  "Keep my played notes" off makes are all absent there, as `Delete everything` already is; the
+  reload notice is the way forward. Rejected: a deletion that only hides a session for the visit,
+  which would show a result the device does not hold. §4.3 and definition of done item 14 now say
+  "no deletion of any kind".
