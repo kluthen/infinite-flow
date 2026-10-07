@@ -12,9 +12,12 @@ import type { RhythmCandidate } from '../../rhythm/rhythm-types'
 import type { GenerationRequest } from '../generation-request'
 import type { GenerationResult } from '../generation-result'
 
-/** The versioned identity of the whole-window search ledger policy. */
+/**
+ * The versioned identity of the whole-window search ledger policy: the first release's, used by
+ * every generation without carry-in, or the carry-in one, used by every generation with carry-in.
+ */
 // @spec-link [[mechanic_pitch_search_policy]]
-export type GenerationSearchPolicyVersion = 'generation-search-v1'
+export type GenerationSearchPolicyVersion = 'generation-search-v1' | 'generation-search-carry-in-v1'
 
 /**
  * Versioned, wall-clock-independent search allowance for one resolved window. `windowFuel` is the

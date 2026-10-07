@@ -16,13 +16,20 @@ import {
   acceptedPhrase,
   carryInAfter,
   currentAttempt,
-  nextRung,
   openLookAhead,
   repeatedPhrase,
+  rungAfterFailure,
+  rungsSkipped,
   type Attempt,
+  type AttemptFailure,
   type LadderRung,
 } from './failure-ladder'
-import { buildAttemptIntent, freezeSessionSettings, resolvedRegister } from './session-intents'
+import {
+  buildAttemptIntent,
+  discardSkippedRungs,
+  freezeSessionSettings,
+  resolvedRegister,
+} from './session-intents'
 import {
   decidedOf,
   lookAheadOf,
@@ -174,10 +181,22 @@ function runDeadline(state: EngineState, at: AudioTime): Step {
   return decide(state, repeatedPhrase(lookAhead))
 }
 
-/** Intent: after a failed attempt, request the next rung, or wait for the deadline once exhausted. */
-function climb(context: EngineContext, state: EngineState, attempt: Attempt): Step {
-  const rung = nextRung(attempt.rung)
-  if (rung !== undefined) return requestRung(context, state, rung)
+/**
+ * Intent: after a failed attempt, request the rung its failure leads to, or wait for the deadline
+ * once the ladder is exhausted. Rungs skipped on the way create no attempt, but their request ids
+ * and seeds are drawn and discarded first, so the rung requested is built as if they had failed.
+ */
+function climb(
+  context: EngineContext,
+  state: EngineState,
+  attempt: Attempt,
+  failure: AttemptFailure,
+): Step {
+  const rung = rungAfterFailure(attempt, failure)
+  if (rung !== undefined) {
+    discardSkippedRungs(context, rungsSkipped(attempt.rung, rung))
+    return requestRung(context, state, rung)
+  }
   const exhausted = { ...lookAheadOf(state), attempt: undefined }
   return { state: { ...state, lookAhead: exhausted }, outputs: [] }
 }
@@ -193,7 +212,8 @@ function onGenerationResult(
   if (attempt === undefined) return { state, outputs: [] }
   if (attempt.stage !== 'generating')
     throw new SessionEngineError(`Attempt ${attemptId} already has its generation result.`)
-  if (outcome.kind !== 'generation_success') return climb(context, state, attempt)
+  if (outcome.kind !== 'generation_success')
+    return climb(context, state, attempt, { kind: 'generation-failure', code: outcome.code })
   const lookAhead = lookAheadOf(state)
   const fitting: Attempt = { ...attempt, stage: 'fitting', outcome }
   return {
@@ -216,7 +236,7 @@ function onGenerationCrashed(context: EngineContext, state: EngineState, attempt
   if (attempt === undefined) return { state, outputs: [] }
   if (attempt.stage !== 'generating')
     throw new SessionEngineError(`Attempt ${attemptId} crashed after its generation result.`)
-  return climb(context, state, attempt)
+  return climb(context, state, attempt, { kind: 'crash' })
 }
 
 /** Intent: a fit result: a phrase that fits is decided, one that does not climbs the ladder. */
@@ -230,7 +250,7 @@ function onFitResult(
   if (attempt === undefined) return { state, outputs: [] }
   if (attempt.stage !== 'fitting')
     throw new SessionEngineError(`Attempt ${attemptId} has a fit result before its outcome.`)
-  if (!fits) return climb(context, state, attempt)
+  if (!fits) return climb(context, state, attempt, { kind: 'not-fitting' })
   return decide(state, acceptedPhrase(lookAheadOf(state), attempt))
 }
 

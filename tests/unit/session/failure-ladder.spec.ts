@@ -8,8 +8,24 @@
 import { describe, expect, it } from 'vitest'
 
 import { deriveCarryIn } from '@/domain/generation/carry-in/carry-in-derivation'
+import type { GenerationFailureCode } from '@/domain/generation/orchestration/orchestration-types'
+import {
+  LADDER,
+  rungAfterFailure,
+  rungsSkipped,
+  type AttemptFailure,
+} from '@/session/failure-ladder'
 import type { SessionPhrase } from '@/session/session-types'
-import { SessionDriver, kinds, phraseOneFor, sessionSettings, successFor } from './session-harness'
+import { soundingAt } from './scripted-session'
+import {
+  SessionDriver,
+  kinds,
+  phraseOneFor,
+  sessionSettings,
+  successFor,
+  type GenerationRequestOutput,
+} from './session-harness'
+import { requestIn, settingsWith, threeRequested } from './settings-change-session'
 
 /** Intent: a driver at 60 BPM (a 4 s measure, phrase 2's deadline at 4) with a Varying register. */
 function varyingDriver(): SessionDriver {
@@ -101,6 +117,174 @@ describe('failure ladder before the deadline', () => {
     driver.exhaust(0.5)
     expect(driver.requests(2)).toHaveLength(5)
     expect(driver.tick(3.9)).toEqual([])
+  })
+})
+
+/** Intent: the step and retry of each request, for compact ladder assertions. */
+function rungsOf(requests: readonly GenerationRequestOutput[]): readonly object[] {
+  return requests.map(({ step, retry }) => ({ step, retry }))
+}
+
+/**
+ * Intent: the standalone request of phrase 2 on a driver like `varyingDriver`'s whose four carry-in
+ * attempts were all stopped by their search allowance, so every carry-in retry ran.
+ */
+function standaloneAfterThreeRetries(): GenerationRequestOutput {
+  const reference = varyingDriver()
+  for (let rung = 0; rung < 4; rung += 1)
+    reference.fail(0.1 * (rung + 1), undefined, 'search_limit_exceeded')
+  const standalone = reference.lastRequest()
+  expect(standalone).toMatchObject({ step: 'standalone', retry: 4, attemptId: 5 })
+  return standalone
+}
+
+/** Intent: one way to fail the latest attempt of a driver. */
+type FailAttempt = (driver: SessionDriver, at: number) => void
+
+/** The failures that keep their carry-in retries, by name. */
+const RETRIED_FAILURES: readonly (readonly [string, FailAttempt])[] = [
+  [
+    'a search allowance cutoff',
+    (driver, at) => driver.fail(at, undefined, 'search_limit_exceeded'),
+  ],
+  ['a validation failure', (driver, at) => driver.fail(at, undefined, 'result_validation_failed')],
+  ['a rejected request', (driver, at) => driver.crash(at)],
+  [
+    'a phrase that does not fit',
+    (driver, at) => {
+      driver.succeed(at)
+      driver.fit(at, false)
+    },
+  ],
+]
+
+// @test-link [[rule_session_generation_failure_ladder]]
+// @test-link [[module_session_failure_ladder]]
+describe('skipping carry-in retries after an exhausted carry-in search', () => {
+  // @test-link [[rule_session_generation_failure_ladder]]
+  // @test-link [[module_session_failure_ladder]]
+  it('follows an exhausted carry-in search directly with the standalone retry', () => {
+    const driver = varyingDriver()
+    const outputs = driver.fail(0.1, undefined, 'no_legal_pitch_plan')
+    expect(kinds(outputs)).toEqual(['request-generation'])
+    const requests = driver.requests(2)
+    expect(rungsOf(requests)).toEqual([
+      { step: 'carry-in', retry: 0 },
+      { step: 'standalone', retry: 4 },
+    ])
+    expect(requests.map((request) => request.attemptId)).toEqual([1, 2])
+  })
+
+  // @test-link [[rule_session_generation_failure_ladder]]
+  // @test-link [[module_session_failure_ladder]]
+  it('generates the same standalone intent as after three failed carry-in retries', () => {
+    const driver = varyingDriver()
+    driver.fail(0.1, undefined, 'no_legal_pitch_plan')
+    const skipped = driver.lastRequest()
+    const reference = standaloneAfterThreeRetries()
+    expect(skipped.intent).toEqual(reference.intent)
+    expect(skipped.intent.seed).toBe(reference.intent.seed)
+    expect(skipped.intent.requestId).toBe(reference.intent.requestId)
+    expect(skipped.intent.controls).toEqual(reference.intent.controls)
+    expect(skipped.intent.carryIn).toBeUndefined()
+    expect(skipped.intent.controls.register).toBe(driver.phraseOne.outcome.request.register)
+    expect(skipped.deadline).toBe(reference.deadline)
+  })
+
+  // @test-link [[rule_session_generation_failure_ladder]]
+  it.each(RETRIED_FAILURES)('climbs every carry-in retry after %s', (_name, failAttempt) => {
+    const driver = varyingDriver()
+    for (let rung = 0; rung < 4; rung += 1) failAttempt(driver, 0.1 * (rung + 1))
+    expect(rungsOf(driver.requests(2))).toEqual(LADDER)
+  })
+
+  // @test-link [[rule_session_generation_failure_ladder]]
+  // @test-link [[module_session_failure_ladder]]
+  it('skips the remaining carry-in retries when a later retry exhausts its search', () => {
+    const driver = varyingDriver()
+    driver.fail(0.1, undefined, 'search_limit_exceeded')
+    driver.fail(0.2, undefined, 'no_legal_pitch_plan')
+    const requests = driver.requests(2)
+    expect(rungsOf(requests)).toEqual([
+      { step: 'carry-in', retry: 0 },
+      { step: 'carry-in', retry: 1 },
+      { step: 'standalone', retry: 4 },
+    ])
+    expect(requests.map((request) => request.attemptId)).toEqual([1, 2, 3])
+    expect(requests[2]!.intent).toEqual(standaloneAfterThreeRetries().intent)
+  })
+
+  // @test-link [[rule_session_generation_failure_ladder]]
+  // @test-link [[module_session_failure_ladder]]
+  it('never skips a rung of a phrase whose every attempt is standalone', () => {
+    const driver = threeRequested(false)
+    requestIn(driver.change(soundingAt(2) + 1, settingsWith({ register: 'Low' })))
+    for (let retry = 0; retry < 5; retry += 1) {
+      expect(driver.lastRequest()).toMatchObject({ phraseNumber: 3, step: 'standalone', retry })
+      driver.fail(soundingAt(2) + 1.1 + retry / 10, undefined, 'no_legal_pitch_plan')
+    }
+    expect(
+      driver
+        .requests(3)
+        .slice(-5)
+        .map((request) => request.retry),
+    ).toEqual([0, 1, 2, 3, 4])
+  })
+})
+
+/** Intent: a generation failure with the given code. */
+function generationFailure(code: GenerationFailureCode): AttemptFailure {
+  return { kind: 'generation-failure', code }
+}
+
+// @test-link [[rule_session_generation_failure_ladder]]
+// @test-link [[module_session_failure_ladder]]
+describe('the rung after a failed attempt', () => {
+  const [first, second, third, fourth, standalone] = LADDER
+
+  // @test-link [[rule_session_generation_failure_ladder]]
+  // @test-link [[module_session_failure_ladder]]
+  it('goes straight to the standalone rung after any carry-in attempt that exhausted its search', () => {
+    for (const rung of [first!, second!, third!, fourth!]) {
+      const next = rungAfterFailure(
+        { rung, step: 'carry-in' },
+        generationFailure('no_legal_pitch_plan'),
+      )
+      expect(next).toBe(standalone)
+    }
+    expect(rungsSkipped(first!, standalone!)).toBe(3)
+    expect(rungsSkipped(second!, standalone!)).toBe(2)
+    expect(rungsSkipped(fourth!, standalone!)).toBe(0)
+  })
+
+  // @test-link [[rule_session_generation_failure_ladder]]
+  // @test-link [[module_session_failure_ladder]]
+  it('goes to the next rung after every other failure of a carry-in attempt', () => {
+    const failures: readonly AttemptFailure[] = [
+      generationFailure('search_limit_exceeded'),
+      generationFailure('result_validation_failed'),
+      generationFailure('no_legal_harmony_plan'),
+      generationFailure('no_legal_rhythm_plan'),
+      { kind: 'crash' },
+      { kind: 'not-fitting' },
+    ]
+    for (const failure of failures) {
+      expect(rungAfterFailure({ rung: first!, step: 'carry-in' }, failure)).toBe(second)
+      expect(rungAfterFailure({ rung: fourth!, step: 'carry-in' }, failure)).toBe(standalone)
+    }
+    expect(rungsSkipped(first!, second!)).toBe(0)
+  })
+
+  // @test-link [[rule_session_generation_failure_ladder]]
+  // @test-link [[module_session_failure_ladder]]
+  it('never skips a rung of a standalone attempt, and ends after the standalone rung', () => {
+    const exhausted = generationFailure('no_legal_pitch_plan')
+    expect(rungAfterFailure({ rung: first!, step: 'standalone' }, exhausted)).toBe(second)
+    expect(rungAfterFailure({ rung: third!, step: 'standalone' }, exhausted)).toBe(fourth)
+    expect(rungAfterFailure({ rung: standalone!, step: 'standalone' }, exhausted)).toBeUndefined()
+    expect(
+      rungAfterFailure({ rung: standalone!, step: 'standalone' }, { kind: 'crash' }),
+    ).toBeUndefined()
   })
 })
 

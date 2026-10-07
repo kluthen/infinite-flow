@@ -33,16 +33,28 @@ function assertPositiveIntegerFuel(windowFuel: number): void {
 }
 
 /**
- * Intent: construct an immutable, deep-frozen v1 search policy from an optional fuel override,
- * defaulting to DEFAULT_WINDOW_SEARCH_FUEL. Rejects a non-positive or non-integer allowance as a
- * typed GenerationSearchPolicyError rather than clamping or coercing.
+ * Engineering policy default: the whole-window search fuel allowance of a generation with carry-in.
+ * Set with a margin above every successful carry-in attempt measured: on 2026-10-07 the full
+ * deadline sweep's 3,366 distinct successful carry-in attempts used at most 131,137 units (99.9th
+ * percentile 73,646, 99th percentile 11,276), and 160,000 is 22% above that maximum. The allowance
+ * counts search steps, not time, so it does not by itself bound how long an attempt takes.
+ */
+// @spec-link [[mechanic_pitch_search_policy]]
+export const CARRY_IN_WINDOW_SEARCH_FUEL = 160_000
+
+/**
+ * Intent: construct an immutable, deep-frozen search policy from an optional fuel override,
+ * defaulting to DEFAULT_WINDOW_SEARCH_FUEL, under an optional version, defaulting to v1. Rejects a
+ * non-positive or non-integer allowance as a typed GenerationSearchPolicyError rather than
+ * clamping or coercing.
  */
 // @spec-link [[mechanic_pitch_search_policy]]
 export function makeGenerationSearchPolicy(
   windowFuel: number = DEFAULT_WINDOW_SEARCH_FUEL,
+  version: GenerationSearchPolicyVersion = 'generation-search-v1',
 ): GenerationSearchPolicy {
   assertPositiveIntegerFuel(windowFuel)
-  return deepFreeze({ version: 'generation-search-v1', windowFuel })
+  return deepFreeze({ version, windowFuel })
 }
 
 /** The v1 search policy singleton, built once at module load from the documented default. */
@@ -50,6 +62,16 @@ export function makeGenerationSearchPolicy(
 export const GENERATION_SEARCH_POLICY_V1: GenerationSearchPolicy = makeGenerationSearchPolicy(
   DEFAULT_WINDOW_SEARCH_FUEL,
 )
+
+/**
+ * The carry-in search policy singleton, built once at module load: every generation with carry-in
+ * searches under it, so a carry-in attempt that cannot succeed stops sooner and climbs the failure
+ * ladder instead of using up the look-ahead deadline.
+ */
+// @spec-link [[mechanic_pitch_search_policy]]
+// @spec-link [[rule_session_generation_failure_ladder]]
+export const GENERATION_SEARCH_POLICY_CARRY_IN_V1: GenerationSearchPolicy =
+  makeGenerationSearchPolicy(CARRY_IN_WINDOW_SEARCH_FUEL, 'generation-search-carry-in-v1')
 
 /**
  * The immutable running-spend record for one window search: the ledger's policy version, its

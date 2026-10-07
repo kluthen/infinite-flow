@@ -43,7 +43,7 @@ import {
   searchesVaryingWindows,
   selectVaryingRegister,
 } from './request-resolution'
-import { GENERATION_SEARCH_POLICY_V1 } from './search-ledger'
+import { GENERATION_SEARCH_POLICY_CARRY_IN_V1, GENERATION_SEARCH_POLICY_V1 } from './search-ledger'
 import {
   DEFAULT_WINDOW_SEARCH_DEPS,
   searchWindow,
@@ -215,20 +215,35 @@ function harmonyCandidatesAfterCarryIn(
 }
 
 /**
+ * Intent: the search policy every window of one generation searches under, picked from the intent
+ * alone: the carry-in policy for an intent with a carry-in, and the first release's policy for every
+ * intent without one, so that generation stays byte-identical to the first release. Replaying a
+ * decoded intent therefore derives the same policy.
+ */
+// @spec-link [[mechanic_pitch_search_policy]]
+// @spec-link [[service_generation_orchestration]]
+function searchPolicyFor(intent: GenerationIntent): GenerationSearchPolicy {
+  return intent.carryIn === undefined
+    ? GENERATION_SEARCH_POLICY_V1
+    : GENERATION_SEARCH_POLICY_CARRY_IN_V1
+}
+
+/**
  * Intent: generate one four-measure phrase for one outer GenerationIntent: expand and rank the
  * structural harmony and rhythm domains once, resolve the intent's one-or-three core requests,
  * search every window independently, and resolve the documented outcome precedence among them.
  * With a carry-in, the harmony starts from the carried chord (if one was carried) and the one
  * carried window is searched.
- * `options.searchPolicy`/`options.deps` default to the production search policy and collaborators;
- * only these injectable collaborators are defaulted, never any domain data derived from `intent`.
+ * `options.searchPolicy` defaults to the policy picked from the intent (with or without carry-in)
+ * and is its only override; `options.deps` defaults to the production collaborators.
+ * Only these injectable collaborators are defaulted, never any domain data derived from `intent`.
  */
 // @spec-link [[service_generation_orchestration]]
 export function generatePhrase(
   intent: GenerationIntent,
   options: GenerationOrchestrationOptions = {},
 ): GenerationOutcome {
-  const searchPolicy = options.searchPolicy ?? GENERATION_SEARCH_POLICY_V1
+  const searchPolicy = options.searchPolicy ?? searchPolicyFor(intent)
   const deps = options.deps ?? DEFAULT_WINDOW_SEARCH_DEPS
   const rhythmDomainMemo = options.rhythmDomainMemo ?? SHARED_CANONICAL_RHYTHM_DOMAIN_MEMO
 

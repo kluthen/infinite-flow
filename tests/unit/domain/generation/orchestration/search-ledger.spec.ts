@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  CARRY_IN_WINDOW_SEARCH_FUEL,
   DEFAULT_WINDOW_SEARCH_FUEL,
+  GENERATION_SEARCH_POLICY_CARRY_IN_V1,
   GENERATION_SEARCH_POLICY_V1,
   GenerationSearchPolicyError,
   makeGenerationSearchPolicy,
@@ -27,6 +29,28 @@ describe('search-ledger', () => {
   })
 
   // @test-link [[mechanic_pitch_search_policy]]
+  describe('GENERATION_SEARCH_POLICY_CARRY_IN_V1', () => {
+    // @test-link [[mechanic_pitch_search_policy]]
+    it('carries the carry-in version and its smaller fuel allowance, frozen', () => {
+      expect(GENERATION_SEARCH_POLICY_CARRY_IN_V1).toEqual({
+        version: 'generation-search-carry-in-v1',
+        windowFuel: CARRY_IN_WINDOW_SEARCH_FUEL,
+      })
+      expect(CARRY_IN_WINDOW_SEARCH_FUEL).toBe(160_000)
+      expect(Object.isFrozen(GENERATION_SEARCH_POLICY_CARRY_IN_V1)).toBe(true)
+    })
+
+    // @test-link [[mechanic_pitch_search_policy]]
+    it('opens ledgers that record the carry-in version and allowance', () => {
+      expect(openFuelLedger(GENERATION_SEARCH_POLICY_CARRY_IN_V1)).toEqual({
+        version: 'generation-search-carry-in-v1',
+        allowance: 160_000,
+        used: 0,
+      })
+    })
+  })
+
+  // @test-link [[mechanic_pitch_search_policy]]
   describe('makeGenerationSearchPolicy', () => {
     it('defaults to DEFAULT_WINDOW_SEARCH_FUEL when no override is given', () => {
       expect(makeGenerationSearchPolicy()).toEqual({
@@ -38,6 +62,14 @@ describe('search-ledger', () => {
     it('accepts a positive integer override', () => {
       expect(makeGenerationSearchPolicy(10)).toEqual({
         version: 'generation-search-v1',
+        windowFuel: 10,
+      })
+    })
+
+    // @test-link [[mechanic_pitch_search_policy]]
+    it('builds a policy under the given version', () => {
+      expect(makeGenerationSearchPolicy(10, 'generation-search-carry-in-v1')).toEqual({
+        version: 'generation-search-carry-in-v1',
         windowFuel: 10,
       })
     })

@@ -3,7 +3,10 @@
  * Cold-generation carry-in golden: three-phrase chains (phrase 1 without carry-in, phrases 2 and 3
  * carrying in from the phrase before) on eight rhythm settings, the three worst included, for
  * three first-phrase seeds, must reproduce the sha256 outcome hashes recorded once on the
- * generator before the rhythm enumeration/ranking speed-up. The golden is never regenerated.
+ * generator before the rhythm enumeration/ranking speed-up. The hashes of phrases 2 and 3 were
+ * recorded again once, when generation with carry-in moved to its own search policy: that change
+ * was proven to alter only each window's diagnostic ledger version and fuel allowance, never the
+ * request, result, provenance or fuel used. The golden is otherwise never regenerated.
  */
 
 import { describe, expect, it } from 'vitest'
