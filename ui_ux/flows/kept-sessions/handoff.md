@@ -18,13 +18,13 @@ flowchart TD
   OP -->|"Cannot be read: row note; focus stays"| SL
   RV -->|"All sessions (review-nav)"| SLB["session-list: focus on that session's session-row-open (its title if it has no row)"]
   SLB --> SL
-  RV -->|"Delete session, confirmed"| SLD["session-list (its empty state included): focus on its title"]
+  RV -->|"Delete session, confirmed (never in an outdated tab)"| SLD["session-list (its empty state included): focus on its title"]
   SLD --> SL
   SL -->|"Pin; Unpin without favorites"| SL
   SL -->|"Unpin with favorites"| UC["Confirmation sheet: Unpin this session?"]
   UC -->|"Unpin"| SL
   UC -->|"Keep pinned, Close, Escape, backdrop"| SL
-  SL -->|Delete| DC["Confirmation sheet: Delete this session?"]
+  SL -->|"Delete (never in an outdated tab)"| DC["Confirmation sheet: Delete this session?"]
   DC -->|"Delete session: row removed; focus next row, else previous, else the list title"| SL
   DC -->|"Cancel, Close, Escape, backdrop: focus back on that row's Delete"| SL
   SL -->|"Your data (sessions-header)"| YD["screens/your-data/ sheet"]
@@ -136,8 +136,8 @@ From a row (`session-row-actions`) or a review (`review-session-tools`), the sam
   "and"; with none of them the first sentence is "This deletes the session from
   {session date}."; actions `Delete session`
   (`btn btn-error`) then `Cancel` (`btn`). On `Delete session`, the session is deleted and its row
-  removed; focus moves to the next row's `session-row-open` (that row's `Delete` when it cannot be
-  opened), else the previous row's, else the list's title over `sessions-empty`. On the way back,
+  removed; focus moves to the next row's `session-row-open`, else the previous row's, else the
+  list's title over `sessions-empty`. On the way back,
   focus returns to the row's `Delete`.
 - **From a review:** `Delete session` opens the same sheet; on confirmation the list replaces the
   review, its empty state included, focus on the list's title. On the way back, focus returns to
@@ -145,7 +145,8 @@ From a row (`session-row-actions`) or a review (`review-session-tools`), the sam
 - **The session that just ended:** deleting it also removes it from memory; there is then no most
   recent session, and `review-link` is not shown until the next session ends with a review.
 - **A session held in memory only** (its save failed): `Delete session` in its review deletes it
-  from memory, with the same sheet.
+  from memory, with the same sheet. In an outdated tab it has no `Delete session` (see In an
+  Outdated Tab).
 - **A deletion that fails** keeps the confirmation open, adding `inline-alert alert-error` under
   its paragraphs: "That couldn't be deleted. Try again." The confirming action tries again; the
   line leaves when it does. The session stays as it was.
@@ -172,6 +173,29 @@ opacity transition (`motion.md`).
 - A save that fails deletes nothing; the session stays in memory as the most recent one, until
   the next session ends with a review or the page closes. Its review's keep line says it is not
   saved; it has no row.
+- While saving is off (an outdated tab, or a visit started from the defaults because the saved
+  data couldn't be read; `flows/saved-data/handoff.md`), a session's end saves and deletes
+  nothing: the session is held in memory as after a failed save, and every kept session stays.
+
+## In an Outdated Tab
+
+A tab a newer version has outdated saves and deletes nothing, and offers no deletion of any kind
+(master spec §4.3); the workspace's notice and its `Reload` are the way forward
+(`flows/saved-data/handoff.md`, Notices). From the moment the tab is outdated:
+
+- **The session list** has no `Delete` on any row; a row keeps `Pin` or `Unpin` when it has one
+  (a row saved by a newer version has neither, so it has no `session-row-actions`). A row whose
+  opening failed reads "This session couldn't be opened. Try again." (`screens/session-list/`).
+- **A review** has no `Delete session` and no `Delete played notes`, whichever session it shows,
+  the session held in memory included (`screens/last-session-review/`).
+- **`Keep my played notes`** still turns on and off, for this visit only: nothing is saved, no
+  played notes are kept, and turning it off opens no confirmation.
+- **Pin, Unpin, favorites and the comment** work as usual, in memory only for the visit, as the
+  notice says. `Your data` offers no deletion either (`screens/your-data/`, States).
+- **When the tab becomes outdated while the page is open** (a newer version writes), the deletion
+  buttons leave at that moment, as the notice appears. A deletion confirmation open then closes,
+  deleting nothing. Focus that was on a button that left, or in that confirmation, goes to
+  `review-title` in a review and to the list's title in the list.
 
 ## Deletions Made Elsewhere
 

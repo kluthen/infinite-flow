@@ -132,7 +132,8 @@ After deleting from a row, focus moves to the next row's title, or the previous 
 last row went, so a player clearing several sessions keeps their place. After deleting from a
 review, the list shows, since the review has nothing left to show; when that was the last kept
 session, the list shows its empty state. Deleting the session that just ended also removes it
-from memory, and `Review last session` goes with it: deleted means gone.
+from memory, and `Review last session` goes with it: deleted means gone. An outdated tab offers
+no deletion (see At the Edges).
 
 ## At the Edges
 
@@ -140,8 +141,18 @@ from memory, and `Review last session` goes with it: deleted means gone.
   from a review whose session was just deleted, or after deleting every session, since the
   `All sessions` link is not shown when nothing is kept.
 - **A session this version cannot read,** saved by a newer version of the app open in another
-  tab: its row stays listed, says why it cannot be opened and what to do (reload), and can still
-  be deleted. Hiding it would make its space in `Your data` unexplained.
+  tab: its row stays listed, says why it cannot be opened and what to do (reload). It cannot be
+  deleted or pinned from here: meeting it means this tab is outdated (below). Hiding it would
+  tell the player a session they kept is gone when it is not.
+- **An outdated tab.** When a newer version of the app has saved data, this tab saves and deletes
+  nothing until it is reloaded, so it offers no deletion at all: no `Delete` on a row, no
+  `Delete session` or `Delete played notes` in a review, and turning `Keep my played notes` off
+  asks nothing, since there is nothing this tab may delete. The data now belongs to the newer
+  version; deleting from a tab that cannot read all of it would destroy what that version saved,
+  and a deletion that only hid a session for this visit would show the player a result the device
+  does not hold, the session coming back at the next reload. The notice above the workspace asks
+  for the reload, and after it every deletion is offered again. Pinning, favorites and the
+  comment still respond, in memory only for this visit, as the notice says.
 - **A session whose save failed.** It stays in memory, reachable from `Review last session`, and
   its review says it is not saved. It is not in the list, which shows what the device keeps.
 - **A session that fails to open.** Its row says so in one line, and the title stays available to

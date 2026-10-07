@@ -30,9 +30,9 @@ layout-workspace
             session-row-meta   (p: the status line)
             session-row-comment  (p; only when the session has a comment)
             session-row-note     (p; in place of session-row-comment when the row cannot be opened, or failed to open)
-          session-row-actions
+          session-row-actions  (not rendered when it holds no button)
             btn                ("Pin" or "Unpin"; absent on a row saved by a newer version)
-            btn                ("Delete")
+            btn                ("Delete"; absent in an outdated tab)
       sessions-empty           (p, in place of session-list when no session is kept)
     (generation-failure banner, session-cue-row: hidden; staff-viewport is-out-of-sight and inert, as while a review shows)
   control-section              (screens/phrase-workspace/; stays, fully editable)
@@ -67,13 +67,15 @@ layout-workspace
   ellipsis by the class.
 - `session-row-note`: "This session was saved by a newer version of the app. Reload the page to
   open it." on a row saved by a newer version; "This session couldn't be opened. Try again, or
-  delete it." on a row whose opening failed, until it opens.
+  delete it." on a row whose opening failed, until it opens ("This session couldn't be opened.
+  Try again." in an outdated tab, which offers no deletion).
 - **`Pin` / `Unpin`.** A plain `btn` reading "Pin" on an unpinned row, "Unpin" on a pinned one;
   accessible name "Pin session {session date}" or "Unpin session {session date}" (the visible
   word first). Behaviour and confirmation: `flows/kept-sessions/handoff.md`, Pin and Unpin.
 - **`Delete`.** A plain `btn` reading "Delete"; accessible name "Delete session {session date}".
   It opens the confirmation; it is never `btn-error` itself (`btn-error` is the confirmation's
-  deleting action only). Behaviour: `flows/kept-sessions/handoff.md`, Deleting a Session.
+  deleting action only). Behaviour: `flows/kept-sessions/handoff.md`, Deleting a Session. Absent
+  on every row in an outdated tab (`flows/kept-sessions/handoff.md`, In an Outdated Tab).
 - `sessions-empty`: "No sessions are kept. Your next session will be kept here." When saved data
   cannot be used this visit: "Kept sessions can't be read in this visit."
 - No row, line or count shows how the player played.
@@ -82,7 +84,8 @@ layout-workspace
 
 - Tab order while the list shows: the header (`controller-status`, `theme-control`, the disabled
   phrase action skipped, `Close review`), `mix-controls`, `Your data`, then each row in order
-  (`session-row-open`, `Pin`/`Unpin`, `Delete`; a disabled `session-row-open` skipped), then
+  (`session-row-open`, `Pin`/`Unpin`, `Delete`, each when shown; a disabled `session-row-open`
+  skipped), then
   `control-section`, then the page footer.
 - Focus on arrival, after an opening, a pin, an unpin, a deletion or a closed sheet: as set in
   `flows/kept-sessions/handoff.md`. In short: the list's title when the list is reached from the
@@ -100,7 +103,7 @@ layout-workspace
   the title and `Your data` on one row, wrapping when they do not fit.
 - At `bp-mobile-landscape` (below `bp-tablet-landscape`): `session-row-actions` drops under the
   text column, aligned to the inline start; `Your data` wraps under the title when needed. Every
-  row keeps every line and both buttons.
+  row keeps every line and every button it has.
 - `sessions-panel` takes the full inline size of `layout-workspace` at every breakpoint; no side
   rail. The list never scrolls inside itself: the page scrolls.
 - Every visual value comes from the token source (`src/styles/theme.css`,
@@ -115,10 +118,14 @@ layout-workspace
 - **Loading:** none for the list: what the rows show is read with the saved settings at load and
   kept current, so the list shows at once. Opening one session: its `session-row-open` takes
   `is-loading` and `disabled`; nothing else changes.
-- **Error, per row:** a row saved by a newer version (`session-row-open` disabled, `Pin`/`Unpin`
-  absent, `session-row-note`, `Delete` available; the detail and status lines show what can be
-  read and are omitted otherwise, the title falling back to "Saved by a newer version" when the
-  date cannot be read); a row whose opening failed (`session-row-note`, the title enabled).
+- **Error, per row:** a row saved by a newer version (`session-row-open` disabled,
+  `session-row-note`, no `session-row-actions`: such a row is met only in an outdated tab, which
+  pins and deletes nothing of it; the detail and status lines show what can be read and are
+  omitted otherwise, the title falling back to "Saved by a newer version" when the date cannot be
+  read); a row whose opening failed (`session-row-note`, the title enabled).
+- **Outdated tab:** every row without `Delete`, from the moment the tab is outdated; the rest of
+  each row as in its own state. Focus on a `Delete` that leaves, or in its open confirmation, goes
+  to the list's title (`flows/kept-sessions/handoff.md`, In an Outdated Tab).
 - **Error, the whole list:** saved data that cannot be used this visit: the empty state with its
   second sentence (see Components and Content).
 - **A confirmation open:** the list stays under the sheet's backdrop, unchanged.

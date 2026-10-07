@@ -39,8 +39,11 @@ Rising-tempo session reached; pre-generated phrases; the export scope; `Include 
 a visit started from the defaults because the saved data couldn't be read (see Load). Every save
 above is then skipped: the app keeps working in memory, and the notice already showing says so.
 A session ending in such a visit is not saved; its review's keep line reads as for a failed save.
-An outdated tab also deletes nothing: Your data offers it no `Delete everything` (the reload
-comes first), while a visit started from the defaults keeps it, as the way back from data
+An outdated tab also deletes nothing and offers no deletion of any kind: Your data has no
+`Delete everything` (the reload comes first), the session list and the review offer no `Delete`,
+`Delete session` or `Delete played notes`, and turning `Keep my played notes` off there changes
+it for the visit only and opens no confirmation (`flows/kept-sessions/handoff.md`, In an Outdated
+Tab). A visit started from the defaults keeps `Delete everything`, as the way back from data
 damaged for good (`screens/your-data/`, States).
 
 **Asking for protection.** At the first pin, favorite or saved instrument of each visit, while
@@ -154,6 +157,7 @@ flowchart TD
   recent session if they are still in memory (it ended in this visit) and the session is kept.
 - **Turning it off** saves the setting at once. With no played notes kept, nothing else happens;
   with some kept, the confirmation opens; `Keep them` leaves them kept, the switch staying off.
+  (While saving is off the sheet shows no switch; see `screens/your-data/`, States.)
 - **What each deletion removes:**
   - *Delete every session:* every kept session, pinned or not, with its favorites, comment and
     played notes; also the most recent session from memory, kept or not, so `Review last session`

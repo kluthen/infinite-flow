@@ -128,8 +128,10 @@ Four notices, each saying what happened, what it means, and the one thing the pl
   automatically to make room (master spec §5.1): the app never decides which of the player's
   sessions are worth less.
 - **An outdated tab.** A newer version has saved data; a reload brings it in, and until then this
-  tab saves and deletes nothing, so Your data offers it no `Delete everything`. It stays, because
-  every change made in this tab is now at risk.
+  tab saves and deletes nothing, so it offers no deletion anywhere: no `Delete everything` in Your
+  data, no session or played-notes deletion in the list or a review, and turning
+  `Keep my played notes` off asks nothing. It stays, because every change made in this tab is now
+  at risk.
 - **Data that couldn't be read at load.** This visit started from the defaults and saves nothing;
   a reload may fix it. It stays for the same reason.
 
@@ -169,7 +171,8 @@ what goes, saying it can't be undone, with the way back focused. Three of them a
   controller; Delete everything does (master spec §7.3).
 
 Turning `Keep my played notes` off, from here or from a review, keeps nothing new and, when some
-played notes are already kept, asks whether to delete them, with keeping them as the way back. The
+played notes are already kept, asks whether to delete them, with keeping them as the way back
+(an outdated tab, which may delete nothing, never asks). The
 switch is off either way: turning off a privacy setting should never be held hostage by a
 question. Turning it on keeps the played notes of the session that just ended too, while they are
 still in memory: the player who switches "keep" on, after a session, expects that session's notes

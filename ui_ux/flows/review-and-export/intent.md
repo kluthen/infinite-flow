@@ -201,6 +201,8 @@ next save. Deleting always asks, naming what goes with the session, and, once co
 the list of kept sessions, since the review has nothing left to show. Deleting the session that
 just ended removes it from memory as well, and `Review last session` goes with it. The rules for
 both, the same in the list and in a review, are in [`flows/kept-sessions/`](../kept-sessions/intent.md).
+A tab that a newer version of the app has outdated offers no deletion at all, the review's
+included, until it is reloaded.
 
 ## The Player's Own Notes, Kept on Request
 
@@ -216,7 +218,8 @@ where the choice means most: the player sees their notes and decides to keep the
 it on while reviewing the session that just ended keeps that session's notes too, not only the
 next session's. Switching it off keeps nothing new and, when some are already kept, asks whether
 to delete those: the player who turns keeping off may well want what was kept gone as well, but
-deleting is never done without asking.
+deleting is never done without asking. In an outdated tab, which may delete nothing, it switches
+for the visit only and asks nothing.
 
 **[v3 new]** A session whose played notes are kept gets a `Delete played notes` button beside
 the switch. After a confirmation, that session's played notes go, and its lane, its switch and its

@@ -60,7 +60,9 @@ through the header of [`decisions.md`](decisions.md).
   - ux D202: after a load, the starting note starts nothing until the page's first click, tap or
     key press, because browsers do not let a page play sound before one (§7.3 meets v2's
     audio-unlock rule).
-- **Q68 — Are a session's deletions offered in an outdated tab?** An outdated tab deletes nothing
+- **Q68 — Are a session's deletions offered in an outdated tab?** **Closed 2026-10-07 by ux
+  D221** (spec D223, master spec v1.4 §4.3 and done item 14: no deletion of any kind, as
+  recommended). An outdated tab deletes nothing
   (master spec §4.3). Your data now offers it no deletion (ux D219), but the session list's
   `Delete`, the review's `Delete session` and `Delete played notes`, and the confirmation that
   turning `Keep my played notes` off can open still appear there (`screens/session-list/`,

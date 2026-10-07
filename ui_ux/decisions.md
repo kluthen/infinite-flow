@@ -359,3 +359,24 @@ leaves open; they are listed together in Q67 for `spec-writer`.
   bottom margin, the container's gap spacing them. `token-source-v3.md` stays until the branch is
   merged: deleting it then, and pointing `README.md` and the four handoffs that cite it at the
   token source alone, needs the build plan's two links to it repointed by `spec-writer` first.
+- **D221 — An outdated tab offers no deletion of any kind (2026-10-07; applies spec D223, master
+  spec v1.4 §4.3 and done item 14; closes Q68).** `spec-writer` settled Q68 as recommended: from
+  the moment a tab is outdated, the session list's rows have no `Delete`, a review has no
+  `Delete session` and no `Delete played notes` (the session held in memory included), and
+  turning `Keep my played notes` off changes the switch for the visit only, saves nothing and
+  opens no confirmation; `Delete everything` was already absent (D219). The reload notice is the
+  way forward. Rejected, by the spec: a deletion that only hides a session for the visit. Applied
+  to `flows/kept-sessions/` (a new section, In an Outdated Tab, routing all of it; a session's
+  end while saving is off saves and deletes nothing), `screens/session-list/`,
+  `screens/last-session-review/`, `flows/review-and-export/`, `flows/saved-data/` and
+  `screens/your-data/`. Details settled here, as minor design issues (D119's standing rule):
+  a row saved by a newer version, met only in an outdated tab, now has no `session-row-actions`
+  at all (its `Pin` was already absent), and the intents no longer say it can still be deleted;
+  a row whose opening failed reads "This session couldn't be opened. Try again." in an outdated
+  tab, without "or delete it"; when a tab becomes outdated while the page is open, the deletion
+  buttons leave with the notice's arrival, an open deletion confirmation closes deleting nothing,
+  and focus that was on a button that left or in that confirmation goes to `review-title` in a
+  review, the list's title in the list, and `Done` in Your data (whose Overview takes its
+  outdated form in place). The focus rule after a row's deletion drops "that row's `Delete` when
+  it cannot be opened", a case that can no longer occur. Pin, unpin, favorites and the comment
+  still work in memory only, unchanged.

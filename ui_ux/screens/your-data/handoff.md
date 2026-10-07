@@ -166,8 +166,11 @@ The second paragraph is always "This can't be undone."
   Protection; the other five sections are absent.
   - *Outdated tab:* "A newer version of the app saved this data, so it isn't listed here, and
     nothing can be deleted until the page is reloaded. Reload the page to see it."
-    `sheet-actions-destructive` is absent: an outdated tab saves and deletes nothing, Delete
-    everything included, and the reload comes first (master spec §4.3).
+    `sheet-actions-destructive` is absent: an outdated tab saves and deletes nothing and offers
+    no deletion of any kind, and the reload comes first (master spec §4.3).
+  - *Becoming outdated while the sheet is open* (a newer version writes): the Overview takes the
+    outdated tab's form in place; an open Confirmation gives way to it, deleting nothing, and
+    focus goes to `Done`.
   - *Data couldn't be read:* "Your saved data couldn't be read in this visit, so it isn't listed
     here. Reload the page to try again, or delete everything to start afresh."
     `Delete everything` follows, the way back to a working app if the data is damaged for good.

@@ -67,8 +67,13 @@ pinned: deleted when your next session is saved." to be understood.
   player may have come from.
 - **A session saved by a newer version of the app** in another tab cannot be opened here. Its
   row stays, with its title unavailable and one line in place of the comment saying why and what
-  to do: reload the page. It can still be deleted. Hiding it would leave space in `Your data`
-  that nothing explains.
+  to do: reload the page. It has no buttons: meeting it means this tab is outdated, and an
+  outdated tab pins and deletes nothing of a session it cannot read. Hiding the row would tell the
+  player a session they kept is gone when it is not.
+- **In an outdated tab** (a newer version of the app has saved data), no row offers `Delete`: the
+  tab saves and deletes nothing until it is reloaded, and the notice above the workspace asks for
+  that reload. A deletion that only hid the session for this visit would show a result the device
+  does not hold. `Pin` and `Unpin` stay, in memory only for the visit, as the notice says.
 - **A session that fails to open** says so on its row and can be tried again; nothing else on the
   page changes.
 - **Opening** takes a moment at most, and only the title pressed shows it is working: the list

@@ -37,7 +37,7 @@ marked from the first edit. The owner asked for the whole v3.0 design in one pas
 once at the end: every settled recommendation is in `decisions.md` (ux D178-D217), and what needs
 the owner or `spec-writer` was in `open-questions.md` (Q66, Q67, both closed). **Approved by the
 owner on 2026-10-07 (ux D218)**; the outdated tab was then aligned with master spec v1.3 (ux
-D219).
+D219) and v1.4 (ux D221: no deletion of any kind).
 
 - **Unit V0 — Tier 1 and Tier 2.** `strategy.md` (v3 changes), `token-source-v3.md` (new),
   `README.md`. Written.
@@ -84,9 +84,10 @@ v3.0, after the units above:
 - **Token-source pass** (build plan chunk 1, ux D220): applied on branch `v3-c1-token-source`,
   waiting for the owner's merge. After the merge: delete `token-source-v3.md` and point
   `README.md` and the handoffs that cite it (`screens/session-list/`, `your-data/`,
-  `my-instrument/`, `last-session-review/`) at the token source alone, once `spec-writer` has
-  repointed the build plan's two links to it.
-- **Q68:** whether a session's deletions are offered in an outdated tab (recommended: absent).
+  `my-instrument/`, `last-session-review/`) at the token source alone. The build plan no longer
+  links it (spec D223's change), so nothing else waits.
+- **Q68:** closed by ux D221 (spec D223): an outdated tab offers no deletion of any kind;
+  applied to the kept-sessions, review and saved-data flows and their screens.
 - **Deferred inside v3.0's spec, no design needed now:** the stray-note threshold and a stricter
   range check for my instrument (master spec §14) are build-plan measurements; a stricter range
   rule, if one comes, only changes the refusal's wording.
@@ -111,5 +112,5 @@ drops the check.
 
 ## Next Unit
 
-The owner's review of the whole v3.0 design (ux D178-D217, Q66, Q67); then the token-source pass
-if Q66 allows it.
+After the owner merges `v3-c1-token-source`: delete `token-source-v3.md` and point `README.md`
+and the four handoffs that cite it at the token source alone (the build plan no longer links it).

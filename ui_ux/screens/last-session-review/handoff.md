@@ -57,7 +57,7 @@ layout-workspace
           review-keep-line       (p; from bp-tablet-landscape up only; v3 new)
         review-session-tools     (v3 new)
           btn                    ("Pin" or "Unpin")
-          btn                    ("Delete session")
+          btn                    ("Delete session"; absent in an outdated tab)
       review-comment           (v3 new; one of three states)
         -- collapsed, empty:  btn ("Add a comment")
         -- collapsed, filled: p (the comment), btn ("Edit comment")
@@ -89,7 +89,7 @@ layout-workspace
           toggle-button-state
         btn toggle-button      (Keep my played notes; aria-pressed; v3 new)
           toggle-button-state
-        btn                    ("Delete played notes"; only when this session's played notes are kept; v3 new)
+        btn                    ("Delete played notes"; only when this session's played notes are kept, never in an outdated tab; v3 new)
       review-list                (ol; replaced by room-notice while the staff has no room)
         review-phrase x n        (li, one per phrase that started sounding, in session order)
           review-phrase-header
@@ -143,7 +143,8 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
 - **[v3 new]** `review-session-tools`: two plain `btn`s. "Pin" on an unpinned session, "Unpin" on
   a pinned one (the label changes in place, focus stays); "Delete session". Neither is
   `btn-primary` or `btn-error`. Rules and confirmations: `flows/kept-sessions/handoff.md`, Pin and
-  Unpin, Deleting a Session.
+  Unpin, Deleting a Session. In an outdated tab, `Delete session` is absent and the pin button
+  stands alone (`flows/kept-sessions/handoff.md`, In an Outdated Tab).
 - **[v3 new]** `review-comment`:
   - **Collapsed, empty:** a plain `btn` "Add a comment".
   - **Collapsed, filled:** the comment as a `p` (its line breaks kept, never cut), then a plain
@@ -230,10 +231,13 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   too. Turning it on saves it and, in the Review of the session that just ended whose played notes
   are still in memory, keeps that session's played notes as well: `Delete played notes` then
   appears after it. Turning it off saves it; when played notes are kept with any session, the
-  played-notes confirmation opens (see Confirmations).
+  played-notes confirmation opens (see Confirmations). In an outdated tab the switch changes for
+  the visit only: nothing is saved, no played notes are kept, and turning it off opens no
+  confirmation.
 - **[v3 new]** **Delete played notes**: a plain `btn` reading "Delete played notes", last in
-  `review-view`, rendered only when this session's played notes are kept. It opens its
-  confirmation; on confirmation this session's played notes are deleted, from memory too, and
+  `review-view`, rendered only when this session's played notes are kept, and never in an
+  outdated tab. It opens its confirmation; on confirmation this session's played notes are
+  deleted, from memory too, and
   `review-view`, every `played-notes-lane` and `review-export-played` leave the Review at once.
 - **[v3 new]** `favorite-toggle`: `btn favorite-toggle` with `aria-pressed`, at the trailing end
   of each `review-phrase-header`: the star (inline SVG, `aria-hidden`) and, from
@@ -366,7 +370,8 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
 
 - **[v3 changed]** While the Review shows, the tab order is the header (`controller-status`,
   `theme-control`, the disabled phrase action skipped, `Close review`), `score-toolbar`'s
-  `mix-controls`, then `review-panel`: `All sessions`; `Pin` or `Unpin`, `Delete session`; the
+  `mix-controls`, then `review-panel`: `All sessions`; `Pin` or `Unpin`, `Delete session` (when
+  shown); the
   comment (`Add a comment` or `Edit comment`, or while editing the `text-area` then `Done`); the
   scope; Format, Backing track when shown, `Export generated notes`; `Include very short notes`,
   `Export played notes` (when the session holds a played note); `Played notes`,
@@ -449,6 +454,11 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   panel itself has no loading state.
 - **Error:** per phrase, `review-phrase-note`; export, `review-export-error`. Neither blocks
   anything else.
+- **[v3 new]** **Outdated tab:** no deletion is offered: no `Delete session`, no
+  `Delete played notes`, and turning `Keep my played notes` off opens no confirmation. Every other
+  control works, in memory for the visit. When the tab becomes outdated while the Review shows,
+  those buttons leave at once; focus on one of them, or in a deletion confirmation then open,
+  goes to `review-title` (`flows/kept-sessions/handoff.md`, In an Outdated Tab).
 - **[v3 new]** **A change not saved:** a favorite, pin, comment or `Keep my played notes` change
   the device refuses stays in memory for the visit and shows as made; the workspace's notice row
   tells it once the player is back at idle (`flows/saved-data/handoff.md`).
