@@ -17,6 +17,11 @@ import { makeBoundPitchPlannerInput } from '@/domain/pitch/pitch-types'
 import type { BoundPitchPlannerInput, ConcreteTensionBinding } from '@/domain/pitch/pitch-types'
 import type { MusicalProfile } from '@/domain/controls/generation-controls'
 
+/** Plain UTF-16 code-unit order of two strings, independent of the runtime's locale. */
+function codeUnitOrder(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0
+}
+
 /** Build a realistic bound pitch-planner input over a static C-major tonic phrase. */
 function fixtureInput(
   input: {
@@ -207,8 +212,8 @@ describe('pitch-candidates: buildCandidateDomains', () => {
       )
       const sorted = [...domain].sort(
         (left, right) =>
-          left.role.localeCompare(right.role) ||
-          left.obligationIdentity.localeCompare(right.obligationIdentity) ||
+          codeUnitOrder(left.role, right.role) ||
+          codeUnitOrder(left.obligationIdentity, right.obligationIdentity) ||
           left.pitchClass - right.pitchClass ||
           left.octaveIndex - right.octaveIndex,
       )

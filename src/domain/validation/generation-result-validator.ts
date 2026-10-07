@@ -85,7 +85,10 @@ export type GenerationResultValidation =
       readonly failures: readonly GenerationResultValidationFailure[]
     }
 
-/** Stable report order: canonical code order, then detail string, so ties are deterministic. */
+/**
+ * Stable report order: canonical code order, then detail string in code-unit order, so ties are
+ * deterministic in every locale.
+ */
 function ordered(
   failures: readonly GenerationResultValidationFailure[],
 ): readonly GenerationResultValidationFailure[] {
@@ -93,7 +96,10 @@ function ordered(
     const codeOrder =
       GENERATION_RESULT_VALIDATION_CODES.indexOf(a.code) -
       GENERATION_RESULT_VALIDATION_CODES.indexOf(b.code)
-    return codeOrder !== 0 ? codeOrder : (a.detail ?? '').localeCompare(b.detail ?? '')
+    if (codeOrder !== 0) return codeOrder
+    const left = a.detail ?? ''
+    const right = b.detail ?? ''
+    return left < right ? -1 : left > right ? 1 : 0
   })
 }
 

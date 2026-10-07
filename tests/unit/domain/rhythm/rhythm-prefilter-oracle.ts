@@ -55,7 +55,7 @@ function descriptorOrder(
   return (
     left.barIndex - right.barIndex ||
     left.boundaryTick - right.boundaryTick ||
-    left.case.localeCompare(right.case) ||
+    (left.case < right.case ? -1 : left.case > right.case ? 1 : 0) ||
     left.delta - right.delta
   )
 }
