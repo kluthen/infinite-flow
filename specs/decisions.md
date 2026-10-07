@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.52
+Status: draft v2.53
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D224**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D225**.
 
 ## Decision Log
 
@@ -299,3 +299,9 @@ fact in the live documents (see the [archive index](archive/README.md) and
   reload notice is the way forward. Rejected: a deletion that only hides a session for the visit,
   which would show a result the device does not hold. §4.3 and definition of done item 14 now say
   "no deletion of any kind".
+
+- **D224 (2026-10-07): a visit whose saved data could not be read offers Delete everything, and
+  no other deletion (master spec v1.4 §4.4).** spec-writer's call, writing down what the approved
+  design already does (ux D211, D219): the spec said such a visit saves nothing but not whether it
+  may delete. Delete everything is the way out of saved data damaged for good; unlike an outdated
+  tab, nothing newer is at risk. Raised by `ux-writer` with Q68 (ux D221).

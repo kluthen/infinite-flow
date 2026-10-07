@@ -11,7 +11,8 @@ have failed (§8, item 20); persistent storage is asked for once per visit (§4.
 outdated tab offers no Delete everything (§4.3, item 14). Change in v1.4, wording fixes from the intent re-sync
 and the design pass: the audio-unlock rule is said to widen, not stay (§7.3, §10); item 6
 matches §5.1, a save deleting every unpinned session; an outdated tab offers no deletion of any
-kind (§4.3, item 14). Consolidated from the approved v3.0 drafts for handoff to
+kind (§4.3, item 14); a visit whose read failed offers Delete everything
+and nothing else (§4.4). Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. It covers **v3.0 only**.
 v3.1 (embellishment flags and presets) and v3.2 (Jam) are still being specified and will be added
 as their own parts. The draft topic documents stay in `specs/versions/v3/` as working material;
@@ -147,7 +148,9 @@ during a session (§5.1).
 
 The first phrase waits for the saved settings to be read. If reading fails, or takes longer than
 a short start-up wait, the app starts from the defaults and saves nothing for the rest of that
-visit, so a failed read never overwrites what is kept.
+visit, so a failed read never overwrites what is kept. Delete everything stays offered in that
+visit, and is the only deletion it offers: it is the way out of saved data that is damaged for
+good.
 
 Each saved setting is checked on its own when the app loads. A value that is unknown or no longer
 valid falls back to that setting's default; every other saved setting is kept. No notice is
