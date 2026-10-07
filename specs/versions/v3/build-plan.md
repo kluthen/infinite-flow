@@ -1037,8 +1037,8 @@ Data), [`screens/your-data/handoff.md`](../../../ui_ux/screens/your-data/handoff
   newer data is detected (at load, or written later by a stubbed newer version), no deletion is
   offered and an open confirmation closes without deleting (master spec §4.4, v1.4).
 
-**Items covered:** 9 (all-sessions deletion), 12, 13 (the report), 14 (no deletion once newer data
-is known).
+**Items covered:** 9 (all-sessions deletion), 12, 13 (the report), 14 (Your data's deletions in
+both saving-off states).
 
 **Verification:** `npm run quality`; entry chunk size recorded (the sheet is lazy).
 
@@ -1577,4 +1577,9 @@ item 6 deletes every unpinned kept session, as §5.1 says (chunk 10 already does
 Later the same day, v1.4 also settled three behaviours, and only chunk 15's tests change. An
 outdated tab offers no deletion of any kind (§4.3, item 14). A visit whose read failed or was slow
 offers Delete everything and nothing else (§4.4). Newer data wins over a failed read (§4.4).
-Chunks 11 to 15 build the outdated tab's missing deletions, as `ui_ux/` now specifies.
+Chunks 11 to 15 build the missing restrictions, as `ui_ux/` now specifies ("While Saving Is
+Off" in `flows/kept-sessions/`). Neither saving-off state (an outdated tab, a visit whose read
+failed or was slow) offers a deletion in the session list or a review, the review of the session
+held in memory included. Turning `Keep my played notes` off there asks nothing, and no change
+there retries a save. Item 14 now also covers the failed-read visit. Chunk 12 (review) and
+chunk 14 (session list) test these with an injected failed read and with a stubbed newer version.

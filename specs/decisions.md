@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.55
+Status: draft v2.56
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D227**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D228**.
 
 ## Decision Log
 
@@ -327,3 +327,9 @@ fact in the live documents (see the [archive index](archive/README.md) and
   nothing, and no deletion that looks permanent while nothing is kept. Rejected: rewording §4.4 to
   "the only deletion of saved data", which would keep two different sets of review controls for
   the two saving-off states.
+
+- **D227 (2026-10-07): definition of done item 14 covers the failed-read visit too (master spec
+  v1.4).** Raised by `ux-writer`'s ux-critic pass: no done item tested §4.4's rules (D224–D226).
+  Item 14 now adds that such a visit starts from the defaults, tells the player, writes nothing
+  (no change retries a save, ux D224), and offers Delete everything and no other deletion, and
+  none once newer data is known. The build plan names the tests (chunks 12, 14, 15).

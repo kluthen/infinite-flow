@@ -494,7 +494,11 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
 13. **Persistent storage** is requested once per visit, on the first pin, favorite or saved
     instrument, unless already granted, and "Your data" reports whether it was granted.
 14. **Outdated tab.** A tab opened by an older version, facing newer saved data, saves and deletes
-    nothing, offers no deletion of any kind, and shows the reload notice outside a running session.
+    nothing, offers no deletion of any kind, and shows the reload notice outside a running session. **Unreadable data.** A visit whose saved data
+    could not be read, or not within the start-up wait, starts from the defaults, tells the
+    player, writes nothing (no change retries a save), and offers Delete everything and no other
+    deletion, none in the session list or a review included; once newer data is known, it offers
+    no deletion at all.
 15. **Failed save.** A refused save never interrupts or delays a session, and the player is told
     after the session.
 16. **My instrument.** A range under two octaves is refused; a valid instrument generates phrases
