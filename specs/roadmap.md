@@ -10,7 +10,8 @@ as a candidate, D185; real-program export checks after the v2.0 tag and Bluetoot
 best-effort 2026-10-06, D191, D193; USB keyboard checks after the v2.0 tag and the vision
 rewrite carry-over 2026-10-06, D198, D199; pre-generating phrases at Idle added as a v3
 candidate 2026-10-07, D206; v1.0 and v2.0 marked released 2026-10-07, D208; MIDI-seeded
-continuation named Jam, with three candidates, 2026-10-07, D209)
+continuation named Jam, with three candidates, 2026-10-07, D209; embellishment flags and
+player-made presets in v3, sequence writing as a later candidate, 2026-10-07, D210)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -84,6 +85,9 @@ record is archived at [archive/v2/](archive/v2/README.md).
 - **Headline scope:**
   - Jam: MIDI-seeded continuation from a played motif (D209), with a key and mode suggestion,
     ties to the rhythm candidates and learning from positive signals as candidates;
+  - embellishment flags: which decorating figures the generator may use, with weights as
+    preferences (D210);
+  - presets: a few more built-in ones, and presets the player creates and saves (D210);
   - a "my instrument" configuration (input kind, range, transposition);
   - first local persistence;
   - review of earlier sessions, with opt-in retention of played notes;
@@ -175,6 +179,10 @@ The owner's ideas, recorded so they are not lost. None of them is scope for any 
 - **Tone.js for the backing (version open; D185).** Using the Tone.js audio library, mainly to add
   more accompaniment voices; v2 synthesizes its backing with plain Web Audio and bundles no audio
   library. An idea for later, not decided; more voices are v4's accompaniment with roles.
+- **Sequence writing with an up-front rhythm grammar (v4, v5 or v6; D210).** Writing whole
+  sequences from requirements set before generation, for example "double beat 1 of every third
+  measure". Beyond v3's embellishment weights, which stay preferences. Noted in
+  [v3](versions/v3/README.md#embellishment-flags-v3-scope-to-be-settled).
 - **Cross-device review by export, then import (no earlier than v6; D128).** A player exports a
   phone session and reopens it for review on a larger screen. It serves P3. Recorded in
   [v5+](versions/v5-plus/README.md#candidates-not-committed).

@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.38
+Status: draft v2.39
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D210**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D211**.
 
 ## Decision Log
 
@@ -49,3 +49,17 @@ fact in the live documents (see the [archive index](archive/README.md) and
   signal, grading or scoring" constraint. Opened O112–O116. Also recorded here, since D208 was
   written before it happened: the owner approved the tag, and `v2.0.0` was tagged at `f6bcefe`
   and deployed on 2026-10-07.
+
+- **D210 (2026-10-07): embellishment flags and player-made presets are v3 scope; sequence writing
+  is a later candidate.** The owner added two features to v3, to be designed in a true spec session
+  later. (1) **Embellishment flags**: the player chooses which decorating figures the generator
+  may use and how much it favors each; weights are preferences, not quotas ("ish"). This places in
+  v3 the "embellishment and style-figure flags" the v2 direction expected "in v2 or v3". Figures
+  written as ordinary notes come first; ornaments written as symbols (O47) are the larger piece. A
+  researcher prepares a catalogue of embellishments before the spec session. (2) **Presets**: a few
+  more built-in presets, and presets the player creates and saves with local persistence. Also
+  recorded, as a candidate for v4, v5 or v6: sequence writing with a rhythm grammar whose
+  requirements are set before generation (for example, doubling beat 1 of every third measure).
+  Recorded in [v3](versions/v3/README.md#embellishment-flags-v3-scope-to-be-settled) and the
+  [roadmap](roadmap.md#candidates-not-committed). No question was opened; the spec session will
+  open them.

@@ -8,7 +8,8 @@ here from v2 as a nice-to-have 2026-10-03, D174; rhythm candidates added 2026-10
 note on the chord-fit check added 2026-10-06, D196; pre-generating phrases at Idle added as a
 candidate 2026-10-07, D206; MIDI-seeded continuation named Jam and made v3's lead feature, with
 a key and mode suggestion, the rhythm candidates tied to it and learning from positive signals as
-candidates, 2026-10-07, D209).
+candidates, 2026-10-07, D209; embellishment flags and player-made presets added as v3 scope,
+2026-10-07, D210).
 Not yet specced.
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
@@ -47,6 +48,11 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
   - This extends v2's last-session review through persistence.
   - Keeping played notes across sessions requires the player's explicit opt-in and a way to
     delete them.
+- **Embellishment flags** (D210). The player chooses which decorating figures the generator may
+  use, and how much it favors each. See [embellishment flags](#embellishment-flags-v3-scope-to-be-settled).
+- **Presets, including the player's own** (D210). A few more built-in presets, and, with local
+  persistence, presets the player creates and saves. The owner: "last but not least". See
+  [presets](#presets-v3-scope-to-be-settled).
 
 ## Jam: growing the player's doodle
 
@@ -134,6 +140,75 @@ a miss most likely means "too fast or too hard to read", not "I don't like it".
   ([v2 master spec §2](../v2/master-spec.md#2-scope)) applies.
 
 **Open, in the [register](../../open-questions.md#v3-jam-o112):** O112–O116.
+
+## Embellishment flags (v3 scope, to be settled)
+
+Recorded 2026-10-07 (D210), the owner's request: "embellishments flags for generators … many ways
+to support or alter in minor ways what's expected to be played", for example passing notes,
+"spiked notes" (most likely [neighbor tones](../../../docs/music/lexicon.md#neighbor-tone), or
+[appoggiaturas](../../../docs/music/lexicon.md#appoggiatura)) and surrounding a note with one note
+above and one below (an [enclosure](../../../docs/music/lexicon.md#enclosure)). It was already
+expected "in v2 or v3" ([v2 direction](../v2/README.md#direction-not-yet-scoped)); D210 places it
+in v3. **Scope is v3; the design is not settled; a true spec session will follow.**
+
+- **What exists today.** The generator already writes
+  [passing tones](../../../docs/music/lexicon.md#passing-tone), neighbor tones and appoggiaturas
+  in every profile, and [chromatic approaches](../../../docs/music/lexicon.md#chromatic-approach)
+  and enclosures in the Jazz profile (`src/domain/pitch/pitch-figures.ts`). They are allowed, not
+  weighted: the player cannot switch one off or ask for more of it. The feature exposes that
+  control and extends the set.
+- **The shape.** Per figure: allowed or not, and a weight for how often it appears. **Weights are
+  preferences, not quotas** ("ish", the owner's word): the generator tries a favored figure first
+  rather than having to reach a share of them. A quota can make a phrase impossible or slow to
+  find; the pitch search is the generator's most expensive step (ISS-009).
+- **Two families, very different costs.**
+  1. **Figures written as ordinary notes** (passing and neighbor tones, appoggiaturas, enclosures,
+     chromatic approaches, and others the catalogue finds). They fit the current rhythm grid and
+     notation, and are acknowledged like any expected note. Proposed first.
+  2. **Ornaments written as symbols or small notes** (grace notes, mordents, trills, turns). They
+     do not fit the quarter, eighth and sixteenth grid, need new notation, have no
+     acknowledgement rule, and touch both exports. This is open question O47 (ornament
+     representation, [register](../../open-questions.md)). The owner accepts the clash with the
+     rhythm representation as not an issue in itself; it makes this family the larger piece.
+- **A catalogue first.** Before the spec session, a researcher prepares a catalogue of
+  embellishments: one entry per figure with its name and plain definition, a small staff example,
+  the styles it is typical of, its family (notes or symbol), what it needs from the rhythm, its
+  harmonic rule (where it starts and must land), what a player would play for it to be
+  acknowledged, and whether the generator has it today. New terms go to the
+  [lexicon](../../../docs/music/lexicon.md). Not started.
+- **Ties.**
+  - [Presets](#presets-v3-scope-to-be-settled): Neutral and Jazz are, in effect, two fixed
+    figure sets; a preset would carry a starting set of flags and weights.
+  - [Jam](#jam-growing-the-players-doodle): figures found in the doodle could be favored, and
+    learning from positive signals could nudge a figure's weight.
+  - The settings-mutation flag could shift weights a little during a session.
+  - The [rhythm candidates](#rhythm-candidates-custom-note-density-candidates-not-committed): the
+    v2 direction already expected embellishment flags to overlap with rhythmic variety, which may
+    become selective rates.
+- **Later, not v3:** writing whole sequences with a rhythm grammar set up front, with specific
+  requirements such as doubling beat 1 of every third measure; the owner expects it in v4, v5 or
+  v6 ([roadmap](../../roadmap.md#candidates-not-committed)).
+
+## Presets (v3 scope, to be settled)
+
+Recorded 2026-10-07 (D210), the owner: "Presets! that's the last but not least feature of v3."
+**Scope is v3; the design is not settled.**
+
+- **Today.** The [musical profile preset](../../../docs/music/lexicon.md#musical-profile-preset)
+  has two fixed values, Neutral and Jazz. Each sets the note vocabulary (which figures are
+  allowed) and seven other controls; changing one of those seven afterward shows "Custom".
+  Nothing is saved.
+- **v3.**
+  - **A few more built-in presets.** Which ones is open; the embellishment catalogue may suggest
+    styles.
+  - **Presets the player creates**, saved with local persistence: the player names a set of
+    settings and gets it back later. Today's "Custom" state is a natural starting point: save it
+    as a preset.
+- **To settle at the spec session:** what a preset holds (the generation settings only, or also
+  tempo, the audio mix, embellishment flags and weights, the instrument); whether built-in
+  presets can be edited or only copied; renaming and deleting; how a player preset is exported or
+  shared, if at all; and how presets meet [my instrument](#settled-direction), which is saved
+  separately.
 
 ## Favorites (v3 scope, to be settled)
 
