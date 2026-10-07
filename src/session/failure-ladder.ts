@@ -9,6 +9,7 @@
 import { deriveCarryIn } from '../domain/generation/carry-in/carry-in-derivation'
 import type { CarryIn } from '../domain/generation/carry-in/carry-in'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
+import type { GenerationFailureCode } from '../domain/generation/orchestration/orchestration-types'
 import type { CarryInAdaptation } from './carry-in-adaptation'
 import type { AudioTime, SessionPhrase, SessionSettings, SuccessfulOutcome } from './session-types'
 
@@ -119,6 +120,62 @@ export function openLookAhead(
 // @spec-link [[rule_session_generation_failure_ladder]]
 export function nextRung(rung: LadderRung): LadderRung | undefined {
   return LADDER[LADDER.indexOf(rung) + 1]
+}
+
+/**
+ * Why an attempt failed: a generation that found no phrase, with its failure code; a generate
+ * request that was rejected, by a worker crash on it or a dead worker; or a phrase that does not
+ * fit the staff.
+ */
+// @spec-link [[rule_session_generation_failure_ladder]]
+// @spec-link [[module_session_failure_ladder]]
+export type AttemptFailure =
+  | { readonly kind: 'generation-failure'; readonly code: GenerationFailureCode }
+  | { readonly kind: 'crash' }
+  | { readonly kind: 'not-fitting' }
+
+/** What the next rung depends on in a failed attempt: its rung and the step it actually took. */
+// @spec-link [[module_session_failure_ladder]]
+export interface FailedRung {
+  readonly rung: LadderRung
+  readonly step: 'carry-in' | 'standalone'
+}
+
+/**
+ * Intent: whether a failed attempt searched its carry-in window to exhaustion: a carry-in attempt
+ * whose generation failed with no_legal_pitch_plan. Its one window holds the same candidates
+ * whatever the seed, which only orders them, so every carry-in retry would fail the same way.
+ */
+// @spec-link [[rule_session_generation_failure_ladder]]
+// @spec-link [[module_session_failure_ladder]]
+function exhaustedCarryInSearch(failed: FailedRung, failure: AttemptFailure): boolean {
+  return (
+    failed.step === 'carry-in' &&
+    failure.kind === 'generation-failure' &&
+    failure.code === 'no_legal_pitch_plan'
+  )
+}
+
+/**
+ * Intent: the rung after a failed attempt, or undefined once the standalone retry has failed. A
+ * carry-in attempt that exhausted its search goes straight to the standalone rung; every other
+ * failure (a search allowance cutoff, a validation failure, a crash, a phrase that does not fit,
+ * and any failure of a standalone attempt) goes to the next rung.
+ */
+// @spec-link [[rule_session_generation_failure_ladder]]
+// @spec-link [[module_session_failure_ladder]]
+export function rungAfterFailure(
+  failed: FailedRung,
+  failure: AttemptFailure,
+): LadderRung | undefined {
+  if (exhaustedCarryInSearch(failed, failure)) return LADDER[LADDER.length - 1]
+  return nextRung(failed.rung)
+}
+
+/** Intent: how many rungs lie strictly between a failed rung and the rung requested after it. */
+// @spec-link [[module_session_failure_ladder]]
+export function rungsSkipped(failed: LadderRung, next: LadderRung): number {
+  return LADDER.indexOf(next) - LADDER.indexOf(failed) - 1
 }
 
 /**

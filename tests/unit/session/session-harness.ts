@@ -151,9 +151,12 @@ export function phraseOneFor(
   return phraseOne
 }
 
-/** Intent: a real generation failure outcome with the given code and empty diagnostics. */
+/**
+ * Intent: a real generation failure outcome with the given code and empty diagnostics. The default
+ * code is a search allowance cutoff, a failure every rung of the ladder retries.
+ */
 export function failureOutcome(
-  code: GenerationFailureCode = 'no_legal_pitch_plan',
+  code: GenerationFailureCode = 'search_limit_exceeded',
 ): GenerationOutcome {
   return {
     kind: 'generation_failure',
@@ -276,9 +279,13 @@ export class SessionDriver {
     return request!
   }
 
-  /** Intent: answer the latest request with a real generation failure. */
-  fail(at: AudioTime, attemptId = this.lastRequest().attemptId): readonly SessionOutput[] {
-    return this.send({ kind: 'generation-result', at, attemptId, outcome: failureOutcome() })
+  /** Intent: answer the latest request with a real generation failure with the given code. */
+  fail(
+    at: AudioTime,
+    attemptId = this.lastRequest().attemptId,
+    code?: GenerationFailureCode,
+  ): readonly SessionOutput[] {
+    return this.send({ kind: 'generation-result', at, attemptId, outcome: failureOutcome(code) })
   }
 
   /** Intent: report the latest request's generate call as rejected. */

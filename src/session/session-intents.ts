@@ -114,3 +114,17 @@ export function buildAttemptIntent(
       : makeGenerationIntent(input)
   return { intent, steppedDown: steppedDown || noteDensity !== chosen.noteDensity }
 }
+
+/**
+ * Intent: draw and discard the request id and seed of each skipped ladder rung, in the order
+ * `buildAttemptIntent` draws them, so the attempt requested after the skip gets exactly the request
+ * id and seed it would have had if those rungs had run and failed. The window is not read for them:
+ * the attempt requested next reads it at the same moment, so the step-down memory ends the same.
+ */
+// @spec-link [[module_session_failure_ladder]]
+export function discardSkippedRungs(seams: IntentSeams, skipped: number): void {
+  for (let rung = 0; rung < skipped; rung += 1) {
+    seams.providers.nextRequestId()
+    seams.providers.nextSeed()
+  }
+}

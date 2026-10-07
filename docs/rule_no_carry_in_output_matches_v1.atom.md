@@ -3,7 +3,8 @@ id: rule_no_carry_in_output_matches_v1
 status: REVIEW
 version: 0.1
 tags: [v2, release-v2.0, session, determinism]
-dependents: []
+dependents:
+  - [[mechanic_pitch_search_policy]]
 type: RULE
 priority: 1
 human_name: Generation Without Carry-In Matches the First Release
