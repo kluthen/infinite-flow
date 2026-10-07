@@ -357,4 +357,4 @@ fact in the live documents (see the [archive index](archive/README.md) and
   (the v3.1 draft does it); if it is not cheap, it stays with the later, richer presets. Read by
   spec-writer as (proposed, to confirm): the restriction bounds what the app itself picks (Vary
   settings' key and mode moves; in v3.2, the key and mode suggestion's candidates); what happens
-  when the current selection is already outside the restriction is open (O127).
+  when the current selection is already outside the restriction is open (O160).
