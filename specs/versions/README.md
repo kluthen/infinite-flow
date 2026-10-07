@@ -1,6 +1,7 @@
 # Versions
 
-Status: draft v0.4 (v2 and v3 rows updated 2026-10-03, D173–D175; v2 row 2026-10-05, D183)
+Status: draft v0.5 (v2 and v3 rows updated 2026-10-03, D173–D175; v2 row 2026-10-05, D183; v2
+released 2026-10-07, D208)
 
 The scope of each planned version of Infinite Flow is kept in its own folder. The ordered
 timeline is in the [roadmap](../roadmap.md). The product-wide principles are in the
@@ -24,7 +25,7 @@ timeline is in the [roadmap](../roadmap.md). The product-wide principles are in 
 | Version                         | Status                          | Headline                                                                                                                           |
 | ------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | [v1](v1/README.md)              | Released as `v1.0`; gate closed | Finite four-measure phrase generator                                                                                               |
-| [v2](v2/README.md)              | Specced; being built            | Rolling phrase, MIDI acknowledgement, backing, last-session review/export; one release, v2.0, real-hardware checks included (D183) |
+| [v2](v2/README.md)              | Released as 2.0.0, tag pending | Rolling phrase, MIDI acknowledgement, backing, last-session review/export; one release, v2.0, real-hardware checks included (D183) |
 | [v3](v3/README.md)              | Direction                       | Player-seeded continuation, "my instrument", earlier sessions; chord-fit check as a nice-to-have                                   |
 | [v4](v4/README.md)              | Direction                       | Accompaniment with roles, whole-file seed (proposed)                                                                               |
 | [v5+](v5-plus/README.md)        | Direction                       | Library and snippet seeds, microphone input                                                                                        |

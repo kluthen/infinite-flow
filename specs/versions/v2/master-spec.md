@@ -1,8 +1,9 @@
 # Infinite Flow v2 — Master Spec: Rolling Phrase
 
-Status: master spec v1.38 (2026-10-07). This is the consolidated, execution-ready specification for
-v2, which ships as one release, v2.0, whose parts keep the labels v2.0, v2.1, v2.2 and v2.4 (v2.3
-was emptied, and its number is not reused).
+Status: master spec v1.39 (2026-10-07). v2.0 is released as version 2.0.0, its tag pending the
+product owner's approval. The hand checks that §11 lets follow the tag are still to run. This is
+the consolidated, execution-ready specification for v2, which ships as one release, v2.0, whose
+parts keep the labels v2.0, v2.1, v2.2 and v2.4 (v2.3 was emptied, and its number is not reused).
 It supersedes the individual v2 draft topic documents,
 which are kept in the archive as working history. Change in v1.6: the export is chosen by content,
 generated notes or played notes, and played notes come as a MIDI file of their own instead of an
@@ -151,7 +152,8 @@ is 160,000 units, with the evidence of the full sweep (§4); and the generator's
 no longer depends on the browser's locale, with v1's output kept byte-identical (§11 item 3).
 Change in v1.38, the product owner's ruling of 2026-10-07: the measured cost of keeping time for
 the standalone attempt is stated, and kept as is for v2: at 240 BPM phrase 2 is always a
-standalone phrase, its join to phrase 1 not smoothed (§4).
+standalone phrase, its join to phrase 1 not smoothed (§4). Change in v1.39: v2.0's release gate
+passed on 2026-10-07, and v2.0 is released as version 2.0.0, with the tag pending; no rule changes.
 
 ## 1. Core concept
 

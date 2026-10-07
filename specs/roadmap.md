@@ -1,6 +1,6 @@
 # Infinite Flow Roadmap
 
-Status: draft v1.8 (rewritten 2026-09-25 after the persona and vision session; browser scope
+Status: draft v1.9 (rewritten 2026-09-25 after the persona and vision session; browser scope
 added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keeping candidates and
 export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
 session view placed in v5 2026-09-28, D133; v2 replanned 2026-10-03: real-hardware checks as
@@ -9,7 +9,7 @@ added, D175; v2.1, v2.2 and v2.4 compacted into one v2.0 release 2026-10-05, D18
 as a candidate, D185; real-program export checks after the v2.0 tag and Bluetooth MIDI
 best-effort 2026-10-06, D191, D193; USB keyboard checks after the v2.0 tag and the vision
 rewrite carry-over 2026-10-06, D198, D199; pre-generating phrases at Idle added as a v3
-candidate 2026-10-07, D206)
+candidate 2026-10-07, D206; v1.0 and v2.0 marked released 2026-10-07, D208)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -23,7 +23,11 @@ is archived verbatim as [2026-09-25-roadmap-pre-vision.md](archive/2026-09-25-pe
 
 ## Timeline
 
-### 0. v1.0 gate (current)
+### 0. v1.0 gate (done)
+
+Released as `v1.0` on 2026-09-26. Its working record is archived at
+[archive/v1/](archive/v1/README.md).
+
 
 - **Intent:** close the first release. v1 is implemented; the rc1 commit is `2418069`.
 - **Scope:** in this order:
@@ -37,7 +41,12 @@ is archived verbatim as [2026-09-25-roadmap-pre-vision.md](archive/2026-09-25-pe
 - **Depends on:** nothing new.
 - **Folder:** [versions/v1](versions/v1/README.md).
 
-### 1. v2 — Rolling phrase
+### 1. v2 — Rolling phrase (released)
+
+Released on 2026-10-07 as v2.0, version 2.0.0, with its tag pending the owner's approval (D208).
+The hand checks the spec lets follow the tag remain, as v2.0.x checks. The milestone's working
+record is archived at [archive/v2/](archive/v2/README.md).
+
 
 - **Intent:** real-time reading and playing with mild pressure. This is the Speed Builder's
   release, and it gives the Curious Improviser their real-time goal.

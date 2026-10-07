@@ -1,8 +1,8 @@
 # Personas
 
-Status: draft v0.12
+Status: draft v0.13
 
-Personas are the user's decisions. Anything not yet confirmed is tagged `(proposed)`. Settled 2026-09-25. The decisions behind this document (D48–D50, D54, D61) are in the [2026-09-25 archive](archive/2026-09-25-personas-and-vision/decisions-D47-D71.md). The shared context of use was added 2026-09-28 (D127, in the [live log](decisions.md)); the phone review pointer and the review candidates followed the same day (D128), then export by content and the session-keeping candidates (D129), then favorites moving to v3 (D130). On 2026-09-29 the session start and end wording was corrected to match the v2 master spec §6–§7 (a correction, no new decision).
+Personas are the user's decisions. Anything not yet confirmed is tagged `(proposed)`. Settled 2026-09-25. The decisions behind this document (D48–D50, D54, D61) are in the [2026-09-25 archive](archive/2026-09-25-personas-and-vision/decisions-D47-D71.md). The shared context of use was added 2026-09-28 (D127, now in the [v2 archive](archive/v2/decisions-D109-D207.md)); the phone review pointer and the review candidates followed the same day (D128), then export by content and the session-keeping candidates (D129), then favorites moving to v3 (D130). On 2026-09-29 the session start and end wording was corrected to match the v2 master spec §6–§7 (a correction, no new decision). On 2026-10-07 "Who is not a target" was added, stating D117 here, and the audio-mix note was brought up to date (D188).
 
 | Persona                     | Role      | Core want                                  | Served mainly by                       |
 | --------------------------- | --------- | ------------------------------------------ | -------------------------------------- |
@@ -45,7 +45,14 @@ assumed to match until an outside tester shows otherwise.
     the owner cannot quantify yet. It needs listening tests. The spec already requires separate
     backing and click volume controls, reachable at all times
     ([v2 master spec §6](versions/v2/master-spec.md#6-backing-click-count-in-and-tempo)). Their
-    default values are tracked on the UX side as ux Q31.
+    ranges and defaults as built are final for v2.0 (D188).
+
+## Who is not a target
+
+- **Blind and screen-reader users** (D117). Neither the spec nor the UI/UX design has to make the
+  app usable without sight. This covers non-visual use only. It does not by itself waive other
+  accessibility concerns, such as contrast, low vision or keyboard operation, which stay
+  `ux-writer`'s to weigh.
 
 ## P1 — The Curious Improviser (primary; D48)
 

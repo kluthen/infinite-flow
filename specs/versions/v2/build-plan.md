@@ -1,6 +1,8 @@
 # Infinite Flow v2 — Build Plan
 
-Status: draft v0.13 (2026-10-07). Chunk 0 is done. Build plan for v2, released as one v2.0 since
+Status: complete, draft v0.14 (2026-10-07). The release gate, chunk 21, passed on 2026-10-07:
+v2.0 is released as version 2.0.0, tag pending the owner's approval (spec D208). The plan
+stays in place as the gate's record, which `docs/` cites. Chunk 0 is done. Build plan for v2, released as one v2.0 since
 spec D183, its parts still labelled v2.0, v2.1, v2.2 and v2.4,
 written from [master spec v1.20](master-spec.md) and kept in step with it since (v1.28). Not yet
 approved for execution. Change in v0.3: the spec gaps are resolved, so the phrase-boundary change
@@ -36,7 +38,9 @@ output proven byte-identical, before the tag. Change in v0.13 (spec D205–D207)
 rulings of 2026-10-07: item 1 is met, 0 of 568 at 60, 120 and 240 BPM with the time-aware ladder,
 and phrase 2 always standalone at 240 BPM is locked as shipped for v2; ISS-009 is fixed;
 `rule_dropped_attempt_cancelled` and `module_generation_worker_cancellation` are approved for
-STABLE, the rule joining the CONTRACT.
+STABLE, the rule joining the CONTRACT. Change in v0.14 (spec D208): ISS-010 and the wake lock
+asked for again are marked done in chunk 21, which is done; the v2 milestone's working record is
+archived at [`specs/archive/v2/`](../../archive/v2/README.md).
 
 This plan cuts v2 into chunks that one owner can build, test and document at a time, and puts
 them in order. It adds no behaviour. What the app does is in the [master spec](master-spec.md);
@@ -98,7 +102,7 @@ prerequisites. The code and the registers add three more.
     look-ahead phrase regenerated after an automatic settings change needs at least one bar left
     ([§5](master-spec.md#5-control-changes-during-a-session)).
   - A failed attempt is retried up to four times inside that window.
-  - The [open-questions register](../../open-questions.md#v2-spec-questions-o50) sets the working
+  - The [open-questions register](../../archive/v2/open-questions-history.md#v2-spec-questions-o50) sets the working
     target: the cold worst case stays under a quarter of one bar at 240 BPM, 250 ms in Chromium.
   - The reference-machine figures in
     [`docs/generation-latency.md`](../../../docs/generation-latency.md#v2-re-run-on-the-reference-machine-2026-09-30)
@@ -2262,7 +2266,8 @@ The definition of done, on the merged code:
   for again, silently, and nothing shows whether it is granted or refused; tests fake the drop
   (spec D187). The code does not do this yet: a small code unit, after the ISS-006 fix, adds it to
   `createHeldLock` (`src/components/workspace/browser-screen-locks.ts`) and updates
-  `rule_screen_wake_lock_during_session`.
+  `rule_screen_wake_lock_during_session`. **Done** (`a792197`; the atom in `b3fa5d7`): verified in
+  the release notes' row 21.
 - Part v2.1 (from chunk 26): a setting changed by the settings-mutation flag first shows at the
   first phrase that hasn't begun sounding, or at the phrase after it, and no note on screen ever
   changes.
@@ -2352,7 +2357,11 @@ What the earlier chunks left open:
   candidates' canonical order stops using `localeCompare` / the default `Intl.Collator` and uses
   plain code-unit order. Done when v1's output is proven byte-identical against the goldens and
   the identity harness (629 intents, 101,484 compiled contexts). If any output differs, the
-  coding team stops and reports to the owner; v1's goldens are never re-recorded for it.
+  coding team stops and reports to the owner; v1's goldens are never re-recorded for it. **Done
+  on 2026-10-07** (`8ace526`, merged in `3911d03`; ISS-010 Resolved): the candidates, the rhythm
+  transforms and the validation failure details are ordered by code unit. The output is
+  byte-identical: 1,197 of 1,197 output hashes equal those before the change, the old and new
+  comparators agreed on every comparison made, and v1's goldens were not re-recorded.
 
 - Settled on 2026-10-05: the backing as chunk 11 built it, O57's listening test (spec D185); the
   owner's rulings on what chunk 17 left for acceptance, the starting note arming the silence timer
@@ -2385,6 +2394,12 @@ What the earlier chunks left open:
   and latency tuning, the playhead and main-thread measurements and the cold run block it. The
   USB keyboard's checks follow the tag too (spec D199); the breath controller's results stand for
   the tuning and the controller check.
+
+**Done on 2026-10-07.** The gate's evidence is the table in
+[`docs/release/v2.0-release-notes.md`](../../../docs/release/v2.0-release-notes.md): 57 rows, 48
+Verified, 5 hand checks done, 4 hand checks after the tag (v2.0.x: the USB keyboard's two, the
+MuseScore and MIDI-tool check, the DAW line-up) and 0 not met. ISS-009 and ISS-010 are Resolved.
+Version 2.0.0 is set in `package.json`; the tag `v2.0.0` waits for the owner's approval.
 
 **Blocked by:** nothing outside the gate's own remaining work, which includes the ISS-009 fix
 with the time-aware ladder (spec D200, D203) and ISS-010 (spec D204). O71, O105 and O106 were closed on
