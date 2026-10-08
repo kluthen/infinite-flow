@@ -30,6 +30,12 @@ Status: direction (2026-09-25; the rhythm ratios and the rhythm editor moved her
     [v3](../v3/README.md#moved-to-v4-rhythm-ratios-and-the-rhythm-editor).
   - Open: O100, O101, O102 ([register](../../open-questions.md#v3-rhythm-candidates-o100)).
 
+- **Wider rhythm mutation options** _(owner, 2026-10-08, D232)_. v3.2's rhythm lock is "a good
+  first iteration on mutations": a short list of small, one-phrase rhythm changes. v4 widens it,
+  for example to changes that stay (a rhythm that evolves), the catalogue's larger mutations
+  (augmentation, diminution, metric displacement, regrouping) and mutations under the rhythm
+  editor's own rhythm. See the [mutation catalogue](../../../docs/music/mutation-catalogue.md).
+
 - **A software sound library (Tone.js, or a comparable one) for the system voices** _(owner,
   2026-10-01; proposed, to be settled by a spike at the start of v4)_.
   - Why: several voices with distinct timbres, and drums, need more than v2's raw Web Audio

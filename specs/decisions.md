@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.60
+Status: draft v2.61
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D232**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D233**.
 
 ## Decision Log
 
@@ -381,3 +381,19 @@ fact in the live documents (see the [archive index](archive/README.md) and
   `ux-writer`. Still conditional on D229's cost check. Proposed by spec-writer, to confirm in the
   v3.1 draft: Vary settings, when it moves key and mode under a restricted preset, stays inside
   the restriction, so the app never opts the player out of their preset by itself.
+
+- **D232 (2026-10-08): the v3.2 rhythm lock is strict, with an optional list of allowed rhythm
+  changes, each lasting one phrase (settles O151 and the rest of O103; amends the v3.2 draft's
+  tension-driven bends).** The owner checked his reading: the lock fixes the rhythm only, every
+  note start and length and so every rest, across the four measures, while the pitches keep
+  changing; outside a Jam it locks the rhythm of phrase 1, the phrase on screen at Start; in a Jam
+  it locks the rhythm nearest the doodle that the rhythm grammar can write (the exact played rhythm
+  needs v4's editor, O102). Rhythm changes under the lock are **the player's option**, not an
+  automatic bend: an "allowed rhythm changes" list of small edits from the
+  [mutation catalogue](../docs/music/mutation-catalogue.md) (such as split a note, merge two notes,
+  add or remove a rest, move a note by a sixteenth); an empty list keeps the lock strict. Each
+  change **lasts one phrase**; the next phrase returns to the locked rhythm (spec-writer's
+  recommendation, accepted: "that's a good first iteration on mutations"), which keeps D175's
+  "a mutation cannot alter the rhythm durably while the lock is set". **Wider mutation options go
+  to v4** ([v4](versions/v4/README.md#placed-here-proposed)). Still open: which edits the v3.2
+  list offers, and how often a change happens (O157).

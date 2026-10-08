@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.48
+Status: draft v0.49
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -15,9 +15,8 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 [v2 archive index](archive/v2/README.md) says where each answer now lives.
 
 Open on 2026-10-07, after the owner's overall review of v3 (D216): O10 (planner authority, for
-Jam), O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor), O103 (the rest
-of the v3.2 rhythm lock), O114 (Jam and the rhythm controls), O115 and O116 (v3.x learning). O126 closed by D228. Since then the v3.1 and v3.2 drafts opened
-O127–O139, O161–O162 and O140–O156. None
+Jam), O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor), O114 (Jam and the rhythm controls), O115 and O116 (v3.x learning). O126 closed by D228. Since then the v3.1 and v3.2 drafts opened
+O127–O139, O161–O162 and O140–O157; D232 closed O103 and O151. None
 of them blocks anything planned.
 
 ## Later and governance (O47–O49)
@@ -32,7 +31,7 @@ Registered from the v2 highlights proposal and
 ## v3 rhythm candidates (O100+)
 
 Since D211, the rhythm ratios and the rhythm editor, with the Custom note density, are v4: O100,
-O101 and O102 are v4 questions. The rhythm lock is v3.2, designed with Jam: O103 stays v3. The
+O101 and O102 are v4 questions. The rhythm lock is v3.2, designed with Jam; O103 was closed by D232. The
 section keeps its name so its links hold.
 
 Opened 2026-10-03 by `spec-writer` while recording the owner's v3 candidates in the rhythm
@@ -60,16 +59,6 @@ anything planned. Lexicon terms: [note density](../docs/music/lexicon.md#note-de
   pass the rhythm grammar's feasibility rules (every measure keeps a note sounding on beat 1 or
   3, no fully silent measure, no rest longer than half a measure), and if it does not, is it
   refused, adjusted, or allowed as the player's own choice?
-- **O103 - What the rhythm lock holds, and how far it bends** _(D175, D176, D211, D216; v3.2)_:
-  **partly answered by D216:** the lock holds the note starts on beats 1 and 3 and the number of
-  notes in each measure; a bend is one Close mutation, or one Near mutation in one measure,
-  dropped at the next phrase; the bend is the same mechanism as a mutation's. Still open: whether
-  a bend is shown, and whether the lock can hold the doodle's own rhythm (O114). Original question: is
-  "this rhythm" the editor's rhythm only, or whatever rhythm is in effect when the lock is set,
-  including one drawn from the ratios? What is "a little bending" for tension and release: how
-  often, how far from the locked rhythm, always returning to it, and is a bend shown? With the
-  mutation flag on, is a mutation's temporary bend the same thing as generation's own bend, or a
-  separate one?
 
 ## v3 Jam (O112+)
 
@@ -85,7 +74,8 @@ below are about it and its three candidates, so none of them blocks anything pla
 are strawmen, not decisions.
 
 - **O114 - Jam and the rhythm controls** _(D209, D175, D211; v3.2)_: is the doodle's rhythm what
-  the rhythm lock holds, and does that settle part of O103? Is "how far phrases drift from the
+  the rhythm lock holds (yes, answered by D232: the rhythm nearest the doodle that the grammar can
+  write)? Is "how far phrases drift from the
   doodle" the mutation option (O118) or a new setting? Proposed: design Jam and the rhythm lock
   together, as D211 places them. (Since D211 the rhythm ratios and the editor, and with them
   O102, are v4.)
@@ -122,10 +112,10 @@ its draft's Open section; IDs are listed here so none is lost. O160 was closed b
 - **O161 - How a restriction is written, and where choosing a preset moves the key and mode**: full text and proposal in [presets.md](versions/v3/presets.md#11-open).
 - **O162 - The restriction under Custom, in Vary settings and when a player preset is saved**: full text and proposal in [presets.md](versions/v3/presets.md#11-open).
 
-## v3.2 drafts (O140–O156)
+## v3.2 drafts (O140–O157)
 
 Opened 2026-10-07 by the v3.2 drafts. Full text and proposals live in each draft's Open section.
-The drafts also propose answers to O10, O103 and O114 (above): [jam.md §6](versions/v3/jam.md#6-planner-authority-o10-proposed)
+The drafts also propose answers to O10 and O114 (above; O103 was closed by D232): [jam.md §6](versions/v3/jam.md#6-planner-authority-o10-proposed)
 and [rhythm-lock.md](versions/v3/rhythm-lock.md).
 
 - **O140 - How a Jam is entered**: full text and proposal in [jam.md](versions/v3/jam.md#11-open).
@@ -139,9 +129,13 @@ and [rhythm-lock.md](versions/v3/rhythm-lock.md).
 - **O148 - Where the key and mode suggestion is shown**: full text and proposal in [key-and-mode-suggestion.md](versions/v3/key-and-mode-suggestion.md#7-open).
 - **O149 - The draw's seed**: full text and proposal in [key-and-mode-suggestion.md](versions/v3/key-and-mode-suggestion.md#7-open).
 - **O150 - Labels, priors and alternatives**: full text and proposal in [key-and-mode-suggestion.md](versions/v3/key-and-mode-suggestion.md#7-open).
-- **O151 - Exact or skeleton lock**: full text and proposal in [rhythm-lock.md](versions/v3/rhythm-lock.md#9-open).
 - **O152 - When a phrase bends**: full text and proposal in [rhythm-lock.md](versions/v3/rhythm-lock.md#9-open).
 - **O153 - The lock and the narrow-window step-down**: full text and proposal in [rhythm-lock.md](versions/v3/rhythm-lock.md#9-open).
 - **O154 - The allowed list's dead ends and defaults**: full text and proposal in [rhythm-lock.md](versions/v3/rhythm-lock.md#9-open).
 - **O155 - Sound during the capture**: full text and proposal in [jam.md](versions/v3/jam.md#11-open).
 - **O156 - The replay key for v3.2**: full text and proposal in [jam.md](versions/v3/jam.md#11-open).
+- **O157 - Allowed rhythm changes under the lock** _(v3.2; D232)_: which small edits the list
+  offers in v3.2, its default (proposed: empty, a strict lock), and how often a change happens
+  (proposed: at most one per phrase, in a seeded share of phrases, more often on a tenser phrase
+  when Tension across phrases is on). Also whether a bend is shown (D232 keeps the draft's "not
+  shown" as proposed).
