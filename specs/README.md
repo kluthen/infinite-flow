@@ -58,7 +58,8 @@ Status: draft v0.47
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (approved) and
-  [v3.1](versions/v3/build-plan-v3.1.md) (draft v1, not approved).
+  [v3.1](versions/v3/build-plan-v3.1.md) (draft v1, not approved) and
+  [v3.2](versions/v3/build-plan-v3.2.md) (draft v1, not approved).
 - [Personas](personas.md) (draft): who the product serves.
 - [Far vision](vision/far-vision.md) (draft): the long-term direction and the guiding principles.
   The [endgame](vision/endgame.md) describes the rhythm RPG horizon.
