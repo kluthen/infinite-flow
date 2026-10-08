@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.68
+Status: draft v2.69
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D245**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D246**.
 
 ## Decision Log
 
@@ -580,3 +580,9 @@ fact in the live documents (see the [archive index](archive/README.md) and
   doodle captured by a fresh Jam is never held by itself; only "Jam again on this doodle" holds
   one. Matches ux D239. Also fixed the same day, no decision needed: Parts B and C's opening
   paragraphs still said "awaiting the owner's approval" after D239.
+- **D245 (2026-10-08): Part C's contract list completed.** spec-writer's call, from
+  `documentalist`'s ingestion: C13 now also names the cancelled-attempt guarantee
+  (`rule_dropped_attempt_cancelled`, broken by a fresh Jam's phrase 1 cancelled at its deadline)
+  and the rhythm lock's locked rhythm reaching later phrases beside the join (with
+  `rule_join_carry_in_limited`). Both were already in `documentalist`'s change set; the spec now
+  matches it. No behaviour changed.

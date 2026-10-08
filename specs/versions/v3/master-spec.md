@@ -2526,16 +2526,20 @@ this Part C**; approving this Part C is not that confirmation.
   measure stays fully visible throughout the count-in". In a Jam without a held doodle, no phrase
   exists during the count-in; the beats are still counted on screen.
 - **The silence timer waits for a first note** (`rule_silence_timeout_ends_session`): "clicking
-  Start and taking a moment before playing never times out". A Jam with no doodle note within 30 s after its count-in ends; neither the home note that
-  starts a Jam nor its doodle starts the silence timer, which from phrase 1 on waits for a first
-  note as after a Start click.
+  Start and taking a moment before playing never times out". A Jam with no doodle note within
+  30 s after its count-in ends; neither the home note that starts a Jam nor its doodle starts the
+  silence timer, which from phrase 1 on waits for a first note as after a Start click.
 - **A lost controller never ends a session at once** (`rule_controller_loss_mid_session`, "the
-  session keeps running meanwhile"; `rule_controller_reconnection_window`, 30 seconds): a controller lost from a fresh Jam's count-in until its phrase 1 sounds ends the Jam at once; a
-  Jam on a held doodle follows v2's rule.
+  session keeps running meanwhile"; `rule_controller_reconnection_window`, 30 seconds): a
+  controller lost from a fresh Jam's count-in until its phrase 1 sounds ends the Jam at once; a Jam
+  on a held doodle follows v2's rule.
 - **The failure ladder** (`rule_session_generation_failure_ladder`): "a generation failure never
   stops the session", and "at Idle a phrase has no carry-in". A Jam's phrase 1 has its own
   three-rung ladder and three-measure deadline; if every rung fails, the Jam ends with no review;
   a held doodle's phrase 1 is generated at Idle with a join from the doodle (still no deadline).
+- **A cancelled attempt never ends the session** (`rule_dropped_attempt_cancelled`): one
+  exception, a fresh Jam's phrase 1 attempt cancelled at its three-measure deadline, which ends
+  the Jam as above.
 - **Phrase 1 is generated at Idle** (`rule_session_density_only_steps_down`: "Phrase 1 is the
   phrase already on screen at Start, generated at Idle; the session's own generation starts with
   phrase 2"): in a fresh Jam the session generates phrase 1, so the step-down can apply from
@@ -2544,8 +2548,9 @@ this Part C**; approving this Part C is not that confirmation.
 - **The join** (`rule_join_carry_in_limited`, "exactly four things cross the join ... nothing else
   is visible across the join"): the doodle reaches every phrase of a Jam as a generation input,
   not across the join; the doodle-to-phrase-1 join comes from no phrase and carries the last pitch
-  and the window only. A clarification; whether it counts as a change is `documentalist`'s call,
-  for the owner to confirm.
+  and the window only. Likewise, with the rhythm lock on, the locked rhythm (phrase 1's, C7)
+  reaches every later phrase of the session as a session-wide input, not across the join. A clarification; whether it counts as a change is `documentalist`'s call, for the
+  owner to confirm.
 - **The review's played notes** (`rule_review_played_notes_toggle`: played notes "shown only when
   the player turns a toggle on ... unquantized"; `req_last_session_review`): the review gains an
   always-shown doodle section engraved from the quantized doodle, as a generation input; the raw
