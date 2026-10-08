@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.64
+Status: draft v2.65
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D237**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D238**.
 
 ## Decision Log
 
@@ -496,3 +496,19 @@ fact in the live documents (see the [archive index](archive/README.md) and
   change (Eighth: add or remove a rest only; Sixteenth: none; Quarter: one rhythm); widening it is
   grammar work, v4. The research note [jam-grounding.md](versions/v3/jam-grounding.md) is refreshed
   (v2), with a measured table of the rhythm domains.
+
+- **D237 (2026-10-08): one term per concept across the v3.1 and v3.2 specs, and two small
+  inconsistencies (found by the lexicon update).** spec-writer's calls. Terms: **key** is the
+  Written key value (the home note) and **mode** the Collection value (nine options, Major and
+  Minor included) everywhere, the suggestion's "plain words" included; Vary settings' v3.1 step is
+  the **figure step**, in an allowed group named **Figures** (not "Style"); **allowed groups**
+  everywhere (no "allowed list"); **Tension's scheduled figure** (not "bound figure"); the
+  app's sound during a Jam's capture is the **click** (the lexicon keeps "pulse" for the beat
+  itself); **distance** for the mutation catalogue's scale (not "drift distance"); **rhythm change**
+  and **forced bend** (no bare "bend"); US spelling, **quantize**. Drift's positions keep the names
+  Close, Near and Free: each unlocks changes up to that distance, so the shared names are meant.
+  Inconsistencies: (1) the suggestion's **"Use it" changes the key and mode like a change by hand
+  and regenerates nothing on screen** (D235(1)); in Jam mode no phrase shows at Idle, so the next
+  Jam simply generates in the new key and mode; (2) **"Use it" keeps the held doodle**, as an
+  exception to "a control change at Idle drops the held doodle", since continuing the doodle in
+  the suggested key is the point of "Jam again on this doodle".
