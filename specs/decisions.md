@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.63
+Status: draft v2.64
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D236**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D237**.
 
 ## Decision Log
 
@@ -469,3 +469,30 @@ fact in the live documents (see the [archive index](archive/README.md) and
   removed; the settings that mark Custom grow; the mutation scales gain figure levels; the
   revert-at-session-end wording), so the contract needs a major version and the owner's explicit
   confirmation, as for v3.0; D233 approved the drafts, not that wording.
+
+- **D236 (2026-10-08): gaps settled while settling the v3.2 drafts (draft v2).** spec-writer's
+  calls within D232 and D234; none changes what the product is. Each is marked "draft v2" in its
+  document. **Rhythm lock** ([rhythm-lock.md](versions/v3/rhythm-lock.md)): the v3.2 allowed
+  rhythm changes are five kinds (move a note start by a sixteenth or an eighth, move a rest, split
+  a note, merge two notes, add or remove a rest), one change being one edit in one measure, or in
+  measure 1 or 2 repeated in 3 or 4, since the grammar copies measures 1–2 into 3–4; a change
+  happens in 1 phrase in 4, 1 in 2 on Tension across phrases' tenser phrase, tuned by ear at the
+  listening check; changes start at phrase 2, are seeded by the phrase's own seed (so pre-generated
+  phrases match), are always measured from the locked rhythm (they never add up), and are never
+  shown; no candidate means no change; forced bends happen only on a step down from Build to Lift
+  or on the narrow-window step-down, by drift's per-measure distance; the lock, the allowed changes,
+  drift and the Jam switch are saved like the session options, set at Idle or in the review, and
+  presets never hold them; the term "bend" gives way to "rhythm change" and "forced bend", and
+  Vary settings' list becomes its "allowed groups". **Jam** ([jam.md](versions/v3/jam.md)): Jam on
+  with no controller behaves as Jam off; a controller lost before phrase 1 sounds ends the Jam with
+  no review; "Jam again on this doodle" is offered in every kept Jam session's review, and a held
+  doodle lives in memory only; a Jam whose phrase 1 fails at every rung keeps nothing; stray notes
+  don't count against the 30 s first-note wait; Rising tempo counts from phrase 1; a Jam session's
+  stored shape is a new data version; in an outdated tab or failed-read visit Jam works in memory
+  and saves nothing. **Suggestion** ([key-and-mode-suggestion.md](versions/v3/key-and-mode-suggestion.md)):
+  a preset's restriction neither bounds nor reweights the candidates, and "Use it" outside it makes
+  the selection Custom; a "Keep mine" decline is kept with the kept Jam session. Known limit to show
+  the owner: under Strict variety with Straight syncopation the grammar offers almost no allowed
+  change (Eighth: add or remove a rest only; Sixteenth: none; Quarter: one rhythm); widening it is
+  grammar work, v4. The research note [jam-grounding.md](versions/v3/jam-grounding.md) is refreshed
+  (v2), with a measured table of the rhythm domains.

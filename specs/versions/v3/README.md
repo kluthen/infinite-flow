@@ -168,12 +168,16 @@ a kept session would need
 
 ## v3.1 — Embellishment flags and presets
 
-**Drafted 2026-10-07 (draft v1, proposals for the owner):** [embellishment flags](embellishment-flags.md)
-and [presets](presets.md), built on D228's frame for presets. They propose ornaments written as
-symbols for a later release, seven figures with one four-step level each, a new replay key
-version `ifk3.`, six built-in presets (Neutral, Jazz, Gentle, Speed drill, Reel, Bebop) holding
-ten controls and the figure levels, and player presets saved with v3.0's storage. Open: O127–O139.
-The notes below are the background those drafts start from.
+**Consolidated 2026-10-08: [master spec, Part B](master-spec.md#part-b--v31)** (master spec v1.0,
+awaiting the owner's approval of the consolidation), from the drafts the owner approved as
+proposed (D233): [embellishment flags](embellishment-flags.md) and [presets](presets.md), both
+draft v3 (2026-10-08). Settled: ornaments written as symbols wait for a release of their own after
+v3.2; seven figures written as ordinary notes, each with one four-step level, as preferences,
+never quotas; a new replay key version `ifk3.`; eight built-in presets (Neutral, Jazz, Gentle,
+Speed drill, Reel, Bebop, Pop song, Modal (Dorian)) holding ten controls, the figure levels and a
+key and mode restriction (D229–D231); and player presets saved with v3.0's storage. Nothing is
+open; the figure shares and the cost guard are measured before the gate. The notes below are the
+background those drafts started from.
 
 ### Embellishment flags
 
@@ -183,7 +187,8 @@ to support or alter in minor ways what's expected to be played", for example pas
 [appoggiaturas](../../../docs/music/lexicon.md#appoggiatura)) and surrounding a note with one note
 above and one below (an [enclosure](../../../docs/music/lexicon.md#enclosure)). It was already
 expected "in v2 or v3" ([v2 direction](../v2/README.md#direction-not-yet-scoped)). **Drafted in
-[embellishment-flags.md](embellishment-flags.md)** (draft v1, O127–O134).
+[embellishment-flags.md](embellishment-flags.md)** (draft v3, approved by D233, which closed
+O127–O134), consolidated in [master spec Part B](master-spec.md#b5-embellishment-figures-and-their-levels).
 
 - **What exists today.** The generator already writes
   [passing tones](../../../docs/music/lexicon.md#passing-tone), neighbor tones and appoggiaturas
@@ -235,8 +240,9 @@ expected "in v2 or v3" ([v2 direction](../v2/README.md#direction-not-yet-scoped)
 ### Presets
 
 Recorded 2026-10-07 (D210), the owner: "Presets! that's the last but not least feature of v3."
-Placed with the embellishment flags in v3.1 (D211). **Drafted in [presets.md](presets.md)** (draft v1,
-O135–O139), within D228's frame.
+Placed with the embellishment flags in v3.1 (D211). **Drafted in [presets.md](presets.md)** (draft v3,
+approved by D233, which closed O135–O139, O161 and O162), within D228's frame as amended by
+D229–D231; consolidated in [master spec Part B](master-spec.md#b6-presets).
 
 - **Today.** The [musical profile preset](../../../docs/music/lexicon.md#musical-profile-preset)
   has two fixed values, Neutral and Jazz. Each sets the note vocabulary (which figures are
@@ -267,13 +273,15 @@ O135–O139), within D228's frame.
 
 ## v3.2 — Jam and the rhythm lock
 
-**Drafts** (2026-10-07, draft v1, spec-writer's proposals awaiting the owner's review):
-[Jam](jam.md), [key and mode suggestion](key-and-mode-suggestion.md),
-[rhythm lock, Vary settings' allowed list and Jam's drift](rhythm-lock.md). They propose answers to
-O10, O103 and O114, open O140–O156, and surface the conflicts with settled decisions (privacy of
-the doodle, the suggestion against "a running session never asks", the time budget at 240 BPM, the
-seed of the draw, and D216's wording on what the lock holds). The sections below are the record
-the drafts start from.
+**Drafts** (2026-10-08, draft v2, approved by the owner: D232 for the rhythm lock, D234 for the
+rest): [Jam](jam.md), [key and mode suggestion](key-and-mode-suggestion.md),
+[rhythm lock, allowed rhythm changes, Vary settings' allowed groups and Jam's drift](rhythm-lock.md).
+D234 closes O10 (for v3.2), O114 and O140–O157; D232 closes O103 and O151. No question stays open
+in them. One wording waits for the owner: the declared-intent contract change O144 brings (the
+quantised doodle travels with the music, in the replay key and kept sessions), confirmed at the
+v3.2 master spec review ([Jam §8.1](jam.md#81-privacy-the-doodles-status-d234-o144)). Code facts:
+[Jam grounding](jam-grounding.md), re-checked 2026-10-08. The sections below are the record the
+drafts started from.
 
 ### Jam: growing the player's doodle
 
@@ -338,12 +346,15 @@ of staying silent.**
   - When the doodle fits the selected key and mode, nothing is suggested.
   - **Amended by D212.** When several answers fit, the app rates them and "casts a dice": a
     weighted draw among the most probable, so the likeliest answer comes up most often. The
-    owner: "it's a jam so, in the end it's only so much important." The draw is seeded, so the
-    same doodle in the same session gives the same suggestion. The player confirms the drawn
-    answer (D216).
+    owner: "it's a jam so, in the end it's only so much important." The draw is seeded by the
+    quantised doodle alone, so the same doodle always gives the same suggestion, across sessions
+    too (D234, O149). The player confirms the drawn answer (D216).
   - Very short notes are ignored (the stray-notes filter, v3.0).
-  - The suggestion is deterministic: the same doodle always gives the same suggestion, so a
-    phrase replay key still reproduces a session.
+  - The suggestion changes no phrase until the player confirms it, and a confirmed suggestion is
+    recorded as the key and mode settings it set, so no replay key carries it (D234). The earlier
+    reason given here ("so a phrase replay key still reproduces a session") did not hold.
+  - It is shown after the Jam, in its review and at Idle with a held doodle, never during the Jam
+    (D234, O148): see the [draft](key-and-mode-suggestion.md#3-where-and-when-it-is-shown).
 - **Research done:** [key and mode estimation](../../../docs/music/key-and-mode-estimation.md).
   No published method covers all seven modes on short melodies; the best on short single lines
   (Temperley's probabilistic model) picks among 24 major and minor keys. The method (D216,
@@ -360,29 +371,39 @@ of staying silent.**
 Recorded 2026-10-03 (D175) as candidates reached through a new note-density value, Custom. D211
 splits them: **the rhythm lock and its mutation option are v3.2**, designed with Jam, as the owner
 expected them to "heavily link" (D209); the rhythm ratios and the rhythm editor, the "fine tuning
-of rhythm", [move to v4](#moved-to-v4-rhythm-ratios-and-the-rhythm-editor).
+of rhythm", [move to v4](#moved-to-v4-rhythm-ratios-and-the-rhythm-editor). Settled by D232 and
+D234; detail in the [rhythm lock draft](rhythm-lock.md).
 
-- **Rhythm lock.** When set, the rhythm does not change. Generation may bend that rule a little to
-  create [tension and release](../../../docs/music/lexicon.md#tension-and-resolution), but the
-  rhythm stays stable across the session.
-  - **What it holds** (D216): the note starts on beats 1 and 3 and the number of notes in each
-    measure. A bend is one Close mutation, or one Near mutation in one measure, dropped at the
-    next phrase. Whether a bend is shown, and whether the lock can hold the doodle's own rhythm,
-    stay open (O103, O114).
-  - It is a switch of its own, not reached through the Custom note density (D216). Custom and
-    O100 go to v4 with the ratios.
+- **Rhythm lock** (D232). When set, the rhythm does not change: the lock is strict, fixing every
+  note start and length, and so every rest, across the four measures, while the pitches keep
+  changing. Outside a Jam it locks phrase 1's rhythm, the phrase on screen at Start; in a Jam, the
+  rhythm nearest the doodle that the rhythm grammar can write (the exact played rhythm needs v4's
+  editor, O102). It is a switch of its own, not reached through the Custom note density (D216).
+  D232 replaces D216's "what it holds" (the starts on beats 1 and 3 and the note counts) and
+  removes the automatic, tension-driven bends of the first draft.
+- **Allowed rhythm changes** (D232, D234). D175's "generation may bend it a little to create
+  [tension and release](../../../docs/music/lexicon.md#tension-and-resolution)" becomes the
+  player's option: a list of small edits from the
+  [mutation catalogue](../../../docs/music/mutation-catalogue.md), empty by default so the lock is
+  strict by default. Each change lasts one phrase; at most one per phrase, in a seeded share of
+  phrases, somewhat more often on a tenser phrase when Tension across phrases is on; never shown.
+  The v3.2 list and its reasons: [rhythm lock §3](rhythm-lock.md#3-allowed-rhythm-changes).
+  **Wider mutation options are v4** ([v4](../v4/README.md#placed-here-proposed)).
+- **Forced bend.** When the locked rhythm cannot make a phrase (Tension across phrases moves the
+  phrase into a rhythm domain without it, say), the phrase takes the nearest rhythm that can, and
+  the next phrase tries the locked one again. It is the search's fallback, not a player option.
 - **Mutation, with a list of allowed mutations** (D211, the owner's words: "rhythm lock/mutation
-  option (with a list of allowed mutations)"). Mutation could become how far the phrases may drift
-  from the doodle, from close variations to looser ones (D209). Settled by D216 (O118) from the
+  option (with a list of allowed mutations)"). Settled by D216 (O118) from the
   [mutation catalogue](../../../docs/music/mutation-catalogue.md): both readings, kept apart.
-  Vary settings gets a player-chosen allowed list, offered as six groups, checked for a legal move
-  before it is accepted; under Jam, a **drift** control with three or four positions unlocks the
-  catalogue's mutations up to a distance, closest first. Vary settings keeps mutating key and mode
-  when the player turns it on; D209's rule governs the suggestion only (O121).
+  Vary settings gets player-chosen **allowed groups** (six groups, checked for a legal move before
+  they are accepted); under Jam, a **drift** control with three positions (Close, Near, Free;
+  D234) orders the catalogue's mutations up to a distance, closest first. Vary settings keeps
+  mutating key and mode when the player turns it on; D209's rule governs the suggestion only
+  (O121).
 - **Already settled with the settings-mutation flag** (D175; the flag is v2's, master spec §5):
-  while the lock is set, a mutation cannot alter the rhythm durably; a temporary bend is the only
-  latitude.
-- **Open:** the rest of O103 and O114, in the [register](../../open-questions.md).
+  while the lock is set, a mutation cannot alter the rhythm durably. D232 keeps it: a rhythm
+  change lasts one phrase.
+- **Open:** nothing; D232 and D234 closed O103 and O114.
 
 ## v3.x — Learning from positive signals
 

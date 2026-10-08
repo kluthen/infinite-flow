@@ -1,6 +1,10 @@
 # Jam — grounding research
 
-Status: research v1 (2026-10-07)
+Status: research v2 (2026-10-07, re-checked against the code on 2026-10-08)
+
+The facts that moved between v1 and the re-check are corrected in place, each marked
+"(re-checked 2026-10-08)", and listed in [section D](#d-re-check-2026-10-08). The v3.2 drafts use
+the corrected facts.
 
 Prepared by a grounding researcher for the v3.2 spec session on
 [Jam](README.md#jam-growing-the-players-doodle), the
@@ -33,6 +37,7 @@ Plain words used below:
 - [B. Precedent](#b-precedent)
 - [C. Options for the spec session (proposed)](#c-options-for-the-spec-session-proposed)
 - [Gaps and follow-ups noticed](#gaps-and-follow-ups-noticed)
+- [D. Re-check (2026-10-08)](#d-re-check-2026-10-08)
 
 ## Summary: what matters most
 
@@ -47,7 +52,7 @@ Plain words used below:
    intervals: it picks each note from a ranked list of candidates
    ([A.3](#a3-the-planner-stages-and-where-a-doodle-could-enter)).
 3. **The generator can only produce rhythms its grammar can build.** Every rhythm is one of a
-   pre-enumerated, seed-independent list per rhythm setting (up to 1,797), and the validator
+   pre-enumerated, seed-independent list per rhythm setting (up to 2,932; re-checked 2026-10-08), and the validator
    checks each against its own grammar provenance. A played rhythm cannot simply be imposed; it can
    be matched (pick the nearest candidates) or the grammar must learn a new "given gesture" path
    ([A.4](#a4-rhythm-generation-could-a-given-rhythm-be-imposed)).
@@ -110,11 +115,15 @@ lives in `src/domain/generation/carry-in/`.
 - **How a carry-in is built.** `deriveCarryIn` (`carry-in-derivation.ts`) replays a finished
   phrase's sounding notes through the pitch planner's own leap-state reducer. The same replay could
   run over a doodle's notes.
-- **What the constructor refuses** (`makeCarryIn`): a last pitch outside the carried window; an
-  arriving interval larger than an octave; an owed recovery not backed by a skip or leap; a phrase
-  number that is not a positive whole number. A doodle can break all of these: it may end outside
-  the register window, leap more than an octave, and has no session phrase number (phrase 0 is
-  refused).
+- **What the constructor refuses** (`makeCarryIn`, `carry-in.ts`; full list re-checked
+  2026-10-08): a last pitch that is not a valid concert pitch, or lies outside the carried window;
+  a missing harmony (it must be a chord or an explicit `null`); a malformed chord (degree, pitch
+  classes, quality, role or endpoint invalid); an arriving interval that is not a whole number or
+  is larger than an octave; an owed recovery not backed by a skip or leap in the right direction; a
+  tense note (off the carried chord) not reached by a step, checked only when there is a chord; a
+  phrase number that is not a positive whole number; an invalid register window. A doodle can
+  break several of these: it may end outside the register window, leap more than an octave, and
+  has no session phrase number (phrase 0 is refused).
 - **How the next phrase uses it.** `carriedMotionState` (`src/domain/pitch/pitch-carry-in.ts`)
   seeds the pitch search with the carried pitch as "the note before beat 1": the first interval
   obeys the same caps and leap budget as two notes inside a phrase, and an owed recovery falls due
@@ -155,8 +164,10 @@ Facts that shape the choice:
   rhythm policy says pitch planning "may use the witness to relate melodic material", but no pitch
   or validation code reads it (`grep recurrence src/domain/pitch src/domain/validation` finds
   nothing). Repeating or sequencing the doodle's pitches is new pitch-planner behaviour.
-- **Contour is coarse.** Only checkpoint pitches count (each bar's first fresh attack on beat 1 or
-  3); decorative notes may move against it
+- **Contour is coarse.** Only checkpoint pitches count (each bar's first attack on beat 1 or 3;
+  when those beats hold only tie continuations, the bar's first fresh attack, re-checked
+  2026-10-08: chosen in `checkpointIndices`, `src/domain/pitch/pitch-context.ts`, mirrored by the
+  validator's `contourCheckpoints`); decorative notes may move against it
   ([pitch policy, "Contour checkpoints"](../../../docs/music/pitch-planner-validation.md#contour-checkpoints)).
   A one-bar doodle has a single checkpoint, so its own "contour" in this sense is undefined; its
   note-to-note directions are the usable shape.
@@ -174,13 +185,22 @@ Facts that shape the choice:
 - **A finite, enumerated domain.** For each of the five rhythm controls the grammar
   (`rhythm-mvp-v2`) enumerates every legal four-bar rhythm once, seed-independently, in a fixed
   order. The canonical memo (`canonical-rhythm-domain.ts`, `SHARED_CANONICAL_RHYTHM_DOMAIN_MEMO`) is
-  keyed on those five controls only; the Idle prewarm (`rhythm-domain-prewarm.ts`) fills it in
-  ~8 ms slices. The worst domain has 1,797 candidates and took 823 ms cold, 228 ms warm, in the
-  browser ([generation latency](../../../docs/generation-latency.md)).
+  keyed on the grammar version plus those five controls: note density, rhythmic variety, silence
+  density, syncopation and **tension** (re-checked 2026-10-08). Tension across phrases steps the
+  tension a phrase is generated with (`tension-arc-cycle.ts`, cycle 0, +1, 0, −1, clamped at
+  Settled and Edge), so phrases 2 and 4 of each group of four use another rhythm domain than the
+  player's tension. The Idle prewarm fills the memo in ~8 ms slices
+  (`DEFAULT_PREWARM_SLICE_BUDGET_MS`, `generation-worker-runtime.ts`). The slowest domain to build
+  has 1,797 candidates; the largest has 2,932 (Sixteenth, Heavily varied, Straight, Sparse, at
+  Build or Edge; re-checked 2026-10-08, [§D.2](#d2-what-the-rhythm-domain-offers-a-locked-rhythm)); in the v2.0 gate run, prewarm on, the worst setting generated in 277.2 ms cold and
+  77.3 ms warm in the browser (re-checked 2026-10-08; the 823 ms and 228 ms of v1 come from an
+  older run) ([generation latency](../../../docs/generation-latency.md)).
 - **Order today is pure seed.** `rankMaterializedRhythmCandidates` (`candidate-ranking.ts`) sorts
-  candidates by a seeded hash, ties by index. There is no musical ranking of rhythms, so a
+  candidates by a seeded hash tie key, ties by index. (This holds for harmony and rhythm; pitch
+  candidates are ordered by a musical rank, `pitchRank`, before their tie key.) There is no
+  musical ranking of rhythms, so a
   "closeness to the doodle" key could be added in front of the seed key, per request, over at most
-  1,797 candidates.
+  2,932 candidates (re-checked 2026-10-08; v1 said 1,797, the slowest domain).
 - **Hard rules every rhythm must pass** (`validateRhythmCandidate`, `rhythm-validator.ts`): each
   bar tiles 16 ticks; no all-rest bar; a note sounding on beat 1 or 3 in every bar (metrical
   anchor); the phrase opens with a fresh attack on bar 1, beat 1 (`rule_phrase_starts_on_downbeat`);
@@ -249,8 +269,15 @@ Facts that shape the choice:
 ### A.6 Determinism and the phrase replay key
 
 - **Determinism.** The same intent and seed give the same phrase byte for byte
-  (`rule_seeded_phrase_reproduction`); randomness comes from named streams of one seed
-  (`module_named_stream_pseudorandomness`); every sort uses code-unit order since ISS-010.
+  (`rule_seeded_phrase_reproduction`); every sort uses code-unit order since ISS-010.
+- **Where order and seeds come from** (re-checked 2026-10-08; v1 said "named streams of one
+  seed"). Candidate order comes from FNV-1a hash tie keys over the seed and each candidate's
+  identity (`harmonyTieKey`, `rhythmTieKey`, the pitch and register tie keys). The named streams
+  of `module_named_stream_pseudorandomness` (`deriveNamedStream`) have no production caller; only
+  the indexed streams of the same module are used, by Vary settings
+  (`src/session/settings-mutation.ts`). Each attempt's seed is a fresh random value
+  (`crypto.getRandomValues`, drawn in `session-intents.ts`). The only session-level seed is
+  Vary settings' own, drawn when the option is on; there is no session seed.
 - **The replay key** ([`module_phrase_replay_key`](../../../docs/module_phrase_replay_key.atom.md);
   `src/generation-worker/phrase-replay-key.ts`, `phrase-replay-key-decode.ts`): `ifk1.` + base64url
   of a 7-tuple (request id, seed, the 14 controls, profile, custom flag, phrase number, carry-in or
@@ -288,7 +315,8 @@ Facts that shape the choice:
   `search-ledger.ts`. One unit costs 2–51 µs, so fuel does not bound time by itself.
 - **ISS-009** ([issue](../../../issues/Ref_20261006_failed_carry_in_attempts_slow.md)): failed
   carry-in searches took 6–13 s (one 28 s) and were retried identically; successes took 280 ms at
-  most. Fixed by a faster search, the smaller carry-in allowance, skipping retries after an
+  most (the 280 ms figure is the issue's, not the latency document's; re-checked 2026-10-08).
+  Fixed by a faster search, the smaller carry-in allowance, skipping retries after an
   exhausted search, and the time-aware ladder: 0 of 568 sweep cases now repeat a phrase.
   **The lesson for Jam:** a constraint that makes searches fail is expensive, and failures are what
   the published latency figures do not show. Any Jam shape needs a real-cost sweep like
@@ -311,8 +339,8 @@ Facts that shape the choice:
     standalone rung drops it.
   - _Rhythm filtering_: shrinks harmony × rhythm pairs; a filtered-out domain fails before any
     pitch work (`no_legal_rhythm_plan`), which is cheap but leaves nothing to play.
-  - _A doodle-specific rhythm domain_ (new grammar path): a memo miss per doodle, a cold build up
-    to ~0.8 s in the browser for the worst setting; it could be prewarmed when the doodle is
+  - _A doodle-specific rhythm domain_ (new grammar path): a memo miss per doodle, a cold build
+    (the worst setting's cold generation is 277.2 ms in the v2.0 gate run, re-checked 2026-10-08); it could be prewarmed when the doodle is
     accepted, at Idle, before Start.
 - **Pre-generation at Idle** (v3.0.1, [O107–O111](../../decisions.md))
   would remove deadline pressure from the first Jam phrases: a doodle recorded at Idle could be
@@ -545,3 +573,70 @@ This is the closest match to "the generator continues and develops it", and to G
   name; O118 already asks which is meant.
 - **The tension arc already sets how much the answer changes** (one answer transform for Settled
   or Lift, one or two for Build or Edge); a Jam mutation amount could reuse or collide with it.
+
+## D. Re-check (2026-10-08)
+
+Re-verified against the code by `codebase-explorer` for the v3.2 drafts' second version. The
+eight facts below had moved since v1; each is corrected in place above. Everything else in A.1–A.7
+was confirmed as written (fuel constants, the 1,797-candidate slowest domain, the `ifk1.` 7-tuple
+with no `ifk2.` yet in code, no stray-note filter and no quantiser in code yet, the starting note
+at Idle, output latency 0, `phraseEndingDebtAllowance` shared, the four carry-in rungs plus one
+standalone, `recurrence` still unread by pitch and validation code).
+
+| # | v1 said | The code says (2026-10-08) | Evidence |
+| --- | --- | --- | --- |
+| 1 | Worst setting 823 ms cold, 228 ms warm in the browser | 277.2 ms cold, 77.3 ms warm (v2.0 gate run, prewarm on). Standalone attempt in Chromium: median 245 ms, max 618.6 ms over the 43 slowest settings. Standalone reserve 1.075 s (0.95 + 0.125). The old figures belong to an older run | `docs/generation-latency.md` (2026-10-06 run, v2.0 gate); `src/session/session-timing.ts` |
+| 2 | Randomness comes from named streams of one seed | Candidate order comes from FNV-1a hash tie keys (harmony, rhythm, pitch, register). The named streams have no production caller; the indexed streams of the same module serve Vary settings | `candidate-ranking.ts`, `pitch-tie-key.ts`, `register-tie-key.ts`, `random/streams.ts`, `settings-mutation.ts` |
+| 3 | (implied) a session seed | Each attempt's seed is a fresh random value; the only session-level seed is Vary settings' own; there is no session seed | `session-intents.ts` (`buildAttemptIntent`), `create-workspace-session.ts` (`nextCryptoSeed`), `workspace-session-runner.ts` |
+| 4 | The rhythm memo is keyed on "the five rhythm controls" (tension not named) | Grammar version + note density, rhythmic variety, silence density, syncopation, **tension**. Tension across phrases (cycle 0, +1, 0, −1, clamped) changes the domain on phrases 2 and 4 of each group of four | `canonical-rhythm-domain.ts` (`memoKey`), `tension-arc-cycle.ts` |
+| 5 | `makeCarryIn` refuses four things | Nine: also an invalid pitch, a missing harmony, a malformed chord, an owed recovery in the wrong direction, a tense note not reached by a step, an invalid register window | `src/domain/generation/carry-in/carry-in.ts` |
+| 6 | A bar's checkpoint is its first fresh attack on beat 1 or 3 | Its first attack on beat 1 or 3, otherwise (beats holding only tie continuations) its first fresh attack; chosen in `pitch-context.ts`, not `pitch-contour.ts` | `pitch-context.ts` (`checkpointIndices`), `validation/contour-endpoint-rules.ts`, `docs/music/pitch-planner-validation.md` |
+| 7 | Carry-in successes took at most 280 ms (placed beside the latency figures) | The figure is ISS-009's ("280 ms at most, p99 68 ms"); the latency document has no such carry-in figure | `issues/Ref_20261006_failed_carry_in_attempts_slow.md` |
+| 8 | (not covered) | `module_ranked_candidate_ordering` (REVIEW) describes harmony and rhythm order as "without scoring or preferring any candidate over another", as current policy, not a prohibition; pitch already prefers candidates through `pitchRank` | `docs/module_ranked_candidate_ordering.atom.md` |
+
+Two smaller notes: the prewarm slice constant lives in `generation-worker-runtime.ts`; ISS-009's
+slowest failed attempt reads 27.96 s in its case table and 23.5 s in its change log (an
+inconsistency inside the issue). A pointer for `documentalist`, not a verdict: the named-stream
+atom's technical interface still says orchestration requests a named stream by label, and
+`candidate-ranking.ts` links to that atom, while the code uses hash tie keys.
+
+### D.2 What the rhythm domain offers a locked rhythm
+
+Measured on 2026-10-08 for the rhythm lock's allowed rhythm changes
+([rhythm lock §3](rhythm-lock.md#3-allowed-rhythm-changes)): every one of the 81 rhythm settings ×
+4 tensions (324 domains) enumerated through the real builder, in Node, outside the tests. Measures
+were compared as written (note starts, rests, ties); a candidate's neighbours were counted by edit
+kind, either alone in one measure or as the same edit in measure k and k + 2.
+
+- **Where each edit can come from.** Bar 2 copies bar 1 cell for cell, and bars 3–4 copy bars 1–2
+  (`rhythm-skeleton.ts`, `rhythm-planner.ts`), so a change of a bar-1 beat cell recurs in every
+  measure. The one optional gesture merge sits in bar 1 or 2 and recurs in bar 3 or 4; Strict
+  variety never merges (its share floor, `rhythm-variety.ts`). The recurrence substitution (a note
+  turned into a rest, or back) acts on bar 2 and recurs in bar 4. So **split, merge and note ↔ rest
+  never occur alone in one measure**, only repeated in k and k + 2. **Moving a note start and moving
+  a rest** do occur alone, in measures 3–4 from a second answer transform (Build and Edge only,
+  `syncopation.ts`) and in any measure from Occasional offbeats' one- and two-bar templates
+  (`syncopation-templates.ts`). `displacementCandidates` keeps only the earliest legal boundary per
+  case and delta (`transform-descriptors.ts`), so few positions exist per measure.
+- **Measured shares** of candidates with at least one neighbour, pooled (one measure / repeated in
+  k and k + 2): under Straight syncopation, at Settled or Lift almost nothing alone (a note and
+  rest trading places in measure 2, 9 %), repeated: split 70 %, move a start by an eighth 26 %,
+  merge 16 %, note to rest 12 %; at Build or Edge, move a start by a sixteenth 71 % alone. Under
+  Occasional offbeats: tie 41 %, move a start 31 %, move a rest 25–32 % alone. Under Active
+  displacement: moves of starts and rests, 3–61 % alone and 9–34 % repeated. Strict variety with
+  Straight syncopation offers almost nothing (Eighth: note ↔ rest repeated, 7–17 %; Sixteenth:
+  none; Quarter: a single rhythm).
+- **Across tensions** (rhythms compared by bars): Settled and Lift domains hold the same rhythms,
+  and so do Build and Edge; every Settled or Lift rhythm is in the Build and Edge domains; only
+  41.7 % of Build and Edge rhythms are in the Settled and Lift domains (100 % in 37 of the 71
+  settings that have a rhythm, 24 % at worst). A locked rhythm is therefore lost only on a step
+  down from Build to Lift. 10 settings have no rhythm at any tension.
+- **Size and cost.** The largest domain has 2,932 candidates (Sixteenth, Heavily varied, Straight,
+  Sparse, at Build or Edge); 1,797 is the slowest setting to build, not the largest. A candidate's
+  identity (about 20 KB of JSON with provenance, controls and tension) cannot compare bars:
+  identical rhythms carry different identities (1,797 candidates, 1,435 distinct rhythms). No bar
+  key exists in `src/`. One is cheap: keying the 2,932-candidate domain took 10 ms, and finding a
+  locked rhythm's one-edit neighbours 0.1–0.2 ms, against 246 ms to build the domain (Node; the
+  browser sweep confirms).
+- Not verified: why Active displacement at Settled concentrates its one-measure changes in measure
+  4, and whether a candidate's index survives a tension change (the bar key makes it irrelevant).
