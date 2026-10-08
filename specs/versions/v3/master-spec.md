@@ -2104,9 +2104,9 @@ this way keeps it held (C5.11), and Idle shows the same phrase 1 again.
 - **The seed is the quantized doodle alone**: a 32-bit FNV-1a hash of its notes (ticks and concert
   pitches), read with a hash tie key of its own (`infinite-flow/key-suggestion/v1`), like the
   generator's tie keys. So **the same doodle always gives the same suggestion**, across sessions and
-  reloads; two live doodles are practically never identical, so the dice still varies. There is no
-  session seed to use (each phrase's seed is a fresh random value), so a draw seeded by the session
-  could not be reproduced.
+  reloads; two live doodles are practically never identical, so the dice still varies. A draw seeded by
+  the session would differ from one Jam on the same doodle to the next, so the session's seeds
+  (Part A §8) are not used.
 - **Computed in concert pitch, named in written pitch.** "The selection is among the candidates"
   compares Major as Ionian and Minor as Aeolian, since they hold the same notes.
 - **A preset's [key and mode restriction](../../../docs/music/lexicon.md#key-and-mode-restriction)
@@ -2190,7 +2190,7 @@ started. So the suggestion is never offered during a Jam.
   v2's narrow-window rule ([v2 master spec §5](../v2/master-spec.md#5-control-changes-during-a-session))
   and the locked rhythm uses sixteenth notes, the first phrase generated with Eighth takes the
   nearest Eighth rhythm (total edits, C8), and that rhythm becomes the locked one for the rest of
-  the session.
+  the session. That phrase draws no rhythm change (C7.4): it is the new locked rhythm itself.
 - **What the lock is not**: the doodle's exact rhythm as played; that needs v4's rhythm editor.
 
 ### C7.2 Allowed rhythm changes: the option
@@ -2240,7 +2240,8 @@ description tells the player that what it offers depends on the rhythm settings.
 
 ### C7.4 When a phrase changes
 
-- **At most one change per phrase**, never on phrase 1.
+- **At most one change per phrase**, never on phrase 1, nor on the phrase that re-locks after a
+  narrow-window step-down (C7.1).
 - **A seeded share of phrases**: each phrase from phrase 2 on draws whether it changes, **1 in 4**
   normally and **1 in 2** on a tenser phrase. A tension step made by Vary settings is a setting
   change, not a tenser phrase. These figures are starting values, tuned at the listening check.
@@ -2251,6 +2252,8 @@ description tells the player that what it offers depends on the rhythm settings.
   exactly one change of an allowed kind (C7.3), in seeded order; every allowed kind is pooled, so a
   kind with more candidates comes up more often. A change is always measured from the locked
   rhythm, never from the previous phrase, so changes never add up.
+  A candidate that also differs by a tie added or removed elsewhere is not exactly one change, so
+  it is never drawn as one; bars are compared as written.
 - **No candidate, no change**: when no candidate exists for any allowed kind, the phrase keeps the
   locked rhythm; nothing is shown, and the session history records it.
 - **A change is never shown**: nothing in the live view, the review or the exports marks it. The
@@ -2331,7 +2334,8 @@ The rules:
   doodle" (C7.1); the Melody column applies to every phrase.
 - **The distance, measure by measure.** Compare a candidate's measure with the doodle's measure
   laid over it (C5.9), as two lists of note starts and rest starts in ticks. An **edit** adds one
-  start, removes one, or moves one by at most an eighth note. No edit is **Same**. One edit away
+  start, removes one, moves one by at most an eighth note, or turns a note start into a rest start
+  at the same tick or back (one edit, not two). Ties are not starts. No edit is **Same**. One edit away
   from ticks 0 and 8 (beats 1 and 3) is **Close**. One edit touching tick 0 or 8, or two Close
   edits, is **Near**. Anything more is beyond.
 - **Within a position's band** (every measure inside it), candidates keep their seeded order, so
@@ -2454,7 +2458,8 @@ the kept sessions; it lists nothing new.
   request, and across the generation worker (re-validated there from untrusted input like every
   field): **the quantized doodle** (one to four measures of note starts and lengths in ticks, and
   concert pitches; its own type, since a phrase timeline is always exactly four measures), or none;
-  **the drift**, with a doodle; **the locked bars**, or none; **the allowed rhythm changes**; and
+  **the drift**, with a doodle; **the lock**: off, on with nothing locked yet (a Jam's phrase 1, chosen nearest the doodle), or
+  on with the locked bars; **the allowed rhythm changes**; and
   **whether the phrase is a tenser one**. The doodle's join into phrase 1 travels as a join (carry-in)
   of the "no chord, no arriving interval, no owed recovery" form, from no phrase. The capture tempo
   is not part of the request. Every ordering and draw derived from these is computed inside
@@ -2652,9 +2657,11 @@ From the grounding research, re-checked against the code on 2026-10-08
   code gap**, cheap to fill (C7.6).
 - **The pitch search** already orders candidates by a musical rank before its seed key; the
   doodle's move preference is a term within that rank.
-- **There is no session seed**: each attempt's seed is a fresh random value; the only session-level
-  seed is Vary settings' own. Hence the suggestion's seed from the doodle, and the rhythm change's
-  from the phrase's seed.
+- **Seeds**: on today's code each attempt's seed is a fresh random value and the only
+  session-level seed is Vary settings' own; v3.0 fixes a session's seeds before Start for
+  pre-generation (Part A §8), and a fresh Jam, with no phrase 1 at Idle, fixes them at Start.
+  Either way, the suggestion's seed comes from the doodle alone, and the rhythm change's from the
+  phrase's own seed.
 - **Vary settings** cannot exclude a setting at run time, and throws when no move exists: **the
   allowed groups need a run-time exclusion** (code gap).
 - **The replay key** in code is still `ifk1.` only; `ifk2.` (v3.0) and `ifk3.` (v3.1) are specified
@@ -2708,8 +2715,7 @@ From the grounding research, re-checked against the code on 2026-10-08
   Jam phrase, and the playing itself stays the most private data the app holds.
 - **The suggestion only after the Jam**, because a running session never asks the player for
   anything, and the player confirms the suggestion.
-- **The suggestion seeded by the doodle alone, in integers**, because there is no session seed to
-  reproduce, the same doodle should always give the same answer, and floating-point functions can
+- **The suggestion seeded by the doodle alone, in integers**, because the same doodle should always give the same answer, whichever session it came from, and floating-point functions can
   differ between browsers.
 - **The lock matched by bars and tried with every chord plan first**, because identities differ
   between identical rhythms and between tensions, and the search would otherwise drop the locked

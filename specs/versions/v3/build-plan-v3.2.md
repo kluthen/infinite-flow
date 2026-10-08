@@ -2063,8 +2063,9 @@ what differs from the drafts:
 
 ## 10. Questions for spec-writer
 
-Gaps found while planning. None blocks a chunk: each gives the reading the plan uses meanwhile, and
-the chunk named records an answer that differs.
+Gaps found while planning. **All five were answered by `spec-writer` on 2026-10-08 (spec D251),
+each as the reading given below**, and written into master spec Part C (C6.2, C7.1, C7.4, C8,
+C11, C14, C15). They are kept here so the chunks' references stay readable.
 
 1. **The lock's state in phrase 1's request** (C11, C7.1; chunks 6, 10, 18). C11 lists "the locked
    bars, or none" among the request's inputs. In a Jam with the lock on, phrase 1 has no locked bars

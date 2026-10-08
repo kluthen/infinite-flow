@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.72
+Status: draft v2.73
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D251**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D252**.
 
 ## Decision Log
 
@@ -614,3 +614,13 @@ fact in the live documents (see the [archive index](archive/README.md) and
   its id, "my instrument" inline (B9). (4) A v3.0 kept session's preset label takes its customized
   form from phrase 1's reproduction inputs, which hold the session's start state (B9). No behaviour
   the owner approved changes.
+- **D251 (2026-10-08): five precisions to Part C for the v3.2 build plan.** spec-writer's calls,
+  from the build plan draft's questions (`build-plan-v3.2.md` §10), each the plan's reading:
+  (1) the request's lock input has three forms: off, on with nothing locked yet (a Jam's phrase 1,
+  chosen nearest the doodle), on with the locked bars; `ifk4.` carries it (C11). (2) The phrase
+  that re-locks after a narrow-window step-down draws no rhythm change (C7.1, C7.4). (3) Turning a
+  note start into a rest start at the same tick is one edit; ties are not starts (C8). (4) A
+  candidate that also differs by a tie elsewhere is not "exactly one change" (C7.4). (5) Part C's
+  "there is no session seed" was stale against Part A §8's fixed session seeds; reworded (C6.2,
+  C14, C15) with no behaviour change: the suggestion is seeded by the doodle alone, the rhythm
+  change by each phrase's own seed, and a fresh Jam fixes its session seeds at Start.
