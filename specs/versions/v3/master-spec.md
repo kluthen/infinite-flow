@@ -6,12 +6,12 @@ Status: this file holds three parts.
   product owner, and being built. Its text and section numbers (§1 to §15) are unchanged.
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
-  owner (2026-10-08). The exact wording of the contract guarantees it changes (B11) awaits the
-  owner's confirmation. Its sections are numbered B1 to B16.
+  owner (2026-10-08). The owner confirmed the exact wording of the contract
+  guarantees it changes (B11) the same day. Its sections are numbered B1 to B16.
 - **[Part C — v3.2](#part-c--v32), Jam, the key and mode suggestion and the rhythm lock:**
   master spec v1.0 (2026-10-08), consolidated from the approved v3.2 drafts; approved by the
-  product owner (2026-10-08). The exact wording of the contract guarantees it changes (C13) awaits
-  the owner's confirmation. Its sections are numbered C1 to C18.
+  product owner (2026-10-08). The owner confirmed the exact wording of the contract
+  guarantees it changes (C13) the same day. Its sections are numbered C1 to C18.
 
 Part A's history follows.
 
@@ -575,8 +575,8 @@ the player triggers.
 
 Generation choices: embellishment figures and presets. Master spec v1.0 (2026-10-08), consolidated
 from the approved drafts [embellishment-flags.md](embellishment-flags.md) and
-[presets.md](presets.md), which keep the code references line by line. Approved by the owner on 2026-10-08; the contract wording (B11) awaits the owner's
-confirmation. v3.1 is built on v3.0 (Part A): its storage, its settings record,
+[presets.md](presets.md), which keep the code references line by line. Approved by the owner on 2026-10-08; the owner confirmed the contract wording
+(B11) the same day. v3.1 is built on v3.0 (Part A): its storage, its settings record,
 its tolerant loading and its `ifk2.` replay key must exist first.
 
 Music terms are explained the first time they appear; the project's
@@ -1243,7 +1243,8 @@ Each change is intended. Where a declared-intent entry is named, `documentalist`
 change.
 
 **Contract guarantees that change** (they need the owner's explicit confirmation and a major
-contract version; approving this spec is not that confirmation):
+contract version; approving this spec is not that confirmation; the owner confirmed their
+wording on 2026-10-08):
 
 - "A musical-profile mutation flips Neutral and Jazz, keeping every controlled value"
   (`rule_mutation_profile_flip_keeps_controls`): **removed**, replaced by the figure step (B8.1).
@@ -1485,8 +1486,8 @@ v3.1 ships when every item holds, each verified by a named test or a recorded ha
 - **Measured before the gate, not open questions:** the Favored and Strongly favored shares,
   starting at about 1 in 4 and 1 in 2 (B5.2); the cost guard's figures, and from them whether the
   passing-and-neighbor rule ships (B5.6).
-- **Needs the owner:** approval of this Part B; then the explicit confirmation of B11's four
-  contract changes, which approving the spec is not.
+- **From the owner:** nothing more. Part B was approved, and B11's four contract changes were
+  confirmed word for word, on 2026-10-08.
 - **For `documentalist`:** the declared-intent changes of B11, and the lexicon entries it lists.
 - **Design, for `ux-writer`:** B10.
 - **Deferred to later versions:**
@@ -1519,8 +1520,8 @@ Jam, the key and mode suggestion, and the rhythm lock. Master spec v1.0 (2026-10
 consolidated from the approved drafts [jam.md](jam.md),
 [key-and-mode-suggestion.md](key-and-mode-suggestion.md) and [rhythm-lock.md](rhythm-lock.md),
 with the code facts of [jam-grounding.md](jam-grounding.md) (re-checked against the code on
-2026-10-08), which keep the code references. Approved by the owner on 2026-10-08; the contract wording (C13) awaits the owner's
-confirmation. v3.2 is built on v3.0 (Part A) and
+2026-10-08), which keep the code references. Approved by the owner on 2026-10-08; the owner confirmed the contract wording
+(C13) the same day. v3.2 is built on v3.0 (Part A) and
 v3.1 (Part B): their storage, kept sessions, stray-note filter, pre-generation,
 [figure levels](../../../docs/music/lexicon.md#figure-level), presets and `ifk3.` replay key must
 exist first.
@@ -2509,8 +2510,8 @@ Each change is intended. Where a declared-intent entry is named, `documentalist`
 change.
 
 **Contract guarantees that change** (STABLE atoms on the contract surface). They need a major
-contract version and **the owner's explicit confirmation of their exact wording at the review of
-this Part C**; approving this Part C is not that confirmation.
+contract version and **the owner's explicit confirmation of their exact wording**, given on 2026-10-08 apart from
+approving this Part C.
 
 - **Played-notes privacy** (`rule_optional_midi_privacy`): "no export other than the played-notes
   export ever carries them", "written to browser storage only ... while the player has opted in",
@@ -2853,8 +2854,8 @@ v3.2 ships when every item holds, each verified by a named test or a recorded ha
 - **Code gaps for `coding-leader`, not open design**: the doodle's own type in the request; the join
   from no phrase; the bar key; the run-time exclusion in Vary settings; a session that starts
   without phrase 1.
-- **Needs the owner**: approval of this Part C; then the explicit confirmation of the contract
-  wording in C13, which approving this part is not.
+- **From the owner**: nothing more. Part C was approved, and the contract wording in C13 was
+  confirmed word for word, on 2026-10-08.
 - **For `documentalist`**: the declared-intent changes of C13, and the lexicon entries for v3.2's
   terms (C4).
 - **Design, for `ux-writer`**: C12.

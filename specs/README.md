@@ -43,8 +43,8 @@ Status: draft v0.47
 - **Open:** 7 questions, none blocking: O48 and O49 (later and governance), O100–O102 (v4
   rhythm), O115 and O116 (v3.x learning). v3.1 and v3.2 drafts approved by the owner (D233, D234),
   after D228–D232 on presets and the rhythm lock; consolidated as master spec Parts B and C and
-  approved (D239), refined by D240–D245. The contract wording they change awaits the owner's
-  confirmation (`docs/release/v3.1-v3.2-intent-change-set.md`).
+  approved (D239), refined by D240–D245; the contract wording they change confirmed by the owner
+  (D246, `docs/release/v3.1-v3.2-intent-change-set.md`).
   See the [register](open-questions.md).
 - The snapshot this index kept through v2's design and build is archived verbatim at
   [archive/v2/readme-status-snapshot.md](archive/v2/readme-status-snapshot.md).

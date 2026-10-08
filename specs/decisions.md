@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.69
+Status: draft v2.70
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D246**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D247**.
 
 ## Decision Log
 
@@ -586,3 +586,10 @@ fact in the live documents (see the [archive index](archive/README.md) and
   and the rhythm lock's locked rhythm reaching later phrases beside the join (with
   `rule_join_carry_in_limited`). Both were already in `documentalist`'s change set; the spec now
   matches it. No behaviour changed.
+- **D246 (2026-10-08): the owner confirms the v3.1 and v3.2 contract and vision wording.** The
+  owner: "i agree with the wording proposed", answering the plain-words list of the sixteen STABLE
+  guarantees v3.1 and v3.2 change (`docs/release/v3.1-v3.2-intent-change-set.md` part A, after
+  D240–D245), the single contract bump 2.0 → 3.0 for both releases (part B), and the combined
+  vision revision 0.7 → 0.8 made of v3.0's change set part C and this change set's part C. This
+  is the confirmation D239 asked for (B11, C13); `documentalist` applies it. Every proposed
+  wording holds for today's code, so it is applied now rather than at the first v3.1 merge.
