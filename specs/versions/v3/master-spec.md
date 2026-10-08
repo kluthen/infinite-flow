@@ -1090,7 +1090,9 @@ Player presets and the new settings follow Part A §4's rules.
   never changes behind their back.
 - **Tolerant loading, per preset and per field.** An unknown or invalid field takes that setting's
   first-load value. A figure level missing because the record was written before that figure
-  existed is Off, the same rule as for older replay keys (B9). A missing name becomes a numbered
+  existed is Off, the same rule as for older replay keys (B9); the record's data version tells
+  which figures existed when it was written, and a level missing for a figure that already
+  existed then is an invalid field, taking its first-load value. A missing name becomes a numbered
   one. In a restriction, an unknown key or mode is dropped from its list, and an empty list, or a
   missing restriction, reads "any". A record that cannot be read at all is left in place and not
   listed. No notice is shown, as in Part A §4.4.
@@ -1188,7 +1190,8 @@ force, and choosing a preset identical in values and restriction, discard nothin
   moves.
 - **A new replay key version, `ifk3.`** The phrase replay key is the text that reproduces one
   phrase from its inputs. v3.0 introduces `ifk2.`, which carries "my instrument" inline (Part A
-  §7.4). v3.1 writes `ifk3.` for every phrase: everything `ifk2.` carries, except the musical
+  §7.4). v3.1 writes `ifk3.` for every phrase, whatever the instrument: a built-in instrument by
+  its id, as `ifk1.` does, "my instrument" inline, as `ifk2.` does; everything else `ifk2.` carries, except the musical
   profile's name and its customized flag, plus the seven levels stored **by figure**, not by
   preset name (a player preset can be renamed, changed or deleted, and a built-in may be retuned
   later). A new version rather than an extension of `ifk2.`, so that a v3.0 app meeting a v3.1 key
@@ -1206,7 +1209,11 @@ force, and choosing a preset identical in values and restriction, discard nothin
   the profile. It is a snapshot: renaming or deleting the preset later does not change it.
 - **Sessions kept by v3.0** are migrated when the database opens: their phrases' profile names map
   to the levels of B5.3, and their label is the musical profile they recorded, in the same form
-  (Neutral, Jazz, or Custom based on one of them). Their generated timelines are kept as they are.
+  (Neutral, Jazz, or Custom based on one of them); whether it was customized is read from phrase 1's
+  reproduction inputs, which hold the session's start state. Their generated timelines are kept as
+  they are. If rewriting every v3.0 session when the database opens does not fit the start-up
+  read's time limit (Part A), each is mapped the same way when it is read instead; the player sees
+  no difference.
 
 ## B10. For the interface design
 

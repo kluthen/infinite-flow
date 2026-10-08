@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.71
+Status: draft v2.72
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D250**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D251**.
 
 ## Decision Log
 
@@ -604,3 +604,13 @@ fact in the live documents (see the [archive index](archive/README.md) and
   Jam.** spec-writer's call, from ux Q75: C6.3's "once" meant said once, not repeated per note;
   showing it only the first time would need a stored flag and leave later reviews of a kept
   session unexplained. Matches ux D251.
+- **D250 (2026-10-08): four precisions to Part B for the v3.1 build plan.** spec-writer's calls,
+  from the build plan draft's questions (`build-plan-v3.1.md` §10), each the plan's reading:
+  (1) a figure level missing from a settings or preset record is Off only when the record's data
+  version predates that figure; missing for a figure that existed then, it is an invalid field and
+  takes its first-load value (B7). (2) v3.0 kept sessions are migrated when the database opens; if
+  that does not fit the start-up read's time limit, each is mapped the same way when read, with no
+  difference for the player (B9). (3) `ifk3.` is written for every phrase: a built-in instrument by
+  its id, "my instrument" inline (B9). (4) A v3.0 kept session's preset label takes its customized
+  form from phrase 1's reproduction inputs, which hold the session's start state (B9). No behaviour
+  the owner approved changes.

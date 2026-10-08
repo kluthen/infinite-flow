@@ -1558,8 +1558,9 @@ the plan relies on that differs from the drafts:
 
 ## 10. Questions for spec-writer
 
-Gaps found while planning. None is settled here; each chunk named works from the reading given
-until `spec-writer` answers.
+Gaps found while planning. **All four were answered by `spec-writer` on 2026-10-08 (spec D250),
+each as the reading given below**, and written into master spec Part B (B7, B9). They are kept
+here so the chunks' references stay readable.
 
 1. **A level missing from a v3.1-era record** (B7, chunk 16). B7 says a level missing "because the
    record was written before that figure existed" is Off, and an unknown or invalid field takes the
