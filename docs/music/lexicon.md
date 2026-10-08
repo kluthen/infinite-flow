@@ -1,8 +1,8 @@
 # Music Lexicon
 
-Status: v1.2 (v3 research terms merged; preset catalogue terms merged 2026-10-07)
+Status: v1.3 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08)
 
-Date: 2026-10-07
+Date: 2026-10-08
 
 ## How to use
 
@@ -42,7 +42,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 6. [Scales and modes](#scales-and-modes): scales, keys, the seven modes and how a key is found from a melody.
 7. [Styles](#styles): styles of music the presets refer to, such as the reel and bossa nova.
 8. [Instruments and transposition](#instruments-and-transposition): concert and written pitch, B-flat and E-flat instruments, range.
-9. [App controls](#app-controls): one entry per control label, with every option explained, and the kinds of preset.
+9. [App controls](#app-controls): one entry per control label, with every option explained; the kinds of preset and the Custom state; and the session words the player meets, such as Jam, doodle and starting note.
 10. [Internal (no popup)](#internal-no-popup): project terms used in docs and code, never shown in the UI.
 
 ## Basics
@@ -154,7 +154,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** none
 - **popup:** A sharp, flat or natural sign written just before a note to raise it, lower it, or cancel an earlier change.
 - **definition:** An accidental is a sign placed right before a note to change its pitch: a sharp raises it a half step, a flat lowers it a half step, and a natural cancels an earlier sharp or flat. Rarer double sharps and double flats move a note by two half steps. An accidental lasts to the end of its measure for notes on that same line or space. Accidentals are written only when the key signature doesn't already give the right note.
-- **in_infinite_flow:** The score shows an accidental only when the key signature and earlier signs in the measure don't already give the right pitch. Neutral phrases use only notes of the chosen collection, which the key signature covers, so they normally show none. Jazz chromatic figures add outside notes, which do need accidentals.
+- **in_infinite_flow:** The score shows an accidental only when the key signature and earlier signs in the measure don't already give the right pitch. Neutral phrases use only notes of the chosen collection, which the key signature covers, so they normally show none. Jazz chromatic figures add outside notes, which do need accidentals. From v3.1 (planned, not built), the chromatic figures can be turned on from any preset (spec decision D233), so any preset may bring accidentals.
 - **related:** `sharp`, `flat`, `natural`, `double-sharp-and-double-flat`, `key-signature`
 - **sources:** S14
 
@@ -242,7 +242,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** acciaccatura, crushed note
 - **popup:** A tiny extra note written small, played very quickly just before the main note.
 - **definition:** A grace note is printed smaller than the other notes to show that it only decorates the note after it. The common quick kind, the acciaccatura, has a slash through its stem and is squeezed in just before the main note, taking almost no time. Over a C chord, a tiny D-sharp right before E is a grace note. It does not count in the bar's rhythm.
-- **in_infinite_flow:** Not used. If adopted, the proposed rule is that only the main note is expected; playing the grace note is optional.
+- **in_infinite_flow:** Not used. It is planned as the first ornament, in a release of its own after v3.2 (spec decision D233); only the main note would be expected, and playing the grace note is optional.
 - **related:** `ornament`, `appoggiatura`, `note`, `half-step`
 - **sources:** S30, S37
 
@@ -252,7 +252,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** brass articulation, jazz ornament
 - **popup:** Small jazz signs that bend a note's pitch at its start or end: scoops, plops, falls and doits.
 - **definition:** Jazz articulations are signs that tell the player to bend into or out of a note rather than play it plainly. Scoops and plops slide into the note from below or above; falls and doits slide away from it, down or up, at its end. Unlike staccato or accents, they change pitch, not length or attack, so notation programs often treat them as ornaments.
-- **in_infinite_flow:** Not used. The embellishment research proposes them as ornaments written as signs, with only the main note expected; ornaments are part of the embellishment flags planned for v3 (not built).
+- **in_infinite_flow:** Not used. The embellishment research proposes them as ornaments written as signs, with only the main note expected. Ornaments are not part of v3.1's figure levels: they get a release of their own after v3.2 (spec decision D233).
 - **related:** `fall`, `doit`, `scoop`, `plop`, `glissando`, `ornament`
 - **sources:** S31, S33, docs/music/embellishment-catalogue.md
 
@@ -318,11 +318,11 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 ### Note name
 
 - **id:** `note-name`
-- **aliases:** letter name, pitch class
+- **aliases:** letter name
 - **popup:** The letter used for a note: A, B, C, D, E, F or G, sometimes with a sharp or flat. After G the letters start again at A.
 - **definition:** Western music names notes with the seven letters A to G, then repeats them in the next octave. The in-between keys on a keyboard take a letter plus a sharp or flat, such as F-sharp or B-flat. A name without an octave number, like "C", stands for every C at once; theorists call that group a pitch class. Adding an octave number, as in C4, picks one exact pitch.
 - **in_infinite_flow:** The Written key control offers all twelve pitch classes, showing both names for the black-key ones.
-- **related:** `pitch`, `octave-number`, `sharp`, `flat`, `enharmonic`
+- **related:** `pitch`, `pitch-class`, `octave-number`, `sharp`, `flat`, `enharmonic`
 - **sources:** S14
 
 ### Octave number
@@ -341,9 +341,19 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** ornamentation, grace
 - **popup:** A decoration written as a small sign or small notes, which the player turns into a few quick extra notes.
 - **definition:** An ornament is a decoration that the score shows in shorthand, as a sign above a note or as small notes, rather than writing every note out. Trills, mordents, turns and grace notes are the classic ornaments; jazz adds bends such as scoops and falls. How exactly to play one depends on the style and period.
-- **in_infinite_flow:** None are written today. Ornaments are the second, larger part of the embellishment flags planned for v3 (not built); how to represent them is open question O47.
+- **in_infinite_flow:** None are written today. Their representation is settled (spec decision D216: a sign with playback expansion, only the main note expected), but they are not part of v3.1's figure levels: ornaments get a release of their own after v3.2, starting with the grace note (D233).
 - **related:** `embellishment`, `grace-note`, `mordent`, `trill`, `turn`, `jazz-articulation`
-- **sources:** S29, S34, specs/open-questions.md, docs/music/embellishment-catalogue.md
+- **sources:** S29, S34, specs/decisions.md, docs/music/embellishment-catalogue.md
+
+### Pitch class
+
+- **id:** `pitch-class`
+- **aliases:** octave-free note name
+- **popup:** A note name without its octave: every C on the keyboard, high or low, belongs to the one pitch class C. There are 12.
+- **definition:** A pitch class groups every pitch that shares a note name, whatever its octave: C2, C4 and C6 all belong to pitch class C. Notes that sound the same under different names, such as C-sharp and D-flat, count as one pitch class too, so there are exactly 12. Musicians use the idea whenever the octave does not matter, for example when asking which notes a melody uses, or which scale contains them all.
+- **in_infinite_flow:** The Written key control offers the 12 pitch classes as home notes. The key and mode suggestion planned for v3.2 (not built) works with pitch classes: it suggests nothing for a doodle with fewer than 5 different ones (spec decision D216).
+- **related:** `note-name`, `pitch`, `octave`, `enharmonic`, `key-finding`, `key-profile`, `key-and-mode-suggestion`
+- **sources:** S78, S14, docs/music/key-and-mode-estimation.md, specs/versions/v3/key-and-mode-suggestion.md
 
 ### Plop
 
@@ -432,7 +442,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** push, anticipatory syncopation
 - **popup:** A note that arrives a little early: it starts just before the beat or the chord it belongs to.
 - **definition:** The word has two linked meanings. In rhythm, an anticipation is a note that starts shortly before a strong beat, an eighth or a sixteenth early, and is held over it, giving a forward push; pop, rock and jazz use it constantly. In harmony, it is a note of the coming chord sounded just before that chord arrives, then usually repeated or held when it does. Moving from a G chord to a C chord, a C on the last offbeat of the G bar, then C again on beat 1, anticipates the C chord. The two often happen together.
-- **in_infinite_flow:** Not written today. Under Active displacement the app can start a note just before beat 2, 3 or 4, but not as a held push, and never into the next measure's first beat. The harmonic kind is ruled out too: a tie may cross a chord change only on a note both chords share. A candidate for the embellishment flags planned for v3 (not built).
+- **in_infinite_flow:** Not written today. Under Active displacement the app can start a note just before beat 2, 3 or 4, but not as a held push, and never into the next measure's first beat. The harmonic kind is ruled out too: a tie may cross a chord change only on a note both chords share. Not among v3.1's figure levels, since it touches the rhythm and tie rules (spec decision D233), nor among v3.2's allowed rhythm changes, since the rhythm grammar cannot write a held push as one edit; later.
 - **related:** `syncopation`, `offbeat`, `tie`, `non-chord-tone`, `chord`, `metric-displacement`
 - **sources:** S21, S44, S25, S46, docs/music/rhythm-phrase-structure.md
 
@@ -455,6 +465,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** In the app's 4/4 phrases one beat is a quarter note, which is four ticks.
 - **related:** `tempo`, `meter`, `measure`, `strong-and-weak-beats`, `subdivision`, `offbeat`
 - **sources:** S14, S15, S8
+
+### Count-in
+
+- **id:** `count-in`
+- **aliases:** count-off, counting in, lead-in
+- **popup:** A measure of clicks or counted beats before the music starts, so you know the speed and where beat 1 falls.
+- **definition:** A count-in is a short stretch of counted beats before the music begins, usually one or two measures: "one, two, three, four". It sets the tempo and shows where beat 1 falls, so everyone starts together and in time. A band leader counts off a tune out loud; recording software plays a measure of metronome clicks before it starts recording.
+- **in_infinite_flow:** Every session starts with one measure of count-in, heard as clicks (even with the click switched off) and counted on screen, while phrase 1 is already shown so you can read ahead. A Start click or the starting note begins it. In a Jam, planned for v3.2 (not built), the doodle is played only after the count-in, and the clicks (the pulse) go on through the doodle and the two measures before phrase 1 (spec decision D234).
+- **related:** `tempo`, `beat`, `measure`, `cue`, `starting-note`, `jam`
+- **sources:** specs/versions/v2/master-spec.md, specs/versions/v3/jam.md
 
 ### Diminution
 
@@ -535,6 +555,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The Syncopation option "Occasional offbeats" moves one note in one or two measures an eighth later, so it starts on an offbeat, or holds a note across beat 3.
 - **related:** `beat`, `subdivision`, `syncopation`, `eighth-note`, `control-syncopation`
 - **sources:** S14, S8
+
+### Quantize
+
+- **id:** `quantize`
+- **aliases:** quantise, quantizing, quantising, quantization, snapping to the grid
+- **popup:** Moving played notes onto the nearest point of a time grid, so notes played a little early or late line up with the beat.
+- **definition:** Nobody plays exactly on the beat: real notes land a little early or late. Quantizing moves each note's start, and often its end, to the nearest point of a chosen grid, such as every sixteenth note, so the timing lines up neatly. Recording software and MIDI sequencers use it to tidy a performance or to turn it into readable notation. A fine grid keeps more of the player's timing; a coarse one tidies more but can move a note onto the wrong beat.
+- **in_infinite_flow:** Planned for Jam in v3.2 (not built; spec decision D234). The app quantizes the doodle once, when it ends, to its sixteenth-note grid (the tick) at every tempo, so a note moves at most half a sixteenth (about 31 ms at 240 BPM). Starts and ends both snap, and every note keeps at least one tick. Overlapping notes become one line: a later start ends the earlier note, and when two notes snap to the same tick the longer stays (on equal length, the higher). The quantized doodle is what the app uses and shows in the review; the raw notes stay private played notes. The specs spell it "quantising".
+- **related:** `tick`, `sixteenth-note`, `subdivision`, `doodle`, `jam`
+- **sources:** specs/versions/v3/jam.md, specs/decisions.md
 
 ### Quarter note
 
@@ -653,7 +683,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** strong-beat passing tone
 - **popup:** A passing note placed on a strong beat, so its clash with the chord is heard before it moves on.
 - **definition:** A passing tone usually sits on a weak part of the beat, between two chord notes. When it falls on the strong part instead, the out-of-chord note arrives exactly where the ear expects a stable note, which makes it sound tense and expressive. It still moves on by step in the same direction. Over a C chord, G, then F on beat 1, then E, makes F an accented passing tone.
-- **in_infinite_flow:** The generator can write one by chance, but never aims for it: it ranks other notes first on beat 1 and at a chord change. A separate embellishment flag for it is planned for v3 (not built).
+- **in_infinite_flow:** The generator can write one by chance, but never aims for it: it ranks other notes first on beat 1 and at a chord change. v3.1 gives it a figure level of its own, separate from the plain passing tone's because it sounds much tenser (spec decision D233; planned, not built).
 - **related:** `passing-tone`, `non-chord-tone`, `strong-and-weak-beats`, `appoggiatura`
 - **sources:** S25, src/domain/pitch/pitch-ranking.ts, docs/music/embellishment-catalogue.md
 
@@ -663,7 +693,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** none
 - **popup:** A note that clashes with the chord, reached by a jump and placed on a strong beat, then slipping one step to a note that fits.
 - **definition:** An appoggiatura is a tense note, outside the chord, that is entered by leap, usually lands on a strong beat, and then resolves by step to a chord tone. Because it arrives where the ear expects stability, it creates a clear, expressive tension, which the stepwise move then releases. Example over a C major chord: leap from G up to D on beat 1, then step down to C.
-- **in_infinite_flow:** The app's strongest diatonic tension figure, allowed only as the one figure the Tension control schedules (Settled, Lift or Edge): a collection note outside the chord, entered by a jump of 3 or more half steps (a skip or a leap in the app's terms), starting on beat 1 or 3, then resolving by one collection step to a chord tone. The rules of both presets allow it, but the generator's search tries chord tones first, and other choices for the Tension figure before it, so in practice it rarely or never appears: a sample of about 5,200 phrases had none.
+- **in_infinite_flow:** The app's strongest diatonic tension figure, allowed only as the one figure the Tension control schedules (Settled, Lift or Edge): a collection note outside the chord, entered by a jump of 3 or more half steps (a skip or a leap in the app's terms), starting on beat 1 or 3, then resolving by one collection step to a chord tone. Neutral's and Jazz's rules allow it as that figure, so "both presets use it" is true of the rules, not of what you hear: the generator's search tries chord tones first, and other choices for the Tension figure before it, so in practice it rarely or never appears (a sample of about 5,200 phrases had none). v3.1 (planned, not built; spec decision D233) adds it as a free figure with its own figure level: Off in Neutral and Jazz, Favored in Speed drill and Pop song. Turning the level Off never removes the Tension control's own appoggiatura.
 - **related:** `non-chord-tone`, `chord-tone`, `leap`, `step`, `tension-and-resolution`, `strong-and-weak-beats`
 - **sources:** S6, S4, S14, docs/music/embellishment-catalogue.md
 
@@ -673,7 +703,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** approach tone, diatonic approach
 - **popup:** A note placed right before an important note, leading into it from close by.
 - **definition:** An approach note leads directly into a target note, usually from a step or a half step away, so the ear hears it as being on the way to that target. Jazz players use approach notes constantly to steer a line onto chord tones. An approach note from inside the key is called diatonic; one from outside the key is called chromatic.
-- **in_infinite_flow:** The app's "diatonic approach" is always two collection notes moving by step in one direction straight into a chord tone. It appears only as the Tension figure under Build, where exactly one is required. Both presets use it. Jazz also adds one-note chromatic approaches and enclosures.
+- **in_infinite_flow:** The app's "diatonic approach" is always two collection notes moving by step in one direction straight into a chord tone. It appears only as the Tension figure under Build, where exactly one is required, so Neutral and Jazz both use it. Jazz also adds one-note chromatic approaches and enclosures. In v3.1 (planned, not built) the diatonic approach stays the Build figure only, with no figure level; the chromatic approach and the enclosures get levels any preset can raise (spec decision D233).
 - **related:** `chromatic-approach`, `enclosure`, `chord-tone`, `step`, `control-tension`
 - **sources:** S4, S9, S14, docs/music/neutral-profile.md
 
@@ -693,7 +723,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** call-and-response, question and answer, antiphony, trading
 - **popup:** Music as a conversation: one musician plays a phrase, and another answers it.
 - **definition:** Call and response makes music as a dialogue. One player, singer or group offers a phrase (the call) and another answers it (the response), echoing it, varying it or completing it. It is rooted in African musical traditions, where a leader's call organizes a group, and it runs through blues, gospel, jazz, soul and hip hop. In classical music the same idea between groups of players is called antiphony, and jazz musicians "trade" short solos in the same spirit.
-- **in_infinite_flow:** Jam, planned for v3 (not built), would work this way: the player's doodle is the call and the generated phrases answer it. The endgame vision describes fights as exchanges of short phrases. Inside one phrase, the rhythm plan's gesture and answer is a small, rhythm-only cousin of the idea.
+- **in_infinite_flow:** Jam, planned for v3.2 (not built), works this way: the player's doodle is the call and the generated phrases answer it. The endgame vision describes fights as exchanges of short phrases. Inside one phrase, the rhythm plan's gesture and answer is a small, rhythm-only cousin of the idea.
 - **related:** `gesture-and-answer`, `phrase`, `motif`, `trading-fours`, `riff`
 - **sources:** S52, S80, S57, specs/vision/endgame.md, docs/music/rhythm-phrase-structure.md
 
@@ -713,8 +743,8 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** chromatic approach note, chromatic approach tone
 - **popup:** A note just a half step above or below an important note, usually from outside the key, played right before it.
 - **definition:** A chromatic approach is a note one half step above or below a target note, played just before the target and moving straight into it. It is usually outside the key, and that quick flash of outside color makes the arrival feel sharper. It is a staple of jazz lines; for example, D-sharp moving up to E over a C major chord.
-- **in_infinite_flow:** Jazz only. One note outside the collection, a half step above or below a chord tone, followed at once by that chord tone: no rest in between, no chord change, and not longer than the target.
-- **related:** `approach-note`, `enclosure`, `chromatic`, `chord-tone`, `control-musical-profile-preset`
+- **in_infinite_flow:** One note outside the collection, a half step above or below a chord tone, followed at once by that chord tone: no rest in between, no chord change, and not longer than the target. Today Jazz only. From v3.1 (planned, not built; spec decision D233) it has its own figure level, which any preset can turn on: As today in Jazz, Off in Neutral, Favored in Speed drill, Strongly favored in Bebop. That level also covers what theory calls a chromatic passing tone (F, F-sharp, G) or a chromatic neighbor (G, F-sharp, G): in this generator both are a chromatic approach seen from the note before it.
+- **related:** `approach-note`, `enclosure`, `chromatic`, `chord-tone`, `chromatic-passing-tone`, `control-figure-level`
 - **sources:** S5, S9, S14, docs/music/jazz-profile.md
 
 ### Chromatic passing tone
@@ -723,7 +753,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** chromatic passing note
 - **popup:** A note from outside the key that fills a whole step with two half steps, like F-sharp between F and G.
 - **definition:** A chromatic passing tone is a passing tone taken from outside the key. It splits a whole step into two half steps, so the melody slides through it on its way to a chord note. In C major, F, F-sharp, G uses F-sharp this way. It is usually short and on a weak position, and it does not change the chord.
-- **in_infinite_flow:** Jazz only, and by chance: a chromatic approach whose previous note is a step away in the same direction. The Neutral preset never writes it. An embellishment flag for it is planned for v3 (not built).
+- **in_infinite_flow:** Jazz only, and by chance: a chromatic approach whose previous note is a step away in the same direction. The Neutral preset never writes it. v3.1 gives it no figure level of its own (spec decision D233): the chromatic approach's level governs it, since the generator writes it as a chromatic approach.
 - **related:** `passing-tone`, `chromatic`, `chromatic-approach`, `half-step`
 - **sources:** S5, S26, src/domain/pitch/pitch-candidates.ts
 
@@ -743,7 +773,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** changing tones, neighbor group
 - **popup:** A main note decorated by the note above and the note below in turn, before coming back to it.
 - **definition:** A double neighbor leaves a main note, visits its upper neighbor and its lower neighbor one after the other (either order), then returns to the main note. Over a C chord, E, F, D, E is a double neighbor around E. Jazz players use the same shape, without the first main note, as an enclosure.
-- **in_infinite_flow:** Not written in its scale-note form: the generator never places two outside notes in a row on its own. Its half-step form appears in the Jazz preset when an enclosure follows its own target.
+- **in_infinite_flow:** Not written in its scale-note form today: the generator never places two outside notes in a row on its own. Its half-step form appears in the Jazz preset when an enclosure follows its own target. v3.1 (planned, not built; spec decision D233) adds the scale-note form as the diatonic enclosure, a figure with its own level, Off in Neutral and Jazz.
 - **related:** `neighbor-tone`, `enclosure`, `non-chord-tone`, `step`
 - **sources:** S20, src/domain/pitch/pitch-figures.ts
 
@@ -753,18 +783,18 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** decoration, embellishing figure
 - **popup:** A note or small group of notes that decorates a more important note without changing the chord.
 - **definition:** An embellishment adds interest to a melody around its main notes: passing and neighbor notes, approach notes, enclosures, or ornaments such as trills and grace notes. Take it away and the tune's outline and its harmony stay the same. Some are written as ordinary notes; others are written as a sign or a small note and left to the player to perform.
-- **in_infinite_flow:** Today the Neutral and Jazz presets fix which embellishments the generator may write. Embellishment flags are planned for v3 (not built): per figure, allowed or not, plus a weight. Weights would be preferences, not quotas.
-- **related:** `non-chord-tone`, `passing-tone`, `neighbor-tone`, `enclosure`, `ornament`
-- **sources:** S25, specs/versions/v3/README.md, docs/music/embellishment-catalogue.md
+- **in_infinite_flow:** Today the Neutral and Jazz presets fix which embellishments the generator may write. v3.1 (planned, not built; spec decisions D210, D233) calls each kind a figure and gives seven figures written as ordinary notes a figure level each: Off, As today, Favored or Strongly favored. Levels are preferences, not quotas. Ornaments written as signs come in a later release.
+- **related:** `non-chord-tone`, `passing-tone`, `neighbor-tone`, `enclosure`, `ornament`, `control-figure-level`
+- **sources:** S25, specs/versions/v3/embellishment-flags.md, docs/music/embellishment-catalogue.md
 
 ### Enclosure
 
 - **id:** `enclosure`
-- **aliases:** chromatic enclosure, surround
+- **aliases:** chromatic enclosure, diatonic enclosure, surround
 - **popup:** Two notes that circle an important note, one just above it and one just below, before landing on it.
 - **definition:** An enclosure surrounds a target note before landing on it: typically two short notes, one above the target and one below (in either order), then the target itself. Players often use the scale note above and the half step below, or half steps on both sides. It is a signature sound of bebop. Example over a C major chord: F, then D-sharp, then E. Classical theory calls a similar diatonic figure a double neighbor.
-- **in_infinite_flow:** Jazz only, and narrower than general jazz usage: the app always uses the half step above and the half step below the target chord tone, in either order, then the target. At least one of the two surrounding notes is outside the collection, and all three notes follow each other directly under one chord.
-- **related:** `chromatic-approach`, `approach-note`, `neighbor-tone`, `chromatic`, `chord-tone`
+- **in_infinite_flow:** Today Jazz only, and narrower than general jazz usage: the app always uses the half step above and the half step below the target chord tone, in either order, then the target. At least one of the two surrounding notes is outside the collection, and all three notes follow each other directly under one chord. v3.1 (planned, not built; spec decision D233) names this the **chromatic enclosure** and gives it a figure level any preset can turn on (As today in Jazz, Off in Neutral, Strongly favored in Bebop). It adds the **diatonic enclosure**: the scale notes above and below the target, then the target (the double neighbor's shape), Off in Neutral and Jazz. Either needs three back-to-back notes under one chord, so it stays rare in slow rhythms whatever its level.
+- **related:** `chromatic-approach`, `approach-note`, `neighbor-tone`, `double-neighbor`, `chromatic`, `chord-tone`, `control-figure-level`
 - **sources:** S9, S14, docs/music/jazz-profile.md
 
 ### Escape tone
@@ -773,7 +803,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** échappée, escape note
 - **popup:** A note that steps away from a chord note, then jumps back the other way instead of stepping on.
 - **definition:** An escape tone is a short note outside the chord. The melody reaches it by one step from a chord note, then leaves it with a jump in the opposite direction onto another chord note. Over a C chord, E stepping up to F, then jumping down to C, makes F an escape tone. It usually sits on a weak part of the beat, often just before a cadence.
-- **in_infinite_flow:** Not written today: the generator makes every outside note leave by step. A candidate for the embellishment flags planned for v3 (not built).
+- **in_infinite_flow:** Not written today: the generator makes every outside note leave by step. Not among v3.1's figure levels either, since it would change that rule (spec decision D233); later.
 - **related:** `non-chord-tone`, `neighbor-tone`, `appoggiatura`, `step`, `leap`
 - **sources:** S19, S25
 
@@ -848,12 +878,12 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 ### Motif
 
 - **id:** `motif`
-- **aliases:** motive, figure, musical idea, doodle (Jam's working word)
+- **aliases:** motive, musical idea
 - **popup:** A short musical idea, a few notes long, that you can recognize when it comes back, even changed.
 - **definition:** A motif is the smallest piece of music that sounds like an idea of its own: a handful of notes with a recognizable rhythm and shape. Composers and improvisers build longer music by bringing a motif back, sometimes as it was, often changed: higher or lower, faster or slower, decorated, upside down or cut short. The opening four notes of Beethoven's Fifth Symphony are a famous motif. Both spellings, motif and motive, are correct.
-- **in_infinite_flow:** In Jam, planned for v3 (not built), the short idea the player plays for the app to continue and develop; the specs call it the doodle. A played signal would also be a motif, one used to steer the app instead of as music.
-- **related:** `motivic-development`, `phrase`, `rhythm`, `contour`, `interval`, `riff`, `leitmotif`, `played-signal`
-- **sources:** S40, S82, S14, specs/versions/v3/README.md
+- **in_infinite_flow:** In Jam, planned for v3.2 (not built), the player plays a motif for the app to continue; the app calls it a doodle (see Doodle). A played signal would also be a motif, one used to steer the app instead of as music. The app's own word "figure" means something else: one kind of embellishment (see Figure level).
+- **related:** `motivic-development`, `phrase`, `rhythm`, `contour`, `interval`, `riff`, `leitmotif`, `played-signal`, `doodle`
+- **sources:** S40, S82, S14, specs/versions/v3/jam.md
 
 ### Motivic development
 
@@ -861,9 +891,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** developing a motif, motive development, melodic alteration
 - **popup:** Growing a short idea into longer music by repeating it with changes: moving it, flipping it, stretching it or decorating it.
 - **definition:** Motivic development is the craft of making music from a small idea by changing some of its features while keeping others, so each new version sounds both fresh and related. The usual tools are repetition, sequence (the idea moved higher or lower), inversion (upside down), changes of rhythm, augmentation and diminution (slower or faster), fragmentation (using only a piece of it) and ornamentation (added decorating notes). Change too much and the link to the original is lost.
-- **in_infinite_flow:** What Jam, planned for v3 (not built), would do to the player's doodle. The mutation catalogue (docs/music/mutation-catalogue.md) lists the tools and how far each one drifts from the original.
-- **related:** `motif`, `sequence`, `melodic-inversion`, `fragmentation`, `augmentation`
-- **sources:** S41, S49, docs/music/mutation-catalogue.md
+- **in_infinite_flow:** Jam, planned for v3.2 (not built), develops the player's doodle only loosely: its phrases match the doodle's shape (a rhythm close to it, the same ups and downs), never quoting its notes, and Drift sets how close they stay (spec decision D234). Developing it by named tools, such as a sequence or an inversion, is later work. The mutation catalogue (docs/music/mutation-catalogue.md) lists the tools and how far each one drifts from the original.
+- **related:** `motif`, `sequence`, `melodic-inversion`, `fragmentation`, `augmentation`, `doodle`, `control-drift`
+- **sources:** S41, S49, docs/music/mutation-catalogue.md, specs/versions/v3/jam.md
 
 ### Neighbor tone
 
@@ -871,7 +901,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** neighbor note, auxiliary note, neighbour tone
 - **popup:** A decorating note one step above or below a main note, which then steps straight back to the main note.
 - **definition:** A neighbor tone decorates a stable note by stepping away from it, up or down, and then stepping straight back. The pattern is main note, neighbor, main note, as in E-F-E over a C major chord. An upper neighbor sits above the main note, a lower neighbor below. Like a passing tone, it usually falls on a weaker beat and adds only gentle tension.
-- **in_infinite_flow:** A collection note outside the current chord, one collection step away from a chord tone, that steps straight back to that same chord tone. The rules of both presets allow it anywhere except the phrase's first and last note, and it can also be the one figure the Tension control schedules. The generator's search tries chord tones first, so a neighbor tone appears only when chord tones lead to a dead end: it is the app's most common outside note, yet most phrases have none (about 1 in 7 at Neutral's defaults) unless the Edge tension setting requires a figure. The tense scale tone a session phrase generated from the phrase before it may end on, resolved by the next phrase's first note, is a separate case, not a neighbor tone on the last note.
+- **in_infinite_flow:** A collection note outside the current chord, one collection step away from a chord tone, that steps straight back to that same chord tone. The rules of both presets allow it anywhere except the phrase's first and last note, and it can also be the one figure the Tension control schedules. The generator's search tries chord tones first, so a neighbor tone appears only when chord tones lead to a dead end: it is the app's most common outside note, yet most phrases have none (about 1 in 7 at Neutral's defaults) unless the Edge tension setting requires a figure. From v3.1 (planned, not built; spec decision D233) its figure level, one for upper and lower neighbors together, can make it heard more often. The tense scale tone a session phrase generated from the phrase before it may end on, resolved by the next phrase's first note, is a separate case, not a neighbor tone on the last note.
 - **related:** `passing-tone`, `non-chord-tone`, `chord-tone`, `step`, `enclosure`
 - **sources:** S4, S14, S18, src/domain/generation/carry-in/phrase-ending-debt.ts, docs/music/embellishment-catalogue.md
 
@@ -901,7 +931,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** passing note
 - **popup:** A note that fills the gap between two chord notes by step, like D between C and E.
 - **definition:** A passing tone is a note outside the chord that links two other notes by step while moving in one direction: a stepwise note between two pitches, going the same way on both sides. Over a C major chord, the line C-D-E uses D as a passing tone. It usually falls on a weaker beat and sounds natural and unforced.
-- **in_infinite_flow:** A collection note outside the current chord that moves by step and resolves by one collection step into a chord tone. The rules of both presets allow it, but the generator's search tries chord tones first, so it rarely appears: in about 1 phrase in 100 at Neutral's defaults, a few more at high Leapiness, or as the Tension figure that the Edge setting requires.
+- **in_infinite_flow:** A collection note outside the current chord that moves by step and resolves by one collection step into a chord tone. The rules of both presets allow it, but the generator's search tries chord tones first, so it rarely appears: in about 1 phrase in 100 at Neutral's defaults, a few more at high Leapiness, or as the Tension figure that the Edge setting requires. From v3.1 (planned, not built; spec decision D233) its figure level can make it heard more often.
 - **related:** `neighbor-tone`, `non-chord-tone`, `chord-tone`, `step`, `accented-passing-tone`, `chromatic-passing-tone`
 - **sources:** S5, S4, S14, docs/music/embellishment-catalogue.md
 
@@ -921,7 +951,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** upward suspension
 - **popup:** A note held over from the previous chord that clashes with the new chord, then rises one step to fit.
 - **definition:** A retardation works like a suspension but resolves upward. A note that fits the old chord is held while the chord changes; it clashes with the new chord on the strong beat, then moves up one step. Moving from a G chord to a C chord, B held over into the C bar and then rising to C is a retardation.
-- **in_infinite_flow:** Not written today: a tie may cross a chord change only on a note both chords share. A candidate for the embellishment flags planned for v3 (not built).
+- **in_infinite_flow:** Not written today: a tie may cross a chord change only on a note both chords share. Not among v3.1's figure levels, since it looks across a chord change (spec decision D233); later.
 - **related:** `suspension`, `tie`, `non-chord-tone`, `tension-and-resolution`
 - **sources:** S23, S25
 
@@ -970,7 +1000,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** melodic sequence, diatonic sequence, tonal sequence, real sequence
 - **popup:** The same short pattern played again, starting higher or lower, usually two or three times in a row.
 - **definition:** A sequence repeats a melodic pattern at a different pitch, step after step in the same direction, like walking up a staircase with the same stride. In a diatonic (or tonal) sequence the copy stays in the key, so a whole step may become a half step. In a real sequence every interval is copied exactly, which brings in notes from outside the key. Sequences rarely go beyond three or four statements before the music moves on.
-- **in_infinite_flow:** Not generated. Proposed for Jam, planned for v3 (not built), as a diatonic sequence only, since the Neutral profile never uses notes outside the key.
+- **in_infinite_flow:** Not generated. The mutation research proposed it for Jam as a diatonic sequence, but Jam in v3.2 (planned, not built) matches the doodle's shape without developing it by named tools; a sequence is later work (spec decision D234).
 - **related:** `motif`, `motivic-development`, `transposition`, `diatonic`, `chromatic`
 - **sources:** S50, S43, S45
 
@@ -1000,7 +1030,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** none
 - **popup:** A note held over from the previous chord that clashes with the new chord, then falls one step to fit.
 - **definition:** A suspension keeps a note of one chord sounding while the harmony moves to the next. On the new chord's strong beat the held note clashes, then it drops one step to a note that fits. Theory names the three stages preparation, suspension and resolution. Moving from an F chord to a C chord, F held over the bar line and then falling to E is a suspension.
-- **in_infinite_flow:** Not written today: a tie may cross a chord change only on a note both chords share. A candidate for the embellishment flags planned for v3 (not built).
+- **in_infinite_flow:** Not written today: a tie may cross a chord change only on a note both chords share. Not among v3.1's figure levels, since it looks across a chord change (spec decision D233); later.
 - **related:** `retardation`, `tie`, `non-chord-tone`, `tension-and-resolution`, `strong-and-weak-beats`
 - **sources:** S22, S25
 
@@ -1072,8 +1102,8 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** none
 - **popup:** Using notes from outside the current key or scale, or moving by half steps.
 - **definition:** Chromatic describes notes, chords or motion that go outside the current key or scale. The chromatic scale uses all twelve notes, each a half step apart. In a C major piece, an F-sharp or a B-flat is a chromatic note. The opposite is diatonic. Chromatic notes add color and bite, and are especially common as quick decorations in jazz.
-- **in_infinite_flow:** Neutral phrases use no chromatic notes. Jazz adds exactly two chromatic melodic figures, the chromatic approach and the enclosure; its chords stay diatonic.
-- **related:** `diatonic`, `half-step`, `chromatic-approach`, `enclosure`, `accidental`
+- **in_infinite_flow:** Today Neutral phrases use no chromatic notes. Jazz adds exactly two chromatic melodic figures, the chromatic approach and the enclosure; its chords stay diatonic. From v3.1 (planned, not built; spec decision D233) those two figures get figure levels that any preset can turn on, so "Neutral is diatonic" becomes a property of Neutral's default levels, not a rule. Chords stay diatonic in every preset.
+- **related:** `diatonic`, `half-step`, `chromatic-approach`, `enclosure`, `accidental`, `control-figure-level`
 - **sources:** S14, S15, S4
 
 ### Diatonic
@@ -1082,7 +1112,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** in the key
 - **popup:** Using only the notes of the current key or scale, with no outside notes.
 - **definition:** Diatonic means belonging to the current key or scale. A diatonic scale has seven notes, five whole steps and two half steps, with the two half steps spaced as far apart as possible; the major scale, the natural minor scale and the seven modes are all diatonic. A diatonic chord uses only notes of the key: in C major these are C, Dm, Em, F, G, Am and Bdim.
-- **in_infinite_flow:** All the app's chords are diatonic triads of the chosen collection, and Neutral melodies are entirely diatonic.
+- **in_infinite_flow:** All the app's chords are diatonic triads of the chosen collection. Neutral melodies are entirely diatonic today; from v3.1 (planned, not built; spec decision D233) that is only Neutral's default, since a player may turn chromatic figures on from any preset.
 - **related:** `chromatic`, `scale`, `mode`, `triad`, `key`
 - **sources:** S14
 
@@ -1244,7 +1274,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** blues note, blue third, blue fifth
 - **popup:** A note played a little lower than the scale expects, usually the third, fifth or seventh, that gives blues and jazz their crying sound.
 - **definition:** Blue notes are notes lowered from the major scale and played against major-sounding chords: mainly the third and the fifth, often the seventh too. In C they lean toward E-flat, G-flat and B-flat. Voices, guitars and saxophones often bend into them, landing between two keyboard keys, or slide off them, and may hold them without resolving; a keyboard plays the nearest half step instead. The blues scale is built around them.
-- **in_infinite_flow:** Not used as such. The Jazz preset can write one only as a brief chromatic approach that resolves at once (E-flat to E over C). A MIDI controller sends whole half steps, so a played blue note arrives as a flattened note outside the collection; the key and mode suggestion planned for v3 (not built) would tolerate a few such notes.
+- **in_infinite_flow:** Not used as such. The Jazz preset can write one only as a brief chromatic approach that resolves at once (E-flat to E over C). A MIDI controller sends whole half steps, so a played blue note arrives as a flattened note outside the collection; the key and mode suggestion planned for v3.2 (not built) would tolerate a few such notes.
 - **related:** `chromatic`, `half-step`, `chromatic-approach`, `scoop`, `mixolydian`, `dorian`, `swing`
 - **sources:** S9, S78, docs/music/key-and-mode-estimation.md
 
@@ -1284,7 +1314,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** final note, finalis
 - **popup:** The last note of a melody. In modal music it is usually the home note, so it helps tell which mode is used.
 - **definition:** The final is a melody's last note. In medieval modal theory it named the mode's home note: a chant ending on D was in a D mode, and its range then told which of the two D modes. Many folk and popular melodies also end on their home note, so the last note is a strong clue to the key. It is only a clue: a melody can stop anywhere, especially a short improvised one.
-- **in_infinite_flow:** The key and mode suggestion planned for v3 (not built) would give a small bonus to candidates whose home note is the doodle's last note. The app's own generated phrases never end on the home note.
+- **in_infinite_flow:** The key and mode suggestion planned for v3.2 (not built) would give a small bonus to candidates whose home note is the doodle's last note. The app's own generated phrases never end on the home note.
 - **related:** `tonic`, `tonal-center`, `mode`, `cadence`, `key-finding`, `open-ending`
 - **sources:** S71, S63, S69
 
@@ -1294,7 +1324,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** harmonic minor scale
 - **popup:** A minor scale with its seventh note raised a half step, which pulls strongly toward home.
 - **definition:** Harmonic minor is the natural minor scale with the seventh note raised by a half step: A, B, C, D, E, F, G-sharp in A harmonic minor. The raised note sits just below the home note and leans into it, which classical music likes before a cadence. It leaves a wide gap of three half steps between the sixth and seventh notes, which gives the scale its exotic sound.
-- **in_infinite_flow:** Not one of the app's collections; the app's Minor is natural minor. The key and mode suggestion planned for v3 (not built) would treat a raised seventh as an outside note and suggest the closest mode, usually Aeolian.
+- **in_infinite_flow:** Not one of the app's collections; the app's Minor is natural minor. The key and mode suggestion planned for v3.2 (not built) would treat a raised seventh as an outside note and suggest the closest mode, usually Aeolian.
 - **related:** `minor`, `aeolian`, `scale`, `half-step`, `control-collection`
 - **sources:** S78, S14, docs/music/harmony-planner-policy.md
 
@@ -1321,11 +1351,11 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 ### Key finding
 
 - **id:** `key-finding`
-- **aliases:** key detection, key estimation, key and mode suggestion
+- **aliases:** key detection, key estimation
 - **popup:** Working out which key a piece of music is in by looking at its notes.
 - **definition:** Key finding means guessing the key of some music from its notes alone. Most methods count how much each of the 12 note names is used and compare that count with the typical pattern of each key, where the home note and its fifth and third stand out. The key whose pattern matches best wins. The first and last notes help too. A short melody often matches several keys almost equally, so a single answer can be uncertain.
-- **in_infinite_flow:** Planned for v3 (not built), with Jam: the app would read the player's doodle, rate every key and mode, and may suggest one by a weighted draw among the likeliest. It would never change the Written key or Collection on its own.
-- **related:** `key`, `mode`, `tonic`, `key-profile`, `relative-keys`, `control-written-key`, `control-collection`
+- **in_infinite_flow:** Planned for v3.2 (not built), with Jam, as the key and mode suggestion (see that entry): the app reads the player's doodle, rates every key and mode, and may suggest one by a weighted draw among the likeliest. It never changes the Written key or Collection on its own.
+- **related:** `key`, `mode`, `tonic`, `key-profile`, `relative-keys`, `pitch-class`, `key-and-mode-suggestion`, `control-written-key`, `control-collection`
 - **sources:** S60, S63, S73, docs/music/key-and-mode-estimation.md
 
 ### Key profile
@@ -1334,7 +1364,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** tonal hierarchy, pitch-class profile
 - **popup:** A list of 12 numbers saying how well each note name fits a key. The home note scores highest.
 - **definition:** A key profile gives each of the 12 note names a number for how well it belongs to a key. The first profiles came from listeners rating how well a note fit after a passage in a key; later ones count how often each note appears in real music. In every profile the home note scores highest, then the fifth and third notes of the scale, then the other scale notes, with notes outside the scale far behind.
-- **in_infinite_flow:** The key and mode suggestion planned for v3 (not built) would use one simple profile per mode, built from these roles, rather than a measured one.
+- **in_infinite_flow:** The key and mode suggestion planned for v3.2 (not built) would use one simple profile per mode, built from these roles, rather than a measured one.
 - **related:** `key-finding`, `key`, `tonic`, `scale-degree`, `scale`
 - **sources:** S60, S63, S65, S73
 
@@ -1404,7 +1434,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** parallel major, parallel minor, parallel modes
 - **popup:** Two keys or modes with the same home note but a different set of notes, like C major and C minor.
 - **definition:** Parallel keys share their home note but not their notes. C major and C minor both rest on C, but C minor has three flats. Modes can be parallel too: D Dorian and D Aeolian both rest on D and differ by one note, B in Dorian and B-flat in Aeolian. Switching between parallels keeps the same home and changes the color.
-- **in_infinite_flow:** When a doodle never plays the one note that separates two parallel modes, the key and mode suggestion planned for v3 (not built) could not tell them apart and might offer either.
+- **in_infinite_flow:** When a doodle never plays the one note that separates two parallel modes, the key and mode suggestion planned for v3.2 (not built) could not tell them apart and might offer either.
 - **related:** `relative-keys`, `key`, `mode`, `major`, `minor`, `characteristic-note`
 - **sources:** S78
 
@@ -1434,7 +1464,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** relative major, relative minor, relative modes
 - **popup:** Two keys or modes that use the very same notes but rest on a different home note, like C major and A minor.
 - **definition:** Relative keys share all their notes but not their home note. C major and A minor both use only the white keys; C sounds like home in one and A in the other, and they share a key signature. The idea extends to modes: C Ionian, D Dorian, E Phrygian, F Lydian, G Mixolydian, A Aeolian and B Locrian are all relatives. Which one you hear depends on where the melody settles.
-- **in_infinite_flow:** Telling relatives apart is the hard part of the key and mode suggestion planned for v3 (not built): a doodle's notes can fit seven relatives, and only clues such as the first, last and longest notes point to one.
+- **in_infinite_flow:** Telling relatives apart is the hard part of the key and mode suggestion planned for v3.2 (not built): a doodle's notes can fit seven relatives, and only clues such as the first, last and longest notes point to one.
 - **related:** `parallel-keys`, `key`, `mode`, `key-signature`, `tonal-center`, `key-finding`
 - **sources:** S78
 
@@ -1486,9 +1516,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** none
 - **popup:** A fast folk dance tune from Ireland and Scotland, made of running eighth notes played evenly.
 - **definition:** A reel is a dance tune in 4/4 or 2/2 from the Irish and Scottish traditions. It runs mostly in eighth notes, played evenly rather than swung, with accents on beats 1 and 3. A tune usually has two eight-bar parts, each played twice, and players decorate it freely with short ornaments such as cuts and rolls.
-- **in_infinite_flow:** A proposed built-in preset imitates its running eighths and four-bar phrases; the mode stays the player's choice (Mixolydian, Dorian and Major are typical), and the ornaments and the two-part form are not available.
-- **related:** `eighth-note`, `phrase`, `mixolydian`, `dorian`, `ornament`
-- **sources:** S106, S107, S108
+- **in_infinite_flow:** The built-in preset Reel, planned for v3.1 (not built; spec decision D233), imitates its steady even eighths in four-bar phrases. Its key and mode restriction is Mixolydian or Dorian, in any key: choosing it keeps Mixolydian or Dorian if one is already selected, and otherwise moves to Mixolydian. Reels are often in major too; a player who wants that chooses Ionian, which leaves the preset (the selection becomes Custom). The ornaments and the two-part form are not available.
+- **related:** `eighth-note`, `phrase`, `mixolydian`, `dorian`, `ornament`, `built-in-preset`, `key-and-mode-restriction`
+- **sources:** S106, S107, S108, specs/versions/v3/presets.md
 
 ## Instruments and transposition
 
@@ -1564,6 +1594,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 
 ## App controls
 
+### Allowed rhythm changes
+
+- **id:** `control-allowed-rhythm-changes`
+- **aliases:** rhythm change, allowed changes
+- **popup:** With the rhythm lock on, small edits a phrase may make to the locked rhythm, one at a time and for one phrase only.
+- **definition:** Allowed rhythm changes is the app's name for a list of small rhythm edits you can switch on while the rhythm lock holds one rhythm, such as splitting one note into two. Musicians vary a repeated rhythm this way to keep it alive while it stays recognizable. Each kind you allow is one kind of edit the app may make, now and then, to the locked rhythm. One such edit in a phrase is called a rhythm change.
+- **in_infinite_flow:** Planned for v3.2 (not built; spec decisions D232, D234, D236). Five kinds, each on or off, all off by default, so the lock is strict unless you allow some: **move a note start** by a sixteenth or an eighth, **move a rest**, **split a note**, **merge two notes**, **add or remove a rest**. A rhythm change is one edit in one measure, or one made in measure 1 or 2 and repeated in measure 3 or 4. At most one per phrase, never in phrase 1, in about 1 phrase in 4 (1 in 2 on the tenser phrase of Tension across phrases). Each is measured from the locked rhythm and lasts one phrase, so changes never add up, and none is ever marked on screen. Which kinds can happen depends on the rhythm settings: under Strict variety with Straight syncopation there is almost nothing to change, and no candidate means no change. Set at Idle or in the review, saved like the session options; presets never hold it. It acts only while the lock is on.
+- **related:** `control-rhythm-lock`, `forced-bend`, `rest`, `syncopation`, `control-rhythmic-variety`, `control-tension-across-phrases`
+- **sources:** S56, specs/versions/v3/rhythm-lock.md, docs/music/mutation-catalogue.md, specs/decisions.md
+
 ### Arpeggio chaos
 
 - **id:** `control-arpeggio-chaos`
@@ -1580,9 +1620,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** style preset
 - **popup:** A ready-made set of settings that ships with the app, such as Neutral or Jazz.
 - **definition:** A built-in preset is a named group of starting settings provided by the app. Choosing one fills in several controls at once, so a player can try a style or a practice purpose with one choice and then adjust from there. It is an app term, not a music-theory one.
-- **in_infinite_flow:** Today the two built-in presets are the musical profile presets Neutral and Jazz. v3.1 plans a few more (proposed in docs/music/preset-catalogue.md). A preset holds generation settings only: never the instrument, tempo, written key or collection, so it never changes the scale or mode (spec decision D228). A built-in preset can be changed and saved as a player preset, but never overwritten.
-- **related:** `control-musical-profile-preset`, `player-preset`, `grammar`
-- **sources:** src/domain/controls/profile-selection.ts, specs/versions/v3/README.md, specs/decisions.md
+- **in_infinite_flow:** Today the two built-in presets are Neutral and Jazz, chosen with the Musical profile preset control. v3.1 (planned, not built; spec decisions D228–D231, D233, D235) ships eight: **Neutral** and **Jazz**, sounding as before, plus **Gentle**, **Speed drill**, **Reel**, **Bebop**, **Pop song** and **Modal (Dorian)**, chosen in a combo box placed higher in the controls. Every preset holds the ten generation controls (Harmonic motion, Tension, Note density, Rhythmic variety, Syncopation, Silence density, Contour, Register, Leapiness, Arpeggio chaos), the seven figure levels and a key and mode restriction; never the instrument, tempo or session options. Most restrictions are "any", but Reel allows Mixolydian or Dorian, Bebop and Pop song Major, and Modal (Dorian) Dorian, so choosing one of these can change the Collection (the mode) while keeping the Written key. The restriction guides and never blocks. Choosing Neutral or Jazz now also resets Tension, Leapiness and Arpeggio chaos. A built-in preset can be changed and saved as a player preset, but never overwritten, renamed or deleted; the app knows each by a fixed internal identifier, so its working name may change.
+- **related:** `player-preset`, `custom`, `key-and-mode-restriction`, `control-figure-level`, `control-musical-profile-preset`, `reel`
+- **sources:** src/domain/controls/profile-selection.ts, specs/versions/v3/presets.md, specs/versions/v3/master-spec.md, specs/decisions.md
 
 ### Collection
 
@@ -1590,9 +1630,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** scale, mode
 - **popup:** The scale or mode that the phrase's notes and chords come from, such as Major, Minor or Dorian.
 - **definition:** Collection picks the set of seven notes the phrase is built from. Most musicians would simply say "scale" or "mode". Theorists do use "collection" for the group of pitches a piece draws on, but as a control label it is the app's choice. Together with Written key it makes the key: Written key names the home note, and Collection the step pattern built on it.
-- **in_infinite_flow:** Nine options, all seven-note scales on the Written key note; default Ionian. **Major** and **Minor** (natural minor) are planned as tonal keys, with chords in a tonic, predominant, degree-5 order. **Ionian**, **Dorian**, **Phrygian**, **Lydian**, **Mixolydian**, **Aeolian** and **Locrian** are planned as modes, around each mode's color degree. So Major and Ionian share their notes but not their chord plans, and likewise Minor and Aeolian. The key signature follows the collection. All chords are triads of the collection; Neutral melodies stay inside it, while Jazz adds brief chromatic notes.
-- **related:** `scale`, `mode`, `major`, `minor`, `ionian`, `aeolian`, `characteristic-note`, `control-written-key`, `control-harmonic-motion`
-- **sources:** ui_ux/screens/phrase-workspace/handoff.md, docs/music/harmony-planner-policy.md
+- **in_infinite_flow:** Nine options, all seven-note scales on the Written key note; default Ionian. **Major** and **Minor** (natural minor) are planned as tonal keys, with chords in a tonic, predominant, degree-5 order. **Ionian**, **Dorian**, **Phrygian**, **Lydian**, **Mixolydian**, **Aeolian** and **Locrian** are planned as modes, around each mode's color degree. So Major and Ionian share their notes but not their chord plans, and likewise Minor and Aeolian. The key signature follows the collection. All chords are triads of the collection; Neutral melodies stay inside it, while Jazz adds brief chromatic notes. From v3.1 (planned, not built; spec decisions D229–D231, D233), a preset may carry a key and mode restriction: choosing a restricted preset can change the Collection to one it allows (Pop song and Bebop move Ionian to Major, for example), and while it is in force the control highlights the allowed options, every option staying selectable; choosing one outside it makes the selection Custom. In v3.2 (planned, not built), the key and mode suggestion's "Use it" can also set it, at your request.
+- **related:** `scale`, `mode`, `major`, `minor`, `ionian`, `aeolian`, `characteristic-note`, `control-written-key`, `control-harmonic-motion`, `key-and-mode-restriction`
+- **sources:** ui_ux/screens/phrase-workspace/handoff.md, docs/music/harmony-planner-policy.md, specs/versions/v3/presets.md
 
 ### Contour
 
@@ -1604,6 +1644,46 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `contour`, `control-register`, `control-leapiness`, `control-musical-profile-preset`
 - **sources:** ui_ux/screens/phrase-workspace/handoff.md, docs/music/pitch-planner-validation.md
 
+### Custom
+
+- **id:** `custom`
+- **aliases:** Custom state, customized, Custom based on a preset
+- **popup:** Shown when your settings no longer match the preset you chose. It names that preset, and you can save what you have as your own.
+- **definition:** Custom is the app's label for settings you changed after choosing a preset. It is not a preset of its own: it means "what you have now is not a saved preset". It remembers the preset it started from, called its base, so you can tell where you came from. It is an app term, not a music-theory one.
+- **in_infinite_flow:** Today, changing one of the seven controls Neutral or Jazz set shows Custom, and a status line says which grammar is kept. From v3.1 (planned, not built; spec decisions D231, D233, D235), Custom begins when, with a preset selected, you change a preset-held setting (one of the ten controls or a figure level) or choose a key or mode outside its key and mode restriction. Values are not compared: setting a value back by hand stays Custom, and only choosing a preset leaves it. Tempo, instrument, a key or mode inside the restriction, and Tension across phrases never cause it. It names its base ("Custom, based on Bebop"; wording to be designed) instead of a retained grammar; deleting the base leaves Custom with no base and no restriction. During a session, a Vary settings move marks Custom for that session only. From Custom you can save a new player preset, or save the changes into your own player preset.
+- **related:** `built-in-preset`, `player-preset`, `key-and-mode-restriction`, `control-musical-profile-preset`, `grammar`, `control-vary-settings`
+- **sources:** src/domain/controls/profile-selection.ts, specs/versions/v3/presets.md, specs/versions/v3/master-spec.md, specs/decisions.md
+
+### Doodle
+
+- **id:** `doodle`
+- **aliases:** none
+- **popup:** The short idea, one to four measures, that you play for the app to continue in a Jam.
+- **definition:** Doodle is the app's everyday word for a short musical idea you make up and play: a few notes, one to four measures long, not a finished tune. Musicians call such an idea a motif. "Doodle" stresses that it can be rough and casual, like a sketch in a margin: the app's job is to grow it, never to judge it. It is the owner's word, not a music-theory term.
+- **in_infinite_flow:** Planned for Jam in v3.2 (not built; spec decisions D209, D215, D234). After the count-in you play the doodle over the pulse; it ends when a whole measure stays silent, or after four measures. Very short stray notes are left out and the rest is quantized to the sixteenth-note grid. The doodle changes no setting: it only steers which rhythms and note moves the app tries first, so the phrases share its shape (its rhythm, its ups and downs, and the note it ended on) without quoting its notes. It opens the session's review, written out as the app heard it, can be held for another Jam, and is kept with a kept Jam session; your raw played notes stay private.
+- **related:** `motif`, `jam`, `held-doodle`, `control-drift`, `quantize`, `key-and-mode-suggestion`
+- **sources:** S40, specs/versions/v3/jam.md, specs/decisions.md
+
+### Drift
+
+- **id:** `control-drift`
+- **aliases:** Jam drift
+- **popup:** In a Jam, how far the phrases may wander from your doodle: Close, Near or Free.
+- **definition:** Drift is the app's own name for how freely a Jam's phrases develop your doodle. Composers vary a motif by small changes, and the more they change, the further the music travels from where it began. Drift sets that distance, for the rhythm and for the ups and downs of the melody. Musicians would just say "stay close to the idea" or "take it somewhere".
+- **in_infinite_flow:** Planned for v3.2 (not built; spec decision D234). Shown only while Jam is on; saved like the session options; presets never hold it. **Close**: rhythms whose every measure is the same as the doodle's, or one small edit away, come first, and the melody follows the doodle's moves in direction and size (step, skip or leap). **Near** (default): each measure at most a little further (one edit on or next to beat 1 or 3, or two small edits), and the melody follows the doodle's directions only. **Free**: rhythms in the usual random order, no melody preference, only the join from the doodle's last note. Drift only orders the candidates; it never breaks a control's rules. With the rhythm lock on, drift no longer decides the rhythm after phrase 1, only the melody.
+- **related:** `doodle`, `jam`, `control-rhythm-lock`, `motivic-development`, `contour`
+- **sources:** S56, specs/versions/v3/rhythm-lock.md, specs/versions/v3/jam.md, docs/music/mutation-catalogue.md
+
+### Figure level
+
+- **id:** `control-figure-level`
+- **aliases:** level, figure levels, embellishment flags
+- **popup:** For each kind of decorating figure, how much the app uses it: Off, As today, Favored or Strongly favored.
+- **definition:** In this app a figure is one kind of embellishment, such as a passing tone or an enclosure, and a figure level says how much the app uses that figure. Musicians build a vocabulary by hearing such decorations often; raising a level makes the app try that figure earlier, so it is actually heard. A level is a preference, never a quota: no phrase is refused for lacking a figure.
+- **in_infinite_flow:** Planned for v3.1 (not built; spec decisions D210, D233, D235). Seven figures, each with its own level: passing tone, accented passing tone, neighbor tone, appoggiatura, diatonic enclosure, chromatic approach, chromatic enclosure. **Off**: never written as a free figure. **As today**: tried only after the chord tones, so it appears only when they lead nowhere. **Favored**: tried before the chord tones at about 1 in 4 of the notes where it could start. **Strongly favored**: about 1 in 2 (starting values, tuned by listening). A level cannot add notes, so the rhythm decides where a figure fits. Levels govern free figures only: Tension's scheduled figure is kept whatever the levels. The chromatic figures can be turned on from any preset. Every preset holds all seven levels; Neutral and Jazz keep today's sound (new figures Off, Jazz's chromatic figures As today). Set at Idle and saved like the controls; Vary settings can move one level one step. Level names are working names.
+- **related:** `embellishment`, `passing-tone`, `accented-passing-tone`, `neighbor-tone`, `appoggiatura`, `enclosure`, `chromatic-approach`, `control-tension`, `built-in-preset`
+- **sources:** specs/versions/v3/embellishment-flags.md, specs/versions/v3/master-spec.md, specs/decisions.md, docs/music/embellishment-catalogue.md
+
 ### Harmonic motion
 
 - **id:** `control-harmonic-motion`
@@ -1614,6 +1694,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `chord-progression`, `harmonic-rhythm`, `harmonic-function`, `characteristic-note`, `control-collection`
 - **sources:** ui_ux/screens/phrase-workspace/handoff.md, docs/music/harmony-planner-policy.md
 
+### Held doodle
+
+- **id:** `held-doodle`
+- **aliases:** Jam again on this doodle
+- **popup:** A doodle kept from a finished Jam, so the next Jam continues it without you playing it again.
+- **definition:** A held doodle is a doodle the app keeps waiting at Idle after you choose "Jam again on this doodle" in a Jam's review. The next Jam skips playing the doodle and goes straight to phrases grown from it, so you can hear the same idea continued once more, perhaps in the key and mode the app suggested. It is an app term, not a music-theory one.
+- **in_infinite_flow:** Planned for v3.2 (not built; spec decisions D234, D236). Offered in the review of the Jam that just ended and of any kept Jam session. At Idle, phrase 1 is already written from the held doodle and on screen; the starting note is phrase 1's first note, as in an ordinary session; Start skips the capture and its 30-second wait for a first note. Changing a control at Idle drops the held doodle and its suggestion; accepting the suggestion with Use it keeps the doodle and rewrites phrase 1 from it. It lives in memory only: after a reload it is gone, but the kept Jam session's review offers it again.
+- **related:** `doodle`, `jam`, `key-and-mode-suggestion`, `starting-note`
+- **sources:** specs/versions/v3/jam.md, specs/decisions.md
+
 ### Instrument profile
 
 - **id:** `control-instrument-profile`
@@ -1623,6 +1713,36 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** **C MIDI keyboard**: concert pitch, range C3-C5 (MIDI 48-72). **B-flat tenor saxophone** (default): sounds a major ninth below written; written range C4-C6 (concert MIDI 46-70). **E-flat alto saxophone**: sounds a major sixth below written; written range C4-C6 (concert MIDI 51-75). All three use treble clef. Switching keeps your Written key and Collection, so the sounding key changes. If a phrase is on screen, switching generates a new one with the same settings, or clears it when the rhythm settings are an unsupported combination.
 - **related:** `transposing-instrument`, `b-flat-instrument`, `e-flat-instrument`, `instrument-range`, `written-pitch`, `control-register`, `control-written-key`
 - **sources:** ui_ux/screens/phrase-workspace/handoff.md, src/domain/profile/instrument-profiles.ts, src/composables/generation-session-profile-switch.ts
+
+### Jam
+
+- **id:** `jam`
+- **aliases:** Jam mode, Jam switch, a Jam
+- **popup:** A session mode: you play a short idea first, and the app's phrases grow from it. Needs a connected controller.
+- **definition:** Among musicians, a jam is an informal session where players improvise together. In this app, Jam is a session mode, and the switch that turns it on: instead of starting from a generated phrase, the session starts with your own doodle, and the phrases that follow continue it, keeping something of its rhythm and its ups and downs. "A Jam" means one session run this way. Jam is a working name.
+- **in_infinite_flow:** Planned for v3.2 (not built; spec decisions D209, D215, D216, D234, D236). Off by default, set at Idle and saved like the "During a session" options; presets never hold it. Without a MIDI controller it is unavailable, and Idle and Start behave as with Jam off. At Idle in Jam mode no phrase is shown. A Jam goes: Start or the starting note, one count-in measure, the doodle (one to four measures), a generation measure while the app writes phrase 1, a read-in measure with phrase 1 on screen, then phrase 1 sounds with the backing; if phrase 1 is late, the wait grows by whole measures, up to three. From phrase 1 it runs as any session. There is no new doodle mid-session: stop and start again. The review opens with the doodle and may offer a key and mode suggestion and "Jam again on this doodle".
+- **related:** `doodle`, `held-doodle`, `control-drift`, `control-rhythm-lock`, `key-and-mode-suggestion`, `starting-note`, `count-in`, `call-and-response`
+- **sources:** S84, specs/versions/v3/jam.md, specs/decisions.md
+
+### Key and mode restriction
+
+- **id:** `key-and-mode-restriction`
+- **aliases:** restriction, restriction in force
+- **popup:** The keys and modes a preset is meant for. Choosing the preset moves you inside them; the key and mode controls then highlight them, and nothing is blocked.
+- **definition:** Some styles live in particular modes: a folk reel sounds most like itself in Mixolydian or Dorian. A key and mode restriction is the app's way for a preset to say which keys and modes it is meant for. It guides rather than forbids: you can still pick any key and mode. Here "key" means the Written key (the home note) and "mode" the Collection value, one of nine.
+- **in_infinite_flow:** Planned for v3.1 (not built; spec decisions D229–D231, D233, D235). Each half, keys and modes, is "any" or an ordered list. Built-ins: Reel any key, Mixolydian or Dorian; Bebop and Pop song any key, Major; Modal (Dorian) any key, Dorian; the other four any. No built-in restricts keys. Choosing a restricted preset keeps each half if it is allowed, else takes the first listed (A Aeolian becomes A Mixolydian under Reel); a one-key, one-mode restriction sets both. The phrase on screen stays until you regenerate. The **restriction in force** is the selected preset's, or Custom's base's, while the current key and mode are inside it; the two controls highlight it, not by color alone. Choosing a key or mode outside it opts out: the selection becomes Custom and nothing else changes. Vary settings' key and mode moves stay inside the restriction in force at the session's start. Saving a player preset offers three choices: as now (the default), only this key and mode, or any. Major and Ionian are separate entries (same notes, different chord plans), as are Minor and Aeolian.
+- **related:** `built-in-preset`, `player-preset`, `custom`, `control-written-key`, `control-collection`, `mode`, `control-vary-settings`
+- **sources:** specs/versions/v3/presets.md, specs/versions/v3/master-spec.md, specs/decisions.md
+
+### Key and mode suggestion
+
+- **id:** `key-and-mode-suggestion`
+- **aliases:** the suggestion, key suggestion
+- **popup:** After a Jam, the app may propose the key and mode your doodle seems to be in. You choose: use it, or keep yours.
+- **definition:** The key and mode suggestion is the app's guess at which home note and which scale or mode your doodle sounds in, offered for you to accept or decline. It is what a musician does on hearing an idea and saying "that sounds like D Dorian". The guess uses key finding: which notes you played, for how long, and which came first and last. A short idea often fits several keys, so it is a suggestion, never a verdict.
+- **in_infinite_flow:** Planned for v3.2 (not built; spec decisions D209, D212, D216, D234, D236). Worked out when the doodle ends; shown only afterwards, in the Jam's review and at Idle with a held doodle, never during a session. The app scores all 84 home note and mode pairs, keeps up to three close candidates and draws one by weighted chance; the draw depends only on the doodle, so the same doodle always gives the same answer. Only that answer is shown, in written pitch, with **Use it** (sets Written key and Collection as a change by hand would), **Keep mine** (changes nothing, and that doodle's suggestion is not offered again) and "Jam again on this doodle". With Major or Minor selected, an Ionian answer reads "Major" and an Aeolian one "Minor". Nothing is suggested for fewer than 5 pitch classes, 6 notes or 2 beats of sound, when your own key and mode are among the candidates, or when under 80 % of the doodle fits the best answer (the review then says so once, never naming a "wrong" note). A preset's restriction does not limit it; using an answer outside the restriction makes the selection Custom. The app never changes key or mode on its own.
+- **related:** `key-finding`, `key-profile`, `pitch-class`, `relative-keys`, `parallel-keys`, `doodle`, `held-doodle`, `control-written-key`, `control-collection`, `key-and-mode-restriction`
+- **sources:** S60, S63, S73, docs/music/key-and-mode-estimation.md, specs/versions/v3/key-and-mode-suggestion.md, specs/decisions.md
 
 ### Leapiness
 
@@ -1637,12 +1757,12 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 ### Musical profile preset
 
 - **id:** `control-musical-profile-preset`
-- **aliases:** preset, style
+- **aliases:** musical profile, profile, style
 - **popup:** A starting style: Neutral (stays in the key) or Jazz (adds short out-of-key notes). It also sets seven other controls at once.
 - **definition:** The musical profile preset picks a style and loads a matching set of starting values. It does two jobs. It sets the note vocabulary, which the app calls the grammar: which decorating figures are allowed. And it fills in seven other controls at once, which you can then change. "Preset" and "profile" are app words, not music-theory terms.
-- **in_infinite_flow:** **Neutral** (default): only notes of the collection, which the rules allow to decorate with passing tones, neighbors, appoggiaturas and diatonic approaches; because the search tries chord tones first, decorations are rare in practice and appoggiaturas almost never appear (see the [embellishment catalogue](embellishment-catalogue.md)). It sets Harmonic motion Gentle diatonic, Note density Quarter notes, Rhythmic variety Slightly varied, Syncopation Straight, Silence density Sparse, Contour Arch, Register Middle. **Jazz**: adds chromatic approaches and enclosures; chords are the same as Neutral, with no seventh chords and no swing. It sets Gentle diatonic, Eighth notes, Slightly varied, Occasional offbeats, Conversational space, Wandering, Varying. Changing any of those seven afterward shows "Custom", and the status says which grammar is kept. Choosing Neutral or Jazz again replaces all seven.
-- **related:** `grammar`, `chromatic-approach`, `enclosure`, `approach-note`, `passing-tone`, `swing`, `control-harmonic-motion`
-- **sources:** ui_ux/screens/phrase-workspace/handoff.md, src/domain/controls/profile-selection.ts, docs/music/neutral-profile.md, docs/music/jazz-profile.md
+- **in_infinite_flow:** **Neutral** (default): only notes of the collection, which the rules allow to decorate with passing tones, neighbors, appoggiaturas and diatonic approaches; because the search tries chord tones first, decorations are rare in practice and appoggiaturas almost never appear (see the [embellishment catalogue](embellishment-catalogue.md)). It sets Harmonic motion Gentle diatonic, Note density Quarter notes, Rhythmic variety Slightly varied, Syncopation Straight, Silence density Sparse, Contour Arch, Register Middle. **Jazz**: adds chromatic approaches and enclosures; chords are the same as Neutral, with no seventh chords and no swing. It sets Gentle diatonic, Eighth notes, Slightly varied, Occasional offbeats, Conversational space, Wandering, Varying. Changing any of those seven afterward shows "Custom", and the status says which grammar is kept. Choosing Neutral or Jazz again replaces all seven. From v3.1 (planned, not built; spec decisions D228, D233, D235), "musical profile" leaves the player's vocabulary: the control becomes the preset selector, a combo box placed higher in the controls, and Neutral and Jazz become two of eight built-in presets (see Built-in preset). Each then sets ten controls and seven figure levels instead of seven controls and a hidden grammar, and Custom names its base preset instead of a retained grammar.
+- **related:** `built-in-preset`, `player-preset`, `custom`, `grammar`, `chromatic-approach`, `enclosure`, `approach-note`, `passing-tone`, `swing`, `control-harmonic-motion`
+- **sources:** ui_ux/screens/phrase-workspace/handoff.md, src/domain/controls/profile-selection.ts, docs/music/neutral-profile.md, docs/music/jazz-profile.md, specs/versions/v3/presets.md, specs/decisions.md
 
 ### Note density
 
@@ -1657,12 +1777,12 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 ### Player preset
 
 - **id:** `player-preset`
-- **aliases:** saved preset, custom preset
+- **aliases:** saved preset, my preset
 - **popup:** A set of settings you named and saved yourself, to get them back later.
 - **definition:** A player preset is a group of settings the player saves under a name of their own, so the same setup can be recalled in one step instead of being rebuilt control by control. Musicians do the same with the presets of a synthesizer or an effects unit. It is an app term.
-- **in_infinite_flow:** Planned for v3.1, saved with v3.0's local persistence: the player selects a preset, changes settings (the selection then shows "Custom") and saves the result under a name (spec decision D228). It holds the same settings as a built-in preset, never the instrument, tempo, written key or collection. Not built.
-- **related:** `built-in-preset`, `control-musical-profile-preset`
-- **sources:** specs/versions/v3/README.md, specs/decisions.md
+- **in_infinite_flow:** Planned for v3.1 (not built; spec decisions D228, D233, D235), saved automatically on the device with v3.0's storage. The player selects a preset, changes settings (the selection then shows Custom) and saves the result under a name of 1 to 40 characters, unique and not "Custom"; at most 50. It holds what a built-in preset holds: the ten controls, the seven figure levels and a key and mode restriction, never the instrument or tempo. Saving asks which restriction to keep: as now (the default, so a reel stays a reel), only the current key and mode, or any. A player preset, unlike a built-in, can take saved changes, be renamed, or be deleted after a confirmation. All this happens at Idle or in the review, never during a session, and no preset leaves the device.
+- **related:** `built-in-preset`, `custom`, `key-and-mode-restriction`, `control-figure-level`, `control-musical-profile-preset`
+- **sources:** specs/versions/v3/presets.md, specs/versions/v3/master-spec.md, specs/decisions.md
 
 ### Register
 
@@ -1673,6 +1793,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The selected Low, Middle or High window for the whole phrase, inside the instrument's range. The range holds three overlapping windows, each one octave wide. **Low**, **Middle** and **High** pick one: C3-C4, F-sharp3-F-sharp4 and C4-C5 on the keyboard (concert), and written C4-C5, F-sharp4-F-sharp5 and C5-C6 on both saxophones. **Varying** lets the app choose one window that works, based on the phrase's random seed. Default Middle (Neutral) or Varying (Jazz). If no window can fit the other settings, generation reports a failure instead of breaking the range.
 - **related:** `register`, `register-window`, `instrument-range`, `control-instrument-profile`, `control-contour`
 - **sources:** ui_ux/screens/phrase-workspace/handoff.md, docs/music/saxophone-profile-ranges.md, src/domain/profile/instrument-profiles.ts
+
+### Rhythm lock
+
+- **id:** `control-rhythm-lock`
+- **aliases:** lock, locked rhythm
+- **popup:** Keeps one rhythm for the whole session, every note start and length, while the pitches keep changing.
+- **definition:** Rhythm lock is the app's switch for practicing with one rhythm repeated while the melody changes, as musicians do when they keep a rhythm and try new notes over it. With the rhythm settled, your eyes can go to the pitches. The locked rhythm is every note start and length, and so every rest, across the four measures.
+- **in_infinite_flow:** Planned for v3.2 (not built; spec decisions D232, D234, D236). Off by default; set at Idle or in the review; saved like the session options; presets never hold it. Outside a Jam it locks the rhythm of phrase 1, the phrase on screen at Start; in a Jam, the rhythm nearest the doodle that the app can write (locking the exact played rhythm waits for v4's rhythm editor). The lock is strict: a phrase leaves the locked rhythm only through an allowed rhythm change (none by default) or, when the locked rhythm cannot make a phrase, a forced bend; either lasts one phrase and is never marked. While the lock is on, Vary settings never moves the rhythm settings. If a session steps Sixteenth down to Eighth on a narrow screen, the first Eighth phrase's rhythm becomes the locked one.
+- **related:** `control-allowed-rhythm-changes`, `forced-bend`, `rhythm`, `control-drift`, `control-vary-settings`, `jam`
+- **sources:** specs/versions/v3/rhythm-lock.md, specs/decisions.md
 
 ### Rhythmic variety
 
@@ -1703,6 +1833,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Measured in sixteenth-note slots over the 64-slot phrase. **Sparse** (Neutral default): 4-8 slots of rest in total, at least one rest. **Conversational space** (Jazz default): 12-20 slots, with rests in both halves of the phrase, one of them an eighth or longer. **Breath-heavy**: 24-32 slots, a rest in every measure, and at least two rests of a quarter or longer. In every setting no measure is fully silent and no single rest is longer than half a measure.
 - **related:** `rest`, `control-note-density`, `control-syncopation`, `unsupported-rhythm-combination`
 - **sources:** ui_ux/screens/phrase-workspace/handoff.md, docs/music/rhythm-phrase-structure.md
+
+### Starting note
+
+- **id:** `starting-note`
+- **aliases:** start note
+- **popup:** The one note you can play on your controller to start a session, instead of clicking Start.
+- **definition:** The starting note is the app's name for a played way to start: with a MIDI controller attached, playing this one note at Idle starts the session's count-in, so your hands can stay on the instrument. It must be that exact note, octave included; any other note played at Idle is ignored. It is an app term, not a music-theory one.
+- **in_infinite_flow:** Today it is the first note of phrase 1, the phrase on screen, and the cue row names it whenever playing it would start a session. It only starts the count-in: after it, you play phrase 1 from its first note on beat 1. In Jam mode, planned for v3.2 (not built; spec decision D234), it is instead the selected key's home note, in written pitch, in the octave nearest the middle of your instrument's written range, and it belongs to no doodle; with a held doodle it is phrase 1's first note again. It is the one played signal the app has.
+- **related:** `count-in`, `cue`, `played-signal`, `jam`, `tonic`
+- **sources:** specs/versions/v2/master-spec.md, specs/versions/v3/jam.md
 
 ### Syncopation
 
@@ -1750,9 +1890,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** settings-mutation flag
 - **popup:** Every 2 to 4 phrases, one setting moves one step, so a long session keeps changing. Never the instrument or the tempo.
 - **definition:** Vary settings is the app's own name for an option that keeps a long session fresh. Instead of every phrase being built from the same settings, one setting at a time drifts by a small step, up or down, every few phrases, while you keep playing. The project's documents call it the "settings-mutation flag".
-- **in_infinite_flow:** **Off** (default) or **On**, in the "During a session" group. While on, every 2 to 4 phrases (the gap is picked at random) one setting moves one step, in either direction. Any setting can move except Instrument profile and Tempo, which has Rising tempo instead. A step usually means one place along a control's list, never jumping from one end to the other. Some controls step their own way: Contour, whose shapes have no order, can change to any other shape; Register moves only among Low, Middle and High, never to Varying (from Varying it starts from the window the session was using, then keeps a fixed one); Written key moves one place around the circle of fifths (usually one sharp or flat more or fewer in the key signature); Collection moves one place at a time and stays among major and minor, or among the modes; Musical profile preset only switches its name between Neutral and Jazz, keeping every control, and then shows as a custom setup. A step never lands on an unsupported rhythm combination: the app picks again instead. During the session the controls show the settings the phrase now sounding was built from, changing quietly when a phrase built with a new value starts. When the session ends, every setting goes back to your own. Changing the option never regenerates the phrase on screen; the choice lasts until you reload the page.
-- **related:** `control-rising-tempo`, `control-tension-across-phrases`, `control-musical-profile-preset`, `unsupported-rhythm-combination`
-- **sources:** specs/versions/v2/master-spec.md, ui_ux/screens/phrase-workspace/handoff.md
+- **in_infinite_flow:** **Off** (default) or **On**, in the "During a session" group. While on, every 2 to 4 phrases (the gap is picked at random) one setting moves one step, in either direction. Any setting can move except Instrument profile and Tempo, which has Rising tempo instead. A step usually means one place along a control's list, never jumping from one end to the other. Some controls step their own way: Contour, whose shapes have no order, can change to any other shape; Register moves only among Low, Middle and High, never to Varying (from Varying it starts from the window the session was using, then keeps a fixed one); Written key moves one place around the circle of fifths (usually one sharp or flat more or fewer in the key signature); Collection moves one place at a time and stays among major and minor, or among the modes; Musical profile preset only switches its name between Neutral and Jazz, keeping every control, and then shows as a custom setup. A step never lands on an unsupported rhythm combination: the app picks again instead. During the session the controls show the settings the phrase now sounding was built from, changing quietly when a phrase built with a new value starts. When the session ends, every setting goes back to your own. Changing the option never regenerates the phrase on screen; the choice lasts until you reload the page. **From v3.1** (planned, not built; spec decisions D233, D235): the Neutral/Jazz flip is replaced by a figure step, where one figure moves one figure level, up or down, never past Off or Strongly favored; the seven levels together take the flip's single place in the draw. A move of any preset-held setting, Tension, Leapiness and Arpeggio chaos now included, marks Custom for that session; key and mode moves never do, and stay inside the key and mode restriction in force at the session's start. **From v3.2** (planned, not built; spec decisions D216, D234, D236), **allowed groups** let you choose which settings may move, in six groups switched on or off together, all on by default: **Key and mode** (Written key, Collection), **Harmony** (Harmonic motion), **Tension**, **Rhythm** (Note density, Rhythmic variety, Syncopation, Silence density), **Melody shape** (Contour, Register, Leapiness, Arpeggio chaos) and **Style** (the figure step). They are set at Idle or in the review and saved with the option. While the rhythm lock is on, the Rhythm group never moves. If the allowed groups offer no possible move, Vary settings cannot be turned on, and the app says why.
+- **related:** `control-rising-tempo`, `control-tension-across-phrases`, `control-musical-profile-preset`, `control-figure-level`, `key-and-mode-restriction`, `custom`, `control-rhythm-lock`, `unsupported-rhythm-combination`
+- **sources:** specs/versions/v2/master-spec.md, ui_ux/screens/phrase-workspace/handoff.md, specs/versions/v3/embellishment-flags.md, specs/versions/v3/rhythm-lock.md, specs/decisions.md
 
 ### Written key
 
@@ -1760,11 +1900,21 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** key, home note
 - **popup:** The home note of the phrase, as your instrument reads it. Together with Collection it gives the key, such as C Ionian.
 - **definition:** Written key picks the tonal center, the home note, of the phrase. It is chosen in your instrument's written pitch, the notes you read on the page, not in concert pitch. So "C" means the C written in your part, whatever it sounds like. Internally the app calls it the written tonal center.
-- **in_infinite_flow:** Twelve options, C through B, with black-key notes shown under both names (for example "F-sharp/G-flat"); default C. The app converts the choice to concert pitch before generating: written C is concert B-flat on tenor saxophone, concert E-flat on alto, and concert C on keyboard. Switching instrument keeps the written key, so the sounding key changes. The score spells the key with the fewest sharps or flats, choosing sharps on a tie.
-- **related:** `tonal-center`, `key`, `key-signature`, `enharmonic`, `written-pitch`, `control-collection`, `control-instrument-profile`
+- **in_infinite_flow:** Twelve options, C through B, with black-key notes shown under both names (for example "F-sharp/G-flat"); default C. The app converts the choice to concert pitch before generating: written C is concert B-flat on tenor saxophone, concert E-flat on alto, and concert C on keyboard. Switching instrument keeps the written key, so the sounding key changes. The score spells the key with the fewest sharps or flats, choosing sharps on a tie. From v3.1 (planned, not built; spec decisions D230, D231), choosing a player preset kept to one key and mode (see Key and mode restriction) sets it; no built-in preset restricts keys. In v3.2 (planned, not built), the key and mode suggestion's "Use it" can also set it, at your request.
+- **related:** `tonal-center`, `key`, `key-signature`, `enharmonic`, `written-pitch`, `control-collection`, `control-instrument-profile`, `key-and-mode-restriction`
 - **sources:** ui_ux/screens/phrase-workspace/handoff.md, src/domain/generation/generation-intent.ts, src/domain/notation/pitch-spelling.ts
 
 ## Internal (no popup)
+
+### Forced bend
+
+- **id:** `forced-bend`
+- **aliases:** bend (earlier drafts)
+- **popup:** Internal: when the locked rhythm cannot make a phrase, the app uses the nearest rhythm that can, for that one phrase.
+- **definition:** A forced bend is the search's fallback under the rhythm lock. Sometimes the locked rhythm is not among the rhythms a phrase's settings allow (a change of tension can remove it), or no phrase can be built on it. The phrase then takes the nearest rhythm that works, nearest by the same per-measure distance drift uses, and the next phrase tries the locked rhythm again. It is not a player option, and not a rhythm change.
+- **in_infinite_flow:** Planned for v3.2 (not built; spec decisions D234, D236). It cannot be turned off, and happens with an empty list of allowed rhythm changes too. It is recorded in the session history only, never shown. Measured: only a step down from Build to Lift tension can lose the locked rhythm, so forced bends come from Tension across phrases when the chosen tension is Build, from a Vary settings Tension step from Build to Lift, and from the narrow-window step-down to Eighth. Earlier drafts' "bend" is split into "rhythm change" (the player's option) and "forced bend" (D236).
+- **related:** `control-rhythm-lock`, `control-allowed-rhythm-changes`, `control-drift`, `control-tension-across-phrases`
+- **sources:** specs/versions/v3/rhythm-lock.md, specs/decisions.md
 
 ### Gesture and answer
 
@@ -1780,11 +1930,11 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 
 - **id:** `grammar`
 - **aliases:** musical grammar, profile grammar
-- **popup:** Internal: the note vocabulary tied to Neutral or Jazz, which stays in force after you customize the preset's controls.
+- **popup:** Internal: the note vocabulary tied to Neutral or Jazz, kept after you customize their controls. Replaced by figure levels in v3.1.
 - **definition:** In this project, a grammar is the set of melodic rules a musical profile brings: which figures may decorate the melody. The Neutral grammar is fully diatonic; the Jazz grammar also allows chromatic approaches and enclosures. The grammar is separate from the seven preset-controlled values, so editing those keeps the grammar. It is a project word, not a standard music-theory term.
-- **in_infinite_flow:** It shows in the interface as "Custom (Jazz grammar)" in the control summary, and in the preset status "Custom configuration - Jazz grammar retained." Not to be confused with the rhythm grammar version (`rhythm-mvp-v2`), which is the versioned rhythm rulebook.
-- **related:** `control-musical-profile-preset`, `chromatic-approach`, `enclosure`
-- **sources:** src/domain/controls/profile-selection.ts, src/components/controls/control-options.ts
+- **in_infinite_flow:** Today it shows in the interface as "Custom (Jazz grammar)" in the control summary, and in the preset status "Custom configuration - Jazz grammar retained." From v3.1 (planned, not built; spec decisions D233, D235), "grammar" leaves the player's vocabulary and disappears as a hidden setting: the figures become visible figure levels that every preset holds, so a Custom setup has no grammar left to retain and names its base preset instead. Not to be confused with the rhythm grammar (version `rhythm-mvp-v2`), the versioned rhythm rulebook, which stays.
+- **related:** `control-musical-profile-preset`, `control-figure-level`, `custom`, `chromatic-approach`, `enclosure`
+- **sources:** src/domain/controls/profile-selection.ts, src/components/controls/control-options.ts, specs/versions/v3/embellishment-flags.md, specs/decisions.md
 
 ### Metrical anchor
 
