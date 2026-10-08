@@ -44,7 +44,7 @@
 >   ([The Rest of the Workspace During a Session](#the-rest-of-the-workspace-during-a-session))
 > - _v3.2 new:_ Jam, the rhythm lock and what Vary settings may move, and the options that appear
 >   under their switch ([The Session Options](#the-session-options))
-> - _v3.2 changed:_ the five new session settings are kept; a held doodle is not
+> - _v3.2 new:_ the five new session settings are kept; a held doodle is not
 >   ([Settings That Stay](#settings-that-stay))
 
 ## Focal Point and Header
@@ -119,7 +119,7 @@ The session's notices use the same row. A lost controller's banner is error-tone
 
 **[v3.2 new]** In Jam mode the staff shows no phrase between sessions: the phrases are written from the doodle, so there is nothing to read before it. The staff shows an empty system instead, with the clef, the key signature of the selected key and mode, and the time signature, so the player sees which key they are about to play in, and the lower system's place holds one sentence: "After the count-in, play your doodle: one to four measures. The app continues it." An empty staff is honest here in a way it is not at an ordinary idle, where it would read as music with nothing in it: in Jam mode it is the page the player is about to fill. It stays through the count-in, the doodle and the writing, unchanged, and phrase 1 replaces it with the ordinary entrance when it is ready to be read. When a Jam could not continue the doodle, a calm line under the sentence says so, never error-toned, until the player tries again or changes a setting. On a phone, where the lower system is shortest, the line takes the sentence's place rather than following it.
 
-**[v3.2 new]** When the player chooses to jam again on a doodle, the staff shows phrase 1 already written from it, and a bar above the staff says what is going on: "Jamming again on your doodle: phrase 1 continues it. Changing a setting other than the tempo lets it go." It sits where a generation failure message would, between the toolbar and the staff, rather than in the row above the staff, which belongs to the starting note and the session. When the doodle's key and mode suggestion has not been answered, the bar offers it with the same words and buttons as the review. The bar never appears or goes during a session: like the notice row at the top, it holds still, its buttons disabled, so a start never moves the staff, and it changes only between sessions, after something the player did. The reasoning for the flow is in [`flows/jam/`](../../flows/jam/intent.md).
+**[v3.2 new]** When the player chooses to jam again on a doodle, the staff shows phrase 1 already written from it, and a bar above the staff says what is going on: "Jamming again on your doodle: phrase 1 continues it. Changing any setting except the tempo, Rising tempo, the audio mix or the theme lets it go." It sits where a generation failure message would, between the toolbar and the staff, rather than in the row above the staff, which belongs to the starting note and the session. When the doodle's key and mode suggestion has not been answered, the bar offers it with the same words and buttons as the review. The bar never appears or goes during a session: like the notice row at the top, it holds still, its buttons disabled, so a start never moves the staff, and it changes only between sessions, after something the player did. The reasoning for the flow is in [`flows/jam/`](../../flows/jam/intent.md).
 
 ## The Staff During a Session
 

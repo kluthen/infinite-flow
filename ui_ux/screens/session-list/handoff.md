@@ -6,7 +6,7 @@
 >
 > - _v3.1 changed:_ the detail line names the preset the session started with, where it named the
 >   musical profile ([Components and Content](#components-and-content))
-> - _v3.2 changed:_ a Jam session's detail line begins with "Jam"
+> - _v3.2 new:_ a Jam session's detail line begins with "Jam"
 >   ([Components and Content](#components-and-content))
 
 `sessions-panel` is the second level of the phrase-workspace page's review mode
@@ -69,7 +69,7 @@ layout-workspace
   snapshot, which a later rename or deletion of that preset never changes. A session kept by v3.0
   shows the musical profile it recorded in the same form: "Neutral", "Jazz", "Custom, based on
   Neutral" or "Custom, based on Jazz".
-- **[v3.2 changed]** For a Jam session the detail line begins with the word "Jam": "Jam · 12 min ·
+- **[v3.2 new]** For a Jam session the detail line begins with the word "Jam": "Jam · 12 min ·
   9 phrases · …". A word, not an icon; no other row changes. A
   session kept before v3.2 is never a Jam session.
 - **Status line** (`session-row-meta`): "{favorites} · {played notes} · {keeping}", where

@@ -783,3 +783,44 @@ edited. Entries marked **(spec, provisional)** carry a recommendation on a spec 
   it by mistake): "Every 2 to 4 phrases, one setting from the groups below moves one step. Never
   the instrument or the tempo. Keys and modes stay within what your preset is meant for. Your
   settings come back when the session ends."
+- **D249 — Q70, Q71 and Q72 closed by the spec as recommended (2026-10-08; spec D242, D243,
+  D244).** `spec-writer` settled all three while the design was being written: `Save changes`
+  asks the restriction only when the key or mode lies outside the preset's restriction (spec D242,
+  confirming D231); leaving Jam mode at Idle leaves the workspace empty (spec D243, confirming
+  D236); a Jam played on a held doodle keeps it (spec D244, confirming D239). The provisional
+  marks on D231, D236 and D239 no longer apply; the tier documents already state these as
+  designed. Also applied from the spec the same day, already followed by unit J: the home note and
+  the doodle's notes never start the silence timer (spec D240); a controller lost during a fresh
+  Jam's count-in ends it at once (spec D241). Logged from `ux-critic`'s v3.2 pass: Q74 (a
+  held-doodle Jam ended in its count-in keeps the doodle) and Q75 (the no-fit note in every
+  review), both designed as recommended. Q73 stays open.
+- **D250 — `ux-critic`'s v3.1 and v3.2 passes: DRIFT both, findings resolved (2026-10-08).**
+  v3.1: (1) a player at the 50-preset limit could only free a slot by choosing a preset to delete
+  it, which throws away the unsaved Custom settings they wanted to keep (§B6.6 lets any player
+  preset be deleted): **Your data's Presets section now lists every player preset by name, each
+  with its own `Delete`** (the shared confirmation, absent while saving is off), as §B7's "lists
+  the player presets" also reads, and the limit's note reads "You have 50 presets of your own, the
+  most the app keeps. Delete one, here or in Your data, to save a new one."; deleting from there
+  never changes the selection's values (deleting the selected or base preset leaves Custom with no
+  base, as anywhere). (2) Two descriptions overstated their presets: Speed drill becomes "Dense,
+  changing rhythms with most embellishments favored, to read fast in any key."; Jazz becomes
+  "Eighth notes and offbeats, now and then with a short note from outside the key." (B5.3: Jazz
+  still sounds nearly free of decorations). (3) Q71 closed (D249). (4) `strategy.md`'s removed P3
+  sentence is now listed as a v3.2 removal and the new P3.C3 bullet tagged `[v3.2 new]`; "Three
+  actions" in the presets intent corrected to four. v3.2: (1) registers updated (D249). (2) The
+  read-only state of `toggle-list` and of `field-dependent` inside a read-only field is defined
+  in the token document (activation refused by script, one dashed ring). (3) Q74 and Q75 logged
+  with provisional designs (D249). (4) The held doodle's sentence names what keeps it: "Jamming
+  again on your doodle: phrase 1 continues it. Changing any setting except the tempo, Rising
+  tempo, the audio mix or the theme lets it go."; `strategy.md` matches. (5) Four `changed`/`new`
+  tags corrected (session list, Your data, the workspace intent's change block, `strategy.md`).
+- **D251 (spec, provisional, Q74 and Q75) — Two readings of Part C, designed as recommended
+  (2026-10-08; `ux-critic`'s recheck).** **Q74:** a Jam on a held doodle that ends during its
+  count-in (Stop, a hidden tab, a staff that can no longer be shown) keeps the doodle held, and
+  Idle shows the same phrase 1 again, as after any count-in end (`flows/jam/handoff.md`, The Held
+  Doodle); §C5.13's "the doodle is not held" is read as describing a fresh Jam's doodle, never
+  held by itself. **Q75:** the "no mode fits" note is one plain sentence shown in every review of
+  that Jam, kept ones included (first settled in D246). The recheck's other finding, a leftover
+  "Speed drill favors the chromatic figures" in `flows/presets/intent.md`, is corrected to §B6.5
+  (Speed drill favors the chromatic approach only). Recheck otherwise clean: v3.1 and v3.2
+  validated for the owner's review.

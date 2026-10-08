@@ -5,8 +5,9 @@
 Screens: `screens/phrase-workspace/` for the preset bar (`preset-bar`: the `preset-select` box, its
 description `field-note` and `preset-actions`), the key and mode marks and the Embellishments
 group; `screens/preset-sheet/` for the sheet in which a preset is saved as new, saved with a new
-restriction or renamed, and for the confirmation in which one is deleted. The reasoning is in
-[`intent.md`](intent.md).
+restriction or renamed, and for the confirmation in which one is deleted; `screens/your-data/` for
+the list of player presets, each with its own `Delete`, in the Presets section of Your data. The
+reasoning is in [`intent.md`](intent.md).
 
 ## Choosing, Custom and the Restriction
 
@@ -26,7 +27,7 @@ flowchart TD
   COUT -->|"Any other change"| COUT
   CIN -->|"Choose a preset"| APPLY
   COUT -->|"Choose a preset"| APPLY
-  PRE -->|"The selected player preset deleted"| CNB["Custom, no base; no restriction in force"]
+  PRE -->|"The selected player preset deleted, in the controls or in Your data"| CNB["Custom, no base; no restriction in force"]
   CIN -->|"Its base deleted"| CNB
   COUT -->|"Its base deleted"| CNB
   CNB -->|"Any change"| CNB
@@ -61,6 +62,16 @@ flowchart TD
   RENS --> CLOSED
   DELS --> CLOSED
   CLOSED["Sheet closed: focus on the button that opened it, or on preset-select when that button is gone or disabled"]
+```
+
+```mermaid
+flowchart TD
+  YD["your-data: Presets section, a preset's Delete (the section absent while saving is off)"]
+  YD --> YDC["your-data: Confirmation, Delete the preset"]
+  YDC -->|"Delete preset"| YDS["Deleted: its row gone, the count updated; the selection's values unchanged; Custom with no base if it was the selection or Custom's base"]
+  YDC -->|"The deletion fails: an error line, the confirmation stays"| YDC
+  YDC -->|"Cancel, Escape, backdrop, Close"| YDO["your-data: Overview; focus on that row's Delete"]
+  YDS --> YDD["your-data: Overview; focus on Done"]
 ```
 
 ## Routing Rules
@@ -131,8 +142,8 @@ flowchart TD
 
   `Rename preset` and `Delete preset` act on the selected player preset or on Custom's base.
   While there are 50 or more player presets, `Save as new preset` is disabled, with its
-  `field-note`, "You have 50 presets of your own, the most the app keeps. Delete one to save a new
-  one." During a session the row keeps exactly the buttons it held at the start, all disabled,
+  `field-note`, "You have 50 presets of your own, the most the app keeps. Delete one, here or in
+  Your data, to save a new one." During a session the row keeps exactly the buttons it held at the start, all disabled,
   whatever Vary settings does to the selection.
 - **Save as new** opens the sheet with a name (prefilled "My preset", or "My preset 2", "My
   preset 3" and so on, the first not taken) and the **Key and mode** choice: "As now: {the
@@ -158,6 +169,16 @@ flowchart TD
   preset, or Custom's base, and leaves the selection Custom with no base and the same values:
   nothing is regenerated, and no restriction is in force any more. A deletion that fails leaves
   the confirmation open with its error line and changes nothing.
+- **Deleting from Your data.** The Presets section of Your data (`screens/your-data/handoff.md`)
+  lists every player preset by name, in the box's **Your presets** order, more than 50 included,
+  each with its own `Delete`, absent with the section while saving is off. `Delete` opens Your
+  data's confirmation, in the preset sheet's words and with its failure line; the deletion is the
+  one above, the preset chosen or not. It never changes the selection's values, the written key or
+  the collection: deleting another preset leaves the selection as it is; deleting the selected
+  preset, or Custom's base, leaves the selection Custom with no base and the same values, with no
+  restriction in force, which the box shows once the sheet closes. It is how a player at the limit
+  frees a slot while keeping unsaved Custom settings, which choosing a preset to delete it would
+  replace. Your data opens only between sessions, so no deletion lands during one.
 - **Names** are plain text, trimmed of spaces at both ends on save, 1 to 40 characters, unique
   among all presets ignoring case, built-in names included (the preset being renamed excepted),
   and never "Custom" in any case. A refused name is said as it is typed, under the field, and the
@@ -166,7 +187,8 @@ flowchart TD
   renaming: presets from another tab, or a later version's new built-in name, are listed as they
   are, duplicates included, and can be renamed.
 - **The limit** is 50 player presets. More than 50 loaded (written from two tabs) are all listed,
-  and `Save as new preset` stays disabled while there are 50 or more.
+  in the box and in Your data, and `Save as new preset` stays disabled while there are 50 or more;
+  its note names both places to delete one.
 - **A refused save.** A save, rename or `Save changes` the browser refuses keeps the result for the
   visit, so the preset can still be chosen and used, and raises the save-problem notice at once,
   in its preset wording, "Your preset “{name}” couldn't be saved on this device. You can use it
@@ -177,8 +199,9 @@ flowchart TD
 - **Saving off** (an outdated tab, or a visit started from the defaults because the saved data
   couldn't be read; `flows/saved-data/handoff.md`): presets made, changed or renamed there last
   for the page, under the visit's existing notice, with no wording of their own; `Delete preset`
-  is not rendered. A visit started from the defaults lists the built-in presets only, until the
-  player makes one; an outdated tab lists the player presets it read.
+  is not rendered, and Your data has no Presets section. A visit started from the defaults lists
+  the built-in presets only, until the player makes one; an outdated tab lists the player presets
+  it read.
 - **At load**, with the saved settings and before the first draw, the saved selection comes back,
   and the values win: if the saved values differ from the selected preset's, or the saved key and
   mode are outside its restriction, the selection shows as Custom based on it; if that preset no
@@ -211,7 +234,8 @@ flowchart TD
   enabled, else to `preset-select`: after `Save as new preset` it is the opener (unless that save
   reached the limit), after a `Save changes` or a deletion `preset-select` (the opener is gone),
   after `Rename preset` the opener. A one-click `Save changes` moves focus to `preset-select` for
-  the same reason.
+  the same reason. A deletion from Your data follows that sheet's rules: `Done` after it, the
+  row's `Delete` after its way back.
 - **Nothing is announced.** Choosing a preset, the change to Custom, a save, a rename and a
   deletion announce nothing: the box itself carries the selection's name to assistive technology,
   and a save is silent, as every save is. The one live region is the refused name's reason, inside

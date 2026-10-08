@@ -49,7 +49,7 @@ spec gaps for `spec-writer`: Q70-Q73 (provisional answers designed).
   refused-save notice), D233, D234, D239-D241. Written 2026-10-08 (details: ux D246, D247).
 - **Unit J — v3.2 core** (delegated, after P): `flows/jam/` (new); `screens/phrase-workspace/`,
   `flows/play-session/` and `flows/generate-phrase/` for v3.2. Governing: ux D235-D244, D246, D247. Written 2026-10-08 (details: ux D248).
-- **Validation.** `ux-critic` on v3.1 and on v3.2. In progress.
+- **Validation.** `ux-critic` on v3.1 and on v3.2: DRIFT both, findings fixed (ux D249, D250); recheck: two small slips, fixed (ux D251). Validated for the owner's review.
 
 
 **v3.0 (Storage) design**, from `specs/versions/v3/master-spec.md` (v3.0 only; v3.1 and v3.2 are
@@ -139,7 +139,7 @@ drops the check.
 
 ## Next Unit
 
-The `ux-critic` passes on v3.1 and v3.2, then their findings.
+The owner's full review of the v3.1 and v3.2 design (ux D225-D251), and `spec-writer`'s answers to Q73-Q75. After approval, take `versions/v3.1/` (and `versions/v3.2/`) copies when each is approved as complete.
 
 Still waiting, from v3.0: after the owner merges `v3-c1-token-source`, delete
 `token-source-v3.md` and point `README.md` and the four handoffs that cite it at the token source

@@ -4,8 +4,8 @@
 
 > **Changes since v3.0**
 >
-> - _v3.1 new:_ the player's presets counted, deleted where they are chosen
->   ([Focal Point](#focal-point))
+> - _v3.1 new:_ the player's presets counted and listed by name, each with its own `Delete`
+>   ([Focal Point](#focal-point), [Deleting](#deleting))
 > - _v3.2 new:_ Jam sessions counted with the others; deleting played notes keeps the doodles as
 >   the app wrote them ([Deleting](#deleting))
 
@@ -54,11 +54,15 @@ sheet), the section names that place rather than duplicating its controls; the s
 inventory with deletions, not a second settings page.
 
 **[v3.1 new]** The player's own presets get a section of their own, after my instrument: how
-many there are, and where they are deleted. They are listed by number, not by name: the preset
-box already lists them, and a second list here would be a second place to manage them. Each is
-deleted one at a time where it is chosen, with `Delete preset` in the controls, and all of them at
-once by `Delete everything`. The line naming the settings now says "the preset" where it said
-"the musical profile", since that is what the controls now call it.
+many there are, then each one by name, in the order the preset box lists them, with its own
+`Delete`. A second place to delete them is deliberate. In the controls a preset is deleted by
+choosing it first, and choosing a preset replaces the settings on screen; a player at the limit
+of fifty, with unsaved Custom settings they want to keep as a new preset, could only make room by
+throwing those settings away. Here a preset is deleted without being chosen, so nothing on the
+workspace changes but the label, when the deleted preset was the one in use. The list stays an
+inventory: names and deletions only, no renaming and no choosing, which remain the controls' job.
+All of them go at once with `Delete everything`. The line naming the settings now says "the
+preset" where it said "the musical profile", since that is what the controls now call it.
 
 The settings have no delete of their own. Resetting one setting is changing it back; resetting
 all of them, with nothing else, is a need no persona has. `Delete everything` covers the rare
@@ -72,6 +76,12 @@ Deletions are graded by how much they take, and placed accordingly.
   under the played notes, each shown only when there is something to delete. They are plain
   buttons here: their own confirmation carries the error tone, so the overview is not a wall of
   red.
+- **[v3.1 new]** **Beside each preset:** a plain `Delete` on the preset's row, named for
+  assistive technology with the preset's name, since a list of identical "Delete" buttons says
+  nothing on its own. Its confirmation is the one the controls' `Delete preset` uses, with the
+  same words, "Your settings stay as they are.", because the fear is the same: deleting a preset
+  never changes the sound on screen. Afterwards focus goes to `Done`, the button that opened the
+  question having left with its row.
 - **Apart, last:** `Delete everything` sits alone after every section, in the error tone, aligned
   to the start and far from `Done`, so a player reaching for `Done` never lands on it.
 

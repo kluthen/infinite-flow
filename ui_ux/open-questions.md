@@ -93,7 +93,7 @@ recommended answer, marked provisional in `decisions.md`; the tier documents sta
 and change only if `spec-writer` settles otherwise.
 
 - **Q70 — Turning Jam off "generates a phrase as at first load", but nothing is generated at
-  first load.** Part C §C5.1 and done item 2 (and §C5.11 for a held doodle dropped with Jam out of
+  first load.** **Closed 2026-10-08 by ux D249** (spec D243, master spec updated: as recommended). Part C §C5.1 and done item 2 (and §C5.11 for a held doodle dropped with Jam out of
   effect) say that leaving Jam mode at Idle generates a phrase "as at first load". At first load
   the app generates nothing by itself: the workspace opens empty and the player asks for the first
   phrase with `Generate phrase` (v2 master spec's idle rules, "the player generates a phrase by
@@ -103,7 +103,7 @@ and change only if `spec-writer` settles otherwise.
   rule that at Idle only an instrument switch generates by itself, and costs one click. Applies to
   every way Jam mode leaves at Idle: the switch turned off, a controller lost, and a held doodle
   dropped while Jam is out of effect. Provisional design: ux D236.
-- **Q71 — What does `Save changes` do to a player preset's key and mode restriction?** §B6.6
+- **Q71 — What does `Save changes` do to a player preset's key and mode restriction?** **Closed 2026-10-08 by ux D249** (spec D242, master spec updated: as recommended). §B6.6
   says "Saving asks for the restriction" under a table covering both save actions, while §B10
   lists the restriction choice for save as new only, and save changes as "replacing its values;
   no confirmation". When the player has opted out of the preset's restriction (key or mode
@@ -115,7 +115,7 @@ and change only if `spec-writer` settles otherwise.
   the restriction with §B6.6's choices** ("as now", which is then any key and mode, the default,
   or "only this key and mode"), and the answer replaces the old restriction. Provisional design:
   ux D231.
-- **Q72 — Does a held doodle stay held after the Jam played on it ends?** §C5.11 lists what drops
+- **Q72 — Does a held doodle stay held after the Jam played on it ends?** **Closed 2026-10-08 by ux D249** (spec D244, master spec updated: as recommended). §C5.11 lists what drops
   a held doodle (a change that discards pre-generated phrases, a lost controller, a reload) and
   says a session's end generates the next phrase; it does not say whether a Jam started from a held
   doodle drops it when it ends. Recommended: **it stays held** (nothing in §C5.11's list happens),
@@ -129,3 +129,17 @@ and change only if `spec-writer` settles otherwise.
   data is gone. Recommended: **yes, the held doodle goes with its session** (Idle then shows Jam
   mode without a held doodle), so a deletion never leaves the doodle alive in memory, where a
   later Jam could put it back into a kept session. Provisional design: ux D247.
+- **Q74 — Does a Jam on a held doodle that ends during its count-in keep the doodle?** §C5.13
+  defines "ends as a count-in end" as including "the doodle is not held", and its Stop, hidden-tab
+  and staff bullets are not limited to a fresh Jam; spec D244 says a Jam played on a held doodle
+  keeps it. Recommended: **it keeps it** (the doodle was held before that Jam, nothing in §C5.11's
+  list happened, and "not held" in §C5.13 describes a fresh Jam's doodle, which is never held by
+  itself); Idle shows the same phrase 1 again, as after any count-in end. Provisional design: ux
+  D248, in `flows/jam/handoff.md`, The Held Doodle.
+- **Q75 — Is the "no mode fits" note shown once, or in every review of that Jam?** §C6.3 says the
+  review "says so plainly, once", and §C12 "the plain, once-only note". The design reads "once" as
+  one plain statement, never repeated per note, shown in every review of that Jam session, kept
+  ones included, like the doodle's engraving it sits under. The other reading, shown only the
+  first time the review opens, would need a stored "seen" flag on the kept session and would leave
+  a later look at the session unexplained. Recommended: **every review, one sentence**.
+  Provisional design: ux D246, in `screens/last-session-review/`.

@@ -4,8 +4,11 @@
 
 > **Changes since v3.0**
 >
-> - _v3.1 new:_ the Presets section ([Layout Tree](#layout-tree),
->   [Overview copy](#overview-copy))
+> - _v3.1 new:_ the Presets section, listing every player preset with its own `Delete`, and that
+>   deletion's confirmation ([Layout Tree](#layout-tree), [Overview copy](#overview-copy),
+>   [Confirmations](#confirmations), [Responsive Behavior](#responsive-behavior))
+> - _v3.1 changed:_ the Presets section's `Delete` buttons join the focus order; a preset deleted
+>   here returns focus to `Done` ([Focus and Keyboard](#focus-and-keyboard))
 > - _v3.1 changed:_ the Settings line names the preset; Delete everything's confirmation names the
 >   presets ([Overview copy](#overview-copy), [Confirmations](#confirmations))
 > - _v3.1 changed:_ a visit that saves nothing hides the Presets section too ([States](#states))
@@ -33,6 +36,10 @@ sheet-backdrop
           h3, p, p sheet-hint
         sheet-section (Presets; v3.1 new)
           h3, p, p sheet-hint
+          ul sheet-list (v3.1 new; only when at least one player preset is listed)
+            li sheet-list-row (one per player preset, in the preset box's order)
+              the preset's name (plain text)
+              btn (Delete; aria-label "Delete preset {name}")
         sheet-section (Controller)
           h3, p, p sheet-hint (only when one is remembered)
         sheet-section (Sessions)
@@ -50,7 +57,7 @@ sheet-backdrop
           h3, p
         sheet-actions-destructive (absent in an outdated tab -- see States)
           btn btn-error (Delete everything)
-      -- Confirmation (one of four)
+      -- Confirmation (one of five; v3.1 changed: the preset's added)
         p (what goes)
         p ("This can't be undone.")
         inline-alert alert-error (only after a failed deletion)
@@ -81,10 +88,21 @@ sheet-backdrop
   delete it with Edit my instrument, in the controls." or, with none, "Make one with Create my
   instrument, in the controls."
 - **[v3.1 new]** **Presets.** `p`: "{n} presets of your own." ("1 preset of your own." for one), or
-  "None." `sheet-hint`: "Delete one with Delete preset, in the controls. Delete everything removes
-  them all." {n} counts the player presets the preset box lists, more than 50 included; a record
-  that could not be read is not counted, though `Delete everything` removes it. No button: a
-  preset is deleted where it is chosen.
+  "None." `sheet-hint`: "Delete one here, or with Delete preset in the controls. Delete everything
+  removes them all." (with none: "Save one with Save as new preset, in the controls."). {n} counts
+  the player presets the preset box lists, more than 50 included; a record that could not be read
+  is not counted and not listed, though `Delete everything` removes it.
+  - Then a `ul` `sheet-list`, present when {n} is at least 1, listing every player preset the
+    preset box lists, in the box's **Your presets** order (alphabetical ignoring case), more than
+    50 included. Each `li` is one row: the preset's name as the player wrote it, as plain text at
+    the sheet's body type, then a plain `btn` "Delete" whose accessible name is "Delete preset
+    {name}". Player presets sharing a name (saved from two tabs) and a preset given a numbered
+    name at load are listed as the box lists them, one row each.
+    Each row is a `sheet-list-row`.
+  - `Delete` opens the Preset confirmation (Confirmations, below). Deleting from here does
+    exactly what `Delete preset` does in the controls (`flows/presets/handoff.md`, Deleting from
+    Your data): no setting changes; when the deleted preset is the selection or Custom's base, the
+    selection becomes Custom with no base, which the preset box shows once the sheet closes.
 - **Controller.** `p`: "{device name}. It reconnects by itself when it's plugged in." or "None
   remembered." `sheet-hint` (only with one): "To forget it, choose Disconnect in the controller
   connection."
@@ -92,8 +110,9 @@ sheet-backdrop
   favorite phrases" for zero), or "No sessions kept yet." `sheet-hint`: "Your most recent session
   is kept until the next one is saved. Pinned sessions stay until you unpin or delete them."
   Then `Delete every session` (plain `btn`) when {n} is at least 1. Sessions this version cannot
-  open (saved by a newer version) are counted. **[v3.2 changed]** Jam sessions are counted with
-  the others, by the same words; nothing about a doodle is listed.
+  open (saved by a newer version) are counted.
+  - **[v3.2 new]** Jam sessions are counted with the others, by the same words; nothing about a
+    doodle is listed.
 - **Played notes.** `btn toggle-button` "Keep my played notes" with `toggle-button-state` "on" /
   "off" (accessible name "Keep my played notes", `aria-pressed`). `sheet-hint`: "When this is on,
   the notes you play are kept with each session. When it's off, they're shown in the review of the
@@ -125,19 +144,21 @@ to the Overview, never close the sheet.
 | Every session | `Delete every session` | "Delete every session?" | "This deletes all {n} kept sessions, pinned ones included, with their favorite phrases, comments and played notes. Your settings, your instrument and the remembered controller stay." (one session: "This deletes the one kept session, with its favorite phrases, comment and played notes. …") | `Delete every session`, `Cancel` |
 | All played notes | `Delete all played notes` | "Delete all played notes?" | "This deletes the played notes kept with {n} sessions. The sessions stay, with their favorite phrases and comments." | `Delete all played notes`, `Cancel` |
 | Played notes already kept | `Keep my played notes` turned off while {n} is at least 1 (the switch is already off and saved) | "Delete the played notes already kept?" | "Your played notes won't be kept from now on. The ones already kept with {n} sessions can be deleted too; the sessions stay." | `Delete them`, `Keep them` |
+| **[v3.1 new]** Preset | a preset's `Delete` in the Presets section | "Delete the preset “{name}”?" | "Your settings stay as they are." | `Delete preset`, `Cancel` |
 | **[v3.1 changed]** Everything | `Delete everything` | "Delete everything?" | "This deletes everything the app keeps on this device: your settings, your presets, your instrument, the remembered controller and every kept session, with its favorite phrases, comments and played notes. The page then reloads and starts as on a first visit." | `Delete everything`, `Cancel` |
 
 The second paragraph is always "This can't be undone."
 
-**[v3.2 changed]** When at least one of the sessions whose played notes are kept is a Jam
+**[v3.2 new]** When at least one of the sessions whose played notes are kept is a Jam
 session, the All played notes and Played notes already kept confirmations end their first
 paragraph with one more sentence: "Doodles stay as the app wrote them." Deleting played notes
 keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your Data).
 
 - **While a deletion runs,** the confirming action takes `is-loading` and the way back is
   disabled; `Close`, Escape and the backdrop do nothing until it finishes.
-- **Success:** Everything reloads the page. The other three return to the Overview with every
-  count updated and the space measured again.
+- **[v3.1 changed]** **Success:** Everything reloads the page. The others return to the Overview
+  with every count updated and the space measured again; after a preset's deletion its row is
+  gone from the Presets list.
 - **Failure:** the Confirmation stays, adding `inline-alert alert-error` under its paragraphs:
   "That couldn't be deleted. Try again." The confirming action tries again; the line leaves when it
   starts. Anything already deleted stays deleted, and the first paragraph's count shows what
@@ -150,15 +171,17 @@ keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your
   `Your data` (`flows/saved-data/handoff.md`, Notices). All are disabled during a session.
 - **On open:** focus moves to `Done`, the main action, without scrolling: the sheet opens scrolled
   to its top.
-- **Trap:** Tab and Shift+Tab cycle through `Close`, the Overview's buttons in tree order
-  (`Delete every session`, `Keep my played notes`, `Delete all played notes`,
-  `Delete everything`), then `Done`. In a Confirmation: `Close`, the confirming action, the way
+- **[v3.1 changed]** **Trap:** Tab and Shift+Tab cycle through `Close`, the Overview's buttons in
+  tree order (each preset's `Delete` in list order, `Delete every session`,
+  `Keep my played notes`, `Delete all played notes`, `Delete everything`), then `Done`. In a Confirmation: `Close`, the confirming action, the way
   back. `Keep my played notes` toggles with Enter or Space and keeps focus.
 - **Confirmation opened:** focus moves to the way back (`Cancel` or `Keep them`), never to the
   deleting action.
 - **Back to the Overview** by the way back: focus returns to the control that opened the
   Confirmation. After a successful deletion: to that control if it is still shown
   (`Keep my played notes`), else to `Done`.
+- **[v3.1 new]** **After a preset's deletion:** its `Delete` has left with its row, so focus goes
+  to `Done`, by the rule above. Its way back returns focus to that row's `Delete`.
 - **On close,** by `Done`, `Close`, Escape or the backdrop: focus returns to the opener. If the
   opener is no longer shown, focus goes to the first enabled of the session action, the phrase
   action, `controller-status`.
@@ -172,6 +195,9 @@ keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your
 - At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding;
   `sheet-actions` stacks its buttons full width, the first on top. Section buttons and
   `Delete everything` keep their own width, aligned to the inline start.
+- **[v3.1 new]** At every breakpoint, a preset's row holds its name, then its `Delete` at its own
+  width; a long name wraps, and when the row cannot hold both, `Delete` goes under the name, at
+  the inline start.
 - At every breakpoint: sections stack in one column; long names (an instrument, a device) wrap;
   the sheet scrolls vertically inside itself, never horizontally.
 - Every visual value comes from the token source and `ui_ux/token-source-v3.md`; this handoff
@@ -186,6 +212,7 @@ keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your
 - **Empty** (nothing kept yet, a first visit): the Overview as above, with "None.", "None
   remembered.", "No sessions kept yet." and "None kept."; `Delete every session` and
   `Delete all played notes` absent; `Delete everything` shown.
+  - **[v3.1 new]** The Presets section reads "None." with no list.
 - **Saving off this visit:** an outdated tab, or a visit started from the defaults because the
   saved data couldn't be read, or not within the start-up wait. Under the intro,
   `inline-alert alert-notice`, then Space used and Protection; the other five sections are
@@ -212,7 +239,7 @@ keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your
     be read in this visit, so it isn't listed here. Reload the page to try again, or delete
     everything to start afresh." `Delete everything` follows: the way out when reloading does not
     help, whether the data is unreadable or only slow to read.
-- **Confirmation:** one of four, above.
+- **[v3.1 changed]** **Confirmation:** one of five, above.
 - **Loading:** the space and protection lines while measured; a confirming action's
   `is-loading` while its deletion runs.
 - **Error:** a failed deletion's line in its Confirmation; "Couldn't be measured." for the space.

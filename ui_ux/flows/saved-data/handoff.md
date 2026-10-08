@@ -12,8 +12,8 @@
 > - _v3.1 new:_ loading the presets and the selection, and settings saved by v3.0
 >   ([Load](#load))
 > - _v3.1 new:_ the save-problem notice's preset wording ([Notices](#notices))
-> - _v3.1 new:_ Delete everything removes every player preset; the other deletions leave them
->   ([Your Data](#your-data))
+> - _v3.1 new:_ Delete everything removes every player preset; the other deletions leave them;
+>   one preset deleted from its row in Your data ([Your Data](#your-data))
 > - _v3.2 new:_ the five new saved settings, a Jam session's doodle and the suggestion's decline;
 >   the held doodle never saved; a Jam while saving is off
 >   ([What Is Saved, and When](#what-is-saved-and-when))
@@ -78,8 +78,9 @@ read (`screens/your-data/`, States), until data written by a newer version is kn
 
 **[v3.1 new]** **Presets while saving is off.** A preset made, changed or renamed in either visit
 lasts for the page, under the visit's notice, with no wording of its own. Neither visit offers a
-preset deletion: `Delete preset` is absent (`flows/presets/`). A visit started from the defaults
-lists the built-in presets only; an outdated tab lists the player presets it could read.
+preset deletion: `Delete preset` is absent (`flows/presets/`), and Your data has no Presets
+section. A visit started from the defaults lists the built-in presets only; an outdated tab lists
+the player presets it could read.
 
 **[v3.2 new]** **A Jam while saving is off.** Jam, its review, the suggestion's `Use` and `Keep`,
 and `Jam again on this doodle` work in memory for the visit; nothing is saved, the decline
@@ -232,6 +233,11 @@ flowchart TD
   OV -->|Delete all played notes| CP[Confirm: Delete all played notes?]
   OV -->|"Keep my played notes turned off, some kept"| CK[Confirm: Delete the played notes already kept?]
   OV -->|"Delete everything (not in an outdated tab)"| CE[Confirm: Delete everything?]
+  %% v3.1 new: a preset's Delete, its confirmation and its ways out
+  OV -->|"A preset's Delete (Presets section; v3.1 new)"| CPR["Confirm: Delete the preset “{name}”? (v3.1 new)"]
+  CPR -->|"Delete preset: done (v3.1 new)"| OV
+  CPR -->|"Cancel, Escape, backdrop, Close (v3.1 new)"| OV
+  CPR -->|"Deletion fails (v3.1 new)"| CPR
   CS -->|"Delete every session: done"| OV
   CP -->|"Delete all played notes: done"| OV
   CK -->|"Delete them: done"| OV
@@ -239,7 +245,7 @@ flowchart TD
   CP -->|"Cancel, Escape, backdrop, Close"| OV
   CK -->|"Keep them, Escape, backdrop, Close"| OV
   CE -->|"Cancel, Escape, backdrop, Close"| OV
-  CS & CP & CK & CE -->|"The tab becomes outdated: nothing deleted, focus to Done"| OV
+  CS & CP & CK & CE & CPR -->|"The tab becomes outdated: nothing deleted, focus to Done (the preset's: v3.1 new)"| OV
   CE -->|"Delete everything: done"| RELOAD["Page reloads into its first visit"]
   CS -->|Deletion fails| CS
   CP -->|Deletion fails| CP
@@ -279,9 +285,13 @@ flowchart TD
   session list shows what remains; the cue row's links follow (`screens/phrase-workspace/`); a
   review that loses its played notes loses the lane, the `Played notes` switch and the
   played-notes export (`screens/last-session-review/`).
+- **[v3.1 new]** **After a preset's deletion,** the preset box beneath drops it from its list and,
+  when it was the selection or Custom's base, reads "Custom" (Custom with no base, the same
+  values); its description line and `preset-actions` follow (`flows/presets/`).
 - **A deletion that fails** keeps the confirmation open, with one error line, and its confirming
   action tries again (`screens/your-data/`, States).
 - The per-session deletions (one session, one session's played notes) and deleting my instrument
   are specified with their screens: `flows/kept-sessions/`, `flows/review-and-export/`,
   `flows/my-instrument/`.
-- **[v3.1 new]** Deleting one player preset is specified with the presets: `flows/presets/`.
+- **[v3.1 new]** Deleting one player preset, by `Delete preset` in the controls or by its row's
+  `Delete` in Your data's Presets section, is specified with the presets: `flows/presets/`.

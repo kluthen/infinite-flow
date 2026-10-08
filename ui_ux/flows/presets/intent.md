@@ -34,7 +34,7 @@ persona first:
   Speed drill favor the chromatic figures, which bring accidentals to read at speed. P1 "pokes at
   settings to see what happens"; a player preset keeps what they found.
 - **P2, the Speed Builder** — **S1, fresh material never memorized, at a steadily higher tempo**,
-  partly: Speed drill is their setup in one choice, dense, varied, with every figure favored.
+  partly: Speed drill is their setup in one choice, dense, varied, with most figures favored.
 - **P3, the Fledgling Composer**, is not served directly (their goals are v3.0's and v3.2's), but
   Pop song gives song-like material of the kind a player keeps and exports, and Modal (Dorian) a
   steady two-chord bed to grow an idea on.
@@ -139,7 +139,7 @@ showed at the start, so nothing in the controls grows or shrinks while the playe
 
 ## Keeping What You Found
 
-Three actions sit beside the box, as plain buttons, because keeping a setup is occasional work
+Four actions sit beside the box, as plain buttons, because keeping a setup is occasional work
 next to choosing one: **Save as new preset**, always there; **Save changes**, only in Custom based
 on a preset of the player's own; and **Rename preset** and **Delete preset**, only while the
 selection is a preset of the player's own or Custom based on one, acting on that preset. A
@@ -165,12 +165,21 @@ what the player most needs to hear: their settings stay as they are. The selecti
 with no base and the same values, so nothing is regenerated and nothing changes but the label and
 the guidance, which went with the preset.
 
+A preset can also be deleted from **Your data**, which lists every preset of the player's own by
+name, each with its own `Delete`, behind the same confirmation. That second place exists for the
+player at the limit. In the controls a preset is deleted by choosing it first, and choosing it
+replaces the settings on screen: a player with unsaved Custom settings they want to keep as a new
+preset could only make room by throwing them away. From Your data no preset is chosen, so the
+selection's values never change; deleting the preset in use, or the one Custom is based on, only
+turns the label to Custom with no base, as it does from the controls.
+
 A name is refused as it is typed, with the reason under the field, and the sheet waits until it is
 fixed: an empty name, a name another preset already has (ignoring capitals, built-in names
 included), and "Custom", which the box uses. Waiting for the press of `Save` to refuse would make
 the player read an error after they thought they were done. The player keeps at most fifty presets
-of their own; at the limit `Save as new preset` is unavailable with the reason beside it. The
-limit keeps the dropdown usable, not the storage.
+of their own; at the limit `Save as new preset` is unavailable with the reason beside it, which
+names both places to delete one: "Delete one, here or in Your data, to save a new one." The limit
+keeps the dropdown usable, not the storage.
 
 Every save is silent, as every save in the app is. A save the browser refuses keeps the preset for
 the visit, so the player can go on using it, and says so at once, in the notice row at the top of

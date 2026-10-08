@@ -180,11 +180,14 @@ Composer's loop: try the idea, look at what the app did with it, try it again, p
 the app heard in it.
 
 A line above the staff says what is going on, so the player never wonders why the staff shows a
-phrase in Jam mode: "Jamming again on your doodle: phrase 1 continues it. Changing a setting other
-than the tempo lets it go." The second sentence is there because almost any setting change does
-let the doodle go: every phrase written from it depends on the settings, and keeping a doodle
-across a change of key would mean continuing it in settings it was never played in. The tempo,
-the rising tempo, the audio mix and the theme keep it, since none of them changes what is written.
+phrase in Jam mode: "Jamming again on your doodle: phrase 1 continues it. Changing any setting
+except the tempo, Rising tempo, the audio mix or the theme lets it go." The second sentence names
+the four settings that keep the doodle, because every other setting change lets it go: every
+phrase written from it depends on the settings, and keeping a doodle across a change of key would
+mean continuing it in settings it was never played in. The tempo, Rising tempo, the audio mix and
+the theme keep it, since none of them changes what is written; the line names all four so that it
+stays true, where naming the tempo alone would tell a player changing the theme that their doodle
+is gone when it is not.
 `Regenerate phrase` writes a new phrase 1 from it, and the Jam played on it keeps it, so after its
 review the next phrase 1 from the same doodle is waiting, with a fresh seed. Deleting the session
 the doodle came from lets it go too: deleted means gone, the doodle included. A held doodle lives

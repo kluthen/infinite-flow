@@ -85,6 +85,12 @@ native form field, so its states are those classes' own unless stated.
   region (`role="status"`), as `range-alert` is in the My instrument sheet. Never error-toned.
   States: absent, shown.
 
+- **`sheet-list`, `sheet-list-row`** — a list of named items inside a `sheet-section` (Your
+  data's player presets): `sheet-list` a `ul` with no markers, its rows `--spacing-2` apart;
+  each `sheet-list-row` the item's name in the sheet's body type at the inline start and one plain
+  `btn` at the inline end, wrapping the button under the name, at the inline start, when the row
+  cannot hold both. States: none of their own; the button carries `btn`'s.
+
 ### Reused Without Change
 
 `sheet` (the preset sheet is a standard-width sheet), `sheet-header`, `sheet-body`,
@@ -140,12 +146,21 @@ None.
   from the system's start; the played-notes lane under it when shown), then `suggestion-row`.
   States: none of its own.
 - **`toggle-list`** — a wrapping row of `btn toggle-button`s, `--spacing-2` apart, after a
-  `field-label` naming the list: Allowed rhythm changes, What may vary. States: none of its own;
-  each toggle carries `toggle-button`'s (its `on` bar and words), disabled included.
+  `field-label` naming the list: Allowed rhythm changes, What may vary. States: default;
+  read-only (`is-readonly`, during **Loading** and a session, as every control: the toggles keep
+  their words, their `on` bar and full strength and stay focusable, pointer events are off, and
+  script refuses activation by Space, Enter or click, as `segmented-control.is-readonly` refuses
+  an arrow key; the dashed `--readonly-ring` is drawn once, by the nearest read-only
+  `field-group`, never on the list). Each toggle otherwise carries `toggle-button`'s states (its
+  `on` bar and words), disabled included.
 - **`field-dependent`** — a nested `field-group` inside a "During a session" field, holding the
   option that depends on its switch (Drift, Allowed rhythm changes, What may vary): `--spacing-3`
   above it, a 2px `--color-border` rule along its inline start and `--spacing-3` padding there, so
-  it reads as part of the switch above. States: absent, shown.
+  it reads as part of the switch above. States: absent, shown. When the switch's `field-group` is read-only,
+  `field-dependent` and everything in it are read-only too, and the dashed ring is drawn once,
+  around the outer `field-group`: a nested `field-group`, `segmented-control` or `toggle-list`
+  inside a read-only `field-group` draws none of its own (the rule the token source already
+  applies to a segmented control inside a read-only field).
 
 ### Reused Without Change
 

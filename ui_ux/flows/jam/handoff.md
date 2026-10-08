@@ -214,8 +214,8 @@ flowchart TD
   without a held doodle, or, with Jam mode out of effect, **Empty**. Letting it go announces
   nothing; `jam-bar` leaves at once.
 - **`jam-bar`** sits between `score-toolbar` and the generation-failure banner's place while a
-  doodle is held: one `p`, "Jamming again on your doodle: phrase 1 continues it. Changing a setting
-  other than the tempo lets it go.", then `suggestion-row` when there is a suggestion. Hidden with
+  doodle is held: one `p`, "Jamming again on your doodle: phrase 1 continues it. Changing any
+  setting except the tempo, Rising tempo, the audio mix or the theme lets it go.", then `suggestion-row` when there is a suggestion. Hidden with
   the staff area while the review mode shows. During a Jam played on it, it is held still,
   unchanged, its buttons disabled; it appears, changes and leaves only at Idle, with the player's
   action.
