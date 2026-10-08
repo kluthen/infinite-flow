@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.61
+Status: draft v2.62
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D233**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D235**.
 
 ## Decision Log
 
@@ -397,3 +397,44 @@ fact in the live documents (see the [archive index](archive/README.md) and
   "a mutation cannot alter the rhythm durably while the lock is set". **Wider mutation options go
   to v4** ([v4](versions/v4/README.md#placed-here-proposed)). Still open: which edits the v3.2
   list offers, and how often a change happens (O157).
+
+- **D233 (2026-10-08): v3.1 drafts approved as proposed (closes O127–O139, O161, O162).** The owner:
+  "globally I'm okay with both 3.1 and 3.2, you may proceed". Accepted, as the drafts propose:
+  (1) ornaments (trills, grace notes and other symbol figures) are not v3.1; they get a release of
+  their own after v3.2, starting with the grace note (O127); (2) seven figures written as ordinary
+  notes, each with one four-level setting (Off, As today, Favored, Strongly favored), weights as
+  seeded candidate ordering, never quotas, and chromatic figures allowed from any preset, so
+  "Neutral is entirely diatonic" becomes Neutral's default rather than a rule (O128, O129, O131);
+  levels never remove the Tension control's own figure (O130); the cost guard (O132); a new
+  replay-key version for the levels (O133); (3) every preset holds all ten preset-held controls,
+  the figure levels and the key and mode restriction, so choosing Neutral or Jazz also sets
+  Tension, Leapiness and Arpeggio chaos (O135); (4) Vary settings' Style step moves one figure one
+  level, replacing the Neutral/Jazz flip (O134); (5) eight built-ins: Neutral, Jazz, Gentle and
+  Speed drill (any key and mode), Reel (Mixolydian or Dorian), Bebop and Pop song (Major), Modal
+  (Dorian) (O136); (6) choosing a restricted preset keeps the key when allowed and takes the first
+  listed mode (O161); (7) saving a player preset keeps the restriction in force (O162); player
+  preset management, Custom and loading, and what records a preset as proposed (O137–O139).
+  Details: [embellishment-flags.md](versions/v3/embellishment-flags.md),
+  [presets.md](versions/v3/presets.md). The v2 rules and atoms these change (Vary settings'
+  profile flip, the Custom state's retained grammar, "Neutral is entirely diatonic") are revised
+  through the v3.1 master spec and `documentalist`.
+
+- **D234 (2026-10-08): v3.2 drafts approved as proposed (closes O140–O150, O152 as superseded
+  by D232, O153–O157, O10 for v3.2, and O114).** Same approval as D233. Accepted: (8) a Jam is a saved switch needing a controller,
+  started by Start or the key's home note; a count-in measure, the doodle, then a generation
+  measure and a read-in measure, so two measures before phrase 1, with the wait extending measure
+  by measure up to three and v2's standalone phrase last (O140, O141; D215's "at least one" is
+  kept); quantising, capture edge cases, drift, sound during capture, review and exports as
+  proposed (O142, O143, O146, O147, O155); (9) the doodle quantised to the grid is a generation
+  input the player gave on purpose: kept with a kept session, carried by the replay key, engraved
+  in the review; the raw notes keep every played-notes rule (O144). This changes the
+  declared-intent contract (played-notes privacy, the replay key), so `documentalist` prepares the
+  change set and the owner confirms its exact wording at the v3.2 master spec review, as for v3.0;
+  (10) the key and mode suggestion appears in the review, with "Use it", "Keep mine" and "Jam again
+  on this doodle" (O148), its seed is the quantised doodle alone, and labels and priors as
+  proposed (O149, O150); (11) matching is by shape in v3.2, never quoting the doodle (O145);
+  planner authority stays as D83 settled it for v2, the doodle only orders candidates (O10, for
+  v3.2); the lock holds the doodle's nearest writable rhythm and drift is the mutation ladder
+  (O114). The rhythm lock follows D232; O153, O154 and O157 as proposed. Details:
+  [jam.md](versions/v3/jam.md), [key-and-mode-suggestion.md](versions/v3/key-and-mode-suggestion.md),
+  [rhythm-lock.md](versions/v3/rhythm-lock.md).

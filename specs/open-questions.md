@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.49
+Status: draft v0.50
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -14,10 +14,10 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 [archive/v2/open-questions-history.md](archive/v2/open-questions-history.md), and the
 [v2 archive index](archive/v2/README.md) says where each answer now lives.
 
-Open on 2026-10-07, after the owner's overall review of v3 (D216): O10 (planner authority, for
-Jam), O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor), O114 (Jam and the rhythm controls), O115 and O116 (v3.x learning). O126 closed by D228. Since then the v3.1 and v3.2 drafts opened
-O127–O139, O161–O162 and O140–O157; D232 closed O103 and O151. None
-of them blocks anything planned.
+Open on 2026-10-08, after the owner approved the v3.1 and v3.2 drafts (D233, D234): O48 and O49
+(later and governance), O100–O102 (v4 rhythm ratios and editor), O115 and O116 (v3.x learning).
+D228–D234 closed O10 (for v3.2), O103, O114, O126 and every question the v3.1 and v3.2 drafts
+opened (O127–O157, O160–O162). None of the open ones blocks anything planned.
 
 ## Later and governance (O47–O49)
 
@@ -62,23 +62,12 @@ anything planned. Lexicon terms: [note density](../docs/music/lexicon.md#note-de
 
 ## v3 Jam (O112+)
 
-- **O10 - Planner authority** _(reopened for v3; D83)_: can a later planner stage revise an
-  earlier one without recoupling the stages? D83 settled it for v2 only: carry-in flows forward,
-  and no stage of a new phrase revises anything generated for an earlier one; the question itself
-  was deferred to v3. Jam brings it back: a doodle's rhythm, contour and intervals would reach
-  several stages at once. Grounding: [jam-grounding.md](versions/v3/jam-grounding.md).
-
 Opened 2026-10-07 while recording the owner's Jam insight (D209; recorded in
 [v3](versions/v3/README.md#jam-growing-the-players-doodle)). The core is v3 scope; the questions
 below are about it and its three candidates, so none of them blocks anything planned. Proposals
-are strawmen, not decisions.
+are strawmen, not decisions. Only the v3.x learning questions remain; the Jam ones were settled
+by D234.
 
-- **O114 - Jam and the rhythm controls** _(D209, D175, D211; v3.2)_: is the doodle's rhythm what
-  the rhythm lock holds (yes, answered by D232: the rhythm nearest the doodle that the grammar can
-  write)? Is "how far phrases drift from the
-  doodle" the mutation option (O118) or a new setting? Proposed: design Jam and the rhythm lock
-  together, as D211 places them. (Since D211 the rhythm ratios and the editor, and with them
-  O102, are v4.)
 - **O115 - Which signals count as approval** _(D209; v3.x, likely to move or go, D211)_: which positive signals are
   read (a fitting departure as defined by the chord-fit check — dropped by D211, so this signal would
   need that definition back — a repeated fragment, a return to
@@ -90,52 +79,3 @@ are strawmen, not decisions.
   it leans toward, and resets it; whether what it learned is kept across sessions (local
   persistence, opt-in like played notes). Proposed: off by default, one visible switch, a reset,
   and nothing kept across sessions without the player's opt-in.
-
-## v3.1 drafts (O127–O139, O161–O162)
-
-Opened 2026-10-07 by the v3.1 drafts (D228–D231). Each question's full text and proposal lives in
-its draft's Open section; IDs are listed here so none is lost. O160 was closed by D230.
-
-- **O127 - Ornaments' release**: full text and proposal in [embellishment-flags.md](versions/v3/embellishment-flags.md#11-open).
-- **O128 - The v3.1 figure set**: full text and proposal in [embellishment-flags.md](versions/v3/embellishment-flags.md#11-open).
-- **O129 - What a level means**: full text and proposal in [embellishment-flags.md](versions/v3/embellishment-flags.md#11-open).
-- **O130 - Levels against Tension's figure**: full text and proposal in [embellishment-flags.md](versions/v3/embellishment-flags.md#11-open).
-- **O131 - Chromatic figures outside Jazz**: full text and proposal in [embellishment-flags.md](versions/v3/embellishment-flags.md#11-open).
-- **O132 - The cost guard**: full text and proposal in [embellishment-flags.md](versions/v3/embellishment-flags.md#11-open).
-- **O133 - The replay key for figure levels**: full text and proposal in [embellishment-flags.md](versions/v3/embellishment-flags.md#11-open).
-- **O134 - Vary settings' style step**: full text and proposal in [embellishment-flags.md](versions/v3/embellishment-flags.md#11-open).
-- **O135 - What a preset holds**: full text and proposal in [presets.md](versions/v3/presets.md#11-open).
-- **O136 - The built-in list**: full text and proposal in [presets.md](versions/v3/presets.md#11-open).
-- **O137 - Managing player presets**: full text and proposal in [presets.md](versions/v3/presets.md#11-open).
-- **O138 - Custom and loading**: full text and proposal in [presets.md](versions/v3/presets.md#11-open).
-- **O139 - What records a preset**: full text and proposal in [presets.md](versions/v3/presets.md#11-open).
-- **O161 - How a restriction is written, and where choosing a preset moves the key and mode**: full text and proposal in [presets.md](versions/v3/presets.md#11-open).
-- **O162 - The restriction under Custom, in Vary settings and when a player preset is saved**: full text and proposal in [presets.md](versions/v3/presets.md#11-open).
-
-## v3.2 drafts (O140–O157)
-
-Opened 2026-10-07 by the v3.2 drafts. Full text and proposals live in each draft's Open section.
-The drafts also propose answers to O10 and O114 (above; O103 was closed by D232): [jam.md §6](versions/v3/jam.md#6-planner-authority-o10-proposed)
-and [rhythm-lock.md](versions/v3/rhythm-lock.md).
-
-- **O140 - How a Jam is entered**: full text and proposal in [jam.md](versions/v3/jam.md#11-open).
-- **O141 - The measures before phrase 1**: full text and proposal in [jam.md](versions/v3/jam.md#11-open).
-- **O142 - Quantising the doodle**: full text and proposal in [jam.md](versions/v3/jam.md#11-open).
-- **O143 - Capture edge cases**: full text and proposal in [jam.md](versions/v3/jam.md#11-open).
-- **O144 - The doodle's status (generation input or played notes)**: full text and proposal in [jam.md](versions/v3/jam.md#11-open).
-- **O145 - What "matching" means in v3.2**: full text and proposal in [jam.md](versions/v3/jam.md#11-open).
-- **O146 - Drift's positions and distance**: full text and proposal in [rhythm-lock.md](versions/v3/rhythm-lock.md#9-open).
-- **O147 - A Jam's review and exports**: full text and proposal in [jam.md](versions/v3/jam.md#11-open).
-- **O148 - Where the key and mode suggestion is shown**: full text and proposal in [key-and-mode-suggestion.md](versions/v3/key-and-mode-suggestion.md#7-open).
-- **O149 - The draw's seed**: full text and proposal in [key-and-mode-suggestion.md](versions/v3/key-and-mode-suggestion.md#7-open).
-- **O150 - Labels, priors and alternatives**: full text and proposal in [key-and-mode-suggestion.md](versions/v3/key-and-mode-suggestion.md#7-open).
-- **O152 - When a phrase bends**: full text and proposal in [rhythm-lock.md](versions/v3/rhythm-lock.md#9-open).
-- **O153 - The lock and the narrow-window step-down**: full text and proposal in [rhythm-lock.md](versions/v3/rhythm-lock.md#9-open).
-- **O154 - The allowed list's dead ends and defaults**: full text and proposal in [rhythm-lock.md](versions/v3/rhythm-lock.md#9-open).
-- **O155 - Sound during the capture**: full text and proposal in [jam.md](versions/v3/jam.md#11-open).
-- **O156 - The replay key for v3.2**: full text and proposal in [jam.md](versions/v3/jam.md#11-open).
-- **O157 - Allowed rhythm changes under the lock** _(v3.2; D232)_: which small edits the list
-  offers in v3.2, its default (proposed: empty, a strict lock), and how often a change happens
-  (proposed: at most one per phrase, in a seeded share of phrases, more often on a tenser phrase
-  when Tension across phrases is on). Also whether a bend is shown (D232 keeps the draft's "not
-  shown" as proposed).

@@ -40,9 +40,9 @@ Status: draft v0.47
     `specs/versions/v3/`);
   - rhythm ratios and the editor moved to v4; the chord-fit check, review tooling and the two
     controller-connection ideas dropped.
-- **Open:** 10 questions, none blocking: O10 (planner authority, for Jam), O48 and O49 (later and
-  governance), O100–O102 (v4 rhythm), the rest of O103 and O114 (v3.2 rhythm lock and Jam), O115
-  and O116 (v3.x learning); O126 closed by D228. D216 approved spec-writer's v3 recommendations and closed the rest.
+- **Open:** 7 questions, none blocking: O48 and O49 (later and governance), O100–O102 (v4
+  rhythm), O115 and O116 (v3.x learning). v3.1 and v3.2 drafts approved by the owner (D233, D234),
+  after D228–D232 on presets and the rhythm lock; master specs for them come next.
   See the [register](open-questions.md).
 - The snapshot this index kept through v2's design and build is archived verbatim at
   [archive/v2/readme-status-snapshot.md](archive/v2/readme-status-snapshot.md).
