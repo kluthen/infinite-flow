@@ -8,7 +8,6 @@ version: 0.1
 priority: 1
 tags: [v2, release-v2.0, midi]
 dependents:
-  - [[req_chord_fit_acknowledgement]]
   - [[req_jam]]
   - [[rule_controller_attached_definition]]
   - [[rule_controller_connects_between_sessions]]

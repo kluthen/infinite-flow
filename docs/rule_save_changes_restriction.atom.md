@@ -5,7 +5,7 @@ type: RULE
 layer: BUSINESS
 version: 0.1
 priority: 1
-notes: Created 2026-10-08 at DRAFT by the follow-up to the v3.1 and v3.2 spec ingestion, after the v3.1 master spec, approved by the product owner on 2026-10-08, settled when save changes asks for the restriction. Describes intended v3.1 behaviour: nothing of it is built yet. It falls outside the vision as it stands (STABLE, scoped through v2) until the proposed vision revision is confirmed (docs/release/v3.1-v3.2-intent-change-set.md).
+notes: Created 2026-10-08 at DRAFT by the follow-up to the v3.1 and v3.2 spec ingestion, after the v3.1 master spec, approved by the product owner on 2026-10-08, settled when save changes asks for the restriction. Describes intended v3.1 behaviour: nothing of it is built yet. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 dependents: []
 human_name: Save Changes Asks for the Restriction Only Outside It
 tags: [v3, release-v3.1, player-controls, presets]

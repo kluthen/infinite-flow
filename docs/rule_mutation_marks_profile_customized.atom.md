@@ -6,29 +6,27 @@ tags: [v2, release-v2.0, part-v2.1, session, player-controls]
 parents:
   - [[req_settings_mutation_flag]]
   - [[rule_profile_control_customization]]
-notes: Captured 2026-10-03 before code in v2 chunk 24 (pre-code capture) from the coding leader plan. Proposed by the coding leader and accepted by the owner on 2026-10-03 (D181).
+notes: Revised 2026-10-08 to version 0.3 (previous version 0.2) with the explicit confirmation of the product owner, given on 2026-10-08 (spec D246), of contract change set part A (docs/release/v3.1-v3.2-intent-change-set.md, A2), together with the CONTRACT 3.0 MAJOR bump; stays STABLE. The customized mark now covers every value the current selection holds (the musical profile, or from v3.1 the preset), not only the seven profile-controlled settings, so from v3.1 a mutation of Tension, Leapiness, Arpeggio chaos or a figure level marks Custom; the key and the mode never mark it. Earlier: Captured 2026-10-03 before code in v2 chunk 24 (pre-code capture) from the coding leader plan. Proposed by the coding leader and accepted by the owner on 2026-10-03 (D181).
 layer: BUSINESS
-human_name: Mutating a Profile-Controlled Value Marks the Profile Customized
+human_name: Mutating a Value the Selection Holds Marks It Customized
 dependents:
   - [[module_settings_mutation]]
 type: RULE
-version: 0.2
+version: 0.3
 ---
 
-# Mutating a Profile-Controlled Value Marks the Profile Customized
+# Mutating a Value the Selection Holds Marks It Customized
 
 ## INTENT
-
-Keep the profile's customized mark truthful when a mutation changes a value the profile controls.
+Keep the selection's customized mark truthful when a mutation changes a value the selected musical profile or preset holds.
 
 ## THE RULE / LOGIC
-A mutation of a value the selected musical profile controls (harmonic motion, note density, rhythmic variety, syncopation, silence density, contour or register) marks the profile customized, exactly as a manual edit of that value does. The profile identity stays the same. Like the mutation itself, the mark lasts only for the session: when the session ends, the customized marking returns to what it was before the session started.
+A mutation of a value the current selection holds (the selected musical profile, or from v3.1 the selected preset) marks the selection customized, exactly as a manual edit of that value does: shown as the profile's customized mark, or from v3.1 as Custom based on that preset. Which profile or preset is selected stays the same. The key and the mode are never values a selection holds, so their mutations never mark it. Like the mutation itself, the mark lasts only for the session: when the session ends, the customized marking returns to what it was before the session started.
 
 ## TECHNICAL INTERFACE
-
-A mutation of a profile-controlled value leaves the profile identity as it is and marks the profile customized.
+A mutation of a value the selection holds leaves the selected profile or preset as it is and marks the selection customized.
 
 ## EXPECTATION
-- After a mutation of a profile-controlled value, the profile identity is unchanged and the profile is marked customized.
-- A mutation of a setting the profile does not control leaves the customized mark as it was.
+- After a mutation of a value the selection holds, the selected profile or preset is unchanged and the selection is marked customized.
+- A mutation of a setting the selection does not hold, the key and the mode included, leaves the customized mark as it was.
 - After the session ends, the customized marking is what it was before the session started.

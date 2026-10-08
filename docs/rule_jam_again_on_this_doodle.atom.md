@@ -6,7 +6,7 @@ priority: 1
 tags: [v3, release-v3.2, session, jam, review]
 parents:
   - [[req_jam]]
-notes: Created 2026-10-08 at DRAFT by the v3.1 and v3.2 spec ingestion, from the v3.2 master spec the product owner approved on 2026-10-08. Describes intended v3.2 behaviour: nothing of it is built yet. It falls outside the vision as it stands (STABLE, scoped through v2) until the proposed vision revision is confirmed (docs/release/v3.1-v3.2-intent-change-set.md). Revised the same day (version 0.1 to 0.2) after the spec settled that a doodle captured by a fresh Jam is never held by itself.
+notes: Created 2026-10-08 at DRAFT by the v3.1 and v3.2 spec ingestion, from the v3.2 master spec the product owner approved on 2026-10-08. Describes intended v3.2 behaviour: nothing of it is built yet. It falls within the vision since version 0.8 (2026-10-08, spec D246). Revised the same day (version 0.1 to 0.2) after the spec settled that a doodle captured by a fresh Jam is never held by itself.
 type: RULE
 version: 0.2
 human_name: Jam Again on This Doodle

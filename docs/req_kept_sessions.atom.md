@@ -4,7 +4,7 @@ status: DRAFT
 parents:
   - [[req_on_device_storage]]
   - [[req_rolling_practice_session]]
-notes: Revised 2026-10-07 to version 0.2 (still DRAFT) by the re-sync to the v3.0 master spec v1.3, approved by the product owner: the expectation no longer claims at most one unpinned session at any time, since a session the player unpins stays kept until the next session is saved. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls outside the vision as it stands (STABLE, scoped through v2) until the proposed v3 revision of the vision is confirmed.
+notes: Revised 2026-10-07 to version 0.2 (still DRAFT) by the re-sync to the v3.0 master spec v1.3, approved by the product owner: the expectation no longer claims at most one unpinned session at any time, since a session the player unpins stays kept until the next session is saved. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 dependents:
   - [[req_kept_session_list]]
   - [[req_kept_session_review]]
