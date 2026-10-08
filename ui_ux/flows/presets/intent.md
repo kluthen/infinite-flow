@@ -30,8 +30,8 @@ persona first:
 - **P1, the Curious Improviser** (the primary persona) — **G1, vocabulary by exposure**, served
   much more than before. A style preset brings its mode or chord plan with it (Reel, Bebop, Pop
   song, Modal (Dorian)), so choosing one is enough to hear what it sounds like, and Gentle is a way
-  in for a player new to improvising. **G2, real-time reading and dexterity**, partly: Bebop and
-  Speed drill favor the chromatic figures, which bring accidentals to read at speed. P1 "pokes at
+  in for a player new to improvising. **G2, real-time reading and dexterity**, partly: Bebop
+  favors both chromatic figures and Speed drill the chromatic approach, which bring accidentals to read at speed. P1 "pokes at
   settings to see what happens"; a player preset keeps what they found.
 - **P2, the Speed Builder** — **S1, fresh material never memorized, at a steadily higher tempo**,
   partly: Speed drill is their setup in one choice, dense, varied, with most figures favored.

@@ -134,12 +134,11 @@ and change only if `spec-writer` settles otherwise.
   and staff bullets are not limited to a fresh Jam; spec D244 says a Jam played on a held doodle
   keeps it. Recommended: **it keeps it** (the doodle was held before that Jam, nothing in §C5.11's
   list happened, and "not held" in §C5.13 describes a fresh Jam's doodle, which is never held by
-  itself); Idle shows the same phrase 1 again, as after any count-in end. Provisional design: ux
-  D248, in `flows/jam/handoff.md`, The Held Doodle.
+  itself); Idle shows the same phrase 1 again, as after any count-in end. Provisional design: ux D251, in `flows/jam/handoff.md`, The Held Doodle.
 - **Q75 — Is the "no mode fits" note shown once, or in every review of that Jam?** §C6.3 says the
   review "says so plainly, once", and §C12 "the plain, once-only note". The design reads "once" as
   one plain statement, never repeated per note, shown in every review of that Jam session, kept
   ones included, like the doodle's engraving it sits under. The other reading, shown only the
   first time the review opens, would need a stored "seen" flag on the kept session and would leave
   a later look at the session unexplained. Recommended: **every review, one sentence**.
-  Provisional design: ux D246, in `screens/last-session-review/`.
+  Provisional design: ux D251 (first settled in D246), in `screens/last-session-review/`.
