@@ -111,7 +111,9 @@ None.
   `--color-text-muted`. Static.
 - **`jam-notice`** — composed as `inline-alert alert-notice jam-notice`, after `jam-instruction`
   in the same block: the sentence telling that the last Jam could not continue the doodle. Never
-  error-toned. States: absent, shown.
+  error-toned. Below `bp-tablet-landscape`, where the bottom system position is shortest,
+  `jam-instruction` is not rendered while `jam-notice` shows, which takes its place. States:
+  absent, shown.
 - **`jam-capture`** — a `session-cue-row` child during a Jam's capture: a label (`cue-label-wide`
   "Your doodle", `cue-label-narrow` "Doodle", as `review-link`'s two labels) then a `count-in`
   `ol` of four `count-in-beat` items reading 1 to 4, one per measure, lit on the audio clock with
@@ -122,7 +124,9 @@ None.
 - **`jam-bar`** — a row in `score-panel` between `score-toolbar` and the generation-failure
   banner's place, present only while a doodle is held: `--color-surface-muted` fill, a 1px
   `--color-border` border, `--radius-md`, `--spacing-3` padding, its children `--spacing-2`
-  apart; a `p` then, when there is one, `suggestion-row`. States: absent, shown, held (during a
+  apart; a `p` then, when there is one, `suggestion-row`. Its `p` and `suggestion-row`'s set
+  sentence carry `tabindex="-1"` (focus is moved there after `Keep` or `Use`) and take
+  `--shadow-focus` when focused, as `room-notice` does. States: absent, shown, held (during a
   session started from it: unchanged, its buttons disabled with `btn`'s disabled look).
 - **`suggestion-row`** — the key and mode suggestion, in `jam-bar` and in `review-doodle`: a `p`
   (the sentence) and its two plain `btn`s at the inline end, one row that wraps; then, when the

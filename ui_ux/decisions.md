@@ -755,3 +755,31 @@ edited. Entries marked **(spec, provisional)** carry a recommendation on a spec 
   of its session, and §C5.14 says deleting a kept Jam session deletes its doodle in both forms.
   Designed: the held doodle goes with the session, as a setting change lets it go; Idle then
   shows Jam mode without a held doodle. Applied in `flows/kept-sessions/handoff.md`.
+- **D248 — Details settled while writing unit J (2026-10-08; minor, D119's standing rule).** The
+  doodle's measure "1" lights with its first note; at a silent barline the cue row shows
+  `jam-writing` at once, and a note in that measure brings `jam-capture` back with it lit. The home
+  note is spelled as the empty staff's key signature spells it, with its octave ("G4"). The failed
+  Jam's notice clears on the next start or a change in the controls section (tempo and session
+  options included, not the theme or the audio mix); it is not a live region, `Start Jam` names it
+  with `aria-describedby`, and below `bp-tablet-landscape` it takes the instruction's place.
+  `jam-bar` hides with the generation-failure banner while the review mode shows; its sentence and
+  the suggestion's "set" sentence take focus (`tabindex="-1"`) after `Keep` and `Use` at Idle; the
+  "set" sentence lasts until the key or mode changes again, the doodle is let go, or a session on
+  it ends. The disabled "Rhythm" toggle under the lock shows off, its choice kept; each toggle list
+  is a labelled `role="group"`, one tab stop per toggle. An empty system that fails to engrave
+  takes the ordinary Notation error. Turning Jam on also discards a too-many-notes notice and a
+  generation in flight; a no-room notice stays and gives way to `staff-jam` when it clears. A
+  fresh Jam's phrase 1 must fit the session staff layout, a misfit counting as a failed attempt.
+  A controller lost before phrase 1 ends the Jam as a count-in end and takes Jam mode out of
+  effect, so Idle is Empty, focus on the phrase action. Readings of the spec, conservative: a
+  controller away when a held-doodle Jam ends lets the doodle go (Jam mode is out of effect at
+  Idle); a preset save or deletion that changes the restriction in force lets a held doodle go (it
+  discards pre-generated phrases); a held doodle stays held under an unsupported rhythm
+  combination, `staff-jam` showing with the alert, and under the ordinary generation-failure
+  states, `Retry generation` writing from it; a controller attaching or lost during Loading
+  changes Jam mode at once, cancelling the generation silently; at load with Jam stored on, the
+  page opens Empty and a remembered controller attaching puts Jam mode in effect. **Vary
+  settings' note** keeps v3.1's sentence in v3.2's rewrite (correcting D244, whose copy dropped
+  it by mistake): "Every 2 to 4 phrases, one setting from the groups below moves one step. Never
+  the instrument or the tempo. Keys and modes stay within what your preset is meant for. Your
+  settings come back when the session ends."

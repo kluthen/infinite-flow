@@ -36,20 +36,20 @@
 first, and the root keeps v3.0's marks with v3.1's and v3.2's layered on them (ux D225). Owner's
 standing delegation: settle and record; one full review at the end. Implementation is paused: no
 `src/` edits; tokens in `token-source-v3.1-v3.2.md` (ux D226). Settled decisions: ux D225-D245;
-spec gaps for `spec-writer`: Q70-Q72 (provisional answers designed).
+spec gaps for `spec-writer`: Q70-Q73 (provisional answers designed).
 
 - **Unit W0 — Tier 1 and Tier 2, the registers.** `strategy.md`, `motion.md`, `README.md`,
   `token-source-v3.1-v3.2.md` (new), `versions/v3.0/` (new). Written.
 - **Unit P — v3.1 core** (delegated): `flows/presets/` and `screens/preset-sheet/` (new);
   `screens/phrase-workspace/`, `flows/play-session/` and `flows/generate-phrase/` for v3.1.
-  Governing: ux D227-D232. Pending.
+  Governing: ux D227-D232. Written 2026-10-08 (details: ux D246).
 - **Unit R — the review side, both releases** (delegated, alongside P):
   `screens/last-session-review/`, `flows/review-and-export/`, `screens/session-list/`,
   `flows/kept-sessions/`, `flows/saved-data/`, `screens/your-data/`. Governing: ux D231 (the
-  refused-save notice), D233, D234, D239-D241. Pending.
+  refused-save notice), D233, D234, D239-D241. Written 2026-10-08 (details: ux D246, D247).
 - **Unit J — v3.2 core** (delegated, after P): `flows/jam/` (new); `screens/phrase-workspace/`,
-  `flows/play-session/` and `flows/generate-phrase/` for v3.2. Governing: ux D235-D244. Pending.
-- **Validation.** `ux-critic` on v3.1, then on v3.2, once the units are written. Pending.
+  `flows/play-session/` and `flows/generate-phrase/` for v3.2. Governing: ux D235-D244, D246, D247. Written 2026-10-08 (details: ux D248).
+- **Validation.** `ux-critic` on v3.1 and on v3.2. In progress.
 
 
 **v3.0 (Storage) design**, from `specs/versions/v3/master-spec.md` (v3.0 only; v3.1 and v3.2 are
@@ -139,7 +139,7 @@ drops the check.
 
 ## Next Unit
 
-Units P and R (v3.1/v3.2 design), then J, then the `ux-critic` passes.
+The `ux-critic` passes on v3.1 and v3.2, then their findings.
 
 Still waiting, from v3.0: after the owner merges `v3-c1-token-source`, delete
 `token-source-v3.md` and point `README.md` and the four handoffs that cite it at the token source

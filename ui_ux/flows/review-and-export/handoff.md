@@ -27,7 +27,8 @@
 > - _v3.2 new:_ `Use`, `Keep` and `Jam again on this doodle` in a Jam's review; a Jam ended
 >   before phrase 1 sounds opens no review ([Flow](#flow),
 >   [Screens and Conditions](#screens-and-conditions))
-> - _v3.2 new:_ the hidden workspace's next phrase in Jam mode ([Showing](#showing))
+> - _v3.2 new:_ the hidden workspace's next phrase in Jam mode, and the held doodle's bar hidden
+>   while the review shows ([Showing](#showing))
 > - _v3.2 new:_ what a Jam session's save adds ([Saving the Session](#saving-the-session))
 > - _v3.2 new:_ a Jam's review, the suggestion's actions and what they change, and
 >   `Jam again on this doodle` ([The Doodle and the Suggestion](#the-doodle-and-the-suggestion))
@@ -125,6 +126,9 @@ flowchart TD
   action reading `Close review`, primary. `generation-status` and `notation-status` are emptied
   when the Review opens and stay silent while it shows, as during a session; the hidden staff's
   state is what the player finds on leaving.
+- **[v3.2 new]** **The held doodle's bar.** While a doodle is held, `jam-bar` is hidden with the
+  generation-failure banner while the review mode shows, keeping its state, and is seen again on
+  leaving it (`screens/phrase-workspace/`).
 - **No start while showing.** No session starts while the Review shows: `Start session` is not
   offered (its slot reads `Close review`), and no MIDI note, the starting note included, starts a
   session. `start-note-line` and `start-note-marker` are hidden with the staff. Notes played into
