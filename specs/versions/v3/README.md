@@ -179,6 +179,10 @@ key and mode restriction (D229–D231); and player presets saved with v3.0's sto
 open; the figure shares and the cost guard are measured before the gate. The notes below are the
 background those drafts started from.
 
+**Build plan:** [build-plan-v3.1.md](build-plan-v3.1.md), draft v1 (2026-10-08), not approved;
+written while implementation is paused, for the owner to review with the v3.1 design. It plans
+v3.1 on top of the [v3.0 build plan](build-plan.md) and lists four questions for `spec-writer`.
+
 ### Embellishment flags
 
 Recorded 2026-10-07 (D210), the owner's request: "embellishments flags for generators … many ways
