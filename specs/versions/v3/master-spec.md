@@ -5,11 +5,13 @@ Status: this file holds three parts.
 - **[Part A — v3.0](#part-a--v30), storage:** master spec v1.4 (2026-10-07), approved by the
   product owner, and being built. Its text and section numbers (§1 to §15) are unchanged.
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
-  (2026-10-08), consolidated from the v3.1 drafts the owner approved; awaiting the owner's
-  approval of this consolidation. Its sections are numbered B1 to B16.
+  (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
+  owner (2026-10-08). The exact wording of the contract guarantees it changes (B11) awaits the
+  owner's confirmation. Its sections are numbered B1 to B16.
 - **[Part C — v3.2](#part-c--v32), Jam, the key and mode suggestion and the rhythm lock:**
-  master spec v1.0 (2026-10-08), consolidated from the approved v3.2 drafts; awaiting the owner's
-  approval. Its sections are numbered C1 to C18.
+  master spec v1.0 (2026-10-08), consolidated from the approved v3.2 drafts; approved by the
+  product owner (2026-10-08). The exact wording of the contract guarantees it changes (C13) awaits
+  the owner's confirmation. Its sections are numbered C1 to C18.
 
 Part A's history follows.
 

@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.66
+Status: draft v2.67
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D239**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D240**.
 
 ## Decision Log
 
@@ -538,3 +538,11 @@ fact in the live documents (see the [archive index](archive/README.md) and
   the new settings load as defaults. **Favoring the figures found in the doodle is deferred**
   (Part B had placed it in v3.2). Part C also names the STABLE contract guarantees v3.2 changes;
   the owner confirms their wording at the review.
+
+- **D239 (2026-10-08): the owner approves master spec Parts B (v3.1) and C (v3.2), and the
+  finishing order.** The owner: "ok agreed", to approving both parts as consolidated (with D235–D238
+  and the terms pass) and to the order: (1) `documentalist` ingests Parts B and C and writes the
+  exact wording of every contract guarantee they change, v3.1's and v3.2's, as one change set,
+  applying nothing to STABLE entries; (2) the owner confirms that wording (as for v3.0, D221);
+  (3) `ux-writer` designs v3.1 and v3.2; (4) build plans follow. The approval of the parts is not
+  the confirmation of the contract wording.
