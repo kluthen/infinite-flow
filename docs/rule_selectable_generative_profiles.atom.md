@@ -8,11 +8,12 @@ parents:
 type: RULE
 layer: BUSINESS
 version: 0.1
-tags: profile,controls,configuration
+tags: [profile, controls, configuration, changes-in-v3.1]
 dependents:
   - [[module_generative_profile_selection]]
   - [[rule_profile_control_customization]]
   - [[rule_profile_presets_apply_defined_controls]]
+notes: v3.1 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): the generative profiles become presets; a preset's configuration is ten controls, seven figure levels and a key and mode restriction, and choosing one may move the key and mode inside its restriction (req_presets, rule_choosing_preset_sets_its_settings, rule_choosing_preset_keeps_allowed_key_and_mode). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Selectable Generative Profiles

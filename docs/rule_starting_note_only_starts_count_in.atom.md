@@ -11,7 +11,8 @@ dependents:
 type: RULE
 layer: BUSINESS
 human_name: Starting Note Only Starts the Count-In
-tags: [v2, release-v2.0, session, session-start, midi]
+tags: [v2, release-v2.0, session, session-start, midi, changes-in-v3.2]
+notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): in a Jam without a held doodle, after the count-in the player plays a doodle, not phrase 1 (rule_jam_starting_note_is_home_note). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Starting Note Only Starts the Count-In

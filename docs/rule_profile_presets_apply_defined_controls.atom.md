@@ -7,9 +7,10 @@ dependents: []
 human_name: Profile Presets Apply Defined Controls
 layer: BUSINESS
 version: 0.2
-tags: profile,preset,controls
+tags: [profile, preset, controls, changes-in-v3.1]
 parents:
   - [[rule_selectable_generative_profiles]]
+notes: v3.1 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): choosing Neutral or Jazz sets ten controls and seven figure levels instead of seven controls; both gain Tension Lift, Leapiness Shaped and Arpeggio chaos Varied (rule_built_in_preset_values). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Profile Presets Apply Defined Controls

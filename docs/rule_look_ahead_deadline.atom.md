@@ -4,7 +4,7 @@ status: REVIEW
 type: RULE
 layer: BUSINESS
 priority: 1
-tags: [v2, release-v2.0, session, look-ahead]
+tags: [v2, release-v2.0, session, look-ahead, changes-in-v3.2]
 parents:
   - [[req_rolling_practice_session]]
 dependents:
@@ -16,7 +16,7 @@ dependents:
   - [[service_session_runner]]
 version: 0.2
 human_name: One-Phrase Look-Ahead Deadline
-notes: Revised 2026-09-30 in v2 chunk 8 (previous version 0.1) as a clarification of existing behaviour, accepted by the chunk owner under the owner standing rule to settle minor issues and record them; the product owner accepted it on 2026-10-05 (spec D186). The EXPECTATION now allows for the failure ladder repeat decided at the deadline, which the ladder rule already required; the rule itself is unchanged.
+notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): in a Jam without a held doodle phrase 2 is not generated during the count-in: phrase 1 has a three-measure deadline from the generation measure, and phrase 2 is requested as soon as phrase 1 is ready, its deadline the start of phrase 1's last measure (rule_jam_phrase_one_deadline). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md. Earlier: Revised 2026-09-30 in v2 chunk 8 (previous version 0.1) as a clarification of existing behaviour, accepted by the chunk owner under the owner standing rule to settle minor issues and record them; the product owner accepted it on 2026-10-05 (spec D186). The EXPECTATION now allows for the failure ladder repeat decided at the deadline, which the ladder rule already required; the rule itself is unchanged.
 ---
 
 # One-Phrase Look-Ahead Deadline

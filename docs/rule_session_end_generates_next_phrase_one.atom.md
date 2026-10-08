@@ -2,7 +2,7 @@
 id: rule_session_end_generates_next_phrase_one
 status: REVIEW
 priority: 1
-tags: [v2, release-v2.0, session, session-end, review]
+tags: [v2, release-v2.0, session, session-end, review, changes-in-v3.2]
 parents:
   - [[req_rolling_practice_session]]
 type: RULE
@@ -18,6 +18,7 @@ dependents:
   - [[service_session_end]]
   - [[service_workspace_session_flow]]
 layer: BUSINESS
+notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): in Jam mode without a held doodle no fresh phrase is generated at Idle, which shows only the key signature (rule_jam_idle_shows_no_phrase). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Session End Generates the Next Phrase 1

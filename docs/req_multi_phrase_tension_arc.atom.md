@@ -10,6 +10,7 @@ dependents:
   - [[module_session_tension_arc_step]]
   - [[module_tension_arc_cycle]]
   - [[rule_multi_phrase_tension_arc_cycle]]
+  - [[rule_tension_across_phrases_never_marks_custom]]
   - [[service_workspace_session_flow]]
   - [[service_workspace_session_runner_factory]]
 type: REQUIREMENT

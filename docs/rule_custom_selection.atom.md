@@ -1,0 +1,31 @@
+---
+id: rule_custom_selection
+status: DRAFT
+type: RULE
+layer: BUSINESS
+human_name: When the Selection Becomes Custom
+parents:
+  - [[req_presets]]
+notes: Created 2026-10-08 at DRAFT by the v3.1 and v3.2 spec ingestion, from the v3.1 master spec the product owner approved on 2026-10-08. Describes intended v3.1 behaviour: nothing of it is built yet. It falls outside the vision as it stands (STABLE, scoped through v2) until the proposed vision revision is confirmed (docs/release/v3.1-v3.2-intent-change-set.md).
+version: 0.1
+priority: 1
+tags: [v3, release-v3.1, player-controls, presets]
+dependents:
+  - [[rule_custom_names_its_base]]
+---
+
+# When the Selection Becomes Custom
+
+## INTENT
+Keep the selection truthful: it names a preset only while the settings are that preset's.
+
+## THE RULE / LOGIC
+The selection is a built-in preset, a player preset, or Custom. With a preset selected, the selection becomes Custom when the player changes a preset-held setting, or chooses a key or mode outside the restriction in force. Values are not compared with the preset's: changing a setting back by hand stays Custom. Only choosing a preset leaves Custom. Changing the tempo or the instrument never makes Custom, nor does choosing a key or mode inside the restriction in force. Custom means the current preset-held settings are not a saved preset, or the key and mode have left the preset's restriction: it is the only state in which saving has something new to save.
+
+## TECHNICAL INTERFACE
+The selection holds a preset or Custom; each control change at Idle updates it.
+
+## EXPECTATION
+- Changing a preset-held setting, or choosing a key or mode outside the restriction in force, makes the selection Custom.
+- Changing the tempo or the instrument, or choosing a key or mode inside the restriction in force, never does.
+- Only choosing a preset leaves Custom.

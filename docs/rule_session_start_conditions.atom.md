@@ -8,14 +8,15 @@ human_name: When a Session Can Start
 parents:
   - [[req_rolling_practice_session]]
 version: 0.3
-tags: [v2, release-v2.0, session, session-start, changes-in-v3.0]
+tags: [v2, release-v2.0, session, session-start, changes-in-v3.0, changes-in-v3.2]
 dependents:
+  - [[rule_jam_start_conditions]]
   - [[rule_midi_starting_note]]
   - [[rule_start_never_waits_for_pregeneration]]
   - [[service_session_controller]]
   - [[service_session_start]]
   - [[service_workspace_session_flow]]
-notes: v3.0 change pending (2026-10-07, v3.0 spec ingestion): the approved v3.0 scope, not yet built, changes this atom. From v3.0 a background pre-generation at Idle does not count as a new phrase being generated under its second condition (rule_start_never_waits_for_pregeneration). Text and status unchanged on purpose: it still describes the running v2.0 code. Revise it in the change that builds the v3.0 behaviour, per docs/release/v3.0-intent-change-set.md.
+notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): a Jam without a held doodle starts with no phrase on screen: conditions 1 and 2 do not apply to it (rule_jam_start_conditions). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md. Earlier: v3.0 change pending (2026-10-07, v3.0 spec ingestion): the approved v3.0 scope, not yet built, changes this atom. From v3.0 a background pre-generation at Idle does not count as a new phrase being generated under its second condition (rule_start_never_waits_for_pregeneration). Text and status unchanged on purpose: it still describes the running v2.0 code. Revise it in the change that builds the v3.0 behaviour, per docs/release/v3.0-intent-change-set.md.
 ---
 
 # When a Session Can Start

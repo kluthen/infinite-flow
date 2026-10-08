@@ -15,6 +15,7 @@ dependents:
   - [[rule_no_save_during_session]]
   - [[rule_outdated_tab_stops_saving]]
   - [[rule_persistent_storage_requested]]
+  - [[rule_player_presets_saved_on_device]]
   - [[rule_saved_data_belongs_to_browser_profile]]
   - [[rule_settings_saved_on_change]]
 version: 0.1

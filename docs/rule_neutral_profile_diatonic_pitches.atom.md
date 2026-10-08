@@ -5,11 +5,12 @@ human_name: Neutral Profile Diatonic Pitches
 type: RULE
 layer: BUSINESS
 version: 0.1
-tags: neutral-profile,diatonic,pitch-policy
+tags: [neutral-profile, diatonic, pitch-policy, changes-in-v3.1]
 parents:
   - [[req_four_measure_phrase]]
 dependents: []
 priority: 1
+notes: v3.1 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): being entirely diatonic becomes a property of Neutral's figure levels, not a rule: the player may turn the chromatic figures on from Neutral or any preset (rule_chromatic_notes_need_a_chromatic_figure, rule_neutral_and_jazz_figure_levels); Neutral's diatonic harmony is unchanged. Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Neutral Profile Diatonic Pitches

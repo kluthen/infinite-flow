@@ -8,10 +8,12 @@ notes: Revised 2026-10-07 to version 0.2 (still DRAFT) by the re-sync to the v3.
 dependents:
   - [[req_kept_session_list]]
   - [[req_kept_session_review]]
+  - [[rule_earlier_kept_sessions_carried_over]]
   - [[rule_kept_session_content]]
   - [[rule_most_recent_session_kept]]
   - [[rule_pinned_session_kept]]
   - [[rule_played_notes_kept_only_after_opt_in]]
+  - [[rule_preset_label_kept_with_session]]
 type: REQUIREMENT
 layer: BUSINESS
 version: 0.2

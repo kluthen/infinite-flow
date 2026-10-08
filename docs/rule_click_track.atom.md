@@ -3,7 +3,7 @@ id: rule_click_track
 status: REVIEW
 priority: 1
 human_name: Metronome Click
-tags: [v2, release-v2.0, session, audio]
+tags: [v2, release-v2.0, session, audio, changes-in-v3.2]
 parents:
   - [[req_session_audio_mix]]
 dependents:
@@ -12,6 +12,7 @@ dependents:
 type: RULE
 layer: BUSINESS
 version: 0.1
+notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): before a Jam's phrase 1 the click sounds whatever the click switch says, not only during the count-in (rule_jam_click_runs_until_phrase_one). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Metronome Click

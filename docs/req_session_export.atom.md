@@ -16,6 +16,7 @@ dependents:
   - [[rule_favorites_only_export]]
   - [[rule_generated_notes_midi_export]]
   - [[rule_generated_notes_musicxml_export]]
+  - [[rule_jam_exports_open_with_doodle]]
 notes: v3.0 change pending (2026-10-07, v3.0 spec ingestion): the approved v3.0 scope, not yet built, changes this atom. From v3.0 an export may also cover only the favorite phrases (rule_favorites_only_export), so every export covers the whole session no longer holds; the export of a kept session works as for the last session (req_kept_session_review). Text and status unchanged on purpose: it still describes the running v2.0 code. Revise it in the change that builds the v3.0 behaviour, per docs/release/v3.0-intent-change-set.md. Earlier: Revised 2026-10-06 (previous version 0.1) for spec D183, wording only - v2 ships as one release, v2.0, so the played-notes action exists in release v2.0 rather than from a release v2.1 (v2.1 now names a part of v2.0); the rule is otherwise unchanged. Status unchanged.
 ---
 

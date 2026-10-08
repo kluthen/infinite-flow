@@ -2,14 +2,14 @@
 id: rule_delete_everything
 status: DRAFT
 priority: 1
-tags: [v3, release-v3.0, storage, privacy]
+tags: [v3, release-v3.0, storage, privacy, changes-in-v3.1, changes-in-v3.2]
 type: RULE
 layer: BUSINESS
 version: 0.2
 human_name: Delete Everything
 parents:
   - [[req_your_data]]
-notes: Revised 2026-10-07 to version 0.2 (still DRAFT) by the re-sync to the v3.0 master spec v1.3, approved by the product owner: after deleting, the page reloads into its first-visit state. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls outside the vision as it stands (STABLE, scoped through v2) until the proposed v3 revision of the vision is confirmed.
+notes: v3.1 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): it also removes every player preset, a record that could not be read included. v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): it also removes every kept Jam session with its doodle in both forms, and resets v3.2's saved settings to their defaults. Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md. Earlier: Revised 2026-10-07 to version 0.2 (still DRAFT) by the re-sync to the v3.0 master spec v1.3, approved by the product owner: after deleting, the page reloads into its first-visit state. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls outside the vision as it stands (STABLE, scoped through v2) until the proposed v3 revision of the vision is confirmed.
 dependents:
   - [[rule_failed_read_offers_only_delete_everything]]
 ---

@@ -5,12 +5,13 @@ dependents: []
 type: RULE
 version: 0.2
 priority: 1
-tags: [v2, release-v2.0, session, phrase-join, tension]
+tags: [v2, release-v2.0, session, phrase-join, tension, changes-in-v3.2]
 layer: BUSINESS
 human_name: Tense Phrase Ending May Resolve Across a Join
 parents:
   - [[rule_join_carry_in_limited]]
   - [[rule_open_phrase_ending]]
+notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): a Jam's phrase 1, given as an example of a phrase without carry-in, is joined from the doodle's last note, with no chord (rule_jam_phrase_one_joins_doodle). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Tense Phrase Ending May Resolve Across a Join

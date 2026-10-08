@@ -8,12 +8,13 @@ parents:
 type: RULE
 version: 0.3
 priority: 1
-tags: [v2, release-v2.0, session, session-start]
+tags: [v2, release-v2.0, session, session-start, changes-in-v3.2]
 dependents:
   - [[module_session_rolling_display]]
   - [[module_session_staff_refill]]
   - [[service_session_engine]]
   - [[service_workspace_session_flow]]
+notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): in a Jam without a held doodle the session generates phrase 1 itself after the doodle; with a held doodle phrase 1 is generated at Idle from it (rule_two_measures_before_jam_phrase_one, rule_held_doodle_phrase_one_at_idle). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Phrase on Screen Becomes Phrase 1

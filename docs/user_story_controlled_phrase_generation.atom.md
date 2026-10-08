@@ -8,7 +8,7 @@ parents:
   - [[req_four_measure_phrase]]
 type: USER_STORY
 priority: 1
-tags: player-controls,generation
+tags: [player-controls, generation, changes-in-v3.1]
 dependents:
   - [[api_rhythm_domain_expansion]]
   - [[entity_generation_diagnostics]]
@@ -22,7 +22,9 @@ dependents:
   - [[module_idle_generation_error_recovery]]
   - [[module_rhythm_skeleton_allocator]]
   - [[module_rhythm_variety_grammar]]
+  - [[req_embellishment_figure_levels]]
   - [[req_my_instrument]]
+  - [[req_presets]]
   - [[rule_idle_phrase_too_dense_is_replaced]]
   - [[rule_selectable_generative_profiles]]
   - [[rule_session_settings_locked]]
@@ -31,6 +33,7 @@ dependents:
   - [[service_idle_generation_session]]
   - [[service_workspace_session_flow]]
   - [[specification_behavioral_quality_gates]]
+notes: v3.1 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): the choice between the neutral and jazz profile presets becomes a preset selector over eight built-in presets and the player's own, and the player also sets seven embellishment figure levels; the first-load selection is the Neutral preset (req_presets, req_embellishment_figure_levels). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Controlled Phrase Generation

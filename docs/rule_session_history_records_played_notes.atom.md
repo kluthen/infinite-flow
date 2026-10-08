@@ -3,7 +3,7 @@ id: rule_session_history_records_played_notes
 status: REVIEW
 priority: 1
 human_name: Session History Records Played Notes
-tags: [v2, release-v2.0, session, history, midi]
+tags: [v2, release-v2.0, session, history, midi, changes-in-v3.2]
 parents:
   - [[rule_session_history_keeps_timeline_and_inputs]]
 dependents:
@@ -14,6 +14,7 @@ dependents:
 type: RULE
 layer: BUSINESS
 version: 0.1
+notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): in a Jam the raw doodle notes, played before phrase 1, are recorded as the doodle's, not as belonging to nothing (rule_raw_doodle_notes_are_played_notes). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Session History Records Played Notes
