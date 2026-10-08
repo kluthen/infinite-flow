@@ -49,8 +49,8 @@ Aeolian, [Collection](lexicon.md#collection)). It is two questions of very diffe
 ### Step 1: which set of notes
 
 First, forget octaves: every C, in any octave, counts as "C". That octave-free note name is called a
-**pitch class**; there are 12 of them (the lexicon lists "pitch class" as another name under
-[note name](lexicon.md#note-name)). The app's modes all use a seven-note set, a **collection**
+**pitch class**; there are 12 of them ([Pitch class](lexicon.md#pitch-class) in the lexicon). The
+app's modes all use a seven-note set, a **collection**
 ([Collection](lexicon.md#collection)), and there are exactly 12 such sets, one for each starting
 point of the major-scale pattern (`COLLECTION_OFFSETS` in `src/domain/harmony/collection.ts`).
 Step 1 asks: which of the 12 sets contains the doodle's pitch classes?

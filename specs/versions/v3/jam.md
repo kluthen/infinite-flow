@@ -1,9 +1,10 @@
 # v3.2 — Jam
 
-Status: draft v2 (2026-10-08). Approved by the owner as proposed (D234), with the rhythm lock
-reshaped by D232. Every item below is settled and cites its decision; the gaps closed while
-settling the draft cite "draft v2". One wording still waits for the owner: the change to the
-declared-intent contract that O144 brings (§8.1), confirmed at the v3.2 master spec review.
+Status: draft v2 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed).
+Approved by the owner as proposed (D234), with the rhythm lock reshaped by D232. Every item below is
+settled and cites its decision; the gaps closed while settling the draft cite "draft v2". One
+wording still waits for the owner: the change to the declared-intent contract that O144 brings
+(§8.1), confirmed at the v3.2 master spec review.
 
 Serves P3, the Fledgling Composer: C3 "grow an idea", "I liked that gimmick", played and continued
 by the app ([personas](../../personas.md#p3--the-fledgling-composer-secondary-d61)). It also carries
@@ -18,10 +19,13 @@ Plain words used here, one term per concept in all three v3.2 documents:
   Musicians call it a [motif](../../../docs/music/lexicon.md#motif); the app says "doodle".
 - **Jam**: the session mode in which a session begins with a doodle; also the name of its switch
   (working name). **A Jam** is one session run in that mode.
-- **Pulse**: the app's click, one per beat, at the selected tempo.
-- **Count-in**: the one measure of pulse, shown and heard, before anything is played, as in v2.
+- **Click**: the app's sound, one per beat, at the selected tempo, from the count-in until phrase 1
+  (§3.1); the [lexicon](../../../docs/music/lexicon.md#beat) keeps "pulse" for the beat itself
+  (D237).
+- **[Count-in](../../../docs/music/lexicon.md#count-in)**: the one measure of click, shown and
+  heard, before anything is played, as in v2.
 - **Starting note**: the one MIDI note that can start a session from Idle (v2 §6).
-- **Quantising**: snapping played notes, which never land exactly on the beat, to the nearest
+- **Quantizing**: snapping played notes, which never land exactly on the beat, to the nearest
   sixteenth-note position (the app's [tick](../../../docs/music/lexicon.md#tick)).
 - **Generation measure**: the measure in which the app writes the first phrase after the doodle.
 - **Read-in measure**: one measure where that phrase is on screen before it sounds, as phrase 1 is
@@ -40,12 +44,12 @@ Plain words used here, one term per concept in all three v3.2 documents:
 - **When the doodle ends** (D215): it is one to four measures long, and ends when the player leaves
   a whole measure silent or when four measures have been played. At least one measure passes before
   the first generated phrase sounds.
-- **Tempo** (D216, O125): the doodle is played over the app's pulse at the selected tempo, and the
+- **Tempo** (D216, O125): the doodle is played over the app's click at the selected tempo, and the
   phrases after it keep that tempo.
 - **The generation measure** (D216, O112): the silent measure that ends a doodle doubles as the
   generation measure. Generation starts when a measure begins with no note sounding, and is dropped
   if the player plays again inside it. When a phrase is not ready, the wait extends measure by
-  measure with the pulse going on, and v2's standalone fallback applies. The doodle is continued,
+  measure with the click going on, and v2's standalone fallback applies. The doodle is continued,
   not repeated.
 - **Ranking, not constraints** (D216): the doodle steers the generator's ranking rather than
   imposing hard constraints.
@@ -71,7 +75,7 @@ Plain words used here, one term per concept in all three v3.2 documents:
   ([v3.0 §8](master-spec.md#8-pre-generating-phrases-at-idle)) do not run. v2's prewarm still runs:
   the doodle's phrases use the same rhythm domain as the settings. Turning Jam off generates a phrase
   as at first load. Layout is `ux-writer`'s.
-- **A Jam starts on a Start click, or on its starting note: the selected key's home note**
+- **A Jam starts on a Start click, or on its starting note: the selected key, the home note**
   ([tonic](../../../docs/music/lexicon.md#tonic)), in written pitch, in the octave nearest the
   middle of the instrument's written range, named in the cue row as v2 names the starting note. As
   in v2, it only starts the count-in and belongs to no doodle. The conditions under which a session
@@ -84,16 +88,20 @@ Plain words used here, one term per concept in all three v3.2 documents:
   review of the Jam that just ended and in the review of any kept Jam session (draft v2). Idle then
   holds that doodle: phrase 1 is generated from it at Idle, with no deadline, and is on screen; the
   starting note is phrase 1's first note, as in v2; pre-generation runs; Start skips the capture,
-  and the 30-second wait for a first doodle note (§3.4) does not apply. A control at Idle drops the
-  held doodle, and its suggestion with it. A held doodle lives in memory only: after a reload Idle
-  holds none, and the kept Jam session's review offers it again (draft v2). See
+  and the 30-second wait for a first doodle note (§3.4) does not apply. Every change at Idle that
+  discards pre-generated phrases drops the held doodle, and its suggestion with it, except two that
+  keep it (D238): Regenerate, which writes a new phrase 1 from the doodle, and the suggestion's
+  "Use it", which regenerates the held doodle's phrase 1 in the new key and mode. The tempo, Rising
+  tempo, the audio mix and the theme keep it; a controller lost at Idle drops it. A held doodle
+  lives in memory only: after a reload Idle holds none, and the kept Jam session's review offers it
+  again (draft v2). See
   [the key and mode suggestion](key-and-mode-suggestion.md#3-where-and-when-it-is-shown).
 
 ## 3. Capturing the doodle
 
-### 3.1 The pulse (D234, O155)
+### 3.1 The click (D234, O155)
 
-- One measure of count-in, as in v2, shown and heard. The pulse then goes on through the capture,
+- One measure of count-in, as in v2, shown and heard. The click then goes on through the capture,
   the generation measure and the read-in measure, **whatever the click switch says**, at the click
   volume: like v2's count-in, it is what sets the measure grid. From phrase 1 on, the click switch
   governs as in v2.
@@ -121,7 +129,7 @@ Plain words used here, one term per concept in all three v3.2 documents:
 - **A held note keeps a measure from being silent**: a measure that begins with a note still
   sounding is not a silent measure, even if the note ends at once.
 
-### 3.3 Quantising (D234, O142)
+### 3.3 Quantizing (D234, O142)
 
 - **The grid is the tick, a sixteenth note, at every tempo.** At 240 BPM a sixteenth lasts 62.5 ms,
   so an onset moves at most about 31 ms. The doodle only steers ranking, so a near-miss costs
@@ -130,7 +138,7 @@ Plain words used here, one term per concept in all three v3.2 documents:
 - **One line only** (the tracker records chords and overlaps): when notes overlap, the later start
   ends the earlier note; when two notes snap onto the same tick, the longer one stays (a grace
   note before a held note is dropped), and on equal length the higher one.
-- **What is kept**: the quantised doodle (ticks and concert pitches, plus the tempo it was captured
+- **What is kept**: the quantized doodle (ticks and concert pitches, plus the tempo it was captured
   at). It is computed once, when the doodle ends, and is what every later step reads. Raw notes stay
   played notes (§8.1).
 
@@ -171,7 +179,7 @@ Plain words used here, one term per concept in all three v3.2 documents:
 ### 4.2 When phrase 1 is late
 
 - **The wait extends by whole measures** (D216): phrase 1 is shown at the first barline at or after
-  it is ready, followed by its read-in measure. The pulse goes on; the cue row keeps saying the app
+  it is ready, followed by its read-in measure. The click goes on; the cue row keeps saying the app
   is writing.
 - **Deadline**: three measures after the generation measure begins, the same span a look-ahead
   phrase gets in v2 (3 s at 240 BPM, 12 s at 60 BPM).
@@ -308,7 +316,7 @@ spec. Pitch ordering already prefers candidates (`pitchRank`) and is not covered
 ### 7.2 The review, the exports and kept sessions (D234, O147)
 
 - **The doodle opens the review**, before phrase 1, as its own labelled section, engraved from the
-  quantised doodle in written pitch: what the app heard. It has no phrase number and cannot be a
+  quantized doodle in written pitch: what the app heard. It has no phrase number and cannot be a
   favorite; its notes are not expected notes, so nothing in it is ever acknowledged.
 - **The `Played notes` lane** covers the doodle's raw notes too, when shown.
 - **The key and mode suggestion**, when there is one, shows in the review
@@ -317,9 +325,9 @@ spec. Pitch ordering already prefers candidates (`pitchRank`) and is not covered
 - **The session list** marks a Jam session as such.
 - **Exports**: the played-notes export holds the doodle's raw notes, placed before phrase 1 with a
   "Doodle" marker (v2 drops every note before phrase 1). The generated-notes export opens with the
-  quantised doodle as its own marked section, in both formats (MusicXML and MIDI) and both scopes
+  quantized doodle as its own marked section, in both formats (MusicXML and MIDI) and both scopes
   (the whole session and its favorites). Both follow the doodle's status (§8.1).
-- **A kept Jam session** holds the quantised doodle and, with each phrase's reproduction inputs,
+- **A kept Jam session** holds the quantized doodle and, with each phrase's reproduction inputs,
   the doodle, the drift and the rhythm-lock data ([rhythm lock §7](rhythm-lock.md#7-reproducibility)),
   without the played-notes opt-in (§8.1). Its raw doodle notes follow "Keep my played notes" like
   every played note. Deleting the session deletes its doodle (D234).
@@ -343,12 +351,12 @@ Each was surfaced in draft v1 and settled by D234; this records what changes.
   the player's own notes are the most private data the app holds, and keeping the music should not
   imply keeping them" (v3.0 §12). The replay key's atom says a key "never holds played notes" and
   is "never sent over a network or stored".
-- **Decided (D234):** the **quantised doodle** is a generation input the player gave on purpose,
+- **Decided (D234):** the **quantized doodle** is a generation input the player gave on purpose,
   and travels with the music: in each Jam phrase's reproduction inputs, the replay key, a kept
   session (without the opt-in), the review's doodle section and the generated-notes export. The
   **raw doodle notes** stay played notes, under every played-notes rule. Deleting a session
   deletes its doodle.
-- **Rejected alternative:** the quantised doodle as played notes, which would have left a kept Jam
+- **Rejected alternative:** the quantized doodle as played notes, which would have left a kept Jam
   session without its doodle after a reload unless opted in, and the replay key unable to
   reproduce a Jam phrase.
 - **Still to confirm:** this narrows declared-intent guarantees (the replay key atom,
@@ -359,11 +367,11 @@ Each was surfaced in draft v1 and settled by D234; this records what changes.
 ### 8.2 "A running session never asks the player for anything"
 
 The suggestion is confirmed by the player (D212, D216), and the doodle is known only after the
-session started, so it is never offered during the Jam. Decided (D234, O148): after the Jam, in
-the review, and for a held doodle at Idle
-([suggestion §3](key-and-mode-suggestion.md#3-where-and-when-it-is-shown)). Accepted consequence:
-the Jam that produced the doodle is always continued in the player's selected key; the suggestion
-serves the next Jam on that doodle.
+session started, so it is never offered during the Jam. Decided (D234, O148): after the Jam, in the
+review, and for a held doodle at Idle ([suggestion
+§3](key-and-mode-suggestion.md#3-where-and-when-it-is-shown)). Accepted consequence: the Jam that
+produced the doodle is always continued in the player's selected key and mode; the suggestion serves
+the next Jam on that doodle.
 
 ### 8.3 The generation-time budget
 
@@ -374,16 +382,16 @@ would also have broken v2 §4's measure of read-ahead; the read-in measure keeps
 
 ### 8.4 Determinism and the seeded draw
 
-- Every Jam phrase is reproducible from its inputs because those inputs include the quantised
+- Every Jam phrase is reproducible from its inputs because those inputs include the quantized
   doodle, the drift and the rhythm-lock data ([rhythm lock §7](rhythm-lock.md#7-reproducibility)):
   a new replay-key version (D234, O156), every earlier key still decoding. v3.1 takes `ifk3.`
   (D233), so v3.2's is `ifk4.`. Its doodle content is part of the contract wording the owner
   confirms (§8.1).
-- The doodle's capture depends on live timing; that is why the quantised doodle, not the raw
-  notes, is the input. Quantising uses plain arithmetic, once.
+- The doodle's capture depends on live timing; that is why the quantized doodle, not the raw
+  notes, is the input. Quantizing uses plain arithmetic, once.
 - **There is no session seed** to draw from: each phrase's seed is a fresh random value, and the
   only session-level seed is Vary settings' own. A draw "seeded by the session" could not be
-  reproduced from a replay key. The suggestion's draw is therefore seeded from the quantised doodle
+  reproduced from a replay key. The suggestion's draw is therefore seeded from the quantized doodle
   ([suggestion §2](key-and-mode-suggestion.md#2-the-method-and-its-details)), and a rhythm change's
   draw from the phrase's own seed ([rhythm lock §3](rhythm-lock.md#3-allowed-rhythm-changes)).
 - Which ladder rung produced phrase 1 can depend on the machine's speed, as v2 accepts.
@@ -394,8 +402,8 @@ would also have broken v2 §4's measure of read-ahead; the read-in measure keeps
 - **The starting note** (v2 §6: "only one MIDI note can start a session: the note phrase 1 starts
   on"): in Jam mode without a held doodle, the home note starts it (§2).
 - **Notes before phrase 1** are never exported in v2 (§7); the doodle's are (§7.2).
-- **Quantised played notes** are something v2 refused to engrave ("quantizing it would
-  misrepresent what was actually played"); the review's doodle section engraves the quantised doodle
+- **Quantized played notes** are something v2 refused to engrave ("quantizing it would
+  misrepresent what was actually played"); the review's doodle section engraves the quantized doodle
   as what the app used, not as a record of the playing, which the `Played notes` lane keeps.
 - **Pre-generation** (v3.0 §8): the Jam switch, the drift, the rhythm lock and its allowed rhythm
   changes become settings whose change discards pre-generated phrases.
@@ -426,7 +434,7 @@ an idea of their own developed.
 2. The doodle ends on the first measure that begins and stays silent, or after four measures; a
    note played inside the generation measure cancels the attempt and extends the doodle.
 3. Very short notes never extend, end or shape a doodle.
-4. Quantising follows §3.3, tested on recorded doodles, including early notes onto beat 1, overlaps
+4. Quantizing follows §3.3, tested on recorded doodles, including early notes onto beat 1, overlaps
    and chords.
 5. Phrase 1 is shown with one read-in measure before it sounds; when late, the wait grows by whole
    measures up to the deadline; the last rung is v2's standalone phrase.

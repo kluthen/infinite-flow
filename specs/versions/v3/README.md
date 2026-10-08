@@ -231,7 +231,8 @@ O127–O134), consolidated in [master spec Part B](master-spec.md#b5-embellishme
 - **Ties.**
   - [Presets](#presets): Neutral and Jazz are, in effect, two fixed figure sets; a preset would
     carry a starting set of flags and weights.
-  - [Jam](#jam-growing-the-players-doodle) (v3.2): figures found in the doodle could be favored.
+  - [Jam](#jam-growing-the-players-doodle): figures found in the doodle could be favored; first
+    placed in v3.2, deferred beyond it (D238).
   - The settings-mutation flag could shift weights a little during a session.
 - **Later, not v3:** writing whole sequences with a rhythm grammar set up front, with specific
   requirements such as doubling beat 1 of every third measure; the owner expects it in v4, v5 or
@@ -282,7 +283,7 @@ rest): [Jam](jam.md), [key and mode suggestion](key-and-mode-suggestion.md),
 [rhythm lock, allowed rhythm changes, Vary settings' allowed groups and Jam's drift](rhythm-lock.md).
 D234 closes O10 (for v3.2), O114 and O140–O157; D232 closes O103 and O151. No question stays open
 in them. One wording waits for the owner: the declared-intent contract change O144 brings (the
-quantised doodle travels with the music, in the replay key and kept sessions), confirmed at the
+quantized doodle travels with the music, in the replay key and kept sessions), confirmed at the
 v3.2 master spec review ([Jam §8.1](jam.md#81-privacy-the-doodles-status-d234-o144)). Code facts:
 [Jam grounding](jam-grounding.md), re-checked 2026-10-08. The sections below are the record the
 drafts started from.
@@ -315,14 +316,14 @@ is MIDI-seeded continuation (D53), named and given its purpose: v3's most comple
   player leaves a whole measure silent, or when four measures have been played. At least one
   measure then passes before the first generated phrase sounds ("hopefully that's enough to begin
   something", the owner). A silent measure needs a measure grid, so the doodle is played over a
-  pulse; at 240 BPM one measure is 1 s, a tight budget for the first generation.
+  click; at 240 BPM one measure is 1 s, a tight budget for the first generation.
 - **Tempo** (O125, raised by the owner; settled by D216): the doodle is played over the app's
-  pulse at the selected tempo, and the phrases after it keep that tempo. Working the tempo out
+  click at the selected tempo, and the phrases after it keep that tempo. Working the tempo out
   from a freely played doodle is a later candidate.
 - **The rest of the doodle** (O112, settled by D216): the silent measure that ends a doodle
   doubles as the generation measure (generation starts when a measure begins with no note
   sounding, and is dropped if the player plays again inside it); when a phrase is not ready, the
-  wait extends measure by measure with the pulse going on, and v2's standalone fallback applies;
+  wait extends measure by measure with the click going on, and v2's standalone fallback applies;
   the doodle is continued, not repeated. It steers the generator's ranking rather than imposing
   hard constraints ([Jam grounding](jam-grounding.md)).
 
@@ -351,7 +352,7 @@ of staying silent.**
   - **Amended by D212.** When several answers fit, the app rates them and "casts a dice": a
     weighted draw among the most probable, so the likeliest answer comes up most often. The
     owner: "it's a jam so, in the end it's only so much important." The draw is seeded by the
-    quantised doodle alone, so the same doodle always gives the same suggestion, across sessions
+    quantized doodle alone, so the same doodle always gives the same suggestion, across sessions
     too (D234, O149). The player confirms the drawn answer (D216).
   - Very short notes are ignored (the stray-notes filter, v3.0).
   - The suggestion changes no phrase until the player confirms it, and a confirmed suggestion is
@@ -384,7 +385,7 @@ D234; detail in the [rhythm lock draft](rhythm-lock.md).
   rhythm nearest the doodle that the rhythm grammar can write (the exact played rhythm needs v4's
   editor, O102). It is a switch of its own, not reached through the Custom note density (D216).
   D232 replaces D216's "what it holds" (the starts on beats 1 and 3 and the note counts) and
-  removes the automatic, tension-driven bends of the first draft.
+  removes the automatic, tension-driven rhythm changes of the first draft.
 - **Allowed rhythm changes** (D232, D234). D175's "generation may bend it a little to create
   [tension and release](../../../docs/music/lexicon.md#tension-and-resolution)" becomes the
   player's option: a list of small edits from the

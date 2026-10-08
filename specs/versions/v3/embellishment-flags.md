@@ -1,8 +1,8 @@
 # v3.1 — Embellishment Flags
 
-Status: draft v3 (2026-10-08). Approved by the owner as proposed (D233). Consolidated for
-building into the [v3 master spec, Part B](master-spec.md#part-b--v31); where the two differ, the
-master spec wins.
+Status: draft v3 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed).
+Approved by the owner as proposed (D233). Consolidated for building into the [v3 master spec, Part
+B](master-spec.md#part-b--v31); where the two differ, the master spec wins.
 
 **Changes from draft v1.** The owner approved every proposal (D233), so each is now stated as
 settled. spec-writer's consolidation pass added four precisions, written in where they belong:
@@ -53,7 +53,7 @@ Checked in the code on 2026-10-07 (paths relative to the repository root):
   wherever it is needed (`src/domain/pitch/pitch-policy.ts:60`,
   `src/domain/generation/orchestration/window-search.ts:96`,
   `src/domain/validation/generation-result-validator.ts:141`).
-- **The Tension control schedules at most one figure** of its own, the "bound" figure
+- **The Tension control schedules at most one figure** of its own, Tension's scheduled figure
   (`src/domain/harmony/harmony-planner.ts:93-140`): optional under Settled and Lift (passing,
   neighbor or appoggiatura), required under Build (a two-note diatonic approach) and Edge
   (passing, neighbor or appoggiatura). Each candidate placement runs a whole pitch search of its
@@ -273,11 +273,12 @@ Today Vary settings may flip the profile's name between Neutral and Jazz, keepin
 and marking the selection Custom (`src/session/settings-mutation-scales.ts:255-262`). That flip
 switches the chromatic figures on or off, the only thing a profile name changes in generation.
 
-v3.1 (D233): **the "Style" step becomes "one figure moves one level"**, up or down, never past
-Off or Strongly favored, the figure drawn among the seven from the session's seeded source, as
-every other step is. The seven levels together take the one place in the draw the profile had: the
-draw picks the setting, then (for this setting) the figure, then the direction, so every other
-setting is drawn as often as before (spec-writer's call at consolidation). It replaces the name flip, which has no meaning once figures are settings.
+v3.1 (D233): **the profile flip becomes the figure step, "one figure moves one level"**, up or
+down, never past Off or Strongly favored, the figure drawn among the seven from the session's
+seeded source, as every other step is. The seven levels together take the one place in the draw
+the profile had: the draw picks the setting, then (for this setting) the figure, then the
+direction, so every other setting is drawn as often as before (spec-writer's call at
+consolidation). It replaces the name flip, which has no meaning once figures are settings.
 It marks the selection Custom for the session, and every level returns to the player's own when
 the session ends, as every mutated setting does today
 ([v2 master spec §5](../v2/master-spec.md#5-control-changes-during-a-session)). A figure step never
@@ -285,7 +286,7 @@ lands on an unsupported rhythm combination, since levels do not affect rhythm.
 
 This changes a v2 rule and two declared-intent atoms
 (`rule_mutation_profile_flip_keeps_controls`, `rule_mutation_marks_profile_customized`): see §10.
-In v3.2, the player-chosen allowed list keeps its "Style" group (D216), which then means this step.
+In v3.2, the player-chosen allowed groups hold this step in a group named **Figures** (D216, D237).
 
 ### 7.2 Tension across phrases
 
@@ -310,8 +311,9 @@ holds: no grading, scoring or wrong-note signal, so a missed decoration is never
 - **Exports:** unchanged. Family-1 figures are ordinary notes in MusicXML and MIDI.
 - **Phone width:** unchanged. Below the tablet-landscape width Sixteenth generates as Eighth, which
   leaves enclosures fewer places to go; levels are kept as chosen.
-- **Jam (v3.2):** figures found in the player's doodle could be favored for the phrases that
-  continue it ([v3 README](README.md#embellishment-flags)); a v3.2 question, not opened here.
+- **Jam:** figures found in the player's doodle could be favored for the phrases that continue it
+  ([v3 README](README.md#embellishment-flags)). First placed in v3.2, it is deferred beyond v3.2
+  (D238).
 
 ## 8. Personas served
 

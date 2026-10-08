@@ -1,7 +1,8 @@
 # v3.2 — Key and Mode Suggestion
 
-Status: draft v2 (2026-10-08). Approved by the owner as proposed (D234). Every item below is
-settled and cites its decision; the gaps closed while settling the draft cite "draft v2".
+Status: draft v2 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed).
+Approved by the owner as proposed (D234). Every item below is settled and cites its decision; the
+gaps closed while settling the draft cite "draft v2".
 
 Serves P3, the Fledgling Composer, C3 "grow an idea": the next Jam on a doodle can be continued in
 the key and mode the doodle sounds in
@@ -14,12 +15,12 @@ Plain words used here:
 
 - **Key and mode suggestion**: the key and mode the app proposes for a doodle, which the player
   confirms or declines. "The suggestion" for short.
-- **Key**: the home note ([tonic](../../../docs/music/lexicon.md#tonic)) plus the scale or mode on
-  it. In the app, Written key names the home note and
-  [Collection](../../../docs/music/lexicon.md#collection) the scale or mode.
-- **Pitch class**: a note name regardless of octave: every C is the same pitch class.
-- **Mode**: one of the seven scales made from the same seven notes, each starting on a different
-  one ([mode](../../../docs/music/lexicon.md#mode)).
+- **Key**: the Written key value, the home note ([tonic](../../../docs/music/lexicon.md#tonic)).
+- **Mode**: the [Collection](../../../docs/music/lexicon.md#collection) value, one of nine: Major,
+  Minor and the seven modes Ionian to Locrian ([mode](../../../docs/music/lexicon.md#mode)). "Key
+  and mode" names the two settings together (D237).
+- **[Pitch class](../../../docs/music/lexicon.md#pitch-class)**: a note name regardless of octave:
+  every C is the same pitch class.
 
 ## 1. Settled before the draft
 
@@ -31,7 +32,8 @@ Plain words used here:
   (D216).
 - **The method** (D216, closing O113; detail in the
   [research](../../../docs/music/key-and-mode-estimation.md#ranking-and-the-dice-proposed)):
-  - score all 84 key and mode pairs (12 home notes × 7 modes) from each note's role in the
+  - score all 84 key and mode pairs (12 keys × the 7 modes Ionian to Locrian; Major and Minor are
+    scored as Ionian and Aeolian, §2) from each note's role in the
     candidate, weighted by the note's length, with a bonus when the first or last note is the
     candidate's home;
   - keep at most 3 candidates, each within half the best one's chance;
@@ -47,7 +49,7 @@ Plain words used here:
 
 Settled by D234 as draft v1 proposed, apart from what cites draft v2.
 
-- **Input: the quantised doodle** ([Jam §3.3](jam.md#33-quantising-d234-o142)), after the
+- **Input: the quantized doodle** ([Jam §3.3](jam.md#33-quantizing-d234-o142)), after the
   stray-note filter. Lengths are in ticks, so the whole computation stays in integers, and the doodle
   has a beat grid, so the research's optional strong-beat weight (×1.5 for a note starting on beat 1
   or 3) applies.
@@ -63,7 +65,7 @@ Settled by D234 as draft v1 proposed, apart from what cites draft v2.
   Dorian, Phrygian, Lydian, Mixolydian, Aeolian, Locrian, so three-way cuts are always the same.
 - **"The selection is among the candidates"**: Major is compared as Ionian and Minor as Aeolian,
   since they hold the same notes.
-- **The seed: the quantised doodle alone** (D234, O149): a 32-bit FNV-1a hash of its notes
+- **The seed: the quantized doodle alone** (D234, O149): a 32-bit FNV-1a hash of its notes
   (ticks and concert pitches), read with a hash tie key like the generator's own
   (`infinite-flow/key-suggestion/v1`). So **the same doodle always gives the same suggestion**,
   across sessions too. Two live doodles are never identical, so the dice still varies in practice.
@@ -97,8 +99,9 @@ known once the Jam has started. So the suggestion is never offered during a Jam.
 - **At Idle with a held doodle**, the suggestion stays shown until the player answers it or drops
   the doodle; dropping the doodle drops its suggestion.
 - **Accepted consequence** (D234): the Jam that produced the doodle is always continued in the
-  player's own key. The two-step Jam (capture the doodle, return to Idle with the suggestion, then
-  Start) was rejected: it contradicts D215 and D216's continuous doodle-then-phrases flow.
+  player's own key and mode. The two-step Jam (capture the doodle, return to Idle with the
+  suggestion, then Start) was rejected: it contradicts D215 and D216's continuous
+  doodle-then-phrases flow.
 - **Only the drawn answer is shown** (D234, O150), as D216 has the player confirm "the drawn
   answer". The other kept candidates are not listed.
 
@@ -106,12 +109,16 @@ known once the Jam has started. So the suggestion is never offered during a Jam.
 
 Settled by D234, apart from what cites draft v2.
 
-- **Use it** sets Written key and Collection exactly as if the player had changed them by hand:
-  phrase 1 is regenerated (from the held doodle, when there is one), and pre-generated phrases are
-  discarded ([v3.0 master spec §8](master-spec.md#8-pre-generating-phrases-at-idle)). At Idle and
-  in the review nothing is queued for a session, so nothing else is discarded. The choice is saved
+- **Use it** sets Written key and Collection exactly as if the player had changed them by hand,
+  and pre-generated phrases are discarded
+  ([v3.0 master spec §8](master-spec.md#8-pre-generating-phrases-at-idle)). The choice is saved
   like any setting. Under a v3.1 preset whose restriction excludes the answer, the selection then
   reads Custom (D231).
+- **What Use it regenerates** (D237, D238). Without a held doodle, nothing: like any change at
+  Idle, it regenerates nothing on screen, and in Jam mode no phrase shows at Idle, so the next Jam
+  simply generates in the new key and mode. With a held doodle, it keeps the doodle, as the one
+  key and mode change that does, and regenerates the held doodle's phrase 1 from it in the new key
+  and mode, since that phrase must continue the doodle.
 - **Keep mine** changes nothing, and that doodle's suggestion is not offered again: the same doodle
   would give the same answer. The decline is kept with the kept Jam session, so its review and a
   doodle held from it do not offer it again (draft v2).
@@ -121,7 +128,7 @@ Settled by D234, apart from what cites draft v2.
   Collection from the Major and Minor group to the modes; the player's confirmation is what allows
   that, since Vary settings never crosses between the two groups.
 - **Vary settings** is unaffected: the suggestion is a one-time setting change by the player; Vary
-  settings, when on, mutates from the confirmed key during the next session (O121).
+  settings, when on, mutates from the confirmed key and mode during the next session (O121).
 - **A visit that saves nothing** (draft v2): in an outdated tab or after a failed read
   ([v3.0 master spec §4.3, §4.4](master-spec.md#44-loading-saved-settings)), the suggestion, Use it
   and Keep mine work in memory for that visit; nothing is saved, the decline included.
@@ -155,12 +162,13 @@ Settled by D216 and D234, apart from what cites draft v2.
 
 ### Definition of done (D234)
 
-1. The method gives the same answer for the same quantised doodle in Chrome and Edge, on any
+1. The method gives the same answer for the same quantized doodle in Chrome and Edge, on any
    machine, across sessions and reloads.
 2. Nothing is suggested below the thresholds, when the selection is among the kept candidates, or
    when under 80 % of the doodle fits; the last case is said plainly, once, with no "wrong" note.
 3. The suggestion appears only in the review and at Idle with a held doodle, never during a Jam.
-4. Use it changes Written key and Collection exactly as a change by hand does; Keep mine changes
+4. Use it changes Written key and Collection exactly as a change by hand does, and with a held
+   doodle keeps it and regenerates its phrase 1 in the new key and mode; Keep mine changes
    nothing, and a declined suggestion is not offered again for that doodle.
 5. The owner's listening check is recorded.
 

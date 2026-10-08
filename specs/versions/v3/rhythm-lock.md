@@ -1,8 +1,9 @@
 # v3.2 — Rhythm Lock, Allowed Rhythm Changes, Vary Settings' Allowed Groups and Jam's Drift
 
-Status: draft v2 (2026-10-08). Approved by the owner: the lock and its allowed rhythm changes by
-D232, everything else as proposed by D234. Every item below is settled and cites its decision; the
-gaps closed while settling the draft cite "draft v2".
+Status: draft v2 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed).
+Approved by the owner: the lock and its allowed rhythm changes by D232, everything else as proposed
+by D234. Every item below is settled and cites its decision; the gaps closed while settling the
+draft cite "draft v2".
 
 Serves:
 
@@ -29,8 +30,8 @@ Plain words used here, one term per concept in all three v3.2 documents:
   rhythm. **A rhythm change** is one such edit, lasting one phrase.
 - **Forced bend**: the search's fallback when the locked rhythm cannot make a phrase. Not a player
   option, and not a rhythm change.
-- **Vary settings' allowed groups**: which groups of settings Vary settings may mutate (D216 calls
-  it "an allowed list"; renamed here so it is never confused with the allowed rhythm changes).
+- **Vary settings' allowed groups**: which groups of settings Vary settings may mutate (renamed
+  from D216's wording so it is never confused with the allowed rhythm changes, D237).
 - **Drift**: in a Jam, how far phrases may wander from the doodle.
 - **Distance**: how different two rhythms sound, on the catalogue's
   [scale](../../../docs/music/mutation-catalogue.md#the-distance-scale-proposed): Same, Close
@@ -42,13 +43,14 @@ Plain words used here, one term per concept in all three v3.2 documents:
 - **The lock is strict** (D232). It fixes every note start and length, and so every rest, across
   the four measures; the pitches keep changing. This replaces D216's "what it holds" (the note
   starts on beats 1 and 3 and the number of notes in each measure), which draft v1 had found
-  inconsistent with D216's bends: D232 settles it as the exact lock (O151).
+  inconsistent with the rhythm changes D216 allowed: D232 settles it as the exact lock (O151).
 - **What is locked** (D232): outside a Jam, the rhythm of phrase 1, the phrase on screen at Start;
   in a Jam, the rhythm nearest the doodle that the rhythm grammar can write. Locking the exact
   played rhythm needs v4's rhythm editor (O102).
-- **No automatic bends** (D232). Draft v1's tension-driven bends (a phrase bending when its tension
-  rose) are removed; O152 is superseded. D175's "generation may bend it a little for tension and
-  release" now lives on only as the player's option below.
+- **No automatic rhythm changes** (D232). Draft v1's tension-driven rhythm changes (a phrase
+  leaving the locked rhythm when its tension rose) are removed; O152 is superseded. D175's
+  "generation may bend it a little for tension and release" now lives on only as the player's
+  option below.
 - **Allowed rhythm changes are the player's option** (D232): a list of small edits from the
   [mutation catalogue](../../../docs/music/mutation-catalogue.md), **empty by default**, so the
   lock is strict by default (D234, O157). Each change **lasts one phrase**; the next phrase returns
@@ -227,7 +229,7 @@ Rules (D234):
 | Note density, rhythmic variety, syncopation, silence density | Locked for the session as every setting is (v2 §5). Vary settings may not change them while the lock is on (§8). The locked rhythm came from their domain, so it fits their bands. |
 | Tension | Still changes each phrase's melody, harmony and tension figure. A phrase whose domain lacks the locked bars takes a forced bend (§4). |
 | Tension across phrases | As Tension. With allowed rhythm changes, its tenser phrases draw a change more often (§3.3). |
-| Vary settings | The Rhythm group is ineligible while the lock is on; every other allowed group works as before. A Tension step is matched like Tension across phrases' (forced bend when the bars are missing); Style steps (figure levels, D233) never touch rhythm. |
+| Vary settings | The Rhythm group is ineligible while the lock is on; every other allowed group works as before. A Tension step is matched like Tension across phrases' (forced bend when the bars are missing); Figure steps (figure levels, D233) never touch rhythm. |
 | Narrow-window step-down | §2. |
 | Pre-generation | Pre-generated phrases follow the lock and its draws, as the session would (v3.0 §8). Switching the lock, or changing the allowed rhythm changes, at Idle discards them. |
 | Jam | Phrase 1 is the rhythm nearest the doodle; then the lock, not drift, decides rhythm. Drift still shapes the melody. |
@@ -268,13 +270,13 @@ Settled by D234 (O146).
 
 ## 7. Reproducibility
 
-- A locked phrase depends on phrase 1's rhythm, and a change on the allowed list and the phrase's
-  share. So the generation intent carries the locked bars, the allowed rhythm changes, and whether
-  the phrase is a tenser one; the generator stays a pure function of its intent. A Jam phrase also
-  carries the quantised doodle and the drift.
+- A locked phrase depends on phrase 1's rhythm, and a rhythm change on the allowed rhythm changes
+  and the phrase's share. So the generation intent carries the locked bars, the allowed rhythm
+  changes, and whether the phrase is a tenser one; the generator stays a pure function of its
+  intent. A Jam phrase also carries the quantized doodle and the drift.
 - The replay key gains these in v3.2's version, `ifk4.` after v3.1's `ifk3.`
   ([Jam §8.4](jam.md#84-determinism-and-the-seeded-draw)); every earlier key still decodes. The
-  quantised doodle in the key is part of the contract change the owner confirms at the v3.2 master
+  quantized doodle in the key is part of the contract change the owner confirms at the v3.2 master
   spec review ([Jam §8.1](jam.md#81-privacy-the-doodles-status-d234-o144)).
 - A kept session's reproduction inputs gain the same data for each phrase (draft v2), under a new
   data version ([Jam §7.2](jam.md#72-the-review-the-exports-and-kept-sessions-d234-o147)).
@@ -289,8 +291,8 @@ Settled by D234 (O146).
   - **Tension**: tension.
   - **Rhythm**: note density, rhythmic variety, syncopation, silence density.
   - **Melody shape**: contour, register, leapiness, arpeggio chaos.
-  - **Style**: since v3.1, one embellishment figure's level, one step (D233), replacing v2's
-    Neutral and Jazz flip.
+  - **Figures**: since v3.1, the figure step: one embellishment figure's level, one step (D233),
+    replacing v2's Neutral and Jazz flip. Named Figures, not Style (D237).
 - **Default: all six on**, which is Vary settings as it stands. The groups are saved with the
   option, and set only at Idle or in the review, like every setting.
 - **Under a v3.1 preset with a key and mode restriction**, the Key and mode group's moves stay

@@ -1,8 +1,8 @@
 # v3.1 — Presets
 
-Status: draft v3 (2026-10-08). Approved by the owner as proposed (D233). Consolidated for
-building into the [v3 master spec, Part B](master-spec.md#part-b--v31); where the two differ, the
-master spec wins.
+Status: draft v3 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed).
+Approved by the owner as proposed (D233). Consolidated for building into the [v3 master spec, Part
+B](master-spec.md#part-b--v31); where the two differ, the master spec wins.
 
 **Changes from draft v2.** The owner approved every proposal (D233), so each is now stated as
 settled. spec-writer's consolidation pass corrected one statement against the code and added
@@ -576,7 +576,7 @@ short text code to copy would be a candidate for later.
 - **"My instrument"**: no link at all (D228). Choosing a preset never changes the instrument;
   changing the instrument never makes Custom, and keeps the written key, so it never leaves a
   restriction.
-- **Jam (v3.2)** adds settings (the rhythm lock, the drift control, Vary settings' allowed list).
+- **Jam (v3.2)** adds settings (the rhythm lock, the drift control, Vary settings' allowed groups).
   Whether presets hold them is a v3.2 question; v3.1 presets do not.
 - **The key and mode suggestion (v3.2)** asks the player to confirm a key and mode. Confirming one
   is the player's own choice of key and mode, so under D231 one outside the restriction opts out
