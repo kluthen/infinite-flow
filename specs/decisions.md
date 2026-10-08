@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.65
+Status: draft v2.66
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D238**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D239**.
 
 ## Decision Log
 
@@ -512,3 +512,29 @@ fact in the live documents (see the [archive index](archive/README.md) and
   Jam simply generates in the new key and mode; (2) **"Use it" keeps the held doodle**, as an
   exception to "a control change at Idle drops the held doodle", since continuing the doodle in
   the suggested key is the point of "Jam again on this doodle".
+
+- **D238 (2026-10-08): gaps settled while consolidating v3.2 (master spec Part C v1.0).**
+  spec-writer's calls within D232, D234 and D236. **Refines D237(1):** "Use it" regenerates nothing
+  when no doodle is held; with a held doodle it keeps the doodle and regenerates the held doodle's
+  phrase 1 from it in the new key and mode, since that phrase must continue the doodle. A held
+  doodle's phrase 1 is generated at Idle through the same rungs, with no deadline, and v2's Idle
+  rules and pre-generation apply to it. Every change that discards pre-generated phrases drops the
+  held doodle, except "Use it" and Regenerate (which makes a new phrase 1 from the doodle); tempo,
+  Rising tempo, the mix and the theme keep it; a controller lost at Idle drops it. "Jam again on
+  this doodle" turns Jam on, needs a controller, and is not an answer to the suggestion. Phrase 1's
+  middle rung is one attempt; Jam phrases 2 onward keep the doodle's preferences on every rung. The
+  doodle's join carries its last pitch with no arriving interval; under Varying with no window
+  holding it there is no join. Ordering outside a drift band, for "nearest the doodle", the forced
+  bend and the narrow-window relock: total edits over four measures, then seeded order. The melody
+  move preference orders candidates within each existing rank, never across. The capture tempo is
+  kept for review and exports only, never a generation input. The starting note takes the lower
+  octave on a tie. Notes between the doodle's end and phrase 1 belong to nothing and are never
+  exported. Both scopes of both exports open with the doodle; the MIDI files align (doodle at time
+  zero, phrase 1 at the next barline, waiting measures not written); no backing under the doodle.
+  Deleting played notes deletes the raw doodle and keeps the quantised one. A kept session's
+  suggestion is recomputed against the current selection. Vary settings left with no legal move by
+  a change at Idle becomes unavailable and says why, the player's choice kept. The settings that
+  discard pre-generated phrases are the union of the drafts' lists. Unreadable saved values for
+  the new settings load as defaults. **Favoring the figures found in the doodle is deferred**
+  (Part B had placed it in v3.2). Part C also names the STABLE contract guarantees v3.2 changes;
+  the owner confirms their wording at the review.

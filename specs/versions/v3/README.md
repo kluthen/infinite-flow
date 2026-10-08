@@ -273,6 +273,10 @@ D229–D231; consolidated in [master spec Part B](master-spec.md#b6-presets).
 
 ## v3.2 — Jam and the rhythm lock
 
+**Consolidated 2026-10-08: [master spec, Part C](master-spec.md#part-c--v32)** (master spec v1.0,
+awaiting the owner's approval of the consolidation and the owner's confirmation of the contract
+wording it lists).
+
 **Drafts** (2026-10-08, draft v2, approved by the owner: D232 for the rhythm lock, D234 for the
 rest): [Jam](jam.md), [key and mode suggestion](key-and-mode-suggestion.md),
 [rhythm lock, allowed rhythm changes, Vary settings' allowed groups and Jam's drift](rhythm-lock.md).
