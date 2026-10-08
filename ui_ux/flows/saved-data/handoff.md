@@ -2,6 +2,25 @@
 
 > **New in v3.**
 
+> **Changes since v3.0**
+>
+> - _v3.1 changed:_ the controls' row holds the seven embellishment levels and the preset
+>   selection, in place of the musical profile selection; _v3.1 new:_ player presets, and when
+>   each is written ([What Is Saved, and When](#what-is-saved-and-when))
+> - _v3.1 changed:_ saving a player preset asks the browser for protection; _v3.1 new:_ presets
+>   while saving is off ([What Is Saved, and When](#what-is-saved-and-when))
+> - _v3.1 new:_ loading the presets and the selection, and settings saved by v3.0
+>   ([Load](#load))
+> - _v3.1 new:_ the save-problem notice's preset wording ([Notices](#notices))
+> - _v3.1 new:_ Delete everything removes every player preset; the other deletions leave them
+>   ([Your Data](#your-data))
+> - _v3.2 new:_ the five new saved settings, a Jam session's doodle and the suggestion's decline;
+>   the held doodle never saved; a Jam while saving is off
+>   ([What Is Saved, and When](#what-is-saved-and-when))
+> - _v3.2 new:_ loading the new settings, and sessions kept before v3.2 ([Load](#load))
+> - _v3.2 new:_ what the deletions remove of a Jam session, and Delete everything
+>   ([Your Data](#your-data))
+
 Screens: [`phrase-workspace`](../../screens/phrase-workspace/handoff.md) (the load, the notice
 row, the footer), [`your-data`](../../screens/your-data/handoff.md) (the sheet),
 [`last-session-review`](../../screens/last-session-review/handoff.md) and
@@ -16,15 +35,18 @@ Saving shows nothing, ever: no message, no indicator, no announcement.
 
 | Item | Written when | Notes |
 | --- | --- | --- |
-| The 14 generation controls and the musical profile selection | The player changes one: a segment or stepper press, a slider when released | The value the player chose, not the one a phrase was generated with (a chosen `Sixteenth` stays `Sixteenth` below `bp-tablet-landscape`). |
+| **[v3.1 changed]** The 14 generation controls, the seven embellishment levels and the preset selection (which preset, or Custom and its base) | The player changes one: a segment or stepper press, a slider when released, a preset chosen | The value the player chose, not the one a phrase was generated with (a chosen `Sixteenth` stays `Sixteenth` below `bp-tablet-landscape`; a level or the selection that Vary settings moved during a session is not saved). The restriction in force is not saved: it follows from the selection and the key and mode. |
+| **[v3.1 new]** Each player preset (its name, ten controls, seven levels and key and mode restriction), one record each | `Save` in the preset sheet for a new preset; `Save changes`; a rename saved; a deletion confirmed, which removes its record (`flows/presets/`) | Known by an internal identifier, not its name, so a rename keeps it selected and as Custom's base. Never during a session. Two tabs: each save writes a whole preset, the last write wins, the other tab sees it after a reload. |
 | The instrument profile selection | The player selects one, my instrument included | |
 | The theme | The player changes it | |
 | The audio mix (Backing and Click on or off, each volume) | The player changes it; a volume when its slider is released | |
 | The three "During a session" options | The player changes one | Each comes back on only if the player turned it on. |
 | The review's preferences (format, backing track in the MIDI file, `Played notes`) | The player changes one | Not the export scope or `Include very short notes`, which are never saved. |
 | `Keep my played notes` | The player changes it | Off by default. |
+| **[v3.2 new]** Jam, Drift, Rhythm lock, Allowed rhythm changes, What may vary | The player changes one (Jam also when `Jam again on this doodle` turns it on) | Defaults: Jam off, Drift Near, Rhythm lock off, every allowed rhythm change off, all six groups on. Jam and the lock come back on only if the player turned them on. No preset holds them. |
 | A session | Once, at its end, as its review opens | Never during it; one that ends during its count-in saves nothing. Saving it deletes every unpinned older session. Its played notes go with it only while `Keep my played notes` is on. |
 | Pin, unpin, a favorite, a comment | The player makes the change (a comment: on `Done`, when the field loses focus, and when the review is left or replaced) | |
+| **[v3.2 new]** A Jam session's doodle, and its suggestion's decline | The doodle with its session, at its end; the decline when the player presses `Keep {key} {mode}` in its review | The quantized doodle and the tempo it was played at are saved with every Jam session, whatever `Keep my played notes` says; the raw doodle notes are played notes and follow that setting. |
 | My instrument | `Save` in its sheet, or the transposition check's confirmation | |
 | The remembered controller | The player chooses a device (it reaches the transposition check or `Connected`); cleared by `Disconnect` | Not changed by an unplug, a reattachment or deleting my instrument. |
 
@@ -34,6 +56,11 @@ during its count-in and nothing else is saved. **Never saved:** values the app c
 during a session; anything written between Start and the session's end (the app writes nothing
 in that time); the tempo a
 Rising-tempo session reached; pre-generated phrases; the export scope; `Include very short notes`.
+
+**[v3.2 new]** **Never saved either:** a held doodle, which lives in memory only and is gone after
+a reload (the kept Jam session's review offers it again); the suggestion itself, which is worked
+out again from the doodle whenever it is shown. A Jam that ends before phrase 1 sounds saves
+nothing, as a session ended during its count-in.
 
 **Saving is off for the whole visit** in an outdated tab (from the moment it is outdated) and in
 a visit started from the defaults because the saved data couldn't be read, or not within the
@@ -49,6 +76,15 @@ first). A visit started from the defaults keeps `Delete everything`, the only de
 and the way out when reloading does not help, whether the data is unreadable or only slow to
 read (`screens/your-data/`, States), until data written by a newer version is known to exist.
 
+**[v3.1 new]** **Presets while saving is off.** A preset made, changed or renamed in either visit
+lasts for the page, under the visit's notice, with no wording of its own. Neither visit offers a
+preset deletion: `Delete preset` is absent (`flows/presets/`). A visit started from the defaults
+lists the built-in presets only; an outdated tab lists the player presets it could read.
+
+**[v3.2 new]** **A Jam while saving is off.** Jam, its review, the suggestion's `Use` and `Keep`,
+and `Jam again on this doodle` work in memory for the visit; nothing is saved, the decline
+included, and the visit's deletion rules are unchanged (master spec §C10.4).
+
 **Newer data wins over a failed read.** A tab is outdated from the moment data written by a newer
 version is known to exist, whether the saved data was read or not: found at load, revealed by a
 read that finished after the start-up wait, or written by a newer version while the tab is open.
@@ -58,8 +94,10 @@ deleting nothing, and its notice takes the outdated tab's wording for a visit st
 defaults (Notices). No deletion starts once newer data is known; one already running is not
 interrupted, and its outcome is told as usual (master spec §4.4).
 
-**Asking for protection.** At the first pin, favorite or saved instrument of each visit, while
-the storage is not already protected, the app asks the browser to make it persistent. Nothing is
+**[v3.1 changed]** **Asking for protection.** At the first pin, favorite, saved instrument or
+saved player preset (made with `Save as new preset`, or changed with `Save changes`; not a rename
+or a deletion) of each visit, while the storage is not already protected, the app asks the
+browser to make it persistent. Nothing is
 shown, whatever the answer; Your data's Protection section reports the state. Never asked while
 saving is off.
 
@@ -107,6 +145,29 @@ flowchart TD
   note. The most recent kept session makes `Review last session` available at idle.
 - **The remembered controller** is reattached at load only when the browser already allows MIDI
   access (`flows/controller-connection/`).
+- **[v3.1 new]** **Player presets** are read with the settings, inside the start-up wait. A read
+  of them that fails makes the visit one started from the defaults, as a whole.
+- **[v3.1 new]** **The values win.** The controls and levels load as saved. When they differ from
+  the selected preset's, or the saved key and mode lie outside its restriction, the selection
+  loads as Custom, based on that preset; when the preset no longer exists, as Custom with no base.
+  Loading never moves the key or the mode. The only thing the player sees of any of this is the
+  selection the preset box shows: no notice, no announcement.
+- **[v3.1 new]** **Tolerant, per preset and per field.** In a player preset, an unknown or invalid
+  field takes that setting's first-load value; a figure level missing because the record predates
+  that figure is Off; a missing name becomes a numbered one, as a new preset's default name is
+  numbered (`flows/presets/`); in its restriction an unknown key or mode is dropped from its list,
+  and an empty list or a missing restriction reads "any". A record that cannot be read at all is
+  left in place and not listed; `Delete everything` still removes it.
+- **[v3.1 new]** **Settings saved by v3.0** are migrated when the database opens: the musical
+  profile selection becomes that built-in preset, or Custom based on it, with that built-in's
+  figure levels; then the values win, so a Jazz selection saved with Tension at Build loads as
+  "Custom, based on Jazz". Sessions kept by v3.0 keep their musical profile as their preset label
+  (`flows/kept-sessions/handoff.md`, Terms).
+- **[v3.2 new]** **The five new settings** load tolerantly too: an unknown or invalid value takes
+  its default (Jam off, Drift Near, Rhythm lock off, every allowed rhythm change off, all six groups
+  on), every other setting still loading; settings saved by v3.0 or v3.1 load with those defaults.
+  Sessions kept before v3.2 are migrated with no doodle and open as before. No held doodle ever
+  comes back at load.
 
 ## Notices
 
@@ -117,18 +178,26 @@ Drawn in `app-notice-row`, at the top of `layout-workspace` before `score-panel`
 | Notice | Trigger | Copy | Actions | Lifetime |
 | --- | --- | --- | --- | --- |
 | Save failed | A save other than a session's own fails for any cause but full storage | "Something couldn't be saved on this device. The app keeps working, but this change may be lost when the page closes." | `Dismiss` | Until dismissed or the page closes. |
+| **[v3.1 new]** Preset not saved | A player preset's save (a new preset, `Save changes`, a rename) is refused for any cause but full storage | "Your preset “{name}” couldn't be saved on this device. You can use it until this page closes." ({name}: the name it was saved under) | `Dismiss` | Until dismissed or the page closes. |
 | Storage full | Any save, a session's own included, is refused because storage is full | "This device has no room left for the app's data, so something couldn't be saved. Deleting sessions you no longer need frees space." | `Your data`, `Dismiss` | Until dismissed or the page closes. |
 | Outdated tab | Data written by a newer version is known to exist: found at load, revealed by a read that finished after the start-up wait, or written by a newer version while this tab is open | Saved data read: "A newer version of Infinite Flow has saved data on this device. Reload this page to use it; until then, nothing here is saved." Visit started from the defaults after a failed or too-slow read: "Your saved data couldn't be read, and a newer version of Infinite Flow has saved data on this device. This visit started from the defaults and saves nothing. Reload this page to use the newer version." | `Reload` | Until the page reloads. |
 | Unusable data | The saved data couldn't be read at load, or not within the start-up wait | "Your saved data couldn't be read, so this visit started from the defaults and saves nothing. Reloading may fix it." | `Reload` | Until the page reloads. |
 
 - **One notice at a time.** Save failed and Storage full are one save-problem notice in two
   wordings: a new failure while it shows switches it to the latest cause's wording in place, never
-  adds a second. Outdated tab and Unusable data replace a save-problem notice. Unusable data, set
+  adds a second. **[v3.1 changed]** Preset not saved is a third wording of the same notice, under
+  the same rules. Outdated tab and Unusable data replace a save-problem notice. Unusable data, set
   at load, gives way to one notice only: the outdated tab's defaults wording, in place, when data
   written by a newer version becomes known later in the visit (with saving off, nothing else can
   arise). Outdated tab is never replaced.
 - **After `Dismiss`,** the save-problem notice comes back only when a save fails again after a
   save has succeeded since; a run of refusals with no success between them shows it once.
+- **[v3.1 new]** **A preset's refused save** is told at once: presets are made, changed and renamed
+  only outside a session, at idle or in the review mode, so the notice never waits; full storage,
+  for any preset save, takes the Storage full wording. The preset stays as made or changed for
+  the visit. A preset deletion that fails raises no notice: like every deletion, it keeps its
+  confirmation open with "That couldn't be deleted. Try again." and changes nothing
+  (`screens/preset-sheet/`).
 - **A session's own save** that fails is told by the review's keep line ("Not saved on this
   device: export it to keep it.", `screens/last-session-review/`), and raises no notice of its
   own, except when storage is full: the storage-full notice then shows too, as the review opens,
@@ -196,6 +265,14 @@ flowchart TD
   - *Delete everything:* the whole database (every setting, my instrument, the remembered
     controller, every session with everything it holds), then the page reloads. The browser's MIDI
     permission and the app's offline copy of its own files are not the app's kept data and stay.
+  - **[v3.1 new]** *Delete everything* also removes every player preset, a record that could not be
+    read included; the page reloads with the built-in presets only. *Delete every session* and
+    *Delete all played notes* leave the presets as they are.
+  - **[v3.2 new]** *Delete every session* deletes every Jam session with its doodle in both forms.
+    *Delete all played notes* deletes the raw doodle notes with every other kept played note and
+    keeps each Jam session's written-out doodle. *Delete everything* removes both and resets Jam,
+    Drift, Rhythm lock, Allowed rhythm changes and What may vary to their defaults with every
+    other setting; a held doodle goes with the reload.
 - **After a deletion that doesn't reload,** the sheet returns to its overview with its counts
   updated. When the sheet closes, the page beneath reflects it: a review of a deleted session gives
   way to the session list, in its empty state if nothing is left (`screens/session-list/`); the
@@ -207,3 +284,4 @@ flowchart TD
 - The per-session deletions (one session, one session's played notes) and deleting my instrument
   are specified with their screens: `flows/kept-sessions/`, `flows/review-and-export/`,
   `flows/my-instrument/`.
+- **[v3.1 new]** Deleting one player preset is specified with the presets: `flows/presets/`.

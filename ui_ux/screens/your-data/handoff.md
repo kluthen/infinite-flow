@@ -2,6 +2,16 @@
 
 > **New in v3.**
 
+> **Changes since v3.0**
+>
+> - _v3.1 new:_ the Presets section ([Layout Tree](#layout-tree),
+>   [Overview copy](#overview-copy))
+> - _v3.1 changed:_ the Settings line names the preset; Delete everything's confirmation names the
+>   presets ([Overview copy](#overview-copy), [Confirmations](#confirmations))
+> - _v3.1 changed:_ a visit that saves nothing hides the Presets section too ([States](#states))
+> - _v3.2 new:_ Jam sessions counted with the sessions; the played-notes confirmation says the
+>   written-out doodles stay ([Overview copy](#overview-copy), [Confirmations](#confirmations))
+
 The journey around this sheet, what each deletion removes and what the page beneath shows
 afterwards are in [`flows/saved-data/handoff.md`](../../flows/saved-data/handoff.md).
 
@@ -20,6 +30,8 @@ sheet-backdrop
         sheet-section (Settings)
           h3, p, p sheet-hint
         sheet-section (My instrument)
+          h3, p, p sheet-hint
+        sheet-section (Presets; v3.1 new)
           h3, p, p sheet-hint
         sheet-section (Controller)
           h3, p, p sheet-hint (only when one is remembered)
@@ -62,12 +74,17 @@ sheet-backdrop
 
 - **Intro:** "Everything here is kept on this device, in this browser only, for anyone who opens
   the app in it. Nothing is ever sent anywhere."
-- **Settings.** `p`: "The phrase controls, the musical profile, the instrument choice, the theme,
-  the audio mix, the During a session options and the review's choices. They come back as you
-  left them." `sheet-hint`: "Delete everything returns them to their defaults."
+- **[v3.1 changed]** **Settings.** `p`: "The phrase controls, the preset, the instrument choice,
+  the theme, the audio mix, the During a session options and the review's choices. They come back
+  as you left them." `sheet-hint`: "Delete everything returns them to their defaults."
 - **My instrument.** `p`: "{name}, made from the {template}." or "None." `sheet-hint`: "Change or
   delete it with Edit my instrument, in the controls." or, with none, "Make one with Create my
   instrument, in the controls."
+- **[v3.1 new]** **Presets.** `p`: "{n} presets of your own." ("1 preset of your own." for one), or
+  "None." `sheet-hint`: "Delete one with Delete preset, in the controls. Delete everything removes
+  them all." {n} counts the player presets the preset box lists, more than 50 included; a record
+  that could not be read is not counted, though `Delete everything` removes it. No button: a
+  preset is deleted where it is chosen.
 - **Controller.** `p`: "{device name}. It reconnects by itself when it's plugged in." or "None
   remembered." `sheet-hint` (only with one): "To forget it, choose Disconnect in the controller
   connection."
@@ -75,7 +92,8 @@ sheet-backdrop
   favorite phrases" for zero), or "No sessions kept yet." `sheet-hint`: "Your most recent session
   is kept until the next one is saved. Pinned sessions stay until you unpin or delete them."
   Then `Delete every session` (plain `btn`) when {n} is at least 1. Sessions this version cannot
-  open (saved by a newer version) are counted.
+  open (saved by a newer version) are counted. **[v3.2 changed]** Jam sessions are counted with
+  the others, by the same words; nothing about a doodle is listed.
 - **Played notes.** `btn toggle-button` "Keep my played notes" with `toggle-button-state` "on" /
   "off" (accessible name "Keep my played notes", `aria-pressed`). `sheet-hint`: "When this is on,
   the notes you play are kept with each session. When it's off, they're shown in the review of the
@@ -107,9 +125,14 @@ to the Overview, never close the sheet.
 | Every session | `Delete every session` | "Delete every session?" | "This deletes all {n} kept sessions, pinned ones included, with their favorite phrases, comments and played notes. Your settings, your instrument and the remembered controller stay." (one session: "This deletes the one kept session, with its favorite phrases, comment and played notes. …") | `Delete every session`, `Cancel` |
 | All played notes | `Delete all played notes` | "Delete all played notes?" | "This deletes the played notes kept with {n} sessions. The sessions stay, with their favorite phrases and comments." | `Delete all played notes`, `Cancel` |
 | Played notes already kept | `Keep my played notes` turned off while {n} is at least 1 (the switch is already off and saved) | "Delete the played notes already kept?" | "Your played notes won't be kept from now on. The ones already kept with {n} sessions can be deleted too; the sessions stay." | `Delete them`, `Keep them` |
-| Everything | `Delete everything` | "Delete everything?" | "This deletes everything the app keeps on this device: your settings, your instrument, the remembered controller and every kept session, with its favorite phrases, comments and played notes. The page then reloads and starts as on a first visit." | `Delete everything`, `Cancel` |
+| **[v3.1 changed]** Everything | `Delete everything` | "Delete everything?" | "This deletes everything the app keeps on this device: your settings, your presets, your instrument, the remembered controller and every kept session, with its favorite phrases, comments and played notes. The page then reloads and starts as on a first visit." | `Delete everything`, `Cancel` |
 
 The second paragraph is always "This can't be undone."
+
+**[v3.2 changed]** When at least one of the sessions whose played notes are kept is a Jam
+session, the All played notes and Played notes already kept confirmations end their first
+paragraph with one more sentence: "Doodles stay as the app wrote them." Deleting played notes
+keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your Data).
 
 - **While a deletion runs,** the confirming action takes `is-loading` and the way back is
   disabled; `Close`, Escape and the backdrop do nothing until it finishes.
@@ -167,6 +190,10 @@ The second paragraph is always "This can't be undone."
   saved data couldn't be read, or not within the start-up wait. Under the intro,
   `inline-alert alert-notice`, then Space used and Protection; the other five sections are
   absent.
+  - **[v3.1 new]** *Presets* is absent as well, in both visits: the sheet cannot honestly count
+    what the visit could not read or may not keep. The preset box still lists, in an outdated tab,
+    the player presets it could read, and in a visit started from the defaults the built-in
+    presets only (`flows/saved-data/handoff.md`).
   - *Outdated tab:* "A newer version of the app saved this data, so it isn't listed here, and
     nothing can be deleted until the page is reloaded. Reload the page to see it."
     `sheet-actions-destructive` is absent: an outdated tab saves and deletes nothing and offers

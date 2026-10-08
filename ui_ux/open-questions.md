@@ -123,3 +123,9 @@ and change only if `spec-writer` settles otherwise.
   seed, ready to go round again; the review of that Jam also offers "Jam again on this doodle",
   which then simply keeps it. A doodle captured by a fresh Jam is never held by itself; only
   "Jam again on this doodle" holds one. Provisional design: ux D239.
+- **Q73 — Does deleting a Jam session let go a doodle held from it?** §C5.11 lists what drops a
+  held doodle and does not name the deletion of the kept session it came from; §C5.14 says
+  deleting a kept Jam session deletes its doodle "in both forms", and v3.0's rule is that deleted
+  data is gone. Recommended: **yes, the held doodle goes with its session** (Idle then shows Jam
+  mode without a held doodle), so a deletion never leaves the doodle alive in memory, where a
+  later Jam could put it back into a kept session. Provisional design: ux D247.

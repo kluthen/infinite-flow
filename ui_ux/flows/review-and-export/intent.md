@@ -34,6 +34,16 @@
 > - _Removed:_ "No favourites or marks" and "No way to keep a review past the next session or a
 >   reload" from what is left for later (v2 in the
 >   [frozen copy](../../versions/v2/flows/review-and-export/intent.md#what-this-flow-leaves-for-later))
+> - _v3.1 new:_ the preset a session started with, kept as it was
+>   ([What Happens When a Session Ends](#what-happens-when-a-session-ends))
+> - _v3.2 new:_ the flow serves the Fledgling Composer's idea grown by a Jam
+>   ([Whose Flow This Is](#whose-flow-this-is))
+> - _v3.2 new:_ a Jam that ends before phrase 1 sounds has no review
+>   ([What Happens When a Session Ends](#what-happens-when-a-session-ends))
+> - _v3.2 new:_ a Jam's review opens with the doodle, the key and mode suggestion, and jamming
+>   again on the same doodle ([A Jam's Review](#a-jams-review))
+> - _v3.2 new:_ the doodle in the exports, and its two forms
+>   ([Taking It Out](#taking-it-out))
 
 ## Whose Flow This Is
 
@@ -45,6 +55,11 @@ also serves the Curious Improviser (P1) and the Speed Builder (P2), who mostly w
 for them the flow's job is to cost as little as possible, one key or click to leave the review
 and one to start again (P1.G2, P2.S1). Personas are defined in
 [`specs/personas.md`](../../../specs/personas.md).
+
+**[v3.2 new]** With Jam, it also serves the Fledgling Composer's third goal, growing an idea
+(P3.C3): the review of a Jam shows the doodle the player played and what the app grew from it,
+can suggest the key and mode the doodle sounds in, and lets the player go round again on the same
+doodle without playing it again.
 
 **[v3 changed]** The review stays plain: every phrase that sounded, in order, as it was shown,
 an export for the generated notes and, on request, the notes the player played. What v3.0 adds
@@ -131,6 +146,16 @@ audio fades, the playhead goes. From there:
 - **Focus is on `Close review`,** the session button's new label, as it has always been on that
   button at a session end.
 
+**[v3.1 new]** Among what identifies a session, the save records the preset it started with, as
+the controls named it then: "Bebop", or "Custom, based on Bebop". It is a snapshot. Renaming or
+deleting the preset later leaves it as it was, because the session is a record of what was
+played, and a label that changed under it would describe a setup the player never used.
+
+**[v3.2 new]** A Jam that ends before its first phrase sounds (the player never played a doodle,
+stopped, lost the controller, or the app could not write phrase 1) has nothing to review: like a
+session stopped during its count-in, it opens no review and changes nothing kept. Once phrase 1
+has sounded, a Jam ends and is saved like any session, its doodle with it.
+
 ## Looking Back
 
 The review lists every phrase that sounded, in the order it sounded, each with its number and its
@@ -163,6 +188,38 @@ whether it is pinned) is theirs, and they can change it every time they open it.
 A long session makes a long review, and it must stay quick to scroll whatever its length. So a
 phrase is drawn only as it comes near the visible part of the page, into a space already set aside
 for it, so the page never jumps while the player scrolls.
+
+## A Jam's Review
+
+**[v3.2 new]** A Jam begins with the player's own doodle, and its review begins there too: a
+section before phrase 1, the doodle written out as the app heard it, with the tempo it was played
+at. It reads like a phrase, without what makes a phrase the app's: no number, no chords, no
+favorite star. Then come the phrases that continued it, so the review reads in the order the
+session sounded, idea first. The reasoning for the section's look is in
+[`screens/last-session-review/intent.md`](../../screens/last-session-review/intent.md#the-doodle).
+
+**[v3.2 new]** The written-out doodle is the doodle as the app used it, snapped to the beat grid,
+one line. The notes as the player actually played them stay what they always were, played notes:
+behind the `Played notes` switch, in a lane under the doodle, kept only if the player asked. A Jam
+played again on a held doodle shows that doodle too, but its lane is empty: the notes that made
+it were played in an earlier session and belong to it.
+
+**[v3.2 new]** **The suggestion waits for the review.** A running session never asks anything,
+so the key and mode the doodle sounds in is offered only once the Jam is over, under the doodle.
+The player either uses it, which sets the key and mode exactly as choosing them in the controls
+would, or keeps their own, which declines it for good: the same doodle always gives the same
+answer, so asking again would only nag, and the decline is kept with the session. The Jam that
+produced the doodle always continued in the player's own key and mode; the suggestion serves the
+next Jam. A kept Jam's review works it out again against the player's current key and mode, so
+it is offered only while it would change something. When the doodle uses notes the app's keys and
+modes do not have, the review says so once, plainly, naming no note.
+
+**[v3.2 new]** **Jamming again.** `Jam again on this doodle` leaves the review for the staff with
+the doodle held, its first phrase already written from it, ready to start; Jam turns on if it was
+off. It sits on the doodle's own line, where per-phrase tools go, and needs a controller, like
+every Jam. A player can go round as many times as they like, perhaps after using the suggestion,
+without ever playing the idea again. What the staff then shows is in
+`flows/jam/`.
 
 ## Marking Favorites
 
@@ -269,6 +326,20 @@ stays the way out of the review.
 of kept sessions, the player's played notes only when they asked, and nothing is ever sent
 anywhere. An export the player triggers is the only way anything leaves the device, and the
 comment never does.
+
+**[v3.2 new]** A Jam's files open with the doodle, in a section marked "Doodle", whether the whole
+session or only the favorites are exported: it is where the music began, and a favorites-only file
+without it would lose what the phrases continue. The generated-notes file holds the doodle as the
+app wrote it, the played-notes file the notes as played, and the two still line up measure for
+measure: the doodle at the start of each, the first phrase at the next barline, the measures the
+app spent writing phrase 1 left out of both.
+
+**[v3.2 new]** The doodle exists in two forms, and they are kept apart on purpose. The written-out
+doodle is part of the music: the player gave it to the app to continue, so it is kept with the
+session, shown in the review and exported with the generated notes, like the phrases. The notes
+as played stay played notes, the most private thing the app holds: kept only on request, shown
+only behind their switch, exported only in their own file. Deleting a session's played notes
+removes them and keeps the written-out doodle; deleting the session removes both.
 
 ## When the Window Has No Room
 

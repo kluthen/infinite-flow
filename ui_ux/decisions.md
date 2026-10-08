@@ -715,3 +715,43 @@ edited. Entries marked **(spec, provisional)** carry a recommendation on a spec 
   `flows/jam/` new; `screens/phrase-workspace/`, `flows/play-session/` and
   `flows/generate-phrase/` for v3.2). P and R touch no file in common and run together; J follows
   P. `strategy.md`, `motion.md`, `README.md` and the token document are written here.
+- **D246 — Details settled while writing units P and R (2026-10-08; minor, D119's standing
+  rule).** Unit P (presets): the box's label is "Preset", its `title` holding the full selection;
+  a restriction is put in words one way everywhere ("{modes} in any key", "{keys} in any mode",
+  "{keys}, in {modes}", "only {key} {mode}", lists "A, B or C"); Save as new merges any two
+  options meaning the same restriction (also when the restriction in force is exactly the current
+  key and mode); sheet titles "Save as a new preset" / "Save changes to “{name}”" / "Rename
+  “{name}”" with `Save` / `Save changes` / `Rename`; the Save changes sheet and the Key and mode
+  choice each carry one explaining sentence; one refusal reason at a time (empty, then "Custom",
+  then a duplicate, quoted as the existing preset writes it; a change of capitals alone is a
+  rename); focus returns to the opener when it is still shown and enabled, else to the preset box
+  (a one-click `Save changes` too); the marks and their notes keep their session-start state
+  during a session; with the passing-and-neighbor rule shipped, a stored "both off" loads the
+  neighbor tone at `Rarely`; `control-summary` may reach its ellipsis with a long preset name;
+  `no_legal_harmony_plan` names written key, collection, harmonic motion and tension. Unit R (the
+  review side): the suggestion row is judged when the review opens and again on any key, mode or
+  restriction change while it shows, leaving once the current key and mode are a close answer;
+  the "set" form lasts until the review closes or the key or mode changes again; after `Use` or
+  `Keep`, focus goes to `Jam again on this doodle` if enabled, else `review-title`; the doodle is
+  laid out as a four-measure system whose staff lines end at its last barline, and on a phone a
+  one- or two-measure doodle reserves the top system position only; a doodle that cannot be
+  drawn says so in `review-phrase-note`; its lane is labelled "Played notes, your doodle", empty
+  in a Jam on a held doodle; raw doodle notes count as played notes for the export and the view;
+  the doodle is exported under Favorites only too, at its capture tempo, marked "Doodle"; "Jam"
+  follows the date in the summary; the no-fit sentence shows in every review of that Jam (one
+  plain statement, not "the first time only"); `Use` keeps a held doodle only when it is that
+  review's; `Jam again on this doodle` replaces a doodle already held, and an unanswered
+  suggestion is offered again at Idle; a decline carried by a held doodle is recorded in the
+  session played on it too; played-notes deletion copy for Jam sessions says the doodle stays as
+  the app wrote it; only a new preset or `Save changes` triggers the persistent-storage request;
+  Your data counts the presets the box lists (more than 50 included, unreadable records not), and
+  shows no Presets section while saving is off; documents new in v3.0 open with a separate
+  "Changes since v3.0" block for their v3.1 and v3.2 items. Reconciled by the parent: a failed
+  preset deletion keeps its confirmation open with the shared retry line and raises no notice,
+  like every deletion (Unit R's Save-failed wording for it is dropped). Correction to D240: the
+  suggestion's class is `suggestion-row`, not `review-suggestion`.
+- **D247 (spec, provisional, Q73) — Deleting a Jam session lets go a doodle held from it
+  (2026-10-08).** The spec's list of what drops a held doodle (§C5.11) does not name the deletion
+  of its session, and §C5.14 says deleting a kept Jam session deletes its doodle in both forms.
+  Designed: the held doodle goes with the session, as a setting change lets it go; Idle then
+  shows Jam mode without a held doodle. Applied in `flows/kept-sessions/handoff.md`.

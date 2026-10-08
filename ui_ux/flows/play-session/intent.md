@@ -15,6 +15,9 @@
 > - _New:_ no saving and no saving message during a session
 >   ([What This Flow Deliberately Leaves Out](#what-this-flow-deliberately-leaves-out))
 > - _Removed:_ nothing
+> - _v3.1 new:_ the preset during a session: its box read-only and its buttons held still; the
+>   varying settings' figure step, their Custom marking and its return, and key and mode moves kept
+>   inside what the preset is meant for ([The Session Workspace](#the-session-workspace))
 
 ## Whose Flow This Is
 
@@ -91,8 +94,11 @@ For the whole session, including the count-in, the workspace keeps its shape and
 - the audio mix is never locked: the player may reach for it at any time, and it is the one thing they may reasonably want mid-session;
 - on a phone, a compact `Stop` and the `Volume` button sit at the end of the cue row, since the header and toolbar may be out of view;
 - **[v3 new]** nothing opens: the buttons that open the My instrument and Your data sheets are disabled, like every control, the two links above the staff to past sessions are gone until the session ends, and every button in the notice row at the top of the workspace is disabled, so a notice can be neither acted on nor dismissed mid-session. Dismissing one would move the whole staff up by its height.
+- **[v3.1 new]** the preset box is read-only like every control, and its buttons are disabled, the row keeping exactly the buttons it had at the start, so no button appears or goes mid-session; the line describing the preset and the marks on the keys and modes it is meant for hold still too.
 
 From v2.1 on, the player can let a session change things by itself, each by its own switch, chosen before the session starts (the varying settings come in v2.1, the other two in v2.2): a tempo that rises by 5 BPM every two phrases, a tension that builds and settles over groups of four phrases, and settings that move one step every few phrases. None of them asks anything of the player mid-session, and none of them is announced: the read-only controls, and the tempo in the header, simply follow the music, each new setting appearing at the moment the first phrase built with it starts sounding and a raised tempo at the moment the first phrase played at it starts, a repeated phrase included, so what the screen says always matches what the player hears. The rising tempo serves the Speed Builder's steadily higher tempo (P2.S1); it needs a controller, and pauses while one is lost. When the session ends, the tempo goes back to where the player started it, and so do the settings the app varied: the next session starts from the player's own setup, not from wherever the last one wandered. The reasoning for where these switches sit is in [`screens/phrase-workspace/intent.md`](../../screens/phrase-workspace/intent.md#the-session-options).
+
+**[v3.1 new]** The varying settings now meet the preset. Where v2 switched between Neutral and Jazz, they move one embellishment figure one level instead, so a long session changes in vocabulary as well as in rhythm and key, which serves the Speed Builder's fresh material (P2.S1) and the Curious Improviser's exposure (P1.G1). Any move of something the preset holds turns the preset box to "Custom, based on Reel" at the moment the first phrase built with it sounds, like the moved setting itself, and the selection comes back with the settings at the end, so the next session starts from the player's own preset. Key and mode moves stay inside what the preset was meant for when the session started: the player chose Reel for its modes, and the app opting them out by itself would undo that choice without asking. A move that would leave is simply drawn again, unseen. The tension across phrases never marks Custom, since it never changes the setting. See [`flows/presets/`](../presets/intent.md#during-a-session).
 
 Everything on or near the staff belongs to the session. One row between the score toolbar and the staff, the session cue row, is where the session speaks: the starting-note line at idle, the count-in, and the session's notices. It is always present, at one fixed height, at idle and during a session (the Review, when it shows, takes the place of the whole staff area, the row included), so neither Start, nor the count-in, nor a notice ever moves the staff. The accepted cost is an empty row at idle when no controller is connected.
 

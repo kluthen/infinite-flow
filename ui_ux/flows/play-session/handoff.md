@@ -15,6 +15,13 @@
 >   session options come back as the player saved them (Controls during the session, Session
 >   options)
 > - _Removed:_ nothing
+> - _v3.1 new:_ Vary settings and the preset: the figure step, the Custom marking and its return at
+>   the end, key and mode moves kept inside the restriction in force at the start (Vary settings
+>   and presets, below the diagram)
+> - _v3.1 new:_ the preset bar during a session, and the preset sheet among the sheets that keep
+>   the starting note from starting a session (The preset bar during the session)
+> - _v3.1 changed:_ the session end returns the preset selection with the settings (the diagram's
+>   end step)
 
 ```mermaid
 flowchart TD
@@ -69,8 +76,8 @@ flowchart TD
   L -->|"Stop, tab hidden, or the staff can no longer be shown (viewport portrait-shaped below bp-desktop, or the held layout, or material waiting for it, no longer fits at the legibility floor: too narrow, or too short below bp-tablet-landscape)"| E
   R -->|More than 30 s without a note, after a first note, controller attached| E
   S -->|More than 30 s without a note, after a first note, controller attached| E
-  %% v3 changed
-  E[Session end: backing and click fade out, playhead removed, wake lock and landscape lock released] -->|"The session is saved once, as its review opens"| V["Review shows (no session starts until it is closed); the next phrase is generated out of sight: flows/review-and-export/"]
+  %% v3 changed; v3.1 changed: the preset selection returns with the settings
+  E[Session end: backing and click fade out, playhead removed, wake lock and landscape lock released; the settings Vary settings changed and the preset selection return to the start's] -->|"The session is saved once, as its review opens"| V["Review shows (no session starts until it is closed); the next phrase is generated out of sight: flows/review-and-export/"]
 ```
 
 - Screen: `screens/phrase-workspace/` for every step. The session states named above are defined in its handoff, under States. This flow ends where the Review opens; what follows (the Review, the next phrase on the staff, focus, and starting again once the player has left it) is `flows/review-and-export/`.
@@ -105,3 +112,10 @@ flowchart TD
 - **[v3 changed]** **Controls during the session.** The musical controls are read-only, the phrase action is disabled, `controller-status` is display-only, the instrument control's `Create my instrument` or `Edit my instrument`, the footer's `Your data` and every button in the notice row are disabled, the cue row's two links are absent, and no sheet opens, and the theme control and the audio mix stay live, including the phone's compact `Stop` and `Volume`; see `screens/phrase-workspace/` States, **Session count-in**. The "During a session" options are read-only too, with the choices the session runs with.
 - **[v3 changed]** **Session options (v2.1, v2.2).** Read at the start, as the player left them in the "During a session" group, which keeps them across visits (`screens/phrase-workspace/`, Components and Content); none changes during the session. `Rising tempo` runs only when it is on and a controller is attached at the start (a session started while the selected controller is away runs without it). Its rise, +5 BPM every 2 phrases up to 240 BPM, pauses while a lost controller is away, the phrases sounding meanwhile not counting; nothing shows the pause beyond the disconnect banner. `Tension across phrases` changes what each phrase is generated with, in groups of four from phrase 1, and nothing on screen. `Vary settings` changes one setting by one step every 2 to 4 phrases, never the instrument or the tempo.
 - **What the controls show (v2.1, v2.2).** From the count-in on, the read-only controls and `tempo-readout` show what the phrase now sounding was generated with and plays at, except that the Tension control shows the tension in effect, never a step of `Tension across phrases` (v2.2): a varied setting appears at the instant the first phrase generated with it starts sounding, and a raised tempo at the instant the first phrase that plays at it starts sounding, a repeated phrase included (the tempo is not part of what is generated), both on the audio clock, with no highlight, animation, scroll or announcement, and moves nothing (`screens/phrase-workspace/`, Components and Content, **Automatic changes during a session**).
+- **[v3.1 new]** **Vary settings and presets.** With `Vary settings` on:
+  - **The figure step** replaces v2's switch between Neutral and Jazz: one figure's level moves one step, up or down, never past `Off` or `Very often`. The seven figures together take the one place in the draw the musical profile had; the draw picks the setting, then the figure, then the direction. A figure step never lands on an unsupported rhythm combination, since levels do not affect rhythm. If the rule keeping passing and neighbor tones from both being `Off` ships, a step that would land there is drawn again, unseen.
+  - **Custom.** A move of a preset-held setting (one of the ten controls, Tension, Leapiness and Arpeggio chaos included, or a figure level) turns the selection to Custom based on its preset, or keeps it Custom, at the instant the first phrase built with it starts sounding, as the moved value itself shows (`screens/phrase-workspace/`, Components and Content, **Automatic changes during a session**). Key and mode moves never make Custom. Vary settings never switches preset.
+  - **Key and mode moves stay inside the restriction in force at the session's start**, a bound fixed for the whole session: a move outside it is drawn again, exactly as a move onto an unsupported combination is, and the player never sees it. When no allowed value is one step away, that half does not move. So under Reel the mode may move between Mixolydian and Dorian; under Modal (Dorian), Pop song or Bebop it never moves and the key moves freely; under a player preset kept to one key and mode neither moves. A session started with no restriction in force is not bounded.
+  - **At the end** the selection returns, with every setting the session moved, to what it was at the start, silently, under the review (`screens/phrase-workspace/`, States, **Session end**).
+  - `Tension across phrases` never makes Custom, though Tension is preset-held: it changes only what each phrase is generated with, never the setting, and never the figure levels.
+- **[v3.1 new]** **The preset bar during the session.** `preset-select` is read-only like every control; every button of `preset-actions` is disabled, the row keeping exactly the buttons it held at the start, whatever Vary settings does to the selection; the description line and the key and mode marks keep what they showed at the start. No preset sheet opens. The preset sheet and its delete confirmation are sheets like the others for the starting note: while one is open between sessions, no note starts a session (`flows/presets/`).

@@ -22,14 +22,31 @@
 >   or reload discarding everything, Format and the `Played notes` switch "kept for the page
 >   session", and "The Review and its data live in memory only" (v2 in the
 >   [frozen copy](../../versions/v2/flows/review-and-export/handoff.md))
+> - _v3.1 changed:_ the session is saved with its preset label, a snapshot, in place of its
+>   musical profile ([Saving the Session](#saving-the-session))
+> - _v3.2 new:_ `Use`, `Keep` and `Jam again on this doodle` in a Jam's review; a Jam ended
+>   before phrase 1 sounds opens no review ([Flow](#flow),
+>   [Screens and Conditions](#screens-and-conditions))
+> - _v3.2 new:_ the hidden workspace's next phrase in Jam mode ([Showing](#showing))
+> - _v3.2 new:_ what a Jam session's save adds ([Saving the Session](#saving-the-session))
+> - _v3.2 new:_ a Jam's review, the suggestion's actions and what they change, and
+>   `Jam again on this doodle` ([The Doodle and the Suggestion](#the-doodle-and-the-suggestion))
+> - _v3.2 new:_ both exports open with the doodle, and still line up ([Export](#export))
+> - _v3.2 changed:_ the raw doodle notes are played notes, in the lane and the played-notes export
+>   ([Played Notes](#played-notes))
+> - _v3.2 new:_ the doodle's two forms ([Privacy](#privacy))
+> - _v3.2 new:_ the doodle section at every breakpoint ([At Every Breakpoint](#at-every-breakpoint))
 
 ## Flow
 
 ```mermaid
 flowchart TD
   PS["flows/play-session/: Session end (phrase 1 has sounded)"] --> SV
+  %% v3.2 new: a Jam ended before phrase 1 sounds
+  PJ["flows/jam/: a Jam ends before phrase 1 sounds"] -->|"As a count-in end: no review, nothing kept"| NO["Jam mode's Idle"]
   %% v3 new: the save
-  SV["Session saved once: phrases, identity, played notes only while Keep my played notes is on; every unpinned kept session deleted; nothing shown"] --> RV
+  %% v3.1 changed: the preset label; v3.2 changed: a Jam's doodle and decline
+  SV["Session saved once: phrases, identity with its preset label, a Jam's quantized doodle, played notes only while Keep my played notes is on; every unpinned kept session deleted; nothing shown"] --> RV
   SV -.->|"Save fails: the session stays in memory; keep line 'Not saved on this device'"| RV
   RV["Review showing: review-panel in the staff area's place; toolbar, mix and controls still usable; session action reads Close review, primary; phrase action disabled; title Last session or the session date"]
   RV -.->|"Meanwhile, hidden (after a session end only): session systems cleared; next phrase generated from the current controls (fresh seed, no carry-in, idle fit retries), or none while the staff has no room"| RV
@@ -45,6 +62,10 @@ flowchart TD
   RV -->|"Delete session, confirmed (never while saving is off)"| SLE["session-list, its empty state included; focus on its title"]
   RV -->|"Keep my played notes on; off (with kept notes, not while saving is off: confirmation, Delete them or Keep them)"| RV
   RV -->|"Delete played notes, confirmed (never while saving is off): lane, view row and played-notes export leave"| RV
+  %% v3.2 new: a Jam's review (review-doodle)
+  RV -->|"Use answer (suggestion offered): key and mode set as by hand; row reads Key and mode set to ..."| RV
+  RV -->|"Keep current key and mode: declined for good, kept with the session; row leaves"| RV
+  RV -->|"Jam again on this doodle (controller connected): review mode left; Jam turned on if off"| JI["Idle in Jam mode with that doodle held: flows/jam/"]
   %% v3 changed: saved choices; v3 new: scope, very short notes
   RV -->|"Format: MusicXML or MIDI; Backing track (MIDI only); saved"| RV
   RV -->|"Export scope: Whole session or Favorites only; Include very short notes"| RV
@@ -81,6 +102,10 @@ flowchart TD
   _showing_ at a time, while the player is in it: at a session end, after `Review last session`,
   and after a row of the list is opened. A session ended during its count-in opens none and
   changes nothing kept.
+- **[v3.2 new]** **A Jam that ends before phrase 1 sounds** (no doodle note in time, Stop, a lost
+  controller, a hidden tab, no staff, or phrase 1 never written) ends as a count-in end: no
+  Review, nothing kept, the doodle not held (`flows/jam/`). A Jam whose phrase 1 sounded has a
+  Review like any session, opening with its doodle (The Doodle and the Suggestion).
 - **[v3 new]** **Title.** `review-title` reads "Last session" for the most recent session and the
   session date (`flows/kept-sessions/handoff.md`, Terms) for any other.
 
@@ -117,6 +142,11 @@ flowchart TD
   its no-room sentence, the phrase coming when the notice clears. Whatever the workspace holds when
   the player leaves the Review is what they see; it becomes the next session's phrase 1 only by the
   ordinary idle start.
+- **[v3.2 new]** **The next phrase in Jam mode.** While Jam mode is in effect at the session's
+  end, the hidden workspace takes Jam mode's Idle instead, out of sight and silently: without a
+  held doodle no phrase is generated and the empty Jam staff waits; with a held doodle (one a Jam
+  was played on stays held), phrase 1 is generated from it, with a fresh seed, through the idle
+  attempt budget. The Idle side is specified in `flows/jam/`.
 - **Focus at the end.** Focus moves to the session action, which now reads `Close review` and is
   always enabled while the Review shows.
 
@@ -149,11 +179,13 @@ flowchart TD
 
 **[v3 new]**
 
-- As a session's Review opens at its end, the session is saved once (master spec §5.1, §5.2):
-  each phrase's timeline, chord symbols, reproduction inputs, tempo and repeat flag; the
-  session's start, length, phrase count, musical profile, instrument, starting and reached tempo,
-  pinned state, comment and app version; its played notes only while `Keep my played notes` is
-  on. Never acknowledgements. The same save deletes every unpinned kept session
+- **[v3.1 changed]** As a session's Review opens at its end, the session is saved once (master
+  spec §5.1, §5.2, §B9): each phrase's timeline, chord symbols, reproduction inputs (the seven
+  figure levels in place of the profile), tempo and repeat flag; the session's start, length,
+  phrase count, preset label, instrument, starting and reached tempo, pinned state, comment and
+  app version; its played notes only while `Keep my played notes` is on. The preset label is the
+  selection at the session's start, as `control-summary` writes it ("Bebop", "Custom, based on
+  Bebop", "Custom"): a snapshot that a later rename or deletion of the preset never changes. Never acknowledgements. The same save deletes every unpinned kept session
   (`flows/kept-sessions/handoff.md`, Keeping at a Session's End). Nothing is shown on success.
 - **Keep line.** `review-keep-line` states how the session showing is kept: "Pinned: kept until
   you unpin or delete it.", "Not pinned: deleted when your next session is saved.", or, for a
@@ -169,6 +201,55 @@ flowchart TD
   saved when made. A change that cannot be saved stays in memory for the visit, and the failure
   is told by the workspace's notice row once the player is back at idle
   (`flows/saved-data/handoff.md`).
+- **[v3.2 new]** **A Jam session's save** also holds that it is a Jam, the quantized doodle with
+  the tempo it was played at, and, once answered, the suggestion's decline; each phrase's
+  reproduction inputs hold the doodle, the drift and the rhythm-lock data (master spec §C11). The
+  raw doodle notes are played notes, saved with the others only while `Keep my played notes` is
+  on. `Keep {key} {mode}` saves the decline into the session when pressed, as a favorite is saved;
+  in a session held in memory, or while saving is off, the decline lasts for the visit.
+
+## The Doodle and the Suggestion
+
+**[v3.2 new]**
+
+- **A Jam's review** opens with `review-doodle`, before phrase 1: the quantized doodle engraved
+  as the app heard it, its header ("Your doodle", the tempo it was played at,
+  `Jam again on this doodle`), its played-notes lane when `Played notes` is on, then the
+  suggestion when there is one (`screens/last-session-review/handoff.md`). It is the same in the
+  review of the Jam that just ended and of a kept Jam session. A session kept before v3.2 has no
+  doodle and opens as before.
+- **When the suggestion is offered.** Worked out from the quantized doodle and judged against the
+  current key, mode and restriction in force, whenever the review opens and whenever one of them
+  changes while it shows. Offered while the current key and mode are not among the close answers
+  and the player has not declined it for this doodle; the "no fit" sentence when under 80 % of the
+  doodle fits the best answer; nothing otherwise. Never offered during a session.
+- **`Use {answer}`** sets Written key and Collection exactly as a change by hand in the controls
+  does: saved like any setting (in memory only while saving is off), pre-generated phrases
+  discarded, the selection becoming Custom, based on the preset, when the restriction in force
+  excludes the answer (the second line said so beforehand). An answer outside the Major and Minor
+  group moves the Collection to the modes; the player's press is what allows it. The hidden
+  workspace takes the change as at Idle: in Jam mode without a held doodle its empty staff takes
+  the new key signature; with Jam off the phrase on the staff stays until the player asks for
+  another. With a held doodle, `Use` keeps it only when it is this review's doodle: phrase 1 is
+  then written again from it in the new key and mode, out of sight (`flows/jam/`); a held doodle
+  from another session is let go, as by any key or mode change. The row then reads "Key and mode
+  set to {answer}." until the review closes or the key or mode is changed again. `Use` does not
+  close the review.
+- **`Keep {key} {mode}`** changes no setting. The row leaves, and this doodle's suggestion is
+  never offered again: not in this review, not in the kept session's review later, not at Idle
+  for a doodle held from it. The decline is saved with the session (see Saving the Session).
+- **`Jam again on this doodle`** (enabled only with a connected controller): leaves the review
+  mode exactly as `Close review` does (the staff area back, the page at its top, the cue-row links
+  by their rules, focus by `Close review`'s rule), turns the Jam switch on if it was off (saved as
+  a change by hand), and holds this doodle at Idle, replacing any doodle already held. The Idle
+  that follows, phrase 1 written from the held doodle, and its suggestion bar are specified in
+  `flows/jam/`. It does not answer the suggestion: a suggestion still offered here is offered
+  again at Idle.
+- **A Jam played on a held doodle.** Its review shows the held doodle as its doodle, with the
+  tempo it was first played at. Its raw notes belong to the session it was first played in, so
+  this Review's `Played notes` lane under the doodle is empty and its played-notes export holds no
+  doodle note. A suggestion declined for that doodle stays declined in this session too. Its
+  `Jam again on this doodle` holds the same doodle again.
 
 ## Favorites, Comment, Pin and Delete
 
@@ -216,6 +297,22 @@ flowchart TD
   on, it holds every note as received. The generated-notes file is unaffected.
 - **[v3 changed]** **Saved choices.** Format and `Backing track` are saved when changed and return
   after a reload (master spec §4.2).
+- **[v3.2 new]** **A Jam's exports open with the doodle**, in both scopes (`Whole session` and
+  `Favorites only`; the doodle is never a favorite and always exported) and in every file:
+  - the generated-notes file, MusicXML or MIDI, opens with the quantized doodle as a section marked
+    "Doodle", with no backing under it in the MIDI file even when `Backing track` is on;
+  - the played-notes file opens with the raw doodle notes in the same section, very short notes
+    following `Include very short notes`; every other note played before phrase 1 (the count-in,
+    the measures while phrase 1 is written and read in, an extended wait) is still left out. In a
+    Jam on a held doodle the section is there, with no note in it;
+  - **both files still line up:** the doodle section starts at time zero in each, as many
+    measures long as the doodle, at the tempo it was played at; the first exported phrase follows
+    at the next barline, and the waiting measures between them are not written. A raw note
+    running past the section's end stops there.
+  Details: `screens/last-session-review/handoff.md`, Components and Content.
+- **[v3.2 changed]** In a Jam, `Export played notes` and `review-view` are rendered when the
+  session holds a played note in a phrase or in its doodle. Under `Favorites only`,
+  `Export played notes` is disabled only when neither a favorite phrase nor the doodle holds one.
 
 ## Played Notes
 
@@ -240,6 +337,10 @@ flowchart TD
   kept): after a confirmation, this session's played notes are deleted, in memory too; the lane,
   `review-view` and the played-notes export leave the Review at once, focus on `review-title`.
   The session, its favorites and its comment stay. Never shown while saving is off.
+- **[v3.2 changed]** In a Jam, the raw doodle notes are played notes like every other: shown in
+  the doodle's lane, kept only while `Keep my played notes` is on, deleted by
+  `Delete played notes` with the rest. Deleting them keeps the quantized doodle, which belongs to
+  the music: the doodle section, the suggestion and `Jam again on this doodle` stay.
 
 ## Privacy
 
@@ -247,6 +348,13 @@ flowchart TD
   (`flows/kept-sessions/handoff.md`); its played notes only while `Keep my played notes` is on,
   and they can be deleted on their own. Nothing is ever sent. An export the player triggers is
   the only way anything leaves the device, and the comment is never in one.
+- **[v3.2 new]** **The doodle's two forms** (master spec §C5.14). The quantized doodle is a
+  generation input the player gave on purpose and travels with the music: kept with a kept Jam
+  session without the played-notes opt-in, engraved in the doodle section, in the generated-notes
+  export. The raw doodle notes are played notes: in memory unless `Keep my played notes` is on,
+  shown only in the `Played notes` lane, leaving the device only in the played-notes export.
+  Deleting a Jam session deletes both; deleting its played notes deletes the raw notes only.
+  Neither is ever sent.
 
 ## At Every Breakpoint
 
@@ -257,3 +365,6 @@ flowchart TD
   (`screens/last-session-review/handoff.md`, Responsive Behavior).
 - `Export played notes` and `review-view` are never rendered when the session holds no played
   note in a phrase.
+- **[v3.2 new]** In a Jam's review, `review-doodle` is rendered at every breakpoint with all it
+  holds; below `bp-tablet-landscape` the doodle takes the split layout like a phrase
+  (`screens/last-session-review/handoff.md`, Responsive Behavior).

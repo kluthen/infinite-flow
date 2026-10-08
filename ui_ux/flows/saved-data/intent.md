@@ -2,6 +2,16 @@
 
 > **New in v3.**
 
+> **Changes since v3.0**
+>
+> - _v3.1 new:_ the player's presets kept, how the selection comes back, and what a visit that
+>   saves nothing does with presets ([Presets](#presets))
+> - _v3.1 changed:_ saving a preset asks the browser for protection
+>   ([Asking the browser to protect the data](#asking-the-browser-to-protect-the-data))
+> - _v3.1 changed:_ Delete everything removes the presets ([Your data](#your-data))
+> - _v3.2 new:_ the Jam settings kept, a doodle kept with its session in one form and not the
+>   other, the held doodle never kept ([Jam](#jam))
+
 Up to v2, every visit started from the defaults and forgot everything when the page closed. v3.0
 keeps things on the player's device: settings, the last session and the sessions the player
 chose to keep, their favorites and comments, the player's own instrument, the remembered
@@ -70,6 +80,10 @@ fix, on every visit.
 The request is made at the first such act of each visit while the data is not yet protected: a
 browser's answer can change as the player keeps using the site, and asking again costs nothing.
 
+**[v3.1 changed]** Saving a preset of one's own, as a new one or by saving changes into it, is
+such an act too: a player who named a setup wants to find it again. Renaming or deleting one is
+not: nothing new is kept.
+
 ## Coming back at load
 
 The first thing a returning player sees should already be their own setup. If the workspace
@@ -115,6 +129,51 @@ and the visit runs on the defaults, which is why every control looks reset, and 
 has saved data, which is why the reload is the cure. Keeping the unusable-data notice alone would
 leave the missing `Delete everything` unexplained; switching to the plain outdated-tab notice
 would leave the reset controls unexplained.
+
+## Presets
+
+**[v3.1 new]** The player's own presets are kept like the settings, each saved the moment it is
+made, changed, renamed or deleted, and silently: the preset box shows the result. The selection
+is kept too (which preset, or Custom and the preset it is based on), so the controls come back
+under the same name they were left under.
+
+**[v3.1 new]** At load, **the saved values win** over the preset's name. If the settings no
+longer match the preset selected (a built-in retuned by a later version, a preset changed in
+another tab) or the key and mode lie outside what it is meant for, the selection simply shows
+Custom, based on that preset, and if the preset is gone, Custom. The key and the mode never move
+at load. The alternative, putting the preset's values back, would change what the player hears
+behind their back, and a player's sound must never change without them doing something. Nothing
+is announced: the preset box saying "Custom, based on Jazz" is the whole story, in the place the
+player looks.
+
+**[v3.1 new]** Loading is tolerant, preset by preset and field by field, as it is for the
+settings: a damaged field falls back on its own, a preset that cannot be read at all is not
+listed, and nothing is said. Settings saved by v3.0 come back under the matching built-in preset,
+or Custom based on it.
+
+**[v3.1 new]** A preset that can't be saved is told at once, in the notice row, naming it, and
+it can still be used until the page closes. Presets are only ever saved outside a session, so
+there is no session to wait for. In a visit that saves nothing, presets made there last for the
+page under that visit's notice, and none can be deleted there, like everything else; a visit
+that could not read the saved data lists only the built-in presets, since the player's own could
+not be read.
+
+## Jam
+
+**[v3.2 new]** The Jam switch and the options that go with it (the drift, the rhythm lock, its
+allowed changes, what Vary settings may move) are settings like the others: kept when changed,
+back as the player left them. Jam and the lock come back on only if the player turned them on.
+
+**[v3.2 new]** A Jam session is kept like any session. Its doodle comes in two forms, and they
+are kept by different rules (master spec §C5.14). The doodle as the app wrote it is part of the
+music, the input the player gave on purpose, so it is kept with the session without asking. The
+notes as the player played them are played notes, the most private thing the app holds, kept only
+when the player switched on "Keep my played notes". Deleting the session deletes both; deleting
+played notes deletes only the second. The player's "keep mine" answer to a key and mode
+suggestion is kept with the session too, so the same suggestion is never offered again.
+
+**[v3.2 new]** A doodle held for another Jam is never kept: it lives in memory, and a reload lets
+it go. The kept Jam session's review offers it again, so nothing is lost by that.
 
 ## Telling a saving problem
 
@@ -182,8 +241,8 @@ what goes, saying it can't be undone, with the way back focused. Three of them a
 - **Delete all played notes.** The played notes kept with any session go; the sessions stay, and
   the `Keep my played notes` setting stays as it is. Played notes held only in memory for the
   session that just ended, because the setting was off, are not kept data and are untouched.
-- **Delete everything.** Everything the app keeps goes, the remembered controller included, and
-  the page reloads into its first visit. Resetting every control, closing the review and
+- **[v3.1 changed]** **Delete everything.** Everything the app keeps goes, the player's presets and
+  the remembered controller included, and the page reloads into its first visit. Resetting every control, closing the review and
   releasing the controller in place would be a long list of special cases to get exactly right;
   a reload is the honest picture of "nothing is kept", and it is what the player will see on their
   next visit anyway. Deleting my instrument alone, in its own sheet, does not forget the

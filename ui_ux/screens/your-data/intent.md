@@ -2,6 +2,13 @@
 
 > **New in v3.**
 
+> **Changes since v3.0**
+>
+> - _v3.1 new:_ the player's presets counted, deleted where they are chosen
+>   ([Focal Point](#focal-point))
+> - _v3.2 new:_ Jam sessions counted with the others; deleting played notes keeps the doodles as
+>   the app wrote them ([Deleting](#deleting))
+
 ## What This Screen Is
 
 **Your data** is the one place where the player sees everything the app keeps on their device and
@@ -46,6 +53,13 @@ changed somewhere else (my instrument in the instrument control, the controller 
 sheet), the section names that place rather than duplicating its controls; the sheet is an
 inventory with deletions, not a second settings page.
 
+**[v3.1 new]** The player's own presets get a section of their own, after my instrument: how
+many there are, and where they are deleted. They are listed by number, not by name: the preset
+box already lists them, and a second list here would be a second place to manage them. Each is
+deleted one at a time where it is chosen, with `Delete preset` in the controls, and all of them at
+once by `Delete everything`. The line naming the settings now says "the preset" where it said
+"the musical profile", since that is what the controls now call it.
+
 The settings have no delete of their own. Resetting one setting is changing it back; resetting
 all of them, with nothing else, is a need no persona has. `Delete everything` covers the rare
 player who wants a clean slate.
@@ -65,6 +79,12 @@ Every deletion asks once, inside this sheet: its title becomes the question, the
 way to one paragraph naming what goes and saying it can't be undone, and focus goes to the way
 back, so an Enter pressed out of habit deletes nothing. Asking inside the sheet, rather than
 stacking a second sheet on top, keeps one dialog on screen and one place to come back to.
+
+**[v3.2 new]** A Jam session is a session here like any other: counted with the sessions,
+deleted with them, nothing about its doodle listed. One thing is said, where it matters: deleting
+played notes takes the doodle as the player played it and keeps the doodle as the app wrote it,
+which belongs to the music, so the played-notes confirmations say that doodles stay. A player
+deleting their played notes for privacy should know exactly what remains.
 
 `Delete everything` reloads the page afterwards, into its first visit. That is the honest picture
 of what was just done, and the player sees at once that nothing is left.

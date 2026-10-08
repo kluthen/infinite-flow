@@ -19,6 +19,17 @@
 >   [frozen copy](../../versions/v2/screens/last-session-review/intent.md#what-is-deliberately-left-out))
 > - _Removed:_ the phone's review as "the phrases and the export, nothing else" (v2 in the
 >   [frozen copy](../../versions/v2/screens/last-session-review/intent.md#on-a-phone))
+> - _v3.1 changed:_ the summary names the preset the session started with
+>   ([The Header: Which Session, and How It Is Kept](#the-header-which-session-and-how-it-is-kept),
+>   [What Is Deliberately Left Out](#what-is-deliberately-left-out))
+> - _v3.2 new:_ a Jam's review opens with its doodle ([What This Screen Is](#what-this-screen-is),
+>   [The Doodle](#the-doodle))
+> - _v3.2 new:_ the summary says "Jam"
+>   ([The Header: Which Session, and How It Is Kept](#the-header-which-session-and-how-it-is-kept))
+> - _v3.2 new:_ the key and mode suggestion
+>   ([The Key and Mode Suggestion](#the-key-and-mode-suggestion)) and
+>   `Jam again on this doodle` ([Jam Again on This Doodle](#jam-again-on-this-doodle))
+> - _v3.2 new:_ the doodle on a phone ([On a Phone](#on-a-phone))
 
 ## What This Screen Is
 
@@ -35,6 +46,11 @@ shares the mode with is [`screens/session-list/`](../session-list/intent.md).
 
 **[v3 changed]** The screen keeps its v2 name, **Last session** review, which is still its title
 for the most recent session, the one most players open. It now covers every kept session too.
+
+**[v3.2 new]** The review of a Jam, a session begun with a doodle the player played, opens with
+that doodle, written out as the app heard it, before the phrases that continued it. It is also
+where the app may suggest the key and mode the doodle sounds in, and where the player can jam
+again on the same doodle (see [The Doodle](#the-doodle) and after).
 
 It is written first for the Fledgling Composer (P3), who wants to look back at a session (P3.C1)
 and take it out to other tools (P3.C2). Personas are defined in
@@ -69,12 +85,18 @@ any other: it is what the player heard and read, and the reason behind it is the
 comes first because it is navigation, not a tool: it is where a player who opened this session
 from the list goes back, and where a player who came from the end of a session finds the others.
 
-**[v3 new]** The title says which session this is: "Last session" for the most recent one, the
+**[v3.1 changed]** The title says which session this is: "Last session" for the most recent one, the
 words the player knows from the link above the staff, and otherwise the date and time it was
 played, the same words its row in the list shows. Under it, one quiet line gives the date and
-time (when the title does not), the length, the number of phrases, the instrument, the musical
-profile and the number of favorites: what the player needs to recognise it, and no figure about
-how they played.
+time (when the title does not), the length, the number of phrases, the instrument, the preset the
+session started with and the number of favorites: what the player needs to recognise it, and no
+figure about how they played. The preset is written as it was at the start ("Bebop", or "Custom,
+based on Bebop"), and stays so: renaming or deleting that preset later does not rewrite a record
+of what was played.
+
+**[v3.2 new]** For a Jam, that line starts with the word "Jam", as the session's row in the list
+does, so the player can tell the sessions that began with their own idea from the others. A
+word rather than an icon: it reads the same to everyone, a screen reader included.
 
 **[v3 new]** A second quiet line says how the session is kept, in words: "Pinned: kept until you
 unpin or delete it.", or "Not pinned: deleted when your next session is saved." This replaces
@@ -104,9 +126,9 @@ look permanent while nothing is kept. One rule for both visits keeps the review 
   the music the session gave; from v2.1, the notes the player played can be shown under it, behind
   their own switch (see The Notes the Player Played), and even then nothing is ever marked as
   missed, or as matched.
-- **[v3 new]** **No figure in the summary.** The summary describes the session (when, how long,
-  which instrument and profile, how many favorites), never the player's playing: no note count,
-  no accuracy, no tempo reached presented as a result.
+- **[v3.1 changed]** **No figure in the summary.** The summary describes the session (when, how
+  long, which instrument and preset, how many favorites), never the player's playing: no note
+  count, no accuracy, no tempo reached presented as a result.
 - **[v3 changed]** **One per-phrase tool, no more.** The favorite star is the first tool at the end
   of each phrase's number-and-tempo line, the place the review kept for per-phrase tools.
   Replaying a phrase, or using one as the starting point for new material, may come later and
@@ -191,6 +213,72 @@ default. It is a toggle in the played-notes group because it changes that file o
 first and holds while the page is open, without being remembered, because it is a choice for one
 export rather than a preference. Under `Favorites only`, when no favorite phrase holds a played
 note, `Export played notes` is shown unavailable with the reason beside it.
+
+## The Doodle
+
+**[v3.2 new]** A Jam begins with the player's doodle: one to four measures of their own idea, played after the
+count-in, which the app's phrases then continue. Its review opens with that doodle, in a section
+of its own before phrase 1, because it is where the session began and what the phrases grew from;
+a player looking back at a Jam wants to see the idea and what became of it, in that order.
+
+The section looks like a phrase on purpose: a line with its name, "Your doodle", and the tempo it
+was played at, then the staff. What it lacks says what it is. It has no number, since the export
+and the review number the app's phrases, and the doodle is the player's. It has no chord symbols,
+since the app wrote no chords under it. It has no favorite star, since a favorite marks one of the
+app's phrases to keep and take out, and the doodle always goes with its session anyway.
+
+It is written out from the doodle as the app used it: the notes snapped to the sixteenth-note grid,
+one line only, in the written pitch of the player's instrument and the key signature the Jam
+started with. That is honest about what the app heard, which is what the phrases were grown from.
+It is not a transcript of the playing, and it does not try to be one: the `Played notes` switch
+still shows the notes exactly as played, in a lane under the doodle as under every phrase, so a
+player who wonders why the written doodle differs from what they meant can see both.
+
+A doodle of two measures is drawn two measures long: its measures take the width a phrase's
+measures take, from the start of the line, and the rest of the line stays empty. Stretching it
+across the whole width would make a short idea look like a long one and make its notes look
+slower than the phrase under it.
+
+## The Key and Mode Suggestion
+
+**[v3.2 new]** After a Jam, the app may say which key and mode the doodle sounds in, under the written-out doodle:
+"Your doodle sounds like G Dorian." It never acts on its own. Two buttons say what each choice
+does, by name: `Use G Dorian` sets the key and the mode, exactly as choosing them in the controls
+would, and `Keep C Major` keeps the player's own. Naming the result rather than writing "Use it"
+and "Keep mine" means a beginner never has to work out what "it" and "mine" are, and the key the
+player is in right now is in front of them, beside the one suggested.
+
+The answer is named in the player's own family of choices. A player in Major or Minor hears
+"Major" or "Minor", never "Ionian" or "Aeolian", which hold the same notes but would read as
+something new; a player already working in modes hears the mode's name.
+
+When the player's preset is meant for other keys or modes, a quiet second line says that using
+the suggestion makes their settings Custom, in the words the controls already use for that. It
+is told before the press, not discovered after it.
+
+`Keep` declines the suggestion for good: the same doodle always gives the same answer, so offering
+it again would only nag. The decline stays with the kept session. After `Use`, the row says the
+key and mode are set, since the controls are out of sight below the review.
+
+When the doodle uses notes none of the app's keys and modes hold (a blue note, a harmonic-minor
+turn), the review says so once, plainly, and suggests nothing. It never names a "wrong" note: the
+doodle was the player's idea, and nothing in the review judges it. When the doodle is too short to
+tell, or already fits the player's key and mode, nothing is said at all: a short doodle is normal,
+and agreeing with the player needs no message.
+
+A kept Jam's review works the suggestion out again, against the key and mode the player has now,
+so it is offered only when it would change something.
+
+## Jam Again on This Doodle
+
+**[v3.2 new]** At the end of the doodle's line, where per-phrase tools go, `Jam again on this doodle` takes the
+player back to the staff with that doodle held, ready to be continued again without playing it a
+second time. It sits with the doodle because it acts on the doodle, and it is a plain button,
+since `Close review` stays the page's one emphasised action. It does not answer the suggestion: a
+player can jam again and still decide on the key later.
+
+A Jam needs a controller, so without one the button is unavailable and says why, as the Jam switch
+does. Like the rest of the review, it never asks anything.
 
 ## The Notes the Player Played
 
@@ -278,3 +366,7 @@ never told would lose the session on closing the page, so the line stays in that
 star stands without its word. The header stacks, each row wrapping onto as many lines as it
 needs, and the phrases keep the phone's two-line layout, at the size the staff has on that phone,
 each still with its number and tempo. Each of a phrase's two lines gets its own lane.
+
+**[v3.2 new]** A Jam's doodle is split like a phrase on a phone, two measures to a line, so a
+doodle of one or two measures takes one line. The suggestion and `Jam again on this doodle` are
+kept, wrapping as they need: they are functions, not extra information.

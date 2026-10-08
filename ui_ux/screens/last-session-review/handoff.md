@@ -25,6 +25,22 @@
 >   list hold nothing focusable"; the `review-link` details and its focus rule at a session start,
 >   now in `flows/kept-sessions/` (v2 in
 >   the [frozen copy](../../versions/v2/screens/last-session-review/handoff.md#components-and-content))
+> - _v3.1 changed:_ the summary names the preset the session started with, where it named the
+>   musical profile ([Components and Content](#components-and-content))
+> - _v3.2 new:_ `review-doodle`, with `Jam again on this doodle` and `suggestion-row`, between
+>   `review-view` and `review-list` in a Jam's review; _v3.2 changed:_ `room-notice` stands in for
+>   it too ([Layout Tree](#layout-tree))
+> - _v3.2 new:_ the doodle section, its played-notes lane, the key and mode suggestion and
+>   `Jam again on this doodle`; _v3.2 changed:_ the summary begins with "Jam" for a Jam session,
+>   the raw doodle notes count as played notes, both exports open with the doodle, and the
+>   played-notes confirmation of a Jam session says the written-out doodle stays
+>   ([Components and Content](#components-and-content))
+> - _v3.2 changed:_ the tab order gains the doodle section's buttons; _v3.2 new:_ focus after
+>   `Use`, `Keep` and `Jam again on this doodle` ([Focus and Keyboard](#focus-and-keyboard))
+> - _v3.2 new:_ the doodle and the suggestion at each breakpoint
+>   ([Responsive Behavior](#responsive-behavior))
+> - _v3.2 new:_ a Jam's review, the suggestion's forms, `Jam again on this doodle` unavailable, a
+>   Jam on a held doodle, and the doodle under no room and while saving is off ([States](#states))
 
 **[v3 changed]** `review-panel` is the phrase-workspace page's review mode
 (`screens/phrase-workspace/`): while a Review shows, it is rendered inside `score-panel`, after
@@ -90,6 +106,24 @@ layout-workspace
         btn toggle-button      (Keep my played notes; aria-pressed; v3 new)
           toggle-button-state
         btn                    ("Delete played notes"; only when this session's played notes are kept, never while saving is off; v3 new)
+      review-doodle            (v3.2 new; section, aria-labelledby its title; a Jam session's review only; replaced, with review-list, by room-notice while the staff has no room)
+        review-phrase-header
+          review-phrase-title  (h3: "Your doodle")
+          review-phrase-tempo  ("{tempo} BPM": the tempo the doodle was played at)
+          btn                  ("Jam again on this doodle"; at the row's trailing end, where per-phrase tools go; disabled without a connected controller)
+          field-note           (only while that button is disabled: "Needs a connected controller.")
+        review-staff           (one system position from bp-tablet-landscape up; below it one, or two for a doodle of three or four measures; each followed by its played-notes lane while Played notes is on; all reserved before engraving)
+          staff-content        (the quantized doodle: its measures at a phrase's measure width from the system's start; no chord-symbol)
+            measure-slot       (one per doodle measure in this system position)
+          review-phrase-note   (in place of staff-content when the doodle cannot be drawn)
+          played-notes-lane    (as a phrase's, holding the raw doodle notes; empty in a Jam on a held doodle)
+            played-notes-divider
+            played-note x n
+        suggestion-row         (v3.2 new; one of offering, set, no fit; absent otherwise)
+          p                    (the sentence)
+          btn                  ("Use {answer}"; offering only)
+          btn                  ("Keep {key} {mode}"; offering only)
+          p                    (offering only, when the answer lies outside the restriction in force)
       review-list                (ol; replaced by room-notice while the staff has no room)
         review-phrase x n        (li, one per phrase that started sounding, in session order)
           review-phrase-header
@@ -104,7 +138,7 @@ layout-workspace
             played-notes-lane    (div, role img; one under each system position, only while Played notes is on -- see Components and Content)
               played-notes-divider (a line at each barline between the lane's measures)
               played-note x n    (a bar per played note, very short notes left out, whose onset falls in this phrase, or the part of it in this lane)
-      room-notice                (p, no tabindex; in place of review-list while the staff has no room)
+      room-notice                (p, no tabindex; in place of review-list, and of review-doodle (v3.2 changed), while the staff has no room)
         room-notice-wide
         room-notice-narrow
     (generation-failure banner, session-cue-row: hidden while the Review shows; at idle session-cue-row holds review-link and sessions-link by their rules)
@@ -124,17 +158,28 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   `review-actions` (then `review-export-error` when it shows), `review-view`, then `review-list`
   or `room-notice`. The rows after `review-header` are separated from each other by
   `--spacing-3`.
+- **[v3.2 new]** In a Jam's review, `review-doodle` comes after `review-view` (or after
+  `review-actions` and `review-export-error` when `review-view` is not rendered) and before
+  `review-list`, spaced from the first phrase as one `review-phrase` is from the next. A Jam
+  session is a session begun in Jam mode whose phrase 1 sounded; a session kept before v3.2 is
+  never one.
 - **[v3 changed]** `review-title` reads "Last session" for the most recent session, and the
   session date (`flows/kept-sessions/handoff.md`, Terms) for any other. It carries `tabindex="-1"`
   so the links, the list and the deletions can move focus to it; it is never in the tab order and
   takes the `:focus-visible` ring.
-- **[v3 changed]** `review-summary` reads "{session date} · {length} · {phrases} · {instrument} ·
-  {profile} · {favorites}", the session date left out when it is the title. {length}, {phrases},
-  {instrument} and {profile} are written exactly as in the session list's detail line, and
+- **[v3.1 changed]** `review-summary` reads "{session date} · {length} · {phrases} · {instrument} ·
+  {preset} · {favorites}", the session date left out when it is the title. {length}, {phrases},
+  {instrument} and {preset} are written exactly as in the session list's detail line, and
   {favorites} as in its status line (`screens/session-list/handoff.md`): the instrument by the name
-  it had at the session, which may differ from the profile selected now. The favorites count
+  it had at the session, which may differ from the profile selected now, and the preset as the
+  label the session recorded at its start ("Bebop", "Custom, based on Bebop", "Custom"), which a
+  later rename or deletion of that preset never changes. The favorites count
   changes in place when a star is pressed. Muted, small. Not rendered below
   `bp-tablet-landscape`. No figure about how the player played.
+- **[v3.2 changed]** For a Jam session, the part of the summary after the session date begins with
+  the word "Jam", as the session list's detail line does: "Tue 6 Oct 2026, 18:42 · Jam · 12 min ·
+  9 phrases · …", or "Jam · 12 min · 9 phrases · …" when the date is the title. A word, not an
+  icon.
 - **[v3 new]** `review-keep-line`: "Pinned: kept until you unpin or delete it.", "Not pinned:
   deleted when your next session is saved.", or, for a session whose save failed, "Not saved on
   this device: export it to keep it." Its text changes in place, with no announcement. Below
@@ -194,6 +239,16 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   concert pitch with the tempo map, a marker per phrase, and the backing track only when
   `Backing track` is on), for the phrases the scope selects (master spec §6). No played note is
   ever in either generated-notes file.
+- **[v3.2 new]** **A Jam's files open with the doodle**, in both scopes and in all three files:
+  a section marked "Doodle" (the MusicXML rehearsal mark and the MIDI marker), as many measures
+  long as the doodle, starting at time zero, at the tempo the doodle was played at; then the
+  first exported phrase at the next barline, the waiting measures between them never written.
+  In the generated-notes files the section holds the quantized doodle (MusicXML in written pitch
+  with the key signature the Jam started with and no chord symbol; MIDI with no backing under
+  it). In the played-notes file it holds the raw doodle notes, very short ones following
+  `Include very short notes`, a note running past the section's end stopping there; in a Jam on a
+  held doodle the section is there, empty. Other notes played before phrase 1 are still left out.
+  So the files of one Jam still line up measure for measure (master spec §C5.15).
 - **[v3 changed]** **Export played notes**: `btn review-export-action` reading "Export played
   notes", in `review-export-played` after `Include very short notes`, rendered only when the
   session holds at least one played note whose onset falls in a phrase (never after a session
@@ -209,6 +264,12 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   is building. Under `Favorites only`, when no favorite phrase holds a played note, it is
   disabled and named by `aria-describedby` to a `field-note` "No played notes in your
   favorites."
+- **[v3.2 changed]** **In a Jam, the raw doodle notes count as played notes.** "Holds a played
+  note" also counts a note whose onset falls in the doodle's measures, so a Jam in which only the
+  doodle was played still has `review-export-played` and `review-view`. Under `Favorites only`,
+  `Export played notes` is disabled only when neither a favorite phrase nor the doodle holds a
+  played note. A Jam on a held doodle holds none of the doodle's raw notes: they belong to the
+  session it was first played in.
 - **[v3 new]** **Include very short notes**: `btn toggle-button` reading "Include very short
   notes" with `toggle-button-state` "on"/"off" (`aria-pressed`; the accessible name is the label
   alone), before `Export played notes`. Off at first; holds while the page is open, across
@@ -260,6 +321,10 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     notes?"; body "This deletes the notes you played in this session. The session stays, with its
     favorite phrases and comment." then "This can't be undone."; actions `Delete played notes`
     (`btn btn-error`) then `Cancel` (`btn`).
+  - **[v3.2 changed]** **This session's played notes, in a Jam session:** the body's first
+    paragraph reads "This deletes the notes you played in this session. The session stays, with
+    its doodle as the app wrote it, its favorite phrases and comment.", since the written-out
+    doodle is kept (master spec §C5.14); the rest as above.
   - A deletion that fails keeps its sheet open with `inline-alert alert-error` "That couldn't be
     deleted. Try again." under its paragraphs; the confirming action tries again.
 - **Played-notes lane**: while `Played notes` is on, each system position in `review-staff`
@@ -270,6 +335,13 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     phrase (the notes before phrase 1 belong to none, as in the export), except very short notes,
     which the lane always leaves out (master spec §9; no switch). In the split layout the top lane
     holds bars 1–2 and the bottom lane bars 3–4.
+  - **[v3.2 new]** **The doodle's lane.** In a Jam's review the doodle's system positions get
+    lanes too, by every rule here: they hold the raw doodle notes, every played note whose onset
+    falls in the doodle's measures, very short notes left out; the anchors are the doodle's
+    engraved notes, rests and measure ends, and nothing is drawn after its last barline (a note
+    still sounding there stops at it). These notes count in the session's pitch scale. Labelled
+    "Played notes, your doodle" ("…, bars 1–2" and "…, bars 3–4" when split). In a Jam on a held
+    doodle the doodle's lane is empty: its dividers only.
   - **Time (inline axis).** A note's onset and release, as the session history records them (the
     same values the played-notes export uses), are placed by beat time against the written notes
     of the staff above, so that a note played exactly on a written note's beat starts right under
@@ -360,6 +432,61 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   It follows the workspace staff's no-room state live, since that staff stays laid out and keeps
   checking its room while the Review shows; the too-many-notes cause does not replace the list.
   The list returns on the viewport change that gives the staff room.
+- **[v3.2 changed]** In a Jam's review, `room-notice` stands in for `review-doodle` as well, its
+  suggestion and `Jam again on this doodle` included: one notice in place of the doodle and the
+  phrases, both coming back together.
+- **[v3.2 new]** **`review-doodle`**, the doodle section of a Jam's review. Its classes are in
+  `ui_ux/token-source-v3.1-v3.2.md`. In order:
+  - **Header.** `review-phrase-header` with `review-phrase-title` (h3) "Your doodle", which names
+    the section, and `review-phrase-tempo` "{tempo} BPM", the tempo the doodle was played at,
+    kept with it; then, at the line's trailing end, where per-phrase tools go, a plain `btn`
+    "Jam again on this doodle". No phrase number and no `favorite-toggle`: the doodle is not a
+    phrase and cannot be a favorite. Without a connected controller the button is `disabled` and
+    named by `aria-describedby` to a `field-note` after it, "Needs a connected controller."; a
+    controller connecting or lost while the review shows changes both in place. What the button
+    does: `flows/review-and-export/handoff.md`, The Doodle and the Suggestion.
+  - **Staff.** `review-staff` holds the quantized doodle, engraved by the rules of a phrase's
+    `review-staff` (the Notation Contract in full, nothing of the session drawn, no fade): in the
+    written pitch of the session's instrument, with the key signature of the written key and
+    collection the Jam started with, treble clef and 4/4, and no chord symbol. Its measures take a
+    phrase's measure width from the system's start: the system is laid out as a four-measure
+    system whose first measures are the doodle's, so a two-measure doodle fills half the width and
+    looks two measures long; the staff lines end at the doodle's last barline, and the rest of the
+    system position stays blank. Size, scale, placement and lazy engraving are a phrase's; the
+    doodle is the list's first item for the engraving order. When it cannot be drawn,
+    `review-phrase-note` reads "This doodle needs a wider window." or "This doodle couldn't be
+    drawn.", by the phrase's rules.
+  - **Lanes.** While `Played notes` is on, a `played-notes-lane` under each of its system
+    positions (see Played-notes lane).
+  - **Suggestion.** `suggestion-row`, last, in one of the forms below, or absent.
+- **[v3.2 new]** **`suggestion-row`**, the key and mode suggestion worked out from the quantized
+  doodle (master spec §C6). The answer is named in written pitch, its key as the Written key
+  control labels it, its mode in the player's family: while Major or Minor is selected an Ionian
+  answer reads "Major" and an Aeolian one "Minor"; otherwise every answer reads as its mode
+  ("G Dorian", "F Major", "D Ionian"). {answer} below is that name. Forms:
+  - **Offering:** a `p`, "Your doodle sounds like {answer}.", then two plain `btn`s, `Use {answer}`
+    then `Keep {key} {mode}`, naming the current Written key and Collection as their controls label
+    them ("Keep C Major"). Neither is `btn-primary`. When the answer lies outside the restriction
+    in force, a second `p` follows: "{preset} isn't meant for {answer}: using it makes your
+    settings Custom.", {preset} being the selection, or Custom's base, as the key and mode
+    highlight names it.
+  - **Set:** after `Use`, one `p`, "Key and mode set to {answer}.", and no button, until the
+    review closes or the key or mode is changed again; then the row is absent.
+  - **No fit:** when under 80 % of the doodle fits the best answer, one `p` and no button: "Your
+    doodle uses notes outside the app's keys and modes, so no key is suggested." It never names a
+    note.
+  - **Absent:** too little to go on (fewer than 5 pitch classes, 6 notes or 2 beats of sounding
+    time after very short notes are left out), with nothing said; the current key and mode among the
+    close answers; declined with `Keep`; in a session that is not a Jam.
+  - **Judged against the current selection**, in the review of the Jam that just ended and of
+    any kept one: when the review opens, and again whenever the key, the mode or the restriction
+    in force changes while it shows (the controls stay usable below it). `Keep {key} {mode}` and
+    the restriction line follow the change in place, and the row leaves when the current key and
+    mode become one of the close answers. The answer itself never changes: the same doodle always
+    gives the same suggestion.
+  - **`Use {answer}`** sets the key and mode as a change by hand does; **`Keep {key} {mode}`**
+    changes nothing and declines the suggestion for good, the decline kept with the session. What
+    each changes: `flows/review-and-export/handoff.md`, The Doodle and the Suggestion.
 - `Close review` is the header's session action (`btn btn-primary btn-lg session-action`, same
   fixed inline size) with that label while the Review shows; see `screens/phrase-workspace/`,
   Components and Content, and `flows/review-and-export/handoff.md`, Close review.
@@ -379,6 +506,9 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   `Keep my played notes`, `Delete played notes` (when shown); then each phrase's
   `favorite-toggle`, in list order. Then `control-section`, then the page footer. A disabled
   segment or button is skipped.
+- **[v3.2 changed]** In a Jam's review, `review-doodle`'s buttons come between `review-view`'s
+  and the first `favorite-toggle`: `Jam again on this doodle` (skipped while disabled), then
+  `Use {answer}` and `Keep {key} {mode}` while the suggestion is offered.
 - Switching `Played notes` keeps focus on it.
 - **[v3 new]** Pressing `favorite-toggle`, `Pin` / `Unpin` (when no confirmation opens),
   `Include very short notes` or `Keep my played notes` (when no confirmation opens) keeps focus
@@ -403,6 +533,15 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   while it shows; a generation that ends after `Close review` is announced as at idle.
 - **[v3 new]** No change made in the Review (a favorite, the keep line, a pin, a saved comment)
   is announced: each control's own state (`aria-pressed`, its label) carries it.
+- **[v3.2 new]** `Use {answer}` and `Keep {key} {mode}` take the suggestion's buttons away, so
+  focus moves to `Jam again on this doodle` when it is enabled, else to `review-title`. Nothing is
+  announced: the row's sentence, and the key and mode in the controls, carry the change.
+- **[v3.2 new]** `Jam again on this doodle` leaves the review mode, focus landing as
+  `Close review` sets (`flows/review-and-export/handoff.md`).
+- **[v3.2 new]** When a control of `review-doodle` that has focus goes away or becomes disabled
+  (`room-notice` replacing the section, a controller lost with focus on `Jam again on this
+  doodle`, or the suggestion's buttons leaving after a key or mode change), focus moves to
+  `review-title`.
 
 ## Responsive Behavior
 
@@ -426,10 +565,22 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   not fit; `review-summary` then `review-keep-line` under the title; `review-actions` on its own
   row after `review-comment`, wrapping when its groups do not fit. `favorite-toggle` shows the
   star and the word. One system per phrase, across the panel's content width.
+- **[v3.2 new]** `review-doodle` at `bp-tablet-landscape` and `bp-desktop`: its header on one
+  line as a phrase's, `Jam again on this doodle` at the trailing end and its `field-note` under
+  it when shown; the doodle in one system, its measures from the system's start;
+  `suggestion-row`'s sentence and buttons on one row that wraps, the restriction line under them.
+- **[v3.2 new]** `review-doodle` at `bp-mobile-landscape`: the header wraps as a phrase's,
+  `Jam again on this doodle` staying at the trailing end; the doodle takes the split layout like a
+  phrase, bars 1–2 in the top system position and bars 3–4 in the bottom one, each at a phrase's
+  measure width from its system's start; a doodle of one or two measures reserves the top system
+  position only. Each of its system positions gets its own lane. `suggestion-row` wraps, its
+  buttons under the sentence when they do not fit beside it. Nothing of the section is dropped.
 - `review-panel` takes the full inline size of `layout-workspace` at every breakpoint; no side
   rail, no second column.
 - Every visual value comes from the token source (`src/styles/theme.css`,
   `src/styles/components.css`) or `ui_ux/token-source-v3.md`; this handoff declares none.
+  **[v3.2 changed]** `review-doodle` and `suggestion-row` are in
+  `ui_ux/token-source-v3.1-v3.2.md`.
 
 ## States
 
@@ -484,6 +635,26 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   the next show tries the load again.
 - **[v3 changed]** **No room:** `room-notice` in place of `review-list`; header, comment, exports and `review-view`
   unchanged (the switches keep their state for when the list returns).
+- **[v3.2 new]** **A Jam's review:** `review-doodle` before the phrases. Any other session,
+  one kept before v3.2 included, has none, and its Review is as above.
+- **[v3.2 new]** **The suggestion:** offering, set, no fit or absent (see Components and Content).
+  It is never shown during a session, only in a review and, for a held doodle, at Idle
+  (`flows/jam/`).
+- **[v3.2 new]** **`Jam again on this doodle` unavailable:** no connected controller: disabled,
+  with its `field-note`; enabled again in place when a controller connects.
+- **[v3.2 new]** **The doodle loading or not drawn:** its reserved space blank until engraved, as
+  a phrase's; `review-phrase-note` in its doodle wording when it cannot be drawn. Neither blocks
+  the suggestion, `Jam again on this doodle` or the exports.
+- **[v3.2 new]** **The doodle with no room:** `room-notice` in place of `review-doodle` and
+  `review-list` together; both return with the room.
+- **[v3.2 new]** **A Jam on a held doodle:** the doodle section shows the held doodle with the
+  tempo it was played at; its lane, with `Played notes` on, is empty, the raw notes belonging to
+  the session the doodle was first played in, and the played-notes file's doodle section is empty
+  too. A suggestion declined for that doodle stays declined for this session.
+- **[v3.2 new]** **Saving off (the doodle):** `Use {answer}`, `Keep {key} {mode}` and
+  `Jam again on this doodle` work in memory for the visit; the key and mode set by `Use`, the
+  decline and the Jam switch turned on are not saved, so after a reload the suggestion is offered
+  again. No deletion is added or removed.
 - **Portrait below `bp-desktop`:** hidden with the whole workspace behind `orientation-notice`,
   kept, shown again in landscape.
 - **Theme change:** recolours the engraving and the panel at once, without re-engraving.

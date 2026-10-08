@@ -2,6 +2,13 @@
 
 > **New in v3.**
 
+> **Changes since v3.0**
+>
+> - _v3.1 changed:_ a row names the preset the session started with, as it was then
+>   ([The List](#the-list))
+> - _v3.2 new:_ Jam sessions in the list, kept and deleted like any, and sessions kept before
+>   v3.2 ([Jam Sessions](#jam-sessions))
+
 ## Whose Flow This Is
 
 This flow is how a player gets back to the sessions the app keeps on their device. It serves the
@@ -60,11 +67,14 @@ nothing about kept sessions ever appears during one.
 
 ## The List
 
-The list answers one question: which session is this? Newest first, each row gives what a player
-remembers a session by: when it was played (the row's title, which opens it), how long it lasted,
-how many phrases, which instrument and musical profile, whether it is pinned, how many favorites
-it holds, and the first words of its comment. The most recent session's row says "Last session"
-beside its date, so the player can match it with the link they came from.
+**[v3.1 changed]** The list answers one question: which session is this? Newest first, each row
+gives what a player remembers a session by: when it was played (the row's title, which opens it),
+how long it lasted, how many phrases, which instrument and which preset it started with, whether
+it is pinned, how many favorites it holds, and the first words of its comment. The most recent
+session's row says "Last session" beside its date, so the player can match it with the link they
+came from. The preset is written as it was at the session's start and never rewritten: a preset
+renamed or deleted since still shows under its old name on the sessions played with it, which is
+what those sessions were.
 
 No row shows anything about how the player played: no count of notes, no accuracy, no figure to
 compare from one session to the next. A list of sessions is exactly the place where such a figure
@@ -134,6 +144,24 @@ review, the list shows, since the review has nothing left to show; when that was
 session, the list shows its empty state. Deleting the session that just ended also removes it
 from memory, and `Review last session` goes with it: deleted means gone. A visit that saves
 nothing offers no deletion here (see At the Edges).
+
+## Jam Sessions
+
+**[v3.2 new]** A Jam is kept like any session, by the same rule: once its first phrase has
+sounded, it is saved at its end, kept as the most recent session, and kept for good when pinned or
+when the player marks a favorite. Its row says "Jam" at the start of its detail line, so the
+sessions that began with the player's own idea are easy to find. A Jam that ends before its first
+phrase sounds keeps nothing and replaces nothing, as a session stopped during its count-in: there
+is no music to keep.
+
+**[v3.2 new]** A kept Jam session holds its doodle as the app wrote it, without the player having
+to switch anything on: it is part of the music, the idea the phrases continue. The notes as the
+player actually played them are played notes, kept only with "Keep my played notes" on. Deleting a
+Jam session deletes both. Deleting its played notes, from its review or from Your data, deletes
+the notes as played and keeps the written-out doodle, so the review still opens with the idea.
+
+**[v3.2 new]** Sessions kept before v3.2 have no doodle; they open exactly as before. A Jam
+session written by a newer version of the app is listed and cannot be opened, as any such session.
 
 ## At the Edges
 
