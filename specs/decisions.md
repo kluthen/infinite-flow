@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.67
+Status: draft v2.68
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D240**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D245**.
 
 ## Decision Log
 
@@ -546,3 +546,37 @@ fact in the live documents (see the [archive index](archive/README.md) and
   applying nothing to STABLE entries; (2) the owner confirms that wording (as for v3.0, D221);
   (3) `ux-writer` designs v3.1 and v3.2; (4) build plans follow. The approval of the parts is not
   the confirmation of the contract wording.
+
+- **D240 (2026-10-08): the silence timer in a Jam.** spec-writer's call, from `documentalist`'s
+  ingestion of Part C. Today the starting note counts as a first note and starts the 30-second
+  silence timer; in a Jam started by the home note that timer would run out about a measure before
+  the Jam's own 30-second wait, which counts from the end of the count-in. Neither the home note
+  that starts a Jam nor the doodle's notes start the silence timer: before phrase 1 sounds only
+  Part C's pre-phrase-1 rules end a Jam for silence; from phrase 1 on the timer works as after a
+  Start click in v2, waiting for a first note played from phrase 1 on. A Jam on a held doodle
+  starts on phrase 1's first note, as in v2. Changes the proposed contract wording of the silence
+  timer guarantee.
+- **D241 (2026-10-08): a controller lost during a fresh Jam's count-in ends the Jam at once.**
+  spec-writer's call, same source: Part C listed the capture, the generation measure, an extended
+  wait and the read-in measure, not the count-in, though a capture that follows cannot happen
+  without the controller. A Jam on a held doodle keeps v2's 30-second rule from its count-in on;
+  Part C's contract summary and done item 16 had wrongly said "before phrase 1 sounds" for every
+  Jam. Changes the proposed contract wording of the two controller guarantees.
+- **D242 (2026-10-08): "save changes" asks the restriction only when the key or mode lies outside
+  the preset's restriction.** spec-writer's call, from `documentalist`'s ingestion and ux Q71
+  (§B6.6 and §B10 disagreed). Inside it, nothing is asked and the preset keeps its restriction.
+  Outside it (the player opted out), the save-as-new choices are asked, "as now" then meaning any
+  key and mode, and the answer replaces the old restriction: keeping it would save a preset whose
+  own key and mode lie outside it, loading as Custom after a reload. Matches ux D231.
+- **D243 (2026-10-08): leaving Jam mode at Idle leaves the workspace empty.** spec-writer's call,
+  from ux Q70: Part C said it "generates a phrase as at first load", but at first load the app
+  generates nothing (v2: the player generates a phrase by hand). Turning Jam off, a controller lost
+  at Idle, or a held doodle dropped with Jam out of effect gives the empty workspace; nothing is
+  generated until the player asks. Keeps v2's rule that at Idle only an instrument switch generates
+  by itself. Matches ux D236.
+- **D244 (2026-10-08): a Jam played on a held doodle keeps it.** spec-writer's call, from ux Q72:
+  Part C's list of what drops a held doodle did not cover the end of the Jam played on it. It stays
+  held; after that Jam's review, Idle shows a phrase 1 newly written from it with a fresh seed. A
+  doodle captured by a fresh Jam is never held by itself; only "Jam again on this doodle" holds
+  one. Matches ux D239. Also fixed the same day, no decision needed: Parts B and C's opening
+  paragraphs still said "awaiting the owner's approval" after D239.

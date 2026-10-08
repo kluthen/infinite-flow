@@ -1,6 +1,6 @@
 # v3.1 — Presets
 
-Status: draft v3 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed).
+Status: draft v3 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed; refined by D242, written into the master spec only).
 Approved by the owner as proposed (D233). Consolidated for building into the [v3 master spec, Part
 B](master-spec.md#part-b--v31); where the two differ, the master spec wins.
 

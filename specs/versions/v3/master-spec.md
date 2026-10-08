@@ -575,8 +575,8 @@ the player triggers.
 
 Generation choices: embellishment figures and presets. Master spec v1.0 (2026-10-08), consolidated
 from the approved drafts [embellishment-flags.md](embellishment-flags.md) and
-[presets.md](presets.md), which keep the code references line by line. Awaiting the owner's
-approval of this consolidation. v3.1 is built on v3.0 (Part A): its storage, its settings record,
+[presets.md](presets.md), which keep the code references line by line. Approved by the owner on 2026-10-08; the contract wording (B11) awaits the owner's
+confirmation. v3.1 is built on v3.0 (Part A): its storage, its settings record,
 its tolerant loading and its `ifk2.` replay key must exist first.
 
 Music terms are explained the first time they appear; the project's
@@ -1033,13 +1033,19 @@ identifier, so a later version may rename one without breaking a saved selection
 | Rename | no | yes |
 | Delete | no | yes, after a confirmation |
 
-- **Saving asks for the restriction**, with three choices (how it is asked is `ux-writer`'s):
+- **Save as new asks for the restriction**, with three choices (how it is asked is `ux-writer`'s):
   1. **As now**, the default: the restriction in force, or "any" when none is. Saving from Custom
      based on Reel keeps "Mixolydian or Dorian"; saving a customized Modal (Dorian) keeps Dorian.
   2. **Only this key and mode**: one pair, the current written key and mode.
   3. **Any key and mode.**
   A player cannot build other lists in v3.1. The keys half is written pitch: a preset kept to G
   Dorian stays G Dorian as read on any instrument.
+- **Save changes asks for it only when the key or mode lies outside the preset's restriction**
+  (the player opted out, B6.4). Inside it, nothing is asked and the preset keeps its restriction.
+  Outside it, the same choices are asked, "as now" then meaning any key and mode, since no
+  restriction is in force; the answer replaces the old restriction. Keeping the old one would save
+  a preset whose own key and mode lie outside it, shown as selected now but loaded as Custom after
+  a reload (B7).
 - **The new or overwritten preset becomes the selection.**
 - **Deleting the selected player preset, or the one Custom is based on,** leaves the selection
   Custom with no base and the same values, so nothing is regenerated and no restriction is in force
@@ -1224,7 +1230,8 @@ are `ux-writer`'s.
 - **Preset descriptions**: why Pop song and Bebop show Major rather than Ionian; suggestions such
   as "also try Ionian" for Reel.
 - **Saving**: save as new (asking the name and the restriction choice, "as now" by default), save
-  changes into a player preset, rename, and delete with a confirmation; the reasons for a refused
+  changes into a player preset (asking the restriction choice only when the key or mode lies
+  outside its restriction, B6.6), rename, and delete with a confirmation; the reasons for a refused
   name or a reached limit; the notice when a save is refused by the browser.
 - **Visits that save nothing** (outdated tab, failed read): presets made there last for the page,
   under that visit's existing notice; no preset deletion is offered there.
@@ -1439,7 +1446,8 @@ v3.1 ships when every item holds, each verified by a named test or a recorded ha
     no move again for a restriction's sake; never switches preset. Tension across phrases never
     marks Custom.
 14. **Player presets:** save as new from any state, with the three restriction choices and "as
-    now" by default; save changes only into a player preset; built-ins never change; rename and
+    now" by default; save changes only into a player preset, asking the restriction choice only when the key or
+    mode lies outside its restriction; built-ins never change; rename and
     delete (after a confirmation) player presets only; names of 1 to 40 trimmed characters, unique
     ignoring case with the built-ins, "Custom" reserved, and the 50-preset limit, each refused with
     a reason; none of this during a session; the saved or overwritten preset becomes the
@@ -1511,8 +1519,8 @@ Jam, the key and mode suggestion, and the rhythm lock. Master spec v1.0 (2026-10
 consolidated from the approved drafts [jam.md](jam.md),
 [key-and-mode-suggestion.md](key-and-mode-suggestion.md) and [rhythm-lock.md](rhythm-lock.md),
 with the code facts of [jam-grounding.md](jam-grounding.md) (re-checked against the code on
-2026-10-08), which keep the code references. Awaiting the owner's approval of this consolidation,
-and the owner's confirmation of the contract wording (C13). v3.2 is built on v3.0 (Part A) and
+2026-10-08), which keep the code references. Approved by the owner on 2026-10-08; the contract wording (C13) awaits the owner's
+confirmation. v3.2 is built on v3.0 (Part A) and
 v3.1 (Part B): their storage, kept sessions, stray-note filter, pre-generation,
 [figure levels](../../../docs/music/lexicon.md#figure-level), presets and `ifk3.` replay key must
 exist first.
@@ -1726,15 +1734,16 @@ are fixed here.
   phrase that does not fit, the dense-notes notice) and pre-generation (Part A §8) do not run; v2's
   prewarm of the rhythm domains still does, since the doodle's phrases use the same rhythm domains
   as the settings. Turning Jam on discards the phrase on screen and every pre-generated phrase.
-  Turning Jam off generates a phrase as at first load. A held doodle changes this (C5.11).
+  Turning Jam off leaves the workspace empty, as at first load: nothing is generated until the
+  player asks for a phrase. A held doodle changes this (C5.11).
 
 ### C5.2 Starting a Jam
 
 - **A Jam starts on a Start click, or on its starting note: the selected key, the home note**, in
   written pitch, in the octave nearest the middle of the instrument's written range (the lower one
   if two are equally near), matched at its exact concert pitch as v2 matches the starting note.
-  The cue row names it as v2 names the starting note. As in v2, the starting note only starts the
-  count-in and belongs to no doodle.
+  The cue row names it as v2 names the starting note. As in v2, the starting note only starts the count-in and belongs to no doodle; unlike v2, it
+  does not start the silence timer (C5.13).
 - **The conditions under which a session can start** (v2 §6) apply, apart from "a phrase is on
   screen" and "no new phrase is being generated". Settings the generator does not support still
   block the start. As in v2, no note starts anything while a review is shown, or while the player
@@ -1959,8 +1968,12 @@ with the first feature that quotes player material, such as v4's rhythm editor o
   turned off, the rhythm lock, its allowed changes, the drift, Vary settings and its allowed
   groups, Tension across phrases. The tempo, Rising tempo, the audio mix and the theme do not. A
   controller lost at Idle drops it, since Jam mode leaves with it. Idle then shows what Jam mode
-  shows without a held doodle (C5.1), or, with Jam out of effect, generates a phrase as at first
-  load.
+  shows without a held doodle (C5.1), or, with Jam out of effect, the empty workspace, as at first load: nothing is generated until
+  the player asks for a phrase.
+- **A Jam played on a held doodle keeps it.** Its end is not in the list above, so after its
+  review Idle shows a phrase 1 newly written from the held doodle, with a fresh seed, ready to go
+  round again. A doodle captured by a fresh Jam is never held by itself; only "Jam again on this
+  doodle" holds one.
 - **A held doodle lives in memory only.** After a reload Idle holds none; the kept Jam session's
   review offers it again.
 
@@ -1983,7 +1996,12 @@ its count-in (Part A §5.1); the doodle is not held.
   ends as a count-in end. Notes the stray-note filter drops do not count. This differs from a
   session, whose silence timer starts only after a first note, because a capture has nothing
   rolling to read.
-- **The controller lost** during the capture, the generation measure, an extended wait or the
+- **The silence timer.** Neither the home note that starts a Jam nor the doodle's notes start
+  the session's silence timer: before phrase 1 sounds, only this section's rules end a Jam for
+  silence. From phrase 1 on, the silence timer works as after a Start click in v2: it waits for a
+  first note played from phrase 1 on. A Jam on a held doodle starts on phrase 1's first note, as
+  v2 does.
+- **The controller lost** during a fresh Jam's count-in, the capture, the generation measure, an extended wait or the
   read-in measure: the Jam ends at once, as a count-in end. From phrase 1 on, v2's 30-second
   reconnection rule applies. A Jam on a held doodle has no capture, so it follows v2's rule from
   its count-in on.
@@ -2508,11 +2526,12 @@ this Part C**; approving this Part C is not that confirmation.
   measure stays fully visible throughout the count-in". In a Jam without a held doodle, no phrase
   exists during the count-in; the beats are still counted on screen.
 - **The silence timer waits for a first note** (`rule_silence_timeout_ends_session`): "clicking
-  Start and taking a moment before playing never times out". A Jam with no doodle note within 30 s
-  after its count-in ends.
+  Start and taking a moment before playing never times out". A Jam with no doodle note within 30 s after its count-in ends; neither the home note that
+  starts a Jam nor its doodle starts the silence timer, which from phrase 1 on waits for a first
+  note as after a Start click.
 - **A lost controller never ends a session at once** (`rule_controller_loss_mid_session`, "the
-  session keeps running meanwhile"; `rule_controller_reconnection_window`, 30 seconds): a
-  controller lost before a Jam's phrase 1 sounds ends the Jam at once.
+  session keeps running meanwhile"; `rule_controller_reconnection_window`, 30 seconds): a controller lost from a fresh Jam's count-in until its phrase 1 sounds ends the Jam at once; a
+  Jam on a held doodle follows v2's rule.
 - **The failure ladder** (`rule_session_generation_failure_ladder`): "a generation failure never
   stops the session", and "at Idle a phrase has no carry-in". A Jam's phrase 1 has its own
   three-rung ladder and three-measure deadline; if every rung fails, the Jam ends with no review;
@@ -2707,7 +2726,8 @@ v3.2 ships when every item holds, each verified by a named test or a recorded ha
    untouched by presets; without a controller it is unavailable and says why, Idle and Start behave
    as with Jam off, and the player's choice comes back when a controller attaches.
 2. **Idle in Jam mode** shows no phrase, only the key signature, and runs neither v2's Idle phrase
-   rules nor pre-generation; turning Jam off generates a phrase as at first load.
+   rules nor pre-generation; turning Jam off leaves the workspace empty, as at first load,
+   generating nothing until the player asks.
 3. **Starting.** A Start click or the home note, in C5.2's octave, starts a Jam; no other note at
    Idle starts anything, in Jam mode or not; no note starts anything while a review shows; the
    doodle is captured only after the count-in.
@@ -2741,10 +2761,11 @@ v3.2 ships when every item holds, each verified by a named test or a recorded ha
     handful of doodles ("does it sound like my doodle?"), and drift's distance scale ranked by ear.
 15. **The held doodle.** "Jam again on this doodle" is offered in the review of the Jam just ended
     and of every kept Jam session, turns Jam on, and needs a controller; the held doodle's phrase 1
-    and pre-generated phrases are the phrases the Jam then plays; Regenerate and Use it keep it,
-    every other discarding change drops it; after a reload, it is offered again from the kept
+    and pre-generated phrases are the phrases the Jam then plays; Regenerate, Use it and the end of a Jam played on it keep it, every other discarding change
+    drops it; after a reload, it is offered again from the kept
     session and gives the same phrase 1 for the same settings and seed.
-16. **Before phrase 1 sounds**, no doodle note within 30 s, a lost controller, Stop, a hidden tab or
+16. **Before phrase 1 sounds**, no doodle note within 30 s, a controller lost (in a Jam without a
+    held doodle, from its count-in on), Stop, a hidden tab or
     a staff that cannot be shown end the Jam with no review and nothing kept.
 17. **During the Jam** nothing is asked or offered; Vary settings, Tension across phrases and Rising
     tempo count from phrase 1.
