@@ -12,13 +12,19 @@ version 2.0.0, and its design is frozen in `versions/v2/`. The root now works to
 player's device: settings, the last session and pinned sessions with their favorites and comments,
 the player's own instrument, the remembered controller and, on request, the notes the player
 played. It extends the same screen again: kept sessions live inside the review, "Your data" and
-"My instrument" are sheets. See `todo.md` for where the work stands.
+"My instrument" are sheets. v3 ships in three releases, each built on the one before: v3.0
+(Storage, approved and frozen in `versions/v3.0/`), v3.1 (presets and embellishment figures: a
+preset dropdown at the top of the controls, a group of seven figure levels) and v3.2 (Jam: a
+session begun by a doodle the player plays, the key and mode suggestion, the rhythm lock, Jam's
+drift and what Vary settings may move). See `todo.md` for where the work stands.
 
 ## Released versions and work in progress
 
 - `versions/<version>/` holds each released version's design exactly as it shipped, frozen, with a
   `README.md` summarizing the decisions worth keeping. `versions/v1/` is the first release;
-  `versions/v2/` is v2 (Rolling Phrase), released as version 2.0.0.
+  `versions/v2/` is v2 (Rolling Phrase), released as version 2.0.0. `versions/v3.0/` is v3.0
+  (Storage) as the owner approved it, frozen before it is built so that v3.1 and v3.2 could be
+  designed at the root.
 - Everything outside `versions/` and `archive/` is work in progress toward the next version, v3. It
   covers the whole interface, not only what the next version adds: a screen the next version
   extends is specified here in full, old behavior included. When a version's design is approved,
@@ -32,6 +38,13 @@ played. It extends the same screen again: kept sessions live inside the review, 
   `versions/`. A document new in v3 says so under its title. `grep -rn "v3 new\|v3 changed"`
   finds every mark. The marks stay until design work on the version after starts; the copy in
   `versions/` keeps them, so `versions/v2/` still shows what v2 changed from v1.
+- v3's three releases are marked apart, so each can be built on its own, v3.1 before v3.2. The
+  `[v3 new]` / `[v3 changed]` tags and the unprefixed change-block items are v3.0's; v3.1's are
+  `[v3.1 new]` / `[v3.1 changed]` and change-block items prefixed `_v3.1 new:_`, `_v3.1 changed:_`
+  or `_v3.1 removed:_`; v3.2's likewise. A v3.2 change to something v3.1 adds is its own tagged
+  paragraph, so a v3.1 builder reads everything but the `v3.2` marks; replaced v3.0 and v2
+  wording is in `versions/v3.0/`. `grep -rn "v3\(\.[12]\)\? \(new\|changed\)"` finds every
+  v3 mark; all of them are cleared when v4's design starts.
 
 ## Map
 
@@ -57,9 +70,19 @@ played. It extends the same screen again: kept sessions live inside the review, 
   way into it is in `flows/controller-connection/`.
 - `token-source-v3.md` specifies v3.0's new tokens and component classes until they are written
   into `src/styles/theme.css` and `components.css`; the handoffs cite them by name.
+- `token-source-v3.1-v3.2.md` does the same for v3.1 (its first part) and v3.2 (its second).
+- `flows/presets/` specifies choosing a preset, the Custom state, the key and mode highlight, and
+  saving, renaming and deleting the player's own presets; `screens/preset-sheet/` the sheet those
+  are done in. The preset dropdown and the embellishment levels sit in
+  `screens/phrase-workspace/`.
+- `flows/jam/` specifies a Jam: the Jam mode at idle, the count-in, the doodle, the first phrase
+  written from it, a held doodle, and the key and mode suggestion. The rhythm lock, drift and
+  what Vary settings may move are session options, in `screens/phrase-workspace/`.
 - `open-questions.md`, `decisions.md`, and `todo.md` are working registers. Read `todo.md` before extending this set.
 - `versions/v2/` holds the v2 design as it shipped in version 2.0.0, frozen, with a summary of the
   decisions worth keeping.
+- `versions/v3.0/` holds the v3.0 design as approved, frozen, with a summary of the decisions
+  worth keeping.
 - `archive/v1/` holds the closed first-release (v1.0) working record: the complete decision log,
   the closed question that record answers, and the finished work tracker. `archive/v2/` holds the
   v2 working record the same way: its decision log, its closed questions and its finished work

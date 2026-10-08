@@ -449,3 +449,269 @@ leaves open; they are listed together in Q67 for `spec-writer`.
   list's deletions now reads "while saving is off"; `screens/session-list/` rightly keeps "in an
   outdated tab", since a failed-read visit's list has no rows, and only its two citations of the
   renamed section changed.
+
+## v3.1 (presets and embellishment figures) and v3.2 (Jam) design, 2026-10-08
+
+Inputs: `specs/versions/v3/master-spec.md` Part B (v3.1, cited "§Bn") and Part C (v3.2, cited
+"§Cn"), approved by the owner on 2026-10-08; `specs/personas.md`; the lexicon. The owner asked for
+both releases in one pass, settled by `ux-writer` under the standing delegation (D119, D135,
+archived): minor issues settled here, phones low priority, a running session never asks the
+player anything, one full owner review at the end. Implementation is paused: nothing in `src/` is
+edited. Entries marked **(spec, provisional)** carry a recommendation on a spec gap logged for
+`spec-writer` (Q70-Q72).
+
+- **D225 — v3.0 frozen; v3.1 and v3.2 marked on top of v3.0's marks (2026-10-08).** The approved
+  v3.0 design (D218, with the spec alignments D219-D224) is copied, marks included, into
+  `versions/v3.0/` with a summary README, before any v3.1 edit at the root; only link paths were
+  adjusted in the copy. The root keeps v3.0's marks (`[v3 new]`, `[v3 changed]`, the Changes since
+  v2 blocks): v3.0, v3.1 and v3.2 are three releases of one version, designed back to back while
+  v3.0 is still unbuilt, and the owner asked for them to be marked alike so each can be built on
+  its own. So, at the root: a v3.0 change keeps `[v3 new]` / `[v3 changed]` and an unprefixed
+  change-block item; a v3.1 change is tagged `[v3.1 new]` / `[v3.1 changed]` and listed in the
+  change block as `_v3.1 new:_`, `_v3.1 changed:_` or `_v3.1 removed:_`; v3.2 likewise with
+  `v3.2`. In code blocks and diagrams the same words go in the annotation or a `%%` comment. A
+  document new in one of them carries `> **New in v3.1.**` (or v3.2). Removals link to the old
+  wording in `versions/v3.0/`, which also holds every unchanged v2 wording. **v3.1 is built before
+  v3.2**, so a v3.2 change to text v3.1 added is written as its own tagged paragraph or item,
+  leaving the v3.1 text whole: a v3.1 builder reads everything but the `v3.2` tags. A v3.1 change
+  to v3.0 or v2 text replaces it in place, the old wording being in `versions/v3.0/`. Every mark:
+  `grep -rn "v3\(\.[12]\)\? \(new\|changed\)" ui_ux --include=*.md`. All three releases' marks are
+  cleared together when v4's design starts. The v3.0 build plan links the root documents by
+  section; it should point at `versions/v3.0/` instead (for `spec-writer`, reported).
+- **D226 — v3.1 and v3.2 tokens and classes go in `token-source-v3.1-v3.2.md` (2026-10-08).** As
+  D179 did for v3.0, while implementation is paused: one Tier 2 document in two parts, v3.1 then
+  v3.2, so each release's token-source pass can be applied alone. `token-source-v3.md` stays as it
+  is. No new colour, type or spacing value; a few sizes only.
+
+### v3.1
+
+- **D227 — The preset selector is a native select, at the top of the controls (2026-10-08;
+  §B6.3, §B10).** The owner's direction: a combo box placed higher. It takes the first row of
+  `control-section`, a `preset-bar` under the section's title, copy and summary and before the
+  musical groups (choosing a starting point comes before fine-tuning); the "Musical profile
+  preset" field leaves the foundation group. The control is a native `select` (a select-only combo
+  box: one closed box, a list on demand), styled as `preset-select` at a fixed inline size, so a
+  long name never moves anything. Native, because it is the most familiar and robust dropdown,
+  keyboard and touch included, and 8 to 58 entries (eight built-ins, up to 50 player presets) fit
+  no segmented control. Its list is grouped with `optgroup`s, which also tell built-in presets from
+  the player's own: **Practice** (Neutral, Gentle, Speed drill), **Styles** (Jazz, Bebop, Pop song,
+  Reel, Modal (Dorian)) and **Your presets** (the player's, alphabetical ignoring case, duplicates
+  listed as they are; the group absent while there are none). In Custom the box shows "Custom,
+  based on {name}" or "Custom" through a selected option that is `disabled` and `hidden`, so it can
+  never be chosen from the list: only choosing a preset leaves Custom (§B6.4). Re-choosing the
+  preset already selected outside Custom changes nothing, which is the spec's rule for an identical
+  preset. Read-only like every control during **Loading** and a session: the box keeps its value at
+  full strength under the read-only ring, focusable, and a change is refused. Rejected: a segmented
+  control (cannot hold the list), a custom listbox (more code for the bundle budget, §B12, and less
+  familiar), a filterable text combo box (nothing to type for at most 58 names).
+- **D228 — The selection's display and the description line (2026-10-08; §B6.4, §B6.5, §B10).**
+  The box itself names the selection; v2's `preset-status` line and its "grammar retained" text go,
+  and so does its live announcement. Under the box, a `field-note` describes the selection:
+  for a built-in, its description (below); for a player preset, "Your preset." then what its key
+  and mode restriction holds in words ("Meant for G Dorian.", or nothing for any); in Custom,
+  "Changed from {name}. Save as a new preset to keep these settings under a name." (adding ", or
+  save the changes into {name}" when the base is the player's), or, with no base, "Your own
+  settings. Save them as a preset to keep them under a name." Built-in descriptions: Neutral
+  "Plain lines in the key, in quarter notes: the app's starting point."; Gentle "One chord,
+  quarter notes, steps only, nothing tense. A warm-up, or a first try at improvising."; Speed drill
+  "Dense, changing rhythms with every embellishment favored, to read fast in any key."; Jazz
+  "Eighth notes, offbeats, and short notes from outside the key."; Bebop "Fast jazz lines that
+  circle chord notes from outside the key. It uses Major rather than Ionian: the same notes, with
+  chords that lead home through the chord on the 5th note."; Pop song "Song-like phrases over
+  familiar chords. It uses Major rather than Ionian: the same notes, with chords that lead home the
+  way songs do."; Reel "A fast folk dance in steady eighth notes, in Mixolydian or Dorian. Also
+  try it in Ionian (a major key)."; Modal (Dorian) "A steady two-chord bed in Dorian, so its color
+  note is heard in the melody." During a session the line keeps the text it had at the start,
+  whatever Vary settings does, and the box alone shows Custom (D232): nothing below the staff
+  changes length during a session. `control-summary`'s second segment reads the preset's name,
+  "Custom, based on {name}" or "Custom" ("C Mixolydian · Custom, based on Reel · Lift · Shaped").
+- **D229 — The key and mode highlight: a mark and a sentence, never a block (2026-10-08; §B6.4,
+  §B10, the owner's direction).** While a restriction is in force and its half is a list, each
+  allowed segment of that control (Written key for the keys half, Collection for the modes half)
+  takes `is-marked`: a small filled dot at the segment's top inline-end corner, `--color-accent` on
+  an unselected segment and `--color-accent-text` on the selected one. A shape, so colour is never
+  the only signal, and distinct from the selected fill and from `toggle-button`'s block-end bar.
+  Under that control a `field-note`, named by the `radiogroup`'s `aria-describedby`, says it in
+  words: "{preset} is meant for {list}, marked. Any {mode/key} works; another one makes your
+  settings Custom." ({list} in the control's own labels, "Mixolydian or Dorian"; {preset} is the
+  selection, or Custom's base.) With "any", or no restriction in force, nothing is marked and the
+  note is absent. No segment is ever disabled for a restriction. The mark and the note change only
+  at Idle (a session's Vary settings stays inside the restriction, §B8.1), so they never move
+  anything during a session. Rejected: a dimmed "outside" style (reads as disabled), colour alone.
+- **D230 — Embellishment figures: a group of seven level controls (2026-10-08; §B5, §B10).** A new
+  control group, **Embellishments**, after the four musical groups and before "During a session",
+  in a row of its own from `bp-tablet-landscape` up with its fields in columns, as "During a
+  session" is: the figures are many and alike, and a column each keeps them comparable. An intro
+  line under its heading: "How often the app decorates the melody with each figure. A preference,
+  never a promise: the rhythm decides where a figure fits." Seven fields in the spec's order, each
+  a `segmented-control` of four levels with plain labels: **Off**, **Rarely**, **Often**, **Very
+  often** (the spec's Off, As today, Favored, Strongly favored: "As today" now means "only when
+  nothing plainer fits", which a beginner hears as rarely). Each field's `field-note` says what the
+  figure is, with an example, and what rhythm it needs: Passing tone "A scale note filling the gap
+  between two notes, like C–D–E. Needs three notes in a row."; Accented passing tone "The same,
+  landing on beat 1 or 3, so it sounds tenser. Needs a note on beat 1 or 3."; Neighbor tone "A step
+  away from a note and straight back, like E–F–E. Needs three notes in a row."; Appoggiatura "A
+  leap to a note outside the chord on beat 1 or 3, then a step down or up onto a chord note. Needs
+  a note just before beat 1 or 3."; Diatonic enclosure "The scale notes just above and below a
+  chord note, then that note, like F–D–E. Needs three back-to-back notes under one chord, so it's
+  rare with quarter notes."; Chromatic approach "A note from outside the key, a half step from the
+  next note, like D♯–E. Needs two back-to-back notes."; Chromatic enclosure "Notes a half step
+  above and below a chord note, then that note, like F–D♯–E. Needs three back-to-back notes under
+  one chord, so it's rare with quarter notes." Always shown, never collapsed: a hidden group would
+  hide what a preset changed. **The passing-and-neighbor rule** (§B5.6) is designed but ships only
+  if the cost guard requires it: while one of the two is Off, the other's `Off` segment is
+  disabled with a `field-note`, "Passing tone and neighbor tone can't both be off: one of them
+  keeps the melody moving.", like Note density's `Sixteenth` on a phone. The labels differ from
+  the spec's working names and the lexicon's entry; `documentalist` aligns the lexicon.
+- **D231 — Saving, renaming and deleting presets (2026-10-08; §B6.6, §B7, §B10).** A
+  `preset-actions` row in the preset bar, plain `btn`s: `Save as new preset` always; `Save changes`
+  only in Custom based on a player preset; `Rename preset` and `Delete preset` only while the
+  selection is a player preset or Custom based on one (they act on that preset); `Delete preset`
+  absent while saving is off. Enabled at Idle and in the review mode, during **Loading** too
+  (saving changes no setting, §B6.6); disabled during a session, the row then holding exactly what
+  it held at the start, so Vary settings' Custom never adds a button mid-session. **Save as new**
+  opens a sheet (`screens/preset-sheet/`): a name field, prefilled "My preset" (numbered, "My preset
+  2", when taken) and selected; a **Key and mode** choice of §B6.6's three, as a vertical
+  radiogroup (`choice-list`): "As now: {restriction in words}" (the default), "Only {key} {mode}"
+  and "Any key and mode"; when no restriction is in force "As now" is any key and mode, so the two
+  merge into one option, "Any key and mode", the default. **Save changes** is one click, no
+  confirmation, while the key and mode are inside the preset's restriction; **(spec, provisional,
+  Q71)** when they are outside it, it opens the same sheet without the name field, asking the
+  restriction (as now, then any key and mode, the default; or only this key and mode).
+  **Rename** opens the sheet with only the name field, prefilled with the current name.
+  **Delete** opens the shared confirmation ("Delete the preset “{name}”?", "Your settings stay as
+  they are.", "This can't be undone.", `Delete preset` in `btn-error`, `Cancel`). A refused name
+  says why, live, in a notice-toned alert under the field, and `Save` waits: "Give it a name.",
+  "There's already a preset called “{name}”." (ignoring case, built-ins included), "“Custom” is
+  used by the app. Choose another name."; the field's `maxlength` holds 40 characters after
+  trimming. At 50 or more player presets `Save as new preset` is disabled, with a `field-note`:
+  "You have 50 presets of your own, the most the app keeps. Delete one to save a new one." A save
+  refused by the browser raises the save-problem notice in a preset wording ("Your preset
+  “{name}” couldn't be saved on this device. You can use it until this page closes."), at once,
+  since preset management happens outside a session. While saving is off, presets made or changed
+  last for the page under the visit's existing notice, with no wording of their own.
+- **D232 — Presets during a session (2026-10-08; §B8.1, §B8.2).** A Vary settings move of a
+  preset-held setting (a control or a figure level) turns the box to "Custom, based on {name}" at
+  the moment the first phrase built with it starts sounding, as every automatic change shows, and
+  the end of the session restores the selection with the settings; Tension across phrases never
+  does. A figure step shows as the figure's level changing in place. Vary settings' note gains a
+  sentence: "Keys and modes stay within what your preset is meant for." (§B8.1). Nothing is
+  announced.
+- **D233 — The preset label in kept sessions (2026-10-08; §B9).** The session list's detail line
+  and the review's summary write `{preset}` where they wrote `{profile}`: the label the session
+  recorded at its start, as `control-summary` writes it ("Bebop", "Custom, based on Bebop",
+  "Custom"); a session kept by v3.0 shows "Neutral", "Jazz" or "Custom, based on Jazz". A
+  snapshot: a later rename or deletion never changes it.
+- **D234 — Your data lists the player's presets (2026-10-08; §B7, §B16).** A **Presets** section
+  after My instrument: "{n} presets of your own." ("1 preset", "None.") and a hint, "Delete one with
+  Delete preset, in the controls. Delete everything removes them all." The Settings line names
+  "the preset" instead of "the musical profile". A failed-read visit lists none; Delete everything
+  removes them, unreadable records included.
+
+### v3.2
+
+- **D235 — Jam lives with the session options; Start reads `Start Jam` (2026-10-08; §C5.1,
+  §C12).** Jam is the first field of "During a session": the group already gathers "what the app
+  will do once I start", and Jam is the biggest change to that. `Off`/`On`, note "Start by playing
+  a doodle, an idea of one to four measures, after the count-in. The phrases then continue it."
+  Without a controller it is unavailable exactly as Rising tempo is (`On` disabled, `Off` shown,
+  "Needs a connected controller.", the choice kept). While Jam mode is in effect the session
+  action reads **`Start Jam`** (same fixed inline size), so the mode shows where the player acts.
+  **Dependent options sit under their switch, in its column, only while it shows `On`**: Drift
+  under Jam, Allowed rhythm changes under the rhythm lock, What may vary under Vary settings (which
+  also shows while Vary settings cannot be turned on, so its cause can be fixed: D244). A hidden
+  dependent keeps its values. Rejected: Jam beside the session action (the header's widths are
+  fixed and full), in the score toolbar (its audio mix is never locked; Jam is).
+- **D236 — Idle in Jam mode (2026-10-08; §C5.1, §C5.2).** Without a held doodle the staff takes a
+  new state, `staff-jam`: the top system shows an empty staff with the clef, the key signature of
+  the selected written key and collection, and the time signature, and the bottom system's place
+  holds one instruction, "After the count-in, play your doodle: one to four measures. The app
+  continues it." The phrase action reads `Generate phrase`, disabled, secondary (there is nothing
+  to generate); `Start Jam` is primary. `start-note-line` names the home note in its usual wording
+  (§C5.2), with no `start-note-marker` (no note to mark). The idle phrase rules do not run; the
+  unsupported-rhythm alert, the no-room notice and the orientation guard still block the start, as
+  for any session. Turning Jam on, or a controller attaching with Jam on, discards the phrase on
+  screen, any generation-failure banner and notation error, and shows `staff-jam`. **(spec,
+  provisional, Q70)** Leaving Jam mode at Idle (the switch off, the controller lost, a held doodle
+  dropped with Jam out of effect) shows **Empty**, generating nothing until the player asks.
+- **D237 — The Jam's cue row and staff before phrase 1 (2026-10-08; §C5.3-§C5.7, §C12).** The
+  count-in is v2's. During the capture, `session-cue-row` holds `jam-capture`: the label "Your
+  doodle" and four measure numbers, 1 to 4, lit as each measure begins (`is-current`, `is-past`),
+  styled as the count-in's beats; measures after the doodle's end never light. During the
+  generation measure and any extended wait it holds `jam-writing`, "Writing your first phrase",
+  static (no animated ellipsis). During the read-in measure it holds the count-in's four beats
+  again, phrase 1 now on screen. The staff keeps `staff-jam`, instruction included, until phrase 1
+  enters, at the read-in measure, with the ordinary `staff-content` fade (top system; bars 1-2 top
+  and 3-4 below in the split layout); phrase 2 then fills the bottom system as after v2's count-in.
+  No playhead and no doodle note are drawn before phrase 1. On a phone `jam-capture`'s label
+  shortens to "Doodle" and `jam-writing` to "Writing". A Jam on a held doodle is a v2 start in
+  every respect.
+- **D238 — A Jam that ends before phrase 1 sounds (2026-10-08; §C5.7, §C5.13).** It ends as a
+  count-in end: the workspace returns to Jam mode's Idle, focus on `Start Jam`. Only one cause is
+  told: when every attempt at phrase 1 failed, `staff-jam` adds a notice-toned line under its
+  instruction, "The app couldn't continue your doodle with these settings. Try again, or change a
+  setting.", until the next start or a change of any setting; never error-toned (nothing is the
+  player's fault). Stop, no doodle note within 30 seconds, a lost controller, a hidden tab and a
+  staff that can no longer be shown say nothing more, as a v2 count-in end.
+- **D239 — A held doodle at Idle, and its suggestion (2026-10-08; §C5.11, §C6.4, §C6.5).** While a
+  doodle is held, a `jam-bar` sits between the score toolbar and the cue row: "Jamming again on
+  your doodle: phrase 1 continues it. Changing a setting other than the tempo lets it go." and,
+  when there is a suggestion, the suggestion row of D240. It is held still during the Jam started
+  from it (buttons disabled), like the notice row, so a start never moves the staff; it appears and
+  leaves at Idle only, with the player's action. The staff shows phrase 1 written from the doodle,
+  every v2 idle rule applying; `Regenerate phrase` writes a new one from it. **(spec, provisional,
+  Q72)** The doodle stays held after the Jam played on it, so the Idle after its review shows a new
+  phrase 1 from it. A fresh Jam's doodle is never held by itself.
+- **D240 — The review's doodle section and the suggestion (2026-10-08; §C5.15, §C6, §C12).** A
+  Jam's review opens with a `review-doodle` section before the phrase list: a header like a
+  phrase's ("Your doodle", its capture tempo "{tempo} BPM", and at its trailing end, where
+  per-phrase tools go, `Jam again on this doodle`, disabled with "Needs a connected controller."
+  without one), then the doodle engraved from the quantized doodle in written pitch, in the key
+  signature the Jam started with, no chord symbols, no number, no favorite, its measures at a
+  phrase's measure width from the system's start (so a two-measure doodle looks two measures long),
+  and the played-notes lane under it when shown. Then `review-suggestion`, when there is one: "Your
+  doodle sounds like {key} {mode}." with **`Use {key} {mode}`** and **`Keep {current key and
+  mode}`** (the spec's Use it and Keep mine, named by what they do), the answer named in the
+  player's family (§C6.5). When the answer lies outside the restriction in force, a second line
+  says so in the highlight's words: "{preset} isn't meant for {key} {mode}: using it makes your
+  settings Custom." After `Use`, the row reads "Key and mode set to {key} {mode}." until the review
+  closes (the controls are out of view below the review); after `Keep`, it goes. When under 80 %
+  of the doodle fits any mode, the row is one sentence instead, with no action: "Your doodle uses
+  notes outside the app's keys and modes, so no key is suggested." The same row, minus the 80 %
+  sentence, is the `jam-bar`'s at Idle. `Jam again on this doodle` closes the review mode; focus
+  follows `Close review`'s rule.
+- **D241 — Jam sessions in the list and the review summary (2026-10-08; §C5.15).** The detail line
+  begins with the word "Jam" for a Jam session ("Jam · 12 min · 9 phrases · …"), and so does the
+  review's summary, which writes the same line. A word, not an icon.
+- **D242 — The rhythm lock and its allowed changes (2026-10-08; §C7, §C12).** A "During a session"
+  field after Jam: **Rhythm lock**, `Off`/`On`, note "Every phrase keeps the rhythm of the first
+  one, so your eyes can stay on the notes. In a Jam, the rhythm nearest your doodle." Under it,
+  while `On`: **Allowed rhythm changes**, five `toggle-button`s in a wrapping `toggle-list`, all off
+  by default: "Move a note", "Move a rest", "Split a note", "Merge two notes", "Add or remove a
+  rest"; note "Now and then one phrase changes the rhythm in one of these ways, and the next goes
+  back to it. What's possible depends on your rhythm settings: with Strict variety and Straight
+  syncopation, almost nothing." While the lock is off the list is hidden and kept (D235). No rhythm
+  change and no forced bend is ever marked, anywhere.
+- **D243 — Drift (2026-10-08; §C8).** Under Jam while it shows `On`: **Drift**, a segmented
+  control `Close`, `Near` (default), `Free`, note "How far the phrases wander from your doodle:
+  Close follows its rhythm and its moves, Near its ups and downs, Free only starts where it
+  ended."
+- **D244 — Vary settings' allowed groups (2026-10-08; §C9).** Under Vary settings: **What may
+  vary**, six `toggle-button`s in a `toggle-list`, all on by default: "Key and mode", "Harmony",
+  "Tension", "Rhythm", "Melody shape", "Embellishments". Shown while Vary settings shows `On`, and
+  also while it cannot be turned on for lack of a legal move. While the rhythm lock is on, "Rhythm"
+  is disabled, its choice kept, with "The rhythm lock holds the rhythm." With no legal move, Vary
+  settings' `On` is disabled, the choice kept, with a `field-note` naming the fix: "Nothing is
+  allowed to vary with these choices. Turn on another group below." (judged at Idle and in the
+  review, as Rising tempo's availability is). The option's note becomes "Every 2 to 4 phrases, one
+  setting from the groups below moves one step. Never the instrument or the tempo. Your settings
+  come back when the session ends."
+- **D245 — How the write-up is split (2026-10-08).** Three units, each written by a fresh
+  `ux-writer` delegate from these entries: **P** (v3.1 core: `flows/presets/` and
+  `screens/preset-sheet/` new; `screens/phrase-workspace/`, `flows/play-session/` and
+  `flows/generate-phrase/` for v3.1), **R** (both releases on the review side:
+  `screens/last-session-review/`, `flows/review-and-export/`, `screens/session-list/`,
+  `flows/kept-sessions/`, `flows/saved-data/`, `screens/your-data/`) and **J** (v3.2 core:
+  `flows/jam/` new; `screens/phrase-workspace/`, `flows/play-session/` and
+  `flows/generate-phrase/` for v3.2). P and R touch no file in common and run together; J follows
+  P. `strategy.md`, `motion.md`, `README.md` and the token document are written here.

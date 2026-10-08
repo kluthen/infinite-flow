@@ -85,3 +85,41 @@ through the header of [`decisions.md`](decisions.md).
   saving-off visits differ only by `Delete everything`. The alternative, keeping them because
   they delete nothing kept, needs §4.4 to say "the only deletion of saved data". Not applied
   until `spec-writer` settles it. (Raised with ux D222.)
+
+## v3.1 and v3.2, for `spec-writer` (raised 2026-10-08)
+
+Each is a gap or contradiction in master spec Part B or Part C. The design is built on the
+recommended answer, marked provisional in `decisions.md`; the tier documents state it as designed
+and change only if `spec-writer` settles otherwise.
+
+- **Q70 — Turning Jam off "generates a phrase as at first load", but nothing is generated at
+  first load.** Part C §C5.1 and done item 2 (and §C5.11 for a held doodle dropped with Jam out of
+  effect) say that leaving Jam mode at Idle generates a phrase "as at first load". At first load
+  the app generates nothing by itself: the workspace opens empty and the player asks for the first
+  phrase with `Generate phrase` (v2 master spec's idle rules, "the player generates a phrase by
+  hand"; `screens/phrase-workspace/handoff.md`, States, At load and Empty). The two readings
+  differ: an automatic generation, or the empty workspace. Recommended: **the empty workspace,
+  generating nothing until the player asks**, which is literally "as at first load", keeps v2's
+  rule that at Idle only an instrument switch generates by itself, and costs one click. Applies to
+  every way Jam mode leaves at Idle: the switch turned off, a controller lost, and a held doodle
+  dropped while Jam is out of effect. Provisional design: ux D236.
+- **Q71 — What does `Save changes` do to a player preset's key and mode restriction?** §B6.6
+  says "Saving asks for the restriction" under a table covering both save actions, while §B10
+  lists the restriction choice for save as new only, and save changes as "replacing its values;
+  no confirmation". When the player has opted out of the preset's restriction (key or mode
+  outside it, so the selection is Custom based on it), keeping the old restriction would save a
+  preset whose own key and mode lie outside it: it would show as selected now, but load as Custom
+  after a reload under §B7's "values win" rule. Recommended: **`Save changes` asks nothing and
+  keeps the preset's restriction while the key and mode are inside it** (the restriction in force
+  is the preset's own, so "as now" is unchanged); **when they are outside it, `Save changes` asks
+  the restriction with §B6.6's choices** ("as now", which is then any key and mode, the default,
+  or "only this key and mode"), and the answer replaces the old restriction. Provisional design:
+  ux D231.
+- **Q72 — Does a held doodle stay held after the Jam played on it ends?** §C5.11 lists what drops
+  a held doodle (a change that discards pre-generated phrases, a lost controller, a reload) and
+  says a session's end generates the next phrase; it does not say whether a Jam started from a held
+  doodle drops it when it ends. Recommended: **it stays held** (nothing in §C5.11's list happens),
+  so after that Jam's review the workspace again shows a phrase 1 written from it, with a fresh
+  seed, ready to go round again; the review of that Jam also offers "Jam again on this doodle",
+  which then simply keeps it. A doodle captured by a fresh Jam is never held by itself; only
+  "Jam again on this doodle" holds one. Provisional design: ux D239.

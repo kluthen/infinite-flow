@@ -31,6 +31,27 @@
 
 ## In Progress
 
+**v3.1 (presets and embellishment figures) and v3.2 (Jam) design**, from master spec Parts B and C
+(approved 2026-10-08). Started 2026-10-08; v3.0's approved design was frozen in `versions/v3.0/`
+first, and the root keeps v3.0's marks with v3.1's and v3.2's layered on them (ux D225). Owner's
+standing delegation: settle and record; one full review at the end. Implementation is paused: no
+`src/` edits; tokens in `token-source-v3.1-v3.2.md` (ux D226). Settled decisions: ux D225-D245;
+spec gaps for `spec-writer`: Q70-Q72 (provisional answers designed).
+
+- **Unit W0 — Tier 1 and Tier 2, the registers.** `strategy.md`, `motion.md`, `README.md`,
+  `token-source-v3.1-v3.2.md` (new), `versions/v3.0/` (new). Written.
+- **Unit P — v3.1 core** (delegated): `flows/presets/` and `screens/preset-sheet/` (new);
+  `screens/phrase-workspace/`, `flows/play-session/` and `flows/generate-phrase/` for v3.1.
+  Governing: ux D227-D232. Pending.
+- **Unit R — the review side, both releases** (delegated, alongside P):
+  `screens/last-session-review/`, `flows/review-and-export/`, `screens/session-list/`,
+  `flows/kept-sessions/`, `flows/saved-data/`, `screens/your-data/`. Governing: ux D231 (the
+  refused-save notice), D233, D234, D239-D241. Pending.
+- **Unit J — v3.2 core** (delegated, after P): `flows/jam/` (new); `screens/phrase-workspace/`,
+  `flows/play-session/` and `flows/generate-phrase/` for v3.2. Governing: ux D235-D244. Pending.
+- **Validation.** `ux-critic` on v3.1, then on v3.2, once the units are written. Pending.
+
+
 **v3.0 (Storage) design**, from `specs/versions/v3/master-spec.md` (v3.0 only; v3.1 and v3.2 are
 not specified yet). Started 2026-10-07; the root's v2 marks are cleared (ux D178) and v3's are
 marked from the first edit. The owner asked for the whole v3.0 design in one pass and reviews it
@@ -112,13 +133,15 @@ Not scheduled:
 
 - **Q16** (`open-questions.md`): a generation action reachable from the notation-error states,
   replacing the undiscoverable instrument-profile-switch escape. Idle-only, lower priority.
-- v3.1 (embellishment flags, presets) and v3.2 (Jam) are designed once `spec-writer` adds their
-  parts to the master spec.
 
 Dropped (ux D207): the end-of-measure chord-fit presentation (old unit 9), since master spec §2
 drops the check.
 
 ## Next Unit
 
-After the owner merges `v3-c1-token-source`: delete `token-source-v3.md` and point `README.md`
-and the four handoffs that cite it at the token source alone (the build plan no longer links it).
+Units P and R (v3.1/v3.2 design), then J, then the `ux-critic` passes.
+
+Still waiting, from v3.0: after the owner merges `v3-c1-token-source`, delete
+`token-source-v3.md` and point `README.md` and the four handoffs that cite it at the token source
+alone (the build plan no longer links it); the same paths in `versions/v3.0/` are corrected too,
+as a recorded correction to match what v3.0 ships.

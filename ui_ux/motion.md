@@ -13,6 +13,10 @@
 > - _New:_ nothing animates on a save, or for phrases prepared in the background
 >   ([Rules](#rules))
 > - _Removed:_ nothing
+> - _v3.1 new:_ choosing a preset, the key and mode marks, the embellishment levels and the preset
+>   sheet ([Rules](#rules))
+> - _v3.2 new:_ the Jam's cue row, phrase 1 entering the empty staff, the held doodle's bar, the
+>   suggestion and the options under their switch ([Rules](#rules))
 
 ## Rules
 
@@ -39,4 +43,6 @@
 - **[v3 new]** The My instrument and Your data sheets, and every confirmation shown as a sheet of its own, open and close exactly as the connection sheet does: the `sheet-backdrop` and `sheet` opacity transition, `--duration-feedback` with `--ease-out-fast`, with no spatial motion. A confirmation shown inside a sheet already open replaces that sheet's content with no animation, as the connection sheet's own states do. The range refusal in the My instrument sheet (`range-alert`) and the derived register windows change with no animation as the steppers move.
 - **[v3 new]** The instrument control's fourth choice, my instrument, appears when it is made and goes when it is deleted with no animation; the other segments rewrap at once.
 - **[v3 new]** Nothing animates on a save, and nothing shows one: no spinner, no tick, no "saved" flash. Phrases prepared in the background between sessions show nothing either.
+- **[v3.1 new]** Choosing a preset changes every control it sets at once, in place, with no highlight and no animation: the player's own choice is the cause, and a ripple of changes down the controls would only delay reading them. The preset box's list is the browser's own and opens as the browser opens it. The key and mode marks (`is-marked`) and their sentences appear and leave with no animation, and the Embellishments levels take the ordinary segment feedback. The preset sheet and the delete confirmation open and close as every sheet does; a refused name's reason (`name-alert`) appears and leaves with no animation as the name is typed.
+- **[v3.2 new]** In a Jam, the cue row's doodle measures light at each barline on the audio clock with no transition, like the count-in's beats; "Writing your first phrase" appears and leaves with no animation and nothing in it moves (no animated dots: it would suggest progress the app cannot measure). Phrase 1 enters the empty staff at the read-in measure with the ordinary `--duration-fade` entrance, and the empty staff with its instruction leaves with the `--duration-fade-fast` fade-out, as any refill does. The empty staff of Jam mode, its instruction and its notice, the held doodle's bar and the key and mode suggestion appear and leave with no animation; the options that appear under their switch (drift, allowed rhythm changes, what may vary) appear and leave at once, the columns rewrapping with no transition. The review's doodle section is drawn like a phrase, with no fade.
 - Under `prefers-reduced-motion: reduce`, staff replacement is instant and only non-spatial color feedback remains.
