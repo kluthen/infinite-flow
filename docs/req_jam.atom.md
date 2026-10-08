@@ -33,6 +33,7 @@ dependents:
   - [[rule_jam_register_follows_doodle]]
   - [[rule_jam_rhythm_ordered_by_doodle]]
   - [[rule_jam_runs_as_session_from_phrase_one]]
+  - [[rule_jam_silence_timer_from_phrase_one]]
   - [[rule_jam_start_conditions]]
   - [[rule_jam_starting_note_is_home_note]]
   - [[rule_jam_without_doodle_note_ends]]
