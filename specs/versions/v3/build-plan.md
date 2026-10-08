@@ -4,7 +4,9 @@ Status: v1 (2026-10-07), approved by the product owner; Gate A and the token-sou
 confirmed the same day
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) and the v3.0 design
-in [`ui_ux/`](../../../ui_ux/README.md). Approved for execution. It adds no behaviour:
+in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
+v3.1 and v3.2 design started at the `ui_ux/` root (its links were repointed there on
+2026-10-08). Approved for execution. It adds no behaviour:
 what the app does is in the master spec, what the interface looks like is in the design set, and
 where this plan disagrees with either, they win and the plan is corrected. The code facts it
 relies on are in [storage-grounding.md](storage-grounding.md); the generation-worker facts that
@@ -368,7 +370,9 @@ the new classes such as `sheet-wide`, `app-notice-row`, `layout-footer`, `sessio
 `session-row*`, `favorite-toggle`, `review-comment`, `review-scope`, `note-stepper`,
 `range-alert`, `toggle-button`); clears the old `v2 new` / `v2 changed` comments; fixes the
 audio-mix comment; then deletes `token-source-v3.md` and points `ui_ux/README.md` and the
-handoffs at the token source alone.
+handoffs at the token source alone. The chunk was built before the v3.0 design was frozen into
+`ui_ux/versions/v3.0/`, so after the merge `ux-writer` applies the same clean-up there too (that
+folder's README and handoffs), as `ui_ux/todo.md` records.
 
 **Design docs:** `ui_ux/token-source-v3.md`,
 [`ui_ux/README.md`](../../../ui_ux/README.md).
@@ -484,7 +488,7 @@ tests under `tests/unit/storage/`, `docs/storage.md` (new).
 
 **Spec sections:** [§4.3](master-spec.md#43-where-and-how), [§4.6](master-spec.md#46-storage-belongs-to-one-address).
 
-**Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md) (Load,
+**Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.0/flows/saved-data/handoff.md) (Load,
 the newer-version branch).
 
 **Atoms:** `req_on_device_storage`, `rule_outdated_tab_stops_saving`,
@@ -530,7 +534,7 @@ a session, failures classified and reported, persistent storage asked for once.
 
 **Spec sections:** [§4.1](master-spec.md#41-principles), [§4.2](master-spec.md#42-what-is-saved-automatically) (saved at the session's end), [§4.5](master-spec.md#45-keeping-the-data-safe-from-the-browser), [§5.1](master-spec.md#51-which-sessions-are-kept).
 
-**Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md) (What
+**Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.0/flows/saved-data/handoff.md) (What
 Is Saved, Notices).
 
 **Atoms:** `rule_no_save_during_session`, `rule_failed_save_never_disturbs_session`,
@@ -624,9 +628,9 @@ about five source files, split it into 7a (load before first draw) and 7b (save 
 
 **Spec sections:** [§4.2](master-spec.md#42-what-is-saved-automatically), [§4.4](master-spec.md#44-loading-saved-settings).
 
-**Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md) (What
-Is Saved, Load), [`flows/generate-phrase/handoff.md`](../../../ui_ux/flows/generate-phrase/handoff.md)
-(the load step), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+**Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.0/flows/saved-data/handoff.md) (What
+Is Saved, Load), [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.0/flows/generate-phrase/handoff.md)
+(the load step), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md)
 (saved settings, the load wait).
 
 **Atoms:** `rule_settings_saved_on_change`, `rule_saved_setting_is_players_choice`,
@@ -674,8 +678,8 @@ storage-full notice is rendered disabled until chunk 15 adds the sheet (or added
 
 **Spec sections:** [§4.1](master-spec.md#41-principles), [§4.3](master-spec.md#43-where-and-how) (outdated tab), [§4.4](master-spec.md#44-loading-saved-settings).
 
-**Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md)
-(Notices), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+**Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.0/flows/saved-data/handoff.md)
+(Notices), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md)
 (notice row).
 
 **Atoms:** `rule_failed_save_never_disturbs_session`, `rule_outdated_tab_stops_saving`.
@@ -776,10 +780,10 @@ phone).
 
 **Spec sections:** [§5.1](master-spec.md#51-which-sessions-are-kept), [§5.4](master-spec.md#54-reaching-earlier-sessions).
 
-**Design docs:** [`flows/kept-sessions/handoff.md`](../../../ui_ux/flows/kept-sessions/handoff.md)
+**Design docs:** [`flows/kept-sessions/handoff.md`](../../../ui_ux/versions/v3.0/flows/kept-sessions/handoff.md)
 (Keeping at a Session's End, the cue-row links),
-[`flows/review-and-export/handoff.md`](../../../ui_ux/flows/review-and-export/handoff.md) (Saving
-the Session), [`screens/last-session-review/handoff.md`](../../../ui_ux/screens/last-session-review/handoff.md)
+[`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.0/flows/review-and-export/handoff.md) (Saving
+the Session), [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.0/screens/last-session-review/handoff.md)
 (`review-keep-line`, title).
 
 **Atoms:** `rule_most_recent_session_kept`, `req_kept_sessions`, `req_kept_session_review`,
@@ -827,8 +831,8 @@ is off.
 
 **Spec sections:** [§5.3](master-spec.md#53-played-notes-opt-in-and-deletion), [§10](master-spec.md#10-what-v30-changes-in-v2s-guarantees).
 
-**Design docs:** [`flows/review-and-export/handoff.md`](../../../ui_ux/flows/review-and-export/handoff.md)
-(Played Notes, Privacy), [`screens/last-session-review/handoff.md`](../../../ui_ux/screens/last-session-review/handoff.md).
+**Design docs:** [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.0/flows/review-and-export/handoff.md)
+(Played Notes, Privacy), [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.0/screens/last-session-review/handoff.md).
 
 **Atoms:** `rule_played_notes_kept_only_after_opt_in`, `rule_kept_played_notes_deletable`; (v2,
 STABLE after Gate A) `rule_optional_midi_privacy`, `rule_review_played_notes_toggle`.
@@ -875,10 +879,10 @@ tests `tests/e2e/review/review-favorites.spec.ts`, `review-comment.spec.ts`, the
 
 **Spec sections:** [§5.1](master-spec.md#51-which-sessions-are-kept), [§5.5](master-spec.md#55-a-comment-on-a-session), [§6](master-spec.md#6-favorites), [§4.5](master-spec.md#45-keeping-the-data-safe-from-the-browser).
 
-**Design docs:** [`flows/review-and-export/handoff.md`](../../../ui_ux/flows/review-and-export/handoff.md)
-(Favorites, Comment, Pin and Delete), [`flows/kept-sessions/handoff.md`](../../../ui_ux/flows/kept-sessions/handoff.md)
+**Design docs:** [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.0/flows/review-and-export/handoff.md)
+(Favorites, Comment, Pin and Delete), [`flows/kept-sessions/handoff.md`](../../../ui_ux/versions/v3.0/flows/kept-sessions/handoff.md)
 (Pin and Unpin, Deleting a Session, The Confirmation Pattern),
-[`screens/last-session-review/handoff.md`](../../../ui_ux/screens/last-session-review/handoff.md).
+[`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.0/screens/last-session-review/handoff.md).
 
 **Atoms:** `req_favorite_phrases`, `rule_favorite_pins_session`, `rule_pinned_session_kept`,
 `rule_session_comment`, `rule_persistent_storage_requested`,
@@ -921,8 +925,8 @@ holds a played note; file names gain `-favorites`. The comment never enters a fi
 
 **Spec sections:** [§6](master-spec.md#6-favorites), [§5.5](master-spec.md#55-a-comment-on-a-session).
 
-**Design docs:** [`flows/review-and-export/handoff.md`](../../../ui_ux/flows/review-and-export/handoff.md)
-(Export), [`screens/last-session-review/handoff.md`](../../../ui_ux/screens/last-session-review/handoff.md)
+**Design docs:** [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.0/flows/review-and-export/handoff.md)
+(Export), [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.0/screens/last-session-review/handoff.md)
 (`review-scope`).
 
 **Atoms:** `rule_favorites_only_export`; (v2) `rule_generated_notes_musicxml_export`,
@@ -966,9 +970,9 @@ added by chunk 15.
 
 **Spec sections:** [§5.4](master-spec.md#54-reaching-earlier-sessions).
 
-**Design docs:** [`flows/kept-sessions/handoff.md`](../../../ui_ux/flows/kept-sessions/handoff.md),
-[`screens/session-list/handoff.md`](../../../ui_ux/screens/session-list/handoff.md),
-[`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md) (the
+**Design docs:** [`flows/kept-sessions/handoff.md`](../../../ui_ux/versions/v3.0/flows/kept-sessions/handoff.md),
+[`screens/session-list/handoff.md`](../../../ui_ux/versions/v3.0/screens/session-list/handoff.md),
+[`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md) (the
 cue row).
 
 **Atoms:** `req_kept_session_list`, `req_kept_session_review`, `rule_pinned_session_kept`.
@@ -1011,9 +1015,9 @@ demand.
 
 **Spec sections:** [§4.1](master-spec.md#41-principles), [§4.5](master-spec.md#45-keeping-the-data-safe-from-the-browser), [§5.3](master-spec.md#53-played-notes-opt-in-and-deletion), [§15](master-spec.md#15-access-model).
 
-**Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md) (Your
-Data), [`screens/your-data/handoff.md`](../../../ui_ux/screens/your-data/handoff.md),
-[`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+**Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.0/flows/saved-data/handoff.md) (Your
+Data), [`screens/your-data/handoff.md`](../../../ui_ux/versions/v3.0/screens/your-data/handoff.md),
+[`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md)
 (footer).
 
 **Atoms:** `req_your_data`, `rule_delete_everything`, `rule_kept_played_notes_deletable`,
@@ -1073,7 +1077,7 @@ sweep under `tests/sweep/` or `scripts/`.
 
 **Spec sections:** [§7.1](master-spec.md#71-what-it-is), [§11](master-spec.md#11-existing-code-and-risks), [§14](master-spec.md#14-deferred-and-open).
 
-**Design docs:** [`flows/my-instrument/handoff.md`](../../../ui_ux/flows/my-instrument/handoff.md)
+**Design docs:** [`flows/my-instrument/handoff.md`](../../../ui_ux/versions/v3.0/flows/my-instrument/handoff.md)
 (Routing Rules: valid range, the transposition).
 
 **Atoms:** `req_my_instrument`, `rule_my_instrument_range_limits`; (v2) `entity_instrument_profile`,
@@ -1185,7 +1189,7 @@ written ranges. Measurement M3's staff half: the written range beyond which the 
 
 **Spec sections:** [§7.1](master-spec.md#71-what-it-is), [§14](master-spec.md#14-deferred-and-open).
 
-**Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+**Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md)
 (Notation Contract: my instrument's placement and the shared size).
 
 **Atoms:** `req_my_instrument`; (v2) `module_notation_layout_preflight`.
@@ -1228,9 +1232,9 @@ exceeds about five source files, split the sheet (20b) from the record and the c
 
 **Spec sections:** [§7.1](master-spec.md#71-what-it-is), [§4.2](master-spec.md#42-what-is-saved-automatically), [§4.5](master-spec.md#45-keeping-the-data-safe-from-the-browser).
 
-**Design docs:** [`flows/my-instrument/handoff.md`](../../../ui_ux/flows/my-instrument/handoff.md),
-[`screens/my-instrument/handoff.md`](../../../ui_ux/screens/my-instrument/handoff.md),
-[`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md) (the
+**Design docs:** [`flows/my-instrument/handoff.md`](../../../ui_ux/versions/v3.0/flows/my-instrument/handoff.md),
+[`screens/my-instrument/handoff.md`](../../../ui_ux/versions/v3.0/screens/my-instrument/handoff.md),
+[`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md) (the
 instrument control).
 
 **Atoms:** `req_my_instrument`, `rule_my_instrument_range_limits`, `rule_settings_saved_on_change`,
@@ -1277,9 +1281,9 @@ changes.
 
 **Spec sections:** [§7.2](master-spec.md#72-the-transposition-check-feeds-it).
 
-**Design docs:** [`flows/controller-connection/handoff.md`](../../../ui_ux/flows/controller-connection/handoff.md),
-[`screens/controller-connection/handoff.md`](../../../ui_ux/screens/controller-connection/handoff.md),
-[`flows/my-instrument/handoff.md`](../../../ui_ux/flows/my-instrument/handoff.md) (From the
+**Design docs:** [`flows/controller-connection/handoff.md`](../../../ui_ux/versions/v3.0/flows/controller-connection/handoff.md),
+[`screens/controller-connection/handoff.md`](../../../ui_ux/versions/v3.0/screens/controller-connection/handoff.md),
+[`flows/my-instrument/handoff.md`](../../../ui_ux/versions/v3.0/flows/my-instrument/handoff.md) (From the
 Transposition Check).
 
 **Atoms:** `rule_transposition_check_sets_my_instrument`; (v2, STABLE)
@@ -1323,9 +1327,9 @@ device that comes back within a page.
 
 **Spec sections:** [§7.3](master-spec.md#73-remembering-the-controller).
 
-**Design docs:** [`flows/controller-connection/handoff.md`](../../../ui_ux/flows/controller-connection/handoff.md)
-(At load, Routing rules), [`screens/controller-connection/handoff.md`](../../../ui_ux/screens/controller-connection/handoff.md),
-[`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md) (the
+**Design docs:** [`flows/controller-connection/handoff.md`](../../../ui_ux/versions/v3.0/flows/controller-connection/handoff.md)
+(At load, Routing rules), [`screens/controller-connection/handoff.md`](../../../ui_ux/versions/v3.0/screens/controller-connection/handoff.md),
+[`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md) (the
 header at load, the starting-note line).
 
 **Atoms:** `rule_last_controller_remembered`, `rule_delete_everything`; (v2, STABLE after Gate A)
@@ -1412,9 +1416,9 @@ Idle phase.
 
 **Spec sections:** [§8](master-spec.md#8-pre-generating-phrases-at-idle).
 
-**Design docs:** [`flows/generate-phrase/handoff.md`](../../../ui_ux/flows/generate-phrase/handoff.md)
-and [`flows/play-session/handoff.md`](../../../ui_ux/flows/play-session/handoff.md) (phrases
-prepared at idle, no interface), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+**Design docs:** [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.0/flows/generate-phrase/handoff.md)
+and [`flows/play-session/handoff.md`](../../../ui_ux/versions/v3.0/flows/play-session/handoff.md) (phrases
+prepared at idle, no interface), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md)
 (Ready).
 
 **Atoms:** `req_idle_pregeneration`, `rule_pregeneration_yields_to_player`,
@@ -1460,8 +1464,8 @@ duration script); tests under `tests/unit/` with the M1 fixtures, `tests/e2e/rev
 
 **Spec sections:** [§9](master-spec.md#9-stray-notes).
 
-**Design docs:** [`flows/review-and-export/handoff.md`](../../../ui_ux/flows/review-and-export/handoff.md)
-(Export: very short notes; Played Notes), [`screens/last-session-review/handoff.md`](../../../ui_ux/screens/last-session-review/handoff.md).
+**Design docs:** [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.0/flows/review-and-export/handoff.md)
+(Export: very short notes; Played Notes), [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.0/screens/last-session-review/handoff.md).
 
 **Atoms:** `rule_stray_note_definition`, `rule_stray_notes_filtered_on_reading`,
 `rule_played_notes_export_omits_stray_notes`; (v2) `rule_acknowledgement_exact_pitch`,

@@ -1971,6 +1971,8 @@ with the first feature that quotes player material, such as v4's rhythm editor o
   controller lost at Idle drops it, since Jam mode leaves with it. Idle then shows what Jam mode
   shows without a held doodle (C5.1), or, with Jam out of effect, the empty workspace, as at first load: nothing is generated until
   the player asks for a phrase.
+- **Deleting the kept Jam session a held doodle came from drops it** (C5.14): deleted data is
+  gone, so a later Jam cannot put it back into a kept session.
 - **A Jam played on a held doodle keeps it.** Its end is not in the list above, so after its
   review Idle shows a phrase 1 newly written from the held doodle, with a fresh seed, ready to go
   round again. A doodle captured by a fresh Jam is never held by itself; only "Jam again on this
@@ -1991,7 +1993,8 @@ with the first feature that quotes player material, such as v4's rhythm editor o
 ### C5.13 Edge cases before phrase 1 sounds
 
 "Ends as a count-in end" means: back to Idle, no review, nothing kept, as a v2 session ended during
-its count-in (Part A §5.1); the doodle is not held.
+its count-in (Part A §5.1); a fresh Jam's doodle is not held. A Jam on a held doodle that ends
+this way keeps it held (C5.11), and Idle shows the same phrase 1 again.
 
 - **No note after the count-in.** If no doodle note comes within 30 s after the count-in, the Jam
   ends as a count-in end. Notes the stray-note filter drops do not count. This differs from a
@@ -2114,8 +2117,8 @@ its count-in (Part A §5.1); the doodle is not held.
   the filter. Nothing is shown about it: a short doodle is normal, not a failure.
 - **The selection is among the kept candidates**: the doodle fits the selection; nothing is shown.
 - **Under 80 % of the doodle's weighted length fits the winner**: the doodle uses notes the app's
-  modes do not offer, such as harmonic minor or blue notes. The review then says so plainly, once,
-  without naming a "wrong" note.
+  modes do not offer, such as harmonic minor or blue notes. The review then says so in one plain sentence, in
+  every review of that Jam, kept ones included, without naming a "wrong" note.
 - **A Jam whose phrase 1 never came** has no review, so no suggestion.
 
 ### C6.4 Where and when it is shown
@@ -2490,7 +2493,7 @@ What the interface must support, for `ux-writer`. Behaviour only: layout, placem
 - **The review's doodle section**: first, labelled, before phrase 1, with no phrase number, no
   chord symbols and no favorite; the `Played notes` lane over it when shown.
 - **The suggestion's three actions**: Use it, Keep mine, Jam again on this doodle; the drawn key and
-  mode named in the player's family (Major or Minor, or the mode); the plain, once-only note when
+  mode named in the player's family (Major or Minor, or the mode); the one plain sentence, in every review of that Jam, when
   the doodle uses notes the app's modes do not offer, never naming a wrong note; whether an answer
   outside a preset's restriction is marked, in line with the restriction's highlight.
 - **"Jam again on this doodle"** also in a kept Jam session's review; unavailable without a
@@ -2788,7 +2791,8 @@ v3.2 ships when every item holds, each verified by a named test or a recorded ha
 21. **Deterministic**: the same quantized doodle gives the same answer in Chrome and Edge, on any
     machine, across sessions and reloads, with integer arithmetic only.
 22. **Nothing is suggested** below the thresholds, when the selection is among the kept candidates,
-    or when under 80 % of the doodle fits; the last case is said plainly, once, with no "wrong" note.
+    or when under 80 % of the doodle fits; the last case is said in one plain sentence, in every review of that
+    Jam, with no "wrong" note.
 23. **Where**: only in a Jam's review, a kept Jam session's review and at Idle with a held doodle,
     never during a Jam; only the drawn answer.
 24. **Use it** changes Written key and Collection exactly as a change by hand does (Custom under an

@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.70
+Status: draft v2.71
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D247**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D250**.
 
 ## Decision Log
 
@@ -593,3 +593,14 @@ fact in the live documents (see the [archive index](archive/README.md) and
   vision revision 0.7 → 0.8 made of v3.0's change set part C and this change set's part C. This
   is the confirmation D239 asked for (B11, C13); `documentalist` applies it. Every proposed
   wording holds for today's code, so it is applied now rather than at the first v3.1 merge.
+- **D247 (2026-10-08): deleting a kept Jam session drops a doodle held from it.** spec-writer's
+  call, from ux Q73: C5.11's list of what drops a held doodle missed it. Deleted data is gone
+  (v3.0), so a later Jam must not put the doodle back into a kept session. Matches ux D247.
+- **D248 (2026-10-08): a Jam on a held doodle that ends during its count-in keeps the doodle.**
+  spec-writer's call, from ux Q74: C5.13's "the doodle is not held" describes a fresh Jam's
+  doodle; D244 already keeps a held doodle across the Jam played on it. Idle shows the same phrase
+  1 again. Matches ux D251.
+- **D249 (2026-10-08): the "no mode fits" note is one plain sentence in every review of that
+  Jam.** spec-writer's call, from ux Q75: C6.3's "once" meant said once, not repeated per note;
+  showing it only the first time would need a stored flag and leave later reviews of a kept
+  session unexplained. Matches ux D251.
