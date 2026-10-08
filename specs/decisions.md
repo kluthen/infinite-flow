@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.62
+Status: draft v2.63
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D235**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D236**.
 
 ## Decision Log
 
@@ -438,3 +438,34 @@ fact in the live documents (see the [archive index](archive/README.md) and
   (O114). The rhythm lock follows D232; O153, O154 and O157 as proposed. Details:
   [jam.md](versions/v3/jam.md), [key-and-mode-suggestion.md](versions/v3/key-and-mode-suggestion.md),
   [rhythm-lock.md](versions/v3/rhythm-lock.md).
+
+- **D235 (2026-10-08): gaps settled while consolidating v3.1 (master spec Part B v1.0).**
+  spec-writer's calls, within D233; none changes what the product is. (1) Choosing a preset never
+  replaces the phrase on screen, even when it moves the key or mode: a control change at Idle never
+  regenerates (only an instrument switch does); the presets draft said otherwise. (2) `ifk3.`
+  carries everything `ifk2.` does except the profile name and its Custom flag, plus the seven
+  figure levels. (3) Saving or deleting a preset can change the restriction in force, and then
+  discards pre-generated phrases; deleting the selected preset, or Custom's base, leaves Custom
+  with no base and no restriction. (4) Vary settings' figure step takes the profile flip's single
+  place in the draw (setting, then figure, then direction). (5) Tension across phrases never marks
+  Custom. (6) Built-in presets have a fixed internal identifier, so their names can change. (7) Name
+  uniqueness and the 50-preset limit are checked only on save or rename; duplicates or excess
+  arriving otherwise load as they are. (8) Player presets are read in the same start-up read as the
+  saved settings; a failure there is a failed-read visit. (9) In a failed-read visit, as in an
+  outdated tab, presets made or changed last for the page. (10) A refused preset save keeps the
+  preset for the visit and tells the player at once. (11) v3.0 saved settings migrate: the saved
+  profile becomes that built-in (or Custom based on it) with its figure levels, then saved values
+  win. (12) Sessions kept by v3.0 show their recorded profile as label. (13) Saving a player preset
+  (new, or changes) triggers the persistent-storage request; renaming does not. (14) Choosing a
+  preset waits while a phrase generates; save, rename and delete do not. (15) If the cost guard
+  adopts its fallback (passing and neighbor tone never both Off), the level control refuses the
+  second with a reason, Vary settings draws again, and loading raises the neighbor tone to As
+  today. (16) Delete everything also removes unreadable preset records. (17) With no restriction in
+  force, no Vary settings move is drawn again for a restriction's sake. (18) Terminology:
+  "musical profile" and "grammar" leave the player's vocabulary; Part B uses preset, built-in
+  preset, player preset, selection, Custom and its base, figure, free figure and Tension's
+  scheduled figure, figure level, restriction, restriction in force.
+  **Raised for the owner:** four STABLE contract guarantees change (the mutation profile flip is
+  removed; the settings that mark Custom grow; the mutation scales gain figure levels; the
+  revert-at-session-end wording), so the contract needs a major version and the owner's explicit
+  confirmation, as for v3.0; D233 approved the drafts, not that wording.

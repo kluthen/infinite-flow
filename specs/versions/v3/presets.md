@@ -1,12 +1,28 @@
 # v3.1 — Presets
 
-Status: draft v2 (2026-10-07). spec-writer's proposals for the owner; nothing here is approved
-beyond the decisions it cites.
+Status: draft v3 (2026-10-08). Approved by the owner as proposed (D233). Consolidated for
+building into the [v3 master spec, Part B](master-spec.md#part-b--v31); where the two differ, the
+master spec wins.
+
+**Changes from draft v2.** The owner approved every proposal (D233), so each is now stated as
+settled. spec-writer's consolidation pass corrected one statement against the code and added
+precisions, each marked "spec-writer's call at consolidation" where it is written in:
+
+- **Choosing a preset never replaces the phrase on screen** (§2.5). Draft v2 said phrase 1 is
+  replaced when the key or mode moves; at Idle no control change regenerates the phrase today
+  (`src/composables/generation-session-control-actions.ts`), so a preset choice behaves like any
+  other change of settings.
+- **Saving or deleting a preset can change the restriction in force**, and then discards the
+  pre-generated phrases (§4.2, §6.2).
+- **Identity, names and limits across tabs** (§4.2), **the start-up read, a refused save, and the
+  visits that save nothing** (§5), **the migration of v3.0's saved settings and kept sessions**
+  (§5, §6.3), and **when presets can be chosen and managed** (§4.2).
 
 **Changes from draft v1.** D229–D231 came after draft v1 and amend D228: a preset may now carry a
 **key and mode restriction** (§2.2–§2.8). The cost check finds it cheap (§2.3). The built-in list
 (§3) is re-judged with it: Pop song and Modal (Dorian) come back, Reel is restricted to
-Mixolydian or Dorian and Bebop to Major. §4 to §11 follow; two new open points, O161 and O162.
+Mixolydian or Dorian and Bebop to Major. §4 to §11 follow; two new open points, O161 and O162,
+since closed by D233.
 
 The owner's request (D210, scoped down by D217): a few more built-in presets, and presets the
 player creates and saves. D228 sets the frame, amended by D229–D231 for key and mode:
@@ -97,7 +113,7 @@ Checked in the code on 2026-10-07:
   profile name and Custom flag (`src/generation-worker/phrase-replay-key.ts:112-128`).
 - **Nothing is saved.** v3.0's storage is specified, not built.
 
-## 2. What a preset holds (proposed, O135)
+## 2. What a preset holds (D233)
 
 ### 2.1 The settings
 
@@ -124,7 +140,7 @@ Checked in the code on 2026-10-07:
   settings on would make that choice for them. Rising tempo is a tempo matter, which D228 excludes.
 - **Note density is the chosen value**: below the tablet-landscape width a preset's Sixteenth
   generates as Eighth, as any chosen Sixteenth does (v2 master spec §5).
-- **A player preset may hold an unsupported rhythm combination** (proposed): it is only the
+- **A player preset may hold an unsupported rhythm combination**: it is only the
   settings of the moment, and choosing it shows today's unsupported-rhythm alert. Built-in presets
   never do: each is checked with `isUnsupportedRhythmSetting` at Sixteenth and stepped down to
   Eighth.
@@ -146,8 +162,9 @@ What is settled, in short:
   on color alone, which would fail accessibility; how it reads next to the selected option is
   `ux-writer`'s.
 
-What this draft adds, all (proposed): the cost check (§2.3), the forms (§2.4), where a choice
-moves the key and mode (§2.5), Custom and Vary settings (§2.6, §2.7), player presets (§2.8).
+What draft v2 added, all approved by D233: the cost check (§2.3), the forms (§2.4), where a
+choice moves the key and mode (§2.5), Custom and Vary settings (§2.6, §2.7), player presets
+(§2.8).
 
 ### 2.3 Is it cheap? Yes
 
@@ -180,7 +197,7 @@ Two limits, both handled by the rules below rather than by more code:
   like the control. No built-in preset restricts keys in v3.1, so the question of a built-in key
   meant in concert pitch ("fiddle keys", D or G as they sound) does not arise (§2.4).
 
-### 2.4 The forms of a restriction (proposed, O161)
+### 2.4 The forms of a restriction (D233)
 
 A restriction has two halves, each **"any" or a list**:
 
@@ -212,7 +229,7 @@ forms the owner listed:
 - **A restriction never makes the first load move.** Neutral, selected at first load, allows any
   key and mode, so C Ionian stays.
 
-### 2.5 Where choosing a preset moves the key and mode (proposed, O161)
+### 2.5 Where choosing a preset moves the key and mode (D233)
 
 **Each half separately: kept if allowed, else the restriction's first listed value.**
 
@@ -236,10 +253,14 @@ Why, rather than "the preset's first listed pair" (draft proposal) or the neares
   was. First listed is predictable: Reel always lands on Mixolydian, its signature sound, and the
   preset's author decides which that is.
 - With one key and one mode, both halves are set: that is D230's "sets them".
-- Moving the key or mode is a change of a setting phrases are generated from, so phrase 1 is
-  replaced and the pre-generated phrases are discarded, as for any key change (v3.0 §8).
+- Moving the key or mode is a change of a setting phrases are generated from, so the
+  pre-generated phrases are discarded, as for any key change (v3.0 §8). The phrase on screen
+  stays until the player regenerates it, as after any change of settings at Idle: a control
+  change never regenerates the phrase by itself today, only the instrument switch does
+  (`src/composables/generation-session-control-actions.ts`). (Draft v2 said phrase 1 is replaced;
+  corrected against the code, spec-writer's call at consolidation.)
 
-### 2.6 Custom, the highlight and opting out (proposed, O162)
+### 2.6 Custom, the highlight and opting out (D233)
 
 The **restriction in force** is the selection's preset's (the selected preset, or in Custom the
 preset it is based on) **while the current key and mode are inside it**. It is worked out from the
@@ -255,9 +276,9 @@ selection and the two controls, never stored.
 - **Editing a preset-held setting** (Tension, a figure level…) makes Custom as before, and the
   restriction stays in force: a reel with more syncopation is still a Mixolydian or Dorian reel.
 
-### 2.7 Vary settings under a restriction (proposed, O162)
+### 2.7 Vary settings under a restriction (D233)
 
-D231's proposal, written in: **Vary settings' key and mode moves stay inside the restriction in
+D231's proposal, approved by D233: **Vary settings' key and mode moves stay inside the restriction in
 force at the session's start**, so the app never opts the player out of their preset by itself.
 
 - A move outside it counts like an unsupported combination: it is drawn again (v2 master spec §5),
@@ -275,7 +296,7 @@ force at the session's start**, so the app never opts the player out of their pr
 - Vary settings never switches preset: v3.1's figure step replaces the Neutral ↔ Jazz flip
   ([embellishment-flags.md](embellishment-flags.md) §7.1).
 
-### 2.8 Player presets' restriction (proposed, O162)
+### 2.8 Player presets' restriction (D233)
 
 A player preset may carry a restriction. When the player saves (new or into their own preset),
 they choose one of three, `ux-writer` deciding how it is asked:
@@ -326,9 +347,9 @@ when chosen, and a restriction to a few keeps the player among them.
   with it, a player on the default Ionian would hear no change of mode at all. A player who wants a
   reel in major opts out by choosing Ionian (Custom based on Reel) or saves their own.
 - A preset's description may still **suggest** what its restriction does not hold, such as "also
-  try Ionian" for Reel (proposed; wording `ux-writer`'s).
+  try Ionian" for Reel (wording `ux-writer`'s).
 
-### 3.2 The v3.1 list (proposed, O136)
+### 3.2 The v3.1 list (D233)
 
 Eight built-in presets: **Neutral and Jazz, unchanged apart from §2.1's three controls, and six
 new ones.** Names are working names.
@@ -378,8 +399,11 @@ new ones.** Names are working names.
   the session options (§2.1); the catalogue's suggested tempos are not applied (D228).
 - **Each restricted list is connected for Vary settings** (§2.7): Mixolydian and Dorian are
   neighbors in brightness; the others hold one mode.
-- **Eight is more than "a few more"** (D210). If the owner wants fewer, Pop song and Modal (Dorian)
-  are the two to weigh: both are good for P3, the persona with no preset in draft v1.
+- **Eight, approved** (D233), though more than "a few more" (D210): Pop song and Modal (Dorian)
+  give P3 presets of their own.
+- **Each built-in is known by a fixed internal identifier**, not by its name, so a later version
+  may rename a working name without breaking a saved selection or a Custom base (spec-writer's
+  call at consolidation).
 
 ### 3.3 What the list is not
 
@@ -389,7 +413,7 @@ new ones.** Names are working names.
 - **No built-in restricts keys.** A key restriction on a built-in would mean concert keys
   converted per instrument, which v3.1 does not need (§2.3).
 
-## 4. Choosing, customizing and saving (proposed, O137, O138)
+## 4. Choosing, customizing and saving (D233)
 
 ### 4.1 The selection
 
@@ -421,15 +445,26 @@ remembers the preset it was **based on** (or none).
 
 - **Saving asks for the restriction** (§2.8): as now (the default), only this key and mode, or
   any.
-- **The new or overwritten preset becomes the selection.** Deleting the selected player preset
-  leaves the selection Custom with no base and the same values, so nothing is regenerated.
+- **The new or overwritten preset becomes the selection.** Deleting the selected player preset,
+  or the one Custom is based on, leaves the selection Custom with no base and the same values, so
+  nothing is regenerated. With no base, no restriction is in force (§2.6).
+- **Saving or deleting can change the restriction in force**: a save whose restriction choice
+  differs from the one in force before, or the deletion of the preset that supplied it. When it
+  does, the pre-generated phrases are discarded (§6.2); otherwise nothing (spec-writer's call at
+  consolidation).
 - **Names:** plain text, trimmed, **1 to 40 characters**, unique among all presets ignoring case,
-  built-in names included; "Custom" is reserved. A refused name says why.
+  built-in names included; "Custom" is reserved. A refused name says why. Uniqueness and the
+  limit below are checked when saving or renaming only: presets arriving from another tab's
+  writes, or a later version's new built-in name, are loaded and listed as they are, duplicates
+  included, and the player may rename them (spec-writer's call at consolidation).
 - **At most 50 player presets.** At the limit, saving a new one is refused, saying why. Each is a
-  few hundred bytes; the limit keeps the combo box usable, not the storage.
+  few hundred bytes; the limit keeps the combo box usable, not the storage. More than 50 loaded
+  (from two tabs) are all listed; saving a new one stays refused while there are 50 or more.
 - **When:** at Idle or in the Review only. The settings are locked while a session runs
   ([v2 master spec §5](../v2/master-spec.md#5-control-changes-during-a-session)), and a running
-  session never asks the player for anything.
+  session never asks the player for anything. Choosing a preset, like any control, also waits
+  while a phrase is being generated; saving, renaming and deleting do not, since they change no
+  setting (spec-writer's call at consolidation).
 - **Order and grouping** in the combo box (built-ins apart from player presets, practice purposes
   apart from styles) are `ux-writer`'s, with one requirement: the player can tell a built-in
   preset from their own, since only their own can be changed, renamed or deleted.
@@ -459,14 +494,29 @@ Player presets follow v3.0's storage rules
   a restriction, an unknown key or mode is dropped from its list, and a list left empty, or a
   missing restriction, reads "any". A record that cannot be read at all is left in place and not
   listed.
-- **Persistent storage:** saving the first player preset of a visit asks the browser for
-  persistent storage, as pinning, a favorite or "my instrument" do (v3.0 §4.5), since a preset is
-  something the player would miss.
+- **Read at start-up with the settings.** Player presets are read in the same start-up read as
+  the saved settings, before the first phrase and within the same wait (v3.0 §4.4); if that read
+  fails, the visit is a failed-read visit as a whole (spec-writer's call at consolidation).
+- **A refused save** (storage full, browser refusal) keeps the preset for this visit and tells
+  the player at once that it is not kept, as v3.0 §4.1's failed save; preset management happens
+  outside a session, so the notice needs no wait (spec-writer's call at consolidation).
+- **Persistent storage:** saving a player preset, as new or by saving changes into one, counts as
+  keeping something the player would miss: the first such save of a visit asks the browser for
+  persistent storage, unless already granted, under v3.0 §4.5's once-per-visit rule shared with
+  pinning, a favorite and "my instrument".
 - **An outdated tab** (v3.0 §4.3) saves nothing: presets made or changed there last for the page,
   under its reload notice. It offers no deletion of any kind (D223), so no preset deletion.
 - **A visit whose saved data could not be read** (v3.0 §4.4) starts from the defaults, lists the
-  built-in presets only, saves nothing, and offers no preset deletion (D224, D226).
-- **Delete everything** removes every player preset; "Your data" lists them, with their number.
+  built-in presets only, saves nothing, and offers no preset deletion (D224, D226). As in an
+  outdated tab, a preset made or changed there lasts for the page (spec-writer's call at
+  consolidation).
+- **Delete everything** removes every player preset, a record that could not be read included;
+  "Your data" lists them, with their number.
+- **Settings saved by v3.0** are migrated when the database opens (v3.0 §4.3): the saved musical
+  profile selection becomes that built-in, or Custom based on it, and the figure levels are that
+  built-in's ([embellishment-flags.md](embellishment-flags.md) §3.3); then "the values win"
+  applies, so a v3.0 selection of Jazz saved with, say, Tension at Build loads as Custom, based on
+  Jazz, since Jazz now holds Tension Lift (spec-writer's call at consolidation).
 - **Two tabs of the same version:** each save writes a whole preset; the last write wins; another
   tab sees the change after a reload.
 
@@ -488,18 +538,19 @@ Vary settings never switches to another preset. Saving what a session drifted to
 Choosing a preset whose values differ from the current settings, or that moves the key or mode,
 changes settings phrases are generated from, so it discards the pre-generated phrases (v3.0 §8).
 So does a change of the restriction in force, since with Vary settings on it changes which moves
-later phrases may make (proposed; discarding whatever the Vary settings option, which is simpler
-and rare). Saving, renaming or deleting a preset, or choosing one with identical values and
-restriction, changes nothing phrases are generated from and discards nothing (proposed).
+later phrases may make (discarding whatever the Vary settings option, which is simpler and rare).
+Saving, renaming or deleting a preset, or choosing one with identical values and restriction,
+changes nothing phrases are generated from and discards nothing, unless the save or the deletion
+changes the restriction in force (§4.2).
 
-### 6.3 What sessions and keys record (O139)
+### 6.3 What sessions and keys record (D233)
 
-- **The generation request carries the settings, not the preset's name** (proposed). The name
+- **The generation request carries the settings, not the preset's name**. The name
   only ever served to look up the chromatic capability, which the figure levels replace; carrying
   it would let a rename change nothing but a label buried in every phrase. The `ifk3.` key
   ([embellishment-flags.md](embellishment-flags.md) §5) therefore holds the ten controls and seven
   levels, and no name.
-- **The restriction is recorded nowhere** (proposed): not in the request, the replay key or a kept
+- **The restriction is recorded nowhere**: not in the request, the replay key or a kept
   session. A phrase never depends on it, only on the key and mode, which every phrase's inputs
   already hold. What it does influence is which key and mode moves Vary settings drew during a
   session; but a kept session keeps every phrase with its own inputs and its timeline (v3.0 §5.2),
@@ -509,11 +560,13 @@ restriction, changes nothing phrases are generated from and discards nothing (pr
 - **A kept session records the preset as a label**: the selection's name at the session's start,
   or "Custom, based on …", in the session's own record where v3.0 keeps its "musical profile"
   (v3.0 §5.2) and shows it in the session list (v3.0 §5.4). It is a snapshot: renaming or deleting
-  the preset later does not change it.
+  the preset later does not change it. A session kept by v3.0 shows the musical profile it recorded,
+  in the same form: Neutral, Jazz, or Custom based on one of them (spec-writer's call at
+  consolidation).
 
 ### 6.4 No export or sharing in v3.1
 
-A preset leaves the device in no file (proposed). v3.0 lists "sharing" among what stays
+A preset leaves the device in no file. v3.0 lists "sharing" among what stays
 permanently out (v3.0 master spec §2), and the full backup file is a candidate
 (D216, closing O124). If the owner reads that exclusion as server-side sharing only, a preset as a
 short text code to copy would be a candidate for later.
@@ -554,7 +607,7 @@ Honest gap: no persona goal names "saving a configuration". Player presets are t
 (D210, D228) and a comfort for every persona, the way v3.0 traces "settings come back" to P1.G1
 as comfort.
 
-## 9. Definition of done (proposed)
+## 9. Definition of done
 
 1. **Eight built-in presets** with exactly §3.2's values and restrictions; each is a supported
    rhythm setting at Sixteenth and stepped down to Eighth, and generates on the cost guard's sweep
@@ -569,7 +622,9 @@ as comfort.
 5. **The highlight** shows the restriction in force on the key and mode controls, not by color
    alone; every key and mode stays selectable.
 6. **Vary settings** never moves the key or mode outside the restriction in force at the session's
-   start; a session with no restriction draws exactly as v3.0 does.
+   start; with no restriction in force, no move is drawn again for a restriction's sake. (Draft v2
+   said "draws exactly as v3.0 does", which the figure step replacing the profile flip makes
+   untrue.)
 7. **Saving:** save as new from any state, with the restriction choice of §2.8; save changes only
    into a player preset; built-ins never change; rename and delete (with confirmation) for player
    presets only; names and the 50-preset limit enforced with a reason; nothing of this during a
@@ -579,7 +634,8 @@ as comfort.
    Delete everything removes them; an outdated tab and a failed-read visit save nothing and delete
    no preset.
 9. **Pre-generation:** choosing a preset with different values, key, mode or restriction discards
-   pre-generated phrases; saving, renaming and deleting do not.
+   pre-generated phrases; saving, renaming and deleting do not, unless they change the restriction
+   in force.
 10. **Sessions and keys:** a kept session shows the preset label it started with, unchanged by a
     later rename; `ifk3.` keys carry settings, never a preset name or restriction.
 11. **No preset leaves the device.**
@@ -609,40 +665,4 @@ For `documentalist`, when v3.1 is consolidated:
 
 ## 11. Open
 
-Register-style entries, to be copied into the [register](../../open-questions.md):
-
-- **O135 - What a preset holds** _(v3.1)_: which settings does every preset hold? Proposed: the
-  ten generation controls other than tempo, written key, collection and instrument, plus the seven
-  figure levels, a key and mode restriction ("any" unless stated; D229–D231) and a name; never a
-  key or mode value, session options, the audio mix or "my instrument"; Neutral and Jazz take Lift,
-  Shaped and Varied for the three controls they did not set, so choosing them now resets those
-  three, and their restriction is "any" (§2.1).
-- **O136 - The built-in list** _(v3.1)_: which built-in presets ship? Proposed: eight. Neutral and
-  Jazz (any key and mode), Gentle and Speed drill (any), Reel (Mixolydian or Dorian), Bebop
-  (Major), and, back now that a restriction can set the mode, Pop song (Major) and Modal (Dorian)
-  (Dorian), with §3.2's values; no built-in restricts keys; Blues, Bossa and Baroque later (§3).
-- **O137 - Managing player presets** _(v3.1)_: what may the player do with presets? Proposed: save
-  as new from any state; save changes only into a player preset, without confirmation; rename and
-  delete (with confirmation) player presets only; names of 1 to 40 characters, unique ignoring case
-  with built-ins, "Custom" reserved; at most 50; only at Idle or in the Review (§4.2).
-- **O138 - Custom and loading** _(v3.1)_: when is the selection Custom, and what wins when a saved
-  preset and saved settings disagree? Proposed: any change of a preset-held setting, or a key or
-  mode chosen outside the restriction, makes Custom, without comparing values, naming its base; on
-  load the saved values win, the selection shows Custom when they differ from the preset's or the
-  key and mode are outside its restriction, and loading never moves the key or mode (§4.1, §5).
-- **O139 - What records a preset** _(v3.1)_: do requests, keys and kept sessions record the
-  preset's settings or its name, and can a preset leave the device? Proposed: requests and keys
-  carry the settings only; the restriction is recorded nowhere; a kept session keeps the name at
-  its start as a label; no export or sharing in v3.1 (§6.3, §6.4).
-- **O161 - The restriction's form and where choosing moves** _(v3.1)_: how is a key and mode
-  restriction written, and which allowed key and mode does choosing a preset move to? Proposed: two
-  halves, keys and modes, each "any" or an ordered list, the allowed pairs being every allowed key
-  with every allowed mode; Major and Ionian (and Minor and Aeolian) distinct; no free list of pairs;
-  keys in written pitch; on choosing, each half is kept if allowed, otherwise set to its first
-  listed value, so the home note stays when only the mode is restricted (§2.4, §2.5).
-- **O162 - The restriction under Custom, in sessions and in player presets** _(v3.1)_: when does a
-  restriction apply, and what does a player preset save? Proposed: the restriction in force is the
-  selected or base preset's while the key and mode are inside it, worked out, never stored; the
-  controls highlight it; Vary settings' key and mode moves stay inside the one in force at the
-  session's start, a move outside being drawn again; saving offers "as now" (the default), "only
-  this key and mode" or "any" (§2.6–§2.8).
+None: closed by D233.

@@ -1,7 +1,17 @@
 # v3.1 — Embellishment Flags
 
-Status: draft v1 (2026-10-07). spec-writer's proposals for the owner; nothing here is approved
-beyond the decisions it cites.
+Status: draft v3 (2026-10-08). Approved by the owner as proposed (D233). Consolidated for
+building into the [v3 master spec, Part B](master-spec.md#part-b--v31); where the two differ, the
+master spec wins.
+
+**Changes from draft v1.** The owner approved every proposal (D233), so each is now stated as
+settled. spec-writer's consolidation pass added four precisions, written in where they belong:
+the `ifk3.` key carries no preset name or Custom flag (§5, as [presets.md](presets.md) §6.3 has
+it); Vary settings' figure step takes the one place in the draw the profile flip had (§7.1);
+Tension across phrases never marks Custom (§7.2); and what the cost guard's fallback means for
+the controls, Vary settings and loading, if the measurement adopts it (§6). (There was no draft
+v2 of this document; the number follows [presets.md](presets.md), so the two v3.1 drafts share
+one.)
 
 The owner's request (D210): let the player choose which decorating figures the generator may use,
 and how much it favors each, "many ways to support or alter in minor ways what's expected to be
@@ -58,11 +68,11 @@ Checked in the code on 2026-10-07 (paths relative to the repository root):
 
 ## 2. Which figures v3.1 exposes
 
-### 2.1 Family 1 only (proposed, O127)
+### 2.1 Family 1 only (D233)
 
 v3.1 exposes **figures written as ordinary notes** (family 1) and no ornament written as a symbol
 (family 2: grace notes, mordents, trills, turns, jazz articulations). Family 2 becomes a release
-of its own, after v3.2 (proposed).
+of its own, after v3.2.
 
 Why, from cost. A family-1 figure changes one place, the pitch search, and is notated, played back,
 exported and acknowledged exactly like any other note. A family-2 ornament, even with D216's
@@ -78,7 +88,7 @@ When it comes, the grace note is the cheapest first ornament
 This narrows the v3 README's "two families" (both under v3.1) to one; it does not contradict D216,
 which settled how ornaments are represented, not when they ship.
 
-### 2.2 The seven v3.1 figures (proposed, O128)
+### 2.2 The seven v3.1 figures (D233)
 
 | # | Figure | What it is, plainly | Today | Change in v3.1 | Rhythm it needs |
 | --- | --- | --- | --- | --- | --- |
@@ -87,10 +97,10 @@ which settled how ornaments are represented, not when they ship.
 | 3 | [Neighbor tone](../../../docs/music/lexicon.md#neighbor-tone) | a step away from a chord tone and straight back, upper or lower | Neutral + Jazz, free | a level (one for both directions) | three notes |
 | 4 | [Appoggiatura](../../../docs/music/lexicon.md#appoggiatura) | an outside note reached by a leap, on a strong beat, that resolves by step | Tension's figure only; never heard | **new as a free figure** (entered by a leap of 3 semitones or more, on beat 1 or 3, resolved by one scale step onto a chord tone) | a strong beat and a note before it |
 | 5 | [Diatonic enclosure](../../../docs/music/lexicon.md#enclosure) (also the [double neighbor](../../../docs/music/lexicon.md#double-neighbor)) | the scale notes above and below a target, then the target: the owner's "surrounding a note" | no | **new path shape**: two outside notes in a row, allowed inside this figure only | three back-to-back notes under one chord |
-| 6 | [Chromatic approach](../../../docs/music/lexicon.md#chromatic-approach) | one note from outside the key, a half step above or below, just before a chord tone | Jazz | a level, available in any preset (O131) | two back-to-back notes |
-| 7 | Chromatic enclosure ([enclosure](../../../docs/music/lexicon.md#enclosure)) | a half step above and below a target, at least one outside the key, then the target | Jazz | a level, available in any preset (O131) | three back-to-back notes |
+| 6 | [Chromatic approach](../../../docs/music/lexicon.md#chromatic-approach) | one note from outside the key, a half step above or below, just before a chord tone | Jazz | a level, available in any preset (D233) | two back-to-back notes |
+| 7 | Chromatic enclosure ([enclosure](../../../docs/music/lexicon.md#enclosure)) | a half step above and below a target, at least one outside the key, then the target | Jazz | a level, available in any preset (D233) | three back-to-back notes |
 
-Choices behind the list (all proposed):
+Choices behind the list (D233):
 
 - **One level per figure, not per direction.** The catalogue suggests splitting upper and lower
   neighbors, and chromatic approaches from above and below; seven levels is already a lot for a
@@ -109,7 +119,7 @@ Choices behind the list (all proposed):
 
 ## 3. The control: one level per figure
 
-### 3.1 Four levels (proposed, O129)
+### 3.1 Four levels (D233)
 
 D210 asks for "allowed or not, plus a weight". v3.1 folds both into **one level per figure**,
 four steps (names are `ux-writer`'s; the meanings are fixed here):
@@ -124,9 +134,9 @@ four steps (names are `ux-writer`'s; the meanings are fixed here):
 - **A weight orders the search; it never sets a quota** (D210, D216). No phrase is rejected or
   retried for lacking a figure. A favored figure that leads to a dead end is backed out of, as any
   candidate is, and the chord tones are tried next.
-- **"About 1 in 4" and "about 1 in 2" are starting values** (proposed), tuned by listening and by
-  the measurement in §6 before the gate. What is fixed is the order: each step up never makes the
-  figure rarer.
+- **"About 1 in 4" and "about 1 in 2" are starting values**, tuned by listening and by the
+  measurement in §6 before the gate: a named measurement, not an open question. What is fixed is
+  the order: each step up never makes the figure rarer.
 - **Which notes are drawn** is decided from the phrase seed and the note's position, with
   integer arithmetic only, so every browser draws the same (the key and mode research found
   floating-point functions can differ between browsers). At a note where several figures are
@@ -169,11 +179,11 @@ Consequence: Neutral and Jazz still sound nearly free of decorations, as today. 
 figures takes a raised level, a preset that raises them (Bebop, Speed drill in
 [presets.md](presets.md) §3), or Vary settings (§7.1).
 
-## 4. Figure levels and the Tension control (O130)
+## 4. Figure levels and the Tension control (D233)
 
 Tension's one scheduled figure is a separate mechanism with its own meaning, chosen by its own
-control. Proposed: **figure levels govern free figures only; Tension keeps its scheduled figure
-whatever the levels.** Turning the passing tone Off means "no extra passing tones"; Edge still
+control. Settled (D233): **figure levels govern free figures only; Tension keeps its scheduled
+figure whatever the levels.** Turning the passing tone Off means "no extra passing tones"; Edge still
 places its one required passing or neighbor tone or appoggiatura, and Build its two-note approach.
 
 - Why: otherwise Off on the passing and neighbor tones and the appoggiatura makes Edge
@@ -181,12 +191,12 @@ places its one required passing or neighbor tone or appoggiatura, and Build its 
   policy that "explicit controls outrank tension"
   ([pitch-planner-validation.md](../../../docs/music/pitch-planner-validation.md#authority-and-ownership))
   does not decide it, since both are explicit controls.
-- The levels do not reorder Tension's choices either (proposed): the scheduled appoggiatura stays
+- The levels do not reorder Tension's choices either: the scheduled appoggiatura stays
   as rare as today; raising the appoggiatura's level adds free appoggiaturas.
-- The alternative, for the owner to weigh: levels filter Tension's figure too, and a Tension level
+- Rejected: levels filter Tension's figure too, and a Tension level
   whose figures are all Off is refused with a reason at Idle.
 
-## 5. Determinism, the replay key and kept sessions (O133)
+## 5. Determinism, the replay key and kept sessions (D233)
 
 Every figure level enters the **generation intent**, so a phrase reproduces from its inputs, the
 pre-generated phrases equal the session's (v3.0 §8), and a kept session's inputs say how each
@@ -199,8 +209,9 @@ phrase was made.
 - **`ifk2.`** is v3.0's, to carry "my instrument" inline
   ([v3.0 master spec §7.4](master-spec.md#74-phrase-replay-key)). It is specified but not built
   yet.
-- **Proposed: a new key version, `ifk3.`**, which carries the seven figure levels explicitly, by
-  figure, along with everything `ifk2.` carries. v3.1 writes `ifk3.` for every phrase.
+- **A new key version, `ifk3.`** (D233), which carries the seven figure levels explicitly, by
+  figure, and everything `ifk2.` carries except the profile name and its Custom flag, which the
+  levels replace ([presets.md](presets.md) §6.3). v3.1 writes `ifk3.` for every phrase.
   - Why a new version rather than an extension of `ifk2.`: a v3.0 decoder that met an extended
     `ifk2.` key would either refuse it or ignore the levels and replay a different phrase without
     saying so. A new prefix makes an older app refuse the key instead of misreplaying it.
@@ -217,7 +228,7 @@ phrase was made.
   the §3.3 levels. Its generated timeline is kept as it is either way.
 - **The replay tool** (`npm run replay:phrase`) decodes all three versions.
 
-## 6. The cost guard (O132)
+## 6. The cost guard (D233)
 
 The pitch search is the generator's most expensive step, and its failures are the slow case
 (ISS-009). Each part of this design costs differently
@@ -233,7 +244,7 @@ The pitch search is the generator's most expensive step, and its failures are th
   ends that leaps create: the sample found them most often at high Leapiness. With them Off, some
   settings that succeed today may find no phrase, or find it slower.
 
-Proposed guard, part of the definition of done (§9):
+The guard, part of the definition of done (§9):
 
 - The **search allowance is not raised** (250,000 and 160,000 units stay).
 - Before the gate, the ISS-009 sweep settings and a 240 BPM session run are measured at three
@@ -241,26 +252,32 @@ Proposed guard, part of the definition of done (§9):
   and every diatonic figure Off. For each: the share of phrases generated, the slowest and the
   95th-percentile generation time, and at 240 BPM the share of phrases that fall back to being
   generated without the join.
-- **Acceptance (proposed):** against the baseline, no more than 2 percentage points more
+- **Acceptance:** against the baseline, no more than 2 percentage points more
   fallbacks at 240 BPM and no more than 2 percentage points fewer phrases generated at any swept
   setting. A level whose cost exceeds this is tuned down (a lower share) before the gate.
 - **If "every diatonic figure Off" fails that test,** v3.1 keeps one escape route instead of
   refusing the player's choice: the neighbor tone cannot be set below As today while the passing
-  tone is Off (proposed fallback; the measurement decides whether it is needed).
+  tone is Off (a fallback the measurement decides). If it is adopted, "passing tone Off and
+  neighbor tone Off" is an unsupported figure combination, handled like an unsupported rhythm
+  combination: the level control refuses the second of the two, saying why; a Vary settings step
+  that would land on it is drawn again; and a saved setting or preset holding it loads with the
+  neighbor tone at As today (spec-writer's call at consolidation).
 - Pre-generation (v3.0 §8) helps only phrases 2–5 of a session; the look-ahead deadlines after
   them are v2's, so the 240 BPM measurement is what matters.
 
 ## 7. How it meets the other settings
 
-### 7.1 Vary settings (O134)
+### 7.1 Vary settings (D233)
 
 Today Vary settings may flip the profile's name between Neutral and Jazz, keeping every control
 and marking the selection Custom (`src/session/settings-mutation-scales.ts:255-262`). That flip
 switches the chromatic figures on or off, the only thing a profile name changes in generation.
 
-Proposed for v3.1: **the "Style" step becomes "one figure moves one level"**, up or down, never
-past Off or Strongly favored, the figure drawn among the seven from the session's seeded source,
-as every other step is. It replaces the name flip, which has no meaning once figures are settings.
+v3.1 (D233): **the "Style" step becomes "one figure moves one level"**, up or down, never past
+Off or Strongly favored, the figure drawn among the seven from the session's seeded source, as
+every other step is. The seven levels together take the one place in the draw the profile had: the
+draw picks the setting, then (for this setting) the figure, then the direction, so every other
+setting is drawn as often as before (spec-writer's call at consolidation). It replaces the name flip, which has no meaning once figures are settings.
 It marks the selection Custom for the session, and every level returns to the player's own when
 the session ends, as every mutated setting does today
 ([v2 master spec §5](../v2/master-spec.md#5-control-changes-during-a-session)). A figure step never
@@ -273,8 +290,10 @@ In v3.2, the player-chosen allowed list keeps its "Style" group (D216), which th
 ### 7.2 Tension across phrases
 
 It changes only the Tension value of each phrase's request
-(`src/session/tension-arc-cycle.ts:81-95`). Figure levels are not modulated by it (proposed): a
-tenser phrase gets Tension's tenser figure, not more free figures. Nothing to change.
+(`src/session/tension-arc-cycle.ts:81-95`). Figure levels are not modulated by it: a tenser
+phrase gets Tension's tenser figure, not more free figures. Its step never reaches the settings,
+so, although Tension is now held by every preset ([presets.md](presets.md) §2.1), it never marks
+Custom (spec-writer's call at consolidation). Nothing to change.
 
 ### 7.3 Acknowledgement
 
@@ -306,7 +325,7 @@ holds: no grading, scoring or wrong-note signal, so a missed decoration is never
 
 No goal of P3's is served directly by v3.1's flags; P3.C3 waits for Jam (v3.2).
 
-## 9. Definition of done (proposed)
+## 9. Definition of done
 
 1. **Seven figure levels**, each Off, As today, Favored or Strongly favored, set at Idle, saved and
    restored like the controls, held by every preset.
@@ -320,8 +339,7 @@ No goal of P3's is served directly by v3.1's flags; P3.C3 waits for Jam (v3.2).
 5. **New figures exist.** The free appoggiatura and the diatonic enclosure appear when favored,
    and never break the existing figure rules (one resolution, chord-tone target, no figure across a
    chord change).
-6. **Tension.** Each Tension level keeps its scheduled figure whatever the levels (if O130 is
-   approved as proposed).
+6. **Tension.** Each Tension level keeps its scheduled figure whatever the levels.
 7. **Deterministic.** The same `ifk3.` key gives the same phrase in Chrome and Edge, on any
    machine; pre-generated phrases equal the session's with any levels.
 8. **The cost guard** of §6 is measured, recorded, and met.
@@ -336,7 +354,7 @@ For `documentalist`, when v3.1 is consolidated:
 - **"Neutral is entirely diatonic"** (project policy,
   [pitch-planner-validation.md](../../../docs/music/pitch-planner-validation.md#authority-and-ownership))
   becomes a property of Neutral's defaults, not a rule: a player may turn chromatic figures on
-  from Neutral (O131).
+  from Neutral (D233).
 - **The profile's grammar** (`module_musical_profile_capabilities`, the "grammar retained" status
   line of the Custom state, `rule_profile_control_customization`): the hidden grammar a Custom
   setup keeps is replaced by visible figure levels; there is nothing left to retain.
@@ -348,34 +366,5 @@ For `documentalist`, when v3.1 is consolidated:
 
 ## 11. Open
 
-Register-style entries, to be copied into the [register](../../open-questions.md):
-
-- **O127 - Ornaments' release** _(v3.1)_: do ornaments written as symbols (family 2: grace notes,
-  mordents, trills, turns, jazz articulations) ship in v3.1, or later? Proposed: later, as a
-  release of their own after v3.2, starting with the grace note; v3.1 ships figures written as
-  ordinary notes only (§2.1).
-- **O128 - The v3.1 figure set** _(v3.1)_: which figures get a level in v3.1? Proposed: seven:
-  passing tone, accented passing tone, neighbor tone, appoggiatura (new as a free figure),
-  diatonic enclosure (new), chromatic approach, chromatic enclosure; one level per figure, not per
-  direction (§2.2).
-- **O129 - What a level means** _(v3.1)_: what does the player set per figure? Proposed: one
-  control with four levels (Off, As today, Favored, Strongly favored); Favored and Strongly
-  favored try the figure before the chord tones at about 1 in 4 and 1 in 2 of the eligible notes,
-  seeded, integer-only, tuned before the gate; never a quota (§3.1).
-- **O130 - Levels against Tension's figure** _(v3.1)_: when a figure is Off, may the Tension
-  control still schedule it? Proposed: yes; levels govern free figures only, so every Tension
-  level stays possible (§4).
-- **O131 - Chromatic figures outside Jazz** _(v3.1)_: may a player turn a chromatic figure on
-  from Neutral or any other preset? Proposed: yes; "Neutral is entirely diatonic" becomes
-  Neutral's defaults, not a rule (§2.2, §10).
-- **O132 - The cost guard** _(v3.1)_: what must the generator meet with the new figures and
-  levels, and is "every diatonic figure Off" allowed? Proposed: no raised search allowance;
-  measured on the ISS-009 sweep and at 240 BPM; at most 2 points more fallbacks and 2 points fewer
-  phrases than the Neutral and Jazz baseline; the neighbor tone kept at As today or above while
-  the passing tone is Off only if the measurement shows it is needed (§6).
-- **O133 - The replay key for figure levels** _(v3.1)_: how do keys carry the levels? Proposed: a
-  new version, `ifk3.`, storing every level by figure; `ifk1.` and `ifk2.` keys decode with their
-  profile's Neutral or Jazz levels; a key naming an unknown figure is refused (§5).
-- **O134 - Vary settings' style step** _(v3.1)_: what replaces the Neutral and Jazz name flip?
-  Proposed: one figure moves one level, marking Custom for the session and restored at its end;
-  in v3.2 it is the allowed list's "Style" group (§7.1).
+None: closed by D233. The starting shares of §3.1 and the cost guard of §6 are measurements
+made before the gate, not open questions.
