@@ -1,7 +1,8 @@
 # Versions
 
-Status: draft v0.5 (v2 and v3 rows updated 2026-10-03, D173–D175; v2 row 2026-10-05, D183; v2
-released 2026-10-07, D208; v3 split into releases and v4 row updated 2026-10-07, D211, D212)
+Status: draft v0.6 (v2 and v3 rows updated 2026-10-03, D173–D175; v2 row 2026-10-05, D183; v2
+released 2026-10-07, D208; v3 split into releases and v4 row updated 2026-10-07, D211, D212;
+build-plan workflow 2026-10-09, D252)
 
 The scope of each planned version of Infinite Flow is kept in its own folder. The ordered
 timeline is in the [roadmap](../roadmap.md). The product-wide principles are in the
@@ -16,6 +17,12 @@ timeline is in the [roadmap](../roadmap.md). The product-wide principles are in 
 - Once a version is actively specced, its folder also holds that version's topic documents
   (mechanics, data model, flows…) and finally its **master spec**, the handoff to
   `coding-leader`.
+- A version's **build plan** runs wave by wave (D252). Each wave starts with one intent preflight
+  (architecture captures included) and ends with one wave gate: `npm run quality`, the sweep when
+  needed, the bundle figure and one post-task sync. Each chunk does tests first, implement,
+  verify and documents, and its verify covers only its own change. Chunks merge into a wave
+  branch; the wave merges into `main` after its gate, when the owner asks. The v3 build plans'
+  §3 is the model.
 - Version numbers beyond v2 are the user's rough placements, not commitments.
 - Cross-version work that must be built early is tracked in
   [prerequisites.md](prerequisites.md) (being drafted).

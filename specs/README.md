@@ -57,9 +57,11 @@ Status: draft v0.47
   plus uncommitted candidates.
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
-  [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (approved) and
-  [v3.1](versions/v3/build-plan-v3.1.md) (draft v1, not approved) and
-  [v3.2](versions/v3/build-plan-v3.2.md) (draft v1, not approved).
+  [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (approved; v2 moves the workflow to wave
+  level, D252), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved) and
+  [v3.2](versions/v3/build-plan-v3.2.md) (draft v2, not approved). Every build plan runs wave by
+  wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own
+  change.
 - [Personas](personas.md) (draft): who the product serves.
 - [Far vision](vision/far-vision.md) (draft): the long-term direction and the guiding principles.
   The [endgame](vision/endgame.md) describes the rhythm RPG horizon.

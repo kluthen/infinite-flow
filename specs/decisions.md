@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.73
+Status: draft v2.74
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -624,3 +624,24 @@ fact in the live documents (see the [archive index](archive/README.md) and
   "there is no session seed" was stale against Part A §8's fixed session seeds; reworded (C6.2,
   C14, C15) with no behaviour change: the suggestion is seeded by the doodle alone, the rhythm
   change by each phrase's own seed, and a fresh Jam fixes its session seeds at Start.
+- **D252 (2026-10-09): build plans run wave by wave; a chunk checks only its own change.** The
+  owner's call, for a better quality-to-cost ratio than the per-chunk workflow v1, v2 and the
+  first v3 plans used: the last iterations of that workflow cost a lot. He accepts that the
+  chunks of one wave may drift a little apart until the wave gate. It applies to the v3.0, v3.1 and
+  v3.2 build plans (§3 of each) and to every later version's build plan. (1) **Wave start:**
+  `documentalist` runs one intent preflight for the whole wave, with every architecture capture
+  the wave needs, before any code; a chunk runs no preflight of its own. (2) **Chunk:** tests
+  first, implement, verify, documents. Verify covers only the chunk's change: its Done when, the
+  tests it adds or changes, the existing unit tests related to the files it touches, typecheck,
+  lint and format, and a debug run. It runs no full suite, sweep, bundle or timing measurement
+  unless that check is the chunk's point (a measurement or performance chunk, or that area's own
+  chunk). Generator chunks keep the replay-corpus guard at chunk level, because it tests exactly
+  what they change. (3) **Wave gate:** `npm run quality`, the sweep when a wave chunk needs it,
+  the bundle figure, the measurements chunks defer to it, then one post-task sync over the wave
+  (every chunk's revisions and drift checks). (4) **Order:** wave by wave, number order inside a
+  wave, replacing the plans' plan-wide "number order", which interleaved waves in time. A chunk
+  still blocked when the rest of its wave is done moves to the next wave. (5) **Branches** (the
+  owner's choice among three): each chunk merges into a wave branch without owner approval; the
+  wave merges into `main` after its gate, when the owner asks, so `main` only receives gated
+  waves. v3.0 wave 0 is the switch-over: chunk 0 stays as merged, and chunk 1's branch merges into
+  the wave-0 branch with chunk 2.

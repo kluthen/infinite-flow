@@ -1,6 +1,8 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: draft v1 (2026-10-08), not approved; written while implementation is paused. The owner reviews it with the v3.1 design.
+Status: draft v2 (2026-10-09): the workflow moves to wave level (spec D252,
+[§3](#3-workflow-waves-and-chunks)); draft v1 (2026-10-08), not approved; written while
+implementation is paused. The owner reviews it with the v3.1 design.
 
 Build plan for v3.1, embellishment figures and presets, written from
 [master spec Part B](master-spec.md#part-b--v31) (v1.0, approved 2026-10-08) and the v3.1 design
@@ -17,7 +19,7 @@ they cite still exists; the few drifts are in [§9](#9-code-facts-checked-on-202
 [v3.0 build plan](build-plan.md) is merged and the v3.0 gate passed: the storage under
 `src/storage/`, the settings record, tolerant loading, the kept-session record, the `ifk2.` key,
 the session seed plan and pre-generation. It names v3.0's planned modules as that plan names them
-("v3.0 chunk _n_"); where v3.0 lands a module elsewhere, the chunk's preflight follows the code.
+("v3.0 chunk _n_"); where v3.0 lands a module elsewhere, the wave's preflight follows the code.
 
 It is read by whoever builds v3.1, and by the owner. Music terms are explained where they first
 appear, with a link to the project [lexicon](../../../docs/music/lexicon.md) when it has an entry.
@@ -60,10 +62,13 @@ Some steps are not code and need the owner. They are part of the sequence:
 
 ### Waves
 
-The owner's rule is **one coding chunk in flight at a time**, so waves are not run side by side:
-chunks run one after another in number order. The waves say which chunks are independent: a chunk
-whose wave has started may be taken out of number order when the next one is blocked (waiting for
-the owner, a design answer or a measurement). Chunks in one wave touch different source files.
+Waves run one after another. Inside a wave, chunks run one at a time in number order: the owner's
+rule is **one coding chunk in flight at a time**. Each wave starts with one intent preflight, ends
+with one wave gate (the full test pass, the bundle and the post-task sync), and reaches `main` as
+one merge ([§3](#3-workflow-waves-and-chunks)). The chunks in a wave are independent of each other
+and touch different source files, so one preflight can cover them all. A chunk still blocked when
+the rest of its wave is done (waiting for the owner, a design answer or a measurement) moves to the
+next wave.
 
 | Wave | Chunks | Waits for |
 | --- | --- | --- |
@@ -186,21 +191,47 @@ Proposed here, settled by `documentalist`'s architecture captures in the chunks 
   sheets (M4). The built-in table, the preset bar and the seven level controls are in the entry
   chunk.
 
-## 3. Workflow for every chunk
+## 3. Workflow: waves and chunks
 
-Each chunk runs in its own git worktree next to the repository
-(`/home/bastien/work/infinite_flow-v31-c<n>`; never reuse `../infinite_flow-perf-investigation`),
-on a branch from `main` (`v3.1-c<n>-<slug>`). It ends with one commit and a `--no-ff` merge into
-`main`, made when the owner asks. **One coding chunk is in flight at a time.** The six steps run in
-this order; a chunk isn't finished until step 6 is done.
+Work runs **wave by wave**. The intent checks and the full test and performance pass happen once
+per wave; a chunk tests only what it changed. The owner chose this on 2026-10-09 (spec D252) for a
+better quality-to-cost ratio. He accepts that the chunks of one wave may drift a little apart
+before the wave gate catches it.
 
-1. **Intent preflight.** `documentalist` runs its preflight (the full pass, then again with the
-   chunk's files), starting from the chunk's **Atoms** line. A missing or conflicting atom stops
-   the chunk until it is resolved: a spec gap goes to `spec-writer`, a design gap to `ux-writer`.
-   A chunk marked **Architecture capture** settles a piece of architecture: `documentalist`
-   records it before any code. ATD covers business behaviour and architecture only, never
-   tooling, tests' plumbing or measurement scripts (chunks 2, 3 and 11 add no atom).
-2. **Tests first, red to green.** Write the tests for the chunk's **Done when** first and see them
+**Order.** One wave at a time, in wave order. Inside a wave, one chunk at a time, in number order.
+**One coding chunk is in flight at a time.** A chunk may go ahead of a blocked lower-numbered chunk
+of the same wave. If a chunk is still blocked when the rest of its wave is done (it is waiting for
+the owner, a design answer or a measurement), it leaves the wave: the wave closes without it, and
+it joins the next wave, whose preflight covers it.
+
+**Branches.** At the start of a wave, a wave branch `v3.1-w<n>` is made from `main` in its own
+worktree (`/home/bastien/work/infinite_flow-v31-w<n>`). Each chunk runs in its own worktree
+(`/home/bastien/work/infinite_flow-v31-c<n>`) on a branch made from the wave branch
+(`v3.1-c<n>-<slug>`). It ends with one commit, merged `--no-ff` into the wave branch as soon as
+its chunk checks pass; that merge needs no owner approval. The wave branch merges `--no-ff` into
+`main` after the wave gate, when the owner asks, so `main` only ever receives waves that passed
+the full gate. Never reuse `../infinite_flow-perf-investigation`.
+
+### Wave start: intent preflight
+
+1. `documentalist` runs its preflight **once for the whole wave**. It does the full pass, then
+   runs again with the files of every chunk in the wave, starting from the chunks' **Atoms**
+   lines. A missing or conflicting atom stops the chunk it concerns until it is resolved: a spec
+   gap goes to `spec-writer`, a design gap to `ux-writer`. The wave's other chunks go on, because
+   chunks in one wave are independent.
+2. For every chunk of the wave marked **Architecture capture**, `documentalist` records the
+   architecture now, before any code, in a commit on the wave branch.
+3. A chunk runs no preflight of its own. If a chunk still meets an atom that contradicts it, it
+   stops and reports it as in step 1. It never fixes it silently.
+
+ATD covers business behaviour and architecture only, never tooling, tests' plumbing or
+measurement scripts (chunks 2, 3 and 11 add no atom).
+
+### Every chunk: four steps
+
+A chunk is finished when step 4 is done and it is merged into the wave branch.
+
+1. **Tests first, red to green.** Write the tests for the chunk's **Done when** first and see them
    fail on an assertion about the missing behaviour, not an import error.
    - Pure logic gets Vitest unit tests under `tests/unit/`, mirroring `src/`. Storage runs on
      `fake-indexeddb` (v3.0 chunk 4) and saved data is seeded through the harness's storage seam
@@ -211,37 +242,66 @@ this order; a chunk isn't finished until step 6 is done.
    - **Every chunk that touches generation (4–9, 12, 15, 20) runs the v3.0 corpus of
      [chunk 2](#chunk-2--baselines-the-v30-phrase-corpus-and-the-bundle) and the cold-generation
      goldens unchanged.** A red corpus means Neutral or Jazz no longer reproduces v3.0: stop and
-     find why, never re-record.
-3. **Implement** until the tests pass, following [`CODING_RULE.md`](../../../CODING_RULE.md): crash
+     find why, never re-record. This guard is part of the chunk checks, not the wave gate: it
+     tests exactly what such a chunk changes, and a regression found a wave later costs far more
+     to trace.
+2. **Implement** until the tests pass, following [`CODING_RULE.md`](../../../CODING_RULE.md): crash
    early, no silent fallbacks (tolerant loading is the spec's explicit exception, and lives in the
    codecs), injected seams instead of test-only branches, an injected clock and id source, the
    file-size limits. Interface code uses only the classes and tokens of `src/styles/`; no raw
    visual value.
-4. **Verify.**
-   - The chunk's **Done when** holds, and `npm run quality` passes on an idle machine. **Never run
-     `atd audit` alongside tests**: it saturates the machine and makes timing tests fail.
-   - A generation chunk also runs `npm run test:sweep` (on an idle machine; it takes long).
-   - The entry chunk's size after `npm run build` is written in the commit message, with its change
-     from the previous chunk ([M4](#m4--the-first-load-bundle)).
-   - Performance on a virtual machine never gates: a figure measured there is recorded with the
-     machine and date, for reference. Budgets are checked by the owner on the reference machine.
+3. **Verify the change, not the whole app.** These are the **chunk checks**; each chunk's
+   **Verification** line starts from them:
+   - The chunk's **Done when** holds.
+   - The tests the chunk adds or changes pass, and so does the corpus guard of step 1 for a
+     generation chunk. So do the existing unit tests of the source files it touches
+     (`npx vitest related --run <those files>`) and the Playwright specs it adds or edits.
+   - `npm run typecheck`, `npm run lint` and `npm run format:check` pass, and
+     `npm run lint:links` passes when the chunk changed a Markdown file.
    - A debug run shows the behaviour on screen (`npm run dev` in Chromium, or the workspace
      harness), with a landscape phone-sized window for anything below `bp-tablet-landscape`.
      **Never edit the repository while the owner is testing on the dev server**: Vite reloads his
      page. Batch any write until he pauses.
-5. **Documents.** `README.md` (directory boundaries, the quality-gate table), `docs/storage.md`
+   - The chunk does **not** run `npm run quality`, the full end-to-end, accessibility or notation
+     suites, the sweep, a bundle measurement or a timing measurement, unless its **Verification**
+     line names that check. A line names one only when the check is the chunk's point: a
+     measurement chunk (3, 11), or a chunk whose change is that area (the notation snapshots in
+     chunk 1). A check the line places "at the wave gate" waits for the wave gate.
+4. **Documents.** `README.md` (directory boundaries, the quality-gate table), `docs/storage.md`
    (records, data versions), `docs/testing.md` (every new seam, fake, fixture and script), the
    area's own document (`docs/session-engine.md`, `docs/phrase-workspace.md`,
    `docs/generation-latency.md`, [`docs/music/`](../../../docs/music/README.md)), and the lexicon
    entries B11 lists, rewritten from "planned" to "built" when the chunk builds what they describe.
    A place where the code had to differ from the spec or the design is reported to `spec-writer`
    or `ux-writer`, never fixed silently.
-6. **Post-task sync.** `documentalist` checks the `@spec-link` / `@test-link` tags (**directly
-   above the function or test, never at the top of a file**), confirms the atoms still describe the
-   code, applies the chunk's **Revise** list (the non-STABLE atoms tagged `changes-in-v3.1`,
-   [change set part E](../../../docs/release/v3.1-v3.2-intent-change-set.md)), runs the drift
-   check of the chunk's **Drift check** list (part F), and advances a status only with the owner's
-   agreement. `npm run atd:lint` and `npm run atd:check` pass.
+
+### Wave end: the wave gate
+
+"The gate" alone still means the release gate, chunk 21; "the wave gate" is this one.
+
+When the wave's last chunk is merged into the wave branch, on that branch and on an idle machine
+(**never run `atd audit` alongside tests**: it saturates the machine and makes timing tests fail):
+
+1. **The full test pass.** `npm run quality`, and `npm run test:sweep` when a chunk of the wave
+   places the sweep at the wave gate (every generation chunk does; it takes long), with every
+   other check or measurement a chunk's **Verification** line places there. A failure is traced to
+   the chunk that caused it and fixed on the wave branch in a commit of its own. A fix that would
+   change behaviour the spec or the design states goes to `spec-writer` or `ux-writer` instead.
+2. **The bundle.** The entry chunk's size after `npm run build`, with its change since the
+   previous wave ([M4](#m4--the-first-load-bundle)), is written in the wave's merge commit message.
+   A chunk's "lazy" claim about the entry chunk is checked here.
+3. **Performance.** A figure measured on a virtual machine never gates: it is recorded with the
+   machine and date, for reference. The owner checks budgets on the reference machine.
+4. **Post-task sync, once for the wave.** `documentalist` runs it over the wave's whole diff. It
+   checks the `@spec-link` / `@test-link` tags (**directly above the function or test, never at
+   the top of a file**), confirms the atoms still describe the code, applies every chunk's
+   **Revise** list (the non-STABLE atoms tagged `changes-in-v3.1`,
+   [change set part E](../../../docs/release/v3.1-v3.2-intent-change-set.md)) and runs every
+   chunk's **Drift check** list (part F). It advances a status only with the owner's agreement.
+   `npm run atd:lint` and `npm run atd:check` pass. The sync is committed on the wave branch.
+5. **Merge.** The owner gets a short report: the chunks merged, any chunk moved to the next wave,
+   the gate's results, the bundle figure and the sync's changes. The wave branch merges into
+   `main` when he asks. Then its worktrees and branches are removed.
 
 ## 4. Measurements
 
@@ -260,8 +320,9 @@ chunk stops.
   are tuned by listening (H1) and by the cost guard (M2).
 - **How:** chunk 3's census script over a fixed seed sweep (the deadline sweep's 568 rhythm
   settings × two seeds, each of the nine modes), one figure raised at a time from the Neutral
-  defaults, then all raised. Run on v3.0 in chunk 3 (the As today baseline), in chunk 6 and 7 as
-  each lands, in chunk 11, and finally in the gate after tuning.
+  defaults, then all raised. Run on v3.0 in chunk 3 (the As today baseline), in chunks 5, 6 and 7 as
+  each lands (the census is their acceptance test, so it stays a chunk check), in chunk 11, and
+  finally in the release gate after tuning.
 - **Recorded:** a new "Embellishment figures" section of `docs/generation-latency.md`, with the
   final shares; the constants carry a comment pointing there.
 
@@ -325,9 +386,9 @@ passing tone and the neighbor tone may not both be Off**; if it passes, the rule
 - **What:** the entry chunk stays within its 224 kB budget (`scripts/verify-boundaries.mjs`,
   `entryChunkByteBudget`). v3.0 left little headroom; the combo box, seven level controls and the
   built-in table add code (B12).
-- **How:** chunk 2 records the baseline on the v3.0 release; every chunk records its entry size and
-  change (step 4). The preset sheet and Your data's Presets section load on demand. Raising the
-  budget needs the owner.
+- **How:** chunk 2 records the baseline on the v3.0 release; every wave gate records the entry size
+  and its change since the previous wave ([§3](#wave-end-the-wave-gate)). The preset sheet and Your
+  data's Presets section load on demand. Raising the budget needs the owner.
 - **Recorded:** each commit message, and the gate's release notes.
 
 ## 5. Hand checks
@@ -378,9 +439,9 @@ master spec Part B and the state v3.0's gate left, before the first v3.1 chunk r
 **Done when:** each Part B behaviour is stated by an atom (still DRAFT); `npm run atd:lint` and
 `npm run atd:check` pass; the change set file records what changed, if anything.
 
-**Items covered:** none directly; every later chunk's preflight relies on it.
+**Items covered:** none directly; every later wave's preflight relies on it.
 
-**Verification:** `documentalist`'s ingestion report; `npm run quality`.
+**Verification:** `documentalist`'s ingestion report; the chunk checks.
 
 ### Chunk 1 — Token-source pass, part 1 (v3.1)
 
@@ -409,12 +470,12 @@ removes it, which then deletes those classes. Part 2 (v3.2) is not applied, so t
 plan leaves to the owner).
 
 **Done when:** every class and token part 1 names exists in `src/styles/`; no v3.1 handoff names a
-class that exists nowhere (`preset-status` excepted until chunk 13); `npm run quality` passes with
+class that exists nowhere (`preset-status` excepted until chunk 13); `npm run test:notation` passes with
 no snapshot change; `npm run lint:links` passes.
 
 **Items covered:** none directly; it unblocks 13, 14, 17, 18 and 20.
 
-**Verification:** `npm run quality`; a `grep` of each v3.1 handoff's class names against
+**Verification:** the chunk checks; a `grep` of each v3.1 handoff's class names against
 `src/styles/`.
 
 ### Chunk 2 — Baselines: the v3.0 phrase corpus and the bundle
@@ -448,7 +509,7 @@ and `rule_seeded_phrase_reproduction`, whose test links chunk 8 adds.
 
 **Items covered:** 2 and 19 (as the guard for chunks 4–9 and 12).
 
-**Verification:** `npm run quality`; the corpus test is red if any timeline is changed by hand.
+**Verification:** the chunk checks; the corpus test is red if any timeline is changed by hand.
 
 ### Chunk 3 — Measurement tools: the figure census and the cost runner
 
@@ -485,7 +546,7 @@ each figure exactly; both scripts run on `main` and their baselines are recorded
 
 **Items covered:** none directly; M1 and M2 rest on it (items 3, 8, 9).
 
-**Verification:** `npm run quality` (the census's own unit test); the baseline runs.
+**Verification:** the chunk checks (the census's own unit test); the baseline runs.
 
 ### Chunk 4 — Figure levels in the generation request
 
@@ -539,7 +600,7 @@ its chromatic allowance from them, without changing a single note.
 
 **Items covered:** 1 (the levels exist), 2 (guarded).
 
-**Verification:** `npm run quality`; `npm run test:sweep`; entry chunk size recorded.
+**Verification:** the chunk checks; the sweep at the wave gate; the bundle at the wave gate.
 
 ### Chunk 5 — Levels gate the figures
 
@@ -595,7 +656,7 @@ their fixtures read the capability today); [`docs/music/pitch-planner-validation
 
 **Items covered:** 5 (the validator accepts exactly what the levels allow), 6, 2 (guarded).
 
-**Verification:** `npm run quality`; `npm run test:sweep`; M1 run for the record.
+**Verification:** the chunk checks; the sweep at the wave gate; M1 run for the record.
 
 ### Chunk 6 — Favored levels order the search
 
@@ -646,7 +707,7 @@ search modules, `module_named_stream_pseudorandomness` (its hash tie keys),
 
 **Items covered:** 3, 4, 7 (the draws are integer-only), 2 (guarded).
 
-**Verification:** `npm run quality`; `npm run test:sweep`; M1.
+**Verification:** the chunk checks; the sweep at the wave gate; M1.
 
 ### Chunk 7 — Two new free figures: the appoggiatura and the diatonic enclosure
 
@@ -687,7 +748,7 @@ chunk 3; tests under `tests/unit/domain/pitch/`.
 
 **Items covered:** 5 (the new figures), 3, 21 (acknowledgement for the new figures).
 
-**Verification:** `npm run quality`; `npm run test:sweep`; M1.
+**Verification:** the chunk checks; the sweep at the wave gate; M1.
 
 ### Chunk 8 — Replay key `ifk3.`; the profile leaves the request
 
@@ -756,7 +817,7 @@ tests under `tests/unit/generation-worker/`, `tests/unit/scripts/`, `tests/unit/
 
 **Items covered:** 19, 7 (the key reproduces; H3 for Edge), 20 (reading v3.0 phrases).
 
-**Verification:** `npm run quality`; `npm run replay:phrase -- <key>` for each version by hand; H3.
+**Verification:** the chunk checks; `npm run replay:phrase -- <key>` for each version by hand; H3.
 
 ### Chunk 9 — Kept sessions hold the levels and the preset label
 
@@ -811,7 +872,7 @@ started with.
 
 **Items covered:** 20, 2 (old sessions' notes unchanged).
 
-**Verification:** `npm run quality`; M3 (upgrade half); a debug run opening a kept v3.0 session.
+**Verification:** the chunk checks; M3 (upgrade half); a debug run opening a kept v3.0 session.
 
 ### Chunk 10 — The preset model
 
@@ -879,7 +940,7 @@ Custom and the Restriction; Routing Rules: names, the limit, Save as new, Save c
 **Items covered:** 9 (values, restrictions, rhythm support), 10, 11, 14 (the rules) — each proved
 again in the workspace by its interface chunk.
 
-**Verification:** `npm run quality`.
+**Verification:** the chunk checks.
 
 ### Chunk 11 — The cost guard, first run
 
@@ -908,7 +969,7 @@ decision is recorded by `spec-writer`; M1 is recorded at the shares in force.
 
 **Items covered:** 8 (first measurement and decision), 9 (generates on the sweep), 3.
 
-**Verification:** the runs themselves; `npm run quality` if a constant changed (the corpus is
+**Verification:** the runs themselves; the chunk checks if a constant changed (the corpus is
 unaffected: Neutral and Jazz make no draw).
 
 ### Chunk 12 — Presets replace the musical profile
@@ -946,8 +1007,9 @@ flip with the figure step, without the full preset bar yet.
 - **Kept sessions:** the preset label comes from the selection at the session's start.
 - **Pre-generation:** a preset choice that changes a value discards as a control change does; v3.0's
   "profile change" test becomes a preset-change test (the full B8.3 set is chunk 19's).
-- **The documentalist's escalation (step 6):** delete `rule_mutation_profile_flip_keeps_controls`;
-  move its `@spec-link` (`src/session/settings-mutation-scales.ts`) and `@test-link`s
+- **The documentalist's escalation (the wave's post-task sync):** delete
+  `rule_mutation_profile_flip_keeps_controls`; move its `@spec-link`
+  (`src/session/settings-mutation-scales.ts`) and `@test-link`s
   (`tests/unit/session/settings-mutation-scales.spec.ts`,
   `tests/e2e/session/session-vary-settings.spec.ts`) to `rule_vary_settings_figure_step`, each
   directly above the figure step's function and its tests; remove it from
@@ -1008,8 +1070,8 @@ Opting out, During a session), [`flows/play-session/handoff.md`](../../../ui_ux/
 **Items covered:** 10, 11, 13 (the figure step, Custom, restore, Tension across phrases), 20 (the
 label), 2 (guarded).
 
-**Verification:** `npm run quality`; `npm run test:sweep` (session draws); a debug run of a Vary
-settings session.
+**Verification:** the chunk checks; the sweep at the wave gate (session draws); a debug run of a
+Vary settings session.
 
 ### Chunk 13 — The preset bar and the key and mode marks
 
@@ -1070,8 +1132,8 @@ The highlight, Focus, Nothing is announced), [`ui_ux/motion.md`](../../../ui_ux/
 
 **Items covered:** 10, 11, 12.
 
-**Verification:** `npm run quality`; `npm run test:a11y`; phone and desktop debug runs; entry chunk
-size recorded.
+**Verification:** the chunk checks; the accessibility checks of what it adds; phone and desktop
+debug runs; the bundle at the wave gate.
 
 ### Chunk 14 — The Embellishments group
 
@@ -1111,7 +1173,7 @@ pre-generated phrases and never regenerates the phrase on screen. First visit: N
 
 **Items covered:** 1 (set at Idle, locked during a session), 11, 18 (a level change discards).
 
-**Verification:** `npm run quality`; `npm run test:a11y`; H1, H2.
+**Verification:** the chunk checks; the accessibility checks of what it adds; H1, H2.
 
 ### Chunk 15 — Vary settings inside the restriction
 
@@ -1159,7 +1221,7 @@ not (opting out, coming back inside; saves and deletions arrive in chunk 17).
 **Items covered:** 13 (inside the restriction; none in force unbounded), 7 (pre-generated phrases
 equal the session's with any levels and a restriction), 18 (the restriction's half).
 
-**Verification:** `npm run quality`; `npm run test:sweep`; H4.
+**Verification:** the chunk checks; the sweep at the wave gate; H4.
 
 ### Chunk 16 — Presets and levels on the device
 
@@ -1229,8 +1291,7 @@ off), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-work
 **Items covered:** 1 (saved and restored), 15 (but renaming, chunk 17), 16 (writes nothing in both
 visits; lists as specified).
 
-**Verification:** `npm run quality`; M3; a debug run reloading with seeded v3.0 data; H5 at the
-gate.
+**Verification:** the chunk checks; M3; a debug run reloading with seeded v3.0 data; H5 at the gate.
 
 ### Chunk 17 — Preset management: the actions and the preset sheet
 
@@ -1314,8 +1375,8 @@ saved; Asking for protection), [`screens/phrase-workspace/handoff.md`](../../../
 **Items covered:** 14, 15 (rename keeps the selection), 16 (refused save, no deletion while saving
 is off), 17, 21 (exports).
 
-**Verification:** `npm run quality`; `npm run test:a11y`; phone and desktop debug runs; entry chunk
-size recorded (the sheet is lazy).
+**Verification:** the chunk checks; the accessibility checks of what it adds; phone and desktop
+debug runs; the bundle at the wave gate (the sheet is lazy).
 
 ### Chunk 18 — Your data and Delete everything
 
@@ -1360,7 +1421,7 @@ deletions, After a preset's deletion), [`flows/presets/handoff.md`](../../../ui_
 
 **Items covered:** 16 (Delete everything, Your data), 14 (deleting).
 
-**Verification:** `npm run quality`; entry chunk size recorded (the sheet is lazy).
+**Verification:** the chunk checks; the bundle at the wave gate (the sheet is lazy).
 
 ### Chunk 19 — Pre-generation discards
 
@@ -1395,7 +1456,7 @@ queue), and an e2e test shows the ready phrases dropped on a Reel choice and kep
 
 **Items covered:** 18.
 
-**Verification:** `npm run quality`.
+**Verification:** the chunk checks.
 
 ### Chunk 20 — Passing and neighbor never both Off (conditional)
 
@@ -1432,7 +1493,7 @@ figure Off" is no longer reachable from the controls.
 
 **Items covered:** 8 (if adopted, the rule holds in the controls, Vary settings and loading).
 
-**Verification:** `npm run quality`.
+**Verification:** the chunk checks.
 
 ### Chunk 21 — v3.1 release gate
 
@@ -1500,7 +1561,7 @@ verification. The gate copies this into the release notes with the final test na
 | 19 Replay keys | 2, 8 | `ifk3.` round trip; `ifk1.`/`ifk2.` corpora; unknown figure refused; replay tool on all three |
 | 20 Kept sessions | 8, 9, 12 | version 2 migration test with byte-identical exports; label snapshot test |
 | 21 Acknowledgement and exports unchanged; no preset leaves the device | 7, 17, 21 | acknowledgement tests on figure notes; export byte scan; network privacy spy |
-| 22 v3.0 and v2 otherwise unchanged | every chunk | `npm run quality`; the replaced-tests table of [§2](#2-read-first-what-v31-changes-in-v30-and-v2) |
+| 22 v3.0 and v2 otherwise unchanged | every wave gate | `npm run quality`; the replaced-tests table of [§2](#2-read-first-what-v31-changes-in-v30-and-v2) |
 | 23 Contract | done (D246), 21 | the confirmation in the CONTRACT 3.0 atom's notes |
 
 ## 8. Risks
