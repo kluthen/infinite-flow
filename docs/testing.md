@@ -1563,23 +1563,36 @@ the tree as if it were `src/`:
 - `tests/unit/boundaries/eslint-boundaries.spec.ts` lints each file through the ESLint Node API
   with the real `eslint.config.js`, as if it sat at `src/<same path>`.
 
-| Path (under `tests/fixtures/boundaries/src/`)     | What it holds                                                                   | Expected                            |
-| ------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------------------- |
-| `audio/audio-context.ts`                          | `new AudioContext()`, `new OfflineAudioContext(…)`, `window.webkitAudioContext` | Allowed                             |
-| `midi/audio-context.ts`, `other/audio-context.ts` | The same three audio contexts                                                   | Rejected by both checks             |
-| `midi/midi-access.ts`                             | `navigator.requestMIDIAccess()`                                                 | Allowed                             |
-| `audio/midi-access.ts`, `other/midi-access.ts`    | The same MIDI request                                                           | Rejected by both checks             |
-| `audio/network.ts`, `midi/network.ts`             | A `fetch` POST to another origin                                                | Rejected, even in these directories |
-| `audio/microphone.ts`, `midi/microphone.ts`       | `navigator.mediaDevices.getUserMedia({ audio: true })`                          | Rejected, even in these directories |
-| `audio/storage.ts`, `midi/storage.ts`             | `localStorage.setItem(…)`                                                       | Rejected, even in these directories |
+| Path (under `tests/fixtures/boundaries/src/`)               | What it holds                                                                   | Expected                            |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------------------- |
+| `audio/audio-context.ts`                                    | `new AudioContext()`, `new OfflineAudioContext(…)`, `window.webkitAudioContext` | Allowed                             |
+| `midi/audio-context.ts`, `other/audio-context.ts`           | The same three audio contexts                                                   | Rejected by both checks             |
+| `midi/midi-access.ts`                                       | `navigator.requestMIDIAccess()`                                                 | Allowed                             |
+| `audio/midi-access.ts`, `other/midi-access.ts`              | The same MIDI request                                                           | Rejected by both checks             |
+| `storage/indexed-db.ts`                                     | `indexedDB.open(…)`                                                             | Allowed                             |
+| `storage/storage-persist.ts`                                | `navigator.storage.persist()`                                                   | Allowed                             |
+| `{audio,midi,session,export,components}/indexed-db.ts`      | The same `indexedDB.open(…)`                                                    | Rejected by both checks             |
+| `{audio,midi,session,export,components}/storage-persist.ts` | The same `navigator.storage.persist()`                                          | Rejected by both checks             |
+| `audio/network.ts`, `midi/network.ts`                       | A `fetch` POST to another origin                                                | Rejected, even in these directories |
+| `audio/microphone.ts`, `midi/microphone.ts`                 | `navigator.mediaDevices.getUserMedia({ audio: true })`                          | Rejected, even in these directories |
+| `audio/storage.ts`, `midi/storage.ts`                       | `localStorage.setItem(…)`                                                       | Rejected, even in these directories |
+| `storage/local-storage.ts`, `storage/session-storage.ts`    | `localStorage.setItem(…)`, `sessionStorage.setItem(…)`                          | Rejected, even in `storage/`        |
+| `storage/cache-api.ts`                                      | `caches.open(…)`                                                                | Rejected, even in `storage/`        |
+| `storage/document-cookie.ts`, `storage/cookie-store.ts`     | A `document.cookie` write, `cookieStore.set(…)`                                 | Rejected, even in `storage/`        |
 
 The fixture files carry no ATD tags; the tests that read them do.
 
+Inline probes in both specs widen the fixtures: every always-forbidden call (the network, the
+microphone, `document.cookie`, `cookieStore`, `localStorage`, `sessionStorage`, `caches`, media
+playback) is rejected in `audio/`, `midi/`, `storage/` and `other/`; and the IndexedDB and storage
+manager calls, reached bare or through `window`, `globalThis`, `self` or `navigator?.`, are allowed
+in `storage/` and rejected in `audio/`, `midi/` and `other/`.
+
 The two rules that keep the backing synthesized have no fixture files. `verify-boundaries.spec.ts`
 checks them inline: each sampled-audio call (`decodeAudioData`, `createBufferSource`,
-`createMediaElementSource`, `new AudioBuffer`) is rejected in `audio/`, `midi/` and `other/`,
-while an oscillator and a gain pass in `audio/`; and `buildOutputBoundaryViolations` rejects each
-audio or sample file name (`.wav`, `.mp3`, `.ogg`, `.oga`, `.opus`, `.flac`, `.aac`, `.m4a`,
-`.weba`, `.mid`, `.midi`, `.sf2`, `.sfz`, in any case) and passes the app's own files.
+`createMediaElementSource`, `new AudioBuffer`) is rejected in `audio/`, `midi/`, `storage/` and
+`other/`, while an oscillator and a gain pass in `audio/`; and `buildOutputBoundaryViolations`
+rejects each audio or sample file name (`.wav`, `.mp3`, `.ogg`, `.oga`, `.opus`, `.flac`, `.aac`,
+`.m4a`, `.weba`, `.mid`, `.midi`, `.sf2`, `.sfz`, in any case) and passes the app's own files.
 `scanBuildOutputBoundaries` is run over a throwaway tree made in the system temp directory and
 removed after.
