@@ -485,6 +485,17 @@ for chunks 16, 17, 18 and 23).
 
 **Verification:** the chunk checks; the corpus test is red if any timeline is changed by hand.
 
+**Record (2026-10-09).** Measured on `main`'s v2.0.0 code, on a cloud VM (a VM figure is for
+reference only). After `npm run build`, the entry chunk `dist/assets/index-*.js` is 223,617 bytes,
+counted as `scripts/verify-boundaries.mjs` counts it: the minified file's size on disk, with no
+compression (Vite reports 73.6 kB gzip, which no budget checks). Its budget is 224 kB of 1,024
+bytes, 229,376 bytes, so 5,759 bytes (about 5.6 kB) of headroom are left, less than the 8,831 bytes
+(the "about 8.8 kB" above) of the 2026-10-05 build: v2.0.0 took further source changes on
+2026-10-06 and 2026-10-07. The corpus holds 87 cases: 72 standalone phrase-1 keys (three built-in
+instruments × Neutral and Jazz × four control spreads × seeds 1, 7 and 42), 12 carry-in keys
+(phrases 2 and 3 of a three-phrase chain on the eighths spread, per instrument and profile) and 3
+key-change phrase-2 keys whose carry-in has a null final harmony. The fixture is about 711 kB.
+
 ### Chunk 3 — Storage boundary gates
 
 **Goal.** Move the storage ban from "nowhere" to "one directory": allow IndexedDB and
