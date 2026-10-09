@@ -156,7 +156,10 @@ and change only if `spec-writer` settles otherwise.
   "diminished fifth" … 11 major seventh, plus octaves); how a compound name is worded on screen
   (a major ninth, or a major second plus an octave) is the design's call, for a beginner;
   (2) `screens/my-instrument/intent.md`'s "Interval names were rejected" reasoning needs
-  revising: names are still never entered, but they are now shown; (3) whether to keep one
-  stepper or split it into octaves and semitones waits on spec O163, which recommends keeping one.
+  revising: names are still never entered, but they are now shown; (3) the one stepper stays:
+  the owner settled (spec D257, master spec §7.1, v1.6) that the transposition is entered with the
+  design's single stepper counting semitones across octaves, one direction for the whole
+  transposition, octaves included (12 lower is one octave lower), with the derived name beside
+  it, not with separate octave and semitone inputs.
   The check's confirmation (`flows/controller-connection/`, "Use this for my instrument") may
   show the same name. Blocks build plan chunk 20, not chunk 16.

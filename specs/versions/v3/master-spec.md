@@ -2,9 +2,9 @@
 
 Status: this file holds three parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.5 (2026-10-09), approved by the
-  product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 writes in
-  the owner's rulings after the build's first intent preflight.
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.6 (2026-10-09), approved by the
+  product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
+  write in the owner's rulings after the build's first intent preflight.
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -16,7 +16,7 @@ Status: this file holds three parts.
 
 Part A's history follows.
 
-Part A status: master spec v1.5 (2026-10-09), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
+Part A status: master spec v1.6 (2026-10-09), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
 remembered controller (§7.3). Change in v1.2: behaviours the v3.0 design settled, written in:
 when settings are read and saved, what Delete everything leaves, which sessions a save deletes,
 favorites and unpinning, the played-notes switch on the session that just ended, my instrument's
@@ -34,7 +34,13 @@ transposition is entered as octaves and semitones with a sign, and its interval 
 and shown, reversing v1.3's choice by name (the spelling table stays); my instrument has a fixed
 id, `my-instrument`, apart from its display name (§7.1, §7.2, §12, item 16); a session-wide record
 keeps the session's own facts, its session seed among them, and §8 says what the session seed is
-(§5.2, §8, item 8); two points stay open for the owner (§14). Consolidated from the approved v3.0 drafts for handoff to
+(§5.2, §8, item 8); two points stay open for the owner (§14). Change in v1.6, the owner's
+answers to those two points (2026-10-09): the sign is the direction of the whole transposition,
+octaves included, and the transposition is entered with one control counting semitones across
+octaves, its derived name shown beside it (§7.1, item 16); the session-wide record holds what §5.2 lists
+and nothing that can be derived from the session seed, and any further fact a replay needs is put
+to the owner when the build designs the kept-session record (§5.2); neither is open any more
+(§14). Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. Part A covers **v3.0
 only**; Part B, consolidated from the approved v3.1 drafts for the same handoffs, covers v3.1. The
 draft topic documents stay in `specs/versions/v3/` as working material; where they and this
@@ -239,8 +245,12 @@ own facts:
   length, number of phrases, musical profile, instrument (by its id, §7.1), starting tempo and
   the tempo reached, whether it is pinned, its comment (§5.5), the app version that recorded it,
   and its **session seed** (§8), the one seed every later phrase's seed derives from. The
-  session holds this record from Start; keeping the session keeps it. Which other session facts
-  it holds, and in what form, is still open (§14).
+  session holds this record from Start; keeping the session keeps it. It holds nothing that can
+  be derived again from the session seed: not the later phrases' seeds, the failure-ladder rungs'
+  seeds or the Vary settings mutation seed (each phrase's own seed is kept with that phrase, as
+  above). If replaying a kept session turns out to need a further fact, the build names it when
+  it designs the kept-session record, and the owner decides; until then the record holds only
+  these facts.
 - **Played notes, only when the player has opted in** (§5.3). Their times are stored relative to
   the session's start: today they are measured on the page's audio clock, which means nothing after
   a reload.
@@ -304,20 +314,22 @@ in the session list. It is never written into the MusicXML or MIDI exports.
   - its **range**, lowest and highest note, in written pitch: the written range is what the player
     sets and keeps, and the concert range follows from it and the transposition, so changing the
     transposition (by hand or through §7.2) keeps the written range;
-  - its **transposition**, the interval between written and sounding pitch, entered as a number of
-    octaves and a number of semitones with a sign: negative when a written note sounds lower,
-    positive when it sounds higher. It is never chosen by interval name: the name is **derived**
-    from the numbers and shown as the result (a semitone is the smallest step between two notes;
-    an octave is 12 of them).
+  - its **transposition**, the interval between written and sounding pitch: a number of octaves
+    and a number of semitones with a sign, negative when a written note sounds lower, positive
+    when it sounds higher. It is entered with **one control counting semitones across octaves**
+    ("14 lower" is 1 octave and 2 semitones lower), not with separate octave and semitone inputs.
+    It is never chosen by interval name: the name is **derived** from the count and shown beside
+    the control as the result, and it already carries the octaves (a semitone is the smallest
+    step between two notes; an octave is 12 of them).
 - **The transposition's values.** A number of octaves from 0 up, and a number of semitones from
   0 to 11 within the octaves, the sign giving the direction. Its size is 12 semitones per octave
   plus the semitones: the tenor saxophone's is 1 octave and 2 semitones lower, 14 semitones in
   all; "Same" is 0 and 0. The octaves have no bound of their own: the only bound is that both ends
   of the range still sound inside the MIDI note range (notes 0 to 127), as the design's stepper
-  already has it. (proposed, for the owner to confirm) The sign is the direction of the whole
-  transposition, octaves included, not of the semitones alone: a semitone count of 0 has no
-  sign, so it could not say which way a whole-octave transposition goes (an instrument sounding
-  one octave lower is 1 octave and 0 semitones, lower).
+  already has it. The sign is the direction of the whole transposition, octaves included, not
+  of the semitones alone: a semitone count of 0 has no sign, so it could not say which way a
+  whole-octave transposition goes (an instrument sounding one octave lower is 1 octave and 0
+  semitones, lower).
 - **The interval name, and how it spells the written part.** Each semitone count maps to one
   interval name by a fixed table, and each name fixes a number of letter-name steps (how many
   letters, C, D, E and so on, the written note moves from the sounding one):
@@ -583,9 +595,10 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
     after the session.
 16. **My instrument.** A range under two octaves is refused; a valid instrument generates phrases
     in its range and shows notation in its written pitch; it survives a reload; deleting it
-    returns to its template. Its transposition is entered as octaves and semitones with a
-    direction, and its derived interval name is shown and spells the written part by §7.1's
-    table. It is stored and replayed by its id, `my-instrument`; changing its display name changes
+    returns to its template. Its transposition is entered as octaves and semitones with one
+    direction for the whole, through one control counting semitones across octaves (a
+    whole-octave transposition keeps its direction), and its derived interval name is shown and
+    spells the written part by §7.1's table. It is stored and replayed by its id, `my-instrument`; changing its display name changes
     nothing stored. The generator's success rate is measured on narrow (two-octave) and
     extreme ranges before the gate, and recorded.
 17. **The check feeds my instrument.** "Use this for my instrument" sets the transposition so the
@@ -619,9 +632,6 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
   instrument" counts toward the staff's shared height, so an unusually wide or high range would
   make the staff taller for every instrument. A bound on the written range, settled with that
   check, would avoid it.
-- **Open, needs the owner:** where the sign of my instrument's transposition sits, proposed in
-  §7.1 as the direction of the whole transposition; and which session facts the session-wide
-  record holds beside those §5.2 lists, and in what form (§5.2).
 - **Measured, for information:** the battery cost of pre-generation at Idle on a tablet (§8).
 - **Open, needs the owner:** the explicit confirmation of the three contract changes in §10. The
   owner approved this spec; that approval is not the contract confirmation.

@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.51
+Status: draft v0.52
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -15,10 +15,9 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 [v2 archive index](archive/v2/README.md) says where each answer now lives.
 
 Open on 2026-10-09: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
-O115 and O116 (v3.x learning), and O163 and O164 (v3.0, after the owner's rulings D253 and D255).
-D228–D234 closed O10 (for v3.2), O103, O114, O126 and every question the v3.1 and v3.2 drafts
-opened (O127–O157, O160–O162). O163 is needed before build plan chunk 20 and O164 before chunk 9;
-none blocks the wave in progress.
+and O115 and O116 (v3.x learning). D228–D234 closed O10 (for v3.2), O103, O114, O126 and every
+question the v3.1 and v3.2 drafts opened (O127–O157, O160–O162); D257 and D258 closed O163 and
+O164 the day they were opened. None blocks the v3.0 build.
 
 ## Later and governance (O47–O49)
 
@@ -84,29 +83,6 @@ by D234.
 ## v3.0 owner rulings (O163+)
 
 Opened 2026-10-09 by `spec-writer` while writing the owner's rulings after the v3.0 wave-1 intent
-preflight (D253–D256) into master spec v1.5. Each asks only what the ruling left open; the
-recommendation is what the master spec and the build plan carry, tagged proposed, until the owner
-answers.
-
-- **O163 - My instrument's transposition: where the sign sits, and one control or two**
-  _(D253; needed before build plan chunk 20)_: the owner ruled that the transposition is entered
-  as a number of octaves plus a signed semitone count. (a) A semitone count of 0 has no sign, so
-  a sign on the semitones alone cannot say whether a whole-octave transposition (an instrument
-  sounding exactly one octave lower, say) goes down or up. Recommended: the sign is the direction
-  of the whole transposition, octaves included: octaves from 0 up, semitones from 0 to 11, one
-  direction (lower, the same or higher); the octaves bounded only by both ends of the range
-  sounding inside MIDI notes 0 to 127, as the design's stepper already is. (b) The design enters
-  the same value with one stepper counting semitones across octaves ("14 lower" is 1 octave and 2
-  semitones lower, a major ninth). Recommended: keep the one stepper and show the derived
-  interval name beside it (ux Q76), rather than two separate inputs; the name already shows the
-  octaves. If the owner meant two inputs, `ux-writer` redesigns the control.
-- **O164 - The session-wide record: which other facts, and in what form** _(D255; needed before
-  build plan chunk 9)_: the owner settled that the record keeps the session's own facts, the
-  session seed among them, "and other information" of that kind. Recommended: (a) beside the
-  facts master spec §5.2 already lists and the session seed, keep the three "During a session"
-  options as they were at Start (Vary settings, Tension across phrases, Rising tempo), since each
-  phrase's inputs show their effects but not the choices; (b) store nothing that can be derived
-  again from the session seed or the phrases (the phrase seeds, the ladder-rung seeds, the
-  mutation seed, the tension arc); (c) the form is plain fields of the kept session's own record,
-  under its stored data version, the record layout being chunk 9's architecture capture, not a
-  separate store.
+preflight (D253–D256) into master spec v1.5. Both questions were answered by the owner the same
+day: O163 (my instrument's transposition: where the sign sits, one control or two) by D257, and
+O164 (the session-wide record's other facts) by D258. None is open here.

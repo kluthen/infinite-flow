@@ -1,6 +1,7 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v3 (2026-10-09): the owner's rulings after the wave-1 preflight (spec D253–D256, master
+Status: v4 (2026-10-09): the owner's answers to spec O163 and O164 (spec D257, D258, master spec
+v1.6) written into chunks 9, 16 and 20 and the wave table; v3 (2026-10-09): the owner's rulings after the wave-1 preflight (spec D253–D256, master
 spec v1.5) written into chunks 6, 9, 16 and 23, and chunk 23's code facts corrected
 ([Wave records](#wave-records)); v2 (2026-10-09): the workflow moves to wave level (spec D252,
 [§3](#3-workflow-waves-and-chunks)); v1 (2026-10-07) approved by the product owner; Gate A and the
@@ -72,11 +73,11 @@ wave-0 gate covers chunks 1 and 2.
 | 0 | 0 Intent re-sync · 1 Token-source pass · 2 Baselines | Nothing (chunk 1: the owner's Q66 answer). H1 can run now. |
 | 1 | 3 Storage boundary gates · 6 Tolerant settings codec · 16 My instrument in the domain · 23 Session seed plan | Chunk 0 (and chunk 2 for 16 and 23, which its replay corpus guards) |
 | 2 | 4 Database core · 18 Replay key `ifk2.` · 19 My instrument on the staff · 24 Pre-generation at Idle | Chunk 3 (4); 16 (18, 19); 23 (24) |
-| 3 | 5 Save policy · 9 Kept-session record | Chunk 4; chunk 23 and the owner's answer to spec O164 (9) |
+| 3 | 5 Save policy · 9 Kept-session record | Chunk 4; chunk 23 (9) |
 | 4 | 7 Saved settings · 8 Notice row | Chunks 5, 6; chunk 1 for 8 |
 | 5 | 10 Most recent session kept · 17 My instrument across worker and history | Chunks 7, 8, 9 (10); 9, 16 (17) |
 | 6 | **Gate A**, then 11 Played-notes opt-in · 12 Favorites, pin, comment · 22 Remembered controller · 25 Stray-note filter | Chunk 10 and Gate A (11, 12); chunk 7 and Gate A (22); H1 and chunk 1 (25) |
-| 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet | Chunk 12 (13, 14); chunks 7, 17, 19, the range ruling, spec O163 and ux Q76 (20) |
+| 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet | Chunk 12 (13, 14); chunks 7, 17, 19, the range ruling and ux Q76 (20) |
 | 8 | 15 Your data · 21 The check feeds my instrument | Chunks 11, 14 (15); 20 (21) |
 | 9 | 26 v3.0 release gate | Every other chunk |
 
@@ -177,14 +178,18 @@ The owner settled four points the preflight raised (spec D253–D256, master spe
 - **The transposition is entered in octaves and semitones** (spec D253): a number of octaves and a
   signed semitone count, the interval name derived and shown; §7.1's spelling table stays. This
   settles the conflict above on the spec's side: the design's stepper is consistent, and
-  `ux-writer` adds the derived name ([ux Q76](../../../ui_ux/open-questions.md)). Where the sign
-  sits for a whole-octave transposition is proposed in §7.1 and open for the owner (spec O163,
-  before chunk 20). Chunk 16 below takes the octaves and signed semitones; chunk 20 shows the name.
+  `ux-writer` adds the derived name ([ux Q76](../../../ui_ux/open-questions.md)). The owner then
+  settled where the sign sits (spec D257, closing O163): it is the direction of the whole
+  transposition, octaves included, and the value is entered with the design's one stepper
+  counting semitones across octaves, the derived name beside it. Chunk 16 below takes the
+  octaves, semitones and direction; chunk 20 shows the name.
 - **My instrument's id is `my-instrument`**, fixed and apart from its display name (spec D254):
   the open id's literal chunk 16's capture needed. Chunks 6, 9, 16 and 20 below say it.
 - **A session-wide record keeps the session's own facts, its session seed among them** (spec
-  D255): chunk 23 puts the session seed there, chunk 9 keeps it. Which other facts, and in what
-  form, is open for the owner (spec O164, before chunk 9).
+  D255): chunk 23 puts the session seed there, chunk 9 keeps it. The owner adds no other facts
+  (spec D258, closing O164): the record holds what master spec §5.2 lists and the session seed,
+  and nothing derivable from the session seed; any further fact replay needs is settled in chunk
+  9's architecture capture and put to the owner then.
 - **The Part D wording of `rule_ephemeral_session_state` is confirmed** (spec D256): chunk 3's
   open point is closed; `documentalist` applies it in the wave-1 post-task sync.
 
@@ -855,7 +860,11 @@ The confirmation is item 23's evidence.
 ### Chunk 9 — Kept-session record
 
 **Architecture capture:** the kept-session shape (summary, body, played notes) and the mapping
-layer beside the history.
+layer beside the history. The capture checks whether replaying a kept session needs any fact
+beyond master spec §5.2's list; if it does, the leader names it and it goes to the owner as a new
+spec question before the record is built (spec D258). One candidate to raise if replay needs it,
+not settled: the three "During a session" options as they were at Start (Vary settings, Tension
+across phrases, Rising tempo), since each phrase's inputs show their effects but not the choices.
 
 **Goal.** Turn a finished session's in-memory history into the record v3.0 keeps, and back into
 what the review reads, keeping only what the review and the exports need.
@@ -864,7 +873,8 @@ what the review reads, keeping only what the review and the exports need.
 (start date and time, length, phrase count, musical profile, instrument by its id, with its
 display name as shown then, starting and reached tempo, pinned, favorites count, comment, whether
 played notes are kept, app version), the session-wide record's facts that are not for the list
-(the session seed of chunk 23, and whatever spec O164 adds; master spec §5.2), and a body (per phrase: the timeline, the chord symbols' harmony, the reproduction intent, the
+(the session seed of chunk 23; master spec §5.2; nothing derivable from the session seed, such
+as the later phrases', ladder rungs' or mutation seeds, spec D258), and a body (per phrase: the timeline, the chord symbols' harmony, the reproduction intent, the
 tempo, the repeat flag, the favorite mark); played notes, when asked for, as a separate record
 with times in seconds from the session's start. Never acknowledgements, rhythm or tension
 provenance, or diagnostics. Decoding validates through the existing parsers (outcome and
@@ -882,7 +892,7 @@ input adapter in `src/components/review/` if the review reads `SessionHistory` d
 `rule_session_history_keeps_timeline_and_inputs`, `service_session_history`.
 
 **Depends on:** chunk 4 (envelope); chunk 23 (the session-wide record and its session seed in the
-history); the owner's answer to spec O164 (the record's other facts). Independent of chunks 5–8.
+history). Independent of chunks 5–8.
 
 **Done when:**
 
@@ -1209,12 +1219,12 @@ first step of the widest change in v3.0.
   profile). The display name is a separate property of the profile, changeable at any time,
   never part of the id.
 - `makeMyInstrument({ template, name, writtenRange, transposition })` in `src/domain/profile/`,
-  `name` being the display name and `transposition` a number of octaves and a signed semitone
-  count (negative: a written note sounds lower; positive: higher), never an interval name (master
-  spec §7.1, spec D253). As §7.1 proposes (spec O163, open for the owner), the octaves run from 0
-  up, the semitones from 0 to 11, and the sign is the direction of the whole transposition, so
-  "one octave lower" is 1 octave, 0 semitones, lower; the octaves' only bound is the MIDI one
-  below. The concert range follows from the written range and the transposition; whole-number
+  `name` being the display name and `transposition` a number of octaves (from 0 up), a number of
+  semitones (0 to 11) and one direction for the whole transposition, octaves included (lower,
+  the same or higher: a written note sounds lower or higher), never an interval name (master spec
+  §7.1, spec D253, D257). So "one octave lower" is 1 octave, 0 semitones, lower, and the sheet's
+  one stepper ("14 lower") maps to 1 octave, 2 semitones, lower; the octaves' only bound is the
+  MIDI one below. The concert range follows from the written range and the transposition; whole-number
   endpoints; a span of at least 24 semitones, refused with a reason; both ends sounding inside
   MIDI 0–127; register windows derived by the built-in profiles' algorithm; input kind "MIDI
   controller". The interval name, and with it the transposition's letter-step part (its
@@ -1383,8 +1393,9 @@ reloads.
 all, then the saved selection falls back); the instrument control's fourth segment, labelled with
 the name, present only while my instrument exists; `instrument-actions` (`Create my instrument` /
 `Edit my instrument`); the sheet (template, name, range steppers, the live refusal, the windows,
-the staff-reach note, the transposition in octaves and signed semitones with its derived interval
-name shown (master spec §7.1, spec D253; the display as `ux-writer` settles it under ux Q76), delete
+the staff-reach note, the transposition on the design's one stepper counting semitones across
+octaves, one direction for the whole, with its derived interval name shown beside it (master spec
+§7.1, spec D253, D257; the display as `ux-writer` settles it under ux Q76), delete
 with confirmation), loaded on demand; the record keeps the fixed id `my-instrument` and the display
 name apart (spec D254); save outcomes
 (replace the phrase as on an instrument switch only when selected and its range or transposition
@@ -1408,8 +1419,7 @@ instrument control).
 `rule_persistent_storage_requested`, `rule_saved_settings_load_tolerantly`. **Part B1** follows
 the merge.
 
-**Depends on:** chunks 1, 7, 17, 19, the range ruling, the owner's answer to spec O163 and
-`ux-writer`'s answer to ux Q76.
+**Depends on:** chunks 1, 7, 17, 19, the range ruling and `ux-writer`'s answer to ux Q76.
 
 **Done when:**
 
@@ -1420,7 +1430,7 @@ the merge.
 - Editing only the name relabels the segment and leaves the phrase; the saved selection still
   names `my-instrument`.
 - Each step of the transposition updates the shown interval name (14 lower: a major ninth lower;
-  6 higher: an augmented fourth higher).
+  6 higher: an augmented fourth higher; 12 lower: one octave lower, saved and reloaded as lower).
 - Deleting while selected returns to the template; while not selected, changes nothing else; the
   remembered controller is untouched.
 - A seeded invalid my-instrument record loads as absent, and a saved selection of it falls back

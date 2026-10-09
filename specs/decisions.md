@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.75
+Status: draft v2.76
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D256**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D258**.
 
 ## Decision Log
 
@@ -687,3 +687,32 @@ fact in the live documents (see the [archive index](archive/README.md) and
   (`docs/release/v3.0-intent-change-set.md` part D; build plan chunk 3, whose preflight row asked
   for this confirmation at the wave gate). `documentalist` applies it in the wave-1 post-task sync;
   the atom's full revision stays with chunk 7.
+- **D257 (2026-10-09): my instrument's transposition has one direction for the whole interval, and
+  is entered with one stepper.** Resolves O163. The owner's answer ("ok") accepts spec-writer's
+  recommendation, settling what D253 left open. The value is a number of octaves from 0 up, a
+  number of semitones from 0 to 11, and one direction (lower, the same or higher) for the whole
+  transposition, octaves included: a semitone count of 0 has no sign, so a sign on the semitones
+  alone could not say which way a whole-octave transposition goes (an instrument sounding one
+  octave lower is 1 octave, 0 semitones, lower). The octaves have no bound of their own; the only
+  bound is that both ends of the range sound inside MIDI notes 0 to 127. The player enters it with
+  the design's one stepper, which counts semitones across octaves ("14 lower" is 1 octave and 2
+  semitones lower, a major ninth lower), not with separate octave and semitone inputs; the
+  derived interval name is shown beside the stepper and already carries the octaves. Master spec
+  Part A v1.6 (§7.1, §14: the proposed tag and the open point removed); build plan v4 (chunks 16
+  and 20, wave 7); `ux-writer` still adds the derived name (ux Q76), but no longer waits on this.
+- **D258 (2026-10-09): the session-wide record holds what master spec §5.2 lists, and nothing
+  derivable from the session seed.** Resolves O164. The owner adds no other facts to the record
+  now ("nothing comes to mind right now"). The record holds what D255 named: the session's own
+  facts as §5.2 lists them (start date and time, length, number of phrases, musical profile,
+  instrument by its id `my-instrument` or a built-in id, starting and reached tempo, pinned,
+  comment, app version) and the session seed. The record stores nothing that can be derived again
+  from the session seed: not the later phrases' seeds, the failure-ladder rungs' seeds or the Vary
+  settings mutation seed (and the tension arc draws nothing, being a function of the phrase number
+  alone). This is about the session-wide record only: each phrase keeps its own seed in its
+  reproduction inputs, as §5.2 and §8 already say, so a replay key needs nothing more. Any further
+  fact the session's replay turns out to need is settled in build plan chunk 9's architecture
+  capture and put to the owner then, as a new question; until the owner answers, nothing is
+  added. spec-writer's recommendation to also keep the three "During a session" options as they
+  were at Start (Vary settings, Tension across phrases, Rising tempo) is not settled: the owner
+  did not take it up. It stays a note for chunk 9 to raise if replay needs it. Master spec Part A v1.6 (§5.2, §14); build plan v4
+  (chunk 9, wave 3).
