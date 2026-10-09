@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.47
+Status: draft v0.48
 
 ## Status Snapshot
 
@@ -40,8 +40,16 @@ Status: draft v0.47
     `specs/versions/v3/`);
   - rhythm ratios and the editor moved to v4; the chord-fit check, review tooling and the two
     controller-connection ideas dropped.
-- **Open:** 7 questions, none blocking: O48 and O49 (later and governance), O100–O102 (v4
-  rhythm), O115 and O116 (v3.x learning). v3.1 and v3.2 drafts approved by the owner (D233, D234),
+- **v3.0 build, wave 1** (2026-10-09): after its intent preflight the owner ruled that my
+  instrument's transposition is entered as octaves and signed semitones, its interval name
+  derived and shown (D253); that my instrument has the fixed id `my-instrument`, apart from its
+  display name (D254); that a session-wide record keeps the session's own facts, its session seed
+  among them (D255); and confirmed the Part D wording of `rule_ephemeral_session_state` (D256).
+  Written into master spec Part A v1.5 and build plan v3.
+- **Open:** 9 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
+  O116 (v3.x learning), none blocking; O163 (where my instrument's transposition sign sits, one
+  control or two; before build plan chunk 20) and O164 (the session-wide record's other facts;
+  before chunk 9). v3.1 and v3.2 drafts approved by the owner (D233, D234),
   after D228–D232 on presets and the rhythm lock; consolidated as master spec Parts B and C and
   approved (D239), refined by D240–D245 and D247–D249; the contract wording they change confirmed by the owner
   (D246, `docs/release/v3.1-v3.2-intent-change-set.md`).
@@ -58,7 +66,7 @@ Status: draft v0.47
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (approved; v2 moves the workflow to wave
-  level, D252), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved) and
+  level, D252; v3 writes in D253–D256), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved) and
   [v3.2](versions/v3/build-plan-v3.2.md) (draft v2, not approved). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own
   change.
