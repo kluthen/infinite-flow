@@ -130,6 +130,43 @@ flowchart LR
   C25 --> C26
 ```
 
+### Wave records
+
+#### Wave 0 (2026-10-09)
+
+Chunk 0 is on `main`. Chunk 1 merged into `v3.0-w0` from `v3-c1-token-source`. Chunk 2 merged into
+`v3.0-w0` (its record is under [chunk 2](#chunk-2--baselines-replay-key-corpus-and-bundle-headroom)).
+The wave-0 gate (the full test pass, the bundle and the post-task sync) has not run yet.
+
+#### Wave 1 preflight (2026-10-09)
+
+`documentalist` ran the full pass and the file pass for chunks 3, 6, 16 and 23, without an LLM
+(classifications from `atd query`, `atd trace`, grep and reading the atoms). `atd lint` passes. No
+atom was written. Of the atoms the chunks name as "(v2)", only `rule_instrument_profile_range` and
+`rule_session_generation_failure_ladder` are STABLE; `entity_instrument_profile`,
+`rule_seeded_phrase_reproduction`, `module_named_stream_pseudorandomness` and
+`rule_ephemeral_session_state` are REVIEW.
+
+| Chunk | Verdict | Governing atoms | Open before code |
+| --- | --- | --- | --- |
+| 3 | PROCEED-WITH-SIGNOFF-PENDING | `req_on_device_storage`; `rule_session_data_never_sent_or_stored`, `specification_ephemeral_state_verification` (REVIEW); `specification_browser_only_operation_verification` (STABLE); Part D `rule_ephemeral_session_state` (REVIEW, BUSINESS) | The owner confirms the Part D wording of `rule_ephemeral_session_state` at the wave gate. No ARCHITECTURE atom yet records "storage code in `src/storage/` only" (§4.3); chunk 4's capture comes after chunk 3. Keep true: the network, `sendBeacon`, microphone and cookie bans, Web Audio in `src/audio/` only, Web MIDI in `src/midi/` only, every existing `@test-link` in `tests/unit/boundaries/` (`rule_optional_midi_privacy` and `req_session_backing_track`, both STABLE, are linked in the gate files). |
+| 6 | PROCEED | `rule_saved_settings_load_tolerantly`, `rule_saved_setting_is_players_choice`, `rule_settings_saved_on_change`, `rule_outdated_tab_reads_what_it_can`, `rule_played_notes_kept_only_after_opt_in` (all DRAFT) | The record shape (one record per setting, `dataVersion`) comes before chunk 4's storage capture. The saved instrument selection needs chunk 16's open instrument id. Keep true: `rule_key_change_drops_harmonic_carry_in` (STABLE, on `rebuildGenerationWorkerIntent`; chunk 6 only exports the parser) and the strict `module_generation_control_catalog` validators. |
+| 16 | PROCEED-WITH-SIGNOFF-PENDING | `req_my_instrument`, `rule_my_instrument_range_limits`, `rule_my_instrument_transposition_named_interval` (DRAFT); `entity_instrument_profile`, `module_generation_request_construction`, `module_generation_control_catalog` (REVIEW); `rule_instrument_profile_range` (STABLE) | Architecture capture: a new `entity_my_instrument` (ENTITY, ARCHITECTURE, DRAFT), after the leader settles the open id's literal, how the intent gets the profile, the profile's fields and the transposition input. `entity_instrument_profile` says a new profile needs no new enumeration member; the capture scopes that to the built-ins. Keep true: the three built-ins' ranges, windows and transpositions exactly; the transposition never changes the concert range or the generated events. Part B1 also lists the concert range derived from the written range as a use of the transposition. |
+| 23 | PROCEED-WITH-SIGNOFF-PENDING | `rule_pregenerated_phrase_matches_session` (DRAFT); `rule_seeded_phrase_reproduction`, `module_named_stream_pseudorandomness` (REVIEW); `rule_session_generation_failure_ladder` (STABLE); in the files also `rule_session_density_only_steps_down`, `rule_tempo_never_affects_generation`, `rule_count_in_shown_on_screen` (STABLE) | Architecture capture: a new `module_session_seed_plan` (MODULE, ARCHITECTURE, DRAFT), after the leader settles where and when the session seed is drawn, what renews it, how the seeds derive from it, the request ids, and where it is recorded. Keep true: each ladder rung its own seed; the standalone attempt's request and seed independent of how many rungs ran; nothing generated depends on machine speed; density decided at request time and only stepping down; tempo never feeding the plan; phrase 1 exactly the Idle phrase. |
+
+Plan corrections the preflight found. Chunk 23's scope is wrong on two code facts: the generator
+draws from no named random stream (it orders candidates by seeded tie keys; only the settings
+mutation uses the indexed streams), and the tension arc draws nothing (it is a pure function of
+the phrase number, `src/session/tension-arc-cycle.ts`). Its Files list has no Idle-side file
+(`src/composables/use-generation-session.ts`), though the session seed is drawn at Idle. Chunk 16
+still says the transposition spelling is "flagged to `spec-writer`"; §8 item 2 says master spec
+v1.3 settled it. The Atoms lines of chunks 6 and 16 below gain the atoms the preflight added.
+
+Conflict for `ux-writer` (blocks chunk 20, not chunk 16): the my-instrument design enters the
+transposition with a semitone stepper ("{n} lower / Same / {n} higher"), while master spec §7.1
+and `rule_my_instrument_transposition_named_interval` enter it as a named interval, a number of
+octaves and a direction, never as a bare number of semitones.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
@@ -655,7 +692,8 @@ itself loads (the my-instrument record arrives in chunk 20; until then it falls 
 
 **Spec sections:** [§4.2](master-spec.md#42-what-is-saved-automatically), [§4.4](master-spec.md#44-loading-saved-settings).
 
-**Atoms:** `rule_saved_settings_load_tolerantly`, `rule_saved_setting_is_players_choice`.
+**Atoms:** `rule_saved_settings_load_tolerantly`, `rule_saved_setting_is_players_choice`,
+`rule_outdated_tab_reads_what_it_can`, `rule_played_notes_kept_only_after_opt_in`.
 
 **Depends on:** chunk 0. Independent of chunks 3–5 (pure code).
 
@@ -1156,7 +1194,8 @@ sweep under `tests/sweep/` or `scripts/`.
 **Design docs:** [`flows/my-instrument/handoff.md`](../../../ui_ux/versions/v3.0/flows/my-instrument/handoff.md)
 (Routing Rules: valid range, the transposition).
 
-**Atoms:** `req_my_instrument`, `rule_my_instrument_range_limits`; (v2) `entity_instrument_profile`,
+**Atoms:** `req_my_instrument`, `rule_my_instrument_range_limits`,
+`rule_my_instrument_transposition_named_interval`; (v2) `entity_instrument_profile`,
 `rule_instrument_profile_range` (STABLE: must stay true of the three built-ins; its revision is
 Part B1).
 
