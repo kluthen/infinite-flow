@@ -4,6 +4,8 @@ import vue from 'eslint-plugin-vue'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
+// Browser storage no authored file may use, in any directory of src/, src/storage/ included:
+// IndexedDB under src/storage/ is the app's only store (see storageDirectoryGlobals below).
 // @spec-link [[rule_ephemeral_session_state]]
 // @spec-link [[specification_ephemeral_state_verification]]
 // @spec-link [[rule_session_data_never_sent_or_stored]]
@@ -13,13 +15,13 @@ const forbiddenPersistenceApis = [
     name: 'sessionStorage',
     message: 'Browser persistence is outside the ephemeral-state boundary.',
   },
-  { name: 'indexedDB', message: 'Browser persistence is outside the ephemeral-state boundary.' },
   { name: 'caches', message: 'The Cache API is not available to authored application code.' },
 ]
 
 // Globals no authored file may use, in any directory of src/: the network (the app is
-// browser-only, and session data is never sent anywhere) and media-element playback. Reachable as
-// bare identifiers, and mirrored below as window/globalThis/self properties.
+// browser-only, and session data is never sent anywhere), media-element playback and the Cookie
+// Store API. Reachable as bare identifiers, and mirrored below as window/globalThis/self
+// properties.
 // @spec-link [[specification_browser_only_operation_verification]]
 // @spec-link [[rule_session_data_never_sent_or_stored]]
 // @spec-link [[rule_optional_midi_privacy]]
@@ -33,6 +35,10 @@ const alwaysForbiddenGlobals = [
     name,
     message: 'Network access is forbidden everywhere in src/: session data is never sent.',
   })),
+  {
+    name: 'cookieStore',
+    message: 'Cookies are forbidden everywhere in src/: session data is never stored.',
+  },
 ]
 
 // navigator/document members no authored file may use, in any directory of src/: the
@@ -80,10 +86,21 @@ const midiAccessProperties = [
   },
 ]
 
+// On-device storage: IndexedDB and the storage manager (navigator.storage, which asks for
+// persistent storage and reports usage) are allowed only under src/storage/ (see the override
+// block below), so everything the app saves on the device is written in one auditable place.
+// @spec-link [[req_on_device_storage]]
+const storageDirectoryMessage =
+  'IndexedDB and navigator.storage may be used only under src/storage/.'
+const storageDirectoryGlobals = [{ name: 'indexedDB', message: storageDirectoryMessage }]
+const storageDirectoryProperties = [
+  { object: 'navigator', property: 'storage', message: storageDirectoryMessage },
+]
+
 /**
  * Intent: the no-restricted-globals / no-restricted-properties rule pair for one part of src/,
- * given the directory-scoped globals and properties still forbidden there. Persistence and the
- * always-forbidden APIs are included everywhere.
+ * given the directory-scoped globals and properties still forbidden there. The forbidden
+ * persistence APIs and the always-forbidden APIs are included everywhere, src/storage/ included.
  *
  * @param {{ name: string, message: string }[]} scopedGlobals
  * @param {{ object?: string, property: string, message: string }[]} scopedProperties
@@ -138,19 +155,37 @@ export default [
     languageOptions: {
       globals: globals.browser,
     },
-    rules: boundaryRules(audioContextGlobals, midiAccessProperties),
+    rules: boundaryRules(
+      [...audioContextGlobals, ...storageDirectoryGlobals],
+      [...midiAccessProperties, ...storageDirectoryProperties],
+    ),
   },
-  // src/audio/ may create Web Audio contexts; everything else stays forbidden there, MIDI included.
+  // src/audio/ may create Web Audio contexts; everything else stays forbidden there, MIDI and
+  // storage included.
   // @spec-link [[specification_browser_only_operation_verification]]
   {
     files: ['src/audio/**/*.{js,mjs,ts,vue}'],
-    rules: boundaryRules([], midiAccessProperties),
+    rules: boundaryRules(storageDirectoryGlobals, [
+      ...midiAccessProperties,
+      ...storageDirectoryProperties,
+    ]),
   },
-  // src/midi/ may request MIDI access; everything else stays forbidden there, audio included.
+  // src/midi/ may request MIDI access; everything else stays forbidden there, audio and storage
+  // included.
   // @spec-link [[specification_browser_only_operation_verification]]
   {
     files: ['src/midi/**/*.{js,mjs,ts,vue}'],
-    rules: boundaryRules(audioContextGlobals, []),
+    rules: boundaryRules(
+      [...audioContextGlobals, ...storageDirectoryGlobals],
+      storageDirectoryProperties,
+    ),
+  },
+  // src/storage/ may use IndexedDB and navigator.storage; everything else stays forbidden there,
+  // localStorage, sessionStorage, caches and cookies included.
+  // @spec-link [[req_on_device_storage]]
+  {
+    files: ['src/storage/**/*.{js,mjs,ts,vue}'],
+    rules: boundaryRules(audioContextGlobals, midiAccessProperties),
   },
   {
     files: ['tests/**/*.ts', 'playwright.config.ts', 'vitest.config.ts', 'scripts/**/*.mjs'],

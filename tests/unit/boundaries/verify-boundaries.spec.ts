@@ -1,9 +1,10 @@
 // @vitest-environment node
 /**
  * The authored-source scan of `scripts/verify-boundaries.mjs`, run over the fixture tree in
- * `tests/fixtures/boundaries/src/`, which is laid out like the application's `src/` (an `audio/`, a
- * `midi/` and an `other/` directory) but lives outside it, so the real `npm run verify:boundaries`
- * scan never sees these deliberately forbidden calls. The build-output scan runs over file names
+ * `tests/fixtures/boundaries/src/`, which is laid out like the application's `src/` (`audio/`,
+ * `midi/`, `storage/`, `session/`, `export/`, `components/` and `other/` directories) but lives
+ * outside it, so the real `npm run verify:boundaries` scan never sees these deliberately forbidden
+ * calls. The build-output scan runs over file names
  * and over a throwaway directory tree made in the system temp directory.
  */
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
@@ -26,6 +27,8 @@ const audioOutsideAudioDirectory =
   'browser-only boundary: AudioContext is allowed only under src/audio/'
 const midiOutsideMidiDirectory =
   'browser-only boundary: requestMIDIAccess is allowed only under src/midi/'
+const storageOutsideStorageDirectory =
+  'on-device storage boundary: indexedDB and navigator.storage are allowed only under src/storage/'
 const alwaysForbidden =
   'browser-only boundary: network, cookie, microphone or media-element API found'
 const persistence = 'ephemeral-state boundary: browser persistence API found'
@@ -33,8 +36,11 @@ const sampledAudio =
   'synthesized-backing boundary: sampled or decoded audio API found (voices are oscillators and gains only)'
 const audioAsset = 'synthesized-backing boundary: audio or sample asset found in the build output'
 
-/** Every directory an always-forbidden call is probed in, the two allowlisted ones included. */
-const probedDirectories = ['audio', 'midi', 'other'] as const
+/** Every directory an always-forbidden call is probed in, the three allowlisted ones included. */
+const probedDirectories = ['audio', 'midi', 'storage', 'other'] as const
+
+/** The directories, other than `storage/`, that the IndexedDB and storage-manager fixtures sit in. */
+const directoriesOutsideStorage = ['audio', 'midi', 'session', 'export', 'components'] as const
 
 describe('verify-boundaries source scan over the fixture tree', () => {
   let scan: Awaited<ReturnType<typeof scanSourceBoundaries>>
@@ -90,6 +96,37 @@ describe('verify-boundaries source scan over the fixture tree', () => {
     expect(boundariesOf('audio/storage.ts')).toEqual([persistence])
     expect(boundariesOf('midi/storage.ts')).toEqual([persistence])
   })
+
+  // @test-link [[req_on_device_storage]]
+  test('indexedDB.open and navigator.storage.persist() are allowed under the storage directory', () => {
+    expect(boundariesOf('storage/indexed-db.ts')).toEqual([])
+    expect(boundariesOf('storage/storage-persist.ts')).toEqual([])
+  })
+
+  // @test-link [[req_on_device_storage]]
+  // @test-link [[specification_ephemeral_state_verification]]
+  test.each(directoriesOutsideStorage)(
+    'indexedDB.open and navigator.storage.persist() are rejected in the %s directory',
+    (directory) => {
+      expect(boundariesOf(`${directory}/indexed-db.ts`)).toEqual([storageOutsideStorageDirectory])
+      expect(boundariesOf(`${directory}/storage-persist.ts`)).toEqual([
+        storageOutsideStorageDirectory,
+      ])
+    },
+  )
+
+  // @test-link [[specification_ephemeral_state_verification]]
+  test('localStorage, sessionStorage and caches are rejected even inside the storage directory', () => {
+    expect(boundariesOf('storage/local-storage.ts')).toEqual([persistence])
+    expect(boundariesOf('storage/session-storage.ts')).toEqual([persistence])
+    expect(boundariesOf('storage/cache-api.ts')).toEqual([persistence])
+  })
+
+  // @test-link [[specification_browser_only_operation_verification]]
+  test('document.cookie and cookieStore are rejected even inside the storage directory', () => {
+    expect(boundariesOf('storage/document-cookie.ts')).toEqual([alwaysForbidden])
+    expect(boundariesOf('storage/cookie-store.ts')).toEqual([alwaysForbidden])
+  })
 })
 
 describe('verify-boundaries per-file check of every always-forbidden API', () => {
@@ -102,12 +139,13 @@ describe('verify-boundaries per-file check of every always-forbidden API', () =>
     "new EventSource('/events')",
     "navigator.sendBeacon('/session')",
     'document.cookie',
+    "cookieStore.set('k', 'v')",
+    "window.cookieStore.get('k')",
     "new Audio('note.mp3')",
   ]
   const storageCalls = [
     "localStorage.setItem('k', 'v')",
     "sessionStorage.setItem('k', 'v')",
-    "indexedDB.open('db')",
     "caches.open('c')",
   ]
 
@@ -147,6 +185,35 @@ describe('verify-boundaries per-file check of every always-forbidden API', () =>
     expect(
       sourceBoundaryViolations(`${directory}/probe.ts`, `export const probe = ${call}\n`),
     ).toEqual([sampledAudio])
+  })
+
+  const storageDirectoryCalls = [
+    "indexedDB.open('db')",
+    "window.indexedDB.open('db')",
+    "globalThis.indexedDB.deleteDatabase('db')",
+    "self.indexedDB.open('db')",
+    'navigator.storage.persist()',
+    'navigator.storage.estimate()',
+    'navigator?.storage.persist()',
+  ]
+
+  // @test-link [[req_on_device_storage]]
+  test.each(storageDirectoryCalls)('%s is allowed in storage/', (call) => {
+    expect(sourceBoundaryViolations('storage/probe.ts', `export const probe = ${call}\n`)).toEqual(
+      [],
+    )
+  })
+
+  // @test-link [[req_on_device_storage]]
+  // @test-link [[specification_ephemeral_state_verification]]
+  test.each(
+    ['audio', 'midi', 'other'].flatMap((directory) =>
+      storageDirectoryCalls.map((call) => ({ directory, call })),
+    ),
+  )('$call is rejected in $directory/', ({ directory, call }) => {
+    expect(
+      sourceBoundaryViolations(`${directory}/probe.ts`, `export const probe = ${call}\n`),
+    ).toEqual([storageOutsideStorageDirectory])
   })
 
   // @test-link [[req_session_backing_track]]

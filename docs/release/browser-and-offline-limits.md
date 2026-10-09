@@ -145,28 +145,35 @@ room again; with notes too wide, a wider window starts a new round of attempts (
 
 ## Browser API boundaries (verified by the boundary gates)
 
-Authored code in `src/` may use Web Audio and Web MIDI only in one named directory each, and never
-uses the network, the microphone or browser storage:
+Authored code in `src/` may use Web Audio, Web MIDI and on-device storage only in one named
+directory each, and never uses the network, the microphone, cookies or any other browser storage:
 
 - **Web Audio only in `src/audio/`.** `AudioContext`, its legacy name `webkitAudioContext`, and
   `OfflineAudioContext` may be used only in files under `src/audio/`.
 - **Web MIDI only in `src/midi/`.** `requestMIDIAccess` may be used only in files under
   `src/midi/`.
-- **Forbidden everywhere, `src/audio/` and `src/midi/` included:** media-element playback
-  (`new Audio(...)`), the network (`fetch(...)`, `XMLHttpRequest`, `WebSocket`, `EventSource`,
-  `navigator.sendBeacon`), cookies (`document.cookie`), the microphone and camera
-  (`navigator.mediaDevices`, `getUserMedia`), and browser storage (`localStorage`,
-  `sessionStorage`, `indexedDB`, and the Cache API `caches`).
+- **On-device storage only in `src/storage/`.** IndexedDB (`indexedDB`) and the storage manager
+  (`navigator.storage`, which asks the browser to keep the app's data and reports how much space
+  it uses) may be used only in files under `src/storage/`, so everything the app saves on the
+  device is written in one place. `src/session/` and `src/export/` stay storage-free.
+- **Forbidden everywhere, `src/audio/`, `src/midi/` and `src/storage/` included:** media-element
+  playback (`new Audio(...)`), the network (`fetch(...)`, `XMLHttpRequest`, `WebSocket`,
+  `EventSource`, `navigator.sendBeacon`), cookies (`document.cookie`, `cookieStore`), the
+  microphone and camera (`navigator.mediaDevices`, `getUserMedia`), and the other browser storage
+  (`localStorage`, `sessionStorage`, and the Cache API `caches`).
+
+The service worker's offline precache is not authored code and is unaffected by these rules: the
+Workbox settings above (`runtimeCaching: []` and the precache manifest) stay as they are.
 
 Two independent gates enforce these rules, and a use in the wrong place fails both:
 
 - [`scripts/verify-boundaries.mjs`](../../scripts/verify-boundaries.mjs) scans every authored
   `src/**` file and fails the boundary check if a file contains a forbidden identifier, or a Web
-  Audio or Web MIDI identifier outside its allowed directory.
+  Audio, Web MIDI or on-device storage identifier outside its allowed directory.
 - [`eslint.config.js`](../../eslint.config.js) states the same rules as lint-time
   `no-restricted-globals`/`no-restricted-properties` rules, with an override block for each of
-  `src/audio/` and `src/midi/`, so a violation is also flagged at lint time, not only by the
-  separate `verify:boundaries` script.
+  `src/audio/`, `src/midi/` and `src/storage/`, so a violation is also flagged at lint time, not
+  only by the separate `verify:boundaries` script.
 
 In the running app, nothing creates an audio context or requests MIDI access before the player
 clicks Start or "Connect controller", the microphone is never requested, and no request leaves the
@@ -176,6 +183,7 @@ may create an audio context or request MIDI access.
 
 These gates cover the boundaries described in
 [`docs/rule_audio_unlocked_by_player_click.atom.md`](../rule_audio_unlocked_by_player_click.atom.md),
+[`docs/req_on_device_storage.atom.md`](../req_on_device_storage.atom.md),
 [`docs/rule_session_data_never_sent_or_stored.atom.md`](../rule_session_data_never_sent_or_stored.atom.md),
 [`docs/rule_ephemeral_session_state.atom.md`](../rule_ephemeral_session_state.atom.md),
 [`docs/specification_browser_only_operation_verification.atom.md`](../specification_browser_only_operation_verification.atom.md),
