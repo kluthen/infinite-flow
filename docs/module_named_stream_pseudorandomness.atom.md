@@ -9,6 +9,7 @@ parents:
 dependents:
   - [[module_phrase_replay_key]]
   - [[module_register_window_resolution_primitives]]
+  - [[module_session_seed_plan]]
 type: MODULE
 layer: ARCHITECTURE
 human_name: Seeded Tie Keys and Pseudorandom Streams

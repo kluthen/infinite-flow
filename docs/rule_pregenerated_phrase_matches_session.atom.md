@@ -5,7 +5,8 @@ priority: 1
 human_name: Pre-Generated Phrase Equals the Session's Phrase
 tags: [v3, release-v3.0, generation, determinism]
 notes: Revised 2026-10-07 to version 0.2 (still DRAFT) by the re-sync to the v3.0 master spec v1.3, approved by the product owner: the identity is stated for where the session's own attempt would have succeeded in time; where it would have failed or fallen back, the pre-generated phrase is the one a successful attempt would have produced. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
-dependents: []
+dependents:
+  - [[module_session_seed_plan]]
 version: 0.2
 parents:
   - [[req_idle_pregeneration]]
