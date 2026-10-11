@@ -13,8 +13,8 @@ import { describe, expect, it } from 'vitest'
 
 import { SessionControllerError } from '@/components/workspace/workspace-session-controller-types'
 import { applyMusicalProfile } from '@/domain/controls/profile-selection'
-import { makeSeed } from '@/domain/random/seed'
 import { NotationError } from '@/notation/notation-error'
+import { settingsMutationSeed } from '@/session/session-seed-plan'
 import { mutationPhrase } from '@/session/settings-mutation'
 import type { SessionEndCause, SessionSettings } from '@/session/session-types'
 import { sessionSettings } from '../../session/session-harness'
@@ -29,9 +29,8 @@ function phraseStart(n: number): number {
 
 /**
  * Intent: a rig with `Vary settings` on and a session started, after `before` set the rig up: the
- * phrase its first mutation lands on, from the mutation seed, the seed drawn just before phrase 2's
- * first attempt seed and the seeds of the rungs that attempt skipped (its retry: at 240 BPM its
- * standalone attempt goes first).
+ * phrase its first mutation lands on, from the mutation seed the session seed plan derives from
+ * phrase 1's session seed.
  */
 async function startedVarying(
   before?: (rig: ControllerRig) => void | Promise<void>,
@@ -40,9 +39,8 @@ async function startedVarying(
   await before?.(rig)
   rig.controller.setVarySettings(true)
   rig.controller.start()
-  const first = outputsOf(rig, 'request-generation')[0]!
-  const mutationSeed = first.intent.seed - 1 - first.retry
-  return { rig, landsOn: mutationPhrase(makeSeed(mutationSeed), 1) }
+  const mutationSeed = settingsMutationSeed(rig.phraseOne.sessionSeed)
+  return { rig, landsOn: mutationPhrase(mutationSeed, 1) }
 }
 
 /** Intent: the rig's settings with one control changed, as an automatic change would give. */
@@ -156,7 +154,8 @@ describe('session controller: the Vary settings flag', () => {
 
   // @test-link [[req_settings_mutation_flag]]
   // @test-link [[rule_mutation_lands_on_scheduled_phrase]]
-  it('draws the mutation seed from the seed provider first, so its mutations replay from it', async () => {
+  // @test-link [[module_session_seed_plan]]
+  it("derives the mutation seed from phrase 1's session seed, so its mutations replay from it", async () => {
     const { rig, landsOn } = await startedVarying()
     await playTo(rig, phraseStart(6))
     const changes = outputsOf(rig, 'settings-changed')

@@ -3,17 +3,19 @@
  * phrase's cutover time (the deadline minus the standalone reserve); from that time a carry-in
  * attempt still generating is cancelled and the standalone attempt requested at once, a failed
  * carry-in attempt is followed by the standalone attempt, and a phrase requested within the
- * reserve starts standalone. However it is reached, the standalone attempt has the request id and
- * seed it would have had after three failed carry-in retries. Mostly at 60 BPM (phrase 2's
- * deadline at 4 s, its cutover at 2.925 s).
+ * reserve starts standalone. However it is reached, the standalone attempt has the request id it
+ * would have had after three failed carry-in retries and the seed the session seed plan gives the
+ * standalone rung. Mostly at 60 BPM (phrase 2's deadline at 4 s, its cutover at 2.925 s).
  */
 
 import { describe, expect, it } from 'vitest'
 
+import { phraseAttemptSeed } from '@/session/session-seed-plan'
 import { cutoverAt } from '@/session/session-timing'
 import type { SessionOutput } from '@/session/session-types'
 import { soundingAt } from './scripted-session'
 import {
+  DEFAULT_SESSION_SEED,
   SessionDriver,
   kinds,
   phraseOneFor,
@@ -45,12 +47,16 @@ function standaloneAfterThreeRetries(): GenerationRequestOutput {
   return standalone
 }
 
-/** Intent: check a request is phrase 2's standalone attempt, built as the reference's is. */
+/**
+ * Intent: check a request is phrase 2's standalone attempt, built as the reference's is, with the
+ * standalone rung's planned seed.
+ */
 function expectReferenceStandalone(request: GenerationRequestOutput): void {
   const reference = standaloneAfterThreeRetries()
   expect(request).toMatchObject({ phraseNumber: 2, step: 'standalone', retry: 4 })
   expect(request.intent.requestId).toBe(reference.intent.requestId)
   expect(request.intent.seed).toBe(reference.intent.seed)
+  expect(request.intent.seed).toBe(phraseAttemptSeed(DEFAULT_SESSION_SEED, 2, 4))
   expect(withoutTempo(request.intent)).toEqual(withoutTempo(reference.intent))
 }
 
@@ -215,6 +221,7 @@ describe('when the cutover does nothing', () => {
 // @test-link [[module_session_failure_ladder]]
 describe('a phrase requested within the standalone reserve', () => {
   // @test-link [[rule_session_generation_failure_ladder]]
+  // @test-link [[module_session_seed_plan]]
   it("requests phrase 2's standalone attempt first at 240 BPM, as after three failed retries", () => {
     const driver = driverAt(240)
     expect(kinds(driver.startOutputs)).toEqual(['request-generation', 'wake-at'])

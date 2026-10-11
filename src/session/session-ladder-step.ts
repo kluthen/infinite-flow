@@ -43,10 +43,12 @@ export function cancelDropped(lookAhead: LookAhead | undefined): readonly Sessio
 
 /**
  * Intent: request one rung for the look-ahead phrase at `at`: build its intent now from the
- * look-ahead's basis (the window read now, the step-down memory updated), give it the next attempt
- * id, and make it the attempt in flight. A carry-in attempt also asks to be woken at the phrase's
- * cutover time when that is still ahead, so the cutover runs on time with no other event.
+ * look-ahead's basis (the window read now, the step-down memory updated) with the planned seed of
+ * that phrase's rung, give it the next attempt id, and make it the attempt in flight. A carry-in
+ * attempt also asks to be woken at the phrase's cutover time when that is still ahead, so the
+ * cutover runs on time with no other event.
  */
+// @spec-link [[module_session_seed_plan]]
 function requestRung(
   context: EngineContext,
   state: EngineState,
@@ -56,7 +58,14 @@ function requestRung(
   const lookAhead = lookAheadOf(state)
   const { settings, source } = lookAhead.basis
   const plan = attemptPlan(rung, source, registerCandidates(lookAhead.previous))
-  const { intent, steppedDown } = buildAttemptIntent(context, settings, plan, state.steppedDown)
+  const slot = { phraseNumber: lookAhead.phraseNumber, rung: LADDER.indexOf(rung) }
+  const { intent, steppedDown } = buildAttemptIntent(
+    context,
+    settings,
+    plan,
+    state.steppedDown,
+    slot,
+  )
   const attemptId = state.nextAttemptId
   const attempt: Attempt = { attemptId, rung, step: plan.step, intent, stage: 'generating' }
   const cutover = cutoverAt(lookAhead.deadline)
@@ -85,8 +94,9 @@ function requestRung(
 }
 
 /**
- * Intent: request a rung reached by skipping others: the request ids and seeds of the `skipped`
- * rungs are drawn and discarded first, so the rung requested is built as if they had failed.
+ * Intent: request a rung reached by skipping others: the request ids of the `skipped` rungs are
+ * drawn and discarded first, so the rung requested is built as if they had failed; its seed is its
+ * own rung's whatever was skipped.
  */
 function requestAfterSkip(
   context: EngineContext,
@@ -101,8 +111,8 @@ function requestAfterSkip(
 
 /**
  * Intent: request the look-ahead phrase's first attempt at `at`: the first carry-in rung, or the
- * standalone rung when the standalone attempt is already due, built with the request id and seed
- * it would have had after three failed carry-in retries.
+ * standalone rung when the standalone attempt is already due, built with the request id it would
+ * have had after three failed carry-in retries and the standalone rung's planned seed.
  */
 // @spec-link [[module_session_failure_ladder]]
 export function requestFirstRung(context: EngineContext, state: EngineState, at: AudioTime): Step {
@@ -113,8 +123,8 @@ export function requestFirstRung(context: EngineContext, state: EngineState, at:
 /**
  * Intent: after an attempt failed at `at`, request the rung its failure leads to (the standalone
  * one for a carry-in attempt once the standalone attempt is due), or wait for the deadline once
- * the ladder is exhausted. Rungs skipped on the way create no attempt, but their request ids and
- * seeds are drawn and discarded first.
+ * the ladder is exhausted. Rungs skipped on the way create no attempt, but their request ids are
+ * drawn and discarded first.
  */
 // @spec-link [[module_session_failure_ladder]]
 export function climb(
@@ -135,9 +145,10 @@ export function climb(
 /**
  * Intent: at `at`, once an event is handled, cut the look-ahead's carry-in attempt over when it is
  * still generating and the standalone attempt is due: cancel it where it runs, then request the
- * standalone attempt at once, with the request id and seed it would have had after three failed
- * carry-in retries. Anything else (no look-ahead, an attempt in its fit check, a standalone
- * attempt, an exhausted ladder, a time before the cutover, an ended session) does nothing.
+ * standalone attempt at once, with the request id it would have had after three failed carry-in
+ * retries and the standalone rung's planned seed. Anything else (no look-ahead, an attempt in its
+ * fit check, a standalone attempt, an exhausted ladder, a time before the cutover, an ended
+ * session) does nothing.
  */
 // @spec-link [[module_session_failure_ladder]]
 // @spec-link [[rule_dropped_attempt_cancelled]]

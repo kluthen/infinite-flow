@@ -9,7 +9,11 @@ import {
   type GenerationSession,
 } from '@/composables/use-generation-session'
 import { createNotationCoordinator } from '@/composables/use-notation-coordinator'
-import { type WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import {
+  withSessionSeed,
+  type WorkspaceGeneratedPhrase,
+  type WorkspaceSessionResult,
+} from '@/composables/workspace-session-result'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
@@ -17,6 +21,7 @@ import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { CHEAP_CONTROLS, buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
+import { countingSessionSeeds } from '../../composables/fake-session-seed'
 import { createFakeStaffFit, type FakeStaffFit } from '../../composables/fake-staff-fit'
 import {
   createFakeViewportWidth,
@@ -36,7 +41,7 @@ export interface TestWorkspace {
   readonly handleLayoutInputs: (inputs: StaffLayoutInputs) => void
   readonly layoutReports: StaffLayoutInputs[]
   /** The fake fit and room checks the session runs: every phrase fits unless a test queues otherwise. */
-  readonly staff: FakeStaffFit<WorkspaceSessionResult>
+  readonly staff: FakeStaffFit<WorkspaceGeneratedPhrase>
   /** The fake window width the session reads: from `bp-tablet-landscape` up unless a test moves it. */
   readonly viewport: FakeViewportWidth
   /** A real audio transport on the fake audio clock, its mix read from the stylesheet's tokens. */
@@ -44,7 +49,7 @@ export interface TestWorkspace {
 }
 
 /** Intent: the default fake generate seam -- always the same cheap, real generation result. */
-async function defaultGenerate(intent: GenerationIntent): Promise<WorkspaceSessionResult> {
+async function defaultGenerate(intent: GenerationIntent): Promise<WorkspaceGeneratedPhrase> {
   return buildWorkspaceSessionResult(intent.requestId, intent.seed)
 }
 
@@ -53,13 +58,13 @@ async function defaultGenerate(intent: GenerationIntent): Promise<WorkspaceSessi
  * generation to a cheap real result so `useCheapControls` is not required at every call site.
  */
 export function createTestWorkspace(
-  generate: (intent: GenerationIntent) => Promise<WorkspaceSessionResult> = defaultGenerate,
+  generate: (intent: GenerationIntent) => Promise<WorkspaceGeneratedPhrase> = defaultGenerate,
 ): TestWorkspace {
   let requestCounter = 0
   let seedCounter = 0
   // eslint-disable-next-line prefer-const -- definite-assignment: this closure needs `session` before it exists.
   let session!: GenerationSession<WorkspaceSessionResult>
-  const staff = createFakeStaffFit<WorkspaceSessionResult>()
+  const staff = createFakeStaffFit<WorkspaceGeneratedPhrase>()
   const layoutReports: StaffLayoutInputs[] = []
   const sessionStaffFailures: NotationError[] = []
   const viewport = createFakeViewportWidth()
@@ -67,7 +72,7 @@ export function createTestWorkspace(
     reportNotationFailure: (error) => session.actions.reportNotationFailure(error),
     reportNotationRecovered: () => session.actions.reportNotationRecovered(),
   })
-  session = createGenerationSession<WorkspaceSessionResult>({
+  session = createGenerationSession<WorkspaceSessionResult, WorkspaceGeneratedPhrase>({
     checkFit: staff.checkFit,
     checkRoom: staff.checkRoom,
     staffLayout: staff.staffLayout,
@@ -76,6 +81,8 @@ export function createTestWorkspace(
       nextRequestId: () => makeRequestId(`workspace-spec-${++requestCounter}`),
       nextSeed: () => makeSeed(++seedCounter),
     },
+    nextSessionSeed: countingSessionSeeds(),
+    withSessionSeed,
     generate,
     notate: coordinator.notate,
     clearPresentedPhrase: coordinator.clearPresentedPhrase,

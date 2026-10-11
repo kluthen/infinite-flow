@@ -33,6 +33,7 @@ import {
 import type { SessionOutput } from '@/session/session-types'
 import { idlePhraseOne, recordRunnerSession } from '../session/history-recording'
 import {
+  DEFAULT_SESSION_SEED,
   SESSION_START_EPOCH_MS,
   SessionDriver,
   fixedWallClock,
@@ -201,7 +202,7 @@ function historyOfDriver(
   driver: SessionDriver,
   playedOnsets: readonly number[],
 ): SessionHistory {
-  const history = createSessionHistory(driver.settings, fixedWallClock)
+  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
   for (const output of outputs) {
     if (output.kind === 'ended') {
       playedOnsets.forEach((onsetAt, index) =>

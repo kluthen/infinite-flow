@@ -5,9 +5,10 @@
  * internal repeat mark, and the acknowledgements and played notes that fall inside it, placed on
  * read (see session-history-played-notes). The tempo the session reached is the last recorded
  * phrase's.
- * It also keeps when the session started, read once from an injected wall clock, and the instrument
- * profile of the locked settings. It never reads the system time, touches no browser API and stores
- * nothing outside memory.
+ * It also keeps when the session started, read once from an injected wall clock, the instrument
+ * profile of the locked settings and the session seed the session started with; nothing derived
+ * from that seed is kept beside it. It never reads the system time, touches no browser API and
+ * stores nothing outside memory.
  */
 
 import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
@@ -15,6 +16,7 @@ import type { ConcertPitch } from '../domain/events/concert-pitch'
 import { deepFreeze } from '../domain/events/deep-freeze'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
 import type { InstrumentProfileId } from '../domain/profile/instrument-profiles'
+import type { Seed } from '../domain/random/seed'
 import { withPlayedNotes } from './session-history-played-notes'
 import type { AudioTime, SessionOutput, SessionSettings, SuccessfulOutcome } from './session-types'
 
@@ -57,7 +59,7 @@ export interface SessionHistoryRecord {
  * release already latency-compensated, in release order) and every acknowledgement, read back as
  * one ordered list, with the tempo the session reached (the last recorded phrase's, null before
  * phrase 1 sounds), the session's start time (epoch milliseconds, read once from the wall clock at
- * creation) and the instrument profile id of its locked settings.
+ * creation), the instrument profile id of its locked settings and its session seed.
  */
 // @spec-link [[service_session_history]]
 // @spec-link [[rule_session_settings_locked]]
@@ -72,6 +74,9 @@ export interface SessionHistory {
   readonly phraseCount: number
   readonly startedAt: number
   readonly instrumentProfileId: InstrumentProfileId
+  /** The session seed every seed of the session after phrase 1 derives from; nothing derived. */
+  // @spec-link [[module_session_seed_plan]]
+  readonly sessionSeed: Seed
 }
 
 /** The injected wall clock: the player's current local moment, as epoch milliseconds. */
@@ -123,6 +128,19 @@ function sessionInstrumentProfileId(settings: SessionSettings): InstrumentProfil
   if (typeof id !== 'string' || id.length === 0)
     throw new SessionHistoryError('The session settings hold no instrument profile.')
   return id
+}
+
+/** The largest 32-bit unsigned value, the largest seed. */
+const MAX_UNSIGNED_32 = 0xffffffff
+
+/** Intent: the session seed, refused unless it is a 32-bit unsigned integer, as every Seed is. */
+// @spec-link [[module_session_seed_plan]]
+function checkedSessionSeed(sessionSeed: Seed): Seed {
+  if (!Number.isInteger(sessionSeed) || sessionSeed < 0 || sessionSeed > MAX_UNSIGNED_32)
+    throw new SessionHistoryError(
+      `The session seed must be a 32-bit unsigned integer, got ${sessionSeed}.`,
+    )
+  return sessionSeed
 }
 
 /**
@@ -260,9 +278,10 @@ function recordOf(output: SoundingOutput): SessionHistoryRecord {
 
 /**
  * Intent: an empty history for one session, created at its start from the settings locked at that
- * start (whose tempo, the starting tempo, must be usable but is never a record's) and an injected
- * wall clock, read exactly once here for the start time. `record` takes every engine output in
- * order: a phrase-sounding output adds the next record at its own tempo, `ended` closes the
+ * start (whose tempo, the starting tempo, must be usable but is never a record's), an injected wall
+ * clock, read exactly once here for the start time, and the session seed taken with phrase 1 from
+ * the Idle result (one that is no seed throws), kept as it is. `record` takes every engine output
+ * in order: a phrase-sounding output adds the next record at its own tempo, `ended` closes the
  * history, and every other kind (read-ahead included) is ignored. `recordPlayedNote` and
  * `recordAcknowledgement` take the player's finished notes and acknowledgements, placed in the
  * records on read. An output, note or acknowledgement after the end, a phrase out of order, for
@@ -273,12 +292,15 @@ function recordOf(output: SoundingOutput): SessionHistoryRecord {
 // @spec-link [[rule_session_history_keeps_timeline_and_inputs]]
 // @spec-link [[rule_repeat_phrase_marked_internally_only]]
 // @spec-link [[rule_session_settings_locked]]
+// @spec-link [[module_session_seed_plan]]
 export function createSessionHistory(
   settings: SessionSettings,
   wallClock: WallClock,
+  sessionSeed: Seed,
 ): SessionHistory {
   assertTempo(settings.controls.tempo, 'The starting tempo')
   const instrumentProfileId = sessionInstrumentProfileId(settings)
+  const checkedSeed = checkedSessionSeed(sessionSeed)
   const startedAt = sessionStartTime(wallClock)
   const records: SessionHistoryRecord[] = []
   const playedNotes: RecordedPlayedNote[] = []
@@ -305,6 +327,7 @@ export function createSessionHistory(
   return Object.freeze({
     startedAt,
     instrumentProfileId,
+    sessionSeed: checkedSeed,
     /** Intent: take one engine output, in the order the engine gave it. */
     record(output: SessionOutput): void {
       assertOpen(`A ${output.kind} output`)

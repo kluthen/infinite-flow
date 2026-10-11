@@ -21,6 +21,8 @@ import {
 } from '@/composables/use-notation-coordinator'
 import {
   createWorkspaceGenerate,
+  withSessionSeed,
+  type WorkspaceGeneratedPhrase,
   type WorkspaceSessionResult,
 } from '@/composables/workspace-session-result'
 import { makeRequestId } from '@/domain/generation/generation-request'
@@ -63,7 +65,8 @@ export const WORKSPACE_SESSION_FACTORY: InjectionKey<() => WorkspaceSession> = S
 
 /**
  * Intent: build one workspace session from explicit dependencies: the identity/seed providers,
- * the raw orchestration `generate` seam, its teardown, and the audio transport, MIDI controller and
+ * the session-seed provider each published Idle phrase 1 draws its session seed from, the raw
+ * orchestration `generate` seam, its teardown, and the audio transport, MIDI controller and
  * session browser ports, all exposed unchanged. Wires the same notation coordinator
  * (which also answers the session's pre-draw fit and room checks from the staff's reported layout
  * inputs) and profile-switch policy production always uses, so the only thing a caller can vary is where
@@ -77,6 +80,7 @@ export const WORKSPACE_SESSION_FACTORY: InjectionKey<() => WorkspaceSession> = S
 // @spec-link [[service_session_runner]]
 // @spec-link [[module_idle_fit_round]]
 // @spec-link [[module_phrase_replay_key]]
+// @spec-link [[module_session_seed_plan]]
 export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): WorkspaceSession {
   let session: GenerationSession<WorkspaceSessionResult> | null = null
   const announcer = createPhraseReplayAnnouncer(deps.logPhraseReplayKey)
@@ -98,8 +102,10 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   })
 
   const connectionSheetOpen = shallowRef(false)
-  const created = createGenerationSession<WorkspaceSessionResult>({
+  const created = createGenerationSession<WorkspaceSessionResult, WorkspaceGeneratedPhrase>({
     providers: deps.providers,
+    nextSessionSeed: deps.nextSessionSeed,
+    withSessionSeed,
     viewport: deps.viewport,
     generate: createWorkspaceGenerate(deps.generate),
     notate: coordinator.notate,
@@ -119,8 +125,9 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
 
   /**
    * Intent: load the runner's module and, before settling, the replay-key announcer, then hand
-   * back a starter of runners on the Idle flow's providers (the mutation seed of a session with
-   * `Vary settings` on included), width reading and `generate` seam, reading the caller's display,
+   * back a starter of runners on the Idle flow's request-id provider (every attempt seed, and the
+   * mutation seed of a session with `Vary settings` on, derived from the start's session seed),
+   * width reading and `generate` seam, reading the caller's display,
    * their outputs forwarded unchanged once each accepted session phrase has announced its replay
    * key. The runner's module is imported by its `@/` path, the one a test harness may substitute.
    * A load failure is not caught: it rejects the returned promise.
@@ -225,14 +232,15 @@ export interface ProductionWorkspaceSessionOptions {
 /**
  * Intent: build the root workspace session used by `App.vue` in production: a real worker-backed
  * generation seam, one browser worker at a time replaced on a session's cancellation and then
- * re-warmed under the given prewarm policy, and its prewarm under that policy, the cryptographic seed provider, a
- * monotonic request-id provider, the window's own `matchMedia` width provider, the Web Audio
- * transport, still locked: no audio context exists until a player click unlocks it, the Web
- * MIDI controller on that transport's clock, which requests no MIDI access until `connect()`, and
- * the browser adapters of the session's wake lock, orientation lock, page visibility and window
- * shape, none of which asks or listens for anything until used, and the session clock: a wake-up
- * Worker timer, created only when a session controller first starts a session, the system's
- * wall clock for session histories, and the browser's animation frames for the playhead.
+ * re-warmed under the given prewarm policy, and its prewarm under that policy, the cryptographic
+ * seed provider (for phrase seeds and, drawn separately, session seeds), a monotonic request-id
+ * provider, the window's own `matchMedia` width provider, the Web Audio transport, still locked: no
+ * audio context exists until a player click unlocks it, the Web MIDI controller on that transport's
+ * clock, which requests no MIDI access until `connect()`, and the browser adapters of the session's
+ * wake lock, orientation lock, page visibility and window shape, none of which asks or listens for
+ * anything until used, and the session clock: a wake-up Worker timer, created only when a session
+ * controller first starts a session, the system's wall clock for session histories, and the
+ * browser's animation frames for the playhead.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[rule_audio_unlocked_by_player_click]]
@@ -255,6 +263,7 @@ export function createWorkspaceSession(
       nextRequestId: createRequestIdProvider(),
       nextSeed: nextCryptoSeed,
     },
+    nextSessionSeed: nextCryptoSeed,
     viewport: createBrowserViewportWidth(),
     generate: client.generate,
     prewarmPolicy: options.prewarmPolicy,

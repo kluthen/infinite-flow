@@ -93,6 +93,7 @@ function inflatedHistory(real: SessionHistory, phraseCount: number): SessionHist
     phraseCount,
     startedAt: real.startedAt,
     instrumentProfileId: real.instrumentProfileId,
+    sessionSeed: real.sessionSeed,
   })
 }
 

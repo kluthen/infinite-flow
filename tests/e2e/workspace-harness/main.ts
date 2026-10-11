@@ -7,7 +7,10 @@
  * `WORKSPACE_SESSION_FACTORY` provide/inject point -- never a test branch inside src/ itself:
  *
  * - a deterministic seed queue and monotonic request-id provider, so a spec can queue exact seeds
- *   and read back exact request ids instead of racing `crypto` randomness;
+ *   and read back exact request ids instead of racing `crypto` randomness, and a second seed queue
+ *   (`queueSessionSeeds`/`sessionSeedsDrawn`) for the session seed drawn with each published
+ *   phrase 1 -- a session draws no seed of its own, every seed it uses derives from that one, by
+ *   the session seed plan's derivations, published as `phraseAttemptSeed`/`settingsMutationSeed`;
  * - a generation gate (`holdGeneration`/`releaseGeneration`) the `generate` wrapper awaits before
  *   ever delegating to the real worker client, so a spec can assert concurrent-operation
  *   prevention deterministically;
@@ -77,6 +80,7 @@ import type {
   GenerationOutcome,
 } from '../../../src/domain/generation/orchestration/orchestration-types'
 import { makeSeed, type Seed } from '../../../src/domain/random/seed'
+import * as seedPlan from '../../../src/session/session-seed-plan'
 import { createBrowserGenerationWorker } from '../../../src/generation-worker/browser-generation-worker'
 import {
   GenerationCancelledError,
@@ -159,6 +163,8 @@ const EMPTY_DIAGNOSTICS: GenerationDiagnostics = {
 }
 
 const seedProvider = createSeedProvider()
+/** The session seeds, drawn with each published phrase 1, apart from the phrase seeds. */
+const sessionSeedProvider = createSeedProvider()
 const requestIdProvider = createRequestIdProvider()
 const gate = createGenerationGate()
 let armedFailureCode: WorkspaceHarnessGenerationFailureCode | null = null
@@ -319,6 +325,11 @@ window.__workspaceHarness = {
   engravings: engravingCount,
   roomChecks: roomCheckCount,
   seedsDrawn: seedProvider.seedsDrawn,
+  queueSessionSeeds: (seeds) => sessionSeedProvider.queueSeeds(seeds),
+  sessionSeedsDrawn: sessionSeedProvider.seedsDrawn,
+  phraseAttemptSeed: (seed, phraseNumber, rung) =>
+    seedPlan.phraseAttemptSeed(makeSeed(seed), phraseNumber, rung),
+  settingsMutationSeed: (seed) => seedPlan.settingsMutationSeed(makeSeed(seed)),
   generatedTimelines: () => [...generatedTimelines],
   generationRequests: () => [...generationRequests],
   setWallClock,
@@ -338,6 +349,7 @@ const app = createApp(App)
 app.provide(WORKSPACE_SESSION_FACTORY, () => {
   const composed = composeWorkspaceSession({
     providers: { nextRequestId: requestIdProvider, nextSeed: seedProvider.nextSeed },
+    nextSessionSeed: sessionSeedProvider.nextSeed,
     viewport: createBrowserViewportWidth(),
     generate: harnessGenerate,
     prewarmPolicy: harnessPrewarmPolicy,

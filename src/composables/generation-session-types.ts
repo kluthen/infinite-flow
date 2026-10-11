@@ -12,6 +12,7 @@ import type {
   GenerationIntentProviders,
 } from '@/domain/generation/generation-intent'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
+import type { Seed } from '@/domain/random/seed'
 import type {
   StaffFitVerdict,
   StaffKeySignature,
@@ -97,14 +98,29 @@ export interface GenerationSession<TResult> {
   readonly dispose: () => void
 }
 
-export interface CreateGenerationSessionOptions<TResult> {
+/**
+ * What the Idle session is built from. `TGenerated` is what one generation attempt gives; `TResult`
+ * is the published result the state holds: the generated phrase that became phrase 1, joined with
+ * the session seed drawn for it.
+ */
+// @spec-link [[service_idle_generation_session]]
+// @spec-link [[module_session_seed_plan]]
+export interface CreateGenerationSessionOptions<TResult, TGenerated = TResult> {
   readonly providers: GenerationIntentProviders
+  /**
+   * Where the session seed of each published phrase 1 comes from: drawn once per phrase 1 a fit
+   * run publishes, never per attempt, and separate from `providers.nextSeed`, so phrase seeds draw
+   * exactly as they would without it.
+   */
+  readonly nextSessionSeed: () => Seed
+  /** Join a generated phrase with the session seed drawn for it, as the published result. */
+  readonly withSessionSeed: (generated: TGenerated, sessionSeed: Seed) => TResult
   /** Where the window stands against `bp-tablet-landscape`; read when each phrase is generated. */
   readonly viewport: ViewportWidthProvider
-  readonly generate: (intent: GenerationIntent) => Promise<TResult>
+  readonly generate: (intent: GenerationIntent) => Promise<TGenerated>
   readonly notate: (result: TResult) => Promise<void>
   /** Check a generated phrase against the staff's current layout inputs, drawing nothing. */
-  readonly checkFit: (result: TResult) => Promise<StaffFitVerdict>
+  readonly checkFit: (generated: TGenerated) => Promise<StaffFitVerdict>
   /** Check whether the staff has room at all, whatever the notes, with this key signature. */
   readonly checkRoom: (signature: StaffKeySignature) => Promise<StaffRoomVerdict>
   /** The staff's layout-input reports (container width, viewport and height budget). */

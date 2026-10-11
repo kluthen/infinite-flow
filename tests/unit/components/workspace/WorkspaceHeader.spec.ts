@@ -13,7 +13,11 @@ import type { SessionController } from '@/components/workspace/workspace-session
 import type { ControllerStatusForm } from '@/midi/controller-status'
 import { createSessionHistory } from '@/session/session-history'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
-import { fixedWallClock, sessionSettings } from '../../session/session-harness'
+import {
+  DEFAULT_SESSION_SEED,
+  fixedWallClock,
+  sessionSettings,
+} from '../../session/session-harness'
 import { createFakeSessionController } from './fake-session-controller'
 
 const UNSUPPORTED_CONTROLS: GenerationControls = {
@@ -338,7 +342,7 @@ describe('WorkspaceHeader session action', () => {
       startBlocker: 'review_showing',
     })
     controller.state.review = {
-      history: createSessionHistory(sessionSettings(), fixedWallClock),
+      history: createSessionHistory(sessionSettings(), fixedWallClock, DEFAULT_SESSION_SEED),
       showing: true,
       tempoReached: 90,
     }
