@@ -27,8 +27,6 @@
   --radius-lg: 1rem;
   --control-group-min-inline-size: 14rem;
   --size-visually-hidden: 1px;
-  /* v2 new -- from here to "end v2 new": sheet, controller-status, session action, session cue
-     row, phone staff budget and toggle-button sizes. */
   /* The connection sheet's own comfortable reading measure, distinct from
      `--control-group-min-inline-size` (a control-layout minimum, not a modal panel width). */
   --sheet-max-inline-size: 28rem;
@@ -120,16 +118,13 @@
   /* The fixed inline size of a `toggle-button`'s state word ("on" / "off"), so the button keeps
      one width in both states. */
   --toggle-button-state-inline-size: 3ch;
-  /* end v2 new */
-  /* v2 new -- from here to "end v2 new": the tempo value's fixed width and the review's
-     played-notes lane (v2.1, v2.2). */
   /* The fixed inline size of a tempo shown as "{tempo} BPM": the header's `tempo-readout` and
      the tempo stepper's `input-stepper-value`, both with tabular digits. Sized in `ch` of their
      own font for the widest value, "240 BPM" (7 characters, the capitals of "BPM" wider than a
      digit), plus one character of slack. Fixed, so a two- or three-digit tempo, and a rising
      tempo's off-list values during a session ("95 BPM"), never move anything beside them. */
   --tempo-value-inline-size: 8ch;
-  /* The block size of one played-notes lane in the review (v2.1): the strip under each staff
+  /* The block size of one played-notes lane in the review: the strip under each staff
      system where the notes the player played are drawn as bars. The same at every breakpoint;
      only its inline size follows the staff above it. Reserved for every phrase while
      `Played notes` is on, so drawing phrases lazily never moves the page. */
@@ -138,7 +133,25 @@
      note stays visible. */
   --played-note-block-size: var(--spacing-1);
   --played-note-min-inline-size: var(--spacing-1);
-  /* end v2 new */
+  /* v3 new -- from here to "end v3 new": the wide sheet and the sizes of the stepper, text
+     fields and favorite star. */
+  /* The inline size cap of `sheet-wide`, the My instrument and Your data sheets: their rows hold
+     a label, a value and an action, or two steppers side by side, which `--sheet-max-inline-size`
+     would wrap. */
+  --sheet-wide-max-inline-size: 36rem;
+  /* The fixed inline size of a `note-stepper`'s readout (the range and transposition steppers),
+     with tabular digits: sized for the longest value, "12 higher" (9 characters), plus one
+     character of slack, so a value change never moves the stepper's buttons. */
+  --instrument-stepper-value-inline-size: 10ch;
+  /* The inline size cap of `text-input`: the instrument name field, 30 characters at
+     `--text-md`. */
+  --text-input-max-inline-size: 20rem;
+  /* The minimum block size of `text-area` (the review's comment field): four lines of
+     `--text-md` at `--leading-base`, plus its padding. It grows with its content. */
+  --comment-field-min-block-size: 6.5rem;
+  /* The star in `favorite-toggle`, at every breakpoint. */
+  --favorite-icon-size: 1.25rem;
+  /* end v3 new */
 
   --shadow-panel: 0 0.5rem 1.5rem rgb(31 29 24 / 0.12);
   --shadow-focus: 0 0 0 0.1875rem var(--color-focus-ring);
@@ -148,7 +161,7 @@
   --readonly-ring: 0.125rem dashed var(--color-text-muted);
   --z-base: 0;
   --z-sticky: 10;
-  --z-popover: 15; /* v2 new: the audio-mix Volume popover, above the page, below a sheet. */
+  --z-popover: 15; /* The audio-mix Volume popover, above the page, below a sheet. */
   --z-sheet: 20;
   --z-alert: 30;
 
@@ -182,7 +195,10 @@
   --color-success: #176b50;
   --color-error: #a52c24;
   --color-error-surface: #fce8e5;
-  /* v2 new -- from here to "end v2 new": scrim, acknowledgement and playhead colours. */
+  /* v3 new -- the hover and active fill and border of `btn-error`. Its text
+     (`--color-accent-text`) keeps 9.30:1 on it in light and 10.54:1 in dark, above the 4.5:1
+     `--color-error` already meets. */
+  --color-error-hover: #86221c;
   /* The connection sheet's backdrop scrim. Theme-dependent: a warm ink at 60% dims the light
      paper clearly, but over the dark canvas the same value is almost invisible, so both dark
      blocks below use a deeper, more opaque black that visibly dims the bright parchment text. */
@@ -203,8 +219,7 @@
      (dark) on it, the start marker's accent 5.55:1 (light) and 5.61:1 (dark), and the
      acknowledgement colour 3.78:1 (light) and 3.45:1 (dark). */
   --color-playhead-band: #ebe2cf;
-  /* end v2 new */
-  /* v2 new -- the review's played notes (v2.1): one neutral colour for every played-note bar,
+  /* The review's played notes: one neutral colour for every played-note bar,
      matched or not, never green (acknowledgement) or red (error). An alias of the muted ink, so it
      switches with the theme: 6.2:1 against the review panel's surface in light, 9.4:1 in dark,
      well above the 3:1 a graphical object needs. */
@@ -229,9 +244,10 @@
     --color-success: #75d5ac;
     --color-error: #ff9c90;
     --color-error-surface: #4a2421;
-    --color-scrim: rgb(0 0 0 / 0.72); /* v2 new */
-    --color-note-ack: #2d9a72; /* v2 new */
-    --color-playhead-band: #373630; /* v2 new */
+    --color-error-hover: #ffb5ab; /* v3 new */
+    --color-scrim: rgb(0 0 0 / 0.72);
+    --color-note-ack: #2d9a72;
+    --color-playhead-band: #373630;
     color-scheme: dark;
   }
 
@@ -252,9 +268,10 @@
       --color-success: #75d5ac;
       --color-error: #ff9c90;
       --color-error-surface: #4a2421;
-      --color-scrim: rgb(0 0 0 / 0.72); /* v2 new */
-      --color-note-ack: #2d9a72; /* v2 new */
-      --color-playhead-band: #373630; /* v2 new */
+      --color-error-hover: #ffb5ab; /* v3 new */
+      --color-scrim: rgb(0 0 0 / 0.72);
+      --color-note-ack: #2d9a72;
+      --color-playhead-band: #373630;
       color-scheme: dark;
     }
   }
@@ -270,12 +287,10 @@
     color-scheme: light;
   }
 
-  /* v2 new -- from here to "end v2 new": audio-mix levels. */
-  /* Audio-mix levels (proposed -- every value in this block waits on listening tests of the
-     backing / click / instrument balance; none is final). Unitless gain fractions of each
-     channel's own full level, read by the audio mix at start-up (`getComputedStyle`) and given
-     to each volume `range-input` as its `min`, `max`, `step` and initial `value`, so no level
-     is ever written inline in application code. Declared on `:root` rather than in `@theme`
+  /* Audio-mix levels, set by ear in real sessions and final as built. Unitless gain fractions
+     of each channel's own full level, read by the audio mix at start-up (`getComputedStyle`)
+     and given to each volume `range-input` as its `min`, `max`, `step` and initial `value`, so
+     no level is ever written inline in application code. Declared on `:root` rather than in `@theme`
      because no stylesheet rule consumes them, and Tailwind only emits `@theme` variables that
      are used. The click minimum is above zero on purpose: the click slider never reaches
      silence (turning the click off is its toggle's job), so the count-in, which plays at the
@@ -289,7 +304,6 @@
     --mix-backing-volume-default: 0.8;
     --mix-click-volume-default: 0.8;
   }
-  /* end v2 new */
 
   /* Accessibility floor: 4.5:1 normal text, 3:1 large text and controls, 44px minimum targets. */
   * {
@@ -304,9 +318,11 @@
     line-height: var(--leading-base);
   }
 
+  /* v3 changed -- `textarea` joins (the review's comment field, `text-area`). */
   button,
   input,
-  select {
+  select,
+  textarea {
     font: inherit;
   }
 
