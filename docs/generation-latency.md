@@ -140,6 +140,34 @@ one fresh page each, one first generation, then 12 regenerations (each with a ne
 then 10 re-engravings of the last phrase caused by a 16-pixel width change alone, with no
 generation. `ENGRAVING_OUT` names a JSON file for the full report.
 
+## My instrument ranges (2026-10-11)
+
+Measurement M3's generator half: whether a player-made instrument whose range is exactly two
+octaves, sits at an extreme of the MIDI note range, or is very wide makes phrase generation fail
+more often. `npm run sweep:my-instrument` (`tests/sweep-my-instrument/`, its own Vitest config,
+outside `test:unit`, `test:sweep` and `quality`) builds my instrument from the C MIDI keyboard
+template with no transposition, so the written range is the concert range, and calls
+`generatePhrase` directly for every supported rhythm setting (284) with seeds 7 and 13; every
+other control keeps the workspace default (register Varying). It counts failed generations by
+failure code.
+
+Measured 2026-10-11 on the build machine (AMD Ryzen 5 PRO 8640HS, 12 threads, not a VM), 25 s in
+all; a reference figure only, which gates nothing until the owner's range ruling:
+
+| Range case | Written range | Generations | Failures | Share | Failures by code |
+| --- | --- | --- | --- | --- | --- |
+| Two octaves, low | 12–36 | 568 | 0 | 0.0 % | none |
+| Two octaves, middle | 54–78 | 568 | 0 | 0.0 % | none |
+| Two octaves, high | 91–115 | 568 | 0 | 0.0 % | none |
+| Two octaves, lowest possible | 0–24 | 568 | 0 | 0.0 % | none |
+| Two octaves, highest possible | 103–127 | 568 | 0 | 0.0 % | none |
+| Four octaves | 36–84 | 568 | 0 | 0.0 % | none |
+| Five octaves | 30–90 | 568 | 0 | 0.0 % | none |
+
+No range case fails: the generator places every phrase inside the derived register windows
+whatever their position or width. The written-range bound for the staff height is the other half
+of M3, measured with the engraving calibration and recorded in `notation-engraving.md`.
+
 ## Failure-ladder reserve constants (2026-10-07)
 
 The two measured constants of the time-aware failure ladder (spec D203): the session keeps their

@@ -31,8 +31,8 @@ export const ATD_ERROR_DISTINCT = 10
  * - `prefixes`: every file under these directories: tooling (`scripts/`), the tests of that
  *   tooling (`tests/unit/code-health/`) and the perf measurement harness run by `measure:latency`
  *   (`tests/perf/`).
- * - `files`: the measurement harnesses run by the other `measure:*` npm scripts (see
- *   package.json), and the design-system accessibility conformance checks (focus visibility,
+ * - `files`: the measurement harnesses run by the other `measure:*` npm scripts and by
+ *   `sweep:my-instrument` (see package.json), and the design-system accessibility conformance checks (focus visibility,
  *   reduced motion, target size), which no business atom governs.
  * - `plumbingUnder`: test plumbing, i.e. every file under these directories that is not a spec
  *   (its name holds neither `.spec.` nor `.test.`): fixtures, fakes, shared helpers, goldens,
@@ -48,6 +48,7 @@ export const ATD_EXEMPT_PATHS = {
     'tests/e2e/workspace/generation-latency.spec.ts',
     'tests/e2e/workspace/engraving-main-thread.spec.ts',
     'tests/e2e/session/rolling-display-timing.spec.ts',
+    'tests/sweep-my-instrument/my-instrument-range-sweep.spec.ts',
     'tests/e2e/workspace/focus-visibility.spec.ts',
     'tests/e2e/workspace/reduced-motion.spec.ts',
     'tests/e2e/workspace/target-size.spec.ts',

@@ -1,6 +1,8 @@
 import { deepFreeze } from '../events/deep-freeze'
 import {
   ADOPTED_INSTRUMENT_PROFILE_IDS,
+  MY_INSTRUMENT_ID,
+  type BuiltInInstrumentProfileId,
   type InstrumentProfileId,
 } from '../profile/instrument-profiles'
 import type { RegisterChoice } from '../profile/register-intent'
@@ -54,12 +56,24 @@ export const LEAPINESS_VALUES = deepFreeze(['Smooth', 'Shaped', 'Leaping', 'Angu
 export const ARPEGGIO_CHAOS_VALUES = deepFreeze(['Predictable', 'Varied', 'Chaotic'] as const)
 export const MUSICAL_PROFILES = deepFreeze(['Neutral', 'Jazz'] as const)
 /**
- * The catalog of selectable instrument-profile identities, derived from the single declarative
+ * The catalog of built-in instrument-profile identities, derived from the single declarative
  * profile table (`../profile/instrument-profiles.ts`) rather than hand-maintained here: adding a
  * profile to that table is enough for it to appear as a control option with no parallel edit.
+ * It holds the built-ins only, never `my-instrument`: callers enumerate it to build profiles from
+ * the table. The ids the controls accept are `ACCEPTED_INSTRUMENT_PROFILE_IDS`.
  */
 // @spec-link [[entity_instrument_profile]]
-export const INSTRUMENT_PROFILE_IDS: readonly InstrumentProfileId[] = ADOPTED_INSTRUMENT_PROFILE_IDS
+export const INSTRUMENT_PROFILE_IDS: readonly BuiltInInstrumentProfileId[] =
+  ADOPTED_INSTRUMENT_PROFILE_IDS
+/**
+ * Every instrument-profile id the controls accept: the built-ins and my instrument's fixed id,
+ * whose profile travels as data beside the controls rather than being looked up by id.
+ */
+// @spec-link [[entity_my_instrument]]
+export const ACCEPTED_INSTRUMENT_PROFILE_IDS: readonly InstrumentProfileId[] = deepFreeze([
+  ...INSTRUMENT_PROFILE_IDS,
+  MY_INSTRUMENT_ID,
+])
 export const REGISTER_CHOICES = deepFreeze([
   'Low',
   'Middle',
@@ -165,7 +179,7 @@ export function makeGenerationControls(input: GenerationControls): GenerationCon
       'Arpeggio chaos',
     ),
     instrumentProfileId: validateControlValue(
-      INSTRUMENT_PROFILE_IDS,
+      ACCEPTED_INSTRUMENT_PROFILE_IDS,
       input.instrumentProfileId,
       'Instrument profile',
     ),

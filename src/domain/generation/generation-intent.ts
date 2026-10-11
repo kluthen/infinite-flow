@@ -6,7 +6,11 @@ import {
   makeGenerationControls,
 } from '../controls/generation-controls'
 import type { ProfileSelection } from '../controls/profile-selection'
-import { ADOPTED_INSTRUMENT_PROFILES } from '../profile/instrument-profiles'
+import {
+  MY_INSTRUMENT_ID,
+  findBuiltInInstrumentProfile,
+  isBuiltInInstrumentProfileId,
+} from '../profile/instrument-profiles'
 import type { InstrumentProfile } from '../profile/instrument-profile'
 import { buildRegisterIntent, type RegisterIntent } from '../profile/register-intent'
 import type { Seed } from '../random/seed'
@@ -41,13 +45,16 @@ export interface GenerationIntent {
 /**
  * `controls.tonalCenter` here is the player's written-pitch selection, not concert pitch. It holds
  * no carry-in: an intent that receives one is built by `makeCarryInGenerationIntent`, which checks
- * the carry-in against the intent.
+ * the carry-in against the intent. `instrumentProfile` is my instrument's profile, given as data
+ * exactly when the controls name `my-instrument`; a built-in is resolved from its id.
  */
+// @spec-link [[entity_my_instrument]]
 export interface GenerationIntentInput {
   readonly requestId: RequestId
   readonly seed: Seed
   readonly controls: GenerationControls
   readonly musicalProfile: ProfileSelection
+  readonly instrumentProfile?: InstrumentProfile
 }
 
 // @spec-link [[module_generation_request_construction]]
@@ -60,16 +67,59 @@ export class GenerationIntentError extends Error {
   }
 }
 
-/** Resolve the selected identity through the adopted Step 3 declarative profile data. */
+/**
+ * Resolve a built-in identity through the declarative built-in profile table. My instrument has
+ * no table entry: its profile travels as data, so looking it up by id alone is refused.
+ */
 // @spec-link [[module_generation_request_construction]]
 export function getInstrumentProfile(
   id: GenerationControls['instrumentProfileId'],
 ): InstrumentProfile {
-  const profile = ADOPTED_INSTRUMENT_PROFILES.find((candidate) => candidate.id === id)
+  if (id === MY_INSTRUMENT_ID) {
+    throw new GenerationIntentError(
+      `"${MY_INSTRUMENT_ID}" has no built-in profile to look up: its profile travels as data beside the controls.`,
+    )
+  }
+  const profile = findBuiltInInstrumentProfile(id)
   if (profile === undefined) {
     throw new GenerationIntentError(`No adopted instrument profile exists for "${id}".`)
   }
   return profile
+}
+
+/**
+ * Intent: the instrument profile an intent embeds. A built-in id resolves from the built-in table
+ * and refuses a supplied profile; `my-instrument` requires the supplied profile, whose id must be
+ * `my-instrument`. Every refusal is a GenerationIntentError; nothing is ever substituted.
+ */
+// @spec-link [[entity_my_instrument]]
+// @spec-link [[module_generation_request_construction]]
+export function resolveInstrumentProfile(
+  id: GenerationControls['instrumentProfileId'],
+  supplied: InstrumentProfile | undefined,
+): InstrumentProfile {
+  if (id === MY_INSTRUMENT_ID) {
+    if (supplied === undefined) {
+      throw new GenerationIntentError(
+        `The controls name "${MY_INSTRUMENT_ID}" but no my-instrument profile was given.`,
+      )
+    }
+    if (supplied.id !== MY_INSTRUMENT_ID) {
+      throw new GenerationIntentError(
+        `The controls name "${MY_INSTRUMENT_ID}" but the profile given is "${supplied.id}".`,
+      )
+    }
+    return supplied
+  }
+  if (supplied !== undefined) {
+    throw new GenerationIntentError(
+      `The controls name the built-in "${id}"; a supplied profile ("${supplied.id}") is refused.`,
+    )
+  }
+  if (!isBuiltInInstrumentProfileId(id)) {
+    throw new GenerationIntentError(`No adopted instrument profile exists for "${id}".`)
+  }
+  return getInstrumentProfile(id)
 }
 
 /** Intent: reduce an integer pitch-class arithmetic result into the closed 0..11 index range. */
@@ -101,9 +151,11 @@ export function writtenToConcertTonalCenter(
  * field at all. This deliberately does not construct the resolved GenerationRequest: fixed-register
  * resolution and Varying feasibility are Step 7 work. The caller's `controls.tonalCenter` is read
  * as the player's written-pitch selection and converted to concert pitch here; the generator
- * downstream only ever sees concert pitch. An input that still holds a carry-in is a caller bug
- * and is refused, never silently dropped: such an intent is built by `makeCarryInGenerationIntent`,
- * which checks the carry-in against it.
+ * downstream only ever sees concert pitch. The embedded instrument profile comes from
+ * `resolveInstrumentProfile`: the built-in table for a built-in id, the supplied profile for
+ * `my-instrument`. An input that still holds a carry-in is a caller bug and is refused, never
+ * silently dropped: such an intent is built by `makeCarryInGenerationIntent`, which checks the
+ * carry-in against it.
  */
 // @spec-link [[module_generation_request_construction]]
 export function makeGenerationIntent(input: GenerationIntentInput): GenerationIntent {
@@ -113,7 +165,10 @@ export function makeGenerationIntent(input: GenerationIntentInput): GenerationIn
     )
   }
   const writtenControls = makeGenerationControls(input.controls)
-  const instrumentProfile = getInstrumentProfile(writtenControls.instrumentProfileId)
+  const instrumentProfile = resolveInstrumentProfile(
+    writtenControls.instrumentProfileId,
+    input.instrumentProfile,
+  )
   const writtenTonalCenter = writtenControls.tonalCenter
   const controls: GenerationControls = {
     ...writtenControls,
@@ -146,17 +201,27 @@ export function createGenerationIntent(input: GenerationIntentInput): Generation
   return makeGenerationIntent(input)
 }
 
-/** Regeneration retains active controls/profile grammar and obtains a fresh injected seed and identity. */
+/**
+ * Regeneration retains active controls/profile grammar and obtains a fresh injected seed and
+ * identity. My instrument's profile is handed on as data, since its id alone resolves nothing; a
+ * built-in is resolved from its id again.
+ */
 // @spec-link [[module_generation_request_construction]]
 // @spec-link [[rule_seeded_phrase_reproduction]]
+// @spec-link [[entity_my_instrument]]
 export function regenerateGenerationIntent(
   previous: GenerationIntent,
   providers: GenerationIntentProviders,
 ): GenerationIntent {
+  const suppliedProfile =
+    previous.controls.instrumentProfileId === MY_INSTRUMENT_ID
+      ? { instrumentProfile: previous.instrumentProfile }
+      : {}
   return makeGenerationIntent({
     requestId: providers.nextRequestId(),
     seed: providers.nextSeed(),
     controls: { ...previous.controls, tonalCenter: previous.writtenTonalCenter },
     musicalProfile: previous.musicalProfile,
+    ...suppliedProfile,
   })
 }

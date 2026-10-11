@@ -21,6 +21,7 @@
     "tests/unit/**/*.ts",
     "tests/perf/**/*.ts",
     "tests/sweep/**/*.ts",
+    "tests/sweep-my-instrument/**/*.ts",
     "tests/e2e/notation-harness/**/*.ts",
     "tests/e2e/notation-harness-window.d.ts",
     "tests/e2e/workspace-harness/**/*.ts",
