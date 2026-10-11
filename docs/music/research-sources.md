@@ -1,6 +1,6 @@
 # Music Research Sources
 
-Status: draft v0.4 (v3 research sources S18-S99 and S100-S115 merged 2026-10-07; v4 research sources S120–S194 merged 2026-10-11)
+Status: draft v0.5 (v3 research sources S18-S99 and S100-S115 merged 2026-10-07; v4 research sources S120–S194 merged 2026-10-11; endgame musical-identity research sources S195–S266 merged 2026-10-11)
 
 ## How To Use This Record
 
@@ -203,25 +203,25 @@ These back the [mutation catalogue](mutation-catalogue.md), research for the mut
   - Applied in: [mutation catalogue](mutation-catalogue.md): call and response; [arranging and accompaniment roles](arranging-and-roles.md): call and response, answering, trading.
 - **S53 - Dowling, recognition of melodic transformations.** W. J. Dowling, "Recognition of melodic transformations: Inversion, retrograde, and retrograde inversion", _Perception & Psychophysics_ 12(5), 1972, 417 ff.: https://labs.utdallas.edu/mpac/files/2021/03/1972.pdf
   - Useful for: all three recognized above chance in easier conditions, difficulty rising from inversion to retrograde to retrograde inversion; no distinction between exact and contour-only versions.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): recognizability fields, the "not in the first list" group.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): recognizability fields, the "not in the first list" group; [identity modelling](identity-modelling.md): signature motifs and licks.
 - **S54 - Dowling, scale and contour.** W. J. Dowling, "Scale and contour: Two components of a theory of memory for melodies", _Psychological Review_ 85(4), 1978, 341–354: https://doi.org/10.1037/0033-295X.85.4.341
   - Useful for: contour as the main thing remembered of a short new melody.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): recognizability, sequence, interval change.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): recognizability, sequence, interval change; [musical identity](musical-identity.md): pitch material, melody, how few notes it takes; [identity modelling](identity-modelling.md): signature motifs and licks.
 - **S55 - Hébert and Peretz, melodic and temporal patterns.** S. Hébert and I. Peretz, "Recognition of music in long-term memory: Are melodic and temporal patterns equal partners?", _Memory & Cognition_ 25(4), 1997: https://link.springer.com/article/10.3758/BF03195003
   - Useful for: familiar tunes are named far more often from their pitches alone than from their rhythm alone.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): recognizability; the lock as a matter of feel more than recognition.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): recognizability; the lock as a matter of feel more than recognition; [musical identity](musical-identity.md): melody, rhythm, how few notes it takes; [identity modelling](identity-modelling.md): signature motifs and licks.
 - **S56 - Post and Toussaint, edit distance and rhythm similarity.** O. Post and G. Toussaint, "The edit distance as a measure of perceived rhythmic similarity", _Empirical Musicology Review_ 6(3), 2011: https://doaj.org/article/02173439e1c24e4cb83f2e9d3be90081
   - Useful for: the count of insert/delete/substitute edits predicts perceived rhythmic difference (r = 0.87 in the first experiment), and metric placement affects an edit's salience.
   - Applied in: [mutation catalogue](mutation-catalogue.md): the distance scale.
 - **S57 - Pachet, the Continuator.** F. Pachet, "The Continuator: Musical interaction with style", _Journal of New Music Research_ 32(3), 2003, 333–341: https://www.francoispachet.fr/?p=4360
   - Useful for: a system that continues what a musician just played, in their style; the nearest prior art to Jam.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): call and response, Jam framing; [accompaniment systems](accompaniment-systems.md): prior art.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): call and response, Jam framing; [accompaniment systems](accompaniment-systems.md): prior art; [musical identity](musical-identity.md): learning an identity from play; [identity modelling](identity-modelling.md): representations of style, learning identities.
 - **S58 - Biles, GenJam.** J. A. Biles, "GenJam: A genetic algorithm for generating jazz solos", _Proceedings of the International Computer Music Conference_, 1994; papers list: https://genjam.org/al-biles/genjam-the-genetic-jammer/genjam-papers/
   - Useful for: "musically meaningful" mutation operators on measures (reverse, rotate, invert, sort, transpose), designed not to destroy musical structure.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): rhythmic retrograde, rotation; the idea of a curated mutation list; [accompaniment systems](accompaniment-systems.md): prior art.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): rhythmic retrograde, rotation; the idea of a curated mutation list; [accompaniment systems](accompaniment-systems.md): prior art; [identity modelling](identity-modelling.md): signature motifs and licks.
 - **S59 - Fernández and Vico, survey.** J. D. Fernández and F. Vico, "AI methods in algorithmic composition: A comprehensive survey", _Journal of Artificial Intelligence Research_ 48, 2013: https://arxiv.org/abs/1402.0585
   - Useful for: independent description of GenJam's measure mutations and of musically meaningful operators in evolutionary composition.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): cross-check of S58.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): cross-check of S58; [identity modelling](identity-modelling.md): representations of style.
 
 ## Key and Mode Estimation (v3)
 
@@ -229,25 +229,25 @@ These back [key and mode estimation](key-and-mode-estimation.md), research for v
 
 - **S60 - Krumhansl–Kessler key profiles.** Carol L. Krumhansl and Edward J. Kessler, "Tracing the dynamic changes in perceived tonal organization in a spatial representation of musical keys", Psychological Review 89(4), 334–368 (1982): https://doi.org/10.1037/0033-295X.89.4.334 ; and Carol L. Krumhansl, Cognitive Foundations of Musical Pitch, Oxford University Press (1990; online edition 2001): https://doi.org/10.1093/acprof:oso/9780195148367.001.0001
   - Useful for: the probe-tone key profiles and the Krumhansl–Schmuckler correlation algorithm (described most fully in the 1990 book, per S63).
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the methods survey and the shape of the proposed role profile.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the methods survey and the shape of the proposed role profile; [identity modelling](identity-modelling.md): representations of style.
 - **S61 - Temperley's revision of Krumhansl–Schmuckler.** David Temperley, "What's Key for Key? The Krumhansl-Schmuckler Key-Finding Algorithm Reconsidered", Music Perception 17(1), 65–100 (1999): https://doi.org/10.2307/40285812
   - Useful for: revised profile values, presence-per-segment instead of summed durations, a modulation penalty; tests on the Bach fugue subjects (abstract read).
   - Applied in: [key and mode estimation](key-and-mode-estimation.md): the profile table and the duration-weighting discussion.
 - **S62 - Bayesian key finding.** David Temperley, "A Bayesian Approach to Key-Finding", in Music and Artificial Intelligence (ICMAI 2002), Lecture Notes in Computer Science 2445, 195–206: https://doi.org/10.1007/3-540-45722-4_18 ; expanded in David Temperley, Music and Probability, MIT Press (2007).
   - Useful for: framing key finding as choosing the key that makes the notes most probable.
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the probabilistic method and the softmax-at-T=1 reading of the proposal.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the probabilistic method and the softmax-at-T=1 reading of the proposal; [identity modelling](identity-modelling.md): representations of style.
 - **S63 - Probabilistic model of melody perception.** David Temperley, "A Probabilistic Model of Melody Perception", Cognitive Science 32(2), 418–444 (2008): https://doi.org/10.1080/03640210701864089 (author copy: https://davidtemperley.com/wp-content/uploads/2015/11/temperley-cs08.pdf)
   - Useful for: a key-finding model for single melodies (key profile, range, pitch proximity); Essen profiles (degree 1 = 18.4% of major-melody notes); Table 2 accuracies on 65 Essen songs and 48 Bach fugue subjects for this and four other models; descriptions of the Longuet-Higgins–Steedman and Krumhansl–Schmuckler models. Read in full.
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): accuracy figures throughout, the first-note cue, the role-profile shares.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): accuracy figures throughout, the first-note cue, the role-profile shares; [identity modelling](identity-modelling.md): representations of style.
 - **S64 - Distribution alone and listeners.** David Temperley and Elizabeth West Marvin, "Pitch-Class Distribution and the Identification of Key", Music Perception 25(3), 193–212 (2008): https://doi.org/10.1525/mp.2008.25.3.193
   - Useful for: listeners matched the generating key in slightly more than half of their judgments on melodies drawn at random from key distributions, so note counts are far from the whole story (abstract, as summarised by the indexing services consulted).
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): why short melodies are ambiguous.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): why short melodies are ambiguous; [identity modelling](identity-modelling.md): representations of style.
 - **S65 - Aarden–Essen profiles.** Bret J. Aarden, Dynamic Melodic Expectancy, PhD dissertation, The Ohio State University (2003). Profile values as published in S73 and S74.
   - Useful for: key profiles counted in folk melodies of the Essen collection, the corpus closest to a one-voice doodle.
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the profile table and the worked-example comparison.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the profile table and the worked-example comparison; [identity modelling](identity-modelling.md): representations of style, learning identities.
 - **S66 - Albrecht–Shanahan profiles.** Joshua Albrecht and Daniel Shanahan, "The Use of Large Corpora to Train a New Type of Key-Finding Algorithm: An Improved Treatment of the Minor Mode", Music Perception 31(1), 59–67 (2013): https://doi.org/10.1525/mp.2013.31.1.59
   - Useful for: distance instead of correlation; trained on 490 and tested on 492 pieces; most models do better in major than minor; combined with Aarden–Essen it beat all other models (abstract read; accuracy figures and profile values not checked).
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the profile discussion.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the profile discussion; [identity modelling](identity-modelling.md): learning identities.
 - **S67 - Parallel-processing key finding.** Piet G. Vos and Erwin W. Van Geenen, "A Parallel-Processing Key-Finding Model", Music Perception 14(2), 185–223 (1996): https://doi.org/10.2307/40285717
   - Useful for: a model for single-voiced music using pitch class, duration, scale and chord evidence, and primacy of the first notes (abstract read).
   - Applied in: [key and mode estimation](key-and-mode-estimation.md): the first-note cue and the summary table.
@@ -280,7 +280,7 @@ These back [key and mode estimation](key-and-mode-estimation.md), research for v
   - Applied in: [key and mode estimation](key-and-mode-estimation.md): the summary table.
 - **S77 - ECMAScript implementation-approximated maths.** ECMA-262, ECMAScript Language Specification, clause 4.4 "implementation-approximated": https://tc39.es/ecma262/
   - Useful for: "Some mathematical operations, such as Math.exp, are implementation-approximated", so results may differ between engines.
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the integers-only rule for the seeded draw.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the integers-only rule for the seeded draw; [identity modelling](identity-modelling.md): where weights could act, risks.
 - **S78 - General music-theory terms.** Wikipedia articles "Pitch class" https://en.wikipedia.org/wiki/Pitch_class , "Relative key" https://en.wikipedia.org/wiki/Relative_key , "Parallel key" https://en.wikipedia.org/wiki/Parallel_key , "Minor scale" https://en.wikipedia.org/wiki/Minor_scale , "Blue note" https://en.wikipedia.org/wiki/Blue_note
   - Useful for: fact-checking the beginner definitions of pitch class, relative and parallel keys, harmonic minor and blue notes. Reference only; no text copied.
   - Applied in: [key and mode estimation](key-and-mode-estimation.md): the problem statement and the lexicon entries.
@@ -297,7 +297,7 @@ These back [played-pattern recognition](played-pattern-recognition.md), research
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary and jam-practice sections, the turn-by-form argument, the `trading-fours` lexicon entry; [arranging and accompaniment roles](arranging-and-roles.md): call and response, answering, trading; [accompaniment systems](accompaniment-systems.md): roles in practice, endgame mapping.
 - **S82 - Motif, leitmotif and cue notes.** Wikipedia: https://en.wikipedia.org/wiki/Motif_(music) and https://en.wikipedia.org/wiki/Cue_note
   - Useful for: the motif as the smallest unit with thematic identity, the leitmotif as a motif tied to a person or idea, and cue notes as entrance hints after long rests.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `motif`, `leitmotif` and `cue` lexicon entries; [arranging and accompaniment roles](arranging-and-roles.md): characters; [accompaniment systems](accompaniment-systems.md): endgame mapping, showing several voices (cue notes).
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `motif`, `leitmotif` and `cue` lexicon entries; [arranging and accompaniment roles](arranging-and-roles.md): characters; [accompaniment systems](accompaniment-systems.md): endgame mapping, showing several voices (cue notes); [musical identity](musical-identity.md): leitmotif and character themes.
 - **S83 - Lick, riff and head.** Wikipedia: https://en.wikipedia.org/wiki/Lick_(music), https://en.wikipedia.org/wiki/Riff and https://en.wikipedia.org/wiki/Head_(music)
   - Useful for: the lick as stock vocabulary, the riff as a repeated figure (and big-band riff exchanges), the head and the head-solos-head form, and the head-pat signal.
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `lick`, `riff` and `head` lexicon entries; [arranging and accompaniment roles](arranging-and-roles.md): the variety across traditions.
@@ -312,7 +312,7 @@ These back [played-pattern recognition](played-pattern-recognition.md), research
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): played cues and jam-practice sections.
 - **S87 - _The Legend of Zelda: Ocarina of Time_ songs.** Wikipedia: https://en.wikipedia.org/wiki/The_Legend_of_Zelda:_Ocarina_of_Time ; Wikibooks, Ocarina Songs: https://en.wikibooks.org/wiki/The_Legend_of_Zelda:_Ocarina_of_Time/Ocarina_Songs ; Zelda Wiki, Scarecrow's Song: https://zeldawiki.wiki/wiki/Scarecrow%27s_Song
   - Useful for: the five-note ocarina, the 12 songs and their effects, song lengths, songs taught by characters, the player-composed eight-note Scarecrow's Song and its refusal of existing songs or one repeated note.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, framing, discoverability, player-defined signals. The Zelda Wiki page refused direct access; its content was read through search summaries.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, framing, discoverability, player-defined signals; [musical identity](musical-identity.md): learning an identity from play. The Zelda Wiki page refused direct access; its content was read through search summaries.
 - **S88 - _Patapon_.** Wikipedia: https://en.wikipedia.org/wiki/Patapon
   - Useful for: four-drum, four-beat commands on a visible beat, the sung-back confirmation, and the combo and fever lost off the beat.
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, beat framing, feedback, the endgame needs; [accompaniment systems](accompaniment-systems.md): what the systems do with a live player, rhythm games, endgame mapping.
@@ -327,16 +327,16 @@ These back [played-pattern recognition](played-pattern-recognition.md), research
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the separate-channel frame; [accompaniment systems](accompaniment-systems.md): how notation shows melody and accompaniment.
 - **S92 - _Theatrhythm Final Fantasy_.** Wikipedia: https://en.wikipedia.org/wiki/Theatrhythm_Final_Fantasy
   - Useful for: tap, slide and hold triggers, battle stages where timing deals damage, and reviews of its RPG layer.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the endgame outcomes discussion; [accompaniment systems](accompaniment-systems.md): rhythm games, endgame mapping.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the endgame outcomes discussion; [accompaniment systems](accompaniment-systems.md): rhythm games, endgame mapping; [musical identity](musical-identity.md): concrete examples (the field, battle and event stages).
 - **S93 - The Continuator, system paper.** François Pachet, "Interacting with a Musical Learning System: The Continuator", ICMAI 2002: https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-02-icmai-final.pdf
   - Useful for: the phrase-end detection thread and its threshold, and the hierarchy of reduction functions (pitch, pitch regions) used when an exact match fails.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, matching approaches; [accompaniment systems](accompaniment-systems.md): prior art, Markov models, what the systems do with a live player, what is cheap and robust.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, matching approaches; [accompaniment systems](accompaniment-systems.md): prior art, Markov models, what the systems do with a live player, what is cheap and robust; [identity modelling](identity-modelling.md): representations of style, learning identities.
 - **S94 - The Continuator with children.** Anna Rita Addessi and François Pachet, "Experiments with a musical machine: musical style replication in 3 to 5 year old children", British Journal of Music Education 22(1), 2005, DOI 10.1017/S0265051704005972: https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-04j.pdf
   - Useful for: the three turn-taking rules (a silence threshold of about 400 ms, an answer as long as the phrase, the player's priority) and children learning them implicitly.
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, the silence frame, the "your turn" recommendation; [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, what is cheap and robust.
 - **S95 - GenJam trading fours.** John A. Biles, "Interactive GenJam: Integrating Real-Time Performance with a Genetic Algorithm", International Computer Music Conference: https://genjam.org/wp-content/uploads/2019/07/bilesicmc98.pdf
   - Useful for: trading fours with a human through pitch-to-MIDI, the per-slot filter for noisy input, and a human mentor's "good"/"bad" feedback training the system's taste.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, stray notes, the never-penalize discussion, the endgame needs; [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, what is cheap and robust.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, stray notes, the never-penalize discussion, the endgame needs; [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, what is cheap and robust; [identity modelling](identity-modelling.md): signature motifs and licks.
 - **S96 - Score following.** Wikipedia: https://en.wikipedia.org/wiki/Score_following ; Roger B. Dannenberg, "An On-Line Algorithm for Real-Time Accompaniment", ICMC 1984: https://hdl.handle.net/2027/spo.bbp2372.1984.025
   - Useful for: tracking a live player in a known score, and dynamic-programming matching that tolerates wrong, extra and missing notes.
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, tolerant matching; [accompaniment systems](accompaniment-systems.md): prior art, what is cheap and robust.
@@ -380,7 +380,7 @@ These back the [preset catalogue](preset-catalogue.md), research for the v3.1 bu
   - Applied in: [preset catalogue](preset-catalogue.md): Folk reel.
 - **S108 - Irish ornamentation.** The Celtic Room, "Irish music ornamentation": https://thecelticroom.org/playing-irish-music/irish-music-ornamentation.html
   - Useful for: the cut (a grace note above), the tap or strike (below), the long and short roll, the cran; ornaments varied freely by the player.
-  - Applied in: [preset catalogue](preset-catalogue.md): Folk reel, the reel lexicon draft. A practitioner page, cross-checked against the ornament entries of the [embellishment catalogue](embellishment-catalogue.md).
+  - Applied in: [preset catalogue](preset-catalogue.md): Folk reel, the reel lexicon draft; [musical identity](musical-identity.md): ornamentation. A practitioner page, cross-checked against the ornament entries of the [embellishment catalogue](embellishment-catalogue.md).
 - **S109 - Fortspinnung.** Wikipedia: https://en.wikipedia.org/wiki/Fortspinnung
   - Useful for: "spinning out" a motif through sequences, repetition and variation; the opening–development–cadence shape; Baroque usage.
   - Applied in: [preset catalogue](preset-catalogue.md): Baroque.
@@ -389,7 +389,7 @@ These back the [preset catalogue](preset-catalogue.md), research for the v3.1 bu
   - Applied in: [preset catalogue](preset-catalogue.md): Baroque.
 - **S111 - Ornament (music).** Wikipedia: https://en.wikipedia.org/wiki/Ornament_(music)
   - Useful for: Baroque performers improvising trills, mordents and appoggiaturas; most Baroque ornaments falling on the beat.
-  - Applied in: [preset catalogue](preset-catalogue.md): Baroque.
+  - Applied in: [preset catalogue](preset-catalogue.md): Baroque; [musical identity](musical-identity.md): ornamentation.
 - **S112 - Bossa nova.** Wikipedia: https://en.wikipedia.org/wiki/Bossa_nova
   - Useful for: late-1950s Rio de Janeiro origin (Gilberto, Jobim); the guitar pattern and clave-like percussion; syncopation; played without swing; complex chords; usual 2/4 notation.
   - Applied in: [preset catalogue](preset-catalogue.md): Bossa, What no setting can express today, the bossa-nova lexicon draft.
@@ -433,7 +433,7 @@ These back [arranging and accompaniment roles](arranging-and-roles.md), research
   - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): texture, pad, bass roles, groove and drums, balance and density; the functional-layer lexicon entry.
 - **S128 - Lavengood, the novelty layer.** Megan L. Lavengood, "The Cultural Significance of Timbre Analysis: A Case Study in 1980s Pop Music, Texture, and Narrative", _Music Theory Online_ 26(3) (2020): https://doi.org/10.30535/mto.26.3.3
   - Useful for: the novelty layer's definition (opposition to the melody, call and response, interjections in the melody's gaps); marked versus blending timbres.
-  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): texture, fills, call and response, groove, balance and density, antagonists.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): texture, fills, call and response, groove, balance and density, antagonists; [musical identity](musical-identity.md): interaction habits.
 - **S129 - Rimsky-Korsakov, _Principles of Orchestration_.** Nikolay Rimsky-Korsakov, ed. Maximilian Steinberg, trans. Edward Agate, Project Gutenberg (public domain): https://www.gutenberg.org/ebooks/33900
   - Useful for: "melody should always stand out in relief from the accompaniment" and the means to do it; sections on melody in unison, octaves, thirds and sixths.
   - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the usual stages (orchestration), unison and octave doubling, parallel thirds and sixths, balance and density; the doubling lexicon entry.
@@ -454,7 +454,7 @@ These back [arranging and accompaniment roles](arranging-and-roles.md), research
   - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): pedal point and drone, bass roles; the pedal-point lexicon entry.
 - **S135 - Drone.** Wikipedia: https://en.wikipedia.org/wiki/Drone_(music)
   - Useful for: the drone as a continuous tonic or fifth that fixes the tonal centre; rustic and archaic associations of open fifths.
-  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): pedal point and drone, locations; the drone lexicon entry.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): pedal point and drone, locations; [musical identity](musical-identity.md): places; the drone lexicon entry.
 - **S136 - Ostinato.** Wikipedia: https://en.wikipedia.org/wiki/Ostinato
   - Useful for: ostinato, riff, vamp and ground bass as one family; ostinatos confirming a modal centre.
   - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): ostinato, riff and vamp; the riff lexicon entry.
@@ -472,7 +472,7 @@ These back [arranging and accompaniment roles](arranging-and-roles.md), research
   - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): echo, imitation and canon; the imitation lexicon entry.
 - **S141 - Impro-Visor Style Editor.** Bob Keller, "Using the Impro-Visor Style Editor" (Harvey Mudd College, 2012): https://www.cs.hmc.edu/~keller/jazz/improvisor/StyleEditorTutorial.pdf
   - Useful for: generating bass, comping and drum parts from a chord progression with weighted patterns; bass note categories (bass note, chord tone, scale tone, chromatic approach to the next bass note); pushed (anticipated) patterns.
-  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): comping, bass roles, groove and drums.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): comping, bass roles, groove and drums; [identity modelling](identity-modelling.md): existing style and preset formats.
 - **S142 - Band-in-a-Box.** PG Music: https://www.pgmusic.com/
   - Useful for: precedent for generating a full accompaniment (piano, bass, drums, guitar, strings or horns) from chord symbols and a style.
   - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): comping.
@@ -514,25 +514,25 @@ These back [arranging and accompaniment roles](arranging-and-roles.md), research
   - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the variety across traditions, pad, stabs, balance and density; the pad lexicon entry.
 - **S155 - Leitmotif.** Encyclopaedia Britannica: https://www.britannica.com/art/leitmotif
   - Useful for: the leitmotif as a recurring theme tied to a character or dramatic element, and its association with Wagner.
-  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters; the leitmotif lexicon entry.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters; [musical identity](musical-identity.md): leitmotif and character themes; the leitmotif lexicon entry.
 - **S156 - _Peter and the Wolf_.** Wikipedia: https://en.wikipedia.org/wiki/Peter_and_the_Wolf (and Britannica: https://www.britannica.com/topic/Peter-and-the-Wolf)
   - Useful for: one instrument and manner per character; the work's purpose of teaching children to recognize instruments.
-  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters, antagonists.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters, antagonists; [musical identity](musical-identity.md): concrete examples, what stays fixed and what varies, sound, register.
 - **S157 - _Star Wars_ themes.** Frank Lehman, "Complete Catalogue of the Musical Themes of Star Wars": https://www.franklehman.com/starwars ; and Tufts Now, "Professor Turns to the Dark Side" (2018): https://now.tufts.edu/2018/01/12/professor-turns-dark-side
   - Useful for: a modern leitmotif catalogue; several leitmotifs for one conflicted character; chromatic harmony marking villainy.
-  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters, antagonists.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters, antagonists; [musical identity](musical-identity.md): purpose, concrete examples, pitch material, harmony, the antagonist example.
 - **S158 - Music of _Final Fantasy VI_.** Wikipedia: https://en.wikipedia.org/wiki/Music_of_Final_Fantasy_VI
   - Useful for: character themes in an RPG score (the playable characters each have one).
-  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters; [musical identity](musical-identity.md): concrete examples.
 - **S159 - Adaptive music.** Wikipedia: https://en.wikipedia.org/wiki/Adaptive_music
   - Useful for: vertical layering and horizontal re-sequencing; crossfade, phrase-branching and bridge transitions; _Dead Space 2_'s layered score; generative examples.
-  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the variety across traditions, texture, team, actions; [accompaniment systems](accompaniment-systems.md): the vocabulary of adaptive music, what a symbolic generator changes, endgame mapping; the vertical-layering lexicon entry.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the variety across traditions, texture, team, actions; [accompaniment systems](accompaniment-systems.md): the vocabulary of adaptive music, what a symbolic generator changes, endgame mapping; [musical identity](musical-identity.md): places, combining identities; [identity modelling](identity-modelling.md): combining identities; the vertical-layering lexicon entry.
 - **S160 - Ground BGM (_Super Mario World_).** Super Mario Wiki: https://www.mariowiki.com/Ground_BGM_(Super_Mario_World)
   - Useful for: one theme rearranged for many locations; the bongo layer added while riding Yoshi.
-  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): team, locations.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): team, locations; [musical identity](musical-identity.md): what stays fixed and what varies, places, combining identities.
 - **S161 - Sting (musical phrase).** Wikipedia: https://en.wikipedia.org/wiki/Sting_(musical_phrase)
   - Useful for: the sting or stinger as a short punctuating phrase marking an event, a scene end or a climax, in broadcasting and film.
-  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): actions; [accompaniment systems](accompaniment-systems.md): terms, the vocabulary of adaptive music; the stinger lexicon entry.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): actions; [accompaniment systems](accompaniment-systems.md): terms, the vocabulary of adaptive music; [musical identity](musical-identity.md): events; the stinger lexicon entry.
 
 ## Accompaniment Systems and Adaptive Music (v4)
 
@@ -540,22 +540,22 @@ These back [accompaniment systems and adaptive music](accompaniment-systems.md),
 
 - **S162 - Band-in-a-Box StyleMaker.** PG Music, Band-in-a-Box 2026 for Windows manual, chapter 14: https://www.pgmusic.com/manuals/bbw2026full/chapter14.htm ; "Using the Band-in-a-Box Stylemaker, Part I": https://www.pgmusic.com/tutorial_stylemaker1.htm
   - Useful for: patterns recorded over C7 and transposed, 8/4/2/1-beat rows, A and B sub-styles, fills, weights 1–8, masks by bar, chord type and next chord, "transpose only" and "riff based" voice leading, and the "random pattern player" description.
-  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, style templates, the recommended family.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, style templates, the recommended family; [identity modelling](identity-modelling.md): signature motifs and licks, existing style and preset formats.
 - **S163 - Band-in-a-Box RealTracks.** PG Music, Band-in-a-Box 2026 manual, chapter 7: https://www.pgmusic.com/manuals/bbw2026full/chapter7.htm
   - Useful for: recorded audio tracks that follow entered chords, as the audio counterpart to MIDI styles.
   - Applied in: [accompaniment systems](accompaniment-systems.md): prior art.
 - **S164 - iReal Pro backing track styles.** iReal Pro help, "Backing track styles": https://www.irealpro.com/learn/accompaniment-styles
   - Useful for: styles as recorded performances, fills into double and final bar lines "most times rather than every time", pattern sets per chorus, and swing pattern sets chosen by tempo.
-  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, style templates.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, style templates; [identity modelling](identity-modelling.md): existing style and preset formats.
 - **S165 - Impro-Visor.** Robert M. Keller, Harvey Mudd College, home and uses pages: https://www.cs.hmc.edu/~keller/jazz/improvisor/ and https://www.cs.hmc.edu/~keller/jazz/improvisor/uses.html ; Wikipedia: https://en.wikipedia.org/wiki/Impro-Visor
   - Useful for: accompaniment generated from a lead sheet's chords with user-definable styles, a probabilistic grammar for solos, and passive trading that "does not react to what the soloist is playing".
-  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, style templates.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, style templates; [identity modelling](identity-modelling.md): representations of style, signature motifs and licks, existing style and preset formats.
 - **S166 - Active trading with Impro-Visor.** Zachary Kondak, Mikayla Konst, Carli Lessard, David Siah and Robert M. Keller, "Active Trading with Impro-Visor", MUME 2016: http://musicalmetacreation.org/mume2016/proceedings/Kondak_Impro_Visor.pdf
   - Useful for: trading modes (repeat and rectify, modify and rectify, abstract melody, transform, grammar solo), rectification onto chord tones, trade length and who starts, and the companion-versus-tutor distinction.
-  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, what is cheap and robust, endgame mapping, open questions.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, what is cheap and robust, endgame mapping, open questions; [musical identity](musical-identity.md): interaction habits; [identity modelling](identity-modelling.md): signature motifs and licks.
 - **S167 - OMax, factor oracles.** Gérard Assayag and Shlomo Dubnov, "Using Factor Oracles for Machine Improvisation", Soft Computing 8(9), 2004, DOI 10.1007/s00500-004-0385-4: https://doi.org/10.1007/s00500-004-0385-4
   - Useful for: variable Markov models and the factor oracle as the basis of OMax's style learning.
-  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, Markov models.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, Markov models; [musical identity](musical-identity.md): learning an identity from play.
 - **S168 - Somax2.** IRCAM REACH project page: https://reach.ircam.fr/index.php/2024/01/27/somax2/
   - Useful for: a corpus-trained, listening, multi-agent co-improviser in Max and Python, and its "agreement, discord or independence" interplay.
   - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, endgame mapping.
@@ -576,7 +576,7 @@ These back [accompaniment systems and adaptive music](accompaniment-systems.md),
   - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, neural models.
 - **S174 - MySong.** Ian Simon, Dan Morris and Sumit Basu, "MySong: Automatic Accompaniment Generation for Vocal Melodies", CHI 2008: https://www.microsoft.com/en-us/research/uploads/prod/2016/02/mysongchi2008.pdf ; project page: https://www.microsoft.com/en-us/research/project/mysong/
   - Useful for: an HMM choosing one chord per measure, the "happy factor" and "jazz factor" sliders for non-musicians, under-5 ms re-choice, and Band-in-a-Box as the band renderer.
-  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, Markov models.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, Markov models; [identity modelling](identity-modelling.md): existing style and preset formats, explaining identities to the player.
 - **S175 - Hookpad and Aria.** Hooktheory, Hookpad: https://www.hooktheory.com/hookpad ; Aria: https://hooktheory.com/hookpad/aria ; Chris Donahue et al., "Hookpad Aria: A Copilot for Songwriters", ISMIR 2024 late-breaking demo: https://ismir2024program.ismir.net/lbd_489.html
   - Useful for: chord suggestions ranked by popularity, and a transformer that proposes alternatives within a selection.
   - Applied in: [accompaniment systems](accompaniment-systems.md): prior art.
@@ -585,25 +585,25 @@ These back [accompaniment systems and adaptive music](accompaniment-systems.md),
   - Applied in: [accompaniment systems](accompaniment-systems.md): prior art.
 - **S177 - David Cope and EMI.** Computer History Museum, "Algorithmic Music: David Cope and EMI": https://computerhistory.org/blog/algorithmic-music-david-cope-and-emi/
   - Useful for: style imitation by analysing a composer's works, and "signatures" as recurring style markers.
-  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art; [identity modelling](identity-modelling.md): representations of style, signature motifs and licks.
 - **S178 - Harmonisation with constraints.** François Pachet and Pierre Roy, "Musical Harmonization with Constraints: A Survey", Constraints 6(1), 2001: https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-01-Musical_Harmonization_with_Constraints.pdf
   - Useful for: harmonisation as constraint satisfaction, and the need to structure the problem to keep the search feasible.
-  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, constraint satisfaction.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, constraint satisfaction; [identity modelling](identity-modelling.md): hard constraints and soft weights.
 - **S179 - Markov constraints.** François Pachet and Pierre Roy, "Markov constraints: steerable generation of Markov sequences", Constraints 16(2), 2011: https://link.springer.com/article/10.1007/s10601-010-9101-4
   - Useful for: user controls as constraints on Markov generation, and its cost against greedy generation.
-  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, constraint satisfaction.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, constraint satisfaction; [identity modelling](identity-modelling.md): hard constraints and soft weights.
 - **S180 - iMUSE.** Wikipedia: https://en.wikipedia.org/wiki/IMUSE ; Michael Z. Land and Peter N. McConnell, US patent 5,315,057: https://patents.google.com/patent/US5315057A/en
   - Useful for: decision points, hooks and markers; turning parts on and off and transposing them; jumps to transition passages at "aesthetically correct" points; _Monkey Island 2_'s instrument changes.
-  - Applied in: [accompaniment systems](accompaniment-systems.md): the vocabulary of adaptive music, what a symbolic generator changes, endgame mapping.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): the vocabulary of adaptive music, what a symbolic generator changes, endgame mapping; [identity modelling](identity-modelling.md): combining identities.
 - **S181 - Wwise interactive music.** Audiokinetic, "Wwise Tutorial 13 - Creating Stingers": https://www.audiokinetic.com/learn/videos/fLrz463kVEI ; Wwise-201 course, "Configuring a Music Switch Container": https://www.audiokinetic.com/en/courses/wwise201/?id=configuring_music_switch_container
   - Useful for: stingers as brief phrases superimposed on the current music by a trigger, and switch containers with transition rules that fit the music to "the current mode of gameplay". The course page refuses automated readers; its wording comes from a search summary.
-  - Applied in: [accompaniment systems](accompaniment-systems.md): terms, the vocabulary of adaptive music, endgame mapping; the stinger lexicon entry.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): terms, the vocabulary of adaptive music, endgame mapping; [musical identity](musical-identity.md): events; [identity modelling](identity-modelling.md): combining identities; the stinger lexicon entry.
 - **S182 - _Spore_'s generative music.** Wikipedia: https://en.wikipedia.org/wiki/Spore_(2008_video_game) ; Kent Jolly, GDC 2008 session recording: https://archive.org/details/GDC2008Jolly
   - Useful for: generative music in editors, built on a modified Pure Data, with Brian Eno and Peter Chilvers.
-  - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games; [identity modelling](identity-modelling.md): combining identities.
 - **S183 - _No Man's Sky_'s procedural music.** Wikipedia: https://en.wikipedia.org/wiki/No_Man%27s_Sky ; Laced Records, interview with Paul Weir: https://www.lacedrecords.com/blogs/blog/interview-hello-games-audio-director-on-the-sound-and-music-of-no-man-s-sky ; GDC Vault, "The Sound of No Man's Sky": https://gdcvault.com/play/1024067/The-Sound-of-No-Man
   - Useful for: an engine that reuses a band's album as loops and fragments, "a glorified random file player" with behaviours linked to the game.
-  - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games, endgame mapping.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games, endgame mapping; [identity modelling](identity-modelling.md): combining identities.
 - **S184 - _Proteus_.** Wikipedia: https://en.wikipedia.org/wiki/Proteus_(video_game)
   - Useful for: music emitted by objects and creatures, shaped by where the player walks and the season.
   - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games, endgame mapping.
@@ -637,5 +637,231 @@ These back [accompaniment systems and adaptive music](accompaniment-systems.md),
 - **S194 - VexFlow.** VexFlow FAQ: https://github.com/0xfe/vexflow/wiki/FAQ ; VexFlow repository: https://github.com/vexflow/vexflow ; the pinned 5.0.0 type declarations (`node_modules/vexflow/build/types/src/system.d.ts`, `staveconnector.d.ts`, `voice.d.ts`).
   - Useful for: `Formatter.joinVoices` per stave, formatting aligned voices across staves, `System.addStave` and `addConnector` (brace, bracket), and the absence of a cue-size option.
   - Applied in: [accompaniment systems](accompaniment-systems.md): VexFlow 5 support.
+
+## Musical Identity (endgame)
+
+These back [musical identity](musical-identity.md), endgame research on what makes a character, place or event musically recognisable, and its lexicon entries. S205 (jSymbolic 2.2), S238 (status effect) and S240 (Conklin and Witten) are also cited by [identity modelling](identity-modelling.md). The _Theatrhythm Final Fantasy_ stage types it cites are filed under S92. All URLs were requested on 2026-10-11; the publishers behind S199, S200, S204, S221, S228, S230, S231, S232 and S240 refuse scripted requests while the DOI or page resolves in a browser, so their content was confirmed through abstracts, search results or secondary summaries. Figures known only second-hand are marked. Reference only; no text copied.
+
+- **S195 - LaRue, _Guidelines for Style Analysis_ (review).** Eric Sams, review in _The Musical Times_, April 1981: https://ericsams.org/index.php/music-reviews/history-and-aesthetics-of-music/665-guidelines-for-style-analysis-by-jan-larue
+  - Useful for: the SHMRG elements (Sound, Harmony, Melody, Rhythm, Growth) and what Sound covers.
+  - Applied in: [musical identity](musical-identity.md): frameworks for describing a style, phrase and form habits.
+- **S196 - Meyer, _Style and Music_ (review-article).** Douglas Dempster and Matthew Brown, _Intégral_ 6 (1992): https://theory.esm.rochester.edu/integral/wp-content/uploads/2019/06/INTEGRAL_6_dempster-and-brown.pdf
+  - Useful for: Meyer's definition of style as replicated patterning from constrained choices; laws, rules and strategies. The dialect and idiom levels come from secondary summaries; the book itself was not read.
+  - Applied in: [musical identity](musical-identity.md): frameworks for describing a style, style as learned expectation, phrase and form habits; the musical-style and idiolect lexicon entries.
+- **S197 - Van Kranenburg, composer attribution by strategies.** Peter van Kranenburg, "Composer attribution by quantifying compositional strategies", ISMIR 2006: https://archives.ismir.net/ismir2006/paper/000093.pdf
+  - Useful for: Meyer's three levels stated plainly (Handel against Telemann lies in strategies); score-based style markers for composer identification.
+  - Applied in: [musical identity](musical-identity.md): frameworks for describing a style, performer and composer fingerprints; the musical-style and idiolect lexicon entries.
+- **S198 - Berliner, _Thinking in Jazz_.** Paul F. Berliner, University of Chicago Press, 1994: https://press.uchicago.edu/ucp/books/book/chicago/T/bo3697073.html
+  - Useful for: jazz vocabulary learned from models and the building of a personal voice.
+  - Applied in: [musical identity](musical-identity.md): personal voice and vocabulary in jazz; the idiolect lexicon entry.
+- **S199 - Owens, _Bebop: The Music and Its Players_.** Thomas Owens, Oxford University Press, 1995: https://academic.oup.com/book/2103
+  - Useful for: Parker's style and his repertoire of formulas. The "about 100 formulas in about 250 solos" figure is from Owens's 1974 UCLA dissertation, known only second-hand.
+  - Applied in: [musical identity](musical-identity.md): personal voice and vocabulary in jazz.
+- **S200 - Norgaard, patterns in Parker's solos.** Martin Norgaard, "How Jazz Musicians Improvise: The Central Role of Auditory and Motor Patterns", _Music Perception_ 31(3), 271–287 (2014): https://doi.org/10.1525/mp.2014.31.3.271
+  - Useful for: 82.6 % of notes begin a recurring four-interval pattern in 48 Parker solos.
+  - Applied in: [musical identity](musical-identity.md): personal voice and vocabulary in jazz, melody, learning an identity from play.
+- **S201 - Jazzomat and the Weimar Jazz Database.** Martin Pfleiderer, Klaus Frieler, Jakob Abeßer, Wolf-Georg Zaddach and Benjamin Burkhart (eds.), _Inside the Jazzomat_, Schott Campus, 2017: http://schott-campus.com/jazzomat/ ; database contents: https://jazzomat.hfm-weimar.de/dbformat/dbcontent.html
+  - Useful for: a 456-solo corpus and pattern research on jazz vocabulary.
+  - Applied in: [musical identity](musical-identity.md): personal voice and vocabulary in jazz.
+- **S202 - Stamatatos and Widmer, performer identification.** Efstathios Stamatatos and Gerhard Widmer, "Automatic identification of music performers with learning ensembles", _Artificial Intelligence_ 165(1) (2005): https://research.jku.at/en/publications/automatic-identification-of-music-performers-with-learning-ensemb/
+  - Useful for: 22 pianists told apart from expressive deviations, better than human listeners would be expected to.
+  - Applied in: [musical identity](musical-identity.md): performer and composer fingerprints, sound.
+- **S203 - Saunders et al., performers' playing style.** "Using string kernels to identify famous performers from their playing style", _Intelligent Data Analysis_ 12(4) (2008): https://research.jku.at/en/publications/using-string-kernels-to-identify-famous-performers-from-their-pla/
+  - Useful for: beat-level tempo and loudness changes as a performer fingerprint.
+  - Applied in: [musical identity](musical-identity.md): performer and composer fingerprints, sound.
+- **S204 - Cheston et al., rhythm and jazz pianist identity.** "Rhythmic qualities of jazz improvisation predict performer identity and style in source-separated audio recordings", _Royal Society Open Science_ (2024): https://doi.org/10.1098/rsos.240920
+  - Useful for: rhythm alone identifies 10 pianists at 59 %, six times chance; a personal rhythm stable across a career.
+  - Applied in: [musical identity](musical-identity.md): performer and composer fingerprints, rhythm, learning an identity from play.
+- **S205 - jSymbolic 2.2.** Cory McKay, Julie E. Cumming and Ichiro Fujinaga, "jSymbolic 2.2: Extracting Features from Symbolic Music for use in Musicological and MIR Research", ISMIR 2018: https://ismir2018.ismir.net/doc/pdfs/26_Paper.pdf ; project page: https://jmir.sourceforge.net/jSymbolic.html
+  - Useful for: the size and families of a style feature set (246 features, 1,497 values) for composer and genre identification; features as "stylistic guideposts"; music21 and Humdrum compared. The project page refuses automated readers; it was confirmed by search.
+  - Applied in: [musical identity](musical-identity.md): performer and composer fingerprints; [identity modelling](identity-modelling.md): representations of style, testing an identity.
+- **S206 - Leitmotif.** Wikipedia: https://en.wikipedia.org/wiki/Leitmotif
+  - Useful for: a leitmotif stays recognisable as rhythm, harmony and orchestration change; Siegfried's horn call transformed; motifs combined.
+  - Applied in: [musical identity](musical-identity.md): purpose, concrete examples, what stays fixed and what varies, register, harmony, combining identities; the leitmotif and theme lexicon entries.
+- **S207 - Music of _The Lord of the Rings_ film series.** Wikipedia: https://en.wikipedia.org/wiki/Music_of_The_Lord_of_the_Rings_film_series
+  - Useful for: over 50 themes; cultures marked by instruments, metre and mode; themes set against each other at Helm's Deep.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, what stays fixed and what varies, places, pitch material, rhythm, combining identities.
+- **S208 - "Concerning Hobbits".** Wikipedia: https://en.wikipedia.org/wiki/Concerning_Hobbits
+  - Useful for: the Shire theme's key, instruments and variants.
+  - Applied in: [musical identity](musical-identity.md): concrete examples.
+- **S209 - Murphy, the major tritone progression.** Scott Murphy, "The Major Tritone Progression in Recent Hollywood Science Fiction Films", _Music Theory Online_ 12(2) (2006): https://mtosmt.org/issues/mto.06.12.2/mto.06.12.2.murphy.html
+  - Useful for: a chord progression associated with outer space; harmony as a semantic marker.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, pitch material, harmony, the antagonist example.
+- **S210 - Music of the _Final Fantasy_ series.** Wikipedia: https://en.wikipedia.org/wiki/Music_of_the_Final_Fantasy_series
+  - Useful for: character themes in VI and VII and none in VIII; the victory fanfare and other series signatures; the battle-music convention.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, events, the event example; the fanfare lexicon entry.
+- **S211 - Music of _Final Fantasy VII_.** Wikipedia: https://en.wikipedia.org/wiki/Music_of_Final_Fantasy_VII
+  - Useful for: "One-Winged Angel" as Sephiroth's piece; a main theme recurring in other tracks.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, combining identities. The "Dancing Mad" counter-melody claim comes from fan criticism (Destructoid) and should be rechecked before reuse.
+- **S212 - Yu, leitmotifs in _Undertale_.** Jason Yu, "An Examination of Leitmotifs and Their Use to Shape Narrative in UNDERTALE, Part 1", Game Developer (2016): https://www.gamedeveloper.com/audio/an-examination-of-leitmotifs-and-their-use-to-shape-narrative-in-undertale-part-1-of-2
+  - Useful for: one theme in 13 or more tracks in different instrumentation; one theme's pitches with another's rhythm.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, what stays fixed and what varies, rhythm, combining identities. The "Hopes and Dreams" combination is from a fan wiki.
+- **S213 - Soken on _Final Fantasy XIV_ area music.** VGMO interview with Masayoshi Soken: https://vgmonline.net/masayoshisoken2/ ; Siliconera (2013): https://www.siliconera.com/?p=282222
+  - Useful for: day, night and weather versions of area music; the same melody re-orchestrated.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, what stays fixed and what varies, places, combining identities.
+- **S214 - _Stormblood_ soundtrack review.** VGMO: https://vgmonline.net/stormblood/
+  - Useful for: "Triumph" as a minor-key variation of the expansion theme on low brass.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, what stays fixed and what varies, harmony, the antagonist example.
+- **S215 - Music of _Chrono Cross_.** Wikipedia: https://en.wikipedia.org/wiki/Music_of_Chrono_Cross
+  - Useful for: paired location tracks for two worlds with bright and dark moods; regional influences.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, what stays fixed and what varies, places, tempo.
+- **S216 - Brame, thematic unity in Zelda.** Jason Brame, "Thematic Unity Across a Video Game Series", _ACT: Zeitschrift für Musik & Performance_ 2 (2011): https://ojournals.uni-bayreuth.de/index.php/act/article/view/423
+  - Useful for: overworld themes sharing motifs across a series. Abstract read.
+  - Applied in: [musical identity](musical-identity.md): concrete examples.
+- **S217 - "Important Item Acquired".** Super Mario Wiki (fan wiki): https://www.mariowiki.com/Important_Item_Acquired
+  - Useful for: an event jingle recurring across a series.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, events.
+- **S218 - Shoji Meguro.** Wikipedia: https://en.wikipedia.org/wiki/Shoji_Meguro
+  - Useful for: _Persona_'s identity through pop vocal style and English lyrics.
+  - Applied in: [musical identity](musical-identity.md): concrete examples.
+- **S219 - Slater, Lydian and wonder.** Mark Slater, "Why Lydian Sounds Like Wonder", blog (2024): https://markslater.net/unlocking-the-power-of-the-lydian-mode/
+  - Useful for: the practitioner trope only (Lydian for awe; the _Star Trek_ theme). Not scholarly.
+  - Applied in: [musical identity](musical-identity.md): concrete examples (the Lydian trope).
+- **S220 - Kondo on Mario's location music.** Nintendo, Iwata Asks, _Super Mario All-Stars_, "Music Commentary by Koji Kondo" (2010): https://www.nintendo.com/en-gb/Iwata-Asks/Iwata-Asks-Super-Mario-All-Stars/Vol-1-Super-Mario-History-Soundtrack-CD/4-Music-Commentary-by-Koji-Kondo-1-/4-Music-Commentary-by-Koji-Kondo-1--219986.html
+  - Useful for: music made different by location (above ground, underwater, underground, castle).
+  - Applied in: [musical identity](musical-identity.md): places, combining identities.
+- **S221 - _The Oxford Handbook of Topic Theory_.** Danuta Mirka (ed.), Oxford University Press, 2014: https://academic.oup.com/edited-volume/34564
+  - Useful for: topic theory from Ratner (1980) on; hunt, military and pastoral topics. Cited as a pointer; the chapters were not read.
+  - Applied in: [musical identity](musical-identity.md): places; the musical-topic lexicon entry.
+- **S222 - Lavengood and Williams, the winter topic.** Megan Lavengood and Evan Williams, "The Common Cold: Using Computational Musicology to Define the Winter Topic in Video Game Music", _Music Theory Online_ 29(1) (2023): https://mtosmt.org/ojs/index.php/mto/article/view/1015/217
+  - Useful for: measured place markers (reverb 82 %, metallic percussion 71 %, arpeggios 62 %, usually no drums); instruments and effects define the topic, mode does not.
+  - Applied in: [musical identity](musical-identity.md): places, sound, pitch material, the location example; the musical-topic and audio-effect lexicon entries.
+- **S223 - Fanfare.** Wikipedia: https://en.wikipedia.org/wiki/Fanfare
+  - Useful for: the definition of a fanfare.
+  - Applied in: [musical identity](musical-identity.md): events; the fanfare lexicon entry.
+- **S224 - Timbre.** Wikipedia: https://en.wikipedia.org/wiki/Timbre
+  - Useful for: the definition of timbre (tone colour).
+  - Applied in: [musical identity](musical-identity.md): sound; the timbre lexicon entry.
+- **S225 - Articulation.** Wikipedia: https://en.wikipedia.org/wiki/Articulation_(music)
+  - Useful for: staccato, accent, legato.
+  - Applied in: [musical identity](musical-identity.md): sound; the articulation lexicon entry.
+- **S226 - Dynamics.** Wikipedia: https://en.wikipedia.org/wiki/Dynamics_(music)
+  - Useful for: the definition of dynamics.
+  - Applied in: [musical identity](musical-identity.md): sound; the dynamics lexicon entry.
+- **S227 - Schellenberg, Iverson and McKinnon, "Name that tune".** E. Glenn Schellenberg, Paul Iverson and Margaret C. McKinnon, "Name that tune: Identifying popular recordings from brief excerpts", _Psychonomic Bulletin & Review_ 6(4) (1999): https://doi.org/10.3758/BF03212973
+  - Useful for: recordings identified from 100–200 ms clips; timbre as an instant cue.
+  - Applied in: [musical identity](musical-identity.md): sound, how few notes it takes.
+- **S228 - Krumhansl, "Plink".** Carol L. Krumhansl, "Plink: 'Thin slices' of music", _Music Perception_ 27(5) (2010): https://doi.org/10.1525/mp.2010.27.5.337
+  - Useful for: artist and title from 400 ms clips; style and decade from unnamed clips.
+  - Applied in: [musical identity](musical-identity.md): sound, how few notes it takes.
+- **S229 - Siedenburg and Müllensiefen, timbre similarity of short clips.** Kai Siedenburg and Daniel Müllensiefen, "Modeling Timbre Similarity of Short Music Clips", _Frontiers in Psychology_ 8:639 (2017): https://doi.org/10.3389/fpsyg.2017.00639
+  - Useful for: its review of Gjerdingen and Perrott (2008, genre from 250 ms) and Mace et al. (54 % genre accuracy at 125 ms). Figures cited second-hand.
+  - Applied in: [musical identity](musical-identity.md): sound, how few notes it takes.
+- **S230 - Dowling and Fujitani, contour and intervals.** W. J. Dowling and D. S. Fujitani, "Contour, interval, and pitch recognition in memory for melodies", _Journal of the Acoustical Society of America_ 49(2B) (1971): https://doi.org/10.1121/1.1912382
+  - Useful for: contour alone against exact intervals, for familiar and new melodies (percentages as summarised in S54).
+  - Applied in: [musical identity](musical-identity.md): melody, how few notes it takes.
+- **S231 - Jakubowski et al., earworms.** Kelly Jakubowski et al., "Dissecting an earworm: Melodic features and song popularity predict involuntary musical imagery", _Psychology of Aesthetics, Creativity, and the Arts_ 11(2) (2017): https://doi.org/10.1037/aca0000090
+  - Useful for: common global contour plus unusual interval slopes, and faster tempi, in catchy tunes.
+  - Applied in: [musical identity](musical-identity.md): tempo, what makes one identity stand out.
+- **S232 - Schulkind, Posner and Rubin, melody identification.** Matthew D. Schulkind, Rachel J. Posner and David C. Rubin, "Musical features that facilitate melody identification", _Music Perception_ 21(2) (2003): https://doi.org/10.1525/mp.2003.21.2.217
+  - Useful for: about 5–7 notes to name a tune; phrase boundaries, strong beats and a zigzag contour help.
+  - Applied in: [musical identity](musical-identity.md): how few notes it takes.
+- **S233 - Dalla Bella, Peretz and Aronoff, gating study.** Simone Dalla Bella, Isabelle Peretz and Neil Aronoff, "Time course of melody recognition: A gating paradigm study", _Perception & Psychophysics_ 65(7) (2003): https://doi.org/10.3758/BF03194831
+  - Useful for: familiarity after 3–6 notes; musicians faster.
+  - Applied in: [musical identity](musical-identity.md): how few notes it takes.
+- **S234 - Müllensiefen and Halpern, features and context.** Daniel Müllensiefen and Andrea R. Halpern, "The role of features and context in recognition of novel melodies", _Music Perception_ 31(5) (2014); open copy: https://research.gold.ac.uk/id/eprint/10838
+  - Useful for: distinctiveness relative to the set heard helps recognition.
+  - Applied in: [musical identity](musical-identity.md): what makes one identity stand out.
+- **S235 - Van Balen et al., hook discovery.** Jan Van Balen et al., "Corpus analysis tools for computational hook discovery", ISMIR 2015: https://archives.ismir.net/ismir2015/paper/000148.pdf
+  - Useful for: recognisable sections are typical of the song and hold its repeated material.
+  - Applied in: [musical identity](musical-identity.md): what makes one identity stand out.
+- **S236 - Burgoyne et al., "Hooked".** John Ashley Burgoyne et al., "Hooked: A game for discovering what makes music catchy", ISMIR 2013: https://archives.ismir.net/ismir2013/paper/000101.pdf
+  - Useful for: a recall game as a measure of catchiness; players poor at predicting their own recall.
+  - Applied in: [musical identity](musical-identity.md): what makes one identity stand out.
+- **S237 - Medina-Gray, modular smoothness.** Elizabeth Medina-Gray, "Analyzing Modular Smoothness in Video Game Music", _Music Theory Online_ 25(3) (2019): https://www.mtosmt.org/issues/mto.19.25.3/mto.19.25.3.medina.gray.html
+  - Useful for: what makes simultaneous game-music layers combine smoothly (timbre, consonance, aligned beats).
+  - Applied in: [musical identity](musical-identity.md): combining identities.
+- **S238 - Status effect.** Wikipedia: https://en.wikipedia.org/wiki/Status_effect
+  - Useful for: the game meaning of a status effect: a temporary modification of a character's attributes, abilities or conditions; buffs and debuffs.
+  - Applied in: [musical identity](musical-identity.md): status effects; [identity modelling](identity-modelling.md): status effects as modifiers.
+- **S239 - Amusia and its prevalence.** Wikipedia: https://en.wikipedia.org/wiki/Amusia ; Isabelle Peretz and Dominique T. Vuvan, "Prevalence of congenital amusia", _European Journal of Human Genetics_ 25(5) (2017): https://doi.org/10.1038/ejhg.2017.15
+  - Useful for: "tone deafness" as a pitch-perception deficit; about 1.5 % prevalence.
+  - Applied in: [musical identity](musical-identity.md): status effects (the "tone deaf" note).
+- **S240 - Conklin and Witten, multiple viewpoints.** Darrell Conklin and Ian H. Witten, "Multiple viewpoint systems for music prediction", _Journal of New Music Research_ 24(1), 51–73 (1995): https://doi.org/10.1080/09298219508570672
+  - Useful for: modelling a style through several separate views of the music (pitch, interval, duration), each with its own model, combined; long-term and short-term models.
+  - Applied in: [musical identity](musical-identity.md): learning an identity from play; [identity modelling](identity-modelling.md): representations of style.
+- **S241 - Hexatonic scale.** Wikipedia: https://en.wikipedia.org/wiki/Hexatonic_scale
+  - Useful for: six-note scales, such as a seven-note scale with one note left out.
+  - Applied in: [musical identity](musical-identity.md): wording notes on the brief; the hexatonic-scale lexicon entry.
+
+## Identity Modelling (endgame)
+
+These back [identity modelling](identity-modelling.md), endgame research on turning musical identities into generation weights. Sources shared with [musical identity](musical-identity.md) keep their id from the block above: S205 (jSymbolic 2.2), S238 (status effect) and S240 (Conklin and Witten). All URLs were checked on 2026-10-11; Zenodo and Audiokinetic's pages refuse automated readers, so their content was confirmed through search extracts, as noted per entry. Reference only; no text copied beyond short marked quotations.
+
+- **S242 - music21 features module.** music21 documentation, `features.base`: https://music21.org/music21docs/moduleReference/moduleFeaturesBase.html
+  - Useful for: jSymbolic and native feature extractors; pitch-class distribution features.
+  - Applied in: [identity modelling](identity-modelling.md): representations of style.
+- **S243 - Humdrum Toolkit.** humdrum.org: https://www.humdrum.org/
+  - Useful for: an analysis toolkit created by David Huron, its command-line tools and the `**kern` format.
+  - Applied in: [identity modelling](identity-modelling.md): representations of style.
+- **S244 - Pearce's thesis and IDyOM.** Marcus T. Pearce, _The Construction and Evaluation of Statistical Models of Melodic Structure in Music Perception and Composition_, PhD thesis, City University London, 2005: https://www.marcus-pearce.com/assets/papers/Pearce2005.pdf ; IDyOM: https://github.com/mtpearce/idyom
+  - Useful for: multiple-viewpoint variable-order Markov models, long- and short-term models, arithmetic versus weighted geometric combination of viewpoints.
+  - Applied in: [identity modelling](identity-modelling.md): representations of style, combining identities, learning identities.
+- **S245 - Implication-Realization.** Wikipedia: https://en.wikipedia.org/wiki/Implication-Realization (a pointer to Narmour, 1990, and E. Glenn Schellenberg, "Simplifying the implication-realization model of melodic expectancy", _Music Perception_ 14(3), 1997)
+  - Useful for: a few rule-based melodic expectancy principles, such as pitch proximity and pitch reversal.
+  - Applied in: [identity modelling](identity-modelling.md): representations of style.
+- **S246 - Music constraint programming survey.** Torsten Anders and Eduardo R. Miranda, "Constraint Programming Systems for Modeling Music Theories and Composition", _ACM Computing Surveys_ 43(4), article 30 (2011): https://doi.org/10.1145/1978802.1978809
+  - Useful for: the field of music constraint systems (Strasheela and others).
+  - Applied in: [identity modelling](identity-modelling.md): hard constraints and soft weights.
+- **S247 - MorpheuS.** Dorien Herremans and Elaine Chew, "MorpheuS: generating structured music with constrained patterns and tension", _IEEE Transactions on Affective Computing_ (2017): https://arxiv.org/abs/1812.04832
+  - Useful for: hard pattern constraints plus a soft tension profile, solved by local search.
+  - Applied in: [identity modelling](identity-modelling.md): hard constraints and soft weights.
+- **S248 - Constraint hierarchies.** Alan Borning, Bjorn Freeman-Benson and Molly Wilson, "Constraint Hierarchies", _Lisp and Symbolic Computation_ 5(3), 223–270 (1992), DOI 10.1007/BF01807506: https://constraints.cs.washington.edu/theory/hierarchies-92.html
+  - Useful for: required versus preferred constraints at strengths; precedence among preferences.
+  - Applied in: [identity modelling](identity-modelling.md): hard constraints and soft weights, keeping a restrictive identity feasible, combining identities.
+- **S249 - Soft constraints.** Pedro Meseguer, Francesca Rossi and Thomas Schiex, "Soft Constraints", chapter 9 of _Handbook of Constraint Programming_ (Francesca Rossi, Peter van Beek and Toby Walsh, eds.), Elsevier, 2006: https://cs.uwaterloo.ca/~vanbeek/Publications/cphandbook.html
+  - Useful for: soft constraints as cost functions.
+  - Applied in: [identity modelling](identity-modelling.md): hard constraints and soft weights.
+- **S250 - QuickXplain.** Ulrich Junker, "QUICKXPLAIN: Preferred Explanations and Relaxations for Over-Constrained Problems", AAAI 2004, 167–172: https://mlanthology.org/aaai/2004/junker2004aaai-quickxplain
+  - Useful for: explaining a failure by a minimal, preference-ordered set of conflicting constraints.
+  - Applied in: [identity modelling](identity-modelling.md): hard constraints and soft weights, keeping a restrictive identity feasible.
+- **S251 - Finite-length Markov processes with constraints.** François Pachet, Pierre Roy and Gabriele Barbieri, "Finite-Length Markov Processes with Constraints", IJCAI 2011, 635–642: https://mlanthology.org/ijcai/2011/pachet2011ijcai-finite
+  - Useful for: keeping a model's probabilities exact under control constraints; why backtracking distorts weights.
+  - Applied in: [identity modelling](identity-modelling.md): weighted draw or weighted ranking, hard constraints and soft weights.
+- **S252 - Weighted random sampling.** Pavlos S. Efraimidis and Paul G. Spirakis, "Weighted random sampling with a reservoir", _Information Processing Letters_ 97(5), 181–185 (2006); overview by Efraimidis, "Weighted Random Sampling over Data Streams": https://arxiv.org/abs/1012.0256
+  - Useful for: a weighted random order from uniform keys (`u^(1/w)`).
+  - Applied in: [identity modelling](identity-modelling.md): weighted draw or weighted ranking.
+- **S253 - Impro-Visor grammar.** Robert M. Keller and David R. Morrison, "A Grammatical Approach to Automatic Improvisation", SMC 2007: https://zenodo.org/record/849479 ; paper list: https://www.cs.hmc.edu/~keller/jazz/improvisor/papers.html
+  - Useful for: probabilistic grammars over note categories (abstract melodies). The Zenodo record refuses automated readers; it was confirmed by search.
+  - Applied in: [identity modelling](identity-modelling.md): representations of style, signature motifs and licks, existing style and preset formats.
+- **S254 - Product of experts for jazz melodies.** Daniel D. Johnson, Robert M. Keller and Nicholas Weintraut, "Learning to Create Jazz Melodies Using a Product of Experts", ICCC 2017: https://computationalcreativity.net/iccc2017/ICCC_17_accepted_submissions/ICCC-17_paper_62.pdf
+  - Useful for: an interval expert and a chord expert combined by product of experts.
+  - Applied in: [identity modelling](identity-modelling.md): combining identities.
+- **S255 - Products of experts.** Geoffrey E. Hinton, "Training Products of Experts by Minimizing Contrastive Divergence", _Neural Computation_ 14(8), 1771–1800 (2002): https://www.cs.utoronto.ca/~hinton/absps/nccd.pdf
+  - Useful for: combining models by multiplying and renormalising.
+  - Applied in: [identity modelling](identity-modelling.md): representations of style, combining identities.
+- **S256 - Logarithmic opinion pools.** Tom Heskes, "Selecting Weighting Factors in Logarithmic Opinion Pools", NIPS 10 (1997): https://papers.nips.cc/paper/1997/hash/59f51fd6937412b7e56ded1ea2470c25-Abstract.html
+  - Useful for: weighted products of probability statements and how to choose their weights.
+  - Applied in: [identity modelling](identity-modelling.md): combining identities.
+- **S257 - CSS cascade.** W3C, "CSS Cascading and Inheritance Level 5": https://www.w3.org/TR/css-cascade-5/
+  - Useful for: a precedence model with layers and an inverted order for important rules.
+  - Applied in: [identity modelling](identity-modelling.md): combining identities.
+- **S258 - Unreal Gameplay Effects.** Epic Games, "Gameplay Effects": https://dev.epicgames.com/documentation/en-us/unreal-engine/gameplay-effects-for-the-gameplay-ability-system-in-unreal-engine ; `EGameplayModOp`: https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Plugins/GameplayAbilities/EGameplayModOp__Type
+  - Useful for: modifier aggregation order, override, durations and stacking.
+  - Applied in: [identity modelling](identity-modelling.md): combining identities, status effects as modifiers.
+- **S259 - Wwise game parameters and states.** Audiokinetic, "Wwise-101 - Lesson 3 - Using Game Parameters (RTPC)": https://www.audiokinetic.com/learn/videos/oPq_yZRC214 ; "Wwise Tutorial 22 - Dynamic Mixing Using States": https://www.audiokinetic.com/learn/videos/a77W-THkPMY
+  - Useful for: continuous parameters mapped by curves; states as mixer snapshots. Both pages refuse automated readers; titles and summaries were confirmed by search.
+  - Applied in: [identity modelling](identity-modelling.md): combining identities.
+- **S260 - _No Man's Sky_'s Pulse.** Audiokinetic blog, "Behind the Sound of 'NO MAN'S SKY': A Q&A with Paul Weir on Procedural Audio" (first published on A Sound Effect): https://www.audiokinetic.com/en/blog/behind-the-sound-of-no-mans-sky-a-qa-with-paul-weir-on-procedural-audio
+  - Useful for: instruments, canvases and playback rules under gameplay control. The page refuses automated readers; the quotations were confirmed by search.
+  - Applied in: [identity modelling](identity-modelling.md): combining identities.
+- **S261 - Yamaha style files.** Community documentation, the Yamaha Style Studio README: https://github.com/jozphe/Yamaha-Style-Studio
+  - Useful for: SFF2 as a MIDI file plus a CASM chunk of channel tables, note limits, transposition and chord rules. No official Yamaha specification was found; unofficial.
+  - Applied in: [identity modelling](identity-modelling.md): existing style and preset formats.
+- **S262 - Ableton Live 12 MIDI Tools.** Ableton, Live 12 manual, "MIDI Tools": https://www.ableton.com/en/live-manual/12/midi-tools/
+  - Useful for: generators that draw notes within ranges, and scale-aware parameters in scale degrees.
+  - Applied in: [identity modelling](identity-modelling.md): existing style and preset formats.
+- **S263 - Strudel and TidalCycles randomness.** Strudel, "Random Modifiers": https://strudel.cc/learn/random-modifiers/ ; TidalCycles reference, "Randomness": https://tidalcycles.org/docs/reference/randomness/ ; Tidal Club lesson, "Week 4 lesson 2 - random marathon": https://uzu.lurk.org/t/week-4-lesson-2-random-marathon-rand-irand-mininotation-randomness-scramble-shuffle-choose-more/685
+  - Useful for: weighted choice in pattern languages and randomness keyed to cycle position.
+  - Applied in: [identity modelling](identity-modelling.md): existing style and preset formats.
+- **S264 - Additive smoothing.** Wikipedia: https://en.wikipedia.org/wiki/Additive_smoothing
+  - Useful for: pseudocounts so unseen values keep a small probability.
+  - Applied in: [identity modelling](identity-modelling.md): learning identities.
+- **S265 - Taxonomy of music generation.** Dorien Herremans, Ching-Hua Chuan and Elaine Chew, "A Functional Taxonomy of Music Generation Systems", _ACM Computing Surveys_ 50(5), article 69: https://arxiv.org/abs/1812.04186
+  - Useful for: classifying generators by purpose.
+  - Applied in: [identity modelling](identity-modelling.md): explaining identities to the player.
+- **S266 - PAIR Guidebook, explainability.** Google People + AI Research, "Explainability + Trust": https://pair.withgoogle.com/guidebook-v2/chapters/explainability-trust/
+  - Useful for: explaining a specific output in response to a user action; partial explanations.
+  - Applied in: [identity modelling](identity-modelling.md): explaining identities to the player. Also cited, without an id, by [control interaction](<Melodic control models/control-interaction.md>).
 
 Licence note: Music Theory for the 21st-Century Classroom (S1-S7, S9-S10, S18-S24, S40-S44, S144-S146) is © 2017 Robert Hutchinson and distributed under the GNU Free Documentation License, version 1.2 or later. Open Music Theory (S8, S8a, S14, S25, S45-S48, S113-S114, S124, S127) is CC BY-SA. The project cites both for verification and does not reproduce their text.

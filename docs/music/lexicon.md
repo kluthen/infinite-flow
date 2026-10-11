@@ -1,6 +1,6 @@
 # Music Lexicon
 
-Status: v1.4 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08; v4 accompaniment research terms merged 2026-10-11)
+Status: v1.5 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08; v4 accompaniment research terms merged 2026-10-11; endgame musical-identity research terms merged 2026-10-11)
 
 Date: 2026-10-11
 
@@ -35,16 +35,17 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 ## Category index
 
 1. [Basics](#basics): cue, half step, interval, note, octave, phrase, pitch, rest, tie, whole step.
-2. [Pitch and notation](#pitch-and-notation): the staff, clefs, note names and the signs written on the staff, including ornaments and jazz articulations.
+2. [Pitch and notation](#pitch-and-notation): the staff, clefs, note names and the signs written on the staff, including ornaments, articulation, dynamics and jazz articulations.
 3. [Rhythm and meter](#rhythm-and-meter): beats, note values, meter, syncopation, tempo, and rhythmic changes such as anticipation, augmentation and metric displacement.
-4. [Melody](#melody): melodic motion, shape, decorating notes (embellishments), motifs and the ways musicians develop them.
+4. [Melody](#melody): melodic motion, shape, decorating notes (embellishments), motifs, themes and the ways musicians develop them.
 5. [Harmony](#harmony): chords, their roles, cadences, tension and resolution, common chord patterns such as the twelve-bar blues and the vamp, and how parts move between chords (voicing, voice leading).
 6. [Scales and modes](#scales-and-modes): scales, keys, the seven modes and how a key is found from a melody.
 7. [Styles](#styles): styles of music the presets refer to, such as the reel and bossa nova.
-8. [Texture and arranging](#texture-and-arranging): how several parts fit together, the jobs accompanying parts do (pad, comping, fill, counter-melody and others), and how game music adds and removes layers.
-9. [Instruments and transposition](#instruments-and-transposition): concert and written pitch, B-flat and E-flat instruments, range.
-10. [App controls](#app-controls): one entry per control label, with every option explained; the kinds of preset and the Custom state; and the session words the player meets, such as Jam, doodle and starting note.
-11. [Internal (no popup)](#internal-no-popup): project terms used in docs and code, never shown in the UI.
+8. [Style and identity](#style-and-identity): how music becomes recognisable as a style, a person's voice (idiolect), a place or an event: musical topics and fanfares.
+9. [Texture and arranging](#texture-and-arranging): how several parts fit together, the jobs accompanying parts do (pad, comping, fill, counter-melody and others), and how game music adds and removes layers.
+10. [Instruments and transposition](#instruments-and-transposition): concert and written pitch, B-flat and E-flat instruments, range, and the sound of an instrument (timbre) with the audio effects that change it.
+11. [App controls](#app-controls): one entry per control label, with every option explained; the kinds of preset and the Custom state; and the session words the player meets, such as Jam, doodle and starting note.
+12. [Internal (no popup)](#internal-no-popup): project terms used in docs and code, never shown in the UI.
 
 ## Basics
 
@@ -159,6 +160,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `sharp`, `flat`, `natural`, `double-sharp-and-double-flat`, `key-signature`
 - **sources:** S14
 
+### Articulation
+
+- **id:** `articulation`
+- **aliases:** staccato, legato, accent
+- **popup:** How a note starts and ends: short and detached, stressed, or smoothly joined to the next note.
+- **definition:** Articulation is the way each note is attacked and released. Staccato notes are short and detached, marked with a dot; an accent (>) makes a note stand out by stressing its start; legato notes are joined smoothly, often shown by a curved line called a slur. The same pitches and rhythm sound quite different played all staccato or all legato, so articulation carries much of a line's character.
+- **in_infinite_flow:** Not written today: the generated phrase carries no articulation marks. The endgame research lists articulation as a possible part of a character's musical identity, for example short, accented high notes (docs/music/musical-identity.md); endgame groundwork, not built.
+- **related:** `jazz-articulation`, `ornament`, `dynamics`, `note`, `musical-identity`
+- **sources:** S225, S156, docs/music/musical-identity.md
+
 ### Bar line
 
 - **id:** `bar-line`
@@ -197,6 +208,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The score can show them when the written key and a note call for it, but they are rare because the app spells each key with the fewest sharps or flats.
 - **related:** `accidental`, `sharp`, `flat`, `enharmonic`
 - **sources:** S14
+
+### Dynamics
+
+- **id:** `dynamics`
+- **aliases:** loudness, dynamic marks
+- **popup:** How loud or soft the music is, and how that changes, written with signs such as p (soft) and f (loud).
+- **definition:** Dynamics are the loudness levels of music and the changes between them. Musicians write them with Italian abbreviations under the staff: p (piano, soft), mf (mezzo forte, moderately loud), f (forte, loud), and wedge-shaped "hairpins" for growing louder (crescendo) or softer (diminuendo). Dynamics shape a phrase: a line that swells toward its high point and fades at its end sounds more alive than one played at a single level.
+- **in_infinite_flow:** Not written today: the phrase carries no dynamic marks and the backing plays at one level. The endgame research names dynamics as part of a system voice's "performer" layer, which adds life more than recognition (docs/music/musical-identity.md); endgame groundwork, not built.
+- **related:** `articulation`, `phrase`, `accompaniment`
+- **sources:** S226, S202, S203, docs/music/musical-identity.md
 
 ### Enharmonic
 
@@ -883,8 +904,8 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** A short tune tied to a character, place or idea, so that hearing it brings them to mind.
 - **definition:** A leitmotif is a motif linked to something outside the music: a person, a place, an object or a feeling. Each time it returns, sometimes changed in key, rhythm or speed, the listener is reminded of what it stands for. Opera and film scores use leitmotifs heavily, and so do many video game soundtracks, where a hero or a villain has their own short tune.
 - **in_infinite_flow:** The endgame vision gives each character "a signature motif or gimmick": a leitmotif in musical terms. Nothing in the app uses it yet.
-- **related:** `motif`, `melody`, `phrase`
-- **sources:** S82, S155, S157, specs/vision/endgame.md
+- **related:** `motif`, `melody`, `phrase`, `theme`, `musical-identity`
+- **sources:** S82, S155, S157, S206, specs/vision/endgame.md
 
 ### Lick
 
@@ -982,7 +1003,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** The part of an instrument's range a passage uses: low, middle or high. The same tune sounds darker low and brighter high.
 - **definition:** Register means a zone of pitch, such as the low, middle or high part of an instrument or voice. The same melody moved to another register keeps its shape but changes color: darker and fuller low, brighter or more strained high. On wind instruments each register also feels different to play. Register is the zone in use; range is the full span an instrument can reach.
 - **in_infinite_flow:** Register is also an app control that picks a one-octave window of the instrument's range for the whole phrase. See the Register entry under App controls.
-- **related:** `control-register`, `instrument-range`, `octave`, `register-window`
+- **related:** `control-register`, `instrument-range`, `octave`, `register-window`, `register-spike`
 - **sources:** S15, S14
 
 ### Retardation
@@ -1073,6 +1094,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Not written today: a tie may cross a chord change only on a note both chords share. Not among v3.1's figure levels, since it looks across a chord change (spec decision D233); later.
 - **related:** `retardation`, `tie`, `non-chord-tone`, `tension-and-resolution`, `strong-and-weak-beats`
 - **sources:** S22, S25
+
+### Theme
+
+- **id:** `theme`
+- **aliases:** main theme, character theme, theme transformation
+- **popup:** The main tune a piece is built on and keeps coming back to; a character theme is one tied to a character.
+- **definition:** A theme is a melody that a piece, or a whole film or game score, treats as its main material: it is stated clearly, then returns, often changed. A theme is usually longer than a motif and may be built from one or two motifs. When a theme comes back with a new harmony, instrument, tempo or mood but keeps its shape and rhythm, musicians speak of theme transformation: a hero's theme in a sad minor version, or a village tune re-orchestrated for night.
+- **in_infinite_flow:** Endgame groundwork, not built. The musical-identity research proposes that a character keep a "core" (its theme's contour and rhythm, its timbre) while the situation changes the "surface" (harmony, mode, tempo, accompaniment) (docs/music/musical-identity.md). The app cannot store or place a theme today.
+- **related:** `leitmotif`, `motif`, `melody`, `motivic-development`, `musical-identity`
+- **sources:** S206, S155, S212, S214, docs/music/musical-identity.md
 
 ### Transposition
 
@@ -1408,6 +1439,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `minor`, `aeolian`, `scale`, `half-step`, `control-collection`
 - **sources:** S78, S14, docs/music/harmony-planner-policy.md
 
+### Hexatonic scale
+
+- **id:** `hexatonic-scale`
+- **aliases:** six-note scale, hexatonic
+- **popup:** A scale of six notes, for example a seven-note scale with one note left out.
+- **definition:** A hexatonic scale has six different notes in each octave. Some are well-known shapes of their own: the whole-tone scale (C D E F♯ G♯ A♯, every step a whole step) and the blues scale both have six notes. Others come from leaving one note out of a seven-note scale: A minor without its seventh note, G, gives A B C D E F. One step becomes wider, so the result sounds a little more open than its seven-note parent.
+- **in_infinite_flow:** Not available: the Collection control offers seven-note scales and modes only. The endgame research uses it for a character that "hates G" in A minor, whose own line would then use six notes (docs/music/musical-identity.md); endgame groundwork, not built.
+- **related:** `scale`, `pentatonic-scale`, `blues-scale`, `aeolian`, `control-collection`, `musical-identity`
+- **sources:** S241, docs/music/musical-identity.md
+
 ### Ionian
 
 - **id:** `ionian`
@@ -1599,6 +1640,48 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The built-in preset Reel, planned for v3.1 (not built; spec decision D233), imitates its steady even eighths in four-bar phrases. Its key and mode restriction is Mixolydian or Dorian, in any key: choosing it keeps Mixolydian or Dorian if one is already selected, and otherwise moves to Mixolydian. Reels are often in major too; a player who wants that chooses Ionian, which leaves the preset (the selection becomes Custom). The ornaments and the two-part form are not available.
 - **related:** `eighth-note`, `phrase`, `mixolydian`, `dorian`, `ornament`, `built-in-preset`, `key-and-mode-restriction`
 - **sources:** S106, S107, S108, specs/versions/v3/presets.md
+
+## Style and identity
+
+### Fanfare
+
+- **id:** `fanfare`
+- **aliases:** flourish, victory fanfare
+- **popup:** A short, bright, festive burst of music, traditionally for trumpets, that announces someone or celebrates a victory.
+- **definition:** A fanfare is a short, brilliant flourish, traditionally played by trumpets and other brass, often with drums, to announce an important person or event. Fanfares tend to use the notes of a major chord, repeated notes and crisp rhythms, which brass instruments play easily and which sound bold. Video games borrowed the idea: many role-playing games play the same short victory fanfare after every won battle, until it becomes a signature of the series.
+- **in_infinite_flow:** Endgame groundwork, not built: the research proposes a victory event as a fixed fanfare-like stinger, the one place where exact repetition is the point (docs/music/musical-identity.md).
+- **related:** `stinger`, `arpeggio`, `leitmotif`, `musical-topic`
+- **sources:** S223, S210, docs/music/musical-identity.md
+
+### Idiolect
+
+- **id:** `idiolect`
+- **aliases:** personal style, personal voice
+- **popup:** One musician's personal style: the habits that make them recognisable inside a style they share with others.
+- **definition:** An idiolect is one person's own way of making music, a word borrowed from linguistics, where it means one person's way of speaking. Two bebop saxophonists share a style, yet each has favourite phrases, rhythms and sounds that let fans recognise them. Jazz players build an idiolect by learning stock phrases (licks) from others, then reshaping them into a voice of their own; a study of Charlie Parker's solos found that much of each solo was made of recurring patterns.
+- **in_infinite_flow:** Endgame groundwork, not built: the research reads a character's musical identity as an idiolect, personal habits layered over a style rather than a style of its own (docs/music/musical-identity.md, docs/music/generation-breadth-review.md).
+- **related:** `musical-style`, `lick`, `signature-figure`, `musical-identity`
+- **sources:** S196, S197, S198, S200, docs/music/musical-identity.md
+
+### Musical style
+
+- **id:** `musical-style`
+- **aliases:** dialect
+- **popup:** The recognisable habits shared by a group, a period or a place, such as bebop or Baroque music.
+- **definition:** A style is a set of musical habits that repeat often enough to be recognised: which scales and chords, which rhythms, which ornaments, which instruments. The music theorist Leonard B. Meyer described style as patterns that come from choices made within limits, and nested it in levels: the style of a period or culture, the dialect of a group or school inside it (French Baroque), one composer's own idiom, and the habits of a single piece. In everyday speech "idiom" often means a shared style too.
+- **in_infinite_flow:** The preset selector uses style names (Jazz today; Reel, Bebop and others planned for v3.1, see Built-in preset), but a preset only chooses settings within one fixed vocabulary, so it is not a style in full. Style packs and character identities are research proposals (docs/music/generation-breadth-review.md, docs/music/musical-identity.md); endgame groundwork, not built.
+- **related:** `idiolect`, `musical-topic`, `built-in-preset`, `musical-identity`, `reel`, `bossa-nova`
+- **sources:** S195, S196, S197, docs/music/generation-breadth-review.md, docs/music/musical-identity.md
+
+### Musical topic
+
+- **id:** `musical-topic`
+- **aliases:** topic, topos
+- **popup:** A musical type with an agreed meaning, such as horn calls for a hunt, or drones and a lilting rhythm for the countryside.
+- **definition:** A topic is a familiar musical type that listeners connect with a meaning. Music theorists first described topics in 18th-century music: the pastoral (drones, gentle lilting rhythms) suggests shepherds and countryside; the military (drums, fanfares) suggests soldiers; the hunt (horn calls) suggests hunting. Film and game music use topics too. A study of "winter" music in video games found it marked by heavy reverb, bell-like metallic sounds and arpeggios, not by major or minor mode.
+- **in_infinite_flow:** Endgame groundwork, not built: the research suggests a location's identity rests mostly on topic-like markers, its timbres, effects and texture, more than on its mode (docs/music/musical-identity.md).
+- **related:** `musical-style`, `timbre`, `audio-effect`, `drone`, `fanfare`
+- **sources:** S221, S222, docs/music/musical-identity.md
 
 ## Texture and arranging
 
@@ -1799,7 +1882,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** A very short burst of music that marks an event, like the "dun dun duuun" when something dramatic happens.
 - **definition:** A stinger is a short musical phrase used as punctuation: it marks the end of a scene, a sudden discovery or a climax. Film, television and radio use stingers, and so do video games, where a stinger is played on top of the music already running when something happens in the game, such as an enemy appearing.
 - **in_infinite_flow:** Not built. In the endgame vision, a player's action or a game event could trigger a short generated stinger, placed on the next beat or measure so that it never cuts through a note the player is reading.
-- **related:** `fill`, `cue`, `leitmotif`, `vertical-layering`
+- **related:** `fill`, `cue`, `leitmotif`, `vertical-layering`, `fanfare`
 - **sources:** S161, S181, specs/vision/endgame.md
 
 ### Texture
@@ -1843,6 +1926,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **sources:** S132, S133, src/domain/backing/backing-renderer.ts
 
 ## Instruments and transposition
+
+### Audio effect
+
+- **id:** `audio-effect`
+- **aliases:** effect, effects, reverb, filter, distortion
+- **popup:** A treatment that changes how a sound comes out, such as reverb (a room's echo), a filter (duller or brighter) or distortion (gritty).
+- **definition:** An audio effect processes a sound after it is made. Reverb adds the echo of a room or a hall; delay repeats the sound a moment later; a filter removes high or low frequencies, making the sound duller or thinner; distortion makes it gritty. Effects do not change which notes are played, only how they sound, so they go together with timbre. Game music uses them heavily: a study of "winter" game music found heavy reverb in most tracks.
+- **in_infinite_flow:** The app plays its click and backing without effects today. v4 plans a synth-based sound library with effects (docs/sound-library-survey.md), and the endgame research proposes effects as part of a location's or character's identity, together with timbre what the owner calls "tone" (docs/music/musical-identity.md); endgame groundwork, not built.
+- **related:** `timbre`, `musical-topic`, `system-voice`
+- **sources:** S222, docs/sound-library-survey.md, docs/music/musical-identity.md
 
 ### B-flat instrument
 
@@ -1893,6 +1986,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The app stores every pitch as a concert MIDI number. Ranges: keyboard 48-72, tenor saxophone 46-70, alto saxophone 51-75.
 - **related:** `pitch`, `middle-c`, `octave-number`, `concert-pitch`
 - **sources:** S13
+
+### Timbre
+
+- **id:** `timbre`
+- **aliases:** tone colour, tone color, sound colour
+- **popup:** The colour of a sound: what makes a flute and a violin sound different on the same note. Said "TAM-ber".
+- **definition:** Timbre is the quality of a sound that is neither its pitch, its loudness nor its length. A flute, a violin and a voice can play the same note equally loud and still be told apart at once, because each makes a different mix of overtones and starts and fades in its own way. People often call it "tone", but in music that word also means a pitched sound or a whole step. Listeners recognise timbre very fast: a fraction of a second of a familiar recording can be enough.
+- **in_infinite_flow:** The player's own instrument gives the lead its timbre; the app's backing uses fixed placeholder synth waves (a triangle-wave bass, sine-wave chords). v4 plans a synth library for system voices, and the endgame research names a distinct timbre per character voice as the cheapest strong identity cue (docs/music/musical-identity.md); endgame groundwork, not built.
+- **related:** `audio-effect`, `instrument-range`, `system-voice`, `musical-identity`
+- **sources:** S224, S227, S228, src/audio/web-audio-session-bus.ts, docs/music/musical-identity.md
 
 ### Transposing instrument
 
@@ -2268,6 +2371,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `strong-and-weak-beats`, `meter`, `tie`, `tick`, `control-syncopation`
 - **sources:** S8, docs/music/rhythm-phrase-structure.md
 
+### Musical identity
+
+- **id:** `musical-identity`
+- **aliases:** identity, character identity
+- **popup:** Internal: the sound and habits that make a character, place or event recognisable in the music the app writes for it.
+- **definition:** In the endgame vision, characters, locations and events each carry a musical identity: a sound (timbre and effects) plus musical habits, such as a signature motif, favoured or banned notes, preferred rhythms, ornaments and accompaniment roles. An identity steers how the app generates the player's melody and the system voices, mostly as preferences, with a few strict rules. It is the endgame's richer form of a built-in preset.
+- **in_infinite_flow:** Endgame groundwork, not built; spec decision D228(6) places such character, location and event presets after v3. The research covers what an identity could contain (docs/music/musical-identity.md) and how it could act on generation as filters, rank levels, weighted orders and planned material (docs/music/identity-modelling.md).
+- **related:** `built-in-preset`, `signature-figure`, `leitmotif`, `idiolect`, `timbre`, `register-spike`, `system-voice`
+- **sources:** specs/vision/endgame.md, specs/decisions.md, docs/music/musical-identity.md, docs/music/identity-modelling.md
+
 ### Open ending
 
 - **id:** `open-ending`
@@ -2297,6 +2410,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Smooth allows no large leaps, so it never creates debt. Under Shaped the recovery must come on the very next note. Under Leaping and Angular, a large leap inside a recognized arpeggio run may recover after the run's last note instead. The phrase's final note can't leave a debt unpaid, except in a session phrase generated from the phrase before it: such a phrase may end owing a recovery, and the next phrase's first note pays it by moving back 1-4 half steps onto a note of the home chord. A repeated pitch does not count as recovery.
 - **related:** `leap`, `run`, `control-leapiness`
 - **sources:** S7, docs/music/melodic-control-models.md, src/domain/generation/carry-in/phrase-ending-debt.ts
+
+### Register spike
+
+- **id:** `register-spike`
+- **aliases:** spike
+- **popup:** Internal: a rare, short note far above (or below) where a line usually sits, followed by a return.
+- **definition:** A register spike is a brief jump out of a voice's usual zone: a single short note, often high and accented, after which the line comes back. The endgame vision mentions sparse register "spikes" for a dark character, a low line punctuated by sharp, brief high notes. Used rarely and always shaped the same way, a spike can become a recognisable signature.
+- **in_infinite_flow:** Endgame groundwork, not built. Today the Register control keeps the whole phrase inside one one-octave window, and a large leap must be followed by a recovery, so a spike would need its own rule or an exception, as octave displacement does (docs/music/musical-identity.md, docs/music/identity-modelling.md).
+- **related:** `register`, `register-window`, `leap`, `recovery`, `octave-displacement`, `musical-identity`
+- **sources:** specs/vision/endgame.md, docs/music/musical-identity.md, docs/music/identity-modelling.md
 
 ### Register window
 
@@ -2335,7 +2458,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** Internal: a short melodic idea that marks a style or a song, like a famous riff or a typical blues bend.
 - **definition:** A signature figure is a short melodic or rhythmic idea that listeners associate with a style, a player or a song: a riff, a hook, a stock lick, a characteristic ornament. Musicians build a personal or stylistic vocabulary partly from such figures and reuse them, varied, in new phrases.
 - **in_infinite_flow:** Internal word for what the owner calls a "gimmick". The app cannot store one today; later presets may carry a few (spec decision D228 places them after v3), and Jam (v3.2) grows a player's own idea. Not built.
-- **related:** `riff`, `lick`, `motif`, `played-signal`
+- **related:** `riff`, `lick`, `motif`, `played-signal`, `idiolect`, `musical-identity`
 - **sources:** specs/versions/v3/README.md, specs/personas.md
 
 ### System voice

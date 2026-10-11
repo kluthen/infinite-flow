@@ -54,6 +54,19 @@ Where the two music documents differ, the v4 spec session decides:
 
 These are research, not settled policy: their proposals wait for the v4 spec session. Their music sources are in [research sources](research-sources.md) (the survey keeps its software sources to itself) and their terms in the [lexicon](lexicon.md).
 
+## Endgame research: musical identity (2026-10-11)
+
+- [Musical identity](musical-identity.md): what makes a style, a character, a place or an event recognisable in music, a catalogue of identity constituents with what the app can express today, how few notes recognition takes, combining identities, status effects and worked examples.
+- [Identity modelling](identity-modelling.md): how an identity could become generation weights: representations of style, hard constraints and soft weights, where each weight would act in today's pipeline, signature motifs, combining layers, a draft identity schema, learning and explaining identities.
+- [Phrase-generation breadth review](generation-breadth-review.md): what generation methods were proposed, built, narrowed or lost over the versions, how style is expressed today, and whether to regroup configurations into style packs. It is an internal review of the repository's history (specs, decisions, code and commits), not web research.
+
+Where these documents differ, the endgame spec sessions decide:
+
+- **Layer order.** The breadth review stacks style pack, preset, character, then situation (location and event) modifiers on top; the identity modelling draft puts location and event below the speaker's (character's) identity, with status effects on top; the musical-identity research sees a division of labour rather than a strict ranking.
+- **Whether an identity adds vocabulary.** The breadth review recommends that a character only restrict and weight its style pack, never unlock vocabulary; the musical-identity worked examples (register spikes, a signature progression, trills) and the identity schema's stored motifs need devices that today's generator lacks.
+
+These are research, not settled policy: their proposals wait for the endgame spec sessions. The two web-research documents' sources are in [research sources](research-sources.md) and their terms in the [lexicon](lexicon.md).
+
 ## Shared Principles
 
 - A generated result is a short phrase, not a sequence of independently random bars.
