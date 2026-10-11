@@ -1,8 +1,8 @@
 # Versions
 
-Status: draft v0.6 (v2 and v3 rows updated 2026-10-03, D173–D175; v2 row 2026-10-05, D183; v2
+Status: draft v0.7 (v2 and v3 rows updated 2026-10-03, D173–D175; v2 row 2026-10-05, D183; v2
 released 2026-10-07, D208; v3 split into releases and v4 row updated 2026-10-07, D211, D212;
-build-plan workflow 2026-10-09, D252)
+build-plan workflow 2026-10-09, D252; style packs row, planned with no version, 2026-10-11, D259)
 
 The scope of each planned version of Infinite Flow is kept in its own folder. The ordered
 timeline is in the [roadmap](../roadmap.md). The product-wide principles are in the
@@ -29,11 +29,12 @@ timeline is in the [roadmap](../roadmap.md). The product-wide principles are in 
 
 ## Index
 
-| Version                         | Status                          | Headline                                                                                                                           |
-| ------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| [v1](v1/README.md)              | Released as `v1.0`; gate closed | Finite four-measure phrase generator                                                                                               |
-| [v2](v2/README.md)              | Released as 2.0.0, tag pending | Rolling phrase, MIDI acknowledgement, backing, last-session review/export; one release, v2.0, real-hardware checks included (D183) |
-| [v3](v3/README.md)              | v3.0 master spec; v3.1–v3.2 direction | v3.0 storage (persistence, "my instrument", earlier and kept sessions, favorites, pre-generation, stray notes); v3.1 embellishments and presets; v3.2 Jam (D211) |
-| [v4](v4/README.md)              | Direction                       | Accompaniment with roles, whole-file seed (proposed), rhythm ratios and editor (D211)                                              |
-| [v5+](v5-plus/README.md)        | Direction                       | Library and snippet seeds, microphone input                                                                                        |
-| [Endgame](../vision/endgame.md) | Direction only                  | Rhythm RPG built on the v2 loop                                                                                                    |
+| Version                                                                    | Status                                | Headline                                                                                                                                                         |
+| -------------------------------------------------------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [v1](v1/README.md)                                                         | Released as `v1.0`; gate closed       | Finite four-measure phrase generator                                                                                                                             |
+| [v2](v2/README.md)                                                         | Released as 2.0.0, tag pending        | Rolling phrase, MIDI acknowledgement, backing, last-session review/export; one release, v2.0, real-hardware checks included (D183)                               |
+| [v3](v3/README.md)                                                         | v3.0 master spec; v3.1–v3.2 direction | v3.0 storage (persistence, "my instrument", earlier and kept sessions, favorites, pre-generation, stray notes); v3.1 embellishments and presets; v3.2 Jam (D211) |
+| [v4](v4/README.md)                                                         | Direction                             | Accompaniment with roles, whole-file seed (proposed), rhythm ratios and editor (D211)                                                                            |
+| [Style packs](../roadmap.md#planned-version-not-yet-assigned--style-packs) | Planned, version not assigned         | Style packs over the one generator: new capabilities, off by default, grouped by style; research only (D259)                                                     |
+| [v5+](v5-plus/README.md)                                                   | Direction                             | Library and snippet seeds, microphone input                                                                                                                      |
+| [Endgame](../vision/endgame.md)                                            | Direction only                        | Rhythm RPG built on the v2 loop                                                                                                                                  |

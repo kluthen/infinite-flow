@@ -353,7 +353,7 @@ fact in the live documents (see the [archive index](archive/README.md) and
   D228).** The owner: "if key and mode restriction are easy to handle for v3.1 then add it (so
   that it preserve current selection)". A preset may carry a restriction on which keys and modes
   are allowed; selecting the preset **never changes the player's current key and mode**. Still a
-  preset never *sets* the key or mode (D228). Conditional on a cost check against the code
+  preset never _sets_ the key or mode (D228). Conditional on a cost check against the code
   (the v3.1 draft does it); if it is not cheap, it stays with the later, richer presets. Read by
   spec-writer as (proposed, to confirm): the restriction bounds what the app itself picks (Vary
   settings' key and mode moves; in v3.2, the key and mode suggestion's candidates); what happens
@@ -645,3 +645,22 @@ fact in the live documents (see the [archive index](archive/README.md) and
   wave merges into `main` after its gate, when the owner asks, so `main` only receives gated
   waves. v3.0 wave 0 is the switch-over: chunk 0 stays as merged, and chunk 1's branch merges into
   the wave-0 branch with chunk 2.
+- **D259 (2026-10-11): style packs are recorded as planned, version not yet assigned.** The
+  owner's call: keep the style-pack plan and the reasoning behind it in the
+  [roadmap](roadmap.md#planned-version-not-yet-assigned--style-packs) for future reference, with
+  no version, no scope and no spec yet. The plan groups the generator's settings and new
+  capabilities into style packs (dialects such as Folk reel, Bebop, Blues, Baroque), layered style
+  → character identity → situation, as declarative data over the one generator (the breadth
+  review's option B), in the style atlas's greedy unlock order and tiers. Nothing it would revisit
+  (D11–D13, D15, D20, D28, the voice-leading minimum rules, the fixed four-bar phrase) changes
+  now. The research behind it is on branch `v4-accompaniment-research`:
+  `docs/music/styles/README.md`, `docs/music/generation-breadth-review.md`,
+  `docs/music/identity-modelling.md`, `docs/music/README.md` and `docs/sound-library-survey.md`.
+- **D260 (2026-10-11): the only sound ban is on samples.** The owner's position, from the v4 sound
+  library survey (its open question 1): the one true ban is on samples, recorded audio and audio
+  assets. Generated buffers (noise, a reverb impulse response, a wavetable computed in code),
+  AudioWorklets, WASM DSP and effect chains are open in principle. The "oscillators and gains
+  only" wording of `req_session_backing_track` and of the `verify:boundaries` check (which bans
+  `createBufferSource` and `new AudioBuffer(` in authored code) is narrower than this intent; the
+  v4 spec rewords both to ban recorded audio and audio assets rather than buffers
+  (`documentalist` for the atom). It does not touch the separate no-network rule.
