@@ -67,6 +67,16 @@ Where these documents differ, the endgame spec sessions decide:
 
 These are research, not settled policy: their proposals wait for the endgame spec sessions. The two web-research documents' sources are in [research sources](research-sources.md) and their terms in the [lexicon](lexicon.md).
 
+## Style atlas (2026-10-11)
+
+- [Style atlas](styles/README.md): the synthesis. An index of every style described, a normalised capability vocabulary, a style × capability matrix, a capability ranking that doubles as a roadmap hint, a sketch of the style layer, the conflicts with current decisions, the inconsistencies between the family files and the open questions.
+- [Western art music](styles/art-music.md): Gregorian chant to minimalism and modernism, with march, waltz and chorale.
+- [Blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Delta and Chicago blues, boogie-woogie, ragtime, the jazz styles from New Orleans to modal and hard bop, gospel, soul, funk and early rock and roll.
+- [Popular, electronic and game music](styles/popular-electronic-game.md): pop, rock, punk, metal, country, reggae and hip-hop; house, techno, synthwave, ambient and lo-fi; chiptune, the JRPG contexts (town, field, dungeon, battle, boss, victory) and epic trailer music.
+- [Folk and world traditions](styles/folk-and-world.md): Celtic, Appalachian, Nordic, Balkan, klezmer, flamenco, tango, Afro-Cuban, Brazilian, Andean and West African styles, maqam, raga, Japanese and Chinese scales, gamelan and bal-musette, as approximations a twelve-note generator could sketch.
+
+Each family file describes its styles in the same terms: how to recognise them, the closest settings today, what a style layer would tune, restrict and manipulate, the v4 accompaniment roles, the capabilities needed and an honest fidelity rating. These are research, not settled policy: their proposals wait for the endgame spec sessions. Their sources are in [research sources](research-sources.md) and their terms in the [lexicon](lexicon.md).
+
 ## Shared Principles
 
 - A generated result is a short phrase, not a sequence of independently random bars.
