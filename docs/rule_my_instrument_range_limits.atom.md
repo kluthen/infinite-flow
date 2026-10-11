@@ -5,7 +5,8 @@ type: RULE
 version: 0.1
 parents:
   - [[req_my_instrument]]
-dependents: []
+dependents:
+  - [[entity_my_instrument]]
 layer: BUSINESS
 priority: 1
 human_name: My Instrument Obeys the Profile Range Rules

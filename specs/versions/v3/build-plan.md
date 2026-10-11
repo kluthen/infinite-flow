@@ -1245,9 +1245,10 @@ sweep under `tests/sweep/` or `scripts/`.
 (Routing Rules: valid range, the transposition).
 
 **Atoms:** `req_my_instrument`, `rule_my_instrument_range_limits`,
-`rule_my_instrument_transposition_named_interval` (to revise for spec D253: entered in octaves and
-signed semitones, the name derived), the new `entity_my_instrument` (its capture: the fixed id and
-the display name, spec D254; the transposition as octaves and signed semitones); (v2)
+`rule_my_instrument_transposition_named_interval` (to revise for spec D253: entered in octaves,
+semitones and one direction, the name derived), the new `entity_my_instrument` (its capture: the
+fixed id and the display name, spec D254; the transposition as octaves, semitones and one
+direction, spec D257); (v2)
 `entity_instrument_profile`, `module_generation_request_construction`,
 `module_generation_control_catalog`, `rule_instrument_profile_range` (STABLE: must stay true of the
 three built-ins; its revision is Part B1).
@@ -1275,6 +1276,23 @@ three built-ins; its revision is Part B1).
 **Items covered:** 16 (the refusal, the success-rate measurement).
 
 **Verification:** the chunk checks; M3.
+
+**Record (2026-10-11).** Merged into `v3.0-w1`. `documentalist` captured `entity_my_instrument`
+(DRAFT) first, scoped `entity_instrument_profile`'s "no new enumeration member" to the built-ins
+and revised `rule_my_instrument_transposition_named_interval` for octaves, semitones and one
+direction (DRAFT); no status advanced. The id set is now the three built-ins and `my-instrument`;
+`INSTRUMENT_PROFILE_IDS` stays the three built-ins (tests and the deadline sweep enumerate it to
+build profiles from the table), and the controls, and the saved-settings codec while my instrument
+loads, accept the four. The generation intent takes my instrument's profile as data and refuses a
+missing or mismatched one; a built-in still resolves from its id. Refusals carry a reason code,
+available without throwing for chunk 20's live check. The interval name beyond the table: an
+octave is "octave", one octave plus a table interval takes the compound name ("major ninth"), two
+or more octaves read "2 octaves and a major second". Paths that still rebuild an intent from the
+controls alone (the session's attempt intents, the carry-in receiver, the worker's inbound
+message) refuse `my-instrument` until chunk 17. M3's generator sweep: no failure in any range case
+(table in [`generation-latency.md`](../../../docs/generation-latency.md#my-instrument-ranges-2026-10-11)),
+measured on the build machine, not a VM, for reference.
+
 
 ### Chunk 17 — My instrument across the worker and the history
 

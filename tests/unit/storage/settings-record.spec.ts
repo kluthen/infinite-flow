@@ -395,6 +395,17 @@ describe('decodeSettings', () => {
     expect(decoded.controls.tempo).toBe(NON_DEFAULT.controls.tempo)
   })
 
+  // @test-link [[rule_saved_settings_load_tolerantly]]
+  it('keeps a saved selection of my instrument when my instrument loads', () => {
+    const records = corrupt(rawRecords(NON_DEFAULT), 'controls.instrumentProfileId', (record) => ({
+      ...record,
+      value: MY_INSTRUMENT_ID,
+    }))
+    const decoded = decodeSettings(records, { ...CONTEXT, myInstrumentLoaded: true })
+
+    expect(decoded.controls.instrumentProfileId).toBe(MY_INSTRUMENT_ID)
+  })
+
   // @test-link [[rule_played_notes_kept_only_after_opt_in]]
   it('keeps my played notes off unless the player turned it on', () => {
     expect(decodeSettings([], CONTEXT).keepPlayedNotes).toBe(false)

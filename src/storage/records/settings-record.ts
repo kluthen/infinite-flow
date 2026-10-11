@@ -22,12 +22,12 @@ import {
   type AudioMixDesign,
 } from '@/audio/audio-mix'
 import {
+  ACCEPTED_INSTRUMENT_PROFILE_IDS,
   ARPEGGIO_CHAOS_VALUES,
   COLLECTIONS,
   CONTOURS,
   GenerationControlError,
   HARMONIC_MOTIONS,
-  INSTRUMENT_PROFILE_IDS,
   LEAPINESS_VALUES,
   makeGenerationControls,
   MUSICAL_PROFILES,
@@ -45,6 +45,7 @@ import {
 } from '@/domain/controls/generation-controls'
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
 import { deepFreeze } from '@/domain/events/deep-freeze'
+import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 
 import {
   defaultSettings,
@@ -59,12 +60,8 @@ import {
 // @spec-link [[rule_outdated_tab_reads_what_it_can]]
 export const SETTINGS_DATA_VERSION = 1
 
-/**
- * The fixed id a saved instrument selection names my instrument by, never its display name. The
- * selection is kept only when my instrument itself loads.
- */
-// @spec-link [[rule_saved_settings_load_tolerantly]]
-export const MY_INSTRUMENT_ID = 'my-instrument'
+/** My instrument's fixed id, re-exported for the settings records' readers. */
+export { MY_INSTRUMENT_ID }
 
 /** The settings stored as one record per field; the others are one record each. */
 type SettingGroup = 'controls' | 'mix' | 'sessionOptions' | 'review'
@@ -166,12 +163,13 @@ const readTempo: Parse<number> = (value) =>
   refusedAs(() => normalizeTempo(value), GenerationControlError)
 
 /**
- * Intent: accept a built-in instrument, or my instrument's fixed id only while my instrument
- * itself loads; a selection of an instrument that did not load falls back.
+ * Intent: accept a built-in instrument, or my instrument's fixed id (never its display name) only
+ * while my instrument itself loads; a selection of an instrument that did not load falls back.
  */
+// @spec-link [[rule_saved_settings_load_tolerantly]]
 const readInstrument: Parse<GenerationControls['instrumentProfileId']> = (value, context) => {
   if (value === MY_INSTRUMENT_ID && !context.myInstrumentLoaded) return UNREADABLE
-  return controlValue(INSTRUMENT_PROFILE_IDS, 'Instrument profile')(value, context)
+  return controlValue(ACCEPTED_INSTRUMENT_PROFILE_IDS, 'Instrument profile')(value, context)
 }
 
 /**

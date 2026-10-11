@@ -14,7 +14,7 @@ import {
   BB_TENOR_PROFILE,
   C_KEYBOARD_PROFILE,
   EB_ALTO_PROFILE,
-  type InstrumentProfileId,
+  type BuiltInInstrumentProfileId,
 } from '@/domain/profile/instrument-profiles'
 import { encodeGeneratedNotesMidi } from '@/export/midi/midi-encoder'
 import { encodeGeneratedNotesMusicXml } from '@/export/musicxml/musicxml-encoder'
@@ -42,7 +42,7 @@ const PHRASE_COUNT = 5
 const MATRIX = buildMatrix()
 
 /** The instrument template each profile id stands for. */
-const TEMPLATES: Readonly<Record<InstrumentProfileId, InstrumentProfile>> = {
+const TEMPLATES: Readonly<Record<BuiltInInstrumentProfileId, InstrumentProfile>> = {
   'c-keyboard': C_KEYBOARD_PROFILE,
   'bb-tenor': BB_TENOR_PROFILE,
   'eb-alto': EB_ALTO_PROFILE,
