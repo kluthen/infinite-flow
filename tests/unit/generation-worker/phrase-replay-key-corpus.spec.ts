@@ -53,7 +53,6 @@ function replayTimeline(key: string): unknown {
 }
 
 describe('ifk1 replay-key corpus recorded on v2.0', () => {
-  // @test-link [[module_phrase_replay_key]]
   it('covers the built-in instruments, both profiles, and carry-in phrases', () => {
     expect(CORPUS.keyVersion).toBe('ifk1')
     expect(CORPUS.recordedOnAppVersion).toBe('2.0.0')
