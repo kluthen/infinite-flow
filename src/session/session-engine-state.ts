@@ -19,8 +19,8 @@ import type { SettingsMutationFlag } from './settings-mutation'
 import type { StrugglingNotice } from './struggling-notice'
 
 /**
- * Everything fixed for the whole session: the seams, the mutation flag, the multi-phrase tension
- * arc flag and phrase 1.
+ * Everything fixed for the whole session: the seams, the session seed (from the intent seams),
+ * the mutation flag, the multi-phrase tension arc flag and phrase 1.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[req_settings_mutation_flag]]

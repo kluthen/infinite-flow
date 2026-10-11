@@ -1,8 +1,8 @@
 /**
  * The workspace's session runner: the session engine's runner as the workspace starts it. The
- * settings-mutation flag comes from the player's `Vary settings` choice: on, it runs from a
- * mutation seed drawn at the start from the workspace's own seed provider and kept in the
- * session's start, so the session replays from its inputs. The display reading the engine asks
+ * settings-mutation flag comes from the player's `Vary settings` choice: on, it runs from the
+ * mutation seed the session seed plan derives from the start's session seed, so the session
+ * replays from its inputs and draws no seed. The display reading the engine asks
  * whether any of a phrase is on screen is the session's rolling display. The multi-phrase tension
  * arc flag is the player's `Tension across phrases` choice, passed on as it is. Loaded lazily with
  * the runner, as part of the session controller's chunk.
@@ -14,6 +14,7 @@ import {
   type SessionRunnerDependencies,
 } from '@/session/session-runner'
 import type { SessionStart } from '@/session/session-types'
+import { settingsMutationSeed } from '@/session/session-seed-plan'
 import { SETTINGS_MUTATION_OFF, type SettingsMutationFlag } from '@/session/settings-mutation'
 import type { Seed } from '@/domain/random/seed'
 
@@ -32,24 +33,28 @@ export interface WorkspaceSessionStart extends Omit<SessionStart, 'mutation'> {
 }
 
 /**
- * Intent: the engine's mutation flag for the player's choice: off, or on with a seed drawn now
- * from `nextSeed`. Nothing is drawn when the choice is off, so a session without mutations draws
- * the same seeds as before the flag existed.
+ * Intent: the engine's mutation flag for the player's choice: off, or on with the mutation seed
+ * the session seed plan derives from `sessionSeed`. Nothing is derived when the choice is off,
+ * and no seed is drawn either way.
  */
 // @spec-link [[req_settings_mutation_flag]]
-export function mutationFlagFor(varySettings: boolean, nextSeed: () => Seed): SettingsMutationFlag {
-  return varySettings ? { kind: 'on', seed: nextSeed() } : SETTINGS_MUTATION_OFF
+// @spec-link [[module_session_seed_plan]]
+export function mutationFlagFor(varySettings: boolean, sessionSeed: Seed): SettingsMutationFlag {
+  return varySettings
+    ? { kind: 'on', seed: settingsMutationSeed(sessionSeed) }
+    : SETTINGS_MUTATION_OFF
 }
 
 /**
  * Intent: start a workspace session runner with the settings-mutation flag the player's choice
- * gives (its seed drawn before the engine asks for any attempt seed), the multi-phrase tension arc
- * and adaptive tempo as the start says, and the display reading and output sink the caller passes.
+ * gives (its seed derived from the start's session seed), the multi-phrase tension arc and
+ * adaptive tempo as the start says, and the display reading and output sink the caller passes.
  */
 // @spec-link [[service_workspace_session_runner_factory]]
 // @spec-link [[service_session_runner]]
 // @spec-link [[req_settings_mutation_flag]]
 // @spec-link [[req_multi_phrase_tension_arc]]
+// @spec-link [[module_session_seed_plan]]
 export function startWorkspaceSessionRunner(
   deps: SessionRunnerDependencies,
   start: WorkspaceSessionStart,
@@ -57,6 +62,6 @@ export function startWorkspaceSessionRunner(
   const { varySettings, ...engineStart } = start
   return createSessionRunner(deps, {
     ...engineStart,
-    mutation: mutationFlagFor(varySettings, deps.providers.nextSeed),
+    mutation: mutationFlagFor(varySettings, engineStart.sessionSeed),
   })
 }

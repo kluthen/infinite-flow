@@ -11,6 +11,7 @@ import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
 import { alwaysFitsStaff } from './fake-staff-fit'
+import { countingSessionSeeds } from './fake-session-seed'
 import { createFakeViewportWidth } from './fake-viewport-width'
 
 /** A Sixteenth combination blocked from `bp-tablet-landscape` up and allowed below it. */
@@ -32,6 +33,8 @@ function densitySession(initiallyBelowTabletLandscape: boolean) {
       nextRequestId: () => makeRequestId(`density-${++counter}`),
       nextSeed: () => makeSeed(counter),
     },
+    nextSessionSeed: countingSessionSeeds(),
+    withSessionSeed: (generated) => generated,
     viewport,
     generate: async (intent) => {
       intents.push(intent)
@@ -94,6 +97,8 @@ describe('generation session: the density a phrase is generated with', () => {
         nextRequestId: () => makeRequestId(`retry-${++counter}`),
         nextSeed: () => makeSeed(counter),
       },
+      nextSessionSeed: countingSessionSeeds(),
+      withSessionSeed: (generated) => generated,
       viewport,
       generate: async (intent) => {
         intents.push(intent)

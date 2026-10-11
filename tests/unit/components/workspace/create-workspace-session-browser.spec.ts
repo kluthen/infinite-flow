@@ -4,6 +4,7 @@
  * page's own `navigator`, `screen`, `document` and `window` (jsdom, with hand-made stand-ins where
  * it has no such API), asking for no lock and adding nothing to the page until a port is used.
  */
+import { countingSessionSeeds } from '../../composables/fake-session-seed'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
@@ -75,6 +76,7 @@ describe('composeWorkspaceSession: the session browser ports', () => {
         nextRequestId: () => makeRequestId(`browser-spec-${++counter}`),
         nextSeed: () => makeSeed(++counter),
       },
+      nextSessionSeed: countingSessionSeeds(),
       viewport: createFakeViewportWidth(),
       generate: vi.fn(),
       prewarmPolicy: 'disabled',

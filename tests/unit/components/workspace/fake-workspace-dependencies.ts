@@ -6,6 +6,7 @@
  * `generateAndEngrave` must mock `@/notation/vexflow-engraver-loader` with the fake engraver loader,
  * since the fit check plans through it.
  */
+import { countingSessionSeeds } from '../../composables/fake-session-seed'
 import { expect, vi } from 'vitest'
 
 import type {
@@ -106,6 +107,7 @@ export function fakeDependencies(
       nextRequestId: () => makeRequestId(`di-seam-request-${++requestCounter}`),
       nextSeed: () => makeSeed(++seedCounter),
     },
+    nextSessionSeed: countingSessionSeeds(),
     viewport: createFakeViewportWidth(),
     generate: generateMock,
     prewarmPolicy,

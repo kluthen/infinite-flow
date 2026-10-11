@@ -11,7 +11,12 @@ import {
 } from '@/components/workspace/session-review-state'
 import { SessionControllerError } from '@/components/workspace/workspace-session-controller-types'
 import { createSessionHistory, type SessionHistory } from '@/session/session-history'
-import { SessionDriver, fixedWallClock, sessionSettings } from '../../session/session-harness'
+import {
+  DEFAULT_SESSION_SEED,
+  SessionDriver,
+  fixedWallClock,
+  sessionSettings,
+} from '../../session/session-harness'
 import {
   driveTempoSession,
   phraseStartAt,
@@ -21,7 +26,7 @@ import {
 
 /** Intent: the closed history of a driven session, fed every output the driver logged. */
 function historyOf(driver: SessionDriver): SessionHistory {
-  const history = createSessionHistory(driver.settings, fixedWallClock)
+  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
   for (const output of driver.log) history.record(output)
   return history
 }
@@ -68,7 +73,7 @@ describe('the Review transitions', () => {
 
   // @test-link [[req_last_session_review]]
   it('refuses to open over a history in which no phrase sounded', () => {
-    const empty = createSessionHistory(sessionSettings(), fixedWallClock)
+    const empty = createSessionHistory(sessionSettings(), fixedWallClock, DEFAULT_SESSION_SEED)
     expect(() => openedReview(empty)).toThrow(/no phrase sounded/)
   })
 })

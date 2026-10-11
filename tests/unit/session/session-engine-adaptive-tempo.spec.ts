@@ -8,6 +8,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { makeSeed } from '@/domain/random/seed'
 import { measureSeconds } from '@/session/session-timing'
 import { SessionEngineError } from '@/session/session-types'
 import {
@@ -215,6 +216,7 @@ describe('the adaptive-tempo schedule over seeded sessions', () => {
               adaptiveTempo: true,
               display: fakeDisplay(false),
               providers: queuedProviders(firstSeed, 200),
+              sessionSeed: makeSeed(firstSeed),
               phraseOneSeed: 11 + index,
             })
             driveTempoSession(driver, PROPERTY_SOUNDED, script)

@@ -9,6 +9,7 @@
  * real Idle machinery and coordinator run over a fake engraver planner (every phrase fits, the staff
  * has room, 60-unit fixed parts, unless a test says otherwise) and a transport on the fake clock.
  */
+import { countingSessionSeeds } from '../../composables/fake-session-seed'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
@@ -97,6 +98,7 @@ async function readyRig(): Promise<Rig> {
       nextRequestId: () => makeRequestId(`idle-layout-${++counter}`),
       nextSeed: () => makeSeed(++counter),
     },
+    nextSessionSeed: countingSessionSeeds(),
     viewport: createFakeViewportWidth(),
     generate,
     prewarmPolicy: 'disabled',

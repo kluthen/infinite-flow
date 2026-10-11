@@ -32,6 +32,7 @@ import type { MutableGenerationSessionState } from '@/composables/use-generation
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
+import { makeSeed } from '@/domain/random/seed'
 import type {
   SessionRunner,
   SessionRunnerEvent,
@@ -72,6 +73,9 @@ import {
  * a beat is 0.25 s, a measure 1 s, a phrase 4 s.
  */
 export const RIG_TEMPO = 240
+
+/** The session seed the rig's Idle phrase 1 was published with. */
+export const RIG_SESSION_SEED = makeSeed(0x0c0ffee0)
 
 /** A rig's session options: its starting tempo. */
 export interface ControllerRigOptions {
@@ -199,7 +203,10 @@ export function controllerRig(
   const { rig: audioRig, transport } = transportRig()
   const browser = createFakeSessionBrowser()
   const settings = sessionSettings({ tempo: options.tempo ?? RIG_TEMPO })
-  const phraseOne: WorkspaceSessionResult = phraseOneFor(settings)
+  const phraseOne: WorkspaceSessionResult = {
+    ...phraseOneFor(settings),
+    sessionSeed: RIG_SESSION_SEED,
+  }
   const idleWritten = transformToWrittenPhrase(
     notationInputFromOutcome(phraseOne.outcome, phraseOne.intent),
   )

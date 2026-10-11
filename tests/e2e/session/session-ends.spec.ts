@@ -116,7 +116,7 @@ async function startFromReady(
 /**
  * Intent: assert a count-in Stop started no Idle generation: once the audio clock has moved on a
  * little and the screen has settled, no seed was drawn since `seedsBefore` (read before the Stop;
- * every generation, Idle or session, draws one) and the Idle state runs no operation.
+ * every Idle generation draws one) and the Idle state runs no operation.
  */
 // @test-link [[rule_stop_ends_session]]
 async function expectNoIdleGeneration(page: Page, seedsBefore: number): Promise<void> {

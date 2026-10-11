@@ -10,6 +10,7 @@ import { vi } from 'vitest'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { createSessionHistory, type SessionHistoryRecord } from '@/session/session-history'
 import {
+  DEFAULT_SESSION_SEED,
   SessionDriver,
   fixedWallClock,
   phraseOneFor,
@@ -41,7 +42,7 @@ let recorded: readonly SessionHistoryRecord[] | null = null
 export function recordedRecords(): readonly SessionHistoryRecord[] {
   if (recorded !== null) return recorded
   const driver = sessionWithRepeat()
-  const history = createSessionHistory(driver.settings, fixedWallClock)
+  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
   for (const output of driver.log) {
     if (output.kind === 'ended') {
       for (const phraseNumber of [1, 2, 3]) {

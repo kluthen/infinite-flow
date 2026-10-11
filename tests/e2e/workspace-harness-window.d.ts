@@ -545,8 +545,30 @@ interface WorkspaceHarnessApi {
   engravings: () => number
   /** How many phrase-independent room checks have run since the page loaded. */
   roomChecks: () => number
-  /** How many seeds the session has drawn from the seed provider since the page loaded. */
+  /**
+   * How many seeds have been drawn from the seed provider since the page loaded: one per Idle
+   * attempt; a session draws none.
+   */
   seedsDrawn: () => number
+  /**
+   * Append deterministic session seeds to the queue `nextSessionSeed()` draws from first, in call
+   * order; once it is empty a plain counter answers. One is drawn with each published phrase 1,
+   * and every seed a session uses (its attempts, its Vary settings mutation) derives from it.
+   */
+  queueSessionSeeds: (seeds: readonly number[]) => void
+  /** How many session seeds have been drawn since the page loaded (one per published phrase 1). */
+  sessionSeedsDrawn: () => number
+  /**
+   * The session seed plan's seed of rung `rung` of phrase `phraseNumber` for this session seed
+   * (src/session/session-seed-plan.ts). Its own inverse: given a wanted attempt seed it returns
+   * the session seed that gives it.
+   */
+  phraseAttemptSeed: (seed: number, phraseNumber: number, rung: number) => number
+  /**
+   * The session seed plan's Vary settings mutation seed for this session seed. Its own inverse:
+   * given a wanted mutation seed it returns the session seed that gives it.
+   */
+  settingsMutationSeed: (seed: number) => number
   /**
    * The concert timeline (`JSON.stringify`, as `snapshot().timeline`) of every successful
    * `generate` answer since the page loaded, Idle and session look-ahead alike, in return order.

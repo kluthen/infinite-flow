@@ -9,6 +9,7 @@ import type {
   GenerationIntentProviders,
 } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
+import type { Seed } from '@/domain/random/seed'
 import type { ViewportWidthProvider } from '@/composables/viewport-width'
 import type { SessionRunner, SessionRunnerDependencies } from '@/session/session-runner'
 import type { SessionBrowserPorts } from '@/session/session-browser-ports'
@@ -21,8 +22,9 @@ import type { SessionControllerClock } from './workspace-session-controller-seam
 /**
  * What a caller supplies to start a session runner from the workspace: the session's start, its
  * adaptive-tempo and `Vary settings` choices included (the starter turns the latter into the
- * settings-mutation flag, drawing its seed), and the seams the workspace does not own (fit check,
- * audio clock, the display reading of whether a phrase is on screen, output and error sinks).
+ * settings-mutation flag, its seed derived from the start's session seed), and the seams the
+ * workspace does not own (fit check, audio clock, the display reading of whether a phrase is on
+ * screen, output and error sinks).
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]
@@ -41,17 +43,24 @@ export type WorkspaceSessionRunnerStarter = (input: WorkspaceSessionRunnerInput)
 
 /**
  * The explicit dependency surface `composeWorkspaceSession` needs: identity/seed providers, the
- * window-width provider, the raw orchestration-outcome `generate` seam (plus its teardown), the
- * prewarm policy and seam, the audio transport, the MIDI controller, the session browser ports and
- * the session controller's clock. Production supplies the cryptographic seed provider, the `matchMedia` width provider, the real
- * worker client, the Web Audio transport, the Web MIDI controller and the browser adapters; a
- * harness supplies deterministic, gated, or failure-injecting equivalents that still call through
- * to the real worker, a transport on a fake or a recorded real audio output, a controller on a fake
- * or the real MIDI access, and fake locks and page visibility beside the real window shape.
+ * session-seed provider, the window-width provider, the raw orchestration-outcome `generate` seam
+ * (plus its teardown), the prewarm policy and seam, the audio transport, the MIDI controller, the
+ * session browser ports and the session controller's clock. Production supplies the cryptographic
+ * seed provider, the `matchMedia` width provider, the real worker client, the Web Audio transport,
+ * the Web MIDI controller and the browser adapters; a harness supplies deterministic, gated, or
+ * failure-injecting equivalents that still call through to the real worker, a transport on a fake
+ * or a recorded real audio output, a controller on a fake or the real MIDI access, and fake locks
+ * and page visibility beside the real window shape.
  */
 // @spec-link [[service_workspace_session_flow]]
 export interface WorkspaceSessionDependencies {
   readonly providers: GenerationIntentProviders
+  /**
+   * The session seed drawn for each phrase 1 the Idle session publishes, separate from
+   * `providers.nextSeed` (production: the same cryptographic source, drawn on its own).
+   */
+  // @spec-link [[module_session_seed_plan]]
+  readonly nextSessionSeed: () => Seed
   readonly viewport: ViewportWidthProvider
   /** The one generation seam; a session runner passes each attempt's abort signal, Idle none. */
   readonly generate: (intent: GenerationIntent, signal?: AbortSignal) => Promise<GenerationOutcome>

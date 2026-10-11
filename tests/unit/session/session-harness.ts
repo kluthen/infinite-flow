@@ -1,5 +1,6 @@
 /**
  * Shared builders for the session engine tests: deterministic queued identity and seed providers,
+ * a default session seed,
  * a window-width reading and a display reading the test moves by hand, real phrase 1 intents and
  * outcomes, real failure outcomes, and a driver that feeds timed events to one engine and keeps
  * every output it returned.
@@ -21,7 +22,7 @@ import type {
   GenerationFailureCode,
   GenerationOutcome,
 } from '@/domain/generation/orchestration/orchestration-types'
-import { makeSeed } from '@/domain/random/seed'
+import { makeSeed, type Seed } from '@/domain/random/seed'
 import { createSessionEngine } from '@/session/session-engine'
 import { SETTINGS_MUTATION_OFF, type SettingsMutationFlag } from '@/session/settings-mutation'
 import type {
@@ -72,6 +73,9 @@ export function queuedProviders(firstSeed = 3000, queueLength = 80): QueuedProvi
     },
   }
 }
+
+/** The session seed a driver starts from unless a test gives one. */
+export const DEFAULT_SESSION_SEED: Seed = makeSeed(0x5eed_0001)
 
 /** The epoch milliseconds a fixed test wall clock reads: 2026-09-30 at 12:00 UTC. */
 export const SESSION_START_EPOCH_MS = Date.UTC(2026, 8, 30, 12)
@@ -209,6 +213,7 @@ export interface DriverOptions {
   readonly at?: AudioTime
   readonly settings?: SessionSettings
   readonly phraseOne?: SessionStart['phraseOne']
+  readonly sessionSeed?: Seed
   readonly viewport?: FakeViewport
   readonly display?: FakeDisplay
   readonly providers?: QueuedProviders
@@ -241,6 +246,7 @@ export class SessionDriver {
       at: options.at ?? 0,
       settings: this.settings,
       phraseOne: this.phraseOne,
+      sessionSeed: options.sessionSeed ?? DEFAULT_SESSION_SEED,
       mutation: options.mutation ?? SETTINGS_MUTATION_OFF,
       adaptiveTempo: options.adaptiveTempo ?? false,
       multiPhraseTensionArc: options.multiPhraseTensionArc ?? false,

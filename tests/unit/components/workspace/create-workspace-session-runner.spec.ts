@@ -11,6 +11,7 @@ import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { encodeSeed } from '@/domain/random/seed'
 import { decodePhraseReplayKey } from '@/generation-worker/phrase-replay-key-decode'
+import { phraseAttemptSeed } from '@/session/session-seed-plan'
 import type { SessionOutput } from '@/session/session-types'
 import { resetFakeEngraver } from '../../notation/fake-vexflow-engraver-loader'
 import {
@@ -63,6 +64,7 @@ describe('composeWorkspaceSession session runner', () => {
           musicalProfile: workspace.session.state.profileSelection,
         },
         phraseOne: { intent: idle!.intent, outcome: idle!.outcome },
+        sessionSeed: idle!.sessionSeed,
         adaptiveTempo: false,
         varySettings: false,
         multiPhraseTensionArc: false,
@@ -107,6 +109,7 @@ describe('composeWorkspaceSession session runner', () => {
           musicalProfile: workspace.session.state.profileSelection,
         },
         phraseOne: { intent: idle.intent, outcome: idle.outcome },
+        sessionSeed: idle.sessionSeed,
         adaptiveTempo: false,
         varySettings: false,
         multiPhraseTensionArc: false,
@@ -124,7 +127,7 @@ describe('composeWorkspaceSession session runner', () => {
     expect(deps.generateMock).toHaveBeenCalledTimes(2)
     const phraseTwoIntent = deps.generateMock.mock.calls[1]![0] as GenerationIntent
     expect(phraseTwoIntent.requestId).toBe('di-seam-request-2')
-    expect(phraseTwoIntent.seed).toBe(2)
+    expect(phraseTwoIntent.seed).toBe(phraseAttemptSeed(idle.sessionSeed, 2, 0))
     expect(deps.prewarmMock).toHaveBeenCalledTimes(prewarmsBeforeRunner)
   })
 })
@@ -186,6 +189,7 @@ describe('composeWorkspaceSession phrase replay key', () => {
           musicalProfile: workspace.session.state.profileSelection,
         },
         phraseOne: { intent: idle.intent, outcome: idle.outcome },
+        sessionSeed: idle.sessionSeed,
         adaptiveTempo: false,
         varySettings: false,
         multiPhraseTensionArc: false,

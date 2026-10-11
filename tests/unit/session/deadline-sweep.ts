@@ -49,6 +49,7 @@ import type {
   SessionSettings,
   SessionStart,
 } from '@/session/session-types'
+import { settingsMutationSeed } from '@/session/session-seed-plan'
 import { SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
 import { SEEDS } from '../domain/generation/carry-in/carry-in-matrix'
 import {
@@ -99,7 +100,7 @@ export interface SweepCase {
   readonly rhythm: RhythmSetting
   /** The seed-matrix seed phrase 1 is first generated with at Idle. */
   readonly seed: number
-  /** The first seed the session hands out, for phrase 2's first attempt. */
+  /** The session seed drawn with phrase 1: every seed the session uses derives from it. */
   readonly firstSessionSeed: number
   readonly controls: Omit<GenerationControls, 'tempo'>
   readonly musicalProfile: MusicalProfile
@@ -483,8 +484,9 @@ export async function runTimedSession(
       at: 0,
       settings,
       phraseOne: phraseOneAtIdle(sweepCase, settings, outcomes),
+      sessionSeed: makeSeed(sweepCase.firstSessionSeed),
       mutation: sweepCase.varySettings
-        ? { kind: 'on', seed: makeSeed(sweepCase.firstSessionSeed + 99) }
+        ? { kind: 'on', seed: settingsMutationSeed(makeSeed(sweepCase.firstSessionSeed)) }
         : SETTINGS_MUTATION_OFF,
       adaptiveTempo: false,
       multiPhraseTensionArc: sweepCase.tensionAcrossPhrases,

@@ -1,6 +1,7 @@
 /**
  * Shared test-only fixtures for Step 9 workspace tests: a cheap, real `WorkspaceSessionResult`
- * (built from an actual orchestration run, not a hand-rolled stand-in) and the default controls a
+ * (built from an actual orchestration run, not a hand-rolled stand-in, with a fixed session seed
+ * unless a test gives one) and the default controls a
  * fresh session starts with. Every workspace/coordinator spec that needs a real generated phrase
  * without paying for an expensive control combination should build it from here.
  */
@@ -26,6 +27,7 @@ export const CHEAP_CONTROLS: GenerationControls = {
 export function buildWorkspaceSessionResult(
   requestId = 'workspace-fixture-1',
   seed = 1,
+  sessionSeed = 1,
 ): WorkspaceSessionResult {
   const intent = createGenerationIntent({
     requestId: makeRequestId(requestId),
@@ -37,5 +39,5 @@ export function buildWorkspaceSessionResult(
   if (outcome.kind !== 'generation_success') {
     throw new Error(`Fixture setup: expected generation_success, got "${outcome.kind}".`)
   }
-  return { outcome, intent }
+  return { outcome, intent, sessionSeed: makeSeed(sessionSeed) }
 }

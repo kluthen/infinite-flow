@@ -62,7 +62,8 @@ async function awaitSettled(page: Page, count: number): Promise<void> {
  * Intent: arm `failures` forced failures for the next look-ahead attempts, let `phraseStarts`
  * (the moment the phrase before starts sounding, which requests the next one; null when already
  * requested) pass, and wait until every attempt has returned: the failures, plus one answer when
- * fewer than the whole ladder failed.
+ * fewer than the whole ladder failed. The attempts draw no seed: theirs derive from the session
+ * seed.
  */
 async function lookAheadWith(page: Page, failures: number, phraseStarts: number): Promise<void> {
   const settledBefore = await generationsSettled(page)
@@ -71,7 +72,7 @@ async function lookAheadWith(page: Page, failures: number, phraseStarts: number)
   await clockTo(page, phraseStarts + NUDGE)
   const attempts = failures >= LADDER_RUNGS ? LADDER_RUNGS : failures + 1
   await awaitSettled(page, settledBefore + attempts)
-  expect(await seedsDrawn(page)).toBe(seedsBefore + attempts)
+  expect(await seedsDrawn(page)).toBe(seedsBefore)
 }
 
 /**

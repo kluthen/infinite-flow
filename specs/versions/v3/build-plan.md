@@ -1604,6 +1604,23 @@ session-wide record), the harness's queued-seed seam; tests under `tests/unit/se
 
 **Verification:** the chunk checks; the sweep at the wave gate.
 
+**Record (2026-10-11).** Merged into `v3.0-w1`. `documentalist` captured `module_session_seed_plan`
+(DRAFT) first; no status advanced. The Idle session draws one session seed, from its own provider
+apart from the phrase seeds', each time a fit run publishes a phrase 1 (one draw however many fit
+attempts it took); re-showing that phrase 1 keeps it. Every later seed is the session seed XOR the
+FNV-1a hash of a versioned label (`session-seed-plan-v1:phrase:<n>:rung:<r>` per phrase and ladder
+rung, `session-seed-plan-v1:settings-mutation`), in `src/session/session-seed-plan.ts`: a session
+draws no seed. A skipped rung's seed is simply unused, so the standalone attempt and the next
+phrase keep theirs however many rungs ran, at any tempo (the Done-when's "consumes its seed
+exactly as before" holds in that sense: nothing after the skip changes); a phrase requested again after a settings
+change gets the same rung seeds. Request ids stay drawn from the page-wide provider, so they stay
+unique, and a skipped rung still discards its request id. The session history holds the session
+seed from Start (`SessionHistory.sessionSeed`), with nothing derived from it. The workspace harness
+gains `queueSessionSeeds` / `sessionSeedsDrawn` and the two derivations; the e2e specs that queued
+a session's seeds now queue a session seed (for a fixed label the derivation is its own inverse).
+The export hand-check files were regenerated because their later phrases changed: their hand
+checks need redoing. The `ifk1.` corpus passes unchanged.
+
 ### Chunk 24 — Pre-generation at Idle
 
 **Architecture capture:** the Idle background queue on the one generation worker.
