@@ -1,6 +1,6 @@
 # Music Research Sources
 
-Status: draft v0.3 (v3 research sources S18-S99 and S100-S115 merged 2026-10-07)
+Status: draft v0.4 (v3 research sources S18-S99 and S100-S115 merged 2026-10-07; v4 research sources S120–S194 merged 2026-10-11)
 
 ## How To Use This Record
 
@@ -31,7 +31,7 @@ This is a retained research trail for later generator design and player document
   - Applied in: neutral profile high-tension candidate rule.
 - **S7 - Rules of melody.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/RulesOfMelody.html
   - Useful for: conservative defaults for stepwise motion, accountable leaps, recovery after large intervals, and contour.
-  - Applied in: neutral pitch and contour rules. Its common-practice focus means it is a default, not a universal restriction.
+  - Applied in: neutral pitch and contour rules; [arranging and accompaniment roles](arranging-and-roles.md): counter-melody, the minimum voice-leading rule set. Its common-practice focus means it is a default, not a universal restriction.
 
 ## Rhythm and Jazz Vocabulary
 
@@ -164,7 +164,7 @@ These back the [mutation catalogue](mutation-catalogue.md), research for the mut
 
 - **S40 - Motive.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/MotiveSection.html
   - Useful for: the definition of a motive as the smallest identifiable melodic idea.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): the purpose, the motif lexicon entry.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): the purpose, the motif lexicon entry; [arranging and accompaniment roles](arranging-and-roles.md): the usual stages (material).
 - **S41 - Melodic alteration.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/MelodicAlteration.html
   - Useful for: the standard list of motif changes (inversion real and tonal, intervallic change, augmentation and diminution, rhythmic change, ornamentation, extension, retrograde) and the note that sequence is too common to count as one.
   - Applied in: [mutation catalogue](mutation-catalogue.md): most motif-development entries.
@@ -173,7 +173,7 @@ These back the [mutation catalogue](mutation-catalogue.md), research for the mut
   - Applied in: [mutation catalogue](mutation-catalogue.md): fragmentation entries.
 - **S43 - The sentence.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/SentenceStructure.html
   - Useful for: a phrase whose opening idea is repeated or sequenced before the music moves on.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): repetition and sequence.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): repetition and sequence; [arranging and accompaniment roles](arranging-and-roles.md): the usual stages (development).
 - **S44 - Anticipation (non-chord tone).** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/Anticipation.html
   - Useful for: the harmony meaning of anticipation, distinct from the rhythmic push.
   - Applied in: [mutation catalogue](mutation-catalogue.md): the anticipation entry and lexicon entry.
@@ -200,7 +200,7 @@ These back the [mutation catalogue](mutation-catalogue.md), research for the mut
   - Applied in: [mutation catalogue](mutation-catalogue.md): augmentation and diminution.
 - **S52 - Call and response (music).** Wikipedia: https://en.wikipedia.org/wiki/Call_and_response_(music)
   - Useful for: the definition, its African and African-American roots, antiphony, the question-and-answer form.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): call and response.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): call and response; [arranging and accompaniment roles](arranging-and-roles.md): call and response, answering, trading.
 - **S53 - Dowling, recognition of melodic transformations.** W. J. Dowling, "Recognition of melodic transformations: Inversion, retrograde, and retrograde inversion", _Perception & Psychophysics_ 12(5), 1972, 417 ff.: https://labs.utdallas.edu/mpac/files/2021/03/1972.pdf
   - Useful for: all three recognized above chance in easier conditions, difficulty rising from inversion to retrograde to retrograde inversion; no distinction between exact and contour-only versions.
   - Applied in: [mutation catalogue](mutation-catalogue.md): recognizability fields, the "not in the first list" group.
@@ -215,10 +215,10 @@ These back the [mutation catalogue](mutation-catalogue.md), research for the mut
   - Applied in: [mutation catalogue](mutation-catalogue.md): the distance scale.
 - **S57 - Pachet, the Continuator.** F. Pachet, "The Continuator: Musical interaction with style", _Journal of New Music Research_ 32(3), 2003, 333–341: https://www.francoispachet.fr/?p=4360
   - Useful for: a system that continues what a musician just played, in their style; the nearest prior art to Jam.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): call and response, Jam framing.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): call and response, Jam framing; [accompaniment systems](accompaniment-systems.md): prior art.
 - **S58 - Biles, GenJam.** J. A. Biles, "GenJam: A genetic algorithm for generating jazz solos", _Proceedings of the International Computer Music Conference_, 1994; papers list: https://genjam.org/al-biles/genjam-the-genetic-jammer/genjam-papers/
   - Useful for: "musically meaningful" mutation operators on measures (reverse, rotate, invert, sort, transpose), designed not to destroy musical structure.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): rhythmic retrograde, rotation; the idea of a curated mutation list.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): rhythmic retrograde, rotation; the idea of a curated mutation list; [accompaniment systems](accompaniment-systems.md): prior art.
 - **S59 - Fernández and Vico, survey.** J. D. Fernández and F. Vico, "AI methods in algorithmic composition: A comprehensive survey", _Journal of Artificial Intelligence Research_ 48, 2013: https://arxiv.org/abs/1402.0585
   - Useful for: independent description of GenJam's measure mutations and of musically meaningful operators in evolutionary composition.
   - Applied in: [mutation catalogue](mutation-catalogue.md): cross-check of S58.
@@ -291,16 +291,16 @@ These back [played-pattern recognition](played-pattern-recognition.md), research
 
 - **S80 - Call and response (music).** Wikipedia: https://en.wikipedia.org/wiki/Call_and_response_(music)
   - Useful for: the definition of call and response, its African origins, the master drummer's coordinating pattern, and its place in blues, gospel, jazz and soul.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `call-and-response` lexicon entry.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `call-and-response` lexicon entry; [accompaniment systems](accompaniment-systems.md): roles in practice.
 - **S81 - Trading fours.** Wikipedia, Drum solo: https://en.wikipedia.org/wiki/Drum_solo and A Way with Words, "trade fours": https://www.waywordradio.org/trade_fours_1/
   - Useful for: alternating four-bar solos, and the variants (eights, twelves, twos, single bars, choruses).
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary and jam-practice sections, the turn-by-form argument, the `trading-fours` lexicon entry.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary and jam-practice sections, the turn-by-form argument, the `trading-fours` lexicon entry; [arranging and accompaniment roles](arranging-and-roles.md): call and response, answering, trading; [accompaniment systems](accompaniment-systems.md): roles in practice, endgame mapping.
 - **S82 - Motif, leitmotif and cue notes.** Wikipedia: https://en.wikipedia.org/wiki/Motif_(music) and https://en.wikipedia.org/wiki/Cue_note
   - Useful for: the motif as the smallest unit with thematic identity, the leitmotif as a motif tied to a person or idea, and cue notes as entrance hints after long rests.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `motif`, `leitmotif` and `cue` lexicon entries.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `motif`, `leitmotif` and `cue` lexicon entries; [arranging and accompaniment roles](arranging-and-roles.md): characters; [accompaniment systems](accompaniment-systems.md): endgame mapping, showing several voices (cue notes).
 - **S83 - Lick, riff and head.** Wikipedia: https://en.wikipedia.org/wiki/Lick_(music), https://en.wikipedia.org/wiki/Riff and https://en.wikipedia.org/wiki/Head_(music)
   - Useful for: the lick as stock vocabulary, the riff as a repeated figure (and big-band riff exchanges), the head and the head-solos-head form, and the head-pat signal.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `lick`, `riff` and `head` lexicon entries.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `lick`, `riff` and `head` lexicon entries; [arranging and accompaniment roles](arranging-and-roles.md): the variety across traditions.
 - **S84 - Jam session hand signals.** Sonicbids blog, "8 Jam Session Hand Signals That Every Musician Should Know": https://blog.sonicbids.com/8-jam-session-hand-signals-musicians
   - Useful for: how players cue solos, the head, trading fours and endings with gestures.
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary and jam-practice sections. A practitioner blog, not a reference work.
@@ -315,31 +315,31 @@ These back [played-pattern recognition](played-pattern-recognition.md), research
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, framing, discoverability, player-defined signals. The Zelda Wiki page refused direct access; its content was read through search summaries.
 - **S88 - _Patapon_.** Wikipedia: https://en.wikipedia.org/wiki/Patapon
   - Useful for: four-drum, four-beat commands on a visible beat, the sung-back confirmation, and the combo and fever lost off the beat.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, beat framing, feedback, the endgame needs.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, beat framing, feedback, the endgame needs; [accompaniment systems](accompaniment-systems.md): what the systems do with a live player, rhythm games, endgame mapping.
 - **S89 - _Loom_.** Wikipedia: https://en.wikipedia.org/wiki/Loom_(video_game)
   - Useful for: four-note drafts on a C-to-C scale, learning by observation, reversed drafts, per-game randomisation and the no-labels Expert level.
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, discoverability.
 - **S90 - _PaRappa the Rapper_.** Wikipedia: https://en.wikipedia.org/wiki/PaRappa_the_Rapper
   - Useful for: call and response with a teacher, the Good/Bad/Awful/Cool rating, and freestyle that flips into Cool mode.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the endgame outcomes discussion.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the endgame outcomes discussion; [accompaniment systems](accompaniment-systems.md): what the systems do with a live player.
 - **S91 - _Rock Band_ and _Guitar Hero_.** Wikipedia: https://en.wikipedia.org/wiki/Rock_Band and https://en.wikipedia.org/wiki/Guitar_Hero_(video_game)
   - Useful for: freestyle drum fills closed by a crash to trigger Overdrive, the Big Rock Ending, and Star Power triggered by tilting the guitar.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the separate-channel frame.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the separate-channel frame; [accompaniment systems](accompaniment-systems.md): how notation shows melody and accompaniment.
 - **S92 - _Theatrhythm Final Fantasy_.** Wikipedia: https://en.wikipedia.org/wiki/Theatrhythm_Final_Fantasy
   - Useful for: tap, slide and hold triggers, battle stages where timing deals damage, and reviews of its RPG layer.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the endgame outcomes discussion.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the endgame outcomes discussion; [accompaniment systems](accompaniment-systems.md): rhythm games, endgame mapping.
 - **S93 - The Continuator, system paper.** François Pachet, "Interacting with a Musical Learning System: The Continuator", ICMAI 2002: https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-02-icmai-final.pdf
   - Useful for: the phrase-end detection thread and its threshold, and the hierarchy of reduction functions (pitch, pitch regions) used when an exact match fails.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, matching approaches.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, matching approaches; [accompaniment systems](accompaniment-systems.md): prior art, Markov models, what the systems do with a live player, what is cheap and robust.
 - **S94 - The Continuator with children.** Anna Rita Addessi and François Pachet, "Experiments with a musical machine: musical style replication in 3 to 5 year old children", British Journal of Music Education 22(1), 2005, DOI 10.1017/S0265051704005972: https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-04j.pdf
   - Useful for: the three turn-taking rules (a silence threshold of about 400 ms, an answer as long as the phrase, the player's priority) and children learning them implicitly.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, the silence frame, the "your turn" recommendation.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, the silence frame, the "your turn" recommendation; [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, what is cheap and robust.
 - **S95 - GenJam trading fours.** John A. Biles, "Interactive GenJam: Integrating Real-Time Performance with a Genetic Algorithm", International Computer Music Conference: https://genjam.org/wp-content/uploads/2019/07/bilesicmc98.pdf
   - Useful for: trading fours with a human through pitch-to-MIDI, the per-slot filter for noisy input, and a human mentor's "good"/"bad" feedback training the system's taste.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, stray notes, the never-penalize discussion, the endgame needs.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, stray notes, the never-penalize discussion, the endgame needs; [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, what is cheap and robust.
 - **S96 - Score following.** Wikipedia: https://en.wikipedia.org/wiki/Score_following ; Roger B. Dannenberg, "An On-Line Algorithm for Real-Time Accompaniment", ICMC 1984: https://hdl.handle.net/2027/spo.bbp2372.1984.025
   - Useful for: tracking a live player in a known score, and dynamic-programming matching that tolerates wrong, extra and missing notes.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, tolerant matching.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, tolerant matching; [accompaniment systems](accompaniment-systems.md): prior art, what is cheap and robust.
 - **S97 - Query by humming and contour codes.** Asif Ghias, Jonathan Logan, David Chamberlin and Brian C. Smith, "Query By Humming", ACM Multimedia 1995: https://www.cs.cornell.edu/zeno/papers/humming/humming.html ; Wikipedia, Parsons code: https://en.wikipedia.org/wiki/Parsons_code
   - Useful for: up/down/same contour matching with k mismatches, 10–12 steps to tell apart 90% of 183 songs, and the 23% share of the "up, up" opening.
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): contour-only matching, accidental-trigger reasoning.
@@ -403,4 +403,239 @@ These back the [preset catalogue](preset-catalogue.md), research for the v3.1 bu
   - Useful for: repetition, process, steady pulse, consonant diatonic harmony with slow harmonic rhythm.
   - Applied in: [preset catalogue](preset-catalogue.md): Considered, not proposed.
 
-Licence note: Music Theory for the 21st-Century Classroom (S1-S7, S9-S10, S18-S24, S40-S44) is © 2017 Robert Hutchinson and distributed under the GNU Free Documentation License, version 1.2 or later. Open Music Theory (S8, S8a, S14, S25, S45-S48, S113-S114) is CC BY-SA. The project cites both for verification and does not reproduce their text.
+## Arranging and Accompaniment Roles (v4)
+
+These back [arranging and accompaniment roles](arranging-and-roles.md), research for v4's accompaniment with roles and the endgame's system voices, and its lexicon entries. S130, S131, S137, S143, S148, S159 and S161 are also cited by [accompaniment systems and adaptive music](accompaniment-systems.md). All URLs were checked on 2026-10-11; Britannica, VIVA Pressbooks, the DOI targets and the Owsinski blog refused automated requests, so their content was confirmed through search results or a fetch tool, and the DOIs as registered. Reference only; no text copied.
+
+- **S120 - Arrangement.** Wikipedia: https://en.wikipedia.org/wiki/Arrangement
+  - Useful for: arrangement versus orchestration; what arrangers change (reharmonization, added introductions and endings, instrumentation); head arrangements versus written charts in jazz.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): composer, arranger, orchestrator; the arrangement lexicon entry.
+- **S121 - Head arrangement.** Wikipedia: https://en.wikipedia.org/wiki/Head_arrangement
+  - Useful for: the head arrangement as a memorized, unwritten arrangement worked out by the players; Count Basie's early band.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the variety across traditions.
+- **S122 - Big band.** Wikipedia: https://en.wikipedia.org/wiki/Big_band
+  - Useful for: the swing-era chart form (melody chorus, choruses of development, shout chorus, introductions and interludes).
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the usual stages (form).
+- **S123 - Collins, creative thinking in composition.** Dave Collins, "A synthesis process model of creative thinking in music composition", _Psychology of Music_ 33(2), 193–216 (2005): https://doi.org/10.1177/0305735605050651
+  - Useful for: evidence that composing is chunked at micro and macro levels and proceeds recursively, not linearly.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the usual stages, top-down and bottom-up.
+- **S124 - Texture.** Mark Gotham et al., Open Music Theory 2e, LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/01%3A_Fundamentals/1.20%3A_Texture
+  - Useful for: monophony, heterophony, homophony (homorhythm, melody and accompaniment) and polyphony; texture changing within a piece.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): texture; the texture lexicon entries.
+- **S125 - Heterophony.** Encyclopaedia Britannica: https://www.britannica.com/art/heterophony (and Wikipedia: https://en.wikipedia.org/wiki/Heterophony)
+  - Useful for: heterophony as simultaneous variants of one tune; gamelan and folk examples.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): texture, heterophonic doubling; the heterophony lexicon entry.
+- **S126 - Homophony.** Encyclopaedia Britannica: https://www.britannica.com/art/homophony-music
+  - Useful for: homophony versus polyphony; the top line standing out over chords.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): texture; the homophony lexicon entry.
+- **S127 - Texture in pop music.** Megan Lavengood, Open Music Theory 2e, VIVA Pressbooks, CC BY-SA: https://viva.pressbooks.pub/openmusictheory/chapter/texture-in-pop-music/
+  - Useful for: Moore's functional layers (explicit beat, functional bass, harmonic filler, melodic) and the novelty layer; why classical texture terms fit pop poorly.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): texture, pad, bass roles, groove and drums, balance and density; the functional-layer lexicon entry.
+- **S128 - Lavengood, the novelty layer.** Megan L. Lavengood, "The Cultural Significance of Timbre Analysis: A Case Study in 1980s Pop Music, Texture, and Narrative", _Music Theory Online_ 26(3) (2020): https://doi.org/10.30535/mto.26.3.3
+  - Useful for: the novelty layer's definition (opposition to the melody, call and response, interjections in the melody's gaps); marked versus blending timbres.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): texture, fills, call and response, groove, balance and density, antagonists.
+- **S129 - Rimsky-Korsakov, _Principles of Orchestration_.** Nikolay Rimsky-Korsakov, ed. Maximilian Steinberg, trans. Edward Agate, Project Gutenberg (public domain): https://www.gutenberg.org/ebooks/33900
+  - Useful for: "melody should always stand out in relief from the accompaniment" and the means to do it; sections on melody in unison, octaves, thirds and sixths.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the usual stages (orchestration), unison and octave doubling, parallel thirds and sixths, balance and density; the doubling lexicon entry.
+- **S130 - Countermelody.** Wikipedia: https://en.wikipedia.org/wiki/Countermelody
+  - Useful for: the counter-melody as a distinct, subordinate melody played with the lead, which makes the texture polyphonic; marches giving it to trombones and horns.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): counter-melody; [accompaniment systems](accompaniment-systems.md): terms, roles in practice, the recommended family; the counter-melody lexicon entry.
+- **S131 - Comping (jazz).** Wikipedia: https://en.wikipedia.org/wiki/Comping_(jazz)
+  - Useful for: comping's definition, rhythm and voicings (3rds and 7ths, rootless); playing "in the space left by the soloist"; guide-tone lines; hits behind drum solos; Basie's sparse versus Peterson's busy comping.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): guide-tone line, comping, stabs, balance and density; [accompaniment systems](accompaniment-systems.md): terms, roles in practice, what is cheap and robust, the recommended family; the comping and guide-tone lexicon entries.
+- **S132 - Walking bass.** Wikipedia: https://en.wikipedia.org/wiki/Walking_bass
+  - Useful for: walking bass as steady quarter notes through scale tones, chord tones and chromatic passing notes; pedal points in bass playing.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): bass roles; the walking-bass lexicon entry.
+- **S133 - Building walking bass lines.** Matt Warnock, Fundamental Changes: https://www.fundamental-changes.com/walking-basslines-on-guitar/
+  - Useful for: the four-step teaching recipe (root on beat 1, chromatic approach on beat 4, second approach or enclosure on beat 3, diatonic note on beat 2). A teaching site, consistent with others.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): bass roles.
+- **S134 - Pedal point.** Wikipedia: https://en.wikipedia.org/wiki/Pedal_point
+  - Useful for: pedal points on tonic and dominant, inverted and inner pedals, the tension they create, the pedal versus the drone.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): pedal point and drone, bass roles; the pedal-point lexicon entry.
+- **S135 - Drone.** Wikipedia: https://en.wikipedia.org/wiki/Drone_(music)
+  - Useful for: the drone as a continuous tonic or fifth that fixes the tonal centre; rustic and archaic associations of open fifths.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): pedal point and drone, locations; the drone lexicon entry.
+- **S136 - Ostinato.** Wikipedia: https://en.wikipedia.org/wiki/Ostinato
+  - Useful for: ostinato, riff, vamp and ground bass as one family; ostinatos confirming a modal centre.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): ostinato, riff and vamp; the riff lexicon entry.
+- **S137 - Fill.** Wikipedia: https://en.wikipedia.org/wiki/Fill_(music)
+  - Useful for: the fill as a short passage in a gap between melodic phrases, where nothing else is happening, often marking a phrase's end; instruments that play fills.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): fills, balance and density; [accompaniment systems](accompaniment-systems.md): terms, roles in practice, the recommended family; the fill lexicon entry.
+- **S138 - Stab.** Wikipedia: https://en.wikipedia.org/wiki/Stab_(music)
+  - Useful for: stabs and orchestra hits as short punctuating chords; silence between hits as tension and release.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): stabs, hits and kicks, balance and density; the stab lexicon entry.
+- **S139 - Backbeat.** Wikipedia: https://en.wikipedia.org/wiki/Backbeat
+  - Useful for: the backbeat on beats 2 and 4, usually on the snare.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): groove and drums; the backbeat lexicon entry.
+- **S140 - Canon.** Wikipedia: https://en.wikipedia.org/wiki/Canon_(music)
+  - Useful for: canon, leader and follower, strict and free imitation, the round; imitation as the broader practice.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): echo, imitation and canon; the imitation lexicon entry.
+- **S141 - Impro-Visor Style Editor.** Bob Keller, "Using the Impro-Visor Style Editor" (Harvey Mudd College, 2012): https://www.cs.hmc.edu/~keller/jazz/improvisor/StyleEditorTutorial.pdf
+  - Useful for: generating bass, comping and drum parts from a chord progression with weighted patterns; bass note categories (bass note, chord tone, scale tone, chromatic approach to the next bass note); pushed (anticipated) patterns.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): comping, bass roles, groove and drums.
+- **S142 - Band-in-a-Box.** PG Music: https://www.pgmusic.com/
+  - Useful for: precedent for generating a full accompaniment (piano, bass, drums, guitar, strings or horns) from chord symbols and a style.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): comping.
+- **S143 - Coconet.** Magenta, "Coconet: the ML model behind today's Bach Doodle": https://magenta.tensorflow.org/coconet ; Cheng-Zhi Anna Huang et al., "Counterpoint by Convolution", ISMIR 2017: https://arxiv.org/abs/1903.07227
+  - Useful for: machine-learned multi-voice (Bach chorale) generation that harmonises a melody in four voices by filling in erased notes, run in the browser with TensorFlow.js; a contrast to rule-based generation. Not read in depth.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): how this was gathered (generation precedent); [accompaniment systems](accompaniment-systems.md): prior art, neural models.
+- **S144 - Types of motion.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/TypesOfMotion.html
+  - Useful for: contrary, oblique, similar and parallel motion.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): counter-melody, motion types, the minimum rule set; the types-of-motion lexicon entry.
+- **S145 - Objectionable parallels.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/ObjectionableParallels.html
+  - Useful for: which parallels classical part-writing avoids (fifths, octaves, unisons) and why; parallel 3rds and 6ths acceptable.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): parallel thirds and sixths, which parallels matter, the minimum rule set; the parallel-fifths-and-octaves lexicon entry.
+- **S146 - Rules of spacing.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/RulesOfSpacing.html
+  - Useful for: adjacent upper voices within an octave; the bass may be further away.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): pad, the minimum rule set; the voicing lexicon entry.
+- **S147 - Consecutive fifths.** Wikipedia: https://en.wikipedia.org/wiki/Consecutive_fifths
+  - Useful for: why parallel fifths and octaves are avoided, and where they are not (power chords, folk styles, octave doubling in orchestration).
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): unison and octave doubling, which parallels matter, the minimum rule set; the parallel-fifths-and-octaves lexicon entry.
+- **S148 - Huron, _Tone and Voice_.** David Huron, "Tone and Voice: A Derivation of the Rules of Voice-Leading from Perceptual Principles", _Music Perception_ 19(1), 1–64 (2001): https://doi.org/10.1525/mp.2001.19.1.1
+  - Useful for: deriving voice-leading rules from hearing (pitch proximity, minimum masking, tonal fusion, among others), and so how a contrasting voice should stay apart and a highlighting voice may fuse. Principles cited from the abstract and secondary summaries; read the paper before relying on details.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): voice-leading minimum rules; [accompaniment systems](accompaniment-systems.md): rule-based generation, roles in practice, the recommended family; the voice-leading lexicon entry.
+- **S149 - Huron, avoidance of part-crossing.** David Huron, "The Avoidance of Part-Crossing in Polyphonic Music: Perceptual Evidence and Musical Practice", _Music Perception_ 9(1), 93–103 (1991): https://doi.org/10.2307/40286160
+  - Useful for: listeners lose track of crossing streams; Bach avoids crossings more in denser textures.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): counter-melody, the minimum rule set.
+- **S150 - Huron, note-onset asynchrony.** David Huron, "Note-Onset Asynchrony in J. S. Bach's Two-Part Inventions", _Music Perception_ 10(4), 435–443 (1993): https://doi.org/10.2307/40285582
+  - Useful for: Bach keeps simultaneous onsets below chance; asynchronous onsets help listeners separate voices (complementary rhythm).
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): counter-melody, the minimum rule set, balance and density.
+- **S151 - Huron, voice denumerability.** David Huron, "Voice Denumerability in Polyphonic Music of Homogeneous Timbres", _Music Perception_ 6(4), 361–382 (1989): https://doi.org/10.2307/40285438
+  - Useful for: listeners count up to three concurrent voices well, and under-count from four on.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): balance and density.
+- **S152 - Arrangement rules.** Bobby Owsinski, blog post: https://bobbyowsinskiblog.com/arrangement-rules/
+  - Useful for: a producer's rules of thumb: no more than four elements at once; each instrument in its own frequency range, octave or time. A practitioner blog.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): balance and density.
+- **S153 - Arranging for Horns (course outline).** Berklee Online: https://online.berklee.edu/courses/arranging-for-horns
+  - Useful for: background lines built from common tones and 3rds and 7ths leading to target notes; spread voicings to support a soloist.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the variety across traditions, counter-melody, guide-tone line.
+- **S154 - "Carmelo's by the Freeway", chart notes.** Jazz Lines Publications (Bob Florence, arr.): https://ejazzlines.com/carmelos-by-the-freeway-arranged-by-bob-florence
+  - Useful for: a concrete example of soloist backgrounds: short hits on the A sections, sustained pads on the bridges. Publisher's product notes, a weak but concrete source.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the variety across traditions, pad, stabs, balance and density; the pad lexicon entry.
+- **S155 - Leitmotif.** Encyclopaedia Britannica: https://www.britannica.com/art/leitmotif
+  - Useful for: the leitmotif as a recurring theme tied to a character or dramatic element, and its association with Wagner.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters; the leitmotif lexicon entry.
+- **S156 - _Peter and the Wolf_.** Wikipedia: https://en.wikipedia.org/wiki/Peter_and_the_Wolf (and Britannica: https://www.britannica.com/topic/Peter-and-the-Wolf)
+  - Useful for: one instrument and manner per character; the work's purpose of teaching children to recognize instruments.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters, antagonists.
+- **S157 - _Star Wars_ themes.** Frank Lehman, "Complete Catalogue of the Musical Themes of Star Wars": https://www.franklehman.com/starwars ; and Tufts Now, "Professor Turns to the Dark Side" (2018): https://now.tufts.edu/2018/01/12/professor-turns-dark-side
+  - Useful for: a modern leitmotif catalogue; several leitmotifs for one conflicted character; chromatic harmony marking villainy.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters, antagonists.
+- **S158 - Music of _Final Fantasy VI_.** Wikipedia: https://en.wikipedia.org/wiki/Music_of_Final_Fantasy_VI
+  - Useful for: character themes in an RPG score (the playable characters each have one).
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters.
+- **S159 - Adaptive music.** Wikipedia: https://en.wikipedia.org/wiki/Adaptive_music
+  - Useful for: vertical layering and horizontal re-sequencing; crossfade, phrase-branching and bridge transitions; _Dead Space 2_'s layered score; generative examples.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the variety across traditions, texture, team, actions; [accompaniment systems](accompaniment-systems.md): the vocabulary of adaptive music, what a symbolic generator changes, endgame mapping; the vertical-layering lexicon entry.
+- **S160 - Ground BGM (_Super Mario World_).** Super Mario Wiki: https://www.mariowiki.com/Ground_BGM_(Super_Mario_World)
+  - Useful for: one theme rearranged for many locations; the bongo layer added while riding Yoshi.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): team, locations.
+- **S161 - Sting (musical phrase).** Wikipedia: https://en.wikipedia.org/wiki/Sting_(musical_phrase)
+  - Useful for: the sting or stinger as a short punctuating phrase marking an event, a scene end or a climax, in broadcasting and film.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): actions; [accompaniment systems](accompaniment-systems.md): terms, the vocabulary of adaptive music; the stinger lexicon entry.
+
+## Accompaniment Systems and Adaptive Music (v4)
+
+These back [accompaniment systems and adaptive music](accompaniment-systems.md), research for v4's accompaniment with roles and the endgame, and its lexicon entries. Sources shared with the arranging research keep their id from the block above: S130 (countermelody), S131 (comping), S137 (fill), S143 (Coconet), S148 (Huron, _Tone and Voice_), S159 (adaptive music) and S161 (sting). The software sources of the [sound library survey](../sound-library-survey.md#sources) stay local to that survey and are not registered here. All URLs were read on 2026-10-11; Audiokinetic's Wwise help and course pages and FMOD's manual refused automated readers, and the GDC Vault pages give abstracts only. Reference only; no text copied.
+
+- **S162 - Band-in-a-Box StyleMaker.** PG Music, Band-in-a-Box 2026 for Windows manual, chapter 14: https://www.pgmusic.com/manuals/bbw2026full/chapter14.htm ; "Using the Band-in-a-Box Stylemaker, Part I": https://www.pgmusic.com/tutorial_stylemaker1.htm
+  - Useful for: patterns recorded over C7 and transposed, 8/4/2/1-beat rows, A and B sub-styles, fills, weights 1–8, masks by bar, chord type and next chord, "transpose only" and "riff based" voice leading, and the "random pattern player" description.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, style templates, the recommended family.
+- **S163 - Band-in-a-Box RealTracks.** PG Music, Band-in-a-Box 2026 manual, chapter 7: https://www.pgmusic.com/manuals/bbw2026full/chapter7.htm
+  - Useful for: recorded audio tracks that follow entered chords, as the audio counterpart to MIDI styles.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art.
+- **S164 - iReal Pro backing track styles.** iReal Pro help, "Backing track styles": https://www.irealpro.com/learn/accompaniment-styles
+  - Useful for: styles as recorded performances, fills into double and final bar lines "most times rather than every time", pattern sets per chorus, and swing pattern sets chosen by tempo.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, style templates.
+- **S165 - Impro-Visor.** Robert M. Keller, Harvey Mudd College, home and uses pages: https://www.cs.hmc.edu/~keller/jazz/improvisor/ and https://www.cs.hmc.edu/~keller/jazz/improvisor/uses.html ; Wikipedia: https://en.wikipedia.org/wiki/Impro-Visor
+  - Useful for: accompaniment generated from a lead sheet's chords with user-definable styles, a probabilistic grammar for solos, and passive trading that "does not react to what the soloist is playing".
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, style templates.
+- **S166 - Active trading with Impro-Visor.** Zachary Kondak, Mikayla Konst, Carli Lessard, David Siah and Robert M. Keller, "Active Trading with Impro-Visor", MUME 2016: http://musicalmetacreation.org/mume2016/proceedings/Kondak_Impro_Visor.pdf
+  - Useful for: trading modes (repeat and rectify, modify and rectify, abstract melody, transform, grammar solo), rectification onto chord tones, trade length and who starts, and the companion-versus-tutor distinction.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, what is cheap and robust, endgame mapping, open questions.
+- **S167 - OMax, factor oracles.** Gérard Assayag and Shlomo Dubnov, "Using Factor Oracles for Machine Improvisation", Soft Computing 8(9), 2004, DOI 10.1007/s00500-004-0385-4: https://doi.org/10.1007/s00500-004-0385-4
+  - Useful for: variable Markov models and the factor oracle as the basis of OMax's style learning.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, Markov models.
+- **S168 - Somax2.** IRCAM REACH project page: https://reach.ircam.fr/index.php/2024/01/27/somax2/
+  - Useful for: a corpus-trained, listening, multi-agent co-improviser in Max and Python, and its "agreement, discord or independence" interplay.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, endgame mapping.
+- **S169 - Music Plus One.** Christopher Raphael, "Demonstration of Music Plus One", ISMIR 2004: https://archives.ismir.net/ismir2004/paper/000176.pdf ; "A Bayesian Network for Real-Time Musical Accompaniment", NIPS 2001: https://papers.nips.cc/paper_files/paper/2001/hash/2b0f658cbffd284984fb11d90254081f-Abstract.html
+  - Useful for: Listen (HMM score following), Predict (timing learnt in rehearsals) and Synthesize (phase-vocoded orchestral recording).
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, what is cheap and robust.
+- **S170 - Magenta sequence models.** Adam Roberts et al., "A Hierarchical Latent Vector Model for Learning Long-Term Structure in Music" (MusicVAE), 2018: https://arxiv.org/abs/1803.05428 ; Magenta, "Performance RNN": https://magenta.tensorflow.org/performance-rnn ; Chris Donahue, Ian Simon and Sander Dieleman, "Piano Genie", 2018: https://arxiv.org/abs/1810.05246
+  - Useful for: what neural melody, performance and simplified-input models do.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, neural models.
+- **S171 - Magenta in the browser.** Magenta web demos: https://magenta.tensorflow.org/demos/web/ ; MusicVAE 4-bar small weights manifest: https://storage.googleapis.com/magentadata/js/checkpoints/music_vae/mel_4bar_small_q2/weights_manifest.json
+  - Useful for: browser demos (A.I. Duet, DrumBot, Piano Genie) and model sizes; the parameter counts are the author's arithmetic from the manifests (mel_4bar_small_q2, mel_2bar_small, coconet/bach).
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, neural models.
+- **S172 - A.I. Duet.** Google Creative Lab, source repository: https://github.com/googlecreativelab/aiexperiments-ai-duet
+  - Useful for: a call-and-response piano experiment whose browser client sends the player's MIDI to a server that continues it.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player.
+- **S173 - Magenta RealTime and Lyria RealTime.** Magenta, "Magenta RealTime": https://magenta.tensorflow.org/magenta-realtime ; Lyria Team, "Live Music Models", 2025: https://arxiv.org/abs/2508.04651
+  - Useful for: live audio generation in 2-second chunks with an 800-million-parameter model on a TPU, steered by prompts; why it does not fit a symbolic, offline app.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, neural models.
+- **S174 - MySong.** Ian Simon, Dan Morris and Sumit Basu, "MySong: Automatic Accompaniment Generation for Vocal Melodies", CHI 2008: https://www.microsoft.com/en-us/research/uploads/prod/2016/02/mysongchi2008.pdf ; project page: https://www.microsoft.com/en-us/research/project/mysong/
+  - Useful for: an HMM choosing one chord per measure, the "happy factor" and "jazz factor" sliders for non-musicians, under-5 ms re-choice, and Band-in-a-Box as the band renderer.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, Markov models.
+- **S175 - Hookpad and Aria.** Hooktheory, Hookpad: https://www.hooktheory.com/hookpad ; Aria: https://hooktheory.com/hookpad/aria ; Chris Donahue et al., "Hookpad Aria: A Copilot for Songwriters", ISMIR 2024 late-breaking demo: https://ismir2024program.ismir.net/lbd_489.html
+  - Useful for: chord suggestions ranked by popularity, and a transformer that proposes alternatives within a selection.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art.
+- **S176 - Steedman's jazz grammar.** Mark J. Steedman, "A Generative Grammar for Jazz Chord Sequences", Music Perception 2(1), 1984: https://homepages.inf.ed.ac.uk/steedman/papers/music/40285282.pdf ; Marc Chemillier, "Toward a formal study of jazz chord sequences generated by Steedman's grammar", Soft Computing 8, 2004: https://ehess.modelisationsavoirs.fr/atiam/biblio/Chemillier-SoftC-steedman2004.pdf
+  - Useful for: chord substitution as rewrite rules, and incremental generation for real-time improvisation systems.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art.
+- **S177 - David Cope and EMI.** Computer History Museum, "Algorithmic Music: David Cope and EMI": https://computerhistory.org/blog/algorithmic-music-david-cope-and-emi/
+  - Useful for: style imitation by analysing a composer's works, and "signatures" as recurring style markers.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art.
+- **S178 - Harmonisation with constraints.** François Pachet and Pierre Roy, "Musical Harmonization with Constraints: A Survey", Constraints 6(1), 2001: https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-01-Musical_Harmonization_with_Constraints.pdf
+  - Useful for: harmonisation as constraint satisfaction, and the need to structure the problem to keep the search feasible.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, constraint satisfaction.
+- **S179 - Markov constraints.** François Pachet and Pierre Roy, "Markov constraints: steerable generation of Markov sequences", Constraints 16(2), 2011: https://link.springer.com/article/10.1007/s10601-010-9101-4
+  - Useful for: user controls as constraints on Markov generation, and its cost against greedy generation.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, constraint satisfaction.
+- **S180 - iMUSE.** Wikipedia: https://en.wikipedia.org/wiki/IMUSE ; Michael Z. Land and Peter N. McConnell, US patent 5,315,057: https://patents.google.com/patent/US5315057A/en
+  - Useful for: decision points, hooks and markers; turning parts on and off and transposing them; jumps to transition passages at "aesthetically correct" points; _Monkey Island 2_'s instrument changes.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): the vocabulary of adaptive music, what a symbolic generator changes, endgame mapping.
+- **S181 - Wwise interactive music.** Audiokinetic, "Wwise Tutorial 13 - Creating Stingers": https://www.audiokinetic.com/learn/videos/fLrz463kVEI ; Wwise-201 course, "Configuring a Music Switch Container": https://www.audiokinetic.com/en/courses/wwise201/?id=configuring_music_switch_container
+  - Useful for: stingers as brief phrases superimposed on the current music by a trigger, and switch containers with transition rules that fit the music to "the current mode of gameplay". The course page refuses automated readers; its wording comes from a search summary.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): terms, the vocabulary of adaptive music, endgame mapping; the stinger lexicon entry.
+- **S182 - _Spore_'s generative music.** Wikipedia: https://en.wikipedia.org/wiki/Spore_(2008_video_game) ; Kent Jolly, GDC 2008 session recording: https://archive.org/details/GDC2008Jolly
+  - Useful for: generative music in editors, built on a modified Pure Data, with Brian Eno and Peter Chilvers.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games.
+- **S183 - _No Man's Sky_'s procedural music.** Wikipedia: https://en.wikipedia.org/wiki/No_Man%27s_Sky ; Laced Records, interview with Paul Weir: https://www.lacedrecords.com/blogs/blog/interview-hello-games-audio-director-on-the-sound-and-music-of-no-man-s-sky ; GDC Vault, "The Sound of No Man's Sky": https://gdcvault.com/play/1024067/The-Sound-of-No-Man
+  - Useful for: an engine that reuses a band's album as loops and fragments, "a glorified random file player" with behaviours linked to the game.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games, endgame mapping.
+- **S184 - _Proteus_.** Wikipedia: https://en.wikipedia.org/wiki/Proteus_(video_game)
+  - Useful for: music emitted by objects and creatures, shaped by where the player walks and the season.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games, endgame mapping.
+- **S185 - _Ape Out_.** Wikipedia: https://en.wikipedia.org/wiki/Ape_Out ; Shacknews, "Ape Out's jazz soundtrack explored": https://www.shacknews.com/article/110273/ape-outs-jazz-soundtrack-explored-in-devolver-digital-video
+  - Useful for: a procedural jazz drummer reacting to enemies, kills and speed.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games, endgame mapping.
+- **S186 - _Rise of the Tomb Raider_ percussion.** GDC Vault, "Real-time Procedural Percussion Scoring", GDC 2016: https://www.gdcvault.com/play/1023215/Real-time-Procedural-Percussion-Scoring
+  - Useful for: combat percussion that "never loops" and adapts to game action.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games.
+- **S187 - _Rez_.** Wikipedia: https://en.wikipedia.org/wiki/Rez_(video_game)
+  - Useful for: player shots quantised to the beat as musical layers, and mistakes absorbed into the music.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): rhythm games, endgame mapping.
+- **S188 - _Crypt of the NecroDancer_.** Wikipedia: https://en.wikipedia.org/wiki/Crypt_of_the_NecroDancer
+  - Useful for: moving on the beat, missing a beat without direct harm, a widened and auto-calibrated accuracy window, and beat tracking for custom music.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): rhythm games, endgame mapping.
+- **S189 - _Hi-Fi Rush_.** Wikipedia: https://en.wikipedia.org/wiki/Hi-Fi_Rush ; John Johanas, "Developing Hi-Fi RUSH Backwards", GDC 2024: https://gdcvault.com/play/1034256/Developing-Hi-Fi-RUSH-Backwards
+  - Useful for: a world synced to the beat, actions that sync automatically, and timing rewarded rather than required.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): rhythm games, endgame mapping.
+- **S190 - _Thumper_, _Sayonara Wild Hearts_, _BPM: Bullets Per Minute_.** Wikipedia: https://en.wikipedia.org/wiki/Thumper_(video_game), https://en.wikipedia.org/wiki/Sayonara_Wild_Hearts and https://en.wikipedia.org/wiki/BPM:_Bullets_Per_Minute
+  - Useful for: fixed soundtracks with timed input, and BPM's misfire penalty off the beat.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): rhythm games, endgame mapping.
+- **S191 - Lead sheet.** Wikipedia: https://en.wikipedia.org/wiki/Lead_sheet
+  - Useful for: melody plus chord symbols, accompanists improvising from the progression.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): how notation shows melody and accompaniment; the lead-sheet lexicon entry.
+- **S192 - MusicXML cue element.** W3C, MusicXML 4.0 reference, `<cue>`: https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/cue/
+  - Useful for: cue notes as silent notes in export.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): how notation shows melody and accompaniment, should system voices be shown.
+- **S193 - Multiple voices per staff.** MuseScore 3 handbook, "Working with multiple voices": https://handbook.musescore.org/3/basics/working-with-multiple-voices
+  - Useful for: up to four voices per staff with fixed stem directions.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): how notation shows melody and accompaniment.
+- **S194 - VexFlow.** VexFlow FAQ: https://github.com/0xfe/vexflow/wiki/FAQ ; VexFlow repository: https://github.com/vexflow/vexflow ; the pinned 5.0.0 type declarations (`node_modules/vexflow/build/types/src/system.d.ts`, `staveconnector.d.ts`, `voice.d.ts`).
+  - Useful for: `Formatter.joinVoices` per stave, formatting aligned voices across staves, `System.addStave` and `addConnector` (brace, bracket), and the absence of a cue-size option.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): VexFlow 5 support.
+
+Licence note: Music Theory for the 21st-Century Classroom (S1-S7, S9-S10, S18-S24, S40-S44, S144-S146) is © 2017 Robert Hutchinson and distributed under the GNU Free Documentation License, version 1.2 or later. Open Music Theory (S8, S8a, S14, S25, S45-S48, S113-S114, S124, S127) is CC BY-SA. The project cites both for verification and does not reproduce their text.

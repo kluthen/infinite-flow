@@ -1,8 +1,8 @@
 # Music Lexicon
 
-Status: v1.3 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08)
+Status: v1.4 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08; v4 accompaniment research terms merged 2026-10-11)
 
-Date: 2026-10-08
+Date: 2026-10-11
 
 ## How to use
 
@@ -38,12 +38,13 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 2. [Pitch and notation](#pitch-and-notation): the staff, clefs, note names and the signs written on the staff, including ornaments and jazz articulations.
 3. [Rhythm and meter](#rhythm-and-meter): beats, note values, meter, syncopation, tempo, and rhythmic changes such as anticipation, augmentation and metric displacement.
 4. [Melody](#melody): melodic motion, shape, decorating notes (embellishments), motifs and the ways musicians develop them.
-5. [Harmony](#harmony): chords, their roles, cadences, tension and resolution, and common chord patterns such as the twelve-bar blues and the vamp.
+5. [Harmony](#harmony): chords, their roles, cadences, tension and resolution, common chord patterns such as the twelve-bar blues and the vamp, and how parts move between chords (voicing, voice leading).
 6. [Scales and modes](#scales-and-modes): scales, keys, the seven modes and how a key is found from a melody.
 7. [Styles](#styles): styles of music the presets refer to, such as the reel and bossa nova.
-8. [Instruments and transposition](#instruments-and-transposition): concert and written pitch, B-flat and E-flat instruments, range.
-9. [App controls](#app-controls): one entry per control label, with every option explained; the kinds of preset and the Custom state; and the session words the player meets, such as Jam, doodle and starting note.
-10. [Internal (no popup)](#internal-no-popup): project terms used in docs and code, never shown in the UI.
+8. [Texture and arranging](#texture-and-arranging): how several parts fit together, the jobs accompanying parts do (pad, comping, fill, counter-melody and others), and how game music adds and removes layers.
+9. [Instruments and transposition](#instruments-and-transposition): concert and written pitch, B-flat and E-flat instruments, range.
+10. [App controls](#app-controls): one entry per control label, with every option explained; the kinds of preset and the Custom state; and the session words the player meets, such as Jam, doodle and starting note.
+11. [Internal (no popup)](#internal-no-popup): project terms used in docs and code, never shown in the UI.
 
 ## Basics
 
@@ -246,6 +247,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `ornament`, `appoggiatura`, `note`, `half-step`
 - **sources:** S30, S37
 
+### Grand staff
+
+- **id:** `grand-staff`
+- **aliases:** great staff, piano staff
+- **popup:** Two staves, treble on top and bass below, joined by a brace: the usual way piano music is written.
+- **definition:** A grand staff joins a treble-clef staff and a bass-clef staff with a curly brace at the left, so that one player can read a high part and a low part together. Piano, organ and harp music use it, the right hand usually reading the top staff and the left hand the bottom one. Middle C sits on a short ledger line between the two.
+- **in_infinite_flow:** The app shows a single treble-clef staff, even for the keyboard profile. Whether system voices ever get a second staff is an open question for v4.
+- **related:** `staff`, `treble-clef`, `clef`, `middle-c`, `ledger-line`
+- **sources:** S14, docs/music/accompaniment-systems.md
+
 ### Jazz articulation
 
 - **id:** `jazz-articulation`
@@ -265,6 +276,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The key signature follows the Written key and Collection: the app shows the standard signature of the major (Ionian) key that shares the collection's notes. C Aeolian therefore shows three flats, like E-flat major, and D Dorian shows none. It is in your instrument's written pitch, so C Ionian on tenor saxophone shows an empty signature.
 - **related:** `accidental`, `key`, `written-pitch`, `control-written-key`, `control-collection`
 - **sources:** S14, ui_ux/screens/phrase-workspace/handoff.md
+
+### Lead sheet
+
+- **id:** `lead-sheet`
+- **aliases:** none
+- **popup:** A page with just the melody and chord symbols above it; the band makes up the accompaniment from the chords.
+- **definition:** A lead sheet writes down only the essentials of a song: the melody on one staff, with chord symbols above it and sometimes the lyrics. The accompanying players read the chord symbols and improvise their parts, so the same lead sheet can be played in many styles. Jazz and pop musicians use lead sheets all the time; books of them are called fake books.
+- **in_infinite_flow:** The app's staff is close to a lead sheet: the phrase's melody with a chord symbol at each chord change.
+- **related:** `chord-symbol`, `staff`, `melody`, `accompaniment`, `head`
+- **sources:** S191
 
 ### Ledger line
 
@@ -401,7 +422,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** The five horizontal lines music is written on. The higher a note sits on them, the higher it sounds.
 - **definition:** A staff is a set of five evenly spaced horizontal lines. Notes go on the lines or in the four spaces between them, and higher placement means higher pitch. A clef at the left fixes which pitch each line stands for, and ledger lines extend the staff above or below. Piano music usually uses two staves joined together; a saxophone part uses one.
 - **in_infinite_flow:** The app shows the phrase on a single treble-clef staff, with chord symbols marking the harmony.
-- **related:** `clef`, `treble-clef`, `ledger-line`, `measure`, `chord-symbol`
+- **related:** `clef`, `treble-clef`, `ledger-line`, `measure`, `chord-symbol`, `grand-staff`
 - **sources:** S14
 
 ### Treble clef
@@ -455,6 +476,15 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Not generated yet. Doubling every length halves the notes per measure, so it would normally need a lower Note density at the same time.
 - **related:** `diminution`, `rhythm`, `motivic-development`, `control-note-density`
 - **sources:** S51, S41
+
+### Backbeat
+
+- **id:** `backbeat`
+- **aliases:** back beat
+- **popup:** The accent on beats 2 and 4 of a four-beat bar, usually on the snare drum: the beat people clap on in pop and rock.
+- **definition:** In a bar of four beats, beats 1 and 3 are normally the strong ones. A backbeat puts a strong accent on beats 2 and 4 instead, usually with the snare drum, while the bass drum keeps beats 1 and 3. It is the beat audiences clap on in rock, pop, soul and funk, and much of what makes those styles feel driving.
+- **related:** `beat`, `strong-and-weak-beats`, `meter`, `groove`, `offbeat`
+- **sources:** S139
 
 ### Beat
 
@@ -515,6 +545,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** "Eighth notes" is one of the Note density options, where eighth notes are the main pulse of the phrase. Internally an eighth note is two ticks.
 - **related:** `quarter-note`, `sixteenth-note`, `subdivision`, `offbeat`, `control-note-density`
 - **sources:** S14, S8a
+
+### Groove
+
+- **id:** `groove`
+- **aliases:** feel
+- **popup:** The repeating rhythmic feel that makes you want to move, mostly made by the drums and the bass together.
+- **definition:** A groove is the repeating rhythmic pattern and feel of a piece, the part that makes listeners tap their feet. It comes mostly from the drums and the bass playing together, and from details such as which beats are accented, how the beat is divided and whether the eighth notes swing. Musicians talk about "locking into" a groove when everyone shares the same feel.
+- **in_infinite_flow:** There is no groove part today: a session has a click and a count-in, but no drums. Drums are a candidate for v4.
+- **related:** `rhythm`, `backbeat`, `swing`, `beat`, `functional-layer`, `vamp`
+- **sources:** S127, S128
 
 ### Half note
 
@@ -724,7 +764,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** Music as a conversation: one musician plays a phrase, and another answers it.
 - **definition:** Call and response makes music as a dialogue. One player, singer or group offers a phrase (the call) and another answers it (the response), echoing it, varying it or completing it. It is rooted in African musical traditions, where a leader's call organizes a group, and it runs through blues, gospel, jazz, soul and hip hop. In classical music the same idea between groups of players is called antiphony, and jazz musicians "trade" short solos in the same spirit.
 - **in_infinite_flow:** Jam, planned for v3.2 (not built), works this way: the player's doodle is the call and the generated phrases answer it. The endgame vision describes fights as exchanges of short phrases. Inside one phrase, the rhythm plan's gesture and answer is a small, rhythm-only cousin of the idea.
-- **related:** `gesture-and-answer`, `phrase`, `motif`, `trading-fours`, `riff`
+- **related:** `gesture-and-answer`, `phrase`, `motif`, `trading-fours`, `riff`, `imitation`, `fill`
 - **sources:** S52, S80, S57, specs/vision/endgame.md, docs/music/rhythm-phrase-structure.md
 
 ### Chord tone
@@ -823,7 +863,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** head in, head out, the tune
 - **popup:** In jazz, the tune's main melody, played at the start and again at the end, with solos in between.
 - **definition:** In jazz the head is the main theme of a tune: its melody over its chords. A typical performance plays the head once ("head in"), then lets players improvise solos over the same chords, then plays the head again to finish ("head out"). At a jam session, a player patting the top of their head is asking the band to go back to the head.
-- **related:** `melody`, `chord-progression`, `riff`, `lick`
+- **related:** `melody`, `chord-progression`, `riff`, `lick`, `arrangement`
 - **sources:** S83, S84
 
 ### Leap
@@ -844,7 +884,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** A leitmotif is a motif linked to something outside the music: a person, a place, an object or a feeling. Each time it returns, sometimes changed in key, rhythm or speed, the listener is reminded of what it stands for. Opera and film scores use leitmotifs heavily, and so do many video game soundtracks, where a hero or a villain has their own short tune.
 - **in_infinite_flow:** The endgame vision gives each character "a signature motif or gimmick": a leitmotif in musical terms. Nothing in the app uses it yet.
 - **related:** `motif`, `melody`, `phrase`
-- **sources:** S82, specs/vision/endgame.md
+- **sources:** S82, S155, S157, specs/vision/endgame.md
 
 ### Lick
 
@@ -982,16 +1022,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** A short catchy phrase repeated again and again, often the backbone of a song.
 - **definition:** A riff is a short melodic or rhythmic phrase that repeats many times in a row, so that it becomes the thing a listener remembers. Rock, blues, funk, jazz and Latin music all use riffs; swing-era big bands passed riffs back and forth between sections like a call and response. Classical music calls a figure repeated this way an ostinato.
 - **related:** `lick`, `motif`, `call-and-response`, `phrase`
-- **sources:** S83
+- **sources:** S83, S136
 
 ### Scale run
 
 - **id:** `scale-run`
-- **aliases:** scalar run, fill
+- **aliases:** scalar run
 - **popup:** A quick string of notes going straight up or down a scale.
 - **definition:** A scale run moves through several scale notes in a row by step, in one direction, usually in short notes. Many of its notes are outside the chord; they pass by so quickly that the ear hears the whole run as a sweep toward its last note. Players often use runs to fill a gap between two phrases. Over a C chord, C, D, E, F, G, A, B, C is a scale run.
 - **in_infinite_flow:** Partly possible: the generator can alternate chord and outside notes by step, but not place two outside notes in a row. Different from the internal term run, which means a three-note arpeggio.
-- **related:** `scale`, `step`, `passing-tone`, `run`, `sixteenth-note`
+- **related:** `scale`, `step`, `passing-tone`, `run`, `sixteenth-note`, `fill`
 - **sources:** S25, src/domain/pitch/pitch-figures.ts
 
 ### Sequence
@@ -1093,7 +1133,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** A short name for a chord, like C, Dm or G7. The letter is the chord's main note; the rest tells its flavor.
 - **definition:** A chord symbol is shorthand for a chord, written above the staff in lead sheets and in jazz and pop charts. It starts with the root's letter name, then adds signs for the quality and any extra notes: "C" is C major, "Dm" D minor, "Bdim" B diminished, "G7" a G dominant seventh. Players read them to know the harmony without every note being written out.
 - **in_infinite_flow:** The app shows one chord symbol at each chord change, transposed into your instrument's written pitch like the notes. Only triad symbols appear: major (C), minor (Dm) and diminished (Bdim).
-- **related:** `chord`, `chord-quality`, `root`, `written-pitch`, `triad`
+- **related:** `chord`, `chord-quality`, `root`, `written-pitch`, `triad`, `lead-sheet`
 - **sources:** S14, ui_ux/screens/phrase-workspace/handoff.md
 
 ### Chromatic
@@ -1155,6 +1195,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The app plans the harmony first, as a series of chords, then fits the melody to it. The chords are shown as symbols, not written out as notes.
 - **related:** `chord`, `chord-progression`, `harmonic-function`, `melody`
 - **sources:** S14, S15
+
+### Parallel fifths and octaves
+
+- **id:** `parallel-fifths-and-octaves`
+- **aliases:** consecutive fifths, consecutive octaves, parallel perfect intervals
+- **popup:** Two separate parts moving together a fifth or an octave apart. Classical writing avoids it because the two parts blend into one.
+- **definition:** Parallel fifths (or octaves) happen when two parts that are a fifth (or an octave) apart both move to new notes that are again a fifth (or an octave) apart. These intervals blend so well that the two parts stop sounding independent, so classical part-writing avoids them between independent parts. Elsewhere they are normal: rock power chords are parallel fifths, and doubling a melody in octaves is standard orchestration.
+- **in_infinite_flow:** Not built. The v4 research proposes the rule only between parts meant to be independent, such as the player's line and a counter-melody, never inside a doubling or a chord.
+- **related:** `interval`, `octave`, `doubling`, `types-of-motion`, `voice-leading`
+- **sources:** S145, S147
 
 ### Predominant
 
@@ -1236,15 +1286,45 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `chord-progression`, `seventh-chord`, `blue-note`, `call-and-response`, `blues-scale`
 - **sources:** S101, docs/music/harmony-planner-policy.md
 
+### Types of motion
+
+- **id:** `types-of-motion`
+- **aliases:** contrary motion, oblique motion, similar motion, parallel motion
+- **popup:** How two parts move against each other: in opposite directions, one holding while the other moves, or side by side.
+- **definition:** Between two parts there are four types of motion. In contrary motion they move in opposite directions. In oblique motion one part holds its note while the other moves. In similar motion both move the same way by different intervals, and in parallel motion both move the same way by the same interval. Contrary and oblique motion keep two lines sounding separate; parallel motion makes them sound like one thickened line.
+- **in_infinite_flow:** Not built. The v4 research suggests that a counter-melody prefer contrary and oblique motion against the player's line, while a doubling moves in parallel on purpose.
+- **related:** `voice-leading`, `counter-melody`, `parallel-fifths-and-octaves`, `parallel-thirds-and-sixths`, `polyphony`
+- **sources:** S144
+
 ### Vamp
 
 - **id:** `vamp`
-- **aliases:** groove, ostinato (for a repeated melodic figure)
+- **aliases:** ostinato (for a repeated melodic figure)
 - **popup:** A short chord pattern, often just one or two chords, repeated again and again under a solo.
 - **definition:** A vamp is a short pattern of one or two chords that keeps repeating, giving a soloist an open-ended bed to play over. Because the chords barely move, the mode or scale becomes the main color. A minor chord moving to a major chord a fourth higher, i to IV, is a classic Dorian vamp.
 - **in_infinite_flow:** Closest today: Static harmonic motion (one chord) or a modal Gentle plan, which returns home after one color chord. The backing does not loop a vamp across phrases.
-- **related:** `chord-progression`, `dorian`, `mode`, `control-harmonic-motion`, `riff`
+- **related:** `chord-progression`, `dorian`, `mode`, `control-harmonic-motion`, `riff`, `groove`
 - **sources:** S104, S105, docs/music/harmony-planner-policy.md
+
+### Voice leading
+
+- **id:** `voice-leading`
+- **aliases:** part-writing
+- **popup:** How each part moves from one note to the next as the chords change, ideally by small, smooth steps.
+- **definition:** Voice leading is how each single part moves as the harmony changes. Good voice leading keeps each part easy to follow: it moves by small steps, keeps shared notes where they are, does not cross another part and does not melt into another part. Many classical rules about it can be explained by how hearing sorts sounds into lines, which is why they still help when writing several parts in any style.
+- **in_infinite_flow:** Not built. The backing places each chord by its top note (the highest it can be at or below E4), not by a smooth move from the previous chord. The v4 research proposes a short minimum rule set for system voices (docs/music/arranging-and-roles.md).
+- **related:** `voice`, `voicing`, `types-of-motion`, `parallel-fifths-and-octaves`, `chord`, `step`
+- **sources:** S148, S144, S145, src/domain/backing/backing-renderer.ts
+
+### Voicing
+
+- **id:** `voicing`
+- **aliases:** chord voicing, close position, open position
+- **popup:** Which exact notes of a chord are played, in which octaves and in what order from low to high.
+- **definition:** A chord names a set of notes, but a voicing is one particular way to play them: which octave each note is in, which note is on top, whether a note is doubled or left out, and how close together they sit. In close position the notes are packed inside an octave; in open position they are spread wider. Jazz players often leave out the root and the fifth and keep the third and the seventh.
+- **in_infinite_flow:** The backing plays close-position triads with the top note at or below E4 (MIDI 64).
+- **related:** `chord`, `triad`, `root`, `guide-tone`, `voice-leading`, `comping`
+- **sources:** S146, S131, src/domain/backing/backing-renderer.ts
 
 ## Scales and modes
 
@@ -1519,6 +1599,248 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The built-in preset Reel, planned for v3.1 (not built; spec decision D233), imitates its steady even eighths in four-bar phrases. Its key and mode restriction is Mixolydian or Dorian, in any key: choosing it keeps Mixolydian or Dorian if one is already selected, and otherwise moves to Mixolydian. Reels are often in major too; a player who wants that chooses Ionian, which leaves the preset (the selection becomes Custom). The ornaments and the two-part form are not available.
 - **related:** `eighth-note`, `phrase`, `mixolydian`, `dorian`, `ornament`, `built-in-preset`, `key-and-mode-restriction`
 - **sources:** S106, S107, S108, specs/versions/v3/presets.md
+
+## Texture and arranging
+
+### Accompaniment
+
+- **id:** `accompaniment`
+- **aliases:** backing, accompanying parts
+- **popup:** The music that supports a main melody: for example a bass line and chords played under a singer or a soloist.
+- **definition:** Accompaniment is everything that plays alongside a main melody to support it: a bass line, chords, a rhythm part, short answering phrases. It sets the harmony and the beat and fills out the sound, while the melody stays the part a listener follows. The same tune can have very different accompaniments: a strummed guitar, a jazz trio, a full orchestra.
+- **in_infinite_flow:** The session backing (the Backing toggle) is a simple accompaniment: a bass note and a block chord at every chord change and every downbeat, worked out from the phrase's harmony alone. v4 plans side instruments with distinct roles (not built).
+- **related:** `melody`, `harmony`, `chord`, `accompaniment-role`, `texture`, `voice`
+- **sources:** S124, S126, src/domain/backing/backing-renderer.ts, specs/versions/v4/README.md
+
+### Accompaniment role
+
+- **id:** `accompaniment-role`
+- **aliases:** role, foundation, highlighting, contrasting, responding
+- **popup:** The job an accompanying part does for the melody: support it, reinforce it, contrast with it or answer it.
+- **definition:** An accompaniment role is the job one part does, as opposed to the instrument that plays it: a saxophone can accompany and a piano can lead. Arrangers name roles by technique, such as doubling, counter-melody, pad, comping or fill. Grouped by how they relate to the melody, roles fall into four families: foundation (bass, chords, groove), highlighting (reinforcing the melody), contrasting (a second, independent line) and responding (answering the melody in its gaps).
+- **in_infinite_flow:** Planned for v4 (not built). The owner's three words, highlighting, contrasting and responding, are the v4 direction; the research adds a fourth family, foundation, for the bass, chords and drums (docs/music/arranging-and-roles.md).
+- **related:** `accompaniment`, `doubling`, `counter-melody`, `fill`, `comping`, `system-voice`, `functional-layer`
+- **sources:** S127, S128, docs/music/arranging-and-roles.md, docs/music/accompaniment-systems.md, specs/versions/v4/README.md
+
+### Arrangement
+
+- **id:** `arrangement`
+- **aliases:** arranging, chart
+- **popup:** A version of a piece prepared for particular players: who plays what, and what is added or changed.
+- **definition:** An arrangement takes an existing tune and prepares it for a group of players. The arranger may change the chords, add an introduction or an ending, and decide which instrument plays the melody, which ones accompany it, and how. Orchestration is the narrower part of that job: choosing the instrument for each note. Jazz bands also play head arrangements, worked out by ear in rehearsal rather than written down.
+- **in_infinite_flow:** The generator already writes a melody with its chords for each phrase, like a lead sheet. v4's accompaniment would arrange that phrase for a few side instruments (planned, not built).
+- **related:** `accompaniment`, `lead-sheet`, `accompaniment-role`, `head`, `texture`
+- **sources:** S120, S121, S122
+
+### Comping
+
+- **id:** `comping`
+- **aliases:** comp, to comp
+- **popup:** In jazz, the chords a pianist or guitarist plays behind a soloist: short, well placed, and leaving room.
+- **definition:** Comping (from "accompanying") is how a jazz pianist, guitarist or organist plays the chords behind a soloist. Instead of striking a chord on every beat, a comper places short chords at chosen moments, often off the beat and in the soloist's pauses, and reacts to what the soloist plays. The chords usually keep their third and seventh and often leave the root to the bass player. Some players comp busily, others very sparsely.
+- **in_infinite_flow:** Not built. The backing's block chords attack on every chord change and every downbeat, closer to old-style on-the-beat accompaniment. Comping is a candidate role for v4.
+- **related:** `accompaniment`, `voicing`, `guide-tone`, `syncopation`, `offbeat`, `chord`
+- **sources:** S131, S141
+
+### Counter-melody
+
+- **id:** `counter-melody`
+- **aliases:** countermelody, counterline, descant (when above the melody)
+- **popup:** A second melody played at the same time as the main one: less prominent, but a real tune of its own.
+- **definition:** A counter-melody is a second melody that plays against the main one. It is quieter or less prominent, but it has its own shape and rhythm, so the music gains a second line to follow. It sounds clearest when it moves while the main melody holds a note or rests, and holds while the main melody moves. Placed above the main melody it is called a descant. Marches often give one to the trombones or horns.
+- **in_infinite_flow:** Not built. It is the standard name for the owner's "contrasting" role, planned for v4, and the hardest role to generate well.
+- **related:** `melody`, `polyphony`, `accompaniment-role`, `types-of-motion`, `voice-leading`
+- **sources:** S130, S144, S150
+
+### Doubling
+
+- **id:** `doubling`
+- **aliases:** unison, octave doubling
+- **popup:** Two instruments playing the same line together, at the same pitch or an octave apart, to make it stronger.
+- **definition:** Doubling means giving the same line to a second instrument, either at exactly the same pitch (in unison) or an octave higher or lower. It makes the line louder, richer in tone and easier to hear, so orchestrators use it to make a melody stand out from its accompaniment. A doubled line is heard as one thickened voice, not as two independent ones.
+- **in_infinite_flow:** Not built. Doubling the player's line, or only its key notes, is one form of the "highlighting" role planned for v4.
+- **related:** `octave`, `accompaniment-role`, `parallel-thirds-and-sixths`, `heterophony`, `parallel-fifths-and-octaves`
+- **sources:** S129, S147
+
+### Drone
+
+- **id:** `drone`
+- **aliases:** drone note
+- **popup:** One note, or a note and its fifth, sounding the whole time under the music, like the hum of bagpipes.
+- **definition:** A drone is a note that keeps sounding through a whole piece or a long section, often the home note alone or with the note a fifth above it (an open fifth). Bagpipes and the Indian tanpura make drones. Because it never moves, a drone fixes the home note firmly, and every melody note is heard against it. Open-fifth drones often give music a rustic or ancient feel.
+- **in_infinite_flow:** Not built. A drone would suit the modal collections, where a strong home note is what makes the mode audible.
+- **related:** `pedal-point`, `tonic`, `tonal-center`, `mode`, `interval`
+- **sources:** S135
+
+### Fill
+
+- **id:** `fill`
+- **aliases:** drum fill
+- **popup:** A short burst of music played in a gap, when the melody pauses, to keep things moving or to mark a phrase's end.
+- **definition:** A fill is a short passage played where the melody stops for a moment, between two phrases or at the end of a section. It keeps the music moving and often signals that something new is coming. Drummers play fills, but so do bass players, guitarists, keyboard players and horn sections. Unlike a riff, a fill is not repeated throughout: each one is a small one-off answer to its gap.
+- **in_infinite_flow:** Not built. Filling the generated phrase's rests is the cheapest form of the "responding" role studied for v4; the Silence density control would then set how much room fills get.
+- **related:** `rest`, `riff`, `call-and-response`, `accompaniment-role`, `phrase`
+- **sources:** S137
+
+### Functional layer
+
+- **id:** `functional-layer`
+- **aliases:** layer, novelty layer
+- **popup:** A way to describe a pop arrangement by the job each part does: beat, bass, chords filling the middle, and melody.
+- **definition:** In pop music, parts are often described by their job rather than their instrument. The usual layers are the beat (drums and percussion keeping time), the bass (the lowest part, close to the chord roots), the harmonic filler (keyboards or guitars filling the middle with chords) and the melody (the voice or lead instrument on top). An optional novelty layer answers or interrupts the melody in its gaps, with a sound that stands out.
+- **in_infinite_flow:** Not built. The layers are a useful map for v4's roles; today's backing covers the bass and a simple harmonic filler.
+- **related:** `accompaniment`, `texture`, `accompaniment-role`, `groove`, `pad`
+- **sources:** S127, S128
+
+### Guide tone
+
+- **id:** `guide-tone`
+- **aliases:** guide tones, guide-tone line
+- **popup:** The third and seventh of a chord: the two notes that say most about what kind of chord it is.
+- **definition:** A chord's guide tones are its third and its seventh. The third tells major from minor, and the seventh tells which kind of seventh chord it is, so these two notes outline the harmony with very little. Joining each chord's guide tone to the nearest guide tone of the next chord makes a guide-tone line: a slow, smooth line that moves mostly by step. Jazz players use it to comp, to write background lines and to practise improvising.
+- **in_infinite_flow:** Not built. The app's chords are triads, so each chord's third is known but its seventh would have to be worked out from the scale.
+- **related:** `seventh-chord`, `triad`, `chord-tone`, `comping`, `voice-leading`
+- **sources:** S131, S153
+
+### Heterophony
+
+- **id:** `heterophony`
+- **aliases:** none
+- **popup:** Several players playing the same tune at once, each decorating it a little differently.
+- **definition:** Heterophony is a texture in which two or more players perform the same melody at the same time, but each varies it slightly: one adds an ornament, another turns a run into one long note, or the rhythms differ a little. The result sounds like one tune with a shimmering, slightly blurred edge. It is common in folk music and in Indonesian gamelan, where one melody is played in several versions at once.
+- **in_infinite_flow:** Not built. A voice that plays the player's line with ornaments added or passing notes removed is one form of "highlighting" studied for v4.
+- **related:** `texture`, `monophony`, `doubling`, `ornament`, `embellishment`
+- **sources:** S124, S125
+
+### Homophony
+
+- **id:** `homophony`
+- **aliases:** melody and accompaniment, homorhythm
+- **popup:** Several parts moving together in chords; most often one clear melody over an accompaniment.
+- **definition:** Homophony is a texture in which the parts move together to make chords rather than as separate tunes. In homorhythm all the parts share one rhythm, as in a hymn. More often one part is a clear melody and the others accompany it with their own, usually simpler, rhythm: this melody-and-accompaniment texture is the sound of most pop songs, a voice over guitar chords.
+- **in_infinite_flow:** A session with the backing on is melody and accompaniment: the player's line over a bass and block chords that attack together.
+- **related:** `texture`, `polyphony`, `monophony`, `accompaniment`, `melody`
+- **sources:** S124, S126
+
+### Imitation
+
+- **id:** `imitation`
+- **aliases:** echo, canon, round
+- **popup:** A second part repeating a figure the first part just played, a little later, like an echo.
+- **definition:** Imitation happens when one part plays a figure and another part repeats it shortly afterwards, often at a different pitch. A short, softer repeat is an echo. A canon is strict imitation: the follower copies the leader's whole line, note for note, at a fixed delay. A round, such as "Frère Jacques", is a canon in which everyone sings the same tune, entering one after another.
+- **in_infinite_flow:** Not built. Echoing the player's last figure in the rest that follows it is a form of the "responding" role studied for v4; a full canon is much harder to fit.
+- **related:** `call-and-response`, `motif`, `transposition`, `polyphony`, `accompaniment-role`
+- **sources:** S140
+
+### Monophony
+
+- **id:** `monophony`
+- **aliases:** none
+- **popup:** A single line of melody with no accompaniment, even when several people play or sing it together.
+- **definition:** Monophony is the simplest texture: one melody alone, with no chords or other parts. A solo flute is monophonic, and so is a crowd singing one tune together, because everyone sings the same line; voices an octave apart still count as one line. Plainchant is the classic example.
+- **in_infinite_flow:** With the backing off, a session is monophonic: the player's line alone.
+- **related:** `texture`, `melody`, `heterophony`, `homophony`, `polyphony`
+- **sources:** S124
+
+### Pad
+
+- **id:** `pad`
+- **aliases:** sustained harmony, string pad
+- **popup:** Long held chords that make a soft bed of harmony under the melody.
+- **definition:** A pad is a part that holds chords for a long time, giving a smooth bed of harmony for the melody to sit on. String sections, organs and synthesizers often play pads. A pad attacks rarely, usually once per chord, so it does not compete with the melody's rhythm. Its notes move to the next chord by the smallest steps possible, keeping any shared notes in place.
+- **in_infinite_flow:** Not built. The backing's block chords are struck again on every downbeat; a pad would hold each chord for its whole length instead.
+- **related:** `chord`, `accompaniment`, `voicing`, `voice-leading`, `functional-layer`
+- **sources:** S127, S154
+
+### Parallel thirds and sixths
+
+- **id:** `parallel-thirds-and-sixths`
+- **aliases:** parallel thirds, parallel sixths, harmony line
+- **popup:** A second line that follows the melody a third (or a sixth) away, like a harmony singer.
+- **definition:** In parallel thirds, a second line copies the melody's rhythm and shape a third below or above it: the sound of a harmony vocal, or of two horns playing together. Staying in the key, the thirds are sometimes major and sometimes minor. Sixths work the same way, since a sixth below is the same note as a third above, an octave lower. Thirds and sixths are consonant, so they can move in parallel freely.
+- **in_infinite_flow:** Not built. It is one form of the "highlighting" role studied for v4.
+- **related:** `interval`, `doubling`, `parallel-fifths-and-octaves`, `types-of-motion`, `accompaniment-role`
+- **sources:** S129, S145
+
+### Pedal point
+
+- **id:** `pedal-point`
+- **aliases:** pedal, pedal tone, inverted pedal
+- **popup:** One note held or repeated, usually in the bass, while the chords above it change.
+- **definition:** A pedal point is a note that stays put, held or repeated, while the harmony above it moves on. It is usually the home note (the tonic) or the fifth note of the scale (the dominant), and usually in the bass; held in the top part it is an inverted pedal. As the chords change, some clash with the pedal, which builds tension and pulls the music back toward home. A pedal that lasts a whole piece is a drone.
+- **in_infinite_flow:** Not built. A dominant pedal under a phrase's last measure is one idea studied for v4, to raise expectation under the Tension control's stronger settings.
+- **related:** `drone`, `tonic`, `dominant`, `tension-and-resolution`, `harmony`
+- **sources:** S134
+
+### Polyphony
+
+- **id:** `polyphony`
+- **aliases:** counterpoint (the craft of writing it), contrapuntal texture
+- **popup:** Several independent melodies sounding at once, each with its own rhythm, that together make harmony.
+- **definition:** Polyphony is a texture of several independent melodic lines played at the same time. Each line has its own shape and rhythm, yet together they make good harmony. A fugue is polyphonic, and so is a jazz front line when trumpet and saxophone improvise separate lines together. Counterpoint is the craft of writing such lines so that each stays easy to follow and they sound well together.
+- **in_infinite_flow:** Not built. A counter-melody against the player's line would turn a session's texture toward polyphony.
+- **related:** `texture`, `counter-melody`, `homophony`, `voice-leading`, `types-of-motion`
+- **sources:** S124, S126
+
+### Stab
+
+- **id:** `stab`
+- **aliases:** hit, kick, orchestra hit
+- **popup:** A single short, punchy chord or note that punctuates the music, like an exclamation mark.
+- **definition:** A stab is one short, detached chord or note, played with an accent to punctuate the music, such as a horn section's sharp chord or the sampled "orchestra hit" of 1980s pop. Big bands call rhythmic chords like these hits or kicks. Stabs can land with the melody's accents, to underline them, or between them, to answer them. Much of their effect comes from the silence around them.
+- **in_infinite_flow:** Not built. Short chords on the player's syncopated notes are one form of the "highlighting" role studied for v4.
+- **related:** `chord`, `syncopation`, `accompaniment-role`, `fill`, `offbeat`
+- **sources:** S138, S131
+
+### Stinger
+
+- **id:** `stinger`
+- **aliases:** sting
+- **popup:** A very short burst of music that marks an event, like the "dun dun duuun" when something dramatic happens.
+- **definition:** A stinger is a short musical phrase used as punctuation: it marks the end of a scene, a sudden discovery or a climax. Film, television and radio use stingers, and so do video games, where a stinger is played on top of the music already running when something happens in the game, such as an enemy appearing.
+- **in_infinite_flow:** Not built. In the endgame vision, a player's action or a game event could trigger a short generated stinger, placed on the next beat or measure so that it never cuts through a note the player is reading.
+- **related:** `fill`, `cue`, `leitmotif`, `vertical-layering`
+- **sources:** S161, S181, specs/vision/endgame.md
+
+### Texture
+
+- **id:** `texture`
+- **aliases:** musical texture
+- **popup:** How the parts playing at the same moment fit together: how many there are, and whether they move together or apart.
+- **definition:** Texture describes how the parts sounding at the same time relate to each other: how many there are, how busy they are, and whether they move together or independently. The four classic types are monophony (one line), heterophony (one tune in several varied versions), homophony (parts moving together, most often melody and accompaniment) and polyphony (independent lines). Most pieces change texture as they go, thinning out or thickening.
+- **in_infinite_flow:** With the backing on, a session is melody and accompaniment. v4's planned roles would each change the texture: a doubling thickens the melody, a counter-melody adds polyphony, a fill answers in the gaps.
+- **related:** `monophony`, `heterophony`, `homophony`, `polyphony`, `accompaniment`, `functional-layer`
+- **sources:** S124
+
+### Vertical layering
+
+- **id:** `vertical-layering`
+- **aliases:** layering, vertical re-orchestration
+- **popup:** Changing game music by adding or removing instrument layers while it plays, to make it calmer or more intense.
+- **definition:** Vertical layering is a way to make music adapt to a game. The composer writes several layers that fit together, such as drums, a bass, a string part and a melody, and the game fades layers in or out as the situation changes; more layers usually means more intensity. The other classic technique, horizontal re-sequencing, switches to a different section or piece instead, ideally when the current musical phrase ends.
+- **in_infinite_flow:** Not built. Because the app generates notes rather than playing recordings, a layer would be a whole system voice that can enter on any beat, for example when a companion joins the team in the endgame vision.
+- **related:** `accompaniment`, `texture`, `stinger`, `system-voice`, `functional-layer`
+- **sources:** S159, S180
+
+### Voice
+
+- **id:** `voice`
+- **aliases:** part, line
+- **popup:** One line of music played by one instrument or singer, such as the melody or the bass line.
+- **definition:** A voice, or part, is one line of notes played by one instrument or sung by one singer; musicians use the word for instruments too. A piano piece might have a melody voice on top, a bass voice at the bottom and inner voices in between. Thinking in voices helps describe how a piece is built: how many lines there are and how each one moves.
+- **in_infinite_flow:** The player's phrase is one voice. The backing has two, bass and chords (BackingVoice in src/audio/audio-ports.ts); v4 plans more, each with a role.
+- **related:** `melody`, `texture`, `voice-leading`, `system-voice`, `accompaniment`
+- **sources:** S148, S124, src/audio/audio-ports.ts
+
+### Walking bass
+
+- **id:** `walking-bass`
+- **aliases:** walking bass line, four feel, two-feel (the lighter style)
+- **popup:** A jazz bass line that steps along in steady quarter notes, one on every beat, outlining the chords.
+- **definition:** A walking bass plays one note on every beat, in steady quarter notes, moving mostly by step through chord tones, scale tones and chromatic passing notes, so that it seems to walk from chord to chord. A common recipe puts the chord's root on beat 1 and, on the last beat before a change, an approach note a half step above or below the next root. A lighter style, the two-feel, plays only two notes per measure.
+- **in_infinite_flow:** Not built. Today's backing bass plays the chord's root at each chord change and downbeat, and the fifth on beat 3 when one chord fills the measure, close to a two-feel. A walking bass is a candidate foundation role for v4.
+- **related:** `approach-note`, `chromatic-approach`, `quarter-note`, `root`, `chord-tone`, `swing`
+- **sources:** S132, S133, src/domain/backing/backing-renderer.ts
 
 ## Instruments and transposition
 
@@ -2015,6 +2337,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Internal word for what the owner calls a "gimmick". The app cannot store one today; later presets may carry a few (spec decision D228 places them after v3), and Jam (v3.2) grows a player's own idea. Not built.
 - **related:** `riff`, `lick`, `motif`, `played-signal`
 - **sources:** specs/versions/v3/README.md, specs/personas.md
+
+### System voice
+
+- **id:** `system-voice`
+- **aliases:** side instrument, companion voice
+- **popup:** Internal: a voice the app plays alongside the player's line, such as the backing's bass or a planned accompaniment role.
+- **definition:** A system voice is any line the app itself plays during a session, as opposed to the line the player plays. In the research and spec notes it is the unit of v4's accompaniment: each system voice has a role and a register and, later, a timbre and a character.
+- **in_infinite_flow:** Today the backing's bass and chords are the only system voices (BackingVoice in src/audio/audio-ports.ts, kept narrow so that v4 can widen it). The endgame vision makes companions and antagonists system voices.
+- **related:** `voice`, `accompaniment`, `accompaniment-role`, `vertical-layering`
+- **sources:** docs/music/accompaniment-systems.md, src/audio/audio-ports.ts, specs/versions/v4/README.md, specs/vision/endgame.md
 
 ### Tick
 

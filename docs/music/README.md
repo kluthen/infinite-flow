@@ -41,6 +41,19 @@ These three documents are implementation policy derived from the [master specifi
 
 These are research, not settled policy: their proposals wait for the v3 spec sessions. Their sources are in [research sources](research-sources.md) and their terms in the [lexicon](lexicon.md).
 
+## v4 research (2026-10-11)
+
+- [Arranging and accompaniment roles](arranging-and-roles.md): how arrangers give parts distinct jobs, a catalogue of accompaniment roles, the owner's three roles mapped onto it, minimum voice-leading rules, density, and the endgame mapping.
+- [Accompaniment systems and adaptive music](accompaniment-systems.md): existing accompaniment software, technique families, answering a live player, adaptive game music, and showing several voices on the score.
+- [Sound library survey](../sound-library-survey.md): Tone.js and the alternatives for v4's system-voice timbres and drums, with a recommendation and a spike plan.
+
+Where the two music documents differ, the v4 spec session decides:
+
+- **Comping** is a foundation role (harmony support) in the arranging research and the closest real-world model of a responding accompanist in the systems research. Both readings are sourced: comping supports the harmony and reacts to the soloist's gaps.
+- **The first roles to build**: the arranging research suggests one role per family (foundation, highlight, contrast, respond); the systems research suggests a single responding voice that fills the lead's rests, as the smallest step.
+
+These are research, not settled policy: their proposals wait for the v4 spec session. Their music sources are in [research sources](research-sources.md) (the survey keeps its software sources to itself) and their terms in the [lexicon](lexicon.md).
+
 ## Shared Principles
 
 - A generated result is a short phrase, not a sequence of independently random bars.
