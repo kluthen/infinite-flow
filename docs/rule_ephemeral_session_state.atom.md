@@ -7,6 +7,7 @@ parents:
 layer: BUSINESS
 version: 0.2
 dependents:
+  - [[module_on_device_database]]
   - [[module_session_tension_across_phrases_flag]]
   - [[module_session_vary_settings_flag]]
   - [[rule_session_data_never_sent_or_stored]]

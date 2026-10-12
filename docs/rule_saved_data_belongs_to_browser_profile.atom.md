@@ -5,7 +5,8 @@ parents:
   - [[req_on_device_storage]]
   - [[rule_single_local_user]]
 notes: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
-dependents: []
+dependents:
+  - [[module_on_device_database]]
 type: RULE
 layer: BUSINESS
 human_name: Kept Data Belongs to One Browser Profile and Address
