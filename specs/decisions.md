@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.79
+Status: draft v2.80
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D275**; D290–D299 are reserved by another session. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D287**; D290–D299 are reserved by another session. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet.
 
 ## Decision Log
@@ -895,3 +895,83 @@ on branch `v4-accompaniment-research`, not merged yet.
   variants dropping one event's seventh at a time, in a fixed order, within the cost guard, and
   measures again. The share is recorded per level and mode with the share of phrases that fell back
   to triads, and reported to `ux-writer` (Part D §D15 item 5). Master spec Part D v1.1.
+
+- **D276 (2026-10-12): the v3.3 contract is confirmed once, early (proposed for owner approval with
+  Part D).** Planning answer for the [v3.3 build plan](versions/v3/build-plan-v3.3.md). The three STABLE wordings of Part D §D12
+  (`req_session_backing_track`, `rule_open_phrase_ending`'s first option, `rule_leap_recovery`) are
+  confirmed together, after `documentalist`'s ingestion of Part D, and applied at once with one
+  MAJOR bump, CONTRACT 3.0 to 4.0, as D246 did: each holds trivially while the level is Off. The
+  open ending's second option is a separate confirmation after the listening check, with its own
+  bump. A chunk that changes a STABLE rule may be built before its confirmation but merges only
+  after it; unconfirmed at its wave's end, it leaves the wave. Plan §1, §3.
+
+- **D277 (2026-10-12): the level's ids (proposed for owner approval with Part D).** The level is
+  sent and stored as `chordFamilies: { 'seventh-chords': level }`, beside the controls, never
+  inside them, with the level ids `off`, `sometimes`, `favored` and `strongly-favored`: Part D's
+  names, never the interface's labels (Off, Sometimes, Often, Mostly), so a label change migrates
+  nothing. It is always present inside the app; an input from before v3.3 (a replay key, a kept
+  body, a settings or preset record) reads Off where it is decoded. Plan §2.
+
+- **D278 (2026-10-12): the seventh draw's position and shares (proposed for owner approval with
+  Part D).** "The event's position in the phrase" (§D5.3) is the harmony event's start, its bar
+  index and start beat, so one place draws the same in every candidate plan. The draw is `fnv1a32`
+  over `infinite-flow/seventh-chord/v1`, the phrase's seed and that start; the shares are
+  numerators over 256, starting at 64 (Sometimes) and 128 (Favored). Strongly favored and Off draw
+  nothing. Plan §2, chunk 12.
+
+- **D279 (2026-10-12): data version 5, with an upgrade that rewrites nothing (proposed for owner
+  approval with Part D).** v3.3's stored data version is 5, after v3.2's 4. Its upgrade step
+  rewrites no record: every codec reads an absent level as Off, and a kept body's harmony with no
+  seventh as triads. Plan chunk 17.
+
+- **D280 (2026-10-12): the listening check's examples are rewritten phrases (proposed for owner
+  approval with Part D).** §D6.3's examples are phrases generated at Strongly favored, with the
+  final note (or the next phrase's first note) moved to the chord's seventh, rendered to MIDI with
+  the real backing beside the unaltered phrase. No code for the open ending's second option exists
+  before the owner approves it. Plan chunks 4 and 18, hand check H1.
+
+- **D281 (2026-10-12): what the seventh share counts (proposed for owner approval with Part D).**
+  §D15 item 5's share counts harmony events (a chord held across a barline once) of the phrases
+  generated, over the deadline sweep's 568 rhythm settings × two seeds × the nine modes, with the
+  Neutral and Jazz defaults, per level. A fallback is a phrase won by the triads-only variant of a
+  plan that drew at least one seventh. The 3 in 4 at Strongly favored is over the whole sweep;
+  each mode's share is recorded and reported to `ux-writer`, and a mode under 3 in 4 goes to
+  `ux-writer` with the figures without triggering the finer fallback on its own. Plan §4 (M1).
+
+- **D282 (2026-10-12): a listening check of the level and the backing (proposed for owner approval
+  with Part D).** §D5.2 tunes the Sometimes and Favored shares "by listening": once the control
+  exists, the owner listens to each level with Jazz, Bebop, Modal (Dorian) and Neutral, and to the
+  four-note backing; the final share and cost runs follow it. Plan step L2, hand check H2.
+
+- **D283 (2026-10-12): who updates the project documents §D12 names (proposed for owner approval
+  with Part D).** The harmony planner policy: the build's chunks 2 and 12. The pitch planner
+  validation note: chunks 5–7. The generator contract (`specs/generator-contract.md`):
+  `spec-writer`, from chunk 12's report, at that wave's gate. The lexicon's "in Infinite Flow"
+  lines: `documentalist`, at the release gate (§D16). Plan §3.
+
+- **D284 (2026-10-12): no token-source chunk for v3.3 (proposed for owner approval with Part D).**
+  v3.3 adds no token, class or motion (ux D261), so its plan has no token pass and no owner step
+  for one; the owner's approval of the v3.3 design still gates the interface chunks and the three
+  preset description sentences. Plan §1.
+
+- **D285 (2026-10-12): the v3.3 change set adds what §D12 missed (proposed for owner approval with
+  Part D).** `documentalist`'s read-only preflight of 2026-10-12 found atoms that a seventh chord
+  changes and §D12 does not list: `service_generation_result_validation`,
+  `module_named_stream_pseudorandomness`, `module_ranked_candidate_ordering`,
+  `service_generation_orchestration`, `service_generation_request_resolution`,
+  `module_pitch_search_context` (the final notes), `module_pitch_search_transition` (the landing),
+  `rule_no_carry_in_output_matches_v1`, `rule_doodle_only_orders_candidates`,
+  `rule_preset_load_values_win`, `rule_session_history_keeps_timeline_and_inputs`,
+  `rule_earlier_kept_sessions_carried_over`, `module_session_carry_in_after_change`, and the naming
+  of `module_musical_profile_capabilities`. None is STABLE. The ingestion's change set revises them
+  too, and adds a BUSINESS atom for the chord-symbol vocabulary and its spoken words. Plan §9.
+
+- **D286 (2026-10-12): until the control ships, the app sends Off (proposed for owner approval with
+  Part D).** Every v3.3 chunk before the Seventh chords control changes nothing a player can reach,
+  since the app always sends Off; no feature switch is built for them and no release is cut
+  between waves. Plan §1.
+
+- **D287 (2026-10-12): a Jam's phrase 1 carries the level on every rung (proposed for owner approval
+  with Part D).** §D8.4's "a Jam's phrases follow the level like any session's" holds on each rung
+  of a fresh Jam's phrase-1 ladder (C5.7), the doodle-free rung included, and on every later
+  phrase. Plan chunks 3 and 16.
