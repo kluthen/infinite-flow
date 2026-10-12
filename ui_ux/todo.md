@@ -34,7 +34,7 @@
 **v3.3 (richer chords) design**, from master spec Part D (§D1-§D17, proposed for the owner's
 approval with spec D264-D274), on branch `v3.3-chord-research`. Started 2026-10-12; marked on top
 of v3.0's, v3.1's and v3.2's marks, every v3.3 change its own tagged paragraph (ux D252). Owner's
-standing delegation: settled here, no question to the owner. Settled decisions: ux D252-D262;
+standing delegation: settled here, no question to the owner. Settled decisions: ux D252-D263;
 spec point for `spec-writer`: Q77 (designed on the recommended reading). No `src/` edits; no new
 token (ux D261).
 
@@ -46,7 +46,8 @@ token (ux D261).
   `screens/preset-sheet/handoff.md`, `flows/play-session/`, `flows/generate-phrase/handoff.md`,
   `flows/saved-data/handoff.md`, `flows/review-and-export/handoff.md`,
   `screens/last-session-review/handoff.md`. Written 2026-10-12.
-- **Validation.** `ux-critic` on v3.3: pending.
+- **Validation.** `ux-critic` on v3.3: DRIFT, four copy and marking findings, all fixed (ux D263).
+  Validated for the owner's review.
 
 **v3.1 (presets and embellishment figures) and v3.2 (Jam) design**, from master spec Parts B and C
 (approved 2026-10-08). Started 2026-10-08; v3.0's approved design was frozen in `versions/v3.0/`
@@ -155,7 +156,7 @@ drops the check.
 
 ## Next Unit
 
-v3.3: `ux-critic`'s validation of unit S, then the owner's approval of Part D (which this design
+v3.3: the owner's approval of Part D (which this design
 follows as proposed) and `spec-writer`'s answer to Q77; the build's recorded seventh-chord share at
 Strongly favored comes back here to confirm the label "Mostly" (ux D254).
 

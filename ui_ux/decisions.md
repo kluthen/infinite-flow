@@ -935,3 +935,17 @@ Part D changes what it rests on.
   `flows/review-and-export/handoff.md` and `screens/last-session-review/handoff.md`. Unchanged, as
   §D11 says: `flows/jam/`, the suggestion, the rhythm lock, `flows/kept-sessions/`,
   `screens/session-list/`, `screens/your-data/` (its wording already covers the level).
+- **D263 — `ux-critic`'s v3.3 pass: DRIFT, four findings fixed (2026-10-12).** (1) The workspace
+  Layout Tree gains the v3.3 Vary settings note, as Components and Content had it, and the change
+  block links the tree. (2) The presets handoff's change block links Routing Rules, where its v3.3
+  paragraphs sit. (3) **The Seventh chords note reads, correcting D255:** "How often a chord gets
+  one more note stacked on top, as G7 (G, B, D, F) instead of G (G, B, D): a richer, jazzier sound.
+  A preference, never a promise." Under the label "Seventh chords", "a fourth note" could be read as
+  the interval of a fourth; "one more note stacked on top" is the lexicon popup's own wording. The
+  intent prose in `strategy.md`, `screens/phrase-workspace/intent.md` and `flows/presets/intent.md`
+  follows. (4) Correcting D255's "unseen": changing the level lets a held doodle go announcing
+  nothing, `jam-bar` leaving at once, as `flows/jam/` says; and `flows/generate-phrase/handoff.md`
+  now says the change builds no request by itself but, as any setting change, starts a round under
+  the too-many-notes notice. Not findings, noted: the formatter's `*…*` to `_…_` in
+  `flows/saved-data/handoff.md` renders the same; the lexicon's "in Infinite Flow" lines for the
+  chord terms ("Only triad symbols appear") are `documentalist`'s to update at the build.

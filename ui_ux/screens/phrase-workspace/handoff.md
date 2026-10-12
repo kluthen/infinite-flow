@@ -91,7 +91,7 @@
 >   [Responsive Behavior](#responsive-behavior))
 > - _v3.3 changed:_ every preset holds the level; three built-in descriptions suggest raising it;
 >   Vary settings' note says it is never varied; the saved settings gain it
->   ([Components and Content](#components-and-content))
+>   ([Layout Tree](#layout-tree), [Components and Content](#components-and-content))
 > - _v3.3 new:_ the four seventh chord symbols, how they fit two to a measure, and their spoken
 >   words ([Layout Tree](#layout-tree), [Notation Contract](#notation-contract))
 
@@ -229,7 +229,7 @@ layout-app
           field-group (seventh chords; v3.3 new; after harmonic motion, before tension -- see Components and Content, Seventh chords)
             field-label ("Seventh chords")
             segmented-control (Off, Sometimes, Often, Mostly; aria-describedby the field-note below)
-            field-note ("How often a chord gets a fourth note on top, as G7 (G, B, D, F) instead of G (G, B, D): a richer, jazzier sound. A preference, never a promise.")
+            field-note ("How often a chord gets one more note stacked on top, as G7 (G, B, D, F) instead of G (G, B, D): a richer, jazzier sound. A preference, never a promise.")
           field-group (tension)
         control-group (rhythm)
           field-group (note density)
@@ -284,6 +284,7 @@ layout-app
             segmented-control (Off, On)
             field-note (v3.1 changed: "Every 2 to 4 phrases, one setting moves one step. Never the instrument or the tempo. Keys and modes stay within what your preset is meant for. Your settings come back when the session ends.")
             (v3.2 changed: the note above reads instead "Every 2 to 4 phrases, one setting from the groups below moves one step. Never the instrument or the tempo. Keys and modes stay within what your preset is meant for. Your settings come back when the session ends.")
+            (v3.3 changed: the note above reads instead "Every 2 to 4 phrases, one setting from the groups below moves one step. Never the instrument, the tempo or Seventh chords. Keys and modes stay within what your preset is meant for. Your settings come back when the session ends.")
             field-note (v3.2 new; only while no move is possible: "Nothing is allowed to vary with these choices. Turn on another group below.")
             field-dependent (v3.2 new; while Vary settings shows On, and while it is unavailable for lack of a move)
               field-group (what may vary)
@@ -418,9 +419,9 @@ layout-app
   - Like every control, the group is editable at Idle and in the review mode, read-only during **Loading** and a session, and saved when changed (see **Saved settings**). Changing a level never regenerates the phrase on screen. It is always shown, never collapsed.
   - **Passing tone and neighbor tone never both off** (this rule ships only if the build's cost measurement requires it; without it, every segment is always available): while one of the two is `Off`, the other's `Off` segment is disabled (native `disabled`, never the checked segment, skipped by arrow-key selection), and a second `field-note` follows that field's first, "Passing tone and neighbor tone can't both be off: one of them keeps the melody moving.", named by the disabled segment's `aria-describedby`, as Note density's `Sixteenth` is on a phone. A preset or saved setting holding both `Off` loads with the neighbor tone at `Rarely`.
 
-- **[v3.3 new]** **Seventh chords.** A `field-group` in the foundation group, after harmonic motion and before tension: `field-label` "Seventh chords", a `segmented-control` of four segments, `Off`, `Sometimes`, `Often`, `Mostly`, with the same look and keyboard behaviour as a figure level's, and a `field-note` that the `radiogroup` names with `aria-describedby`: "How often a chord gets a fourth note on top, as G7 (G, B, D, F) instead of G (G, B, D): a richer, jazzier sound. A preference, never a promise."
+- **[v3.3 new]** **Seventh chords.** A `field-group` in the foundation group, after harmonic motion and before tension: `field-label` "Seventh chords", a `segmented-control` of four segments, `Off`, `Sometimes`, `Often`, `Mostly`, with the same look and keyboard behaviour as a figure level's, and a `field-note` that the `radiogroup` names with `aria-describedby`: "How often a chord gets one more note stacked on top, as G7 (G, B, D, F) instead of G (G, B, D): a richer, jazzier sound. A preference, never a promise."
   - The segments are how often the app tries a seventh chord in place of the plain chord on the same note: `Off` never (only three-note chords, as before v3.3), `Sometimes` about one chord in four, `Often` about one in two, `Mostly` first at every chord, the phrase falling back to three-note chords only where its seventh chords lead to no phrase (master spec §D5.2, §D5.3; the shares are tuned at the build). On a first visit, and after `Delete everything`, it is `Off`.
-  - It is a setting the phrase is generated from, like every control in the foundation group: editable at Idle and in the review mode, read-only during **Loading** and for a whole session (`is-readonly`, as every control), saved when changed (see **Saved settings**). Changing it never regenerates the phrase on screen: the player hears it with `Regenerate phrase`, as for any setting, and under the too-many-notes notice it starts a round like any such change. It discards the prepared phrases and lets a held doodle go, unseen (`flows/generate-phrase/`, `flows/jam/`).
+  - It is a setting the phrase is generated from, like every control in the foundation group: editable at Idle and in the review mode, read-only during **Loading** and for a whole session (`is-readonly`, as every control), saved when changed (see **Saved settings**). Changing it never regenerates the phrase on screen: the player hears it with `Regenerate phrase`, as for any setting, and under the too-many-notes notice it starts a round like any such change. It discards the prepared phrases, unseen, and lets a held doodle go, announcing nothing, `jam-bar` leaving at once (`flows/generate-phrase/`, `flows/jam/`).
   - It is preset-held: every preset sets it (every built-in to `Off`), and changing it makes the selection Custom (see **Custom**). Vary settings never moves it and it belongs to none of What may vary's groups, so it never changes during a session and never turns the selection to Custom there.
   - Nothing announces it, and nothing ever says that a phrase holds fewer seventh chords than the level suggests: a level is a preference, never a promise.
 - Instrument profile uses `segmented-control` for C MIDI keyboard, B-flat tenor saxophone (default selection), and E-flat alto saxophone. The selected `profile-range-summary` states the profile's active range and Low, Middle, and High whole-phrase windows.

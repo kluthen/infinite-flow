@@ -94,7 +94,7 @@ Controls are grouped by the musical decision they influence: foundation, rhythm,
 
 **[v3.1 new]** The controls open with a preset, a named starting point, before any of the musical groups: a player picks where to start, then fine-tunes. Changing a setting the preset holds turns the selection to Custom, which still names the preset it came from, so the player always knows what they started from and that saving would keep it. After the four musical groups comes an Embellishments group: one control per decorating figure, each saying in plain words what the figure is and what rhythm it needs, and how often the app should use it. The options that act only once a session runs stay last, together.
 
-**[v3.3 new]** The foundation group gains one setting after Harmonic motion: Seventh chords, how often a chord takes a fourth note on top. The two settings that make the chords read together, where a player looking at a chord symbol over the staff would look for its cause.
+**[v3.3 new]** The foundation group gains one setting after Harmonic motion: Seventh chords, how often a chord takes one more note stacked on top. The two settings that make the chords read together, where a player looking at a chord symbol over the staff would look for its cause.
 
 ## Visual Direction
 

@@ -76,8 +76,8 @@ Unsaved changes are replaced without asking: the player chose a starting point, 
 before every choice would make the dropdown tiring to explore. What they had is one choice away if
 it was a preset, and saving first is always on offer while it is Custom.
 
-**[v3.3 new]** From v3.3 a preset also holds the Seventh chords level, how often a chord takes a
-fourth note on top. Every built-in holds Off, so Neutral, Jazz and the others sound as they did,
+**[v3.3 new]** From v3.3 a preset also holds the Seventh chords level, how often a chord takes one
+more note stacked on top. Every built-in holds Off, so Neutral, Jazz and the others sound as they did,
 and a preset still gives the same sound whatever came before it: choosing Bebop after raising the
 level puts it back to Off. Jazz, Bebop and Modal (Dorian) suggest raising it in their description
 instead, the way Reel suggests trying Ionian, since those styles usually use seventh chords; a

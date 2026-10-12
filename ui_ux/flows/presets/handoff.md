@@ -6,7 +6,7 @@
 >
 > - _v3.3 changed:_ every preset also holds the Seventh chords level, every built-in at `Off`;
 >   changing it makes Custom and discards the prepared phrases
->   ([Choosing, Custom and the Restriction](#choosing-custom-and-the-restriction))
+>   ([Routing Rules](#routing-rules))
 
 Screens: `screens/phrase-workspace/` for the preset bar (`preset-bar`: the `preset-select` box, its
 description `field-note` and `preset-actions`), the key and mode marks and the Embellishments
