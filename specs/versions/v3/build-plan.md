@@ -439,6 +439,18 @@ the new **Clef design** gate for `ux-writer` and O181. Chunk 17 carries the clef
 instrument into the history and the kept-session record; chunk 18's key leaves it out; chunk 21
 creates my instrument in treble clef or keeps the existing clef.
 
+#### Chunk 19b preflight (2026-10-12)
+
+`documentalist` ran the D-peek for chunk 19b on `v3.0-w2` after the atom revisions it waited for
+(13de53c, change set part H), without an LLM: the `@spec-link` and `@test-link` tags in every file
+of the chunk's Files line, `atd query`, grep over the atoms, and reading them. A STABLE atom sits in
+the files, so the peek was widened to every file rather than one. `atd lint` passes; `atd check
+--full` finds no dangling link (386 atoms). No atom was written by the peek.
+
+| Chunk | Verdict | Governing atoms | Open before code |
+| --- | --- | --- | --- |
+| 19b | PROCEED-WITH-SIGNOFF-PENDING | `rule_notation_display_preserves_phrase` 1.1 (REVIEW, BUSINESS), `module_notation_display_convention` 2.3, `module_notation_stem_direction` 0.2, `module_notation_layout_preflight` 0.9, `entity_my_instrument` 0.2, `rule_generated_notes_musicxml_export` 0.6 (REVIEW), `req_my_instrument` 0.4 (DRAFT); in the files also `rule_controller_transposition_check` (STABLE, contract surface; `vexflow-check-note-engraver.ts`), `rule_my_instrument_range_limits`, `entity_instrument_profile`, `module_notation_engraving_anchors`, `module_notation_note_identity_overlays`, `module_idle_fit_round`, `module_session_rolling_display`, `rule_session_layout_fixed_at_start`, `rule_session_ends_when_staff_too_small`, `rule_session_ends_on_portrait_view` (REVIEW) | Every atom the chunk names now says what it builds, so the capture point (where the clef sits) is already in `entity_my_instrument` 0.2 and `module_notation_display_convention` 2.3; tell `documentalist` if the design differs. `rule_controller_transposition_check` (STABLE) says only "one written note from the instrument's own range", with no clef, so drawing it in my instrument's clef keeps it true; no contract change. No atom names the check note's clef: at the post-task sync, the clef code in `vexflow-check-note-engraver.ts` links `rule_notation_display_preserves_phrase`, which now says every staff is in the selected instrument's clef. The sign-off pending is not the chunk's: the owner's later ruling (kept sessions tied to my instrument, reviewed with it as it is now, its current clef included) is not yet a spec decision, and `rule_kept_session_content` waits for it. Keep the review's clef source easy to change: Scope's "every reader draws the clef the phrase carries, the review included" may become "the review reads my instrument's current clef". The same ruling may touch `req_last_session_review` (STABLE, contract surface: "engraved exactly as it was displayed"), for `spec-writer` and the owner. Keep true: the built-ins' staff, snapshots and MusicXML byte for byte; the clef in no generation request, controls, worker message or replay key (the `ifk1.` corpus); `makeMyInstrument`'s refusals unchanged; no range refusal per clef (`rule_my_instrument_range_limits` states only the two-octave minimum until `spec-writer` records the approved bound); a new my instrument's clef is treble only as the templates' clef, the default itself being for the Clef design gate. |
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
