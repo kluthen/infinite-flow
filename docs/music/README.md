@@ -41,6 +41,10 @@ These three documents are implementation policy derived from the [master specifi
 
 These are research, not settled policy: their proposals wait for the v3 spec sessions. Their sources are in [research sources](research-sources.md) and their terms in the [lexicon](lexicon.md).
 
+## v3.3 research (2026-10-12)
+
+- [Chord research](chord-research.md): seventh, sixth, suspended, extended and altered chords; the seventh chord on each degree of the seven modes, with available extensions and avoid notes; style plausibility; chord symbols and MusicXML kinds; how melodies treat sevenths; where a fourth chord note meets the code and atoms; facts for O165–O173 and O175. Groundwork for v3.3 richer chords (D261, D262), not settled policy.
+
 ## Shared Principles
 
 - A generated result is a short phrase, not a sequence of independently random bars.

@@ -37,6 +37,9 @@
 >   ([Played Notes](#played-notes))
 > - _v3.2 new:_ the doodle's two forms ([Privacy](#privacy))
 > - _v3.2 new:_ the doodle section at every breakpoint ([At Every Breakpoint](#at-every-breakpoint))
+> - _v3.3 new:_ a kept phrase's inputs hold the Seventh chords level ([Saving the Session](#saving-the-session));
+>   seventh chord symbols in the review and the MusicXML file, the backing's chords in the MIDI
+>   file; no new control ([Export](#export))
 
 ## Flow
 
@@ -191,6 +194,10 @@ flowchart TD
   selection at the session's start, as `control-summary` writes it ("Bebop", "Custom, based on
   Bebop", "Custom"): a snapshot that a later rename or deletion of the preset never changes. Never acknowledgements. The same save deletes every unpinned kept session
   (`flows/kept-sessions/handoff.md`, Keeping at a Session's End). Nothing is shown on success.
+- **[v3.3 new]** Each phrase's reproduction inputs also hold the Seventh chords level, and its chord
+  symbols are kept exactly as displayed, seventh chords included. Sessions kept before v3.3 open as
+  before, their phrases' level read as `Off`; nothing in the review or the session list shows the
+  level.
 - **Keep line.** `review-keep-line` states how the session showing is kept: "Pinned: kept until
   you unpin or delete it.", "Not pinned: deleted when your next session is saved.", or, for a
   session whose save failed, "Not saved on this device: export it to keep it." It changes in place
@@ -288,6 +295,11 @@ flowchart TD
   including while the next phrase loads and while the staff has no room. Any failure to build or
   hand over a file, a failed load of the export code included, shows `review-export-error`.
   Details in `screens/last-session-review/handoff.md`.
+- **[v3.3 new]** **Seventh chords in the files.** No new control and no changed wording: the
+  review draws each phrase's chord symbols as displayed, seventh chords included; the MusicXML
+  file writes each seventh chord's symbol with its chord kind and the suffix as printed; with
+  `Backing track` on, the MIDI backing holds the chords as the backing played them, four notes for
+  a seventh chord. No file carries the level.
 - **[v3 new]** **Scope.** `review-scope`, first in `review-actions`: `Whole session` (checked at
   every Review opening, never saved) or `Favorites only`, which governs both exports: only the
   favorite phrases, in session order, each keeping its session phrase number; a played note held
@@ -313,7 +325,7 @@ flowchart TD
     measures long as the doodle, at the tempo it was played at; the first exported phrase follows
     at the next barline, and the waiting measures between them are not written. A raw note
     running past the section's end stops there.
-  Details: `screens/last-session-review/handoff.md`, Components and Content.
+    Details: `screens/last-session-review/handoff.md`, Components and Content.
 - **[v3.2 changed]** In a Jam, `Export played notes` and `review-view` are rendered when the
   session holds a played note in a phrase or in its doodle. Under `Favorites only`,
   `Export played notes` is disabled only when neither a favorite phrase nor the doodle holds one.

@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.53
+Status: draft v0.54
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -15,12 +15,13 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 [v2 archive index](archive/v2/README.md) says where each answer now lives.
 
 Open on 2026-10-12: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
-O115 and O116 (v3.x learning), and O165–O173 and O175 (v3.3 richer chords, below). D228–D234 closed O10 (for v3.2), O103, O114, O126 and every
+O115 and O116 (v3.x learning), and O176 (style packs and the chord level, below). D228–D234 closed O10 (for v3.2), O103, O114, O126 and every
 question the v3.1 and v3.2 drafts opened (O127–O157, O160–O162); D257 and D258 closed O163 and
 O164 the day they were opened. None blocks the v3.0 build.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
-The rest block v3.3's design, nothing under way.
+D264–D273 settled the rest the same day in master spec Part D, as proposed for the owner's
+approval with Part D; O175's precedence question goes on as O176.
 
 ## Later and governance (O47–O49)
 
@@ -93,114 +94,22 @@ O164 (the session-wide record's other facts) by D258. None is open here.
 ## v3.3 richer chords (O165+)
 
 Opened 2026-10-12 while recording the owner's request for richer chords as v3.3 (D261; recorded
-in [v3](versions/v3/README.md#v33--richer-chords-optional)). Settled by D261: richer chords are
-opt-in, the default stays root-position diatonic triads, the player chooses the allowed chord
-families in the app, and research comes before design. By D262 that research is a separate,
-docs-only item, running on branch `v3.3-chord-research`. Proposals below are strawmen, not
-decisions. Most of them wait for the research. Lexicon terms:
-[triad](../docs/music/lexicon.md#triad), [seventh chord](../docs/music/lexicon.md#seventh-chord),
-[chord tone](../docs/music/lexicon.md#chord-tone), [arpeggio](../docs/music/lexicon.md#arpeggio),
-[chord symbol](../docs/music/lexicon.md#chord-symbol). Terms the lexicon does not have yet
-(extended chord, chord extension, sixth chord, suspended chord, half-diminished, chord inversion,
-voicing) are research outputs ([v3](versions/v3/README.md#research-first)); they are glossed in
-place below.
+in [v3](versions/v3/README.md#v33--richer-chords-optional)). D262 closed O174 (the research is a
+separate item). The chord research ([docs/music/chord-research.md](../docs/music/chord-research.md))
+recommended an answer to each other question, and on 2026-10-12 spec-writer adopted them, settling
+the research's open points itself, in [master spec Part D](versions/v3/master-spec.md#part-d--v33),
+**proposed for the owner's approval with Part D**: O165 by D264 (one Seventh chords level, Off by
+default), O166 by D265 (diatonic only), O167 by D266 (runs stay three notes), O168 by D267 (the
+seventh a chord tone; endings read the triad until a listening check), O169 by D268 (a seeded
+preference per event; the cost guard), O170 by D269 (symbols, exports, the backing plays the
+seventh), O171 by D270 (presets, saved settings, Vary settings never moves the level, `ifk5.`),
+O172 by D271 (Jam and the suggestion unchanged), O173 by D272 (the STABLE wording changes listed
+for the owner) and O175's shape by D273. Their full text is in this register's history in git;
+the answers are in the [decisions log](decisions.md). If the owner amends Part D, the decision
+amended is revised, and no question comes back unless the owner reopens it.
 
-- **O165 - The flag set and its defaults** _(D261)_: which chord families get a flag: the seventh
-  chords as one flag or one per quality (major seventh, minor seventh, dominant seventh,
-  half-diminished, which is a diminished triad plus a seventh, as B–D–F–A); sixth chords (a triad
-  plus the sixth above the root, as C6: C–E–G–A) and suspended chords (the third replaced by the
-  second or the fourth, as Csus4: C–F–G); extended chords (ninths and beyond). Is a flag a plain
-  allowed/not allowed switch, or a level like the embellishment figures (Off to Strongly favored,
-  a preference and never a quota)? Can triads ever be switched off? Proposed: one "Seventh
-  chords" flag for v3.3, off by default; triads always allowed; any other family gets its own flag
-  once the research supports it. Where the flags sit on screen is `ux-writer`'s call.
-- **O166 - Diatonic only?** _(D261)_: is every richer chord still built by stacking thirds from the
-  selected collection (degrees d, d+2, d+4, d+6), so that its quality comes from the key and mode
-  as a triad's does? Proposed: yes for v3.3. Non-diatonic chords stay out: altered dominants and
-  substitutions (D11, D12), and borrowed or secondary chords. Consequence: Blues would be only
-  partly served. In C Mixolydian, C7 is diatonic but F7 (it needs E♭) is not, so the twelve-bar
-  I7–IV7–V7 is out of reach.
-- **O167 - The three-note arpeggio run cap** _(D261)_: a recognized run is exactly three chord
-  tones of one chord (`rule_leapiness_arpeggio_run_limits`; `wide_chain_too_long` in
-  `src/domain/pitch/pitch-motion.ts`), so a full four-note seventh arpeggio is rejected. The
-  options are: keep the cap at three, so a seventh chord shows at most three of its notes in one
-  run; or allow four only under a four-note chord. The second changes a contract rule, so the
-  owner would be asked to approve it explicitly. The Arpeggio chaos control, which picks the next
-  chord tone, meets the same question. Proposed: keep three unless the research shows the
-  four-note arpeggio is central to the styles served, then ask the owner.
-- **O168 - Figures and what a chord tone is** _(D261)_: every figure resolves onto a chord tone
-  (`rule_figures_resolve_onto_chord_tones`), the pitch search tries chord tones first, and the
-  tension figures land on chord tones. Is the seventh a chord tone for all of these, and is an
-  extension (a ninth, say)? Does that depend on the style? In classical practice a seventh is a
-  dissonance that resolves down by step; in jazz it is a stable note. The same question reaches
-  the open phrase ending (may a phrase end on the seventh, as F over G7?) and the join (does the
-  next phrase's tonic-chord landing include a seventh?); see
-  [v3](versions/v3/README.md#what-a-fourth-chord-note-meets). Proposed: the research answers per
-  style. Then decide whether the seventh counts as a chord tone everywhere, or a figure may not
-  resolve onto it.
-- **O169 - How the harmony planner picks a richer chord** _(D261)_: with sevenths allowed, does
-  every chord of the phrase take its seventh, or only some? If some, are they chosen by degree or
-  role (the dominant first, say), by a seeded preference that is never a quota, or by tension?
-  The planner policy says Jazz and Neutral expose the same harmony domain for the same harmony
-  controls; the flags would become harmony controls of their own. A fourth chord tone also widens
-  the pitch search, and generation must still keep up at the fastest tempo. Proposed: a seeded
-  preference, in line with D210's "preferences, not quotas"; the spec sets a generation-time check.
-- **O170 - What the player sees and hears** _(D261)_: covers chord symbols, the backing and the
-  exports.
-  - Chord symbols: today only major, minor and diminished. Which spelling for the new ones, for
-    example Bm7♭5 or Bø7? They are transposed to written pitch, as today. The spoken score
-    description reads each symbol's suffix as words, so it needs the new ones too.
-  - The backing: its block chords play a close-position triad at or below E4
-    (`req_session_backing_track`, STABLE). Does it play the seventh too, in what voicing (which
-    notes it plays, in which octave) and register?
-  - The exports: MusicXML writes chord symbols through a fixed kind table.
-
-  Proposed: the backing plays the full chord the planner chose. That changes a STABLE guarantee,
-  so the owner confirms the wording.
-
-- **O171 - Presets, saved settings, Vary settings and the replay key** _(D261)_:
-  - Presets: do the built-in Jazz, Bebop and Modal (Dorian) presets allow sevenths? v3.1 promises
-    that Neutral and Jazz at their defaults sound exactly as before. Do Blues and Bossa become
-    built-in presets? They also lack swing and other things.
-  - Saved settings: player presets and saved settings store the flags.
-  - Vary settings: may it move the flags, and in which allowed group?
-  - The replay key: it carries the carry-in, whose final chord is checked as a triad, so a phrase
-    with richer chords needs a key version after v3.2's `ifk4.` (D251).
-  - Sessions: a chord flag changed mid-session applies at the next phrase boundary, like any
-    setting. A carried final chord the new flags no longer allow falls under
-    `rule_harmony_change_drops_unfit_harmonic_carry_in` (STABLE), which drops it.
-
-  Proposed: no built-in changes by default, so the v3.1 promise holds. A built-in that allows
-  sevenths would be a new preset or an owner's explicit change.
-
-- **O172 - Jam and the key and mode suggestion** _(D261)_: the suggestion scores the doodle's own
-  notes against the 84 key and mode pairs, not the generated chords. Proposed: unchanged, to be
-  confirmed by the research and the code. A Jam's phrases follow the same chord flags as any
-  session. The doodle's preferences meet the chord-tone question (O168).
-- **O173 - Declared intent** _(D261)_: which atoms change, and which STABLE guarantees with them.
-  Candidates:
-  - `module_harmony_candidate_domain` (triads only);
-  - `rule_leapiness_arpeggio_run_limits`;
-  - `rule_figures_resolve_onto_chord_tones`;
-  - `entity_phrase_carry_in` (tonic-triad tones);
-  - `rule_open_phrase_ending` (STABLE) and `rule_join_tense_note_resolution` (chord-tone endings
-    and landings);
-  - `module_phrase_replay_key` and `module_notation_display_convention` (key version, chord
-    symbols);
-  - `req_session_backing_track` (STABLE);
-  - the vision's scope, which ends at v3.2;
-  - the contract version.
-
-  Any STABLE change needs the owner's explicit confirmation of its wording, as for v3.1 and v3.2
-  (D246). The owner approved updating the vision now (D262); the rest waits for v3.3's master
-  spec.
-
-- **O175 - Chord flags and a later style-pack layer** _(D261; D259 on branch
-  `v4-accompaniment-research`, not merged)_: the breadth review on that branch would build each
-  missing device once, off by default, and let a style pack, as declarative data, switch devices
-  on and set preset defaults; its replay key would carry a pack id and version. Should v3.3's
-  chord flags be shaped so that such a pack can later set them as data? That means one named
-  capability per chord family, stored by value in saved settings, presets and the replay key, and
-  no rule tied to a preset's name. And which wins when a player's flag and a pack disagree?
-  Proposed: yes to the shape, as v3.1's figure levels are carried by value in `ifk3.`; the
-  precedence is decided with style packs, not now.
+- **O176 - Style packs and the chord level: which wins** _(D273, from O175; with style packs, no
+  version)_: when a later style pack sets the `seventh-chords` capability as data and the player's
+  Seventh chords level says otherwise, which applies, and how the player sees it? Not needed
+  before style packs (D259, on branch `v4-accompaniment-research`, not merged). Proposed: decided
+  with style packs.

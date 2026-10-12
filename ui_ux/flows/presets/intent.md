@@ -2,6 +2,11 @@
 
 > **New in v3.1.**
 
+> **Changes since v3.1**
+>
+> - _v3.3 new:_ every preset holds the Seventh chords level, each built-in at Off, and three
+>   built-ins suggest raising it ([Choosing a Preset](#choosing-a-preset))
+
 Until v3.1 the player chose between two fixed styles, Neutral and Jazz, inside the foundation
 group, and could not say which decorations the melody should use. v3.1 gives every setting a
 generator reads a named starting point: a **preset**, chosen in one step from a dropdown at the
@@ -71,6 +76,14 @@ Unsaved changes are replaced without asking: the player chose a starting point, 
 before every choice would make the dropdown tiring to explore. What they had is one choice away if
 it was a preset, and saving first is always on offer while it is Custom.
 
+**[v3.3 new]** From v3.3 a preset also holds the Seventh chords level, how often a chord takes one
+more note stacked on top. Every built-in holds Off, so Neutral, Jazz and the others sound as they did,
+and a preset still gives the same sound whatever came before it: choosing Bebop after raising the
+level puts it back to Off. Jazz, Bebop and Modal (Dorian) suggest raising it in their description
+instead, the way Reel suggests trying Ionian, since those styles usually use seventh chords; a
+player who wants "Bebop with sevenths" raises the level and saves a preset of their own, which
+keeps it.
+
 A preset with a key and mode restriction moves the key or mode only as far as it must, each half
 on its own: the written key, often chosen for the instrument or the piece being practised, stays
 if the preset allows it, and otherwise the first value it lists is taken. Keeping the home note
@@ -79,13 +92,13 @@ colour (musicians call these parallel modes). The first listed value, rather tha
 makes the result predictable whatever the player had before: Reel always lands on Mixolydian, its
 signature sound. In the instrument's written pitch:
 
-| Before | Preset chosen | After |
-| --- | --- | --- |
-| G Ionian | Modal (Dorian): any key, Dorian | **G** Dorian: the key is allowed and kept |
-| A Aeolian | Reel: any key, Mixolydian or Dorian | A **Mixolydian**: the first listed mode |
-| A Dorian | Reel | A Dorian: already inside, nothing moves |
-| C Ionian | Pop song: any key, Major | C **Major**: the same notes, with chords that lead home the way songs do |
-| E Ionian | a player preset kept to G Dorian | **G Dorian**: one key and one mode, so both are set |
+| Before    | Preset chosen                       | After                                                                    |
+| --------- | ----------------------------------- | ------------------------------------------------------------------------ |
+| G Ionian  | Modal (Dorian): any key, Dorian     | **G** Dorian: the key is allowed and kept                                |
+| A Aeolian | Reel: any key, Mixolydian or Dorian | A **Mixolydian**: the first listed mode                                  |
+| A Dorian  | Reel                                | A Dorian: already inside, nothing moves                                  |
+| C Ionian  | Pop song: any key, Major            | C **Major**: the same notes, with chords that lead home the way songs do |
+| E Ionian  | a player preset kept to G Dorian    | **G Dorian**: one key and one mode, so both are set                      |
 
 Choosing a preset is the player's own act, so the rule that the app never changes the key and
 mode by itself still holds. The phrase on screen stays until the player regenerates it, as after

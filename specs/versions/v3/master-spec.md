@@ -1,6 +1,6 @@
-# Infinite Flow v3 — Master Spec: v3.0 Storage, v3.1 Generation Choices and v3.2 Jam
+# Infinite Flow v3 — Master Spec: v3.0 Storage, v3.1 Generation Choices, v3.2 Jam and v3.3 Richer Chords
 
-Status: this file holds three parts.
+Status: this file holds four parts.
 
 - **[Part A — v3.0](#part-a--v30), storage:** master spec v1.7 (2026-10-12), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
@@ -13,6 +13,10 @@ Status: this file holds three parts.
   master spec v1.0 (2026-10-08), consolidated from the approved v3.2 drafts; approved by the
   product owner (2026-10-08). The owner confirmed the exact wording of the contract
   guarantees it changes (C13) the same day. Its sections are numbered C1 to C18.
+- **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
+  (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
+  owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
+  separately. Its sections are numbered D1 to D17.
 
 Part A's history follows.
 
@@ -2979,3 +2983,746 @@ sessions and their doodles join the data kept for "whoever uses this browser pro
 device"; Delete everything removes them. The quantized doodle leaves the device only in the
 generated-notes export the player triggers, and the raw doodle notes only in the played-notes
 export; the replay key's console line stays on the device.
+
+## Part D — v3.3
+
+Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.1 (2026-10-12; v1.1 makes §D5.2 and §D5.3 agree that the triad fallback is per phrase, and sets the top level's share), consolidated from the
+v3.3 direction in the [v3 notes](README.md#v33--richer-chords-optional) and the chord research
+[docs/music/chord-research.md](../../../docs/music/chord-research.md), which keeps the sources, the
+construction tables and the code and atom references line by line. **Awaiting the owner's
+approval.** Its behaviour adopts the research's recommendations; where the research left a point
+open, this part proposes an answer and says so. The contract wording it changes (§D12) needs the
+owner's explicit confirmation, separately from approving this part. v3.3 is built on v3.0, v3.1 and
+v3.2 (Parts A, B and C): their storage, presets, [figure levels](../../../docs/music/lexicon.md#figure-level),
+Vary settings' allowed groups, Jam and `ifk4.` replay key must exist first.
+
+Music terms are explained the first time they appear; the project's
+[lexicon](../../../docs/music/lexicon.md) has one entry per term.
+
+## D1. Core concept
+
+Until v3.3 every chord the app writes is a **[triad](../../../docs/music/lexicon.md#triad)**: three
+notes stacked in thirds (every other note of the scale), such as C–E–G. Each chord is built from
+the selected key and mode, so its **[quality](../../../docs/music/lexicon.md#chord-quality)**
+(major, minor or diminished, set by the exact distances between its notes) comes from them. Even
+under the Jazz preset, all chords are plain triads.
+
+The owner asked for richer chords, optional, with flags the player sets in the app. v3.3 gives the
+player one thing:
+
+- **A Seventh chords level.** A **[seventh chord](../../../docs/music/lexicon.md#seventh-chord)** is
+  a triad with one more note stacked on top, a seventh above the chord's main note (its
+  [root](../../../docs/music/lexicon.md#root)): C–E–G–B is a C major seventh chord, written Cmaj7.
+  Seventh chords are the everyday chords of jazz, and they sound richer and less settled than
+  triads. The player sets a level, from Off to Strongly favored, saying how often the generator
+  should prefer a seventh chord over the plain triad on the same note. Off is the default.
+
+The guiding principle is unchanged: the app acknowledges and encourages; it never penalizes,
+grades, ranks or scores the player, and anything that adapts is opt-in and visible. **With the
+level at Off (the default), v3.3 generates exactly what v3.2 generates**, and every saved setting,
+preset, kept session and replay key from before v3.3 reproduces as before.
+
+The chords stay generated: the level allows seventh chords, it never chooses a
+[chord progression](../../../docs/music/lexicon.md#chord-progression) (the order of chords).
+
+## D2. Scope
+
+### In v3.3
+
+- One **Seventh chords level** with four steps, Off by default, a preference and never a quota
+  (§D5).
+- The four seventh chords the selected key and mode contain, nothing outside them (§D5.1).
+- A seventh chord's seventh counts as a chord tone for the melody; a run stays three notes; phrase
+  endings and the join between phrases keep today's notes unless a listening check approves the
+  seventh (§D6).
+- Chord symbols for the four new qualities, read aloud by the spoken score description and written
+  into MusicXML; the backing plays the seventh (§D7).
+- The level held by every preset (built-ins at Off), saved with the settings, carried by a new
+  replay key version, `ifk5.`, older keys still decoding (§D8, §D9).
+- A cost guard, measured before the gate (§D10).
+
+### Out of v3.3
+
+- **Other chord families:** sixth chords (a triad plus the sixth above the root, as C6: C–E–G–A),
+  suspended chords (the third replaced by the second or the fourth, as Csus4: C–F–G), extended
+  chords (ninths, elevenths, thirteenths, stacked on a seventh chord). Each would get a level of
+  its own later. Under the app's modes a sixth chord holds the same notes as a seventh chord two
+  notes lower (C6 has the notes of Am7), so it would add names, not new sounds.
+- **Chords from outside the key and mode:** altered dominants and harmonic substitutions (out by
+  the product's vision), borrowed chords, secondary dominants, the diminished seventh and the
+  other qualities that need harmonic or melodic minor. So the blues' twelve-bar I7–IV7–V7 (three
+  dominant sevenths, which no single mode contains) is out of reach: in C Mixolydian, C7 is
+  available but F7 and G7 are not.
+- A level per quality (a "dominant sevenths only" option), chord inversions (a chord with a note
+  other than its root at the bottom), slash chords.
+- A four-note arpeggio in one direction (§D6.2), and chosen progressions such as the jazz ii–V–I on
+  purpose.
+- A built-in preset that allows seventh chords, and the Blues and Bossa built-ins.
+- Vary settings moving the level (§D8.3).
+- Other backing voicings: jazz "shell" voicings, open position, a voicing choice (§D7.3).
+- Chord symbols written with signs (Δ, −, ø) or a choice of spelling.
+- Style packs, and how a pack's setting and the player's level would combine.
+- **Unchanged, permanently out:** any grading, scoring, ranking or wrong-note signal; accounts,
+  sharing or any server-side state.
+
+## D3. Personas and goals served
+
+The personas are Part A's (§3) and [personas.md](../../personas.md): **P1 — the Curious
+Improviser** (primary), a player who can already play and is a beginner at improvising; **P2 —
+the Speed Builder** (secondary), who wants endless fresh material at steadily higher tempos;
+**P3 — the Fledgling Composer** (secondary), who wants to keep and grow the ideas they liked.
+
+| Goal                                                                                                                                                     | Served by v3.3                      | How                                                                                                                                                                                                                                                                                                                                                                    |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **P1.G1 — Vocabulary by exposure.** Play whatever gets generated and feel how these ideas sound; get to know the possibilities rather than study theory. | **Partly, a new sound**             | The player hears seventh chords in the backing, sees their symbols, and plays melodies that land on the seventh, without studying theory: raising one level is enough. The jazz-flavoured presets (Jazz, Bebop, Modal (Dorian)) get closer to their styles, though not all the way: no chosen progressions, no chords from outside the key, no swing or style rhythms. |
+| **P1.G2 — Real-time reading and dexterity.** Adjust on the fly to notes as they come.                                                                    | **Partly**                          | Chord symbols with sevenths to read at speed, and melodies whose targets include the seventh.                                                                                                                                                                                                                                                                          |
+| **P2.S1 — Fresh material, never memorized, at a steadily higher tempo.**                                                                                 | **Slightly**                        | More harmonic variety in a long session; the cost guard keeps the fastest tempos working.                                                                                                                                                                                                                                                                              |
+| **P3.C3 — Grow an idea.**                                                                                                                                | **Slightly** (served by v3.2's Jam) | A Jam's phrases follow the level like any session, so a doodle can grow over seventh chords; Modal (Dorian) with sevenths gives the Am7–D7 sound of a Dorian vamp in A.                                                                                                                                                                                                |
+
+**Tensions settled for this scope.** A beginner wants plain, settled chords; the same player, and
+anyone drawn to jazz, wants the richer sound. Resolved by Off as the default and a level raised by
+choice. A seventh is a stable note in jazz and pop but a tension that must fall by a step in
+classical music; resolved by counting it as a chord tone inside a phrase, while phrase endings keep
+today's notes until a listening check says otherwise (§D6.3). A fourth chord note changes the pitch
+search, the generator's most expensive step; resolved by a level that only orders the planner's
+choices, a triad always kept as the fallback, and a measured cost guard (§D10).
+
+## D4. Words used in this part
+
+One term per concept, used the same way everywhere in Part D and by `ux-writer`'s design.
+
+- **Seventh chord**: a triad plus the note a seventh above its root (§D1). In the app's modes it is
+  always one of four qualities (§D5.1).
+- **Chord family**: a kind of chord the generator may use beyond triads. v3.3 has one, the seventh
+  chords. Internally each family is a named **capability**, `seventh-chords` for this one, so that a
+  later family, or a later style pack, can name it as data (§D14).
+- **Seventh chords level**, or the level: Off, Sometimes, Favored or Strongly favored (§D5.2). The
+  owner's request spoke of "flags"; the level is v3.3's flag for the seventh-chord family, with
+  steps rather than on and off. Working names; the labels are `ux-writer`'s, the meanings are fixed
+  here.
+- **Harmony event**: one span of one chord in a phrase's chord plan, from one chord change to the
+  next. A chord held across a barline is one event.
+- **Triad form** and **seventh form** of an event: the same degree's chord as a triad, or with its
+  seventh added. The planner picks the degrees and the chords' roles exactly as before; the level
+  only decides which form each event takes (§D5.3).
+- **Chord tone**: a note of the chord sounding at that moment (from v3.3, its seventh included when
+  the chord is a seventh chord: §D6.1). A **chord extension** (the ninth, eleventh, thirteenth) is
+  never a chord tone in v3.3.
+- **Diatonic**: using only the notes of the current key and mode.
+- The figure terms (figure, figure level, free figure, Tension's scheduled figure) are Part B's
+  (B4); preset, the selection, Custom and the restriction in force too.
+
+## D5. The Seventh chords level
+
+### D5.1 The chords
+
+Each seventh chord is built inside the selected key and mode, as triads are: the chord on scale
+degree d takes degrees d, d+2, d+4 and now d+6 (every other note of the scale, four times). Its
+quality therefore comes from the key and mode, and only four qualities can occur
+([research, table A](../../../docs/music/chord-research.md#table-a-the-seventh-chord-on-each-degree)):
+
+| Quality                                                                                 | Built from                                                                      | On C       | Symbol | How often in each of the app's modes |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ---------- | ------ | ------------------------------------ |
+| [Major seventh](../../../docs/music/lexicon.md#major-seventh-chord)                     | major triad + the note a major seventh above the root                           | C–E–G–B    | Cmaj7  | twice                                |
+| [Minor seventh](../../../docs/music/lexicon.md#minor-seventh-chord)                     | minor triad + minor seventh                                                     | C–E♭–G–B♭  | Cm7    | three times                          |
+| [Dominant seventh](../../../docs/music/lexicon.md#dominant-seventh-chord)               | major triad + minor seventh                                                     | C–E–G–B♭   | C7     | once                                 |
+| [Half-diminished seventh](../../../docs/music/lexicon.md#half-diminished-seventh-chord) | diminished triad + minor seventh (a minor seventh chord whose fifth is lowered) | C–E♭–G♭–B♭ | Cm7♭5  | once                                 |
+
+- **In C major** the seven chords are Cmaj7, Dm7, Em7, Fmaj7, G7, Am7 and Bm7♭5: the textbook list.
+  Every mode holds the same seven chords in a different order; which degree carries which is the
+  research's table A.
+- **The dominant seventh moves with the mode.** In Major it sits on degree 5 (G7 in C major), the
+  classical "dominant" chord that pulls home. In Mixolydian it is the home chord itself (C7 in C
+  Mixolydian). In Minor (natural minor) it is on degree 7, so Minor's degree-5 chord is a minor
+  seventh (Gm7 in C minor), with no strong pull home, as its triad already is.
+- **Triads stay allowed at every level.** A phrase can mix triads and seventh chords; Off allows
+  triads only.
+- **Nothing outside the key and mode.** The diminished seventh, the minor-major seventh and the
+  augmented sevenths need notes the app's modes do not have, so they never appear (§D2).
+
+### D5.2 Four levels
+
+| Level                | What the harmony planner does                                                                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Off**              | triads only, exactly as before v3.3; no draw is made                                                                                       |
+| **Sometimes**        | at about **1 in 4** harmony events, tries the seventh form first, then the triad form                                                      |
+| **Favored**          | the same at about **1 in 2** events                                                                                                        |
+| **Strongly favored** | tries the seventh form first at **every** event; a phrase falls back to triads, as a whole, only where its seventh forms lead to no phrase |
+
+- **A level orders the planner's choices; it never sets a quota.** No phrase is rejected or retried
+  for lacking a seventh chord, and the triad form of every chord plan stays reachable (§D5.3).
+- **The fallback is per phrase, not per chord.** When a plan's drawn seventh forms lead to no
+  phrase, the same plan is tried with every event as a triad (§D5.3). So at every level a phrase
+  either keeps all the seventh forms drawn for it or is all triads; it never swaps one seventh
+  chord for a triad. At Strongly favored a phrase is all seventh chords or, where they lead
+  nowhere, all triads.
+- **"About 1 in 4" and "about 1 in 2" are starting values**, tuned before the gate by listening and
+  by the cost guard (§D10). What is fixed is the order: each step up never makes seventh chords
+  rarer, and Off makes none. Strongly favored must give a clear majority: **at least 3 in 4
+  harmony events in their seventh form** over the sweep (§D15 item 5), "a seventh on nearly every
+  chord", the norm in jazz. Sometimes is closer to pop, where most chords stay triads. The shares
+  the build measures are reported to `ux-writer`, whose labels (Off, Sometimes, Often, Mostly)
+  rest on them.
+- **The same chance at every degree.** No role or degree is favored (not the degree-5 chord first,
+  say): in jazz every chord of a progression takes its seventh, and a role order would be a style
+  choice v3.3 does not make.
+- **Where the level lives:** it is a generation setting of the Idle screen, like the controls and the
+  figure levels: set at Idle (the review included), locked while a session runs, saved and restored
+  (§D8.2), held by every preset (§D8.1), and carried in every phrase's generation request (§D9). Its
+  first-load value is Off.
+
+### D5.3 How the planner applies it
+
+- **The chord plan is chosen as before.** The harmony planner builds its candidate plans (which
+  degree each event takes, its role, the templates, the modal plans' colour chords) exactly as
+  v3.2 does, from triads. In particular a modal plan's **colour chord** (a chord that holds the
+  mode's characteristic note) is still found by looking at the triads, so modal plans keep exactly
+  their candidates; measured on seventh chords, the sets would grow and change the modal plans.
+- **Then each event's form is drawn.** For each harmony event, a draw from the phrase's seed and the
+  event's position in the phrase says whether its seventh form is tried first.
+- **The search tries, for each candidate plan in today's order, the plan with its drawn seventh
+  forms first, then the same plan as triads only** (when at least one seventh was drawn). So a
+  plan that works only as triads is still found, and the candidate list grows by at most one
+  variant per plan, which keeps the search cost bounded. Musically, a phrase that cannot carry its
+  sevenths is heard as a plain-triad phrase, a clean contrast, rather than as one chord oddly
+  missing its seventh.
+- **A finer fallback only if the share falls short.** If Strongly favored misses its 3 in 4 share
+  (§D15 item 5), the build adds, before the triads-only variant, variants that drop the seventh
+  from one event at a time, in a fixed order, within the cost guard (§D10), and records the share
+  again. The triad form stays reachable and the order stays deterministic.
+- **The search allowance is not raised** (§D10).
+
+### D5.4 Determinism
+
+The level is part of what a phrase is generated from, so a phrase reproduces from its inputs, a
+pre-generated phrase equals the one the session would generate, and a kept session's inputs say how
+each phrase was made. The draws use integer arithmetic only, so every browser draws the same; ties
+are broken as everywhere else (the seeded key, then the index, in code-unit order). **Off consumes
+no draw** and adds no candidate, so a phrase at Off is searched exactly as in v3.2 and reproduces
+note for note.
+
+## D6. What a seventh chord means for the melody
+
+### D6.1 The seventh is a chord tone
+
+When an event takes its seventh form, **its seventh is a chord tone everywhere inside the phrase**:
+in the pitch search's order (chord tones are tried first), as the note a figure resolves onto
+(every figure still resolves onto a chord tone), in a run (§D6.2), in the Arpeggio chaos control's
+ordering of chord tones, as the landing of Tension's scheduled figure, and in the ranks a Jam's
+doodle orders. The result validator accepts exactly that.
+
+- **Why.** Seventh chords are opt-in, and the styles that want them (jazz, bossa nova, modal music)
+  treat the seventh as a stable note: jazz teaching calls the third and the seventh the "guide
+  tones", the notes that tell most about a chord, and has improvisers target them on the beat. In
+  classical practice the seventh is instead a tension that falls by a step; v3.3 does not follow
+  that style.
+- **Consequences in the melody.** A chord with four notes leaves three of the seven scale notes
+  outside it instead of four, so decorating notes have fewer places. The seventh and the root are
+  one scale step apart (B and C over Cmaj7), so no passing tone or neighbor tone fits between them.
+  The figure rules' assumption that a note one step from a chord tone is never itself a chord tone
+  no longer holds and is revised.
+- **Extensions are not chord tones.** The ninth, eleventh and thirteenth stay decorating notes, as
+  every non-chord note is today. They are not targeted or held on purpose in v3.3.
+- **Triad events are unchanged.** Over an event in its triad form, the chord tones are the triad's,
+  as before.
+
+### D6.2 Runs stay three notes
+
+A recognized **[run](../../../docs/music/lexicon.md#run)** (three chord tones of one chord in a
+row, in one direction, the [arpeggio](../../../docs/music/lexicon.md#arpeggio) shape the Leapiness
+control allows) **stays exactly three notes**. Over a seventh chord, the three may include the
+seventh: E–G–B over Cmaj7, or B–D–F over G7. That is enough to hear the seventh in a run.
+
+- A full four-note arpeggio in one direction (C–E–G–B) stays rejected, as is today's triad-plus-octave
+  C–E–G–C: the limit is about the length of a chain of wide intervals, not the chord's size.
+- Raising the cap to four under a seventh chord would change a contract rule; it is left for later,
+  if listening shows the full arpeggio is wanted.
+- The leap-recovery rule follows: at Leaping and Angular a large leap inside a recognized run may
+  defer its recovery to after the run; such a run may now include the seventh (§D12).
+
+### D6.3 Phrase endings and the join read the triad, until a listening check
+
+The open ending (a phrase never closes on the home chord, so the player can keep going) and the join
+between two session phrases are where a seventh matters most: a seventh left hanging at the very end
+can sound open, or like a mistake.
+
+- **What ships by default: the endings and the join read each chord as its triad.** A phrase
+  generated without a join ends, as today, on a note of the final chord's triad (the root, third or
+  fifth of the degree-5 chord in tonal plans that move; scale degree 5 in tonal static plans; a
+  note of the home triad other than the home note in modal plans); the final chord's seventh is not
+  an ending note on its own. A phrase generated with a join may still end on a **tense note**, a
+  scale note outside the final chord's triad, resolved by the next phrase's first note, as today: so
+  the seventh (F over G7) can end such a phrase, and the next phrase resolves it, which is what
+  classical practice asks of a seventh. A leap recovery or a tense note owed across the join still
+  settles on a note of the tonic triad. **Net effect: the same final and landing notes as in v3.2,**
+  while the chord symbols and the backing show and play the seventh.
+- **The listening check, before the gate.** The build prepares examples of phrases that end on the
+  seventh with no next phrase (F over G7 in C major; the home chord's seventh in Dorian and
+  Mixolydian) and of next phrases landing on the tonic chord's seventh, and the owner listens. If
+  the owner judges that ending on the seventh sounds open rather than wrong, the seventh also
+  becomes an ending note and a landing note, and the contract wording of §D12's second option
+  applies, confirmed by the owner then. Otherwise v3.3 ships with the triad reading. The result is
+  recorded either way.
+
+## D7. What the player sees and hears
+
+### D7.1 Chord symbols
+
+A **[chord symbol](../../../docs/music/lexicon.md#chord-symbol)** is the short chord name over the
+staff. The app writes letters today ("m", "dim"), so the new suffixes are letters too:
+
+| Quality                 | Suffix | Example (written pitch) | Spoken as (proposed)                                 | MusicXML `kind`   |
+| ----------------------- | ------ | ----------------------- | ---------------------------------------------------- | ----------------- |
+| Major seventh           | maj7   | Cmaj7                   | "C major seventh"                                    | `major-seventh`   |
+| Minor seventh           | m7     | Dm7                     | "D minor seventh"                                    | `minor-seventh`   |
+| Dominant seventh        | 7      | G7                      | "G dominant seventh"                                 | `dominant`        |
+| Half-diminished seventh | m7♭5   | Bm7♭5                   | "B half-diminished" (or "B minor seventh flat five") | `half-diminished` |
+
+- **Letters, not signs.** Books also write CΔ7, C−7 and Bø7; one system kept consistently is the
+  textbook advice, and the app's is letters. "m7♭5" uses the flat sign (♭) for the lowered fifth;
+  it means a minor seventh chord whose fifth is a half step lower.
+- **Transposed like the notes**: shown in the instrument's written pitch, as today; the suffix never
+  changes under transposition (G7 sounding is A7 written for a tenor saxophone).
+- **Everywhere a chord symbol shows today**: the Idle staff, the live session view, the review, a
+  kept session's review, and the MusicXML export. Triad symbols are unchanged.
+- **The spoken score description** reads each suffix as words, as it reads "m" as "minor" today;
+  the exact words are `ux-writer`'s, the meaning fixed here.
+
+### D7.2 Exports
+
+- **MusicXML** writes each seventh chord's symbol with the kind in the table above and the printed
+  suffix as its display text. No export may fail for a seventh chord (today an unknown suffix stops
+  the export).
+- **MIDI**: the generated line is unchanged; when the player includes the backing track in the MIDI
+  file, it holds the backing's four-note chords (§D7.3), since the export takes the backing's notes
+  from the backing itself.
+- **No export carries the level**, as no export carries a preset.
+
+### D7.3 The backing plays the seventh
+
+The backing is the bass and the block chords that sound during a session. Today its chords play the
+highest **close-position** triad (the notes packed inside one octave, in whichever order puts the
+top note highest) whose top note is at or below E4 (MIDI 64), and the bass plays the root, then the
+fifth on beats 3 and 4 of a measure held under one chord.
+
+- **Proposed: the block chords play the chord the phrase uses, every note of it.** A triad as
+  today; a seventh chord as the highest close-position arrangement of its four notes whose top note
+  is at or below E4. Four arrangements are tried instead of three (each note of the chord at the
+  bottom in turn). The bass is unchanged.
+- **Why all four notes, plainly placed.** The backing is the only part that sounds the harmony (the
+  generated line is never played), so if it left the seventh out the player would see "G7" and hear
+  G. A plain close-position chord is the same deterministic rendering as today, one note wider.
+- **What it means for the sound.** A four-note chord packed under E4 reaches a little lower than a
+  triad, down to about D3 at the lowest; the bass stays in C2 to B2, below it. The same harmony
+  always renders the same backing.
+- **Not in v3.3:** jazz voicings that leave out the root and the fifth (the bass already has the
+  root), open position, or a voicing choice for the player.
+- This changes a contract guarantee (§D12).
+
+### D7.4 Acknowledgement
+
+**Unchanged.** A note is acknowledged when the player plays its exact pitch inside its window,
+whatever the chord under it. No grading, scoring or wrong-note signal.
+
+## D8. How v3.3 meets presets, saved settings and sessions
+
+### D8.1 Presets
+
+- **Every preset holds the level**, as it holds the ten controls and the seven figure levels
+  (B6.1), so a preset always gives the same sound whatever was selected before it.
+- **Every built-in preset holds Off.** So Neutral and Jazz at their defaults still sound exactly as
+  before, as v3.1 promised, and no built-in changes. A built-in that allows seventh chords (a
+  "Jazz with sevenths", a Bossa) would be a new preset, or the owner's explicit change, later.
+- **Consequences.** Choosing a preset sets the level to the preset's value: choosing Bebop after
+  raising the level returns it to Off. Changing the level makes Custom, based on the selected
+  preset, like any preset-held setting. A player who wants "Bebop with sevenths" raises the level
+  and saves a player preset, which holds the level by value.
+- A preset's description may **suggest** raising the level (for Jazz, Bebop, Modal (Dorian)), as
+  Reel's suggests trying Ionian; wording `ux-writer`'s.
+
+### D8.2 Saving on the device
+
+- **The settings record and every player preset record gain the level**, stored by value under the
+  capability's name (`seventh-chords`), never through a preset's name. A new stored data version,
+  migrated when the database opens (Part A §4.3).
+- **Saved and restored** under Part A §4.2's rules: a change is saved at once, never during a
+  session.
+- **Tolerant loading:** a record written before v3.3 has no level and loads at Off; an unknown or
+  invalid value loads at its first-load value, Off. "Values win" (B7) applies: a saved level that
+  differs from the selected preset's loads as Custom based on it.
+- Visits that save nothing (an outdated tab, a failed read) save no level, as for every setting.
+
+### D8.3 Vary settings and the session
+
+- **Vary settings never moves the level**, and the level belongs to none of its allowed groups
+  (C9). Reason: seventh chords are opt-in. If Vary settings could move the level up, a player who
+  kept Off but turned Vary settings on would hear seventh chords they never chose. The level is a
+  choice of sound, not a practice variation.
+- **The level is fixed for a whole session.** Like every generation setting it is locked during a
+  session, and nothing moves it, so a session never switches between allowing and not allowing
+  seventh chords.
+- **Tension across phrases** and **Rising tempo** are unchanged and do not touch the level.
+- **The join between phrases.** The previous phrase's final chord, carried into the next phrase,
+  may be a seventh chord. It is compared with the next phrase's settings by its triad (degree,
+  notes and quality of the triad): whether a seventh was added is a draw of that phrase, not a
+  property of the settings, so it never by itself makes the carried chord unfit. A key or mode
+  change, or a harmonic motion change that the carried chord no longer fits, still drops it, as
+  today.
+
+### D8.4 Pre-generation, Jam and the key and mode suggestion
+
+- **Pre-generation (Part A §8):** changing the level discards the pre-generated phrases, as a figure
+  level does; and, like every change that discards them (C5.11), it drops a held doodle.
+- **Jam:** a Jam's phrases follow the level like any session's. The doodle still only orders
+  candidates within each rank, chord tones first; with a seventh chord the seventh shares the first
+  rank (§D6.1).
+- **The key and mode suggestion is unchanged.** It scores the doodle's own notes against the key and
+  mode pairs; no generated chord enters it, so the level never changes its answer.
+
+## D9. The generation request, the replay key and kept sessions
+
+- **The generation request carries the level**, on the player-facing request and the resolved core
+  request, by capability name and value, and the generation worker re-validates it from untrusted
+  input like every field. The carried final chord (the join) may be a seventh chord.
+- **A new replay key version, `ifk5.`**, written for every phrase: everything `ifk4.` carries (C11),
+  plus the level by capability name, and a carried final chord with its seventh when it has one. A
+  new version rather than an extension, so that a v3.2 app meeting a v3.3 key refuses it instead of
+  replaying a different phrase without saying so. The key is still printed to the console only,
+  never sent or stored.
+- **Older keys keep decoding.** An `ifk1.` to `ifk4.` key decodes with the level at Off, to the same
+  phrase as in the version that wrote it.
+- **A key naming a capability v3.3 does not know** is refused, with the reason, rather than
+  replayed without it; a later prefix is refused as an unsupported version, as today.
+- **The replay tool** (`npm run replay:phrase`) decodes all five versions and names the four new
+  qualities.
+- **Kept sessions.** Each kept phrase's reproduction inputs (Part A §5.2) hold the level, and the
+  chord symbols are kept exactly as displayed. A new stored data version: sessions kept before v3.3
+  migrate with the level at Off and are otherwise unchanged.
+
+## D10. The cost guard: generation time with seventh chords
+
+A seventh chord changes the pitch search, the generator's most expensive step: one more chord tone
+per chord, one fewer decorating note, and up to one more chord-plan variant per plan to try (§D5.3).
+Generation must still keep up at the fastest tempo.
+
+- **The search allowance is not raised**: 250,000 units of search work for a phrase generated on
+  its own, 160,000 for an attempt that joins the previous phrase.
+- **Measured before the gate**, on the deadline sweep of v2's definition of done (its settings and
+  seeds at 60, 120 and 240 BPM, `npm run test:sweep`), in a 240 BPM session, and for a fresh Jam's
+  phrase 1 at 240 BPM, at these settings:
+  - the baseline, the level at Off with the Neutral and Jazz defaults (it must equal v3.2's
+    figures, since the phrases are the same);
+  - Sometimes, Favored and Strongly favored with the Neutral and Jazz defaults;
+  - Strongly favored with Speed drill (the most expensive setting found in v3.1) and with Bebop;
+  - in every mode: Major, Minor and the seven modes, since each places the four qualities on
+    different degrees.
+- **Recorded for each:** the share of phrases generated, the slowest and the 95th-percentile
+  generation time, the share of harmony events in their seventh form, and at 240 BPM the share of
+  phrases that fall back to being generated without the join and the share of a fresh Jam's phrase
+  1 ready by its deadline.
+- **Acceptance**, against the baseline: at most 2 percentage points more fallbacks at 240 BPM; at
+  most 2 percentage points fewer phrases generated at any swept setting; at most 2 percentage points
+  fewer Jam phrase 1s ready by their deadline; and no attempt generated on its own slower than the
+  standalone reserve (1.075 s in Chromium), which the failure ladder keeps for it.
+- **If a level costs more**, its share is tuned down, or the fallback made finer (§D5.3), before the
+  gate. The allowance is never raised and the triad fallback is never removed.
+
+## D11. For the interface design
+
+What the interface must support, for `ux-writer`. Behaviour only: layout, placement and wording are
+`ux-writer`'s.
+
+- **The Seventh chords level control**: four steps, Off by default, with a plain description (a
+  seventh chord adds a fourth note on top of the chord; the level says how often the generator
+  prefers one; it is a preference, never a guarantee). Set at Idle and in the review, locked during
+  a session.
+- **Where it sits.** It is a preset-held generation setting, so it lives with the settings every
+  preset holds, and changing it makes Custom. It shapes the chords, not the melody's decorations,
+  so the spec suggests placing it beside the harmony control (Harmonic motion) rather than among
+  the seven figure levels, while sharing their four-step look, since it has the same shape. The
+  final placement is `ux-writer`'s. It is not one of Vary settings' allowed groups, and the groups'
+  description may say that the chord level is never varied.
+- **Presets**: the selector is unchanged; built-in descriptions may suggest raising the level (Jazz,
+  Bebop, Modal (Dorian)); player presets save it with no new question.
+- **Chord symbols**: four new suffixes, maj7, m7, 7 and m7♭5, in letters with the ♭ sign, wherever
+  symbols show today (the Idle staff, the live view, the review, kept sessions). They are longer than
+  today's (Bm7♭5 against Bdim): the layout must hold the longest symbol over two chords per measure
+  at every supported width, phones included (phones are low priority, but must not break).
+- **The spoken score description**: words for each new suffix (§D7.1 proposes them).
+- **Review and exports**: no new control. The review shows the symbols as displayed; the export
+  dialogs are unchanged; MusicXML carries the new chord kinds; the MIDI backing option now includes
+  the four-note chords. If the export description mentions what the backing holds, it says "the
+  chords" rather than "triads".
+- **Lexicon popups**: the new terms (seventh chord, the four qualities, chord extension) have popup
+  lines in the lexicon, ready for the level's description and the symbols.
+- **Nothing else changes**: Jam's screens, the suggestion, the rhythm lock, the session list.
+
+## D12. Contract changes needing owner confirmation
+
+Each change is intended. Where a declared-intent entry is named, `documentalist` prepares the
+change. **STABLE guarantees change only with the owner's explicit confirmation of their exact
+wording**, given separately from approving this Part D, and a contract version bump
+(`documentalist` proposes which: a major one if a guarantee's meaning changes, as for v3.0 to v3.2).
+Below, each is given in plain words: what it means today, and what it would mean.
+
+**STABLE guarantees that change:**
+
+1. **The backing's chords** (`req_session_backing_track`).
+   - Today: "the chords play the highest close-position triad whose top note is at or below E4".
+   - Proposed: the chords play every note of the chord the phrase uses, in the highest close
+     position whose top note is at or below E4: three notes for a triad, as today, four for a seventh
+     chord. The bass, the rhythm of the attacks, the determinism and the no-download rule are
+     unchanged.
+2. **The open phrase ending** (`rule_open_phrase_ending`).
+   - Today: when the chords end on the dominant (the degree-5 chord), "the final event is a dominant
+     chord tone"; in modal or static music the final note is a non-home note of the home area, such
+     as scale degree 5; a phrase joined to the next may end on a "tense note (a scale tone outside
+     the final chord)" that the next phrase resolves on its first note.
+   - Proposed, first option (what ships unless the listening check approves the seventh, §D6.3):
+     the same, with every chord in this rule read as its triad. The final note is the root, third or
+     fifth of the final chord, never its seventh alone; a tense note is a scale note outside the
+     final chord's triad, so a joined phrase may end on the seventh and the next phrase resolves it.
+     The final notes allowed are exactly today's.
+   - Proposed, second option (only if the listening check approves it, confirmed by the owner then):
+     the final chord's seventh also counts as an ending note, so any phrase may end on it, for
+     example F over G7, or B♭ over C7 in C Mixolydian, and the tense notes are the scale notes outside
+     the whole four-note chord.
+3. **Leap recovery** (`rule_leap_recovery`).
+   - Today: at Leaping and Angular, "a large leap inside a recognized three-note chord-tone run
+     defers its debt" (its recovery) to the note after the run; the run is three notes of the chord's
+     triad.
+   - Proposed: unchanged, except that the three notes of the run may include the chord's seventh
+     when the chord is a seventh chord. A run is still exactly three notes. A few more large leaps
+     may then recover after the run rather than at once, only with seventh chords on and only at
+     Leaping and Angular.
+
+**STABLE guarantees checked, wording unchanged** (listed so the owner sees them;
+`documentalist` confirms no wording changes):
+
+- **Unfit harmony drops the carried chord** (`rule_harmony_change_drops_unfit_harmonic_carry_in`):
+  "those settings never end a phrase on that chord". Settings that allow seventh chords can end on
+  either form of a chord they end on, and the level is fixed for a session (§D8.3), so a seventh never
+  makes a carried chord unfit by itself. The comparison by triad implements the same meaning.
+- **The join** (`rule_join_carry_in_limited`): "its final harmony event (the chord and its harmonic
+  role)" may now be a seventh chord; still exactly the same four things cross.
+- **The review** (`req_last_session_review`): phrases "engraved exactly as displayed (written pitch,
+  key signature, chord symbols)"; the symbols may now include sevenths.
+- **The settings mutation guarantees** (`rule_mutation_setting_scales`,
+  `rule_mutation_marks_profile_customized`, `rule_mutation_reverts_at_session_end`): unchanged,
+  since Vary settings never moves the level.
+- `rule_tempo_never_affects_generation`, `rule_setting_change_rechecks_pitch_carry_in`,
+  `rule_key_change_drops_harmonic_carry_in`, `rule_session_generation_failure_ladder`: unchanged.
+- **The vision** (`vision_infinite_flow_first_release`, version 0.9, its wording confirmed by the
+  owner on 2026-10-12): Part D fits it as worded. Its "flags they set in the app for the chord
+  families" covers v3.3's one level for the seventh-chord family; "altered dominants and harmonic
+  substitutions" stay out; the chords stay generated. No change.
+
+**Other atoms that change** (REVIEW or DRAFT; `documentalist`'s change set):
+
+- `module_harmony_candidate_domain` ("exact diatonic collection and triad material"): seventh forms
+  drawn per event over the same plans; colour chords measured on the triad.
+- `rule_leapiness_arpeggio_run_limits`: the run may include the seventh; still three notes.
+- `rule_figures_resolve_onto_chord_tones`, `rule_embellishment_figures_defined`,
+  `rule_figure_level_orders_search`, `rule_levels_govern_free_figures_only`,
+  `rule_tension_arc_settled`, `rule_tension_arc_build`, `rule_arpeggio_chaos_respects_constraints`,
+  `rule_jam_melody_follows_doodle_moves`, `module_pitch_search_context`,
+  `module_pitch_search_transition`: what a chord tone is (§D6.1).
+- `entity_phrase_carry_in`, `rule_join_tense_note_resolution`: a carried chord may have four notes;
+  the landing stays a tonic-triad note unless the listening check approves the seventh.
+- `rule_generated_notes_musicxml_export`, `rule_generated_notes_midi_export`,
+  `module_notation_layout_preflight` (longer symbols): §D7.
+- `module_phrase_replay_key`, `service_headless_phrase_replay`, `module_generation_request_construction`,
+  `module_generation_worker_protocol`, `rule_kept_session_content`: the level and `ifk5.` (§D9).
+- The preset and settings atoms (`rule_preset_contents`, `rule_built_in_preset_values`,
+  `rule_choosing_preset_sets_its_settings`, `rule_saved_settings_load_tolerantly`,
+  `rule_presets_load_tolerantly`, `rule_settings_saved_on_change`,
+  `rule_pregeneration_discarded_on_change`, `rule_vary_settings_allowed_groups`): the level is held,
+  saved, loaded and never varied (§D8).
+- Unchanged and checked: `module_notation_display_convention` (it already keeps a chord's quality and
+  extensions when transposing), `rule_neutral_profile_diatonic_harmony` and
+  `rule_jazz_chromatic_resolution` (the harmony stays diatonic).
+
+**Project documents that follow at the build:** the
+[harmony planner policy](../../../docs/music/harmony-planner-policy.md#collection-and-chord-vocabulary)
+("root-position diatonic triads only"), the [generator contract](../../generator-contract.md)
+("seven root-position diatonic triads"), and the lexicon's "in Infinite Flow" lines for seventh
+chord, chord symbol, chord tone, run, voicing and the four seventh-chord qualities.
+
+**Part A, B and C text this part extends:** B6.1 and B6.5 (every preset holds the level, built-ins
+at Off), B7 (the records hold it), B9 and C11 (the request and the key, now `ifk5.`), C9 (the level
+in no allowed group), Part A §5.2 and §8 (kept phrases' inputs; the level discards pre-generated
+phrases).
+
+## D13. Existing code and risks
+
+From the chord research's reading of the code on 2026-10-12, and a re-check of the harmony planner
+and the join the same day while writing this part. Line references are in the research's
+[code table](../../../docs/music/chord-research.md#where-a-fourth-chord-note-meets-the-code).
+
+- **The chord type is a triad everywhere.** The chord's notes are a fixed three-item list with
+  three qualities; building any other shape throws. A new chord type and the four qualities are
+  needed, in the harmony types, the collection, the planner and everything that reads a chord.
+- **The planner** builds candidate plans from the triads, merges a chord held across a barline into
+  one event, and returns an ordered list that the orchestrator ranks by seed and searches with the
+  rhythm candidates. The seventh variants fit that list (§D5.3). The result validator rebuilds the
+  same plans to check a phrase, so it needs the level too.
+- **The join** compares chords by degree, three notes and quality, and refuses a carried chord the
+  settings never end on; the carry-in refuses any chord that is not a three-note triad, so a carried
+  seventh chord would be refused as malformed today (§D8.3).
+- **The pitch search** ranks chord tones first and treats the other scale notes as decorating notes;
+  the run check needs three chord tones of one chord; endings and the join's landing read the triad.
+  The figure validator assumes a note one step from a chord tone is never a chord tone.
+- **The backing** knows three qualities and tries three arrangements.
+- **Notation and exports** map a suffix per triad quality; the MusicXML export throws on any other
+  suffix; the spoken description reads unknown suffixes letter by letter. VexFlow's chord-symbol
+  support has the ♭ glyph, unused today.
+- **The replay key** is `ifk1.` today; `ifk2.` to `ifk4.` come with v3.0 to v3.2, so v3.3's is
+  `ifk5.`. The replay tool names each chord's triad quality.
+
+**At risk:**
+
+- **Reproducibility at Off.** Every existing replay key, golden fixture and kept session depends on
+  Off adding no draw and no candidate.
+- **Generation cost** (§D10): a fourth chord tone and the triad fallback can slow searches or make
+  some fail; measured before the gate.
+- **Layout**: longer chord symbols, two per measure, at narrow widths.
+- **Migration**: settings, player presets and kept sessions gain a data version.
+- **Contract**: three STABLE guarantees change (§D12), which needs the owner's confirmation before
+  the gate; the open ending's wording depends on the listening check.
+
+## D14. Architectural decisions and their reasons
+
+- **One level for the whole seventh-chord family, four steps**, because in the app's modes only four
+  qualities ever occur, each always on its own degrees, so a level per quality would mostly choose
+  degrees; and because a level says "now and then" as well as "mostly", which a switch cannot,
+  matching how often each style uses sevenths.
+- **Diatonic only**, because stacking one more note inside the key and mode is what the generator
+  already does for triads, and every chord from outside the key belongs with substitutions and
+  altered chords, which the vision keeps out.
+- **A preference per event, never a quota, with the triad form always reachable**, because a quota
+  can make a phrase impossible or slow, and the pitch search is the generator's most expensive step.
+- **The chord plan chosen exactly as before, colour chords measured on the triad**, because the
+  level must add a sound without changing which progressions the settings give.
+- **Off consumes no draw**, because every phrase, key and kept session from before v3.3 must
+  reproduce note for note.
+- **The seventh is a chord tone inside the phrase, and the endings read the triad until a listening
+  check**, because the styles that want sevenths treat them as stable, while a seventh left hanging
+  at the very end is the one place the ear may object.
+- **Runs stay three notes**, because three notes can already sound the seventh and raising the cap
+  changes a contract rule.
+- **The backing plays every note of the chord**, because it is the only part that sounds the
+  harmony.
+- **Letters for the symbols**, because the app already writes "m" and "dim", and one system kept
+  consistently is the textbook advice.
+- **The level is preset-held, every built-in at Off**, because a preset must give the same sound
+  whatever was selected before it, and v3.1 promised Neutral and Jazz sound as before.
+- **Vary settings never moves the level**, because seventh chords are opt-in.
+- **Stored by capability name and value**, never through a preset's name, because a preset can be
+  renamed or retuned, and because a later chord family or style pack can then name the same
+  capability as data.
+- **A new key version**, because an older app should refuse a key it cannot honor rather than
+  replay a different phrase silently.
+
+## D15. Definition of done
+
+v3.3 ships when every item holds, each verified by a named test or a recorded hand check.
+
+1. **The level** exists with four values, Off by default; it is set at Idle (the review included),
+   locked during a session, saved and restored after a reload, and held by every preset.
+2. **Off reproduces v3.2.** At Off, the generator produces, for the same request and seed, exactly
+   the phrase v3.2 produces, on a fixed sweep of seeds and settings in every mode, with Jam and the
+   rhythm lock included; every `ifk1.` to `ifk4.` key decodes to the same phrase as in the version
+   that wrote it.
+3. **Only the four diatonic sevenths.** Above Off, every chord is a triad or the seventh chord on the
+   same degree, built from degrees d, d+2, d+4 and d+6 of the selected mode, of quality maj7, m7, 7
+   or m7♭5 as the research's table A gives; no other chord appears.
+4. **Same plans.** For the same request and seed, the degrees, roles and templates of the chosen
+   plan's candidates, the modal colour chords included, are those of Off; only the seventh forms
+   differ.
+5. **Ordered and audible.** On a fixed seed sweep, the share of harmony events in their seventh form
+   is zero at Off and never decreases from Sometimes to Favored to Strongly favored; at Strongly
+   favored it is at least 3 in 4. The share is recorded per level and per mode (Major, Minor and
+   the seven modes), with the share of phrases that fell back to triads, and reported to
+   `ux-writer`.
+6. **No quota.** No phrase is rejected or retried for lacking a seventh chord; with a level above
+   Off, a plan that works only as triads is still found (a test with a plan whose seventh form has
+   no solution).
+7. **The seventh as a chord tone.** In an event in its seventh form, the seventh is treated as a
+   chord tone by the search order, the figure targets, runs, Arpeggio chaos, Tension's scheduled
+   figure and a Jam's ranks, and the result validator accepts exactly that; extensions are never
+   chord tones; triad events are unchanged.
+8. **Runs.** No recognized run is longer than three notes; a three-note run may include the seventh;
+   no four-note one-way arpeggio is written.
+9. **Endings and the join.** The listening check of §D6.3 is done and its result recorded. With the
+   triad reading, a phrase generated without a join never ends on its final chord's seventh, and a
+   join's landing is a tonic-triad note; with the seventh approved, the second option's rules hold
+   and the owner's confirmation of that wording is recorded.
+10. **The backing** plays a seventh chord as its four notes in the highest close position with the
+    top note at or below E4, and triads as before; the bass is unchanged; the same harmony renders
+    the same backing; the MIDI export's backing holds the same notes.
+11. **Chord symbols** show maj7, m7, 7 and m7♭5, in written pitch, on the Idle staff, in the live
+    view, the review and kept sessions; the layout holds the longest symbol at every supported width;
+    the spoken description reads each suffix as words.
+12. **MusicXML** writes the kinds `major-seventh`, `minor-seventh`, `dominant` and
+    `half-diminished` with the printed suffix; no export fails for a seventh chord; a file with all
+    four opens in MuseScore with the right symbols (recorded hand check).
+13. **Presets.** Every built-in holds Off; choosing a preset sets the level; changing the level makes
+    Custom; a player preset saves and restores it by value.
+14. **Persistence.** The settings and player preset records hold the level by capability name;
+    records from before v3.3 load at Off, an invalid value loads at Off, and a saved level differing
+    from the preset's loads as Custom; the migration to the new data version runs when the database
+    opens.
+15. **Vary settings** never moves the level, and the level is in no allowed group; nothing changes
+    it during a session.
+16. **Pre-generation:** changing the level discards the pre-generated phrases and drops a held
+    doodle; a pre-generated phrase equals the session's at every level.
+17. **The join across phrases**: a carried seventh chord is accepted and compared by its triad; a key
+    or mode change still drops it.
+18. **Replay keys:** v3.3 writes `ifk5.` for every phrase, holding the level by capability name and a
+    four-note carried chord when there is one; the same `ifk5.` key gives the same phrase in Chrome
+    and Edge; a key naming an unknown capability is refused with the reason; the replay tool decodes
+    all five versions and names the four qualities.
+19. **Kept sessions:** each kept phrase's inputs hold the level and its symbols as displayed;
+    sessions kept before v3.3 migrate at Off with their timelines untouched.
+20. **The generation worker** re-validates the level from untrusted input.
+21. **The cost guard** of §D10 is measured on its settings, recorded, and met.
+22. **Jam and the suggestion:** a Jam's phrases follow the level; the suggestion's answer for a
+    doodle is the same at every level.
+23. **Acknowledgement unchanged**, and nothing is graded, scored or marked wrong.
+24. **v3.2, v3.1, v3.0 and v2 behaviour otherwise unchanged:** their test suites pass, apart from
+    the tests §D12's changes replace, each with its v3.3 counterpart.
+25. **The declared-intent contract** reflects §D12's changes, with the owner's explicit confirmation
+    of their wording recorded.
+
+## D16. Deferred and open
+
+- **Measured before the gate, not open questions:** the Sometimes and Favored shares, starting at
+  about 1 in 4 and 1 in 2 (§D5.2); the cost guard's figures (§D10); the listening check on endings and
+  landings, which picks the open ending's wording (§D6.3).
+- **From the owner:** approval of this Part D; then the exact wording of §D12's three STABLE changes
+  (the open ending's second option only if the listening check approves it).
+- **For `documentalist`:** the declared-intent changes of §D12, and the lexicon's "in Infinite Flow"
+  lines once v3.3 is built.
+- **Design, for `ux-writer`:** §D11.
+- **Still open, for later:** when style packs come, which wins when a player's chord level and a
+  style pack's setting for the same capability disagree. v3.3 stores the level so that a pack could
+  set it as data; the precedence is decided with style packs.
+- **Deferred to later versions:**
+  - sixth, suspended and extended chords, each a family with its own level, extended chords building
+    on the seventh-chord family;
+  - chords from outside the key and mode (altered dominants and substitutions stay out by the
+    vision; borrowed and secondary chords, the blues' three dominant sevenths), and the qualities
+    harmonic and melodic minor bring;
+  - a level per quality, such as dominant sevenths only;
+  - a four-note arpeggio run under a seventh chord;
+  - chosen progressions, such as the ii–V–I;
+  - built-in presets that allow seventh chords, and Blues and Bossa built-ins;
+  - Vary settings moving the level, as an allowed group of its own;
+  - other backing voicings and a voicing choice; chord symbols with signs.
+
+## D17. Access model
+
+Unchanged from Part A §15: exactly one local user, with no accounts, roles, permissions or
+sharing. Whoever has the page open can do everything the app offers, the Seventh chords level
+included. The level joins the settings kept for "whoever uses this browser profile on this
+device"; Delete everything resets it to Off. Nothing new leaves the device.
