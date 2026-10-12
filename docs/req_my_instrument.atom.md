@@ -13,6 +13,7 @@ tags: [v3, release-v3.0, storage, instrument-profile]
 notes: Revised 2026-10-12 (previous version 0.2) on the owner's approval at the v3.0 wave-1 sign-off: the transposition is no longer chosen by name but entered as octaves and semitones in one direction with one stepper counting semitones across octaves, its interval name derived and shown (spec D253, D257; matches rule_my_instrument_transposition_named_interval and entity_my_instrument). Status unchanged (DRAFT). Earlier: Revised 2026-10-07 to version 0.2 (still DRAFT) by the re-sync to the v3.0 master spec v1.3, approved by the product owner: the range is set and kept in written pitch, the concert range following from it and the transposition, so changing the transposition keeps the written range; the transposition is a named interval, detailed in rule_my_instrument_transposition_named_interval. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 dependents:
   - [[entity_my_instrument]]
+  - [[module_notation_layout_preflight]]
   - [[rule_my_instrument_range_limits]]
   - [[rule_my_instrument_transposition_named_interval]]
   - [[rule_transposition_check_sets_my_instrument]]
