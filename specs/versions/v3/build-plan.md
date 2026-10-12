@@ -1,7 +1,7 @@
 # Infinite Flow v3.0 — Build Plan
 
 Status: v6 (2026-10-12): the owner's rulings after the wave-2 preflight (spec D290–D292, master
-spec Part A v1.8) and one coordinator call, chunk 18 moving to wave 5 after chunk 17, written into
+spec Part A v1.8) and one coordinator call, chunk 18 moving to wave 6 after chunk 17, written into
 the wave table and chunks 16, 18, 19 and 24; the preflight's plan corrections applied to §2, §3,
 M5 and chunks 4, 18, 19 and 24 ([Wave records](#wave-records)); v5 (2026-10-12): a wording fix
 the owner approved at the wave-1 gate, no behaviour changed: chunk 23's "Done when" now says a skipped rung's seed is unused under the seed plan;
@@ -64,8 +64,7 @@ Waves run one after another. Inside a wave, chunks run one at a time in number o
 rule is **one coding chunk in flight at a time**. Each wave starts with one intent preflight, ends
 with one wave gate (the full test pass, the bundle and the post-task sync), and reaches `main` as
 one merge ([§3](#3-workflow-waves-and-chunks)). The chunks in a wave are independent of each other
-and touch different source files, so one preflight can cover them all. One exception: in wave 5,
-chunk 18 needs chunk 17, and runs after it is merged into the wave branch. A chunk still blocked
+and touch different source files, so one preflight can cover them all. A chunk still blocked
 when the rest of its wave is done (waiting for the owner, a design answer or a measurement) moves to the
 next wave.
 
@@ -81,8 +80,8 @@ wave-0 gate covers chunks 1 and 2.
 | 2 | 4 Database core · 19 My instrument on the staff · 24 Pre-generation at Idle | Chunk 3 (4); 16 (19); 23 (24) |
 | 3 | 5 Save policy · 9 Kept-session record | Chunk 4; chunk 23 (9) |
 | 4 | 7 Saved settings · 8 Notice row | Chunks 5, 6; chunk 1 for 8 |
-| 5 | 10 Most recent session kept · 17 My instrument across worker and history · 18 Replay key `ifk2.` | Chunks 7, 8, 9 (10); 9, 16 (17); 17 (18, which runs after 17 inside the wave) |
-| 6 | **Gate A**, then 11 Played-notes opt-in · 12 Favorites, pin, comment · 22 Remembered controller · 25 Stray-note filter | Chunk 10 and Gate A (11, 12); chunk 7 and Gate A (22); H1 and chunk 1 (25) |
+| 5 | 10 Most recent session kept · 17 My instrument across worker and history | Chunks 7, 8, 9 (10); 9, 16 (17) |
+| 6 | **Gate A**, then 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter | Chunk 10 and Gate A (11, 12); chunk 17 (18, not Gate A); chunk 7 and Gate A (22); H1 and chunk 1 (25) |
 | 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet | Chunk 12 (13, 14); chunks 7, 17, 19, the range ruling and ux Q76 (20) |
 | 8 | 15 Your data · 21 The check feeds my instrument | Chunks 11, 14 (15); 20 (21) |
 | 9 | 26 v3.0 release gate | Every other chunk |
@@ -375,13 +374,14 @@ v1.8). In his words: "1. ok; 2. less accidental the better, sharp in case of tie
 
 One call by the coordinator, with no decision number:
 
-- **Chunk 18 moves to wave 5, after chunk 17.** Its `ifk2.` decoder rebuilds the intent through
+- **Chunk 18 moves to wave 6, after chunk 17.** Its `ifk2.` decoder rebuilds the intent through
   `rebuildGenerationWorkerIntent` (chunk 17's file), and replay goes through the worker runtime's
   own parser, which refuses `my-instrument` until chunk 17. Taking chunk 17's inbound half into
-  chunk 18 would blur both chunks, and chunk 18 is off the critical path. Wave 2 is now chunks 4,
-  19 and 24; wave 5 is chunks 10, 17 and 18. Chunk 18 is the first chunk that depends on another
-  chunk of its own wave: number order runs it after chunk 17 is merged into the wave branch, and
-  their files stay apart.
+  chunk 18 would blur both chunks, and chunk 18 is off the critical path. It goes to wave 6, not
+  wave 5, so the chunks of one wave stay independent: chunk 17 is in wave 5. Wave 2 is now chunks
+  4, 19 and 24; wave 6 is Gate A, then chunks 11, 12, 18, 22 and 25. Chunk 18 is independent of
+  chunks 11, 12, 22 and 25 and touches none of their files, and it does not need Gate A: the
+  replay key changes none of the three guarantees Gate A narrows.
 
 The preflight's plan corrections are applied: §2's storage design and M5 give the headroom left
 after the wave-1 gate; chunk 4's Scope, Files, Atoms and Done when take the `define` reach, the
@@ -1564,7 +1564,7 @@ Three existing tests assert that `ifk2.` is refused as unsupported and change he
 **Atoms:** `module_phrase_replay_key`, `req_my_instrument`; (v2) `rule_seeded_phrase_reproduction`.
 
 **Depends on:** chunk 17 (and so 16): any `ifk2.` round trip or replay needs chunk 17's
-inbound parser, which accepts `my-instrument`.
+inbound parser, which accepts `my-instrument`. It runs in wave 6 and does not need Gate A.
 
 **Done when:**
 

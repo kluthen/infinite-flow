@@ -50,7 +50,8 @@ sharps or flats, sharps on a tie, as the code already does; the transposition's 
 longer decides the spelling, and is still derived and shown (§7.1, §12, item 16); the staff's
 shared height takes my instrument's written range into account, changing only when my instrument
 is saved or deleted (§7.1); a background pre-generation attempt can be cancelled, a fourth,
-minor contract change (§8, §10, item 23, §14). Consolidated from the approved v3.0 drafts for handoff to
+minor contract change (§8, §10, item 23, §14); §7.1's transposition values say "direction"
+where they said "the sign", with the same meaning. Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. Part A covers **v3.0
 only**; Part B, consolidated from the approved v3.1 drafts for the same handoffs, covers v3.1. The
 draft topic documents stay in `specs/versions/v3/` as working material; where they and this
@@ -333,13 +334,13 @@ in the session list. It is never written into the MusicXML or MIDI exports.
     the control as the result, and it already carries the octaves (a semitone is the smallest
     step between two notes; an octave is 12 of them).
 - **The transposition's values.** A number of octaves from 0 up, and a number of semitones from
-  0 to 11 within the octaves, the sign giving the direction. Its size is 12 semitones per octave
+  0 to 11 within the octaves, and one direction (lower, the same or higher). Its size is 12 semitones per octave
   plus the semitones: the tenor saxophone's is 1 octave and 2 semitones lower, 14 semitones in
   all; "Same" is 0 and 0. The octaves have no bound of their own: the only bound is that both ends
   of the range still sound inside the MIDI note range (notes 0 to 127), as the design's stepper
-  already has it. The sign is the direction of the whole transposition, octaves included, not
-  of the semitones alone: a semitone count of 0 has no sign, so it could not say which way a
-  whole-octave transposition goes (an instrument sounding one octave lower is 1 octave and 0
+  already has it. The direction belongs to the whole transposition, octaves included, not to
+  the semitones alone: a semitone count of 0 has no direction of its own, so it could not say
+  which way a whole-octave transposition goes (an instrument sounding one octave lower is 1 octave and 0
   semitones, lower).
 - **The interval name.** Each semitone count maps to one interval name by a fixed table; that
   name is what the player is shown beside the control. Each name also has a number of letter-name

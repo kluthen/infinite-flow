@@ -819,3 +819,5 @@ D290–D292.
   preflight's plan corrections are applied to the build plan (chunks 4, 18, 19 and 24, §2, §3,
   M5) and one stale line of [build-plan-v3.2.md](versions/v3/build-plan-v3.2.md);
   `rule_look_ahead_deadline` is revised at chunk 24's sync, with the owner's agreement then.
+  Later the same day the coordinator placed chunk 18 in wave 6 instead (Gate A, then chunks 11,
+  12, 18, 22 and 25), so the chunks of one wave stay independent; chunk 18 does not need Gate A.
