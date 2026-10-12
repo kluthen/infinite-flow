@@ -57,6 +57,7 @@
     "eslint": "latest",
     "eslint-config-prettier": "latest",
     "eslint-plugin-vue": "latest",
+    "fake-indexeddb": "latest",
     "globals": "latest",
     "jsdom": "latest",
     "prettier": "latest",

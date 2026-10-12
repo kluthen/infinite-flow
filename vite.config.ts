@@ -5,7 +5,10 @@ import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vite'
 
+import { appVersionDefine } from './scripts/app-version-define.mjs'
+
 export default defineConfig({
+  define: appVersionDefine(),
   build: {
     // The lazy-loaded VexFlow engraver chunk (src/notation/vexflow-engraver-loader.ts) embeds the
     // Bravura/Academico fonts as data URIs and is ~726 kB minified; it is precached for offline use

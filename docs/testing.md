@@ -41,6 +41,10 @@ a layer, a script, a harness seam, a fake or a fixture updates this document in 
 - **The last-session Review and its export** (what a session end leaves, `review-link`, the
   downloads) get a Playwright spec under `tests/e2e/review/`, on the workspace harness's fake audio
   clock, using `review-helpers.ts` (see [The Review specs](#the-review-specs)).
+- **On-device storage** (the storage port, the database, its migrations, the record envelope, a
+  store's codec) gets a Vitest spec under `tests/unit/storage/`, in the Node environment, on a
+  fresh in-memory IndexedDB from `storage-test-doubles.ts` (see
+  [Fake IndexedDB and storage manager](#fake-indexeddb-and-storage-manager)).
 - **Engraving and layout** of one phrase gets a spec under `tests/e2e/notation/`, driven through
   the notation harness.
 - **A timing measurement** that asserts on its numbers, or runs long, gets its own spec and its
@@ -92,7 +96,7 @@ runs it.
 | `measure:rolling`         | `playwright test tests/e2e/session/rolling-display-timing.spec.ts --workers=1` | The rolling display's timing in Chromium on real audio: how far the playhead band lags each heard barline over five minutes at 120 BPM, and the longest main-thread task over a minute of the densest session at 240 BPM. Writes full JSON to `ROLLING_OUT` when set.                                                                                                                          |
 | `verify:boundaries`       | `node scripts/verify-boundaries.mjs`                                           | Rejects forbidden browser APIs in `src/`, among them the sampled-audio calls (`decodeAudioData`, `createBufferSource`, `createMediaElementSource`, `new AudioBuffer`) anywhere; rejects any audio or sample file (`.wav`, `.mp3`, `.ogg`, `.mid`, `.sf2` and the like) in `dist/`; checks the PWA precache and the per-chunk size budgets. Needs a fresh `dist/`.                              |
 | `format:check`            | `prettier --check` over the authored files                                     | Formatting. `docs/` is checked only under `docs/release/`.                                                                                                                                                                                                                                                                                                                                     |
-| `lint`                    | `eslint .`                                                                     | ESLint, including the forbidden-API rules.                                                                                                                                                                                                                                                                                                                                                     |
+| `lint`                    | `eslint .`                                                                     | ESLint, including the forbidden-API rules and the ban on `src/session/` and `src/export/` importing `src/storage/`.                                                                                                                                                                                                                                                                            |
 | `lint:links`              | `remark . --quiet --frail --no-stdout --ext md`                                | Every relative Markdown link and `#heading` anchor, offline.                                                                                                                                                                                                                                                                                                                                   |
 | `lint:health`             | `node scripts/code-health-check.mjs`                                           | File size, control-flow nesting, intent comments on functions and ATD links (`CODING_RULE.md` §6). Errors fail it; warnings are reported only.                                                                                                                                                                                                                                                 |
 | `atd:lint`                | `atd lint`                                                                     | Structure of the `docs/*.atom.md` atoms.                                                                                                                                                                                                                                                                                                                                                       |
@@ -1109,6 +1113,48 @@ vi.mock(
 wait and the two planning functions, each a Vitest spy a test can program (`fakeEngraver`);
 `resetFakeEngraver()` puts them back to fonts ready, every phrase fits and the staff has room.
 
+## Fake IndexedDB and storage manager
+
+The storage port (`src/storage/storage-port.ts`, see [On-device storage](storage.md)) takes its
+IndexedDB factory and storage manager as options, so its unit specs under `tests/unit/storage/`
+run on stand-ins and never on a browser. They run in the Node environment
+(`// @vitest-environment node`).
+
+IndexedDB comes from the `fake-indexeddb` dev dependency. Each test builds a fresh, empty
+in-memory database with `freshFactory()` (a new `IDBFactory` from `fake-indexeddb`) and passes it
+to `openStoragePort({ factory, appVersion })`. The global shim (`fake-indexeddb/auto`) is never
+loaded, so no test sees another's data and none depends on a global `indexedDB`. Two tabs are
+two ports, or a port and a raw connection, opened on the same factory.
+
+`tests/unit/storage/storage-test-doubles.ts` holds the rest:
+
+- `TEST_APP_VERSION` (`3.0.0-test`) and `sampleRecord(payload, dataVersion?)`, a record with valid
+  versions and a payload; `DATABASE`, the default database name.
+- `syntheticStep(toVersion, ran?)`, a migration step that rewrites nothing and records in `ran`
+  that it ran, and `migrationsUpTo(version)`, the production steps followed by synthetic steps up
+  to `version`. A spec passes them through the port's `migrations` option to open the database at
+  a higher data version (a synthetic step 1 → 2), as a newer app would; production code has no
+  test-only branch for it.
+- `withRawDatabase(factory, inspect, version?)` opens the database straight on the factory,
+  without the port, runs `inspect` on that connection and closes it, so it never blocks a later
+  upgrade. With `rawGet` and `rawPut` a spec inspects what is stored, or tampers with it as a
+  newer tab would (for example raising `meta`'s data version without an upgrade).
+  `databaseNames(factory)` lists the databases the factory holds, to prove a deletion.
+- `failingPutFactory(makeFailure, path)` wraps a fresh factory so every `put` fails with the
+  given `DOMException`, either thrown by the request call (`'request'`) or as the error of an
+  aborted transaction (`'transaction'`), the two ways a browser out of space reports a
+  `QuotaExceededError`. Everything else is the real fake database.
+- `blockedOpenFactory()` gives a factory whose `open` throws a `SecurityError`, as a browser with
+  storage blocked does, over a real fake factory (`real`) that still deletes databases: the port
+  opens `unavailable`, and Delete everything still runs.
+- `recordingManager()` gives a storage manager double that answers fixed values (an estimate of
+  1200 bytes used of 50 MB, not persisted, persistence granted) and records each call by name in
+  `calls`. A spec that leaves the manager out checks the insecure-context refusals.
+
+`__APP_VERSION__` is defined in `vitest.config.ts` through `scripts/app-version-define.mjs`, as
+in the app's build, so `src/storage/app-version.ts` loads in unit tests and `app-version.spec.ts`
+checks it against `package.json`.
+
 ## The session driver
 
 `tests/unit/session/session-harness.ts` holds the shared builders of the session engine specs. It
@@ -1305,7 +1351,8 @@ fixture file (the played-notes sessions) and one [MIDI golden file](#midi-fixtur
 settings-mutation engine added one unit fixture file (the scripted session), the
 `keyChangeIntent` builder of the carry-in fixture and a frozen replay key. The v3.0 baselines
 added the [replay-key corpus](#replay-key-corpus): one fixture file, its case builder and its
-recording script, with the entry chunk's size recorded beside it.
+recording script, with the entry chunk's size recorded beside it. The database core added one
+unit fixture file (the storage test doubles).
 
 ### Notation harness fixtures
 
@@ -1374,6 +1421,7 @@ the state every baseline shows.
 | Fake MIDI access                    | `tests/unit/midi/fake-midi-access.ts`                                           | `createFakeMidiAccess(options?)`: a `MidiAccessProvider` that plugs, unplugs and plays notes on command, with the same port coming back on a replug, controls over the access request and port opening, and the permission it reports (`setPermission`) (see [Fake MIDI access](#fake-midi-access)).                                                                                                                                                                                                                                                                                                                                                                                                                                   | `create-workspace-session`, `workspace-prewarm` specs; `midi-controller-rig.ts`, `fake-workspace-dependencies.ts`; the workspace harness's `midi-seams.ts`                                    |
 | MIDI controller rig                 | `tests/unit/midi/midi-controller-rig.ts`                                        | `createControllerRig(options?)`: the real controller on the fake MIDI access and the fake audio rig's anchor, with every change and note recorded and `at(t)`, the `performance.now()` stamp of audio time `t`; the devices `KEYS_A` and `KEYS_A2` (two identical keyboards) and `PAD_B`.                                                                                                                                                                                                                                                                                                                                                                                                                                              | The `midi-controller-*` specs; `connection-sheet-rig.ts`; the `ConnectionSheet-*`, `use-controller-status`, `WorkspaceShell`, `WorkspaceShell-connection` and `App` specs                     |
 | Fake Web MIDI                       | `tests/unit/midi/fake-web-midi.ts`                                              | `createFakeWebMidiNavigator(answer)`, `createFakeWebMidiAccess(ports)`, `createFakeWebMidiPort(…)` and `createFakeWebMidiPermissions(answer)`: the browser's Web MIDI objects and `navigator.permissions` as hand-made fakes, for the adapter (jsdom has no Web MIDI).                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `web-midi-access`, `create-workspace-session-midi` specs                                                                                                                                      |
+| Storage test doubles                | `tests/unit/storage/storage-test-doubles.ts`                                    | `freshFactory()` (a fresh in-memory `IDBFactory` from `fake-indexeddb`), `sampleRecord`, the synthetic migration steps (`syntheticStep`, `migrationsUpTo`), raw access (`withRawDatabase`, `rawGet`, `rawPut`, `databaseNames`), the failing factories (`failingPutFactory`, `blockedOpenFactory`) and `recordingManager()` (see [Fake IndexedDB and storage manager](#fake-indexeddb-and-storage-manager)).                                                                                                                                                                                                                                                                                                                           | `tests/unit/storage/` specs                                                                                                                                                                   |
 | Sheet model fixtures                | `tests/unit/components/controller-connection/sheet-model-fixtures.ts`           | The fake devices `KEYS`, `PAD` and `FLUTE`, controller snapshots (`change`, `REQUESTING`, `selected`), and `run(model, ...events)` with helpers such as `requestingSheet()` that drive the reducer to a stage through its public events.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `connection-sheet-model`, `connection-sheet-model-device-changes` specs                                                                                                                       |
 | Connection sheet rig                | `tests/unit/components/controller-connection/connection-sheet-rig.ts`           | `openSheet(rig, options?)`: mounts the real `ConnectionSheet.vue` over a controller on the fake MIDI access (the MIDI controller rig), making the connect attempt the header click makes, at Requesting access or Connected, for a given profile; and readers and drivers of what it shows (`title`, `bodyLines`, `resultLines`, `actionLabels`, `primaryLabels`, `action`, `clickAction`, `options`, …).                                                                                                                                                                                                                                                                                                                              | `ConnectionSheet-states`, `-check`, `-devices`, `-dialog` specs                                                                                                                               |
 | Fake check-note engraver            | `tests/unit/components/controller-connection/fake-check-note-engraver.ts`       | A `vi.mock` stand-in for `@/notation/vexflow-engraver-loader`: `loadVexflowEngraver` resolves to spies for `ensureNotationFonts` and `engraveCheckNote`, which puts a bare `svg.staff-svg` carrying the written MIDI note in `data-written-midi`; `resetFakeCheckNoteEngraver()`.                                                                                                                                                                                                                                                                                                                                                                                                                                                      | `ConnectionSheet-*` and `WorkspaceShell-connection` specs                                                                                                                                     |
@@ -1592,7 +1640,10 @@ Inline probes in both specs widen the fixtures: every always-forbidden call (the
 microphone, `document.cookie`, `cookieStore`, `localStorage`, `sessionStorage`, `caches`, media
 playback) is rejected in `audio/`, `midi/`, `storage/` and `other/`; and the IndexedDB and storage
 manager calls, reached bare or through `window`, `globalThis`, `self` or `navigator?.`, are allowed
-in `storage/` and rejected in `audio/`, `midi/` and `other/`.
+in `storage/` and rejected in `audio/`, `midi/` and `other/`. The ESLint spec also probes imports:
+`@/storage/storage-port` and `../storage/database` are rejected in `session/` and `export/` and
+allowed in `components/` and `composables/`, and `vexflow` stays rejected in `session/` and
+`export/`.
 
 The two rules that keep the backing synthesized have no fixture files. `verify-boundaries.spec.ts`
 checks them inline: each sampled-audio call (`decodeAudioData`, `createBufferSource`,

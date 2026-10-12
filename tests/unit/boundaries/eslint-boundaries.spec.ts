@@ -227,3 +227,60 @@ describe('eslint.config.js allows IndexedDB and the storage manager under src/st
     expectBoundaryErrors(messages, storageOutsideStorageDirectory, 1)
   })
 })
+
+describe('eslint.config.js keeps src/session/ and src/export/ from importing src/storage/', () => {
+  const storageFreeImport =
+    /src\/session\/ and src\/export\/ stay storage-free: they never import src\/storage\//
+  const vexflowImport = /Only src\/notation\/vexflow-mapping\.ts/
+
+  const storageImports = [
+    "import { openStoragePort } from '@/storage/storage-port'",
+    "import { openStoragePort } from '../storage/database'",
+  ]
+
+  /** Intent: lint a probe file that makes `importStatement` and re-exports what it imported. */
+  async function lintImport(
+    relativePath: string,
+    importStatement: string,
+  ): Promise<Linter.LintMessage[]> {
+    return lintAsSource(relativePath, `${importStatement}\nexport const probe = openStoragePort\n`)
+  }
+
+  /** Intent: assert exactly one no-restricted-imports error carrying the expected explanation. */
+  function expectRestrictedImport(messages: Linter.LintMessage[], explanation: RegExp): void {
+    expect(messages).toHaveLength(1)
+    const [message] = messages
+    expect(message?.ruleId).toBe('no-restricted-imports')
+    expect(message?.severity).toBe(2)
+    expect(message?.message).toMatch(explanation)
+  }
+
+  // @test-link [[module_on_device_database]]
+  test.each(
+    ['session', 'export'].flatMap((directory) =>
+      storageImports.map((importStatement) => ({ directory, importStatement })),
+    ),
+  )('$importStatement is rejected in src/$directory/', async ({ directory, importStatement }) => {
+    expectRestrictedImport(
+      await lintImport(`${directory}/x.ts`, importStatement),
+      storageFreeImport,
+    )
+  })
+
+  // @test-link [[module_on_device_database]]
+  test.each(
+    ['components', 'composables'].flatMap((directory) =>
+      storageImports.map((importStatement) => ({ directory, importStatement })),
+    ),
+  )('$importStatement is allowed in src/$directory/', async ({ directory, importStatement }) => {
+    expect(await lintImport(`${directory}/x.ts`, importStatement)).toEqual([])
+  })
+
+  test.each(['session', 'export'])('vexflow stays rejected in src/%s/', async (directory) => {
+    const messages = await lintAsSource(
+      `${directory}/x.ts`,
+      "import { Stave } from 'vexflow'\nexport const probe = Stave\n",
+    )
+    expectRestrictedImport(messages, vexflowImport)
+  })
+})
