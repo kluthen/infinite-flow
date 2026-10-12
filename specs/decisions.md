@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.83
+Status: draft v2.84
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1072,3 +1072,87 @@ from `main`); D289 is unused. D290–D299 are reserved for v3.0 wave 2.
   are revised by `documentalist`. Build plan v7 adds chunk 19b (bass clef for my instrument) in
   wave 2, moves the range ruling after it, and adds a clef design gate for `ux-writer` before
   chunk 20.
+
+- **D294 (2026-10-12): my instrument's written range must lie within written C2 to C7 in treble
+  clef and written E0 to E5 in bass clef.** The owner's answer ("ok") to the range bound proposed
+  in D293. Both ends are included (C2 is MIDI note 36, C7 96, E0 16, E5 76, middle C being C4,
+  note 60). A range outside the bound for its clef is refused live in my instrument's sheet, with
+  the reason given in note names, like a range under two octaves; changing the clef checks the
+  range again. The two-octave minimum and the MIDI note range still apply. The bound is a
+  validity rule of my instrument, so it sits beside the two-octave rule. The owner chose it over
+  a bound on the staff's height, which is exact but harder to explain. Build plan chunk 19b still
+  measures the bass-clef bound and confirms that it keeps the shared height at most 24 staff
+  spaces, as the treble one does; if it does not, the figure goes back to the owner. Chunk 20
+  enforces the bound. Master spec Part A v1.10 (§7.1, §12, item 16, §14); the build plan's
+  "Range ruling" gate is settled.
+- **D295 (2026-10-12): every kept session belongs to the instrument it was played with; deleting
+  my instrument deletes its sessions, and a range or transposition change erases them after a
+  warning (closes O181 with D296).** The owner, verbatim: "nevermind old session they're
+  inexistant. session should probably tied to instrument selected (hence reviewing an old session
+  should use the old instrument (if it still exists), sessions bound to a deleted instrument
+  should be deleted as well). Altering an instrument is a tough choice. i'd say: should the
+  alteration changes the range indicate that this will erase all known stored session of this
+  instrument. if the change is cosmetic it's okay." "Tied to instrument selected" is read as the
+  instrument selected when the session was played; the session list is not filtered by the
+  instrument selected now.
+  1. **Belonging.** Every kept session, the most recent one and the pinned ones alike, belongs to
+     the instrument named by its id in its session-wide record (master spec §5.2). Only my
+     instrument can be changed or deleted, so only its sessions are ever touched.
+  2. **Deleting my instrument** deletes every kept session played with it, with their favorites,
+     comments and played notes; its confirmation says so and how many go.
+  3. **Saving a change to my instrument's written range or transposition** first warns that it
+     erases all the kept sessions of my instrument, and how many; on confirmation it saves and
+     erases them; on cancel nothing changes. This holds in the sheet and through the transposition
+     check's "use this for my instrument". While my instrument has no kept session, no warning is
+     shown, since nothing is erased.
+  4. **The session that just ended goes too** when it was played with my instrument: it leaves
+     memory, its review closes, and "Review last session" goes, exactly as when the player deletes
+     that session from its review (already designed: `ui_ux/flows/review-and-export/intent.md`).
+     My instrument's sheet and the check are reachable while a review shows, so this happens.
+  5. **A visit that saves nothing erases nothing.** An outdated tab offers neither deleting my
+     instrument nor saving a range or transposition change while my instrument has kept
+     sessions, as it offers no other deletion (master spec §4.3). A visit whose saved data could
+     not be read has read no kept session and no my instrument, so changing or deleting a my
+     instrument made during it erases nothing, and its session held in memory keeps its review.
+  6. **No migration:** v3.0 is unreleased and no v3.0 session data exists.
+  7. **The review still shows each phrase exactly as it was displayed.** As the coordinator
+     recommended, and spec-writer agrees: D293's clef stays stored with each phrase, so the
+     only changes that keep sessions (name and clef) never alter a review's engraving; the list
+     keeps the name the session was played under (build plan chunk 9 stores it). A range or
+     transposition change erases sessions instead of redrawing them. So the STABLE
+     `req_last_session_review`'s "engraved exactly as it was displayed" holds unchanged.
+  8. **One contract wording changes, PROPOSED for the owner.** `req_last_session_review`
+     (STABLE, contract surface) promises the review "stays reachable until the next session
+     starts". The player can now end it sooner by deleting its session, through my instrument as
+     above, and already through v3.0's own Delete session (master spec §5.4), which that sentence
+     never covered. Proposed wording: add "or until the player deletes its session". By the
+     contract's rule this removes cases from a listed guarantee, a MAJOR version (CONTRACT 3.1 to
+     4.0); the owner may rule it MINOR, as for D290, since only the player's own confirmed action
+     ends the review. `documentalist` applies nothing before the owner confirms. The two pending
+     part-B texts (`docs/release/v3.0-intent-change-set.md`) gain a clause each:
+     `rule_instrument_profile_range` (B1) the bound per clef, `rule_controller_transposition_check`
+     (B2) the warning before the check's action erases my instrument's sessions; neither weakens a
+     guarantee.
+
+  Master spec Part A v1.10 (§2, §4.1, §4.3, §4.4, §5.1, §5.4, §6, §7.1, §7.2, §10, §12, items 6,
+  14, 16, 17 and 23, §14). Build plan v8 adds chunk 20c (my instrument's sessions) and a design
+  gate for it.
+- **D296 (2026-10-12): what each change of my instrument does, and phrases made before a save
+  that changes the shared height (closes O181 with D295).** Proposed by the coordinator and agreed
+  by the owner the same day:
+  1. **A transposition change counts like a range change:** the erase warning (D295).
+  2. **A name or clef change is cosmetic:** no warning, sessions kept; the phrase on screen is
+     kept (redrawn in the new clef), and no pre-generated phrase is discarded for it.
+  3. **O181(b), yes:** a save of my instrument that changes the staff's shared height without
+     discarding the pre-generated phrases (a clef change, or a range change while another profile
+     is selected) checks them again against the new layout, as a change of window size does: one
+     that no longer fits is discarded with every phrase after it.
+
+  **O181(a) narrows to the clef.** With D295, a kept session never holds a range my instrument no
+  longer has. A clef change keeps the sessions, each phrase in the clef it was played in, and
+  that clef can need more height than the shared height now has: written C2 to C4 needs 19 staff
+  spaces in treble clef and 16 in bass clef. Settled as behaviour: **a review never cuts a
+  phrase**; when a session's phrases need more height than the shared height, its review makes
+  room for them. How is `ux-writer`'s, in the design gate before chunk 20c (proposed, as in
+  O181: the review's staff takes the larger of the shared height and the height its own session
+  needs). Master spec Part A v1.10 (§7.1, §8, item 16); build plan v8 (chunks 20 and 20c).

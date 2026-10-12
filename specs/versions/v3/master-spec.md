@@ -2,11 +2,13 @@
 
 Status: this file holds four parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.9 (2026-10-12), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.10 (2026-10-12), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
   v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
-  clef choice for my instrument, the owner's ruling during wave 2.
+  clef choice for my instrument, the owner's ruling during wave 2; v1.10 writes in the bound on
+  my instrument's written range and the rule that kept sessions belong to their instrument, the
+  owner's rulings later that day. One contract wording it needs waits for the owner (§10).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -22,7 +24,7 @@ Status: this file holds four parts.
 
 Part A's history follows.
 
-Part A status: master spec v1.9 (2026-10-12), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
+Part A status: master spec v1.10 (2026-10-12), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
 remembered controller (§7.3). Change in v1.2: behaviours the v3.0 design settled, written in:
 when settings are read and saved, what Delete everything leaves, which sessions a save deletes,
 favorites and unpinning, the played-notes switch on the session that just ended, my instrument's
@@ -62,7 +64,18 @@ the built-in profiles staying in treble clef; the clef is display only, travels 
 instrument's phrases into the review and the MusicXML export, and is not in the replay key; the
 staff's shared height reads my instrument's written range in its own clef; octave signs wait for
 a later version (§2, §3, §5.2, §7.1, §7.4, §8, §11, §12, item 16, §14). The bound on my
-instrument's written range is now proposed per clef and still awaits the owner (§14). Consolidated from the approved v3.0 drafts for handoff to
+instrument's written range is now proposed per clef and still awaits the owner (§14). Change in
+v1.10, the owner's rulings later the same day (2026-10-12): my instrument's written range must lie
+within written C2 to C7 in treble clef and E0 to E5 in bass clef, refused live otherwise, a clef
+change checking it again (§7.1, item 16, §14); every kept session belongs to the instrument it
+was played with, so deleting my instrument deletes its kept sessions, and saving a change to its
+range or transposition first warns that it erases them, then erases them; a change of name or
+clef keeps them, each phrase still drawn in the clef it was played in; a save that changes the
+staff's shared height checks phrases pre-generated at Idle again, and a review makes room for a
+session that needs more height than the shared one (§2, §4.1, §4.3, §4.4, §5.1, §5.4, §6, §7.1,
+§7.2, §8, §10, §12, items 6, 14, 16, 17 and 23, §14). The review of the last session can now end
+before the next session starts, when the player deletes its session: that contract wording waits
+for the owner (§10). Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. Part A covers **v3.0
 only**; Part B, consolidated from the approved v3.1 drafts for the same handoffs, covers v3.1. The
 draft topic documents stay in `specs/versions/v3/` as working material; where they and this
@@ -93,7 +106,8 @@ grades, ranks or scores the player, and anything that adapts is opt-in and visib
 - Saving on the device: settings, preferences and the data below, with a place where the player
   sees and deletes what is kept (§4).
 - Kept sessions: the most recent session kept automatically, pinned sessions kept for good, a list
-  of kept sessions, the review of any kept session, an optional comment per session (§5).
+  of kept sessions, the review of any kept session, an optional comment per session; each kept
+  session belongs to the instrument it was played with (§5).
 - Played notes kept only after the player opts in, and deletable (§5).
 - Favorites: marking whole phrases, and exporting favorites only (§6).
 - "My instrument": a player-described instrument, saved, written in treble or bass clef, fed by
@@ -159,7 +173,8 @@ wait.
   place are a design choice), lists what the app keeps, how much space it uses and whether the
   browser protects it (§4.5), and offers **Delete everything**, which removes every saved item at
   once after a confirmation and then reloads the page into its first-visit state. Each item's own
-  deletion is specified with it.
+  deletion is specified with it. Deleting my instrument, or saving a change to its range or
+  transposition, also deletes the kept sessions played with it, after a warning (§5.1, §7.1).
 
 ### 4.2 What is saved automatically
 
@@ -194,8 +209,10 @@ during a session (§5.1).
 - **An outdated tab stops saving.** The app updates itself silently, so an old open tab can meet
   data written by a newer version. That tab keeps working in memory, saves and deletes nothing
   more, and offers no deletion of any kind (Delete everything, a kept session's Delete, deleting
-  played notes, including the offer that turning "Keep my played notes" off makes: the notice asks
-  for a reload first), and shows a notice asking
+  played notes, including the offer that turning "Keep my played notes" off makes; and, while my
+  instrument has kept sessions, deleting my instrument or saving a change to its range or
+  transposition, since either deletes them (§7.1): the notice asks for a reload first), and shows
+  a notice asking
   for a reload, outside a running session. It reads what it can: records written by the newer
   version are left unread (a kept session saved by a newer version is listed as such and does not
   open).
@@ -212,7 +229,9 @@ outdated tab): it is the way out when reloading does not help, whether the data 
 asks for confirmation as everywhere. Whenever saved data written by a newer version is known to
 exist, at load or later in the visit, the outdated-tab rule (§4.3) wins: no deletion of any kind
 is offered, Delete everything included, since deleting could destroy what the newer version
-saved.
+saved. Such a visit has read no kept session and no saved my instrument, so changing or deleting
+a my instrument made during it erases nothing: the session it holds in memory keeps its review
+until the next session starts, as in v2 (each phrase carries its instrument, §5.2).
 
 Each saved setting is checked on its own when the app loads. A value that is unknown or no longer
 valid falls back to that setting's default; every other saved setting is kept. No notice is
@@ -244,13 +263,37 @@ server never appears on the deployed site, and the reverse.
   lost, as in v2: saving happens at the session's end, never during it.
 - **Pinning keeps a session for good.** When a new session is saved, every session that is not
   pinned is deleted, including one the player unpinned earlier. A pinned session stays until the player unpins or
-  deletes it. Only one session is ever kept without the player asking.
+  deletes it, or deletes or changes the instrument it was played with (below). Only one session
+  is ever kept without the player asking.
 - **Marking a favorite pins its session**, so a favorite is never lost by starting a new session.
   Unpinning a session that holds favorites asks for confirmation first, since the session and its
   favorites will then be deleted when the next session is saved.
 - **No limit on the number of pinned sessions.** "Your data" shows the space they use. When the
   browser refuses a save because storage is full, nothing is deleted automatically to make room;
   the app tells the player after the session.
+- **A kept session belongs to the instrument it was played with**, named by its id in the
+  session's own record (§5.2). This is every kept session, the most recent one and the pinned
+  ones alike. It matters only for my instrument, the one instrument the player can change or
+  delete; the built-in profiles never change, so their sessions are never touched:
+  - **deleting my instrument deletes every kept session played with it**, with their favorites,
+    comments and played notes. The confirmation says so first, and how many sessions go;
+  - **saving a change to my instrument's written range or transposition erases every kept
+    session played with it**, the same way. Before saving, the app warns that the change will
+    erase all the kept sessions of my instrument, and how many; the player confirms or cancels.
+    This holds wherever the change is made: in my instrument's sheet, or through the
+    transposition check's "use this for my instrument" (§7.2). While my instrument has no kept
+    session, nothing is erased and no warning is shown;
+  - **a change of my instrument's name or clef keeps its sessions**, with no warning: such a
+    change alters nothing generated (§7.1);
+  - **a session on screen goes too:** when the review on screen shows one of them, it closes
+    exactly as when the player deletes that session (§5.4). The session that just ended, when
+    played with my instrument, also leaves memory, and "Review last session" goes with it. The
+    next session saved is kept as the most recent one, as always.
+
+  So every kept session of my instrument was played with the range and transposition my
+  instrument has now; only the name and the clef can differ. Its review still draws each phrase
+  in the clef it was played in (§7.1), and the session list names the instrument as the session
+  recorded it.
 
 ### 5.2 What a kept session holds
 
@@ -305,7 +348,8 @@ the generator may produce different phrases from the same inputs.
   `Played notes` lane when its played notes were kept, and the exports, with the favorites scope
   (§6).
 - **For each session:** pin or unpin, delete (with a confirmation). **For all:** Delete every
-  session, in "Your data".
+  session, in "Your data". The sessions of my instrument also go when my instrument is deleted or
+  its range or transposition changes, after the warning (§5.1).
 - **On every device, the phone included.** These are functions of the review that every device
   gets; the phone's review stays the plain baseline of those functions. Layout and navigation are
   a design matter.
@@ -326,7 +370,9 @@ in the session list. It is never written into the MusicXML or MIDI exports.
   come in session order, each keeping its session phrase number. A played note held past the end
   of a favorite phrase stops at that end when the next phrase is not exported.
 - **Starting a new session never asks for confirmation.** Favorites live in a pinned session, so
-  nothing is lost; there is no "unexported favorites" warning.
+  nothing is lost; there is no "unexported favorites" warning. A favorite goes only with its
+  session: when the player deletes it, or deletes my instrument it was played with or changes
+  that instrument's range or transposition, each after a warning (§5.1).
 - With no favorite in the session, the favorites-only scope is unavailable, and says why.
 
 ## 7. My instrument
@@ -339,7 +385,8 @@ in the session list. It is never written into the MusicXML or MIDI exports.
   - its **clef**, treble or bass (see its clef below);
   - its **range**, lowest and highest note, in written pitch: the written range is what the player
     sets and keeps, and the concert range follows from it and the transposition, so changing the
-    transposition (by hand or through §7.2) keeps the written range;
+    transposition (by hand or through §7.2) keeps the written range. The range must lie within a
+    bound set by its clef (below);
   - its **transposition**, the interval between written and sounding pitch: one **direction** for
     the whole interval (lower when a written note sounds lower, the same, or higher when it sounds
     higher) and two counts with no sign of their own, a number of octaves and a number of
@@ -426,7 +473,9 @@ in the session list. It is never written into the MusicXML or MIDI exports.
     the one that exists;
   - changing only the clef saves my instrument like any other change: the phrase on screen stays
     and is redrawn in the new clef, as for a change of display name, since nothing it was
-    generated from changed. The staff's shared height is computed again (below).
+    generated from changed. My instrument's kept sessions stay, with no warning (§5.1), each
+    phrase still in the clef it was played in. The staff's shared height is computed again
+    (below), and the written range is checked again against the new clef's bound.
 
   Octave signs (8va, 8vb, 15ma) and octave clefs are not in v3.0: a later version may add them,
   should the need arise ([O180](../../open-questions.md#v30-wave-2-o180)). An instrument
@@ -436,16 +485,45 @@ in the session list. It is never written into the MusicXML or MIDI exports.
   the built-in ids (`c-keyboard`). Saved settings, kept sessions and replay keys name it by that
   id, and it is never renamed. The display name is a separate property the player may change at
   any time; changing it changes nothing stored by id. What a phrase was made with travels with the
-  phrase in full (§5.2, §7.4), so editing or deleting my instrument later changes no kept phrase.
+  phrase in full (§5.2, §7.4), so a later change of my instrument's name or clef changes no kept
+  phrase. Deleting my instrument, or saving a change to its range or transposition, deletes its
+  kept sessions instead, after a warning (§5.1).
+- **What each change does to the sessions played with it.** My instrument's sheet can change four
+  things; the template is chosen only when creating it.
+
+  | Change saved | Phrase on screen, my instrument selected | Pre-generated phrases, my instrument selected | Its kept sessions |
+  | --- | --- | --- | --- |
+  | Written range | replaced, as on an instrument switch | discarded (§8) | erased, after a warning |
+  | Transposition | replaced, as on an instrument switch | discarded (§8) | erased, after a warning |
+  | Clef | kept, redrawn in the new clef | kept, checked again if the shared height changes (§8) | kept, no warning |
+  | Display name | kept | kept | kept, no warning |
+
+  A range or a transposition changes what is generated, so the sessions played before it no
+  longer match the instrument; a name or a clef changes only how it is labelled or drawn. With
+  another profile selected, the phrase on screen is never replaced, and a range change that
+  alters the shared height has the pre-generated phrases checked again (§8).
 - **The rules every profile already obeys apply:** whole-number endpoints, a span of at least two
   octaves (24 semitones), and the Low, Middle and High register windows derived by the same
   algorithm as the built-in profiles, never set by hand. A range under two octaves is refused, with
   the reason.
+- **The written range lies within a bound set by the clef.** In treble clef, the range must lie
+  between written C2 and written C7; in bass clef, between written E0 and written E5; both ends
+  included (middle C is C4, MIDI note 60, so C2 is note 36, C7 note 96, E0 note 16 and E5 note
+  76). The two bounds sit on the same lines and spaces of their own staff, from eight ledger lines
+  below it to about five above it, since the bass clef's lines stand 12 letter-name steps below
+  the treble clef's; they keep the staff's shared height at most 24 staff spaces (below). A range
+  outside the bound for its clef is refused live in the sheet, like a range under two octaves,
+  with the reason given in note names. Changing the clef checks the range again, so a range
+  allowed in one clef may be refused in the other until the range or the clef changes. The
+  two-octave minimum and the MIDI note range (above) still apply. At 24 staff spaces, a window
+  below the tablet-landscape width needs a small viewport height of about 366 CSS px for the two
+  system positions.
 - **The input kind is "MIDI controller"**, the only kind in v3. It is stored so the microphone can
   be added later without changing the saved shape.
 - **It is a fourth choice** in the instrument control. The three built-in profiles stay unchanged
   and selectable.
-- **Deleting it** returns the instrument control to the template it was made from.
+- **Deleting it** returns the instrument control to the template it was made from, and deletes
+  every kept session played with it (§5.1); its confirmation says how many sessions go.
 - **No Concert-display override.** Notation shows the selected instrument's written pitch, as in v2.
 - **The staff makes room for my instrument's written range.** The staff's two system positions
   share one height. My instrument's written range, placed on the staff in its own clef, counts
@@ -455,6 +533,14 @@ in the session list. It is never written into the MusicXML or MIDI exports.
   reach much further in one clef than in the other: written C2 to C4 needs 19 staff spaces in
   treble clef, and in bass clef it sits on the staff with at most two ledger lines. The height
   changes only when my instrument is saved or deleted, never from one phrase to the next.
+- **Phrases made before a save that changes the shared height.** Phrases pre-generated at Idle
+  are checked again against the new height, as after a change of window size (§8). A kept
+  session never has a range my instrument no longer has (§5.1), but it may hold phrases in the
+  clef my instrument had before a clef change, and that clef may need more height: written C2 to
+  C4 needs 19 staff spaces in treble clef and 16 in bass clef. **A review never cuts a phrase:**
+  when a session's phrases need more height than the shared height, its review makes room for
+  them. How it does so is a design matter (proposed: the review's staff takes the larger of the
+  shared height and the height its own session needs; §14).
 
 ### 7.2 The transposition check feeds it
 
@@ -466,7 +552,9 @@ a constant offset: a match, whole octaves, or a number of semitones.
   offset in semitones becomes §7.1's octaves, semitones and direction, and its interval name
   follows from §7.1's table),
   creating "my instrument" from the selected profile if there is none yet. The player confirms it
-  once; it is then saved, and the check need not be redone in later visits.
+  once; it is then saved, and the check need not be redone in later visits. When my instrument
+  already exists and has kept sessions, that one confirmation also warns that changing its
+  transposition erases them, and how many (§5.1); confirming erases them.
 - **The app still applies no offset to played notes.** They are compared at the exact concert
   pitch received, as in v2. Changing the instrument's transposition is what makes the written part
   match the controller.
@@ -512,7 +600,10 @@ clef with the phrase (§5.2).
   tempo never affects generation. Nor does a change of my instrument's clef alone, or of its
   display name: no phrase is generated from either. A change of window size that
   changes the note density phrases are generated with, or the staff layout a session would hold,
-  re-checks them: one that no longer fits is discarded with every phrase after it.
+  re-checks them: one that no longer fits is discarded with every phrase after it. A save of my
+  instrument that changes the staff's shared height (§7.1) without discarding them, such as a
+  change of its clef, or of its range while another profile is selected, re-checks them the same
+  way.
 - **The player comes first.** Pre-generation runs after v2's prewarm, on the same generation
   worker. Any request the player makes at Idle cancels the background attempt in progress, the way
   a dropped attempt is cancelled in a session, so the player never waits behind it. Only a
@@ -578,6 +669,18 @@ below is intended.
   pre-generation attempt can be: any request the player makes at Idle cancels it (§8). Every
   guarantee the player relied on still holds; the change only adds a background attempt that gives
   way to the player, so the owner ruled it a minor contract version, not a major one.
+- **A fifth contract change is proposed and waits for the owner.** The last-session review
+  promises that the review "stays reachable until the next session starts"
+  (`req_last_session_review`). In v3.0 the player can end it earlier by deleting its session:
+  directly (§5.4, already approved), or by deleting my instrument it was played with or saving a
+  change to that instrument's range or transposition (§5.1), each after a confirmation. The
+  proposed wording adds "or until the player deletes its session". It removes cases from a
+  listed guarantee, so by the contract's own rule it is a major version; the owner may rule
+  otherwise, as he did for the minor change above, since only the player's own confirmed action
+  ends the review. The same review's promise that each phrase is "engraved exactly as it was
+  displayed" still holds unchanged: each phrase keeps the clef it was played in, a name change
+  touches no engraving, and a range or transposition change erases the session rather than
+  redrawing it.
 - **The audio-unlock rule widens** (not a contract guarantee): v2 unlocked sound only on a Start
   or Connect controller click; v3.0 unlocks it on the page's first click, tap or key press, since a
   remembered controller reattaches without a Connect click (§7.3).
@@ -657,6 +760,15 @@ From reading the code (details: [storage-grounding.md](storage-grounding.md)).
   request**, because a clef changes how a note is drawn, never which note it is: keeping it out of
   generation and the replay key leaves reproduction untouched, and keeping it with each phrase's
   instrument lets a kept session show the part as the player read it.
+- **Kept sessions belong to their instrument; a range or transposition change erases them**,
+  because the owner wants the sessions of my instrument to match my instrument as it is: a
+  session played with a range or transposition the instrument no longer has is gone, after a
+  warning, while a name or clef change, which alters nothing generated, keeps them. It also means
+  a review never shows a phrase whose range or transposition differs from its instrument's.
+- **A range bound per clef, in note names**, because a written range reaching far beyond the
+  staff makes the staff taller for every instrument; a bound the player can read on the staff
+  (C2 to C7 in treble clef, E0 to E5 in bass clef) is easier to explain in a refusal than a bound
+  on the staff's height, and keeps that height at most 24 staff spaces.
 - **A fixed id for my instrument, apart from its display name**, because saved settings, kept
   sessions and replay keys must keep naming the same instrument whatever the player calls it.
 - **One session-wide record for each session**, holding its session seed, because a session's
@@ -687,6 +799,10 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
 5. **Nothing is sent.** No network request carries player data, with storage in use.
 6. **The most recent session survives a reload** and opens in the same review; a new session's save
    deletes every unpinned kept session, one unpinned earlier included, and keeps every pinned one.
+   Every kept session belongs to the instrument it was played with: deleting my instrument
+   deletes exactly the kept sessions played with it, pinned ones and the session that just ended
+   included, with their favorites, comments and played notes, and no other session; its
+   confirmation says how many go.
 7. **No save during a session.** No storage write happens between Start and the session's end.
 8. **A kept session holds only §5.2's content**: no acknowledgements, provenance or diagnostics;
    its session-wide record holds its session seed.
@@ -703,7 +819,9 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
 13. **Persistent storage** is requested once per visit, on the first pin, favorite or saved
     instrument, unless already granted, and "Your data" reports whether it was granted.
 14. **Outdated tab.** A tab opened by an older version, facing newer saved data, saves and deletes
-    nothing, offers no deletion of any kind, and shows the reload notice outside a running session. **Unreadable data.** A visit whose saved data
+    nothing, offers no deletion of any kind (while my instrument has kept sessions, neither
+    deleting it nor saving a change to its range or transposition), and shows the reload notice
+    outside a running session. **Unreadable data.** A visit whose saved data
     could not be read, or not within the start-up wait, starts from the defaults, tells the
     player, writes nothing (no change retries a save), and offers Delete everything and no other
     deletion, none in the session list or a review included; once newer data is known, it offers
@@ -719,12 +837,19 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
     is stored and replayed by its id, `my-instrument`; changing its display name changes nothing
     stored. It is written in treble or bass clef, as the player chooses, on the staff, in the
     review of its sessions and in the MusicXML export; its clef changes no generated note and no
-    replay key, and the staff's shared height reads its written range in that clef. The
-    generator's success rate is measured on narrow (two-octave) and extreme ranges
-    before the gate, and recorded.
+    replay key, and the staff's shared height reads its written range in that clef. A written
+    range outside C2 to C7 in treble clef, or E0 to E5 in bass clef, is refused live with the
+    reason in note names, and changing the clef checks the range again. Saving a change to its
+    range or transposition, while it has kept sessions, first warns that they will be erased and
+    how many; on confirmation it saves and erases them, and on cancel changes nothing; a change
+    of name or clef keeps them with no warning, each phrase reviewed in the clef it was played
+    in, and a review never cuts a phrase that needs more height than the shared height. A save
+    that changes the shared height re-checks the pre-generated phrases. The generator's success
+    rate is measured on narrow (two-octave) and extreme ranges before the gate, and recorded.
 17. **The check feeds my instrument.** "Use this for my instrument" sets the transposition so the
-    written notes match the controller, after one confirmation, and the result survives a reload.
-    Played notes are still compared at the pitch received.
+    written notes match the controller, after one confirmation, and the result survives a reload;
+    when my instrument has kept sessions, that confirmation warns that they will be erased, and
+    confirming erases them. Played notes are still compared at the pitch received.
 18. **The controller is remembered** and reselected at load when connected and MIDI access is
     already allowed, with no prompt; after the player's Disconnect, a reload reselects nothing; the
     starting note starts nothing before the page's first click, tap or key press.
@@ -741,47 +866,49 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
     acknowledgement; stored played notes include them.
 22. **v2 behaviour otherwise unchanged:** the v2 test suite passes, apart from the tests §10 lists
     as changing, each replaced by its v3.0 counterpart.
-23. **The declared-intent contract** reflects §10's three major changes and its minor one, with
-    the owner's explicit confirmation of each recorded.
+23. **The declared-intent contract** reflects §10's three major changes, its minor one and the
+    proposed fifth (the review's reachability), with the owner's explicit confirmation of each
+    recorded.
 
 ## 14. Deferred and open
 
 - **Open, for the build plan:** the exact stray-note threshold, set by measurement (§9); the
   length of the start-up wait for saved settings (§4.4); whether "my instrument" needs a stricter
-  range check than the two-octave rule once the generator's success rate on narrow and extreme
-  ranges is known (§7.1, item 16). The design adds a reason for a bound: the written range of "my
-  instrument" counts toward the staff's shared height, so an unusually wide or high range would
-  make the staff taller for every instrument. A bound on the written range, settled with that
-  check, would avoid it.
-- **Open, for the owner: the bound on my instrument's written range, now per clef.** Measurement
-  M3 found that in treble clef only a range of exactly two octaves, from written B2–B4 up to
-  E4–E6, keeps the staff at today's 16 staff spaces; C3–C6 needs 18, C2–C4 19, C6–C8 21, C2–C6 23
-  and C2–C7 24. **Proposed, not decided:** the written range must lie within **written C2 to C7
-  in treble clef** and within **written E0 to E5 in bass clef**, which keeps the shared height at
-  most 24 staff spaces. The two bounds sit on the same lines and spaces of their staff, eight
-  ledger lines below it to about five above it, since the bass clef's lines stand an octave and a
-  sixth below the treble clef's (12 letter-name steps); the bass-clef figure is confirmed by
-  measurement in the build. A range outside the bound is refused with the reason, live in the
-  sheet, like a range under two octaves; changing the clef checks the range again, so a range
-  allowed in one clef may be refused in the other. The two-octave minimum and the MIDI note
-  range (§7.1) still apply. At 24 staff spaces, a window below the tablet-landscape width needs
-  a small viewport height of about 366 CSS px for the two system positions. The alternative is a
-  bound on the height itself (refuse any range that would need more than 24 staff spaces),
-  exact, but harder to explain in the refusal. The build plan's range ruling waits for the
-  owner's answer.
-- **Open, for the owner and `ux-writer`:** what happens to phrases already made when a save of my
-  instrument changes the staff's shared height, for the review of a kept session and for phrases
-  pre-generated at Idle ([O181](../../open-questions.md#v30-wave-2-o180)).
+  range check than the two-octave rule and the bound per clef once the generator's success rate
+  on narrow and extreme ranges is known (§7.1, item 16); any stricter rule it shows goes to the
+  owner.
+- **Settled by the owner (2026-10-12): the bound on my instrument's written range, per clef.**
+  Measurement M3 found that in treble clef only a range of exactly two octaves, from written
+  B2–B4 up to E4–E6, keeps the staff at today's 16 staff spaces; C3–C6 needs 18, C2–C4 19, C6–C8
+  21, C2–C6 23 and C2–C7 24. The owner chose a bound in note names: written C2 to C7 in treble
+  clef, written E0 to E5 in bass clef (§7.1), over a bound on the height itself, which is exact
+  but harder to explain in the refusal. The build confirms by measurement that the bass-clef
+  bound also keeps the shared height at most 24 staff spaces; if it does not, the figure goes
+  back to the owner.
+- **Settled by the owner (2026-10-12): kept sessions belong to their instrument** (§5.1, §7.1):
+  deleting my instrument deletes its sessions; a range or transposition change erases them after
+  a warning; a name or clef change keeps them; a save that changes the shared height re-checks
+  the pre-generated phrases (§8); a review never cuts a phrase (§7.1). No v3.0 session data
+  exists yet, so nothing needs migrating.
+- **Contract change, for the owner:** the review's reachability (§10), with its proposed wording
+  and whether it takes a major or a minor contract version.
 - **Measured, for information:** the battery cost of pre-generation at Idle on a tablet (§8).
 - **Contract changes:** the owner confirmed the three major contract changes in §10 on
   2026-10-07, and they are applied; he agreed to the minor one, the cancellable background
-  attempt, on 2026-10-12, and it is applied with the build. Approving this spec is not a contract
-  confirmation.
+  attempt, on 2026-10-12, and it is applied with the build. The fifth, the review's
+  reachability, waits for him. Approving this spec is not a contract confirmation.
 - **Design, for `ux-writer`:** where "Your data", the session list, favorites, the comment, the
   "Keep my played notes" switch and "my instrument" live, and how they look on each device;
   how my instrument's sheet shows the transposition's derived interval name (§7.1); the clef
   control in my instrument's sheet, its wording and its default (proposed: treble clef), and the
-  staff-reach note read in the chosen clef (§7.1).
+  staff-reach note read in the chosen clef (§7.1); the refusal of a range outside its clef's
+  bound, in note names (§7.1); the warning before a range or transposition change erases my
+  instrument's kept sessions, in its sheet and in the transposition check's confirmation (§5.1,
+  §7.2); the delete confirmation naming the sessions that go with my instrument (§7.1); where
+  the player lands when the review on screen loses its session (§5.1); in an outdated tab, how
+  the sheet withholds deleting my instrument and a range or transposition change (§4.3); and how
+  a review makes room for a session that needs more height than the shared height (§7.1;
+  proposed: the larger of the two).
 - **Deferred, should the need arise:** octave signs and octave clefs for my instrument
   ([O180](../../open-questions.md#v30-wave-2-o180)).
 - **Deferred to later versions:** see §2.

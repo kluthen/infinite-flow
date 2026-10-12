@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.55
+Status: draft v0.56
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -15,8 +15,8 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 [v2 archive index](archive/v2/README.md) says where each answer now lives.
 
 Open on 2026-10-12: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
-O115 and O116 (v3.x learning), O176 (style packs and the chord level, below), and O180 and O181
-(v3.0 wave 2: octave signs, and the shared height under phrases already made). D228–D234 closed O10 (for v3.2), O103, O114, O126 and every
+O115 and O116 (v3.x learning), O176 (style packs and the chord level, below), and O180 (v3.0
+wave 2: octave signs, later). D295 and D296 closed O181 the day it was opened. D228–D234 closed O10 (for v3.2), O103, O114, O126 and every
 question the v3.1 and v3.2 drafts opened (O127–O157, O160–O162); D257 and D258 closed O163 and
 O164 the day they were opened. None blocks the v3.0 build.
 
@@ -118,8 +118,11 @@ amended is revised, and no question comes back unless the owner reopens it.
 ## v3.0 wave 2 (O180+)
 
 Opened 2026-10-12 by `spec-writer` while writing the owner's bass clef ruling (D293) into master
-spec Part A v1.9. O180–O189 are reserved for v3.0 wave 2. Neither question blocks a wave-2 chunk;
-O181 is needed before chunk 20, the first chunk with which a save can change the shared height.
+spec Part A v1.9. O180–O189 are reserved for v3.0 wave 2. O181 (the shared height under phrases
+already made) was closed the same day by D295 and D296: kept sessions belong to their instrument,
+a range or transposition change erases them after a warning, a save that changes the shared
+height re-checks the pre-generated phrases, and a review never cuts a phrase. Its full text is in
+this register's history in git. O180 blocks no wave-2 chunk.
 
 - **O180 - Octave signs and octave clefs for my instrument** _(D293; later version, should the
   need arise)_: the owner, 2026-10-12: "keep in mind 8va/8vb/15ma etc for a later version should
@@ -135,16 +138,3 @@ O181 is needed before chunk 20, the first chunk with which a save can change the
   octave clef, a fixed octave sign over a whole phrase, or ottava lines placed automatically?
   Proposed: not before a player's range shows the need; an octave clef on my instrument first,
   since it moves nothing within a phrase.
-- **O181 - The shared height under phrases already made** _(D292, D293; v3.0)_: the staff's
-  shared height follows my instrument's written range and clef as saved now (D292), but phrases
-  made earlier keep the instrument they were made with. (a) The review of a kept session played
-  with a my instrument whose range or clef needed more height than the current one: the design
-  sizes the review's staff like the workspace's (`ui_ux/screens/last-session-review/handoff.md`,
-  Size), so those phrases would not fit. The clef makes this common: switching from treble to
-  bass clef can shrink the height from 19 staff spaces to 16. (b) Phrases pre-generated at Idle
-  when a save of my instrument changes the height without changing anything generated (a clef
-  change, or a range change while a built-in profile is selected): are they checked against the
-  new layout, as after a change of window size (§8)? Proposed: (a) a kept session's review sizes
-  its staff for the larger of the shared height and the height its own instrument needs, so it
-  never cuts a phrase; (b) such a save checks the pre-generated phrases again, as a change of
-  window size does. (a) needs `ux-writer`'s agreement.
