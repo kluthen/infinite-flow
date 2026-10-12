@@ -16,7 +16,9 @@ played. It extends the same screen again: kept sessions live inside the review, 
 (Storage, approved and frozen in `versions/v3.0/`), v3.1 (presets and embellishment figures: a
 preset dropdown at the top of the controls, a group of seven figure levels) and v3.2 (Jam: a
 session begun by a doodle the player plays, the key and mode suggestion, the rhythm lock, Jam's
-drift and what Vary settings may move). See `todo.md` for where the work stands.
+drift and what Vary settings may move). v3.3 (richer chords, master spec Part D) follows them:
+a Seventh chords level beside Harmonic motion, and the longer chord symbols it brings. See
+`todo.md` for where the work stands.
 
 ## Released versions and work in progress
 
@@ -43,8 +45,11 @@ drift and what Vary settings may move). See `todo.md` for where the work stands.
   `[v3.1 new]` / `[v3.1 changed]` and change-block items prefixed `_v3.1 new:_`, `_v3.1 changed:_`
   or `_v3.1 removed:_`; v3.2's likewise. A v3.2 change to something v3.1 adds is its own tagged
   paragraph, so a v3.1 builder reads everything but the `v3.2` marks; replaced v3.0 and v2
-  wording is in `versions/v3.0/`. `grep -rn "v3\(\.[12]\)\? \(new\|changed\)"` finds every
-  v3 mark; all of them are cleared when v4's design starts.
+  wording is in `versions/v3.0/`. v3.3's marks, `[v3.3 new]` / `[v3.3 changed]` and change-block
+  items prefixed `_v3.3 new:_` or `_v3.3 changed:_`, are layered the same way on top of v3.2's,
+  every v3.3 change being its own tagged paragraph or item so the earlier releases' text stays
+  whole. `grep -rn "v3\(\.[123]\)\? \(new\|changed\)"` finds every v3 mark; all of them are
+  cleared when v4's design starts.
 
 ## Map
 
@@ -71,6 +76,7 @@ drift and what Vary settings may move). See `todo.md` for where the work stands.
 - `token-source-v3.md` specifies v3.0's new tokens and component classes until they are written
   into `src/styles/theme.css` and `components.css`; the handoffs cite them by name.
 - `token-source-v3.1-v3.2.md` does the same for v3.1 (its first part) and v3.2 (its second).
+  v3.3 adds no token, class or motion: its one control and its chord symbols reuse existing ones.
 - `flows/presets/` specifies choosing a preset, the Custom state, the key and mode highlight, and
   saving, renaming and deleting the player's own presets; `screens/preset-sheet/` the sheet those
   are done in. The preset dropdown and the embellishment levels sit in

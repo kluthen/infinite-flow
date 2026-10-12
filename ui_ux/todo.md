@@ -31,6 +31,23 @@
 
 ## In Progress
 
+**v3.3 (richer chords) design**, from master spec Part D (§D1-§D17, proposed for the owner's
+approval with spec D264-D274), on branch `v3.3-chord-research`. Started 2026-10-12; marked on top
+of v3.0's, v3.1's and v3.2's marks, every v3.3 change its own tagged paragraph (ux D252). Owner's
+standing delegation: settled here, no question to the owner. Settled decisions: ux D252-D262;
+spec point for `spec-writer`: Q77 (designed on the recommended reading). No `src/` edits; no new
+token (ux D261).
+
+- **Unit S — the whole of v3.3, in one pass** (ux D262): the Seventh chords level (foundation
+  group, after Harmonic motion; Off, Sometimes, Often, Mostly; its note), presets holding it and
+  three descriptions suggesting it, Vary settings' note, saved settings and loading, the seventh
+  chord symbols' look, fit and spoken words, and the review's and files' chords. Files:
+  `strategy.md`, `README.md`, `screens/phrase-workspace/`, `flows/presets/`,
+  `screens/preset-sheet/handoff.md`, `flows/play-session/`, `flows/generate-phrase/handoff.md`,
+  `flows/saved-data/handoff.md`, `flows/review-and-export/handoff.md`,
+  `screens/last-session-review/handoff.md`. Written 2026-10-12.
+- **Validation.** `ux-critic` on v3.3: pending.
+
 **v3.1 (presets and embellishment figures) and v3.2 (Jam) design**, from master spec Parts B and C
 (approved 2026-10-08). Started 2026-10-08; v3.0's approved design was frozen in `versions/v3.0/`
 first, and the root keeps v3.0's marks with v3.1's and v3.2's layered on them (ux D225). Owner's
@@ -50,7 +67,6 @@ spec gaps for `spec-writer`: Q70-Q73 (provisional answers designed).
 - **Unit J — v3.2 core** (delegated, after P): `flows/jam/` (new); `screens/phrase-workspace/`,
   `flows/play-session/` and `flows/generate-phrase/` for v3.2. Governing: ux D235-D244, D246, D247. Written 2026-10-08 (details: ux D248).
 - **Validation.** `ux-critic` on v3.1 and on v3.2: DRIFT both, findings fixed (ux D249, D250); recheck: two small slips, fixed (ux D251). Validated for the owner's review.
-
 
 **v3.0 (Storage) design**, from `specs/versions/v3/master-spec.md` (v3.0 only; v3.1 and v3.2 are
 not specified yet). Started 2026-10-07; the root's v2 marks are cleared (ux D178) and v3's are
@@ -138,6 +154,10 @@ Dropped (ux D207): the end-of-measure chord-fit presentation (old unit 9), since
 drops the check.
 
 ## Next Unit
+
+v3.3: `ux-critic`'s validation of unit S, then the owner's approval of Part D (which this design
+follows as proposed) and `spec-writer`'s answer to Q77; the build's recorded seventh-chord share at
+Strongly favored comes back here to confirm the label "Mostly" (ux D254).
 
 The owner's full review of the v3.1 and v3.2 design (ux D225-D251), and `spec-writer`'s answers to Q73-Q75. After approval, take `versions/v3.1/` (and `versions/v3.2/`) copies when each is approved as complete.
 
