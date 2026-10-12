@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.51
+Status: draft v0.52
 
 ## Status Snapshot
 
@@ -33,7 +33,7 @@ Status: draft v0.51
     the app; research on chords comes before any design (D261, 2026-10-12; direction only), as a
     separate docs-only item running on branch `v3.3-chord-research` (D262); the vision's 0.9
     wording is confirmed (D263). **v3.3 master spec: [Part D](versions/v3/master-spec.md#part-d--v33),
-    awaiting owner approval** (D264–D274, from the
+    awaiting owner approval** (D264–D275, from the
     [chord research](../docs/music/chord-research.md)): one Seventh chords level, Off by default,
     diatonic sevenths only; three STABLE wording changes wait for the owner (§D12);
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);

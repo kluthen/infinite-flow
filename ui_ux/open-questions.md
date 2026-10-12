@@ -166,7 +166,10 @@ and change only if `spec-writer` settles otherwise.
 
 ## v3.3, for `spec-writer` (raised 2026-10-12)
 
-- **Q77 — At Strongly favored, does a triad replace one chord or the whole plan?** §D5.2 says
+- **Q77 — At Strongly favored, does a triad replace one chord or the whole plan?** **Closed
+  2026-10-12 by spec D275** (master spec Part D v1.1 updated: as recommended, the fallback is per
+  phrase; Strongly favored must reach at least 3 in 4 chords as sevenths, measured and reported to
+  `ux-writer`, done item 5). §D5.2 says
   Strongly favored "tries the seventh form first at every event; a triad appears only where the
   seventh form leads to no phrase", which reads per chord. §D5.3's search tries each plan "with its
   drawn seventh forms first, then the same plan as triads only", which falls back per plan: at

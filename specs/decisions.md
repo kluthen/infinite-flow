@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.78
+Status: draft v2.79
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D274**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D275**; D290–D299 are reserved by another session. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet.
 
 ## Decision Log
@@ -881,3 +881,17 @@ on branch `v4-accompaniment-research`, not merged yet.
   level discards pre-generated phrases and so drops a held doodle, like any discarding change
   (D238). (5) Settings, player presets and kept sessions get a new stored data version. (6) Part D
   numbers its sections D1 to D17 and cites them as §D5 so they are not read as decision IDs.
+
+- **D275 (2026-10-12): the triad fallback is per phrase; Strongly favored keeps at least 3 in 4
+  chords as sevenths (answers ux Q77; proposed for owner approval with Part D).** spec-writer's
+  call. Part D §D5.2 read per chord ("a triad appears only where the seventh form leads to no
+  phrase") while §D5.3 fell back per plan. The per-plan fallback stays: each plan is tried with its
+  drawn seventh forms, then as triads only, so the candidate list grows by at most one variant per
+  plan and the search cost stays bounded; and a phrase that cannot carry its sevenths is heard as
+  a plain-triad phrase rather than as one chord oddly missing its seventh. A phrase therefore keeps
+  all the sevenths drawn for it or is all triads. §D5.2 now says so. Because `ux-writer` labels the
+  top level "Mostly" (ux D254), Strongly favored must reach at least 3 in 4 harmony events in their
+  seventh form over the sweep; if it does not, the build adds, before the triads-only variant,
+  variants dropping one event's seventh at a time, in a fixed order, within the cost guard, and
+  measures again. The share is recorded per level and mode with the share of phrases that fell back
+  to triads, and reported to `ux-writer` (Part D §D15 item 5). Master spec Part D v1.1.

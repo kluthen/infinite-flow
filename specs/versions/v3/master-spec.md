@@ -13,7 +13,7 @@ Status: this file holds four parts.
   master spec v1.0 (2026-10-08), consolidated from the approved v3.2 drafts; approved by the
   product owner (2026-10-08). The owner confirmed the exact wording of the contract
   guarantees it changes (C13) the same day. Its sections are numbered C1 to C18.
-- **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.0
+- **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
   owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
   separately. Its sections are numbered D1 to D17.
@@ -2986,7 +2986,7 @@ export; the replay key's console line stays on the device.
 
 ## Part D — v3.3
 
-Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.0 (2026-10-12), consolidated from the
+Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.1 (2026-10-12; v1.1 makes §D5.2 and §D5.3 agree that the triad fallback is per phrase, and sets the top level's share), consolidated from the
 v3.3 direction in the [v3 notes](README.md#v33--richer-chords-optional) and the chord research
 [docs/music/chord-research.md](../../../docs/music/chord-research.md), which keeps the sources, the
 construction tables and the code and atom references line by line. **Awaiting the owner's
@@ -3142,19 +3142,27 @@ quality therefore comes from the key and mode, and only four qualities can occur
 
 ### D5.2 Four levels
 
-| Level                | What the harmony planner does                                                                                   |
-| -------------------- | --------------------------------------------------------------------------------------------------------------- |
-| **Off**              | triads only, exactly as before v3.3; no draw is made                                                            |
-| **Sometimes**        | at about **1 in 4** harmony events, tries the seventh form first, then the triad form                           |
-| **Favored**          | the same at about **1 in 2** events                                                                             |
-| **Strongly favored** | tries the seventh form first at **every** event; a triad appears only where the seventh form leads to no phrase |
+| Level                | What the harmony planner does                                                                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Off**              | triads only, exactly as before v3.3; no draw is made                                                                                       |
+| **Sometimes**        | at about **1 in 4** harmony events, tries the seventh form first, then the triad form                                                      |
+| **Favored**          | the same at about **1 in 2** events                                                                                                        |
+| **Strongly favored** | tries the seventh form first at **every** event; a phrase falls back to triads, as a whole, only where its seventh forms lead to no phrase |
 
 - **A level orders the planner's choices; it never sets a quota.** No phrase is rejected or retried
   for lacking a seventh chord, and the triad form of every chord plan stays reachable (§D5.3).
+- **The fallback is per phrase, not per chord.** When a plan's drawn seventh forms lead to no
+  phrase, the same plan is tried with every event as a triad (§D5.3). So at every level a phrase
+  either keeps all the seventh forms drawn for it or is all triads; it never swaps one seventh
+  chord for a triad. At Strongly favored a phrase is all seventh chords or, where they lead
+  nowhere, all triads.
 - **"About 1 in 4" and "about 1 in 2" are starting values**, tuned before the gate by listening and
   by the cost guard (§D10). What is fixed is the order: each step up never makes seventh chords
-  rarer, and Off makes none. Strongly favored reaches "a seventh on nearly every chord", the norm in
-  jazz; Sometimes is closer to pop, where most chords stay triads.
+  rarer, and Off makes none. Strongly favored must give a clear majority: **at least 3 in 4
+  harmony events in their seventh form** over the sweep (§D15 item 5), "a seventh on nearly every
+  chord", the norm in jazz. Sometimes is closer to pop, where most chords stay triads. The shares
+  the build measures are reported to `ux-writer`, whose labels (Off, Sometimes, Often, Mostly)
+  rest on them.
 - **The same chance at every degree.** No role or degree is favored (not the degree-5 chord first,
   say): in jazz every chord of a progression takes its seventh, and a role order would be a style
   choice v3.3 does not make.
@@ -3175,8 +3183,13 @@ quality therefore comes from the key and mode, and only four qualities can occur
 - **The search tries, for each candidate plan in today's order, the plan with its drawn seventh
   forms first, then the same plan as triads only** (when at least one seventh was drawn). So a
   plan that works only as triads is still found, and the candidate list grows by at most one
-  variant per plan. Finer fallbacks (one event at a time) are `coding-leader`'s choice if the cost
-  guard asks for them, provided the triad form stays reachable and the order stays deterministic.
+  variant per plan, which keeps the search cost bounded. Musically, a phrase that cannot carry its
+  sevenths is heard as a plain-triad phrase, a clean contrast, rather than as one chord oddly
+  missing its seventh.
+- **A finer fallback only if the share falls short.** If Strongly favored misses its 3 in 4 share
+  (§D15 item 5), the build adds, before the triads-only variant, variants that drop the seventh
+  from one event at a time, in a fixed order, within the cost guard (§D10), and records the share
+  again. The triad form stays reachable and the order stays deterministic.
 - **The search allowance is not raised** (§D10).
 
 ### D5.4 Determinism
@@ -3627,8 +3640,10 @@ v3.3 ships when every item holds, each verified by a named test or a recorded ha
    plan's candidates, the modal colour chords included, are those of Off; only the seventh forms
    differ.
 5. **Ordered and audible.** On a fixed seed sweep, the share of harmony events in their seventh form
-   is zero at Off and never decreases from Sometimes to Favored to Strongly favored; the final
-   shares are recorded.
+   is zero at Off and never decreases from Sometimes to Favored to Strongly favored; at Strongly
+   favored it is at least 3 in 4. The share is recorded per level and per mode (Major, Minor and
+   the seven modes), with the share of phrases that fell back to triads, and reported to
+   `ux-writer`.
 6. **No quota.** No phrase is rejected or retried for lacking a seventh chord; with a level above
    Off, a plan that works only as triads is still found (a test with a plan whose seventh form has
    no solution).
