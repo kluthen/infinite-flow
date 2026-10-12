@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.77
+Status: draft v2.78
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -15,7 +15,9 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
 [archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D262**. D259–D260 are
-on branch `v4-accompaniment-research`, not merged yet.
+on branch `v4-accompaniment-research`, not merged yet. D263 onwards are being written on branch
+`v3.3-chord-research`, not merged yet. D290–D299 are reserved for v3.0 wave 2; this branch uses
+D290–D292.
 
 ## Decision Log
 
@@ -771,3 +773,49 @@ on branch `v4-accompaniment-research`, not merged yet.
 
   Recorded in [v3](versions/v3/README.md#research-first) and the
   [register](open-questions.md#v33-richer-chords-o165).
+
+- **D290 (2026-10-12): a background pre-generation attempt can be cancelled.** The owner's
+  answer ("ok") to the first point the v3.0 wave-2 intent preflight put to him (build plan, Wave
+  records, conflict 1; it blocked chunk 24). Master spec §8 has any player request at Idle cancel
+  the background attempt in progress through the worker's cancellation, but
+  `module_generation_worker_cancellation` (STABLE, on the contract's surface) says a call with no
+  signal is never cancelled and the Idle flow passes none. The owner agrees to revise it to: "the
+  Idle flow's player requests pass no signal and are never cancelled; a background pre-generation
+  attempt passes one, aborted by any player request at Idle". He rules it a **MINOR** contract
+  bump, not MAJOR: every guarantee the player relied on still holds, and the change only adds a
+  background attempt that gives way to the player. `rule_dropped_attempt_cancelled` stays as
+  written. `documentalist` applies the atom and the contract bump. Master spec Part A v1.8 (§8,
+  §10, item 23, §14); build plan v6 (chunk 24, unblocked).
+- **D291 (2026-10-12): a written key with two spellings takes the one with fewer sharps or flats,
+  and the sharp one on a tie.** The owner's answer to the preflight's third point ("less
+  accidental the better, sharp in case of tie"), choosing the code's existing rule
+  (`spellWrittenKey`, `module_notation_display_convention`) over master spec §7.1's "the interval
+  name fixes the letter-name steps used to spell written notes, the key signature and chord
+  symbols" (D253). The player chooses the key in written pitch, so the transposition never moves
+  the written key; it moves the concert key the phrase is generated in. The written key is
+  spelled from the chosen key and collection, with the fewer sharps or flats in its key
+  signature, sharps on a tie: an instrument whose written notes sound 6 semitones higher writes
+  concert C major as F♯ major, not G♭ major (an augmented fourth would give G♭). Written notes and
+  chord symbols (root and slash bass) are spelled in that written key: a note of its scale takes
+  the key's spelling; another note takes its own letter on a white key, and on a black key a flat
+  when the key signature has flats, a sharp otherwise. This is what the built-in profiles already
+  do. The interval name stays derived by §7.1's fixed table and shown; its letter-name steps stay
+  in the instrument's data and in a MusicXML file's transposition, and spell nothing in the app.
+  Master spec Part A v1.8 (§7.1, §12, item 16); build plan v6 (chunks 16 and 19, §8 item 2);
+  `documentalist` revises `rule_my_instrument_transposition_named_interval`, which still says the
+  steps spell the written part.
+- **D292 (2026-10-12): the staff's shared height follows my instrument's written range.** The
+  owner's answer ("ok") to the preflight's point on chunk 19.
+  `module_notation_layout_preflight` (REVIEW) says the one system-position size "never depends on
+  a phrase or a profile"; it now takes my instrument's written range into account, as the design
+  (phrase-workspace handoff, Notation Contract, ux D214) and master spec §14 already have it. The
+  size changes only when my instrument is saved or deleted, never from phrase to phrase.
+  `documentalist` revises the atom before chunk 19's code. Master spec Part A v1.8 (§7.1 states
+  it); build plan v6 (chunk 19).
+
+  Also recorded the same day, no decision number: the coordinator moves build plan chunk 18 to
+  wave 5, after chunk 17, since its `ifk2.` decoder rebuilds the intent through chunk 17's
+  `rebuildGenerationWorkerIntent` and replay refuses `my-instrument` until chunk 17. The
+  preflight's plan corrections are applied to the build plan (chunks 4, 18, 19 and 24, §2, §3,
+  M5) and one stale line of [build-plan-v3.2.md](versions/v3/build-plan-v3.2.md);
+  `rule_look_ahead_deadline` is revised at chunk 24's sync, with the owner's agreement then.

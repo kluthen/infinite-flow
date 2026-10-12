@@ -1,7 +1,10 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v5 (2026-10-12): a wording fix the owner approved at the wave-1 gate, no behaviour
-changed: chunk 23's "Done when" now says a skipped rung's seed is unused under the seed plan;
+Status: v6 (2026-10-12): the owner's rulings after the wave-2 preflight (spec D290–D292, master
+spec Part A v1.8) and one coordinator call, chunk 18 moving to wave 5 after chunk 17, written into
+the wave table and chunks 16, 18, 19 and 24; the preflight's plan corrections applied to §2, §3,
+M5 and chunks 4, 18, 19 and 24 ([Wave records](#wave-records)); v5 (2026-10-12): a wording fix
+the owner approved at the wave-1 gate, no behaviour changed: chunk 23's "Done when" now says a skipped rung's seed is unused under the seed plan;
 v4 (2026-10-09): the owner's answers to spec O163 and O164 (spec D257, D258, master spec
 v1.6) written into chunks 9, 16 and 20 and the wave table; v3 (2026-10-09): the owner's rulings after the wave-1 preflight (spec D253–D256, master
 spec v1.5) written into chunks 6, 9, 16 and 23, and chunk 23's code facts corrected
@@ -61,8 +64,9 @@ Waves run one after another. Inside a wave, chunks run one at a time in number o
 rule is **one coding chunk in flight at a time**. Each wave starts with one intent preflight, ends
 with one wave gate (the full test pass, the bundle and the post-task sync), and reaches `main` as
 one merge ([§3](#3-workflow-waves-and-chunks)). The chunks in a wave are independent of each other
-and touch different source files, so one preflight can cover them all. A chunk still blocked when
-the rest of its wave is done (waiting for the owner, a design answer or a measurement) moves to the
+and touch different source files, so one preflight can cover them all. One exception: in wave 5,
+chunk 18 needs chunk 17, and runs after it is merged into the wave branch. A chunk still blocked
+when the rest of its wave is done (waiting for the owner, a design answer or a measurement) moves to the
 next wave.
 
 **Wave 0 is the switch-over** (spec D252). Chunk 0 ran under the earlier per-chunk workflow and is
@@ -74,10 +78,10 @@ wave-0 gate covers chunks 1 and 2.
 | --- | --- | --- |
 | 0 | 0 Intent re-sync · 1 Token-source pass · 2 Baselines | Nothing (chunk 1: the owner's Q66 answer). H1 can run now. |
 | 1 | 3 Storage boundary gates · 6 Tolerant settings codec · 16 My instrument in the domain · 23 Session seed plan | Chunk 0 (and chunk 2 for 16 and 23, which its replay corpus guards) |
-| 2 | 4 Database core · 18 Replay key `ifk2.` · 19 My instrument on the staff · 24 Pre-generation at Idle | Chunk 3 (4); 16 (18, 19); 23 (24) |
+| 2 | 4 Database core · 19 My instrument on the staff · 24 Pre-generation at Idle | Chunk 3 (4); 16 (19); 23 (24) |
 | 3 | 5 Save policy · 9 Kept-session record | Chunk 4; chunk 23 (9) |
 | 4 | 7 Saved settings · 8 Notice row | Chunks 5, 6; chunk 1 for 8 |
-| 5 | 10 Most recent session kept · 17 My instrument across worker and history | Chunks 7, 8, 9 (10); 9, 16 (17) |
+| 5 | 10 Most recent session kept · 17 My instrument across worker and history · 18 Replay key `ifk2.` | Chunks 7, 8, 9 (10); 9, 16 (17); 17 (18, which runs after 17 inside the wave) |
 | 6 | **Gate A**, then 11 Played-notes opt-in · 12 Favorites, pin, comment · 22 Remembered controller · 25 Stray-note filter | Chunk 10 and Gate A (11, 12); chunk 7 and Gate A (22); H1 and chunk 1 (25) |
 | 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet | Chunk 12 (13, 14); chunks 7, 17, 19, the range ruling and ux Q76 (20) |
 | 8 | 15 Your data · 21 The check feeds my instrument | Chunks 11, 14 (15); 20 (21) |
@@ -118,6 +122,7 @@ flowchart LR
   C16 --> C17[17 Worker and history]
   C9 --> C17
   C16 --> C18[18 Replay key ifk2]
+  C17 --> C18
   C16 --> C19[19 Staff placement]
   C19 --> RR{{Range ruling}}
   C7 --> C20[20 My instrument sheet]
@@ -338,6 +343,60 @@ Design points each capture waits for:
   resuming around a review; when a pre-generated phrase's replay key is emitted (at generation,
   or when spent, a discarded one never); and starting only after the prewarm.
 
+#### Owner rulings after the wave-2 preflight (2026-10-12)
+
+The owner settled the three points the preflight put to him (spec D290–D292, master spec Part A
+v1.8). In his words: "1. ok; 2. less accidental the better, sharp in case of tie; 3. ok".
+
+- **A background pre-generation attempt can be cancelled** (spec D290; conflict 1 above, chunk
+  24). The owner agrees to revise `module_generation_worker_cancellation` (STABLE, on the
+  contract's surface) to: "the Idle flow's player requests pass no signal and are never
+  cancelled; a background pre-generation attempt passes one, aborted by any player request at
+  Idle". He rules it a **MINOR** contract bump, not MAJOR: every guarantee the player relied on
+  still holds, and the change only adds a background attempt that gives way to the player.
+  `rule_dropped_attempt_cancelled` stays as written. `documentalist` applies the atom and the
+  contract bump in its own commit. Chunk 24 is no longer blocked; its capture follows.
+- **A written key with two spellings takes the one with fewer sharps or flats, sharps on a tie**
+  (spec D291; conflict 3 above, chunks 16 and 19). The code's rule holds (`spellWrittenKey`,
+  `module_notation_display_convention`), and master spec §7.1's "the letter-name steps spell the
+  written notes, the key signature and chord symbols" is withdrawn. The written key is the one
+  the player chose, spelled with fewer sharps or flats in its key signature; written notes and
+  chord symbols (root and slash bass) are spelled in that key. For example, an instrument whose
+  written notes sound 6 semitones higher writes concert C major as F♯ major, not G♭ major. The
+  interval name is still derived by §7.1's table and shown; its letter-name steps stay in the
+  profile's transposition and a MusicXML file's `<transpose>`, and spell nothing on the staff.
+  Chunk 16's merged code needs no change. `rule_my_instrument_transposition_named_interval` still
+  says the steps spell the written part; `documentalist` revises it.
+- **The staff's shared height follows my instrument's written range** (spec D292; chunk 19's open
+  point). The one system-position size, which `module_notation_layout_preflight` (REVIEW) says
+  "never depends on a phrase or a profile", now takes my instrument's written range into account.
+  It changes only when my instrument is saved or deleted, never from phrase to phrase, as the
+  design already says. `documentalist` revises the atom before chunk 19's code.
+
+One call by the coordinator, with no decision number:
+
+- **Chunk 18 moves to wave 5, after chunk 17.** Its `ifk2.` decoder rebuilds the intent through
+  `rebuildGenerationWorkerIntent` (chunk 17's file), and replay goes through the worker runtime's
+  own parser, which refuses `my-instrument` until chunk 17. Taking chunk 17's inbound half into
+  chunk 18 would blur both chunks, and chunk 18 is off the critical path. Wave 2 is now chunks 4,
+  19 and 24; wave 5 is chunks 10, 17 and 18. Chunk 18 is the first chunk that depends on another
+  chunk of its own wave: number order runs it after chunk 17 is merged into the wave branch, and
+  their files stay apart.
+
+The preflight's plan corrections are applied: §2's storage design and M5 give the headroom left
+after the wave-1 gate; chunk 4's Scope, Files, Atoms and Done when take the `define` reach, the
+four missing atoms and "unreadable"; chunk 18's Scope, Files and Depends on take chunk 17's
+rebuild and the three tests that assert `ifk2.` is refused; chunk 19's Scope, Files and Done when
+take the chromatic-only notation, the written key the player chose, `planStaffPlacement` and the
+readers of `NOTATION_SYSTEM_POSITION_UNITS`; chunk 24's Files take the Idle-side and Start-side
+files and the worker client; §3 gives the worktree paths in use; and
+[build-plan-v3.2.md](build-plan-v3.2.md)'s stale "`main` has no `src/storage/`" line is
+corrected. Chunk 16's Scope no longer says the diatonic count decides the spelling (spec D291).
+
+Not blocking: `rule_look_ahead_deadline`'s "phrase 2 is generated during the one-measure
+count-in" (conflict 2 above) is revised in chunk 24's sync, as Part D, with the owner's agreement
+then. Chunk 24's Part D line names it.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
@@ -372,8 +431,9 @@ capture before code, and written down in a new `docs/storage.md`:
   is saved" is auditable in one place. The rest of the app reaches it through an injected port
   (the pattern `src/audio/` and `src/midi/` already use), never by import of a browser API.
   `src/session/` and `src/export/` never import it.
-- **Raw IndexedDB, no library.** About 8.8 kB of entry-chunk headroom is left; a hand-written
-  promise wrapper over the few calls needed costs less than `idb`. If chunk 4 finds otherwise,
+- **Raw IndexedDB, no library.** 4,840 bytes of entry-chunk headroom are left after the wave-1
+  gate (entry 224,536 of 229,376 bytes; 8.8 kB when this was written, 5,759 bytes at chunk 2); a
+  hand-written promise wrapper over the few calls needed costs less than `idb`. If chunk 4 finds otherwise,
   `idb` (about 1.5 kB gzip) is the fallback, never a larger library.
 - **One database, a few object stores:** `meta` (the database's data version and the app version
   that last upgraded it), `settings` (one record per setting, so each loads and fails on its own),
@@ -407,8 +467,8 @@ the owner, a design answer or a measurement), it leaves the wave: the wave close
 it joins the next wave, whose preflight covers it.
 
 **Branches.** At the start of a wave, a wave branch `v3.0-w<n>` is made from `main` in its own
-worktree (`/home/bastien/work/infinite_flow-v3-w<n>`). Each chunk runs in its own worktree
-(`/home/bastien/work/infinite_flow-v3-c<n>`) on a branch made from the wave branch
+worktree (`/home/bastien/work/infinite_flow-v3.0-w<n>`). Each chunk runs in its own worktree
+(`/home/bastien/work/infinite_flow-v3.0-c<n>`) on a branch made from the wave branch
 (`v3.0-c<n>-<slug>`). It ends with one commit, merged `--no-ff` into the wave branch as soon as
 its chunk checks pass; that merge needs no owner approval. The wave branch merges `--no-ff` into
 `main` after the wave gate, when the owner asks, so `main` only ever receives waves that passed
@@ -560,7 +620,7 @@ recorded. The gate copies each into the release notes.
 ### M5 — The first-load bundle
 
 - **What:** the entry chunk stays within its 224 kB budget (`scripts/verify-boundaries.mjs`); about
-  8.8 kB were left on 2026-10-05.
+  8.8 kB were left on 2026-10-05, 5,759 bytes at chunk 2 and 4,840 bytes after the wave-1 gate.
 - **How:** chunk 2 measures the baseline on `main`; every wave gate records the entry size and its
   change since the previous wave ([§3](#wave-end-the-wave-gate)). Code that is not needed before the
   first draw loads on demand: the kept-session codec and the session list with the review's code,
@@ -762,13 +822,17 @@ outdated-tab rule, behind a port. No setting is saved yet.
   its data version is above the code's.
 - `src/storage/record-envelope.ts`: `dataVersion` and `appVersion` on every record; reading a
   record with a higher data version reports it as "newer" rather than failing.
-- `src/storage/app-version.ts`: the package version, injected by `vite.config.ts` `define`.
+- `src/storage/app-version.ts`: the package version, injected at build time. A `define` in
+  `vite.config.ts` alone reaches neither `vitest.config.ts` nor the workspace and notation harness
+  configs (`vite.workspace-harness.config.ts`, `vite.notation-harness.config.ts`), since none of
+  them imports `vite.config.ts`; the capture settles how the version reaches them.
 - `src/storage/storage-port.ts`: the interface the app sees (read, write, delete, delete
   everything, estimate, persisted, persist), and the error kinds: `quota`, `outdated`, `other`.
 - `fake-indexeddb` as a dev dependency.
 
-**Files:** the four `src/storage/` files above, `vite.config.ts` (`define`), `package.json`,
-tests under `tests/unit/storage/`, `docs/storage.md` (new).
+**Files:** the four `src/storage/` files above, `vite.config.ts` (`define`), and
+`vitest.config.ts` and the two harness configs as the capture settles, `package.json`, tests
+under `tests/unit/storage/`, `docs/storage.md` (new).
 
 **Spec sections:** [§4.3](master-spec.md#43-where-and-how), [§4.6](master-spec.md#46-storage-belongs-to-one-address).
 
@@ -776,14 +840,17 @@ tests under `tests/unit/storage/`, `docs/storage.md` (new).
 the newer-version branch).
 
 **Atoms:** `req_on_device_storage`, `rule_outdated_tab_stops_saving`,
-`rule_saved_data_belongs_to_browser_profile`.
+`rule_saved_data_belongs_to_browser_profile`, `rule_outdated_tab_reads_what_it_can` (the reopen
+without a version), `rule_delete_everything` (delete everything),
+`rule_persistent_storage_requested` (persist, persisted), `req_your_data` (estimate).
 
 **Depends on:** chunk 3.
 
 **Done when:**
 
-- Every record written carries `dataVersion` and `appVersion`; a record without them is
-  rejected on read.
+- Every record written carries `dataVersion` and `appVersion`; a record without them is read as
+  unreadable, as chunk 6's codec already reads it (its setting falls back to the default), never
+  as an error thrown past tolerant loading.
 - A database at data version 0 is migrated to 1 on open; a test-only step 1 → 2 runs in order.
 - Two connections in one test: the newer opens with a higher version; the older gets
   `versionchange`, reports "outdated" and never writes again. A newer tab that writes a higher
@@ -1369,8 +1436,8 @@ first step of the widest change in v3.0.
   endpoints; a span of at least 24 semitones, refused with a reason; both ends sounding inside
   MIDI 0–127; register windows derived by the built-in profiles' algorithm; input kind "MIDI
   controller". The interval name, and with it the transposition's letter-step part (its
-  **diatonic** count, which decides how the written key and notes are spelled), is derived from
-  the semitones by §7.1's fixed table (0 = unison, 1 = minor second, 2 = major second … 6 =
+  **diatonic** count, which the profile and a MusicXML file's `<transpose>` carry; the staff's
+  spelling never reads it, spec D291), is derived from the semitones by §7.1's fixed table (0 = unison, 1 = minor second, 2 = major second … 6 =
   augmented fourth … 11 = major seventh; each octave adds 12 semitones and 7 steps), and exposed
   so the sheet (chunk 20) can show it.
 - Measurement M3's generator sweep, as a script and a sweep config (tooling).
@@ -1482,16 +1549,22 @@ decoding to the same phrase.
 **Scope.** `encodePhraseReplayKey` writes `ifk2.` only when the profile is not a built-in, with
 the profile's owning fields (name excluded or included as the capture decides; never played
 notes, never an app version); `ifk1.` otherwise, unchanged. `decodePhraseReplayKey` accepts both.
-`npm run replay:phrase` replays both.
+`npm run replay:phrase` replays both. The decoder rebuilds the intent through
+`rebuildGenerationWorkerIntent`, which chunk 17 opens to my instrument; chunk 18 does not change
+it.
 
 **Files:** `src/generation-worker/phrase-replay-key.ts`, `phrase-replay-key-decode.ts`,
 `scripts/replay-phrase.mjs` (if it parses the prefix), tests under `tests/unit/generation-worker/`.
+Three existing tests assert that `ifk2.` is refused as unsupported and change here:
+`tests/unit/generation-worker/phrase-replay-key.spec.ts`, `phrase-replay.spec.ts`, and
+`tests/unit/scripts/replay-phrase-script.spec.ts`.
 
 **Spec sections:** [§7.4](master-spec.md#74-phrase-replay-key).
 
 **Atoms:** `module_phrase_replay_key`, `req_my_instrument`; (v2) `rule_seeded_phrase_reproduction`.
 
-**Depends on:** chunk 16 (17 for an end-to-end replay of a session phrase).
+**Depends on:** chunk 17 (and so 16): any `ifk2.` round trip or replay needs chunk 17's
+inbound parser, which accepts `my-instrument`.
 
 **Done when:**
 
@@ -1510,13 +1583,21 @@ notes, never an app version); `ifk1.` otherwise, unchanged. `decodePhraseReplayK
 **Goal.** Show my instrument in its own written pitch, placed on the staff from its written range,
 and measure what its range costs the staff's shared height.
 
-**Scope.** The notation already transposes by a profile's chromatic and diatonic pair; this chunk
-proves it for any player-made pair and makes the staff placement and the shared system-position
-size take my instrument's written range into account (the size changes only when my instrument
-is saved or deleted). The engraving calibration gains player-made fixtures: low, high and wide
+**Scope.** The notation already writes a phrase in any profile's written pitch: it moves each
+note and chord root by the transposition's semitones (its chromatic count; only the MusicXML
+`<transpose>` reads the diatonic one) and spells them in the written key the player chose, by
+master spec §7.1's rule (spec D291). This chunk proves it for any player-made transposition and
+makes the staff placement and the shared system-position size take my instrument's written range
+into account (the size changes only when my instrument is saved or deleted; spec D292, after
+`documentalist` revises `module_notation_layout_preflight`). The 16-space size is the constant
+`NOTATION_SYSTEM_POSITION_UNITS`, read by `vexflow-engraver.ts` and
+`vexflow-two-system-engraver.ts`, with `planStaffPositions` called from `PhraseScore.vue`,
+`ReviewPanel.vue` and `src/session/session-window.ts`, and cited in `theme.css`'s sizing note; a
+size that varies reaches all of them. The engraving calibration gains player-made fixtures: low, high and wide
 written ranges. Measurement M3's staff half: the written range beyond which the shared size grows.
 
-**Files:** `src/notation/notation-layout-policy.ts`, the placement helper it uses,
+**Files:** `src/notation/notation-layout-policy.ts` (with its placement helper,
+`planStaffPlacement`), the readers of the shared size named in Scope as the size reaches them,
 `tests/e2e/notation/notation-calibration.spec.ts` and its fixtures, `tests/e2e/notation-harness/fixtures.ts`,
 [`docs/notation-engraving.md`](../../../docs/notation-engraving.md).
 
@@ -1525,14 +1606,17 @@ written ranges. Measurement M3's staff half: the written range beyond which the 
 **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md)
 (Notation Contract: my instrument's placement and the shared size).
 
-**Atoms:** `req_my_instrument`; (v2) `module_notation_layout_preflight`.
+**Atoms:** `req_my_instrument`; (v2) `module_notation_layout_preflight` (revised for spec D292
+before code), `module_notation_display_convention`.
 
 **Depends on:** chunk 16.
 
 **Done when:**
 
-- A phrase for a player-made instrument engraves in its written pitch, with the key signature
-  and chord roots moved by its transposition (notation harness).
+- A phrase for a player-made instrument engraves in its written pitch: its notes and chord roots
+  are the concert ones moved by its transposition's semitones, and the key signature, notes and
+  chord symbols are spelled in the written key the player chose, by master spec §7.1's rule (6
+  semitones higher, concert C major: F♯ major) (notation harness).
 - A written range inside every built-in's reach leaves the shared size unchanged; one reaching
   further makes it grow, and the calibration confirms every profile's ink stays inside.
 - The four known notation snapshots and every v2 notation test pass unchanged for the built-ins.
@@ -1784,7 +1868,11 @@ Nothing is saved. Measurement M4.
 **Files:** `src/composables/generation-session-pregeneration.ts` (new),
 `src/composables/generation-session-prewarm.ts`, `src/components/workspace/prewarm-policy.ts`,
 `src/session/session-start-conditions.ts`, `src/components/workspace/workspace-session-phrases.ts`;
-tests under `tests/unit/composables/`, `tests/e2e/workspace/pregeneration.spec.ts`, the sweep's
+on the Idle side `src/composables/use-generation-session.ts` (it publishes phrase 1 with its
+session seed and receives the edits that discard); on the Start side
+`src/components/workspace/workspace-session-begin.ts` and the session engine or runner that takes
+the ready phrases (`src/session/session-engine.ts`, `session-runner.ts`, as the capture settles);
+`src/generation-worker/generation-worker-client.ts`, where the abort signal is passed; tests under `tests/unit/composables/`, `tests/e2e/workspace/pregeneration.spec.ts`, the sweep's
 Idle phase.
 
 **Spec sections:** [§8](master-spec.md#8-pre-generating-phrases-at-idle).
@@ -1797,8 +1885,11 @@ prepared at idle, no interface), [`screens/phrase-workspace/handoff.md`](../../.
 **Atoms:** `req_idle_pregeneration`, `rule_pregeneration_yields_to_player`,
 `rule_pregeneration_discarded_on_change`, `rule_start_never_waits_for_pregeneration`,
 `rule_pregenerated_phrase_matches_session`; (v2) `rule_dropped_attempt_cancelled`,
-`module_generation_worker_cancellation`, `rule_look_ahead_deadline`. **Part D:**
-`rule_session_start_conditions`, `service_idle_generation_session`.
+`module_generation_worker_cancellation` (revised for spec D290, a MINOR contract bump),
+`rule_look_ahead_deadline`. **Part D:** `rule_session_start_conditions`,
+`service_idle_generation_session`, and `rule_look_ahead_deadline` ("phrase 2 is generated during
+the one-measure count-in" no longer holds when phrase 2 was pre-generated; revised at the sync,
+with the owner's agreement then).
 
 **Depends on:** chunk 23.
 
@@ -1936,7 +2027,10 @@ All seven points found while planning were settled in master spec v1.3 (2026-10-
    semitones and letter-name steps; the tritone is spelled as an augmented fourth (§7.1). Chunk
    16's interval names follow it. **Changed by master spec v1.5 (2026-10-09, spec D253):** the
    transposition is entered as octaves and a signed semitone count, and the name is derived from
-   it by the same table and shown; the spelling rule is unchanged.
+   it by the same table and shown; the spelling rule is unchanged. **Changed by master spec v1.8
+   (2026-10-12, spec D291):** the interval name no longer spells anything; the written part is
+   spelled in the written key the player chose, with the fewer sharps or flats, sharps on a tie,
+   as the code already does.
 3. Vary settings and Tension across phrases discard pre-generated phrases; the tempo and Rising
    tempo do not (§8, item 20).
 4. Persistent storage is asked for once per visit, on the first keep, unless already granted

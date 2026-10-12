@@ -2,9 +2,10 @@
 
 Status: this file holds three parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.7 (2026-10-12), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.8 (2026-10-12), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
-  write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix.
+  write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
+  v1.8 writes in the owner's rulings after the build's second intent preflight.
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -16,7 +17,7 @@ Status: this file holds three parts.
 
 Part A's history follows.
 
-Part A status: master spec v1.7 (2026-10-12), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
+Part A status: master spec v1.8 (2026-10-12), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
 remembered controller (§7.3). Change in v1.2: behaviours the v3.0 design settled, written in:
 when settings are read and saved, what Delete everything leaves, which sessions a save deletes,
 favorites and unpinning, the played-notes switch on the session that just ended, my instrument's
@@ -42,7 +43,14 @@ and nothing that can be derived from the session seed, and any further fact a re
 to the owner when the build designs the kept-session record (§5.2); neither is open any more
 (§14). Change in v1.7, a wording fix the owner approved at the v3.0 wave-1 gate (2026-10-12),
 no behaviour changed: §7.1's transposition bullet still described signed counts; it now states
-one direction for the whole interval and unsigned counts, as v1.6 already settled. Consolidated from the approved v3.0 drafts for handoff to
+one direction for the whole interval and unsigned counts, as v1.6 already settled. Change in
+v1.8, the owner's rulings after the v3.0 wave-2 intent preflight (2026-10-12): the written part
+is spelled in the written key, and a written key with two spellings takes the one with fewer
+sharps or flats, sharps on a tie, as the code already does; the transposition's interval name no
+longer decides the spelling, and is still derived and shown (§7.1, §12, item 16); the staff's
+shared height takes my instrument's written range into account, changing only when my instrument
+is saved or deleted (§7.1); a background pre-generation attempt can be cancelled, a fourth,
+minor contract change (§8, §10, item 23, §14). Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. Part A covers **v3.0
 only**; Part B, consolidated from the approved v3.1 drafts for the same handoffs, covers v3.1. The
 draft topic documents stay in `specs/versions/v3/` as working material; where they and this
@@ -333,9 +341,9 @@ in the session list. It is never written into the MusicXML or MIDI exports.
   of the semitones alone: a semitone count of 0 has no sign, so it could not say which way a
   whole-octave transposition goes (an instrument sounding one octave lower is 1 octave and 0
   semitones, lower).
-- **The interval name, and how it spells the written part.** Each semitone count maps to one
-  interval name by a fixed table, and each name fixes a number of letter-name steps (how many
-  letters, C, D, E and so on, the written note moves from the sounding one):
+- **The interval name.** Each semitone count maps to one interval name by a fixed table; that
+  name is what the player is shown beside the control. Each name also has a number of letter-name
+  steps (how many letters, C, D, E and so on, a note moves when it is moved by that interval):
 
   | Semitones | Interval name | Letter-name steps |
   | --- | --- | --- |
@@ -353,9 +361,27 @@ in the session list. It is never written into the MusicXML or MIDI exports.
   | 11 | major seventh | 6 |
 
   Each octave adds 12 semitones and 7 letter-name steps: a major ninth, as for the tenor
-  saxophone, is a major second plus an octave, 14 semitones and 8 steps. The steps are how notes,
-  the key signature and chord symbols are spelled in written pitch, exactly as for the built-in
-  profiles. The tritone (6 semitones) is always spelled as an augmented fourth.
+  saxophone, is a major second plus an octave, 14 semitones and 8 steps. The 6-semitone interval
+  (the tritone) is always named an augmented fourth. The steps stay part of the instrument's data,
+  as for the built-in profiles, and an exported MusicXML file states them, with the semitones, as
+  the part's transposition, which a notation program uses to show concert pitch. They do not
+  decide how the app spells the written part.
+- **How the written part is spelled.** The player chooses the key in written pitch, with the
+  Written key control, for my instrument as for the built-in profiles. So the transposition never
+  moves the written key; it moves the concert key the phrase is generated in. The written key is
+  spelled from the chosen key and collection alone, and everything written follows it:
+  - when the key can be spelled two ways (two **enharmonic** spellings: the same sounds under
+    different note names), the app takes the one whose key signature has fewer sharps or flats,
+    and the sharp one when both have the same number. For example, with an instrument whose
+    written notes sound 6 semitones higher, a phrase in concert C major is written in F♯ major,
+    not G♭ major: both need six, so sharps win;
+  - written notes, and chord symbols (the root and any slash bass), are spelled in that written
+    key: a note of the key's scale takes the key's own spelling (E♯ in F♯ major, not F); any other
+    note is written on its own letter when it is a white key on a piano, and when it is a black
+    key, as a flat if the key signature has flats and as a sharp otherwise.
+
+  This is the rule the built-in profiles already follow, so my instrument adds no spelling rule of
+  its own.
 - **A fixed id, apart from the display name.** My instrument's id is `my-instrument`, written like
   the built-in ids (`c-keyboard`). Saved settings, kept sessions and replay keys name it by that
   id, and it is never renamed. The display name is a separate property the player may change at
@@ -371,6 +397,11 @@ in the session list. It is never written into the MusicXML or MIDI exports.
   and selectable.
 - **Deleting it** returns the instrument control to the template it was made from.
 - **No Concert-display override.** Notation shows the selected instrument's written pitch, as in v2.
+- **The staff makes room for my instrument's written range.** The staff's two system positions
+  share one height. My instrument's written range counts toward that height like a built-in
+  profile's, whichever instrument is selected: a range inside the built-in profiles' reach changes
+  nothing, and one reaching further makes the staff taller for every choice (§14). The height
+  changes only when my instrument is saved or deleted, never from one phrase to the next.
 
 ### 7.2 The transposition check feeds it
 
@@ -426,7 +457,9 @@ instrument inline when it is not a built-in profile; `ifk1.` keys keep decoding 
   re-checks them: one that no longer fits is discarded with every phrase after it.
 - **The player comes first.** Pre-generation runs after v2's prewarm, on the same generation
   worker. Any request the player makes at Idle cancels the background attempt in progress, the way
-  a dropped attempt is cancelled in a session, so the player never waits behind it.
+  a dropped attempt is cancelled in a session, so the player never waits behind it. Only a
+  background attempt can be cancelled this way: the player's own requests at Idle are never
+  cancelled, as in v2.
 - **Start never waits.** A background pre-generation does not count as "a new phrase is being
   generated", so it never stops a session from starting. The session takes whatever is ready and
   generates the rest under its own deadlines, as v2 does. Pre-generation never changes phrase 1 or
@@ -481,6 +514,12 @@ below is intended.
     (`rule_optional_midi_privacy`) — v3.0 stores them after the player opts in, and never otherwise;
   - "the selected controller is kept in memory only and does not survive a reload"
     (`rule_same_controller_reattaches`) — v3.0 remembers it.
+- **One more guarantee on the contract changes, in a minor way.** v2's generation worker
+  promised that a request at Idle is never cancelled (`module_generation_worker_cancellation`).
+  From v3.0, the player's own requests at Idle are still never cancelled, and a background
+  pre-generation attempt can be: any request the player makes at Idle cancels it (§8). Every
+  guarantee the player relied on still holds; the change only adds a background attempt that gives
+  way to the player, so the owner ruled it a minor contract version, not a major one.
 - **The audio-unlock rule widens** (not a contract guarantee): v2 unlocked sound only on a Start
   or Connect controller click; v3.0 unlocks it on the page's first click, tap or key press, since a
   remembered controller reattaches without a Connect click (§7.3).
@@ -542,7 +581,10 @@ From reading the code (details: [storage-grounding.md](storage-grounding.md)).
   private data the app holds, and keeping the music should not imply keeping them.
 - **My instrument's transposition entered in octaves and semitones, its interval name derived**,
   because a player can count semitones on their instrument or a tuner without knowing interval
-  names, while the derived name still fixes how the written part is spelled.
+  names; the derived name tells them what interval that is.
+- **The written part spelled from the written key, fewer sharps or flats first**, because the
+  player chooses the key in written pitch, and the built-in profiles already spell it this way, so
+  one rule serves every instrument and the key signature is the easiest one to read.
 - **A fixed id for my instrument, apart from its display name**, because saved settings, kept
   sessions and replay keys must keep naming the same instrument whatever the player calls it.
 - **One session-wide record for each session**, holding its session seed, because a session's
@@ -600,10 +642,11 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
     in its range and shows notation in its written pitch; it survives a reload; deleting it
     returns to its template. Its transposition is entered as octaves and semitones with one
     direction for the whole, through one control counting semitones across octaves (a
-    whole-octave transposition keeps its direction), and its derived interval name is shown and
-    spells the written part by §7.1's table. It is stored and replayed by its id, `my-instrument`; changing its display name changes
-    nothing stored. The generator's success rate is measured on narrow (two-octave) and
-    extreme ranges before the gate, and recorded.
+    whole-octave transposition keeps its direction), and its derived interval name is shown; the
+    written part is spelled in the written key by §7.1's rule, as for the built-in profiles. It
+    is stored and replayed by its id, `my-instrument`; changing its display name changes nothing
+    stored. The generator's success rate is measured on narrow (two-octave) and extreme ranges
+    before the gate, and recorded.
 17. **The check feeds my instrument.** "Use this for my instrument" sets the transposition so the
     written notes match the controller, after one confirmation, and the result survives a reload.
     Played notes are still compared at the pitch received.
@@ -623,8 +666,8 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
     acknowledgement; stored played notes include them.
 22. **v2 behaviour otherwise unchanged:** the v2 test suite passes, apart from the tests §10 lists
     as changing, each replaced by its v3.0 counterpart.
-23. **The declared-intent contract** reflects §10's three changes, with the owner's explicit
-    confirmation recorded.
+23. **The declared-intent contract** reflects §10's three major changes and its minor one, with
+    the owner's explicit confirmation of each recorded.
 
 ## 14. Deferred and open
 
@@ -636,8 +679,10 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
   make the staff taller for every instrument. A bound on the written range, settled with that
   check, would avoid it.
 - **Measured, for information:** the battery cost of pre-generation at Idle on a tablet (§8).
-- **Open, needs the owner:** the explicit confirmation of the three contract changes in §10. The
-  owner approved this spec; that approval is not the contract confirmation.
+- **Contract changes:** the owner confirmed the three major contract changes in §10 on
+  2026-10-07, and they are applied; he agreed to the minor one, the cancellable background
+  attempt, on 2026-10-12, and it is applied with the build. Approving this spec is not a contract
+  confirmation.
 - **Design, for `ux-writer`:** where "Your data", the session list, favorites, the comment, the
   "Keep my played notes" switch and "my instrument" live, and how they look on each device;
   how my instrument's sheet shows the transposition's derived interval name (§7.1).

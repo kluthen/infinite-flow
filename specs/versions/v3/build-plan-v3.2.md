@@ -2041,7 +2041,8 @@ The references in [jam-grounding.md](jam-grounding.md), [rhythm-lock.md](rhythm-
 give; none of them gives a line number, so nothing drifted by line. What the plan relies on, and
 what differs from the drafts:
 
-- **v3.0 and v3.1 are not built yet.** `main` has no `src/storage/`, no stray-note filter, no
+- **v3.0 and v3.1 are not built yet.** `main` has no `src/storage/` (true on 2026-10-08; since
+  v3.0's wave 1, merged as a84739a, it holds the settings codec), no stray-note filter, no
   quantizer, no pre-generation, no kept sessions and no `ifk2.` or `ifk3.` (`ifk2.` appears only in
   tests, as a key that must be refused). Every v3.0 and v3.1 module this plan names is planned;
   each wave's preflight follows where those plans actually land them.

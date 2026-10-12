@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.50
+Status: draft v0.51
 
 ## Status Snapshot
 
@@ -56,6 +56,14 @@ Status: draft v0.50
   chunk 9's architecture capture (D258). Written into master spec Part A v1.6 and build plan v4. Wave-1 gate wording fixes
   (2026-10-12, no decision, no behaviour change): master spec Part A v1.7 (§7.1) and build plan
   v5 (chunk 23).
+- **v3.0 build, wave 2** (2026-10-12): after its intent preflight the owner ruled that a
+  background pre-generation attempt can be cancelled by any player request at Idle, a MINOR
+  contract bump (D290, unblocks chunk 24); that a written key with two spellings takes the one
+  with fewer sharps or flats, sharps on a tie, as the code does, the transposition's interval name
+  still derived and shown but spelling nothing (D291); and that the staff's shared height follows
+  my instrument's written range, changing only when it is saved or deleted (D292). Chunk 18 moves
+  to wave 5, after chunk 17 (coordinator's call). Written into master spec Part A v1.8 and build
+  plan v6; `documentalist` revises the atoms. D290–D299 are reserved for v3.0 wave 2.
 - **Open:** 17 questions, none blocking work under way: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O165–O173 and O175 (v3.3 richer chords,
   D261; they block v3.3's design). O163 and O164 closed by D257 and D258; D262 closed O174.
@@ -76,7 +84,7 @@ Status: draft v0.50
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (approved; v2 moves the workflow to wave
-  level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved) and
+  level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23; v6 writes in D290–D292 and moves chunk 18 to wave 5), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved) and
   [v3.2](versions/v3/build-plan-v3.2.md) (draft v2, not approved). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own
   change.
