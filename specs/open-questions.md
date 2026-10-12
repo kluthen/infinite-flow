@@ -159,7 +159,7 @@ place below.
   - Saved settings: player presets and saved settings store the flags.
   - Vary settings: may it move the flags, and in which allowed group?
   - The replay key: it carries the carry-in, whose final chord is checked as a triad, so a phrase
-    with richer chords needs a key version after v3.1's `ifk3.`.
+    with richer chords needs a key version after v3.2's `ifk4.` (D251).
   - Sessions: a chord flag changed mid-session applies at the next phrase boundary, like any
     setting. A carried final chord the new flags no longer allow falls under
     `rule_harmony_change_drops_unfit_harmonic_carry_in` (STABLE), which drops it.

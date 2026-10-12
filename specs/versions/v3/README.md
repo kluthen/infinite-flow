@@ -607,7 +607,7 @@ changes none of them. Each one is an open question.
   chord symbols through a fixed kind table.
 - **Presets, saved settings, Vary settings and the replay key (O171).** v3.1 promises that
   Neutral and Jazz at their defaults sound exactly as before. The replay key carries the carry-in,
-  so no key up to v3.1's `ifk3.` can hold a richer final chord. The replay tool lists each chord's
+  so no key up to v3.2's `ifk4.` can hold a richer final chord. The replay tool lists each chord's
   triad quality (`phrase-replay-bars.ts`, `phrase-replay-names.ts`).
 - **Generation time (O169).** A fourth chord tone widens the pitch search. Generation must still
   keep up at the fastest tempo.
