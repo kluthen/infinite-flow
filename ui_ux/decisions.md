@@ -949,3 +949,23 @@ Part D changes what it rests on.
   the too-many-notes notice. Not findings, noted: the formatter's `*…*` to `_…_` in
   `flows/saved-data/handoff.md` renders the same; the lexicon's "in Infinite Flow" lines for the
   chord terms ("Only triad symbols appear") are `documentalist`'s to update at the build.
+- **D264 — Q77 closed by spec D275; the v3.3 build plan reviewed from the design side
+  (2026-10-12; master spec §D5.2, build plan v3.3 draft v1).** Spec D275 settled Q77 as
+  recommended: the fallback is per phrase, and Strongly favored must reach at least 3 in 4 chords
+  as sevenths, measured and reported here. The design stands; the workspace handoff's `Mostly` line
+  now says the phrase falls back "as a whole". **The label mapping is written where a coder reads
+  it:** the workspace handoff's Seventh chords item says the four segments are §D5.2's levels in
+  order (`Off` Off, `Sometimes` Sometimes, `Often` Favored, `Mostly` Strongly favored), that what
+  is saved and sent names the spec's level, never the label (spec D277), and that they are not the
+  figure levels' options (whose second step is `Rarely` and whose top step `Very often`), since a
+  coder told to give it "a figure level's look" could otherwise reuse the wrong list. **What the
+  design asks of the plan** (the plan is `coordination-leader`'s and `spec-writer`'s; the edits are
+  in the review's report): (1) the three built-in descriptions' sentences ship with the control in
+  chunk 19, not chunk 11, so no line on screen ever suggests raising a control that does not exist
+  yet; (2) the labels are confirmed twice, on chunk 18's first shares before chunk 19 and on the
+  final shares at the release gate, after chunk 20 if built and L2's tuning; (3) hand check H6
+  regenerates at `Mostly`, so it runs once the control has shipped, not at chunk 14; (4) counting
+  each symbol's width toward its measure's minimum width must leave every triad layout at Off as
+  v3.2 draws it; if it would move one, chunk 14 brings it here before any snapshot is updated;
+  (5) chunk 19's checks add what its scope already says: editable in the review mode, a round
+  under the too-many-notes notice, `jam-bar` leaving at once, nothing announced.

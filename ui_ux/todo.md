@@ -34,9 +34,8 @@
 **v3.3 (richer chords) design**, from master spec Part D (§D1-§D17, proposed for the owner's
 approval with spec D264-D274), on branch `v3.3-chord-research`. Started 2026-10-12; marked on top
 of v3.0's, v3.1's and v3.2's marks, every v3.3 change its own tagged paragraph (ux D252). Owner's
-standing delegation: settled here, no question to the owner. Settled decisions: ux D252-D263;
-spec point for `spec-writer`: Q77 (designed on the recommended reading). No `src/` edits; no new
-token (ux D261).
+standing delegation: settled here, no question to the owner. Settled decisions: ux D252-D264;
+Q77 closed by spec D275 as recommended (ux D264). No `src/` edits; no new token (ux D261).
 
 - **Unit S — the whole of v3.3, in one pass** (ux D262): the Seventh chords level (foundation
   group, after Harmonic motion; Off, Sometimes, Often, Mostly; its note), presets holding it and
@@ -48,6 +47,9 @@ token (ux D261).
   `screens/last-session-review/handoff.md`. Written 2026-10-12.
 - **Validation.** `ux-critic` on v3.3: DRIFT, four copy and marking findings, all fixed (ux D263).
   Validated for the owner's review.
+- **Build plan review** (`specs/versions/v3/build-plan-v3.3.md`, draft v1), 2026-10-12: the label
+  mapping written into the workspace handoff; five asks of the plan recorded (ux D264), the plan's
+  edits left to its owners.
 
 **v3.1 (presets and embellishment figures) and v3.2 (Jam) design**, from master spec Parts B and C
 (approved 2026-10-08). Started 2026-10-08; v3.0's approved design was frozen in `versions/v3.0/`
@@ -156,9 +158,11 @@ drops the check.
 
 ## Next Unit
 
-v3.3: the owner's approval of Part D (which this design
-follows as proposed) and `spec-writer`'s answer to Q77; the build's recorded seventh-chord share at
-Strongly favored comes back here to confirm the label "Mostly" (ux D254).
+v3.3: the owner's approval of Part D and of this design (the build plan's D0). At the build, the
+recorded seventh-chord shares come back here twice to confirm the labels, "Mostly" above all (ux
+D254, D264): after the first measurement, before the control is built, and on the final shares at
+the release gate. A symbol calibration failure, or a triad layout that counting the symbols' widths
+would move, also comes back here (ux D258, D264).
 
 The owner's full review of the v3.1 and v3.2 design (ux D225-D251), and `spec-writer`'s answers to Q73-Q75. After approval, take `versions/v3.1/` (and `versions/v3.2/`) copies when each is approved as complete.
 
