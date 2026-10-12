@@ -31,6 +31,21 @@
 
 ## In Progress
 
+**v3.0 wave 2: the Clef design and Sessions design gates** (build plan v8 §1), from spec
+D293-D296 (master spec Part A v1.10), on branch `v3.0-w2`. Started 2026-10-12. Written into
+`versions/v3.0/` as a recorded correction and at the root (ux D280). Settled: ux D280-D293; Q76
+closed (ux D285); Q80 raised for `spec-writer`.
+
+- **Clef design gate** (before chunk 20): the clef control, the range bound's refusal, the
+  staff-reach note in the chosen clef, the clef on screen and in the check note, the interval
+  name (ux D281-D285). Written 2026-10-12.
+- **Sessions design gate** (before chunk 20c): the erase warning in the sheet and in the check,
+  the delete confirmation's count, the landing, the outdated tab's withheld form, the review's
+  room for a phrase in another clef (ux D286-D290). Written 2026-10-12.
+- **Stale treble-only lines and the token source's sizing comment** (ux D291, D292); chunk 4's
+  carry-overs (ux D293). Written 2026-10-12.
+- **Validation.** `ux-critic` on both gates: pending.
+
 **v3.3 (richer chords) design**, from master spec Part D (§D1-§D17, proposed for the owner's
 approval with spec D264-D274), on branch `v3.3-chord-research`. Started 2026-10-12; marked on top
 of v3.0's, v3.1's and v3.2's marks, every v3.3 change its own tagged paragraph (ux D252). Owner's
@@ -157,6 +172,10 @@ Dropped (ux D207): the end-of-measure chord-fit presentation (old unit 9), since
 drops the check.
 
 ## Next Unit
+
+v3.0 wave 2: `ux-critic` on the two gates, then report them to the coordinator as passed; Q80
+waits for `spec-writer`. At chunk 19b's calibration, if the bass-clef bound E0-E5 needs more than
+24 staff spaces, the bound's figures in the refusal and the Notation Contract come back here.
 
 v3.3: the owner's approval of Part D and of this design (the build plan's D0). At the build, the
 recorded seventh-chord shares come back here twice to confirm the labels, "Mostly" above all (ux

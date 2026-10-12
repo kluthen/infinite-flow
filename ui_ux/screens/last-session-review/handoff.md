@@ -19,7 +19,10 @@
 >   and keeps every new control
 >   ([Responsive Behavior](#responsive-behavior))
 > - _Changed:_ Absent and not showing; _New:_ not saved, editing, the scope's and played notes'
->   unavailable states, a confirmation open, saving off, a change not saved ([States](#states))
+>   unavailable states, a confirmation open, saving off, a change not saved, its session erased
+>   through my instrument ([States](#states))
+> - _Changed:_ each phrase drawn in the clef it was played in; _New:_ the room a phrase in another
+>   clef gets ([Components and Content](#components-and-content))
 > - _Removed:_ "Kept until the next session starts or the page is closed." from the summary;
 >   Format, Backing track and `Played notes` "never stored, a reload resets it"; "Items in the
 >   list hold nothing focusable"; the `review-link` details and its focus rule at a session start,
@@ -408,10 +411,12 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   "{tempo} BPM" (the tempo the phrase played at), muted, on one line, then `favorite-toggle` at
   the line's trailing end; it wraps below `bp-tablet-landscape` if needed, the star staying at
   the trailing end.
-- `review-staff` holds the phrase's engraving, drawn from the stored timeline exactly as it was
-  shown: the session profile's written pitch, its key signature and chord symbols, treble clef, the
-  Notation Contract of `screens/phrase-workspace/handoff.md` in full, except that nothing of the
-  session is drawn (no `start-note-marker`, `playhead-band` or `note-ack`).
+- **[v3 changed]** `review-staff` holds the phrase's engraving, drawn from the stored timeline
+  exactly as it was shown: the session profile's written pitch, its key signature and chord
+  symbols, the clef the phrase was played in (treble clef for a built-in profile; for my
+  instrument, its clef at the time, whatever its clef is now), the Notation Contract of
+  `screens/phrase-workspace/handoff.md` in full, except that nothing of the session is drawn (no
+  `start-note-marker`, `playhead-band` or `note-ack`).
   - **Layout** follows the workspace staff's current viewport (its layout and height budget),
     applied at `review-staff`'s own content width: from
     `bp-tablet-landscape` up, one system with four measures; below it, the split layout (bars 1–2,
@@ -423,6 +428,16 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     its own content allows, never above the workspace staff's scale and never below the legibility
     floor, and placed for the session's profile (see the workspace Notation Contract, **System
     position size and staff placement**).
+  - **[v3 new]** **Room for a phrase in another clef.** A review never cuts a phrase. Its system
+    positions, counted in staff spaces, take the larger of the workspace's shared size and the
+    size the session's own instrument needs: that instrument's written range placed in the clef
+    its phrases were played in, measured by the rule that sizes the workspace staff. The two
+    differ only for a session played with my instrument in a clef it no longer has (written C2 to
+    C4 in treble clef needs 19 staff spaces, where the staff may now keep 16 for the same range in
+    bass clef). The larger size is turned into a block size at the workspace staff's scale, so
+    every phrase keeps the same notation size as on the staff and only its position is taller; it
+    holds for the whole review, set before the first phrase is engraved, so the scroll position
+    never jumps. The placement is the one that instrument's range and clef give.
   - **Lazy engraving.** A phrase is engraved when its item comes within one viewport height of the
     visible area, and released (its reserved space left blank) once it is more than three viewport
     heights away. Engravings run one at a time, the item nearest the visible area first. The
@@ -457,7 +472,8 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   - **Staff.** `review-staff` holds the quantized doodle, engraved by the rules of a phrase's
     `review-staff` (the Notation Contract in full, nothing of the session drawn, no fade): in the
     written pitch of the session's instrument, with the key signature of the written key and
-    collection the Jam started with, treble clef and 4/4, and no chord symbol. Its measures take a
+    collection the Jam started with, in the clef the Jam was played in (treble, or my instrument's
+    clef then), and 4/4, and no chord symbol. Its measures take a
     phrase's measure width from the system's start: the system is laid out as a four-measure
     system whose first measures are the doodle's, so a two-measure doodle fills half the width and
     looks two measures long; the staff lines end at the doodle's last barline, and the rest of the
@@ -604,6 +620,13 @@ doodle`, or the suggestion's buttons leaving after a key or mode change), focus 
 - **[v3 changed]** **Not showing, session still there:** after `Close review`, or while the list
   shows: the session stays kept (or in memory after a failed save) by the rules of kept sessions,
   reachable from `review-link` when it is the most recent and from the list when it is kept.
+- **[v3 new]** **Its session erased through my instrument:** deleting my instrument, or saving a
+  change to its range or transposition after the warning, in its sheet or through the check,
+  erases every session played with it. A review showing one of them gives way to the session
+  list exactly as after `Delete session`, its empty state included; the sheet that did it keeps
+  focus and then returns it by its own rule (`flows/my-instrument/handoff.md`). A visit whose saved
+  data couldn't be read erases nothing this way, and a tab that must be reloaded offers neither
+  change while my instrument has kept sessions.
 - **[v3 new]** **Not saved:** the session's own save failed: `review-keep-line` reads "Not saved on
   this device: export it to keep it."; every control works, in memory.
 - **Empty:** cannot occur: a Review opens only once a phrase has sounded, so it always holds at

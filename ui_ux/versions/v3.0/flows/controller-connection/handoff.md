@@ -11,6 +11,9 @@
 >   note waiting for it after a load; the header forms at load; `Disconnect` also forgets the
 >   remembered controller; the check runs against my instrument when it is selected
 >   ([Routing rules](#routing-rules))
+> - _New:_ the check note in my instrument's clef; using the result warns when it erases my
+>   instrument's sessions, and is not offered in a tab that must be reloaded while it has some
+>   ([Routing rules](#routing-rules))
 > - _Removed:_ "There is no other audio-unlock step." (v2 in the
 >   [frozen copy](../../../v2/flows/controller-connection/handoff.md#routing-rules))
 
@@ -179,16 +182,21 @@ flowchart TD
   **Connected**: no picker, no check. `Run check again` and `Choose a different device` (when more
   than one input has been seen) are there as usual.
 - **[v3 new]** **The check against my instrument.** When my instrument is the selected instrument,
-  the check asks for a note from its range and compares against its transposition, and the result
-  copy names it (see `screens/controller-connection/handoff.md`).
+  the check asks for a note from its range, drawn in its clef, and compares against its
+  transposition, and the result copy names it (see `screens/controller-connection/handoff.md`).
 - **[v3 new]** **`Use this for my instrument`** is offered on every result that is not a match,
   unless the resulting instrument would sound outside the MIDI note range (its written range moved
   by the new transposition), in which case it is absent and the result is otherwise unchanged. It
+  is also absent in a tab that must be reloaded while my instrument has kept sessions, the result
+  saying a reload comes first. It
   opens the **Use for my instrument** confirmation; nothing changes until `Use for my instrument`
   is chosen. Then: my instrument's transposition becomes the semitones from the written note asked
   for to the note the controller sent; with no instrument yet, my instrument is first created from
-  the selected built-in profile, named "My instrument", with its written range; the written range
-  is kept either way. My instrument is saved and selected, the phrase is replaced as on an
+  the selected built-in profile, named "My instrument", in treble clef, with its written range; the
+  written range and the clef are kept either way. When my instrument exists and has sessions, the
+  confirmation warns that they go, with how many, its action reads `Use and erase`, and
+  confirming saves the transposition and erases them together (`flows/my-instrument/handoff.md`,
+  Sessions erased); a failure keeps the confirmation with its error line, changing nothing. My instrument is saved and selected, the phrase is replaced as on an
   instrument switch (`flows/my-instrument/handoff.md`), and the sheet goes to **Connected** with
   the line "{name} now matches your controller.". The first save of my instrument also asks the
   browser to protect the kept data, invisibly. `Back`, Escape, the backdrop and `Close` return to

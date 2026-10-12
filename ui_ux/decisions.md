@@ -969,3 +969,142 @@ Part D changes what it rests on.
   v3.2 draws it; if it would move one, chunk 14 brings it here before any snapshot is updated;
   (5) chunk 19's checks add what its scope already says: editable in the review mode, a round
   under the too-many-notes notice, `jam-bar` leaving at once, nothing announced.
+
+## v3.0 wave 2: my instrument's clef and its sessions, 2026-10-12
+
+Inputs: master spec Part A v1.10 (§4.3, §4.4, §5.1, §7.1, §7.2, §14), spec D290-D296 and O180,
+build plan v8 §1 (the **Clef design** gate before chunk 20, the **Sessions design** gate before
+chunk 20c), `docs/storage.md` (chunk 4), `docs/notation-engraving.md` (M3). The owner's standing
+delegation applies (D119, D135, archived): minor design issues settled here, phones low priority.
+Nothing in `src/` is edited but the token source's comment (D292). Ux numbers D280+ and Q80+ are
+this wave's; D252-D264 and Q77 are v3.3's.
+
+- **D280 — Where the two gates are written (2026-10-12).** The owner added the clef and the
+  sessions' belonging to v3.0 while it is being built from `versions/v3.0/` (the build plan's
+  design links point there). So the gates are written into `versions/v3.0/` as a recorded
+  correction to match what v3.0 ships, the exception its README allows, and the same text is
+  applied at the root, which holds v3.0's behaviour under v3.1-v3.3. Being v3.0 changes from v2,
+  they carry v3.0's own marks in both trees (`[v3 new]` / `[v3 changed]`, unprefixed change-block
+  items); documents new in v3 take no inline tag. Files: `strategy.md`, `motion.md`,
+  `flows/my-instrument/`, `screens/my-instrument/`, `flows/controller-connection/`,
+  `screens/controller-connection/`, `screens/phrase-workspace/handoff.md` (Notation Contract),
+  `screens/last-session-review/handoff.md`, `flows/kept-sessions/`,
+  `flows/review-and-export/intent.md`, `flows/generate-phrase/intent.md`, `flows/saved-data/`,
+  and `versions/v3.0/README.md` (status and two decisions worth keeping). Root only, in v3.2
+  paragraphs: Jam's empty staff and the review's doodle staff take the instrument's clef.
+- **D281 — The clef control (Clef design gate; spec D293; supersedes D214's "§7.1 keeps no clef
+  choice") (2026-10-12).** A `field-group` labelled "Clef" with a two-segment
+  `segmented-control`, "Treble clef" and "Bass clef" (in full: "Bass" alone reads as the bass
+  instrument), between the name and the Range section, since the range is read on the staff it
+  chooses and its bound depends on it. `field-note`: "Bass clef suits low instruments. The clef
+  changes where notes are drawn, never which notes." **Default treble, confirmed:** every template
+  is in treble clef, and the personas' instruments (saxophones, keyboards, wind controllers) read
+  treble; a bass-clef player makes one deliberate choice. Choosing a template never changes the
+  clef (the player's choice, like the name). The check's "Use this for my instrument" creates my
+  instrument in treble clef and keeps an existing one's clef. One tab stop, after the name; the
+  phone keeps both segments on one row. The score's text description says "bass clef" where it
+  says "treble clef" today (chunk 19b's word, confirmed). The check note is drawn in the selected
+  instrument's clef. No new token or class.
+- **D282 — The range bound's refusal (Clef design gate; spec D294) (2026-10-12).** Refused live in
+  `range-alert`, `Save` disabled, like the two-octave refusal; one `p` per reason, the span's
+  first. Wording: "In {treble clef|bass clef}, the range must stay between {C2 and C7|E0 and E5}.
+  {lowest} is too low." / "... {highest} is too high." / "... {lowest} is too low and {highest}
+  too high.", followed by "It fits in {other clef}." only when both ends lie inside the other
+  clef's bound. The steppers are not stopped at the bound (only at the MIDI range, as before), so
+  a clef change never moves the player's notes: it re-checks at once, and the refusal names the
+  clef. Profile-range summary and staff-reach note are absent while refused.
+- **D283 — The staff-reach note reads the chosen clef (Clef design gate) (2026-10-12).** Shown
+  while the range is valid and the size it sets in its clef exceeds the built-in 16 staff spaces,
+  computed by the same rule that sizes the staff (not "reaches further than the built-ins": M3
+  shows that almost every range wider than two octaves grows the staff, through beam widths as
+  well as reach). Wording: "In {clef}, this range makes the staff taller for every instrument, and
+  it may no longer fit a phone's screen." plus "In {other clef}, it would not." when the other
+  clef accepts the range and keeps 16. The Notation Contract now says the shared size is 16 staff
+  spaces unless a saved my instrument, in its clef, needs more, at most 24 within the bound.
+- **D284 — What a clef change does on screen (spec D293, D296) (2026-10-12).** Saved with no
+  warning, every session kept. With my instrument selected, the phrase on screen stays and is
+  redrawn at once in the new clef, with no fade (not a phrase replacement; `motion.md`); that
+  redraw is an idle engraving, so Room for the staff applies should it no longer fit. A save
+  that changes the shared size re-checks the phrases prepared in the background, showing
+  nothing.
+- **D285 — Q76 closed: the transposition's interval name (2026-10-12; spec D253, D257).** The
+  transposition's `field-note` reads "{interval}: a written C4 sounds as {note}.", updated on
+  every step: "No transposition" at Same; "A minor second lower" ... "A major seventh higher" (6:
+  always "An augmented fourth"); "One octave lower", "Two octaves lower"; from 13 to 23 the
+  compound name with its octave in brackets, "A major ninth lower (an octave and a major
+  second)", since "ninth" says nothing to a beginner; past two octaves, "Two octaves and a major
+  second lower". The stepper's `aria-valuetext` adds the name ("14 semitones lower, a major
+  ninth"). The check's confirmation uses the same line ("No transposition: a written C4 will
+  sound as C4."). Never chosen by name; `screens/my-instrument/intent.md`'s rejection of names
+  now rejects choosing by name only.
+- **D286 — The erase warning (Sessions design gate; spec D295, D296) (2026-10-12).** `Save`, when
+  the range or the transposition differs from the saved one and my instrument has sessions,
+  opens a warning in the sheet's place (as the delete confirmation does): title "Save and erase
+  sessions?"; "Changing the range or the transposition erases the {N} sessions played with
+  {name}, with their favorite phrases, comments and played notes." (one: "the session ... with
+  its favorite phrases, comment and played notes."); when the review on screen is one of them,
+  "The session reviewed on screen is one of them, so its review closes." (one: "It is the session
+  reviewed on screen, so its review closes."); "This can't be undone."; hint "To keep a session,
+  cancel, then export it from its review first."; actions `Save and erase` (`btn btn-error`),
+  `Cancel` (focused). Cancel returns to the form with the edit unsaved; the save and the erasing
+  are one step, a failure keeping the warning with "That couldn't be saved, and nothing was
+  erased. Try again." {N} counts the kept sessions of my instrument and the session that just
+  ended with it, held in memory after a failed save; 0 in a visit started from the defaults.
+  **No warning at 0, as spec-writer proposed:** nothing is erased, and a warning that names
+  nothing would teach the player to click through it. The check's "Use for my instrument"
+  confirmation carries the same paragraphs ("Changing the transposition erases ..."), its action
+  becoming `Use and erase` (`btn btn-error`).
+- **D287 — The delete confirmation names the sessions (Sessions design gate) (2026-10-12).** After
+  "{name} will be deleted, with its range and transposition.": "The {N} sessions played with it
+  go too, with their favorite phrases, comments and played notes." (one: "The session played
+  with it goes too, ..."), the review sentence of D286 when it applies, then the template line
+  when selected; "This can't be undone."; the same hint. Unchanged when {N} is 0.
+- **D288 — Where the player lands (Sessions design gate; spec D295 item 4) (2026-10-12).** Exactly
+  as after `Delete session`: a review of an erased session gives way to the session list, its
+  empty state included; a list showing loses their rows; the session that just ended, if one of
+  them, leaves memory and `Review last session` goes. The sheet that did it keeps focus and
+  returns it to its opener (`instrument-actions`; the connection sheet goes to Connected and its
+  own close rule). Nothing else announces it: the warning said so.
+- **D289 — The outdated tab withholds them (Sessions design gate; spec D295 item 5) (2026-10-12).**
+  While my instrument has kept sessions (rows this tab read), its sheet opens with an
+  `inline-alert alert-notice`: "Reload this page to change the range or the transposition, or to
+  delete {name}: either would erase the sessions played with it, and this page can't delete
+  anything until it is reloaded."; the three steppers disabled, values in full contrast; `Delete
+  my instrument` absent; name and clef still apply for the visit. The check offers no `Use this
+  for my instrument` and adds "To use this for {name}, reload the page first: changing its
+  transposition would erase the sessions played with it." Shown disabled rather than refused at
+  `Save`, so the player is not invited to make a change the tab cannot keep. A tab outdated while
+  the sheet is open closes an open warning or confirmation, erasing nothing, and returns range
+  and transposition to their saved values.
+- **D290 — A review's room for a phrase in another clef (Sessions design gate; spec D296)
+  (2026-10-12).** As proposed: the review's system positions take, in staff spaces, the larger of
+  the shared size and the size the session's own instrument needs in the clef its phrases were
+  played in, turned into a block size at the workspace staff's scale (same notation size, a
+  taller position), one size for the whole review, set before the first engraving so the scroll
+  never jumps. Rejected: shrinking the phrase into the shared size (smaller notes than the staff,
+  possibly below the legibility floor), and redrawing it in today's clef (the review must show it
+  as it was displayed, `req_last_session_review`).
+- **D291 — The stale "treble only" lines (2026-10-12).** Revised in both trees: `strategy.md`'s
+  clef trade-off (now `[v3 changed]`), its my-instrument trade-off, edge cases and flow index;
+  `screens/my-instrument/intent.md`'s staff-height paragraph; the check note in
+  `screens/controller-connection/handoff.md`; the review's `review-staff` and, at the root, Jam's
+  empty system and the review's doodle staff; the Notation Contract's clef and size; the clef
+  sentence of `flows/generate-phrase/intent.md`, split into its own tagged paragraph.
+- **D292 — The token source's sizing comment (2026-10-12).** `src/styles/theme.css` is this tree's
+  to maintain (README, How future UI changes flow; ux D218, D220), so its comment over
+  `--staff-systems-phone-block-budget` now reads "16 staff spaces tall unless a saved my
+  instrument needs more", names `planSystemPositionUnits`, and adds the 24-space ceiling's 366 px.
+  Comment only; no token changes. `prettier --check` passes.
+- **D293 — Chunk 4's two carry-overs (2026-10-12; `docs/storage.md`).** (1) **Another tab's
+  `Delete everything`** outdates every other open tab (the storage port closes on the
+  `versionchange`). Designed as an outdated tab in every respect, with its own notice wording,
+  since "a newer version has saved data" would send the player looking for an update: "Everything
+  this app kept on this device was deleted in another tab. Reload this page to start afresh; until
+  then, nothing here is saved." It replaces any notice and is never replaced, except that a tab
+  already outdated by a newer version keeps that wording. `Reload` then brings the first visit.
+  §4.3 does not name this trigger: Q80. (2) **The Load text** treated a database upgraded by a
+  newer version as a failed read; the storage design reopens it for reading only. The saved-data
+  handoff now sends it down the "data written by a newer version" branch (saved values used,
+  saving off, the saved-data wording); a failed read with newer data known remains for a
+  read-only reopening that fails, or a late read that reveals newer data. The saved-data intent's
+  "may refuse to open at all" is gone.

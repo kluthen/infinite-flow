@@ -92,10 +92,14 @@ flowchart TD
   defaults and saving stays off. `Reload` in the notice tries again. The one thing such a read
   still changes: if it reveals data written by a newer version, the tab becomes outdated (see
   Newer data wins over a failed read, above).
+- **A database a newer version has upgraded** is not a failed read: the app reopens it for
+  reading only and uses what it can read, each value checked as below, saving off, the outdated
+  tab's notice in its saved-data wording (the "Data written by a newer version" branch above).
 - **Newer data with a failed read at load.** A read can fail and still make a newer version
-  known, for example when the database refuses to open because a newer version has upgraded it.
-  The visit starts from the defaults, saving off, as for any failed read, and is an outdated tab
-  from its first frame: no deletion anywhere, the outdated-tab notice in its defaults wording.
+  known, for example when the read-only reopening above then fails, or when a read that ends
+  after the start-up wait reveals newer data. The visit starts from the defaults, saving off, as
+  for any failed read, and is an outdated tab from its first frame (or from that moment): no
+  deletion anywhere, the outdated-tab notice in its defaults wording.
 - **Each value is checked on its own:** unknown or no longer valid, it loads as that setting's
   default; every other value is kept. No notice. A saved instrument selection naming my
   instrument when my instrument cannot be loaded falls back to the default profile. My instrument
@@ -118,7 +122,7 @@ Drawn in `app-notice-row`, at the top of `layout-workspace` before `score-panel`
 | --- | --- | --- | --- | --- |
 | Save failed | A save other than a session's own fails for any cause but full storage | "Something couldn't be saved on this device. The app keeps working, but this change may be lost when the page closes." | `Dismiss` | Until dismissed or the page closes. |
 | Storage full | Any save, a session's own included, is refused because storage is full | "This device has no room left for the app's data, so something couldn't be saved. Deleting sessions you no longer need frees space." | `Your data`, `Dismiss` | Until dismissed or the page closes. |
-| Outdated tab | Data written by a newer version is known to exist: found at load, revealed by a read that finished after the start-up wait, or written by a newer version while this tab is open | Saved data read: "A newer version of Infinite Flow has saved data on this device. Reload this page to use it; until then, nothing here is saved." Visit started from the defaults after a failed or too-slow read: "Your saved data couldn't be read, and a newer version of Infinite Flow has saved data on this device. This visit started from the defaults and saves nothing. Reload this page to use the newer version." | `Reload` | Until the page reloads. |
+| Outdated tab | Data written by a newer version is known to exist: found at load, revealed by a read that finished after the start-up wait, or written by a newer version while this tab is open. Also `Delete everything` run in another tab while this one is open (its saved data is then gone, and this tab saves nothing until reloaded) | Saved data read: "A newer version of Infinite Flow has saved data on this device. Reload this page to use it; until then, nothing here is saved." Visit started from the defaults after a failed or too-slow read: "Your saved data couldn't be read, and a newer version of Infinite Flow has saved data on this device. This visit started from the defaults and saves nothing. Reload this page to use the newer version." `Delete everything` run in another tab, in either visit: "Everything this app kept on this device was deleted in another tab. Reload this page to start afresh; until then, nothing here is saved." | `Reload` | Until the page reloads. |
 | Unusable data | The saved data couldn't be read at load, or not within the start-up wait | "Your saved data couldn't be read, so this visit started from the defaults and saves nothing. Reloading may fix it." | `Reload` | Until the page reloads. |
 
 - **One notice at a time.** Save failed and Storage full are one save-problem notice in two
@@ -149,7 +153,14 @@ Drawn in `app-notice-row`, at the top of `layout-workspace` before `score-panel`
   fallback order).
 - **`Your data`** opens `screens/your-data/`; the notice stays. When the sheet closes, focus
   returns to this button.
-- **`Reload`** reloads the page. In an outdated tab the reload brings the newer version.
+- **`Reload`** reloads the page. In an outdated tab the reload brings the newer version, or,
+  after `Delete everything` in another tab, the first visit.
+- **`Delete everything` in another tab** outdates this tab exactly as newer data does: saving off,
+  no deletion of any kind, an open deletion confirmation closed deleting nothing. Its own wording
+  replaces whichever notice shows and is never replaced; when the tab was already outdated by a
+  newer version, the newer version's wording stays (a reload is the cure either way). A kept
+  session this tab then tries to open is gone, and its row says it couldn't be opened, as for any
+  failed read.
 
 ## Your Data
 

@@ -13,6 +13,10 @@
 >   two optional lines; `Disconnect` also forgets the remembered controller; the check note comes
 >   from my instrument's range when it is selected ([States](#states),
 >   [Named actions](#named-actions), [Components and Content](#components-and-content))
+> - _New:_ the check note drawn in my instrument's clef when it is selected; the confirmation's
+>   interval name, its warning that my instrument's sessions go, with how many, and its absence
+>   in a tab that must be reloaded ([Components and Content](#components-and-content),
+>   [Named actions](#named-actions), [States](#states), [Check result copy](#check-result-copy))
 > - _Removed:_ "Layout and actions are identical for every result; only the text differs." (v2 in
 >   the [frozen copy](../../versions/v2/screens/controller-connection/handoff.md#states))
 
@@ -38,6 +42,7 @@ sheet-backdrop
         prompt text, or exactly one result inline-alert alert-notice
       -- Use for my instrument (v3 new; a confirmation in the sheet's own place, see States)
         paragraphs stating the change
+        when my instrument has sessions: the erase paragraphs and sheet-hint, and inline-alert alert-error after a failed save (v3 new)
       -- Connected
         status line ("{device name} is connected.")
         one optional line (v3 new): "{name} now matches your controller.", or the remembered-controller sheet-hint
@@ -61,12 +66,13 @@ sheet-backdrop
   Consecutive paragraphs inside an `inline-alert`, such as a check result's sentence, suggestion
   and profile line, are spaced by the stylesheet, not by the markup. Secondary one-line hints use
   `sheet-hint`.
-- `check-note` shows the one written note on a short staff, engraved by the same notation pipeline
-  as the score (treble clef, the current instrument profile's written pitch, `--font-music`,
-  `--color-staff`), never as a letter name in text.
+- **[v3 changed]** `check-note` shows the one written note on a short staff, engraved by the same
+  notation pipeline as the score (the current instrument profile's clef and written pitch,
+  `--font-music`, `--color-staff`), never as a letter name in text. The built-in profiles are in
+  treble clef.
 - **[v3 new]** "The current instrument profile" includes my instrument: when it is selected, the
-  check note is a written note from its range, in its written pitch, and the result compares
-  against its transposition.
+  check note is a written note from its range, in its written pitch and on a staff in its clef,
+  treble or bass, and the result compares against its transposition.
 - `device-picker` is a group of `device-option` buttons, one per input the browser currently
   reports, labeled with the device's name, in the order the browser reports them; a device plugged
   in while the list is showing is appended at the end. Keyboard: one roving tab stop — the first
@@ -95,11 +101,13 @@ sheet-backdrop
 - `Try again` — on **No device found**; returns to **Requesting access**.
 - `Continue` — on a check result; advances to **Connected**.
 - **[v3 new]** `Use this for my instrument` — on a check result that is not a match, after
-  `Continue`; opens **Use for my instrument**. Absent on a match, and absent in the one case where
-  the instrument it would make would sound outside the MIDI note range (see the flow handoff).
+  `Continue`; opens **Use for my instrument**. Absent on a match, absent in the one case where
+  the instrument it would make would sound outside the MIDI note range (see the flow handoff),
+  and absent in a tab that must be reloaded while my instrument has kept sessions (see States).
 - **[v3 new]** `Use for my instrument` — on **Use for my instrument**; saves and selects my
   instrument with the new transposition (creating it first if there is none) and advances to
-  **Connected**.
+  **Connected**. When my instrument has sessions it reads `Use and erase` (`btn btn-error`) and
+  also erases them, with the save.
 - **[v3 new]** `Back` — on **Use for my instrument**; returns to the check result, nothing changed.
 - `Run check again` — on a check result and on **Connected**; returns to the check's *Prompt*
   sub-state for the same device, with no permission request or device resolution.
@@ -178,17 +186,42 @@ sheet-backdrop
 - **[v3 new]** **Use for my instrument** — a confirmation in the sheet's own place, from a check
   result. `check-note` and the result leave; the header keeps the connected badge. `sheet-title`
   "Use this for my instrument?". Body, plain paragraphs:
-  - "A written C4 will sound as {note}.", `{note}` being the note a written C4 sounds as under the
-    new transposition, spelled as in `screens/my-instrument/handoff.md` (C4, B♭2, E♭3…).
+  - "{interval}: a written C4 will sound as {note}.", `{interval}` and `{note}` being, under the
+    new transposition, the interval's name with its direction and the note a written C4 sounds
+    as, worded and spelled as in `screens/my-instrument/handoff.md` (Transposition): "No
+    transposition: a written C4 will sound as C4.", "A major ninth lower (an octave and a major
+    second): a written C4 will sound as B♭2."
   - With no my instrument yet: "My instrument will be made from the {profile} profile, named My
-    instrument, with that profile's range: {low} to {high} in written notes." then `sheet-hint`
-    "You can change it later with Edit my instrument."
+    instrument, in treble clef, with that profile's range: {low} to {high} in written notes."
+    then `sheet-hint` "You can change it later with Edit my instrument."
   - With my instrument, not selected: "{name} keeps its range, {low} to {high} in written notes,
-    and becomes the selected instrument."
-  - With my instrument selected: "{name} keeps its range, {low} to {high} in written notes."
+    and its clef, and becomes the selected instrument."
+  - With my instrument selected: "{name} keeps its range, {low} to {high} in written notes, and
+    its clef."
+  - When my instrument has sessions ({N} of 1 or more, counted as in
+    `screens/my-instrument/handoff.md`, The sessions of my instrument), after the paragraph
+    above: "Changing the transposition erases the {N} sessions played with {name}, with their
+    favorite phrases, comments and played notes." ({N} of 1: "Changing the transposition erases
+    the session played with {name}, with its favorite phrases, comment and played notes."), then,
+    only when the review on screen shows one of them, the my-instrument sheet's sentence saying
+    its review closes; a paragraph "This can't be undone."; and the `sheet-hint` "To keep a
+    session, choose Back, close this sheet, then export it from its review." ({N} of 1: "To keep
+    it, choose Back, close this sheet, then export it from its review.").
 
-  `sheet-actions`: `Use for my instrument` (`btn btn-primary`), `Back` (`btn`). Focus on `Back`.
-  No MIDI note does anything here.
+  `sheet-actions`: `Use for my instrument` (`btn btn-primary`), or `Use and erase` (`btn
+  btn-error`) when my instrument has sessions, then `Back` (`btn`). Focus on `Back`. No MIDI note
+  does anything here. With sessions to erase, the confirming action takes `is-loading` while it
+  runs and the way back does nothing; the save and the erasing happen together or not at all, and
+  if they fail the confirmation stays with `inline-alert alert-error` "That couldn't be saved, and
+  nothing was erased. Try again." under the body, the action trying again. On success the sessions
+  go as in `screens/my-instrument/handoff.md` (States, Sessions erased), the review mode behind
+  the sheet included, and the sheet goes to **Connected**.
+- **[v3 new]** **In a tab that must be reloaded** (an outdated tab), while my instrument has kept
+  sessions: a result that is not a match has no `Use this for my instrument`, and its result
+  `inline-alert` adds, after its sentences, the paragraph "To use this for {name}, reload the page
+  first: changing its transposition would erase the sessions played with it." Its other actions
+  are unchanged. When the tab becomes outdated while **Use for my instrument** shows with sessions
+  to erase, it returns to the result, erasing nothing, focus on `Continue`.
 - **[v3 changed]** **Connected** — `sheet-title` "Controller connected". Body: `status-dot
   is-success` followed by "{device name} is connected.", then at most one more line: after
   `Use for my instrument`, the paragraph "{name} now matches your controller."; when reached
@@ -248,9 +281,10 @@ turns it "lower"; *d* < 0 → "lower", and the suggestion turns it "higher".
   transposition equals my instrument's minus *d*. My instrument is never the suggested profile.
 - **[v3 new]** **Worked example, using the result.** No my instrument yet, B-flat tenor saxophone profile, a
   controller sending the written note untransposed (*d* = +14): the result reads as in the worked
-  example above, with `Use this for my instrument` after `Continue`. The confirmation reads "A
-  written C4 will sound as C4." / "My instrument will be made from the B-flat tenor saxophone
-  profile, named My instrument, with that profile's range: C4 to C6 in written notes." After
+  example above, with `Use this for my instrument` after `Continue`. The confirmation reads "No
+  transposition: a written C4 will sound as C4." / "My instrument will be made from the B-flat
+  tenor saxophone profile, named My instrument, in treble clef, with that profile's range: C4 to
+  C6 in written notes." After
   `Use for my instrument`, **Connected** reads "My instrument now matches your controller.", and
   the instrument control shows My instrument selected.
 

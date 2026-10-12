@@ -2,8 +2,8 @@
 
 > **Changes since v2**
 >
-> - _New:_ the check can make my instrument follow the controller
->   ([Using the check's result for my instrument](#using-the-checks-result-for-my-instrument))
+> - _New:_ the check can make my instrument follow the controller, warning first when that erases
+>   its kept sessions ([Using the check's result for my instrument](#using-the-checks-result-for-my-instrument))
 > - _New:_ the controller is remembered across visits and reattaches at load, with no prompt
 >   ([The controller remembered across visits](#the-controller-remembered-across-visits))
 > - _Changed:_ the `Connect controller` click is no longer the only audio unlock: the page's first
@@ -207,8 +207,17 @@ Enter pressed out of habit changes nothing. On confirmation my instrument is sav
 the phrase is replaced as on any instrument switch, and the sheet goes to `Connected` saying that
 my instrument now matches the controller. The app still applies no offset to played notes: they
 are compared at the pitch received, and it is the instrument's written part that moves to meet
-them. Only the transposition changes; the written range stays as it was, since that is what the
-player reads, and the rest of my instrument is changed in its own sheet (`flows/my-instrument/`).
+them. Only the transposition changes; the written range and the clef stay as they were, since that
+is what the player reads, and the rest of my instrument is changed in its own sheet
+(`flows/my-instrument/`).
+
+**[v3 new]** A new transposition changes what my instrument plays, so the sessions kept with it go
+(`flows/my-instrument/`, What Changing It Does to Its Sessions). When my instrument has kept
+sessions, the same confirmation says so, with how many, and its confirming action takes the error
+tone and says it erases: `Use and erase`. A tab that must be reloaded erases nothing, so there the
+action is not offered while my instrument has kept sessions, and the result says a reload comes
+first. The check note follows my instrument's clef when it is selected, so the note asked for looks
+as it does in the player's part.
 
 ## Why a header badge, not a persistent panel
 

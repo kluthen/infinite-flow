@@ -181,7 +181,10 @@ happened. The notes themselves are kept exactly as received, so nothing is lost.
 
 **[v3 changed]** The music in the review belongs to the session it came from. Nothing changed
 after the session, on the staff or in the controls, changes it, and a kept session is drawn from
-the music it kept, even if the player has changed their instrument since; the theme is the one
+the music it kept, even if the player has changed their instrument's name or clef since: each
+phrase is drawn in the clef it was played in, given the room it needs. A change to my
+instrument's range or transposition, or deleting it, erases its sessions instead, after a
+warning, so a review never shows music its instrument can no longer play. The theme is the one
 exception, since it changes only colours. What the player adds to it (favorites, a comment,
 whether it is pinned) is theirs, and they can change it every time they open it.
 
@@ -261,6 +264,12 @@ both, the same in the list and in a review, are in [`flows/kept-sessions/`](../k
 A visit that saves nothing offers no deletion in the review: neither a tab that a newer version
 of the app has outdated, until it is reloaded, nor a visit that couldn't read the saved data,
 whose review shows a session held in memory only.
+
+**[v3 new]** A session played with my instrument also goes when my instrument is deleted or its
+range or transposition changes, after the warning in its sheet or in the transposition check
+([`flows/my-instrument/`](../my-instrument/intent.md#what-changing-it-does-to-its-sessions)).
+When the review on screen is of that session, it closes exactly as after `Delete session`,
+showing the list; the warning has said so first.
 
 ## The Player's Own Notes, Kept on Request
 

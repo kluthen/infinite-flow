@@ -6,6 +6,8 @@
 >   before they are read (the paragraph after the one on the workspace's opening state)
 > - _New:_ my instrument, a fourth instrument choice that switches like the other three (the
 >   paragraph after the one on instrument profiles)
+> - _Changed:_ the clef: treble for the built-in profiles, treble or bass for my instrument (the
+>   paragraph on the clef, after the one on the score's written pitch)
 > - _New:_ phrases prepared in the background between sessions, which show nothing (the last
 >   paragraph)
 > - _Removed:_ nothing
@@ -20,7 +22,11 @@ The workspace opens with a ready-to-generate empty staff when no result exists, 
 
 The action is deliberately near the score header rather than buried in controls: the player looks at the phrase, decides whether to seek another idea, and acts there.
 
-The score always reads in the current instrument profile's own written pitch. There is no separate notation-display control and no Concert override: every instrument profile still renders in treble G2 clef, and only that profile's own fixed transposition (none for the C MIDI keyboard, a major ninth for the B-flat tenor saxophone, a major sixth for the E-flat alto saxophone) changes what is written. The manual theme override is the one remaining control adjacent to the score, and it changes only the presentation palette; changing it never creates a generation request or changes the phrase, control values, seed, selected profile, or result data. Controls follow the score in a vertically reached section: a compact horizontal group layout on wide displays and a stacked layout on mobile landscape. This gives all four measures the full available width without a horizontal scroll.
+The score always reads in the current instrument profile's own written pitch. There is no separate notation-display control and no Concert override.
+
+**[v3 changed]** Every built-in instrument profile renders in treble G2 clef, and my instrument in the treble or bass clef its player chose, which changes where notes are drawn and never which notes; only the instrument's own transposition (none for the C MIDI keyboard, a major ninth for the B-flat tenor saxophone, a major sixth for the E-flat alto saxophone, the player's own for my instrument) changes what is written.
+
+The manual theme override is the one remaining control adjacent to the score, and it changes only the presentation palette; changing it never creates a generation request or changes the phrase, control values, seed, selected profile, or result data. Controls follow the score in a vertically reached section: a compact horizontal group layout on wide displays and a stacked layout on mobile landscape. This gives all four measures the full available width without a horizontal scroll.
 
 The tonal-context control — written key and collection — is read and set in the selected instrument profile's own written pitch, not in concert pitch: the player picks the key the way it is written for their instrument. Selecting C Ionian on the B-flat tenor saxophone profile shows an empty key signature and sounds a concert B-flat Ionian; on the C MIDI keyboard, written and concert pitch are identical. The control's label always shows the written selection; request construction, not the player, converts it to the concert tonal context the generator receives.
 

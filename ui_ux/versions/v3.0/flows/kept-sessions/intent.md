@@ -135,6 +135,16 @@ session, the list shows its empty state. Deleting the session that just ended al
 from memory, and `Review last session` goes with it: deleted means gone. A visit that saves
 nothing offers no deletion here (see At the Edges).
 
+Every kept session belongs to the instrument it was played with. The built-in profiles never
+change, but my instrument can: deleting it, or saving a new range or transposition for it, also
+deletes every session played with it, since those sessions no longer match it. That happens in
+its own sheet or through the transposition check, after a warning naming how many sessions go
+([`flows/my-instrument/`](../my-instrument/intent.md#what-changing-it-does-to-its-sessions)),
+never from here; seen from the list or a review, it is a deletion made elsewhere, and a review of
+one of them gives way to the list exactly as after deleting from the review. The list does not
+filter by the instrument selected now: it shows every kept session, each naming the instrument
+it was played with, by the name it had then.
+
 ## At the Edges
 
 - **No kept session.** The list says the next session will be kept there. It is reached only

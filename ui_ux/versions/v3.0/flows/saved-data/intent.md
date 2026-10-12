@@ -103,11 +103,17 @@ each value checked as above, saves nothing, and says that a reload brings the ne
 same holds when a newer version writes while an older tab is open: that tab stops saving from
 that moment and says so.
 
+`Delete everything` in another tab is the same case in practice: the data this tab read is gone,
+and anything it saved now would bring back a part of what the player chose to delete. So that tab
+stops saving too and asks for a reload, in words that say what happened ("Everything this app
+kept on this device was deleted in another tab."), rather than the newer-version wording, which
+would send the player looking for an update that never happened.
+
 The two cases can meet, and then the newer data wins (master spec §4.4). A visit that could not
 read the saved data still offers `Delete everything`, because when reloading does not help it is
 the player's only way back to a working app, and nothing newer is at risk. But once the app knows
-that a newer version has saved data, whether it learns it at load (a database a newer version
-has upgraded may refuse to open at all) or later in the visit, deleting from this tab could
+that a newer version has saved data, whether it learns it at load or later in the visit,
+deleting from this tab could
 destroy what the newer version just saved, on the word of a page that cannot read it. From that
 moment the visit is an outdated tab in every respect, `Delete everything` included. Its notice
 says both things, since both are true and the player needs both: the saved data couldn't be read

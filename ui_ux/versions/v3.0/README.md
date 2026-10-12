@@ -1,9 +1,13 @@
 # v3.0 — Storage: UI/UX Design
 
-Status: **approved by the owner on 2026-10-07, not yet built.** This folder is the v3.0 design as
+Status: **approved by the owner on 2026-10-07, being built.** This folder is the v3.0 design as
 approved, frozen on 2026-10-08 when the design of v3.1 and v3.2 started at the `ui_ux/` root. It
 is never edited again, except to correct it to match what v3.0 actually ships (each such
-correction is recorded in the root `decisions.md`). The product scope is Part A of
+correction is recorded in the root `decisions.md`). Corrected on 2026-10-12 for what the owner
+added to v3.0 during its build: my instrument's clef, treble or bass, with a range bound per clef;
+the interval name shown with its transposition; kept sessions belonging to the instrument they
+were played with; and the outdated tab after another tab's `Delete everything`. The same
+corrections are applied at the root. The product scope is Part A of
 [`specs/versions/v3/master-spec.md`](../../../specs/versions/v3/master-spec.md#part-a--v30). The v2
 design it extends is in [`versions/v2/`](../v2/README.md).
 
@@ -54,3 +58,10 @@ again.
   ([my-instrument intent](flows/my-instrument/intent.md))
 - **Every deletion is confirmed once, in the error tone; nothing else asks.**
   ([strategy](strategy.md#edge-case-policy))
+- **My instrument reads in treble or bass clef, display only**, the clef sitting just above the
+  range it bounds, and a range outside its clef's bound refused live in note names.
+  ([my-instrument intent](screens/my-instrument/intent.md#the-clef))
+- **Sessions belong to their instrument.** Saving a new range or transposition for my instrument,
+  or deleting it, erases its kept sessions after one warning naming how many; a name or clef
+  change keeps them, each phrase in the clef it was played in, given the room it needs in its
+  review. ([my-instrument flow intent](flows/my-instrument/intent.md#what-changing-it-does-to-its-sessions))
