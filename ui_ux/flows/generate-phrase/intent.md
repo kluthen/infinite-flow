@@ -32,7 +32,7 @@ The action is deliberately near the score header rather than buried in controls:
 
 The score always reads in the current instrument profile's own written pitch. There is no separate notation-display control and no Concert override.
 
-**[v3 changed]** Every built-in instrument profile renders in treble G2 clef, and my instrument in the treble or bass clef its player chose, which changes where notes are drawn and never which notes; only the instrument's own transposition (none for the C MIDI keyboard, a major ninth for the B-flat tenor saxophone, a major sixth for the E-flat alto saxophone, the player's own for my instrument) changes what is written.
+**[v3 changed]** Every built-in instrument profile renders in treble clef (the G clef on the second line), and my instrument in the treble or bass clef its player chose, which changes where notes are drawn and never which notes; only the instrument's own transposition (none for the C MIDI keyboard, a major ninth for the B-flat tenor saxophone, a major sixth for the E-flat alto saxophone, the player's own for my instrument) changes what is written.
 
 The manual theme override is the one remaining control adjacent to the score, and it changes only the presentation palette; changing it never creates a generation request or changes the phrase, control values, seed, selected profile, or result data. Controls follow the score in a vertically reached section: a compact horizontal group layout on wide displays and a stacked layout on mobile landscape. This gives all four measures the full available width without a horizontal scroll.
 

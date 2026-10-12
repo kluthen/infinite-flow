@@ -196,9 +196,10 @@ Drawn in `app-notice-row`, at the top of `layout-workspace` before `score-panel`
   wordings: a new failure while it shows switches it to the latest cause's wording in place, never
   adds a second. **[v3.1 changed]** Preset not saved is a third wording of the same notice, under
   the same rules. Outdated tab and Unusable data replace a save-problem notice. Unusable data, set
-  at load, gives way to one notice only: the outdated tab's defaults wording, in place, when data
-  written by a newer version becomes known later in the visit (with saving off, nothing else can
-  arise). Outdated tab is never replaced.
+  at load, gives way only to an outdated tab's wording, in place: the defaults wording when data
+  written by a newer version becomes known later in the visit, or the deletion wording when the
+  tab can tell that another tab ran `Delete everything` (see below); with saving off, no
+  save-problem notice can arise. Outdated tab, in any wording, is never replaced.
 - **After `Dismiss`,** the save-problem notice comes back only when a save fails again after a
   save has succeeded since; a run of refusals with no success between them shows it once.
 - **[v3.1 new]** **A preset's refused save** is told at once: presets are made, changed and renamed
@@ -231,8 +232,8 @@ Drawn in `app-notice-row`, at the top of `layout-workspace` before `score-panel`
   after `Delete everything` in another tab, the first visit.
 - **`Delete everything` in another tab** outdates this tab exactly as newer data does: saving off,
   no deletion of any kind, an open deletion confirmation closed deleting nothing. Its own wording
-  replaces whichever notice shows and is never replaced; when the tab was already outdated by a
-  newer version, the newer version's wording stays (a reload is the cure either way). A kept
+  replaces a save-problem or unusable-data notice and is never replaced; when the tab was already
+  outdated by a newer version, the newer version's wording stays (a reload is the cure either way). A kept
   session this tab then tries to open is gone, and its row says it couldn't be opened, as for any
   failed read.
   - **Telling the two causes apart** needs the storage port to say why it became outdated: the

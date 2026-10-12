@@ -1131,3 +1131,12 @@ this wave's; D252-D264 and Q77 are v3.3's.
   check's, "my instrument") instead of the current name, since the list shows each session under
   the name it was played under (corrects D286, D287, D289's paragraph). Also: "four words" fixed;
   the delete confirmation names the clef too ("with its clef, range and transposition").
+- **D295 — `ux-critic`'s recheck: DRIFT, three leftovers, fixed (2026-10-12).** The five D294
+  findings were resolved in both trees, every spelled example checked. (1) "Treble G2 clef"
+  becomes "treble clef (the G clef on the second line)" in the three paragraphs this wave
+  touched (`strategy.md`, the Notation Contract, `flows/generate-phrase/intent.md`). (2) The
+  saved-data handoff's "One notice at a time" now lets Unusable data give way to the deletion
+  wording too, and says the deletion wording replaces a save-problem or unusable-data notice,
+  never an outdated-tab one. (3) The my-instrument flow handoff says a session held in memory
+  while saving is off is never counted. Correction to D294 (5): D287's sessions sentence never
+  named the instrument; D287 changed only by the clef in its first sentence.

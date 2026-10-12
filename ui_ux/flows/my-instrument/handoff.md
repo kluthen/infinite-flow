@@ -102,7 +102,8 @@ flowchart TD
   transposition change while there is at least one opens the erase warning, with their number;
   confirmed, the change is saved and they are erased together; cancelled, nothing changes and the
   edit stays in the form. With none, `Save` saves with no warning. A name or clef change never
-  warns and keeps every session.
+  warns and keeps every session. While saving is off, a session held in memory is never counted
+  and keeps its review (`screens/my-instrument/handoff.md`, The sessions of my instrument).
 - **Sessions erased** (by that warning or by deleting my instrument): each goes as if deleted
   from its own review (`flows/kept-sessions/handoff.md`): a review of one of them on screen gives
   way to the session list, its empty state included; the session that just ended, if one of them,
