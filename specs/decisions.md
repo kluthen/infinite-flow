@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.77
+Status: draft v2.78
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D262**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D274**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet.
 
 ## Decision Log
@@ -771,3 +771,113 @@ on branch `v4-accompaniment-research`, not merged yet.
 
   Recorded in [v3](versions/v3/README.md#research-first) and the
   [register](open-questions.md#v33-richer-chords-o165).
+
+- **D263 (2026-10-12): the owner confirms the vision 0.9 wording.** The owner, relayed the same
+  day: "vision wording confirmed". This confirms the wording of
+  `vision_infinite_flow_first_release` version 0.9, which `documentalist` wrote after D262: the
+  v3.3 direction paragraph, with its clauses "a flag allows a chord family and never chooses a
+  progression" and "altered dominants and harmonic substitutions" out of scope through v3.3. It is
+  the confirmation D262 asked for (D246's rule for STABLE wording). `documentalist` records it in
+  the atom's notes on `main`; the spec no longer says the vision wording awaits the owner.
+
+- **D264 (2026-10-12): one "Seventh chords" level, Off by default (closes O165, proposed for owner
+  approval with Part D).** spec-writer's adoption of the chord research's recommendation
+  (`docs/music/chord-research.md`, O165). v3.3 has one chord family, the seventh chords, set by one
+  four-step level (working names Off, Sometimes, Favored, Strongly favored), a preference and never
+  a quota, Off by default; triads always allowed. The family covers the four qualities the app's
+  modes contain (maj7, m7, 7, m7♭5). No level per quality: in a diatonic frame each quality sits on
+  fixed degrees, so a per-quality level would mostly choose degrees. Sixth, suspended and extended
+  chords are later families with their own levels; a diatonic sixth chord holds the notes of the
+  seventh chord two degrees lower, so it adds names, not sounds. Master spec Part D §D2, §D5.
+
+- **D265 (2026-10-12): diatonic only (closes O166, proposed for owner approval with Part D).**
+  Research recommendation adopted. A seventh chord stacks degrees d, d+2, d+4, d+6 of the selected
+  collection, its quality coming from the key and mode. Altered dominants and substitutions stay out
+  (D12, the vision), and so do borrowed and secondary chords and the qualities that need harmonic or
+  melodic minor. Blues, Bossa and Bebop are served only partly: the twelve-bar I7–IV7–V7 is out of
+  reach. Part D §D5.1.
+
+- **D266 (2026-10-12): the run cap stays three; the seventh may be one of the three (closes O167,
+  proposed for owner approval with Part D).** Research recommendation adopted. A recognized run
+  stays exactly three chord tones of one chord; over a seventh chord the three may include the
+  seventh (E–G–B over Cmaj7). A four-note one-way arpeggio stays rejected, like today's C–E–G–C:
+  the cap limits a chain of wide intervals, not the chord's size. Raising it is a later contract
+  question, if listening shows the full arpeggio is wanted. `rule_leap_recovery` (STABLE) follows:
+  its run may include the seventh, which needs the owner's wording confirmation. Part D §D6.2,
+  §D12.
+
+- **D267 (2026-10-12): the seventh is a chord tone inside the phrase; endings and the join read the
+  triad until a listening check (closes O168, proposed for owner approval with Part D).** Research
+  recommendation adopted. When an event takes its seventh form, the seventh is a chord tone for the
+  search order, figure targets, runs, Arpeggio chaos, Tension's scheduled figure and a Jam's ranks;
+  extensions are never chord tones in v3.3. spec-writer's precision of "an ending on the seventh
+  gets a listening check before it is allowed": until the check, the open ending and the join's
+  landing read each chord as its triad, so the allowed final and landing notes are exactly v3.2's
+  (the seventh may still be a joined phrase's tense note, resolved by the next phrase). Before the
+  gate the owner listens to examples ending and landing on the seventh; if approved, the seventh
+  also becomes an ending and landing note under a second wording of `rule_open_phrase_ending`
+  (STABLE), confirmed then. Part D §D6.1, §D6.3, §D12.
+
+- **D268 (2026-10-12): a seeded preference per harmony event (closes O169, proposed for owner
+  approval with Part D).** Research recommendation adopted, with spec-writer's details. The planner
+  builds its candidate plans exactly as before, from triads, modal colour chords measured on the
+  triad. For each harmony event a seeded integer draw (seed and event position) says whether its
+  seventh form is tried first: about 1 in 4 events at Sometimes, 1 in 2 at Favored, every event at
+  Strongly favored (starting values tuned before the gate). Each plan is tried with its drawn
+  sevenths, then as triads only, so the triad form stays reachable. No role order (degree 5 first)
+  in v3.3. Off draws nothing. The cost guard keeps the search allowance and measures generation time
+  on the deadline sweep, a 240 BPM session and a Jam's phrase 1: at most 2 points more fallbacks or
+  fewer phrases, no standalone attempt over the 1.075 s reserve. Part D §D5.2–§D5.4, §D10.
+
+- **D269 (2026-10-12): symbols, exports and the backing (closes O170, proposed for owner approval
+  with Part D).** Research recommendation adopted for the symbols: letters maj7, m7, 7 and m7♭5,
+  MusicXML kinds `major-seventh`, `minor-seventh`, `dominant`, `half-diminished` with the suffix as
+  display text, the spoken description reading them as words. The research left the backing to the
+  spec; spec-writer's proposal: the block chords play every note of the chord, a seventh chord as
+  the highest close-position four-note arrangement with its top at or below E4 (lowest about D3),
+  the bass unchanged; the MIDI export's backing follows. Reason: the backing is the only part that
+  sounds the harmony. Changes `req_session_backing_track` (STABLE): the owner confirms the wording.
+  Part D §D7, §D12.
+
+- **D270 (2026-10-12): presets, saved settings, Vary settings and the replay key (closes O171,
+  proposed for owner approval with Part D).** Research recommendation adopted: no built-in changes;
+  the level is stored by value in saved settings, player presets and the replay key. spec-writer's
+  details: the level is preset-held, every built-in at Off, so choosing a preset sets it and
+  changing it makes Custom; records from before v3.3 load at Off. The research left Vary settings
+  partly open; spec-writer's proposal: **Vary settings never moves the level**, and it is in no
+  allowed group, because seventh chords are opt-in and a player who kept Off but turned Vary
+  settings on must not hear them. The replay key is `ifk5.`, after v3.2's `ifk4.` (D251), written
+  for every phrase; `ifk1.`–`ifk4.` decode at Off. Part D §D8, §D9.
+
+- **D271 (2026-10-12): Jam and the key and mode suggestion unchanged (closes O172, proposed for
+  owner approval with Part D).** Research recommendation adopted: the suggestion scores the doodle's
+  notes only, so the level never changes its answer; a Jam's phrases follow the level like any
+  session's, the seventh sharing the first rank the doodle orders within. Part D §D8.4.
+
+- **D272 (2026-10-12): the declared-intent changes are listed in Part D (closes O173, proposed for
+  owner approval with Part D).** Three STABLE guarantees change, each given in plain words, old and
+  new, in Part D §D12 for the owner's explicit wording confirmation (D246):
+  `req_session_backing_track`, `rule_open_phrase_ending` (a triad reading now, a second option
+  only if the listening check approves the seventh) and `rule_leap_recovery`. Checked with wording
+  unchanged: `rule_harmony_change_drops_unfit_harmonic_carry_in` (the carried chord is compared by
+  its triad, and the level is fixed for a session), `rule_join_carry_in_limited`,
+  `req_last_session_review`, the mutation guarantees, and the vision (0.9, confirmed by D263). The
+  REVIEW and DRAFT atoms, the harmony planner policy, the generator contract and the lexicon lines
+  follow at the build; `documentalist` proposes the contract bump.
+
+- **D273 (2026-10-12): one named capability per chord family, stored by value (closes O175 for its
+  shape, proposed for owner approval with Part D; opens O176).** Research recommendation adopted:
+  the level belongs to the capability `seventh-chords` (the v4 branch's atlas id), stored by
+  capability name and value in saved settings, player presets, the generation request and the
+  replay key, never tied to a preset's name, so a later family or style pack can name it as data.
+  Which wins when a player's level and a style pack disagree is decided with style packs: O176.
+
+- **D274 (2026-10-12): gaps settled while consolidating Part D.** spec-writer's calls within
+  D264–D273, proposed for owner approval with Part D; none changes what the owner asked for.
+  (1) The level's working names and Strongly favored meaning "every event tries its seventh form
+  first". (2) The level is a generation setting locked during a session and moved by nothing, so it
+  is fixed for a session: the v3 notes' "a chord flag changed mid-session" cannot happen. (3) A
+  carried final chord is compared with the next phrase's settings by its triad. (4) Changing the
+  level discards pre-generated phrases and so drops a held doodle, like any discarding change
+  (D238). (5) Settings, player presets and kept sessions get a new stored data version. (6) Part D
+  numbers its sections D1 to D17 and cites them as §D5 so they are not read as decision IDs.

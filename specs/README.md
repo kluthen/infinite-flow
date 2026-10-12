@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.50
+Status: draft v0.51
 
 ## Status Snapshot
 
@@ -31,8 +31,11 @@ Status: draft v0.50
     rhythm lock and its mutation option;
   - **v3.3:** richer chords (seventh chords first), opt-in (default stays triads), with flags in
     the app; research on chords comes before any design (D261, 2026-10-12; direction only), as a
-    separate docs-only item running on branch `v3.3-chord-research` (D262); the vision update is
-    approved (D262);
+    separate docs-only item running on branch `v3.3-chord-research` (D262); the vision's 0.9
+    wording is confirmed (D263). **v3.3 master spec: [Part D](versions/v3/master-spec.md#part-d--v33),
+    awaiting owner approval** (D264–D274, from the
+    [chord research](../docs/music/chord-research.md)): one Seventh chords level, Off by default,
+    diatonic sevenths only; three STABLE wording changes wait for the owner (§D12);
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go;
   - v3.0's [master spec](versions/v3/master-spec.md) is consolidated (D217) and with
@@ -56,9 +59,10 @@ Status: draft v0.50
   chunk 9's architecture capture (D258). Written into master spec Part A v1.6 and build plan v4. Wave-1 gate wording fixes
   (2026-10-12, no decision, no behaviour change): master spec Part A v1.7 (§7.1) and build plan
   v5 (chunk 23).
-- **Open:** 17 questions, none blocking work under way: O48 and O49 (later and governance),
-  O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O165–O173 and O175 (v3.3 richer chords,
-  D261; they block v3.3's design). O163 and O164 closed by D257 and D258; D262 closed O174.
+- **Open:** 8 questions, none blocking work under way: O48 and O49 (later and governance),
+  O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level).
+  O163 and O164 closed by D257 and D258; D262 closed O174; D264–D273 settled O165–O173 and O175
+  in Part D, pending the owner's approval.
   v3.1 and v3.2 drafts approved by the owner (D233, D234),
   after D228–D232 on presets and the rhythm lock; consolidated as master spec Parts B and C and
   approved (D239), refined by D240–D245 and D247–D249; the contract wording they change confirmed by the owner
