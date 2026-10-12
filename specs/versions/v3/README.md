@@ -5,18 +5,21 @@ candidates gathered here from 2026-09-25 on are recorded in the decisions log: D
 D174, D175, D190, D192, D196, D206, D209 and D210. D211 places each of them in a release, moves
 two to v4 and drops four. D212 merges v3.0.1 into v3.0. D216 approves spec-writer's
 recommendations at the owner's overall review: v3.0 is drafted, and Jam's main questions are settled.
+D261 (2026-10-12) adds v3.3, richer chords, after v3.2: direction only, with a research phase first.
+D262 makes that research a separate item before v3.3, running on branch `v3.3-chord-research`.
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
 Also every tester on an instrument v1 doesn't ship. See [personas](../../personas.md).
 
 ## Releases (D211)
 
-| Release    | Theme                         | Scope                                                                                                                                                      |
-| ---------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **v3.0**   | Storage, and follow-ups (D212) | [Local persistence](#local-persistence), ["my instrument"](#my-instrument), [review of earlier sessions](#review-of-earlier-sessions), [favorites](#favorites), [keeping sessions](#keeping-sessions); [pre-generating phrases at Idle](#pre-generating-phrases-at-idle), [stray notes from controllers](#stray-notes-from-controllers) |
-| **v3.1**   | Generation choices            | [Embellishment flags](#embellishment-flags), [presets](#presets)                                                                                           |
-| **v3.2**   | Jam                           | [Jam](#jam-growing-the-players-doodle), the [key and mode suggestion](#key-and-mode-suggestion), the [rhythm lock and mutation](#rhythm-lock-and-mutation) |
-| **v3.x**   | Kept, likely to move or go    | [Learning from positive signals](#v3x--learning-from-positive-signals)                                                                                          |
+| Release  | Theme                           | Scope                                                                                                                                                                                                                                                                                                                                   |
+| -------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **v3.0** | Storage, and follow-ups (D212)  | [Local persistence](#local-persistence), ["my instrument"](#my-instrument), [review of earlier sessions](#review-of-earlier-sessions), [favorites](#favorites), [keeping sessions](#keeping-sessions); [pre-generating phrases at Idle](#pre-generating-phrases-at-idle), [stray notes from controllers](#stray-notes-from-controllers) |
+| **v3.1** | Generation choices              | [Embellishment flags](#embellishment-flags), [presets](#presets)                                                                                                                                                                                                                                                                        |
+| **v3.2** | Jam                             | [Jam](#jam-growing-the-players-doodle), the [key and mode suggestion](#key-and-mode-suggestion), the [rhythm lock and mutation](#rhythm-lock-and-mutation)                                                                                                                                                                              |
+| **v3.3** | Richer chords (optional) (D261) | [Richer chords](#v33--richer-chords-optional), opt-in, after a [research phase](#research-first) (D262)                                                                                                                                                                                                                                 |
+| **v3.x** | Kept, likely to move or go      | [Learning from positive signals](#v3x--learning-from-positive-signals)                                                                                                                                                                                                                                                                  |
 
 - **v3.0 master spec:** [master-spec.md](master-spec.md) (D217), consolidated from the approved
   drafts; handed to `documentalist` and `ux-writer`, a build plan to follow the design.
@@ -33,6 +36,9 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
 - **Dropped:** the [two controller-connection ideas](#controller-connection-ideas),
   [review tooling](#review-tooling) and the
   [end-of-measure chord-fit check](#end-of-measure-chord-fit-check). See [Dropped](#dropped-d211).
+- **v3.3 is added after v3.2** (D261), which was the last v3 release until then: richer chords,
+  opt-in, preceded by research, a separate item running on branch `v3.3-chord-research` (D262).
+  Not designed; its open questions are O165–O173 and O175.
 - **v3.0.1 is merged into v3.0** (D212), the owner: "v3.0.1 could very well be just included
   into v3.0". This also settles where keeping sessions goes: with the review of earlier sessions
   that needs it.
@@ -418,6 +424,197 @@ D234; detail in the [rhythm lock draft](rhythm-lock.md).
   while the lock is set, a mutation cannot alter the rhythm durably. D232 keeps it: a rhythm
   change lasts one phrase.
 - **Open:** nothing; D232 and D234 closed O103 and O114.
+
+## v3.3 — Richer chords (optional)
+
+Recorded 2026-10-12 (D261), the owner's request, in their words: "managing higher end chords
+(optionnal, with flags to be set from the front end as to what's allowed and what's not). It will
+be preceeded by an internal doc/web research on chord to ensure we use appropriate data for chord
+generation." v3.2 was the last v3 release; v3.3 follows it. Direction only: not designed, not
+specced, nothing built.
+
+In standard terms, "higher end chords" are **seventh chords** and **extended chords**. An extended
+chord stacks **chord extensions** (the ninth, the eleventh, the thirteenth) on top of a seventh
+chord. This section says "richer chords" for any chord beyond a triad.
+
+- **Today.** The app's only chords are root-position diatonic
+  [triads](../../../docs/music/lexicon.md#triad). Each is built from every other note of the
+  selected [collection](../../../docs/music/lexicon.md#collection), so its
+  [quality](../../../docs/music/lexicon.md#chord-quality) comes from the key and mode. Sevenths,
+  inversions, suspensions and every other sonority are outside the
+  [harmony planner policy](../../../docs/music/harmony-planner-policy.md#collection-and-chord-vocabulary),
+  even under Jazz ([lexicon: seventh chord](../../../docs/music/lexicon.md#seventh-chord)). That
+  "triads only" vocabulary is written in the policy and in the
+  [generator contract](../../generator-contract.md) ("seven root-position diatonic triads"), not
+  in a decision. v1's decisions D11–D13 frame it
+  ([archived](../../archive/v1/decisions-D1-D46.md)); how v3.3 stands toward each is
+  [below](#relation-to-v1s-decisions-and-to-style-packs). The
+  [preset catalogue](../../../docs/music/preset-catalogue.md#what-no-setting-can-express-today) and
+  [presets §3.3](presets.md#33-what-the-list-is-not) list richer chords among what Blues, Bebop,
+  Modal jazz and Bossa lack.
+- **What it is.** The generator may use chords richer than triads, but only those the player
+  allows. [Seventh chords](../../../docs/music/lexicon.md#seventh-chord), which add a fourth note
+  a seventh above the root, come first. Extended chords may come later.
+- **Opt-in only (D261).** The default stays today's triads. A player who allows nothing richer
+  sees, hears and exports what they do today. Their replay keys, saved settings, presets and kept
+  sessions reproduce as before.
+- **Flags set in the app (D261).** The player chooses in the app's interface which chord families
+  the generator may use. The exact flags, how fine-grained they are and their defaults are open
+  (O165). Whether every chord stays built from the selected key and mode is open too (O166).
+  Whether a later style pack can set the same flags is O175.
+- **Serves (proposed):** P1's G1, vocabulary by exposure: hearing and playing the sound of
+  seventh chords under the phrase
+  ([personas](../../personas.md#p1--the-curious-improviser-primary-d48)). It also brings the
+  jazz-flavoured presets closer to their styles (O171), though not all the way
+  ([below](#relation-to-v1s-decisions-and-to-style-packs)).
+- **Open:** O165–O173 and O175 ([register](../../open-questions.md#v33-richer-chords-o165)).
+  D262 closed O174: the research is a separate item before v3.3.
+
+### Relation to v1's decisions and to style packs
+
+**v1's decisions (D261).** None of D11–D13 says "triads only" in its own words; the harmony planner
+policy's vocabulary implements them.
+
+- **D11, the Neutral grammar, is partially revisited, opt-in only.** Its chord vocabulary, as the
+  policy implements it, widens only when a player allows richer chords. Its diatonic frame and its
+  exclusion of substitutions and altered dominants stay (O166). Its "chord tones" may gain a
+  fourth note (O168).
+- **D12 is untouched.** Altered dominants and harmonic substitutions stay out (O166).
+- **D13 is untouched.** The chords stay generated. A flag allows a chord family; it never chooses a
+  chord progression.
+
+The style atlas on branch `v4-accompaniment-research` cites D12 for "triads only". The rule is in
+fact the policy's, under D11; the research and the v3.3 spec cite the policy.
+
+**Style packs (D259, on branch `v4-accompaniment-research`, not merged).** D259 records style packs
+as planned, with no version: the generator's capabilities grouped into dialects (Folk reel, Bebop,
+Blues, Baroque...), as declarative data over the one generator, in the style atlas's greedy unlock
+order. The breadth review there (`docs/music/generation-breadth-review.md`) treats each missing
+device, seventh chords among them, as a _capability, not a style_. Each capability is built once,
+off by default, with its own invariant, and a pack later becomes a named bundle that switches
+capabilities on. It asks which version opens the first device.
+
+- **v3.3 opens the seventh-chord capability ahead of style packs** (D261). Style packs stay
+  planned with no version; v3.3 neither schedules them nor changes D259.
+- **In the atlas, `seventh-chords` is tier 2,** "cheap vocabulary": medium cost, with no
+  prerequisite. Its greedy order adds it at step 6, together with progression templates and
+  substitution rules. v3.3 takes it alone, since D13 and D12 stay.
+- **So v3.3 serves the sound of sevenths, not a full style.** By the atlas's own inference, a
+  style becomes recognisable with sevenths only alongside chosen progressions (Bebop) and, for
+  most styles, v4's accompaniment voices.
+- **Extended and altered chords depend on seventh chords** in the atlas. A later extended-chord
+  flag builds on v3.3's.
+- **The flags are the player's switch for the capability.** Keeping them compatible with a later
+  declarative style-pack layer is O175.
+
+### Research first
+
+D261 makes a research phase mandatory before any design. Generation must then use sourced data,
+not recollection. The research is a separate, docs-only item before v3.3, not v3.3's first work
+unit (D262, closing O174). It started on 2026-10-12 on branch `v3.3-chord-research` and runs while
+v3.0 is built.
+
+1. **Internal.** The research first collects what the project already holds:
+   - the [harmony planner policy](../../../docs/music/harmony-planner-policy.md);
+   - the lexicon entries [triad](../../../docs/music/lexicon.md#triad),
+     [seventh chord](../../../docs/music/lexicon.md#seventh-chord),
+     [chord tone](../../../docs/music/lexicon.md#chord-tone),
+     [chord symbol](../../../docs/music/lexicon.md#chord-symbol) and
+     [arpeggio](../../../docs/music/lexicon.md#arpeggio);
+   - the [preset catalogue's](../../../docs/music/preset-catalogue.md#what-no-setting-can-express-today)
+     gaps and the [embellishment catalogue's](../../../docs/music/embellishment-catalogue.md)
+     harmonic rules;
+   - sources S14, S15, S101, S103 and S112 in
+     [research sources](../../../docs/music/research-sources.md);
+   - the code and atoms that assume a three-note chord ([below](#what-a-fourth-chord-note-meets)).
+
+   Unmerged research on branch `v4-accompaniment-research` is an input while that branch exists:
+   `docs/music/generation-breadth-review.md`, the style atlas (`docs/music/styles/`), which count
+   seventh chords as one capability, and its lexicon entries `chord-inversion`, `voicing`,
+   `guide-tone` and `two-five-one`. It is not on `main`.
+
+2. **Web.** The web research covers five subjects:
+   - **Chord types:** the seventh-chord qualities; sixth and suspended chords; ninths, elevenths
+     and thirteenths; altered chords.
+   - **Construction:** how each type is built from a selected key and mode, that is, which chord
+     each degree of each of the app's seven modes carries.
+   - **Style plausibility:** which types sound right in the styles the presets aim at: Jazz,
+     Bebop, Blues, Bossa, Modal (Dorian), Pop song and folk.
+   - **Chord symbols:** how each type is written as a chord symbol.
+   - **Melodies:** how a melody treats a seventh or an extension, whether it resolves it or rests
+     on it.
+3. **Output.** The research produces three things, all on its branch:
+   - a research document in `docs/music/`, where every fact the generator will rely on cites a
+     source;
+   - its sources, merged into [research sources](../../../docs/music/research-sources.md) under
+     new S numbers above the highest on any branch (S411 on `v4-accompaniment-research` today);
+   - new terms, added to the [lexicon](../../../docs/music/lexicon.md). The v3.3 questions rely on
+     these terms, which the lexicon on `main` does not have yet, so this spec glosses them in
+     place and links only entries that exist:
+     - **extended chord** and **chord extension**;
+     - **sixth chord**;
+     - **suspended chord**, kept apart from the melodic
+       [suspension](../../../docs/music/lexicon.md#suspension) the lexicon already has;
+     - **half-diminished seventh chord**, today named only inside
+       [seventh chord](../../../docs/music/lexicon.md#seventh-chord);
+     - **chord inversion** and **root position**, today only inside
+       [root](../../../docs/music/lexicon.md#root);
+     - **voicing**, with close and open position.
+
+     `chord-inversion` and `voicing` already exist on branch `v4-accompaniment-research`. The
+     research reuses those entries rather than writing a second definition.
+4. **Privacy.** Every brief for a web-research agent forbids putting the owner's name, email or
+   any other personal data into request headers (User-Agent included), URLs or payloads. When an
+   API asks for contact details, the agent sends a generic User-Agent or skips that API.
+
+### What a fourth chord note meets
+
+The rules and code below were written for triads. They were checked on 2026-10-12, and D261
+changes none of them. Each one is an open question.
+
+- **The arpeggio run cap (O167).** A recognized run is exactly three chord tones of one chord
+  ([`rule_leapiness_arpeggio_run_limits`](../../../docs/rule_leapiness_arpeggio_run_limits.atom.md)).
+  The pitch search rejects a chain of three same-direction wide intervals as
+  `wide_chain_too_long` (`src/domain/pitch/pitch-motion.ts`). So a full four-note seventh
+  arpeggio upward, C–E–G–B, is rejected. Allowing sevenths does not raise the cap by itself.
+  Raising it to four would change a contract rule, which needs the owner's explicit approval.
+- **Figures and "chord tone" (O168).** Every figure resolves onto a chord tone
+  ([`rule_figures_resolve_onto_chord_tones`](../../../docs/rule_figures_resolve_onto_chord_tones.atom.md)).
+  The pitch search tries chord tones first, ranks them before every other note, and the Arpeggio
+  chaos control acts on chord tones only (`pitch-candidates.ts`, `pitch-ranking.ts`,
+  `pitch-advance.ts`, `validation/phrase-facts.ts`). All of them assume three chord tones.
+- **Phrase endings (O168).** The open ending
+  ([`rule_open_phrase_ending`](../../../docs/rule_open_phrase_ending.atom.md), STABLE) ends a
+  phrase on a chord tone of the degree-5 chord (tonal plans that move), on scale degree 5 (tonal
+  static plans) or on a chord tone other than the home note (modal plans) (`pitch-context.ts`,
+  `validation/contour-endpoint-rules.ts`). If a
+  seventh counts as a chord tone, a phrase may end on it: F over G7, B over Cmaj7. Whether that
+  still sounds open, or like a tension left hanging, is part of O168.
+- **The carry-in and the join (O168, O171).** The carry-in holds the previous phrase's final chord
+  as a triad. `carry-in.ts` checks its quality against major, minor and diminished, and
+  `harmony-join.ts` compares two chords by degree, notes and quality. The next phrase opens over
+  the tonic triad. An owed leap recovery or a tense final note must settle on a tonic-triad tone
+  (`phrase-ending-debt.ts`,
+  [`rule_join_tense_note_resolution`](../../../docs/rule_join_tense_note_resolution.atom.md)). A
+  chord flag changed mid-session applies at the next phrase boundary, like any setting.
+- **The harmony planner (O169).** It builds the triad on degree d from collection degrees d,
+  d+2 and d+4 (`harmony-planner.ts`, `collection.ts`). Jazz and Neutral expose the same harmony
+  domain for the same harmony controls.
+- **What the player sees and hears (O170).** Chord symbols show major, minor and diminished only:
+  their suffix comes from a table with one entry per triad quality (`notation-input.ts`), and the
+  spoken score description reads it as words (`score-description.ts`). The backing's block chords
+  play a close-position triad (`req_session_backing_track`, STABLE). MusicXML exports write the
+  chord symbols through a fixed kind table.
+- **Presets, saved settings, Vary settings and the replay key (O171).** v3.1 promises that
+  Neutral and Jazz at their defaults sound exactly as before. The replay key carries the carry-in,
+  so no key up to v3.1's `ifk3.` can hold a richer final chord. The replay tool lists each chord's
+  triad quality (`phrase-replay-bars.ts`, `phrase-replay-names.ts`).
+- **Generation time (O169).** A fourth chord tone widens the pitch search. Generation must still
+  keep up at the fastest tempo.
+- **Jam and the key and mode suggestion (O172).**
+- **Declared intent (O173).** The atoms above, `module_harmony_candidate_domain`,
+  `entity_phrase_carry_in`, `module_phrase_replay_key`, and the vision's scope, which lists every
+  release through v3.2. The owner approved updating the vision now (D262).
 
 ## v3.x — Learning from positive signals
 
