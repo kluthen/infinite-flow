@@ -199,6 +199,145 @@ The plan corrections above are applied: chunk 23's Scope and Files now state the
 chunk 16 no longer says the spelling is flagged to `spec-writer`, and the Atoms lines of chunks 6
 and 16 carry the atoms the preflight added.
 
+#### Wave 2 preflight (2026-10-12)
+
+`documentalist` ran the full pass and the file pass for chunks 4, 18, 19 and 24 on `v3.0-w2`
+(made from `main` a84739a), without an LLM: classifications from `atd query`, `atd trace`, `atd
+check --full`, grep over the atoms and the chunks' files, and reading the atoms, the master spec,
+the design and the code they name. `atd lint` passes; `atd check --full` finds no dangling link
+(385 atoms). No atom was written. The three architecture captures (chunks 4, 18, 24) are made at
+the start of their chunk, once its leader has settled the design points listed below. Statuses as
+found: `module_generation_worker_cancellation` and `rule_dropped_attempt_cancelled` are STABLE
+and on the contract's surface; `module_phrase_replay_key`, `module_notation_layout_preflight`,
+`module_notation_display_convention`, `module_generation_prewarm`, `rule_seeded_phrase_reproduction`,
+`rule_look_ahead_deadline`, `rule_session_start_conditions` and `service_idle_generation_session`
+are REVIEW; the v3.0 atoms are DRAFT, except `entity_my_instrument`, `module_session_seed_plan`
+and `rule_my_instrument_range_limits` (REVIEW since the wave-1 sign-off).
+
+| Chunk | Verdict | Governing atoms | Open before code |
+| --- | --- | --- | --- |
+| 4 | PROCEED | `req_on_device_storage`, `rule_outdated_tab_stops_saving`, `rule_saved_data_belongs_to_browser_profile` (DRAFT); in the port's reach also `rule_outdated_tab_reads_what_it_can`, `rule_delete_everything`, `rule_persistent_storage_requested`, `req_your_data` (DRAFT) and the one-directory clause of `rule_ephemeral_session_state` (REVIEW) | The architecture capture (its design points below). Keep true: the chunk-3 gates as merged (`specification_browser_only_operation_verification`, STABLE); `rule_session_data_never_sent_or_stored` (REVIEW; its never-stored half is chunk 10's Part D, and chunk 4 stores nothing of a session); chunk 6's codec, which already defines the record versions (`RecordVersions`, `SETTINGS_DATA_VERSION = 1` in `src/storage/records/settings-record.ts`) and reads a record without them, or with a newer data version, as unreadable, its setting falling back to the default, never as a thrown error (`rule_saved_settings_load_tolerantly`); an outdated tab writes and deletes nothing, delete everything included. |
+| 18 | PROCEED-WITH-SIGNOFF-PENDING | `module_phrase_replay_key` (REVIEW, revised by the capture), `req_my_instrument` (DRAFT), `entity_my_instrument` (REVIEW); (v2) `rule_seeded_phrase_reproduction`, `service_headless_phrase_replay`, `module_generation_worker_protocol` (REVIEW) | First the coordinator settles the overlap with chunk 17 (plan corrections below), then the capture. The capture replaces the owner's 2026-10-01 rationale, "a later generator change may replay an older key differently, which is accepted", with what master spec item 19 and chunk 2's corpus now require: every `ifk1.` key decodes to the same phrase as in v2, and v3.1 extends this to `ifk2.` keys (master spec Part B). The key still holds no app version. The owner signs the revised text at the wave gate, since it changes a rationale he recorded. Keep true: the 87-case `ifk1.` corpus byte for byte; a built-in phrase still `ifk1.`, byte-identical; one console line per accepted phrase; no played notes and no app version in a key; the decoder sharing the worker's intent validation (no parallel schema). |
+| 19 | PROCEED-WITH-SIGNOFF-PENDING | `req_my_instrument` (DRAFT), `module_notation_layout_preflight` (REVIEW); in the files also `module_notation_display_convention` (REVIEW), `rule_my_instrument_transposition_named_interval` (DRAFT), `entity_my_instrument` (REVIEW), `rule_staff_needs_room_notice`, `rule_session_layout_fixed_at_start` (REVIEW) | `module_notation_layout_preflight` gives the system positions "one block size that depends on the viewport and never on a phrase or a profile", one named height for every profile. Chunk 19 makes that size follow my instrument's written range. The design settles this (phrase-workspace handoff, Notation Contract; [master spec §14](master-spec.md#14-deferred-and-open)), so it is not a spec gap, but the atom's guarantee changes. Proposed: the atom is revised before code, at the chunk's start (version 0.8, back to DRAFT for the owner's sign-off on the text, as for 0.5 to 0.7), not changed silently at the sync. The spelling question below goes to `spec-writer`. It holds back only the chunk's spelling assertions for a "higher" transposition, not the placement and height work. Keep true: every v2 notation test and the four snapshots; each built-in's placement (top line at 73.5 units for the saxophones, 60 for the keyboard); the 16-space size while no saved instrument needs more; the size changes only when my instrument is saved or deleted; no concert-pitch display. Verification ends with the owner's **range ruling**, which blocks chunk 20, not this chunk. |
+| 24 | HALT-NEEDS-CONTRACT-VISION-DECISION | `req_idle_pregeneration`, `rule_pregeneration_yields_to_player`, `rule_pregeneration_discarded_on_change`, `rule_start_never_waits_for_pregeneration`, `rule_pregenerated_phrase_matches_session` (DRAFT); `module_session_seed_plan` (REVIEW); (v2) `module_generation_worker_cancellation`, `rule_dropped_attempt_cancelled` (STABLE, contract surface), `rule_look_ahead_deadline`, `module_generation_prewarm` (REVIEW); in the files also `rule_session_density_only_steps_down`, `rule_tempo_never_affects_generation`, `req_last_session_review` (STABLE). **Part D:** `rule_session_start_conditions` (REVIEW, BUSINESS); drift check `service_idle_generation_session` (REVIEW) | The owner rules on `module_generation_worker_cancellation` (conflict 1 below) before the chunk is built. The chunk is last in the wave, so chunks 4, 18 and 19 run meanwhile. Then the capture. Part D against the wave-1 sync: the sync left `rule_session_start_conditions` unchanged, and its pending note (a background pre-generation is not "a new phrase being generated") still matches `rule_start_never_waits_for_pregeneration`. It is revised at the wave-2 sync with the owner's agreement. `service_idle_generation_session` 0.2 (the sync's seed-plan revision) agrees with `module_session_seed_plan`. Its "at most one operation runs at a time" must not take in a background attempt, or edits would lock and Start would wait. Keep true: the seed plan as merged (each rung's seed from the session seed and its label, nothing drawn during a session, phrase 1 exactly the Idle phrase); no deadline cancels anything at Idle; a prewarm draws nothing from the seed and request-id providers; density only steps down; tempo never feeds generation; nothing starts while a review shows; nothing is saved. |
+
+Plan corrections the preflight found (listed, not applied: none is a stale file path):
+
+- **Chunk 4.** §2's storage design and chunk 4 cite "about 8.8 kB" of entry-chunk headroom. Chunk 2
+  measured 5,759 B, and the wave-1 gate 4,840 B (entry 224,536 B of 229,376 B); the raw-IndexedDB
+  or `idb` choice weighs that figure. A `define` in `vite.config.ts` alone reaches neither
+  `vitest.config.ts` nor the workspace and notation harness configs, since none of them imports
+  `vite.config.ts`. The Atoms line lacks `rule_outdated_tab_reads_what_it_can` (the reopen without
+  a version), `rule_delete_everything` (delete everything), `rule_persistent_storage_requested`
+  (persist, persisted) and `req_your_data` (estimate). Done when's "a record without them is
+  rejected on read" must mean "unreadable", as chunk 6's codec already reads it, never a throw
+  past tolerant loading.
+- **Chunk 18.** The decoder rebuilds the intent through `rebuildGenerationWorkerIntent`
+  (`src/generation-worker/generation-worker-inbound.ts`, a chunk-17 file). Replay runs through
+  the worker runtime's own parser (`service_headless_phrase_replay`), which refuses `my-instrument`
+  until chunk 17 (`entity_my_instrument`). So any `ifk2.` round trip or replay, not only "an
+  end-to-end replay of a session phrase", needs the inbound half of [chunk 17](#chunk-17--my-instrument-across-the-worker-and-the-history).
+  Either chunk 18 takes that half (adding `generation-worker-inbound.ts` and
+  `generation-worker-protocol.ts` to its Files), or it moves after chunk 17, to wave 5. The
+  coordinator decides. Three existing tests assert that `ifk2.` is refused as unsupported:
+  `tests/unit/generation-worker/phrase-replay-key.spec.ts`, `phrase-replay.spec.ts` and
+  `tests/unit/scripts/replay-phrase-script.spec.ts`, the last outside the Files line.
+- **Chunk 19.** Scope says "the notation already transposes by a profile's chromatic and diatonic
+  pair". It reads only the chromatic count (`src/domain/notation/written-phrase.ts`); only the
+  MusicXML `<transpose>` reads the diatonic one. Done when says "the key signature … moved by its
+  transposition", but the written key is the written tonal center the player chose, the same for
+  every instrument. The transposition moves the concert key the phrase is generated in, and the
+  written notes and chord roots come back from concert pitch. "The placement helper it uses" is
+  `planStaffPlacement`, inside `notation-layout-policy.ts`. The 16-space size is the constant
+  `NOTATION_SYSTEM_POSITION_UNITS`, read by `vexflow-engraver.ts` and
+  `vexflow-two-system-engraver.ts`, with `planStaffPositions` called from `PhraseScore.vue`,
+  `ReviewPanel.vue` and `src/session/session-window.ts`, and cited in `theme.css`'s sizing note.
+  A size that varies reaches all of them.
+- **Chunk 24.** Files has no Idle-side file: `src/composables/use-generation-session.ts` publishes
+  phrase 1 with its session seed and receives the edits that discard. It has no Start-side file
+  either (`workspace-session-begin.ts`, and the session engine or runner that takes the ready
+  phrases). The abort signal is passed in `src/generation-worker/generation-worker-client.ts`.
+- **§3.** The worktree paths read `infinite_flow-v3-w<n>` and `infinite_flow-v3-c<n>`; wave 2's is
+  `infinite_flow-v3.0-w2`.
+- **Key versions** are consistent: v3.0 writes `ifk2.` for a player-made instrument only, built-ins
+  staying `ifk1.`; v3.1 writes `ifk3.` for every phrase; v3.2 writes `ifk4.`; and fde9188 (O171)
+  puts v3.3's richer chords after `ifk4.`. `ifk3.` carries my instrument "inline, as `ifk2.`
+  does", so chunk 18's choice about the name carries into `ifk3.` and `ifk4.`.
+  [build-plan-v3.2.md](build-plan-v3.2.md)'s "`main` has no `src/storage/` … no `ifk2.`" has been
+  stale since wave 1. It is left for that plan's own preflight.
+
+Conflicts and gaps:
+
+1. **For the owner (contract), blocks chunk 24.** `module_generation_worker_cancellation` (STABLE,
+   contract surface) says "a generate call with no signal is never cancelled; the Idle flow passes
+   none". `rule_pregeneration_yields_to_player` (master spec §8) has any player request at Idle
+   cancel the background attempt through that cancellation, so a background attempt must carry a
+   signal. The v3.0 change set does not list this atom. Proposed wording: "the Idle flow's player
+   requests pass none; a background pre-generation attempt passes one, aborted by any player
+   request at Idle". It needs the owner's agreement and a CONTRACT bump in the same change.
+   Altering a surfaced guarantee is MAJOR under the grid, unless the owner rules it a narrowing.
+   `rule_dropped_attempt_cancelled` (STABLE) stays true as written ("at Idle there is no
+   deadline, so nothing is cancelled *for this reason*"); no change is proposed.
+2. **Change-set gap (`documentalist`, owner's agreement at the wave-2 sync), does not block.**
+   `rule_look_ahead_deadline` (REVIEW, BUSINESS) says "phrase 2 is generated during the one-measure
+   count-in". That stops holding when phrase 2 was pre-generated. The atom has no `changes-in-v3.0`
+   tag and is not in Part D. Proposed: chunk 24's sync revises it, as Part D.
+3. **For `spec-writer`, the written spelling (chunk 19, and chunk 16's merged code).** Master spec
+   §7.1 and `rule_my_instrument_transposition_named_interval` say the letter-name steps spell the
+   notes, the key signature and the chord symbols. `module_notation_display_convention` and the
+   code (`spellWrittenKey`) spell the written key from the chosen written tonal center by the
+   fewest accidentals, ties toward sharps, and never read the steps. The two differ, for example,
+   for "6 semitones higher" with concert C. The code writes F♯ major; an augmented fourth below C
+   is G♭ major. Which one holds?
+4. **For `ux-writer`:** none found.
+
+Design points each capture waits for:
+
+- **Chunk 4** (new ARCHITECTURE atom or atoms; parents among `req_on_device_storage`,
+  `rule_outdated_tab_stops_saving`, `rule_outdated_tab_reads_what_it_can`,
+  `rule_saved_data_belongs_to_browser_profile`, `rule_ephemeral_session_state`,
+  `rule_delete_everything`, `rule_persistent_storage_requested`). The scope: §2's directory and
+  port, database and stores, record envelope and migrations, and outdated-tab detection. The hold
+  and "saving off" are chunk 5's. One atom, or a MODULE plus an ENTITY for the envelope? Is the
+  database's data version the records' `dataVersion`, one number or one per store, and does
+  `RecordVersions` move to `record-envelope.ts`? "Read-only" has no IndexedDB counterpart: the
+  port refuses every write and delete once outdated, delete everything included, while a visit
+  whose read failed may still delete everything (chunk 5's rule, but the port's error kinds must
+  allow it). The store list is fixed now, since a later store needs an upgrade step. Raw
+  IndexedDB or `idb`, against 4,840 B of headroom. How the app version reaches tests and harnesses.
+  Is "`src/session/` and `src/export/` never import `src/storage/`" enforced by a gate (none
+  exists) or left to review and the storage-free test? Links: the storage files link the new
+  atom. The chunk-3 gate entries (the `src/storage/` override in `eslint.config.js`, the
+  directory-scoped entry in `scripts/verify-boundaries.mjs`) link `req_on_device_storage`
+  today; whether they also link the new atom is the sync's call.
+- **Chunk 18** (revision of `module_phrase_replay_key`). Is the display name in `ifk2.`? The
+  generator-facing profile carries it (`entity_my_instrument`). Leaving it out needs a decode-side
+  rule for the name, or the name leaves that profile, or "encoding then decoding returns an equal
+  intent" no longer holds. Putting it in places player text in a console line (local only) and,
+  later, in `ifk3.` and `ifk4.`. What does the inline instrument hold: my instrument's owning
+  fields (written range, transposition as octaves, semitones and direction, and the template only
+  if it affects generation) rebuilt through `makeMyInstrument`, or the derived profile checked by
+  rebuild-and-compare? The tuple shape: an eighth slot, or the instrument in place of the id. The
+  refusals: an `ifk2.` key naming a built-in, an `ifk1.` key naming `my-instrument`. Who changes
+  the shared rebuild (the chunk-17 overlap)? The `keyVersion` union and the console line's
+  `ifk1.`-only pattern. The restated per-version replay guarantee.
+- **Chunk 24** (new ARCHITECTURE atom for the Idle background queue, after the owner's ruling).
+  Which calls carry an abort signal, and who aborts them? Is the cancellation's prewarm of the
+  cancelled intent wanted for a background attempt? A background attempt is not an operation of
+  `service_idle_generation_session`. Seeds: phrases 2 to 5 take the plan's rung seeds with no
+  deadline, the standalone rung only after every carry-in rung fails. The mutation seed is derived
+  at Idle when Vary settings is on, and `module_session_seed_plan` says "at Start", which needs a
+  wording revision (REVIEW, owner's sign-off). Request ids are drawn at Idle from the page-wide
+  provider, so "identical" with pre-generation on and off compares timelines and seeds, request
+  ids aside. If `rule_pregenerated_phrase_matches_session`'s "the same request" is meant to
+  include the id, that is a question for `spec-writer`. Pre-generation is not a prewarm: it never
+  reuses the prewarm's fixed seed and id. Also to settle: where the ready phrases live and how
+  Start hands them over (`SessionStart`); where the session's look-ahead resumes; how a ready
+  phrase is checked against the layout the session holds; the discard triggers, tempo and Rising
+  tempo excluded; the window re-check from the first phrase that no longer fits; stopping and
+  resuming around a review; when a pre-generated phrase's replay key is emitted (at generation,
+  or when spent, a discarded one never); and starting only after the prewarm.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
