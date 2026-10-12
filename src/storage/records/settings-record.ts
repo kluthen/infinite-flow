@@ -46,6 +46,7 @@ import {
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
+import { readEnvelope, type RecordVersions } from '@/storage/record-envelope'
 
 import {
   defaultSettings,
@@ -91,16 +92,6 @@ export type SettingValue<K extends SettingKey> = K extends `${infer G}.${infer F
   : K extends keyof SavedSettings
     ? SavedSettings[K]
     : never
-
-/**
- * The two fields every stored record carries, whatever it holds: the data version of its shape
- * and the version of the app that wrote it.
- */
-// @spec-link [[rule_outdated_tab_reads_what_it_can]]
-export interface RecordVersions {
-  readonly dataVersion: number
-  readonly appVersion: string
-}
 
 /** One saved setting: its key, its value and the versions it was written with. */
 // @spec-link [[rule_settings_saved_on_change]]
@@ -335,10 +326,7 @@ const RECORD_FIELDS = ['key', 'dataVersion', 'appVersion', 'value'] as const
  */
 function storedValue(record: Record<string, unknown>): unknown {
   if (!hasExactKeys(record, RECORD_FIELDS)) return UNREADABLE
-  const { dataVersion, appVersion } = record
-  if (typeof dataVersion !== 'number' || !Number.isInteger(dataVersion)) return UNREADABLE
-  if (dataVersion !== SETTINGS_DATA_VERSION) return UNREADABLE
-  if (typeof appVersion !== 'string' || appVersion === '') return UNREADABLE
+  if (readEnvelope(record, SETTINGS_DATA_VERSION) !== 'current') return UNREADABLE
   return record.value
 }
 

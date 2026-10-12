@@ -92,7 +92,8 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   export file; `musicxml/` holds the generated-notes MusicXML encoder, `midi/` the generated-notes
   and played-notes MIDI encoders; `generated-notes-file.ts` builds the one file the Review
   downloads (loaded on demand through `load-generated-notes-export.ts`), and `browser-download.ts`
-  hands it to the browser. See [`docs/export.md`](docs/export.md).
+  hands it to the browser. It never imports `src/storage/` (enforced by ESLint). See
+  [`docs/export.md`](docs/export.md).
 - `src/session/` — the session engine: pure, deterministic, Vue/browser-free logic that turns a
   running session's timed events (audio time in seconds, carried on each event, never read from a
   clock) into generation requests, fit checks, read-ahead phrases, the struggling notice and the
@@ -108,8 +109,9 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   (`session-settings-change.ts`, `session-mutation-step.ts`, `session-engine-state.ts`) and the
   carry-in adapted to a change (`carry-in-adaptation.ts`); and adaptive tempo, its pure schedule
   (`adaptive-tempo.ts`) and each phrase's tempo fixed at its deadline (`session-tempo-step.ts`);
-  and the multi-phrase tension arc's four-phrase cycle (`tension-arc-cycle.ts`).
-  See [`docs/session-engine.md`](docs/session-engine.md).
+  and the multi-phrase tension arc's four-phrase cycle (`tension-arc-cycle.ts`). It never
+  imports `src/storage/` (enforced by ESLint). See
+  [`docs/session-engine.md`](docs/session-engine.md).
 - `src/audio/` — the audio transport, and the only place allowed to use Web Audio (see Runtime
   Constraints): the app's one `AudioContext`, created on the player's click, the look-ahead
   scheduler and its Web Worker wake-up timer, the click and count-in, the backing's timing and
@@ -141,7 +143,8 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   reference, not buildable production styling.
 - `tests/unit` — Vitest/Vue Test Utils unit, component, and property-based coverage, mirroring
   `src/`'s structure. `tests/unit/boundaries/` checks the browser-API rules of `eslint.config.js`
-  and `scripts/verify-boundaries.mjs`; it is type-checked with the Node config
+  and `scripts/verify-boundaries.mjs`, and the ESLint ban on `src/session/` and `src/export/`
+  importing `src/storage/`; it is type-checked with the Node config
   (`tsconfig.node.json`) because it imports the `.mjs` script.
 - `tests/fixtures/boundaries/src/` — small source files laid out like `src/` (`audio/`, `midi/`,
   `storage/`, `session/`, `export/`, `components/`, `other/`) that call the restricted browser APIs
@@ -173,16 +176,22 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   the controller that picks one input and follows it through an unplug and back, and the header's
   status form folded from it (`controller-status.ts`). See [`docs/midi-input.md`](docs/midi-input.md).
 - `src/storage/` — on-device storage, and the only place allowed to use IndexedDB and
-  `navigator.storage` (see Runtime Constraints). The boundary gates already allow it; no
-  application code lives there yet.
-- `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier, and
+  `navigator.storage` (see Runtime Constraints): the storage port (`storage-port.ts`), the one
+  `infinite-flow` database with its seven stores and migration steps over raw IndexedDB
+  (`database.ts`), the record envelope every record's versions are read and checked through
+  (`record-envelope.ts`), the app version records carry (`app-version.ts`), and the record codecs
+  (`records/`, the settings codec so far). The rest of the app reaches it only through an injected
+  port; nothing imports the port yet. See [`docs/storage.md`](docs/storage.md).
+- `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier;
   `replay-phrase.mjs`, the headless phrase replay behind `npm run replay:phrase` (see
-  [Phrase replay key](docs/phrase-workspace.md#phrase-replay-key)).
+  [Phrase replay key](docs/phrase-workspace.md#phrase-replay-key)); and `app-version-define.mjs`,
+  the build-time `define` of the app version for the Vite and Vitest configs (see
+  [The app version](docs/storage.md#the-app-version)).
 - `public/licenses/` — vendored full license texts for every runtime third-party component,
   copied into `dist/licenses/` at build time; see [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
 - `docs/` — ATD-linked business-intent atoms plus narrative docs (architecture, notation,
   generation latency, the phrase workspace, the session engine, the audio transport, MIDI input,
-  MIDI tuning, the controller connection, and `docs/release/*`).
+  MIDI tuning, the controller connection, on-device storage, and `docs/release/*`).
 - `specs/` — the first-release master spec, implementation plan, generator architecture and
   contract, and roadmap/open-questions.
 - `ui_ux/` — the approved interaction/visual authority: each released version's design, frozen, in
@@ -217,6 +226,8 @@ for each of `src/audio/`, `src/midi/` and `src/storage/`), run by `npm run lint`
 scan in `scripts/verify-boundaries.mjs`, run by `npm run verify:boundaries`. The no-recorded-sound
 rule is checked by `verify:boundaries` alone, in its source scan and in a scan of every file in
 `dist/`.
+ESLint alone also keeps `src/session/` and `src/export/` storage-free: a `no-restricted-imports`
+override rejects any import of `src/storage/` there, by the `@/storage` alias or a relative path.
 In the running app,
 `tests/e2e/release/optional-scope-absence.spec.ts` checks that no audio context is created and no
 MIDI access is requested before the player clicks `Start session` or `Connect controller` (the
@@ -398,7 +409,7 @@ workspace's component tree, session wiring, state map, and Worker protocol in de
 | --------------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Install reproducibility                 | `npm ci`                                | Lockfile-only dependency installation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | The committed lockfile alone reproduces the dependency tree.                                                                                                                                                                                                                                                                                     |
 | Formatting                              | `npm run format:check`                  | Authored app, tests, scripts, config, and `docs/release`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Source is Prettier-formatted; no unformatted diff can land.                                                                                                                                                                                                                                                                                      |
-| Static analysis                         | `npm run lint && npm run typecheck`     | Flat ESLint (including the boundary `no-restricted-*` rules) and strict TypeScript/Vue                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | No lint violations (including the optional-scope/persistence lint mirror) and no type errors.                                                                                                                                                                                                                                                    |
+| Static analysis                         | `npm run lint && npm run typecheck`     | Flat ESLint (including the boundary `no-restricted-*` rules and the storage-free `src/session/` and `src/export/`) and strict TypeScript/Vue                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | No lint violations (including the optional-scope/persistence lint mirror) and no type errors.                                                                                                                                                                                                                                                    |
 | Code health                             | `npm run lint:health`                   | Authored source, tests and scripts: file size, control-flow nesting, intent comments on functions, and `@spec-link`/`@test-link` presence (`CODING_RULE.md` §6)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | No file over the size or nesting ceiling, no exported function without an intent comment, and every business file linked to its atoms; warnings are reported, not blocking.                                                                                                                                                                      |
 | Unit/component/property                 | `npm run test:unit`                     | Vitest across `tests/unit/**`: domain logic, composables, components, worker handler                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Domain rules, session state machine, and component contracts hold, including property-based coverage (e.g. `planner-validator-property.spec.ts`) and the byte-identical generation-outcome golden fixture.                                                                                                                                       |
 | Production artifact                     | `npm run build`                         | Strict typecheck, then the static browser bundle and generated PWA files                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | The app builds cleanly and emits `dist/` plus `dist/sw.js`.                                                                                                                                                                                                                                                                                      |

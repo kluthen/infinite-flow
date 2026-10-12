@@ -1,7 +1,8 @@
 ---
 id: rule_outdated_tab_reads_what_it_can
 status: DRAFT
-dependents: []
+dependents:
+  - [[module_on_device_database]]
 type: RULE
 version: 0.1
 human_name: An Outdated Tab Reads What It Can

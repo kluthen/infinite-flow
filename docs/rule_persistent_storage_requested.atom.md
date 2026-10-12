@@ -3,7 +3,8 @@ id: rule_persistent_storage_requested
 status: DRAFT
 parents:
   - [[req_on_device_storage]]
-dependents: []
+dependents:
+  - [[module_on_device_database]]
 layer: BUSINESS
 version: 0.2
 priority: 1
