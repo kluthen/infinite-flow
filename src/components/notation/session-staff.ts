@@ -6,7 +6,11 @@
  */
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
-import type { StaffLayout, StaffViewport } from '@/notation/notation-layout-policy'
+import {
+  NOTATION_SYSTEM_POSITION_UNITS,
+  type StaffLayout,
+  type StaffViewport,
+} from '@/notation/notation-layout-policy'
 import type { ScoreOverlays } from '@/notation/score-overlays'
 import {
   slotKey,
@@ -65,12 +69,17 @@ export function idleSlot(
 }
 
 /**
- * Intent: the comparison key of the inputs a system is engraved with: the container width and the
- * viewport drawn in, so an Idle engraving and a session's, in the same layout, compare equal.
+ * Intent: the comparison key of the inputs a system is engraved with: the container width, the
+ * viewport drawn in and the shared system-position size (the built-in one by default), so an Idle
+ * engraving and a session's, in the same layout, compare equal.
  */
 // @spec-link [[module_session_staff_refill]]
-export function engravingKey(containerWidthPx: number, viewport: StaffViewport): string {
-  return `${containerWidthPx}|${viewport.layout}|${viewport.heightBudgetPx ?? 'none'}`
+export function engravingKey(
+  containerWidthPx: number,
+  viewport: StaffViewport,
+  systemPositionUnits: number = NOTATION_SYSTEM_POSITION_UNITS,
+): string {
+  return `${containerWidthPx}|${viewport.layout}|${viewport.heightBudgetPx ?? 'none'}|${systemPositionUnits}`
 }
 
 /** Intent: the key of the slot a position shows, or null for a blank position. */

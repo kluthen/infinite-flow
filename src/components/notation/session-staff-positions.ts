@@ -163,6 +163,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
     return engravingKey(
       inputs.containerWidthPx,
       heldViewport(inputs.viewport, requireStaff().layout),
+      inputs.systemPositionUnits,
     )
   }
 
@@ -212,7 +213,11 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
         unit,
         svg,
         system: { ...slot, phrase },
-        inputsKey: engravingKey(inputs.containerWidthPx, inputs.viewport),
+        inputsKey: engravingKey(
+          inputs.containerWidthPx,
+          inputs.viewport,
+          inputs.systemPositionUnits,
+        ),
       }
     })
   }
@@ -231,7 +236,8 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
 
   /**
    * Intent: engrave one session system into a new host in the staging area, at the current inputs
-   * in the held viewport. Throws the engraver's typed NotationError, leaving no host behind.
+   * (their shared system-position size included) in the held viewport. Throws the engraver's
+   * typed NotationError, leaving no host behind.
    */
   function stage(
     engraver: VexflowEngraverModule,
@@ -250,6 +256,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
         system.part,
         inputs.containerWidthPx,
         heldViewport(inputs.viewport, requireStaff().layout),
+        inputs.systemPositionUnits,
       )
       return { host, svg: result.svg, inputsKey: sessionKey(inputs) }
     } catch (error) {

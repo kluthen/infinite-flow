@@ -176,11 +176,16 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
     return inputs
   }
 
-  /** Intent: whether `phrase` fits the held layout in the window's budget at `inputs`. */
+  /**
+   * Intent: whether `phrase` fits the held layout in the window's budget at `inputs`, with the
+   * shared system-position size they carry.
+   */
   // @spec-link [[rule_session_layout_fixed_at_start]]
   function fits(plan: StaffFitPlanner, phrase: WrittenPhrase, inputs: StaffLayoutInputs): boolean {
     const viewport = heldViewport(inputs.viewport, heldLayout)
-    return plan(phrase, inputs.containerWidthPx, viewport).kind === 'fits'
+    return (
+      plan(phrase, inputs.containerWidthPx, viewport, inputs.systemPositionUnits).kind === 'fits'
+    )
   }
 
   /**

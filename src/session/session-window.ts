@@ -4,7 +4,8 @@
  * session because the staff can no longer be shown. A portrait-shaped view below bp-desktop ends
  * it (the rotate-device notice replaces the workspace there); so does a size at which the HELD
  * layout has no room at the legibility floor, judged with the planner's own phrase-independent
- * room check: too narrow, or, only while the window is below bp-tablet-landscape, too short. The
+ * room check: too narrow, or, only while the window is below bp-tablet-landscape, too short for two
+ * system positions of the shared system-position size the staff is drawn with. The
  * held layout may differ from the one the current width would choose (a split layout held across
  * a bp-tablet-landscape crossing is still judged as split, and a one-system layout held below it
  * must fit the window's height budget as the split one would). This covers the window only; whether
@@ -50,6 +51,11 @@ export interface SessionWindowInput {
    * viewport height); null from bp-tablet-landscape up, where no height budget exists.
    */
   readonly heightBudgetPx: number | null
+  /**
+   * The shared system-position size the staff is drawn with, in engraving units
+   * (`planSystemPositionUnits`); the built-in size when absent.
+   */
+  readonly systemPositionUnits?: number
 }
 
 /** Intent: guard a measured size is a finite positive number, naming it in the error. */
@@ -97,8 +103,8 @@ export function isPortraitBelowDesktop(
  * First a portrait-shaped view (height at least the width, as CSS `orientation: portrait`) below
  * bp-desktop; then, in the planner's own order, the height room at the floor (while the window is
  * below bp-tablet-landscape, for either held layout: the held layout drawn in the window's height
- * budget) and the held layout's width room at the floor. Throws on a non-positive size and on a
- * window below bp-tablet-landscape given no height budget.
+ * budget, at the shared system-position size) and the held layout's width room at the floor. Throws
+ * on a non-positive size and on a window below bp-tablet-landscape given no height budget.
  */
 // @spec-link [[rule_session_ends_on_portrait_view]]
 // @spec-link [[rule_session_ends_when_staff_too_small]]
@@ -111,10 +117,10 @@ export function windowEndsSession(input: SessionWindowInput): SessionWindowEnd |
     throw new Error('session window: no height budget below bp-tablet-landscape')
   }
   if (belowTabletLandscape) {
-    const positions = planStaffPositions({
-      layout: input.heldLayout,
-      heightBudgetPx: input.heightBudgetPx,
-    })
+    const positions = planStaffPositions(
+      { layout: input.heldLayout, heightBudgetPx: input.heightBudgetPx },
+      input.systemPositionUnits,
+    )
     if (positions.kind === 'no_room') return 'too_short'
   }
   const tooNarrow = planStaffWidthRoom({

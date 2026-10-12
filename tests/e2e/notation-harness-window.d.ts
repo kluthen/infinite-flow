@@ -56,8 +56,15 @@ interface NotationHarnessState {
     positionBlockPx: number
   }
   /**
-   * Where the phrase's instrument places the staff in its system position (engraving units from the
-   * position's top edge: the staff's top line), published with every ready state.
+   * The shared system-position size the phrase was engraved with, in engraving units at scale 1:
+   * the built-in 160 unless the URL names a player-made instrument or a saved range (then
+   * `planSystemPositionUnits` of that written range), published with every ready state.
+   */
+  systemPositionUnits?: number
+  /**
+   * Where the phrase's instrument places the staff in its system position of
+   * `systemPositionUnits` (engraving units from the position's top edge: the staff's top line),
+   * published with every ready state.
    */
   staffTopLineUnits?: number
   /**
@@ -103,6 +110,8 @@ interface NotationHarnessLayoutInputs {
     readonly layout: 'one-system' | 'split'
     readonly heightBudgetPx: number | null
   }
+  /** The shared system-position size, in engraving units, when PhraseScore is given one. */
+  readonly systemPositionUnits?: number
 }
 
 /** A key signature as the room check takes it (WrittenKey['signature'], serialisable). */

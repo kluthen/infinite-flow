@@ -45,12 +45,16 @@ export interface SessionControllerClock {
   readonly frames: FramePort
 }
 
-/** The staff planner's fit check of a written phrase, drawing nothing; the engraver's own. */
+/**
+ * The staff planner's fit check of a written phrase, drawing nothing; the engraver's own. The
+ * shared system-position size is the built-in one when not given.
+ */
 // @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
 export type StaffFitPlanner = (
   phrase: WrittenPhrase,
   containerWidthPx: number,
   viewport: StaffViewport,
+  systemPositionUnits?: number,
 ) => StaffFitVerdict
 
 /**

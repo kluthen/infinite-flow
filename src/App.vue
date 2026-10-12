@@ -62,6 +62,7 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <!-- No my instrument is saved yet, so its written range is null; chunk 20's record feeds it. -->
   <WorkspaceShell
     :session="workspace.session"
     :pending-phrase="workspace.pendingPhrase.value"
@@ -72,6 +73,7 @@ onUnmounted(() => {
     :audio="workspace.audio"
     :midi="workspace.midi"
     :controller="sessionController"
+    :saved-my-instrument-written-range="null"
     @connection-sheet-open-change="handleConnectionSheetOpenChange"
   />
 </template>
