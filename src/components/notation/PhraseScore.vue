@@ -15,16 +15,19 @@ export interface EngravedPayload {
 /**
  * The staff's two reserved system positions and the engraving surface that fills them. Mounted
  * inside `staff-frame` in every state, with or without a phrase, so the staff area always holds
- * both positions at one block size set from the viewport, never from a phrase. With a phrase, it
+ * both positions at one block size set from the viewport and the shared system-position size it
+ * is given (`systemPositionUnits`, from the instruments' written ranges; the built-in size when
+ * none is given), never from a phrase. With a phrase, it
  * loads the VexFlow engraver through a lazy `import()` boundary (see
  * notation/vexflow-engraver-loader.ts), waits for notation fonts, engraves each system into a
  * hidden staging host and only swaps them into their positions once the whole phrase succeeds, so
  * a failure never leaves a partial staff on screen. A failed module load is retried on the next
  * engrave (a new phrase, a Retry, or a real change of the layout inputs). Below the tablet-landscape breakpoint the height budget is read from the frame's
  * computed `max-block-size` (built from the small viewport height) minus its padding and border.
- * It re-engraves when the phrase changes, or when the container width, the height budget or the
- * layout changes, coalesced to one check per frame; any other viewport signal, such as a browser
- * toolbar showing or hiding, leaves the staff untouched. Every successful swap is paired with an
+ * It re-engraves when the phrase changes, or when the container width, the height budget, the
+ * layout or the shared system-position size changes, coalesced to one check per frame; any other
+ * viewport signal, such as a browser toolbar showing or hiding, leaves the staff untouched. Every
+ * successful swap is paired with an
  * accessible text description of the same written phrase (a failed or superseded engrave always
  * clears it first). The default slot is laid over the positions, for the frame's own messages.
  * The overlay state (start marker, playhead band, acknowledged notes) is drawn onto the engraved
@@ -32,7 +35,8 @@ export interface EngravedPayload {
  * state changes, without re-engraving; a re-engrave therefore keeps the overlays. While a new
  * phrase or phrase number waits for its engraving, the previous score is never drawn on: the
  * engraving draws the overlay state current at its swap. It reports its layout inputs (the
- * container width and the viewport) at its first measurement and whenever they really change,
+ * container width, the viewport and, when given, the shared system-position size) at its first
+ * measurement and whenever they really change,
  * with or without a phrase and before any engraving, so the workspace can check a phrase's fit or
  * the staff's room before it draws anything.
  * Given a running session (`session`), it shows that instead, through the positions keeper
@@ -77,8 +81,14 @@ const props = withDefaults(
     overlays?: ScoreOverlays
     /** The running session's staff, shown instead of `phrase`; null at Idle. */
     session?: SessionStaff | null
+    /**
+     * The shared system-position size, in engraving units (`planSystemPositionUnits`), which the
+     * workspace always passes; null by default: the built-in size, and the reported inputs carry
+     * none.
+     */
+    systemPositionUnits?: number | null
   }>(),
-  { overlays: () => NO_SCORE_OVERLAYS, session: null },
+  { overlays: () => NO_SCORE_OVERLAYS, session: null, systemPositionUnits: null },
 )
 
 // @spec-link [[module_session_staff_engraving_outcomes]]
@@ -156,11 +166,16 @@ function readViewport(frame: HTMLElement): StaffViewport {
   return { layout: 'split', heightBudgetPx: parseFloat(style.maxBlockSize) - chrome }
 }
 
-/** Intent: read the current layout inputs, or null before the root element exists. */
+/**
+ * Intent: read the current layout inputs, or null before the root element exists: the measured
+ * container width and viewport, with the shared system-position size when one is given.
+ */
 function readLayoutInputs(): StaffLayoutInputs | null {
   const root = rootEl.value
   if (!root) return null
-  return { containerWidthPx: root.clientWidth, viewport: readViewport(staffFrame(root)) }
+  const measured = { containerWidthPx: root.clientWidth, viewport: readViewport(staffFrame(root)) }
+  const units = props.systemPositionUnits
+  return units === null ? measured : { ...measured, systemPositionUnits: units }
 }
 
 /** Intent: report the layout inputs through `layout-inputs` when they differ from the last report. */
@@ -172,12 +187,13 @@ function reportLayoutInputs(inputs: StaffLayoutInputs): void {
 }
 
 /**
- * Intent: size both reserved positions for the viewport, whatever the phrase. With no room in the
- * window's height budget, the two positions share the whole budget, so the frame sits at its
- * maximum; only a height budget can leave no room for the positions.
+ * Intent: size both reserved positions for the viewport and the shared system-position size,
+ * whatever the phrase. With no room in the window's height budget, the two positions share the
+ * whole budget, so the frame sits at its maximum; only a height budget can leave no room for the
+ * positions.
  */
-function sizePositions(viewport: StaffViewport): void {
-  const positions = planStaffPositions(viewport)
+function sizePositions(viewport: StaffViewport, systemPositionUnits: number | undefined): void {
+  const positions = planStaffPositions(viewport, systemPositionUnits)
   if (positions.kind === 'room') {
     positionBlockPx.value = positions.positionBlockPx
     return
@@ -251,6 +267,7 @@ function engrave(phrase: WrittenPhrase, inputs: StaffLayoutInputs): void {
       props.phraseNumber,
       inputs.containerWidthPx,
       inputs.viewport,
+      inputs.systemPositionUnits,
     )
     const summary = describeWrittenPhrase(phrase)
     labelSystems(result.svgs, summary.summary)
@@ -343,11 +360,11 @@ async function checkLayout(force: boolean): Promise<void> {
   if (showsSession) {
     // A session prop already gone is about to be left, with a forced check of its own.
     if (props.session === null) return
-    sizePositions(heldViewport(inputs.viewport, props.session.layout))
+    sizePositions(heldViewport(inputs.viewport, props.session.layout), inputs.systemPositionUnits)
     positions.relayout()
     return
   }
-  sizePositions(inputs.viewport)
+  sizePositions(inputs.viewport, inputs.systemPositionUnits)
   const phrase = props.phrase
   if (phrase === null) {
     lastEngravedInputs = null
@@ -446,6 +463,9 @@ function redrawOverlays(): void {
 }
 
 watch([() => props.phrase, () => props.phraseNumber], () => scheduleCheck(true))
+// A new shared size (my instrument saved or deleted) is a changed layout input: the check reports
+// it, re-sizes the positions and re-engraves.
+watch(() => props.systemPositionUnits, handleViewportSignal)
 watch(() => props.overlays, redrawOverlays, { deep: true })
 watch(() => props.session, followSession)
 

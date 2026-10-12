@@ -432,10 +432,11 @@ describe("planStaffPlacement: the staff placed in its position by the profile's 
   })
 
   it('derives the placement from the range alone: a range reaching higher gets more room above the staff', () => {
+    // Two-octave ranges, whose phrases' beam groups span at most an octave, as the base's.
     const base = planStaffPlacement({ minMidi: 60, maxMidi: 84 })
-    const higher = planStaffPlacement({ minMidi: 60, maxMidi: 88 })
+    const higher = planStaffPlacement({ minMidi: 64, maxMidi: 88 })
     // Written E3: low enough that its ledger lines, not a down-stemmed beam, set the lowest ink.
-    const lower = planStaffPlacement({ minMidi: 52, maxMidi: 84 })
+    const lower = planStaffPlacement({ minMidi: 52, maxMidi: 76 })
     expect(higher.staffTopLineUnits).toBeGreaterThan(base.staffTopLineUnits)
     expect(lower.staffTopLineUnits).toBeLessThan(base.staffTopLineUnits)
   })

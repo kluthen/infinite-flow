@@ -16,7 +16,10 @@ import { describeWrittenPhrase } from '@/domain/notation/score-description'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { isStaffLayoutFailure, NotationError } from '@/notation/notation-error'
-import type { StaffViewport } from '@/notation/notation-layout-policy'
+import {
+  NOTATION_SYSTEM_POSITION_UNITS,
+  type StaffViewport,
+} from '@/notation/notation-layout-policy'
 import type { SessionHistoryRecord } from '@/session/session-history'
 import type { PlayedNotesPitchScale } from './played-notes-lane-geometry'
 import {
@@ -31,21 +34,26 @@ import type { ReviewEngraver, ReviewStaffReservation } from './review-types'
 // @spec-link [[req_last_session_review]]
 // @spec-link [[rule_repeat_phrase_marked_internally_only]]
 // @spec-link [[rule_review_played_notes_toggle]]
-const props = defineProps<{
-  /**
-   * The phrase's record. The staff reads only its number, tempo, outcome and intent; the lanes
-   * read its start, tempo and played notes, and only while Played notes is on.
-   */
-  record: SessionHistoryRecord
-  /** The workspace staff's viewport; null until it is known. */
-  viewport: StaffViewport | null
-  /** The positions to reserve, the same for every phrase; null until the viewport is known. */
-  reservation: ReviewStaffReservation | null
-  /** Whether Played notes is on: each position is followed by its lane, its space reserved. */
-  playedNotesShown: boolean
-  /** The session-wide pitch scale of the lanes; null for a session without a played note. */
-  pitchScale: PlayedNotesPitchScale | null
-}>()
+const props = withDefaults(
+  defineProps<{
+    /**
+     * The phrase's record. The staff reads only its number, tempo, outcome and intent; the lanes
+     * read its start, tempo and played notes, and only while Played notes is on.
+     */
+    record: SessionHistoryRecord
+    /** The workspace staff's viewport; null until it is known. */
+    viewport: StaffViewport | null
+    /** The positions to reserve, the same for every phrase; null until the viewport is known. */
+    reservation: ReviewStaffReservation | null
+    /** Whether Played notes is on: each position is followed by its lane, its space reserved. */
+    playedNotesShown: boolean
+    /** The session-wide pitch scale of the lanes; null for a session without a played note. */
+    pitchScale: PlayedNotesPitchScale | null
+    /** The workspace staff's shared system-position size, in engraving units; 160 by default. */
+    systemPositionUnits?: number
+  }>(),
+  { systemPositionUnits: NOTATION_SYSTEM_POSITION_UNITS },
+)
 
 /** Which note stands in place of the engraving, if any. */
 type PhraseNote = 'needs-wider-window' | 'failed'
@@ -145,11 +153,11 @@ function labelSystems(svgs: readonly SVGSVGElement[], summary: string): void {
 /**
  * Intent: draw the phrase as it was shown, its written phrase computed from the stored outcome
  * and intent only now, into a new `staff-content` in each reserved position, at the review
- * staff's content width in the current viewport, replacing what was there. A layout failure (no
- * room, or notes too wide at this width) shows the "wider window" note, any other notation
- * failure the "couldn't be drawn" one; anything else is a defect and throws. A note is removed
- * first, so the positions are rendered to draw in. Null, drawing nothing, when the phrase was
- * unmounted or the viewport became unknown meanwhile.
+ * staff's content width in the current viewport and shared system-position size, replacing what
+ * was there. A layout failure (no room, or notes too wide at this width) shows the "wider window"
+ * note, any other notation failure the "couldn't be drawn" one; anything else is a defect and
+ * throws. A note is removed first, so the positions are rendered to draw in. Null, drawing
+ * nothing, when the phrase was unmounted or the viewport became unknown meanwhile.
  * Only the stored phrase reaches the engraver, whether Played notes is on or off: no played note,
  * acknowledgement, start marker or playhead is drawn on the staff, and the repeat mark is never
  * read. A successful engraving keeps what the lanes are drawn against (the written phrase, its
@@ -165,7 +173,7 @@ async function engrave(engraver: ReviewEngraver): Promise<ReviewEngravingOutcome
     note.value = null
     await nextTick()
   }
-  const { viewport, reservation, record } = props
+  const { viewport, reservation, record, systemPositionUnits } = props
   const staff = staffEl.value
   if (unmounted || viewport === null || reservation === null || staff === null) return null
   const hosts = positionHosts(reservation)
@@ -185,6 +193,7 @@ async function engrave(engraver: ReviewEngraver): Promise<ReviewEngravingOutcome
       record.phraseNumber,
       staff.clientWidth,
       viewport,
+      systemPositionUnits,
     )
     labelSystems(result.svgs, describeWrittenPhrase(phrase).summary)
     laneSource.value = {

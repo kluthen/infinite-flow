@@ -166,7 +166,8 @@ all; a reference figure only, which gates nothing until the owner's range ruling
 
 No range case fails: the generator places every phrase inside the derived register windows
 whatever their position or width. The written-range bound for the staff height is the other half
-of M3, measured with the engraving calibration and recorded in `notation-engraving.md`.
+of M3, measured with the engraving calibration and recorded in
+[`notation-engraving.md`](notation-engraving.md#my-instruments-written-range-m3-2026-10-12).
 
 ## Failure-ladder reserve constants (2026-10-07)
 

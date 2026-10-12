@@ -4,13 +4,13 @@
  * generated-notes export (Format, Backing track for MIDI, and the export button), and, when the
  * session holds a played note, the played-notes export button and the Played notes switch (its
  * state held by the page; while on, each phrase draws its played-notes lanes on one session-wide
- * pitch scale), then the list of the session's phrases in order, each engraved lazily
- * as it comes near the visible area (see ./review-engraving-window.ts) in positions reserved at
- * the workspace staff's size, so a review of any length stays responsive and never moves the page
- * as phrases are drawn. While the workspace staff has no room, the room notice stands in for the
- * list. Everything it shows comes from the session history it is given; it holds each export's
- * state only while its file is built (see ./use-review-export-action.ts), the two exports running
- * independently and sharing one error.
+ * pitch scale), then the list of the session's phrases in order, each engraved lazily as it comes
+ * near the visible area (see ./review-engraving-window.ts) in positions reserved at the workspace
+ * staff's size (its viewport and shared system-position size), so a review of any length stays
+ * responsive and never moves the page as phrases are drawn. While the workspace staff has no room,
+ * the room notice stands in for the list. Everything it shows comes from the session history it is
+ * given; it holds each export's state only while its file is built (see
+ * ./use-review-export-action.ts), the two exports running independently and sharing one error.
  */
 import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 
@@ -18,7 +18,11 @@ import SegmentedControl from '@/components/controls/SegmentedControl.vue'
 import type { SegmentedControlOption } from '@/components/controls/segmented-control-option'
 import { ROOM_NOTICE_NARROW, ROOM_NOTICE_WIDE } from '@/components/notation/room-notice-copy'
 import { NotationError } from '@/notation/notation-error'
-import { planStaffPositions, type StaffViewport } from '@/notation/notation-layout-policy'
+import {
+  NOTATION_SYSTEM_POSITION_UNITS,
+  planStaffPositions,
+  type StaffViewport,
+} from '@/notation/notation-layout-policy'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
 import type { SessionHistoryRecord } from '@/session/session-history'
 import ReviewPhrase from './ReviewPhrase.vue'
@@ -39,28 +43,36 @@ import type {
 
 // @spec-link [[req_last_session_review]]
 // @spec-link [[req_session_export]]
-const props = defineProps<{
-  /** The session's phrases in the order they started sounding; at least one. */
-  records: readonly SessionHistoryRecord[]
-  /** The session's instrument profile, as the instrument-profile control names it. */
-  instrumentName: string
-  /** The workspace staff's current viewport; null while unknown, and nothing engraves. */
-  viewport: StaffViewport | null
-  /** The workspace staff has no room: the room notice replaces the list. */
-  noRoom: boolean
-  /** The export's format, held by the page for its session. */
-  format: GeneratedNotesFormat
-  /** Whether the MIDI export holds the backing track, held by the page for its session. */
-  backingTrack: boolean
-  /** Build one file from the session history and hand it to the browser; rejects on failure. */
-  exportFile: (request: ExportRequest) => Promise<void>
-  /** The session history holds a played note in a phrase: the played-notes tools show. */
-  holdsPlayedNote: boolean
-  /** Whether the Played notes switch is on, held by the page for its session. */
-  playedNotesShown: boolean
-  /** Build the played-notes file and hand it to the browser; rejects on failure. */
-  exportPlayedNotes: () => Promise<void>
-}>()
+const props = withDefaults(
+  defineProps<{
+    /** The session's phrases in the order they started sounding; at least one. */
+    records: readonly SessionHistoryRecord[]
+    /** The session's instrument profile, as the instrument-profile control names it. */
+    instrumentName: string
+    /** The workspace staff's current viewport; null while unknown, and nothing engraves. */
+    viewport: StaffViewport | null
+    /** The workspace staff has no room: the room notice replaces the list. */
+    noRoom: boolean
+    /** The export's format, held by the page for its session. */
+    format: GeneratedNotesFormat
+    /** Whether the MIDI export holds the backing track, held by the page for its session. */
+    backingTrack: boolean
+    /** Build one file from the session history and hand it to the browser; rejects on failure. */
+    exportFile: (request: ExportRequest) => Promise<void>
+    /** The session history holds a played note in a phrase: the played-notes tools show. */
+    holdsPlayedNote: boolean
+    /** Whether the Played notes switch is on, held by the page for its session. */
+    playedNotesShown: boolean
+    /** Build the played-notes file and hand it to the browser; rejects on failure. */
+    exportPlayedNotes: () => Promise<void>
+    /**
+     * The workspace staff's shared system-position size, in engraving units
+     * (`planSystemPositionUnits`); the workspace always passes it, the built-in size by default.
+     */
+    systemPositionUnits?: number
+  }>(),
+  { systemPositionUnits: NOTATION_SYSTEM_POSITION_UNITS },
+)
 
 const emit = defineEmits<{
   'update:format': [format: GeneratedNotesFormat]
@@ -91,14 +103,18 @@ const summary = computed(() => {
 
 /**
  * Intent: the positions each phrase reserves: one system position, two in the split layout, at
- * the block size the workspace staff's positions have in this viewport; with no room in its
- * height budget, the two share the budget, as on the workspace staff.
+ * the block size the workspace staff's positions have in this viewport at the shared
+ * system-position size; with no room in its height budget, the two share the budget, as on the
+ * workspace staff.
  */
 // @spec-link [[req_last_session_review]]
-function reviewStaffReservation(viewport: StaffViewport | null): ReviewStaffReservation | null {
+function reviewStaffReservation(
+  viewport: StaffViewport | null,
+  systemPositionUnits: number,
+): ReviewStaffReservation | null {
   if (viewport === null) return null
   const positionCount = viewport.layout === 'split' ? 2 : 1
-  const positions = planStaffPositions(viewport)
+  const positions = planStaffPositions(viewport, systemPositionUnits)
   if (positions.kind === 'room') {
     return { positionCount, positionBlockPx: positions.positionBlockPx }
   }
@@ -108,7 +124,9 @@ function reviewStaffReservation(viewport: StaffViewport | null): ReviewStaffRese
   return { positionCount, positionBlockPx: Math.max(0, viewport.heightBudgetPx) / 2 }
 }
 
-const reservation = computed(() => reviewStaffReservation(props.viewport))
+const reservation = computed(() =>
+  reviewStaffReservation(props.viewport, props.systemPositionUnits),
+)
 
 // ---- Export ----
 
@@ -287,9 +305,12 @@ function serveList(): void {
 onMounted(serveList)
 watch([listEl, () => props.records], serveList, { flush: 'post' })
 
-/** Intent: a real viewport change re-engraves what is engraved near the window, once rendered. */
+/**
+ * Intent: a real change of the viewport or the shared system-position size re-engraves what is
+ * engraved near the window, once rendered.
+ */
 watch(
-  () => props.viewport,
+  () => [props.viewport, props.systemPositionUnits] as const,
   (next, previous) => {
     if (JSON.stringify(next) === JSON.stringify(previous)) return
     engraving?.invalidate()
@@ -378,6 +399,7 @@ onBeforeUnmount(stopEngraving)
         :ref="(instance) => setPhrase(index, instance)"
         :record="record"
         :viewport="viewport"
+        :system-position-units="systemPositionUnits"
         :reservation="reservation"
         :played-notes-shown="lanesShown"
         :pitch-scale="pitchScale"

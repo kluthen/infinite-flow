@@ -16,7 +16,8 @@
  * While the last session's Review shows, the lazily loaded `ReviewPanel` takes the staff area's
  * place after the toolbar: the banner, the cue row and the score title are hidden, and the staff
  * viewport stays laid out, out of sight and inert, so the Idle rules keep engraving and measuring
- * under it; both live regions stay silent then, and say nothing as it closes.
+ * under it; both live regions stay silent then, and say nothing as it closes. The staff and the
+ * Review both draw at the one shared system-position size the workspace gives it.
  */
 import { computed, defineAsyncComponent, nextTick, ref, watch } from 'vue'
 
@@ -25,7 +26,10 @@ import type { WorkspaceSessionResult } from '@/composables/workspace-session-res
 import { generationFailureAlertText } from '@/composables/generation-failure-alert'
 import PhraseScore from '@/components/notation/PhraseScore.vue'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
-import { NOTATION_PHONE_LAYOUT_MEDIA_QUERY } from '@/notation/notation-layout-policy'
+import {
+  NOTATION_PHONE_LAYOUT_MEDIA_QUERY,
+  NOTATION_SYSTEM_POSITION_UNITS,
+} from '@/notation/notation-layout-policy'
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
@@ -65,12 +69,18 @@ const props = withDefaults(
     matchesPhoneLayout?: () => boolean
     /** How the Review's export loads its code and downloads; the page's own by default. */
     reviewExportPorts?: ReviewExportPorts
+    /**
+     * The shared system-position size, in engraving units, which the staff and the Review draw
+     * at; the workspace always passes it (`planSystemPositionUnits`), the built-in size by default.
+     */
+    systemPositionUnits?: number
   }>(),
   {
     // Default: the notation layout's own width query (the split layout's), read from the window now.
     matchesPhoneLayout: () => window.matchMedia(NOTATION_PHONE_LAYOUT_MEDIA_QUERY).matches,
     // Default: the lazy export code, downloading through this page's document.
     reviewExportPorts: () => browserReviewExportPorts(document),
+    systemPositionUnits: NOTATION_SYSTEM_POSITION_UNITS,
   },
 )
 
@@ -356,6 +366,7 @@ const generationErrorAlertText = computed(() =>
       :records="review.records.value"
       :instrument-name="review.instrumentName.value"
       :viewport="review.viewport.value"
+      :system-position-units="systemPositionUnits"
       :no-room="review.noRoom.value"
       :format="reviewFormat"
       :backing-track="reviewBackingTrack"
@@ -396,6 +407,7 @@ const generationErrorAlertText = computed(() =>
           :phrase-number="1"
           :session="sessionStaff"
           :overlays="overlays"
+          :system-position-units="systemPositionUnits"
           @engraved="handleEngraved"
           @notation-error="handleNotationError"
           @session-staff-failed="handleSessionStaffFailed"
