@@ -195,3 +195,6 @@ and change only if `spec-writer` settles otherwise.
   this device was deleted in another tab. Reload this page to start afresh; until then, nothing
   here is saved.", ux D293, `flows/saved-data/handoff.md`, Notices). Recommended: §4.3 names this
   second trigger, so the save policy (chunk 5) and done item 14 cover it; no other change.
+  For the build, not the spec: the storage port reports no cause with its outdated event, so the
+  save policy needs it to tell the two notices apart (ux D294); until then the newer-version
+  wording shows.

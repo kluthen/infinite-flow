@@ -57,8 +57,10 @@ a phone and need a pointer to use.
 ## The Clef
 
 The built-in instruments are all written in treble clef, and so is a new my instrument: it starts
-from one of them, and the Curious Improviser (P1) and the Speed Builder (P2) mostly play
-saxophones, keyboards and wind controllers, read in treble clef. A player whose instrument is low,
+from one of them, and the setup the personas are grounded in, a tenor saxophone and a MIDI wind
+controller (the Curious Improviser, P1), reads treble clef. The Curious Improviser is not tied to
+an instrument, and the Speed Builder (P2) is often on a keyboard; keyboard players read both
+clefs, treble for the right hand and bass for the left, so for them treble is no loss. A player whose instrument is low,
 a trombone, a cello, a bass guitar, reads bass clef, and in treble clef their range would hang far
 below the staff on a ladder of ledger lines, the hardest thing to read at speed and the one that
 makes the staff tallest. So the sheet offers the choice, treble or bass, as two named segments
@@ -98,7 +100,7 @@ count of ledger lines means nothing to them. The steppers are not stopped at the
 same reason they are not stopped at two octaves, and because a clef change can put a range outside
 its new bound without any stepper moving: refusing it, rather than moving the player's notes,
 keeps their range exactly as they set it until they decide. When the other clef would take the
-range as it is, the notice says so in four words, "It fits in bass clef.", because that is often
+range as it is, the notice says so in one short sentence, "It fits in bass clef.", because that is often
 the player's real answer: a low range refused in treble clef is usually a bass-clef instrument.
 
 ## A Range That Makes the Staff Taller
@@ -152,7 +154,9 @@ Every kept session belongs to the instrument it was played with. A change to my 
 or transposition changes what it plays, so its kept sessions no longer match it, and saving such a
 change erases them; deleting my instrument deletes them too. Both ask once, and say how many
 sessions go, because a number is what tells the player whether this is nothing or a month of
-favorites: "Changing the range or the transposition erases the 3 sessions played with Tenor." The
+favorites: "Changing the range or the transposition erases the 3 sessions played with this
+instrument." It says "this instrument" rather than its name, since the session list shows each
+session under the name the instrument had when it was played. The
 warning comes at `Save`, not as the steppers move, so a player exploring a range is never nagged;
 and it comes only when something would go: with no kept session of my instrument, `Save` just
 saves. A name or a clef change never asks, since it changes nothing generated and every session

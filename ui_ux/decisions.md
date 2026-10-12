@@ -1108,3 +1108,26 @@ this wave's; D252-D264 and Q77 are v3.3's.
   saving off, the saved-data wording); a failed read with newer data known remains for a
   read-only reopening that fails, or a late read that reveals newer data. The saved-data intent's
   "may refuse to open at all" is gone.
+- **D294 — `ux-critic`'s pass on the two gates: DRIFT, five findings, all fixed (2026-10-12).**
+  (1) **The example note agrees with the interval's name** (corrects D285): the transposition
+  line's `{note}` is C4 moved by the interval's letter-name steps (master spec §7.1's table), so
+  "A minor second higher: a written C4 sounds as D♭4", an augmented fourth lower G♭3, a major
+  seventh lower D♭3, never C♯4, F♯3 or C♯3, which would name other intervals; from C no double
+  sharp or flat arises. It is the sheet's one note outside the one-spelling list; it spells
+  nothing written (spec D291 still governs the written part). The check's confirmation follows.
+  (2) **The treble default's reasoning** (corrects D281): every template is in treble clef and the
+  personas' grounding setup (tenor saxophone, MIDI wind controller) reads treble; P1 is not tied to
+  an instrument, P2 is often on a keyboard, and keyboard players read both clefs. The clefs are
+  named "the G clef on the second line" and "the F clef on the fourth line", never "F4 clef",
+  which reads as the note F4 (the bass clef's F is F3). (3) **Sessions held in memory while
+  saving is off** are never counted and keep their review, in an outdated tab as in a visit
+  started from the defaults (an outdated tab counts only the kept rows it read); "a review never
+  shows music its instrument can no longer play" now says "a kept session's review"; the review's
+  room also covers that held session after a range change. (4) **Another tab's `Delete
+  everything`** (refines D293): the storage port's outdated report carries no cause today, so the
+  handoff asks chunk 5's save policy to get it from the port (a deletion's `versionchange` has no
+  new version); until then the newer-version wording shows. A visit whose read failed may hold no
+  connection and keeps its unusable-data notice. (5) **The warnings say "this instrument"** (the
+  check's, "my instrument") instead of the current name, since the list shows each session under
+  the name it was played under (corrects D286, D287, D289's paragraph). Also: "four words" fixed;
+  the delete confirmation names the clef too ("with its clef, range and transposition").

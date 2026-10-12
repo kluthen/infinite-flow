@@ -200,9 +200,10 @@ sheet-backdrop
     its clef."
   - When my instrument has sessions ({N} of 1 or more, counted as in
     `screens/my-instrument/handoff.md`, The sessions of my instrument), after the paragraph
-    above: "Changing the transposition erases the {N} sessions played with {name}, with their
+    above: "Changing the transposition erases the {N} sessions played with my instrument, with their
     favorite phrases, comments and played notes." ({N} of 1: "Changing the transposition erases
-    the session played with {name}, with its favorite phrases, comment and played notes."), then,
+    the session played with my instrument, with its favorite phrases, comment and played notes."),
+    then,
     only when the review on screen shows one of them, the my-instrument sheet's sentence saying
     its review closes; a paragraph "This can't be undone."; and the `sheet-hint` "To keep a
     session, choose Back, close this sheet, then export it from its review." ({N} of 1: "To keep
@@ -219,7 +220,7 @@ sheet-backdrop
 - **[v3 new]** **In a tab that must be reloaded** (an outdated tab), while my instrument has kept
   sessions: a result that is not a match has no `Use this for my instrument`, and its result
   `inline-alert` adds, after its sentences, the paragraph "To use this for {name}, reload the page
-  first: changing its transposition would erase the sessions played with it." Its other actions
+  first: changing its transposition would erase the sessions played with my instrument." Its other actions
   are unchanged. When the tab becomes outdated while **Use for my instrument** shows with sessions
   to erase, it returns to the result, erasing nothing, focus on `Continue`.
 - **[v3 changed]** **Connected** — `sheet-title` "Controller connected". Body: `status-dot

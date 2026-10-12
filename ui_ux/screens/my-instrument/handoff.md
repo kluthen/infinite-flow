@@ -100,7 +100,8 @@ sheet-backdrop
   changes where notes are drawn, never which notes." Changing the clef checks the range again at
   once against the new clef's bound (Range refused), and reads the staff-reach note again; the
   steppers keep their notes.
-- **Note names.** Every note in this sheet, and in its `field-note`s and refusals, is a name from
+- **Note names.** Every note in this sheet, and in its `field-note`s and refusals, except the
+  transposition's example note (below), is a name from
   C, C♯, D, E♭, E, F, F♯, G, A♭, A, B♭, B followed by its octave number, the number going up by
   one at each C (C4 is middle C), as the starting-note line spells it. One spelling per key, never
   a double sharp or flat, whatever the key of the phrase.
@@ -174,7 +175,12 @@ sheet-backdrop
     twelfth (19), minor thirteenth (20), major thirteenth (21), minor fourteenth (22) and major
     fourteenth (23); above 24 and not a whole number of octaves, the octaves then the simple name:
     "Two octaves and a major second lower".
-  - `{note}` is the note C4 sounds as, spelled as above.
+  - `{note}` is the note C4 sounds as, spelled so that it agrees with the interval's name: C4
+    moved by the interval's letter-name steps (master spec §7.1's table, one letter per step,
+    seven per octave), so a minor second higher is D♭4, an augmented fourth lower G♭3, a major
+    seventh lower D♭3 and a minor ninth higher D♭5. Starting from C, this never needs a double
+    sharp or flat. It is the one note in the sheet not taken from the one-spelling list above,
+    which would write C♯4 for "a minor second higher" and so contradict the name.
 
   So: "A major ninth lower (an octave and a major second): a written C4 sounds as B♭2." at 14
   lower, "A major sixth lower: a written C4 sounds as E♭3." at 9 lower, "No transposition: a
@@ -190,9 +196,11 @@ sheet-backdrop
   change and closes the sheet, asking nothing: nothing kept is deleted by leaving a form.
 - **The sessions of my instrument** are the kept sessions played with it, as the session list
   shows them, and the session that just ended when it was played with my instrument and is held
-  in memory only because its save failed. `{N}` below is their number. In a visit started from
-  the defaults because the saved data couldn't be read, it is always 0: that visit has read no
-  kept session, and the session held in memory in it keeps its review whatever changes.
+  in memory only because its save failed. `{N}` below is their number. While saving is off, a
+  session held in memory is never counted and keeps its review whatever changes: in a visit
+  started from the defaults because the saved data couldn't be read, {N} is always 0 (that visit
+  has read no kept session); in a tab that must be reloaded, {N} counts only the kept rows the
+  tab read, and those changes are withheld while there is one (States).
 - No raw value: every visual value comes from `src/styles/theme.css`, `src/styles/components.css`
   and `ui_ux/token-source-v3.md` through the classes above.
 
@@ -285,8 +293,9 @@ sheet-backdrop
   one and {N} is 1 or more; with {N} at 0, `Save` saves at once, with no warning, since nothing is
   erased. `sheet-title` "Save and erase sessions?". Body:
   - first paragraph: "Changing the range or the transposition erases the {N} sessions played with
-    {name}, with their favorite phrases, comments and played notes." ({N} of 1: "Changing the
-    range or the transposition erases the session played with {name}, with its favorite phrases,
+    this instrument, with their favorite phrases, comments and played notes." ({N} of 1: "Changing
+    the range or the transposition erases the session played with this instrument, with its
+    favorite phrases,
     comment and played notes."), then, only when the review on screen shows one of them, "The
     session reviewed on screen is one of them, so its review closes." ({N} of 1: "It is the
     session reviewed on screen, so its review closes.");
@@ -302,7 +311,7 @@ sheet-backdrop
   saved and its sessions are erased; the sheet closes, and the save goes on as in What Save Does.
   Where the player lands is under Sessions erased, below.
 - **Delete confirmation.** `sheet-title` "Delete my instrument?". Body:
-  - first paragraph: "{name} will be deleted, with its range and transposition." then, when {N}
+  - first paragraph: "{name} will be deleted, with its clef, range and transposition." then, when {N}
     is 1 or more, "The {N} sessions played with it go too, with their favorite phrases, comments
     and played notes." ({N} of 1: "The session played with it goes too, with its favorite phrases,
     comment and played notes."), then, only when the review on screen shows one of them, the same
@@ -331,7 +340,7 @@ sheet-backdrop
 - **In a tab that must be reloaded** (an outdated tab, `flows/saved-data/`), while my instrument
   has kept sessions (rows this tab read): the form opens in Editing with the reload line first in
   `sheet-body`, an `inline-alert alert-notice` reading "Reload this page to change the range or
-  the transposition, or to delete {name}: either would erase the sessions played with it, and
+  the transposition, or to delete {name}: either would erase the sessions played with this instrument, and
   this page can't delete anything until it is reloaded."; the three `note-stepper`s are disabled,
   as the tempo stepper is during a session, with their values in full contrast; `Delete my
   instrument` and its `sheet-actions-destructive` are absent. The name and the clef still change

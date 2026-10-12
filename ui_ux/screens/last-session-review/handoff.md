@@ -431,10 +431,11 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   - **[v3 new]** **Room for a phrase in another clef.** A review never cuts a phrase. Its system
     positions, counted in staff spaces, take the larger of the workspace's shared size and the
     size the session's own instrument needs: that instrument's written range placed in the clef
-    its phrases were played in, measured by the rule that sizes the workspace staff. The two
-    differ only for a session played with my instrument in a clef it no longer has (written C2 to
+    its phrases were played in, measured by the rule that sizes the workspace staff. They
+    differ for a session played with my instrument in a clef it no longer has (written C2 to
     C4 in treble clef needs 19 staff spaces, where the staff may now keep 16 for the same range in
-    bass clef). The larger size is turned into a block size at the workspace staff's scale, so
+    bass clef), and for the session held in memory in a visit that saves nothing after my
+    instrument's range changed, since that session keeps its review. The larger size is turned into a block size at the workspace staff's scale, so
     every phrase keeps the same notation size as on the staff and only its position is taller; it
     holds for the whole review, set before the first phrase is engraved, so the scroll position
     never jumps. The placement is the one that instrument's range and clef give.

@@ -184,7 +184,7 @@ after the session, on the staff or in the controls, changes it, and a kept sessi
 the music it kept, even if the player has changed their instrument's name or clef since: each
 phrase is drawn in the clef it was played in, given the room it needs. A change to my
 instrument's range or transposition, or deleting it, erases its sessions instead, after a
-warning, so a review never shows music its instrument can no longer play. The theme is the one
+warning, so a kept session's review never shows music its instrument can no longer play. The theme is the one
 exception, since it changes only colours. What the player adds to it (favorites, a comment,
 whether it is pinned) is theirs, and they can change it every time they open it.
 

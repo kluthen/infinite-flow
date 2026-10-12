@@ -44,7 +44,9 @@ closed (ux D285); Q80 raised for `spec-writer`.
   room for a phrase in another clef (ux D286-D290). Written 2026-10-12.
 - **Stale treble-only lines and the token source's sizing comment** (ux D291, D292); chunk 4's
   carry-overs (ux D293). Written 2026-10-12.
-- **Validation.** `ux-critic` on both gates: pending.
+- **Validation.** `ux-critic` on both gates: DRIFT, five findings, all fixed (ux D294). The
+  gates are passed from the design side; chunk 5's save policy needs the storage port to report
+  why a tab became outdated (ux D294), noted with Q80.
 
 **v3.3 (richer chords) design**, from master spec Part D (§D1-§D17, proposed for the owner's
 approval with spec D264-D274), on branch `v3.3-chord-research`. Started 2026-10-12; marked on top
@@ -173,8 +175,7 @@ drops the check.
 
 ## Next Unit
 
-v3.0 wave 2: `ux-critic` on the two gates, then report them to the coordinator as passed; Q80
-waits for `spec-writer`. At chunk 19b's calibration, if the bass-clef bound E0-E5 needs more than
+v3.0 wave 2: the gates are passed (ux D280-D294); Q80 waits for `spec-writer`. At chunk 19b's calibration, if the bass-clef bound E0-E5 needs more than
 24 staff spaces, the bound's figures in the refusal and the Notation Contract come back here.
 
 v3.3: the owner's approval of Part D and of this design (the build plan's D0). At the build, the
