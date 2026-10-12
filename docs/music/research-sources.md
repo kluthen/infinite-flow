@@ -1,6 +1,6 @@
 # Music Research Sources
 
-Status: draft v0.3 (v3 research sources S18-S99 and S100-S115 merged 2026-10-07)
+Status: draft v0.4 (v3 research sources S18-S99 and S100-S115 merged 2026-10-07; v3.3 chord research sources S412-S452 added 2026-10-12)
 
 ## How To Use This Record
 
@@ -403,4 +403,132 @@ These back the [preset catalogue](preset-catalogue.md), research for the v3.1 bu
   - Useful for: repetition, process, steady pulse, consonant diatonic harmony with slow harmonic rhythm.
   - Applied in: [preset catalogue](preset-catalogue.md): Considered, not proposed.
 
-Licence note: Music Theory for the 21st-Century Classroom (S1-S7, S9-S10, S18-S24, S40-S44) is © 2017 Robert Hutchinson and distributed under the GNU Free Documentation License, version 1.2 or later. Open Music Theory (S8, S8a, S14, S25, S45-S48, S113-S114) is CC BY-SA. The project cites both for verification and does not reproduce their text.
+## Chords (v3.3)
+
+These back the [chord research](chord-research.md), groundwork for v3.3 richer chords (D261, D262), and its lexicon entries. Numbering starts at S412, above S411, the highest number on branch `v4-accompaniment-research`. Wikipedia pages are pointers for widely documented facts; the jazz-teaching pages and the forum thread are practitioner sources, used only where an open textbook was not found. Reference only; no text copied.
+
+- **S412 - MusicXML 4.0 kind-value data type.** W3C Music Notation Community Group: https://www.w3.org/2021/06/musicxml40/musicxml-reference/data-types/kind-value/
+  - Useful for: the 33 chord kinds and their notes, among them `major-seventh`, `minor-seventh`, `dominant`, `half-diminished`, `diminished-seventh`, `major-minor` (a minor triad with a major seventh), `major-sixth`, `minor-sixth`, `suspended-fourth`, `suspended-second`, and the ninth, eleventh and thirteenth kinds; no kind for the augmented major seventh.
+  - Applied in: [chord research](chord-research.md): Chord symbols and MusicXML, O170.
+- **S413 - MusicXML 4.0 kind element.** W3C Music Notation Community Group: https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/kind/
+  - Useful for: the `text` attribute (the symbol as printed, such as "13sus") and `use-symbols` (triangle for major, − for minor, + for augmented, ° for diminished, ø for half-diminished).
+  - Applied in: [chord research](chord-research.md): Chord symbols and MusicXML, O170.
+- **S414 - MusicXML 4.0 degree element.** W3C Music Notation Community Group: https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/degree/
+  - Useful for: adding, altering or removing one chord note with `degree-value`, `degree-alter` and `degree-type`; a kind of `other` spelled entirely by degrees.
+  - Applied in: [chord research](chord-research.md): Chord symbols and MusicXML.
+- **S415 - MusicXML 4.0 tutorial, chord symbols and diagrams.** W3C Music Notation Community Group: https://www.w3.org/2021/06/musicxml40/tutorial/chord-symbols-and-diagrams/
+  - Useful for: the `<harmony>` structure (root, kind, bass, degree); examples G6 (`major-sixth`), A(9) (`major` plus an added 9th) and A11 (`dominant-11th`); "add" degrees counted from a dominant chord, "alter" and "subtract" from the kind's own chord.
+  - Applied in: [chord research](chord-research.md): Chord symbols and MusicXML.
+- **S416 - Seventh chords.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/01%3A_Fundamentals/1.17%3A_Seventh_Chords
+  - Useful for: the five common seventh-chord qualities named by triad quality plus seventh size (major-major, major-minor or dominant, minor-minor, half-diminished, fully diminished) and their labels (ma7, 7, mi7, ø7, o7); qualities tied to scale degrees in every key.
+  - Applied in: [chord research](chord-research.md): Chord types, Construction, O165; the seventh-chord lexicon entries.
+- **S417 - Chord symbols.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/06%3A_Jazz/6.02%3A_Chord_Symbols
+  - Useful for: major triad as the default; a bare 7 means a minor seventh; extensions major or perfect by default and implying those below them; altered extensions; "add", "6", "6/9", "sus" (sus4 by default, sus2) and C7sus; "pick one system and stick with it"; symbols do not reference keys.
+  - Applied in: [chord research](chord-research.md): Chord types, Chord symbols and MusicXML, O165, O170.
+- **S418 - Jazz voicings.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/06%3A_Jazz/6.03%3A_Jazz_Voicings
+  - Useful for: the third and seventh as the notes to keep, the fifth as the one to omit, the root left to the bass; extensions voiced high; a thirteenth placed above the seventh.
+  - Applied in: [chord research](chord-research.md): Melodies, O170; the voicing lexicon entry.
+- **S419 - Chord-scale theory.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/06%3A_Jazz/6.07%3A_Chord-Scale_Theory
+  - Useful for: relating each chord to a scale (Ionian for major seventh, Dorian, Phrygian or Aeolian for minor seventh, Mixolydian for dominant); a mode heard as a seventh chord plus extensions; chord tones on the downbeat.
+  - Applied in: [chord research](chord-research.md): Construction, Melodies; the chord-scale lexicon entry.
+- **S420 - Blues harmony.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/06%3A_Jazz/6.08%3A_Blues_Harmony
+  - Useful for: the twelve-bar blues' chords "are dominant seventh chords and do not fit into a single key"; the minor blues with im7, ivm7 and a dominant V; the jazz blues adding ii–V.
+  - Applied in: [chord research](chord-research.md): Style plausibility, O166, O169.
+- **S421 - ii–V–I.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/06%3A_Jazz/6.04%3A_iiVI
+  - Useful for: the ii–V–I as a schema listeners recognise; the tonic major seventh replaced by a 6 chord ("Misty").
+  - Applied in: [chord research](chord-research.md): Style plausibility, O165.
+- **S422 - Introduction to seventh chords.** University of Puget Sound, Music Theory for the 21st-Century Classroom, §8.1: https://musictheory.pugetsound.edu/mt21c/SeventhChordsIntroduction.html
+  - Useful for: a seventh chord as a triad plus a note a third above the fifth; the five types commonly met in classical and popular music.
+  - Applied in: [chord research](chord-research.md): Chord types.
+- **S423 - Roman numerals of diatonic seventh chords.** University of Puget Sound, Music Theory for the 21st-Century Classroom, §8.3: https://musictheory.pugetsound.edu/mt21c/RomanNumeralsOfDiatonicSeventhChords.html
+  - Useful for: labelling diatonic seventh chords ("7" for a minor seventh, "M7", ø7, °7).
+  - Applied in: [chord research](chord-research.md): Construction.
+- **S424 - Voice leading seventh chords.** University of Puget Sound, Music Theory for the 21st-Century Classroom, §27.1: https://musictheory.pugetsound.edu/mt21c/VoiceLeadingSeventhChordsIntro.html
+  - Useful for: "Resolve the 7th of a 7th chord down by step" as the one general rule, with a rare upward exception.
+  - Applied in: [chord research](chord-research.md): Melodies, O168.
+- **S425 - Jazz chord basics.** University of Puget Sound, Music Theory for the 21st-Century Classroom, §31.1: https://musictheory.pugetsound.edu/mt21c/JazzChordBasics.html
+  - Useful for: ninth chords common on every seventh type but the diminished seventh; "9" implying the seventh, "add 9" without it; 11ths and 13ths from the major scale; the natural 11 left out of a C13 because it clashes with the major third.
+  - Applied in: [chord research](chord-research.md): Chord types, Avoid notes, Style plausibility, O165.
+- **S426 - Chord symbol specifics.** University of Puget Sound, Music Theory for the 21st-Century Classroom, §31.2: https://musictheory.pugetsound.edu/mt21c/ChordSymbolSpecifics.html
+  - Useful for: "6" only without a seventh, otherwise "13"; "sus" only without a third, otherwise "11"; ♭5 versus ♯11.
+  - Applied in: [chord research](chord-research.md): Chord types, Chord symbols and MusicXML.
+- **S427 - Jazz chord voicings.** University of Puget Sound, Music Theory for the 21st-Century Classroom, §31.7: https://musictheory.pugetsound.edu/mt21c/JazzChordVoicings.html
+  - Useful for: guide tones as the third and seventh; guide tones moving by step in circle-of-fifths progressions; the fifth omitted when needed; sus4 voiced like a third and 6 like a seventh.
+  - Applied in: [chord research](chord-research.md): Melodies, O168, O170.
+- **S428 - Chord-scale relationships.** University of Puget Sound, Music Theory for the 21st-Century Classroom, §31.10: https://musictheory.pugetsound.edu/mt21c/HowToDetermineChord-ScaleRelationships.html
+  - Useful for: the chord-to-scale list (CΔ7 major or Lydian, Cm7 Dorian or natural minor, Cø7 Locrian, C7 Mixolydian, altered dominants with altered scales).
+  - Applied in: [chord research](chord-research.md): Construction, Chord types.
+- **S429 - Seventh chord.** Wikipedia: https://en.wikipedia.org/wiki/Seventh_chord
+  - Useful for: the table of seventh-chord types with intervals and symbol variants; diatonic positions in major (maj7 on I and IV, m7 on ii, iii, vi, 7 on V, ø7 on vii); the seventh becoming part of the chord over time.
+  - Applied in: [chord research](chord-research.md): Chord types, Construction, Melodies, O169.
+- **S430 - Dominant seventh chord.** Wikipedia: https://en.wikipedia.org/wiki/Dominant_seventh_chord
+  - Useful for: construction and symbol; on degree 5 of major; the tritone between third and seventh; classical resolution (seventh down, leading tone up); in blues the IV and V almost always dominant sevenths, the I most often a major triad.
+  - Applied in: [chord research](chord-research.md): Melodies, Style plausibility, O165, O168.
+- **S431 - Half-diminished seventh chord.** Wikipedia: https://en.wikipedia.org/wiki/Half-diminished_seventh_chord
+  - Useful for: construction; symbols ø7 and m7♭5; on vii in major and ii in natural minor; the ii of a minor ii–V–i in jazz.
+  - Applied in: [chord research](chord-research.md): Style plausibility, Chord symbols and MusicXML.
+- **S432 - Diminished seventh chord.** Wikipedia: https://en.wikipedia.org/wiki/Diminished_seventh_chord
+  - Useful for: three stacked minor thirds; dim7 and °7; the leading-tone seventh of harmonic minor, not diatonic to major; "dim" alone sometimes used for it in jazz charts.
+  - Applied in: [chord research](chord-research.md): Chord types, Chord symbols and MusicXML.
+- **S433 - Minor major seventh chord.** Wikipedia: https://en.wikipedia.org/wiki/Minor_major_seventh_chord
+  - Useful for: construction; on the tonic of harmonic minor; mostly a jazz minor tonic.
+  - Applied in: [chord research](chord-research.md): Chord types.
+- **S434 - Augmented major seventh chord.** Wikipedia: https://en.wikipedia.org/wiki/Augmented_major_seventh_chord
+  - Useful for: construction; the third mode of harmonic and melodic minor; the symbol +Δ7.
+  - Applied in: [chord research](chord-research.md): Chord types.
+- **S435 - Sixth chord.** Wikipedia: https://en.wikipedia.org/wiki/Sixth_chord
+  - Useful for: the added-sixth chord (C6, Cm6 with a major sixth); C6 holding the notes of Am7; the older meaning (a first-inversion triad) and the separate augmented sixth.
+  - Applied in: [chord research](chord-research.md): Chord types, Construction, O165; the sixth-chord lexicon entry.
+- **S436 - Suspended chord.** Wikipedia: https://en.wikipedia.org/wiki/Suspended_chord
+  - Useful for: the third replaced by the fourth or second; the counterpoint suspension that must resolve versus the popular-music sus chord that need not; V9sus4 in jazz; frequent in modal jazz, popular and folk music.
+  - Applied in: [chord research](chord-research.md): Chord types, Style plausibility; the suspended-chord lexicon entry.
+- **S437 - Extended chord.** Wikipedia: https://en.wikipedia.org/wiki/Extended_chord
+  - Useful for: ninths, elevenths and thirteenths; the thirteenth holding all seven scale notes; the fifth often omitted; 19th-century extensions treated as appoggiaturas, the seventh chord as the limit of chordal consonance; stacked thirds central to jazz harmony.
+  - Applied in: [chord research](chord-research.md): Chord types, Melodies, O168; the extended-chord lexicon entry.
+- **S438 - Chord names and symbols (popular music).** Wikipedia: https://en.wikipedia.org/wiki/Chord_names_and_symbols_(popular_music)
+  - Useful for: the summary table of symbol variants for every chord type; Δ's ambiguity; add9 and "2"; citing Brandt and Roemer, _Standardized Chord Symbol Notation_ (1976), through Benward and Saker.
+  - Applied in: [chord research](chord-research.md): Chord symbols and MusicXML, O170.
+- **S439 - Avoid note.** Wikipedia: https://en.wikipedia.org/wiki/Avoid_note
+  - Useful for: F over C major as the standard avoid note, a half step above the third; treating it as a passing note instead; Dorian's sixth sometimes called an avoid tone because it implies a dominant.
+  - Applied in: [chord research](chord-research.md): Avoid notes, Melodies; the avoid-note lexicon entry.
+- **S440 - Chord-scale system.** Wikipedia: https://en.wikipedia.org/wiki/Chord-scale_system
+  - Useful for: chord-scale pairing as a jazz-teaching convention (Mixolydian for a dominant seventh) and the disagreement over Lydian versus major for a major chord.
+  - Applied in: [chord research](chord-research.md): Avoid notes; the chord-scale lexicon entry.
+- **S441 - Jazz harmony.** Wikipedia: https://en.wikipedia.org/wiki/Jazz_harmony
+  - Useful for: seventh chords as jazz's basic harmonic unit, used more often than triads, with 9ths, 11ths and 13ths added (citing Rawlins and Bahha, _Jazzology_, 2005); the major ii–V–I as m7–dom–maj7 (citing Spitzer, 2001).
+  - Applied in: [chord research](chord-research.md): Style plausibility, Melodies, O165, O169.
+- **S442 - Available tensions.** The Jazz Piano Site: https://www.thejazzpianosite.com/jazz-piano-lessons/jazz-chords/available-tensions/
+  - Useful for: the rule that notes a half step above a chord tone are avoid notes and a whole step above are available; looser rules for dominant chords (♭9 against the root accepted); maj7's available 9, ♯11, 13.
+  - Applied in: [chord research](chord-research.md): Avoid notes, O165, O168. A practitioner page.
+- **S443 - Guide tones.** The Jazz Piano Site: https://www.thejazzpianosite.com/jazz-piano-lessons/jazz-improvisation/guide-tones/
+  - Useful for: the third and seventh as the most harmonically important notes; targeting them sounding strong; smooth guide-tone lines in circle progressions.
+  - Applied in: [chord research](chord-research.md): Melodies, O168. A practitioner page.
+- **S444 - Vertical improvisation.** The Jazz Piano Site: https://www.thejazzpianosite.com/jazz-piano-lessons/jazz-improvisation/vertical-improvisation/
+  - Useful for: starting and ending phrases on chord tones; long notes as chord tones; playing the full arpeggio occasionally.
+  - Applied in: [chord research](chord-research.md): Melodies, O167. A practitioner page.
+- **S445 - Jazz harmony (arranging blog).** Evan Rogers, "9 | Jazz Harmony", 2020: https://evanrogersmusic.com/blog-contents/big-band-arranging/jazz-harmony
+  - Useful for: avoid notes as tensions forming a minor ninth; the 11th on a major seventh made ♯11; the 13th on a minor seventh avoided outside modal music; avoid notes acceptable melodically in passing; chords usually made into a 7th or 6th chord; citing Levine's _The Jazz Theory Book_.
+  - Applied in: [chord research](chord-research.md): Avoid notes, Style plausibility, Melodies. A practitioner page.
+- **S446 - Approaching arpeggios.** Sean Murphy, _The Instrumentalist_, March 2017: https://theinstrumentalist.com/march-2017/approaching-arpeggios/
+  - Useful for: 1–3–5–7 as the typical jazz arpeggio pattern; starting on the third (3–5–7–9) to bring out the chord's quality and its ninth.
+  - Applied in: [chord research](chord-research.md): Melodies, O167.
+- **S447 - Chromatic devices in the songs of Jobim.** Simon Cosgrove, "Chromatic Devices in the Songs of Antônio Carlos Jobim", _Bulletin of Joshibi University of Art and Design_ 50 (2021): https://joshibi.repo.nii.ac.jp/records/11.1
+  - Useful for: in 40 Jobim songs, descending chromatic bass lines in 45 % and dominant substitution in 55 %; progressions written in sevenths and beyond (Imaj7–♯Idim7–IIm7).
+  - Applied in: [chord research](chord-research.md): Style plausibility, O166. Read in full.
+- **S448 - Sub-circle motion and melodic-harmonic divorce.** S. Alexander Reed, "An Idiom of Melodic-Harmonic Divorce: Sub-Circle Motion in Popular Music", _Music Theory Online_ 28(2), 2022, https://doi.org/10.30535/mto.28.2.6
+  - Useful for: Temperley's "stratified" pitch organisation, with different frameworks for melody and accompaniment; Nobile's three types of divorce (_Music Theory Spectrum_ 37(2), 2015, https://doi.org/10.1093/mts/mtv019).
+  - Applied in: [chord research](chord-research.md): Melodies, O168.
+- **S449 - The melodic-harmonic divorce in rock.** David Temperley, _Popular Music_ 26(2), 2007, 323–342, https://doi.org/10.1017/S0261143007001249
+  - Useful for: rock melodies whose non-chord tones fail to resolve by step, mostly in pentatonic melodies and verses.
+  - Applied in: [chord research](chord-research.md): Melodies, O168. Read at abstract level and through S448 only.
+- **S450 - Chord qualities in a Japanese idol-song corpus.** Hitoshi Suda et al., "IdolSongsJp Corpus: A Multi-Singer Song Corpus in the Style of Japanese Idol Groups", arXiv:2507.01349 (2025): https://arxiv.org/abs/2507.01349
+  - Useful for: its comparison figure that plain major and minor chords are about 65 % of the McGill Billboard corpus (US Hot 100 singles, 1958–1991).
+  - Applied in: [chord research](chord-research.md): Style plausibility, O165, O169. A secondary report of the Billboard corpus; the original figure was not checked.
+- **S451 - DADGAD backing for Irish tunes.** Chiff and Fipple forum thread, January 2003: https://www.chiffandfipple.com/t/dadgad-backup-chord-patterns-and-demonstrations/9175
+  - Useful for: backing chords that leave out the third over a drone, with sevenths or ninths added for colour.
+  - Applied in: [chord research](chord-research.md): Style plausibility (folk). A practitioner forum, the only folk-accompaniment source found; weak.
+- **S452 - "So What".** Wikipedia: https://en.wikipedia.org/wiki/So_What_(Miles_Davis_composition)
+  - Useful for: 16 bars of D Dorian, 8 of E-flat Dorian, 8 of D Dorian; the "So What chord", three perfect fourths topped by a major third.
+  - Applied in: [chord research](chord-research.md): Style plausibility (Modal).
+
+Licence note: Music Theory for the 21st-Century Classroom (S1-S7, S9-S10, S18-S24, S40-S44, S422-S428) is © 2017 Robert Hutchinson and distributed under the GNU Free Documentation License, version 1.2 or later. Open Music Theory (S8, S8a, S14, S25, S45-S48, S113-S114, S416-S421) is CC BY-SA. The project cites both for verification and does not reproduce their text.
