@@ -8,7 +8,7 @@ parents:
   - [[rule_pregenerated_phrase_matches_session]]
   - [[rule_seeded_phrase_reproduction]]
   - [[rule_session_generation_failure_ladder]]
-notes: Created 2026-10-11 at DRAFT by the pre-code architecture capture for v3.0 build plan chunk 23, from master spec sections 8 and 5.2, spec D255 and D258 (owner rulings) and the decisions the coding leader settled. Describes intended v3.0 behaviour: no code implements it yet.
+notes: Synced 2026-10-12 at the v3.0 wave-1 post-task sync, same version 0.1: chunk 23's code (merge aee776c) implements it, src/session/session-seed-plan.ts and the files the technical interface names, with linked tests; logic, interface and expectation match the code. The text below saying no code implements it is superseded. Status stays DRAFT; REVIEW proposed to the owner. Earlier: Created 2026-10-11 at DRAFT by the pre-code architecture capture for v3.0 build plan chunk 23, from master spec sections 8 and 5.2, spec D255 and D258 (owner rulings) and the decisions the coding leader settled. Describes intended v3.0 behaviour: no code implements it yet.
 dependents: []
 type: MODULE
 layer: ARCHITECTURE

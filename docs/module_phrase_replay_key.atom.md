@@ -2,7 +2,7 @@
 id: module_phrase_replay_key
 status: REVIEW
 layer: ARCHITECTURE
-notes: Captured 2026-10-01 before code (branch replay-key, pre-code architecture capture). Owner decisions, recorded as rationale - the key excludes the app version and commit, so a later generator change may replay a key differently, which is accepted; the key is a debugging basis for the generator. Revised 2026-10-03 before code in v2 chunk 24 (pre-code architecture capture) for the settings-mutation engine (previous version 0.1) - the carry-in final harmony may be null, the key stays ifk1. and every older key still decodes. Status stays DRAFT.
+notes: Reminder 2026-10-12 (v3.0 wave-1 post-task sync) for v3.0 build plan chunk 18's architecture capture (the ifk2. revision of this atom): the owner rationale below, that a later generator change may replay a key differently, no longer holds for v2.0 keys, since chunk 2's ifk1. replay-key corpus (tests/unit/generation-worker/phrase-replay-key-corpus.spec.ts, test-linked here) requires every corpus key to keep replaying to the same phrase. The capture should restate that rationale. Text and status unchanged. Earlier: Captured 2026-10-01 before code (branch replay-key, pre-code architecture capture). Owner decisions, recorded as rationale - the key excludes the app version and commit, so a later generator change may replay a key differently, which is accepted; the key is a debugging basis for the generator. Revised 2026-10-03 before code in v2 chunk 24 (pre-code architecture capture) for the settings-mutation engine (previous version 0.1) - the carry-in final harmony may be null, the key stays ifk1. and every older key still decodes. Status stays DRAFT.
 human_name: Phrase Replay Key
 version: 0.2
 priority: 1
