@@ -77,6 +77,7 @@ describe('atd scope: business behaviour only', () => {
     'tests/e2e/workspace/generation-latency.spec.ts',
     'tests/e2e/workspace/engraving-main-thread.spec.ts',
     'tests/e2e/session/rolling-display-timing.spec.ts',
+    'tests/sweep-my-instrument/my-instrument-range-sweep.spec.ts',
   ])('exempts the measurement harness %s', (path) => {
     expect(atdOf(path, unlinkedSuite)).toEqual([])
   })

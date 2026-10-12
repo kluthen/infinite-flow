@@ -2,8 +2,9 @@
 /**
  * The boundary rules of the real `eslint.config.js`, exercised through the ESLint Node API. Each
  * fixture in `tests/fixtures/boundaries/src/` is linted as if it sat at the same path under the
- * application's `src/` (for example `src/audio/audio-context.ts`), so the config's own `files`
- * globs decide which rules apply; the fixtures themselves stay outside `src/`.
+ * application's `src/` (for example `src/audio/audio-context.ts` or `src/storage/indexed-db.ts`),
+ * so the config's own `files` globs decide which rules apply; the fixtures themselves stay outside
+ * `src/`.
  */
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -19,6 +20,8 @@ const boundaryRules = new Set(['no-restricted-globals', 'no-restricted-propertie
 
 const audioOutsideAudioDirectory = /Web Audio contexts may be created only under src\/audio\//
 const midiOutsideMidiDirectory = /MIDI access may be requested only under src\/midi\//
+const storageOutsideStorageDirectory =
+  /IndexedDB and navigator\.storage may be used only under src\/storage\//
 const networkAccess = /Network access is forbidden everywhere in src\//
 const microphoneAccess = /Microphone\/camera access is forbidden everywhere in src\//
 const cookieAccess = /Cookies are forbidden everywhere in src\//
@@ -26,8 +29,11 @@ const mediaElementPlayback = /Media-element playback is forbidden everywhere in 
 const browserPersistence = /Browser persistence is outside the ephemeral-state boundary/
 const cacheApi = /The Cache API is not available to authored application code/
 
-/** Every directory an always-forbidden call is probed in, the two allowlisted ones included. */
-const probedDirectories = ['audio', 'midi', 'other'] as const
+/** Every directory an always-forbidden call is probed in, the three allowlisted ones included. */
+const probedDirectories = ['audio', 'midi', 'storage', 'other'] as const
+
+/** The directories, other than `storage/`, that the IndexedDB and storage-manager fixtures sit in. */
+const directoriesOutsideStorage = ['audio', 'midi', 'session', 'export', 'components'] as const
 
 let eslint: ESLint
 
@@ -110,6 +116,43 @@ describe('eslint.config.js boundary rules over the fixture tree', () => {
     expectBoundaryErrors(await lintFixture('audio/storage.ts'), browserPersistence, 1)
     expectBoundaryErrors(await lintFixture('midi/storage.ts'), browserPersistence, 1)
   })
+
+  // @test-link [[req_on_device_storage]]
+  test('indexedDB.open and navigator.storage.persist() are allowed under src/storage/', async () => {
+    expect(await lintFixture('storage/indexed-db.ts')).toEqual([])
+    expect(await lintFixture('storage/storage-persist.ts')).toEqual([])
+  })
+
+  // @test-link [[req_on_device_storage]]
+  // @test-link [[specification_ephemeral_state_verification]]
+  test.each(directoriesOutsideStorage)(
+    'indexedDB.open and navigator.storage.persist() are rejected in src/%s/',
+    async (directory) => {
+      expectBoundaryErrors(
+        await lintFixture(`${directory}/indexed-db.ts`),
+        storageOutsideStorageDirectory,
+        1,
+      )
+      expectBoundaryErrors(
+        await lintFixture(`${directory}/storage-persist.ts`),
+        storageOutsideStorageDirectory,
+        1,
+      )
+    },
+  )
+
+  // @test-link [[specification_ephemeral_state_verification]]
+  test('localStorage, sessionStorage and caches are rejected even inside src/storage/', async () => {
+    expectBoundaryErrors(await lintFixture('storage/local-storage.ts'), browserPersistence, 1)
+    expectBoundaryErrors(await lintFixture('storage/session-storage.ts'), browserPersistence, 1)
+    expectBoundaryErrors(await lintFixture('storage/cache-api.ts'), cacheApi, 1)
+  })
+
+  // @test-link [[specification_browser_only_operation_verification]]
+  test('document.cookie and cookieStore are rejected even inside src/storage/', async () => {
+    expectBoundaryErrors(await lintFixture('storage/document-cookie.ts'), cookieAccess, 1)
+    expectBoundaryErrors(await lintFixture('storage/cookie-store.ts'), cookieAccess, 1)
+  })
 })
 
 describe('eslint.config.js rejects every always-forbidden API in every src/ directory', () => {
@@ -126,12 +169,13 @@ describe('eslint.config.js rejects every always-forbidden API in every src/ dire
     { call: "new EventSource('/events')", explanation: networkAccess, count: 1 },
     { call: "navigator.sendBeacon('/session')", explanation: networkAccess, count: 1 },
     { call: 'document.cookie', explanation: cookieAccess, count: 1 },
+    { call: "cookieStore.set('k', 'v')", explanation: cookieAccess, count: 1 },
+    { call: "window.cookieStore.get('k')", explanation: cookieAccess, count: 1 },
     { call: "new Audio('note.mp3')", explanation: mediaElementPlayback, count: 1 },
   ]
   const storageCalls = [
     { call: "localStorage.setItem('k', 'v')", explanation: browserPersistence },
     { call: "sessionStorage.setItem('k', 'v')", explanation: browserPersistence },
-    { call: "indexedDB.open('db')", explanation: browserPersistence },
     { call: "caches.open('c')", explanation: cacheApi },
   ]
 
@@ -153,5 +197,33 @@ describe('eslint.config.js rejects every always-forbidden API in every src/ dire
   )('$call is rejected in src/$directory/', async ({ directory, call, explanation }) => {
     const messages = await lintAsSource(`${directory}/probe.ts`, `export const probe = ${call}\n`)
     expectBoundaryErrors(messages, explanation, 1)
+  })
+})
+
+describe('eslint.config.js allows IndexedDB and the storage manager under src/storage/ only', () => {
+  const storageDirectoryCalls = [
+    "indexedDB.open('db')",
+    "window.indexedDB.open('db')",
+    "globalThis.indexedDB.deleteDatabase('db')",
+    "self.indexedDB.open('db')",
+    'navigator.storage.persist()',
+    'navigator.storage.estimate()',
+    'navigator?.storage.persist()',
+  ]
+
+  // @test-link [[req_on_device_storage]]
+  test.each(storageDirectoryCalls)('%s is allowed in src/storage/', async (call) => {
+    expect(await lintAsSource('storage/probe.ts', `export const probe = ${call}\n`)).toEqual([])
+  })
+
+  // @test-link [[req_on_device_storage]]
+  // @test-link [[specification_ephemeral_state_verification]]
+  test.each(
+    ['audio', 'midi', 'other'].flatMap((directory) =>
+      storageDirectoryCalls.map((call) => ({ directory, call })),
+    ),
+  )('$call is rejected in src/$directory/', async ({ directory, call }) => {
+    const messages = await lintAsSource(`${directory}/probe.ts`, `export const probe = ${call}\n`)
+    expectBoundaryErrors(messages, storageOutsideStorageDirectory, 1)
   })
 })

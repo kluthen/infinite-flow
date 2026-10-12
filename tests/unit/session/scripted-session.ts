@@ -5,6 +5,7 @@
  */
 
 import { measureSeconds } from '@/session/session-timing'
+import type { Seed } from '@/domain/random/seed'
 import type { SessionSettings } from '@/session/session-types'
 import type { SettingsMutationFlag } from '@/session/settings-mutation'
 import {
@@ -32,6 +33,8 @@ export interface FastDriverOptions {
   readonly viewport?: FakeViewport
   readonly display?: FakeDisplay
   readonly phraseOneDensity?: SessionSettings['controls']['noteDensity']
+  readonly sessionSeed?: Seed
+  readonly multiPhraseTensionArc?: boolean
 }
 
 /** Intent: a driver at 240 BPM started at 0, so phrase 2's deadline is 1 s and N+1's is 3 s on. */
@@ -50,6 +53,10 @@ export function fastDriver(options: FastDriverOptions = {}): SessionDriver {
     ...(options.mutation === undefined ? {} : { mutation: options.mutation }),
     ...(options.viewport === undefined ? {} : { viewport: options.viewport }),
     ...(options.display === undefined ? {} : { display: options.display }),
+    ...(options.sessionSeed === undefined ? {} : { sessionSeed: options.sessionSeed }),
+    ...(options.multiPhraseTensionArc === undefined
+      ? {}
+      : { multiPhraseTensionArc: options.multiPhraseTensionArc }),
   })
 }
 

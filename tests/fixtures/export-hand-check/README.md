@@ -14,7 +14,7 @@ generation, and stopped after the last phrase:
 | Setting        | Value                                                     |
 | -------------- | --------------------------------------------------------- |
 | Phrase 1 seed  | 2026 (generated at Idle)                                  |
-| Later seeds    | from 9100, one per generation, in order                   |
+| Session seed   | 9100; every later seed derived from it by the seed plan   |
 | Phrases        | 6, so 24 measures                                         |
 | Tempo          | 100 BPM throughout, so the tempo map holds a single tempo |
 | Written key    | F major (one flat)                                        |

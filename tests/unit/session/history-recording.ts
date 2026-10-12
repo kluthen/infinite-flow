@@ -10,6 +10,7 @@ import { expect } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
+import { makeSeed } from '@/domain/random/seed'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
@@ -92,7 +93,7 @@ export async function recordRunnerSession(
   options: RecordedSessionOptions,
 ): Promise<SessionHistory> {
   const { settings, phraseOne, phraseCount } = options
-  const history = createSessionHistory(settings, fixedWallClock)
+  const history = createSessionHistory(settings, fixedWallClock, makeSeed(options.firstSeed))
   const errors: unknown[] = []
   const clock = { at: 0 }
   const runner = createSessionRunner(
@@ -110,6 +111,7 @@ export async function recordRunnerSession(
       at: 0,
       settings,
       phraseOne,
+      sessionSeed: makeSeed(options.firstSeed),
       mutation: SETTINGS_MUTATION_OFF,
       adaptiveTempo: false,
       multiPhraseTensionArc: false,

@@ -33,12 +33,18 @@ import {
   regeneratedMidi,
   regeneratedMusicXml,
 } from './history-recording'
-import { SessionDriver, fixedWallClock, phraseOneFor, sessionSettings } from './session-harness'
+import {
+  DEFAULT_SESSION_SEED,
+  SessionDriver,
+  fixedWallClock,
+  phraseOneFor,
+  sessionSettings,
+} from './session-harness'
 import { driveTempoSession, phraseStartAt, phraseTempoOf, tempoDriver } from './tempo-session'
 
 /** Intent: the recorded phrases of a driven session, fed every output the driver logged. */
 function recordedPhrases(driver: SessionDriver): readonly SessionHistoryRecord[] {
-  const history = createSessionHistory(driver.settings, fixedWallClock)
+  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
   for (const output of driver.log) history.record(output)
   return history.phrases()
 }
@@ -160,7 +166,7 @@ describe('the encoder inputs a history hands over', () => {
  */
 function playedThreePhraseRecords(): readonly SessionHistoryRecord[] {
   const driver = threePhraseSession()
-  const history = createSessionHistory(driver.settings, fixedWallClock)
+  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
   const played: readonly (readonly [number, number, number, number])[] = [
     [60, 40, 0.5, 0.75],
     [62, 50, 1.25, 1.5],
@@ -254,7 +260,7 @@ function risenRecords(phraseCount = 4): readonly SessionHistoryRecord[] {
   let plan = createClickPlan(driver.start.at, 90)
   for (let n = 2; n <= phraseCount; n += 1)
     plan = withTempoFrom(plan, phraseFirstBeat(plan, n), phraseTempoOf(driver, n))
-  const history = createSessionHistory(driver.settings, fixedWallClock)
+  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
   for (const output of driver.log) {
     if (output.kind !== 'phrase-sounding') {
       history.record(output)

@@ -18,6 +18,7 @@ import { cutoverAt } from '@/session/session-timing'
 import type { SessionOutput } from '@/session/session-types'
 import { SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
 import {
+  DEFAULT_SESSION_SEED,
   fakeDisplay,
   fakeViewport,
   kinds,
@@ -73,6 +74,7 @@ function cancelRig(tempo = 240): CancelRig {
       at: 0,
       settings,
       phraseOne: phraseOneFor(settings),
+      sessionSeed: DEFAULT_SESSION_SEED,
       mutation: SETTINGS_MUTATION_OFF,
       adaptiveTempo: false,
       multiPhraseTensionArc: false,

@@ -5,7 +5,10 @@
  */
 
 import type { GenerationControls, MusicalProfile } from '@/domain/controls/generation-controls'
-import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
+import type {
+  BuiltInInstrumentProfileId,
+  InstrumentProfileId,
+} from '@/domain/profile/instrument-profiles'
 import type { RegisterChoice } from '@/domain/profile/register-intent'
 
 /** One representative control set of the seed matrix. */
@@ -92,7 +95,7 @@ export const CONTROL_SETS: readonly ControlSet[] = [
   },
 ]
 
-export const INSTRUMENT_PROFILE_IDS: readonly InstrumentProfileId[] = [
+export const INSTRUMENT_PROFILE_IDS: readonly BuiltInInstrumentProfileId[] = [
   'c-keyboard',
   'bb-tenor',
   'eb-alto',

@@ -1,13 +1,15 @@
 /**
  * The workspace session's Idle fit run, split out of use-generation-session.ts: one operation that
  * generates up to four attempts (the first plus up to three fresh-seed retries), checks each one
- * against the staff's current room before anything is drawn, and draws only the first that fits.
- * This module owns no session state of its own: it reads and writes the shared session state
- * object the root composable constructs, through the dependency surface below, and keeps only the
- * run token that makes a stopped run's late continuations no-ops.
+ * against the staff's current room before anything is drawn, and draws only the first that fits,
+ * published as phrase 1 with the one session seed drawn for it. This module owns no session state
+ * of its own: it reads and writes the shared session state object the root composable constructs,
+ * through the dependency surface below, and keeps only the run token that makes a stopped run's
+ * late continuations no-ops.
  */
 
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
+import type { Seed } from '@/domain/random/seed'
 import { NotationError } from '@/notation/notation-error'
 import type { StaffFitVerdict, StaffRoomVerdict } from '@/notation/staff-fit-types'
 import type { MutableGenerationSessionState } from './use-generation-session'
@@ -31,12 +33,20 @@ export type RoomNoticeCause = 'no_room' | 'notes_too_wide'
 // @spec-link [[rule_session_end_generates_next_phrase_one]]
 export type FitRunStart = 'keep_screen' | 'no_score' | 'fresh'
 
-/** The dependency surface the fit run needs from the root session composable. */
+/**
+ * The dependency surface the fit run needs from the root session composable: an attempt generates
+ * a `TGenerated`, and the result it publishes is a `TResult`, joined with its session seed.
+ */
 // @spec-link [[module_idle_fit_round]]
-export interface FitRunDependencies<TResult> {
+// @spec-link [[module_session_seed_plan]]
+export interface FitRunDependencies<TResult, TGenerated = TResult> {
   readonly state: MutableGenerationSessionState<TResult>
-  readonly generate: (intent: GenerationIntent) => Promise<TResult>
-  readonly checkFit: (result: TResult) => Promise<StaffFitVerdict>
+  readonly generate: (intent: GenerationIntent) => Promise<TGenerated>
+  readonly checkFit: (generated: TGenerated) => Promise<StaffFitVerdict>
+  /** The session seed of a published phrase 1, drawn once per publishing run. */
+  readonly nextSessionSeed: () => Seed
+  /** Join a generated phrase with its session seed, as the result the run publishes. */
+  readonly withSessionSeed: (generated: TGenerated, sessionSeed: Seed) => TResult
   readonly notate: (result: TResult) => Promise<void>
   readonly clearPresentedPhrase: () => void
   /** One fresh seed and request identity, with the note density the width gives now. */
@@ -86,12 +96,27 @@ export function toError(error: unknown): Error {
 // @spec-link [[rule_idle_phrase_too_dense_is_replaced]]
 // @spec-link [[rule_retry_round_window_changes]]
 // @spec-link [[rule_unsupported_rhythm_gives_way_to_no_phrase]]
-export function createFitRunner<TResult>(deps: FitRunDependencies<TResult>): FitRunner {
+export function createFitRunner<TResult, TGenerated = TResult>(
+  deps: FitRunDependencies<TResult, TGenerated>,
+): FitRunner {
   const { state } = deps
   let token = 0
   let running = false
   /** The token of the fresh run, while it is the latest run; 0 with none. */
   let freshToken = 0
+  /** The session seed the latest run drew for the phrase it publishes; none before it needs one. */
+  let runSessionSeed: Seed | undefined
+
+  /**
+   * Intent: the result a fitting or retryable attempt is published as: the generated phrase with
+   * the run's session seed, drawn the first time the run publishes and reused if that attempt is
+   * found too wide while drawn, so a published phrase 1 costs one draw however many attempts ran.
+   */
+  // @spec-link [[module_session_seed_plan]]
+  function publishable(generated: TGenerated): TResult {
+    runSessionSeed ??= deps.nextSessionSeed()
+    return deps.withSessionSeed(generated, runSessionSeed)
+  }
 
   /** Intent: drop the phrase the staff shows, and the result it stands for. */
   function dropScore(): void {
@@ -174,8 +199,8 @@ export function createFitRunner<TResult>(deps: FitRunDependencies<TResult>): Fit
   }
 
   /** Intent: act on a fit verdict: draw a fitting attempt, fail a too-wide one, or show the notice. */
-  function afterVerdict(runToken: number, result: TResult, verdict: StaffFitVerdict) {
-    if (verdict.kind === 'fits') return draw(runToken, result)
+  function afterVerdict(runToken: number, generated: TGenerated, verdict: StaffFitVerdict) {
+    if (verdict.kind === 'fits') return draw(runToken, publishable(generated))
     if (verdict.kind === 'notes_too_wide') return 'too_wide' as const
     showNotice('no_room')
     return 'ended' as const
@@ -185,13 +210,17 @@ export function createFitRunner<TResult>(deps: FitRunDependencies<TResult>): Fit
    * Intent: keep an attempt whose fit check itself failed as a retryable notation error; a fresh
    * run's staff not laid out shows the no-room notice instead.
    */
-  function keepCheckFailure(runToken: number, result: TResult, error: unknown): AttemptOutcome {
+  function keepCheckFailure(
+    runToken: number,
+    generated: TGenerated,
+    error: unknown,
+  ): AttemptOutcome {
     if (!(error instanceof NotationError)) throw error
     if (staffNotLaidOutInFreshRun(runToken, error)) {
       showNotice('no_room')
       return 'ended'
     }
-    state.result = result
+    state.result = publishable(generated)
     state.resultEngraved = false
     state.notationError = error
     state.roomNotice = null
@@ -216,7 +245,7 @@ export function createFitRunner<TResult>(deps: FitRunDependencies<TResult>): Fit
     intent: GenerationIntent,
   ): Promise<AttemptOutcome> {
     state.latestIntent = intent
-    let result: TResult
+    let result: TGenerated
     try {
       result = await deps.generate(intent)
     } catch (error: unknown) {
@@ -291,6 +320,7 @@ export function createFitRunner<TResult>(deps: FitRunDependencies<TResult>): Fit
   async function run(start: FitRunStart): Promise<boolean> {
     const runToken = ++token
     freshToken = start === 'fresh' ? runToken : 0
+    runSessionSeed = undefined
     running = true
     state.operation = 'generating'
     state.generationError = null

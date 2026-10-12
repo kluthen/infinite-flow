@@ -1,16 +1,17 @@
 ---
 id: rule_my_instrument_range_limits
-status: DRAFT
+status: REVIEW
 type: RULE
 version: 0.1
 parents:
   - [[req_my_instrument]]
-dependents: []
+dependents:
+  - [[entity_my_instrument]]
 layer: BUSINESS
 priority: 1
 human_name: My Instrument Obeys the Profile Range Rules
 tags: [v3, release-v3.0, instrument-profile, range]
-notes: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
+notes: Status DRAFT to REVIEW on 2026-10-12 with the owner's agreement (v3.0 wave-1 sign-off), same version: chunk 16's code (src/domain/profile/my-instrument.ts, merge d49e559) matches the logic and expectation, with its linked tests. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 ---
 
 # My Instrument Obeys the Profile Range Rules

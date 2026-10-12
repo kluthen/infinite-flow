@@ -5,14 +5,21 @@ import {
   DEFAULT_PROFILE_SELECTION,
 } from '@/domain/controls/profile-selection'
 import {
+  GenerationIntentError,
   createGenerationIntent,
+  getInstrumentProfile,
   regenerateGenerationIntent,
+  resolveInstrumentProfile,
   writtenToConcertTonalCenter,
 } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
-import { makeInstrumentProfile } from '@/domain/profile/instrument-profile'
+import { type InstrumentProfile, makeInstrumentProfile } from '@/domain/profile/instrument-profile'
 import { BB_TENOR_PROFILE } from '@/domain/profile/instrument-profiles'
-import { REGISTER_WINDOW_ALGORITHM_V1 } from '@/domain/profile/register-window-derivation'
+import { makeMyInstrument } from '@/domain/profile/my-instrument'
+import {
+  REGISTER_WINDOW_ALGORITHM_V1,
+  deriveRegisterWindowCandidates,
+} from '@/domain/profile/register-window-derivation'
 import { makeSeed } from '@/domain/random/seed'
 
 /**
@@ -190,5 +197,102 @@ describe('writtenToConcertTonalCenter: test-only instrument transposition', () =
 
   it('converts written C to concert pc 3 (E-flat/D#) for a fabricated +21/+12 transposition', () => {
     expect(writtenToConcertTonalCenter('C', TEST_PROFILE_PLUS_21_12)).toBe('D#')
+  })
+})
+
+/** A my instrument sounding a perfect fourth lower than written: written C is concert G. */
+const FOURTH_LOWER = makeMyInstrument({
+  template: 'c-keyboard',
+  name: 'Fourth-lower horn',
+  writtenRange: { minMidi: 60, maxMidi: 90 },
+  transposition: { octaves: 0, semitones: 5, direction: 'lower' },
+})
+
+const MY_INSTRUMENT_CONTROLS = {
+  ...DEFAULT_GENERATION_CONTROLS,
+  tonalCenter: 'C',
+  instrumentProfileId: 'my-instrument',
+} as const
+
+/** Intent: the my-instrument intent input with the given supplied profile, if any. */
+function myInstrumentInput(instrumentProfile?: InstrumentProfile) {
+  return {
+    requestId: makeRequestId('request-mine'),
+    seed: makeSeed(3),
+    controls: MY_INSTRUMENT_CONTROLS,
+    musicalProfile: DEFAULT_PROFILE_SELECTION,
+    ...(instrumentProfile === undefined ? {} : { instrumentProfile }),
+  }
+}
+
+// @test-link [[entity_my_instrument]]
+// @test-link [[module_generation_request_construction]]
+describe('GenerationIntent: my instrument travels as data beside the controls', () => {
+  // @test-link [[entity_my_instrument]]
+  it('refuses my-instrument controls without a profile', () => {
+    expect(() => createGenerationIntent(myInstrumentInput())).toThrow(GenerationIntentError)
+    expect(() => resolveInstrumentProfile('my-instrument', undefined)).toThrow(
+      GenerationIntentError,
+    )
+  })
+
+  // @test-link [[entity_my_instrument]]
+  it('refuses a supplied profile whose id is not my-instrument', () => {
+    expect(() => createGenerationIntent(myInstrumentInput(BB_TENOR_PROFILE))).toThrow(
+      GenerationIntentError,
+    )
+    expect(() => createGenerationIntent(myInstrumentInput(TEST_PROFILE_PLUS_2_1))).toThrow(
+      GenerationIntentError,
+    )
+  })
+
+  // @test-link [[entity_my_instrument]]
+  it('refuses a profile supplied for a built-in id', () => {
+    expect(() =>
+      createGenerationIntent({
+        ...myInstrumentInput(FOURTH_LOWER.profile),
+        controls: { ...MY_INSTRUMENT_CONTROLS, instrumentProfileId: 'bb-tenor' },
+      }),
+    ).toThrow(GenerationIntentError)
+    expect(() => resolveInstrumentProfile('bb-tenor', BB_TENOR_PROFILE)).toThrow(
+      GenerationIntentError,
+    )
+  })
+
+  // @test-link [[entity_my_instrument]]
+  it('resolves a built-in id from the built-in table', () => {
+    expect(resolveInstrumentProfile('bb-tenor', undefined)).toBe(BB_TENOR_PROFILE)
+  })
+
+  // @test-link [[entity_my_instrument]]
+  it('embeds the supplied profile and converts the written tonal center with its chromatic count', () => {
+    const intent = createGenerationIntent(myInstrumentInput(FOURTH_LOWER.profile))
+    expect(intent.instrumentProfile).toEqual(FOURTH_LOWER.profile)
+    expect(intent.controls.instrumentProfileId).toBe('my-instrument')
+    expect(intent.writtenTonalCenter).toBe('C')
+    expect(intent.controls.tonalCenter).toBe('G')
+    expect(intent.registerIntent.candidates.map((candidate) => candidate.window)).toEqual(
+      deriveRegisterWindowCandidates(
+        FOURTH_LOWER.profile.concertRange,
+        FOURTH_LOWER.profile.registerWindows,
+      ).map((candidate) => candidate.window),
+    )
+  })
+
+  // @test-link [[entity_my_instrument]]
+  // @test-link [[rule_seeded_phrase_reproduction]]
+  it('regenerates with the my-instrument profile kept', () => {
+    const intent = createGenerationIntent(myInstrumentInput(FOURTH_LOWER.profile))
+    const regenerated = regenerateGenerationIntent(intent, {
+      nextRequestId: () => makeRequestId('request-mine-2'),
+      nextSeed: () => makeSeed(4),
+    })
+    expect(regenerated.instrumentProfile).toEqual(FOURTH_LOWER.profile)
+    expect(regenerated.controls).toEqual(intent.controls)
+    expect(regenerated.writtenTonalCenter).toBe('C')
+  })
+
+  it('refuses to look my instrument up by id alone', () => {
+    expect(() => getInstrumentProfile('my-instrument')).toThrow(GenerationIntentError)
   })
 })

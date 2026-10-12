@@ -1,7 +1,8 @@
 /**
  * The workspace's session runner: the player's `Vary settings` choice becomes the engine's
- * settings-mutation flag, its seed drawn from the workspace's seed provider before any attempt
- * seed (and none drawn when it is off); the multi-phrase tension arc flag is passed on as it is;
+ * settings-mutation flag, its seed derived from the start's session seed (and nothing derived
+ * when it is off), no seed drawn from any provider; the multi-phrase tension arc flag is passed
+ * on as it is;
  * the display reading the caller passes is the one the engine reads for a settings change; every
  * output, a settings change's included, reaches the caller.
  */
@@ -13,6 +14,7 @@ import {
   startWorkspaceSessionRunner,
 } from '@/components/workspace/workspace-session-runner'
 import { makeSeed } from '@/domain/random/seed'
+import { phraseAttemptSeed, settingsMutationSeed } from '@/session/session-seed-plan'
 import type { SessionOutput, SessionSettings } from '@/session/session-types'
 import { mutationPhrase, SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
 import {
@@ -29,6 +31,9 @@ import {
 function settle(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
+
+/** The session seed every rig starts from. */
+const SESSION_SEED = makeSeed(0x51ed5eed)
 
 /** Phrase n's start on a 240 BPM session whose count-in ends at 1 s: a phrase is 4 s. */
 function phraseStart(phraseNumber: number): number {
@@ -60,6 +65,7 @@ function runnerRig(varySettings: boolean, display = UNREAD_DISPLAY, multiPhraseT
       at: 0,
       settings,
       phraseOne: phraseOneFor(settings),
+      sessionSeed: SESSION_SEED,
       adaptiveTempo: false,
       varySettings,
       multiPhraseTensionArc,
@@ -85,13 +91,13 @@ async function playTo(rig: ReturnType<typeof runnerRig>, last: number): Promise<
 // @test-link [[req_multi_phrase_tension_arc]]
 describe('the workspace session runner', () => {
   // @test-link [[req_settings_mutation_flag]]
-  it('maps the choice to the flag, drawing a seed only when it is on', () => {
-    const seeds = [41, 42]
-    const nextSeed = () => makeSeed(seeds.shift()!)
-    expect(mutationFlagFor(false, nextSeed)).toBe(SETTINGS_MUTATION_OFF)
-    expect(seeds).toEqual([41, 42])
-    expect(mutationFlagFor(true, nextSeed)).toEqual({ kind: 'on', seed: 41 })
-    expect(seeds).toEqual([42])
+  // @test-link [[module_session_seed_plan]]
+  it("maps the choice to the flag, on with the session seed's planned mutation seed", () => {
+    expect(mutationFlagFor(false, SESSION_SEED)).toBe(SETTINGS_MUTATION_OFF)
+    expect(mutationFlagFor(true, SESSION_SEED)).toEqual({
+      kind: 'on',
+      seed: settingsMutationSeed(SESSION_SEED),
+    })
   })
 
   // @test-link [[req_settings_mutation_flag]]
@@ -103,10 +109,11 @@ describe('the workspace session runner', () => {
     expect(requests.map((request) => request.phraseNumber).at(-1)).toBe(13)
     for (const request of requests) expect(request.intent.controls).toEqual(rig.settings.controls)
     expect(rig.outputs.some((output) => output.kind === 'settings-changed')).toBe(false)
-    // At 240 BPM phrase 2's standalone attempt goes first, after drawing and discarding the
-    // seeds of the four carry-in rungs it skips: no other seed is drawn before them.
+    // At 240 BPM phrase 2's standalone attempt goes first, with the standalone rung's planned
+    // seed; no seed is drawn from the provider, for a mutation or an attempt.
     expect(requests[0]).toMatchObject({ phraseNumber: 2, step: 'standalone', retry: 4 })
-    expect(requests[0]!.intent.seed).toBe(rig.providers.seedsHandedOut[4])
+    expect(requests[0]!.intent.seed).toBe(phraseAttemptSeed(SESSION_SEED, 2, 4))
+    expect(rig.providers.seedsHandedOut).toEqual([])
   })
 
   // @test-link [[req_multi_phrase_tension_arc]]
@@ -130,14 +137,16 @@ describe('the workspace session runner', () => {
 
   // @test-link [[req_settings_mutation_flag]]
   // @test-link [[rule_mutation_lands_on_scheduled_phrase]]
-  it('with the flag on, draws the mutation seed first and mutates on the phrase it schedules', async () => {
+  // @test-link [[module_session_seed_plan]]
+  it('with the flag on, derives the mutation seed from the session seed and mutates on the phrase it schedules', async () => {
     const rig = runnerRig(true)
-    const mutationSeed = rig.providers.seedsHandedOut[0]!
+    const mutationSeed = settingsMutationSeed(SESSION_SEED)
     const requests = () => rig.outputs.filter((output) => output.kind === 'request-generation')
-    // Phrase 2's standalone attempt goes first at 240 BPM, after the four skipped rungs' seeds.
+    // Phrase 2's standalone attempt goes first at 240 BPM, with the standalone rung's planned seed.
     expect(requests()[0]).toMatchObject({ phraseNumber: 2, step: 'standalone', retry: 4 })
-    expect(requests()[0]!.intent.seed).toBe(rig.providers.seedsHandedOut[5])
-    const landsOn = mutationPhrase(makeSeed(mutationSeed), 1)
+    expect(requests()[0]!.intent.seed).toBe(phraseAttemptSeed(SESSION_SEED, 2, 4))
+    expect(rig.providers.seedsHandedOut).toEqual([])
+    const landsOn = mutationPhrase(mutationSeed, 1)
 
     await playTo(rig, landsOn)
 

@@ -2,8 +2,9 @@
 /**
  * Replaying sessions from their inputs: the same start (mutation seed included) and the same
  * timed events give deep-equal outputs, the mutations depend only on the start and the phrase
- * numbers, and a phrase requested after a key or collection mutation (its carried harmony
- * dropped) round-trips through its replay key and replays to the same generation.
+ * numbers, the same phrase 1 and session seed give the same attempt seeds and phrases, and a
+ * phrase requested after a key or collection mutation (its carried harmony dropped) round-trips
+ * through its replay key and replays to the same generation.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -13,6 +14,7 @@ import { makeSeed } from '@/domain/random/seed'
 import { replayPhraseKey } from '@/generation-worker/phrase-replay'
 import { encodePhraseReplayKey } from '@/generation-worker/phrase-replay-key'
 import { decodePhraseReplayKey } from '@/generation-worker/phrase-replay-key-decode'
+import { phraseAttemptSeed, settingsMutationSeed } from '@/session/session-seed-plan'
 import { mutationPhrase, type SettingsMutationFlag } from '@/session/settings-mutation'
 import type { SessionDriver } from './session-harness'
 import { driveSession, fastDriver, settingsChanges } from './scripted-session'
@@ -74,6 +76,56 @@ describe('a session replayed from its inputs', () => {
     },
     SESSIONS_TIMEOUT_MS,
   )
+})
+
+/** The session seed the seed-plan replays start from. */
+const PLAN_SESSION_SEED = makeSeed(0x2468ace0)
+
+/**
+ * Intent: a fast session from the session seed with Vary settings on (its mutation seed derived
+ * from the session seed) and Tension across phrases on, run to phrase 12 with every third
+ * phrase's first attempt failed.
+ */
+function plannedSession(sessionSeed = PLAN_SESSION_SEED): SessionDriver {
+  const driver = fastDriver({
+    sessionSeed,
+    mutation: { kind: 'on', seed: settingsMutationSeed(sessionSeed) },
+    multiPhraseTensionArc: true,
+  })
+  driveSession(driver, 12, (phraseNumber) => phraseNumber % 3 === 0)
+  return driver
+}
+
+// @test-link [[module_session_seed_plan]]
+describe('a session replayed from phrase 1 and its session seed', () => {
+  // @test-link [[module_session_seed_plan]]
+  it(
+    'gives identical phrases, seeds included, with Vary settings and Tension across phrases on',
+    () => {
+      const first = plannedSession()
+      const second = plannedSession()
+      expect(second.log).toEqual(first.log)
+      expect(settingsChanges(first).length).toBeGreaterThan(0)
+      const tensions = new Set(first.requests().map((request) => request.intent.controls.tension))
+      expect(tensions.size).toBeGreaterThan(1)
+      for (const request of first.requests())
+        expect(request.intent.seed).toBe(
+          phraseAttemptSeed(PLAN_SESSION_SEED, request.phraseNumber, request.retry),
+        )
+    },
+    SESSIONS_TIMEOUT_MS,
+  )
+
+  // @test-link [[module_session_seed_plan]]
+  it('gives different phrase-2 seeds for a different session seed', () => {
+    const one = fastDriver({ sessionSeed: makeSeed(1) })
+    const two = fastDriver({ sessionSeed: makeSeed(2) })
+    /** Intent: the seed of phrase 2's first request. */
+    const seedOf = (driver: SessionDriver) => driver.requests(2)[0]!.intent.seed
+    expect(seedOf(one)).toBe(phraseAttemptSeed(makeSeed(1), 2, 4))
+    expect(seedOf(two)).toBe(phraseAttemptSeed(makeSeed(2), 2, 4))
+    expect(seedOf(two)).not.toBe(seedOf(one))
+  })
 })
 
 // @test-link [[module_phrase_replay_key]]

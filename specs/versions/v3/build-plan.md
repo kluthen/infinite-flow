@@ -1,6 +1,11 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v2 (2026-10-09): the workflow moves to wave level (spec D252,
+Status: v5 (2026-10-12): a wording fix the owner approved at the wave-1 gate, no behaviour
+changed: chunk 23's "Done when" now says a skipped rung's seed is unused under the seed plan;
+v4 (2026-10-09): the owner's answers to spec O163 and O164 (spec D257, D258, master spec
+v1.6) written into chunks 9, 16 and 20 and the wave table; v3 (2026-10-09): the owner's rulings after the wave-1 preflight (spec D253–D256, master
+spec v1.5) written into chunks 6, 9, 16 and 23, and chunk 23's code facts corrected
+([Wave records](#wave-records)); v2 (2026-10-09): the workflow moves to wave level (spec D252,
 [§3](#3-workflow-waves-and-chunks)); v1 (2026-10-07) approved by the product owner; Gate A and the
 token-source pass (Q66) confirmed the same day
 
@@ -70,11 +75,11 @@ wave-0 gate covers chunks 1 and 2.
 | 0 | 0 Intent re-sync · 1 Token-source pass · 2 Baselines | Nothing (chunk 1: the owner's Q66 answer). H1 can run now. |
 | 1 | 3 Storage boundary gates · 6 Tolerant settings codec · 16 My instrument in the domain · 23 Session seed plan | Chunk 0 (and chunk 2 for 16 and 23, which its replay corpus guards) |
 | 2 | 4 Database core · 18 Replay key `ifk2.` · 19 My instrument on the staff · 24 Pre-generation at Idle | Chunk 3 (4); 16 (18, 19); 23 (24) |
-| 3 | 5 Save policy · 9 Kept-session record | Chunk 4 |
+| 3 | 5 Save policy · 9 Kept-session record | Chunk 4; chunk 23 (9) |
 | 4 | 7 Saved settings · 8 Notice row | Chunks 5, 6; chunk 1 for 8 |
 | 5 | 10 Most recent session kept · 17 My instrument across worker and history | Chunks 7, 8, 9 (10); 9, 16 (17) |
 | 6 | **Gate A**, then 11 Played-notes opt-in · 12 Favorites, pin, comment · 22 Remembered controller · 25 Stray-note filter | Chunk 10 and Gate A (11, 12); chunk 7 and Gate A (22); H1 and chunk 1 (25) |
-| 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet | Chunk 12 (13, 14); chunks 7, 17, 19 and the range ruling (20) |
+| 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet | Chunk 12 (13, 14); chunks 7, 17, 19, the range ruling and ux Q76 (20) |
 | 8 | 15 Your data · 21 The check feeds my instrument | Chunks 11, 14 (15); 20 (21) |
 | 9 | 26 v3.0 release gate | Every other chunk |
 
@@ -93,6 +98,7 @@ flowchart LR
   C3 --> C4[4 Database core]
   C4 --> C5[5 Save policy]
   C4 --> C9[9 Kept-session record]
+  C23 --> C9
   C5 --> C7[7 Saved settings]
   C6 --> C7
   C5 --> C8
@@ -166,6 +172,32 @@ Conflict for `ux-writer` (blocks chunk 20, not chunk 16): the my-instrument desi
 transposition with a semitone stepper ("{n} lower / Same / {n} higher"), while master spec §7.1
 and `rule_my_instrument_transposition_named_interval` enter it as a named interval, a number of
 octaves and a direction, never as a bare number of semitones.
+
+#### Owner rulings after the wave-1 preflight (2026-10-09)
+
+The owner settled four points the preflight raised (spec D253–D256, master spec v1.5):
+
+- **The transposition is entered in octaves and semitones** (spec D253): a number of octaves and a
+  signed semitone count, the interval name derived and shown; §7.1's spelling table stays. This
+  settles the conflict above on the spec's side: the design's stepper is consistent, and
+  `ux-writer` adds the derived name ([ux Q76](../../../ui_ux/open-questions.md)). The owner then
+  settled where the sign sits (spec D257, closing O163): it is the direction of the whole
+  transposition, octaves included, and the value is entered with the design's one stepper
+  counting semitones across octaves, the derived name beside it. Chunk 16 below takes the
+  octaves, semitones and direction; chunk 20 shows the name.
+- **My instrument's id is `my-instrument`**, fixed and apart from its display name (spec D254):
+  the open id's literal chunk 16's capture needed. Chunks 6, 9, 16 and 20 below say it.
+- **A session-wide record keeps the session's own facts, its session seed among them** (spec
+  D255): chunk 23 puts the session seed there, chunk 9 keeps it. The owner adds no other facts
+  (spec D258, closing O164): the record holds what master spec §5.2 lists and the session seed,
+  and nothing derivable from the session seed; any further fact replay needs is settled in chunk
+  9's architecture capture and put to the owner then.
+- **The Part D wording of `rule_ephemeral_session_state` is confirmed** (spec D256): chunk 3's
+  open point is closed; `documentalist` applies it in the wave-1 post-task sync.
+
+The plan corrections above are applied: chunk 23's Scope and Files now state the code facts,
+chunk 16 no longer says the spelling is flagged to `spec-writer`, and the Atoms lines of chunks 6
+and 16 carry the atoms the preflight added.
 
 ## 2. Read first: what v3.0 undoes in v2
 
@@ -557,7 +589,7 @@ table), [`docs/release/browser-and-offline-limits.md`](../../../docs/release/bro
 **Atoms:** `req_on_device_storage`; (v2) `rule_session_data_never_sent_or_stored`,
 `specification_ephemeral_state_verification`, `specification_browser_only_operation_verification`.
 **Part D:** `rule_ephemeral_session_state` (its "never stored" clause gets the one-directory
-wording; the full revision is chunk 7's).
+wording, confirmed by the owner on 2026-10-09, spec D256; the full revision is chunk 7's).
 
 **Depends on:** chunk 0.
 
@@ -675,7 +707,8 @@ Is Saved, Notices).
 default, and every other setting is kept.
 
 **Scope.** `src/storage/records/settings-record.ts`: encode and decode one record per setting:
-each of the 14 controls (instrument selection included, which may name my instrument), the
+each of the 14 controls (instrument selection included, which may name my instrument by its fixed
+id, `my-instrument`, never by its display name; master spec §7.1), the
 musical profile selection, the theme, the audio mix (each on/off and volume), the three "During a
 session" options, the review's format, backing-track and `Played notes` choices, and
 `Keep my played notes`. Decoding validates each value through the existing validators
@@ -693,7 +726,8 @@ itself loads (the my-instrument record arrives in chunk 20; until then it falls 
 **Spec sections:** [§4.2](master-spec.md#42-what-is-saved-automatically), [§4.4](master-spec.md#44-loading-saved-settings).
 
 **Atoms:** `rule_saved_settings_load_tolerantly`, `rule_saved_setting_is_players_choice`,
-`rule_outdated_tab_reads_what_it_can`, `rule_played_notes_kept_only_after_opt_in`.
+`rule_settings_saved_on_change`, `rule_outdated_tab_reads_what_it_can`,
+`rule_played_notes_kept_only_after_opt_in`.
 
 **Depends on:** chunk 0. Independent of chunks 3–5 (pure code).
 
@@ -828,15 +862,21 @@ The confirmation is item 23's evidence.
 ### Chunk 9 — Kept-session record
 
 **Architecture capture:** the kept-session shape (summary, body, played notes) and the mapping
-layer beside the history.
+layer beside the history. The capture checks whether replaying a kept session needs any fact
+beyond master spec §5.2's list; if it does, the leader names it and it goes to the owner as a new
+spec question before the record is built (spec D258). One candidate to raise if replay needs it,
+not settled: the three "During a session" options as they were at Start (Vary settings, Tension
+across phrases, Rising tempo), since each phrase's inputs show their effects but not the choices.
 
 **Goal.** Turn a finished session's in-memory history into the record v3.0 keeps, and back into
 what the review reads, keeping only what the review and the exports need.
 
 **Scope.** `src/storage/records/kept-session-record.ts`: from `SessionHistory` to a summary
-(start date and time, length, phrase count, musical profile, instrument as shown then, starting
-and reached tempo, pinned, favorites count, comment, whether played notes are kept, app version)
-and a body (per phrase: the timeline, the chord symbols' harmony, the reproduction intent, the
+(start date and time, length, phrase count, musical profile, instrument by its id, with its
+display name as shown then, starting and reached tempo, pinned, favorites count, comment, whether
+played notes are kept, app version), the session-wide record's facts that are not for the list
+(the session seed of chunk 23; master spec §5.2; nothing derivable from the session seed, such
+as the later phrases', ladder rungs' or mutation seeds, spec D258), and a body (per phrase: the timeline, the chord symbols' harmony, the reproduction intent, the
 tempo, the repeat flag, the favorite mark); played notes, when asked for, as a separate record
 with times in seconds from the session's start. Never acknowledgements, rhythm or tension
 provenance, or diagnostics. Decoding validates through the existing parsers (outcome and
@@ -848,12 +888,13 @@ and produces the same review input the in-memory history gives. `src/session/` a
 input adapter in `src/components/review/` if the review reads `SessionHistory` directly, tests
 `tests/unit/storage/kept-session-record.spec.ts`.
 
-**Spec sections:** [§5.2](master-spec.md#52-what-a-kept-session-holds), [§12](master-spec.md#12-architectural-decisions-and-their-reasons).
+**Spec sections:** [§5.2](master-spec.md#52-what-a-kept-session-holds), [§7.1](master-spec.md#71-what-it-is) (the id), [§12](master-spec.md#12-architectural-decisions-and-their-reasons).
 
 **Atoms:** `rule_kept_session_content`, `rule_kept_session_holds_no_acknowledgements`; (v2)
 `rule_session_history_keeps_timeline_and_inputs`, `service_session_history`.
 
-**Depends on:** chunk 4 (envelope). Independent of chunks 5–8.
+**Depends on:** chunk 4 (envelope); chunk 23 (the session-wide record and its session seed in the
+history). Independent of chunks 5–8.
 
 **Done when:**
 
@@ -863,6 +904,8 @@ input adapter in `src/components/review/` if the review reads `SessionHistory` d
 - Decoding gives a review input from which MusicXML and MIDI exports are byte-identical to the
   exports of the in-memory session, for the three instruments.
 - Played-note times decode relative to the session start and export identically.
+- The session-wide record round-trips: the session seed decodes to the value the history held,
+  and the instrument decodes by its id, with the display name it had then.
 - A 30-minute 240 BPM Jazz `Sixteenth` session encodes to at most about 3.5 MB (the spec's
   estimate), measured in the test.
 - `session-history-export.spec.ts`'s storage trap stays green.
@@ -1163,7 +1206,7 @@ both saving-off states).
 ### Chunk 16 — My instrument in the domain
 
 **Architecture capture:** opening the closed instrument id: how a player-made profile is named in
-the controls and carried as data.
+the controls (by its fixed id, `my-instrument`) and carried as data.
 
 **Goal.** Let a player-made instrument exist as a valid instrument profile: built from a template,
 a written range, a transposition and a name, held to the rules every profile obeys. This is the
@@ -1171,17 +1214,26 @@ first step of the widest change in v3.0.
 
 **Scope.**
 
-- `InstrumentProfileId` gains one open member for my instrument; `makeGenerationControls` accepts
-  it; the profile itself travels as data beside the controls (in the generation intent, which
-  already embeds the full profile).
-- `makeMyInstrument({ template, name, writtenRange, semitones })` in `src/domain/profile/`: the
-  concert range follows from the written range and the transposition; whole-number endpoints; a
-  span of at least 24 semitones, refused with a reason; both ends sounding inside MIDI 0–127;
-  register windows derived by the built-in profiles' algorithm; input kind "MIDI controller".
-  The transposition's letter-step part (its **diatonic** count, which decides how the written
-  key and notes are spelled) is derived from the semitones by one fixed rule, proposed here as
-  the usual interval names (1 = minor second, 2 = major second … 6 = augmented fourth … 11 =
-  major seventh, plus octaves), and **flagged to `spec-writer`** ([§8](#8-open-points-for-spec-writer)).
+- `InstrumentProfileId` gains one member for my instrument, the fixed id `my-instrument`
+  (kebab-case like `c-keyboard`; spec D254): it is what saved settings, kept sessions and replay
+  keys store, and it is never renamed. `makeGenerationControls` accepts it; the profile itself
+  travels as data beside the controls (in the generation intent, which already embeds the full
+  profile). The display name is a separate property of the profile, changeable at any time,
+  never part of the id.
+- `makeMyInstrument({ template, name, writtenRange, transposition })` in `src/domain/profile/`,
+  `name` being the display name and `transposition` a number of octaves (from 0 up), a number of
+  semitones (0 to 11) and one direction for the whole transposition, octaves included (lower,
+  the same or higher: a written note sounds lower or higher), never an interval name (master spec
+  §7.1, spec D253, D257). So "one octave lower" is 1 octave, 0 semitones, lower, and the sheet's
+  one stepper ("14 lower") maps to 1 octave, 2 semitones, lower; the octaves' only bound is the
+  MIDI one below. The concert range follows from the written range and the transposition; whole-number
+  endpoints; a span of at least 24 semitones, refused with a reason; both ends sounding inside
+  MIDI 0–127; register windows derived by the built-in profiles' algorithm; input kind "MIDI
+  controller". The interval name, and with it the transposition's letter-step part (its
+  **diatonic** count, which decides how the written key and notes are spelled), is derived from
+  the semitones by §7.1's fixed table (0 = unison, 1 = minor second, 2 = major second … 6 =
+  augmented fourth … 11 = major seventh; each octave adds 12 semitones and 7 steps), and exposed
+  so the sheet (chunk 20) can show it.
 - Measurement M3's generator sweep, as a script and a sweep config (tooling).
 
 **Files:** `src/domain/profile/instrument-profiles.ts`, `src/domain/profile/my-instrument.ts`
@@ -1195,9 +1247,13 @@ sweep under `tests/sweep/` or `scripts/`.
 (Routing Rules: valid range, the transposition).
 
 **Atoms:** `req_my_instrument`, `rule_my_instrument_range_limits`,
-`rule_my_instrument_transposition_named_interval`; (v2) `entity_instrument_profile`,
-`rule_instrument_profile_range` (STABLE: must stay true of the three built-ins; its revision is
-Part B1).
+`rule_my_instrument_transposition_named_interval` (to revise for spec D253: entered in octaves,
+semitones and one direction, the name derived), the new `entity_my_instrument` (its capture: the
+fixed id and the display name, spec D254; the transposition as octaves, semitones and one
+direction, spec D257); (v2)
+`entity_instrument_profile`, `module_generation_request_construction`,
+`module_generation_control_catalog`, `rule_instrument_profile_range` (STABLE: must stay true of the
+three built-ins; its revision is Part B1).
 
 **Depends on:** chunks 0 and 2.
 
@@ -1205,6 +1261,12 @@ Part B1).
 
 - A range of 23 semitones, or with its lowest note above its highest, is refused with its
   reason; 24 is accepted.
+- Every transposition from 0 to 11 semitones, with and without octaves, in both directions,
+  derives §7.1's interval name and letter-name steps; 6 semitones is an augmented fourth; the
+  tenor saxophone's 1 octave and 2 semitones lower is a major ninth lower, 8 steps, as the
+  built-in's transposition is.
+- My instrument's id is `my-instrument` whatever its display name; two instruments differing only
+  by display name give the same generated phrase for the same request and seed.
 - Each built-in template turned into my instrument without change gives a profile deep-equal to
   the built-in's, windows included.
 - The derived windows of random valid ranges obey every rule the built-in windows obey (property
@@ -1216,6 +1278,23 @@ Part B1).
 **Items covered:** 16 (the refusal, the success-rate measurement).
 
 **Verification:** the chunk checks; M3.
+
+**Record (2026-10-11).** Merged into `v3.0-w1`. `documentalist` captured `entity_my_instrument`
+(DRAFT) first, scoped `entity_instrument_profile`'s "no new enumeration member" to the built-ins
+and revised `rule_my_instrument_transposition_named_interval` for octaves, semitones and one
+direction (DRAFT); no status advanced. The id set is now the three built-ins and `my-instrument`;
+`INSTRUMENT_PROFILE_IDS` stays the three built-ins (tests and the deadline sweep enumerate it to
+build profiles from the table), and the controls, and the saved-settings codec while my instrument
+loads, accept the four. The generation intent takes my instrument's profile as data and refuses a
+missing or mismatched one; a built-in still resolves from its id. Refusals carry a reason code,
+available without throwing for chunk 20's live check. The interval name beyond the table: an
+octave is "octave", one octave plus a table interval takes the compound name ("major ninth"), two
+or more octaves read "2 octaves and a major second". Paths that still rebuild an intent from the
+controls alone (the session's attempt intents, the carry-in receiver, the worker's inbound
+message) refuse `my-instrument` until chunk 17. M3's generator sweep: no failure in any range case
+(table in [`generation-latency.md`](../../../docs/generation-latency.md#my-instrument-ranges-2026-10-11)),
+measured on the build machine, not a VM, for reference.
+
 
 ### Chunk 17 — My instrument across the worker and the history
 
@@ -1334,7 +1413,11 @@ reloads.
 all, then the saved selection falls back); the instrument control's fourth segment, labelled with
 the name, present only while my instrument exists; `instrument-actions` (`Create my instrument` /
 `Edit my instrument`); the sheet (template, name, range steppers, the live refusal, the windows,
-the staff-reach note, transposition, delete with confirmation), loaded on demand; save outcomes
+the staff-reach note, the transposition on the design's one stepper counting semitones across
+octaves, one direction for the whole, with its derived interval name shown beside it (master spec
+§7.1, spec D253, D257; the display as `ux-writer` settles it under ux Q76), delete
+with confirmation), loaded on demand; the record keeps the fixed id `my-instrument` and the display
+name apart (spec D254); save outcomes
 (replace the phrase as on an instrument switch only when selected and its range or transposition
 changed); the first save asks for persistent storage; the range bound of the owner's ruling, if
 any, with its refusal wording; deleting returns to its template only when it was selected.
@@ -1356,7 +1439,7 @@ instrument control).
 `rule_persistent_storage_requested`, `rule_saved_settings_load_tolerantly`. **Part B1** follows
 the merge.
 
-**Depends on:** chunks 1, 7, 17, 19 and the range ruling.
+**Depends on:** chunks 1, 7, 17, 19, the range ruling and `ux-writer`'s answer to ux Q76.
 
 **Done when:**
 
@@ -1364,7 +1447,10 @@ the merge.
   replaced, notation in its written pitch; after a reload, back and selected.
 - A range under two octaves disables `Save` with the refusal; the stepper never stops at the
   two-octave limit; the transposition change keeps the written range.
-- Editing only the name relabels the segment and leaves the phrase.
+- Editing only the name relabels the segment and leaves the phrase; the saved selection still
+  names `my-instrument`.
+- Each step of the transposition updates the shown interval name (14 lower: a major ninth lower;
+  6 higher: an augmented fourth higher; 12 lower: one octave lower, saved and reloaded as lower).
 - Deleting while selected returns to the template; while not selected, changes nothing else; the
   remembered controller is untouched.
 - A seeded invalid my-instrument record loads as absent, and a saved selection of it falls back
@@ -1474,19 +1560,31 @@ header at load, the starting-note line).
 generated early is exactly the phrase the session would have generated at that place.
 
 **Scope.** Today each attempt draws a fresh random seed when it runs (`nextSeed` in
-`src/session/session-intents.ts`), and the settings-mutation seed and the tension arc are drawn
-at Start. This chunk draws one **session seed** when phrase 1 becomes a phrase a session could
-start from, and derives from it, with the named random streams the generator already uses, the
-seed of every phrase and ladder rung, the mutation seed and the tension arc's schedule. The
-session takes its plan from phrase 1 at Start. Each phrase still carries its own seed, so replay
-keys are unchanged in form. Pre-generation itself comes in chunk 24.
+`src/session/session-intents.ts`; the Idle phrase's own in
+`src/composables/use-generation-session.ts`), and the settings-mutation seed is drawn at Start
+(`mutationFlagFor` in `src/components/workspace/workspace-session-runner.ts`). The generator
+itself draws from no named random stream: it orders its candidates by seeded tie keys, so a
+phrase depends only on its request and its seed. Only the settings mutation uses the indexed
+streams (`deriveIndexedStream` in `src/domain/random/streams.ts`). The tension arc draws nothing:
+it is a pure function of the phrase number (`src/session/tension-arc-cycle.ts`), so it is already
+fixed before Start and this chunk leaves it alone.
+
+This chunk draws one **session seed** at Idle, when a phrase 1 becomes a phrase a session could
+start from (master spec §8), and derives from it, by one fixed integer derivation that the
+architecture capture settles, the seed of every later phrase, of every failure-ladder rung and the
+settings-mutation seed. Phrase 1 keeps the seed it was generated with. The session takes its plan
+from phrase 1 at Start and holds the session seed in its **session-wide record** in the history
+(spec D255, master spec §5.2), which chunk 9 keeps. Each phrase still carries its own seed, so
+replay keys are unchanged in form. Pre-generation itself comes in chunk 24.
 
 **Files:** `src/session/session-intents.ts`, `src/session/session-seed-plan.ts` (new),
+`src/composables/use-generation-session.ts` (Idle side: the session seed drawn with phrase 1),
 `src/components/workspace/workspace-session-runner.ts` (mutation seed),
-`src/components/workspace/workspace-session-begin.ts`, the harness's queued-seed seam; tests under
-`tests/unit/session/`.
+`src/components/workspace/workspace-session-begin.ts`, `src/session/session-history.ts` (the
+session-wide record), the harness's queued-seed seam; tests under `tests/unit/session/` and
+`tests/unit/composables/`.
 
-**Spec sections:** [§8](master-spec.md#8-pre-generating-phrases-at-idle) (the same phrases either way), [§11](master-spec.md#11-existing-code-and-risks).
+**Spec sections:** [§8](master-spec.md#8-pre-generating-phrases-at-idle) (the same phrases either way, the session seed), [§5.2](master-spec.md#52-what-a-kept-session-holds) (the session-wide record), [§11](master-spec.md#11-existing-code-and-risks).
 
 **Atoms:** `rule_pregenerated_phrase_matches_session`; (v2) `rule_seeded_phrase_reproduction`,
 `module_named_stream_pseudorandomness`, `rule_session_generation_failure_ladder`.
@@ -1497,7 +1595,10 @@ keys are unchanged in form. Pre-generation itself comes in chunk 24.
 
 - Two runs of the same session from the same phrase 1 and session seed, on the fake clock, give
   identical phrases, including with Vary settings and Tension across phrases on.
-- A skipped ladder rung consumes its seed exactly as before, so the phrase after it is unchanged.
+- The session's history holds the session seed in its session-wide record from Start; a new
+  phrase 1 at Idle comes with a newly drawn session seed.
+- A skipped ladder rung's seed is simply unused; the next rung's seed does not depend on it, so the
+  phrase after it is unchanged. The skipped rung's request id is still drawn and discarded.
 - The `ifk1.` corpus passes unchanged.
 - At the wave gate: the v2 sweep's results are unchanged in kind (no new repeat at any deadline).
   A new repeat there is traced back to this chunk first.
@@ -1505,6 +1606,23 @@ keys are unchanged in form. Pre-generation itself comes in chunk 24.
 **Items covered:** 20 (its identity half).
 
 **Verification:** the chunk checks; the sweep at the wave gate.
+
+**Record (2026-10-11).** Merged into `v3.0-w1`. `documentalist` captured `module_session_seed_plan`
+(DRAFT) first; no status advanced. The Idle session draws one session seed, from its own provider
+apart from the phrase seeds', each time a fit run publishes a phrase 1 (one draw however many fit
+attempts it took); re-showing that phrase 1 keeps it. Every later seed is the session seed XOR the
+FNV-1a hash of a versioned label (`session-seed-plan-v1:phrase:<n>:rung:<r>` per phrase and ladder
+rung, `session-seed-plan-v1:settings-mutation`), in `src/session/session-seed-plan.ts`: a session
+draws no seed. A skipped rung's seed is simply unused, so the standalone attempt and the next
+phrase keep theirs however many rungs ran, at any tempo (the Done-when's "consumes its seed
+exactly as before" holds in that sense: nothing after the skip changes); a phrase requested again after a settings
+change gets the same rung seeds. Request ids stay drawn from the page-wide provider, so they stay
+unique, and a skipped rung still discards its request id. The session history holds the session
+seed from Start (`SessionHistory.sessionSeed`), with nothing derived from it. The workspace harness
+gains `queueSessionSeeds` / `sessionSeedsDrawn` and the two derivations; the e2e specs that queued
+a session's seeds now queue a session seed (for a fixed label the derivation is its own inverse).
+The export hand-check files were regenerated because their later phrases changed: their hand
+checks need redoing. The `ifk1.` corpus passes unchanged.
 
 ### Chunk 24 — Pre-generation at Idle
 
@@ -1677,7 +1795,9 @@ All seven points found while planning were settled in master spec v1.3 (2026-10-
    elsewhere (master spec §8, item 20). Chunk 24 tests identity when the same attempts succeed.
 2. Transposition spelling: chosen by interval name plus octaves and direction; each name fixes
    semitones and letter-name steps; the tritone is spelled as an augmented fourth (§7.1). Chunk
-   16's interval names follow it.
+   16's interval names follow it. **Changed by master spec v1.5 (2026-10-09, spec D253):** the
+   transposition is entered as octaves and a signed semitone count, and the name is derived from
+   it by the same table and shown; the spelling rule is unchanged.
 3. Vary settings and Tension across phrases discard pre-generated phrases; the tempo and Rising
    tempo do not (§8, item 20).
 4. Persistent storage is asked for once per visit, on the first keep, unless already granted

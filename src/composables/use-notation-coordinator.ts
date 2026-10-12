@@ -24,7 +24,7 @@ import type {
 } from '@/notation/staff-fit-types'
 import { loadVexflowEngraver, type VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 import type { StaffLayoutReports } from './generation-session-room-notice'
-import type { WorkspaceSessionResult } from './workspace-session-result'
+import type { WorkspaceGeneratedPhrase, WorkspaceSessionResult } from './workspace-session-result'
 
 /** A programming-usage error: a second `notate` call arrived before the first one settled. */
 export class NotationCoordinatorUsageError extends Error {
@@ -56,8 +56,8 @@ export interface NotationCoordinator {
   readonly handleLayoutInputs: (inputs: StaffLayoutInputs) => void
   /** The session's `staffLayout` seam: every layout report, as `handleLayoutInputs` receives it. */
   readonly staffLayout: StaffLayoutReports
-  /** The session's `checkFit` seam: the result's written phrase against the latest inputs. */
-  readonly checkFit: (result: WorkspaceSessionResult) => Promise<StaffFitVerdict>
+  /** The session's `checkFit` seam: a generated phrase, as written, against the latest inputs. */
+  readonly checkFit: (generated: WorkspaceGeneratedPhrase) => Promise<StaffFitVerdict>
   /** The session's `checkRoom` seam: room for the staff with this key, at the latest inputs. */
   readonly checkRoom: (signature: StaffKeySignature) => Promise<StaffRoomVerdict>
 }
@@ -75,7 +75,7 @@ interface AwaitingRequest {
 
 /** Intent: the written phrase a result is drawn as: the active profile's own written pitch. */
 // @spec-link [[module_idle_fit_round]]
-function writtenPhraseOf(result: WorkspaceSessionResult): WrittenPhrase {
+function writtenPhraseOf(result: WorkspaceGeneratedPhrase): WrittenPhrase {
   return transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent))
 }
 
@@ -209,7 +209,7 @@ export function createNotationCoordinator(
    */
   // @spec-link [[module_idle_fit_round]]
   // @spec-link [[rule_idle_phrase_too_dense_is_replaced]]
-  async function checkFit(result: WorkspaceSessionResult): Promise<StaffFitVerdict> {
+  async function checkFit(result: WorkspaceGeneratedPhrase): Promise<StaffFitVerdict> {
     requireLayoutInputs()
     const phrase = writtenPhraseOf(result)
     const engraver = await planningModule()

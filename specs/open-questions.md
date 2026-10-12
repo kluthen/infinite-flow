@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.51
+Status: draft v0.53
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -14,14 +14,13 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 [archive/v2/open-questions-history.md](archive/v2/open-questions-history.md), and the
 [v2 archive index](archive/v2/README.md) says where each answer now lives.
 
-Open on 2026-10-08, after the owner approved the v3.1 and v3.2 drafts (D233, D234): O48 and O49
-(later and governance), O100–O102 (v4 rhythm ratios and editor), O115 and O116 (v3.x learning).
-D228–D234 closed O10 (for v3.2), O103, O114, O126 and every question the v3.1 and v3.2 drafts
-opened (O127–O157, O160–O162). None of the open ones blocks anything planned.
+Open on 2026-10-12: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
+O115 and O116 (v3.x learning), and O165–O173 and O175 (v3.3 richer chords, below). D228–D234 closed O10 (for v3.2), O103, O114, O126 and every
+question the v3.1 and v3.2 drafts opened (O127–O157, O160–O162); D257 and D258 closed O163 and
+O164 the day they were opened. None blocks the v3.0 build.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
-The rest block v3.3's design, nothing under way. O163 and O164 are used on branch `v3.0-w1`, not
-yet merged.
+The rest block v3.3's design, nothing under way.
 
 ## Later and governance (O47–O49)
 
@@ -83,6 +82,13 @@ by D234.
   it leans toward, and resets it; whether what it learned is kept across sessions (local
   persistence, opt-in like played notes). Proposed: off by default, one visible switch, a reset,
   and nothing kept across sessions without the player's opt-in.
+
+## v3.0 owner rulings (O163+)
+
+Opened 2026-10-09 by `spec-writer` while writing the owner's rulings after the v3.0 wave-1 intent
+preflight (D253–D256) into master spec v1.5. Both questions were answered by the owner the same
+day: O163 (my instrument's transposition: where the sign sits, one control or two) by D257, and
+O164 (the session-wide record's other facts) by D258. None is open here.
 
 ## v3.3 richer chords (O165+)
 

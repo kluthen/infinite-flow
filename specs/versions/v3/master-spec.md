@@ -2,8 +2,9 @@
 
 Status: this file holds three parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.4 (2026-10-07), approved by the
-  product owner, and being built. Its text and section numbers (§1 to §15) are unchanged.
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.7 (2026-10-12), approved by the
+  product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
+  write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix.
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -15,7 +16,7 @@ Status: this file holds three parts.
 
 Part A's history follows.
 
-Part A status: master spec v1.4 (2026-10-07), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
+Part A status: master spec v1.7 (2026-10-12), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
 remembered controller (§7.3). Change in v1.2: behaviours the v3.0 design settled, written in:
 when settings are read and saved, what Delete everything leaves, which sessions a save deletes,
 favorites and unpinning, the played-notes switch on the session that just ended, my instrument's
@@ -27,7 +28,21 @@ outdated tab offers no Delete everything (§4.3, item 14). Change in v1.4, wordi
 and the design pass: the audio-unlock rule is said to widen, not stay (§7.3, §10); item 6
 matches §5.1, a save deleting every unpinned session; an outdated tab offers no deletion of any
 kind (§4.3, item 14); a visit whose read failed is told so and offers
-Delete everything and nothing else, unless newer data is known to exist (§4.4). Consolidated from the approved v3.0 drafts for handoff to
+Delete everything and nothing else, unless newer data is known to exist (§4.4). Change in v1.5,
+the owner's rulings after the build's first intent preflight (2026-10-09): my instrument's
+transposition is entered as octaves and semitones with a sign, and its interval name is derived
+and shown, reversing v1.3's choice by name (the spelling table stays); my instrument has a fixed
+id, `my-instrument`, apart from its display name (§7.1, §7.2, §12, item 16); a session-wide record
+keeps the session's own facts, its session seed among them, and §8 says what the session seed is
+(§5.2, §8, item 8); two points stay open for the owner (§14). Change in v1.6, the owner's
+answers to those two points (2026-10-09): the sign is the direction of the whole transposition,
+octaves included, and the transposition is entered with one control counting semitones across
+octaves, its derived name shown beside it (§7.1, item 16); the session-wide record holds what §5.2 lists
+and nothing that can be derived from the session seed, and any further fact a replay needs is put
+to the owner when the build designs the kept-session record (§5.2); neither is open any more
+(§14). Change in v1.7, a wording fix the owner approved at the v3.0 wave-1 gate (2026-10-12),
+no behaviour changed: §7.1's transposition bullet still described signed counts; it now states
+one direction for the whole interval and unsigned counts, as v1.6 already settled. Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. Part A covers **v3.0
 only**; Part B, consolidated from the approved v3.1 drafts for the same handoffs, covers v3.1. The
 draft topic documents stay in `specs/versions/v3/` as working material; where they and this
@@ -217,7 +232,8 @@ server never appears on the deployed site, and the reverse.
 
 ### 5.2 What a kept session holds
 
-Only what the review and the exports read, plus what identifies the session:
+Only what the review and the exports read, plus what identifies the session and the session's
+own facts:
 
 - **For each phrase:** the generated timeline, the chord symbols, and the reproduction inputs (the
   seed, the controls, the profile, the instrument, the join from the previous phrase), the tempo,
@@ -227,9 +243,16 @@ Only what the review and the exports read, plus what identifies the session:
   diagnostics: 20 to 186 KB per phrase that nothing downstream reads), and which expected notes
   were acknowledged. Keeping acknowledgements would make it possible to count hits, which the
   permanent "no grading or scoring" rule forbids.
-- **For the session:** start date and time, length, number of phrases, musical profile,
-  instrument, starting tempo and the tempo reached, whether it is pinned, its comment (§5.5), and
-  the app version that recorded it.
+- **For the session, one session-wide record** of the session's own facts: start date and time,
+  length, number of phrases, musical profile, instrument (by its id, §7.1), starting tempo and
+  the tempo reached, whether it is pinned, its comment (§5.5), the app version that recorded it,
+  and its **session seed** (§8), the one seed every later phrase's seed derives from. The
+  session holds this record from Start; keeping the session keeps it. It holds nothing that can
+  be derived again from the session seed: not the later phrases' seeds, the failure-ladder rungs'
+  seeds or the Vary settings mutation seed (each phrase's own seed is kept with that phrase, as
+  above). If replaying a kept session turns out to need a further fact, the build names it when
+  it designs the kept-session record, and the owner decides; until then the record holds only
+  these facts.
 - **Played notes, only when the player has opted in** (§5.3). Their times are stored relative to
   the session's start: today they are measured on the page's audio clock, which means nothing after
   a reload.
@@ -289,18 +312,55 @@ in the session list. It is never written into the MusicXML or MIDI exports.
 
 - **One saved instrument, made from a template.** The player starts from one of the three built-in
   profiles (C MIDI keyboard, B-flat tenor saxophone, E-flat alto saxophone) and may change:
-  - its **name**;
+  - its **display name**, at any time (see its id below);
   - its **range**, lowest and highest note, in written pitch: the written range is what the player
     sets and keeps, and the concert range follows from it and the transposition, so changing the
     transposition (by hand or through §7.2) keeps the written range;
-  - its **transposition**, the interval between written and sounding pitch, chosen by name from a
-    list: unison, minor second, major second, minor third, major third, perfect fourth, augmented
-    fourth, perfect fifth, minor sixth, major sixth, minor seventh or major seventh, plus a number
-    of octaves, written above or below sounding pitch. Each name fixes both the number of
-    semitones and the number of letter-name steps (a major ninth is 14 semitones and 8 steps, as
-    for the tenor saxophone), which is how notes, the key signature and chord symbols are spelled
-    in written pitch, exactly as for the built-in profiles. The tritone (6 semitones) is always
-    spelled as an augmented fourth.
+  - its **transposition**, the interval between written and sounding pitch: one **direction** for
+    the whole interval (lower when a written note sounds lower, the same, or higher when it sounds
+    higher) and two counts with no sign of their own, a number of octaves and a number of
+    semitones. It is entered with **one control counting semitones across octaves**
+    ("14 lower" is 1 octave and 2 semitones lower), not with separate octave and semitone inputs.
+    It is never chosen by interval name: the name is **derived** from the count and shown beside
+    the control as the result, and it already carries the octaves (a semitone is the smallest
+    step between two notes; an octave is 12 of them).
+- **The transposition's values.** A number of octaves from 0 up, and a number of semitones from
+  0 to 11 within the octaves, the sign giving the direction. Its size is 12 semitones per octave
+  plus the semitones: the tenor saxophone's is 1 octave and 2 semitones lower, 14 semitones in
+  all; "Same" is 0 and 0. The octaves have no bound of their own: the only bound is that both ends
+  of the range still sound inside the MIDI note range (notes 0 to 127), as the design's stepper
+  already has it. The sign is the direction of the whole transposition, octaves included, not
+  of the semitones alone: a semitone count of 0 has no sign, so it could not say which way a
+  whole-octave transposition goes (an instrument sounding one octave lower is 1 octave and 0
+  semitones, lower).
+- **The interval name, and how it spells the written part.** Each semitone count maps to one
+  interval name by a fixed table, and each name fixes a number of letter-name steps (how many
+  letters, C, D, E and so on, the written note moves from the sounding one):
+
+  | Semitones | Interval name | Letter-name steps |
+  | --- | --- | --- |
+  | 0 | unison (with octaves: one or more octaves) | 0 |
+  | 1 | minor second | 1 |
+  | 2 | major second | 1 |
+  | 3 | minor third | 2 |
+  | 4 | major third | 2 |
+  | 5 | perfect fourth | 3 |
+  | 6 | augmented fourth | 3 |
+  | 7 | perfect fifth | 4 |
+  | 8 | minor sixth | 5 |
+  | 9 | major sixth | 5 |
+  | 10 | minor seventh | 6 |
+  | 11 | major seventh | 6 |
+
+  Each octave adds 12 semitones and 7 letter-name steps: a major ninth, as for the tenor
+  saxophone, is a major second plus an octave, 14 semitones and 8 steps. The steps are how notes,
+  the key signature and chord symbols are spelled in written pitch, exactly as for the built-in
+  profiles. The tritone (6 semitones) is always spelled as an augmented fourth.
+- **A fixed id, apart from the display name.** My instrument's id is `my-instrument`, written like
+  the built-in ids (`c-keyboard`). Saved settings, kept sessions and replay keys name it by that
+  id, and it is never renamed. The display name is a separate property the player may change at
+  any time; changing it changes nothing stored by id. What a phrase was made with travels with the
+  phrase in full (§5.2, §7.4), so editing or deleting my instrument later changes no kept phrase.
 - **The rules every profile already obeys apply:** whole-number endpoints, a span of at least two
   octaves (24 semitones), and the Low, Middle and High register windows derived by the same
   algorithm as the built-in profiles, never set by hand. A range under two octaves is refused, with
@@ -319,7 +379,8 @@ a constant offset: a match, whole octaves, or a number of semitones.
 
 - When the result is not a match, the check offers one action: **use this for my instrument**. It
   sets "my instrument"'s transposition so the written notes match what the controller plays (the
-  offset in semitones maps to the named interval of §7.1, octaves included),
+  offset in semitones becomes §7.1's octaves, semitones and direction, and its interval name
+  follows from §7.1's table),
   creating "my instrument" from the selected profile if there is none yet. The player confirms it
   once; it is then saved, and the check need not be redone in later visits.
 - **The app still applies no offset to played notes.** They are compared at the exact concert
@@ -378,6 +439,13 @@ instrument inline when it is not a built-in profile; `ifk1.` keys keep decoding 
   pre-generated phrase is the one a successful attempt would have produced; that difference is the
   point of pre-generation. This requires the session's seeds and schedules to be fixed, from
   phrase 1, before Start.
+- **The session seed.** One seed, the session seed, is drawn when a phrase 1 becomes one a
+  session could start from. Every later phrase's seed, the seed of every rung of the failure
+  ladder (the fallback attempts a late phrase goes through), and the Vary settings mutation seed
+  derive from it; phrase 1 keeps the seed it was generated with at Idle, and the tension arc
+  needs no seed, since it follows from the phrase number alone. Each phrase still carries its own
+  seed, so a replay key needs nothing more. The session holds its session seed in its
+  session-wide record (§5.2) from Start.
 - **Never saved:** pre-generated phrases are gone on reload.
 
 ## 9. Stray notes
@@ -472,6 +540,13 @@ From reading the code (details: [storage-grounding.md](storage-grounding.md)).
   before a new session: nothing is ever lost by starting one.
 - **Played notes opt-in, separate from pinning**, because the player's own notes are the most
   private data the app holds, and keeping the music should not imply keeping them.
+- **My instrument's transposition entered in octaves and semitones, its interval name derived**,
+  because a player can count semitones on their instrument or a tuner without knowing interval
+  names, while the derived name still fixes how the written part is spelled.
+- **A fixed id for my instrument, apart from its display name**, because saved settings, kept
+  sessions and replay keys must keep naming the same instrument whatever the player calls it.
+- **One session-wide record for each session**, holding its session seed, because a session's
+  phrases all derive from that seed and a kept session should hold what made it.
 - **My instrument from a template with the existing profile rules**, because the generator already
   validates any profile given as data, and deriving register windows keeps a player's range from
   breaking phrase generation in ways the three built-ins never do.
@@ -499,7 +574,8 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
 6. **The most recent session survives a reload** and opens in the same review; a new session's save
    deletes every unpinned kept session, one unpinned earlier included, and keeps every pinned one.
 7. **No save during a session.** No storage write happens between Start and the session's end.
-8. **A kept session holds only §5.2's content**: no acknowledgements, provenance or diagnostics.
+8. **A kept session holds only §5.2's content**: no acknowledgements, provenance or diagnostics;
+   its session-wide record holds its session seed.
 9. **Played notes are stored only after opt-in.** With "Keep my played notes" off, no played note
    is ever written to storage; with it on, they are; per-session and all-sessions deletion remove
    them and nothing else.
@@ -522,7 +598,11 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
     after the session.
 16. **My instrument.** A range under two octaves is refused; a valid instrument generates phrases
     in its range and shows notation in its written pitch; it survives a reload; deleting it
-    returns to its template. The generator's success rate is measured on narrow (two-octave) and
+    returns to its template. Its transposition is entered as octaves and semitones with one
+    direction for the whole, through one control counting semitones across octaves (a
+    whole-octave transposition keeps its direction), and its derived interval name is shown and
+    spells the written part by §7.1's table. It is stored and replayed by its id, `my-instrument`; changing its display name changes
+    nothing stored. The generator's success rate is measured on narrow (two-octave) and
     extreme ranges before the gate, and recorded.
 17. **The check feeds my instrument.** "Use this for my instrument" sets the transposition so the
     written notes match the controller, after one confirmation, and the result survives a reload.
@@ -559,7 +639,8 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
 - **Open, needs the owner:** the explicit confirmation of the three contract changes in §10. The
   owner approved this spec; that approval is not the contract confirmation.
 - **Design, for `ux-writer`:** where "Your data", the session list, favorites, the comment, the
-  "Keep my played notes" switch and "my instrument" live, and how they look on each device.
+  "Keep my played notes" switch and "my instrument" live, and how they look on each device;
+  how my instrument's sheet shows the transposition's derived interval name (§7.1).
 - **Deferred to later versions:** see §2.
 
 ## 15. Access model

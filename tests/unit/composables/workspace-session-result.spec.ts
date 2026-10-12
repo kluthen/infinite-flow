@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   GenerationFailedError,
   createWorkspaceGenerate,
+  withSessionSeed,
 } from '@/composables/workspace-session-result'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import {
@@ -69,5 +70,23 @@ describe('createWorkspaceGenerate', () => {
       code: 'no_legal_pitch_plan',
     })
     await expect(workspaceGenerate(intent)).rejects.toBeInstanceOf(GenerationFailedError)
+  })
+})
+
+// @test-link [[module_session_seed_plan]]
+describe('withSessionSeed', () => {
+  // @test-link [[module_session_seed_plan]]
+  it('publishes a generated phrase unchanged with the session seed drawn for it', () => {
+    const intent = cheapIntent()
+    const outcome = generatePhrase(intent)
+    if (outcome.kind !== 'generation_success') throw new Error('Fixture setup: no phrase.')
+    const generated = { outcome, intent }
+
+    const published = withSessionSeed(generated, makeSeed(4242))
+
+    expect(published).toEqual({ outcome, intent, sessionSeed: 4242 })
+    expect(published.outcome).toBe(outcome)
+    expect(published.intent).toBe(intent)
+    expect(generated).toEqual({ outcome, intent })
   })
 })

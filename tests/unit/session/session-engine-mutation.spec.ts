@@ -75,9 +75,12 @@ describe('a session with the settings-mutation flag off', () => {
       expect(driver.all('phrase-discarded')).toEqual([])
       expect(display.asked).toEqual([])
       // Phrase 2's standalone attempt goes first at 240 BPM, after drawing and discarding the
-      // seeds of the four carry-in rungs it skips; every other seed is one request's.
+      // request ids of the four carry-in rungs it skips; every other request id is one request's,
+      // and no seed is drawn: every attempt seed comes from the session seed plan.
       expect(driver.requests(2)[0]).toMatchObject({ step: 'standalone', retry: 4 })
-      expect(driver.providers.seedsHandedOut).toHaveLength(driver.requests().length + 4)
+      expect(driver.requests(2)[0]!.intent.requestId).toBe('session-5')
+      expect(driver.lastRequest().intent.requestId).toBe(`session-${driver.requests().length + 4}`)
+      expect(driver.providers.seedsHandedOut).toEqual([])
     },
   )
 })

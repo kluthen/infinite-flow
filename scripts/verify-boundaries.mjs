@@ -4,24 +4,28 @@ import { readFile, readdir, stat } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 
 const sourceExtensions = new Set(['.css', '.js', '.jsx', '.ts', '.tsx', '.vue'])
+/**
+ * Browser storage no authored source file may touch, in any directory, `src/storage/` included:
+ * the app's one store is IndexedDB under `src/storage/` (see `directoryScopedApis` below).
+ */
 // @spec-link [[rule_ephemeral_session_state]]
 // @spec-link [[specification_ephemeral_state_verification]]
 // @spec-link [[rule_session_data_never_sent_or_stored]]
-const forbiddenPersistence = /\b(localStorage|sessionStorage|indexedDB|caches)\b/u
+const forbiddenPersistence = /\b(localStorage|sessionStorage|caches)\b/u
 
 /**
  * APIs no authored source file may touch, in any directory: the network (the app is browser-only,
- * and session data is never sent anywhere), cookies, the microphone/camera, and media-element
- * playback. Identifiers that are unambiguous on their own are matched word-bounded; `fetch`,
- * `new Audio` and `document.cookie` are matched as their exact invocation/property-access form,
- * since the bare words are common outside this meaning (e.g. "prefetch" a lazy chunk, "audio" in
- * a font comment).
+ * and session data is never sent anywhere), cookies (`document.cookie` and the Cookie Store API's
+ * `cookieStore`), the microphone/camera, and media-element playback. Identifiers that are
+ * unambiguous on their own are matched word-bounded; `fetch`, `new Audio` and `document.cookie`
+ * are matched as their exact invocation/property-access form, since the bare words are common
+ * outside this meaning (e.g. "prefetch" a lazy chunk, "audio" in a font comment).
  */
 // @spec-link [[specification_browser_only_operation_verification]]
 // @spec-link [[rule_session_data_never_sent_or_stored]]
 // @spec-link [[rule_optional_midi_privacy]]
 const alwaysForbidden =
-  /\b(getUserMedia|mediaDevices|XMLHttpRequest|WebSocket|EventSource|sendBeacon)\b|\bnew\s+Audio\s*\(|\bfetch\s*\(|document\.cookie/u
+  /\b(getUserMedia|mediaDevices|XMLHttpRequest|WebSocket|EventSource|sendBeacon|cookieStore)\b|\bnew\s+Audio\s*\(|\bfetch\s*\(|document\.cookie/u
 
 /**
  * Web Audio calls no authored source file may make, in any directory, `src/audio/` included: the
@@ -58,11 +62,14 @@ const audioAssetExtensions = new Set([
 /**
  * APIs allowed in exactly one directory of `src/` and rejected everywhere else: Web Audio contexts
  * (the live `AudioContext`, its legacy `webkitAudioContext` name, and `OfflineAudioContext`, which
- * renders audio off-line) only under `src/audio/`, and Web MIDI access only under `src/midi/`.
- * Keeping each capability in one named place means every use of it sits behind that directory's
- * code, where the rules on when audio may start and when MIDI may be requested are applied.
+ * renders audio off-line) only under `src/audio/`, Web MIDI access only under `src/midi/`, and
+ * on-device storage (IndexedDB, and the storage manager `navigator.storage`, which asks for
+ * persistent storage and reports usage) only under `src/storage/`. Keeping each capability in one
+ * named place means every use of it sits behind that directory's code, where the rules on when
+ * audio may start, when MIDI may be requested and what may be saved on the device are applied.
  */
 // @spec-link [[specification_browser_only_operation_verification]]
+// @spec-link [[req_on_device_storage]]
 const directoryScopedApis = [
   {
     pattern: /\b(AudioContext|webkitAudioContext|OfflineAudioContext)\b/u,
@@ -73,6 +80,12 @@ const directoryScopedApis = [
     pattern: /\brequestMIDIAccess\b/u,
     allowedDirectory: 'midi/',
     boundary: 'browser-only boundary: requestMIDIAccess is allowed only under src/midi/',
+  },
+  {
+    pattern: /\bindexedDB\b|\bnavigator\s*\??\.\s*storage\b/u,
+    allowedDirectory: 'storage/',
+    boundary:
+      'on-device storage boundary: indexedDB and navigator.storage are allowed only under src/storage/',
   },
 ]
 
