@@ -1,6 +1,6 @@
 # Infinite Flow Roadmap
 
-Status: draft v1.10 (rewritten 2026-09-25 after the persona and vision session; browser scope
+Status: draft v1.11 (rewritten 2026-09-25 after the persona and vision session; browser scope
 added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keeping candidates and
 export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
 session view placed in v5 2026-09-28, D133; v2 replanned 2026-10-03: real-hardware checks as
@@ -14,7 +14,8 @@ continuation named Jam, with three candidates, 2026-10-07, D209; embellishment f
 player-made presets in v3, sequence writing as a later candidate, 2026-10-07, D210; v3 split
 into releases, rhythm ratios and editor moved to v4, four candidates dropped, 2026-10-07, D211;
 v3.0.1 merged into v3.0 and played signal patterns tied to learning, D212; v3.3, richer chords,
-added after v3.2 2026-10-12, D261; its chord research started as a separate item, D262)
+added after v3.2 2026-10-12, D261; its chord research started as a separate item, D262; v3.3
+master spec Part D, awaiting owner approval, 2026-10-12, D264–D274)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -100,8 +101,9 @@ record is archived at [archive/v2/](archive/v2/README.md).
     from the key and mode, and their fit to styles, so that generation uses sourced data. That
     research is a separate docs-only item, running on branch `v3.3-chord-research` since
     2026-10-12 while v3.0 is built (D262). v3.3 opens seventh chords as a capability ahead of the
-    style packs D259 plans (on branch `v4-accompaniment-research`, not merged). Open: O165–O173,
-    O175.
+    style packs D259 plans (on branch `v4-accompaniment-research`, not merged). **v3.3 master
+    spec: [Part D](versions/v3/master-spec.md#part-d--v33), awaiting owner approval** (D264–D274):
+    one Seventh chords level, Off by default, diatonic sevenths only. Open: O176, for style packs.
   - **v3.x:** learning from positive signals, tied to recognising played signal patterns (cues,
     D212; mandatory for the endgame); kept for now, likely to be removed or moved later.
   - Dropped (D211): the end-of-measure chord-fit check, review tooling, and the two

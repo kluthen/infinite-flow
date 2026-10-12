@@ -7,6 +7,10 @@ two to v4 and drops four. D212 merges v3.0.1 into v3.0. D216 approves spec-write
 recommendations at the owner's overall review: v3.0 is drafted, and Jam's main questions are settled.
 D261 (2026-10-12) adds v3.3, richer chords, after v3.2: direction only, with a research phase first.
 D262 makes that research a separate item before v3.3, running on branch `v3.3-chord-research`.
+D263 confirms the vision's v3.3 wording. D264–D274 settle v3.3 from the research: **v3.3 master
+spec: [Part D](master-spec.md#part-d--v33), awaiting owner approval**. Its build plan,
+[build-plan-v3.3.md](build-plan-v3.3.md), is draft v2, not approved, and depends on owner approval
+of Part D (D276–D288).
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
 Also every tester on an instrument v1 doesn't ship. See [personas](../../personas.md).
@@ -37,8 +41,13 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
   [review tooling](#review-tooling) and the
   [end-of-measure chord-fit check](#end-of-measure-chord-fit-check). See [Dropped](#dropped-d211).
 - **v3.3 is added after v3.2** (D261), which was the last v3 release until then: richer chords,
-  opt-in, preceded by research, a separate item running on branch `v3.3-chord-research` (D262).
-  Not designed; its open questions are O165–O173 and O175.
+  opt-in, preceded by research, a separate item running on branch `v3.3-chord-research` (D262),
+  whose [chord research](../../../docs/music/chord-research.md) is done.
+- **v3.3 master spec: [Part D](master-spec.md#part-d--v33), awaiting owner approval** (D264–D274,
+  2026-10-12): one Seventh chords level, Off by default; its contract wording changes wait for the
+  owner's confirmation. O176 (style packs and the level) stays open for later.
+- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), draft v2 (2026-10-12), not
+  approved; depends on owner approval of Part D. Planning answers D276–D288.
 - **v3.0.1 is merged into v3.0** (D212), the owner: "v3.0.1 could very well be just included
   into v3.0". This also settles where keeping sessions goes: with the review of earlier sessions
   that needs it.
@@ -430,8 +439,16 @@ D234; detail in the [rhythm lock draft](rhythm-lock.md).
 Recorded 2026-10-12 (D261), the owner's request, in their words: "managing higher end chords
 (optionnal, with flags to be set from the front end as to what's allowed and what's not). It will
 be preceeded by an internal doc/web research on chord to ensure we use appropriate data for chord
-generation." v3.2 was the last v3 release; v3.3 follows it. Direction only: not designed, not
-specced, nothing built.
+generation." v3.2 was the last v3 release; v3.3 follows it. Specced on 2026-10-12 as
+[master spec Part D](master-spec.md#part-d--v33), awaiting the owner's approval (D264–D274);
+nothing built. The text below is the direction as recorded before the research; where it and
+Part D differ, Part D wins.
+
+**Build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), draft v2 (2026-10-12), not approved;
+depends on owner approval of Part D. It plans v3.3 on top of the [v3.0](build-plan.md),
+[v3.1](build-plan-v3.1.md) and [v3.2](build-plan-v3.2.md) build plans: 23 chunks in 9 waves, a
+contract gate on the three STABLE changes, the owner's listening check on endings before the
+conditional second ending rule, and four questions for the owner. Its planning answers are D276–D288.
 
 In standard terms, "higher end chords" are **seventh chords** and **extended chords**. An extended
 chord stacks **chord extensions** (the ninth, the eleventh, the thirteenth) on top of a seventh
@@ -467,8 +484,10 @@ chord. This section says "richer chords" for any chord beyond a triad.
   ([personas](../../personas.md#p1--the-curious-improviser-primary-d48)). It also brings the
   jazz-flavoured presets closer to their styles (O171), though not all the way
   ([below](#relation-to-v1s-decisions-and-to-style-packs)).
-- **Open:** O165–O173 and O175 ([register](../../open-questions.md#v33-richer-chords-o165)).
-  D262 closed O174: the research is a separate item before v3.3.
+- **Settled, pending the owner's approval of Part D:** O165–O173 and O175's shape, by D264–D273
+  ([register](../../open-questions.md#v33-richer-chords-o165)). D262 closed O174: the research is
+  a separate item before v3.3. O176 (which wins between the player's level and a later style pack)
+  stays open.
 
 ### Relation to v1's decisions and to style packs
 
@@ -614,7 +633,8 @@ changes none of them. Each one is an open question.
 - **Jam and the key and mode suggestion (O172).**
 - **Declared intent (O173).** The atoms above, `module_harmony_candidate_domain`,
   `entity_phrase_carry_in`, `module_phrase_replay_key`, and the vision's scope, which lists every
-  release through v3.2. The owner approved updating the vision now (D262).
+  release through v3.2. The owner approved updating the vision now (D262); it is at 0.9, its
+  wording confirmed (D263).
 
 ## v3.x — Learning from positive signals
 

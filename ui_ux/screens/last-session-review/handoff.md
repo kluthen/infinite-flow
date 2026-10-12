@@ -41,6 +41,8 @@
 >   ([Responsive Behavior](#responsive-behavior))
 > - _v3.2 new:_ a Jam's review, the suggestion's forms, `Jam again on this doodle` unavailable, a
 >   Jam on a held doodle, and the doodle under no room and while saving is off ([States](#states))
+> - _v3.3 new:_ seventh chord symbols in the phrases, and the files' chords
+>   ([Components and Content](#components-and-content))
 
 **[v3 changed]** `review-panel` is the phrase-workspace page's review mode
 (`screens/phrase-workspace/`): while a Review shows, it is rendered inside `score-panel`, after
@@ -239,6 +241,12 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   concert pitch with the tempo map, a marker per phrase, and the backing track only when
   `Backing track` is on), for the phrases the scope selects (master spec §6). No played note is
   ever in either generated-notes file.
+- **[v3.3 new]** **Seventh chords.** A phrase's `chord-symbol`s may be seventh chords (`maj7`, `m7`,
+  `7`, `m7♭5`), drawn and fitted by the workspace Notation Contract (**Seventh chord symbols**),
+  which `review-staff` applies in full at its own width, and read by the score's spoken description
+  in the same words. In the files: MusicXML writes each with its chord kind and the suffix as
+  printed; the MIDI backing track, when on, holds the chords as the backing played them, four
+  notes for a seventh chord. `Backing track` keeps its label and has no description to change.
 - **[v3.2 new]** **A Jam's files open with the doodle**, in both scopes and in all three files:
   a section marked "Doodle" (the MusicXML rehearsal mark and the MIDI marker), as many measures
   long as the doodle, starting at time zero, at the tempo the doodle was played at; then the
@@ -365,6 +373,7 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     end; in the split layout a bar that crosses from bar 2 into bar 3 is drawn in both lanes, cut
     at the break. A bar is never narrower than `--played-note-min-inline-size`, so a very short
     note stays visible.
+
   - **Pitch (block axis).** Higher notes higher. The scale runs from the lowest to the highest
     played note of the whole session (not of the phrase), widened equally on both sides to at
     least an octave (12 half steps) when the session's span is smaller, so every lane of the
@@ -540,7 +549,7 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   `Close review` sets (`flows/review-and-export/handoff.md`).
 - **[v3.2 new]** When a control of `review-doodle` that has focus goes away or becomes disabled
   (`room-notice` replacing the section, a controller lost with focus on `Jam again on this
-  doodle`, or the suggestion's buttons leaving after a key or mode change), focus moves to
+doodle`, or the suggestion's buttons leaving after a key or mode change), focus moves to
   `review-title`.
 
 ## Responsive Behavior

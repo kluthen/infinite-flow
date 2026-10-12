@@ -1,8 +1,8 @@
 # Music Lexicon
 
-Status: v1.3 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08)
+Status: v1.4 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08; v3.3 chord research terms added 2026-10-12)
 
-Date: 2026-10-08
+Date: 2026-10-12
 
 ## How to use
 
@@ -38,7 +38,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 2. [Pitch and notation](#pitch-and-notation): the staff, clefs, note names and the signs written on the staff, including ornaments and jazz articulations.
 3. [Rhythm and meter](#rhythm-and-meter): beats, note values, meter, syncopation, tempo, and rhythmic changes such as anticipation, augmentation and metric displacement.
 4. [Melody](#melody): melodic motion, shape, decorating notes (embellishments), motifs and the ways musicians develop them.
-5. [Harmony](#harmony): chords, their roles, cadences, tension and resolution, and common chord patterns such as the twelve-bar blues and the vamp.
+5. [Harmony](#harmony): chords, their roles, cadences, tension and resolution, common chord patterns such as the twelve-bar blues and the vamp, and the richer chords (seventh, sixth, suspended and extended chords, voicing).
 6. [Scales and modes](#scales-and-modes): scales, keys, the seven modes and how a key is found from a melody.
 7. [Styles](#styles): styles of music the presets refer to, such as the reel and bossa nova.
 8. [Instruments and transposition](#instruments-and-transposition): concert and written pitch, B-flat and E-flat instruments, range.
@@ -1046,6 +1046,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 
 ## Harmony
 
+### Altered chord
+
+- **id:** `altered-chord`
+- **aliases:** altered dominant, altered extension, alt chord
+- **popup:** A jazz chord, usually a dominant seventh, with its fifth or ninth pushed up or down a half step for extra bite, as in G7♭9.
+- **definition:** An altered chord changes one or more of a chord's notes by a half step away from where the scale puts them. Most often it is a dominant seventh whose fifth or ninth is raised or lowered: G7♭9, G7♯9, G7♯5, G7♯11. The altered notes come from outside the key, so they add tension and colour just before the chord resolves. "G7alt" asks the player to alter freely. Altered dominants are a staple of bebop and later jazz.
+- **in_infinite_flow:** Not used. Every chord is built from the selected collection, and v3.3's research proposes keeping it that way (docs/music/chord-research.md); altered dominants were deferred in v1 (D12).
+- **related:** `dominant-seventh-chord`, `chord-extension`, `extended-chord`, `chromatic`, `chord-symbol`
+- **sources:** S417, S428, S103
+
+### Avoid note
+
+- **id:** `avoid-note`
+- **aliases:** avoid tone, unavailable tension
+- **popup:** A scale note that clashes when held against a chord, usually because it sits a half step above one of the chord's notes, like F over C major.
+- **definition:** In jazz teaching, an avoid note is a note of a chord's scale that sounds harsh when sustained against that chord. The usual test: a note a half step above a chord note clashes (it forms a minor ninth), while a note a whole step above fits. Over a C major chord, F is the classic avoid note, a half step above E. The note is not forbidden: played briefly in passing, it is fine. Writers disagree on some cases, such as the sixth over a Dorian minor chord.
+- **in_infinite_flow:** Not used today, because the app's chords are triads. The v3.3 research marks the avoid notes of each diatonic seventh chord (docs/music/chord-research.md).
+- **related:** `chord-extension`, `chord-scale`, `non-chord-tone`, `half-step`, `interval`
+- **sources:** S442, S445, S439
+
 ### Cadence
 
 - **id:** `cadence`
@@ -1066,6 +1086,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `triad`, `seventh-chord`, `chord-symbol`, `chord-progression`, `arpeggio`, `harmony`
 - **sources:** S14, S15
 
+### Chord extension
+
+- **id:** `chord-extension`
+- **aliases:** extension, tension, upper extension, available tension
+- **popup:** An extra note stacked above a chord's seventh, such as the 9th, 11th or 13th, that adds colour.
+- **definition:** A chord extension is a note added above the seventh when thirds keep being stacked: the ninth, the eleventh and the thirteenth. Over C7 (C–E–G–B♭) the ninth is D, the eleventh F and the thirteenth A, each named by its distance above the root. Extensions are major or perfect unless the symbol says otherwise (C7♭9), and a symbol with an extension implies the notes below it. Jazz players also call them tensions, and sort them into available ones and avoid notes.
+- **in_infinite_flow:** Not used: the app's chords are triads, and v3.3 (planned, not built; D261) starts with seventh chords. The notes that would be extensions are today ordinary scale notes outside the chord.
+- **related:** `extended-chord`, `seventh-chord`, `avoid-note`, `chord-symbol`, `altered-chord`
+- **sources:** S417, S425, S437
+
+### Chord inversion
+
+- **id:** `chord-inversion`
+- **aliases:** inverted chord, first inversion, second inversion, root position
+- **popup:** A chord with a note other than its root in the bass, such as C major with E at the bottom.
+- **definition:** A chord is in root position when its root is the lowest note: C–E–G for C major. When another chord note is the lowest, the chord is inverted. With the third at the bottom (E–G–C) it is in first inversion; with the fifth at the bottom (G–C–E), second inversion. An inverted chord keeps its name and function but sounds lighter or less settled, and inversions let a bass line move by step.
+- **in_infinite_flow:** Not built: every chord is in root position, and the backing's bass plays the root. The backing's block chords already use inversions above that bass, to keep their top note at or below E4. A seventh chord has a third inversion too, with the seventh in the bass.
+- **related:** `chord`, `root`, `voicing`, `triad`
+- **sources:** S14, S416, src/domain/backing/backing-renderer.ts
+
 ### Chord progression
 
 - **id:** `chord-progression`
@@ -1085,6 +1125,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Every chord is built only from the collection's own notes, so its quality comes from the collection. Chord symbols show it: "C" is major, "Dm" minor, "Bdim" diminished.
 - **related:** `triad`, `chord`, `chord-symbol`, `interval`
 - **sources:** S14
+
+### Chord scale
+
+- **id:** `chord-scale`
+- **aliases:** chord-scale theory, chord-scale system
+- **popup:** The scale a jazz player uses over one chord, such as Dorian over a minor seventh chord.
+- **definition:** Chord-scale theory pairs each chord with a scale whose notes fit it: Mixolydian over a dominant seventh, Dorian over a minor seventh, Ionian or Lydian over a major seventh. The scale holds the chord's notes plus the notes in between, which serve as extensions or passing notes. It is a jazz-teaching approach to improvising, not a rule of all music, and teachers disagree on some pairings.
+- **in_infinite_flow:** Every chord's scale is simply the selected collection, started on the chord's root, because the app's chords never leave the collection.
+- **related:** `scale`, `mode`, `chord-extension`, `avoid-note`, `dorian`, `mixolydian`
+- **sources:** S419, S428, S440
 
 ### Chord symbol
 
@@ -1116,6 +1166,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `chromatic`, `scale`, `mode`, `triad`, `key`
 - **sources:** S14
 
+### Diminished seventh chord
+
+- **id:** `diminished-seventh-chord`
+- **aliases:** dim7, fully diminished seventh chord, °7
+- **popup:** A tense four-note chord made of three stacked minor thirds, such as B, D, F, A-flat (Bdim7).
+- **definition:** A diminished seventh chord stacks three minor thirds: B–D–F–A♭ is Bdim7, also written B°7. All its notes are the same distance apart, so it sounds equally tense from any of them. It is the seventh chord on the leading tone of harmonic minor, and composers borrow it into major keys. It is not found in the major scale or in its modes, where the chord on the seventh degree is half-diminished instead.
+- **in_infinite_flow:** Never occurs: none of the app's seven collections contains it. The app's diminished chords are triads ("Bdim").
+- **related:** `half-diminished-seventh-chord`, `seventh-chord`, `harmonic-minor`, `chord-quality`
+- **sources:** S432, S416
+
 ### Dominant
 
 - **id:** `dominant`
@@ -1125,6 +1185,36 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** In tonal music the dominant is a chord function that creates directed pull back toward tonic; it is not required in modal music. The app's Major and Minor phrases (Gentle or Active) end on the degree-5 chord as a deliberately open ending. Minor stays natural minor, so that chord is minor (v), with no leading tone and a weaker pull. The modes don't use a dominant at all.
 - **related:** `tonic`, `predominant`, `harmonic-function`, `cadence`, `scale-degree`
 - **sources:** S2, S3, S14, docs/music/harmony-planner-policy.md
+
+### Dominant seventh chord
+
+- **id:** `dominant-seventh-chord`
+- **aliases:** dominant seventh, major-minor seventh chord, 7 chord, V7
+- **popup:** A major chord with a lower seventh on top, such as G, B, D, F (G7). It pulls strongly home, and it is the basic chord of the blues.
+- **definition:** A dominant seventh chord is a major triad plus a minor seventh: G–B–D–F is G7, written with a bare 7. It sits naturally on the fifth degree of a major key, where its third and seventh, a tritone apart, pull toward the home chord: in classical practice the seventh falls by step and the third rises to the tonic. Blues uses dominant sevenths on I, IV and V, where they need not pull anywhere.
+- **in_infinite_flow:** Not used yet. In each of the app's seven modes, exactly one degree carries it: degree 5 in Major, degree 1 in Mixolydian, degree 7 in natural Minor (docs/music/chord-research.md).
+- **related:** `dominant`, `seventh-chord`, `twelve-bar-blues`, `mixolydian`, `chord-symbol`
+- **sources:** S430, S416, S420
+
+### Extended chord
+
+- **id:** `extended-chord`
+- **aliases:** extended harmony, ninth chord, eleventh chord, thirteenth chord
+- **popup:** A chord built past the seventh: a ninth, eleventh or thirteenth chord, typical of jazz.
+- **definition:** An extended chord keeps stacking thirds beyond the seventh, giving ninth, eleventh and thirteenth chords. C9 is C–E–G–B♭–D. A thirteenth chord contains all seven notes of a scale, so players leave some out, usually the fifth and often the eleventh. Before the 20th century these chords were mostly dominant chords whose top notes acted as clashes that resolved; in jazz they are everyday colours.
+- **in_infinite_flow:** Not used. v3.3 (planned, not built; D261) may allow seventh chords first; extended chords would come later, behind their own flag.
+- **related:** `chord-extension`, `seventh-chord`, `chord`, `altered-chord`
+- **sources:** S437, S417, S425
+
+### Half-diminished seventh chord
+
+- **id:** `half-diminished-seventh-chord`
+- **aliases:** half-diminished, minor seventh flat five, m7♭5, ø7
+- **popup:** A diminished triad with a minor seventh on top, such as B, D, F, A (Bm7♭5 or Bø7). Dark and unsettled.
+- **definition:** A half-diminished seventh chord is a diminished triad plus a minor seventh: B–D–F–A, written Bm7♭5 or Bø7. "Half" sets it apart from the diminished seventh chord, whose seventh is a half step lower. It sits on the seventh degree of a major key and the second degree of a natural minor key, and in jazz it is the usual first chord of a minor ii–V–i.
+- **in_infinite_flow:** Not used yet. If seventh chords are allowed, each of the app's seven modes has exactly one, on the degree whose triad is diminished today.
+- **related:** `seventh-chord`, `diminished-seventh-chord`, `chord-quality`, `locrian`, `chord-symbol`
+- **sources:** S431, S416, S429
 
 ### Harmonic function
 
@@ -1155,6 +1245,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The app plans the harmony first, as a series of chords, then fits the melody to it. The chords are shown as symbols, not written out as notes.
 - **related:** `chord`, `chord-progression`, `harmonic-function`, `melody`
 - **sources:** S14, S15
+
+### Major seventh chord
+
+- **id:** `major-seventh-chord`
+- **aliases:** maj7, M7, Δ7, major-major seventh chord
+- **popup:** A major chord with the note a half step below the root added on top, such as C, E, G, B (Cmaj7). Soft and dreamy.
+- **definition:** A major seventh chord is a major triad plus a major seventh: C–E–G–B is Cmaj7, also written CM7 or CΔ7. The seventh lies just a half step below the next root, which gives the chord its soft, floating sound. In a major key it sits on the first and fourth degrees. It is a common home chord in jazz and bossa nova.
+- **in_infinite_flow:** Not used yet. Each of the app's seven modes has two degrees that carry it.
+- **related:** `seventh-chord`, `minor-seventh-chord`, `chord-quality`, `chord-symbol`, `bossa-nova`
+- **sources:** S416, S429, S441, S447
+
+### Minor seventh chord
+
+- **id:** `minor-seventh-chord`
+- **aliases:** m7, min7, −7, minor-minor seventh chord
+- **popup:** A minor chord with a seventh on top, such as D, F, A, C (Dm7). Mellow, the everyday minor chord of jazz.
+- **definition:** A minor seventh chord is a minor triad plus a minor seventh: D–F–A–C is Dm7, also written D−7. In a major key it sits on the second, third and sixth degrees. It is the "two" of the jazz ii–V–I and the home chord of Dorian vamps, such as the Am7 of "Oye Como Va".
+- **in_infinite_flow:** Not used yet. Each of the app's seven modes has three degrees that carry it.
+- **related:** `seventh-chord`, `major-seventh-chord`, `dorian`, `chord-quality`, `chord-symbol`
+- **sources:** S416, S429, S105
 
 ### Predominant
 
@@ -1195,6 +1305,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The app does not use seventh chords yet. Even under the Jazz preset, all chords are plain triads.
 - **related:** `triad`, `chord`, `chord-symbol`, `chord-quality`
 - **sources:** S14, S15
+
+### Sixth chord
+
+- **id:** `sixth-chord`
+- **aliases:** added sixth chord, 6 chord, C6, m6, 6/9
+- **popup:** A three-note chord plus the sixth note above its root, such as C, E, G, A (C6). A sweet alternative to a seventh chord.
+- **definition:** A sixth chord adds the sixth above the root to a triad: C6 is C–E–G–A; Cm6 is C–E♭–G–A. It is written "6" only when no seventh is present; with a seventh, the same note is called the 13th. C6 has the same notes as Am7, so the bass and context decide which chord it is. Jazz often puts a 6 chord on the home chord in place of a major seventh, and bossa nova guitar adds the sixth and ninth to major chords. In classical theory "sixth chord" can also mean a first-inversion triad.
+- **in_infinite_flow:** Not used. Built from the app's collections, a sixth chord would hold exactly the notes of another degree's seventh chord (docs/music/chord-research.md).
+- **related:** `seventh-chord`, `major-seventh-chord`, `minor-seventh-chord`, `chord-inversion`, `chord-symbol`
+- **sources:** S435, S426, S421, S112
+
+### Suspended chord
+
+- **id:** `suspended-chord`
+- **aliases:** sus chord, sus4, sus2, 7sus4
+- **popup:** A chord whose middle note (the third) is swapped for the 4th or the 2nd, such as C, F, G (Csus4). Open, neither major nor minor.
+- **definition:** A suspended chord replaces the third with the fourth (Csus4: C–F–G) or the second (Csus2: C–D–G); "sus" alone means sus4. With no third it is neither major nor minor, and sounds open. The name comes from the melodic suspension, where a held note clashes and then falls to the third; in pop, folk and modal jazz the sus chord's fourth often never resolves. A dominant version, G7sus4, is common in jazz.
+- **in_infinite_flow:** Not used. It is a chord type, not the melodic suspension, which the lexicon describes separately and which the app does not write either.
+- **related:** `suspension`, `chord`, `triad`, `chord-symbol`, `dominant-seventh-chord`
+- **sources:** S436, S417, S426
 
 ### Tension and resolution
 
@@ -1245,6 +1375,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Closest today: Static harmonic motion (one chord) or a modal Gentle plan, which returns home after one color chord. The backing does not loop a vamp across phrases.
 - **related:** `chord-progression`, `dorian`, `mode`, `control-harmonic-motion`, `riff`
 - **sources:** S104, S105, docs/music/harmony-planner-policy.md
+
+### Voicing
+
+- **id:** `voicing`
+- **aliases:** chord voicing, close position, open position
+- **popup:** Which exact notes of a chord are played, in which octaves and in what order from low to high.
+- **definition:** A chord names a set of notes, but a voicing is one particular way to play them: which octave each note is in, which note is on top, whether a note is doubled or left out, and how close together they sit. In close position the notes are packed inside an octave; in open position they are spread wider. Jazz players often leave out the root and the fifth and keep the third and the seventh.
+- **in_infinite_flow:** The backing plays close-position triads with the top note at or below E4 (MIDI 64).
+- **related:** `chord`, `triad`, `root`, `chord-inversion`
+- **sources:** S418, S427, src/domain/backing/backing-renderer.ts
 
 ## Scales and modes
 

@@ -35,6 +35,8 @@
 > - _v3.2 changed:_ the session options read at the start are five more; in a Jam, Rising tempo,
 >   Tension across phrases and Vary settings count from phrase 1; the held doodle's bar held still
 >   (Session options, Controls during the session); the session end in Jam mode (End)
+> - _v3.3 new:_ the Seventh chords level is fixed for the whole session: Vary settings never moves
+>   it (Vary settings and presets)
 
 ```mermaid
 flowchart TD
@@ -147,4 +149,5 @@ flowchart TD
   - **Key and mode moves stay inside the restriction in force at the session's start**, a bound fixed for the whole session: a move outside it is drawn again, exactly as a move onto an unsupported combination is, and the player never sees it. When no allowed value is one step away, that half does not move. So under Reel the mode may move between Mixolydian and Dorian; under Modal (Dorian), Pop song or Bebop it never moves and the key moves freely; under a player preset kept to one key and mode neither moves. A session started with no restriction in force is not bounded.
   - **At the end** the selection returns, with every setting the session moved, to what it was at the start, silently, under the review (`screens/phrase-workspace/`, States, **Session end**).
   - `Tension across phrases` never makes Custom, though Tension is preset-held: it changes only what each phrase is generated with, never the setting, and never the figure levels.
+  - **[v3.3 new]** **The Seventh chords level never moves.** Vary settings never draws it and it belongs to none of the allowed groups, so a session never switches between allowing and not allowing seventh chords, and the level never turns the selection to Custom during a session. Its read-only control shows the value the session started with from the count-in to the end. Tension across phrases and Rising tempo leave it alone too.
 - **[v3.1 new]** **The preset bar during the session.** `preset-select` is read-only like every control; every button of `preset-actions` is disabled, the row keeping exactly the buttons it held at the start, whatever Vary settings does to the selection; the description line and the key and mode marks keep what they showed at the start. No preset sheet opens. The preset sheet and its delete confirmation are sheets like the others for the starting note: while one is open between sessions, no note starts a session (`flows/presets/`).

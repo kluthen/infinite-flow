@@ -2,6 +2,11 @@
 
 > **New in v3.1.**
 
+> **Changes since v3.1**
+>
+> - _v3.3 changed:_ a saved preset also holds the Seventh chords level
+>   ([What the Main Action Does](#what-the-main-action-does))
+
 The one sheet in which a player preset is saved as new, saved with a new restriction, renamed or
 deleted. It opens from `preset-actions` in the preset bar of `screens/phrase-workspace/`, at Idle,
 in the review mode and during **Loading**, never during a session. The flow around it, and what
@@ -56,15 +61,16 @@ sheet-backdrop
   itself, `Close` always present and enabled. No `sheet-wide`: every mode is one column.
 - **Modes.** One sheet, opened in the mode its button asks for:
 
-  | Mode | Opened by | `sheet-title` | Body | Actions |
-  | --- | --- | --- | --- | --- |
-  | Save as new | `Save as new preset` | "Save as a new preset" | Name, then Key and mode | `Save`, `Cancel` |
-  | Save changes | `Save changes`, only while the written key and collection are outside the base's restriction | "Save changes to “{name}”" | The reason, then Key and mode | `Save changes`, `Cancel` |
-  | Rename | `Rename preset` | "Rename “{name}”" | Name | `Rename`, `Cancel` |
-  | Delete confirmation | `Delete preset` | "Delete the preset “{name}”?" | Two paragraphs | `Delete preset`, `Cancel` |
+  | Mode                | Opened by                                                                                    | `sheet-title`                 | Body                          | Actions                   |
+  | ------------------- | -------------------------------------------------------------------------------------------- | ----------------------------- | ----------------------------- | ------------------------- |
+  | Save as new         | `Save as new preset`                                                                         | "Save as a new preset"        | Name, then Key and mode       | `Save`, `Cancel`          |
+  | Save changes        | `Save changes`, only while the written key and collection are outside the base's restriction | "Save changes to “{name}”"    | The reason, then Key and mode | `Save changes`, `Cancel`  |
+  | Rename              | `Rename preset`                                                                              | "Rename “{name}”"             | Name                          | `Rename`, `Cancel`        |
+  | Delete confirmation | `Delete preset`                                                                              | "Delete the preset “{name}”?" | Two paragraphs                | `Delete preset`, `Cancel` |
 
   `{name}` is the preset acted on: the selected player preset, or Custom's base. In every title
   and copy, a name is shown as the player wrote it, in typographic quotes.
+
 - **Name** (Save as new, Rename). A `text-input` with `maxlength="40"`: typing stops at 40
   characters and a paste is cut there. Save as new prefills "My preset", or "My preset 2", "My
   preset 3" and so on, the first that no preset has (ignoring case); Rename prefills the current
@@ -82,15 +88,16 @@ sheet-backdrop
 
   Never error-toned: a name taken is not a fault. It updates in place while the name stays refused
   and leaves as soon as the name is accepted.
+
 - **Key and mode** (Save as new, Save changes). A `choice-list` radiogroup of `choice-option`s,
   one checked, the default checked at open. Each option's label is one line of plain words:
 
-  | Mode | Options, in order (the default first) |
-  | --- | --- |
-  | Save as new, a restriction in force with a list on one half or both | "As now: {restriction in words}", "Only {key} {mode}", "Any key and mode" |
-  | Save as new, no restriction in force, or one that is "any" on both halves | "Any key and mode", "Only {key} {mode}" |
-  | Save as new, a restriction in force that is exactly the current key and mode | "Only {key} {mode}", "Any key and mode" |
-  | Save changes | "Any key and mode", "Only {key} {mode}" |
+  | Mode                                                                         | Options, in order (the default first)                                     |
+  | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+  | Save as new, a restriction in force with a list on one half or both          | "As now: {restriction in words}", "Only {key} {mode}", "Any key and mode" |
+  | Save as new, no restriction in force, or one that is "any" on both halves    | "Any key and mode", "Only {key} {mode}"                                   |
+  | Save as new, a restriction in force that is exactly the current key and mode | "Only {key} {mode}", "Any key and mode"                                   |
+  | Save changes                                                                 | "Any key and mode", "Only {key} {mode}"                                   |
 
   `{key} {mode}` are the current Written key and Collection, in those controls' own labels
   ("G Dorian", "F-sharp/G-flat Mixolydian"). **{restriction in words}** is: for a list of modes in
@@ -98,6 +105,7 @@ sheet-backdrop
   of keys in any mode, "{keys} in any mode"; for lists on both halves, "{keys}, in {modes}"; for
   one key and one mode, "only {key} {mode}". Lists read "A, B or C". The same words describe a
   player preset under the preset box (`screens/phrase-workspace/handoff.md`, **The preset bar**).
+
 - **The reason** (Save changes only), one `p`: "Your key and mode, {key} {mode}, are outside what
   “{name}” is meant for: {its restriction in words}. Choose what it is meant for from now on."
 - **Main action.** `Save` (Save as new), `Save changes` or `Rename`, `btn btn-primary`, then
@@ -119,6 +127,8 @@ sheet-backdrop
   as a new player preset, under the trimmed name, with the restriction chosen ("As now" being the
   restriction in force, or "any" with none), and makes it the selection: the box shows its name,
   in the **Your presets** group of the list. The sheet closes.
+- **[v3.3 changed]** The preset-held settings that **Save** and **Save changes** store include the
+  Seventh chords level, by value; the sheet asks nothing new about it.
 - **Save changes** replaces the base's values with the current preset-held settings and its
   restriction with the one chosen, and makes it the selection. The sheet closes.
 - **Rename** gives the preset the trimmed name. It stays the selection, or Custom's base; the box,

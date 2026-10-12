@@ -25,6 +25,8 @@
 >   doodle's bar held still ([The Session Workspace](#the-session-workspace))
 > - _v3.2 new:_ no mark for a rhythm change or a forced bend, and no new doodle mid-session
 >   ([What This Flow Deliberately Leaves Out](#what-this-flow-deliberately-leaves-out))
+> - _v3.3 new:_ the Seventh chords level stays as the player set it for the whole session
+>   ([The Session Workspace](#the-session-workspace))
 
 ## Whose Flow This Is
 
@@ -113,6 +115,8 @@ From v2.1 on, the player can let a session change things by itself, each by its 
 **[v3.1 new]** The varying settings now meet the preset. Where v2 switched between Neutral and Jazz, they move one embellishment figure one level instead, so a long session changes in vocabulary as well as in rhythm and key, which serves the Speed Builder's fresh material (P2.S1) and the Curious Improviser's exposure (P1.G1). Any move of something the preset holds turns the preset box to "Custom, based on Reel" at the moment the first phrase built with it sounds, like the moved setting itself, and the selection comes back with the settings at the end, so the next session starts from the player's own preset. Key and mode moves stay inside what the preset was meant for when the session started: the player chose Reel for its modes, and the app opting them out by itself would undo that choice without asking. A move that would leave is simply drawn again, unseen. The tension across phrases never marks Custom, since it never changes the setting. See [`flows/presets/`](../presets/intent.md#during-a-session).
 
 **[v3.2 new]** Two more choices shape what the session plays without asking anything mid-session. The rhythm lock keeps one rhythm for every phrase, the first phrase's or, in a Jam, the one nearest the doodle, so the eyes can go to the pitches (P1.G2); the player may allow a few small rhythm changes, each lasting one phrase. When the locked rhythm cannot make a phrase, which a step down in tension can cause, the app takes the nearest rhythm that can for that one phrase. Neither a change nor that fallback is ever marked: the player reads the notes as written, as they always have, and a mark would pull the eyes off the staff for something they cannot act on. And the player can now choose which groups of settings the varying settings may move, keys only for instance, which turns "settings that drift" into variety the Speed Builder steers (P2.S1); with the rhythm lock on, the rhythm settings never move. In a Jam, the rising tempo, the tension across phrases and the varying settings all count from phrase 1, the doodle being no phrase.
+
+**[v3.3 new]** The Seventh chords level is the one preset-held setting the varying settings never move: seventh chords are only ever the player's choice, and a player who left them off but let the settings vary must not hear one they never asked for. So the level holds for the whole session, and a session never switches between allowing seventh chords and not.
 
 Everything on or near the staff belongs to the session. One row between the score toolbar and the staff, the session cue row, is where the session speaks: the starting-note line at idle, the count-in, and the session's notices. It is always present, at one fixed height, at idle and during a session (the Review, when it shows, takes the place of the whole staff area, the row included), so neither Start, nor the count-in, nor a notice ever moves the staff. The accepted cost is an empty row at idle when no controller is connected.
 

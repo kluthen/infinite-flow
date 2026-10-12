@@ -2,6 +2,12 @@
 
 > **New in v3.1.**
 
+> **Changes since v3.1**
+>
+> - _v3.3 changed:_ every preset also holds the Seventh chords level, every built-in at `Off`;
+>   changing it makes Custom and discards the prepared phrases
+>   ([Routing Rules](#routing-rules))
+
 Screens: `screens/phrase-workspace/` for the preset bar (`preset-bar`: the `preset-select` box, its
 description `field-note` and `preset-actions`), the key and mode marks and the Embellishments
 group; `screens/preset-sheet/` for the sheet in which a preset is saved as new, saved with a new
@@ -97,10 +103,18 @@ flowchart TD
      the half allows it, otherwise the half's first listed value is set;
   3. the tempo, the instrument and the "During a session" options never change.
 
+  **[v3.3 changed]** Step 1 also sets the Seventh chords level to the preset's value: every
+  built-in holds `Off`, so choosing one after raising the level returns it to `Off`. Wherever this
+  flow names what a preset holds or what makes Custom ("the ten controls and the seven figure
+  levels", "a control of the ten, or a figure level"), the level is included; the diagram's labels
+  read the same way. The level is never moved by Vary settings, so it never turns the box to Custom
+  during a session.
+
   The selection is then that preset and the restriction in force is its own. Each built-in
   preset's values are in master spec B6.5; examples of the key and mode moves are in
   [`intent.md`](intent.md#choosing-a-preset). Choosing the preset already selected, outside
   Custom, changes nothing. From Custom, choosing its base applies it like any other preset.
+
 - **The phrase stays.** Choosing a preset never regenerates the phrase on screen; the player
   regenerates when they want to hear the new settings. A choice that changes any setting, the
   written key or the collection included, counts everywhere in `flows/generate-phrase/` as a
@@ -132,19 +146,20 @@ flowchart TD
   Switching instrument keeps the written key, so it never leaves a restriction.
 - **The actions row.** Its buttons, by selection (a button marked "no" is not rendered):
 
-  | Selection | Save as new preset | Save changes | Rename preset | Delete preset |
-  | --- | --- | --- | --- | --- |
-  | A built-in preset | yes | no | no | no |
-  | A player preset | yes | no | yes | yes, unless saving is off |
-  | Custom, based on a built-in preset | yes | no | no | no |
-  | Custom, based on a player preset | yes | yes | yes | yes, unless saving is off |
-  | Custom, no base | yes | no | no | no |
+  | Selection                          | Save as new preset | Save changes | Rename preset | Delete preset             |
+  | ---------------------------------- | ------------------ | ------------ | ------------- | ------------------------- |
+  | A built-in preset                  | yes                | no           | no            | no                        |
+  | A player preset                    | yes                | no           | yes           | yes, unless saving is off |
+  | Custom, based on a built-in preset | yes                | no           | no            | no                        |
+  | Custom, based on a player preset   | yes                | yes          | yes           | yes, unless saving is off |
+  | Custom, no base                    | yes                | no           | no            | no                        |
 
   `Rename preset` and `Delete preset` act on the selected player preset or on Custom's base.
   While there are 50 or more player presets, `Save as new preset` is disabled, with its
   `field-note`, "You have 50 presets of your own, the most the app keeps. Delete one, here or in
   Your data, to save a new one." During a session the row keeps exactly the buttons it held at the start, all disabled,
   whatever Vary settings does to the selection.
+
 - **Save as new** opens the sheet with a name (prefilled "My preset", or "My preset 2", "My
   preset 3" and so on, the first not taken) and the **Key and mode** choice: "As now: {the
   restriction in force, in words}" (the default), "Only {written key} {collection}" and "Any key
@@ -224,6 +239,10 @@ flowchart TD
   is on or not. Saving, renaming or deleting a preset that changes neither a setting nor the
   restriction in force, and choosing a preset identical in values and restriction, discard
   nothing. None of it shows.
+
+  **[v3.3 changed]** Any change of the Seventh chords level discards them too, as a figure level
+  does.
+
 - **Persistent storage.** Saving a player preset, as new or by `Save changes`, also asks the
   browser to protect the kept data, once per visit unless already granted; nothing shows the
   request (`flows/saved-data/`).
