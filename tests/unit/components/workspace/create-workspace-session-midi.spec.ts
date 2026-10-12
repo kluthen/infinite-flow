@@ -61,7 +61,10 @@ describe('createWorkspaceSession: the MIDI controller', () => {
     stubWideWindow()
     const browser = createFakeWebMidiNavigator(() => Promise.resolve(createFakeWebMidiAccess([])))
     stubRequestMidiAccess(browser)
-    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
+    })
 
     expect(workspace.midi.state()).toEqual({ kind: 'not-requested' })
     expect(browser.calls).toEqual([])
@@ -75,7 +78,10 @@ describe('createWorkspaceSession: the MIDI controller', () => {
   it('reads a browser without Web MIDI as unsupported, without failing', () => {
     stubWideWindow()
     expect('requestMIDIAccess' in navigator).toBe(false)
-    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
+    })
 
     expect(workspace.midi.state()).toEqual({ kind: 'unsupported' })
 
@@ -91,7 +97,10 @@ describe('createWorkspaceSession: the MIDI controller', () => {
       Promise.resolve(createFakeWebMidiAccess([port])),
     )
     stubRequestMidiAccess(browser)
-    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
+    })
     const anchor = vi
       .spyOn(workspace.audio, 'clockAnchor')
       .mockReturnValue({ audioTime: 2, performanceTimeMs: 1000 })

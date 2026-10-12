@@ -102,6 +102,7 @@ async function readyRig(): Promise<Rig> {
     viewport: createFakeViewportWidth(),
     generate,
     prewarmPolicy: 'disabled',
+    pregenerationPolicy: 'disabled',
     prewarm: vi.fn(),
     audio: transport,
     midi: createMidiController({

@@ -321,3 +321,26 @@ be validated at a later date and do not block the v2.0 tag (O105).
 - [ ] Open a MusicXML export in MuseScore for each instrument (saxophones transposed, keyboard not).
 - [ ] Open a generated-notes MIDI and a played-notes MIDI of the same session in a DAW: do the
       phrases, tempo and markers line up?
+
+---
+
+# v3.0 hand checks
+
+Build plan [§5](specs/versions/v3/build-plan.md#5-hand-checks): each check is written here by the
+chunk that needs it, and run at that chunk or at the v3.0 gate.
+
+## H6. Pre-generation at 240 BPM (chunk 24; about 10 min)
+
+On the reference machine, then the tablet on battery if at hand. Production build or `npm run dev`;
+pre-generation is on unless the page URL has `?pregeneration=off`.
+
+- [ ] Set the tempo to 240 BPM and a busy setting (Sixteenth on a wide window). Generate, then
+      press Start **right after** phrase 1 appears, a few times: the session starts at once and
+      phrase 2 arrives on time.
+- [ ] Generate, wait **a few seconds**, then Start, a few times: phrase 2 joins phrase 1 smoothly
+      (it continues from phrase 1's last note and chord instead of starting afresh).
+- [ ] Change a control, wait, Start: no phrase made before the change is played.
+- [ ] Tablet on battery, for information (M4): note the battery cost of about ten changes at
+      Idle, each followed by a few seconds' wait (up to four background generations each).
+- [ ] M4 on the reference machine: `npm run test:sweep`, copy the `SWEEP-M4` lines into
+      [`docs/generation-latency.md`](docs/generation-latency.md#phrase-2-after-pre-generation-m4-2026-10-12).

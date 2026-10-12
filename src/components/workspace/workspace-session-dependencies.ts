@@ -15,7 +15,7 @@ import type { SessionRunner, SessionRunnerDependencies } from '@/session/session
 import type { SessionBrowserPorts } from '@/session/session-browser-ports'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { MidiController } from '@/midi/midi-controller'
-import type { WorkspacePrewarmPolicy } from './prewarm-policy'
+import type { WorkspacePregenerationPolicy, WorkspacePrewarmPolicy } from './prewarm-policy'
 import type { WorkspaceSessionStart } from '@/components/workspace/workspace-session-runner'
 import type { SessionControllerClock } from './workspace-session-controller-seams'
 
@@ -44,7 +44,7 @@ export type WorkspaceSessionRunnerStarter = (input: WorkspaceSessionRunnerInput)
 /**
  * The explicit dependency surface `composeWorkspaceSession` needs: identity/seed providers, the
  * session-seed provider, the window-width provider, the raw orchestration-outcome `generate` seam
- * (plus its teardown), the prewarm policy and seam, the audio transport, the MIDI controller, the
+ * (plus its teardown), the prewarm policy and seam, the pre-generation policy, the audio transport, the MIDI controller, the
  * session browser ports and the session controller's clock. Production supplies the cryptographic
  * seed provider, the `matchMedia` width provider, the real worker client, the Web Audio transport,
  * the Web MIDI controller and the browser adapters; a harness supplies deterministic, gated, or
@@ -62,12 +62,21 @@ export interface WorkspaceSessionDependencies {
   // @spec-link [[module_session_seed_plan]]
   readonly nextSessionSeed: () => Seed
   readonly viewport: ViewportWidthProvider
-  /** The one generation seam; a session runner passes each attempt's abort signal, Idle none. */
+  /**
+   * The one generation seam; a session runner and the Idle pre-generation queue pass each
+   * attempt's abort signal, the Idle flow's player requests none.
+   */
   readonly generate: (intent: GenerationIntent, signal?: AbortSignal) => Promise<GenerationOutcome>
   /** Whether `prewarm` is ever called; `disabled` posts nothing at all. */
   readonly prewarmPolicy: WorkspacePrewarmPolicy
   /** The same worker's fire-and-forget rhythm-domain prewarm (the client's `prewarm`). */
   readonly prewarm: (intent: GenerationIntent) => void
+  /**
+   * Whether the Idle pre-generation queue ever runs a background attempt; `disabled` runs none and
+   * Start takes no ready phrase.
+   */
+  // @spec-link [[module_idle_pregeneration_queue]]
+  readonly pregenerationPolicy: WorkspacePregenerationPolicy
   /** The audio transport, passed through unchanged as `WorkspaceSession.audio`. */
   // @spec-link [[req_session_audio_mix]]
   // @spec-link [[rule_audio_unlocked_by_player_click]]

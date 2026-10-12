@@ -12,7 +12,7 @@ type: MODULE
 layer: ARCHITECTURE
 version: 0.1
 priority: 1
-notes: Split out on 2026-10-05 from service_workspace_session_flow (version 1.6) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
+notes: v3.0 change pending (2026-10-12, pre-code architecture capture for build plan chunk 24): a passive observer of the staff's layout reports at Idle joins the gate's port, for the pre-generation queue's window re-check (module_idle_pregeneration_queue); the gate is otherwise unchanged. Text and status unchanged on purpose: it still describes the running code. Revise it at chunk 24's post-task sync. Earlier: Split out on 2026-10-05 from service_workspace_session_flow (version 1.6) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 ---
 
 # Idle Layout Gate

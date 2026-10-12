@@ -9,7 +9,8 @@
  *
  * Each density's sweep also counts, per tempo, how its look-ahead phrases (2 to 6) were produced,
  * and prints the counts as `SWEEP-SKIPS` lines, so how often the ladder's time rule gave up carry-in
- * can be read from the sweep's log.
+ * can be read from the sweep's log. Measurement M4 plays the same measured sessions after an Idle
+ * phase (pregeneration-sweep-measured.ts).
  */
 
 import {
@@ -18,6 +19,7 @@ import {
   sessionBreaks,
   type AttemptCost,
   type AttemptScript,
+  type IdlePhase,
   type OutcomeCache,
   type SweepCase,
   type TimedSession,
@@ -97,27 +99,33 @@ export class ProductionTally {
 }
 
 /**
- * Intent: play one case's session at a tempo with every attempt at its measured cost, count how
- * its look-ahead phrases were produced in `tally`, and return
- * every way it missed the look-ahead deadline, as readable lines (none when it held): an error, a
- * phrase after the first not ready strictly before its deadline, a phrase off the measure grid, a
- * session short of its planned end, and every repeat. A standalone phrase counts as generated.
+ * Intent: play one case's session at a tempo with every attempt at its measured cost, after the
+ * Idle phase when one is given.
  */
-export async function deadlineShortfalls(
+export function measuredSession(
   sweepCase: SweepCase,
   tempo: number,
   outcomes: OutcomeCache,
-  tally: ProductionTally,
-): Promise<readonly string[]> {
-  const run = await runTimedSession(
+  idlePhase?: IdlePhase,
+): Promise<TimedSession> {
+  return runTimedSession(
     sweepCase,
     tempo,
     outcomes,
     generateEveryAttempt,
     measuredAttemptCost,
+    idlePhase,
   )
-  tally.add(run)
-  const where = `${sweepCase.label} at ${tempo} BPM`
+}
+
+/**
+ * Intent: every way a measured run missed the look-ahead deadline, as readable lines (none when it
+ * held): an error, a phrase after the first not ready strictly before its deadline, a phrase off
+ * the measure grid, a session short of its planned end, and every repeat. A standalone phrase
+ * counts as generated.
+ */
+export function runShortfalls(sweepCase: SweepCase, run: TimedSession): string[] {
+  const where = `${sweepCase.label} at ${run.tempo} BPM`
   const shortfalls = [...sessionBreaks(sweepCase, run)]
   for (const slot of phraseSlots(run))
     if (slot.decided?.origin === 'repeat')
@@ -125,4 +133,20 @@ export async function deadlineShortfalls(
         `${where}: phrase ${slot.phraseNumber} repeated at ${slot.decided.at} s, its deadline ${slot.deadline} s, after ${slot.attempts} attempts`,
       )
   return shortfalls
+}
+
+/**
+ * Intent: play one case's session at a tempo with every attempt at its measured cost, count how
+ * its look-ahead phrases were produced in `tally`, and return every way it missed the look-ahead
+ * deadline (`runShortfalls`).
+ */
+export async function deadlineShortfalls(
+  sweepCase: SweepCase,
+  tempo: number,
+  outcomes: OutcomeCache,
+  tally: ProductionTally,
+): Promise<readonly string[]> {
+  const run = await measuredSession(sweepCase, tempo, outcomes)
+  tally.add(run)
+  return runShortfalls(sweepCase, run)
 }

@@ -80,6 +80,7 @@ describe('composeWorkspaceSession: the session browser ports', () => {
       viewport: createFakeViewportWidth(),
       generate: vi.fn(),
       prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
       prewarm: vi.fn(),
       audio: transport,
       midi: createMidiController({
@@ -119,7 +120,10 @@ describe('createWorkspaceSession: the browser adapters', () => {
   it("asks the browser's navigator.wakeLock for a screen lock, only when requested", async () => {
     stubWideWindow()
     const browser = stubWakeLock()
-    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
+    })
     expect(browser.requests).toEqual([])
 
     expect(await workspace.browser.wakeLock.request()).toEqual({ kind: 'held' })
@@ -133,7 +137,10 @@ describe('createWorkspaceSession: the browser adapters', () => {
     stubWideWindow()
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' })
     const browser = stubWakeLock()
-    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
+    })
 
     await workspace.browser.wakeLock.request()
     browser.sentinels[0]!.dispatchEvent(new Event('release'))
@@ -149,7 +156,10 @@ describe('createWorkspaceSession: the browser adapters', () => {
     stubWideWindow()
     expect('wakeLock' in navigator).toBe(false)
     vi.stubGlobal('screen', {})
-    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
+    })
 
     expect(await workspace.browser.wakeLock.request()).toEqual({ kind: 'unsupported' })
     expect(await workspace.browser.orientationLock.lock()).toEqual({ kind: 'unsupported' })
@@ -159,7 +169,10 @@ describe('createWorkspaceSession: the browser adapters', () => {
   // @test-link [[rule_hidden_tab_ends_session]]
   it("hears the document's visibilitychange to hidden", () => {
     stubWideWindow()
-    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
+    })
     let hidden = 0
     workspace.browser.pageVisibility.onHidden(() => {
       hidden += 1
@@ -175,7 +188,10 @@ describe('createWorkspaceSession: the browser adapters', () => {
   // @test-link [[rule_session_ends_when_staff_too_small]]
   it("reads the window's width and its probe's small viewport height, adding the probe lazily", () => {
     stubWideWindow()
-    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
+    })
     expect(document.body.children).toHaveLength(0)
 
     vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue(

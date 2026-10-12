@@ -5,7 +5,8 @@ priority: 1
 version: 0.2
 human_name: Generation Worker Cancellation
 tags: generation-worker,session,look-ahead
-dependents: []
+dependents:
+  - [[module_idle_pregeneration_queue]]
 type: MODULE
 layer: ARCHITECTURE
 parents:

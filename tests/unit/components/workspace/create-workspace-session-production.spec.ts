@@ -39,7 +39,10 @@ describe('createWorkspaceSession', () => {
 
   it('builds a production session without ever calling crypto.getRandomValues eagerly', () => {
     stubMatchMedia(false)
-    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
+    })
 
     expect(workspace.session.state.operation).toBe('idle')
     expect(workspace.session.state.controls).toEqual(DEFAULT_GENERATION_CONTROLS)
@@ -59,7 +62,10 @@ describe('createWorkspaceSession', () => {
         }
       },
     )
-    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
+    })
 
     expect(workspace.audio.isUnlocked()).toBe(false)
     expect(workspace.audio.isRunning()).toBe(false)
@@ -72,7 +78,10 @@ describe('createWorkspaceSession', () => {
   // @test-link [[rule_generated_density_follows_window_width]]
   it("reads the window's width against bp-tablet-landscape through matchMedia", () => {
     const { matchMedia, listeners } = stubMatchMedia(true)
-    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
+    })
 
     expect(matchMedia).toHaveBeenCalledWith('(max-width: 63.9375rem)')
     expect(workspace.session.state.noteDensityContext.belowTabletLandscape).toBe(true)
@@ -85,7 +94,10 @@ describe('createWorkspaceSession', () => {
   // @test-link [[service_workspace_session_flow]]
   it('posts one prewarm for the default controls to the new worker with prewarm enabled', () => {
     stubMatchMedia(false)
-    const workspace = createWorkspaceSession({ prewarmPolicy: 'enabled' })
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'enabled',
+      pregenerationPolicy: 'disabled',
+    })
 
     const port = vi.mocked(createBrowserGenerationWorker).mock.results.at(-1)!.value as {
       postMessage: ReturnType<typeof vi.fn>
@@ -102,7 +114,10 @@ describe('createWorkspaceSession', () => {
   // @test-link [[service_workspace_session_flow]]
   it('posts nothing to the new worker with prewarm disabled', () => {
     stubMatchMedia(false)
-    const workspace = createWorkspaceSession({ prewarmPolicy: 'disabled' })
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
+    })
     workspace.session.actions.setControl('syncopation', 'Active displacement')
 
     const port = vi.mocked(createBrowserGenerationWorker).mock.results.at(-1)!.value as {

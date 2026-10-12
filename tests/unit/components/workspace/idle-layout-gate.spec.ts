@@ -113,3 +113,36 @@ describe('idle layout gate', () => {
     expect(() => release()).toThrow(/has ended/)
   })
 })
+
+// @test-link [[module_idle_pregeneration_queue]]
+describe('idle layout gate observers', () => {
+  // @test-link [[module_idle_pregeneration_queue]]
+  // @test-link [[module_idle_layout_gate]]
+  it('tells each observer of every layout-input report after its receiver, at Idle and diverted', () => {
+    const order: string[] = []
+    const idle = spiedReports()
+    idle.layoutInputs.mockImplementation(() => order.push('idle'))
+    const session = spiedReports()
+    session.layoutInputs.mockImplementation(() => order.push('session'))
+    const gate = createIdleLayoutGate(idle)
+    const observed: StaffLayoutInputs[] = []
+    const stop = gate.observeInputs((inputs) => {
+      order.push('observer')
+      observed.push(inputs)
+    })
+
+    gate.layoutInputs(INPUTS)
+    const release = gate.divert(session)
+    gate.layoutInputs(INPUTS)
+    release()
+    gate.engraved()
+    gate.notationError(new NotationError('notation_no_room', 'no room', {}))
+    stop()
+    gate.layoutInputs(INPUTS)
+
+    expect(order).toEqual(['idle', 'observer', 'session', 'observer', 'idle'])
+    expect(observed).toEqual([INPUTS, INPUTS])
+    expect(idle.layoutInputs).toHaveBeenCalledTimes(2)
+    expect(() => stop()).toThrow(/stopped twice/)
+  })
+})

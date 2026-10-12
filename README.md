@@ -282,7 +282,7 @@ UI (Vue components, props-in/events-out)
   [`docs/phrase-workspace.md`](docs/phrase-workspace.md#idle-fit-run-and-the-room-notice).
 - **Session engine.** `src/session/` decides, as pure logic, what a running practice session
   requests, shows and ends, from timed events that each carry their audio time: phrase 2 requested
-  at start and due when the count-in ends, each later phrase due at the start of the last measure
+  at start (or spent from the phrases pre-generated at Idle) and due when the count-in ends, each later phrase due at the start of the last measure
   of the one sounding, the failure ladder (three carry-in retries, one standalone retry, then a
   repeat of the phrase before), the struggling-generator notice, and settings locked at start,
   changed only at a phrase boundary by a seeded settings mutation (flag off in the workspace) or
@@ -351,7 +351,11 @@ UI (Vue components, props-in/events-out)
   result. A second, uncorrelated `prewarm` message, never answered, asks the Worker to build the
   current rhythm setting's domain in short slices between requests, so the first Generate on that
   setting finds it ready (`?prewarm=off` on the page URL turns it off for latency measurement).
-  See [`docs/phrase-workspace.md`](docs/phrase-workspace.md#pre-warm).
+  See [`docs/phrase-workspace.md`](docs/phrase-workspace.md#pre-warm). While Idle, the same
+  Worker also pre-generates in the background up to four phrases that would follow phrase 1 in a
+  session, which the next session spends first; any player request aborts the background attempt
+  in flight, and `?pregeneration=off` on the page URL turns it off. See
+  [Pre-generation at Idle](docs/phrase-workspace.md#pre-generation-at-idle).
 - **Domain orchestration (harmony -> rhythm -> pitch -> validation).**
   `generatePhrase`/`generation-orchestrator.ts` builds the structural harmony candidate domain
   (`makeHarmonyCandidateDomain`), the rhythm candidate domain (materialized once per rhythm setting
@@ -550,6 +554,7 @@ detection, scoring, and the rolling continuation flow remain outside this releas
 
 ## Open Issues
 
-| Name                                                                                                               | Date       | Status | Severity | Oneliner                                                                         |
-| ------------------------------------------------------------------------------------------------------------------ | ---------- | ------ | -------- | -------------------------------------------------------------------------------- |
-| [A rising up-stemmed beam can run through a chord symbol](issues/Ref_20261005_chord_symbol_through_rising_beam.md) | 2026-10-05 | Open   | Medium   | In a beam group stemmed up whose beam rises above the staff's text line, the ... |
+| Name                                                                                                                                       | Date       | Status | Severity | Oneliner                                                                         |
+| ------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | ------ | -------- | -------------------------------------------------------------------------------- |
+| [Start throws when a harmony setting changed at Idle after phrase 1 was generated](issues/Ref_20261012_start_after_idle_harmony_change.md) | 2026-10-12 | Open   | High     | At Idle, an ordinary control edit never regenerates the phrase on screen, and... |
+| [A rising up-stemmed beam can run through a chord symbol](issues/Ref_20261005_chord_symbol_through_rising_beam.md)                         | 2026-10-05 | Open   | Medium   | In a beam group stemmed up whose beam rises above the staff's text line, the ... |

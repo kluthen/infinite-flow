@@ -503,6 +503,36 @@ interface WorkspaceHarnessGenerationRequest {
   readonly musicalProfile: { readonly musicalProfile: string; readonly isCustom: boolean }
   /** Whether the request carried a carry-in (a session look-ahead joining the phrase before). */
   readonly carryIn: boolean
+  /** The intent's seed. */
+  readonly seed: number
+  /** The intent's request id. */
+  readonly requestId: string
+  /** Whether the call carried an abort signal: a background attempt or a session's attempt. */
+  readonly signal: boolean
+  /** Whether it is a background attempt: a call carrying a signal while no session runs. */
+  readonly background: boolean
+  /** How the call has settled so far. */
+  readonly settled: WorkspaceHarnessGenerationSettlement
+  /** The concert timeline (JSON, as `snapshot().timeline`) of a successful answer; else null. */
+  readonly timeline: string | null
+}
+
+/**
+ * How a `generate` call has settled: still `pending`, `answered` (a success or a generation
+ * failure, forced or real), `cancelled` (its signal aborted) or `rejected` with another error.
+ */
+type WorkspaceHarnessGenerationSettlement = 'pending' | 'answered' | 'cancelled' | 'rejected'
+
+/** The background attempts since the page loaded, counted by how they have settled. */
+interface WorkspaceHarnessBackgroundGeneration {
+  /** How many were made. */
+  readonly made: number
+  /** How many wait at the background gate now. */
+  readonly held: number
+  readonly pending: number
+  readonly answered: number
+  readonly cancelled: number
+  readonly rejected: number
 }
 
 interface WorkspaceHarnessApi {
@@ -513,6 +543,16 @@ interface WorkspaceHarnessApi {
   /** Release the current hold; every gated `generate` call resumes immediately. */
   releaseGeneration: () => void
   /**
+   * Hold every later background attempt (a `generate` call carrying an abort signal while no
+   * session runs) before it reaches the real worker, until released; other calls pass. A held
+   * attempt whose signal aborts rejects at once with the client's cancellation error.
+   */
+  holdBackgroundGeneration: () => void
+  /** Release the background hold; every held background attempt resumes immediately. */
+  releaseBackgroundGeneration: () => void
+  /** The background attempts since the page loaded, counted by how they have settled. */
+  backgroundGeneration: () => WorkspaceHarnessBackgroundGeneration
+  /**
    * Arm forced generation failures using the given real orchestration failure code: the `count`
    * (default 1) `generate` calls in a row after `skip` more (default 0) have passed through for
    * real. Arming again replaces what is still armed.
@@ -522,7 +562,10 @@ interface WorkspaceHarnessApi {
     skip?: number,
     count?: number,
   ) => void
-  /** How many `generate` calls have returned since the page loaded: forced failures and answers. */
+  /**
+   * How many `generate` calls have settled since the page loaded: forced failures, answers and
+   * cancellations (a held background attempt cancelled at the gate included).
+   */
   generationsSettled: () => number
   /**
    * Arm exactly one forced notation failure on the next engraving (a draw or a redraw, of a whole
@@ -574,7 +617,10 @@ interface WorkspaceHarnessApi {
    * `generate` answer since the page loaded, Idle and session look-ahead alike, in return order.
    */
   generatedTimelines: () => readonly string[]
-  /** The settings of every `generate` call since the page loaded, in call order. */
+  /**
+   * The record of every `generate` call since the page loaded, in call order: its settings, seed
+   * and request id, whether it carried a signal or was a background attempt, and how it settled.
+   */
   generationRequests: () => readonly WorkspaceHarnessGenerationRequest[]
   /**
    * Fix the wall clock the next session histories read their start time from (epoch

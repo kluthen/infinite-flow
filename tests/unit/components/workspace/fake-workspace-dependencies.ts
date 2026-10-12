@@ -13,7 +13,10 @@ import type {
   composeWorkspaceSession,
   WorkspaceSessionDependencies,
 } from '@/components/workspace/create-workspace-session'
-import type { WorkspacePrewarmPolicy } from '@/components/workspace/prewarm-policy'
+import type {
+  WorkspacePregenerationPolicy,
+  WorkspacePrewarmPolicy,
+} from '@/components/workspace/prewarm-policy'
 import {
   DEFAULT_GENERATION_CONTROLS,
   DEFAULT_PROFILE_SELECTION,
@@ -71,10 +74,11 @@ function cheapOutcome(requestId: string, seed: number): GenerationOutcome {
 
 /**
  * Intent: build a fully fake dependency bundle whose seams a test can assert against directly,
- * under the given prewarm policy (disabled unless a test is about prewarm).
+ * under the given prewarm and pre-generation policies (disabled unless a test is about them).
  */
 export function fakeDependencies(
   prewarmPolicy: WorkspacePrewarmPolicy = 'disabled',
+  pregenerationPolicy: WorkspacePregenerationPolicy = 'disabled',
 ): WorkspaceSessionDependencies & {
   readonly generateMock: ReturnType<typeof vi.fn>
   readonly disposeMock: ReturnType<typeof vi.fn>
@@ -111,6 +115,7 @@ export function fakeDependencies(
     viewport: createFakeViewportWidth(),
     generate: generateMock,
     prewarmPolicy,
+    pregenerationPolicy,
     prewarm: prewarmMock,
     audio: transport,
     midi: createMidiController({
