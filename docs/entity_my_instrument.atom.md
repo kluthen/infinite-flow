@@ -1,8 +1,8 @@
 ---
 id: entity_my_instrument
-status: DRAFT
+status: REVIEW
 priority: 1
-notes: Synced 2026-10-12 at the v3.0 wave-1 post-task sync, same version 0.1: chunk 16's code (merge d49e559) implements it; the technical interface now names the files and functions, and records that the paths rebuilding an intent from the controls alone refuse my-instrument until it travels through the worker and the session (chunk 17). Logic and expectation match the code and its linked tests. Status stays DRAFT; REVIEW proposed to the owner. Earlier: Created 2026-10-11 at DRAFT by the pre-code architecture capture for v3.0 build plan chunk 16, from master spec section 7.1 and spec D253, D254 and D257 (owner rulings). Describes intended v3.0 behaviour: no code implements it yet.
+notes: Status DRAFT to REVIEW on 2026-10-12 with the owner's agreement (v3.0 wave-1 sign-off), same version: chunk 16's code (merge d49e559) matches the logic and expectation, with its linked tests. Earlier: Synced 2026-10-12 at the v3.0 wave-1 post-task sync, same version 0.1: chunk 16's code (merge d49e559) implements it; the technical interface now names the files and functions, and records that the paths rebuilding an intent from the controls alone refuse my-instrument until it travels through the worker and the session (chunk 17). Logic and expectation match the code and its linked tests. Status stays DRAFT; REVIEW proposed to the owner. Earlier: Created 2026-10-11 at DRAFT by the pre-code architecture capture for v3.0 build plan chunk 16, from master spec section 7.1 and spec D253, D254 and D257 (owner rulings). Describes intended v3.0 behaviour: no code implements it yet.
 dependents: []
 type: ENTITY
 layer: ARCHITECTURE
