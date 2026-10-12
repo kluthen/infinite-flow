@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.82
+Status: draft v2.83
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D293**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D294**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 are reserved for v3.0 wave 2.
 
@@ -1034,3 +1034,41 @@ from `main`); D289 is unused. D290–D299 are reserved for v3.0 wave 2.
   `rule_look_ahead_deadline` is revised at chunk 24's sync, with the owner's agreement then.
   Later the same day the coordinator placed chunk 18 in wave 6 instead (Gate A, then chunks 11,
   12, 18, 22 and 25), so the chunks of one wave stay independent; chunk 18 does not need Gate A.
+
+- **D293 (2026-10-12): my instrument gains a clef choice, treble or bass, in v3.0; octave signs
+  wait (opens O180 and O181).** Chunk 19 measured how far my instrument's written range may reach
+  before the staff's shared height grows (M3, `docs/notation-engraving.md`): in treble clef only an
+  exact two-octave range from written B2–B4 up to E4–E6 keeps 16 staff spaces, and a low range
+  costs most (C2–C4 19, C2–C7 24). Asked for the range ruling, the owner answered, verbatim: "bass
+  clef option for v3.0, and keep in mind 8va/8vb/15ma etc for a later version should the need
+  arise." Written into master spec Part A v1.9:
+  1. **The clef.** My instrument is written in treble or bass clef, as the player chooses; the
+     built-in profiles stay in treble clef. A new my instrument starts in treble clef, every
+     template's clef (proposed default, for `ux-writer` to confirm with the clef control). The
+     clef is a field of my instrument, apart from what the generator reads.
+  2. **Display only.** The clef changes neither the written pitch nor the transposition, and
+     nothing generated. It follows the phrase: the staff at Idle and in a session, the check's
+     note while my instrument is selected, the review of the last session and of kept sessions
+     (each phrase in the clef it was played in, kept with its instrument, §5.2), the score's
+     description, and the MusicXML export (`<clef>` F on line 4). Changing only the clef keeps
+     the phrase on screen, redrawn, and discards no pre-generated phrase.
+  3. **Not in the replay key.** The `ifk2.` key reproduces generation, which the clef does not
+     touch, so two phrases differing only by clef have the same key; the replay tool shows no
+     staff. This also keeps `ifk3.` and `ifk4.`, which carry my instrument as `ifk2.` does, free of
+     display data.
+  4. **The shared height** (D292) reads my instrument's written range placed in its own clef.
+  5. **The range ruling, per clef, is proposed, not decided:** written C2 to C7 in treble clef and
+     E0 to E5 in bass clef (the same lines and spaces on each staff), keeping the shared height at
+     most 24 staff spaces; the bass-clef figure is measured in the build (build plan chunk 19b).
+     The alternative is a bound on the height itself. It stays with the owner (§14).
+  6. **Octave signs later.** Octave signs (8va, 8vb, 15ma) and octave clefs are deferred,
+     registered as O180 with spec-writer's advice against automatic ottava lines inside a
+     phrase.
+  7. **A gap D292 already had, made common by the clef:** a kept session played with a my
+     instrument that needed more height than the current one, and phrases pre-generated before a
+     save that changes the height. Registered as O181.
+
+  No guarantee on the contract states the clef; the REVIEW and DRAFT atoms that say "treble"
+  are revised by `documentalist`. Build plan v7 adds chunk 19b (bass clef for my instrument) in
+  wave 2, moves the range ruling after it, and adds a clef design gate for `ux-writer` before
+  chunk 20.

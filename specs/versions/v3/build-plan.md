@@ -1,6 +1,9 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v6 (2026-10-12): the owner's rulings after the wave-2 preflight (spec D290–D292, master
+Status: v7 (2026-10-12): the owner's bass clef ruling (spec D293, master spec Part A v1.9): a
+new [chunk 19b](#chunk-19b--bass-clef-for-my-instrument) in wave 2, the range ruling moved after
+it and made per clef, a clef design gate for `ux-writer` before chunk 20, and chunks 17, 18, 20
+and 21, M3 and §7 updated ([Wave records](#owner-ruling-during-wave-2-bass-clef-2026-10-12)); v6 (2026-10-12): the owner's rulings after the wave-2 preflight (spec D290–D292, master
 spec Part A v1.8) and one coordinator call, chunk 18 moving to wave 6 after chunk 17, written into
 the wave table and chunks 16, 18, 19 and 24; the preflight's plan corrections applied to §2, §3,
 M5 and chunks 4, 18, 19 and 24 ([Wave records](#wave-records)); v5 (2026-10-12): a wording fix
@@ -53,7 +56,9 @@ Some steps are not code and need the owner. They are part of the sequence:
 | **Q66** | The owner allows one `ux-writer` pass on `src/styles/theme.css` and `components.css` ([ux Q66](../../../ui_ux/open-questions.md)). | Now. | [Chunk 1](#chunk-1--token-source-pass-pending-owner-approval), so every interface chunk (8, 10–15, 20–22, 25). |
 | **Gate A** | The owner confirms the contract change set, part A, in the words of [`v3.0-intent-change-set.md`](../../../docs/release/v3.0-intent-change-set.md#a-contract-18--20-major-three-narrowed-guarantees); `documentalist` applies A1–A4 (CONTRACT 1.8 → 2.0) in its own commit on `main`. | As soon as the owner confirms: the narrowed wording still holds for v2.0, so it can land before any v3.0 code. | Chunks 11, 12 and 22 may not **merge** before it (each breaks one of the three old guarantees); chunk 14 follows from 12. |
 | **H1** | The owner records stray notes on the Travel Sax breath controller with v2.0's played-notes export ([measurement M1](#m1--the-stray-note-threshold)). | Any time; v2.0 already exports raw played notes. | Chunk 25's threshold. |
-| **Range ruling** | The owner rules on a bound for my instrument's written range from measurement M3 ([chunk 16](#chunk-16--my-instrument-in-the-domain) and [chunk 19](#chunk-19--my-instrument-on-the-staff)); `spec-writer` writes it into master spec §7.1 and §14. | After chunk 19. | Chunk 20's refusal rule. |
+| **Range ruling** | The owner rules on a bound for my instrument's written range, per clef (spec D293), from measurement M3 ([chunk 16](#chunk-16--my-instrument-in-the-domain), [chunk 19](#chunk-19--my-instrument-on-the-staff) and [chunk 19b](#chunk-19b--bass-clef-for-my-instrument)); proposed in [master spec §14](master-spec.md#14-deferred-and-open): treble C2–C7, bass E0–E5. `spec-writer` writes it into master spec §7.1 and §14. | After chunk 19b. | Chunk 20's refusal rule. |
+| **Clef design** | `ux-writer` designs the clef control in my instrument's sheet, its wording and its default (proposed: treble clef), the staff-reach note read in the chosen clef, and, with the owner, the review's sizing of [spec O181](../../open-questions.md#v30-wave-2-o180)(a) (ux D280+ and ux Q80+). | Now; before chunk 20. | Chunk 20. Chunk 19b may start before it: its only words are the score description's clef name, "bass clef" in the existing pattern, revised if `ux-writer` says otherwise. |
+| **O181** | The owner answers [spec O181](../../open-questions.md#v30-wave-2-o180): phrases made before a save that changes the shared height (a kept session's review, pre-generated phrases). | Before chunk 20. | Chunk 20. |
 | **Part B1** | The owner confirms the revised `rule_instrument_profile_range` (change set part B, a MINOR contract bump). | After chunk 20's wave gate (its post-task sync revises the atom). | Nothing; the gate checks it is done. |
 | **Part B2** | The owner confirms the revised `rule_controller_transposition_check` (part B, MINOR). | After chunk 21's wave gate (its post-task sync revises the atom). | Nothing; the gate checks it is done. |
 | **Part C** | The owner confirms the VISION 0.7 → 0.8 text and the retirement of the four chord-fit atoms (part C). | In chunk 26. | The gate. |
@@ -77,12 +82,12 @@ wave-0 gate covers chunks 1 and 2.
 | --- | --- | --- |
 | 0 | 0 Intent re-sync · 1 Token-source pass · 2 Baselines | Nothing (chunk 1: the owner's Q66 answer). H1 can run now. |
 | 1 | 3 Storage boundary gates · 6 Tolerant settings codec · 16 My instrument in the domain · 23 Session seed plan | Chunk 0 (and chunk 2 for 16 and 23, which its replay corpus guards) |
-| 2 | 4 Database core · 19 My instrument on the staff · 24 Pre-generation at Idle | Chunk 3 (4); 16 (19); 23 (24) |
+| 2 | 4 Database core · 19 My instrument on the staff · 19b Bass clef for my instrument · 24 Pre-generation at Idle | Chunk 3 (4); 16 (19); 19 and its own intent preflight (19b); 23 (24) |
 | 3 | 5 Save policy · 9 Kept-session record | Chunk 4; chunk 23 (9) |
 | 4 | 7 Saved settings · 8 Notice row | Chunks 5, 6; chunk 1 for 8 |
 | 5 | 10 Most recent session kept · 17 My instrument across worker and history | Chunks 7, 8, 9 (10); 9, 16 (17) |
 | 6 | **Gate A**, then 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter | Chunk 10 and Gate A (11, 12); chunk 17 (18, not Gate A); chunk 7 and Gate A (22); H1 and chunk 1 (25) |
-| 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet | Chunk 12 (13, 14); chunks 7, 17, 19, the range ruling and ux Q76 (20) |
+| 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet | Chunk 12 (13, 14); chunks 7, 17, 19b, the range ruling, the clef design, O181 and ux Q76 (20) |
 | 8 | 15 Your data · 21 The check feeds my instrument | Chunks 11, 14 (15); 20 (21) |
 | 9 | 26 v3.0 release gate | Every other chunk |
 
@@ -123,7 +128,11 @@ flowchart LR
   C16 --> C18[18 Replay key ifk2]
   C17 --> C18
   C16 --> C19[19 Staff placement]
-  C19 --> RR{{Range ruling}}
+  C19 --> C19b[19b Bass clef]
+  C19b --> RR{{Range ruling}}
+  C19b --> C17
+  CD{{Clef design}} --> C20
+  O181{{O181}} --> C20
   C7 --> C20[20 My instrument sheet]
   C17 --> C20
   RR --> C20
@@ -397,6 +406,39 @@ Not blocking: `rule_look_ahead_deadline`'s "phrase 2 is generated during the one
 count-in" (conflict 2 above) is revised in chunk 24's sync, as Part D, with the owner's agreement
 then. Chunk 24's Part D line names it.
 
+#### Owner ruling during wave 2: bass clef (2026-10-12)
+
+Chunk 19 merged (aec8f63) with M3's staff half recorded in
+[`notation-engraving.md`](../../../docs/notation-engraving.md#my-instruments-written-range-m3-2026-10-12):
+in treble clef only an exact two-octave range from written B2–B4 up to E4–E6 keeps 16 staff
+spaces; C3–C6 needs 18, C2–C4 19, C6–C8 21, C2–C6 23, C2–C7 24. Asked for the range ruling, the
+owner answered: "bass clef option for v3.0, and keep in mind 8va/8vb/15ma etc for a later version
+should the need arise." Spec D293 writes it into master spec Part A v1.9:
+
+- My instrument is written in treble or bass clef, the player's choice; the built-ins stay in
+  treble clef; a new my instrument starts in treble clef (proposed, for `ux-writer`). The clef is
+  display only: written pitch, transposition and generation are unchanged, the generator never
+  reads it, and the `ifk2.` key does not carry it. It follows the phrase into the staff at Idle
+  and in a session, the check's note, the review of the last and kept sessions (kept with the
+  phrase's instrument), the score's description and the MusicXML export (`<clef>` F, line 4).
+- The staff's shared height (spec D292) reads my instrument's written range placed in its own
+  clef.
+- The range ruling stays owed, now per clef: proposed treble C2–C7 and bass E0–E5 (the same lines
+  and spaces), keeping the shared height at most 24 staff spaces; chunk 19b measures the bass
+  figure. The gate moves after chunk 19b.
+- Octave signs and octave clefs wait for a later version
+  ([spec O180](../../open-questions.md#v30-wave-2-o180)). A gap D292 already had, which the clef
+  makes common, is registered as [spec O181](../../open-questions.md#v30-wave-2-o180) and gates
+  chunk 20.
+
+Placement: **chunk 19b** joins wave 2 after chunk 19 (merged). Under the owner's
+one-chunk-in-flight rule it runs before or after chunk 24, as the coordinator chooses. It touches none of chunk 4's or chunk 24's files. Wave 2's preflight did not cover it,
+so it gets its own intent preflight (a D-peek) first, after `documentalist` revises the atoms that
+say "treble" (listed in chunk 19b). The clef control and the record field stay in chunk 20, behind
+the new **Clef design** gate for `ux-writer` and O181. Chunk 17 carries the clef with the phrase's
+instrument into the history and the kept-session record; chunk 18's key leaves it out; chunk 21
+creates my instrument in treble clef or keeps the existing clef.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
@@ -599,10 +641,11 @@ recorded. The gate copies each into the release notes.
   103–127), and wide ranges (48 and 60 semitones), each against every supported rhythm setting
   with two seeds, recording the share of failed generations by failure code. Chunk 19 measures,
   with the engraving calibration, the staff height a written range needs, and the written range
-  beyond which the shared height grows past today's.
+  beyond which the shared height grows past today's. Chunk 19b measures the same in bass clef
+  (spec D293), the proposed bound E0–E5 included.
 - **Recorded:** `docs/generation-latency.md` (a new "My instrument ranges" section) and
-  `docs/notation-engraving.md`. The owner's **range ruling** follows; `spec-writer` writes it into
-  the spec, and chunk 20 enforces it.
+  `docs/notation-engraving.md`. The owner's **range ruling**, per clef, follows; `spec-writer`
+  writes it into the spec, and chunk 20 enforces it.
 
 ### M4 — Phrase 2 joining phrase 1 at 240 BPM after pre-generation
 
@@ -1511,8 +1554,10 @@ and into a kept session.
 profile as data, validated by `parseInstrumentProfile` and `makeMyInstrument`'s rules, instead of
 rebuilding it by id (the built-ins keep their rebuild-and-compare check); the session history
 records it; the kept-session codec stores and decodes it, so a kept session keeps the instrument
-it was played with, even after my instrument is edited or deleted. The prewarm and the
-cancellation paths carry it unchanged.
+it was played with, even after my instrument is edited or deleted. My instrument's clef (spec
+D293, chunk 19b) travels with the phrase's instrument into the history and the kept-session
+record, so a review draws each phrase in the clef it was played in; it is display data, never
+part of the worker's intent. The prewarm and the cancellation paths carry it unchanged.
 
 **Files:** `src/generation-worker/generation-worker-inbound.ts`, `generation-worker-protocol.ts`,
 `src/session/session-history.ts` (type only, if needed), `src/storage/records/kept-session-record.ts`;
@@ -1523,7 +1568,7 @@ tests under `tests/unit/generation-worker/` and `tests/unit/storage/`.
 **Atoms:** `req_my_instrument`, `rule_kept_session_content`; (v2) `rule_seeded_phrase_reproduction`.
 **Part D / drift check:** `module_generation_worker_protocol`, `service_session_history`.
 
-**Depends on:** chunks 9 and 16.
+**Depends on:** chunks 9, 16 and 19b (the clef).
 
 **Done when:**
 
@@ -1532,7 +1577,9 @@ tests under `tests/unit/generation-worker/` and `tests/unit/storage/`.
 - A malformed profile (23-semitone span, inconsistent transposition, windows set by hand) is
   rejected by the worker with a typed error.
 - A built-in profile whose data was altered is still rejected (rebuild-and-compare kept).
-- A session played with my instrument encodes and decodes as a kept session with that profile.
+- A session played with my instrument encodes and decodes as a kept session with that profile
+  and its clef; a bass-clef session still reviews in bass clef after my instrument is switched to
+  treble clef or deleted.
 - The `ifk1.` corpus passes.
 
 **Items covered:** 16 (generates in its range).
@@ -1573,6 +1620,8 @@ inbound parser, which accepts `my-instrument`. It runs in wave 6 and does not ne
 - The chunk 2 corpus passes unchanged; a built-in phrase still encodes as `ifk1.`, byte-identical
   to v2.
 - A malformed `ifk2.` key throws the typed key error.
+- The key carries no clef (spec D293): two phrases that differ only by my instrument's clef
+  encode to the same key.
 
 **Items covered:** 19.
 
@@ -1624,6 +1673,81 @@ before code), `module_notation_display_convention`.
 
 **Items covered:** 16 (notation in written pitch).
 
+**Verification:** the chunk checks; `npm run test:notation`; the calibration run; then chunk 19b,
+then the **range ruling**.
+
+### Chunk 19b — Bass clef for my instrument
+
+**Architecture capture:** where the clef sits: in my instrument's domain value beside the display
+name, outside the generator-facing profile and the worker's intent, and carried by the written
+phrase as it carries `writtenRange` (revisions of `entity_my_instrument` and
+`module_notation_display_convention`).
+
+**Goal.** Draw a phrase made with my instrument in bass clef when it has that clef, wherever a
+staff shows it, and measure the bass-clef range bound (spec D293, master spec §7.1).
+
+**Scope.**
+
+- The clef, `treble` or `bass`, joins my instrument's domain value (`makeMyInstrument`), never the
+  generator-facing profile or the generation request; the built-ins are treble. The written phrase
+  carries its instrument's clef, so every reader draws the clef the phrase carries, the review
+  included.
+- Each treble-only place in [master spec §11](master-spec.md#11-existing-code-and-risks) takes the
+  clef: the written phrase's type (`clef: 'treble'` today); both engravers (`addClef`); the staff
+  layout's ink and placement model, read from the clef's own lines (bass clef: top line A3,
+  middle line D3, 12 letter-name steps below the treble clef's F5 and B4); the stem rule's middle
+  line; the score description ("bass clef"); the MusicXML `<clef>` (`F`, line 4; `G`, line 2 for
+  treble), the `<transpose>` unchanged; the transposition check's note, drawn in my instrument's
+  clef while it is selected.
+- `planSystemPositionUnits` takes my instrument's written range with its clef. The seam on
+  `WorkspaceShell` stays fed with nothing until chunk 20's record (no saved instrument).
+- The calibration gains bass-clef fixtures: the proposed bound E0–E5, a low range (C2–C4, which
+  the ink model predicts at 16 spaces in bass clef, against 19 in treble), a high one and a wide
+  one; M3's bass-clef figure is recorded beside the treble one in
+  [`docs/notation-engraving.md`](../../../docs/notation-engraving.md). `docs/export.md` states the
+  clef per instrument.
+
+**Files:** `src/domain/profile/my-instrument.ts`, `src/domain/notation/written-phrase-types.ts`,
+`written-phrase.ts`, `stem-direction.ts`, `pitch-spelling.ts` (the staff position),
+`score-description.ts`; `src/notation/notation-layout-policy.ts`, `vexflow-engraver.ts`,
+`vexflow-two-system-engraver.ts`, `vexflow-check-note-engraver.ts`;
+`src/export/musicxml/musicxml-marks.ts`; the harness (`tests/e2e/notation-harness/`, a clef
+parameter for the player-made instrument), `notation-calibration.spec.ts`,
+`notation-my-instrument.spec.ts`, unit tests beside each module; `docs/notation-engraving.md`,
+`docs/export.md`, `docs/testing.md`. If the brief grows past one chunk, split the export and the
+description (19b-2) from the engraving and the height (19b-1).
+
+**Spec sections:** [§7.1](master-spec.md#71-what-it-is), [§7.4](master-spec.md#74-phrase-replay-key),
+[§11](master-spec.md#11-existing-code-and-risks), [§14](master-spec.md#14-deferred-and-open).
+
+**Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md)
+(Notation Contract), and the clef wording once the **Clef design** gate has run.
+
+**Atoms:** `rule_notation_display_preserves_phrase` (BUSINESS, REVIEW: "treble G2 clef"),
+`module_notation_display_convention`, `module_notation_layout_preflight`,
+`module_notation_stem_direction` (its middle line B4), `entity_my_instrument`, `req_my_instrument`,
+`rule_generated_notes_musicxml_export`; each revised by `documentalist` before code, none on the
+contract.
+
+**Depends on:** chunk 19; its own intent preflight.
+
+**Done when:**
+
+- A phrase for a bass-clef my instrument engraves with a bass clef on both systems, its notes on
+  the bass staff's lines and spaces, its stems down from D3 up, and its key signature in the bass
+  clef's positions (notation harness); the description names the bass clef.
+- The same phrase in treble and bass clef has the same written notes, the same concert timeline
+  and the same replay inputs.
+- The shared size reads the written range in its clef: written C2–C4 keeps 16 spaces in bass
+  clef and needs 19 in treble; the calibration confirms every case's ink inside its position.
+- The MusicXML export of a bass-clef phrase opens with `<clef>` F on line 4 and the same
+  `<transpose>`; a built-in's is unchanged, byte for byte.
+- The check note follows the selected instrument's clef.
+- The four known notation snapshots and every v2 notation test pass unchanged for the built-ins.
+- M3's bass-clef figure is recorded.
+
+**Items covered:** 16 (the clef).
+
 **Verification:** the chunk checks; `npm run test:notation`; the calibration run; then the **range
 ruling**.
 
@@ -1638,12 +1762,16 @@ the name, present only while my instrument exists; `instrument-actions` (`Create
 `Edit my instrument`); the sheet (template, name, range steppers, the live refusal, the windows,
 the staff-reach note, the transposition on the design's one stepper counting semitones across
 octaves, one direction for the whole, with its derived interval name shown beside it (master spec
-§7.1, spec D253, D257; the display as `ux-writer` settles it under ux Q76), delete
-with confirmation), loaded on demand; the record keeps the fixed id `my-instrument` and the display
+§7.1, spec D253, D257; the display as `ux-writer` settles it under ux Q76), the clef, treble or
+bass (spec D293; the control, its wording and its default as the **Clef design** gate settles
+them), delete with confirmation), loaded on demand; the record holds the clef with the rest of
+my instrument, and the shared size reads it with the written range (chunk 19b's seam); the record keeps the fixed id `my-instrument` and the display
 name apart (spec D254); save outcomes
 (replace the phrase as on an instrument switch only when selected and its range or transposition
-changed); the first save asks for persistent storage; the range bound of the owner's ruling, if
-any, with its refusal wording; deleting returns to its template only when it was selected.
+changed; a change of clef alone keeps the phrase and redraws it, and discards no pre-generated
+phrase); a save that changes the shared size does what the owner's answer to spec O181 says; the
+first save asks for persistent storage; the range bound of the owner's ruling, per clef, if any,
+with its refusal wording, checked again when the clef changes; deleting returns to its template only when it was selected.
 
 **Files:** `src/storage/records/my-instrument-record.ts` (new), `src/components/controls/FoundationControls.vue`
 (the fourth segment and the button), `src/components/workspace/MyInstrumentSheet.vue` (new),
@@ -1662,7 +1790,8 @@ instrument control).
 `rule_persistent_storage_requested`, `rule_saved_settings_load_tolerantly`. **Part B1** follows
 the merge.
 
-**Depends on:** chunks 1, 7, 17, 19, the range ruling and `ux-writer`'s answer to ux Q76.
+**Depends on:** chunks 1, 7, 17, 19 and 19b, the range ruling, the **Clef design** gate, the
+owner's answer to spec O181 and `ux-writer`'s answer to ux Q76.
 
 **Done when:**
 
@@ -1670,12 +1799,17 @@ the merge.
   replaced, notation in its written pitch; after a reload, back and selected.
 - A range under two octaves disables `Save` with the refusal; the stepper never stops at the
   two-octave limit; the transposition change keeps the written range.
+- A range outside the ruled bound for its clef, if the owner rules one, disables `Save` with its
+  refusal; switching the clef checks the range again.
 - Editing only the name relabels the segment and leaves the phrase; the saved selection still
   names `my-instrument`.
 - Each step of the transposition updates the shown interval name (14 lower: a major ninth lower;
   6 higher: an augmented fourth higher; 12 lower: one octave lower, saved and reloaded as lower).
 - Deleting while selected returns to the template; while not selected, changes nothing else; the
   remembered controller is untouched.
+- A new my instrument starts in the clef the design settles (proposed: treble); switching it to
+  bass clef redraws the phrase on screen in bass clef without replacing it, survives a reload,
+  and resizes the staff as its range in bass clef needs.
 - A seeded invalid my-instrument record loads as absent, and a saved selection of it falls back
   to the default profile.
 - The first save makes one persist request.
@@ -1691,8 +1825,8 @@ transposition, in one confirmed step.
 
 **Scope.** `Use this for my instrument` on every non-match result (absent when the result would
 sound outside MIDI 0–127); the **Use for my instrument** confirmation; on confirm, create my
-instrument from the selected built-in (named "My instrument", its written range) or update its
-transposition, keep the written range, save, select, replace the phrase, and go to **Connected**
+instrument from the selected built-in (named "My instrument", its written range, treble clef) or
+update its transposition, keep the written range and the clef, save, select, replace the phrase, and go to **Connected**
 with "{name} now matches your controller."; the check run against my instrument when it is
 selected. Played notes are still compared at the pitch received: nothing in acknowledgement
 changes.
@@ -2007,7 +2141,7 @@ verification. The gate copies this into the release notes with the final test na
 | 13 Persistent storage | 5, 12, 15, 20 | persist spy; Protection line with stubbed `persisted()`; H7 for information |
 | 14 Outdated tab | 4, 8 | two-connection unit tests; e2e with newer seeded data |
 | 15 Failed save | 5, 8, 10 | injected quota and other failures; session timing on the fake clock |
-| 16 My instrument | 16, 17, 19, 20 | refusal tests; worker range test; notation harness; reload e2e; M3 recorded |
+| 16 My instrument | 16, 17, 19, 19b, 20 | refusal tests; worker range test; notation harness, both clefs; MusicXML clef test; reload e2e; M3 recorded, both clefs |
 | 17 The check feeds my instrument | 21 | fake-MIDI e2e; H3 |
 | 18 Controller remembered | 22 | fake-MIDI e2e with permission states; H4 |
 | 19 Replay keys | 2, 18 | `ifk1.` corpus; `ifk2.` round trip |
@@ -2056,3 +2190,11 @@ failed or was slow) offers a deletion in the session list or a review, the revie
 held in memory included. Turning `Keep my played notes` off there asks nothing, and no change
 there retries a save. Item 14 now also covers the failed-read visit. Chunk 12 (review) and
 chunk 14 (session list) test these with an injected failed read and with a stubbed newer version.
+
+Master spec v1.9 (2026-10-12, spec D293) adds my instrument's clef, treble or bass, display only:
+chunk 19b builds it in the notation, chunks 17, 18, 20 and 21 carry, leave out, choose and keep it.
+Three points stay with the owner or `ux-writer`, none blocking chunk 19b: the range bound per clef
+(the range ruling, [master spec §14](master-spec.md#14-deferred-and-open)), [spec O181](../../open-questions.md#v30-wave-2-o180) (phrases made
+before a save that changes the shared height, before chunk 20), and the clef control's design
+(the **Clef design** gate). Octave signs are [spec O180](../../open-questions.md#v30-wave-2-o180),
+for a later version.

@@ -2,10 +2,11 @@
 
 Status: this file holds four parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.8 (2026-10-12), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.9 (2026-10-12), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
-  v1.8 writes in the owner's rulings after the build's second intent preflight.
+  v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
+  clef choice for my instrument, the owner's ruling during wave 2.
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -21,7 +22,7 @@ Status: this file holds four parts.
 
 Part A's history follows.
 
-Part A status: master spec v1.8 (2026-10-12), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
+Part A status: master spec v1.9 (2026-10-12), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
 remembered controller (§7.3). Change in v1.2: behaviours the v3.0 design settled, written in:
 when settings are read and saved, what Delete everything leaves, which sessions a save deletes,
 favorites and unpinning, the played-notes switch on the session that just ended, my instrument's
@@ -55,7 +56,13 @@ longer decides the spelling, and is still derived and shown (§7.1, §12, item 1
 shared height takes my instrument's written range into account, changing only when my instrument
 is saved or deleted (§7.1); a background pre-generation attempt can be cancelled, a fourth,
 minor contract change (§8, §10, item 23, §14); §7.1's transposition values say "direction"
-where they said "the sign", with the same meaning. Consolidated from the approved v3.0 drafts for handoff to
+where they said "the sign", with the same meaning. Change in v1.9, the owner's ruling during the
+v3.0 wave 2 (2026-10-12): my instrument is written in treble or bass clef, the player's choice,
+the built-in profiles staying in treble clef; the clef is display only, travels with my
+instrument's phrases into the review and the MusicXML export, and is not in the replay key; the
+staff's shared height reads my instrument's written range in its own clef; octave signs wait for
+a later version (§2, §3, §5.2, §7.1, §7.4, §8, §11, §12, item 16, §14). The bound on my
+instrument's written range is now proposed per clef and still awaits the owner (§14). Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. Part A covers **v3.0
 only**; Part B, consolidated from the approved v3.1 drafts for the same handoffs, covers v3.1. The
 draft topic documents stay in `specs/versions/v3/` as working material; where they and this
@@ -89,8 +96,8 @@ grades, ranks or scores the player, and anything that adapts is opt-in and visib
   of kept sessions, the review of any kept session, an optional comment per session (§5).
 - Played notes kept only after the player opts in, and deletable (§5).
 - Favorites: marking whole phrases, and exporting favorites only (§6).
-- "My instrument": a player-described instrument, saved, fed by the controller transposition check;
-  the last controller remembered (§7).
+- "My instrument": a player-described instrument, saved, written in treble or bass clef, fed by
+  the controller transposition check; the last controller remembered (§7).
 - Pre-generating up to four phrases at Idle (§8).
 - Filtering stray notes out of the review and the played-notes export (§9).
 
@@ -104,6 +111,8 @@ grades, ranks or scores the player, and anything that adapts is opt-in and visib
   to another browser; learning the player's taste from how they play, and recognising signals the
   player plays on purpose; marking a range of measures as a favorite.
 - **Moved to v4:** rhythm ratios and the rhythm editor.
+- **Later, should the need arise:** octave signs (8va, 8vb, 15ma) and octave clefs for my
+  instrument ([O180](../../open-questions.md#v30-wave-2-o180)).
 - **Dropped:** a one-control profile switch inside the transposition check (its useful part
   returns, aimed at "my instrument", in §7), a "Bluetooth" timing checkbox, richer review tooling
   (passage replay, expected-against-played views), and the end-of-measure chord-fit check.
@@ -128,7 +137,7 @@ playing.
 | **P3.C2 — Take it out.** Export the marked material to a widely known music format. | **Fully** | A favorites-only export scope, for the generated notes (MusicXML or MIDI) and the played notes (MIDI). |
 | **P3.C3 — Grow an idea.** Play a gimmick and let the app continue it. | **Deferred to v3.2** | Jam. v3.0 lays its groundwork: stray notes are filtered before Jam needs clean played notes. |
 | **P1.G1 — Vocabulary by exposure.** | Partly (comfort) | Settings come back as the player left them, so the next session starts where they were. |
-| **P1.G2 — Real-time reading and dexterity.** | Partly | "My instrument" makes the written part match the instrument actually played, including one v2 doesn't ship. |
+| **P1.G2 — Real-time reading and dexterity.** | Partly | "My instrument" makes the written part match the instrument actually played, including one v2 doesn't ship, in the clef its player reads: treble or bass. |
 | **P2.S1 — Fresh material at a steadily higher tempo.** | Partly | Pre-generation lets the second phrase join the first smoothly again at the fastest tempos, where v2 has to generate it without the join. |
 
 **Tensions settled for this scope.** P3 wants their material kept; every persona's played notes are
@@ -249,7 +258,8 @@ Only what the review and the exports read, plus what identifies the session and 
 own facts:
 
 - **For each phrase:** the generated timeline, the chord symbols, and the reproduction inputs (the
-  seed, the controls, the profile, the instrument, the join from the previous phrase), the tempo,
+  seed, the controls, the profile, the instrument with my instrument's clef (§7.1), the join from
+  the previous phrase), the tempo,
   and whether the phrase was a repeat. About 3 to 8 KB per phrase: a 30-minute session is about
   0.8 to 3.4 MB.
 - **Not kept:** the generator's internal working records (rhythm and tension provenance,
@@ -326,6 +336,7 @@ in the session list. It is never written into the MusicXML or MIDI exports.
 - **One saved instrument, made from a template.** The player starts from one of the three built-in
   profiles (C MIDI keyboard, B-flat tenor saxophone, E-flat alto saxophone) and may change:
   - its **display name**, at any time (see its id below);
+  - its **clef**, treble or bass (see its clef below);
   - its **range**, lowest and highest note, in written pitch: the written range is what the player
     sets and keeps, and the concert range follows from it and the transposition, so changing the
     transposition (by hand or through §7.2) keeps the written range;
@@ -387,6 +398,40 @@ in the session list. It is never written into the MusicXML or MIDI exports.
 
   This is the rule the built-in profiles already follow, so my instrument adds no spelling rule of
   its own.
+- **Its clef: treble or bass.** My instrument is written in **treble clef** or in **bass clef**,
+  as the player chooses. A clef is the sign at the start of the staff that fixes which note each
+  line and space stands for: the treble clef (G clef) puts the G above middle C on the second line
+  from the bottom; the bass clef (F clef) puts the F below middle C on the fourth line from the
+  bottom, and suits low instruments such as the bass guitar, the trombone, the cello or the
+  bassoon. The three built-in profiles stay in treble clef. A new my instrument starts in treble
+  clef, the clef of every template (proposed default; `ux-writer` confirms it when designing the
+  clef control). The clef is **display only**:
+  - it changes neither the written pitch nor the transposition: a written note is the same note
+    in either clef, drawn on another line or space. It changes nothing generated; the generator
+    never reads it, so it is not part of a generation request;
+  - wherever a staff shows a phrase made with my instrument, the staff is in that phrase's clef:
+    the staff at Idle and during a session, the review of the last session and of any kept
+    session, and the MusicXML export, whose part names its clef (F on the fourth line for bass
+    clef, G on the second line for treble clef). The transposition check's note is
+    drawn in my instrument's clef while my instrument is selected. The staff's rules read the same
+    in either clef: stems point down from the middle line up (D3 in bass clef, B4 in treble clef)
+    and up below it, chord symbols sit above the staff, and the key signature takes the clef's own
+    positions. The score's description names the clef;
+  - a phrase keeps the clef it was made with: the clef travels with the phrase as part of its
+    instrument (§5.2), so a kept session's review and export draw each phrase in the clef it was
+    played in, whatever my instrument's clef is later;
+  - selecting a built-in profile shows treble clef, and selecting my instrument shows its clef.
+    Deleting my instrument returns to its template, in treble clef. The transposition check's
+    "use this for my instrument" (§7.2) creates my instrument in treble clef, or keeps the clef of
+    the one that exists;
+  - changing only the clef saves my instrument like any other change: the phrase on screen stays
+    and is redrawn in the new clef, as for a change of display name, since nothing it was
+    generated from changed. The staff's shared height is computed again (below).
+
+  Octave signs (8va, 8vb, 15ma) and octave clefs are not in v3.0: a later version may add them,
+  should the need arise ([O180](../../open-questions.md#v30-wave-2-o180)). An instrument
+  conventionally written an octave away from its sound, such as the guitar or the piccolo, is
+  already served by a transposition of one octave.
 - **A fixed id, apart from the display name.** My instrument's id is `my-instrument`, written like
   the built-in ids (`c-keyboard`). Saved settings, kept sessions and replay keys name it by that
   id, and it is never renamed. The display name is a separate property the player may change at
@@ -403,9 +448,12 @@ in the session list. It is never written into the MusicXML or MIDI exports.
 - **Deleting it** returns the instrument control to the template it was made from.
 - **No Concert-display override.** Notation shows the selected instrument's written pitch, as in v2.
 - **The staff makes room for my instrument's written range.** The staff's two system positions
-  share one height. My instrument's written range counts toward that height like a built-in
-  profile's, whichever instrument is selected: a range inside the built-in profiles' reach changes
-  nothing, and one reaching further makes the staff taller for every choice (§14). The height
+  share one height. My instrument's written range, placed on the staff in its own clef, counts
+  toward that height like a built-in profile's, whichever instrument is selected: a range whose
+  notes stay within the built-in profiles' reach above and below the staff changes nothing, and
+  one reaching further makes the staff taller for every choice (§14). The same written range can
+  reach much further in one clef than in the other: written C2 to C4 needs 19 staff spaces in
+  treble clef, and in bass clef it sits on the staff with at most two ledger lines. The height
   changes only when my instrument is saved or deleted, never from one phrase to the next.
 
 ### 7.2 The transposition check feeds it
@@ -443,6 +491,10 @@ Deleting "my instrument" does not forget the controller; Delete everything does.
 A player-made instrument must travel with a phrase: through the generation worker, into the
 session's history and into the phrase replay key. A new key version, `ifk2.`, carries the
 instrument inline when it is not a built-in profile; `ifk1.` keys keep decoding as before.
+The key does **not** carry my instrument's clef: a key reproduces what was generated, and the clef
+changes nothing generated (§7.1), so two phrases that differ only by their clef have the same key.
+The replay tool gives the phrase's inputs and notes, not a staff, and a kept session keeps the
+clef with the phrase (§5.2).
 
 ## 8. Pre-generating phrases at Idle
 
@@ -457,7 +509,8 @@ instrument inline when it is not a built-in profile; `ifk1.` keys keep decoding 
   generated from (a control, the profile, the instrument, a regeneration) discards every
   pre-generated phrase and starts again after the new phrase 1. So do the two session options that
   shape later phrases, Vary settings and Tension across phrases. The tempo and Rising tempo do not:
-  tempo never affects generation. A change of window size that
+  tempo never affects generation. Nor does a change of my instrument's clef alone, or of its
+  display name: no phrase is generated from either. A change of window size that
   changes the note density phrases are generated with, or the staff layout a session would hold,
   re-checks them: one that no longer fits is discarded with every phrase after it.
 - **The player comes first.** Pre-generation runs after v2's prewarm, on the same generation
@@ -531,6 +584,10 @@ below is intended.
 - **About fifteen declared-intent entries under review** say "never persisted", led by the rule
   that session state is ephemeral; the vision's "out of scope through v2" list needs a v3
   revision.
+- **"Always treble clef" widens for my instrument** (not a contract guarantee): the declared
+  intent says notation is always in treble clef; from v3.0 my instrument may be written in bass
+  clef, the built-in profiles staying in treble (§7.1). No guarantee on the contract states the
+  clef.
 - **Code gates** (the lint rule and the boundary script that ban storage APIs in all of `src/`)
   move from "nowhere" to "one directory only".
 - **Tests** that assert nothing is saved change with them: about ten, among them the reload test
@@ -556,6 +613,12 @@ From reading the code (details: [storage-grounding.md](storage-grounding.md)).
   rebuilds the profile from its id and rejects anything else, and the replay key names the profile
   by id. "My instrument" needs that opened up across the worker protocol, the replay key and the
   history. This is the widest change in v3.0.
+- **The notation is written for treble clef only.** The written phrase's type fixes the clef as
+  treble; both engravers draw a treble clef; the staff layout measures ink from the treble staff's
+  lines (top line F5, middle line B4), and the stem rule reads its middle line as B4; the score's
+  description says "treble clef"; the MusicXML export writes a G clef on line 2; the transposition
+  check's note is drawn on a treble staff. Each of them takes my instrument's clef (§7.1). The
+  generator, the worker protocol and the replay key need nothing.
 - **No storage API is used in application code today**; the app's only stored data is its offline
   cache of static files, which stays as it is.
 - **At risk:** session timing (saving must stay out of a running session; §5.1 saves at the end);
@@ -590,6 +653,10 @@ From reading the code (details: [storage-grounding.md](storage-grounding.md)).
 - **The written part spelled from the written key, fewer sharps or flats first**, because the
   player chooses the key in written pitch, and the built-in profiles already spell it this way, so
   one rule serves every instrument and the key signature is the easiest one to read.
+- **My instrument's clef display only, kept with the instrument and out of the generation
+  request**, because a clef changes how a note is drawn, never which note it is: keeping it out of
+  generation and the replay key leaves reproduction untouched, and keeping it with each phrase's
+  instrument lets a kept session show the part as the player read it.
 - **A fixed id for my instrument, apart from its display name**, because saved settings, kept
   sessions and replay keys must keep naming the same instrument whatever the player calls it.
 - **One session-wide record for each session**, holding its session seed, because a session's
@@ -650,7 +717,10 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
     whole-octave transposition keeps its direction), and its derived interval name is shown; the
     written part is spelled in the written key by §7.1's rule, as for the built-in profiles. It
     is stored and replayed by its id, `my-instrument`; changing its display name changes nothing
-    stored. The generator's success rate is measured on narrow (two-octave) and extreme ranges
+    stored. It is written in treble or bass clef, as the player chooses, on the staff, in the
+    review of its sessions and in the MusicXML export; its clef changes no generated note and no
+    replay key, and the staff's shared height reads its written range in that clef. The
+    generator's success rate is measured on narrow (two-octave) and extreme ranges
     before the gate, and recorded.
 17. **The check feeds my instrument.** "Use this for my instrument" sets the transposition so the
     written notes match the controller, after one confirmation, and the result survives a reload.
@@ -683,6 +753,25 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
   instrument" counts toward the staff's shared height, so an unusually wide or high range would
   make the staff taller for every instrument. A bound on the written range, settled with that
   check, would avoid it.
+- **Open, for the owner: the bound on my instrument's written range, now per clef.** Measurement
+  M3 found that in treble clef only a range of exactly two octaves, from written B2–B4 up to
+  E4–E6, keeps the staff at today's 16 staff spaces; C3–C6 needs 18, C2–C4 19, C6–C8 21, C2–C6 23
+  and C2–C7 24. **Proposed, not decided:** the written range must lie within **written C2 to C7
+  in treble clef** and within **written E0 to E5 in bass clef**, which keeps the shared height at
+  most 24 staff spaces. The two bounds sit on the same lines and spaces of their staff, eight
+  ledger lines below it to about five above it, since the bass clef's lines stand an octave and a
+  sixth below the treble clef's (12 letter-name steps); the bass-clef figure is confirmed by
+  measurement in the build. A range outside the bound is refused with the reason, live in the
+  sheet, like a range under two octaves; changing the clef checks the range again, so a range
+  allowed in one clef may be refused in the other. The two-octave minimum and the MIDI note
+  range (§7.1) still apply. At 24 staff spaces, a window below the tablet-landscape width needs
+  a small viewport height of about 366 CSS px for the two system positions. The alternative is a
+  bound on the height itself (refuse any range that would need more than 24 staff spaces),
+  exact, but harder to explain in the refusal. The build plan's range ruling waits for the
+  owner's answer.
+- **Open, for the owner and `ux-writer`:** what happens to phrases already made when a save of my
+  instrument changes the staff's shared height, for the review of a kept session and for phrases
+  pre-generated at Idle ([O181](../../open-questions.md#v30-wave-2-o180)).
 - **Measured, for information:** the battery cost of pre-generation at Idle on a tablet (§8).
 - **Contract changes:** the owner confirmed the three major contract changes in §10 on
   2026-10-07, and they are applied; he agreed to the minor one, the cancellable background
@@ -690,7 +779,11 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
   confirmation.
 - **Design, for `ux-writer`:** where "Your data", the session list, favorites, the comment, the
   "Keep my played notes" switch and "my instrument" live, and how they look on each device;
-  how my instrument's sheet shows the transposition's derived interval name (§7.1).
+  how my instrument's sheet shows the transposition's derived interval name (§7.1); the clef
+  control in my instrument's sheet, its wording and its default (proposed: treble clef), and the
+  staff-reach note read in the chosen clef (§7.1).
+- **Deferred, should the need arise:** octave signs and octave clefs for my instrument
+  ([O180](../../open-questions.md#v30-wave-2-o180)).
 - **Deferred to later versions:** see §2.
 
 ## 15. Access model

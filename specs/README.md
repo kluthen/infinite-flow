@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.54
+Status: draft v0.55
 
 ## Status Snapshot
 
@@ -68,9 +68,16 @@ Status: draft v0.54
   still derived and shown but spelling nothing (D291); and that the staff's shared height follows
   my instrument's written range, changing only when it is saved or deleted (D292). Chunk 18 moves
   to wave 6, after chunk 17 (coordinator's call). Written into master spec Part A v1.8 and build
-  plan v6; `documentalist` revises the atoms. D290–D299 are reserved for v3.0 wave 2.
-- **Open:** 8 questions, none blocking work under way: O48 and O49 (later and governance),
-  O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level).
+  plan v6; `documentalist` revises the atoms. D290–D299 are reserved for v3.0 wave 2. Asked
+  for the range ruling after chunk 19, the owner chose a **bass clef option for my instrument**
+  in v3.0, octave signs later (D293): the clef is display only, follows the phrase into the
+  review and the MusicXML export, is not in the replay key, and the shared height reads the range
+  in its clef. The range bound is now proposed per clef (treble C2–C7, bass E0–E5) and awaits the
+  owner. Master spec Part A v1.9; build plan v7 adds chunk 19b and a clef design gate.
+- **Open:** 10 questions, none blocking work under way: O48 and O49 (later and governance),
+  O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
+  O180 (octave signs, later) and O181 (the shared height under phrases already made, before
+  chunk 20).
   O163 and O164 closed by D257 and D258; D262 closed O174; D264–D273 settled O165–O173 and O175
   in Part D, pending the owner's approval.
   v3.1 and v3.2 drafts approved by the owner (D233, D234),
@@ -90,7 +97,7 @@ Status: draft v0.54
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (approved; v2 moves the workflow to wave
-  level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23; v6 writes in D290–D292 and moves chunk 18 to wave 6), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved),
+  level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23; v6 writes in D290–D292 and moves chunk 18 to wave 6; v7 adds chunk 19b for D293), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved),
   [v3.2](versions/v3/build-plan-v3.2.md) (draft v2, not approved) and
   [v3.3](versions/v3/build-plan-v3.3.md) (draft v2, not approved; depends on owner approval of
   Part D). Every build plan runs wave by
