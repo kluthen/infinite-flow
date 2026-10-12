@@ -14,14 +14,14 @@ import { deepFreeze } from '../domain/events/deep-freeze'
 import { makeSeed } from '../domain/random/seed'
 import {
   acceptedPhrase,
-  carryInAfter,
   currentAttempt,
   openLookAhead,
   repeatedPhrase,
   type Attempt,
 } from './failure-ladder'
-import { freezeSessionSettings, resolvedRegister } from './session-intents'
+import { freezeSessionSettings } from './session-intents'
 import {
+  decide,
   decidedOf,
   lookAheadOf,
   undecide,
@@ -30,13 +30,12 @@ import {
   type Step,
 } from './session-engine-state'
 import { cancelDropped, climb, requestFirstRung, runCutover } from './session-ladder-step'
-import { landingMutation } from './session-mutation-step'
+import { openNextPhrase } from './session-phrase-opening'
+import { requireReadyPhrases, takeReadyPhrase } from './session-ready-phrases'
 import {
   automaticChange,
   changedSettings,
   discardsPendingPhrase,
-  lookAheadBasis,
-  registerCandidates,
   reopenedLookAhead,
 } from './session-settings-change'
 import {
@@ -59,12 +58,7 @@ import {
   type SessionSettings,
   type SessionStart,
 } from './session-types'
-import {
-  NOTICE_AT_START,
-  noticeAtEnd,
-  noticeOnDecision,
-  noticeOnSounding,
-} from './struggling-notice'
+import { NOTICE_AT_START, noticeAtEnd, noticeOnSounding } from './struggling-notice'
 import { requireTensionArcFlag, settingsGeneratedUnder } from './tension-arc-cycle'
 
 /** Intent: refuse a time that is not a finite number of seconds. */
@@ -73,12 +67,12 @@ function assertAudioTime(at: AudioTime): void {
 }
 
 /**
- * Intent: open the look-ahead for the phrase after the latest decided one at `at` and request its
- * first rung, the standalone one when that attempt is already due, and wake at its deadline. A
- * mutation scheduled on that phrase is decided first, from the window read now, the step-down
- * memory and the register whose window the carry-in holds, and is in effect for its request; the
- * phrase is generated under those settings with its tension-arc cycle step, which never reaches
- * the settings in effect.
+ * Intent: open the look-ahead for the phrase after the latest decided one at `at` and wake at its
+ * deadline. A mutation scheduled on that phrase is decided first, from the window read now, the
+ * step-down memory and the register whose window the carry-in holds, is in effect for it and is
+ * reported first; the phrase is generated under those settings with its tension-arc cycle step,
+ * which never reaches the settings in effect. A matching ready phrase is then decided at once;
+ * otherwise its first rung is requested, the standalone one when that attempt is already due.
  */
 function requestNextPhrase(
   context: EngineContext,
@@ -88,49 +82,16 @@ function requestNextPhrase(
 ): Step {
   if (state.lookAhead !== undefined)
     throw new SessionEngineError('A phrase is requested while another is still undecided.')
-  const previous = state.lastDecided
-  const phraseNumber = previous.phraseNumber + 1
-  const carryIn = carryInAfter(previous)
-  const landing = landingMutation(context.mutation, phraseNumber, state.settings, () => ({
-    belowTabletLandscape: context.viewport.isBelowTabletLandscape(),
-    sessionSteppedDown: state.steppedDown,
-    resolvedRegister: resolvedRegister(carryIn, registerCandidates(previous)),
-  }))
-  const settings = landing?.settings ?? state.settings
-  const under = settingsGeneratedUnder(context.multiPhraseTensionArc, phraseNumber, settings)
-  const basis = lookAheadBasis(previous, state.lastDecidedSettings, under, carryIn)
-  const lookAhead = openLookAhead(previous, carryIn, basis, deadline)
-  const requested = requestFirstRung(context, { ...state, settings, lookAhead }, at)
+  const opened = openNextPhrase(context, state)
+  const lookAhead = openLookAhead(state.lastDecided, opened.carryIn, opened.basis, deadline)
+  const requested = takeReadyPhrase(context, { ...state, settings: opened.settings, lookAhead }, at)
   return {
     state: requested.state,
     outputs: [
-      ...(landing === undefined ? [] : [landing.output]),
+      ...(opened.landing === undefined ? [] : [opened.landing.output]),
       ...requested.outputs,
       { kind: 'wake-at', at: deadline },
     ],
-  }
-}
-
-/**
- * Intent: decide the look-ahead phrase: it is the next one to show, generated under its basis's
- * settings (a repeat under those of the phrase it repeats), and the notice learns of it. Its
- * look-ahead and the notice before are kept until it sounds, for a settings change to discard it.
- */
-function decide(state: EngineState, phrase: SessionPhrase): Step {
-  const lookAhead = lookAheadOf(state)
-  const { notice, outputs } = noticeOnDecision(state.notice, phrase.origin)
-  const lastDecidedSettings =
-    phrase.origin === 'repeat' ? state.lastDecidedSettings : lookAhead.basis.settings
-  return {
-    state: {
-      ...state,
-      lookAhead: undefined,
-      decided: { lookAhead: { ...lookAhead, attempt: undefined }, notice: state.notice },
-      lastDecided: phrase,
-      lastDecidedSettings,
-      notice,
-    },
-    outputs: [{ kind: 'phrase-ready', phrase }, ...outputs],
   }
 }
 
@@ -405,12 +366,13 @@ function handleEvent(context: EngineContext, state: EngineState, event: SessionE
 
 /**
  * Intent: start a session from its start time, chosen settings, phrase 1 (the Idle phrase),
- * session seed (one that is no seed throws), mutation flag, adaptive-tempo choice and multi-phrase
- * tension arc flag (a non-boolean throws):
+ * session seed (one that is no seed throws), mutation flag, adaptive-tempo choice, multi-phrase
+ * tension arc flag (a non-boolean throws) and ready phrases (none when absent; an invalid list
+ * throws):
  * freeze the settings as the settings in effect, whose tempo stays the starting tempo, keep
- * phrase 1 as the `idle` record at the starting tempo, and request phrase 2 at once with its
- * deadline at the end of the count-in. Returns the start outputs and the handler of every later
- * event; every output is deep-frozen, and attempt ids increase from 1.
+ * phrase 1 as the `idle` record at the starting tempo, and request phrase 2 at once (or spend its
+ * ready phrase) with its deadline at the end of the count-in. Returns the start outputs and the
+ * handler of every later event; every output is deep-frozen, and attempt ids increase from 1.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[req_settings_mutation_flag]]
@@ -446,6 +408,7 @@ export function createSessionEngine(
     sessionSeed,
     mutation,
     phraseOne,
+    readyPhrases: requireReadyPhrases(start.readyPhrases ?? []),
     ...arcFlag,
   }
   const initial: EngineState = {
@@ -461,6 +424,7 @@ export function createSessionEngine(
     notice: NOTICE_AT_START,
     nextAttemptId: 1,
     tempo: startSessionTempo(settings, start.adaptiveTempo),
+    readyRefused: false,
   }
   const phraseTwoDue = phraseTwoDeadline(start.at, settings.controls.tempo)
   const started = requestNextPhrase(context, initial, start.at, phraseTwoDue)

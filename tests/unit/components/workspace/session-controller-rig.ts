@@ -26,6 +26,11 @@ import type {
   SessionReview,
 } from '@/components/workspace/workspace-session-controller-types'
 import { createIdleLayoutGate, type IdleLayoutGate } from '@/components/workspace/idle-layout-gate'
+import {
+  createWorkspacePregeneration,
+  type WorkspacePregenerationFactory,
+} from '@/components/workspace/workspace-pregeneration'
+import { createPregenerationSlot } from '@/composables/generation-session-pregeneration'
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffFixedParts, StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { MutableGenerationSessionState } from '@/composables/use-generation-session'
@@ -77,10 +82,23 @@ export const RIG_TEMPO = 240
 /** The session seed the rig's Idle phrase 1 was published with. */
 export const RIG_SESSION_SEED = makeSeed(0x0c0ffee0)
 
-/** A rig's session options: its starting tempo. */
+/** A rig's session options: its starting tempo and its pre-generation queue's builder. */
 export interface ControllerRigOptions {
   readonly tempo?: number
+  /** The pre-generation queue's builder; by default a disabled one, which never runs. */
+  readonly pregeneration?: WorkspacePregenerationFactory
 }
+
+/** Intent: a pre-generation builder under the disabled policy: no background attempt, ever. */
+export const disabledPregeneration: WorkspacePregenerationFactory = (seams) =>
+  createWorkspacePregeneration({
+    ...seams,
+    generate: () => Promise.reject(new Error('rig: disabled pre-generation generated')),
+    providers: queuedProviders(9000, 0),
+    viewport: fakeViewport(false),
+    slot: createPregenerationSlot(),
+    policy: 'disabled',
+  })
 
 /** The generate seam a spec scripts: from a request's intent to its outcome. */
 export type GenerateScript = (intent: GenerationIntent) => GenerationOutcome
@@ -323,6 +341,7 @@ export function controllerRig(
     staffFitPlanner: planner.load,
     midi,
     connectionSheetOpen: () => sheetOpen.value,
+    pregeneration: options.pregeneration ?? disabledPregeneration,
   })
   built = controller
   return {

@@ -14,6 +14,8 @@ standalone reserve are measured in
 2 000-phrase last-session Review's opening and closing in [Last-session Review (chunk 20)](#last-session-review-chunk-20). The first
 generation after each step a settings mutation can take is in
 [Settings-mutation transitions (chunk 24, 2026-10-03)](#settings-mutation-transitions-chunk-24-2026-10-03).
+How often phrase 2 joins phrase 1 with a carry-in at 240 BPM once phrases are pre-generated at
+Idle is in [Phrase 2 after pre-generation (M4, 2026-10-12)](#phrase-2-after-pre-generation-m4-2026-10-12).
 The newest whole-catalog generation figures are in
 [Validator-free fast enumeration on the reference machine (2026-09-30)](#validator-free-fast-enumeration-on-the-reference-machine-2026-09-30),
 after the [cold-generation speed-up](#cold-generation-speed-up-on-the-reference-machine-2026-09-30);
@@ -139,6 +141,56 @@ workspace default. It runs at two large desktop viewports, 2560 × 1440 and 1920
 one fresh page each, one first generation, then 12 regenerations (each with a new random seed),
 then 10 re-engravings of the last phrase caused by a 16-pixel width change alone, with no
 generation. `ENGRAVING_OUT` names a JSON file for the full report.
+
+## Phrase 2 after pre-generation (M4, 2026-10-12)
+
+Measurement M4 (v3.0 build plan, chunk 24): the share of 240 BPM sessions whose phrase 2 joins
+phrase 1 with a carry-in once pre-generation at Idle runs. Without pre-generation the share is
+0 %: at 240 BPM phrase 2's deadline (one measure, 1 s) is inside the standalone reserve
+(1.075 s, see [Failure-ladder reserve constants](#failure-ladder-reserve-constants-2026-10-07)),
+so phrase 2 is always requested standalone first.
+
+**Method.** `tests/sweep/session-pregeneration-sweep.spec.ts`, part of the real-cost sweep
+(`npm run test:sweep`, `vitest.sweep.config.ts`, outside `test:unit` and `quality`), takes the
+deadline sweep's 568 cases (every supported rhythm setting with seeds 7 and 13, the other
+controls and both session flags assigned round-robin) at 240 BPM. For each case it first plays
+the Idle phase: the pre-generation plan (`src/session/session-pregeneration.ts`) run to
+completion with the real `generatePhrase`, no deadline, each success checked with the fit check
+the sweep's session uses for its own attempts, and charged nothing. It then plays the session
+exactly as the deadline sweep does, its start carrying the ready phrases, each session attempt
+charged its measured `generatePhrase` time plus 100 ms. It counts the cases whose phrase 2 has
+origin `carry-in`, the cases by number of ready phrases (0 to 4), the ready phrases the session
+refused, and every missed deadline or repeat, which fails the spec. Each note density prints one
+`SWEEP-M4` line and the total one more. To run M4 alone:
+`npx vitest run --config vitest.sweep.config.ts tests/sweep/session-pregeneration-sweep.spec.ts`.
+
+**Machine and date.** Run by Claude on 2026-10-12, 21:50 CEST, on branch
+`v3.0-c24-pre-generation` (`main` at `aebd29c` plus chunk 24's uncommitted work), on the build
+machine: AMD Ryzen 5 PRO 8640HS (6 cores, 12 threads), 11 GiB RAM, not a VM
+(`systemd-detect-virt` answers `none`), Debian 13 (Linux 6.12), Node through Vitest 5.0.1. The
+owner's desktop session stayed open; 1-minute load average 0.91 before the sweep and 1.38 after
+it. The whole sweep took 114 s, M4 42 s of it. This is a reference figure only, not the reference
+machine's: M4's recorded figure is the owner's run on the reference machine.
+
+| Note density | Cases | Phrase 2 carry-in | Share   | Cases by ready phrases (0/1/2/3/4) | Ready phrases refused | Missed deadlines, repeats |
+| ------------ | ----- | ----------------- | ------- | ---------------------------------- | --------------------- | ------------------------- |
+| Quarter      | 184   | 184               | 100.0 % | 0/0/0/0/184                        | 0                     | 0                         |
+| Eighth       | 216   | 216               | 100.0 % | 0/0/0/0/216                        | 0                     | 0                         |
+| Sixteenth    | 168   | 168               | 100.0 % | 0/0/0/0/168                        | 0                     | 0                         |
+| **Total**    | 568   | 568               | 100.0 % | 0/0/0/0/568                        | 0                     | 0                         |
+
+Against v2's 0 %, every case's phrase 2 is a carry-in phrase: with no deadline, phrase 2 climbs
+the carry-in rungs first, and in every case one of them succeeded. Every case had its four
+phrases ready (phrases 2 to 5); the session re-derived each one identically and spent it, then
+requested phrase 6 itself, which still met its deadline with no repeat. In the same run, the
+existing deadline sweep passed at 60, 120 and 240 BPM for every density, with no repeat; at
+240 BPM, with no ready phrase, phrase 2 was still requested standalone first in all 568 cases, as
+before chunk 24.
+
+**Left for a hand check.** The cost of up to four background generations after each change, on
+the tablet on battery, is not measured here: it is hand check H6 (start several 240 BPM sessions
+right after phrase 1 appears and after waiting a few seconds, and note the tablet's battery
+cost), for information.
 
 ## My instrument ranges (2026-10-11)
 

@@ -17,14 +17,14 @@ import {
   type LadderRung,
   type LookAhead,
 } from './failure-ladder'
-import { buildAttemptIntent, discardSkippedRungs } from './session-intents'
+import { discardSkippedRungs } from './session-intents'
 import {
   lookAheadOf,
   type EngineContext,
   type EngineState,
   type Step,
 } from './session-engine-state'
-import { attemptPlan, registerCandidates } from './session-settings-change'
+import { buildRungIntent } from './session-phrase-opening'
 import { cutoverAt, standaloneDue } from './session-timing'
 import type { AudioTime, SessionOutput } from './session-types'
 
@@ -56,21 +56,18 @@ function requestRung(
   at: AudioTime,
 ): Step {
   const lookAhead = lookAheadOf(state)
-  const { settings, source } = lookAhead.basis
-  const plan = attemptPlan(rung, source, registerCandidates(lookAhead.previous))
-  const slot = { phraseNumber: lookAhead.phraseNumber, rung: LADDER.indexOf(rung) }
-  const { intent, steppedDown } = buildAttemptIntent(
+  const { intent, steppedDown, step } = buildRungIntent(
     context,
-    settings,
-    plan,
+    lookAhead.previous,
+    lookAhead.basis,
+    rung,
     state.steppedDown,
-    slot,
   )
   const attemptId = state.nextAttemptId
-  const attempt: Attempt = { attemptId, rung, step: plan.step, intent, stage: 'generating' }
+  const attempt: Attempt = { attemptId, rung, step, intent, stage: 'generating' }
   const cutover = cutoverAt(lookAhead.deadline)
   const wake: readonly SessionOutput[] =
-    plan.step === 'carry-in' && cutover > at ? [{ kind: 'wake-at', at: cutover }] : []
+    step === 'carry-in' && cutover > at ? [{ kind: 'wake-at', at: cutover }] : []
   return {
     state: {
       ...state,
@@ -83,7 +80,7 @@ function requestRung(
         kind: 'request-generation',
         attemptId,
         phraseNumber: lookAhead.phraseNumber,
-        step: plan.step,
+        step,
         retry: rung.retry,
         intent,
         deadline: lookAhead.deadline,

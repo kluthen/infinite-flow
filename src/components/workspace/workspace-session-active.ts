@@ -18,6 +18,7 @@ import type { SessionDisplay } from './workspace-session-display'
 import type { SessionEndWatch } from './workspace-session-end-watchers'
 import type { SessionMidi, SessionMidiRun } from './workspace-session-midi'
 import type { SessionPhrases } from './workspace-session-phrases'
+import type { WorkspacePregeneration } from './workspace-pregeneration'
 import type {
   SessionShownSettings,
   TensionAcrossPhrasesFlag,
@@ -103,6 +104,8 @@ export interface SessionControllerSides {
   readonly adaptiveTempo: AdaptiveTempoFlag
   readonly varySettings: VarySettingsFlag
   readonly tensionAcrossPhrases: TensionAcrossPhrasesFlag
+  /** The Idle pre-generation queue, whose ready phrases each start takes. */
+  readonly pregeneration: WorkspacePregeneration
 }
 
 /** Intent: an audio time for the engine, never before one it already handled. */

@@ -160,6 +160,11 @@ and `useReviewNavigation`.
 - **Pre-warm.** Unless the prewarm policy is `disabled`, the session also gets the same client's
   fire-and-forget `prewarm`, and posts it when it starts and whenever the rhythm setting a phrase
   would be generated with changes. See [Pre-warm](#pre-warm).
+- **Pre-generation.** One Idle background slot (`createPregenerationSlot`) is shared by the Idle
+  flow, whose `generate` seam is wrapped by `yieldingToPlayer(slot, deps.generate)`, and by the
+  session controller's pre-generation queue (`createWorkspacePregeneration`, loaded with the
+  controller's chunk), which runs its background attempts on the same raw `deps.generate` under
+  the given pre-generation policy. See [Pre-generation at Idle](#pre-generation-at-idle).
 - **Dispose.** `WorkspaceSession.dispose()` stops the session listening for width crossings and
   for the staff's layout reports (`session.dispose()`) and terminates the worker client
   (`client.dispose()`). `App.vue` calls it
@@ -487,6 +492,87 @@ to one on a cold memo.
 - **Shared with the session runner.** The session runner uses the same worker and memo (see
   [Session wiring](#session-wiring)), so a setting pre-warmed at Idle is already built when a
   practice session generates on it.
+
+## Pre-generation at Idle
+
+From v3.0, while the workspace is Idle with a phrase 1 a session could start from, it generates in
+the background, one after another, up to four phrases that would follow phrase 1 in a session
+(phrases 2 to 5), on the one generation Worker, and Start hands them to the session. The pure part,
+the plan that builds each request as the session would and the engine's check before spending a
+phrase, is in [Phrases pre-generated at Idle](session-engine.md#phrases-pre-generated-at-idle).
+The workspace part has two pieces:
+
+- **The Idle background slot** (`src/composables/generation-session-pregeneration.ts`, in the
+  entry chunk): it holds the abort of the background attempt in flight, at most one at a time.
+  `yieldingToPlayer(slot, generate)` is the Idle flow's generate seam: before posting each player
+  request it calls `slot.yieldToPlayer()`, synchronously, which aborts that attempt.
+- **The orchestrator** (`createWorkspacePregeneration`,
+  `src/components/workspace/workspace-pregeneration.ts`, loaded with the session controller): it
+  steps the plan, posts each attempt with its own abort signal through the Worker client, checks
+  each success's fit, keeps the ready phrases in memory and hands them to Start.
+
+**When it runs.** Only while the pre-generation policy is `enabled` and every session start
+condition holds: the controller's start blocker is none (no session or count-in, no Review
+showing, phrase 1 drawn, no Idle operation, no notation error or generation failure, a rhythm
+setting that allows generation, the staff shown, no room notice; see
+[Start conditions](session-engine.md#start-conditions)). The queue starts once the controller is
+built, so after the prewarm the generation session posts when it is created. When a condition
+stops holding, the attempt in flight is aborted and the ready phrases are kept; when they all hold
+again, pre-generation resumes after the last ready phrase. So nothing runs while a Review shows.
+The plan stops at four ready phrases, or at a phrase whose standalone attempt failed, and is tried
+again only after a discard or a window change. Nothing is ever saved: the queue lives in memory
+and is gone on reload.
+
+**Not an operation.** A background attempt sets no operation state, locks no edit and never counts
+as an Idle generation for `Start session`, so it never blocks a start. It is no pre-warm either:
+it carries the plan's seed and a real request id from the page's provider.
+
+**Yielding to the player.** Every player request at Idle (Generate, Regenerate, the retries, the
+regeneration of a profile or instrument switch, the room notice's and the replacement runs, the
+fresh phrase 1 after a session) goes through `yieldingToPlayer`, which aborts the background
+attempt first. The Worker client then cancels it as it cancels any request: it rejects it with
+`GenerationCancelledError`, terminates the Worker and starts a fresh one, posts every other
+pending request again, and, with the prewarm policy enabled, posts a prewarm of the cancelled
+intent. The player's request is posted after that, never cancelled and never queued behind
+background work; the fresh Worker serves it between two slices of that prewarm. Unless a Vary
+settings mutation landed on the cancelled phrase, its rhythm setting is phrase 1's, the one the
+player's request and the restarted pre-generation both use.
+
+**Discards and re-checks.** The queue belongs to one key: phrase 1 (the Idle result, and so its
+session seed), the generation controls except tempo, the musical-profile selection, the instrument
+included, `Vary settings` and `Tension across phrases`. The orchestrator watches that key; any
+change aborts the attempt in flight, empties the queue and starts again from the new phrase 1 once
+the change is over. A change of tempo or `Rising tempo` discards nothing: tempo never reaches a
+request, so a ready phrase's intent is only stamped with the tempo of the start. On every staff
+layout report at Idle (a passive observer on the Idle layout gate's port) and on every crossing of
+the `bp-tablet-landscape` width, the orchestrator re-checks the ready phrases in order: each must
+still re-derive identically with the window read now (the density step-down) and still fit the
+layout a session would hold now, through the same staff planner and held-layout fit the session's
+display uses. The first that does not is discarded with every phrase after it, and pre-generation
+resumes from there. A width crossing, whose new density may change the next request, or a
+re-check that discarded a phrase also aborts the attempt in flight.
+
+**Start's take.** `take(heldLayout)` runs inside the Start click: it aborts the attempt in flight,
+never waiting for it, re-checks the ready phrases' fit against the start's held layout and drops
+them from the first that does not fit, and returns the rest, which the start passes to the runner
+as `SessionStart.readyPhrases`. The take does not empty the queue, so a count-in that ends back at
+Idle on the same phrase 1 reuses it. Nothing is topped up during a session.
+
+**The page-URL switch.** `pregenerationPolicyFromSearch(window.location.search)`, beside the
+prewarm switch in `src/components/workspace/prewarm-policy.ts`, reads `WorkspacePregenerationPolicy`
+once in `App.vue`: no `pregeneration` parameter or `?pregeneration=on` is `enabled`,
+`?pregeneration=off` is `disabled`, and any other value throws. `disabled` builds an orchestrator
+that never runs and whose take is always empty.
+
+**A carry-in that does not hold (ISS-011).** After a harmony or register control changed at Idle
+with phrase 1 kept, the plan builds the carry-in from phrase 1 under the new settings, as the
+session engine does at Start, and that carry-in can fail its check with a `CarryInError`
+([ISS-011](../issues/Ref_20261012_start_after_idle_harmony_change.md), an engine defect left open).
+The orchestrator then stands down: it aborts the attempt in flight, empties the queue and reports
+nothing, since nothing can be pre-generated for this phrase 1 under these settings, and runs again
+at the next change of its key. Any other error while it runs is a programming error: the
+orchestrator stops the same way until the key changes, and the controller throws the error out of
+band (a microtask), the unhandled error it is, since there is no session to end.
 
 ## Unsupported rhythm settings
 
@@ -1099,13 +1185,14 @@ into an explicit-dependency builder and a production entry:
   teardown, and wires them to the same notation coordinator and profile-switch policy production
   always uses. It is the one seam a caller can vary; everything downstream of it is real production
   wiring.
-- **`createWorkspaceSession({ prewarmPolicy })`** is the production entry: it calls
-  `composeWorkspaceSession` with a real `createBrowserGenerationWorker()`-backed client (its
-  `generate` and `prewarm`), the given prewarm policy, the cryptographic `nextCryptoSeed` provider
-  (`crypto.getRandomValues`), and a monotonic request-id provider.
+- **`createWorkspaceSession({ prewarmPolicy, pregenerationPolicy })`** is the production entry:
+  it calls `composeWorkspaceSession` with a real `createBrowserGenerationWorker()`-backed client
+  (its `generate` and `prewarm`), the given prewarm and pre-generation policies, the cryptographic
+  `nextCryptoSeed` provider (`crypto.getRandomValues`), and a monotonic request-id provider.
 - **`WORKSPACE_SESSION_FACTORY`** is a Vue `InjectionKey<() => WorkspaceSession>` exported from the
   same module. `src/App.vue` reads it with `inject(WORKSPACE_SESSION_FACTORY, ...)`, whose default
-  calls `createWorkspaceSession` with the prewarm policy read from the page URL, so any caller that never provides the key (production `src/main.ts`) gets the real production
+  calls `createWorkspaceSession` with the prewarm and pre-generation policies read from the page
+  URL, so any caller that never provides the key (production `src/main.ts`) gets the real production
   factory unchanged, while a caller that does provide it (a test, or an e2e harness's own entry
   point) can substitute a `composeWorkspaceSession` call built from deterministic or
   failure-injecting dependencies instead.
@@ -1161,6 +1248,12 @@ production's `src/main.ts` does, and calls `app.provide(WORKSPACE_SESSION_FACTOR
 - **The production prewarm policy, counted.** The harness reads the prewarm policy from its page
   URL exactly as `App.vue` does (`?prewarm=off` disables it), forwards every pre-warm to the real
   worker client unchanged, and counts it for `prewarmCount()`, which stays 0 with `?prewarm=off`.
+- **Pre-generation off unless asked for.** With no `pregeneration` parameter the harness disables
+  the pre-generation policy, unlike production, so no spec meets background attempts unless it
+  loads the page with `?pregeneration=on`; a value given is read by production's parser. A
+  background gate (`holdBackgroundGeneration()`/`releaseBackgroundGeneration()`) holds only the
+  background attempts, and `backgroundGeneration()` counts them by how they settled (see
+  [The workspace harness](testing.md#the-workspace-harness)).
 
 `tests/e2e/workspace-harness-window.d.ts` is the single ambient declaration of the published
 `window.__workspaceHarness` API (`queueSeeds`, `holdGeneration`, `releaseGeneration`,

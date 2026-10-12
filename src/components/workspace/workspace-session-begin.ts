@@ -6,6 +6,7 @@
  * of phrases 2 on, the runner, and the watchers of its other ends.
  */
 import { countInDisplayAt } from '@/session/count-in-display'
+import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import type { AudioTime, SessionSettings } from '@/session/session-types'
 import type { StaffLayout } from '@/notation/notation-layout-policy'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
@@ -56,12 +57,24 @@ function onWake(core: SessionControllerCore, ends: SessionEnds): void {
 }
 
 /**
+ * What the in-click part of a start settled: the session's settings, the staff layout it holds,
+ * the written phrase Idle shows (phrase 1) and the pre-generated phrases Start took.
+ */
+// @spec-link [[module_session_ready_phrases]]
+export interface SessionBeginning {
+  readonly settings: SessionSettings
+  readonly heldLayout: StaffLayout
+  readonly idleWritten: WrittenPhrase
+  readonly readyPhrases: readonly ReadyPhrase[]
+}
+
+/**
  * Intent: the rest of a start, once the transport runs and phrase 1's backing is queued: make
  * `session` the running one, begin its MIDI handling (with or without the controller, fixed now),
  * show its count-in and its staff (phrase 1, the very phrase Idle shows), schedule the count-in's
  * end, start the wake-ups, the display's frame loop, the runner (from phrase 1 and its session
- * seed, checking fits through the display, reading it for what is on screen, with the page's
- * `Vary settings` choice) and the end watchers; the controls show the start settings. `start`
+ * seed and the ready phrases Start took, checking fits through the display, reading it for what
+ * is on screen, with the page's `Vary settings` choice) and the end watchers; the controls show the start settings. `start`
  * undoes it all if any of it throws.
  */
 // @spec-link [[req_settings_mutation_flag]]
@@ -76,10 +89,9 @@ export function beginSession(
   sides: SessionControllerSides,
   ends: SessionEnds,
   session: ActiveSession,
-  settings: SessionSettings,
-  heldLayout: StaffLayout,
-  idleWritten: WrittenPhrase,
+  begun: SessionBeginning,
 ): void {
+  const { settings, heldLayout, idleWritten, readyPhrases } = begun
   const { deps, state } = core
   const { audio, browser } = deps
   const { sessionMidi, adaptiveTempo, varySettings, tensionAcrossPhrases } = sides
@@ -140,6 +152,7 @@ export function beginSession(
       adaptiveTempo: adaptiveTempo.forSession(sessionMidi.sessionHasController()),
       varySettings: varySettings.on(),
       multiPhraseTensionArc: tensionAcrossPhrases.on(),
+      readyPhrases,
     },
     checkFit: display.checkFit,
     display: { isPhraseOnScreen: display.isPhraseOnScreen },

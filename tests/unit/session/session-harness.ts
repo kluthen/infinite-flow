@@ -24,6 +24,7 @@ import type {
 } from '@/domain/generation/orchestration/orchestration-types'
 import { makeSeed, type Seed } from '@/domain/random/seed'
 import { createSessionEngine } from '@/session/session-engine'
+import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import { SETTINGS_MUTATION_OFF, type SettingsMutationFlag } from '@/session/settings-mutation'
 import type {
   AudioTime,
@@ -208,6 +209,16 @@ export function withoutTempo(intent: GenerationIntent): unknown {
   return { ...intent, controls }
 }
 
+/**
+ * Intent: a JSON-shaped copy of a value with every `requestId` field removed, at any depth, for
+ * comparing intents, outcomes and phrases built from different request-identity providers.
+ */
+export function withoutRequestIds(value: unknown): unknown {
+  return JSON.parse(
+    JSON.stringify(value, (key, entry: unknown) => (key === 'requestId' ? undefined : entry)),
+  )
+}
+
 /** What a driver starts from; every field has a test default. */
 export interface DriverOptions {
   readonly at?: AudioTime
@@ -220,6 +231,7 @@ export interface DriverOptions {
   readonly mutation?: SettingsMutationFlag
   readonly adaptiveTempo?: boolean
   readonly multiPhraseTensionArc?: boolean
+  readonly readyPhrases?: readonly ReadyPhrase[]
 }
 
 /** Feeds timed events to one engine and keeps every output it returned, in order. */
@@ -250,6 +262,7 @@ export class SessionDriver {
       mutation: options.mutation ?? SETTINGS_MUTATION_OFF,
       adaptiveTempo: options.adaptiveTempo ?? false,
       multiPhraseTensionArc: options.multiPhraseTensionArc ?? false,
+      ...(options.readyPhrases === undefined ? {} : { readyPhrases: options.readyPhrases }),
     }
     this.engine = createSessionEngine(
       { providers: this.providers, viewport: this.viewport, display: this.display },
