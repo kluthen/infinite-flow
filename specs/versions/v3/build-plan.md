@@ -1,6 +1,8 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v4 (2026-10-09): the owner's answers to spec O163 and O164 (spec D257, D258, master spec
+Status: v5 (2026-10-12): a wording fix the owner approved at the wave-1 gate, no behaviour
+changed: chunk 23's "Done when" now says a skipped rung's seed is unused under the seed plan;
+v4 (2026-10-09): the owner's answers to spec O163 and O164 (spec D257, D258, master spec
 v1.6) written into chunks 9, 16 and 20 and the wave table; v3 (2026-10-09): the owner's rulings after the wave-1 preflight (spec D253–D256, master
 spec v1.5) written into chunks 6, 9, 16 and 23, and chunk 23's code facts corrected
 ([Wave records](#wave-records)); v2 (2026-10-09): the workflow moves to wave level (spec D252,
@@ -1595,7 +1597,8 @@ session-wide record), the harness's queued-seed seam; tests under `tests/unit/se
   identical phrases, including with Vary settings and Tension across phrases on.
 - The session's history holds the session seed in its session-wide record from Start; a new
   phrase 1 at Idle comes with a newly drawn session seed.
-- A skipped ladder rung consumes its seed exactly as before, so the phrase after it is unchanged.
+- A skipped ladder rung's seed is simply unused; the next rung's seed does not depend on it, so the
+  phrase after it is unchanged. The skipped rung's request id is still drawn and discarded.
 - The `ifk1.` corpus passes unchanged.
 - At the wave gate: the v2 sweep's results are unchanged in kind (no new repeat at any deadline).
   A new repeat there is traced back to this chunk first.

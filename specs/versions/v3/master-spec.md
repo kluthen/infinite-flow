@@ -2,9 +2,9 @@
 
 Status: this file holds three parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.6 (2026-10-09), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.7 (2026-10-12), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
-  write in the owner's rulings after the build's first intent preflight.
+  write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix.
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -16,7 +16,7 @@ Status: this file holds three parts.
 
 Part A's history follows.
 
-Part A status: master spec v1.6 (2026-10-09), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
+Part A status: master spec v1.7 (2026-10-12), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
 remembered controller (§7.3). Change in v1.2: behaviours the v3.0 design settled, written in:
 when settings are read and saved, what Delete everything leaves, which sessions a save deletes,
 favorites and unpinning, the played-notes switch on the session that just ended, my instrument's
@@ -40,7 +40,9 @@ octaves included, and the transposition is entered with one control counting sem
 octaves, its derived name shown beside it (§7.1, item 16); the session-wide record holds what §5.2 lists
 and nothing that can be derived from the session seed, and any further fact a replay needs is put
 to the owner when the build designs the kept-session record (§5.2); neither is open any more
-(§14). Consolidated from the approved v3.0 drafts for handoff to
+(§14). Change in v1.7, a wording fix the owner approved at the v3.0 wave-1 gate (2026-10-12),
+no behaviour changed: §7.1's transposition bullet still described signed counts; it now states
+one direction for the whole interval and unsigned counts, as v1.6 already settled. Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. Part A covers **v3.0
 only**; Part B, consolidated from the approved v3.1 drafts for the same handoffs, covers v3.1. The
 draft topic documents stay in `specs/versions/v3/` as working material; where they and this
@@ -314,9 +316,10 @@ in the session list. It is never written into the MusicXML or MIDI exports.
   - its **range**, lowest and highest note, in written pitch: the written range is what the player
     sets and keeps, and the concert range follows from it and the transposition, so changing the
     transposition (by hand or through §7.2) keeps the written range;
-  - its **transposition**, the interval between written and sounding pitch: a number of octaves
-    and a number of semitones with a sign, negative when a written note sounds lower, positive
-    when it sounds higher. It is entered with **one control counting semitones across octaves**
+  - its **transposition**, the interval between written and sounding pitch: one **direction** for
+    the whole interval (lower when a written note sounds lower, the same, or higher when it sounds
+    higher) and two counts with no sign of their own, a number of octaves and a number of
+    semitones. It is entered with **one control counting semitones across octaves**
     ("14 lower" is 1 octave and 2 semitones lower), not with separate octave and semitone inputs.
     It is never chosen by interval name: the name is **derived** from the count and shown beside
     the control as the result, and it already carries the octaves (a semitone is the smallest

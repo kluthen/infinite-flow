@@ -49,7 +49,9 @@ Status: draft v0.49
   direction of the whole transposition, octaves included, entered with one stepper counting
   semitones across octaves (D257); the session-wide record holds what master spec §5.2 lists and
   nothing derivable from the session seed, any further fact replay needs going to the owner from
-  chunk 9's architecture capture (D258). Written into master spec Part A v1.6 and build plan v4.
+  chunk 9's architecture capture (D258). Written into master spec Part A v1.6 and build plan v4. Wave-1 gate wording fixes
+  (2026-10-12, no decision, no behaviour change): master spec Part A v1.7 (§7.1) and build plan
+  v5 (chunk 23).
 - **Open:** 7 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
   O116 (v3.x learning), none blocking; O163 and O164 closed by D257 and D258. v3.1 and v3.2
   drafts approved by the owner (D233, D234),
@@ -69,7 +71,7 @@ Status: draft v0.49
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (approved; v2 moves the workflow to wave
-  level, D252; v3 writes in D253–D256; v4 writes in D257 and D258), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved) and
+  level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved) and
   [v3.2](versions/v3/build-plan-v3.2.md) (draft v2, not approved). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own
   change.
