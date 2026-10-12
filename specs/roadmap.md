@@ -1,6 +1,6 @@
 # Infinite Flow Roadmap
 
-Status: draft v1.9 (rewritten 2026-09-25 after the persona and vision session; browser scope
+Status: draft v1.10 (rewritten 2026-09-25 after the persona and vision session; browser scope
 added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keeping candidates and
 export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
 session view placed in v5 2026-09-28, D133; v2 replanned 2026-10-03: real-hardware checks as
@@ -13,7 +13,8 @@ candidate 2026-10-07, D206; v1.0 and v2.0 marked released 2026-10-07, D208; MIDI
 continuation named Jam, with three candidates, 2026-10-07, D209; embellishment flags and
 player-made presets in v3, sequence writing as a later candidate, 2026-10-07, D210; v3 split
 into releases, rhythm ratios and editor moved to v4, four candidates dropped, 2026-10-07, D211;
-v3.0.1 merged into v3.0 and played signal patterns tied to learning, D212)
+v3.0.1 merged into v3.0 and played signal patterns tied to learning, D212; v3.3, richer chords,
+added after v3.2 2026-10-12, D261; its chord research started as a separate item, D262)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -32,7 +33,6 @@ is archived verbatim as [2026-09-25-roadmap-pre-vision.md](archive/2026-09-25-pe
 Released as `v1.0` on 2026-09-26. Its working record is archived at
 [archive/v1/](archive/v1/README.md).
 
-
 - **Intent:** close the first release. v1 is implemented; the rc1 commit is `2418069`.
 - **Scope:** in this order:
   1. **ISS-003:** transposition becomes open data on the instrument template, and the key is
@@ -50,7 +50,6 @@ Released as `v1.0` on 2026-09-26. Its working record is archived at
 Released on 2026-10-07 as v2.0, version 2.0.0, with its tag pending the owner's approval (D208).
 The hand checks the spec lets follow the tag remain, as v2.0.x checks. The milestone's working
 record is archived at [archive/v2/](archive/v2/README.md).
-
 
 - **Intent:** real-time reading and playing with mild pressure. This is the Speed Builder's
   release, and it gives the Curious Improviser their real-time goal.
@@ -95,6 +94,14 @@ record is archived at [archive/v2/](archive/v2/README.md).
   - **v3.2:** Jam, MIDI-seeded continuation from a played motif (D209), with the key and mode
     suggestion (a weighted draw when several answers fit, D212), and the rhythm lock with a
     mutation option (O118).
+  - **v3.3, richer chords (optional) (D261):** chords richer than triads, seventh chords first,
+    only where the player allows them through flags in the app; the default stays root-position
+    diatonic triads. Preceded by internal and web research on chord types, their construction
+    from the key and mode, and their fit to styles, so that generation uses sourced data. That
+    research is a separate docs-only item, running on branch `v3.3-chord-research` since
+    2026-10-12 while v3.0 is built (D262). v3.3 opens seventh chords as a capability ahead of the
+    style packs D259 plans (on branch `v4-accompaniment-research`, not merged). Open: O165–O173,
+    O175.
   - **v3.x:** learning from positive signals, tied to recognising played signal patterns (cues,
     D212; mandatory for the endgame); kept for now, likely to be removed or moved later.
   - Dropped (D211): the end-of-measure chord-fit check, review tooling, and the two

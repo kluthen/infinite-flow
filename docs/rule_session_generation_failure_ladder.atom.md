@@ -9,6 +9,7 @@ dependents:
   - [[module_generation_worker_cancellation]]
   - [[module_session_failure_ladder]]
   - [[module_session_look_ahead_timing]]
+  - [[module_session_seed_plan]]
   - [[rule_dropped_attempt_cancelled]]
   - [[rule_repeat_phrase_marked_internally_only]]
   - [[rule_setting_change_rechecks_pitch_carry_in]]

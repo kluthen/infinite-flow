@@ -26,6 +26,39 @@ export function queueSeeds(page: Page, seeds: readonly number[]): Promise<void> 
   return page.evaluate((values) => window.__workspaceHarness.queueSeeds(values), seeds)
 }
 
+/**
+ * Intent: queue the exact session seeds the next published phrase 1s must draw, in order; every
+ * seed a session then uses derives from the one drawn with its phrase 1.
+ */
+export function queueSessionSeeds(page: Page, seeds: readonly number[]): Promise<void> {
+  return page.evaluate((values) => window.__workspaceHarness.queueSessionSeeds(values), seeds)
+}
+
+/**
+ * Intent: the session seed plan's seed of rung `rung` of phrase `phraseNumber`, computed in the
+ * page; its own inverse, so given a wanted attempt seed it is the session seed to queue.
+ */
+export function phraseAttemptSeed(
+  page: Page,
+  seed: number,
+  phraseNumber: number,
+  rung: number,
+): Promise<number> {
+  return page.evaluate(([s, n, r]) => window.__workspaceHarness.phraseAttemptSeed(s, n, r), [
+    seed,
+    phraseNumber,
+    rung,
+  ] as const)
+}
+
+/**
+ * Intent: the session seed plan's Vary settings mutation seed, computed in the page; its own
+ * inverse, so given a wanted mutation seed it is the session seed to queue.
+ */
+export function settingsMutationSeed(page: Page, seed: number): Promise<number> {
+  return page.evaluate((s) => window.__workspaceHarness.settingsMutationSeed(s), seed)
+}
+
 /** Intent: hold every subsequent generate() call before it reaches the real worker. */
 export function holdGeneration(page: Page): Promise<void> {
   return page.evaluate(() => window.__workspaceHarness.holdGeneration())
@@ -77,9 +110,14 @@ export function queueFitVerdicts(
   return page.evaluate((values) => window.__workspaceHarness.queueFitVerdicts(values), verdicts)
 }
 
-/** Intent: how many seeds the session has drawn since the page loaded (one per attempt). */
+/** Intent: how many phrase seeds have been drawn since the page loaded (one per Idle attempt). */
 export function seedsDrawn(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.seedsDrawn())
+}
+
+/** Intent: how many session seeds have been drawn since the page loaded (one per phrase 1). */
+export function sessionSeedsDrawn(page: Page): Promise<number> {
+  return page.evaluate(() => window.__workspaceHarness.sessionSeedsDrawn())
 }
 
 /** Intent: how many pre-draw fit checks have run since the page loaded, forced or real. */

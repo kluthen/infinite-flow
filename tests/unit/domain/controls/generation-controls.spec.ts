@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  ACCEPTED_INSTRUMENT_PROFILE_IDS,
   ARPEGGIO_CHAOS_VALUES,
   COLLECTIONS,
   CONTOURS,
@@ -105,6 +106,37 @@ describe('generation control catalogs and normalization', () => {
         rhythmicVariety: 'Loosely varied' as 'Slightly varied',
       }),
     ).toThrow(GenerationControlError)
+  })
+})
+
+// @test-link [[entity_my_instrument]]
+// @test-link [[module_generation_control_catalog]]
+describe('the instrument control names my instrument by its fixed id', () => {
+  it('accepts the three built-ins and my-instrument, while the built-in catalog stays the three built-ins', () => {
+    expect(ACCEPTED_INSTRUMENT_PROFILE_IDS).toEqual([
+      'c-keyboard',
+      'bb-tenor',
+      'eb-alto',
+      'my-instrument',
+    ])
+    expect(INSTRUMENT_PROFILE_IDS).toEqual(['c-keyboard', 'bb-tenor', 'eb-alto'])
+  })
+
+  // @test-link [[entity_my_instrument]]
+  it('makes controls naming my-instrument and refuses a display name in its place', () => {
+    expect(
+      makeGenerationControls({
+        ...DEFAULT_GENERATION_CONTROLS,
+        instrumentProfileId: 'my-instrument',
+      }).instrumentProfileId,
+    ).toBe('my-instrument')
+    for (const id of ['My instrument', 'my instrument', 'My tenor'])
+      expect(() =>
+        makeGenerationControls({
+          ...DEFAULT_GENERATION_CONTROLS,
+          instrumentProfileId: id as 'my-instrument',
+        }),
+      ).toThrow(GenerationControlError)
   })
 })
 

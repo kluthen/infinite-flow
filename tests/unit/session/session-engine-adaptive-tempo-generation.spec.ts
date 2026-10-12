@@ -68,6 +68,7 @@ function run(
     tempo,
     adaptiveTempo,
     providers: queuedProviders(PROVIDER_SEEDS[index]!, 120),
+    sessionSeed: makeSeed(PROVIDER_SEEDS[index]!),
     mutation: mutationFor(index),
     phraseOneSeed: 11 + index,
   })

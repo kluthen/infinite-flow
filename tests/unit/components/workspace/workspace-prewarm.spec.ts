@@ -5,6 +5,7 @@
  * of every other change, the fixed prewarm identity that never draws a seed or request id, and a
  * generated outcome identical with and without prewarm when real prewarm slices run in between.
  */
+import { countingSessionSeeds } from '../../composables/fake-session-seed'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
@@ -104,6 +105,7 @@ function prewarmRig(
       nextRequestId: () => makeRequestId(`prewarm-spec-request-${++requestCounter}`),
       nextSeed: () => makeSeed(seedQueue.shift() ?? ++seedCounter),
     },
+    nextSessionSeed: countingSessionSeeds(),
     viewport,
     generate: async (intent) => {
       generated.push(intent)
@@ -340,6 +342,7 @@ function workerRig(policy: WorkspacePrewarmPolicy): WorkerRig {
       nextRequestId: () => makeRequestId(`worker-rig-request-${++counter}`),
       nextSeed: () => makeSeed(4000 + counter),
     },
+    nextSessionSeed: countingSessionSeeds(),
     viewport: createFakeViewportWidth(false),
     generate: client.generate,
     prewarmPolicy: policy,

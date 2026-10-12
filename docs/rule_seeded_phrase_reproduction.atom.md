@@ -7,6 +7,7 @@ layer: BUSINESS
 dependents:
   - [[module_named_stream_pseudorandomness]]
   - [[module_phrase_replay_key]]
+  - [[module_session_seed_plan]]
   - [[rule_figure_draws_reproducible]]
   - [[rule_jam_and_lock_off_reproduce_earlier_phrases]]
   - [[rule_no_carry_in_output_matches_v1]]

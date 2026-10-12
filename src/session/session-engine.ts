@@ -2,7 +2,8 @@
  * The session engine: a pure, deterministic state machine that decides what a running session
  * requests, shows and ends, from timed events alone. It keeps immutable state in a closure, never
  * reads a clock (every event carries its audio time) and touches no browser API: its only seams
- * are the identity and seed providers, the window-width reading and the display reading. The
+ * are the request-identity provider, the window-width reading and the display reading, and every
+ * attempt seed comes from the session seed plan, from the session seed in its start. The
  * settings in effect start as the chosen ones and change only at phrase boundaries, through its
  * own seeded mutations or a settings change event; under the multi-phrase tension arc each phrase
  * is generated with its cycle step, which never reaches them. The same start and event list
@@ -10,6 +11,7 @@
  */
 
 import { deepFreeze } from '../domain/events/deep-freeze'
+import { makeSeed } from '../domain/random/seed'
 import {
   acceptedPhrase,
   carryInAfter,
@@ -403,7 +405,8 @@ function handleEvent(context: EngineContext, state: EngineState, event: SessionE
 
 /**
  * Intent: start a session from its start time, chosen settings, phrase 1 (the Idle phrase),
- * mutation flag, adaptive-tempo choice and multi-phrase tension arc flag (a non-boolean throws):
+ * session seed (one that is no seed throws), mutation flag, adaptive-tempo choice and multi-phrase
+ * tension arc flag (a non-boolean throws):
  * freeze the settings as the settings in effect, whose tempo stays the starting tempo, keep
  * phrase 1 as the `idle` record at the starting tempo, and request phrase 2 at once with its
  * deadline at the end of the count-in. Returns the start outputs and the handler of every later
@@ -435,7 +438,16 @@ export function createSessionEngine(
   const { providers, viewport, display } = deps
   const mutation = deepFreeze({ ...start.mutation })
   const arcFlag = { multiPhraseTensionArc: requireTensionArcFlag(start.multiPhraseTensionArc) }
-  const context: EngineContext = { providers, viewport, display, mutation, phraseOne, ...arcFlag }
+  const sessionSeed = makeSeed(start.sessionSeed)
+  const context: EngineContext = {
+    providers,
+    viewport,
+    display,
+    sessionSeed,
+    mutation,
+    phraseOne,
+    ...arcFlag,
+  }
   const initial: EngineState = {
     phase: 'count-in',
     lastAt: start.at,

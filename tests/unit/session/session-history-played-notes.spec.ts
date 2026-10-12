@@ -16,7 +16,13 @@ import {
   type SessionHistory,
 } from '@/session/session-history'
 import type { SessionOutput } from '@/session/session-types'
-import { SessionDriver, fixedWallClock, phraseOneFor, sessionSettings } from './session-harness'
+import {
+  DEFAULT_SESSION_SEED,
+  SessionDriver,
+  fixedWallClock,
+  phraseOneFor,
+  sessionSettings,
+} from './session-harness'
 
 /**
  * Intent: a 240 BPM session (a 1 s measure) started at 0 whose phrases 1, 2 and 3 start sounding
@@ -47,7 +53,7 @@ function outputsOf(driver: SessionDriver): {
 
 /** Intent: a history for the driver's session fed every output but its end. */
 function openHistory(driver: SessionDriver): SessionHistory {
-  const history = createSessionHistory(driver.settings, fixedWallClock)
+  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
   for (const output of outputsOf(driver).sounding) history.record(output)
   return history
 }
@@ -110,7 +116,11 @@ describe('played notes in the session history', () => {
   // @test-link [[rule_session_history_records_played_notes]]
   it('moves a note to the phrase that holds it once that phrase is recorded', () => {
     const { sounding, ended } = outputsOf(threePhraseDriver())
-    const history = createSessionHistory(sessionSettings({ tempo: 240 }), fixedWallClock)
+    const history = createSessionHistory(
+      sessionSettings({ tempo: 240 }),
+      fixedWallClock,
+      DEFAULT_SESSION_SEED,
+    )
     history.record(sounding[0]!)
     history.recordPlayedNote(played(5.5, 6))
     expect(onsetsByPhrase(history)).toEqual([[5.5]])
@@ -138,7 +148,11 @@ describe('notes played before phrase 1 starts', () => {
   // @test-link [[rule_starting_note_only_starts_count_in]]
   it('keeps a note recorded before any phrase out of every phrase recorded later', () => {
     const { sounding, ended } = outputsOf(threePhraseDriver())
-    const history = createSessionHistory(sessionSettings({ tempo: 240 }), fixedWallClock)
+    const history = createSessionHistory(
+      sessionSettings({ tempo: 240 }),
+      fixedWallClock,
+      DEFAULT_SESSION_SEED,
+    )
     history.recordPlayedNote(played(0.2, 0.6))
     expect(history.phrases()).toEqual([])
 
@@ -167,7 +181,11 @@ describe('acknowledgements in the session history', () => {
   // @test-link [[rule_session_history_records_played_notes]]
   it('shows an acknowledgement recorded before its phrase record once that record exists', () => {
     const { sounding } = outputsOf(threePhraseDriver())
-    const history = createSessionHistory(sessionSettings({ tempo: 240 }), fixedWallClock)
+    const history = createSessionHistory(
+      sessionSettings({ tempo: 240 }),
+      fixedWallClock,
+      DEFAULT_SESSION_SEED,
+    )
     history.record(sounding[0]!)
     history.recordAcknowledgement(expected(2, 0))
     expect(history.phrases()[0]!.acknowledgements).toEqual([])
@@ -180,7 +198,11 @@ describe('acknowledgements in the session history', () => {
   // @test-link [[rule_session_history_records_played_notes]]
   it('drops an acknowledgement of a phrase that never sounded', () => {
     const { sounding, ended } = outputsOf(threePhraseDriver())
-    const history = createSessionHistory(sessionSettings({ tempo: 240 }), fixedWallClock)
+    const history = createSessionHistory(
+      sessionSettings({ tempo: 240 }),
+      fixedWallClock,
+      DEFAULT_SESSION_SEED,
+    )
     for (const output of sounding) history.record(output)
     history.recordAcknowledgement(expected(4, 0))
     history.record(ended)

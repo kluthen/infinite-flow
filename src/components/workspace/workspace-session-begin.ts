@@ -59,9 +59,10 @@ function onWake(core: SessionControllerCore, ends: SessionEnds): void {
  * Intent: the rest of a start, once the transport runs and phrase 1's backing is queued: make
  * `session` the running one, begin its MIDI handling (with or without the controller, fixed now),
  * show its count-in and its staff (phrase 1, the very phrase Idle shows), schedule the count-in's
- * end, start the wake-ups, the display's frame loop, the runner (checking fits through the
- * display, reading it for what is on screen, with the page's `Vary settings` choice) and the end
- * watchers; the controls show the start settings. `start` undoes it all if any of it throws.
+ * end, start the wake-ups, the display's frame loop, the runner (from phrase 1 and its session
+ * seed, checking fits through the display, reading it for what is on screen, with the page's
+ * `Vary settings` choice) and the end watchers; the controls show the start settings. `start`
+ * undoes it all if any of it throws.
  */
 // @spec-link [[req_settings_mutation_flag]]
 // @spec-link [[rule_count_in_shown_on_screen]]
@@ -69,6 +70,7 @@ function onWake(core: SessionControllerCore, ends: SessionEnds): void {
 // @spec-link [[rule_phrase_one_is_idle_phrase]]
 // @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
 // @spec-link [[module_session_rolling_display]]
+// @spec-link [[module_session_seed_plan]]
 export function beginSession(
   core: SessionControllerCore,
   sides: SessionControllerSides,
@@ -134,6 +136,7 @@ export function beginSession(
       at: timeline.startAt,
       settings,
       phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
+      sessionSeed: phraseOne.sessionSeed,
       adaptiveTempo: adaptiveTempo.forSession(sessionMidi.sessionHasController()),
       varySettings: varySettings.on(),
       multiPhraseTensionArc: tensionAcrossPhrases.on(),

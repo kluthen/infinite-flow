@@ -1,14 +1,16 @@
 /**
  * A workspace session wired to fakes for the Idle fit-run specs: counted seed and request-id
- * providers, a fake window width, fake staff-fit seams, and a `generate` seam that returns the
- * intent it was given (so each result carries its own seed) unless the test takes over a call.
+ * providers, a counted session-seed provider (from 700) whose seeds the published intents are
+ * logged with in `seeded` (the result itself stays the intent), a fake window width, fake
+ * staff-fit seams, and a `generate` seam that returns the intent it was given (so each result
+ * carries its own seed) unless the test takes over a call.
  * Every seam call lands in one ordered log, so a test can assert what happened in which order,
  * and every intent the fit run reports accepted lands in `accepted`.
  */
 import { createGenerationSession } from '@/composables/use-generation-session'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
-import { makeSeed } from '@/domain/random/seed'
+import { makeSeed, type Seed } from '@/domain/random/seed'
 import type {
   StaffFitVerdict,
   StaffKeySignature,
@@ -57,10 +59,21 @@ export function createFitSession(options: FitSessionOptions = {}) {
   const generated: GenerationIntent[] = []
   const notated: GenerationIntent[] = []
   const accepted: GenerationIntent[] = []
+  const sessionSeeds: Seed[] = []
+  const seeded: { readonly result: GenerationIntent; readonly sessionSeed: Seed }[] = []
   const session = createGenerationSession<GenerationIntent>({
     providers: {
       nextRequestId: () => makeRequestId(`fit-${++counts.id}`),
       nextSeed: () => makeSeed(++counts.seed),
+    },
+    nextSessionSeed: () => {
+      const sessionSeed = makeSeed(700 + sessionSeeds.length)
+      sessionSeeds.push(sessionSeed)
+      return sessionSeed
+    },
+    withSessionSeed: (result, sessionSeed) => {
+      seeded.push({ result, sessionSeed })
+      return result
     },
     viewport,
     generate: (intent) => {
@@ -86,7 +99,18 @@ export function createFitSession(options: FitSessionOptions = {}) {
       accepted.push(intent)
     },
   })
-  return { session, viewport, staff, log, counts, generated, notated, accepted }
+  return {
+    session,
+    viewport,
+    staff,
+    log,
+    counts,
+    generated,
+    notated,
+    accepted,
+    sessionSeeds,
+    seeded,
+  }
 }
 
 /** Intent: let every already-settled promise continuation run, so fire-and-forget work lands. */

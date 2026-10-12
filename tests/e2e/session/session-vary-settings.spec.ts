@@ -8,11 +8,17 @@
  * them. A settings change made while the next phrase is partly drawn as read-ahead leaves that
  * phrase as drawn and first shows in the phrase after it.
  *
- * Each session's mutation seed is the first seed drawn at its start, queued here: seed 12 flips
- * the musical profile on phrase 3, seed 25 steps the register on phrase 3 (spec D181 scales).
+ * Each session's mutation seed derives from the session seed drawn with its phrase 1, queued here
+ * as the inverse of the wanted mutation seed: mutation seed 12 flips the musical profile on
+ * phrase 3, mutation seed 25 steps the register on phrase 3 (spec D181 scales).
  */
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
+import {
+  queueSessionSeeds,
+  sessionSeedsDrawn,
+  settingsMutationSeed,
+} from '../release/harness-helpers'
 import { clockTo } from './session-midi-helpers'
 import { drawnKeys, settledStaff, toBarline, untilReady } from './rolling-helpers'
 import {
@@ -34,6 +40,11 @@ const MEASURE = 4 * BEAT
 const FLIP_ON_PHRASE_3 = 12
 /** The mutation seed that steps the register on phrase 3. */
 const REGISTER_ON_PHRASE_3 = 25
+
+/** Intent: queue the session seed whose Vary settings mutation seed is `mutationSeed`. */
+async function queueMutationSeed(page: Page, mutationSeed: number): Promise<void> {
+  await queueSessionSeeds(page, [await settingsMutationSeed(page, mutationSeed)])
+}
 
 /** Intent: a radiogroup of the control section by its accessible name. */
 function radiogroup(page: Page, name: string): Locator {
@@ -114,13 +125,15 @@ test('a profile flip shows in place at its phrase with nothing moving, and a hid
   await expect(radiogroup(page, 'Vary settings')).toHaveAccessibleDescription(
     'Every 2 to 4 phrases, one setting moves one step. Never the instrument or the tempo. Your settings come back when the session ends.',
   )
+  await queueMutationSeed(page, FLIP_ON_PHRASE_3)
   await readyToStart(page)
   const idleRequest = (
     await page.evaluate(() => window.__workspaceHarness.generationRequests())
   ).at(-1)!
   await turnVarySettingsOn(page)
+  // The queued session seed is the one drawn with the phrase 1 the session starts from.
+  expect(await sessionSeedsDrawn(page)).toBe(1)
 
-  await page.evaluate((seed) => window.__workspaceHarness.queueSeeds([seed]), FLIP_ON_PHRASE_3)
   await startSession(page)
   await expect(radiogroup(page, 'Vary settings')).toHaveAttribute('aria-readonly', 'true')
   await expect(page.locator('.preset-status')).toHaveAttribute('aria-live', 'off')
@@ -169,11 +182,13 @@ test('a register stepped from Varying is Varying again after Stop, and the flag 
   test.setTimeout(90_000)
   await gotoSessionHarness(page, DESKTOP)
   await radiogroup(page, 'Musical profile preset').getByRole('radio', { name: 'Jazz' }).click()
+  await queueMutationSeed(page, REGISTER_ON_PHRASE_3)
   await readyToStart(page)
   expect(await checkedIn(page, 'Register')).toBe('Varying')
   await turnVarySettingsOn(page)
+  // The queued session seed is the one drawn with the phrase 1 the session starts from.
+  expect(await sessionSeedsDrawn(page)).toBe(1)
 
-  await page.evaluate((seed) => window.__workspaceHarness.queueSeeds([seed]), REGISTER_ON_PHRASE_3)
   await startSession(page)
   await clockTo(page, (await phraseStart(page, 3)) + 0.1)
   await expect.poll(async () => checkedIn(page, 'Register')).toMatch(/^(Low|Middle|High)$/)

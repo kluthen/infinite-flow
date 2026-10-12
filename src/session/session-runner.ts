@@ -11,10 +11,7 @@
  */
 
 import type { ViewportWidthProvider } from '../composables/viewport-width'
-import type {
-  GenerationIntent,
-  GenerationIntentProviders,
-} from '../domain/generation/generation-intent'
+import type { GenerationIntent } from '../domain/generation/generation-intent'
 import type { GenerationOutcome } from '../domain/generation/orchestration/orchestration-types'
 import {
   GenerationWorkerCrashError,
@@ -24,6 +21,7 @@ import { createSessionEngine } from './session-engine'
 import type {
   AudioTime,
   SessionDisplayReading,
+  SessionEngineDependencies,
   SessionEvent,
   SessionOutput,
   SessionStart,
@@ -52,7 +50,7 @@ export interface SessionRunnerDependencies {
   readonly generate: (intent: GenerationIntent, signal?: AbortSignal) => Promise<GenerationOutcome>
   readonly checkFit: (candidate: FitCandidate, phraseNumber: number) => Promise<boolean>
   readonly now: () => AudioTime
-  readonly providers: GenerationIntentProviders
+  readonly providers: SessionEngineDependencies['providers']
   readonly viewport: Pick<ViewportWidthProvider, 'isBelowTabletLandscape'>
   readonly display: SessionDisplayReading
   readonly onOutput: (output: SessionOutput) => void

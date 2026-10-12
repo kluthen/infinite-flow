@@ -18,6 +18,7 @@ import {
   type Attempt,
   type AttemptFailure,
 } from '@/session/failure-ladder'
+import { phraseAttemptSeed } from '@/session/session-seed-plan'
 import type { SessionPhrase } from '@/session/session-types'
 import { soundingAt } from './scripted-session'
 import {
@@ -180,6 +181,7 @@ describe('skipping carry-in retries after an exhausted carry-in search', () => {
 
   // @test-link [[rule_session_generation_failure_ladder]]
   // @test-link [[module_session_failure_ladder]]
+  // @test-link [[module_session_seed_plan]]
   it('generates the same standalone intent as after three failed carry-in retries', () => {
     const driver = varyingDriver()
     driver.fail(0.1, undefined, 'no_legal_pitch_plan')
@@ -187,6 +189,7 @@ describe('skipping carry-in retries after an exhausted carry-in search', () => {
     const reference = standaloneAfterThreeRetries()
     expect(skipped.intent).toEqual(reference.intent)
     expect(skipped.intent.seed).toBe(reference.intent.seed)
+    expect(skipped.intent.seed).toBe(phraseAttemptSeed(driver.start.sessionSeed, 2, 4))
     expect(skipped.intent.requestId).toBe(reference.intent.requestId)
     expect(skipped.intent.controls).toEqual(reference.intent.controls)
     expect(skipped.intent.carryIn).toBeUndefined()

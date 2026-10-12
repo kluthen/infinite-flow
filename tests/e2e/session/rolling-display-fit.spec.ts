@@ -13,10 +13,14 @@ import {
   engravings,
   expectNoNotationError,
   fitChecks,
+  generationsSettled,
+  harnessSnapshot,
+  phraseAttemptSeed,
   queueFitVerdicts,
-  queueSeeds,
+  queueSessionSeeds,
   roomNotice,
   seedsDrawn,
+  sessionSeedsDrawn,
   settleFrames,
 } from '../release/harness-helpers'
 import { reviewPanel } from '../review/review-helpers'
@@ -40,9 +44,37 @@ import {
   untilReady,
 } from './rolling-helpers'
 
-/** Two seeds for phrase 2's attempts: the first one forced too wide, the second its retry. */
+/** The seed of phrase 2's first attempt in the misfit session, the attempt forced too wide. */
 const MISFIT_SEED = 501
-const RETRY_SEED = 502
+
+/**
+ * Intent: the session seeds of the misfit and retry sessions, set through the session seed (a
+ * session draws no seed: each attempt's derives from it, and the derivation is its own inverse).
+ * The misfit session's phrase 2 draws MISFIT_SEED on its first attempt (rung 0); its retry
+ * (rung 1) draws a seed the retry session's phrase 2 draws on its first attempt.
+ */
+async function sessionSeeds(page: Page): Promise<{ misfit: number; retry: number }> {
+  const misfit = await phraseAttemptSeed(page, MISFIT_SEED, 2, 0)
+  const retrySeed = await phraseAttemptSeed(page, misfit, 2, 1)
+  return { misfit, retry: await phraseAttemptSeed(page, retrySeed, 2, 0) }
+}
+
+/**
+ * Intent: generate phrase 1 again at Idle (the same phrase, seed 7) with `sessionSeed` queued, so
+ * it is the session seed drawn with it, and let the staff draw it.
+ */
+async function phraseOneWithSessionSeed(page: Page, sessionSeed: number): Promise<void> {
+  const drawnBefore = await sessionSeedsDrawn(page)
+  const shownBefore = (await harnessSnapshot(page)).requestId
+  const engravedBefore = await engravings(page)
+  await queueSessionSeeds(page, [sessionSeed])
+  await readyToStart(page)
+  await expect.poll(() => sessionSeedsDrawn(page), { timeout: 30_000 }).toBe(drawnBefore + 1)
+  await expect.poll(async () => (await harnessSnapshot(page)).requestId).not.toBe(shownBefore)
+  await expect.poll(() => engravings(page)).toBeGreaterThan(engravedBefore)
+  await settleFrames(page)
+  await expect(sessionAction(page)).toBeEnabled()
+}
 
 /**
  * Intent: a fingerprint of phrase 2 as the bottom system draws it in the count-in: its summary
@@ -65,18 +97,20 @@ function phraseTwoFingerprint(page: Page): Promise<string> {
 }
 
 /**
- * Intent: start a session in the count-in with the given seeds queued for its attempts (and
- * the given fit verdicts forced), wait for phrase 2 to be drawn below phrase 1, and return its
- * fingerprint with how many seeds, fit checks and engravings that took. Stop ends it after.
+ * Intent: start a session in the count-in from phrase 1 with the given session seed (and the
+ * given fit verdicts forced), wait for phrase 2 to be drawn below phrase 1, and return its
+ * fingerprint with how many attempts, seeds drawn, fit checks and engravings that took. Stop ends
+ * it after.
  */
 async function phraseTwoOfSession(
   page: Page,
-  seeds: readonly number[],
+  sessionSeed: number,
   verdicts: readonly WorkspaceHarnessFitVerdict[] = [],
 ) {
-  await queueSeeds(page, seeds)
+  await phraseOneWithSessionSeed(page, sessionSeed)
   await queueFitVerdicts(page, verdicts)
   const before = {
+    attempts: await generationsSettled(page),
     seeds: await seedsDrawn(page),
     fits: await fitChecks(page),
     engravings: await engravings(page),
@@ -87,6 +121,7 @@ async function phraseTwoOfSession(
   expect(drawnKeys(await settledStaff(page))).toEqual({ top: '1:whole', bottom: '2:whole' })
   const result = {
     fingerprint: await phraseTwoFingerprint(page),
+    attempts: (await generationsSettled(page)) - before.attempts,
     seeds: (await seedsDrawn(page)) - before.seeds,
     fits: (await fitChecks(page)) - before.fits,
     engravings: (await engravings(page)) - before.engravings,
@@ -110,18 +145,21 @@ test('a look-ahead phrase too wide for the held layout is never drawn: its retry
   test.setTimeout(120_000)
   await gotoSessionHarness(page, DESKTOP)
   await readyToStart(page)
+  const sessions = await sessionSeeds(page)
 
-  // What each seed alone gives as phrase 2, every attempt fitting.
-  const misfit = await phraseTwoOfSession(page, [MISFIT_SEED])
-  const retry = await phraseTwoOfSession(page, [RETRY_SEED])
+  // What each seed alone gives as phrase 2, every attempt fitting; a session draws no seed.
+  const misfit = await phraseTwoOfSession(page, sessions.misfit)
+  const retry = await phraseTwoOfSession(page, sessions.retry)
   expect(misfit.fingerprint).not.toBe(retry.fingerprint)
-  expect([misfit.seeds, misfit.fits, misfit.engravings]).toEqual([1, 1, 1])
+  expect([misfit.attempts, misfit.fits, misfit.engravings]).toEqual([1, 1, 1])
+  expect([misfit.seeds, retry.seeds]).toEqual([0, 0])
 
-  // The first attempt forced too wide: a failed attempt, retried with a fresh seed; only the
-  // retry is drawn, and one failed attempt raises no struggling notice.
+  // The first attempt forced too wide: a failed attempt, retried with the next rung's seed; only
+  // the retry is drawn, and one failed attempt raises no struggling notice.
   await startRollingLog(page)
-  const forced = await phraseTwoOfSession(page, [MISFIT_SEED, RETRY_SEED], ['notes_too_wide'])
-  expect(forced.seeds).toBe(2)
+  const forced = await phraseTwoOfSession(page, sessions.misfit, ['notes_too_wide'])
+  expect(forced.attempts).toBe(2)
+  expect(forced.seeds).toBe(0)
   expect(forced.fits).toBe(2)
   expect(forced.engravings).toBe(1)
   expect(forced.fingerprint).toBe(retry.fingerprint)

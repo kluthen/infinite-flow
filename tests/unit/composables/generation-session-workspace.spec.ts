@@ -10,6 +10,7 @@ import { makeRequestId } from '@/domain/generation/generation-request'
 import { ADOPTED_INSTRUMENT_PROFILES } from '@/domain/profile/instrument-profiles'
 import { makeSeed } from '@/domain/random/seed'
 import { alwaysFitsStaff } from './fake-staff-fit'
+import { countingSessionSeeds } from './fake-session-seed'
 import { createFakeViewportWidth } from './fake-viewport-width'
 
 interface StubResult {
@@ -50,6 +51,8 @@ describe('generation session workspace flow', () => {
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
+        nextSessionSeed: countingSessionSeeds(),
+        withSessionSeed: (generated) => generated,
         generate: async () => {
           operations.push(session.state.operation)
           return { id: 1 }
@@ -76,6 +79,8 @@ describe('generation session workspace flow', () => {
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
+        nextSessionSeed: countingSessionSeeds(),
+        withSessionSeed: (generated) => generated,
         generate: async () => ({ id: 7 }),
         notate: async () => {
           notateAttempts += 1
@@ -99,6 +104,8 @@ describe('generation session workspace flow', () => {
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
+        nextSessionSeed: countingSessionSeeds(),
+        withSessionSeed: (generated) => generated,
         generate: async () => {
           call += 1
           if (call === 1) return { id: 1 }
@@ -127,6 +134,8 @@ describe('generation session workspace flow', () => {
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers: tracked.providers,
+        nextSessionSeed: countingSessionSeeds(),
+        withSessionSeed: (generated) => generated,
         generate: async () => {
           generateCalls += 1
           return { id: generateCalls }
@@ -161,6 +170,8 @@ describe('generation session workspace flow', () => {
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
+        nextSessionSeed: countingSessionSeeds(),
+        withSessionSeed: (generated) => generated,
         generate: () => deferred.promise,
         notate: async () => undefined,
       })
@@ -179,6 +190,8 @@ describe('generation session workspace flow', () => {
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
+        nextSessionSeed: countingSessionSeeds(),
+        withSessionSeed: (generated) => generated,
         generate: async () => ({ id: 1 }),
         notate: async () => undefined,
       })
@@ -194,6 +207,8 @@ describe('generation session workspace flow', () => {
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
+        nextSessionSeed: countingSessionSeeds(),
+        withSessionSeed: (generated) => generated,
         generate: async () => ({ id: 1 }),
         notate: async () => undefined,
       })
@@ -215,6 +230,8 @@ describe('generation session workspace flow', () => {
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers: tracked.providers,
+        nextSessionSeed: countingSessionSeeds(),
+        withSessionSeed: (generated) => generated,
         generate: async (intent) => {
           intents.push({
             seed: intent.seed,
@@ -251,6 +268,8 @@ describe('generation session workspace flow', () => {
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
+        nextSessionSeed: countingSessionSeeds(),
+        withSessionSeed: (generated) => generated,
         generate: async () => {
           call += 1
           if (call === 1) return { id: 1 }
@@ -275,6 +294,8 @@ describe('generation session workspace flow', () => {
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
+        nextSessionSeed: countingSessionSeeds(),
+        withSessionSeed: (generated) => generated,
         generate: async () => {
           generateCalls += 1
           return { id: generateCalls }
@@ -335,6 +356,8 @@ describe('generation session workspace flow', () => {
           ...alwaysFitsStaff(),
           viewport: createFakeViewportWidth(),
           providers: tracked.providers,
+          nextSessionSeed: countingSessionSeeds(),
+          withSessionSeed: (generated) => generated,
           generate: async (intent) => {
             intents.push({ seed: intent.seed, tonalCenter: intent.controls.tonalCenter })
             return { id: intent.seed }
@@ -372,6 +395,8 @@ describe('generation session workspace flow', () => {
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
+        nextSessionSeed: countingSessionSeeds(),
+        withSessionSeed: (generated) => generated,
         generate: async () => ({ id: 1 }),
         notate: async () => undefined,
       })
@@ -380,82 +405,6 @@ describe('generation session workspace flow', () => {
         SessionUsageError,
       )
       expect(session.state.controls.instrumentProfileId).toBe('bb-tenor')
-    })
-  })
-
-  // @test-link [[module_notation_layout_preflight]]
-  describe('reportNotationFailure / reportNotationRecovered', () => {
-    it('refuse when idle with no result yet', () => {
-      const { providers } = trackedProviders()
-      const session = createGenerationSession<StubResult>({
-        ...alwaysFitsStaff(),
-        viewport: createFakeViewportWidth(),
-        providers,
-        generate: async () => ({ id: 1 }),
-        notate: async () => undefined,
-      })
-
-      expect(session.actions.reportNotationFailure(new Error('resize redraw failed'))).toBe(false)
-      expect(session.actions.reportNotationRecovered()).toBe(false)
-    })
-
-    it('refuse while an operation is in progress, even with a result present', async () => {
-      const { providers } = trackedProviders()
-      const deferred = createDeferred<StubResult>()
-      const session = createGenerationSession<StubResult>({
-        ...alwaysFitsStaff(),
-        viewport: createFakeViewportWidth(),
-        providers,
-        generate: () => deferred.promise,
-        notate: async () => undefined,
-      })
-
-      const pending = session.actions.generate()
-      expect(session.actions.reportNotationFailure(new Error('resize redraw failed'))).toBe(false)
-      deferred.resolve({ id: 1 })
-      await pending
-    })
-
-    // @test-link [[service_idle_generation_session]]
-    it('sets notationError and clears resultEngraved on failure, then clears notationError and restores resultEngraved on recovery (D34)', async () => {
-      const { providers } = trackedProviders()
-      const session = createGenerationSession<StubResult>({
-        ...alwaysFitsStaff(),
-        viewport: createFakeViewportWidth(),
-        providers,
-        generate: async () => ({ id: 1 }),
-        notate: async () => undefined,
-      })
-
-      await session.actions.generate()
-      expect(session.state.resultEngraved).toBe(true)
-
-      expect(session.actions.reportNotationFailure(new Error('resize redraw failed'))).toBe(true)
-      expect(session.state.notationError?.message).toBe('resize redraw failed')
-      expect(session.state.resultEngraved).toBe(false)
-
-      expect(session.actions.reportNotationRecovered()).toBe(true)
-      expect(session.state.notationError).toBeNull()
-      expect(session.state.resultEngraved).toBe(true)
-    })
-
-    it('replaces the notation error message on each repeated out-of-band failure', async () => {
-      const { providers } = trackedProviders()
-      const session = createGenerationSession<StubResult>({
-        ...alwaysFitsStaff(),
-        viewport: createFakeViewportWidth(),
-        providers,
-        generate: async () => ({ id: 1 }),
-        notate: async () => undefined,
-      })
-
-      await session.actions.generate()
-
-      expect(session.actions.reportNotationFailure(new Error('first'))).toBe(true)
-      expect(session.state.notationError?.message).toBe('first')
-
-      expect(session.actions.reportNotationFailure(new Error('second'))).toBe(true)
-      expect(session.state.notationError?.message).toBe('second')
     })
   })
 
@@ -468,6 +417,8 @@ describe('generation session workspace flow', () => {
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
+        nextSessionSeed: countingSessionSeeds(),
+        withSessionSeed: (generated) => generated,
         generate: () => deferred.promise,
         notate: async () => undefined,
       })

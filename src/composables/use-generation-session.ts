@@ -48,10 +48,13 @@ export { SessionUsageError } from './generation-session-types'
 /**
  * Root composition boundary: call once from application bootstrap and pass the returned readonly
  * state/actions to components. This owns no hidden singleton, storage, browser, or engraving state.
+ * Each phrase 1 a fit run publishes is the generated phrase joined with the session seed drawn
+ * for it.
  */
 // @spec-link [[service_idle_generation_session]]
-export function createGenerationSession<TResult>(
-  options: CreateGenerationSessionOptions<TResult>,
+// @spec-link [[module_session_seed_plan]]
+export function createGenerationSession<TResult, TGenerated = TResult>(
+  options: CreateGenerationSessionOptions<TResult, TGenerated>,
 ): GenerationSession<TResult> {
   const state = shallowReactive<MutableGenerationSessionState<TResult>>({
     controls: DEFAULT_GENERATION_CONTROLS,
@@ -208,10 +211,12 @@ export function createGenerationSession<TResult>(
     return fitRunner.run('fresh')
   }
 
-  const fitRunner = createFitRunner<TResult>({
+  const fitRunner = createFitRunner<TResult, TGenerated>({
     state,
     generate: options.generate,
     checkFit: options.checkFit,
+    nextSessionSeed: options.nextSessionSeed,
+    withSessionSeed: options.withSessionSeed,
     notate: options.notate,
     clearPresentedPhrase: options.clearPresentedPhrase,
     freshIntent: freshIntentFromControls,

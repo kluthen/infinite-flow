@@ -56,6 +56,7 @@ function arcSession({ tension, mutation, firstSeed }: ArcRun): SessionDriver {
     settings,
     phraseOne: phraseOneFor(settings),
     providers: queuedProviders(firstSeed, 120),
+    ...(firstSeed === undefined ? {} : { sessionSeed: makeSeed(firstSeed) }),
     mutation,
     multiPhraseTensionArc: true,
   })

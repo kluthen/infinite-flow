@@ -16,7 +16,7 @@ import type {
 } from '@/components/workspace/workspace-session-controller-types'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { SessionHistory, SessionHistoryRecord } from '@/session/session-history'
-import { SESSION_START_EPOCH_MS } from '../../session/session-harness'
+import { DEFAULT_SESSION_SEED, SESSION_START_EPOCH_MS } from '../../session/session-harness'
 
 /** The fake's state, writable by the test. */
 export type FakeSessionControllerState = {
@@ -67,6 +67,7 @@ export function fakeReviewHistory(
     phraseCount: records.length,
     startedAt: SESSION_START_EPOCH_MS,
     instrumentProfileId,
+    sessionSeed: DEFAULT_SESSION_SEED,
   }
 }
 

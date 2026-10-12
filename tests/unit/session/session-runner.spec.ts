@@ -22,6 +22,7 @@ import {
 import { SessionEngineError, type SessionOutput, type SessionStart } from '@/session/session-types'
 import { SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
 import {
+  DEFAULT_SESSION_SEED,
   SessionDriver,
   UNREAD_DISPLAY,
   failureOutcome,
@@ -72,6 +73,7 @@ function fastStart(tempo = 240): SessionStart {
     at: 0,
     settings,
     phraseOne: phraseOneFor(settings),
+    sessionSeed: DEFAULT_SESSION_SEED,
     mutation: SETTINGS_MUTATION_OFF,
     adaptiveTempo: false,
     multiPhraseTensionArc: false,
