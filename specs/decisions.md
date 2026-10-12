@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.80
+Status: draft v2.81
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D287**; D290–D299 are reserved by another session. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D288**; D290–D299 are reserved by another session. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet.
 
 ## Decision Log
@@ -975,3 +975,13 @@ on branch `v4-accompaniment-research`, not merged yet.
   with Part D).** §D8.4's "a Jam's phrases follow the level like any session's" holds on each rung
   of a fresh Jam's phrase-1 ladder (C5.7), the doodle-free rung included, and on every later
   phrase. Plan chunks 3 and 16.
+
+- **D288 (2026-10-12): the Seventh chords level ids are camelCase (amends D277; proposed for owner
+  approval with Part D).** Raised by `ux-writer`'s review of the
+  [v3.3 build plan](versions/v3/build-plan-v3.3.md) (ux D264). D277 spelled the top level
+  `strongly-favored`; v3.1's figure-level ids, the same four-step shape stored the same way, are
+  camelCase (`off`, `asToday`, `favored`, `stronglyFavored`, v3.1 build plan §2). The level values
+  are therefore `off`, `sometimes`, `favored` and `stronglyFavored`, in the request, the replay key
+  and every saved record. The family key stays `seventh-chords`: a capability name fixed by D273
+  (the v4 atlas id), as `my-instrument` is a fixed id (D254). The interface's labels are unchanged:
+  `off` Off, `sometimes` Sometimes, `favored` Often, `stronglyFavored` Mostly (ux D254, D264).

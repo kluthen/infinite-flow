@@ -1,6 +1,8 @@
 # Infinite Flow v3.3 — Build Plan
 
-Status: **draft v1 (2026-10-12), not approved; depends on owner approval of Part D.** Written on
+Status: **draft v2 (2026-10-12), not approved; depends on owner approval of Part D.** Draft v2
+follows `ux-writer`'s review (ux D264) and settles the level ids (D288); draft v1 the same day.
+Written on
 branch `v3.3-chord-research` while v3.0 is being built (wave 2) and before v3.1 and v3.2 are built.
 The owner reviews it with master spec Part D and the v3.3 design.
 
@@ -14,7 +16,7 @@ disagrees with either, they win and the plan is corrected. The code facts it rel
 [chord research](../../../docs/music/chord-research.md#where-a-fourth-chord-note-meets-the-code),
 re-checked on this branch (62a90c7) on 2026-10-12 by `codebase-explorer` and `documentalist`
 ([§9](#9-code-facts-checked-on-2026-10-12)). The planning answers it needed are spec decisions
-D276–D287 ([§10](#10-decisions-taken-while-planning)), proposed for the owner's approval with
+D276–D288 ([§10](#10-decisions-taken-while-planning)), proposed for the owner's approval with
 Part D.
 
 **v3.3 is built on v3.0, v3.1 and v3.2.** This plan assumes every chunk of the
@@ -74,18 +76,19 @@ the generator and the key are complete (18), before the control exists.
 
 Some steps are not code and need the owner. They are part of the sequence.
 
-| Step   | What                                                                                                                                                                                                                                                                                                                                                                                                                            | When                             | Blocks                                                                                                                                                                                                                                                                      |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **A0** | The owner approves [Part D](master-spec.md#part-d--v33) (v1.1, D263–D275) and this plan's decisions D276–D287.                                                                                                                                                                                                                                                                                                                  | First.                           | Everything below.                                                                                                                                                                                                                                                           |
-| **I0** | Not an owner step: `documentalist` ingests Part D (skill `atd-spec-ingestion`). It creates the DRAFT atoms tagged `release-v3.3`, tags `changes-in-v3.3` and writes `docs/release/v3.3-intent-change-set.md`. Part A of that file holds the exact wording of the three STABLE changes. The file also adds the atoms the preflight found missing from §D12 ([D285](#10-decisions-taken-while-planning)).                         | After A0.                        | C1; chunk 0.                                                                                                                                                                                                                                                                |
-| **C1** | **The contract confirmation.** The owner confirms the exact wording of `req_session_backing_track`, `rule_open_phrase_ending` (first option: the triad reading) and `rule_leap_recovery` ([§D12](master-spec.md#d12-contract-changes-needing-owner-confirmation)). `documentalist` applies them with one contract bump: MAJOR, CONTRACT 3.0 → 4.0, as D246 did. They hold trivially at Off, so they are applied at once (D276). | After I0; best together with A0. | **Merging** chunks [5](#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search), [6](#chunk-6--the-validator-reads-the-seventh-as-a-chord-tone), [7](#chunk-7--runs-may-include-the-seventh) and [9](#chunk-9--the-backing-plays-the-seventh) ([§3](#the-contract-gate)). |
-| **D0** | The owner approves the v3.3 design ([`ui_ux/todo.md`](../../../ui_ux/todo.md), Next Unit). If `ux-writer` freezes it into `ui_ux/versions/v3.3/`, this plan's design links are repointed there. No token pass is needed: v3.3 adds no token, class or motion (ux D261; spec D284).                                                                                                                                              | Before chunk 11.                 | Chunks 11 (the description sentences), 14 and 19.                                                                                                                                                                                                                           |
-| **R0** | v3.2 is released: the [v3.2 gate](build-plan-v3.2.md#chunk-27--v32-release-gate) passed and `3.2.0` is tagged.                                                                                                                                                                                                                                                                                                                  | Before chunk 1.                  | Every coding chunk (1–22). Chunk 1's corpus must be recorded on the code v3.2 ships.                                                                                                                                                                                        |
-| **DP** | The [finer-fallback decision](#decision-point-the-finer-fallback): chunk 18's M1 says whether Strongly favored reaches 3 in 4 harmony events in their seventh form. The owner is told the figures and the outcome.                                                                                                                                                                                                              | After chunk 18.                  | Chunk 20 (built or skipped).                                                                                                                                                                                                                                                |
-| **U1** | `ux-writer` reads the shares chunk 18 reports (done item 5) and confirms the labels Off, Sometimes, Often, Mostly, or changes them (ux D254, Q77).                                                                                                                                                                                                                                                                              | After chunk 18 (and 20).         | Chunk 19's labels; the gate.                                                                                                                                                                                                                                                |
-| **L1** | **The listening check on endings** ([H1](#5-hand-checks), [§D6.3](master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check)). The owner listens to chunk 18's examples of phrases ending on the seventh and landing on the tonic chord's seventh, and says whether they sound open or wrong. `spec-writer` records the result either way.                                                          | After chunk 18.                  | Chunk 21 (built only if approved); the gate (item 9).                                                                                                                                                                                                                       |
-| **C2** | **Only if L1 approves the seventh:** the owner confirms the second option's wording of `rule_open_phrase_ending`, and `documentalist` applies it with its own bump (MAJOR, unless 4.0 is not yet applied).                                                                                                                                                                                                                      | After L1.                        | **Merging** chunk 21.                                                                                                                                                                                                                                                       |
-| **L2** | The owner's listening check of the level and the four-note backing ([H2](#5-hand-checks)). The Sometimes and Favored shares are tuned from it ([§D5.2](master-spec.md#d52-four-levels)).                                                                                                                                                                                                                                        | After chunk 19.                  | The gate's final M1 and M2 runs.                                                                                                                                                                                                                                            |
+| Step    | What                                                                                                                                                                                                                                                                                                                                                                                                                            | When                             | Blocks                                                                                                                                                                                                                                                                      |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **A0**  | The owner approves [Part D](master-spec.md#part-d--v33) (v1.1, D263–D275) and this plan's decisions D276–D288.                                                                                                                                                                                                                                                                                                                  | First.                           | Everything below.                                                                                                                                                                                                                                                           |
+| **I0**  | Not an owner step: `documentalist` ingests Part D (skill `atd-spec-ingestion`). It creates the DRAFT atoms tagged `release-v3.3`, tags `changes-in-v3.3` and writes `docs/release/v3.3-intent-change-set.md`. Part A of that file holds the exact wording of the three STABLE changes. The file also adds the atoms the preflight found missing from §D12 ([D285](#10-decisions-taken-while-planning)).                         | After A0.                        | C1; chunk 0.                                                                                                                                                                                                                                                                |
+| **C1**  | **The contract confirmation.** The owner confirms the exact wording of `req_session_backing_track`, `rule_open_phrase_ending` (first option: the triad reading) and `rule_leap_recovery` ([§D12](master-spec.md#d12-contract-changes-needing-owner-confirmation)). `documentalist` applies them with one contract bump: MAJOR, CONTRACT 3.0 → 4.0, as D246 did. They hold trivially at Off, so they are applied at once (D276). | After I0; best together with A0. | **Merging** chunks [5](#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search), [6](#chunk-6--the-validator-reads-the-seventh-as-a-chord-tone), [7](#chunk-7--runs-may-include-the-seventh) and [9](#chunk-9--the-backing-plays-the-seventh) ([§3](#the-contract-gate)). |
+| **D0**  | The owner approves the v3.3 design ([`ui_ux/todo.md`](../../../ui_ux/todo.md), Next Unit). If `ux-writer` freezes it into `ui_ux/versions/v3.3/`, this plan's design links are repointed there. No token pass is needed: v3.3 adds no token, class or motion (ux D261; spec D284).                                                                                                                                              | Before chunk 14.                 | Chunks 14 and 19 (the description sentences ship with chunk 19).                                                                                                                                                                                                            |
+| **R0**  | v3.2 is released: the [v3.2 gate](build-plan-v3.2.md#chunk-27--v32-release-gate) passed and `3.2.0` is tagged.                                                                                                                                                                                                                                                                                                                  | Before chunk 1.                  | Every coding chunk (1–22). Chunk 1's corpus must be recorded on the code v3.2 ships.                                                                                                                                                                                        |
+| **DP**  | The [finer-fallback decision](#decision-point-the-finer-fallback): chunk 18's M1 says whether Strongly favored reaches 3 in 4 harmony events in their seventh form. The owner is told the figures and the outcome.                                                                                                                                                                                                              | After chunk 18.                  | Chunk 20 (built or skipped).                                                                                                                                                                                                                                                |
+| **U1a** | `ux-writer` reads the first shares chunk 18 reports (done item 5) and confirms the labels Off, Sometimes, Often, Mostly, or changes them (ux D254; ux Q77, closed by spec D275).                                                                                                                                                                                                                                                | After chunk 18.                  | Chunk 19's labels.                                                                                                                                                                                                                                                          |
+| **U1b** | `ux-writer` confirms the labels again on the final shares: after chunk 20 if it is built, and after L2's tuning and the gate's final M1 run (ux Q77, closed by spec D275).                                                                                                                                                                                                                                                      | Before the release.              | The gate (chunk 22).                                                                                                                                                                                                                                                        |
+| **L1**  | **The listening check on endings** ([H1](#5-hand-checks), [§D6.3](master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check)). The owner listens to chunk 18's examples of phrases ending on the seventh and landing on the tonic chord's seventh, and says whether they sound open or wrong. `spec-writer` records the result either way.                                                          | After chunk 18.                  | Chunk 21 (built only if approved); the gate (item 9).                                                                                                                                                                                                                       |
+| **C2**  | **Only if L1 approves the seventh:** the owner confirms the second option's wording of `rule_open_phrase_ending`, and `documentalist` applies it with its own bump (MAJOR, unless 4.0 is not yet applied).                                                                                                                                                                                                                      | After L1.                        | **Merging** chunk 21.                                                                                                                                                                                                                                                       |
+| **L2**  | The owner's listening check of the level and the four-note backing ([H2](#5-hand-checks)). The Sometimes and Favored shares are tuned from it ([§D5.2](master-spec.md#d52-four-levels)).                                                                                                                                                                                                                                        | After chunk 19.                  | The gate's final M1 and M2 runs.                                                                                                                                                                                                                                            |
 
 ### Waves
 
@@ -97,17 +100,17 @@ each other and touch different source files, so one preflight can cover them all
 blocked when the rest of its wave is done moves to the next wave. Blocked here means waiting for the
 owner (C1, D0, L1, C2), a design answer or a measurement.
 
-| Wave | Chunks                                                                                                  | Waits for                                                                                     |
-| ---- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| 0    | 0 Intent re-sync · 1 Baselines                                                                          | Chunk 0: A0 and I0 (best run right after R0). Chunk 1: R0.                                    |
-| 1    | 2 Seventh chords in the harmony model · 3 The level in the request                                      | Chunks 0 and 1 (both)                                                                         |
-| 2    | 4 Measurement tools · 5 The seventh in the pitch search · 6 The validator · 7 Runs · 8 The join         | Chunks 1, 2 (4); chunk 2 (5–8); **C1 to merge 5, 6 and 7**                                    |
-| 3    | 9 The backing · 10 Symbols and spoken words · 11 Presets hold the level · 12 The level orders the plans | Chunk 2 and **C1 to merge** (9); chunk 2 (10); chunk 3 and D0 (11); chunks 3, 5, 6, 7, 8 (12) |
-| 4    | 13 MusicXML · 14 Symbols on the staff · 15 Replay key `ifk5.` · 16 The level in a session               | Chunk 10 (13); chunk 10 and D0 (14); chunks 3, 8, 12 (15); chunks 3, 11, 12 (16)              |
-| 5    | 17 The level on the device · 18 Measurements, first run                                                 | Chunks 10, 11, 16 (17); chunks 4, 9, 12, 15 (18)                                              |
-| 6    | 19 The Seventh chords control                                                                           | Chunks 11, 16, 17; D0; U1 for the labels                                                      |
-| 7    | 20 The finer fallback (**conditional**) · 21 Endings on the seventh (**conditional**)                   | DP and chunk 18 (20); L1, C2 and chunks 5, 6, 8, 18 (21)                                      |
-| 8    | 22 v3.3 release gate                                                                                    | Every other chunk; L1, L2, U1                                                                 |
+| Wave | Chunks                                                                                                  | Waits for                                                                              |
+| ---- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 0    | 0 Intent re-sync · 1 Baselines                                                                          | Chunk 0: A0 and I0 (best run right after R0). Chunk 1: R0.                             |
+| 1    | 2 Seventh chords in the harmony model · 3 The level in the request                                      | Chunks 0 and 1 (both)                                                                  |
+| 2    | 4 Measurement tools · 5 The seventh in the pitch search · 6 The validator · 7 Runs · 8 The join         | Chunks 1, 2 (4); chunk 2 (5–8); **C1 to merge 5, 6 and 7**                             |
+| 3    | 9 The backing · 10 Symbols and spoken words · 11 Presets hold the level · 12 The level orders the plans | Chunk 2 and **C1 to merge** (9); chunk 2 (10); chunk 3 (11); chunks 3, 5, 6, 7, 8 (12) |
+| 4    | 13 MusicXML · 14 Symbols on the staff · 15 Replay key `ifk5.` · 16 The level in a session               | Chunk 10 (13); chunk 10 and D0 (14); chunks 3, 8, 12 (15); chunks 3, 11, 12 (16)       |
+| 5    | 17 The level on the device · 18 Measurements, first run                                                 | Chunks 10, 11, 16 (17); chunks 4, 9, 12, 15 (18)                                       |
+| 6    | 19 The Seventh chords control                                                                           | Chunks 11, 16, 17; D0; U1a for the labels                                              |
+| 7    | 20 The finer fallback (**conditional**) · 21 Endings on the seventh (**conditional**)                   | DP and chunk 18 (20); L1, C2 and chunks 5, 6, 8, 18 (21)                               |
+| 8    | 22 v3.3 release gate                                                                                    | Every other chunk; L1, L2, U1b                                                         |
 
 Wave 7 is skipped when DP skips chunk 20 and L1 keeps the triad reading. Then the gate is wave 7.
 
@@ -139,7 +142,6 @@ flowchart LR
   C1 --> C9
   C2 --> C10[10 Symbols and words]
   C3 --> C11[11 Presets]
-  D0{{D0: design approved}} --> C11
   C3 --> C12[12 Level orders the plans]
   C5 --> C12
   C6 --> C12
@@ -147,7 +149,7 @@ flowchart LR
   C8 --> C12
   C10 --> C13[13 MusicXML]
   C10 --> C14[14 Symbols on the staff]
-  D0 --> C14
+  D0{{D0: design approved}} --> C14
   C8 --> C15[15 ifk5 key]
   C12 --> C15
   C11 --> C16[16 Level in a session]
@@ -160,11 +162,11 @@ flowchart LR
   C12 --> C18
   C15 --> C18
   C18 --> DP{{DP: 3 in 4 reached?}}
-  C18 --> U1{{U1: labels}}
+  C18 --> U1a{{U1a: labels, first shares}}
   C18 --> L1{{L1: endings by ear}}
   C16 --> C19[19 The control]
   C17 --> C19
-  U1 --> C19
+  U1a --> C19
   D0 --> C19
   C19 --> L2{{L2: level and backing by ear}}
   DP --> C20[20 Finer fallback]
@@ -176,6 +178,9 @@ flowchart LR
   C20 --> C22
   C21 --> C22
   L1 --> C22
+  L2 --> U1b{{U1b: labels, final shares}}
+  C20 --> U1b
+  U1b --> C22
   L2 --> C22
 ```
 
@@ -230,8 +235,7 @@ v3.2 wrote it.
   note).
 - **The level is a named capability, not a control** ([chunk 3](#chunk-3--the-level-in-the-generation-request)).
   `src/domain/chords/chord-families.ts` (new) holds the one family id `seventh-chords` and the four
-  level ids `off`, `sometimes`, `favored` and `strongly-favored`: the spec's names, never the
-  interface's labels (D277). `GenerationIntent` and the resolved `GenerationRequest` gain
+  level ids `off`, `sometimes`, `favored` and `stronglyFavored`: Part D's levels, written in the camelCase of v3.1's figure-level ids (`off`, `asToday`, `favored`, `stronglyFavored`), never the interface's labels (D277, D288). The interface maps them to its own words, `off` → Off, `sometimes` → Sometimes, `favored` → Often, `stronglyFavored` → Mostly (ux D264): its own list, not the figure levels' Off, Rarely, Often, Very often. `GenerationIntent` and the resolved `GenerationRequest` gain
   `chordFamilies: { 'seventh-chords': level }` beside `controls`, as v3.1's figure levels sit beside
   them. Keeping it out of `GenerationControls` leaves the replay key's control order, the sweep's
   dimensions and the control catalog alone. Inside the app it is always present. An input from
@@ -441,7 +445,7 @@ chunk stops.
   recorded. A mode under 3 in 4 alone does not trigger the finer fallback; it goes to `ux-writer`
   with the figures. The Sometimes and Favored shares start near 1 in 4 and 1 in 2 of the events
   drawn. Their measured share is lower where plans fall back, and is recorded, not judged.
-- **Reported:** to `ux-writer` (done item 5; U1), with the table per level and mode.
+- **Reported:** to `ux-writer` (done item 5; U1a on the first shares, U1b on the final ones), with the table per level and mode.
 - **Recorded:** a new "Seventh chords" section of `docs/generation-latency.md`; the share constants
   carry a comment pointing there.
 
@@ -516,14 +520,14 @@ The owner runs these himself, on the Travel Sax over USB and the reference machi
 into a new v3.3 part of [`HARDWARE-CHECKLIST.md`](../../../HARDWARE-CHECKLIST.md) by the chunk named,
 and run at that chunk or at the gate.
 
-| Check                                            | Chunk                | What the owner does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| ------------------------------------------------ | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| H1 Listening: endings on the seventh (**L1**)    | 18, before 21 and 22 | Listen to chunk 18's examples, each beside the same phrase as the app writes it. **Ending on the seventh with no next phrase:** F over G7 in C major; the home chord's seventh in Dorian and in Mixolydian (B♭ over C7 in C Mixolydian). **The next phrase landing on the tonic chord's seventh.** Say for each whether ending on the seventh sounds open (the player can keep going) or like a mistake. Item 9. Approved: C2, then chunk 21. Not approved: the triad reading ships, and the result is recorded. |
-| H2 Listening: the level and the backing (**L2**) | 19, used by 22       | With Jazz, Bebop, Modal (Dorian) and Neutral, play short sessions at Sometimes, Often and Mostly. Say whether each step is clearly heard, whether Mostly sounds like "a seventh on nearly every chord", and whether the four-note backing (lowest note about D3) sits well under the bass and the line. The Sometimes and Favored shares are tuned from it, then M1 and M2 run again.                                                                                                                            |
-| H3 Same phrase in Edge                           | 15                   | Run chunk 15's in-browser replay test once with Playwright's Microsoft Edge channel (`msedge`), and replay one `ifk5.` key of a Mostly phrase copied from a Chrome session in Edge; the phrases match. Item 18's "Chrome and Edge" half.                                                                                                                                                                                                                                                                         |
-| H4 The files                                     | 13                   | Open a MusicXML file holding all four seventh-chord kinds in MuseScore: Cmaj7, Dm7, G7 and Bm7♭5 (in written pitch) show as the right symbols (item 12's recorded hand check). Open the MIDI file with the backing included in a DAW: the backing's chords hold four notes where the symbols say seventh.                                                                                                                                                                                                        |
-| H5 v3.2 data carried over                        | 17, at 22            | In the installed app and a plain Chrome tab that used v3.2 (settings changed, a player preset, a pinned session and a kept Jam session), update to v3.3: the settings come back with the level at Off, the preset loads unchanged, and the sessions open and play back as before, with their triads.                                                                                                                                                                                                             |
-| H6 Symbols at the narrowest widths               | 14                   | On the reference machine, at the narrowest width of each named breakpoint, regenerate at Mostly in keys whose half-diminished chord has an accidental on its root (A major, whose degree-7 chord is G♯m7♭5, for each instrument's written key): no symbol touches the next or crosses a barline, and none is shrunk. Phones are low priority but must not break.                                                                                                                                                 |
+| Check                                            | Chunk                      | What the owner does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------ | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| H1 Listening: endings on the seventh (**L1**)    | 18, before 21 and 22       | Listen to chunk 18's examples, each beside the same phrase as the app writes it. **Ending on the seventh with no next phrase:** F over G7 in C major; the home chord's seventh in Dorian and in Mixolydian (B♭ over C7 in C Mixolydian). **The next phrase landing on the tonic chord's seventh.** Say for each whether ending on the seventh sounds open (the player can keep going) or like a mistake. Item 9. Approved: C2, then chunk 21. Not approved: the triad reading ships, and the result is recorded. |
+| H2 Listening: the level and the backing (**L2**) | 19, used by 22             | With Jazz, Bebop, Modal (Dorian) and Neutral, play short sessions at Sometimes, Often and Mostly. Say whether each step is clearly heard, whether Mostly sounds like "a seventh on nearly every chord", and whether the four-note backing (lowest note about D3) sits well under the bass and the line. The Sometimes and Favored shares are tuned from it, then M1 and M2 run again.                                                                                                                            |
+| H3 Same phrase in Edge                           | 15                         | Run chunk 15's in-browser replay test once with Playwright's Microsoft Edge channel (`msedge`), and replay one `ifk5.` key of a Mostly phrase copied from a Chrome session in Edge; the phrases match. Item 18's "Chrome and Edge" half.                                                                                                                                                                                                                                                                         |
+| H4 The files                                     | 13                         | Open a MusicXML file holding all four seventh-chord kinds in MuseScore: Cmaj7, Dm7, G7 and Bm7♭5 (in written pitch) show as the right symbols (item 12's recorded hand check). Open the MIDI file with the backing included in a DAW: the backing's chords hold four notes where the symbols say seventh.                                                                                                                                                                                                        |
+| H5 v3.2 data carried over                        | 17, at 22                  | In the installed app and a plain Chrome tab that used v3.2 (settings changed, a player preset, a pinned session and a kept Jam session), update to v3.3: the settings come back with the level at Off, the preset loads unchanged, and the sessions open and play back as before, with their triads.                                                                                                                                                                                                             |
+| H6 Symbols at the narrowest widths               | 14 writes it; run after 19 | On the reference machine, at the narrowest width of each named breakpoint, regenerate at Mostly in keys whose half-diminished chord has an accidental on its root (A major, whose degree-7 chord is G♯m7♭5, for each instrument's written key): no symbol touches the next or crosses a barline, and none is shrunk. Phones are low priority but must not break.                                                                                                                                                 |
 
 ## 6. Chunks
 
@@ -1007,7 +1011,9 @@ is made, and read them aloud as words.
 **Spec sections:** [§D7.1](master-spec.md#d71-chord-symbols).
 
 **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
-(Notation Contract: Seventh chord symbols; The score's spoken description).
+(Notation Contract: Seventh chord symbols; The score's spoken description),
+[`screens/last-session-review/handoff.md`](../../../ui_ux/screens/last-session-review/handoff.md)
+(Seventh chords).
 
 **Atoms:** §D7.1's atom (the symbols and their words; a new BUSINESS atom, per the preflight);
 (v2) `module_notation_display_convention`, `rule_notation_display_preserves_phrase`. **Revise:**
@@ -1031,17 +1037,12 @@ is made, and read them aloud as words.
 
 ### Chunk 11 — Presets hold the level
 
-**Pending the owner's D0** (the three description sentences).
-
 **Goal.** Make the level a preset-held setting: every preset holds it, every built-in at Off,
 choosing a preset sets it, changing it makes Custom.
 
 **Scope.** In v3.1 chunk 10's `src/domain/presets/`: `Preset` gains `chordFamilies`; the eight
 built-ins hold Off; choosing sets it with the ten controls and the figure levels; a change of the
-level is a preset-held change that begins Custom based on the selection; the saving rules carry it.
-Three built-in descriptions gain their sentence (ux D256): Jazz and Bebop "Also try raising Seventh
-chords, the usual chords of jazz."; Modal (Dorian) "Also try raising Seventh chords, for a richer,
-jazzier bed." No built-in changes a value.
+level is a preset-held change that begins Custom based on the selection; the saving rules carry it. No built-in changes a value. The three description sentences that suggest raising the level ship with the control, in chunk 19, so they never point at a control that is not there yet.
 
 **Files:** `src/domain/presets/built-in-presets.ts`, `preset-selection.ts`,
 `preset-save-choices.ts` (v3.1), the preset types module; tests under `tests/unit/domain/presets/`.
@@ -1050,12 +1051,14 @@ jazzier bed." No built-in changes a value.
 
 **Design docs:** [`flows/presets/handoff.md`](../../../ui_ux/flows/presets/handoff.md) (Routing
 Rules, the `[v3.3 changed]` items), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
-(Components and Content: Custom; the preset descriptions).
+(Components and Content: Custom),
+[`screens/preset-sheet/handoff.md`](../../../ui_ux/screens/preset-sheet/handoff.md) (What the Main
+Action Does).
 
 **Atoms:** §D8.1's atom; (v3.1) `rule_custom_selection`. **Revise:** `rule_preset_contents`,
 `rule_built_in_preset_values`, `rule_choosing_preset_sets_its_settings`.
 
-**Depends on:** chunk 3 (the level type); v3.1 chunk 10; D0.
+**Depends on:** chunk 3 (the level type); v3.1 chunk 10.
 
 **Done when:**
 
@@ -1063,7 +1066,6 @@ Rules, the `[v3.3 changed]` items), [`screens/phrase-workspace/handoff.md`](../.
   preset sets it to the preset's value.
 - A change of the level makes "Custom, based on {name}"; choosing a preset leaves Custom.
 - A player preset made from Custom holds the level by value.
-- The three descriptions end with their sentence; the others are unchanged.
 
 **Items covered:** 13 (the rules), 1 (held by every preset).
 
@@ -1166,7 +1168,8 @@ covers a file with all four.
 
 **Done when:** a phrase with each quality exports with the four kinds and suffixes and passes the
 MusicXML schema test; the triad goldens are byte-identical; a suffix no quality has is still
-refused (the existing test, kept). Then **H4** with the owner.
+refused (the existing test, kept); no file carries the level (a byte scan of each export at each
+level). Then **H4** with the owner.
 
 **Items covered:** 12, 2 (guarded).
 
@@ -1192,6 +1195,13 @@ glyph, and prove the longest fits twice in a measure at every supported width.
   narrowest width of each named breakpoint, at the legibility floor. It must fit without the symbols
   alone making the phrase too wide for Room for the staff. A failure at a supported width goes to
   `ux-writer`; a symbol is never shrunk to pass it.
+- **Below `bp-tablet-landscape`**, a phrase whose symbols still do not fit at the legibility floor
+  takes the too-many-notes path (regenerated unseen), as any phrase that does not fit; it is never
+  drawn overlapping.
+- **The triad guard.** `measureMinWidths` (`vexflow-engraver.ts:182`) counts only the voices today,
+  so counting the symbols' widths changes it for triads too. At Off, every triad layout and fit
+  verdict of chunk 1's v3.2 corpus stays as v3.2 gives it. If one would move, it goes back to
+  `ux-writer` before any snapshot is updated.
 
 **Files:** `src/notation/vexflow-mapping.ts`, `src/notation/vexflow-engraver.ts`,
 `src/notation/notation-layout-policy.ts`; tests `tests/unit/notation/notation-layout-policy.spec.ts`,
@@ -1217,13 +1227,18 @@ glyph, and prove the longest fits twice in a measure at every supported width.
 
 - The calibration case passes at every named breakpoint and both layouts; a measure with two
   longest symbols never overlaps (layout policy tests).
+- Below `bp-tablet-landscape`, a phrase whose symbols do not fit at the legibility floor takes the
+  too-many-notes path and is never drawn overlapping (a named test).
+- At Off, every triad layout and fit verdict over chunk 1's corpus equals v3.2's (a corpus test of
+  the layout policy).
 - The existing notation snapshots are unchanged; the new ones show the four symbols on the idle
   staff, the session's systems and the review.
-- Then **H6** with the owner.
+- It writes **H6** into the HARDWARE-CHECKLIST's v3.3 part; the owner runs it after chunk 19,
+  once the level can be raised in the app.
 
 **Items covered:** 11 (the layout holds the longest symbol; the review and the live view).
 
-**Verification:** the chunk checks; `npm run test:notation` (this chunk's area); H6.
+**Verification:** the chunk checks; `npm run test:notation` (this chunk's area); H6 after chunk 19.
 
 ### Chunk 15 — Replay key `ifk5.`
 
@@ -1287,8 +1302,8 @@ pre-generation, fixed for the whole session and never moved by Vary settings.
   of every rung carries it (D287), and the session's settings change path does not touch it.
 - **Vary settings:** the level is not in `MUTABLE_SETTINGS` and in no allowed group. A property test
   says no draw ever moves it. v3.2's Vary settings corpus passes at each level, byte for byte.
-- **Pre-generation:** a level change at Idle discards every prepared phrase and lets a held doodle
-  go, unseen, as a figure level does; a pre-generated phrase equals the session's at every level.
+- **Pre-generation:** a level change, at Idle or in the review mode, discards every prepared phrase
+  and lets a held doodle go, announcing nothing (ux D263), as a figure level does; a pre-generated phrase equals the session's at every level.
 - **Jam and the suggestion:** a Jam's phrases follow the level; the key and mode suggestion's answer
   for a doodle is the same at every level (a test over v3.2's doodle set).
 
@@ -1302,7 +1317,8 @@ pre-generation, fixed for the whole session and never moved by Vary settings.
 
 **Design docs:** [`flows/play-session/handoff.md`](../../../ui_ux/flows/play-session/handoff.md) (the
 Seventh chords level never moves), [`flows/generate-phrase/handoff.md`](../../../ui_ux/flows/generate-phrase/handoff.md)
-(Prepared phrases).
+(Prepared phrases), [`flows/presets/handoff.md`](../../../ui_ux/flows/presets/handoff.md) (prepared
+phrases and presets).
 
 **Atoms:** §D8.3's and §D8.4's atoms; (v2, STABLE) `rule_mutation_setting_scales`,
 `rule_mutation_marks_profile_customized`, `rule_mutation_reverts_at_session_end`; (v3.0)
@@ -1318,8 +1334,10 @@ Seventh chords level never moves), [`flows/generate-phrase/handoff.md`](../../..
   and never makes Custom; v3.2's Vary settings corpus passes at each level.
 - Every attempt of a session, of every rung, and of a fresh Jam's phrase 1, carries the level the
   session started with (engine tests on the fake clock).
-- A level change at Idle discards the prepared phrases and drops a held doodle (queue spy); prepared
-  phrases equal the session's at each level.
+- A level change at Idle and in the review mode discards the prepared phrases and drops a held
+  doodle (queue spy); prepared phrases equal the session's at each level.
+- Choosing a preset that differs from the current settings only in the level discards the prepared
+  phrases; choosing one identical in every value, the level included, discards nothing.
 - The suggestion's answer is the same at every level.
 
 **Items covered:** 15, 16, 22, 1 (locked during a session).
@@ -1393,7 +1411,7 @@ shares to `ux-writer`, and prepare L1's examples.
 
 **Scope.** No product code beyond tuning the two share constants.
 
-- **M1** at each level and mode; the shares and the fallback share to `ux-writer` (U1) and the
+- **M1** at each level and mode; the shares and the fallback share to `ux-writer` (U1a) and the
   owner; **DP** taken.
 - **M2** on §D10's settings, Speed drill first, at 60, 120 and 240 BPM, a 240 BPM session and a
   fresh Jam's phrase 1 at 240 BPM. A setting outside the acceptance is tuned down (Sometimes and
@@ -1425,7 +1443,7 @@ L1's examples are ready.
 
 ### Chunk 19 — The Seventh chords control
 
-**Pending the owner's D0, and U1 for the labels.**
+**Pending the owner's D0, and U1a for the labels.**
 
 **Goal.** One control the player sets at Idle: Seventh chords, Off, Sometimes, Often, Mostly.
 
@@ -1433,19 +1451,25 @@ L1's examples are ready.
 `field-group` with the `field-label` "Seventh chords", a four-segment `segmented-control` with a
 figure level's look and keyboard behaviour, and its `field-note`, named by the `radiogroup`'s
 `aria-describedby`: "How often a chord gets one more note stacked on top, as G7 (G, B, D, F) instead
-of G (G, B, D): a richer, jazzier sound. A preference, never a promise." (ux D263). The labels are
-as U1 leaves them. Editable at Idle and in the review mode, read-only (`is-readonly`) in Loading and
+of G (G, B, D): a richer, jazzier sound. A preference, never a promise." (ux D263). The segments
+map the level ids to the interface's words (ux D264): `off` → Off, `sometimes` → Sometimes,
+`favored` → Often, `stronglyFavored` → Mostly, as U1a leaves them. `seventhChordsOptions` is its own
+list, never the figure levels' (Off, Rarely, Often, Very often), pinned by a unit test. Editable at Idle and in the review mode, read-only (`is-readonly`) in Loading and
 for a whole session. A change never regenerates the phrase on screen; it makes Custom, discards the
 prepared phrases and lets a held doodle go (`jam-bar` leaving at once); under the too-many-notes
 notice it starts a round like any setting. Vary settings' note reads, from v3.3, "Every 2 to 4
 phrases, one setting from the groups below moves one step. Never the instrument, the tempo or
 Seventh chords. Keys and modes stay within what your preset is meant for. Your settings come back
 when the session ends." (ux D257). Nothing announces the level, and nothing ever says a phrase holds
-fewer sevenths than the level suggests.
+fewer sevenths than the level suggests. **The three built-in descriptions** gain their sentence
+here, with the control they point at (ux D256): Jazz and Bebop "Also try raising Seventh chords, the
+usual chords of jazz."; Modal (Dorian) "Also try raising Seventh chords, for a richer, jazzier
+bed."
 
 **Files:** `src/components/controls/FoundationControls.vue`,
 `src/components/controls/control-options.ts` (`seventhChordsOptions`), the Vary settings note's
-component (v3.2 chunk 19); tests `tests/unit/components/controls/control-options.spec.ts`,
+component (v3.2 chunk 19), `src/domain/presets/built-in-presets.ts` (v3.1; the three sentences);
+tests `tests/unit/components/controls/control-options.spec.ts` (the mapping),
 `ControlPanel.spec.ts`, `tests/e2e/workspace/seventh-chords-control.spec.ts` (new).
 
 **Spec sections:** [§D5.2](master-spec.md#d52-four-levels), [§D11](master-spec.md#d11-for-the-interface-design).
@@ -1459,25 +1483,29 @@ component (v3.2 chunk 19); tests `tests/unit/components/controls/control-options
 `rule_custom_selection`; (v3.0) `rule_session_settings_locked`. **Revise:**
 `module_generation_control_catalog` (if the level gets its first-load value there).
 
-**Depends on:** chunks 11, 16 and 17; D0; U1.
+**Depends on:** chunks 11, 16 and 17; D0; U1a.
 
 **Done when:**
 
-- The control sets the level in the next request (harness reads the intent); first visit and after
-  Delete everything, Off.
-- A change makes "Custom, based on {name}", discards the prepared phrases, drops a held doodle, and
-  leaves the phrase on screen.
+- The control sets the level in the next request (harness reads the intent), at Idle and in the
+  review mode; first visit and after Delete everything, Off.
+- `seventhChordsOptions` maps `off`, `sometimes`, `favored`, `stronglyFavored` to Off, Sometimes,
+  Often, Mostly, and is not the figure levels' list (unit test).
+- A change makes "Custom, based on {name}", discards the prepared phrases, drops a held doodle with
+  `jam-bar` leaving at once, and leaves the phrase on screen; under the too-many-notes notice it
+  starts a round; no live region announces it.
 - During a session and in Loading the control is read-only and shows the session's value from the
   count-in to the end.
-- Its segments wrap within the field at every named breakpoint, none cut; keyboard and screen
+- Its segments and its note wrap within the field at every named breakpoint, none cut; keyboard and screen
   reader behave as a figure level's (the accessibility checks of what it adds).
-- The Vary settings note reads as above.
-- Then **H2** (L2) with the owner.
+- The Vary settings note reads as above; the three descriptions end with their sentence and the
+  others are unchanged.
+- Then **H2** (L2) and **H6** with the owner.
 
 **Items covered:** 1, 13 (changing the level makes Custom, in the app), 11 (symbols in the live view
 after raising the level), 23 (nothing marks a phrase).
 
-**Verification:** the chunk checks; the accessibility checks of what it adds; H2.
+**Verification:** the chunk checks; the accessibility checks of what it adds; H2 and H6.
 
 ### Chunk 20 — The finer fallback (conditional)
 
@@ -1561,7 +1589,7 @@ check, close the intent record, and get the owner's go for the `3.3.0` tag.
   [§2](#2-read-first-what-v33-changes-in-v32-v31-v30-and-v2)), then M1–M4 with their figures, DP's
   outcome and L1's result.
 - **Final M1 and M2** after L2's tuning, on the reference machine; the final shares re-reported to
-  `ux-writer`.
+  `ux-writer` for U1b.
 - The v3.2 corpus, every earlier corpus, the Vary settings corpus, the backing and file corpus and
   the goldens re-run at Off.
 - `npm run verify:boundaries` with the entry budget unchanged (M4).
@@ -1575,7 +1603,7 @@ check, close the intent record, and get the owner's go for the `3.3.0` tag.
 **Atoms:** every atom tagged `release-v3.3`; `contract_infinite_flow_first_release`,
 `vision_infinite_flow_first_release`, `specification_behavioral_quality_gates`.
 
-**Depends on:** every other chunk (20 and 21 built or recorded as skipped); L1, L2, U1.
+**Depends on:** every other chunk (20 and 21 built or recorded as skipped); L1, L2, U1b.
 
 **Done when:** every item of §D15 has a row with evidence; every measurement has its figure; the
 owner says go.
@@ -1597,7 +1625,7 @@ verification. The gate copies this into the release notes with the final test na
 | 2 Off reproduces v3.2             | 1, guarded in 2, 3, 5–10, 12, 13, 15, 16, 20, 21; 22  | the v3.2 corpus (every mode, Jam and the lock included), earlier corpora, the goldens, the backing and file corpus       |
 | 3 Only the four diatonic sevenths | 2, 12                                                 | table A per mode; property over the M1 sweep                                                                             |
 | 4 Same plans                      | 12                                                    | plans at each level equal Off's, colour chords included (property)                                                       |
-| 5 Ordered and audible             | 4, 12, 18, 20 (if built), 22                          | M1 per level and mode, the fallback share; ≥ 3 in 4 at Strongly favored; reported to `ux-writer` (U1)                    |
+| 5 Ordered and audible             | 4, 12, 18, 20 (if built), 22                          | M1 per level and mode, the fallback share; ≥ 3 in 4 at Strongly favored; reported to `ux-writer` (U1a, U1b)              |
 | 6 No quota                        | 12, 20                                                | the forced dead-end test; zero level-tied rejections                                                                     |
 | 7 The seventh as a chord tone     | 5, 6, 7                                               | search and validator tests on hand-built seventh plans; extensions never chord tones; triad events unchanged             |
 | 8 Runs                            | 7                                                     | three-note runs with the seventh; no four-note one-way arpeggio (property)                                               |
@@ -1638,7 +1666,7 @@ From [§D13](master-spec.md#d13-existing-code-and-risks), with where each is han
 - **Generation cost** (§D10): M2 at chunk 18, before the control exists, and again at the gate; a
   share is tuned down, never the allowance raised or the triad fallback removed.
 - **The share at Mostly:** if 3 in 4 is not reached even with chunk 20, the label goes back to
-  `ux-writer` (U1).
+  `ux-writer` (U1a, U1b).
 - **Layout:** the longest symbol at narrow widths; chunk 14's calibration case; a failure goes to
   `ux-writer`, never shrunk away.
 - **The contract gate holding a wave.** Chunks 5, 6, 7 and 9 cannot merge before C1; chunk 12
@@ -1735,7 +1763,7 @@ the research:
 ## 10. Decisions taken while planning
 
 Questions this plan raised that were small enough to answer here. Each is recorded in
-[`specs/decisions.md`](../../decisions.md) as D276–D287, proposed for the owner's approval with
+[`specs/decisions.md`](../../decisions.md) as D276–D288, proposed for the owner's approval with
 Part D (A0).
 
 - **D276: the contract confirmation, once, early.** The three STABLE wordings (the open ending's
@@ -1743,9 +1771,7 @@ Part D (A0).
   as D246 did. They hold trivially at Off. The second option is a separate confirmation (C2) after
   L1, with its own bump. A gated chunk may be built before its confirmation but merges only after
   it, else it leaves its wave.
-- **D277: the level's ids.** Stored and sent as `chordFamilies: { 'seventh-chords': level }`, levels
-  `off`, `sometimes`, `favored`, `strongly-favored` (the spec's names, never the interface's
-  labels, so a label change migrates nothing). Always present inside the app; an input from before
+- **D277: the level's ids.** Stored and sent as `chordFamilies: { 'seventh-chords': level }`, levels `off`, `sometimes`, `favored`, `stronglyFavored` as D288 spells them (Part D's levels, never the interface's labels, so a label change migrates nothing). Always present inside the app; an input from before
   v3.3 reads Off where it is decoded (a key, a kept body, a settings or preset record).
 - **D278: the draw's position and shares.** "The event's position in the phrase" (§D5.3) is its
   start, bar index and start beat, so one place draws the same in every candidate plan. Shares are
@@ -1781,11 +1807,15 @@ Part D (A0).
 - **D287: a Jam's phrase 1 carries the level on every rung.** §D8.4's "a Jam's phrases follow the
   level like any session's" holds on each rung of phrase 1's ladder (v3.2's C5.7), the doodle-free
   rung included, and on every later phrase.
+- **D288: the level ids are camelCase.** D277's `strongly-favored` becomes `stronglyFavored`, so the
+  level values match v3.1's figure-level ids (`off`, `asToday`, `favored`, `stronglyFavored`), the
+  four-step setting stored the same way. The family key stays `seventh-chords`: a capability name
+  fixed by D273 (the v4 atlas id), as `my-instrument` is a fixed id (D254).
 
 ## 11. Questions for the owner
 
 1. **Approval.** Do you approve master spec Part D (v1.1, D263–D275) and this plan's decisions
-   D276–D287? The plan stays a draft until then.
+   D276–D288? The plan stays a draft until then.
 2. **When to confirm the contract (C1).** Recommended: confirm the three §D12 wordings (the backing,
    the open ending's first option, leap recovery) together with Part D, so `documentalist` applies
    them with one bump before the build. If you prefer to confirm each when its chunk is ready,

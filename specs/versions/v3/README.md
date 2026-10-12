@@ -9,8 +9,8 @@ D261 (2026-10-12) adds v3.3, richer chords, after v3.2: direction only, with a r
 D262 makes that research a separate item before v3.3, running on branch `v3.3-chord-research`.
 D263 confirms the vision's v3.3 wording. D264–D274 settle v3.3 from the research: **v3.3 master
 spec: [Part D](master-spec.md#part-d--v33), awaiting owner approval**. Its build plan,
-[build-plan-v3.3.md](build-plan-v3.3.md), is draft v1, not approved, and depends on owner approval
-of Part D (D276–D287).
+[build-plan-v3.3.md](build-plan-v3.3.md), is draft v2, not approved, and depends on owner approval
+of Part D (D276–D288).
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
 Also every tester on an instrument v1 doesn't ship. See [personas](../../personas.md).
@@ -46,8 +46,8 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
 - **v3.3 master spec: [Part D](master-spec.md#part-d--v33), awaiting owner approval** (D264–D274,
   2026-10-12): one Seventh chords level, Off by default; its contract wording changes wait for the
   owner's confirmation. O176 (style packs and the level) stays open for later.
-- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), draft v1 (2026-10-12), not
-  approved; depends on owner approval of Part D. Planning answers D276–D287.
+- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), draft v2 (2026-10-12), not
+  approved; depends on owner approval of Part D. Planning answers D276–D288.
 - **v3.0.1 is merged into v3.0** (D212), the owner: "v3.0.1 could very well be just included
   into v3.0". This also settles where keeping sessions goes: with the review of earlier sessions
   that needs it.
@@ -444,11 +444,11 @@ generation." v3.2 was the last v3 release; v3.3 follows it. Specced on 2026-10-1
 nothing built. The text below is the direction as recorded before the research; where it and
 Part D differ, Part D wins.
 
-**Build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), draft v1 (2026-10-12), not approved;
+**Build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), draft v2 (2026-10-12), not approved;
 depends on owner approval of Part D. It plans v3.3 on top of the [v3.0](build-plan.md),
 [v3.1](build-plan-v3.1.md) and [v3.2](build-plan-v3.2.md) build plans: 23 chunks in 9 waves, a
 contract gate on the three STABLE changes, the owner's listening check on endings before the
-conditional second ending rule, and four questions for the owner. Its planning answers are D276–D287.
+conditional second ending rule, and four questions for the owner. Its planning answers are D276–D288.
 
 In standard terms, "higher end chords" are **seventh chords** and **extended chords**. An extended
 chord stacks **chord extensions** (the ninth, the eleventh, the thirteenth) on top of a seventh

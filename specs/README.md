@@ -36,8 +36,8 @@ Status: draft v0.53
     awaiting owner approval** (D264–D275, from the
     [chord research](../docs/music/chord-research.md)): one Seventh chords level, Off by default,
     diatonic sevenths only; three STABLE wording changes wait for the owner (§D12). **Build plan:
-    [v3.3](versions/v3/build-plan-v3.3.md), draft v1, not approved; depends on owner approval of
-    Part D** (D276–D287): 23 chunks in 9 waves, after v3.2's release;
+    [v3.3](versions/v3/build-plan-v3.3.md), draft v2, not approved; depends on owner approval of
+    Part D** (D276–D288): 23 chunks in 9 waves, after v3.2's release;
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go;
   - v3.0's [master spec](versions/v3/master-spec.md) is consolidated (D217) and with
@@ -84,7 +84,7 @@ Status: draft v0.53
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (approved; v2 moves the workflow to wave
   level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved) and
   [v3.2](versions/v3/build-plan-v3.2.md) (draft v2, not approved) and
-  [v3.3](versions/v3/build-plan-v3.3.md) (draft v1, not approved; depends on owner approval of
+  [v3.3](versions/v3/build-plan-v3.3.md) (draft v2, not approved; depends on owner approval of
   Part D). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own
   change.
