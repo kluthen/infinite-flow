@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.47
+Status: draft v0.48
 
 ## Status Snapshot
 
@@ -29,6 +29,10 @@ Status: draft v0.47
   - **v3.1:** embellishment flags and presets (the embellishment catalogue is not started);
   - **v3.2:** Jam, the key and mode suggestion (a weighted draw when several answers fit), the
     rhythm lock and its mutation option;
+  - **v3.3:** richer chords (seventh chords first), opt-in (default stays triads), with flags in
+    the app; research on chords comes before any design (D261, 2026-10-12; direction only), as a
+    separate docs-only item running on branch `v3.3-chord-research` (D262); the vision update is
+    approved (D262);
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go;
   - v3.0's [master spec](versions/v3/master-spec.md) is consolidated (D217) and with
@@ -40,8 +44,10 @@ Status: draft v0.47
     `specs/versions/v3/`);
   - rhythm ratios and the editor moved to v4; the chord-fit check, review tooling and the two
     controller-connection ideas dropped.
-- **Open:** 7 questions, none blocking: O48 and O49 (later and governance), O100–O102 (v4
-  rhythm), O115 and O116 (v3.x learning). v3.1 and v3.2 drafts approved by the owner (D233, D234),
+- **Open:** 17 questions, none blocking work under way: O48 and O49 (later and governance),
+  O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O165–O173 and O175 (v3.3 richer chords,
+  D261; they block v3.3's design). D262 closed O174.
+  v3.1 and v3.2 drafts approved by the owner (D233, D234),
   after D228–D232 on presets and the rhythm lock; consolidated as master spec Parts B and C and
   approved (D239), refined by D240–D245 and D247–D249; the contract wording they change confirmed by the owner
   (D246, `docs/release/v3.1-v3.2-intent-change-set.md`).

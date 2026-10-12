@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.74
+Status: draft v2.75
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,8 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D252**.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D262**. D253–D258 are
+on branch `v3.0-w1` and D259–D260 on branch `v4-accompaniment-research`, neither merged yet.
 
 ## Decision Log
 
@@ -353,7 +354,7 @@ fact in the live documents (see the [archive index](archive/README.md) and
   D228).** The owner: "if key and mode restriction are easy to handle for v3.1 then add it (so
   that it preserve current selection)". A preset may carry a restriction on which keys and modes
   are allowed; selecting the preset **never changes the player's current key and mode**. Still a
-  preset never *sets* the key or mode (D228). Conditional on a cost check against the code
+  preset never _sets_ the key or mode (D228). Conditional on a cost check against the code
   (the v3.1 draft does it); if it is not cheap, it stays with the later, richer presets. Read by
   spec-writer as (proposed, to confirm): the restriction bounds what the app itself picks (Vary
   settings' key and mode moves; in v3.2, the key and mode suggestion's candidates); what happens
@@ -645,3 +646,57 @@ fact in the live documents (see the [archive index](archive/README.md) and
   wave merges into `main` after its gate, when the owner asks, so `main` only receives gated
   waves. v3.0 wave 0 is the switch-over: chunk 0 stays as merged, and chunk 1's branch merges into
   the wave-0 branch with chunk 2.
+- **D261 (2026-10-12): v3.3, richer chords, opt-in, after a research phase.** The owner's
+  request, in their words: "managing higher end chords (optionnal, with flags to be set from the
+  front end as to what's allowed and what's not). It will be preceeded by an internal doc/web
+  research on chord to ensure we use appropriate data for chord generation." v3.2 (Jam) was the
+  last v3 release, so this is a new release, v3.3, after it.
+  1. **Opt-in only.** The default stays today's root-position diatonic triads. A player who allows
+     nothing richer sees, hears and exports what they do today, and their replay keys, saved
+     settings, presets and kept sessions reproduce as before.
+  2. **Flags.** The player chooses in the app's interface which chord families the generator may
+     use. Seventh chords come first; extended chords (chords with extensions: ninths and beyond)
+     possibly later. "Higher end chords" means these two in standard terms. The exact flag set and
+     its defaults are not decided (O165).
+  3. **Research before any design.** It has two parts: an internal pass over the project's own
+     music documents, sources, code and atoms, and a web pass. The web pass covers chord types,
+     how each is built from the selected key and mode, how plausible each is in the styles the
+     presets aim at, chord symbols, and how melodies treat a seventh. Generation then uses sourced
+     data. Findings go to `docs/music/`, sources to `research-sources.md` and terms to the lexicon.
+     Every web-research brief forbids personal data in request headers, URLs and payloads.
+  4. **Direction only.** Nothing is designed or built. No rule written for triads changes by this
+     decision: the three-note arpeggio run cap, figures resolving onto a chord tone, the backing's
+     triad (`req_session_backing_track`, STABLE) and the harmony planner's triad vocabulary. A
+     change to a contract rule needs the owner's explicit approval.
+  5. **v1's decisions.** The "triads only" vocabulary is the harmony planner policy's and the
+     generator contract's, not a decision's. Of v1's D11–D13
+     ([archived](archive/v1/decisions-D1-D46.md)), v3.3, once built, partially revisits D11
+     alone, and only for a player who opts in: Neutral's chord vocabulary widens, while its
+     diatonic frame and its exclusion of substitutions and altered dominants stay. D12 is untouched: altered dominants
+     and substitutions stay out (O166). D13 is untouched: chords stay generated, and a flag allows
+     a chord family but never chooses a progression.
+  6. **Style packs.** D259, on branch `v4-accompaniment-research` and not merged, plans style
+     packs with no version, as declarative data over the generator's capabilities. Its breadth
+     review counts seventh chords as a capability, not a style. v3.3 opens that capability ahead
+     of style packs, default-off, without the progression templates and substitutions the style
+     atlas pairs it with. It neither schedules style packs nor changes D259. Keeping the flags
+     compatible with a later pack layer is O175.
+
+  Opens O165–O175, among them whether the research is v3.3's first work unit or a separate item
+  before it (O174, closed the same day by D262). Recorded in
+  [v3](versions/v3/README.md#v33--richer-chords-optional) and the
+  [roadmap](roadmap.md#2-v3--player-material-and-my-instrument).
+
+- **D262 (2026-10-12): the chord research runs now as its own item; the vision is updated now.**
+  The owner's two approvals, relayed the same day after D261:
+  1. **The research is a separate, docs-only item before v3.3,** not v3.3's first work unit. It
+     started on 2026-10-12 on branch `v3.3-chord-research` and runs while v3.0 is built. It
+     touches no code. Its research document, its sources (S412 on) and its lexicon terms reach
+     `main` when that branch merges. Closes O174.
+  2. **The vision is updated now.** `documentalist` brings the vision's scope, which ends at v3.2,
+     up to date with v3.3 as direction, after the commit recording D261 and D262. The other
+     intent changes O173 lists wait for v3.3's master spec. Every change to a STABLE wording still
+     needs the owner's explicit confirmation (D246).
+
+  Recorded in [v3](versions/v3/README.md#research-first) and the
+  [register](open-questions.md#v33-richer-chords-o165).
