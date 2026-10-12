@@ -10,6 +10,9 @@ notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): in Jam mo
 type: REQUIREMENT
 layer: BUSINESS
 dependents:
+  - [[module_idle_pregeneration_queue]]
+  - [[module_session_pregeneration_plan]]
+  - [[module_session_ready_phrases]]
   - [[rule_pregenerated_phrase_matches_session]]
   - [[rule_pregeneration_discarded_on_change]]
   - [[rule_pregeneration_yields_to_player]]

@@ -10,7 +10,8 @@ version: 0.2
 priority: 1
 human_name: Pre-Generated Phrases Discarded on Change
 notes: v3.1 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): choosing a preset that changes a value or moves the key or mode, changing a figure level, and any change of the restriction in force discard the pre-generated phrases; saving, renaming or deleting a preset that changes neither a setting nor the restriction in force, and choosing an identical preset, discard nothing. v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): any change at Idle of the Jam switch, the drift, the rhythm lock, the allowed rhythm changes or Vary settings' allowed groups discards them too, and with a held doodle also drops it (rule_held_doodle_dropped_on_change). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md. Earlier: Revised 2026-10-07 to version 0.2 (still DRAFT) by the re-sync to the v3.0 master spec v1.3, approved by the product owner: Vary settings and Tension across phrases also discard the pre-generated phrases; the tempo and Rising tempo do not. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
-dependents: []
+dependents:
+  - [[module_idle_pregeneration_queue]]
 ---
 
 # Pre-Generated Phrases Discarded on Change

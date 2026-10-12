@@ -12,7 +12,7 @@ parents:
   - [[rule_session_settings_locked]]
   - [[rule_session_start_conditions]]
   - [[service_workspace_session_flow]]
-notes: Split out on 2026-10-05 from service_workspace_session_flow (version 1.6) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
+notes: v3.0 change pending (2026-10-12, pre-code architecture capture for build plan chunk 24): Start takes the ready phrases from the pre-generation queue, which aborts the background attempt in flight and re-checks their fit against the held layout, and passes them in the runner's start (module_idle_pregeneration_queue, module_session_ready_phrases). Text and status unchanged on purpose: it still describes the running code. Revise it at chunk 24's post-task sync. Earlier: Split out on 2026-10-05 from service_workspace_session_flow (version 1.6) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 dependents: []
 type: SERVICE
 layer: ARCHITECTURE
