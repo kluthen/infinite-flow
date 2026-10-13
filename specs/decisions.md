@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.85
+Status: draft v2.86
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1251,3 +1251,19 @@ from `main`); D289 is unused. D290–D299 are reserved for v3.0 wave 2.
   §14 and the build plan's **Review reachability** step now say so. Master spec Part A v1.11 (§2,
   §10, §11, §12, item 23, new item 24, §14, new §16); build plan v9 adds chunk 24b in wave 9 with
   a **Stale phrase design** gate and the owner step **Starting-note wording**; ISS-011 updated.
+
+  **Ruling note (2026-10-13, later the same day).** The owner ruled on both proposals, relayed by
+  the coordinator:
+  - **Regenerate (point 4) as recommended, closing O182:** it runs the usual Idle Regenerate and
+    the app stays at Idle with the new phrase on screen; nothing starts, and the player presses
+    Start again (or plays the new starting note), with no prompt since the phrase is fresh.
+    Starting at once after regenerating is not done.
+  - **The starting note's wording (point 8) accepted as proposed, ruled MAJOR:** the STABLE
+    `rule_midi_starting_note` gains the sentence "When the phrase on screen is out of date (made
+    under settings that differ from the current ones), the starting note first asks, as the
+    Start button does, whether to make a new phrase or use this one, and the count-in starts only
+    if the player uses it; while it is asking, no note starts anything." CONTRACT 4.0 to 5.0.
+    `documentalist` applies the atom and the contract bump.
+
+  Master spec Part A v1.12 (§10, items 23 and 24, §14, §16); build plan v9's owner steps **O182**
+  and **Starting-note wording** are done, and the **Stale phrase design** gate can start.

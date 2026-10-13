@@ -121,16 +121,16 @@ and master spec Part A v1.11 §16 (`specs/versions/v3/master-spec.md`).
    `rule_key_change_drops_harmonic_carry_in`, `rule_harmony_change_drops_unfit_harmonic_carry_in`,
    `rule_register_change_replaces_carried_window`), so `CarryInError` cannot occur. This is the
    short-term fix's first option, with phrase 1 treated as generated under its own settings.
-4. **Regenerate** (proposed, spec O182, for the owner): runs the Idle Regenerate and stays at Idle
-   with the new phrase on screen.
+4. **Regenerate** (the owner's ruling, 2026-10-13, closing spec O182): runs the Idle Regenerate
+   and stays at Idle with the new phrase on screen; the player presses Start again.
 5. **Pre-generation** keeps running with a stale phrase 1 and builds the phrases Use it plays;
    its quiet stop on `CarryInError` goes.
-6. **The starting note asks too:** a STABLE contract wording (`rule_midi_starting_note`),
-   proposed for the owner.
+6. **The starting note asks too:** a STABLE contract wording (`rule_midi_starting_note`), accepted
+   by the owner on 2026-10-13 as a MAJOR change (CONTRACT 5.0).
 
 **Planned:** v3.0 build plan v9, chunk 24b, Stale phrase at Start, in wave 9, before the release
-gate (chunk 26, wave 10), after the **Stale phrase design** gate (`ux-writer`), O182, and, before
-it merges, the **Starting-note wording** step (`specs/versions/v3/build-plan.md`).
+gate (chunk 26, wave 10), after the **Stale phrase design** gate (`ux-writer`)
+(`specs/versions/v3/build-plan.md`).
 
 ---
 
@@ -150,3 +150,5 @@ it merges, the **Starting-note wording** step (`specs/versions/v3/build-plan.md`
 - **2026-10-13**: Scope corrected after the reproduction on v2.0.0 (tempo range 60–220 BPM;
   Collection and Register changes trigger it, Harmonic motion sometimes). The owner's ruling
   recorded (spec D297); the fix planned as v3.0 build plan chunk 24b, wave 9. Status stays Open.
+- **2026-10-13**: The owner settled both open points the same day: Regenerate stays at Idle (spec
+  O182 closed) and the starting-note wording is accepted, MAJOR (CONTRACT 5.0). Status stays Open.

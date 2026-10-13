@@ -2,15 +2,16 @@
 
 Status: this file holds four parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.11 (2026-10-13), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.12 (2026-10-13), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
   v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
   clef choice for my instrument, the owner's ruling during wave 2; v1.10 writes in the bound on
   my instrument's written range and the rule that kept sessions belong to their instrument, the
   owner's rulings later that day; v1.11 adds §16, asking before Start when the phrase on screen
-  is stale (ISS-011), the owner's ruling of 2026-10-13. One contract wording it needs waits for
-  the owner (§10).
+  is stale (ISS-011), the owner's ruling of 2026-10-13; v1.12 writes in his rulings the same day
+  on what Regenerate does there and on the starting note's contract wording (CONTRACT 5.0).
+  No contract wording it needs waits for the owner any more (§10).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -26,7 +27,7 @@ Status: this file holds four parts.
 
 Part A's history follows.
 
-Part A status: master spec v1.11 (2026-10-13), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
+Part A status: master spec v1.12 (2026-10-13), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
 remembered controller (§7.3). Change in v1.2: behaviours the v3.0 design settled, written in:
 when settings are read and saved, what Delete everything leaves, which sessions a save deletes,
 favorites and unpinning, the played-notes switch on the session that just ended, my instrument's
@@ -85,7 +86,11 @@ settings change during a session; Regenerate is proposed to return to Idle with 
 ([O182](../../open-questions.md#v30-wave-2-o180)); pre-generation builds the phrases Use it plays.
 The starting note asking first changes a contract wording, proposed for the owner (§2, §10,
 §11, §12, item 23, new item 24, §14, new §16). v1.11 also records that the owner confirmed the
-review's reachability wording as a major change on 2026-10-12 (CONTRACT 4.0; §10, §14).
+review's reachability wording as a major change on 2026-10-12 (CONTRACT 4.0; §10, §14). Change
+in v1.12, the owner's rulings later on 2026-10-13 (spec D297, ruling note): Regenerate runs the
+usual Idle Regenerate and the app stays at Idle with the new phrase, the player pressing Start
+again (closes O182); the starting note's contract wording is accepted as proposed, a major
+change (CONTRACT 4.0 to 5.0) (§10, item 23, item 24, §14, §16).
 Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. Part A covers **v3.0
 only**; Part B, consolidated from the approved v3.1 drafts for the same handoffs, covers v3.1. The
@@ -691,19 +696,19 @@ below is intended.
   displayed" still holds unchanged: each phrase keeps the clef it was played in, a name change
   touches no engraving, and a range or transposition change erases the session rather than
   redrawing it.
-- **A sixth contract change is proposed and waits for the owner: the starting note asks first
-  when phrase 1 is stale** (§16). `rule_midi_starting_note` says: "With a controller attached at
+- **A sixth contract change, confirmed by the owner as major on 2026-10-13** (CONTRACT 5.0):
+  **the starting note asks first when phrase 1 is stale** (§16). `rule_midi_starting_note` says: "With a controller attached at
   Idle, outside the review, playing the starting note at its exact concert pitch starts the
   count-in". From v3.0, when the phrase on screen is stale, the note opens the stale-phrase
-  prompt instead, and the count-in starts only if the player chooses Use it. Proposed wording,
+  prompt instead, and the count-in starts only if the player chooses Use it. Accepted wording,
   added to that sentence: "When the phrase on screen is out of date (made under settings that
   differ from the current ones), the starting note first asks, as the Start button does, whether
   to make a new phrase or use this one, and the count-in starts only if the player uses it; while
   it is asking, no note starts anything." The guarantee loses a case, so by the
-  contract's rule it is a major version (CONTRACT 4.0 to 5.0), as the owner ruled for the fifth
-  change; he may rule it minor. Recommended: accept it. The alternative that keeps the wording,
-  the starting note counting as Use it without asking, would never tell the player at the
-  instrument that the phrase is out of date.
+  contract's rule it is a major version (CONTRACT 4.0 to 5.0), and the owner ruled it so, as for
+  the fifth change. The alternative that kept the wording, the starting note counting as Use it
+  without asking, was not chosen: it would never tell the player at the instrument that the
+  phrase is out of date.
 - **The audio-unlock rule widens** (not a contract guarantee): v2 unlocked sound only on a Start
   or Connect controller click; v3.0 unlocks it on the page's first click, tap or key press, since a
   remembered controller reattaches without a Connect click (§7.3).
@@ -900,8 +905,8 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
 22. **v2 behaviour otherwise unchanged:** the v2 test suite passes, apart from the tests §10 lists
     as changing, each replaced by its v3.0 counterpart.
 23. **The declared-intent contract** reflects §10's three major changes, its minor one, the
-    fifth (the review's reachability, confirmed as major) and the proposed sixth (the starting
-    note asking first), with the owner's explicit confirmation of each recorded.
+    fifth (the review's reachability, confirmed as major) and the sixth (the starting note asking
+    first, confirmed as major), with the owner's explicit confirmation of each recorded.
 24. **A stale phrase at Start.** After any change at Idle of a setting the generation reads,
     Start, and the starting note, ask Regenerate or Use it, and start nothing until answered;
     after a change of tempo, Rising tempo, Vary settings, Tension across phrases, the mix, the
@@ -909,7 +914,8 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
     back, Start starts at once as before. Use it starts the session with phrase 1 unchanged, and
     for every Written key, Collection, Harmonic motion and Register change at Idle, at every tempo
     from 60 to 240 BPM, phrase 2 follows with its join adapted as after a change during a session,
-    with no `CarryInError`. Regenerate does what O182 settles. With a stale phrase 1, the phrases
+    with no `CarryInError`. Regenerate regenerates the phrase and starts nothing: the app stays at
+    Idle with the new phrase, and the next Start asks nothing. With a stale phrase 1, the phrases
     pre-generated at Idle are those the Use it session plays.
 
 ## 14. Deferred and open
@@ -932,17 +938,16 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
   a warning; a name or clef change keeps them; a save that changes the shared height re-checks
   the pre-generated phrases (§8); a review never cuts a phrase (§7.1). No v3.0 session data
   exists yet, so nothing needs migrating.
-- **Contract change, for the owner:** the starting note asking first when phrase 1 is stale
-  (§10, §16), with its proposed wording and whether it takes a major or a minor contract version.
-- **Open, for the owner, before build plan chunk 24b:** what Regenerate does in the stale-phrase
-  prompt ([O182](../../open-questions.md#v30-wave-2-o180); proposed: back to Idle with the new
-  phrase, §16).
+- **Settled by the owner (2026-10-13): the stale-phrase prompt** (§16): Regenerate stays at Idle
+  with the new phrase, the player pressing Start again (O182 closed); the starting note asks
+  first, a major contract change (CONTRACT 5.0, §10).
 - **Measured, for information:** the battery cost of pre-generation at Idle on a tablet (§8).
 - **Contract changes:** the owner confirmed the three major contract changes in §10 on
   2026-10-07, and they are applied; he agreed to the minor one, the cancellable background
   attempt, on 2026-10-12, and it is applied with the build. He confirmed the fifth, the review's
-  reachability, as a major change on 2026-10-12 (CONTRACT 4.0). The sixth, the starting note
-  asking first, waits for him. Approving this spec is not a contract confirmation.
+  reachability, as a major change on 2026-10-12 (CONTRACT 4.0), and the sixth, the starting note
+  asking first, as a major change on 2026-10-13 (CONTRACT 5.0, applied by `documentalist`).
+  Approving this spec is not a contract confirmation.
 - **Design, for `ux-writer`:** where "Your data", the session list, favorites, the comment, the
   "Keep my played notes" switch and "my instrument" live, and how they look on each device;
   how my instrument's sheet shows the transposition's derived interval name (§7.1); the clef
@@ -1019,12 +1024,11 @@ most tempos (ISS-011). From v3.0 the app says so and asks.
     phrase 1, since phrase 1's first measure is on screen through the count-in, then the session's
     settings from phrase 2, as at any change;
   - in v3.2, the rhythm lock still locks phrase 1's rhythm (§C7.1 holds as written).
-- **Regenerate** (proposed, [O182](../../open-questions.md#v30-wave-2-o180)) runs the Idle
-  Regenerate exactly: the current settings, a fresh seed, the usual fit run. The app stays at
+- **Regenerate** (the owner's ruling, 2026-10-13, spec D297) runs the Idle Regenerate exactly: the current settings, a fresh seed, the usual fit run. The app stays at
   Idle with the new phrase on screen and nothing starts. The player presses Start, or plays the
   new starting note, when ready, and is not asked again, since the new phrase is not stale. A
-  failed regeneration shows the usual failure banner. The alternative, starting the session as
-  soon as the new phrase is on screen, is the owner's to choose.
+  failed regeneration shows the usual failure banner. Starting the session as soon as the new
+  phrase is on screen was the alternative, not chosen.
 - **While the prompt shows,** the app is still at Idle: no MIDI note starts anything, the
   starting note included, and pre-generation goes on.
 - **Pre-generation (§8) builds the phrases Use it plays.** While phrase 1 is stale it keeps
@@ -1033,8 +1037,8 @@ most tempos (ISS-011). From v3.0 the app says so and asks.
   Regenerate, which replaces phrase 1. Use it takes the ready phrases as Start does. A
   pre-generated phrase is still exactly the session's phrase at that place.
 - **The starting note asks too.** With a stale phrase 1 it opens the same prompt and starts
-  nothing; the count-in starts only on Use it. This changes a contract wording, proposed for the
-  owner (§10).
+  nothing; the count-in starts only on Use it. This changes a contract wording, which the owner
+  confirmed as a major change (CONTRACT 5.0, §10).
 - **A running session still never asks.** The prompt comes before Start; once Use it starts the
   session, nothing is asked until it ends.
 

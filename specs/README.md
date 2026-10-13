@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.57
+Status: draft v0.58
 
 ## Status Snapshot
 
@@ -86,13 +86,15 @@ Status: draft v0.57
   hotfix, fix it at the end of v3.0. When the phrase on screen was made under settings that
   differ, in what the generation reads, from the current ones, Start and the starting note ask
   **Regenerate** or **Use it**; Use it joins phrase 2 to phrase 1 as after a settings change
-  during a session. **Proposed for the owner:** what Regenerate does (O182; proposed: stay at
-  Idle) and the starting note's contract wording (master spec §10). Master spec Part A v1.11
-  §16; build plan v9 adds chunk 24b in wave 9 and a design gate for `ux-writer`.
-- **Open:** 10 questions, none blocking work under way: O48 and O49 (later and governance),
-  O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
-  O180 (octave signs, later) and O182 (Regenerate in the stale-phrase prompt, before chunk 24b).
-  D295 and D296 closed O181.
+  during a session. The owner then ruled the same day: Regenerate runs the Idle Regenerate and
+  stays at Idle, the player pressing Start again (closing O182); the starting note asks too, its
+  contract wording accepted as MAJOR (CONTRACT 5.0, `documentalist` applies it). Master spec
+  Part A v1.12 §16; build plan v9 adds chunk 24b in wave 9; its **Stale phrase design** gate for
+  `ux-writer` can start.
+- **Open:** 9 questions, none blocking work under way: O48 and O49 (later and governance),
+  O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level)
+  and O180 (octave signs, later). D295 and D296 closed O181; the owner's ruling in D297 closed
+  O182.
   O163 and O164 closed by D257 and D258; D262 closed O174; D264–D273 settled O165–O173 and O175
   in Part D, pending the owner's approval.
   v3.1 and v3.2 drafts approved by the owner (D233, D234),

@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.57
+Status: draft v0.58
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -15,9 +15,9 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 [v2 archive index](archive/v2/README.md) says where each answer now lives.
 
 Open on 2026-10-13: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
-O115 and O116 (v3.x learning), O176 (style packs and the chord level, below), O180 (v3.0
-wave 2: octave signs, later) and O182 (v3.0 wave 2: what Regenerate does in the stale-phrase
-prompt, before chunk 24b). D295 and D296 closed O181 the day it was opened. D228–D234 closed O10 (for v3.2), O103, O114, O126 and every
+O115 and O116 (v3.x learning), O176 (style packs and the chord level, below), and O180 (v3.0
+wave 2: octave signs, later). The owner closed O182 (what Regenerate does in the stale-phrase
+prompt) on 2026-10-13, the day it was opened (D297's ruling note). D295 and D296 closed O181 the day it was opened. D228–D234 closed O10 (for v3.2), O103, O114, O126 and every
 question the v3.1 and v3.2 drafts opened (O127–O157, O160–O162); D257 and D258 closed O163 and
 O164 the day they were opened. None blocks the v3.0 build.
 
@@ -123,8 +123,10 @@ spec Part A v1.9. O180–O189 are reserved for v3.0 wave 2. O181 (the shared hei
 already made) was closed the same day by D295 and D296: kept sessions belong to their instrument,
 a range or transposition change erases them after a warning, a save that changes the shared
 height re-checks the pre-generated phrases, and a review never cuts a phrase. Its full text is in
-this register's history in git. O180 blocks no wave-2 chunk. O182 (opened 2026-10-13 with D297, ISS-011) blocks
-only chunk 24b, at the end of v3.0.
+this register's history in git. O180 blocks no wave-2 chunk. O182 (opened 2026-10-13 with D297, ISS-011) was closed
+the same day by the owner's ruling recorded in D297: Regenerate runs the usual Idle Regenerate
+and the app stays at Idle with the new phrase. Its full text is in this register's history in
+git.
 
 - **O180 - Octave signs and octave clefs for my instrument** _(D293; later version, should the
   need arise)_: the owner, 2026-10-12: "keep in mind 8va/8vb/15ma etc for a later version should
@@ -140,12 +142,3 @@ only chunk 24b, at the end of v3.0.
   octave clef, a fixed octave sign over a whole phrase, or ottava lines placed automatically?
   Proposed: not before a player's range shows the need; an octave clef on my instrument first,
   since it moves nothing within a phrase.
-- **O182 - What Regenerate does in the stale-phrase prompt** _(D297; before build plan chunk
-  24b)_: when the player presses Start (or plays the starting note) and the phrase on screen was
-  made under settings that differ from the current ones, the app asks: Regenerate or Use it. After
-  Regenerate, does the app (a) stay at Idle with the new phrase on screen, the player pressing
-  Start again when ready, or (b) start the session as soon as the new phrase is on screen?
-  Proposed: (a). It is the existing Regenerate with nothing new; the player sees phrase 1 before
-  playing it; the starting note changes with the phrase, so a player at the instrument needs to
-  see the new one; and (b) would add a start that waits for a generation, which can fail or be
-  overtaken by a window change. (b) saves one click.
