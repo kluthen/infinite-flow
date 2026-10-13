@@ -14,6 +14,7 @@
 import { readEnvelope } from './record-envelope'
 
 /** The database's name; the browser scopes it to the site's origin. */
+// @spec-link [[rule_saved_data_belongs_to_browser_profile]]
 export const DATABASE_NAME = 'infinite-flow'
 
 /** The internal store holding the database's own versions; the port never exposes it. */

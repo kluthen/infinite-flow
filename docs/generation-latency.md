@@ -165,12 +165,13 @@ refused, and every missed deadline or repeat, which fails the spec. Each note de
 `npx vitest run --config vitest.sweep.config.ts tests/sweep/session-pregeneration-sweep.spec.ts`.
 
 **Machine and date.** Run by Claude on 2026-10-12, 21:50 CEST, on branch
-`v3.0-c24-pre-generation` (`main` at `aebd29c` plus chunk 24's uncommitted work), on the build
-machine: AMD Ryzen 5 PRO 8640HS (6 cores, 12 threads), 11 GiB RAM, not a VM
+`v3.0-c24-pre-generation` (`main` at `aebd29c` plus chunk 24's uncommitted work), on the
+reference machine: AMD Ryzen 5 PRO 8640HS (6 cores, 12 threads), 11 GiB RAM, not a VM
 (`systemd-detect-virt` answers `none`), Debian 13 (Linux 6.12), Node through Vitest 5.0.1. The
 owner's desktop session stayed open; 1-minute load average 0.91 before the sweep and 1.38 after
-it. The whole sweep took 114 s, M4 42 s of it. This is a reference figure only, not the reference
-machine's: M4's recorded figure is the owner's run on the reference machine.
+it. The whole sweep took 114 s, M4 42 s of it. The product owner confirmed on 2026-10-12 that
+this machine is the reference machine, so this run is M4's recorded figure: 568 of 568 cases
+(100 %) join phrase 2 to phrase 1 with a carry-in at 240 BPM.
 
 | Note density | Cases | Phrase 2 carry-in | Share   | Cases by ready phrases (0/1/2/3/4) | Ready phrases refused | Missed deadlines, repeats |
 | ------------ | ----- | ----------------- | ------- | ---------------------------------- | --------------------- | ------------------------- |

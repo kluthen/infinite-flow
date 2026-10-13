@@ -107,6 +107,7 @@ const vexflowImportPattern = {
 
 // Imports of the storage code, by alias or by relative path: forbidden in src/session/ and
 // src/export/ (see the override block near the end).
+// @spec-link [[module_on_device_database]]
 const storageImportPattern = {
   group: ['@/storage', '@/storage/**', '**/storage', '**/storage/**'],
   message: 'src/session/ and src/export/ stay storage-free: they never import src/storage/.',

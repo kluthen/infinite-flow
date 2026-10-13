@@ -1,8 +1,8 @@
 # Music Lexicon
 
-Status: v1.5 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08; v3.3 chord research terms added 2026-10-12; bass clef and octave sign added, clef entries revised for my instrument's clef, 2026-10-12)
+Status: v1.5 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08; v3.3 chord research terms added 2026-10-12; bass clef and octave sign added, clef entries revised for my instrument's clef, 2026-10-12; starting note and count-in say an out-of-date phrase asks first, 2026-10-13)
 
-Date: 2026-10-12
+Date: 2026-10-13
 
 ## How to use
 
@@ -492,9 +492,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** count-off, counting in, lead-in
 - **popup:** A measure of clicks or counted beats before the music starts, so you know the speed and where beat 1 falls.
 - **definition:** A count-in is a short stretch of counted beats before the music begins, usually one or two measures: "one, two, three, four". It sets the tempo and shows where beat 1 falls, so everyone starts together and in time. A band leader counts off a tune out loud; recording software plays a measure of metronome clicks before it starts recording.
-- **in_infinite_flow:** Every session starts with one measure of count-in, heard as clicks (even with the click switched off) and counted on screen, while phrase 1 is already shown so you can read ahead. A Start click or the starting note begins it. In a Jam, planned for v3.2 (not built), the doodle is played only after the count-in, and the click goes on through the doodle and the two measures before phrase 1 (spec decision D234).
+- **in_infinite_flow:** Every session starts with one measure of count-in, heard as clicks (even with the click switched off) and counted on screen, while phrase 1 is already shown so you can read ahead. A Start click or the starting note begins it. From v3.0 (planned, not built yet; spec decision D297), if you changed a setting after the phrase on screen was made, so the phrase is out of date, Start and the starting note first ask whether to make a new phrase or start with this one, and the count-in begins only if you start with this one. In a Jam, planned for v3.2 (not built), the doodle is played only after the count-in, and the click goes on through the doodle and the two measures before phrase 1 (spec decision D234).
 - **related:** `tempo`, `beat`, `measure`, `cue`, `starting-note`, `jam`
-- **sources:** specs/versions/v2/master-spec.md, specs/versions/v3/jam.md
+- **sources:** specs/versions/v2/master-spec.md, specs/versions/v3/master-spec.md, specs/versions/v3/jam.md
 
 ### Diminution
 
@@ -2000,9 +2000,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** start note
 - **popup:** The one note you can play on your controller to start a session, instead of clicking Start.
 - **definition:** The starting note is the app's name for a played way to start: with a MIDI controller attached, playing this one note at Idle starts the session's count-in, so your hands can stay on the instrument. It must be that exact note, octave included; any other note played at Idle is ignored. It is an app term, not a music-theory one.
-- **in_infinite_flow:** Today it is the first note of phrase 1, the phrase on screen, and the cue row names it whenever playing it would start a session. It only starts the count-in: after it, you play phrase 1 from its first note on beat 1. In Jam mode, planned for v3.2 (not built; spec decision D234), it is instead the selected key's home note, in written pitch, in the octave nearest the middle of your instrument's written range, and it belongs to no doodle; with a held doodle it is phrase 1's first note again. It is the one played signal the app has.
+- **in_infinite_flow:** Today it is the first note of phrase 1, the phrase on screen, and the cue row names it whenever playing it would start a session. It only starts the count-in: after it, you play phrase 1 from its first note on beat 1. From v3.0 (planned, not built yet; spec decision D297), there is one exception: if you changed a setting after the phrase on screen was made, so the phrase is out of date, playing the starting note does not start the count-in straight away. It first opens a short question, as the Start button does: make a new phrase, or start with this one. The count-in starts only if you start with this one, and while the question shows, no note you play starts anything. In Jam mode, planned for v3.2 (not built; spec decision D234), it is instead the selected key's home note, in written pitch, in the octave nearest the middle of your instrument's written range, and it belongs to no doodle; with a held doodle it is phrase 1's first note again. It is the one played signal the app has.
 - **related:** `count-in`, `cue`, `played-signal`, `jam`, `tonic`
-- **sources:** specs/versions/v2/master-spec.md, specs/versions/v3/jam.md
+- **sources:** specs/versions/v2/master-spec.md, specs/versions/v3/master-spec.md, specs/versions/v3/jam.md
 
 ### Syncopation
 

@@ -3,7 +3,7 @@ id: rule_stale_phrase_prompt_at_start
 status: DRAFT
 priority: 1
 tags: [v3, release-v3.0, session, session-start, midi]
-notes: Created 2026-10-13 at DRAFT before code, from the product owner rulings recorded as spec D297 and its ruling note of the same day (Regenerate stays at Idle, closing O182; the starting note asks too, CONTRACT 5.0), master spec Part A v1.12 section 16, and v3.0 build plan v9 chunk 24b (ISS-011). Describes intended v3.0 behaviour: no code implements it yet; chunk 24b builds it, the prompt part after the Stale phrase design gate. Within the vision: sessions that start from the phrase at Idle and an explicit regeneration, nothing evaluative.
+notes: Synced 2026-10-13 at the v3.0 wave-2 post-task sync, same version 0.1: the technical interface names the prompt's on-screen labels, Regenerate phrase and Start with this phrase (ux D299, ux-writer 4b9298d); Regenerate and Use it stay the names of the choices. No change of meaning; status stays DRAFT; still no code (chunk 24b). Earlier: Created 2026-10-13 at DRAFT before code, from the product owner rulings recorded as spec D297 and its ruling note of the same day (Regenerate stays at Idle, closing O182; the starting note asks too, CONTRACT 5.0), master spec Part A v1.12 section 16, and v3.0 build plan v9 chunk 24b (ISS-011). Describes intended v3.0 behaviour: no code implements it yet; chunk 24b builds it, the prompt part after the Stale phrase design gate. Within the vision: sessions that start from the phrase at Idle and an explicit regeneration, nothing evaluative.
 dependents:
   - [[module_idle_pregeneration_queue]]
   - [[module_session_pregeneration_plan]]
@@ -48,7 +48,7 @@ While the prompt shows, the app is still at Idle: no MIDI note starts anything, 
 A running session never asks. The prompt comes before the session starts; the count-in starts only after Use it, and once the session has started nothing is asked until it ends.
 
 ## TECHNICAL INTERFACE
-At Idle, with every start condition holding, the Start action and the starting note on a stale phrase 1 open the stale-phrase prompt and start nothing. The staleness check compares, by value, the settings phrase 1 was generated under with the current ones, over what the generation reads. The prompt's Use it runs the session start with phrase 1 kept as it is and its own settings passed beside the session's settings; its Regenerate runs the Idle Regenerate and stays at Idle; dismissing it changes nothing. Its wording and form belong to the interface design.
+At Idle, with every start condition holding, the Start action and the starting note on a stale phrase 1 open the stale-phrase prompt and start nothing. The staleness check compares, by value, the settings phrase 1 was generated under with the current ones, over what the generation reads. The prompt's Use it runs the session start with phrase 1 kept as it is and its own settings passed beside the session's settings; its Regenerate runs the Idle Regenerate and stays at Idle; dismissing it changes nothing. Its wording and form belong to the interface design. On screen, the two choices are labelled `Regenerate phrase`, the header's own Regenerate action, which the choice runs, and `Start with this phrase`; Regenerate and Use it stay the names of the two choices in the spec and the atoms.
 
 ## EXPECTATION
 - After a change of Written key, Collection, Register or any other setting that counts, with phrase 1 kept, Start and the starting note open the prompt and start nothing: no sound, no screen lock, no count-in.
