@@ -108,7 +108,7 @@ describe('deriveTranspositionInterval: the fixed interval table', () => {
   })
 
   // @test-link [[rule_my_instrument_transposition_named_interval]]
-  it('spells 6 semitones as an augmented fourth, never a diminished fifth', () => {
+  it('names 6 semitones an augmented fourth, never a diminished fifth', () => {
     const tritone = deriveTranspositionInterval({ octaves: 0, semitones: 6, direction: 'higher' })
     expect(tritone.name).toBe('augmented fourth')
     expect(tritone.letterSteps).toBe(3)
