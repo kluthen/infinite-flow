@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createNotationCoordinator } from '@/composables/use-notation-coordinator'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import { fakeEngraver, resetFakeEngraver } from '../notation/fake-vexflow-engraver-loader'
@@ -46,7 +47,9 @@ describe('the coordinator checks in the shared system-position size', () => {
     await coordinator.checkFit(result)
 
     expect(fakeEngraver.planWrittenPhraseFit).toHaveBeenCalledExactlyOnceWith(
-      transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent)),
+      transformToWrittenPhrase(
+        notationInputFromOutcome(result.outcome, result.intent, BUILT_IN_INSTRUMENT_CLEF),
+      ),
       900,
       GROWN_INPUTS.viewport,
       170,
@@ -57,7 +60,7 @@ describe('the coordinator checks in the shared system-position size', () => {
     const coordinator = buildCoordinator()
     const result = buildWorkspaceSessionResult()
     const signature = transformToWrittenPhrase(
-      notationInputFromOutcome(result.outcome, result.intent),
+      notationInputFromOutcome(result.outcome, result.intent, BUILT_IN_INSTRUMENT_CLEF),
     ).key.signature
     coordinator.handleLayoutInputs(GROWN_INPUTS)
 

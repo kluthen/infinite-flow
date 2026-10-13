@@ -2,10 +2,11 @@
  * A stand-in for `@/notation/vexflow-engraver-loader` for the connection sheet's unit specs, which
  * `vi.mock` it with `() => import('<this file>')`: its `loadVexflowEngraver` resolves to a module
  * holding only the font wait and the check-note drawing, each a spy. Instead of VexFlow the drawing
- * puts a bare `svg.staff-svg` carrying the written MIDI note into the target.
+ * puts a bare `svg.staff-svg` carrying the written MIDI note and the clef into the target.
  */
 import { vi } from 'vitest'
 
+import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
@@ -23,11 +24,15 @@ export const fakeCheckNoteEngraver = {
 
 export const loadVexflowEngraver = vi.fn<() => Promise<FakeCheckNoteEngraverModule>>()
 
-/** Intent: draw a bare staff SVG tagged with the written note, as the real drawing would fill it. */
-function drawFakeCheckNote(target: HTMLElement, writtenMidi: number): void {
+/**
+ * Intent: draw a bare staff SVG tagged with the written note and its clef, as the real drawing
+ * would fill it.
+ */
+function drawFakeCheckNote(target: HTMLElement, writtenMidi: number, clef: InstrumentClef): void {
   const svg = document.createElementNS(SVG_NS, 'svg')
   svg.setAttribute('class', 'staff-svg')
   svg.setAttribute('data-written-midi', String(writtenMidi))
+  svg.setAttribute('data-clef', clef)
   target.replaceChildren(svg)
 }
 

@@ -8,6 +8,7 @@
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import type { StaffFixedParts } from '@/notation/staff-fit-types'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
 import type { StaffFitPlanner } from './workspace-session-controller-types'
@@ -20,10 +21,14 @@ import type { StaffFitPlanner } from './workspace-session-controller-types'
 export async function measureSessionStaffFixedParts(
   phrase: WorkspaceSessionResult,
 ): Promise<StaffFixedParts> {
-  const written = transformToWrittenPhrase(notationInputFromOutcome(phrase.outcome, phrase.intent))
+  // The session instrument's clef: my instrument's reaches here with chunks 17 and 20.
+  const clef = BUILT_IN_INSTRUMENT_CLEF
+  const written = transformToWrittenPhrase(
+    notationInputFromOutcome(phrase.outcome, phrase.intent, clef),
+  )
   const engraver = await loadVexflowEngraver()
   await engraver.ensureNotationFonts()
-  return engraver.measureStaffFixedParts(written.key.signature)
+  return engraver.measureStaffFixedParts(written.clef, written.key.signature)
 }
 
 /**

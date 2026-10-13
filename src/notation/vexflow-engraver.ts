@@ -17,6 +17,7 @@ import { Formatter, Stave, StaveNote, Voice, type Beam } from 'vexflow/bravura'
 
 import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
 import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
+import { BUILT_IN_INSTRUMENT_CLEF, type InstrumentClef } from '../domain/profile/instrument-clef'
 import { systemMeasureAnchors, type MeasureAnchors } from './engraving-anchors'
 import { NotationError } from './notation-error'
 import { resolveGlyphIdentities } from './note-identity'
@@ -150,7 +151,7 @@ export async function ensureNotationFonts(): Promise<void> {
 /** Intent: build the four measures' StaveNote glyphs, with accidentals, dots and chord symbols attached. */
 function buildMeasureGlyphs(phrase: WrittenPhrase): readonly (readonly StaveNote[])[] {
   return phrase.measures.map((measure) => {
-    const glyphs = measure.events.map(buildStaveNote)
+    const glyphs = measure.events.map((event) => buildStaveNote(event, phrase.clef))
     attachMeasureChordSymbols(measure, glyphs)
     return glyphs
   })
@@ -188,11 +189,11 @@ function measureMinWidths(voices: readonly Voice[]): readonly [number, number, n
 
 /**
  * Intent: measure the first stave's leading width (clef + key signature + time signature) for a
- * key signature, on a scratch stave built with the drawn staff's own helper.
+ * clef and a key signature, on a scratch stave built with the drawn staff's own helper.
  */
-function measureLeadingWidth(signature: StaffKeySignature): number {
+function measureLeadingWidth(clef: InstrumentClef, signature: StaffKeySignature): number {
   const scratch = new Stave(0, 0, LEADING_SCRATCH_WIDTH_UNITS)
-  addClefAndKey(scratch, signature)
+  addClefAndKey(scratch, clef, signature)
   scratch.addTimeSignature('4/4')
   return scratch.getNoteStartX()
 }
@@ -283,7 +284,7 @@ function planPhraseLayout(
   // would just redo the same setBeam calls.
   const beams = buildPhraseBeams(phrase, glyphs)
   const voices = buildMeasureVoices(glyphs)
-  const leadingWidth = measureLeadingWidth(phrase.key.signature)
+  const leadingWidth = measureLeadingWidth(phrase.clef, phrase.key.signature)
   const outcome = planSystemLayout({
     containerWidthPx,
     leadingWidth,
@@ -371,8 +372,10 @@ function drawPhraseSystems(
     leadingWidth,
     measureContentWidthUnits: plan.measureContentWidthUnits,
     systemPaddingUnits: SYSTEM_PADDING_UNITS,
-    staffTopLineUnits: planStaffPlacement(phrase.writtenRange, plan.systemPositionUnits)
-      .staffTopLineUnits,
+    staffTopLineUnits: planStaffPlacement(
+      { writtenRange: phrase.writtenRange, clef: phrase.clef },
+      plan.systemPositionUnits,
+    ).staffTopLineUnits,
   }
   const topStaves = buildSystemStaves(phrase, {
     ...staveSpec,
@@ -558,15 +561,21 @@ export function planWrittenPhraseFit(
 }
 
 /**
- * Measure the staff's fixed parts for a key signature, exactly as the drawn staff carries them:
- * the leading clef, key signature and 4/4 time signature, and the system padding, in engraving
- * units at scale 1. A running session judges its held layout's room with them. Any unexpected
- * non-NotationError throw is wrapped as `notation_engraving_failed`.
+ * Measure the staff's fixed parts for a clef and a key signature, exactly as the drawn staff
+ * carries them: the leading clef, key signature and 4/4 time signature, and the system padding,
+ * in engraving units at scale 1. A running session judges its held layout's room with them. Any
+ * unexpected non-NotationError throw is wrapped as `notation_engraving_failed`.
  */
 // @spec-link [[rule_session_ends_when_staff_too_small]]
-export function measureStaffFixedParts(signature: StaffKeySignature): StaffFixedParts {
+export function measureStaffFixedParts(
+  clef: InstrumentClef,
+  signature: StaffKeySignature,
+): StaffFixedParts {
   try {
-    return { leadingWidth: measureLeadingWidth(signature), systemPadding: SYSTEM_PADDING_UNITS }
+    return {
+      leadingWidth: measureLeadingWidth(clef, signature),
+      systemPadding: SYSTEM_PADDING_UNITS,
+    }
   } catch (error) {
     throw asNotationError(error)
   }
@@ -591,7 +600,8 @@ export function planStaffRoomForKey(
   try {
     const outcome = planStaffRoom({
       containerWidthPx,
-      leadingWidth: measureLeadingWidth(signature),
+      // The selected instrument's clef: my instrument's reaches here with chunk 20.
+      leadingWidth: measureLeadingWidth(BUILT_IN_INSTRUMENT_CLEF, signature),
       systemPadding: SYSTEM_PADDING_UNITS,
       viewport,
       systemPositionUnits,

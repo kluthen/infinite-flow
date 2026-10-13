@@ -1,8 +1,9 @@
 /**
  * The workspace's one shared system-position size: the shell sets it from the saved my
- * instrument's written range (none saved: the built-in 16 staff spaces) and the score panel hands
- * that one value to the staff. A range inside the built-ins' reach changes nothing; written C3 to
- * C6 needs 17 staff spaces; and the size follows my instrument being saved or deleted.
+ * instrument's written range in its clef (none saved: the built-in 16 staff spaces) and the score
+ * panel hands that one value to the staff. A range inside the built-ins' reach changes nothing;
+ * written C3 to C6 in treble clef needs 18 staff spaces; written C2 to C4 needs 19 in treble clef
+ * and 16 in bass clef; and the size follows my instrument being saved or deleted.
  */
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -10,6 +11,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import ScorePanel from '@/components/workspace/ScorePanel.vue'
 import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
 import type { InstrumentMidiRange } from '@/domain/notation/written-phrase-types'
+import type { InstrumentClef } from '@/domain/profile/instrument-clef'
+import type { WrittenRangeInClef } from '@/notation/notation-layout-policy'
 import { transportRig } from '../../audio/transport-rig'
 import { createControllerRig } from '../../midi/midi-controller-rig'
 import { fakeGenerationSession, readyState } from './fake-generation-session'
@@ -21,8 +24,16 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Intent: mount the shell with a saved my instrument's written range, or none. */
-function mountShell(savedMyInstrumentWrittenRange?: InstrumentMidiRange | null) {
+/** Intent: a saved my instrument's written range in its clef, treble unless named. */
+function rangeInClef(
+  writtenRange: InstrumentMidiRange,
+  clef: InstrumentClef = 'treble',
+): WrittenRangeInClef {
+  return { writtenRange, clef }
+}
+
+/** Intent: mount the shell with a saved my instrument's written range in its clef, or none. */
+function mountShell(savedMyInstrumentRangeInClef?: WrittenRangeInClef | null) {
   return mount(WorkspaceShell, {
     props: {
       session: fakeGenerationSession(readyState()).session,
@@ -36,7 +47,7 @@ function mountShell(savedMyInstrumentWrittenRange?: InstrumentMidiRange | null) 
       controller: null,
       jumpView: { scrollBy: vi.fn(), viewportBlockSize: () => 800 },
       scrollToPageTop: vi.fn(),
-      ...(savedMyInstrumentWrittenRange === undefined ? {} : { savedMyInstrumentWrittenRange }),
+      ...(savedMyInstrumentRangeInClef === undefined ? {} : { savedMyInstrumentRangeInClef }),
     },
     global: { stubs: { PhraseScore: PHRASE_SCORE_STUB } },
     attachTo: document.body,
@@ -59,13 +70,25 @@ describe('WorkspaceShell: the one shared system-position size', () => {
   })
 
   it("follows the saved my instrument's written range, growing only beyond the built-ins' reach", async () => {
-    const wrapper = mountShell({ minMidi: 48, maxMidi: 72 })
+    const wrapper = mountShell(rangeInClef({ minMidi: 48, maxMidi: 72 }))
     expect(sizes(wrapper)).toEqual({ scorePanel: 160, staff: '160' })
 
-    await wrapper.setProps({ savedMyInstrumentWrittenRange: { minMidi: 48, maxMidi: 84 } })
+    await wrapper.setProps({
+      savedMyInstrumentRangeInClef: rangeInClef({ minMidi: 48, maxMidi: 84 }),
+    })
     expect(sizes(wrapper)).toEqual({ scorePanel: 180, staff: '180' })
 
-    await wrapper.setProps({ savedMyInstrumentWrittenRange: null })
+    await wrapper.setProps({ savedMyInstrumentRangeInClef: null })
+    expect(sizes(wrapper)).toEqual({ scorePanel: 160, staff: '160' })
+  })
+
+  it("reads the saved my instrument's written range in its own clef", async () => {
+    const wrapper = mountShell(rangeInClef({ minMidi: 36, maxMidi: 60 }, 'treble'))
+    expect(sizes(wrapper)).toEqual({ scorePanel: 190, staff: '190' })
+
+    await wrapper.setProps({
+      savedMyInstrumentRangeInClef: rangeInClef({ minMidi: 36, maxMidi: 60 }, 'bass'),
+    })
     expect(sizes(wrapper)).toEqual({ scorePanel: 160, staff: '160' })
   })
 })

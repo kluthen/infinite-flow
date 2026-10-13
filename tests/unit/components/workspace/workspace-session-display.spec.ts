@@ -12,6 +12,7 @@ import {
 } from '@/components/workspace/workspace-session-display'
 import type { SessionStaff } from '@/components/notation/session-staff'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { StaffLayout } from '@/notation/notation-layout-policy'
@@ -42,7 +43,9 @@ function sessionPhrase(n: number): SessionPhrase {
 
 /** Intent: the written phrase of a session phrase, as the display derives it. */
 function writtenOf(phrase: Pick<SessionPhrase, 'intent' | 'outcome'>): WrittenPhrase {
-  return transformToWrittenPhrase(notationInputFromOutcome(phrase.outcome, phrase.intent))
+  return transformToWrittenPhrase(
+    notationInputFromOutcome(phrase.outcome, phrase.intent, BUILT_IN_INSTRUMENT_CLEF),
+  )
 }
 
 /** The session timing a display rig reads: its starting tempo and the transport's phrase starts. */

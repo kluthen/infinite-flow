@@ -5,6 +5,7 @@ import {
   NotationCoordinatorUsageError,
 } from '@/composables/use-notation-coordinator'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
@@ -209,8 +210,9 @@ const PHONE_INPUTS: StaffLayoutInputs = {
 /** Intent: the key signature a real written phrase carries, as the session passes to checkRoom. */
 function realSignature() {
   const result = buildWorkspaceSessionResult()
-  return transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent)).key
-    .signature
+  return transformToWrittenPhrase(
+    notationInputFromOutcome(result.outcome, result.intent, BUILT_IN_INSTRUMENT_CLEF),
+  ).key.signature
 }
 
 // @test-link [[module_idle_fit_round]]
@@ -243,7 +245,9 @@ describe('createNotationCoordinator staff layout reports and fit checks', () => 
 
     expect(fakeEngraver.ensureNotationFonts).toHaveBeenCalled()
     expect(fakeEngraver.planWrittenPhraseFit).toHaveBeenCalledExactlyOnceWith(
-      transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent)),
+      transformToWrittenPhrase(
+        notationInputFromOutcome(result.outcome, result.intent, BUILT_IN_INSTRUMENT_CLEF),
+      ),
       PHONE_INPUTS.containerWidthPx,
       PHONE_INPUTS.viewport,
     )

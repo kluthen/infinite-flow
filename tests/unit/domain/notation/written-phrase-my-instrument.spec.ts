@@ -3,7 +3,8 @@
  * (0 to 11 semitones, 0 or 1 octave, lower or higher), every written note and chord root is the
  * concert one moved by the profile's chromatic count, the written key is the key spelled from the
  * chosen written tonal centre and collection (the transposition never moves it), and the written
- * range is my instrument's own written range.
+ * range is my instrument's own written range. Its clef, treble or bass, changes only the clef the
+ * phrase is drawn in and its stem directions.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -30,6 +31,7 @@ import type {
   WrittenNote,
   WrittenPhrase,
 } from '@/domain/notation/written-phrase-types'
+import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import { makeMyInstrument, type MyInstrument } from '@/domain/profile/my-instrument'
 import type {
   MyInstrumentDirection,
@@ -40,11 +42,15 @@ import { makeRational } from '@/domain/time/rational'
 /** A written range every transposition below can sound inside MIDI 0 to 127: C3 to C6. */
 const WRITTEN_RANGE = { minMidi: 48, maxMidi: 84 } as const
 
-/** Intent: build my instrument on the C MIDI keyboard template with one transposition. */
-function myInstrumentWith(transposition: MyInstrumentTransposition): MyInstrument {
+/** Intent: build my instrument on the C MIDI keyboard template with one transposition and clef. */
+function myInstrumentWith(
+  transposition: MyInstrumentTransposition,
+  clef: InstrumentClef = 'treble',
+): MyInstrument {
   return makeMyInstrument({
     template: 'c-keyboard',
     name: 'Test instrument',
+    clef,
     writtenRange: WRITTEN_RANGE,
     transposition,
   })
@@ -133,6 +139,7 @@ function writtenFor(
     chords,
     transposition: profile.transposition,
     concertRange: profile.concertRange,
+    clef: myInstrument.clef,
   })
   return { phrase, timeline, chords }
 }
@@ -273,5 +280,81 @@ describe('transformToWrittenPhrase for my instrument: 6 semitones higher, writte
       'C♯',
       'D♯',
     ])
+  })
+})
+
+/** Intent: a written phrase with its clef and stem directions blanked, the only parts a clef moves. */
+function withoutClefAndStems(phrase: WrittenPhrase) {
+  return {
+    ...phrase,
+    clef: null,
+    measures: phrase.measures.map((measure) => ({
+      ...measure,
+      events: measure.events.map((event) =>
+        event.kind === 'note' ? { ...event, stemDirection: null } : event,
+      ),
+    })),
+  }
+}
+
+/** Intent: every glyph's stem direction across the phrase, null for a rest. */
+function stemsOf(phrase: WrittenPhrase): readonly (string | null)[] {
+  return phrase.measures.flatMap((measure) =>
+    measure.events.map((event) => (event.kind === 'note' ? event.stemDirection : null)),
+  )
+}
+
+// @test-link [[module_notation_display_convention]]
+// @test-link [[rule_notation_display_preserves_phrase]]
+// @test-link [[entity_my_instrument]]
+describe('transformToWrittenPhrase for my instrument: treble or bass clef', () => {
+  const transpositions: readonly MyInstrumentTransposition[] = [
+    { octaves: 0, semitones: 0, direction: 'same' },
+    { octaves: 0, semitones: 2, direction: 'higher' },
+    { octaves: 1, semitones: 0, direction: 'lower' },
+    { octaves: 0, semitones: 6, direction: 'higher' },
+  ]
+
+  it('writes the same pitches, durations, ties, accidentals, key, chords and range in both', () => {
+    for (const transposition of transpositions) {
+      const treble = myInstrumentWith(transposition, 'treble')
+      const bass = myInstrumentWith(transposition, 'bass')
+      for (const [writtenTonalCenter, collection] of WRITTEN_KEYS) {
+        const inTreble = writtenFor(treble, writtenTonalCenter, collection).phrase
+        const inBass = writtenFor(bass, writtenTonalCenter, collection).phrase
+        expect(inTreble.clef).toBe('treble')
+        expect(inBass.clef).toBe('bass')
+        expect(inBass.transposition).toEqual(inTreble.transposition)
+        expect(inBass.writtenRange).toEqual(inTreble.writtenRange)
+        expect(withoutClefAndStems(inBass)).toEqual(withoutClefAndStems(inTreble))
+      }
+    }
+  })
+
+  it('measures stem directions from the clef’s own middle line', () => {
+    const same = { octaves: 0, semitones: 0, direction: 'same' } as const
+    const inTreble = writtenFor(myInstrumentWith(same, 'treble'), 'C', 'Major').phrase
+    const inBass = writtenFor(myInstrumentWith(same, 'bass'), 'C', 'Major').phrase
+    // Measure 1 holds written C4: below B4 (stem up) in treble, above D3 (stem down) in bass.
+    expect((inTreble.measures[1].events[0] as WrittenNote).stemDirection).toBe('up')
+    expect((inBass.measures[1].events[0] as WrittenNote).stemDirection).toBe('down')
+    expect(stemsOf(inBass)).not.toEqual(stemsOf(inTreble))
+  })
+
+  it('leaves the concert timeline and chords untouched in bass clef', () => {
+    const bass = myInstrumentWith({ octaves: 1, semitones: 0, direction: 'lower' }, 'bass')
+    const profile = bass.profile
+    const timeline = concertScaleTimeline(60, 'Major')
+    const chords = concertChords(0, 'Major')
+    const before = structuredClone({ timeline, chords })
+    transformToWrittenPhrase({
+      timeline,
+      tonalContext: { tonalCenter: 'C', collection: 'Major' },
+      chords,
+      transposition: profile.transposition,
+      concertRange: profile.concertRange,
+      clef: bass.clef,
+    })
+    expect(structuredClone({ timeline, chords })).toEqual(before)
   })
 })

@@ -17,6 +17,7 @@ import {
 const VALID: MyInstrumentInput = {
   template: 'c-keyboard',
   name: 'My keyboard',
+  clef: 'treble',
   writtenRange: { minMidi: 48, maxMidi: 72 },
   transposition: { octaves: 0, semitones: 0, direction: 'same' },
 }
@@ -169,6 +170,7 @@ describe('makeMyInstrument: refusals with a reason, never clamped', () => {
     const allWrong = {
       template: 'tuba',
       name: ' ',
+      clef: 'treble',
       writtenRange: { minMidi: 70.5, maxMidi: 60 },
       transposition: { octaves: -1, semitones: 0, direction: 'same' },
     } as const
@@ -214,17 +216,19 @@ describe('makeMyInstrument: the record and its profile', () => {
   const tenorLike = makeMyInstrument({
     template: 'bb-tenor',
     name: 'My tenor',
+    clef: 'treble',
     writtenRange: { minMidi: 58, maxMidi: 90 },
     transposition: { octaves: 1, semitones: 2, direction: 'lower' },
   })
 
   // @test-link [[entity_my_instrument]]
-  it('holds the fixed id, the template, the name, the written range, the transposition and the input kind', () => {
+  it('holds the fixed id, the template, the name, the clef, the written range, the transposition and the input kind', () => {
     expect(tenorLike).toMatchObject({
       kind: 'MyInstrument',
       id: 'my-instrument',
       template: 'bb-tenor',
       name: 'My tenor',
+      clef: 'treble',
       writtenRange: { minMidi: 58, maxMidi: 90 },
       transposition: { octaves: 1, semitones: 2, direction: 'lower' },
       inputKind: 'midi-controller',
@@ -279,6 +283,55 @@ describe('makeMyInstrument: the record and its profile', () => {
     expect(Object.isFrozen(tenorLike.transposition)).toBe(true)
     expect(Object.isFrozen(tenorLike.interval)).toBe(true)
     expect(Object.isFrozen(tenorLike.profile)).toBe(true)
+  })
+})
+
+// @test-link [[entity_my_instrument]]
+describe('makeMyInstrument: the clef, display only', () => {
+  const inTreble = makeMyInstrument(withInput({ clef: 'treble' }))
+  const inBass = makeMyInstrument(withInput({ clef: 'bass' }))
+
+  // @test-link [[entity_my_instrument]]
+  it('keeps the chosen clef on the value, treble or bass', () => {
+    expect(inTreble.clef).toBe('treble')
+    expect(inBass.clef).toBe('bass')
+  })
+
+  // @test-link [[entity_my_instrument]]
+  it('leaves the clef out of the generator-facing profile', () => {
+    expect(inBass.profile).toEqual(inTreble.profile)
+    expect(Object.keys(inBass.profile)).not.toContain('clef')
+    expect(JSON.stringify(inBass.profile)).not.toContain('bass')
+  })
+
+  // @test-link [[entity_my_instrument]]
+  it('differs from the same instrument in the other clef by its clef only', () => {
+    expect({ ...inBass, clef: 'treble' }).toEqual(inTreble)
+  })
+
+  // @test-link [[rule_my_instrument_range_limits]]
+  it.each(REFUSALS)(
+    'refuses %s the same way in bass clef as in treble',
+    (_label, input, reason) => {
+      const inBassClef = { ...input, clef: 'bass' } as const
+      expect(findMyInstrumentRefusal(inBassClef)).toEqual(
+        findMyInstrumentRefusal({ ...input, clef: 'treble' }),
+      )
+      expect(thrownReason(inBassClef)).toBe(reason)
+    },
+  )
+
+  // @test-link [[rule_my_instrument_range_limits]]
+  it('accepts the same inputs in bass clef as in treble', () => {
+    for (const writtenRange of [
+      { minMidi: 50, maxMidi: 74 },
+      { minMidi: 0, maxMidi: 127 },
+      { minMidi: 16, maxMidi: 76 },
+      { minMidi: 36, maxMidi: 96 },
+    ]) {
+      expect(findMyInstrumentRefusal(withInput({ clef: 'bass', writtenRange }))).toBe(undefined)
+      expect(findMyInstrumentRefusal(withInput({ clef: 'treble', writtenRange }))).toBe(undefined)
+    }
   })
 })
 

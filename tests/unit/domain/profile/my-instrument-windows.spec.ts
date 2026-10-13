@@ -7,6 +7,7 @@ import {
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import {
   ADOPTED_INSTRUMENT_PROFILES,
   BUILT_IN_REGISTER_WINDOW_POLICY,
@@ -31,7 +32,11 @@ describe('my instrument from a built-in template, unchanged', () => {
     '$id gives a profile deep-equal to the built-in, windows included, apart from its id',
     (builtIn) => {
       const draft = myInstrumentDraftFromTemplate(builtIn.id)
-      const instrument = makeMyInstrument({ ...draft, name: builtIn.displayName })
+      const instrument = makeMyInstrument({
+        ...draft,
+        name: builtIn.displayName,
+        clef: BUILT_IN_INSTRUMENT_CLEF,
+      })
 
       expect(instrument.profile.id).toBe('my-instrument')
       expect({ ...instrument.profile, id: builtIn.id }).toEqual(builtIn)
@@ -59,8 +64,12 @@ function myInstrumentIntent(instrument: MyInstrument, requestId: string, seed: n
 // @test-link [[entity_my_instrument]]
 describe('my instrument display name never affects generation', () => {
   const draft = myInstrumentDraftFromTemplate('bb-tenor')
-  const first = makeMyInstrument({ ...draft, name: 'My tenor' })
-  const renamed = makeMyInstrument({ ...draft, name: 'Grandpa’s old horn' })
+  const first = makeMyInstrument({ ...draft, name: 'My tenor', clef: BUILT_IN_INSTRUMENT_CLEF })
+  const renamed = makeMyInstrument({
+    ...draft,
+    name: 'Grandpa’s old horn',
+    clef: BUILT_IN_INSTRUMENT_CLEF,
+  })
 
   // @test-link [[entity_my_instrument]]
   it.each([
@@ -80,6 +89,30 @@ describe('my instrument display name never affects generation', () => {
       const renamedOutcome = generatePhrase(renamedIntent)
       expect(firstOutcome.kind).toBe('generation_success')
       expect(renamedOutcome).toEqual(firstOutcome)
+    },
+  )
+})
+
+// @test-link [[entity_my_instrument]]
+describe('my instrument clef never affects generation', () => {
+  const draft = myInstrumentDraftFromTemplate('bb-tenor')
+  const inTreble = makeMyInstrument({ ...draft, name: 'My tenor', clef: 'treble' })
+  const inBass = makeMyInstrument({ ...draft, name: 'My tenor', clef: 'bass' })
+
+  // @test-link [[entity_my_instrument]]
+  it.each([
+    ['request-a', 7],
+    ['request-b', 13],
+  ] as const)(
+    'two my instruments differing only by clef generate the same phrase (%s, seed %i)',
+    (requestId, seed) => {
+      const trebleIntent = myInstrumentIntent(inTreble, requestId, seed)
+      const bassIntent = myInstrumentIntent(inBass, requestId, seed)
+      expect(bassIntent).toEqual(trebleIntent)
+
+      const trebleOutcome = generatePhrase(trebleIntent)
+      expect(trebleOutcome.kind).toBe('generation_success')
+      expect(generatePhrase(bassIntent)).toEqual(trebleOutcome)
     },
   )
 })
@@ -111,6 +144,7 @@ function randomValidInput(next: () => number, run: number): MyInstrumentInput {
   return {
     template: TEMPLATES[drawInt(next, 0, 2)]!,
     name: `Random instrument ${run}`,
+    clef: run % 2 === 0 ? 'treble' : 'bass',
     writtenRange: { minMidi: concertMin + chromatic, maxMidi: concertMin + chromatic + span },
     transposition: { octaves, semitones, direction },
   }

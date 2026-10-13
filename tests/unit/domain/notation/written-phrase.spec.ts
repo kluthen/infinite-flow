@@ -12,6 +12,7 @@ import { writtenToConcertTonalCenter } from '@/domain/generation/generation-inte
 import type { InstrumentTransposition } from '@/domain/profile/instrument-profile'
 import { BB_TENOR_PROFILE, EB_ALTO_PROFILE } from '@/domain/profile/instrument-profiles'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import {
   NotationInputError,
@@ -86,6 +87,7 @@ function inputOf(
     chords,
     transposition,
     concertRange: KEYBOARD_CONCERT_RANGE,
+    clef: BUILT_IN_INSTRUMENT_CLEF,
   }
 }
 
@@ -434,7 +436,9 @@ describe("transformToWrittenPhrase: the instrument profile's written range", () 
     const intent = buildOrchestratorIntent('Middle', makeSeed(7))
     const outcome = generatePhrase(intent)
     if (outcome.kind !== 'generation_success') throw new Error('Expected a successful generation.')
-    const phrase = transformToWrittenPhrase(notationInputFromOutcome(outcome, intent))
+    const phrase = transformToWrittenPhrase(
+      notationInputFromOutcome(outcome, intent, BUILT_IN_INSTRUMENT_CLEF),
+    )
     const profile = intent.instrumentProfile
     expect(phrase.writtenRange).toEqual({
       minMidi: profile.concertRange.minMidi + profile.transposition.chromatic,
@@ -462,7 +466,7 @@ describe('transformToWrittenPhrase: real end-to-end generation', () => {
         provenance: outcome.provenance,
       })
 
-      const notationInput = notationInputFromOutcome(outcome, intent)
+      const notationInput = notationInputFromOutcome(outcome, intent, BUILT_IN_INSTRUMENT_CLEF)
 
       for (const name of TRANSPOSITION_NAMES) {
         const phrase = transformToWrittenPhrase({
@@ -558,6 +562,7 @@ describe('transformToWrittenPhrase: rejections', () => {
       chords: [{ measureIndex: 0, startTick: 4, root: 0, suffix: '', bass: null }],
       transposition: CONCERT,
       concertRange: KEYBOARD_CONCERT_RANGE,
+      clef: BUILT_IN_INSTRUMENT_CLEF,
     }
     expect(() => transformToWrittenPhrase(badInput)).toThrow(NotationInputError)
   })

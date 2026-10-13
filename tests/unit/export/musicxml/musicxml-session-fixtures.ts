@@ -19,12 +19,14 @@ import { makeConcertEventTimeline, type ConcertEventTimeline } from '@/domain/ev
 import type { PitchClassNumber } from '@/domain/harmony/harmony-types'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { ConcertChordSymbol, WrittenPhrase } from '@/domain/notation/written-phrase-types'
+import { BUILT_IN_INSTRUMENT_CLEF, type InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import {
   BB_TENOR_PROFILE,
   C_KEYBOARD_PROFILE,
   EB_ALTO_PROFILE,
 } from '@/domain/profile/instrument-profiles'
+import { makeMyInstrument, myInstrumentDraftFromTemplate } from '@/domain/profile/my-instrument'
 import { makeRational } from '@/domain/time/rational'
 import type {
   GeneratedNotesMusicXmlInput,
@@ -124,6 +126,7 @@ function written(
   instrument: InstrumentProfile,
   writtenTonalCenter: PitchClass,
   collection: Collection = 'Ionian',
+  clef: InstrumentClef = BUILT_IN_INSTRUMENT_CLEF,
 ): WrittenPhrase {
   return transformToWrittenPhrase({
     timeline: shape.timeline,
@@ -131,6 +134,7 @@ function written(
     chords: shape.chords,
     transposition: instrument.transposition,
     concertRange: instrument.concertRange,
+    clef,
   })
 }
 
@@ -192,6 +196,22 @@ export function cKeyboardPlainSession(tempos: readonly number[]): GeneratedNotes
     phrases: tempos.map((tempo, index) =>
       phrase(index + 1, written(plainShape(0), C_KEYBOARD_PROFILE, 'C'), tempo),
     ),
+  }
+}
+
+/**
+ * My instrument made from the B-flat tenor template, in the given clef, written D Ionian (concert
+ * C major): phrase 1 "rich", phrase 2 "plain", both at 90 BPM, drawn in the instrument's clef.
+ */
+export function myTenorSession(clef: InstrumentClef): GeneratedNotesMusicXmlInput {
+  const draft = myInstrumentDraftFromTemplate('bb-tenor')
+  const instrument = makeMyInstrument({ ...draft, name: 'My tenor', clef }).profile
+  return {
+    instrument,
+    phrases: [
+      phrase(1, written(richShape(-12), instrument, 'D', 'Ionian', clef), 90),
+      phrase(2, written(plainShape(-12), instrument, 'D', 'Ionian', clef), 90),
+    ],
   }
 }
 

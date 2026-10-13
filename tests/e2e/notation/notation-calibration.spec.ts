@@ -26,10 +26,11 @@
  *    are "notes too wide", and how many "no room".
  *
  * 4. My instrument (M3, the staff half): the height sweep's machinery on player-made written ranges
- *    (the harness's `myLow`/`myHigh` parameters), each engraved at the shared system-position size
- *    `planSystemPositionUnits` gives it, and on the three built-in profiles at a saved my
- *    instrument's grown size (`savedRange`), asserting that every ink keeps about one staff space
- *    from both edges and that each predicted size is the size engraved.
+ *    (the harness's `myLow`/`myHigh` parameters), in treble clef and in bass clef (`myClef`), each
+ *    engraved at the shared system-position size `planSystemPositionUnits` gives it in its clef,
+ *    and on the three built-in profiles at a saved my instrument's grown size (`savedRange`),
+ *    asserting that every ink keeps about one staff space from both edges and that each predicted
+ *    size is the size engraved.
  *
  * Skipped unless `CALIBRATE=1`, so it never runs as part of the normal notation suite.
  */
@@ -494,7 +495,10 @@ test('reports the split layout outcomes on landscape phone windows', async ({ pa
  */
 interface MyInstrumentCase {
   readonly name: string
-  /** The harness parameters naming the instrument (and, for `lowF`, the written tonal centre). */
+  /**
+   * The harness parameters naming the instrument (and, for `lowF`, the written tonal centre); a
+   * player-made instrument is in treble clef unless they name `myClef`.
+   */
   readonly params: Readonly<Record<string, string>>
   readonly inkAbove: number
   readonly inkBelow: number
@@ -518,9 +522,10 @@ const BUILT_IN_IN_GROWN_GRID: MyInstrumentGrid = { leapiness: ['Smooth', 'Angula
 const WIDE_SAVED_RANGE = '36-84'
 
 /**
- * The my-instrument sweep's cases: six player-made written ranges with no transposition, then the
- * three built-in profiles at the `wide` range's grown size. The predictions are the layout
- * policy's own figures (tests/unit/notation/system-position-size.spec.ts checks them).
+ * The my-instrument sweep's cases: six player-made written ranges with no transposition in treble
+ * clef, then the three built-in profiles at the `wide` range's grown size, then four player-made
+ * ranges in bass clef. The predictions are the layout policy's own figures
+ * (tests/unit/notation/system-position-size.spec.ts checks them).
  */
 const MY_INSTRUMENT_CASES: readonly MyInstrumentCase[] = [
   // Written E4 to E6: the highest two-octave range keeping 16 spaces.
@@ -602,6 +607,43 @@ const MY_INSTRUMENT_CASES: readonly MyInstrumentCase[] = [
     size: 230,
     grid: BUILT_IN_IN_GROWN_GRID,
   },
+  // Bass clef, whose staff sits 12 letter steps under treble's (top line A3, middle line D3).
+  // Written E0 to E5, the bass-clef bound (spec D294): the staff positions of C2 to C7 in treble.
+  {
+    name: 'bass bound E0-E5 16-76',
+    params: { myLow: '16', myHigh: '76', myClef: 'bass' },
+    inkAbove: 92,
+    inkBelow: 127,
+    size: 240,
+    grid: MY_INSTRUMENT_GRID,
+  },
+  // Written C2 to C4: 16 spaces in bass clef, against 19 in treble (`low` above).
+  {
+    name: 'bass low C2-C4 36-60',
+    params: { myLow: '36', myHigh: '60', myClef: 'bass' },
+    inkAbove: 62,
+    inkBelow: 75,
+    size: 160,
+    grid: MY_INSTRUMENT_GRID,
+  },
+  // Written E3 to E5: the bound's top two octaves.
+  {
+    name: 'bass high E3-E5 52-76',
+    params: { myLow: '52', myHigh: '76', myClef: 'bass' },
+    inkAbove: 92,
+    inkBelow: 60,
+    size: 170,
+    grid: MY_INSTRUMENT_GRID,
+  },
+  // Written E0 to E4, four octaves: the mirror of the treble `wide` C2 to C6.
+  {
+    name: 'bass wide E0-E4 16-64',
+    params: { myLow: '16', myHigh: '64', myClef: 'bass' },
+    inkAbove: 82,
+    inkBelow: 127,
+    size: 230,
+    grid: MY_INSTRUMENT_GRID,
+  },
 ]
 
 /** Intent: every (register, leapiness, contour, chaos, density, seed) combination of one case. */
@@ -630,11 +672,11 @@ function myInstrumentGrid(grid: MyInstrumentGrid) {
 test("reports how far my instrument's ink reaches in its shared system-position size, and keeps it inside", async ({
   page,
 }) => {
-  test.setTimeout(40 * 60 * 1000)
+  test.setTimeout(60 * 60 * 1000)
   await page.setViewportSize({ width: 2600, height: 900 })
   const lines: string[] = [
     '=== My instrument height calibration report (inked rows, units from the position top) ===',
-    'case | n | failures | predicted ink above/below/total (spaces) | predicted size (spaces) | ' +
+    'case | clef | n | failures | predicted ink above/below/total (spaces) | predicted size (spaces) | ' +
       'engraved size | measured size | top line | highest ink | start marker top | lowest ink | ' +
       'room above (marker included) | room below | systems with ink at an edge',
   ]
@@ -682,8 +724,10 @@ test("reports how far my instrument's ink reaches in its shared system-position 
     if (engraved !== String(testCase.size)) {
       wrongSize.push(`${testCase.name}: engraved at ${engraved}, predicted ${testCase.size}`)
     }
+    // A built-in's clef, and a player-made instrument's unless it names one, is treble.
+    const clef = testCase.params.myClef ?? 'treble'
     lines.push(
-      `${testCase.name} | ${entry.n} | ${caseFailures} | ` +
+      `${testCase.name} | ${clef} | ${entry.n} | ${caseFailures} | ` +
         `${testCase.inkAbove}/${testCase.inkBelow}/${inkTotal} (${(inkTotal / 10).toFixed(1)}) | ` +
         `${testCase.size} (${testCase.size / 10}) | ${engraved} | ${entry.positionUnits.toFixed(1)} | ` +
         `${entry.topLine.toFixed(1)} | ${entry.top.toFixed(1)} | ${entry.markerTop.toFixed(1)} | ` +

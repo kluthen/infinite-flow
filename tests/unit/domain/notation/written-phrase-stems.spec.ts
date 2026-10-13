@@ -6,9 +6,11 @@ import { makeMeasure, type MeasureIndex } from '@/domain/events/measure'
 import { makeNoteEvent, makeRestEvent, type MeasureEvent } from '@/domain/events/measure-event'
 import { makeConcertEventTimeline, type ConcertEventTimeline } from '@/domain/events/timeline'
 import { makeRational } from '@/domain/time/rational'
+import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { InstrumentTransposition } from '@/domain/profile/instrument-profile'
 import { BB_TENOR_PROFILE } from '@/domain/profile/instrument-profiles'
-import { staffStepsFromMiddleLine } from '@/domain/notation/pitch-spelling'
+import { CLEF_STAFF_LINES, staffStepsFromMiddleLine } from '@/domain/notation/pitch-spelling'
+import { beamGroupStemDirection, noteStemDirection } from '@/domain/notation/stem-direction'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type {
   ConcertChordSymbol,
@@ -66,6 +68,7 @@ function inputOf(
   timeline: ConcertEventTimeline,
   tonalCenter: PitchClass = 'C',
   transposition: InstrumentTransposition = CONCERT,
+  clef: InstrumentClef = 'treble',
 ): NotationPhraseInput {
   return {
     timeline,
@@ -73,16 +76,77 @@ function inputOf(
     chords: tonicChordEachMeasure(),
     transposition,
     concertRange: { minMidi: 48, maxMidi: 84 },
+    clef,
   }
 }
 
 // @test-link [[module_notation_stem_direction]]
 describe('staffStepsFromMiddleLine', () => {
-  it('counts diatonic steps from B4 by letter and octave, ignoring the accidental', () => {
-    expect(staffStepsFromMiddleLine({ letter: 'B', alter: 0, octave: 4 })).toBe(0)
-    expect(staffStepsFromMiddleLine({ letter: 'C', alter: 0, octave: 5 })).toBe(1)
-    expect(staffStepsFromMiddleLine({ letter: 'C', alter: 0, octave: 4 })).toBe(-6)
-    expect(staffStepsFromMiddleLine({ letter: 'B', alter: 1, octave: 3 })).toBe(-7)
+  it('counts diatonic steps from B4 in treble by letter and octave, ignoring the accidental', () => {
+    expect(staffStepsFromMiddleLine({ letter: 'B', alter: 0, octave: 4 }, 'treble')).toBe(0)
+    expect(staffStepsFromMiddleLine({ letter: 'C', alter: 0, octave: 5 }, 'treble')).toBe(1)
+    expect(staffStepsFromMiddleLine({ letter: 'C', alter: 0, octave: 4 }, 'treble')).toBe(-6)
+    expect(staffStepsFromMiddleLine({ letter: 'B', alter: 1, octave: 3 }, 'treble')).toBe(-7)
+  })
+
+  it('counts diatonic steps from D3 in bass, ignoring the accidental', () => {
+    expect(staffStepsFromMiddleLine({ letter: 'D', alter: 0, octave: 3 }, 'bass')).toBe(0)
+    expect(staffStepsFromMiddleLine({ letter: 'E', alter: 0, octave: 3 }, 'bass')).toBe(1)
+    expect(staffStepsFromMiddleLine({ letter: 'C', alter: 0, octave: 3 }, 'bass')).toBe(-1)
+    expect(staffStepsFromMiddleLine({ letter: 'D', alter: -1, octave: 3 }, 'bass')).toBe(0)
+    expect(staffStepsFromMiddleLine({ letter: 'A', alter: 0, octave: 3 }, 'bass')).toBe(4)
+  })
+})
+
+// @test-link [[module_notation_stem_direction]]
+// @test-link [[module_notation_display_convention]]
+describe('CLEF_STAFF_LINES', () => {
+  it('holds each clef’s top and middle line as diatonic steps from C0', () => {
+    // Treble: top line F5, middle line B4. Bass: top line A3, middle line D3.
+    expect(CLEF_STAFF_LINES).toEqual({
+      treble: { topLineStep: 38, middleLineStep: 34 },
+      bass: { topLineStep: 26, middleLineStep: 22 },
+    })
+  })
+})
+
+// @test-link [[module_notation_stem_direction]]
+describe('stem direction in bass clef', () => {
+  it('stems a single note on or above D3 down and one below it up', () => {
+    expect(noteStemDirection({ letter: 'D', alter: 0, octave: 3 }, 'bass')).toBe('down')
+    expect(noteStemDirection({ letter: 'C', alter: 0, octave: 3 }, 'bass')).toBe('up')
+    // The same D3 sits far below the treble middle line.
+    expect(noteStemDirection({ letter: 'D', alter: 0, octave: 3 }, 'treble')).toBe('up')
+  })
+
+  it('stems written single notes from the bass middle line', () => {
+    // Quarters (never beamed): D3, A3, C3, G2.
+    const timeline = firstMeasureTimeline([note(50, 4), note(57, 4), note(48, 4), note(43, 4)])
+    const stems = firstMeasureStems(inputOf(timeline, 'C', CONCERT, 'bass'))
+    expect(stems).toEqual(['down', 'down', 'up', 'up'])
+  })
+
+  it('lets the beam group note farthest from D3 decide', () => {
+    const above = { letter: 'A', alter: 0, octave: 3 } as const
+    const below = { letter: 'G', alter: 0, octave: 2 } as const
+    expect(beamGroupStemDirection([above, { letter: 'B', alter: 0, octave: 2 }], 'bass')).toBe(
+      'down',
+    )
+    expect(beamGroupStemDirection([{ letter: 'E', alter: 0, octave: 3 }, below], 'bass')).toBe('up')
+    const timeline = firstMeasureTimeline([
+      // B3 (+5) faces B2, A2, G2 (-1, -2, -4): the farthest note is above.
+      ...[59, 47, 45, 43].map((pitch) => note(pitch, 1)),
+      // F2 (-5) faces E3, F3, G3 (+1, +2, +3): the farthest note is below.
+      ...[52, 53, 55, 41].map((pitch) => note(pitch, 1)),
+      note(48, 8),
+    ])
+    expect(firstMeasureStems(inputOf(timeline, 'C', CONCERT, 'bass'))).toEqual([
+      ...['down', 'down', 'down', 'down'],
+      ...['up', 'up', 'up', 'up'],
+      'up',
+    ])
+    // In treble every one of those notes is below B4, so every group is stemmed up.
+    expect(firstMeasureStems(inputOf(timeline))).toEqual(Array(9).fill('up'))
   })
 })
 

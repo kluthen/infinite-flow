@@ -28,13 +28,13 @@ import type { WorkspaceSessionResult } from '@/composables/workspace-session-res
 import ControlPanel from '@/components/controls/ControlPanel.vue'
 import type { SettableControlKey } from '@/components/controls/set-control-event'
 import type { GenerationControls, MusicalProfile } from '@/domain/controls/generation-controls'
-import type { InstrumentMidiRange, WrittenPhrase } from '@/domain/notation/written-phrase-types'
+import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { getInstrumentProfile } from '@/domain/generation/generation-intent'
 import type { MidiController } from '@/midi/midi-controller-state'
-import { planSystemPositionUnits } from '@/notation/notation-layout-policy'
+import { planSystemPositionUnits, type WrittenRangeInClef } from '@/notation/notation-layout-policy'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
 import WorkspaceHeader from './WorkspaceHeader.vue'
 import ScorePanel from './ScorePanel.vue'
@@ -68,10 +68,10 @@ const props = withDefaults(
     /** Scroll the page instantly to its top (leaving or reopening the Review); the window's own by default. */
     scrollToPageTop?: () => void
     /**
-     * The saved my instrument's written range, or null while none is saved; none by default.
-     * Nothing saves one yet: chunk 20's my-instrument record feeds it.
+     * The saved my instrument's written range in its clef, or null while none is saved; none by
+     * default. Nothing saves one yet: chunk 20's my-instrument record feeds it.
      */
-    savedMyInstrumentWrittenRange?: InstrumentMidiRange | null
+    savedMyInstrumentRangeInClef?: WrittenRangeInClef | null
   }>(),
   {
     // Default: the window's own instant scroll, measured against the layout viewport's height.
@@ -81,7 +81,7 @@ const props = withDefaults(
     }),
     // Default: the window's own instant scroll to its top (a function prop's default is itself).
     scrollToPageTop: () => window.scrollTo({ top: 0, behavior: 'instant' }),
-    savedMyInstrumentWrittenRange: null,
+    savedMyInstrumentRangeInClef: null,
   },
 )
 
@@ -89,12 +89,12 @@ const state = computed(() => props.session.state)
 
 /**
  * The one shared system-position size of the workspace, for the staff and the Review: from the
- * saved my instrument's written range, so it changes only when my instrument is saved or deleted,
- * never from one phrase to the next nor with the instrument selected.
+ * saved my instrument's written range in its clef, so it changes only when my instrument is saved
+ * or deleted, never from one phrase to the next nor with the instrument selected.
  */
 // @spec-link [[module_notation_layout_preflight]]
 const systemPositionUnits = computed(() =>
-  planSystemPositionUnits(props.savedMyInstrumentWrittenRange),
+  planSystemPositionUnits(props.savedMyInstrumentRangeInClef),
 )
 
 const layoutRoot = ref<HTMLElement | null>(null)

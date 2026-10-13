@@ -10,6 +10,7 @@ import {
   cKeyboardPlainSession,
   cKeyboardSession,
   ebAltoKeyChangeSession,
+  myTenorSession,
 } from './musicxml-session-fixtures'
 
 const SCHEMA_DIRECTORY = `${resolve('tests/fixtures/musicxml/schema')}/`
@@ -51,6 +52,7 @@ describe('MusicXML output against the MusicXML 4.0 schema', () => {
     ['B-flat tenor with a tempo change', bbTenorTempoChangeSession()],
     ['E-flat alto with a key change', ebAltoKeyChangeSession()],
     ['C keyboard, five phrases, two tempo changes', cKeyboardPlainSession([90, 90, 125, 125, 90])],
+    ['my instrument in bass clef', myTenorSession('bass')],
   ])('validates the encoder output for the %s session', (_name, session) => {
     const result = validate(encodeGeneratedNotesMusicXml(session))
     expect(result.output).toBe('- validates\n')

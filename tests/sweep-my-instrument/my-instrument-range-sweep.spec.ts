@@ -64,6 +64,7 @@ function generateOnce(
   const instrument = makeMyInstrument({
     template: 'c-keyboard',
     name: `M3 ${rangeCase.label}`,
+    clef: 'treble',
     writtenRange: rangeCase.writtenRange,
     transposition: { octaves: 0, semitones: 0, direction: 'same' },
   })

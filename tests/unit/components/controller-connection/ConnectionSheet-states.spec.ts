@@ -160,7 +160,7 @@ describe('ConnectionSheet Multi-device picker', () => {
 
 // @test-link [[rule_controller_transposition_check]]
 describe('ConnectionSheet Transposition check prompt', () => {
-  it("engraves the profile's check note and asks for it, focus on Close", async () => {
+  it("engraves the profile's check note in treble clef and asks for it, focus on Close", async () => {
     const rig = createControllerRig({ devices: [KEYS_A] })
 
     const wrapper = await openSheet(rig, { profile: BB_TENOR_PROFILE })
@@ -171,8 +171,10 @@ describe('ConnectionSheet Transposition check prompt', () => {
     expect(fakeCheckNoteEngraver.engraveCheckNote).toHaveBeenCalledWith(
       wrapper.get('.check-note').element,
       written,
+      'treble',
     )
     expect(wrapper.get('.check-note svg').attributes('data-written-midi')).toBe(String(written))
+    expect(wrapper.get('.check-note svg').attributes('data-clef')).toBe('treble')
     expect(bodyLines(wrapper)).toEqual([
       'Play this note on your controller.',
       "Playing it here won't start a session.",

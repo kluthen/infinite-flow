@@ -1,12 +1,12 @@
 /**
  * The controller-connection check's one written note, engraved through the score's own pipeline:
- * a short treble staff with no key or time signature, holding one whole note spelled in C major
- * and built by the score's own StaveNote mapping (./vexflow-mapping.ts), in an SVG marked like a
- * score system (`staff-svg`, image role, an accessible name in the score description's words) so
- * the stylesheet recolours it like the score. The SVG is sized to the note: its height grows with
- * the note's ledger lines. Re-exported by ./vexflow-engraver.ts, so it ships in the lazy engraver
- * chunk; with that file, ./vexflow-mapping.ts and ./vexflow-two-system-engraver.ts, one of the
- * only four files allowed to import 'vexflow'.
+ * a short staff in the instrument's clef with no key or time signature, holding one whole note
+ * spelled in C major and built by the score's own StaveNote mapping (./vexflow-mapping.ts), in an
+ * SVG marked like a score system (`staff-svg`, image role, an accessible name in the score
+ * description's words) so the stylesheet recolours it like the score. The SVG is sized to the
+ * note: its height grows with the note's ledger lines. Re-exported by ./vexflow-engraver.ts, so
+ * it ships in the lazy engraver chunk; with that file, ./vexflow-mapping.ts and
+ * ./vexflow-two-system-engraver.ts, one of the only four files allowed to import 'vexflow'.
  */
 import { Formatter, Renderer, Stave, Voice } from 'vexflow/bravura'
 
@@ -16,6 +16,7 @@ import {
   spellWrittenKey,
 } from '../domain/notation/pitch-spelling'
 import { noteStemDirection } from '../domain/notation/stem-direction'
+import type { InstrumentClef } from '../domain/profile/instrument-clef'
 import type { Alter, SpelledPitch, WrittenNote } from '../domain/notation/written-phrase-types'
 import { TICKS_PER_BAR } from '../domain/time/ticks'
 import { NotationError } from './notation-error'
@@ -34,12 +35,26 @@ const SCRATCH_WIDTH_UNITS = 1000
 /** Raw units of staff kept after the note, before the closing barline: two staff spaces. */
 const TRAILING_UNITS = 20
 
+/** How far a clef's glyph reaches beyond the staff, in raw units. */
+interface ClefInk {
+  readonly aboveTopLine: number
+  readonly belowBottomLine: number
+}
+
 /**
- * The treble clef's ink beyond the staff, in raw units (Bravura's G clef box): about 1.4 spaces
- * over the top line and 1.7 under the bottom line.
+ * Each clef's ink beyond the staff, in raw units (10 per staff space), from its Bravura glyph's
+ * box (SMuFL bBoxNE / bBoxSW, in staff spaces from the glyph's origin), rounded outward. Treble,
+ * the G clef: its origin is the G line, 3 spaces under the top line and 1 over the bottom one, and
+ * its box spans 4.392 spaces over it and 2.632 under it, so about 1.4 spaces over the top line (14)
+ * and 1.7 under the bottom line (17). Bass, the F clef: its origin is the F line, 1 space under the
+ * top line and 3 over the bottom one, and its box spans 1.048 spaces over it and 2.54 under it
+ * (measured on the bundled Bravura face: 1.06 and 2.56), so about 0.05 space over the top line (1)
+ * and nothing under the bottom line (0).
  */
-const CLEF_INK_ABOVE_TOP_LINE_UNITS = 14
-const CLEF_INK_BELOW_BOTTOM_LINE_UNITS = 17
+const CLEF_INK_UNITS: Readonly<Record<InstrumentClef, ClefInk>> = {
+  treble: { aboveTopLine: 14, belowBottomLine: 17 },
+  bass: { aboveTopLine: 1, belowBottomLine: 0 },
+}
 
 /**
  * A whole note's ink around its staff position, in raw units, with the tallest accidental it may
@@ -95,7 +110,7 @@ function checkNoteLabel(pitch: SpelledPitch): string {
  * Intent: the written model of the check's one note: a whole note, its accidental drawn if any,
  * stemmed by the same rule as a phrase's single note (a whole note draws no stem).
  */
-function checkNoteEvent(pitch: SpelledPitch): WrittenNote {
+function checkNoteEvent(pitch: SpelledPitch, clef: InstrumentClef): WrittenNote {
   return {
     kind: 'note',
     startTick: 0,
@@ -105,7 +120,7 @@ function checkNoteEvent(pitch: SpelledPitch): WrittenNote {
     tieFromPrevious: false,
     tieToNext: false,
     sourceEventIndex: 0,
-    stemDirection: noteStemDirection(pitch),
+    stemDirection: noteStemDirection(pitch, clef),
   }
 }
 
@@ -113,13 +128,11 @@ function checkNoteEvent(pitch: SpelledPitch): WrittenNote {
  * Intent: the box holding the staff, the clef and the note with its ledger lines and accidental,
  * from the formatted note's staff position, plus the margin on every side.
  */
-function checkNoteBox(stave: Stave, noteY: number): CheckNoteBox {
-  const top = Math.min(
-    stave.getYForLine(0) - CLEF_INK_ABOVE_TOP_LINE_UNITS,
-    noteY - NOTE_INK_ABOVE_UNITS,
-  )
+function checkNoteBox(stave: Stave, clef: InstrumentClef, noteY: number): CheckNoteBox {
+  const clefInk = CLEF_INK_UNITS[clef]
+  const top = Math.min(stave.getYForLine(0) - clefInk.aboveTopLine, noteY - NOTE_INK_ABOVE_UNITS)
   const bottom = Math.max(
-    stave.getYForLine(stave.getNumLines() - 1) + CLEF_INK_BELOW_BOTTOM_LINE_UNITS,
+    stave.getYForLine(stave.getNumLines() - 1) + clefInk.belowBottomLine,
     noteY + NOTE_INK_BELOW_UNITS,
   )
   return {
@@ -134,18 +147,22 @@ function checkNoteBox(stave: Stave, noteY: number): CheckNoteBox {
  * Intent: draw the staff and the note into `target` and return the box they need. The stave is
  * built twice: once to measure where the note starts after the clef, then at its final width.
  */
-function drawCheckNote(target: HTMLElement, pitch: SpelledPitch): CheckNoteBox {
-  const note = buildStaveNote(checkNoteEvent(pitch))
+function drawCheckNote(
+  target: HTMLElement,
+  pitch: SpelledPitch,
+  clef: InstrumentClef,
+): CheckNoteBox {
+  const note = buildStaveNote(checkNoteEvent(pitch, clef), clef)
   const voice = new Voice({ numBeats: 4, beatValue: 4 }).setStrict(true).addTickables([note])
   const noteWidth = new Formatter().joinVoices([voice]).preCalculateMinTotalWidth([voice])
-  const leading = new Stave(0, 0, SCRATCH_WIDTH_UNITS).addClef('treble').getNoteStartX()
+  const leading = new Stave(0, 0, SCRATCH_WIDTH_UNITS).addClef(clef).getNoteStartX()
 
   const stave = new Stave(0, 0, leading + noteWidth + TRAILING_UNITS, { spaceAboveStaffLn: 0 })
-  stave.addClef('treble')
+  stave.addClef(clef)
   // The note's staff position is computed when it is given its stave, not by formatting.
   note.setStave(stave)
   new Formatter().joinVoices([voice]).formatToStave([voice], stave)
-  const box = checkNoteBox(stave, note.getYs()[0]!)
+  const box = checkNoteBox(stave, clef, note.getYs()[0]!)
 
   const renderer = new Renderer(target as HTMLDivElement, Renderer.Backends.SVG)
   const context = renderer.getContext()
@@ -182,22 +199,28 @@ function finishCheckNoteSvg(target: HTMLElement, box: CheckNoteBox, pitch: Spell
 }
 
 /**
- * Engrave one written note into `target`, replacing its content: a whole note on a short treble
- * staff with no time signature and no key signature, spelled in C major (a black key as the sharp
- * of the letter below), its accidental drawn when the spelling has one. The SVG is a `staff-svg`
- * with role `img` and an accessible name in the score description's words ("Written note C 5",
- * "Written note C sharp 5"). Call it once `ensureNotationFonts()` has resolved, as the score does.
- * A value that is not an integer MIDI note number (0-127) is a caller error: it throws a
- * RangeError before `target` is touched. Should drawing fail, `target` is left empty and the
- * failure is thrown as a NotationError (`notation_engraving_failed` for a non-NotationError).
+ * Engrave one written note into `target`, replacing its content: a whole note on a short staff in
+ * the instrument's clef (`clef`, treble or bass) with no time signature and no key signature,
+ * spelled in C major (a black key as the sharp of the letter below), its accidental drawn when the
+ * spelling has one; the clef changes only where the note sits, never its spelling. The SVG is a
+ * `staff-svg` with role `img` and an accessible name in the score description's words ("Written
+ * note C 5", "Written note C sharp 5"). Call it once `ensureNotationFonts()` has resolved, as the
+ * score does. A value that is not an integer MIDI note number (0-127) is a caller error: it
+ * throws a RangeError before `target` is touched. Should drawing fail, `target` is left empty and
+ * the failure is thrown as a NotationError (`notation_engraving_failed` for a non-NotationError).
  */
 // @spec-link [[rule_controller_transposition_check]]
-export function engraveCheckNote(target: HTMLElement, writtenMidi: number): void {
+// @spec-link [[rule_notation_display_preserves_phrase]]
+export function engraveCheckNote(
+  target: HTMLElement,
+  writtenMidi: number,
+  clef: InstrumentClef,
+): void {
   assertMidiNote(writtenMidi)
   const pitch = spellMidiInKey(writtenMidi, C_MAJOR)
   target.replaceChildren()
   try {
-    finishCheckNoteSvg(target, drawCheckNote(target, pitch), pitch)
+    finishCheckNoteSvg(target, drawCheckNote(target, pitch, clef), pitch)
   } catch (error) {
     target.replaceChildren()
     if (error instanceof NotationError) throw error

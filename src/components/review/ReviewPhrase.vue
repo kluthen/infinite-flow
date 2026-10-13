@@ -15,6 +15,7 @@ import { computed, nextTick, onBeforeUnmount, ref, shallowRef } from 'vue'
 import { describeWrittenPhrase } from '@/domain/notation/score-description'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { isStaffLayoutFailure, NotationError } from '@/notation/notation-error'
 import {
   NOTATION_SYSTEM_POSITION_UNITS,
@@ -186,7 +187,11 @@ async function engrave(engraver: ReviewEngraver): Promise<ReviewEngravingOutcome
   // The one-system layout draws nothing into its second target.
   const targets = [units[0]!, units[1] ?? document.createElement('div')] as const
   try {
-    const phrase = transformToWrittenPhrase(notationInputFromOutcome(record.outcome, record.intent))
+    // The clef this record carries, which chunk 17 adds to the record.
+    const clef = BUILT_IN_INSTRUMENT_CLEF
+    const phrase = transformToWrittenPhrase(
+      notationInputFromOutcome(record.outcome, record.intent, clef),
+    )
     const result = engraver.engraveWrittenPhrase(
       targets,
       phrase,

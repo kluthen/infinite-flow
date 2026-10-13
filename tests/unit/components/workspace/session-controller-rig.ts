@@ -48,6 +48,7 @@ import type { AudioTransport } from '@/audio/audio-transport'
 import { createMidiController } from '@/midi/midi-controller'
 import type { MidiController } from '@/midi/midi-controller-state'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { FakeAudioRig, FakeWakeTimer } from '../../audio/fake-audio'
@@ -226,7 +227,7 @@ export function controllerRig(
     sessionSeed: RIG_SESSION_SEED,
   }
   const idleWritten = transformToWrittenPhrase(
-    notationInputFromOutcome(phraseOne.outcome, phraseOne.intent),
+    notationInputFromOutcome(phraseOne.outcome, phraseOne.intent, BUILT_IN_INSTRUMENT_CLEF),
   )
   const frames = createFakeFrames()
   const planner = createFakePlanner()
