@@ -1140,3 +1140,131 @@ this wave's; D252-D264 and Q77 are v3.3's.
   never an outdated-tab one. (3) The my-instrument flow handoff says a session held in memory
   while saving is off is never counted. Correction to D294 (5): D287's sessions sentence never
   named the instrument; D287 changed only by the clef in its first sentence.
+
+## v3.0 wave 2: the stale phrase prompt, 2026-10-13
+
+Inputs: master spec Part A v1.12 (§16, §14), spec D297 with its 2026-10-13 ruling note (O182
+closed: Regenerate stays at Idle; the starting note asks first, CONTRACT 5.0), build plan v9
+(chunk 24b and the **Stale phrase design** gate, before chunk 24b-2; hand check H9). The owner's
+standing delegation applies (D119, D135, archived): minor design issues settled here, phones low
+priority. No `src/` edit; no new token, class or motion. Ux numbers D296+ and Q81+ are this
+gate's.
+
+- **D296 — Where the gate is written (2026-10-13).** As D280: chunk 24b is v3.0's and is built
+  from `versions/v3.0/` (the build plan's design links point there), so the design is written into
+  `versions/v3.0/` as a recorded correction to match what v3.0 ships, and the same text at the
+  root, with v3.0's own marks in both trees (`[v3 new]`, unprefixed change-block items); the
+  root alone adds tagged v3.1, v3.2 and v3.3 paragraphs. A new screen,
+  `screens/stale-phrase-prompt/` (intent and handoff), rather than a section of the workspace
+  handoff: it is a sheet with its own content, focus and states, like the preset sheet. Files, in
+  both trees: `screens/stale-phrase-prompt/` (new), `flows/play-session/` (the diagram's start
+  steps; a bullet "A phrase made before the settings changed"; the starting-note bullet; the
+  intent's Starting section), `screens/phrase-workspace/handoff.md` (`start-note-line` hidden
+  while it shows; **Ready**; Automatic changes), `flows/generate-phrase/handoff.md`
+  (pre-generation runs while the phrase is out of date), `strategy.md`, `motion.md`; root
+  `README.md` (map); `versions/v3.0/README.md` (status, two decisions worth keeping). The player
+  never reads "stale": the screen is titled "Out-of-Date Phrase Prompt".
+- **D297 — The prompt's form (2026-10-13).** A modal sheet of the standard width
+  (`sheet-backdrop`, `sheet`, the connection sheet's classes), `role="alertdialog"` with
+  `aria-describedby` on the body, over the workspace, which stays in **Ready**. **Other controls
+  cannot be used while it shows, as `spec-writer` proposed**: the controls, the header, the theme
+  and the mix are all behind the backdrop. Reasons: a live control could change the very settings
+  the prompt lists; a player who wants to change something first closes it, which changes
+  nothing. Pre-generation goes on. If the workspace leaves **Ready** while it shows (a window
+  change leaving no room, regenerating a too-wide phrase 1, or bringing `orientation-notice`), it
+  closes as if dismissed. Nothing marks an out-of-date phrase before a start: `start-note-line`
+  keeps naming the note that begins the start (rejected: changing the line or marking the staff
+  on every edit, which would change under the player's hands while setting the controls).
+- **D298 — The wording (2026-10-13).** Plain words, no "stale", "generate" or "carry-in"; the
+  lexicon's **phrase** and **settings** as the app uses them. Title (`sheet-title`): "This phrase
+  is from before your changes" (a statement: a question title would favour one of two good
+  answers). Body: "Since it was made, you changed {changed settings}." then "A new phrase follows
+  your current settings. If you start with this one, only the phrases after it will." **Opened by
+  the starting note**, the player being at the instrument: a first paragraph, "Your note didn't
+  start the session. Nothing you play will until you choose.", and a closing `sheet-hint`, "A new
+  phrase starts on a new note: the line above the staff names it.", since a player who regenerates
+  and plays the old note would hear nothing and not know why. No values, no "don't ask again".
+- **D299 — The two labels: `Regenerate phrase` and `Start with this phrase` (2026-10-13).** The
+  owner's Regenerate is the header's own `Regenerate phrase`, and the prompt's button runs exactly
+  that action, so it takes exactly that label: a player who learns it here learns the header
+  button, and can press it before Start next time. The owner's Use it becomes `Start with this
+  phrase`, which says what happens and on which phrase. **The clash with Part C §C6.5's Use it** is
+  resolved by naming both by what they do: the design already shows C6.5's Use it as `Use
+  {answer}` ("Use G Dorian", D240), so no
+  on-screen "Use it" exists, and a bare one here would leave "it" unclear. The spec's names stay
+  the names of the two choices in the spec and the atoms. `Regenerate phrase` is `btn-primary`
+  (the player's last act was changing a setting, which says they want what it makes, and it
+  starts nothing); `Start with this phrase` is a plain `btn`; neither is error-toned.
+- **D300 — The prompt names the settings that changed (2026-10-13).** Yes: by each control's
+  visible `field-label`, in page order; one, two or three named ("Written key, Register and
+  Leapiness"); four or more, the first two and a count ("Written key, Register and {n} other
+  settings"). It shows the prompt is about the player's own edit, and lets them check it was the
+  one they meant; a full list after a preset choice would bury the choice. Never values; never
+  the preset's name (a preset counts through the values it set). Musical profile preset counts
+  when Neutral or Jazz differs, its customized mark alone never; Note density by the value the
+  player chose; Instrument profile when the instrument differs, which in practice never happens.
+  From v3.1 the seven figure levels by their labels and no Musical profile preset; from v3.3
+  Seventh chords after Harmonic motion. Computed at open; it cannot change while the prompt shows.
+  The pure stale check of chunk 24b-1 returns the differing settings, which this needs.
+- **D301 — Dismissing, focus, keyboard and accessibility (2026-10-13).** Dismissed by `Close`,
+  Escape and a press on the backdrop, as every sheet; no third `Cancel` button. **Focus on open:
+  `Regenerate phrase`**, whichever start opened it (it starts no sound and deletes nothing, so
+  Enter on it is always safe, and a player at the instrument with a computer keyboard in reach
+  presses Enter, reads the new note and plays it). Rejected: focus on `Close` (the confirmations'
+  "way back" rule guards a deletion; here it would make Enter a dead end). Opening closes the
+  `Volume` popover. Order `Close`, `Regenerate phrase`, `Start with this phrase`; trapped. On
+  close: after `Start with this phrase`, the session action (now `Stop`), as after a Start click;
+  after `Regenerate phrase`, the phrase action, as a press on it in the header, no move when the
+  phrase lands; after a dismissal or closing by itself, the connection sheet's rule (session
+  action, else phrase action, else `controller-status`). No MIDI note starts anything while it
+  shows; `start-note-line` hidden as for any sheet. `Start with this phrase` is the start click
+  (sound unlock, locks, jump), the start conditions checked again; if one fails, nothing starts
+  and the prompt closes.
+- **D302 — What the controls show after `Start with this phrase` (2026-10-13; spec §16).** The
+  existing rule (the count-in shows phrase 1's values; a value changes when the first phrase made
+  with it starts sounding) applies: through the count-in and phrase 1 each control the player
+  changed shows its earlier value again, read-only, and from phrase 2 the session's, with no
+  highlight, as any automatic change. Root only: **v3.1**, the preset bar keeps what it showed at
+  the start throughout, neither change turning the selection to Custom or back; **v3.2**, a Jam
+  never asks (a fresh Jam has no phrase 1; any such change lets a held doodle go), and the rhythm
+  lock locks phrase 1's rhythm, out of date or not; **v3.3**, the Seventh chords control shows
+  phrase 1's level through the count-in and phrase 1, then the session's, fixed to the end (the
+  v3.3 "fixed for the whole session" sentence now says so).
+- **D303 — The phone (2026-10-13).** Minimal: the same sheet filling the width, the answers stacked
+  full width with `Regenerate phrase` on top, the paragraphs wrapping, the sheet scrolling inside
+  itself on a short screen. Nothing dropped, nothing added.
+- **D304 — The policy lines it revises (2026-10-13).** `strategy.md`, both trees: the change
+  block's "starting a session never is" now "asks only about a phrase made before the settings
+  changed"; the "Keeping and starting again" trade-off says a start never asks about the session
+  it replaces; a new trade-off, "An out-of-date phrase is told at Start, not as it happens"
+  (rejected: regenerating on every edit, marking the phrase or line live, regenerating silently
+  at Start or starting as soon as a regenerated phrase shows); the Deleting edge case's "Nothing
+  else asks" makes the exception; a new edge case, "A phrase made before the settings changed".
+  `versions/v3.0/README.md`: "Starting never asks" becomes "Starting never asks about the last
+  session", plus "A start on an out-of-date phrase asks first". `motion.md`: the prompt opens and
+  closes as the sheets do.
+- **D305 — `ux-critic`'s pass on the gate: DRIFT, four findings, all fixed (2026-10-13).** No
+  business rule contradicted or invented. (1) **The controls at a session's end after `Start
+  with this phrase`** were unspecified: however the session ends, they show the session's settings
+  again, silently, with the end's other returns; after a count-in end phrase 1 is still out of
+  date and the next start asks again; after an end once phrase 1 has sounded the next phrase is
+  made from the session's settings (both trees: play-session's bullet, Ended before phrase 1
+  sounds and End; the workspace's two end states and its Automatic changes). The session's values
+  show from the first phrase generated under them that starts sounding, so a phrase 2 that repeats
+  phrase 1 keeps phrase 1's values, as any automatic change. Showing either set is not an edit:
+  v3.0's musical profile custom state and `preset-status` keep what they showed at the start. (2)
+  **Root workspace layers**: tagged v3.1 (the preset bar holds still, no Custom) and v3.3 (Seventh
+  chords shows phrase 1's level, then the session's) paragraphs and change-block items, matching
+  play-session; play-session's change-block item is `_v3.3 new:_`. (3) **Copy** (corrects D298):
+  the answers' sentence names each answer, "Regenerate phrase makes a new phrase with your current
+  settings. Start with this phrase plays this one first; the phrases after it use your current
+  settings." ("follows" could read as "comes after"); the hint reads "A new phrase may start on a
+  different note: the line above the staff names it." (4) The root intent's v3.1 paragraph states
+  the naming rule as the handoff does (up to three, or two and a count).
+- **D306 — `ux-critic`'s recheck: DRIFT, one leftover, fixed (2026-10-13).** The four D305 fixes
+  were confirmed in both trees. Leftover: "phrase 1 is still out of date and the next start asks
+  again" was said of every count-in end, but a window change can regenerate phrase 1 under the
+  current settings. Now limited to a phrase 1 still on screen (Stop, the tab hidden); a phrase 1
+  regenerated after a window change asks nothing; and after a full end the next start asks nothing
+  unless a setting changes again meanwhile (both trees: play-session's bullet, the workspace's two
+  end states). The by-value check stays the rule; these lines only describe it.

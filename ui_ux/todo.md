@@ -48,6 +48,11 @@ closed (ux D285); Q80 raised for `spec-writer`.
   fixed (ux D295). The
   gates are passed from the design side; chunk 5's save policy needs the storage port to report
   why a tab became outdated (ux D294), noted with Q80.
+- **Stale phrase design gate** (before chunk 24b-2; spec D297, master spec Part A v1.12 §16):
+  the out-of-date phrase prompt, `screens/stale-phrase-prompt/` (new), with the play-session,
+  workspace, generate-phrase, strategy and motion lines it touches, in both trees (ux
+  D296-D304). Written 2026-10-13. Validation: `ux-critic` DRIFT, four findings, all fixed
+  (ux D305); recheck: one leftover, fixed (ux D306). The gate is passed from the design side.
 
 **v3.3 (richer chords) design**, from master spec Part D (§D1-§D17, proposed for the owner's
 approval with spec D264-D274), on branch `v3.3-chord-research`. Started 2026-10-12; marked on top
@@ -176,7 +181,10 @@ drops the check.
 
 ## Next Unit
 
-v3.0 wave 2: the gates are passed (ux D280-D295); Q80 waits for `spec-writer`. At chunk 19b's calibration, if the bass-clef bound E0-E5 needs more than
+v3.0 wave 2: the Clef and Sessions gates are passed (ux D280-D295); Q80 waits for `spec-writer`.
+The Stale phrase design gate is written (ux D296-D304); for `spec-writer`: the lexicon's
+**Starting note** and **Count-in** entries still say the starting note starts the count-in, with
+no word of the prompt an out-of-date phrase opens first (CONTRACT 5.0). At chunk 19b's calibration, if the bass-clef bound E0-E5 needs more than
 24 staff spaces, the bound's figures in the refusal and the Notation Contract come back here.
 
 v3.3: the owner's approval of Part D and of this design (the build plan's D0). At the build, the

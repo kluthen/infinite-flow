@@ -6,7 +6,8 @@ is never edited again, except to correct it to match what v3.0 actually ships (e
 correction is recorded in the root `decisions.md`). Corrected on 2026-10-12 for what the owner
 added to v3.0 during its build: my instrument's clef, treble or bass, with a range bound per clef;
 the interval name shown with its transposition; kept sessions belonging to the instrument they
-were played with; and the outdated tab after another tab's `Delete everything`. The same
+were played with; and the outdated tab after another tab's `Delete everything`. Corrected again on 2026-10-13 for
+the prompt a start opens when the phrase on screen was made before the settings changed. The same
 corrections are applied at the root. The product scope is Part A of
 [`specs/versions/v3/master-spec.md`](../../../specs/versions/v3/master-spec.md#part-a--v30). The v2
 design it extends is in [`versions/v2/`](../v2/README.md).
@@ -35,9 +36,13 @@ again.
 - **Two links above the staff.** `Review last session` keeps v2's one-press way back, now across
   reloads; `All sessions` opens the list.
   ([kept-sessions intent](flows/kept-sessions/intent.md#two-ways-in))
-- **Starting never asks.** The next session replaces the last one unless it is pinned, and a
-  favorite pins its session by itself, so nothing marked is lost and no "are you sure?" taxes
-  every start. ([strategy](strategy.md#trade-offs))
+- **Starting never asks about the last session.** The next session replaces the last one unless
+  it is pinned, and a favorite pins its session by itself, so nothing marked is lost and no "are
+  you sure?" taxes every start. ([strategy](strategy.md#trade-offs))
+- **A start on an out-of-date phrase asks first.** When the phrase on screen was made before the
+  settings changed, Start or the starting note opens one short sheet naming what changed:
+  `Regenerate phrase` (a new phrase, still at idle) or `Start with this phrase`. Nothing else of
+  a start asks. ([prompt intent](screens/stale-phrase-prompt/intent.md#the-two-answers))
 - **A favorite is a whole phrase, one press on a star**, at the end of the phrase's line where
   per-phrase tools go. ([review intent](screens/last-session-review/intent.md#favorites))
 - **The music is kept by itself; the player's own notes only on request**, with the switch where

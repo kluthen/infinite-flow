@@ -10,7 +10,7 @@
 >   choice change with no animation of their own; a clef change redraws the phrase with no fade
 >   ([Rules](#rules))
 > - _New:_ the My instrument and Your data sheets and every confirmation open and close as the
->   connection sheet does ([Rules](#rules))
+>   connection sheet does, and so does the out-of-date phrase prompt ([Rules](#rules))
 > - _New:_ nothing animates on a save, or for phrases prepared in the background
 >   ([Rules](#rules))
 > - _Removed:_ nothing
@@ -37,7 +37,7 @@
 - **[v3 new]** A notice in the notice row (`app-notice`) appears and leaves with no animation. It changes only outside a session, so the workspace under it may move when one appears or is dismissed; it moves at once, never with a slide.
 - **[v3 new]** The favorite toggle (`favorite-toggle`) changes state with the ordinary `--duration-feedback` button feedback and nothing else: no burst, no growing star. The keep line and the pin button it changes take their new words in place, with no animation.
 - **[v3 new]** The session comment opens for editing, and closes again, with no animation, and its field grows with its text with no transition.
-- **[v3 new]** The My instrument and Your data sheets, and every confirmation shown as a sheet of its own, open and close exactly as the connection sheet does: the `sheet-backdrop` and `sheet` opacity transition, `--duration-feedback` with `--ease-out-fast`, with no spatial motion. A confirmation shown inside a sheet already open replaces that sheet's content with no animation, as the connection sheet's own states do. The range refusal in the My instrument sheet (`range-alert`) and the derived register windows change with no animation as the steppers move.
+- **[v3 new]** The My instrument and Your data sheets, every confirmation shown as a sheet of its own, and the out-of-date phrase prompt open and close exactly as the connection sheet does: the `sheet-backdrop` and `sheet` opacity transition, `--duration-feedback` with `--ease-out-fast`, with no spatial motion. A confirmation shown inside a sheet already open replaces that sheet's content with no animation, as the connection sheet's own states do. The range refusal in the My instrument sheet (`range-alert`) and the derived register windows change with no animation as the steppers move.
 - **[v3 new]** The instrument control's fourth choice, my instrument, appears when it is made and goes when it is deleted with no animation; the other segments rewrap at once. A saved clef change redraws the phrase on screen at once in the new clef, with no fade: its notes are the same, so it is not a phrase replacement.
 - **[v3 new]** Nothing animates on a save, and nothing shows one: no spinner, no tick, no "saved" flash. Phrases prepared in the background between sessions show nothing either.
 - Under `prefers-reduced-motion: reduce`, staff replacement is instant and only non-spatial color feedback remains.
