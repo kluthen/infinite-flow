@@ -16,6 +16,7 @@ import {
   EB_ALTO_PROFILE,
 } from '@/domain/profile/instrument-profiles'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import type { ConcertChordSymbol, WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import {
   isStartingNote,
@@ -52,6 +53,7 @@ function writtenOf(
     chords: downbeatChords(),
     transposition: profile.transposition,
     concertRange: profile.concertRange,
+    clef: BUILT_IN_INSTRUMENT_CLEF,
   })
 }
 

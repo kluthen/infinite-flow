@@ -13,6 +13,7 @@ import PhraseScore from '@/components/notation/PhraseScore.vue'
 import type { SessionStaff, SessionSystem } from '@/components/notation/session-staff'
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { describeWrittenPhrase } from '@/domain/notation/score-description'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
@@ -28,7 +29,9 @@ vi.mock('@/notation/vexflow-engraver-loader', () => import('./fake-phrase-engrav
 /** Real written phrases, one per phrase number used below. */
 const PHRASES: readonly WrittenPhrase[] = [1, 2, 3, 4, 5].map((seed) => {
   const result = buildWorkspaceSessionResult(`phrase-score-session-${seed}`, seed)
-  return transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent))
+  return transformToWrittenPhrase(
+    notationInputFromOutcome(result.outcome, result.intent, BUILT_IN_INSTRUMENT_CLEF),
+  )
 })
 
 /** Intent: the written phrase standing for phrase `n`. */

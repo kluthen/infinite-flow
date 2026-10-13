@@ -169,8 +169,8 @@ function assertChordsAlignToGlyphs(
 }
 
 /**
- * Intent: render one measure of the phrase into its written glyphs (stem directions included),
- * beam groups, and chords.
+ * Intent: render one measure of the phrase into its written glyphs (stem directions included,
+ * measured from the middle line of the input's clef), beam groups, and chords.
  */
 function buildWrittenMeasure(
   input: NotationPhraseInput,
@@ -189,6 +189,7 @@ function buildWrittenMeasure(
   const events = assignStemDirections(
     buildWrittenEvents(measure, segments, key, transposition),
     beamGroups,
+    input.clef,
   )
   const chords = input.chords
     .filter((chord) => chord.measureIndex === measureIndex)
@@ -206,7 +207,9 @@ function buildWrittenMeasure(
  * independently selectable display convention: `input.tonalContext.tonalCenter` is already the
  * written tonal center, and `input.transposition` is the instrument profile's own transposition.
  * The profile's active concert range, moved by the same transposition's semitones, becomes the
- * phrase's written range.
+ * phrase's written range. The phrase is drawn in `input.clef`, the instrument's own clef, which
+ * moves only its stem directions: the pitches, durations, ties, accidentals, key and chords are
+ * the same in every clef.
  */
 // @spec-link [[module_notation_display_convention]]
 // @spec-link [[rule_notation_display_preserves_phrase]]
@@ -234,7 +237,7 @@ export function transformToWrittenPhrase(input: NotationPhraseInput): WrittenPhr
       minMidi: input.concertRange.minMidi + transposition.chromatic,
       maxMidi: input.concertRange.maxMidi + transposition.chromatic,
     },
-    clef: 'treble',
+    clef: input.clef,
     timeSignature: { beats: 4, beatValue: 4 },
     key,
     measures,

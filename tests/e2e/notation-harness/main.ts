@@ -33,14 +33,17 @@
  * A player-made instrument (my instrument) can be generated for and engraved: with
  * `source=generated`, `myLow` and `myHigh` (its written range, as MIDI notes) build one with the
  * real `makeMyInstrument` on the C MIDI keyboard template, transposed by `myOctaves` and
- * `mySemitones` (default 0 each) in `myDirection` (`lower`, `same` or `higher`; default `same`).
- * The controls then name `my-instrument` and its profile is handed to `createGenerationIntent` as
- * data; `profile` must be absent. The staff's shared system-position size is then the one
- * `planSystemPositionUnits` gives for its written range. With any source, `savedRange=<low>-<high>`
- * (written MIDI notes) sets that size from a saved my instrument's written range while the phrase's
- * own instrument (a built-in, or a fixture's) is engraved. Without either, PhraseScore gets no
- * size and draws the built-in one, as before. Every ready state publishes the size it engraved with
- * (`systemPositionUnits`) and the staff's top line placed in it.
+ * `mySemitones` (default 0 each) in `myDirection` (`lower`, `same` or `higher`; default `same`),
+ * drawn in `myClef` (`treble` or `bass`; default `treble`). The controls then name `my-instrument`
+ * and its profile is handed to `createGenerationIntent` as data; `profile` must be absent. The
+ * phrase carries the instrument's clef, and the staff's shared system-position size is the one
+ * `planSystemPositionUnits` gives for its written range in that clef. With any source,
+ * `savedRange=<low>-<high>` (written MIDI notes) sets that size from a saved my instrument's
+ * written range, in `savedClef` (`treble` or `bass`; default `treble`; only with `savedRange`),
+ * while the phrase's own instrument (a built-in, or a fixture's) is engraved. Without either,
+ * PhraseScore gets no size and draws the built-in one, as before. Every ready state publishes the
+ * clef the phrase was engraved in (`clef`), the size it engraved with (`systemPositionUnits`) and
+ * the staff's top line placed in it.
  */
 import { createApp, h, nextTick, ref, shallowRef, type Ref } from 'vue'
 
@@ -63,6 +66,11 @@ import {
   createGenerationIntent,
   type GenerationIntent,
 } from '@/domain/generation/generation-intent'
+import {
+  BUILT_IN_INSTRUMENT_CLEF,
+  isInstrumentClef,
+  type InstrumentClef,
+} from '@/domain/profile/instrument-clef'
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import { makeMyInstrument, type MyInstrument } from '@/domain/profile/my-instrument'
 import type { MyInstrumentDirection } from '@/domain/profile/transposition-interval'
@@ -221,9 +229,12 @@ function mountPhraseScore(
               engraved: payload,
               engraveCount,
               layoutInputsBeforeEngrave: window.__notationLayoutInputs.length,
+              clef: engravedPhrase.clef,
               systemPositionUnits: engravedSize,
-              staffTopLineUnits: planStaffPlacement(engravedPhrase.writtenRange, engravedSize)
-                .staffTopLineUnits,
+              staffTopLineUnits: planStaffPlacement(
+                { writtenRange: engravedPhrase.writtenRange, clef: engravedPhrase.clef },
+                engravedSize,
+              ).staffTopLineUnits,
               glyphIdentities: resolveGlyphIdentities(engravedPhrase, phraseNumberRef.value),
               glyphFacts: glyphFacts(engravedPhrase),
               setOverlays,
@@ -305,12 +316,24 @@ function writtenRangeParam(
 }
 
 /**
+ * Intent: read an optional clef URL parameter (`treble` or `bass`), taking the built-in treble
+ * clef when it is absent and crashing on any other value.
+ */
+function clefParam(params: URLSearchParams, name: string): InstrumentClef {
+  const clef = optionalParam(params, name, BUILT_IN_INSTRUMENT_CLEF)
+  if (!isInstrumentClef(clef)) {
+    throw new Error(`Notation harness \`${name}\` must be treble or bass, got "${clef}".`)
+  }
+  return clef
+}
+
+/**
  * Intent: the player-made instrument the URL describes (`myLow`, `myHigh`, `myOctaves`,
- * `mySemitones`, `myDirection`), built with the real `makeMyInstrument` on the C MIDI keyboard
- * template; null when the URL names none. A partial or invalid description crashes.
+ * `mySemitones`, `myDirection`, `myClef`), built with the real `makeMyInstrument` on the C MIDI
+ * keyboard template; null when the URL names none. A partial or invalid description crashes.
  */
 function readMyInstrument(params: URLSearchParams): MyInstrument | null {
-  const names = ['myLow', 'myHigh', 'myOctaves', 'mySemitones', 'myDirection']
+  const names = ['myLow', 'myHigh', 'myOctaves', 'mySemitones', 'myDirection', 'myClef']
   if (names.every((name) => params.get(name) === null)) return null
   const direction = optionalParam(params, 'myDirection', 'same')
   if (direction !== 'lower' && direction !== 'same' && direction !== 'higher') {
@@ -321,6 +344,7 @@ function readMyInstrument(params: URLSearchParams): MyInstrument | null {
   return makeMyInstrument({
     template: 'c-keyboard',
     name: 'Harness instrument',
+    clef: clefParam(params, 'myClef'),
     writtenRange: {
       minMidi: wholeNumberParam(params, 'myLow', null),
       maxMidi: wholeNumberParam(params, 'myHigh', null),
@@ -335,19 +359,30 @@ function readMyInstrument(params: URLSearchParams): MyInstrument | null {
 
 /**
  * Intent: the shared system-position size the URL sets: from the player-made instrument's written
- * range, or from `savedRange`, a saved my instrument's, whatever is engraved; null (PhraseScore's
- * built-in size) when it sets neither. Naming both is a mistyped test URL and crashes.
+ * range in its clef, or from `savedRange` in `savedClef`, a saved my instrument's, whatever is
+ * engraved; null (PhraseScore's built-in size) when it sets neither. Naming both, or `savedClef`
+ * without `savedRange`, is a mistyped test URL and crashes.
  */
 function readSystemPositionUnits(
   params: URLSearchParams,
   myInstrument: MyInstrument | null,
 ): number | null {
   const saved = params.get('savedRange') === null ? null : writtenRangeParam(params, 'savedRange')
+  if (saved === null && params.get('savedClef') !== null) {
+    throw new Error('Notation harness takes `savedClef` only with `savedRange`.')
+  }
   if (myInstrument !== null && saved !== null) {
     throw new Error('Notation harness takes a player-made instrument or `savedRange`, not both.')
   }
-  if (myInstrument !== null) return planSystemPositionUnits(myInstrument.writtenRange)
-  if (saved !== null) return planSystemPositionUnits(saved)
+  if (myInstrument !== null) {
+    return planSystemPositionUnits({
+      writtenRange: myInstrument.writtenRange,
+      clef: myInstrument.clef,
+    })
+  }
+  if (saved !== null) {
+    return planSystemPositionUnits({ writtenRange: saved, clef: clefParam(params, 'savedClef') })
+  }
   return null
 }
 
@@ -425,7 +460,8 @@ function runGeneratedSource(
     throw new Error(`Notation harness generation failed with code "${outcome.code}".`)
   }
 
-  const input: NotationPhraseInput = notationInputFromOutcome(outcome, intent)
+  const clef = myInstrument?.clef ?? BUILT_IN_INSTRUMENT_CLEF
+  const input: NotationPhraseInput = notationInputFromOutcome(outcome, intent, clef)
   const buildSnapshot = (): string =>
     JSON.stringify({
       result: outcome.result,

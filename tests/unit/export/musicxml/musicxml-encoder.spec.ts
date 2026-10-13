@@ -17,6 +17,7 @@ import {
   cKeyboardPlainSession,
   cKeyboardSession,
   ebAltoKeyChangeSession,
+  myTenorSession,
   plainPhraseFor,
 } from './musicxml-session-fixtures'
 
@@ -81,6 +82,34 @@ describe('encodeGeneratedNotesMusicXml: document shape', () => {
     expect(text(attributes[0]!, 'time > beat-type')).toBe('4')
     expect(text(attributes[0]!, 'clef > sign')).toBe('G')
     expect(text(attributes[0]!, 'clef > line')).toBe('2')
+  })
+
+  it('opens a bass-clef instrument’s part with the F clef on line 4, once', () => {
+    const document = encodeAndParse(myTenorSession('bass'))
+    const clefs = Array.from(document.querySelectorAll('measure > attributes > clef'))
+    expect(clefs.map(measureNumber)).toEqual(['1'])
+    expect(text(clefs[0]!, 'sign')).toBe('F')
+    expect(text(clefs[0]!, 'line')).toBe('4')
+  })
+
+  it('opens a treble-clef my instrument’s part with the G clef on line 2', () => {
+    const attributes = encodeAndParse(myTenorSession('treble')).querySelector('attributes')!
+    expect(text(attributes, 'clef > sign')).toBe('G')
+    expect(text(attributes, 'clef > line')).toBe('2')
+  })
+
+  it('keeps the same transpose element and notes in bass clef as in treble: only the clef differs', () => {
+    const inTreble = encodeGeneratedNotesMusicXml(myTenorSession('treble'))
+    const inBass = encodeGeneratedNotesMusicXml(myTenorSession('bass'))
+    const trebleClef = '<clef>\n          <sign>G</sign>\n          <line>2</line>'
+    const bassClef = '<clef>\n          <sign>F</sign>\n          <line>4</line>'
+    expect(inTreble).toContain(trebleClef)
+    expect(inBass).toContain(bassClef)
+    expect(inBass.replace(bassClef, trebleClef)).toBe(inTreble)
+    const transpose = parse(inBass).querySelector('transpose')!
+    expect(text(transpose, 'diatonic')).toBe('-1')
+    expect(text(transpose, 'chromatic')).toBe('-2')
+    expect(text(transpose, 'octave-change')).toBe('-1')
   })
 
   it('gives identical bytes for the same session twice', () => {

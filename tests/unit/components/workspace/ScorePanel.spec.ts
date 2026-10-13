@@ -5,6 +5,7 @@ import { GenerationFailedError } from '@/composables/workspace-session-result'
 import { NotationError } from '@/notation/notation-error'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
 import { ENGRAVED_PAYLOAD, mountHarness } from './score-panel-harness'
 import { createTestWorkspace, type TestWorkspace, useCheapControls } from './test-workspace'
@@ -113,7 +114,9 @@ describe('ScorePanel', () => {
   it('keeps a still-mounted PhraseScore visible and layers a notation-error banner over it', () => {
     const workspace = createTestWorkspace()
     const result = buildWorkspaceSessionResult()
-    const phrase = transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent))
+    const phrase = transformToWrittenPhrase(
+      notationInputFromOutcome(result.outcome, result.intent, BUILT_IN_INSTRUMENT_CLEF),
+    )
     workspace.pendingPhrase.value = phrase
     const notationError = new NotationError('notation_engraving_failed', 'boom', {})
     const brokenWorkspace: TestWorkspace = {

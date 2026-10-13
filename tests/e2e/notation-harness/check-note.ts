@@ -1,10 +1,11 @@
 /**
  * The notation harness's check-note hook, published as `window.__notationCheckNote`: it draws a
- * written MIDI note with the real engraver module's `engraveCheckNote` (fonts loaded) into one
- * `.check-note` host kept on the page, styled by the app's own stylesheet as in the connection
- * sheet, and returns a serialisable snapshot of what the host holds, so a spec can assert on the
- * drawing and run axe on the host.
+ * written MIDI note, in a clef (treble unless named), with the real engraver module's
+ * `engraveCheckNote` (fonts loaded) into one `.check-note` host kept on the page, styled by the
+ * app's own stylesheet as in the connection sheet, and returns a serialisable snapshot of what the
+ * host holds, so a spec can assert on the drawing and run axe on the host.
  */
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import type { VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 import { NotationError } from '@/notation/notation-error'
 
@@ -46,6 +47,18 @@ function contentBox(host: HTMLElement): DOMRect {
   )
 }
 
+/**
+ * Intent: the `y` of each drawn staff line, top to bottom, in the SVG's own units, read from the
+ * stave's line paths (`M<x> <y>L<x> <y>`).
+ */
+function staffLineYs(svg: SVGSVGElement): number[] {
+  return [...svg.querySelectorAll('g.vf-stave > path')].map((path) => {
+    const match = /^M\s*[-\d.]+\s+([-\d.]+)/u.exec(path.getAttribute('d') ?? '')
+    if (match === null) throw new Error('A check note staff line has no start point.')
+    return Number(match[1])
+  })
+}
+
 /** Intent: snapshot the host's drawn check note in a serialisable form; crash if nothing was drawn. */
 function checkNoteSnapshot(host: HTMLElement): NotationHarnessCheckNoteSnapshot {
   const svg = host.querySelector('svg')
@@ -64,6 +77,8 @@ function checkNoteSnapshot(host: HTMLElement): NotationHarnessCheckNoteSnapshot 
     height: svg.getAttribute('height'),
     viewBox: svg.getAttribute('viewBox'),
     clefCount: svg.querySelectorAll('g.vf-clef').length,
+    clefGlyphs: [...svg.querySelectorAll('g.vf-clef > text')].map((text) => text.textContent ?? ''),
+    staffLineYs: staffLineYs(svg),
     timeSignatureCount: svg.querySelectorAll('g.vf-timesignature').length,
     keySignatureCount: svg.querySelectorAll('g.vf-keysignature').length,
     staveNoteCount: svg.querySelectorAll('g.vf-stavenote').length,
@@ -95,19 +110,19 @@ export function notationCheckNoteHook(
   readyEngraver: () => Promise<VexflowEngraverModule>,
 ): NotationHarnessCheckNote {
   return {
-    async engrave(writtenMidi) {
+    async engrave(writtenMidi, clef = BUILT_IN_INSTRUMENT_CLEF) {
       const engraver = await readyEngraver()
       const host = checkNoteHost()
-      engraver.engraveCheckNote(host, writtenMidi)
+      engraver.engraveCheckNote(host, writtenMidi, clef)
       return checkNoteSnapshot(host)
     },
-    async engraveFailure(writtenMidi) {
+    async engraveFailure(writtenMidi, clef = BUILT_IN_INSTRUMENT_CLEF) {
       const engraver = await readyEngraver()
       const host = checkNoteHost()
       const previous = host.querySelector('svg')
       let thrown: NotationHarnessThrown | null = null
       try {
-        engraver.engraveCheckNote(host, writtenMidi)
+        engraver.engraveCheckNote(host, writtenMidi, clef)
       } catch (error) {
         thrown = thrownSnapshot(error)
       }

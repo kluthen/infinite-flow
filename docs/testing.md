@@ -719,14 +719,18 @@ reads its height budget from `staff-frame`'s computed `max-block-size`.
 - With `source=generated`, a player-made instrument instead of `profile` (which must then be
   absent): `myLow` and `myHigh`, its written range as MIDI notes, and optionally `myOctaves` and
   `mySemitones` (default 0) and `myDirection` (`lower`, `same` or `higher`; default `same`), its
-  transposition. The harness builds it with the real `makeMyInstrument` on the C MIDI keyboard
-  template (named "Harness instrument"), the controls name `my-instrument` and its profile goes to
-  `createGenerationIntent` as data. The staff is drawn at the shared system-position size
-  `planSystemPositionUnits` gives its written range. An invalid instrument throws.
+  transposition, and `myClef` (`treble` or `bass`; default `treble`), its clef. The harness builds
+  it with the real `makeMyInstrument` on the C MIDI keyboard template (named "Harness
+  instrument"), the controls name `my-instrument` and its profile goes to `createGenerationIntent`
+  as data; the clef stays out of the intent, and the written phrase carries it, so the phrase is
+  drawn in that clef. The staff is drawn at the shared system-position size
+  `planSystemPositionUnits` gives its written range in its clef. An invalid instrument, or a
+  `myClef` other than `treble` or `bass`, throws.
 - `savedRange` (optional, any source): `<low>-<high>`, a saved my instrument's written range as MIDI
-  notes. The staff is drawn at the shared size it gives, while the phrase's own instrument (a
-  built-in, or a fixture's) is engraved. It cannot be combined with a player-made instrument.
-  Without either, `PhraseScore` gets no size and draws the built-in 160 units.
+  notes, read in `savedClef` (`treble` or `bass`; default `treble`). The staff is drawn at the
+  shared size they give, while the phrase's own instrument (a built-in, or a fixture's) is engraved
+  in its own clef. It cannot be combined with a player-made instrument, and `savedClef` without
+  `savedRange` throws. Without either, `PhraseScore` gets no size and draws the built-in 160 units.
 - `phrase` (optional, default 1): the phrase number `PhraseScore` engraves the phrase as, which
   every note identity on the score carries. The default is phrase 1, the phrase a session starts
   with.
@@ -741,9 +745,11 @@ positionBlockPx } }`, where `positionBlockPx` is the height of one reserved syst
 - `{ state: 'error', errorCode, errorDetails }`, for example `notation_no_room` (the window has no
   room for the staff) or `notation_notes_too_wide` (this phrase's notes don't fit).
 
-Every ready state also carries `systemPositionUnits`, the shared size it was engraved with (160
-unless the URL names a player-made instrument or `savedRange`), and `staffTopLineUnits`, the
-staff's top line placed in it by `planStaffPlacement`.
+Every ready state also carries `clef`, the clef the engraved phrase carries and is drawn in
+(`treble` for a built-in and a fixture, the player-made instrument's `myClef` otherwise),
+`systemPositionUnits`, the shared size it was engraved with (160 unless the URL names a player-made
+instrument or `savedRange`), and `staffTopLineUnits`, the staff's top line placed in it by
+`planStaffPlacement` for the phrase's written range in its clef.
 
 Every state also carries `engraveCount`, the number of successful engravings since the page loaded,
 so a spec can prove that something (a browser toolbar showing or hiding) caused no redraw. Every
@@ -767,7 +773,7 @@ Four more globals serve the pre-draw checks, the per-system engraving and the co
 | `__notationLayoutInputs` | `NotationHarnessLayoutInputs[]`                      | Every `layout-inputs` report `PhraseScore` has made since the page loaded, in order: `{ containerWidthPx, viewport }`, with `systemPositionUnits` when the harness gives `PhraseScore` a size, the viewport's `layout` (`one-system` or `split`) with its `heightBudgetPx`, the window's height budget (`null` from `bp-tablet-landscape` up).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `__notationChecks`       | `{ planFit, planRoom }`                              | `planFit(fixture, containerWidthPx, viewport)` and `planRoom(signature, containerWidthPx, viewport)` run `planWrittenPhraseFit` on a named fixture and `planStaffRoomForKey` on a key signature, on the real engraver module once its fonts are loaded, and resolve to the verdict.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `__notationSystems`      | `{ engravePhrase, engravePart, engravePartFailure }` | `tests/e2e/notation-harness/phrase-systems.ts`, on the real engraver module once its fonts are loaded, drawing into scratch hosts laid out on the page and removed once read. `engravePhrase(fixture, phraseNumber, containerWidthPx, viewport)` draws a fixture phrase whole with `engraveWrittenPhrase` into a top and a bottom host; `engravePart(fixture, phraseNumber, part, containerWidthPx, viewport)` draws one system part (`whole`, `opening` or `closing`) with `engravePhraseSystem` into one host, and also reports how many children the host holds and whether it holds the returned SVG; both resolve to the reported geometry and a snapshot of each SVG drawn (its size and `viewBox`, its markup with VexFlow's `autoN` ids renamed in order of first appearance, its note ids and each measure slot's measure and system index). `engravePartFailure` draws into a host holding a sentinel child and resolves to what was thrown (name, `NotationError` code, message, or `null`), the host's child count and whether the sentinel was kept. |
-| `__notationCheckNote`    | `{ engrave, engraveFailure }`                        | `tests/e2e/notation-harness/check-note.ts`, on the real engraver module once its fonts are loaded, drawing with `engraveCheckNote` into one `.check-note` host kept on the page (`#check-note-host`, styled by the app's own stylesheet as in the connection sheet, so a spec can run axe on it). `engrave(writtenMidi)` resolves to a snapshot of what the host holds: the SVG's class, role, accessible name, size and `viewBox`; how many clefs, time signatures, key signatures and notes it drew; the notehead group's glyph texts and the notehead's `y`; each ledger line's own `stroke` attribute; whether the SVG fits the host's content box; and the host's colour and the notehead's fill. `engraveFailure(writtenMidi)` makes the same call and resolves to what was thrown (or `null`), the host's child count and whether the previous SVG was kept.                                                                                                                                                                                               |
+| `__notationCheckNote`    | `{ engrave, engraveFailure }`                        | `tests/e2e/notation-harness/check-note.ts`, on the real engraver module once its fonts are loaded, drawing with `engraveCheckNote` into one `.check-note` host kept on the page (`#check-note-host`, styled by the app's own stylesheet as in the connection sheet, so a spec can run axe on it). `engrave(writtenMidi, clef?)` draws the note on a staff in `clef` (`treble` or `bass`; treble when absent) and resolves to a snapshot of what the host holds: the SVG's class, role, accessible name, size and `viewBox`; how many clefs, time signatures, key signatures and notes it drew; the clef's glyph text (SMuFL U+E050 for the G clef, U+E062 for the F clef) and each staff line's `y`, top to bottom; the notehead group's glyph texts and the notehead's `y`; each ledger line's own `stroke` attribute; whether the SVG fits the host's content box; and the host's colour and the notehead's fill. `engraveFailure(writtenMidi, clef?)` makes the same call and resolves to what was thrown (or `null`), the host's child count and whether the previous SVG was kept.                                                                                                                                                                                               |
 
 The generated source also publishes `sourceSnapshot` (the JSON of the result, provenance, request
 and intent right after generation) and `currentSnapshot()`, which recomputes it, so a spec can check

@@ -22,6 +22,7 @@ import {
 } from 'vexflow/bravura'
 
 import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
+import type { InstrumentClef } from '../domain/profile/instrument-clef'
 import { NotationError } from './notation-error'
 import type { SystemLayoutPlan } from './notation-layout-policy'
 import type { StaffKeySignature } from './staff-fit-types'
@@ -54,12 +55,19 @@ export interface SystemStaveSpec {
 }
 
 /**
- * Intent: add the clef and key signature every system starts with. The engraver's leading-width
- * measurement (for a phrase's layout and for the phrase-independent room check alike) uses the
- * same helper, so the measured width always matches the drawn staff.
+ * Intent: add the clef and key signature every system starts with: the instrument's clef, then the
+ * key signature, whose accidentals VexFlow places on that clef's lines (it reads the stave's clef
+ * when it formats them). The engraver's leading-width measurement (for a phrase's layout and for
+ * the phrase-independent room check alike) uses the same helper, so the measured width always
+ * matches the drawn staff.
  */
-export function addClefAndKey(stave: Stave, signature: StaffKeySignature): void {
-  stave.addClef('treble')
+// @spec-link [[module_notation_display_convention]]
+export function addClefAndKey(
+  stave: Stave,
+  clef: InstrumentClef,
+  signature: StaffKeySignature,
+): void {
+  stave.addClef(clef)
   stave.addKeySignature(signature.count === 0 ? 'C' : mapKeySpec(signature.ionianTonic))
 }
 
@@ -87,7 +95,7 @@ export function buildSystemStaves(phrase: WrittenPhrase, spec: SystemStaveSpec):
   })
 
   const first = staves[0]!
-  addClefAndKey(first, phrase.key.signature)
+  addClefAndKey(first, phrase.clef, phrase.key.signature)
   if (spec.withTimeSignature) first.addTimeSignature('4/4')
   if (spec.endsPhrase) staves[staves.length - 1]!.setEndBarType(Barline.type.END)
   if (spec.alignTo) {

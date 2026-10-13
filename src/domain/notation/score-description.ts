@@ -5,8 +5,8 @@
  * an accessible alternative can be shown alongside the SVG without re-deriving anything from it.
  *
  * Format:
- * - `summary`: "<mode> notation, treble clef, key signature <N sharps|flats|no sharps or flats>
- *   (<tonic> <collection>), 4/4 time, four measures."
+ * - `summary`: "<mode> notation, <treble|bass> clef, key signature <N sharps|flats|no sharps or
+ *   flats> (<tonic> <collection>), 4/4 time, four measures.", where the clef is the phrase's own.
  * - each of the four `measures` strings: "Measure <n>: <block>; <block>; ...." where a block is
  *   either one chord announcement ("chord <root>[ <suffix words>][ over <bass>]") placed
  *   immediately before the tick it starts at, or a run of comma-joined note/rest tokens
@@ -99,12 +99,12 @@ function signatureWords(signature: WrittenKey['signature']): string {
   return `${signature.count} ${noun}`
 }
 
-/** Intent: build the one-line summary of a written phrase's key and meter. */
+/** Intent: build the one-line summary of a written phrase's clef, key and meter. */
 function summaryOf(phrase: WrittenPhrase): string {
   const signature = signatureWords(phrase.key.signature)
   const label = spellAccidentalsAsWords(phrase.key.label)
   return (
-    `Written notation, treble clef, key signature ${signature} (${label}), ` +
+    `Written notation, ${phrase.clef} clef, key signature ${signature} (${label}), ` +
     `4/4 time, four measures.`
   )
 }

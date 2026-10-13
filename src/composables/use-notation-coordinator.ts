@@ -16,6 +16,7 @@ import { ref, type Ref } from 'vue'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { NotationError } from '@/notation/notation-error'
 import type {
   StaffFitVerdict,
@@ -85,7 +86,9 @@ function sizeArgument(inputs: StaffLayoutInputs): [] | [number] {
 /** Intent: the written phrase a result is drawn as: the active profile's own written pitch. */
 // @spec-link [[module_idle_fit_round]]
 function writtenPhraseOf(result: WorkspaceGeneratedPhrase): WrittenPhrase {
-  return transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent))
+  // The selected instrument's clef: my instrument's reaches here with chunks 17 and 20.
+  const clef = BUILT_IN_INSTRUMENT_CLEF
+  return transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent, clef))
 }
 
 /** Intent: build one coordinator instance for one workspace session's PhraseScore lifetime. */

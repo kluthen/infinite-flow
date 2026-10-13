@@ -30,14 +30,27 @@ import type {
   WrittenEvent,
   WrittenMeasure,
 } from '../domain/notation/written-phrase-types'
+import type { InstrumentClef } from '../domain/profile/instrument-clef'
 import type { NotePartRefs } from './note-part-tags'
 
+/** Where a clef's staff places its rests, as VexFlow keys read in that clef. */
+interface ClefRestKeys {
+  /** Every rest but a whole rest: the middle line. */
+  readonly rest: string
+  /** A whole rest, which by engraving convention hangs from the fourth line from the bottom. */
+  readonly wholeRest: string
+}
+
 /**
- * The rest key position for every notated rest: the middle line, except a whole rest, which by
- * engraving convention hangs from the fourth line.
+ * The rest key positions for every notated rest, per clef: the middle line (written B4 in treble,
+ * D3 in bass), except a whole rest, which hangs from the fourth line from the bottom (written D5
+ * in treble, F3 in bass). The keys are read in the note's own clef, so both sit on the same lines.
  */
-const REST_KEY = 'b/4'
-const WHOLE_REST_KEY = 'd/5'
+// @spec-link [[module_notation_display_convention]]
+const REST_KEYS: Readonly<Record<InstrumentClef, ClefRestKeys>> = {
+  treble: { rest: 'b/4', wholeRest: 'd/5' },
+  bass: { rest: 'd/3', wholeRest: 'f/3' },
+}
 
 /** Intent: render a spelled alteration as the VexFlow accidental-letter suffix ('', '#', 'bb', ...). */
 function alterSuffix(alter: Alter): string {
@@ -56,9 +69,13 @@ export function mapKeySpec(ionianTonic: SpelledPitchClass): string {
   return `${ionianTonic.letter}${alterSuffix(ionianTonic.alter)}`
 }
 
-/** Intent: choose the conventional vertical position for a rest of the given notated duration. */
-function restKey(duration: NotatedDuration): string {
-  return duration.value === 'whole' ? WHOLE_REST_KEY : REST_KEY
+/**
+ * Intent: choose the conventional vertical position for a rest of the given notated duration, on
+ * the staff of `clef`.
+ */
+function restKey(duration: NotatedDuration, clef: InstrumentClef): string {
+  const keys = REST_KEYS[clef]
+  return duration.value === 'whole' ? keys.wholeRest : keys.rest
 }
 
 const DURATION_CODES: Readonly<Record<NotatedDuration['value'], string>> = {
@@ -108,8 +125,9 @@ function inheritStaffColourOnLedgerLines(note: StaveNote): void {
 }
 
 /**
- * Build one StaveNote glyph for a written note or rest event verbatim: pitch/rest position,
- * duration, dot and a note's stem direction come straight from the model; the displayed accidental
+ * Build one StaveNote glyph for a written note or rest event verbatim, on the staff of `clef`:
+ * pitch/rest position, duration, dot and a note's stem direction come straight from the model; the
+ * glyph is given the clef, so VexFlow places its key on that clef's lines; the displayed accidental
  * (if any) is attached as-is, never recomputed. The stem direction is set in the constructor
  * struct, never by `autoStem` and never later through `setStemDirection` (which would drop a beam
  * already attached), so `new Beam(...)` finds it preset. A rest gets no stem direction. Every
@@ -118,11 +136,12 @@ function inheritStaffColourOnLedgerLines(note: StaveNote): void {
  */
 // @spec-link [[module_notation_display_convention]]
 // @spec-link [[module_notation_stem_direction]]
-export function buildStaveNote(event: WrittenEvent): StaveNote {
+export function buildStaveNote(event: WrittenEvent, clef: InstrumentClef): StaveNote {
   const isRest = event.kind === 'rest'
   const struct: StaveNoteStruct = {
-    keys: [isRest ? restKey(event.duration) : mapPitchKey(event.pitch)],
+    keys: [isRest ? restKey(event.duration, clef) : mapPitchKey(event.pitch)],
     duration: mapDurationCode(event.duration, isRest),
+    clef,
     ...(isRest ? {} : { stemDirection: event.stemDirection === 'down' ? Stem.DOWN : Stem.UP }),
   }
   const note = new StaveNote(struct)

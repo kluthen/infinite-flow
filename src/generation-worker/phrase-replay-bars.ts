@@ -13,6 +13,7 @@ import type { ConcertEventTimeline } from '../domain/events/timeline'
 import type { BarRole, HarmonyEvent } from '../domain/harmony/harmony-types'
 import { notationInputFromOutcome } from '../domain/notation/notation-input'
 import { transformToWrittenPhrase } from '../domain/notation/written-phrase'
+import { BUILT_IN_INSTRUMENT_CLEF } from '../domain/profile/instrument-clef'
 import type {
   ConcertChordSymbol,
   WrittenKey,
@@ -115,7 +116,8 @@ export interface ReplayNotation {
 /** Intent: run the existing notation path on a successful outcome and its intent. */
 // @spec-link [[service_headless_phrase_replay]]
 export function replayNotation(outcome: SuccessOutcome, intent: GenerationIntent): ReplayNotation {
-  const input = notationInputFromOutcome(outcome, intent)
+  // Always treble: the replay key carries no clef and the replay tool shows no staff.
+  const input = notationInputFromOutcome(outcome, intent, BUILT_IN_INSTRUMENT_CLEF)
   return { written: transformToWrittenPhrase(input), concertChords: input.chords }
 }
 

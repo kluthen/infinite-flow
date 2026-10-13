@@ -11,6 +11,7 @@ import type { HarmonyCandidate, HarmonyEvent, TriadQuality } from '../harmony/ha
 import type { GenerationIntent } from '../generation/generation-intent'
 import type { GenerationOutcome } from '../generation/orchestration/orchestration-types'
 import type { GenerationResult } from '../generation/generation-result'
+import { isInstrumentClef, type InstrumentClef } from '../profile/instrument-clef'
 import {
   NotationInputError,
   type ConcertChordSymbol,
@@ -132,13 +133,18 @@ export function chordSymbolsFromHarmony(harmony: HarmonyCandidate): readonly Con
 }
 
 /**
- * Intent: crash early unless a notation input's concert range is two integers, low below high,
- * and its chord symbols are strictly ascending by measure then tick, every tick is an integer in
+ * Intent: crash early unless a notation input's clef is treble or bass, its concert range is two
+ * integers, low below high, and its chord symbols are strictly ascending by measure then tick, every tick is an integer in
  * [0, 15], every measure index is 0-3, and every measure carries a chord symbol at tick 0 — the
  * explicit shape the display transform depends on.
  */
 // @spec-link [[module_notation_display_convention]]
 export function validateNotationPhraseInput(input: NotationPhraseInput): void {
+  if (!isInstrumentClef(input.clef)) {
+    throw new NotationInputError(
+      `Notation input clef must be treble or bass, got ${JSON.stringify(input.clef)}.`,
+    )
+  }
   const range = input.concertRange
   if (
     !Number.isInteger(range.minMidi) ||
@@ -195,13 +201,15 @@ export interface MakeNotationPhraseInputArgs {
   readonly harmony: HarmonyCandidate
   readonly transposition: NotationPhraseInput['transposition']
   readonly concertRange: NotationPhraseInput['concertRange']
+  /** The instrument's own clef, from the instrument itself, never from the generation intent. */
+  readonly clef: InstrumentClef
 }
 
 /**
  * Intent: assemble and validate the explicit NotationPhraseInput a display transform reads, from
  * an already-produced GenerationResult, its selected written tonal context, the harmony candidate
- * that produced it, and the active instrument profile's transposition and active concert range.
- * References the result's timeline as-is (it is already deep-frozen by its own constructor) rather
+ * that produced it, the active instrument profile's transposition and active concert range, and
+ * the instrument's own clef (the instrument's value, never the generation intent's). References the result's timeline as-is (it is already deep-frozen by its own constructor) rather
  * than copying or otherwise touching it, and deep-freezes only the new envelope object this
  * function returns.
  */
@@ -214,6 +222,7 @@ export function makeNotationPhraseInput(input: MakeNotationPhraseInputArgs): Not
     chords,
     transposition: input.transposition,
     concertRange: { minMidi: input.concertRange.minMidi, maxMidi: input.concertRange.maxMidi },
+    clef: input.clef,
   }
   validateNotationPhraseInput(phraseInput)
   return deepFreeze(phraseInput)
@@ -223,14 +232,17 @@ export function makeNotationPhraseInput(input: MakeNotationPhraseInputArgs): Not
  * Intent: build the NotationPhraseInput for one successful generation outcome, deriving the
  * written tonal context, transposition and concert range from the intent (the written selection
  * and the active instrument profile's own transposition and active concert range) and the chord
- * symbols from the outcome's harmony provenance. Crashes as a typed NotationInputError when the outcome's result was not produced by
- * this intent (a mismatched requestId), since a display transform must never be applied to a
+ * symbols from the outcome's harmony provenance. The clef is passed in by the caller from the
+ * instrument the phrase is drawn for: the intent never carries it, as the clef stays outside the
+ * generation intent. Crashes as a typed NotationInputError when the outcome's result was not
+ * produced by this intent (a mismatched requestId), since a display transform must never be applied to a
  * result it was not generated for.
  */
 // @spec-link [[module_notation_display_convention]]
 export function notationInputFromOutcome(
   outcome: Extract<GenerationOutcome, { kind: 'generation_success' }>,
   intent: GenerationIntent,
+  clef: InstrumentClef,
 ): NotationPhraseInput {
   if (outcome.result.requestId !== intent.requestId) {
     throw new NotationInputError(
@@ -247,5 +259,6 @@ export function notationInputFromOutcome(
     harmony: outcome.provenance.harmony,
     transposition: intent.instrumentProfile.transposition,
     concertRange: intent.instrumentProfile.concertRange,
+    clef,
   })
 }

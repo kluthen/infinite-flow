@@ -21,6 +21,7 @@ import { makeNoteEvent, type MeasureEvent } from '@/domain/events/measure-event'
 import { makeConcertEventTimeline } from '@/domain/events/timeline'
 import { makeRational } from '@/domain/time/rational'
 import { BB_TENOR_PROFILE, EB_ALTO_PROFILE } from '@/domain/profile/instrument-profiles'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { assignStemDirections, type UnstemmedWrittenNote } from '@/domain/notation/stem-direction'
@@ -129,7 +130,10 @@ type UnstemmedMeasure = Omit<WrittenMeasure, 'events'> & {
  * notes (beam groups included), so no fixture hard-codes a direction.
  */
 function stemmedMeasure(measure: UnstemmedMeasure): WrittenMeasure {
-  return { ...measure, events: assignStemDirections(measure.events, measure.beamGroups) }
+  return {
+    ...measure,
+    events: assignStemDirections(measure.events, measure.beamGroups, BUILT_IN_INSTRUMENT_CLEF),
+  }
 }
 
 const SIXTEENTH: NotatedDuration = { value: 'sixteenth', dots: 0, ticks: 1 }
@@ -490,6 +494,7 @@ function buildTransformedPhrase(
     chords: tonicChordEachMeasure(),
     transposition: instrument.transposition,
     concertRange: instrument.concertRange,
+    clef: BUILT_IN_INSTRUMENT_CLEF,
   }
   return transformToWrittenPhrase(input)
 }
@@ -569,6 +574,7 @@ function buildStemDirectionsPhrase(): WrittenPhrase {
     chords: tonicChordEachMeasure(),
     transposition: CONCERT_TRANSPOSITION,
     concertRange: FIXTURE_WRITTEN_RANGE,
+    clef: BUILT_IN_INSTRUMENT_CLEF,
   })
 }
 
@@ -585,6 +591,7 @@ function buildMyInstrumentTritoneHigherPhrase(): WrittenPhrase {
   const myInstrument = makeMyInstrument({
     template: 'c-keyboard',
     name: 'Tritone instrument',
+    clef: 'treble',
     writtenRange: { minMidi: 54, maxMidi: 78 },
     transposition: { octaves: 0, semitones: 6, direction: 'higher' },
   })
@@ -617,6 +624,7 @@ function buildMyInstrumentTritoneHigherPhrase(): WrittenPhrase {
     chords: [chord(0, 0, ''), chord(1, 5, ''), chord(2, 7, '7'), chord(3, 0, '')],
     transposition: myInstrument.profile.transposition,
     concertRange: myInstrument.profile.concertRange,
+    clef: myInstrument.clef,
   })
 }
 

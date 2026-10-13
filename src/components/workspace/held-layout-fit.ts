@@ -6,6 +6,7 @@
  */
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import { heldViewport, type StaffLayout } from '@/notation/notation-layout-policy'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
@@ -15,7 +16,9 @@ import type { StaffFitPlanner } from './workspace-session-controller-seams'
 /** Intent: the written phrase of a session phrase, as the staff engraves it. */
 // @spec-link [[module_session_display_fit]]
 export function writtenPhraseOf(phrase: Pick<FitCandidate, 'intent' | 'outcome'>): WrittenPhrase {
-  return transformToWrittenPhrase(notationInputFromOutcome(phrase.outcome, phrase.intent))
+  // The session instrument's clef: my instrument's reaches here with chunks 17 and 20.
+  const clef = BUILT_IN_INSTRUMENT_CLEF
+  return transformToWrittenPhrase(notationInputFromOutcome(phrase.outcome, phrase.intent, clef))
 }
 
 /**

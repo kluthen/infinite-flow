@@ -13,6 +13,7 @@ import { defineComponent, h, shallowRef } from 'vue'
 import PhraseScore from '@/components/notation/PhraseScore.vue'
 import type { SessionStaff } from '@/components/notation/session-staff'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
 import { fakePhraseEngraver, resetFakePhraseEngraver } from './fake-phrase-engraver'
@@ -20,7 +21,9 @@ import { fakePhraseEngraver, resetFakePhraseEngraver } from './fake-phrase-engra
 vi.mock('@/notation/vexflow-engraver-loader', () => import('./fake-phrase-engraver'))
 
 const result = buildWorkspaceSessionResult('phrase-score-size', 1)
-const PHRASE = transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent))
+const PHRASE = transformToWrittenPhrase(
+  notationInputFromOutcome(result.outcome, result.intent, BUILT_IN_INSTRUMENT_CLEF),
+)
 const WIDTH_PX = 800
 const VIEWPORT = { layout: 'one-system', heightBudgetPx: null } as const
 

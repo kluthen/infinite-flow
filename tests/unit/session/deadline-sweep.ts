@@ -36,6 +36,7 @@ import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { makeSeed } from '@/domain/random/seed'
 import {
@@ -350,7 +351,9 @@ export function writtenPhraseFits(candidate: {
   readonly outcome: Parameters<typeof notationInputFromOutcome>[0]
   readonly intent: GenerationIntent
 }): Promise<boolean> {
-  transformToWrittenPhrase(notationInputFromOutcome(candidate.outcome, candidate.intent))
+  transformToWrittenPhrase(
+    notationInputFromOutcome(candidate.outcome, candidate.intent, BUILT_IN_INSTRUMENT_CLEF),
+  )
   return Promise.resolve(true)
 }
 

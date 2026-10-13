@@ -49,7 +49,7 @@ function phraseOpening(
   const key = phrase.writtenPhrase.key
   const opening: XmlElement[] = []
   if (previous === null) {
-    opening.push(openingAttributes(key, input.instrument.transposition))
+    opening.push(openingAttributes(key, input.instrument.transposition, phrase.writtenPhrase.clef))
   } else if (!sameKey(previous.writtenPhrase.key, key)) {
     opening.push(keyChangeAttributes(key))
   }
