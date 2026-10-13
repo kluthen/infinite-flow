@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.58
+Status: draft v0.59
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -15,8 +15,9 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 [v2 archive index](archive/v2/README.md) says where each answer now lives.
 
 Open on 2026-10-13: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
-O115 and O116 (v3.x learning), O176 (style packs and the chord level, below), and O180 (v3.0
-wave 2: octave signs, later). The owner closed O182 (what Regenerate does in the stale-phrase
+O115 and O116 (v3.x learning), O176 (style packs and the chord level, below), O180 (v3.0
+wave 2: octave signs, later) and O183 (v3.0 wave 2: the warm worker lost when pre-generation is
+cancelled, opened with D298). The owner closed O182 (what Regenerate does in the stale-phrase
 prompt) on 2026-10-13, the day it was opened (D297's ruling note). D295 and D296 closed O181 the day it was opened. D228–D234 closed O10 (for v3.2), O103, O114, O126 and every
 question the v3.1 and v3.2 drafts opened (O127–O157, O160–O162); D257 and D258 closed O163 and
 O164 the day they were opened. None blocks the v3.0 build.
@@ -123,7 +124,7 @@ spec Part A v1.9. O180–O189 are reserved for v3.0 wave 2. O181 (the shared hei
 already made) was closed the same day by D295 and D296: kept sessions belong to their instrument,
 a range or transposition change erases them after a warning, a save that changes the shared
 height re-checks the pre-generated phrases, and a review never cuts a phrase. Its full text is in
-this register's history in git. O180 blocks no wave-2 chunk. O182 (opened 2026-10-13 with D297, ISS-011) was closed
+this register's history in git. O180 and O183 block no wave-2 chunk. O182 (opened 2026-10-13 with D297, ISS-011) was closed
 the same day by the owner's ruling recorded in D297: Regenerate runs the usual Idle Regenerate
 and the app stays at Idle with the new phrase. Its full text is in this register's history in
 git.
@@ -142,3 +143,21 @@ git.
   octave clef, a fixed octave sign over a whole phrase, or ottava lines placed automatically?
   Proposed: not before a player's range shows the need; an octave clef on my instrument first,
   since it moves nothing within a phrase.
+- **O183 - A player request that cancels pre-generation loses the warm worker** _(D298, master
+  spec §8; opened 2026-10-13 at the wave-2 intent sync)_: a player request at Idle cancels the
+  background attempt in flight the way a dropped session attempt is cancelled, by replacing the
+  generation worker (D290). The rhythm-domain memo lives in the worker, so it goes with it: the
+  domain phrase 1 and the prewarm built is lost, and the fresh worker is prewarmed with the
+  cancelled attempt's settings only. Pre-generation runs up to four attempts right after each
+  phrase 1 appears, so a player who presses Regenerate again soon after will often land on one.
+  In v2 that Regenerate, with unchanged settings, was a memo hit; in v3.0 it can pay the worker
+  respawn (median 49 ms in Chromium on the reference machine) plus a cold rhythm-domain build
+  (under 1 s in Chromium there, more on the tablet). That is not "waiting behind" the background
+  attempt, which is gone, but it is a wait the background work causes, against §8's "the player
+  never waits behind it". Not measured yet: no M or H check covers a player request during
+  pre-generation. Open: is this cost acceptable, and if not, should the background attempt be
+  stopped without losing the memo (for example, let it finish when its settings match the
+  player's, or have the worker drop it between steps rather than be replaced)? Proposed: measure
+  it first (Regenerate twice in quick succession, pre-generation on and off, on the reference
+  machine and the tablet), then put the figure to the owner. It blocks no wave-2 chunk; the code
+  as built matches §8 and D290.

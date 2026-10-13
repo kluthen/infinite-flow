@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.58
+Status: draft v0.59
 
 ## Status Snapshot
 
@@ -91,10 +91,14 @@ Status: draft v0.58
   contract wording accepted as MAJOR (CONTRACT 5.0, `documentalist` applies it). Master spec
   Part A v1.12 §16; build plan v9 adds chunk 24b in wave 9; its **Stale phrase design** gate for
   `ux-writer` can start.
-- **Open:** 9 questions, none blocking work under way: O48 and O49 (later and governance),
-  O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level)
-  and O180 (octave signs, later). D295 and D296 closed O181; the owner's ruling in D297 closed
-  O182.
+- **Pre-generation and the prewarm** (2026-10-13, D298): master spec §8's "runs after v2's
+  prewarm" means after the prewarm is posted, as chunk 24 built it (Part A v1.13, a wording
+  clarification). O183 opened: a player request that cancels a background attempt replaces the
+  worker and loses its warm rhythm-domain memo; to measure, then put to the owner.
+- **Open:** 10 questions, none blocking work under way: O48 and O49 (later and governance),
+  O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
+  O180 (octave signs, later) and O183 (pre-generation's cancellation cost). D295 and D296 closed
+  O181; the owner's ruling in D297 closed O182.
   O163 and O164 closed by D257 and D258; D262 closed O174; D264–D273 settled O165–O173 and O175
   in Part D, pending the owner's approval.
   v3.1 and v3.2 drafts approved by the owner (D233, D234),

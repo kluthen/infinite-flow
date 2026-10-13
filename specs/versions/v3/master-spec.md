@@ -2,7 +2,7 @@
 
 Status: this file holds four parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.12 (2026-10-13), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.13 (2026-10-13), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
   v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
@@ -10,7 +10,8 @@ Status: this file holds four parts.
   my instrument's written range and the rule that kept sessions belong to their instrument, the
   owner's rulings later that day; v1.11 adds §16, asking before Start when the phrase on screen
   is stale (ISS-011), the owner's ruling of 2026-10-13; v1.12 writes in his rulings the same day
-  on what Regenerate does there and on the starting note's contract wording (CONTRACT 5.0).
+  on what Regenerate does there and on the starting note's contract wording (CONTRACT 5.0);
+  v1.13 is a wording clarification (§8), no behaviour changed.
   No contract wording it needs waits for the owner any more (§10).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
@@ -27,7 +28,7 @@ Status: this file holds four parts.
 
 Part A's history follows.
 
-Part A status: master spec v1.12 (2026-10-13), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
+Part A status: master spec v1.13 (2026-10-13), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
 remembered controller (§7.3). Change in v1.2: behaviours the v3.0 design settled, written in:
 when settings are read and saved, what Delete everything leaves, which sessions a save deletes,
 favorites and unpinning, the played-notes switch on the session that just ended, my instrument's
@@ -90,7 +91,10 @@ review's reachability wording as a major change on 2026-10-12 (CONTRACT 4.0; §1
 in v1.12, the owner's rulings later on 2026-10-13 (spec D297, ruling note): Regenerate runs the
 usual Idle Regenerate and the app stays at Idle with the new phrase, the player pressing Start
 again (closes O182); the starting note's contract wording is accepted as proposed, a major
-change (CONTRACT 4.0 to 5.0) (§10, item 23, item 24, §14, §16).
+change (CONTRACT 4.0 to 5.0) (§10, item 23, item 24, §14, §16). Change in v1.13, a wording
+clarification at the v3.0 wave-2 intent sync, no behaviour changed (spec D298): "Pre-generation
+runs after v2's prewarm" means its requests are posted after the prewarm, to the same worker,
+which serves them between the prewarm's slices; it does not wait for the prewarm to finish (§8).
 Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. Part A covers **v3.0
 only**; Part B, consolidated from the approved v3.1 drafts for the same handoffs, covers v3.1. The
@@ -621,8 +625,9 @@ clef with the phrase (§5.2).
   instrument that changes the staff's shared height (§7.1) without discarding them, such as a
   change of its clef, or of its range while another profile is selected, re-checks them the same
   way.
-- **The player comes first.** Pre-generation runs after v2's prewarm, on the same generation
-  worker. Any request the player makes at Idle cancels the background attempt in progress, the way
+- **The player comes first.** Pre-generation's requests go to the same generation worker as the
+  player's, posted after v2's prewarm; the worker serves them between the prewarm's slices, as it
+  serves the player's, so pre-generation does not wait for the prewarm to finish. Any request the player makes at Idle cancels the background attempt in progress, the way
   a dropped attempt is cancelled in a session, so the player never waits behind it. Only a
   background attempt can be cancelled this way: the player's own requests at Idle are never
   cancelled, as in v2.

@@ -204,8 +204,13 @@ template with no transposition, so the written range is the concert range, and c
 other control keeps the workspace default (register Varying). It counts failed generations by
 failure code.
 
-Measured 2026-10-11 on the build machine (AMD Ryzen 5 PRO 8640HS, 12 threads, not a VM), 25 s in
-all; a reference figure only, which gates nothing until the owner's range ruling:
+Measured 2026-10-11 on the reference machine (AMD Ryzen 5 PRO 8640HS, 12 threads, not a VM), 25 s
+in all. The product owner confirmed on 2026-10-12 that this machine is the reference machine, so
+this run is M3's recorded generator figure. His range ruling the same day (spec D294) bounds my
+instrument's written range to C2–C7 (MIDI 36–96) in treble clef and E0–E5 (MIDI 16–76) in bass
+clef, both ends included. The two-octave middle case and the four-octave case lie inside the
+treble bound; the other cases can no longer be saved, and stay as evidence that the generator
+does not fail even at the extremes of the MIDI note range:
 
 | Range case | Written range | Generations | Failures | Share | Failures by code |
 | --- | --- | --- | --- | --- | --- |
@@ -220,7 +225,9 @@ all; a reference figure only, which gates nothing until the owner's range ruling
 No range case fails: the generator places every phrase inside the derived register windows
 whatever their position or width. The written-range bound for the staff height is the other half
 of M3, measured with the engraving calibration and recorded in
-[`notation-engraving.md`](notation-engraving.md#my-instruments-written-range-m3-2026-10-12).
+[`notation-engraving.md`](notation-engraving.md#my-instruments-written-range-m3-2026-10-12): the
+bound keeps the shared staff size at no more than 24 staff spaces, and the bass-clef bound E0–E5
+engraved at exactly 24 (chunk 19b, 2026-10-13).
 
 ## Failure-ladder reserve constants (2026-10-07)
 

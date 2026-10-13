@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.86
+Status: draft v2.87
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1267,3 +1267,22 @@ from `main`); D289 is unused. D290–D299 are reserved for v3.0 wave 2.
 
   Master spec Part A v1.12 (§10, items 23 and 24, §14, §16); build plan v9's owner steps **O182**
   and **Starting-note wording** are done, and the **Stale phrase design** gate can start.
+
+- **D298 (2026-10-13): pre-generation runs after the prewarm is posted, not after it finishes;
+  O183 opened.** At the v3.0 wave-2 intent sync, `documentalist` asked what master spec §8's
+  "Pre-generation runs after v2's prewarm" means, against `rule_pregeneration_yields_to_player`'s
+  "runs only after the generator has warmed up". Chunk 24's code (`create-workspace-session.ts`,
+  `workspace-pregeneration.ts`, `generation-worker-client.ts`) posts the prewarm when the
+  workspace session is built and after each rhythm-setting change; pre-generation posts its first
+  attempt later, once phrase 1 is on screen, to the same worker, which answers a request between
+  prewarm slices as v2 already does for the player's. Ruling, by `spec-writer` as a wording
+  clarification: the spec means **after the prewarm is posted**, and the code matches the intent.
+  Why: the player is protected by the cancellation (any player request at Idle aborts the
+  background attempt in flight), not by when pre-generation starts; the page has no signal for a
+  finished prewarm (see `docs/generation-latency.md`), so "finished" was never an observable
+  condition; and pre-generation starts only with phrase 1 on screen, whose own generation has
+  already built its rhythm setting's domain in the same memo the prewarm fills. No behaviour
+  changes. Master spec Part A v1.13 (§8) says so; the atom's wording is `documentalist`'s to
+  align. While checking this, `spec-writer` found a consequence the spec had not traced, opened as
+  [O183](open-questions.md#v30-wave-2-o180): cancelling a background attempt replaces the worker,
+  and with it the rhythm-domain memo the prewarm and phrase 1 warmed.
