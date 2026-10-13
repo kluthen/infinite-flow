@@ -1,6 +1,12 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v8 (2026-10-12): the owner's range bound and his ruling that kept sessions belong to
+Status: v9 (2026-10-13): the owner's ruling on ISS-011, a stale phrase at Start (spec D297,
+master spec Part A v1.11): a new [chunk 24b](#chunk-24b--stale-phrase-at-start) in wave 9, beside
+chunk 20c, with a **Stale phrase design** gate, the owner steps **Starting-note wording** (a
+proposed contract wording) and **O182**, hand check H9, and §2, §7, §8 and chunk 26 updated; the
+**Review reachability** step recorded as done (CONTRACT 4.0)
+([Wave records](#owner-ruling-at-the-end-of-wave-2-a-stale-phrase-at-start-2026-10-13));
+v8 (2026-10-12): the owner's range bound and his ruling that kept sessions belong to
 their instrument (spec D294–D296, master spec Part A v1.10): the range ruling and O181 settled, a
 new [chunk 20c](#chunk-20c--my-instruments-sessions) in a new wave 9 with a **Sessions design**
 gate, the owner step **Review reachability** (a proposed contract wording), and chunks 17, 20,
@@ -66,7 +72,10 @@ Some steps are not code and need the owner. They are part of the sequence:
 | **Clef design** | `ux-writer` designs the clef control in my instrument's sheet, its wording and its default (proposed: treble clef), the staff-reach note read in the chosen clef, and the refusal of a range outside its clef's bound, in note names (spec D294) (ux D280+ and ux Q80+). | Now; before chunk 20. | Chunk 20. Chunk 19b may start before it: its only words are the score description's clef name, "bass clef" in the existing pattern, revised if `ux-writer` says otherwise. |
 | **O181** | **Closed 2026-10-12 (spec D295, D296):** a save that changes the shared height re-checks the pre-generated phrases; a review never cuts a phrase (its design is in the Sessions design gate). | Done. | Nothing. |
 | **Sessions design** | `ux-writer` designs, for spec D295 and D296: the warning before a range or transposition change erases my instrument's kept sessions (in its sheet, and in the check's **Use for my instrument** confirmation), with how many; the delete confirmation naming the sessions that go with my instrument; where the player lands when the review on screen loses its session; how an outdated tab's sheet withholds deleting my instrument and a range or transposition change while it has kept sessions; and how a review makes room for a session that needs more height than the shared height (proposed: the larger of the two). | Now; before chunk 20c. | [Chunk 20c](#chunk-20c--my-instruments-sessions). |
-| **Review reachability** | The owner confirms the proposed wording of `req_last_session_review` (STABLE): the review stays reachable until the next session starts "or until the player deletes its session", and whether it is a MAJOR bump (the contract's rule) or MINOR ([master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees), spec D295); `documentalist` applies it with the contract bump. | Before chunk 12 merges. | Chunks 12 and 20c may not **merge** before it: chunk 12's `Delete session` already ends the review of the session that just ended, and chunk 20c adds the deletions through my instrument. |
+| **Review reachability** | **Done 2026-10-12:** the owner confirmed the wording of `req_last_session_review` (STABLE): the review stays reachable until the next session starts "or until the player deletes its session", as a MAJOR bump ("1. ok, major"; [master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees), spec D295, D297); `documentalist` applied it (CONTRACT 4.0). | Done. | Nothing. |
+| **Starting-note wording** | The owner confirms the proposed wording of `rule_midi_starting_note` (STABLE): with a stale phrase 1, the starting note first asks, as the Start button does, and the count-in starts only if the player chooses Use it; and whether it is a MAJOR bump (the contract's rule, CONTRACT 4.0 → 5.0) or MINOR ([master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees), spec D297); `documentalist` applies it with the contract bump. | Any time before chunk 24b merges. | Chunk 24b may not **merge** before it. |
+| **O182** | The owner says what Regenerate does in the stale-phrase prompt: return to Idle with the new phrase on screen (proposed), or start the session as soon as it is on screen ([spec O182](../../open-questions.md#v30-wave-2-o180), master spec §16). | Before chunk 24b's prompt (24b-2). | Chunk 24b-2 and the **Stale phrase design** gate. |
+| **Stale phrase design** | `ux-writer` designs the stale-phrase prompt (master spec §16 and §14): its wording in plain words for a beginner, the labels of its two choices (the owner's words are Regenerate and Use it; Part C's key and mode suggestion already has a Use it), how it is dismissed, whether it names the settings that changed, whether other controls can be used while it shows (proposed: no), and how it reads when the starting note opened it. | After O182; before chunk 24b-2. | Chunk 24b-2. |
 | **Part B1** | The owner confirms the revised `rule_instrument_profile_range` (change set part B, a MINOR contract bump), which now also states my instrument's written-range bound per clef (spec D294). | After chunk 20's wave gate (its post-task sync revises the atom). | Nothing; the gate checks it is done. |
 | **Part B2** | The owner confirms the revised `rule_controller_transposition_check` (part B, MINOR), which now also states that "use this for my instrument" first warns when it would erase my instrument's kept sessions (spec D295). | After chunk 20c's wave gate (its post-task sync revises the atom, once the warning is built). | Nothing; the gate checks it is done. |
 | **Part C** | The owner confirms the VISION 0.7 → 0.8 text and the retirement of the four chord-fit atoms (part C). | In chunk 26. | The gate. |
@@ -97,12 +106,14 @@ wave-0 gate covers chunks 1 and 2.
 | 6 | **Gate A**, then 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter | Chunk 10 and Gate A (11, 12; and Review reachability before 12 merges); chunk 17 (18, not Gate A); chunk 7 and Gate A (22); H1 and chunk 1 (25) |
 | 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet | Chunk 12 (13, 14); chunks 7, 17, 19b, 24, the clef design and ux Q76 (20) |
 | 8 | 15 Your data · 21 The check feeds my instrument | Chunks 11, 14 (15); 20 (21) |
-| 9 | 20c My instrument's sessions | Chunks 14, 20 and 21, the Sessions design gate, and Review reachability before it merges |
+| 9 | 20c My instrument's sessions · 24b Stale phrase at Start | Chunks 14, 20 and 21 and the Sessions design gate (20c); chunk 24, O182 and the Stale phrase design gate, and Starting-note wording before it merges (24b) |
 | 10 | 26 v3.0 release gate | Every other chunk |
 
 The critical path runs 0 → 3 → 4 → 5 → 7 → 10 → 12 → 14 → 15 → 26; since v8, chunk 20c, which
 waits for chunks 14, 20 and 21, adds wave 9 before the gate. My instrument (16–21, 20c) and
 pre-generation (23–24) are side branches; their chunks share waves with the critical path's.
+Since v9, chunk 24b (a stale phrase at Start, ISS-011) joins wave 9 beside chunk 20c, as the owner
+asked for the end of v3.0; the two touch different files.
 
 ```mermaid
 flowchart LR
@@ -161,6 +172,10 @@ flowchart LR
   C20c --> C26
   C22 --> C26
   C24 --> C26
+  C24 --> C24b[24b Stale phrase at Start]
+  SP{{Stale phrase design}} --> C24b
+  SN{{Starting-note wording}} --> C24b
+  C24b --> C26
   C25 --> C26
 ```
 
@@ -517,6 +532,32 @@ What it changes in the plan (v8):
   It waits for chunks 14, 20 and 21 and the **Sessions design** gate. The release gate moves to
   wave 10.
 
+#### Owner ruling at the end of wave 2: a stale phrase at Start (2026-10-13)
+
+ISS-011, found by chunk 24 and reproduced on v2.0.0 on 2026-10-12: after a change of Written key,
+Collection or Register at Idle (sometimes Harmonic motion), Start throws `CarryInError` and
+nothing starts, from 60 to 220 BPM. The owner: "it's not urgent. plan it for the end of v3.0"
+(no v2 hotfix), and "when starting session says the current phrase is stale and ask either to
+regenerate or use it". Spec D297, master spec Part A v1.11 §16:
+
+- **Stale** means made under settings that differ, in what the generation reads, from the current
+  ones; the tempo, the session options, the mix, the theme, my instrument's clef and name and the
+  window's width never count.
+- **Use it** starts the session with phrase 1 unchanged; phrase 2 joins it as after a settings
+  change at a phrase boundary, through the existing carry-in rules, so no `CarryInError` can occur.
+- **Regenerate** is proposed to run the Idle Regenerate and stay at Idle (spec O182, for the
+  owner).
+- **Pre-generation** keeps running with a stale phrase 1 and builds the phrases Use it plays;
+  chunk 24's quiet stop on `CarryInError` goes.
+- **The starting note** asks too: a contract wording, proposed for the owner (the
+  **Starting-note wording** step).
+
+What it changes in the plan (v9): a new [chunk 24b](#chunk-24b--stale-phrase-at-start) in wave 9,
+beside chunk 20c; the **Stale phrase design** gate for `ux-writer`; the owner steps **O182** and
+**Starting-note wording**; hand check H9; definition-of-done item 24 in §7. No merged chunk
+changes; chunk 24's quiet stop is replaced in chunk 24b. The **Review reachability** step is done
+(CONTRACT 4.0, 2026-10-12).
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
@@ -537,7 +578,8 @@ changes in exactly one chunk, never "along the way":
 | Reload-based determinism tests in `audio-transport-mix.spec.ts`, `midi/midi-input.spec.ts`, `release/deterministic-replay.spec.ts` | [7](#chunk-7--saved-settings) re-checks them | They must not depend on a reload returning to defaults; each is fixed or proved unaffected. |
 | `tests/unit/session/session-history-export.spec.ts` › 'touches no browser storage…' | **Never** | Stays green: the history and export modules stay storage-free (definition-of-done item 4). |
 | Contract guarantees in `req_last_session_review`, `rule_optional_midi_privacy`, `rule_same_controller_reattaches` | **Gate A** | Narrowed to what holds in both v2.0 and v3.0 (CONTRACT 2.0). |
-| `req_last_session_review`: the review "stays reachable until the next session starts" | **Review reachability** (before chunk 12 merges) | Proposed for the owner: "or until the player deletes its session" (spec D295). |
+| `req_last_session_review`: the review "stays reachable until the next session starts" | **Review reachability** (done 2026-10-12) | "or until the player deletes its session" (spec D295), confirmed MAJOR (CONTRACT 4.0). |
+| `rule_midi_starting_note`: playing the starting note "starts the count-in" | **Starting-note wording** (before chunk 24b merges) | Proposed for the owner: with a stale phrase 1, the note first asks, as Start does (spec D297). |
 
 Every replaced test gets its v3.0 counterpart in the same chunk, and the gate lists each pair
 (item 22).
@@ -768,6 +810,7 @@ or at the gate.
 | H6 Pre-generation at 240 BPM | 24 | Start several 240 BPM sessions right after phrase 1 appears and after waiting a few seconds; note the tablet's battery cost (M4, for information). |
 | H7 Persistent storage in real Chrome | 26 | Pin a session in the installed app and in a plain tab; read Your data's Protection line. For information: Chrome decides silently. |
 | H8 Favorites-only files in real programs | 26 | Open a favorites-only MusicXML in MuseScore and both MIDI files in a MIDI tool; phrase numbers and markers match the session. May follow the tag as a v3.0.x note, as in v2. |
+| H9 Stale phrase at Start | 24b | ISS-011's steps: at Idle, after a phrase appears, change the Written key, then press Start at 60, 120 and 220 BPM; again with a Collection change and a Register change. Each time the prompt shows; Use it starts and phrase 2 follows; Regenerate does what O182 settles. With the Travel Sax, play the starting note on a stale phrase: the prompt shows and nothing starts. |
 
 ## 6. Chunks
 
@@ -2236,6 +2279,106 @@ with the owner's agreement then).
 
 **Verification:** the chunk checks; M4 on the reference machine; hand check H6.
 
+### Chunk 24b — Stale phrase at Start
+
+**Goal.** When Start is pressed, or the starting note played, and the phrase on screen is stale,
+say so and ask Regenerate or Use it; make Use it start the session with phrase 2 joined as after
+a settings change during a session, so ISS-011's `CarryInError` can no longer occur (spec D297;
+master spec §16).
+
+**Scope.**
+
+- **Phrase 1's settings.** The Idle result records the settings its fit run was built from: the
+  chosen controls and the musical-profile selection. Take the chosen controls, not the intent's:
+  the intent holds the note density the window's width gave, which is not a setting.
+- **Stale, one pure check.** It compares phrase 1's settings with the current controls and
+  profile selection, by value, over what the generation reads (master spec §16's list): the tempo
+  and the profile's customized mark left out; the instrument's id and, for my instrument, its
+  range and transposition in. The session options, the mix, the theme, my instrument's clef and
+  name, and the window never reach it.
+- **The engine (24b-1, no interface).** A session start carries phrase 1's settings, with the
+  session's tempo, beside the session's settings. `createSessionEngine` takes them as the
+  settings phrase 1 was decided under (`lastDecidedSettings`), so `lookAheadBasis` adapts phrase
+  2's carry-in through `adaptCarryIn`, as after a change at a phrase boundary. When the two are
+  equal, nothing changes: the same requests and seeds as today. The pre-generation plan's initial
+  course (`initialCourse`) takes the same input, so its phrases stay the session's.
+  `workspace-pregeneration.ts`'s quiet stop on `CarryInError` goes; a `CarryInError` is a
+  programming error again.
+- **The prompt (24b-2).** At Start, once `startBlocker()` finds nothing, a stale phrase 1 opens
+  the prompt in the words and form of the **Stale phrase design** gate. Nothing is unlocked,
+  locked or started. **Use it** runs the same start, phrase 1's settings passed through. It is
+  the click that unlocks the sound and asks for the screen locks, and it checks the start
+  conditions again. **Regenerate** runs the Idle Regenerate, then does as O182 settles
+  (proposed: stays at Idle). Dismissing changes nothing. While the prompt shows, no MIDI note
+  starts anything, as during the connection step, and pre-generation goes on.
+- **The starting note** opens the same prompt when phrase 1 is stale.
+- **Shown settings:** phrase 1's settings during the count-in and phrase 1, then the session's from
+  phrase 2.
+- **Split:** 24b-1 (the result's settings, the stale check, the engine, the pre-generation plan)
+  runs first; 24b-2 (the prompt, Start, the starting note, the shown settings) needs O182 and the
+  design gate. Each stays within about five source files.
+
+**Files:** 24b-1: `src/composables/workspace-session-result.ts`, a new `src/session/stale-phrase-one.ts`,
+`src/session/session-types.ts` (`SessionStart`), `src/session/session-engine.ts`,
+`src/session/session-pregeneration.ts`, `src/components/workspace/workspace-pregeneration.ts`;
+24b-2: `src/components/workspace/workspace-session-start.ts`,
+`src/components/workspace/workspace-session-midi.ts`,
+`src/components/workspace/workspace-session-settings.ts`, `src/components/workspace/WorkspaceShell.vue`
+and a new prompt component beside it; tests under `tests/unit/session/`,
+`tests/unit/components/workspace/` and `tests/e2e/workspace/stale-phrase-start.spec.ts`.
+
+**Spec sections:** [§16](master-spec.md#16-a-stale-phrase-1-at-start), [§8](master-spec.md#8-pre-generating-phrases-at-idle),
+[§10](master-spec.md#10-what-v30-changes-in-v2s-guarantees).
+
+**Design docs:** [`flows/play-session/handoff.md`](../../../ui_ux/versions/v3.0/flows/play-session/handoff.md)
+and [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md),
+as the **Stale phrase design** gate revises them, or wherever it places the prompt.
+
+**Atoms:** `rule_phrase_one_is_idle_phrase`, `rule_session_start_conditions`,
+`module_session_shown_settings`, `service_session_engine`, `service_workspace_session_flow`,
+`service_idle_generation_session`, `module_session_pregeneration_plan`,
+`module_idle_pregeneration_queue`, `rule_pregenerated_phrase_matches_session`, and a new rule for
+the prompt, each revised or written by `documentalist` before code; (STABLE, contract surface)
+`rule_midi_starting_note` after **Starting-note wording**. Keep true:
+`rule_setting_change_rechecks_pitch_carry_in`, `rule_key_change_drops_harmonic_carry_in`,
+`rule_harmony_change_drops_unfit_harmonic_carry_in`, `rule_join_carry_in_limited`,
+`rule_count_in_shown_on_screen`, `rule_tempo_never_affects_generation` (STABLE);
+`rule_register_change_replaces_carried_window` (REVIEW).
+
+**Depends on:** chunk 24; O182 and the **Stale phrase design** gate (24b-2 only);
+**Starting-note wording** before it merges.
+
+**Done when:**
+
+- ISS-011's engine reproduction (phrase 1 generated in C major, the session started with Written
+  key F♯ at 60 BPM) starts, and phrase 2's request carries no harmonic part.
+- Engine tests, phrase 1 generated under the defaults and the session started under one changed
+  setting, at every tempo from 60 to 240 BPM in steps of 10: every other Written key; every other
+  Collection, Ionian to Major included; every other Harmonic motion; Register Middle to Low, to
+  High and to Varying. Each starts with no `CarryInError`, and phrase 2's request carries what
+  the carry-in rules leave: no harmonic part after a key or collection change or a chord that no
+  longer fits, the new register's window, standalone after Varying or a failed pitch re-check.
+- With phrase 1 generated under the start settings, the engine's requests and seeds are as
+  before: the existing engine tests and the `ifk1.` corpus pass unchanged.
+- The stale check: each setting master spec §16 counts makes phrase 1 stale; the tempo, Rising
+  tempo, Vary settings, Tension across phrases, the mix, the theme, my instrument's clef and
+  name, a window crossing (a chosen Sixteenth below the tablet-landscape width included), and a
+  setting changed and changed back do not.
+- Pre-generation (fake clock, instant generator): with a stale phrase 1, the pre-generated
+  phrases equal those the Use it session generates, and nothing stops quietly.
+- e2e: the Written key changed at Idle, then Start: the prompt shows and nothing sounds. Use it:
+  the count-in, phrase 1 as it was, phrase 2 in the new key, the controls showing phrase 1's key
+  until phrase 2. Regenerate: as O182 settles. Dismissing: still Idle. With no change, or only a
+  tempo change, Start starts at once and the v2 Start tests pass unchanged.
+- Fake MIDI: with a stale phrase 1, the starting note opens the prompt and starts nothing; no note
+  played while it shows starts anything.
+- The review of a Use it session shows phrase 1 in its own key and phrase 2 in the new one;
+  phrase 1's replay key is the one it had at Idle.
+
+**Items covered:** 24; 20 (pre-generation with a stale phrase 1); 23 (the sixth contract change).
+
+**Verification:** the chunk checks; hand check H9.
+
 ### Chunk 25 — Stray-note filter
 
 **Goal.** Leave very short stray notes out of the review's lane and, by default, out of the
@@ -2290,8 +2433,8 @@ check, close the intent record, and get the owner's go for the `3.0.0` tag.
   every replaced v2 test and its v3.0 counterpart (item 22), then M1–M5 with their figures.
 - The privacy spy (network half) re-run with a database full of every kind of record (item 5).
 - `npm run verify:boundaries` with the 224 kB entry budget unchanged (M5).
-- Hand checks H3–H8 done or, for H8, written down as a v3.0.x note.
-- Part B1 and B2 confirmed, and **Review reachability** applied; **Part C** put to the owner and applied by `documentalist`;
+- Hand checks H3–H9 done or, for H8, written down as a v3.0.x note.
+- Part B1 and B2 confirmed, **Review reachability** and **Starting-note wording** applied; **Part C** put to the owner and applied by `documentalist`;
   `documentalist`'s post-task sync over every `release-v3.0` atom, promoting those the owner
   agrees to.
 - `package.json` version `3.0.0`; the tag only when the owner asks.
@@ -2300,7 +2443,8 @@ check, close the intent record, and get the owner's go for the `3.0.0` tag.
 `vision_infinite_flow_first_release`, `specification_behavioral_quality_gates`,
 `specification_ephemeral_state_verification`; the four chord-fit atoms (retired).
 
-**Depends on:** every other chunk, Gate A, Review reachability, Parts B1 and B2.
+**Depends on:** every other chunk, Gate A, Review reachability, Starting-note wording, Parts B1
+and B2.
 
 **Done when:** every item of §13 has a row with evidence; every measurement has its figure; the
 owner says go.
@@ -2340,7 +2484,8 @@ verification. The gate copies this into the release notes with the final test na
 | 20 Pre-generation | 23, 24 | identity on the fake clock; cancellation, Start, discard tests; M4 recorded; H6 |
 | 21 Stray notes | 25 (M1 from H1) | filter tests on real recordings; H5 |
 | 22 v2 behaviour otherwise unchanged | every wave gate | `npm run quality`; the replaced-tests table of [§2](#2-read-first-what-v30-undoes-in-v2) |
-| 23 Contract | Gate A, Review reachability, 26 | the confirmation recorded in the CONTRACT atom's notes |
+| 23 Contract | Gate A, Review reachability, Starting-note wording, 26 | the confirmation recorded in the CONTRACT atom's notes |
+| 24 Stale phrase at Start | 24b | engine tests per Written key, Collection, Harmonic motion and Register change, 60–240 BPM; stale-check unit tests; pre-generation identity with a stale phrase 1; e2e prompt; fake-MIDI starting note; H9 |
 
 ## 8. Open points for spec-writer
 
@@ -2401,3 +2546,13 @@ The **Clef design** gate stays, and a **Sessions design** gate joins it before c
 point waits for the owner: the wording of `req_last_session_review`'s reachability (the
 **Review reachability** step), needed before chunk 12 merges, since chunk 12's `Delete session`
 already ends the review sooner than "until the next session starts".
+
+Master spec v1.11 (2026-10-13, spec D297) adds §16, a stale phrase at Start (ISS-011, reproduced
+on v2.0.0): when the phrase on screen was made under settings that differ, in what the generation
+reads, from the current ones, Start and the starting note ask Regenerate or Use it. Use it joins
+phrase 2 to phrase 1 through the existing carry-in rules for a change during a session, so
+nothing new is needed there; pre-generation builds the phrases Use it plays. New chunk 24b in wave
+9 builds it. Three points wait: [spec O182](../../open-questions.md#v30-wave-2-o180) (what
+Regenerate does; proposed: stay at Idle), the **Starting-note wording** (a STABLE contract
+wording, for the owner), and the **Stale phrase design** gate (`ux-writer`). The **Review
+reachability** step above is done: the owner confirmed it as MAJOR on 2026-10-12 (CONTRACT 4.0).

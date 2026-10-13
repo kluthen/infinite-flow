@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.84
+Status: draft v2.85
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D294**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D298**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 are reserved for v3.0 wave 2.
 
@@ -1156,3 +1156,98 @@ from `main`); D289 is unused. D290–D299 are reserved for v3.0 wave 2.
   room for them. How is `ux-writer`'s, in the design gate before chunk 20c (proposed, as in
   O181: the review's staff takes the larger of the shared height and the height its own session
   needs). Master spec Part A v1.10 (§7.1, §8, item 16); build plan v8 (chunks 20 and 20c).
+- **D297 (2026-10-13): a stale phrase 1 at Start: the app says so and asks, Regenerate or Use it
+  (ISS-011, planned for the end of v3.0).** ISS-011, reproduced on v2.0.0 on 2026-10-12: at Idle,
+  ordinary edits never regenerate, so after a change of Written key, Collection or Register (and
+  sometimes Harmonic motion) the phrase on screen was made under other settings. Start takes it
+  as phrase 1 but takes the current controls as the session's settings, and the session assumes
+  phrase 1 was made under them. Phrase 2's join is then built from a phrase in the old key, the
+  carry-in check throws `CarryInError`, and nothing starts (60 to 220 BPM; at 230 and 240 BPM
+  phrase 2 starts standalone, so the session starts). The owner, 2026-10-13: "it's not urgent.
+  plan it for the end of v3.0" (no v2 hotfix), and "i'd say regenerate prior starting session
+  (more like: when starting session says the current phrase is stale and ask either to
+  regenerate or use it)".
+  1. **Stale.** Phrase 1 is stale when a setting the generation reads has a different value now
+     than when phrase 1 was generated. Values are compared, not edits: a setting changed and
+     changed back is no difference. What counts: every generation control except the tempo
+     (Written key, Collection, Harmonic motion, Tension, Note density as the player chose it,
+     Rhythmic variety, Syncopation, Silence density, Contour, Register, Leapiness, Arpeggio
+     chaos), the musical profile (Neutral or Jazz; its customized mark alone is not read), and the
+     instrument as the generation reads it (its id and, for my instrument, its range and
+     transposition). From v3.1, every setting the generation request gains (embellishment figure
+     levels, the chord level in v3.3) counts the same way. Some of these never caused the
+     error (Tension, Contour, Note density); they count all the same, because phrase 1 then is not
+     what the player's settings make. **Never stale:** the tempo and Rising tempo (the tempo never
+     affects generation), Vary settings and Tension across phrases (neither acts on phrase 1), the
+     audio mix, the theme, my instrument's clef and display name, and the window's width (the
+     note density a narrow window gives is not a setting; v2 already starts sessions from a
+     phrase made at another width, and the existing layout checks stay as they are). **The
+     instrument never makes phrase 1 stale in practice:** an instrument switch regenerates the
+     phrase, and saving my instrument's range or transposition while it is selected replaces it
+     (master spec §7.1), so the check is there only for completeness.
+  2. **When it asks.** On Start (the button, or the starting note, see 8), once every start
+     condition holds, and before anything starts: no sound, no screen lock, no count-in. A Start
+     blocked by a start condition stays blocked as today; the prompt is not a start condition and
+     never replaces one. When phrase 1 is not stale, Start works as today and nothing is asked.
+  3. **Use it.** The session starts from that choice, exactly as Start does (the choice is the
+     start click: it unlocks the sound and asks for the screen locks), the start conditions
+     checked again at that moment. Phrase 1 is the phrase on screen, unchanged: same request,
+     seed and replay key, shown, reviewed, kept and exported with what it was generated with. The
+     session's settings are the current ones: phrase 2 on is generated under them, Vary settings
+     moves from them and returns to them at the end, and the session-wide record names them.
+     **Phrase 2 joins phrase 1 as after a settings change applied at the boundary between phrase 1
+     and phrase 2 during a session:** the existing carry-in rules adapt the join
+     (`rule_setting_change_rechecks_pitch_carry_in`, `rule_key_change_drops_harmonic_carry_in`,
+     `rule_harmony_change_drops_unfit_harmonic_carry_in`, `rule_register_change_replaces_carried_window`),
+     so no `CarryInError` can occur at any tempo. No new carry-in rule is needed. The read-only
+     controls show the settings phrase 1 was generated with during the count-in and phrase 1
+     (they show the settings of the music on screen, and phrase 1's first measure is on screen
+     through the count-in), then the session's settings from phrase 2, as at any change. In v3.2,
+     the rhythm lock still locks phrase 1's rhythm (Part C §C7.1 holds as written).
+  4. **Regenerate (proposed, O182).** It runs the Idle Regenerate exactly (current settings, a
+     fresh seed, the usual fit run) and the app stays at Idle with the new phrase on screen;
+     nothing starts. The player presses Start, or plays the new starting note, when ready, and is
+     not asked again, since the new phrase is not stale. A failed regeneration shows the usual
+     failure banner. Reasons: it is the existing action with no new state; the player sees phrase
+     1 before playing it, as `rule_phrase_one_is_idle_phrase` intends; the starting note changes
+     with the phrase, so a player at the instrument needs to see the new one; and it avoids a
+     start that waits for a generation (wait, failure, conditions changing meanwhile). The
+     alternative, starting as soon as the new phrase is on screen, is the owner's to choose.
+  5. **Dismissing** the prompt without choosing changes nothing and starts nothing. How it is
+     dismissed is `ux-writer`'s.
+  6. **While the prompt shows,** the app is still at Idle: no MIDI note starts anything, the
+     starting note included; pre-generation goes on, since its phrases are the ones Use it plays.
+     Whether other controls can be used meanwhile is `ux-writer`'s (proposed: the prompt is
+     answered or dismissed first).
+  7. **Pre-generation (chunk 24) builds the phrases Use it plays.** While phrase 1 is stale it
+     keeps running: phrase 2 is planned from phrase 1 under phrase 1's own settings, joined as in
+     3, and the phrases after it follow as today. Its keys stay as they are: phrase 1 and the
+     current settings, so any change discards and restarts it (master spec §8), and Regenerate
+     discards it by replacing phrase 1. Use it takes the ready phrases as Start does. Chunk 24's
+     quiet stop on `CarryInError` goes. The rule that a pre-generated phrase is exactly the
+     session's phrase at that place holds, since both are built the same way.
+  8. **The starting note asks too.** With a stale phrase 1, playing the starting note opens the
+     same prompt and starts nothing; the count-in starts only on Use it. This changes the STABLE
+     `rule_midi_starting_note` on the contract surface, **proposed for the owner** (master spec
+     §10): today playing the starting note "starts the count-in". By the contract's rule a
+     guarantee losing a case is a MAJOR version (CONTRACT 4.0 to 5.0), as the owner ruled for
+     D295; he may rule it MINOR. The alternative that changes no contract wording, the starting
+     note counting as Use it without asking, would never tell the player at the instrument that
+     the phrase is out of date, which is the point of the ruling, so it is not recommended.
+  9. **A running session still never asks for anything.** The prompt comes before Start; once
+     Use it starts the session, nothing is asked until it ends. The count-in starts only after
+     Use it, so `rule_count_in_shown_on_screen` is unchanged.
+  10. **Other atoms.** The four STABLE carry-in atoms and `rule_join_carry_in_limited` hold as
+     written: the change applies at a phrase boundary during the session, the one between phrase
+     1 and phrase 2. `rule_phrase_one_is_idle_phrase` (REVIEW) holds, phrase 1 being still the
+     phrase on screen, unchanged; it gains a sentence. Revised before code by `documentalist`:
+     `rule_session_start_conditions`, `module_session_shown_settings`,
+     `module_session_pregeneration_plan`, `rule_pregenerated_phrase_matches_session`, the engine
+     and workspace atoms that say phrase 1 was generated under the start settings, and a new rule
+     for the prompt.
+
+  Recorded with it: the owner confirmed `req_last_session_review`'s reachability wording (D295)
+  as a MAJOR change on 2026-10-12 ("1. ok, major"), applied as CONTRACT 4.0; master spec §10 and
+  §14 and the build plan's **Review reachability** step now say so. Master spec Part A v1.11 (§2,
+  §10, §11, §12, item 23, new item 24, §14, new §16); build plan v9 adds chunk 24b in wave 9 with
+  a **Stale phrase design** gate and the owner step **Starting-note wording**; ISS-011 updated.

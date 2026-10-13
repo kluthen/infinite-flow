@@ -1,4 +1,4 @@
-# Issue: Start throws when a harmony setting changed at Idle after phrase 1 was generated
+# Issue: Start throws when a harmony or register setting changed at Idle after phrase 1 was generated
 
 **ID:** `Ref_20261012_start_after_idle_harmony_change`
 **Ref:** `ISS-011`
@@ -14,13 +14,18 @@
 
 At Idle, an ordinary control edit never regenerates the phrase on screen, and Start freezes the
 current controls as the session's settings while phrase 1 stays the Idle phrase. When the player
-changes a harmony setting (for example the tonal center) after phrase 1 was generated and then
-presses Start, the session engine opens phrase 2 as if phrase 1 had been generated under the new
-settings (`lastDecidedSettings` is the start settings), so it builds a carry-in from a phrase in the
-old key under the new harmony settings. The carry-in validation throws `CarryInError` ("The carried
-chord is not one these harmony settings end a phrase on.") and the start is abandoned. It shows at
-any tempo where phrase 2's first attempt is a carry-in (60 and 120 BPM); at 240 BPM phrase 2 starts
-from the standalone rung and the session starts.
+changes the Written key (any other key), the Collection (any change, even Ionian to Major) or the
+Register (Middle to Low or High) after phrase 1 was generated, and then presses Start, the session
+engine opens phrase 2 as if phrase 1 had been generated under the new settings
+(`lastDecidedSettings` is the start settings), so it builds a carry-in from a phrase made under
+the old settings. The carry-in validation throws `CarryInError` ("The carried chord is not one
+these harmony settings end a phrase on." or "The carried window is the Middle window, but the
+register choice is Low.") and the start is abandoned: nothing visible happens, and the only trace
+is the console error. A Harmonic motion change triggers it sometimes, depending on phrase 1. It
+shows at every tempo from 60 to 220 BPM, where phrase 2's first attempt is a carry-in; at 230 and
+240 BPM phrase 2 starts from the standalone rung and the session starts. Tension, Note density,
+Contour, Leapiness, Arpeggio chaos, Silence density, the tempo, and the Jazz profile (Register
+Varying) never trigger it.
 
 ---
 
@@ -68,7 +73,7 @@ createSessionEngine(deps, {
 | Likelihood          | Medium: changing the key and pressing Start without regenerating is an ordinary sequence |
 | Impact if triggered | High: the session does not start; the error goes to the console                          |
 | Detectability       | Medium: an uncaught error from the Start click; nothing on screen explains it            |
-| Current mitigant    | Regenerating after the change; 240 BPM sessions are not affected                         |
+| Current mitigant    | Regenerating after the change; 230 and 240 BPM sessions are not affected                 |
 
 ---
 
@@ -90,9 +95,42 @@ everywhere, instead of carrying a parallel settings value.
 ## Extra Data
 
 Reproduced on 2026-10-12 on commit aec8f63 (v3.0 wave 2, before chunk 24) with a direct engine
-test: `CarryInError: The carried chord is not one these harmony settings end a phrase on.` The
-engine's start logic is unchanged since v2.0, so v2.0 likely has it too (not checked on the tag).
-Found by chunk 24's pre-generation work.
+test: `CarryInError: The carried chord is not one these harmony settings end a phrase on.` Found
+by chunk 24's pre-generation work. Reproduced on v2.0.0 on 2026-10-12 (the production build,
+driven through the interface): triggered by a Written key, Collection or Register change at Idle
+(sometimes Harmonic motion), at every tempo from 60 to 220 BPM; not at 230 or 240 BPM.
+
+---
+
+## Settled Semantics (2026-10-13, spec D297)
+
+The owner's ruling, 2026-10-13: "it's not urgent. plan it for the end of v3.0" (no v2 hotfix), and
+"i'd say regenerate prior starting session (more like: when starting session says the current
+phrase is stale and ask either to regenerate or use it)". Written into `specs/decisions.md` D297
+and master spec Part A v1.11 §16 (`specs/versions/v3/master-spec.md`).
+
+1. **Stale:** phrase 1 was generated under settings that differ, in what the generation reads,
+   from the current ones. The tempo, Rising tempo, Vary settings, Tension across phrases, the
+   mix, the theme, my instrument's clef and name, and the window's width never count.
+2. **When Start is pressed (or the starting note played) on a stale phrase 1,** once every start
+   condition holds, the app says so and asks: **Regenerate** or **Use it**. Nothing starts before
+   the answer.
+3. **Use it** starts the session with phrase 1 unchanged. Phrase 2 joins it as after a settings
+   change applied at the boundary between phrase 1 and phrase 2 during a session: the existing
+   rules adapt the carry-in (`rule_setting_change_rechecks_pitch_carry_in`,
+   `rule_key_change_drops_harmonic_carry_in`, `rule_harmony_change_drops_unfit_harmonic_carry_in`,
+   `rule_register_change_replaces_carried_window`), so `CarryInError` cannot occur. This is the
+   short-term fix's first option, with phrase 1 treated as generated under its own settings.
+4. **Regenerate** (proposed, spec O182, for the owner): runs the Idle Regenerate and stays at Idle
+   with the new phrase on screen.
+5. **Pre-generation** keeps running with a stale phrase 1 and builds the phrases Use it plays;
+   its quiet stop on `CarryInError` goes.
+6. **The starting note asks too:** a STABLE contract wording (`rule_midi_starting_note`),
+   proposed for the owner.
+
+**Planned:** v3.0 build plan v9, chunk 24b, Stale phrase at Start, in wave 9, before the release
+gate (chunk 26, wave 10), after the **Stale phrase design** gate (`ux-writer`), O182, and, before
+it merges, the **Starting-note wording** step (`specs/versions/v3/build-plan.md`).
 
 ---
 
@@ -103,3 +141,12 @@ Found by chunk 24's pre-generation work.
 - `src/domain/generation/carry-in/carry-in-fit.ts`
 - `src/components/workspace/workspace-session-start.ts`
 - `docs/rule_setting_change_rechecks_pitch_carry_in.atom.md`, `docs/rule_phrase_one_is_idle_phrase.atom.md`
+- `specs/decisions.md` D297; `specs/versions/v3/master-spec.md` §16; `specs/versions/v3/build-plan.md` chunk 24b
+
+---
+
+## Change Log
+
+- **2026-10-13**: Scope corrected after the reproduction on v2.0.0 (tempo range 60–220 BPM;
+  Collection and Register changes trigger it, Harmonic motion sometimes). The owner's ruling
+  recorded (spec D297); the fix planned as v3.0 build plan chunk 24b, wave 9. Status stays Open.

@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.56
+Status: draft v0.57
 
 ## Status Snapshot
 
@@ -78,12 +78,21 @@ Status: draft v0.56
   deleting my instrument deletes its sessions, a range or transposition change erases them after
   a warning, a name or clef change keeps them (each phrase still in its own clef), and a save that
   changes the shared height re-checks pre-generated phrases (D295, D296, closing O181). The
-  review's "reachable until the next session starts" needs a contract wording change, **proposed
-  for the owner** (master spec §10). Master spec Part A v1.10; build plan v8 adds chunk 20c (my
-  instrument's sessions) and its design gate.
-- **Open:** 9 questions, none blocking work under way: O48 and O49 (later and governance),
-  O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level)
-  and O180 (octave signs, later). D295 and D296 closed O181.
+  review's "reachable until the next session starts" gains "or until the player deletes its
+  session", which the owner confirmed as MAJOR (CONTRACT 4.0). Master spec Part A v1.10; build
+  plan v8 adds chunk 20c (my instrument's sessions) and its design gate.
+- **ISS-011, a stale phrase at Start** (2026-10-13, D297): after a key, collection or register
+  change at Idle, Start failed silently (reproduced on v2.0.0, 60–220 BPM). The owner: no v2
+  hotfix, fix it at the end of v3.0. When the phrase on screen was made under settings that
+  differ, in what the generation reads, from the current ones, Start and the starting note ask
+  **Regenerate** or **Use it**; Use it joins phrase 2 to phrase 1 as after a settings change
+  during a session. **Proposed for the owner:** what Regenerate does (O182; proposed: stay at
+  Idle) and the starting note's contract wording (master spec §10). Master spec Part A v1.11
+  §16; build plan v9 adds chunk 24b in wave 9 and a design gate for `ux-writer`.
+- **Open:** 10 questions, none blocking work under way: O48 and O49 (later and governance),
+  O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
+  O180 (octave signs, later) and O182 (Regenerate in the stale-phrase prompt, before chunk 24b).
+  D295 and D296 closed O181.
   O163 and O164 closed by D257 and D258; D262 closed O174; D264–D273 settled O165–O173 and O175
   in Part D, pending the owner's approval.
   v3.1 and v3.2 drafts approved by the owner (D233, D234),
@@ -103,7 +112,7 @@ Status: draft v0.56
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (approved; v2 moves the workflow to wave
-  level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23; v6 writes in D290–D292 and moves chunk 18 to wave 6; v7 adds chunk 19b for D293; v8 writes in D294–D296 and adds chunk 20c), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved),
+  level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23; v6 writes in D290–D292 and moves chunk 18 to wave 6; v7 adds chunk 19b for D293; v8 writes in D294–D296 and adds chunk 20c; v9 writes in D297 and adds chunk 24b), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved),
   [v3.2](versions/v3/build-plan-v3.2.md) (draft v2, not approved) and
   [v3.3](versions/v3/build-plan-v3.3.md) (draft v2, not approved; depends on owner approval of
   Part D). Every build plan runs wave by
