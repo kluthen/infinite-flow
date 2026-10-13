@@ -25,6 +25,13 @@
  *    the app's width there, counting how many phrases engrave (and at what staff space), how many
  *    are "notes too wide", and how many "no room".
  *
+ * 4. My instrument (M3, the staff half): the height sweep's machinery on player-made written ranges
+ *    (the harness's `myLow`/`myHigh` parameters), in treble clef and in bass clef (`myClef`), each
+ *    engraved at the shared system-position size `planSystemPositionUnits` gives it in its clef,
+ *    and on the three built-in profiles at a saved my instrument's grown size (`savedRange`),
+ *    asserting that every ink keeps about one staff space from both edges and that each predicted
+ *    size is the size engraved.
+ *
  * Skipped unless `CALIBRATE=1`, so it never runs as part of the normal notation suite.
  */
 import { expect, test, type Page } from '@playwright/test'
@@ -84,6 +91,8 @@ type ComboResult =
       readonly ok: true
       readonly requiredUnits: number
       readonly staffSpacePx: number
+      /** The shared system-position size the harness engraved with, in engraving units. */
+      readonly systemPositionUnits: number
       readonly extents: readonly SystemExtent[]
     }
   | {
@@ -222,6 +231,7 @@ async function runCombo(page: Page, url: string, withInk = false): Promise<Combo
       ok: true,
       requiredUnits: harnessState.engraved.requiredUnits,
       staffSpacePx: harnessState.engraved.staffSpacePx,
+      systemPositionUnits: harnessState.systemPositionUnits!,
       extents,
     }
   }
@@ -476,4 +486,272 @@ test('reports the split layout outcomes on landscape phone windows', async ({ pa
   }
   console.log(lines.join('\n'))
   expect(lines.length).toBeGreaterThan(2)
+})
+
+/**
+ * One written range the my-instrument sweep engraves, with what the layout policy predicts for it
+ * (`planStaffInk` and `planSystemPositionUnits`, in engraving units): the ink above and below the
+ * staff's top line, start marker included, and the shared system-position size.
+ */
+interface MyInstrumentCase {
+  readonly name: string
+  /**
+   * The harness parameters naming the instrument (and, for `lowF`, the written tonal centre); a
+   * player-made instrument is in treble clef unless they name `myClef`.
+   */
+  readonly params: Readonly<Record<string, string>>
+  readonly inkAbove: number
+  readonly inkBelow: number
+  readonly size: number
+  /** The registers, leapiness levels and seeds it is swept over. */
+  readonly grid: MyInstrumentGrid
+}
+
+/** The axes of one case's sweep; contours, the two outer chaos levels and densities are all swept. */
+interface MyInstrumentGrid {
+  readonly leapiness: readonly (typeof LEAPINESS)[number][]
+  readonly seeds: readonly number[]
+}
+
+/** The player-made ranges' grid: every leapiness level, seeds 1 and 2. */
+const MY_INSTRUMENT_GRID: MyInstrumentGrid = { leapiness: LEAPINESS, seeds: [1, 2] }
+/** The built-ins' grid inside a grown size: the outer leapiness levels, seed 1. */
+const BUILT_IN_IN_GROWN_GRID: MyInstrumentGrid = { leapiness: ['Smooth', 'Angular'], seeds: [1] }
+
+/** The `wide` range (written C2 to C6), whose grown size the built-ins are swept in. */
+const WIDE_SAVED_RANGE = '36-84'
+
+/**
+ * The my-instrument sweep's cases: six player-made written ranges with no transposition in treble
+ * clef, then the three built-in profiles at the `wide` range's grown size, then four player-made
+ * ranges in bass clef. The predictions are the layout policy's own figures
+ * (tests/unit/notation/system-position-size.spec.ts checks them).
+ */
+const MY_INSTRUMENT_CASES: readonly MyInstrumentCase[] = [
+  // Written E4 to E6: the highest two-octave range keeping 16 spaces.
+  {
+    name: 'E4-E6 64-88',
+    params: { myLow: '64', myHigh: '88' },
+    inkAbove: 67,
+    inkBelow: 75,
+    size: 160,
+    grid: MY_INSTRUMENT_GRID,
+  },
+  // Written E3 to D6, 34 semitones: register windows of 17 semitones, so wider beam groups.
+  {
+    name: 'E3-D6 52-86',
+    params: { myLow: '52', myHigh: '86' },
+    inkAbove: 72,
+    inkBelow: 85,
+    size: 180,
+    grid: MY_INSTRUMENT_GRID,
+  },
+  // Written C2 to C4.
+  {
+    name: 'low 36-60',
+    params: { myLow: '36', myHigh: '60' },
+    inkAbove: 47,
+    inkBelow: 127,
+    size: 190,
+    grid: MY_INSTRUMENT_GRID,
+  },
+  // Written C6 to C8.
+  {
+    name: 'high 84-108',
+    params: { myLow: '84', myHigh: '108' },
+    inkAbove: 127,
+    inkBelow: 60,
+    size: 210,
+    grid: MY_INSTRUMENT_GRID,
+  },
+  // Written C2 to C6, four octaves: register windows of two octaves, beam groups up to 14 steps.
+  {
+    name: 'wide 36-84',
+    params: { myLow: '36', myHigh: '84' },
+    inkAbove: 82,
+    inkBelow: 127,
+    size: 230,
+    grid: MY_INSTRUMENT_GRID,
+  },
+  // Written F3 to F5 in F♯ major: its lowest note is spelled E♯3, one step under F3.
+  {
+    name: 'lowF 53-77 in F#',
+    params: { myLow: '53', myHigh: '77', tonal: 'F#' },
+    inkAbove: 62,
+    inkBelow: 82,
+    size: 160,
+    grid: MY_INSTRUMENT_GRID,
+  },
+  // The built-ins (written C3 to C5, and C4 to C6) at the wide range's grown size.
+  {
+    name: 'c-keyboard in 230',
+    params: { profile: 'c-keyboard', savedRange: WIDE_SAVED_RANGE },
+    inkAbove: 52,
+    inkBelow: 92,
+    size: 230,
+    grid: BUILT_IN_IN_GROWN_GRID,
+  },
+  {
+    name: 'bb-tenor in 230',
+    params: { profile: 'bb-tenor', savedRange: WIDE_SAVED_RANGE },
+    inkAbove: 62,
+    inkBelow: 75,
+    size: 230,
+    grid: BUILT_IN_IN_GROWN_GRID,
+  },
+  {
+    name: 'eb-alto in 230',
+    params: { profile: 'eb-alto', savedRange: WIDE_SAVED_RANGE },
+    inkAbove: 62,
+    inkBelow: 75,
+    size: 230,
+    grid: BUILT_IN_IN_GROWN_GRID,
+  },
+  // Bass clef, whose staff sits 12 letter steps under treble's (top line A3, middle line D3).
+  // Written E0 to E5, the bass-clef bound (spec D294): the staff positions of C2 to C7 in treble.
+  {
+    name: 'bass bound E0-E5 16-76',
+    params: { myLow: '16', myHigh: '76', myClef: 'bass' },
+    inkAbove: 92,
+    inkBelow: 127,
+    size: 240,
+    grid: MY_INSTRUMENT_GRID,
+  },
+  // Written C2 to C4: 16 spaces in bass clef, against 19 in treble (`low` above).
+  {
+    name: 'bass low C2-C4 36-60',
+    params: { myLow: '36', myHigh: '60', myClef: 'bass' },
+    inkAbove: 62,
+    inkBelow: 75,
+    size: 160,
+    grid: MY_INSTRUMENT_GRID,
+  },
+  // Written E3 to E5: the bound's top two octaves.
+  {
+    name: 'bass high E3-E5 52-76',
+    params: { myLow: '52', myHigh: '76', myClef: 'bass' },
+    inkAbove: 92,
+    inkBelow: 60,
+    size: 170,
+    grid: MY_INSTRUMENT_GRID,
+  },
+  // Written E0 to E4, four octaves: the mirror of the treble `wide` C2 to C6.
+  {
+    name: 'bass wide E0-E4 16-64',
+    params: { myLow: '16', myHigh: '64', myClef: 'bass' },
+    inkAbove: 82,
+    inkBelow: 127,
+    size: 230,
+    grid: MY_INSTRUMENT_GRID,
+  },
+]
+
+/** Intent: every (register, leapiness, contour, chaos, density, seed) combination of one case. */
+function myInstrumentGrid(grid: MyInstrumentGrid) {
+  return REGISTERS.flatMap((register) =>
+    grid.leapiness.flatMap((leapiness) =>
+      CONTOURS.flatMap((contour) =>
+        ARPEGGIO_CHAOS.flatMap((chaos) =>
+          DENSITIES.flatMap((density) =>
+            grid.seeds.map((seed) => ({
+              register,
+              leapiness,
+              contour,
+              chaos,
+              density,
+              seed: String(seed),
+            })),
+          ),
+        ),
+      ),
+    ),
+  )
+}
+
+// @test-link [[module_notation_layout_preflight]]
+test("reports how far my instrument's ink reaches in its shared system-position size, and keeps it inside", async ({
+  page,
+}) => {
+  test.setTimeout(60 * 60 * 1000)
+  await page.setViewportSize({ width: 2600, height: 900 })
+  const lines: string[] = [
+    '=== My instrument height calibration report (inked rows, units from the position top) ===',
+    'case | clef | n | failures | predicted ink above/below/total (spaces) | predicted size (spaces) | ' +
+      'engraved size | measured size | top line | highest ink | start marker top | lowest ink | ' +
+      'room above (marker included) | room below | systems with ink at an edge',
+  ]
+  const tooTight: string[] = []
+  const wrongSize: string[] = []
+  const failures: string[] = []
+  let smallestRoom = Infinity
+
+  for (const testCase of MY_INSTRUMENT_CASES) {
+    const entry: Extremes = {
+      top: Infinity,
+      bottom: -Infinity,
+      markerTop: Infinity,
+      topLine: 0,
+      positionUnits: 0,
+      n: 0,
+      atEdge: 0,
+    }
+    const engravedSizes = new Set<number>()
+    let caseFailures = 0
+    for (const controls of myInstrumentGrid(testCase.grid)) {
+      const all = { ...controls, ...testCase.params }
+      const result = await runCombo(page, comboUrl(all, INK_FRAME_WIDTH_PX), true)
+      if (!result.ok) {
+        caseFailures += 1
+        failures.push(
+          `${testCase.name} ${JSON.stringify(controls)}: ${result.code} ${JSON.stringify(result.details ?? {})}`,
+        )
+        continue
+      }
+      engravedSizes.add(result.systemPositionUnits)
+      for (const extent of result.extents) {
+        if (Math.abs(extent.positionUnits - testCase.size) > 1) {
+          wrongSize.push(`${testCase.name}: measured ${extent.positionUnits.toFixed(1)}`)
+        }
+      }
+      recordExtents(entry, result.extents)
+      entry.n += 1
+    }
+    const roomAbove = Math.min(entry.top, entry.markerTop)
+    const roomBelow = entry.positionUnits - entry.bottom
+    smallestRoom = Math.min(smallestRoom, roomAbove, roomBelow)
+    const inkTotal = testCase.inkAbove + testCase.inkBelow
+    const engraved = [...engravedSizes].join('/')
+    if (engraved !== String(testCase.size)) {
+      wrongSize.push(`${testCase.name}: engraved at ${engraved}, predicted ${testCase.size}`)
+    }
+    // A built-in's clef, and a player-made instrument's unless it names one, is treble.
+    const clef = testCase.params.myClef ?? 'treble'
+    lines.push(
+      `${testCase.name} | ${clef} | ${entry.n} | ${caseFailures} | ` +
+        `${testCase.inkAbove}/${testCase.inkBelow}/${inkTotal} (${(inkTotal / 10).toFixed(1)}) | ` +
+        `${testCase.size} (${testCase.size / 10}) | ${engraved} | ${entry.positionUnits.toFixed(1)} | ` +
+        `${entry.topLine.toFixed(1)} | ${entry.top.toFixed(1)} | ${entry.markerTop.toFixed(1)} | ` +
+        `${entry.bottom.toFixed(1)} | ${roomAbove.toFixed(1)} | ${roomBelow.toFixed(1)} | ${entry.atEdge}`,
+    )
+    if (
+      entry.n === 0 ||
+      roomAbove < MIN_POSITION_MARGIN_UNITS ||
+      roomBelow < MIN_POSITION_MARGIN_UNITS
+    ) {
+      tooTight.push(
+        `${testCase.name}: ${roomAbove.toFixed(1)} above, ${roomBelow.toFixed(1)} below`,
+      )
+    }
+    console.log(`my instrument sweep: ${testCase.name} done, ${caseFailures} failures`)
+  }
+
+  lines.push(
+    '',
+    `Smallest room at a position edge: ${smallestRoom.toFixed(1)}`,
+    `Failures: ${failures.length}`,
+    ...failures.map((failure) => `  - ${failure}`),
+  )
+  console.log(lines.join('\n'))
+  expect(wrongSize, 'a predicted size that is not the engraved size').toEqual([])
+  expect(tooTight, 'ink closer than about one staff space to a position edge').toEqual([])
 })

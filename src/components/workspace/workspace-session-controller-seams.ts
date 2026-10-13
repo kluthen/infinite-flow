@@ -20,6 +20,7 @@ import type { StaffFitVerdict, StaffFixedParts } from '@/notation/staff-fit-type
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { WorkspaceSessionRunnerInput } from './workspace-session-dependencies'
 import type { IdleLayoutPort } from './idle-layout-gate'
+import type { WorkspacePregenerationFactory } from './workspace-pregeneration'
 
 /**
  * The display's frame loop: `request` runs `callback` once, at the next frame (the browser's
@@ -45,12 +46,16 @@ export interface SessionControllerClock {
   readonly frames: FramePort
 }
 
-/** The staff planner's fit check of a written phrase, drawing nothing; the engraver's own. */
+/**
+ * The staff planner's fit check of a written phrase, drawing nothing; the engraver's own. The
+ * shared system-position size is the built-in one when not given.
+ */
 // @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
 export type StaffFitPlanner = (
   phrase: WrittenPhrase,
   containerWidthPx: number,
   viewport: StaffViewport,
+  systemPositionUnits?: number,
 ) => StaffFitVerdict
 
 /**
@@ -59,9 +64,10 @@ export type StaffFitPlanner = (
  * session's staff keeps showing as the very same object), the audio, the browser, runners and its
  * clock; the gate of the staff's reports, which a session diverts from the Idle machinery while it
  * runs; the measurement of phrase 1's staff fixed parts, which the session window rule needs; the
- * staff planner, loaded with the engraver, that checks a phrase's fit in the held layout; and the
+ * staff planner, loaded with the engraver, that checks a phrase's fit in the held layout; the
  * MIDI controller, with whether the connection sheet is open, for the starting note and the notes
- * a session reads.
+ * a session reads; and the builder of the Idle pre-generation queue, whose ready phrases Start
+ * takes.
  */
 // @spec-link [[service_session_controller]]
 // @spec-link [[rule_session_ends_when_staff_too_small]]
@@ -88,4 +94,10 @@ export interface SessionControllerDependencies {
   readonly midi: MidiController
   /** Whether the connection sheet is open, read reactively; no note starts a session while it is. */
   readonly connectionSheetOpen: () => boolean
+  /**
+   * Build the Idle pre-generation queue's orchestrator over the controller's run conditions and
+   * Idle reading; the workspace binds it to the one generation worker, the slot and the policy.
+   */
+  // @spec-link [[module_idle_pregeneration_queue]]
+  readonly pregeneration: WorkspacePregenerationFactory
 }

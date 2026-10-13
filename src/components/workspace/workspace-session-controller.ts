@@ -19,8 +19,10 @@
  * page's `Vary settings` and `Tension across phrases` flags, which turn the engine's settings
  * mutations and multi-phrase tension arc on for a session, and the settings the read-only controls
  * show while a session runs; the engine reads the rolling display to know whether a phrase is on
- * screen. The parts share one core (./workspace-session-active.ts). The player's own controls are
- * never written, so every end shows them again.
+ * screen. At Idle, while every start condition holds, its pre-generation queue
+ * (./workspace-pregeneration.ts) makes the phrases after phrase 1 in the background, and each
+ * start takes those ready. The parts share one core (./workspace-session-active.ts). The player's
+ * own controls are never written, so every end shows them again.
  */
 import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
 
@@ -42,7 +44,7 @@ import type { StartingNote } from '@/session/starting-note'
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import { closedReview, shownReview } from './session-review-state'
 import { createAdaptiveTempoFlag } from './workspace-adaptive-tempo'
-import type { SessionControllerCore } from './workspace-session-active'
+import type { SessionControllerCore, SessionControllerSides } from './workspace-session-active'
 import { createSessionEnds } from './workspace-session-ends'
 import {
   createTensionAcrossPhrasesFlag,
@@ -50,6 +52,7 @@ import {
 } from './workspace-session-settings'
 import { createSessionMidi, type ControllerLostCountdown } from './workspace-session-midi'
 import { createSessionStart } from './workspace-session-start'
+import type { WorkspacePregeneration } from './workspace-pregeneration'
 import {
   SessionControllerError,
   type RunningCountIn,
@@ -86,6 +89,33 @@ function startFactsOf(
     sessionActive,
     reviewShowing: review?.showing === true,
   }
+}
+
+/**
+ * Intent: build the Idle pre-generation queue's orchestrator over the controller's run conditions
+ * (`startBlocker`), its two session flags, the Idle state, the window's shape and the staff's
+ * reports. A programming error it meets has no session to end: it is thrown out of band, the
+ * unhandled error it is.
+ */
+// @spec-link [[module_idle_pregeneration_queue]]
+function createIdlePregeneration(
+  deps: SessionControllerDependencies,
+  startBlocker: () => SessionStartBlocker | null,
+  flags: Pick<SessionControllerSides, 'varySettings' | 'tensionAcrossPhrases'>,
+): WorkspacePregeneration {
+  return deps.pregeneration({
+    idle: deps.idle.state,
+    startBlocker,
+    varySettings: flags.varySettings.on,
+    tensionAcrossPhrases: flags.tensionAcrossPhrases.on,
+    windowShape: () => deps.browser.windowShape.read(),
+    idleLayout: deps.idleLayout,
+    loadPlanner: deps.staffFitPlanner,
+    fail: (error) =>
+      queueMicrotask(() => {
+        throw error
+      }),
+  })
 }
 
 /**
@@ -176,10 +206,14 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   const adaptiveTempo = createAdaptiveTempoFlag(sessionMidi.controllerState, () => state.phase)
   const varySettings = createVarySettingsFlag(() => state.phase)
   const tensionAcrossPhrases = createTensionAcrossPhrasesFlag(() => state.phase)
+  const pregeneration = createIdlePregeneration(deps, () => startBlocker.value, {
+    varySettings,
+    tensionAcrossPhrases,
+  })
   const ends = createSessionEnds(core, adaptiveTempo)
   const start = createSessionStart(
     core,
-    { sessionMidi, adaptiveTempo, varySettings, tensionAcrossPhrases },
+    { sessionMidi, adaptiveTempo, varySettings, tensionAcrossPhrases, pregeneration },
     ends,
     () => startBlocker.value,
   )
@@ -214,6 +248,8 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     dispose: () => {
       if (core.disposed) throw new SessionControllerError('session controller: disposed twice')
       core.disposed = true
+      // First, so a session ending now never makes pre-generation run.
+      pregeneration.dispose()
       if (core.active !== null) ends.end('stop')
       stopReadingWindow()
       sessionMidi.dispose()

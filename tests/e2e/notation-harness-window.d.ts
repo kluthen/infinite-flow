@@ -56,8 +56,21 @@ interface NotationHarnessState {
     positionBlockPx: number
   }
   /**
-   * Where the phrase's instrument places the staff in its system position (engraving units from the
-   * position's top edge: the staff's top line), published with every ready state.
+   * The clef the engraved phrase carries and is drawn in: a built-in's and a fixture's treble, a
+   * player-made instrument's its `myClef`; published with every ready state.
+   */
+  clef?: 'treble' | 'bass'
+  /**
+   * The shared system-position size the phrase was engraved with, in engraving units at scale 1:
+   * the built-in 160 unless the URL names a player-made instrument or a saved range (then
+   * `planSystemPositionUnits` of that written range in its clef), published with every ready
+   * state.
+   */
+  systemPositionUnits?: number
+  /**
+   * Where the phrase's instrument places the staff in its system position of
+   * `systemPositionUnits` (engraving units from the position's top edge: the staff's top line),
+   * published with every ready state.
    */
   staffTopLineUnits?: number
   /**
@@ -103,6 +116,8 @@ interface NotationHarnessLayoutInputs {
     readonly layout: 'one-system' | 'split'
     readonly heightBudgetPx: number | null
   }
+  /** The shared system-position size, in engraving units, when PhraseScore is given one. */
+  readonly systemPositionUnits?: number
 }
 
 /** A key signature as the room check takes it (WrittenKey['signature'], serialisable). */
@@ -245,6 +260,10 @@ interface NotationHarnessCheckNoteSnapshot {
   readonly height: string | null
   readonly viewBox: string | null
   readonly clefCount: number
+  /** The clef's glyph text: SMuFL U+E050 for the G (treble) clef, U+E062 for the F (bass) clef. */
+  readonly clefGlyphs: readonly string[]
+  /** Each drawn staff line's `y`, top to bottom, in the SVG's own units. */
+  readonly staffLineYs: readonly number[]
   readonly timeSignatureCount: number
   readonly keySignatureCount: number
   readonly staveNoteCount: number
@@ -272,8 +291,12 @@ interface NotationHarnessCheckNoteSnapshot {
  */
 // @test-link [[rule_controller_transposition_check]]
 interface NotationHarnessCheckNote {
-  engrave(writtenMidi: number): Promise<NotationHarnessCheckNoteSnapshot>
-  engraveFailure(writtenMidi: number): Promise<{
+  /** Draw the note on a staff in `clef`, the built-in treble clef when absent. */
+  engrave(writtenMidi: number, clef?: 'treble' | 'bass'): Promise<NotationHarnessCheckNoteSnapshot>
+  engraveFailure(
+    writtenMidi: number,
+    clef?: 'treble' | 'bass',
+  ): Promise<{
     readonly thrown: NotationHarnessThrown | null
     readonly hostChildCount: number
     readonly previousSvgKept: boolean

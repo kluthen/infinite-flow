@@ -14,6 +14,7 @@ import {
   type PitchClass,
 } from '../domain/controls/generation-controls'
 import type { ProfileSelection } from '../domain/controls/profile-selection'
+import { deepEqual } from '../domain/events/deep-equal'
 import { parseCarryIn } from '../domain/generation/carry-in/carry-in'
 import { makeCarryInGenerationIntent } from '../domain/generation/carry-in/carry-in-intent'
 import { makeGenerationIntent, type GenerationIntent } from '../domain/generation/generation-intent'
@@ -28,31 +29,6 @@ import {
   type GenerationWorkerPrewarm,
   type GenerationWorkerRequest,
 } from './generation-worker-protocol'
-
-/**
- * Intent: deep-structural equality over plain JSON-shaped values (objects, arrays, primitives) —
- * the only shape a rebuilt domain value or a structured-cloned wire value can take. Used to prove
- * a rebuilt GenerationIntent exactly matches the one received over the wire.
- */
-function deepEqual(left: unknown, right: unknown): boolean {
-  if (left === right) return true
-  if (typeof left !== typeof right) return false
-  if (left === null || right === null) return false
-  if (typeof left !== 'object' || typeof right !== 'object') return false
-  if (Array.isArray(left) !== Array.isArray(right)) return false
-  if (Array.isArray(left) && Array.isArray(right)) {
-    if (left.length !== right.length) return false
-    return left.every((entry, index) => deepEqual(entry, right[index]))
-  }
-  const leftRecord = left as Record<string, unknown>
-  const rightRecord = right as Record<string, unknown>
-  const leftKeys = Object.keys(leftRecord)
-  const rightKeys = Object.keys(rightRecord)
-  if (leftKeys.length !== rightKeys.length) return false
-  return leftKeys.every(
-    (key) => Object.hasOwn(rightRecord, key) && deepEqual(leftRecord[key], rightRecord[key]),
-  )
-}
 
 const PROFILE_SELECTION_ALLOWED_KEYS = new Set(['musicalProfile', 'isCustom'])
 

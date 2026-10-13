@@ -9,6 +9,7 @@
 import type { Collection } from '../controls/generation-controls'
 import { COLLECTION_OFFSETS } from '../harmony/collection'
 import type { PitchClassNumber } from '../harmony/harmony-types'
+import type { InstrumentClef } from '../profile/instrument-clef'
 import {
   NotationInputError,
   type Alter,
@@ -79,17 +80,36 @@ export function naturalPitchClassOf(letter: Letter): PitchClassNumber {
   return NATURAL_PC[letter]
 }
 
-/** The treble staff's middle line, B4, as a diatonic step count from C0 (6 + 7 × 4). */
-const MIDDLE_LINE_STEP = 6 + 7 * 4
+/** A clef's top staff line and middle staff line, as diatonic step counts from C0. */
+export interface ClefStaffLines {
+  readonly topLineStep: number
+  readonly middleLineStep: number
+}
 
 /**
- * Intent: the staff position of a written pitch as diatonic steps from the treble staff's middle
- * line (B4): 0 on it, positive above, negative below. Read from the written letter and octave, so
- * the accidental never moves it (B♯3 sits below C4, C♭5 above B4).
+ * Each clef's top line and middle line as diatonic step counts (octave × 7 + letter index, C0 = 0):
+ * treble top line F5 (38) and middle line B4 (34); bass top line A3 (26) and middle line D3 (22).
  */
 // @spec-link [[module_notation_stem_direction]]
-export function staffStepsFromMiddleLine(pitch: SpelledPitch): number {
-  return LETTERS.indexOf(pitch.letter) + 7 * pitch.octave - MIDDLE_LINE_STEP
+// @spec-link [[module_notation_display_convention]]
+export const CLEF_STAFF_LINES: Readonly<Record<InstrumentClef, ClefStaffLines>> = Object.freeze({
+  treble: Object.freeze({ topLineStep: 3 + 7 * 5, middleLineStep: 6 + 7 * 4 }),
+  bass: Object.freeze({ topLineStep: 5 + 7 * 3, middleLineStep: 1 + 7 * 3 }),
+})
+
+/** Intent: a written pitch's diatonic step count from C0, read from its letter and octave only. */
+function diatonicStepOf(pitch: SpelledPitch): number {
+  return LETTERS.indexOf(pitch.letter) + 7 * pitch.octave
+}
+
+/**
+ * Intent: the staff position of a written pitch as diatonic steps from the middle line of its
+ * clef (B4 in treble, D3 in bass): 0 on it, positive above, negative below. Read from the written
+ * letter and octave, so the accidental never moves it (B♯3 sits below C4, C♭5 above B4).
+ */
+// @spec-link [[module_notation_stem_direction]]
+export function staffStepsFromMiddleLine(pitch: SpelledPitch, clef: InstrumentClef): number {
+  return diatonicStepOf(pitch) - CLEF_STAFF_LINES[clef].middleLineStep
 }
 
 /** Intent: render one spelled pitch class as 'F♯', 'B♭', 'C', 'D𝄪', 'E𝄫'. */

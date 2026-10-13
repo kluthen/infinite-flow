@@ -3,7 +3,8 @@
 > **Changes since v2**
 >
 > - _New:_ the check's result offers to use it for my instrument, through a confirmation inside
->   the sheet ([Using the result for my instrument](#using-the-result-for-my-instrument))
+>   the sheet that names the interval and warns when my instrument's sessions would go
+>   ([Using the result for my instrument](#using-the-result-for-my-instrument))
 > - _New:_ the check runs against my instrument when it is selected; Connected can be reached
 >   straight away for the remembered controller ([Focal point per state](#focal-point-per-state),
 >   [How the check result is worded](#how-the-check-result-is-worded))
@@ -127,10 +128,14 @@ needed to get from "no controller" to "connected and checked" is left out.
 action: the result's own suggestion, the controller's setting, stays the first thing offered, and
 the player who just wants to play continues as before. Choosing it does not act at once. It
 changes something kept, so the sheet first shows a confirmation in its own place, not a second
-dialog over it: one question as the title, what will change in plain words ("A written C4 will
-sound as B♭2.", and, when my instrument does not exist yet, that it will be made from the selected
-profile, with its name and range), and two actions, `Use for my instrument` and `Back`. Focus
-lands on `Back`, so a player pressing Enter out of habit changes nothing.
+dialog over it: one question as the title, what will change in plain words ("A major ninth lower
+(an octave and a major second): a written C4 will sound as B♭2.", the interval's name as my
+instrument's sheet shows it, and, when my instrument does not exist yet, that it will be made from
+the selected profile, with its name, clef and range), and two actions, `Use for my instrument` and
+`Back`. Focus lands on `Back`, so a player pressing Enter out of habit changes nothing. When my
+instrument has kept sessions, the confirmation also says that they go and how many, in the words
+my instrument's own sheet uses, and its action becomes `Use and erase`, in the error tone, since it
+now deletes something kept.
 
 **[v3 new]** The confirmation stays inside the sheet because the sheet is where the player already
 is, and a sheet stacked on a sheet would leave two `Close` buttons and two backdrops to reason

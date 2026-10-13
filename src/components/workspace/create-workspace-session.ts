@@ -20,6 +20,10 @@ import {
   type NotationCoordinator,
 } from '@/composables/use-notation-coordinator'
 import {
+  createPregenerationSlot,
+  yieldingToPlayer,
+} from '@/composables/generation-session-pregeneration'
+import {
   createWorkspaceGenerate,
   withSessionSeed,
   type WorkspaceGeneratedPhrase,
@@ -39,7 +43,7 @@ import { createBrowserOrientationLock, createBrowserScreenWakeLock } from './bro
 import { createBrowserWindowShape } from './browser-window-shape'
 import { createIdleLayoutGate } from './idle-layout-gate'
 import { createPhraseReplayAnnouncer } from './phrase-replay-announcer'
-import type { WorkspacePrewarmPolicy } from './prewarm-policy'
+import type { WorkspacePregenerationPolicy, WorkspacePrewarmPolicy } from './prewarm-policy'
 import type {
   WorkspaceSessionDependencies,
   WorkspaceSessionRunnerStarter,
@@ -74,7 +78,10 @@ export const WORKSPACE_SESSION_FACTORY: InjectionKey<() => WorkspaceSession> = S
  * flow's providers, window-width reading and raw `generate` seam (the one worker), so phrase 2
  * reuses the rhythm-domain memo phrase 1 warmed. With the prewarm policy enabled the session posts
  * a prewarm now, for the current width-resolved controls, and after each rhythm-setting change;
- * those prewarms land in the same worker's memo the runner's phrases read.
+ * those prewarms land in the same worker's memo the runner's phrases read. Under the
+ * pre-generation policy, the session controller's Idle pre-generation queue runs its background
+ * attempts on that same seam, after the prewarm, through the Idle background slot, which every
+ * Idle request yields to first.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]
@@ -102,12 +109,13 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   })
 
   const connectionSheetOpen = shallowRef(false)
+  const slot = createPregenerationSlot()
   const created = createGenerationSession<WorkspaceSessionResult, WorkspaceGeneratedPhrase>({
     providers: deps.providers,
     nextSessionSeed: deps.nextSessionSeed,
     withSessionSeed,
     viewport: deps.viewport,
-    generate: createWorkspaceGenerate(deps.generate),
+    generate: createWorkspaceGenerate(yieldingToPlayer(slot, deps.generate)),
     notate: coordinator.notate,
     checkFit: coordinator.checkFit,
     checkRoom: coordinator.checkRoom,
@@ -173,10 +181,12 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
       const [
         { createSessionController },
         { measureSessionStaffFixedParts, loadSessionStaffFitPlanner },
+        { createWorkspacePregeneration },
         startRunner,
       ] = await Promise.all([
         import('./workspace-session-controller'),
         import('./session-staff-fixed-parts'),
+        import('./workspace-pregeneration'),
         loadSessionRunner(),
       ])
       return createSessionController({
@@ -191,6 +201,15 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
         staffFitPlanner: loadSessionStaffFitPlanner,
         midi: deps.midi,
         connectionSheetOpen: () => connectionSheetOpen.value,
+        pregeneration: (seams) =>
+          createWorkspacePregeneration({
+            ...seams,
+            generate: deps.generate,
+            providers: deps.providers,
+            viewport: deps.viewport,
+            slot,
+            policy: deps.pregenerationPolicy,
+          }),
       })
     },
     dispose: () => {
@@ -227,6 +246,8 @@ function logPhraseReplayKeyToConsole(line: string): void {
 export interface ProductionWorkspaceSessionOptions {
   /** Read by App.vue from the page URL (`?prewarm=off`, the latency measurement switch). */
   readonly prewarmPolicy: WorkspacePrewarmPolicy
+  /** Read by App.vue from the page URL (`?pregeneration=off`, the measurement switch). */
+  readonly pregenerationPolicy: WorkspacePregenerationPolicy
 }
 
 /**
@@ -267,6 +288,7 @@ export function createWorkspaceSession(
     viewport: createBrowserViewportWidth(),
     generate: client.generate,
     prewarmPolicy: options.prewarmPolicy,
+    pregenerationPolicy: options.pregenerationPolicy,
     prewarm: client.prewarm,
     audio,
     midi,

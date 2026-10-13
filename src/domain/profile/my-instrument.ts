@@ -1,11 +1,15 @@
 /**
  * My instrument: the player's own instrument, made from a built-in template, a display name, a
- * written range and a transposition, from which a validated instrument profile is derived under
- * the fixed id `my-instrument`. Building it refuses an invalid record with a reason and never
- * clamps; the same refusal is available without throwing, for a live check while it is edited.
+ * clef, a written range and a transposition, from which a validated instrument profile is derived
+ * under the fixed id `my-instrument`. The clef, treble or bass, is display only: it stays on the
+ * record beside the name and never reaches the generator-facing profile, so two my instruments
+ * differing only by clef generate the same phrase. Building it refuses an invalid record with a
+ * reason and never clamps; the same refusal is available without throwing, for a live check while
+ * it is edited.
  */
 
 import { deepFreeze } from '../events/deep-freeze'
+import type { InstrumentClef } from './instrument-clef'
 import { type InstrumentProfile, makeInstrumentProfile } from './instrument-profile'
 import {
   BUILT_IN_REGISTER_WINDOW_POLICY,
@@ -35,8 +39,9 @@ export interface WrittenRange {
 export type MyInstrumentInputKind = 'midi-controller'
 
 /**
- * A validated, deep-frozen my instrument: the record the player edits (template, name, written
- * range, transposition, input kind) and what is derived from it (the interval and the profile).
+ * A validated, deep-frozen my instrument: the record the player edits (template, name, clef,
+ * written range, transposition, input kind) and what is derived from it (the interval and the
+ * profile). The clef sits outside the profile: the generator never sees it.
  */
 // @spec-link [[entity_my_instrument]]
 export interface MyInstrument {
@@ -44,6 +49,7 @@ export interface MyInstrument {
   readonly id: typeof MY_INSTRUMENT_ID
   readonly template: BuiltInInstrumentProfileId
   readonly name: string
+  readonly clef: InstrumentClef
   readonly writtenRange: WrittenRange
   readonly transposition: MyInstrumentTransposition
   readonly inputKind: MyInstrumentInputKind
@@ -56,6 +62,7 @@ export interface MyInstrument {
 export interface MyInstrumentInput {
   readonly template: string
   readonly name: string
+  readonly clef: InstrumentClef
   readonly writtenRange: WrittenRange
   readonly transposition: MyInstrumentTransposition
 }
@@ -172,7 +179,8 @@ export function findMyInstrumentRefusal(input: MyInstrumentInput): MyInstrumentR
  * Intent: build my instrument, refusing any input `findMyInstrumentRefusal` refuses as a typed
  * MyInstrumentError. The profile carries the fixed id, the display name, the concert range (the
  * written range minus the chromatic count, as written = concert + chromatic), the built-in
- * profiles' window policy and the chromatic/diatonic pair from the interval table.
+ * profiles' window policy and the chromatic/diatonic pair from the interval table. The clef is
+ * kept on the value beside the name, never in the profile.
  */
 // @spec-link [[entity_my_instrument]]
 export function makeMyInstrument(input: MyInstrumentInput): MyInstrument {
@@ -201,6 +209,7 @@ export function makeMyInstrument(input: MyInstrumentInput): MyInstrument {
     id: MY_INSTRUMENT_ID,
     template,
     name: input.name,
+    clef: input.clef,
     writtenRange,
     transposition: {
       octaves: input.transposition.octaves,

@@ -10,6 +10,7 @@
 
 import { notationInputFromOutcome } from '../domain/notation/notation-input'
 import { transformToWrittenPhrase } from '../domain/notation/written-phrase'
+import { BUILT_IN_INSTRUMENT_CLEF } from '../domain/profile/instrument-clef'
 import type { InstrumentProfile } from '../domain/profile/instrument-profile'
 import type { GeneratedNotesMidiInput, MidiBackingPhrase } from '../export/midi/midi-export-input'
 import type { PlayedNotesMidiInput } from '../export/midi/played-notes-midi-input'
@@ -62,7 +63,8 @@ export function musicXmlInputFromHistory(
     phrases: records.map((record) => ({
       number: record.phraseNumber,
       writtenPhrase: transformToWrittenPhrase(
-        notationInputFromOutcome(record.outcome, record.intent),
+        // The clef this record carries, which chunk 17 adds to the record.
+        notationInputFromOutcome(record.outcome, record.intent, BUILT_IN_INSTRUMENT_CLEF),
       ),
       tempo: record.tempo,
     })),

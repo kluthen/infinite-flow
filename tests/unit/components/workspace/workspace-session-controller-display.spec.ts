@@ -10,6 +10,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { SessionStaff } from '@/components/notation/session-staff'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import { NotationError } from '@/notation/notation-error'
@@ -43,7 +44,9 @@ function keys(staff: SessionStaff): [string | null, string | null] {
 
 /** Intent: the written phrase of a readied phrase or a checked attempt. */
 function writtenOf(phrase: Pick<SessionPhrase, 'intent' | 'outcome'>): WrittenPhrase {
-  return transformToWrittenPhrase(notationInputFromOutcome(phrase.outcome, phrase.intent))
+  return transformToWrittenPhrase(
+    notationInputFromOutcome(phrase.outcome, phrase.intent, BUILT_IN_INSTRUMENT_CLEF),
+  )
 }
 
 /** Intent: the written phrases the staff shows now. */

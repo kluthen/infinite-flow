@@ -83,7 +83,12 @@ One score-partwise 4.0 document, UTF-8, with the MusicXML 4.0 partwise document 
   phrase and every duration is a whole number.
 - **Opening attributes**, in the first measure only: divisions, the written key signature (the
   signed count of sharps or flats, and the collection as the mode: `ionian`, `dorian`, `minor` …),
-  4/4, the treble G2 clef, and the transposition.
+  4/4, the instrument's clef, and the transposition.
+- **Clef.** The [clef](music/lexicon.md#clef) the written phrase carries, its instrument's: the
+  [treble clef](music/lexicon.md#treble-clef), `<sign>G</sign>` on line 2, for the three built-in
+  profiles; for my instrument, its own clef, treble (G on line 2) or
+  [bass](music/lexicon.md#bass-clef) (`<sign>F</sign>` on line 4). The clef changes only where the
+  notes sit on the staff, never the written notes, so `<transpose>` is the same in either clef.
 - **Transposition.** A `<transpose>` element for a transposing instrument. It's left out when both
   counts are zero (the C MIDI keyboard). The instrument profile gives written pitch relative to
   concert pitch; MusicXML's `<transpose>` gives the opposite, what to add to the written pitch to

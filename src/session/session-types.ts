@@ -14,6 +14,7 @@ import type {
 } from '../domain/generation/generation-intent'
 import type { GenerationOutcome } from '../domain/generation/orchestration/orchestration-types'
 import type { Seed } from '../domain/random/seed'
+import type { ReadyPhrase } from './session-ready-phrases'
 import type { MutableSetting, SettingsMutationFlag } from './settings-mutation'
 
 /** Seconds on the audio clock. */
@@ -78,8 +79,9 @@ export interface SessionPhrase {
  * session seed drawn at Idle with phrase 1, from which every attempt seed is derived, the
  * settings-mutation flag, its mutation seed derived from the session seed, so the session replays
  * from its start and its event list alone, and whether adaptive tempo runs in it: only when the
- * page's adaptive-tempo flag is on and the session has a controller at its start, and whether the
- * multi-phrase tension arc runs in it. The chosen settings' tempo is the starting tempo.
+ * page's adaptive-tempo flag is on and the session has a controller at its start, whether the
+ * multi-phrase tension arc runs in it, and the phrases pre-generated at Idle, if any. The chosen
+ * settings' tempo is the starting tempo.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[req_settings_mutation_flag]]
@@ -93,6 +95,12 @@ export interface SessionStart {
   readonly adaptiveTempo: boolean
   /** Whether each phrase is generated with its four-phrase cycle step around the tension arc. */
   readonly multiPhraseTensionArc: boolean
+  /**
+   * The phrases pre-generated at Idle that Start took, in order from phrase 2, at most four; the
+   * engine spends each one whose intent it re-derives identically in place of requesting it.
+   * Absent means none, as an empty list does: pre-generation off or nothing ready.
+   */
+  readonly readyPhrases?: readonly ReadyPhrase[]
 }
 
 /**

@@ -14,6 +14,12 @@
  * - a generation gate (`holdGeneration`/`releaseGeneration`) the `generate` wrapper awaits before
  *   ever delegating to the real worker client, so a spec can assert concurrent-operation
  *   prevention deterministically;
+ * - a second gate for background attempts only (`holdBackgroundGeneration`/
+ *   `releaseBackgroundGeneration`): a background attempt is a `generate` call that carries an abort
+ *   signal while no session runs (a session's attempts carry one too, the player's requests at
+ *   Idle never do). A held one honours its signal: aborted while held, it rejects at once with the
+ *   client's cancellation error, never waiting for the release. `backgroundGeneration()` counts
+ *   them (made, held, answered, cancelled);
  * - armed failure injection for generation (`failNextGeneration`, resolving one or more calls in a
  *   row with the real `GenerationOutcome` failure shape orchestration itself produces, with a count
  *   of the calls that have returned, `generationsSettled`, and the timeline of every successful
@@ -42,7 +48,9 @@
  *   `@/components/workspace/workspace-session-runner` alias): the real runner, the latest kept so
  *   `session.changeSettings()` can send it an automatic settings change;
  * - every `generate` call's settings (`generationRequests`), in call order, so a spec can tell
- *   which settings a phrase was generated with;
+ *   which settings a phrase was generated with, each with its seed and request id, whether it
+ *   carried an abort signal, whether it was a background attempt, how it has settled so far
+ *   (pending, answered, cancelled or rejected) and the concert timeline of a successful answer;
  * - the session clock: the session controller's wake-up timer on the audio seams' clock (stepped
  *   by `audio.advance` right after the transport's on the fake rig, a real wake-up Worker with
  *   `?audio=real`), and the real wall clock for session histories unless a spec fixes it with
@@ -55,7 +63,11 @@
  *   the app shows hold any number of phrases, for the long-Review specs;
  * - the prewarm policy, read from the page URL exactly as production reads it (`?prewarm=off`
  *   disables it, on by default), with every prewarm forwarded to the real worker client and
- *   counted for `prewarmCount()`.
+ *   counted for `prewarmCount()`;
+ * - the Idle pre-generation policy, read from the page URL with the harness's own default: off,
+ *   unlike production, so no spec meets background attempts unless it asks for them with
+ *   `?pregeneration=on`; any value given is read by production's parser (`off`, `on`, a mistyped
+ *   value throws).
  *
  * The lazy VexFlow engraver, the real generation Worker, real notation, the real `matchMedia`
  * window-width provider and the real window-shape probe all run for real (a spec moves the window
@@ -87,7 +99,11 @@ import {
   createGenerationWorkerClient,
 } from '../../../src/generation-worker/generation-worker-client'
 import { createBrowserViewportWidth } from '../../../src/components/workspace/browser-viewport-width'
-import { prewarmPolicyFromSearch } from '../../../src/components/workspace/prewarm-policy'
+import {
+  pregenerationPolicyFromSearch,
+  prewarmPolicyFromSearch,
+  type WorkspacePregenerationPolicy,
+} from '../../../src/components/workspace/prewarm-policy'
 import { bindHarnessAudioStart, createHarnessAudio, harnessAudioMode } from './audio-seams'
 import { createHarnessMidi, harnessMidiMode } from './midi-seams'
 import { createHarnessSessionBrowser } from './session-browser-seams'
@@ -153,6 +169,69 @@ function createGenerationGate(): {
   }
 }
 
+/** A gate for background attempts: each held call waits for the release or its own abort. */
+interface BackgroundGate {
+  readonly hold: () => void
+  readonly release: () => void
+  /** How many calls wait at the gate now. */
+  readonly held: () => number
+  readonly wait: (signal: AbortSignal) => Promise<void>
+}
+
+/**
+ * Intent: a held/released gate for background attempts. A call that meets it held waits until the
+ * release, unless its signal aborts first (or already has): it then rejects at once with the
+ * client's cancellation error, as the worker client rejects an aborted call.
+ */
+function createBackgroundGate(): BackgroundGate {
+  let holding = false
+  const waiting = new Set<() => void>()
+  return {
+    hold: () => {
+      holding = true
+    },
+    release: () => {
+      holding = false
+      const resumed = [...waiting]
+      waiting.clear()
+      for (const resume of resumed) resume()
+    },
+    held: () => waiting.size,
+    wait: (signal) => {
+      if (!holding) return Promise.resolve()
+      if (signal.aborted) return Promise.reject(new GenerationCancelledError())
+      return new Promise((resolve, reject) => {
+        /** Intent: leave the gate and reject as the worker client rejects an aborted call. */
+        const onAbort = (): void => {
+          waiting.delete(resume)
+          reject(new GenerationCancelledError())
+        }
+        /** Intent: pass the gate at its release. */
+        const resume = (): void => {
+          signal.removeEventListener('abort', onAbort)
+          resolve()
+        }
+        signal.addEventListener('abort', onAbort, { once: true })
+        waiting.add(resume)
+      })
+    },
+  }
+}
+
+/**
+ * Intent: the harness's pre-generation policy: disabled when the page URL names none, so existing
+ * specs meet no background attempt; otherwise production's own parser reads the value.
+ */
+function harnessPregenerationPolicy(search: string): WorkspacePregenerationPolicy {
+  if (new URLSearchParams(search).get('pregeneration') === null) return 'disabled'
+  return pregenerationPolicyFromSearch(search)
+}
+
+/** One `generate` call's record, settled in place as the call settles. */
+type GenerationRecord = {
+  -readonly [K in keyof WorkspaceHarnessGenerationRequest]: WorkspaceHarnessGenerationRequest[K]
+}
+
 /** A real, minimal GenerationDiagnostics value for one fabricated failure outcome -- never an invented shape. */
 const EMPTY_DIAGNOSTICS: GenerationDiagnostics = {
   version: 'generation-diagnostics-v1',
@@ -167,6 +246,7 @@ const seedProvider = createSeedProvider()
 const sessionSeedProvider = createSeedProvider()
 const requestIdProvider = createRequestIdProvider()
 const gate = createGenerationGate()
+const backgroundGate = createBackgroundGate()
 let armedFailureCode: WorkspaceHarnessGenerationFailureCode | null = null
 /** How many gated `generate` calls still pass through before the armed failure applies. */
 let callsBeforeArmedFailure = 0
@@ -179,8 +259,8 @@ let armedFailuresLeft = 0
 let generationsSettled = 0
 /** The concert timeline (JSON) of every successful `generate` answer, in return order. */
 const generatedTimelines: string[] = []
-/** The settings of every `generate` call, in call order. */
-const generationRequests: WorkspaceHarnessGenerationRequest[] = []
+/** The record of every `generate` call, in call order. */
+const generationRequests: GenerationRecord[] = []
 
 const harnessAudio = createHarnessAudio(harnessAudioMode(window.location.search), shownHarmony)
 bindHarnessAudioStart(document, harnessAudio.startFromClick)
@@ -189,26 +269,64 @@ const harnessBrowser = createHarnessSessionBrowser()
 const harnessSessionController = createHarnessSessionController()
 
 const harnessPrewarmPolicy = prewarmPolicyFromSearch(window.location.search)
+const pregenerationPolicy = harnessPregenerationPolicy(window.location.search)
 const client = createGenerationWorkerClient(createBrowserGenerationWorker, {
   prewarmEnabled: harnessPrewarmPolicy === 'enabled',
 })
 
 /**
- * Intent: gate, then optionally fail with a real orchestration failure shape (once the armed
- * number of calls has passed through, for the armed number of calls in a row), then delegate for
- * real with the caller's abort signal; count every call that returns or is cancelled.
+ * Intent: record the call, then pass it through the gates and the armed failures to the real
+ * worker client; settle its record as the call settles. A background attempt is a call carrying
+ * a signal while no session runs (the controller at Idle).
  */
 async function harnessGenerate(
   intent: GenerationIntent,
   signal?: AbortSignal,
 ): Promise<GenerationOutcome> {
-  generationRequests.push({
+  const record: GenerationRecord = {
     writtenTonalCenter: intent.writtenTonalCenter,
     controls: { ...intent.controls },
     musicalProfile: { ...intent.musicalProfile },
     carryIn: intent.carryIn !== undefined,
-  })
+    seed: intent.seed,
+    requestId: intent.requestId,
+    signal: signal !== undefined,
+    background: signal !== undefined && harnessSessionController.phase() === 'idle',
+    settled: 'pending',
+    timeline: null,
+  }
+  generationRequests.push(record)
+  try {
+    const outcome = await gatedGenerate(intent, signal, record.background)
+    record.settled = 'answered'
+    if (outcome.kind === 'generation_success') {
+      record.timeline = JSON.stringify(outcome.result.timeline)
+    }
+    return outcome
+  } catch (error: unknown) {
+    record.settled = error instanceof GenerationCancelledError ? 'cancelled' : 'rejected'
+    throw error
+  }
+}
+
+/**
+ * Intent: gate (a background attempt at the background gate too, where an abort cancels it at
+ * once), then optionally fail with a real orchestration failure shape (once the armed number of
+ * calls has passed through, for the armed number of calls in a row), then delegate for real with
+ * the caller's abort signal; count every call that returns or is cancelled.
+ */
+async function gatedGenerate(
+  intent: GenerationIntent,
+  signal: AbortSignal | undefined,
+  background: boolean,
+): Promise<GenerationOutcome> {
   await gate.wait()
+  if (background && signal !== undefined) {
+    await backgroundGate.wait(signal).catch((error: unknown) => {
+      generationsSettled += 1
+      throw error
+    })
+  }
   if (armedFailureCode !== null && callsBeforeArmedFailure > 0) {
     callsBeforeArmedFailure -= 1
   } else if (armedFailureCode !== null) {
@@ -227,6 +345,22 @@ async function harnessGenerate(
     generatedTimelines.push(JSON.stringify(outcome.result.timeline))
   }
   return outcome
+}
+
+/** Intent: the background attempts' counts, from their records and the background gate. */
+function backgroundGeneration(): WorkspaceHarnessBackgroundGeneration {
+  const records = generationRequests.filter((record) => record.background)
+  /** Intent: how many background records have settled as `settled`. */
+  const count = (settled: WorkspaceHarnessGenerationSettlement) =>
+    records.filter((record) => record.settled === settled).length
+  return {
+    made: records.length,
+    held: backgroundGate.held(),
+    pending: count('pending'),
+    answered: count('answered'),
+    cancelled: count('cancelled'),
+    rejected: count('rejected'),
+  }
 }
 
 /** Intent: arm `count` forced failures in a row with `code`, after `skip` real calls. */
@@ -317,6 +451,9 @@ window.__workspaceHarness = {
   queueSeeds: (seeds) => seedProvider.queueSeeds(seeds),
   holdGeneration: () => gate.hold(),
   releaseGeneration: () => gate.release(),
+  holdBackgroundGeneration: () => backgroundGate.hold(),
+  releaseBackgroundGeneration: () => backgroundGate.release(),
+  backgroundGeneration,
   failNextGeneration: (code, skip = 0, count = 1) => armGenerationFailures(code, skip, count),
   generationsSettled: () => generationsSettled,
   failNextNotation: (code) => armNextNotationFailure(code),
@@ -331,7 +468,7 @@ window.__workspaceHarness = {
     seedPlan.phraseAttemptSeed(makeSeed(seed), phraseNumber, rung),
   settingsMutationSeed: (seed) => seedPlan.settingsMutationSeed(makeSeed(seed)),
   generatedTimelines: () => [...generatedTimelines],
-  generationRequests: () => [...generationRequests],
+  generationRequests: () => generationRequests.map((record) => ({ ...record })),
   setWallClock,
   failNextExport: armNextExportFailure,
   exportsBuilt,
@@ -353,6 +490,7 @@ app.provide(WORKSPACE_SESSION_FACTORY, () => {
     viewport: createBrowserViewportWidth(),
     generate: harnessGenerate,
     prewarmPolicy: harnessPrewarmPolicy,
+    pregenerationPolicy,
     prewarm: harnessPrewarm,
     audio: harnessAudio.transport,
     midi: harnessMidi.controller,

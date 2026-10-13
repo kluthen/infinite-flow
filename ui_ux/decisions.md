@@ -969,3 +969,302 @@ Part D changes what it rests on.
   v3.2 draws it; if it would move one, chunk 14 brings it here before any snapshot is updated;
   (5) chunk 19's checks add what its scope already says: editable in the review mode, a round
   under the too-many-notes notice, `jam-bar` leaving at once, nothing announced.
+
+## v3.0 wave 2: my instrument's clef and its sessions, 2026-10-12
+
+Inputs: master spec Part A v1.10 (§4.3, §4.4, §5.1, §7.1, §7.2, §14), spec D290-D296 and O180,
+build plan v8 §1 (the **Clef design** gate before chunk 20, the **Sessions design** gate before
+chunk 20c), `docs/storage.md` (chunk 4), `docs/notation-engraving.md` (M3). The owner's standing
+delegation applies (D119, D135, archived): minor design issues settled here, phones low priority.
+Nothing in `src/` is edited but the token source's comment (D292). Ux numbers D280+ and Q80+ are
+this wave's; D252-D264 and Q77 are v3.3's.
+
+- **D280 — Where the two gates are written (2026-10-12).** The owner added the clef and the
+  sessions' belonging to v3.0 while it is being built from `versions/v3.0/` (the build plan's
+  design links point there). So the gates are written into `versions/v3.0/` as a recorded
+  correction to match what v3.0 ships, the exception its README allows, and the same text is
+  applied at the root, which holds v3.0's behaviour under v3.1-v3.3. Being v3.0 changes from v2,
+  they carry v3.0's own marks in both trees (`[v3 new]` / `[v3 changed]`, unprefixed change-block
+  items); documents new in v3 take no inline tag. Files: `strategy.md`, `motion.md`,
+  `flows/my-instrument/`, `screens/my-instrument/`, `flows/controller-connection/`,
+  `screens/controller-connection/`, `screens/phrase-workspace/handoff.md` (Notation Contract),
+  `screens/last-session-review/handoff.md`, `flows/kept-sessions/`,
+  `flows/review-and-export/intent.md`, `flows/generate-phrase/intent.md`, `flows/saved-data/`,
+  and `versions/v3.0/README.md` (status and two decisions worth keeping). Root only, in v3.2
+  paragraphs: Jam's empty staff and the review's doodle staff take the instrument's clef.
+- **D281 — The clef control (Clef design gate; spec D293; supersedes D214's "§7.1 keeps no clef
+  choice") (2026-10-12).** A `field-group` labelled "Clef" with a two-segment
+  `segmented-control`, "Treble clef" and "Bass clef" (in full: "Bass" alone reads as the bass
+  instrument), between the name and the Range section, since the range is read on the staff it
+  chooses and its bound depends on it. `field-note`: "Bass clef suits low instruments. The clef
+  changes where notes are drawn, never which notes." **Default treble, confirmed:** every template
+  is in treble clef, and the personas' instruments (saxophones, keyboards, wind controllers) read
+  treble; a bass-clef player makes one deliberate choice. Choosing a template never changes the
+  clef (the player's choice, like the name). The check's "Use this for my instrument" creates my
+  instrument in treble clef and keeps an existing one's clef. One tab stop, after the name; the
+  phone keeps both segments on one row. The score's text description says "bass clef" where it
+  says "treble clef" today (chunk 19b's word, confirmed). The check note is drawn in the selected
+  instrument's clef. No new token or class.
+- **D282 — The range bound's refusal (Clef design gate; spec D294) (2026-10-12).** Refused live in
+  `range-alert`, `Save` disabled, like the two-octave refusal; one `p` per reason, the span's
+  first. Wording: "In {treble clef|bass clef}, the range must stay between {C2 and C7|E0 and E5}.
+  {lowest} is too low." / "... {highest} is too high." / "... {lowest} is too low and {highest}
+  too high.", followed by "It fits in {other clef}." only when both ends lie inside the other
+  clef's bound. The steppers are not stopped at the bound (only at the MIDI range, as before), so
+  a clef change never moves the player's notes: it re-checks at once, and the refusal names the
+  clef. Profile-range summary and staff-reach note are absent while refused.
+- **D283 — The staff-reach note reads the chosen clef (Clef design gate) (2026-10-12).** Shown
+  while the range is valid and the size it sets in its clef exceeds the built-in 16 staff spaces,
+  computed by the same rule that sizes the staff (not "reaches further than the built-ins": M3
+  shows that almost every range wider than two octaves grows the staff, through beam widths as
+  well as reach). Wording: "In {clef}, this range makes the staff taller for every instrument, and
+  it may no longer fit a phone's screen." plus "In {other clef}, it would not." when the other
+  clef accepts the range and keeps 16. The Notation Contract now says the shared size is 16 staff
+  spaces unless a saved my instrument, in its clef, needs more, at most 24 within the bound.
+- **D284 — What a clef change does on screen (spec D293, D296) (2026-10-12).** Saved with no
+  warning, every session kept. With my instrument selected, the phrase on screen stays and is
+  redrawn at once in the new clef, with no fade (not a phrase replacement; `motion.md`); that
+  redraw is an idle engraving, so Room for the staff applies should it no longer fit. A save
+  that changes the shared size re-checks the phrases prepared in the background, showing
+  nothing.
+- **D285 — Q76 closed: the transposition's interval name (2026-10-12; spec D253, D257).** The
+  transposition's `field-note` reads "{interval}: a written C4 sounds as {note}.", updated on
+  every step: "No transposition" at Same; "A minor second lower" ... "A major seventh higher" (6:
+  always "An augmented fourth"); "One octave lower", "Two octaves lower"; from 13 to 23 the
+  compound name with its octave in brackets, "A major ninth lower (an octave and a major
+  second)", since "ninth" says nothing to a beginner; past two octaves, "Two octaves and a major
+  second lower". The stepper's `aria-valuetext` adds the name ("14 semitones lower, a major
+  ninth"). The check's confirmation uses the same line ("No transposition: a written C4 will
+  sound as C4."). Never chosen by name; `screens/my-instrument/intent.md`'s rejection of names
+  now rejects choosing by name only.
+- **D286 — The erase warning (Sessions design gate; spec D295, D296) (2026-10-12).** `Save`, when
+  the range or the transposition differs from the saved one and my instrument has sessions,
+  opens a warning in the sheet's place (as the delete confirmation does): title "Save and erase
+  sessions?"; "Changing the range or the transposition erases the {N} sessions played with
+  {name}, with their favorite phrases, comments and played notes." (one: "the session ... with
+  its favorite phrases, comment and played notes."); when the review on screen is one of them,
+  "The session reviewed on screen is one of them, so its review closes." (one: "It is the session
+  reviewed on screen, so its review closes."); "This can't be undone."; hint "To keep a session,
+  cancel, then export it from its review first."; actions `Save and erase` (`btn btn-error`),
+  `Cancel` (focused). Cancel returns to the form with the edit unsaved; the save and the erasing
+  are one step, a failure keeping the warning with "That couldn't be saved, and nothing was
+  erased. Try again." {N} counts the kept sessions of my instrument and the session that just
+  ended with it, held in memory after a failed save; 0 in a visit started from the defaults.
+  **No warning at 0, as spec-writer proposed:** nothing is erased, and a warning that names
+  nothing would teach the player to click through it. The check's "Use for my instrument"
+  confirmation carries the same paragraphs ("Changing the transposition erases ..."), its action
+  becoming `Use and erase` (`btn btn-error`).
+- **D287 — The delete confirmation names the sessions (Sessions design gate) (2026-10-12).** After
+  "{name} will be deleted, with its range and transposition.": "The {N} sessions played with it
+  go too, with their favorite phrases, comments and played notes." (one: "The session played
+  with it goes too, ..."), the review sentence of D286 when it applies, then the template line
+  when selected; "This can't be undone."; the same hint. Unchanged when {N} is 0.
+- **D288 — Where the player lands (Sessions design gate; spec D295 item 4) (2026-10-12).** Exactly
+  as after `Delete session`: a review of an erased session gives way to the session list, its
+  empty state included; a list showing loses their rows; the session that just ended, if one of
+  them, leaves memory and `Review last session` goes. The sheet that did it keeps focus and
+  returns it to its opener (`instrument-actions`; the connection sheet goes to Connected and its
+  own close rule). Nothing else announces it: the warning said so.
+- **D289 — The outdated tab withholds them (Sessions design gate; spec D295 item 5) (2026-10-12).**
+  While my instrument has kept sessions (rows this tab read), its sheet opens with an
+  `inline-alert alert-notice`: "Reload this page to change the range or the transposition, or to
+  delete {name}: either would erase the sessions played with it, and this page can't delete
+  anything until it is reloaded."; the three steppers disabled, values in full contrast; `Delete
+  my instrument` absent; name and clef still apply for the visit. The check offers no `Use this
+  for my instrument` and adds "To use this for {name}, reload the page first: changing its
+  transposition would erase the sessions played with it." Shown disabled rather than refused at
+  `Save`, so the player is not invited to make a change the tab cannot keep. A tab outdated while
+  the sheet is open closes an open warning or confirmation, erasing nothing, and returns range
+  and transposition to their saved values.
+- **D290 — A review's room for a phrase in another clef (Sessions design gate; spec D296)
+  (2026-10-12).** As proposed: the review's system positions take, in staff spaces, the larger of
+  the shared size and the size the session's own instrument needs in the clef its phrases were
+  played in, turned into a block size at the workspace staff's scale (same notation size, a
+  taller position), one size for the whole review, set before the first engraving so the scroll
+  never jumps. Rejected: shrinking the phrase into the shared size (smaller notes than the staff,
+  possibly below the legibility floor), and redrawing it in today's clef (the review must show it
+  as it was displayed, `req_last_session_review`).
+- **D291 — The stale "treble only" lines (2026-10-12).** Revised in both trees: `strategy.md`'s
+  clef trade-off (now `[v3 changed]`), its my-instrument trade-off, edge cases and flow index;
+  `screens/my-instrument/intent.md`'s staff-height paragraph; the check note in
+  `screens/controller-connection/handoff.md`; the review's `review-staff` and, at the root, Jam's
+  empty system and the review's doodle staff; the Notation Contract's clef and size; the clef
+  sentence of `flows/generate-phrase/intent.md`, split into its own tagged paragraph.
+- **D292 — The token source's sizing comment (2026-10-12).** `src/styles/theme.css` is this tree's
+  to maintain (README, How future UI changes flow; ux D218, D220), so its comment over
+  `--staff-systems-phone-block-budget` now reads "16 staff spaces tall unless a saved my
+  instrument needs more", names `planSystemPositionUnits`, and adds the 24-space ceiling's 366 px.
+  Comment only; no token changes. `prettier --check` passes.
+- **D293 — Chunk 4's two carry-overs (2026-10-12; `docs/storage.md`).** (1) **Another tab's
+  `Delete everything`** outdates every other open tab (the storage port closes on the
+  `versionchange`). Designed as an outdated tab in every respect, with its own notice wording,
+  since "a newer version has saved data" would send the player looking for an update: "Everything
+  this app kept on this device was deleted in another tab. Reload this page to start afresh; until
+  then, nothing here is saved." It replaces any notice and is never replaced, except that a tab
+  already outdated by a newer version keeps that wording. `Reload` then brings the first visit.
+  §4.3 does not name this trigger: Q80. (2) **The Load text** treated a database upgraded by a
+  newer version as a failed read; the storage design reopens it for reading only. The saved-data
+  handoff now sends it down the "data written by a newer version" branch (saved values used,
+  saving off, the saved-data wording); a failed read with newer data known remains for a
+  read-only reopening that fails, or a late read that reveals newer data. The saved-data intent's
+  "may refuse to open at all" is gone.
+- **D294 — `ux-critic`'s pass on the two gates: DRIFT, five findings, all fixed (2026-10-12).**
+  (1) **The example note agrees with the interval's name** (corrects D285): the transposition
+  line's `{note}` is C4 moved by the interval's letter-name steps (master spec §7.1's table), so
+  "A minor second higher: a written C4 sounds as D♭4", an augmented fourth lower G♭3, a major
+  seventh lower D♭3, never C♯4, F♯3 or C♯3, which would name other intervals; from C no double
+  sharp or flat arises. It is the sheet's one note outside the one-spelling list; it spells
+  nothing written (spec D291 still governs the written part). The check's confirmation follows.
+  (2) **The treble default's reasoning** (corrects D281): every template is in treble clef and the
+  personas' grounding setup (tenor saxophone, MIDI wind controller) reads treble; P1 is not tied to
+  an instrument, P2 is often on a keyboard, and keyboard players read both clefs. The clefs are
+  named "the G clef on the second line" and "the F clef on the fourth line", never "F4 clef",
+  which reads as the note F4 (the bass clef's F is F3). (3) **Sessions held in memory while
+  saving is off** are never counted and keep their review, in an outdated tab as in a visit
+  started from the defaults (an outdated tab counts only the kept rows it read); "a review never
+  shows music its instrument can no longer play" now says "a kept session's review"; the review's
+  room also covers that held session after a range change. (4) **Another tab's `Delete
+  everything`** (refines D293): the storage port's outdated report carries no cause today, so the
+  handoff asks chunk 5's save policy to get it from the port (a deletion's `versionchange` has no
+  new version); until then the newer-version wording shows. A visit whose read failed may hold no
+  connection and keeps its unusable-data notice. (5) **The warnings say "this instrument"** (the
+  check's, "my instrument") instead of the current name, since the list shows each session under
+  the name it was played under (corrects D286, D287, D289's paragraph). Also: "four words" fixed;
+  the delete confirmation names the clef too ("with its clef, range and transposition").
+- **D295 — `ux-critic`'s recheck: DRIFT, three leftovers, fixed (2026-10-12).** The five D294
+  findings were resolved in both trees, every spelled example checked. (1) "Treble G2 clef"
+  becomes "treble clef (the G clef on the second line)" in the three paragraphs this wave
+  touched (`strategy.md`, the Notation Contract, `flows/generate-phrase/intent.md`). (2) The
+  saved-data handoff's "One notice at a time" now lets Unusable data give way to the deletion
+  wording too, and says the deletion wording replaces a save-problem or unusable-data notice,
+  never an outdated-tab one. (3) The my-instrument flow handoff says a session held in memory
+  while saving is off is never counted. Correction to D294 (5): D287's sessions sentence never
+  named the instrument; D287 changed only by the clef in its first sentence.
+
+## v3.0 wave 2: the stale phrase prompt, 2026-10-13
+
+Inputs: master spec Part A v1.12 (§16, §14), spec D297 with its 2026-10-13 ruling note (O182
+closed: Regenerate stays at Idle; the starting note asks first, CONTRACT 5.0), build plan v9
+(chunk 24b and the **Stale phrase design** gate, before chunk 24b-2; hand check H9). The owner's
+standing delegation applies (D119, D135, archived): minor design issues settled here, phones low
+priority. No `src/` edit; no new token, class or motion. Ux numbers D296+ and Q81+ are this
+gate's.
+
+- **D296 — Where the gate is written (2026-10-13).** As D280: chunk 24b is v3.0's and is built
+  from `versions/v3.0/` (the build plan's design links point there), so the design is written into
+  `versions/v3.0/` as a recorded correction to match what v3.0 ships, and the same text at the
+  root, with v3.0's own marks in both trees (`[v3 new]`, unprefixed change-block items); the
+  root alone adds tagged v3.1, v3.2 and v3.3 paragraphs. A new screen,
+  `screens/stale-phrase-prompt/` (intent and handoff), rather than a section of the workspace
+  handoff: it is a sheet with its own content, focus and states, like the preset sheet. Files, in
+  both trees: `screens/stale-phrase-prompt/` (new), `flows/play-session/` (the diagram's start
+  steps; a bullet "A phrase made before the settings changed"; the starting-note bullet; the
+  intent's Starting section), `screens/phrase-workspace/handoff.md` (`start-note-line` hidden
+  while it shows; **Ready**; Automatic changes), `flows/generate-phrase/handoff.md`
+  (pre-generation runs while the phrase is out of date), `strategy.md`, `motion.md`; root
+  `README.md` (map); `versions/v3.0/README.md` (status, two decisions worth keeping). The player
+  never reads "stale": the screen is titled "Out-of-Date Phrase Prompt".
+- **D297 — The prompt's form (2026-10-13).** A modal sheet of the standard width
+  (`sheet-backdrop`, `sheet`, the connection sheet's classes), `role="alertdialog"` with
+  `aria-describedby` on the body, over the workspace, which stays in **Ready**. **Other controls
+  cannot be used while it shows, as `spec-writer` proposed**: the controls, the header, the theme
+  and the mix are all behind the backdrop. Reasons: a live control could change the very settings
+  the prompt lists; a player who wants to change something first closes it, which changes
+  nothing. Pre-generation goes on. If the workspace leaves **Ready** while it shows (a window
+  change leaving no room, regenerating a too-wide phrase 1, or bringing `orientation-notice`), it
+  closes as if dismissed. Nothing marks an out-of-date phrase before a start: `start-note-line`
+  keeps naming the note that begins the start (rejected: changing the line or marking the staff
+  on every edit, which would change under the player's hands while setting the controls).
+- **D298 — The wording (2026-10-13).** Plain words, no "stale", "generate" or "carry-in"; the
+  lexicon's **phrase** and **settings** as the app uses them. Title (`sheet-title`): "This phrase
+  is from before your changes" (a statement: a question title would favour one of two good
+  answers). Body: "Since it was made, you changed {changed settings}." then "A new phrase follows
+  your current settings. If you start with this one, only the phrases after it will." **Opened by
+  the starting note**, the player being at the instrument: a first paragraph, "Your note didn't
+  start the session. Nothing you play will until you choose.", and a closing `sheet-hint`, "A new
+  phrase starts on a new note: the line above the staff names it.", since a player who regenerates
+  and plays the old note would hear nothing and not know why. No values, no "don't ask again".
+- **D299 — The two labels: `Regenerate phrase` and `Start with this phrase` (2026-10-13).** The
+  owner's Regenerate is the header's own `Regenerate phrase`, and the prompt's button runs exactly
+  that action, so it takes exactly that label: a player who learns it here learns the header
+  button, and can press it before Start next time. The owner's Use it becomes `Start with this
+  phrase`, which says what happens and on which phrase. **The clash with Part C §C6.5's Use it** is
+  resolved by naming both by what they do: the design already shows C6.5's Use it as `Use
+  {answer}` ("Use G Dorian", D240), so no
+  on-screen "Use it" exists, and a bare one here would leave "it" unclear. The spec's names stay
+  the names of the two choices in the spec and the atoms. `Regenerate phrase` is `btn-primary`
+  (the player's last act was changing a setting, which says they want what it makes, and it
+  starts nothing); `Start with this phrase` is a plain `btn`; neither is error-toned.
+- **D300 — The prompt names the settings that changed (2026-10-13).** Yes: by each control's
+  visible `field-label`, in page order; one, two or three named ("Written key, Register and
+  Leapiness"); four or more, the first two and a count ("Written key, Register and {n} other
+  settings"). It shows the prompt is about the player's own edit, and lets them check it was the
+  one they meant; a full list after a preset choice would bury the choice. Never values; never
+  the preset's name (a preset counts through the values it set). Musical profile preset counts
+  when Neutral or Jazz differs, its customized mark alone never; Note density by the value the
+  player chose; Instrument profile when the instrument differs, which in practice never happens.
+  From v3.1 the seven figure levels by their labels and no Musical profile preset; from v3.3
+  Seventh chords after Harmonic motion. Computed at open; it cannot change while the prompt shows.
+  The pure stale check of chunk 24b-1 returns the differing settings, which this needs.
+- **D301 — Dismissing, focus, keyboard and accessibility (2026-10-13).** Dismissed by `Close`,
+  Escape and a press on the backdrop, as every sheet; no third `Cancel` button. **Focus on open:
+  `Regenerate phrase`**, whichever start opened it (it starts no sound and deletes nothing, so
+  Enter on it is always safe, and a player at the instrument with a computer keyboard in reach
+  presses Enter, reads the new note and plays it). Rejected: focus on `Close` (the confirmations'
+  "way back" rule guards a deletion; here it would make Enter a dead end). Opening closes the
+  `Volume` popover. Order `Close`, `Regenerate phrase`, `Start with this phrase`; trapped. On
+  close: after `Start with this phrase`, the session action (now `Stop`), as after a Start click;
+  after `Regenerate phrase`, the phrase action, as a press on it in the header, no move when the
+  phrase lands; after a dismissal or closing by itself, the connection sheet's rule (session
+  action, else phrase action, else `controller-status`). No MIDI note starts anything while it
+  shows; `start-note-line` hidden as for any sheet. `Start with this phrase` is the start click
+  (sound unlock, locks, jump), the start conditions checked again; if one fails, nothing starts
+  and the prompt closes.
+- **D302 — What the controls show after `Start with this phrase` (2026-10-13; spec §16).** The
+  existing rule (the count-in shows phrase 1's values; a value changes when the first phrase made
+  with it starts sounding) applies: through the count-in and phrase 1 each control the player
+  changed shows its earlier value again, read-only, and from phrase 2 the session's, with no
+  highlight, as any automatic change. Root only: **v3.1**, the preset bar keeps what it showed at
+  the start throughout, neither change turning the selection to Custom or back; **v3.2**, a Jam
+  never asks (a fresh Jam has no phrase 1; any such change lets a held doodle go), and the rhythm
+  lock locks phrase 1's rhythm, out of date or not; **v3.3**, the Seventh chords control shows
+  phrase 1's level through the count-in and phrase 1, then the session's, fixed to the end (the
+  v3.3 "fixed for the whole session" sentence now says so).
+- **D303 — The phone (2026-10-13).** Minimal: the same sheet filling the width, the answers stacked
+  full width with `Regenerate phrase` on top, the paragraphs wrapping, the sheet scrolling inside
+  itself on a short screen. Nothing dropped, nothing added.
+- **D304 — The policy lines it revises (2026-10-13).** `strategy.md`, both trees: the change
+  block's "starting a session never is" now "asks only about a phrase made before the settings
+  changed"; the "Keeping and starting again" trade-off says a start never asks about the session
+  it replaces; a new trade-off, "An out-of-date phrase is told at Start, not as it happens"
+  (rejected: regenerating on every edit, marking the phrase or line live, regenerating silently
+  at Start or starting as soon as a regenerated phrase shows); the Deleting edge case's "Nothing
+  else asks" makes the exception; a new edge case, "A phrase made before the settings changed".
+  `versions/v3.0/README.md`: "Starting never asks" becomes "Starting never asks about the last
+  session", plus "A start on an out-of-date phrase asks first". `motion.md`: the prompt opens and
+  closes as the sheets do.
+- **D305 — `ux-critic`'s pass on the gate: DRIFT, four findings, all fixed (2026-10-13).** No
+  business rule contradicted or invented. (1) **The controls at a session's end after `Start
+  with this phrase`** were unspecified: however the session ends, they show the session's settings
+  again, silently, with the end's other returns; after a count-in end phrase 1 is still out of
+  date and the next start asks again; after an end once phrase 1 has sounded the next phrase is
+  made from the session's settings (both trees: play-session's bullet, Ended before phrase 1
+  sounds and End; the workspace's two end states and its Automatic changes). The session's values
+  show from the first phrase generated under them that starts sounding, so a phrase 2 that repeats
+  phrase 1 keeps phrase 1's values, as any automatic change. Showing either set is not an edit:
+  v3.0's musical profile custom state and `preset-status` keep what they showed at the start. (2)
+  **Root workspace layers**: tagged v3.1 (the preset bar holds still, no Custom) and v3.3 (Seventh
+  chords shows phrase 1's level, then the session's) paragraphs and change-block items, matching
+  play-session; play-session's change-block item is `_v3.3 new:_`. (3) **Copy** (corrects D298):
+  the answers' sentence names each answer, "Regenerate phrase makes a new phrase with your current
+  settings. Start with this phrase plays this one first; the phrases after it use your current
+  settings." ("follows" could read as "comes after"); the hint reads "A new phrase may start on a
+  different note: the line above the staff names it." (4) The root intent's v3.1 paragraph states
+  the naming rule as the handoff does (up to three, or two and a count).
+- **D306 — `ux-critic`'s recheck: DRIFT, one leftover, fixed (2026-10-13).** The four D305 fixes
+  were confirmed in both trees. Leftover: "phrase 1 is still out of date and the next start asks
+  again" was said of every count-in end, but a window change can regenerate phrase 1 under the
+  current settings. Now limited to a phrase 1 still on screen (Stop, the tab hidden); a phrase 1
+  regenerated after a window change asks nothing; and after a full end the next start asks nothing
+  unless a setting changes again meanwhile (both trees: play-session's bullet, the workspace's two
+  end states). The by-value check stays the rule; these lines only describe it.

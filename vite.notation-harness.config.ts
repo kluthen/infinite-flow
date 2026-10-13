@@ -11,7 +11,10 @@ import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 
+import { appVersionDefine } from './scripts/app-version-define.mjs'
+
 export default defineConfig({
+  define: appVersionDefine(),
   root: 'tests/e2e/notation-harness',
   plugins: [vue(), tailwindcss()],
   resolve: {

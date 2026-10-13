@@ -11,11 +11,9 @@
  * readied again. Reads no time but the audio clock.
  */
 import type { SessionStaff, SessionSystem } from '@/components/notation/session-staff'
-import { notationInputFromOutcome } from '@/domain/notation/notation-input'
-import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { AudioTransport } from '@/audio/audio-transport'
-import { heldViewport, type StaffLayout } from '@/notation/notation-layout-policy'
+import type { StaffLayout } from '@/notation/notation-layout-policy'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import {
   isPhraseOnScreen,
@@ -29,6 +27,7 @@ import {
 import type { FitCandidate } from '@/session/session-runner'
 import { measureSeconds } from '@/session/session-timing'
 import type { SessionPhrase } from '@/session/session-types'
+import { fitsHeldLayout, writtenPhraseOf } from './held-layout-fit'
 import type { FramePort, StaffFitPlanner } from './workspace-session-controller-types'
 
 /** What one session's display is built from. */
@@ -76,11 +75,6 @@ export interface SessionDisplay {
   readonly isPhraseOnScreen: (phraseNumber: number) => boolean
   /** Stop the frame loop; call once, at the session's end. */
   readonly stop: () => void
-}
-
-/** Intent: the written phrase of a session phrase, as the staff engraves it. */
-function writtenPhraseOf(phrase: Pick<FitCandidate, 'intent' | 'outcome'>): WrittenPhrase {
-  return transformToWrittenPhrase(notationInputFromOutcome(phrase.outcome, phrase.intent))
 }
 
 /** Intent: whether two playhead readings are the same position. */
@@ -179,8 +173,7 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
   /** Intent: whether `phrase` fits the held layout in the window's budget at `inputs`. */
   // @spec-link [[rule_session_layout_fixed_at_start]]
   function fits(plan: StaffFitPlanner, phrase: WrittenPhrase, inputs: StaffLayoutInputs): boolean {
-    const viewport = heldViewport(inputs.viewport, heldLayout)
-    return plan(phrase, inputs.containerWidthPx, viewport).kind === 'fits'
+    return fitsHeldLayout(plan, phrase, heldLayout, inputs)
   }
 
   /**

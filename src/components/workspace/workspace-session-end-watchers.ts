@@ -63,7 +63,8 @@ function inputsMatchWindow(inputs: StaffLayoutInputs, shape: WindowShapeReading)
  * Intent: whether the window, as it stands, ends the session. A portrait-shaped view below
  * bp-desktop ends it at once; the held layout's room is judged once phrase 1's fixed parts are
  * measured and the staff's inputs match the window, with the small viewport height, so a browser
- * toolbar showing or hiding changes nothing.
+ * toolbar showing or hiding changes nothing, and the shared system-position size the staff
+ * reported with them.
  */
 // @spec-link [[rule_session_ends_on_portrait_view]]
 // @spec-link [[rule_session_ends_when_staff_too_small]]
@@ -85,6 +86,9 @@ function windowEndsNow(
     leadingWidth: parts.leadingWidth,
     systemPadding: parts.systemPadding,
     heightBudgetPx: inputs.viewport.heightBudgetPx,
+    ...(inputs.systemPositionUnits === undefined
+      ? {}
+      : { systemPositionUnits: inputs.systemPositionUnits }),
   })
   return ends !== null
 }

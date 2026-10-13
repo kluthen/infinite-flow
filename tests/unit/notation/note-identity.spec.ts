@@ -7,6 +7,7 @@ import {
 import type { MeasureIndex } from '@/domain/events/measure'
 import type { ConcertEventTimeline } from '@/domain/events/timeline'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import type {
   ConcertChordSymbol,
   WrittenMeasure,
@@ -50,6 +51,7 @@ function writtenOf(
     chords: chords(extraChords),
     transposition: { chromatic: 0, diatonic: 0 },
     concertRange: KEYBOARD_CONCERT_RANGE,
+    clef: BUILT_IN_INSTRUMENT_CLEF,
   })
 }
 

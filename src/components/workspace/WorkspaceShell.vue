@@ -18,7 +18,8 @@
  * settings`, `Tension across phrases` and `Rising tempo` choices go to the controller; the Tension
  * control never shows a phrase's step across phrases. During a session the tempo control
  * shows the exact tempo in effect, and the tempo field notes the tempo a rising-tempo session
- * reached (./use-rising-tempo-control.ts).
+ * reached (./use-rising-tempo-control.ts). It sets the staff's one shared system-position size
+ * from the saved my instrument's written range, for the staff and the Review alike.
  */
 import { computed, onMounted, ref, watch } from 'vue'
 
@@ -33,6 +34,7 @@ import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { getInstrumentProfile } from '@/domain/generation/generation-intent'
 import type { MidiController } from '@/midi/midi-controller-state'
+import { planSystemPositionUnits, type WrittenRangeInClef } from '@/notation/notation-layout-policy'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
 import WorkspaceHeader from './WorkspaceHeader.vue'
 import ScorePanel from './ScorePanel.vue'
@@ -65,6 +67,11 @@ const props = withDefaults(
     jumpView?: SessionJumpView
     /** Scroll the page instantly to its top (leaving or reopening the Review); the window's own by default. */
     scrollToPageTop?: () => void
+    /**
+     * The saved my instrument's written range in its clef, or null while none is saved; none by
+     * default. Nothing saves one yet: chunk 20's my-instrument record feeds it.
+     */
+    savedMyInstrumentRangeInClef?: WrittenRangeInClef | null
   }>(),
   {
     // Default: the window's own instant scroll, measured against the layout viewport's height.
@@ -74,10 +81,21 @@ const props = withDefaults(
     }),
     // Default: the window's own instant scroll to its top (a function prop's default is itself).
     scrollToPageTop: () => window.scrollTo({ top: 0, behavior: 'instant' }),
+    savedMyInstrumentRangeInClef: null,
   },
 )
 
 const state = computed(() => props.session.state)
+
+/**
+ * The one shared system-position size of the workspace, for the staff and the Review: from the
+ * saved my instrument's written range in its clef, so it changes only when my instrument is saved
+ * or deleted, never from one phrase to the next nor with the instrument selected.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+const systemPositionUnits = computed(() =>
+  planSystemPositionUnits(props.savedMyInstrumentRangeInClef),
+)
 
 const layoutRoot = ref<HTMLElement | null>(null)
 const header = ref<InstanceType<typeof WorkspaceHeader> | null>(null)
@@ -300,6 +318,7 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         :audio="audio"
         :mix-popover="mixPopover"
         :controller="controller"
+        :system-position-units="systemPositionUnits"
         @stop-session="handleStopSession"
         @show-review="reviewNavigation.showReview"
       />

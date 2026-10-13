@@ -7,6 +7,7 @@
 import type { AdaptiveTempoSchedule } from './adaptive-tempo'
 import type { LookAhead } from './failure-ladder'
 import type { IntentSeams } from './session-intents'
+import type { ReadyPhrase } from './session-ready-phrases'
 import {
   SessionEngineError,
   type AudioTime,
@@ -16,11 +17,12 @@ import {
   type SessionSettings,
 } from './session-types'
 import type { SettingsMutationFlag } from './settings-mutation'
-import type { StrugglingNotice } from './struggling-notice'
+import { noticeOnDecision, type StrugglingNotice } from './struggling-notice'
 
 /**
  * Everything fixed for the whole session: the seams, the session seed (from the intent seams),
- * the mutation flag, the multi-phrase tension arc flag and phrase 1.
+ * the mutation flag, the multi-phrase tension arc flag, phrase 1 and the ready phrases
+ * pre-generated at Idle (none when the start has none), checked.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[req_settings_mutation_flag]]
@@ -30,6 +32,7 @@ export interface EngineContext extends IntentSeams {
   readonly mutation: SettingsMutationFlag
   readonly multiPhraseTensionArc: boolean
   readonly phraseOne: SessionPhrase
+  readonly readyPhrases: readonly ReadyPhrase[]
 }
 
 /**
@@ -61,7 +64,8 @@ export interface SessionTempo {
  * repeats); `lookAhead` is the phrase after it while undecided, and
  * `decided` its record once decided until it starts sounding; `soundedCount` is how many phrases
  * have started sounding; `tempo` is the adaptive-tempo schedule and each phrase's fixed tempo,
- * kept apart from the settings.
+ * kept apart from the settings; `readyRefused` tells that a ready phrase was refused, so no later
+ * one is spent.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
@@ -78,6 +82,7 @@ export interface EngineState {
   readonly notice: StrugglingNotice
   readonly nextAttemptId: number
   readonly tempo: SessionTempo
+  readonly readyRefused: boolean
 }
 
 /** A new state and the outputs that produced it. */
@@ -117,5 +122,29 @@ export function undecide(state: EngineState): EngineState {
     lastDecidedSettings: lookAhead.basis.previousSettings,
     decided: undefined,
     notice,
+  }
+}
+
+/**
+ * Intent: decide the look-ahead phrase: it is the next one to show, generated under its basis's
+ * settings (a repeat under those of the phrase it repeats), and the notice learns of it. Its
+ * look-ahead and the notice before are kept until it sounds, for a settings change to discard it.
+ */
+// @spec-link [[service_session_engine]]
+export function decide(state: EngineState, phrase: SessionPhrase): Step {
+  const lookAhead = lookAheadOf(state)
+  const { notice, outputs } = noticeOnDecision(state.notice, phrase.origin)
+  const lastDecidedSettings =
+    phrase.origin === 'repeat' ? state.lastDecidedSettings : lookAhead.basis.settings
+  return {
+    state: {
+      ...state,
+      lookAhead: undefined,
+      decided: { lookAhead: { ...lookAhead, attempt: undefined }, notice: state.notice },
+      lastDecided: phrase,
+      lastDecidedSettings,
+      notice,
+    },
+    outputs: [{ kind: 'phrase-ready', phrase }, ...outputs],
   }
 }

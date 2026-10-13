@@ -145,7 +145,9 @@ and change only if `spec-writer` settles otherwise.
 
 ## v3.0, for `ux-writer` (raised 2026-10-09 by `spec-writer`)
 
-- **Q76 — My instrument's sheet must show the transposition's derived interval name.** The owner
+- **Q76 — My instrument's sheet must show the transposition's derived interval name.** **Closed
+  2026-10-12 by ux D285** (the name leads the transposition's line; compound names with their
+  octave in brackets; the check's confirmation uses the same line). The owner
   ruled (spec D253, master spec §7.1, v1.5) that the transposition is entered as a number of
   octaves and a signed semitone count, never chosen by interval name, and that the interval name
   is derived and shown as the result. The `Sounds` stepper ("{n} lower", "Same", "{n} higher",
@@ -181,3 +183,18 @@ and change only if `spec-writer` settles otherwise.
   records at Strongly favored (§D10, done item 5) is reported to `ux-writer`: if it is not a clear
   majority, the label is revisited (for example "Often" and "Very often" for the top two steps).
   No design change until then; the design stands on the recommended reading.
+
+## v3.0 wave 2, for `spec-writer` (raised 2026-10-12)
+
+- **Q80 — Does §4.3's outdated tab cover another tab's `Delete everything`?** Master spec §4.3
+  makes a tab outdated when data written by a newer version is known. The storage design built in
+  chunk 4 (`docs/storage.md`, Outdated tabs and the port's states, and Delete everything) also
+  outdates every other open tab when one tab runs `Delete everything`: their connections close
+  on the deletion, writes and deletions are refused, and reads find nothing. The design treats it
+  as an outdated tab in every respect, with its own notice wording ("Everything this app kept on
+  this device was deleted in another tab. Reload this page to start afresh; until then, nothing
+  here is saved.", ux D293, `flows/saved-data/handoff.md`, Notices). Recommended: §4.3 names this
+  second trigger, so the save policy (chunk 5) and done item 14 cover it; no other change.
+  For the build, not the spec: the storage port reports no cause with its outdated event, so the
+  save policy needs it to tell the two notices apart (ux D294); until then the newer-version
+  wording shows.

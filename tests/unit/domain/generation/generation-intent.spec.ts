@@ -204,6 +204,7 @@ describe('writtenToConcertTonalCenter: test-only instrument transposition', () =
 const FOURTH_LOWER = makeMyInstrument({
   template: 'c-keyboard',
   name: 'Fourth-lower horn',
+  clef: 'treble',
   writtenRange: { minMidi: 60, maxMidi: 90 },
   transposition: { octaves: 0, semitones: 5, direction: 'lower' },
 })

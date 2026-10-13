@@ -22,8 +22,9 @@ import {
 } from 'vexflow/bravura'
 
 import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
+import type { InstrumentClef } from '../domain/profile/instrument-clef'
 import { NotationError } from './notation-error'
-import { NOTATION_SYSTEM_POSITION_UNITS, type SystemLayoutPlan } from './notation-layout-policy'
+import type { SystemLayoutPlan } from './notation-layout-policy'
 import type { StaffKeySignature } from './staff-fit-types'
 import { mapKeySpec } from './vexflow-mapping'
 
@@ -54,12 +55,19 @@ export interface SystemStaveSpec {
 }
 
 /**
- * Intent: add the clef and key signature every system starts with. The engraver's leading-width
- * measurement (for a phrase's layout and for the phrase-independent room check alike) uses the
- * same helper, so the measured width always matches the drawn staff.
+ * Intent: add the clef and key signature every system starts with: the instrument's clef, then the
+ * key signature, whose accidentals VexFlow places on that clef's lines (it reads the stave's clef
+ * when it formats them). The engraver's leading-width measurement (for a phrase's layout and for
+ * the phrase-independent room check alike) uses the same helper, so the measured width always
+ * matches the drawn staff.
  */
-export function addClefAndKey(stave: Stave, signature: StaffKeySignature): void {
-  stave.addClef('treble')
+// @spec-link [[module_notation_display_convention]]
+export function addClefAndKey(
+  stave: Stave,
+  clef: InstrumentClef,
+  signature: StaffKeySignature,
+): void {
+  stave.addClef(clef)
   stave.addKeySignature(signature.count === 0 ? 'C' : mapKeySpec(signature.ionianTonic))
 }
 
@@ -87,7 +95,7 @@ export function buildSystemStaves(phrase: WrittenPhrase, spec: SystemStaveSpec):
   })
 
   const first = staves[0]!
-  addClefAndKey(first, phrase.key.signature)
+  addClefAndKey(first, phrase.clef, phrase.key.signature)
   if (spec.withTimeSignature) first.addTimeSignature('4/4')
   if (spec.endsPhrase) staves[staves.length - 1]!.setEndBarType(Barline.type.END)
   if (spec.alignTo) {
@@ -137,12 +145,13 @@ function drawMeasureGroup(
  * Intent: the vertical extent of one system's playhead band, in the SVG's user units: one staff
  * space beyond each outer staff line, pushed out to half a space past any notehead edge lying
  * further out (a notehead is one space tall, so that is one space from its centre), clamped to
- * the system position. Taken over every measure of the system, so the band keeps one height while
- * it steps along the system.
+ * the system position (`systemPositionUnits` tall). Taken over every measure of the system, so the
+ * band keeps one height while it steps along the system.
  */
 function systemBandSpan(
   staves: readonly Stave[],
   voices: readonly Voice[],
+  systemPositionUnits: number,
 ): { readonly top: number; readonly bottom: number } {
   const stave = staves[0]!
   const space = stave.getSpacingBetweenLines()
@@ -156,7 +165,7 @@ function systemBandSpan(
       bottom = Math.max(bottom, y + space)
     }
   }
-  return { top: Math.max(0, top), bottom: Math.min(NOTATION_SYSTEM_POSITION_UNITS, bottom) }
+  return { top: Math.max(0, top), bottom: Math.min(systemPositionUnits, bottom) }
 }
 
 /**
@@ -164,15 +173,16 @@ function systemBandSpan(
  * `data-band-y`, `data-band-width` and `data-band-height` in the SVG's own user units:
  * horizontally from the opening barline (from where the notes start on the system's first
  * measure, after the clef, key and time signatures) to the closing barline; vertically the
- * system's one band span.
+ * system's one band span, inside its system position of `systemPositionUnits`.
  */
 // @spec-link [[module_notation_note_identity_overlays]]
 function recordPlayheadBands(
   groups: readonly SVGGElement[],
   staves: readonly Stave[],
   voices: readonly Voice[],
+  systemPositionUnits: number,
 ): void {
-  const { top, bottom } = systemBandSpan(staves, voices)
+  const { top, bottom } = systemBandSpan(staves, voices, systemPositionUnits)
   staves.forEach((stave, index) => {
     const left = index === 0 ? stave.getNoteStartX() : stave.getX()
     const group = groups[index]!
@@ -186,7 +196,8 @@ function recordPlayheadBands(
 /**
  * Draw one system's measures into its own context, in phrase order, each tagged with its phrase
  * measure index, the system's index (0 for the top system, 1 for the split layout's bottom one)
- * and its playhead band rectangle, and return their scaled boxes.
+ * and its playhead band rectangle (inside the plan's system position), and return their scaled
+ * boxes.
  */
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[module_notation_note_identity_overlays]]
@@ -197,7 +208,7 @@ export function drawSystemMeasures(
   beams: readonly (readonly Beam[])[],
   phraseMeasureIndices: readonly number[],
   systemIndex: 0 | 1,
-  scale: number,
+  plan: Pick<SystemLayoutPlan, 'scale' | 'systemPositionUnits'>,
 ): readonly MeasureBox[] {
   const systemVoices = phraseMeasureIndices.map((phraseMeasureIndex) => voices[phraseMeasureIndex]!)
   const drawn = staves.map((stave, index) =>
@@ -208,13 +219,14 @@ export function drawSystemMeasures(
       beams[phraseMeasureIndices[index]!]!,
       phraseMeasureIndices[index]!,
       systemIndex,
-      scale,
+      plan.scale,
     ),
   )
   recordPlayheadBands(
     drawn.map((measure) => measure.group),
     staves,
     systemVoices,
+    plan.systemPositionUnits,
   )
   return drawn.map((measure) => measure.box)
 }
@@ -224,9 +236,9 @@ const BOUNDS_EPSILON_PX = 1.5
 
 /**
  * Intent: check one system's drawn content lies within the container's width. The height needs no
- * such check: the system position's height is fixed, and the staff is placed in it for the
- * phrase's instrument so that every written pitch that instrument reaches, stems, beams and chord
- * symbols included, stays inside (see NOTATION_SYSTEM_POSITION_UNITS and planStaffPlacement),
+ * such check: the system position's height is the plan's shared size, and the staff is placed in
+ * it for the phrase's instrument so that every written pitch that instrument reaches, stems, beams
+ * and chord symbols included, stays inside (see planSystemPositionUnits and planStaffPlacement),
  * and an SVG box could not measure it anyway, since every music glyph is `<text>` whose box is the
  * font's whole line box rather than the glyph's ink.
  */
@@ -250,7 +262,7 @@ export function assertSystemWidthBounds(
 /** Intent: create one system's SVG in its host, sized to the container width and its position's height. */
 export function openSystemSvg(host: HTMLElement, plan: SystemLayoutPlan): Renderer {
   const renderer = new Renderer(host as HTMLDivElement, Renderer.Backends.SVG)
-  renderer.resize(plan.systemWidthUnits * plan.scale, NOTATION_SYSTEM_POSITION_UNITS * plan.scale)
+  renderer.resize(plan.systemWidthUnits * plan.scale, plan.systemPositionUnits * plan.scale)
   renderer.getContext().scale(plan.scale, plan.scale)
   return renderer
 }
@@ -270,7 +282,7 @@ export function finishSystemSvg(host: HTMLElement, plan: SystemLayoutPlan): SVGS
     )
   }
   const widthPx = plan.systemWidthUnits * plan.scale
-  const heightPx = NOTATION_SYSTEM_POSITION_UNITS * plan.scale
+  const heightPx = plan.systemPositionUnits * plan.scale
   svg.setAttribute('class', 'staff-svg')
   svg.setAttribute('role', 'img')
   svg.setAttribute('width', String(widthPx))
@@ -283,6 +295,6 @@ export function finishSystemSvg(host: HTMLElement, plan: SystemLayoutPlan): SVGS
   // system with about a staff space to spare; should ink ever reach past it, it shows rather than
   // being cut off silently.
   svg.style.overflow = 'visible'
-  svg.setAttribute('viewBox', `0 0 ${plan.systemWidthUnits} ${NOTATION_SYSTEM_POSITION_UNITS}`)
+  svg.setAttribute('viewBox', `0 0 ${plan.systemWidthUnits} ${plan.systemPositionUnits}`)
   return svg
 }

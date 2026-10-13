@@ -97,6 +97,22 @@ const storageDirectoryProperties = [
   { object: 'navigator', property: 'storage', message: storageDirectoryMessage },
 ]
 
+// vexflow imports: allowed only in the four engraving files of src/notation/ (see the block
+// near the end, which ignores them).
+const vexflowImportPattern = {
+  group: ['vexflow', 'vexflow/*'],
+  message:
+    'Only src/notation/vexflow-mapping.ts, vexflow-engraver.ts, vexflow-two-system-engraver.ts and vexflow-check-note-engraver.ts may import vexflow.',
+}
+
+// Imports of the storage code, by alias or by relative path: forbidden in src/session/ and
+// src/export/ (see the override block near the end).
+// @spec-link [[module_on_device_database]]
+const storageImportPattern = {
+  group: ['@/storage', '@/storage/**', '**/storage', '**/storage/**'],
+  message: 'src/session/ and src/export/ stay storage-free: they never import src/storage/.',
+}
+
 /**
  * Intent: the no-restricted-globals / no-restricted-properties rule pair for one part of src/,
  * given the directory-scoped globals and properties still forbidden there. The forbidden
@@ -202,17 +218,19 @@ export default [
       'src/notation/vexflow-check-note-engraver.ts',
     ],
     rules: {
+      'no-restricted-imports': ['error', { patterns: [vexflowImportPattern] }],
+    },
+  },
+  // src/session/ and src/export/ never import src/storage/: the session history and the export
+  // modules stay storage-free, and the rest of the app reaches the database only through the
+  // injected port. A flat-config override replaces the rule's options for its files, so the
+  // vexflow pattern is kept here too; this block sits after the vexflow one so it wins.
+  {
+    files: ['src/session/**/*.{js,mjs,ts,vue}', 'src/export/**/*.{js,mjs,ts,vue}'],
+    rules: {
       'no-restricted-imports': [
         'error',
-        {
-          patterns: [
-            {
-              group: ['vexflow', 'vexflow/*'],
-              message:
-                'Only src/notation/vexflow-mapping.ts, vexflow-engraver.ts, vexflow-two-system-engraver.ts and vexflow-check-note-engraver.ts may import vexflow.',
-            },
-          ],
-        },
+        { patterns: [vexflowImportPattern, storageImportPattern] },
       ],
     },
   },

@@ -8,13 +8,15 @@
  * `reportNotationFailure`/`reportNotationRecovered` seam instead of settling a promise nothing is
  * waiting on. It also keeps the staff's latest layout inputs, as `PhraseScore` reports them, and
  * implements the session's two pre-draw checks against them (does this phrase fit, is there room
- * for the staff at all) through the same lazy engraver loader `PhraseScore` draws with.
+ * for the staff at all) through the same lazy engraver loader `PhraseScore` draws with, with the
+ * shared system-position size those inputs carry.
  */
 import { ref, type Ref } from 'vue'
 
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { NotationError } from '@/notation/notation-error'
 import type {
   StaffFitVerdict,
@@ -73,10 +75,20 @@ interface AwaitingRequest {
   readonly reject: (error: Error) => void
 }
 
+/**
+ * Intent: the trailing size argument of a planning call: the shared system-position size the
+ * inputs carry, or none, leaving the engraver's built-in default, when they carry none.
+ */
+function sizeArgument(inputs: StaffLayoutInputs): [] | [number] {
+  return inputs.systemPositionUnits === undefined ? [] : [inputs.systemPositionUnits]
+}
+
 /** Intent: the written phrase a result is drawn as: the active profile's own written pitch. */
 // @spec-link [[module_idle_fit_round]]
 function writtenPhraseOf(result: WorkspaceGeneratedPhrase): WrittenPhrase {
-  return transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent))
+  // The selected instrument's clef: my instrument's reaches here with chunks 17 and 20.
+  const clef = BUILT_IN_INSTRUMENT_CLEF
+  return transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent, clef))
 }
 
 /** Intent: build one coordinator instance for one workspace session's PhraseScore lifetime. */
@@ -214,7 +226,12 @@ export function createNotationCoordinator(
     const phrase = writtenPhraseOf(result)
     const engraver = await planningModule()
     const inputs = requireLayoutInputs()
-    return engraver.planWrittenPhraseFit(phrase, inputs.containerWidthPx, inputs.viewport)
+    return engraver.planWrittenPhraseFit(
+      phrase,
+      inputs.containerWidthPx,
+      inputs.viewport,
+      ...sizeArgument(inputs),
+    )
   }
 
   /**
@@ -227,7 +244,12 @@ export function createNotationCoordinator(
     requireLayoutInputs()
     const engraver = await planningModule()
     const inputs = requireLayoutInputs()
-    return engraver.planStaffRoomForKey(signature, inputs.containerWidthPx, inputs.viewport)
+    return engraver.planStaffRoomForKey(
+      signature,
+      inputs.containerWidthPx,
+      inputs.viewport,
+      ...sizeArgument(inputs),
+    )
   }
 
   return {

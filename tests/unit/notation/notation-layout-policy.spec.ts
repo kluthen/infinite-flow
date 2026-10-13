@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import type { InstrumentMidiRange } from '@/domain/notation/written-phrase-types'
 import { ADOPTED_INSTRUMENT_PROFILES } from '@/domain/profile/instrument-profiles'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import { NotationError } from '@/notation/notation-error'
@@ -18,6 +19,7 @@ import {
   type SystemLayoutInput,
   type SystemLayoutOutcome,
   type SystemLayoutPlan,
+  type WrittenRangeInClef,
 } from '@/notation/notation-layout-policy'
 
 const MAX_SCALE = NOTATION_MAX_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
@@ -375,6 +377,11 @@ function writtenRangeOf(profile: InstrumentProfile): { minMidi: number; maxMidi:
   }
 }
 
+/** Intent: a written range in treble clef, every built-in profile's clef. */
+function inTreble(writtenRange: InstrumentMidiRange): WrittenRangeInClef {
+  return { writtenRange, clef: 'treble' }
+}
+
 /** One staff space, in engraving units. */
 const SPACE = NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
 
@@ -406,7 +413,7 @@ describe('the shared system position size', () => {
 describe("planStaffPlacement: the staff placed in its position by the profile's written range", () => {
   it("keeps every adopted profile's ink, start marker included, about one staff space inside the position at both ends", () => {
     for (const profile of ADOPTED_INSTRUMENT_PROFILES) {
-      const placement = planStaffPlacement(writtenRangeOf(profile))
+      const placement = planStaffPlacement(inTreble(writtenRangeOf(profile)))
       expect(placement.inkTopUnits, profile.id).toBeGreaterThanOrEqual(0.8 * SPACE)
       expect(
         NOTATION_SYSTEM_POSITION_UNITS - placement.inkBottomUnits,
@@ -422,7 +429,7 @@ describe("planStaffPlacement: the staff placed in its position by the profile's 
 
   it("places the saxophones' staff (written C4-C6) lower than the keyboard's (written C3-C5)", () => {
     const [keyboard, tenor, alto] = ADOPTED_INSTRUMENT_PROFILES.map((profile) =>
-      planStaffPlacement(writtenRangeOf(profile)),
+      planStaffPlacement(inTreble(writtenRangeOf(profile))),
     )
     expect(writtenRangeOf(ADOPTED_INSTRUMENT_PROFILES[0]!)).toEqual({ minMidi: 48, maxMidi: 72 })
     expect(writtenRangeOf(ADOPTED_INSTRUMENT_PROFILES[1]!)).toEqual({ minMidi: 60, maxMidi: 84 })
@@ -432,18 +439,19 @@ describe("planStaffPlacement: the staff placed in its position by the profile's 
   })
 
   it('derives the placement from the range alone: a range reaching higher gets more room above the staff', () => {
-    const base = planStaffPlacement({ minMidi: 60, maxMidi: 84 })
-    const higher = planStaffPlacement({ minMidi: 60, maxMidi: 88 })
+    // Two-octave ranges, whose phrases' beam groups span at most an octave, as the base's.
+    const base = planStaffPlacement(inTreble({ minMidi: 60, maxMidi: 84 }))
+    const higher = planStaffPlacement(inTreble({ minMidi: 64, maxMidi: 88 }))
     // Written E3: low enough that its ledger lines, not a down-stemmed beam, set the lowest ink.
-    const lower = planStaffPlacement({ minMidi: 52, maxMidi: 84 })
+    const lower = planStaffPlacement(inTreble({ minMidi: 52, maxMidi: 76 }))
     expect(higher.staffTopLineUnits).toBeGreaterThan(base.staffTopLineUnits)
     expect(lower.staffTopLineUnits).toBeLessThan(base.staffTopLineUnits)
   })
 
   it('places a black-key range end by its plainer natural neighbour, outward', () => {
     // Written B-flat 5 (82) sits no higher than B5; written C-sharp 4 (61) no lower than C4.
-    expect(planStaffPlacement({ minMidi: 61, maxMidi: 82 })).toEqual(
-      planStaffPlacement({ minMidi: 60, maxMidi: 83 }),
+    expect(planStaffPlacement(inTreble({ minMidi: 61, maxMidi: 82 }))).toEqual(
+      planStaffPlacement(inTreble({ minMidi: 60, maxMidi: 83 })),
     )
   })
 })
@@ -467,7 +475,7 @@ const MARKER_OVER_INK = 15
  */
 function placementOf(profileId: string) {
   const profile = ADOPTED_INSTRUMENT_PROFILES.find((entry) => entry.id === profileId)!
-  return planStaffPlacement(writtenRangeOf(profile))
+  return planStaffPlacement(inTreble(writtenRangeOf(profile)))
 }
 
 // @test-link [[module_notation_layout_preflight]]
@@ -501,7 +509,7 @@ describe("planStaffPlacement: the estimated ink covers the beam groups a profile
 
   it("covers a lone down stem from written B4, which reaches below the staff's bottom line, for every adopted profile", () => {
     for (const profile of ADOPTED_INSTRUMENT_PROFILES) {
-      const placement = planStaffPlacement(writtenRangeOf(profile))
+      const placement = planStaffPlacement(inTreble(writtenRangeOf(profile)))
       expect(placement.inkBottomUnits, profile.id).toBeGreaterThanOrEqual(
         placement.staffTopLineUnits + POSITION.B4 + STEM,
       )

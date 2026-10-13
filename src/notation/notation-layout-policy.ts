@@ -5,13 +5,18 @@
  * bottom one, for every phrase. A running session draws the layout it held at Start instead,
  * whatever the width now selects. The height budget belongs to the window, not to the layout:
  * below the breakpoint the window gives one, from it up none. The staff area always reserves two
- * system positions of one block size, set from the viewport and never from a phrase. The planner
- * picks one uniform engraving scale that fits the width and, where the window gives a height
- * budget, the height too, never below a named legibility floor and never above a named maximum, and tells its two failures apart: no room for the staff
+ * system positions of one block size, set from the viewport and the shared system-position size
+ * (the built-in profiles' and a saved my instrument's written ranges, each in its clef), never
+ * from a phrase. The planner picks one uniform engraving scale that fits the width and, where the
+ * window gives a height budget, the height too, never below a named legibility floor and never
+ * above a named maximum, and tells its two failures apart: no room for the staff
  * (the window, whatever the phrase) and notes too wide (this phrase). This module never touches
  * vexflow or the DOM so the arithmetic can be tested in isolation from the rendering adapter.
  */
+import { CLEF_STAFF_LINES, type ClefStaffLines } from '../domain/notation/pitch-spelling'
 import type { InstrumentMidiRange } from '../domain/notation/written-phrase-types'
+import type { InstrumentClef } from '../domain/profile/instrument-clef'
+import { BUILT_IN_REGISTER_WINDOW_POLICY } from '../domain/profile/instrument-profiles'
 import { NotationError } from './notation-error'
 
 /** VexFlow engraving units per staff space at its native scale of 1. */
@@ -36,34 +41,68 @@ export const NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX = 5
 export const NOTATION_MAX_STAFF_SPACE_PX = 12
 
 /**
- * The block size of one system position, in engraving units at scale 1: 16 staff spaces, the same
- * for both positions and every instrument profile, so a position's size depends on the scale
- * alone, never on a phrase or a profile. It holds the tallest ink any one profile's written range
- * can produce, start marker included (see `planStaffPlacement`), with at least 0.8 staff space
- * clear at each end. The tallest is the C MIDI keyboard's (written C3 to C5), about 14.4 spaces:
- * from the start marker over the chord symbol over an up-stemmed written C5 inside a beam group,
- * down to written C3. The saxophones' (written C4 to C6) spans about 13.7: from the start marker
- * over the chord symbol over an up-stemmed written E5 inside a beam group, down to the beam under a
- * down-stemmed group reaching written F4. 15 spaces would leave about 0.3 space at each end for
- * the keyboard and 0.65 for the saxophones; 16 leaves 0.8 and 1.15. 16 is also the most that keeps two systems on a landscape phone with its browser
- * toolbar showing: two positions at the 5 px legibility floor take 160 px. A future profile whose
- * ink needs more makes this one size larger for every profile.
+ * The built-in block size of one system position, in engraving units at scale 1: 16 staff
+ * spaces, the size the three built-in profiles need, and the size of both positions whenever no
+ * saved my instrument needs more. It is the floor of the shared size `planSystemPositionUnits`
+ * gives: the same for both positions and every instrument choice, so a position's size depends on
+ * the scale alone, never on a phrase or the selected profile. It holds the tallest ink any
+ * built-in profile's written range can produce, start marker included (see `planStaffPlacement`),
+ * with at least 0.8 staff space clear at each end. The tallest is the C MIDI keyboard's (written
+ * C3 to C5), about 14.4 spaces: from the start marker over the chord symbol over an up-stemmed
+ * written C5 inside a beam group, down to written C3. The saxophones' (written C4 to C6) spans
+ * about 13.7: from the start marker over the chord symbol over an up-stemmed written E5 inside a
+ * beam group, down to the beam under a down-stemmed group reaching written F4. 15 spaces would
+ * leave about 0.3 space at each end for the keyboard and 0.65 for the saxophones; 16 leaves 0.8
+ * and 1.15. 16 is also the most that keeps two systems on a landscape phone with its browser
+ * toolbar showing: two positions at the 5 px legibility floor take 160 px. A saved my instrument
+ * whose ink needs more makes the shared size larger for every instrument choice.
  */
 // @spec-link [[module_notation_layout_preflight]]
 export const NOTATION_SYSTEM_POSITION_UNITS = 160
 
+/**
+ * The room, in engraving units, kept clear between an instrument's ink and each end of its system
+ * position: 8 units, 0.8 staff space, the clearance the 16-space built-in size leaves the C MIDI
+ * keyboard, the tallest-reaching built-in (its ink spans 144 units). `planSystemPositionUnits`
+ * keeps at least this much for my instrument.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+export const NOTATION_POSITION_END_CLEARANCE_UNITS = 8
+
 /** Engraving units per diatonic step: a line to the next space is half a staff space. */
 const UNITS_PER_DIATONIC_STEP = NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE / 2
+/** Semitones and letters in one octave. */
+const SEMITONES_PER_OCTAVE = 12
+const LETTERS_PER_OCTAVE = 7
 /** Semitones above C of the seven natural letters, C to B. */
 const NATURAL_SEMITONES = [0, 2, 4, 5, 7, 9, 11] as const
-/** The treble staff's top line, written F5, as a diatonic step count (octave × 7 + letter). */
-const TREBLE_TOP_LINE_STEP = 5 * 7 + 3
 /**
- * The treble staff's middle line, written B4, as a diatonic step count: a note on or above it has
- * its stem down, one below it up, and a beam group's stems point away from its note farthest from it.
+ * How many diatonic steps the middle line sits under the top line: two staff spaces, in either
+ * clef (treble B4 under F5, bass D3 under A3). A note on or above the middle line has its stem
+ * down, one below it up, and a beam group's stems point away from its note farthest from it.
  */
 // @spec-link [[module_notation_stem_direction]]
-const TREBLE_MIDDLE_LINE_STEP = 4 * 7 + 6
+const MIDDLE_LINE_STEPS_UNDER_TOP_LINE = 4
+/**
+ * The staff's lines counted from its own top line (step 0), in no clef: the staff's own reach,
+ * which holds in either clef, is measured on it.
+ */
+const STAFF_RELATIVE_LINES: ClefStaffLines = Object.freeze({
+  topLineStep: 0,
+  middleLineStep: -MIDDLE_LINE_STEPS_UNDER_TOP_LINE,
+})
+
+/**
+ * A written range and the clef it is drawn in: what an instrument's staff ink, its placement in a
+ * system position and the shared system-position size are planned from. My instrument's comes from
+ * its saved written range and clef, a phrase's from its `WrittenPhrase` (`writtenRange`, `clef`);
+ * every built-in profile's clef is treble.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+export interface WrittenRangeInClef {
+  readonly writtenRange: InstrumentMidiRange
+  readonly clef: InstrumentClef
+}
 
 /**
  * A stem's length, in engraving units from its notehead's centre to its tip: 3.5 staff spaces,
@@ -92,18 +131,37 @@ export const NOTATION_CHORD_SYMBOL_OVER_STEM_TIP_UNITS = 17
 export const NOTATION_DOWN_BEAM_BELOW_STEM_TIP_UNITS = 5
 
 /**
- * The widest a generated beam group ever spans, in diatonic steps: 7, one octave. Every phrase's
- * notes stay inside one register window of 12 semitones (the first-release window policy's
- * 12-semitone span, `src/domain/profile/instrument-profiles.ts`, applied to every pitch candidate
- * in `src/domain/pitch/pitch-candidates.ts`), a phrase spells each pitch class with one letter
- * (`src/domain/notation/pitch-spelling.ts`), and a beam group lies inside one phrase. So a beam
- * group's notes on the side of the middle line its stems point towards (above it for an
- * up-stemmed group, below it for a down-stemmed one) sit at most 3 steps from the line: the
- * group's farthest note, on the other side, is at least as far, and the two span at most 7 steps.
+ * The widest a generated beam group can span, in diatonic steps, for an instrument's written
+ * range. Every phrase's notes stay inside one register window (the window policy every profile,
+ * my instrument included, takes: `BUILT_IN_REGISTER_WINDOW_POLICY` in
+ * `src/domain/profile/instrument-profiles.ts`, derived in
+ * `src/domain/profile/register-window-derivation.ts` and applied to every pitch candidate in
+ * `src/domain/pitch/pitch-candidates.ts`): its span is half the range's width, rounded up, and
+ * never under 12 semitones. A phrase spells each pitch class with one letter
+ * (`src/domain/notation/pitch-spelling.ts`), so each octave of the window spans 7 letters and the
+ * rest of it, `r` semitones, at most `ceil(7r / 12)` (a diminished interval included, as E♯ to C
+ * in F♯ major: 7 semitones, 5 letters); and a beam group lies inside one phrase. 7 steps, one
+ * octave, for every range of up to 24 semitones, the built-in profiles' included; 14 for a
+ * four-octave range. So a beam group's notes on the side of the middle line its stems point
+ * towards (above it for an up-stemmed group, below it for a down-stemmed one) sit at most half
+ * that from the line, rounded down: the group's farthest note, on the other side, is at least as
+ * far.
  */
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[module_notation_stem_direction]]
-export const NOTATION_BEAM_GROUP_MAX_SPAN_STEPS = 7
+export function planBeamGroupMaxSpanSteps(range: InstrumentMidiRange): number {
+  const { minimumSpan, widthNumerator, widthDenominator } = BUILT_IN_REGISTER_WINDOW_POLICY
+  const width = range.maxMidi - range.minMidi
+  const windowSemitones = Math.max(
+    minimumSpan,
+    Math.ceil((width * widthNumerator) / widthDenominator),
+  )
+  const rest = windowSemitones % SEMITONES_PER_OCTAVE
+  return (
+    LETTERS_PER_OCTAVE * Math.floor(windowSemitones / SEMITONES_PER_OCTAVE) +
+    Math.ceil((LETTERS_PER_OCTAVE * rest) / SEMITONES_PER_OCTAVE)
+  )
+}
 
 /**
  * How far ink reaches beyond a range's outermost written notes, in engraving units from that
@@ -111,17 +169,20 @@ export const NOTATION_BEAM_GROUP_MAX_SPAN_STEPS = 7
  * note above the middle line has its stem down, away from its chord symbol, which sits one space
  * over the notehead's centre and is about 1.2 spaces tall. Below the lowest note, about 0.7 space:
  * the notehead's lower half and the stroke of its ledger line, its stem pointing up, away from it.
- * A beam group can turn a note's stem towards its chord symbol or under it; `planStaffPlacement`
- * counts those reaches on their own. Measured on real engraved phrases.
+ * A beam group can turn a note's stem towards its chord symbol or under it; `planStaffInk` counts
+ * those reaches on their own. Measured on real engraved phrases.
  */
 // @spec-link [[module_notation_layout_preflight]]
 export const NOTATION_HIGH_NOTE_INK_ABOVE_UNITS = 22
 // @spec-link [[module_notation_layout_preflight]]
 export const NOTATION_LOW_NOTE_INK_BELOW_UNITS = 7
 
-/** Intent: how far a diatonic step sits above the staff's top line, in engraving units (below: negative). */
-function unitsAboveTopLine(step: number): number {
-  return (step - TREBLE_TOP_LINE_STEP) * UNITS_PER_DIATONIC_STEP
+/**
+ * Intent: how far a diatonic step sits above the top line of a staff with `lines`, in engraving
+ * units (below: negative).
+ */
+function unitsAboveTopLine(step: number, lines: ClefStaffLines): number {
+  return (step - lines.topLineStep) * UNITS_PER_DIATONIC_STEP
 }
 
 /**
@@ -129,32 +190,42 @@ function unitsAboveTopLine(step: number): number {
  * reaches: over that note's own stem tip, at the stem's unextended length, beamed or not.
  */
 // @spec-link [[module_notation_layout_preflight]]
-function upStemChordReach(step: number): number {
+function upStemChordReach(step: number, lines: ClefStaffLines): number {
   return (
-    unitsAboveTopLine(step) + NOTATION_STEM_LENGTH_UNITS + NOTATION_CHORD_SYMBOL_OVER_STEM_TIP_UNITS
+    unitsAboveTopLine(step, lines) +
+    NOTATION_STEM_LENGTH_UNITS +
+    NOTATION_CHORD_SYMBOL_OVER_STEM_TIP_UNITS
   )
 }
 
 /** Intent: how far below the top line the tip of a down stem from a note on `step` reaches. */
 // @spec-link [[module_notation_layout_preflight]]
-function downStemReach(step: number): number {
-  return -unitsAboveTopLine(step) + NOTATION_STEM_LENGTH_UNITS
+function downStemReach(step: number, lines: ClefStaffLines): number {
+  return -unitsAboveTopLine(step, lines) + NOTATION_STEM_LENGTH_UNITS
 }
 
 /**
  * The staff's own reach, in engraving units from its top line, for ink a phrase can draw whatever
- * its range. Above: the chord symbol on the highest note whose stem is up by its own position,
- * written A4, one step under the middle line; its stem tip is one space above the top line, so the
+ * its range. It is measured from the staff's lines alone, so it holds in either clef. Above: the
+ * chord symbol on the highest note whose stem is up by its own position, one step under the middle
+ * line (written A4 in treble, C3 in bass); its stem tip is one space above the top line, so the
  * chord symbol sits half a space over that and its ink reaches about 2.7 spaces (a chord symbol on
- * a down-stemmed note within the staff sits at the staff's text line and reaches about 2.2). Below: the tip of the lowest lone down stem, from written B4 on the
- * middle line, 5.5 spaces.
+ * a down-stemmed note within the staff sits at the staff's text line and reaches about 2.2).
+ * Below: the tip of the lowest lone down stem, from the note on the middle line (written B4 in
+ * treble, D3 in bass), 5.5 spaces.
  */
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[module_notation_stem_direction]]
-export const NOTATION_STAFF_INK_ABOVE_TOP_LINE_UNITS = upStemChordReach(TREBLE_MIDDLE_LINE_STEP - 1)
+export const NOTATION_STAFF_INK_ABOVE_TOP_LINE_UNITS = upStemChordReach(
+  STAFF_RELATIVE_LINES.middleLineStep - 1,
+  STAFF_RELATIVE_LINES,
+)
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[module_notation_stem_direction]]
-export const NOTATION_STAFF_INK_BELOW_TOP_LINE_UNITS = downStemReach(TREBLE_MIDDLE_LINE_STEP)
+export const NOTATION_STAFF_INK_BELOW_TOP_LINE_UNITS = downStemReach(
+  STAFF_RELATIVE_LINES.middleLineStep,
+  STAFF_RELATIVE_LINES,
+)
 
 /**
  * The room, in engraving units, kept above the highest ink for the start marker, the small
@@ -197,66 +268,167 @@ function naturalStep(midi: number, direction: 'down' | 'up'): number {
   return (Math.floor(natural / 12) - 1) * 7 + letterIndex
 }
 
+/** The pitch class of written F, which a key signature of six sharps spells E♯, a letter lower. */
+const PITCH_CLASS_F = 5
+
 /**
- * Intent: how far from the middle line, in diatonic steps, a beam group's note can sit on the side
- * its stems point towards, for a range from `lowestStep` to `highestStep`. Inside a beam group a
- * note on or above the middle line can carry an up stem (as C5 in [C5 G4]), whose chord symbol
- * then sits over that note's own stem tip, and a note below it a down stem, which the group's beam
+ * Intent: the lowest diatonic step a range's lowest written note can be spelled on, in any written
+ * key. Its natural spelling, a black key by its natural neighbour below, except a written F: a key
+ * signature of six sharps (F♯ major and its modes, the most sharps the fewest-accidental key
+ * spelling ever takes, sharps winning a tie with six flats) spells it E♯, one step lower. No other
+ * written key respells a note one letter further out: B♯ needs seven sharps, C♭ and F♭ six or seven
+ * flats, and a tie between six sharps and six flats goes to the sharps. A range's highest note
+ * needs no such margin; at worst a written key spells it a letter lower (written F as E♯), inside
+ * its natural step.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+function lowestWrittenStep(midi: number): number {
+  const step = naturalStep(midi, 'down')
+  return ((midi % 12) + 12) % 12 === PITCH_CLASS_F ? step - 1 : step
+}
+
+/**
+ * Intent: how far from the middle line of a staff with `lines`, in diatonic steps, a beam group's
+ * note can sit on the side its stems point towards, for a range from `lowestStep` to
+ * `highestStep` whose beam groups span at most `maxSpanSteps`. Inside a beam group a note on or
+ * above the middle line can carry an up stem (as C5 in [C5 G4] in treble), whose chord symbol then
+ * sits over that note's own stem tip, and a note below it a down stem, which the group's beam
  * extends under. At most half the widest group span, rounded down (the group's farthest note, on
  * the other side, is at least as far), and only as far as the range reaches on both sides; 0 when
  * it does not cross the line.
  */
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[module_notation_stem_direction]]
-function beamGroupReachTowardStems(lowestStep: number, highestStep: number): number {
+function beamGroupReachTowardStems(
+  lowestStep: number,
+  highestStep: number,
+  maxSpanSteps: number,
+  lines: ClefStaffLines,
+): number {
   return Math.max(
     0,
     Math.min(
-      Math.floor(NOTATION_BEAM_GROUP_MAX_SPAN_STEPS / 2),
-      highestStep - TREBLE_MIDDLE_LINE_STEP,
-      TREBLE_MIDDLE_LINE_STEP - lowestStep,
+      Math.floor(maxSpanSteps / 2),
+      highestStep - lines.middleLineStep,
+      lines.middleLineStep - lowestStep,
     ),
   )
 }
 
 /**
- * Place the staff inside its system position for an instrument's written range, derived from the
- * range alone (and the widest beam group span any phrase can produce) and never from a phrase's
- * notes, so a refill or a new phrase never moves a staff line and only a profile switch can. Stems
- * follow the written phrase's rule: down on or above the middle line, up below it, a beam group's
- * all one way. The ink the range can produce reaches above the top line by the most of the staff's
- * own reach, the chord symbol on its highest note (stem down, away from it), and the chord symbol
- * on the highest up-stemmed note a beam group can hold, set over that note's own stem tip (the
- * highest chord reach of all: up to written E5, 3 steps over the middle line), plus the start
- * marker's room; and below by the most of its lowest
- * note's ink, the staff's own down-stem reach, and the beam under the lowest note a down-stemmed
- * beam group can hold. The staff is placed so that this ink sits centred in the position, with
- * equal room above and below. A range that reaches high (the saxophones, written C4 to C6) so gets
- * more room above the staff, one that reaches low (the C MIDI keyboard, written C3 to C5) more
- * room below. The outer notes are placed by their natural spelling, a black key by its natural
- * neighbour outward. The first-release ranges all end on C, which no written key respells one
- * letter further out (B♯ needs seven sharps, and the fewest-accidental key spelling never uses
- * seven).
+ * How far the ink a written range can produce reaches from the staff's top line, in engraving
+ * units: above it (start marker included) and below it.
+ */
+export interface StaffInk {
+  /** The highest ink above the top line: the start marker's room over the highest chord symbols. */
+  readonly aboveTopLineUnits: number
+  /** The lowest ink below the top line: the lowest notes and ledger lines, a down stem or beam. */
+  readonly belowTopLineUnits: number
+}
+
+/**
+ * The ink an instrument's written range can produce in its clef, derived from the range and the
+ * clef's lines alone (with the widest beam group span its phrases can produce,
+ * `planBeamGroupMaxSpanSteps`) and never from a phrase's notes. Stems follow the written phrase's
+ * rule: down on or above the clef's middle line, up below it, a beam group's all one way. The ink
+ * reaches above the top line by the most of the staff's own reach, the chord symbol on its highest
+ * note (stem down, away from it), and the chord symbol on the highest up-stemmed note a beam group
+ * can hold, set over that note's own stem tip (the highest chord reach of all: up to 3 steps over
+ * the middle line, written E5 in treble, for a range of up to two octaves; further for a wider
+ * range, whose register windows are wider), plus the start marker's room; and below by the
+ * most of its lowest note's ink, the staff's own down-stem reach, and the beam under the lowest
+ * note a down-stemmed beam group can hold. The outer notes are placed by their natural spelling,
+ * a black key by its natural neighbour outward, and a lowest written F one letter lower, where
+ * E♯ sits (see `lowestWrittenStep`). Both the staff's placement and the shared system-position
+ * size are planned from it.
  */
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[module_notation_stem_direction]]
-export function planStaffPlacement(range: InstrumentMidiRange): StaffPlacement {
+export function planStaffInk(rangeInClef: WrittenRangeInClef): StaffInk {
+  const { writtenRange: range } = rangeInClef
+  const lines = CLEF_STAFF_LINES[rangeInClef.clef]
   const highestStep = naturalStep(range.maxMidi, 'up')
-  const lowestStep = naturalStep(range.minMidi, 'down')
-  const groupStepsTowardStems = beamGroupReachTowardStems(lowestStep, highestStep)
-  const inkAbove =
+  const lowestStep = lowestWrittenStep(range.minMidi)
+  const groupStepsTowardStems = beamGroupReachTowardStems(
+    lowestStep,
+    highestStep,
+    planBeamGroupMaxSpanSteps(range),
+    lines,
+  )
+  const aboveTopLineUnits =
     Math.max(
       NOTATION_STAFF_INK_ABOVE_TOP_LINE_UNITS,
-      unitsAboveTopLine(highestStep) + NOTATION_HIGH_NOTE_INK_ABOVE_UNITS,
-      upStemChordReach(TREBLE_MIDDLE_LINE_STEP + groupStepsTowardStems),
+      unitsAboveTopLine(highestStep, lines) + NOTATION_HIGH_NOTE_INK_ABOVE_UNITS,
+      upStemChordReach(lines.middleLineStep + groupStepsTowardStems, lines),
     ) + NOTATION_START_MARKER_RESERVE_UNITS
-  const inkBelow = Math.max(
-    -unitsAboveTopLine(lowestStep) + NOTATION_LOW_NOTE_INK_BELOW_UNITS,
+  const belowTopLineUnits = Math.max(
+    -unitsAboveTopLine(lowestStep, lines) + NOTATION_LOW_NOTE_INK_BELOW_UNITS,
     NOTATION_STAFF_INK_BELOW_TOP_LINE_UNITS,
-    downStemReach(TREBLE_MIDDLE_LINE_STEP - groupStepsTowardStems) +
+    downStemReach(lines.middleLineStep - groupStepsTowardStems, lines) +
       NOTATION_DOWN_BEAM_BELOW_STEM_TIP_UNITS,
   )
-  const inkTopUnits = (NOTATION_SYSTEM_POSITION_UNITS - inkAbove - inkBelow) / 2
+  return { aboveTopLineUnits, belowTopLineUnits }
+}
+
+/**
+ * Intent: guard a system-position size is one the planner can hold: finite, at least the built-in
+ * size, and a whole number of staff spaces. Any other value is a caller's programming error.
+ */
+function assertSystemPositionUnits(systemPositionUnits: number): void {
+  if (
+    !Number.isFinite(systemPositionUnits) ||
+    systemPositionUnits < NOTATION_SYSTEM_POSITION_UNITS ||
+    systemPositionUnits % NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE !== 0
+  ) {
+    throw new Error(
+      `A system position of ${systemPositionUnits} units is not a whole number of staff spaces ` +
+        `at least ${NOTATION_SYSTEM_POSITION_UNITS} units tall.`,
+    )
+  }
+}
+
+/**
+ * The shared block size of both system positions, in engraving units at scale 1, for every
+ * instrument choice. The input is the saved my instrument's written range in its clef, or null
+ * when none is saved; so the result changes only when my instrument is saved or deleted, never
+ * from one phrase to the next and never with the instrument selected. With none saved it is the
+ * built-in size (`NOTATION_SYSTEM_POSITION_UNITS`). Otherwise my instrument's written range counts
+ * like a built-in profile's, on its own clef's staff: its ink (`planStaffInk`) with at least the
+ * end clearance at each end, rounded up to a whole number of staff spaces, and never below the
+ * built-in size. A range inside the built-ins' reach (ink of at most 144 units) so leaves 16
+ * spaces; one reaching further makes both positions taller for every instrument choice.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+export function planSystemPositionUnits(myInstrument: WrittenRangeInClef | null): number {
+  if (myInstrument === null) return NOTATION_SYSTEM_POSITION_UNITS
+  const ink = planStaffInk(myInstrument)
+  const needed =
+    ink.aboveTopLineUnits + ink.belowTopLineUnits + 2 * NOTATION_POSITION_END_CLEARANCE_UNITS
+  const wholeSpaces =
+    Math.ceil(needed / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE) *
+    NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
+  return Math.max(NOTATION_SYSTEM_POSITION_UNITS, wholeSpaces)
+}
+
+/**
+ * Place the staff inside its system position of `systemPositionUnits` (the shared size, the
+ * built-in one by default) for an instrument's written range in its clef: from the ink the range
+ * can produce on that clef's staff (`planStaffInk`), never from a phrase's notes, so a refill or a
+ * new phrase never moves a staff line; only a profile switch can, or a change of the shared size
+ * (my instrument saved or deleted). The staff is placed so that this ink sits centred in the
+ * position, with equal room above and below. A range that reaches high (the saxophones, written C4
+ * to C6) so gets more room above the staff, one that reaches low (the C MIDI keyboard, written C3
+ * to C5) more room below.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+// @spec-link [[module_notation_stem_direction]]
+export function planStaffPlacement(
+  rangeInClef: WrittenRangeInClef,
+  systemPositionUnits: number = NOTATION_SYSTEM_POSITION_UNITS,
+): StaffPlacement {
+  assertSystemPositionUnits(systemPositionUnits)
+  const { aboveTopLineUnits: inkAbove, belowTopLineUnits: inkBelow } = planStaffInk(rangeInClef)
+  const inkTopUnits = (systemPositionUnits - inkAbove - inkBelow) / 2
   return {
     staffTopLineUnits: inkTopUnits + inkAbove,
     inkTopUnits,
@@ -357,6 +529,8 @@ export interface StaffRoomInput {
   readonly leadingWidth: number
   readonly systemPadding: number
   readonly viewport: StaffViewport
+  /** The shared system-position size, in units (`planSystemPositionUnits`); 160 by default. */
+  readonly systemPositionUnits?: number
 }
 
 /** Whether the window has room for the staff, whatever phrase it holds, and how its positions size. */
@@ -378,6 +552,8 @@ export interface SystemLayoutInput {
   readonly measureMinWidths: readonly [number, number, number, number]
   readonly systemPadding: number
   readonly viewport: StaffViewport
+  /** The shared system-position size, in units (`planSystemPositionUnits`); 160 by default. */
+  readonly systemPositionUnits?: number
 }
 
 /**
@@ -396,6 +572,8 @@ export interface SystemLayoutPlan {
   readonly requiredUnits: number
   /** Each system position's block size, in CSS px: the same for every phrase in this viewport. */
   readonly positionBlockPx: number
+  /** The shared system-position size it was planned with, in engraving units at scale 1. */
+  readonly systemPositionUnits: number
 }
 
 /** What the planner decides for one phrase in one viewport. */
@@ -429,33 +607,38 @@ function assertHeightBudget(heightBudgetPx: number): void {
 }
 
 /**
- * Size the two reserved system positions for a viewport, independent of any phrase and of the
- * layout drawn. With no height budget (the window from the breakpoint up), where the scale fits
- * the width only, the positions take the maximum scale, so any phrase fits them; the frame keeps
- * its fixed minimum block size and grows past it to hold both. With a budget (the window below
- * it), both positions together must fit it, in either layout: the scale ceiling is the largest
- * that does, capped at the maximum, and a budget too short for the legibility floor leaves the
- * staff no room.
+ * Size the two reserved system positions for a viewport and the shared system-position size (in
+ * engraving units, `planSystemPositionUnits`; the built-in size by default), independent of any
+ * phrase and of the layout drawn. With no height budget (the window from the breakpoint up), where
+ * the scale fits the width only, the positions take the maximum scale, so any phrase fits them;
+ * the frame keeps its fixed minimum block size and grows past it to hold both. With a budget (the
+ * window below it), both positions together must fit it, in either layout: the scale ceiling is
+ * the largest that does, capped at the maximum, and a budget too short for the legibility floor
+ * leaves the staff no room. A taller shared size so needs a taller window for the same scale.
  */
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[rule_session_ends_when_staff_too_small]]
-export function planStaffPositions(viewport: StaffViewport): StaffPositionsOutcome {
+export function planStaffPositions(
+  viewport: StaffViewport,
+  systemPositionUnits: number = NOTATION_SYSTEM_POSITION_UNITS,
+): StaffPositionsOutcome {
+  assertSystemPositionUnits(systemPositionUnits)
   if (viewport.heightBudgetPx === null) {
     return {
       kind: 'room',
       scaleCeiling: MAX_SCALE,
-      positionBlockPx: NOTATION_SYSTEM_POSITION_UNITS * MAX_SCALE,
+      positionBlockPx: systemPositionUnits * MAX_SCALE,
     }
   }
   assertHeightBudget(viewport.heightBudgetPx)
-  const heightScale = viewport.heightBudgetPx / (2 * NOTATION_SYSTEM_POSITION_UNITS)
+  const heightScale = viewport.heightBudgetPx / (2 * systemPositionUnits)
   if (heightScale < FLOOR_SCALE) {
     return {
       kind: 'no_room',
       cause: 'too_short',
       details: {
         heightBudgetPx: viewport.heightBudgetPx,
-        requiredHeightPx: 2 * NOTATION_SYSTEM_POSITION_UNITS * FLOOR_SCALE,
+        requiredHeightPx: 2 * systemPositionUnits * FLOOR_SCALE,
         floor: NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX,
       },
     }
@@ -464,24 +647,24 @@ export function planStaffPositions(viewport: StaffViewport): StaffPositionsOutco
   return {
     kind: 'room',
     scaleCeiling,
-    positionBlockPx: NOTATION_SYSTEM_POSITION_UNITS * scaleCeiling,
+    positionBlockPx: systemPositionUnits * scaleCeiling,
   }
 }
 
 /**
  * Check, independent of any phrase, whether the window has room for the staff at the legibility
  * floor, in the viewport's layout: first the height (where the window gives a height budget, two
- * systems must fit it), then the width of the layout's fixed parts (the leading clef, key
- * signature and time signature, every measure at the minimum measure width, and the padding). No
- * phrase can fit where this finds no room; `planSystemLayout` runs this same check first, so both
- * always agree.
+ * system positions of the input's shared size must fit it), then the width of the layout's fixed
+ * parts (the leading clef, key signature and time signature, every measure at the minimum measure
+ * width, and the padding). No phrase can fit where this finds no room; `planSystemLayout` runs this
+ * same check first, so both always agree.
  */
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[module_idle_fit_round]]
 export function planStaffRoom(input: StaffRoomInput): StaffRoomOutcome {
   assertContainerWidth(input.containerWidthPx)
 
-  const positions = planStaffPositions(input.viewport)
+  const positions = planStaffPositions(input.viewport, input.systemPositionUnits)
   if (positions.kind === 'no_room') return positions
 
   const tooNarrow = planStaffWidthRoom({
@@ -568,6 +751,7 @@ export function planSystemLayout(input: SystemLayoutInput): SystemLayoutOutcome 
         (systemWidthUnits - input.leadingWidth - input.systemPadding) / measuresPerSystem,
       requiredUnits,
       positionBlockPx: positions.positionBlockPx,
+      systemPositionUnits: input.systemPositionUnits ?? NOTATION_SYSTEM_POSITION_UNITS,
     },
   }
 }

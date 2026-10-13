@@ -112,6 +112,7 @@ function prewarmRig(
       return generatePhrase(intent)
     },
     prewarmPolicy: policy,
+    pregenerationPolicy: 'disabled',
     prewarm: (intent) => prewarms.push(intent),
     ...fakeAudioAndMidi(),
     logPhraseReplayKey: vi.fn(),
@@ -346,6 +347,7 @@ function workerRig(policy: WorkspacePrewarmPolicy): WorkerRig {
     viewport: createFakeViewportWidth(false),
     generate: client.generate,
     prewarmPolicy: policy,
+    pregenerationPolicy: 'disabled',
     prewarm: client.prewarm,
     ...fakeAudioAndMidi(),
     logPhraseReplayKey: vi.fn(),

@@ -11,8 +11,9 @@
  * an explicit concert timeline, so the harness engraves whatever that transform actually produces
  * for a test-only instrument transposition or a written/concert spelling-divergent key, with no
  * production code change. The `stemDirections` fixture runs the same transform over notes on both
- * sides of the staff's middle line, single and beamed. Hand-built notes get their stem directions
- * from the real domain rule (`assignStemDirections`), never hard-coded.
+ * sides of the staff's middle line, single and beamed. The `myInstrumentTritoneHigher` fixture runs
+ * it for a player-made instrument built with the real `makeMyInstrument`. Hand-built notes get
+ * their stem directions from the real domain rule (`assignStemDirections`), never hard-coded.
  */
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { makeMeasure, type Measure, type MeasureIndex } from '@/domain/events/measure'
@@ -20,6 +21,8 @@ import { makeNoteEvent, type MeasureEvent } from '@/domain/events/measure-event'
 import { makeConcertEventTimeline } from '@/domain/events/timeline'
 import { makeRational } from '@/domain/time/rational'
 import { BB_TENOR_PROFILE, EB_ALTO_PROFILE } from '@/domain/profile/instrument-profiles'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
+import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { assignStemDirections, type UnstemmedWrittenNote } from '@/domain/notation/stem-direction'
 import type {
@@ -127,7 +130,10 @@ type UnstemmedMeasure = Omit<WrittenMeasure, 'events'> & {
  * notes (beam groups included), so no fixture hard-codes a direction.
  */
 function stemmedMeasure(measure: UnstemmedMeasure): WrittenMeasure {
-  return { ...measure, events: assignStemDirections(measure.events, measure.beamGroups) }
+  return {
+    ...measure,
+    events: assignStemDirections(measure.events, measure.beamGroups, BUILT_IN_INSTRUMENT_CLEF),
+  }
 }
 
 const SIXTEENTH: NotatedDuration = { value: 'sixteenth', dots: 0, ticks: 1 }
@@ -488,6 +494,7 @@ function buildTransformedPhrase(
     chords: tonicChordEachMeasure(),
     transposition: instrument.transposition,
     concertRange: instrument.concertRange,
+    clef: BUILT_IN_INSTRUMENT_CLEF,
   }
   return transformToWrittenPhrase(input)
 }
@@ -567,6 +574,57 @@ function buildStemDirectionsPhrase(): WrittenPhrase {
     chords: tonicChordEachMeasure(),
     transposition: CONCERT_TRANSPOSITION,
     concertRange: FIXTURE_WRITTEN_RANGE,
+    clef: BUILT_IN_INSTRUMENT_CLEF,
+  })
+}
+
+/**
+ * Intent: engrave, through the real display transform, a phrase for a player-made instrument that
+ * sounds 6 semitones higher than written (template C MIDI keyboard, written F♯3 to F♯5), with the
+ * written tonal centre F♯ in Major: the generator's concert C major, written a tritone lower in F♯
+ * major (six sharps). Measure 0: eighths concert C4 E4 G4 B4 C5 B4 G4 E4 (written F♯3 A♯3 C♯4 E♯4
+ * F♯4 E♯4 C♯4 A♯3; concert B4 is written MIDI 65, spelled E♯4). Measure 1: quarters concert F4 A4
+ * C5 A4 (written B3 D♯4 F♯4 D♯4). Measure 2: halves concert G4 B4 (written C♯4 E♯4). Measure 3:
+ * whole concert C4 (written F♯3). Chord symbols concert C, F, G7, C: written F♯, B, C♯7, F♯.
+ */
+function buildMyInstrumentTritoneHigherPhrase(): WrittenPhrase {
+  const myInstrument = makeMyInstrument({
+    template: 'c-keyboard',
+    name: 'Tritone instrument',
+    clef: 'treble',
+    writtenRange: { minMidi: 54, maxMidi: 78 },
+    transposition: { octaves: 0, semitones: 6, direction: 'higher' },
+  })
+  const timeline = makeConcertEventTimeline([
+    makeMeasure(
+      0,
+      [60, 64, 67, 71, 72, 71, 67, 64].map((pitch) => concertNote(pitch, 2)),
+    ),
+    makeMeasure(
+      1,
+      [65, 69, 72, 69].map((pitch) => concertNote(pitch, 4)),
+    ),
+    makeMeasure(
+      2,
+      [67, 71].map((pitch) => concertNote(pitch, 8)),
+    ),
+    makeMeasure(3, [concertNote(60, 16)]),
+  ])
+  /** Intent: one concert chord symbol on a measure's downbeat, with no slash bass. */
+  const chord = (measureIndex: MeasureIndex, root: number, suffix: string): ConcertChordSymbol => ({
+    measureIndex,
+    startTick: 0,
+    root: root as ConcertChordSymbol['root'],
+    suffix,
+    bass: null,
+  })
+  return transformToWrittenPhrase({
+    timeline,
+    tonalContext: { tonalCenter: 'F#', collection: 'Major' },
+    chords: [chord(0, 0, ''), chord(1, 5, ''), chord(2, 7, '7'), chord(3, 0, '')],
+    transposition: myInstrument.profile.transposition,
+    concertRange: myInstrument.profile.concertRange,
+    clef: myInstrument.clef,
   })
 }
 
@@ -582,6 +640,7 @@ export type FixtureName =
   | 'writtenSharpSideBbTenor'
   | 'writtenFlatSideEbAlto'
   | 'stemDirections'
+  | 'myInstrumentTritoneHigher'
 
 /** Intent: resolve a harness fixture name to its WrittenPhrase, crashing on an unknown name. */
 // @test-link [[module_notation_layout_preflight]]
@@ -607,6 +666,8 @@ export function resolveFixture(name: string): WrittenPhrase {
       return buildWrittenFlatSideEbAltoPhrase()
     case 'stemDirections':
       return buildStemDirectionsPhrase()
+    case 'myInstrumentTritoneHigher':
+      return buildMyInstrumentTritoneHigherPhrase()
     default:
       throw new Error(`Unknown notation harness fixture: ${name}`)
   }

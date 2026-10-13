@@ -13,6 +13,7 @@ import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import { encodeGeneratedNotesMidi } from '@/export/midi/midi-encoder'
@@ -158,7 +159,7 @@ export function regeneratedMusicXml(
     phrases: records.map((record, position) => ({
       number: position + 1,
       writtenPhrase: transformToWrittenPhrase(
-        notationInputFromOutcome(regenerated[position]!, record.intent),
+        notationInputFromOutcome(regenerated[position]!, record.intent, BUILT_IN_INSTRUMENT_CLEF),
       ),
       tempo: record.tempo,
     })),

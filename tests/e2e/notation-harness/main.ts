@@ -29,6 +29,21 @@
  * at a time on the real engraver module, into scratch hosts, and snapshots what was drawn.
  * `window.__notationCheckNote` (./check-note.ts) draws the controller check's one written note on
  * the real engraver module into a `.check-note` host kept on the page, and snapshots it.
+ *
+ * A player-made instrument (my instrument) can be generated for and engraved: with
+ * `source=generated`, `myLow` and `myHigh` (its written range, as MIDI notes) build one with the
+ * real `makeMyInstrument` on the C MIDI keyboard template, transposed by `myOctaves` and
+ * `mySemitones` (default 0 each) in `myDirection` (`lower`, `same` or `higher`; default `same`),
+ * drawn in `myClef` (`treble` or `bass`; default `treble`). The controls then name `my-instrument`
+ * and its profile is handed to `createGenerationIntent` as data; `profile` must be absent. The
+ * phrase carries the instrument's clef, and the staff's shared system-position size is the one
+ * `planSystemPositionUnits` gives for its written range in that clef. With any source,
+ * `savedRange=<low>-<high>` (written MIDI notes) sets that size from a saved my instrument's
+ * written range, in `savedClef` (`treble` or `bass`; default `treble`; only with `savedRange`),
+ * while the phrase's own instrument (a built-in, or a fixture's) is engraved. Without either,
+ * PhraseScore gets no size and draws the built-in one, as before. Every ready state publishes the
+ * clef the phrase was engraved in (`clef`), the size it engraved with (`systemPositionUnits`) and
+ * the staff's top line placed in it.
  */
 import { createApp, h, nextTick, ref, shallowRef, type Ref } from 'vue'
 
@@ -51,6 +66,14 @@ import {
   createGenerationIntent,
   type GenerationIntent,
 } from '@/domain/generation/generation-intent'
+import {
+  BUILT_IN_INSTRUMENT_CLEF,
+  isInstrumentClef,
+  type InstrumentClef,
+} from '@/domain/profile/instrument-clef'
+import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
+import { makeMyInstrument, type MyInstrument } from '@/domain/profile/my-instrument'
+import type { MyInstrumentDirection } from '@/domain/profile/transposition-interval'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
@@ -61,7 +84,11 @@ import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import { makeSeed } from '@/domain/random/seed'
 import PhraseScore, { type EngravedPayload } from '@/components/notation/PhraseScore.vue'
 import type { NotationError } from '@/notation/notation-error'
-import { planStaffPlacement } from '@/notation/notation-layout-policy'
+import {
+  NOTATION_SYSTEM_POSITION_UNITS,
+  planStaffPlacement,
+  planSystemPositionUnits,
+} from '@/notation/notation-layout-policy'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import { loadVexflowEngraver, type VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 import { resolveGlyphIdentities } from '@/notation/note-identity'
@@ -94,6 +121,11 @@ let overlayFailure: ScoreOverlayError | null = null
 let phraseRef: Ref<WrittenPhrase | null> | null = null
 /** The phrase number PhraseScore engraves the phrase as; `swapPhrase` replaces it. */
 const phraseNumberRef = ref(1)
+/**
+ * The shared system-position size PhraseScore is given: null (its built-in size) unless the URL
+ * names a player-made instrument or a saved range.
+ */
+let systemPositionUnits: number | null = null
 /** The pending `swapPhrase` call, settled by the next engraving outcome. */
 let engraveWaiter: { resolve: () => void; reject: (error: NotationError) => void } | null = null
 
@@ -183,6 +215,7 @@ function mountPhraseScore(
           phrase: shown.value,
           phraseNumber: phraseNumberRef.value,
           overlays: overlaysRef.value,
+          systemPositionUnits,
           onLayoutInputs: (inputs: StaffLayoutInputs) => {
             window.__notationLayoutInputs.push(inputs)
           },
@@ -190,12 +223,18 @@ function mountPhraseScore(
             const engravedPhrase = shown.value
             if (engravedPhrase === null) throw new Error('PhraseScore engraved with no phrase.')
             engraveCount += 1
+            const engravedSize = systemPositionUnits ?? NOTATION_SYSTEM_POSITION_UNITS
             window.__notationHarness = {
               state: 'ready',
               engraved: payload,
               engraveCount,
               layoutInputsBeforeEngrave: window.__notationLayoutInputs.length,
-              staffTopLineUnits: planStaffPlacement(engravedPhrase.writtenRange).staffTopLineUnits,
+              clef: engravedPhrase.clef,
+              systemPositionUnits: engravedSize,
+              staffTopLineUnits: planStaffPlacement(
+                { writtenRange: engravedPhrase.writtenRange, clef: engravedPhrase.clef },
+                engravedSize,
+              ).staffTopLineUnits,
               glyphIdentities: resolveGlyphIdentities(engravedPhrase, phraseNumberRef.value),
               glyphFacts: glyphFacts(engravedPhrase),
               setOverlays,
@@ -241,11 +280,125 @@ function optionalParam(params: URLSearchParams, name: string, harnessDefault: st
 }
 
 /**
+ * Intent: read a URL parameter that must be a whole number, crashing on anything else; a missing
+ * one takes the harness default, or crashes when there is none (null).
+ */
+function wholeNumberParam(
+  params: URLSearchParams,
+  name: string,
+  harnessDefault: string | null,
+): number {
+  const text =
+    harnessDefault === null
+      ? requireParam(params, name)
+      : optionalParam(params, name, harnessDefault)
+  const value = Number(text)
+  if (text.trim() === '' || !Number.isInteger(value)) {
+    throw new Error(`Notation harness \`${name}\` must be a whole number, got "${text}".`)
+  }
+  return value
+}
+
+/**
+ * Intent: read `<low>-<high>` (two whole written MIDI notes) from a URL parameter, crashing on any
+ * other shape.
+ */
+function writtenRangeParam(
+  params: URLSearchParams,
+  name: string,
+): { minMidi: number; maxMidi: number } {
+  const text = requireParam(params, name)
+  const match = /^(\d+)-(\d+)$/.exec(text)
+  if (match === null) {
+    throw new Error(`Notation harness \`${name}\` must be <low>-<high> MIDI notes, got "${text}".`)
+  }
+  return { minMidi: Number(match[1]), maxMidi: Number(match[2]) }
+}
+
+/**
+ * Intent: read an optional clef URL parameter (`treble` or `bass`), taking the built-in treble
+ * clef when it is absent and crashing on any other value.
+ */
+function clefParam(params: URLSearchParams, name: string): InstrumentClef {
+  const clef = optionalParam(params, name, BUILT_IN_INSTRUMENT_CLEF)
+  if (!isInstrumentClef(clef)) {
+    throw new Error(`Notation harness \`${name}\` must be treble or bass, got "${clef}".`)
+  }
+  return clef
+}
+
+/**
+ * Intent: the player-made instrument the URL describes (`myLow`, `myHigh`, `myOctaves`,
+ * `mySemitones`, `myDirection`, `myClef`), built with the real `makeMyInstrument` on the C MIDI
+ * keyboard template; null when the URL names none. A partial or invalid description crashes.
+ */
+function readMyInstrument(params: URLSearchParams): MyInstrument | null {
+  const names = ['myLow', 'myHigh', 'myOctaves', 'mySemitones', 'myDirection', 'myClef']
+  if (names.every((name) => params.get(name) === null)) return null
+  const direction = optionalParam(params, 'myDirection', 'same')
+  if (direction !== 'lower' && direction !== 'same' && direction !== 'higher') {
+    throw new Error(
+      `Notation harness \`myDirection\` must be lower, same or higher, got "${direction}".`,
+    )
+  }
+  return makeMyInstrument({
+    template: 'c-keyboard',
+    name: 'Harness instrument',
+    clef: clefParam(params, 'myClef'),
+    writtenRange: {
+      minMidi: wholeNumberParam(params, 'myLow', null),
+      maxMidi: wholeNumberParam(params, 'myHigh', null),
+    },
+    transposition: {
+      octaves: wholeNumberParam(params, 'myOctaves', '0'),
+      semitones: wholeNumberParam(params, 'mySemitones', '0'),
+      direction: direction satisfies MyInstrumentDirection,
+    },
+  })
+}
+
+/**
+ * Intent: the shared system-position size the URL sets: from the player-made instrument's written
+ * range in its clef, or from `savedRange` in `savedClef`, a saved my instrument's, whatever is
+ * engraved; null (PhraseScore's built-in size) when it sets neither. Naming both, or `savedClef`
+ * without `savedRange`, is a mistyped test URL and crashes.
+ */
+function readSystemPositionUnits(
+  params: URLSearchParams,
+  myInstrument: MyInstrument | null,
+): number | null {
+  const saved = params.get('savedRange') === null ? null : writtenRangeParam(params, 'savedRange')
+  if (saved === null && params.get('savedClef') !== null) {
+    throw new Error('Notation harness takes `savedClef` only with `savedRange`.')
+  }
+  if (myInstrument !== null && saved !== null) {
+    throw new Error('Notation harness takes a player-made instrument or `savedRange`, not both.')
+  }
+  if (myInstrument !== null) {
+    return planSystemPositionUnits({
+      writtenRange: myInstrument.writtenRange,
+      clef: myInstrument.clef,
+    })
+  }
+  if (saved !== null) {
+    return planSystemPositionUnits({ writtenRange: saved, clef: clefParam(params, 'savedClef') })
+  }
+  return null
+}
+
+/**
  * Intent: build the explicit, cheap-controls-free GenerationIntent for the harness's generated
  * source. Contour, leapiness and arpeggio chaos default to `Arch`, `Shaped` and `Predictable`
- * unless the URL sets them (`contour`, `leapiness`, `chaos`).
+ * unless the URL sets them (`contour`, `leapiness`, `chaos`). For a player-made instrument the
+ * controls name `my-instrument` and its profile travels beside them; `profile` must be absent.
  */
-function buildHarnessIntent(params: URLSearchParams): GenerationIntent {
+function buildHarnessIntent(
+  params: URLSearchParams,
+  myInstrument: MyInstrument | null,
+): GenerationIntent {
+  if (myInstrument !== null && params.get('profile') !== null) {
+    throw new Error('Notation harness takes `profile` or a player-made instrument, not both.')
+  }
   const controls = makeGenerationControls({
     tempo: 90,
     tonalCenter: validateControlValue(PITCH_CLASSES, requireParam(params, 'tonal'), 'tonal'),
@@ -280,11 +433,10 @@ function buildHarnessIntent(params: URLSearchParams): GenerationIntent {
       optionalParam(params, 'chaos', 'Predictable'),
       'chaos',
     ),
-    instrumentProfileId: validateControlValue(
-      INSTRUMENT_PROFILE_IDS,
-      requireParam(params, 'profile'),
-      'profile',
-    ),
+    instrumentProfileId:
+      myInstrument === null
+        ? validateControlValue(INSTRUMENT_PROFILE_IDS, requireParam(params, 'profile'), 'profile')
+        : MY_INSTRUMENT_ID,
   })
   const seed = makeSeed(Number(requireParam(params, 'seed')))
   return createGenerationIntent({
@@ -292,18 +444,24 @@ function buildHarnessIntent(params: URLSearchParams): GenerationIntent {
     seed,
     controls,
     musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    ...(myInstrument === null ? {} : { instrumentProfile: myInstrument.profile }),
   })
 }
 
 /** Intent: run the harness's generated source end to end, publishing the source snapshot. */
-function runGeneratedSource(params: URLSearchParams, phraseNumber: number): void {
-  const intent = buildHarnessIntent(params)
+function runGeneratedSource(
+  params: URLSearchParams,
+  phraseNumber: number,
+  myInstrument: MyInstrument | null,
+): void {
+  const intent = buildHarnessIntent(params, myInstrument)
   const outcome: GenerationOutcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success') {
     throw new Error(`Notation harness generation failed with code "${outcome.code}".`)
   }
 
-  const input: NotationPhraseInput = notationInputFromOutcome(outcome, intent)
+  const clef = myInstrument?.clef ?? BUILT_IN_INSTRUMENT_CLEF
+  const input: NotationPhraseInput = notationInputFromOutcome(outcome, intent, clef)
   const buildSnapshot = (): string =>
     JSON.stringify({
       result: outcome.result,
@@ -382,9 +540,16 @@ if (!container) throw new Error('Notation harness is missing its #app mount elem
 container.style.width = `${widthParam}px`
 // The idle phrase is the phrase a session starts with, phrase 1, unless the URL names another.
 const phraseNumber = Number(optionalParam(params, 'phrase', '1'))
+const isGenerated = params.get('source') === 'generated'
+const myInstrument = readMyInstrument(params)
+// A player-made instrument is generated for: only the generated source takes one.
+if (myInstrument !== null && !isGenerated) {
+  throw new Error('Notation harness takes a player-made instrument only with `source=generated`.')
+}
+systemPositionUnits = readSystemPositionUnits(params, myInstrument)
 
-if (params.get('source') === 'generated') {
-  runGeneratedSource(params, phraseNumber)
+if (isGenerated) {
+  runGeneratedSource(params, phraseNumber, myInstrument)
 } else if (params.get('source') === 'empty') {
   runEmptySource(phraseNumber)
 } else {

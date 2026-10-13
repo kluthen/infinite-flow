@@ -4,8 +4,9 @@ status: DRAFT
 parents:
   - [[req_on_device_storage]]
   - [[rule_single_local_user]]
-notes: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
-dependents: []
+notes: Synced 2026-10-13 at the v3.0 wave-2 post-task sync, same version 0.1: chunk 4's code (merge 6c138bf) keeps everything in one IndexedDB database, which the browser scopes to the browser profile and the site's origin; the module adds nothing for that (module_on_device_database). The link now sits on DATABASE_NAME in src/storage/database.ts, whose comment says so; no test is linked, the scoping being the browser's. No change of meaning; status stays DRAFT. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
+dependents:
+  - [[module_on_device_database]]
 type: RULE
 layer: BUSINESS
 human_name: Kept Data Belongs to One Browser Profile and Address

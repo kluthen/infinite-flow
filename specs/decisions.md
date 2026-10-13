@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.81
+Status: draft v2.87
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,8 +14,9 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D288**; D290–D299 are reserved by another session. D259–D260 are
-on branch `v4-accompaniment-research`, not merged yet.
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D298**. D259–D260 are
+on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
+from `main`); D289 is unused. D290–D299 are reserved for v3.0 wave 2.
 
 ## Decision Log
 
@@ -985,3 +986,303 @@ on branch `v4-accompaniment-research`, not merged yet.
   and every saved record. The family key stays `seventh-chords`: a capability name fixed by D273
   (the v4 atlas id), as `my-instrument` is a fixed id (D254). The interface's labels are unchanged:
   `off` Off, `sometimes` Sometimes, `favored` Often, `stronglyFavored` Mostly (ux D254, D264).
+
+- **D290 (2026-10-12): a background pre-generation attempt can be cancelled.** The owner's
+  answer ("ok") to the first point the v3.0 wave-2 intent preflight put to him (build plan, Wave
+  records, conflict 1; it blocked chunk 24). Master spec §8 has any player request at Idle cancel
+  the background attempt in progress through the worker's cancellation, but
+  `module_generation_worker_cancellation` (STABLE, on the contract's surface) says a call with no
+  signal is never cancelled and the Idle flow passes none. The owner agrees to revise it to: "the
+  Idle flow's player requests pass no signal and are never cancelled; a background pre-generation
+  attempt passes one, aborted by any player request at Idle". He rules it a **MINOR** contract
+  bump, not MAJOR: every guarantee the player relied on still holds, and the change only adds a
+  background attempt that gives way to the player. `rule_dropped_attempt_cancelled` stays as
+  written. `documentalist` applies the atom and the contract bump. Master spec Part A v1.8 (§8,
+  §10, item 23, §14); build plan v6 (chunk 24, unblocked).
+- **D291 (2026-10-12): a written key with two spellings takes the one with fewer sharps or flats,
+  and the sharp one on a tie.** The owner's answer to the preflight's third point ("less
+  accidental the better, sharp in case of tie"), choosing the code's existing rule
+  (`spellWrittenKey`, `module_notation_display_convention`) over master spec §7.1's "the interval
+  name fixes the letter-name steps used to spell written notes, the key signature and chord
+  symbols" (D253). The player chooses the key in written pitch, so the transposition never moves
+  the written key; it moves the concert key the phrase is generated in. The written key is
+  spelled from the chosen key and collection, with the fewer sharps or flats in its key
+  signature, sharps on a tie: an instrument whose written notes sound 6 semitones higher writes
+  concert C major as F♯ major, not G♭ major (an augmented fourth would give G♭). Written notes and
+  chord symbols (root and slash bass) are spelled in that written key: a note of its scale takes
+  the key's spelling; another note takes its own letter on a white key, and on a black key a flat
+  when the key signature has flats, a sharp otherwise. This is what the built-in profiles already
+  do. The interval name stays derived by §7.1's fixed table and shown; its letter-name steps stay
+  in the instrument's data and in a MusicXML file's transposition, and spell nothing in the app.
+  Master spec Part A v1.8 (§7.1, §12, item 16); build plan v6 (chunks 16 and 19, §8 item 2);
+  `documentalist` revises `rule_my_instrument_transposition_named_interval`, which still says the
+  steps spell the written part.
+- **D292 (2026-10-12): the staff's shared height follows my instrument's written range.** The
+  owner's answer ("ok") to the preflight's point on chunk 19.
+  `module_notation_layout_preflight` (REVIEW) says the one system-position size "never depends on
+  a phrase or a profile"; it now takes my instrument's written range into account, as the design
+  (phrase-workspace handoff, Notation Contract, ux D214) and master spec §14 already have it. The
+  size changes only when my instrument is saved or deleted, never from phrase to phrase.
+  `documentalist` revises the atom before chunk 19's code. Master spec Part A v1.8 (§7.1 states
+  it); build plan v6 (chunk 19).
+
+  Also recorded the same day, no decision number: the coordinator moves build plan chunk 18 to
+  wave 5, after chunk 17, since its `ifk2.` decoder rebuilds the intent through chunk 17's
+  `rebuildGenerationWorkerIntent` and replay refuses `my-instrument` until chunk 17. The
+  preflight's plan corrections are applied to the build plan (chunks 4, 18, 19 and 24, §2, §3,
+  M5) and one stale line of [build-plan-v3.2.md](versions/v3/build-plan-v3.2.md);
+  `rule_look_ahead_deadline` is revised at chunk 24's sync, with the owner's agreement then.
+  Later the same day the coordinator placed chunk 18 in wave 6 instead (Gate A, then chunks 11,
+  12, 18, 22 and 25), so the chunks of one wave stay independent; chunk 18 does not need Gate A.
+
+- **D293 (2026-10-12): my instrument gains a clef choice, treble or bass, in v3.0; octave signs
+  wait (opens O180 and O181).** Chunk 19 measured how far my instrument's written range may reach
+  before the staff's shared height grows (M3, `docs/notation-engraving.md`): in treble clef only an
+  exact two-octave range from written B2–B4 up to E4–E6 keeps 16 staff spaces, and a low range
+  costs most (C2–C4 19, C2–C7 24). Asked for the range ruling, the owner answered, verbatim: "bass
+  clef option for v3.0, and keep in mind 8va/8vb/15ma etc for a later version should the need
+  arise." Written into master spec Part A v1.9:
+  1. **The clef.** My instrument is written in treble or bass clef, as the player chooses; the
+     built-in profiles stay in treble clef. A new my instrument starts in treble clef, every
+     template's clef (proposed default, for `ux-writer` to confirm with the clef control). The
+     clef is a field of my instrument, apart from what the generator reads.
+  2. **Display only.** The clef changes neither the written pitch nor the transposition, and
+     nothing generated. It follows the phrase: the staff at Idle and in a session, the check's
+     note while my instrument is selected, the review of the last session and of kept sessions
+     (each phrase in the clef it was played in, kept with its instrument, §5.2), the score's
+     description, and the MusicXML export (`<clef>` F on line 4). Changing only the clef keeps
+     the phrase on screen, redrawn, and discards no pre-generated phrase.
+  3. **Not in the replay key.** The `ifk2.` key reproduces generation, which the clef does not
+     touch, so two phrases differing only by clef have the same key; the replay tool shows no
+     staff. This also keeps `ifk3.` and `ifk4.`, which carry my instrument as `ifk2.` does, free of
+     display data.
+  4. **The shared height** (D292) reads my instrument's written range placed in its own clef.
+  5. **The range ruling, per clef, is proposed, not decided:** written C2 to C7 in treble clef and
+     E0 to E5 in bass clef (the same lines and spaces on each staff), keeping the shared height at
+     most 24 staff spaces; the bass-clef figure is measured in the build (build plan chunk 19b).
+     The alternative is a bound on the height itself. It stays with the owner (§14).
+  6. **Octave signs later.** Octave signs (8va, 8vb, 15ma) and octave clefs are deferred,
+     registered as O180 with spec-writer's advice against automatic ottava lines inside a
+     phrase.
+  7. **A gap D292 already had, made common by the clef:** a kept session played with a my
+     instrument that needed more height than the current one, and phrases pre-generated before a
+     save that changes the height. Registered as O181.
+
+  No guarantee on the contract states the clef; the REVIEW and DRAFT atoms that say "treble"
+  are revised by `documentalist`. Build plan v7 adds chunk 19b (bass clef for my instrument) in
+  wave 2, moves the range ruling after it, and adds a clef design gate for `ux-writer` before
+  chunk 20.
+
+- **D294 (2026-10-12): my instrument's written range must lie within written C2 to C7 in treble
+  clef and written E0 to E5 in bass clef.** The owner's answer ("ok") to the range bound proposed
+  in D293. Both ends are included (C2 is MIDI note 36, C7 96, E0 16, E5 76, middle C being C4,
+  note 60). A range outside the bound for its clef is refused live in my instrument's sheet, with
+  the reason given in note names, like a range under two octaves; changing the clef checks the
+  range again. The two-octave minimum and the MIDI note range still apply. The bound is a
+  validity rule of my instrument, so it sits beside the two-octave rule. The owner chose it over
+  a bound on the staff's height, which is exact but harder to explain. Build plan chunk 19b still
+  measures the bass-clef bound and confirms that it keeps the shared height at most 24 staff
+  spaces, as the treble one does; if it does not, the figure goes back to the owner. Chunk 20
+  enforces the bound. Master spec Part A v1.10 (§7.1, §12, item 16, §14); the build plan's
+  "Range ruling" gate is settled.
+- **D295 (2026-10-12): every kept session belongs to the instrument it was played with; deleting
+  my instrument deletes its sessions, and a range or transposition change erases them after a
+  warning (closes O181 with D296).** The owner, verbatim: "nevermind old session they're
+  inexistant. session should probably tied to instrument selected (hence reviewing an old session
+  should use the old instrument (if it still exists), sessions bound to a deleted instrument
+  should be deleted as well). Altering an instrument is a tough choice. i'd say: should the
+  alteration changes the range indicate that this will erase all known stored session of this
+  instrument. if the change is cosmetic it's okay." "Tied to instrument selected" is read as the
+  instrument selected when the session was played; the session list is not filtered by the
+  instrument selected now.
+  1. **Belonging.** Every kept session, the most recent one and the pinned ones alike, belongs to
+     the instrument named by its id in its session-wide record (master spec §5.2). Only my
+     instrument can be changed or deleted, so only its sessions are ever touched.
+  2. **Deleting my instrument** deletes every kept session played with it, with their favorites,
+     comments and played notes; its confirmation says so and how many go.
+  3. **Saving a change to my instrument's written range or transposition** first warns that it
+     erases all the kept sessions of my instrument, and how many; on confirmation it saves and
+     erases them; on cancel nothing changes. This holds in the sheet and through the transposition
+     check's "use this for my instrument". While my instrument has no kept session, no warning is
+     shown, since nothing is erased.
+  4. **The session that just ended goes too** when it was played with my instrument: it leaves
+     memory, its review closes, and "Review last session" goes, exactly as when the player deletes
+     that session from its review (already designed: `ui_ux/flows/review-and-export/intent.md`).
+     My instrument's sheet and the check are reachable while a review shows, so this happens.
+  5. **A visit that saves nothing erases nothing.** An outdated tab offers neither deleting my
+     instrument nor saving a range or transposition change while my instrument has kept
+     sessions, as it offers no other deletion (master spec §4.3). A visit whose saved data could
+     not be read has read no kept session and no my instrument, so changing or deleting a my
+     instrument made during it erases nothing, and its session held in memory keeps its review.
+  6. **No migration:** v3.0 is unreleased and no v3.0 session data exists.
+  7. **The review still shows each phrase exactly as it was displayed.** As the coordinator
+     recommended, and spec-writer agrees: D293's clef stays stored with each phrase, so the
+     only changes that keep sessions (name and clef) never alter a review's engraving; the list
+     keeps the name the session was played under (build plan chunk 9 stores it). A range or
+     transposition change erases sessions instead of redrawing them. So the STABLE
+     `req_last_session_review`'s "engraved exactly as it was displayed" holds unchanged.
+  8. **One contract wording changes, PROPOSED for the owner.** `req_last_session_review`
+     (STABLE, contract surface) promises the review "stays reachable until the next session
+     starts". The player can now end it sooner by deleting its session, through my instrument as
+     above, and already through v3.0's own Delete session (master spec §5.4), which that sentence
+     never covered. Proposed wording: add "or until the player deletes its session". By the
+     contract's rule this removes cases from a listed guarantee, a MAJOR version (CONTRACT 3.1 to
+     4.0); the owner may rule it MINOR, as for D290, since only the player's own confirmed action
+     ends the review. `documentalist` applies nothing before the owner confirms. The two pending
+     part-B texts (`docs/release/v3.0-intent-change-set.md`) gain a clause each:
+     `rule_instrument_profile_range` (B1) the bound per clef, `rule_controller_transposition_check`
+     (B2) the warning before the check's action erases my instrument's sessions; neither weakens a
+     guarantee.
+
+  Master spec Part A v1.10 (§2, §4.1, §4.3, §4.4, §5.1, §5.4, §6, §7.1, §7.2, §10, §12, items 6,
+  14, 16, 17 and 23, §14). Build plan v8 adds chunk 20c (my instrument's sessions) and a design
+  gate for it.
+- **D296 (2026-10-12): what each change of my instrument does, and phrases made before a save
+  that changes the shared height (closes O181 with D295).** Proposed by the coordinator and agreed
+  by the owner the same day:
+  1. **A transposition change counts like a range change:** the erase warning (D295).
+  2. **A name or clef change is cosmetic:** no warning, sessions kept; the phrase on screen is
+     kept (redrawn in the new clef), and no pre-generated phrase is discarded for it.
+  3. **O181(b), yes:** a save of my instrument that changes the staff's shared height without
+     discarding the pre-generated phrases (a clef change, or a range change while another profile
+     is selected) checks them again against the new layout, as a change of window size does: one
+     that no longer fits is discarded with every phrase after it.
+
+  **O181(a) narrows to the clef.** With D295, a kept session never holds a range my instrument no
+  longer has. A clef change keeps the sessions, each phrase in the clef it was played in, and
+  that clef can need more height than the shared height now has: written C2 to C4 needs 19 staff
+  spaces in treble clef and 16 in bass clef. Settled as behaviour: **a review never cuts a
+  phrase**; when a session's phrases need more height than the shared height, its review makes
+  room for them. How is `ux-writer`'s, in the design gate before chunk 20c (proposed, as in
+  O181: the review's staff takes the larger of the shared height and the height its own session
+  needs). Master spec Part A v1.10 (§7.1, §8, item 16); build plan v8 (chunks 20 and 20c).
+- **D297 (2026-10-13): a stale phrase 1 at Start: the app says so and asks, Regenerate or Use it
+  (ISS-011, planned for the end of v3.0).** ISS-011, reproduced on v2.0.0 on 2026-10-12: at Idle,
+  ordinary edits never regenerate, so after a change of Written key, Collection or Register (and
+  sometimes Harmonic motion) the phrase on screen was made under other settings. Start takes it
+  as phrase 1 but takes the current controls as the session's settings, and the session assumes
+  phrase 1 was made under them. Phrase 2's join is then built from a phrase in the old key, the
+  carry-in check throws `CarryInError`, and nothing starts (60 to 220 BPM; at 230 and 240 BPM
+  phrase 2 starts standalone, so the session starts). The owner, 2026-10-13: "it's not urgent.
+  plan it for the end of v3.0" (no v2 hotfix), and "i'd say regenerate prior starting session
+  (more like: when starting session says the current phrase is stale and ask either to
+  regenerate or use it)".
+  1. **Stale.** Phrase 1 is stale when a setting the generation reads has a different value now
+     than when phrase 1 was generated. Values are compared, not edits: a setting changed and
+     changed back is no difference. What counts: every generation control except the tempo
+     (Written key, Collection, Harmonic motion, Tension, Note density as the player chose it,
+     Rhythmic variety, Syncopation, Silence density, Contour, Register, Leapiness, Arpeggio
+     chaos), the musical profile (Neutral or Jazz; its customized mark alone is not read), and the
+     instrument as the generation reads it (its id and, for my instrument, its range and
+     transposition). From v3.1, every setting the generation request gains (embellishment figure
+     levels, the chord level in v3.3) counts the same way. Some of these never caused the
+     error (Tension, Contour, Note density); they count all the same, because phrase 1 then is not
+     what the player's settings make. **Never stale:** the tempo and Rising tempo (the tempo never
+     affects generation), Vary settings and Tension across phrases (neither acts on phrase 1), the
+     audio mix, the theme, my instrument's clef and display name, and the window's width (the
+     note density a narrow window gives is not a setting; v2 already starts sessions from a
+     phrase made at another width, and the existing layout checks stay as they are). **The
+     instrument never makes phrase 1 stale in practice:** an instrument switch regenerates the
+     phrase, and saving my instrument's range or transposition while it is selected replaces it
+     (master spec §7.1), so the check is there only for completeness.
+  2. **When it asks.** On Start (the button, or the starting note, see 8), once every start
+     condition holds, and before anything starts: no sound, no screen lock, no count-in. A Start
+     blocked by a start condition stays blocked as today; the prompt is not a start condition and
+     never replaces one. When phrase 1 is not stale, Start works as today and nothing is asked.
+  3. **Use it.** The session starts from that choice, exactly as Start does (the choice is the
+     start click: it unlocks the sound and asks for the screen locks), the start conditions
+     checked again at that moment. Phrase 1 is the phrase on screen, unchanged: same request,
+     seed and replay key, shown, reviewed, kept and exported with what it was generated with. The
+     session's settings are the current ones: phrase 2 on is generated under them, Vary settings
+     moves from them and returns to them at the end, and the session-wide record names them.
+     **Phrase 2 joins phrase 1 as after a settings change applied at the boundary between phrase 1
+     and phrase 2 during a session:** the existing carry-in rules adapt the join
+     (`rule_setting_change_rechecks_pitch_carry_in`, `rule_key_change_drops_harmonic_carry_in`,
+     `rule_harmony_change_drops_unfit_harmonic_carry_in`, `rule_register_change_replaces_carried_window`),
+     so no `CarryInError` can occur at any tempo. No new carry-in rule is needed. The read-only
+     controls show the settings phrase 1 was generated with during the count-in and phrase 1
+     (they show the settings of the music on screen, and phrase 1's first measure is on screen
+     through the count-in), then the session's settings from phrase 2, as at any change. In v3.2,
+     the rhythm lock still locks phrase 1's rhythm (Part C §C7.1 holds as written).
+  4. **Regenerate (proposed, O182).** It runs the Idle Regenerate exactly (current settings, a
+     fresh seed, the usual fit run) and the app stays at Idle with the new phrase on screen;
+     nothing starts. The player presses Start, or plays the new starting note, when ready, and is
+     not asked again, since the new phrase is not stale. A failed regeneration shows the usual
+     failure banner. Reasons: it is the existing action with no new state; the player sees phrase
+     1 before playing it, as `rule_phrase_one_is_idle_phrase` intends; the starting note changes
+     with the phrase, so a player at the instrument needs to see the new one; and it avoids a
+     start that waits for a generation (wait, failure, conditions changing meanwhile). The
+     alternative, starting as soon as the new phrase is on screen, is the owner's to choose.
+  5. **Dismissing** the prompt without choosing changes nothing and starts nothing. How it is
+     dismissed is `ux-writer`'s.
+  6. **While the prompt shows,** the app is still at Idle: no MIDI note starts anything, the
+     starting note included; pre-generation goes on, since its phrases are the ones Use it plays.
+     Whether other controls can be used meanwhile is `ux-writer`'s (proposed: the prompt is
+     answered or dismissed first).
+  7. **Pre-generation (chunk 24) builds the phrases Use it plays.** While phrase 1 is stale it
+     keeps running: phrase 2 is planned from phrase 1 under phrase 1's own settings, joined as in
+     3, and the phrases after it follow as today. Its keys stay as they are: phrase 1 and the
+     current settings, so any change discards and restarts it (master spec §8), and Regenerate
+     discards it by replacing phrase 1. Use it takes the ready phrases as Start does. Chunk 24's
+     quiet stop on `CarryInError` goes. The rule that a pre-generated phrase is exactly the
+     session's phrase at that place holds, since both are built the same way.
+  8. **The starting note asks too.** With a stale phrase 1, playing the starting note opens the
+     same prompt and starts nothing; the count-in starts only on Use it. This changes the STABLE
+     `rule_midi_starting_note` on the contract surface, **proposed for the owner** (master spec
+     §10): today playing the starting note "starts the count-in". By the contract's rule a
+     guarantee losing a case is a MAJOR version (CONTRACT 4.0 to 5.0), as the owner ruled for
+     D295; he may rule it MINOR. The alternative that changes no contract wording, the starting
+     note counting as Use it without asking, would never tell the player at the instrument that
+     the phrase is out of date, which is the point of the ruling, so it is not recommended.
+  9. **A running session still never asks for anything.** The prompt comes before Start; once
+     Use it starts the session, nothing is asked until it ends. The count-in starts only after
+     Use it, so `rule_count_in_shown_on_screen` is unchanged.
+  10. **Other atoms.** The four STABLE carry-in atoms and `rule_join_carry_in_limited` hold as
+     written: the change applies at a phrase boundary during the session, the one between phrase
+     1 and phrase 2. `rule_phrase_one_is_idle_phrase` (REVIEW) holds, phrase 1 being still the
+     phrase on screen, unchanged; it gains a sentence. Revised before code by `documentalist`:
+     `rule_session_start_conditions`, `module_session_shown_settings`,
+     `module_session_pregeneration_plan`, `rule_pregenerated_phrase_matches_session`, the engine
+     and workspace atoms that say phrase 1 was generated under the start settings, and a new rule
+     for the prompt.
+
+  Recorded with it: the owner confirmed `req_last_session_review`'s reachability wording (D295)
+  as a MAJOR change on 2026-10-12 ("1. ok, major"), applied as CONTRACT 4.0; master spec §10 and
+  §14 and the build plan's **Review reachability** step now say so. Master spec Part A v1.11 (§2,
+  §10, §11, §12, item 23, new item 24, §14, new §16); build plan v9 adds chunk 24b in wave 9 with
+  a **Stale phrase design** gate and the owner step **Starting-note wording**; ISS-011 updated.
+
+  **Ruling note (2026-10-13, later the same day).** The owner ruled on both proposals, relayed by
+  the coordinator:
+  - **Regenerate (point 4) as recommended, closing O182:** it runs the usual Idle Regenerate and
+    the app stays at Idle with the new phrase on screen; nothing starts, and the player presses
+    Start again (or plays the new starting note), with no prompt since the phrase is fresh.
+    Starting at once after regenerating is not done.
+  - **The starting note's wording (point 8) accepted as proposed, ruled MAJOR:** the STABLE
+    `rule_midi_starting_note` gains the sentence "When the phrase on screen is out of date (made
+    under settings that differ from the current ones), the starting note first asks, as the
+    Start button does, whether to make a new phrase or use this one, and the count-in starts only
+    if the player uses it; while it is asking, no note starts anything." CONTRACT 4.0 to 5.0.
+    `documentalist` applies the atom and the contract bump.
+
+  Master spec Part A v1.12 (§10, items 23 and 24, §14, §16); build plan v9's owner steps **O182**
+  and **Starting-note wording** are done, and the **Stale phrase design** gate can start.
+
+- **D298 (2026-10-13): pre-generation runs after the prewarm is posted, not after it finishes;
+  O183 opened.** At the v3.0 wave-2 intent sync, `documentalist` asked what master spec §8's
+  "Pre-generation runs after v2's prewarm" means, against `rule_pregeneration_yields_to_player`'s
+  "runs only after the generator has warmed up". Chunk 24's code (`create-workspace-session.ts`,
+  `workspace-pregeneration.ts`, `generation-worker-client.ts`) posts the prewarm when the
+  workspace session is built and after each rhythm-setting change; pre-generation posts its first
+  attempt later, once phrase 1 is on screen, to the same worker, which answers a request between
+  prewarm slices as v2 already does for the player's. Ruling, by `spec-writer` as a wording
+  clarification: the spec means **after the prewarm is posted**, and the code matches the intent.
+  Why: the player is protected by the cancellation (any player request at Idle aborts the
+  background attempt in flight), not by when pre-generation starts; the page has no signal for a
+  finished prewarm (see `docs/generation-latency.md`), so "finished" was never an observable
+  condition; and pre-generation starts only with phrase 1 on screen, whose own generation has
+  already built its rhythm setting's domain in the same memo the prewarm fills. No behaviour
+  changes. Master spec Part A v1.13 (§8) says so; the atom's wording is `documentalist`'s to
+  align. While checking this, `spec-writer` found a consequence the spec had not traced, opened as
+  [O183](open-questions.md#v30-wave-2-o180): cancelling a background attempt replaces the worker,
+  and with it the rhythm-domain memo the prewarm and phrase 1 warmed.

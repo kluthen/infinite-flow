@@ -102,11 +102,13 @@
        staff frame shows `room-notice` ("This screen is too small to show the staff.") instead
        of the score, never the notation-error state, and no session can start; during a session
        the session ends exactly as Stop ends it.
-     Rough sizing: each system position is 16 staff spaces tall, for every instrument profile
-     (NOTATION_SYSTEM_POSITION_UNITS in src/notation/notation-layout-policy.ts), so at the floor
-     two systems need 2 x 16 spaces x 5 px = 160 px; the cue row (96 px), its gap (12 px), the
-     phone block padding (2 x 8 px) and the border (2 x 1 px) add 126 px, so the staff needs
-     about 286 px of small viewport height. A landscape phone about 360 px tall has about 300 px
+     Rough sizing: each system position is 16 staff spaces tall unless a saved my instrument
+     needs more (NOTATION_SYSTEM_POSITION_UNITS, the floor of planSystemPositionUnits in
+     src/notation/notation-layout-policy.ts), so at the floor two systems need
+     2 x 16 spaces x 5 px = 160 px; the cue row (96 px), its gap (12 px), the phone block
+     padding (2 x 8 px) and the border (2 x 1 px) add 126 px, so the staff needs about 286 px of
+     small viewport height. My instrument's range bound per clef keeps the size at most 24
+     spaces, which needs about 366 px. A landscape phone about 360 px tall has about 300 px
      with its toolbar showing, which draws the staff at about 5.4 px per space (about 6.4 px at
      330 px). From `bp-tablet-landscape` up this budget does not apply: the frame keeps v1's
      fixed minimum block size. Applied in components.css as the frame's `max-block-size` (the

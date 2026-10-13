@@ -62,6 +62,9 @@ a Seventh chords level beside Harmonic motion, and the longer chord symbols it b
 - `flows/controller-connection/` specifies the MIDI controller connection and transposition-check journey.
 - `screens/controller-connection/` specifies the connection sheet screen that flow traverses.
 - `flows/play-session/` specifies the continuous session: starting (Start or the starting note), the count-in, the rolling two-system display, acknowledgement, the audio mix, and every way a session ends, up to the review opening. It runs on `screens/phrase-workspace/`, whose session states it names.
+- `screens/stale-phrase-prompt/` specifies the short sheet a start opens when the phrase on screen
+  was made before the settings changed: it names what changed and offers `Regenerate phrase` or
+  `Start with this phrase`.
 - `flows/review-and-export/` specifies what follows a session once its first phrase has sounded: the review of the last session, the export of its generated notes and of the notes the player played, the fresh phrase the staff gets for the next session, leaving the review, and starting again.
 - `screens/last-session-review/` specifies the review of a session, the one that just ended or any kept one (still named after v2's **Last session** review), which takes the staff's place after a session until the player closes it, with the notes the player played shown under each staff on request, the controls staying usable; no session starts while it shows.
 - `flows/kept-sessions/` specifies reaching the sessions kept on this device: the two links above

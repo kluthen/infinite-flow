@@ -1,7 +1,27 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v5 (2026-10-12): a wording fix the owner approved at the wave-1 gate, no behaviour
-changed: chunk 23's "Done when" now says a skipped rung's seed is unused under the seed plan;
+Status: v9 (2026-10-13): the owner's ruling on ISS-011, a stale phrase at Start (spec D297,
+master spec Part A v1.11, then v1.12 for his rulings later that day, which closed the owner steps
+**O182** and **Starting-note wording**, CONTRACT 5.0, and opened the **Stale phrase design**
+gate): a new [chunk 24b](#chunk-24b--stale-phrase-at-start) in wave 9, beside
+chunk 20c, with a **Stale phrase design** gate, the owner steps **Starting-note wording** (a
+proposed contract wording) and **O182**, hand check H9, and §2, §7, §8 and chunk 26 updated; the
+**Review reachability** step recorded as done (CONTRACT 4.0)
+([Wave records](#owner-ruling-at-the-end-of-wave-2-a-stale-phrase-at-start-2026-10-13));
+v8 (2026-10-12): the owner's range bound and his ruling that kept sessions belong to
+their instrument (spec D294–D296, master spec Part A v1.10): the range ruling and O181 settled, a
+new [chunk 20c](#chunk-20c--my-instruments-sessions) in a new wave 9 with a **Sessions design**
+gate, the owner step **Review reachability** (a proposed contract wording), and chunks 17, 20,
+21 and 26, the waves, §7 and §8 updated
+([Wave records](#owner-rulings-during-wave-2-range-bound-sessions-and-their-instrument-2026-10-12));
+v7 (2026-10-12): the owner's bass clef ruling (spec D293, master spec Part A v1.9): a
+new [chunk 19b](#chunk-19b--bass-clef-for-my-instrument) in wave 2, the range ruling moved after
+it and made per clef, a clef design gate for `ux-writer` before chunk 20, and chunks 17, 18, 20
+and 21, M3 and §7 updated ([Wave records](#owner-ruling-during-wave-2-bass-clef-2026-10-12)); v6 (2026-10-12): the owner's rulings after the wave-2 preflight (spec D290–D292, master
+spec Part A v1.8) and one coordinator call, chunk 18 moving to wave 6 after chunk 17, written into
+the wave table and chunks 16, 18, 19 and 24; the preflight's plan corrections applied to §2, §3,
+M5 and chunks 4, 18, 19 and 24 ([Wave records](#wave-records)); v5 (2026-10-12): a wording fix
+the owner approved at the wave-1 gate, no behaviour changed: chunk 23's "Done when" now says a skipped rung's seed is unused under the seed plan;
 v4 (2026-10-09): the owner's answers to spec O163 and O164 (spec D257, D258, master spec
 v1.6) written into chunks 9, 16 and 20 and the wave table; v3 (2026-10-09): the owner's rulings after the wave-1 preflight (spec D253–D256, master
 spec v1.5) written into chunks 6, 9, 16 and 23, and chunk 23's code facts corrected
@@ -47,12 +67,19 @@ Some steps are not code and need the owner. They are part of the sequence:
 
 | Step | What | When | Blocks |
 | --- | --- | --- | --- |
-| **Q66** | The owner allows one `ux-writer` pass on `src/styles/theme.css` and `components.css` ([ux Q66](../../../ui_ux/open-questions.md)). | Now. | [Chunk 1](#chunk-1--token-source-pass-pending-owner-approval), so every interface chunk (8, 10–15, 20–22, 25). |
+| **Q66** | The owner allows one `ux-writer` pass on `src/styles/theme.css` and `components.css` ([ux Q66](../../../ui_ux/open-questions.md)). | Now. | [Chunk 1](#chunk-1--token-source-pass-pending-owner-approval), so every interface chunk (8, 10–15, 20–22, 20c, 25). |
 | **Gate A** | The owner confirms the contract change set, part A, in the words of [`v3.0-intent-change-set.md`](../../../docs/release/v3.0-intent-change-set.md#a-contract-18--20-major-three-narrowed-guarantees); `documentalist` applies A1–A4 (CONTRACT 1.8 → 2.0) in its own commit on `main`. | As soon as the owner confirms: the narrowed wording still holds for v2.0, so it can land before any v3.0 code. | Chunks 11, 12 and 22 may not **merge** before it (each breaks one of the three old guarantees); chunk 14 follows from 12. |
 | **H1** | The owner records stray notes on the Travel Sax breath controller with v2.0's played-notes export ([measurement M1](#m1--the-stray-note-threshold)). | Any time; v2.0 already exports raw played notes. | Chunk 25's threshold. |
-| **Range ruling** | The owner rules on a bound for my instrument's written range from measurement M3 ([chunk 16](#chunk-16--my-instrument-in-the-domain) and [chunk 19](#chunk-19--my-instrument-on-the-staff)); `spec-writer` writes it into master spec §7.1 and §14. | After chunk 19. | Chunk 20's refusal rule. |
-| **Part B1** | The owner confirms the revised `rule_instrument_profile_range` (change set part B, a MINOR contract bump). | After chunk 20's wave gate (its post-task sync revises the atom). | Nothing; the gate checks it is done. |
-| **Part B2** | The owner confirms the revised `rule_controller_transposition_check` (part B, MINOR). | After chunk 21's wave gate (its post-task sync revises the atom). | Nothing; the gate checks it is done. |
+| **Range ruling** | **Settled 2026-10-12 (spec D294):** written C2–C7 in treble clef, E0–E5 in bass clef ([master spec §7.1](master-spec.md#71-what-it-is)), from measurement M3 ([chunk 16](#chunk-16--my-instrument-in-the-domain), [chunk 19](#chunk-19--my-instrument-on-the-staff) and [chunk 19b](#chunk-19b--bass-clef-for-my-instrument)). Chunk 19b confirms by measurement that the bass-clef bound keeps the shared height at most 24 staff spaces; if not, the figure goes back to the owner. | Done. | Nothing. Chunk 20 enforces it. |
+| **Clef design** | `ux-writer` designs the clef control in my instrument's sheet, its wording and its default (proposed: treble clef), the staff-reach note read in the chosen clef, and the refusal of a range outside its clef's bound, in note names (spec D294) (ux D280+ and ux Q80+). | Now; before chunk 20. | Chunk 20. Chunk 19b may start before it: its only words are the score description's clef name, "bass clef" in the existing pattern, revised if `ux-writer` says otherwise. |
+| **O181** | **Closed 2026-10-12 (spec D295, D296):** a save that changes the shared height re-checks the pre-generated phrases; a review never cuts a phrase (its design is in the Sessions design gate). | Done. | Nothing. |
+| **Sessions design** | `ux-writer` designs, for spec D295 and D296: the warning before a range or transposition change erases my instrument's kept sessions (in its sheet, and in the check's **Use for my instrument** confirmation), with how many; the delete confirmation naming the sessions that go with my instrument; where the player lands when the review on screen loses its session; how an outdated tab's sheet withholds deleting my instrument and a range or transposition change while it has kept sessions; and how a review makes room for a session that needs more height than the shared height (proposed: the larger of the two). | Now; before chunk 20c. | [Chunk 20c](#chunk-20c--my-instruments-sessions). |
+| **Review reachability** | **Done 2026-10-12:** the owner confirmed the wording of `req_last_session_review` (STABLE): the review stays reachable until the next session starts "or until the player deletes its session", as a MAJOR bump ("1. ok, major"; [master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees), spec D295, D297); `documentalist` applied it (CONTRACT 4.0). | Done. | Nothing. |
+| **Starting-note wording** | **Done 2026-10-13:** the owner accepted the proposed wording of `rule_midi_starting_note` (STABLE): with a stale phrase 1, the starting note first asks, as the Start button does, and the count-in starts only if the player chooses Use it; ruled MAJOR, CONTRACT 4.0 → 5.0 ([master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees), spec D297's ruling note). `documentalist` applies the atom and the contract bump. | Done (the atom change is `documentalist`'s, before chunk 24b's code). | Nothing. |
+| **O182** | **Done 2026-10-13:** Regenerate runs the usual Idle Regenerate and the app stays at Idle with the new phrase on screen; the player presses Start again ([spec O182](../../open-questions.md#v30-wave-2-o180) closed, master spec §16). | Done. | Nothing. |
+| **Stale phrase design** | `ux-writer` designs the stale-phrase prompt (master spec §16 and §14): its wording in plain words for a beginner, the labels of its two choices (the owner's words are Regenerate and Use it; Part C's key and mode suggestion already has a Use it), how it is dismissed, whether it names the settings that changed, whether other controls can be used while it shows (proposed: no), and how it reads when the starting note opened it. | Now (O182 is settled); before chunk 24b-2. | Chunk 24b-2. |
+| **Part B1** | The owner confirms the revised `rule_instrument_profile_range` (change set part B, a MINOR contract bump), which now also states my instrument's written-range bound per clef (spec D294). | After chunk 20's wave gate (its post-task sync revises the atom). | Nothing; the gate checks it is done. |
+| **Part B2** | The owner confirms the revised `rule_controller_transposition_check` (part B, MINOR), which now also states that "use this for my instrument" first warns when it would erase my instrument's kept sessions (spec D295). | After chunk 20c's wave gate (its post-task sync revises the atom, once the warning is built). | Nothing; the gate checks it is done. |
 | **Part C** | The owner confirms the VISION 0.7 → 0.8 text and the retirement of the four chord-fit atoms (part C). | In chunk 26. | The gate. |
 
 ### Waves
@@ -61,8 +88,8 @@ Waves run one after another. Inside a wave, chunks run one at a time in number o
 rule is **one coding chunk in flight at a time**. Each wave starts with one intent preflight, ends
 with one wave gate (the full test pass, the bundle and the post-task sync), and reaches `main` as
 one merge ([§3](#3-workflow-waves-and-chunks)). The chunks in a wave are independent of each other
-and touch different source files, so one preflight can cover them all. A chunk still blocked when
-the rest of its wave is done (waiting for the owner, a design answer or a measurement) moves to the
+and touch different source files, so one preflight can cover them all. A chunk still blocked
+when the rest of its wave is done (waiting for the owner, a design answer or a measurement) moves to the
 next wave.
 
 **Wave 0 is the switch-over** (spec D252). Chunk 0 ran under the earlier per-chunk workflow and is
@@ -74,17 +101,21 @@ wave-0 gate covers chunks 1 and 2.
 | --- | --- | --- |
 | 0 | 0 Intent re-sync · 1 Token-source pass · 2 Baselines | Nothing (chunk 1: the owner's Q66 answer). H1 can run now. |
 | 1 | 3 Storage boundary gates · 6 Tolerant settings codec · 16 My instrument in the domain · 23 Session seed plan | Chunk 0 (and chunk 2 for 16 and 23, which its replay corpus guards) |
-| 2 | 4 Database core · 18 Replay key `ifk2.` · 19 My instrument on the staff · 24 Pre-generation at Idle | Chunk 3 (4); 16 (18, 19); 23 (24) |
+| 2 | 4 Database core · 19 My instrument on the staff · 19b Bass clef for my instrument · 24 Pre-generation at Idle | Chunk 3 (4); 16 (19); 19 and its own intent preflight (19b); 23 (24) |
 | 3 | 5 Save policy · 9 Kept-session record | Chunk 4; chunk 23 (9) |
 | 4 | 7 Saved settings · 8 Notice row | Chunks 5, 6; chunk 1 for 8 |
 | 5 | 10 Most recent session kept · 17 My instrument across worker and history | Chunks 7, 8, 9 (10); 9, 16 (17) |
-| 6 | **Gate A**, then 11 Played-notes opt-in · 12 Favorites, pin, comment · 22 Remembered controller · 25 Stray-note filter | Chunk 10 and Gate A (11, 12); chunk 7 and Gate A (22); H1 and chunk 1 (25) |
-| 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet | Chunk 12 (13, 14); chunks 7, 17, 19, the range ruling and ux Q76 (20) |
+| 6 | **Gate A**, then 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter | Chunk 10 and Gate A (11, 12; and Review reachability before 12 merges); chunk 17 (18, not Gate A); chunk 7 and Gate A (22); H1 and chunk 1 (25) |
+| 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet | Chunk 12 (13, 14); chunks 7, 17, 19b, 24, the clef design and ux Q76 (20) |
 | 8 | 15 Your data · 21 The check feeds my instrument | Chunks 11, 14 (15); 20 (21) |
-| 9 | 26 v3.0 release gate | Every other chunk |
+| 9 | 20c My instrument's sessions · 24b Stale phrase at Start | Chunks 14, 20 and 21 and the Sessions design gate (20c); chunk 24 and the Stale phrase design gate (24b) |
+| 10 | 26 v3.0 release gate | Every other chunk |
 
-The critical path runs 0 → 3 → 4 → 5 → 7 → 10 → 12 → 14 → 15 → 26. My instrument (16–21) and
+The critical path runs 0 → 3 → 4 → 5 → 7 → 10 → 12 → 14 → 15 → 26; since v8, chunk 20c, which
+waits for chunks 14, 20 and 21, adds wave 9 before the gate. My instrument (16–21, 20c) and
 pre-generation (23–24) are side branches; their chunks share waves with the critical path's.
+Since v9, chunk 24b (a stale phrase at Start, ISS-011) joins wave 9 beside chunk 20c, as the owner
+asked for the end of v3.0; the two touch different files.
 
 ```mermaid
 flowchart LR
@@ -118,21 +149,35 @@ flowchart LR
   C16 --> C17[17 Worker and history]
   C9 --> C17
   C16 --> C18[18 Replay key ifk2]
+  C17 --> C18
   C16 --> C19[19 Staff placement]
-  C19 --> RR{{Range ruling}}
+  C19 --> C19b[19b Bass clef]
+  C19b --> C17
+  C19b --> C20
+  CD{{Clef design}} --> C20
   C7 --> C20[20 My instrument sheet]
   C17 --> C20
-  RR --> C20
+  C24 --> C20
   C20 --> C21[21 Check feeds my instrument]
+  C14 --> C20c[20c My instrument's sessions]
+  C20 --> C20c
+  C21 --> C20c
+  SD{{Sessions design}} --> C20c
+  RV{{Review reachability}} --> C12
+  RV --> C20c
   C7 --> C22[22 Remembered controller]
   C23 --> C24[24 Pre-generation]
   H1{{H1 recordings}} --> C25[25 Stray-note filter]
   C15 --> C26[26 v3.0 gate]
   C13 --> C26
   C18 --> C26
-  C21 --> C26
+  C20c --> C26
   C22 --> C26
   C24 --> C26
+  C24 --> C24b[24b Stale phrase at Start]
+  SP{{Stale phrase design}} --> C24b
+  SN{{Starting-note wording}} --> C24b
+  C24b --> C26
   C25 --> C26
 ```
 
@@ -199,6 +244,324 @@ The plan corrections above are applied: chunk 23's Scope and Files now state the
 chunk 16 no longer says the spelling is flagged to `spec-writer`, and the Atoms lines of chunks 6
 and 16 carry the atoms the preflight added.
 
+#### Wave 2 preflight (2026-10-12)
+
+`documentalist` ran the full pass and the file pass for chunks 4, 18, 19 and 24 on `v3.0-w2`
+(made from `main` a84739a), without an LLM: classifications from `atd query`, `atd trace`, `atd
+check --full`, grep over the atoms and the chunks' files, and reading the atoms, the master spec,
+the design and the code they name. `atd lint` passes; `atd check --full` finds no dangling link
+(385 atoms). No atom was written. The three architecture captures (chunks 4, 18, 24) are made at
+the start of their chunk, once its leader has settled the design points listed below. Statuses as
+found: `module_generation_worker_cancellation` and `rule_dropped_attempt_cancelled` are STABLE
+and on the contract's surface; `module_phrase_replay_key`, `module_notation_layout_preflight`,
+`module_notation_display_convention`, `module_generation_prewarm`, `rule_seeded_phrase_reproduction`,
+`rule_look_ahead_deadline`, `rule_session_start_conditions` and `service_idle_generation_session`
+are REVIEW; the v3.0 atoms are DRAFT, except `entity_my_instrument`, `module_session_seed_plan`
+and `rule_my_instrument_range_limits` (REVIEW since the wave-1 sign-off).
+
+| Chunk | Verdict | Governing atoms | Open before code |
+| --- | --- | --- | --- |
+| 4 | PROCEED | `req_on_device_storage`, `rule_outdated_tab_stops_saving`, `rule_saved_data_belongs_to_browser_profile` (DRAFT); in the port's reach also `rule_outdated_tab_reads_what_it_can`, `rule_delete_everything`, `rule_persistent_storage_requested`, `req_your_data` (DRAFT) and the one-directory clause of `rule_ephemeral_session_state` (REVIEW) | The architecture capture (its design points below). Keep true: the chunk-3 gates as merged (`specification_browser_only_operation_verification`, STABLE); `rule_session_data_never_sent_or_stored` (REVIEW; its never-stored half is chunk 10's Part D, and chunk 4 stores nothing of a session); chunk 6's codec, which already defines the record versions (`RecordVersions`, `SETTINGS_DATA_VERSION = 1` in `src/storage/records/settings-record.ts`) and reads a record without them, or with a newer data version, as unreadable, its setting falling back to the default, never as a thrown error (`rule_saved_settings_load_tolerantly`); an outdated tab writes and deletes nothing, delete everything included. |
+| 18 | PROCEED-WITH-SIGNOFF-PENDING | `module_phrase_replay_key` (REVIEW, revised by the capture), `req_my_instrument` (DRAFT), `entity_my_instrument` (REVIEW); (v2) `rule_seeded_phrase_reproduction`, `service_headless_phrase_replay`, `module_generation_worker_protocol` (REVIEW) | First the coordinator settles the overlap with chunk 17 (plan corrections below), then the capture. The capture replaces the owner's 2026-10-01 rationale, "a later generator change may replay an older key differently, which is accepted", with what master spec item 19 and chunk 2's corpus now require: every `ifk1.` key decodes to the same phrase as in v2, and v3.1 extends this to `ifk2.` keys (master spec Part B). The key still holds no app version. The owner signs the revised text at the wave gate, since it changes a rationale he recorded. Keep true: the 87-case `ifk1.` corpus byte for byte; a built-in phrase still `ifk1.`, byte-identical; one console line per accepted phrase; no played notes and no app version in a key; the decoder sharing the worker's intent validation (no parallel schema). |
+| 19 | PROCEED-WITH-SIGNOFF-PENDING | `req_my_instrument` (DRAFT), `module_notation_layout_preflight` (REVIEW); in the files also `module_notation_display_convention` (REVIEW), `rule_my_instrument_transposition_named_interval` (DRAFT), `entity_my_instrument` (REVIEW), `rule_staff_needs_room_notice`, `rule_session_layout_fixed_at_start` (REVIEW) | `module_notation_layout_preflight` gives the system positions "one block size that depends on the viewport and never on a phrase or a profile", one named height for every profile. Chunk 19 makes that size follow my instrument's written range. The design settles this (phrase-workspace handoff, Notation Contract; [master spec §14](master-spec.md#14-deferred-and-open)), so it is not a spec gap, but the atom's guarantee changes. Proposed: the atom is revised before code, at the chunk's start (version 0.8, back to DRAFT for the owner's sign-off on the text, as for 0.5 to 0.7), not changed silently at the sync. The spelling question below goes to `spec-writer`. It holds back only the chunk's spelling assertions for a "higher" transposition, not the placement and height work. Keep true: every v2 notation test and the four snapshots; each built-in's placement (top line at 73.5 units for the saxophones, 60 for the keyboard); the 16-space size while no saved instrument needs more; the size changes only when my instrument is saved or deleted; no concert-pitch display. Verification ends with the owner's **range ruling**, which blocks chunk 20, not this chunk. |
+| 24 | HALT-NEEDS-CONTRACT-VISION-DECISION | `req_idle_pregeneration`, `rule_pregeneration_yields_to_player`, `rule_pregeneration_discarded_on_change`, `rule_start_never_waits_for_pregeneration`, `rule_pregenerated_phrase_matches_session` (DRAFT); `module_session_seed_plan` (REVIEW); (v2) `module_generation_worker_cancellation`, `rule_dropped_attempt_cancelled` (STABLE, contract surface), `rule_look_ahead_deadline`, `module_generation_prewarm` (REVIEW); in the files also `rule_session_density_only_steps_down`, `rule_tempo_never_affects_generation`, `req_last_session_review` (STABLE). **Part D:** `rule_session_start_conditions` (REVIEW, BUSINESS); drift check `service_idle_generation_session` (REVIEW) | The owner rules on `module_generation_worker_cancellation` (conflict 1 below) before the chunk is built. The chunk is last in the wave, so chunks 4, 18 and 19 run meanwhile. Then the capture. Part D against the wave-1 sync: the sync left `rule_session_start_conditions` unchanged, and its pending note (a background pre-generation is not "a new phrase being generated") still matches `rule_start_never_waits_for_pregeneration`. It is revised at the wave-2 sync with the owner's agreement. `service_idle_generation_session` 0.2 (the sync's seed-plan revision) agrees with `module_session_seed_plan`. Its "at most one operation runs at a time" must not take in a background attempt, or edits would lock and Start would wait. Keep true: the seed plan as merged (each rung's seed from the session seed and its label, nothing drawn during a session, phrase 1 exactly the Idle phrase); no deadline cancels anything at Idle; a prewarm draws nothing from the seed and request-id providers; density only steps down; tempo never feeds generation; nothing starts while a review shows; nothing is saved. |
+
+Plan corrections the preflight found (listed, not applied: none is a stale file path):
+
+- **Chunk 4.** §2's storage design and chunk 4 cite "about 8.8 kB" of entry-chunk headroom. Chunk 2
+  measured 5,759 B, and the wave-1 gate 4,840 B (entry 224,536 B of 229,376 B); the raw-IndexedDB
+  or `idb` choice weighs that figure. A `define` in `vite.config.ts` alone reaches neither
+  `vitest.config.ts` nor the workspace and notation harness configs, since none of them imports
+  `vite.config.ts`. The Atoms line lacks `rule_outdated_tab_reads_what_it_can` (the reopen without
+  a version), `rule_delete_everything` (delete everything), `rule_persistent_storage_requested`
+  (persist, persisted) and `req_your_data` (estimate). Done when's "a record without them is
+  rejected on read" must mean "unreadable", as chunk 6's codec already reads it, never a throw
+  past tolerant loading.
+- **Chunk 18.** The decoder rebuilds the intent through `rebuildGenerationWorkerIntent`
+  (`src/generation-worker/generation-worker-inbound.ts`, a chunk-17 file). Replay runs through
+  the worker runtime's own parser (`service_headless_phrase_replay`), which refuses `my-instrument`
+  until chunk 17 (`entity_my_instrument`). So any `ifk2.` round trip or replay, not only "an
+  end-to-end replay of a session phrase", needs the inbound half of [chunk 17](#chunk-17--my-instrument-across-the-worker-and-the-history).
+  Either chunk 18 takes that half (adding `generation-worker-inbound.ts` and
+  `generation-worker-protocol.ts` to its Files), or it moves after chunk 17, to wave 5. The
+  coordinator decides. Three existing tests assert that `ifk2.` is refused as unsupported:
+  `tests/unit/generation-worker/phrase-replay-key.spec.ts`, `phrase-replay.spec.ts` and
+  `tests/unit/scripts/replay-phrase-script.spec.ts`, the last outside the Files line.
+- **Chunk 19.** Scope says "the notation already transposes by a profile's chromatic and diatonic
+  pair". It reads only the chromatic count (`src/domain/notation/written-phrase.ts`); only the
+  MusicXML `<transpose>` reads the diatonic one. Done when says "the key signature … moved by its
+  transposition", but the written key is the written tonal center the player chose, the same for
+  every instrument. The transposition moves the concert key the phrase is generated in, and the
+  written notes and chord roots come back from concert pitch. "The placement helper it uses" is
+  `planStaffPlacement`, inside `notation-layout-policy.ts`. The 16-space size is the constant
+  `NOTATION_SYSTEM_POSITION_UNITS`, read by `vexflow-engraver.ts` and
+  `vexflow-two-system-engraver.ts`, with `planStaffPositions` called from `PhraseScore.vue`,
+  `ReviewPanel.vue` and `src/session/session-window.ts`, and cited in `theme.css`'s sizing note.
+  A size that varies reaches all of them.
+- **Chunk 24.** Files has no Idle-side file: `src/composables/use-generation-session.ts` publishes
+  phrase 1 with its session seed and receives the edits that discard. It has no Start-side file
+  either (`workspace-session-begin.ts`, and the session engine or runner that takes the ready
+  phrases). The abort signal is passed in `src/generation-worker/generation-worker-client.ts`.
+- **§3.** The worktree paths read `infinite_flow-v3-w<n>` and `infinite_flow-v3-c<n>`; wave 2's is
+  `infinite_flow-v3.0-w2`.
+- **Key versions** are consistent: v3.0 writes `ifk2.` for a player-made instrument only, built-ins
+  staying `ifk1.`; v3.1 writes `ifk3.` for every phrase; v3.2 writes `ifk4.`; and fde9188 (O171)
+  puts v3.3's richer chords after `ifk4.`. `ifk3.` carries my instrument "inline, as `ifk2.`
+  does", so chunk 18's choice about the name carries into `ifk3.` and `ifk4.`.
+  [build-plan-v3.2.md](build-plan-v3.2.md)'s "`main` has no `src/storage/` … no `ifk2.`" has been
+  stale since wave 1. It is left for that plan's own preflight.
+
+Conflicts and gaps:
+
+1. **For the owner (contract), blocks chunk 24.** `module_generation_worker_cancellation` (STABLE,
+   contract surface) says "a generate call with no signal is never cancelled; the Idle flow passes
+   none". `rule_pregeneration_yields_to_player` (master spec §8) has any player request at Idle
+   cancel the background attempt through that cancellation, so a background attempt must carry a
+   signal. The v3.0 change set does not list this atom. Proposed wording: "the Idle flow's player
+   requests pass none; a background pre-generation attempt passes one, aborted by any player
+   request at Idle". It needs the owner's agreement and a CONTRACT bump in the same change.
+   Altering a surfaced guarantee is MAJOR under the grid, unless the owner rules it a narrowing.
+   `rule_dropped_attempt_cancelled` (STABLE) stays true as written ("at Idle there is no
+   deadline, so nothing is cancelled *for this reason*"); no change is proposed.
+2. **Change-set gap (`documentalist`, owner's agreement at the wave-2 sync), does not block.**
+   `rule_look_ahead_deadline` (REVIEW, BUSINESS) says "phrase 2 is generated during the one-measure
+   count-in". That stops holding when phrase 2 was pre-generated. The atom has no `changes-in-v3.0`
+   tag and is not in Part D. Proposed: chunk 24's sync revises it, as Part D.
+3. **For `spec-writer`, the written spelling (chunk 19, and chunk 16's merged code).** Master spec
+   §7.1 and `rule_my_instrument_transposition_named_interval` say the letter-name steps spell the
+   notes, the key signature and the chord symbols. `module_notation_display_convention` and the
+   code (`spellWrittenKey`) spell the written key from the chosen written tonal center by the
+   fewest accidentals, ties toward sharps, and never read the steps. The two differ, for example,
+   for "6 semitones higher" with concert C. The code writes F♯ major; an augmented fourth below C
+   is G♭ major. Which one holds?
+4. **For `ux-writer`:** none found.
+
+Design points each capture waits for:
+
+- **Chunk 4** (new ARCHITECTURE atom or atoms; parents among `req_on_device_storage`,
+  `rule_outdated_tab_stops_saving`, `rule_outdated_tab_reads_what_it_can`,
+  `rule_saved_data_belongs_to_browser_profile`, `rule_ephemeral_session_state`,
+  `rule_delete_everything`, `rule_persistent_storage_requested`). The scope: §2's directory and
+  port, database and stores, record envelope and migrations, and outdated-tab detection. The hold
+  and "saving off" are chunk 5's. One atom, or a MODULE plus an ENTITY for the envelope? Is the
+  database's data version the records' `dataVersion`, one number or one per store, and does
+  `RecordVersions` move to `record-envelope.ts`? "Read-only" has no IndexedDB counterpart: the
+  port refuses every write and delete once outdated, delete everything included, while a visit
+  whose read failed may still delete everything (chunk 5's rule, but the port's error kinds must
+  allow it). The store list is fixed now, since a later store needs an upgrade step. Raw
+  IndexedDB or `idb`, against 4,840 B of headroom. How the app version reaches tests and harnesses.
+  Is "`src/session/` and `src/export/` never import `src/storage/`" enforced by a gate (none
+  exists) or left to review and the storage-free test? Links: the storage files link the new
+  atom. The chunk-3 gate entries (the `src/storage/` override in `eslint.config.js`, the
+  directory-scoped entry in `scripts/verify-boundaries.mjs`) link `req_on_device_storage`
+  today; whether they also link the new atom is the sync's call.
+- **Chunk 18** (revision of `module_phrase_replay_key`). Is the display name in `ifk2.`? The
+  generator-facing profile carries it (`entity_my_instrument`). Leaving it out needs a decode-side
+  rule for the name, or the name leaves that profile, or "encoding then decoding returns an equal
+  intent" no longer holds. Putting it in places player text in a console line (local only) and,
+  later, in `ifk3.` and `ifk4.`. What does the inline instrument hold: my instrument's owning
+  fields (written range, transposition as octaves, semitones and direction, and the template only
+  if it affects generation) rebuilt through `makeMyInstrument`, or the derived profile checked by
+  rebuild-and-compare? The tuple shape: an eighth slot, or the instrument in place of the id. The
+  refusals: an `ifk2.` key naming a built-in, an `ifk1.` key naming `my-instrument`. Who changes
+  the shared rebuild (the chunk-17 overlap)? The `keyVersion` union and the console line's
+  `ifk1.`-only pattern. The restated per-version replay guarantee.
+- **Chunk 24** (new ARCHITECTURE atom for the Idle background queue, after the owner's ruling).
+  Which calls carry an abort signal, and who aborts them? Is the cancellation's prewarm of the
+  cancelled intent wanted for a background attempt? A background attempt is not an operation of
+  `service_idle_generation_session`. Seeds: phrases 2 to 5 take the plan's rung seeds with no
+  deadline, the standalone rung only after every carry-in rung fails. The mutation seed is derived
+  at Idle when Vary settings is on, and `module_session_seed_plan` says "at Start", which needs a
+  wording revision (REVIEW, owner's sign-off). Request ids are drawn at Idle from the page-wide
+  provider, so "identical" with pre-generation on and off compares timelines and seeds, request
+  ids aside. If `rule_pregenerated_phrase_matches_session`'s "the same request" is meant to
+  include the id, that is a question for `spec-writer`. Pre-generation is not a prewarm: it never
+  reuses the prewarm's fixed seed and id. Also to settle: where the ready phrases live and how
+  Start hands them over (`SessionStart`); where the session's look-ahead resumes; how a ready
+  phrase is checked against the layout the session holds; the discard triggers, tempo and Rising
+  tempo excluded; the window re-check from the first phrase that no longer fits; stopping and
+  resuming around a review; when a pre-generated phrase's replay key is emitted (at generation,
+  or when spent, a discarded one never); and starting only after the prewarm.
+
+#### Owner rulings after the wave-2 preflight (2026-10-12)
+
+The owner settled the three points the preflight put to him (spec D290–D292, master spec Part A
+v1.8). In his words: "1. ok; 2. less accidental the better, sharp in case of tie; 3. ok".
+
+- **A background pre-generation attempt can be cancelled** (spec D290; conflict 1 above, chunk
+  24). The owner agrees to revise `module_generation_worker_cancellation` (STABLE, on the
+  contract's surface) to: "the Idle flow's player requests pass no signal and are never
+  cancelled; a background pre-generation attempt passes one, aborted by any player request at
+  Idle". He rules it a **MINOR** contract bump, not MAJOR: every guarantee the player relied on
+  still holds, and the change only adds a background attempt that gives way to the player.
+  `rule_dropped_attempt_cancelled` stays as written. `documentalist` applies the atom and the
+  contract bump in its own commit. Chunk 24 is no longer blocked; its capture follows.
+- **A written key with two spellings takes the one with fewer sharps or flats, sharps on a tie**
+  (spec D291; conflict 3 above, chunks 16 and 19). The code's rule holds (`spellWrittenKey`,
+  `module_notation_display_convention`), and master spec §7.1's "the letter-name steps spell the
+  written notes, the key signature and chord symbols" is withdrawn. The written key is the one
+  the player chose, spelled with fewer sharps or flats in its key signature; written notes and
+  chord symbols (root and slash bass) are spelled in that key. For example, an instrument whose
+  written notes sound 6 semitones higher writes concert C major as F♯ major, not G♭ major. The
+  interval name is still derived by §7.1's table and shown; its letter-name steps stay in the
+  profile's transposition and a MusicXML file's `<transpose>`, and spell nothing on the staff.
+  Chunk 16's merged code needs no change. `rule_my_instrument_transposition_named_interval` still
+  says the steps spell the written part; `documentalist` revises it.
+- **The staff's shared height follows my instrument's written range** (spec D292; chunk 19's open
+  point). The one system-position size, which `module_notation_layout_preflight` (REVIEW) says
+  "never depends on a phrase or a profile", now takes my instrument's written range into account.
+  It changes only when my instrument is saved or deleted, never from phrase to phrase, as the
+  design already says. `documentalist` revises the atom before chunk 19's code.
+
+One call by the coordinator, with no decision number:
+
+- **Chunk 18 moves to wave 6, after chunk 17.** Its `ifk2.` decoder rebuilds the intent through
+  `rebuildGenerationWorkerIntent` (chunk 17's file), and replay goes through the worker runtime's
+  own parser, which refuses `my-instrument` until chunk 17. Taking chunk 17's inbound half into
+  chunk 18 would blur both chunks, and chunk 18 is off the critical path. It goes to wave 6, not
+  wave 5, so the chunks of one wave stay independent: chunk 17 is in wave 5. Wave 2 is now chunks
+  4, 19 and 24; wave 6 is Gate A, then chunks 11, 12, 18, 22 and 25. Chunk 18 is independent of
+  chunks 11, 12, 22 and 25 and touches none of their files, and it does not need Gate A: the
+  replay key changes none of the three guarantees Gate A narrows.
+
+The preflight's plan corrections are applied: §2's storage design and M5 give the headroom left
+after the wave-1 gate; chunk 4's Scope, Files, Atoms and Done when take the `define` reach, the
+four missing atoms and "unreadable"; chunk 18's Scope, Files and Depends on take chunk 17's
+rebuild and the three tests that assert `ifk2.` is refused; chunk 19's Scope, Files and Done when
+take the chromatic-only notation, the written key the player chose, `planStaffPlacement` and the
+readers of `NOTATION_SYSTEM_POSITION_UNITS`; chunk 24's Files take the Idle-side and Start-side
+files and the worker client; §3 gives the worktree paths in use; and
+[build-plan-v3.2.md](build-plan-v3.2.md)'s stale "`main` has no `src/storage/`" line is
+corrected. Chunk 16's Scope no longer says the diatonic count decides the spelling (spec D291).
+
+Not blocking: `rule_look_ahead_deadline`'s "phrase 2 is generated during the one-measure
+count-in" (conflict 2 above) is revised in chunk 24's sync, as Part D, with the owner's agreement
+then. Chunk 24's Part D line names it.
+
+#### Owner ruling during wave 2: bass clef (2026-10-12)
+
+Chunk 19 merged (aec8f63) with M3's staff half recorded in
+[`notation-engraving.md`](../../../docs/notation-engraving.md#my-instruments-written-range-m3-2026-10-12):
+in treble clef only an exact two-octave range from written B2–B4 up to E4–E6 keeps 16 staff
+spaces; C3–C6 needs 18, C2–C4 19, C6–C8 21, C2–C6 23, C2–C7 24. Asked for the range ruling, the
+owner answered: "bass clef option for v3.0, and keep in mind 8va/8vb/15ma etc for a later version
+should the need arise." Spec D293 writes it into master spec Part A v1.9:
+
+- My instrument is written in treble or bass clef, the player's choice; the built-ins stay in
+  treble clef; a new my instrument starts in treble clef (proposed, for `ux-writer`). The clef is
+  display only: written pitch, transposition and generation are unchanged, the generator never
+  reads it, and the `ifk2.` key does not carry it. It follows the phrase into the staff at Idle
+  and in a session, the check's note, the review of the last and kept sessions (kept with the
+  phrase's instrument), the score's description and the MusicXML export (`<clef>` F, line 4).
+- The staff's shared height (spec D292) reads my instrument's written range placed in its own
+  clef.
+- The range ruling stays owed, now per clef: proposed treble C2–C7 and bass E0–E5 (the same lines
+  and spaces), keeping the shared height at most 24 staff spaces; chunk 19b measures the bass
+  figure. The gate moves after chunk 19b.
+- Octave signs and octave clefs wait for a later version
+  ([spec O180](../../open-questions.md#v30-wave-2-o180)). A gap D292 already had, which the clef
+  makes common, is registered as [spec O181](../../open-questions.md#v30-wave-2-o180) and gates
+  chunk 20.
+
+Placement: **chunk 19b** joins wave 2 after chunk 19 (merged). Under the owner's
+one-chunk-in-flight rule it runs before or after chunk 24, as the coordinator chooses. It touches none of chunk 4's or chunk 24's files. Wave 2's preflight did not cover it,
+so it gets its own intent preflight (a D-peek) first, after `documentalist` revises the atoms that
+say "treble" (listed in chunk 19b). The clef control and the record field stay in chunk 20, behind
+the new **Clef design** gate for `ux-writer` and O181. Chunk 17 carries the clef with the phrase's
+instrument into the history and the kept-session record; chunk 18's key leaves it out; chunk 21
+creates my instrument in treble clef or keeps the existing clef.
+
+#### Chunk 19b preflight (2026-10-12)
+
+`documentalist` ran the D-peek for chunk 19b on `v3.0-w2` after the atom revisions it waited for
+(13de53c, change set part H), without an LLM: the `@spec-link` and `@test-link` tags in every file
+of the chunk's Files line, `atd query`, grep over the atoms, and reading them. A STABLE atom sits in
+the files, so the peek was widened to every file rather than one. `atd lint` passes; `atd check
+--full` finds no dangling link (386 atoms). No atom was written by the peek.
+
+| Chunk | Verdict | Governing atoms | Open before code |
+| --- | --- | --- | --- |
+| 19b | PROCEED-WITH-SIGNOFF-PENDING | `rule_notation_display_preserves_phrase` 1.1 (REVIEW, BUSINESS), `module_notation_display_convention` 2.3, `module_notation_stem_direction` 0.2, `module_notation_layout_preflight` 0.9, `entity_my_instrument` 0.2, `rule_generated_notes_musicxml_export` 0.6 (REVIEW), `req_my_instrument` 0.4 (DRAFT); in the files also `rule_controller_transposition_check` (STABLE, contract surface; `vexflow-check-note-engraver.ts`), `rule_my_instrument_range_limits`, `entity_instrument_profile`, `module_notation_engraving_anchors`, `module_notation_note_identity_overlays`, `module_idle_fit_round`, `module_session_rolling_display`, `rule_session_layout_fixed_at_start`, `rule_session_ends_when_staff_too_small`, `rule_session_ends_on_portrait_view` (REVIEW) | Every atom the chunk names now says what it builds, so the capture point (where the clef sits) is already in `entity_my_instrument` 0.2 and `module_notation_display_convention` 2.3; tell `documentalist` if the design differs. `rule_controller_transposition_check` (STABLE) says only "one written note from the instrument's own range", with no clef, so drawing it in my instrument's clef keeps it true; no contract change. No atom names the check note's clef: at the post-task sync, the clef code in `vexflow-check-note-engraver.ts` links `rule_notation_display_preserves_phrase`, which now says every staff is in the selected instrument's clef. The sign-off pending is not the chunk's: the owner's later ruling (kept sessions tied to my instrument, reviewed with it as it is now, its current clef included) is not yet a spec decision, and `rule_kept_session_content` waits for it. Keep the review's clef source easy to change: Scope's "every reader draws the clef the phrase carries, the review included" may become "the review reads my instrument's current clef". The same ruling may touch `req_last_session_review` (STABLE, contract surface: "engraved exactly as it was displayed"), for `spec-writer` and the owner. Keep true: the built-ins' staff, snapshots and MusicXML byte for byte; the clef in no generation request, controls, worker message or replay key (the `ifk1.` corpus); `makeMyInstrument`'s refusals unchanged; no range refusal per clef (`rule_my_instrument_range_limits` states only the two-octave minimum until `spec-writer` records the approved bound); a new my instrument's clef is treble only as the templates' clef, the default itself being for the Clef design gate. |
+
+#### Owner rulings during wave 2: range bound, sessions and their instrument (2026-10-12)
+
+Three spec decisions, written into master spec Part A v1.10:
+
+- **The range bound (spec D294).** My instrument's written range must lie within written C2–C7
+  in treble clef and written E0–E5 in bass clef, refused live in the sheet with the reason in note
+  names; a clef change checks it again. The **Range ruling** step is settled. Chunk 19b still
+  measures the bass-clef bound and confirms the shared height stays at most 24 staff spaces (if
+  not, back to the owner); chunk 20 enforces it.
+- **Kept sessions belong to their instrument (spec D295).** Deleting my instrument deletes every
+  kept session played with it; saving a change to its range or transposition (in the sheet, or
+  through the check) first warns that it erases them, and how many, then erases them on
+  confirmation. The session that just ended goes too, its review closing as on `Delete session`.
+  An outdated tab offers neither action while my instrument has kept sessions. No migration: no
+  v3.0 session data exists.
+- **The classifications and O181 (spec D296).** A transposition change counts like a range
+  change; a name or clef change is cosmetic (no warning, sessions kept, each phrase still in the
+  clef it was played in). A save that changes the shared height re-checks the pre-generated
+  phrases as a window change does (O181(b)). A review never cuts a phrase: when its session needs
+  more height than the shared height (a clef change can cause it), it makes room; how is
+  `ux-writer`'s. [Spec O181](../../open-questions.md#v30-wave-2-o180) is closed.
+- **A contract wording, proposed for the owner.** `req_last_session_review` (STABLE) promises the
+  review "stays reachable until the next session starts". Deleting a session from its own review
+  (chunk 12) already ends it sooner, and so do the new paths (chunk 20c). Proposed: add "or until
+  the player deletes its session"; MAJOR by the contract's rule unless the owner rules it MINOR
+  (master spec §10). It becomes the owner step **Review reachability**, before chunk 12 merges.
+  "Engraved exactly as it was displayed" holds unchanged, since each phrase keeps its clef.
+
+What it changes in the plan (v8):
+
+- **Merged chunks.** Chunks 4, 19 and 23 need no change. Chunk 16's `makeMyInstrument` gains the
+  per-clef bound beside the two-octave rule; chunk 20 adds it (after chunk 19b's clef), with tests
+  beside chunk 16's. The chunk 19b preflight's pending sign-off is answered: the review draws the
+  clef the phrase carries, as chunk 19b's Scope says; `rule_kept_session_content` keeps the clef
+  with each phrase.
+- **In flight.** Chunk 24 needs no change of behaviour. Its re-check after a window change is
+  what chunk 20 calls after a save that changes the shared height, so it should take "the layout
+  changed" from any cause, not only a resize event.
+- **Chunk 17** keeps each phrase's full instrument and clef in the kept-session record; a clef
+  change of my instrument leaves a kept session drawn in its old clef. Its "edited or deleted"
+  wording goes: deletion and range or transposition changes now erase the sessions (chunk 20c).
+- **Chunk 20** enforces the bound and re-checks pre-generated phrases on a save that changes the
+  shared height. It no longer waits for the range ruling or O181. Deleting and changing my
+  instrument do not touch kept sessions yet: until chunk 20c, its delete confirmation keeps the
+  current design's words.
+- **New chunk 20c, My instrument's sessions,** in a new wave 9: the deletion with sessions, the
+  erase warning in the sheet and in the check's confirmation, the review of an erased session
+  closing, the outdated-tab restriction, and a review making room for a session in another clef.
+  It waits for chunks 14, 20 and 21 and the **Sessions design** gate. The release gate moves to
+  wave 10.
+
+#### Owner ruling at the end of wave 2: a stale phrase at Start (2026-10-13)
+
+ISS-011, found by chunk 24 and reproduced on v2.0.0 on 2026-10-12: after a change of Written key,
+Collection or Register at Idle (sometimes Harmonic motion), Start throws `CarryInError` and
+nothing starts, from 60 to 220 BPM. The owner: "it's not urgent. plan it for the end of v3.0"
+(no v2 hotfix), and "when starting session says the current phrase is stale and ask either to
+regenerate or use it". Spec D297, master spec Part A v1.11 §16:
+
+- **Stale** means made under settings that differ, in what the generation reads, from the current
+  ones; the tempo, the session options, the mix, the theme, my instrument's clef and name and the
+  window's width never count.
+- **Use it** starts the session with phrase 1 unchanged; phrase 2 joins it as after a settings
+  change at a phrase boundary, through the existing carry-in rules, so no `CarryInError` can occur.
+- **Regenerate** is proposed to run the Idle Regenerate and stay at Idle (spec O182, for the
+  owner).
+- **Pre-generation** keeps running with a stale phrase 1 and builds the phrases Use it plays;
+  chunk 24's quiet stop on `CarryInError` goes.
+- **The starting note** asks too: a contract wording, proposed for the owner (the
+  **Starting-note wording** step).
+
+What it changes in the plan (v9): a new [chunk 24b](#chunk-24b--stale-phrase-at-start) in wave 9,
+beside chunk 20c; the **Stale phrase design** gate for `ux-writer`; the owner steps **O182** and
+**Starting-note wording**; hand check H9; definition-of-done item 24 in §7. No merged chunk
+changes; chunk 24's quiet stop is replaced in chunk 24b. Later the same day the owner closed O182
+(Regenerate stays at Idle) and accepted the starting-note wording as MAJOR (CONTRACT 5.0), so
+both owner steps are done and the **Stale phrase design** gate can start. The **Review reachability** step is done
+(CONTRACT 4.0, 2026-10-12).
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
@@ -219,6 +582,8 @@ changes in exactly one chunk, never "along the way":
 | Reload-based determinism tests in `audio-transport-mix.spec.ts`, `midi/midi-input.spec.ts`, `release/deterministic-replay.spec.ts` | [7](#chunk-7--saved-settings) re-checks them | They must not depend on a reload returning to defaults; each is fixed or proved unaffected. |
 | `tests/unit/session/session-history-export.spec.ts` › 'touches no browser storage…' | **Never** | Stays green: the history and export modules stay storage-free (definition-of-done item 4). |
 | Contract guarantees in `req_last_session_review`, `rule_optional_midi_privacy`, `rule_same_controller_reattaches` | **Gate A** | Narrowed to what holds in both v2.0 and v3.0 (CONTRACT 2.0). |
+| `req_last_session_review`: the review "stays reachable until the next session starts" | **Review reachability** (done 2026-10-12) | "or until the player deletes its session" (spec D295), confirmed MAJOR (CONTRACT 4.0). |
+| `rule_midi_starting_note`: playing the starting note "starts the count-in" | **Starting-note wording** (done 2026-10-13) | With a stale phrase 1, the note first asks, as Start does (spec D297), confirmed MAJOR (CONTRACT 5.0). |
 
 Every replaced test gets its v3.0 counterpart in the same chunk, and the gate lists each pair
 (item 22).
@@ -233,8 +598,9 @@ capture before code, and written down in a new `docs/storage.md`:
   is saved" is auditable in one place. The rest of the app reaches it through an injected port
   (the pattern `src/audio/` and `src/midi/` already use), never by import of a browser API.
   `src/session/` and `src/export/` never import it.
-- **Raw IndexedDB, no library.** About 8.8 kB of entry-chunk headroom is left; a hand-written
-  promise wrapper over the few calls needed costs less than `idb`. If chunk 4 finds otherwise,
+- **Raw IndexedDB, no library.** 4,840 bytes of entry-chunk headroom are left after the wave-1
+  gate (entry 224,536 of 229,376 bytes; 8.8 kB when this was written, 5,759 bytes at chunk 2); a
+  hand-written promise wrapper over the few calls needed costs less than `idb`. If chunk 4 finds otherwise,
   `idb` (about 1.5 kB gzip) is the fallback, never a larger library.
 - **One database, a few object stores:** `meta` (the database's data version and the app version
   that last upgraded it), `settings` (one record per setting, so each loads and fails on its own),
@@ -268,8 +634,8 @@ the owner, a design answer or a measurement), it leaves the wave: the wave close
 it joins the next wave, whose preflight covers it.
 
 **Branches.** At the start of a wave, a wave branch `v3.0-w<n>` is made from `main` in its own
-worktree (`/home/bastien/work/infinite_flow-v3-w<n>`). Each chunk runs in its own worktree
-(`/home/bastien/work/infinite_flow-v3-c<n>`) on a branch made from the wave branch
+worktree (`/home/bastien/work/infinite_flow-v3.0-w<n>`). Each chunk runs in its own worktree
+(`/home/bastien/work/infinite_flow-v3.0-c<n>`) on a branch made from the wave branch
 (`v3.0-c<n>-<slug>`). It ends with one commit, merged `--no-ff` into the wave branch as soon as
 its chunk checks pass; that merge needs no owner approval. The wave branch merges `--no-ff` into
 `main` after the wave gate, when the owner asks, so `main` only ever receives waves that passed
@@ -400,10 +766,11 @@ recorded. The gate copies each into the release notes.
   103–127), and wide ranges (48 and 60 semitones), each against every supported rhythm setting
   with two seeds, recording the share of failed generations by failure code. Chunk 19 measures,
   with the engraving calibration, the staff height a written range needs, and the written range
-  beyond which the shared height grows past today's.
+  beyond which the shared height grows past today's. Chunk 19b measures the same in bass clef
+  (spec D293), the proposed bound E0–E5 included.
 - **Recorded:** `docs/generation-latency.md` (a new "My instrument ranges" section) and
-  `docs/notation-engraving.md`. The owner's **range ruling** follows; `spec-writer` writes it into
-  the spec, and chunk 20 enforces it.
+  `docs/notation-engraving.md`. The owner's **range ruling**, per clef, follows; `spec-writer`
+  writes it into the spec, and chunk 20 enforces it.
 
 ### M4 — Phrase 2 joining phrase 1 at 240 BPM after pre-generation
 
@@ -421,7 +788,7 @@ recorded. The gate copies each into the release notes.
 ### M5 — The first-load bundle
 
 - **What:** the entry chunk stays within its 224 kB budget (`scripts/verify-boundaries.mjs`); about
-  8.8 kB were left on 2026-10-05.
+  8.8 kB were left on 2026-10-05, 5,759 bytes at chunk 2 and 4,840 bytes after the wave-1 gate.
 - **How:** chunk 2 measures the baseline on `main`; every wave gate records the entry size and its
   change since the previous wave ([§3](#wave-end-the-wave-gate)). Code that is not needed before the
   first draw loads on demand: the kept-session codec and the session list with the review's code,
@@ -447,6 +814,7 @@ or at the gate.
 | H6 Pre-generation at 240 BPM | 24 | Start several 240 BPM sessions right after phrase 1 appears and after waiting a few seconds; note the tablet's battery cost (M4, for information). |
 | H7 Persistent storage in real Chrome | 26 | Pin a session in the installed app and in a plain tab; read Your data's Protection line. For information: Chrome decides silently. |
 | H8 Favorites-only files in real programs | 26 | Open a favorites-only MusicXML in MuseScore and both MIDI files in a MIDI tool; phrase numbers and markers match the session. May follow the tag as a v3.0.x note, as in v2. |
+| H9 Stale phrase at Start | 24b | ISS-011's steps: at Idle, after a phrase appears, change the Written key, then press Start at 60, 120 and 220 BPM; again with a Collection change and a Register change. Each time the prompt shows; Use it starts and phrase 2 follows; Regenerate shows a new phrase at Idle and starts nothing, and the next Start asks nothing. With the Travel Sax, play the starting note on a stale phrase: the prompt shows and nothing starts. |
 
 ## 6. Chunks
 
@@ -623,13 +991,17 @@ outdated-tab rule, behind a port. No setting is saved yet.
   its data version is above the code's.
 - `src/storage/record-envelope.ts`: `dataVersion` and `appVersion` on every record; reading a
   record with a higher data version reports it as "newer" rather than failing.
-- `src/storage/app-version.ts`: the package version, injected by `vite.config.ts` `define`.
+- `src/storage/app-version.ts`: the package version, injected at build time. A `define` in
+  `vite.config.ts` alone reaches neither `vitest.config.ts` nor the workspace and notation harness
+  configs (`vite.workspace-harness.config.ts`, `vite.notation-harness.config.ts`), since none of
+  them imports `vite.config.ts`; the capture settles how the version reaches them.
 - `src/storage/storage-port.ts`: the interface the app sees (read, write, delete, delete
   everything, estimate, persisted, persist), and the error kinds: `quota`, `outdated`, `other`.
 - `fake-indexeddb` as a dev dependency.
 
-**Files:** the four `src/storage/` files above, `vite.config.ts` (`define`), `package.json`,
-tests under `tests/unit/storage/`, `docs/storage.md` (new).
+**Files:** the four `src/storage/` files above, `vite.config.ts` (`define`), and
+`vitest.config.ts` and the two harness configs as the capture settles, `package.json`, tests
+under `tests/unit/storage/`, `docs/storage.md` (new).
 
 **Spec sections:** [§4.3](master-spec.md#43-where-and-how), [§4.6](master-spec.md#46-storage-belongs-to-one-address).
 
@@ -637,14 +1009,17 @@ tests under `tests/unit/storage/`, `docs/storage.md` (new).
 the newer-version branch).
 
 **Atoms:** `req_on_device_storage`, `rule_outdated_tab_stops_saving`,
-`rule_saved_data_belongs_to_browser_profile`.
+`rule_saved_data_belongs_to_browser_profile`, `rule_outdated_tab_reads_what_it_can` (the reopen
+without a version), `rule_delete_everything` (delete everything),
+`rule_persistent_storage_requested` (persist, persisted), `req_your_data` (estimate).
 
 **Depends on:** chunk 3.
 
 **Done when:**
 
-- Every record written carries `dataVersion` and `appVersion`; a record without them is
-  rejected on read.
+- Every record written carries `dataVersion` and `appVersion`; a record without them is read as
+  unreadable, as chunk 6's codec already reads it (its setting falls back to the default), never
+  as an error thrown past tolerant loading.
 - A database at data version 0 is migrated to 1 on open; a test-only step 1 → 2 runs in order.
 - Two connections in one test: the newer opens with a higher version; the older gets
   `versionchange`, reports "outdated" and never writes again. A newer tab that writes a higher
@@ -1230,8 +1605,8 @@ first step of the widest change in v3.0.
   endpoints; a span of at least 24 semitones, refused with a reason; both ends sounding inside
   MIDI 0–127; register windows derived by the built-in profiles' algorithm; input kind "MIDI
   controller". The interval name, and with it the transposition's letter-step part (its
-  **diatonic** count, which decides how the written key and notes are spelled), is derived from
-  the semitones by §7.1's fixed table (0 = unison, 1 = minor second, 2 = major second … 6 =
+  **diatonic** count, which the profile and a MusicXML file's `<transpose>` carry; the staff's
+  spelling never reads it, spec D291), is derived from the semitones by §7.1's fixed table (0 = unison, 1 = minor second, 2 = major second … 6 =
   augmented fourth … 11 = major seventh; each octave adds 12 semitones and 7 steps), and exposed
   so the sheet (chunk 20) can show it.
 - Measurement M3's generator sweep, as a script and a sweep config (tooling).
@@ -1305,8 +1680,12 @@ and into a kept session.
 profile as data, validated by `parseInstrumentProfile` and `makeMyInstrument`'s rules, instead of
 rebuilding it by id (the built-ins keep their rebuild-and-compare check); the session history
 records it; the kept-session codec stores and decodes it, so a kept session keeps the instrument
-it was played with, even after my instrument is edited or deleted. The prewarm and the
-cancellation paths carry it unchanged.
+it was played with in full. A later change of my instrument's name or clef leaves it as it was;
+deleting my instrument, or a change to its range or transposition, erases its kept sessions
+instead (spec D295, chunk 20c). My instrument's clef (spec
+D293, chunk 19b) travels with the phrase's instrument into the history and the kept-session
+record, so a review draws each phrase in the clef it was played in; it is display data, never
+part of the worker's intent. The prewarm and the cancellation paths carry it unchanged.
 
 **Files:** `src/generation-worker/generation-worker-inbound.ts`, `generation-worker-protocol.ts`,
 `src/session/session-history.ts` (type only, if needed), `src/storage/records/kept-session-record.ts`;
@@ -1317,7 +1696,7 @@ tests under `tests/unit/generation-worker/` and `tests/unit/storage/`.
 **Atoms:** `req_my_instrument`, `rule_kept_session_content`; (v2) `rule_seeded_phrase_reproduction`.
 **Part D / drift check:** `module_generation_worker_protocol`, `service_session_history`.
 
-**Depends on:** chunks 9 and 16.
+**Depends on:** chunks 9, 16 and 19b (the clef).
 
 **Done when:**
 
@@ -1326,7 +1705,9 @@ tests under `tests/unit/generation-worker/` and `tests/unit/storage/`.
 - A malformed profile (23-semitone span, inconsistent transposition, windows set by hand) is
   rejected by the worker with a typed error.
 - A built-in profile whose data was altered is still rejected (rebuild-and-compare kept).
-- A session played with my instrument encodes and decodes as a kept session with that profile.
+- A session played with my instrument encodes and decodes as a kept session with that profile
+  and its clef; a bass-clef session still reviews in bass clef after my instrument is switched to
+  treble clef.
 - The `ifk1.` corpus passes.
 
 **Items covered:** 16 (generates in its range).
@@ -1343,16 +1724,22 @@ decoding to the same phrase.
 **Scope.** `encodePhraseReplayKey` writes `ifk2.` only when the profile is not a built-in, with
 the profile's owning fields (name excluded or included as the capture decides; never played
 notes, never an app version); `ifk1.` otherwise, unchanged. `decodePhraseReplayKey` accepts both.
-`npm run replay:phrase` replays both.
+`npm run replay:phrase` replays both. The decoder rebuilds the intent through
+`rebuildGenerationWorkerIntent`, which chunk 17 opens to my instrument; chunk 18 does not change
+it.
 
 **Files:** `src/generation-worker/phrase-replay-key.ts`, `phrase-replay-key-decode.ts`,
 `scripts/replay-phrase.mjs` (if it parses the prefix), tests under `tests/unit/generation-worker/`.
+Three existing tests assert that `ifk2.` is refused as unsupported and change here:
+`tests/unit/generation-worker/phrase-replay-key.spec.ts`, `phrase-replay.spec.ts`, and
+`tests/unit/scripts/replay-phrase-script.spec.ts`.
 
 **Spec sections:** [§7.4](master-spec.md#74-phrase-replay-key).
 
 **Atoms:** `module_phrase_replay_key`, `req_my_instrument`; (v2) `rule_seeded_phrase_reproduction`.
 
-**Depends on:** chunk 16 (17 for an end-to-end replay of a session phrase).
+**Depends on:** chunk 17 (and so 16): any `ifk2.` round trip or replay needs chunk 17's
+inbound parser, which accepts `my-instrument`. It runs in wave 6 and does not need Gate A.
 
 **Done when:**
 
@@ -1361,6 +1748,8 @@ notes, never an app version); `ifk1.` otherwise, unchanged. `decodePhraseReplayK
 - The chunk 2 corpus passes unchanged; a built-in phrase still encodes as `ifk1.`, byte-identical
   to v2.
 - A malformed `ifk2.` key throws the typed key error.
+- The key carries no clef (spec D293): two phrases that differ only by my instrument's clef
+  encode to the same key.
 
 **Items covered:** 19.
 
@@ -1371,13 +1760,21 @@ notes, never an app version); `ifk1.` otherwise, unchanged. `decodePhraseReplayK
 **Goal.** Show my instrument in its own written pitch, placed on the staff from its written range,
 and measure what its range costs the staff's shared height.
 
-**Scope.** The notation already transposes by a profile's chromatic and diatonic pair; this chunk
-proves it for any player-made pair and makes the staff placement and the shared system-position
-size take my instrument's written range into account (the size changes only when my instrument
-is saved or deleted). The engraving calibration gains player-made fixtures: low, high and wide
+**Scope.** The notation already writes a phrase in any profile's written pitch: it moves each
+note and chord root by the transposition's semitones (its chromatic count; only the MusicXML
+`<transpose>` reads the diatonic one) and spells them in the written key the player chose, by
+master spec §7.1's rule (spec D291). This chunk proves it for any player-made transposition and
+makes the staff placement and the shared system-position size take my instrument's written range
+into account (the size changes only when my instrument is saved or deleted; spec D292, after
+`documentalist` revises `module_notation_layout_preflight`). The 16-space size is the constant
+`NOTATION_SYSTEM_POSITION_UNITS`, read by `vexflow-engraver.ts` and
+`vexflow-two-system-engraver.ts`, with `planStaffPositions` called from `PhraseScore.vue`,
+`ReviewPanel.vue` and `src/session/session-window.ts`, and cited in `theme.css`'s sizing note; a
+size that varies reaches all of them. The engraving calibration gains player-made fixtures: low, high and wide
 written ranges. Measurement M3's staff half: the written range beyond which the shared size grows.
 
-**Files:** `src/notation/notation-layout-policy.ts`, the placement helper it uses,
+**Files:** `src/notation/notation-layout-policy.ts` (with its placement helper,
+`planStaffPlacement`), the readers of the shared size named in Scope as the size reaches them,
 `tests/e2e/notation/notation-calibration.spec.ts` and its fixtures, `tests/e2e/notation-harness/fixtures.ts`,
 [`docs/notation-engraving.md`](../../../docs/notation-engraving.md).
 
@@ -1386,14 +1783,17 @@ written ranges. Measurement M3's staff half: the written range beyond which the 
 **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md)
 (Notation Contract: my instrument's placement and the shared size).
 
-**Atoms:** `req_my_instrument`; (v2) `module_notation_layout_preflight`.
+**Atoms:** `req_my_instrument`; (v2) `module_notation_layout_preflight` (revised for spec D292
+before code), `module_notation_display_convention`.
 
 **Depends on:** chunk 16.
 
 **Done when:**
 
-- A phrase for a player-made instrument engraves in its written pitch, with the key signature
-  and chord roots moved by its transposition (notation harness).
+- A phrase for a player-made instrument engraves in its written pitch: its notes and chord roots
+  are the concert ones moved by its transposition's semitones, and the key signature, notes and
+  chord symbols are spelled in the written key the player chose, by master spec §7.1's rule (6
+  semitones higher, concert C major: F♯ major) (notation harness).
 - A written range inside every built-in's reach leaves the shared size unchanged; one reaching
   further makes it grow, and the calibration confirms every profile's ink stays inside.
 - The four known notation snapshots and every v2 notation test pass unchanged for the built-ins.
@@ -1401,8 +1801,84 @@ written ranges. Measurement M3's staff half: the written range beyond which the 
 
 **Items covered:** 16 (notation in written pitch).
 
-**Verification:** the chunk checks; `npm run test:notation`; the calibration run; then the **range
-ruling**.
+**Verification:** the chunk checks; `npm run test:notation`; the calibration run; then chunk 19b,
+then the **range ruling**.
+
+### Chunk 19b — Bass clef for my instrument
+
+**Architecture capture:** where the clef sits: in my instrument's domain value beside the display
+name, outside the generator-facing profile and the worker's intent, and carried by the written
+phrase as it carries `writtenRange` (revisions of `entity_my_instrument` and
+`module_notation_display_convention`).
+
+**Goal.** Draw a phrase made with my instrument in bass clef when it has that clef, wherever a
+staff shows it, and measure the bass-clef range bound (spec D293, master spec §7.1).
+
+**Scope.**
+
+- The clef, `treble` or `bass`, joins my instrument's domain value (`makeMyInstrument`), never the
+  generator-facing profile or the generation request; the built-ins are treble. The written phrase
+  carries its instrument's clef, so every reader draws the clef the phrase carries, the review
+  included.
+- Each treble-only place in [master spec §11](master-spec.md#11-existing-code-and-risks) takes the
+  clef: the written phrase's type (`clef: 'treble'` today); both engravers (`addClef`); the staff
+  layout's ink and placement model, read from the clef's own lines (bass clef: top line A3,
+  middle line D3, 12 letter-name steps below the treble clef's F5 and B4); the stem rule's middle
+  line; the score description ("bass clef"); the MusicXML `<clef>` (`F`, line 4; `G`, line 2 for
+  treble), the `<transpose>` unchanged; the transposition check's note, drawn in my instrument's
+  clef while it is selected.
+- `planSystemPositionUnits` takes my instrument's written range with its clef. The seam on
+  `WorkspaceShell` stays fed with nothing until chunk 20's record (no saved instrument).
+- The calibration gains bass-clef fixtures: the proposed bound E0–E5, a low range (C2–C4, which
+  the ink model predicts at 16 spaces in bass clef, against 19 in treble), a high one and a wide
+  one; M3's bass-clef figure is recorded beside the treble one in
+  [`docs/notation-engraving.md`](../../../docs/notation-engraving.md). `docs/export.md` states the
+  clef per instrument.
+
+**Files:** `src/domain/profile/my-instrument.ts`, `src/domain/notation/written-phrase-types.ts`,
+`written-phrase.ts`, `stem-direction.ts`, `pitch-spelling.ts` (the staff position),
+`score-description.ts`; `src/notation/notation-layout-policy.ts`, `vexflow-engraver.ts`,
+`vexflow-two-system-engraver.ts`, `vexflow-check-note-engraver.ts`;
+`src/export/musicxml/musicxml-marks.ts`; the harness (`tests/e2e/notation-harness/`, a clef
+parameter for the player-made instrument), `notation-calibration.spec.ts`,
+`notation-my-instrument.spec.ts`, unit tests beside each module; `docs/notation-engraving.md`,
+`docs/export.md`, `docs/testing.md`. If the brief grows past one chunk, split the export and the
+description (19b-2) from the engraving and the height (19b-1).
+
+**Spec sections:** [§7.1](master-spec.md#71-what-it-is), [§7.4](master-spec.md#74-phrase-replay-key),
+[§11](master-spec.md#11-existing-code-and-risks), [§14](master-spec.md#14-deferred-and-open).
+
+**Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md)
+(Notation Contract), and the clef wording once the **Clef design** gate has run.
+
+**Atoms:** `rule_notation_display_preserves_phrase` (BUSINESS, REVIEW: "treble G2 clef"),
+`module_notation_display_convention`, `module_notation_layout_preflight`,
+`module_notation_stem_direction` (its middle line B4), `entity_my_instrument`, `req_my_instrument`,
+`rule_generated_notes_musicxml_export`; each revised by `documentalist` before code, none on the
+contract.
+
+**Depends on:** chunk 19; its own intent preflight.
+
+**Done when:**
+
+- A phrase for a bass-clef my instrument engraves with a bass clef on both systems, its notes on
+  the bass staff's lines and spaces, its stems down from D3 up, and its key signature in the bass
+  clef's positions (notation harness); the description names the bass clef.
+- The same phrase in treble and bass clef has the same written notes, the same concert timeline
+  and the same replay inputs.
+- The shared size reads the written range in its clef: written C2–C4 keeps 16 spaces in bass
+  clef and needs 19 in treble; the calibration confirms every case's ink inside its position.
+- The MusicXML export of a bass-clef phrase opens with `<clef>` F on line 4 and the same
+  `<transpose>`; a built-in's is unchanged, byte for byte.
+- The check note follows the selected instrument's clef.
+- The four known notation snapshots and every v2 notation test pass unchanged for the built-ins.
+- M3's bass-clef figure is recorded.
+
+**Items covered:** 16 (the clef).
+
+**Verification:** the chunk checks; `npm run test:notation`; the calibration run, which confirms
+that the ruled bass-clef bound, written E0–E5 (spec D294), keeps the shared height at most 24
+staff spaces; if it does not, the figure goes back to the owner before chunk 20.
 
 ### Chunk 20 — My instrument sheet and the instrument control
 
@@ -1415,14 +1891,29 @@ the name, present only while my instrument exists; `instrument-actions` (`Create
 `Edit my instrument`); the sheet (template, name, range steppers, the live refusal, the windows,
 the staff-reach note, the transposition on the design's one stepper counting semitones across
 octaves, one direction for the whole, with its derived interval name shown beside it (master spec
-§7.1, spec D253, D257; the display as `ux-writer` settles it under ux Q76), delete
-with confirmation), loaded on demand; the record keeps the fixed id `my-instrument` and the display
+§7.1, spec D253, D257; the display as `ux-writer` settles it under ux Q76), the clef, treble or
+bass (spec D293; the control, its wording and its default as the **Clef design** gate settles
+them), delete with confirmation), loaded on demand; the record holds the clef with the rest of
+my instrument, and the shared size reads it with the written range (chunk 19b's seam); the record keeps the fixed id `my-instrument` and the display
 name apart (spec D254); save outcomes
 (replace the phrase as on an instrument switch only when selected and its range or transposition
-changed); the first save asks for persistent storage; the range bound of the owner's ruling, if
-any, with its refusal wording; deleting returns to its template only when it was selected.
+changed; a change of clef alone keeps the phrase and redraws it, and discards no pre-generated
+phrase); a save that changes the shared size without discarding the pre-generated phrases (a
+clef change, or a range change while another profile is selected) re-checks them through chunk
+24's re-check after a window change (spec D296); the first save asks for persistent storage; the
+range bound (spec D294): written C2–C7 in treble clef, E0–E5 in bass clef, both ends included,
+added to my instrument's validity rules in `src/domain/profile/my-instrument.ts` beside the
+two-octave rule (a chunk-16 file, after chunk 19b's clef) and refused live in the sheet with the
+**Clef design** gate's wording in note names, checked again when the clef changes. The bound
+needs the clef, so it is checked where my instrument's domain value is built with its clef, never
+in the generator-facing profile the worker validates (chunk 17), which carries no clef; deleting
+returns to its template only when it was selected. **Not in this chunk:** deleting my instrument
+and saving a range or transposition change leave its kept sessions untouched until chunk 20c,
+which adds the erasing and its warnings; until then the delete confirmation keeps the current
+design's words.
 
-**Files:** `src/storage/records/my-instrument-record.ts` (new), `src/components/controls/FoundationControls.vue`
+**Files:** `src/storage/records/my-instrument-record.ts` (new), `src/domain/profile/my-instrument.ts`
+(the bound), `src/components/controls/FoundationControls.vue`
 (the fourth segment and the button), `src/components/workspace/MyInstrumentSheet.vue` (new),
 `src/components/workspace/use-my-instrument.ts` (new), `src/composables/generation-session-profile-switch.ts`;
 tests `tests/e2e/storage/my-instrument.spec.ts`, unit tests for the sheet's model. If the brief
@@ -1439,7 +1930,9 @@ instrument control).
 `rule_persistent_storage_requested`, `rule_saved_settings_load_tolerantly`. **Part B1** follows
 the merge.
 
-**Depends on:** chunks 1, 7, 17, 19, the range ruling and `ux-writer`'s answer to ux Q76.
+**Depends on:** chunks 1, 7, 17, 19, 19b and 24 (its re-check), the **Clef design** gate and
+`ux-writer`'s answer to ux Q76. The range ruling (spec D294) and spec O181 (D295, D296) are
+settled.
 
 **Done when:**
 
@@ -1447,12 +1940,24 @@ the merge.
   replaced, notation in its written pitch; after a reload, back and selected.
 - A range under two octaves disables `Save` with the refusal; the stepper never stops at the
   two-octave limit; the transposition change keeps the written range.
+- A range outside the bound for its clef disables `Save` with its refusal in note names: in
+  treble clef, written B1 as the lowest note or C♯7 as the highest is refused, C2–C7 itself is
+  allowed; in bass clef, D♯0 or F5 is refused, E0–E5 allowed. Switching a written C2–C4 range
+  from treble to bass clef keeps it valid; switching a written E0–E2 range from bass to treble
+  clef refuses it until the range or the clef changes. `makeMyInstrument` refuses the same
+  ranges, with tests beside chunk 16's.
 - Editing only the name relabels the segment and leaves the phrase; the saved selection still
   names `my-instrument`.
 - Each step of the transposition updates the shown interval name (14 lower: a major ninth lower;
   6 higher: an augmented fourth higher; 12 lower: one octave lower, saved and reloaded as lower).
 - Deleting while selected returns to the template; while not selected, changes nothing else; the
   remembered controller is untouched.
+- A new my instrument starts in the clef the design settles (proposed: treble); switching it to
+  bass clef redraws the phrase on screen in bass clef without replacing it, survives a reload,
+  and resizes the staff as its range in bass clef needs.
+- With phrases pre-generated at Idle, a clef change that changes the shared height re-checks
+  them: one that no longer fits is discarded with every phrase after it; one that fits stays
+  (held-generation harness).
 - A seeded invalid my-instrument record loads as absent, and a saved selection of it falls back
   to the default profile.
 - The first save makes one persist request.
@@ -1468,8 +1973,8 @@ transposition, in one confirmed step.
 
 **Scope.** `Use this for my instrument` on every non-match result (absent when the result would
 sound outside MIDI 0–127); the **Use for my instrument** confirmation; on confirm, create my
-instrument from the selected built-in (named "My instrument", its written range) or update its
-transposition, keep the written range, save, select, replace the phrase, and go to **Connected**
+instrument from the selected built-in (named "My instrument", its written range, treble clef) or
+update its transposition, keep the written range and the clef, save, select, replace the phrase, and go to **Connected**
 with "{name} now matches your controller."; the check run against my instrument when it is
 selected. Played notes are still compared at the pitch received: nothing in acknowledgement
 changes.
@@ -1488,7 +1993,7 @@ changes.
 Transposition Check).
 
 **Atoms:** `rule_transposition_check_sets_my_instrument`; (v2, STABLE)
-`rule_controller_transposition_check` (Part B2 follows the merge), `rule_acknowledgement_exact_pitch`.
+`rule_controller_transposition_check` (Part B2 follows chunk 20c, which adds the erase warning), `rule_acknowledgement_exact_pitch`.
 
 **Depends on:** chunk 20.
 
@@ -1502,7 +2007,98 @@ Transposition Check).
 
 **Items covered:** 17.
 
-**Verification:** the chunk checks; hand check H3; then Part B2 with the owner.
+**Verification:** the chunk checks; hand check H3. Part B2 waits for chunk 20c.
+
+### Chunk 20c — My instrument's sessions
+
+**Goal.** Make every kept session belong to the instrument it was played with: deleting my
+instrument deletes its kept sessions, and saving a change to its range or transposition erases
+them after a warning (spec D295, D296; master spec §5.1, §7.1, §7.2).
+
+**Scope.**
+
+- **The sessions of my instrument** are the kept sessions whose summary names `my-instrument`
+  (chunk 9's summary holds the instrument id), counted from chunk 14's summaries in memory, the
+  session that just ended included.
+- **Deleting my instrument:** its confirmation names the sessions that go, with their number,
+  in the words the **Sessions design** gate settles; on confirmation, one transaction deletes the
+  my-instrument record and every session of my instrument (summary, body, played notes; their
+  favorites and comments go with them). Chunk 14's summaries follow. When the session that just
+  ended is one of them, it leaves memory, its review closes as on `Delete session` (chunk 12),
+  and `Review last session` goes.
+- **Saving a range or transposition change while my instrument has kept sessions:** `Save` opens
+  the warning with their number; confirming saves the change and erases them in one
+  transaction; cancelling returns to the sheet with the edit unsaved. With no kept session of my
+  instrument, `Save` saves as in chunk 20, with no warning. A name or clef change never warns and
+  keeps every session.
+- **The check:** chunk 21's **Use for my instrument** confirmation, when my instrument exists and
+  has kept sessions, carries the same warning; confirming erases them.
+- **Saving off.** An outdated tab, while my instrument has kept sessions, offers neither deleting
+  it nor saving a range or transposition change, in the form the design gate settles, and its
+  notice asks for a reload. A visit whose saved data could not be read erases nothing: it read
+  no kept session.
+- **A review never cuts a phrase:** a kept session whose phrases need more height than the
+  shared height (one played in a clef my instrument no longer has) gets the room the design
+  gives it (proposed: the larger of the shared height and its own), measured by chunk 19b's
+  planner from the session's own instrument and clef.
+- A failed deletion keeps its confirmation with the error line, as in chunks 12 and 15, and
+  deletes nothing.
+
+**Files:** `src/components/workspace/use-my-instrument.ts`, `src/components/workspace/MyInstrumentSheet.vue`,
+`src/components/workspace/use-kept-sessions.ts`, the deletion by instrument id in
+`src/storage/records/`, `src/components/controller-connection/SheetStateBody.vue` (the warning),
+`src/components/workspace/use-review-host.ts` (closing the review), the review's staff size in
+`src/components/review/`; tests `tests/e2e/storage/my-instrument-sessions.spec.ts`, unit tests
+beside each module. If the brief exceeds about five source files, split the review's room for
+another clef (20c-2) from the deletions and warnings (20c-1).
+
+**Spec sections:** [§5.1](master-spec.md#51-which-sessions-are-kept), [§7.1](master-spec.md#71-what-it-is),
+[§7.2](master-spec.md#72-the-transposition-check-feeds-it), [§4.3](master-spec.md#43-where-and-how),
+[§4.4](master-spec.md#44-loading-saved-settings).
+
+**Design docs:** [`flows/my-instrument/handoff.md`](../../../ui_ux/versions/v3.0/flows/my-instrument/handoff.md),
+[`screens/my-instrument/handoff.md`](../../../ui_ux/versions/v3.0/screens/my-instrument/handoff.md),
+[`flows/kept-sessions/handoff.md`](../../../ui_ux/versions/v3.0/flows/kept-sessions/handoff.md),
+[`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.0/screens/last-session-review/handoff.md)
+and [`screens/controller-connection/handoff.md`](../../../ui_ux/versions/v3.0/screens/controller-connection/handoff.md),
+as the **Sessions design** gate revises them.
+
+**Atoms:** `req_my_instrument`, `entity_my_instrument`, `req_kept_sessions`,
+`rule_most_recent_session_kept`, `rule_pinned_session_kept`, `rule_favorite_pins_session`,
+`req_kept_session_list`, `req_kept_session_review`, `rule_outdated_tab_stops_saving`,
+`rule_transposition_check_sets_my_instrument`, `module_notation_layout_preflight`; (v2, STABLE)
+`req_last_session_review` (after **Review reachability**), `rule_controller_transposition_check`
+(Part B2 follows the merge). Each is revised by `documentalist` before code.
+
+**Depends on:** chunks 14, 20 and 21; the **Sessions design** gate; **Review reachability**
+before it merges.
+
+**Done when:**
+
+- Seeded with three sessions of my instrument (one pinned with a favorite, one with played notes,
+  the most recent) and two of the tenor profile: deleting my instrument says three sessions go;
+  once confirmed, exactly those three are gone (summaries, bodies, played notes), the tenor ones
+  untouched, and the same after a reload.
+- The same seed: a range change warns with three; `Cancel` changes nothing and keeps the edit in
+  the sheet; confirming saves it and erases the three. The same for a transposition change, and
+  for **Use for my instrument** from the check.
+- A name change and a clef change save with no warning and keep every session; a kept bass-clef
+  session still reviews in bass clef after the clef is switched to treble.
+- With the review of the session that just ended (played with my instrument) on screen, a
+  confirmed range change from the sheet closes that review as `Delete session` does, and
+  `Review last session` is gone.
+- With no kept session of my instrument, a range change saves with no warning.
+- An outdated tab (stubbed newer version) with sessions of my instrument offers neither action
+  and deletes nothing.
+- An injected deletion failure keeps the confirmation with its error line; nothing is deleted.
+- A kept session played in treble clef with written C2–C4 (19 staff spaces), reviewed after my
+  instrument is switched to bass clef (shared height 16): every phrase is drawn whole (notation
+  harness).
+
+**Items covered:** 6 (sessions belong to their instrument), 14 (the outdated tab), 16 (the erase
+warning, the cosmetic changes, the review's room), 17 (the check's warning).
+
+**Verification:** the chunk checks; then Part B2 with the owner.
 
 ### Chunk 22 — Remembered controller
 
@@ -1645,7 +2241,11 @@ Nothing is saved. Measurement M4.
 **Files:** `src/composables/generation-session-pregeneration.ts` (new),
 `src/composables/generation-session-prewarm.ts`, `src/components/workspace/prewarm-policy.ts`,
 `src/session/session-start-conditions.ts`, `src/components/workspace/workspace-session-phrases.ts`;
-tests under `tests/unit/composables/`, `tests/e2e/workspace/pregeneration.spec.ts`, the sweep's
+on the Idle side `src/composables/use-generation-session.ts` (it publishes phrase 1 with its
+session seed and receives the edits that discard); on the Start side
+`src/components/workspace/workspace-session-begin.ts` and the session engine or runner that takes
+the ready phrases (`src/session/session-engine.ts`, `session-runner.ts`, as the capture settles);
+`src/generation-worker/generation-worker-client.ts`, where the abort signal is passed; tests under `tests/unit/composables/`, `tests/e2e/workspace/pregeneration.spec.ts`, the sweep's
 Idle phase.
 
 **Spec sections:** [§8](master-spec.md#8-pre-generating-phrases-at-idle).
@@ -1658,8 +2258,11 @@ prepared at idle, no interface), [`screens/phrase-workspace/handoff.md`](../../.
 **Atoms:** `req_idle_pregeneration`, `rule_pregeneration_yields_to_player`,
 `rule_pregeneration_discarded_on_change`, `rule_start_never_waits_for_pregeneration`,
 `rule_pregenerated_phrase_matches_session`; (v2) `rule_dropped_attempt_cancelled`,
-`module_generation_worker_cancellation`, `rule_look_ahead_deadline`. **Part D:**
-`rule_session_start_conditions`, `service_idle_generation_session`.
+`module_generation_worker_cancellation` (revised for spec D290, a MINOR contract bump),
+`rule_look_ahead_deadline`. **Part D:** `rule_session_start_conditions`,
+`service_idle_generation_session`, and `rule_look_ahead_deadline` ("phrase 2 is generated during
+the one-measure count-in" no longer holds when phrase 2 was pre-generated; revised at the sync,
+with the owner's agreement then).
 
 **Depends on:** chunk 23.
 
@@ -1679,6 +2282,108 @@ prepared at idle, no interface), [`screens/phrase-workspace/handoff.md`](../../.
 **Items covered:** 20.
 
 **Verification:** the chunk checks; M4 on the reference machine; hand check H6.
+
+### Chunk 24b — Stale phrase at Start
+
+**Goal.** When Start is pressed, or the starting note played, and the phrase on screen is stale,
+say so and ask Regenerate or Use it; make Use it start the session with phrase 2 joined as after
+a settings change during a session, so ISS-011's `CarryInError` can no longer occur (spec D297;
+master spec §16).
+
+**Scope.**
+
+- **Phrase 1's settings.** The Idle result records the settings its fit run was built from: the
+  chosen controls and the musical-profile selection. Take the chosen controls, not the intent's:
+  the intent holds the note density the window's width gave, which is not a setting.
+- **Stale, one pure check.** It compares phrase 1's settings with the current controls and
+  profile selection, by value, over what the generation reads (master spec §16's list): the tempo
+  and the profile's customized mark left out; the instrument's id and, for my instrument, its
+  range and transposition in. The session options, the mix, the theme, my instrument's clef and
+  name, and the window never reach it.
+- **The engine (24b-1, no interface).** A session start carries phrase 1's settings, with the
+  session's tempo, beside the session's settings. `createSessionEngine` takes them as the
+  settings phrase 1 was decided under (`lastDecidedSettings`), so `lookAheadBasis` adapts phrase
+  2's carry-in through `adaptCarryIn`, as after a change at a phrase boundary. When the two are
+  equal, nothing changes: the same requests and seeds as today. The pre-generation plan's initial
+  course (`initialCourse`) takes the same input, so its phrases stay the session's.
+  `workspace-pregeneration.ts`'s quiet stop on `CarryInError` goes; a `CarryInError` is a
+  programming error again.
+- **The prompt (24b-2).** At Start, once `startBlocker()` finds nothing, a stale phrase 1 opens
+  the prompt in the words and form of the **Stale phrase design** gate. Nothing is unlocked,
+  locked or started. **Use it** runs the same start, phrase 1's settings passed through. It is
+  the click that unlocks the sound and asks for the screen locks, and it checks the start
+  conditions again. **Regenerate** runs the Idle Regenerate and stays at Idle (O182, settled):
+  nothing starts. Dismissing changes nothing. While the prompt shows, no MIDI note
+  starts anything, as during the connection step, and pre-generation goes on.
+- **The starting note** opens the same prompt when phrase 1 is stale.
+- **Shown settings:** phrase 1's settings during the count-in and phrase 1, then the session's from
+  phrase 2.
+- **Split:** 24b-1 (the result's settings, the stale check, the engine, the pre-generation plan)
+  runs first; 24b-2 (the prompt, Start, the starting note, the shown settings) needs O182 and the
+  design gate. Each stays within about five source files.
+
+**Files:** 24b-1: `src/composables/workspace-session-result.ts`, a new `src/session/stale-phrase-one.ts`,
+`src/session/session-types.ts` (`SessionStart`), `src/session/session-engine.ts`,
+`src/session/session-pregeneration.ts`, `src/components/workspace/workspace-pregeneration.ts`;
+24b-2: `src/components/workspace/workspace-session-start.ts`,
+`src/components/workspace/workspace-session-midi.ts`,
+`src/components/workspace/workspace-session-settings.ts`, `src/components/workspace/WorkspaceShell.vue`
+and a new prompt component beside it; tests under `tests/unit/session/`,
+`tests/unit/components/workspace/` and `tests/e2e/workspace/stale-phrase-start.spec.ts`.
+
+**Spec sections:** [§16](master-spec.md#16-a-stale-phrase-1-at-start), [§8](master-spec.md#8-pre-generating-phrases-at-idle),
+[§10](master-spec.md#10-what-v30-changes-in-v2s-guarantees).
+
+**Design docs:** [`flows/play-session/handoff.md`](../../../ui_ux/versions/v3.0/flows/play-session/handoff.md)
+and [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md),
+as the **Stale phrase design** gate revises them, or wherever it places the prompt.
+
+**Atoms:** `rule_phrase_one_is_idle_phrase`, `rule_session_start_conditions`,
+`module_session_shown_settings`, `service_session_engine`, `service_workspace_session_flow`,
+`service_idle_generation_session`, `module_session_pregeneration_plan`,
+`module_idle_pregeneration_queue`, `rule_pregenerated_phrase_matches_session`, and a new rule for
+the prompt, each revised or written by `documentalist` before code; (STABLE, contract surface)
+`rule_midi_starting_note` after **Starting-note wording**. Keep true:
+`rule_setting_change_rechecks_pitch_carry_in`, `rule_key_change_drops_harmonic_carry_in`,
+`rule_harmony_change_drops_unfit_harmonic_carry_in`, `rule_join_carry_in_limited`,
+`rule_count_in_shown_on_screen`, `rule_tempo_never_affects_generation` (STABLE);
+`rule_register_change_replaces_carried_window` (REVIEW).
+
+**Depends on:** chunk 24; the **Stale phrase design** gate (24b-2 only). O182 and
+**Starting-note wording** are settled (2026-10-13); the atom revision is `documentalist`'s,
+before code.
+
+**Done when:**
+
+- ISS-011's engine reproduction (phrase 1 generated in C major, the session started with Written
+  key F♯ at 60 BPM) starts, and phrase 2's request carries no harmonic part.
+- Engine tests, phrase 1 generated under the defaults and the session started under one changed
+  setting, at every tempo from 60 to 240 BPM in steps of 10: every other Written key; every other
+  Collection, Ionian to Major included; every other Harmonic motion; Register Middle to Low, to
+  High and to Varying. Each starts with no `CarryInError`, and phrase 2's request carries what
+  the carry-in rules leave: no harmonic part after a key or collection change or a chord that no
+  longer fits, the new register's window, standalone after Varying or a failed pitch re-check.
+- With phrase 1 generated under the start settings, the engine's requests and seeds are as
+  before: the existing engine tests and the `ifk1.` corpus pass unchanged.
+- The stale check: each setting master spec §16 counts makes phrase 1 stale; the tempo, Rising
+  tempo, Vary settings, Tension across phrases, the mix, the theme, my instrument's clef and
+  name, a window crossing (a chosen Sixteenth below the tablet-landscape width included), and a
+  setting changed and changed back do not.
+- Pre-generation (fake clock, instant generator): with a stale phrase 1, the pre-generated
+  phrases equal those the Use it session generates, and nothing stops quietly.
+- e2e: the Written key changed at Idle, then Start: the prompt shows and nothing sounds. Use it:
+  the count-in, phrase 1 as it was, phrase 2 in the new key, the controls showing phrase 1's key
+  until phrase 2. Regenerate: a new phrase at Idle, nothing starts, and the next Start shows no
+  prompt. Dismissing: still Idle. With no change, or only a
+  tempo change, Start starts at once and the v2 Start tests pass unchanged.
+- Fake MIDI: with a stale phrase 1, the starting note opens the prompt and starts nothing; no note
+  played while it shows starts anything.
+- The review of a Use it session shows phrase 1 in its own key and phrase 2 in the new one;
+  phrase 1's replay key is the one it had at Idle.
+
+**Items covered:** 24; 20 (pre-generation with a stale phrase 1); 23 (the sixth contract change).
+
+**Verification:** the chunk checks; hand check H9.
 
 ### Chunk 25 — Stray-note filter
 
@@ -1734,8 +2439,8 @@ check, close the intent record, and get the owner's go for the `3.0.0` tag.
   every replaced v2 test and its v3.0 counterpart (item 22), then M1–M5 with their figures.
 - The privacy spy (network half) re-run with a database full of every kind of record (item 5).
 - `npm run verify:boundaries` with the 224 kB entry budget unchanged (M5).
-- Hand checks H3–H8 done or, for H8, written down as a v3.0.x note.
-- Part B1 and B2 confirmed; **Part C** put to the owner and applied by `documentalist`;
+- Hand checks H3–H9 done or, for H8, written down as a v3.0.x note.
+- Part B1 and B2 confirmed, **Review reachability** and **Starting-note wording** applied; **Part C** put to the owner and applied by `documentalist`;
   `documentalist`'s post-task sync over every `release-v3.0` atom, promoting those the owner
   agrees to.
 - `package.json` version `3.0.0`; the tag only when the owner asks.
@@ -1744,7 +2449,8 @@ check, close the intent record, and get the owner's go for the `3.0.0` tag.
 `vision_infinite_flow_first_release`, `specification_behavioral_quality_gates`,
 `specification_ephemeral_state_verification`; the four chord-fit atoms (retired).
 
-**Depends on:** every other chunk, Gate A, Parts B1 and B2.
+**Depends on:** every other chunk, Gate A, Review reachability, Starting-note wording, Parts B1
+and B2.
 
 **Done when:** every item of §13 has a row with evidence; every measurement has its figure; the
 owner says go.
@@ -1767,7 +2473,7 @@ verification. The gate copies this into the release notes with the final test na
 | 3 Tolerant loading | 6, 7 | property test over corruptions; e2e with a seeded invalid value |
 | 4 Storage in one place | 3, 9 | boundary unit tests and fixtures; `session-history-export` storage trap unchanged |
 | 5 Nothing sent | 11, 26 | privacy spy, network half, with storage in use |
-| 6 Most recent survives; save deletes unpinned, keeps pinned | 10, 12, 14 | e2e reload and second-session tests |
+| 6 Most recent survives; save deletes unpinned, keeps pinned; sessions belong to their instrument | 10, 12, 14, 20c | e2e reload and second-session tests; e2e deleting my instrument with seeded sessions |
 | 7 No save during a session | 5, 7, 10 | save-policy unit test; IndexedDB write spy across a session |
 | 8 Kept session holds only §5.2 | 9 | record allowlist test; byte-identical exports after decoding |
 | 9 Played notes only after opt-in | 11, 15 | privacy spy, storage half; deletion tests |
@@ -1775,16 +2481,17 @@ verification. The gate copies this into the release notes with the final test na
 | 11 Session list; comment | 14, 12, 13 | e2e list; text scan for figures; comment limit; comment absent from files |
 | 12 Delete everything | 15, 22 | e2e: empty database after the reload, controller forgotten |
 | 13 Persistent storage | 5, 12, 15, 20 | persist spy; Protection line with stubbed `persisted()`; H7 for information |
-| 14 Outdated tab | 4, 8 | two-connection unit tests; e2e with newer seeded data |
+| 14 Outdated tab | 4, 8, 20c | two-connection unit tests; e2e with newer seeded data, my instrument's deletions withheld |
 | 15 Failed save | 5, 8, 10 | injected quota and other failures; session timing on the fake clock |
-| 16 My instrument | 16, 17, 19, 20 | refusal tests; worker range test; notation harness; reload e2e; M3 recorded |
-| 17 The check feeds my instrument | 21 | fake-MIDI e2e; H3 |
+| 16 My instrument | 16, 17, 19, 19b, 20, 20c | refusal tests, the bound per clef included; worker range test; notation harness, both clefs; MusicXML clef test; reload e2e; the erase warning and the cosmetic changes e2e; pre-generated phrases re-checked on a clef change; a review in another clef drawn whole; M3 recorded, both clefs |
+| 17 The check feeds my instrument | 21, 20c | fake-MIDI e2e, with and without kept sessions of my instrument; H3 |
 | 18 Controller remembered | 22 | fake-MIDI e2e with permission states; H4 |
 | 19 Replay keys | 2, 18 | `ifk1.` corpus; `ifk2.` round trip |
 | 20 Pre-generation | 23, 24 | identity on the fake clock; cancellation, Start, discard tests; M4 recorded; H6 |
 | 21 Stray notes | 25 (M1 from H1) | filter tests on real recordings; H5 |
 | 22 v2 behaviour otherwise unchanged | every wave gate | `npm run quality`; the replaced-tests table of [§2](#2-read-first-what-v30-undoes-in-v2) |
-| 23 Contract | Gate A, 26 | the confirmation recorded in the CONTRACT atom's notes |
+| 23 Contract | Gate A, Review reachability, Starting-note wording, 26 | the confirmation recorded in the CONTRACT atom's notes |
+| 24 Stale phrase at Start | 24b | engine tests per Written key, Collection, Harmonic motion and Register change, 60–240 BPM; stale-check unit tests; pre-generation identity with a stale phrase 1; e2e prompt; fake-MIDI starting note; H9 |
 
 ## 8. Open points for spec-writer
 
@@ -1797,7 +2504,10 @@ All seven points found while planning were settled in master spec v1.3 (2026-10-
    semitones and letter-name steps; the tritone is spelled as an augmented fourth (§7.1). Chunk
    16's interval names follow it. **Changed by master spec v1.5 (2026-10-09, spec D253):** the
    transposition is entered as octaves and a signed semitone count, and the name is derived from
-   it by the same table and shown; the spelling rule is unchanged.
+   it by the same table and shown; the spelling rule is unchanged. **Changed by master spec v1.8
+   (2026-10-12, spec D291):** the interval name no longer spells anything; the written part is
+   spelled in the written key the player chose, with the fewer sharps or flats, sharps on a tie,
+   as the code already does.
 3. Vary settings and Tension across phrases discard pre-generated phrases; the tempo and Rising
    tempo do not (§8, item 20).
 4. Persistent storage is asked for once per visit, on the first keep, unless already granted
@@ -1823,3 +2533,37 @@ failed or was slow) offers a deletion in the session list or a review, the revie
 held in memory included. Turning `Keep my played notes` off there asks nothing, and no change
 there retries a save. Item 14 now also covers the failed-read visit. Chunk 12 (review) and
 chunk 14 (session list) test these with an injected failed read and with a stubbed newer version.
+
+Master spec v1.9 (2026-10-12, spec D293) adds my instrument's clef, treble or bass, display only:
+chunk 19b builds it in the notation, chunks 17, 18, 20 and 21 carry, leave out, choose and keep it.
+Three points stay with the owner or `ux-writer`, none blocking chunk 19b: the range bound per clef
+(the range ruling, [master spec §14](master-spec.md#14-deferred-and-open)), [spec O181](../../open-questions.md#v30-wave-2-o180) (phrases made
+before a save that changes the shared height, before chunk 20), and the clef control's design
+(the **Clef design** gate). Octave signs are [spec O180](../../open-questions.md#v30-wave-2-o180),
+for a later version.
+
+Master spec v1.10 (2026-10-12, spec D294–D296) settles two of those three points. The range bound
+is written C2–C7 in treble clef and E0–E5 in bass clef (chunk 19b confirms the bass figure, chunk
+20 enforces it). Spec O181 is closed: kept sessions belong to the instrument they were played
+with; deleting my instrument deletes them, and a range or transposition change erases them after
+a warning (the new chunk 20c); a name or clef change keeps them; a save that changes the shared
+height re-checks the pre-generated phrases (chunk 20); a review never cuts a phrase (chunk 20c).
+The **Clef design** gate stays, and a **Sessions design** gate joins it before chunk 20c. One
+point waits for the owner: the wording of `req_last_session_review`'s reachability (the
+**Review reachability** step), needed before chunk 12 merges, since chunk 12's `Delete session`
+already ends the review sooner than "until the next session starts".
+
+Master spec v1.11 (2026-10-13, spec D297) adds §16, a stale phrase at Start (ISS-011, reproduced
+on v2.0.0): when the phrase on screen was made under settings that differ, in what the generation
+reads, from the current ones, Start and the starting note ask Regenerate or Use it. Use it joins
+phrase 2 to phrase 1 through the existing carry-in rules for a change during a session, so
+nothing new is needed there; pre-generation builds the phrases Use it plays. New chunk 24b in wave
+9 builds it. Three points wait: [spec O182](../../open-questions.md#v30-wave-2-o180) (what
+Regenerate does; proposed: stay at Idle), the **Starting-note wording** (a STABLE contract
+wording, for the owner), and the **Stale phrase design** gate (`ux-writer`). The **Review
+reachability** step above is done: the owner confirmed it as MAJOR on 2026-10-12 (CONTRACT 4.0).
+
+Later on 2026-10-13 the owner settled both points left to him (spec D297's ruling note, master
+spec v1.12): Regenerate runs the Idle Regenerate and stays at Idle, the player pressing Start
+again ([spec O182](../../open-questions.md#v30-wave-2-o180) closed); the starting-note wording is
+accepted, MAJOR (CONTRACT 5.0). Only the **Stale phrase design** gate remains before chunk 24b-2.

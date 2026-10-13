@@ -30,7 +30,7 @@ function note(
     tieFromPrevious: false,
     tieToNext: false,
     sourceEventIndex: 0,
-    stemDirection: noteStemDirection({ letter, alter, octave }),
+    stemDirection: noteStemDirection({ letter, alter, octave }, 'treble'),
     ...overrides,
   })
 }
@@ -103,7 +103,9 @@ const F_AEOLIAN_1_FLAT_KEY: WrittenKey = deepFreeze({
 })
 
 /** Intent: build a frozen four-measure written phrase; every measure defaults to four rests. */
-function phrase(overrides: Partial<Pick<WrittenPhrase, 'key' | 'measures'>> = {}): WrittenPhrase {
+function phrase(
+  overrides: Partial<Pick<WrittenPhrase, 'key' | 'measures' | 'clef'>> = {},
+): WrittenPhrase {
   const defaultMeasures = [
     measure(0, [rest(0), rest(4), rest(8), rest(12)], [chord(0, { letter: 'C', alter: 0 }, '')]),
     measure(1, [rest(0), rest(4), rest(8), rest(12)], [chord(0, { letter: 'C', alter: 0 }, '')]),
@@ -142,11 +144,19 @@ describe('describeWrittenPhrase summary wording', () => {
     )
   })
 
-  it('always states treble clef and 4/4 time and four measures', () => {
+  it('states treble clef for a treble-clef phrase, 4/4 time and four measures', () => {
     const result = describeWrittenPhrase(phrase())
     expect(result.summary).toContain('treble clef')
     expect(result.summary).toContain('4/4 time')
     expect(result.summary).toContain('four measures')
+  })
+
+  // @test-link [[module_notation_display_convention]]
+  it('names bass clef for a bass-clef phrase', () => {
+    const result = describeWrittenPhrase(phrase({ key: D_IONIAN_KEY, clef: 'bass' }))
+    expect(result.summary).toBe(
+      'Written notation, bass clef, key signature 2 sharps (D Ionian), 4/4 time, four measures.',
+    )
   })
 })
 

@@ -1,8 +1,8 @@
 # Music Lexicon
 
-Status: v1.4 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08; v3.3 chord research terms added 2026-10-12)
+Status: v1.5 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08; v3.3 chord research terms added 2026-10-12; bass clef and octave sign added, clef entries revised for my instrument's clef, 2026-10-12; starting note and count-in say an out-of-date phrase asks first, 2026-10-13)
 
-Date: 2026-10-12
+Date: 2026-10-13
 
 ## How to use
 
@@ -167,14 +167,24 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `measure`, `staff`, `time-signature`
 - **sources:** S14, S15
 
+### Bass clef
+
+- **id:** `bass-clef`
+- **aliases:** F clef
+- **popup:** The clef used for low instruments. Its two dots sit on either side of the line where the F below middle C sits.
+- **definition:** The bass clef, or F clef, starts on the fourth line from the bottom of the staff and marks it as F3, the F just below middle C; its two dots sit on either side of that line. From there the lines read G, B, D, F, A from bottom to top, and the spaces A, C, E, G. Middle C sits on one ledger line above the bass staff. Bass guitar, double bass, cello, bassoon, trombone, tuba and the left hand of piano music are usually written in bass clef.
+- **in_infinite_flow:** My instrument can be written in bass clef instead of treble clef (spec decision D293); the built-in instruments always use treble clef. The clef changes only where notes are drawn: the written notes, the transposition and the phrases generated stay the same, and an exported MusicXML file names the bass clef.
+- **related:** `clef`, `treble-clef`, `staff`, `ledger-line`, `middle-c`
+- **sources:** S14, S15, specs/decisions.md
+
 ### Clef
 
 - **id:** `clef`
 - **aliases:** none
 - **popup:** The symbol at the start of the staff that tells you which note each line and space stands for.
 - **definition:** A clef is the large symbol at the left end of every staff. Without it, the five lines are just lines; the clef ties one of them to a named pitch, and all the other lines and spaces follow in order. The treble (G) clef suits high instruments, the bass (F) clef low ones, and C clefs some middle-range instruments. The same written spot means a different note under a different clef.
-- **in_infinite_flow:** The app always writes in treble clef, for all three instruments.
-- **related:** `treble-clef`, `staff`, `ledger-line`
+- **in_infinite_flow:** The three built-in instruments are written in treble clef. My instrument can be written in treble clef or bass clef, as the player chooses (spec decision D293). The clef changes only where the notes are drawn, never which notes they are.
+- **related:** `treble-clef`, `bass-clef`, `staff`, `ledger-line`, `octave-sign`
 - **sources:** S14
 
 ### Doit
@@ -272,8 +282,8 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** leger line
 - **popup:** A short extra line drawn above or below the staff for a note too high or too low to fit on the five lines.
 - **definition:** Ledger lines are short line segments added above or below the staff, just wide enough for one note, to extend it for higher or lower notes. Read them as if the staff's lines kept going: line, space, line. Middle C, for example, sits on one ledger line below the treble staff. Many ledger lines are hard to read, which is one reason different clefs exist.
-- **in_infinite_flow:** Low keyboard notes can need up to four ledger lines below the treble staff, because the keyboard range starts at C3 and the app writes everything in treble clef. Saxophone parts, written from C4 to C6, need at most two.
-- **related:** `staff`, `clef`, `treble-clef`, `middle-c`
+- **in_infinite_flow:** Low keyboard notes can need up to four ledger lines below the treble staff, because the keyboard range starts at C3 and the built-in instruments are written in treble clef. Saxophone parts, written from C4 to C6, need at most two. A low my instrument can be written in bass clef instead, where its low notes need far fewer ledger lines. The more ledger lines a range needs, the taller the staff area becomes for every instrument.
+- **related:** `staff`, `clef`, `treble-clef`, `bass-clef`, `middle-c`, `octave-sign`
 - **sources:** S14
 
 ### Measure
@@ -334,6 +344,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The app uses middle C = C4 = MIDI 60. Ranges read C3-C5 for the keyboard (concert) and C4-C6 written for both saxophones.
 - **related:** `middle-c`, `octave`, `midi-note-number`, `note-name`
 - **sources:** S14, S13
+
+### Octave sign
+
+- **id:** `octave-sign`
+- **aliases:** ottava, 8va, 8vb, 15ma
+- **popup:** A dashed line marked 8va or 8vb over or under some notes: play them an octave higher or lower than written.
+- **definition:** An octave sign saves ledger lines. Notes under a dashed line marked 8va (from the Italian ottava) are played one octave higher than written; marked 8vb, one octave lower; marked 15ma, two octaves higher. Where the line ends, normal reading resumes. A related sign is the octave clef: a clef with a small 8 above or below it, which moves the whole staff by an octave, as in tenor voice parts written in treble clef with an 8 below.
+- **in_infinite_flow:** Not used: the app writes every note at its own written pitch. Octave signs and octave clefs may come in a later version, if a player's range needs them (spec question O180).
+- **related:** `octave`, `octave-number`, `ledger-line`, `clef`, `bass-clef`
+- **sources:** S14, S15, specs/open-questions.md
 
 ### Ornament
 
@@ -400,8 +420,8 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** stave
 - **popup:** The five horizontal lines music is written on. The higher a note sits on them, the higher it sounds.
 - **definition:** A staff is a set of five evenly spaced horizontal lines. Notes go on the lines or in the four spaces between them, and higher placement means higher pitch. A clef at the left fixes which pitch each line stands for, and ledger lines extend the staff above or below. Piano music usually uses two staves joined together; a saxophone part uses one.
-- **in_infinite_flow:** The app shows the phrase on a single treble-clef staff, with chord symbols marking the harmony.
-- **related:** `clef`, `treble-clef`, `ledger-line`, `measure`, `chord-symbol`
+- **in_infinite_flow:** The app shows the phrase on a single staff, with chord symbols marking the harmony. The staff is in treble clef, or in bass clef for a my instrument set to it.
+- **related:** `clef`, `treble-clef`, `bass-clef`, `ledger-line`, `measure`, `chord-symbol`
 - **sources:** S14
 
 ### Treble clef
@@ -410,8 +430,8 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** G clef
 - **popup:** The curly clef used for higher instruments. Its curl wraps around the line where the G above middle C sits.
 - **definition:** The treble clef, or G clef, curls around the second line from the bottom of the staff and marks it as G4, the G just above middle C. From there the lines read E, G, B, D, F from bottom to top, and the spaces F, A, C, E. Flute, violin, saxophone and the right hand of piano music are usually written in treble clef.
-- **in_infinite_flow:** Every instrument profile in the app, the C MIDI keyboard included, is written in treble clef.
-- **related:** `clef`, `staff`, `ledger-line`, `middle-c`
+- **in_infinite_flow:** Every built-in instrument profile, the C MIDI keyboard included, is written in treble clef, and so is my instrument unless the player chooses bass clef (spec decision D293).
+- **related:** `clef`, `bass-clef`, `staff`, `ledger-line`, `middle-c`
 - **sources:** S14
 
 ### Trill
@@ -472,9 +492,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** count-off, counting in, lead-in
 - **popup:** A measure of clicks or counted beats before the music starts, so you know the speed and where beat 1 falls.
 - **definition:** A count-in is a short stretch of counted beats before the music begins, usually one or two measures: "one, two, three, four". It sets the tempo and shows where beat 1 falls, so everyone starts together and in time. A band leader counts off a tune out loud; recording software plays a measure of metronome clicks before it starts recording.
-- **in_infinite_flow:** Every session starts with one measure of count-in, heard as clicks (even with the click switched off) and counted on screen, while phrase 1 is already shown so you can read ahead. A Start click or the starting note begins it. In a Jam, planned for v3.2 (not built), the doodle is played only after the count-in, and the click goes on through the doodle and the two measures before phrase 1 (spec decision D234).
+- **in_infinite_flow:** Every session starts with one measure of count-in, heard as clicks (even with the click switched off) and counted on screen, while phrase 1 is already shown so you can read ahead. A Start click or the starting note begins it. From v3.0 (planned, not built yet; spec decision D297), if you changed a setting after the phrase on screen was made, so the phrase is out of date, Start and the starting note first ask whether to make a new phrase or start with this one, and the count-in begins only if you start with this one. In a Jam, planned for v3.2 (not built), the doodle is played only after the count-in, and the click goes on through the doodle and the two measures before phrase 1 (spec decision D234).
 - **related:** `tempo`, `beat`, `measure`, `cue`, `starting-note`, `jam`
-- **sources:** specs/versions/v2/master-spec.md, specs/versions/v3/jam.md
+- **sources:** specs/versions/v2/master-spec.md, specs/versions/v3/master-spec.md, specs/versions/v3/jam.md
 
 ### Diminution
 
@@ -1980,9 +2000,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** start note
 - **popup:** The one note you can play on your controller to start a session, instead of clicking Start.
 - **definition:** The starting note is the app's name for a played way to start: with a MIDI controller attached, playing this one note at Idle starts the session's count-in, so your hands can stay on the instrument. It must be that exact note, octave included; any other note played at Idle is ignored. It is an app term, not a music-theory one.
-- **in_infinite_flow:** Today it is the first note of phrase 1, the phrase on screen, and the cue row names it whenever playing it would start a session. It only starts the count-in: after it, you play phrase 1 from its first note on beat 1. In Jam mode, planned for v3.2 (not built; spec decision D234), it is instead the selected key's home note, in written pitch, in the octave nearest the middle of your instrument's written range, and it belongs to no doodle; with a held doodle it is phrase 1's first note again. It is the one played signal the app has.
+- **in_infinite_flow:** Today it is the first note of phrase 1, the phrase on screen, and the cue row names it whenever playing it would start a session. It only starts the count-in: after it, you play phrase 1 from its first note on beat 1. From v3.0 (planned, not built yet; spec decision D297), there is one exception: if you changed a setting after the phrase on screen was made, so the phrase is out of date, playing the starting note does not start the count-in straight away. It first opens a short question, as the Start button does: make a new phrase, or start with this one. The count-in starts only if you start with this one, and while the question shows, no note you play starts anything. In Jam mode, planned for v3.2 (not built; spec decision D234), it is instead the selected key's home note, in written pitch, in the octave nearest the middle of your instrument's written range, and it belongs to no doodle; with a held doodle it is phrase 1's first note again. It is the one played signal the app has.
 - **related:** `count-in`, `cue`, `played-signal`, `jam`, `tonic`
-- **sources:** specs/versions/v2/master-spec.md, specs/versions/v3/jam.md
+- **sources:** specs/versions/v2/master-spec.md, specs/versions/v3/master-spec.md, specs/versions/v3/jam.md
 
 ### Syncopation
 

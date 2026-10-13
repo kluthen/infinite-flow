@@ -17,6 +17,7 @@ import { Formatter, Stave, StaveNote, Voice, type Beam } from 'vexflow/bravura'
 
 import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
 import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
+import { BUILT_IN_INSTRUMENT_CLEF, type InstrumentClef } from '../domain/profile/instrument-clef'
 import { systemMeasureAnchors, type MeasureAnchors } from './engraving-anchors'
 import { NotationError } from './notation-error'
 import { resolveGlyphIdentities } from './note-identity'
@@ -150,7 +151,7 @@ export async function ensureNotationFonts(): Promise<void> {
 /** Intent: build the four measures' StaveNote glyphs, with accidentals, dots and chord symbols attached. */
 function buildMeasureGlyphs(phrase: WrittenPhrase): readonly (readonly StaveNote[])[] {
   return phrase.measures.map((measure) => {
-    const glyphs = measure.events.map(buildStaveNote)
+    const glyphs = measure.events.map((event) => buildStaveNote(event, phrase.clef))
     attachMeasureChordSymbols(measure, glyphs)
     return glyphs
   })
@@ -188,11 +189,11 @@ function measureMinWidths(voices: readonly Voice[]): readonly [number, number, n
 
 /**
  * Intent: measure the first stave's leading width (clef + key signature + time signature) for a
- * key signature, on a scratch stave built with the drawn staff's own helper.
+ * clef and a key signature, on a scratch stave built with the drawn staff's own helper.
  */
-function measureLeadingWidth(signature: StaffKeySignature): number {
+function measureLeadingWidth(clef: InstrumentClef, signature: StaffKeySignature): number {
   const scratch = new Stave(0, 0, LEADING_SCRATCH_WIDTH_UNITS)
-  addClefAndKey(scratch, signature)
+  addClefAndKey(scratch, clef, signature)
   scratch.addTimeSignature('4/4')
   return scratch.getNoteStartX()
 }
@@ -266,13 +267,15 @@ interface PhrasePlanning {
 
 /**
  * Intent: plan the phrase's layout: build its glyphs, beams and voices, measure its leading and
- * measure widths, and run the layout planner. The one planning path both drawing and the fit
- * check take, so they can never disagree; it draws nothing and touches no DOM.
+ * measure widths, and run the layout planner with the shared system-position size. The one
+ * planning path both drawing and the fit check take, so they can never disagree; it draws
+ * nothing and touches no DOM.
  */
 function planPhraseLayout(
   phrase: WrittenPhrase,
   containerWidthPx: number,
   viewport: StaffViewport,
+  systemPositionUnits: number,
 ): PhrasePlanning {
   const glyphs = buildMeasureGlyphs(phrase)
   // Beams must attach to their notes (note.setBeam) before those notes are measured, formatted or
@@ -281,13 +284,14 @@ function planPhraseLayout(
   // would just redo the same setBeam calls.
   const beams = buildPhraseBeams(phrase, glyphs)
   const voices = buildMeasureVoices(glyphs)
-  const leadingWidth = measureLeadingWidth(phrase.key.signature)
+  const leadingWidth = measureLeadingWidth(phrase.clef, phrase.key.signature)
   const outcome = planSystemLayout({
     containerWidthPx,
     leadingWidth,
     measureMinWidths: measureMinWidths(voices),
     systemPadding: SYSTEM_PADDING_UNITS,
     viewport,
+    systemPositionUnits,
   })
   return { glyphs, beams, voices, leadingWidth, outcome }
 }
@@ -336,12 +340,13 @@ type DrawnSystem = Pick<EngravedSystem, 'svg' | 'measureBoxes' | 'measureAnchors
 
 /**
  * Draw the chosen systems of the written phrase, each into its own host, from the whole phrase's
- * one plan, so every system shares its scale, its width and its measure columns whichever of them
- * are drawn: the split layout's closing system aligns to the opening system's staves (built, with
- * its time signature, whether drawn or not). Each system gets its staves, notes, chord symbols,
- * beams and its own ties, is bounds-checked, and has its note parts tagged with their attacks'
- * identities and its measures' playhead bands recorded. The callers' single wrapping try/catch
- * turns every unexpected throw (VexFlow's own `RuntimeError` included) into a typed error.
+ * one plan, so every system shares its scale, its width, its system-position size and its measure
+ * columns whichever of them are drawn: the split layout's closing system aligns to the opening
+ * system's staves (built, with its time signature, whether drawn or not). Each system gets its
+ * staves, notes, chord symbols, beams and its own ties, is bounds-checked, and has its note parts
+ * tagged with their attacks' identities and its measures' playhead bands recorded. The callers'
+ * single wrapping try/catch turns every unexpected throw (VexFlow's own `RuntimeError` included)
+ * into a typed error.
  */
 // @spec-link [[module_notation_note_identity_overlays]]
 function drawPhraseSystems(
@@ -350,11 +355,13 @@ function drawPhraseSystems(
   identities: GlyphIdentities,
   containerWidthPx: number,
   viewport: StaffViewport,
+  systemPositionUnits: number,
 ): { readonly plan: SystemLayoutPlan; readonly systems: readonly DrawnSystem[] } {
   const { glyphs, beams, voices, leadingWidth, outcome } = planPhraseLayout(
     phrase,
     containerWidthPx,
     viewport,
+    systemPositionUnits,
   )
   if (outcome.kind !== 'fits') throw layoutFailureError(outcome)
   const plan = outcome.plan
@@ -365,7 +372,10 @@ function drawPhraseSystems(
     leadingWidth,
     measureContentWidthUnits: plan.measureContentWidthUnits,
     systemPaddingUnits: SYSTEM_PADDING_UNITS,
-    staffTopLineUnits: planStaffPlacement(phrase.writtenRange).staffTopLineUnits,
+    staffTopLineUnits: planStaffPlacement(
+      { writtenRange: phrase.writtenRange, clef: phrase.clef },
+      plan.systemPositionUnits,
+    ).staffTopLineUnits,
   }
   const topStaves = buildSystemStaves(phrase, {
     ...staveSpec,
@@ -392,7 +402,7 @@ function drawPhraseSystems(
       beams,
       measures,
       systemIndex,
-      plan.scale,
+      plan,
     )
     const [glyphStart, glyphEnd] = glyphRange(phrase, measures)
     for (const tie of buildSystemTies(flatGlyphs, glyphStart, glyphEnd)) {
@@ -414,7 +424,7 @@ function planGeometry(plan: SystemLayoutPlan): Omit<EngravedSystem, keyof DrawnS
   return {
     staffSpacePx: plan.staffSpacePx,
     widthPx: plan.systemWidthUnits * plan.scale,
-    heightPx: NOTATION_SYSTEM_POSITION_UNITS * plan.scale,
+    heightPx: plan.systemPositionUnits * plan.scale,
     positionBlockPx: plan.positionBlockPx,
     requiredUnits: plan.requiredUnits,
   }
@@ -437,14 +447,16 @@ function drawIntoClearedHosts<T>(hosts: readonly HTMLElement[], draw: () => T): 
 /**
  * Engrave the written phrase, as phrase number `phraseNumber` of its session, into its system
  * hosts, in the layout the viewport selects: clears both hosts, plans the layout against
- * `containerWidthPx` and the viewport, then draws each system's staves, notes, chord symbols,
- * beams and ties into its own host at the phrase's one scale (the bottom host stays empty in the
- * one-system layout), tags every note glyph's own parts with its attack's identity and records
- * each measure's playhead band. An invalid phrase number or a malformed tie is a caller error and
- * throws NoteIdentityError before anything is cleared. Otherwise throws a typed NotationError
- * instead of showing partial notation: `notation_no_room` or `notation_notes_too_wide` for the
- * layout's two failures, and any unexpected non-NotationError throw (a VexFlow `RuntimeError`,
- * for example) wrapped as `notation_engraving_failed` with the original error as `cause`.
+ * `containerWidthPx`, the viewport and the shared system-position size `systemPositionUnits`
+ * (`planSystemPositionUnits`; the built-in size by default), which sizes each SVG and places the
+ * staff in it, then draws each system's staves, notes, chord symbols, beams and ties into its own
+ * host at the phrase's one scale (the bottom host stays empty in the one-system layout), tags every
+ * note glyph's own parts with its attack's identity and records each measure's playhead band. An
+ * invalid phrase number or a malformed tie is a caller error and throws NoteIdentityError before
+ * anything is cleared. Otherwise throws a typed NotationError instead of showing partial notation:
+ * `notation_no_room` or `notation_notes_too_wide` for the layout's two failures, and any unexpected
+ * non-NotationError throw (a VexFlow `RuntimeError`, for example) wrapped as
+ * `notation_engraving_failed` with the original error as `cause`.
  */
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[module_notation_note_identity_overlays]]
@@ -454,6 +466,7 @@ export function engraveWrittenPhrase(
   phraseNumber: number,
   containerWidthPx: number,
   viewport: StaffViewport,
+  systemPositionUnits: number = NOTATION_SYSTEM_POSITION_UNITS,
 ): EngravedScore {
   const identities = resolveGlyphIdentities(phrase, phraseNumber)
   return drawIntoClearedHosts(targets, () => {
@@ -467,6 +480,7 @@ export function engraveWrittenPhrase(
       identities,
       containerWidthPx,
       viewport,
+      systemPositionUnits,
     )
     return {
       svgs: systems.map((system) => system.svg),
@@ -480,15 +494,16 @@ export function engraveWrittenPhrase(
 
 /**
  * Engrave one system part of the written phrase, as phrase number `phraseNumber` of its session,
- * into `host`: plans the whole phrase exactly as `engraveWrittenPhrase` does, so the split
- * layout's two halves drawn separately share one scale, one system width and aligned measure
- * columns, then draws only this part's system (its measures, its own ties, the time signature on
- * the opening half, the final barline on the last), tags its note parts with their attacks'
- * identities and records its measures' playhead bands; `data-system-index` stays the system's
- * index within the phrase. The part must belong to the viewport's layout (`whole` iff one
- * system): a mismatch is a caller error and throws before the host is touched, as an invalid
- * phrase number or a malformed tie does (NoteIdentityError). Otherwise fails exactly as
- * `engraveWrittenPhrase` does, leaving the host empty and throwing a typed NotationError.
+ * into `host`: plans the whole phrase exactly as `engraveWrittenPhrase` does (with the same shared
+ * system-position size, the built-in one by default), so the split layout's two halves drawn
+ * separately share one scale, one system width and aligned measure columns, then draws only this
+ * part's system (its measures, its own ties, the time signature on the opening half, the final
+ * barline on the last), tags its note parts with their attacks' identities and records its
+ * measures' playhead bands; `data-system-index` stays the system's index within the phrase. The
+ * part must belong to the viewport's layout (`whole` iff one system): a mismatch is a caller error
+ * and throws before the host is touched, as an invalid phrase number or a malformed tie does
+ * (NoteIdentityError). Otherwise fails exactly as `engraveWrittenPhrase` does, leaving the host
+ * empty and throwing a typed NotationError.
  */
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[module_session_rolling_display]]
@@ -500,6 +515,7 @@ export function engravePhraseSystem(
   part: SystemPart,
   containerWidthPx: number,
   viewport: StaffViewport,
+  systemPositionUnits: number = NOTATION_SYSTEM_POSITION_UNITS,
 ): EngravedSystem {
   if (SYSTEM_PARTS[part].layout !== viewport.layout) {
     throw new Error(`The ${part} system part is not drawn in the ${viewport.layout} layout.`)
@@ -512,6 +528,7 @@ export function engravePhraseSystem(
       identities,
       containerWidthPx,
       viewport,
+      systemPositionUnits,
     )
     return { ...systems[0]!, ...planGeometry(plan) }
   })
@@ -519,9 +536,10 @@ export function engravePhraseSystem(
 
 /**
  * Check, before drawing anything, whether the written phrase can be drawn at the legibility floor
- * with these layout inputs: the planning `engraveWrittenPhrase` runs, with no drawing and no DOM,
- * so the verdict always matches what drawing it would do. Returns `fits`, `no_room` with its cause
- * (the window, whatever the phrase) or `notes_too_wide` (this phrase). An unusable width throws
+ * with these layout inputs (the shared system-position size the built-in one by default): the
+ * planning `engraveWrittenPhrase` runs, with no drawing and no DOM, so the verdict always matches
+ * what drawing it would do. Returns `fits`, `no_room` with its cause (the window, whatever the
+ * phrase) or `notes_too_wide` (this phrase). An unusable width throws
  * `notation_container_unavailable`, as the planner does; any unexpected non-NotationError throw is
  * wrapped as `notation_engraving_failed`.
  */
@@ -530,10 +548,11 @@ export function planWrittenPhraseFit(
   phrase: WrittenPhrase,
   containerWidthPx: number,
   viewport: StaffViewport,
+  systemPositionUnits: number = NOTATION_SYSTEM_POSITION_UNITS,
 ): StaffFitVerdict {
   let outcome: SystemLayoutOutcome
   try {
-    outcome = planPhraseLayout(phrase, containerWidthPx, viewport).outcome
+    outcome = planPhraseLayout(phrase, containerWidthPx, viewport, systemPositionUnits).outcome
   } catch (error) {
     throw asNotationError(error)
   }
@@ -542,15 +561,21 @@ export function planWrittenPhraseFit(
 }
 
 /**
- * Measure the staff's fixed parts for a key signature, exactly as the drawn staff carries them:
- * the leading clef, key signature and 4/4 time signature, and the system padding, in engraving
- * units at scale 1. A running session judges its held layout's room with them. Any unexpected
- * non-NotationError throw is wrapped as `notation_engraving_failed`.
+ * Measure the staff's fixed parts for a clef and a key signature, exactly as the drawn staff
+ * carries them: the leading clef, key signature and 4/4 time signature, and the system padding,
+ * in engraving units at scale 1. A running session judges its held layout's room with them. Any
+ * unexpected non-NotationError throw is wrapped as `notation_engraving_failed`.
  */
 // @spec-link [[rule_session_ends_when_staff_too_small]]
-export function measureStaffFixedParts(signature: StaffKeySignature): StaffFixedParts {
+export function measureStaffFixedParts(
+  clef: InstrumentClef,
+  signature: StaffKeySignature,
+): StaffFixedParts {
   try {
-    return { leadingWidth: measureLeadingWidth(signature), systemPadding: SYSTEM_PADDING_UNITS }
+    return {
+      leadingWidth: measureLeadingWidth(clef, signature),
+      systemPadding: SYSTEM_PADDING_UNITS,
+    }
   } catch (error) {
     throw asNotationError(error)
   }
@@ -559,8 +584,9 @@ export function measureStaffFixedParts(signature: StaffKeySignature): StaffFixed
 /**
  * Check, whatever the notes, whether the window has room for the staff with this key signature:
  * the leading clef, key signature and 4/4 time signature measured exactly as the drawn staff
- * carries them, then the planner's phrase-independent room check (the height, then the fixed
- * parts' width). Returns `room` or `no_room` with its cause. An unusable width throws
+ * carries them, then the planner's phrase-independent room check (the height, for two positions
+ * of the shared system-position size, the built-in one by default, then the fixed parts' width).
+ * Returns `room` or `no_room` with its cause. An unusable width throws
  * `notation_container_unavailable`; any unexpected non-NotationError throw is wrapped as
  * `notation_engraving_failed`.
  */
@@ -569,13 +595,16 @@ export function planStaffRoomForKey(
   signature: StaffKeySignature,
   containerWidthPx: number,
   viewport: StaffViewport,
+  systemPositionUnits: number = NOTATION_SYSTEM_POSITION_UNITS,
 ): StaffRoomVerdict {
   try {
     const outcome = planStaffRoom({
       containerWidthPx,
-      leadingWidth: measureLeadingWidth(signature),
+      // The selected instrument's clef: my instrument's reaches here with chunk 20.
+      leadingWidth: measureLeadingWidth(BUILT_IN_INSTRUMENT_CLEF, signature),
       systemPadding: SYSTEM_PADDING_UNITS,
       viewport,
+      systemPositionUnits,
     })
     return outcome.kind === 'room' ? { kind: 'room' } : { kind: 'no_room', cause: outcome.cause }
   } catch (error) {

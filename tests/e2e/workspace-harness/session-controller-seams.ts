@@ -16,6 +16,7 @@ import { shallowRef } from 'vue'
 
 import type {
   SessionController,
+  SessionControllerPhase,
   SessionControllerState,
   SessionReview,
 } from '../../../src/components/workspace/workspace-session-controller-types'
@@ -130,6 +131,8 @@ function inflatingStateView(
 /** The seam: the wrapper for the workspace's factory and the API published for specs. */
 export interface HarnessSessionController {
   readonly wrap: (create: () => Promise<SessionController>) => () => Promise<SessionController>
+  /** The controller's phase now; null until the app has built it. */
+  readonly phase: () => SessionControllerPhase | null
   readonly api: WorkspaceHarnessSessionApi
 }
 
@@ -213,6 +216,7 @@ export function createHarnessSessionController(): HarnessSessionController {
       controller = built
       return { ...built, state: inflatingStateView(built.state, () => inflateTo.value) }
     },
+    phase: () => (controller === null ? null : controller.state.phase),
     api: {
       loaded: () => controller !== null,
       inflateHistory: (phraseCount) => {

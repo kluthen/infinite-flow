@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.53
+Status: draft v0.59
 
 ## Status Snapshot
 
@@ -61,8 +61,44 @@ Status: draft v0.53
   chunk 9's architecture capture (D258). Written into master spec Part A v1.6 and build plan v4. Wave-1 gate wording fixes
   (2026-10-12, no decision, no behaviour change): master spec Part A v1.7 (§7.1) and build plan
   v5 (chunk 23).
-- **Open:** 8 questions, none blocking work under way: O48 and O49 (later and governance),
-  O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level).
+- **v3.0 build, wave 2** (2026-10-12): after its intent preflight the owner ruled that a
+  background pre-generation attempt can be cancelled by any player request at Idle, a MINOR
+  contract bump (D290, unblocks chunk 24); that a written key with two spellings takes the one
+  with fewer sharps or flats, sharps on a tie, as the code does, the transposition's interval name
+  still derived and shown but spelling nothing (D291); and that the staff's shared height follows
+  my instrument's written range, changing only when it is saved or deleted (D292). Chunk 18 moves
+  to wave 6, after chunk 17 (coordinator's call). Written into master spec Part A v1.8 and build
+  plan v6; `documentalist` revises the atoms. D290–D299 are reserved for v3.0 wave 2. Asked
+  for the range ruling after chunk 19, the owner chose a **bass clef option for my instrument**
+  in v3.0, octave signs later (D293): the clef is display only, follows the phrase into the
+  review and the MusicXML export, is not in the replay key, and the shared height reads the range
+  in its clef. Master spec Part A v1.9; build plan v7 adds chunk 19b and a clef design gate. The
+  owner then ruled the range bound: written C2–C7 in treble clef, E0–E5 in bass clef, refused live in
+  note names (D294); and that **kept sessions belong to the instrument they were played with**:
+  deleting my instrument deletes its sessions, a range or transposition change erases them after
+  a warning, a name or clef change keeps them (each phrase still in its own clef), and a save that
+  changes the shared height re-checks pre-generated phrases (D295, D296, closing O181). The
+  review's "reachable until the next session starts" gains "or until the player deletes its
+  session", which the owner confirmed as MAJOR (CONTRACT 4.0). Master spec Part A v1.10; build
+  plan v8 adds chunk 20c (my instrument's sessions) and its design gate.
+- **ISS-011, a stale phrase at Start** (2026-10-13, D297): after a key, collection or register
+  change at Idle, Start failed silently (reproduced on v2.0.0, 60–220 BPM). The owner: no v2
+  hotfix, fix it at the end of v3.0. When the phrase on screen was made under settings that
+  differ, in what the generation reads, from the current ones, Start and the starting note ask
+  **Regenerate** or **Use it**; Use it joins phrase 2 to phrase 1 as after a settings change
+  during a session. The owner then ruled the same day: Regenerate runs the Idle Regenerate and
+  stays at Idle, the player pressing Start again (closing O182); the starting note asks too, its
+  contract wording accepted as MAJOR (CONTRACT 5.0, `documentalist` applies it). Master spec
+  Part A v1.12 §16; build plan v9 adds chunk 24b in wave 9; its **Stale phrase design** gate for
+  `ux-writer` can start.
+- **Pre-generation and the prewarm** (2026-10-13, D298): master spec §8's "runs after v2's
+  prewarm" means after the prewarm is posted, as chunk 24 built it (Part A v1.13, a wording
+  clarification). O183 opened: a player request that cancels a background attempt replaces the
+  worker and loses its warm rhythm-domain memo; to measure, then put to the owner.
+- **Open:** 10 questions, none blocking work under way: O48 and O49 (later and governance),
+  O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
+  O180 (octave signs, later) and O183 (pre-generation's cancellation cost). D295 and D296 closed
+  O181; the owner's ruling in D297 closed O182.
   O163 and O164 closed by D257 and D258; D262 closed O174; D264–D273 settled O165–O173 and O175
   in Part D, pending the owner's approval.
   v3.1 and v3.2 drafts approved by the owner (D233, D234),
@@ -82,7 +118,7 @@ Status: draft v0.53
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (approved; v2 moves the workflow to wave
-  level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved) and
+  level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23; v6 writes in D290–D292 and moves chunk 18 to wave 6; v7 adds chunk 19b for D293; v8 writes in D294–D296 and adds chunk 20c; v9 writes in D297 and adds chunk 24b), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved),
   [v3.2](versions/v3/build-plan-v3.2.md) (draft v2, not approved) and
   [v3.3](versions/v3/build-plan-v3.3.md) (draft v2, not approved; depends on owner approval of
   Part D). Every build plan runs wave by

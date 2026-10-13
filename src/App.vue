@@ -16,14 +16,21 @@ import {
   WORKSPACE_SESSION_FACTORY,
   createWorkspaceSession,
 } from './components/workspace/create-workspace-session'
-import { prewarmPolicyFromSearch } from './components/workspace/prewarm-policy'
+import {
+  pregenerationPolicyFromSearch,
+  prewarmPolicyFromSearch,
+} from './components/workspace/prewarm-policy'
 import WorkspaceShell from './components/workspace/WorkspaceShell.vue'
 import type { SessionController } from './components/workspace/workspace-session-controller-types'
 
-// The production fallback reads the prewarm policy once from the page URL: `?prewarm=off` is the
-// latency measurement seam, loading the real app with cold generation; prewarm is on otherwise.
+// The production fallback reads the prewarm and pre-generation policies once from the page URL:
+// `?prewarm=off` is the latency measurement seam, loading the real app with cold generation, and
+// `?pregeneration=off` runs no background pre-generation at Idle; both are on otherwise.
 const buildWorkspaceSession = inject(WORKSPACE_SESSION_FACTORY, () =>
-  createWorkspaceSession({ prewarmPolicy: prewarmPolicyFromSearch(window.location.search) }),
+  createWorkspaceSession({
+    prewarmPolicy: prewarmPolicyFromSearch(window.location.search),
+    pregenerationPolicy: pregenerationPolicyFromSearch(window.location.search),
+  }),
 )
 const workspace = buildWorkspaceSession()
 
@@ -62,6 +69,7 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <!-- No my instrument is saved yet, so its range in its clef is null; chunk 20 feeds it. -->
   <WorkspaceShell
     :session="workspace.session"
     :pending-phrase="workspace.pendingPhrase.value"
@@ -72,6 +80,7 @@ onUnmounted(() => {
     :audio="workspace.audio"
     :midi="workspace.midi"
     :controller="sessionController"
+    :saved-my-instrument-range-in-clef="null"
     @connection-sheet-open-change="handleConnectionSheetOpenChange"
   />
 </template>

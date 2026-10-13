@@ -10,6 +10,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { encodeGeneratedNotesMidi } from '@/export/midi/midi-encoder'
 import type { GeneratedNotesMidiInput } from '@/export/midi/midi-export-input'
@@ -127,7 +128,9 @@ describe('the encoder inputs a history hands over', () => {
       expect([written.tempo, sounded.tempo]).toEqual([240, 240])
       expect(sounded.timeline).toBe(record.outcome.result.timeline)
       expect(written.writtenPhrase).toEqual(
-        transformToWrittenPhrase(notationInputFromOutcome(record.outcome, record.intent)),
+        transformToWrittenPhrase(
+          notationInputFromOutcome(record.outcome, record.intent, BUILT_IN_INSTRUMENT_CLEF),
+        ),
       )
     })
     expect(musicXml.phrases).toHaveLength(3)

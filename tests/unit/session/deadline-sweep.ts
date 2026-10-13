@@ -7,7 +7,8 @@
  * seam, on a fake audio clock that only this module moves. Every generate call keeps one serial
  * generator (the app's single generation worker) busy for the time its cost model charges: by
  * default a fixed modelled time, so a deadline is met or missed by the model, never by the speed of
- * the machine running the tests; a run can charge another cost instead. An attempt the engine
+ * the machine running the tests; a run can charge another cost instead. A run may play an Idle
+ * phase before Start, off the clock, whose ready phrases the session's start carries. An attempt the engine
  * cancels while it runs frees the generator at the cancel plus the worker's restart cost, and is
  * never answered; one cancelled while still queued leaves the queue at no cost. The transport plays
  * the session in time: the count-in, each phrase starting to sound on the measure grid at the
@@ -35,14 +36,23 @@ import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { makeSeed } from '@/domain/random/seed'
 import {
   GenerationCancelledError,
   GenerationWorkerCrashError,
 } from '@/generation-worker/generation-worker-client'
+import type { PregenerationSeams, PregenerationStart } from '@/session/session-pregeneration'
+import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import { createSessionRunner, type SessionRunnerEvent } from '@/session/session-runner'
-import { COUNT_IN_MEASURES, WORKER_RESPAWN_SECONDS, measureSeconds } from '@/session/session-timing'
+import {
+  COUNT_IN_MEASURES,
+  WORKER_RESPAWN_SECONDS,
+  measureSeconds,
+  nextPhraseDeadline,
+  phraseTwoDeadline,
+} from '@/session/session-timing'
 import type {
   AudioTime,
   SessionOutput,
@@ -240,6 +250,16 @@ export type AttemptCost = (
 /** Intent: the default cost model: every attempt costs the same modelled time. */
 const flatAttemptCost: AttemptCost = () => ATTEMPT_COST_SECONDS
 
+/**
+ * An Idle phase a run plays before Start, off the fake clock: given the seams the session will run
+ * with (so request ids carry on from it) and what the session starts from, the phrases it
+ * pre-generated, which the session's start carries. A run with none starts with no ready phrase.
+ */
+export type IdlePhase = (
+  seams: PregenerationSeams,
+  start: PregenerationStart,
+) => Promise<readonly ReadyPhrase[]>
+
 /** One output of a timed run, with the fake audio time it came out at. */
 export interface TimedOutput {
   readonly at: AudioTime
@@ -327,11 +347,13 @@ function transportEvents(tempo: number, phraseCount: number): readonly SessionRu
  * Intent: the runner's fit check: the attempt's written phrase is built from its outcome and
  * intent, the step before engraving, and it fits the wide window's staff.
  */
-function writtenPhraseFits(candidate: {
+export function writtenPhraseFits(candidate: {
   readonly outcome: Parameters<typeof notationInputFromOutcome>[0]
   readonly intent: GenerationIntent
 }): Promise<boolean> {
-  transformToWrittenPhrase(notationInputFromOutcome(candidate.outcome, candidate.intent))
+  transformToWrittenPhrase(
+    notationInputFromOutcome(candidate.outcome, candidate.intent, BUILT_IN_INSTRUMENT_CLEF),
+  )
   return Promise.resolve(true)
 }
 
@@ -362,8 +384,9 @@ function phraseOneAtIdle(
 /**
  * Intent: play one case's session at a tempo through the real runner on the fake clock, answering
  * each attempt as the script says once the serial generator has spent the attempt's cost on it,
- * unless the engine cancels it first, and keep every output with its time. The run stops at Stop, or at the first event the engine
- * refuses.
+ * unless the engine cancels it first, and keep every output with its time. An Idle phase, when
+ * given, runs first and the session starts with the phrases it made ready. The run stops at Stop,
+ * or at the first event the engine refuses.
  */
 export async function runTimedSession(
   sweepCase: SweepCase,
@@ -371,8 +394,22 @@ export async function runTimedSession(
   outcomes: OutcomeCache,
   script: AttemptScript,
   attemptCost: AttemptCost = flatAttemptCost,
+  idlePhase?: IdlePhase,
 ): Promise<TimedSession> {
   const settings = caseSettings(sweepCase, tempo)
+  const providers = queuedProviders(sweepCase.firstSessionSeed)
+  const viewport = fakeViewport(false)
+  const start: PregenerationStart = {
+    settings,
+    phraseOne: phraseOneAtIdle(sweepCase, settings, outcomes),
+    sessionSeed: makeSeed(sweepCase.firstSessionSeed),
+    mutation: sweepCase.varySettings
+      ? { kind: 'on', seed: settingsMutationSeed(makeSeed(sweepCase.firstSessionSeed)) }
+      : SETTINGS_MUTATION_OFF,
+    multiPhraseTensionArc: sweepCase.tensionAcrossPhrases,
+  }
+  const readyPhrases =
+    idlePhase === undefined ? [] : await idlePhase({ providers, viewport }, start)
   const clock = { at: 0 }
   const due: DueItem[] = []
   const outputs: TimedOutput[] = []
@@ -469,8 +506,8 @@ export async function runTimedSession(
       generate,
       checkFit: writtenPhraseFits,
       now: () => clock.at,
-      providers: queuedProviders(sweepCase.firstSessionSeed),
-      viewport: fakeViewport(false),
+      providers,
+      viewport,
       display: UNREAD_DISPLAY,
       onOutput: (output) => {
         outputs.push({ at: clock.at, output })
@@ -480,17 +517,7 @@ export async function runTimedSession(
       },
       onError: (error) => errors.push(error),
     },
-    {
-      at: 0,
-      settings,
-      phraseOne: phraseOneAtIdle(sweepCase, settings, outcomes),
-      sessionSeed: makeSeed(sweepCase.firstSessionSeed),
-      mutation: sweepCase.varySettings
-        ? { kind: 'on', seed: settingsMutationSeed(makeSeed(sweepCase.firstSessionSeed)) }
-        : SETTINGS_MUTATION_OFF,
-      adaptiveTempo: false,
-      multiPhraseTensionArc: sweepCase.tensionAcrossPhrases,
-    },
+    { at: 0, ...start, adaptiveTempo: false, readyPhrases },
   )
   for (const event of transportEvents(tempo, SWEEP_PHRASE_COUNT))
     schedule(event.at, () => runner.dispatch(event))
@@ -508,10 +535,24 @@ export async function runTimedSession(
   return { tempo, outputs, generations, errors }
 }
 
+/**
+ * Intent: the deadline the session's schedule gives phrase N (2 or more) in a session started at 0
+ * at a constant tempo: the end of the count-in for phrase 2, otherwise the start of the previous
+ * phrase's last measure.
+ */
+function scheduledDeadline(phraseNumber: number, tempo: number): AudioTime {
+  return phraseNumber === 2
+    ? phraseTwoDeadline(0, tempo)
+    : nextPhraseDeadline(soundingAt(phraseNumber - 1, tempo), tempo)
+}
+
 /** What became of one phrase slot after phrase 1 in a timed run. */
 interface PhraseSlot {
   readonly phraseNumber: number
-  /** Its deadline, as every request for it carried. */
+  /**
+   * Its deadline, as every request for it carried; for a phrase spent from the ready phrases, never
+   * requested, the one the session's schedule gives it.
+   */
   readonly deadline: AudioTime
   /** How many attempts were requested for it. */
   readonly attempts: number
@@ -540,7 +581,10 @@ export function phraseSlots(run: TimedSession): readonly PhraseSlot[] {
       const last = requests.at(-1)?.output
       return {
         phraseNumber,
-        deadline: last?.kind === 'request-generation' ? last.deadline : Number.NaN,
+        deadline:
+          last?.kind === 'request-generation'
+            ? last.deadline
+            : scheduledDeadline(phraseNumber, run.tempo),
         attempts: requests.length,
         decided:
           ready?.output.kind === 'phrase-ready'

@@ -7,11 +7,20 @@
 import type { WrittenKey } from '@/domain/notation/written-phrase-types'
 import type { StaffViewport } from './notation-layout-policy'
 
-/** The staff's current layout inputs, as PhraseScore measures them: container width and viewport. */
+/**
+ * The staff's current layout inputs, as PhraseScore measures them: container width and viewport,
+ * and the shared system-position size it is drawn with. Every check planned from them plans with
+ * that same size, so it always agrees with the staff.
+ */
 // @spec-link [[module_idle_fit_round]]
 export interface StaffLayoutInputs {
   readonly containerWidthPx: number
   readonly viewport: StaffViewport
+  /**
+   * The shared system-position size, in engraving units (`planSystemPositionUnits`); absent means
+   * the built-in size, `NOTATION_SYSTEM_POSITION_UNITS`.
+   */
+  readonly systemPositionUnits?: number
 }
 
 /** Why the window has no room for the staff: too narrow, or (in a window's height budget) too short. */

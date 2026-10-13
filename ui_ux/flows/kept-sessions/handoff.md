@@ -32,6 +32,7 @@ flowchart TD
   SLB --> SL
   RV -->|"Delete session, confirmed (never while saving is off)"| SLD["session-list (its empty state included): focus on its title"]
   SLD --> SL
+  RV -->|"Its session erased through my instrument: deleted, or a range or transposition change saved after the warning (flows/my-instrument/)"| SLD
   SL -->|"Pin; Unpin without favorites"| SL
   SL -->|"Unpin with favorites"| UC["Confirmation sheet: Unpin this session?"]
   UC -->|"Unpin"| SL
@@ -240,6 +241,10 @@ written by a newer version is known (master spec §4.4). While saving is off:
 - **[v3.2 new]** **A Jam** runs, ends and is reviewed as usual: `Use {answer}`,
   `Keep {key} {mode}` and `Jam again on this doodle` work in memory for the visit; nothing is
   saved, the decline included. The deletions above stay absent.
+- **My instrument** offers no deletion and no range or transposition change in an outdated tab
+  while it has kept sessions, here or through the check (`flows/my-instrument/handoff.md`); in a
+  visit started from the defaults it has none, so its changes erase nothing, and the session held
+  in memory keeps its review.
 - **Pin, Unpin, favorites and the comment** work as usual, in memory only for the visit, as the
   notice says. `Your data` offers `Delete everything` alone in a visit started from the defaults,
   and no deletion in an outdated tab (`screens/your-data/`, States).
@@ -266,3 +271,15 @@ From `Your data` (`screens/your-data/`), opened from the list's header or the pa
   `Jam again on this doodle`. `Delete every session` deletes every Jam session with its doodle in
   both forms.
 - **`Delete everything`:** the page reloads into its first visit; nothing here needs routing.
+
+From my instrument's sheet or the transposition check (`flows/my-instrument/handoff.md`):
+
+- **Deleting my instrument, or saving a change to its range or transposition** after the warning
+  that names how many sessions go: every session played with my instrument goes, kept or held in
+  memory after a failed save, each as if deleted from its own review. If the review mode shows
+  the review of one of them, the list replaces it, its empty state included; if it shows the
+  list, their rows leave. When the session that just ended is one of them, there is no most
+  recent session until the next session ends with a review. Focus stays in the sheet that did it
+  and returns by that sheet's rule when it closes; each link follows its rule. Sessions played
+  with a built-in profile are never touched, nor are my instrument's sessions by a change of its
+  name or clef.

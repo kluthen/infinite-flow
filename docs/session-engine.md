@@ -40,6 +40,9 @@ ahead of it (the read-ahead), so the player always sees what comes next.
 | `struggling-notice.ts`            | The struggling-generator notice as a pure reducer.                                                                                |
 | `session-engine.ts`               | `createSessionEngine(deps, start)`: the state machine that ties the others together.                                              |
 | `session-engine-state.ts`         | The engine's state between events, and the decided phrase a settings change can take back.                                        |
+| `session-phrase-opening.ts`       | How the next phrase is opened (mutation landing, tension-arc step, look-ahead basis) and each rung's intent is built.             |
+| `session-ready-phrases.ts`        | The ready phrases a start carries: their check, the re-derivation of their intents, and the engine's take of them.                |
+| `session-pregeneration.ts`        | The pure pre-generation plan: phrases 2 to 5 built at Idle as the session would request them (see below).                         |
 | `settings-mutation-scales.ts`     | `MUTATION_SCALES`: the scale of every mutable setting, as data, and `scaleNeighbours`.                                            |
 | `settings-mutation.ts`            | The pure seeded mutation: the cadence, `mutationCandidates`, `mutateSettings` and the flag.                                       |
 | `session-mutation-step.ts`        | `landingMutation`: whether a mutation lands on the phrase about to be requested, and its output.                                  |
@@ -70,9 +73,10 @@ The session controller's pure pieces live here too, under the same boundary (see
 
 `createSessionEngine(deps, start)` takes the start time, the chosen settings, phrase 1 (its
 intent and its successful outcome), the settings-mutation flag (`SessionStart.mutation`),
-whether adaptive tempo runs (`SessionStart.adaptiveTempo`; see [Adaptive tempo](#adaptive-tempo))
-and whether the multi-phrase tension arc runs (`SessionStart.multiPhraseTensionArc`; see
-[Multi-phrase tension arc](#multi-phrase-tension-arc)).
+whether adaptive tempo runs (`SessionStart.adaptiveTempo`; see [Adaptive tempo](#adaptive-tempo)),
+whether the multi-phrase tension arc runs (`SessionStart.multiPhraseTensionArc`; see
+[Multi-phrase tension arc](#multi-phrase-tension-arc)) and the phrases pre-generated at Idle
+(`SessionStart.readyPhrases`, optional; see [Phrases pre-generated at Idle](#phrases-pre-generated-at-idle)).
 It returns `outputsAtStart` and `handle(event)`, which returns the outputs of that one event.
 
 ## Events and outputs
@@ -123,7 +127,10 @@ is in 4/4 ([meter](music/lexicon.md#meter)), so a measure is four beats. One mea
 of clicks before phrase 1 starts, so the player can feel the tempo.
 
 - **At start**, phrase 2 is requested at once. Its deadline is the end of the count-in: start time
-  plus one measure. Phrase 2 is then ready as read-ahead the moment phrase 1 starts sounding.
+  plus one measure. Phrase 2 is then ready as read-ahead the moment phrase 1 starts sounding. A
+  ready phrase 2 from Idle is decided at once instead, with no request (see
+  [Phrases pre-generated at Idle](#phrases-pre-generated-at-idle)); the deadline and its
+  `wake-at` are the same.
 - **When phrase 1 starts sounding** (`count-in-over`), nothing new is requested: phrase 2 already
   was.
 - **When phrase N (2 or more) starts sounding** at time `s`, phrase N+1 is requested with its
@@ -300,6 +307,81 @@ The player calls it **Rising tempo** (the lexicon's word for adaptive tempo).
   never a live region.
 - **Nothing about performance.** The control, the readout and the note show only the flag and a
   tempo. Whatever the player plays, the tempos and the reached tempo are the same.
+
+## Phrases pre-generated at Idle
+
+From v3.0, while the workspace is Idle, a background queue generates up to four phrases that would
+follow phrase 1 in a session (see
+[Pre-generation at Idle](phrase-workspace.md#pre-generation-at-idle)), and Start hands them to the
+session. Two pure parts of `src/session/` make that safe: the engine spends a ready phrase only
+when it is the very phrase it would have asked for, and the plan that makes them builds every
+request through the engine's own functions. Both use `session-phrase-opening.ts`, which opens a
+phrase (the mutation landing on it, its tension-arc cycle step, its look-ahead basis from the
+carry-in of the phrase before) and builds a rung's intent with the planned seed of its slot.
+
+### The ready phrases in the session start
+
+`SessionStart.readyPhrases` is a list of `ReadyPhrase` (`session-ready-phrases.ts`): the phrase
+number, the index of its ladder rung (0 the first carry-in attempt, 1 to 3 the carry-in retries,
+4 the standalone attempt), the intent it was generated from, its own request id included, and its
+successful outcome, which fit. Absent means none, as an empty list does: pre-generation off, or
+nothing ready. `requireReadyPhrases` checks the list at start: at most four (`MAX_READY_PHRASES`),
+phrase numbers consecutive from 2, each rung on the ladder and each outcome a success; anything
+else throws a `SessionEngineError`. The list is part of the start, so the engine stays pure.
+
+- **Opening is unchanged.** Each look-ahead opens exactly as without ready phrases: the mutation
+  landing and its `settings-changed`, the tension-arc step, the basis, the deadline and its
+  `wake-at`, the phrase's tempo fixed at its deadline.
+- **The re-derivation check.** When a ready phrase has the number of the phrase just opened, the
+  engine rebuilds the intent of that phrase's rung (`rederivedReadyPhrase`) from the settings in
+  effect, the phrase before and the window read now, through the very path a request takes, with
+  the ready phrase's own request id, so no request id is drawn. If the rebuilt intent deep-equals
+  the ready phrase's, the phrase is decided at once: `phrase-ready` with origin `'carry-in'` for a
+  carry-in rung or `'standalone'` for the standalone rung, the step-down memory updated as
+  building that intent would, and no `request-generation`.
+- **Refusal from the first mismatch.** The first ready phrase whose rebuilt intent differs is
+  refused with every later one (`readyRefused` in the engine state), and that phrase is requested
+  from its first rung, as without pre-generation. The engine never checks a ready phrase's fit
+  again: Start's take checked it against the held layout.
+- **Then one phrase ahead.** After the last ready phrase the session looks one phrase ahead as
+  before. Nothing is topped up during a session.
+
+A ready phrase was built with no deadline, so its rung can be one the session's own ladder would
+not reach in time: phrase 2's carry-in at 240 BPM, where the session alone requests phrase 2
+standalone first. That is the point of pre-generation (measured as M4 in
+[Phrase 2 after pre-generation](generation-latency.md#phrase-2-after-pre-generation-m4-2026-10-12)).
+A spent phrase prints its replay key at its `phrase-ready` like any other; a refused one never
+does.
+
+### The pre-generation plan
+
+`createPregenerationPlan(seams, start, readyPhrases)` (`session-pregeneration.ts`) is a pure,
+deadline-free state machine that builds, one attempt at a time, phrases 2 to 5 as a session would
+generate them after a given phrase 1. Its start is the session's: the chosen settings, phrase 1
+(the Idle result's intent and outcome), the session seed published with it, the settings-mutation
+flag and the multi-phrase tension arc flag. Its only seams are the request-id provider, from which
+each attempt's request id is drawn, and the window-width reading. It reads no clock and draws no
+seed: every seed comes from the session seed plan. Tempo and Rising tempo never reach it.
+
+- **A plan is a value.** It gives the phrases ready so far (`readyPhrases`), the attempt to
+  request next (`attempt`: phrase number, rung, step and intent) and why it stopped (`stopped`:
+  `'four-ready'` or `'ladder-exhausted'`). `after(result)` takes that attempt's result (`fits`
+  with the outcome, a generation failure with its code, a crash, or `not-fitting`) and gives the
+  next plan; calling it on a stopped plan throws.
+- **The ladder with no time rule.** Each phrase starts at its first carry-in rung and climbs the
+  carry-in retries, then the standalone rung only after every carry-in rung failed, or straight
+  after a `no_legal_pitch_plan` carry-in failure. A skipped rung's request id is drawn and
+  discarded, as in the engine. A fitting success makes the phrase ready and plans the next from
+  it. When the standalone attempt fails too, the plan stops at that phrase and decides no repeat:
+  the session generates it under its own deadline.
+- **Resuming and re-validating.** Given an existing ready list, the plan resumes after its last
+  phrase; every listed phrase must still re-derive identically with the window read now, or it
+  throws. `revalidatedReadyPhrases(seams, start, readyPhrases)` gives the longest prefix that
+  still does, with the same check the engine makes when it spends them; the workspace queue calls
+  it before resuming and on every window change.
+
+With every attempt succeeding at once, a session's phrases, intents and seeds are the same with
+pre-generation on and off, request ids aside (`session-pregeneration-identity.spec.ts`).
 
 ## The runner and the one-Worker wiring
 
@@ -546,7 +628,8 @@ ran adaptive tempo reached, for the tempo field's note.
    [The end once phrase 1 has sounded](#the-end-once-phrase-1-has-sounded));
 3. a phrase shown: an Idle result, engraved (`no_phrase`);
 4. no Idle generation running: Generate, Regenerate phrase, the fit retries, or a drawing in
-   progress (`generation_running`);
+   progress (`generation_running`). A background pre-generation attempt is not one: it never
+   blocks a start (see [Pre-generation at Idle](phrase-workspace.md#pre-generation-at-idle));
 5. no notation error (`notation_error`) and no generation-failure banner (`generation_failure`);
 6. a rhythm combination that can form a phrase (`rhythm_unsupported`);
 7. the staff shown: no rotate-device notice, that is no portrait-shaped window below `bp-desktop`
@@ -576,15 +659,18 @@ else changes. Then, in order, it:
 2. queues phrase 1's backing with the Idle phrase's harmony;
 3. locks the settings (the Idle controls and musical profile), chooses the held layout from the
    window's width alone (`sessionLayoutAtStart`: split below `bp-tablet-landscape`, one system
-   from it up), opens a history stamped with the wall clock;
+   from it up), takes the phrases the Idle pre-generation queue has ready that fit the held layout
+   (aborting its attempt in flight, never waiting for it; see
+   [Pre-generation at Idle](phrase-workspace.md#pre-generation-at-idle)), opens a history stamped
+   with the wall clock;
 4. begins the session's MIDI side, with or without the controller, fixed now (see
    [The session controller's MIDI side](#the-session-controllers-midi-side));
 5. shows the count-in and the session's staff (phrase 1, the very written phrase Idle shows, in
    the held layout), starts the wake-up timer and the display's frame loop, then a runner whose
-   phrase 1 is the Idle phrase and whose fit check is the display's, and the end watchers. The
-   runner runs adaptive tempo when the flag is on and step 4 found the controller attached
-   (`sessionHasController`); a session started with the selected controller away, or with none,
-   runs without it.
+   phrase 1 is the Idle phrase, whose start carries the ready phrases taken in step 3 and whose
+   fit check is the display's, and the end watchers. The runner runs adaptive tempo when the flag
+   is on and step 4 found the controller attached (`sessionHasController`); a session started
+   with the selected controller away, or with none, runs without it.
 
 ### The audio-time agenda
 
@@ -1329,6 +1415,10 @@ arc).
   workspace (see [Multi-phrase tension arc](#multi-phrase-tension-arc)).
 - **Chunk 30 (built):** the multi-phrase tension arc's control, `Tension across phrases` (see
   [The Tension across phrases control](#the-tension-across-phrases-control)).
+- **v3.0 chunk 24 (built):** pre-generation at Idle: the ready phrases in the session start, the
+  pure pre-generation plan (see [Phrases pre-generated at Idle](#phrases-pre-generated-at-idle))
+  and Start's take of the Idle queue (see
+  [Pre-generation at Idle](phrase-workspace.md#pre-generation-at-idle)).
 
 ## Choices made while building it
 

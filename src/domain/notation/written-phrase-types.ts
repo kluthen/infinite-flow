@@ -9,6 +9,7 @@ import type { Collection, PitchClass } from '../controls/generation-controls'
 import type { ConcertEventTimeline } from '../events/timeline'
 import type { MeasureIndex } from '../events/measure'
 import type { PitchClassNumber } from '../harmony/harmony-types'
+import type { InstrumentClef } from '../profile/instrument-clef'
 import type { InstrumentTransposition } from '../profile/instrument-profile'
 
 /** Typed failure for notation input that violates the notation contract; never repaired. */
@@ -60,7 +61,9 @@ export interface InstrumentMidiRange {
  * change inside the measure, in ascending tick order. `transposition` is the active instrument
  * profile's own concert-to-written transposition; there is no independently selectable display
  * convention. `concertRange` is the same profile's active concert range, which the transform
- * carries into the written phrase as its written range.
+ * carries into the written phrase as its written range. `clef` is that instrument's own clef
+ * (treble for every built-in profile, treble or bass for my instrument); it is display only and
+ * never comes from the generation intent.
  */
 // @spec-link [[module_notation_display_convention]]
 export interface NotationPhraseInput {
@@ -69,6 +72,7 @@ export interface NotationPhraseInput {
   readonly chords: readonly ConcertChordSymbol[]
   readonly transposition: InstrumentTransposition
   readonly concertRange: InstrumentMidiRange
+  readonly clef: InstrumentClef
 }
 
 /** A written staff letter. */
@@ -184,8 +188,8 @@ export interface WrittenMeasure {
 }
 
 /**
- * The written phrase for the active instrument profile's own written pitch, in treble G2 clef and
- * 4/4. There is no independently selectable display convention: `transposition` is always the
+ * The written phrase for the active instrument profile's own written pitch, in its instrument's
+ * clef (treble for every built-in profile, treble or bass for my instrument) and 4/4. There is no independently selectable display convention: `transposition` is always the
  * transposition of the instrument profile the phrase was generated for, and `writtenRange` that
  * profile's whole written range (its active concert range plus the transposition's semitones).
  * The written range describes the instrument, not this phrase's notes: the engraver places the
@@ -197,7 +201,7 @@ export interface WrittenMeasure {
 export interface WrittenPhrase {
   readonly transposition: InstrumentTransposition
   readonly writtenRange: InstrumentMidiRange
-  readonly clef: 'treble'
+  readonly clef: InstrumentClef
   readonly timeSignature: { readonly beats: 4; readonly beatValue: 4 }
   readonly key: WrittenKey
   readonly measures: readonly [WrittenMeasure, WrittenMeasure, WrittenMeasure, WrittenMeasure]

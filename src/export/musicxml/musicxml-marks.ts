@@ -1,11 +1,13 @@
 /**
  * The score-level marks the MusicXML export writes around the phrases: the opening attributes
- * (divisions, written key signature, 4/4, treble G2 clef, and the instrument's transposition),
+ * (divisions, written key signature, 4/4, the phrase's clef — a G clef on line 2 for treble, an F
+ * clef on line 4 for bass — and the instrument's transposition),
  * a key-signature change, the rehearsal mark and metronome mark that open a phrase, the double
  * barline that closes a phrase, and the final barline that closes the session's last phrase.
  */
 import type { Collection } from '@/domain/controls/generation-controls'
 import type { WrittenKey } from '@/domain/notation/written-phrase-types'
+import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { InstrumentTransposition } from '@/domain/profile/instrument-profile'
 import { DIVISIONS_PER_QUARTER } from './musicxml-measure'
 import { element, textElement, type XmlElement } from './xml-text'
@@ -68,11 +70,23 @@ export function transposeElement(transposition: InstrumentTransposition): XmlEle
   return element('transpose', [], children)
 }
 
-/** Intent: the attributes of the score's first measure. */
+/**
+ * Intent: a clef as a clef element: a G clef on the second line for treble clef, an F clef on the
+ * fourth line for bass clef.
+ */
+// @spec-link [[rule_generated_notes_musicxml_export]]
+export function clefElement(clef: InstrumentClef): XmlElement {
+  return clef === 'bass'
+    ? element('clef', [], [textElement('sign', 'F'), textElement('line', 4)])
+    : element('clef', [], [textElement('sign', 'G'), textElement('line', 2)])
+}
+
+/** Intent: the attributes of the score's first measure, in the phrase's own clef. */
 // @spec-link [[rule_generated_notes_musicxml_export]]
 export function openingAttributes(
   key: WrittenKey,
   transposition: InstrumentTransposition,
+  clef: InstrumentClef,
 ): XmlElement {
   const transpose = transposeElement(transposition)
   return element(
@@ -82,7 +96,7 @@ export function openingAttributes(
       textElement('divisions', DIVISIONS_PER_QUARTER),
       keyElement(key),
       element('time', [], [textElement('beats', 4), textElement('beat-type', 4)]),
-      element('clef', [], [textElement('sign', 'G'), textElement('line', 2)]),
+      clefElement(clef),
       ...(transpose === null ? [] : [transpose]),
     ],
   )

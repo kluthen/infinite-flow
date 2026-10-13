@@ -7,7 +7,8 @@ instrument had to be one of three built-in profiles: C MIDI keyboard, B-flat ten
 E-flat alto saxophone. A player whose instrument goes further than its profile, or whose
 controller sends notes no profile expects, had to live with a written part that was not quite
 theirs. This flow lets the player describe one instrument of their own, once, starting from the
-closest built-in profile: a name, a range in written notes, and how a written note sounds. The
+closest built-in profile: a name, the clef it is read in, a range in written notes, and how a
+written note sounds. The
 app keeps it on the device, and it stays the fourth choice of the instrument control from then on.
 
 ## Whose Flow This Is
@@ -35,8 +36,9 @@ profiles, the one selected by default, so a player changes only what differs fro
 they already know. The built-in profiles stay as they are and stay selectable, so making an
 instrument never takes anything away.
 
-What the player can set is what they know about their instrument: its name, its lowest and highest
-notes as they read them, and how a written note sounds. What they cannot set is what the app
+What the player can set is what they know about their instrument: its name, whether they read it
+in treble or bass clef, its lowest and highest notes as they read them, and how a written note
+sounds. What they cannot set is what the app
 derives: the Low, Middle and High windows the Register control picks from are computed from the
 range exactly as for the built-in profiles, so a player can never make a window the generator
 cannot fill. The reasoning behind each field is in `screens/my-instrument/intent.md`.
@@ -65,7 +67,9 @@ profiles apply unchanged:
   profile switch does, with a fresh phrase in the new range.
 - **Saving a change to the selected instrument** replaces the phrase the same way, when the change
   touches the range or the transposition: the phrase on screen was made for the old instrument and
-  may not fit the new one. A new name alone changes no note, so the phrase stays.
+  may not fit the new one. A new name changes no note, so the phrase stays; nor does a new clef,
+  so the phrase stays too, redrawn on the other staff at once: the player sees the very phrase
+  they had, in the clef they chose.
 - **Saving a change to my instrument while another profile is selected** changes nothing on screen
   but the segment's label. The player edited it; they did not ask to switch.
 - **Changing the transposition keeps the written range.** The range is the notes the player reads,
@@ -75,8 +79,31 @@ profiles apply unchanged:
   one selected, which replaces the phrase as a profile switch does. When another profile was
   selected, nothing on screen changes but the missing segment.
 
-None of these asks for confirmation, except deleting: it is the only step that removes something
-kept, and it asks once, in the sheet, naming what goes.
+None of these asks for confirmation, except the two that remove something kept: deleting, and
+saving a range or transposition change while my instrument has kept sessions (below). Each asks
+once, in the sheet, naming what goes.
+
+## What Changing It Does to Its Sessions
+
+Every kept session belongs to the instrument it was played with. The built-in profiles never
+change, so only my instrument's sessions are ever touched. A new range or transposition changes
+what my instrument plays, so the sessions played before it no longer match it: saving such a
+change erases them, and deleting my instrument deletes them. Before either, the sheet says so and
+how many sessions go, and the player confirms or cancels; with none kept, nothing is erased and
+nothing is asked. A new name or clef changes nothing generated, so every session stays, its
+phrases still drawn in the clef they were played in and listed under the name they were played
+under. The same warning comes through the transposition check's way in (below), since it changes
+the transposition too.
+
+When the review on screen shows one of the sessions that go, it closes exactly as when the player
+deletes that session from it: the review mode shows the session list, and the session that just
+ended, if it is one of them, leaves memory with `Review last session`. The player was told in the
+warning, so nothing more is said.
+
+A tab that must be reloaded deletes nothing, so while my instrument has kept sessions it offers
+neither deleting my instrument nor a range or transposition change: the sheet says why and asks
+for the reload. A visit whose saved data could not be read has read no kept session, so a change
+made there erases nothing, and its session held in memory keeps its review.
 
 ## Two Ways In
 
@@ -87,7 +114,10 @@ selected profile if it does not exist yet. That path exists because the most com
 controller left at its own default, sending the written note untransposed, and a player who would
 rather not dig through their controller's settings can make the app follow the controller instead.
 It changes only the transposition, after one confirmation; everything else about my instrument
-stays as it was, and the sheet remains the place to change the rest. The check's side of this is
+stays as it was, its clef included, and the sheet remains the place to change the rest. A my
+instrument it creates is written in treble clef, like the profile it is made from. When my
+instrument already has kept sessions, that one confirmation also warns that they go, and how
+many. The check's side of this is
 specified in the controller-connection documents.
 
 ## When It Can Happen
@@ -115,5 +145,10 @@ things, and a player rebuilding their instrument should not have to reconnect.
   would need a manager this version does not need.
 - **Editing the Low, Middle and High windows.** They are derived, as for every profile.
 - **A concert-pitch display.** Notation shows the selected instrument's written pitch, as in v2.
-- **Interval names for the transposition.** Semitones and one written-to-sounding example are what
-  a beginner can check; "a major ninth below" is a translation step.
+- **Choosing the transposition by interval name.** Semitones and one written-to-sounding example
+  are what a beginner can check; the interval's name is shown, derived from the count, never
+  picked from a list.
+- **Other clefs and octave signs.** Only treble and bass clef are offered; alto or tenor clef, and
+  octave signs (8va, 8vb), may come in a later version should the need arise. An instrument
+  written an octave away from its sound, such as the guitar, is already served by a transposition
+  of one octave.

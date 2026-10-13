@@ -3,7 +3,8 @@
  * and the outcome of each engraving, as `PhraseScore` emits them. At Idle they go straight on. While
  * a practice session runs, the session diverts them to itself, so the Idle fit retries, room notice,
  * regeneration and notation-error capture never act on phrase 1 during it; at its end the session
- * hands them back and re-applies what it held. The gate always keeps the latest layout inputs. A
+ * hands them back and re-applies what it held. The gate always keeps the latest layout inputs, and
+ * tells its passive observers of each layout-input report, at Idle and during a session alike. A
  * session staff failure (the staff failing to show a running session) only ever goes to the
  * session, never to Idle. It lives in the entry chunk, so it holds no session logic: that is the
  * session controller's.
@@ -39,6 +40,14 @@ export interface IdleLayoutPort {
   readonly divert: (listener: SessionStaffReports) => () => void
   /** The Idle machinery's own handlers, for re-applying held reports at a session's end. */
   readonly idle: StaffReports
+  /**
+   * Tell `listener` of every later layout-input report, after its receiver, at Idle and during a
+   * session alike, until the returned function is called; stopping twice throws, and a listener
+   * already observing is not added again. It receives nothing else and changes nothing the gate
+   * does.
+   */
+  // @spec-link [[module_idle_pregeneration_queue]]
+  readonly observeInputs: (listener: (inputs: StaffLayoutInputs) => void) => () => void
 }
 
 /** The gate: the staff-facing handlers plus the session-facing port. */
@@ -55,6 +64,7 @@ export interface IdleLayoutGate extends SessionStaffReports, IdleLayoutPort {}
 export function createIdleLayoutGate(idle: StaffReports): IdleLayoutGate {
   let latest: StaffLayoutInputs | null = null
   let diverted: SessionStaffReports | null = null
+  const observers = new Set<(inputs: StaffLayoutInputs) => void>()
 
   /** Intent: whoever receives the staff's reports now. */
   const receiver = (): StaffReports => diverted ?? idle
@@ -63,6 +73,7 @@ export function createIdleLayoutGate(idle: StaffReports): IdleLayoutGate {
     layoutInputs: (inputs) => {
       latest = inputs
       receiver().layoutInputs(inputs)
+      for (const observer of [...observers]) observer(inputs)
     },
     engraved: () => receiver().engraved(),
     notationError: (error) => receiver().notationError(error),
@@ -77,5 +88,11 @@ export function createIdleLayoutGate(idle: StaffReports): IdleLayoutGate {
       }
     },
     idle,
+    observeInputs: (listener) => {
+      observers.add(listener)
+      return () => {
+        if (!observers.delete(listener)) throw new Error('idle layout gate: observer stopped twice')
+      }
+    },
   }
 }

@@ -26,6 +26,7 @@ import {
   type NotationPhraseInput,
 } from '@/domain/notation/written-phrase-types'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
+import { BUILT_IN_INSTRUMENT_CLEF, type InstrumentClef } from '@/domain/profile/instrument-clef'
 import { buildOrchestratorIntent } from '../generation/orchestration/generation-orchestrator-fixture'
 
 const C_MAJOR = makeHarmonyCollection('C', 'Major')
@@ -133,6 +134,7 @@ describe('validateNotationPhraseInput', () => {
       chords,
       transposition: { chromatic: 0, diatonic: 0 },
       concertRange: { minMidi: 48, maxMidi: 72 },
+      clef: BUILT_IN_INSTRUMENT_CLEF,
     }
   }
 
@@ -168,6 +170,15 @@ describe('validateNotationPhraseInput', () => {
     ]
     expect(() => validateNotationPhraseInput(inputWithChords(chords))).toThrow(NotationInputError)
   })
+
+  it('accepts treble and bass clef and refuses any other clef', () => {
+    const valid = inputWithChords(chordSymbolsFromHarmony(TONIC_EACH_BAR))
+    expect(() => validateNotationPhraseInput({ ...valid, clef: 'bass' })).not.toThrow()
+    for (const clef of ['alto', 'tenor', '', null]) {
+      const invalid = { ...valid, clef: clef as unknown as InstrumentClef }
+      expect(() => validateNotationPhraseInput(invalid)).toThrow(NotationInputError)
+    }
+  })
 })
 
 // @test-link [[module_notation_display_convention]]
@@ -184,9 +195,47 @@ describe('makeNotationPhraseInput', () => {
       harmony: TONIC_EACH_BAR,
       transposition: { chromatic: 0, diatonic: 0 },
       concertRange: { minMidi: 48, maxMidi: 72 },
+      clef: BUILT_IN_INSTRUMENT_CLEF,
     })
     expect(input.timeline).toBe(result.timeline)
     expect(Object.isFrozen(input)).toBe(true)
+  })
+
+  it('carries the instrument’s clef, treble or bass', () => {
+    const result = makeGenerationResult({
+      requestId: makeRequestId('req-3'),
+      seed: makeSeed(1),
+      timeline: FOUR_WHOLE_NOTES,
+    })
+    for (const clef of ['treble', 'bass'] as const) {
+      const input = makeNotationPhraseInput({
+        result,
+        tonalContext: { tonalCenter: 'C', collection: 'Major' },
+        harmony: TONIC_EACH_BAR,
+        transposition: { chromatic: 0, diatonic: 0 },
+        concertRange: { minMidi: 48, maxMidi: 72 },
+        clef,
+      })
+      expect(input.clef).toBe(clef)
+    }
+  })
+
+  it('refuses a clef that is neither treble nor bass', () => {
+    const result = makeGenerationResult({
+      requestId: makeRequestId('req-4'),
+      seed: makeSeed(1),
+      timeline: FOUR_WHOLE_NOTES,
+    })
+    expect(() =>
+      makeNotationPhraseInput({
+        result,
+        tonalContext: { tonalCenter: 'C', collection: 'Major' },
+        harmony: TONIC_EACH_BAR,
+        transposition: { chromatic: 0, diatonic: 0 },
+        concertRange: { minMidi: 48, maxMidi: 72 },
+        clef: 'alto' as unknown as InstrumentClef,
+      }),
+    ).toThrow(NotationInputError)
   })
 
   it('rejects a harmony whose chord symbols do not validate', () => {
@@ -203,6 +252,7 @@ describe('makeNotationPhraseInput', () => {
         harmony: badHarmony,
         transposition: { chromatic: 0, diatonic: 0 },
         concertRange: { minMidi: 48, maxMidi: 72 },
+        clef: BUILT_IN_INSTRUMENT_CLEF,
       }),
     ).toThrow(NotationInputError)
   })
@@ -215,7 +265,7 @@ describe('notationInputFromOutcome', () => {
     const outcome = generatePhrase(intent)
     if (outcome.kind !== 'generation_success') throw new Error('Expected a successful generation.')
 
-    const input = notationInputFromOutcome(outcome, intent)
+    const input = notationInputFromOutcome(outcome, intent, BUILT_IN_INSTRUMENT_CLEF)
     expect(input.timeline).toBe(outcome.result.timeline)
     expect(input.tonalContext).toEqual({
       tonalCenter: intent.writtenTonalCenter,
@@ -223,6 +273,19 @@ describe('notationInputFromOutcome', () => {
     })
     expect(input.transposition).toEqual(intent.instrumentProfile.transposition)
     expect(input.chords).toEqual(chordSymbolsFromHarmony(outcome.provenance.harmony))
+    expect(input.clef).toBe('treble')
+  })
+
+  it('takes the clef from its caller, never from the intent', () => {
+    const intent = buildOrchestratorIntent()
+    const outcome = generatePhrase(intent)
+    if (outcome.kind !== 'generation_success') throw new Error('Expected a successful generation.')
+
+    const inTreble = notationInputFromOutcome(outcome, intent, 'treble')
+    const inBass = notationInputFromOutcome(outcome, intent, 'bass')
+    expect(inBass.clef).toBe('bass')
+    expect({ ...inBass, clef: 'treble' }).toEqual(inTreble)
+    expect(Object.keys(intent)).not.toContain('clef')
   })
 
   it('rejects an outcome whose result requestId does not match the given intent', () => {
@@ -231,6 +294,8 @@ describe('notationInputFromOutcome', () => {
     if (outcome.kind !== 'generation_success') throw new Error('Expected a successful generation.')
 
     const otherIntent = buildOrchestratorIntent('Middle', makeSeed(11))
-    expect(() => notationInputFromOutcome(outcome, otherIntent)).toThrow(NotationInputError)
+    expect(() => notationInputFromOutcome(outcome, otherIntent, BUILT_IN_INSTRUMENT_CLEF)).toThrow(
+      NotationInputError,
+    )
   })
 })

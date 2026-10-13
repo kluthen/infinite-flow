@@ -31,6 +31,29 @@
 
 ## In Progress
 
+**v3.0 wave 2: the Clef design and Sessions design gates** (build plan v8 §1), from spec
+D293-D296 (master spec Part A v1.10), on branch `v3.0-w2`. Started 2026-10-12. Written into
+`versions/v3.0/` as a recorded correction and at the root (ux D280). Settled: ux D280-D293; Q76
+closed (ux D285); Q80 raised for `spec-writer`.
+
+- **Clef design gate** (before chunk 20): the clef control, the range bound's refusal, the
+  staff-reach note in the chosen clef, the clef on screen and in the check note, the interval
+  name (ux D281-D285). Written 2026-10-12.
+- **Sessions design gate** (before chunk 20c): the erase warning in the sheet and in the check,
+  the delete confirmation's count, the landing, the outdated tab's withheld form, the review's
+  room for a phrase in another clef (ux D286-D290). Written 2026-10-12.
+- **Stale treble-only lines and the token source's sizing comment** (ux D291, D292); chunk 4's
+  carry-overs (ux D293). Written 2026-10-12.
+- **Validation.** `ux-critic` on both gates: DRIFT, five findings, all fixed (ux D294); recheck: three leftovers,
+  fixed (ux D295). The
+  gates are passed from the design side; chunk 5's save policy needs the storage port to report
+  why a tab became outdated (ux D294), noted with Q80.
+- **Stale phrase design gate** (before chunk 24b-2; spec D297, master spec Part A v1.12 §16):
+  the out-of-date phrase prompt, `screens/stale-phrase-prompt/` (new), with the play-session,
+  workspace, generate-phrase, strategy and motion lines it touches, in both trees (ux
+  D296-D304). Written 2026-10-13. Validation: `ux-critic` DRIFT, four findings, all fixed
+  (ux D305); recheck: one leftover, fixed (ux D306). The gate is passed from the design side.
+
 **v3.3 (richer chords) design**, from master spec Part D (§D1-§D17, proposed for the owner's
 approval with spec D264-D274), on branch `v3.3-chord-research`. Started 2026-10-12; marked on top
 of v3.0's, v3.1's and v3.2's marks, every v3.3 change its own tagged paragraph (ux D252). Owner's
@@ -157,6 +180,12 @@ Dropped (ux D207): the end-of-measure chord-fit presentation (old unit 9), since
 drops the check.
 
 ## Next Unit
+
+v3.0 wave 2: the Clef and Sessions gates are passed (ux D280-D295); Q80 waits for `spec-writer`.
+The Stale phrase design gate is written (ux D296-D304); for `spec-writer`: the lexicon's
+**Starting note** and **Count-in** entries still say the starting note starts the count-in, with
+no word of the prompt an out-of-date phrase opens first (CONTRACT 5.0). At chunk 19b's calibration, if the bass-clef bound E0-E5 needs more than
+24 staff spaces, the bound's figures in the refusal and the Notation Contract come back here.
 
 v3.3: the owner's approval of Part D and of this design (the build plan's D0). At the build, the
 recorded seventh-chord shares come back here twice to confirm the labels, "Mostly" above all (ux
