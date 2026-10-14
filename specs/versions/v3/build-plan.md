@@ -2382,6 +2382,17 @@ must use `sessionSettingsAtStart` as Start does. Until 17b, ending a live my-ins
 would fail at the save (`kept-session-body.ts` still refuses it); no app path can start one before
 chunk 20.
 
+**Record 17b (2026-10-14).** Merged into `v3.0-w5` (1449125, chunk commit 48f1af4); no spec or
+design deviation; the `ifk1.` corpus passes. `createSessionHistory` takes the clef (from Idle's
+written phrase at Start) and every record carries it; a built-in instrument in any clef but treble
+is refused. `ReviewedPhrase` gains `clef` (`KeptPhrase` inherits it); `kept-session-body.ts` copies
+it and no longer throws for my instrument; `ReviewPhrase.vue` and the MusicXML export read
+`record.clef`. `encodeKeptSession`'s signature and the stored shape are unchanged. For chunk 20:
+Idle's written phrase must carry my instrument's clef, which Start then records with no further
+change. Stale for `documentalist`: `docs/release/v3.0-intent-change-set.md` (the encoder throwing
+until chunk 17; section H's "its current clef included", which D295 and the atoms replaced by the
+clef the phrase was played in).
+
 ### Chunk 18 — Replay key `ifk2.`
 
 **Architecture capture:** the `ifk2.` format (revision of `module_phrase_replay_key`).
