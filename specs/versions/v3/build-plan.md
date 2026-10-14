@@ -1397,6 +1397,22 @@ two halves, in order, each its own commit that leaves the app working:
   session controller, with `saved-settings.spec.ts`, the rewritten tests of §2, and
   `docs/storage.md` ("Not here yet" loses the hold and release). It owns the lines marked [7b].
 
+**Record 7a (2026-10-14).** Merged into `v3.0-w4` (5259cd5, chunk commit 3ec46c3). The load outcome
+is `SavedDataLoad.outcome` (`'saved-data-read' | 'started-from-defaults'`) in
+`src/storage-bootstrap.ts`, reached through `App.vue`'s `savedData` prop and
+`workspace.savedData`; `savePolicy` is a promise, settled before the draw when the port opened in
+the wait. M2: `STARTUP_WAIT_MS` stays 2,000 ms; the slowest read was 23 ms (500 kept sessions,
+cold), 2026-10-14, AMD Ryzen 5 PRO 8640HS laptop, headless Chromium (`npm run measure:startup-read`,
+`docs/storage.md`). H2 is with the owner (`HARDWARE-CHECKLIST.md`; its tablet step needs 7b).
+Outside 7a's file list, to carry the loaded values: `WorkspaceShell.vue` and `ScorePanel.vue`
+(optional props), `use-session-options.ts` (shows the loaded values while the controller loads),
+`tests/e2e/workspace/helpers.ts` (`gotoWorkspace` waits for the mount); the harness global now
+appears after the load. Reported to the wave driver: the settings codec decodes the profile
+selection and the profile-controlled controls independently (a "Jazz, not custom" whose one value
+fell back shows Jazz with an off-preset value); `myInstrumentLoaded` stays false until the
+my-instrument chunk reads its store. Opening IndexedDB at every load breaks
+`persistence-absence` test 1 (7b's rewrite) and the storage half of `review-privacy` (chunk 11's).
+
 ### Chunk 8 — Notice row
 
 **Goal.** Tell the player, outside a running session, when saving failed, when storage is full,
