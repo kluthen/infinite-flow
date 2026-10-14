@@ -29,6 +29,7 @@ import {
  */
 // @spec-link [[rule_outdated_tab_stops_saving]]
 // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
+// @spec-link [[module_save_policy]]
 export type SavingState = 'on' | 'off-outdated' | 'off-unreadable'
 
 /**
@@ -37,6 +38,7 @@ export type SavingState = 'on' | 'off-outdated' | 'off-unreadable'
  */
 // @spec-link [[rule_failed_save_never_disturbs_session]]
 // @spec-link [[rule_no_save_during_session]]
+// @spec-link [[module_save_policy]]
 export type SaveOutcome = 'saved' | 'held' | 'skipped' | 'failed'
 
 /** Why a save failed, as reported: a lack of space, or any other storage failure. */
@@ -48,6 +50,7 @@ export type { ProtectionOutcome, VisitRequests } from './save-policy-requests'
 /** The save policy the app writes through, with its requests beyond saving. */
 // @spec-link [[rule_no_save_during_session]]
 // @spec-link [[rule_failed_save_never_disturbs_session]]
+// @spec-link [[module_save_policy]]
 export interface SavePolicy extends VisitRequests {
   /** Whether the visit saves. */
   state(): SavingState
@@ -138,6 +141,7 @@ function createHold() {
 // @spec-link [[rule_no_save_during_session]]
 // @spec-link [[rule_failed_save_never_disturbs_session]]
 // @spec-link [[rule_outdated_tab_stops_saving]]
+// @spec-link [[module_save_policy]]
 export function createSavePolicy(port: StoragePort): SavePolicy {
   const hold = createHold()
   const stateListeners = new Set<(state: SavingState) => void>()

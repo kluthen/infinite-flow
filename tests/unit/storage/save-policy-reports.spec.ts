@@ -47,6 +47,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
+// @test-link [[module_save_policy]]
 describe('reporting a failed save', () => {
   // @test-link [[rule_failed_save_never_disturbs_session]]
   it('reports a write refused for lack of space as quota, never rejecting', async () => {
@@ -138,6 +139,7 @@ describe('reporting a failed save', () => {
   })
 })
 
+// @test-link [[module_save_policy]]
 describe('asking for persistent storage', () => {
   // @test-link [[rule_persistent_storage_requested]]
   it('asks once per visit, on the first request, after checking it is not yet persistent', async () => {

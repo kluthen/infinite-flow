@@ -20,6 +20,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
+// @test-link [[module_save_policy]]
 describe('space and protection for Your data', () => {
   // @test-link [[req_your_data]]
   it('reports the browser estimate and whether the data is persistent', async () => {
@@ -32,6 +33,7 @@ describe('space and protection for Your data', () => {
   })
 })
 
+// @test-link [[module_save_policy]]
 describe('deleting everything', () => {
   // @test-link [[rule_delete_everything]]
   it('removes the whole database while saving is on', async () => {

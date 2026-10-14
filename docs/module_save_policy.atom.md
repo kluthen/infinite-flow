@@ -1,0 +1,55 @@
+---
+id: module_save_policy
+status: DRAFT
+priority: 1
+notes: Created 2026-10-14 at DRAFT by the v3.0 wave-3 post-task sync, from build plan chunk 5 as merged (save policy, merge 9f01f7f), as the wave-3 preflight asked: no ARCHITECTURE atom governed the save policy, which module_on_device_database leaves to the policy built on its port. Built in storage and not wired yet: no app code uses the policy until build plan chunk 7 wires it, so none of its parents is met in the running app by it alone. The once-per-run failure report comes from the saved-data design (Notices); never asking for persistent storage while saving is off agrees with rule_persistent_storage_requested. Status DRAFT; no status advanced.
+dependents: []
+type: MODULE
+version: 0.1
+tags: [v3, release-v3.0, storage]
+parents:
+  - [[module_on_device_database]]
+  - [[req_your_data]]
+  - [[rule_delete_everything]]
+  - [[rule_failed_save_never_disturbs_session]]
+  - [[rule_first_phrase_waits_for_saved_settings]]
+  - [[rule_no_save_during_session]]
+  - [[rule_outdated_tab_stops_saving]]
+  - [[rule_persistent_storage_requested]]
+  - [[rule_settings_saved_on_change]]
+human_name: Save Policy
+layer: ARCHITECTURE
+---
+
+# Save Policy
+
+## INTENT
+Decide in one place when a change reaches the saved data, so that a running session never waits on storage, nothing is written while the visit may not save, and a refused save is reported without disturbing anything.
+
+## THE RULE / LOGIC
+The save policy sits on the storage port and is the one way the app changes its saved data. It is pure: the port is injected, and it keeps no clock.
+
+Saving state. A visit's saving is on, off-outdated or off-unreadable. It starts on when the port opened ready, off-outdated when the port opened outdated, and off-unreadable when the port could not be opened. It turns off-unreadable when the start-up read of the saved data failed or took too long, and off-outdated as soon as the port reports that a newer version of the app has written data or refuses a change as outdated. Off-outdated is final and wins: nothing turns it back, and a newer version's data turns off-unreadable into off-outdated. Saving never turns back on during the visit. Listeners are told of each change of the state.
+
+Saving. While saving is on and no session holds the saves, a write, a delete or a batch of writes and deletes is applied at once, the batch in one transaction. While saving is off, every write and delete is skipped, and is never applied later.
+
+The session hold. At a session's start the saves are held, and at its end they are released. Between the two nothing touches the database: each change is queued, coalesced per store and key so that only the latest change to each record is kept, and at the release every held change is flushed in one batch, applied in one transaction, all or none. If saving turns off while the saves are held, the held changes are dropped and the release flushes nothing.
+
+Failures. A save the port refuses never rejects: it resolves as failed. A refusal as outdated resolves as skipped instead, and turns saving off-outdated. A refusal for lack of space, or for any other reason, is reported with its kind, quota or other, to the one failure listener. A run of refusals with no successful save between them is reported once; the first refusal after a success starts a new run.
+
+Persistent storage. The request for persistent storage is made of the browser at most once per visit, never while saving is off, where an attempt does not use up the visit's request, and never when the storage already is persistent. Made during a session, it waits for the release and runs right after the held changes are flushed. A refusal of the browser's storage manager resolves as failed and is not reported as a failed save.
+
+Your data and Delete everything. The policy passes on the browser's estimate of the space used and whether the storage is persistent. Delete everything runs when saving is on and when it is off-unreadable, so a visit whose saved data could not be read still offers it; in an outdated tab it is refused as outdated without reaching the port. Its refusal goes to the caller, not to the failure listener.
+
+## TECHNICAL INTERFACE
+src/storage/save-policy.ts exports createSavePolicy(port), which gives a SavePolicy: state(), a SavingState ('on', 'off-outdated' or 'off-unreadable'); onStateChange(listener); stopSavingUnreadable(); write(store, key, record), delete(store, key) and save(changes), each resolving a SaveOutcome ('saved', 'held', 'skipped' or 'failed'); hold() and release(); and onFailure(listener), told a SaveFailureKind ('quota' or 'other'). src/storage/save-policy-requests.ts builds the requests beyond saving through createVisitRequests: requestProtection(), resolving a ProtectionOutcome ('granted', 'refused', 'already-protected', 'not-asked' or 'failed'), estimate(), persisted() and deleteEverything(). A batch and the flush at release go to the port's apply(changes), a list of StorageChange writes and deletes. Holding twice, releasing without a hold, an empty batch, a second failure listener and Delete everything during a session are defects of the caller and throw.
+
+## EXPECTATION
+- Between hold() and release() the port sees no call; at release() it receives each held record once, with its latest change, in one batch.
+- While saving is off no write or delete reaches the port, and nothing skipped or held is applied later.
+- Saving that turns off while the saves are held drops them, and the release flushes nothing.
+- Off-outdated is never left, and data written by a newer version turns off-unreadable into off-outdated.
+- A quota or other refusal resolves as failed and is reported with its kind; a second refusal in a row is not reported again; one after a success is.
+- A refusal as outdated resolves as skipped and turns saving off-outdated.
+- Persistent storage is asked for at most once per visit, never while saving is off, never when already persistent, and during a session only after the release.
+- Delete everything runs when saving is on or off-unreadable, and is refused as outdated in an outdated tab.

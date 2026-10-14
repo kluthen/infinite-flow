@@ -32,6 +32,7 @@ export interface SavingView {
 // @spec-link [[rule_persistent_storage_requested]]
 // @spec-link [[req_your_data]]
 // @spec-link [[rule_delete_everything]]
+// @spec-link [[module_save_policy]]
 export interface VisitRequests {
   /**
    * Ask the browser once per visit for persistent storage, unless it already is persistent. Not
@@ -59,6 +60,7 @@ export interface VisitRequests {
 // @spec-link [[rule_persistent_storage_requested]]
 // @spec-link [[req_your_data]]
 // @spec-link [[rule_delete_everything]]
+// @spec-link [[module_save_policy]]
 export function createVisitRequests(port: StoragePort, view: SavingView): VisitRequests {
   let protectionAsked = false
 

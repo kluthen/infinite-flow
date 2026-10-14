@@ -59,6 +59,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
+// @test-link [[module_save_policy]]
 describe('the saving state at the start of the visit', () => {
   // @test-link [[rule_outdated_tab_stops_saving]]
   it('is on over a ready port and off-outdated over an outdated one', async () => {
@@ -77,6 +78,7 @@ describe('the saving state at the start of the visit', () => {
   })
 })
 
+// @test-link [[module_save_policy]]
 describe('changes of the saving state', () => {
   // @test-link [[rule_first_phrase_waits_for_saved_settings]]
   it('turns off-unreadable when the start-up read fails, telling the listeners once', async () => {
@@ -143,6 +145,7 @@ describe('changes of the saving state', () => {
   })
 })
 
+// @test-link [[module_save_policy]]
 describe('saving while saving is on and no session runs', () => {
   // @test-link [[rule_settings_saved_on_change]]
   it('saves each write, delete and batch at once', async () => {
@@ -187,6 +190,7 @@ describe('saving while saving is on and no session runs', () => {
   })
 })
 
+// @test-link [[module_save_policy]]
 describe('saving while saving is off', () => {
   // @test-link [[rule_outdated_tab_stops_saving]]
   it('skips every write and delete of an outdated tab, which reach no database', async () => {
@@ -217,6 +221,7 @@ describe('saving while saving is off', () => {
   })
 })
 
+// @test-link [[module_save_policy]]
 describe('holding the saves of a session', () => {
   // @test-link [[rule_no_save_during_session]]
   it('lets no call reach the database between hold and release', async () => {
