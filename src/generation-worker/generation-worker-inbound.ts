@@ -19,6 +19,13 @@ import { parseCarryIn } from '../domain/generation/carry-in/carry-in'
 import { makeCarryInGenerationIntent } from '../domain/generation/carry-in/carry-in-intent'
 import { makeGenerationIntent, type GenerationIntent } from '../domain/generation/generation-intent'
 import { makeRequestId } from '../domain/generation/generation-request'
+import {
+  parseInstrumentProfile,
+  type InstrumentProfile,
+} from '../domain/profile/instrument-profile'
+import { C_KEYBOARD_PROFILE, MY_INSTRUMENT_ID } from '../domain/profile/instrument-profiles'
+import { makeMyInstrument } from '../domain/profile/my-instrument'
+import { transpositionFromInstrumentTransposition } from '../domain/profile/transposition-interval'
 import { makeSeed } from '../domain/random/seed'
 import {
   asPlainRecord,
@@ -50,6 +57,93 @@ function parseProfileSelection(input: unknown): ProfileSelection {
   return { musicalProfile: musicalProfile as ProfileSelection['musicalProfile'], isCustom }
 }
 
+const MY_INSTRUMENT_PROFILE_CONTEXT = 'GenerationWorkerRequest.intent.instrumentProfile'
+const MY_INSTRUMENT_PROFILE_ALLOWED_KEYS = new Set([
+  'kind',
+  'id',
+  'displayName',
+  'concertRange',
+  'registerWindows',
+  'transposition',
+])
+const CONCERT_RANGE_ALLOWED_KEYS = new Set(['kind', 'minMidi', 'maxMidi'])
+
+/**
+ * Intent: the profile my instrument derives from the parsed profile's own written range (its
+ * concert range moved by the chromatic count) and transposition, built by `makeMyInstrument`, so
+ * every rule my instrument obeys applies: a span of two octaves, both ends sounding inside MIDI,
+ * letter steps from the interval table, the built-in window policy. The template and the clef
+ * feed no part of the profile; the C keyboard stands in for the template.
+ */
+function derivedMyInstrumentProfile(parsed: InstrumentProfile): InstrumentProfile {
+  const { chromatic } = parsed.transposition
+  return makeMyInstrument({
+    template: C_KEYBOARD_PROFILE.id,
+    name: parsed.displayName,
+    clef: 'treble',
+    writtenRange: {
+      minMidi: parsed.concertRange.minMidi + chromatic,
+      maxMidi: parsed.concertRange.maxMidi + chromatic,
+    },
+    transposition: transpositionFromInstrumentTransposition(parsed.transposition),
+  }).profile
+}
+
+/** Intent: the untrusted profile record parsed by the domain's profile parser, its tags checked. */
+function parseTaggedProfile(input: unknown): InstrumentProfile {
+  const record = asPlainRecord(input, MY_INSTRUMENT_PROFILE_CONTEXT)
+  requireAllowedKeys(record, MY_INSTRUMENT_PROFILE_ALLOWED_KEYS, MY_INSTRUMENT_PROFILE_CONTEXT)
+  if (record.kind !== 'InstrumentProfile')
+    throw new GenerationWorkerProtocolError(
+      `${MY_INSTRUMENT_PROFILE_CONTEXT}.kind must be "InstrumentProfile".`,
+    )
+  const range = asPlainRecord(record.concertRange, `${MY_INSTRUMENT_PROFILE_CONTEXT}.concertRange`)
+  requireAllowedKeys(
+    range,
+    CONCERT_RANGE_ALLOWED_KEYS,
+    `${MY_INSTRUMENT_PROFILE_CONTEXT}.concertRange`,
+  )
+  if (range.kind !== 'ActiveConcertRange')
+    throw new GenerationWorkerProtocolError(
+      `${MY_INSTRUMENT_PROFILE_CONTEXT}.concertRange.kind must be "ActiveConcertRange".`,
+    )
+  return parseInstrumentProfile({
+    id: record.id,
+    displayName: record.displayName,
+    concertRange: { minMidi: range.minMidi, maxMidi: range.maxMidi },
+    registerWindows: record.registerWindows,
+    transposition: record.transposition,
+  })
+}
+
+/**
+ * Intent: parse my instrument's profile, carried as data in an untrusted wire intent: the domain's
+ * profile parser checks its shape and the profile's own invariants, then the profile my instrument
+ * derives from the same written range, transposition and name must equal it field for field, so a
+ * profile no my instrument can have (windows set by hand, letter steps off the interval table, a
+ * span under two octaves, a range sounding outside MIDI, another id) is refused. Every refusal is
+ * a GenerationWorkerProtocolError naming its cause.
+ */
+// @spec-link [[module_generation_worker_protocol]]
+// @spec-link [[entity_my_instrument]]
+function parseMyInstrumentProfile(input: unknown): InstrumentProfile {
+  let parsed: InstrumentProfile
+  let derived: InstrumentProfile
+  try {
+    parsed = parseTaggedProfile(input)
+    derived = derivedMyInstrumentProfile(parsed)
+  } catch (error) {
+    throw new GenerationWorkerProtocolError(
+      `${MY_INSTRUMENT_PROFILE_CONTEXT} is not a valid my-instrument profile: ${(error as Error).message}`,
+    )
+  }
+  if (parsed.id !== MY_INSTRUMENT_ID || !deepEqual(parsed, derived))
+    throw new GenerationWorkerProtocolError(
+      `${MY_INSTRUMENT_PROFILE_CONTEXT} is not the profile my instrument derives from its range and transposition.`,
+    )
+  return derived
+}
+
 const GENERATION_INTENT_ALLOWED_KEYS = new Set([
   'requestId',
   'seed',
@@ -74,11 +168,14 @@ const GENERATION_INTENT_ALLOWED_KEYS = new Set([
  * by field (any fault is a CarryInError) and then checked against the rebuilt intent by
  * `makeCarryInGenerationIntent` itself; its `finalHarmony` is a carried chord or an explicit null
  * (dropped by a key or collection change), never missing. Shared by the worker request parser and
- * the phrase replay key decoder so neither keeps a parallel schema.
+ * the phrase replay key decoder so neither keeps a parallel schema. A built-in's profile is
+ * resolved from its id; my instrument's, which its id alone cannot give, is read from the record's
+ * `instrumentProfile` through `parseMyInstrumentProfile`.
  */
 // @spec-link [[module_generation_worker_protocol]]
 // @spec-link [[module_phrase_replay_key]]
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
+// @spec-link [[entity_my_instrument]]
 export function rebuildGenerationWorkerIntent(record: Record<string, unknown>): GenerationIntent {
   if (typeof record.requestId !== 'string') {
     throw new GenerationWorkerProtocolError(
@@ -106,7 +203,11 @@ export function rebuildGenerationWorkerIntent(record: Record<string, unknown>): 
   })
   const musicalProfile = parseProfileSelection(record.musicalProfile)
   const carryIn = 'carryIn' in record ? parseCarryIn(record.carryIn) : undefined
-  const input = { requestId, seed, controls, musicalProfile }
+  const suppliedProfile =
+    controls.instrumentProfileId === MY_INSTRUMENT_ID
+      ? { instrumentProfile: parseMyInstrumentProfile(record.instrumentProfile) }
+      : {}
+  const input = { requestId, seed, controls, musicalProfile, ...suppliedProfile }
 
   return carryIn === undefined
     ? makeGenerationIntent(input)
@@ -116,8 +217,9 @@ export function rebuildGenerationWorkerIntent(record: Record<string, unknown>): 
 /**
  * Intent: parse one untrusted wire GenerationIntent by rejecting any unknown field, rebuilding the
  * intent from its owning fields via `rebuildGenerationWorkerIntent`, then asserting the rebuilt
- * intent deep-equals the received record field-for-field. `instrumentProfile` and `registerIntent`
- * are derived deterministically from those owning fields, so this both validates them and proves
+ * intent deep-equals the received record field-for-field. A built-in's `instrumentProfile` and
+ * every `registerIntent` are derived deterministically from those owning fields (my instrument's
+ * profile is itself an owning field, validated as data), so this both validates them and proves
  * the wire value was not tampered with or corrupted in transit; an intent without a carry-in must
  * have no such field.
  */
