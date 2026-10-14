@@ -1572,6 +1572,19 @@ its merged code.
 **Verification:** the chunk checks; a debug run with two tabs on the dev server (the newer one
 simulated through the harness).
 
+**Record (2026-10-14).** Merged into `v3.0-w4` (6071356, chunk commit 5f9f902). `AppNoticeRow.vue`
+and `use-app-notices.ts` are new; `WorkspaceShell.vue` takes the required `savedData` prop.
+`module_save_policy` 0.2 is built, and the failure listener became `listener(kind, startsRun)`
+(`SaveFailureListener`): under 0.2 the row could not otherwise tell a change of kind inside a run
+from a new run after a success, and so could not keep a dismissed notice away until a save succeeds.
+A `documentalist` peek found it within 0.2 (no sign-off); the wave sync revises the atom's
+TECHNICAL INTERFACE. Harness: `?storageRead=fail|slow`, `storage.refuseSaves(kind)`,
+`storage.portChanges()`, `storage.openNewerVersion()` (`docs/testing.md`). Outside the file list:
+`src/App.vue` (one line), and a `quietSavedData()` test helper for the seven `WorkspaceShell`
+spec files. Known gap, not a deviation: a refusal before the row attaches its listener (only while
+a late-opening port's policy is arriving) is not shown, though it counts toward its run.
+`WorkspaceShell.vue` is near the 400-line warning.
+
 ### Gate A — Contract 2.0
 
 Not a chunk: an owner step with a commit of its own, made by `documentalist` on `main`. The owner
