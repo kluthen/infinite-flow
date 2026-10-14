@@ -562,6 +562,93 @@ changes; chunk 24's quiet stop is replaced in chunk 24b. Later the same day the 
 both owner steps are done and the **Stale phrase design** gate can start. The **Review reachability** step is done
 (CONTRACT 4.0, 2026-10-12).
 
+#### Wave 3 preflight (2026-10-14)
+
+`documentalist` ran the full pass and the file pass for chunks 5 and 9 on `v3.0-w3` (made from
+`main` 488d9e0), without an LLM: classifications from `atd query`, the `@spec-link` tags in the
+chunks' files, grep over the atoms, and reading the atoms, the master spec, the design and the
+code they name. Chunk 9's architecture capture is made now, before code: two new atoms,
+`entity_kept_session_record` and `module_kept_session_codec` (ARCHITECTURE, DRAFT). `atd lint`
+passes. No status was advanced and no STABLE atom was touched. Statuses as found: every atom the
+two Atoms lines name is DRAFT, except `rule_session_history_keeps_timeline_and_inputs` and
+`service_session_history` (REVIEW); in reach also `module_on_device_database` and
+`module_session_seed_plan` (REVIEW). VISION 0.9 covers kept sessions; no atom of either chunk is on
+the contract's surface (CONTRACT 5.0).
+
+| Chunk | Verdict | Governing atoms | Open before code |
+| --- | --- | --- | --- |
+| 5 | PROCEED-WITH-SIGNOFF-PENDING | `rule_no_save_during_session`, `rule_failed_save_never_disturbs_session`, `rule_persistent_storage_requested`, `rule_outdated_tab_stops_saving` (DRAFT); in reach also `rule_first_phrase_waits_for_saved_settings` (the `off-unreadable` state), `rule_settings_saved_on_change` (a change during a session saved at its end), `req_your_data` (estimate, persisted) (DRAFT), and `module_on_device_database` (REVIEW, on `storage-port.ts`) | Nothing blocks. The sign-off pending is the sync's: flushing the held writes "in one transaction" needs a batch the port lacks (it writes one record per call), so extending `storage-port.ts` revises `module_on_device_database`'s interface, for the owner at the wave gate. No ARCHITECTURE atom governs the save policy (`module_on_device_database` leaves it to "the save policy built on this port"); the sync records one. "Never while saving is off" for the persistence request is not in `rule_persistent_storage_requested`, and agrees with it: a visit that saves nothing keeps nothing. The "reports once" rule is the design's (saved-data handoff, Notices). Keep true: nothing touches the database while held; while off, a queued write is dropped, never flushed later; the meta check inside every write transaction holds for the batch too; the port's error kinds unchanged. |
+| 9 | PROCEED-WITH-SIGNOFF-PENDING | `rule_kept_session_content`, `rule_kept_session_holds_no_acknowledgements` (DRAFT); (v2) `rule_session_history_keeps_timeline_and_inputs`, `service_session_history` (REVIEW); captured `entity_kept_session_record`, `module_kept_session_codec` (DRAFT); in reach also `req_kept_session_list`, `req_kept_session_review`, `rule_played_notes_kept_only_after_opt_in`, `rule_outdated_tab_reads_what_it_can` (DRAFT), `module_session_seed_plan`, `module_on_device_database` (REVIEW); in the review files `req_last_session_review`, `rule_review_played_notes_toggle`, `rule_repeat_phrase_marked_internally_only` (STABLE) | The leader settles the three points below and the capture is completed at the sync. The owner's sign-off is on `rule_kept_session_content`'s wording (gap 1 below), which does not block the code: the capture already holds the session seed, from master spec §5.2. If the review input adapter touches `ReviewPanel.vue`, `ReviewPhrase.vue` or `review-types.ts`, it is a type change only: the review of the session that just ended engraves, lists and exports exactly as today. Keep true: the history and the export modules storage-free (the trap test); no acknowledgement, rhythm or tension provenance or diagnostics in any record; a profile decoded from its data, never rebuilt from its id; the `ifk1.` corpus untouched. |
+
+The capture, in short. A kept session is up to three records under one key the saver supplies:
+the session-wide record in `sessionSummaries` (start, length, phrase count, the musical profile
+selection at Start, the instrument id with the display name it had, starting and reached tempo,
+pinned, favorites count, comment, whether played notes are kept, the app version that recorded it
+in a field of its own, and the session seed); the body in `sessionBodies` (per sounded phrase: its
+number, its start, the timeline, the chord symbols' harmony, the intent with the profile as data,
+the tempo, the repeat mark with the phrase repeated, the favorite mark and the clef); and the
+played notes in `playedNotes`, only when kept. Every time is in seconds from phrase 1's scheduled
+start, the earliest audio-clock moment the history holds. Decoding classifies through the envelope
+(a newer record left unread, an invalid one unreadable, never repaired) and gives the review's
+input, inventing nothing the records do not hold.
+
+Left to chunk 9's leader (recorded in the atoms at the sync):
+
+- **The length.** The history holds no end time and the design shows whole minutes ("Under 1 min"
+  below 30 seconds). Proposed: from phrase 1's scheduled start to the end of the last sounded
+  phrase, computed from the history alone.
+- **The session seed's record.** The capture puts it in the session-wide record, reading the
+  spec's "one session-wide record"; §2's store list calls `sessionSummaries` what a list row shows.
+  The leader may move it to the body; the atom follows.
+- **Validation without a rebuild by id.** No parser validates a stored harmony beyond "a plain
+  object" (`parseGenerationProvenance` is private and only checks that), and the only whole-intent
+  parsers (`rebuildGenerationWorkerIntent`, `parseGenerationWorkerIntent`) rebuild the profile
+  from its id. The pieces that fit are `parseGenerationRequest`, `parseCarryIn`,
+  `parseInstrumentProfile`, `parseConcertEventTimeline` and `isInstrumentClef`.
+
+Plan corrections the preflight found (listed, not applied):
+
+- **Chunk 9, Scope.** The body list lacks each phrase's number, its start, the phrase a repeat
+  repeats and its clef. The review's played-notes lane and the played-notes MIDI input read each
+  phrase's start (the input checks that phrases are back to back), and master spec §5.2 keeps the
+  clef with each phrase's instrument since spec D293 and D295.
+- **Chunk 9, Scope.** "Decoding validates through the existing parsers (outcome …)":
+  `parseGenerationOutcome` requires `provenance.rhythm`, `provenance.tensionBinding` and
+  `diagnostics`, which are never kept, so it cannot read a kept phrase (the third point above).
+- **Chunk 9, Scope.** "`src/session/` … not changed" and "the same review input the in-memory
+  history gives": the review and the export adapters (`musicXmlInputFromHistory`,
+  `midiInputFromHistory`, `playedNotesMidiInputFromHistory` in `src/session/session-history-export.ts`)
+  take `SessionHistoryRecord`, whose outcome needs the provenance and diagnostics and whose record
+  needs the acknowledgements. Decoding cannot give one without inventing them. Either those
+  parameters narrow to the fields read (a type-only change in `src/session/`), or the review input
+  adapter builds the encoder inputs itself. The leader chooses; behaviour in `src/session/` does
+  not change either way.
+- **Chunk 9, Scope.** The summary's app version is the session's own fact; the envelope's
+  `appVersion` names the app that last wrote the record, which a migration rewrites. The capture
+  keeps them apart.
+- **Chunk 5, Scope.** "Every write is skipped while off" should say deletes too, with one
+  exception: in a visit whose read failed (`off-unreadable`), Delete everything stays offered (master
+  spec §4.4), while an outdated tab offers none (the port already refuses it). The batch added for
+  the flush is best made to take deletes as well as writes, so chunk 10's one save transaction
+  (write the new session, delete every unpinned one) needs no second port change.
+
+Chunk 17 and the clef: no schema change is needed. Master spec §5.2 and `rule_kept_session_content`
+0.2 already keep my instrument's clef with each phrase's instrument, and the capture puts a clef
+field in every body phrase now (treble for every built-in, the only instruments a session can be
+played with before chunk 17) and keeps each phrase's profile as data, decoded without a rebuild
+by id. Chunk 17 changes only where the clef comes from (the history record it adds the clef to)
+and has the review read it. No v3.0 session data exists before the release, so data version 1
+would need no migration even then.
+
+Gaps:
+
+1. **For the owner (wording), does not block.** `rule_kept_session_content` 0.2 (DRAFT, BUSINESS)
+   lists the session's facts without the session seed that master spec §5.2 keeps since spec D255
+   and D258. Proposed: after "the app version that recorded it", add "and its session seed, the
+   one seed every later phrase's seed derives from; nothing that can be derived from it is kept".
+   It stays DRAFT, version 0.3.
+2. **For `spec-writer` and `ux-writer`:** none found.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten

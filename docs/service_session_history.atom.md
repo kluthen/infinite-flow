@@ -15,7 +15,8 @@ parents:
   - [[rule_session_history_records_played_notes]]
   - [[rule_session_settings_locked]]
   - [[service_session_engine]]
-dependents: []
+dependents:
+  - [[module_kept_session_codec]]
 notes: Revised 2026-10-12 at the v3.0 wave-1 post-task sync (previous version 0.3) for build plan chunk 23's session seed plan (module_session_seed_plan, merge aee776c): the history holds the session seed among the session's own facts (spec D255), given at creation, with nothing derived from it. Status unchanged; no status advanced. Earlier: Revised 2026-10-03 before code in v2 chunk 27 (previous version 0.2, pre-code architecture capture) for adaptive tempo: each record takes its tempo from its phrase-sounding output instead of the locked settings, and the tempo the session reached is the last recorded phrase tempo. Completed 2026-10-03 in the v2 chunk 27 post-task sync, as built: tempoReached() and the refusal of a phrase-sounding output at an unusable tempo. Status stays DRAFT.
 ---
 

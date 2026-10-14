@@ -6,6 +6,7 @@ priority: 1
 tags: [v3, release-v3.0, storage, review]
 notes: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 dependents:
+  - [[module_kept_session_codec]]
   - [[req_favorite_phrases]]
   - [[rule_session_comment]]
 layer: BUSINESS

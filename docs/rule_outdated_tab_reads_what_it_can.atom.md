@@ -2,6 +2,7 @@
 id: rule_outdated_tab_reads_what_it_can
 status: DRAFT
 dependents:
+  - [[module_kept_session_codec]]
   - [[module_on_device_database]]
 type: RULE
 version: 0.1
