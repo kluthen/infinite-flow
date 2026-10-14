@@ -1,7 +1,8 @@
 /**
  * The storage port: the one way the app reaches its saved data. It reads and writes the records of
- * the database's stores, deletes everything, and reports the space used and whether storage is
- * persistent, through an injected IndexedDB factory and storage manager.
+ * the database's stores, one at a time or as a batch applied in one transaction, deletes
+ * everything, and reports the space used and whether storage is persistent, through an injected
+ * IndexedDB factory and storage manager.
  *
  * The port is `ready`, `outdated` (a newer version of the app has written data: it still reads,
  * never writes) or `unavailable` (the database could not be opened: it still deletes everything).
@@ -11,7 +12,7 @@
  */
 
 import {
-  changeStore,
+  changeStores,
   DATA_STORES,
   DATABASE_NAME,
   deleteDatabase,
@@ -74,6 +75,17 @@ export interface StoragePortOptions {
   readonly databaseName?: string
 }
 
+/** One change of a batch: store a record under a key, or remove the record under a key. */
+// @spec-link [[module_on_device_database]]
+export type StorageChange =
+  | {
+      readonly kind: 'write'
+      readonly store: StoreName
+      readonly key: string
+      readonly record: RecordVersions
+    }
+  | { readonly kind: 'delete'; readonly store: StoreName; readonly key: string }
+
 /** The port the app reaches its saved data through. */
 // @spec-link [[module_on_device_database]]
 export interface StoragePort {
@@ -85,6 +97,11 @@ export interface StoragePort {
   write(store: StoreName, key: string, record: RecordVersions): Promise<void>
   /** Remove the record under `key`; refused when outdated. */
   delete(store: StoreName, key: string): Promise<void>
+  /**
+   * Apply every change, in list order, in one transaction: all or none. Refused like `write` when
+   * outdated, unavailable or deleted, or out of space.
+   */
+  apply(changes: readonly StorageChange[]): Promise<void>
   /** Remove the whole database; refused when outdated. Every later call is refused. */
   deleteEverything(): Promise<void>
   /** The browser's estimate of the space used and available. */
@@ -128,6 +145,19 @@ function assertDataStore(store: string): asserts store is StoreName {
   if (!(DATA_STORES as readonly string[]).includes(store)) {
     throw new Error(`storage port: "${store}" is not a data store`)
   }
+}
+
+/**
+ * Intent: throw unless a change of a batch names a data store, a known kind and, for a write, a
+ * record with valid versions: anything else is a caller defect.
+ */
+function assertChange(change: StorageChange, dataVersion: number): void {
+  assertDataStore(change.store)
+  const kind: string = change.kind
+  if (kind !== 'write' && kind !== 'delete') {
+    throw new Error(`storage port: "${kind}" is not a kind of change`)
+  }
+  if (change.kind === 'write') assertWritableVersions(change.record, dataVersion)
 }
 
 /**
@@ -200,15 +230,19 @@ export async function openStoragePort(options: StoragePortOptions): Promise<Stor
   }
 
   /**
-   * Intent: change one store on a ready port; refused with `outdated` on an outdated one, and
-   * when the transaction finds a newer data version in `meta`, the port then turning outdated.
+   * Intent: change some stores in one transaction on a ready port; refused with `outdated` on an
+   * outdated one, and when the transaction finds a newer data version in `meta`, the port then
+   * turning outdated.
    */
   // @spec-link [[rule_outdated_tab_stops_saving]]
-  const changeOne = async (store: StoreName, change: (objectStore: IDBObjectStore) => void) => {
+  const changeSome = async (
+    stores: readonly StoreName[],
+    change: (objectStore: (store: StoreName) => IDBObjectStore) => void,
+  ) => {
     if (state === 'outdated') throw new StorageError('outdated', 'a newer version saves now')
     if (state !== 'ready' || connection === null) throw unusable()
     const open = connection
-    const outcome = await refusingAs(() => changeStore(open, store, dataVersion, change))
+    const outcome = await refusingAs(() => changeStores(open, stores, dataVersion, change))
     if (outcome === 'done') return
     becomeOutdated()
     throw new StorageError('outdated', 'a newer version of the app has written data')
@@ -235,11 +269,23 @@ export async function openStoragePort(options: StoragePortOptions): Promise<Stor
     write: async (store, key, record) => {
       assertDataStore(store)
       assertWritableVersions(record, dataVersion)
-      await changeOne(store, (objectStore) => objectStore.put(record, key))
+      await changeSome([store], (objectStore) => objectStore(store).put(record, key))
     },
     delete: async (store, key) => {
       assertDataStore(store)
-      await changeOne(store, (objectStore) => objectStore.delete(key))
+      await changeSome([store], (objectStore) => objectStore(store).delete(key))
+    },
+    // @spec-link [[module_on_device_database]]
+    apply: async (changes) => {
+      if (changes.length === 0) throw new Error('storage port: a batch must hold a change')
+      for (const change of changes) assertChange(change, dataVersion)
+      const stores = [...new Set(changes.map((change) => change.store))]
+      await changeSome(stores, (objectStore) => {
+        for (const change of changes) {
+          if (change.kind === 'write') objectStore(change.store).put(change.record, change.key)
+          else objectStore(change.store).delete(change.key)
+        }
+      })
     },
     // @spec-link [[rule_delete_everything]]
     deleteEverything: async () => {
