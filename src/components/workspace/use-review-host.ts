@@ -6,10 +6,10 @@
  * the warm-up of the panel's chunk when a session starts, so the Review opening at its end does
  * not wait on a fetch. The export's format and backing track and the Played notes switch start
  * from the player's saved review preferences, loaded before the first draw, and are then held
- * here, in memory, for as long as the page lives, kept across Reviews and sessions; saving them
- * as they change comes later.
+ * here for as long as the page lives, kept across Reviews and sessions; each change of the
+ * player's goes through this host's setters, which save it as it changes.
  */
-import { computed, ref, shallowRef, watch, type ComputedRef, type Ref } from 'vue'
+import { computed, readonly, ref, shallowRef, watch, type ComputedRef, type Ref } from 'vue'
 
 import { loadReviewPanel } from '@/components/review/load-review-panel'
 import type { ExportRequest, GeneratedNotesFormat } from '@/components/review/review-types'
@@ -20,6 +20,7 @@ import type { StaffViewport } from '@/notation/notation-layout-policy'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { SessionHistory, SessionHistoryRecord } from '@/session/session-history'
 import type { ReviewPreferences } from '@/storage/records/setting-defaults'
+import type { SaveSettings } from '@/storage/settings-saver'
 import {
   exportGeneratedNotes,
   exportPlayedNotes,
@@ -29,8 +30,9 @@ import {
 import type { SessionController } from './workspace-session-controller-types'
 
 /**
- * What the Review host reads: the session controller, the Idle state, the export's ports, and the
- * saved review preferences its export choices and Played notes switch start from.
+ * What the Review host reads: the session controller, the Idle state, the export's ports, the
+ * saved review preferences its export choices and Played notes switch start from, and the saver
+ * of the player's changes to them.
  */
 // @spec-link [[req_last_session_review]]
 export interface ReviewHostDependencies {
@@ -40,6 +42,9 @@ export interface ReviewHostDependencies {
   // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
   // @spec-link [[module_review_played_notes_lane]]
   readonly initialPreferences: ReviewPreferences
+  /** Save the settings a player's change changed. */
+  // @spec-link [[rule_settings_saved_on_change]]
+  readonly saveSettings: SaveSettings
 }
 
 /** What the score panel binds the Review with. */
@@ -56,8 +61,16 @@ export interface ReviewHost {
   readonly viewport: Readonly<Ref<StaffViewport | null>>
   /** The workspace staff has no room (the no-room cause only), live. */
   readonly noRoom: ComputedRef<boolean>
-  readonly format: Ref<GeneratedNotesFormat>
-  readonly backingTrack: Ref<boolean>
+  /** The generated-notes export's format; from the saved preference, changed by `setFormat`. */
+  readonly format: Readonly<Ref<GeneratedNotesFormat>>
+  /** The export's backing track; from the saved preference, changed by `setBackingTrack`. */
+  readonly backingTrack: Readonly<Ref<boolean>>
+  /** The player chose the export's format: set and save it. */
+  // @spec-link [[rule_settings_saved_on_change]]
+  readonly setFormat: (format: GeneratedNotesFormat) => void
+  /** The player chose whether the export holds the backing track: set and save it. */
+  // @spec-link [[rule_settings_saved_on_change]]
+  readonly setBackingTrack: (on: boolean) => void
   /** Build the asked file from the showing Review's history and download it; rejects on failure. */
   readonly exportFile: (request: ExportRequest) => Promise<void>
   /** The showing Review's history holds a played note in a phrase; false while none shows. */
@@ -66,9 +79,15 @@ export interface ReviewHost {
   /** Build the showing Review's played-notes file and download it; rejects on failure. */
   // @spec-link [[req_played_notes_export]]
   readonly exportPlayedNotes: () => Promise<void>
-  /** The Review's Played notes switch is on; from the saved preference, held for the page. */
+  /**
+   * The Review's Played notes switch is on; from the saved preference, held for the page, changed
+   * by `setPlayedNotesShown`.
+   */
   // @spec-link [[module_review_played_notes_lane]]
-  readonly playedNotesShown: Ref<boolean>
+  readonly playedNotesShown: Readonly<Ref<boolean>>
+  /** The player turned the Played notes switch: set and save it. */
+  // @spec-link [[rule_settings_saved_on_change]]
+  readonly setPlayedNotesShown: (on: boolean) => void
   /** Keep the viewport of a layout report the staff made. */
   readonly noteLayoutInputs: (inputs: StaffLayoutInputs) => void
 }
@@ -85,12 +104,13 @@ function warmReviewPanel(): void {
 /**
  * Intent: the Review host of one score panel: from it the panel learns when the Review shows and
  * what to give it, its export choices and Played notes switch starting from the saved
- * preferences; a session's start warms the panel's chunk.
+ * preferences and saved as the player changes them; a session's start warms the panel's chunk.
  */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
 // @spec-link [[req_session_export]]
 // @spec-link [[rule_session_data_never_sent_or_stored]]
+// @spec-link [[rule_settings_saved_on_change]]
 export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
   /** Intent: the Review's history while it shows; null otherwise. */
   const shownHistory = computed((): SessionHistory | null => {
@@ -137,6 +157,25 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
     return withShownHistory((history) => exportPlayedNotes(history, deps.exportPorts()))
   }
 
+  /** Intent: the player chose the export's format: set it and save it. */
+  function setFormat(chosen: GeneratedNotesFormat): void {
+    format.value = chosen
+    deps.saveSettings({ 'review.format': chosen })
+  }
+
+  /** Intent: the player chose whether the export holds the backing track: set it and save it. */
+  function setBackingTrack(on: boolean): void {
+    backingTrack.value = on
+    deps.saveSettings({ 'review.backingTrack': on })
+  }
+
+  /** Intent: the player turned the Played notes switch: set it and save it. */
+  // @spec-link [[module_review_played_notes_lane]]
+  function setPlayedNotesShown(on: boolean): void {
+    playedNotesShown.value = on
+    deps.saveSettings({ 'review.playedNotesShown': on })
+  }
+
   const sessionActive = computed(() => {
     const controller = deps.controller()
     return controller !== null && controller.state.phase !== 'idle'
@@ -151,12 +190,15 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
     instrumentName,
     viewport,
     noRoom,
-    format,
-    backingTrack,
+    format: readonly(format),
+    backingTrack: readonly(backingTrack),
+    setFormat,
+    setBackingTrack,
     exportFile,
     holdsPlayedNote,
     exportPlayedNotes: exportPlayed,
-    playedNotesShown,
+    playedNotesShown: readonly(playedNotesShown),
+    setPlayedNotesShown,
     noteLayoutInputs: (inputs) => {
       viewport.value = inputs.viewport
     },

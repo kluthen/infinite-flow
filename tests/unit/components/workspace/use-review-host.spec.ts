@@ -17,6 +17,7 @@ import {
 import { recordedRecords } from '../review/review-fixtures'
 import { createFakeSessionController, fakeReviewHistory } from './fake-session-controller'
 import { fakeGenerationSession } from './fake-generation-session'
+import { recordingSaveSettings } from './recording-save-settings'
 
 /**
  * Intent: a host over `fake`'s controller and an Idle double, starting from `preferences`, inside
@@ -28,6 +29,7 @@ function host(
 ) {
   const { session } = fakeGenerationSession()
   const ports = { load: vi.fn(), download: vi.fn() }
+  const { saveSettings, saves } = recordingSaveSettings()
   const scope = effectScope()
   const built = scope.run(() =>
     useReviewHost({
@@ -35,10 +37,11 @@ function host(
       idle: () => session.state,
       exportPorts: () => ports,
       initialPreferences: preferences,
+      saveSettings,
     }),
   )
   if (built === undefined) throw new Error('the effect scope did not run')
-  return { built, ports, fake, stop: () => scope.stop() }
+  return { built, ports, fake, saves, stop: () => scope.stop() }
 }
 
 // @test-link [[req_last_session_review]]
@@ -123,7 +126,7 @@ describe('useReviewHost', () => {
     })
     const { built, stop } = host(fake)
 
-    built.playedNotesShown.value = true
+    built.setPlayedNotesShown(true)
     fake.controller.closeReview()
     expect(built.playedNotesShown.value).toBe(true)
     fake.controller.showReview()
@@ -160,6 +163,28 @@ describe('useReviewHost', () => {
 
     expect(built.showing.value).toBe(false)
     expect(built.records.value).toEqual([])
+    stop()
+  })
+})
+
+// @test-link [[rule_settings_saved_on_change]]
+// @test-link [[rule_saved_setting_is_players_choice]]
+describe("useReviewHost: saving the player's choices", () => {
+  it('sets and saves the export format, the backing track and the Played notes switch', () => {
+    const { built, saves, stop } = host()
+
+    built.setFormat('midi')
+    built.setBackingTrack(true)
+    built.setPlayedNotesShown(true)
+
+    expect(built.format.value).toBe('midi')
+    expect(built.backingTrack.value).toBe(true)
+    expect(built.playedNotesShown.value).toBe(true)
+    expect(saves).toEqual([
+      { 'review.format': 'midi' },
+      { 'review.backingTrack': true },
+      { 'review.playedNotesShown': true },
+    ])
     stop()
   })
 })

@@ -1,10 +1,12 @@
 /**
- * Theme is presentation-only, ephemeral state: switching Light/Dark/System sets or clears
- * `html[data-theme]` without redrawing or regenerating the phrase, and nothing about the choice
- * survives a reload.
+ * Theme is presentation-only: switching Light/Dark/System sets or clears `html[data-theme]`
+ * without redrawing or regenerating the phrase. Since v3.0 (chunk 7b) the choice is saved in the
+ * app's IndexedDB database as the player makes it and comes back after a reload; nothing is
+ * written to localStorage or sessionStorage.
  */
 import { expect, test } from '@playwright/test'
 
+import { databaseSettings } from '../storage/storage-helpers'
 import { generateAndAwaitReady, gotoWorkspace, radio } from './helpers'
 
 // @test-link [[rule_presentation_preference_preserves_phrase]]
@@ -94,17 +96,22 @@ test('every painted staff element matches --color-staff in both Light and Dark',
   expect(await unrecoloredStaffElements(page, lightColor)).toEqual([])
 })
 
-// @test-link [[rule_ephemeral_session_state]]
-test('nothing about the theme choice persists across a reload', async ({ page, context }) => {
+// @test-link [[rule_settings_saved_on_change]]
+test('the theme choice comes back after a reload, and Web Storage stays empty', async ({
+  page,
+  context,
+}) => {
   await gotoWorkspace(page)
 
   await radio(page, 'Presentation theme', 'Dark').click()
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  // The save is asynchronous: the reload must read it, not race it.
+  await expect.poll(() => databaseSettings(page)).toMatchObject({ theme: 'Dark' })
 
   await page.reload()
 
-  await expect(page.locator('html')).not.toHaveAttribute('data-theme')
-  await expect(radio(page, 'Presentation theme', 'System')).toHaveAttribute('aria-checked', 'true')
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  await expect(radio(page, 'Presentation theme', 'Dark')).toHaveAttribute('aria-checked', 'true')
 
   const storageState = await context.storageState()
   const origin = storageState.origins.find(
@@ -112,10 +119,9 @@ test('nothing about the theme choice persists across a reload', async ({ page, c
   )
   expect(origin?.localStorage ?? []).toEqual([])
 
-  // Verifying the ephemeral-state guarantee itself requires reading this browser-persistence
-  // global from within the page context; this assertion is the proof nothing is ever written to
-  // it, not a use of it. The production no-restricted-globals ban only scopes to src/**, so no
-  // suppression is needed here.
+  // Reading this browser-persistence global from within the page context proves nothing is ever
+  // written to it; it is not a use of it. The production no-restricted-globals ban only scopes to
+  // src/**, so no suppression is needed here.
   const sessionStorageLength = await page.evaluate(() => sessionStorage.length)
   expect(sessionStorageLength).toBe(0)
 })

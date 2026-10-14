@@ -1,10 +1,11 @@
 /**
  * How a session controller's sessions end. Every end takes one path: the notes still held end and
  * are recorded, the engine gets `end` (its `ended` output closes the history), and the session is
- * torn down (wake-ups, audio, both screen locks, the display, MIDI and the end watchers) and
- * summed up; once phrase 1 has sounded the Review opens and Idle is asked for the next phrase. The
- * same teardown undoes a start that threw part-way, and a programming error ends the session it
- * hit before it propagates. The audio interrupted ends whichever session runs, like Stop.
+ * torn down (wake-ups, audio, both screen locks, the display, MIDI, the end watchers and the hold
+ * of the player's saves, released once back at Idle) and summed up; once phrase 1 has sounded the
+ * Review opens and Idle is asked for the next phrase. The same teardown undoes a start that threw
+ * part-way, and a programming error ends the session it hit before it propagates. The audio
+ * interrupted ends whichever session runs, like Stop.
  */
 import type { SessionEndCause } from '@/session/session-types'
 import { openedReview } from './session-review-state'
@@ -35,6 +36,7 @@ export interface SessionEnds {
  * Intent: undo everything a start set up: no more wake-ups or scheduled events, the audio
  * faded out (unless the transport already ended its own session), both locks released, the
  * display's frame loop stopped and the staff left to Idle, the session state back to Idle, the
+ * player's saves the start held released (each end and each undone start tears down once), the
  * session's MIDI handling stopped (an away device held back is free to reattach), and,
  * last, the end watchers stopped, which hands the staff's reports back to the Idle machinery and
  * re-applies the latest of them. A start that failed
@@ -45,6 +47,7 @@ export interface SessionEnds {
 // @spec-link [[rule_stop_ends_session]]
 // @spec-link [[rule_screen_wake_lock_during_session]]
 // @spec-link [[rule_landscape_lock_during_session]]
+// @spec-link [[rule_no_save_during_session]]
 function tearDown(core: SessionControllerCore, session: ActiveSession | null): void {
   const { audio, browser } = core.deps
   const { state } = core
@@ -63,6 +66,7 @@ function tearDown(core: SessionControllerCore, session: ActiveSession | null): v
   state.sessionStaff = null
   state.latestReady = null
   state.shownSettings = null
+  core.deps.saveHold.release()
   session?.midi?.stop()
   session?.watch?.stop()
 }

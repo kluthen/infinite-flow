@@ -19,6 +19,7 @@ import {
   TEMPO_VALUES,
   TENSION_ARCS,
 } from '@/domain/controls/generation-controls'
+import { PROFILE_BUNDLES, type ProfileSelection } from '@/domain/controls/profile-selection'
 import { createMulberry32 } from '@/domain/random/prng'
 import { defaultSettings, type SavedSettings } from '@/storage/records/setting-defaults'
 import {
@@ -130,6 +131,32 @@ function corrupt(
   )
 }
 
+/**
+ * Intent: what `other` decodes to when only the record of `key` in NON_DEFAULT is unreadable: its
+ * default for `key`, the saved value for every other setting. NON_DEFAULT's controlled values are
+ * not Neutral's, so a fallen-back selection (Neutral) loads customized.
+ */
+function afterOneFallback(key: SettingKey, other: SettingKey): unknown {
+  if (other !== key) return settingAt(NON_DEFAULT, other)
+  if (key === 'profileSelection') return { musicalProfile: 'Neutral', isCustom: true }
+  return settingAt(DEFAULTS, other)
+}
+
+/**
+ * Intent: the selection a load gives for `selection` over the loaded `controls`: a preset not
+ * customized whose seven controlled values are not all its own loads customized.
+ */
+function loadedSelection(
+  selection: ProfileSelection,
+  controls: SavedSettings['controls'],
+): ProfileSelection {
+  const bundle = PROFILE_BUNDLES[selection.musicalProfile]
+  const own = Object.entries(bundle).every(
+    ([field, value]) => (controls as unknown as Record<string, unknown>)[field] === value,
+  )
+  return selection.isCustom || own ? selection : { ...selection, isCustom: true }
+}
+
 const BOOLEAN_KEYS = new Set<SettingKey>([
   'mix.clickOn',
   'mix.backingOn',
@@ -221,7 +248,10 @@ function randomValue(key: SettingKey, next: () => number): unknown {
   throw new Error(`no random value for ${key}`)
 }
 
-/** Intent: a random full set of valid settings, built through the codec's own key table. */
+/**
+ * Intent: a random full set of valid settings, built through the codec's own key table. A preset
+ * picked and not customized holds its own seven controlled values, as the app saves it.
+ */
 function randomSettings(next: () => number): SavedSettings {
   const grouped: Record<string, unknown> = {}
   for (const key of EXPECTED_KEYS) {
@@ -230,7 +260,10 @@ function randomSettings(next: () => number): SavedSettings {
     if (field === undefined) grouped[group] = value
     else grouped[group] = { ...(grouped[group] as object), [field]: value }
   }
-  return grouped as unknown as SavedSettings
+  const settings = grouped as unknown as SavedSettings
+  const { musicalProfile, isCustom } = settings.profileSelection
+  if (isCustom) return settings
+  return { ...settings, controls: { ...settings.controls, ...PROFILE_BUNDLES[musicalProfile] } }
 }
 
 describe('settings record keys', () => {
@@ -329,9 +362,8 @@ describe('decodeSettings', () => {
         const decoded = decodeSettings(records, CONTEXT)
 
         for (const other of EXPECTED_KEYS) {
-          const expected = other === key ? DEFAULTS : NON_DEFAULT
           expect(settingAt(decoded, other), `${key}=${String(invalid)}: ${other}`).toEqual(
-            settingAt(expected, other),
+            afterOneFallback(key, other),
           )
         }
       }
@@ -363,7 +395,12 @@ describe('decodeSettings', () => {
 
       for (const key of EXPECTED_KEYS) {
         const expected = corrupted.has(key) ? DEFAULTS : saved
-        expect(settingAt(decoded, key), `round ${round}: ${key}`).toEqual(settingAt(expected, key))
+        const value = settingAt(expected, key)
+        const loaded =
+          key === 'profileSelection'
+            ? loadedSelection(value as ProfileSelection, decoded.controls)
+            : value
+        expect(settingAt(decoded, key), `round ${round}: ${key}`).toEqual(loaded)
       }
     }
   })
@@ -429,9 +466,8 @@ describe('a record written by a newer version', () => {
       const decoded = decodeSettings(records, CONTEXT)
 
       for (const other of EXPECTED_KEYS) {
-        const expected = other === key ? DEFAULTS : NON_DEFAULT
         expect(settingAt(decoded, other), `${key} newer: ${other}`).toEqual(
-          settingAt(expected, other),
+          afterOneFallback(key, other),
         )
       }
     }
@@ -455,5 +491,51 @@ describe('the chosen note density', () => {
     const density = records.find((record) => record.key === 'controls.noteDensity')
     expect(density?.value).toBe('Sixteenth')
     expect(decodeSettings(records, CONTEXT).controls.noteDensity).toBe('Sixteenth')
+  })
+})
+
+/** A full set saved with Jazz picked and not customized: Jazz's seven values with it. */
+const SAVED_JAZZ: SavedSettings = {
+  ...NON_DEFAULT,
+  controls: { ...NON_DEFAULT.controls, ...PROFILE_BUNDLES.Jazz },
+  profileSelection: { musicalProfile: 'Jazz', isCustom: false },
+}
+
+describe('the loaded profile selection', () => {
+  // @test-link [[rule_saved_settings_load_tolerantly]]
+  // @test-link [[rule_profile_control_customization]]
+  it('loads a preset whose controlled value fell back as customized, that preset kept', () => {
+    const records = corrupt(rawRecords(SAVED_JAZZ), 'controls.register', (record) => ({
+      ...record,
+      value: 'Nowhere',
+    }))
+    const decoded = decodeSettings(records, CONTEXT)
+
+    expect(decoded.profileSelection).toEqual({ musicalProfile: 'Jazz', isCustom: true })
+    expect(decoded.controls.register).toBe(DEFAULTS.controls.register)
+    expect(decoded.controls.register).toBe('Middle')
+    expect(decoded.controls).toEqual({ ...SAVED_JAZZ.controls, register: 'Middle' })
+  })
+
+  // @test-link [[rule_saved_settings_load_tolerantly]]
+  // @test-link [[rule_profile_control_customization]]
+  it('keeps a preset whose seven controlled values all loaded as its own', () => {
+    const decoded = decodeSettings(rawRecords(SAVED_JAZZ), CONTEXT)
+
+    expect(decoded.profileSelection).toEqual({ musicalProfile: 'Jazz', isCustom: false })
+    expect(decoded).toEqual(SAVED_JAZZ)
+  })
+
+  // @test-link [[rule_saved_settings_load_tolerantly]]
+  // @test-link [[rule_profile_control_customization]]
+  it('loads an unreadable selection as customized Neutral, the saved values kept', () => {
+    const records = corrupt(rawRecords(SAVED_JAZZ), 'profileSelection', (record) => ({
+      ...record,
+      value: { musicalProfile: 'Bebop', isCustom: false },
+    }))
+    const decoded = decodeSettings(records, CONTEXT)
+
+    expect(decoded.profileSelection).toEqual({ musicalProfile: 'Neutral', isCustom: true })
+    expect(decoded.controls).toEqual(SAVED_JAZZ.controls)
   })
 })

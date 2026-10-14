@@ -11,8 +11,7 @@ import ScorePanel from '@/components/workspace/ScorePanel.vue'
 import { createMixVolumePopover } from '@/components/workspace/mix-volume-popover'
 import { TOO_WIDE } from '../../composables/fake-staff-fit'
 import { PHRASE_SCORE_STUB, type TestWorkspace } from './test-workspace'
-
-const MOUNT_OPTIONS = { global: { stubs: { PhraseScore: PHRASE_SCORE_STUB } } }
+import { provideSaveSettings } from './recording-save-settings'
 
 /** Intent: a thin reactive harness that re-reads `workspace.pendingPhrase.value` on every render. */
 const ScorePanelHarness = defineComponent({
@@ -43,7 +42,10 @@ const ScorePanelHarness = defineComponent({
 export function mountHarness(workspace: TestWorkspace, phoneLayout = false) {
   return mount(ScorePanelHarness, {
     props: { workspace, matchesPhoneLayout: () => phoneLayout },
-    ...MOUNT_OPTIONS,
+    global: {
+      stubs: { PhraseScore: PHRASE_SCORE_STUB },
+      provide: provideSaveSettings(workspace.saveSettings),
+    },
   })
 }
 

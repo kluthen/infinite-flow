@@ -11,9 +11,10 @@
  * without ever branching this file on being under test. It also builds the workspace's one
  * session controller, whose module loads as its own chunk: until it has loaded, `Start session`
  * stays disabled. A load failure is not caught: it surfaces as the unhandled error it is. It
- * keeps the workspace's connection-sheet flag in step with the shell's sheet.
+ * keeps the workspace's connection-sheet flag in step with the shell's sheet, and provides the
+ * workspace's saver of the player's changes to the components whose change handlers save.
  */
-import { inject, onUnmounted, shallowRef, watch } from 'vue'
+import { inject, onUnmounted, provide, shallowRef, watch } from 'vue'
 
 import { applyThemePreference } from './components/workspace/apply-theme-preference'
 import {
@@ -24,6 +25,7 @@ import {
   pregenerationPolicyFromSearch,
   prewarmPolicyFromSearch,
 } from './components/workspace/prewarm-policy'
+import { SAVE_SETTINGS } from './components/workspace/save-settings-injection'
 import WorkspaceShell from './components/workspace/WorkspaceShell.vue'
 import type { SessionController } from './components/workspace/workspace-session-controller-types'
 import type { SavedDataLoad } from './storage-bootstrap'
@@ -47,6 +49,11 @@ const buildWorkspaceSession = inject(WORKSPACE_SESSION_FACTORY, (savedData: Save
 const workspace = buildWorkspaceSession(props.savedData)
 
 watch(() => workspace.session.state.presentation.theme, applyThemePreference, { immediate: true })
+
+// The components whose change handlers save the player's changes (the audio mix, the "During a
+// session" options, the Review's choices) inject the workspace's saver at their setup.
+// @spec-link [[rule_settings_saved_on_change]]
+provide(SAVE_SETTINGS, workspace.saveSettings)
 
 const sessionController = shallowRef<SessionController | null>(null)
 let unmounted = false

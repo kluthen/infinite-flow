@@ -8,6 +8,9 @@
  * - `seedSettings` writes settings records through the settings codec, valid or not, for the next
  *   load (the spec reloads the page); `records` reads a store back;
  * - `seedTimingSessions` writes sized kept-session records for the start-up read measurement (M2);
+ * - `settingsNotReadBack` names each stored settings record the settings codec does not read back
+ *   as the value it holds, read as a load reads them all (with the mix design of the page's tokens,
+ *   and my instrument not loaded);
  * - `loadOutcome`, `savingState` and `loadMs` report the load.
  *
  * Seeds go to the port directly, never through the save policy, and at the running app's version.
@@ -19,7 +22,9 @@ import {
 } from '../../../src/storage-bootstrap'
 import { APP_VERSION } from '../../../src/storage/app-version'
 import { KEPT_SESSION_DATA_VERSION } from '../../../src/storage/records/kept-reading'
+import { readAudioMixDesign } from '../../../src/audio/audio-mix'
 import {
+  decodeSettings,
   encodeSettingRecord,
   SETTING_KEYS,
   type SettingKey,
@@ -74,6 +79,44 @@ function timingSession(index: number, bodyBytes: number): StorageChange[] {
     { kind: 'write', store: 'sessionSummaries', key, record: summary },
     { kind: 'write', store: 'sessionBodies', key, record: body },
   ]
+}
+
+/** Intent: a value with every object's keys sorted, so equal values compare equal as JSON. */
+function canonical(value: unknown): unknown {
+  if (typeof value !== 'object' || value === null) return value
+  if (Array.isArray(value)) return value.map(canonical)
+  const entries = Object.entries(value).sort(([a], [b]) => a.localeCompare(b))
+  return Object.fromEntries(entries.map(([key, field]) => [key, canonical(field)]))
+}
+
+/** Intent: whether two stored or decoded values are the same value. */
+function sameValue(a: unknown, b: unknown): boolean {
+  return JSON.stringify(canonical(a)) === JSON.stringify(canonical(b))
+}
+
+/** Intent: the value a decoded set of settings holds at one record key. */
+function decodedAt(settings: object, key: string): unknown {
+  return key.split('.').reduce<unknown>((value, name) => {
+    if (typeof value !== 'object' || value === null) return undefined
+    return (value as Record<string, unknown>)[name]
+  }, settings)
+}
+
+/**
+ * Intent: the key of each settings record the codec does not read back as the value it holds:
+ * the records are decoded together, as a load decodes them, and each record's value compared with
+ * the decoded value at its key. A record with no string key is reported as `(no key)`.
+ */
+function notReadBack(records: readonly unknown[]): string[] {
+  const decoded = decodeSettings(records, {
+    mixDesign: readAudioMixDesign(getComputedStyle(document.documentElement)),
+    myInstrumentLoaded: false,
+  })
+  return records.flatMap((record) => {
+    const { key, value } = (record ?? {}) as { key?: unknown; value?: unknown }
+    if (typeof key !== 'string') return ['(no key)']
+    return sameValue(decodedAt(decoded, key), value) ? [] : [key]
+  })
 }
 
 /** Intent: the harness's saved data, loaded in `mode`. */
@@ -162,6 +205,7 @@ export function createHarnessStorage(mode: HarnessStorageLoadMode): HarnessStora
       seedSettings,
       seedTimingSessions,
       records: async (store) => [...(await openedPort().readAll(store))],
+      settingsNotReadBack: async () => notReadBack(await openedPort().readAll('settings')),
       loadOutcome: () => finishedLoad().outcome,
       savingState: () => (policyState === null ? null : policyState()),
       loadMs: () => {

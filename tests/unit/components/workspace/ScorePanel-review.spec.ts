@@ -29,6 +29,7 @@ import {
 } from './fake-session-controller'
 import { fakeGenerationSession, readyState } from './fake-generation-session'
 import { PHRASE_SCORE_STUB } from './test-workspace'
+import { provideSaveSettings } from './recording-save-settings'
 
 const loader = vi.hoisted(() => ({ load: vi.fn<() => Promise<Component>>() }))
 
@@ -81,7 +82,7 @@ function mountPanel(
       matchesPhoneLayout: () => false,
       reviewExportPorts,
     },
-    global: { stubs: { PhraseScore: PHRASE_SCORE_STUB } },
+    global: { stubs: { PhraseScore: PHRASE_SCORE_STUB }, provide: provideSaveSettings() },
     attachTo: document.body,
   })
 }

@@ -1,8 +1,8 @@
 /**
  * The workspace session a screen binds to: the Idle generation session, the staff's report
  * handlers, the session runner loader, the audio transport, the MIDI controller, the connection
- * sheet flag, the session browser ports, the session controller builder and the saved data the
- * workspace started from.
+ * sheet flag, the session browser ports, the session controller builder, the saved data the
+ * workspace started from and the saver of the player's changes.
  * `composeWorkspaceSession` (`create-workspace-session.ts`) builds one and re-exports this type.
  */
 import type { Ref, ShallowRef } from 'vue'
@@ -16,6 +16,7 @@ import type { SessionBrowserPorts } from '@/session/session-browser-ports'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { MidiController } from '@/midi/midi-controller'
 import type { SavedDataLoad } from '@/storage-bootstrap'
+import type { SaveSettings } from '@/storage/settings-saver'
 import type { WorkspaceSessionRunnerStarter } from './workspace-session-dependencies'
 import type { SessionController } from './workspace-session-controller-types'
 
@@ -95,5 +96,12 @@ export interface WorkspaceSession {
    */
   // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
   readonly savedData: SavedDataLoad
+  /**
+   * Save the settings one change of the player's changed, through the visit's save policy, held
+   * while a session runs. The screen's change handlers call it (the audio mix, the "During a
+   * session" options, the Review's choices), reaching it through `SAVE_SETTINGS`; Idle's control
+   * actions save through the same saver. Never called by a watcher of setting values.
+   */
+  readonly saveSettings: SaveSettings
   readonly dispose: () => void
 }

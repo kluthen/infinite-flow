@@ -7,9 +7,9 @@ of the app has overtaken, the app version every record carries, the records a ke
 stored as, and the save policy that decides when a write reaches the port. Its declared intent is
 the ATD atom [`module_on_device_database`](module_on_device_database.atom.md).
 
-As built in v3.0 chunks 4, 5, 9 and 7a, this is the storage core, the save policy, the
-kept-session codec, and the load of the saved settings before the first draw. The app reads its
-saved settings at load; it saves nothing yet. See [Not here yet](#not-here-yet).
+As built in v3.0 chunks 4, 5, 9 and 7, this is the storage core, the save policy, the
+kept-session codec, the load of the saved settings before the first draw, and the saves of the
+player's settings as they change. See [Not here yet](#not-here-yet).
 
 ## Words used here
 
@@ -512,7 +512,8 @@ session's `savedData` (`composeWorkspaceSession` passes it on unchanged).
 
 ### Where the loaded values go
 
-Each place gains only its initial value; nothing saves yet.
+Each place gains its initial value; the saves come from the player's change handlers (see
+[Saving the player's settings](#saving-the-players-settings)).
 
 | Setting                                                   | Enters at                                                                                                                                              |
 | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -525,6 +526,49 @@ Each place gains only its initial value; nothing saves yet.
 A saved `Rising tempo` `On` loads even with no MIDI controller attached, which is the usual state
 at load: the controller's flag holds the stored `On`, the option shows `Off` and disabled while it
 is unavailable, and `On` again as soon as a controller attaches.
+
+### The loaded profile selection
+
+The settings codec decodes the musical profile selection and the seven values a preset controls
+(harmonic motion, note density, rhythmic variety, syncopation, silence density, contour and
+register) each on its own, so one of them can fall back to its default alone. After decoding, a
+preset selection that is not customized, whose seven values are not all that preset's own, loads
+customized with that preset's grammar, the state a manual edit of one of them leaves; a preset
+whose seven values are all its own stays checked (spec D302). An unreadable selection falls back
+to Neutral, so with Jazz's seven values it loads as a customized Neutral. Silent, like every
+fallback of the load.
+
+## Saving the player's settings
+
+Each setting of the master spec's §4.2 table is saved when the player changes it, one record per
+setting in the `settings` store, through the save policy. The saves come from the player's change
+handlers only, never from a watcher on control values: a watcher would also save a setting
+`Vary settings` changed during a session, the end-of-session restore and the rising tempo's reset,
+none of which the player chose.
+
+`src/storage/settings-saver.ts` builds the visit's saves over the policy the load hands over:
+`createVisitSaves(savePolicy, appVersion)` gives `saveSettings(changes)`, which encodes one record
+per changed setting and submits them as one batch (one transaction), and the session's `hold()`
+and `release()`. Calls made before the policy promise settles wait in order; once it has, they
+reach the policy at once, so the hold takes effect inside the Start click.
+`composeWorkspaceSession` builds it once; `App.vue` provides `saveSettings` to the components
+(`SAVE_SETTINGS`, `src/components/workspace/save-settings-injection.ts`).
+
+| Setting                                | Saved from                                                                                                                                      |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| The 14 controls, the profile selection | The generation session's `setControl`, `selectMusicalProfile` and `selectInstrumentProfile`: what each change changed (`chosenControlChanges`). |
+| The theme                              | The generation session's `setTheme`, when the theme changed.                                                                                    |
+| The audio mix                          | `MixControls` (each on/off) and `MixVolumePanel` (each volume, on the slider's release: its `change` event, not each `input`).                  |
+| The three "During a session" options   | `useSessionOptions`, once the session controller accepted the change.                                                                           |
+| The review's preferences               | The review host's `setFormat`, `setBackingTrack` and `setPlayedNotesShown`.                                                                     |
+
+The values saved are the player's choices: a chosen `Sixteenth` below `bp-tablet-landscape` is
+saved as `Sixteenth`, though phrases are generated with `Eighth` there. The tempo a Rising-tempo
+session reached is never saved.
+
+The session controller calls `hold()` when it accepts a Start and `release()` in the teardown
+every end and every undone start runs, so a theme or mix change made during a session is written
+when it ends (see [The session hold](#the-session-hold)).
 
 ## The start-up wait (M2)
 
@@ -584,7 +628,8 @@ kept-session codec's need no database (see
 | `save-policy-reports.spec.ts`   | The failure report and its runs, and the request for persistent storage.                                                                                                                            |
 | `save-policy-your-data.spec.ts` | The estimate, persistence, and Delete everything in each saving state and during a session.                                                                                                         |
 | `app-version.spec.ts`           | `APP_VERSION` is `package.json`'s version.                                                                                                                                                          |
-| `settings-record.spec.ts`       | The settings codec, whose version check is the envelope's.                                                                                                                                          |
+| `settings-record.spec.ts`       | The settings codec, whose version check is the envelope's, and the loaded profile selection.                                                                                                        |
+| `settings-saver.spec.ts`        | The saves of the player's settings: one batch per change, the order kept before and after the policy loads, the hold, and `chosenControlChanges`.                                                   |
 | `storage-bootstrap.spec.ts`     | The load before the first draw: the saved settings, an invalid value's default, each failing, late and outdated case with its settings, saving state and load outcome, and the defects that reject. |
 | `kept-phrase-parsers.spec.ts`   | The harmony and intent validators: real values read back, frozen copies, each refusal, and an intent's profile read from its data.                                                                  |
 | `kept-session-record.spec.ts`   | The kept-session codec: exact keys, nothing kept beyond them, times in seconds from phrase 1, newer and unreadable records, the encoder's refusals, and the size of a 30-minute session.            |
@@ -595,12 +640,10 @@ kept-session codec's need no database (see
 
 ## Not here yet
 
-Chunks 4, 5, 9 and 7a build the storage core, the save policy, the kept-session codec and the load
-before the first draw. The load creates the visit's policy and turns it off when its read fails or
-is too slow, but nothing saves through it yet. These come later:
+Chunks 4, 5, 9 and 7 build the storage core, the save policy, the kept-session codec, the load
+before the first draw and the saves of the player's settings, with the session hold. These come
+later:
 
-- the saves from the player's change handlers (each setting, saved when the player changes it);
-- the calls to `hold()` and `release()` at a session's start and end;
 - the notices the player sees, from the saving state and the failure report;
 - the moment the app calls `requestProtection()`;
 - the save of a kept session at a session's end, the session list, and opening a kept session:

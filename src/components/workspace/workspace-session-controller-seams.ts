@@ -22,6 +22,7 @@ import type { WorkspaceSessionRunnerInput } from './workspace-session-dependenci
 import type { IdleLayoutPort } from './idle-layout-gate'
 import type { SessionOptionChoices } from '@/storage/records/setting-defaults'
 import type { WorkspacePregenerationFactory } from './workspace-pregeneration'
+import type { SessionSaveHold } from '@/storage/settings-saver'
 
 /**
  * The display's frame loop: `request` runs `callback` once, at the next frame (the browser's
@@ -68,7 +69,8 @@ export type StaffFitPlanner = (
  * staff planner, loaded with the engraver, that checks a phrase's fit in the held layout; the
  * MIDI controller, with whether the connection sheet is open, for the starting note and the notes
  * a session reads; and the builder of the Idle pre-generation queue, whose ready phrases Start
- * takes; and the player's saved "During a session" choices, which the page's flags start from.
+ * takes; the player's saved "During a session" choices, which the page's flags start from; and
+ * the hold of the player's saves, held from an accepted start to the session's end.
  */
 // @spec-link [[service_session_controller]]
 // @spec-link [[rule_session_ends_when_staff_too_small]]
@@ -107,4 +109,9 @@ export interface SessionControllerDependencies {
    */
   // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
   readonly savedSessionOptions: SessionOptionChoices
+  /**
+   * The hold of the player's saves: held at each accepted start, released once at its end (any
+   * end, or a start undone part-way), so a change made during a session is written when it ends.
+   */
+  readonly saveHold: SessionSaveHold
 }

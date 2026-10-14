@@ -22,7 +22,8 @@
  * screen. At Idle, while every start condition holds, its pre-generation queue
  * (./workspace-pregeneration.ts) makes the phrases after phrase 1 in the background, and each
  * start takes those ready. The parts share one core (./workspace-session-active.ts). The player's
- * own controls are never written, so every end shows them again.
+ * own controls are never written, so every end shows them again. The player's saves are held from
+ * an accepted start to its end, so a change made during a session is written when it ends.
  */
 import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
 

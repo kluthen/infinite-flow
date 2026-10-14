@@ -21,6 +21,7 @@ import {
 } from './fake-session-controller'
 import { fakeGenerationSession, readyState, type FakeIdleState } from './fake-generation-session'
 import { PHRASE_SCORE_STUB } from './test-workspace'
+import { provideSaveSettings } from './recording-save-settings'
 
 vi.mock('@/components/review/ReviewPanel.vue', () => import('./review-panel-stub'))
 
@@ -48,7 +49,7 @@ function mountShell(
       jumpView: { scrollBy: vi.fn(), viewportBlockSize: () => 800 },
       scrollToPageTop,
     },
-    global: { stubs: { PhraseScore: PHRASE_SCORE_STUB } },
+    global: { stubs: { PhraseScore: PHRASE_SCORE_STUB }, provide: provideSaveSettings() },
     attachTo: document.body,
   })
   return { wrapper, scrollToPageTop }

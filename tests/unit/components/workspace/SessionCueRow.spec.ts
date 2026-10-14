@@ -9,6 +9,7 @@ import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import type { StartingNote } from '@/session/starting-note'
 import { transportRig } from '../../audio/transport-rig'
 import { createFakeSessionController, fakeReviewHistory } from './fake-session-controller'
+import { provideSaveSettings } from './recording-save-settings'
 
 const STRUGGLING = 'The generator is struggling with these settings.'
 const BANNER_CLAUSE = ' — plug it back in to keep playing'
@@ -28,6 +29,7 @@ function mountRow(controller: SessionController | null) {
       audio: transportRig().transport,
       mixPopover: createMixVolumePopover('mix-volume-popover'),
     },
+    global: { provide: provideSaveSettings() },
     attachTo: document.body,
   })
 }
