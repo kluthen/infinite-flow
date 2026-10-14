@@ -15,7 +15,9 @@ import { transportRig } from '../../audio/transport-rig'
 import { createControllerRig } from '../../midi/midi-controller-rig'
 import {
   createFakeSessionController,
+  fakeReview,
   fakeReviewHistory,
+  showingWith,
   type FakeSessionController,
   type FakeSessionControllerState,
 } from './fake-session-controller'
@@ -67,7 +69,7 @@ function showingReview(
   const fake = createFakeSessionController({
     canStart: false,
     startBlocker: 'review_showing',
-    review: { history: fakeReviewHistory(), showing: true, tempoReached: 90 },
+    ...showingWith(fakeReview(fakeReviewHistory(), true)),
   })
   const close = fake.closeReview.getMockImplementation()
   fake.closeReview.mockImplementation(() => {

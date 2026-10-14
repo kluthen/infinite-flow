@@ -1,14 +1,17 @@
 /**
  * The session controller's side of the last-session Review: a session that ended once phrase 1 had
- * sounded opens it, showing, over its closed history, and asks the Idle side for a fresh phrase; an
- * end during the count-in opens none and asks for nothing. No session starts while it shows, by the
- * Start click or by the starting note, and no starting note is named. Closing it keeps it, showing it
- * again works only at Idle, and the next accepted start discards it before anything else. On the
- * fake audio clock at 240 BPM from 5 s: the count-in runs from 5.1 s to 6.1 s, when phrase 1 starts
- * sounding; phrase N starts at 6.1 + 4 (N - 1) s.
+ * sounded opens it, showing, over its closed history, makes that session the most recent one and
+ * asks the Idle side for a fresh phrase; an end during the count-in opens none, asks for nothing and
+ * leaves the most recent session as it was. No session starts while it shows, by the Start click or
+ * by the starting note, and no starting note is named. Closing it keeps it, showing it again works
+ * only at Idle, and the next accepted start hides it before anything else while the most recent
+ * session stays (how it is kept, and the most recent session after a reload:
+ * workspace-session-controller-most-recent.spec.ts). On the fake audio clock at 240 BPM from 5 s: the count-in runs from 5.1 s to 6.1 s, when phrase 1
+ * starts sounding; phrase N starts at 6.1 + 4 (N - 1) s.
  */
 import { describe, expect, it, vi } from 'vitest'
 
+import type { ReviewedHistory } from '@/components/workspace/workspace-session-controller-types'
 import { controllerRig, playTo, RIG_TEMPO, type ControllerRig } from './session-controller-rig'
 import { connectKeys, lift, press, rigStartingNote } from './session-controller-midi'
 
@@ -20,6 +23,13 @@ async function afterSoundedEnd(phrases = 1): Promise<ControllerRig> {
   rig.controller.stop()
   expect(rig.controller.state.lastEnd?.soundedPhraseCount).toBe(phrases)
   return rig
+}
+
+/** Intent: the instrument's name a history's phrase 1 was generated with. */
+function nameOf(history: ReviewedHistory | null): string {
+  const first = history?.phrases()[0]
+  if (first === undefined) throw new Error('the history holds no phrase')
+  return first.intent.instrumentProfile.displayName
 }
 
 /** Intent: a rig whose first session ended by Stop during its count-in. */
@@ -48,14 +58,25 @@ describe('session controller: the Review opens at a session end', () => {
   it('opens the Review, showing, over the closed history once phrase 1 has sounded', async () => {
     const rig = await afterSoundedEnd(3)
 
-    const { review } = rig.controller.state
+    const { review, lastHistory } = rig.controller.state
     expect(review).toEqual({
-      history: rig.controller.state.lastHistory,
-      showing: true,
+      history: lastHistory,
+      instrumentName: nameOf(lastHistory),
       tempoReached: RIG_TEMPO,
+      keeping: 'not-pinned',
+      showing: true,
     })
     expect(review?.history.phrases().map((record) => record.phraseNumber)).toEqual([1, 2, 3])
     expect(Object.isFrozen(review)).toBe(true)
+    expect(rig.controller.state.mostRecent).toEqual({
+      kind: 'held',
+      session: {
+        history: lastHistory,
+        instrumentName: nameOf(lastHistory),
+        tempoReached: RIG_TEMPO,
+        keeping: 'not-pinned',
+      },
+    })
   })
 
   // @test-link [[req_last_session_review]]
@@ -76,6 +97,7 @@ describe('session controller: the Review opens at a session end', () => {
     const rig = await afterCountInEnd()
 
     expect(rig.controller.state.review).toBeNull()
+    expect(rig.controller.state.mostRecent).toBeNull()
     expect(rig.freshPhraseRequests).toEqual([])
     expect(rig.controller.state.canStart).toBe(true)
   })
@@ -170,15 +192,21 @@ describe('session controller: closing and showing the Review again', () => {
 
     rig.controller.closeReview()
 
+    const drawn = {
+      history,
+      instrumentName: nameOf(history),
+      tempoReached: RIG_TEMPO,
+      keeping: 'not-pinned',
+    }
     const kept = rig.controller.state.review
-    expect(kept).toEqual({ history, showing: false, tempoReached: RIG_TEMPO })
+    expect(kept).toEqual({ ...drawn, showing: false })
     expect(kept).not.toBe(shown)
     expect(Object.isFrozen(kept)).toBe(true)
     expect(shown?.showing).toBe(true)
 
-    rig.controller.showReview()
+    await expect(rig.controller.showReview()).resolves.toBe(true)
 
-    expect(rig.controller.state.review).toEqual({ history, showing: true, tempoReached: RIG_TEMPO })
+    expect(rig.controller.state.review).toEqual({ ...drawn, showing: true })
     expect(rig.controller.state.startBlocker).toBe('review_showing')
   })
 
@@ -194,11 +222,13 @@ describe('session controller: closing and showing the Review again', () => {
 })
 
 // @test-link [[rule_new_session_discards_review]]
-describe('session controller: the next session discards the Review', () => {
+// @test-link [[rule_most_recent_session_kept]]
+describe('session controller: the next session hides the Review, and the most recent session stays', () => {
   // @test-link [[rule_new_session_discards_review]]
-  it('discards the kept Review at the very start of an accepted start, before anything else', async () => {
+  it('hides the kept Review at the very start of an accepted start, before anything else, keeping the most recent session', async () => {
     const rig = await afterSoundedEnd()
     rig.controller.closeReview()
+    const recent = rig.controller.state.mostRecent
     let reviewAtUnlock: unknown = 'not unlocked'
     vi.spyOn(rig.transport, 'unlock').mockImplementation(() => {
       reviewAtUnlock = rig.controller.state.review
@@ -208,20 +238,40 @@ describe('session controller: the next session discards the Review', () => {
 
     expect(reviewAtUnlock).toBeNull()
     expect(rig.controller.state.review).toBeNull()
+    expect(rig.controller.state.mostRecent).toBe(recent)
     expect(rig.controller.state.phase).toBe('count-in')
-    expect(() => rig.controller.showReview()).toThrow(/no Review exists/)
+    expect(() => rig.controller.showReview()).toThrow(/during a session/)
   })
 
-  // @test-link [[rule_new_session_discards_review]]
+  // @test-link [[module_kept_session_save]]
   // @test-link [[rule_count_in_ending_returns_to_idle]]
-  it('does not restore it when that next session ends during its count-in', async () => {
-    const rig = await afterSoundedEnd()
+  it('shows the same session again after that next session ends during its count-in', async () => {
+    const rig = await afterSoundedEnd(2)
+    const history = rig.controller.state.lastHistory
     rig.controller.closeReview()
+    const recent = rig.controller.state.mostRecent
 
     await afterCountInEnd(rig)
 
     expect(rig.controller.state.review).toBeNull()
+    expect(rig.controller.state.mostRecent).toBe(recent)
     expect(rig.controller.state.canStart).toBe(true)
+    await expect(rig.controller.showReview()).resolves.toBe(true)
+    expect(rig.controller.state.review?.history).toBe(history)
+    expect(rig.controller.state.review?.showing).toBe(true)
+  })
+
+  // @test-link [[rule_most_recent_session_kept]]
+  it('replaces the most recent session with the next one that ends with a review', async () => {
+    const rig = await afterSoundedEnd()
+    rig.controller.closeReview()
+
+    rig.controller.start()
+    await playTo(rig, rig.audioRig.now() + 1.5)
+    rig.controller.stop()
+
+    const recent = rig.controller.state.mostRecent
+    expect(recent?.kind === 'held' && recent.session.history).toBe(rig.controller.state.lastHistory)
   })
 
   // @test-link [[rule_new_session_discards_review]]
@@ -236,7 +286,7 @@ describe('session controller: the next session discards the Review', () => {
   })
 
   // @test-link [[req_last_session_review]]
-  it('refuses to show the Review during a session', async () => {
+  it('refuses to show a Review during a session', async () => {
     const rig = controllerRig()
     rig.controller.start()
 

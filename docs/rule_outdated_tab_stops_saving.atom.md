@@ -5,6 +5,7 @@ tags: [v3, release-v3.0, storage]
 parents:
   - [[req_on_device_storage]]
 dependents:
+  - [[module_kept_session_save]]
   - [[module_on_device_database]]
   - [[module_save_policy]]
   - [[rule_outdated_tab_reads_what_it_can]]

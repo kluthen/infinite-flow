@@ -36,7 +36,7 @@ export interface ReviewNavigationDependencies {
 // @spec-link [[req_last_session_review]]
 export interface ReviewNavigation {
   readonly closeReview: () => Promise<void>
-  readonly showReview: () => void
+  readonly showReview: () => Promise<void>
 }
 
 /**
@@ -68,12 +68,15 @@ export function useReviewNavigation(deps: ReviewNavigationDependencies): ReviewN
   }
 
   /**
-   * Intent: `Review last session`: the kept Review shows again, the page scrolls instantly to its
-   * top, then focus moves to `review-title` once the panel is mounted.
+   * Intent: `Review last session`: the most recent session's Review shows (at once when held in
+   * memory, once read when kept on the device), the page scrolls instantly to its top, then focus
+   * moves to `review-title` once the panel is mounted. When it cannot be read, or a session started
+   * meanwhile, nothing moves.
    */
   // @spec-link [[req_last_session_review]]
-  function showReview(): void {
-    deps.controller().showReview()
+  // @spec-link [[req_kept_session_review]]
+  async function showReview(): Promise<void> {
+    if (!(await deps.controller().showReview())) return
     deps.scrollToPageTop()
     deps.focusReviewTitle()
   }

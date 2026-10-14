@@ -81,7 +81,7 @@ export function rawGet(database: IDBDatabase, store: string, key: string): Promi
 export function rawPut(
   database: IDBDatabase,
   store: string,
-  key: string,
+  key: IDBValidKey,
   value: unknown,
 ): Promise<void> {
   const transaction = database.transaction(store, 'readwrite')

@@ -226,7 +226,14 @@ session and one long-lived `Worker`:
   `makeGenerationControls`, `parseGenerationRequest`, `parseConcertEventTimeline`). The
   worker-bound side (`generation-worker-inbound.ts`) reconstructs the `GenerationIntent` via
   `makeGenerationIntent`, or `makeCarryInGenerationIntent` when it holds a carry-in, before
-  asserting the rebuilt value deep-equals the received record field-for-field. The response side
+  asserting the rebuilt value deep-equals the received record field-for-field. A built-in's
+  instrument profile is rebuilt from its id; my instrument's (`my-instrument`), which its id
+  cannot give, is read from the record as data: parsed by `parseInstrumentProfile`, then compared
+  with the profile `makeMyInstrument` derives from its own written range, transposition and name,
+  so a profile no my instrument can have (a span under two octaves, a range sounding outside MIDI,
+  letter steps off the interval table, windows set by hand) is a `GenerationWorkerProtocolError`.
+  The session engine carries the same profile in its settings, taken at Start from phrase 1's
+  intent, into every attempt's intent. The response side
   stays in `generation-worker-protocol.ts`, the only half the main thread loads at start-up, so the
   carry-in checks the worker-bound side needs stay out of the entry chunk. `GenerationProvenance` and
   `GenerationDiagnostics` have no existing boundary parser (nothing upstream ever accepted them as

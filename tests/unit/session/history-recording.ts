@@ -13,7 +13,7 @@ import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
-import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
+import { BUILT_IN_INSTRUMENT_CLEF, type InstrumentClef } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import { encodeGeneratedNotesMidi } from '@/export/midi/midi-encoder'
@@ -76,6 +76,8 @@ export interface RecordedSessionOptions {
   /** How many phrases start sounding before Stop, phrase 1 included. */
   readonly phraseCount: number
   readonly viewport?: FakeViewport
+  /** The clef the session's instrument is drawn in; treble, every built-in's, by default. */
+  readonly clef?: InstrumentClef
 }
 
 /** Intent: let every settled seam promise run its continuation. */
@@ -94,7 +96,12 @@ export async function recordRunnerSession(
   options: RecordedSessionOptions,
 ): Promise<SessionHistory> {
   const { settings, phraseOne, phraseCount } = options
-  const history = createSessionHistory(settings, fixedWallClock, makeSeed(options.firstSeed))
+  const history = createSessionHistory(
+    settings,
+    fixedWallClock,
+    makeSeed(options.firstSeed),
+    options.clef ?? BUILT_IN_INSTRUMENT_CLEF,
+  )
   const errors: unknown[] = []
   const clock = { at: 0 }
   const runner = createSessionRunner(

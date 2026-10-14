@@ -1,6 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import { buildGeneratedNotesFile, type GeneratedNotesRequest } from '@/export/generated-notes-file'
 import { buildPlayedNotesFile } from '@/export/played-notes-file'
@@ -367,25 +366,6 @@ describe('encodeKeptSession refusals', () => {
 
   beforeAll(() => {
     records = recordedKeptSession('bb-tenor', 3).phrases()
-  })
-
-  // @test-link [[module_kept_session_codec]]
-  it('throws for a My instrument phrase, whose clef the history does not carry', () => {
-    const { profile } = makeMyInstrument({
-      template: 'bb-tenor',
-      name: 'Low horn',
-      clef: 'bass',
-      writtenRange: { minMidi: 50, maxMidi: 84 },
-      transposition: { octaves: 0, semitones: 5, direction: 'lower' },
-    })
-    const mine = records.map((record) => ({
-      ...record,
-      intent: { ...record.intent, instrumentProfile: profile },
-    }))
-
-    expect(() =>
-      encodeKeptSession(historyOf(mine, 'my-instrument'), KEPT_FACTS, APP_VERSION),
-    ).toThrow(/My instrument/u)
   })
 
   // @test-link [[module_kept_session_codec]]

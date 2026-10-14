@@ -159,8 +159,12 @@ test.describe('the Review a session end opens', () => {
       ['Phrase 1', '90 BPM'],
       ['Phrase 2', '90 BPM'],
     ])
+    // The session date (en-US here), then the phrases and the instrument; the keep line under it.
     await expect(reviewPanel(page).locator('.review-summary')).toHaveText(
-      '2 phrases · B-flat tenor saxophone. Kept until the next session starts or the page is closed.',
+      /^\w{3}, \w{3} \d{1,2}, \d{4}, \d{1,2}:\d{2}\s[AP]M · 2 phrases · B-flat tenor saxophone$/u,
+    )
+    await expect(reviewPanel(page).locator('.review-keep-line')).toHaveText(
+      'Not pinned: deleted when your next session is saved.',
     )
 
     await untilEngraved(page, 2)
@@ -283,7 +287,7 @@ test('a Review inflated to 2 000 phrases lists every one, numbered in order', as
   await sessionEndedAfter(page, 1)
 
   await expect(reviewItems(page)).toHaveCount(2000)
-  await expect(reviewPanel(page).locator('.review-summary')).toHaveText(/^2000 phrases · /)
+  await expect(reviewPanel(page).locator('.review-summary')).toHaveText(/ · 2000 phrases · /)
   await expect(reviewItems(page).last().locator('.review-phrase-title')).toHaveText('Phrase 2000')
   await untilEngraved(page, 1)
   // Only the controller's view is inflated: its history is the session's own.

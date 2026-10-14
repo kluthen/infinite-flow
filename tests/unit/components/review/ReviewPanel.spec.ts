@@ -1,5 +1,6 @@
 /**
- * The Review panel's markup, copy and ARIA, its Format and Backing track controls, its export
+ * The Review panel's markup, copy and ARIA (its title, the summary with the session date, the keep
+ * line in its three wordings, only "Not saved" in the split layout), its Format and Backing track controls, its export
  * button's pending, failure and focus behaviour, its title focus, and the room notice that stands
  * in for the list while the workspace staff has no room. Engraving is covered in
  * ReviewPanel-engraving.spec.ts; here the fake engraver only keeps jsdom away from VexFlow.
@@ -11,17 +12,26 @@ import ReviewPanel from '@/components/review/ReviewPanel.vue'
 import type { ExportRequest, GeneratedNotesFormat } from '@/components/review/review-types'
 import type { StaffViewport } from '@/notation/notation-layout-policy'
 import type { SessionHistoryRecord } from '@/session/session-history'
+import type { SessionKeeping } from '@/components/workspace/workspace-session-controller-types'
+import { sessionDate } from '@/components/review/session-date'
 import { resetFakePhraseEngraver } from '../notation/fake-phrase-engraver'
 import { longHistory, recordedRecords, stubReviewBrowser } from './review-fixtures'
 
 vi.mock('@/notation/vexflow-engraver-loader', () => import('../notation/fake-phrase-engraver'))
 
 const ONE_SYSTEM: StaffViewport = { layout: 'one-system', heightBudgetPx: null }
+const SPLIT: StaffViewport = { layout: 'split', heightBudgetPx: 400 }
+
+/** The session's start: 6 October 2026, 18:42 local time. */
+const STARTED_AT = new Date(2026, 9, 6, 18, 42).getTime()
 
 /** The props a test may override; the rest take the defaults below. */
 interface PanelOptions {
   readonly records?: readonly SessionHistoryRecord[]
   readonly instrumentName?: string
+  readonly startedAt?: number
+  readonly mostRecent?: boolean
+  readonly keeping?: SessionKeeping
   readonly viewport?: StaffViewport | null
   readonly noRoom?: boolean
   readonly format?: GeneratedNotesFormat
@@ -37,6 +47,9 @@ function mountPanel(options: PanelOptions = {}) {
     props: {
       records: options.records ?? recordedRecords(),
       instrumentName: options.instrumentName ?? 'B-flat tenor saxophone',
+      startedAt: options.startedAt ?? STARTED_AT,
+      mostRecent: options.mostRecent ?? true,
+      keeping: options.keeping ?? 'not-pinned',
       viewport: options.viewport === undefined ? ONE_SYSTEM : options.viewport,
       noRoom: options.noRoom ?? false,
       format: options.format ?? 'musicxml',
@@ -106,19 +119,55 @@ describe('the review panel markup', () => {
   })
 
   // @test-link [[req_last_session_review]]
-  it('sums the phrases up with the session instrument', () => {
+  // @test-link [[req_kept_session_review]]
+  it('titles the most recent session "Last session" and sums it up from its date', () => {
     const wrapper = mountPanel()
+    expect(wrapper.get('.review-title').text()).toBe('Last session')
     expect(wrapper.get('p.review-summary').text()).toBe(
-      '3 phrases · B-flat tenor saxophone. Kept until the next session starts or the page is closed.',
+      `${sessionDate(STARTED_AT)} · 3 phrases · B-flat tenor saxophone`,
     )
+  })
+
+  // @test-link [[req_kept_session_review]]
+  it('titles any other session with its date, left out of the summary', () => {
+    const wrapper = mountPanel({ mostRecent: false })
+    expect(wrapper.get('.review-title').text()).toBe(sessionDate(STARTED_AT))
+    expect(wrapper.get('p.review-summary').text()).toBe('3 phrases · B-flat tenor saxophone')
   })
 
   // @test-link [[req_last_session_review]]
   it('says "1 phrase" for a one-phrase session', () => {
     const wrapper = mountPanel({ records: recordedRecords().slice(0, 1), instrumentName: 'Piano' })
     expect(wrapper.get('.review-summary').text()).toBe(
-      '1 phrase · Piano. Kept until the next session starts or the page is closed.',
+      `${sessionDate(STARTED_AT)} · 1 phrase · Piano`,
     )
+  })
+
+  // @test-link [[module_kept_session_save]]
+  // @test-link [[rule_failed_save_never_disturbs_session]]
+  it('says how the session is kept in the keep line, under the summary', () => {
+    const lines = (['pinned', 'not-pinned', 'not-saved'] as const).map((keeping) =>
+      mountPanel({ keeping }).get('.review-heading > .review-summary + p.review-keep-line').text(),
+    )
+
+    expect(lines).toEqual([
+      'Pinned: kept until you unpin or delete it.',
+      'Not pinned: deleted when your next session is saved.',
+      'Not saved on this device: export it to keep it.',
+    ])
+  })
+
+  // @test-link [[module_kept_session_save]]
+  it('keeps only the "Not saved" keep line in the split layout', () => {
+    expect(
+      mountPanel({ viewport: SPLIT, keeping: 'pinned' }).find('.review-keep-line').exists(),
+    ).toBe(false)
+    expect(
+      mountPanel({ viewport: SPLIT, keeping: 'not-pinned' }).find('.review-keep-line').exists(),
+    ).toBe(false)
+    expect(
+      mountPanel({ viewport: SPLIT, keeping: 'not-saved' }).get('.review-keep-line').text(),
+    ).toBe('Not saved on this device: export it to keep it.')
   })
 
   // @test-link [[req_last_session_review]]
@@ -175,7 +224,7 @@ describe('the review panel markup', () => {
   it('renders a list of 2 000 phrases, one item each', () => {
     const wrapper = mountPanel({ records: longHistory(2000) })
     expect(wrapper.findAll('.review-list > .review-phrase')).toHaveLength(2000)
-    expect(wrapper.get('.review-summary').text()).toMatch(/^2000 phrases · /u)
+    expect(wrapper.get('.review-summary').text()).toMatch(/ · 2000 phrases · /u)
   })
 })
 

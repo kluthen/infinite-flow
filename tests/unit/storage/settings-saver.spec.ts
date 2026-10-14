@@ -134,6 +134,30 @@ describe('the order calls reach the policy in', () => {
       { method: 'release' },
     ])
   })
+
+  // @test-link [[module_kept_session_save]]
+  it("queues the session's save after the release and resolves the policy's outcome of it", async () => {
+    const { policy, calls } = recordingPolicy()
+    const pending = pendingPolicy(policy)
+    const saves = createVisitSaves(pending.promise, APP_VERSION)
+    /** Intent: the session save's changes, whatever was read. */
+    const changes = () => [settingWrite('theme', 'Dark')]
+
+    saves.hold()
+    saves.release()
+    const outcome = saves.saveSession(changes)
+    await flushPromises()
+    expect(calls).toEqual([])
+
+    pending.resolve()
+
+    expect(await outcome).toEqual({ status: 'refused', kind: 'quota' })
+    expect(calls).toEqual([
+      { method: 'hold' },
+      { method: 'release' },
+      { method: 'saveSession', changes },
+    ])
+  })
 })
 
 // @test-link [[module_saved_data_loader]]

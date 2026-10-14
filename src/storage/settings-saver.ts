@@ -20,7 +20,7 @@ import {
   type SettingKey,
   type SettingValue,
 } from './records/settings-record'
-import type { SavePolicy } from './save-policy'
+import type { SavePolicy, SessionChanges, SessionSaveOutcome } from './save-policy'
 import type { StorageChange } from './storage-port'
 
 /**
@@ -38,15 +38,21 @@ export type SettingChanges = { readonly [K in SettingKey]?: SettingValue<K> }
 // @spec-link [[module_save_policy]]
 export type SaveSettings = (changes: SettingChanges) => void
 
-/** Hold every save while a session runs, and release them, in one transaction, when it ends. */
+/**
+ * Hold every save while a session runs, and release them, in one transaction, when it ends; then,
+ * at an end with a review, save the session itself.
+ */
 // @spec-link [[rule_no_save_during_session]]
 // @spec-link [[module_save_policy]]
 // @spec-link [[module_saved_data_loader]]
+// @spec-link [[module_kept_session_save]]
 export interface SessionSaveHold {
   /** A session starts: hold every save from now on. */
   readonly hold: () => void
   /** The session ended: flush what was held. */
   readonly release: () => void
+  /** Save the session that ended, after the release; resolves what became of that save. */
+  readonly saveSession: (changes: SessionChanges) => Promise<SessionSaveOutcome>
 }
 
 /** The visit's saves of the player's settings, and the hold of a session's saves. */
@@ -116,6 +122,12 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
     },
     hold: () => submit((target) => target.hold()),
     release: () => submit((target) => void target.release()),
+    saveSession: (changes) =>
+      new Promise((resolve, reject) => {
+        submit((target) => {
+          target.saveSession(changes).then(resolve, reject)
+        })
+      }),
   }
 }
 

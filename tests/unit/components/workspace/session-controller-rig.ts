@@ -22,6 +22,7 @@ import type { WorkspaceSessionRunnerInput } from '@/components/workspace/create-
 import { startWorkspaceSessionRunner } from '@/components/workspace/workspace-session-runner'
 import { createSessionController } from '@/components/workspace/workspace-session-controller'
 import type {
+  KeptSessionsSeam,
   SessionController,
   SessionControllerPhase,
   SessionReview,
@@ -37,6 +38,7 @@ import type { StaffFixedParts, StaffLayoutInputs } from '@/notation/staff-fit-ty
 import type { MutableGenerationSessionState } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
+import type { SessionChanges, SessionSaveOutcome } from '@/storage/save-policy'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { makeSeed } from '@/domain/random/seed'
 import {
@@ -98,6 +100,13 @@ export interface ControllerRigOptions {
   readonly pregeneration?: WorkspacePregenerationFactory
   /** The saved "During a session" choices; a first visit's (all off) by default. */
   readonly savedSessionOptions?: SessionOptionChoices
+  /** What each session save resolves; `saved` at once by default. */
+  readonly sessionSaveOutcome?: () => Promise<SessionSaveOutcome>
+  /**
+   * The kept sessions the controller reaches: by default none loaded, a read that throws (none is
+   * ever asked for) and saving on.
+   */
+  readonly keptSessions?: Partial<KeptSessionsSeam>
 }
 
 /** Intent: a pre-generation builder under the disabled policy: no background attempt, ever. */
@@ -155,7 +164,7 @@ export interface FreshPhraseRequest {
 
 /** One call the controller made to the hold of the player's saves, and what it showed then. */
 export interface SaveHoldCall {
-  readonly call: 'hold' | 'release'
+  readonly call: 'hold' | 'release' | 'saveSession'
   readonly phase: SessionControllerPhase
   /** Whether the audio transport was running then. */
   readonly audioRunning: boolean
@@ -170,8 +179,10 @@ export interface ControllerRig {
   readonly idle: MutableGenerationSessionState<WorkspaceSessionResult>
   readonly settings: SessionSettings
   readonly phraseOne: WorkspaceSessionResult
-  /** The written phrase the staff shows at Idle: phrase 1's. */
+  /** The written phrase the staff shows at Idle at first: phrase 1's. */
   readonly idleWritten: WrittenPhrase
+  /** Make the staff show another written phrase at Idle, as a hand-set Idle phrase 1 would. */
+  readonly showIdleWritten: (phrase: WrittenPhrase) => void
   /** The display's frame loop, stepped by `playTo` or by hand. */
   readonly frames: FakeFrames
   /** The staff planner the display checks fits with. */
@@ -208,6 +219,8 @@ export interface ControllerRig {
   readonly changeSettings: (settings: SessionSettings) => void
   /** Every hold and release of the player's saves the controller made, in order. */
   readonly saveHolds: SaveHoldCall[]
+  /** The changes of every session save the controller asked for, in order. */
+  readonly sessionSaves: SessionChanges[]
 }
 
 /** Intent: let every pending promise (generation answers, fit checks, lock outcomes) settle. */
@@ -249,6 +262,7 @@ export function controllerRig(
   const idleWritten = transformToWrittenPhrase(
     notationInputFromOutcome(phraseOne.outcome, phraseOne.intent, BUILT_IN_INSTRUMENT_CLEF),
   )
+  let shownIdleWritten = idleWritten
   const frames = createFakeFrames()
   const planner = createFakePlanner()
   const idle = shallowReactive<MutableGenerationSessionState<WorkspaceSessionResult>>({
@@ -294,6 +308,7 @@ export function controllerRig(
   let built: SessionController | null = null
   const runners: SessionRunner[] = []
   const saveHolds: SaveHoldCall[] = []
+  const sessionSaves: SessionChanges[] = []
 
   /** Intent: log a hold or release of the player's saves with what the controller showed then. */
   function logSaveHold(call: SaveHoldCall['call']): void {
@@ -348,7 +363,7 @@ export function controllerRig(
 
   const controller = createSessionController({
     idle: { state: idle, actions: { startFreshPhrase } },
-    idlePhrase: () => idleWritten,
+    idlePhrase: () => shownIdleWritten,
     audio: transport,
     browser,
     createSessionRunner: createRunner,
@@ -371,7 +386,23 @@ export function controllerRig(
     connectionSheetOpen: () => sheetOpen.value,
     pregeneration: options.pregeneration ?? disabledPregeneration,
     savedSessionOptions: options.savedSessionOptions ?? DEFAULT_SESSION_OPTIONS,
-    saveHold: { hold: () => logSaveHold('hold'), release: () => logSaveHold('release') },
+    saveHold: {
+      hold: () => logSaveHold('hold'),
+      release: () => logSaveHold('release'),
+      saveSession: (changes) => {
+        logSaveHold('saveSession')
+        sessionSaves.push(changes)
+        return options.sessionSaveOutcome?.() ?? Promise.resolve({ status: 'saved' })
+      },
+    },
+    keptSessions: {
+      summaries: [],
+      read: (key) => {
+        throw new Error(`rig: no kept session "${key}" can be read`)
+      },
+      savingOff: () => false,
+      ...options.keptSessions,
+    },
   })
   built = controller
   return {
@@ -383,6 +414,9 @@ export function controllerRig(
     settings,
     phraseOne,
     idleWritten,
+    showIdleWritten: (phrase) => {
+      shownIdleWritten = phrase
+    },
     frames,
     planner,
     timers,
@@ -413,6 +447,7 @@ export function controllerRig(
       runner.dispatch({ kind: 'settings-change', at: audioRig.now(), settings })
     },
     saveHolds,
+    sessionSaves,
   }
 }
 

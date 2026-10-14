@@ -17,17 +17,14 @@ import {
   carriedHarmonyFits,
   type CarryInReceiver,
 } from '../domain/generation/carry-in/carry-in-fit'
-import {
-  getInstrumentProfile,
-  writtenToConcertTonalCenter,
-} from '../domain/generation/generation-intent'
+import { writtenToConcertTonalCenter } from '../domain/generation/generation-intent'
 import { deepFreeze } from '../domain/events/deep-freeze'
 import type { CarriedHarmony } from '../domain/harmony/harmony-join'
 import type { RegisterId } from '../domain/profile/register-id'
 import type { RegisterChoice } from '../domain/profile/register-intent'
 import type { RegisterWindowCandidate } from '../domain/profile/register-window-derivation'
 import { registerWindowContainsPitch, type RegisterWindow } from '../domain/profile/register-window'
-import { resolvedRegister } from './session-intents'
+import { resolvedRegister, sessionInstrumentProfile } from './session-intents'
 import { SessionEngineError, type SessionSettings } from './session-types'
 
 /**
@@ -90,10 +87,12 @@ function harmonySettingsDiffer(before: SessionSettings, after: SessionSettings):
 
 /**
  * Intent: the receiving side of the fit checks for the new settings, built as the intent builds
- * it: the written tonal center converted to concert pitch for the session's instrument.
+ * it: the written tonal center converted to concert pitch for the session's instrument, my
+ * instrument's transposition read from the profile the settings carry.
  */
+// @spec-link [[entity_my_instrument]]
 function receiverFor(after: SessionSettings): Pick<CarryInReceiver, 'controls' | 'musicalProfile'> {
-  const instrument = getInstrumentProfile(after.controls.instrumentProfileId)
+  const instrument = sessionInstrumentProfile(after)
   return {
     controls: {
       ...after.controls,

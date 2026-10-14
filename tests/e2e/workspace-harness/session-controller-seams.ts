@@ -15,13 +15,15 @@
 import { shallowRef } from 'vue'
 
 import type {
+  MostRecentSession,
+  ReviewedHistory,
   SessionController,
   SessionControllerPhase,
   SessionControllerState,
   SessionReview,
 } from '../../../src/components/workspace/workspace-session-controller-types'
 import type { ExpectedNoteIdentity } from '../../../src/domain/acknowledgement/expected-note'
-import type { SessionHistory, SessionHistoryRecord } from '../../../src/session/session-history'
+import type { ReviewedPhrase, SessionHistory } from '../../../src/session/session-history'
 import { slotKey, waitingMaterial } from '../../../src/session/rolling-display'
 import { changeSettings } from './session-runner-seam'
 
@@ -71,58 +73,65 @@ function rollingDisplayOf(state: SessionControllerState) {
 
 /**
  * Intent: a closed history read as `phraseCount` phrases: the real ones repeated in order, each
- * renumbered from 1, everything else the real history's. Recording into it is a defect.
+ * renumbered from 1, its phrase count and start the real history's otherwise.
  */
-function inflatedHistory(real: SessionHistory, phraseCount: number): SessionHistory {
+function inflatedHistory(real: ReviewedHistory, phraseCount: number): ReviewedHistory {
   const records = real.phrases()
   if (records.length === 0) throw new Error('Workspace harness: an empty history cannot inflate')
-  const inflated: readonly SessionHistoryRecord[] = Object.freeze(
+  const inflated: readonly ReviewedPhrase[] = Object.freeze(
     Array.from({ length: phraseCount }, (_, index) => ({
       ...records[index % records.length]!,
       phraseNumber: index + 1,
     })),
   )
-  const closed = (): never => {
-    throw new Error('Workspace harness: an inflated history records nothing')
-  }
-  return Object.freeze({
-    record: closed,
-    recordPlayedNote: closed,
-    recordAcknowledgement: closed,
-    phrases: () => inflated,
-    tempoReached: () => inflated.at(-1)!.tempo,
-    phraseCount,
-    startedAt: real.startedAt,
-    instrumentProfileId: real.instrumentProfileId,
-    sessionSeed: real.sessionSeed,
-  })
+  return Object.freeze({ phrases: () => inflated, phraseCount, startedAt: real.startedAt })
 }
 
 /**
- * Intent: a view of the controller's state whose Review, once `phraseCount()` is set, holds that
- * many phrases; every read goes through the real (reactive) state, so the app still tracks it.
- * One inflated Review per real one, so the app sees a stable object.
+ * Intent: a view of the controller's state whose Review and most recent session, once
+ * `phraseCount()` is set, hold that many phrases; every read goes through the real (reactive)
+ * state, so the app still tracks it. One inflated history per real one and count, and one view
+ * per real Review or most recent session, so the app sees stable objects and the Review's history
+ * is still the most recent session's.
  */
 function inflatingStateView(
   state: SessionControllerState,
   phraseCount: () => number | null,
 ): SessionControllerState {
-  const inflated = new WeakMap<SessionReview, SessionReview>()
+  const histories = new WeakMap<ReviewedHistory, ReviewedHistory>()
+  const views = new WeakMap<object, object>()
+  /** Intent: the one inflated history of `real` at `count` phrases. */
+  const historyFor = (real: ReviewedHistory, count: number): ReviewedHistory => {
+    let history = histories.get(real)
+    if (history === undefined || history.phraseCount !== count) {
+      history = inflatedHistory(real, count)
+      histories.set(real, history)
+    }
+    return history
+  }
+  /** Intent: the one view of `real` (a Review or a session) with its history inflated. */
+  const viewOf = <T extends { readonly history: ReviewedHistory }>(real: T, count: number): T => {
+    const history = historyFor(real.history, count)
+    const cached = views.get(real) as T | undefined
+    if (cached !== undefined && cached.history === history) return cached
+    const view = Object.freeze({ ...real, history })
+    views.set(real, view)
+    return view
+  }
   return new Proxy(state, {
     get(target, key) {
       const value: unknown = Reflect.get(target, key)
-      if (key !== 'review' || value === null) return value
       const count = phraseCount()
-      if (count === null) return value
-      const review = value as SessionReview
-      let view = inflated.get(review)
-      if (view === undefined || view.history.phraseCount !== count) {
-        view = Object.freeze({
-          ...review,
-          history: inflatedHistory(review.history, count),
-        })
-        inflated.set(review, view)
-      }
+      if (value === null || count === null) return value
+      if (key === 'review') return viewOf(value as SessionReview, count)
+      if (key !== 'mostRecent') return value
+      const recent = value as MostRecentSession
+      if (recent.kind !== 'held') return recent
+      const cached = views.get(recent) as MostRecentSession | undefined
+      const session = viewOf(recent.session, count)
+      if (cached?.kind === 'held' && cached.session === session) return cached
+      const view = Object.freeze({ kind: 'held' as const, session })
+      views.set(recent, view)
       return view
     },
   })
@@ -134,6 +143,16 @@ export interface HarnessSessionController {
   /** The controller's phase now; null until the app has built it. */
   readonly phase: () => SessionControllerPhase | null
   readonly api: WorkspaceHarnessSessionApi
+}
+
+/** Intent: the most recent session as plain JSON: held, with its count and keeping, or kept. */
+function mostRecentOf(
+  recent: MostRecentSession | null,
+): WorkspaceHarnessSessionState['mostRecent'] {
+  if (recent === null) return null
+  if (recent.kind === 'kept') return { kind: 'kept', key: recent.key }
+  const { history, keeping } = recent.session
+  return { kind: 'held', phraseCount: history.phraseCount, keeping }
 }
 
 /**
@@ -160,6 +179,7 @@ function snapshotOf(state: SessionControllerState): WorkspaceHarnessSessionState
       state.review === null
         ? null
         : { showing: state.review.showing, phraseCount: state.review.history.phraseCount },
+    mostRecent: mostRecentOf(state.mostRecent),
     startingNote:
       state.startingNote === null
         ? null

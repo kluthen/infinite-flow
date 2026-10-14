@@ -23,6 +23,7 @@ import {
   browserStorage,
   openStoragePort,
   StorageError,
+  type StoredEntry,
   type StoragePort,
 } from '@/storage/storage-port'
 
@@ -51,8 +52,12 @@ export interface SavedDataLoad {
   readonly outcome: LoadOutcome
   /** Every setting the workspace is first drawn with: saved, or its default. */
   readonly settings: SavedSettings
-  /** The kept sessions' summary records, as stored (none when the visit started from defaults). */
-  readonly keptSessionSummaries: readonly unknown[]
+  /**
+   * The kept sessions' summary records, each with its key, as stored and undecoded, in key order
+   * (none when the visit started from defaults): their callers decode each value with the
+   * kept-session codec and use the key to read that session's body or to delete it.
+   */
+  readonly keptSessionSummaries: readonly StoredEntry[]
   /** The remembered controller's records, as stored (none when the visit started from defaults). */
   readonly rememberedController: readonly unknown[]
   /**
@@ -76,7 +81,7 @@ export interface SavedDataLoadDependencies {
 /** The raw records the load reads. */
 interface SavedRecords {
   readonly settings: readonly unknown[]
-  readonly keptSessionSummaries: readonly unknown[]
+  readonly keptSessionSummaries: readonly StoredEntry[]
   readonly rememberedController: readonly unknown[]
 }
 
@@ -94,7 +99,7 @@ async function readSavedRecords(port: StoragePort): Promise<SavedRecords | typeo
   try {
     const [settings, keptSessionSummaries, rememberedController] = await Promise.all([
       port.readAll('settings'),
-      port.readAll('sessionSummaries'),
+      port.readKeyed('sessionSummaries'),
       port.readAll('controller'),
     ])
     return { settings, keptSessionSummaries, rememberedController }

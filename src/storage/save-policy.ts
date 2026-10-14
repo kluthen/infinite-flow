@@ -6,8 +6,12 @@
  * held: queued, coalesced to the latest change per record, and flushed in one transaction when the
  * session ends. A refused save never rejects: it resolves as failed and is reported to the one
  * failure listener at the first refusal of a run of refusals, and again each time the kind differs
- * from the last one reported in the run. The requests beyond saving (persistent storage, Your
- * data, Delete everything) are built in save-policy-requests.ts and defer to this policy's state.
+ * from the last one reported in the run. The session's own save, at the end of a session with a
+ * review, is a call of its own that resolves its outcome to its caller: it reads the kept
+ * sessions' summaries at the save and applies the caller's changes in one transaction, after the
+ * held settings are flushed; only its refusal for lack of space is also told to the failure
+ * listener. The requests beyond saving (persistent storage, Your data, Delete everything) are
+ * built in save-policy-requests.ts and defer to this policy's state.
  *
  * The policy is pure: the port is injected, and it keeps no clock.
  */
@@ -20,6 +24,7 @@ import {
   type StorageErrorKind,
   type StoragePort,
   type StoragePortStatus,
+  type StoredEntry,
   type StoreName,
 } from './storage-port'
 
@@ -48,6 +53,26 @@ export type SaveFailureKind = Exclude<StorageErrorKind, 'outdated'>
 
 export type { ProtectionOutcome, VisitRequests } from './save-policy-requests'
 
+/**
+ * What became of the session's own save: saved; refused by the port, with the refusal's kind; or
+ * not attempted because saving is off for the visit (a refusal as outdated, which turns it off,
+ * included). Resolved to the caller, apart from the failure listener.
+ */
+// @spec-link [[module_kept_session_save]]
+// @spec-link [[rule_failed_save_never_disturbs_session]]
+// @spec-link [[module_save_policy]]
+export type SessionSaveOutcome =
+  | { readonly status: 'saved' }
+  | { readonly status: 'refused'; readonly kind: SaveFailureKind }
+  | { readonly status: 'saving-off' }
+
+/**
+ * The changes of the session's own save, from the kept sessions' summaries read at the save, each
+ * with its key (none when that read was refused): the new session's records, and the deletions.
+ */
+// @spec-link [[module_kept_session_save]]
+export type SessionChanges = (keptSummaries: readonly StoredEntry[]) => readonly StorageChange[]
+
 /** The save policy the app writes through, with its requests beyond saving. */
 // @spec-link [[rule_no_save_during_session]]
 // @spec-link [[rule_failed_save_never_disturbs_session]]
@@ -74,6 +99,15 @@ export interface SavePolicy extends VisitRequests {
    */
   release(): Promise<SaveOutcome>
   /**
+   * The session's own save, at a session's end with a review. Once no session holds the saves and
+   * the held ones are flushed, it reads the kept sessions' summaries with their keys (a refused
+   * read gives none, so nothing is deleted), then applies `changes` of them in one transaction.
+   * Session saves run one after the other. Never rejects for a refusal: a refusal for lack of
+   * space is also told to the failure listener, any other is not. While saving is off it reads
+   * and applies nothing. Changes holding no change are a defect.
+   */
+  saveSession(changes: SessionChanges): Promise<SessionSaveOutcome>
+  /**
    * Be told of failed saves. A run of refusals with no success between them is told at its first
    * refusal (`startsRun` true), and again each time a refusal's kind differs from the last one told
    * in the run (`startsRun` false); a refusal made with no listener attached still counts toward
@@ -95,6 +129,9 @@ function initialState(status: StoragePortStatus): SavingState {
   if (status === 'ready') return 'on'
   return status === 'outdated' ? 'off-outdated' : 'off-unreadable'
 }
+
+const SESSION_SAVED: SessionSaveOutcome = Object.freeze({ status: 'saved' })
+const SESSION_SAVING_OFF: SessionSaveOutcome = Object.freeze({ status: 'saving-off' })
 
 /** Intent: the key a held change is coalesced under: its store and its record's key. */
 function recordKey(change: StorageChange): string {
@@ -159,6 +196,10 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
   let failureListener: SaveFailureListener | null = null
   // The kind last reported in the current run of refusals; null when no run is under way.
   let lastReportedInRun: SaveFailureKind | null = null
+  // The flush of a release still being applied; null when none is.
+  let releasing: Promise<SaveOutcome> | null = null
+  // The latest session save, which the next one waits for.
+  let sessionSaves: Promise<unknown> = Promise.resolve()
 
   /** Intent: turn saving off for the visit, dropping what is held; outdated is final. */
   const turnOff = (next: Exclude<SavingState, 'on'>): void => {
@@ -209,6 +250,63 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
     return 'held'
   }
 
+  /**
+   * Intent: the kept sessions' summaries with their keys, read at the save; none when the port
+   * refuses the read, so a refused read deletes nothing. A defect goes through.
+   */
+  const keptSummaries = async (): Promise<readonly StoredEntry[]> => {
+    try {
+      return await port.readKeyed('sessionSummaries')
+    } catch (error) {
+      if (error instanceof StorageError) return []
+      throw error
+    }
+  }
+
+  /**
+   * Intent: apply the session's changes and say what became of them: a refusal as outdated turns
+   * saving off, one for lack of space is told to the failure listener as any refusal is, and any
+   * other is the caller's alone, leaving the run of refusals as it was.
+   */
+  const applySession = async (changes: readonly StorageChange[]): Promise<SessionSaveOutcome> => {
+    if (changes.length === 0) throw new Error('save policy: a session save must hold a change')
+    try {
+      await port.apply(changes)
+    } catch (error) {
+      if (!(error instanceof StorageError)) throw error
+      if (error.kind === 'outdated') {
+        turnOff('off-outdated')
+        return SESSION_SAVING_OFF
+      }
+      if (error.kind === 'quota') refused('quota')
+      return Object.freeze({ status: 'refused', kind: error.kind })
+    }
+    lastReportedInRun = null
+    return SESSION_SAVED
+  }
+
+  /**
+   * Intent: the session's save, once no session holds the saves and no flush is being applied:
+   * the summaries read, then the changes applied. A session started meanwhile makes it wait for
+   * that session's end and read again; saving off makes it read and apply nothing.
+   */
+  // @spec-link [[module_kept_session_save]]
+  // @spec-link [[rule_no_save_during_session]]
+  const runSessionSave = async (changes: SessionChanges): Promise<SessionSaveOutcome> => {
+    for (;;) {
+      await hold.whenNotHeld()
+      if (releasing !== null) {
+        await releasing
+        continue
+      }
+      if (saving !== 'on') return SESSION_SAVING_OFF
+      const kept = await keptSummaries()
+      if (hold.isHeld() || releasing !== null) continue
+      if (saving !== 'on') return SESSION_SAVING_OFF
+      return applySession(changes(kept))
+    }
+  }
+
   const requests = createVisitRequests(port, {
     isOn: () => saving === 'on',
     isOutdated: () => saving === 'off-outdated',
@@ -234,15 +332,33 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
     hold: () => hold.start(),
     // @spec-link [[rule_no_save_during_session]]
     // @spec-link [[rule_settings_saved_on_change]]
-    release: async () => {
-      const changes = hold.stop()
-      try {
-        if (saving !== 'on') return 'skipped'
-        if (changes.length === 0) return 'saved'
-        return await attempt(() => port.apply(changes))
-      } finally {
-        hold.wakeWaiting()
+    release: () => {
+      const flushing = (async (): Promise<SaveOutcome> => {
+        const changes = hold.stop()
+        try {
+          if (saving !== 'on') return 'skipped'
+          if (changes.length === 0) return 'saved'
+          return await attempt(() => port.apply(changes))
+        } finally {
+          hold.wakeWaiting()
+        }
+      })()
+      releasing = flushing
+      // Settled or not, the flush is over for the session save; its outcome goes to the caller.
+      const over = () => {
+        if (releasing === flushing) releasing = null
       }
+      void flushing.then(over, over)
+      return flushing
+    },
+    // @spec-link [[module_kept_session_save]]
+    // @spec-link [[rule_failed_save_never_disturbs_session]]
+    // @spec-link [[module_save_policy]]
+    saveSession: (changes) => {
+      // A defect of one session save rejects every later one too: it surfaces, never swallowed.
+      const saved = sessionSaves.then(() => runSessionSave(changes))
+      sessionSaves = saved
+      return saved
     },
     onFailure: (listener) => {
       if (failureListener !== null) throw new Error('save policy: a failure listener is set')

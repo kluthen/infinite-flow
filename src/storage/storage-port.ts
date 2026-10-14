@@ -22,13 +22,15 @@ import {
   openForReading,
   PRODUCTION_MIGRATIONS,
   readAllValues,
+  readKeyedValues,
   readValue,
   type MigrationStep,
+  type StoredEntry,
   type StoreName,
 } from './database'
 import { assertWritableVersions, type RecordVersions } from './record-envelope'
 
-export type { StoreName }
+export type { StoredEntry, StoreName }
 
 /** Why the port refused: lack of space, an outdated tab, or any other storage failure. */
 // @spec-link [[module_on_device_database]]
@@ -93,6 +95,11 @@ export interface StoragePort {
   read(store: StoreName, key: string): Promise<unknown>
   /** Every raw value a store holds. */
   readAll(store: StoreName): Promise<readonly unknown[]>
+  /**
+   * Every entry a store holds, its key and its raw value, in key order, in one read-only
+   * transaction; an entry whose key is not a string is left out. Refused as `readAll` is.
+   */
+  readKeyed(store: StoreName): Promise<readonly StoredEntry[]>
   /** Store a record under `key`, replacing any; refused when outdated or out of space. */
   write(store: StoreName, key: string, record: RecordVersions): Promise<void>
   /** Remove the record under `key`; refused when outdated. */
@@ -265,6 +272,11 @@ export async function openStoragePort(options: StoragePortOptions): Promise<Stor
     readAll: async (store) => {
       assertDataStore(store)
       return refusingAs(async () => readAllValues(await readingConnection(), store))
+    },
+    // @spec-link [[module_on_device_database]]
+    readKeyed: async (store) => {
+      assertDataStore(store)
+      return refusingAs(async () => readKeyedValues(await readingConnection(), store))
     },
     write: async (store, key, record) => {
       assertDataStore(store)

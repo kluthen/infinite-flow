@@ -7,6 +7,7 @@ parents:
 type: RULE
 layer: BUSINESS
 dependents:
+  - [[module_kept_session_save]]
   - [[module_save_policy]]
 version: 0.1
 priority: 1

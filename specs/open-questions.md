@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.60
+Status: draft v0.63
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -17,8 +17,10 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 Open on 2026-10-14: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
 O115 and O116 (v3.x learning), O176 (style packs and the chord level, below), O180 (v3.0
 wave 2: octave signs, later), O183 (v3.0 wave 2: the warm worker lost when pre-generation is
-cancelled, opened with D298) and O190 (v3.0 wave 4: a newer version's database whose read-only
-reopening fails, opened with D300). The owner closed O182 (what Regenerate does in the stale-phrase
+cancelled, opened with D298), O190 (v3.0 wave 4: a newer version's database whose read-only
+reopening fails, opened with D300). The owner closed O201 (a session cut short by reloading or
+closing the page: never saved, D309) and O200 (a kept session the app cannot read: deleted, with
+an apology, D310) on 2026-10-14, the day they were opened. The owner closed O182 (what Regenerate does in the stale-phrase
 prompt) on 2026-10-13, the day it was opened (D297's ruling note). D295 and D296 closed O181 the day it was opened. D228–D234 closed O10 (for v3.2), O103, O114, O126 and every
 question the v3.1 and v3.2 drafts opened (O127–O157, O160–O162); D257 and D258 closed O163 and
 O164 the day they were opened. None blocks the v3.0 build.
@@ -186,3 +188,12 @@ plan v11 (D300). O190–O199 are reserved for v3.0 wave 4. O190 blocks no wave-4
   `src/storage/database.ts` and `src/storage/storage-port.ts`, with a unit test), in a chunk of the
   wave driver's choosing before the v3.0 gate; chunk 8 needs nothing more, since it shows the
   notice from the saving state and the load outcome.
+
+## v3.0 wave 5 (O200+)
+
+Opened 2026-10-14 by `spec-writer` while writing the wave-5 preflight's corrections and the
+wave-5 sync into build plan v13 and v14. O200–O209 are reserved for v3.0 wave 5. Both questions
+opened here are closed: O200 by [D310](decisions.md) (a kept session the app cannot read
+correctly is deleted, with an apology; a read the device refuses deletes nothing; built in chunk
+28) and O201 by [D309](decisions.md) (a session cut short by reloading or closing the page is
+never saved, as §5.1 says; built in chunk 27). O202–O209 stay free.

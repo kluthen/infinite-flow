@@ -146,12 +146,15 @@ export function scaleNeighbours<T extends string>(scale: MutationScale<T>, value
   }
 }
 
-/** Intent: session settings from the pair the profile-selection edits return. */
-function settingsOf([controls, musicalProfile]: readonly [
-  GenerationControls,
-  ProfileSelection,
-]): SessionSettings {
-  return { controls, musicalProfile }
+/**
+ * Intent: the settings with the pair the profile-selection edits return; the rest of the settings
+ * (my instrument's profile, when they carry it) is kept as it is.
+ */
+function settingsOf(
+  settings: SessionSettings,
+  [controls, musicalProfile]: readonly [GenerationControls, ProfileSelection],
+): SessionSettings {
+  return { ...settings, controls, musicalProfile }
 }
 
 /** Intent: an entry for a value the musical profile does not control: the selection is kept. */
@@ -163,6 +166,7 @@ function freeEntry<
     from: (settings) => settings.controls[key],
     apply: (settings, value) =>
       settingsOf(
+        settings,
         applyNonProfileControlValue(settings.controls, settings.musicalProfile, key, value),
       ),
   }
@@ -186,6 +190,7 @@ function profileControlledEntry<K extends keyof ProfileControlledValues>(
     from,
     apply: (settings, value) =>
       settingsOf(
+        settings,
         applyControlledCustomValue(settings.controls, settings.musicalProfile, key, value),
       ),
   }
@@ -256,7 +261,7 @@ export const MUTATION_SCALES: MutationScaleTable = deepFreeze({
     scale: { kind: 'nominal', values: MUSICAL_PROFILES },
     from: (settings) => settings.musicalProfile.musicalProfile,
     apply: (settings, musicalProfile) => ({
-      controls: settings.controls,
+      ...settings,
       musicalProfile: { musicalProfile, isCustom: true },
     }),
   },

@@ -52,7 +52,7 @@ ahead of it (the read-ahead), so the player always sees what comes next.
 | `adaptive-tempo.ts`               | The pure adaptive-tempo schedule: +5 BPM every two counted phrases, never past 240 (see [Adaptive tempo](#adaptive-tempo)).       |
 | `session-tempo-step.ts`           | Where the engine meets the schedule: `fixDueTempo`, `soundingTempo`, `onController` and each phrase's fixed tempo.                |
 | `session-runner.ts`               | `createSessionRunner(deps, start)`: executes the engine's requests (see [The runner](#the-runner-and-the-one-worker-wiring)).     |
-| `session-history.ts`              | `createSessionHistory(settings, wallClock)`: records every phrase that sounded (see [Session history](#session-history)).         |
+| `session-history.ts`              | `createSessionHistory`: records every phrase that sounded, in its clef (see [Session history](#session-history)).                 |
 | `session-history-played-notes.ts` | `withPlayedNotes(records, notes, acknowledgements)`: places the played notes and acknowledgements in the phrase records, on read. |
 | `session-history-export.ts`       | The encoder inputs built from a recorded session (see [Handing a session to the encoders](#handing-a-session-to-the-encoders)).   |
 
@@ -430,7 +430,8 @@ warm reuse of the memo is unchanged.
 
 ## Session history
 
-`createSessionHistory(settings, wallClock)` in `src/session/session-history.ts` keeps an in-memory
+`createSessionHistory(settings, wallClock, sessionSeed, clef)` in `src/session/session-history.ts`
+keeps an in-memory
 record of every phrase of one session that started sounding. The Review and the exports are built
 from it (see [The end once phrase 1 has sounded](#the-end-once-phrase-1-has-sounded) and
 [`docs/export.md`](export.md)). It never reads the system time, uses no browser API and stores
@@ -452,6 +453,11 @@ keeps two facts about the whole session besides its records:
 - **`instrumentProfileId`** is the instrument profile of the locked settings. The profile stays
   locked for the whole session, so it holds for every record, even if the player picks another
   instrument after the session ends.
+- **The clef** is the clef of the written phrase Idle showed at Start: treble for a built-in
+  instrument, treble or bass for my instrument. Every record carries it (`clef`), and the Review,
+  the MusicXML input and the kept session's body read it there. It is display data, never in the
+  settings or an intent. A clef that is none, or a built-in instrument in any clef but treble, is
+  refused at creation.
 
 ### What it records
 

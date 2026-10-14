@@ -42,7 +42,12 @@ let recorded: readonly SessionHistoryRecord[] | null = null
 export function recordedRecords(): readonly SessionHistoryRecord[] {
   if (recorded !== null) return recorded
   const driver = sessionWithRepeat()
-  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+  const history = createSessionHistory(
+    driver.settings,
+    fixedWallClock,
+    DEFAULT_SESSION_SEED,
+    'treble',
+  )
   for (const output of driver.log) {
     if (output.kind === 'ended') {
       for (const phraseNumber of [1, 2, 3]) {
