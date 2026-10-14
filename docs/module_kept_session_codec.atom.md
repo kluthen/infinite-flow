@@ -10,11 +10,11 @@ parents:
   - [[rule_kept_session_content]]
   - [[rule_outdated_tab_reads_what_it_can]]
   - [[service_session_history]]
-notes: Created 2026-10-14 at DRAFT by the pre-code architecture capture for v3.0 build plan chunk 9 (wave-3 preflight)
+notes: Created 2026-10-14 at DRAFT by the pre-code architecture capture for v3.0 build plan chunk 9 (wave-3 preflight), from master spec sections 4.3, 5.2 and 5.4, the build plan's chunk 9 scope, and the session history, worker protocol and export code as merged on main 488d9e0. Describes intended v3.0 behaviour: no code implements it yet. Left to chunk 9's leader, recorded at its post-task sync: where the narrower phrase type the review and the exports read is declared, and how a stored harmony and a whole stored intent are validated, since no existing parser validates a harmony beyond its being an object, and the only whole-intent parser rebuilds the profile from its id.
 dependents: []
 layer: ARCHITECTURE
 version: 0.1
-tags: [v3
+tags: [v3, release-v3.0, storage, review, session]
 ---
 
 # Kept-Session Codec

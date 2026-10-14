@@ -2,14 +2,14 @@
 id: entity_kept_session_record
 status: DRAFT
 version: 0.1
-tags: [v3
+tags: [v3, release-v3.0, storage, review, session]
 parents:
   - [[module_session_seed_plan]]
   - [[req_kept_session_list]]
   - [[rule_kept_session_content]]
   - [[rule_kept_session_holds_no_acknowledgements]]
   - [[rule_played_notes_kept_only_after_opt_in]]
-notes: Created 2026-10-14 at DRAFT by the pre-code architecture capture for v3.0 build plan chunk 9 (wave-3 preflight)
+notes: Created 2026-10-14 at DRAFT by the pre-code architecture capture for v3.0 build plan chunk 9 (wave-3 preflight), from master spec sections 5.1 to 5.4, 7.1 and 12, spec D255, D258, D293 and D295, the storage design module_on_device_database records, and the session list and review designs. Describes intended v3.0 behaviour: no code implements it yet. Left to chunk 9's leader, and recorded at its post-task sync: how the length is measured. The session seed sits in the session-wide record, read from the spec's one session-wide record; the leader may move it to the body if the summary must hold list data only.
 human_name: Kept-Session Record
 type: ENTITY
 layer: ARCHITECTURE
