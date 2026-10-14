@@ -7,10 +7,12 @@ import { type Locator, type Page, expect } from '@playwright/test'
 
 /**
  * Intent: land on the workspace's empty state, ready for a fresh session. `search` is an optional
- * page-URL query string (e.g. `?prewarm=off`); omitted, the page loads with no query.
+ * page-URL query string (e.g. `?prewarm=off`); omitted, the page loads with no query. The app
+ * mounts only once its saved data has loaded, so this waits for the workspace to be drawn.
  */
 export async function gotoWorkspace(page: Page, search = ''): Promise<void> {
   await page.goto(`/${search}`)
+  await page.locator('.generation-status').waitFor({ state: 'attached' })
 }
 
 /** Intent: the single workspace-header phrase action (Generate/Regenerate/Retry, by current label). */

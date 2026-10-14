@@ -8,7 +8,11 @@
  * notes the same way. The backing a spec queues is the harmony of the phrase the workspace shows,
  * read by the harness page from its own session (no production hook).
  */
-import { readAudioMixDesign, type AudioMixDesign } from '../../../src/audio/audio-mix'
+import {
+  readAudioMixDesign,
+  type AudioMix,
+  type AudioMixDesign,
+} from '../../../src/audio/audio-mix'
 import type { AudioOutput, DisposableWakeTimer, WakeTimer } from '../../../src/audio/audio-ports'
 import {
   createAudioTransport,
@@ -123,7 +127,8 @@ function queuedHarmonyView(harmony: readonly HarmonyEvent[]): WorkspaceHarnessQu
  * spec drives it through. `start` is not on the API: only the harness's Start button starts a
  * session, from a real click, at the tempo `armStart` set beforehand. `shownHarmony` reads the
  * harmony of the phrase the workspace shows, which `queueBacking` hands to the transport at the
- * tempo the last session started at.
+ * tempo the last session started at. `loadedMix` reads the mix the saved-data load gave, on the
+ * transport's first use, as the app's transport does.
  */
 // @test-link [[rule_audio_unlocked_by_player_click]]
 // @test-link [[rule_playhead_follows_audio_clock]]
@@ -131,12 +136,14 @@ function queuedHarmonyView(harmony: readonly HarmonyEvent[]): WorkspaceHarnessQu
 export function createHarnessAudio(
   mode: WorkspaceHarnessAudioMode,
   shownHarmony: () => readonly HarmonyEvent[],
+  loadedMix: () => AudioMix,
 ): HarnessAudio {
   const parts = mode === 'real' ? realModeParts() : fakeModeParts()
   const transport = createAudioTransport({
     openOutput: parts.openOutput,
     createWakeTimer: parts.createWakeTimer,
     readMixDesign: pageMixDesign,
+    loadedMix,
   })
   let armedTempo: number | null = null
   let startedTempo: number | null = null

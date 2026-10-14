@@ -53,13 +53,17 @@ export const STOP_FADE_SECONDS = 0.1
 
 /**
  * The transport's seams: `openOutput` creates the one audio output (the one `AudioContext`),
- * `createWakeTimer` the scheduler's timer, and `readMixDesign` reads the mix's design tokens.
+ * `createWakeTimer` the scheduler's timer, `readMixDesign` reads the mix's design tokens, and
+ * `loadedMix` gives the saved mix the app loaded before its first draw, which the mix starts from
+ * in place of the design's defaults (absent: the design's defaults).
  */
 // @spec-link [[rule_audio_unlocked_by_player_click]]
+// @spec-link [[rule_first_phrase_waits_for_saved_settings]]
 export interface AudioTransportDependencies {
   readonly openOutput: () => AudioOutput
   readonly createWakeTimer: () => WakeTimer
   readonly readMixDesign: () => AudioMixDesign
+  readonly loadedMix?: () => AudioMix
 }
 
 /** A started session's timeline: when its count-in starts, and when phrase 1 starts sounding. */
@@ -158,10 +162,11 @@ function planWindow(session: RunningSession, from: AudioTime, to: AudioTime): vo
 
 /**
  * Intent: build the audio transport. Nothing opens the audio output until `unlock`, which the
- * player's Start or Connect controller click calls; the mix design is read on first use, when
- * the stylesheet has loaded. Mix changes set their gain at once when unlocked (running or not),
- * and are applied all together at unlock otherwise. Clicks are scheduled whatever the click
- * switch says: the click-enable gain mutes them, and count-in clicks bypass it.
+ * player's Start or Connect controller click calls; the mix design, and the loaded mix the mix
+ * starts from, are read on first use, when the stylesheet has loaded. Mix changes set their gain
+ * at once when unlocked (running or not), and are applied all together at unlock otherwise.
+ * Clicks are scheduled whatever the click switch says: the click-enable gain mutes them, and
+ * count-in clicks bypass it.
  */
 // @spec-link [[rule_audio_unlocked_by_player_click]]
 // @spec-link [[req_session_audio_mix]]
@@ -181,9 +186,24 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
     return design
   }
 
-  /** Intent: the current mix, starting from the design's defaults. */
+  /**
+   * Intent: the mix the transport starts from, read on first use: the loaded mix, its volumes
+   * checked against the design's range (a loaded volume outside it is a defect, and throws), or
+   * the design's defaults when none was loaded.
+   */
+  // @spec-link [[req_session_audio_mix]]
+  // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
+  function startingMix(): AudioMix {
+    if (deps.loadedMix === undefined) return { ...mixDesign().defaults }
+    const loaded = deps.loadedMix()
+    validateClickVolume(loaded.clickVolume, mixDesign().range)
+    validateBackingVolume(loaded.backingVolume, mixDesign().range)
+    return { ...loaded }
+  }
+
+  /** Intent: the current mix, starting from the starting mix. */
   function currentMix(): AudioMix {
-    current ??= { ...mixDesign().defaults }
+    current ??= startingMix()
     return current
   }
 

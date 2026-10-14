@@ -99,6 +99,18 @@ export interface GenerationSession<TResult> {
 }
 
 /**
+ * The settings the Idle session starts from: the player's saved controls, musical profile
+ * selection and theme, loaded before the workspace is first drawn.
+ */
+// @spec-link [[rule_first_phrase_waits_for_saved_settings]]
+// @spec-link [[rule_settings_saved_on_change]]
+export interface InitialGenerationSettings {
+  readonly controls: GenerationControls
+  readonly profileSelection: ProfileSelection
+  readonly theme: ThemePreference
+}
+
+/**
  * What the Idle session is built from. `TGenerated` is what one generation attempt gives; `TResult`
  * is the published result the state holds: the generated phrase that became phrase 1, joined with
  * the session seed drawn for it.
@@ -145,6 +157,13 @@ export interface CreateGenerationSessionOptions<TResult, TGenerated = TResult> {
    */
   // @spec-link [[module_phrase_replay_key]]
   readonly onPhraseAccepted?: (intent: GenerationIntent) => void
+  /**
+   * The settings the session starts from, so the workspace is first drawn with them and its
+   * creation prewarm warms them. Absent means the first-load values (the default controls and
+   * profile selection, theme `System`): the app always supplies the loaded ones.
+   */
+  // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
+  readonly initialSettings?: InitialGenerationSettings
 }
 
 /** A programming-usage error: a caller used a session action against its documented contract. */

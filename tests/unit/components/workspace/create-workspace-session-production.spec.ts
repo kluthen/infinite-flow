@@ -10,6 +10,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createWorkspaceSession } from '@/components/workspace/create-workspace-session'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
+import { themeMixTokens } from '../../audio/transport-rig'
+import { fakeSavedData } from './fake-workspace-dependencies'
 
 vi.mock('@/generation-worker/browser-generation-worker', () => ({
   createBrowserGenerationWorker: vi.fn(() => ({
@@ -42,6 +44,7 @@ describe('createWorkspaceSession', () => {
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
 
     expect(workspace.session.state.operation).toBe('idle')
@@ -65,6 +68,7 @@ describe('createWorkspaceSession', () => {
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
 
     expect(workspace.audio.isUnlocked()).toBe(false)
@@ -75,12 +79,31 @@ describe('createWorkspaceSession', () => {
     expect(constructions).not.toHaveBeenCalled()
   })
 
+  // @test-link [[rule_first_phrase_waits_for_saved_settings]]
+  // @test-link [[req_session_audio_mix]]
+  it('starts its audio transport from the loaded mix, and Idle from the loaded controls', () => {
+    stubMatchMedia(false)
+    vi.stubGlobal('getComputedStyle', () => themeMixTokens())
+    const mix = { clickOn: false, clickVolume: 0.4, backingOn: true, backingVolume: 0.3 }
+    const controls = { ...DEFAULT_GENERATION_CONTROLS, tempo: 140 }
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData({ mix, controls }),
+    })
+
+    expect(workspace.audio.mix()).toEqual(mix)
+    expect(workspace.session.state.controls).toEqual(controls)
+    workspace.dispose()
+  })
+
   // @test-link [[rule_generated_density_follows_window_width]]
   it("reads the window's width against bp-tablet-landscape through matchMedia", () => {
     const { matchMedia, listeners } = stubMatchMedia(true)
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
 
     expect(matchMedia).toHaveBeenCalledWith('(max-width: 63.9375rem)')
@@ -97,6 +120,7 @@ describe('createWorkspaceSession', () => {
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'enabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
 
     const port = vi.mocked(createBrowserGenerationWorker).mock.results.at(-1)!.value as {
@@ -117,6 +141,7 @@ describe('createWorkspaceSession', () => {
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
     workspace.session.actions.setControl('syncopation', 'Active displacement')
 

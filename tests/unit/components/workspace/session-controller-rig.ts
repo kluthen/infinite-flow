@@ -38,6 +38,10 @@ import type { WorkspaceSessionResult } from '@/composables/workspace-session-res
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { makeSeed } from '@/domain/random/seed'
+import {
+  DEFAULT_SESSION_OPTIONS,
+  type SessionOptionChoices,
+} from '@/storage/records/setting-defaults'
 import type {
   SessionRunner,
   SessionRunnerEvent,
@@ -83,11 +87,16 @@ export const RIG_TEMPO = 240
 /** The session seed the rig's Idle phrase 1 was published with. */
 export const RIG_SESSION_SEED = makeSeed(0x0c0ffee0)
 
-/** A rig's session options: its starting tempo and its pre-generation queue's builder. */
+/**
+ * A rig's session options: its starting tempo, its pre-generation queue's builder and the saved
+ * "During a session" choices the controller starts from.
+ */
 export interface ControllerRigOptions {
   readonly tempo?: number
   /** The pre-generation queue's builder; by default a disabled one, which never runs. */
   readonly pregeneration?: WorkspacePregenerationFactory
+  /** The saved "During a session" choices; a first visit's (all off) by default. */
+  readonly savedSessionOptions?: SessionOptionChoices
 }
 
 /** Intent: a pre-generation builder under the disabled policy: no background attempt, ever. */
@@ -343,6 +352,7 @@ export function controllerRig(
     midi,
     connectionSheetOpen: () => sheetOpen.value,
     pregeneration: options.pregeneration ?? disabledPregeneration,
+    savedSessionOptions: options.savedSessionOptions ?? DEFAULT_SESSION_OPTIONS,
   })
   built = controller
   return {

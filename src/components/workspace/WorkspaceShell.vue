@@ -19,7 +19,9 @@
  * control never shows a phrase's step across phrases. During a session the tempo control
  * shows the exact tempo in effect, and the tempo field notes the tempo a rising-tempo session
  * reached (./use-rising-tempo-control.ts). It sets the staff's one shared system-position size
- * from the saved my instrument's written range, for the staff and the Review alike.
+ * from the saved my instrument's written range, for the staff and the Review alike. The saved
+ * review preferences and "During a session" choices it is given are where the Review's export
+ * choices and the options (while the controller loads) start from.
  */
 import { computed, onMounted, ref, watch } from 'vue'
 
@@ -36,6 +38,12 @@ import { getInstrumentProfile } from '@/domain/generation/generation-intent'
 import type { MidiController } from '@/midi/midi-controller-state'
 import { planSystemPositionUnits, type WrittenRangeInClef } from '@/notation/notation-layout-policy'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
+import {
+  DEFAULT_REVIEW_PREFERENCES,
+  DEFAULT_SESSION_OPTIONS,
+  type ReviewPreferences,
+  type SessionOptionChoices,
+} from '@/storage/records/setting-defaults'
 import WorkspaceHeader from './WorkspaceHeader.vue'
 import ScorePanel from './ScorePanel.vue'
 import OrientationNotice from './OrientationNotice.vue'
@@ -72,6 +80,16 @@ const props = withDefaults(
      * default. Nothing saves one yet: chunk 20's my-instrument record feeds it.
      */
     savedMyInstrumentRangeInClef?: WrittenRangeInClef | null
+    /**
+     * The saved review preferences, loaded before the first draw, which the Review's export
+     * choices and Played notes switch start from; a first visit's by default.
+     */
+    savedReviewPreferences?: ReviewPreferences
+    /**
+     * The saved "During a session" choices, loaded before the first draw, which the options show
+     * while the session controller loads (it starts from the same); a first visit's by default.
+     */
+    savedSessionOptions?: SessionOptionChoices
   }>(),
   {
     // Default: the window's own instant scroll, measured against the layout viewport's height.
@@ -82,6 +100,8 @@ const props = withDefaults(
     // Default: the window's own instant scroll to its top (a function prop's default is itself).
     scrollToPageTop: () => window.scrollTo({ top: 0, behavior: 'instant' }),
     savedMyInstrumentRangeInClef: null,
+    savedReviewPreferences: () => DEFAULT_REVIEW_PREFERENCES,
+    savedSessionOptions: () => DEFAULT_SESSION_OPTIONS,
   },
 )
 
@@ -142,6 +162,7 @@ const {
   controller: () => props.controller,
   requireController,
   controlsReadonly: () => controlsReadonly.value,
+  savedSessionOptions: () => props.savedSessionOptions,
 })
 
 const emit = defineEmits<{
@@ -319,6 +340,7 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         :mix-popover="mixPopover"
         :controller="controller"
         :system-position-units="systemPositionUnits"
+        :saved-review-preferences="savedReviewPreferences"
         @stop-session="handleStopSession"
         @show-review="reviewNavigation.showReview"
       />

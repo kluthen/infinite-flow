@@ -34,6 +34,7 @@ import { makeSeed } from '@/domain/random/seed'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
 import { createGenerationWorkerClient } from '@/generation-worker/generation-worker-client'
 import { createBrowserAudioTransport } from '@/audio/browser-audio-transport'
+import type { SavedDataLoad } from '@/storage-bootstrap'
 import { createMidiController } from '@/midi/midi-controller'
 import { createWebMidiAccessProvider } from '@/midi/web-midi-access'
 import { createBrowserWakeTimerWorker, createWorkerWakeTimer } from '@/audio/worker-wake-timer'
@@ -61,11 +62,12 @@ export type { WorkspaceSession } from './workspace-session-types'
  * Injection key for the whole session factory, so `App.vue` can accept a caller-supplied
  * `WorkspaceSession` builder (an e2e harness's `main.ts`) instead of always calling
  * `createWorkspaceSession`. Production `main.ts` never provides this key, so `App.vue` falls back
- * to the real production factory unchanged.
+ * to the real production factory unchanged. The factory is given the saved data the app loaded
+ * before its first draw.
  */
-export const WORKSPACE_SESSION_FACTORY: InjectionKey<() => WorkspaceSession> = Symbol(
-  'workspace-session-factory',
-)
+export const WORKSPACE_SESSION_FACTORY: InjectionKey<
+  (savedData: SavedDataLoad) => WorkspaceSession
+> = Symbol('workspace-session-factory')
 
 /**
  * Intent: build one workspace session from explicit dependencies: the identity/seed providers,
@@ -81,7 +83,9 @@ export const WORKSPACE_SESSION_FACTORY: InjectionKey<() => WorkspaceSession> = S
  * those prewarms land in the same worker's memo the runner's phrases read. Under the
  * pre-generation policy, the session controller's Idle pre-generation queue runs its background
  * attempts on that same seam, after the prewarm, through the Idle background slot, which every
- * Idle request yields to first.
+ * Idle request yields to first. Idle starts from the loaded settings' controls, profile selection
+ * and theme, and each session controller's flags from its "During a session" choices, so the
+ * workspace is first drawn with them; the load itself is exposed unchanged.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]
@@ -110,6 +114,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
 
   const connectionSheetOpen = shallowRef(false)
   const slot = createPregenerationSlot()
+  const { controls, profileSelection, theme, sessionOptions } = deps.savedData.settings
   const created = createGenerationSession<WorkspaceSessionResult, WorkspaceGeneratedPhrase>({
     providers: deps.providers,
     nextSessionSeed: deps.nextSessionSeed,
@@ -123,6 +128,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     clearPresentedPhrase: coordinator.clearPresentedPhrase,
     ...(deps.prewarmPolicy === 'enabled' ? { prewarm: deps.prewarm } : {}),
     onPhraseAccepted: announcer.announceWorkspacePhrase,
+    initialSettings: { controls, profileSelection, theme },
   })
   session = created
   const staffReports = createIdleLayoutGate({
@@ -210,8 +216,10 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
             slot,
             policy: deps.pregenerationPolicy,
           }),
+        savedSessionOptions: sessionOptions,
       })
     },
+    savedData: deps.savedData,
     dispose: () => {
       created.dispose()
       deps.dispose()
@@ -248,6 +256,9 @@ export interface ProductionWorkspaceSessionOptions {
   readonly prewarmPolicy: WorkspacePrewarmPolicy
   /** Read by App.vue from the page URL (`?pregeneration=off`, the measurement switch). */
   readonly pregenerationPolicy: WorkspacePregenerationPolicy
+  /** The saved data `main.ts` loaded before mounting the app: what the workspace starts from. */
+  // @spec-link [[service_workspace_session_flow]]
+  readonly savedData: SavedDataLoad
 }
 
 /**
@@ -261,7 +272,8 @@ export interface ProductionWorkspaceSessionOptions {
  * wake lock, orientation lock, page visibility and window shape, none of which asks or listens for
  * anything until used, and the session clock: a wake-up Worker timer, created only when a session
  * controller first starts a session, the system's wall clock for session histories, and the
- * browser's animation frames for the playhead.
+ * browser's animation frames for the playhead. Everything starts from the saved data loaded before
+ * the first draw, the audio mix included.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[rule_audio_unlocked_by_player_click]]
@@ -274,7 +286,7 @@ export function createWorkspaceSession(
   const client = createGenerationWorkerClient(createBrowserGenerationWorker, {
     prewarmEnabled: options.prewarmPolicy === 'enabled',
   })
-  const audio = createBrowserAudioTransport()
+  const audio = createBrowserAudioTransport({ loadedMix: () => options.savedData.settings.mix })
   const midi = createMidiController({
     provider: createWebMidiAccessProvider(navigator),
     clock: { anchor: () => audio.clockAnchor() },
@@ -307,6 +319,7 @@ export function createWorkspaceSession(
       },
     },
     logPhraseReplayKey: logPhraseReplayKeyToConsole,
+    savedData: options.savedData,
     dispose: client.dispose,
   })
 }

@@ -1,21 +1,31 @@
 /**
  * The score panel's Review host on its own: nothing shows and nothing is given while no Review
- * shows, an export of either content asked for then is refused as the defect it is, the
- * page-session export choices start at MusicXML with the backing track off, whether the session
- * holds a played note, the played-notes export, and the Played notes switch held for the page
- * session.
+ * shows, an export of either content asked for then is refused as the defect it is, the export
+ * choices and the Played notes switch start from the saved review preferences (MusicXML, backing
+ * track off, switch off on a first visit), whether the session holds a played note, the
+ * played-notes export, and the Played notes switch held for the page session.
  */
 import { describe, expect, it, vi } from 'vitest'
 import { effectScope } from 'vue'
 
 import { useReviewHost } from '@/components/workspace/use-review-host'
 import type { ExportFile } from '@/export/load-generated-notes-export'
+import {
+  DEFAULT_REVIEW_PREFERENCES,
+  type ReviewPreferences,
+} from '@/storage/records/setting-defaults'
 import { recordedRecords } from '../review/review-fixtures'
 import { createFakeSessionController, fakeReviewHistory } from './fake-session-controller'
 import { fakeGenerationSession } from './fake-generation-session'
 
-/** Intent: a host over `fake`'s controller and an Idle double, inside its own effect scope. */
-function host(fake = createFakeSessionController()) {
+/**
+ * Intent: a host over `fake`'s controller and an Idle double, starting from `preferences`, inside
+ * its own effect scope.
+ */
+function host(
+  fake = createFakeSessionController(),
+  preferences: ReviewPreferences = DEFAULT_REVIEW_PREFERENCES,
+) {
   const { session } = fakeGenerationSession()
   const ports = { load: vi.fn(), download: vi.fn() }
   const scope = effectScope()
@@ -24,6 +34,7 @@ function host(fake = createFakeSessionController()) {
       controller: () => fake.controller,
       idle: () => session.state,
       exportPorts: () => ports,
+      initialPreferences: preferences,
     }),
   )
   if (built === undefined) throw new Error('the effect scope did not run')
@@ -46,6 +57,21 @@ describe('useReviewHost', () => {
       'review host: an export was asked for with no Review showing',
     )
     expect(ports.load).not.toHaveBeenCalled()
+    stop()
+  })
+
+  // @test-link [[rule_first_phrase_waits_for_saved_settings]]
+  // @test-link [[module_review_played_notes_lane]]
+  it('starts the export choices and the Played notes switch from the saved preferences', () => {
+    const { built, stop } = host(createFakeSessionController(), {
+      format: 'midi',
+      backingTrack: true,
+      playedNotesShown: true,
+    })
+
+    expect(built.format.value).toBe('midi')
+    expect(built.backingTrack.value).toBe(true)
+    expect(built.playedNotesShown.value).toBe(true)
     stop()
   })
 

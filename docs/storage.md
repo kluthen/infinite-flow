@@ -7,8 +7,9 @@ of the app has overtaken, the app version every record carries, the records a ke
 stored as, and the save policy that decides when a write reaches the port. Its declared intent is
 the ATD atom [`module_on_device_database`](module_on_device_database.atom.md).
 
-As built in v3.0 chunks 4, 5 and 9, this is the storage core, the save policy and the kept-session
-codec. Nothing in the app imports them yet; see [Not here yet](#not-here-yet).
+As built in v3.0 chunks 4, 5, 9 and 7a, this is the storage core, the save policy, the
+kept-session codec, and the load of the saved settings before the first draw. The app reads its
+saved settings at load; it saves nothing yet. See [Not here yet](#not-here-yet).
 
 ## Words used here
 
@@ -26,6 +27,9 @@ codec. Nothing in the app imports them yet; see [Not here yet](#not-here-yet).
 - **Batch**: a list of writes and deletes, possibly across stores, applied in one transaction.
 - **Save policy**: the code between the app and the port that decides whether a write is saved at
   once, held until the session ends, or skipped because saving is off.
+- **Start-up wait**: how long the first draw waits for the saved data before starting from the
+  defaults.
+- **Load outcome**: whether the visit started from the saved data read or from the defaults.
 
 ## One directory, one port
 
@@ -442,6 +446,111 @@ caller, not to the failure listener.
 After a successful Delete everything the port refuses every later write with `other`; the app
 reloads the page then.
 
+## The load before the first draw
+
+`src/storage-bootstrap.ts`, beside `main.ts`, loads the saved data before the workspace is first
+drawn. `main.ts` registers the service worker, then calls `loadSavedData(browserSavedDataLoad())`
+and mounts the app with what it gives (`App.vue`'s `savedData` prop); until then the page shows
+only its background, in the system's light or dark theme. The workspace is then drawn once, with
+the loaded values, and no control changes value after it is drawn. Nothing is generated until the
+player asks, as before. The workspace harness runs the same loader (see
+[Saved data in the harness](testing.md#saved-data-in-the-harness)).
+
+### What the load reads
+
+`loadSavedData(dependencies)` opens the port, creates the visit's save policy over it, and reads,
+in parallel, every record of `settings`, `sessionSummaries` and `controller`. The settings go
+through the settings codec (`decodeSettings`), each checked on its own: an unknown or no longer
+valid value takes its setting's default, silently, and every other value is kept. My instrument is
+not stored yet, so a saved selection of it falls back to the default instrument. The summaries and
+the controller's records are handed on raw, for the session list and the remembered controller
+to decode.
+
+Its dependencies are injected: `openPort`, `startupWait` (a promise that resolves when the wait
+ends) and `mixDesign` (the audio mix's defaults and range, from the stylesheet's `--mix-*`
+tokens). `browserSavedDataLoad()` gives the app's: the port over the browser's IndexedDB at
+`APP_VERSION`, the browser's timer, and the loaded stylesheet.
+
+### The outcomes
+
+The load races the open, then the read, against the start-up wait (`STARTUP_WAIT_MS`, 2 s). It
+never rejects for a storage failure; it rejects only for a defect, of the open (see
+[Migrations](#migrations)) or of the read (an error that is not a `StorageError`).
+
+| Case                                                               | Settings | Saving state     | Load outcome            |
+| ------------------------------------------------------------------ | -------- | ---------------- | ----------------------- |
+| A read within the wait (a first visit, nothing saved, included)    | Saved    | `on`             | `saved-data-read`       |
+| A port that opened outdated, and read                              | Saved    | `off-outdated`   | `saved-data-read`       |
+| A read refused (any `StorageError`), or an unavailable port        | Defaults | `off-unreadable` | `started-from-defaults` |
+| A read still running when the wait ends                            | Defaults | `off-unreadable` | `started-from-defaults` |
+| A port that opened outdated, whose read fails or outlasts the wait | Defaults | `off-outdated`   | `started-from-defaults` |
+| A port that opens only after the wait                              | Defaults | `off-unreadable` | `started-from-defaults` |
+| A port that opens outdated only after the wait                     | Defaults | `off-outdated`   | `started-from-defaults` |
+
+When the read fails or the wait ends first, the load calls `stopSavingUnreadable()`, so a failed
+read never overwrites what is kept; an outdated port's policy is already `off-outdated` and stays
+so. A read that finishes after the wait is ignored for the visit. A port that opens after the
+wait gets its policy then, and `stopSavingUnreadable()` at once. A port that turns outdated later
+in the visit turns the policy `off-outdated` through `onOutdated`, whatever the outcome.
+
+### What the load gives
+
+`loadSavedData` resolves with a `SavedDataLoad`:
+
+| Field                  | Holds                                                                                                                                         |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `outcome`              | The load outcome, `LoadOutcome`: `'saved-data-read'` or `'started-from-defaults'`.                                                            |
+| `settings`             | Every setting the workspace is first drawn with (`SavedSettings`): saved, or its default.                                                     |
+| `keptSessionSummaries` | The kept sessions' summary records, raw; empty when the visit started from the defaults.                                                      |
+| `rememberedController` | The remembered controller's records, raw; empty when the visit started from the defaults.                                                     |
+| `savePolicy`           | `Promise<SavePolicy>`: settled before the first draw when the port opened within the wait; otherwise once the port opens, saving already off. |
+
+The load outcome is the one fact the saving state cannot carry: `off-outdated` comes both with the
+saved data read and with the defaults on screen. The outdated-tab notice reads it for its wording.
+The app reaches the load through `App.vue`'s `savedData` prop and, below it, the workspace
+session's `savedData` (`composeWorkspaceSession` passes it on unchanged).
+
+### Where the loaded values go
+
+Each place gains only its initial value; nothing saves yet.
+
+| Setting                                                   | Enters at                                                                                                                                              |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| The 14 controls, the musical profile selection, the theme | The Idle generation session's first state (`initialSettings`); `App.vue` applies the theme from that state before the first draw.                      |
+| The audio mix                                             | The audio transport's `loadedMix`, read on its first use, its volumes checked against the design's range.                                              |
+| The three "During a session" options                      | The session controller's creation (`savedSessionOptions`), never through its actions; until its chunk has loaded, the controls show the loaded values. |
+| The review's preferences                                  | The review host's first values (`WorkspaceShell` and `ScorePanel`'s `savedReviewPreferences`).                                                         |
+| `Keep my played notes`                                    | Decoded, not used yet.                                                                                                                                 |
+
+A saved `Rising tempo` `On` loads even with no MIDI controller attached, which is the usual state
+at load: the controller's flag holds the stored `On`, the option shows `Off` and disabled while it
+is unavailable, and `On` again as soon as a controller attaches.
+
+## The start-up wait (M2)
+
+The start-up wait is `STARTUP_WAIT_MS`, 2 s, the design's proposal: at most 2 s, and well above the
+slowest read measured. `npm run measure:startup-read` times the load (`loadMs`, from its start to
+the settings decoded) on the workspace harness in Chromium, over a database seeded with the
+settings and 0, 10, 100 and 500 kept sessions, each a session-wide record with a 500-character
+comment and a body of about 100 kB (the load never reads bodies), cold (the first load after the
+browser starts on its profile) and warm (five reloads).
+
+Measured on 2026-10-14 on an AMD Ryzen 5 PRO 8640HS laptop (12 threads, no virtual machine),
+headless Chromium through Playwright, two runs; the slower figure of the two, in milliseconds:
+
+| Kept sessions | Cold | Warm, slowest of five |
+| ------------- | ---- | --------------------- |
+| 0             | 8.0  | 3.7                   |
+| 10            | 15.4 | 3.1                   |
+| 100           | 8.5  | 4.4                   |
+| 500           | 23.0 | 13.9                  |
+
+The slowest read, 23 ms, is about a hundredth of the wait, so 2 s stays: it is the design's
+ceiling, and well above every read measured. "Cold" is the first load after the browser starts on
+its profile; the operating system's file cache may still hold the database. Hand check H2 repeats
+the measurement on the reference machine, and the tablet if at hand
+([`HARDWARE-CHECKLIST.md`](../HARDWARE-CHECKLIST.md#h2-start-up-wait-chunk-7-about-10-min)).
+
 ## The app version
 
 `src/storage/app-version.ts` exports `APP_VERSION`, the compile-time constant `__APP_VERSION__`
@@ -464,37 +573,38 @@ in-memory IndexedDB (see
 kept-session codec's need no database (see
 [Kept-session fixtures](testing.md#kept-session-fixtures)):
 
-| Spec                            | What it checks                                                                                                                                                                           |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `record-envelope.spec.ts`       | The three readings and the write check.                                                                                                                                                  |
-| `database.spec.ts`              | Opening at data version 0 and 1, the seven stores, `meta`, a synthetic step 1 → 2, untouched stores, and the open-time defects.                                                          |
-| `storage-port.spec.ts`          | Writes and reads, the write check, quota and other failures, the storage manager, Delete everything, and an unavailable port.                                                            |
-| `storage-port-outdated.spec.ts` | The four outdated triggers, listeners told once, reads that go on, and another tab's Delete everything.                                                                                  |
-| `storage-port-batch.spec.ts`    | Batches across stores, list order, one transaction, all or none on a failure, the refusals, and defective batches.                                                                       |
-| `save-policy.spec.ts`           | The saving states and their changes, saving at once, skipping while off, and the session hold.                                                                                           |
-| `save-policy-reports.spec.ts`   | The failure report and its runs, and the request for persistent storage.                                                                                                                 |
-| `save-policy-your-data.spec.ts` | The estimate, persistence, and Delete everything in each saving state and during a session.                                                                                              |
-| `app-version.spec.ts`           | `APP_VERSION` is `package.json`'s version.                                                                                                                                               |
-| `settings-record.spec.ts`       | The settings codec, whose version check is the envelope's.                                                                                                                               |
-| `kept-phrase-parsers.spec.ts`   | The harmony and intent validators: real values read back, frozen copies, each refusal, and an intent's profile read from its data.                                                       |
-| `kept-session-record.spec.ts`   | The kept-session codec: exact keys, nothing kept beyond them, times in seconds from phrase 1, newer and unreadable records, the encoder's refusals, and the size of a 30-minute session. |
-| `kept-session-summary.spec.ts`  | The session-wide record: its facts, its length, the recording app version, and newer and unreadable records.                                                                             |
+| Spec                            | What it checks                                                                                                                                                                                      |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `record-envelope.spec.ts`       | The three readings and the write check.                                                                                                                                                             |
+| `database.spec.ts`              | Opening at data version 0 and 1, the seven stores, `meta`, a synthetic step 1 → 2, untouched stores, and the open-time defects.                                                                     |
+| `storage-port.spec.ts`          | Writes and reads, the write check, quota and other failures, the storage manager, Delete everything, and an unavailable port.                                                                       |
+| `storage-port-outdated.spec.ts` | The four outdated triggers, listeners told once, reads that go on, and another tab's Delete everything.                                                                                             |
+| `storage-port-batch.spec.ts`    | Batches across stores, list order, one transaction, all or none on a failure, the refusals, and defective batches.                                                                                  |
+| `save-policy.spec.ts`           | The saving states and their changes, saving at once, skipping while off, and the session hold.                                                                                                      |
+| `save-policy-reports.spec.ts`   | The failure report and its runs, and the request for persistent storage.                                                                                                                            |
+| `save-policy-your-data.spec.ts` | The estimate, persistence, and Delete everything in each saving state and during a session.                                                                                                         |
+| `app-version.spec.ts`           | `APP_VERSION` is `package.json`'s version.                                                                                                                                                          |
+| `settings-record.spec.ts`       | The settings codec, whose version check is the envelope's.                                                                                                                                          |
+| `storage-bootstrap.spec.ts`     | The load before the first draw: the saved settings, an invalid value's default, each failing, late and outdated case with its settings, saving state and load outcome, and the defects that reject. |
+| `kept-phrase-parsers.spec.ts`   | The harmony and intent validators: real values read back, frozen copies, each refusal, and an intent's profile read from its data.                                                                  |
+| `kept-session-record.spec.ts`   | The kept-session codec: exact keys, nothing kept beyond them, times in seconds from phrase 1, newer and unreadable records, the encoder's refusals, and the size of a 30-minute session.            |
+| `kept-session-summary.spec.ts`  | The session-wide record: its facts, its length, the recording app version, and newer and unreadable records.                                                                                        |
 
 `tests/unit/boundaries/eslint-boundaries.spec.ts` checks the import ban on `src/session/` and
 `src/export/`.
 
 ## Not here yet
 
-Chunks 4, 5 and 9 build the storage core, the save policy and the kept-session codec, and nothing
-that uses them. Nothing in the app uses the policy until chunk 7 wires it. These come later:
+Chunks 4, 5, 9 and 7a build the storage core, the save policy, the kept-session codec and the load
+before the first draw. The load creates the visit's policy and turns it off when its read fails or
+is too slow, but nothing saves through it yet. These come later:
 
-- the start-up wait for saved settings, and the call to `stopSavingUnreadable()` when that read
-  fails or is too slow;
+- the saves from the player's change handlers (each setting, saved when the player changes it);
 - the calls to `hold()` and `release()` at a session's start and end;
 - the notices the player sees, from the saving state and the failure report;
 - the moment the app calls `requestProtection()`;
 - the save of a kept session at a session's end, the session list, and opening a kept session:
   the codec exists, but nothing saves or opens a kept session yet.
 
-No application code imports the port, the policy or the codecs yet, and the entry chunk does not
-include them.
+The loader imports the port, the policy and the settings codec, so they are in the entry chunk;
+the kept-session codec is imported by nothing in the app yet.
