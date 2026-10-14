@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.62
+Status: draft v0.63
 
 ## Status Snapshot
 
@@ -125,12 +125,18 @@ Status: draft v0.62
   `review-link`'s failed read after a reload and the test that an unsaved session is gone after a
   reload (D307). O201 opened: a session cut short by reloading or closing the page may be saved
   today (proposed: never saved, as §5.1 says); new chunk 27 in wave 7 builds the answer (D308).
-- **Open:** 13 questions, none blocking work under way: O48 and O49 (later and governance),
+- **v3.0 build, the owner's wave-5 rulings** (2026-10-14, D309–D311): build plan v15, master
+  spec Part A v1.15. O201 closed: a session cut short by reloading or closing the page is never
+  saved (§5.1 kept; chunk 27). O200 closed: a kept session the app cannot read correctly is
+  deleted, with an apology, at load, at the next save or when opened, while the visit saves; a
+  refusal by the device deletes nothing (§5.1, item 6). New chunk 28 in wave 8 builds it, after a
+  Damaged session design gate for `ux-writer`; chunk 14's failed reads are the device's refusals.
+  Part M2's items 5(b) and 6 are rewritten for the owner.
+- **Open:** 11 questions, none blocking work under way: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
-  O180 (octave signs, later), O183 (pre-generation's cancellation cost), O190 (a newer
-  version's database whose read-only reopening fails), O200 (an unreadable kept session at the
-  next save) and O201 (a session cut short by the page going away; blocks only chunk 27). D295 and D296 closed
-  O181; the owner's ruling in D297 closed O182.
+  O180 (octave signs, later), O183 (pre-generation's cancellation cost) and O190 (a newer
+  version's database whose read-only reopening fails). D309 and D310 closed O201 and O200; D295
+  and D296 closed O181; the owner's ruling in D297 closed O182.
   O163 and O164 closed by D257 and D258; D262 closed O174; D264–D273 settled O165–O173 and O175
   in Part D, pending the owner's approval.
   v3.1 and v3.2 drafts approved by the owner (D233, D234),

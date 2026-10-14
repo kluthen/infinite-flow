@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.90
+Status: draft v2.91
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,11 +14,12 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D306**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D312**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
-chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key).
+chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
+wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring.
 
 ## Decision Log
 
@@ -1524,3 +1525,80 @@ chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the sessi
   end-to-end test, in wave 7: it depends only on chunk 10, and wave 6's chunk 11 may touch the
   session's save for played notes, so wave 7 keeps them apart; no wave-7 chunk touches its files.
   Build plan v14.
+
+- **D309 (2026-10-14): a session cut short by reloading or closing the page is never saved
+  (closes O201, answer (a)).** The owner's ruling, verbatim: "O201: option A of course." Master
+  spec §5.1 stands as written: a session cut short by reloading or closing the page is lost; it
+  is never saved, and the kept sessions stay exactly as they were, every time. Switching to
+  another tab or app still ends the session, opens its review and saves it. Chunk 27 builds it as
+  its scope already states (a `pagehide` flag the session's save checks before each of its
+  transactions, abandoning itself with nothing written; a page brought back from the
+  back-forward cache shows that review as not saved); it no longer waits for a ruling, only for
+  chunk 10, merged. Part M2's item 2 of the intent change set (`req_rolling_practice_session`)
+  stands as the owner signed it. No master spec change. Build plan v15.
+
+- **D310 (2026-10-14): a kept session the app cannot read correctly is deleted, with an
+  apology; a read the device refuses deletes nothing (closes O200).** The owner's ruling,
+  verbatim: "O200: damaged session are removed (unability to load correctly a session =
+  destruction with an apology message)." It answers O200 the other way from the proposed default
+  chunk 10 built (left in place, D304), and reaches beyond the save: it holds wherever the app
+  reads a kept session. Settled by `spec-writer` under the owner's delegation of minor technical
+  calls, from the kept-session codec (`src/storage/records/kept-reading.ts`,
+  `kept-session-record.ts`) and the save (`workspace-session-save.ts`, `save-policy.ts`) on
+  `v3.0-w5` (a073edd):
+  - **Damaged is the codec's `unreadable` verdict on records the device returned:** an envelope
+    that cannot be read, content this version's rules refuse, records of one session that
+    disagree, or a summary whose body, or whose played notes it says are kept, is missing. The
+    whole session goes, its summary, body and played notes, pinned or not, with its favorites and
+    comment: the codec reads a session whole or not at all, so nothing of it can be opened or
+    exported.
+  - **Not damaged, never deleted:** a record a newer version wrote (`newer`): the outdated-tab
+    rule wins (§4.3), no deletion of any kind; and every refusal by the device (storage
+    unavailable, a read refused or failing, the whole load failing or too slow), which says
+    nothing about the records: deleting then would destroy sessions that may be fine, against
+    §4.4's "a failed read never overwrites what is kept". A session whose records are all absent
+    when opened was deleted meanwhile, by another tab; nothing is left to delete, and it is
+    handled as a failed open. So damage is judged only from what the device actually returned.
+  - **Only while the visit saves.** An outdated tab and a visit started from the defaults delete
+    nothing; a damaged session stays until a visit that saves finds it. In an outdated tab a
+    damaged summary has no row in the session list, and a damaged body read shows the design's
+    failed-open row ("This session couldn't be opened. Try again.").
+  - **When.** At load, once the summaries are read: one batch deletes every kept session whose
+    summary is damaged, through the save policy (held like any save while a session runs). At a
+    session's save: the same batch as the new session also deletes every kept session whose
+    summary is damaged (chunk 10 leaves them; changed in chunk 28). At an opening (`review-link`
+    after a reload, a row of the list): a damaged body deletes that session at once; the most
+    recent session then becomes the readable kept session that started last, as after the
+    player's own deletion (D304). The refused read at the save (D304) stays: the new session is
+    saved and nothing deleted, the older unpinned ones going at the next save.
+  - **The apology** is a notice in the notice row, shown once the deletion has committed and
+    outside a running session (held during one, as every notice is), saying how many sessions
+    went. Its wording, its dismissal and its place among the notices are `ux-writer`'s, under
+    the owner's delegation of minor design issues. A deletion the device refuses shows no
+    apology: it raises the notice any refused save raises, the session stays unlisted for the
+    visit, and the next load tries again.
+  - **Consequences.** "Only one session is ever kept without the player asking" (§5.1) holds again
+    as worded, so `req_kept_sessions` loses O200's carve-out; part M2's items 5(b) and 6 are
+    rewritten to the ruling; item 7 (`rule_failed_read_offers_only_delete_everything`) is not
+    affected, since a visit whose read failed reads no kept session and deletes nothing on its
+    own. The session list no longer needs a row for a session whose summary cannot be read, the
+    design gap O200 named: such a session has no row. Since the codec's verdict now destroys
+    data, a session this version saves must never read as damaged; chunk 28 tests the round trip.
+  Master spec Part A v1.15 (§5.1, §13 item 6). Build plan v15.
+
+- **D311 (2026-10-14): chunk 28 inserted in wave 8 for D310; chunk 14's failed reads are the
+  device's refusals; a design gate for the apology.** Settled by `spec-writer` under the owner's
+  delegation of minor technical calls. No wave-5 code is rebuilt: chunk 10's save, merged,
+  keeps damaged summaries until chunk 28. The code D310 needs sits in files chunks 14 and 27 own
+  in wave 7 (`use-review-navigation.ts`, `use-kept-sessions.ts`, `workspace-session-save.ts`,
+  `workspace-session-ends.ts`), and neither can take it without passing about five source files
+  or sharing a file with the other, so a new chunk 28, after both, joins wave 8 beside chunks 15
+  and 21, whose files it does not name (it reaches the notices without `WorkspaceShell.vue`,
+  chunk 15's); wave 8's file pass checks `use-kept-sessions.ts` against chunk 15's Delete every
+  session. It splits 28a (the deletions: load, save, opening) and 28b (the apology and where the
+  player lands). Its damaged-summary check runs in the session controller's chunk, where the
+  summaries are already decoded, never in the entry chunk, which has 8,181 B of headroom. Chunk
+  14 keeps D307's failed-read path for a refusal by the device, its tests injecting refusals
+  rather than damaged records, and lists no row for a session whose summary cannot be read. The
+  apology and the landings are a new **Damaged session design** gate for `ux-writer`, before
+  28b. Build plan v15.

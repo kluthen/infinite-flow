@@ -1,11 +1,11 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v14 (2026-10-14): wave 5's findings placed: chunk 20's Idle-side and worker additions, chunk 14's failed read and reload test, chunk 27 inserted for O201 (spec D306–D308). Approved by
+Status: v15 (2026-10-14): the owner's rulings on O201 and O200 written in: chunk 27 no longer waits; chunk 28 inserted in wave 8 to delete a damaged kept session with an apology; chunk 14's failed reads are the device's refusals; a Damaged session design gate (spec D309–D311). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D308), and earlier wordings are in git.
+(spec D252–D311), and earlier wordings are in git.
 
-Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.14) and the v3.0 design
+Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.15) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
 v3.1 and v3.2 design started at the `ui_ux/` root (its links were repointed there on
 2026-10-08). Approved for execution. It adds no behaviour:
@@ -26,8 +26,8 @@ appear, with a link to the project [lexicon](../../../docs/music/lexicon.md) whe
 ### Release sequence
 
 v3.0 ships as one release, with one gate,
-[chunk 26](#chunk-26--v30-release-gate). Chunks 0–2 are prerequisites; chunks 3–25 and 27 build the
-release in the order below; the gate checks all 23 items of the
+[chunk 26](#chunk-26--v30-release-gate). Chunks 0–2 are prerequisites; chunks 3–25, 27 and 28 build
+the release in the order below; the gate checks all 23 items of the
 [definition of done](master-spec.md#13-definition-of-done) on the merged code and produces
 `docs/release/v3.0-release-notes.md`. v3.1 (embellishment flags and presets) and v3.2 (Jam) are
 not specified yet and are not planned here.
@@ -57,8 +57,9 @@ Some steps are not code and need the owner. They are part of the sequence:
 | **Part B1** | The owner confirms the revised `rule_instrument_profile_range` (change set part B, a MINOR contract bump), which now also states my instrument's written-range bound per clef (spec D294). | After chunk 20's wave gate (its post-task sync revises the atom). | Nothing; the gate checks it is done. |
 | **Part B2** | The owner confirms the revised `rule_controller_transposition_check` (part B, MINOR), which now also states that "use this for my instrument" first warns when it would erase my instrument's kept sessions (spec D295). | After chunk 20c's wave gate (its post-task sync revises the atom, once the warning is built). | Nothing; the gate checks it is done. |
 | **Part C** | The owner confirms the VISION 0.7 → 0.8 text and the retirement of the four chord-fit atoms (part C). | In chunk 26. | The gate. |
-| **O200** | The owner says whether saving a session deletes a kept session whose session-wide record cannot be read, or leaves it in place (proposed: left in place; [spec O200](../../open-questions.md#v30-wave-5-o200)). | Any time; chunk 10 builds the proposed default. | Nothing. A different answer changes chunk 10's save in one place. |
-| **O201** | The owner says whether a session cut short by reloading or closing the page is never saved (§5.1 kept; proposed) or saved when its save completes ([spec O201](../../open-questions.md#v30-wave-5-o200)). | Now; before wave 7. | [Chunk 27](#chunk-27--a-session-cut-short-by-the-page-going-away). |
+| **O200** | **Closed 2026-10-14 (spec D310):** a kept session the app cannot read correctly is deleted, with an apology, at load, at the next save or when opened, while the visit saves; a read the device refuses deletes nothing ([spec O200](../../open-questions.md#v30-wave-5-o200), master spec §5.1). | Done. | Nothing. [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) builds it. |
+| **O201** | **Closed 2026-10-14 (spec D309):** a session cut short by reloading or closing the page is never saved, §5.1 kept ([spec O201](../../open-questions.md#v30-wave-5-o200)). | Done. | Nothing. [Chunk 27](#chunk-27--a-session-cut-short-by-the-page-going-away) builds it. |
+| **Damaged session design** | `ux-writer` designs, for spec D310: the apology notice (its wording for one and for several sessions, `Dismiss`, its lifetime and its place in "one notice at a time"); where the player lands when `review-link` or a list row finds its session damaged (proposed: the list without that row; after `review-link`, focus on the list's title; from a row, focus as after that row's deletion); and aligns the session list (a session whose summary cannot be read has no row; `sessions-link` counts rows; the failed-open note now means a refusal by the device). | Now; before chunk 28b. | [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) (28b; 28a may start before it). |
 
 ### Waves
 
@@ -84,8 +85,8 @@ wave-0 gate covers chunks 1 and 2.
 | 4 | 7 Saved settings · 8 Notice row | Chunks 5, 6; chunk 1 for 8 |
 | 5 | 10 Most recent session kept (10a, 10b if split) · 17a My instrument through the worker and the session · 17b The clef through the history and the review | Chunks 7, 8, 9 (10); 9, 16, 19b (17) |
 | 6 | **Gate A**, then 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter | Chunk 10 and Gate A (11, 12; and Review reachability before 12 merges); chunk 17 (18, not Gate A); chunk 7 and Gate A (22); H1 and chunk 1 (25) |
-| 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet · 27 A session cut short by the page going away | Chunk 12 (13, 14); chunks 7, 17, 19b, 24, the clef design and ux Q76 (20); chunk 10 and O201 (27, after wave 6's chunk 11, which may touch the session's save) |
-| 8 | 15 Your data · 21 The check feeds my instrument | Chunks 11, 14 (15); 20 (21) |
+| 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet · 27 A session cut short by the page going away | Chunk 12 (13, 14); chunks 7, 17, 19b, 24, the clef design and ux Q76 (20); chunk 10 (27, after wave 6's chunk 11, which may touch the session's save) |
+| 8 | 15 Your data · 21 The check feeds my instrument · 28 A damaged kept session deleted, with an apology | Chunks 11, 14 (15); 20 (21); 14, 27 and the Damaged session design gate (28; 28a may start before the gate) |
 | 9 | 20c My instrument's sessions · 24b Stale phrase at Start | Chunks 14, 20 and 21 and the Sessions design gate (20c); chunk 24 and the Stale phrase design gate (24b) |
 | 10 | 26 v3.0 release gate | Every other chunk |
 
@@ -94,7 +95,10 @@ waits for chunks 14, 20 and 21, adds wave 9 before the gate. My instrument (16�
 pre-generation (23–24) are side branches; their chunks share waves with the critical path's.
 Since v9, chunk 24b (a stale phrase at Start, ISS-011) joins wave 9 beside chunk 20c, as the owner
 asked for the end of v3.0; the two touch different files. Since v14, chunk 27 (a session cut
-short by the page going away, spec O201) joins wave 7; no wave-7 chunk touches its files.
+short by the page going away, spec O201) joins wave 7; no wave-7 chunk touches its files. Since
+v15, chunk 28 (a damaged kept session deleted with an apology, spec D310) joins wave 8: it
+changes files chunks 14 and 27 own in wave 7, after them, and none of chunk 15's or 21's; wave
+8's file pass checks `use-kept-sessions.ts` against chunk 15's Delete every session.
 
 ```mermaid
 flowchart LR
@@ -159,8 +163,11 @@ flowchart LR
   C24b --> C26
   C25 --> C26
   C10 --> C27[27 Page going away]
-  O201{{O201 ruling}} --> C27
   C27 --> C26
+  C14 --> C28[28 Damaged session deleted]
+  C27 --> C28
+  DS{{Damaged session design}} --> C28
+  C28 --> C26
 ```
 
 ### Wave records
@@ -839,6 +846,24 @@ refused, or that ended with saving off, is gone after a reload; the new
 [chunk 27](#chunk-27--a-session-cut-short-by-the-page-going-away), in wave 7, builds O201's
 answer and its end-to-end test. Also stale, for `documentalist`: the change set's notes that
 chunk 17b's record lists.
+
+#### Owner rulings after the wave-5 sync (2026-10-14)
+
+The owner answered both questions the same day, and agreed to part M2's items 1–4, 5(a) and 7 as
+written. Placed in v15:
+
+- **O201, answer (a)** (spec D309): a session cut short by reloading or closing the page is never
+  saved, as §5.1 says. [Chunk 27](#chunk-27--a-session-cut-short-by-the-page-going-away) builds
+  its scope as written; its answer-(b) branch is gone and it waits for nothing but chunk 10.
+- **O200, damaged sessions deleted** (spec D310): a kept session the app cannot read correctly is
+  deleted, with an apology, wherever the app reads it, while the visit saves; a refusal by the
+  device deletes nothing. Chunk 10's save, merged, leaves damaged summaries in place and is not
+  rebuilt now; the new [chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology), in
+  wave 8, changes it and adds the load's clean-up, the opening's deletion and the apology (spec
+  D311). [Chunk 14](#chunk-14--session-list) keeps D307's failed-read path for a refusal by the
+  device and lists no row for a session whose summary cannot be read. Part M2's items 5(b) and
+  6 are rewritten to the ruling, for the owner; master spec Part A v1.15 states it (§5.1, item
+  6). A **Damaged session design** gate goes to `ux-writer` before chunk 28b.
 
 ## 2. Read first: what v3.0 undoes in v2
 
@@ -1820,8 +1845,8 @@ encoder throws for a my-instrument phrase, whose clef the history does not carry
   at an end with a review, the settings flush (`release()`, its own transaction, only when a
   setting changed), then the keyed read of the summaries, then one batch writing the new session
   and deleting the summary, body and played notes of every readable unpinned kept session, an
-  unreadable summary left in place (spec O200's proposed default), a refused read deleting
-  nothing; marked as the session's own save by the path the leader chooses (a parameter of the
+  unreadable summary left in place (spec O200's proposed default, which the owner reversed:
+  spec D310, chunk 28), a refused read deleting nothing; marked as the session's own save by the path the leader chooses (a parameter of the
   policy call or a result path of its own), named in the capture; with saving off, nothing read,
   saved or deleted. The most recent session: in its visit, the last that ended with a review,
   saved or held in memory, kept in the controller state across the next Start until the next
@@ -1835,8 +1860,9 @@ for the settings changed during the session, none when nothing changed), then re
 sessions' summaries with their keys, encode the session with chunk 9's `encodeKeptSession`, and
 save it in one port `apply` batch under its new key (spec D303) that writes the new session
 (summary and body; played notes only when `Keep my played notes` is on, which is always off until
-chunk 11) and deletes every readable unpinned kept session (spec D304; an unreadable one stays,
-pending [spec O200](../../open-questions.md#v30-wave-5-o200)). A session ended during its count-in
+chunk 11) and deletes every readable unpinned kept session (spec D304; an unreadable one stays
+here, and [chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) deletes it, the
+owner's ruling on [spec O200](../../open-questions.md#v30-wave-5-o200), spec D310). A session ended during its count-in
 saves and deletes nothing. A failed save keeps the session in memory as the most recent one,
 deletes nothing, and the review's keep line says "Not saved on this device: export it to keep
 it."; storage full also raises the notice, and no other failure of this save does (the design's
@@ -1904,8 +1930,8 @@ holds); `service_session_end` (the end now saves the session; "until the next st
 it" becomes until the next session ends with a review); `specification_ephemeral_state_verification`
 ("the app's database holds no record of them" for a generated phrase becomes: no phrase generated
 outside a session); `module_on_device_database` and `module_saved_data_loader` (the capture above);
-`req_kept_sessions` (its expectation "the only kept session that is not pinned" becomes "the only
-readable kept session that is not pinned" if the owner keeps O200's proposed default).
+`req_kept_sessions` (its expectation "the only kept session that is not pinned" keeps that
+meaning: the owner ruled that a damaged session is deleted, spec D310, built in chunk 28).
 
 **Depends on:** chunks 1, 7, 8 and 9.
 
@@ -1918,7 +1944,7 @@ readable kept session that is not pinned" if the owner keeps O200's proposed def
   exports byte-identical to before the reload), read by its key.
 - A second session's save leaves one unpinned kept session, under a key of the form
   `session-{startedAt}-{sessionSeed}`; a pinned one (seeded) survives it, and so does a seeded
-  unreadable summary (O200's proposed default). After a reload, with two pinned sessions seeded
+  unreadable summary (O200's proposed default; chunk 28 turns this test round, spec D310). After a reload, with two pinned sessions seeded
   and the unpinned one deleted, `review-link` opens the one with the latest start.
 - A session ended in its count-in changes nothing kept, and `review-link` returns to the most
   recent session, saved or held in memory.
@@ -2130,13 +2156,17 @@ holds a played note; file names gain `-favorites`. The comment never enters a fi
 **Scope.** `sessions-panel` in the review mode (the same place and rules as `review-panel`), its
 title, intro, rows (session date, " · Last session" on the most recent, the detail line, the
 status line, the comment's first line), `Pin` / `Unpin`, `Delete`, the empty states; opening a
-row reads its body (`is-loading`, the latest press wins, `Close review` cancels); a row that
-cannot be read or was saved by a newer version shows its note. `review-link` whose read of the
+row reads its body (`is-loading`, the latest press wins, `Close review` cancels); a row whose
+opening fails shows its note, and a row saved by a newer version shows its own. A kept session
+whose summary cannot be read has no row and does not count for `sessions-link` (spec D310:
+chunk 28 deletes it at load; an outdated tab leaves it unlisted). `review-link` whose read of the
 most recent kept session fails after a reload shows the list instead, that session's row in its
 failed-to-open state, focus on the list's title (kept-sessions design, `review-link` activation;
 spec D307). Until this chunk, that failure shows nothing and the link comes back enabled (chunk
 10b's interim; `controller.showReview` resolves `false` and `use-review-navigation.ts` stops).
-`sessions-link` ("All sessions") in
+Here every failed read takes that path; from chunk 28 on, only a refusal by the device does, and
+a damaged session is deleted, with an apology (spec D310, D311), so this chunk's tests inject
+refusals, never damaged records. `sessions-link` ("All sessions") in
 the cue row, decided at load with the settings; `All sessions` in a review. Row summaries are
 read at load and kept current, so the list shows at once. The list ships with the review's code,
 loaded on demand. No row or count shows how well the player played. `Your data` in the header is
@@ -2171,9 +2201,11 @@ cue row).
   favorite count, and no wording of hits, misses, score or accuracy.
 - Each row opens its review; `All sessions` returns to that row; pin, unpin and delete behave as
   in the review; deleting the last row shows the empty state, focus on the title.
-- A row whose body read fails shows its note and keeps focus.
-- After a reload, `Review last session` whose body read fails (injected) shows the list, that
-  session's row with its failed-to-open note, focus on the list's title (spec D307).
+- A row whose body read the device refuses (injected) shows its note and keeps focus.
+- After a reload, `Review last session` whose body read the device refuses (injected) shows the
+  list, that session's row with its failed-to-open note, focus on the list's title (spec D307).
+- A seeded kept session whose summary cannot be read has no row; seeded alone, neither link
+  shows (spec D310).
 - After a reload, the list has no row for a session whose save was refused (injected `other` and
   `quota` refusals) nor for one that ended with saving off (an outdated tab, a visit from the
   defaults); `review-link` then opens the earlier kept session, or is absent when there is none
@@ -2199,7 +2231,8 @@ demand.
 
 **Files:** `src/components/workspace/YourDataSheet.vue` (new), `src/components/workspace/use-your-data.ts`
 (new), `src/components/workspace/LayoutFooter.vue` (new), `src/components/workspace/WorkspaceShell.vue`,
-`src/components/review/SessionList.vue` (header button); tests
+`src/components/review/SessionList.vue` (header button), `src/components/workspace/AppNoticeRow.vue`
+(the storage-full notice's `Your data`, disabled until this chunk); tests
 `tests/e2e/storage/your-data.spec.ts`.
 
 **Spec sections:** [§4.1](master-spec.md#41-principles), [§4.5](master-spec.md#45-keeping-the-data-safe-from-the-browser), [§5.3](master-spec.md#53-played-notes-opt-in-and-deletion), [§15](master-spec.md#15-access-model).
@@ -3208,14 +3241,14 @@ merged, a kept session's played notes are filtered the same way.
 
 ### Chunk 27 — A session cut short by the page going away
 
-**Waits for** the owner's answer to [spec O201](../../open-questions.md#v30-wave-5-o200) (inserted
-in v14, spec D308; the scope below follows the proposed answer (a), and answer (b) shrinks it as
-noted). Needs a peek before it starts.
+Inserted in v14 (spec D308). The owner chose answer (a) of
+[spec O201](../../open-questions.md#v30-wave-5-o200) (spec D309): §5.1 stands. Wave 7's
+preflight covers it.
 
-**Goal.** Make what happens to a session cut short by reloading or closing the page
-deterministic and tested, as O201 rules.
+**Goal.** Make sure a session cut short by reloading or closing the page is never saved, every
+time, and test it (§5.1, spec D309).
 
-**Scope** (answer (a), keep §5.1). A page-leaving signal beside the page-visibility port: the
+**Scope.** A page-leaving signal beside the page-visibility port: the
 `pagehide` event marks the page as going away for the rest of its life. The session's own save
 checks it after loading the codec and before each of its transactions (the keyed read, the
 batch) and, when it is set, stops with nothing read or written and resolves a new outcome
@@ -3226,8 +3259,7 @@ reload or close never starts its save's first transaction; on a page already hid
 ended by a tab switch, then the tab closed), a save still running stops at its next step. A page
 the browser brings back from the back-forward cache shows that review as not saved. A tab or app
 switch never fires `pagehide`, so it still ends the session, opens its review and saves it. The
-settings flush at the end is unchanged. **Answer (b):** no listener; the scope is the test below
-and the spec wording, the outcome being whole by the batch's single transaction.
+settings flush at the end is unchanged.
 
 **Files:** `src/session/session-browser-ports.ts` (the page-leaving port),
 `src/components/workspace/browser-page-visibility.ts` (its browser adapter beside the visibility
@@ -3244,26 +3276,124 @@ check before each step, the abandoned outcome), `src/components/workspace/worksp
 
 **Atoms:** `rule_most_recent_session_kept`, `req_rolling_practice_session`,
 `rule_hidden_tab_ends_session`, `module_kept_session_save`, `module_save_policy`. **Part D:**
-`module_kept_session_save` and `module_save_policy` (the abandoned outcome); under (b),
-`req_rolling_practice_session` and `rule_most_recent_session_kept` take the amended wording.
+`module_kept_session_save` and `module_save_policy` (the abandoned outcome).
 
-**Depends on:** chunk 10 and the O201 ruling.
+**Depends on:** chunk 10.
 
 **Done when:**
 
-- (a) End to end: a session with a kept unpinned session seeded, the page reloaded after phrase 1
+- End to end: a session with a kept unpinned session seeded, the page reloaded after phrase 1
   has sounded: after the reload no new kept session exists, the seeded one is still there and
   `Review last session` opens it.
-- (a) Unit, on fake ports: `pagehide` then hidden ends the session and the save runs no
+- Unit, on fake ports: `pagehide` then hidden ends the session and the save runs no
   transaction; hidden first, then `pagehide` while the codec loads or between the read and the
   batch, the save stops before its next transaction; either way the keep line reads "Not
   saved…" and no notice shows. Hidden alone (a tab switch) saves as before.
-- (b) End to end: the same reload leaves either the new session kept and the seeded unpinned one
-  deleted, or neither, never one without the other.
 
 **Items covered:** 6.
 
 **Verification:** the chunk checks.
+
+### Chunk 28 — A damaged kept session deleted, with an apology
+
+Inserted in v15 (spec D310, D311), for the owner's ruling on
+[spec O200](../../open-questions.md#v30-wave-5-o200). Wave 8's preflight covers it. 28b waits for
+the **Damaged session design** gate; 28a may start before it.
+
+**Architecture capture** (before code): `module_kept_session_save`: the save's batch also deletes
+every kept session whose summary is damaged (the codec's `unreadable`), never one a newer version
+wrote, and says how many damaged sessions it deleted; the load's clean-up of damaged sessions,
+where it runs (the session controller's chunk, never the entry chunk), its one batch through the
+save policy, and what it reports; the read of a kept session for its review, which tells a
+damaged session from one not read (refused, absent or newer) instead of giving `null` for all;
+and the path by which a deletion of damaged sessions reaches the notices without
+`WorkspaceShell.vue`.
+
+**Goal.** A kept session the app cannot read correctly is deleted, and the player gets an
+apology; a session the device only failed or refused to read is never deleted (§5.1, spec D310).
+
+**Scope.** 28a, the deletions, only while saving is on:
+
+- **At load:** once the summaries are read, one batch deletes the summary, body and played notes
+  of every kept session whose summary is damaged, through the save policy (held like any save if
+  a session has started). The most recent session and the links are decided without them.
+- **At a session's save:** the batch also deletes every kept session whose summary is damaged
+  (chunk 10 leaves them); a summary a newer version wrote stays; a refused read still deletes
+  nothing (spec D304).
+- **At an opening** (`review-link` after a reload, a list row): a damaged body deletes that
+  session at once, in one batch; the most recent session then becomes the readable kept session
+  that started last, as after the player's own deletion (spec D304). A refusal by the device, or
+  a session whose records are all absent, keeps chunk 14's failed-open path.
+- **Saving off** (an outdated tab, a visit from the defaults): nothing is deleted; in an outdated
+  tab a damaged body read keeps the failed-open row ("This session couldn't be opened. Try
+  again.").
+- **A refused deletion** shows no apology; it raises the notice any refused save raises (Save
+  failed or Storage full), the session stays unlisted for the visit, and the next load tries
+  again.
+
+28b, the apology and where the player lands, as the Damaged session design says: the apology
+notice in the notice row once a deletion of damaged sessions has committed (at load, at the
+save as the review opens, at an opening), held during a session as every notice is, saying how
+many went; `review-link` finding its session damaged shows the list without that row (its empty
+state when none is left), not chunk 14's failed-open row; a list row finding its session damaged
+leaves the list.
+
+**Not in this chunk:** `WorkspaceShell.vue` (chunk 15's in wave 8, chunk 24b-2's in wave 9) and
+`AppNoticeRow.vue` (chunk 15's in wave 8): the apology is a sentence and `Dismiss`, which the row
+already draws from the notice's model;
+`save-policy.ts`, whose `save` batch and `saveSession` serve as they are; the kept-session codec
+files, whose verdicts serve as they are.
+
+**Files:** 28a: `src/components/workspace/workspace-kept-session-read.ts` (the read's result; the
+load's clean-up beside `mostRecentKept`), `src/components/workspace/workspace-kept-sessions-seam.ts`
+(the clean-up's report), `src/components/workspace/workspace-session-save.ts` (damaged summaries
+in the batch, their count), `src/components/workspace/workspace-session-ends.ts` (the count passed
+on), `src/components/workspace/workspace-session-controller.ts` (the most recent session after a
+damaged one goes), `docs/storage.md`; 28b: `src/components/workspace/use-app-notices.ts` (the
+apology), `src/components/workspace/use-review-navigation.ts` (`review-link`'s landing),
+`src/components/workspace/use-kept-sessions.ts` (a row's opening, the row's removal); tests under
+`tests/unit/components/workspace/`, `tests/unit/storage/`, the notices' unit tests and a new
+`tests/e2e/storage/damaged-sessions.spec.ts`. If the brief exceeds about five source files, split
+it there: 28a, then 28b.
+
+**Spec sections:** [§5.1](master-spec.md#51-which-sessions-are-kept), [§4.3](master-spec.md#43-where-and-how) and [§4.4](master-spec.md#44-loading-saved-settings) (no deletion with saving off).
+
+**Design docs:** the Damaged session design, when written; [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.0/flows/saved-data/handoff.md)
+(Notices), [`flows/kept-sessions/handoff.md`](../../../ui_ux/versions/v3.0/flows/kept-sessions/handoff.md)
+(`review-link` activation, Opening a Session), [`screens/session-list/handoff.md`](../../../ui_ux/versions/v3.0/screens/session-list/handoff.md).
+
+**Atoms:** `rule_most_recent_session_kept`, `req_kept_sessions`, `req_kept_session_list`,
+`req_kept_session_review`, `rule_outdated_tab_reads_what_it_can`,
+`rule_failed_read_offers_only_delete_everything`, `module_kept_session_save`,
+`module_kept_session_codec`, `module_saved_data_loader`. **Part D:** `module_kept_session_save`
+(the capture above); `rule_most_recent_session_kept` and `req_kept_sessions` take part M2's
+items 5(b) and 6 once the owner agrees to their wording.
+
+**Depends on:** chunks 14 and 27 (their files), the Damaged session design gate (28b).
+
+**Done when:**
+
+- Seeded with a readable unpinned session, a pinned one and a damaged one (an invalid summary),
+  saving on: after the load the damaged one's three records are gone, the apology shows once
+  with its count, and the list and the links show only the other two.
+- A damaged summary written after the load (seeded mid-visit): the next session's save deletes
+  it in the same transaction as the new session (write spy), and the apology shows as the review
+  opens.
+- After a reload, `Review last session` whose body is damaged (seeded): the session is deleted,
+  the list shows without its row, focus on its title, the apology shows; `review-link` then
+  opens the readable kept session that started last, or is absent. A list row whose body is
+  damaged: the row leaves, the apology shows.
+- Nothing is deleted and no apology shows on a refused read (injected, at load, at the save and
+  at an opening), on a session a newer version saved, in an outdated tab, or in a visit from the
+  defaults.
+- An injected refusal of the clean-up's batch: no apology, the Save failed notice, the damaged
+  session unlisted.
+- A session this version saves is never taken for damaged: saved, reloaded and opened, its
+  records are all still there (the round trip, for each built-in instrument and my instrument).
+
+**Items covered:** 6.
+
+**Verification:** the chunk checks; the bundle at the wave gate (the entry chunk unchanged).
 
 ### Chunk 26 — v3.0 release gate
 
@@ -3312,7 +3442,7 @@ verification. The gate copies this into the release notes with the final test na
 | 3 Tolerant loading | 6, 7 | property test over corruptions; e2e with a seeded invalid value |
 | 4 Storage in one place | 3, 9 | boundary unit tests and fixtures; `session-history-export` storage trap unchanged |
 | 5 Nothing sent | 11, 26 | privacy spy, network half, with storage in use |
-| 6 Most recent survives; save deletes unpinned, keeps pinned; sessions belong to their instrument | 10, 12, 14, 20c, 27 | e2e reload and second-session tests; e2e deleting my instrument with seeded sessions; e2e reload mid-session (O201) |
+| 6 Most recent survives; save deletes unpinned, keeps pinned; a damaged session deleted with an apology; sessions belong to their instrument | 10, 12, 14, 20c, 27, 28 | e2e reload and second-session tests; e2e deleting my instrument with seeded sessions; e2e reload mid-session (O201); e2e damaged sessions at load, at the save and at an opening, and none deleted on a refused read (O200) |
 | 7 No save during a session | 5, 7, 10 | save-policy unit test; IndexedDB write spy across a session |
 | 8 Kept session holds only §5.2 | 9 | record allowlist test; byte-identical exports after decoding |
 | 9 Played notes only after opt-in | 11, 15 | privacy spy, storage half; deletion tests |
@@ -3406,3 +3536,11 @@ Later on 2026-10-13 the owner settled both points left to him (spec D297's rulin
 spec v1.12): Regenerate runs the Idle Regenerate and stays at Idle, the player pressing Start
 again ([spec O182](../../open-questions.md#v30-wave-2-o180) closed); the starting-note wording is
 accepted, MAJOR (CONTRACT 5.0). Only the **Stale phrase design** gate remains before chunk 24b-2.
+
+Master spec v1.15 (2026-10-14, spec D310) writes in the owner's ruling on
+[spec O200](../../open-questions.md#v30-wave-5-o200): a kept session the app cannot read
+correctly is deleted, with an apology, at load, at the next save or when opened, while the visit
+saves; a refusal by the device deletes nothing (§5.1, item 6). New chunk 28 in wave 8 builds it,
+after the **Damaged session design** gate. It also aligns §4.4 with §5.1 (spec D304); no chunk
+changes for that. The owner's ruling on [spec O201](../../open-questions.md#v30-wave-5-o200)
+(spec D309) keeps §5.1 as written; chunk 27 builds it.

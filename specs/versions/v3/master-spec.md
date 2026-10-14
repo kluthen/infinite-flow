@@ -2,7 +2,7 @@
 
 Status: this file holds four parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.14 (2026-10-14), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.15 (2026-10-14), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
   v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
@@ -12,7 +12,8 @@ Status: this file holds four parts.
   is stale (ISS-011), the owner's ruling of 2026-10-13; v1.12 writes in his rulings the same day
   on what Regenerate does there and on the starting note's contract wording (CONTRACT 5.0);
   v1.13 is a wording clarification (§8), no behaviour changed; v1.14 replaces the kept-session
-  size estimate with the build's measurement (§5.2), no behaviour changed.
+  size estimate with the build's measurement (§5.2), no behaviour changed; v1.15 writes in the
+  owner's ruling that a damaged kept session is deleted, with an apology (§5.1, item 6).
   No contract wording it needs waits for the owner any more (§10).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
@@ -29,7 +30,7 @@ Status: this file holds four parts.
 
 Part A's history follows.
 
-Part A status: master spec v1.14 (2026-10-14), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
+Part A status: master spec v1.15 (2026-10-14), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
 remembered controller (§7.3). Change in v1.2: behaviours the v3.0 design settled, written in:
 when settings are read and saved, what Delete everything leaves, which sessions a save deletes,
 favorites and unpinning, the played-notes switch on the session that just ended, my instrument's
@@ -99,7 +100,14 @@ which serves them between the prewarm's slices; it does not wait for the prewarm
 Change in v1.14, at the v3.0 wave-3 gate, no behaviour changed (spec D299): the kept-session size
 is the build's measurement, about 4.1 MB for a 30-minute session at 240 BPM in Jazz with
 `Sixteenth` density plus about 1.5 MB of played notes when kept, instead of the earlier estimate
-of 0.8 to 3.4 MB (§5.2).
+of 0.8 to 3.4 MB (§5.2). Change in v1.15, the owner's ruling at the v3.0 wave-5 sync (spec D310,
+closes O200): a kept session the app cannot read correctly, its records damaged, is deleted,
+pinned or not, wherever the app finds it (at load, at the next save, when opened), and the app
+apologises; a read the device fails or refuses deletes nothing, nor does a visit that saves
+nothing (§5.1, item 6). v1.15 also aligns §4.4 with §5.1 (spec D304): the session a visit whose
+read failed holds in memory keeps its review until the next session ends with a review. The
+owner's ruling on O201 (spec D309) keeps §5.1 as written: a session cut short by closing or
+reloading the page is never saved.
 Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. Part A covers **v3.0
 only**; Part B, consolidated from the approved v3.1 drafts for the same handoffs, covers v3.1. The
@@ -256,8 +264,9 @@ asks for confirmation as everywhere. Whenever saved data written by a newer vers
 exist, at load or later in the visit, the outdated-tab rule (§4.3) wins: no deletion of any kind
 is offered, Delete everything included, since deleting could destroy what the newer version
 saved. Such a visit has read no kept session and no saved my instrument, so changing or deleting
-a my instrument made during it erases nothing: the session it holds in memory keeps its review
-until the next session starts, as in v2 (each phrase carries its instrument, §5.2).
+a my instrument made during it erases nothing: the session it holds in memory stays the most
+recent session, its review reachable, until the next session ends with a review (each phrase
+carries its instrument, §5.2).
 
 Each saved setting is checked on its own when the app loads. A value that is unknown or no longer
 valid falls back to that setting's default; every other saved setting is kept. No notice is
@@ -291,6 +300,14 @@ server never appears on the deployed site, and the reverse.
   pinned is deleted, including one the player unpinned earlier. A pinned session stays until the player unpins or
   deletes it, or deletes or changes the instrument it was played with (below). Only one session
   is ever kept without the player asking.
+- **A damaged kept session is deleted, with an apology.** A kept session whose records the app
+  cannot read correctly (damaged or incomplete, so it can be neither opened nor exported) is
+  deleted, pinned or not, with its favorites, comment and played notes, as soon as the app finds
+  it: when the saved data loads, when the next session is saved, or when the player opens it.
+  The app then apologises, outside a running session. Only damage counts: a read the device
+  fails or refuses deletes nothing, a session saved by a newer version is never deleted (§4.3),
+  and a visit that saves nothing (an outdated tab, a visit started from the defaults, §4.4)
+  deletes nothing.
 - **Marking a favorite pins its session**, so a favorite is never lost by starting a new session.
   Unpinning a session that holds favorites asks for confirmation first, since the session and its
   favorites will then be deleted when the next session is saved.
@@ -849,6 +866,8 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
 5. **Nothing is sent.** No network request carries player data, with storage in use.
 6. **The most recent session survives a reload** and opens in the same review; a new session's save
    deletes every unpinned kept session, one unpinned earlier included, and keeps every pinned one.
+   A kept session the app cannot read correctly is deleted, with an apology, at load, at the next
+   save or when opened, while the visit saves; a read the device refuses deletes nothing.
    Every kept session belongs to the instrument it was played with: deleting my instrument
    deletes exactly the kept sessions played with it, pinned ones and the session that just ended
    included, with their favorites, comments and played notes, and no other session; its
