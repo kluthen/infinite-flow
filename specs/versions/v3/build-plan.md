@@ -1910,6 +1910,21 @@ readable kept session that is not pinned" if the owner keeps O200's proposed def
 
 **Verification:** the chunk checks; a debug run with a real session and a reload.
 
+**Record 10a (2026-10-14).** Merged into `v3.0-w5` (c0312d8, chunk commit e31c86b); no spec or
+design deviation. The session's own save is `SavePolicy.saveSession(changes)` returning
+`SessionSaveOutcome` (`saved` | `refused` with its kind | `saving-off`, which also covers a batch
+refused as outdated), queued after `release()` through the saver; `changes` receives the keyed
+summaries read at the save. `src/components/workspace/workspace-session-save.ts` mints the key and
+builds the batch (deletions before writes, so a session with the very same key is replaced);
+`workspace-session-ends.ts` calls it right after the review opens. A `quota` refusal of the session
+save also reaches `onFailure` (Storage full); an `other` refusal raises no notice and leaves the run
+alone, for `module_save_policy`'s revision at the sync. Outside the 10a list: `settings-saver.ts`
+and one line of `create-workspace-session.ts`. `review-privacy` widened (D301). For 10b: the
+most recent session's slot from the save's promise, the keep line's three wordings (the review still
+says "Kept until the next session starts…" until then), the review link after a reload, the
+`review-navigation` reload test, ISS-012; show "Not saved…" from the load outcome or the saving
+state, not by waiting on a save that a never-opening port never settles.
+
 ### Chunk 11 — Played-notes opt-in and deletion
 
 **Gate A must be applied before this chunk merges** (it breaks the old `rule_optional_midi_privacy`
