@@ -31,6 +31,7 @@ import {
  * milliseconds: at most 2 s, well above the slowest read measured (`docs/storage.md`, M2).
  */
 // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
+// @spec-link [[module_saved_data_loader]]
 export const STARTUP_WAIT_MS = 2000
 
 /**
@@ -38,11 +39,13 @@ export const STARTUP_WAIT_MS = 2000
  * visit with nothing saved included), or the defaults, because the read failed or outlasted it.
  */
 // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
+// @spec-link [[module_saved_data_loader]]
 export type LoadOutcome = 'saved-data-read' | 'started-from-defaults'
 
 /** What the load gives the app before its first draw. */
 // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
 // @spec-link [[rule_saved_settings_load_tolerantly]]
+// @spec-link [[module_saved_data_loader]]
 export interface SavedDataLoad {
   /** Whether the visit started from the saved data read or from the defaults. */
   readonly outcome: LoadOutcome
@@ -131,6 +134,7 @@ function lateOpenedPolicy(port: StoragePort): SavePolicy {
 // @spec-link [[rule_saved_settings_load_tolerantly]]
 // @spec-link [[rule_outdated_tab_reads_what_it_can]]
 // @spec-link [[module_save_policy]]
+// @spec-link [[module_saved_data_loader]]
 export async function loadSavedData(deps: SavedDataLoadDependencies): Promise<SavedDataLoad> {
   const waitEnded = deps.startupWait().then((): typeof WAIT_ENDED => WAIT_ENDED)
   const opening = deps.openPort()
@@ -165,6 +169,7 @@ function browserWait(ms: number): () => Promise<void> {
  * design from the loaded stylesheet's tokens.
  */
 // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
+// @spec-link [[module_saved_data_loader]]
 export function browserSavedDataLoad(): SavedDataLoadDependencies {
   return {
     openPort: () => openStoragePort({ ...browserStorage(), appVersion: APP_VERSION }),

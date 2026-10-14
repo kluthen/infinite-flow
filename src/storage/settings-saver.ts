@@ -41,6 +41,7 @@ export type SaveSettings = (changes: SettingChanges) => void
 /** Hold every save while a session runs, and release them, in one transaction, when it ends. */
 // @spec-link [[rule_no_save_during_session]]
 // @spec-link [[module_save_policy]]
+// @spec-link [[module_saved_data_loader]]
 export interface SessionSaveHold {
   /** A session starts: hold every save from now on. */
   readonly hold: () => void
@@ -80,6 +81,7 @@ function settingWrites(changes: SettingChanges, appVersion: string): StorageChan
 // @spec-link [[rule_settings_saved_on_change]]
 // @spec-link [[rule_saved_setting_is_players_choice]]
 // @spec-link [[module_save_policy]]
+// @spec-link [[module_saved_data_loader]]
 export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string): VisitSaves {
   const pending: PolicyCall[] = []
   let loaded: SavePolicy | null = null

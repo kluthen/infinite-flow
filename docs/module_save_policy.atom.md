@@ -2,7 +2,8 @@
 id: module_save_policy
 status: REVIEW
 priority: 1
-dependents: []
+dependents:
+  - [[module_saved_data_loader]]
 type: MODULE
 version: 0.2
 tags: [v3, release-v3.0, storage]
@@ -41,7 +42,7 @@ Persistent storage. The request for persistent storage is made of the browser at
 Your data and Delete everything. The policy passes on the browser's estimate of the space used and whether the storage is persistent. Delete everything runs when saving is on and when it is off-unreadable, so a visit whose saved data could not be read still offers it; in an outdated tab it is refused as outdated without reaching the port. Its refusal goes to the caller, not to the failure listener.
 
 ## TECHNICAL INTERFACE
-src/storage/save-policy.ts exports createSavePolicy(port), which gives a SavePolicy: state(), a SavingState ('on', 'off-outdated' or 'off-unreadable'); onStateChange(listener); stopSavingUnreadable(); write(store, key, record), delete(store, key) and save(changes), each resolving a SaveOutcome ('saved', 'held', 'skipped' or 'failed'); hold() and release(); and onFailure(listener), told a SaveFailureKind ('quota' or 'other'). src/storage/save-policy-requests.ts builds the requests beyond saving through createVisitRequests: requestProtection(), resolving a ProtectionOutcome ('granted', 'refused', 'already-protected', 'not-asked' or 'failed'), estimate(), persisted() and deleteEverything(). A batch and the flush at release go to the port's apply(changes), a list of StorageChange writes and deletes. Holding twice, releasing without a hold, an empty batch, a second failure listener and Delete everything during a session are defects of the caller and throw.
+src/storage/save-policy.ts exports createSavePolicy(port), which gives a SavePolicy: state(), a SavingState ('on', 'off-outdated' or 'off-unreadable'); onStateChange(listener); stopSavingUnreadable(); write(store, key, record), delete(store, key) and save(changes), each resolving a SaveOutcome ('saved', 'held', 'skipped' or 'failed'); hold() and release(); and onFailure(listener), told a SaveFailureKind ('quota' or 'other') and whether the report starts a run: true for a run's first refusal (the visit's first, or the first after a success), false for a change of kind within the run. src/storage/save-policy-requests.ts builds the requests beyond saving through createVisitRequests: requestProtection(), resolving a ProtectionOutcome ('granted', 'refused', 'already-protected', 'not-asked' or 'failed'), estimate(), persisted() and deleteEverything(). A batch and the flush at release go to the port's apply(changes), a list of StorageChange writes and deletes. Holding twice, releasing without a hold, an empty batch, a second failure listener and Delete everything during a session are defects of the caller and throw.
 
 ## EXPECTATION
 - Between hold() and release() the port sees no call; at release() it receives each held record once, with its latest change, in one batch.

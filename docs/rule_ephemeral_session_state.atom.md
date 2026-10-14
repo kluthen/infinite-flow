@@ -1,7 +1,7 @@
 ---
 id: rule_ephemeral_session_state
 status: REVIEW
-tags: [persistence, session, browser-state, changes-in-v3.0]
+tags: [persistence, session, browser-state]
 parents:
   - [[req_four_measure_phrase]]
 layer: BUSINESS

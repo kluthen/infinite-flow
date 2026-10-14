@@ -6,7 +6,8 @@ type: RULE
 layer: BUSINESS
 parents:
   - [[rule_settings_saved_on_change]]
-dependents: []
+dependents:
+  - [[module_saved_data_loader]]
 version: 0.1
 priority: 1
 human_name: Saved Setting Is the Player's Choice

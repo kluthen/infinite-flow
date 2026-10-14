@@ -7,6 +7,7 @@ parents:
   - [[req_on_device_storage]]
 dependents:
   - [[module_save_policy]]
+  - [[module_saved_data_loader]]
   - [[rule_first_phrase_waits_for_saved_settings]]
   - [[rule_saved_setting_is_players_choice]]
   - [[rule_saved_settings_load_tolerantly]]

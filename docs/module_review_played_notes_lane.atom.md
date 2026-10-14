@@ -3,7 +3,7 @@ id: module_review_played_notes_lane
 status: REVIEW
 dependents: []
 layer: ARCHITECTURE
-version: 0.1
+version: 0.2
 parents:
   - [[rule_no_grading_or_mismatch_signal]]
   - [[rule_review_played_notes_toggle]]
@@ -31,12 +31,12 @@ Look. Every played note has the same colour. No note is marked as matched or unm
 
 Visibility and space. A phrase's lane is drawn only together with that phrase's engraving, never before it. While the toggle is on, the lane's block space is reserved for every phrase, so the review does not shift as engravings arrive.
 
-Toggle state. Whether the toggle is on is held in memory by the review host for the page session, never stored, and gone on reload.
+Toggle state. Whether the toggle is on starts from the player's saved choice, loaded before the first draw (off on a first visit), and is then held in memory by the review host for the page; each change the player makes goes through the host, which saves it.
 
 Split. The geometry (beats, the time-to-position mapping, the cuts and the pitch scale) is a pure module with no DOM; the view draws it.
 
 ## TECHNICAL INTERFACE
-src/components/review/played-notes-lane-geometry.ts: pure geometry from the session history records' played notes and the engraved score's measureAnchors to each lane's note bars (inline start and end per system, cut at the phrase end and at the split layout's break) and each note's pitch fraction, on a session-wide pitch scale. src/components/review/played-notes-lane-view.ts turns that geometry into each lane's accessible name and its dividers' and bars' inline styles, shifted by each system's inline offset; a lane with no engraving to draw against is blank. src/components/review/ReviewPhrase.vue keeps the anchors of its last successful engraving, draws a phrase's lanes with it and sets --played-note-pitch on each note; src/components/review/ReviewPanel.vue shows the toggle only when a record of the session holds a played note, computes the session-wide pitch scale, and has the lanes drawn and their block space reserved only while that holds and the toggle is on. src/components/workspace/use-review-host.ts holds the toggle state in memory for the page session.
+src/components/review/played-notes-lane-geometry.ts: pure geometry from the session history records' played notes and the engraved score's measureAnchors to each lane's note bars (inline start and end per system, cut at the phrase end and at the split layout's break) and each note's pitch fraction, on a session-wide pitch scale. src/components/review/played-notes-lane-view.ts turns that geometry into each lane's accessible name and its dividers' and bars' inline styles, shifted by each system's inline offset; a lane with no engraving to draw against is blank. src/components/review/ReviewPhrase.vue keeps the anchors of its last successful engraving, draws a phrase's lanes with it and sets --played-note-pitch on each note; src/components/review/ReviewPanel.vue shows the toggle only when a record of the session holds a played note, computes the session-wide pitch scale, and has the lanes drawn and their block space reserved only while that holds and the toggle is on. src/components/workspace/use-review-host.ts holds the toggle state, read-only, as playedNotesShown, starting from the saved review preferences it is given (initialPreferences.playedNotesShown); setPlayedNotesShown(on) sets it and saves it.
 
 ## EXPECTATION
 - With the toggle off no lane is drawn and no lane space is reserved; with it on, each phrase's lane appears with its engraving and its space is reserved before that.
@@ -44,4 +44,4 @@ src/components/review/played-notes-lane-geometry.ts: pure geometry from the sess
 - A note running past the phrase end is cut there; in the split layout a note crossing the break is drawn in both lanes.
 - The pitch scale spans the session's lowest to highest played pitch, widened equally to at least 12 semitones, and each note exposes its 0 to 1 fraction as --played-note-pitch.
 - Every played note has the same colour, with no matched or unmatched marking, no velocity and no text.
-- The toggle state is never written to browser storage and is gone on reload.
+- The toggle starts off on a first visit, and after a page reload it comes back as the player left it.

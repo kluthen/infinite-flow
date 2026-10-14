@@ -145,6 +145,7 @@ async function hasSettled(promise: Promise<unknown>): Promise<boolean> {
 
 // @test-link [[rule_saved_settings_load_tolerantly]]
 // @test-link [[rule_first_phrase_waits_for_saved_settings]]
+// @test-link [[module_saved_data_loader]]
 describe('loadSavedData: a read within the start-up wait', () => {
   // @test-link [[rule_first_phrase_waits_for_saved_settings]]
   it('starts a first visit from the defaults, saving on, as a read of the saved data', async () => {
@@ -225,6 +226,7 @@ describe('loadSavedData: a read within the start-up wait', () => {
 })
 
 // @test-link [[rule_first_phrase_waits_for_saved_settings]]
+// @test-link [[module_saved_data_loader]]
 describe('loadSavedData: a read that fails or outlasts the start-up wait', () => {
   // @test-link [[rule_first_phrase_waits_for_saved_settings]]
   it('a failing read: the defaults, saving off-unreadable, started from the defaults', async () => {

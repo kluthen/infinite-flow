@@ -54,6 +54,7 @@ async function resolvedSaves() {
   return { saves, calls }
 }
 
+// @test-link [[module_saved_data_loader]]
 describe('saveSettings', () => {
   // @test-link [[rule_settings_saved_on_change]]
   it('submits the settings of one change as one batch of encoded setting records', async () => {
@@ -93,6 +94,7 @@ describe('saveSettings', () => {
   })
 })
 
+// @test-link [[module_saved_data_loader]]
 describe('the order calls reach the policy in', () => {
   it('queues calls made before the policy loads and runs them in order once it does', async () => {
     const { policy, calls } = recordingPolicy()
@@ -134,6 +136,7 @@ describe('the order calls reach the policy in', () => {
   })
 })
 
+// @test-link [[module_saved_data_loader]]
 describe('chosenControlChanges', () => {
   const before = {
     controls: DEFAULT_GENERATION_CONTROLS,

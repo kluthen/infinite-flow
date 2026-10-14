@@ -7,6 +7,7 @@ parents:
   - [[rule_settings_saved_on_change]]
 dependents:
   - [[module_save_policy]]
+  - [[module_saved_data_loader]]
   - [[rule_failed_read_offers_only_delete_everything]]
   - [[rule_failed_read_told_to_player]]
 version: 0.1
