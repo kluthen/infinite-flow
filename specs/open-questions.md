@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.61
+Status: draft v0.62
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -19,7 +19,8 @@ O115 and O116 (v3.x learning), O176 (style packs and the chord level, below), O1
 wave 2: octave signs, later), O183 (v3.0 wave 2: the warm worker lost when pre-generation is
 cancelled, opened with D298), O190 (v3.0 wave 4: a newer version's database whose read-only
 reopening fails, opened with D300) and O200 (v3.0 wave 5: an unreadable kept session at the next
-save, opened with D304). The owner closed O182 (what Regenerate does in the stale-phrase
+save, opened with D304) and O201 (v3.0 wave 5: a session cut short by reloading or closing the
+page, opened with D308). The owner closed O182 (what Regenerate does in the stale-phrase
 prompt) on 2026-10-13, the day it was opened (D297's ruling note). D295 and D296 closed O181 the day it was opened. D228–D234 closed O10 (for v3.2), O103, O114, O126 and every
 question the v3.1 and v3.2 drafts opened (O127–O157, O160–O162); D257 and D258 closed O163 and
 O164 the day they were opened. None blocks the v3.0 build.
@@ -192,7 +193,8 @@ plan v11 (D300). O190–O199 are reserved for v3.0 wave 4. O190 blocks no wave-4
 
 Opened 2026-10-14 by `spec-writer` while writing the wave-5 preflight's corrections into build
 plan v13 (D303–D305). O200–O209 are reserved for v3.0 wave 5. O200 blocks no chunk: chunk 10
-builds the proposed default, which a different answer changes in one place.
+builds the proposed default, which a different answer changes in one place. O201 (build plan
+v14, D308) blocks only chunk 27.
 
 - **O200 - An unreadable kept session when the next session is saved** _(D304; master spec
   §5.1; `req_kept_sessions`, `rule_most_recent_session_kept`)_: when a new session is saved,
@@ -207,3 +209,38 @@ builds the proposed default, which a different answer changes in one place.
   this question: the session-list design has a row state for a session saved by a newer version
   and for one whose opening failed, but none for a session whose summary cannot be read, which
   then has no date to show; `ux-writer` settles that row before chunk 14.
+
+- **O201 - A session cut short by reloading or closing the page** _(D308; master spec §5.1;
+  `rule_most_recent_session_kept`, `req_rolling_practice_session`, `rule_hidden_tab_ends_session`;
+  chunk 27)_: §5.1 says "A session cut short by closing or reloading the page is lost". The
+  wave-5 sync found the code can differ: a reload or close hides the page, the hidden-tab watcher
+  ends the session at once (`workspace-session-end-watchers.ts`), and that end opens the review
+  and starts the session's save (`workspace-session-ends.ts`), which, if it commits, also deletes
+  the previous unpinned kept session. Browser facts (HTML "unload a document" and the three
+  engines' source, checked 2026-10-14): on a reload, close or navigation of a visible page,
+  `pagehide` fires first, then `visibilitychange`, in one task, so nothing of the save can run
+  before `pagehide`; a tab switch or app switch never fires `pagehide`; an unfinished IndexedDB
+  transaction is aborted when the page goes; but a page kept in the back-forward cache is only
+  frozen, so its save resumes and commits if the player comes back. So whether such a session is
+  saved is not determined today, and no test covers it. Question for the owner, in these words:
+  "If you reload or close the page in the middle of a session, after the first phrase has
+  played, the app treats it like switching to another tab: it ends the session and starts saving
+  it as your most recent session. Whether that save finishes before the page is gone is down to
+  chance, and when it does, it also deletes your previous session if that one isn't pinned. The
+  spec says a session cut short this way is lost. Which do you want? **(a)** Keep the spec: a
+  session cut short by reloading or closing the page is never saved, and your previous session
+  stays exactly as it was. Always the same result. **(b)** Change the spec: such a session is
+  saved like one ended by switching tabs, whenever the save manages to finish before the page is
+  gone, and then it replaces your previous unpinned session. Not guaranteed: most of the time the
+  browser stops the save, so the result varies. Either way, switching to another tab or app still
+  ends the session, opens its review and saves it." Proposed: **(a)**, built by a `pagehide`
+  listener that marks the page as going away, the session's save checking it before each of its
+  transactions and abandoning itself with nothing written (deterministic: `pagehide` comes first
+  on a visible page, and a hidden page's save is stopped at its next step); a page the browser
+  brings back from the back-forward cache shows the ended session's review as not saved ("Not
+  saved on this device: export it to keep it."), held in memory as after a failed save. Settings
+  changed during the session are not part of the question: they keep being saved at the
+  session's end as far as the page allows (§4.2). (b) amends §5.1 and `req_rolling_practice_session`'s
+  proposed wording (change set part M2, item 2), and chunk 27 then only adds the test that the
+  outcome is whole: either the new session saved and the older unpinned one deleted, or
+  neither.

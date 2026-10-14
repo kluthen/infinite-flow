@@ -1,12 +1,9 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v13 (2026-10-14): the wave-5 preflight's corrections to chunks 10 and 17: the session
-key (the owner's ruling), chunk 10's save, the file assignment, chunk 17's split and the Idle-side
-my-instrument paths given to chunk 20 (spec D303–D305;
-[Wave records](#wave-5-preflight-2026-10-14)). Approved by
+Status: v14 (2026-10-14): wave 5's findings placed: chunk 20's Idle-side and worker additions, chunk 14's failed read and reload test, chunk 27 inserted for O201 (spec D306–D308). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D305), and earlier wordings are in git.
+(spec D252–D308), and earlier wordings are in git.
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.14) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
@@ -29,7 +26,7 @@ appear, with a link to the project [lexicon](../../../docs/music/lexicon.md) whe
 ### Release sequence
 
 v3.0 ships as one release, with one gate,
-[chunk 26](#chunk-26--v30-release-gate). Chunks 0–2 are prerequisites; chunks 3–25 build the
+[chunk 26](#chunk-26--v30-release-gate). Chunks 0–2 are prerequisites; chunks 3–25 and 27 build the
 release in the order below; the gate checks all 23 items of the
 [definition of done](master-spec.md#13-definition-of-done) on the merged code and produces
 `docs/release/v3.0-release-notes.md`. v3.1 (embellishment flags and presets) and v3.2 (Jam) are
@@ -61,6 +58,7 @@ Some steps are not code and need the owner. They are part of the sequence:
 | **Part B2** | The owner confirms the revised `rule_controller_transposition_check` (part B, MINOR), which now also states that "use this for my instrument" first warns when it would erase my instrument's kept sessions (spec D295). | After chunk 20c's wave gate (its post-task sync revises the atom, once the warning is built). | Nothing; the gate checks it is done. |
 | **Part C** | The owner confirms the VISION 0.7 → 0.8 text and the retirement of the four chord-fit atoms (part C). | In chunk 26. | The gate. |
 | **O200** | The owner says whether saving a session deletes a kept session whose session-wide record cannot be read, or leaves it in place (proposed: left in place; [spec O200](../../open-questions.md#v30-wave-5-o200)). | Any time; chunk 10 builds the proposed default. | Nothing. A different answer changes chunk 10's save in one place. |
+| **O201** | The owner says whether a session cut short by reloading or closing the page is never saved (§5.1 kept; proposed) or saved when its save completes ([spec O201](../../open-questions.md#v30-wave-5-o200)). | Now; before wave 7. | [Chunk 27](#chunk-27--a-session-cut-short-by-the-page-going-away). |
 
 ### Waves
 
@@ -86,7 +84,7 @@ wave-0 gate covers chunks 1 and 2.
 | 4 | 7 Saved settings · 8 Notice row | Chunks 5, 6; chunk 1 for 8 |
 | 5 | 10 Most recent session kept (10a, 10b if split) · 17a My instrument through the worker and the session · 17b The clef through the history and the review | Chunks 7, 8, 9 (10); 9, 16, 19b (17) |
 | 6 | **Gate A**, then 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter | Chunk 10 and Gate A (11, 12; and Review reachability before 12 merges); chunk 17 (18, not Gate A); chunk 7 and Gate A (22); H1 and chunk 1 (25) |
-| 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet | Chunk 12 (13, 14); chunks 7, 17, 19b, 24, the clef design and ux Q76 (20) |
+| 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet · 27 A session cut short by the page going away | Chunk 12 (13, 14); chunks 7, 17, 19b, 24, the clef design and ux Q76 (20); chunk 10 and O201 (27, after wave 6's chunk 11, which may touch the session's save) |
 | 8 | 15 Your data · 21 The check feeds my instrument | Chunks 11, 14 (15); 20 (21) |
 | 9 | 20c My instrument's sessions · 24b Stale phrase at Start | Chunks 14, 20 and 21 and the Sessions design gate (20c); chunk 24 and the Stale phrase design gate (24b) |
 | 10 | 26 v3.0 release gate | Every other chunk |
@@ -95,7 +93,8 @@ The critical path runs 0 → 3 → 4 → 5 → 7 → 10 → 12 → 14 → 15 →
 waits for chunks 14, 20 and 21, adds wave 9 before the gate. My instrument (16–21, 20c) and
 pre-generation (23–24) are side branches; their chunks share waves with the critical path's.
 Since v9, chunk 24b (a stale phrase at Start, ISS-011) joins wave 9 beside chunk 20c, as the owner
-asked for the end of v3.0; the two touch different files.
+asked for the end of v3.0; the two touch different files. Since v14, chunk 27 (a session cut
+short by the page going away, spec O201) joins wave 7; no wave-7 chunk touches its files.
 
 ```mermaid
 flowchart LR
@@ -159,6 +158,9 @@ flowchart LR
   SN{{Starting-note wording}} --> C24b
   C24b --> C26
   C25 --> C26
+  C10 --> C27[27 Page going away]
+  O201{{O201 ruling}} --> C27
+  C27 --> C26
 ```
 
 ### Wave records
@@ -817,6 +819,26 @@ the first run (unit 6,040, e2e 344, a11y 45, notation 106 with 4 skipped; `atd:l
 `atd:check` pass). **Entry chunk 221,195 B, +2,532 B since wave 4, 8,181 B of headroom.** The
 JavaScript `index.html` loads at start (the entry and the three side chunks it names) is 231,116 B.
 No chunk placed the sweep at this gate.
+
+**Wave 5 sync and report (2026-10-14).** `documentalist`'s sync is 27a4da2: the wave's technical
+atoms brought to the merged code, among them `module_save_policy` 0.3 (the session's own save and
+its outcome) and `module_kept_session_save` 0.2 (the save as built), with no STABLE atom, CONTRACT
+or VISION touched ([change set part M1](../../../docs/release/v3.0-intent-change-set.md#m1-applied-atoms-brought-to-the-merged-code)).
+Put to the owner with the report: the seven business wordings of
+[part M2](../../../docs/release/v3.0-intent-change-set.md#m2-owner-wordings-not-applied), of which
+item 5(b) and item 6 wait for [spec O200](../../open-questions.md#v30-wave-5-o200);
+`module_kept_session_save` DRAFT → REVIEW (part M3); and a new question,
+[spec O201](../../open-questions.md#v30-wave-5-o200): a session cut short by reloading or closing
+the page may be saved today, against §5.1's "lost" (the sync's drift; its answer may change part
+M2's item 2). Placed in v14 (spec D306–D308): [chunk 20](#chunk-20--my-instrument-sheet-and-the-instrument-control)
+takes Idle pre-generation's settings with the profile, my instrument's clef on Idle's and the
+session's written phrases, and a worker derivation free of the clef bound; [chunk 14](#chunk-14--session-list)
+takes `review-link`'s failed read after a reload (the design's failed row in the list; until
+then nothing shows and the link comes back enabled) and the test that a session whose save was
+refused, or that ended with saving off, is gone after a reload; the new
+[chunk 27](#chunk-27--a-session-cut-short-by-the-page-going-away), in wave 7, builds O201's
+answer and its end-to-end test. Also stale, for `documentalist`: the change set's notes that
+chunk 17b's record lists.
 
 ## 2. Read first: what v3.0 undoes in v2
 
@@ -2109,7 +2131,12 @@ holds a played note; file names gain `-favorites`. The comment never enters a fi
 title, intro, rows (session date, " · Last session" on the most recent, the detail line, the
 status line, the comment's first line), `Pin` / `Unpin`, `Delete`, the empty states; opening a
 row reads its body (`is-loading`, the latest press wins, `Close review` cancels); a row that
-cannot be read or was saved by a newer version shows its note. `sessions-link` ("All sessions") in
+cannot be read or was saved by a newer version shows its note. `review-link` whose read of the
+most recent kept session fails after a reload shows the list instead, that session's row in its
+failed-to-open state, focus on the list's title (kept-sessions design, `review-link` activation;
+spec D307). Until this chunk, that failure shows nothing and the link comes back enabled (chunk
+10b's interim; `controller.showReview` resolves `false` and `use-review-navigation.ts` stops).
+`sessions-link` ("All sessions") in
 the cue row, decided at load with the settings; `All sessions` in a review. Row summaries are
 read at load and kept current, so the list shows at once. The list ships with the review's code,
 loaded on demand. No row or count shows how well the player played. `Your data` in the header is
@@ -2117,8 +2144,12 @@ added by chunk 15.
 
 **Files:** `src/components/review/SessionList.vue` (new), `src/components/review/SessionRow.vue`
 (new), `src/components/workspace/use-kept-sessions.ts` (new: summaries in memory),
-`src/components/workspace/SessionCueRow.vue`, `src/components/review/load-review-panel.ts`; tests
-`tests/e2e/review/session-list.spec.ts`, `tests/unit/...session-row-text.spec.ts`.
+`src/components/workspace/SessionCueRow.vue`, `src/components/review/load-review-panel.ts`,
+`src/components/workspace/use-review-navigation.ts` (`review-link`'s failed read opens the list;
+spec D307); tests `tests/e2e/review/session-list.spec.ts`, `tests/unit/...session-row-text.spec.ts`.
+If the brief exceeds about five source files, split it: 14a, the list, its rows and the summaries
+in memory; 14b, the cue row's `sessions-link`, `All sessions` in a review and `review-link`'s
+failed read.
 
 **Spec sections:** [§5.4](master-spec.md#54-reaching-earlier-sessions).
 
@@ -2141,6 +2172,12 @@ cue row).
 - Each row opens its review; `All sessions` returns to that row; pin, unpin and delete behave as
   in the review; deleting the last row shows the empty state, focus on the title.
 - A row whose body read fails shows its note and keeps focus.
+- After a reload, `Review last session` whose body read fails (injected) shows the list, that
+  session's row with its failed-to-open note, focus on the list's title (spec D307).
+- After a reload, the list has no row for a session whose save was refused (injected `other` and
+  `quota` refusals) nor for one that ended with saving off (an outdated tab, a visit from the
+  defaults); `review-link` then opens the earlier kept session, or is absent when there is none
+  (spec D307).
 - Phone layout: every row keeps every line and both buttons.
 
 **Items covered:** 11, 6 (opening any kept session).
@@ -2596,8 +2633,20 @@ added to my instrument's validity rules in `src/domain/profile/my-instrument.ts`
 two-octave rule (a chunk-16 file, after chunk 19b's clef) and refused live in the sheet with the
 **Clef design** gate's wording in note names, checked again when the clef changes. The bound
 needs the clef, so it is checked where my instrument's domain value is built with its clef, never
-in the generator-facing profile the worker validates (chunk 17), which carries no clef; deleting
-returns to its template only when it was selected. The start-up read (`src/storage-bootstrap.ts`,
+in the generator-facing profile the worker validates (chunk 17), which carries no clef; so the
+worker's own derivation (`derivedMyInstrumentProfile` in
+`src/generation-worker/generation-worker-inbound.ts`, which calls `makeMyInstrument` with
+`clef: 'treble'` as a stand-in) must not apply the per-clef bound: a bass-clef my instrument
+written below C2 is valid and must still cross the worker (spec D306; the clef stays out of the
+worker's intent, chunk 17b). Deleting returns to its template only when it was selected.
+The Idle side carries my instrument whole (spec D306): Idle pre-generation takes its settings as
+Start does, with `sessionSettingsAtStart(…, phraseOne.intent)` in `startOf`
+(`src/components/workspace/workspace-pregeneration.ts`), so a pre-generated phrase is built with
+my instrument's profile; and Idle's written phrase carries my instrument's clef
+(`src/composables/use-notation-coordinator.ts`, `writtenPhraseOf`, today
+`BUILT_IN_INSTRUMENT_CLEF`), which Start then records in the history unchanged (chunk 17b), as do
+the session staff's two built-in clef stand-ins (`src/components/workspace/session-staff-fixed-parts.ts`
+and `held-layout-fit.ts`), so the running session's staff is drawn and fitted in that clef. The start-up read (`src/storage-bootstrap.ts`,
 chunk 7a) also reads the `instrument` store before the first draw, and the settings decode takes
 `myInstrumentLoaded` from that record (chunk 7a passes `false`, so until this chunk a saved
 selection of my instrument falls back). **Not in this chunk:** deleting my instrument
@@ -2614,9 +2663,16 @@ the Idle side's my-instrument paths (spec D305), which look the profile up by id
 (`src/composables/use-generation-session.ts`, `freshIntentFromControls`), the rhythm prewarm's
 intent (`src/composables/generation-session-prewarm.ts`), the connection sheet's profile
 (`src/components/workspace/WorkspaceShell.vue`, the `useControllerConnection` profile) and the
-instrument control's (`FoundationControls.vue`, above); tests `tests/e2e/storage/my-instrument.spec.ts`,
-unit tests for the sheet's model. If the brief exceeds about five source files, split the sheet
-(20b) from the record, the control and the Idle side (20a).
+instrument control's (`FoundationControls.vue`, above); Idle pre-generation's settings
+(`src/components/workspace/workspace-pregeneration.ts`, `startOf`) and the clef of Idle's and the
+session's written phrases (`src/composables/use-notation-coordinator.ts`,
+`src/components/workspace/session-staff-fixed-parts.ts`, `src/components/workspace/held-layout-fit.ts`;
+spec D306); the worker's derivation (`src/generation-worker/generation-worker-inbound.ts`,
+`derivedMyInstrumentProfile`, kept free of the clef bound; spec D306); tests
+`tests/e2e/storage/my-instrument.spec.ts`, unit tests for the sheet's model, the worker's tests
+under `tests/unit/generation-worker/`. If the brief exceeds about five source files, split the
+sheet (20b) from the record, the control and the Idle side (20a); the worker's derivation goes in
+the same half as the bound.
 
 **Spec sections:** [§7.1](master-spec.md#71-what-it-is), [§4.2](master-spec.md#42-what-is-saved-automatically), [§4.5](master-spec.md#45-keeping-the-data-safe-from-the-browser).
 
@@ -2626,8 +2682,10 @@ unit tests for the sheet's model. If the brief exceeds about five source files, 
 instrument control).
 
 **Atoms:** `req_my_instrument`, `rule_my_instrument_range_limits`, `rule_settings_saved_on_change`,
-`rule_persistent_storage_requested`, `rule_saved_settings_load_tolerantly`. **Part B1** follows
-the merge.
+`rule_persistent_storage_requested`, `rule_saved_settings_load_tolerantly`. **Part D / drift
+check** (spec D306): `entity_my_instrument` (its TECHNICAL INTERFACE: "the Idle side still refuses
+it" goes), `module_generation_worker_protocol` (the worker's derivation applies no clef bound).
+**Part B1** follows the merge.
 
 **Depends on:** chunks 1, 7, 17, 19, 19b and 24 (its re-check), the **Clef design** gate and
 `ux-writer`'s answer to ux Q76. The range ruling (spec D294) and spec O181 (D295, D296) are
@@ -2663,6 +2721,14 @@ settled.
 - With my instrument selected, the Idle phrase, the rhythm prewarm and the connection sheet use
   its profile as data, and a session plays with it to its review, which names it and draws its
   clef (chunks 10 and 17); nothing on the way looks its profile up by id.
+- With my instrument selected and phrases pre-generated at Idle, the pre-generation's settings
+  carry its profile (`sessionSettingsAtStart`), and a pre-generated phrase taken at Start lies in
+  its concert range (held-generation harness).
+- With my instrument in bass clef: Idle's phrase, the running session's staff and the history's
+  records are all in bass clef, and the review draws it, Start changing no clef on the way.
+- A bass-clef my instrument written below C2 (e.g. E1–E3) crosses the worker and generates; the
+  worker's check refuses a malformed profile as before and applies no clef bound (unit test
+  beside chunk 17a's).
 
 **Items covered:** 16 (survives a reload, deleting returns to its template), 1 (my instrument), 13.
 
@@ -3140,6 +3206,65 @@ merged, a kept session's played notes are filtered the same way.
 
 **Verification:** the chunk checks; hand check H5.
 
+### Chunk 27 — A session cut short by the page going away
+
+**Waits for** the owner's answer to [spec O201](../../open-questions.md#v30-wave-5-o200) (inserted
+in v14, spec D308; the scope below follows the proposed answer (a), and answer (b) shrinks it as
+noted). Needs a peek before it starts.
+
+**Goal.** Make what happens to a session cut short by reloading or closing the page
+deterministic and tested, as O201 rules.
+
+**Scope** (answer (a), keep §5.1). A page-leaving signal beside the page-visibility port: the
+`pagehide` event marks the page as going away for the rest of its life. The session's own save
+checks it after loading the codec and before each of its transactions (the keyed read, the
+batch) and, when it is set, stops with nothing read or written and resolves a new outcome
+(abandoned; the leader names it) that the end treats as the session held in memory: the keep line
+reads "Not saved on this device: export it to keep it." and the previous kept sessions stay. On a
+visible page `pagehide` fires before `visibilitychange`, in the same task, so a session ended by a
+reload or close never starts its save's first transaction; on a page already hidden (a session
+ended by a tab switch, then the tab closed), a save still running stops at its next step. A page
+the browser brings back from the back-forward cache shows that review as not saved. A tab or app
+switch never fires `pagehide`, so it still ends the session, opens its review and saves it. The
+settings flush at the end is unchanged. **Answer (b):** no listener; the scope is the test below
+and the spec wording, the outcome being whole by the batch's single transaction.
+
+**Files:** `src/session/session-browser-ports.ts` (the page-leaving port),
+`src/components/workspace/browser-page-visibility.ts` (its browser adapter beside the visibility
+one), `src/components/workspace/workspace-session-save.ts` and `src/storage/save-policy.ts` (the
+check before each step, the abandoned outcome), `src/components/workspace/workspace-session-ends.ts`
+(settling it as not saved), `create-workspace-session.ts` (wiring); tests under
+`tests/unit/storage/` and `tests/unit/components/workspace/`, `tests/e2e/storage/kept-session.spec.ts`.
+
+**Spec sections:** [§5.1](master-spec.md#51-which-sessions-are-kept), [§4.2](master-spec.md#42-what-is-saved-automatically) (settings changed during a session).
+
+**Design docs:** [`flows/kept-sessions/handoff.md`](../../../ui_ux/versions/v3.0/flows/kept-sessions/handoff.md)
+(Keeping at a Session's End), [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.0/screens/last-session-review/handoff.md)
+(`review-keep-line`, Not saved).
+
+**Atoms:** `rule_most_recent_session_kept`, `req_rolling_practice_session`,
+`rule_hidden_tab_ends_session`, `module_kept_session_save`, `module_save_policy`. **Part D:**
+`module_kept_session_save` and `module_save_policy` (the abandoned outcome); under (b),
+`req_rolling_practice_session` and `rule_most_recent_session_kept` take the amended wording.
+
+**Depends on:** chunk 10 and the O201 ruling.
+
+**Done when:**
+
+- (a) End to end: a session with a kept unpinned session seeded, the page reloaded after phrase 1
+  has sounded: after the reload no new kept session exists, the seeded one is still there and
+  `Review last session` opens it.
+- (a) Unit, on fake ports: `pagehide` then hidden ends the session and the save runs no
+  transaction; hidden first, then `pagehide` while the codec loads or between the read and the
+  batch, the save stops before its next transaction; either way the keep line reads "Not
+  saved…" and no notice shows. Hidden alone (a tab switch) saves as before.
+- (b) End to end: the same reload leaves either the new session kept and the seeded unpinned one
+  deleted, or neither, never one without the other.
+
+**Items covered:** 6.
+
+**Verification:** the chunk checks.
+
 ### Chunk 26 — v3.0 release gate
 
 **Goal.** Check the whole definition of done on the merged code, record every measurement and hand
@@ -3187,7 +3312,7 @@ verification. The gate copies this into the release notes with the final test na
 | 3 Tolerant loading | 6, 7 | property test over corruptions; e2e with a seeded invalid value |
 | 4 Storage in one place | 3, 9 | boundary unit tests and fixtures; `session-history-export` storage trap unchanged |
 | 5 Nothing sent | 11, 26 | privacy spy, network half, with storage in use |
-| 6 Most recent survives; save deletes unpinned, keeps pinned; sessions belong to their instrument | 10, 12, 14, 20c | e2e reload and second-session tests; e2e deleting my instrument with seeded sessions |
+| 6 Most recent survives; save deletes unpinned, keeps pinned; sessions belong to their instrument | 10, 12, 14, 20c, 27 | e2e reload and second-session tests; e2e deleting my instrument with seeded sessions; e2e reload mid-session (O201) |
 | 7 No save during a session | 5, 7, 10 | save-policy unit test; IndexedDB write spy across a session |
 | 8 Kept session holds only §5.2 | 9 | record allowlist test; byte-identical exports after decoding |
 | 9 Played notes only after opt-in | 11, 15 | privacy spy, storage half; deletion tests |

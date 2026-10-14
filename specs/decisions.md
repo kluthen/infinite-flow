@@ -1470,3 +1470,57 @@ chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the sessi
   (`src/components/controls/FoundationControls.vue`, already chunk 20's). Chunk 10 needs more
   than five source files after D303, so it gets a split rule too (10a the save, 10b the reach).
   Build plan v13.
+
+- **D306 (2026-10-14): chunk 20 carries my instrument whole on the Idle side, and the worker's
+  check stays free of the clef bound.** Settled by `spec-writer` under the owner's delegation of
+  minor technical calls, from chunk 17's records and the code on `v3.0-w5` (27a4da2). Three gaps
+  chunk 17 reported or that its code shows, each added to chunk 20's Files, Scope and "Done when":
+  - **Idle pre-generation's settings.** `startOf` in
+    `src/components/workspace/workspace-pregeneration.ts` builds them as
+    `{ controls, musicalProfile }`, without my instrument's profile; it uses
+    `sessionSettingsAtStart(…, phraseOne.intent)` as Start does, so a pre-generated phrase is
+    built with the profile the session plays.
+  - **The clef of the written phrase.** Idle's written phrase
+    (`src/composables/use-notation-coordinator.ts`, `writtenPhraseOf`) and the session staff's
+    (`session-staff-fixed-parts.ts`, `held-layout-fit.ts`) still use `BUILT_IN_INSTRUMENT_CLEF`;
+    they take my instrument's clef, which Start then records in the history unchanged (17b).
+  - **The worker's derivation.** `derivedMyInstrumentProfile`
+    (`src/generation-worker/generation-worker-inbound.ts`) rebuilds the profile with
+    `makeMyInstrument` and a stand-in `clef: 'treble'`. Once chunk 20 adds the per-clef bound
+    (D294) to my instrument's validity rules, the worker would refuse a valid bass-clef my
+    instrument written below C2. Passing the clef was rejected: it would put display data into
+    the worker's intent, which D293 and chunk 17b keep out. So the worker's derivation applies
+    every rule except the clef bound, which is checked where my instrument is built with its
+    clef (the sheet and the record's load).
+  Build plan v14.
+
+- **D307 (2026-10-14): a failed read behind `review-link` after a reload, and the test that a
+  session not saved is gone after a reload, both go to chunk 14.** Settled by `spec-writer`
+  under the owner's delegation of minor design issues. The kept-sessions design already defines
+  the path (`flows/kept-sessions/handoff.md`, `review-link` activation: "if it cannot be read,
+  the mode shows the list instead, that session's row in its failed-to-open state, focus on the
+  list's title"), so no `ux-writer` item is needed; it needs the list, which chunk 14 builds.
+  Until then (chunk 10b's interim) the failure shows nothing and the link comes back enabled:
+  accepted, since only a damaged body read fails there. No test yet checks that a session whose
+  save was refused, or that ended with saving off, is gone after a reload; the behaviour holds
+  by construction (a refused batch writes nothing; saving off writes nothing, which chunk 10's
+  write spy checks), so it is not a gate fix now. Chunk 14 adds both as "Done when" lines, the
+  list being the clearest witness, and gains a split rule (14a the list, 14b the links and the
+  failed read) since it now names six source files. Build plan v14.
+
+- **D308 (2026-10-14): a session cut short by reloading or closing the page: owner question
+  O201, and chunk 27 inserted for its fix.** Settled by `spec-writer` from the wave-5 sync's
+  drift report and the code on `v3.0-w5` (27a4da2). A reload or close of a visible page fires
+  `pagehide`, then `visibilitychange` to hidden (HTML "unload a document"; Chromium, Gecko and
+  WebKit alike, checked 2026-10-14); the hidden-tab watcher then ends the session and its save
+  starts. An unfinished IndexedDB transaction is aborted when the page goes, but a page kept in
+  the back-forward cache is only frozen and its save commits if the player returns; so whether
+  such a session is saved, deleting the previous unpinned one, is not determined, against §5.1's
+  "lost". The choice between keeping §5.1 (never saved, abandoned on `pagehide`) and amending it
+  (saved when the save completes, best effort) changes what the player keeps, so it goes to the
+  owner as [O201](open-questions.md#v30-wave-5-o200); proposed: keep §5.1. No later chunk owns
+  the session's end and save (`workspace-session-ends.ts`, `workspace-session-save.ts`, the end
+  watchers, the page-visibility port), so a small chunk 27 is inserted for the fix and its
+  end-to-end test, in wave 7: it depends only on chunk 10, and wave 6's chunk 11 may touch the
+  session's save for played notes, so wave 7 keeps them apart; no wave-7 chunk touches its files.
+  Build plan v14.
