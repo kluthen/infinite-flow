@@ -11,7 +11,6 @@ parents:
   - [[req_multi_phrase_tension_arc]]
 version: 0.2
 human_name: Multi-Phrase Tension Arc Four-Phrase Cycle
-notes: Revised 2026-10-08 to version 0.2 (previous version 0.1) with the explicit confirmation of the product owner, given on 2026-10-08 (spec D246), of contract change set part A (docs/release/v3.1-v3.2-intent-change-set.md, A14), together with the CONTRACT 3.0 MAJOR bump; stays STABLE. Wording only: phrase 1 may be generated at Idle or, in a Jam, after the doodle; the cycle still counts from phrase 1. Earlier: Status REVIEW to STABLE on 2026-10-07 with the product owner's approval, together with the matching CONTRACT 1.5 MINOR bump. Backed by the v2.0 gate tests linked to it, among them tests/unit/session/tension-arc-cycle.spec.ts (the group-of-four cycle, never past Settled or Edge), tests/unit/session/session-engine-tension-arc-generation.spec.ts (the cycle around a mutated tension arc, and same seeds giving the same session with the flag alone, added in 4dbf0e2) and tests/e2e/session/session-tension-across-phrases.spec.ts (the Tension control keeps showing the choice).
 ---
 
 # Multi-Phrase Tension Arc Four-Phrase Cycle

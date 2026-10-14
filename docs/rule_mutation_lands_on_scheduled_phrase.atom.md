@@ -14,7 +14,6 @@ human_name: Each Mutation Lands on Its Scheduled Phrase
 parents:
   - [[req_settings_mutation_flag]]
   - [[rule_session_change_applies_at_phrase_boundary]]
-notes: Captured 2026-10-03 before code in v2 chunk 24 (pre-code capture) from the coding leader plan, settled by the coding leader within the settings-mutation requirement.
 ---
 
 # Each Mutation Lands on Its Scheduled Phrase

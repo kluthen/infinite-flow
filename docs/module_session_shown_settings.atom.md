@@ -11,7 +11,6 @@ parents:
 dependents: []
 type: MODULE
 tags: workspace,session,settings-mutation
-notes: Revised 2026-10-13 to version 0.2 (previous version 0.1) before code, by the pre-code architecture capture for v3.0 build plan v9 chunk 24b, on the product owner rulings recorded as spec D297 (master spec Part A v1.12, section 16); stays REVIEW. During the count-in and phrase 1 the read-only controls show phrase 1's own settings, carried by the session start, then the settings of the phrase now sounding from phrase 2: after a stale phrase 1 is used, the session's settings. No longer assumes phrase 1 was generated under the session's start settings. Pending implementation: chunk 24b-2. Earlier: Split out on 2026-10-05 from service_workspace_session_flow (version 1.6) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 layer: ARCHITECTURE
 version: 0.2
 priority: 1

@@ -22,7 +22,6 @@ parents:
   - [[rule_session_end_generates_next_phrase_one]]
   - [[rule_session_ends_when_staff_too_small]]
   - [[rule_session_layout_fixed_at_start]]
-notes: Split on 2026-10-05 during documentation debt paydown (previous version 0.5): refill, fit, engraving outcomes, and overlays and assistive text moved unchanged in meaning into child atoms; this atom keeps the placement plan and the playhead and indexes its children. Status stays DRAFT. Earlier: Revised 2026-10-05 in v2 chunk 25 (previous version 0.4): whether a phrase is on screen is the engine's display reading, and a discarded look-ahead phrase is taken back and readied again. Earlier: revised 2026-10-03 before code in v2 chunk 27 (previous version 0.3, pre-code architecture capture) for adaptive tempo: the playhead maps heard time to a measure through the transport tempo map, each phrase at its own tempo. Completed 2026-10-03 in the v2 chunk 27 post-task sync, as built: the playhead keeps its own per-phrase tempo map anchored at the transport's phraseStartsAt, fed by phraseTempo(n, tempo); playheadAt(heardTime, map). Status stays DRAFT.
 ---
 
 # Session Rolling Display

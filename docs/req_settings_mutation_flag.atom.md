@@ -29,7 +29,6 @@ parents:
   - [[req_rolling_practice_session]]
 type: REQUIREMENT
 priority: 1
-notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): eligible settings are only those of the allowed groups the player keeps on, the Rhythm group being ineligible under the rhythm lock, and the option needs a legal move (rule_vary_settings_allowed_groups, rule_vary_settings_needs_legal_move). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md. Earlier: v3.0 change pending (2026-10-07, v3.0 spec ingestion): the approved v3.0 scope, not yet built, changes this atom. From v3.0 the flag is saved: it starts off on a first visit and otherwise comes back as the player left it (rule_settings_saved_on_change); its start-off clause then reads as the default. Text and status unchanged on purpose: it still describes the running v2.0 code. Revise it in the change that builds the v3.0 behaviour, per docs/release/v3.0-intent-change-set.md.
 ---
 
 # Settings-Mutation Flag

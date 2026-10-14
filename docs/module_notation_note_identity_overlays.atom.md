@@ -14,7 +14,6 @@ parents:
   - [[rule_expected_note_window]]
   - [[rule_no_grading_or_mismatch_signal]]
   - [[rule_starting_note_named]]
-notes: 2026-10-05: start-marker wording made direction-neutral after the ISS-006 stem-direction fix (the beam on its stem, not over it); code and tests checked against the text and promoted DRAFT to REVIEW under the owner's 2026-10-05 allowance.
 ---
 
 # Notation Note Identity and Score Overlays

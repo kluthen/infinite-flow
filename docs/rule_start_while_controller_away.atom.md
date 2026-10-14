@@ -12,7 +12,6 @@ layer: BUSINESS
 tags: [v2, release-v2.0, midi, session-start]
 parents:
   - [[rule_same_controller_reattaches]]
-notes: Status REVIEW to STABLE on 2026-10-07 with the product owner's approval, together with the matching CONTRACT 1.5 MINOR bump. Backed by the v2.0 gate tests linked to it, among them tests/e2e/session/session-midi-controller-away.spec.ts (a controller-less session the device never joins, count-in included, reattaching once it ends) and tests/e2e/session/session-midi-controller-loss.spec.ts (a controller lost and still away at the end, by the 30-second rule or by Stop, keeps its selection into the Review and reattaches there; added in eab0519).
 ---
 
 # Starting While the Selected Controller Is Away

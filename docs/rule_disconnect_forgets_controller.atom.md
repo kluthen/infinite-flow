@@ -6,7 +6,6 @@ tags: [v2, release-v2.0, midi]
 parents:
   - [[rule_controller_connects_between_sessions]]
 priority: 1
-notes: Recorded 2026-10-05 from the v2 controller connection as built (MidiController disconnect and the connection sheet's Disconnect action). The text was proposed in a documentalist report and approved by the product owner on 2026-10-05.
 dependents: []
 type: RULE
 layer: BUSINESS

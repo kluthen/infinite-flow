@@ -10,7 +10,6 @@ human_name: Pitch Search Context
 version: 0.3
 type: MODULE
 layer: ARCHITECTURE
-notes: Revised 2026-10-07 in the CONTRACT 1.8 post-task sync (previous version 0.2): the technical interface no longer claims the module holds no state across calls; it now states the per-request weak-map memo added for the ISS-009 speed-up (leader-confirmed as intended, output byte-identical). Status unchanged.
 ---
 
 # Pitch Search Context

@@ -1,7 +1,6 @@
 ---
 id: service_session_midi
 status: DRAFT
-notes: Split out on 2026-10-05 from service_workspace_session_flow (version 1.6) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 dependents: []
 priority: 1
 human_name: Session MIDI Side

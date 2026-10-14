@@ -10,7 +10,6 @@ parents:
   - [[module_phrase_replay_key]]
   - [[rule_seeded_phrase_reproduction]]
   - [[service_generation_orchestration]]
-notes: Captured 2026-10-01 before code (branch replay-key, pre-code architecture capture). Owner decisions, recorded as rationale - the key excludes the app version and commit, so a later generator change may replay a key differently, which is accepted; the key is a debugging basis for the generator.
 type: SERVICE
 tags: generation,replay,seed,debugging,cli
 dependents: []

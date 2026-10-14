@@ -12,7 +12,6 @@ parents:
   - [[service_workspace_session_flow]]
 dependents: []
 human_name: Vary-Settings Flag
-notes: Split out on 2026-10-05 from service_workspace_session_flow (version 1.6) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 ---
 
 # Vary-Settings Flag

@@ -14,7 +14,6 @@ dependents:
   - [[service_session_history]]
   - [[specification_browser_only_operation_verification]]
 type: RULE
-notes: v3.0 change pending (2026-10-07, v3.0 spec ingestion): the approved v3.0 scope, not yet built, changes this atom. Its never-stored half no longer holds from v3.0: kept sessions, favorites, comments, settings and, after opt-in, played notes are written to the device's store (req_on_device_storage, rule_kept_session_content, rule_played_notes_kept_only_after_opt_in); acknowledgements are still never stored (rule_kept_session_holds_no_acknowledgements). Its never-sent half, and exports as the only way out, stay unchanged. Text and status unchanged on purpose: it still describes the running v2.0 code. Revise it in the change that builds the v3.0 behaviour, per docs/release/v3.0-intent-change-set.md.
 ---
 
 # Session Data Never Sent or Stored

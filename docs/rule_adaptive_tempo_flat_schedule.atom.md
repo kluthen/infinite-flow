@@ -12,7 +12,6 @@ parents:
 dependents:
   - [[module_session_adaptive_tempo_schedule]]
   - [[service_session_engine]]
-notes: Status REVIEW to STABLE on 2026-10-07 with the product owner's approval, together with the matching CONTRACT 1.5 MINOR bump. Backed by the v2.0 gate tests linked to it, among them tests/unit/session/session-engine-adaptive-tempo.spec.ts (5 BPM every two phrases up to 240 BPM, no count while the controller is away, and, added in 4dbf0e2, never lowering the tempo over seeded sessions) and tests/unit/components/workspace/workspace-session-controller-adaptive-tempo.spec.ts (the same whether or not the player plays).
 ---
 
 # Adaptive Tempo Flat Schedule

@@ -2,7 +2,6 @@
 id: module_review_export_pipeline
 status: REVIEW
 tags: review,export,session-history,privacy
-notes: Added 2026-10-05 during documentation debt paydown, after code (v2 chunks 18 to 23): the architecture of the export path from the session history through the last-session Review to a browser download, which had business atoms and code but no architecture atom. DRAFT pending review.
 type: MODULE
 priority: 1
 parents:

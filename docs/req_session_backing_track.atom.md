@@ -12,7 +12,6 @@ tags: [v2, release-v2.0, session, audio]
 dependents:
   - [[module_session_phrase_steps]]
   - [[module_session_transport_tempo_map]]
-notes: Recorded 2026-09-30 in v2 chunk 11 (backing). Revised 2026-10-05 (previous version 0.1) on the product owner answer to O57 (spec D185), who accepted the backing as chunk 11 built it after listening to it in sessions - the bass register, the fifth on beats 3 and 4 of a measure under one chord in the same band as the root, the highest close-position triad at or below E4 attacked on each chord change and downbeat and never on beat 3, and voices synthesized from simple oscillators. The four readings chunk 11 left awaiting acceptance and the placeholder register are settled by that answer. The audio mix levels are a separate open question (ux Q31). Since v2 chunk 15 the backing plays in the running session, no longer only in the workspace harness.
 ---
 
 # Session Backing Track

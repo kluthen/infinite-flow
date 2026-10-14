@@ -14,7 +14,6 @@ dependents:
 priority: 1
 human_name: Played Notes MIDI Export
 tags: [v2, release-v2.0, part-v2.1, export, midi, changes-in-v3.0, changes-in-v3.2]
-notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): in a Jam the raw doodle notes, played before phrase 1, are exported in their own doodle section (rule_jam_exports_open_with_doodle). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md. Earlier: v3.0 change pending (2026-10-07, v3.0 spec ingestion): the approved v3.0 scope, not yet built, changes this atom. From v3.0 the file leaves very short stray notes out by default, with an option to include them (rule_played_notes_export_omits_stray_notes), and may cover only the favorite phrases (rule_favorites_only_export). Text and status unchanged on purpose: it still describes the running v2.0 code. Revise it in the change that builds the v3.0 behaviour, per docs/release/v3.0-intent-change-set.md.
 ---
 
 # Played Notes MIDI Export

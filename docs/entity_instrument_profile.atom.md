@@ -13,7 +13,6 @@ parents:
   - [[rule_instrument_profile_range]]
 human_name: Instrument Profile
 priority: 1
-notes: Revised 2026-10-11 at the v3.0 chunk 16 architecture capture to scope the no-new-enumeration-member clause to the built-in presets: my instrument, id my-instrument, is the one non-built-in member, carried as data (entity_my_instrument). Status unchanged. Earlier: revised 2026-10-01 in v2 chunk 13 (controller connection) to add the controller-transposition check to the transposition's consumers.
 ---
 
 # Instrument Profile

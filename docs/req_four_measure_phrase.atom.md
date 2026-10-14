@@ -43,7 +43,6 @@ version: 0.2
 parents: []
 human_name: Four-Measure Musical Proposal
 priority: 1
-notes: Revised 2026-09-29 by v2 spec ingestion for release v2.0 (previous version 0.1). The first-release exclusions of accompaniment, autonomous continuous generation and a rolling session are lifted (v2 adds sessions with a backing track); the phrase stays the unit of generation, and lead-line playback and performance scoring stay excluded. Intent and interface unchanged. The code still meets this version for Idle behaviour; sessions are not yet built. Same-day refinement: a session phrase is no longer called self-contained, since a phrase generated with carry-in may end owing a leap recovery or a tense note resolution for the next phrase to settle.
 ---
 
 # Four-Measure Musical Proposal

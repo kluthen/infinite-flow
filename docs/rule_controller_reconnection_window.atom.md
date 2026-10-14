@@ -12,7 +12,6 @@ parents:
   - [[rule_controller_loss_mid_session]]
 layer: BUSINESS
 human_name: 30-Second Controller Reconnection Window
-notes: Revised 2026-10-08 to version 0.2 (previous version 0.1) with the explicit confirmation of the product owner, given on 2026-10-08 (spec D246), of contract change set part A (docs/release/v3.1-v3.2-intent-change-set.md, A10), together with the CONTRACT 3.0 MAJOR bump; stays STABLE. The 30-second window does not apply to a controller lost in a Jam started without a held doodle between the start of its count-in and its phrase 1. Earlier: Text unchanged. The product owner accepted on 2026-10-05 (spec D184) the silence timer as v2 chunk 17 built it, which this rule already states - the starting note arms it as the first played note, and after a reattachment it counts again from the reconnection once a played note has armed it.
 ---
 
 # 30-Second Controller Reconnection Window

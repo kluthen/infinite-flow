@@ -4,7 +4,6 @@ status: DRAFT
 type: RULE
 layer: BUSINESS
 tags: [v3, release-v3.0, storage, favorites]
-notes: Revised 2026-10-12 to version 0.3 (previous version 0.2) on the owner's rulings of 2026-10-12, spec D295 and D296, master spec Part A v1.10 (sections 5.1 and 6), relayed to documentalist: the session and its favorites also go when the player deletes the my instrument it was played with or saves a change to that instrument's range or transposition, each after a warning; a favorite goes only with its session. Status unchanged (DRAFT). Earlier: Revised 2026-10-07 to version 0.2 (still DRAFT) by the re-sync to the v3.0 master spec v1.3, approved by the product owner: removing a session's last favorite never unpins it. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 dependents:
   - [[rule_new_session_never_asks_about_favorites]]
 version: 0.3

@@ -7,7 +7,6 @@ priority: 1
 parents:
   - [[req_kept_sessions]]
   - [[req_midi_controller_input]]
-notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): a Jam's quantized doodle is a generation input, not played notes, and is kept with its session without the opt-in; the doodle's raw notes follow this switch (rule_quantized_doodle_is_generation_input, rule_raw_doodle_notes_are_played_notes). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md. Earlier: Revised 2026-10-07 to version 0.2 (still DRAFT) by the re-sync to the v3.0 master spec v1.3, approved by the product owner: switching Keep my played notes on while reviewing the session that just ended keeps that session's played notes too. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 dependents:
   - [[entity_kept_session_record]]
   - [[rule_kept_played_notes_deletable]]

@@ -10,7 +10,6 @@ dependents: []
 type: RULE
 layer: BUSINESS
 human_name: Transposition Check Can Set My Instrument
-notes: Revised 2026-10-12 to version 0.3 (previous version 0.2) on the owner's rulings of 2026-10-12, spec D295 and D296, master spec Part A v1.10 (sections 5.1, 7.2 and 12, item 17) and ux D286, relayed to documentalist: when My instrument has kept sessions, the check's one confirmation warns that changing the transposition erases them, with their count, its action reading Use and erase; no warning when there are none. Status unchanged (DRAFT). Earlier: Revised 2026-10-07 to version 0.2 (still DRAFT) by the re-sync to the v3.0 master spec v1.3, approved by the product owner: the offset found maps to the named interval, octaves included, and My instrument's written range is kept. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 version: 0.3
 ---
 

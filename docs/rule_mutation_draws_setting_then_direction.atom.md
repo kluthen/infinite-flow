@@ -9,7 +9,6 @@ tags: [v2, release-v2.0, part-v2.1, session, player-controls, changes-in-v3.1, c
 parents:
   - [[req_settings_mutation_flag]]
 type: RULE
-notes: v3.1 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): the figures take the musical profile's one place in the draw, which then picks setting, figure, then direction (rule_vary_settings_figure_step). v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): only settings of allowed and eligible groups are drawn; the Rhythm group is ineligible under the rhythm lock (rule_vary_settings_allowed_groups). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md. Earlier: Captured 2026-10-03 before code in v2 chunk 24 (pre-code capture) from the coding leader plan, settled by the coding leader within the settings-mutation requirement.
 dependents:
   - [[module_settings_mutation]]
 ---

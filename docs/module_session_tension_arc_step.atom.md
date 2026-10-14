@@ -12,7 +12,6 @@ layer: ARCHITECTURE
 version: 0.1
 priority: 1
 human_name: Session Tension Arc Step
-notes: Split out on 2026-10-05 from service_session_engine (version 0.5) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 ---
 
 # Session Tension Arc Step

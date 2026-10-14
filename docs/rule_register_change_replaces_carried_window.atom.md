@@ -6,7 +6,6 @@ parents:
   - [[rule_join_carry_in_limited]]
   - [[rule_session_change_applies_at_phrase_boundary]]
   - [[rule_varying_register_once_per_session]]
-notes: Captured 2026-10-03 before code in v2 chunk 24 (pre-code capture) from the coding leader plan. The standalone phrase it falls back to is the failure ladder standalone shape.
 layer: BUSINESS
 version: 0.1
 dependents:

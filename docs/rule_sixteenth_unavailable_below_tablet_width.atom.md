@@ -11,7 +11,6 @@ dependents:
   - [[rule_generated_density_follows_window_width]]
 parents:
   - [[user_story_controlled_phrase_generation]]
-notes: v3.0 change pending (2026-10-07, v3.0 spec ingestion): the approved v3.0 scope, not yet built, changes this atom. Its clause that no setting survives a page reload no longer holds from v3.0: a chosen Sixteenth is saved and reloads as Sixteenth even below the tablet-landscape width (rule_saved_setting_is_players_choice). Text and status unchanged on purpose: it still describes the running v2.0 code. Revise it in the change that builds the v3.0 behaviour, per docs/release/v3.0-intent-change-set.md.
 ---
 
 # Sixteenth Density Unavailable Below Tablet-Landscape Width

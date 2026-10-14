@@ -5,7 +5,6 @@ layer: ARCHITECTURE
 version: 0.2
 priority: 1
 tags: [v2, release-v2.0, part-v2.1, session, player-controls]
-notes: Revised 2026-10-12 at the v3.0 wave-1 post-task sync (previous version 0.1) for build plan chunk 23's session seed plan (module_session_seed_plan, merge aee776c): the mutation seed the module takes is the plan's settings-mutation seed, derived from the session seed; the module itself is unchanged and draws no seed. Status unchanged; no status advanced. Earlier: Captured 2026-10-03 before code in v2 chunk 24 (pre-code architecture capture) from the coding leader plan. The scales it encodes for tonal center, collection, contour, register and musical profile, and the profile customized marking, were proposed by the coding leader and accepted by the owner on 2026-10-03 (D181). Aligned with the code in the same chunk post-task sync: the scale table in its own file, the mutation and gap drawn from indexed streams of (seed, k), the mutation context, the landing-phrase helpers and the refusals. Status stays DRAFT.
 dependents:
   - [[module_session_mutation_step]]
   - [[service_session_engine]]

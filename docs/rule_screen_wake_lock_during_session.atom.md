@@ -12,7 +12,6 @@ dependents:
 layer: BUSINESS
 version: 0.2
 priority: 1
-notes: Status REVIEW to STABLE on 2026-10-06 - the product owner accepted the version 0.2 wording (a wake lock the browser drops mid-session is asked for again, silently, and a refused re-ask is not repeated; spec D187) together with the matching CONTRACT 1.4 MINOR bump.
 ---
 
 # Screen Stays Awake During a Session

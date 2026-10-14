@@ -10,7 +10,6 @@ parents:
   - [[module_session_rolling_display]]
   - [[rule_acknowledgement_highlights_expected_note_only]]
   - [[rule_playhead_follows_audio_clock]]
-notes: Split out on 2026-10-05 from module_session_rolling_display (version 0.5) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 layer: ARCHITECTURE
 version: 0.1
 ---

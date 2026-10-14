@@ -6,7 +6,6 @@ tags: [v2, release-v2.0, part-v2.1, session, player-controls]
 parents:
   - [[req_settings_mutation_flag]]
   - [[rule_profile_control_customization]]
-notes: Revised 2026-10-08 to version 0.3 (previous version 0.2) with the explicit confirmation of the product owner, given on 2026-10-08 (spec D246), of contract change set part A (docs/release/v3.1-v3.2-intent-change-set.md, A2), together with the CONTRACT 3.0 MAJOR bump; stays STABLE. The customized mark now covers every value the current selection holds (the musical profile, or from v3.1 the preset), not only the seven profile-controlled settings, so from v3.1 a mutation of Tension, Leapiness, Arpeggio chaos or a figure level marks Custom; the key and the mode never mark it. Earlier: Captured 2026-10-03 before code in v2 chunk 24 (pre-code capture) from the coding leader plan. Proposed by the coding leader and accepted by the owner on 2026-10-03 (D181).
 layer: BUSINESS
 human_name: Mutating a Value the Selection Holds Marks It Customized
 dependents:

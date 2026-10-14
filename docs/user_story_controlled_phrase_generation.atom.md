@@ -33,7 +33,6 @@ dependents:
   - [[service_idle_generation_session]]
   - [[service_workspace_session_flow]]
   - [[specification_behavioral_quality_gates]]
-notes: v3.1 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): the choice between the neutral and jazz profile presets becomes a preset selector over eight built-in presets and the player's own, and the player also sets seven embellishment figure levels; the first-load selection is the Neutral preset (req_presets, req_embellishment_figure_levels). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Controlled Phrase Generation

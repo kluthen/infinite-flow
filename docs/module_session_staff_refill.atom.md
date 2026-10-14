@@ -10,7 +10,6 @@ parents:
   - [[rule_phrase_one_is_idle_phrase]]
 layer: ARCHITECTURE
 version: 0.1
-notes: Split out on 2026-10-05 from module_session_rolling_display (version 0.5) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 dependents: []
 type: MODULE
 ---

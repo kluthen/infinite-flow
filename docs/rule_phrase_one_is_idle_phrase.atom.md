@@ -15,7 +15,6 @@ dependents:
   - [[rule_stale_phrase_prompt_at_start]]
   - [[service_session_engine]]
   - [[service_workspace_session_flow]]
-notes: Revised 2026-10-13 to version 0.4 (previous version 0.3) before code, on the product owner rulings recorded as spec D297 (master spec Part A v1.12, section 16; v3.0 build plan v9, chunk 24b); stays REVIEW. One clarifying sentence, adding no meaning: the rule holds when a stale phrase 1 is used as it is (rule_stale_phrase_prompt_at_start), phrase 1 still being the phrase on screen, unchanged. The pending v3.2 change below is untouched. Earlier: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): in a Jam without a held doodle the session generates phrase 1 itself after the doodle; with a held doodle phrase 1 is generated at Idle from it (rule_two_measures_before_jam_phrase_one, rule_held_doodle_phrase_one_at_idle). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Phrase on Screen Becomes Phrase 1

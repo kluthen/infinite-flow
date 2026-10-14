@@ -13,7 +13,6 @@ version: 0.1
 priority: 1
 human_name: First Phrase Waits for Saved Settings
 tags: [v3, release-v3.0, storage, player-controls]
-notes: Synced 2026-10-14 at the v3.0 wave-3 post-task sync, same version 0.1: build plan chunk 5's save policy (merge 9f01f7f; module_save_policy, src/storage/save-policy.ts and save-policy-requests.ts) builds the storage half of saving nothing after a failed or slow read: the saving state off-unreadable, entered by stopSavingUnreadable or when the port could not be opened, skips every write and delete for the visit. The start-up wait itself is the settings wiring's. Links and linked tests (save-policy.spec.ts, save-policy-your-data.spec.ts) checked and right. Built in storage and not wired yet: no app code uses the policy until build plan chunk 7, so the running app does not yet behave so. Text and status unchanged (DRAFT). Earlier: Created 2026-10-07 at DRAFT by the re-sync to the v3.0 master spec v1.3, approved by the product owner. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 ---
 
 # First Phrase Waits for Saved Settings

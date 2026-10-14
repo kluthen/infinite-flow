@@ -1,7 +1,6 @@
 ---
 id: rule_jam_starting_note_is_home_note
 status: DRAFT
-notes: Created 2026-10-08 at DRAFT by the v3.1 and v3.2 spec ingestion, from the v3.2 master spec the product owner approved on 2026-10-08. Describes intended v3.2 behaviour: nothing of it is built yet. It falls within the vision since version 0.8 (2026-10-08, spec D246). Revised the same day (version 0.1 to 0.2) after the spec settled that the home note does not start the silence timer (rule_jam_silence_timer_from_phrase_one).
 parents:
   - [[req_jam]]
 dependents: []

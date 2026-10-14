@@ -10,7 +10,6 @@ tags: generation
 parents:
   - [[entity_concert_event_timeline]]
 dependents: []
-notes: Revised 2026-10-08 (version 0.2 to 0.3) as a precision fix found by the v3.1 and v3.2 spec ingestion: the rhythm tie-key batch visits candidate identities in UTF-16 code-unit order, not a lexicographic order, the order adopted after the locale-dependent candidate order issue (src/domain/generation/orchestration/rhythm-tie-key-batch.ts, buildRhythmTieKeyPlan). The ranked result is unchanged; status unchanged. Pending for v3.2: the doodle distance order, the rhythm lock order and the forced bend order prefer rhythm candidates, so the no-preference wording must change when v3.2 is built.
 ---
 
 # Ranked Candidate Ordering

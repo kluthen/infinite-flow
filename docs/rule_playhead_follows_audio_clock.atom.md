@@ -14,7 +14,6 @@ human_name: Playhead Follows the Audio Clock
 parents:
   - [[req_rolling_practice_session]]
 type: RULE
-notes: Revised 2026-10-05 (previous version 0.2) for spec D183 - v2 ships as one release, v2.0, and the real-hardware check this atom names is part of its single release gate rather than of a later release; the check itself is unchanged.
 ---
 
 # Playhead Follows the Audio Clock

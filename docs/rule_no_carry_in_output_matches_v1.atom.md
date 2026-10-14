@@ -12,7 +12,6 @@ parents:
   - [[rule_join_carry_in_limited]]
   - [[rule_seeded_phrase_reproduction]]
 layer: BUSINESS
-notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): a phrase generated with a doodle or a locked rhythm is not a first-release phrase even without carry-in, and a held doodle's phrase 1 at Idle has a join (rule_jam_and_lock_off_reproduce_earlier_phrases). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Generation Without Carry-In Matches the First Release

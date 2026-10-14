@@ -8,7 +8,6 @@ dependents: []
 type: MODULE
 version: 0.1
 human_name: Notation Engraving Measure Anchors
-notes: Captured 2026-10-04 before code in v2 chunk 23 (pre-code architecture capture), for the review played-notes lane.
 layer: ARCHITECTURE
 priority: 1
 ---

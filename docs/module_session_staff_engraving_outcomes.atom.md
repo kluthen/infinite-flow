@@ -13,7 +13,6 @@ parents:
   - [[rule_count_in_ending_returns_to_idle]]
   - [[rule_session_end_generates_next_phrase_one]]
   - [[rule_session_ends_when_staff_too_small]]
-notes: Split out on 2026-10-05 from module_session_rolling_display (version 0.5) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 ---
 
 # Session Staff Engraving Outcomes

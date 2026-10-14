@@ -4,7 +4,6 @@ status: REVIEW
 type: MODULE
 human_name: Notation Stem Direction
 tags: notation
-notes: Synced 2026-10-13 at the v3.0 wave-2 post-task sync, same version 0.2: chunk 19b's code (d6928ec, merge 39cd2a5) reads the middle line of the phrase's clef, B4 in treble clef and D3 in bass clef (noteStemDirection and beamGroupStemDirection in src/domain/notation/stem-direction.ts take the clef), with linked tests (written-phrase-stems.spec.ts); the text matches. The pending note below is done; status stays REVIEW. Earlier: Revised 2026-10-12 to version 0.2 (previous version 0.1) on the owner's ruling D293 (master spec Part A v1.9, sections 7.1 and 11), before code, for v3.0 build plan chunk 19b; stays REVIEW, as the owner agreed the change. The middle line is now the clef's own: B4 in treble clef, D3 in bass clef (my instrument's choice); the rule is otherwise unchanged. Pending implementation: until chunk 19b's code lands the stem rule reads B4 for every phrase, which agrees with this text while no my instrument can choose bass clef. Chunk 19b's post-task sync checks the code against this text. Earlier: Captured 2026-10-05 before code (pre-code architecture capture). Implemented by the ISS-006 fix (39ac8ed, merged aee62af); code and tests checked against the text and promoted DRAFT to REVIEW the same day under the owner's 2026-10-05 allowance.
 layer: ARCHITECTURE
 parents:
   - [[rule_notation_display_preserves_phrase]]

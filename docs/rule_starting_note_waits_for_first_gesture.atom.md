@@ -7,7 +7,6 @@ human_name: Starting Note Waits for the Page's First Gesture
 parents:
   - [[rule_audio_unlocked_by_player_click]]
   - [[rule_last_controller_remembered]]
-notes: Created 2026-10-07 at DRAFT by the re-sync to the v3.0 master spec v1.3, approved by the product owner. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 dependents: []
 type: RULE
 version: 0.1

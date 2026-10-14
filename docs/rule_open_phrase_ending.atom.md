@@ -12,7 +12,6 @@ parents:
 dependents:
   - [[module_harmony_candidate_domain]]
   - [[rule_join_tense_note_resolution]]
-notes: Revised 2026-09-29 for v2 sessions (previous version 0.1). Version 0.2 lets a phrase generated with carry-in end on a tense note that the next phrase generated with that carry-in resolves on its first note, the tense note staying unresolved when no such phrase follows; the owner approved that text on 2026-09-29. Version 0.3 applies the owner's approval of the same date to widen the intent from every first-release phrase to every generated phrase, matching the expectation. Status stays DRAFT.
 ---
 
 # Open Phrase Ending

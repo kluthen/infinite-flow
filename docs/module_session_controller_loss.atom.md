@@ -11,7 +11,6 @@ parents:
   - [[rule_controller_reconnection_window]]
   - [[service_workspace_session_flow]]
 tags: workspace,session,midi
-notes: Split out on 2026-10-05 from service_workspace_session_flow (version 1.6) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 dependents: []
 ---
 

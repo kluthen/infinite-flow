@@ -15,7 +15,6 @@ human_name: Instrument Profile Range
 layer: BUSINESS
 parents:
   - [[req_four_measure_phrase]]
-notes: Revised 2026-10-05 (previous version 0.2). The used-only-by clause on the instrument transposition now names every v2 use of it, the conversion between written and concert pitch in the controller transposition check, the starting note and the MusicXML export added to the notation and the tonal-center conversion; proposed in v2 chunk 13 and accepted by the product owner (spec D186). The guarantee itself is unchanged.
 ---
 
 # Instrument Profile Range

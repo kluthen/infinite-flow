@@ -5,7 +5,6 @@ layer: BUSINESS
 version: 0.1
 priority: 1
 human_name: The Doodle Only Orders the Generator's Choices
-notes: Created 2026-10-08 at DRAFT by the v3.1 and v3.2 spec ingestion, from the v3.2 master spec the product owner approved on 2026-10-08. Describes intended v3.2 behaviour: nothing of it is built yet. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 dependents: []
 type: RULE
 tags: [v3, release-v3.2, session, jam, generation]

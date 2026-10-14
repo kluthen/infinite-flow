@@ -17,7 +17,6 @@ parents:
   - [[service_session_engine]]
 dependents:
   - [[module_kept_session_codec]]
-notes: Synced 2026-10-14 at the v3.0 wave-3 post-task sync, same version 0.4, technical interface only: build plan chunk 9 (merge fcabf7f) declared ReviewedPhrase and ReviewedOutcome in src/session/session-history.ts, which SessionHistoryRecord extends, and narrowed the export adapters to them, a type-only change; behaviour unchanged, the history still storage-free (its storage trap test green). Its in-memory-only wording still holds: the kept-session codec is built in storage but nothing saves a session until build plan chunk 10. Status unchanged (REVIEW). Earlier: Revised 2026-10-12 at the v3.0 wave-1 post-task sync (previous version 0.3) for build plan chunk 23's session seed plan (module_session_seed_plan, merge aee776c): the history holds the session seed among the session's own facts (spec D255), given at creation, with nothing derived from it. Status unchanged; no status advanced. Earlier: Revised 2026-10-03 before code in v2 chunk 27 (previous version 0.2, pre-code architecture capture) for adaptive tempo: each record takes its tempo from its phrase-sounding output instead of the locked settings, and the tempo the session reached is the last recorded phrase tempo. Completed 2026-10-03 in the v2 chunk 27 post-task sync, as built: tempoReached() and the refusal of a phrase-sounding output at an unusable tempo. Status stays DRAFT.
 ---
 
 # Session History

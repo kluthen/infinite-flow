@@ -13,7 +13,6 @@ parents:
   - [[rule_staff_notice_gives_way_to_new_phrase]]
   - [[rule_too_dense_notice_retry_rounds]]
   - [[rule_unsupported_rhythm_gives_way_to_no_phrase]]
-notes: Split out on 2026-10-05 from module_idle_fit_round (version 0.4) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 version: 0.1
 human_name: Idle Room Notice
 dependents: []

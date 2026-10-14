@@ -12,7 +12,6 @@ priority: 1
 tags: generation
 parents:
   - [[entity_concert_event_timeline]]
-notes: Synced 2026-10-07 after the code landed (post-task sync): the code matches the revised text; status DRAFT to REVIEW, its status before the revision, now that the code and its linked tests have landed. Earlier: Revised 2026-10-07 before code (previous version 0.5, pre-code architecture capture) for rule_dropped_attempt_cancelled: the one-response-per-generate-request promise holds unless the client terminates the worker to cancel a request; the message envelope is unchanged. Status REVIEW to DRAFT until the code lands. Earlier: Revised 2026-10-03 before code in v2 chunk 24 (pre-code architecture capture) for the settings-mutation engine (previous version 0.4). A carry-in with a null final harmony is accepted and round-trips. Status stays DRAFT.
 ---
 
 # Generation Worker Protocol

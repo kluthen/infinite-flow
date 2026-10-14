@@ -2,7 +2,6 @@
 id: module_save_policy
 status: REVIEW
 priority: 1
-notes: Status DRAFT to REVIEW on 2026-10-14, same version 0.1, on the owner's sign-off of 2026-10-14, relayed by the coordinator (in his words: ok for your recomendations), as proposed at the v3.0 wave-3 post-task sync: the merged code matches the logic and expectation, with its linked tests. Still built in storage and not wired into the app. Earlier: Created 2026-10-14 at DRAFT by the v3.0 wave-3 post-task sync, from build plan chunk 5 as merged (save policy, merge 9f01f7f), as the wave-3 preflight asked: no ARCHITECTURE atom governed the save policy, which module_on_device_database leaves to the policy built on its port. Built in storage and not wired yet: no app code uses the policy until build plan chunk 7 wires it, so none of its parents is met in the running app by it alone. The once-per-run failure report comes from the saved-data design (Notices); never asking for persistent storage while saving is off agrees with rule_persistent_storage_requested. Status DRAFT; no status advanced.
 dependents: []
 type: MODULE
 version: 0.1

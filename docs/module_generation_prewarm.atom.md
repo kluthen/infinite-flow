@@ -12,7 +12,6 @@ parents:
   - [[rule_dropped_attempt_cancelled]]
   - [[service_workspace_session_flow]]
   - [[user_story_controlled_phrase_generation]]
-notes: Revised 2026-10-12 at the pre-code architecture capture for v3.0 build plan chunk 24 (previous version 0.2): the prewarm of a cancelled intent follows any cancellation that replaces the worker, a background pre-generation attempt's at Idle (module_idle_pregeneration_queue) as well as a session's dropped attempt, as module_generation_worker_cancellation 0.2 already says; the mechanism is unchanged. The coding leader settled that a cancelled background attempt is prewarmed like any other. The text still holds for the running code, whose client prewarms after any cancellation, so the status stays REVIEW; no status advanced. Earlier: Synced 2026-10-07 after the code landed (post-task sync): the code matches the revised text; status DRAFT to REVIEW, its status before the revision, now that the code and its linked tests have landed. Earlier: Revised 2026-10-07 before code (previous version 0.1, pre-code architecture capture) for rule_dropped_attempt_cancelled: with the prewarm policy enabled, a worker replaced by a cancellation is re-warmed with a prewarm of the cancelled intent. Status REVIEW to DRAFT until the code lands. Earlier: Split out on 2026-10-05 from service_workspace_session_flow (version 1.6) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 ---
 
 # Generation Prewarm

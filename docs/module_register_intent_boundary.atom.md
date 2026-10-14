@@ -12,7 +12,6 @@ parents:
 dependents: []
 type: MODULE
 priority: 1
-notes: Revised 2026-10-03 before code in v2 chunk 24 (pre-code architecture capture) for the settings-mutation engine (previous version 0.2). After a register change the carried window equals the new resolved window. Status stays DRAFT.
 ---
 
 # Register Intent Boundary

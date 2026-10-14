@@ -8,7 +8,6 @@ layer: BUSINESS
 priority: 1
 human_name: How the Suggestion Weighs Keys and Modes
 tags: [v3, release-v3.2, jam, key-and-mode-suggestion]
-notes: Created 2026-10-08 at DRAFT by the v3.1 and v3.2 spec ingestion, from the v3.2 master spec the product owner approved on 2026-10-08. Describes intended v3.2 behaviour: nothing of it is built yet. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 dependents:
   - [[rule_doodle_outside_modes_told]]
   - [[rule_suggestion_same_doodle_same_answer]]

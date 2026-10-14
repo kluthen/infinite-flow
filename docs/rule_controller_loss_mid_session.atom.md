@@ -16,7 +16,6 @@ dependents:
   - [[rule_controller_reconnection_window]]
   - [[service_session_engine]]
   - [[service_workspace_session_flow]]
-notes: Revised 2026-10-08 to version 0.2 (previous version 0.1) with the explicit confirmation of the product owner, given on 2026-10-08 (spec D246), of contract change set part A (docs/release/v3.1-v3.2-intent-change-set.md, A9), together with the CONTRACT 3.0 MAJOR bump; stays STABLE. A controller lost in a Jam started without a held doodle, from its count-in until its phrase 1, ends the Jam at once, back to Idle with no review. Earlier: Status REVIEW to STABLE on 2026-10-07 with the product owner's approval, together with the matching CONTRACT 1.5 MINOR bump. Backed by the v2.0 gate tests linked to it, among them tests/e2e/session/session-midi-controller-loss.spec.ts (the phrase keeps playing at tempo through the loss and after the same device is back, added in eab0519; notes due while away stay unmatched, those played after the reconnection are acknowledged) and tests/unit/session/session-acknowledgement.spec.ts.
 ---
 
 # Lost Controller Is Shown While the Session Continues

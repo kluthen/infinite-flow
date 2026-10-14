@@ -4,7 +4,6 @@ status: DRAFT
 parents:
   - [[req_on_device_storage]]
   - [[req_rolling_practice_session]]
-notes: Revised 2026-10-12 to version 0.3 (previous version 0.2) on the owner's rulings of 2026-10-12, spec D295 and D296, master spec Part A v1.10 (sections 5.1 and 12, item 6), relayed to documentalist: every kept session belongs to the instrument it was played with; deleting My instrument, or saving a change to its range or transposition, deletes the kept sessions played with it after a warning, the session on screen and the session that just ended included; a name or clef change keeps them. Status unchanged (DRAFT). Earlier: Revised 2026-10-07 to version 0.2 (still DRAFT) by the re-sync to the v3.0 master spec v1.3, approved by the product owner: the expectation no longer claims at most one unpinned session at any time, since a session the player unpins stays kept until the next session is saved. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 dependents:
   - [[req_kept_session_list]]
   - [[req_kept_session_review]]

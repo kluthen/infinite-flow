@@ -10,7 +10,6 @@ dependents:
 priority: 1
 human_name: Stray Notes Filtered on Reading
 tags: [v3, release-v3.0, midi, review]
-notes: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 type: RULE
 ---
 

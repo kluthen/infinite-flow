@@ -3,7 +3,6 @@ id: rule_stale_phrase_prompt_at_start
 status: DRAFT
 priority: 1
 tags: [v3, release-v3.0, session, session-start, midi]
-notes: Synced 2026-10-13 at the v3.0 wave-2 post-task sync, same version 0.1: the technical interface names the prompt's on-screen labels, Regenerate phrase and Start with this phrase (ux D299, ux-writer 4b9298d); Regenerate and Use it stay the names of the choices. No change of meaning; status stays DRAFT; still no code (chunk 24b). Earlier: Created 2026-10-13 at DRAFT before code, from the product owner rulings recorded as spec D297 and its ruling note of the same day (Regenerate stays at Idle, closing O182; the starting note asks too, CONTRACT 5.0), master spec Part A v1.12 section 16, and v3.0 build plan v9 chunk 24b (ISS-011). Describes intended v3.0 behaviour: no code implements it yet; chunk 24b builds it, the prompt part after the Stale phrase design gate. Within the vision: sessions that start from the phrase at Idle and an explicit regeneration, nothing evaluative.
 dependents:
   - [[module_idle_pregeneration_queue]]
   - [[module_session_pregeneration_plan]]

@@ -13,7 +13,6 @@ parents:
 dependents:
   - [[module_session_silence_timeout]]
   - [[service_workspace_session_flow]]
-notes: Revised 2026-10-08 to version 0.2 (previous version 0.1) with the explicit confirmation of the product owner, given on 2026-10-08 (spec D246), of contract change set part A (docs/release/v3.1-v3.2-intent-change-set.md, A8), together with the CONTRACT 3.0 MAJOR bump; stays STABLE. A Jam started without a held doodle does not arm the timer with its home note or its doodle notes, and ends before its phrase 1 when no doodle note comes within 30 seconds after its count-in. Earlier: Text unchanged. The product owner accepted on 2026-10-05 (spec D184) the silence timer as v2 chunk 17 built it, which this rule already states - the starting note arms it as the first played note, and after a reattachment it counts again from the reconnection once a played note has armed it.
 ---
 
 # Silence Timeout Ends a Session

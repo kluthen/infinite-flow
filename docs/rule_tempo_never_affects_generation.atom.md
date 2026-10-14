@@ -13,7 +13,6 @@ dependents:
   - [[module_session_adaptive_tempo_schedule]]
   - [[module_session_look_ahead_timing]]
   - [[service_session_engine]]
-notes: Revised 2026-10-05 (previous version 0.1) with the wording v2 chunk 27 proposed and the product owner accepted (spec D186). The technical interface no longer says tempo never reaches the generation request, since the request carries the locked starting tempo; generation never reads it, and adaptive tempo never reaches the request.
 ---
 
 # Tempo Never Affects Generated Material

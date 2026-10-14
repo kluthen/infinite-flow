@@ -16,7 +16,6 @@ dependents:
   - [[service_workspace_session_flow]]
 type: RULE
 layer: BUSINESS
-notes: Recorded 2026-09-30 in v2 chunk 10 (audio transport); rule text unchanged. When the browser interrupts the audio clock (a device change or an operating-system interruption)
 ---
 
 # Session Never Pauses

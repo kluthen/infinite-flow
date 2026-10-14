@@ -6,7 +6,6 @@ layer: BUSINESS
 human_name: A Jam's Phrase 1 Has Its Own Failure Ladder
 parents:
   - [[rule_jam_phrase_one_deadline]]
-notes: Created 2026-10-08 at DRAFT by the v3.1 and v3.2 spec ingestion, from the v3.2 master spec the product owner approved on 2026-10-08. Describes intended v3.2 behaviour: nothing of it is built yet. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 version: 0.1
 priority: 1
 tags: [v3, release-v3.2, session, jam, error-handling]

@@ -9,7 +9,6 @@ parents:
   - [[rule_controller_loss_mid_session]]
   - [[rule_tempo_never_affects_generation]]
   - [[service_session_engine]]
-notes: Split out on 2026-10-05 from service_session_engine (version 0.5) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 type: MODULE
 layer: ARCHITECTURE
 tags: session,tempo,adaptive-tempo

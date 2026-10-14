@@ -9,7 +9,6 @@ version: 0.2
 human_name: Save as New Asks for the Restriction
 parents:
   - [[rule_key_and_mode_restriction]]
-notes: Created 2026-10-08 at DRAFT by the v3.1 and v3.2 spec ingestion, from the v3.1 master spec the product owner approved on 2026-10-08. Describes intended v3.1 behaviour: nothing of it is built yet. It falls within the vision since version 0.8 (2026-10-08, spec D246). Revised the same day (version 0.1 to 0.2) after the spec settled that only save as new always asks the restriction; save changes asks it only outside the preset restriction (rule_save_changes_restriction).
 dependents:
   - [[rule_save_changes_restriction]]
 ---

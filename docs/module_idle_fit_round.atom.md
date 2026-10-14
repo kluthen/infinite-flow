@@ -19,7 +19,6 @@ version: 0.6
 priority: 1
 human_name: Idle Fit Round
 tags: [v2, release-v2.0, idle, notation, generation]
-notes: Revised 2026-10-12 at the v3.0 wave-1 post-task sync (previous version 0.5) for build plan chunk 23's session seed plan (module_session_seed_plan, merge aee776c): the result a run publishes carries the run's session seed, drawn once per publishing run from its own provider. Status unchanged; no status advanced. Earlier: Split on 2026-10-05 during documentation debt paydown (previous version 0.4): the fresh run and the room notice (layout failures at Idle, the rules under the notice and its exposed state) moved unchanged in meaning into child atoms; this atom keeps the fit run itself and indexes its children. Status stays DRAFT.
 ---
 
 # Idle Fit Round

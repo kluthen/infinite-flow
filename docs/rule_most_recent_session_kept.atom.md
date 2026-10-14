@@ -3,7 +3,6 @@ id: rule_most_recent_session_kept
 status: DRAFT
 parents:
   - [[req_kept_sessions]]
-notes: Revised 2026-10-12 to version 0.3 (previous version 0.2) on the owner's rulings of 2026-10-12, spec D295 and D296, master spec Part A v1.10 (section 5.1), relayed to documentalist: besides the player's own Delete, the most recent session goes when the player deletes the my instrument it was played with or saves a change to that instrument's range or transposition, each after a warning, and the session that just ended leaves memory with it. Status unchanged (DRAFT). Earlier: Revised 2026-10-07 to version 0.2 (still DRAFT) by the re-sync to the v3.0 master spec v1.3, approved by the product owner: saving a new session deletes every kept session that is not pinned, including one the player unpinned earlier, not only the previous one. Earlier: Created 2026-10-07 at DRAFT by the v3.0 spec ingestion, from the v3.0 master spec the product owner approved. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 dependents: []
 layer: BUSINESS
 version: 0.3

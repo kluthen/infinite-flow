@@ -14,7 +14,6 @@ dependents:
   - [[service_session_start]]
   - [[service_workspace_session_flow]]
   - [[specification_browser_only_operation_verification]]
-notes: v3.0 change pending (2026-10-07, re-sync to the v3.0 master spec v1.3): the approved v3.0 scope, not yet built, changes this atom. From v3.0 the remembered controller is reselected at load, when MIDI access is already allowed, without the player clicking Connect controller (rule_last_controller_remembered), and its starting note starts nothing before the page's first click, tap or key press (rule_starting_note_waits_for_first_gesture); so the clauses that a MIDI note can start a session only after a Connect controller click, and that only Start and Connect controller unlock audio, no longer hold as worded. Text and status unchanged on purpose: it still describes the running v2.0 code. Revise it in the change that builds the v3.0 behaviour, per docs/release/v3.0-intent-change-set.md.
 ---
 
 # Audio Starts Only After a Player Click

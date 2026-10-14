@@ -8,7 +8,6 @@ parents:
   - [[req_settings_mutation_flag]]
   - [[rule_session_change_applies_at_phrase_boundary]]
   - [[service_session_engine]]
-notes: Split out on 2026-10-05 from service_session_engine (version 0.5) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 dependents: []
 type: MODULE
 layer: ARCHITECTURE

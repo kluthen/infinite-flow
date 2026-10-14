@@ -14,7 +14,6 @@ type: MODULE
 priority: 1
 tags: [v3, release-v3.0, session, look-ahead, generation, determinism]
 version: 0.1
-notes: Status DRAFT to REVIEW on 2026-10-13, same version 0.1, on owner sign-off 2026-10-13 (relayed by the coordinator), as proposed at the v3.0 wave-2 post-task sync: chunk 24's code (merge 0b744ae) matches the logic and expectation, with its linked tests. Earlier: Synced 2026-10-13 at the v3.0 wave-2 post-task sync, same version 0.1: chunk 24's code (merge 0b744ae: src/session/session-ready-phrases.ts, session-types.ts, session-engine.ts, session-engine-state.ts, and Start in workspace-session-start.ts and workspace-session-begin.ts) implements it, with its linked tests (session-engine-ready-phrases.spec.ts, session-pregeneration-identity.spec.ts, the pre-generation e2e spec); logic and expectation match the code, and the technical interface now names the list check and the shared functions. The text above saying no code implements it is superseded. No change of meaning; status stays DRAFT, REVIEW proposed to the owner. Earlier: Created 2026-10-12 at DRAFT by the pre-code architecture capture for v3.0 build plan chunk 24, from master spec section 8 and the design the coding leader settled: the session engine takes the phrases pre-generated at Idle in its start. A child of service_session_engine, like its other parts; that atom is not revised before code. Describes intended v3.0 behaviour: no code implements it yet.
 ---
 
 # Session Ready Phrases

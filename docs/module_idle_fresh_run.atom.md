@@ -13,7 +13,6 @@ parents:
   - [[rule_unsupported_rhythm_gives_way_to_no_phrase]]
 dependents: []
 human_name: Idle Fresh Run
-notes: Split out on 2026-10-05 from module_idle_fit_round (version 0.4) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 ---
 
 # Idle Fresh Run

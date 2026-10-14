@@ -5,7 +5,6 @@ type: MODULE
 layer: ARCHITECTURE
 human_name: Session Silence Timeout
 tags: workspace,session,midi
-notes: Split out on 2026-10-05 from service_workspace_session_flow (version 1.6) during documentation debt paydown; the text is moved unchanged in meaning. Revised 2026-10-05 (previous version 0.1) to state, as built in v2 chunk 17 and accepted by the product owner (spec D184), that after a reattachment the timer counts again from the reconnection once a played note has armed it.
 version: 0.2
 priority: 1
 parents:

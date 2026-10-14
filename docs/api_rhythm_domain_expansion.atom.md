@@ -14,7 +14,6 @@ parents:
   - [[rule_preserve_metrical_anchor]]
   - [[rule_tension_ranking_respects_constraints]]
   - [[user_story_controlled_phrase_generation]]
-notes: Revised 2026-09-30 in performance step 2 (previous version 0.5): the sped-up enumeration no longer runs the full rhythm validator and adds attack-band and answer-similarity early checks in its place, still yielding exactly the fully validated domain; AWAITING OWNER ACCEPTANCE (performance step 2, 2026-09-30).
 ---
 
 # Rhythm Domain Expansion

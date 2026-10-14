@@ -12,7 +12,6 @@ dependents:
   - [[module_harmony_candidate_domain]]
   - [[module_musical_profile_capabilities]]
 type: RULE
-notes: v3.1 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): the chromatic approach and chromatic enclosure are gated by those two figures' levels instead of a capability the Jazz profile declares; the figures' own rules are unchanged, and nothing reads a preset's name (rule_chromatic_notes_need_a_chromatic_figure). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Jazz Chromatic Resolution

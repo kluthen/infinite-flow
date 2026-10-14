@@ -14,7 +14,6 @@ parents:
   - [[rule_stop_ends_session]]
 type: RULE
 layer: BUSINESS
-notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): a Jam ended at any time before its phrase 1 sounds ends the same way, and in Jam mode Idle may show no phrase (rule_jam_ending_before_phrase_one, rule_jam_idle_shows_no_phrase). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Session Ended During the Count-In Returns to Idle

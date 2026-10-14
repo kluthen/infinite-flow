@@ -12,7 +12,6 @@ parents:
   - [[req_four_measure_phrase]]
   - [[req_rolling_practice_session]]
   - [[user_story_controlled_phrase_generation]]
-notes: Revised 2026-10-07 (previous version 0.1, DRAFT) with the product owner's approval - the wording was v1-only (the single-phrase workflow); it now describes the single v2.0 release gate as the v2.0 release notes record it (docs/release/v2.0-release-notes.md, one evidence row per definition-of-done criterion, automated tests or dated hand checks, a criterion not met blocking the tag, and only the allowed hand checks following it as v2.0.x notes). The v1 workflow stays covered as one part of it. req_rolling_practice_session added as a parent, since the gate now verifies sessions. Status DRAFT to REVIEW.
 ---
 
 # Behavioral Quality Gates

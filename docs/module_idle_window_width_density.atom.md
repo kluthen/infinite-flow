@@ -13,7 +13,6 @@ parents:
   - [[rule_unsupported_rhythm_gives_way_to_no_phrase]]
   - [[rule_unsupported_rhythm_settings_block_generation]]
   - [[service_workspace_session_flow]]
-notes: Split out on 2026-10-05 from service_workspace_session_flow (version 1.6) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 ---
 
 # Idle Note Density From Window Width

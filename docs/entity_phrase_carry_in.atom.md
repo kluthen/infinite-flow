@@ -14,7 +14,6 @@ layer: ARCHITECTURE
 human_name: Phrase Carry-In
 priority: 1
 tags: [v2, release-v2.0, session, phrase-join]
-notes: Revised 2026-10-03 before code in v2 chunk 24 (pre-code architecture capture) for the settings-mutation engine (previous version 0.3). The final harmony may be null, only after a setting change dropped it, and the tense-note checks are skipped without it. Aligned with the code in the same chunk post-task sync: the harmony-fit and owed-debt predicates are exported and shared with the session carry-in adaptation. Status stays DRAFT.
 ---
 
 # Phrase Carry-In

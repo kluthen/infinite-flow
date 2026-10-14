@@ -20,7 +20,6 @@ priority: 1
 tags: [seed, determinism, regeneration, changes-in-v3.1, changes-in-v3.2]
 parents:
   - [[req_four_measure_phrase]]
-notes: v3.1 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): the complete request holds the seven figure levels instead of the profile preset (rule_figure_draws_reproducible). v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): the complete request also holds the quantized doodle, the drift, the locked rhythm, the allowed rhythm changes and whether the phrase is a tenser one (rule_jam_and_lock_off_reproduce_earlier_phrases). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Seeded Phrase Reproduction

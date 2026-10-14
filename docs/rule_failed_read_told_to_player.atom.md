@@ -10,7 +10,6 @@ dependents: []
 type: RULE
 version: 0.1
 priority: 1
-notes: Created 2026-10-07 at DRAFT, re-sync to master spec v1.4 (failed read), 2026-10-07, approved by the product owner. Kept apart from rule_first_phrase_waits_for_saved_settings, which says what such a visit reads and saves, and from rule_failed_read_offers_only_delete_everything, which says which deletion it offers; this atom says what the player is told. Describes intended v3.0 behaviour: nothing of it is built yet, and the running v2.0 code keeps nothing across a reload. It falls within the vision since version 0.8 (2026-10-08, spec D246).
 ---
 
 # The Player Is Told When Saved Data Could Not Be Read

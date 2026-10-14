@@ -15,7 +15,6 @@ layer: ARCHITECTURE
 human_name: Seeded Tie Keys and Pseudorandom Streams
 version: 0.3
 tags: seed
-notes: Revised 2026-10-08 (version 0.2 to 0.3) as plain technical alignment found by the v3.1 and v3.2 spec ingestion: the generation stages order candidates by seeded hash tie keys, not by named streams; deriveNamedStream has no caller outside its own file and tests, and only the indexed streams are used, by the settings mutation. Status unchanged; the id is kept because code links point at it. Whether the unused named-stream registry stays is a coding-leader call. Earlier: Revised 2026-10-03 in the v2 chunk 24 post-task sync (previous version 0.1) as plain technical alignment: adds the indexed streams, a second closed versioned registry derived per (seed, label, index), used by the settings mutation and its gaps. Status unchanged.
 ---
 
 # Seeded Tie Keys and Pseudorandom Streams

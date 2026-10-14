@@ -18,7 +18,6 @@ dependents:
   - [[service_session_end]]
   - [[service_workspace_session_flow]]
 layer: BUSINESS
-notes: v3.2 change pending (2026-10-08, v3.1 and v3.2 spec ingestion): in Jam mode without a held doodle no fresh phrase is generated at Idle, which shows only the key signature (rule_jam_idle_shows_no_phrase); after a Jam played on a held doodle, which keeps the doodle held, the fresh phrase 1 is generated from that doodle with a fresh seed (rule_held_doodle_phrase_one_at_idle, note revised 2026-10-08 after the spec settled it). Text and status unchanged on purpose: it still describes the running code. Revise it in the change that builds that behaviour, per docs/release/v3.1-v3.2-intent-change-set.md.
 ---
 
 # Session End Generates the Next Phrase 1

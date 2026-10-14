@@ -20,7 +20,6 @@ type: RULE
 layer: BUSINESS
 priority: 1
 human_name: Limited Forward Carry-In Across Phrase Joins
-notes: Revised 2026-10-08 to version 0.3 (previous version 0.2) with the explicit confirmation of the product owner, given on 2026-10-08 (spec D246), of contract change set part A (docs/release/v3.1-v3.2-intent-change-set.md, A15), together with the CONTRACT 3.0 MAJOR bump; stays STABLE. A Jam's quantized doodle and drift, and the rhythm lock's locked rhythm, are session-wide inputs that are not carry-in and reach later phrases besides the four carry-in items, which narrows the first expectation; a Jam's phrase 1 is joined from the doodle. The spec's list of contract changes names the locked rhythm since spec D245. Earlier: Revised 2026-10-05 (previous version 0.1) for the multi-phrase tension arc built in v2 chunk 29: the tension a phrase is generated with may be stepped from its own position in the session, and a step between two phrases goes through the same carry-in adaptation as a setting change, which may drop or replace parts of the carry-in but never adds to it. Proposed in the chunk 29 post-task sync and accepted by the product owner (spec D186). Promoted to STABLE 2026-10-05: the product owner accepted the version 0.2 wording as written; nothing in it depends on the real-hardware checks.
 ---
 
 # Limited Forward Carry-In Across Phrase Joins

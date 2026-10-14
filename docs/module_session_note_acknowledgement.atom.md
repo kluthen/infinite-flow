@@ -12,7 +12,6 @@ parents:
 dependents: []
 layer: ARCHITECTURE
 version: 0.1
-notes: Split out on 2026-10-05 from service_workspace_session_flow (version 1.6) during documentation debt paydown; the text is moved unchanged in meaning and keeps its DRAFT status.
 type: MODULE
 ---
 

@@ -10,7 +10,6 @@ parents:
   - [[entity_concert_event_timeline]]
 dependents: []
 human_name: Generation Result Validation
-notes: Revised 2026-09-30 in performance step 2 (previous version 0.2): the rule now states that the rhythm correspondence group runs the full rhythm validator on the chosen rhythm candidate, now the only full validation of a candidate chosen from the sped-up rhythm enumeration; AWAITING OWNER ACCEPTANCE (performance step 2, 2026-09-30).
 ---
 
 # Generation Result Validation
