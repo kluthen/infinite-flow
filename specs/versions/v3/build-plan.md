@@ -865,6 +865,16 @@ written. Placed in v15:
   6 are rewritten to the ruling, for the owner; master spec Part A v1.15 states it (§5.1, item
   6). A **Damaged session design** gate goes to `ux-writer` before chunk 28b.
 
+**Sign-offs applied and merge (2026-10-14).** `documentalist` applied part M2's items 1–4, 5(a)
+and 7 and moved `module_kept_session_save` DRAFT → REVIEW (part M3) in d740e7f; items 5(b) and 6
+wait for the owner's sign-off on their rewritten wording and are applied at chunk 28's sync.
+Known drift until later chunks: `req_rolling_practice_session` says a session cut short by the
+page going away is lost (chunk 27 builds it); `rule_most_recent_session_kept`'s deletion sentence
+is wider than the built save (5(b), chunk 28). For `spec-writer` at the next revision: the
+wave-5 sync paragraph above still calls part M2 pending, and its heading anchor
+`#m2-owner-wordings-not-applied` can be renamed once that link is updated. The owner asked for
+the merge; the wave merges into `main` with entry chunk 221,195 B.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
