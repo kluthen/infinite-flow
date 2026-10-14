@@ -1,10 +1,12 @@
 /**
  * The save policy's requests beyond saving: persistent storage, asked for at most once per visit,
  * never while saving is off and never during a session; the space used and whether the saved data
- * is persistent, for Your data; and Delete everything, which a visit whose saved data could not be
- * read still offers but an outdated tab never does.
+ * is persistent, for Your data; Delete everything, which a visit whose saved data could not be
+ * read still offers but an outdated tab never does; and the read of one kept session's records by
+ * its key, which saving off does not stop (an outdated tab reads what it can).
  */
 
+import type { StoredKeptSession } from './records/kept-session-record'
 import { StorageError, type StoragePort } from './storage-port'
 
 /**
@@ -32,6 +34,7 @@ export interface SavingView {
 // @spec-link [[rule_persistent_storage_requested]]
 // @spec-link [[req_your_data]]
 // @spec-link [[rule_delete_everything]]
+// @spec-link [[req_kept_session_review]]
 // @spec-link [[module_save_policy]]
 export interface VisitRequests {
   /**
@@ -51,6 +54,12 @@ export interface VisitRequests {
    * the caller, not to the failure listener.
    */
   deleteEverything(): Promise<void>
+  /**
+   * Read the records of the kept session under `key`, raw, as stored: its session-wide record,
+   * its body and its played notes (`undefined` where none is stored), for its codec to decode. A
+   * refusal of the port rejects, to the caller.
+   */
+  readKeptSession(key: string): Promise<StoredKeptSession>
 }
 
 /**
@@ -97,6 +106,14 @@ export function createVisitRequests(port: StoragePort, view: SavingView): VisitR
         throw new StorageError('outdated', 'a newer version of the app saves now')
       }
       await port.deleteEverything()
+    },
+    readKeptSession: async (key) => {
+      const [summary, body, playedNotes] = await Promise.all([
+        port.read('sessionSummaries', key),
+        port.read('sessionBodies', key),
+        port.read('playedNotes', key),
+      ])
+      return { summary, body, playedNotes }
     },
   }
 }

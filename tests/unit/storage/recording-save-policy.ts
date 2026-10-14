@@ -48,6 +48,7 @@ export function recordingPolicy(): { readonly policy: SavePolicy; readonly calls
     estimate: notUsed('estimate'),
     persisted: notUsed('persisted'),
     deleteEverything: notUsed('deleteEverything'),
+    readKeptSession: notUsed('readKeptSession'),
   }
   return { policy, calls }
 }

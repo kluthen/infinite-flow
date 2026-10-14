@@ -8,6 +8,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { effectScope } from 'vue'
 
+import { endedSession, openedReview } from '@/components/workspace/session-review-state'
 import { useReviewHost } from '@/components/workspace/use-review-host'
 import type { ExportFile } from '@/export/load-generated-notes-export'
 import {
@@ -15,8 +16,14 @@ import {
   type ReviewPreferences,
 } from '@/storage/records/setting-defaults'
 import { recordedRecords } from '../review/review-fixtures'
-import { createFakeSessionController, fakeReviewHistory } from './fake-session-controller'
+import {
+  createFakeSessionController,
+  fakeReview,
+  fakeReviewHistory,
+  heldSessionOf,
+} from './fake-session-controller'
 import { fakeGenerationSession } from './fake-generation-session'
+import { myInstrumentHistory } from './my-instrument-history'
 import { recordingSaveSettings } from './recording-save-settings'
 
 /**
@@ -100,7 +107,7 @@ describe('useReviewHost', () => {
       bytes: new Uint8Array(),
     }
     const fake = createFakeSessionController({
-      review: { history: fakeReviewHistory(recordedRecords()), showing: true, tempoReached: 90 },
+      review: fakeReview(fakeReviewHistory(recordedRecords()), true),
     })
     const { built, ports, stop } = host(fake)
     const buildPlayedNotesFile = vi.fn(() => file)
@@ -113,7 +120,7 @@ describe('useReviewHost', () => {
 
     // A session without a controller records no played note.
     const silent = recordedRecords().map((record) => ({ ...record, playedNotes: [] }))
-    fake.state.review = { history: fakeReviewHistory(silent), showing: true, tempoReached: 90 }
+    fake.state.review = fakeReview(fakeReviewHistory(silent), true)
     expect(built.holdsPlayedNote.value).toBe(false)
     stop()
   })
@@ -121,9 +128,8 @@ describe('useReviewHost', () => {
   // @test-link [[rule_review_played_notes_toggle]]
   // @test-link [[rule_session_data_never_sent_or_stored]]
   it('holds the Played notes switch for the page session: across a close, a reopening and a later session', () => {
-    const fake = createFakeSessionController({
-      review: { history: fakeReviewHistory(recordedRecords()), showing: true, tempoReached: 90 },
-    })
+    const review = fakeReview(fakeReviewHistory(recordedRecords()), true)
+    const fake = createFakeSessionController({ review, mostRecent: heldSessionOf(review) })
     const { built, stop } = host(fake)
 
     built.setPlayedNotesShown(true)
@@ -135,11 +141,7 @@ describe('useReviewHost', () => {
     fake.controller.start()
     fake.state.phase = 'running'
     fake.controller.stop()
-    fake.state.review = {
-      history: fakeReviewHistory(recordedRecords().slice(0, 1)),
-      showing: true,
-      tempoReached: 90,
-    }
+    fake.state.review = fakeReview(fakeReviewHistory(recordedRecords().slice(0, 1)), true)
     expect(built.showing.value).toBe(true)
     expect(built.playedNotesShown.value).toBe(true)
     stop()
@@ -148,11 +150,7 @@ describe('useReviewHost', () => {
   // @test-link [[req_last_session_review]]
   it('gives the phrases and instrument of the Review only while it shows, not while kept', () => {
     const fake = createFakeSessionController({
-      review: {
-        history: fakeReviewHistory(recordedRecords(), 'c-keyboard'),
-        showing: true,
-        tempoReached: 90,
-      },
+      review: fakeReview(fakeReviewHistory(recordedRecords(), 'c-keyboard'), true),
     })
     const { built, stop } = host(fake)
 
@@ -163,6 +161,35 @@ describe('useReviewHost', () => {
 
     expect(built.showing.value).toBe(false)
     expect(built.records.value).toEqual([])
+    expect(built.instrumentName.value).toBe('')
+    stop()
+  })
+
+  // @test-link [[req_last_session_review]]
+  // @test-link [[req_kept_session_review]]
+  it("names my instrument from the session's own profile, never by id, and does not throw", () => {
+    const review = openedReview(endedSession(myInstrumentHistory('My tenor'), 'not-pinned'))
+    const fake = createFakeSessionController({ review, mostRecent: heldSessionOf(review) })
+    const { built, stop } = host(fake)
+
+    expect(built.instrumentName.value).toBe('My tenor')
+    stop()
+  })
+
+  // @test-link [[req_kept_session_review]]
+  it("gives the showing Review's start, how it is kept, and whether it is the most recent session", () => {
+    const review = fakeReview(fakeReviewHistory(recordedRecords()), true, 'not-saved')
+    const fake = createFakeSessionController({ review, mostRecent: heldSessionOf(review) })
+    const { built, stop } = host(fake)
+
+    expect(built.startedAt.value).toBe(review.history.startedAt)
+    expect(built.keeping.value).toBe('not-saved')
+    expect(built.mostRecent.value).toBe(true)
+
+    fake.state.mostRecent = Object.freeze({ kind: 'kept', key: 'session-1-2' })
+    expect(built.mostRecent.value).toBe(false)
+    fake.controller.closeReview()
+    expect([built.startedAt.value, built.keeping.value]).toEqual([null, null])
     stop()
   })
 })

@@ -32,6 +32,9 @@ function mountPanel(options: PanelOptions = {}) {
     props: {
       records: recordedRecords(),
       instrumentName: 'B-flat tenor saxophone',
+      startedAt: 0,
+      mostRecent: true,
+      keeping: 'not-pinned',
       viewport: { layout: 'one-system', heightBudgetPx: null },
       noRoom: options.noRoom ?? false,
       format: 'musicxml',

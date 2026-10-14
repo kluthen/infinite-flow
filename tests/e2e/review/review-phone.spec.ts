@@ -83,6 +83,8 @@ test.describe('the Review on a landscape phone', () => {
     // Minimal: the title and the export, no summary; each phrase on two system positions.
     await expect(reviewTitle(page)).toBeVisible()
     await expect(reviewPanel(page).locator('.review-summary')).toBeHidden()
+    // The keep line only in its "Not saved" form on the phone: this session was saved.
+    await expect(reviewPanel(page).locator('.review-keep-line')).toHaveCount(0)
     await expect(sessionAction(page)).toBeVisible()
     await expect(exportButton(page)).toBeVisible()
     await expect(reviewItems(page)).toHaveCount(2)
@@ -109,6 +111,7 @@ test.describe('the Review on a landscape phone', () => {
     await expect(reviewPanel(page)).toHaveCount(0)
     await expect(sessionAction(page)).toHaveText('Start session')
     await expect(reviewLink(page)).toBeVisible()
+    await expect(reviewLink(page)).toHaveAccessibleName('Last session')
     await reviewLink(page).click()
     await expect(reviewTitle(page)).toBeFocused()
     await expect(reviewItems(page)).toHaveCount(2)

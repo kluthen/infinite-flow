@@ -52,6 +52,7 @@ import type {
   WorkspaceSessionRunnerStarter,
 } from './workspace-session-dependencies'
 import type { WorkspaceSession } from './workspace-session-types'
+import { keptSessionsOf } from './workspace-kept-sessions-seam'
 
 export type {
   WorkspaceSessionDependencies,
@@ -224,6 +225,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
           }),
         savedSessionOptions: sessionOptions,
         saveHold: { hold: saves.hold, release: saves.release, saveSession: saves.saveSession },
+        keptSessions: keptSessionsOf(deps.savedData),
       })
     },
     savedData: deps.savedData,

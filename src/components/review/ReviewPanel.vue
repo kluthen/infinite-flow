@@ -1,6 +1,9 @@
 <script setup lang="ts">
 /**
- * The last-session Review, shown in the staff area's place: its title and summary, the
+ * A session's Review, shown in the staff area's place: its title ("Last session" for the most
+ * recent session, the session date for any other), its summary, the keep line saying how the
+ * session is kept (only its "Not saved" form below bp-tablet-landscape, where the workspace staff
+ * takes the split layout), the
  * generated-notes export (Format, Backing track for MIDI, and the export button), and, when the
  * session holds a played note, the played-notes export button and the Played notes switch (its
  * state held by the page; while on, each phrase draws its played-notes lanes on one session-wide
@@ -25,8 +28,10 @@ import {
 } from '@/notation/notation-layout-policy'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
 import type { ReviewedPhrase } from '@/session/session-history'
+import type { SessionKeeping } from '@/components/workspace/workspace-session-controller-types'
 import ReviewPhrase from './ReviewPhrase.vue'
 import { playedNotesPitchScale } from './played-notes-lane-geometry'
+import { sessionDate } from './session-date'
 import {
   createReviewEngravingWindow,
   type ReviewEngravingOutcome,
@@ -47,8 +52,14 @@ const props = withDefaults(
   defineProps<{
     /** The session's phrases in the order they started sounding; at least one. */
     records: readonly ReviewedPhrase[]
-    /** The session's instrument profile, as the instrument-profile control names it. */
+    /** The session's instrument, by the name it had at the session. */
     instrumentName: string
+    /** The session's start, epoch milliseconds. */
+    startedAt: number
+    /** Whether the session is the most recent one, titled "Last session". */
+    mostRecent: boolean
+    /** How the session is kept, for the keep line. */
+    keeping: SessionKeeping
     /** The workspace staff's current viewport; null while unknown, and nothing engraves. */
     viewport: StaffViewport | null
     /** The workspace staff has no room: the room notice replaces the list. */
@@ -92,13 +103,46 @@ function focusTitle(): void {
 
 defineExpose({ focusTitle })
 
-/** Intent: "{n} phrases · {instrument}. Kept ...", "1 phrase" for one; a review is never empty. */
+/** Intent: the session date of the session's start, as the title and the summary write it. */
+// @spec-link [[req_kept_session_review]]
+const date = computed(() => sessionDate(props.startedAt))
+
+/** Intent: "Last session" for the most recent session, the session date for any other. */
 // @spec-link [[req_last_session_review]]
+// @spec-link [[req_kept_session_review]]
+const title = computed(() => (props.mostRecent ? 'Last session' : date.value))
+
+/**
+ * Intent: "{session date} · {n} phrases · {instrument}", the date left out when it is the title,
+ * "1 phrase" for one; a review is never empty.
+ */
+// @spec-link [[req_last_session_review]]
+// @spec-link [[req_kept_session_review]]
 const summary = computed(() => {
   const count = props.records.length
   if (count === 0) throw new Error('A review holds at least one phrase.')
   const phrases = count === 1 ? '1 phrase' : `${count} phrases`
-  return `${phrases} · ${props.instrumentName}. Kept until the next session starts or the page is closed.`
+  const parts = [phrases, props.instrumentName]
+  return (props.mostRecent ? [date.value, ...parts] : parts).join(' · ')
+})
+
+/** The keep line's wording for each way a session is kept. */
+const KEEP_LINES: Readonly<Record<SessionKeeping, string>> = {
+  pinned: 'Pinned: kept until you unpin or delete it.',
+  'not-pinned': 'Not pinned: deleted when your next session is saved.',
+  'not-saved': 'Not saved on this device: export it to keep it.',
+}
+
+/**
+ * Intent: the keep line, saying how the session is kept; below bp-tablet-landscape (the workspace
+ * staff's split layout, the same width query) only its "Not saved" form, which the pin button's
+ * label cannot say; null when it is not rendered.
+ */
+// @spec-link [[module_kept_session_save]]
+// @spec-link [[rule_failed_save_never_disturbs_session]]
+const keepLine = computed((): string | null => {
+  const narrow = props.viewport?.layout === 'split'
+  return narrow && props.keeping !== 'not-saved' ? null : KEEP_LINES[props.keeping]
 })
 
 /**
@@ -325,8 +369,9 @@ onBeforeUnmount(stopEngraving)
   <section class="review-panel" :aria-labelledby="titleId">
     <div class="review-header">
       <div class="review-heading">
-        <h2 :id="titleId" ref="titleEl" class="review-title" tabindex="-1">Last session</h2>
+        <h2 :id="titleId" ref="titleEl" class="review-title" tabindex="-1">{{ title }}</h2>
         <p class="review-summary">{{ summary }}</p>
+        <p v-if="keepLine !== null" class="review-keep-line">{{ keepLine }}</p>
       </div>
       <div class="review-actions">
         <div class="review-export" role="group" aria-label="Export generated notes">

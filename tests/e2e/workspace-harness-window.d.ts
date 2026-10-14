@@ -428,6 +428,19 @@ interface WorkspaceHarnessSessionState {
    */
   readonly review: { readonly showing: boolean; readonly phraseCount: number } | null
   /**
+   * The most recent session `Review last session` opens: held in memory (with how many phrases
+   * its real history holds, and how it is kept), or kept on the device under its key and not read
+   * yet; null when there is none.
+   */
+  readonly mostRecent:
+    | {
+        readonly kind: 'held'
+        readonly phraseCount: number
+        readonly keeping: 'pinned' | 'not-pinned' | 'not-saved'
+      }
+    | { readonly kind: 'kept'; readonly key: string }
+    | null
+  /**
    * The note that would start a session if played now: non-null exactly at Idle when Start may be
    * clicked, the MIDI controller is connected and the connection sheet is closed.
    */
@@ -703,6 +716,11 @@ interface WorkspaceHarnessStorageApi {
    * read (current versions, an invalid start), with a body, in one batch.
    */
   seedUnreadableKeptSession: (key: string) => Promise<void>
+  /**
+   * Delete the kept session under `key` (its session-wide record, body and played notes), as a
+   * deletion made elsewhere would, in one batch.
+   */
+  deleteKeptSession: (key: string) => Promise<void>
   /**
    * The key of each stored settings record the settings codec does not read back as the value it
    * holds, all records decoded together as a load decodes them (the page's mix design, my

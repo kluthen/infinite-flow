@@ -456,7 +456,10 @@ flushed; when saving turns off meanwhile, it is not asked.
 
 ### Your data and Delete everything
 
-`estimate()` and `persisted()` go straight to the port, for Your data.
+`estimate()` and `persisted()` go straight to the port, for Your data. So does
+`readKeptSession(key)`, the read of one kept session's records (summary, body and played notes,
+raw, `undefined` where none is stored) for its review; saving off does not stop it, and a refusal
+goes to the caller.
 
 `deleteEverything()` runs while saving is on and in `off-unreadable`, so a visit whose saved data
 could not be read still offers it. In `off-outdated` it is refused with `outdated` without reaching
@@ -633,6 +636,37 @@ failed is for saves other than the session's own), and it leaves the run of refu
 While saving is off (an outdated tab, or a visit started from the defaults), the session's save
 reads, writes and deletes nothing, and every kept session stays.
 
+## The most recent session
+
+The session controller holds the most recent session in `state.mostRecent`, a slot the next Start
+does not clear (Start still hides the Review, `state.review = null`): within a visit, the last
+session that ended with a review, saved or held in memory only; after a reload, the readable kept
+session with the latest start. A session ended in its count-in leaves it as it was, so
+`review-link` returns to it; only the next session that ends with a review replaces it.
+
+- **At the end** (`workspace-session-ends.ts`), the Review opens over the session's history
+  (`session-review-state.ts`), and the same session, its instrument named from phrase 1's own
+  intent, never by id, becomes the most recent one. How it is kept starts as `not-pinned`, or
+  `not-saved` at once while saving is off. Saving off is read from the load outcome and the
+  policy's state (`keptSessionsOf` in `workspace-kept-sessions-seam.ts`), never by waiting on the
+  save's promise, which a port that opens late or never does not settle. When the save resolves,
+  `saved` keeps `not-pinned`, and `refused` or `saving-off` turns both the most recent session and
+  its Review to `not-saved`.
+- **After a reload**, the controller decodes the summaries the load read (`mostRecentKept` in
+  `workspace-kept-session-read.ts`, in the controller's own chunk) and keeps the key of the
+  readable one with the greatest start; a summary a newer version wrote, or one that does not
+  decode, is passed over. `Review last session` then reads that session by its key
+  (`readKeptSession`), `readingMostRecent` showing the read under way (`review-link` takes
+  `is-loading` and `disabled`). The kept-session codec, loaded on demand, decodes it into the
+  session the Review draws: its phrases and start, the summary's instrument name, its tempo reached
+  and whether it is pinned. Once read it is held in memory, so showing it again reads nothing. A
+  refused read, records this version cannot read, or a session started meanwhile show nothing.
+- **The keep line** (`ReviewPanel.vue`): "Pinned: kept until you unpin or delete it.", "Not
+  pinned: deleted when your next session is saved." or "Not saved on this device: export it to keep
+  it."; below `bp-tablet-landscape` (the workspace staff's split layout) only the last. The title is
+  "Last session" for the most recent session and the session date otherwise; the summary starts
+  with the session date (`session-date.ts`) when the title does not hold it.
+
 ## The notices
 
 The notice row at the top of the workspace (`AppNoticeRow.vue`) shows one notice at a time, chosen
@@ -700,39 +734,42 @@ in-memory IndexedDB (see
 kept-session codec's need no database (see
 [Kept-session fixtures](testing.md#kept-session-fixtures)):
 
-| Spec                              | What it checks                                                                                                                                                                                      |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `record-envelope.spec.ts`         | The three readings and the write check.                                                                                                                                                             |
-| `database.spec.ts`                | Opening at data version 0 and 1, the seven stores, `meta`, a synthetic step 1 → 2, untouched stores, and the open-time defects.                                                                     |
-| `storage-port.spec.ts`            | Writes and reads, the write check, quota and other failures, the storage manager, Delete everything, and an unavailable port.                                                                       |
-| `storage-port-outdated.spec.ts`   | The four outdated triggers, listeners told once, reads that go on, and another tab's Delete everything.                                                                                             |
-| `storage-port-batch.spec.ts`      | Batches across stores, list order, one transaction, all or none on a failure, the refusals, and defective batches.                                                                                  |
-| `storage-port-keyed-read.spec.ts` | The keyed read: keys and raw values in key order, non-string keys left out, one read-only transaction, `readAll` unchanged, and its refusal.                                                        |
-| `save-policy.spec.ts`             | The saving states and their changes, saving at once, skipping while off, and the session hold.                                                                                                      |
-| `save-policy-reports.spec.ts`     | The failure report and its runs, and the request for persistent storage.                                                                                                                            |
-| `save-policy-your-data.spec.ts`   | The estimate, persistence, and Delete everything in each saving state and during a session.                                                                                                         |
-| `save-policy-session.spec.ts`     | The session's own save: the keyed read at the save, its order after the flush, waiting for a hold, one save after the other, each outcome, the failure listener for `quota` only, and saving off.   |
-| `app-version.spec.ts`             | `APP_VERSION` is `package.json`'s version.                                                                                                                                                          |
-| `settings-record.spec.ts`         | The settings codec, whose version check is the envelope's, and the loaded profile selection.                                                                                                        |
-| `settings-saver.spec.ts`          | The saves of the player's settings: one batch per change, the order kept before and after the policy loads, the hold, and `chosenControlChanges`.                                                   |
-| `storage-bootstrap.spec.ts`       | The load before the first draw: the saved settings, an invalid value's default, each failing, late and outdated case with its settings, saving state and load outcome, and the defects that reject. |
-| `kept-phrase-parsers.spec.ts`     | The harmony and intent validators: real values read back, frozen copies, each refusal, and an intent's profile read from its data.                                                                  |
-| `kept-session-record.spec.ts`     | The kept-session codec: exact keys, nothing kept beyond them, times in seconds from phrase 1, newer and unreadable records, the encoder's refusals, and the size of a 30-minute session.            |
-| `kept-session-summary.spec.ts`    | The session-wide record: its facts, its length, the recording app version, and newer and unreadable records.                                                                                        |
+| Spec                                    | What it checks                                                                                                                                                                                      |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `record-envelope.spec.ts`               | The three readings and the write check.                                                                                                                                                             |
+| `database.spec.ts`                      | Opening at data version 0 and 1, the seven stores, `meta`, a synthetic step 1 → 2, untouched stores, and the open-time defects.                                                                     |
+| `storage-port.spec.ts`                  | Writes and reads, the write check, quota and other failures, the storage manager, Delete everything, and an unavailable port.                                                                       |
+| `storage-port-outdated.spec.ts`         | The four outdated triggers, listeners told once, reads that go on, and another tab's Delete everything.                                                                                             |
+| `storage-port-batch.spec.ts`            | Batches across stores, list order, one transaction, all or none on a failure, the refusals, and defective batches.                                                                                  |
+| `storage-port-keyed-read.spec.ts`       | The keyed read: keys and raw values in key order, non-string keys left out, one read-only transaction, `readAll` unchanged, and its refusal.                                                        |
+| `save-policy.spec.ts`                   | The saving states and their changes, saving at once, skipping while off, and the session hold.                                                                                                      |
+| `save-policy-reports.spec.ts`           | The failure report and its runs, and the request for persistent storage.                                                                                                                            |
+| `save-policy-your-data.spec.ts`         | The estimate, persistence, and Delete everything in each saving state and during a session.                                                                                                         |
+| `save-policy-kept-session-read.spec.ts` | The read of one kept session's records by its key, raw, in an outdated tab too, and its refusal.                                                                                                    |
+| `save-policy-session.spec.ts`           | The session's own save: the keyed read at the save, its order after the flush, waiting for a hold, one save after the other, each outcome, the failure listener for `quota` only, and saving off.   |
+| `app-version.spec.ts`                   | `APP_VERSION` is `package.json`'s version.                                                                                                                                                          |
+| `settings-record.spec.ts`               | The settings codec, whose version check is the envelope's, and the loaded profile selection.                                                                                                        |
+| `settings-saver.spec.ts`                | The saves of the player's settings: one batch per change, the order kept before and after the policy loads, the hold, and `chosenControlChanges`.                                                   |
+| `storage-bootstrap.spec.ts`             | The load before the first draw: the saved settings, an invalid value's default, each failing, late and outdated case with its settings, saving state and load outcome, and the defects that reject. |
+| `kept-phrase-parsers.spec.ts`           | The harmony and intent validators: real values read back, frozen copies, each refusal, and an intent's profile read from its data.                                                                  |
+| `kept-session-record.spec.ts`           | The kept-session codec: exact keys, nothing kept beyond them, times in seconds from phrase 1, newer and unreadable records, the encoder's refusals, and the size of a 30-minute session.            |
+| `kept-session-summary.spec.ts`          | The session-wide record: its facts, its length, the recording app version, and newer and unreadable records.                                                                                        |
 
 `tests/unit/boundaries/eslint-boundaries.spec.ts` checks the import ban on `src/session/` and
 `src/export/`.
 
 ## Not here yet
 
-Chunks 4, 5, 9, 7, 8 and 10a build the storage core, the save policy, the kept-session codec, the
+Chunks 4, 5, 9, 7, 8 and 10 build the storage core, the save policy, the kept-session codec, the
 load before the first draw, the saves of the player's settings, with the session hold, the notices,
-and the session's save at its end. These come later:
+the session's save at its end, and the most recent session with its keep line. These come later:
 
 - the Your data sheet the storage-full notice's `Your data` opens;
 - the moment the app calls `requestProtection()`;
-- the most recent session across the next Start and a reload, the review's keep line, the session
-  list, and opening a kept session: the session is saved, but nothing opens a kept session yet.
+- the session list, and opening a kept session other than the most recent one; a read of the most
+  recent one that fails shows nothing yet, where the design shows the list with that session's row
+  failed to open (chunk 14).
 
 The loader imports the port, the policy and the settings codec, so they are in the entry chunk;
-the kept-session codec is loaded on demand, by the session's save.
+the kept-session codec is loaded on demand, by the session's save and by the read of a kept
+session; the summaries are decoded in the session controller's chunk.

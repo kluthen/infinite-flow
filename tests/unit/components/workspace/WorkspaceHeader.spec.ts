@@ -12,6 +12,7 @@ import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
 import type { ControllerStatusForm } from '@/midi/controller-status'
 import { createSessionHistory } from '@/session/session-history'
+import { fakeReview } from './fake-session-controller'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
 import {
   DEFAULT_SESSION_SEED,
@@ -341,11 +342,10 @@ describe('WorkspaceHeader session action', () => {
       canStart: false,
       startBlocker: 'review_showing',
     })
-    controller.state.review = {
-      history: createSessionHistory(sessionSettings(), fixedWallClock, DEFAULT_SESSION_SEED),
-      showing: true,
-      tempoReached: 90,
-    }
+    controller.state.review = fakeReview(
+      createSessionHistory(sessionSettings(), fixedWallClock, DEFAULT_SESSION_SEED),
+      true,
+    )
     const wrapper = mountHeader(fakeSession(READY).session, controller.controller)
 
     expect(sessionAction(wrapper).classes()).toContain('btn-primary')
