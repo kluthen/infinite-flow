@@ -21,7 +21,7 @@ import {
   NOTATION_SYSTEM_POSITION_UNITS,
   type StaffViewport,
 } from '@/notation/notation-layout-policy'
-import type { SessionHistoryRecord } from '@/session/session-history'
+import type { ReviewedPhrase } from '@/session/session-history'
 import type { PlayedNotesPitchScale } from './played-notes-lane-geometry'
 import {
   playedNotesLaneViews,
@@ -41,7 +41,7 @@ const props = withDefaults(
      * The phrase's record. The staff reads only its number, tempo, outcome and intent; the lanes
      * read its start, tempo and played notes, and only while Played notes is on.
      */
-    record: SessionHistoryRecord
+    record: ReviewedPhrase
     /** The workspace staff's viewport; null until it is known. */
     viewport: StaffViewport | null
     /** The positions to reserve, the same for every phrase; null until the viewport is known. */

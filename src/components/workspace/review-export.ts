@@ -14,7 +14,7 @@ import {
   type ExportableHistory,
   type GeneratedNotesExportModule,
 } from '@/export/load-generated-notes-export'
-import type { SessionHistoryRecord } from '@/session/session-history'
+import type { ReviewedPhrase } from '@/session/session-history'
 
 /** What an export uses: the on-demand load of the export code, and the browser's download. */
 // @spec-link [[req_session_export]]
@@ -79,7 +79,7 @@ export async function exportPlayedNotes(
 // @spec-link [[req_played_notes_export]]
 // @spec-link [[module_review_export_pipeline]]
 export function historyHoldsPlayedNote(
-  records: readonly Pick<SessionHistoryRecord, 'playedNotes'>[],
+  records: readonly Pick<ReviewedPhrase, 'playedNotes'>[],
 ): boolean {
   return records.some((record) => record.playedNotes.length > 0)
 }

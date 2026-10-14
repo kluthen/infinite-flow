@@ -12,7 +12,7 @@
 import { renderBacking } from '../domain/backing/backing-renderer'
 import { FOUR_FOUR_METER } from '../domain/generation/generation-request'
 import { midiInputFromHistory, musicXmlInputFromHistory } from '../session/session-history-export'
-import type { SessionHistoryRecord } from '../session/session-history'
+import type { ReviewedPhrase } from '../session/session-history'
 import {
   GeneratedNotesFileError,
   exportFileStem,
@@ -72,9 +72,7 @@ export function generatedNotesFileName(startedAtMs: number, format: GeneratedNot
  * the audio transport renders it, so the file's backing equals what sounded.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
-export function backingForExport(
-  records: readonly SessionHistoryRecord[],
-): readonly MidiBackingPhrase[] {
+export function backingForExport(records: readonly ReviewedPhrase[]): readonly MidiBackingPhrase[] {
   return records.map((record) => {
     const { bass, chords } = renderBacking(
       record.outcome.provenance.harmony.events,
@@ -86,7 +84,7 @@ export function backingForExport(
 
 /** Intent: the MusicXML file of the recorded phrases, as UTF-8 bytes. */
 // @spec-link [[rule_generated_notes_musicxml_export]]
-function musicXmlBytes(records: readonly SessionHistoryRecord[]): Uint8Array<ArrayBuffer> {
+function musicXmlBytes(records: readonly ReviewedPhrase[]): Uint8Array<ArrayBuffer> {
   return new TextEncoder().encode(encodeGeneratedNotesMusicXml(musicXmlInputFromHistory(records)))
 }
 
@@ -96,7 +94,7 @@ function musicXmlBytes(records: readonly SessionHistoryRecord[]): Uint8Array<Arr
  */
 // @spec-link [[rule_generated_notes_midi_export]]
 function midiBytes(
-  records: readonly SessionHistoryRecord[],
+  records: readonly ReviewedPhrase[],
   backingTrack: boolean,
 ): Uint8Array<ArrayBuffer> {
   const backing = backingTrack ? backingForExport(records) : null

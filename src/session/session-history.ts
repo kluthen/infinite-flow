@@ -15,6 +15,8 @@ import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-no
 import type { ConcertPitch } from '../domain/events/concert-pitch'
 import { deepFreeze } from '../domain/events/deep-freeze'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
+import type { GenerationResult } from '../domain/generation/generation-result'
+import type { GenerationProvenance } from '../domain/generation/orchestration/orchestration-types'
 import type { InstrumentProfileId } from '../domain/profile/instrument-profiles'
 import type { Seed } from '../domain/random/seed'
 import { withPlayedNotes } from './session-history-played-notes'
@@ -30,6 +32,34 @@ export interface RecordedPlayedNote {
 }
 
 /**
+ * The parts of a phrase's outcome the Review and the exports read: its result (the shown concert
+ * timeline) and the harmony its chord symbols and backing come from. A kept session holds exactly
+ * these, so decoding one invents nothing the readers need.
+ */
+// @spec-link [[service_session_history]]
+// @spec-link [[module_kept_session_codec]]
+export interface ReviewedOutcome {
+  readonly result: GenerationResult
+  readonly provenance: Pick<GenerationProvenance, 'harmony'>
+}
+
+/**
+ * One phrase as the Review and the exports read it: its number, the audio-clock time it started
+ * sounding, its outcome as shown, the intent it was generated from, the tempo it played at and the
+ * played notes placed in it. A live record and a decoded kept session both give this.
+ */
+// @spec-link [[service_session_history]]
+// @spec-link [[module_kept_session_codec]]
+export interface ReviewedPhrase {
+  readonly phraseNumber: number
+  readonly startedAt: AudioTime
+  readonly outcome: ReviewedOutcome
+  readonly intent: GenerationIntent
+  readonly tempo: number
+  readonly playedNotes: readonly RecordedPlayedNote[]
+}
+
+/**
  * One phrase that started sounding. `outcome` is the phrase exactly as shown (its timeline and the
  * harmony its chord symbols come from); `intent` holds the resolved request with the density it
  * was generated with, the seed and the carry-in; `tempo` is the tempo it played at, from its
@@ -42,7 +72,7 @@ export interface RecordedPlayedNote {
 // @spec-link [[rule_session_history_keeps_timeline_and_inputs]]
 // @spec-link [[rule_session_history_records_played_notes]]
 // @spec-link [[rule_repeat_phrase_marked_internally_only]]
-export interface SessionHistoryRecord {
+export interface SessionHistoryRecord extends ReviewedPhrase {
   readonly phraseNumber: number
   readonly startedAt: AudioTime
   readonly outcome: SuccessfulOutcome

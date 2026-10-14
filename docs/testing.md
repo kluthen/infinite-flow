@@ -44,7 +44,9 @@ a layer, a script, a harness seam, a fake or a fixture updates this document in 
 - **On-device storage** (the storage port, the database, its migrations, the record envelope, a
   store's codec, the save policy) gets a Vitest spec under `tests/unit/storage/`, in the Node environment, on a
   fresh in-memory IndexedDB from `storage-test-doubles.ts` (see
-  [Fake IndexedDB and storage manager](#fake-indexeddb-and-storage-manager)).
+  [Fake IndexedDB and storage manager](#fake-indexeddb-and-storage-manager)). A kept-session codec
+  spec needs no database and builds its sessions with `kept-session-fixtures.ts` (see
+  [Kept-session fixtures](#kept-session-fixtures)).
 - **Engraving and layout** of one phrase gets a spec under `tests/e2e/notation/`, driven through
   the notation harness.
 - **A timing measurement** that asserts on its numbers, or runs long, gets its own spec and its
@@ -1217,6 +1219,37 @@ two ports, or a port and a raw connection, opened on the same factory.
 `__APP_VERSION__` is defined in `vitest.config.ts` through `scripts/app-version-define.mjs`, as
 in the app's build, so `src/storage/app-version.ts` loads in unit tests and `app-version.spec.ts`
 checks it against `package.json`.
+
+### Kept-session fixtures
+
+The kept-session codec's specs (`kept-phrase-parsers.spec.ts`, `kept-session-record.spec.ts`,
+`kept-session-summary.spec.ts`) open no database: the codec is pure, and they pass stored values to
+it directly. `tests/unit/storage/kept-session-fixtures.ts` holds their shared builders, over the
+session driver and `history-recording.ts` (see [The session driver](#the-session-driver)):
+
+- `APP_VERSION` (`3.0.0-test`), the app version the specs write records with.
+- `recordedKeptSession(instrumentProfileId, phraseCount)` records a real 240 BPM session on the
+  instrument through `SessionDriver`: phrase 2 misses its deadline, so the failure ladder repeats
+  phrase 1 as phrase 2. Every phrase holds two acknowledgements and played notes, every phrase
+  but the last a note released in the next one, and one stray note sounds before phrase 1, which
+  no phrase holds.
+  The count-in starts at 3.3 s on the audio clock, not 0, so the rebasing to seconds from phrase 1
+  shows.
+- `historyOf(records, instrumentProfileId)` gives a history-shaped value over given records, as
+  the encoder reads one.
+- `longJazzSixteenthRecords(phraseCount, sourceCount)` records `sourceCount` real Jazz Sixteenth
+  phrases at 240 BPM on the E-flat alto through `recordRunnerSession`, then cycles them into
+  `phraseCount` phrases 4 s apart, renumbered and none a repeat, each with one played note per
+  shown note. The size spec builds a 450-phrase, 30-minute session from 12.
+- `storedRecords(records)` gives the stored copies of a session's records through
+  `structuredClone`, as IndexedDB stores and returns them; the played notes are `undefined` when
+  none are kept.
+- `edited(value, path, replacement)` gives a stored copy with the field at `path` (field names and
+  array indexes) replaced, or removed when the replacement is `REMOVE`: the way a spec corrupts a
+  stored value.
+- `allKeys(value)` gives every object key reachable from a value, at any depth, to prove what a
+  record never holds; `isDeepFrozen(value)` checks that a decoded value and everything in it is
+  frozen.
 
 ## The session driver
 

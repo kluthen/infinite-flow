@@ -15,7 +15,7 @@ import type { InstrumentProfile } from '../domain/profile/instrument-profile'
 import type { GeneratedNotesMidiInput, MidiBackingPhrase } from '../export/midi/midi-export-input'
 import type { PlayedNotesMidiInput } from '../export/midi/played-notes-midi-input'
 import type { GeneratedNotesMusicXmlInput } from '../export/musicxml/musicxml-export-input'
-import type { SessionHistoryRecord } from './session-history'
+import type { ReviewedPhrase } from './session-history'
 
 /** Typed failure for a history that cannot be exported: empty, or spanning two instruments. */
 // @spec-link [[service_session_history]]
@@ -33,7 +33,7 @@ export class SessionHistoryExportError extends Error {
  * has nothing to export, and records of two instruments cannot come from one session, whose
  * settings are locked at start; both are caller bugs.
  */
-function sessionInstrument(records: readonly SessionHistoryRecord[]): InstrumentProfile {
+function sessionInstrument(records: readonly ReviewedPhrase[]): InstrumentProfile {
   const first = records[0]
   if (first === undefined)
     throw new SessionHistoryExportError('The session history has no phrase to export.')
@@ -55,7 +55,7 @@ function sessionInstrument(records: readonly SessionHistoryRecord[]): Instrument
  */
 // @spec-link [[service_session_history]]
 export function musicXmlInputFromHistory(
-  records: readonly SessionHistoryRecord[],
+  records: readonly ReviewedPhrase[],
 ): GeneratedNotesMusicXmlInput {
   const instrument = sessionInstrument(records)
   return {
@@ -79,7 +79,7 @@ export function musicXmlInputFromHistory(
  */
 // @spec-link [[service_session_history]]
 export function midiInputFromHistory(
-  records: readonly SessionHistoryRecord[],
+  records: readonly ReviewedPhrase[],
   backing: readonly MidiBackingPhrase[] | null,
 ): GeneratedNotesMidiInput {
   sessionInstrument(records)
@@ -103,7 +103,7 @@ export function midiInputFromHistory(
 // @spec-link [[req_played_notes_export]]
 // @spec-link [[rule_session_history_records_played_notes]]
 export function playedNotesMidiInputFromHistory(
-  records: readonly SessionHistoryRecord[],
+  records: readonly ReviewedPhrase[],
 ): PlayedNotesMidiInput {
   sessionInstrument(records)
   return {
