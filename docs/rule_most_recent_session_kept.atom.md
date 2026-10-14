@@ -5,6 +5,7 @@ parents:
   - [[req_kept_sessions]]
 dependents:
   - [[module_kept_session_save]]
+  - [[service_session_end]]
 layer: BUSINESS
 version: 0.3
 type: RULE

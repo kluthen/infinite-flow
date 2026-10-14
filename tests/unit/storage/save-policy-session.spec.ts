@@ -59,6 +59,7 @@ afterEach(() => {
 })
 
 // @test-link [[module_kept_session_save]]
+// @test-link [[module_save_policy]]
 describe("the session's own save", () => {
   // @test-link [[rule_most_recent_session_kept]]
   it('reads the kept summaries with their keys at the save, then applies its changes in one transaction', async () => {
@@ -153,6 +154,7 @@ describe("the session's own save", () => {
 
 // @test-link [[module_kept_session_save]]
 // @test-link [[rule_failed_save_never_disturbs_session]]
+// @test-link [[module_save_policy]]
 describe("a refusal of the session's own save", () => {
   it('for another reason resolves as refused with its kind, and is not told to the failure listener', async () => {
     const refusing = refusingPort(await readyPort(freshFactory()))
@@ -216,6 +218,7 @@ describe("a refusal of the session's own save", () => {
 // @test-link [[module_kept_session_save]]
 // @test-link [[rule_outdated_tab_stops_saving]]
 // @test-link [[rule_first_phrase_waits_for_saved_settings]]
+// @test-link [[module_save_policy]]
 describe("the session's own save while saving is off", () => {
   it.each([
     ['off-outdated', () => outdatedPort(freshFactory())],
@@ -242,6 +245,7 @@ describe("the session's own save while saving is off", () => {
   })
 })
 
+// @test-link [[module_save_policy]]
 describe("the session's own save, misused", () => {
   it('throws for changes that hold no change, as a caller defect', async () => {
     const policy = createSavePolicy(await readyPort(freshFactory()))

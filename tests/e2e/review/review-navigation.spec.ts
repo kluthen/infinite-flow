@@ -230,6 +230,7 @@ test.describe('after a reload', () => {
   // @test-link [[req_kept_session_review]]
   // @test-link [[req_last_session_review]]
   // @test-link [[module_kept_session_save]]
+  // @test-link [[module_review_export_pipeline]]
   test('Review last session opens the kept session, read by its key: the same notation and exports', async ({
     page,
   }) => {

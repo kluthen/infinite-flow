@@ -60,6 +60,7 @@ export type { ProtectionOutcome, VisitRequests } from './save-policy-requests'
  */
 // @spec-link [[module_kept_session_save]]
 // @spec-link [[rule_failed_save_never_disturbs_session]]
+// @spec-link [[module_save_policy]]
 export type SessionSaveOutcome =
   | { readonly status: 'saved' }
   | { readonly status: 'refused'; readonly kind: SaveFailureKind }
@@ -352,6 +353,7 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
     },
     // @spec-link [[module_kept_session_save]]
     // @spec-link [[rule_failed_save_never_disturbs_session]]
+    // @spec-link [[module_save_policy]]
     saveSession: (changes) => {
       // A defect of one session save rejects every later one too: it surfaces, never swallowed.
       const saved = sessionSaves.then(() => runSessionSave(changes))
