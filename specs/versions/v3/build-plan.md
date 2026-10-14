@@ -735,6 +735,15 @@ laptop, bare metal). Three failures, each fixed on the wave branch in its own co
 Then `npm run quality` green on 9f3977e: unit 5,949, e2e 335, a11y 45, notation 106 with 4
 skipped; `atd:lint` and `atd:check` pass. No chunk placed the sweep at this gate.
 
+**Wave 4 sync and report (2026-10-14).** `documentalist`'s sync is b11e0b1: chunk 7's Part D
+applied (plus `service_session_controller` 0.2), the loader recorded as `module_saved_data_loader`
+(ARCHITECTURE, DRAFT 0.1), `module_save_policy`'s interface given the `startsRun` flag (0.2 kept),
+and the file references moved by the bundle fix updated. Put to the owner with the report:
+`rule_saved_settings_load_tolerantly` 0.2 (D302), a revision of `module_review_export_pipeline`
+(REVIEW; it still says the export choices are kept in memory only, which 7b changed as §4.2 asks;
+not in chunk 7's Part D), seven DRAFT → REVIEW proposals, H2, and M5 measuring first-load JS.
+Known drift left: `rule_session_data_never_sent_or_stored` (chunk 10), O190.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
