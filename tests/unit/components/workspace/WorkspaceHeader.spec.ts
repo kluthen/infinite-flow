@@ -343,7 +343,7 @@ describe('WorkspaceHeader session action', () => {
       startBlocker: 'review_showing',
     })
     controller.state.review = fakeReview(
-      createSessionHistory(sessionSettings(), fixedWallClock, DEFAULT_SESSION_SEED),
+      createSessionHistory(sessionSettings(), fixedWallClock, DEFAULT_SESSION_SEED, 'treble'),
       true,
     )
     const wrapper = mountHeader(fakeSession(READY).session, controller.controller)

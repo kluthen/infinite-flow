@@ -1153,7 +1153,9 @@ frames, so its playhead is read once a frame on the harness's audio clock.
 The session controller's specs (`tests/unit/components/workspace/session-controller-rig.ts`) build
 a controller over a transport rig, these fakes, an Idle state edited by hand and real session
 runners whose generate seam the spec scripts (real seeded successes or real failures). Idle shows
-phrase 1's written phrase (`idleWritten`); the display's frame loop runs on a hand-stepped frame
+phrase 1's written phrase (`idleWritten`), which `showIdleWritten(phrase)` replaces when a spec sets
+Idle's phrase 1 by hand (a my-instrument phrase in bass clef, whose clef Start hands the history);
+the display's frame loop runs on a hand-stepped frame
 port (`frames`) and its fit checks on a fake staff planner (`planner`) where every phrase fits
 until the spec says otherwise, both from `tests/unit/components/workspace/fake-frames.ts`. `playTo`
 moves the clock in quarter-second slices, lets promises settle after each and then runs one
@@ -1430,12 +1432,20 @@ runner:
   that always passes, and records every output into a real history. Each phrase starts sounding
   one phrase after the one before, every generation answers at once (so no deadline passes and no
   repeat is decided), and the session stops once `phraseCount` phrases have sounded. Every stored
-  intent is then the one the engine built, carry-in included. A runner error fails the test.
+  intent is then the one the engine built, carry-in included. A runner error fails the test. The
+  history records every phrase in `options.clef`, treble (every built-in's) by default.
 - **Session inputs.** `settingsForCell(cell)` builds the settings of one seed-matrix cell, and
   `idlePhraseOne(settings, seed, noteDensity?)` a real phrase 1 generated at Idle.
 - **Regeneration.** `regenerate(record)` generates a record's phrase again from its stored intent.
   `regeneratedMusicXml` and `regeneratedMidi` encode regenerated phrases without the history's
   export adapter, for a byte comparison with what the adapter hands the encoders.
+
+`tests/unit/session/my-instrument-session.ts` builds sessions played with my instrument for the
+history, kept-session, export and review specs: `lowHorn(clef)`, my instrument written C2 to C5
+and sounding a minor third lower, in the clef given (both clefs give the same profile, since the
+clef is display only); `myInstrumentSettings(instrument)` and `myInstrumentPhraseOne(settings)`,
+its profile carried as data; and `recordedMyInstrumentSession(instrument, phraseCount)`, a
+`recordRunnerSession` whose history records every phrase in the instrument's clef.
 
 One unit test carries a time budget: "a long session" in `session-history.spec.ts` builds and
 reads back a history of 2 000 phrases (about 2 h 15 min at 60 BPM) and fails above 250 ms. Unlike

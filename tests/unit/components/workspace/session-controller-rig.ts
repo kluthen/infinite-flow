@@ -179,8 +179,10 @@ export interface ControllerRig {
   readonly idle: MutableGenerationSessionState<WorkspaceSessionResult>
   readonly settings: SessionSettings
   readonly phraseOne: WorkspaceSessionResult
-  /** The written phrase the staff shows at Idle: phrase 1's. */
+  /** The written phrase the staff shows at Idle at first: phrase 1's. */
   readonly idleWritten: WrittenPhrase
+  /** Make the staff show another written phrase at Idle, as a hand-set Idle phrase 1 would. */
+  readonly showIdleWritten: (phrase: WrittenPhrase) => void
   /** The display's frame loop, stepped by `playTo` or by hand. */
   readonly frames: FakeFrames
   /** The staff planner the display checks fits with. */
@@ -260,6 +262,7 @@ export function controllerRig(
   const idleWritten = transformToWrittenPhrase(
     notationInputFromOutcome(phraseOne.outcome, phraseOne.intent, BUILT_IN_INSTRUMENT_CLEF),
   )
+  let shownIdleWritten = idleWritten
   const frames = createFakeFrames()
   const planner = createFakePlanner()
   const idle = shallowReactive<MutableGenerationSessionState<WorkspaceSessionResult>>({
@@ -360,7 +363,7 @@ export function controllerRig(
 
   const controller = createSessionController({
     idle: { state: idle, actions: { startFreshPhrase } },
-    idlePhrase: () => idleWritten,
+    idlePhrase: () => shownIdleWritten,
     audio: transport,
     browser,
     createSessionRunner: createRunner,
@@ -411,6 +414,9 @@ export function controllerRig(
     settings,
     phraseOne,
     idleWritten,
+    showIdleWritten: (phrase) => {
+      shownIdleWritten = phrase
+    },
     frames,
     planner,
     timers,

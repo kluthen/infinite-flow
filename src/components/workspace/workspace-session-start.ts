@@ -3,9 +3,9 @@
  * condition does not hold; otherwise it discards the kept Review, unlocks the audio, holds the
  * player's saves until the session ends, asks for both screen locks, starts the transport with
  * phrase 1's backing queued, builds the session's record, its history holding the Idle result's
- * session seed, takes the pre-generated phrases ready, and hands it to the rest of the start
- * (./workspace-session-begin.ts). Once the locks are asked for, a start is all or nothing: any
- * later throw undoes it (./workspace-session-ends.ts).
+ * session seed and the clef Idle drew phrase 1 in, takes the pre-generated phrases ready, and
+ * hands it to the rest of the start (./workspace-session-begin.ts). Once the locks are asked for,
+ * a start is all or nothing: any later throw undoes it (./workspace-session-ends.ts).
  */
 import { createAudioTimeAgenda } from '@/session/session-agenda'
 import { createSessionHistory } from '@/session/session-history'
@@ -46,7 +46,8 @@ export function createSessionStart(
    * from phrase 1's intent, which embeds it), hold the staff layout the
    * window's width selects, take the phrases the Idle pre-generation queue has ready that fit it
    * (aborting its attempt in flight, never waiting for it), open the history with the session seed
-   * the Idle result carries and start the runner, the count-in display, the wake-ups and the end
+   * the Idle result carries and the clef of the written phrase Idle shows (display data, never in
+   * the settings or an intent) and start the runner, the count-in display, the wake-ups and the end
    * watchers. Throws, touching nothing, while a start condition does not hold. An accepted start
    * first discards the kept Review, before anything else changes. Once the saves are held, it is
    * all or nothing: a throw from any later step undoes what was set up, releasing the saves, and
@@ -93,7 +94,12 @@ export function createSessionStart(
         timeline,
         startingTempo: tempo,
         phraseOne,
-        history: createSessionHistory(settings, deps.clock.wallClock, phraseOne.sessionSeed),
+        history: createSessionHistory(
+          settings,
+          deps.clock.wallClock,
+          phraseOne.sessionSeed,
+          idleWritten.clef,
+        ),
         agenda: createAudioTimeAgenda(),
         runner: null,
         floor: timeline.startAt,

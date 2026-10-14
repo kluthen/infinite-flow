@@ -34,6 +34,7 @@ import {
   regeneratedMidi,
   regeneratedMusicXml,
 } from './history-recording'
+import { lowHorn, recordedMyInstrumentSession } from './my-instrument-session'
 import {
   DEFAULT_SESSION_SEED,
   SessionDriver,
@@ -45,7 +46,12 @@ import { driveTempoSession, phraseStartAt, phraseTempoOf, tempoDriver } from './
 
 /** Intent: the recorded phrases of a driven session, fed every output the driver logged. */
 function recordedPhrases(driver: SessionDriver): readonly SessionHistoryRecord[] {
-  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+  const history = createSessionHistory(
+    driver.settings,
+    fixedWallClock,
+    DEFAULT_SESSION_SEED,
+    'treble',
+  )
   for (const output of driver.log) history.record(output)
   return history.phrases()
 }
@@ -169,7 +175,12 @@ describe('the encoder inputs a history hands over', () => {
  */
 function playedThreePhraseRecords(): readonly SessionHistoryRecord[] {
   const driver = threePhraseSession()
-  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+  const history = createSessionHistory(
+    driver.settings,
+    fixedWallClock,
+    DEFAULT_SESSION_SEED,
+    'treble',
+  )
   const played: readonly (readonly [number, number, number, number])[] = [
     [60, 40, 0.5, 0.75],
     [62, 50, 1.25, 1.5],
@@ -263,7 +274,12 @@ function risenRecords(phraseCount = 4): readonly SessionHistoryRecord[] {
   let plan = createClickPlan(driver.start.at, 90)
   for (let n = 2; n <= phraseCount; n += 1)
     plan = withTempoFrom(plan, phraseFirstBeat(plan, n), phraseTempoOf(driver, n))
-  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+  const history = createSessionHistory(
+    driver.settings,
+    fixedWallClock,
+    DEFAULT_SESSION_SEED,
+    'treble',
+  )
   for (const output of driver.log) {
     if (output.kind !== 'phrase-sounding') {
       history.record(output)
@@ -388,6 +404,22 @@ describe('a repeat in the export', () => {
     )
     expect(musicXml.phrases[1]!.number).toBe(2)
     expect(midi.phrases[1]!.number).toBe(2)
+  })
+})
+
+// @test-link [[service_session_history]]
+// @test-link [[rule_generated_notes_musicxml_export]]
+describe("the clef in a history's MusicXML", () => {
+  // @test-link [[service_session_history]]
+  // @test-link [[rule_generated_notes_musicxml_export]]
+  it('writes every phrase of a bass-clef history in bass clef, an F clef on line 4', async () => {
+    const history = await recordedMyInstrumentSession(lowHorn('bass'), 2)
+
+    const input = musicXmlInputFromHistory(history.phrases())
+    expect(input.phrases.map((phrase) => phrase.writtenPhrase.clef)).toEqual(['bass', 'bass'])
+    const xml = encodeGeneratedNotesMusicXml(input)
+    expect(xml).toMatch(/<clef>\s*<sign>F<\/sign>\s*<line>4<\/line>\s*<\/clef>/u)
+    expect(xml).not.toContain('<sign>G</sign>')
   })
 })
 

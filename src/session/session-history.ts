@@ -1,14 +1,14 @@
 /**
- * The session history: an in-memory record of every phrase of a session that started sounding,
- * fed from the session engine's outputs in order. Each entry keeps the phrase as it was shown and
- * the inputs that reproduce it, with the tempo it played at (its phrase-sounding output's) and the
+ * The session history: an in-memory record of every phrase of a session that started sounding, fed
+ * from the session engine's outputs in order. Each entry keeps the phrase as it was shown and the
+ * inputs that reproduce it, with the tempo it played at (its phrase-sounding output's) and the
  * internal repeat mark, and the acknowledgements and played notes that fall inside it, placed on
  * read (see session-history-played-notes). The tempo the session reached is the last recorded
- * phrase's.
- * It also keeps when the session started, read once from an injected wall clock, the instrument
- * profile of the locked settings and the session seed the session started with; nothing derived
- * from that seed is kept beside it. It never reads the system time, touches no browser API and
- * stores nothing outside memory.
+ * phrase's. It also keeps when the session started, read once from an injected wall clock, the
+ * instrument profile of the locked settings and the session seed the session started with; nothing
+ * derived from that seed is kept beside it. Every phrase carries the clef the session's instrument
+ * was drawn in at its start, as display data beside the phrase, never in its intent. It never reads
+ * the system time, touches no browser API and stores nothing outside memory.
  */
 
 import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
@@ -17,7 +17,15 @@ import { deepFreeze } from '../domain/events/deep-freeze'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
 import type { GenerationResult } from '../domain/generation/generation-result'
 import type { GenerationProvenance } from '../domain/generation/orchestration/orchestration-types'
-import type { InstrumentProfileId } from '../domain/profile/instrument-profiles'
+import {
+  BUILT_IN_INSTRUMENT_CLEF,
+  isInstrumentClef,
+  type InstrumentClef,
+} from '../domain/profile/instrument-clef'
+import {
+  isBuiltInInstrumentProfileId,
+  type InstrumentProfileId,
+} from '../domain/profile/instrument-profiles'
 import type { Seed } from '../domain/random/seed'
 import { withPlayedNotes } from './session-history-played-notes'
 import type { AudioTime, SessionOutput, SessionSettings, SuccessfulOutcome } from './session-types'
@@ -45,8 +53,9 @@ export interface ReviewedOutcome {
 
 /**
  * One phrase as the Review and the exports read it: its number, the audio-clock time it started
- * sounding, its outcome as shown, the intent it was generated from, the tempo it played at and the
- * played notes placed in it. A live record and a decoded kept session both give this.
+ * sounding, its outcome as shown, the intent it was generated from, the tempo it played at, the
+ * played notes placed in it and the clef it was drawn in. A live record and a decoded kept session
+ * both give this.
  */
 // @spec-link [[service_session_history]]
 // @spec-link [[module_kept_session_codec]]
@@ -57,6 +66,7 @@ export interface ReviewedPhrase {
   readonly intent: GenerationIntent
   readonly tempo: number
   readonly playedNotes: readonly RecordedPlayedNote[]
+  readonly clef: InstrumentClef
 }
 
 /**
@@ -66,7 +76,8 @@ export interface ReviewedPhrase {
  * phrase-sounding output. `isRepeat` and
  * `repeatOf` are the internal repeat mark, which no view shows. `acknowledgements` holds the
  * acknowledged expected notes of the phrase, in arrival order; `playedNotes` the played notes whose
- * onsets fall inside it, by onset.
+ * onsets fall inside it, by onset; `clef` the clef the session's instrument was drawn in at its
+ * start.
  */
 // @spec-link [[service_session_history]]
 // @spec-link [[rule_session_history_keeps_timeline_and_inputs]]
@@ -82,6 +93,7 @@ export interface SessionHistoryRecord extends ReviewedPhrase {
   readonly repeatOf?: number
   readonly acknowledgements: readonly ExpectedNoteIdentity[]
   readonly playedNotes: readonly RecordedPlayedNote[]
+  readonly clef: InstrumentClef
 }
 
 /**
@@ -158,6 +170,23 @@ function sessionInstrumentProfileId(settings: SessionSettings): InstrumentProfil
   if (typeof id !== 'string' || id.length === 0)
     throw new SessionHistoryError('The session settings hold no instrument profile.')
   return id
+}
+
+/**
+ * Intent: the clef the session's instrument was drawn in at its start, refused unless it is a clef
+ * an instrument is drawn in, and treble for a built-in instrument.
+ */
+function sessionClef(
+  instrumentProfileId: InstrumentProfileId,
+  clef: InstrumentClef,
+): InstrumentClef {
+  if (!isInstrumentClef(clef))
+    throw new SessionHistoryError(`The session clef must be treble or bass, got ${String(clef)}.`)
+  if (isBuiltInInstrumentProfileId(instrumentProfileId) && clef !== BUILT_IN_INSTRUMENT_CLEF)
+    throw new SessionHistoryError(
+      `A built-in instrument is drawn in ${BUILT_IN_INSTRUMENT_CLEF} clef, not ${clef}.`,
+    )
+  return clef
 }
 
 /** The largest 32-bit unsigned value, the largest seed. */
@@ -289,9 +318,12 @@ function checkedAcknowledgement(identity: ExpectedNoteIdentity): {
   }
 }
 
-/** Intent: the deep-frozen record of one sounded phrase at the tempo its output carries. */
+/**
+ * Intent: the deep-frozen record of one sounded phrase at the tempo its output carries, in the
+ * session's clef.
+ */
 // @spec-link [[service_session_history]]
-function recordOf(output: SoundingOutput): SessionHistoryRecord {
+function recordOf(output: SoundingOutput, clef: InstrumentClef): SessionHistoryRecord {
   const { phraseNumber, origin, intent, outcome, repeatOf } = output.phrase
   return deepFreeze({
     phraseNumber,
@@ -303,6 +335,7 @@ function recordOf(output: SoundingOutput): SessionHistoryRecord {
     ...(repeatOf === undefined ? {} : { repeatOf }),
     acknowledgements: [],
     playedNotes: [],
+    clef,
   })
 }
 
@@ -310,7 +343,9 @@ function recordOf(output: SoundingOutput): SessionHistoryRecord {
  * Intent: an empty history for one session, created at its start from the settings locked at that
  * start (whose tempo, the starting tempo, must be usable but is never a record's), an injected wall
  * clock, read exactly once here for the start time, and the session seed taken with phrase 1 from
- * the Idle result (one that is no seed throws), kept as it is. `record` takes every engine output
+ * the Idle result (one that is no seed throws), kept as it is, and the clef the instrument's
+ * written phrase was drawn in at that start, which every record carries (a clef that is none, or a
+ * built-in instrument in any clef but treble, throws). `record` takes every engine output
  * in order: a phrase-sounding output adds the next record at its own tempo, `ended` closes the
  * history, and every other kind (read-ahead included) is ignored. `recordPlayedNote` and
  * `recordAcknowledgement` take the player's finished notes and acknowledgements, placed in the
@@ -327,9 +362,11 @@ export function createSessionHistory(
   settings: SessionSettings,
   wallClock: WallClock,
   sessionSeed: Seed,
+  clef: InstrumentClef,
 ): SessionHistory {
   assertTempo(settings.controls.tempo, 'The starting tempo')
   const instrumentProfileId = sessionInstrumentProfileId(settings)
+  const checkedClef = sessionClef(instrumentProfileId, clef)
   const checkedSeed = checkedSessionSeed(sessionSeed)
   const startedAt = sessionStartTime(wallClock)
   const records: SessionHistoryRecord[] = []
@@ -350,7 +387,7 @@ export function createSessionHistory(
     assertRepeatMark(output)
     assertSessionProfile(output, instrumentProfileId)
     assertTempo(output.tempo, `Phrase ${output.phrase.phraseNumber}'s tempo`)
-    records.push(recordOf(output))
+    records.push(recordOf(output, checkedClef))
     snapshot = undefined
   }
 

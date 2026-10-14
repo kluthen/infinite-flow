@@ -95,7 +95,12 @@ export function recordedKeptSession(
   phraseCount: number,
 ): SessionHistory {
   const driver = drivenSession(instrumentProfileId, phraseCount)
-  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+  const history = createSessionHistory(
+    driver.settings,
+    fixedWallClock,
+    DEFAULT_SESSION_SEED,
+    'treble',
+  )
   for (const output of driver.log) {
     if (output.kind === 'ended') {
       history.recordPlayedNote({

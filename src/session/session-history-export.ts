@@ -10,7 +10,6 @@
 
 import { notationInputFromOutcome } from '../domain/notation/notation-input'
 import { transformToWrittenPhrase } from '../domain/notation/written-phrase'
-import { BUILT_IN_INSTRUMENT_CLEF } from '../domain/profile/instrument-clef'
 import type { InstrumentProfile } from '../domain/profile/instrument-profile'
 import type { GeneratedNotesMidiInput, MidiBackingPhrase } from '../export/midi/midi-export-input'
 import type { PlayedNotesMidiInput } from '../export/midi/played-notes-midi-input'
@@ -49,9 +48,10 @@ function sessionInstrument(records: readonly ReviewedPhrase[]): InstrumentProfil
 }
 
 /**
- * Intent: the MusicXML encoder input of a recorded session: the session's instrument and, for
- * every record in order, its phrase number, its stored phrase written as the staff showed it and
- * its tempo. Throws a SessionHistoryExportError on an empty history or records of two instruments.
+ * Intent: the MusicXML encoder input of a recorded session: the session's instrument and, for every
+ * record in order, its phrase number, its stored phrase written as the staff showed it, in the clef
+ * the record carries, and its tempo. Throws a SessionHistoryExportError on an empty history or
+ * records of two instruments.
  */
 // @spec-link [[service_session_history]]
 export function musicXmlInputFromHistory(
@@ -63,8 +63,7 @@ export function musicXmlInputFromHistory(
     phrases: records.map((record) => ({
       number: record.phraseNumber,
       writtenPhrase: transformToWrittenPhrase(
-        // The clef this record carries, which chunk 17 adds to the record.
-        notationInputFromOutcome(record.outcome, record.intent, BUILT_IN_INSTRUMENT_CLEF),
+        notationInputFromOutcome(record.outcome, record.intent, record.clef),
       ),
       tempo: record.tempo,
     })),

@@ -36,7 +36,12 @@ function fastDriver(): SessionDriver {
 
 /** Intent: a history for the driver's session, fed every output the driver has logged so far. */
 function historyOf(driver: SessionDriver): SessionHistory {
-  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+  const history = createSessionHistory(
+    driver.settings,
+    fixedWallClock,
+    DEFAULT_SESSION_SEED,
+    'treble',
+  )
   for (const output of driver.log) history.record(output)
   return history
 }
@@ -145,7 +150,7 @@ describe("the session's start time", () => {
     const driver = sessionWithReadAheadAtStop()
     const wallClock = steppingWallClock(SESSION_START_EPOCH_MS)
 
-    const history = createSessionHistory(driver.settings, wallClock, DEFAULT_SESSION_SEED)
+    const history = createSessionHistory(driver.settings, wallClock, DEFAULT_SESSION_SEED, 'treble')
     for (const output of driver.log) history.record(output)
     history.phrases()
     history.phrases()
@@ -158,7 +163,12 @@ describe("the session's start time", () => {
   // @test-link [[service_session_history]]
   it('keeps its first reading while the wall clock moves on', () => {
     const wallClock = steppingWallClock(SESSION_START_EPOCH_MS)
-    const history = createSessionHistory(sessionSettings(), wallClock, DEFAULT_SESSION_SEED)
+    const history = createSessionHistory(
+      sessionSettings(),
+      wallClock,
+      DEFAULT_SESSION_SEED,
+      'treble',
+    )
     const later = wallClock()
 
     expect(later).toBeGreaterThan(SESSION_START_EPOCH_MS)
@@ -170,7 +180,7 @@ describe("the session's start time", () => {
     'refuses a wall-clock reading of %s',
     (reading) => {
       expect(() =>
-        createSessionHistory(sessionSettings(), () => reading, DEFAULT_SESSION_SEED),
+        createSessionHistory(sessionSettings(), () => reading, DEFAULT_SESSION_SEED, 'treble'),
       ).toThrow(SessionHistoryError)
     },
   )
@@ -183,7 +193,7 @@ describe("the session's seed", () => {
     const driver = sessionWithReadAheadAtStop()
     const sessionSeed = makeSeed(0xfeed_beef)
 
-    const history = createSessionHistory(driver.settings, fixedWallClock, sessionSeed)
+    const history = createSessionHistory(driver.settings, fixedWallClock, sessionSeed, 'treble')
     for (const output of driver.log) history.record(output)
 
     expect(history.sessionSeed).toBe(sessionSeed)
@@ -194,9 +204,9 @@ describe("the session's seed", () => {
   // @test-link [[module_session_seed_plan]]
   it.each([1.5, -1, 2 ** 32, Number.NaN])('refuses a session seed of %s', (value) => {
     const notASeed = value as Seed
-    expect(() => createSessionHistory(sessionSettings(), fixedWallClock, notASeed)).toThrow(
-      SessionHistoryError,
-    )
+    expect(() =>
+      createSessionHistory(sessionSettings(), fixedWallClock, notASeed, 'treble'),
+    ).toThrow(SessionHistoryError)
   })
 })
 
@@ -231,7 +241,12 @@ describe("the session's instrument profile", () => {
     const [keyboardOne] = soundings(sessionWithReadAheadAtStop())
     expect(keyboardOne!.phrase.intent.instrumentProfile.id).not.toBe('eb-alto')
 
-    const history = createSessionHistory(alto.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+    const history = createSessionHistory(
+      alto.settings,
+      fixedWallClock,
+      DEFAULT_SESSION_SEED,
+      'treble',
+    )
 
     expect(() => history.record(keyboardOne!)).toThrow(SessionHistoryError)
     expect(history.phraseCount).toBe(0)
@@ -308,10 +323,20 @@ describe('outputs the history refuses', () => {
   it('throws on a phrase that is not the next one to sound', () => {
     const driver = sessionWithReadAheadAtStop()
     const [soundingOne, soundingTwo] = soundings(driver)
-    const skipping = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+    const skipping = createSessionHistory(
+      driver.settings,
+      fixedWallClock,
+      DEFAULT_SESSION_SEED,
+      'treble',
+    )
     expect(() => skipping.record(soundingTwo!)).toThrow(SessionHistoryError)
 
-    const repeating = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+    const repeating = createSessionHistory(
+      driver.settings,
+      fixedWallClock,
+      DEFAULT_SESSION_SEED,
+      'treble',
+    )
     repeating.record(soundingOne!)
     expect(() => repeating.record(soundingOne!)).toThrow(SessionHistoryError)
   })
@@ -327,7 +352,12 @@ describe('outputs the history refuses', () => {
 
   // @test-link [[service_session_history]]
   it('throws on an end whose count of sounded phrases differs from the history', () => {
-    const history = createSessionHistory(sessionSettings(), fixedWallClock, DEFAULT_SESSION_SEED)
+    const history = createSessionHistory(
+      sessionSettings(),
+      fixedWallClock,
+      DEFAULT_SESSION_SEED,
+      'treble',
+    )
     expect(() =>
       history.record({
         kind: 'ended',
@@ -343,7 +373,12 @@ describe('outputs the history refuses', () => {
   it('throws on a repeat that does not name the phrase it repeats', () => {
     const driver = sessionWithReadAheadAtStop()
     const [soundingOne, soundingTwo] = soundings(driver)
-    const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+    const history = createSessionHistory(
+      driver.settings,
+      fixedWallClock,
+      DEFAULT_SESSION_SEED,
+      'treble',
+    )
     history.record(soundingOne!)
     const unnamed: SessionOutput = {
       kind: 'phrase-sounding',
@@ -387,6 +422,7 @@ describe("each phrase's tempo", () => {
         sessionSettings({ tempo: 240 }),
         fixedWallClock,
         DEFAULT_SESSION_SEED,
+        'treble',
       )
       expect(() => history.record({ ...soundingOne!, tempo })).toThrow(SessionHistoryError)
       expect(history.phraseCount).toBe(0)
@@ -398,9 +434,9 @@ describe("each phrase's tempo", () => {
     const settings = sessionSettings({ tempo: 240 })
     for (const tempo of [0, Number.NaN]) {
       const unusable = { ...settings, controls: { ...settings.controls, tempo } }
-      expect(() => createSessionHistory(unusable, fixedWallClock, DEFAULT_SESSION_SEED)).toThrow(
-        SessionHistoryError,
-      )
+      expect(() =>
+        createSessionHistory(unusable, fixedWallClock, DEFAULT_SESSION_SEED, 'treble'),
+      ).toThrow(SessionHistoryError)
     }
   })
 })
@@ -412,7 +448,12 @@ describe('the tempo reached', () => {
   // @test-link [[rule_adaptive_tempo_resets_after_session]]
   it("is the last sounded phrase's tempo, none before phrase 1, and stays at the end", () => {
     const driver = risingSession()
-    const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+    const history = createSessionHistory(
+      driver.settings,
+      fixedWallClock,
+      DEFAULT_SESSION_SEED,
+      'treble',
+    )
     const reached: (number | null)[] = [history.tempoReached()]
     for (const output of driver.log) {
       history.record(output)
@@ -448,7 +489,12 @@ describe('a long session', () => {
     )
 
     const start = performance.now()
-    const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+    const history = createSessionHistory(
+      driver.settings,
+      fixedWallClock,
+      DEFAULT_SESSION_SEED,
+      'treble',
+    )
     for (const output of outputs) history.record(output)
     let events = 0
     for (const record of history.phrases()) events += record.outcome.result.timeline.measures.length
