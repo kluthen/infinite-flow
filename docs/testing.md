@@ -435,11 +435,17 @@ opened and work through it, never through the save policy:
 | `storage.loadOutcome`         | `() => 'saved-data-read' \| 'started-from-defaults'`       | The load's outcome.                                                                                                                                                                                                                                                                        |
 | `storage.savingState`         | `() => 'on' \| 'off-outdated' \| 'off-unreadable' \| null` | The save policy's saving state; `null` until the policy exists (a port that opens after the start-up wait).                                                                                                                                                                                |
 | `storage.loadMs`              | `() => number`                                             | How long the load took, from its start to the settings decoded, in milliseconds.                                                                                                                                                                                                           |
+| `storage.refuseSaves`         | `(kind: 'quota' \| 'other' \| null) => void`               | From now on the app's port refuses every write, delete and batch as `kind` (no room left, or any other failure); `null` lets them through again. Seeds are never refused.                                                                                                                  |
+| `storage.portChanges`         | `() => number`                                             | The write spy: how many writes, deletes and batches reached the app's port since the load, refused or not.                                                                                                                                                                                 |
+| `storage.openNewerVersion`    | `() => Promise<void>`                                      | Opens the database as a newer version of the app would, one data version up, and keeps it open: the tab is outdated at once (`versionchange`), and the next load finds data written by a newer version.                                                                                    |
 
 A spec that needs saved data opens the harness (its browser context starts empty), seeds through
 `storage.seedSettings`, then reloads the page, so the next load reads what was seeded. With
 `?storageLoad=held` the load does not start until `window.__workspaceHarnessHeldLoad.release()`,
-which the page publishes at once: until then the page shows only its background. The specs are in
+which the page publishes at once: until then the page shows only its background. With
+`?storageRead=fail` every read of the app's port fails, and with `?storageRead=slow` each ends a
+second after the start-up wait, so the visit starts from the defaults. The app's port is the opened
+port wrapped by these injections; the seeds and `storage.records` bypass them. The specs are in
 `tests/e2e/storage/`; their shared helpers (`storage-helpers.ts`) also record the controls at the
 workspace's first draw, before the browser paints it, through a `MutationObserver` an init script
 installs.
