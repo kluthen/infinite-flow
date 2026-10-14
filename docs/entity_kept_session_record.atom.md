@@ -1,6 +1,6 @@
 ---
 id: entity_kept_session_record
-status: DRAFT
+status: REVIEW
 version: 0.2
 tags: [v3, release-v3.0, storage, review, session]
 parents:
@@ -9,7 +9,7 @@ parents:
   - [[rule_kept_session_content]]
   - [[rule_kept_session_holds_no_acknowledgements]]
   - [[rule_played_notes_kept_only_after_opt_in]]
-notes: Revised 2026-10-14 to version 0.2 (previous version 0.1) at the v3.0 wave-3 post-task sync, from build plan chunk 9 as merged (kept-session record, merge fcabf7f), recording what the capture left to the leader: the length runs from phrase 1 scheduled start to the end of the last phrase that sounded; the session seed stays in the session-wide record; each body phrase also holds its resolved request; the played-notes record exists exactly when the session-wide record says its played notes are kept. The size line now gives the measured figure: a 30-minute 240 BPM Jazz Sixteenth session measures 4.07 MB for its session-wide record and body (about 9 KB a phrase), its played notes adding about 1.5 MB, against the spec estimate of about 3.5 MB; the coordinator accepted the measured size with no compact encoding, as told to the owner, and the test guards 4.25 MB. Built in storage and not wired yet: nothing saves a session until build plan chunk 10. Status DRAFT, unchanged. Earlier: Created 2026-10-14 at DRAFT by the pre-code architecture capture for v3.0 build plan chunk 9 (wave-3 preflight), from master spec sections 5.1 to 5.4, 7.1 and 12, spec D255, D258, D293 and D295, the storage design module_on_device_database records, and the session list and review designs.
+notes: Status DRAFT to REVIEW on 2026-10-14, same version 0.2, on the owner's sign-off of 2026-10-14, relayed by the coordinator (in his words: ok for your recomendations), as proposed at the v3.0 wave-3 post-task sync: the merged code matches the logic and expectation, with its linked tests. Still built in storage and not wired into the app. Earlier: Revised 2026-10-14 to version 0.2 (previous version 0.1) at the v3.0 wave-3 post-task sync, from build plan chunk 9 as merged (kept-session record, merge fcabf7f), recording what the capture left to the leader: the length runs from phrase 1 scheduled start to the end of the last phrase that sounded; the session seed stays in the session-wide record; each body phrase also holds its resolved request; the played-notes record exists exactly when the session-wide record says its played notes are kept. The size line now gives the measured figure: a 30-minute 240 BPM Jazz Sixteenth session measures 4.07 MB for its session-wide record and body (about 9 KB a phrase), its played notes adding about 1.5 MB, against the spec estimate of about 3.5 MB; the coordinator accepted the measured size with no compact encoding, as told to the owner, and the test guards 4.25 MB. Built in storage and not wired yet: nothing saves a session until build plan chunk 10. Status DRAFT, unchanged. Earlier: Created 2026-10-14 at DRAFT by the pre-code architecture capture for v3.0 build plan chunk 9 (wave-3 preflight), from master spec sections 5.1 to 5.4, 7.1 and 12, spec D255, D258, D293 and D295, the storage design module_on_device_database records, and the session list and review designs.
 human_name: Kept-Session Record
 type: ENTITY
 layer: ARCHITECTURE
