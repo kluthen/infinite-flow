@@ -1925,6 +1925,24 @@ says "Kept until the next session starts…" until then), the review link after 
 `review-navigation` reload test, ISS-012; show "Not saved…" from the load outcome or the saving
 state, not by waiting on a save that a never-opening port never settles.
 
+**Record 10b (2026-10-14).** Merged into `v3.0-w5` (276f8bb, chunk commit f2609c2). After a
+reload, `Review last session` opens the kept session read by its key (`readKeptSession(key)`, a
+pass-through read beside `estimate`/`persisted` in `save-policy-requests.ts`, not stopped by saving
+off); the most recent session lives in `mostRecent` (`{kind:'kept', key}` or held in memory) across
+Start; the keep line shows "Not pinned" while the save runs and settles to "Not saved…" on a refusal
+or with saving off (at once from the saving state, never waiting on the save). ISS-012 resolved: the
+review's instrument name comes from phrase 1's intent profile, or the summary's display name for a
+kept session. `controller.showReview` returns `Promise<boolean>`. New modules
+`workspace-kept-session-read.ts`, `workspace-kept-sessions-seam.ts`, `session-date.ts`; outside the
+list `ScorePanel.vue`, `workspace-session-active.ts`, `workspace-session-controller-seams.ts`,
+`save-policy-requests.ts`. The v2 reload and Start tests of `review-navigation` are rewritten (§2).
+Reported, not decided: when the most recent session's body read fails after a reload, nothing shows
+and the link comes back enabled, where the design shows the session list's failed row (chunk 14's;
+for `ux-writer` or chunk 14); the review summary is "{date} · {n} phrases · {instrument}", the
+length, profile and favorites parts left to chunks 12 and 14; the date's punctuation follows the
+locale data. If the codec's lazy chunk fails to load at the end, the rejection surfaces unhandled and
+the line stays "Not pinned".
+
 ### Chunk 11 — Played-notes opt-in and deletion
 
 **Gate A must be applied before this chunk merges** (it breaks the old `rule_optional_midi_privacy`
