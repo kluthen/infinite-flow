@@ -151,9 +151,9 @@ test('data written by a newer version: the outdated notice in its saved-data wor
   expect(await portChanges(page)).toBe(0)
 })
 
-// @test-link [[rule_outdated_tab_stops_saving]]
-// @test-link [[rule_failed_read_told_to_player]]
 for (const read of ['fail', 'slow'] as const) {
+  // @test-link [[rule_outdated_tab_stops_saving]]
+  // @test-link [[rule_failed_read_told_to_player]]
   test(`an outdated tab whose start-up read does not succeed (${read}): the outdated notice in its defaults wording`, async ({
     page,
   }) => {
@@ -212,8 +212,8 @@ test('the database deleted from a second page: the outdated notice in the newer 
   expect(await portChanges(page)).toBe(0)
 })
 
-// @test-link [[rule_failed_read_told_to_player]]
 for (const read of ['fail', 'slow'] as const) {
+  // @test-link [[rule_failed_read_told_to_player]]
   test(`an injected ${read} read: the unusable-data notice, the defaults on screen, and no write`, async ({
     page,
   }) => {
@@ -272,11 +272,11 @@ test('a quota refusal: the storage-full notice, one notice for another refusal, 
   await expectNotice(page, STORAGE_FULL, ['Your data', 'Dismiss'])
 })
 
-// @test-link [[rule_failed_save_never_disturbs_session]]
 for (const [first, second] of [
   ['quota', 'other'],
   ['other', 'quota'],
 ] as const) {
+  // @test-link [[rule_failed_save_never_disturbs_session]]
   test(`a refusal as ${first} then one as ${second}: one notice, switched in place; after Dismiss neither brings it back until a save has succeeded`, async ({
     page,
   }) => {

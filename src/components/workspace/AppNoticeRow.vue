@@ -7,6 +7,7 @@
  */
 import type { AppNotice } from './use-app-notices'
 
+// @spec-link [[rule_failed_save_never_disturbs_session]]
 defineProps<{
   /** The notice to show. */
   notice: AppNotice
