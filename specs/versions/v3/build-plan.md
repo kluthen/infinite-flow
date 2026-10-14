@@ -807,6 +807,17 @@ signature is the builder's). Known until the sync: `rule_new_session_discards_re
 the next session starts") and `module_save_policy` (the new call) wait for their revisions; O200's
 default is built.
 
+#### Wave 5 gate (2026-10-14)
+
+Chunk 10 merged into `v3.0-w5` in two halves (10a c0312d8, 10b 276f8bb), then chunk 17 in two
+(17a 7555ce8, 17b 1449125); their records are under [chunk 10](#chunk-10--most-recent-session-kept)
+and [chunk 17](#chunk-17--my-instrument-across-the-worker-and-the-history). The gate ran on 35a469d
+on the Linux dev machine (AMD Ryzen 5 PRO 8640HS laptop, bare metal): `npm run quality` green on
+the first run (unit 6,040, e2e 344, a11y 45, notation 106 with 4 skipped; `atd:lint` and
+`atd:check` pass). **Entry chunk 221,195 B, +2,532 B since wave 4, 8,181 B of headroom.** The
+JavaScript `index.html` loads at start (the entry and the three side chunks it names) is 231,116 B.
+No chunk placed the sweep at this gate.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
