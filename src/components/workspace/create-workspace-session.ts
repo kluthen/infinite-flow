@@ -29,10 +29,10 @@ import {
   type WorkspaceGeneratedPhrase,
   type WorkspaceSessionResult,
 } from '@/composables/workspace-session-result'
-import { makeRequestId } from '@/domain/generation/generation-request'
+import { makeRequestId } from '@/domain/generation/generation-request-envelope'
 import { makeSeed } from '@/domain/random/seed'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
-import { createGenerationWorkerClient } from '@/generation-worker/generation-worker-client'
+import type { GenerationWorkerClient } from '@/generation-worker/generation-worker-client'
 import { createBrowserAudioTransport } from '@/audio/browser-audio-transport'
 import type { SavedDataLoad } from '@/storage-bootstrap'
 import { APP_VERSION } from '@/storage/app-version'
@@ -257,6 +257,27 @@ function logPhraseReplayKeyToConsole(line: string): void {
   console.info(line)
 }
 
+/**
+ * Intent: the generation seam over a worker client whose module is still loading. Every call waits
+ * for the client, in call order, then goes to it unchanged: the client, its protocol and its
+ * response parsers are not needed before the first draw, so they load on demand and leave the
+ * entry chunk. A load failure is not caught: `generate` rejects with it, as the client's own
+ * failures do.
+ */
+function loadingGenerationWorkerClient(
+  loading: Promise<GenerationWorkerClient>,
+): GenerationWorkerClient {
+  return {
+    generate: (intent, signal) => loading.then((client) => client.generate(intent, signal)),
+    prewarm: (intent) => {
+      void loading.then((client) => client.prewarm(intent))
+    },
+    dispose: () => {
+      void loading.then((client) => client.dispose())
+    },
+  }
+}
+
 /** What the production root chooses when it builds the workspace session. */
 // @spec-link [[service_workspace_session_flow]]
 export interface ProductionWorkspaceSessionOptions {
@@ -271,8 +292,9 @@ export interface ProductionWorkspaceSessionOptions {
 
 /**
  * Intent: build the root workspace session used by `App.vue` in production: a real worker-backed
- * generation seam, one browser worker at a time replaced on a session's cancellation and then
- * re-warmed under the given prewarm policy, and its prewarm under that policy, the cryptographic
+ * generation seam, its client loaded on demand, one browser worker at a time replaced on a
+ * session's cancellation and then re-warmed under the given prewarm policy, and its prewarm under
+ * that policy, the cryptographic
  * seed provider (for phrase seeds and, drawn separately, session seeds), a monotonic request-id
  * provider, the window's own `matchMedia` width provider, the Web Audio transport, still locked: no
  * audio context exists until a player click unlocks it, the Web MIDI controller on that transport's
@@ -291,9 +313,14 @@ export interface ProductionWorkspaceSessionOptions {
 export function createWorkspaceSession(
   options: ProductionWorkspaceSessionOptions,
 ): WorkspaceSession {
-  const client = createGenerationWorkerClient(createBrowserGenerationWorker, {
-    prewarmEnabled: options.prewarmPolicy === 'enabled',
-  })
+  const client = loadingGenerationWorkerClient(
+    import('@/generation-worker/generation-worker-client').then(
+      ({ createGenerationWorkerClient }) =>
+        createGenerationWorkerClient(createBrowserGenerationWorker, {
+          prewarmEnabled: options.prewarmPolicy === 'enabled',
+        }),
+    ),
+  )
   const audio = createBrowserAudioTransport({ loadedMix: () => options.savedData.settings.mix })
   const midi = createMidiController({
     provider: createWebMidiAccessProvider(navigator),

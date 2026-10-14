@@ -20,7 +20,7 @@ import {
   PHRASE_MEASURE_COUNT,
   type Meter,
   type RequestId,
-} from './generation-request'
+} from './generation-request-envelope'
 
 /**
  * The outer request accepted by Step 7 orchestration; its register intent may still be Varying.

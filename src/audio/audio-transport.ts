@@ -13,7 +13,7 @@ import {
   type AudioMixDesign,
 } from './audio-mix'
 import { renderBacking } from '../domain/backing/backing-renderer'
-import { FOUR_FOUR_METER } from '../domain/generation/generation-request'
+import { FOUR_FOUR_METER } from '../domain/generation/generation-request-envelope'
 import type { HarmonyEvent } from '../domain/harmony/harmony-types'
 import type {
   AudioOutput,

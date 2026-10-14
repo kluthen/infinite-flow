@@ -409,7 +409,7 @@ An engraving whose structure does not match what VexFlow reported (a notehead gr
 
 ### Overlay State
 
-`src/notation/score-overlays.ts` defines the state and draws it. `ScoreOverlays` has three fields: `startMarker`, the note the marker points at, or `null`; `playheadMeasure`, the measure index the band lies behind, or `null`; and `acknowledged`, the notes acknowledged so far. Every field names a note by its identity or a measure by its index, and none carries a pitch, so no overlay can draw a note the phrase does not hold, and nothing marks a missed or wrong note. `NO_SCORE_OVERLAYS` is the idle state, with nothing drawn.
+`src/notation/score-overlays.ts` draws the state, which `src/notation/score-overlay-state.ts` defines (re-exported by `score-overlays.ts`), so the workspace holds the state from its first draw while the drawing loads with the staff: `PhraseScore` loads `score-overlays.ts` and `session-staff-positions.ts` on demand with the engraver, through `src/components/notation/load-staff-drawing.ts`, so every engraving finds them loaded. `ScoreOverlays` has three fields: `startMarker`, the note the marker points at, or `null`; `playheadMeasure`, the measure index the band lies behind, or `null`; and `acknowledged`, the notes acknowledged so far. Every field names a note by its identity or a measure by its index, and none carries a pitch, so no overlay can draw a note the phrase does not hold, and nothing marks a missed or wrong note. `NO_SCORE_OVERLAYS` is the idle state, with nothing drawn.
 
 `applyScoreOverlays(svgs, phraseNumber, overlays)` applies a state to the system SVGs on screen, replacing whatever state was applied before:
 

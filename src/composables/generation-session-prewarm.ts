@@ -11,7 +11,7 @@ import {
   createGenerationIntent,
   type GenerationIntent,
 } from '@/domain/generation/generation-intent'
-import { makeRequestId } from '@/domain/generation/generation-request'
+import { makeRequestId } from '@/domain/generation/generation-request-envelope'
 import { makeSeed } from '@/domain/random/seed'
 
 /**

@@ -6,7 +6,7 @@
  * no ResizeObserver, matchMedia, layout or Web Animations, so each is stubbed here.
  */
 import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, shallowRef } from 'vue'
 
 import PhraseScore from '@/components/notation/PhraseScore.vue'
@@ -22,7 +22,11 @@ import type { StaffLayout, SystemPart } from '@/notation/notation-layout-policy'
 import { NO_SCORE_OVERLAYS, type ScoreOverlays } from '@/notation/score-overlays'
 import type { PlayheadPosition } from '@/session/rolling-display'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
-import { fakePhraseEngraver, resetFakePhraseEngraver } from './fake-phrase-engraver'
+import {
+  fakePhraseEngraver,
+  loadStaffDrawing,
+  resetFakePhraseEngraver,
+} from './fake-phrase-engraver'
 
 vi.mock('@/notation/vexflow-engraver-loader', () => import('./fake-phrase-engraver'))
 
@@ -160,6 +164,8 @@ function systemsEngraved(): string[] {
     ([, , phraseNumber, part]) => `${phraseNumber}:${part}`,
   )
 }
+
+beforeAll(loadStaffDrawing)
 
 beforeEach(() => {
   windowState.widthPx = 800

@@ -6,7 +6,11 @@
 
 import { makeConcertPitch, type ConcertPitch } from '../events/concert-pitch'
 import { deepFreeze } from '../events/deep-freeze'
-import { FOUR_FOUR_METER, PHRASE_MEASURE_COUNT, type Meter } from '../generation/generation-request'
+import {
+  FOUR_FOUR_METER,
+  PHRASE_MEASURE_COUNT,
+  type Meter,
+} from '../generation/generation-request-envelope'
 import type { DiatonicTriad, HarmonyEvent, TriadQuality } from '../harmony/harmony-types'
 import { makeRational, type Rational } from '../time/rational'
 

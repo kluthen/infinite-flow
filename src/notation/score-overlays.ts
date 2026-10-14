@@ -12,6 +12,9 @@ import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-no
 import type { MeasureIndex } from '../domain/events/measure'
 import { NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE } from './notation-layout-policy'
 import { noteIdentityKey } from './note-identity'
+import type { ScoreOverlays } from './score-overlay-state'
+
+export { NO_SCORE_OVERLAYS, type ScoreOverlays } from './score-overlay-state'
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
 const SPACE = NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
@@ -27,29 +30,6 @@ const MARKER_UNDER_CHORD_GAP_UNITS = 2 * SPACE
  */
 const TEXT_MEASURE_MAGNIFICATION = 10
 const DRAWN_SHAPES = 'path, rect, line, polyline, polygon, circle, ellipse, text'
-
-/**
- * What the session shows on the engraved score. Every field names a note by its identity or a
- * measure by its index; none carries a pitch, so no overlay can draw a note the phrase lacks.
- */
-// @spec-link [[module_notation_note_identity_overlays]]
-// @spec-link [[rule_no_grading_or_mismatch_signal]]
-export interface ScoreOverlays {
-  /** The note the start marker points at, or null for no marker. */
-  readonly startMarker: ExpectedNoteIdentity | null
-  /** The measure the playhead band lies behind, or null for no band. */
-  readonly playheadMeasure: MeasureIndex | null
-  /** The notes acknowledged so far, each lit on its own parts. */
-  readonly acknowledged: readonly ExpectedNoteIdentity[]
-}
-
-/** The idle score: no start marker, no playhead band, nothing acknowledged. */
-// @spec-link [[module_notation_note_identity_overlays]]
-export const NO_SCORE_OVERLAYS: ScoreOverlays = Object.freeze({
-  startMarker: null,
-  playheadMeasure: null,
-  acknowledged: Object.freeze([]),
-})
 
 /** Typed failure for an overlay state that names a note or measure the engraved phrase lacks. */
 // @spec-link [[module_notation_note_identity_overlays]]

@@ -40,7 +40,8 @@ export interface EngravedPayload {
  * with or without a phrase and before any engraving, so the workspace can check a phrase's fit or
  * the staff's room before it draws anything.
  * Given a running session (`session`), it shows that instead, through the positions keeper
- * (./session-staff-positions.ts): the slots the session places, refilled one position at a time,
+ * (./session-staff-positions.ts, loaded on demand with the overlays' drawing through
+ * ./load-staff-drawing.ts): the slots the session places, refilled one position at a time,
  * re-engraved in place on a resize, in the layout held for the session sized in the window's
  * height budget. It then reports neither an engraving nor a notation error, which belong to Idle,
  * only a session staff failure; entering or leaving a session drops any engraving under way, and
@@ -59,14 +60,10 @@ import {
 } from '@/notation/notation-layout-policy'
 import { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
-import {
-  applyScoreOverlays,
-  NO_SCORE_OVERLAYS,
-  type ScoreOverlays,
-} from '@/notation/score-overlays'
+import { NO_SCORE_OVERLAYS, type ScoreOverlays } from '@/notation/score-overlay-state'
 import { loadVexflowEngraver, type VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 import type { SessionStaff } from './session-staff'
-import { createStaffPositions } from './session-staff-positions'
+import { createLoadingStaffDrawing } from './load-staff-drawing'
 
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[module_notation_note_identity_overlays]]
@@ -245,7 +242,7 @@ function labelSystems(svgs: readonly SVGSVGElement[], summary: string): void {
 function drawOverlays(): void {
   if (shownScore === null) return
   if (shownScore.phrase !== props.phrase || shownScore.phraseNumber !== props.phraseNumber) return
-  applyScoreOverlays(shownScore.svgs, shownScore.phraseNumber, props.overlays)
+  positions.drawOverlays(shownScore.svgs, shownScore.phraseNumber, props.overlays)
 }
 
 /** Intent: engrave the current phrase with the given inputs, swapping it in on success only. */
@@ -295,17 +292,18 @@ function engrave(phrase: WrittenPhrase, inputs: StaffLayoutInputs): void {
 }
 
 /**
- * Intent: load the lazy VexFlow engraver module and wait for its fonts exactly once, memoized in
- * `engraverModule`, returning the typed failure instead of emitting it (the caller emits only if
- * its check is still the latest). A prior failed attempt leaves `engraverModule` unset, so the
- * load is retried (and `loadVexflowEngraver` itself retries the dynamic import) on the next
+ * Intent: load the lazy VexFlow engraver module, with the staff drawing code it engraves into, and
+ * wait for its fonts exactly once, memoized in `engraverModule`, returning the typed failure
+ * instead of emitting it (the caller emits only if its check is still the latest). A prior failed
+ * attempt leaves `engraverModule` unset, so the load is retried (and `loadVexflowEngraver` and the
+ * staff drawing's loader themselves retry the dynamic import) on the next
  * engrave -- a phrase change, typically the one a Retry triggers, or a real change of the layout
  * inputs -- instead of engraving against a module that never loaded.
  */
 async function ensureEngraverReady(): Promise<NotationError | null> {
   if (engraverModule) return null
   try {
-    const loaded = await loadVexflowEngraver()
+    const [loaded] = await Promise.all([loadVexflowEngraver(), positions.ready()])
     await loaded.ensureNotationFonts()
     engraverModule = loaded
     return null
@@ -329,21 +327,24 @@ async function sessionEngraver(): Promise<VexflowEngraverModule | NotationError>
  */
 // @spec-link [[module_session_staff_refill]]
 // @spec-link [[rule_session_ends_when_staff_too_small]]
-const positions = createStaffPositions({
-  hosts: () => {
-    const [top, bottom, staging] = [topPositionEl.value, bottomPositionEl.value, stagingEl.value]
-    return top && bottom && staging ? { top, bottom, staging } : null
+const positions = createLoadingStaffDrawing(
+  {
+    hosts: () => {
+      const [top, bottom, staging] = [topPositionEl.value, bottomPositionEl.value, stagingEl.value]
+      return top && bottom && staging ? { top, bottom, staging } : null
+    },
+    inputs: readLayoutInputs,
+    engraver: sessionEngraver,
+    acknowledged: () => props.overlays.acknowledged,
+    descriptionId,
+    describe,
+    shown: () => {
+      state.value = 'ready'
+    },
+    failed: (error) => emit('session-staff-failed', error),
   },
-  inputs: readLayoutInputs,
-  engraver: sessionEngraver,
-  acknowledged: () => props.overlays.acknowledged,
-  descriptionId,
-  describe,
-  shown: () => {
-    state.value = 'ready'
-  },
-  failed: (error) => emit('session-staff-failed', error),
-})
+  () => (showsSession ? props.session : null),
+)
 
 /**
  * Intent: report the layout inputs if they changed and resize the positions for the current

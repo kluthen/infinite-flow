@@ -96,7 +96,8 @@ and `useReviewNavigation`.
   `matchMedia('(max-width: 63.9375rem)')`, the same condition the stylesheet uses for "below
   `bp-tablet-landscape`". See [Note density below `bp-tablet-landscape`](#note-density-below-bp-tablet-landscape).
 - **Generate.** One long-lived `createBrowserGenerationWorker()` port is wrapped by
-  `createGenerationWorkerClient`, and `createWorkspaceGenerate` adapts its `generate` seam: a
+  `createGenerationWorkerClient`, whose module loads on demand as the session is created (calls
+  made meanwhile wait for it, in order), and `createWorkspaceGenerate` adapts its `generate` seam: a
   successful `GenerationOutcome` becomes the session's `WorkspaceSessionResult` (the outcome plus
   the intent that produced it); a `generation_failure` outcome is thrown as a typed
   `GenerationFailedError` carrying the orchestration failure code, never defaulted to an empty or

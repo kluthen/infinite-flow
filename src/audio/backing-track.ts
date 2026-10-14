@@ -6,7 +6,10 @@
  */
 
 import type { BackingNote, RenderedBacking } from '../domain/backing/backing-renderer'
-import { FOUR_FOUR_METER, PHRASE_MEASURE_COUNT } from '../domain/generation/generation-request'
+import {
+  FOUR_FOUR_METER,
+  PHRASE_MEASURE_COUNT,
+} from '../domain/generation/generation-request-envelope'
 import type { Rational } from '../domain/time/rational'
 import type { AudioTime, BackingVoice, ScheduledBackingNote } from './audio-ports'
 import { beatAt, type ClickPlan } from './click-track'
