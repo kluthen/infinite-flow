@@ -9,7 +9,8 @@ notes: Revised 2026-10-12 to version 0.2 (previous version 0.1) on the owner's r
 type: REQUIREMENT
 version: 0.2
 human_name: List of Kept Sessions
-dependents: []
+dependents:
+  - [[entity_kept_session_record]]
 layer: BUSINESS
 ---
 

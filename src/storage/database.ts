@@ -259,21 +259,22 @@ export async function openDatabase(opening: DatabaseOpening): Promise<OpenedData
 export type ChangeOutcome = 'done' | 'outdated'
 
 /**
- * Intent: change one store in a transaction spanning `meta` and the store, reading `meta` first:
- * when a newer app has raised the data version above the code's, the transaction aborts and
- * touches nothing. Rejects with what the change threw, or with the transaction's error (a
- * `QuotaExceededError` when the browser lacks space).
+ * Intent: change one or more stores in a single transaction spanning `meta` and those stores,
+ * reading `meta` first: when a newer app has raised the data version above the code's, the
+ * transaction aborts and touches nothing. `change` reaches each store through `objectStore`, which
+ * gives one of `stores`. All or none: rejects with what the change threw, or with the
+ * transaction's error (a `QuotaExceededError` when the browser lacks space), having written nothing.
  */
 // @spec-link [[module_on_device_database]]
 // @spec-link [[rule_outdated_tab_stops_saving]]
-export function changeStore(
+export function changeStores(
   connection: IDBDatabase,
-  store: StoreName,
+  stores: readonly StoreName[],
   dataVersion: number,
-  change: (objectStore: IDBObjectStore) => void,
+  change: (objectStore: (store: StoreName) => IDBObjectStore) => void,
 ): Promise<ChangeOutcome> {
   return new Promise((resolve, reject) => {
-    const transaction = connection.transaction([META_STORE, store], 'readwrite')
+    const transaction = connection.transaction([META_STORE, ...stores], 'readwrite')
     let outdated = false
     let failure: unknown = null
     const meta = transaction.objectStore(META_STORE).get(META_KEY)
@@ -282,7 +283,7 @@ export function changeStore(
       try {
         if (reading === 'unreadable') throw new Error('database: the meta record is damaged')
         if (reading === 'newer') outdated = true
-        else change(transaction.objectStore(store))
+        else change((name) => transaction.objectStore(name))
       } catch (error) {
         failure = error
       }

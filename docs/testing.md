@@ -42,9 +42,11 @@ a layer, a script, a harness seam, a fake or a fixture updates this document in 
   downloads) get a Playwright spec under `tests/e2e/review/`, on the workspace harness's fake audio
   clock, using `review-helpers.ts` (see [The Review specs](#the-review-specs)).
 - **On-device storage** (the storage port, the database, its migrations, the record envelope, a
-  store's codec) gets a Vitest spec under `tests/unit/storage/`, in the Node environment, on a
+  store's codec, the save policy) gets a Vitest spec under `tests/unit/storage/`, in the Node environment, on a
   fresh in-memory IndexedDB from `storage-test-doubles.ts` (see
-  [Fake IndexedDB and storage manager](#fake-indexeddb-and-storage-manager)).
+  [Fake IndexedDB and storage manager](#fake-indexeddb-and-storage-manager)). A kept-session codec
+  spec needs no database and builds its sessions with `kept-session-fixtures.ts` (see
+  [Kept-session fixtures](#kept-session-fixtures)).
 - **Engraving and layout** of one phrase gets a spec under `tests/e2e/notation/`, driven through
   the notation harness.
 - **A timing measurement** that asserts on its numbers, or runs long, gets its own spec and its
@@ -1184,10 +1186,12 @@ two ports, or a port and a raw connection, opened on the same factory.
   upgrade. With `rawGet` and `rawPut` a spec inspects what is stored, or tampers with it as a
   newer tab would (for example raising `meta`'s data version without an upgrade).
   `databaseNames(factory)` lists the databases the factory holds, to prove a deletion.
-- `failingPutFactory(makeFailure, path)` wraps a fresh factory so every `put` fails with the
+- `failingPutFactory(makeFailure, path, real?)` wraps a factory so every `put` fails with the
   given `DOMException`, either thrown by the request call (`'request'`) or as the error of an
   aborted transaction (`'transaction'`), the two ways a browser out of space reports a
-  `QuotaExceededError`. Everything else is the real fake database.
+  `QuotaExceededError`. The wrapped factory is a fresh one unless `real` is given, so a spec can
+  fill the database first and then prove a failed batch changed nothing. A batch puts into several
+  stores, and each store's `put` fails. Everything else is the real fake database.
 - `blockedOpenFactory()` gives a factory whose `open` throws a `SecurityError`, as a browser with
   storage blocked does, over a real fake factory (`real`) that still deletes databases: the port
   opens `unavailable`, and Delete everything still runs.
@@ -1195,9 +1199,57 @@ two ports, or a port and a raw connection, opened on the same factory.
   1200 bytes used of 50 MB, not persisted, persistence granted) and records each call by name in
   `calls`. A spec that leaves the manager out checks the insecure-context refusals.
 
+`tests/unit/storage/save-policy-doubles.ts` holds what the save policy's specs add on top:
+
+- `readyPort`, `filledPort`, `outdatedPort` and `unavailablePort` open a port in each of its states
+  over a given factory; `openNewerTab` and `raiseMeta` act as a newer tab, by an upgrade or by
+  raising `meta`'s data version without one.
+- `refusingPort(real)` wraps a real port so its writes, deletes, batches and Delete everything are
+  refused on demand: after `refuse(kind)`, each throws a `StorageError` of that kind. Reads and the
+  storage manager calls go to the real port.
+- `countCalls(port)` counts, from the moment it is called, every call to the port's data methods
+  (`portCalls()`) and every transaction opened on the fake database (`transactions()`,
+  `readwriteTransactions()`), to prove that nothing reaches the database during a session, or that
+  a batch is one transaction.
+- `recordFailures(policy)` and `recordStates(policy)` record what the policy reports and the states
+  it turns to; `protectedManager()` is a recording manager whose data is already persistent;
+  `lackOfSpace()` and `diskFailure()` give the two failures; `settled(promise)` captures how a
+  promise settles.
+
 `__APP_VERSION__` is defined in `vitest.config.ts` through `scripts/app-version-define.mjs`, as
 in the app's build, so `src/storage/app-version.ts` loads in unit tests and `app-version.spec.ts`
 checks it against `package.json`.
+
+### Kept-session fixtures
+
+The kept-session codec's specs (`kept-phrase-parsers.spec.ts`, `kept-session-record.spec.ts`,
+`kept-session-summary.spec.ts`) open no database: the codec is pure, and they pass stored values to
+it directly. `tests/unit/storage/kept-session-fixtures.ts` holds their shared builders, over the
+session driver and `history-recording.ts` (see [The session driver](#the-session-driver)):
+
+- `APP_VERSION` (`3.0.0-test`), the app version the specs write records with.
+- `recordedKeptSession(instrumentProfileId, phraseCount)` records a real 240 BPM session on the
+  instrument through `SessionDriver`: phrase 2 misses its deadline, so the failure ladder repeats
+  phrase 1 as phrase 2. Every phrase holds two acknowledgements and played notes, every phrase
+  but the last a note released in the next one, and one stray note sounds before phrase 1, which
+  no phrase holds.
+  The count-in starts at 3.3 s on the audio clock, not 0, so the rebasing to seconds from phrase 1
+  shows.
+- `historyOf(records, instrumentProfileId)` gives a history-shaped value over given records, as
+  the encoder reads one.
+- `longJazzSixteenthRecords(phraseCount, sourceCount)` records `sourceCount` real Jazz Sixteenth
+  phrases at 240 BPM on the E-flat alto through `recordRunnerSession`, then cycles them into
+  `phraseCount` phrases 4 s apart, renumbered and none a repeat, each with one played note per
+  shown note. The size spec builds a 450-phrase, 30-minute session from 12.
+- `storedRecords(records)` gives the stored copies of a session's records through
+  `structuredClone`, as IndexedDB stores and returns them; the played notes are `undefined` when
+  none are kept.
+- `edited(value, path, replacement)` gives a stored copy with the field at `path` (field names and
+  array indexes) replaced, or removed when the replacement is `REMOVE`: the way a spec corrupts a
+  stored value.
+- `allKeys(value)` gives every object key reachable from a value, at any depth, to prove what a
+  record never holds; `isDeepFrozen(value)` checks that a decoded value and everything in it is
+  frozen.
 
 ## The session driver
 
@@ -1472,6 +1524,7 @@ the state every baseline shows.
 | MIDI controller rig                 | `tests/unit/midi/midi-controller-rig.ts`                                        | `createControllerRig(options?)`: the real controller on the fake MIDI access and the fake audio rig's anchor, with every change and note recorded and `at(t)`, the `performance.now()` stamp of audio time `t`; the devices `KEYS_A` and `KEYS_A2` (two identical keyboards) and `PAD_B`.                                                                                                                                                                                                                                                                                                                                                                                                                                              | The `midi-controller-*` specs; `connection-sheet-rig.ts`; the `ConnectionSheet-*`, `use-controller-status`, `WorkspaceShell`, `WorkspaceShell-connection` and `App` specs                     |
 | Fake Web MIDI                       | `tests/unit/midi/fake-web-midi.ts`                                              | `createFakeWebMidiNavigator(answer)`, `createFakeWebMidiAccess(ports)`, `createFakeWebMidiPort(…)` and `createFakeWebMidiPermissions(answer)`: the browser's Web MIDI objects and `navigator.permissions` as hand-made fakes, for the adapter (jsdom has no Web MIDI).                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `web-midi-access`, `create-workspace-session-midi` specs                                                                                                                                      |
 | Storage test doubles                | `tests/unit/storage/storage-test-doubles.ts`                                    | `freshFactory()` (a fresh in-memory `IDBFactory` from `fake-indexeddb`), `sampleRecord`, the synthetic migration steps (`syntheticStep`, `migrationsUpTo`), raw access (`withRawDatabase`, `rawGet`, `rawPut`, `databaseNames`), the failing factories (`failingPutFactory`, `blockedOpenFactory`) and `recordingManager()` (see [Fake IndexedDB and storage manager](#fake-indexeddb-and-storage-manager)).                                                                                                                                                                                                                                                                                                                           | `tests/unit/storage/` specs                                                                                                                                                                   |
+| Save policy doubles                 | `tests/unit/storage/save-policy-doubles.ts`                                     | Ports in each state over a given factory (`readyPort`, `filledPort`, `outdatedPort`, `unavailablePort`) and a newer tab (`openNewerTab`, `raiseMeta`), `refusingPort(real)` (a real port whose changes are refused on demand with a given kind), `countCalls(port)` (port calls and transactions from now on), the report recorders (`recordFailures`, `recordStates`), `protectedManager()`, `lackOfSpace()`, `diskFailure()` and `settled` (see [Fake IndexedDB and storage manager](#fake-indexeddb-and-storage-manager)).                                                                                                                                                                                                          | `tests/unit/storage/save-policy*.spec.ts`                                                                                                                                                     |
 | Sheet model fixtures                | `tests/unit/components/controller-connection/sheet-model-fixtures.ts`           | The fake devices `KEYS`, `PAD` and `FLUTE`, controller snapshots (`change`, `REQUESTING`, `selected`), and `run(model, ...events)` with helpers such as `requestingSheet()` that drive the reducer to a stage through its public events.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `connection-sheet-model`, `connection-sheet-model-device-changes` specs                                                                                                                       |
 | Connection sheet rig                | `tests/unit/components/controller-connection/connection-sheet-rig.ts`           | `openSheet(rig, options?)`: mounts the real `ConnectionSheet.vue` over a controller on the fake MIDI access (the MIDI controller rig), making the connect attempt the header click makes, at Requesting access or Connected, for a given profile; and readers and drivers of what it shows (`title`, `bodyLines`, `resultLines`, `actionLabels`, `primaryLabels`, `action`, `clickAction`, `options`, …).                                                                                                                                                                                                                                                                                                                              | `ConnectionSheet-states`, `-check`, `-devices`, `-dialog` specs                                                                                                                               |
 | Fake check-note engraver            | `tests/unit/components/controller-connection/fake-check-note-engraver.ts`       | A `vi.mock` stand-in for `@/notation/vexflow-engraver-loader`: `loadVexflowEngraver` resolves to spies for `ensureNotationFonts` and `engraveCheckNote`, which puts a bare `svg.staff-svg` carrying the written MIDI note in `data-written-midi`; `resetFakeCheckNoteEngraver()`.                                                                                                                                                                                                                                                                                                                                                                                                                                                      | `ConnectionSheet-*` and `WorkspaceShell-connection` specs                                                                                                                                     |

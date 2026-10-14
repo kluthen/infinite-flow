@@ -9,7 +9,7 @@ import { deepFreeze } from '../events/deep-freeze'
 import type { MeasureIndex } from '../events/measure'
 import type { HarmonyCandidate, HarmonyEvent, TriadQuality } from '../harmony/harmony-types'
 import type { GenerationIntent } from '../generation/generation-intent'
-import type { GenerationOutcome } from '../generation/orchestration/orchestration-types'
+import type { GenerationProvenance } from '../generation/orchestration/orchestration-types'
 import type { GenerationResult } from '../generation/generation-result'
 import { isInstrumentClef, type InstrumentClef } from '../profile/instrument-clef'
 import {
@@ -229,6 +229,16 @@ export function makeNotationPhraseInput(input: MakeNotationPhraseInputArgs): Not
 }
 
 /**
+ * The parts of a successful generation outcome a notation input is built from: its result and the
+ * harmony candidate that produced it. A full outcome and a kept phrase's outcome both give these.
+ */
+// @spec-link [[module_notation_display_convention]]
+export interface NotatedOutcome {
+  readonly result: GenerationResult
+  readonly provenance: Pick<GenerationProvenance, 'harmony'>
+}
+
+/**
  * Intent: build the NotationPhraseInput for one successful generation outcome, deriving the
  * written tonal context, transposition and concert range from the intent (the written selection
  * and the active instrument profile's own transposition and active concert range) and the chord
@@ -240,7 +250,7 @@ export function makeNotationPhraseInput(input: MakeNotationPhraseInputArgs): Not
  */
 // @spec-link [[module_notation_display_convention]]
 export function notationInputFromOutcome(
-  outcome: Extract<GenerationOutcome, { kind: 'generation_success' }>,
+  outcome: NotatedOutcome,
   intent: GenerationIntent,
   clef: InstrumentClef,
 ): NotationPhraseInput {

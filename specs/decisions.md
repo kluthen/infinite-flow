@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.87
+Status: draft v2.88
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,9 +14,10 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D298**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D300**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
-from `main`); D289 is unused. D290–D299 are reserved for v3.0 wave 2.
+from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
+D299 records wave 3.
 
 ## Decision Log
 
@@ -1286,3 +1287,28 @@ from `main`); D289 is unused. D290–D299 are reserved for v3.0 wave 2.
   align. While checking this, `spec-writer` found a consequence the spec had not traced, opened as
   [O183](open-questions.md#v30-wave-2-o180): cancelling a background attempt replaces the worker,
   and with it the rhythm-domain memo the prewarm and phrase 1 warmed.
+
+- **D299 (2026-10-14): the kept-session size is the build's measurement; v3.0 wave 3 recorded and
+  its plan corrections applied (build plan v10).** At the v3.0 wave-3 gate, chunk 9 measured a
+  30-minute session at 240 BPM in Jazz with `Sixteenth` density, the largest case: 4.07 MB for
+  the summary and the body (timeline 2.2 MB, harmony 0.83 MB, intent 0.77 MB, stored request
+  0.27 MB), against the earlier estimate of 0.8 to 3.4 MB, which counted neither the stored
+  request nor each phrase's number, start, repeated phrase and clef. Played notes, when kept, add
+  about 1.5 MB at one played note per shown note (the earlier 0.25 MB assumed 2 notes a second).
+  Decided by the wave driver, the owner told: the estimate becomes the measurement, the size guard
+  test sits at 4.25 MB, and no compact encoding is built. Why: nothing in the spec caps a kept
+  session's size, the spec keeps no limit on pinned sessions and shows the space used in Your data,
+  and a compact encoding would add a codec for no behaviour the player sees. No behaviour changes.
+  Master spec Part A v1.14 (§5.2) and `kept-sessions.md` draft v3 say so.
+
+  Recorded with it, no ruling needed (build plan v10): wave 3 is done (chunks 5 and 9 merged into
+  `v3.0-w3`, the gate green on fcabf7f); the wave-3 preflight's corrections to chunks 5 and 9
+  written in as built; and what the two chunks leave to later chunks. Chunk 8: the save policy also
+  reports a change of refusal kind within a run, so the save-problem notice can switch to the
+  latest cause's wording as the design says (chunk 5 reports a run once). Chunk 10: the session's
+  own save is marked as such, so only storage full raises a notice for it, never Save failed; it
+  encodes with `encodeKeptSession` and saves in one batch with the deletion of unpinned sessions.
+  Chunk 11: played notes and the summary's `playedNotesKept` change in one batch. Chunk 17: the
+  history record gains the clef, the body encoder takes it and the review reads it, the stored
+  shape unchanged. Chunk 24b-1 gains the wave-2 gate's pre-generation test points. ISS-012 (the
+  review host cannot name my instrument) is filed and assigned in the plan.

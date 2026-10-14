@@ -3,11 +3,12 @@
 This document records how the app keeps data on the player's device: the one directory that
 touches browser storage, the port the rest of the app reaches it through, the database and its
 stores, how stored records are versioned and migrated, what happens in a tab that a newer version
-of the app has overtaken, and the app version every record carries. Its declared intent is the
-ATD atom [`module_on_device_database`](module_on_device_database.atom.md).
+of the app has overtaken, the app version every record carries, the records a kept session is
+stored as, and the save policy that decides when a write reaches the port. Its declared intent is
+the ATD atom [`module_on_device_database`](module_on_device_database.atom.md).
 
-As built in v3.0 chunk 4, this is the storage core only. Nothing in the app imports it yet; see
-[Not here yet](#not-here-yet).
+As built in v3.0 chunks 4, 5 and 9, this is the storage core, the save policy and the kept-session
+codec. Nothing in the app imports them yet; see [Not here yet](#not-here-yet).
 
 ## Words used here
 
@@ -18,9 +19,13 @@ As built in v3.0 chunk 4, this is the storage core only. Nothing in the app impo
 - **Data version**: an integer naming a stored shape. The database has one; each store's record
   shape has its own.
 - **Codec**: the pure code that turns one kind of record into stored values and back
-  (`src/storage/records/`; the settings codec is the first).
+  (`src/storage/records/`: the settings codec and the kept-session codec so far).
+- **Kept session**: a finished session stored on the device, as up to three records under one key.
 - **Outdated tab**: a tab running an older app than the one that last wrote the data. It still
   reads, and never writes.
+- **Batch**: a list of writes and deletes, possibly across stores, applied in one transaction.
+- **Save policy**: the code between the app and the port that decides whether a write is saved at
+  once, held until the session ends, or skipped because saving is off.
 
 ## One directory, one port
 
@@ -35,13 +40,22 @@ The rest of the app reaches the data only through an injected `StoragePort`, the
 `no-restricted-imports` override for those two directories rejects `@/storage`, `@/storage/…` and
 any relative path into a `storage` directory.
 
-| File                         | What it holds                                                                                                                                                                       |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `storage-port.ts`            | `openStoragePort(options)`, the `StoragePort` interface, `StorageError` and its kinds, and `browserStorage()`, which gives the browser's own IndexedDB factory and storage manager. |
-| `database.ts`                | The database name, the stores, the migration steps and their runner, and the raw IndexedDB transactions, over a small hand-written promise wrapper (no `idb` or other library).     |
-| `record-envelope.ts`         | `RecordVersions`, the two version fields every record carries, the envelope reader `readEnvelope` and the write check `assertWritableVersions`.                                     |
-| `app-version.ts`             | `APP_VERSION`, the running app's package version.                                                                                                                                   |
-| `records/settings-record.ts` | The settings codec, which reads its records through the envelope.                                                                                                                   |
+| File                              | What it holds                                                                                                                                                                                                                |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `storage-port.ts`                 | `openStoragePort(options)`, the `StoragePort` interface, `StorageChange` (one change of a batch), `StorageError` and its kinds, and `browserStorage()`, which gives the browser's own IndexedDB factory and storage manager. |
+| `save-policy.ts`                  | `createSavePolicy(port)`, the `SavePolicy` interface, the saving states, the save outcomes and the failure kinds.                                                                                                            |
+| `save-policy-requests.ts`         | The policy's requests beyond saving: persistent storage, the space used, whether the data is persistent, and Delete everything.                                                                                              |
+| `database.ts`                     | The database name, the stores, the migration steps and their runner, and the raw IndexedDB transactions, over a small hand-written promise wrapper (no `idb` or other library).                                              |
+| `record-envelope.ts`              | `RecordVersions`, the two version fields every record carries, the envelope reader `readEnvelope` and the write check `assertWritableVersions`.                                                                              |
+| `app-version.ts`                  | `APP_VERSION`, the running app's package version.                                                                                                                                                                            |
+| `records/settings-record.ts`      | The settings codec, which reads its records through the envelope.                                                                                                                                                            |
+| `records/kept-session-record.ts`  | The kept-session codec: `encodeKeptSession`, `decodeKeptSession`, the decoded `KeptSession` and `KeptPhrase`, and the facts and records they take and give.                                                                  |
+| `records/kept-session-summary.ts` | The session-wide record, its allowlist of keys, and `decodeKeptSessionSummary`, which reads it alone.                                                                                                                        |
+| `records/kept-session-body.ts`    | The body record and the allowlist of a kept phrase's keys.                                                                                                                                                                   |
+| `records/kept-played-notes.ts`    | The played-notes record and the allowlist of a kept note's keys.                                                                                                                                                             |
+| `records/kept-phrase-parsers.ts`  | `parseKeptHarmony`, `parseKeptIntent`, `parseKeptProfileSelection`, and `isKeptPhraseRefusal`, the test of what counts as a refusal.                                                                                         |
+| `records/kept-record-shape.ts`    | `KeptRecordError` and the shape readers the kept-session validators share.                                                                                                                                                   |
+| `records/kept-reading.ts`         | `KEPT_SESSION_DATA_VERSION`, the `KeptReading` a decode gives, and `readKept`, which reads the envelopes first.                                                                                                              |
 
 The port takes its IndexedDB factory and storage manager as options (`factory`,
 `storageManager`), with the running app's version (`appVersion`), and optionally its migration
@@ -69,8 +83,9 @@ index: any ordering, such as kept sessions by date, is done in memory over the s
 of stores is fixed at data version 1; a store added later needs its own migration step.
 
 `meta` holds the database's data version and the version of the app that last upgraded the
-database. The port never exposes it: `read`, `readAll`, `write` and `delete` take one of the six
-data stores (`StoreName`), and any other name throws a plain `Error`, a caller defect.
+database. The port never exposes it: `read`, `readAll`, `write`, `delete` and each change of a
+batch take one of the six data stores (`StoreName`), and any other name throws a plain `Error`, a
+caller defect.
 
 ## Data versions
 
@@ -108,7 +123,22 @@ codec's tolerant loading, never an exception.
 Writing is strict. Before every write the port runs `assertWritableVersions(record, dataVersion)`:
 a record without valid versions, or with a data version above the database's, throws a plain
 `Error` before anything is stored. That is a defect of the caller, not stored data, so it crashes
-early rather than being reported as a `StorageError`.
+early rather than being reported as a `StorageError`. Each write of a batch gets the same check.
+
+## Batches
+
+`apply(changes)` applies a list of `StorageChange` values, each a write (`store`, `key`, `record`)
+or a delete (`store`, `key`), in one readwrite transaction spanning `meta` and every store the
+batch names. The changes run in list order, so a later change to the same key wins.
+
+It is all or none. The transaction reads `meta` first, as a single write does; when it finds a
+newer data version, or a put fails for lack of space or anything else, nothing of the batch is
+stored. It is refused like `write`: with `outdated` in an outdated tab, `other` on an unavailable
+or deleted port, `quota` when the browser lacks space.
+
+Before anything is stored the port checks every change. An empty batch, a store that is not a data
+store, an unknown kind of change, or a write without valid versions throws a plain `Error`: a
+defect of the caller, and nothing is written.
 
 ## Migrations
 
@@ -144,11 +174,11 @@ field have already run it:
 
 `status()` gives the port's state:
 
-| Status        | Meaning                                                                      | Reads                           | Writes and deletes      | Delete everything       |
-| ------------- | ---------------------------------------------------------------------------- | ------------------------------- | ----------------------- | ----------------------- |
-| `ready`       | Open at the code's data version.                                             | Yes                             | Yes                     | Yes                     |
-| `outdated`    | A newer app has written data. Permanent for that port.                       | Yes, through a versionless open | Refused with `outdated` | Refused with `outdated` |
-| `unavailable` | The open failed for any other reason (storage blocked, a damaged `meta`, …). | Refused with `other`            | Refused with `other`    | Yes                     |
+| Status        | Meaning                                                                      | Reads                           | Writes, deletes, batches | Delete everything       |
+| ------------- | ---------------------------------------------------------------------------- | ------------------------------- | ------------------------ | ----------------------- |
+| `ready`       | Open at the code's data version.                                             | Yes                             | Yes                      | Yes                     |
+| `outdated`    | A newer app has written data. Permanent for that port.                       | Yes, through a versionless open | Refused with `outdated`  | Refused with `outdated` |
+| `unavailable` | The open failed for any other reason (storage blocked, a damaged `meta`, …). | Refused with `other`            | Refused with `other`     | Yes                     |
 
 Opening never rejects for a storage failure: it gives an `unavailable` port instead, so a visit
 whose read failed can still offer Delete everything, which needs no open connection. It rejects
@@ -162,11 +192,11 @@ The port becomes outdated on any of four triggers:
 3. **While open, a `versionchange` event**: another connection is upgrading the database (a newer
    tab) or deleting it (another tab's Delete everything). The port closes its connection so it
    never blocks that change.
-4. **While open, a newer `meta` in a write or delete**: every write and delete runs in a
-   transaction that reads `meta` first. When a newer tab has raised the data version without an
+4. **While open, a newer `meta` in a write, delete or batch**: every write, delete and batch runs
+   in a transaction that reads `meta` first. When a newer tab has raised the data version without an
    upgrade, the transaction aborts, touches nothing, and the call is refused with `outdated`.
 
-Once outdated, every write, delete and Delete everything is refused with `outdated` and touches
+Once outdated, every write, delete, batch and Delete everything is refused with `outdated` and touches
 nothing. Reads still work: after a `versionchange` closed the first connection, the next read
 reopens the database without a version, on demand. That reopening never creates the database:
 when another tab deleted it, the read is refused with `other`, so deleted data never comes back as
@@ -190,7 +220,8 @@ Every refusal is a `StorageError` whose `kind` is one of:
   manager.
 
 The browser's own error is kept as the refusal's `cause`. Defects of the caller (an unknown store,
-a record without valid versions, migration steps with a gap) throw a plain `Error` instead.
+a record without valid versions, an empty batch, migration steps with a gap) throw a plain `Error`
+instead.
 
 ## Delete everything
 
@@ -204,7 +235,212 @@ connections and become outdated. Every later call on the port is refused with `o
 `estimate()`, `persisted()` and `persist()` go to the injected storage manager: the space used and
 available, whether the browser keeps the data under storage pressure, and the request to make it
 so. Without a storage manager (an insecure context), all three are refused with `other`. The port
-does not refuse `persist()` in an outdated tab: when to ask is the save policy's decision.
+does not refuse `persist()` in an outdated tab: when to ask is the save policy's decision (see
+[Persistent storage](#persistent-storage)).
+
+## Kept sessions
+
+A kept session is stored as up to three records, all under one key the saver supplies: the
+session-wide record in `sessionSummaries`, the body in `sessionBodies`, and the played notes in
+`playedNotes`, only when the player keeps them. The key is in no record.
+
+`src/storage/records/kept-session-record.ts` is the codec:
+`encodeKeptSession(history, facts, appVersion)` gives the records, and
+`decodeKeptSession(stored)` reads them back. It is pure: it never opens the database, reads a
+clock or draws a seed.
+
+All three shapes are at data version 1 (`KEPT_SESSION_DATA_VERSION`). Every time in them is in
+seconds from phrase 1's scheduled start, never on the audio clock.
+
+### What each record holds
+
+Each record holds the envelope's two versions, then exactly these keys, and no other:
+
+| Record       | Keys                                                                                                                                                                                                           |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Session-wide | `startedAt`, `lengthSeconds`, `phraseCount`, `musicalProfile`, `instrument`, `startingTempo`, `tempoReached`, `pinned`, `favoritesCount`, `comment`, `playedNotesKept`, `recordedByAppVersion`, `sessionSeed`. |
+| Body         | `phrases`, in sounding order, each with `phraseNumber`, `startsAt`, `request`, `timeline`, `harmony`, `intent`, `tempo`, `isRepeat`, `repeatOf` (only on a repeat), `favorite`, `clef`.                        |
+| Played notes | `notes`, in onset order, each with `pitch`, `velocity`, `onset`, `release`.                                                                                                                                    |
+
+The session-wide record holds what a list row shows:
+
+- `startedAt`: the session's wall-clock start, in epoch milliseconds.
+- `lengthSeconds`: from phrase 1's scheduled start to the end of the last phrase that sounded
+  (four measures at its tempo).
+- `phraseCount` and `favoritesCount`.
+- `musicalProfile`: the selection at Start, the profile and whether it was customized.
+- `instrument`: its `id` and its `displayName` as shown then.
+- `startingTempo`, phrase 1's, and `tempoReached`, the last phrase's.
+- `pinned`, `comment` (at most 500 characters, empty until written) and `playedNotesKept`.
+- `recordedByAppVersion`: the app version that recorded the session. It is the session's own
+  fact: the envelope's `appVersion` names the app that last wrote the record, and a migration
+  rewrites it; this one never changes.
+- `sessionSeed`: kept mainly for debugging. Nothing derived from it is stored.
+
+A body phrase holds the generation request and the concert timeline as shown, the harmony its
+chord symbols come from, and its generation intent, with the instrument profile as data. Its
+`clef` is treble for a built-in instrument.
+
+Nothing else is kept: no acknowledgement, no rhythm or tension provenance, no diagnostics. The
+encoder copies every field by name onto fresh records, so what the history holds beyond them never
+reaches storage. A played note is kept only when it falls in a phrase; one played before phrase 1
+is not.
+
+### Encoding
+
+The encoder takes the finished session's history and the facts the history does not hold:
+`pinned`, the numbers of the favorite phrases, the comment and whether the played notes are kept.
+It throws a plain `Error`, a defect of the caller, for:
+
+- a history with no phrase, or an empty app version;
+- a comment over 500 characters;
+- a favorite that is not a phrase of the session, or is listed twice;
+- a phrase played on another instrument than the session's;
+- a My instrument phrase: the history does not carry its clef yet, and a guessed clef must never
+  be written.
+
+### Decoding
+
+`decodeKeptSession` gives a `KeptReading`: `current` with the value, `newer` or `unreadable`. It
+reads the envelopes first, of every record stored:
+
+- any newer record leaves the whole session unread, as `newer`, whatever the others hold;
+- otherwise any unreadable envelope makes it `unreadable`.
+
+Current records are then validated, and anything invalid or inconsistent makes the session
+`unreadable`. Nothing is repaired, defaulted or partly read. Every field is checked by the domain's
+own parser where one exists: `parseGenerationRequest`, `parseConcertEventTimeline` and
+`parseConcertPitch`, with `isInstrumentClef` for the clef. `kept-phrase-parsers.ts` adds
+`parseKeptHarmony` and `parseKeptIntent` for what no domain parser covers. An intent's instrument
+profile is read from the data it holds, through the domain's profile parser, and never rebuilt from
+its id, so a phrase reads back as it was played.
+
+The records must also agree:
+
+- the body holds the summary's phrase count and favorites count;
+- every phrase was played on the summary's instrument;
+- a played-notes record exists exactly when `playedNotesKept` is true;
+- each phrase's request and intent agree on the request id and the seed;
+- phrase numbers and starts strictly increase, from phrase 1 at 0;
+- `repeatOf` is present exactly on a repeat, and names an earlier phrase;
+- the notes are in onset order, none before phrase 1's start, none released before its onset.
+
+Only a refusal of a stored value turns into `unreadable`: an error that `isKeptPhraseRefusal`
+recognizes, from the kept-session validators or the domain parsers they call. Any other error is a
+defect and is thrown.
+
+The decoded value is a `KeptSession`: the `summary` and the `phrases`, each a `KeptPhrase`. A
+`KeptPhrase` is a `ReviewedPhrase` with its repeat mark, its favorite mark and its clef. Its
+outcome holds only what the records hold: the `result` (the request id and seed of the stored
+request, and the timeline) and `provenance.harmony`. The played notes are placed in the phrases by
+`withPlayedNotes`, exactly as the session history places them.
+
+`decodeKeptSessionSummary` reads the session-wide record alone, the same way, for the session list.
+
+### What the review and the exports read
+
+`ReviewedPhrase` and `ReviewedOutcome` (in `src/session/session-history.ts`) are the parts of a
+phrase the review and the exports read. `SessionHistoryRecord` extends `ReviewedPhrase`, and the
+review components, the export modules and `ExportableHistory` take the narrower type. So a decoded
+kept session reviews and exports exactly as the live history did, byte for byte.
+`src/session/` and `src/export/` still never import `src/storage/`.
+
+### Size
+
+A 30-minute session at 240 BPM in Jazz with Sixteenth density measures 4.07 MB (UTF-8 JSON) for
+its session-wide record and body, about 9 KB a phrase: each phrase keeps its timeline, harmony and
+intent in their domain form. The v3.0 spec estimated about 3.5 MB. Its played notes, at one note per
+shown note, add about 1.47 MB.
+
+## The save policy
+
+`createSavePolicy(port)` wraps an open port. The app saves through the policy, never through the
+port directly, and the policy decides what reaches the port. It is pure: the port is injected, and
+it keeps no clock.
+
+### Saving states
+
+`state()` gives one of three saving states, and `onStateChange(listener)` tells each change; it
+returns an unsubscribe function.
+
+| State            | Meaning                                             | Entered                                                                                           |
+| ---------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `on`             | The visit saves.                                    | At creation, over a `ready` port.                                                                 |
+| `off-outdated`   | A newer version of the app has written data. Final. | At creation over an `outdated` port; when the port's `onOutdated` fires; on a refusal `outdated`. |
+| `off-unreadable` | The saved data could not be read at start-up.       | At creation over an `unavailable` port; on `stopSavingUnreadable()`.                              |
+
+The app calls `stopSavingUnreadable()` when the start-up read fails or takes too long. Both off
+states last for the rest of the visit. `off-outdated` is final: newer data wins over a failed read,
+so `off-unreadable` can still turn `off-outdated`, never the other way.
+
+While saving is off, every write, delete and batch is skipped and reaches no database.
+
+### Writing
+
+`write(store, key, record)`, `delete(store, key)` and `save(changes)`, a batch, go to the port at
+once while saving is on and no session runs. An empty batch is a defect and throws a plain `Error`.
+Each resolves with one outcome:
+
+- `saved`: the port stored it;
+- `held`: a session runs, and it waits for the session's end;
+- `skipped`: saving is off, or the port refused it as `outdated` (saving then turns `off-outdated`);
+- `failed`: the port refused it for lack of space or another failure; it is reported.
+
+A refusal never rejects: the call resolves `skipped` or `failed`. A defect of the caller, such as a
+record without valid versions, still throws a plain `Error`.
+
+### The session hold
+
+`hold()` is called when a session starts, at Start; `release()` when it ends. Holding twice, or
+releasing without a hold, is a defect.
+
+While held, nothing reaches the database. Each write, delete and batch is queued and resolves
+`held`; a later change to the same record (same store, same key) replaces the earlier one, so only the latest
+change per record is kept. `release()` flushes the queue as one batch, in one transaction, and
+resolves with its outcome: `saved` when nothing was held, without a call to the port. A defective
+change held throws its plain `Error` here.
+
+When saving turns off during a session, the queue is dropped and never flushed; `release()` then
+resolves `skipped`. A flush the port refuses is not retried: its changes are lost, and the refusal
+counts like any other. After the release, saves go to the port at once again.
+
+### Failure report
+
+`onFailure(listener)` takes one listener at a time; a second one is a defect. It returns an
+unsubscribe function, after which a new listener may be set.
+
+The listener is told the kind of a failed save, `quota` or `other`; an `outdated` refusal is never
+reported. A run of refusals with no successful save between them is told once, at its first
+refusal; the first refusal after a success starts a new run. A refusal made while no listener is
+attached still counts toward its run. A release with nothing held reaches no port, so it does not
+end a run.
+
+### Persistent storage
+
+`requestProtection()` asks the browser to keep the saved data under storage pressure, at most once
+per visit. It resolves with one outcome:
+
+- `granted` or `refused`: the browser's answer;
+- `already-protected`: the data already is persistent, so nothing was asked;
+- `not-asked`: saving is off, or the visit has already asked;
+- `failed`: the storage manager refused the call, for example when there is none. It is not
+  reported as a failed save.
+
+It is never asked while saving is off, and a call made then does not use up the visit's request.
+During a session the request waits for the release, and runs right after the session's saves are
+flushed; when saving turns off meanwhile, it is not asked.
+
+### Your data and Delete everything
+
+`estimate()` and `persisted()` go straight to the port, for Your data.
+
+`deleteEverything()` runs while saving is on and in `off-unreadable`, so a visit whose saved data
+could not be read still offers it. In `off-outdated` it is refused with `outdated` without reaching
+the port. During a session it is a defect and throws a plain `Error`. Its refusal goes to the
+caller, not to the failure listener.
+
+After a successful Delete everything the port refuses every later write with `other`; the app
+reloads the page then.
 
 ## The app version
 
@@ -222,30 +458,43 @@ reaches `src/storage/app-version.ts` must add the same `define`, or that code fa
 
 ## Tests
 
-The unit specs live in `tests/unit/storage/`, on an in-memory IndexedDB (see
-[Fake IndexedDB and storage manager](testing.md#fake-indexeddb-and-storage-manager)):
+The unit specs live in `tests/unit/storage/`. Those of the port and the policy run on an
+in-memory IndexedDB (see
+[Fake IndexedDB and storage manager](testing.md#fake-indexeddb-and-storage-manager)); the
+kept-session codec's need no database (see
+[Kept-session fixtures](testing.md#kept-session-fixtures)):
 
-| Spec                            | What it checks                                                                                                                  |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `record-envelope.spec.ts`       | The three readings and the write check.                                                                                         |
-| `database.spec.ts`              | Opening at data version 0 and 1, the seven stores, `meta`, a synthetic step 1 → 2, untouched stores, and the open-time defects. |
-| `storage-port.spec.ts`          | Writes and reads, the write check, quota and other failures, the storage manager, Delete everything, and an unavailable port.   |
-| `storage-port-outdated.spec.ts` | The four outdated triggers, listeners told once, reads that go on, and another tab's Delete everything.                         |
-| `app-version.spec.ts`           | `APP_VERSION` is `package.json`'s version.                                                                                      |
-| `settings-record.spec.ts`       | The settings codec, whose version check is the envelope's.                                                                      |
+| Spec                            | What it checks                                                                                                                                                                           |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `record-envelope.spec.ts`       | The three readings and the write check.                                                                                                                                                  |
+| `database.spec.ts`              | Opening at data version 0 and 1, the seven stores, `meta`, a synthetic step 1 → 2, untouched stores, and the open-time defects.                                                          |
+| `storage-port.spec.ts`          | Writes and reads, the write check, quota and other failures, the storage manager, Delete everything, and an unavailable port.                                                            |
+| `storage-port-outdated.spec.ts` | The four outdated triggers, listeners told once, reads that go on, and another tab's Delete everything.                                                                                  |
+| `storage-port-batch.spec.ts`    | Batches across stores, list order, one transaction, all or none on a failure, the refusals, and defective batches.                                                                       |
+| `save-policy.spec.ts`           | The saving states and their changes, saving at once, skipping while off, and the session hold.                                                                                           |
+| `save-policy-reports.spec.ts`   | The failure report and its runs, and the request for persistent storage.                                                                                                                 |
+| `save-policy-your-data.spec.ts` | The estimate, persistence, and Delete everything in each saving state and during a session.                                                                                              |
+| `app-version.spec.ts`           | `APP_VERSION` is `package.json`'s version.                                                                                                                                               |
+| `settings-record.spec.ts`       | The settings codec, whose version check is the envelope's.                                                                                                                               |
+| `kept-phrase-parsers.spec.ts`   | The harmony and intent validators: real values read back, frozen copies, each refusal, and an intent's profile read from its data.                                                       |
+| `kept-session-record.spec.ts`   | The kept-session codec: exact keys, nothing kept beyond them, times in seconds from phrase 1, newer and unreadable records, the encoder's refusals, and the size of a 30-minute session. |
+| `kept-session-summary.spec.ts`  | The session-wide record: its facts, its length, the recording app version, and newer and unreadable records.                                                                             |
 
 `tests/unit/boundaries/eslint-boundaries.spec.ts` checks the import ban on `src/session/` and
 `src/export/`.
 
 ## Not here yet
 
-Chunk 4 builds the storage core and nothing that uses it. These come from chunk 5 onward:
+Chunks 4, 5 and 9 build the storage core, the save policy and the kept-session codec, and nothing
+that uses them. Nothing in the app uses the policy until chunk 7 wires it. These come later:
 
-- the save policy: whether saving is on or off for the visit ("saving off" in an outdated tab, or
-  after a failed or slow start-up read), and the hold that queues writes while a session runs and
-  flushes them at its end;
-- the start-up wait for saved settings;
-- the notices the player sees;
-- when persistent storage is requested.
+- the start-up wait for saved settings, and the call to `stopSavingUnreadable()` when that read
+  fails or is too slow;
+- the calls to `hold()` and `release()` at a session's start and end;
+- the notices the player sees, from the saving state and the failure report;
+- the moment the app calls `requestProtection()`;
+- the save of a kept session at a session's end, the session list, and opening a kept session:
+  the codec exists, but nothing saves or opens a kept session yet.
 
-No application code imports the port yet, and the entry chunk does not include it.
+No application code imports the port, the policy or the codecs yet, and the entry chunk does not
+include them.
