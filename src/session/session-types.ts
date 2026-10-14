@@ -13,6 +13,7 @@ import type {
   GenerationIntentProviders,
 } from '../domain/generation/generation-intent'
 import type { GenerationOutcome } from '../domain/generation/orchestration/orchestration-types'
+import type { InstrumentProfile } from '../domain/profile/instrument-profile'
 import type { Seed } from '../domain/random/seed'
 import type { ReadyPhrase } from './session-ready-phrases'
 import type { MutableSetting, SettingsMutationFlag } from './settings-mutation'
@@ -50,13 +51,17 @@ export type SuccessfulOutcome = Extract<GenerationOutcome, { kind: 'generation_s
 /**
  * Session settings: those the player chose when the session started, which the player cannot edit
  * during it, or those an automatic source put in effect at a phrase boundary since. The controls
- * hold the written tonal center and the chosen note density.
+ * hold the written tonal center and the chosen note density. `instrumentProfile` is my
+ * instrument's profile, carried as data exactly when the controls name `my-instrument` (taken at
+ * Start from phrase 1's intent); a built-in's is resolved from its id, so built-in settings hold
+ * none.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_session_settings_locked]]
 export interface SessionSettings {
   readonly controls: GenerationControls
   readonly musicalProfile: ProfileSelection
+  readonly instrumentProfile?: InstrumentProfile
 }
 
 /**

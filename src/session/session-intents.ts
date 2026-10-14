@@ -13,7 +13,13 @@ import { resolveGeneratedNoteDensity } from '../domain/controls/generated-note-d
 import { deepFreeze } from '../domain/events/deep-freeze'
 import type { CarryIn } from '../domain/generation/carry-in/carry-in'
 import { makeCarryInGenerationIntent } from '../domain/generation/carry-in/carry-in-intent'
-import { makeGenerationIntent, type GenerationIntent } from '../domain/generation/generation-intent'
+import {
+  makeGenerationIntent,
+  resolveInstrumentProfile,
+  type GenerationIntent,
+} from '../domain/generation/generation-intent'
+import type { InstrumentProfile } from '../domain/profile/instrument-profile'
+import { MY_INSTRUMENT_ID } from '../domain/profile/instrument-profiles'
 import type { RegisterId } from '../domain/profile/register-id'
 import type { RegisterChoice } from '../domain/profile/register-intent'
 import type { RegisterWindowCandidate } from '../domain/profile/register-window-derivation'
@@ -61,18 +67,66 @@ export interface BuiltIntent {
 }
 
 /**
+ * Intent: the profile the settings' instrument has: my instrument's, carried as data, or a
+ * built-in's, resolved from its id. Settings naming my instrument without its profile, or a
+ * built-in with one, are refused as a GenerationIntentError, as an intent built from them would be.
+ */
+// @spec-link [[entity_my_instrument]]
+// @spec-link [[service_session_engine]]
+export function sessionInstrumentProfile(settings: SessionSettings): InstrumentProfile {
+  return resolveInstrumentProfile(settings.controls.instrumentProfileId, settings.instrumentProfile)
+}
+
+/**
+ * Intent: the settings' profile as an intent input takes it: my instrument's profile when the
+ * settings carry one, nothing for a built-in, which the intent resolves from its id.
+ */
+function suppliedProfileOf(
+  settings: SessionSettings,
+): { readonly instrumentProfile: InstrumentProfile } | Record<string, never> {
+  return settings.instrumentProfile === undefined
+    ? {}
+    : { instrumentProfile: settings.instrumentProfile }
+}
+
+/**
  * Intent: an independent, deep-frozen copy of the chosen settings, so nothing the caller does to
- * its own objects after the start can reach the session. The controls are validated on the way.
+ * its own objects after the start can reach the session. The controls are validated on the way,
+ * and my instrument's profile, when the settings carry it, is kept: settings whose profile does
+ * not match their instrument are refused.
  */
 // @spec-link [[rule_session_settings_locked]]
+// @spec-link [[entity_my_instrument]]
 export function freezeSessionSettings(settings: SessionSettings): SessionSettings {
+  const controls = makeGenerationControls(settings.controls)
+  sessionInstrumentProfile({ ...settings, controls })
   return deepFreeze({
-    controls: makeGenerationControls(settings.controls),
+    controls,
     musicalProfile: {
       musicalProfile: settings.musicalProfile.musicalProfile,
       isCustom: settings.musicalProfile.isCustom,
     },
+    ...suppliedProfileOf(settings),
   })
+}
+
+/**
+ * Intent: the settings a session starts with: the chosen controls and musical profile, and, when
+ * the controls name my instrument, its profile as phrase 1's intent embeds it, so the session
+ * generates with the very profile phrase 1 was generated with.
+ */
+// @spec-link [[service_session_engine]]
+// @spec-link [[entity_my_instrument]]
+export function sessionSettingsAtStart(
+  chosen: Pick<SessionSettings, 'controls' | 'musicalProfile'>,
+  phraseOne: GenerationIntent,
+): SessionSettings {
+  const mine = chosen.controls.instrumentProfileId === MY_INSTRUMENT_ID
+  return {
+    controls: chosen.controls,
+    musicalProfile: chosen.musicalProfile,
+    ...(mine ? { instrumentProfile: phraseOne.instrumentProfile } : {}),
+  }
 }
 
 /**
@@ -101,13 +155,15 @@ export function resolvedRegister(
  * seed the session seed plan gives its slot (its phrase and rung), whatever ran before it. The
  * note density comes from the density in effect, the window reading now and the step-down memory;
  * building it as Eighth for a Sixteenth in effect sets the memory, whatever the attempt's fate. A
- * carry-in attempt keeps its carry-in; a standalone one drops it and fixes its register.
+ * carry-in attempt keeps its carry-in; a standalone one drops it and fixes its register. My
+ * instrument's profile, carried by the settings, goes into every attempt as data.
  */
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[rule_session_density_only_steps_down]]
 // @spec-link [[rule_varying_register_once_per_session]]
 // @spec-link [[module_session_density_step_down]]
 // @spec-link [[module_session_seed_plan]]
+// @spec-link [[entity_my_instrument]]
 export function buildAttemptIntent(
   seams: IntentSeams,
   settings: SessionSettings,
@@ -126,6 +182,7 @@ export function buildAttemptIntent(
     seed: phraseAttemptSeed(seams.sessionSeed, slot.phraseNumber, slot.rung),
     controls: { ...chosen, noteDensity, register },
     musicalProfile: settings.musicalProfile,
+    ...suppliedProfileOf(settings),
   }
   const intent =
     plan.step === 'carry-in'
