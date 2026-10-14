@@ -8,6 +8,9 @@
  * - `seedSettings` writes settings records through the settings codec, valid or not, for the next
  *   load (the spec reloads the page); `records` reads a store back;
  * - `seedTimingSessions` writes sized kept-session records for the start-up read measurement (M2);
+ * - `keyedRecords` reads a store back with each record's key; `pinKeptSession` pins a kept session
+ *   the app saved, as the review's pin will, and `seedUnreadableKeptSession` writes a kept session
+ *   whose session-wide record the codec cannot read;
  * - `settingsNotReadBack` names each stored settings record the settings codec does not read back
  *   as the value it holds, read as a load reads them all (with the mix design of the page's tokens,
  *   and my instrument not loaded);
@@ -40,6 +43,7 @@ import {
   type SettingKey,
   type SettingValue,
 } from '../../../src/storage/records/settings-record'
+import type { RecordVersions } from '../../../src/storage/record-envelope'
 import type { SavingState } from '../../../src/storage/save-policy'
 import {
   browserStorage,
@@ -104,6 +108,7 @@ function injectedPort(real: StoragePort, injections: PortInjections): StoragePor
     ...real,
     read: (store, key) => read(() => real.read(store, key)),
     readAll: (store) => read(() => real.readAll(store)),
+    readKeyed: (store) => read(() => real.readKeyed(store)),
     write: (store, key, record) => change(() => real.write(store, key, record)),
     delete: (store, key) => change(() => real.delete(store, key)),
     apply: (changes) => change(() => real.apply(changes)),
@@ -274,12 +279,46 @@ export function createHarnessStorage(
     }
   }
 
+  /** Intent: rewrite a kept session's session-wide record as pinned; throws when there is none. */
+  async function pinKeptSession(key: string): Promise<void> {
+    const target = openedPort()
+    const summary: unknown = await target.read('sessionSummaries', key)
+    if (typeof summary !== 'object' || summary === null) {
+      throw new Error(`Workspace harness: no kept session is stored under "${key}"`)
+    }
+    const pinned: RecordVersions & { readonly pinned: true } = {
+      ...(summary as RecordVersions),
+      pinned: true,
+    }
+    await target.write('sessionSummaries', key, pinned)
+  }
+
+  /** Intent: a kept session under `key` whose session-wide record no codec reads, and a body. */
+  async function seedUnreadableKeptSession(key: string): Promise<void> {
+    const versions = { dataVersion: KEPT_SESSION_DATA_VERSION, appVersion: APP_VERSION }
+    const summary: RecordVersions & { readonly startedAt: string } = {
+      ...versions,
+      startedAt: 'not a time',
+    }
+    const body: RecordVersions & { readonly phrases: readonly unknown[] } = {
+      ...versions,
+      phrases: [],
+    }
+    await openedPort().apply([
+      { kind: 'write', store: 'sessionSummaries', key, record: summary },
+      { kind: 'write', store: 'sessionBodies', key, record: body },
+    ])
+  }
+
   return {
     load,
     api: {
       seedSettings,
       seedTimingSessions,
+      pinKeptSession,
+      seedUnreadableKeptSession,
       records: async (store) => [...(await openedPort().readAll(store))],
+      keyedRecords: async (store) => [...(await openedPort().readKeyed(store))],
       settingsNotReadBack: async () => notReadBack(await openedPort().readAll('settings')),
       refuseSaves: (kind) => {
         injections.refusal = kind

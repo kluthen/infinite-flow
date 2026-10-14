@@ -37,6 +37,7 @@ import type { StaffFixedParts, StaffLayoutInputs } from '@/notation/staff-fit-ty
 import type { MutableGenerationSessionState } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
+import type { SessionChanges } from '@/storage/save-policy'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { makeSeed } from '@/domain/random/seed'
 import {
@@ -155,7 +156,7 @@ export interface FreshPhraseRequest {
 
 /** One call the controller made to the hold of the player's saves, and what it showed then. */
 export interface SaveHoldCall {
-  readonly call: 'hold' | 'release'
+  readonly call: 'hold' | 'release' | 'saveSession'
   readonly phase: SessionControllerPhase
   /** Whether the audio transport was running then. */
   readonly audioRunning: boolean
@@ -208,6 +209,8 @@ export interface ControllerRig {
   readonly changeSettings: (settings: SessionSettings) => void
   /** Every hold and release of the player's saves the controller made, in order. */
   readonly saveHolds: SaveHoldCall[]
+  /** The changes of every session save the controller asked for, in order. */
+  readonly sessionSaves: SessionChanges[]
 }
 
 /** Intent: let every pending promise (generation answers, fit checks, lock outcomes) settle. */
@@ -294,6 +297,7 @@ export function controllerRig(
   let built: SessionController | null = null
   const runners: SessionRunner[] = []
   const saveHolds: SaveHoldCall[] = []
+  const sessionSaves: SessionChanges[] = []
 
   /** Intent: log a hold or release of the player's saves with what the controller showed then. */
   function logSaveHold(call: SaveHoldCall['call']): void {
@@ -371,7 +375,15 @@ export function controllerRig(
     connectionSheetOpen: () => sheetOpen.value,
     pregeneration: options.pregeneration ?? disabledPregeneration,
     savedSessionOptions: options.savedSessionOptions ?? DEFAULT_SESSION_OPTIONS,
-    saveHold: { hold: () => logSaveHold('hold'), release: () => logSaveHold('release') },
+    saveHold: {
+      hold: () => logSaveHold('hold'),
+      release: () => logSaveHold('release'),
+      saveSession: (changes) => {
+        logSaveHold('saveSession')
+        sessionSaves.push(changes)
+        return Promise.resolve({ status: 'saved' })
+      },
+    },
   })
   built = controller
   return {
@@ -413,6 +425,7 @@ export function controllerRig(
       runner.dispatch({ kind: 'settings-change', at: audioRig.now(), settings })
     },
     saveHolds,
+    sessionSaves,
   }
 }
 

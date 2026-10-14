@@ -84,7 +84,7 @@ function dependencies(
 /** Intent: `port` with its reads refused as a browser storage failure. */
 function failingReads(port: StoragePort): StoragePort {
   const refuse = () => Promise.reject(new StorageError('other', 'the read failed'))
-  return { ...port, read: refuse, readAll: refuse }
+  return { ...port, read: refuse, readAll: refuse, readKeyed: refuse }
 }
 
 /** A promise the test settles when it chooses. */
@@ -102,7 +102,7 @@ function deferred<T>(): Deferred<T> {
   return { promise, resolve }
 }
 
-/** Intent: `port` with every `readAll` held until the returned release is called. */
+/** Intent: `port` with every `readAll` and keyed read held until the returned release is called. */
 function heldReads(port: StoragePort): { port: StoragePort; release: () => void } {
   const gate = deferred<void>()
   return {
@@ -111,6 +111,10 @@ function heldReads(port: StoragePort): { port: StoragePort; release: () => void 
       readAll: async (store) => {
         await gate.promise
         return port.readAll(store)
+      },
+      readKeyed: async (store) => {
+        await gate.promise
+        return port.readKeyed(store)
       },
     },
     release: () => gate.resolve(),
@@ -194,7 +198,8 @@ describe('loadSavedData: a read within the start-up wait', () => {
   })
 
   // @test-link [[rule_first_phrase_waits_for_saved_settings]]
-  it('hands on the kept sessions summaries and the remembered controller record as stored', async () => {
+  // @test-link [[module_saved_data_loader]]
+  it('hands on the kept sessions summaries with their keys and the remembered controller record as stored', async () => {
     const factory = freshFactory()
     const port = await readyPort(factory)
     await port.write('sessionSummaries', 's1', sampleRecord({ startedAt: 1 }))
@@ -204,8 +209,8 @@ describe('loadSavedData: a read within the start-up wait', () => {
     const load = await loadSavedData(dependencies(() => readyPort(factory)))
 
     expect(load.keptSessionSummaries).toEqual([
-      sampleRecord({ startedAt: 1 }),
-      sampleRecord({ startedAt: 2 }),
+      { key: 's1', value: sampleRecord({ startedAt: 1 }) },
+      { key: 's2', value: sampleRecord({ startedAt: 2 }) },
     ])
     expect(load.rememberedController).toEqual([sampleRecord({ name: 'Travel Sax' })])
   })

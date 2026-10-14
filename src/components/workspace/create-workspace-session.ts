@@ -223,7 +223,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
             policy: deps.pregenerationPolicy,
           }),
         savedSessionOptions: sessionOptions,
-        saveHold: { hold: saves.hold, release: saves.release },
+        saveHold: { hold: saves.hold, release: saves.release, saveSession: saves.saveSession },
       })
     },
     savedData: deps.savedData,

@@ -689,6 +689,20 @@ interface WorkspaceHarnessStorageApi {
   seedTimingSessions: (count: number, bodyBytes: number) => Promise<void>
   /** Every raw record a store holds now, read through the app's port. */
   records: (store: WorkspaceHarnessStoreName) => Promise<unknown[]>
+  /** Every record a store holds now, with its key, in key order, read through the app's port. */
+  keyedRecords: (
+    store: WorkspaceHarnessStoreName,
+  ) => Promise<{ readonly key: string; readonly value: unknown }[]>
+  /**
+   * Pin the kept session the app saved under `key`, as the review's pin will: its session-wide
+   * record rewritten with `pinned` true. Throws when no kept session is stored under it.
+   */
+  pinKeptSession: (key: string) => Promise<void>
+  /**
+   * Write, under `key`, a kept session whose session-wide record the kept-session codec cannot
+   * read (current versions, an invalid start), with a body, in one batch.
+   */
+  seedUnreadableKeptSession: (key: string) => Promise<void>
   /**
    * The key of each stored settings record the settings codec does not read back as the value it
    * holds, all records decoded together as a load decodes them (the page's mix design, my

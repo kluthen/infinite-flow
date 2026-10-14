@@ -5,10 +5,12 @@
  * of the player's saves, released once back at Idle) and summed up; once phrase 1 has sounded the
  * Review opens and Idle is asked for the next phrase. The same teardown undoes a start that threw
  * part-way, and a programming error ends the session it hit before it propagates. The audio
- * interrupted ends whichever session runs, like Stop.
+ * interrupted ends whichever session runs, like Stop. An end with a review then saves the session,
+ * after the release, without waiting for it (workspace-session-save.ts).
  */
 import type { SessionEndCause } from '@/session/session-types'
 import { openedReview } from './session-review-state'
+import { saveEndedSession } from './workspace-session-save'
 import type { AdaptiveTempoFlag } from './workspace-adaptive-tempo'
 import {
   dispatchAt,
@@ -89,13 +91,15 @@ export function createSessionEnds(
    * Intent: end the running session for `cause`, the one path every end takes: the notes still
    * held end now and are recorded, the engine gets `end` (its `ended` output closes the history),
    * then the session is torn down and summed up. Once phrase 1 has sounded, the Review opens over
-   * the closed history and, the reports handed back to Idle, Idle is asked for the next phrase;
-   * an end during the count-in opens none and asks for nothing.
+   * the closed history, the session's own save is asked for after the release (never awaited, so
+   * the end is not delayed) and, the reports handed back to Idle, Idle is asked for the next
+   * phrase; an end during the count-in opens none, saves nothing and asks for nothing.
    * The session is dropped first, so nothing can end it twice; ending with none running throws.
    */
   // @spec-link [[rule_stop_ends_session]]
   // @spec-link [[req_last_session_review]]
   // @spec-link [[rule_session_end_generates_next_phrase_one]]
+  // @spec-link [[module_kept_session_save]]
   function end(cause: SessionEndCause): void {
     const session = core.active
     if (session === null)
@@ -117,6 +121,7 @@ export function createSessionEnds(
     state.lastHistory = session.history
     if (ended.soundedPhraseCount === 0) return
     state.review = openedReview(session.history)
+    void saveEndedSession(core.deps.saveHold, session.history)
     adaptiveTempo.sessionEnded(state.review.tempoReached)
     void idle.actions.startFreshPhrase()
   }

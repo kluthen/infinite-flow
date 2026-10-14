@@ -225,6 +225,33 @@ export function readAllValues(connection: IDBDatabase, store: string): Promise<u
   return requestResult(connection.transaction(store, 'readonly').objectStore(store).getAll())
 }
 
+/** One entry of a store: its key and its raw value, which its codec reads. */
+// @spec-link [[module_on_device_database]]
+export interface StoredEntry {
+  readonly key: string
+  readonly value: unknown
+}
+
+/**
+ * Intent: every entry of a store with its key, in key order, read in one read-only transaction;
+ * an entry whose key is not a string is left out. Keys and values come from the same transaction,
+ * so they pair up one to one.
+ */
+// @spec-link [[module_on_device_database]]
+export async function readKeyedValues(
+  connection: IDBDatabase,
+  store: string,
+): Promise<StoredEntry[]> {
+  const objectStore = connection.transaction(store, 'readonly').objectStore(store)
+  const [keys, values] = await Promise.all([
+    requestResult(objectStore.getAllKeys()),
+    requestResult(objectStore.getAll()),
+  ])
+  return keys.flatMap((key, index) =>
+    typeof key === 'string' ? [{ key, value: values[index] }] : [],
+  )
+}
+
 /**
  * Intent: open the database for the port. A database a newer app upgraded is reopened without a
  * version, for reading; a `meta` data version above the code's also makes it outdated. A missing
