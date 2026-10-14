@@ -1,6 +1,6 @@
 ---
 id: rule_first_phrase_waits_for_saved_settings
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 parents:

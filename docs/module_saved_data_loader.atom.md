@@ -1,6 +1,6 @@
 ---
 id: module_saved_data_loader
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Saved Data Loader
 type: MODULE

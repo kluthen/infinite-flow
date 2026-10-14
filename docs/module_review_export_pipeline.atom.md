@@ -15,7 +15,7 @@ parents:
   - [[rule_session_data_never_sent_or_stored]]
 dependents: []
 layer: ARCHITECTURE
-version: 0.1
+version: 0.2
 human_name: Review Export Pipeline
 ---
 
@@ -37,7 +37,7 @@ Every file name starts with the session's stem, infinite-flow-{YYYY-MM-DD}-{HHmm
 
 The built file is handed to the browser as a download of its bytes, with its MIME type, under its file name. Any failure on the way (the export code failing to load, an adapter's or an encoder's typed error, the browser refusing the download) rejects that export, and the Review shows its one export error until the next export of either content starts; a failure before the download downloads nothing. A successful export shows and announces nothing: the browser's download is the confirmation.
 
-The history, the Review and the file live in memory only. Nothing is sent and nothing is stored, the format and backing-track choices included, which are kept in memory for the page session only. The download the player starts is the only way a session's data leaves the page.
+The history, the Review and the file live in memory only. Nothing is sent, and nothing from the session or the file is stored; the format and backing-track choices are the player's review preferences, saved as settings when the player changes them. The download the player starts is the only way a session's data leaves the page.
 
 ## TECHNICAL INTERFACE
 exportGeneratedNotes(history, request, ports) and exportPlayedNotes(history, ports) in src/components/workspace/review-export.ts each run one export over ReviewExportPorts { load, download }, by default the page's own from browserReviewExportPorts(document); historyHoldsPlayedNote(records) tells, without loading the export code, whether the played-notes action shows. useReviewExportAction in src/components/review/use-review-export-action.ts holds one export button's state: loading and disabled while its file is built, the Review's one export error set on a failure and cleared as the next export starts. loadGeneratedNotesExport() in src/export/load-generated-notes-export.ts is the lazy boundary, rejecting with a GeneratedNotesExportLoadError on a failed load. buildGeneratedNotesFile(history, request), with request { format: 'musicxml' | 'midi', backingTrack: boolean }, and generatedNotesFileName are in src/export/generated-notes-file.ts; buildPlayedNotesFile(history) and playedNotesFileName are in src/export/played-notes-file.ts; exportFileStem and ExportFile { fileName, mimeType, bytes } are in src/export/export-file.ts. The files are built from the history's adapters musicXmlInputFromHistory, midiInputFromHistory and playedNotesMidiInputFromHistory (src/session/session-history-export.ts) and the encoders encodeGeneratedNotesMusicXml, encodeGeneratedNotesMidi and encodePlayedNotesMidi. The MIME types are application/vnd.recordare.musicxml+xml for MusicXML and audio/midi for both MIDI files. downloadFile(file, document) in src/export/browser-download.ts makes the download, refusing a document with no window with a BrowserDownloadError.
@@ -50,4 +50,4 @@ exportGeneratedNotes(history, request, ports) and exportPlayedNotes(history, por
 - The same history and request give the same file name and bytes every time.
 - The export code is outside the entry chunk and is loaded once for every later export; after a failed load the next export loads it again.
 - Any failure rejects the export and shows the Review's export error, which the next export removes as it starts; a failure before the download downloads nothing.
-- Nothing from the session, the file or the export choices is sent over the network or kept in browser storage.
+- Nothing from the session or the file is sent over the network or kept in browser storage; the export choices are sent nowhere and are kept only as the player's saved review preferences.
