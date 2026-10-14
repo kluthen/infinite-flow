@@ -11,15 +11,25 @@
  * - `settingsNotReadBack` names each stored settings record the settings codec does not read back
  *   as the value it holds, read as a load reads them all (with the mix design of the page's tokens,
  *   and my instrument not loaded);
- * - `loadOutcome`, `savingState` and `loadMs` report the load.
+ * - `loadOutcome`, `savingState` and `loadMs` report the load;
+ * - `?storageRead=fail` makes every read of the app's port fail, and `?storageRead=slow` delays
+ *   each past the start-up wait, so the visit starts from the defaults;
+ * - `refuseSaves(kind)` makes the app's port refuse every write, delete and batch as `quota` or
+ *   `other` (null to stop), and `portChanges()` counts the changes that reached the app's port,
+ *   refused or not: the write spy;
+ * - `openNewerVersion()` opens the database as a newer version of the app would, one data version
+ *   up: the open tab is outdated at once, and a reload finds data written by a newer version.
  *
  * Seeds go to the port directly, never through the save policy, and at the running app's version.
+ * The app's port is the opened port wrapped by these injections; the seeds bypass them.
  */
 import {
   browserSavedDataLoad,
   loadSavedData,
+  STARTUP_WAIT_MS,
   type SavedDataLoad,
 } from '../../../src/storage-bootstrap'
+import { PRODUCTION_MIGRATIONS } from '../../../src/storage/database'
 import { APP_VERSION } from '../../../src/storage/app-version'
 import { KEPT_SESSION_DATA_VERSION } from '../../../src/storage/records/kept-reading'
 import { readAudioMixDesign } from '../../../src/audio/audio-mix'
@@ -31,7 +41,13 @@ import {
   type SettingValue,
 } from '../../../src/storage/records/settings-record'
 import type { SavingState } from '../../../src/storage/save-policy'
-import type { StorageChange, StoragePort } from '../../../src/storage/storage-port'
+import {
+  browserStorage,
+  openStoragePort,
+  StorageError,
+  type StorageChange,
+  type StoragePort,
+} from '../../../src/storage/storage-port'
 
 /** How the harness runs the load: at once, or held until the spec releases it. */
 export type HarnessStorageLoadMode = 'immediate' | 'held'
@@ -43,6 +59,59 @@ export function harnessStorageLoadMode(search: string): HarnessStorageLoadMode {
   if (value === 'held') return 'held'
   throw new Error(`Workspace harness: ?storageLoad=${value} is not a load mode (held)`)
 }
+
+/** How the app's port reads: as the browser does, failing every read, or slower than the wait. */
+export type HarnessStorageReadMode = 'real' | 'fail' | 'slow'
+
+/** Intent: the read mode the page URL asks for; an unknown value throws. */
+export function harnessStorageReadMode(search: string): HarnessStorageReadMode {
+  const value = new URLSearchParams(search).get('storageRead')
+  if (value === null) return 'real'
+  if (value === 'fail' || value === 'slow') return value
+  throw new Error(`Workspace harness: ?storageRead=${value} is not a read mode (fail, slow)`)
+}
+
+/** How far past the start-up wait a slow read ends, in milliseconds. */
+const SLOW_READ_PAST_WAIT_MS = 1000
+
+/** The injections on the app's port, set by the spec. */
+interface PortInjections {
+  readonly readMode: HarnessStorageReadMode
+  refusal: 'quota' | 'other' | null
+  changes: number
+}
+
+/**
+ * Intent: the app's port over `real`: each read failed or delayed per the read mode, each change
+ * counted, then refused when a refusal is set.
+ */
+function injectedPort(real: StoragePort, injections: PortInjections): StoragePort {
+  const read = async <T>(operation: () => Promise<T>): Promise<T> => {
+    if (injections.readMode === 'fail') throw new StorageError('other', 'read failed (harness)')
+    if (injections.readMode === 'slow') {
+      await new Promise((resolve) => setTimeout(resolve, STARTUP_WAIT_MS + SLOW_READ_PAST_WAIT_MS))
+    }
+    return operation()
+  }
+  const change = async (operation: () => Promise<void>): Promise<void> => {
+    injections.changes += 1
+    if (injections.refusal !== null) {
+      throw new StorageError(injections.refusal, 'save refused (harness)')
+    }
+    return operation()
+  }
+  return {
+    ...real,
+    read: (store, key) => read(() => real.read(store, key)),
+    readAll: (store) => read(() => real.readAll(store)),
+    write: (store, key, record) => change(() => real.write(store, key, record)),
+    delete: (store, key) => change(() => real.delete(store, key)),
+    apply: (changes) => change(() => real.apply(changes)),
+  }
+}
+
+/** A no-op migration step one data version above the code's: a newer app's upgrade. */
+const NEWER_VERSION_STEP = { toVersion: PRODUCTION_MIGRATIONS.length + 1, migrate: () => {} }
 
 /** The harness's saved data: its load, and the spec's API over the port it opened. */
 export interface HarnessStorage {
@@ -120,8 +189,14 @@ function notReadBack(records: readonly unknown[]): string[] {
 }
 
 /** Intent: the harness's saved data, loaded in `mode`. */
-export function createHarnessStorage(mode: HarnessStorageLoadMode): HarnessStorage {
+export function createHarnessStorage(
+  mode: HarnessStorageLoadMode,
+  readMode: HarnessStorageReadMode,
+): HarnessStorage {
   const production = browserSavedDataLoad()
+  const injections: PortInjections = { readMode, refusal: null, changes: 0 }
+  // The newer app's port, kept open as a newer tab would keep it.
+  let newerPort: StoragePort | null = null
   let port: StoragePort | null = null
   let loaded: SavedDataLoad | null = null
   let policyState: (() => SavingState) | null = null
@@ -155,7 +230,7 @@ export function createHarnessStorage(mode: HarnessStorageLoadMode): HarnessStora
       ...production,
       openPort: async () => {
         port = await production.openPort()
-        return port
+        return injectedPort(port, injections)
       },
     })
     loadMs = performance.now() - startedAt
@@ -206,6 +281,21 @@ export function createHarnessStorage(mode: HarnessStorageLoadMode): HarnessStora
       seedTimingSessions,
       records: async (store) => [...(await openedPort().readAll(store))],
       settingsNotReadBack: async () => notReadBack(await openedPort().readAll('settings')),
+      refuseSaves: (kind) => {
+        injections.refusal = kind
+      },
+      portChanges: () => injections.changes,
+      openNewerVersion: async () => {
+        if (newerPort !== null) throw new Error('Workspace harness: a newer version is open')
+        newerPort = await openStoragePort({
+          ...browserStorage(),
+          appVersion: `${APP_VERSION}-newer`,
+          migrations: [...PRODUCTION_MIGRATIONS, NEWER_VERSION_STEP],
+        })
+        if (newerPort.status() !== 'ready') {
+          throw new Error(`Workspace harness: the newer version opened ${newerPort.status()}`)
+        }
+      },
       loadOutcome: () => finishedLoad().outcome,
       savingState: () => (policyState === null ? null : policyState()),
       loadMs: () => {

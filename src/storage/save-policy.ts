@@ -4,8 +4,9 @@
  * data (`off-outdated`, final) or because the saved data could not be read at start-up
  * (`off-unreadable`); every write and delete is skipped while off. During a session the saves are
  * held: queued, coalesced to the latest change per record, and flushed in one transaction when the
- * session ends. A refused save never rejects: it resolves as failed and is reported, once per run
- * of refusals, to the one failure listener. The requests beyond saving (persistent storage, Your
+ * session ends. A refused save never rejects: it resolves as failed and is reported to the one
+ * failure listener at the first refusal of a run of refusals, and again each time the kind differs
+ * from the last one reported in the run. The requests beyond saving (persistent storage, Your
  * data, Delete everything) are built in save-policy-requests.ts and defer to this policy's state.
  *
  * The policy is pure: the port is injected, and it keeps no clock.
@@ -73,12 +74,21 @@ export interface SavePolicy extends VisitRequests {
    */
   release(): Promise<SaveOutcome>
   /**
-   * Be told the kind of each failed save; a run of refusals with no success between them is told
-   * once, and a refusal made with no listener attached still counts toward its run. One listener
-   * at a time: a second is a defect. Returns an unsubscribe.
+   * Be told of failed saves. A run of refusals with no success between them is told at its first
+   * refusal (`startsRun` true), and again each time a refusal's kind differs from the last one told
+   * in the run (`startsRun` false); a refusal made with no listener attached still counts toward
+   * its run. One listener at a time: a second is a defect. Returns an unsubscribe.
    */
-  onFailure(listener: (kind: SaveFailureKind) => void): () => void
+  onFailure(listener: SaveFailureListener): () => void
 }
+
+/**
+ * Told of a failed save: its kind, and whether it starts a run of refusals (the visit's first, or
+ * the first after a success) rather than changing the kind within one.
+ */
+// @spec-link [[rule_failed_save_never_disturbs_session]]
+// @spec-link [[module_save_policy]]
+export type SaveFailureListener = (kind: SaveFailureKind, startsRun: boolean) => void
 
 /** Intent: the saving state a visit starts in, from the state the port opened in. */
 function initialState(status: StoragePortStatus): SavingState {
@@ -146,8 +156,9 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
   const hold = createHold()
   const stateListeners = new Set<(state: SavingState) => void>()
   let saving = initialState(port.status())
-  let failureListener: ((kind: SaveFailureKind) => void) | null = null
-  let inFailureRun = false
+  let failureListener: SaveFailureListener | null = null
+  // The kind last reported in the current run of refusals; null when no run is under way.
+  let lastReportedInRun: SaveFailureKind | null = null
 
   /** Intent: turn saving off for the visit, dropping what is held; outdated is final. */
   const turnOff = (next: Exclude<SavingState, 'on'>): void => {
@@ -160,16 +171,17 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
 
   /**
    * Intent: what a refusal of the port becomes: skipped and saving off for an outdated one,
-   * failed and reported for the others, unless a refusal of the same run was reported already.
+   * failed for the others, reported unless the last one reported in its run had the same kind.
    */
   const refused = (kind: StorageErrorKind): SaveOutcome => {
     if (kind === 'outdated') {
       turnOff('off-outdated')
       return 'skipped'
     }
-    if (!inFailureRun) {
-      inFailureRun = true
-      failureListener?.(kind)
+    if (lastReportedInRun !== kind) {
+      const startsRun = lastReportedInRun === null
+      lastReportedInRun = kind
+      failureListener?.(kind, startsRun)
     }
     return 'failed'
   }
@@ -182,7 +194,7 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
       if (error instanceof StorageError) return refused(error.kind)
       throw error
     }
-    inFailureRun = false
+    lastReportedInRun = null
     return 'saved'
   }
 

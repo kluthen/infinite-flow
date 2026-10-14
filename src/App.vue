@@ -99,6 +99,7 @@ onUnmounted(() => {
     :audio="workspace.audio"
     :midi="workspace.midi"
     :controller="sessionController"
+    :saved-data="savedData"
     :saved-my-instrument-range-in-clef="null"
     :saved-review-preferences="savedData.settings.review"
     :saved-session-options="savedData.settings.sessionOptions"

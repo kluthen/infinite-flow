@@ -73,7 +73,9 @@
  *   run before the app mounts, as src/main.ts runs it; `window.__workspaceHarness` is published
  *   once the app has mounted, so waiting for it also waits for the load. `storage.seedSettings`
  *   seeds settings for the next load, and `?storageLoad=held` holds the load until
- *   `window.__workspaceHarnessHeldLoad.release()`.
+ *   `window.__workspaceHarnessHeldLoad.release()`; `?storageRead=fail|slow` fails or delays the
+ *   app's reads, `storage.refuseSaves` refuses its saves, `storage.portChanges` counts them and
+ *   `storage.openNewerVersion` outdates the tab as a newer version would.
  *
  * The lazy VexFlow engraver, the real generation Worker, real notation, the real `matchMedia`
  * window-width provider and the real window-shape probe all run for real (a spec moves the window
@@ -115,7 +117,11 @@ import { bindHarnessAudioStart, createHarnessAudio, harnessAudioMode } from './a
 import { createHarnessMidi, harnessMidiMode } from './midi-seams'
 import { createHarnessSessionBrowser } from './session-browser-seams'
 import { createHarnessSessionController } from './session-controller-seams'
-import { createHarnessStorage, harnessStorageLoadMode } from './storage-seams'
+import {
+  createHarnessStorage,
+  harnessStorageLoadMode,
+  harnessStorageReadMode,
+} from './storage-seams'
 import { armNextExportFailure, exportsBuilt } from './export-loader-seam'
 import {
   armNextNotationFailure,
@@ -270,7 +276,10 @@ const generatedTimelines: string[] = []
 /** The record of every `generate` call, in call order. */
 const generationRequests: GenerationRecord[] = []
 
-const harnessStorage = createHarnessStorage(harnessStorageLoadMode(window.location.search))
+const harnessStorage = createHarnessStorage(
+  harnessStorageLoadMode(window.location.search),
+  harnessStorageReadMode(window.location.search),
+)
 /** What the saved-data load gave; null until it has ended. */
 let savedData: SavedDataLoad | null = null
 

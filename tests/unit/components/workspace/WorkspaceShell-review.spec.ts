@@ -22,6 +22,7 @@ import {
 import { fakeGenerationSession, readyState, type FakeIdleState } from './fake-generation-session'
 import { PHRASE_SCORE_STUB } from './test-workspace'
 import { provideSaveSettings } from './recording-save-settings'
+import { quietSavedData } from './quiet-saved-data'
 
 vi.mock('@/components/review/ReviewPanel.vue', () => import('./review-panel-stub'))
 
@@ -37,6 +38,7 @@ function mountShell(
   const scrollToPageTop = vi.fn()
   const wrapper = mount(WorkspaceShell, {
     props: {
+      savedData: quietSavedData(),
       session,
       pendingPhrase: null,
       handleEngraved: () => {},

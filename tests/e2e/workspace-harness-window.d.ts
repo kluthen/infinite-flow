@@ -695,6 +695,18 @@ interface WorkspaceHarnessStorageApi {
    * instrument not loaded); empty when every record reads back.
    */
   settingsNotReadBack: () => Promise<string[]>
+  /**
+   * Make the app's port refuse every write, delete and batch from now on, as `quota` (no room
+   * left) or `other`; null to let them through again. Seeds are never refused.
+   */
+  refuseSaves: (kind: 'quota' | 'other' | null) => void
+  /** How many writes, deletes and batches reached the app's port since the load, refused or not. */
+  portChanges: () => number
+  /**
+   * Open the database as a newer version of the app would, one data version up, and keep it open:
+   * this tab is outdated at once, and the next load finds data written by a newer version.
+   */
+  openNewerVersion: () => Promise<void>
   /** The load's outcome. */
   loadOutcome: () => WorkspaceHarnessLoadOutcome
   /** The save policy's saving state; null until the policy exists (a port opening late). */

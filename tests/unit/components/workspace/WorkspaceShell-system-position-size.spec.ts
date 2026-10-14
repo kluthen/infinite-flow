@@ -18,6 +18,7 @@ import { createControllerRig } from '../../midi/midi-controller-rig'
 import { fakeGenerationSession, readyState } from './fake-generation-session'
 import { PHRASE_SCORE_STUB } from './test-workspace'
 import { provideSaveSettings } from './recording-save-settings'
+import { quietSavedData } from './quiet-saved-data'
 
 vi.mock('@/components/review/ReviewPanel.vue', () => import('./review-panel-stub'))
 
@@ -37,6 +38,7 @@ function rangeInClef(
 function mountShell(savedMyInstrumentRangeInClef?: WrittenRangeInClef | null) {
   return mount(WorkspaceShell, {
     props: {
+      savedData: quietSavedData(),
       session: fakeGenerationSession(readyState()).session,
       pendingPhrase: null,
       handleEngraved: () => {},

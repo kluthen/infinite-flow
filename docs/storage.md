@@ -7,9 +7,10 @@ of the app has overtaken, the app version every record carries, the records a ke
 stored as, and the save policy that decides when a write reaches the port. Its declared intent is
 the ATD atom [`module_on_device_database`](module_on_device_database.atom.md).
 
-As built in v3.0 chunks 4, 5, 9 and 7, this is the storage core, the save policy, the
-kept-session codec, the load of the saved settings before the first draw, and the saves of the
-player's settings as they change. See [Not here yet](#not-here-yet).
+As built in v3.0 chunks 4, 5, 9, 7 and 8, this is the storage core, the save policy, the
+kept-session codec, the load of the saved settings before the first draw, the saves of the
+player's settings as they change, and the notices that tell the player about saving. See
+[Not here yet](#not-here-yet).
 
 ## Words used here
 
@@ -413,11 +414,15 @@ counts like any other. After the release, saves go to the port at once again.
 `onFailure(listener)` takes one listener at a time; a second one is a defect. It returns an
 unsubscribe function, after which a new listener may be set.
 
-The listener is told the kind of a failed save, `quota` or `other`; an `outdated` refusal is never
-reported. A run of refusals with no successful save between them is told once, at its first
-refusal; the first refusal after a success starts a new run. A refusal made while no listener is
-attached still counts toward its run. A release with nothing held reaches no port, so it does not
-end a run.
+The listener is told the kind of a failed save, `quota` or `other`, and whether the report starts
+a run (`listener(kind, startsRun)`); an `outdated` refusal is never reported. A run of refusals
+with no successful save between them is told at its first refusal (`startsRun` true), and again
+each time a refusal's kind differs from the last one told in the run (`quota` after `other`, or the
+reverse; `startsRun` false); a refusal of the same kind as the last one told is not told again.
+The first refusal after a success starts a new run. A refusal made while no listener is attached
+still counts toward its run. A release with nothing held reaches no port, so it does not end a
+run. `startsRun` is what lets the notice row keep a dismissed notice away for the rest of its run
+(see [The notices](#the-notices)).
 
 ### Persistent storage
 
@@ -570,6 +575,26 @@ The session controller calls `hold()` when it accepts a Start and `release()` in
 every end and every undone start runs, so a theme or mix change made during a session is written
 when it ends (see [The session hold](#the-session-hold)).
 
+## The notices
+
+The notice row at the top of the workspace (`AppNoticeRow.vue`) shows one notice at a time, chosen
+by `useAppNotices` (`src/components/workspace/use-app-notices.ts`) from three things the load
+gives `WorkspaceShell` (`App.vue`'s `savedData`): the load outcome, and the save policy's saving
+state and failure report. The copy and the rules are the saved-data flow's (Notices).
+
+| Saving state     | Notice                                                                                                                                       |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `off-outdated`   | Outdated tab: the saved-data wording when the load outcome is `saved-data-read`, the defaults wording when it is `started-from-defaults`.    |
+| `off-unreadable` | Unusable data.                                                                                                                               |
+| `on`             | The save-problem notice once a save failed: Storage full for `quota`, Save failed for `other`, switched in place to the latest one reported. |
+
+Before a late-opening port hands its policy over, a visit started from the defaults shows Unusable
+data. The port's outdated report carries no cause, so after another tab's Delete everything the
+outdated notice shows the newer version's wording, the design's fallback (spec D300). `Dismiss`
+removes the save-problem notice until a report that starts a new run. While a session runs the row
+keeps the notice it showed at Start, its buttons disabled; what arose meanwhile shows when the
+session ends. `Your data` is disabled until the Your data sheet exists.
+
 ## The start-up wait (M2)
 
 The start-up wait is `STARTUP_WAIT_MS`, 2 s, the design's proposal: at most 2 s, and well above the
@@ -640,11 +665,11 @@ kept-session codec's need no database (see
 
 ## Not here yet
 
-Chunks 4, 5, 9 and 7 build the storage core, the save policy, the kept-session codec, the load
-before the first draw and the saves of the player's settings, with the session hold. These come
-later:
+Chunks 4, 5, 9, 7 and 8 build the storage core, the save policy, the kept-session codec, the load
+before the first draw, the saves of the player's settings, with the session hold, and the notices.
+These come later:
 
-- the notices the player sees, from the saving state and the failure report;
+- the Your data sheet the storage-full notice's `Your data` opens;
 - the moment the app calls `requestProtection()`;
 - the save of a kept session at a session's end, the session list, and opening a kept session:
   the codec exists, but nothing saves or opens a kept session yet.

@@ -21,7 +21,9 @@
  * session reached (./use-rising-tempo-control.ts). It sets the staff's one shared system-position
  * size from the saved my instrument's written range, for the staff and the Review alike. The saved
  * review preferences and "During a session" choices it is given are where the Review's export
- * choices and the options (while the controller loads) start from.
+ * choices and the options (while the controller loads) start from. It shows the notice row over the
+ * load's outcome and save policy (./use-app-notices.ts): `Dismiss` sends focus to the first enabled
+ * of the session action, the phrase action and `controller-status`; `Reload` reloads the page.
  */
 import { computed, onMounted, ref, watch } from 'vue'
 
@@ -34,6 +36,7 @@ import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
+import type { SavedDataLoad } from '@/storage-bootstrap'
 import { getInstrumentProfile } from '@/domain/generation/generation-intent'
 import type { MidiController } from '@/midi/midi-controller-state'
 import { planSystemPositionUnits, type WrittenRangeInClef } from '@/notation/notation-layout-policy'
@@ -44,6 +47,7 @@ import {
   type ReviewPreferences,
   type SessionOptionChoices,
 } from '@/storage/records/setting-defaults'
+import AppNoticeRow from './AppNoticeRow.vue'
 import WorkspaceHeader from './WorkspaceHeader.vue'
 import ScorePanel from './ScorePanel.vue'
 import OrientationNotice from './OrientationNotice.vue'
@@ -55,6 +59,7 @@ import { useControllerConnection } from './use-controller-connection'
 import { useReviewNavigation } from './use-review-navigation'
 import { useSessionOptions } from './use-session-options'
 import { injectSaveSettings } from './save-settings-injection'
+import { useAppNotices } from './use-app-notices'
 import { useShownSettings } from './use-shown-settings'
 import { useWorkspaceFocus } from './use-workspace-focus'
 
@@ -72,6 +77,10 @@ const props = withDefaults(
     midi: MidiController
     /** The session controller; null while its lazy chunk loads (no session can start then). */
     controller: SessionController | null
+    /** The load's outcome and the visit's save policy, which the notice row reads. */
+    savedData: Pick<SavedDataLoad, 'outcome' | 'savePolicy'>
+    /** Reload the page (a notice's `Reload`); the window's own by default. */
+    reloadPage?: () => void
     /** How the start's jump scrolls and measures the window; the window itself by default. */
     jumpView?: SessionJumpView
     /** Scroll the page instantly to its top (leaving or reopening the Review); the window's own by default. */
@@ -100,6 +109,8 @@ const props = withDefaults(
     }),
     // Default: the window's own instant scroll to its top (a function prop's default is itself).
     scrollToPageTop: () => window.scrollTo({ top: 0, behavior: 'instant' }),
+    // Default: the window's own reload (a function prop's default is itself).
+    reloadPage: () => window.location.reload(),
     savedMyInstrumentRangeInClef: null,
     savedReviewPreferences: () => DEFAULT_REVIEW_PREFERENCES,
     savedSessionOptions: () => DEFAULT_SESSION_OPTIONS,
@@ -149,6 +160,13 @@ const { controlsReadonly, shownSettings, presetStatusLive } = useShownSettings({
   controller: () => props.controller,
   sessionActive: () => sessionActive.value,
 })
+
+// The notice row's notice, held still while a session runs.
+const {
+  notice: appNotice,
+  actionsDisabled: appNoticeActionsDisabled,
+  dismiss: dismissAppNotice,
+} = useAppNotices({ source: props.savedData, sessionActive: () => sessionActive.value })
 
 // The "During a session" options and the player's changes to them.
 const {
@@ -290,6 +308,19 @@ const reviewNavigation = useReviewNavigation({
   focusTarget,
 })
 
+/**
+ * Intent: `Dismiss`: remove the notice, and move focus to the first enabled of the session action,
+ * the phrase action and `controller-status` (the workspace's fallback order).
+ */
+// @spec-link [[rule_failed_save_never_disturbs_session]]
+function handleDismissAppNotice(): void {
+  dismissAppNotice()
+  const { header: shown } = focusParts()
+  if (shown.sessionActionEnabled) focusTarget('session-action')
+  else if (shown.phraseActionEnabled) focusTarget('phrase-action')
+  else focusTarget('controller-status')
+}
+
 /** Intent: an Idle operation starting settles the end's landing: no late notice takes focus. */
 watch(
   () => state.value.operation,
@@ -330,6 +361,13 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
       @open-connection-sheet="openConnectionSheet"
     />
     <div class="layout-workspace">
+      <AppNoticeRow
+        v-if="appNotice !== null"
+        :notice="appNotice"
+        :disabled="appNoticeActionsDisabled"
+        @dismiss="handleDismissAppNotice"
+        @reload="reloadPage"
+      />
       <ScorePanel
         ref="scorePanel"
         :session="session"
