@@ -701,6 +701,16 @@ the full e2e suite fails four tests, three of them on "no IndexedDB database":
 - **Chunk 20, the start-up read.** The bootstrap reads the `instrument` store and sets
   `myInstrumentLoaded`; `src/storage-bootstrap.ts` joins its files.
 
+**Peek before chunk 7b (2026-10-14).** `documentalist` peeked at 7b after v12: proceed, with
+notes. The interim `review-privacy` check is stricter than `rule_optional_midi_privacy` (STABLE);
+`rule_session_data_never_sent_or_stored` (REVIEW) saying settings are never stored is known drift
+since 7a, left to chunk 10's Part D. D302 agrees with `rule_profile_control_customization`; it
+literally departs from `rule_saved_settings_load_tolerantly` 0.1 (DRAFT: "every other saved setting
+still loads with its saved value"), so the wave sync proposes 0.2: "A saved preset, not custom,
+whose profile-controlled values after loading are not all that preset's loads as custom with that
+preset's grammar; each value keeps what it loaded with." That wording goes to the owner with the
+wave report.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
