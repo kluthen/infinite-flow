@@ -711,6 +711,30 @@ whose profile-controlled values after loading are not all that preset's loads as
 preset's grammar; each value keeps what it loaded with." That wording goes to the owner with the
 wave report.
 
+#### Wave 4 gate (2026-10-14)
+
+Chunk 7 merged into `v3.0-w4` in two halves (7a 5259cd5, 7b ba27042) and chunk 8 after it
+(6071356); their records are under [chunk 7](#chunk-7--saved-settings) and
+[chunk 8](#chunk-8--notice-row). The gate ran on the Linux dev machine (AMD Ryzen 5 PRO 8640HS
+laptop, bare metal). Three failures, each fixed on the wave branch in its own commit:
+
+- `lint:health`: five unattached ATD links from chunk 8 (286bad0).
+- `verify:boundaries`: the entry chunk at 247,690 B, over its 229,376 B budget (wave 3: 227,629 B).
+  Per merge: 7a +14,216 B (the loader: port, database, settings codec, save policy, bootstrap),
+  7b +2,538 B, 8 +3,307 B; nothing came in by accident. Fixed without a behaviour change or a budget
+  raise (6d66c37): the generation worker client and the staff drawing code load on demand after the
+  first draw, and the request envelope's basics moved to `generation-request-envelope.ts` so the
+  parser and carry-in leave the entry. **Entry 218,663 B, 10,713 B of headroom, −8,966 B since
+  wave 3.** First-load JS (the entry plus the side chunks it imports) went from 237,200 B to
+  226,301 B. The budget measures `index-*.js` only, and Rolldown's side chunks can move code out of
+  it without shrinking the first load; the builder suggests M5 measure first-load JS (for
+  `spec-writer`).
+- `review-export.spec.ts`: its second session opened on the first session's saved format, as §4.2
+  says it should since 7b; the test now sets the format it needs (9f3977e).
+
+Then `npm run quality` green on 9f3977e: unit 5,949, e2e 335, a11y 45, notation 106 with 4
+skipped; `atd:lint` and `atd:check` pass. No chunk placed the sweep at this gate.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
