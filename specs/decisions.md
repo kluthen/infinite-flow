@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.88
+Status: draft v2.89
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,10 +14,10 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D300**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D301**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
-D299 records wave 3.
+D299 records wave 3. D300 records the wave-4 preflight.
 
 ## Decision Log
 
@@ -1312,3 +1312,31 @@ D299 records wave 3.
   history record gains the clef, the body encoder takes it and the review reads it, the stored
   shape unchanged. Chunk 24b-1 gains the wave-2 gate's pre-generation test points. ISS-012 (the
   review host cannot name my instrument) is filed and assigned in the plan.
+
+- **D300 (2026-10-14): an outdated tab shows the newer version's wording after another tab's
+  Delete everything; the port's outdated report gets no cause in v3.0. The wave-4 preflight's
+  corrections applied (build plan v11).** The saved-data design gives the outdated-tab notice its
+  own wording when `Delete everything` ran in another tab, and says that telling it from a newer
+  version needs the storage port to say why it became outdated; until it can, the newer version's
+  wording is shown. `documentalist`'s wave-4 preflight found that the port's report carries no
+  cause (`module_on_device_database`, `onOutdated(listener: () => void)`, as chunk 4 built it).
+  Decided by the wave driver, under the owner's delegation of minor design calls: chunk 8 ships
+  the design's own fallback, the newer version's wording, and no cause is added to the port. Why:
+  the reload the notice asks for is the cure in both cases, the fallback is already the designed
+  behaviour, and a cause would revise a REVIEW architecture atom and chunk 4's merged port for a
+  wording only. The deletion wording stays in the design for a later version; the port change
+  would come first.
+
+  Recorded with it, no ruling needed (build plan v11): the wave-4 preflight (from `main`
+  261984a) and its corrections to chunks 7 and 8. Chunk 7 adds the governing atoms
+  `rule_first_phrase_waits_for_saved_settings` and, at the sync, `service_session_controller`;
+  loads a saved `Rising tempo` `On` with no controller attached by giving the loaded flags to the
+  session controller at its creation, since `setAdaptiveTempo(on)` refuses `On` then; exposes the
+  load's outcome (saved data read, or started from the defaults), which chunk 8's outdated-tab
+  wording reads and the saving state alone cannot carry; saves from the player's change handlers
+  only; its file list follows the real code; and its 7a/7b split is stated by file and by "Done
+  when" line. Chunk 8 adds `rule_failed_read_told_to_player`, reads the load outcome, and revises
+  `module_save_policy` to 0.2 (a change of refusal kind reported again), pending the owner's
+  sign-off. While checking the corrections, `spec-writer` found that the design's "read-only
+  reopening fails" case is not what chunk 4's port does, opened as
+  [O190](open-questions.md#v30-wave-4-o190).

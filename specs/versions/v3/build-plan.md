@@ -1,39 +1,12 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v10 (2026-10-14): wave 3 done and recorded (spec D299): the wave-3 preflight's
-corrections to chunks 5 and 9 written in as built, the kept-session size measured (master spec
-Part A v1.14), what chunks 5 and 9 leave to chunks 8, 10, 11 and 17, the wave-2 gate's points
-for chunk 24b-1, and ISS-012 assigned ([Wave records](#wave-3-2026-10-14-done));
-v9 (2026-10-13): the owner's ruling on ISS-011, a stale phrase at Start (spec D297,
-master spec Part A v1.11, then v1.12 for his rulings later that day, which closed the owner steps
-**O182** and **Starting-note wording**, CONTRACT 5.0, and opened the **Stale phrase design**
-gate): a new [chunk 24b](#chunk-24b--stale-phrase-at-start) in wave 9, beside
-chunk 20c, with a **Stale phrase design** gate, the owner steps **Starting-note wording** (a
-proposed contract wording) and **O182**, hand check H9, and §2, §7, §8 and chunk 26 updated; the
-**Review reachability** step recorded as done (CONTRACT 4.0)
-([Wave records](#owner-ruling-at-the-end-of-wave-2-a-stale-phrase-at-start-2026-10-13));
-v8 (2026-10-12): the owner's range bound and his ruling that kept sessions belong to
-their instrument (spec D294–D296, master spec Part A v1.10): the range ruling and O181 settled, a
-new [chunk 20c](#chunk-20c--my-instruments-sessions) in a new wave 9 with a **Sessions design**
-gate, the owner step **Review reachability** (a proposed contract wording), and chunks 17, 20,
-21 and 26, the waves, §7 and §8 updated
-([Wave records](#owner-rulings-during-wave-2-range-bound-sessions-and-their-instrument-2026-10-12));
-v7 (2026-10-12): the owner's bass clef ruling (spec D293, master spec Part A v1.9): a
-new [chunk 19b](#chunk-19b--bass-clef-for-my-instrument) in wave 2, the range ruling moved after
-it and made per clef, a clef design gate for `ux-writer` before chunk 20, and chunks 17, 18, 20
-and 21, M3 and §7 updated ([Wave records](#owner-ruling-during-wave-2-bass-clef-2026-10-12)); v6 (2026-10-12): the owner's rulings after the wave-2 preflight (spec D290–D292, master
-spec Part A v1.8) and one coordinator call, chunk 18 moving to wave 6 after chunk 17, written into
-the wave table and chunks 16, 18, 19 and 24; the preflight's plan corrections applied to §2, §3,
-M5 and chunks 4, 18, 19 and 24 ([Wave records](#wave-records)); v5 (2026-10-12): a wording fix
-the owner approved at the wave-1 gate, no behaviour changed: chunk 23's "Done when" now says a skipped rung's seed is unused under the seed plan;
-v4 (2026-10-09): the owner's answers to spec O163 and O164 (spec D257, D258, master spec
-v1.6) written into chunks 9, 16 and 20 and the wave table; v3 (2026-10-09): the owner's rulings after the wave-1 preflight (spec D253–D256, master
-spec v1.5) written into chunks 6, 9, 16 and 23, and chunk 23's code facts corrected
-([Wave records](#wave-records)); v2 (2026-10-09): the workflow moves to wave level (spec D252,
-[§3](#3-workflow-waves-and-chunks)); v1 (2026-10-07) approved by the product owner; Gate A and the
-token-source pass (Q66) confirmed the same day
+Status: v11 (2026-10-14): the wave-4 preflight's corrections to chunks 7 and 8 and the
+outdated-tab cause ruling (spec D300; [Wave records](#wave-4-preflight-2026-10-14)). Approved by
+the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
+same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
+(spec D252–D300), and earlier wordings are in git.
 
-Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) and the v3.0 design
+Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.14) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
 v3.1 and v3.2 design started at the `ui_ux/` root (its links were repointed there on
 2026-10-08). Approved for execution. It adds no behaviour:
@@ -664,6 +637,51 @@ kept-session size is the measured one (spec D299). ISS-012, found during the wav
 it, goes to [chunk 10](#chunk-10--most-recent-session-kept), which reads the review's instrument
 name from the session's own data before chunk 17 makes a my-instrument session playable.
 
+#### Wave 4 preflight (2026-10-14)
+
+`documentalist` ran the full pass and the file pass for chunks 7 and 8 on `v3.0-w4` (made from
+`main` 261984a), without an LLM. No record changed and no capture was made: the interface between
+chunks 7 and 8 is mostly fixed already by `module_save_policy` (REVIEW, from wave 3); the one
+piece it leaves open, the load outcome, is left to chunk 7 and recorded at the wave sync, with the
+loader, as an ARCHITECTURE atom.
+
+| Chunk | Verdict | Governing atoms | Open before code |
+| --- | --- | --- | --- |
+| 7 | PROCEED | `rule_settings_saved_on_change`, `rule_saved_setting_is_players_choice`, `rule_saved_settings_load_tolerantly`, `rule_first_phrase_waits_for_saved_settings`, `rule_no_save_during_session`, `req_on_device_storage` (DRAFT); `module_save_policy` (REVIEW); (v2) `rule_mutation_reverts_at_session_end` (STABLE), `rule_adaptive_tempo_resets_after_session` (REVIEW); Part D as the chunk lists it, plus `service_session_controller` (REVIEW) | Nothing blocks. The sync applies the Part D revisions, revises `service_session_controller` (its three flags no longer only "in memory for the page's lifetime"; the hold and release go through it) and records the loader. Keep true: settings saved from the player's change handlers only. |
+| 8 | PROCEED | `rule_failed_save_never_disturbs_session`, `rule_outdated_tab_stops_saving`, `rule_failed_read_told_to_player` (DRAFT); `module_save_policy`, `module_on_device_database` (REVIEW) | Nothing blocks. `module_save_policy` 0.1 says a run of refusals is reported once, which the chunk's change of kind contradicts; the contradiction was known from wave 3 (spec D299) and is cleared by the chunk's revision to 0.2, whose wording awaits the owner's sign-off. |
+
+The reading of "told outside a running session, never during one"
+(`rule_failed_read_told_to_player`) as "appears outside a running session": a notice already
+showing at Start stays, its buttons disabled, as the design says. No action unless the owner
+disagrees.
+
+Plan corrections the preflight found, applied in v11 (spec D300):
+
+- **Chunk 7, Atoms and Part D.** `rule_first_phrase_waits_for_saved_settings` governs the
+  start-up wait, the defaults and saving off. `service_session_controller` (REVIEW) holds the three
+  session options "in memory for the page's lifetime", and the hold and release go through it;
+  `module_session_adaptive_tempo_control` says the flag is "off at load".
+- **Chunk 7, Scope: the options enter at the controller's creation.** A saved `Rising tempo` `On`
+  must load with no MIDI controller attached (the phrase-workspace design keeps the stored `On`
+  while the option is unavailable), and `setAdaptiveTempo(on)` throws then.
+- **Chunk 7, Scope: the load outcome.** Chunk 8's outdated-tab wording needs to know whether the
+  visit read the saved data or started from the defaults, which the saving state alone cannot
+  carry. A port that opens after the start-up wait gets its policy then, and
+  `stopSavingUnreadable()` at once. `spec-writer`, checking this against chunk 4's port, found the
+  preflight's example inexact: a newer version's database whose read-only reopening fails gives an
+  unavailable port, so `off-unreadable`, not `off-outdated`; the plan states the cases the code
+  gives, and the divergence from the design is [spec O190](../../open-questions.md#v30-wave-4-o190).
+- **Chunk 7, Scope: saves from the player's handlers only,** never from a watcher on control
+  values, which would save a `Vary settings` change, the end-of-session restore or the tempo reset.
+- **Chunk 7, Files.** There is no theme composable; the real files are named, with `docs/storage.md`
+  and `docs/testing.md`, and the 7a/7b split is stated by file and by "Done when" line.
+- **Chunk 8, Atoms, Files and Revisions.** `rule_failed_read_told_to_player` governs the
+  unusable-data notice; `docs/storage.md` changes ("Failure report", "Not here yet");
+  `module_save_policy` 0.1 → 0.2, pending the owner's sign-off.
+- **Chunk 8, Scope.** The port's outdated report carries no cause, so after another tab's
+  `Delete everything` the notice shows the newer version's wording, the design's fallback; no cause
+  is added to the port (spec D300, the wave driver's call under the owner's delegation).
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
@@ -1247,62 +1265,134 @@ player changes it.
 
 **Scope.**
 
-- **Load:** `App.vue` (or a bootstrap module beside `main.ts`) reads settings, the session
-  summaries' presence and the remembered-controller record through the port, with the start-up
-  wait as a constant ([M2](#m2--the-start-up-wait-for-saved-settings)); the page shows only its
-  background until then; the workspace is drawn once with the loaded values. A read that fails or
-  is too slow starts from the defaults with saving off for the visit (the notice comes in chunk
-  8). Nothing is generated until the player asks, as today.
-- **Save on change:** the generation session composable (controls, profile selection), the audio
-  transport (mix, on slider release), the theme, the session options and the review host's
-  preferences each call the save policy when the player changes them. Values the app changes by
-  itself during a session (a mutated setting, the rising tempo) are never saved.
+- **Load:** a bootstrap module beside `main.ts` (`src/storage-bootstrap.ts`) opens the port,
+  creates the save policy, and reads the settings, the session summaries' presence and the
+  remembered-controller record through it, with the start-up wait as a constant
+  ([M2](#m2--the-start-up-wait-for-saved-settings)); the page shows only its background until
+  then; the workspace is drawn once with the loaded values, and no control changes value after it
+  is drawn. A read that fails or is too slow starts from the defaults and calls
+  `stopSavingUnreadable()`, so saving is off for the visit (the notice comes in chunk 8). A port
+  that opens only after the start-up wait gets its policy then, and `stopSavingUnreadable()` at
+  once; if that port opened outdated, the policy starts `off-outdated` and stays so (the design's
+  newer data revealed by a late read). Nothing is generated until the player asks, as today.
+- **Load outcome:** the load exposes whether the visit started from the saved data read or from
+  the defaults. Chunk 8's outdated-tab notice reads it for its wording ("saved data read" or
+  "started from the defaults"); the saving state alone cannot carry it, since `off-outdated`
+  comes both with saved data read (a port that opened outdated and read) and with the defaults on
+  screen (a port that opened outdated, or turned outdated before the load read, whose start-up
+  read then failed or outlasted the wait, and a port that opened outdated after the wait). The
+  wave sync records the loader (the start-up wait, the read before the first draw, the hold and
+  release, the load outcome) as an ARCHITECTURE atom.
+- **The session options enter at the controller's creation.** The session controller's three
+  flags (`varySettings`, `tensionAcrossPhrases`, `adaptiveTempo`) take their loaded values when
+  the controller is created, never through its actions: the controller loads as its own chunk
+  after the first draw, and `setAdaptiveTempo(on)` throws when turning the flag on while no MIDI
+  controller is attached, which is the usual state at load. A saved `Rising tempo` `On` loads
+  even then: the option shows `Off` and disabled while unavailable, keeps the stored `On`, and
+  shows `On` again as soon as a controller attaches (phrase-workspace handoff, Rising tempo).
+- **Save on change:** the player's change handlers for the controls and the musical profile
+  selection, the theme, the audio mix (each on/off, and each volume on slider release), the three
+  "During a session" options and the review host's preferences each call the save policy.
+  Settings are saved from those handlers only, never from a watcher on control values: a watcher
+  would also save a setting `Vary settings` changed, the end-of-session restore and the rising
+  tempo's reset (`rule_saved_setting_is_players_choice`, `rule_mutation_reverts_at_session_end`).
+  Values the app changes by itself during a session (a mutated setting, the rising tempo) are
+  never saved.
 - **Session hold:** the session controller calls `hold()` at Start and `release()` at its end, so
   theme and mix changes made during a session are saved then.
 - **Harness seam:** `window.__workspaceHarness.storage` to seed records before load and read
   what was written, documented in `docs/testing.md`.
+- **Docs:** `docs/storage.md` records M2 and the start-up wait, the load outcome and the hold, and
+  its "Not here yet" loses what this chunk wires.
 
-**Files:** `src/App.vue` or `src/storage-bootstrap.ts`, `src/composables/use-generation-session.ts`,
-`src/audio/audio-transport.ts` (or its composable), `src/components/workspace/use-session-options.ts`,
-`src/components/workspace/use-review-host.ts`, the theme control's composable; tests:
-`tests/e2e/storage/saved-settings.spec.ts` (new), the rewritten tests of
-[§2](#2-read-first-what-v30-undoes-in-v2). This is the widest wiring chunk; if its brief exceeds
-about five source files, split it into 7a (load before first draw) and 7b (save on change).
+**Files:** `src/storage-bootstrap.ts` (new; or the load in `src/App.vue`), `src/main.ts` or
+`src/App.vue` (the wait before the first draw; `App.vue` also applies the loaded theme through
+`src/components/workspace/apply-theme-preference.ts`), `src/components/workspace/create-workspace-session.ts`
+(the loaded values and the policy, passed on), `src/composables/use-generation-session.ts` and
+`src/composables/generation-session-control-actions.ts` (controls, profile selection, theme:
+loaded, and saved from `setControl`, `selectMusicalProfile` and `setTheme` or their callers in
+`WorkspaceShell.vue` and `ThemeControl.vue`), `src/audio/audio-transport.ts` (the loaded mix),
+`src/components/workspace/MixControls.vue` and `MixVolumePanel.vue` (the mix's on/off and
+sliders), `src/components/workspace/workspace-session-controller.ts` with its dependencies
+(`workspace-session-controller-seams.ts`), `workspace-adaptive-tempo.ts` and `workspace-session-settings.ts` (the three flags'
+loaded values; the hold and release), `src/components/workspace/use-session-options.ts`,
+`src/components/workspace/use-review-host.ts`, `tests/e2e/workspace-harness/main.ts` (the seam);
+docs: `docs/storage.md`, `docs/testing.md`; tests: `tests/unit/storage/storage-bootstrap.spec.ts`
+(new), `tests/e2e/storage/saved-settings.spec.ts` (new), the rewritten tests of
+[§2](#2-read-first-what-v30-undoes-in-v2). There is no theme composable: the theme is state of
+the generation session, shown by `ThemeControl.vue` and applied by `App.vue`.
 
 **Spec sections:** [§4.2](master-spec.md#42-what-is-saved-automatically), [§4.4](master-spec.md#44-loading-saved-settings).
 
 **Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.0/flows/saved-data/handoff.md) (What
 Is Saved, Load), [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.0/flows/generate-phrase/handoff.md)
 (the load step), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md)
-(saved settings, the load wait).
+(saved settings, the load wait, Rising tempo).
 
 **Atoms:** `rule_settings_saved_on_change`, `rule_saved_setting_is_players_choice`,
-`rule_saved_settings_load_tolerantly`, `rule_no_save_during_session`, `req_on_device_storage`;
-(v2) `rule_mutation_reverts_at_session_end`, `rule_adaptive_tempo_resets_after_session`.
+`rule_saved_settings_load_tolerantly`, `rule_first_phrase_waits_for_saved_settings` (the
+start-up wait, the defaults, saving off), `rule_no_save_during_session`, `req_on_device_storage`,
+`module_save_policy` (REVIEW, kept true); (v2) `rule_mutation_reverts_at_session_end`,
+`rule_adaptive_tempo_resets_after_session`.
 **Part D:** `rule_ephemeral_session_state`, `specification_ephemeral_state_verification`,
-`req_adaptive_tempo`, `module_session_adaptive_tempo_control`,
+`req_adaptive_tempo`, `module_session_adaptive_tempo_control` (its flag "off at load"),
 `rule_sixteenth_unavailable_below_tablet_width`, `req_settings_mutation_flag`,
 `req_multi_phrase_tension_arc`, `module_session_vary_settings_flag`,
 `module_session_tension_across_phrases_flag`, `module_review_played_notes_lane` (the switch is
-saved), `service_idle_generation_session`.
+saved), `service_idle_generation_session`, and, added by the wave-4 preflight though the change
+set does not tag it, `service_session_controller` (REVIEW): its interface holds `varySettings`,
+`tensionAcrossPhrases` and `adaptiveTempo` "in memory for the page's lifetime", and the hold and
+release at Start and at the session's end go through it.
+
+**Revisions:** at the wave sync, a new ARCHITECTURE atom for the loader: the start-up wait, the
+read before the first draw, the hold and release, and the load outcome chunk 8 reads.
 
 **Depends on:** chunks 5 and 6.
 
-**Done when:**
+**Done when** (the half that owns each line in brackets):
 
-- Every setting of §4.2's table, changed and reloaded, comes back with the player's value; a
+- [7b] Every setting of §4.2's table, changed and reloaded, comes back with the player's value; a
   rising-tempo session's reached tempo does not; each "During a session" option comes back on
   only if the player turned it on (one e2e test per row of the table).
-- Below `bp-tablet-landscape`, a chosen `Sixteenth` reloads as `Sixteenth`.
-- A seeded invalid value loads as its default, silently, and the other seeded values load.
-- A write spy on IndexedDB sees no write from Start to the session's end, then the theme or mix
-  change made during it.
-- The rewritten `persistence-absence`, `theme` and reload-based determinism tests pass.
+- [7b] Below `bp-tablet-landscape`, a chosen `Sixteenth` reloads as `Sixteenth`.
+- [7a] Every seeded setting loads, and the workspace is first drawn with it; until the load ends
+  the page shows only its background, and no control changes value after the first draw.
+- [7a] A seeded invalid value loads as its default, silently, and the other seeded values load.
+- [7a] A seeded `Rising tempo` `On` with no controller attached shows `Off` and disabled, and
+  `On` once a controller attaches; seeded `Vary settings` and `Tension across phrases` load on.
+- [7a] An injected failing read, a read slower than the start-up wait, and a port that opens
+  after it: the defaults on screen, saving off, the load outcome "started from the defaults"; a
+  port that opened outdated and read: the saved values, `off-outdated`, "saved data read"; one
+  that opened outdated whose read fails: the defaults, `off-outdated`, "started from the
+  defaults" (unit tests on the bootstrap with the fake port).
+- [7b] After a session in which `Vary settings` changed settings and `Rising tempo` raised the
+  tempo, a reload shows the player's own values: nothing the app set during the session, nor the
+  end-of-session restore, was written.
+- [7b] A write spy on IndexedDB sees no write from Start to the session's end, then the theme or
+  mix change made during it.
+- [7b] The rewritten `persistence-absence`, `theme` and reload-based determinism tests pass.
 
 **Items covered:** 1 (but my instrument and the controller), 2, 3, 7.
 
 **Verification:** the chunk checks; [M2](#m2--the-start-up-wait-for-saved-settings) and hand check
-H2; the bundle at the wave gate (the loader is in the entry chunk).
+H2 (7a); the bundle at the wave gate (the loader is in the entry chunk).
+
+**Split rule.** This is the widest wiring chunk, past about five source files, so it is built in
+two halves, in order, each its own commit that leaves the app working:
+
+- **7a, load before the first draw:** `src/storage-bootstrap.ts`, `src/main.ts` or `src/App.vue`,
+  `create-workspace-session.ts`, `use-generation-session.ts` (loaded controls, profile selection
+  and theme), `audio-transport.ts` (the loaded mix), `use-review-host.ts` (the loaded
+  preferences), `workspace-session-controller.ts` with its dependencies (`workspace-session-controller-seams.ts`),
+  `workspace-adaptive-tempo.ts` and `workspace-session-settings.ts` (the flags' loaded values),
+  the harness seam, M2 and H2, and `docs/storage.md` (M2, the wait, the load outcome) and
+  `docs/testing.md`. Most of these files gain only an initial value. It owns the "Done when" lines
+  marked [7a]. The policy exists after 7a, but nothing saves yet.
+- **7b, save on change:** `generation-session-control-actions.ts` (or its callers in
+  `WorkspaceShell.vue` and `ThemeControl.vue`), `MixControls.vue`, `MixVolumePanel.vue`,
+  `use-session-options.ts`, `use-review-host.ts` (the saves), and the hold and release in the
+  session controller, with `saved-settings.spec.ts`, the rewritten tests of §2, and
+  `docs/storage.md` ("Not here yet" loses the hold and release). It owns the lines marked [7b].
 
 ### Chunk 8 — Notice row
 
@@ -1323,9 +1413,23 @@ refusal of the same kind in the same run is still not reported again. The notice
 the wording of a showing notice in place; a notice dismissed during the run stays dismissed until
 a save succeeds and then fails again.
 
+**The outdated tab's wording.** The notice reads chunk 7's load outcome: its saved-data wording
+when the visit read the saved data, its defaults wording when the visit started from the defaults
+(the saving state alone cannot tell them apart; see [chunk 7](#chunk-7--saved-settings)). An
+unusable-data notice switches in place to the defaults wording when the tab becomes outdated later
+in the visit. After `Delete everything` in another tab, the notice shows the newer version's
+wording, the design's own fallback: the port's outdated report carries no cause
+(`module_on_device_database`, `onOutdated`), and none is added in v3.0 (spec D300). A newer
+version's database whose read-only reopening fails gives an unavailable port, not an outdated one
+([spec O190](../../open-questions.md#v30-wave-4-o190)); the notice follows the saving state and
+the load outcome either way, so it needs nothing more here.
+
 **Files:** `src/components/workspace/AppNoticeRow.vue` (new), `src/components/workspace/use-app-notices.ts`
 (new), `src/components/workspace/WorkspaceShell.vue`, `src/storage/save-policy.ts` (the report
-above), tests `tests/unit/...use-app-notices.spec.ts`, `tests/unit/storage/save-policy.spec.ts`,
+above), `docs/storage.md` (its "Failure report" says a run is "told once, at its first refusal",
+which the report above changes; "Not here yet" says the notices come "from the saving state and
+the failure report", to which the load outcome is added, and loses them once built), tests
+`tests/unit/...use-app-notices.spec.ts`, `tests/unit/storage/save-policy.spec.ts`,
 `tests/e2e/storage/notices.spec.ts`.
 
 **Spec sections:** [§4.1](master-spec.md#41-principles), [§4.3](master-spec.md#43-where-and-how) (outdated tab), [§4.4](master-spec.md#44-loading-saved-settings).
@@ -1334,14 +1438,29 @@ above), tests `tests/unit/...use-app-notices.spec.ts`, `tests/unit/storage/save-
 (Notices), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md)
 (notice row).
 
-**Atoms:** `rule_failed_save_never_disturbs_session`, `rule_outdated_tab_stops_saving`.
+**Atoms:** `rule_failed_save_never_disturbs_session`, `rule_outdated_tab_stops_saving`,
+`rule_failed_read_told_to_player` (the unusable-data notice); also governing,
+`module_save_policy` (REVIEW) and `module_on_device_database` (REVIEW, the port's outdated
+report).
 
-**Depends on:** chunks 1 and 5 (and 7 for the load notices).
+**Revisions:** at the wave sync, `module_save_policy` 0.1 → 0.2, staying REVIEW: a refusal is
+reported again each time its kind differs from the last one reported in the run. **Pending the
+owner's sign-off**, which the wave driver is asking for; not authorized by the plan until he
+gives it.
+
+**Depends on:** chunks 1 and 5, and chunk 7 for the load notices and the load outcome, read from
+its merged code.
 
 **Done when:**
 
-- Seeded data with a higher data version: the outdated notice shows, and a write spy sees no
-  write for the rest of the visit, a session's end included.
+- Seeded data with a higher data version: the outdated notice shows in its saved-data wording,
+  and a write spy sees no write for the rest of the visit, a session's end included.
+- An outdated tab whose start-up read fails or outlasts the wait: the outdated notice in its
+  defaults wording; an unusable-data notice showing when the tab becomes outdated later switches
+  to that wording in place.
+- The database deleted from a second page of the same browser context (`indexedDB.deleteDatabase`,
+  as another tab's `Delete everything` does): the outdated notice in the newer version's wording,
+  saving `off-outdated`, and no write for the rest of the visit.
 - An injected slow or failing read: the unusable-data notice, defaults on screen, no write.
 - An injected quota refusal at a setting change: the storage-full notice; another refusal keeps
   one notice; a success then a refusal shows it again after `Dismiss`.
