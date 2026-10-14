@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.60
+Status: draft v0.61
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -17,8 +17,9 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 Open on 2026-10-14: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
 O115 and O116 (v3.x learning), O176 (style packs and the chord level, below), O180 (v3.0
 wave 2: octave signs, later), O183 (v3.0 wave 2: the warm worker lost when pre-generation is
-cancelled, opened with D298) and O190 (v3.0 wave 4: a newer version's database whose read-only
-reopening fails, opened with D300). The owner closed O182 (what Regenerate does in the stale-phrase
+cancelled, opened with D298), O190 (v3.0 wave 4: a newer version's database whose read-only
+reopening fails, opened with D300) and O200 (v3.0 wave 5: an unreadable kept session at the next
+save, opened with D304). The owner closed O182 (what Regenerate does in the stale-phrase
 prompt) on 2026-10-13, the day it was opened (D297's ruling note). D295 and D296 closed O181 the day it was opened. D228–D234 closed O10 (for v3.2), O103, O114, O126 and every
 question the v3.1 and v3.2 drafts opened (O127–O157, O160–O162); D257 and D258 closed O163 and
 O164 the day they were opened. None blocks the v3.0 build.
@@ -186,3 +187,23 @@ plan v11 (D300). O190–O199 are reserved for v3.0 wave 4. O190 blocks no wave-4
   `src/storage/database.ts` and `src/storage/storage-port.ts`, with a unit test), in a chunk of the
   wave driver's choosing before the v3.0 gate; chunk 8 needs nothing more, since it shows the
   notice from the saving state and the load outcome.
+
+## v3.0 wave 5 (O200+)
+
+Opened 2026-10-14 by `spec-writer` while writing the wave-5 preflight's corrections into build
+plan v13 (D303–D305). O200–O209 are reserved for v3.0 wave 5. O200 blocks no chunk: chunk 10
+builds the proposed default, which a different answer changes in one place.
+
+- **O200 - An unreadable kept session when the next session is saved** _(D304; master spec
+  §5.1; `req_kept_sessions`, `rule_most_recent_session_kept`)_: when a new session is saved,
+  every kept session that is not pinned is deleted (§5.1). A kept session whose session-wide
+  record this version cannot read (damaged, so whether it is pinned is unknown) is in neither
+  group. Question for the owner: **should saving the next session delete such a session, or
+  leave it in place?** Proposed: leave it in place: the app never deletes what it cannot read,
+  as a failed read at load never overwrites what is kept (§4.4), and `Delete everything` still
+  removes it. `req_kept_sessions`' expectation then reads "Right after a new session is saved,
+  it is the only readable kept session that is not pinned", and the most recent session after a
+  reload is the readable one with the latest start (D304). A consequence for chunk 14, not for
+  this question: the session-list design has a row state for a session saved by a newer version
+  and for one whose opening failed, but none for a session whose summary cannot be read, which
+  then has no date to show; `ux-writer` settles that row before chunk 14.

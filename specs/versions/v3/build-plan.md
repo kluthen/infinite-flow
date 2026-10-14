@@ -1,11 +1,12 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v12 (2026-10-14): after chunk 7a, the storage tests that opening the database at every
-load breaks, the loaded profile selection and the my-instrument start-up read (spec D301, D302;
-[Wave records](#wave-4-preflight-2026-10-14)). Approved by
+Status: v13 (2026-10-14): the wave-5 preflight's corrections to chunks 10 and 17: the session
+key (the owner's ruling), chunk 10's save, the file assignment, chunk 17's split and the Idle-side
+my-instrument paths given to chunk 20 (spec D303–D305;
+[Wave records](#wave-5-preflight-2026-10-14)). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D302), and earlier wordings are in git.
+(spec D252–D305), and earlier wordings are in git.
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.14) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
@@ -59,6 +60,7 @@ Some steps are not code and need the owner. They are part of the sequence:
 | **Part B1** | The owner confirms the revised `rule_instrument_profile_range` (change set part B, a MINOR contract bump), which now also states my instrument's written-range bound per clef (spec D294). | After chunk 20's wave gate (its post-task sync revises the atom). | Nothing; the gate checks it is done. |
 | **Part B2** | The owner confirms the revised `rule_controller_transposition_check` (part B, MINOR), which now also states that "use this for my instrument" first warns when it would erase my instrument's kept sessions (spec D295). | After chunk 20c's wave gate (its post-task sync revises the atom, once the warning is built). | Nothing; the gate checks it is done. |
 | **Part C** | The owner confirms the VISION 0.7 → 0.8 text and the retirement of the four chord-fit atoms (part C). | In chunk 26. | The gate. |
+| **O200** | The owner says whether saving a session deletes a kept session whose session-wide record cannot be read, or leaves it in place (proposed: left in place; [spec O200](../../open-questions.md#v30-wave-5-o200)). | Any time; chunk 10 builds the proposed default. | Nothing. A different answer changes chunk 10's save in one place. |
 
 ### Waves
 
@@ -82,7 +84,7 @@ wave-0 gate covers chunks 1 and 2.
 | 2 | 4 Database core · 19 My instrument on the staff · 19b Bass clef for my instrument · 24 Pre-generation at Idle | Chunk 3 (4); 16 (19); 19 and its own intent preflight (19b); 23 (24) |
 | 3 | 5 Save policy · 9 Kept-session record | Chunk 4; chunk 23 (9) |
 | 4 | 7 Saved settings · 8 Notice row | Chunks 5, 6; chunk 1 for 8 |
-| 5 | 10 Most recent session kept · 17 My instrument across worker and history | Chunks 7, 8, 9 (10); 9, 16 (17) |
+| 5 | 10 Most recent session kept (10a, 10b if split) · 17a My instrument through the worker and the session · 17b The clef through the history and the review | Chunks 7, 8, 9 (10); 9, 16, 19b (17) |
 | 6 | **Gate A**, then 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter | Chunk 10 and Gate A (11, 12; and Review reachability before 12 merges); chunk 17 (18, not Gate A); chunk 7 and Gate A (22); H1 and chunk 1 (25) |
 | 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet | Chunk 12 (13, 14); chunks 7, 17, 19b, 24, the clef design and ux Q76 (20) |
 | 8 | 15 Your data · 21 The check feeds my instrument | Chunks 11, 14 (15); 20 (21) |
@@ -743,6 +745,57 @@ and the file references moved by the bundle fix updated. Put to the owner with t
 (REVIEW; it still says the export choices are kept in memory only, which 7b changed as §4.2 asks;
 not in chunk 7's Part D), seven DRAFT → REVIEW proposals, H2, and M5 measuring first-load JS.
 Known drift left: `rule_session_data_never_sent_or_stored` (chunk 10), O190.
+
+#### Wave 5 preflight (2026-10-14)
+
+`documentalist` ran the full pass and the file pass for chunks 10 and 17 on `v3.0-w5` (made from
+`main` 112c9ff), without an LLM. No record changed and no capture was made yet: chunk 10's
+capture follows the session-key decision (spec D303) and is the first step of chunk 10, before
+its code.
+
+| Chunk | Verdict | Open before code |
+| --- | --- | --- |
+| 10 | PROCEED, with notes | The session key first: no kept-session record holds its key and the port's `readAll` gives none, so after a reload the save could not name what to delete, nor the review link the body to read. The owner ruled for a keyed read (D303); `documentalist` captures it, the key's form and the session's save as [chunk 10](#chunk-10--most-recent-session-kept) lists them. The Part D wordings go to the owner at the wave sync. |
+| 17 | PROCEED, with notes | The session engine still refuses my instrument and was not in the chunk's files; now 17a's. The clef reaches the kept session through the history record, `encodeKeptSession`'s signature unchanged. |
+
+**The file overlap.** Both chunks needed `src/components/workspace/workspace-session-start.ts`:
+chunk 17 for the session's settings and the history it creates there, chunk 10 for its
+`state.review = null`, which would drop at Start a session the design keeps in memory "until the
+next session ends with a review". Settled in spec D305: the file is chunk 17's alone; chunk 10
+keeps the most recent session in a slot of the controller state Start does not clear
+(`workspace-session-ends.ts`, `session-review-state.ts`, `workspace-session-controller.ts`). The
+kept-session record files are chunk 17's; chunk 10 calls them as chunk 9 built them. No other
+source file is in both.
+
+Plan corrections the preflight found, applied in v13 (spec D303–D305):
+
+- **Chunk 10, the session key** (D303, the owner's ruling): a keyed read in the port, keyed
+  summaries from the loader, the key `session-{startedAt}-{sessionSeed}`; an **Architecture
+  capture** line names what `documentalist` records before code.
+- **Chunk 10, the save** (D304): "exactly one save transaction" becomes the settings flush in its
+  own transaction, when a setting changed, then one transaction for the session; the deletions
+  are read at the save; an unreadable summary stays (owner question
+  [O200](../../open-questions.md#v30-wave-5-o200), which blocks nothing); with saving off the end
+  saves and deletes nothing and the keep line reads "Not saved on this device: export it to keep
+  it."; the most recent session after a reload is the readable one with the latest start, and in
+  its visit it survives the next Start.
+- **Chunk 10, Atoms and Part D:** `rule_outdated_tab_stops_saving` (DRAFT),
+  `rule_first_phrase_waits_for_saved_settings`, `entity_kept_session_record`,
+  `module_kept_session_codec`; Part D adds `module_save_policy`,
+  `module_review_export_pipeline`, `service_session_end`,
+  `specification_ephemeral_state_verification`, `module_on_device_database`,
+  `module_saved_data_loader` and, with O200's default, `req_kept_sessions`. Files and a 10a/10b
+  split rule follow.
+- **Chunk 17, split** (D305): 17a takes the worker and the session engine
+  (`session-types.ts`, `session-intents.ts`, `carry-in-adaptation.ts`,
+  `workspace-session-start.ts`); 17b the clef through the history, the kept-session body and the
+  review. Part D adds `module_kept_session_codec` and `entity_my_instrument`. Its "Done when"
+  checks the bass-clef review at codec level and with `ReviewPhrase` drawing a decoded
+  `KeptPhrase`, since no live my-instrument session can run before chunk 20.
+- **Chunk 20, Files** (D305): the Idle side's my-instrument paths, the Idle intent
+  (`use-generation-session.ts`), the rhythm prewarm (`generation-session-prewarm.ts`) and the
+  connection sheet's profile (`WorkspaceShell.vue`), beside `FoundationControls.vue`; a "Done
+  when" line for a session played with my instrument end to end.
 
 ## 2. Read first: what v3.0 undoes in v2
 
@@ -1710,63 +1763,131 @@ encoder throws for a my-instrument phrase, whose clef the history does not carry
 
 ### Chunk 10 — Most recent session kept
 
+**Architecture capture** (before code; the owner's ruling, spec D303, and spec D304):
+
+- `module_on_device_database`: the port's keyed read of a whole store, every entry as its key and
+  its raw value, in key order, in one read-only transaction, refused as `readAll` is; an entry
+  whose key is not a string is left out, never thrown on. `readAll` stays.
+- `module_saved_data_loader`: `keptSessionSummaries` are those keyed entries, raw values decoded
+  by their callers.
+- `entity_kept_session_record`: the key's form, `session-{startedAt}-{sessionSeed}` in decimal,
+  minted once by the session's save; no code reads a fact back from a key; the key stays in no
+  record.
+- The session's save and the most recent session, as an ARCHITECTURE atom `documentalist` names:
+  at an end with a review, the settings flush (`release()`, its own transaction, only when a
+  setting changed), then the keyed read of the summaries, then one batch writing the new session
+  and deleting the summary, body and played notes of every readable unpinned kept session, an
+  unreadable summary left in place (spec O200's proposed default), a refused read deleting
+  nothing; marked as the session's own save by the path the leader chooses (a parameter of the
+  policy call or a result path of its own), named in the capture; with saving off, nothing read,
+  saved or deleted. The most recent session: in its visit, the last that ended with a review,
+  saved or held in memory, kept in the controller state across the next Start until the next
+  session ends with a review; after a reload, the readable kept session with the latest start.
+
 **Goal.** Save the session once, as its review opens; keep it across a reload; delete every
 unpinned older session in the same save; open it again from `Review last session`.
 
-**Scope.** At the session's end, after the review opens: release the hold, then encode the
-session with chunk 9's `encodeKeptSession` and save it in one port `apply` batch that writes the
-new session (summary and body; played notes only when `Keep my played notes` is on, which is
-always off until chunk 11) and deletes every unpinned kept session. A session ended
-during its count-in saves and deletes nothing. A failed save keeps the session in memory as the
-most recent one, deletes nothing, and the review's keep line says "Not saved on this device…";
-storage full also raises the notice, and no other failure of this save does (the design's Save
-failed is for saves other than the session's own). The save policy's one listener cannot tell
+**Scope.** At the session's end, after the review opens: release the hold (its own transaction
+for the settings changed during the session, none when nothing changed), then read the kept
+sessions' summaries with their keys, encode the session with chunk 9's `encodeKeptSession`, and
+save it in one port `apply` batch under its new key (spec D303) that writes the new session
+(summary and body; played notes only when `Keep my played notes` is on, which is always off until
+chunk 11) and deletes every readable unpinned kept session (spec D304; an unreadable one stays,
+pending [spec O200](../../open-questions.md#v30-wave-5-o200)). A session ended during its count-in
+saves and deletes nothing. A failed save keeps the session in memory as the most recent one,
+deletes nothing, and the review's keep line says "Not saved on this device: export it to keep
+it."; storage full also raises the notice, and no other failure of this save does (the design's
+Save failed is for saves other than the session's own). The save policy's one listener cannot tell
 which save failed, so the session's save is marked as the session's own, through a parameter of
-the policy call or a result path of its own (the leader chooses): a `quota` refusal of it reaches
-the notice row, an `other` failure reaches only the keep line. After a reload, `review-link` shows when the most recent
-kept session can be read, and opens it (reading it first, `is-loading`). The review title and
-summary use the session date. The review's instrument name comes from what the session holds,
-never from a lookup by id: the kept summary's `instrument.displayName` for a kept session, the
-phrase intent's own profile for the session that just ended. Today `use-review-host.ts` looks the
-name up with `getInstrumentProfile(id)`, which throws for `my-instrument`, so the review of a
-my-instrument session would crash once chunk 17 makes one playable (ISS-012). `review-keep-line` in its three wordings (only "Not saved" on the
-phone). `review-privacy`'s storage half, as chunk 7b narrowed it, is widened to the kept session
-(spec D301): its summary and body may be written; still no played note in any record.
+the policy call or a result path of its own (the leader chooses, before the capture): a `quota`
+refusal of it reaches the notice row, an `other` failure reaches only the keep line. While saving
+is off (an outdated tab, or a visit started from the defaults because the saved data could not be
+read), the end reads, saves and deletes nothing: the session is held in memory as after a failed
+save, its keep line reads "Not saved on this device: export it to keep it.", and every kept
+session stays (kept-sessions design, Keeping at a Session's End). The most recent session stays in
+memory across the next Start, in a slot of the controller state Start does not clear, until the
+next session ends with a review, so a count-in end changes nothing and `review-link` returns by
+its rules (spec D304). After a reload, the most recent session is the readable kept session with
+the latest start; `review-link` shows when it can be read, and opens it (reading its body by its
+key first, `is-loading`). The review title and summary use the session date. The review's
+instrument name comes from what the session holds, never from a lookup by id: the kept summary's
+`instrument.displayName` for a kept session, the phrase intent's own profile for the session that
+just ended. Today `use-review-host.ts` looks the name up with `getInstrumentProfile(id)`, which
+throws for `my-instrument`, so the review of a my-instrument session would crash once my
+instrument can be played (ISS-012). `review-keep-line` in its three wordings (only "Not saved" on
+the phone). `review-privacy`'s storage half, as chunk 7b narrowed it, is widened to the kept
+session (spec D301): its summary and body may be written; still no played note in any record.
 
-**Files:** `src/components/workspace/workspace-session-ends.ts` (save at end),
-`src/components/workspace/session-review-state.ts`, `src/components/workspace/use-review-navigation.ts`,
-`src/storage/save-policy.ts` (the session's own save), `src/components/workspace/use-review-host.ts`
-(the instrument name, ISS-012),
+**Not in this chunk** (spec D305): `src/components/workspace/workspace-session-start.ts` is chunk
+17's; its `state.review = null` stays. The kept-session record files (`kept-session-body.ts`,
+`kept-session-record.ts`, `kept-session-summary.ts`) are unchanged here: chunk 10 calls
+`encodeKeptSession`, `decodeKeptSession` and `decodeKeptSessionSummary` as chunk 9 built them.
+
+**Files:** 10a, the save: `src/storage/storage-port.ts` and `src/storage/database.ts` (the keyed
+read), `src/storage-bootstrap.ts` (keyed summaries), `src/storage/save-policy.ts` (the session's
+own save), `src/components/workspace/workspace-session-ends.ts` (save at end; a new module beside
+it if the save outgrows it), `docs/storage.md` (the key, the keyed read, the save); 10b, the reach:
+`src/components/workspace/session-review-state.ts`,
+`src/components/workspace/workspace-session-controller.ts` and
+`workspace-session-controller-types.ts` (the most recent session's slot, the review of a kept
+session), `src/components/workspace/use-review-navigation.ts`,
+`src/components/workspace/use-review-host.ts` (the instrument name, ISS-012),
 `src/components/review/ReviewPanel.vue` (keep line, title), `src/components/workspace/SessionCueRow.vue`
-(`review-link` rule), tests `tests/e2e/storage/kept-session.spec.ts`, the rewritten
-`review-navigation` reload test, `tests/e2e/review/review-privacy.spec.ts` (storage half widened).
+(`review-link` rule), and, if the kept session's read needs a seam into the workspace,
+`create-workspace-session.ts` and `workspace-session-dependencies.ts`; tests under
+`tests/unit/storage/` (the keyed read, the loader), `tests/e2e/storage/kept-session.spec.ts`, the
+rewritten `review-navigation` reload test, `tests/e2e/review/review-privacy.spec.ts` (storage half
+widened). If the brief exceeds about five source files, split it there: 10a, then 10b.
 
-**Spec sections:** [§5.1](master-spec.md#51-which-sessions-are-kept), [§5.4](master-spec.md#54-reaching-earlier-sessions).
+**Spec sections:** [§5.1](master-spec.md#51-which-sessions-are-kept), [§5.4](master-spec.md#54-reaching-earlier-sessions), [§4.3](master-spec.md#43-where-and-how) and [§4.4](master-spec.md#44-loading-saved-settings) (saving off).
 
 **Design docs:** [`flows/kept-sessions/handoff.md`](../../../ui_ux/versions/v3.0/flows/kept-sessions/handoff.md)
-(Keeping at a Session's End, the cue-row links),
+(Keeping at a Session's End, While Saving Is Off, the cue-row links),
 [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.0/flows/review-and-export/handoff.md) (Saving
 the Session), [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.0/screens/last-session-review/handoff.md)
-(`review-keep-line`, title).
+(`review-keep-line`, title, Not saved, Saving off).
 
 **Atoms:** `rule_most_recent_session_kept`, `req_kept_sessions`, `req_kept_session_review`,
-`rule_no_save_during_session`, `rule_failed_save_never_disturbs_session`; (v2)
+`rule_no_save_during_session`, `rule_failed_save_never_disturbs_session`,
+`rule_outdated_tab_stops_saving` (DRAFT), `rule_first_phrase_waits_for_saved_settings` (a visit
+from the defaults saves nothing), `entity_kept_session_record`, `module_kept_session_codec`; (v2)
 `req_last_session_review`. **Part D:** `rule_session_data_never_sent_or_stored`,
-`rule_new_session_discards_review`, `req_rolling_practice_session`,
-`rule_session_history_keeps_timeline_and_inputs`, `service_session_history`.
+`rule_new_session_discards_review` (the next Start hides the review; the most recent session
+stays until the next session ends with a review), `req_rolling_practice_session`,
+`rule_session_history_keeps_timeline_and_inputs`, `service_session_history`;
+`module_save_policy` (the session's own save, marked); `module_review_export_pipeline` (its input
+is no longer only "the closed history", and "nothing from the session … is stored" no longer
+holds); `service_session_end` (the end now saves the session; "until the next start discards
+it" becomes until the next session ends with a review); `specification_ephemeral_state_verification`
+("the app's database holds no record of them" for a generated phrase becomes: no phrase generated
+outside a session); `module_on_device_database` and `module_saved_data_loader` (the capture above);
+`req_kept_sessions` (its expectation "the only kept session that is not pinned" becomes "the only
+readable kept session that is not pinned" if the owner keeps O200's proposed default).
 
 **Depends on:** chunks 1, 7, 8 and 9.
 
 **Done when:**
 
+- The keyed read gives every entry of a store with its key, in key order; an entry with a
+  non-string key is left out; `readAll` is unchanged (unit tests on the in-memory IndexedDB). The
+  loader hands the summaries with their keys.
 - A session played, the page reloaded: `Review last session` opens the same review (notation and
-  exports byte-identical to before the reload).
-- A second session's save leaves one kept session; a pinned one (seeded) survives it.
-- A session ended in its count-in changes nothing kept.
-- A write spy sees nothing between Start and the end, then exactly one save transaction.
+  exports byte-identical to before the reload), read by its key.
+- A second session's save leaves one unpinned kept session, under a key of the form
+  `session-{startedAt}-{sessionSeed}`; a pinned one (seeded) survives it, and so does a seeded
+  unreadable summary (O200's proposed default). After a reload, with two pinned sessions seeded
+  and the unpinned one deleted, `review-link` opens the one with the latest start.
+- A session ended in its count-in changes nothing kept, and `review-link` returns to the most
+  recent session, saved or held in memory.
+- A write spy sees nothing between Start and the end; then, at the end, the flush of the settings
+  changed during the session in its own transaction (none when nothing changed), then exactly one
+  transaction for the session.
 - An injected failure at the end: the session's end is not delayed (fake clock), the keep line
   says "Not saved…", the review works in full. An `other` failure raises no notice; a `quota`
   refusal raises the storage-full notice as the review opens.
+- With saving off, an outdated tab and a visit started from the defaults alike: the end writes and
+  deletes nothing (write spy), the keep line reads "Not saved on this device: export it to keep
+  it.", and every kept session is still there after a reload.
 - The review names the instrument from the session's own data: a unit test of the review host
   with a history whose instrument is `my-instrument` (profile as data) gives that profile's
   display name and does not throw, and a kept session's review shows the summary's display name
@@ -2118,51 +2239,87 @@ measured on the build machine, not a VM, for reference.
 
 ### Chunk 17 — My instrument across the worker and the history
 
-**Goal.** Carry a player-made profile through the generation worker, into the session's history
-and into a kept session.
+**Goal.** Carry a player-made profile through the generation worker and the session engine, into
+the session's history and into a kept session.
 
-**Scope.** `rebuildGenerationWorkerIntent` / `parseGenerationWorkerIntent` accept my instrument's
-profile as data, validated by `parseInstrumentProfile` and `makeMyInstrument`'s rules, instead of
-rebuilding it by id (the built-ins keep their rebuild-and-compare check); the session history
-records it; the kept-session codec stores and decodes it, so a kept session keeps the instrument
-it was played with in full. A later change of my instrument's name or clef leaves it as it was;
-deleting my instrument, or a change to its range or transposition, erases its kept sessions
-instead (spec D295, chunk 20c). My instrument's clef (spec
-D293, chunk 19b) travels with the phrase's instrument into the history and the kept-session
-record, so a review draws each phrase in the clef it was played in; it is display data, never
-part of the worker's intent. The prewarm and the cancellation paths carry it unchanged.
+**Split** (spec D305): 17a, the worker and the session engine, then 17b, the clef through the
+history, the kept-session body and the review; in that order, in wave 5, each its own commit.
 
-**The clef, after chunk 9.** The history record gains each phrase's clef. The kept-session body
-encoder (`kept-session-body.ts`) takes it from there, and its throw for a my-instrument phrase
-goes. The review and the MusicXML input read each phrase's clef instead of the built-in constant
-(`BUILT_IN_INSTRUMENT_CLEF` in `ReviewPhrase.vue` and `session-history-export.ts`): `KeptPhrase.clef`
-for a kept session, the record's clef for the session that just ended. The stored shape does not
-change: chunk 9's body already has a clef field.
+**Scope, 17a.** `rebuildGenerationWorkerIntent` / `parseGenerationWorkerIntent` accept my
+instrument's profile as data, validated by `parseInstrumentProfile` and `makeMyInstrument`'s rules,
+instead of rebuilding it by id (the built-ins keep their rebuild-and-compare check); the prewarm
+and the cancellation paths carry it unchanged. The session engine stops refusing my instrument:
+`SessionSettings` (`src/session/session-types.ts`) carries the session's instrument profile as
+data, taken at Start from phrase 1's intent, which already embeds it
+(`workspace-session-start.ts`, the settings at lines ~71–74); `buildAttemptIntent`
+(`src/session/session-intents.ts`) passes it to every attempt intent; the carry-in receiver
+(`src/session/carry-in-adaptation.ts`, `receiverFor`) converts the written tonal center with it
+instead of `getInstrumentProfile`. A built-in keeps resolving from its id, so its intents are
+unchanged. The engine's check that a settings change never alters the instrument holds as it is.
 
-**Files:** `src/generation-worker/generation-worker-inbound.ts`, `generation-worker-protocol.ts`,
-`src/session/session-history.ts` (the clef), `src/storage/records/kept-session-body.ts`,
-`src/storage/records/kept-session-record.ts`, `src/session/session-history-export.ts`,
-`src/components/review/ReviewPhrase.vue`; tests under `tests/unit/generation-worker/`,
-`tests/unit/session/` and `tests/unit/storage/`. If the brief exceeds about five source files,
-split the clef (17b) from the worker (17a).
+**Scope, 17b.** My instrument's clef (spec D293, chunk 19b) travels with the phrase's instrument
+into the history and the kept-session record, so a review draws each phrase in the clef it was
+played in; it is display data, never part of the worker's intent. The history record gains each
+phrase's clef, from the written phrase at Start (`workspace-session-start.ts`, where the history
+is created, line ~94). The kept-session body encoder (`kept-session-body.ts`, `clefOf`) takes it
+from there, and its throw for a my-instrument phrase goes; `encodeKeptSession`'s signature does
+not change, so chunk 10's call is untouched, and the stored shape does not change (chunk 9's body
+already has a clef field). The review and the MusicXML input read each phrase's clef instead of
+the built-in constant (`BUILT_IN_INSTRUMENT_CLEF` in `ReviewPhrase.vue` and
+`session-history-export.ts`): `KeptPhrase.clef` for a kept session, the record's clef for the
+session that just ended. A later change of my instrument's name or clef leaves a kept session as
+it was; deleting my instrument, or a change to its range or transposition, erases its kept
+sessions instead (spec D295, chunk 20c).
+
+**Not in this chunk** (spec D305): the Idle side, which only chunk 20 can feed: the Idle intent
+(`use-generation-session.ts`), the rhythm prewarm's intent (`generation-session-prewarm.ts`), the
+connection sheet's profile (`WorkspaceShell.vue`) and the instrument control's
+(`FoundationControls.vue`). So no live session can be played with my instrument before chunk 20;
+this chunk's checks are unit and harness tests. Chunk 10's files (the session's save, the review
+state, the controller, the review host, `ReviewPanel.vue`) are not touched here.
+
+**Files:** 17a: `src/generation-worker/generation-worker-inbound.ts`,
+`generation-worker-protocol.ts`, `src/session/session-types.ts`, `src/session/session-intents.ts`,
+`src/session/carry-in-adaptation.ts`, `src/components/workspace/workspace-session-start.ts`;
+tests under `tests/unit/generation-worker/` and `tests/unit/session/`. 17b:
+`src/session/session-history.ts` (the clef), `src/storage/records/kept-session-body.ts`
+(`kept-session-record.ts` only for its comments and the `KeptPhrase` type, no signature change),
+`src/session/session-history-export.ts`, `src/components/review/ReviewPhrase.vue`,
+`src/components/workspace/workspace-session-start.ts` (the clef into the history); tests under
+`tests/unit/session/`, `tests/unit/storage/` and the review's unit tests.
+`workspace-session-start.ts` is this chunk's alone in wave 5 (chunk 10 leaves it).
 
 **Spec sections:** [§7.4](master-spec.md#74-phrase-replay-key), [§11](master-spec.md#11-existing-code-and-risks).
 
-**Atoms:** `req_my_instrument`, `rule_kept_session_content`; (v2) `rule_seeded_phrase_reproduction`.
-**Part D / drift check:** `module_generation_worker_protocol`, `service_session_history`.
+**Atoms:** `req_my_instrument`, `entity_my_instrument`, `rule_kept_session_content`; (v2)
+`rule_seeded_phrase_reproduction`. **Part D / drift check:** `module_generation_worker_protocol`,
+`service_session_history`, `service_session_engine` (the settings carry the profile);
+`entity_my_instrument` (its TECHNICAL INTERFACE: "Until my instrument travels through the worker
+and the session … refuse `my-instrument`" goes, 17a; the Idle side's refusal stays until chunk 20);
+`module_kept_session_codec` ("Encoding a My instrument phrase throws until the history records its
+clef" goes, and its byte-identical exports hold for my instrument too, not only "the three
+built-in instruments", 17b).
 
 **Depends on:** chunks 9, 16 and 19b (the clef).
 
 **Done when:**
 
-- A generation with a player-made profile (e.g. written C3–C6, sounding a minor third lower)
+- 17a: a generation with a player-made profile (e.g. written C3–C6, sounding a minor third lower)
   crosses the worker and every note of the timeline lies in its concert range.
-- A malformed profile (23-semitone span, inconsistent transposition, windows set by hand) is
-  rejected by the worker with a typed error.
-- A built-in profile whose data was altered is still rejected (rebuild-and-compare kept).
-- A session played with my instrument encodes and decodes as a kept session with that profile
-  and its clef; a bass-clef session still reviews in bass clef after my instrument is switched to
-  treble clef, both as the session that just ended and as a kept session.
+- 17a: a malformed profile (23-semitone span, inconsistent transposition, windows set by hand) is
+  rejected by the worker with a typed error; a built-in profile whose data was altered is still
+  rejected (rebuild-and-compare kept).
+- 17a: the session engine, given settings with my instrument's profile (unit tests over its
+  seams), builds every attempt intent with that profile, carry-in and standalone alike, and the
+  carry-in receiver converts the tonal center with its transposition; nothing throws. Built-in
+  sessions build the same intents as before.
+- 17b: a history recorded with my instrument in bass clef encodes and decodes as a kept session
+  with that profile and `clef: 'bass'` on every phrase, whatever clef the test then gives my
+  instrument (codec level); `ReviewPhrase` draws a decoded `KeptPhrase` in its clef, and the
+  review of the session that just ended draws each record's clef (unit or harness tests: a live
+  my-instrument session waits for chunk 20).
+- 17b: the MusicXML of a bass-clef history writes the bass clef; built-in sessions export
+  byte-identically to before.
 - The `ifk1.` corpus passes.
 
 **Items covered:** 16 (generates in its range).
@@ -2374,8 +2531,14 @@ design's words.
 start-up read), `src/domain/profile/my-instrument.ts` (the bound), `src/components/controls/FoundationControls.vue`
 (the fourth segment and the button), `src/components/workspace/MyInstrumentSheet.vue` (new),
 `src/components/workspace/use-my-instrument.ts` (new), `src/composables/generation-session-profile-switch.ts`;
-tests `tests/e2e/storage/my-instrument.spec.ts`, unit tests for the sheet's model. If the brief
-exceeds about five source files, split the sheet (20b) from the record and the control (20a).
+the Idle side's my-instrument paths (spec D305), which look the profile up by id and throw for
+`my-instrument` until this chunk gives them its profile as data: the Idle intent
+(`src/composables/use-generation-session.ts`, `freshIntentFromControls`), the rhythm prewarm's
+intent (`src/composables/generation-session-prewarm.ts`), the connection sheet's profile
+(`src/components/workspace/WorkspaceShell.vue`, the `useControllerConnection` profile) and the
+instrument control's (`FoundationControls.vue`, above); tests `tests/e2e/storage/my-instrument.spec.ts`,
+unit tests for the sheet's model. If the brief exceeds about five source files, split the sheet
+(20b) from the record, the control and the Idle side (20a).
 
 **Spec sections:** [§7.1](master-spec.md#71-what-it-is), [§4.2](master-spec.md#42-what-is-saved-automatically), [§4.5](master-spec.md#45-keeping-the-data-safe-from-the-browser).
 
@@ -2419,6 +2582,9 @@ settled.
 - A seeded invalid my-instrument record loads as absent, and a saved selection of it falls back
   to the default profile.
 - The first save makes one persist request.
+- With my instrument selected, the Idle phrase, the rhythm prewarm and the connection sheet use
+  its profile as data, and a session plays with it to its review, which names it and draws its
+  clef (chunks 10 and 17); nothing on the way looks its profile up by id.
 
 **Items covered:** 16 (survives a reload, deleting returns to its template), 1 (my instrument), 13.
 

@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.89
+Status: draft v2.90
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,11 +14,11 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D303**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D306**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
-chunk 7a.
+chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key).
 
 ## Decision Log
 
@@ -1384,3 +1384,89 @@ chunk 7a.
   Rejected: accepting the incoherent state (the preset status would name a preset the values do
   not match), and re-applying the preset's bundle (it would replace the fallen-back value by the
   preset's, against §4.4's "falls back to that setting's default"). Build plan v12.
+
+- **D303 (2026-10-14): a kept session's key is read with its record, through a keyed read of the
+  port; the loader hands the kept sessions' summaries with their keys.** The owner's ruling ("go
+  with option (a) for the session key"), on the question the wave-5 preflight raised for chunk 10:
+  `StoragePort.readAll` gives values without their keys (`src/storage/storage-port.ts`,
+  `src/storage/database.ts`), no kept-session record holds its key (`entity_kept_session_record`,
+  `docs/storage.md`, Kept sessions), and the loader's `keptSessionSummaries` are bare values, so
+  after a reload the session's save could not name the unpinned sessions to delete and
+  `Review last session` could not read the body of the summary it shows. The port gains a keyed
+  read of a whole store: every entry as its key and its raw value, in key order, in one read-only
+  transaction, refused as `readAll` is; an entry whose key is not a string was not written by the
+  app and is left out, never thrown on. `readAll` stays for the settings and the controller. The
+  loader's `keptSessionSummaries` become those keyed entries, decoded by their callers as before.
+  "The key is in no record" stays true. The key's form is `spec-writer`'s call under the owner's
+  delegation of minor technical calls: the session's save mints it once, as
+  `session-{startedAt}-{sessionSeed}` in decimal (the session's wall-clock start in epoch
+  milliseconds and its 32-bit session seed, both already in the session-wide record), so tests
+  fix it with the clock and the seed they already control; no code reads a fact back from a key.
+  Rejected: (b) a key rebuilt from the summary's facts, which needs a readable summary to find a
+  session at all (an unreadable one could then be neither deleted nor opened by key) and ties
+  every key to a field a later migration might change; a random key, which adds a dependency for
+  no gain. Revises `module_on_device_database` and `module_saved_data_loader`, and adds the key's
+  form to `entity_kept_session_record`, as chunk 10's architecture capture, before its code.
+  Build plan v13.
+
+- **D304 (2026-10-14): how chunk 10's save at a session's end runs, and which session is the most
+  recent one.** Settled by `spec-writer` under the owner's delegation of minor technical calls,
+  from the kept-sessions design (`flows/kept-sessions/handoff.md`, Keeping at a Session's End;
+  `screens/last-session-review/handoff.md`), checked against `src/storage/save-policy.ts`:
+  - **Two transactions, not one.** `release()` flushes the settings changed during the session in
+    a transaction of their own, and only when there are some. The session's save follows in one
+    batch of its own. Merging the two into one batch was rejected: a storage-full refusal of the
+    session (up to 4.25 MB) would then lose the player's setting changes too, and a failure could
+    no longer be told apart as the session's own (keep line only, or the storage-full notice) or a
+    setting's (the Save failed notice), which the design keeps apart.
+  - **The deletions are read at the save.** Just before its batch, the save reads the summaries
+    with the keyed read (D303) and deletes, in the same batch as the new session's write, the
+    summary, body and played notes of every readable kept session that is not pinned. Reading
+    then, not trusting the load's list, keeps the rule true when another tab saved a session
+    meanwhile. A refused read still saves the new session and deletes nothing. A summary that
+    cannot be read is left in place (whether it is pinned is unknown); that default is put to the
+    owner as [O200](open-questions.md#v30-wave-5-o200).
+  - **Saving off.** In an outdated tab, or a visit started from the defaults, the end reads,
+    saves and deletes nothing; the session is held in memory and its keep line reads "Not saved
+    on this device: export it to keep it.", as the design says.
+  - **The most recent session.** In the visit it ended in, the last session that ended with a
+    review, saved or held in memory; after a reload, the readable kept session with the latest
+    start. That is the design's "the session that was saved last" in every case a single tab
+    makes, since one tab's sessions never overlap; the record holds no time of saving to do
+    better with overlapping sessions in two tabs. So after the player deletes the most recent
+    session and reloads, the pinned session that started last becomes the most recent one.
+  - **The most recent session stays in memory across the next Start** until the next session
+    ends with a review, as the design says ("until the next session ends with a review or the
+    page closes"), so a session ended in its count-in changes nothing and `review-link` returns
+    by its rules, for a saved session and one held in memory alike. Master spec §4.4 says the
+    session a visit holds in memory "keeps its review until the next session starts, as in v2";
+    read as the least it promises, not a removal, since §5.1 says a count-in end changes nothing.
+    The wording is aligned at the next Part A revision.
+  Build plan v13.
+
+- **D305 (2026-10-14): wave 5's file assignment between chunks 10 and 17, chunk 17's split, and
+  the Idle-side my-instrument paths given to chunk 20.** Settled by `spec-writer` under the
+  owner's delegation of minor technical calls, from the wave-5 preflight's file pass and the
+  code on `v3.0-w5` (112c9ff). Chunks 10 and 17 have no path between them, so they must not
+  change the same source file. `src/components/workspace/workspace-session-start.ts` goes to
+  chunk 17, which must change it (the session's settings, lines 71–74, gain the profile from
+  phrase 1's intent; the history, line 94, gains the clef from the written phrase); chunk 10
+  leaves it alone, keeping its `state.review = null` (line 70), and holds the most recent session
+  in a slot of the controller state that Start does not clear (`workspace-session-ends.ts`,
+  `session-review-state.ts`, `workspace-session-controller.ts`,
+  `workspace-session-controller-types.ts`). The kept-session record files
+  (`kept-session-body.ts`, `kept-session-record.ts`) are chunk 17's; chunk 10 calls
+  `encodeKeptSession`, `decodeKeptSession` and `decodeKeptSessionSummary` as chunk 9 built them,
+  and chunk 17 leaves `encodeKeptSession`'s signature unchanged, taking the clef from the history
+  record. Chunk 17 takes the session engine, as chunk 16's record and `entity_my_instrument`
+  assign it (the attempt intents, `src/session/session-intents.ts`; `SessionSettings`,
+  `src/session/session-types.ts`; the carry-in receiver, `src/session/carry-in-adaptation.ts`),
+  and so splits: 17a, the worker and the session engine; 17b, the clef through the history, the
+  kept-session body and the review. The Idle side, which only chunk 20 can feed (the profile
+  exists as data only once my instrument's record is loaded), is chunk 20's: the Idle intent
+  (`src/composables/use-generation-session.ts`), the rhythm prewarm's intent
+  (`src/composables/generation-session-prewarm.ts`), the connection sheet's profile
+  (`src/components/workspace/WorkspaceShell.vue`) and the instrument control's
+  (`src/components/controls/FoundationControls.vue`, already chunk 20's). Chunk 10 needs more
+  than five source files after D303, so it gets a split rule too (10a the save, 10b the reach).
+  Build plan v13.
