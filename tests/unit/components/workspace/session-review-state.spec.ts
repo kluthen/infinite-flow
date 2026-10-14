@@ -35,7 +35,12 @@ import { myInstrumentHistory } from './my-instrument-history'
 
 /** Intent: the closed history of a driven session, fed every output the driver logged. */
 function historyOf(driver: SessionDriver): SessionHistory {
-  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+  const history = createSessionHistory(
+    driver.settings,
+    fixedWallClock,
+    DEFAULT_SESSION_SEED,
+    'treble',
+  )
   for (const output of driver.log) history.record(output)
   return history
 }
@@ -99,7 +104,12 @@ describe('the Review transitions', () => {
 
   // @test-link [[req_last_session_review]]
   it('refuses to open over a history in which no phrase sounded', () => {
-    const empty = createSessionHistory(sessionSettings(), fixedWallClock, DEFAULT_SESSION_SEED)
+    const empty = createSessionHistory(
+      sessionSettings(),
+      fixedWallClock,
+      DEFAULT_SESSION_SEED,
+      'treble',
+    )
     expect(() => endedSession(empty, 'not-pinned')).toThrow(/no phrase sounded/)
   })
 })

@@ -11,7 +11,6 @@
 
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
-import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type {
   RecordedPlayedNote,
   ReviewedPhrase,
@@ -74,8 +73,9 @@ export type KeptSessionHistory = Pick<
 >
 
 /**
- * One kept phrase as the review and the exports read it: a reviewed phrase, its start in seconds
- * from phrase 1's start, with its repeat mark, its favorite mark and the clef it was drawn in.
+ * One kept phrase as the review and the exports read it: a reviewed phrase (the clef it was drawn
+ * in included), its start in seconds from phrase 1's start, with its repeat mark and its favorite
+ * mark.
  */
 // @spec-link [[entity_kept_session_record]]
 // @spec-link [[module_kept_session_codec]]
@@ -83,7 +83,6 @@ export interface KeptPhrase extends ReviewedPhrase {
   readonly isRepeat: boolean
   readonly repeatOf?: number
   readonly favorite: boolean
-  readonly clef: InstrumentClef
 }
 
 /** A decoded kept session: its session-wide facts and its phrases in sounding order. */
@@ -134,8 +133,8 @@ function sessionLengthSeconds(first: SessionHistoryRecord, last: SessionHistoryR
  * played notes only when they are kept, each written by `appVersion` at data version 1, every
  * field copied by name and every time in seconds from phrase 1's scheduled start. Throws, as a
  * caller defect, on a history with no phrase, an empty app version, a comment over 500
- * characters, an unknown or repeated favorite, a phrase played on another instrument than the
- * session's, or a My instrument phrase (whose clef the history does not carry yet).
+ * characters, an unknown or repeated favorite, or a phrase played on another instrument than the
+ * session's. Every phrase keeps the clef the history recorded it in.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[rule_kept_session_content]]

@@ -53,7 +53,12 @@ function outputsOf(driver: SessionDriver): {
 
 /** Intent: a history for the driver's session fed every output but its end. */
 function openHistory(driver: SessionDriver): SessionHistory {
-  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+  const history = createSessionHistory(
+    driver.settings,
+    fixedWallClock,
+    DEFAULT_SESSION_SEED,
+    'treble',
+  )
   for (const output of outputsOf(driver).sounding) history.record(output)
   return history
 }
@@ -120,6 +125,7 @@ describe('played notes in the session history', () => {
       sessionSettings({ tempo: 240 }),
       fixedWallClock,
       DEFAULT_SESSION_SEED,
+      'treble',
     )
     history.record(sounding[0]!)
     history.recordPlayedNote(played(5.5, 6))
@@ -152,6 +158,7 @@ describe('notes played before phrase 1 starts', () => {
       sessionSettings({ tempo: 240 }),
       fixedWallClock,
       DEFAULT_SESSION_SEED,
+      'treble',
     )
     history.recordPlayedNote(played(0.2, 0.6))
     expect(history.phrases()).toEqual([])
@@ -185,6 +192,7 @@ describe('acknowledgements in the session history', () => {
       sessionSettings({ tempo: 240 }),
       fixedWallClock,
       DEFAULT_SESSION_SEED,
+      'treble',
     )
     history.record(sounding[0]!)
     history.recordAcknowledgement(expected(2, 0))
@@ -202,6 +210,7 @@ describe('acknowledgements in the session history', () => {
       sessionSettings({ tempo: 240 }),
       fixedWallClock,
       DEFAULT_SESSION_SEED,
+      'treble',
     )
     for (const output of sounding) history.record(output)
     history.recordAcknowledgement(expected(4, 0))

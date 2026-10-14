@@ -1,12 +1,12 @@
 /**
  * The body of a kept session, stored in the sessionBodies store: for each phrase that sounded, in
- * sounding order, its number, its start in seconds from phrase 1's scheduled start, the request
- * and the generated concert timeline as shown, the harmony its chord symbols come from, its
- * generation intent with the instrument profile as data, its tempo, its repeat mark, its favorite
- * mark and its clef, with the record envelope's two versions. Every field is copied by name, so
- * the acknowledgements, the rhythm and tension provenance and the diagnostics the history holds
- * never reach it. Read back through the domain's own parsers, never rebuilding a profile from its
- * id. Pure: no storage access.
+ * sounding order, its number, its start in seconds from phrase 1's scheduled start, the request and
+ * the generated concert timeline as shown, the harmony its chord symbols come from, its generation
+ * intent with the instrument profile as data, its tempo, its repeat mark, its favorite mark and the
+ * clef the history recorded it in, with the record envelope's two versions. Every field is copied
+ * by name, so the acknowledgements, the rhythm and tension provenance and the diagnostics the
+ * history holds never reach it. Read back through the domain's own parsers, never rebuilding a
+ * profile from its id. Pure: no storage access.
  */
 
 import { deepFreeze } from '@/domain/events/deep-freeze'
@@ -18,15 +18,7 @@ import {
   type GenerationRequest,
 } from '@/domain/generation/generation-request'
 import type { HarmonyCandidate } from '@/domain/harmony/harmony-types'
-import {
-  BUILT_IN_INSTRUMENT_CLEF,
-  isInstrumentClef,
-  type InstrumentClef,
-} from '@/domain/profile/instrument-clef'
-import {
-  isBuiltInInstrumentProfileId,
-  MY_INSTRUMENT_ID,
-} from '@/domain/profile/instrument-profiles'
+import { isInstrumentClef, type InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { SessionHistoryRecord } from '@/session/session-history'
 
 import type { RecordVersions } from '../record-envelope'
@@ -113,22 +105,8 @@ export interface ParsedKeptPhrase {
 }
 
 /**
- * Intent: the clef a recorded phrase was drawn in: treble for a built-in instrument. A My
- * instrument phrase throws, since the history does not carry My instrument's clef yet and a
- * guessed clef must never be written.
- */
-function clefOf(record: SessionHistoryRecord): InstrumentClef {
-  const { id } = record.intent.instrumentProfile
-  if (isBuiltInInstrumentProfileId(id)) return BUILT_IN_INSTRUMENT_CLEF
-  if (id === MY_INSTRUMENT_ID)
-    throw new Error(
-      `kept session record: phrase ${record.phraseNumber} is a My instrument phrase, whose clef the history does not carry`,
-    )
-  throw new Error(`kept session record: phrase ${record.phraseNumber} has unknown instrument ${id}`)
-}
-
-/**
- * Intent: one recorded phrase as kept, every field copied by name from the history record, its
+ * Intent: one recorded phrase as kept, every field copied by name from the history record (the
+ * clef too, as the history recorded it, never looked up from the instrument as it is now), its
  * start rebased to seconds from `origin` (phrase 1's scheduled start on the audio clock).
  */
 // @spec-link [[module_kept_session_codec]]
@@ -149,14 +127,14 @@ function keptPhraseRecord(
     isRepeat: record.isRepeat,
     ...(record.repeatOf === undefined ? {} : { repeatOf: record.repeatOf }),
     favorite,
-    clef: clefOf(record),
+    clef: record.clef,
   }
 }
 
 /**
  * Intent: the body of a session's recorded phrases, each marked a favorite when its number is in
- * `favorites`, with every start rebased to seconds from phrase 1's scheduled start. Throws for a
- * My instrument phrase (see `clefOf`) or an empty app version.
+ * `favorites`, with every start rebased to seconds from phrase 1's scheduled start. Throws for an
+ * empty app version.
  */
 // @spec-link [[module_kept_session_codec]]
 export function keptSessionBodyRecord(

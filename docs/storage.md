@@ -299,7 +299,10 @@ The session-wide record holds what a list row shows:
 
 A body phrase holds the generation request and the concert timeline as shown, the harmony its
 chord symbols come from, and its generation intent, with the instrument profile as data. Its
-`clef` is treble for a built-in instrument.
+`clef` is the clef the session history recorded the phrase in: the clef of the written phrase Idle
+showed at Start, treble for a built-in instrument, treble or bass for my instrument. It is copied
+from the history, never looked up from my instrument as it is now, so a later change of my
+instrument's clef leaves a kept session as it was.
 
 Nothing else is kept: no acknowledgement, no rhythm or tension provenance, no diagnostics. The
 encoder copies every field by name onto fresh records, so what the history holds beyond them never
@@ -315,9 +318,7 @@ It throws a plain `Error`, a defect of the caller, for:
 - a history with no phrase, or an empty app version;
 - a comment over 500 characters;
 - a favorite that is not a phrase of the session, or is listed twice;
-- a phrase played on another instrument than the session's;
-- a My instrument phrase: the history does not carry its clef yet, and a guessed clef must never
-  be written.
+- a phrase played on another instrument than the session's.
 
 ### Decoding
 

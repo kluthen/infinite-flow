@@ -1,17 +1,23 @@
 /**
  * The session controller's Start with my instrument selected: the session's settings take my
  * instrument's profile from phrase 1's intent, which embeds it, and every generation the running
- * session requests is built with that profile. No Idle path selects my instrument yet (chunk 20),
- * so the rig's Idle state is set to a my-instrument phrase 1 by hand.
+ * session requests is built with that profile. The history takes the clef from the written phrase
+ * Idle shows, so the Review of the session that just ended, and its save, carry it on every phrase.
+ * No Idle path selects my instrument yet (chunk 20), so the rig's Idle state is set to a
+ * my-instrument phrase 1 by hand.
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
+import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { makeSeed } from '@/domain/random/seed'
 import { BASE_CONTROLS, generateSuccess } from '../../domain/generation/carry-in/carry-in-fixture'
+import type { KeptSessionBodyRecord } from '@/storage/records/kept-session-record'
+import { lowHorn } from '../../session/my-instrument-session'
 import {
   controllerRig,
   outputsOf,
@@ -61,5 +67,44 @@ describe('session controller: Start with my instrument', () => {
     for (const request of requests)
       expect(request.intent.instrumentProfile).toStrictEqual(MY_PROFILE)
     expect(outputsOf(rig, 'phrase-sounding').length).toBeGreaterThan(0)
+  })
+
+  // @test-link [[service_session_history]]
+  // @test-link [[module_kept_session_codec]]
+  it('records the clef Idle drew phrase 1 in on every phrase, for the Review and the save', async () => {
+    const rig = controllerRig()
+    const horn = lowHorn('bass')
+    const controls = makeGenerationControls({
+      ...BASE_CONTROLS,
+      tempo: RIG_TEMPO,
+      instrumentProfileId: 'my-instrument',
+    })
+    const intent = createGenerationIntent({
+      requestId: makeRequestId('my-bass-idle'),
+      seed: makeSeed(11),
+      controls,
+      musicalProfile: rig.idle.profileSelection,
+      instrumentProfile: horn.profile,
+    })
+    const outcome = generateSuccess(intent)
+    rig.idle.controls = controls
+    rig.idle.latestIntent = intent
+    rig.idle.result = { intent, outcome, sessionSeed: RIG_SESSION_SEED }
+    rig.showIdleWritten(transformToWrittenPhrase(notationInputFromOutcome(outcome, intent, 'bass')))
+
+    rig.controller.start()
+    await playTo(rig, 10.6)
+    rig.controller.stop()
+
+    const phrases = rig.controller.state.review?.history.phrases() ?? []
+    expect(phrases.length).toBeGreaterThan(1)
+    expect(phrases.every((record) => record.clef === 'bass')).toBe(true)
+    await vi.waitFor(() => expect(rig.sessionSaves).toHaveLength(1))
+    const body = rig.sessionSaves[0]!([]).find(
+      (change) => change.kind === 'write' && change.store === 'sessionBodies',
+    )
+    if (body?.kind !== 'write') throw new Error('the save wrote no body')
+    const kept = (body.record as KeptSessionBodyRecord).phrases
+    expect(kept.map((phrase) => phrase.clef)).toEqual(phrases.map(() => 'bass'))
   })
 })

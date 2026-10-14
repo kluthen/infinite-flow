@@ -15,7 +15,6 @@ import { computed, nextTick, onBeforeUnmount, ref, shallowRef } from 'vue'
 import { describeWrittenPhrase } from '@/domain/notation/score-description'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
-import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { isStaffLayoutFailure, NotationError } from '@/notation/notation-error'
 import {
   NOTATION_SYSTEM_POSITION_UNITS,
@@ -38,8 +37,8 @@ import type { ReviewEngraver, ReviewStaffReservation } from './review-types'
 const props = withDefaults(
   defineProps<{
     /**
-     * The phrase's record. The staff reads only its number, tempo, outcome and intent; the lanes
-     * read its start, tempo and played notes, and only while Played notes is on.
+     * The phrase's record. The staff reads only its number, tempo, outcome, intent and clef; the
+     * lanes read its start, tempo and played notes, and only while Played notes is on.
      */
     record: ReviewedPhrase
     /** The workspace staff's viewport; null until it is known. */
@@ -152,14 +151,14 @@ function labelSystems(svgs: readonly SVGSVGElement[], summary: string): void {
 }
 
 /**
- * Intent: draw the phrase as it was shown, its written phrase computed from the stored outcome
- * and intent only now, into a new `staff-content` in each reserved position, at the review
- * staff's content width in the current viewport and shared system-position size, replacing what
- * was there. A layout failure (no room, or notes too wide at this width) shows the "wider window"
- * note, any other notation failure the "couldn't be drawn" one; anything else is a defect and
- * throws. A note is removed first, so the positions are rendered to draw in. Null, drawing
- * nothing, when the phrase was unmounted or the viewport became unknown meanwhile.
- * Only the stored phrase reaches the engraver, whether Played notes is on or off: no played note,
+ * Intent: draw the phrase as it was shown, its written phrase computed from the stored outcome and
+ * intent only now, in the clef the record carries, into a new `staff-content` in each reserved
+ * position, at the review staff's content width in the current viewport and shared system-position
+ * size, replacing what was there. A layout failure (no room, or notes too wide at this width) shows
+ * the "wider window" note, any other notation failure the "couldn't be drawn" one; anything else is
+ * a defect and throws. A note is removed first, so the positions are rendered to draw in. Null,
+ * drawing nothing, when the phrase was unmounted or the viewport became unknown meanwhile. Only the
+ * stored phrase reaches the engraver, whether Played notes is on or off: no played note,
  * acknowledgement, start marker or playhead is drawn on the staff, and the repeat mark is never
  * read. A successful engraving keeps what the lanes are drawn against (the written phrase, its
  * measure anchors and each system's inline offset); the lanes themselves are drawn outside it.
@@ -187,10 +186,8 @@ async function engrave(engraver: ReviewEngraver): Promise<ReviewEngravingOutcome
   // The one-system layout draws nothing into its second target.
   const targets = [units[0]!, units[1] ?? document.createElement('div')] as const
   try {
-    // The clef this record carries, which chunk 17 adds to the record.
-    const clef = BUILT_IN_INSTRUMENT_CLEF
     const phrase = transformToWrittenPhrase(
-      notationInputFromOutcome(record.outcome, record.intent, clef),
+      notationInputFromOutcome(record.outcome, record.intent, record.clef),
     )
     const result = engraver.engraveWrittenPhrase(
       targets,

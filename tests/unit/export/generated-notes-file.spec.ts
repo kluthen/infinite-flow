@@ -202,7 +202,12 @@ function historyOfDriver(
   driver: SessionDriver,
   playedOnsets: readonly number[],
 ): SessionHistory {
-  const history = createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED)
+  const history = createSessionHistory(
+    driver.settings,
+    fixedWallClock,
+    DEFAULT_SESSION_SEED,
+    'treble',
+  )
   for (const output of outputs) {
     if (output.kind === 'ended') {
       playedOnsets.forEach((onsetAt, index) =>
