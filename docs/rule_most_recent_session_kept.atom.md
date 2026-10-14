@@ -3,7 +3,8 @@ id: rule_most_recent_session_kept
 status: DRAFT
 parents:
   - [[req_kept_sessions]]
-dependents: []
+dependents:
+  - [[module_kept_session_save]]
 layer: BUSINESS
 version: 0.3
 type: RULE

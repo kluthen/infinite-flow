@@ -1,7 +1,7 @@
 ---
 id: entity_kept_session_record
 status: REVIEW
-version: 0.2
+version: 0.3
 tags: [v3, release-v3.0, storage, review, session]
 parents:
   - [[module_session_seed_plan]]
@@ -15,6 +15,7 @@ layer: ARCHITECTURE
 priority: 1
 dependents:
   - [[module_kept_session_codec]]
+  - [[module_kept_session_save]]
 ---
 
 # Kept-Session Record
@@ -23,7 +24,9 @@ dependents:
 Give each kept session one fixed stored shape, split so the session list reads only small records, the phrases are read only when a session is opened, and the player's own notes live apart and only when kept.
 
 ## THE RULE / LOGIC
-A kept session is stored as up to three records, all under the same key, the session's key, which whoever saves the session supplies and which no record holds: its session-wide record in the sessionSummaries store, its body in the sessionBodies store, and its played notes in the playedNotes store, present exactly when the session-wide record says its played notes are kept. Each record carries the record envelope's two versions; in v3.0 each of the three shapes is at data version 1.
+A kept session is stored as up to three records, all under the same key, the session's key: its session-wide record in the sessionSummaries store, its body in the sessionBodies store, and its played notes in the playedNotes store, present exactly when the session-wide record says its played notes are kept. Each record carries the record envelope's two versions; in v3.0 each of the three shapes is at data version 1.
+
+The session's key has the form `session-{startedAt}-{sessionSeed}`, both numbers written in decimal: the session's wall-clock start in epoch milliseconds and its 32-bit session seed, the same two facts the session-wide record holds. The session's save mints it once, when it writes the session; it is never rebuilt from a record. No code reads a fact back from a key. The key stays in no record: the records are found again by it through the on-device database's keyed read.
 
 The session-wide record holds the session's own facts and what one row of the session list shows: the session's start date and time, on the wall clock, in epoch milliseconds; its length, in seconds from phrase 1's scheduled start to the end of the last phrase that sounded, that phrase's four measures at its tempo; its number of phrases; the musical profile selected at its start, kept as the selection itself (the profile, whether it was customized, and, customized, the controls the list's label names), not as words; the instrument it was played with, by its id, and that instrument's display name as the session showed it; the starting tempo and the tempo it reached; whether it is pinned; its number of favorites; its comment, empty until the player writes one, at most 500 characters; whether its played notes are kept; the app version that recorded it, a field of its own that a later migration never rewrites, unlike the envelope's app version, which names the app that last wrote the record; and its session seed. It holds nothing that can be derived from the session seed: not the later phrases' seeds, the ladder rungs' seeds or the Vary settings mutation seed.
 
@@ -36,10 +39,11 @@ The session's start, for every time the records hold, is phrase 1's scheduled st
 No record holds which expected notes were acknowledged, the rhythm or tension provenance, the generation diagnostics, or anything else the review and the exports do not read: with no acknowledgement kept, nothing kept can count the player's hits.
 
 ## TECHNICAL INTERFACE
-src/storage/records/kept-session-record.ts gathers the three stored shapes, each with RecordVersions from src/storage/record-envelope.ts at data version 1 (KEPT_SESSION_DATA_VERSION, in kept-reading.ts) and an allowlist of keys: the session-wide record, KeptSessionSummaryRecord in kept-session-summary.ts (KEPT_SESSION_SUMMARY_KEYS; lengthSeconds, sessionSeed, recordedByAppVersion among its fields; KEPT_SESSION_COMMENT_MAX_LENGTH is 500); the body, KeptSessionBodyRecord and KeptPhraseRecord in kept-session-body.ts (KEPT_SESSION_BODY_KEYS, KEPT_PHRASE_KEYS: phraseNumber, startsAt, request, timeline, harmony, intent, tempo, isRepeat, an optional repeatOf, favorite, clef); and the played notes, KeptPlayedNotesRecord in kept-played-notes.ts (KEPT_PLAYED_NOTES_KEYS, KEPT_PLAYED_NOTE_KEYS). The stores are the existing sessionSummaries, sessionBodies and playedNotes of the on-device database; no store, index or data version is added. The instrument's id is the profile's id, my-instrument for My instrument. The clef is one of the instrument clefs of src/domain/profile/instrument-clef.ts.
+src/storage/records/kept-session-record.ts gathers the three stored shapes, each with RecordVersions from src/storage/record-envelope.ts at data version 1 (KEPT_SESSION_DATA_VERSION, in kept-reading.ts) and an allowlist of keys: the session-wide record, KeptSessionSummaryRecord in kept-session-summary.ts (KEPT_SESSION_SUMMARY_KEYS; lengthSeconds, sessionSeed, recordedByAppVersion among its fields; KEPT_SESSION_COMMENT_MAX_LENGTH is 500); the body, KeptSessionBodyRecord and KeptPhraseRecord in kept-session-body.ts (KEPT_SESSION_BODY_KEYS, KEPT_PHRASE_KEYS: phraseNumber, startsAt, request, timeline, harmony, intent, tempo, isRepeat, an optional repeatOf, favorite, clef); and the played notes, KeptPlayedNotesRecord in kept-played-notes.ts (KEPT_PLAYED_NOTES_KEYS, KEPT_PLAYED_NOTE_KEYS). The stores are the existing sessionSummaries, sessionBodies and playedNotes of the on-device database; no store, index or data version is added. The key is a string, `session-${startedAt}-${sessionSeed}` in decimal, minted by the session's save (module_kept_session_save). The instrument's id is the profile's id, my-instrument for My instrument. The clef is one of the instrument clefs of src/domain/profile/instrument-clef.ts.
 
 ## EXPECTATION
 - Every key of every kept-session record is on its shape's allowlist; no acknowledgements, provenance.rhythm, provenance.tensionBinding or diagnostics key appears anywhere.
+- A kept session's three records sit under one key of the form `session-{startedAt}-{sessionSeed}`, in decimal, and no record holds that key.
 - The session-wide record holds the session seed and no seed derived from it.
 - The session-wide record names the instrument by its id and keeps the display name the session showed.
 - The session's length runs from phrase 1's scheduled start to the end of the last phrase that sounded.

@@ -3,6 +3,7 @@ id: module_save_policy
 status: REVIEW
 priority: 1
 dependents:
+  - [[module_kept_session_save]]
   - [[module_saved_data_loader]]
 type: MODULE
 version: 0.2

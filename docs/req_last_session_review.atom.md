@@ -9,6 +9,7 @@ parents:
 layer: BUSINESS
 tags: [v2, release-v2.0, review]
 dependents:
+  - [[module_kept_session_save]]
   - [[module_review_export_pipeline]]
   - [[req_session_export]]
   - [[rule_new_session_discards_review]]
