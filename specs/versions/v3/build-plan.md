@@ -1478,6 +1478,19 @@ fell back shows Jazz with an off-preset value); `myInstrumentLoaded` stays false
 my-instrument chunk reads its store. Opening IndexedDB at every load breaks
 `persistence-absence` test 1 (7b's rewrite) and the storage half of `review-privacy` (chunk 11's).
 
+**Record 7b (2026-10-14).** Merged into `v3.0-w4` (ba27042, chunk commit 4af5a6c); no deviation
+from the spec or the design. Saves go through `src/storage/settings-saver.ts`
+(`createVisitSaves`: one batch per player change, kept in order before and after the policy
+resolves, reached through the `SAVE_SETTINGS` injection from `App.vue`); `hold()` before the start's
+`try` in `workspace-session-start.ts`, `release()` in `tearDown`. The mix volumes save on slider
+`change`. D302 is `loadedProfileSelection` in `settings-record.ts`. The four tests 7a broke pass
+(`offline-and-fonts` inside a 133-test run). Builder's calls: `review-privacy` resets the format
+and backing track between its two sessions (now saved); `theme.spec`'s "comes back" test links
+only `rule_settings_saved_on_change` (its `rule_ephemeral_session_state` link dropped, for the
+wave sync); `pregeneration` reads IndexedDB directly (the seam cannot reach `meta`). Nothing
+listens to `policy.onFailure` yet (chunk 8); no `requestProtection()` caller yet. H2's tablet step
+is now possible.
+
 ### Chunk 8 — Notice row
 
 **Goal.** Tell the player, outside a running session, when saving failed, when storage is full,
